@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.13 1996-01-22 21:46:05 d3e129 Exp $
+c $Id: cando_sp.F,v 1.14 1996-01-23 21:56:42 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -162,7 +162,9 @@ c
       implicit none
       integer basisin
       integer ish,jsh
+#if defined(USE_TEXAS)
       integer mytype, basis
+#endif
 c
 #include "bas.fh"
 #include "basP.fh"
@@ -220,5 +222,51 @@ c
 c
       user_cando_txs = oldvalue_user
       def_cando_txs  = oldvalue_def
+c
+      end
+      logical function cando_nw_1e(basisin,ish,jsh)
+      implicit none
+c
+c a zero [i|j]sh means ignore this shell
+c this allows one function for all 1e and 2e permutations
+c 
+c for two electron cases then there are two calls to cando_nw_1e
+c that are required
+c
+c this routine does not check the shell and int_init
+c because it only called by routines that do this.
+c
+c
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "candoP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
+c::passed
+      integer basisin,ish,jsh
+c::local
+      integer basis, mytype, ucont
+c
+#include "bas_ibs_sfn.fh"
+c
+      cando_nw_1e = .true.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c.... check ish
+      if (ish.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_nw_1e = cando_nw_1e .and.(mytype.ge.-1)
+      endif
+c
+c.... check jsh
+      if (jsh.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_nw_1e = cando_nw_1e .and.(mytype.ge.-1)
+      endif
 c
       end

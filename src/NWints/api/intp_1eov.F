@@ -1,5 +1,5 @@
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.5 1996-01-22 21:46:49 d3e129 Exp $
+c $Id: intp_1eov.F,v 1.6 1996-01-23 21:56:58 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -11,13 +11,13 @@ c $Id: intp_1eov.F,v 1.5 1996-01-22 21:46:49 d3e129 Exp $
 c::external subroutines used
 c... errquit
 c::functions
-      logical cando_sp
+      logical cando_nw_1e
       logical cando_nw
       logical int_chk_init
       logical int_chk_sh
       external int_chk_init
       external int_chk_sh
-      external cando_sp
+      external cando_nw_1e
       external cando_nw
 c::passed
       integer i_basis ! basis set handle for ish functions
@@ -89,7 +89,8 @@ c
 c.. translate coordinates based on R
       call intp_txyz(j_cent,j_geom,R,xyz_new)
 c
-      if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
+      if (cando_nw_1e(i_basis,ish,0).and.cando_nw_1e(j_basis,jsh,0))
+     &    then
         call int_hf1sp(
      &         coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,

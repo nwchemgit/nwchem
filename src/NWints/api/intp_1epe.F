@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.4 1996-01-22 21:46:50 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.5 1996-01-23 21:56:59 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -14,11 +14,11 @@ c errquit
 c::functions
       logical int_chk_init
       logical int_chk_sh
-      logical cando_sp
+      logical cando_nw_1e
       logical cando_nw
       external int_chk_init
       external int_chk_sh
-      external cando_sp
+      external cando_nw_1e
       external cando_nw
 c::passed
       integer i_basis ! basis set handle for ish functions
@@ -88,7 +88,8 @@ c.. translate ish center coordinates based on Ri
 c.. translate jsh center coordinates based on Rj
       call intp_txyz(j_cent,j_geom,Rj,xyz_new_j)
 c
-      if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
+      if (cando_nw_1e(i_basis,ish,0).and.cando_nw_1e(j_basis,jsh,0))
+     &    then
         call int_hf1sp(
      &         xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
      &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,

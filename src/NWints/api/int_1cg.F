@@ -1,5 +1,5 @@
       subroutine int_1cg(i_basis,ish,lscr,scr,l1g,G1e)
-c $Id: int_1cg.F,v 1.3 1996-01-22 21:46:14 d3e129 Exp $
+c $Id: int_1cg.F,v 1.4 1996-01-23 21:56:44 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -12,13 +12,13 @@ c $Id: int_1cg.F,v 1.3 1996-01-22 21:46:14 d3e129 Exp $
 c::external subroutines used
 c... errquit
 c::functions
-      logical cando_sp
+      logical cando_nw_1e
       logical cando_nw
       logical int_chk_init
       logical int_chk_sh
       external int_chk_init
       external int_chk_sh
-      external cando_sp
+      external cando_nw_1e
       external cando_nw
 c::passed
       integer i_basis, ish, lscr, l1g
@@ -55,7 +55,7 @@ c
       i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
 c
-      if (cando_sp(i_basis,ish,0)) then
+      if (cando_nw_1e(i_basis,ish,0)) then
         call int_hf1sp(
      &        coords(1,i_cent,i_geom),
      &        dbl_mb(mb_exndcf(i_iexp,ibas)),

@@ -3,7 +3,7 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.5 1995-11-01 17:34:21 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.6 1996-01-23 21:56:53 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 c::passed
@@ -106,7 +106,7 @@ c________________________________ (S|X)
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c________________________________ (P|X)
-        offset = 1*(Lj+1)*(Lj+2)/2
+        offset = 1*(Lj+1)*(Lj+2)/2*j_ngen
         call hf1(
      &         xyzi,
      &         expi,coefi(1,2),
@@ -128,7 +128,7 @@ c________________________________ (X|S)
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c________________________________ (X|P)
-        offset = 1*(Li+1)*(Li+2)/2
+        offset = 1*(Li+1)*(Li+2)/2*i_ngen
         call hf1(
      &         xyzi,
      &         expi,coefi,i_nprim,i_ngen,Li,
@@ -141,21 +141,22 @@ c________________________________ (X|P)
      &         ,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c
-        if (li.eq.0) then
+        if (li.eq.0.and.i_ngen.eq.1) then
+c * for i_ngen = 1
 c * nothing needed since (s|s), (s|p) is same order as (s|sp)
 c * (s|s), (s|x), (s|y), (s|z)
           continue
-        else if (li.eq.1) then
+        else if (li.eq.1.and.i_ngen.eq.1) then
           if (doS) call int_1psp(S,1)
           if (doT) call int_1psp(T,1)
           if (doV) call int_1psp(V,1)
-        else if (li.eq.2) then
+        else if (li.eq.2.and.i_ngen.eq.1) then
           if (doS) call int_1dsp(S,1)
           if (doT) call int_1dsp(T,1)
           if (doV) call int_1dsp(V,1)
         else
-          nintx   = (Li+1)*(Li+2)/2  ! size of X
-          nint_xsp = nintx * 4        ! size of X * size of sp
+          nintx   = (Li+1)*(Li+2)/2*i_ngen  ! size of X
+          nint_xsp = nintx * 4              ! size of X * size of sp
           if (doS) then
             call dcopy(nint_xsp,S,1,scr,1)
             call int_sp1b(S,scr,scr(nintx+1),nintx,1)

@@ -1,6 +1,6 @@
       subroutine int_projpole(i_basis, ish, centerl, lmax, 
      &    lscr, scr, lmpint, MP)
-c $Id: int_projpole.F,v 1.2 1996-01-22 21:46:36 d3e129 Exp $
+c $Id: int_projpole.F,v 1.3 1996-01-23 21:56:54 d3e129 Exp $
 c
 c routine to compute projected multipole integrals up to level lmax (0->lmax)
 c The general form is <pole|shell>
@@ -25,10 +25,10 @@ c
 c
 c::functions
       logical int_chk_init
-      logical cando_sp, cando_nw
+      logical cando_nw_1e, cando_nw
       integer int_nint
       external int_chk_init
-      external cando_sp, cando_nw
+      external cando_nw_1e, cando_nw
       external int_nint
 c::passed
       integer i_basis             ! [input] basis set handle for ish
@@ -85,7 +85,7 @@ c
           write(6,*)' int_projpole: num_int = ',num_int
           call errquit('int_projpole: lmpint too small ',911)
         endif
-        if (cando_sp(i_basis,ish,0)) then
+        if (cando_nw_1e(i_basis,ish,0)) then
           call int_hf1sp(
      &        centerl,DCexp,
      &        DCcoeff, 1, 1, lval,
