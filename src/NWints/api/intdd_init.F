@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.12 2004-12-03 22:34:32 bert Exp $
+c $Id: intdd_init.F,v 1.13 2005-03-07 23:52:14 edo Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -282,7 +282,7 @@ c See if any basis has an attached SO potential
      &         INT_ERR)
       endif
       if (any_so.or.any_ecp) then
-        if (.not.int_ecp_init(ecp_bsh,so_bsh,1)) call errquit
+        if (.not.int_ecp_init(ecp_bsh,so_bsh,2)) call errquit
      &        ('intdd_init: int_ecp_init failed ',911, INT_ERR)
       endif
       init_int   = 1

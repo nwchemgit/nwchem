@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.30 2005-01-21 19:45:11 edo Exp $
+* $Id: int_ecp.F,v 1.31 2005-03-07 23:52:19 edo Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -465,6 +465,7 @@ c
          mem_ecp=mem_ecp*mem_ecp*3*ncenters
       else
          mem_ecp=mem_ecp*mem_ecp*3*3*(ncenters*(ncenters-1)/2+ncenters)
+         mem_1e = max(mem_1e,mem_ecp)
       endif
       isz_1e = max (isz_1e,mem_ecp)
 c
