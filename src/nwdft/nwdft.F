@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.61 2003-02-19 20:15:19 edo Exp $
+C$Id: nwdft.F,v 1.62 2003-04-01 22:49:50 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -167,8 +167,13 @@ c
                goto 1101
             endif
          else if(theory .eq. 'sodft')then 
-            if (movecs_converged(rtdb, ao_bas_han, 'sodft', movecs_in))
-     &           then
+            igok=0
+            if(grid_ok) igok=1
+            call ga_igop(999,igok,1,'+')
+            grid_ok=igok.eq.ga_nnodes()
+            if(.not.grid_ok) call grid_cleanup(rtdb,.true.)
+            if (movecs_converged(rtdb, ao_bas_han, 'sodft', movecs_in).
+     &      and.grid_ok)     then
                if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
      .             'dft_scf: failed getting converged energy',0)
