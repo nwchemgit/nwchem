@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.96 1998-09-15 17:56:24 d3j191 Exp $
+c     $Id: msgids.fh,v 1.97 1998-09-16 18:04:15 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -158,6 +158,7 @@ c
       integer mrg_i31
       integer mrg_i32
       integer mrg_i33
+      integer mrg_i34
       integer mrg_i50
 c
       integer mre_000
@@ -598,6 +599,7 @@ c
       parameter(mrg_i31=msg_ftn_base-342) ! arg_knodes
       parameter(mrg_i32=msg_ftn_base-343) ! arg_knodes
       parameter(mrg_i33=msg_ftn_base-344) ! arg_setup1
+      parameter(mrg_i34=msg_ftn_base-344) ! arg_formul
       parameter(mrg_i50=msg_ftn_base-361) ! arg_wrstrt
 c
       parameter(mrg_d56=msg_ftn_base-362) ! arg_rdstrt
@@ -608,7 +610,7 @@ c
       parameter(mrg_d61=msg_ftn_base-367) ! arg_ininoe
       parameter(mrg_d62=msg_ftn_base-368) ! arg_ininoe
       parameter(mrg_d63=msg_ftn_base-369) ! arg_dldbal
-      parameter(mrg_d64=msg_ftn_base-370) ! arg_dldbal
+      parameter(mrg_d64=msg_ftn_base-370) ! arg_formul
       parameter(mrg_d99=msg_ftn_base-405) ! arg_rdstrt
 C
       parameter (Msg_NormF = msg_ftn_base -  406) ! GA_NormF
