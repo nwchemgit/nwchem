@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.22 2000-02-21 07:05:44 d3j191 Exp $
+c $Id: pre_charge.F,v 1.23 2000-02-21 07:38:23 d3j191 Exp $
 c
       implicit none
 c
@@ -34,7 +34,6 @@ c
       integer irtdb,lfnout,lfnpar,jlo,ilo,ihi,jhi
       character*255 filpar
       character*255 dir_s,dir_x,dir_u,dir_t
-      character*255 filnam
       integer matm,natm,maxscf
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -42,7 +41,7 @@ c
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
 c
-      integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask,maxit
+      integer i,j,ia,ja,ka,iab(20),nb,nox,nhx,itask,maxit
       integer igeom2,nout,icon(100),ncon,nconst,irest,ihfree,idump,n
       real*8 rcon,resa,resb,toler
       character*16 tag
@@ -328,6 +327,29 @@ c
       endif
       endif
 c
+c     -O-POO- (-)
+c
+      if(latm(2,i).eq.15.and.nb.eq.4) then
+      nox=0
+      do 20 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1) nox=nox+1
+   20 continue
+      if(nox.eq.2) then
+      do 21 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
+     + qatm(iab(j))=qatm(iab(j))-0.33
+   21 continue
+      qatm(i)=qatm(i)-0.34
+      endif
+      if(nox.eq.3) then
+      do 22 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
+     + qatm(iab(j))=qatm(iab(j))-0.50
+   22 continue
+      qatm(i)=qatm(i)-0.50
+      endif
+      endif
+c
     3 continue
 c
       pre_charge=.true.
@@ -355,7 +377,7 @@ c
       real*8 qbnd(mbnd)
       character*100 card
 c
-      integer i,j,ia,ja,l,lt,ld
+      integer i,j,l,lt,ld
       real*8 q
 c
       do 1 i=1,nbnd
