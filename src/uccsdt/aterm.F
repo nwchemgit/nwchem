@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.1 2002-08-28 22:18:19 bert Exp $
+c$Id: aterm.F,v 1.2 2002-09-23 22:11:41 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -16,7 +16,7 @@ C
 c
 c  R(me,nf) aa = 0.5* t(ie,jf)[<ij|mn>+0.5*X1(ij,mn) i=j=m=n=e=f=alpha
 c  R(me,nf) bb = 0.5* t(ie,jf)[<ij|mn>+0.5*X2(ij,mn) i=j=m=n=e=f=beta
-c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+0.5*X2(ij,mn) m=e=i=alpha m=f=j=beta
+c  R(me,nf) ab =      t(ie,jf)[<ij|mn>+0.5*X3(ij,mn) m=e=i=alpha n=f=j=beta
 c
 c  X1(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 1 ??? i=j=a=b=m=n=alpha
 c  X2(ij,mn) = <ij||ab>*t(ma,nb) -> can be generated from class 4 ??? i=j=a=b=m=n=beta
@@ -61,7 +61,9 @@ c     here use list_offset+4
                      symu = symi
                      symm = ieor (symmi, symi)
                      mnpairs = no_sym(symm,mspin)*no_sym(symn,nspin)
-                     do mn = 1, mnpairs, mynodeid+1
+                     do mn = 1, mnpairs, ga_nodeid()+1
+                        m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
+                        n = mnpairs - (no_sym(symm,mspin) * (m-1))
                         dimv = vrange(2,symv)-vrange(1,symv)+1
                         dimu = urange(2,symu)-urange(1,symu)+1
                         ispin = mspin

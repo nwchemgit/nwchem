@@ -1,6 +1,6 @@
-      subroutine uccsdt_fterm(urange,vrange)
+      subroutine uccsdt_fterm(urange,vrange,lists)
 c
-c$Id: fterm.F,v 1.1 2002-08-28 22:18:19 bert Exp $
+c$Id: fterm.F,v 1.2 2002-09-23 22:11:40 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -8,7 +8,20 @@ c
 #include "global.fh"
 #include "cuccsdtP.fh"
 c
-      integer urange(2,0:7), vrange(2,0:7)
+      integer urange(2,0:7),vrange(2,0:7),u,v,m,n,vhi,vlo,uhi,ulo
+      integer nspin,mspin,espin,fspin
+      integer symv,symn,symf,symm,syme,symu
+      integer symiu,symmu,symnf,symnv,symme
+      integer k_vulist,l_vulist
+      integer k_uhole,l_uhole
+      integer k_vhole,l_vhole
+      integer k_fhole,l_fhole
+      integer k_eflist,l_eflist
+      integer m_address,n_address, offset_me,offset_n,offset_nf
+      integer dimu,dimv,dimf,dimn,dimm,dime,dimme,dimnf
+      integer leniu_a,leniu_b,lennv_a,lennv_b,iu_len
+      integer g_r_array,g_r
+      integer dim_mx,list_nr,lists(0:7,14),mnpairs,mn
 c
 c     i,j = particle-transformed occupied orbitals
 c     m,n = hole-transformed occupied orbitals
@@ -130,7 +143,8 @@ c              menf = aaaa, aabb or bbbb, hence mspin=espin, nspin=fspin
                dimme = ov_len(symme,mspin,mspin)
                dimnf = ov_len(symnf,nspin,nspin)
                if (.not. ga_create(MT_DBL,dimme,dimnf,'R_temp',0,0,
-     &             g_r_array) call errquit()
+     &             g_r_array)) call 
+     &             errquit('fterm: create g_r_array failed',0)
                do symf = 0, nir-1
                   symv = symf
                   symn = ieor(symnf, symf)
@@ -163,7 +177,9 @@ c
                      symu = syme
                      symm = ieor (symme, syme)
                      mnpairs = no_sym(symm,mspin)*no_sym(symn,nspin)
-                     do mn = 1, mnpairs, mynodeid+1
+                     do mn = 1, mnpairs, ga_nodeid()+1 
+                        m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
+                        n = mnpairs - (no_sym(symm,mspin) * (m-1))
                         dimv = vrange(2,symv)-vrange(1,symv)+1
                         dimu = urange(2,symu)-urange(1,symu)+1
 c                       spin cases e (a in aaaa case and abab case, b in bbbb case)
@@ -185,19 +201,21 @@ c                                  e has same spin as m, f has same spin as n
                         vhi = vrange(2,symv)
 c                       allocate ma with correct dimensions
                         if (.not. ma_push_get(mt_dbl,dimv*dimu,
-     &                             'vu list',l_vulist,k_vulist))
+     &                      'vu list',l_vulist,k_vulist)) call
+     &                      errquit('fterm: vu list alloc failed',0)
                         dim_mx = max(dime,dimf)
                         if (.not. ma_push_get(mt_dbl,dim_mx*dim_mx,
-     &                             'ef list',l_eflist, k_eflist))
+     &                      'ef list',l_eflist, k_eflist)) call
+     &                      errquit('fterm: ef list alloc failed',0)
 c                       get address (n,1,m,u) for all v -> (v,u)
-                        n_address = 1+n-v_sym(1,symn,spinn)
-     &                              +oso_off(v,symnv,spinn)
-                        m_address = 1+m-v_sym(1,symm,spinm)
-     &                              +oso_off(u,symmu,spinm)
-                        call ga_get(list(symmu,list_nr),
+                        n_address = 1+n-v_sym(1,symn,nspin)
+     &                              +oso_off(v,symnv,nspin)
+                        m_address = 1+m-v_sym(1,symm,mspin)
+     &                              +oso_off(u,symmu,mspin)
+                        call ga_get_strided(lists(symmu,list_nr),
      &                             n_address,dimv,dimn,
      &                             m_address,dimu,dimm,
-     &                             dbl_mb(k_vulist),dimv)
+     &                             dbl_mb(k_vulist))
 c                    (n,v,m,u) -> (n,f,m,e)
 c                    (v,u)*c(u,e)->(v,e)->(v,e)^t*(v,f)->(e,f)->(me,nf)
 c                    now you have all uv local for one nm
@@ -209,15 +227,19 @@ c                    second vrange, all_f
 c                    same for next operation for <ij||mn>
 
                         if (.not. ma_push_get(mt_dbl,dimu*dime,
-     &                             'c hole ue',l_uhole,k_uhole))
+     &                      'c hole ue',l_uhole,k_uhole)) call
+     &                      errquit('fterm: ue hole alloc failed',0)
                         if (.not. ma_push_get(mt_dbl,dimv*dimf,
-     &                             'c hole vf',l_vhole,k_vhole))
+     &                      'c hole vf',l_vhole,k_vhole)) call
+     &                      errquit('fterm: vf hole alloc failed',0)
                         call ga_get(g_hole(espin),ulo,uhi,
      &                             v_sym(1,syme,espin),
-     &                             v_sym(2,syme,espin),k_uhole,ld)
+     &                             v_sym(2,syme,espin),
+     &                             dbl_mb(k_uhole),dimu)  
                         call ga_get(g_hole(fspin),vlo,vhi,
      &                             v_sym(1,symf,fspin),
-     &                             v_sym(2,symf,fspin),k_fhole,ld)
+     &                             v_sym(2,symf,fspin),
+     &                             dbl_mb(k_vhole),dimv)  
                         call dgemm('n','n',dimv,dime,dimu,1.0d0,
      &                             dbl_mb(k_vulist),dimv,
      &                             dbl_mb(k_uhole),dimu,1.0d0,
@@ -226,33 +248,88 @@ c                    same for next operation for <ij||mn>
      &                             dbl_mb(k_eflist),dimv,
      &                             dbl_mb(k_vhole),dimv,1.0d0,
      &                             dbl_mb(k_eflist),dime)
-                        if (.not. ma_pop_stack(l_vhole)) call errquit()
-                        if (.not. ma_pop_stack(l_uhole)) call errquit()
+                        if (.not. ma_pop_stack(l_vhole)) call 
+     &                      errquit('fterm: vf hole dealloc failed',0)
+                        if (.not. ma_pop_stack(l_uhole)) call 
+     &                      errquit('fterm: ue hole dealloc failed',0)
 c                    I(me,nf)(symnf) -> R_temp(me,nf)(symnf) -> ga_copy_patch
-                        call ga_put(g_r_array,
+                        call ga_put_strided(g_r_array,
      &                             m_address,dime,dimm,
      &                             n_address,dimf,dimn,
-     &                             dbl(k_eflist),dime,1.0d0)
-                        if (.not. ma_pop_stack(l_eflist)) call errquit()
-                        if (.not. ma_pop_stack(l_vulist)) call errquit()
+     &                             dbl_mb(k_eflist),dime)
+                        if (.not. ma_pop_stack(l_eflist)) call 
+     &                      errquit('fterm: ef list dealloc failed',0)
+                        if (.not. ma_pop_stack(l_vulist)) call 
+     &                      errquit('fterm: vu list dealloc failed',0)
 c                    integral ga we want is lists(symmn,spin block)
 c                    how is <ef|mn> stored symmetry wise
 c                    STORED LIKE I(nv,mu) x for each irrep(mu) -> (um||vn) -> <uv||mn> 
 c                    HENCE  LIKE I(nf,me) x for each irrep(me)
                      end do
                   end do
+               enddo
 c           How is R stored on disk?  It is stored as the amplitudes
 c           are in the triples. as R(m,e,symm,n,f,symf,symnf)
 c           want to transform <uv|mn> to <ef|mn>=R(me,nf) -> R<fe|nm>
 c           accumulate R to disk
-               offset_me = file_t2_off(spinm,spine,spinn,spinf,symnf)+ov_off(1,symme,mspin,espin)
-               offset_nf = file_t2_off(spinm,spine,spinn,spinf,symnf)+ov_off(1,symnf,nspin,fspin)
+               offset_me = file_t2_off(mspin,espin,nspin,fspin,symnf)+
+     &                     ov_off(1,symme,mspin,espin)
+               offset_nf = file_t2_off(mspin,espin,nspin,fspin,symnf)+
+     &                     ov_off(1,symnf,nspin,fspin)
                call ga_copy_patch('n',g_r_array,1,dimme,1,dimnf,g_r,
-     &                            offset_me,offset_me+dimme,offset_nf,offset_nf+dimnf)
-               if (.not. ga_destroy(g_r_array)) call errquit()
+     &              offset_me,offset_me+dimme,offset_nf,offset_nf+dimnf)
+               if (.not. ga_destroy(g_r_array)) call
+     &             errquit('fterm: g_r_array dealloc failed',0)
             end do
          end do
       enddo
 c
       end
-
+c
+      subroutine ga_get_strided(ga_in,ilo,ilength,istride,
+     &                          jlo,jlength,jstride,array_out)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer ga_in,ilo,ilength,istride,jlo,jlength,jstride
+      integer nelem,ilist,jlist,ihi,jhi
+      double precision array_out(*)
+c
+      nelem = 0
+      ihi = ilo + (ilength-1) * istride
+      jhi = jlo + (jlength-1) * jstride
+      do ilist = ilo, ihi, istride
+         do jlist = jlo, jhi, jstride
+            nelem = nelem + 1
+            i(nelem) = ilist 
+            j(nelem) = jlist 
+         enddo
+      enddo
+      call ga_gather(ga_in,array_out,int_mb(k_i),int_mb(k_j),nelem)
+c
+      end
+c
+      subroutine ga_put_strided(ga_out,ilo,ilength,istride,
+     &                          jlo,jlength,jstride,array_in)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer ga_out,ilo,ilength,istride,jlo,jlength,jstride
+      integer nelem,ilist,jlist,ihi,jhi
+      double precision array_in(*)
+c
+      nelem = 0
+      ihi = ilo + (ilength-1) * istride
+      jhi = jlo + (jlength-1) * jstride
+      do ilist = ilo, ihi, istride
+         do jlist = jlo, jhi, jstride
+            nelem = nelem + 1
+            i(nelem) = ilist 
+            j(nelem) = jlist 
+         enddo
+      enddo
+      call ga_scatter(ga_in,array_out,int_mb(k_i),int_mb(k_j),nelem)
+c
+      end

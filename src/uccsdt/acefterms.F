@@ -1,6 +1,6 @@
       subroutine uccsdt_acefterms()
 c
-c$Id: acefterms.F,v 1.3 2002-09-18 19:04:51 bert Exp $
+c$Id: acefterms.F,v 1.4 2002-09-23 22:11:41 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -30,8 +30,8 @@ c
          u_sh_hi = u_sh+u_block_size
          call soints_shblock_info(basis, u_sh, u_sh_hi, urange)
          call cctrans(u_sh,u_sh_hi,lists)
-         call uccsdt_fterm(urange,vrange)
-         call uccsdt_aterm(urange,vrange)
+         call uccsdt_fterm(urange,vrange,lists)
+         call uccsdt_aterm(urange,vrange,lists)
          do symiu = 0, nir-1
             do list_nr = 5, 8
                if (.not. ga_destroy(lists(symiu,list_nr))) call 
