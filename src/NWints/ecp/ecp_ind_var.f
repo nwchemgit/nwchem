@@ -1,4 +1,4 @@
-C $Id: ecp_ind_var.f,v 1.1 1997-10-02 02:00:47 mg201 Exp $
+C $Id: ecp_ind_var.f,v 1.2 2000-05-30 20:55:07 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_ind_var (l_c,n_blk,n_co1,n_co2,i_co1,i_co2,
@@ -88,14 +88,10 @@ C $Id: ecp_ind_var.f,v 1.1 1997-10-02 02:00:47 mg201 Exp $
       else
 *
 *     Either spin-free or spin-orbit integrals requested.
+*     These are assumed to be the FIRST set in each case.
 *
-        i_cont_c = (n_blk+1)/2
-        if (n_blk .eq. 3) then
-          skip = (l_c .eq. 0) .or.
-     &        (i_co2 .eq. 0) .or. (n_co2 .eq. 0)
-        else
-          skip = (i_co1 .eq. 0) .or. (n_co1 .eq. 0)
-        end if
+        skip = (i_co1 .eq. 0) .or. (n_co1 .eq. 0)
+        if (n_blk .eq. 3) skip = skip .or. (l_c .eq. 0)
         n_x = n_blk
       end if
 *
