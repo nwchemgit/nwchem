@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.7 2001-04-04 23:51:27 windus Exp $
+C $Id: Input_for_drdy.F,v 1.8 2002-06-14 14:32:40 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -60,6 +60,7 @@ C
        icode(i) = 4
       enddo
       lgs(1) = 1
+      redm = 1.0d0
       dels = 0.01d0
       delsv = 0.1d0
       delhss = 1.0d11
