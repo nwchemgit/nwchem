@@ -3,7 +3,9 @@
 
 typedef long integer;		/* FORTRAN integer type */
 
+#if defined(SPEECH)
 #define SPEAK
+#endif
 #ifdef SPEAK
 extern int udp_send(const char *hostname, int port, const char *buf, int);
 
