@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.1 2001-12-17 23:31:14 bylaska Exp $
+* $Id: nwpw_timing.F,v 1.2 2002-02-11 19:02:41 edo Exp $
 *
 
 * nwpw_timing.F
@@ -12,8 +12,7 @@
       implicit none
 
 #include "nwpw_timing_common.fh"
-
-	  call dcopy(50,0.0d0,0,times,1)
+      call dcopy(50,0.0d0,0,times,1)
       return 
       end
 
