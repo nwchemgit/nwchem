@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.8 2002-05-10 01:45:11 bylaska Exp $
+* $Id: geodesic.F,v 1.9 2002-05-18 16:08:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -390,6 +390,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
       do ms = 1,psi_ispin()
         n      = psi_ne(ms)
+        if (n.eq.0) go to 100  !*** ferromagnetic case ***
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
@@ -427,6 +428,8 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
           end do
         end do
+
+ 100    continue
 
       end do
 
@@ -522,6 +525,7 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
 
       do ms = 1,psi_ispin()
         n      = psi_ne(ms)
+        if (n.eq.0) go to 200
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
@@ -549,14 +553,6 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
         do k=1,n
           call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
           do j=1,n
-c            call D3dB_cc_daxpy(1,
-c     >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-c     >              Yold(1+(j-1+shift1)*nfft3d),
-c     >              Ynew(1+(k-1+shift1)*nfft3d))
-c            call D3dB_cc_daxpy(1,
-c     >              dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
-c     >              dcpl_mb(U(1)+(j-1+shift1)*nfft3d),
-c     >              Ynew(1+(k-1+shift1)*nfft3d))
             call Pack_cc_daxpy(1,
      >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
      >              Yold(1+(j-1+shift1)*npack1),
@@ -568,6 +564,8 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
 
           end do
         end do
+
+ 200    continue
 
       end do
 
@@ -643,6 +641,7 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
 
       do ms = 1,psi_ispin()
         n      = psi_ne(ms)
+        if (n.eq.0) go to 300   !*** ferromagnetic case ***
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
@@ -665,7 +664,7 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
      >        = scal3 * dbl_mb(tmp3(1)+j-1+(k-1)*n + shift2)
           end do
         end do
-
+        
         call DGEMM('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2), n,
      >              dbl_mb(tmp1(1)+shift2), n,
@@ -675,15 +674,6 @@ c     >              Ynew(1+(k-1+shift1)*nfft3d))
 
         do k=1,n
           do j=1,n
-
-c            call D3dB_cc_daxpy(1,
-c     >             (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-c     >             Yold(1+(j-1+shift1)*nfft3d),
-c     >               tG(1+(k-1+shift1)*nfft3d))
-c            call D3dB_cc_daxpy(1,
-c     >             (-1.0d0*dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2)),
-c     >             dcpl_mb(U(1)+(j-1+shift1)*nfft3d),
-c     >             tG(1+(k-1+shift1)*nfft3d))
             call Pack_cc_daxpy(1,
      >             (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
      >             Yold(1+(j-1+shift1)*npack1),
@@ -695,7 +685,9 @@ c     >             tG(1+(k-1+shift1)*nfft3d))
           end do
         end do
 
-      end do
+ 300    continue
+
+      end do !*** ms ***
 
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(tmp3(2))
