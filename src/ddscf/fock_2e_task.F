@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.30 1999-07-14 00:28:53 d3e129 Exp $
+c     $Id: fock_2e_task.F,v 1.31 2001-01-10 00:31:38 edo Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -175,6 +175,7 @@ c
 #include "cscfps.fh"
 #include "sym.fh"
 #include "geom.fh"
+#include "mafdecls.fh"
 c
       integer geom
       integer basis
@@ -201,13 +202,14 @@ c     These for sorting shells within each atom pair block
 c
       integer max_pair_t, max_sh, max_at
       parameter (max_at = 10)
-      parameter (max_pair_t = 1024, max_sh = 64) ! Should dynamically alloc
+      parameter (max_pair_t = 10000, max_sh = 64) ! Should dynamically alloc
       double precision skl(max_sh*max_sh) ! Should be just max shell block
       double precision sij(max_sh*max_sh) ! Should be just max shell block
       integer ijlist(2,max_sh*max_sh), ij
       integer kllist(2,max_sh*max_sh), kl
-      integer ijinfo(2,max_pair_t), nt_ij
-      integer klinfo(2,max_pair_t), nt_kl
+      integer nt_ij
+      integer nt_kl
+      integer k_ijinfo,l_ijinfo,k_klinfo,l_klinfo
 c
       integer max_q, max_p
       parameter (max_q = 10000)
@@ -299,10 +301,16 @@ c
       if (oikjl) max_p = max_p*2
       max_p = sqrt(dble(max_p))
 c      
+      if(.not.ma_alloc_get(MT_int, 2*max_pair_t,'ijinfo', 
+     .     l_ijinfo, k_ijinfo)) call errquit(
+     .     ' fock2etask: pushget failed ',2*max_pair_t)
       call fock_pairs(basis, max_p, oij, iatlo, iathi, jatlo, jathi, 
-     $     dentol, ijlist, sij, ijinfo, max_pair_t, nt_ij)
+     $     dentol, ijlist, sij, int_mb(k_ijinfo), max_pair_t, nt_ij)
+      if(.not.ma_alloc_get(MT_int, 2*max_pair_t,'klinfo', 
+     .     l_klinfo, k_klinfo)) call errquit(
+     .     ' fock2etask: pushget failed ',2*max_pair_t)
       call fock_pairs(basis, max_p, okl, katlo, kathi, latlo, lathi, 
-     $     dentol, kllist, skl, klinfo, max_pair_t, nt_kl)
+     $     dentol, kllist, skl, int_mb(k_klinfo), max_pair_t, nt_kl)
 c
 c     Loop over pairs of pairs (have i>=j and k>=l already)
 c
@@ -311,14 +319,16 @@ c
 *         write(6,*) ' nij ', ijinfo(2,ijt)-ijinfo(1,ijt)+1
          do klt = 1, nt_kl
 *            write(6,*) '      nkl ', klinfo(2,klt)-klinfo(1,klt)+1
-            do ij = ijinfo(1,ijt),ijinfo(2,ijt)
+            do ij = int_mb(k_ijinfo+(ijt-1)*2), 
+     ,              int_mb(k_ijinfo+(ijt-1)*2+1) 
                ish = ijlist(1,ij)
                jsh = ijlist(2,ij)
                iat = cn_to_ce(ish)-iatlo+1
                jat = cn_to_ce(jsh)-jatlo+1
                q2 = 1.0d0
                if (oij .and. ish.eq.jsh) q2 = q2*0.5d0
-               do kl = klinfo(1,klt),klinfo(2,klt)
+               do kl = int_mb(k_klinfo+(ijt-1)*2), 
+     ,              int_mb(k_klinfo+(ijt-1)*2+1) 
                   qq4 = q2
                   ksh = kllist(1,kl)
                   lsh = kllist(2,kl)
@@ -380,6 +390,10 @@ c     do it!
             nq = 0
          end do
       end do
+      if (.not. ma_free_heap(l_ijinfo))
+     $     call errquit('fock2etask: cannot free iji',l_ijinfo)
+      if (.not. ma_free_heap(l_klinfo))
+     $     call errquit('fock2etask: cannot free kli',l_klinfo)
 c     
       end
       subroutine fock_txs(basis, nfock, vg_dens, vg_fock,
