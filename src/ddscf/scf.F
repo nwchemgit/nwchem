@@ -8,6 +8,7 @@
 #include "context.fh"
 #include "inp.fh"
 #include "pstat.fh"
+#include "cscfps.fh"
 c
 c     RHF module.
 c
@@ -106,10 +107,6 @@ c
       logical rhf
       external rhf
 c
-c     Initialize performance statistics
-c
-      call scf_pstat_init
-c
 c     Push context down to SCF
 c
       if (.not. context_push('scf'))
@@ -117,9 +114,12 @@ c
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
+c     Initialize performance statistics
+c
+      call scf_pstat_init(rtdb)
+c
 c     Extract high level info from the data-base setting defaults
 c
-c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))

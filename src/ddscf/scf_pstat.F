@@ -2,14 +2,18 @@
 #include "cscfps.fh"
       data oscfps /.false./     ! So that other codes don't break
 c
-c     oscfps is overridden in rhf_get_param
-c
       end
-      subroutine scf_pstat_init()
+      subroutine scf_pstat_init(rtdb)
       implicit none
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
       double precision junk
+c
+      if (.not. rtdb_get(rtdb, 'scf:pstat',
+     $     MT_LOG, 1, oscfps)) oscfps = .false.
 c
       if (.not. oscfps) return
 c
