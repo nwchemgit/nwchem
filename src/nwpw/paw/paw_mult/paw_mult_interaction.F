@@ -1,4 +1,4 @@
-
+c $Id: paw_mult_interaction.F,v 1.3 2003-02-20 18:32:30 edo Exp $
 !*************************************************
 !
 !   Name    :  gaussian_mult_interaction
@@ -17,7 +17,8 @@
 !
 !*************************************************
 
-        FUNCTION paw_mult_interaction(l1,m1,sigma1,R1,l2,m2,sigma2,R2)
+        complex*16 FUNCTION paw_mult_interaction(
+     .     l1,m1,sigma1,R1,l2,m2,sigma2,R2)
 
         implicit none
 
@@ -113,6 +114,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         SUBROUTINE paw_mult_force(l1,m1,sigma1,R1,
      >                                 l2,m2,sigma2,R2,
      >                                 fx,fy,fz)
+        implicit none
 
 
         integer          l1
@@ -125,7 +127,11 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         double precision         R2(3)
         complex*16    fx
         complex*16    fy
-        complex*16    fz
+        complex*16    fz,find_Y_lm
+        double precision  paw_get_mult_coeff,gen_gaunt_coeff,
+     ,   paw_hypergeom1F1
+        external  paw_get_mult_coeff,gen_gaunt_coeff,find_Y_lm,
+     ,   paw_hypergeom1F1
 
         !*** local variables ***
         double precision  phase_factor
@@ -235,7 +241,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 !   Created :  Spring,1998
 !
 !*************************************************   
-      FUNCTION paw_get_mult_coeff(l1,l2,l) 
+      double precision FUNCTION paw_get_mult_coeff(l1,l2,l) 
       implicit none
 
         INTEGER  l1,l2,l
