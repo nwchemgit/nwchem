@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.23 2003-03-23 22:21:53 bylaska Exp $
+* $Id: cpmdv5.F,v 1.24 2003-07-10 18:26:40 bylaska Exp $
 *
 
 ***********************************************************************
@@ -641,6 +641,7 @@
 
    2  continue
 
+
 *     **** close xyz and MOTION files ****
       call xyz_end()
       call MOTION_end()
@@ -798,6 +799,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call center_v_mass(vgx,vgy,vgz)
 
       if (taskid.eq.MASTER) then
+         call print_elapsed_time(icount*it_in*dt)
          write(6,1300)
          write(6,1410)
          write(6,1420)
@@ -1055,7 +1057,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1298 format(5x, 'Tr =',f8.2,' Qr =',e8.3,' 2*pi/wr=',e8.3,' Er0=',e8.3)
  1299 format(//' Mulliken analysis output generated            ')
  1300 FORMAT(//)
- 1305 FORMAT(10X,'================ iteration =========================')
+ 1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')
  1309 FORMAT(I8,2E19.10,2E14.5,2F9.1)
  1310 FORMAT(I8,2E19.10,2E14.5)
  1311 format(100e19.10)
@@ -1105,3 +1107,25 @@ c    >              dbl_mb(lmd(1)),ierr)
       cpmdv5 = value
       return
       END
+
+      subroutine print_elapsed_time(autime)
+      implicit none
+      real*8 autime
+
+      real*8 sectime
+
+      sectime = autime*2.41889d-17
+
+      if (sectime.lt.1.0d-12) then
+         write(6,1800) (sectime/1.0d-15)," fs"
+      else if (sectime.lt.1.0d-9) then
+         write(6,1800) (sectime/1.0d-12)," ps"
+      else 
+         write(6,1800) (sectime/1.0d-9 )," ns"
+      end if
+
+      return
+ 1800 format(//' Elapsed time of simulation was',F8.3,A)
+      end
+
+
