@@ -191,6 +191,8 @@ c
       endif
 c
       epot=p(32)
+      p(38)=exp(-p(36)/(rgas*temp))
+      p(39)=exp(-p(37)/(rgas*temp))
 c
       return
       end
@@ -351,17 +353,18 @@ c
 c
       real*8 rlambd,dlambd
 c
-      call prp_mcti_r(rlambd,dlambd,dbl_mb(i_dfr))
+      call prp_mcti_r(rlambd,dlambd,dbl_mb(i_dfr),
+     + psumt(16),psumt(38),psumt(39))
 c
       return
       end
-      subroutine prp_mcti_r(rlambd,dlambd,dfr)
+      subroutine prp_mcti_r(rlambd,dlambd,dfr,taver,ep2ave,ep3ave)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda)
+      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave
       integer i
 c
       if(me.eq.0) then
@@ -371,6 +374,9 @@ c
  1001 format(4e20.12)
       write(lfngib,1002) (dfr(i),i=1,nda)
  1002 format(4e20.12)
+      write(lfngib,1003) nsumt,taver/dble(nsumt),
+     + ep2ave/dble(nsumt),ep3ave/dble(nsumt)
+ 1003 format(i10,3e20.12)
       endif
 c
       return
@@ -396,12 +402,17 @@ c
       real*8 dfr(mda)
 c
       character*10 pdate,ptime
-      integer i,j
+      integer i,j,k,number
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
-      real*8 freeti,errti,drftti
+      real*8 freeti,errti,drftti,taver,ep2ave,ep3ave
+      real*8 epr,epf,etp
 c
       if(me.eq.0) then
+c
+      do 1 k=1,2
+c
       call swatch(pdate,ptime)
+      if(k.eq.1) then
       write(lfnout,1000) pdate,ptime
  1000 format(/' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
      + t110,2a10,//,
@@ -412,30 +423,51 @@ c
      + ' Accumulated       Error       Drift     Ratio',/,18x,
      + '      kJ/mol      kJ/mol      kJ/mol',
      + '      kJ/mol      kJ/mol      kJ/mol',/)
+      else
+      write(lfnout,1001) pdate,ptime
+ 1001 format(/' MULTISTEP THERMODYNAMIC PERTURBATION',
+     + t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '     Reverse     Forward    Ensemble Accumulated ',/,18x,
+     + '      kJ/mol      kJ/mol      kJ/mol      kJ/mol',/)
+      endif
 c
       rewind(lfngib)
 c
       freeti=zero
       errti=zero
       drftti=zero
-      do 1 i=1,mrun
+      etp=zero
+      do 2 i=1,mrun
       read(lfngib,2000) nderiv,nda,rlambd,dlambd
  2000 format(2i7,2f12.6)
       read(lfngib,2001) deriv
  2001 format(4e20.12)
       read(lfngib,2002) (dfr(j),j=1,nda)
  2002 format(4e20.12)
+      read(lfngib,2003) number,taver,ep2ave,ep3ave
+ 2003 format(i10,3e20.12)
 c
+      if(k.eq.1) then
       call error(2,dfr,nda,dfree,ddrft,dsterr,dcerr,ratio)
 c
       freeti=freeti+dfree*dlambd
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
-      write(lfnout,1001) i,rlambd,nderiv,dfree,dcerr,ddrft,
+      write(lfnout,1002) i,rlambd,nderiv,dfree,dcerr,ddrft,
      + freeti,sqrt(errti),drftti,ratio
- 1001 format(i4,f7.3,i7,2(f12.3,2f12.6),f10.5)
+ 1002 format(i4,f7.3,i7,2(f12.3,2f12.6),f10.5)
 c
+      else
+      epr=-rgas*taver*log(ep2ave)
+      epf=-rgas*taver*log(ep3ave)
+      etp=etp-epr+epf
+      write(lfnout,1003) i,rlambd,number,epr,epf,epf-epr,etp
+ 1003 format(i4,f7.3,i7,4f12.3)
+      endif
+c
+    2 continue
     1 continue
 c
       close(unit=lfngib)

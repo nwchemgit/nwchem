@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
       implicit none
 c
@@ -389,7 +389,7 @@ c
       ep2(ipww)=ep2(ipww)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    32 continue
       endif
-      if(ip2(3).or.ip2(9)) then
+      if(ip2(4).or.ip2(5)) then
       qp=chg(iwq(iwa),1,2)*chg(iwq(jwa),1,2)
 c      qp=qwa(iwa,2)*qwa(jwa,2)
       ep2tmp=zero
@@ -426,7 +426,7 @@ c
       ep3(ipww)=ep3(ipww)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    35 continue
       endif
-      if(ip2(3).or.ip2(9)) then
+      if(ip2(4).or.ip2(5)) then
       qp=chg(iwatm(iwa),1,3)*chg(iwatm(jwa),1,3)
 c      qp=qwa(iwa,3)*qwa(jwa,3)
       ep3tmp=zero
@@ -513,7 +513,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
       implicit none
 c
@@ -561,7 +561,7 @@ c
       integer igr,indx,iwatyp,isrst
       real*8 c6,cf6,c12,cf12,sumen,qwas,ferfc,fderfc
       real*8 q,c64,c124,dercon,qj,qj4,derco1,derco2
-      real*8 drvco1,drvco2,derco3,drvco3,c6p,c12p
+      real*8 drvco1,drvco2,derco3,drvco3,c6p,c12p,etermq,eterml
 c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
@@ -754,13 +754,15 @@ c      qwas=qwa(iwa,iset)
    29 continue
       endif
       if(abs(qwas).gt.small) then
+      etermq=zero
       if(ipme.eq.0) then
       do 30 iax=1,nax
       isa=isal(iax)
 c      q=qwas*qsa(isa,iset,1)
       q=qwas*chg(isq1(isa),1,iset)
       rw(iax)=facu(iax)*q*rwi1(iax)
-      esw(isf,6,ipsw)=esw(isf,6,ipsw)+rw(iax)
+c      esw(isf,6,ipsw)=esw(isf,6,ipsw)+rw(iax)
+      etermq=etermq+rw(iax)
 c      if(npener.ne.0) then
 c      u(iax)=u(iax)+q*rwi1(iax)
 c      endif
@@ -774,13 +776,15 @@ c      q=qwas*qsa(isa,iset,1)
       ferfc=erfc(ealpha/rwi1(iax))
       fderfc=ealpha*derfc(ealpha/rwi1(iax))
       rw(iax)=facu(iax)*q*rwi1(iax)
-      esw(isf,6,ipsw)=esw(isf,6,ipsw)+ferfc*rw(iax)
+c      esw(isf,6,ipsw)=esw(isf,6,ipsw)+ferfc*rw(iax)
+      etermq=etermq+ferfc*rw(iax)
 c      if(npener.ne.0) then
 c      u(iax)=u(iax)+ferfc*q*rwi1(iax)
 c      endif
       f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
    31 continue
       endif
+      esw(isf,6,ipsw)=esw(isf,6,ipsw)+etermq
       endif
 c
 c     reaction field contribution
@@ -966,7 +970,7 @@ c
 c     Thermodynamic perturbation 1
 c
       if(ipert2) then
-      if(ip2(2).or.ip2(11)) then
+      if(ip2(2).or.ip2(14)) then
       iwatyp=iwatm(iwa)
       if(issscl.eq.0) then
       do 44 iax=1,nax
@@ -989,7 +993,7 @@ c
    45 continue
       endif
       endif
-      if(ip2(3).or.ip2(9).or.ip2(12).or.ip2(18)) then
+      if(ip2(4).or.ip2(5).or.ip2(16).or.ip2(17)) then
 c      qj=qwa(iwa,2)
       qj=chg(iwq(iwa),1,2)
       if(ipme.eq.0) then
@@ -1047,13 +1051,14 @@ c     + qsa(isa,2,1)*qj*rwi1(iax)
   147 continue
       endif
       endif
+      ep2(ipsw)=ep2(ipsw)-etermq
       endif
       endif
 c
 c     Thermodynamic perturbation 2
 c
       if(ipert3) then
-      if(ip3(2).or.ip3(11)) then
+      if(ip3(2).or.ip3(14)) then
       iwatyp=iwatm(iwa)
       if(issscl.eq.0) then
       do 48 iax=1,nax
@@ -1076,7 +1081,7 @@ c
    49 continue
       endif
       endif
-      if(ip2(3).or.ip2(9).or.ip2(12).or.ip2(18)) then
+      if(ip2(4).or.ip2(5).or.ip2(16).or.ip2(17)) then
 c      qj=qwa(iwa,3)
       qj=chg(iwq(iwa),1,3)
       if(ipme.eq.0) then
@@ -1134,6 +1139,7 @@ c     + qsa(isa,3,1)*qj*rwi1(iax)
   151 continue
       endif
       endif
+      ep3(ipsw)=ep3(ipsw)-etermq
       endif
       endif
    26 continue
@@ -1196,7 +1202,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1247,6 +1253,7 @@ c
       real*8 r6i,c6,c12,cf6,cf12,q
       real*8 c64,c124,qi,qi4,qj,qj4
       real*8 q14,sumen,sumen1,sumen2,sumen3,ferfc,fderfc,rsi,qij,dfsp
+      real*8 etermq,eterml
 c      real*8 hess,rss2i
 c
 #include "cf_funcs_dec.fh"
@@ -1496,12 +1503,14 @@ c      q=qsa(isa,iset,isq)*qsa(jsa,iset,isq)
 c
 c     accumulate electrostatic energies per solute molecule
 c
+      etermq=zero
       do 27 jsf=1,msf
       sumen=zero
       do 28 iax=1,nax
       if(jfal(iax).eq.jsf) sumen=sumen+rw(iax)
    28 continue
       ess(isf,jsf,6,ipss)=ess(isf,jsf,6,ipss)+sumen
+      etermq=etermq+sumen
    27 continue
 c
 c     Lennard-Jones energies and forces
@@ -1525,12 +1534,14 @@ cx      endif
 c
 c     accumulate Lennard-Jones energies per solute molecule
 c
+      eterml=zero
       do 30 jsf=1,msf
       sumen=zero
       do 31 iax=1,nax
       if(jfal(iax).eq.jsf) sumen=sumen+rw(iax)
    31 continue
       ess(isf,jsf,5,ipss)=ess(isf,jsf,5,ipss)+sumen
+      eterml=eterml+sumen
    30 continue
 c
 c     evaluate and accumulate the solute-solute virial contributions
@@ -1788,7 +1799,7 @@ c
 c     thermodynamic perturbation 1
 c
       if(ipert2) then
-      if(ip2(11)) then
+      if(ip2(14)) then
       if(issscl.eq.0) then
       do 44 iax=1,nax
       isa=isal(iax)
@@ -1811,8 +1822,9 @@ c
      + -vdw(isat(isa),isat(jsa),1,2))*rwi6(iax)
    45 continue
       endif
+      ep2(ipss)=ep2(ipss)-eterml
       endif
-      if(ip2(12).or.ip2(18)) then
+      if(ip2(16).or.ip2(17)) then
       if(ipme.eq.0) then
       if(issscl.eq.0) then
       do 46 iax=1,nax
@@ -1916,13 +1928,14 @@ c     + erfc(ealpha/rwi1(nax+jnum))
   147 continue
       endif
       endif
+      ep2(ipss)=ep2(ipss)-etermq
       endif
       endif
 c
 c     thermodynamic perturbation 2
 c
       if(ipert3) then
-      if(ip3(11)) then
+      if(ip3(14)) then
       if(issscl.eq.0) then
       do 48 iax=1,nax
       isa=isal(iax)
@@ -1945,8 +1958,9 @@ c
      + -vdw(isat(isa),isat(jsa),1,3))*rwi6(iax)
    49 continue
       endif
+      ep3(ipss)=ep3(ipss)-eterml
       endif
-      if(ip2(12).or.ip2(18)) then
+      if(ip2(16).or.ip2(17)) then
       if(ipme.eq.0) then
       if(issscl.eq.0) then
       do 50 iax=1,nax
@@ -2050,6 +2064,7 @@ c     + erfc(ealpha/rwi1(nax+jnum))
   151 continue
       endif
       endif
+      ep3(ipss)=ep3(ipss)-etermq
       endif
       endif
    13 continue
@@ -2084,7 +2099,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2308,9 +2323,9 @@ c
 c     for thermodynamic perturbations evaluate the energies using
 c     the 'perturbed' parameters in set 2 and/or 3
 c
-      if(ip2(13))
+      if(ip2(18))
      + ep2(1)=ep2(1)+factu*half*bnd(isb,2,2)*(rss-bnd(isb,1,2))**2
-      if(ip3(13))
+      if(ip3(18))
      + ep3(1)=ep3(1)+factu*half*bnd(isb,2,3)*(rss-bnd(isb,1,3))**2
 c
 c     for thermodynamic integrations evaluate the derivative
@@ -2364,7 +2379,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2565,9 +2580,9 @@ c     for thermodynamic perturbations evaluate the energies
 c     using 'perturbed' parameters of set 2 and/or set 3
 c     -----------------------------------------------------
 c
-      if(ip2(15))
+      if(ip2(20))
      + ep2(1)=ep2(1)+factu*half*ang(ish,2,2)*(phi-ang(ish,1,2))**2
-      if(ip3(15))
+      if(ip3(20))
      + ep3(1)=ep3(1)+factu*half*ang(ish,2,3)*(phi-ang(ish,1,3))**2
 c
 c     for thermodynamic integrations evaluate the derivative
@@ -2622,7 +2637,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2845,9 +2860,9 @@ c     for thermodynamic perturbations evaluate the energies using
 c     the 'perturbed' parameters in set 2 and/or set 3
 c     -----------------------------------------------------------
 c
-      if(ip2(16)) ep2(1)=ep2(1)+
+      if(ip2(21)) ep2(1)=ep2(1)+
      + factu*dih(isd,3,2)*(one+cos(dih(isd,1,2)*phi-dih(isd,2,2)))
-      if(ip3(16)) ep3(1)=ep3(1)+
+      if(ip3(21)) ep3(1)=ep3(1)+
      + factu*dih(isd,3,3)*(one+cos(dih(isd,1,3)*phi-dih(isd,2,3)))
 c
 c     for normal angles use cosine equation to get the forces
@@ -2949,7 +2964,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3158,11 +3173,11 @@ c
 c     for thermodynamic perturbations evaluate the energies
 c     using the 'perturbed' parameters of set 2 and/or set 3
 c
-      if(ip2(17))  then
+      if(ip2(22))  then
       dangp=(phi-dimp(iso,2,2))-nint((phi-dimp(iso,2,2))/twopi)*twopi
       ep2(1)=ep2(1)+factu*half*dimp(iso,3,2)*dangp**2
       endif
-      if(ip3(17)) then
+      if(ip3(22)) then
       dangp=(phi-dimp(iso,2,3))-nint((phi-dimp(iso,2,3))/twopi)*twopi
       ep3(1)=ep3(1)+factu*half*dimp(iso,3,3)*dangp**2
       endif
@@ -3261,7 +3276,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3321,7 +3336,7 @@ c     declaration of local variables
 c     ------------------------------
 c
       integer i,j,ist,isa,jsa,isf,jsf,isad
-      real*8 factu
+      real*8 factu,etermq,eterml
       real*8 rxx,rxy,rxz,r2,r2i,r1i,dfs,dfsu,r6i,c6,c12,cf6,cf12,q
       real*8 ferfc,fderfc,qij,dfsp,c64,c124,dercon,qi,qi4,qj,qj4,q14
       real*8 dx(3)
@@ -3423,14 +3438,15 @@ c
 c
 c     calculate the Lennard-Jones energies
 c
-      ess(isf,jsf,5,1)=ess(isf,jsf,5,1)+factu*dfsu
+      eterml=factu*dfsu
+      ess(isf,jsf,5,1)=ess(isf,jsf,5,1)+eterml
       if(ipme.eq.0.or.isolvo.ne.0) then
 c
 c     calculate the electrostatic energies
 c
 c      q=q14fac*qs(isa,iset)*qs(jsa,iset)
       q=q14fac*chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)
-      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+factu*q*r1i
+      etermq=factu*q*r1i
 c
 c     calculate the electrostatic force contribution
 c
@@ -3444,7 +3460,7 @@ c
       q=chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)
       qij=(one-q14fac)*q
       q=q14fac*q
-      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+ferfc*factu*q*r1i
+      etermq=ferfc*factu*q*r1i
       epmecs=epmecs-(one-ferfc)*qij*r1i*factu
       ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*(one-ferfc)*qij*r1i*factu
       ess(isf,jsf,8,1)=ess(jsf,jsf,8,1)-half*(one-ferfc)*qij*r1i*factu
@@ -3454,6 +3470,7 @@ c
       dfsp=-(qij*r2i*((one-ferfc)*r1i+fderfc))
       dfs=dfs+q*r2i*(ferfc*r1i-fderfc)-dfsp
       endif
+      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+etermq
 c
 c     reaction field contributions
 c
@@ -3515,12 +3532,12 @@ c
 c     thermodynamic perturbation 1
 c
       if(ipert2) then
-      if(ip2(11)) then
-      ep2(1)=ep2(1)+factu*
+      if(ip2(14)) then
+      ep2(1)=ep2(1)-eterml+factu*
      + (vdw(iatt(isa),iatt(jsa),4,2)*r6i-
      + vdw(iatt(isa),iatt(jsa),2,2))*r6i
       endif
-      if(ip2(12).or.ip2(18)) then
+      if(ip2(16).or.ip2(17)) then
       rxx=xs(isa,1)-xs(jsa,1)
       rxy=xs(isa,2)-xs(jsa,2)
       rxz=xs(isa,3)-xs(jsa,3)
@@ -3534,9 +3551,9 @@ c      q14=qs(isa,2)*qs(jsa,2)*q14fac
       q14=chg(ichg(isa),1,2)*chg(ichg(jsa),1,2)*q14fac*erfc(ealpha/r1i)
 c      q14=qs(isa,2)*qs(jsa,2)*q14fac*erfc(ealpha/r1i)
       endif
-      ep2(1)=ep2(1)+factu*q14*r1i
+      ep2(1)=ep2(1)-etermq+factu*q14*r1i
       if(ireact.ne.0) then
-      ep2(1)=ep2(1)+factu*q14*rffss/r2i
+      ep2(1)=ep2(1)-etermq+factu*q14*rffss/r2i
       endif
       endif
       endif
@@ -3544,12 +3561,12 @@ c
 c     thermodynamic perturbation 2
 c
       if(ipert3) then
-      if(ip3(11)) then
-      ep3(1)=ep3(1)+factu*
+      if(ip3(14)) then
+      ep3(1)=ep3(1)-eterml+factu*
      + (vdw(iatt(isa),iatt(jsa),4,3)*r6i-
      + vdw(iatt(isa),iatt(jsa),2,3))*r6i
       endif
-      if(ip2(12).or.ip2(18)) then
+      if(ip2(16).or.ip2(17)) then
       rxx=xs(isa,1)-xs(jsa,1)
       rxy=xs(isa,2)-xs(jsa,2)
       rxz=xs(isa,3)-xs(jsa,3)
@@ -3561,9 +3578,9 @@ c
       else
       q14=chg(ichg(isa),1,3)*chg(ichg(jsa),1,3)*q14fac*erfc(ealpha/r1i)
       endif
-      ep3(1)=ep3(1)+factu*q14*r1i
+      ep3(1)=ep3(1)-etermq+factu*q14*r1i
       if(ireact.ne.0) then
-      ep3(1)=ep3(1)+factu*q14*rffss/r2i
+      ep3(1)=ep3(1)-etermq+factu*q14*rffss/r2i
       endif
       endif
       endif
@@ -3576,7 +3593,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.7 1999-05-04 19:36:35 d3j191 Exp $
+c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
 c
       implicit none
 c
@@ -3665,9 +3682,9 @@ c
       fw(iwm,2,jwa,1)=fw(iwm,2,jwa,1)+dfw2
       fw(iwm,3,iwa,1)=fw(iwm,3,iwa,1)-dfw3
       fw(iwm,3,jwa,1)=fw(iwm,3,jwa,1)+dfw3
-      if(ip2(4))
+      if(ip2(6))
      + ep2(1)=ep2(1)+half*bnd(iwb,2,2)*(rww-bnd(iwb,1,2))**2
-      if(ip3(4))
+      if(ip3(6))
      + ep3(1)=ep3(1)+half*bnd(iwb,2,3)*(rww-bnd(iwb,1,3))**2
       if(ith(6)) then
       deriv(6,1)=deriv(6,1)+
@@ -3756,9 +3773,9 @@ c
       fw(iwm,2,jwa,1)=fw(iwm,2,jwa,1)-dfw2
       fw(iwm,3,kwa,1)=fw(iwm,3,kwa,1)+dfw3
       fw(iwm,3,jwa,1)=fw(iwm,3,jwa,1)-dfw3
-      if(ip2(6).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip2(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep2(1)=ep2(1)+half*ang(iwh,2,2)*(phi-ang(iwh,1,2))**2
-      if(ip2(6).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip3(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3(1)=ep3(1)+half*ang(iwh,2,3)*(phi-ang(iwh,1,3))**2
       if(ith(8)) then
       deriv(8,1)=deriv(8,1)+
@@ -3845,10 +3862,10 @@ c
       if(iand(iwdt(iwm),mdynam).eq.ldynam)
      + rdih(iwd,2)=rdih(iwd,2)+for*(one+cos(rpa))
       dfor=(-for)*rmul*sin(rpa)
-      if(ip2(7).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip2(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep2(1)=ep2(1)+
      + dih(iwd,3,2)*(one+cos(dih(iwd,1,2)*phi-dih(iwd,2,2)))
-      if(ip3(7).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip3(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3(1)=ep3(1)+
      + dih(iwd,3,3)*(one+cos(dih(iwd,1,3)*phi-dih(iwd,2,3)))
       if(abs(sphi).lt.small) sphi=sign(small,sphi)
@@ -3934,11 +3951,11 @@ c
       dangle=(phi-angle)-nint((phi-angle)/twopi)*twopi
       dfor=for*dangle
       if(iand(iwdt(iwm),mdynam).eq.ldynam) rimp(iwo,2)=half*dfor*dangle
-      if(ip2(8).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
+      if(ip2(9).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
       danglep=(phi-dimp(iwo,2,2))-nint((phi-dimp(iwo,2,2))/twopi)*twopi
       ep2(1)=ep2(1)+half*dimp(iwo,3,2)*danglep**2
       endif
-      if(ip3(8).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
+      if(ip3(9).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
       danglep=(phi-dimp(iwo,2,3))-nint((phi-dimp(iwo,2,3))/twopi)*twopi
       ep3(1)=ep3(1)+half*dimp(iwo,3,3)*danglep**2
       endif
@@ -4013,12 +4030,12 @@ c
       qi=chg(iwq(iwa),1,iset)*q14fac
       qj=chg(iwq(jwa),1,iset)
       q=qi*qj
-      if(ip2(3)) then
+      if(ip2(4)) then
       qip1=chg(iwq(iwa),1,2)*q14fac
       qjp1=chg(iwq(jwa),1,2)
       qp1=qip1*qjp1
       endif
-      if(ip3(3)) then
+      if(ip3(4)) then
       qip2=chg(iwq(iwa),1,3)*q14fac
       qjp2=chg(iwq(jwa),1,3)
       qp2=qip2*qjp2
@@ -4043,9 +4060,9 @@ c
      + ep2l=ep2l+(c12p1*r6i-c6p1)*r6i
       if(ip3(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3l=ep3l+(c12p2*r6i-c6p2)*r6i
-      if(ip2(3).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip2(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep2q=ep2q+qp1*r1i
-      if(ip3(3).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip3(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3q=ep3q+qp2*r1i
       dfw=((cf12*r6i-cf6)*r6i+q*r1i)*r2i
       fw(iwm,1,iwa,1)=fw(iwm,1,iwa,1)+dfw*rxx
@@ -4118,12 +4135,12 @@ c
       qi=chg(iwq(iwa),1,iset)
       qj=chg(iwq(jwa),1,iset)
       q=qi*qj
-      if(ip2(3)) then
+      if(ip2(4)) then
       qip1=chg(iwq(iwa),1,2)
       qjp1=chg(iwq(jwa),1,2)
       qp1=qip1*qjp1
       endif
-      if(ip3(3)) then
+      if(ip3(4)) then
       qip2=chg(iwq(iwa),1,3)
       qjp2=chg(iwq(jwa),1,3)
       qp2=qip2*qjp2
@@ -4154,9 +4171,9 @@ c
      + ep2l=ep2l+(c12p1*r6i-c6p1)*r6i
       if(ip3(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3l=ep3l+(c12p2*r6i-c6p2)*r6i
-      if(ip2(3).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip2(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep2q=ep2q+qp1*r1i
-      if(ip3(3).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip3(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
      + ep3q=ep3q+qp2*r1i
       dfw=((cf12*r6i-cf6)*r6i+q*(ferfc*r1i-fderfc))*r2i
       fw(iwm,1,iwa,1)=fw(iwm,1,iwa,1)+dfw*rxx

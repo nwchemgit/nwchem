@@ -4,6 +4,9 @@ c
       parameter(tiny=1.0d-10)
       parameter(one=1.0d0)
 c
+      real*8 rgas
+      parameter(rgas=8.31441d-03)
+c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
       integer mda,nda
