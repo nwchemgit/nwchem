@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.101 2003-10-25 00:54:23 marat Exp $
+* $Id: opt_drv.F,v 1.102 2003-10-25 16:30:41 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1424,7 +1424,7 @@ c
 *      call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
 *     $     nvar, e, dbl_mb(k_work), lenwork, info)
 *      if (info .ne. 0) call errquit
-*     $     ('driver_search_dir: dsyev failed',info, GEOM_ERR)
+*     $     ('driver_search_dir: dsyev failed',info, 0)
       call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
       if (odebug .or. (util_print('hvecs',print_never) 
      $     .and. ga_nodeid().eq.0)) then
@@ -3052,7 +3052,7 @@ c
       if (ostress) then
          if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
      $        gx(3*nat_real+1))) call errquit
-     $        ('driver: could not get stress',0)
+     $        ('driver: could not get stress',0,0)
       endif
 c
       end
@@ -3140,7 +3140,7 @@ c
          if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      &    call errquit('hnd_opt: failed storing geometry',0,0)
          if (.not. task_energy(rtdb)) call errquit
-     $        ('driver_energy_step: energy failed',0)
+     $        ('driver_energy_step: energy failed',0,0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, ep))
      $     call errquit('driver: could not get energy',0,0)
          if (abs(ep-e0) .lt. 1e-4) then
@@ -3163,7 +3163,7 @@ c
          if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      &        call errquit('hnd_opt: failed storing geometry',0,0)
          if (.not. task_energy(rtdb)) call errquit
-     $        ('driver_energy_step: energy failed',0)
+     $        ('driver_energy_step: energy failed',0,0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, em))
      $        call errquit('driver: could not get energy',0,0)
 c
