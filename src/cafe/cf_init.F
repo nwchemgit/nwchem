@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.42 2000-04-04 23:03:56 d3j191 Exp $
+c $Id: cf_init.F,v 1.43 2000-04-11 15:19:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1527,13 +1527,13 @@ c
       integer i,j,k,l
 c
       write(lfnout,1000)
- 1000 format(/,' ATOM TYPES',//,t8,'Type',t27,'Atomic number',
-     + t44,'Mass',/)
+ 1000 format(/,' ATOM TYPES',//,t8,'Type',t42,'Atomic number',
+     + t59,'Mass',/)
 c
       do 1 i=1,mat
-      write(lfnout,1001) i,(nam(i,j)(1:5),j=1,3),(num(i,j),j=1,3),
+      write(lfnout,1001) i,(nam(i,j),j=1,3),(num(i,j),j=1,3),
      + (wgt(i,j),j=1,3)
- 1001 format(i5,1x,3(1x,a5),3i5,3f12.6)
+ 1001 format(i5,1x,3(1x,a6,4x),3i5,3f12.6)
     1 continue
 c
       write(lfnout,1002)
@@ -1544,8 +1544,9 @@ c
       do 2 i=1,mat
       do 3 j=i,mat
       write(lfnout,1003) i,j,(nam(i,k)(1:5),nam(j,k)(1:5),
-     + (vdw(i,j,l,k),l=1,2),k=1,3),((vdw(i,j,l,k),l=3,4),k=1,3)
- 1003 format(2i5,1x,3(2(1x,a5),2e12.5),/,11x,3(12x,2e12.5))
+     + (vdw(i,j,l,k),l=1,2),k=1,3),
+     + (nam(i,k)(6:6),nam(j,k)(6:6),(vdw(i,j,l,k),l=3,4),k=1,3)
+ 1003 format(2i5,1x,3(2(1x,a5),2e12.5),/,11x,3(8x,2a1,2x,2e12.5))
     3 continue
     2 continue
 c

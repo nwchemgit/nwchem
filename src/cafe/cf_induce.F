@@ -1,4 +1,4 @@
-      subroutine induce(lself,xw,xwm,pw,pwp,iwdt,iwz,
+      subroutine induce(lself,lpbcs,xw,xwm,pw,pwp,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,ps,psp,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
@@ -31,7 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_induce.F,v 1.5 1999-10-25 17:42:57 d3j191 Exp $
+c $Id: cf_induce.F,v 1.6 2000-04-11 15:19:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -46,7 +46,7 @@ c
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
-      logical lself,lpbc
+      logical lself,lpbc,lpbcs
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
@@ -84,7 +84,7 @@ c
 c     pairlists
 c     ---------
 c
-      if(lpair) call pairs(lself,xw,xwm,iwdt,iwz,
+      if(lpair) call pairs(lself,lpbcs,xw,xwm,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
