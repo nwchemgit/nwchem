@@ -15,7 +15,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw1.F,v 1.4 2000-07-10 23:00:19 edo Exp $
+c$Id: grid_quadvw1.F,v 1.5 2000-07-12 20:36:59 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -80,7 +80,7 @@ c
          call grid_setspac(xyz, aqbuf,
      ,        rij, 
      &        rq, bp, ictr, nq,
-     ,        expo, rad_sh, trunc_neigh)
+     ,        expo, rad_sh)
       endif
       if(nq.ne.0) then
          if(oskel) call dscal(

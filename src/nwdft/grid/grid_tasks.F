@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.32 2000-07-10 23:00:19 edo Exp $
+c$Id: grid_tasks.F,v 1.33 2000-07-12 20:36:59 edo Exp $
 c
       implicit none
 c
@@ -186,7 +186,7 @@ c
                         call grid_setspac( xyz, aqbuf,
      ,                       dbl_mb(irij), 
      &                       dbl_mb(irq), dbl_mb(ip), ictr, nq,
-     ,                       dbl_mb(iexpo), rad_sh, trunc_neigh)
+     ,                       dbl_mb(iexpo), rad_sh)
                      endif
                      npts_iqsh = nq
 c     
