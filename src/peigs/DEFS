@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.77 2000-08-29 22:52:43 edo Exp $
+# $Id: DEFS,v 1.78 2000-10-24 18:54:35 d3g270 Exp $
 #
 #======================================================================
 #
@@ -447,7 +447,7 @@ ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
 #
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
-peigs_CPU = PENTIUM
+peigs_CPU = IEEE
 ifeq ($(peigs_TARGET),CYGNUS)
 peigs_CC += -DLINUX
 peigs_CPP += -DLINUX
@@ -472,7 +472,7 @@ ifeq ($(peigs_TARGET),PGLINUX)
 #
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
-peigs_CPU = PENTIUM
+peigs_CPU = IEEE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
