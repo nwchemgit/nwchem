@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.48 1996-02-29 17:37:00 d3e129 Exp $
+c $Id: raktest.F,v 1.49 1996-03-07 01:02:32 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -405,7 +405,7 @@ c
               s(jbf,ibf) = value
             enddo
           enddo
-#define NEW_WAY
+****************#define NEW_WAY
 #if defined(NEW_WAY)
           call spcart_tran1e(buf,scr,
      &        nbfj,nbfi,typej,
