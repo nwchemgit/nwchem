@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.10 2003-03-22 02:30:01 bylaska Exp $
+* $Id: paw_force.F,v 1.11 2003-03-22 21:50:41 bylaska Exp $
 *
 
 !**************************************************
@@ -34,7 +34,7 @@
       nion = ion_nion()
 
       paw_force_c_size = paw_ovlp_coeff_size()
-      value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
+      value =           my_alloc(mt_dcpl,paw_force_c_size,
      >                               'paw_force_cx_u',paw_force_cx_u)
       value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
      >                               'paw_force_cx_s',paw_force_cx_s)
