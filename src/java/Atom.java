@@ -3,7 +3,7 @@ public class Atom{
     public double epsilon, epsilon3, rstar, rstar3, mass;
     public String type;
     public int number, source;
-    boolean redefined;
+    boolean redefining, redefined;
 
     public Atom(String card, String card2, int isource){
 	source=isource;
@@ -14,7 +14,7 @@ public class Atom{
 	number=Integer.parseInt(card2.substring(10,15).trim());
        	epsilon3=Double.valueOf(card2.substring(15,27)).doubleValue();
        	rstar3=Double.valueOf(card2.substring(27,39)).doubleValue();
-	redefined=false;
+	redefining=false; redefined=false;
     }
 
 }
