@@ -1,13 +1,13 @@
       subroutine diis_core(derr,pulay,
      &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.6 1996-10-01 21:31:06 d3h449 Exp $
+C$Id: diis_core.F,v 1.7 2000-03-15 00:33:32 edo Exp $
       implicit none
 c
       integer mxhist
       integer nbf
       integer ispin
       integer ipol
-      integer g_diis
+      integer g_diis(mxhist)
       integer g_err
       double precision pulay((mxhist+1)*(mxhist+2)/2,ipol)
       Integer nhist(2), icall(2)
@@ -87,9 +87,10 @@ c
 C     Store new errvec
 c
 
-      call ga_copy_patch('N',
-     *     g_err,1,nbf,1,nbf, 
-     *     g_diis,1,nbf,istep+1,istep+nbf)
+cedo      call ga_copy_patch('N',
+cedo     *     g_err,1,nbf,1,nbf, 
+cedo     *     g_diis,1,nbf,istep+1,istep+nbf)
+      call ga_copy(g_err,g_diis(ii))
 c
 c     If more than mxhist histories are stored, shift the
 c     rows of the Pulays B matrix.
@@ -123,9 +124,11 @@ c
         call ga_sync
 
         ijlast = ijcanon(nhist(ispin)+1,nhist(ispin)+2-jj)
-        pulay(ijlast,ispin)=ga_ddot_patch(
-     *       g_diis,'N',1,nbf,istep+1,istep+nbf,
-     *       g_err,'N',1,nbf,1,nbf)
+cedo        pulay(ijlast,ispin)=ga_ddot_patch(
+cedo     *       g_diis,'N',1,nbf,istep+1,istep+nbf,
+cedo     *       g_err,'N',1,nbf,1,nbf)
+        pulay(ijlast,ispin)=ga_ddot(
+     *       g_diis(ii),g_err)
 c        
       enddo
       return

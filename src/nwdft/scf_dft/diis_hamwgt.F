@@ -1,4 +1,4 @@
-c$Id: diis_hamwgt.F,v 1.3 1995-12-28 00:01:19 og845 Exp $
+c$Id: diis_hamwgt.F,v 1.4 2000-03-15 00:33:34 edo Exp $
 c***********************************************************************
 c
 c     subroutine hamwght
@@ -21,7 +21,7 @@ c
       integer ispin
       integer ipol
       integer g_fock
-      integer g_diis
+      integer g_diis(mxhist)
       integer g_tmp
       double precision wght(mxhist+1)
 c
@@ -38,9 +38,10 @@ c
       istep=(ii-1)*nbf
       call ga_sync
 c
-      call ga_copy_patch('N',
-     *     g_fock,1,nbf,1,nbf, 
-     *     g_diis,1,nbf,istep+1,istep+nbf)
+cedo      call ga_copy_patch('N',
+cedo     *     g_fock,1,nbf,1,nbf, 
+cedo     *     g_diis,1,nbf,istep+1,istep+nbf)
+      call ga_copy(g_fock,g_diis(ii))
 
 c     
       if (nhist(ispin).eq.1) then
@@ -55,10 +56,11 @@ c
         istep=(ii-1)*nbf
         anum=1.d0
         if(jj.eq.1) anum=0.d0
-        call ga_dadd_patch(
-     *       xwght,g_diis,1,nbf,istep+1,istep+nbf,
-     *        anum,g_fock,1,nbf,1,nbf,
-     *            g_tmp,1,nbf,1,nbf)
+cedo        call ga_dadd_patch(
+cedo     *       xwght,g_diis,1,nbf,istep+1,istep+nbf,
+cedo     *        anum,g_fock,1,nbf,1,nbf,
+cedo     *            g_tmp,1,nbf,1,nbf)
+        call ga_dadd(xwght,g_diis(ii),anum,g_fock,g_tmp)
         call ga_copy(g_tmp,g_fock)
       enddo 
       return

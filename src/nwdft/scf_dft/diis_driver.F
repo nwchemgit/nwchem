@@ -1,8 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ispin, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
-     &                       g_tmp, g_svecs, isvals, diis, nodiis)
+     &                       g_tmp, g_svecs, isvals, diis, nodiis,
+     .     g_diis)
 c
-C$Id: diis_driver.F,v 1.14 1999-09-02 17:31:19 edo Exp $
+C$Id: diis_driver.F,v 1.15 2000-03-15 00:33:33 edo Exp $
 c
       implicit none
 c      
@@ -14,14 +15,14 @@ c
       integer g_dens
       integer g_tmp
       integer g_svecs
-      integer g_diis
+      integer g_diis(mxhist)
       integer isvals
       Integer nhist(2), icall(2)
       integer geom, AO_bas_han
       double precision derr ! Diis error norm [output]
       double precision toll_s
       integer lpulay, npulay, ipulay
-      Save lpulay, npulay, ipulay, nhist, g_diis
+      Save lpulay, npulay, ipulay, nhist
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -41,7 +42,7 @@ c
 c
       logical diis, nodiis
       double precision avail, dw_agg_avail
-      integer n_n2_objs
+      integer n_n2_objs,i
       double precision one, zero
       parameter (one = 1.d0, zero = 0.d0)
 c
@@ -51,8 +52,10 @@ c
          if (.not.MA_Free_Heap(lpulay))
      &      call errquit('diis_driver: cannot free heap',0)
 c         call gadest(g_diis)
-         if (.not. ga_destroy(g_diis)) call errquit
-     &      ('diis_driver: could not destroy g_diis', 0)
+         do i=1,2*mxhist*ipol
+            if (.not. ga_destroy(g_diis(i))) call errquit
+     &           ('diis_driver: could not destroy g_diis', 0)
+         enddo
          return
       endif
       me = ga_nodeid()
@@ -103,10 +106,13 @@ c        call gacrea(geom,AO_bas_han,
 c     &    nbf,nbf*(2*mxhist*ipol),
 c     &    'diis bufs',g_diis,'row')
 *ga:1:0
-         if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist*ipol), 
-     &                       'diis bufs', nbf, 0, g_diis)) 
-     &      call errquit('diis_driver: error creating g_diis',0)
-         call ga_zero(g_diis)
+         do i=1,mxhist*ipol*2
+            g_diis(i) = ga_create_atom_blocked(
+     .           geom, AO_bas_han, 'g_diis')
+c            if (.not. ga_create(mt_dbl, nbf, nbf, 
+c     &           'diis bufs', nbf, 0, g_diis(i))) 
+c     &           call errquit('diis_driver: error creating g_diis',i)
+         enddo
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
       endif

@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.140 2000-02-28 16:38:25 jolguin Exp $
+c     $Id: dft_scf.F,v 1.141 2000-03-15 00:33:31 edo Exp $
 c     
       implicit none
 c
@@ -136,7 +136,7 @@ c
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
-     .     mult_loc
+     .     mult_loc,l_gdiis,k_gdiis
 c !!! BGJ
       logical cphf_poliz, do_poliz
       external cphf_poliz
@@ -492,7 +492,14 @@ c
         levelshifting = .false.
         rlshift = rlshift_def
       endif
-      if (nodiis)diising = .false.
+      if (nodiis)then
+         diising = .false.
+      else
+         if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
+     ,        'ga handle for diis',l_gdiis,k_gdiis))
+     ,        call errquit('dft_scf: cannot allocate g_diis',0)
+      endif
+
       if (ncydp.ne.0)then
          damping = .true. 
          ndamp = ndamp_input
@@ -1017,7 +1024,7 @@ c
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_fock, g_dens(ispin), 
      &           g_tmp, g_svecs, isvals, diising, 
-     &           nodiis)
+     &           nodiis,int_mb(k_gdiis))
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
@@ -1241,7 +1248,7 @@ c
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis)
+     &                       diising, nodiis,int_mb(k_gdiis))
             icall(1) = 0
             icall(2) = 0
             endif
@@ -1435,7 +1442,7 @@ c
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis)
+     &                       diising, nodiis,int_mb(k_gdiis))
             icall(1) = 0
             icall(2) = 0
          endif
@@ -1754,7 +1761,10 @@ c
          icall(1) = -1
          call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                    nbf_ao, geom, ao_bas_han, g_fock, g_dens(1), 
-     &                    g_tmp, g_svecs, isvals, diising, nodiis)
+     &                    g_tmp, g_svecs, isvals, diising, nodiis,
+     .        int_mb(k_gdiis))
+         if (.not. MA_free_heap(l_gdiis))
+     .        call errquit(' dft_scf:cannot popstack',111)
       endif
 c     
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
