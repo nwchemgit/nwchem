@@ -1,19 +1,22 @@
-title "QM/MM of Lys monomer"
+Title "QM/MM of Lys monomer"
 
 
 memory total 1000 Mb
 
-start lys_qmmm
+start lys
 
 echo
 
-charge 1.0
+task shell "cp lys0.rst lys_qmmm.rst"
 
-task shell "cp lys0.rst lys_em.rst"
+# A basis set must be defined for the QM part 
 
 basis "ao basis" 
   * library "6-31G*"
 end
+
+
+charge 1.0
 
 dft
  iterations 100
@@ -22,25 +25,29 @@ end
 driver
 clear
 maxiter 30
+xyz test
 end
 
+
 md
- system lys_em
+ system lys_qmmm
  sd 200   init 0.01   min 0.00001   max 0.05
- cutoff 1.9   qmmm 1.8
+ cutoff 1.9   qmmm 1.0
  memory 15000
+ record coord 1 rest 1
 end
 
 qmmm
- eatoms -85
+ eatoms -84
  bq_exclude none
+ print debug_info
  link_atoms halogen
+ link_bonds free
  optimization qm
  link_ecps auto
+ bq_update static
 end
 
-
-# Run QM/MM optimization.
-task qmmm dft optimize
+task qmmm dft optimize ignore
 
 
