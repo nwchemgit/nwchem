@@ -1,14 +1,14 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.79 1998-04-29 07:36:06 d3e129 Exp $
+c $Id: raktest.F,v 1.80 1998-05-06 00:55:11 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"
 #include "stdio.fh"
 c::functions
-      logical task_computeSld
-      external task_computeSld
+      logical task_computeSld, task_printsoints, task_pderiv
+      external task_computeSld, task_printsoints, task_pderiv
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -26,7 +26,7 @@ c
       me = ga_nodeid()
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
      &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
-     &    00160, 00170, 00180) raktask
+     &    00160, 00170, 00180, 00190, 00200) raktask
 c
       if (me.eq.0) then
         write(luout,*)' default raktest task '
@@ -91,6 +91,14 @@ c
 00180 if (me.eq.0)write(luout,*)
      &    ' raktest: compute overlap and linear dependence '
       raktest = task_computeSld(rtdb)
+      goto 00002
+00190 if (me.eq.0)write(luout,*)
+     &    ' raktest: task print SO integrals '
+      raktest = task_printSOints(rtdb)
+      goto 00002
+00200 if (me.eq.0)write(luout,*)
+     &    ' raktest: task test periodic deriv '
+      raktest = task_pderiv(rtdb)
       goto 00002
 c
 00001 continue
@@ -805,10 +813,10 @@ c
       call dfill(mbuf,0.0d00,buf,1)
 c
       do ish = 1,nshell
-        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'dead i'
         nbfi    = ihi    - ilow + 1
         do jsh = 1,ish
-          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'dead j'
           nbfj    = jhi    - jlow + 1
 c
           call int_1eov(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
@@ -860,10 +868,10 @@ c
       call dfill(mbuf,0.0d00,buf,1)
 c
       do ish = 1,nshell
-        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'dead i'
         nbfi    = ihi    - ilow + 1
         do jsh = 1,ish
-          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'dead j'
           nbfj    = jhi    - jlow + 1
 c
           call int_1eh1(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
@@ -915,10 +923,10 @@ c
 *      external spcart_init, spcart_terminate
 c
 *      write(6,*)'inside rak_ovlap'
-      if (.not.bas_high_angular(basis,hi_ang)) stop ' fuck ang'
+      if (.not.bas_high_angular(basis,hi_ang)) stop ' dead ang'
       st_ang = hi_ang/2
-*      if (.not.spcart_init(st_ang,.true.,.false.)) stop ' fuck sp'
-*      if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' fuck sp'
+*      if (.not.spcart_init(st_ang,.true.,.false.)) stop ' dead sp'
+*      if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' dead sp'
 c
 *      write(6,*)' mscr = ',mscr
 *      write(6,*)' mbuf = ',mbuf
@@ -929,7 +937,7 @@ c
       call dfill(mbuf,0.0d00,buf,1)
 
       do ish = 1,nshell
-        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'dead i'
         ilow_sp = cn2bfr_sp(1,ish)
         ihi_sp  = cn2bfr_sp(2,ish)
         nbfi    = ihi    - ilow + 1
@@ -937,7 +945,7 @@ c
         if(.not.bas_continfo(basis,ish,typei,nprim,igen,spsp))
      &        call errquit(' continfo failed ',911)
         do jsh = 1,ish
-          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'dead j'
           jlow_sp = cn2bfr_sp(1,jsh)
           jhi_sp  = cn2bfr_sp(2,jsh)
           nbfj    = jhi    - jlow + 1
@@ -956,8 +964,8 @@ c
 *rak:     &          ish,ilow_sp,ihi_sp,nbfi_sp,typei
 *rak:          write(6,*)'<jsh,jlowsp,jhisp,nbfjsp,typej>',
 *rak:     &          jsh,jlow_sp,jhi_sp,nbfj_sp,typej
-*rak:          write(6,*) ' ma fucked 1'
-*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 1'
+*rak:          write(6,*) ' ma broke 1'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma broke 1'
 *rak:          write(6,*)' '
 c
           call int_1eov(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
@@ -977,8 +985,8 @@ c
      &        nbfj,nbfi,typej,jgen,
      &        nbfj_sp,nbfi_sp,typei,igen,.false.)
 #else
-*rak:          write(6,*) ' ma fucked 2'
-*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
+*rak:          write(6,*) ' ma broke 2'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma broke 2'
 c.... buf is now -- buf(nbfj,nbfi)
           write(6,*)' integral buffer cart,cart '
           call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
@@ -986,14 +994,14 @@ c.... buf is now -- buf(nbfj,nbfi)
 c.... scr is now -- scr(nbfj,nbfi_sp)
           write(6,*)' integral buffer  cart,sph'
           call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
-*rak:          write(6,*) ' ma fucked 3'
-*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
+*rak:          write(6,*) ' ma broke 3'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma broke 3'
           call spcart_s_a(scr,buf,nbfi_sp,typej,.false.,.false.)
 c.... buf is now -- buf(nbfj_sp,nbfi_sp)
           write(6,*)' integral buffer  sph,sph'
           call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
-*rak:          write(6,*) ' ma fucked 4'
-*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 4'
+*rak:          write(6,*) ' ma broke 4'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma broke 4'
 #endif
           count = 0
           do ibf = ilow_sp,ihi_sp
@@ -1004,8 +1012,8 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
               s_sp(jbf,ibf) = value
             enddo
           enddo
-*rak:          write(6,*) ' ma fucked 5'
-*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 5'
+*rak:          write(6,*) ' ma broke 5'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma broke 5'
         enddo
       enddo
 *      write(6,*)' loops done '
@@ -1068,7 +1076,7 @@ c
 *rak:*rak:     &        (s_sp(ii,ii)/pi)
 *rak:        write(6,*)' '
 *rak:      enddo
-*      if (.not.spcart_terminate()) stop ' fuck sp term'
+*      if (.not.spcart_terminate()) stop ' dead sp term'
       end
       subroutine raktest_3ctr(rtdb)
       implicit none
