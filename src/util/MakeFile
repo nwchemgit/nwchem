@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2000-07-13 19:07:22 d3j191 Exp $	
+#	$Id: MakeFile,v 1.5 2000-07-13 23:20:48 edo Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -84,7 +84,6 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\util_getarg.obj \
                $(OBJDIR)\util_nwchemrc.obj \
                $(OBJDIR)\util_md.obj \
-               $(OBJDIR)\util_md_sockets.obj \
                $(OBJDIR)\dgewr.obj \
                $(OBJDIR)\atoi.obj \
                $(OBJDIR)\indint.obj \
