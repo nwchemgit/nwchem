@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.9 2001-11-30 00:56:03 bylaska Exp $
+* $Id: cgsdv5.F,v 1.10 2001-12-17 23:31:15 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -21,22 +21,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-*    10 - geodesic_time
-      real*8 times(50)
-      common / timing / times
-
-
+#include "nwpw_timing.fh"
       
 *     **** parallel variables ****
       integer  taskid,np
@@ -131,7 +116,7 @@
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
-      call dcopy(50,0.0d0,0,times,1)
+      call nwpw_timing_init()
       call dcopy(10,0.0d0,0,E,1)
 
 
@@ -458,15 +443,15 @@ c     end if
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', times(1)
-         write(6,*) '  dot products               : ', times(2)
-         write(6,*) '  geodesic                   : ', times(10)
-         write(6,*) '  exchange correlation       : ', times(4)
-         write(6,*) '  local pseudopotentials     : ', times(5)
-         write(6,*) '  non-local pseudopotentials : ', times(6)
-         write(6,*) '  hartree potentials         : ', times(7)
-         write(6,*) '  structure factors          : ', times(8)
-         write(6,*) '  masking and packing        : ', times(9)
+         write(6,*) '  FFTs                       : ', nwpw_timing(1)
+         write(6,*) '  dot products               : ', nwpw_timing(2)
+         write(6,*) '  geodesic                   : ', nwpw_timing(10)
+         write(6,*) '  exchange correlation       : ', nwpw_timing(4)
+         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5)
+         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6)
+         write(6,*) '  hartree potentials         : ', nwpw_timing(7)
+         write(6,*) '  structure factors          : ', nwpw_timing(8)
+         write(6,*) '  masking and packing        : ', nwpw_timing(9)
          write(6,*)
          CALL MESSAGE(4)
       end if 

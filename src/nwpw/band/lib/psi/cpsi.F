@@ -1,6 +1,7 @@
 *
-* $Id: cpsi.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
+* $Id: cpsi.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
 *
+
 
 *     ***************************
 *     *				*
@@ -42,9 +43,9 @@
       end
 
 *     ***************************
-*     *				*
-*     *		cpsi_check	*
-*     *				*
+*     *		            		*
+*     *		cpsi_check      	*
+*     *				            *
 *     ***************************
       subroutine cpsi_check()
       implicit none
@@ -53,7 +54,7 @@
 #include "cpsi_common.fh"
 
 
-      call c_OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))  
+      call c_OrthoCheck(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))  
       return
       end
 
@@ -349,7 +350,7 @@
 *     ***********************************
       subroutine cpsi_1get_Tgradient(THpsi)
       implicit none
-      real*8 THpsi(*)
+      complex*16 THpsi(*)
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -442,7 +443,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-c      call c_geodesic_transport(t,dcpl_mb(psi1(1)),H0)
+      call c_geodesic_transport(t,dcpl_mb(psi1(1)),H0)
 
       return
       end
@@ -461,7 +462,7 @@ c      call c_geodesic_transport(t,dcpl_mb(psi1(1)),H0)
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-c      call c_geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
+      call c_geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
 
       return
       end
@@ -487,8 +488,8 @@ c      call c_geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
       external c_electron_energy
 
      
-c      call c_geodesic_get(t,dcpl_mb(psi1(1)),
-c     >                    dcpl_mb(psi2(1)))
+      call c_geodesic_get(t,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psi2(1)))
       call c_electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
@@ -514,15 +515,15 @@ c     >                    dcpl_mb(psi2(1)))
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
+      real*8 sum
 *     **** external functions ****
       real*8   c_electron_eorbit
       external c_electron_eorbit
 
 
-c      call c_geodesic_transport(t,dcpl_mb(psi1(1)),
-c     >                          dcpl_mb(psi2(1)))
+      call c_geodesic_transport(t,dcpl_mb(psi1(1)),
+     >                          dcpl_mb(psi2(1)))
       cpsi_geodesic_denergy = 2.0d0*c_electron_eorbit(dcpl_mb(psi2(1)))
-
       return
       end
 
@@ -544,8 +545,8 @@ c     real*8 sum1,sum2
      
       call Parallel_taskid(taskid)
 
-c      call c_geodesic_get(t,dcpl_mb(psi1(1)),
-c     >                    dcpl_mb(psi2(1)))
+      call c_geodesic_get(t,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psi2(1)))
 
 c*     **** Ortho Check ****     
 c      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
@@ -582,7 +583,7 @@ c      end if
 
 *     **** local variables ****
       logical value
-      integer nemax,ierr
+      integer n,neall,ierr
       integer lmd(2),tmp_L(2)
 
       call c_electron_run(dcpl_mb(psi1(1)),
@@ -596,19 +597,22 @@ c      end if
      >						  dte)
 
 *     **** lagrange multiplier corrections ****
-      nemax = ne(1)+ne(2)
+      neall = ne(1)+ne(2)
+      n     = ne(1)
 
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+      value = MA_push_get(mt_dcpl,(8*n*n),
      >                    'tmp_L',tmp_L(2),tmp_L(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),
+     >        MA_push_get(mt_dcpl,(2*n*n*nbrillioun),
      >                    'lmd',lmd(2),lmd(1))
 
-c      call cpsi_lmbda(ispin,ne,nemax,nfft3d,
-c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
-c     >                 dbl_mb(lmd(1)),
-c     >                 dbl_mb(tmp_L(1)),ierr)
+      call cpsi_lmbda(ispin,ne,nfft3d,neall,nbrillioun,n,
+     >                 dcpl_mb(psi1(1)),
+     >                 dcpl_mb(psi2(1)),
+     >                 dte,
+     >                 dcpl_mb(lmd(1)),
+     >                 dcpl_mb(tmp_L(1)),ierr)
 
       value = value.and.MA_pop_stack(lmd(2))
       value = value.and.MA_pop_stack(tmp_L(2))
@@ -773,26 +777,16 @@ c      end
 #include "cpsi_common.fh"
 
 *     ***** local variables *****
-      integer ms,index,i,j,shift1,shift2,nb
+      integer n,neall
 
-      call dcopy(2*nfft3d*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
+      neall = ne(1) +ne(2)
+      n     = ne(1)
 
-      do nb=1,nbrillioun
-      do ms=1,ispin
-         shift1 = (ms-1)*ne(1)
-         shift2 = (ms-1)*ne(1)*ne(1)
-         do j=1,ne(ms)
-           do i=1,ne(ms)
-              index = (i-1) + (j-1)*ne(ms) + shift2
-             
-              call Cram_cc_zaxpy(nb,dbl_mb(hml(1)+index),
-     >                           dcpl_mb(psi1(1)+(i-1+shift1)*nfft3d),
-     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d)) 
+      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrillioun,n,
+     >                  dcpl_mb(psi1(1)),
+     >                  dcpl_mb(hml(1)),
+     >                  dcpl_mb(psi2(1)))
 
-           end do
-         end do
-      end do
-      end do
 
       return
       end
@@ -809,51 +803,17 @@ c      end
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-
 *     ***** local variables ****
-      logical value
-      integer ms,shift1,shift2,ierr,nb,nemax
-      integer work(2),rwork(2),lwork
+      integer neall,n
 
-
-      lwork = 2*ne(1)*ne(1)
-      value = MA_push_get(mt_dbl,lwork,
-     >                    'rwork',rwork(2),rwork(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,lwork,
-     >                    'work',work(2),work(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory in psi_diagonalize_hml',0)
-
-
-      nemax = ne(1)+ne(2)
+      neall = ne(1)+ne(2)
+      n     = ne(1)
 
 *     ***** diagonalize the hamiltonian matrix *****
-      call dcopy(2*nbrillioun*(ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
-      do nb=1,nbrillioun
-      do ms=1,ispin
-         shift1 = (ms-1)*ne(1)      + (nb-1)*2*nemax
-         shift2 = (ms-1)*ne(1)*ne(1)+ (nb-1)*2*nemax*nemax
-         call ZHEEV('V','L',
-     >              ne(ms),
-     >              dcpl_mb(hml(1)+shift2),
-     >              ne(ms),
-     >              dbl_mb(eig(1)+shift1),
-     >              dcpl_mb(work(1)),
-     >              lwork,
-     >              dbl_mb(rwork(1)),
-     >              ierr)
-
-      end do
-      end do
-
-      
-      value = MA_pop_stack(work(2))
-      value = value.and.MA_pop_stack(rwork(2))
-      if (.not. value) 
-     > call errquit('error popping stack in cpsi_diagonalize_hml',0)
-
-
+      call dcopy(nbrillioun*neall,0.0d0,0,dbl_mb(eig(1)),1)
+      call Stfl_q_diag(ispin,ne,neall,nbrillioun,n,
+     >     dbl_mb(eig(1)),
+     >     dcpl_mb(hml(1)))
       return
       end
 
@@ -1009,12 +969,8 @@ c      end
 
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-      logical value,gramschmidt
-      integer nemax,indx,nb,ms
-      real*8 sum1,sum2,sum3
-      integer sm2(2),sm3(2)
+      logical value
+      integer neall,n
 
 *     **** external functions ****
       integer  brillioun_nbrillioun
@@ -1025,13 +981,14 @@ c      end
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
       nbrillioun = brillioun_nbrillioun()
-      nemax = ne(1)+ne(2)
+      neall = ne(1)+ne(2)
+      n     = ne(1)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2))*nbrillioun,
+      value = MA_alloc_get(mt_dcpl,nfft3d*neall*nbrillioun,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2))*nbrillioun,
+     >        MA_alloc_get(mt_dcpl,nfft3d*neall*nbrillioun,
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
@@ -1046,10 +1003,10 @@ c      end
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(2*nemax*nemax*nbrillioun),
+     >        MA_alloc_get(mt_dcpl,(2*n*n*nbrillioun),
      >                    'hml',hml(2),hml(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nbrillioun),
+     >        MA_alloc_get(mt_dbl,(neall*nbrillioun),
      >                    'eig',eig(2),eig(1))
 
       value = value.and.
@@ -1064,62 +1021,9 @@ c      end
       call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
 
 
-*     *********************
 *     **** Ortho Check ****
-*     *********************
-      value = MA_push_get(mt_dbl,2*nbrillioun,
-     >                     'sm2',sm2(2),sm2(1))
-      value = value.and.MA_push_get(mt_dbl,2*nbrillioun,
-     >                     'sm3',sm3(2),sm3(1))
-      if (.not. value) call errquit('out of stack memory',0)
-
-
-      call Stfl_gg_trace(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrillioun,
-     >                        dcpl_mb(psi1(1)),
-     >                        dcpl_mb(psi1(1)),
-     >                        dbl_mb(sm2(1)))
-
-      gramschmidt = .false.
-      sum1 = dble(ne(1) + ne(2))
-      do nb=1,nbrillioun
-      do ms=1,ispin
-         indx = (nb-1)*nfft3d*(ne(1)+ne(2))
-         indx = (ms-1)*ne(1)*nfft3d+indx
-         sum2 = dbl_mb(sm2(1)+(ms-1)+(nb-1)*2) 
-         if (dabs(sum2-sum1).gt.1.0d-10) then
-           gramschmidt = .true. 
-           call Stfl_g_MakeOrtho(nb,nfft3d,ne(ms),dcpl_mb(psi1(1)+indx))
-         end if
-      end do
-      end do
-
-      if (gramschmidt) then
-      call Stfl_gg_trace(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrillioun,
-     >                        dcpl_mb(psi1(1)),
-     >                        dcpl_mb(psi1(1)),
-     >                        dbl_mb(sm3(1)))
-
-      call Parallel_taskid(taskid)
-      do nb=1,nbrillioun
-      do ms=1,ispin
-         sum2 = dbl_mb(sm2(1)+(ms-1)+(nb-1)*2)
-         sum3 = dbl_mb(sm3(1)+(ms-1)+(nb-1)*2) 
-         if (dabs(sum2-sum1).gt.1.0d-10) then
-           if (taskid.eq.MASTER)
-     >      write(*,*) 
-     >      "Waring - Gram-Schmidt performed on psi, spin,zone:",
-     >       ms,nb," error_before,error_after:",sum2,sum3
-         end if
-      end do
-      end do
-      end if
-
-      value = MA_pop_stack(sm3(2))
-      value = value.and.MA_pop_stack(sm2(2))
-      if (.not. value) 
-     > call errquit('cpsi_initialize:popping stack memory',0)
-
-
+      call Stfl_g_OrthoCheckMake(ispin,ne,nfft3d,neall,nbrillioun,
+     >                        dcpl_mb(psi1(1)))
 
       cpsi_initialize = value
       return

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-12-14 20:02:47 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2001-12-17 23:31:15 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 				cgsd_input.o \
@@ -22,7 +22,8 @@
     USES_BLAS = cgsdv5.F cgsd_energy.F
                 
 
-  LIB_DEFINES =
+  LIB_DEFINES = 
+  LIB_INCLUDES = -I../../nwpwlib/include
 
 
 include ../../../config/makefile.h

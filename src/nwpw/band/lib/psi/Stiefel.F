@@ -1,3 +1,8 @@
+*
+* $Id: Stiefel.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
+*
+
+
 *     ***********************************************************
 *     *								*
 *     *   		 Stfl (Stiefel) Library		*	
@@ -222,7 +227,7 @@
       if (ispin.gt.1) call C3dB_r_Zero(1,C(1,ispin))
 
       do nb=1,nbrill
-        weight = brillioun_weight()
+        weight = brillioun_weight(nb)
         do ms=1,ispin
         do n=n1(ms),n2(ms)
            call C3dB_cr_aSqrpy(1,weight,A(1,n,nb),C(1,ms))
@@ -437,9 +442,52 @@
       end
 
 *     ****************************
-*     *                		 *
-*     *    	Stfl_gg_trace 	 *
-*     *                		 *
+*     *                	    	 *
+*     *    	Stfl_gg_traceall 	 *
+*     *                		     *
+*     ****************************
+      subroutine Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,A,B,sum)
+      implicit none
+      integer ispin,ne(2)
+      integer nfft3d,neall,nbrill
+      complex*16 A(nfft3d,neall,nbrill)
+      complex*16 B(nfft3d,neall,nbrill)
+      real*8 sum
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      logical value
+      integer nb,ms,indx
+      integer tmp1(2)
+
+*     **** external functions ****
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      value =  MA_push_get(mt_dbl,(2*nbrill),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+      call Stfl_gg_trace(ispin,ne,nfft3d,neall,nbrill,
+     >                   A,B,dbl_mb(tmp1(1)))
+
+      sum = 0.0d0
+      do nb=1,nbrill
+      do ms=1,ispin
+         indx = ms + (nb-1)*2
+         sum = sum + brillioun_weight(nb)*dbl_mb(tmp1(1)+indx)
+      end do
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack memory',0)
+      return
+      end
+
+*     ****************************
+*     *                	    	 *
+*     *    	Stfl_gg_trace    	 *
+*     *                		     *
 *     ****************************
 *
 *     uses - 
@@ -475,4 +523,119 @@
       if (np.gt.1) call C3dB_Vector_Sumall(2*nbrill,MM)
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *            Stfl_q_diag          *
+*     *                                 *
+*     ***********************************
+      subroutine Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
+      implicit none
+      integer ispin,ne(2)
+      integer neall,nbrill,n
+      real*8     S(neall,nbrill)
+      complex*16 V(n,n,2,nbrill)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      logical value
+      integer nb,ms
+      integer rwork(2),work(2),lwork,ierr
+
+      lwork = 2*ne(1)*ne(1)
+      value = MA_push_get(mt_dbl,lwork,
+     >                    'rwork',rwork(2),rwork(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,lwork,
+     >                    'work',work(2),work(1))
+      if (.not. value)
+     >   call errquit('Stfl_q_diag:out of stack memory',0)
+
+      do nb=1,nbrill
+      do ms=1,ispin
+         call ZHEEV('V','L',
+     >              ne(ms),
+     >              V(1,1,ms,nb),
+     >              n,
+     >              S(1+(ms-1)*n,nb),
+     >              dcpl_mb(work(1)),
+     >              lwork,
+     >              dbl_mb(rwork(1)),
+     >              ierr)
+      end do
+      end do
+
+      value = MA_pop_stack(work(2))
+      value = value.and.MA_pop_stack(rwork(2))
+      if (.not. value)
+     > call errquit('Stfl_q_diag:error popping stack',0)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *            Stfl_SVD             *
+*     *                                 *
+*     ***********************************
+
+      subroutine Stfl_SVD(ispin,ne,nfft3d,neall,nbrill,n,A,U,S,V)
+      implicit none
+      integer ispin,ne(2)
+      integer nfft3d,neall,nbrill,n
+      complex*16 A(nfft3d,neall,nbrill)
+      complex*16 U(nfft3d,neall,nbrill)
+      real*8     S(neall,nbrill)
+      complex*16 V(n,n,2,nbrill)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,nb
+      integer tmp2(2)
+
+
+*     ***** generate V and Sigma^2 ****
+      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,A,A,V)
+      call Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
+
+
+*     **** generate U*Sigma ****
+      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,A,V,U)
+
+
+*     **** normalize U*sigma, and sqrt(S^2) ****
+      value =  MA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+      do nb=1,nbrill
+
+*        **** normalize U*sigma ****
+         do i=1,neall
+            call Cram_cc_idot(nb,U(1,i,nb),U(1,i,nb),
+     >                        dbl_mb(tmp2(1)+i-1))
+         end do
+         call C3dB_Vector_SumAll(neall,dbl_mb(tmp2(1)))
+      
+         do i=1,neall
+            dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
+   
+            call Cram_c_SMul(nb,dbl_mb(tmp2(1)+i-1),
+     >                       U(1,i,nb),U(1,i,nb))
+         end do
+
+*        **** sqrt(S*S) ****
+         do i=1,neall
+           if (S(i,nb).lt.0.0d0) S(i,nb) = dabs(S(i,nb))
+           S(i,nb) = dsqrt(S(i,nb))
+         end do
+
+      end do
+      value = MA_pop_stack(tmp2(2))
+      if (.not. value) call errquit('error popping stack memory',0)
+       
+      return
+      end
+
 

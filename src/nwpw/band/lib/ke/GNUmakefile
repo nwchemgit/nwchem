@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-13 03:49:51 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-12-17 23:31:11 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -14,6 +14,7 @@
     USES_BLAS = cke.F
 
   LIB_DEFINES = 
+
 
 
 include ../../../../config/makefile.h

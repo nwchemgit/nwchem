@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
+* $Id: c_electron.F,v 1.3 2001-12-17 23:31:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -296,7 +296,7 @@
 *     *** get orbital energies ****
       eorbit = 0.0d0
       do nb=1,nbrill
-        weight = brillioun_weight()
+        weight = brillioun_weight(nb)
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
              indx = (ii-1)*nfft3d + (nb-1)*nfft3d*neall
@@ -534,7 +534,7 @@
       n     = ne(1)
       neall = ne(1)+ne(2)
 
-      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,n,
+      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,
      >                  psi_k,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  hml)
@@ -573,7 +573,7 @@
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call psi_H(ispin,ne,psi_k,
+      call cpsi_H(ispin,ne,psi_k,
      >           dcpl_mb(psi_r(1)),
      >           dcpl_mb(vl(1)),
      >           dcpl_mb(vc(1)),
@@ -582,7 +582,7 @@
      >           move,
      >           fion)
 
-      call Stfl_gg_dscale(ispin,ne,nfft3d,(ne(1)+ne(2)),
+      call Stfl_gg_dscale(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrill,
      >                    (-1.0d0),
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
@@ -674,7 +674,7 @@
          if (.not. value) call errquit(
      >     'electron_gen_densities: out of stack memory',0)
 
-      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dbl_mb(tmp1(1)))
+      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dcpl_mb(tmp1(1)))
       call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
       call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
       call Cram_c_pack(0,dcpl_mb(tmp1(1)))

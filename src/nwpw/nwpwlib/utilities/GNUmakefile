@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.7 2001-12-14 20:02:46 bylaska Exp $
+# $Id: GNUmakefile,v 1.8 2001-12-17 23:31:14 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
+			izamax.o \
             cpmd_properties.o \
  			pair_dist.o \
             auto_corr.o \
@@ -18,7 +19,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F
+    USES_BLAS = auto_corr.F izamax.f
 
   LIB_DEFINES = 
 

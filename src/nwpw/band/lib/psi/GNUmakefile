@@ -1,9 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-12-15 03:11:01 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-12-17 23:31:12 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
 			cpsi.o \
+		 	c_geodesic.o \
+			cpsi_lmbda.o \
 			Stiefel.o \
 			check.o \
 			cpsi_read.o \
@@ -16,7 +18,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = cpsi.F
+    USES_BLAS = cpsi.F c_geodesic.F cpsi_lmbda.F
 
   LIB_DEFINES = 
 

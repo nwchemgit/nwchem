@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.6 2001-12-15 03:11:01 bylaska Exp $
+* $Id: band_minimizer.F,v 1.7 2001-12-17 23:31:13 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -109,6 +109,8 @@
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize
       external cpsp_semicore,psi_filefind,cpsi_initialize
+      real*8   c_cgsd_energy
+      external c_cgsd_energy
 
 
 
@@ -207,16 +209,12 @@
       else
         newpsi = .false.
       end if
-      write(*,*) "HERA"
       value = cpsi_initialize()
 
-      write(*,*) "HERB"
 *     **** electron and geodesic data structures ****
       call c_electron_init()
-      WRITE(*,*) "HERC"
-*     call geodesic_init()
+      call c_geodesic_init()
       call linesearch_init()
-      write(*,*) "HERD"
 
 
 *                |**************************|
@@ -304,8 +302,7 @@
       if (taskid.eq.MASTER) call current_second(cpu2)
 
 *     **** calculate energy ****
-*     EV= cgsd_energy(newpsi)
-      EV = 0.0d0
+      EV= c_cgsd_energy(newpsi)
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(6,1600) EV
@@ -373,7 +370,7 @@
 
 *     **** deallocate heap memory ****
       call c_electron_finalize()
-c     call c_geodesic_finalize()
+      call c_geodesic_finalize()
       call c_ewald_end()
       call cstrfac_end()
       call c_coulomb_end()

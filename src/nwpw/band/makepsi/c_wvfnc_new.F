@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
 *
       subroutine c_wvfnc_new(wavefunction_filename,
      >             			version,
@@ -83,7 +83,7 @@
       integer cfull_indx,cfull_hndl,l,l1,l2
       integer i,j,k,ms,n,nb
 
-      double precision p,scale
+      double precision p,scale,rx,ry
       double complex cc,cx,sx,zx
 
 *     **** external functions ****
@@ -167,25 +167,24 @@
           if (filling(4,n,ms).gt.0) cc=cx
           L2=L1
           dcpl_mb(cfull_indx+l1)=cc
-          if (filling(1,n,ms).eq.0) then
-            l2 = inc3c*mod(nfft3-filling(3,n,ms),nfft3)
-     >         + inc2c*mod(nfft2-filling(2,n,ms),nfft2)
-     >         +       filling(1,n,ms)
-            dcpl_mb(cfull_indx+l2)=dconjg(cc)
-          end if
+          l2 = inc3c*mod(nfft3-filling(3,n,ms),nfft3)
+     >       + inc2c*mod(nfft2-filling(2,n,ms),nfft2)
+     >       +       filling(1,n,ms)
+          dcpl_mb(cfull_indx+l2)=dconjg(cc)
 
-          IF((ABS(filling(4,n,ms)).gt.1)) THEN
-            do 125 K=2,NFFT3D-1
-c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
+c         IF((ABS(filling(4,n,ms)).gt.1)) THEN
+            do 125 K=0,NFFT3D-1
+			  rx = (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+			  ry = (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-     >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+     >                              + dcmplx(rx,ry)
   125       continue
             P=gcdot(nfft1,nfft2,nfft3,
      >               dcpl_mb(cfull_indx),
      >               dcpl_mb(cfull_indx))
             P=1.0d0/dsqrt(P)
             call dscal(2*nfft3d,P,dcpl_mb(cfull_indx),1)
-          ENDIF
+c         ENDIF
           call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
 
           call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)

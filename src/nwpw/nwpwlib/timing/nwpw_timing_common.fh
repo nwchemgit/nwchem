@@ -1,0 +1,20 @@
+*
+* $Id: nwpw_timing_common.fh,v 1.1 2001-12-17 23:31:14 bylaska Exp $
+*
+
+*     ***** timing variables *****
+*     1 - fft_time
+*     2 - dot_time
+*     3 - ABC_time
+*     4 - vxc_time
+*     5 - vlocal_time
+*     6 - vnl_time
+*     7 - vh_time
+*     8 - strfac_time
+*     9 - maskC_time
+*    10 - geodesic_time
+      real*8 nwpw_tim1(50),nwpw_tim2(50)
+      real*8 times(50)
+      common / timing / times
+      common / timing2 / nwpw_tim1,nwpw_tim2
+

@@ -1,0 +1,12 @@
+
+*
+* $Id: c_geodesic_common.fh,v 1.1 2001-12-17 23:31:12 bylaska Exp $
+*
+
+*     **** geodesic common block ***
+      integer U(2)
+      integer Vt(2)
+      integer S(2)
+      common / geodesic_block / U,Vt,S
+
+

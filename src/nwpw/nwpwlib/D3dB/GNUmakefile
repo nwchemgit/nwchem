@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 17:41:40 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-12-17 23:31:13 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
 
@@ -14,6 +14,7 @@
     USES_BLAS = D3dB-new.F
 
   LIB_DEFINES = 
+
 
 
 include ../../../config/makefile.h
