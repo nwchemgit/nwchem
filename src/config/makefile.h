@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.276 1999-03-13 21:32:01 edo Exp $
+# $Id: makefile.h,v 1.277 1999-05-20 00:24:22 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -302,7 +302,11 @@ ifeq ($(TARGET),SOLARIS)
 
        CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
+# needed if python was compiled with gcc
+      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
+# needed here if using a python version with tk/tcl extensions 
+#     EXTRA_LIBS += -ltk8.0 -ltcl8.0 -lX11
 
 ifdef PURECOV
 #
