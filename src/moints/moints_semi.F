@@ -11,7 +11,7 @@ c
       implicit none
       integer unit, nblk, istat, ierr
       character*(*) fname
-#ifndef CRAY-T3D
+#ifndef CRAY_T3D
       integer len
       integer inp_strlen
       external inp_strlen
@@ -39,7 +39,7 @@ c
       subroutine waclose( unit, ierr )
       implicit none
       integer unit, ierr
-#ifndef CRAY-T3D
+#ifndef CRAY_T3D
       call wclose(unit,ierr)
 #else
       double precision dunits
@@ -57,7 +57,7 @@ c
       integer unit, addr, len, ierr
       double precision v(*)
 
-#ifndef CRAY-T3D
+#ifndef CRAY_T3D
       call putwa( unit, v, addr, len, ierr )
 #else
       double precision dunits
@@ -78,7 +78,7 @@ c
       integer unit, addr, len, ierr
       double precision v(*)
 
-#ifndef CRAY-T3D
+#ifndef CRAY_T3D
       call getwa( unit, v, addr, len, ierr )
 #else
       double precision dunits
@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.9 1995-12-16 02:18:52 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.10 1996-01-15 20:55:27 gg502 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -281,7 +281,7 @@ c
        vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         call moints_localfname( 'KHalf', 8, fnameK )
+         Call Util_PName('KHalf', fnameK)
          call waopen( kunit, fnameK, 1, 0, ierr )
          vtmp(3) = balo
          vtmp(4) = bahi
@@ -292,7 +292,7 @@ c
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         call moints_localfname( 'JHalf', 8, fnameJ )
+         Call Util_PName('JHalf', fnameJ)
          call waopen(junit, fnameJ, 1, 0, ierr )
          vtmp(3) = bilo
          vtmp(4) = bihi
@@ -796,7 +796,7 @@ c
       integer junit
       parameter(junit=10)
 
-      call moints_localfname( 'JHalf', 8, fname )
+      Call Util_PName('JHalf', fname)
       call waopen(junit, fname, 1, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, bilo, bihi, nnbf, ioff )
@@ -880,7 +880,7 @@ c
       external moints_epair_eval
 
       tmp2 = tcgtime()
-      call moints_localfname( 'KHalf', 8, fname )
+      Call Util_PName('KHalf', fname)
       call waopen(kunit, fname, 1, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
@@ -1036,7 +1036,7 @@ c
       external moints_epair_eval
       data sp1fact,sp2fact/4.d0,-2.d0/
       
-      call moints_localfname( 'KHalf', 8, fname )
+      Call Util_PName('KHalf', fname)
       call waopen(kunit, fname, 1, 0, itmp )
       e2 = 0.d0
       nocc = oseghi - oseglo + 1
@@ -1232,38 +1232,3 @@ c
      $               ma_sizeof(MT_INT, memi, MT_BYTE)
        return
        end
-
-
-
-
-
-
-c
-c   Generate a unique filename for each processor
-c   given a prefix --> "pref.xxx"
-c
-       subroutine moints_localfname( prefix, maxlen, fname )
-       implicit none
-#include "global.fh"       
-       character*(*) prefix
-       integer maxlen
-       character*(*) fname
-c
-       integer plen, i, ii, jj
-       integer inp_strlen
-       external inp_strlen
-
-       plen = min( inp_strlen( prefix ), (maxlen-4) )
-       do i=1,plen
-          fname(i:i) = prefix(i:i)
-       enddo
-       fname(plen+1:plen+1) = '.'
-       jj = ga_nodeid()
-       do i=1,3
-          ii = jj/(10**(3-i))
-          fname(plen+i+1:plen+i+1) = char(ichar('0')+ii)
-          jj = jj - ii*(10**(3-i))
-       enddo
-       return
-       end
-
