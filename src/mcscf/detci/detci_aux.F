@@ -1370,7 +1370,3 @@ c
        enddo
        return
        end
-
-
-
-

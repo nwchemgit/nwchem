@@ -195,7 +195,7 @@ c
 c  Memory for scratch space should be allocated HERE!
 c
       memuse03 = 2*max(nstra,nstrb)*mseg + 3*nekla + 4*nstrb*nekla
-      if (.not.ma_push_get(MT_DBL, (max(nstra,nstrb)*mseg),
+      if (.not.ma_push_get(MT_DBL, (max(max(nstra,nstrb)*mseg,nexb)),
      $     'detci: fscr', l_detci_fscr, k_detci_fscr))
      $     call errquit('detci: cannot allocate fscr',0)
 

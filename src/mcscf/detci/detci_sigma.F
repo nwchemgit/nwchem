@@ -202,7 +202,7 @@ c
       integer vrhs(nekla)                     ! [scratch] Array of RHS Strings for E_kl
       integer vlhs(*)                         ! [scratch] Array of LHS Strings for E_kl
       integer vphase(nekla)                   ! [scratch] Array of Phases for E_kl
-      double precision f(nstrb)               ! [scratch] Scratch space
+      double precision f(nexb)                ! [scratch] Scratch space
       double precision cprime(nstrb,nekla)    ! [scratch] Gathered CI-vector
       double precision sprime(nstrb,nekla)    ! [scratch] Gathered sigma vector
       integer g_civec                         ! [input] CI-vector          
@@ -368,36 +368,3 @@ c
       detci_absync_etime  = detci_absync_etime + tsync
       return
       end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
