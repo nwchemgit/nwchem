@@ -3,7 +3,7 @@
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda)
 c
-c $Id: tddft_iguess.F,v 1.9 2003-01-17 17:17:01 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.10 2003-01-17 20:22:12 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -70,8 +70,8 @@ c
       integer request
       integer dummy
       logical found
-      character*80 vector
-      logical vector_exists
+C     character*80 vector
+C     logical vector_exists
       integer ipol_verify
       integer nroots_verify
       integer nov_verify(2)
@@ -88,116 +88,116 @@ c ---------------------------------------
 c Read initial guess from a file (if any)
 c ---------------------------------------
 c
-      if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
-     1  call errquit('tddft_iguess: failed to read vector',0)
-      inquire(file=vector,exist=vector_exists)
-      if (vector_exists) then
-        open(unit=69,file=vector,form='formatted',status='old',
-     1  err=90000,access='sequential')
-        rewind(69)
-        read(69,*,err=90000) tda_verify
-        read(69,*,err=90000) ipol_verify
-        read(69,*,err=90000) nroots_verify
-        read(69,*,err=90000) nov_verify(1),nov_verify(2)
-        if ((ipol.eq.ipol_verify).and.
-     1      (nroots.le.nroots_verify).and.
-     2      (nov(1).eq.nov_verify(1)).and.
-     3      (nov(2).eq.nov_verify(2))) then
+C     if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
+C    1  call errquit('tddft_iguess: failed to read vector',0)
+C     inquire(file=vector,exist=vector_exists)
+C     if (vector_exists) then
+C       open(unit=69,file=vector,form='formatted',status='old',
+C    1  err=90000,access='sequential')
+C       rewind(69)
+C       read(69,*,err=90000) tda_verify
+C       read(69,*,err=90000) ipol_verify
+C       read(69,*,err=90000) nroots_verify
+C       read(69,*,err=90000) nov_verify(1),nov_verify(2)
+C       if ((ipol.eq.ipol_verify).and.
+C    1      (nroots.le.nroots_verify).and.
+C    2      (nov(1).eq.nov_verify(1)).and.
+C    3      (nov(2).eq.nov_verify(2))) then
 c
 c Read from a file
 c
-          if (tda_verify) then
-            ntrials=nroots
-          else
-            ntrials=2*nroots
-          endif
-          do i=1,ipol
-            do n=1,ntrials
-              do m=1,nov(i)
-                read(69,*) r
-                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                  call ga_put(g_trials(i),m,m,n,n,r,1)
-                else
-                  call ga_put(g_buffer1(i),m,m,1,1,r,1)
-                endif
-              enddo
-              if ((algorithm.eq.3).or.(algorithm.eq.4)) then
-                dummy=dra_write_section
-     1            (.false.,g_buffer1(i),1,nov(i),1,1,
-     2            d_trials(i),1,nov(i),n,n,request)
-                dummy=dra_wait(request)
-              endif
-            enddo
-          enddo
-          nproducts=0
-c
-c Orthonormalize
-c
-          do i=1,ipol
-            do n=1,ntrials
-              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
-     1                          g_trials(i),'N',1,nov(i),n,n)
-              else
-                dummy=dra_read_section(.false.,g_buffer1(i),
-     1          1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
-                dummy=dra_wait(request)
-                r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
-     1                          g_buffer1(i),'N',1,nov(i),1,1)
-              endif
-              if (r.eq.0.0d0) call errquit
-     1          ('tddft_iguess: unable to normalize',0)
-              r=1.0d0/dsqrt(r)
-              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                call ga_scale_patch(g_trials(i),1,nov(i),n,n,r)
-              else
-                call ga_scale_patch(g_buffer1(i),1,nov(i),1,1,r)
-                dummy=dra_write_section(.false.,g_buffer1(i),
-     1          1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
-                dummy=dra_wait(request)
-              endif
-              if (n.ne.ntrials) then
-                do m=n+1,ntrials
-                  if ((algorithm.eq.1).or.(algorithm.eq.2)) then
-                    r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
-     1                              g_trials(i),'N',1,nov(i),m,m)
-                    call ga_add_patch(1.0d0,g_trials(i),1,nov(i),m,m,
-     1                                -r,   g_trials(i),1,nov(i),n,n,
-     2                                      g_trials(i),1,nov(i),m,m)
-                  else
-                    dummy=dra_read_section(.false.,g_buffer1(i),
-     1              1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
-                    dummy=dra_wait(request)
-                    dummy=dra_read_section(.false.,g_buffer2(i),
-     1              1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
-                    dummy=dra_wait(request)
-                    r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
-     1                              g_buffer2(i),'N',1,nov(i),1,1)
-                    call ga_add_patch(1.0d0,g_buffer2(i),1,nov(i),1,1,
-     1                                -r,   g_buffer1(i),1,nov(i),1,1,
-     2                                      g_buffer2(i),1,nov(i),1,1)
-                    dummy=dra_write_section(.false.,g_buffer2(i),
-     1              1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
-                    dummy=dra_wait(request)
-                  endif
-                enddo
-              endif
-            enddo
-          enddo
-          if (nodezero.and.util_print('initial guess',print_default))
-     1      write(LuOut,1010) vector
-          return
-        endif
-      endif
- 1010 format(/,2x,'Initial guess read from ',a)
+C         if (tda_verify) then
+C           ntrials=nroots
+C         else
+C           ntrials=2*nroots
+C         endif
+C         do i=1,ipol
+C           do n=1,ntrials
+C             do m=1,nov(i)
+C               read(69,*) r
+C               if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+C                 call ga_put(g_trials(i),m,m,n,n,r,1)
+C               else
+C                 call ga_put(g_buffer1(i),m,m,1,1,r,1)
+C               endif
+C             enddo
+C             if ((algorithm.eq.3).or.(algorithm.eq.4)) then
+C               dummy=dra_write_section
+C    1            (.false.,g_buffer1(i),1,nov(i),1,1,
+C    2            d_trials(i),1,nov(i),n,n,request)
+C               dummy=dra_wait(request)
+C             endif
+C           enddo
+C         enddo
+C         nproducts=0
+C
+C Orthonormalize
+C
+C         do i=1,ipol
+C           do n=1,ntrials
+C             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+C               r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
+C    1                          g_trials(i),'N',1,nov(i),n,n)
+C             else
+C               dummy=dra_read_section(.false.,g_buffer1(i),
+C    1          1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+C               dummy=dra_wait(request)
+C               r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
+C    1                          g_buffer1(i),'N',1,nov(i),1,1)
+C             endif
+C             if (r.eq.0.0d0) call errquit
+C    1          ('tddft_iguess: unable to normalize',0)
+C             r=1.0d0/dsqrt(r)
+C             if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+C               call ga_scale_patch(g_trials(i),1,nov(i),n,n,r)
+C             else
+C               call ga_scale_patch(g_buffer1(i),1,nov(i),1,1,r)
+C               dummy=dra_write_section(.false.,g_buffer1(i),
+C    1          1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+C               dummy=dra_wait(request)
+C             endif
+C             if (n.ne.ntrials) then
+C               do m=n+1,ntrials
+C                 if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+C                   r=ga_ddot_patch(g_trials(i),'N',1,nov(i),n,n,
+C    1                              g_trials(i),'N',1,nov(i),m,m)
+C                   call ga_add_patch(1.0d0,g_trials(i),1,nov(i),m,m,
+C    1                                -r,   g_trials(i),1,nov(i),n,n,
+C    2                                      g_trials(i),1,nov(i),m,m)
+C                 else
+C                   dummy=dra_read_section(.false.,g_buffer1(i),
+C    1              1,nov(i),1,1,d_trials(i),1,nov(i),n,n,request)
+C                   dummy=dra_wait(request)
+C                   dummy=dra_read_section(.false.,g_buffer2(i),
+C    1              1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
+C                   dummy=dra_wait(request)
+C                   r=ga_ddot_patch(g_buffer1(i),'N',1,nov(i),1,1,
+C    1                              g_buffer2(i),'N',1,nov(i),1,1)
+C                   call ga_add_patch(1.0d0,g_buffer2(i),1,nov(i),1,1,
+C    1                                -r,   g_buffer1(i),1,nov(i),1,1,
+C    2                                      g_buffer2(i),1,nov(i),1,1)
+C                   dummy=dra_write_section(.false.,g_buffer2(i),
+C    1              1,nov(i),1,1,d_trials(i),1,nov(i),m,m,request)
+C                   dummy=dra_wait(request)
+C                 endif
+C               enddo
+C             endif
+C           enddo
+C         enddo
+C         if (nodezero.and.util_print('initial guess',print_default))
+C    1      write(LuOut,1010) vector
+C         return
+C       endif
+C     endif
+C1010 format(/,2x,'Initial guess read from ',a)
 c
 c --------------------
 c Allocate work arrays
 c --------------------
 c
-90000 if (nodezero.and.util_print('initial guess',print_default)
-     1  .and.(vector.ne.'')) write(LuOut,1000) 
- 1000 format(/,2x,'Unable to retrieve initial guess from a file')
+C90000 if (nodezero.and.util_print('initial guess',print_default)
+C     1  .and.(vector.ne.'')) write(LuOut,1000) 
+C 1000 format(/,2x,'Unable to retrieve initial guess from a file')
       if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
      1  'eigenvalue differences',l_ediff,k_ediff)) call errquit
      2  ('tddft_iguess: failed to allocate ediff',0)

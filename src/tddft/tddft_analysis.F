@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.12 2002-09-16 20:00:35 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.13 2003-01-17 20:22:11 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -85,7 +85,7 @@ c
       integer l_y(2),k_y(2)
       double precision corr(nbf_ao,nbf_ao)
       integer dummy,request
-      character*80 vector
+C     character*80 vector
       logical vector_exists,fileerror
 c
       nodezero=(ga_nodeid().eq.0)
@@ -158,38 +158,38 @@ c --------------------
 c Solution vector file
 c --------------------
 c
-      if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
-     1  call errquit('tddft_analysis: failed to read vector',0)
-      inquire(file=vector,exist=vector_exists)
-      fileerror=.false.
-      if (vector_exists) then
-        if (nodezero)
-     1    open(unit=69,file=vector,form='formatted',status='old',
-     2    err=90000,access='sequential')
-          goto 90010
-      else
-        if (nodezero)
-     1    open(unit=69,file=vector,form='formatted',status='new',
-     2    err=90000,access='sequential')
-          goto 90010
-      endif
-90000 fileerror=.true.
-90010 continue
-      if (fileerror) then
-        if (nodezero.and.util_print('CI vector',print_default))
-     1    write(LuOut,2000)
-      else
-        if (nodezero.and.util_print('CI vector',print_default)) then
-          write(LuOut,2010) vector
-          rewind(69)
-          write(69,*) tda
-          write(69,*) ipol
-          write(69,*) nroots
-          write(69,*) nov(1),nov(2)
-        endif
-      endif
- 2000 format(/,2x,'No CI vector file is created')
- 2010 format(/,2x,'CI vectors are stored in ',a20)
+C     if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector))
+C    1  call errquit('tddft_analysis: failed to read vector',0)
+C     inquire(file=vector,exist=vector_exists)
+C     fileerror=.false.
+C     if (vector_exists) then
+C       if (nodezero)
+C    1    open(unit=69,file=vector,form='formatted',status='old',
+C    2    err=90000,access='sequential')
+C         goto 90010
+C     else
+C       if (nodezero)
+C    1    open(unit=69,file=vector,form='formatted',status='new',
+C    2    err=90000,access='sequential')
+C         goto 90010
+C     endif
+C0000 fileerror=.true.
+C0010 continue
+C     if (fileerror) then
+C       if (nodezero.and.util_print('CI vector',print_default))
+C    1    write(LuOut,2000)
+C     else
+C       if (nodezero.and.util_print('CI vector',print_default)) then
+C         write(LuOut,2010) vector
+C         rewind(69)
+C         write(69,*) tda
+C         write(69,*) ipol
+C         write(69,*) nroots
+C         write(69,*) nov(1),nov(2)
+C       endif
+C     endif
+C2000 format(/,2x,'No CI vector file is created')
+C2010 format(/,2x,'CI vectors are stored in ',a20)
 c
 c ------------
 c Tamm-Dancoff

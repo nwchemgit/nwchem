@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.7 2003-01-14 20:06:17 edo Exp $
+c $Id: tddft_input.F,v 1.8 2003-01-17 20:22:12 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -34,7 +34,7 @@ c
       character*20 test
       integer nroots,maxvecs,maxiter,target,algorithm
       character*4 targetsym
-      character*80 vector
+C     character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
@@ -118,9 +118,9 @@ c
 c
 c     VECTOR (filename for solution vectors)
 c
-      call util_file_name('tddft',.false.,.false.,vector)
-      if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+C     call util_file_name('tddft',.false.,.false.,vector)
+C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
+C    1  call errquit('tddft_input: failed writing to rtdb',0)
 c
 c ----------
 c Read input
@@ -267,14 +267,14 @@ c
 c
 c     VECTOR (filename for solution vectors)
 c
-      else if (inp_compare(.false.,test,'vector')) then
-        if (.not.inp_a(vector)) then
-          write(LuOut,*) 'tddft_input: filename not found; ',
-     1      'default name will be used'
-          call util_file_name('tddft',.false.,.false.,vector)
-        endif
-        if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+C     else if (inp_compare(.false.,test,'vector')) then
+C       if (.not.inp_a(vector)) then
+C         write(LuOut,*) 'tddft_input: filename not found; ',
+C    1      'default name will be used'
+C         call util_file_name('tddft',.false.,.false.,vector)
+C       endif
+C       if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
+C    1    call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     PRINT
 c
