@@ -64,7 +64,16 @@ c
            dbl_mb(i-1+nocc+k_occ) = 1.d0
          enddo
        else
-         call rohf_occ2integer(nbf,dbl_mb(k_occ),nocc,nact)
+         nocc = 0
+         nact = 0
+         do i=1,nbf
+           if (dbl_mb(k_occ+i-1).eq.2.d0) then
+             nocc = nocc + 1
+           else if (dbl_mb(k_occ+i-1).ne.0.d0) then
+             nact = nact + 1
+           endif
+         enddo
+C         call rohf_occ2integer(nbf,dbl_mb(k_occ),nocc,nact)
        endif
 C       if (nact.le.0) return
 C       mo_indx_lo = nocc + 1
