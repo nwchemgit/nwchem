@@ -1,5 +1,7 @@
 *
-* $Id: coulomb_screened.F,v 1.6 2002-03-03 17:42:41 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.7 2003-01-25 01:47:52 bylaska Exp $
+
+
 *
       subroutine coulomb_screened_init(rcut,pp)
       implicit none 
@@ -92,6 +94,10 @@ c          dbl_mb(tmp1(1)+i-1) = f*fourpi/gg
 
       call nwpw_timing_end(7)
 
+*     ***** DEBUG printing *****
+      write(*,*) "HERA"
+      call coulomb_screened_init_print(rcut,pp)
+      write(*,*) "HERB"
 
       return
       end
@@ -280,3 +286,131 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
       kiril_coulomb_transform0 = (fourpi)*sum*drho
       return
       end
+
+
+
+
+*
+      subroutine coulomb_screened_init_print(rcut,pp)
+      implicit none 
+      real*8 rcut,pp
+
+#include "mafdecls.fh"
+
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / vc_screened_block / vc_indx,vc_hndl
+
+*     
+      logical value
+      integer i,npack0,tmp1(2),nfft3d
+
+      write(*,*) "hera"
+
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >  call errquit('coulomb_screened_init_print:push stack',0)
+
+      write(*,*) "herb"
+      do i=1,npack0
+         dcpl_mb(tmp1(1)+i-1) = dcmplx(dbl_mb(vc_indx+i-1),0.0d0)
+      end do
+      write(*,*) "herc"
+
+      call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+      call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+      write(*,*) "herd"
+
+      call sub_coulomb_screened_init_print(dcpl_mb(tmp1(1)),rcut,pp)
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     >  call errquit('coulomb_screened_init_print:pop stack',1)
+      write(*,*) "here"
+
+      return
+      end
+
+
+      subroutine sub_coulomb_screened_init_print(vc,rcut,pp)
+      implicit none 
+      real*8 vc(*)
+      real*8 rcut,pp
+
+
+*     **** local variables ****
+      integer nfft3d,n2ft3d,index
+      integer i,j,k,p,q,taskid
+      integer index,k1,k2,k3
+      integer np1,np2,np3
+      integer nph1,nph2,nph3
+      real*8  a(3,3),r,pp2
+
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
+
+      write(*,*) "gera"
+*     **** constants ****
+      call Parallel_taskid(taskid)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      pp2    = pp + 2.0d0
+
+      nph1 = np1/2
+      nph2 = np2/2
+      nph3 = np3/2
+
+*     **** elemental vectors ****
+      do i=1,3
+         a(i,1) = lattice_unita(i,1)/np1
+         a(i,2) = lattice_unita(i,2)/np2
+         a(i,3) = lattice_unita(i,3)/np3
+      end do
+
+      write(*,*) "gerb"
+
+*     **** grid points in coordination space ****
+      k3=0.0d0
+      k2=0.0d0
+      do k1 = -nph1, nph1-1
+
+         i = k1 + nph1
+         j = k2 + nph2
+         k = k3 + nph3
+
+         call D3dB_ktoqp(1,k+1,q,p)
+         if (p .eq. taskid) then
+            index = (q-1)*(np1+2)*np2
+     >            + j    *(np1+2)
+     >            + i+1
+
+*         **** reverse y and z ****
+          r = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+          !r(2) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+          !r(3) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+
+          if (dabs(r).gt.1.0d-4) then
+          write(56,*) r,vc(index)/dsqrt(dble(np1*np2*np3)),
+     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r)
+          else
+          write(56,*) r,vc(index)/dsqrt(dble(np1*np2*np3)),0.0d0
+          end if
+
+         end if
+      end do
+      write(*,*) "gerc"
+      call util_flush(56)
+
+      return
+      end
+
