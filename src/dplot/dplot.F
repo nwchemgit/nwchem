@@ -1,4 +1,4 @@
-      SubRoutine DPlot(rtdb)
+      Logical Function DPlot(rtdb)
       Implicit None
 *     
 ************************************************************************
@@ -27,11 +27,13 @@
       Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit,iOff
       Integer nGrid,k_Grid,l_Grid,nPoint,nAtom,iAtom,Atom_Off
       Integer k_Tags,l_Tags,k_Charge,l_Charge
-      Integer k_Vls,l_Vls,g_Vls
+      Integer k_Vls,l_Vls,g_Vls,k_xyz,l_xyz,k_AMt,l_AMt,k_BMt,l_BMt
+      Integer k_Dst,l_Dst,k_rq0,l_rq0
       Integer k_Ene,l_Ene,k_Occ,l_Occ
       Integer Lth_Vec,Lth_Out
       Integer nOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),Scale,Volume,Factor,Sum,AppCh
+      Double Precision STD,Tot_Charge
       Character Coord(3)
       Character*8 Units,What,Spin,Where
       Character*80 File_Out
@@ -116,8 +118,10 @@
       If (iProc.eq.0) Then
          If (What.eq.'DENSITY') Then
             Write(LuOut,*)' Type of picture      : CHARGE DENSITY'
-         Else
+         Else If (What.eq.'VIEW') Then
             Write(LuOut,*)' Type of picture      : ORBITAL VIEW'
+         Else If (What.eq.'CHARGES') Then
+            Write(LuOut,*)' Type of picture      : POTENTIAL'
          End If
       End If
 *
@@ -125,7 +129,7 @@
      &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
       If (What.eq.'VIEW' . and . Spin.ne.'BETA')          ! ***Set Up***
      &   Spin = 'ALPHA'
-      If (iProc.eq.0)
+      If (iProc.eq.0 . and . What.ne.'CHARGES')
      &   Write(LuOut,*)' Spin                 : ',Spin
 *
       If (.not.rtdb_get(rtdb,'dplot:nOrb',mt_int,1,nOrb))
@@ -153,7 +157,7 @@
             End If
          End If
       Else
-         If (iProc.eq.0)
+         If (iProc.eq.0 . and . What.ne.'CHARGES')
      &      Write(LuOut,*)' The density is computed using all orbitals'
       End If
       If (iProc.eq.0 . and . File_Vec2.ne.' ') Then
@@ -176,6 +180,17 @@
      &                    ' at the position of nuclei'
          End If
       End If
+*
+      If (nOrb.ne.999999 . and . What.eq.'CHARGES')        ! ***Check***
+     &   Call ErrQuit('DPlot: Charges and Orbitals conflict',0)
+      If (What.eq.'CHARGES' . and . Where.ne.'GRID')       ! ***Check***
+     &   Call ErrQuit('DPlot: Charges can be combined with GRID only',0)
+      If (What.eq.'CHARGES' . and . File_Vec2.ne.' ')      ! ***Check***
+     &   Call ErrQuit('DPlot: Specify one orb. file for opt. Charges',0)
+*
+*---- Get the total charge of the molecule
+      If (.not.rtdb_get(rtdb,'charge',mt_dbl,1,Tot_Charge))
+     &   Tot_Charge = 0.d0
 *
 *********************************
 *     Start the calculation     *
@@ -230,6 +245,18 @@
       If (Debug . and . iProc.eq.0)
      &   Write(LuOut,*)' nBF_AO     = ',nBF_AO
 *
+*---- Allocate memory and get tags, charges and cartesian coordiantes
+      LResult = MA_Push_Get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
+      Call ErrMem(LResult,'C_C: Failed to allocate Tags',0)
+      LResult = MA_Push_Get(MT_Dbl,nAtom,'Charge',l_Charge,k_Charge)
+      Call ErrMem(LResult,'C_C: Failed to allocate Charge',0)
+      LResult = MA_Push_Get(MT_Dbl,nAtom*3,'xyz',l_xyz,k_xyz)
+      Call ErrMem(LResult,'C_C: Failed to allocate xyz',0)
+*
+      If ( .not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
+     &   Dbl_mb(k_xyz),Dbl_mb(k_Charge)) )
+     &   Call ErrQuit('C_C: Geom_Cart_Get failed',0)
+*
 *---- Allocate memory for grid points and get the grid
       LResult = MA_Push_Get(MT_Dbl,3*nPoint,'Grid',l_Grid,k_Grid)
       Call ErrMem(LResult,'DPlot: Failed to allocate grid',0)
@@ -237,18 +264,15 @@
       If (Where.ne.'NUCLEI') Then
          Call Get_Grid(Dbl_mb(k_Grid),nGrid,
      &                 Ext_From_To(1,1),Ext_From_To(1,2),
-     &                 No_Of_Spacings,Volume,Out_Unit,iProc,Where)
+     &                 No_Of_Spacings,Volume,Out_Unit,iProc,Where,
+     &                 nAtom,Dbl_mb(k_xyz),What)
+         If (What.eq.'CHARGES') nPoint = nGrid
          Call GA_Sync
       End If
 *
       If (Where.ne.'GRID') Then
-         LResult = MA_Push_Get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
-         Call ErrMem(LResult,'C_C: Failed to allocate Tags',0)
-         LResult = MA_Push_Get(MT_Dbl,nAtom,'Charge',l_Charge,k_Charge)
-         Call ErrMem(LResult,'C_C: Failed to allocate Charge',0)
-         If (.not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
-     &      Dbl_mb(k_Grid + 3*Atom_Off),Dbl_mb(k_Charge)))
-     &      Call ErrQuit('C_C: Geom_Cart_Get failed',0)
+         Call dcopy(3*nAtom,Dbl_mb(k_xyz),1,Dbl_mb(k_Grid+3*Atom_Off),1)
+         Call GA_Sync
       End If
 *
 *---- Read the info from the first MO file
@@ -273,13 +297,13 @@
       Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
       If (nSet.eq.2)
      &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
-      If (What.eq.'DENSITY') Then
+      If (What.ne.'VIEW') Then
          Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
          If (nSet.eq.2)
      &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
       End If
 *
-      If (What.eq.'DENSITY') Then
+      If (What.ne.'VIEW') Then
 *------- Get the density matrix for the first orbital file
          Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
      &                 Spin,File_Vec,nOrb,k_Orb,iProc)
@@ -328,10 +352,36 @@
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
       Call GACrea(Geom,AO_Bas_Han,nPoint,1,'Vls',g_Vls,'column')
-      Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
-     &                    nSet,nSetTri,g_Dns(1),g_Vec(1),
-     &                    Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
-     &                    What,Spin,Int_mb(k_Orb))
+      If (What.ne.'CHARGES') Then
+         Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
+     &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
+     &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
+     &                       What,Spin,Int_mb(k_Orb))
+      Else
+         LResult = MA_Push_Get(MT_Dbl,(nAtom+1)**2,'AMt',l_AMt,k_AMt)
+         Call ErrMem(LResult,'C_C: Failed to allocate AMt',0)
+         LResult = MA_Push_Get(MT_Dbl,nAtom+1,'BMt',l_BMt,k_BMt)
+         Call ErrMem(LResult,'C_C: Failed to allocate BMt',0)
+         LResult = MA_Push_Get(MT_Dbl,nAtom*nPoint,'Dst',l_Dst,k_Dst)
+         Call ErrMem(LResult,'C_C: Failed to allocate Dst',0)
+         LResult = MA_Push_Get(MT_Dbl,nAtom,'rq0',l_rq0,k_rq0)
+         Call ErrMem(LResult,'C_C: Failed to allocate rq0',0)
+*
+         Call qdist(Dbl_mb(k_rq0),Dbl_mb(k_Dst),
+     &              Dbl_mb(k_Grid),Dbl_mb(k_xyz),
+     &              nPoint,nAtom)
+         LResult = MA_Pop_Stack(l_rq0)
+*
+         Call Get_Charges(rtdb,Geom,AO_Bas_Han,nBF,nPoint,nAtom,
+     &                   g_Dns(1),Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
+     &                   Dbl_mb(k_xyz),Dbl_mb(k_Charge),Byte_mb(k_Tags),
+     &                   Dbl_mb(k_AMt),Dbl_mb(k_BMt),Dbl_mb(k_Dst),
+     &                   STD,Tot_Charge)
+*
+         LResult = MA_Pop_Stack(l_Dst)
+         LResult = MA_Pop_Stack(l_BMt)
+         LResult = MA_Pop_Stack(l_AMt)
+      End If
 *
 *---- Print out the values of the density matrix to the output
       Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
@@ -349,36 +399,47 @@
          End If
       End If
 *
-      If (iProc.eq.0 . and . Where.ne.'GRID') Then
+      If (iProc.eq.0 .and. (Where.ne.'GRID'.or.What.eq.'CHARGES')) Then
          Write(LuOut,*)
-         Write(LuOut,*)'             Tag',
-     &                 '         C o o r d i n a t e s',
-     &                 '            Density'
+         If (What.eq.'CHARGES') Then
+            Write(LuOut,*)'             Tag',
+     &                    '         C o o r d i n a t e s',
+     &                    '            Charges'
+         Else
+            Write(LuOut,*)'             Tag',
+     &                    '         C o o r d i n a t e s',
+     &                    '            Density'
+         End If
          Write(LuOut,*)'             -------------------------------',
      &                 '-------------------------'
          Do iAtom = 1, nAtom
             iOff = (iAtom - 1)*3
+            If (What.ne.'CHARGES')
+     &         Dbl_mb(k_Charge-1+iAtom)=Dbl_mb(k_Vls+Atom_Off-1+iAtom)
             Write(LuOut,'(A16,3f12.6,3x,f15.10)')
      &           Byte_mb(k_Tags-1 + iAtom),
-     &           (Dbl_mb(k_Grid+3*Atom_Off+iOff+j),j=0,2),
-     &           Dbl_mb(k_Vls+Atom_Off-1 + iAtom)
+     &           (Dbl_mb(k_xyz+iOff+j),j=0,2),
+     &           Dbl_mb(k_Charge-1+iAtom)
          End Do
          Write(LuOut,*)'             -------------------------------',
      &                 '-------------------------'
+         If (What.eq.'CHARGES')
+     &      Write(*,'(a,a,e8.2)')'              Standard deviation',
+     &                         ' for the fitted charges = ',STD
          Write(LuOut,*)
       End If
 *
 *---- Deallocate memory
       LResult = MA_Pop_Stack(l_Vls)
       Call ErrMem(LResult,'DPlot: Failed to deallocate values',0)
-      If (Where.ne.'GRID') Then
-         LResult = MA_Pop_Stack(l_Charge)
-         Call ErrMem(LResult,'DPlot: Failed to deallocate charge',0)
-         LResult = MA_Pop_Stack(l_Tags)
-         Call ErrMem(LResult,'DPlot: Failed to deallocate tags',0)
-      End If
       LResult = MA_Pop_Stack(l_Grid)
       Call ErrMem(LResult,'DPlot: Failed to deallocate grid',0)
+      LResult = MA_Pop_Stack(l_xyz)
+      Call ErrMem(LResult,'DPlot: Failed to deallocate xyz',0)
+      LResult = MA_Pop_Stack(l_Charge)
+      Call ErrMem(LResult,'DPlot: Failed to deallocate charge',0)
+      LResult = MA_Pop_Stack(l_Tags)
+      Call ErrMem(LResult,'DPlot: Failed to deallocate tags',0)
       If (nOrb.ne.999999) Then
          LResult = MA_Pop_Stack(l_Orb)
          Call ErrMem(LResult,'DPlot: Failed to deallocate Orb.',0)
@@ -402,6 +463,7 @@
      &     Call ErrQuit('DPlot: context_pop failed',0)
 *
 *---- Normal termination
+      DPlot = .TRUE.
       Return
 *
 *---- Error exit
