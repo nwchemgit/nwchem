@@ -19,8 +19,8 @@
 \def\nwrst{{\bf $^{nw}$RST}}
 \def\nwsgm{{\bf $^{nw}$SGM}}
 \def\argos{{\bf ARGOS}}
-\subsubsection{General description}
-\paragraph{Spacial decomposition}
+\subsection{General description}
+\subsubsection{Spacial decomposition}
 \nwargos\  is the \nwchem\  module for molecular dynamics
 simulations of macromolecules and solutions. The code is a parallel
 implementation of \argos, a vectorized molecular dynamics
@@ -89,7 +89,7 @@ Two algorithms have been implemented that allow for dynamically balancing
 the workload of each processor. A coarse but effective method is the
 dynamic redistribution of intra-node domain-domain interactions. The
 second implemented method is the dynamic resizing of each domain.
-\paragraph{Topology}
+\subsubsection{Topology}
 \label{topology}
 The static information about a molecular system that is needed for
 a molecular simulation is provided to the simulation module in a
@@ -123,7 +123,7 @@ A utility \nwsgm\ reads a rudimentary, force-field independent
 definition of a segment from a {\it fragment} file ({\bf frg}), and 
 constructs a template for a force-field dependent segment. 
 Just like segments, fragments can be collected into a set of database files.
-\paragraph{File names}
+\subsubsection{File names}
 \label{filenames}
 \par
 File names used by \nwargos\  need to have the form
@@ -144,7 +144,7 @@ be used with appropriate extensions for the filenames for energy
 minimization, molecular dynamics simulation and multiconfiguration
 thermodynamic integration respectively. All of these calculation
 would use the same topology file.
-\paragraph{File name extensions}
+\subsubsection{File name extensions}
 \label{extensions}
 \par
 The extensions {\bf ext} 
@@ -172,7 +172,7 @@ xxxxx\=\kill
 {\bf top} \> topology file, contains the static description of a system\\
 {\bf vel} \> velocity trajectory file\\
 \end{tabbing}
-\paragraph{Database names}
+\subsubsection{Database names}
 \par
 A similar convention is used to identify databases used by the setup programs
 \nwtop\ (\ref{nwtop}), \nwrst\ (\ref{nwrst}) and \nwsgm\ (\ref{nwsgm}).
@@ -202,7 +202,7 @@ It is not practical to have the database files available in each directory
 in which other files are created that depend on these databases. The paths
 to these databases may be defined in a file {\bf .nwargos} that needs to
 reside in a user's home directory.
-\paragraph{Force fields}
+\subsubsection{Force fields}
 \label{forcefields}
 Force fields supported by \nwargos\ are
 \begin{center}
@@ -218,7 +218,7 @@ Keyword      & Force field   & Current status \\
 \hline
 \end{tabular}
 \end{center}  
-\subsubsection{Creating fragment {\bf frg} files}
+\subsection{Creating fragment {\bf frg} files}
 Fragment files contain the basic information needed to specify all
 interactions that need to be considered in a molecular simulation.
 The format of the fragment files is
@@ -259,7 +259,7 @@ IV-1  & 16i5   & connectivity, duplication allowed\\
 \hline\hline
 \end{tabular}
 \end{center}
-\subsubsection{Creating segment {\bf sgm} files}
+\subsection{Creating segment {\bf sgm} files}
 \label{nwsgm}
 Program \nwsgm\ can be used to generate a template for a segment file 
 from a corresponding fragment file. The segment file contains all
@@ -411,7 +411,7 @@ XII-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline\hline
 \end{tabular}
 \end{center}
-\subsubsection{Creating sequence {\bf seq} files}
+\subsection{Creating sequence {\bf seq} files}
 A sequence file describes a molecular system in terms of segments. The
 file format is
 \begin{center}
@@ -437,7 +437,7 @@ II-8 & i3     & link atom in link segment 3\\
 \hline\hline
 \end{tabular}
 \end{center}
-\subsubsection{Creating topology {\bf top} files}
+\subsection{Creating topology {\bf top} files}
 \label{nwtop}
 \par
 The topology (\ref{topology}) describes all static information
@@ -470,7 +470,7 @@ given in a formatted sequence file {\bf project.seq}. A sequence
 file may be appended to a sequence database. The 
 format of a sequence file is slightly different from the \argos\ 
 sequence file format.
-\subsubsection{Creating restart {\bf rst} files}
+\subsection{Creating restart {\bf rst} files}
 \label{nwrst}
 Restart files are created using preparation utility \nwrst.
 \begin{verbatim}
@@ -592,7 +592,7 @@ to initialize reference coordinates
 \end{verbatim}
 to stop the restart file generation
 \end{itemize}
-\subsubsection{System specification}
+\subsection{System specification}
 The chemical system for a calculation is specified in the topology
 and restart files. These files should be created using the utilities
 \nwtop\ and \nwrst\ before a simulation can be done.
@@ -606,7 +606,7 @@ There is no default. If the project name is given as {\bf pr\_id},
 the topology file used is {\bf pr.top}, while all other files
 are named {\bf pr\_id.ext}.
 \end{itemize}
-\subsubsection{Single point energy}
+\subsection{Single point energy}
 \begin{itemize}
 \item
 The energy of the system as found on the restart file is evaluated with
@@ -616,7 +616,7 @@ sp [set <i iset>]
 where {\bf iset} is the parameter set in [1,2,3] found on the
 topology file. The default for {\bf iset} is 1.
 \end{itemize}
-\subsubsection{Energy minimization}
+\subsection{Energy minimization}
 The energy minimization of the system as found on the restart file 
 is performed with the following directives.
 \begin{itemize}
@@ -654,7 +654,7 @@ is discarded for which the default is 10.
 The \verb+em+ directives may be combined in a single directive. Steepest
 descent energy minimization preceeds conjugate gradient minimization is
 both are specified.
-\subsubsection{Molecular dynamics simulation}
+\subsection{Molecular dynamics simulation}
 \begin{itemize}
 \item
 A molecular dynamics simulation is specified as
@@ -664,7 +664,7 @@ md [set <i iset>]
 where {\bf iset} is the parameter set in [1,2,3] found on the
 topology file. The default for {\bf iset} is 1.
 \end{itemize}
-\subsubsection{Multiconfiguration thermodynamic integration}
+\subsection{Multiconfiguration thermodynamic integration}
 The following keywrods control free energy difference simulations.
 Multiconfiguration thermodynamic integrations are always combined
 with multiple step thermodynamic perturbations.
@@ -711,7 +711,7 @@ where {\bf delta} is the separation-shifted scaling factor with a default
 of 0.075 nm$^2$.
 \end{itemize}
 The \verb+mcti+ directives may be combined in a single directive.
-\subsubsection{Time and integration algorithm directives}
+\subsection{Time and integration algorithm directives}
 Following directives control the integration of the equations of motion.
 \begin{itemize}
 \item
@@ -742,7 +742,7 @@ where {\bf stime} is the start time of a molecular simulation in ps,
 with a default of 0.0, and {\bf tstep} is the time step in ps, with
 0.001 as the default value.
 \end{itemize}
-\subsubsection{Ensemble selection}
+\subsection{Ensemble selection}
 Following directives control the ensemble type.
 \begin{itemize}
 \item
@@ -766,7 +766,7 @@ where {\bf prsext} is the external temperature with a default of 1.025~10$^5$ Pa
 {\bf prsrlx} is the pressure relaxation time in ps with a default of 0.5, and
 {\bf compr} is the system compressibility in with a default of.
 \end{itemize}
-\subsubsection{Velocity reassignments}
+\subsection{Velocity reassignments}
 Velocities can be periodically reassigned to reflect a certain temperature.
 \begin{itemize}
 \item
@@ -777,7 +777,7 @@ specifies that velocities will be reassigned every {\bf nfgaus} molecular
 dynamics steps, reflecting a temperature of {\bf tgauss}~K. The default
 is not to reassign velocities, i.e.\ {\bf nfgaus} is 0.
 \end{itemize}
-\subsubsection{Cutoff radii}
+\subsection{Cutoff radii}
 Cutoff radii can be specified for short range and long range interactions.
 \begin{itemize}
 \item
@@ -792,7 +792,7 @@ molecular dynamics step, and long range forces and energies with a
 frequency of {\bf nflong} molecular dynamics steps. The default value
 for both {\bf rshort} and {\bf rlong} is 0.9~nm.
 \end{itemize}
-\subsubsection{Polarization}
+\subsection{Polarization}
 Polarizable models are currently not implemented. For development only
 \begin{itemize}
 \item
@@ -805,7 +805,7 @@ model, and {\bf scf} specifies the self consistent polarization field
 model to within a tolerance of {\bf ptol}. The default is not to
 use polarization models.
 \end{itemize}
-\subsubsection{Constraints}
+\subsection{Constraints}
 Constraints are satisfied using the SHAKE coordinate resetting preocedure.
 \begin{itemize}
 \item
@@ -821,7 +821,7 @@ The default maximum number of iterations is 100 for both.
 the solute SHAKE tolerance in nm. If only {\bf tlwsha} is specified, the
 value given will also be used for {\bf tlwsha}. The default tolerance
 is 0.001~nm for both.
-\subsubsection{Long range interaction corrections}
+\subsection{Long range interaction corrections}
 No method of long range interaction treatment is implemented in the
 current release. For development only:
 \begin{itemize}
@@ -830,7 +830,7 @@ current release. For development only:
 [ewald]
 \end{verbatim}
 \end{itemize}
-\subsubsection{Print options}
+\subsection{Print options}
 Keywords that control print to the output file, with extension {\bf out}.
 \begin{itemize}
 \item
@@ -858,7 +858,7 @@ this frequency is in time steps, for multiconfiguration thermodynamic
 integration in $\lambda$ steps.
 \end{itemize}
 Print directives may be combined to a single directive.
-\subsubsection{Periodic updates}
+\subsection{Periodic updates}
 Following keywords control periodic events during a molecular
 dynamics or thermodynamic integration simulation.
 \begin{itemize}
@@ -905,7 +905,7 @@ which contributions to the radial distribution functions are
 evaluated. The default is 1, i.e. at every step.
 \end{itemize}
 Update directive may be combined to a single directive.
-\subsubsection{Recording}
+\subsection{Recording}
 The following keywords control recording data to file.
 \begin{itemize}
 \item
@@ -980,7 +980,7 @@ where {\bf nfsync} is the frequency in molecular dynamics steps
 of writing information to this file. The default is not to record.
 \end{itemize}
 Record directive may be combined to a single directive.
-\subsubsection{Program control options}
+\subsection{Program control options}
 \begin{itemize}
 \item
 Load balancing is determined by
