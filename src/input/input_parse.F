@@ -2,7 +2,8 @@
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
-#include "tcgmsg.fh"
+#include "global.fh"
+#include "rtdb.fh"
 c
 c     Read the input looking for high-level directives or names
 c     of known modules.  Once all the input has been read attempt
@@ -10,6 +11,7 @@ c     to provide sensible defaults for anything that is missing.
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
+      logical status
       parameter (num_dirs = 13)
       character*8 dirs(num_dirs)
       character*255 test
@@ -20,7 +22,15 @@ c
 c
 c     Only process 0 is involved here
 c
-      if (nodeid() .ne. 0) return
+      if (ga_nodeid() .ne. 0) return
+c
+      call util_print_centered(6, 'NWCHEM Input Module', 40, .true.)
+      write(6,*)
+      write(6,*)
+c
+c     Do data base operations in sequential mode
+c
+      status = rtdb_parallel(.false.)
 c
 c     While (input is available)
 c
@@ -113,6 +123,8 @@ c
       call input_verify
 c
 c     Done
+c
+      status = rtdb_parallel(.true.) ! Restore parallel access to db
 c
       end
       subroutine input_time
