@@ -89,7 +89,7 @@ c  Toggle spin-adaption
 c  Need some way of automatically turning this on and off 
 c  depending requested spin-state
 c
-      cdetci_spinadapt = .false.
+      cdetci_spinadapt = .true.
       cdetci_squant = (nela - nelb)/2.d0
 c     
 c  Info print
@@ -123,8 +123,7 @@ c
       call detci_vatable( norb, nelb, nsym, osym, mul,
      $                  vtab, cdetci_atabb )
 c     
-c  Allocate excitation operator table
-c  Construct excitation operator tables
+c  Allocate and construct excitation operator table
 c     
       l_detci_exa = CDETCI_INVALID
       l_detci_exb = CDETCI_INVALID
@@ -314,8 +313,10 @@ c
 
 
 
-
-
+c
+c  Create a GA CI vector consistent 
+c  with previously initialized parameters
+c
       logical function ga_civec_create( label, g_a )
       implicit none
 #include "mafdecls.fh"
@@ -390,9 +391,10 @@ c
 
 
 
-
-
-
+c
+c  Easy interface to sigma vector product
+c
+c
       subroutine detci_sigma( g_civec, g_sigma )
       implicit none
 c
@@ -535,6 +537,7 @@ c
 c  First spin-adapt the vector
 c
       if (cdetci_spinadapt) then
+C        call detci_random_error( g_civec )       ! introduce contamination to debug
         xx = sqrt( ga_ddot( g_civec, g_civec ) )
         call detci_spinadapt( g_civec, g_workvec )
         yy = sqrt( ga_ddot( g_civec, g_civec ) )
@@ -542,7 +545,7 @@ c$$$        XX = DNRM2( (NSTRA*NSTRB), CIVEC, 1 )
 c$$$        call detci_spinadapt( civec, workvec )
 c$$$        YY = DNRM2( (NSTRA*NSTRB), CIVEC, 1 )
         WRITE(6,988) (1.d0 - YY/XX)
- 988    FORMAT('Spin contamination:',F12.6)
+ 988    FORMAT('Spin contamination:',E12.3)
       endif
 c
 c  Apply preconditioning using orbital 
@@ -564,9 +567,10 @@ c
 
 
 
-
-
-
+c
+c  Print CI vector coefficients larger
+c  than threshold
+c
       subroutine detci_print( g_civec, thresh )
       implicit none
 c
@@ -609,7 +613,10 @@ c
 
 
 
-
+c
+c  Generate 1- and 2-particle density matrices
+c  for given CI vector (both RHS and LHS)
+c
       subroutine detci_density( g_civec, onepdm, twopdm )
       implicit none
 c
@@ -675,11 +682,11 @@ c
 c
 c  Spin-adaption routine
 c  Project off contaminants by Lowdin projection operator
-c  S quantum number is determined by the highest component
-c  (M = (nela - nelb)/2)
+c  S quantum number is determined by the highest component, M,
+c  ((nela - nelb)/2)
 c
 
-      subroutine detci_spinadapt( civec, wvec )
+      subroutine detci_spinadapt( g_civec, g_wvec )
       implicit none
 c
 #include "mafdecls.fh"
@@ -688,8 +695,10 @@ c
 #include "cdetci.fh"
 #include "cdetcistats.fh"
 c
-      double precision civec(*)
-      double precision wvec(*)
+c$$$      double precision civec(*)
+c$$$      double precision wvec(*)
+      integer g_civec
+      integer g_wvec
 c
       integer nexa, nexb
       integer nstra, nstrb
@@ -716,9 +725,7 @@ c
      $                   cdetci_nelb, nstra, nstrb, cdetci_mul,
      $                   cdetci_osym, cdetci_ataba, cdetci_atabb,
      $                   nexa, nexb, int_mb(k_detci_exa),
-     $                   int_mb(k_detci_exb),
-     $                   civec, wvec )
-c
+     $                   int_mb(k_detci_exb), g_civec, g_wvec )
 c
 c
       return

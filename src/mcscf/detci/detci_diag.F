@@ -309,13 +309,6 @@ c$$$      rnorm = dnrm2(n,x,1)
       endif
       if (rnormscal.lt.tol) goto 199
 c
-c  Preconditioner
-c
-      call precon( g_x, g_w(ibas) )
-c$$$      IF (GA_NODEID().EQ.0) PRINT*,'<<< Preconditioned Residue >>>'
-c$$$      CALL DETCI_PRINT(G_X,1.D-3)
-c$$$      call precon(x)
-c
 c  Contract basis (if necessary)
 c
       if (ibas.eq.mxbas) goto 199
@@ -329,9 +322,16 @@ c$$$        enddo
 c$$$        ibas = 1
 c$$$      endif
 c
-c  Add new basis vector and orthonormalize
+c  Preconditioner
 c
       ibas = ibas + 1
+      call precon( g_x, g_w(ibas) )
+c$$$      IF (GA_NODEID().EQ.0) PRINT*,'<<< Preconditioned Residue >>>'
+c$$$      CALL DETCI_PRINT(G_X,1.D-3)
+c$$$      call precon(x)
+c
+c  Add new basis vector and orthonormalize
+c
       call ga_copy( g_x, g_w(ibas) )
       do i=1,ibas-1
         xx = ga_ddot( g_x, g_w(i) )
@@ -382,6 +382,8 @@ c
 
       return
       end
+
+
 
 
 
