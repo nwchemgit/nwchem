@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.22 1996-01-09 19:04:01 og845 Exp $
+C$Id: nwdft.F,v 1.23 1996-07-03 20:59:23 d3h449 Exp $
       implicit none
       logical CDFIT,XCFIT
 c****
@@ -65,7 +65,8 @@ c
 c
 c-->  Allocate memory for checkpoint file constants.
 c
-      LResult = MA_Push_Get(MT_Int,200,'pdft10 const',lckcon,ickcon)
+      if(.not.MA_Push_Get(MT_Int,200,'pdft10 const',lckcon,ickcon))
+     &  call errquit('nwdft: cannot allocate pdft10 const',0)
 c
 c-->  Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
@@ -92,7 +93,8 @@ c
 c
 c--> Clean-up memory.
 c
-      LResult = MA_Pop_Stack(lckcon) ! moved here (HLT)
+      if(.not.ma_pop_stack(lckcon))
+     &  call errquit('nwdft: cannot pop stack',0)
 c     
 c     terminate integrals 
 c     
