@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.12 2000-06-08 23:53:24 mg201 Exp $
+C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -296,7 +296,6 @@ C $Id: ecp_int2.F,v 1.12 2000-06-08 23:53:24 mg201 Exp $
           if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
           i_t = i_cont_c
-          i_x = i_Q_int
           do i_y = 1,n_pass
             i_z = ind_z(l_c,1,i_t)
             i_co = ind_c(l_c,1,i_t)
@@ -354,7 +353,6 @@ C $Id: ecp_int2.F,v 1.12 2000-06-08 23:53:24 mg201 Exp $
      &          tmp(i_tmp),tmp(i_Qabc),tmp(i_Qab),tmp(i_Q),tmp(i_Q_int),
      &          ibug/10)
             i_t = i_t+1
-            i_x = i_x+ncab*n_rad
           end do
         end if
 *
