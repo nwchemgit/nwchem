@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.29 2003-02-10 19:02:43 edo Exp $
+C$Id: util_file_name.F,v 1.30 2003-02-14 00:36:31 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -558,9 +558,9 @@ c     processes sharing the directory by looping thru all nodes
 c     and seeing if they map to the same directory.  This is valid
 c     for machines with shared filesystems.
 c
-      integer me, nproc, you, ierr
-      character*(nw_max_path_len) mine, yours
-      integer avail, nuse
+      integer me, nproc,  ierr
+      character*(nw_max_path_len) mine
+      integer nuse
       integer avail0,avail1
       integer fd
       character*8 fstype
@@ -605,11 +605,18 @@ c
       if(nuse_fail.ne.0) then
         if(oprint.and.ga_nodeid().eq.0) write(luout,*) ' negative nuse'
         nattpt=nattpt+1
-        if(nattpt.gt.5) then
-           write(luout,*)'utilscravail: too many attempts',nattpt
-           call errquit(' ERROR: insufficient scratch_dir space ',0)
+        if(nattpt.gt.3) then
+        if(oprint.and.ga_nodeid().eq.0) then
+          write(luout,*)'utilscravail: too many attempts',nattpt
+          write(luout,*)'utilscravail:  set nuse = ga_nnodes'
         endif
-        goto 1025
+c
+c    something wrong with filesystem: go for upper bound, ie nuse=nproc
+c
+           nuse=ga_nnodes()
+        else
+          goto 1025
+        endif
       endif
       if(oprint) then
          call util_directory_name(dirscr, .true., ga_nodeid())
