@@ -16,11 +16,13 @@
 
       integer g_dens, g_wdens, basis, geom
 
-      logical status
+      logical status, pointforce, point
 
       character*16 name
 
       iproc = nodeid()
+      pointforce = rtdb_get(rtdb,'gradients:point', MT_LOG, 1,point) 
+      pointforce = (pointforce .and. point)
 
       call hf_print_set(1)
 
@@ -116,21 +118,24 @@ C     D x H
 C     Vnn 
 
             if ( iat1 .NE. iat2 ) then
-              status = geom_cent_get (geom, iat1, name, crd1, q1)
-              status = geom_cent_get (geom, iat2, name, crd2, q2)
-              dx = crd2(1) - crd1(1)
-              dy = crd2(2) - crd1(2)
-              dz = crd2(3) - crd1(3)
-              fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
-              dE = dx * fact
-              frc(1,iat1) = frc(1,iat1) + dE
-              frc(1,iat2) = frc(1,iat2) - dE
-              dE = dy * fact
-              frc(2,iat1) = frc(2,iat1) + dE
-              frc(2,iat2) = frc(2,iat2) - dE
-              dE = dz * fact
-              frc(3,iat1) = frc(3,iat1) + dE
-              frc(3,iat2) = frc(3,iat2) - dE
+              if (iab1f.ne.0 .or. iab2f.ne.0 .or. pointforce ) then
+C               no forces between point charges (for John Nicholas)
+                status = geom_cent_get (geom, iat1, name, crd1, q1)
+                status = geom_cent_get (geom, iat2, name, crd2, q2)
+                dx = crd2(1) - crd1(1)
+                dy = crd2(2) - crd1(2)
+                dz = crd2(3) - crd1(3)
+                fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
+                dE = dx * fact
+                frc(1,iat1) = frc(1,iat1) + dE
+                frc(1,iat2) = frc(1,iat2) - dE
+                dE = dy * fact
+                frc(2,iat1) = frc(2,iat1) + dE
+                frc(2,iat2) = frc(2,iat2) - dE
+                dE = dz * fact
+                frc(3,iat1) = frc(3,iat1) + dE
+                frc(3,iat2) = frc(3,iat2) - dE
+              endif
             endif
 
             next = nxtval(nproc)
