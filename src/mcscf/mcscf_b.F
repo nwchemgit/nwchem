@@ -164,11 +164,11 @@ c
       integer aoff, aend
       integer iv_fock(nfock), iv_dens(nfock)
       double precision jfac(nfock), kfac(nfock)
-      data jfac/2*1.d0/
-      data kfac/2*-0.5d0/
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+      data jfac/2*1.d0/
+      data kfac/2*-0.5d0/
 c
 c
       aoff = nclosed + 1
@@ -583,11 +583,11 @@ c
       integer i, aoff, aend
       integer iv_fock(nfock), iv_dens(nfock)
       double precision jfac(nfock), kfac(nfock)
-      data jfac/1.d0/
-      data kfac/-0.5d0/
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+      data jfac/1.d0/
+      data kfac/-0.5d0/
 c
 c
       aoff = nclosed + 1
