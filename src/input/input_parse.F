@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.38 1997-10-06 23:01:25 d3j191 Exp $
+C     $Id: input_parse.F,v 1.39 1997-11-15 01:05:03 d3e129 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -117,6 +117,8 @@ c
             else if (inp_compare(.false.,test,'start')) then
                continue         ! Already digested by input_file_info
             else if (inp_compare(.false.,test,'restart')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'continue')) then
                continue         ! Already digested by input_file_info
             else if (inp_compare(.false.,test,'echo')) then
                continue         ! Already digested by input_file_info
