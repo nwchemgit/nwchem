@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.130 2002-02-19 15:28:11 d3j191 Exp $
+c $Id: cf_main.F,v 1.131 2002-02-21 22:50:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1529,7 +1529,7 @@ c
       ip(2)=2
       ip(3)=0
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.false.,.false.,.false.,dbl_mb(i_sti))
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
  1000 format(i3,f12.6,e12.5)
