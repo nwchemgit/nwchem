@@ -1,8 +1,8 @@
       logical function pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
-     + llnk,clnk,mlnk,nlnk,iconst)
+     + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.10 2000-04-26 20:32:55 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.11 2000-04-26 22:12:43 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -21,20 +21,24 @@ c
       implicit none
 c
       real*8 pre_atrad
-      external pre_atrad
+      logical pre_ang,pre_dih,pre_ring
+      external pre_atrad,pre_ang,pre_dih,pre_ring
 c
       integer matm,mbnd,mato
       integer natm,nbnd,nato,maxscf,iconst
       real*8 xatm(3,matm),xato(3,mato)
-      integer latm(5,matm),lato(5,mato),lbnd(2,mbnd)
+      integer latm(5,matm),lato(5,mato),lbnd(2,mbnd),itmp(12,mato)
       character*6 catm(3,matm),cato(3,mato)
       integer ilo,ihi
       integer i,j,k,nn,nl(10),nadd,ndx,neigh
       integer mlnk,nlnk
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
+      integer mang,mdih
+      integer lang(3,mang),ldih(4,mdih)
       real*8 dist
       logical linker
+      integer nang,ndih
 c
       pre_bnd=.false.
 c
@@ -60,8 +64,8 @@ c
       if(j.gt.i.and.j.le.ihi) then
       nbnd=nbnd+1
       if(nbnd.gt.mbnd) call errquit('Dimension problem',0)
-      lbnd(1,nbnd)=-(i-ilo+1)
-      lbnd(2,nbnd)=-(j-ilo+1)
+      lbnd(1,nbnd)=(i-ilo+1)
+      lbnd(2,nbnd)=(j-ilo+1)
       endif
       if(j.lt.ilo.or.j.gt.ihi) then
       neigh=j
@@ -73,60 +77,83 @@ c
       do 3 j=1,5
       lato(j,nato)=latm(j,i)
     3 continue
-      lato(3,nato)=neigh
+      itmp(11,nato)=nn
+      itmp(12,nato)=neigh
+      do 40 j=1,nn
+      itmp(j,nato)=nl(j)
+   40 continue
       do 4 j=1,3
       cato(j,nato)=catm(j,i)
       xato(j,nato)=xatm(j,i)
     4 continue
+      lato(1,nato)=0
+      endif
+    1 continue 
 c
-c     carbon
-c     ------
-c
-      nadd=0
       if(iconst.gt.0) then
-      if(latm(2,i).eq.6) then
+c
+      nang=0
+      if(.not.pre_ang(lbnd,mbnd,nbnd,lang,mang,nang))
+     + call errquit('pre_ang failed',9999)
+      ndih=0
+      if(.not.pre_dih(lang,mang,nang,ldih,mdih,ndih))
+     + call errquit('pre_dih failed',9999)
+      if(.not.pre_ring(lato,mato,nato,lang,mang,nang,ldih,mdih,ndih))
+     + call errquit('pre_ring failed',9999)
+c
+      do 20 i=1,nato
+      nadd=0
+      nn=itmp(11,i)
+      do 41 j=1,nn
+      nl(j)=itmp(j,i)
+   41 continue
+      if(lato(2,i).eq.6) then
       if(nn.eq.0) then
       nadd=4
       elseif(nn.eq.1) then
       nadd=3
-      if(latm(2,nl(1)).eq.6.and.latm(3,nl(1)).eq.0) nadd=3
-      if(latm(3,i).eq.1) nadd=0
-      if(latm(3,i).eq.2) nadd=1
-      if(latm(3,i).eq.3) nadd=2
-      if(latm(3,i).eq.4) nadd=3
+      if(lato(2,nl(1)).eq.6.and.lato(3,nl(1)).eq.0) nadd=3
+      if(lato(3,i).eq.1) nadd=0
+      if(lato(3,i).eq.2) nadd=1
+      if(lato(3,i).eq.3) nadd=2
+      if(lato(3,i).eq.4) nadd=3
       elseif(nn.eq.2) then
       nadd=2
-      if(latm(3,i).eq.3) nadd=1
+      if(lato(3,i).eq.3) nadd=1
       elseif(nn.eq.3) then
-      if(latm(3,i).eq.4) nadd=1
+      if(lato(3,i).eq.4) nadd=1
       endif
       endif
 c
-      if(latm(2,i).eq.7) then
+      if(lato(2,i).eq.7) then
       if(nn.eq.0) then
       nadd=4
       elseif(nn.eq.1) then
       nadd=3
       elseif(nn.eq.2) then
       nadd=1
+      if(lato(4,i).eq.6) nadd=0
       endif
       endif
 c
-      if(latm(2,i).eq.8) then
+      if(lato(2,i).eq.8) then
       if(nn.eq.0) then
       nadd=2
       elseif(nn.eq.1) then
-      if(latm(3,nl(1)).eq.3) nadd=0
-      if(latm(3,nl(1)).eq.4) nadd=1
-      endif
+      if(lato(3,nl(1)).eq.3) nadd=0
+      if(lato(3,nl(1)).eq.4) nadd=1
       endif
       endif
 c
       lato(1,nato)=nadd
       if(nadd.gt.0) maxscf=0
-c
+   20 continue
       endif
-    1 continue 
+c
+      do 30 i=1,nato
+      lato(3,i)=itmp(12,i)
+   30 continue
+c
 c
 c     add hydrogens
 c     -------------
@@ -134,8 +161,8 @@ c
       ndx=1
       do 6 i=1,nato
       do 7 j=1,nbnd
-      if(lbnd(1,j).eq.-i) lbnd(1,j)=ndx
-      if(lbnd(2,j).eq.-i) lbnd(2,j)=ndx
+      if(lbnd(1,j).eq.i) lbnd(1,j)=ndx
+      if(lbnd(2,j).eq.i) lbnd(2,j)=ndx
     7 continue
       nadd=lato(1,i)
       lato(1,i)=ndx
@@ -213,3 +240,46 @@ c
       pre_bnd=.true.
       return
       end
+      logical function pre_ring(lato,mato,nato,lang,mang,nang,
+     + ldih,mdih,ndih)
+c
+      implicit none
+c
+      integer mato,nato,mang,nang,mdih,ndih
+      integer lato(5,mato),lang(3,mang),ldih(4,mdih)
+c
+      integer i,j,k
+c
+      pre_ring=.true.
+c
+      do 1 i=1,nato
+      lato(4,i)=0
+    1 continue
+c
+      do 2 i=1,nang
+      do 3 j=1,ndih
+      if((lang(1,i).eq.ldih(1,j).and.lang(3,i).eq.ldih(4,j)).or.
+     + (lang(1,i).eq.ldih(4,j).and.lang(3,i).eq.ldih(1,j))) then
+      lato(4,lang(2,i))=lato(4,lang(2,i))+1
+      do 4 k=1,4
+      lato(4,ldih(k,j))=lato(4,ldih(k,j))+1
+    4 continue
+      endif
+    3 continue
+    2 continue
+c
+      do 6 i=1,ndih-1
+      do 7 j=i+1,ndih
+      if((ldih(1,i).eq.ldih(1,j).and.ldih(4,i).eq.ldih(4,j)).or.
+     + (ldih(1,i).eq.ldih(4,j).and.ldih(4,i).eq.ldih(1,j))) then
+      lato(4,ldih(2,i))=lato(4,ldih(2,i))+2
+      lato(4,ldih(3,i))=lato(4,ldih(3,i))+2
+      do 8 k=1,4
+      lato(4,ldih(k,j))=lato(4,ldih(k,j))+2
+    8 continue
+      endif
+    7 continue
+    6 continue
+c
+      return
+      end     

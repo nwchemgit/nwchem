@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.31 2000-04-26 20:32:20 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.32 2000-04-26 22:12:44 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -70,6 +70,8 @@ c
       integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
+c
+      integer i_wrk,l_wrk
 c  
       pre_mkfrg=.true.
 c    
@@ -149,10 +151,16 @@ c     complete the list of bonds for the fragment
 c     -------------------------------------------
 c
       nbnd=0
+      if(.not.ma_push_get(mt_int,12*mato,'wrk',l_wrk,i_wrk))
+     + call errquit('Unable to allocate wrk array',0)
       if(.not.pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
-     + llnk,clnk,mlnk,nlnk,iconst))
+     + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,
+     + int_mb(i_wrk)))
      + call errquit('pre_bnd failed',9999)
+      if(.not.ma_pop_stack(l_wrk))
+     + call errquit('Unable to deallocate wrk array',0)
+
 c
 c     redetermine hydrogen names
 c     --------------------------
