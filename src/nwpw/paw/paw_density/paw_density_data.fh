@@ -1,0 +1,17 @@
+!$Id: paw_density_data.fh,v 1.1 2003-02-16 21:40:00 marat Exp $
+!
+!$Log: not supported by cvs2svn $
+
+      integer paw_rho_lmax
+      integer i_paw_rho(4)
+      integer paw_rho_u_ae(4)
+      integer paw_rho_d_ae(4)
+      integer paw_rho_u_ps(4)
+      integer paw_rho_d_ps(4)
+
+      common /paw_density_data/ paw_rho_lmax,
+     >                           i_paw_rho,
+     >                           paw_rho_u_ae,
+     >                           paw_rho_d_ae,
+     >                           paw_rho_u_ps,
+     >                            paw_rho_d_ps
