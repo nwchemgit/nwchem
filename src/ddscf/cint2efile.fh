@@ -43,7 +43,7 @@ c
       integer pad               ! Padding for 32 bit machines
 c
 *      parameter (buffer_size = 16) ! About the minimum
-#ifdef CRAY_T3D
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
 c     save on memory since have only physical memory
       parameter (buffer_size = 8192)
 #else

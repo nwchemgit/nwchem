@@ -52,7 +52,17 @@ c
      $     call errquit('scf_init: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
      $        call errquit('scf_init: no ao basis set', 0)
-      
+c
+c     For debug ... call int_init and do the 2-e
+c
+      if (util_print('texas init debug',print_never)) then
+        call int_init(rtdb, 1, basis)
+        write(6,*) ' DONE INIT'
+*        call schwarz_init(geom, basis)
+*        call schwarz_tidy()
+        call int_terminate
+      endif
+c
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf_init: bas_name?', 0)
 c
@@ -210,7 +220,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.40 1997-04-25 23:13:23 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.41 1997-05-04 18:56:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -226,9 +236,9 @@ c
 c
       if (.not. rtdb_get(rtdb, 'scf:maxiter', MT_INT, 1, maxiter)) then
          if (scftype .ne. 'UHF') then
-            maxiter = 8
+            maxiter = 20
          else
-            maxiter = 20        ! UHF not yet QC
+            maxiter = 20
          endif
       endif
       if (.not.rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, gnorm_tol)) 
