@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.12 2000-01-07 19:27:06 edo Exp $
+c$Id: grid_setrad.F,v 1.13 2000-01-08 02:42:00 edo Exp $
 c
       implicit none
 c      
@@ -59,6 +59,12 @@ c
          llind=.true.
          tol_reset=.true.
          wradgrid=6
+      elseif(radgrid.eq.'chebyshev') then
+         tol_reset=.true.
+         wradgrid=7
+      elseif(radgrid.eq.'legendre') then
+         tol_reset=.true.
+         wradgrid=8
       else
          write(0,*) ' radgrid eq ',radgrid
          call errquit('grid_setrad: unknown radial grid type', 0)
@@ -128,13 +134,19 @@ c
      &           call errquit('grid_setrad: cannot pop stack',2)
 
             elseif(wradgrid.eq.3) then
-            call xc_tarad(int(znuc_atom_type(itype)), 
-     ,              rpts(1,itype), rwghts(1,itype), 
+               if(tol_reset) then
+                range_mk=dble(rad_cutoff(1,itype))
+                  call xc_tarad(int(znuc_atom_type(itype)), 
+     ,                 rpts(1,itype), rwghts(1,itype), 
+     &                 nrad(itype),range_mk,'chebyshr')
+               else
+                  call xc_tarad(int(znuc_atom_type(itype)), 
+     ,                 rpts(1,itype), rwghts(1,itype), 
      &                 nrad(itype),0d0,'chebyshe')
-            
-          elseif(radgrid.eq.'gausslag') then
-           call grid_gausslag(nrad(itype), rpts(1,itype), 
-     &            rwghts(1,itype),0d0)
+               endif
+            elseif(radgrid.eq.'gausslag') then
+               call grid_gausslag(nrad(itype), rpts(1,itype), 
+     &              rwghts(1,itype),0d0)
           elseif(wradgrid.eq.5) then
 c gcgc
             n1=nrad(itype)*ndivide/16
@@ -149,6 +161,22 @@ c           midpoint=bsrad_atom_type(itype)*2
 c           call grid_gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
 c     ,          midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
+          elseif(wradgrid.eq.7) then
+c
+c     Chebyshev with endpoint defined from grid_rtrunc
+c
+             range_mk=dble(rad_cutoff(1,itype))
+             n1=nrad(itype)
+             call xc_interv(0d0,range_mk,
+     ,            rpts(1,itype), rwghts(1,itype),n1,'chebyshe')
+          elseif(wradgrid.eq.8) then
+c
+c     Legendre with endpoint defined from grid_rtrunc
+c
+             range_mk=dble(rad_cutoff(1,itype))
+             n1=nrad(itype)
+             call xc_interv(0d0,range_mk,
+     ,            rpts(1,itype), rwghts(1,itype),n1,'legendre')
           elseif(radgrid.eq.'leglag') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
@@ -178,11 +206,7 @@ c     ,          midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
 
           elseif(wradgrid.eq.2) then
-             if(tol_reset) then
-                range_mk=range_max
-             else
-                range_mk=dble(rad_cutoff(1,itype))
-             endif
+             range_mk=dble(rad_cutoff(1,itype))
              znint=int(znuc_atom_type(itype))
              call xc_murakn(
      .            znint,

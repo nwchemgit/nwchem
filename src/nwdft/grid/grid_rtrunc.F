@@ -26,7 +26,7 @@ c
       double precision exex_at
       integer g_s
       integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,
-     .     lpmat,ipmat,l_ics,k_ics,iat_diff
+     .     lpmat,ipmat,l_ics,k_ics,iat_diff,k_coord,l_coord
 c
 c     determine node id
 c
@@ -35,7 +35,7 @@ c
 c
 c     preliminary ops
 c
-      call grid_rtinit(rtdb,l_minexp, k_minexp,
+      call grid_rtinit(rtdb,l_minexp, k_minexp,k_coord,l_coord,
      .     l_ldiff, k_ldiff,ipmat, lpmat, l_ics,k_ics,g_s)
       call ifill(2*ntypes, 0, rad_cutoff, 1)
 c
@@ -53,6 +53,7 @@ c
       do iat=1+me,ncenters,nproc
          call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
+     .        dbl_mb(k_coord),
      .        ll_at,exex_at)
          if (tol_reset)then
             if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
@@ -69,7 +70,7 @@ c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
 c
-      call  grid_rtclea(l_minexp, 
+      call  grid_rtclea(l_minexp, l_coord,
      .     l_ldiff, lpmat,l_ics,g_s)
 
       call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
@@ -177,6 +178,7 @@ c
       end
       subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
      .     iat_diff,range_max,
+     .     coord,
      .     ll_at,exex_at)
       implicit none
 #include "cdft.fh"
@@ -184,6 +186,7 @@ c
       integer iat_diff ! [out]
       integer g_s ! [in]
       double precision expo(*) ! [in]
+      double precision coord(3,*) ! [in]
       integer l(*) ! [in]
       double precision pmat(*) ! [local]
       double precision my_acc ! [in]
@@ -212,6 +215,16 @@ c
             if(abs(s_max).gt.ov_trunc) then
                write(0,*) '  - neighbor ',jat,s_max
                range=grid_rnegl(l_iat+l(jat),exp_iat+expo(jat),my_acc) 
+               write(0,*) ' range ',range
+c
+c     bit to add from gaussian product formula
+c               
+               range=range+sqrt(
+     .              (exp_iat*coord(1,iat)-expo(jat)*coord(1,jat))**2+
+     .              (exp_iat*coord(2,iat)-expo(jat)*coord(2,jat))**2+
+     .              (exp_iat*coord(3,iat)-expo(jat)*coord(3,jat))**2)/
+     /              (exp_iat+expo(jat))
+               write(0,*) ' gaNge ',range
                if(range.gt.range_max) then
                   range_max =  range
                   iat_diff=jat
@@ -278,16 +291,19 @@ c
       enddo
       return
       end
-      subroutine grid_rtinit(rtdb,l_minexp, k_minexp,
+      subroutine grid_rtinit(rtdb,l_minexp, k_minexp,k_coord,l_coord,
      .     l_ldiff, k_ldiff,ipmat, lpmat,l_ics,k_ics,g_s)
       implicit none
 #include "mafdecls.fh"
+#include "geom.fh"
 #include "cdft.fh"
 c
       integer rtdb ! [in]
+      integer k_coord,l_coord
       integer l_minexp, k_minexp, l_ics,k_ics,
      .     l_ldiff, k_ldiff,ipmat, lpmat,g_s ! [out]
 c
+      integer itags,ltags,k_charge,l_charge
       external ga_create_atom_blocked
       integer ga_create_atom_blocked
 c
@@ -310,25 +326,48 @@ c
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
       call int_terminate
+c
+c     get coord
+c
+      if (.not.MA_Push_Get(MT_dbl,3*ncenters,
+     ,     'coord       ',l_coord,k_coord))
+     &   call errquit('rdatru: cannot allocate DENS',1)
+      if (.not.MA_Push_Get(MT_dbl,ncenters,
+     ,     'coord       ',l_charge,k_charge))
+     &   call errquit('rdatru: cannot allocate DENS',2)
+      if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
+     &   ltags, itags))call errquit('gridtru: failed to 
+     &   alloc center tags',0)
+
+      if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
+     &                        Dbl_MB(k_coord), Dbl_MB(k_charge)))
+     &     call errquit('grid_atom_type_info: geom_cart_get failed',74)
+      if (.not.ma_pop_stack(ltags))
+     &   call errquit('radtru: cannot pop stack',0)
+      if (.not.ma_pop_stack(l_charge))
+     &   call errquit('radtru: cannot pop stack',0)
+      
       return
       end
-      subroutine grid_rtclea(l_minexp, 
+      subroutine grid_rtclea(l_minexp, l_coord,
      .     l_ldiff, lpmat,l_ics,g_s)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer l_minexp,  l_ics,
+      integer l_minexp,  l_ics, l_coord,
      .      l_ldiff, lpmat,g_s ! [in]
 c
       if (.not. ga_destroy(g_s)) call errquit
      &     ('radtrun: could not destroy g_s', 0)
+      if (.not.ma_pop_stack(l_coord))
+     &   call errquit('radtru: cannot pop stack',0)
       if (.not.ma_pop_stack(lpmat))
-     &   call errquit('radtru: cannot pop stack',0)
-      if (.not.ma_pop_stack(l_ics))
-     &   call errquit('radtru: cannot pop stack',0)
-      if (.not.ma_pop_stack(l_ldiff))
      &   call errquit('radtru: cannot pop stack',1)
-      if (.not.ma_pop_stack(l_minexp))
+      if (.not.ma_pop_stack(l_ics))
      &   call errquit('radtru: cannot pop stack',2)
+      if (.not.ma_pop_stack(l_ldiff))
+     &   call errquit('radtru: cannot pop stack',3)
+      if (.not.ma_pop_stack(l_minexp))
+     &   call errquit('radtru: cannot pop stack',4)
       return
       end
