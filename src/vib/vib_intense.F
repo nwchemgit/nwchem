@@ -1,4 +1,4 @@
-* $Id: vib_intense.F,v 1.4 1998-05-08 19:04:02 d3e129 Exp $
+* $Id: vib_intense.F,v 1.5 1998-05-12 22:11:10 d3e129 Exp $
       subroutine vib_intense(eigvec,eigval,nat,ddpolx,ddpolq,
      &    intensity,first_pass)
       implicit none
@@ -283,7 +283,7 @@ c
      &    ' cm**(-1)] is ',
      &    f10.3,' [atomic units] ',
      &    f10.3,'[(debey/angs)**2]',
-     &    f10.3,'[(KM/mol)]', )
+     &    f10.3,'[(KM/mol)]')
 90001 format(1x,'Normalized Intensity for eigenvalue ',i3,' [',f10.3,
      &    ' cm**(-1)] is ',f10.3,' arbitrary units ')
 c
