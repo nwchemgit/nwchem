@@ -1,11 +1,11 @@
 *
-* $Id: bitops_decls.fh,v 1.7 1997-10-31 20:45:30 d3e129 Exp $
+* $Id: bitops_decls.fh,v 1.8 1997-11-01 05:35:31 d3j191 Exp $
 *
 c
 c     Machine dependent defintion of the standard
 c     iand/ior/ieor/rshift/lshift bit operations
 c
-#if defined(LINUX) && !defined(USE_G77)
+#if defined(LINUX) && defined(USE_F2C)
       integer iand, ior, ieor
       integer and, or, xor, rshift, lshift
       intrinsic and, or, xor, rshift, lshift

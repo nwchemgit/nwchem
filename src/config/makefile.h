@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.243 1997-10-22 17:21:32 d3g681 Exp $
+# $Id: makefile.h,v 1.244 1997-11-01 05:38:10 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -39,7 +39,7 @@ endif
 #                  DELTA
 #                  IBM
 #                  KSR
-#                  LINUX        USE_G77 to use g77 instead of f2c/gcc
+#                  LINUX        USE_F2C to use f2c/gcc in stead of g77
 #                  PARAGON
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
@@ -924,8 +924,8 @@ endif
 
 ifeq ($(TARGET),LINUX)
 #
-# Linux running on an x86 using f77 on f2c
-# to use g77 instead f77/f2c, define USE_G77 environment variable
+# Linux running on an x86 using g77
+# to use f2c/gcc, define environment variable USE_F2C
 #
        NICE = nice
       SHELL := $(NICE) /bin/sh
@@ -935,13 +935,12 @@ ifeq ($(TARGET),LINUX)
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
-# JN: with g77 we do not need explicit preprocessing
-ifdef USE_G77
-  FOPTIONS  = -fno-second-underscore
-         FC = g77
-else
+ifdef USE_F2C
    FOPTIONS = -Nc40 -Nn2500 -Nx1000
   EXPLICITF = TRUE
+else
+  FOPTIONS  = -fno-second-underscore
+         FC = g77
 endif
 
    COPTIONS = -Wall -m486
@@ -954,7 +953,7 @@ endif
      LINK.f = gcc $(LDFLAGS)
   CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
-# also /usr/bin/cpp
+
         CPP = gcc -E -nostdinc -undef -P
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \

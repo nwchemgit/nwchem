@@ -1,5 +1,5 @@
 *
-* $Id: bitops_funcs.fh,v 1.6 1997-10-31 20:45:30 d3e129 Exp $
+* $Id: bitops_funcs.fh,v 1.7 1997-11-01 05:35:31 d3j191 Exp $
 *
 c
 c     Machine dependent defintion of the standard
@@ -8,7 +8,7 @@ c
 c     Since statement functions are defined this
 c     file must be included appropriately
 c
-#if defined(LINUX) && !defined(USE_G77)
+#if defined(LINUX) && defined(USE_F2C)
       iand(iiibit,jjjbit)=and(iiibit,jjjbit)
       ior(iiibit,jjjbit) = or(iiibit,jjjbit)
       ieor(iiibit,jjjbit)=xor(iiibit,jjjbit)
