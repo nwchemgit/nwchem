@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.63 1997-03-05 07:34:21 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.64 1997-03-06 06:51:21 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -587,11 +587,8 @@ c
       call ga_zero(g_vxc(1))
       if(ipol.eq.2)call ga_zero(g_vxc(2))
       if(oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv(rtdb,
-     $     Exc,nExc,
-     $     iVxc_opt,g_xcinv,
-     $     g_dens,g_vxc,IOLGC,
-     $     g_wght,g_xyz,wght_GA)
+      call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
+     $             g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
       call ga_sync
       call ga_dadd(1.d0,g_vxc(1),1.d0,g_fock,g_fock)
       if(ipol.gt.1) then
