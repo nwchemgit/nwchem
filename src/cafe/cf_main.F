@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.22 1999-09-20 20:14:53 d3j191 Exp $
+c $Id: cf_main.F,v 1.23 2000-01-03 22:21:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -987,7 +987,7 @@ c
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
       real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,3)
       real*8 et(2),ft(4,3)
-      integer ip(3)
+      integer ip(4)
       real*8 rp(2,6),rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
 c
@@ -1050,12 +1050,41 @@ c
       endif
    11 continue
    10 continue
-    9 continue      
+    9 continue
+      endif
 c
-      endif
       if(ipmf(i,1).eq.3) then
-      call errquit('Angle pmf not implemented',0)
+      do 12 j=1,3
+      ign(j)=j
+      iml(j)=1
+      idt(j)=0
+      ich(j)=1
+      do 13 k=1,3
+      ft(j,k)=zero
+   13 continue
+   12 continue
+      it(1)=1
+      ip(1)=1
+      ip(2)=2
+      ip(3)=3
+      ip(4)=0
+      call cf_fsh(1,it,1,3,ip,rpmf(i,1,1),rv,3,4,ign,iml,idt,ich,chg,
+     + xpmf(i,1,1),ft,et,.true.,.false.)
+      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
+      if(me.eq.0) epmf=epmf+rv(2)
+      do 14 j=1,3
+      do 15 k=1,ipmf(i,j+1)
+      do 16 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      fs(l,1)=fs(l,1)+ft(j,1)
+      fs(l,2)=fs(l,2)+ft(j,2)
+      fs(l,3)=fs(l,3)+ft(j,3)
       endif
+   16 continue
+   15 continue
+   14 continue
+      endif
+c
       if(ipmf(i,1).eq.4) then
       call errquit('Torsion pmf not implemented',0)
       endif
