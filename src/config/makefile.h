@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.228 1997-03-28 00:17:12 d3g681 Exp $
+# $Id: makefile.h,v 1.229 1997-04-08 18:08:27 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -347,7 +347,7 @@ ifeq ($(TARGET),CRAY-T3E)
         OUTPUT_OPTION = 
 
                    FC = f90 
-                  CPP = cpp -P  -N
+                  CPP = /opt/ctl/CC/CC/lib/mppcpp -P  -N
              FOPTIONS = -d p -F  
              COPTIONS = 
                FDEBUG = -O scalar1
