@@ -2,7 +2,7 @@
 /* routine to convert a fortran string to a C string: */
 /* Fortran callable version of f2cstring in global directory */
 
-c_cnvt_(clen, flen, cstr, fstr)
+void c_cnvt_(clen, flen, cstr, fstr)
 Integer *clen, *flen;
 char *cstr;
 char *fstr;
