@@ -1,6 +1,6 @@
 c**********************************************************************
 c     sunbroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.10 1997-03-21 01:06:19 d3e129 Exp $
+c $Id: rhf_hessian.F,v 1.11 1997-03-29 01:09:44 d3e129 Exp $
 c**********************************************************************
       subroutine hnd_der_init(geom,basis)
       implicit double precision (a-h,o-z)
@@ -9755,11 +9755,14 @@ C
       DIMENSION GIJKL(NCI,NCI,NCI,NCI),GIJ(1),DC(1),DV(1),V(NUM,1),IA(1)
       DIMENSION XX(1),IX(1)
       DIMENSION ERRMSG(3)
+#include "bitops_decls.fh"
       DATA ERRMSG /'PROGRAM ','STOP IN ','- JKDMC-'/
       DATA ZERO   /0.0D+00/
       DATA TWO    /2.0D+00/
       DATA GTOL   /1.0D-09/
       DATA NFTG   /15/
+c
+#include "bitops_funcs.fh"
 C
       SHIFTR(IARG,IBIT)= ISHFT(IARG,-IBIT)
       LAND(IARG1,IARG2)= IAND(IARG1,IARG2)
@@ -10429,6 +10432,8 @@ C
       INTEGER SHIFTR
       COMMON/HND_MACHIN/ISINGL,NBITS
       COMMON/HND_ISOPAC/INDIN(MXSYM),INDOUT(MXSYM/2)
+C
+#include "bitops.fh"
 C
       MASK1(IARG)=2**IARG-1
       SHIFTR(IARG,IBIT)= ISHFT(IARG,-IBIT)
@@ -11852,9 +11857,11 @@ C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_CIDAB/NDMAX,ND
       DIMENSION D(1),ID(1),DAB(1)
+#include "bitops_decls.fh"
       DATA ZERO /0.0D+00/
       DATA NFTI /16/
 C
+#include "bitops_funcs.fh"
       SHIFTR(IARG,IBIT)= ISHFT(IARG,-IBIT)
       LAND(IARG1,IARG2)= IAND(IARG1,IARG2)
       MASK1(IARG)=2**IARG-1
