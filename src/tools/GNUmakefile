@@ -1,9 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.9 1999-07-27 21:04:56 d3e129 Exp $
+# $Id: GNUmakefile,v 1.10 1999-07-29 23:14:14 d3g681 Exp $
 #
 # This makefile has to be processed by GNU make
 #
-     TOPDIR = ${NWCHEM_TOP}/src/tools 
 MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
     SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas tcgmsg armci/src pario
   USE_ARMCI = yes
