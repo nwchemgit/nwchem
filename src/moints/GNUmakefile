@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 1995-10-17 08:54:12 d3g681 Exp $
+#$Id: GNUmakefile,v 1.35 1995-10-17 17:04:18 rg240 Exp $
 
         OBJ = atwtest.o \
 	      crayio.o \
@@ -18,7 +18,6 @@ OBJ_OPTIMIZE = \
 	      moints_2x.o \
               moints_6x.o \
 	      moints_ccsd.o \
-	      scatter.o \
               moints_aux2.o 
 
     LIBRARY = libmoints.a
