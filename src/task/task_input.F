@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.24 2001-08-22 19:00:02 bylaska Exp $
+* $Id: task_input.F,v 1.25 2001-12-20 18:51:51 d3k958 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -52,6 +52,8 @@ c
             operation = 'dynamics'
          else if (inp_compare(.false.,test,'thermodynamics')) then
             operation = 'thermodynamics'
+         else if (inp_compare(.false.,test,'et')) then
+            operation = 'et'
          else if (inp_compare(.false.,test,'freq') .or.
      $            inp_compare(.false.,test,'frequencies')) then
             operation = 'freq'
