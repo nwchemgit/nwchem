@@ -3,21 +3,24 @@
 
 *    ************************************
 *    *					*
-*     *		v_bwexc		        *
+*    *		v_bwexc		        *
 *    *					*
 *    ************************************
 *
       
-      subroutine v_bwexc(n2ft3d,ispin,dn,xcp,xce)
+      subroutine v_bwexc(n2ft3d,ispin,dn,
+     >                   x_parameter,c_parameter,
+     >                   xcp,xce)
       implicit none
-#include "errquit.fh"
       integer n2ft3d
       integer  ispin
       real*8  dn(n2ft3d,2)
+      real*8  x_parameter,c_parameter
       real*8  xcp(n2ft3d,2),xce(n2ft3d)
 
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
 c     **** local variables ****      
@@ -113,6 +116,7 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
+     >                                x_parameter,c_parameter,
      >                                xce,
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)))
@@ -341,6 +345,7 @@ c        ***** calculate xce,fn=(df/dnup,df/dndn) and               ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
+     >                                  x_parameter,c_parameter,
      >                                  xce,
      >                                  dbl_mb(fn(1)),
      >                                  dbl_mb(fdn(1)))

@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.16 2004-08-01 02:02:45 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.17 2004-11-08 23:37:42 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -339,6 +339,7 @@ c     real*8     fion(3,natmx)
      >                      dcpl_mb(tmp1(1)))
         else
           call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
         end if

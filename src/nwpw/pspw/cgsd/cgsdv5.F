@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.52 2004-11-08 01:32:48 bylaska Exp $
+* $Id: cgsdv5.F,v 1.53 2004-11-08 23:37:41 bylaska Exp $
 *
 
 ***********************************************************************
@@ -292,6 +292,9 @@ c     value = psi_initialize()
      >      'PBE96 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.2) THEN
             write(6,1131) 'Hartree-Fock'
+         ELSE IF (control_gga().eq.3) THEN
+            write(6,1131) 
+     >      'PBE0 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

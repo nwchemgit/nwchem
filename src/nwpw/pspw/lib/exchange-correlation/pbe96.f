@@ -12,6 +12,8 @@
 *   Entry - n2ft3d     : number of grid points
 *           dn_in(*,2) : spin densites nup and ndn
 *           agr_in(*,3): |grad nup|, |grad ndn|, and |grad n|
+*           x_parameter: scale parameter for exchange
+*           c_parameter: scale parameter for correlation
 *
 *   Exit - xce(*)  : PBE96 energy density
 *        - fn(*,2) : d(n*xce)/dnup, d(n*xce)/dndn
@@ -20,12 +22,14 @@
 
       subroutine gen_PBE96_BW_unrestricted(n2ft3d,
      >                           dn_in,agr_in,
+     >                           x_parameter,c_parameter,
      >                           xce,fn,fdn)
       implicit none
       
       integer n2ft3d
       real*8 dn_in(n2ft3d,2)
       real*8 agr_in(n2ft3d,3)
+      real*8 x_parameter,c_parameter
       real*8 xce(n2ft3d)
       real*8 fn(n2ft3d,2)
       real*8 fdn(n2ft3d,3)
@@ -358,14 +362,14 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fncup  = ec + (ec_lda_nup + Hpbe_nup)
          fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
 
-         xce(i)   = ex + ec
-         fn(i,1)  = fnxup  + fncup
-         fn(i,2)  = fnxdn  + fncdn
+         xce(i)   = x_parameter*ex     + c_parameter*ec
+         fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup
+         fn(i,2)  = x_parameter*fnxdn  + c_parameter*fncdn
 
-         fdn(i,1) = fdnxup 
-         fdn(i,2) = fdnxdn 
+         fdn(i,1) = x_parameter*fdnxup 
+         fdn(i,2) = x_parameter*fdnxdn 
 c        fdn(i,3) = n*t_agr*Hpbe_t
-         fdn(i,3) =  t_agr*Hpbe_t
+         fdn(i,3) =  c_parameter*t_agr*Hpbe_t
       end do
       
       
@@ -388,18 +392,22 @@ c        fdn(i,3) = n*t_agr*Hpbe_t
 *   Entry - n2ft3d     : number of grid points
 *           rho_in(*) :  density (nup+ndn)
 *           agr_in(*): |grad rho_in|
+*           x_parameter: scale parameter for exchange
+*           c_parameter: scale parameter for correlation
 *
 *     Exit  - xce(n2ft3d) : PBE96 exchange correlation energy density
 *             fn(n2ft3d)  : d(n*xce)/dn
 *             fdn(n2ft3d) : d(n*xce/d|grad n|
 *
       subroutine gen_PBE96_BW_restricted(n2ft3d,rho_in,agr_in,
+     >                                x_parameter,c_parameter,
      >                                xce,fn,fdn)
       implicit none
 
       integer    n2ft3d
       real*8     rho_in(n2ft3d)
       real*8     agr_in(n2ft3d)
+      real*8     x_parameter,c_parameter
       real*8     xce(n2ft3d)
       real*8     fn(n2ft3d)
       real*8     fdn(n2ft3d)
@@ -557,9 +565,9 @@ c        **** PBE96 correlation fdn and fdnc derivatives ****
      >             - (sevensixths*t*Ht)
          fdnc = 0.5d0* Ht/ks
 
-         xce(i) = ex + ec
-         fn(i)  = fnx  + fnc
-         fdn(i) = fdnx + fdnc
+         xce(i) = x_parameter*ex   + c_parameter*ec
+         fn(i)  = x_parameter*fnx  + c_parameter*fnc
+         fdn(i) = x_parameter*fdnx + c_parameter*fdnc
          
 
       end do

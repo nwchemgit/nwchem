@@ -1,8 +1,22 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.4 2004-03-08 22:51:25 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.5 2004-11-08 23:37:41 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2004/03/08 22:51:25  bylaska
+* Fractional occupation working in pspw with minimizer 4, steepest descent, and Car-Parrinello.
+*
+* Bug fix in velocity initialization in liquid and solid-state Car-Parrinello simulations...incell3 instead of incell2 was used in newton step.
+*
+* Added restart capabilites to thermostat masses...Qe and Qr and eke0 are now propagated to
+* restart Car-Parrinello simulations.
+*
+* SIC input modifications.
+*
+* Wannier orbital output modifications.
+*
+* ....EJB
+*
 * Revision 1.3  2003/10/21 02:05:15  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -385,6 +399,7 @@
      >                      dcpl_mb(tmp1(1)))
         else
           call v_bwexc(n2ft3d,ispin,dn,
+     >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
         end if

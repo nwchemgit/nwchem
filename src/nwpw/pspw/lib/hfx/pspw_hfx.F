@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.4 2004-11-08 01:50:43 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.5 2004-11-08 23:37:42 bylaska Exp $
 *
 
 *     *************************
@@ -131,8 +131,6 @@
      >       call errquit('pspw_init_HFX: out of heap memory',1, MA_ERR)
          end do
 
-      else
-         norbs = 0
       end if
 
    

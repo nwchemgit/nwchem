@@ -1,8 +1,18 @@
 *
-* $Id: paw_inner_loop.F,v 1.39 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.40 2004-11-08 23:37:41 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.39  2004/08/12 18:39:41  bylaska
+* A prototype of a Grassmann CG paw minimizer (i.e. nwpw:minimizer 1) has been added.
+* The code is similar to the CG minimizer in pspw, but differences exist
+* because the residual |R> = (1 - S|psi><psi|)|Hpsi> is not the same as the
+* tangent vector |T> = (1 - |psi><psi|S)|R>.
+*
+* Forces still need to be implemented.
+*
+* ...EJB
+*
 * Revision 1.38  2003/10/24 18:45:24  bylaska
 *
 * Aperiodic convolution capability has been added to PAW .... EJB
@@ -420,6 +430,7 @@
      >                      dcpl_mb(tmp1(1)))
         else
           call v_bwexc(n2ft3d,ispin,dn,
+     >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
         end if

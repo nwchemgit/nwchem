@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.11 2003-10-17 22:56:05 carlfahl Exp $
+* $Id: c_electron.F,v 1.12 2004-11-08 23:37:40 bylaska Exp $
 *
 
 *     ***********************************
@@ -797,6 +797,7 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 
          call v_bwexc(n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
+     >                    1.0d0,1.0d0,
      >                    dbl_mb(txcp(1)),
      >                    dbl_mb(txce(1)))
 

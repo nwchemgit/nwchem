@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.4 2004-11-08 23:37:42 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
@@ -60,6 +60,7 @@
      >                    dbl_mb(tmp2(1)))
       else
         call v_bwexc(n2ft3d,ispin,dn,
+     >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)))
       end if

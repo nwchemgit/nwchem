@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.4 2004-09-30 04:20:47 edo Exp $
+* $Id: paw_electron.F,v 1.5 2004-11-08 23:37:41 bylaska Exp $
 *
 
 
@@ -1639,6 +1639,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       else
         call v_bwexc(n2ft3d,ispin,dn,
+     >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
       end if

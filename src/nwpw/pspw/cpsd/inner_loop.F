@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.16 2004-11-08 01:32:48 bylaska Exp $
+* $Id: inner_loop.F,v 1.17 2004-11-08 23:37:42 bylaska Exp $
 *
 
 *  ************************************************************
@@ -329,6 +329,12 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                      dcpl_mb(tmp1(1)))
         else if (gga.eq.1) then
           call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      1.0d0,1.0d0,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
+        else if (gga.eq.3) then
+          call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      0.75d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
         end if

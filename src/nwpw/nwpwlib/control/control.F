@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.55 2004-11-08 01:32:48 bylaska Exp $
+* $Id: control.F,v 1.56 2004-11-08 23:37:41 bylaska Exp $
 *
 
 *     ***********************************
@@ -75,6 +75,11 @@
       else if (exchange_correlation.eq.'hartree-fock') then
          gga = 2
          value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'pbe0') then
+         gga = 3
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+         value = value.and.
+     >           rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
       else
          gga = 0
       end if
@@ -249,6 +254,11 @@ c
       else if (exchange_correlation.eq.'hartree-fock') then
          gga = 2
          value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else if (exchange_correlation.eq.'pbe0') then
+         gga = 3
+         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+         value = value.and.
+     >           rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
       else
          gga = 0
       end if

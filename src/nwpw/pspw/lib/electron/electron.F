@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.33 2004-11-08 01:32:49 bylaska Exp $
+* $Id: electron.F,v 1.34 2004-11-08 23:37:42 bylaska Exp $
 *
 
 
@@ -1742,6 +1742,12 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       else if (gga.eq.1) then
         call v_bwexc(n2ft3d,ispin,dnall,
+     >                    1.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
+      else if (gga.eq.3) then
+        call v_bwexc(n2ft3d,ispin,dnall,
+     >                    0.75d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
       end if
