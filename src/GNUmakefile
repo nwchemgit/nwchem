@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.59 1997-06-28 20:10:36 d3e129 Exp $
+# $Id: GNUmakefile,v 1.60 1997-12-04 22:51:57 d3g681 Exp $
 
 include config/makefile.h
 
@@ -45,10 +45,11 @@ ifeq ($(TARGET),SP1)
 lapi_link:
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
-	mpcc_r -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask -L/u/d3h325/GA -L../lib/SP1 $(LIBS) 
+	mpcc_r -lc -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g \
+		-o $(BINDIR)/nwchem nwchem.o stubs.o -ltask \
+		-L/u/d3h325/GA -L../lib/SP1 $(LIBS) -llapi_r_t
 endif
         
-
 #
 # This for linking version with profiling
 #
