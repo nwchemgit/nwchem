@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.89 1999-05-26 23:47:28 d3e129 Exp $
+c $Id: raktest.F,v 1.90 1999-06-17 13:55:30 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -19,6 +19,8 @@ c::functions
       external raktask_intdd_3c
       logical raktask_geomcalc
       external raktask_geomcalc
+      logical raktask_fullsc
+      external raktask_fullsc
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -154,6 +156,8 @@ c
         raktest = task_hondo_deriv_check(rtdb)
       else if (raktask.eq.28) then !................................. 28
         raktest = raktask_geomcalc(rtdb)
+      else if (raktask.eq.29) then !................................. 29
+        raktest = raktask_fullsc(rtdb)
       else if (raktask.eq.30) then !................................. 30
         if (me.eq.0) write(luout,*)
      &      ' raktest: check 2e3c second derivatives'        
@@ -4317,7 +4321,7 @@ c
                 if (.not.intbd_init4c(
      &              basis,iq,jq,basis,kq,lq,q,q4,.false.,
      &              lscr,scr,lbuf,dbl_dum)) call errquit
-     &              ('intbd_init4c failed')
+     &              ('intbd_init4c failed',911)
 00010           continue
                 more = intbd_2e4c(basis,iq,jq,basis,kq,lq,q,q4,.false.,
      &              1.0d-8,.false.,

@@ -1,8 +1,8 @@
-#$Id: GNUmakefile,v 1.41 1999-06-01 19:07:11 d3e129 Exp $
+#$Id: GNUmakefile,v 1.42 1999-06-17 13:55:30 d3e129 Exp $
 
        OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o raktestc.o \
              rak18.o rak19.o rak20.o rak21.o rak22.o rak23.o rak24.o \
-             rak25.o rak26.o rak27.o rak28.o rak30.o \
+             rak25.o rak26.o rak27.o rak28.o rak29.o rak30.o \
              kgdtest.o \
              jvltest.o gaussq_netlib.o rjhtrans.o cct_UHF.o
 
