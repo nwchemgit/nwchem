@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.8 2001-12-12 02:42:27 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.9 2002-01-24 18:32:14 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -317,11 +317,11 @@ c     call lcao_diis_init(5,ispin,nbasis)
          if (rho_error.lt.1.0d-8) go to 50
          if ((oprint)) then
             do ms=1,ispin
-              call D3dB_r_dsum(1,dbl_mb(dn(1)),total_dn)
+              call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),total_dn)
               total_dn = total_dn*lattice_omega()
               total_dn = total_dn/dble(ngrid(1)*ngrid(2)*ngrid(3))
               if (taskid.eq.MASTER) 
-     >         write(*,*) "dn:",ms,total_dn
+     >         write(*,*) "ms,dn:",ms,total_dn
             end do
 
          end if
