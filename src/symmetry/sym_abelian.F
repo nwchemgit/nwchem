@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.5 2000-05-08 05:52:00 d3g681 Exp $
+* $Id: sym_abelian.F,v 1.6 2000-05-30 06:34:27 d3g681 Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -25,6 +25,7 @@ c
      $     sh_uq_op, bf_uq_op,
      $     sh_n_uq, bf_n_uq,
      $     sh_uq, bf_uq,
+     $     sh_nat, bf_nat, sh_uq_bf,
      $     char_tab,
      $     bf_per_ir,
      $     bf_per_ir_cum,
@@ -42,14 +43,15 @@ c
       integer sh_uq_op(8,*), bf_uq_op(8,*)
       integer sh_n_uq, bf_n_uq
       integer sh_uq(*), bf_uq(*)
-      double precision char_tab(8,8)
-      integer bf_per_ir(8)
-      integer bf_per_ir_cum(8)
-      integer bf_so_ir(8,*)
-      character*8 zir(8)
-      integer so_uq_to_lab(2,8,*)
+      integer sh_nat(2,*), bf_nat(2,*), sh_uq_bf(4,*)
+      double precision char_tab(1:8,0:7)
+      integer bf_per_ir(0:7)
+      integer bf_per_ir_cum(0:7)
+      integer bf_so_ir(0:7,*)
+      character*8 zir(0:7)
+      integer so_uq_to_lab(2,0:7,*)
       integer so_lab1(3,*)
-      integer so_lab2(8,*)
+      integer so_lab2(*)
       logical oprint            ! [input]
 c
 c     Returns:
@@ -65,7 +67,7 @@ c     .  bf_op_map(R,i)   = j
 c     .  bf_phase(R,i) = (+/-)1
 c
 c     sh_n_uq_op(ish) is the number of operations that produce
-c     unique results when applied to shell ish.
+c     unique results when applied to shell ish (nwchem order).
 c
 c     bf_n_uq_op(i) is the number of operations that produce unqiue
 c     results when applied to basis function i (same as that of ish).
@@ -85,10 +87,23 @@ c
 c     bf_n_uq is the number of symmetry unique basis functions
 c
 c     sh_uq(ish_uq=1..sh_n_uq) is the ish_uq'th symmetry unique shell
+c     .  in nwchem labelling
 c     (lexically highest symmetry related shell)
 c
 c     bf_uq(iuq=1..bf_n_uq) is the iuq'th symmetry unique basis function
+c     .  in nwchem labelling
 c     (lexically highest symmetry related basis function)
+c
+c     sh_nat(1,sh) maps from nwchem to natural AO order (below)
+c     sh_nat(2,sh) maps from natural to nwchem AO order (below)
+c
+c     bf_nat(1,bf) maps from nwchem to natural AO order (below)
+c     bf_nat(2,bf) maps from natural to nwchem AO order (below)
+c
+c     sh_uq_bf(1,shuq) first natural basis function from unique shell
+c     sh_uq_bf(2,shuq) last  natural basis function from unique shell
+c     sh_uq_bf(3,shuq) first unique  basis function from unique shell
+c     sh_uq_bf(4,shuq) last  unique  basis function from unique shell
 c
 c     char_tab(op,ir) is the character of the operation op for irreducible
 c     representation ir (+/- 1).
@@ -97,31 +112,40 @@ c     bf_per_ir(ir) is the no. of basis functions in this irrep
 c
 c     bf_per_ir_cum(ir) is the sum of all basis function in irreps.
 c     lower than ir
-c     .  bf_per_ir_cum(ir) = sum(k=1..ir-1) bf_per_ir(k)
+c     .  bf_per_ir_cum(ir) = sum(k=0..ir-1) bf_per_ir(k)
 c
-c     bf_so_ir(iruq=1..bf_n_uq_op(i),i) is the list of irreps that
-c     can be generated from function i (with 1 function per irrep.)
+c     bf_so_ir(iruq=1..bf_n_uq_op(bf_uq(iuq)),iuq) is the list of irreps that
+c     can be generated from unique function iuq (with 1 function per irrep.)
 c
 c     zir(ir) returns the name of the irrep
 c
 c     (see below for decsription of the labelling of SOs)
 c     so_uq_to_lab(1,ir,iuq) = lab1 = SO label for projector for ir 
-c     .  acting on the iuq'th unique basis function
+c     .  acting on the iuq'th unique basis function or a negative
+c     .  no. if the projector yields zero.
 c     so_uq_to_lab(2,ir,iuq) = lab2 = second type of SO label
 c
 c     so_lab1(1,lab1) = irrep of given SO
 c     so_lab1(2,lab1) = lab2 = mapping between labelling schemes
 c     so_lab1(3,lab1) = iuq = unique basis function that is generator
 c
-c     so_lab2(ir,lab2) = lab1 = mapping between labelling schemes
+c     so_lab2(lab2) = lab1 = map from symmetry blocked SO order 
+c     .  (second labeling scheme) to natural SO order (first scheme).
 c
 c     Unlike the rest of the symmetry code this routine INCLUDES
 c     the identity as the first operator, whereas the rest of
 c     the symmetry code does not include the identity.
 c
+c     Also, note that irreduible representations are numbered
+c     from 0 to nir-1 so that the group multiplication table 
+c     can be computed using sym1*sym2=ieor(sym1,sym2)
+c     (ugh ... operators are still numbered from 1)
+c     
+c
       integer geom, nop, l_a, k_a, l_b, k_b, nbf, nsh
       integer i, j, ish, jsh, ir, op, opuq, ilo, ihi, iuq
-      integer lab1, lab2(8)
+      integer countsh, countbf, countuqbf
+      integer lab1, lab2(0:7), label2
       integer nbfir
       double precision c(8), val
       double precision ddot
@@ -227,8 +251,8 @@ c
          end do
       endif
 c
-c     Determine the lexically highest symmetry related shells/bf
-c
+c     Determine the lexically highest symmetry related shells/bfc
+c     
       sh_n_uq = 0
       bf_n_uq = 0
       do ish = 1, nsh
@@ -253,6 +277,71 @@ c
          write(6,*) ' Abelian symmetry unique functions', bf_n_uq
          write(6,33) (bf_uq(i),i=1,bf_n_uq)
       endif
+c
+c     The "natural order" of AO shells and basis functions
+c     has all symmetry related quantities next to each other.
+c
+      call ifill(2*nsh, -1, sh_nat, 1)
+      call ifill(2*nbf, -1, bf_nat, 1)
+      countsh = 0
+      countbf = 0
+      countuqbf = 0
+      do iuq = 1, sh_n_uq
+         ish = sh_uq(iuq)
+         if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
+     $        call errquit('sym_abelian_bas_info: basis?', basis)
+         sh_uq_bf(1,iuq) = countbf+1
+         sh_uq_bf(3,iuq) = countuqbf+1
+         do opuq = 1, sh_n_uq_op(ish)
+            countsh = countsh + 1
+            op = sh_uq_op(opuq, ish)
+            jsh = sh_op_map(op,ish)
+            sh_nat(1,jsh) = countsh
+            sh_nat(2,countsh) = jsh
+         end do
+         do i = ilo, ihi
+            do opuq = 1, sh_n_uq_op(ish)
+               countbf = countbf + 1
+               op = sh_uq_op(opuq, ish)
+               j = bf_op_map(op,i)
+               bf_nat(1,j) = countbf
+               bf_nat(2,countbf) = j
+            end do
+         end do
+         countuqbf = countuqbf + (ihi-ilo+1)
+         sh_uq_bf(2,iuq) = countbf
+         sh_uq_bf(4,iuq) = countuqbf
+      end do
+      if (countbf.ne.nbf .or. countsh.ne.nsh .or.
+     $     countuqbf.ne.bf_n_uq) call errquit
+     $     ('robert cannot count',0)
+      do i = 1, nbf
+         if (bf_nat(1,i).le.0 .or. bf_nat(2,i).le.0)
+     $        call errquit('missing bf_nat?',0)
+      end do
+      do i = 1, nsh
+         if (sh_nat(1,i).le.0 .or. sh_nat(2,i).le.0)
+     $        call errquit('missing sh_nat?',0)
+      end do
+      if (oprint) then
+         write(6,*) ' Shell nwchem to natural map and check'
+         do ish = 1, nsh
+            write(6,101) ish, sh_nat(2,sh_nat(1,ish)), sh_nat(1,ish)
+ 101        format(2i5,2x,i5)
+         end do
+         write(6,*) ' Function nwchem to natural map and check'
+         do i = 1, nbf
+            write(6,101) i, bf_nat(2,bf_nat(1,i)), bf_nat(1,i)
+         end do
+         write(6,*) ' Range of natural order functions from unique sh'
+         do i = 1, sh_n_uq
+            write(6,77) i, sh_uq_bf(1,i), sh_uq_bf(2,i)
+         end do
+         write(6,*) ' Range of unique order functions from unique sh'
+         do i = 1, sh_n_uq
+            write(6,77) i, sh_uq_bf(3,i), sh_uq_bf(4,i)
+         end do
+      end if
 c
 c     Symmetry orbitals (SO) are formed by applying a projector
 c     to the generating functions (the symmetry unique or lexically
@@ -280,7 +369,7 @@ c
          end do
 c
          nbfir = 0
-         do ir = 1, nop
+         do ir = 0, nop-1
             val = ddot(nop, c, 1, char_tab(1,ir), 1) / dble(nop)
             if (abs(val-1.0d0) .lt. 1d-12) then
                nbfir = nbfir + 1
@@ -295,19 +384,19 @@ c
 c     Check no. of bf per irrep against standard routine
 c
       call sym_bas_irreps(basis, .false., bf_per_ir_cum)
-      do ir = 1, nop
+      do ir = 0, nop-1
          if (bf_per_ir_cum(ir) .ne. bf_per_ir(ir)) call errquit
      $        ('sym_abelian_bas_info: miscount of functions', ir)
       end do
 c
       nbfir = 0
-      do ir = 1, nop
+      do ir = 0, nop-1
          bf_per_ir_cum(ir) = nbfir
          nbfir = nbfir + bf_per_ir(ir)
       end do
       if (oprint) then
-         write(6,123) ' bf_per_ir_cum ', (bf_per_ir_cum(ir),ir=1,nop)
-         write(6,123) ' bf_per_ir     ', (bf_per_ir(ir),ir=1,nop)
+         write(6,123) ' bf_per_ir_cum ', (bf_per_ir_cum(ir),ir=0,nop-1)
+         write(6,123) ' bf_per_ir     ', (bf_per_ir(ir),ir=0,nop-1)
  123     format(1x,a,8i5)
       endif
 c
@@ -322,7 +411,7 @@ c
          end do
       end if
 c
-c     The SO coefficients of the functions arsing from basis funciton i
+c     The SO coefficients of the functions arsing from basis function i
 c     are given by the projector
 c
 c     .   |ir> = (1/h(i)) sum(unique ops for i) chartab(op,ir) |op * i>
@@ -332,26 +421,25 @@ c
 c     .   |op * i> = bf_phase(op,i) * |bf_op_map(op,i)>
 c     .   h(i) = number of unique ops for i.
 c
-c     Finally, we must compute the various ways of numbering the SOs
+c     Next, we must compute the various ways of numbering the SOs
 c
 c     The natural order (lab1) is as above and is used when generating 
-c     integrals over the SOs, but a more useful order (lab2) orders
-c     the functions within each irrep.
+c     integrals over the SOs, but a more useful order (lab2) blocks
+c     the functions by irrep.
 c
-c     lab2(1:8) = 0
+c     lab1 = 0
+c     lab2(0:7) = 0
 c     loop over unique shells
 c     .  loop over functions in shell
 c     .     loop over irreps
 c     .        if (non-zero from projector) then 
 c     .          lab1 = lab1 + 1
 c     .          lab2(ir) = lab2(ir) + 1
+c     .          label2 = lab2(ir) + bf_per_ir_cum(ir)
 c     
 c     i.e, lab1 = lab1(irrep, shell component, unique shell).
 c
-c     lab2 will be the index within the irrep. of the SO ... to get the
-c     index within the whole basis you need to add bf_per_ir_cum(ir).
-c
-c     We need maps between the two labeling schemes.
+c     We need maps between the various labeling schemes.
 c
 c     Given the AO basis function number of the generator and the irrep
 c     .      what is the natural SO number (lab1)
@@ -362,13 +450,13 @@ c     .      what is the ir
 c     .      what is the lab2
 c     .      what is the generator AO basis function
 c
-c     Given ir and lab2
+c     Given lab2
 c     .      what is the lab1
-c     
+c
       call ifill(8,0,lab2,1)
       call ifill(2*8*nbf,-99999999,so_uq_to_lab,1)
       call ifill(3*nbf,-99999999,so_lab1,1)
-      call ifill(8*nbf,  -99999999,so_lab2,1)
+      call ifill(nbf,  -99999999,so_lab2,1)
       lab1 = 0
       do iuq = 1, bf_n_uq
          i = bf_uq(iuq)
@@ -377,13 +465,14 @@ c
 c
             lab1 = lab1 + 1
             lab2(ir) = lab2(ir) + 1
+            label2 = lab2(ir) + bf_per_ir_cum(ir)
 c
             so_uq_to_lab(1,ir,iuq) = lab1 
-            so_uq_to_lab(2,ir,iuq) = lab2(ir)
+            so_uq_to_lab(2,ir,iuq) = label2
             so_lab1(1,lab1) = ir
-            so_lab1(2,lab1) = lab2(ir)
+            so_lab1(2,lab1) = label2
             so_lab1(3,lab1) = iuq
-            so_lab2(ir,lab2(ir)) = lab1
+            so_lab2(label2) = lab1
          end do
       end do
 c
@@ -397,17 +486,16 @@ c
      $           ir=1,bf_n_uq_op(i))
  77         format(i5,8(2x,2i4))
          end do
-         write(6,*) ' Map from lab1 to ir, lab2 and unique'
+         write(6,*) ' Map from lab1 to ir, lab2, unique and test lab2'
          do lab1 = 1, nbf
-            write(6,78) lab1, (so_lab1(i,lab1), i=1,3)
- 78         format(i5,2x,3i4)
+            write(6,78) lab1, so_lab2(so_lab1(2,lab1)),
+     $           (so_lab1(i,lab1), i=1,3)
+ 78         format(2i5,2x,3i4)
          end do
-         write(6,*) ' Map from ir+lab2 to lab1 '
-         do ir = 1, 8
-            do i = 1, bf_per_ir(ir)
-               write(6,79) ir, i, so_lab2(ir,i)
- 79            format(2i5,2x,i5)
-            end do
+         write(6,*) ' Map from lab2 to lab1 '
+         do i = 1, nbf
+            write(6,79) i, so_lab2(i)
+ 79         format(i5,2x,i5)
          end do
       end if
 c
