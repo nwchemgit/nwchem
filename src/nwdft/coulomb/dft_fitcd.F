@@ -1,10 +1,10 @@
-      Subroutine dft_fitcd(CD_coef, i3c_ERI, Ecoul1, rtdb, g_cdinv,
+      Subroutine dft_fitcd(nfit,CD_coef, i3c_ERI, Ecoul1, rtdb, 
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
-     &                     derfit, nfit, Tvec, have_Tvec)
+     &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.27 1999-05-08 13:35:19 bjohnson Exp $
+* $Id: dft_fitcd.F,v 1.28 1999-05-10 22:43:44 edo Exp $
 *
       implicit none
 c
@@ -27,7 +27,6 @@ c
      &        cetobfr(2,natoms)
       double precision rdens_atom(natoms,natoms,ipol)
       integer rtdb
-      integer g_cdinv
       integer nfit           ! number of different fits to perform
       integer g_dens(nfit)   ! GA DM handles
       integer nTotEl
@@ -666,9 +665,9 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
          endif
          open(unit=79,file=cdfit_filename,access='sequential',
      &         form='unformatted',status='unknown')
-c         do ifit = 1, nfit
-c            write(79) (CD_coef(i,ifit),i=1,nbf_cd)
-c         enddo
+         do ifit = 1, nfit
+            write(79) (CD_coef(i,ifit),i=1,nbf_cd)
+         enddo
          close(79)
       endif
 c      

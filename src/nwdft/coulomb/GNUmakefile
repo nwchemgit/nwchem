@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 1997-07-21 20:23:15 d3h449 Exp $
+# $Id: GNUmakefile,v 1.28 1999-05-10 22:43:45 edo Exp $
 ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
       OBJ =  dft_3cincor.o\
@@ -11,7 +11,7 @@ else
 #	dft_get2eri.o			   dft_getvc.o	
 #
 
-	OBJ_OPTIMIZE = \
+	OBJ= \
 	dft_3cincor.o \
 	dft_fitcd.o \
 	dft_fitvc.o \

@@ -1,9 +1,9 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
-     &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
+     &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.23 1999-05-08 13:29:47 bjohnson Exp $
+c     $Id: dft_fitvc.F,v 1.24 1999-05-10 22:43:44 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -29,7 +29,6 @@ c
       integer rtdb
       integer nmat    ! number of J matrices to make [input]
       integer g_vc(nmat)     ! GA handles for V Coulomb [output]
-      integer g_2ceri ! GA handle for repulsion int. [input]
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]

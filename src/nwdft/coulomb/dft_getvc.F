@@ -1,11 +1,11 @@
       Subroutine dft_getvc(CD_coef, i3c_ERI, Ecoul, rtdb, g_vc,
-     &                     iVcoul_opt, g_2ceri, g_dens, n_batch,
+     &                     iVcoul_opt, g_dens, n_batch,
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC, rdens_atom,
      &                     cntoce, cntobfr, cetobfr, natoms,
      &                     derfit, nmat)
 c
-C$Id: dft_getvc.F,v 1.18 1999-05-08 13:19:25 bjohnson Exp $
+C$Id: dft_getvc.F,v 1.19 1999-05-10 22:43:45 edo Exp $
       implicit none
 c
 #include "bas.fh"
@@ -24,7 +24,6 @@ c
       integer rtdb
       integer g_vc
       integer iVcoul_opt
-      integer g_2ceri
       integer g_dens(2)
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
@@ -78,7 +77,7 @@ c       Compute the Coulomb potential via a LSQ fitting procedure.
 c        call dft_tstamp(' Before call to dft_fitvc')
 c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         call dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc,
-     &                 g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
+     &                 n_batch, n_bmax, iwhat, n3c_dbl,
      &                 iwhat_max, n_semi_bufs, fd, IOLGC, rdens_atom,
      &                 cntoce, cntobfr, cetobfr, natoms, derfit, nmat,
      &                 .true.)
