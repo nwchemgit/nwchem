@@ -36,7 +36,7 @@ c
       data moao_ipass/-1/
       data moao_fd/-1/
       data moao_lbuf/-1/
-      data moao_fname/''/
+      data moao_fname/' '/
       end
 
 
@@ -247,7 +247,7 @@ c
 c     
 c     if AO file exists AND reuse enabled then set ipass > 0
 c     
-      if (moao_fname.eq.'') then
+      if (moao_fname.eq.' ') then
          call util_file_name( 'moao', .true., .true., moao_fname )
       endif
 c
