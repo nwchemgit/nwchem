@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.20 2000-03-20 21:11:50 edo Exp $
+c$Id: grid_tasks.F,v 1.21 2000-03-20 23:46:18 edo Exp $
 c
       implicit none
 c
@@ -211,7 +211,9 @@ c     Write last buffer of grid pts and close file
 c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
-      call grid_file_write(nq, n_tot_tasks, rad, aqbuf)
+      call dft_tstamp(' before last write')
+      call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
+      call dft_tstamp(' done last write')
       write(6,*)' n_tot_tasks = ', n_tot_tasks
 c
 c     clean up
