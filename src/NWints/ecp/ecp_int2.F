@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.6 1997-10-03 01:41:26 mg201 Exp $
+C $Id: ecp_int2.F,v 1.7 1997-10-07 18:37:08 d3j191 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -83,7 +83,7 @@ C $Id: ecp_int2.F,v 1.6 1997-10-03 01:41:26 mg201 Exp $
      &    n_ab,n_abc,nc_ab,ncab,n_rad,n_Q,n_row,n_ang_a,n_ang_b,
      &    n_l,n_l_c,n_lam_a,n_lam_b,ltmp,n_ints,n_c_tot,n_z_tot,n_blk,
      &    n_prim_a,n_prim_b,n_cont_a,n_cont_b,n_cont_c,n_int_a,n_int_b,
-     &    n_cent,n_co,n_co_tot,n_co_max,n_pass,n_rad,n_x,nu_a,nu_b,
+     &    n_cent,n_co,n_co_tot,n_co_max,n_pass,n_x,nu_a,nu_b,
      &    p_max,p_min,sphcart
       integer n_coef_c(-1:l_ecp_max,n_cent,2),
      &    n_prim_c(p_min:p_max,-1:l_ecp_max,n_cent,2),
