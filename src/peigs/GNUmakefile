@@ -16,7 +16,8 @@ include_stamp:
 
 realclean clean:
 	$(MAKE) -f makefile.peigs clean
-	rm -f peigs_stamp
+	rm -f peigs_stamp include_stamp
+
 
 sngl_to_dbl dbl_to_sngl:
 	@echo No conversion necessary
