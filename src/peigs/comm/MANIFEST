@@ -1,0 +1,30 @@
+Listing of the files in this directory: ./comm
+
+Files in this directory are Rik Littlefield's mx-* communication routines.
+They are basically #ifdef message passing wrappers over machine specific message
+passing routines.
+
+
+
+MANIFEST		this file
+
+Make.generic		the "bottom" half of the Makefile for this directory
+
+Makefile		a leftover copy of the Makefile, the makeMake utility overwrites this file
+
+cmbbfr1.h 		an include file for buffer sizes and ...
+
+defines.h 		definition of data sizes
+
+mxbrod.cpp 		global broadcast
+
+mxcombv1.cpp 		vectorizable global combine where everyone gets a
+                        copy of the combined data
+
+mxsubs.cpp 		basic message passing wrapper
+
+mxsubs.h 		definitions and ... for mxsubs.cpp
+
+sum.cpp 		for global sum
+
+xpress.com 		common block include file for "express" message passing

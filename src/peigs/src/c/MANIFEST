@@ -1,0 +1,173 @@
+PeIGS files		comment
+------------------------------------
+
+MANIFEST		this file
+
+Make.generic		the "bottom" half of the Makefile for this directory
+
+chol_bcst.c		the pipeline broadcast
+
+choleski9.c		the submatrix Choleski factorization
+
+ci_entry.c		utility: ci_entry_ , ci_size_ , fil_mapvec_
+
+clustr_inv.h		include files for the inverse iteration
+
+clustrf.c		finding clusters of eigenvalues
+
+clustrxx.c		inverse iteration and modified Gram-Schmidt
+
+cmbbfr.h		include file for the communication buffer
+
+conjug.c		matrix conjugation of symmetric matrix by a lower
+			triangular matrix
+
+dsteinsch.c		scheduler for the eigenvector calculations
+
+exit.c			error checking and exiting routine
+
+exit2.c			parallel error checking routine
+
+forLL.c			internal PeIGS code for performing uniprocessor
+			forward solve of the reduction to standard eigensystem
+			problem ( c.f. page 339 of Wilkinson's "The Algebraic
+			Eigenvalue Problem ).
+
+forLU.c			internal PeIGS code for reduction to standard
+			( c.f. page 339 of Wilkinson's
+	                "The Algebraic Eigenvalue Problem" ).
+
+gmax.c			PeIGS communication routine: global max on vectors or scalars
+
+inv_it2.c		inverse iteration
+
+inverse.c		inverse of lower triangular matrices
+
+mapdif.c		difference between mapping array ( distribution array ) for error checking
+
+mapdif1.c		difference between mapping array ( distribution array ) for error checking
+
+mapsort.c		PeIGS internal utility routine, quick sorting orderred array of vectors in an
+			ascending sequence
+
+maxx.cpp		PeIGS internal for finding global max
+
+memreq.c		memory requirements for C code for the standard and general symmetric
+	                eigensystem solvers
+
+memreq_f.c		memory requirements for F77 code for the standard and general symmetric
+			eigensystem solvers
+
+mgs2.c			modified Gram-Schmidt
+
+mxm.c			matrix multiply ( M2 <- M1.M2 where M1 is the row distributed and M2 is column
+			distributed, M1 is n by n and M2 is n by m );
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+			
+mxm2.c			systolic matrix multiply ( M2 <- M1.M2 where M1 is row distributed and M2 is
+			column distributed; M1 is n by n and M2 is n by m )
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+			
+
+mxm25.c			internal routine--systolic matrix multiply ( Y <- Q W  where Q is
+			n by m and W is m by q. )
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+			
+
+mxm3.c			matrix multiply ( M1.M2 where M1 and M2 are column wrapped; M1 is n by n
+			and M2 is n by m )
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+			
+
+mxm35.c			matrix multiply ( M2 <- M1.M2 where M1 and M2 are column wrapped; M1 is n by n
+			and M2 is n by m ) no requirements on ordered minimal list
+
+mxm4.c			systolic matrix multiply ( L2 <- L1.L2 lower triangular shaped 
+			matrix multiply, L1 and L2 are both stored in column
+			wrapped format, L1 is n by n and L2 is n by m )
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+			
+mxm5.c			matrix multiply ( W <- Q.W where Q is an n by n upper triangular
+			matrix and W is a full n by m matrix )
+			ordered minimal list
+			of processors holding M1 and those holding M2 are the same
+
+mxm5x.c			internal PeIGS matrix multiply, same as mxm5.c with the exception
+			that the minimal processor list checking is turned off
+
+mxm7.c			matrix multiplication, 
+
+mxm8.c			matrix multiplication
+
+mxsubs.h		temporary include file
+
+onenorm.c		internal experimental code for computing the one norm of a "general" matrix
+
+ortho.c			internal experimental code for computing the orthogonality measure
+
+pdspev_c.c		full standard eigen-system solver: C code
+
+pdspevx.c		selected standard eigen-system solver
+
+pdspgv_c.c		full general eigen-system solver: C-code
+
+pdspgvx.c		selected eigen-pair solver : C code
+
+peigvc.c		(peigs internal routine ) eigenvector calculations
+
+pipe_fut.c		pipe line broadcast to processors holding "columns," i:n when at hold column i-1
+
+pmmLSL.c		(internal peigs code ) part of conjugation
+
+pmmLUL.c		(internal peigs code ) part of conjugation
+
+pstebz9.c		parallel bisection eigenvalue calculations
+
+pstein.c		inverse-iteration with re-orthogonalization
+
+pxerbla.c		(internal peigs code ) error exit
+
+qsort.c			(internal peigs code ) quick sort of array of vectors by shifting pointer
+
+qsort1.c		(internal peigs code for fortran ) quick sort of array of vectors by copying them
+	
+reducelst.c		(peigs utility) reduces a list to a, possibly smaller list, without duplication
+
+residual.c		(peigs internal experimental code ) computes the residual of the generalized problem
+			using 1-norms
+
+sclmatrix.c		(peigs internal experimental code ) part of matrix daxpy
+
+setdif.c		(peigs error utility routine) mapdif_ , for comparing differences on sets of processors
+
+shellsort.c		(peigs internal routine)  Steele's version of shellsort
+
+soluf.c			(unsupported peigs internal solver) solves the matrix equation U Y = W for Y where
+			U is a row wrapped upper triangular matrix, and W is a full matrix.
+
+solul.c			(peigs routine) solves the lower triangular part of the matrix Y for the matrix problem
+			U Y = W where U is row wrapped and upper triangular
+				      W is a column wrapped lower triangular
+
+sonenorm.c		(peigs internal experimental code) the one norm of a symmetric matrix stored in
+			packed symmetric format
+
+soort.c			(peigs internal code) quick sort for lists
+
+sort.c			(peigs internal code ) quick sort of list of doubles according to an index list
+
+tred22.c		Householder reduction of symmetric matrix to tridiagonal form
+
+upperxfull.c		(peigs code ) computes product of upper triangular matrix U stored in distributed
+			row format and a full matrix F stored in distributed in column format.   U <- U.F.
+
+util.c			(peigs internal utility codes) count_list, indxL, indxlf_, indaint,
+			 fil_int_lst, fil_dbl_list, in_list, find_proc_store, find_large_store, mem_cpy,
+			fil_int_lst, 
+
+

@@ -1,0 +1,737 @@
+#======================================================================
+#
+# DISCLAIMER
+#
+# This material was prepared as an account of work sponsored by an
+# agency of the United States Government.  Neither the United States
+# Government nor the United States Department of Energy, nor Battelle,
+# nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+# ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+# COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+# SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+# INFRINGE PRIVATELY OWNED RIGHTS.
+#
+# ACKNOWLEDGMENT
+#
+# This software and its documentation were produced with Government
+# support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+# States Department of Energy.  The Government retains a paid-up
+# non-exclusive, irrevocable worldwide license to reproduce, prepare
+# derivative works, perform publicly and display publicly by or for the
+# Government, including the right to distribute to other Government
+# contractors.
+#
+#======================================================================
+#
+#  -- PEIGS  routine (version 2.1) --
+#     Pacific Northwest Laboratory
+#     July 28, 1995
+#
+#======================================================================
+#
+# set the path to the "peigs" directory
+
+include $(NWCHEM_TOP)/src/config/makefile.h
+
+SRC		:= $(NWCHEM_TOP)/src
+TARGET		= $(NWCHEM_TARGET)
+
+PEIGSDIR	= $(SRC)/peigs
+PEIGSLIB	= $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
+SHELL		= /bin/sh
+
+OBJDIR	 = $(PEIGSDIR)/o
+HDIR	 = $(PEIGSDIR)/h
+CSRC	 = $(PEIGSDIR)/src/c
+F77SRC	 = $(PEIGSDIR)/src/f77
+COMMDIR	 = $(PEIGSDIR)/comm
+FTOC	 = $(PEIGSDIR)/ctof
+
+
+# Set DEF_TIMING = -DTIMING to do timings.  Currently must have all
+# allocated processers participate in computation (since use mxsync).
+#
+# Do not use DEF_TIMINGS = -DTIMING when you want to use
+# the test codes in peigsXX/test_la.
+#
+# When you change DEF_TIMING you need to do a "make timing"
+# to remake the modules which depend on DEF_TIMING.
+#
+# DEF_TIMING = -DTIMING
+# DEF_TIMING = 
+#
+# *********** MPI warning ******************
+# if compiling with nwchem and tcgmsg-mpi...use tcgmsg under peigs
+# to interact with tcgmsg-mpi and not use mpi directly
+#
+# Generic definitions for BLAS and LAPACK.  Will be OVERWRITTEN in 
+# machine specific codes by new values.  Currently, Make.generic in
+# .../peigs/example ignores BLASLIB and LAPACKLIB and just uses
+# $(PEIGSDIR)/blas.a and $(PEIGSDIR)/lapack.a.  You should do whatever
+# is appropriate on your machine.
+
+LAPACKLIB = $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/liblapack.a
+BLASLIB	  = $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libblas.a
+
+# Generic definition for CPP.  Some of the machine specific definitions
+# replace the following CPP definition by a different definition.
+
+CPP = /usr/lib/cpp -P -C -D${NODE_TYPE} -D${COMM_PKG} -D${IO_STYLE} -D${TRACE_PKG} -D${CPU} -D${INT_TYPE} ${DEF_TIMING}
+
+#==================================================
+#  Machine specific definitions.
+#==================================================
+
+ifeq ($(TARGET),CRAY-T3D)
+#
+# cray t3d at nersc
+#
+AR	= ar r
+RANLIB	= echo
+FOPT_REN = -Ccray-t3d -Wf-dp -O1
+COPT_REN = -O3
+F77 = cf77 $(FOPT_REN) -I$(HDIR) -DCRAY_T3D -DTCGMSG
+CC =  cc $(COPT_REN) -I$(HDIR) -DSTD_DBL -I$(HDIR) -DCRAY_T3D ${DEF_TIMING}
+LINK = cf77 $(FOPT_REN) -I$(HDIR) -DCRAY_T3D
+# -X 1 -g
+FOPT =
+RANLIB = echo
+GLOB_DEFINES = -DCRAY_T3D
+EXPLICITF = TRUE
+CUBIX_OPTS      = -node
+NODE_EXT        = o
+HOST_EXT        =
+HOST            = ALPHA
+NODE_TYPE       = ALPHA
+COMM_PKG        = TCGMSG
+IO_STYLE        = FILE_IO
+#
+# Cray t3d SNRM2 routine currently has a bug, which has been reported to cray.
+# it is apparent with the geneig test routine when n > = 1500.
+#BLASLIB         = -lblas
+#
+CPP             = /mpp/bin/gpp -I$(HDIR) -P -D${COMM_PKG} -D${IO_STYLE} -DCRAY_T3D ${DEF_TIMING}
+# 64 bit is default
+CODEOBJ		= SINGLE
+COMMLIB		= ../../libtcgmsg.a
+endif
+
+#
+# -Mvect is braindead for long vector using pgi
+
+ifeq ($(TARGET),DELTA)
+AR	= ar860 r
+RANLIB	= echo
+CPU	= i860
+#Delta machine, compiled on sun3 (intelisc) or delilah
+IEEE	= -Knoieee
+CC   	= icc ${DEF_TIMING}
+OPT	=  -O3 $(IEEE) -Mquad -Mr8 -Minline=100
+# OPTC	=  -O3 $(IEEE) -Mquad -Mvect -node
+#
+# gcc options
+#
+BLASLIB = -lkmath
+#
+# GCC = /home/delilah5/gnu/delta-local/bin/gcc -fno-gnu-linker
+# OPTC 	= -O2 -ffast-math -fomit-frame-pointre
+# GCCLIB = /home/delilah5/gnu/lib/gcc-lib/i860-delta/2.4.3/libgcc.a
+# CC = $(GCC) -c
+#
+CTOFLIB		=  -l/usr/local/delta/LAPACK -llapack -lf -kmath -lm
+CUBIX_OPTS =
+HOST	=
+LINK	= if77 -node $(IEEE) -Mquad -Mr8
+F77	= if77 -node
+NODE_EXT	= o
+HOST_EXT	= delta
+NODE_TYPE = DELTA
+COMM_PKG = iPSC_NATIVE
+IO_STYLE = FILE_IO
+CODEOBJ = DBLE
+endif
+
+ifeq ($(TARGET),PARAGON)
+#860 box -- Battelle setup, for cross-compilation 
+#    also works for direct compilation on a paragon node, at least at caltech.
+#
+# -Mvect at your own risk
+AR	= ar860 r
+RANLIB	= echo
+OPT	= -O3 -Knoieee -Mquad -Mr8 -Minline=100
+OPTC	= -O2 -Knoieee -Mquad -Minline=100
+OPTC2	= -O3 -Knoieee -Mquad
+F77	= if77
+CC	= icc -D STD_DBL -D STD_INT  -Di860 -DIntel -I$(HDIR) ${DEF_TIMING}
+INT_TYPE = STD_INT
+LINK		= if77 -Knoieee -nx
+CUBIX_OPTS 	= -node
+NODE_EXT	= o
+HOST_EXT	= i860
+HOST	=
+NODE_TYPE	= i860_NODE
+COMM_PKG	= iPSC_NATIVE
+IO_STYLE	= FILE_IO
+BLASLIB		= -lkmath
+# single precision is 32 bits
+CODEOBJ = DBLE
+
+## following two lines iff we're building for PICL
+ifdef PICLDIR
+NODELIBS	= ${PICLDIR}/nodelib.a
+COMM_PKG	= PICL
+endif
+
+ifdef PEIGS_MPI_USE
+  COMM_PKG      = MPI
+
+  MPIR_HOME = /usr/local/MPI/mpich
+
+  MPI_ARCH = paragon
+  MPI_COMM = ch_nx
+
+# MPI_INCLUDE is used when compiling peigs???/comm/mxsubs.f
+  MPI_INCLUDE   = -I$(MPIR_HOME)/include
+
+  COMMLIB       = -L$(MPIR_HOME)/lib/$(MPI_ARCH)/$(MPI_COMM) -lmpi -lm
+endif
+
+CPP = /usr/lib/cpp -P  -D${NODE_TYPE} -D${COMM_PKG} -D${IO_STYLE} -D${INT_TYPE} ${DEF_TIMING}
+endif
+
+
+ifeq ($(TARGET),iPSC_860)
+#Intel DELTA
+#860 box -- Battelle setup, for cross-compilation
+#-Mvect=shortvect at your own risk
+#
+AR	= ar860 r
+RANLIB	= echo
+OPT	= -O4 -Knoieee -Mquad -Mr8 -Minline=100
+OPTC	= -O3 -Knoieee -Mquad -Minline=100
+OPTC2	= -O3 -Knoieee -Mquad
+F77	= if77
+CC	= icc -D STD_DBL -D STD_INT  -I$(HDIR) -DIntel -Di860 ${DEF_TIMING}
+CODEOBJ = DBLE
+INT_TYPE = STD_INT
+LINK		= if77 -Knoieee -node
+CUBIX_OPTS 	= -node
+NODE_EXT	= o
+HOST_EXT	= i860
+HOST	=
+NODE_TYPE	= i860_NODE
+COMM_PKG	= iPSC_NATIVE
+IO_STYLE	= FILE_IO
+#
+# Warning:  using -lkmath is dangerous.
+#           It yields garbage on some problems
+#           on the Intel DELTA.
+#
+BLASLIB		= -lkmath
+CODEOBJ		= DBLE
+
+## following two lines iff we're building for PICL
+ifdef PICLDIR
+NODELIBS	= ${PICLDIR}/nodelib.a
+COMM_PKG	= PICL
+endif
+
+ifdef PEIGS_MPI_USE
+
+  # For Intel delta
+  COMM_PKG      = MPI
+	
+  MPIR_HOME = /usr/local/MPI/mpich
+
+  MPI_ARCH = intelnx
+  MPI_COMM = ch_nx
+
+  # MPI_INCLUDE is used when compiling peigs???/comm/mxsubs.f
+  MPI_INCLUDE   = -I$(MPIR_HOME)/include
+
+  COMMLIB       = -L$(MPIR_HOME)/lib/$(MPI_ARCH)/$(MPI_COMM) -lmpi -lm
+endif
+
+endif
+
+
+ifeq ($(TARGET),SUN)
+# sun using
+#SUN/TCGMSG
+AR		= ar r
+RANLIB		= ranlib
+# F77		= f77 -Bstatic -f
+#
+CC		= gcc -ansi -static  -I$(HDIR)  -DSTD_DBL -DSTD_INT -DSUN -D$(CPU) ${DEF_TIMING}
+#
+# CC		= cc -Bstatic -O1 -I$(HDIR)  -DSTD_DBL -DSTD_INT  -dalign
+# -DDEBUG1
+INT_TYPE = STD_INT
+F77		= f77 -Bstatic -O1 -dalign -DTCGMSG
+LINK		= f77 -O
+CODEOBJ = DBLE
+CUBIX_OPTS	=
+NODE_EXT	= o
+HOST_EXT	= out
+HOST		= SUN
+NODE_TYPE	= SUN
+CPU		= SPARC
+COMM_PKG	= TCGMSG
+IO_STYLE	= FILE_IO
+COMMLIB		= 
+#
+#	this is the worst to find for any machine
+#	for the SUN we have c calling fortran library
+#
+CTOFLIB		=  /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77 -lV77 -L/msrc/apps/f771.4/SC1.0
+#
+#replace if you are on a machine with assembly BLAS library
+#
+HOST_EXT	= out
+endif	
+
+ifeq ($(TARGET),SOLARIS)
+# sun using
+#SUN/TCGMSG
+AR		= ar r
+RANLIB		= ranlib
+CPU		= SPARC
+COMM_PKG	= TCGMSG
+CODEOBJ = DBLE
+CUBIX_OPTS	=
+NODE_EXT	= o
+HOST_EXT	= out
+HOST		= SUN
+NODE_TYPE	= SUN
+IO_STYLE	= FILE_IO
+
+CC		:= $(CC)  -I$(HDIR)  -DSTD_DBL -DSTD_INT -DSUN -D$(CPU) ${DEF_TIMING}
+
+F77		:= $(FC) -Bstatic -O1 -dalign -DTCGMSG
+LINK		:= $(FC) -O
+
+CPP		= /usr/ccs/lib/cpp -I$(HDIR) -DSTD_INT -DSTD_DBL
+
+COMMLIB		=  -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+#
+#	this is the worst to find for any machine
+#	for the SUN we have c calling fortran library
+#
+CTOFLIB	= /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77 -lV77 -L/msrc/apps/f771.4/SC1.0
+#
+#replace if you are on a machine with assembly BLAS library
+#
+HOST_EXT	= out
+endif	
+
+
+
+
+ifeq ($(TARGET),SGI)
+#SGI/TCGMSG
+AR              = ar r
+RANLIB          = echo
+CC              = cc  -g ${DEF_TIMING}
+F77             = f77 -g -static -DTCGMSG
+LINK            = f77 -O
+CODEOBJ		= DBLE
+CUBIX_OPTS      =
+NODE_EXT        = o
+HOST_EXT        = out
+HOST            = SUN 
+NODE_TYPE       = SUN 
+CPU             = 
+COMM_PKG        = TCGMSG
+IO_STYLE        = FILE_IO
+COMMLIB         = 
+CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
+BLASLIB         = 
+
+HOST_EXT        = out
+endif  
+
+ifeq ($(TARGET),SGITFP)
+#SGI/TCGMSG
+AR              = ar r
+RANLIB          = echo
+#
+# In CC -woff 1174,1552 turns off the warning messages:
+#     warning(1174): variable "*" was declared but never referenced
+#     warning(1552): variable "*" was set but never used
+#
+# Should fix this code in next release
+#
+CC              = cc  -64 -woff 1174,1552 -DSTD_DBL -I$(HDIR) -DSGI64 
+F77             = f77 -i8 -64 -mips4 -I$(HDIR) -align64 -r8 -DTCGMSG
+OPT  		= -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
+OPT  		= -O3
+OPTC 		= -O3 -Wk,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
+OPTC 		= -O3
+LINK            = $(F77)
+#
+# 64 bit but using r8 compiler flag
+CODEOBJ		= DBLE
+CUBIX_OPTS      =
+NODE_EXT        = o
+HOST_EXT        = out
+HOST            = SUN 
+NODE_TYPE       = SUN 
+CPU             = 
+COMM_PKG        = TCGMSG
+IO_STYLE        = FILE_IO
+COMMLIB         = 
+CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
+BLASLIB         = 
+LAPACKLIB       = 
+HOST_EXT        = out
+ifdef PEIGS_MPI_USE
+CC              = cc  -woff 1174,1552 -DSTD_INT -DSTD_DBL -I$(HDIR) -DSGI64 -DDEBUG1
+F77             = f77 -64 -mips4 -I$(HDIR) -i8 -align64 -r8 -DMPI
+COMM_PKG      = MPI
+MPIR_HOME = $(HOME)/mpich
+MPI_INCLUDE   = 
+MPI_COMM = 
+MPI_COMM = -lmpi
+COMMLIB  = -lmpi
+BLASLIB  = -lblas
+LAPACKLIB=  -lcomplib.sgimath
+endif
+
+endif
+
+ifeq ($(TARGET),CONVEX-SPP)
+#
+# Convex SPP-1200 running SPP-UX 3.2
+#
+
+        CPP = /lib/cpp -P
+         FC = fc
+
+# -g is not recognized; 
+# Convex debug flag -cxdb does not disable optimization 
+     CDEBUG = -no
+     FDEBUG = -no
+   FOPTIONS = -ppu -or none
+   COPTIONS = -or none
+  FOPTIMIZE = -O1
+  COPTIMIZE = -O
+
+
+    DEFINES = -DCONVEX -DHPUX -DEXTNAME
+
+# &%@~* Convex compiler will preprocess only *.f and *.FORT files !
+  EXPLICITF = TRUE
+   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+endif
+
+ifeq ($(TARGET),IBM)
+#
+# IBM AIX
+#
+
+    CORE_SUBDIRS_EXTRA = lapack
+#blas
+         FC = xlf
+    ARFLAGS = urs
+     RANLIB = echo
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+   FOPTIONS = -qEXTNAME -qalign=4k -qnosave
+# -qinitauto=FF
+   COPTIONS = 
+# -qstrict required with -O3 (according to Edo)
+# -qfloat=rsqrt gives faster square roots (off by -qstrict)
+# -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
+# -qhot seems to break a lot of things so don't ever use it
+# -qarch=pwr (for peril) com (for any) , pwr2  or ppc
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  COPTIMIZE = -O
+
+    DEFINES = -DIBM -DAIX -DEXTNAME
+ifdef USE_ESSL
+   DEFINES += -DESSL
+endif
+
+       LIBPATH += -L/usr/lib -L/msrc/apps/lib
+
+       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas\
+	      -brename:.daxpy_,.daxpy \
+	      -brename:.dcopy_,.dcopy \
+	      -brename:.ddot_,.ddot \
+	      -brename:.dgemm_,.dgemm \
+	      -brename:.dgemv_,.dgemv \
+	      -brename:.dgesv_,.dgesv \
+	      -brename:.dgetrf_,.dgetrf \
+	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dlaset_,.dlaset \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dpotri_,.dpotri \
+	      -brename:.dscal_,.dscal \
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.idamax_,.idamax \
+	      -brename:.dswap_,.dswap \
+	      -brename:.dger_,.dger \
+	      -brename:.dtrsm_,.dtrsm \
+              -brename:.dnrm2_,.dnrm2 \
+              -brename:.dtrmm_,.dtrmm \
+              -brename:.drot_,.drot \
+              -brename:.dasum_,.dasum \
+              -brename:.dtrmv_,.dtrmv \
+              -brename:.dspmv_,.dspmv \
+              -brename:.dspr_,.dspr \
+              -brename:.dsyrk_,.dsyrk \
+              -brename:.dsymm_,.dsymm \
+              -brename:.dsyr2k_,.dsyr2k \
+              -brename:.dsyr2_,.dsyr2 \
+              -brename:.dtrsv_,.dtrsv \
+              -brename:.dsymv_,.dsymv \
+              -brename:.dznrm2_,.dznrm2 \
+              -brename:.zaxpy_,.zaxpy \
+              -brename:.zcopy_,.zcopy \
+              -brename:.zdotc_,.zdotc \
+              -brename:.zdscal_,.zdscal \
+              -brename:.zgemm_,.zgemm \
+              -brename:.zgemv_,.zgemv \
+              -brename:.zgerc_,.zgerc \
+              -brename:.zhemm_,.zhemm \
+              -brename:.zhemv_,.zhemv \
+              -brename:.zher2_,.zher2 \
+              -brename:.zher2k_,.zher2k \
+              -brename:.zherk_,.zherk \
+              -brename:.zscal_,.zscal \
+              -brename:.zswap_,.zswap \
+              -brename:.ztrmm_,.ztrmm \
+              -brename:.ztrmv_,.ztrmv \
+              -brename:.ztrsm_,.ztrsm \
+              -brename:.ztrsv_,.ztrsv 
+# times should no longer ever be needed
+#              -brename:.times_,.times
+#comment out from dtrmm_ inclusive
+ifdef USE_ESSL
+       CORE_LIBS += -lessl
+endif
+
+ EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#
+endif
+
+
+ifeq ($(TARGET),KSR8)
+#
+# real*8 and integer*8 VERSION FOR KSR
+# using the crummy optimized ksrlapk.a ksrblas.a
+#
+# -xfpu3 generate suspect answers for choleski
+#
+#KSR/TCGMSG
+AR              = ar r
+RANLIB          = echo
+CC     	        = cc -DSTD_DBL -I$(HDIR) -DKSR8 ${DEF_TIMING}
+#  -O2
+# -DTIMING
+# COPT1		= -O1
+# COPT2		= -O2
+CODEOBJ		= DBLE
+COPT1		=
+COPT2		=
+F77             = f77 -r8 -D${COMM_PKG}
+OPTF    	= -O1
+OPTF2		= -O2
+LINK            = f77
+CPP 		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DKSR ${DEF_TIMING}
+CUBIX_OPTS      =
+NODE_EXT        =o
+HOST_EXT        =out
+HOST            = 
+NODE_TYPE       =
+CPU             =KSR
+COMM_PKG        =TCGMSG
+IO_STYLE        =FILE_IO
+COMMLIB         = 
+CTOFLIB         = 
+#
+BLASLIB         = -lksrblas
+LAPACKLIB       = -lksrlapk
+HOST_EXT        = out
+endif
+
+ifeq ($(TARGET),KSR)
+#
+# "real*8" version of lapack and blas
+# KSR/TCGMSG
+#
+# -xfpu3 generate suspect answers for choleski
+#
+AR              = ar r
+RANLIB          = echo
+CC     	        = cc -DSTD_DBL -I$(HDIR) -DKSR -O2 ${DEF_TIMING}
+# -DTIMING
+# COPT1		= -O1
+# COPT2		= -O2
+COPT1		=
+COPT2		=
+CODEOBJ		= DBLE
+F77             = f77 -D${COMM_PKG} -r8 -O2
+# COPT1		= -O1
+# COPT2		= -O2
+# F77             = f77 -O2 -r8 -xfpu3 -D${COMM_PKG} -DSTD_DBL
+OPTF    	= -O1
+OPTF2		= -O2
+LINK            = f77
+# CPP 		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DKSR ${DEF_TIMING}
+LINK            = f77 -O
+CPP 		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DKSR ${DEF_TIMING}
+CUBIX_OPTS      =
+NODE_EXT        =o
+HOST_EXT        =out
+HOST            = 
+NODE_TYPE       =
+CPU             =KSR
+COMM_PKG        =TCGMSG
+IO_STYLE        =FILE_IO
+COMMLIB         = 
+CTOFLIB         = 
+#
+#BLASLIB         = -lblas
+#LAPACKLIB       = -llapack
+HOST_EXT        = out
+endif
+
+ifeq ($(TARGET),SP1)
+## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
+CODEOBJ		= DBLE
+AR		= ar r
+RANLIB		= ranlib
+CC              = xlC -DSTD_INT -DSTD_DBL -DRIOS -DEXTNAME  -I$(HDIR) -DIBM -O2
+F77             = xlhpf -qnohpf -qEXTNAME -I$(HDIR) -DIBM -O2
+LINK            = xlhpf -qnohpf -qEXTNAME
+CUBIX_OPTS	=
+NODE_EXT	= o
+HOST_EXT	= out
+NODE_TYPE	= RIOS
+COMM_PKG	= TCGMSG
+IO_STYLE	= FILE_IO
+CPU	= RIOS
+BLASLIB	= -lessl
+LAPACKLIB	= -llapack
+COMMLIB		= 
+
+# at mhpcc they don't use -qEXTNAME in their library.
+LAPACKLIB	= $(PEIGSDIR)/liblapack.a
+CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM -DSTD_INT -DSTD_DBL -I$(HDIR)
+
+ifdef PEIGS_MPI_USE
+  COMM_PKG      = MPI
+  # MPI source directory for SP-2 at MHPCC 
+  MPIR_HOME = $(HOME)/mpich
+  # MPI_INCLUDE is used when compiling peigs???/comm/mxsubs.f
+  MPI_INCLUDE   = -I$(MPIR_HOME)/include
+  MPI_COMM = euih
+  MPI_COMM = ch_eui
+  COMMLIB       = -L$(MPIR_HOME)/lib/rs6000/ch_eui -lmpi
+endif
+endif
+
+ifeq ($(TARGET),DECOSF)
+#alpha/tcgmsg
+AR              = ar r
+RANLIB          = echo
+CC              = cc -I$(HDIR) -DALPHA -DSTD_DBL -D_fastmath -O3
+F77             = f77 -I$(HDIR) -i8 -DTCGMSG -O3
+OPT  		= 
+OPT  		= 
+OPTC 		= 
+OPTC 		= 
+LINK            = $(F77)
+# 64 bit but using r8 compiler flag
+CODEOBJ		= DBLE
+CUBIX_OPTS      =
+NODE_EXT        = o
+HOST_EXT        = out
+HOST            = 
+NODE_TYPE       = alpha 
+CPU             = 
+COMM_PKG        = TCGMSG
+IO_STYLE        = FILE_IO
+# zodiac commlib
+COMMLIB         = 
+CTOFLIB         = 
+BLASLIB         = 
+LAPACKLIB       = 
+HOST_EXT        = out
+CPP		= /usr/bin/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DALPHA -DSTD_DBL -I$(HDIR)
+endif
+
+ifeq ($(TARGET),DECOSF_MPI)
+PEIGS_MPI_USE = 1
+#alpha/mpich
+AR              = ar r
+RANLIB          = echo
+CC              = cc -I$(HDIR) -DALPHA -DSTD_INT -DSTD_DBL -O3  -D_FASTMATH
+F77             = f77 -I$(HDIR) -DMPI -O3 -math_library fast
+OPT  		= 
+OPT  		= 
+OPTC 		= 
+OPTC 		= 
+LINK            = $(F77)
+CODEOBJ		= DBLE
+CUBIX_OPTS      =
+NODE_EXT        = o
+HOST_EXT        = out
+HOST            = 
+NODE_TYPE       = alpha
+CPU             = 
+COMM_PKG        = MPI
+IO_STYLE        = FILE_IO
+# zodiac commlib
+COMMLIB         = 
+CTOFLIB         = 
+BLASLIB         = 
+LAPACKLIB       = 
+HOST_EXT        = out
+CPP		= /usr/bin/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DALPHA -DSTD_DBL -I$(HDIR) -DDEBUGMPI -DSTD_INT
+ifdef PEIGS_MPI_USE
+  COMM_PKG      = MPI
+  MPIR_HOME	= $(HOME)/mpich
+  MPI_INCLUDE   = -I$(MPIR_HOME)/include
+  MPI_COMM	= ch_p4
+  COMMLIB       = -L$(MPIR_HOME)/lib/$(NODE_TYPE)/$(MPI_COMM) -lmpi
+endif
+endif
+
+ifeq ($(TARGET),LINUX)
+#
+# Linux running on an x86 using f77 on f2c
+#
+
+       NICE = nice
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = gcc
+     RANLIB = ranlib
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+
+   FOPTIONS = -Nc40 -Nn1604
+   COPTIONS = -Wall -m486
+  FOPTIMIZE = -g -O2
+  COPTIMIZE = -g -O2
+
+    DEFINES = -DLINUX
+
+  LDOPTIONS = -g
+     LINK.f = gcc $(LDFLAGS)
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+ EXTRA_LIBS = -lf2c -lm
+
+        CPP = gcc -E -nostdinc -undef -P
+  EXPLICITF = TRUE
+   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
+			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+			/bin/rm -f /tmp/$$$$.c) || exit 1
+endif
+
+COMMLIB       = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg

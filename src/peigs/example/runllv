@@ -1,0 +1,104 @@
+#
+#     ----- LoadLever action -----
+#
+#  data = name of the input data set such as $(data).hnd
+#  initialdir         = directory where job gets started
+#  notify_user        = email where execution message get sent
+#  min_processors     = number of processors
+#  scrdisk            = scratch directory
+#
+#@ data           =geneig
+#@ test		  =peigs2.1
+#@ usrnam         =d3g270
+#@ scrdisk        =/scratch/$(usrnam)
+#@ initialdir     =/u2/d3g270
+#@ notify_user    =d3g270@ce0ws1.nwmpp1.emsl.pnl.gov
+#@ min_processors =172
+#@ max_processors =172
+#@ cpu_limit      =10:20:00
+#@ class        =accept
+#@ job_type       =parallel
+#@ notification   =always
+#@ restart        =no
+#@ output         =$(initialdir)/$(test)/example/$(data).log.$(Cluster)
+#@ error          =$(initialdir)/$(test)/example/$(data).log.$(Cluster)
+#@ requirements   =(Adapter=="hps_user")
+#@ environment    = COPY_ALL                     ;   \
+#@                  usrnam        =$(usrnam)     ;   \
+#@                  data          =$(data)       ;   \
+#@                  scrdisk       =$(scrdisk)    ;   \
+#@                  INIT_DIR      =$(initialdir) ;   \
+#@                  MP_RESD       =yes           ;   \
+#@                  MP_RMPOOL     =0             ;   \
+#@                  MP_INFOLEVEL  =2             ;   \
+#@                  MP_EUILIB     =us            ;   \
+#@                  MP_EUIDEVICE  =css0          ;   \
+#@                  MP_HOSTFILE   =NULL          ;  
+#@ queue
+#
+# set SCRPATH="/scratch/d3g270"
+ulimit -f 4194300
+#
+#     ----- print some info -----
+#
+echo "       user : $usrnam               "
+echo "      input : $data                 "
+echo "  directory : $INIT_DIR             "
+#
+#     ----- check of SCRPATH -----
+#
+echo "    scrdisk : $scrdisk              "
+# echo "    SCRPATH : $SCRPATH              "
+# if [ "$SCRPATH" = "$scrdisk" ]
+#   then
+#      echo " SCRPATH is correctly defined ... "
+#   else
+#      echo " SCRPATH is NOT correctly defined. stop. "
+#      exit
+# fi
+#
+#     ----- get first node name -----
+#
+#
+#     ----- set up temporary disk space -----
+#     ----- copy -DA10- file if restart -----
+#
+echo "create scratch directory /scratch/${usrnam} on $node	"
+for node in $LOADL_PROCESSOR_LIST
+do
+rsh $node "/usr/bin/mkdir  /scratch/${usrnam}"
+rsh $node "/usr/bin/cp ${INIT_DIR}/peigs2.1/example/geneig /scratch/${usrnam}/geneig"
+done
+poe /scratch/d3g270/geneig
+#
+#     ----- run hondo -----
+#
+#  echo " start parallel HONDO with ${data}.hnd "
+#  poe /u/mdupuis/hondo/poe/poehnd.pwr2 ${data}.hnd ${data}.out
+#
+#     ----- save restart file -----
+#
+for node in $LOADL_PROCESSOR_LIST 
+do 
+rsh $node "/usr/bin/cp /scratch/${usrnam}/JUNK ${INIT_DIR}/tempest/JUNK.${node}"
+done
+echo " first node : $FIRST_NODE           "
+#
+#     ----- clean up temporary disk space -----
+#
+# sleep 10
+# for node in $LOADL_PROCESSOR_LIST 
+# do
+#   rsh $node "/usr/bin/ls     /scratch	"
+#    rsh $node "/usr/bin/ls     /scratch/${usrnam} "
+#   rsh $node "/usr/bin/rm -r  /scratch/${usrnam} "
+# done
+#
+for node in $LOADL_PROCESSOR_LIST 
+do
+rsh $node "/usr/bin/cp	/scratch/d3g270/output /u/d3g270/tempest/output.$node	"
+rsh $node "/usr/bin/rm -r  /scratch/${usrnam}"
+done
+#
+#     ----- all done -----
+#

@@ -1,0 +1,61 @@
+*======================================================================
+*
+* DISCLAIMER
+*
+* This material was prepared as an account of work sponsored by an
+* agency of the United States Government.  Neither the United States
+* Government nor the United States Department of Energy, nor Battelle,
+* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+* INFRINGE PRIVATELY OWNED RIGHTS.
+*
+* ACKNOWLEDGMENT
+*
+* This software and its documentation were produced with Government
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+* States Department of Energy.  The Government retains a paid-up
+* non-exclusive, irrevocable worldwide license to reproduce, prepare
+* derivative works, perform publicly and display publicly by or for the
+* Government, including the right to distribute to other Government
+* contractors.
+*
+*======================================================================
+*
+*  -- PEIGS  routine (version 2.1) --
+*     Pacific Northwest Laboratory
+*     July 28, 1995
+*
+*======================================================================
+
+
+README file for PeIGS.
+
+The package, PeIGS, is a collection of linear algebra programs for
+solving the general and standard symmetric eigensystem problem.  It is
+being developed at Department of Energy's Pacific Northwest Laboratory
+operated by Battelle Memorial Institute and is in the Public Domain.  The
+authors are David Elwood, George Fann, and Richard Littlefield.
+
+There is a separate test directory "test_la" which performs a suite of
+tests comparing the accuracy of this code with serial versions of
+LAPACK and LINPACK.  This test suite also contains test codes for
+random distribution of data.
+
+For installation instructions please read the file "INSTALL."
+
+The source code are contained in the directory "src/#" where #
+is the programming language.
+
+This is the top level directory for the general eigensystem solver Ax
+= \lambda B x for a symmetric matrix A and a symmetric positive
+definite matrix B.
+
+The documentation is contained in ./doc/peigs.texi.  This is a file
+which can be converted to a dvi file using texi2dvi, a GNU product.
+It is also readable as on-line documentation using emacs using the
+texi mode.
+
+This is a very brief summary of what is contained in src/c The user is
+advised to look at peigs.texi before installation.

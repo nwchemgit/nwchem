@@ -1,0 +1,135 @@
+#
+# Script to do timing runs of $argv[1].
+#
+if( $#argv != 1 ) then
+  echo ""
+  echo ""
+  echo ""
+  echo " Usage for run_timing: run_timing exec_file"
+  echo ""
+  echo "    where exec_file is the name of the executable file to run."
+  echo ""
+  echo ""
+  exit(-1)
+endif
+
+if( ! -e $argv[1] ) then
+  echo ""
+  echo ""
+  echo " Error in run_timing.  File " $argv[1] " does not exist"
+  echo ""
+  echo ""
+  exit(-1)
+endif
+
+if( ! $?TARGET ) then
+  echo ""
+  echo ""
+  echo " Error in run_timing.  Environment variable TARGET is not set"
+  echo ""
+  echo ""
+  exit(-1)
+endif
+
+
+set out_file = tim_$argv[1]_$TARGET.raw
+
+
+echo ""      >>! $out_file
+echo ""      >> $out_file
+echo `date`  >> $out_file
+echo ""      >> $out_file
+echo ""      >> $out_file
+echo "  Timing results for " $argv[1] " with TARGET = " $TARGET >> $out_file
+echo ""      >> $out_file
+echo ""      >> $out_file
+
+echo ""
+echo ""
+echo "  Running " $argv[1] " with TARGET = " $TARGET
+echo "  Output file = " $out_file
+echo ""
+echo ""
+
+#
+# Set processor count to use based on TARGET
+#
+
+switch( $TARGET )
+
+   case Paragon:
+   case iPSC_860:
+
+      set proclist = ( 256 224 192 160 128 96 64 48 32 24 16 8 )
+      set proclist = ( 64 48 32 24 16 8 )
+      breaksw
+
+   case KSR:
+
+      set proclist = ( 64 56 48 40 32 24 16 8 4 2 1 )
+      breaksw
+
+   case SGI64:
+
+      set proclist = ( 10 8 6 4 2 1 )
+      breaksw
+
+   case SunUniproc:
+
+      set proclist = ( 1 )
+      breaksw
+
+   default:
+
+      set proclist = ( 4 3 2 1 )
+      breaksw
+
+endsw
+
+
+#
+# Loop over requested processor counts.
+#
+
+foreach nproc ( $proclist ) 
+   
+#
+#  Try to determine the number of free processors on the
+#  system, and skip using the current processor count if it
+#  exceeds the free processor count.
+#
+
+   @ npr = $nproc
+   @ nfree = $nproc
+
+   if( $TARGET == 'Paragon' ) then
+
+     set stat = `showpart -f | grep root`
+     @ nfree = $stat[5]
+
+   else if( $TARGET == 'KSR' ) then
+
+     set stat = `allocate_cells -A 5000 |& grep allocate`
+     @ nfree = $stat[7]
+
+   endif
+
+   if( $npr <= $nfree ) then
+
+     echo prun $nproc $argv[1]' >>& '$out_file
+     echo "" >>& $out_file
+
+     prun $nproc $argv[1] >>& $out_file
+
+     if( $status != 0 ) exit(1)
+
+   endif
+  
+end
+
+echo -n 
+sleep 1
+echo -n 
+echo ""
+echo ""
+echo ""

@@ -1,0 +1,27 @@
+files				comments
+------------------------------------------------------------
+
+MANIFEST			this file
+
+Make.generic			bottom half of the Makefile
+
+README.TCGMSG			for users of TCGMSG
+
+eig.f				fortran calling the library
+
+eig_f.c				C calling the fortran version
+
+geneig.c			C calling C version of the code
+
+mxsubs.h			include for mx
+
+parallel			parallel for TCGMSG
+
+tsteig.p			.p code for TCGMSG to execute eig
+
+tsteigf.p			.p code for TCGMSG to execute eig_f
+
+tstgen.p			.p code for TCGMSG to execute geneig
+
+xpress.com			include for the mx
+

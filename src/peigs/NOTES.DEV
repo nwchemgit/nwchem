@@ -1,0 +1,69 @@
+*======================================================================
+*
+* DISCLAIMER
+*
+* This material was prepared as an account of work sponsored by an
+* agency of the United States Government.  Neither the United States
+* Government nor the United States Department of Energy, nor Battelle,
+* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+* INFRINGE PRIVATELY OWNED RIGHTS.
+*
+* ACKNOWLEDGMENT
+*
+* This software and its documentation were produced with Government
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+* States Department of Energy.  The Government retains a paid-up
+* non-exclusive, irrevocable worldwide license to reproduce, prepare
+* derivative works, perform publicly and display publicly by or for the
+* Government, including the right to distribute to other Government
+* contractors.
+*
+*======================================================================
+*
+*  -- PEIGS  routine (version 2.1) --
+*     Pacific Northwest Laboratory
+*     July 28, 1995
+*
+*======================================================================
+This file only applies at PNL.
+
+
+
+This file describes what is included here for those intending to make
+changes to PeIGS. Let $(PEIGSDIR) denote the path of the PeIGS
+directory.
+
+The PeIGS code is maintained using CVS.  To get the latest
+revision and development version
+
+do the following:
+
+% setenv CVSROOT /msrc/apps/hpctools/src/peigs/peigs_sty
+
+go into your favorite working directory
+
+%cvs checkout peigs1.0
+
+CVS will extract the latested "committed" source code after the
+release version 1.0.  We keep duplicate copies of various released
+versions in compressed tar format in the directory
+/afs/msrc.pnl.gov/files/home/d3g270/spare1/PEIG_STY/peigs###.tar.Z on
+the machines snacker.pnl.gov or on maddog.pnl.gov
+
+More than 90% of the the code is written in C and are stored in
+"$(PEIGSDIR)/src/c".  Fortran interface to the C codes are provided
+and stored in the subdirectory "$(PEIGSDIR)/ctof".  Our C codes call
+the double precision Fortran version of the BLAS library ( which is
+stored in "$(PEIGSDIR)/src/blas" ).  We also call the double precision
+version of the LAPACK library.  The LAPACK codes are stored in
+"$(PEIGSDIR)/src/lapack".
+
+The INSTALL file in the top level PeIGS files tells you how to install
+the files and the test_la files can be used to perform regression tests
+on your code.
+
+
+

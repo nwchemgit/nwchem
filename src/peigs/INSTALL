@@ -1,0 +1,201 @@
+*======================================================================
+*
+* DISCLAIMER
+*
+* This material was prepared as an account of work sponsored by an
+* agency of the United States Government.  Neither the United States
+* Government nor the United States Department of Energy, nor Battelle,
+* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+* INFRINGE PRIVATELY OWNED RIGHTS.
+*
+* ACKNOWLEDGMENT
+*
+* This software and its documentation were produced with Government
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+* States Department of Energy.  The Government retains a paid-up
+* non-exclusive, irrevocable worldwide license to reproduce, prepare
+* derivative works, perform publicly and display publicly by or for the
+* Government, including the right to distribute to other Government
+* contractors.
+*
+*======================================================================
+*
+*  -- PEIGS  routine (version 2.1) --
+*     Pacific Northwest Laboratory
+*     July 28, 1995
+*
+*======================================================================
+
+Installation instructions for PeIGS.
+
+Please read the README file first.  If this is what you want please
+follow the installation instructions.  The "Makefile" has been tested
+using GNU Make utility.
+
+-------------------------------------------------------------------------------
+
+
+Installation
+
+We currently only support installation on Unix type systems supporting
+csh and GNU make.  The library codes and the test
+programs are created using Makefiles.  
+All machine specific data is contained in the DEFS file in the main 
+PeIGS directory. Each subdirectory has a Makefile which "includes" 
+the DEFS file. Because
+the Makefile uses ifeq conditionals, the GNU make version 3.68 or
+higher from the Free Software Foundation is required as the make
+utility.  If this is not available to the installer then the installer
+needs to edit DEFS and Makefiles to comment out the ifeq and endif
+and leave the appropriate lines for the intended system.
+@footnote{GNU make is available via anonymous ftp from
+prep.ai.mit.edu:18.71.0.38 in the directory /pub/gnu as
+make###.tar.gz.
+
+Thus, the following software resources are, minimally, needed to make
+the library:
+
+1) ANSI C compiler
+
+2) ANSI Fortran 77 compiler
+
+3) GNU make utility,  version 3.68 and higher. (3.62 has problems with
+the ifeq in Make.def )
+
+We assumed that C subroutines calling Fortran subroutines has a
+trailing underscore at the end of their name, e.g. f77name_.  We also
+assume that a Fortran subroutine calls a C subroutine using a
+subroutine name with a trailing underscore at the end of their name,
+e.g. call cname_.  Users of IBM AIX RS6000 version 3 systems must add
+the "-qextname" option to the xlf compiler or to the f77 compiler.
+Users of HP9000 HP-UX version 9.0 or higher must add "+ppu" as an
+option to the HP f77 compiler.  Users of other dialects of Unix should
+consult their language manuals or system gurus for the appropriate
+options.
+
+In many of the calls to C subroutines from Fortran we assume that the
+C double is the same size as the Fortran double precision.  Also, we
+assume that the address to double precision numbers is less than or
+equal to the size of a double precision number.  In many of the
+Fortran to C interface codes we re-cast some of the double precision
+scratch spaces as pointers to double precision number.  On most
+machines this seems safe since the size of the address space ( longs )
+divides evenly the size of the double precision number so that data is
+aligned properly.
+
+You will probably obtain this library as a compressed tar
+file named peigsXY.tar.Z, where X.Y is the version number. The steps to
+building PeIGS on a Unix system using csh are:
+
+1) type make -v to make sure that you are using the GNU make utility.
+
+2) uncompress the file peigsXY.tar.Z by typing uncompress peigsXY.tar.Z
+   which will create a tar file called peigsXY.tar.
+
+% uncompress peigsXY.tar.Z
+
+3) untar the file peigsXY.tar by 
+
+% tar xvf peigsXY.tar
+
+   This will create a directory call "peigsX.Y" with a number of
+   subdirectories and a file called DEFS.
+
+4) scan through the file DEFS using your favorite editor to see if
+   your target parallel computer is supported.  Make the appropriate
+   changes, if necessary, for the compilers, directory paths, compiler
+   options and library options.  If you want to use MPI, rather than
+   the default of TCGMSG or Intel NX, then follow the directions in
+   DEFS about MPI use.  If you are using MPI on and IBM SP-1/2, then
+   also check out the additional details at the end of this file.
+
+5) Set the environment variable TARGET for your machine.  For example, for
+   the iPSC_860, the installer on a SUN would type 
+
+% setenv TARGET iPSC_860.
+
+6) Check the file .../h/blas_lapack.h to make sure that the machine
+   dependent variables are defined for your machine.  If not,
+   then type the command
+
+% cd example
+% make teslamach
+
+   and run teslamach to get the machine parameters which need to be inserted
+   in .../h/blas_lapack.h.  In most cases the double precision results
+   printed are the desired data (on a few machine like the CRAY the single
+   precision results should be used).
+   On machines that use 8 bytes for single precision calculations,
+   e.g. Cray T3D, the user must also insert CODEOBJ= SINGLE in the
+   DEFS file so that make can build the single precision fortran
+   codes in PEIGSDIR/src/f77.  On other machines the user must set
+   CODEOBJ= DBLE.
+
+
+7) Go back to the top level peigs directory and type
+
+% make
+ 
+Compiler optimization can cause errors and unexpected results in
+certain situations.  We tried to set in DEFS and Makefile the files
+that do not optimize well and made them compile only with cc.  The
+user is advised that much of our C utility codes fail to function with
+the GNU gcc compiler with the -O2 optimization.  Some of the utility
+codes also failed to function correctly with the Portland Group's icc
+compiler with the -O3 optimization option.  We are currently trying to
+remedy this situation.
+
+If you are using gcc and f77 on the SUN please carefully read the
+notes in the INSTALL file. Beware of the compiler switch for
+alignment.  You may also have to link with the GCC library.  This is
+also true if you are using gcc on the DELTA with if77.  Data alignment
+is important here. You may get bus errors and memory errors if the
+fortran and the C codes are not compatibly compiled.  This is the usual
+problem with Fortran and C interface.
+
+To make the libpeigs.a library type
+
+% make peigs.a
+
+To make the EXAMPLES you must go into the example directory and type
+
+% cd example
+% make
+
+There are C example files there for using the solvers.
+
+To make the MANUAL you go into the ./doc directory and type a make
+
+% cd doc
+
+% make
+
+
+Using MPI on the IBM SP-1,SP-2
+------------------------------
+All PeIGS code is compiled with the -qEXTNAME option on IBM systems to
+conform to the interface PeIGS uses between C and Fortran.  The
+MPI routines linked with PeIGS must conform to this C/Fortran interface.
+
+At this writing the Maui High Performance Computing Center (MHPCC) 
+supports MPI via mpich.  However, the publically available version 
+is inconsistent with the PeIGS C/Fortran interface.  In particular,
+the mpich C routines which are called from Fortran do not have trailing
+underscores.  Because of this the user must obtain and compile their own 
+copy of mpich (see the MHPCCs mpich docuementation for the right ftp site).
+After getting and untarring your version of mpich you must edit the 
+configure file and add the line:
+
+FFLAGS="-qEXTNAME"
+
+to the file.  An approriate place for this line is immediately before the
+existing line (line 260 in our copy):
+
+CFLAGS=""
+
+After making this change to the configure file just follow mpich's 
+installation instructions and you should get a version of mpich which
+will work correctly with PeIGS.

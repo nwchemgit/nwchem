@@ -1,0 +1,67 @@
+*======================================================================
+*
+* DISCLAIMER
+*
+* This material was prepared as an account of work sponsored by an
+* agency of the United States Government.  Neither the United States
+* Government nor the United States Department of Energy, nor Battelle,
+* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+* INFRINGE PRIVATELY OWNED RIGHTS.
+*
+* ACKNOWLEDGMENT
+*
+* This software and its documentation were produced with Government
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+* States Department of Energy.  The Government retains a paid-up
+* non-exclusive, irrevocable worldwide license to reproduce, prepare
+* derivative works, perform publicly and display publicly by or for the
+* Government, including the right to distribute to other Government
+* contractors.
+*
+*======================================================================
+*
+*  -- PEIGS  routine (version 2.1) --
+*     Pacific Northwest Laboratory
+*     July 28, 1995
+*
+*======================================================================
+See the Bug section of the PeIGS manual.
+
+Current bugs:
+
+@item 1)  If the user wishes to solve only for a fraction of the eigen-pairs
+the current code asks for ( but needs only the minimum memory space ) the same
+memory space as for a full eigen-system solve to satisfy the error checking
+routines and to prevent race condition.  We are working on elimanating this
+restriction.
+
+@item 2) The inverse iteration with modified Gram Schmidt current does a
+fixed number of combined iterations.  This process can theoretically fail
+to converge to an eigenvector on a degenerate eigen-sub-space.
+
+@item 3) The error reporting is being done on all processors.  One should just
+make processor 0 report errors.
+
+@item 4) The C codes calling C code needs a fortran driver so that
+ the mxsubs.cpp codes get initialized correctly...SUN common block is ...
+
+@item 5) When solving a tridiagonal problem with n = 2053 on four processors
+of an Intel PARAGON we sporadically get large residuals.  The
+problem is in mxm25, the eigenvector back-transformation.
+We have not been able to find any problems with the PeIGS code, and 
+believe that the errors occuring here are caused by a system problem 
+having to do with the use of "virtual" memory on the nodes (this problem
+exceeds the physical memory available on a node).  
+
+
+We appreciate any advice and reports of bugs.  We ask the user to mail
+us all of the input parameters and the parallel ( or serial ) environment
+( as well as ) operating system version number.
+
+There are likely to be unknown bugs in the code and we strongly recommend
+that the user run the residual and orthogonality checking routines to check
+the results of computations whenever practical.
+

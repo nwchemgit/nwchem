@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.179 1996-10-08 05:18:00 d3g681 Exp $
+# $Id: makefile.h,v 1.180 1996-10-15 20:31:11 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -236,6 +236,7 @@ ifeq ($(TARGET),SOLARIS)
 # if you want to use purecoverage tool you must
 #
 # setenv PURECOV 1
+FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
@@ -302,6 +303,7 @@ ifdef PURECOV
 
 #end of purecov
 endif
+
 
 #end of solaris
 endif
@@ -848,6 +850,8 @@ MKDIR = mkdir
 .SUFFIXES:	
 .SUFFIXES:	.o .s .F .f .c
 
+ifndef FLINT
+
 ifdef EXPLICITF
 #
 # Needed on machines where FCC does not preprocess .F files
@@ -890,6 +894,7 @@ ifeq ($(TARGET),CRAY-T3D)
 else
 	$(FC) -c $(FFLAGS) -o $% $<
 endif
+endif
 
 (%.o):	%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
@@ -897,3 +902,15 @@ endif
 (%.o):  %.o
 
 # Preceding line has a tab to make an empty rule
+
+
+#ifdef FLINT
+
+.F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+
+.f.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+
+#endif
+
+
+

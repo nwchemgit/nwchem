@@ -1,0 +1,674 @@
+#!/bin/csh
+#
+# Script to run a parallel program on different systems
+#
+# Type "prun" or "prun -help" to get help on how to run.
+#
+# When running for the first time on a new machine you
+# should use the -test option to make sure it does what
+# you expect.
+#
+# Created by Dave Elwood, PNL
+#
+set VERSION = "Version 1.2 - August 7, 1995"
+
+# Where to look for "parallel", only needed with TCGMSG.
+# Use the following only if TCGMSG_PARALLEL not already defined.
+
+if( ! $?TCGMSG_PARALLEL ) then
+  set TCGMSG_PARALLEL = $HOME/comm/parallel
+endif
+
+set TARGETS  = ( "SunUniproc ....... Sun uniprocessor" \
+                 "PARAGON .......... Intel paragon" \
+                 'Paragon .......... Intel paragon' \
+                 'iPSC_860 ......... Intel delta' \
+                 'SUN .............. network of SUNs using tcgmsg' \
+                 'SGI64 ............ SGI Power Challenge using tcgmsg' \
+                 'KSR .............. KSR using tcgmsg' \
+                 'CRAY-T3D ......... CRAY-T3D' \
+                 'SP-1.............. IBM SP-1/2 using poe or loadleveler' )
+
+set MACHINES = ( 'uni_proc ...... unix uni-processor' \
+                 'paragon ....... Intel paragon' \
+                 'intel_delta ... Intel delta' \
+                 'tcgmsg ........ run using tcgmsg "parallel" command' \
+                 't3d ........... Cray t3d' \
+                 'ksr ........... KSR using "allocate_cells -A" and tcgmsg "parallel"' \
+                 'anlspx ........ anl IBM SP1 using poe' \
+                 'ibmspx ........ non-anl IBM SP1/2 using poe or loadleveler(tested at mhpcc)' )
+
+
+set MY_NAME = $0
+set MY_NAME = $MY_NAME:t
+
+unset BATCH
+unset PROG_NAME
+unset NUM_PROC
+unset MACHINE
+set MACHINE =""
+unset NROWS
+unset NCOLS
+
+unset HELP_ME
+unset TEST
+
+unset INPUT_ERROR
+
+while ( $#argv )
+  switch ( $argv[1] )
+
+    case -b:
+    case -batch:
+      set BATCH
+      shift
+      breaksw
+
+    case -m:
+    case -machine:
+      shift
+
+      if ( $#argv < 1 ) then
+        set INPUT_ERROR
+        echo ""
+        echo " $MY_NAME ERROR.  Missing argument TYPE for -machine"
+        echo ""
+
+        break
+      endif
+
+      set MACHINE = $argv[1]
+      shift
+      breaksw
+
+    case -g:
+    case -grid:
+      shift
+
+      if ( $?NUM_PROC ) then
+        set INPUT_ERROR
+        echo ""
+        echo " $MY_NAME ERROR: NUM_PROC already specified so cannont use -grid option here." 
+        echo ""
+
+        break
+      endif
+
+      if ( $#argv < 2 ) then
+        set INPUT_ERROR
+        echo ""
+        echo " $MY_NAME ERROR: Missing argument NROWS and/or NCOLS for -grid"
+        echo ""
+
+        break
+      endif
+
+      set NROWS = $argv[1]
+      shift
+
+      set NCOLS = $argv[1]
+      shift
+
+      set ISNUMBER = `echo $NROWS | sed 's/^[0-9]*$//'`
+      if ( "$ISNUMBER" != ""  || "$NROWS" == "" ) then
+        set INPUT_ERROR
+        echo ""
+        echo "  $MY_NAME ERROR: -grid: NROWS = '$NROWS' is not an integer" 
+        break 
+      endif
+
+      set ISNUMBER = `echo $NCOLS | sed 's/^[0-9]*$//'`
+      if ( "$ISNUMBER" != ""  || "$NCOLS" == "" ) then
+        set INPUT_ERROR
+        echo ""
+        echo "  $MY_NAME ERROR: -grid: NCOLS = '$NCOLS' is not an integer" 
+        break 
+      endif
+
+      @ NROWS = $NROWS
+      @ NCOLS = $NCOLS
+
+      @ NUM_PROC = $NROWS * $NCOLS
+
+      if ( $NROWS < 1 || $NCOLS < 1 ) then
+        set INPUT_ERROR
+        echo ""
+        echo " $MY_NAME ERROR: -grid: NROWS = $NROWS < 1 and/or NCOLS = $NCOLS < 1."
+        echo ""
+
+        break
+      endif
+
+      breaksw
+
+    case -h:
+    case -help:
+      set HELP_ME
+      shift
+      breaksw
+
+    case -v:
+    case -version:
+      echo ""
+      echo " $MY_NAME  $VERSION  "
+      echo ""
+      shift
+      breaksw
+
+    case -t:
+    case -test:
+      set TEST
+      shift
+      breaksw
+
+    default:
+
+      if ( ! $?NUM_PROC ) then
+
+        set NUM_PROC = $argv[1]
+        shift
+
+        set ISNUMBER = `echo $NUM_PROC | sed 's/^[0-9]*$//'`
+        if ( "$ISNUMBER" != ""  || "$NUM_PROC"  == "" ) then
+          set INPUT_ERROR
+          echo ""
+          echo "  $MY_NAME ERROR.  NUM_PROC = '$NUM_PROC' is not an integer" 
+          break 
+        endif
+
+        @ NUM_PROC = $NUM_PROC
+
+        if ( $NUM_PROC < 1 ) then
+          set INPUT_ERROR
+          echo ""
+          echo ""
+          echo " $MY_NAME ERROR. NUM_PROC = $NUM_PROC < 1"
+    
+          break
+        endif
+
+        breaksw
+
+      else if ( ! $?PROG_NAME ) then
+        set PROG_NAME = $argv[1]
+        shift
+
+        if ( ! -e $PROG_NAME ) then
+          set INPUT_ERROR
+          echo ""
+          echo ""
+          echo " $MY_NAME ERROR: PROG_NAME = '$PROG_NAME' does not exist"
+  
+          break
+
+        else if ( ! -x $PROG_NAME ) then
+          set INPUT_ERROR
+          echo ""
+          echo ""
+          echo " $MY_NAME ERROR: PROG_NAME = '$PROG_NAME' is not executable"
+          break
+        endif
+
+      else
+        echo " $MY_NAME ERROR.  Unrecognized argument: $argv[1]"
+
+        break
+      endif
+
+      breaksw
+
+  endsw
+end
+
+
+if ( $?HELP_ME ) then
+
+cat <<EOF
+
+ $MY_NAME USAGE:
+
+   $MY_NAME [${MY_NAME}_options ...] (-grid nrow ncol | num_proc) prog_name
+
+     num_proc .......... Number of processors to use, must be > 0
+                         Can optionally use -grid instead.
+
+     prog_name ......... Name of executable program to run.
+                         Must be last argument.
+
+
+     options: give full name or just first letter, e.g., -batch or -b.
+
+       -version .......... print version number of $MY_NAME
+                           Current: $VERSION
+
+       -batch ............ run as batch job.
+                             Currently only works with for non-anl IBM SP-1/2
+                             using loadleveler.
+
+       -help  ............ print this help menu
+
+       -machine type ..... target machine, determines how to run program.
+                           Allowed values for type are:
+
+EOF
+
+  @ j = 1
+  while ( $j <= $#MACHINES )
+     echo "           $MACHINES[$j]"
+     @ j++
+  end
+
+cat <<EOF
+
+       -test ............. print what $MY_NAME would do, but do not actually
+                           run the program
+
+       -grid nrow ncol ... Use a nrow-by-ncol processor grid
+                             Currently useful only on Intel delta and paragon.
+                             On other machines just uses nrow*ncol processors.
+
+
+     EXACTLY one of "num_proc" and "-grid nrow ncol" must be specified.
+     If num_proc is used, then it must be the first "non-option" argument,
+     i.e., the first argument no preceded by a dash, "-".
+
+     TCGMSG note: "\$HOME/comm/parallel" is used as the tcgmsg "parallel"
+                  command UNLESS the environment variable TCGMSG_PARALLEL
+                  is set, in which case "\$TCGMSG_PARALLEL" is used as
+                  the tcgmsg "parallel" command
+ 
+     The environment variable TARGET must be defined before running $MY_NAME
+     unless -machine is used, in which case target is ignored.
+     Valid TARGETs are:
+
+EOF
+
+  @ j = 1
+  while ( $j <= $#TARGETS )
+     echo "           $TARGETS[$j]"
+     @ j++
+  end
+
+  echo ""
+
+  exit(-1)
+endif
+
+
+if ( $?INPUT_ERROR ) then
+  echo ""
+  echo " use '$MY_NAME -h' for help"
+  echo ""
+  exit(-1)
+
+else if ( ! $?TARGET && $MACHINE == "" ) then
+  echo ""
+  echo " $MY_NAME ERROR.  Environment variable TARGET is not set and -machine not used"
+  echo ""
+  echo " use '$MY_NAME -h' for help"
+  echo ""
+  exit(-1)
+
+else if ( ! $?NUM_PROC || ! $?PROG_NAME ) then
+  echo ""
+  echo " $MY_NAME ERROR.  NUM_PROC and/or PROG_NAME not specified"
+  echo ""
+  echo " use '$MY_NAME -h' for help"
+  echo ""
+  exit(-1)
+
+endif
+
+
+
+set prun_status = 0
+
+if ( $MACHINE != "" ) goto SKIP_TARGET
+
+switch ( $TARGET )
+
+   case SunUniproc:
+      set MACHINE = "uni_proc"
+      breaksw
+
+   case PARAGON:
+   case Paragon:
+      set MACHINE = "paragon"
+      breaksw
+
+   case iPSC_860:
+      set MACHINE = "intel_delta"
+      breaksw
+
+   case SUN:
+   case SGI64:
+      set MACHINE = "tcgmsg"
+      breaksw
+
+   case CRAY-T3D:
+      set MACHINE = "t3d"
+      breaksw
+
+   case KSR:
+      set MACHINE = "ksr"
+      breaksw
+
+   case SP-1:
+      if ( -e /mcs ) then
+         # sp1/2 at argonne
+         set MACHINE = "anlspx"
+      else
+         # general sp1/2
+         set MACHINE = "ibmspx"
+      endif
+      breaksw
+
+   default:
+     echo ""
+     echo ""
+     echo "  Must edit $MY_NAME to handle TARGET =  $TARGET"
+     echo ""
+     echo ""
+     exit(-1)
+   
+     breaksw
+endsw
+
+SKIP_TARGET:
+
+if ( $?BATCH && $MACHINE != "ibmspx" ) then
+  echo ""
+  echo ""
+  echo "   $MY_NAME 'ERROR: only know how to do batch mode on non-anl ibm sp1/2'
+  exit(-1)
+endif
+
+echo ""
+
+switch ( $MACHINE )
+
+   case uni_proc:
+
+      # Simple uniprocessor, just give program name to run.
+
+      echo $PROG_NAME
+      if ( ! $?TEST) $PROG_NAME
+
+      set prun_status = $status
+
+      breaksw
+
+   case t3d:
+
+      #  Cray t3d
+
+      echo $PROG_NAME -npes $NUM_PROC
+      if ( ! $?TEST ) $PROG_NAME -npes $NUM_PROC
+
+      breaksw
+
+   case paragon:
+
+      #  Intel Paragon
+
+      if ( ! $?NROWS || ! $?NCOLS ) then
+         set RUN_CMD = "$PROG_NAME -sz $NUM_PROC"
+
+      else 
+
+        if ( $NROWS > 16 || $NCOLS > 32 ) then
+          echo ""
+          echo " $MY_NAME ERROR: A Grid dimension ($NROWS, $NCOLS) is too big."
+          echo ""
+          exit(-1)
+
+        else
+           set RUN_CMD = "$PROG_NAME -sz ${NROWS}x$NCOLS"
+        endif
+
+      endif
+
+      echo $RUN_CMD
+      if ( ! $?TEST ) $RUN_CMD
+
+      set prun_status = $status
+
+      breaksw
+
+   case intel_delta:
+
+      #  Intel Delta, invoked via rsh
+
+      #  Find a rectangular (as close to square as possible)
+      #  mesh for the delta, max of 16 rows, 32 columns
+
+      @ nproc = $NUM_PROC
+      @ iter = 1
+
+      while ( 1 )
+
+        @ m = $nproc / $iter
+
+        if ( $iter > 16 ) then
+           break
+        else if ( $m < $iter ) then
+           break
+        else if ( $m * $iter == $nproc ) then
+          @ n1 = $iter
+          @ n2 = $m
+        endif
+
+        @ iter++
+      end
+
+      if ( $?NROWS && $?NCOLS ) then
+         @ n1 = $NROWS
+         @ n2 = $NCOLS
+      endif
+
+      if ( $n1 > 16 || $n2 > 32 ) then
+        echo ""
+        echo " $MY_NAME ERROR: A Mesh dimension ($n1, $n2) is too big."
+        echo ""
+        exit(-1)
+      endif
+
+      echo rsh delta2 mexec -t "($n1, $n2)" -f "/usr2/elwood/$PROG_NAME"
+      if ( ! $?TEST )  \
+           rsh delta2 mexec '"-t('$n1, $n2')"' -f /usr2/elwood/$PROG_NAME
+
+      set prun_status = $status
+
+      breaksw
+
+   case tcgmsg:
+
+      #  standard TCGMSG
+
+      if ( -e $MY_NAME.p ) rm $MY_NAME.p
+
+      echo "`whoami`   `hostname` " $NUM_PROC  $PROG_NAME  "   . "  > $MY_NAME.p
+
+      if ( ! -e $TCGMSG_PARALLEL ) then
+        echo ""
+        echo "  $MY_NAME ERROR: File '$TCGMSG_PARALLEL' does not exist"
+        echo "              Expected this file to be TCGMSG's 'parallel' command"
+        echo ""
+
+        exit(-1)
+      endif
+
+      echo $TCGMSG_PARALLEL $MY_NAME
+      if ( ! $?TEST )  $TCGMSG_PARALLEL $MY_NAME
+
+      set prun_status = $status
+
+      rm $MY_NAME.p
+      breaksw
+
+   case ksr:
+
+      #  ksr using TCGMSG.
+
+      if ( -e $MY_NAME.p ) rm $MY_NAME.p
+
+      echo "`whoami`   `hostname`   " $NUM_PROC  $PROG_NAME  "   . "  > $MY_NAME.p
+
+      @ n = $NUM_PROC
+      @ n = $n + 1
+
+      if ( ! -e $TCGMSG_PARALLEL ) then
+        echo ""
+        echo "  $MY_NAME ERROR: File $TCGMSG_PARALLEL does not exist"
+        echo "              Expected this file to be TCGMSG's 'parallel' command"
+        echo ""
+        exit(-1)
+      endif
+
+      if ( $NUM_PROC > 1 ) then
+        echo allocate_cells -A $n  $TCGMSG_PARALLEL $MY_NAME
+        if ( ! $?TEST )  allocate_cells -A $n  $TCGMSG_PARALLEL $MY_NAME
+      else
+        echo allocate_cells -A $n  $PROG_NAME
+        if ( ! $?TEST )  allocate_cells -A $n  $PROG_NAME
+      endif
+
+      set prun_status = $status
+
+      rm $MY_NAME.p
+      breaksw
+
+   case anlspx:
+
+      # ibm sp1/2 at anl
+
+      set JID=`getjid`
+      #echo "$JID"
+      set ME = `whoami`
+      #echo $ME
+      set SPNODES = `cat /sphome/$ME/SPnodes.$JID`
+      #echo $SPNODES
+      setenv MP_HOSTFILE /sphome/$ME/SPnodes.$JID
+      #echo "Hostfile this time is:" $MP_HOSTFILE
+
+      setenv MP_INFOLEVEL 2 
+      setenv MP_HOLD_STDIN YES
+      setenv MP_EUILIB us
+      setenv MP_PULSE 0
+      setenv MP_CSS_INTERRUPT YES
+      setenv MP_STDINMODE 0
+
+      #setenv MP_RMPOOL 0
+      #setenv MP_EUILIBPATH /usr/lpp/rnc
+
+      echo poe $PROG_NAME -procs $NUM_PROC
+      if ( ! $?TEST )  poe $PROG_NAME -procs $NUM_PROC
+
+      set prun_status = $status
+
+      breaksw
+
+   case ibmspx:
+
+      # ibm sp1/2 not at anl
+
+      if ( ! $?BATCH ) then
+        # interactive mode
+
+        setenv MP_HOSTFILE "NULL"
+        setenv MP_INFOLEVEL 2 
+        setenv MP_HOLD_STDIN YES
+        setenv MP_EUILIB us
+        setenv MP_PULSE 0
+        setenv MP_CSS_INTERRUPT YES
+        setenv MP_STDINMODE 0
+        setenv MP_RESD yes
+        setenv MP_EUIDEVICE css0
+        setenv MP_RMPOOL 0
+        setenv MP_PGMMODEL spmd
+
+        #setenv MP_EUILIBPATH /usr/lpp/rnc
+
+        echo poe $PROG_NAME -procs $NUM_PROC
+        if ( ! $?TEST )  poe $PROG_NAME -procs $NUM_PROC
+
+        set prun_status = $status
+
+        breaksw
+
+      else
+
+        # batch mode using loadleveler
+
+        set cmd_file = $PROG_NAME.$NUM_PROC.cmd
+
+        if ( -e $cmd_file ) then
+           echo ""
+           echo ""
+           echo "  $MY_NAME ERROR: Attempting to create new batch command"
+           echo "            file $cmd_file but it already exists."
+           echo "            get rid of it before running $MY_NAME."
+           echo ""
+           echo ""
+           exit(-1)
+        endif
+
+        @ nproc = $NUM_PROC
+        if ( $nproc > 128 ) then
+          echo " $MY_NAME ERROR\: too many processors requested "
+          exit(-1)
+        else if ( $nproc > 64 ) then
+          set Class = 'large'
+        else if ( $nproc > 8 ) then
+          set Class = 'medium'
+        else
+          set Class = 'small_short'
+        endif
+  
+        cat >$cmd_file << Z
+#! /bin/csh
+
+#@ job_name        = $PROG_NAME
+#@ initialdir      = `pwd`
+#@ output          = ${cmd_file}.\$(cluster).\$(process).out
+#@ error           = ${cmd_file}.\$(cluster).\$(process).out
+#@ job_type        = parallel
+#@ requirements    = (Adapter == "hps_user")
+#@ min_processors  = $NUM_PROC
+#@ max_processors  = $NUM_PROC
+#@ environment     = MP_INFOLEVEL=2
+#@ class           = $Class
+#@ queue
+
+$PROG_NAME
+Z
+        chmod u+x $cmd_file
+
+        echo llsubmit $cmd_file
+        if ( ! $?TEST )  llsubmit $cmd_file
+
+        if ( $?TEST) then
+          echo ""
+          echo " Must delete file $cmd_file before doing real run"
+          echo ""
+        endif
+
+        set prun_status = $status
+
+        breaksw
+
+      endif
+
+   default:
+
+     echo ""
+     echo ""
+     echo " Must edit $MY_NAME to handle MACHINE =  $MACHINE"
+     echo ""
+     exit(-1)
+
+     breaksw
+
+endsw
+
+exit( $prun_status )

@@ -1,0 +1,77 @@
+*======================================================================
+*
+* DISCLAIMER
+*
+* This material was prepared as an account of work sponsored by an
+* agency of the United States Government.  Neither the United States
+* Government nor the United States Department of Energy, nor Battelle,
+* nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
+* ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY,
+* COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+* SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE WOULD NOT
+* INFRINGE PRIVATELY OWNED RIGHTS.
+*
+* ACKNOWLEDGMENT
+*
+* This software and its documentation were produced with Government
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the United
+* States Department of Energy.  The Government retains a paid-up
+* non-exclusive, irrevocable worldwide license to reproduce, prepare
+* derivative works, perform publicly and display publicly by or for the
+* Government, including the right to distribute to other Government
+* contractors.
+*
+*======================================================================
+*
+*  -- PEIGS  routine (version 2.1) --
+*     Pacific Northwest Laboratory
+*     July 28, 1995
+*
+*======================================================================
+This files contains a description of the directories and of local files:
+
+directories:
+
+./bin   	shell scripts for changing codes, files, ...
+
+./comm		communication calls, MXSUBS.cpp, global operations
+
+./ctof		C wrappers for Fortran calls
+
+./doc		documentation, texi files
+
+./h		include files
+
+./lib		library files, symbolic links and ...
+
+./man		documentations ( should probably be linked to doc )
+
+./o		scratch directory for holding .o files
+
+./src		C, F77, LAPACK code directories
+
+./test		pdtst.f pdsytst2.c
+
+./test_la	Linpack, LAPACK, Peigs test codes
+
+
+files:
+_______________________________________________________
+
+DEFS		definitions for the compilers, cpp, directories and ... first file to edit for installtion
+
+DEFS.rs6k	definitions for the IBM rs6000 without GNU make
+
+INSTALL*	installation directions
+
+MANIFEST	this file
+ 
+Make.generic	the "bottom" half of the make files, the "top" half is DEFS
+
+Make.rs6k	the "bottom" half of the Makefile for the rs6000
+
+README*		the first file to read
+
+TODO		more to be done and ...
+
+NOTES.DEV	notes for people wanting to make changes to the code

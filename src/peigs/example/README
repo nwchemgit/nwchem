@@ -1,0 +1,15 @@
+This directory contains 3 example codes.  They are
+geneig2.c wilk2.c and tri_test.c.
+
+The files geneig2.c wilk2.c and tri_test.c are examples of using C calling
+the C version of the PeIGS library.
+
+The user should beware that the definition for CTOFLIB in the DEFS files in the
+peigs directory is important here for building the C examples.
+Unfortunately, the MXSUBS on the SUN seems to need a F77 driver program
+to perserve the common block.
+
+
+This directory also contains the file teslamach for generating
+machine dependent parameters which must be included in
+ .../peigs/h/blas_lapack.h

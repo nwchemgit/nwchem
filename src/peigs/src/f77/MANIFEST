@@ -1,0 +1,22 @@
+file names:			content
+---------------------------------
+
+MANIFEST		this file
+
+Make.generic	"bottom" half of the makefile; the top half is DEFS in top level dir peigs
+
+dlaebz1.f	an older version ( 8/17/90 ) of LAPACK routine used for Sturm sequence calculations
+
+dstebz1.f	a fixed version of ( 8/17/90 ) of LAPACK routine for IBLOCK numbers
+
+heapsort.f	a sort routine
+
+ilaenv1.f	LAPACK machine parameters routine ( 8/17/90 )
+
+maxx.f		PeIGS utility routines for computing global max
+
+menode.f	PeIGS utility routine
+
+neblw1.f	Eispack eigenvalue counting routine
+
+xerbl2.f	Fortran error exit routine
