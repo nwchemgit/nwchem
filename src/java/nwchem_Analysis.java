@@ -72,21 +72,14 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    nd = Integer.parseInt(card.substring(21,30).trim());
 	    no = Integer.parseInt(card.substring(31,40).trim());
             number=nb+nh+nd+no+1;
-	    //	} catch(Exception ee) {ee.printStackTrace();};
-
-	System.out.println("Number is "+number);
-
-	data = new double[number][10000];
-	numdat=0;
-
-	System.out.println("---");
-
-	//	try{
+	    
+	    data = new double[number][10000];
+	    numdat=0;
+	    
 	    while((card=br.readLine()) != null){
 		int k=1;
 		for(int l=0; l<number; l=l+1){
 		    if(k==61){card=br.readLine(); k=1;};
-		    //		    System.out.println(card.substring(k,k+11));
 		    data[l][numdat]=Double.valueOf(card.substring(k,k+11)).doubleValue();
 		    k=k+12;
 		};
@@ -94,74 +87,83 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    };
 	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
-
-	System.out.println("Number of frames is "+numdat);
-	System.out.println(nb+" "+nh+" "+nd+" "+no);
 	
 	JButton tButton = new JButton("t");
 	addComponent(header,tButton,0,1,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-
+	
         number=0;
+        int ix=0;
+        int iy=2;
 	for(int i=0; i<nb; i++){
 	    number++;
 	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,1,i+1,1,1,1,1,
+	    addComponent(header,bButton,ix,iy,1,1,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	    bButton.addActionListener(new ActionListener(){
 		    public void actionPerformed(ActionEvent e){ 
 			plot_ana(e.getActionCommand()); }});
+	    ix++; if(ix>11){ix=0; iy++;};
 	};
+	iy++;
 
 	for(int i=0; i<nh; i++){
 	    number++;
 	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,2,i+1,1,1,1,1,
+	    addComponent(header,bButton,ix,iy,1,1,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	    bButton.addActionListener(new ActionListener(){
 		    public void actionPerformed(ActionEvent e){ 
 			plot_ana(e.getActionCommand()); }});
+	    ix++; if(ix>11){ix=0; iy++;};
 	};
+	iy++;
 
 	for(int i=0; i<nd; i++){
 	    number++;
 	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,3,i+1,1,1,1,1,
+	    addComponent(header,bButton,ix,iy,1,1,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	    bButton.addActionListener(new ActionListener(){
 		    public void actionPerformed(ActionEvent e){ 
 			plot_ana(e.getActionCommand()); }});
+	    ix++; if(ix>11){ix=0; iy++;};
 	};
+	iy++;
+
 	for(int i=0; i<no; i++){
 	    number++;
 	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,4,i+1,1,1,1,1,
+	    addComponent(header,bButton,i,5,1,1,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	    bButton.addActionListener(new ActionListener(){
 		    public void actionPerformed(ActionEvent e){ 
 			plot_ana(e.getActionCommand()); }});
+	    ix++; if(ix>11){ix=0; iy++;};
 	};
+	iy++;
 
-	j=nb; if(nh>j){j=nh;}; if(nd>j){j=nd;}; if(no>j){j=no;}; j++; j++;
-
-	addComponent(header,plotButton,0,j,2,1,1,10,
+	addComponent(header,plotButton,0,iy,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	plotButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
-		    setVisible(false); }});
-	addComponent(header,clearButton,2,j,2,1,1,10,
+		    anaPlot.fillPlot(); }});
+	addComponent(header,anaPlot,1,iy,20,10,10,10,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	iy++;
+
+	addComponent(header,clearButton,0,iy,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	clearButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    for(int i=0; i<iset; i++){anaPlot.removeSet(i);}; iset=0; anaPlot.fillPlot(); }});
-	addComponent(header,doneButton,4,j,2,1,1,10,
+	iy++;
+
+	addComponent(header,doneButton,0,iy,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
-
-	addComponent(header,anaPlot,6,1,20,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	
 	setLocation(25,225);	
 	setSize(900,700);
@@ -171,10 +173,9 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 
     void plot_ana(String s){
 	int ndx = Integer.parseInt(s);
-	System.out.println("Plot index "+ndx);
 	boolean first=true;
 	for(int i=0; i<numdat; i++){
-	    if(i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
+	    if(ndx>nb && i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
 	    anaPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
 	};
 	anaPlot.fillPlot();
