@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.16 2002-08-05 01:16:32 edo Exp $
+C$Id: grid_ssw.F,v 1.17 2002-08-13 21:02:13 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -113,7 +113,7 @@ c
          endif
       enddo
 c     all outside
-      return
+      if(n2.eq.1) return
 32     continue
 c
         do n=n1,n2
