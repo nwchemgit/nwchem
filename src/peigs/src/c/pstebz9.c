@@ -41,7 +41,7 @@
 
 #define ZERO  ((DoublePrecision) 0.0e0)
 
-DoublePrecision psigma, psgn;
+extern DoublePrecision psigma, psgn;
 
 void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
 		dplus, lplus, mapZ, neigval,

@@ -45,7 +45,7 @@ TIMINGG test_timing;
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-extern DoublePrecision psigma, psgn;
+DoublePrecision psigma, psgn;
 
 void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	       meigval, vecZ, mapZ, eval, iscratch, iscsize,
