@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.32 2000-05-06 05:48:10 mdupuis Exp $
+C$Id: rohf.F,v 1.33 2000-05-06 07:08:53 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -42,13 +42,31 @@ c
 c
 c     cosmo flag
 c
+      logical odbug
       logical ocosmo
+      logical osome
 c
       oprint = util_print('information',print_low)
 c
 c     Initialize the ROHF data structures and allocate memory
 c
       call rohf_init(rtdb)
+c
+c     ----- cosmo cavity -----
+c
+      if(ga_nodeid().eq.0) then
+         if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+            if(ocosmo) then
+               odbug=.false.
+               if(odbug) then
+                  osome=.true.
+               else
+                  osome=.false.
+               endif
+               call cosmo_initialize(rtdb,osome)
+            endif
+         endif
+      endif
 c
 c     Start timer
 c
