@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.33 1998-11-23 17:12:11 mdupuis Exp $
+* $Id: prp.F,v 1.34 1998-11-24 18:36:11 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -9682,7 +9682,11 @@ C
       END
       SUBROUTINE HND_JACOBI(A,V,D,N,NP,NROT,B,Z)
       IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*8 ERRMSG
+      COMMON/IOFILE/IR,IW
       DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
+      DIMENSION ERRMSG(3)
+      DATA ERRMSG /'PROGRAM ','STOP IN ','-JACOBI-'/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA PT2    /0.2D+00/
@@ -9773,7 +9777,8 @@ C
             Z(IP)=ZERO
    23    CONTINUE
    24 CONTINUE
-      PAUSE '50 ITERATIONS SHOULD NEVER HAPPEN'
+      WRITE(IW,*) '50 ITERATIONS SHOULD NEVER HAPPEN'
+      CALL HND_HNDERR(3,ERRMSG)
       RETURN
       END
       SUBROUTINE HND_JACSRT(V,D,N,NP)
@@ -11252,7 +11257,7 @@ c
       double precision da(*),db(*),d1nw(*),d2nw(*)
 c
       logical dbug
-      dbug=.true. 
+      dbug=.false.
 c
 c     get information about basis set
 c
@@ -11453,7 +11458,7 @@ C     local variables
       logical status
 c
       logical dbug
-      dbug=.true. 
+      dbug=.false.
 
       if(dbug) then
          write(6,*) 'in hnd_prop_dens_make'
