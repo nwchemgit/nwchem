@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.38 2003-07-20 00:56:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.39 2003-07-29 22:42:43 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -578,23 +578,23 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** Kinetic energy component : dE_kin/dhuv ****
       call psi_1ke_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"ke")
+      !call write_stress(tstress,"ke")
 
 *     **** Coulomb energy component : dE_Coul/dhuv ****
       call psi_1coulomb_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"coulomb")
+      !call write_stress(tstress,"coulomb")
 
 *     **** Local pseudo energy component : dE_local/dhuv ****
       call dng_1vlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"local")
+      !call write_stress(tstress,"local")
 
 *     **** Nonlocal pseudo energy component : dE_nolocal/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call psi_1vnonlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"nonlocal")
+      !call write_stress(tstress,"nonlocal")
 
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,xcstress,1)
@@ -610,12 +610,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       end if
 
       call daxpy(9,1.0d0,xcstress,1,stress,1)
-      call write_stress(xcstress,"xc")
+      !call write_stress(xcstress,"xc")
 
 *     **** Ewald energy component : dE_ewald/dhuv ****
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-      call write_stress(tstress,"ewald")
+      !call write_stress(tstress,"ewald")
 
 **     **** define ht ****
        do v=1,3
