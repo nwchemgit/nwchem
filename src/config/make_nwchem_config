@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.8 1995-02-17 17:43:56 pg511 Exp $
+# $Id: make_nwchem_config,v 1.9 1995-02-23 22:12:16 mg141 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -66,6 +66,8 @@ MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
 
 MODULES := $(patsubst moints,moints NWints,$(MODULES) )
+MODULES := $(patsubst cphf,cphf scf,$(MODULES) )
+MODULES := $(patsubst scf,scf ddscf,$(MODULES) )
 
 MODULES := $(patsubst riscf,riscf rimp2 ddscf NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
@@ -98,6 +100,8 @@ MOD_LIBS := $(patsubst riscf,-lriscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst symmetry,-lutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst scf,-lscf,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -117,6 +121,7 @@ STUBROUTINES := $(patsubst riscf,ri_scf,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,scf_optimize stepper_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst cphf,mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 
 .PHONY:	all list-options nwchem_config.h NWCHEM_CONFIG ../stubs.f
