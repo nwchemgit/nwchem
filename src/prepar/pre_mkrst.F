@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model)
 c
-c $Id: pre_mkrst.F,v 1.30 1999-05-12 18:39:22 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.31 1999-05-19 20:16:17 d3j191 Exp $
 c
       implicit none
 c
@@ -604,6 +604,17 @@ c
  1011 format(' PDB file',t40,a,/,
      + ' Number of missing coordinates',t40,i8,/,
      + ' Total number of atoms',t40,i8,/)
+      endif
+      if(nmis.gt.0) then
+      if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
+     + i_grid)) call errquit('Memory allocation failed for grid',9999)
+      if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
+     + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
+     + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa))
+     + call errquit('pre_misfit failed',9999)
+      if(.not.ma_pop_stack(l_grid))
+     + call errquit('Memory deallocation failed for grid',9999)
       endif
       endif
 c

@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.7 1998-09-17 22:05:17 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.8 1999-05-19 20:16:16 d3j191 Exp $
 c
       implicit none
 c
@@ -33,6 +33,7 @@ c     for each atom without coordinates
 c     ---------------------------------
 c
       if(isfnd(i).ne.1) then
+c
       if(util_print('coordinates',print_debug)) then
       write(lfnout,'(a,i7)') 'Not found: atom ',i
       endif
@@ -51,6 +52,8 @@ c
       nndx(nn)=idsb(1,j)
       endif
     2 continue
+c
+      if(nn.eq.0) goto 1
 c
 c     if bound to single other existing atom
 c
@@ -140,7 +143,7 @@ c
       t(1)=c(1)
       t(2)=d(3)+c(2)
       t(3)=-d(2)+c(3)
-      else if(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      elseif(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
       t(1)=d(3)+c(1)
       t(2)=c(2)
       t(3)=-d(1)+c(3)
@@ -223,7 +226,7 @@ c
       t(1)=c(1)
       t(2)=d(3)+c(2)
       t(3)=-d(2)+c(3)
-      else if(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
+      elseif(abs(d(2)).lt.abs(d(1)).and.abs(d(2)).lt.abs(d(3))) then
       t(1)=d(3)+c(1)
       t(2)=c(2)
       t(3)=-d(1)+c(3)
@@ -253,6 +256,7 @@ c
       endif
 c
     1 continue
+c
 c
       do 8 i=1,nsa
 c
