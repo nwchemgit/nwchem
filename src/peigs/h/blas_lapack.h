@@ -43,6 +43,13 @@
 #define DLAMCHB        2.e0
 #define DLAMCHS        2.2250738585072014-308
 #endif
+
+#ifdef PENTIUM
+/* wild ass guess; same as sparc */
+#define DLAMCHE        1.1102230246251565E-16
+#define DLAMCHB        2.e0
+#define DLAMCHS        2.2250738585072014-308
+#endif
 #ifdef MIPS
 /*
   SGI PowerChallenge R4010 fpu ... R8000 chip
