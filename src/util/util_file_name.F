@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.17 2000-11-07 19:05:11 bylaska Exp $
+C$Id: util_file_name.F,v 1.18 2000-12-14 22:58:15 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -503,12 +503,21 @@ c
       integer node              ! [input]
       logical util_file_parse_dir
       external util_file_parse_dir
+      character*1024 envscr
+      integer istart,util_getblnk,lencrd
+      external util_getblnk
 c
 c     return the name of the scratch/permanent directory for the
 c     specified process
 c
       if (oscratch) then
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
+            call util_getenv('SCRATCH_DIR',envscr) 
+            istart=util_getblnk(envscr,1024)
+            if(istart.ne.0) then
+               lencrd=index(envscr(istart:1024),' ')-1
+               scratch_dir=envscr(istart:istart+lencrd)
+            endif
             if (.not. util_file_parse_dir(
      $ SCRATCH_DEF_DIR
      $           , dir, node)) dir = ' ' ! Final default is blank
