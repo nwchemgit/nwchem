@@ -1481,7 +1481,7 @@ c
      + call errquit('Failed to allocate nod',me)
       if(.not.ma_push_get(mt_int,np,'lst',l_lst,i_lst))
      + call errquit('Failed to allocate lst',me)
-      if(.not.ma_push_get(mt_int,26*np,'nen',l_nen,i_nen))
+      if(.not.ma_push_get(mt_int,mbbl*np,'nen',l_nen,i_nen))
      + call errquit('Failed to allocate nen',me)
       if(.not.ma_push_get(mt_dbl,np,'dlb',l_dlb,i_dlb))
      + call errquit('Failed to allocate dlb',me)
@@ -1521,7 +1521,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer nod(np),nlst(np),nen(np,26)
+      integer nod(np),nlst(np),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
       real*8 syntim,synsum,dlb(np),factor
 c
@@ -1586,20 +1586,21 @@ c     get active neighbors
 c
       n=0
       do 5 i=1,np
-      do 6 j=1,26
+      do 6 j=1,mbbl
       nen(i,j)=0
     6 continue
       nlst(i)=-1
     5 continue
       do 7 i=1,nbbl
+      if(lbbl(i,1).eq.me) goto 7
       do 8 j=1,n
-      if(lbbl(i,1)+1.eq.nen(me+1,j).or.lbbl(i,1).eq.me) goto 7
+      if(lbbl(i,1)+1.eq.nen(me+1,j)) goto 7
     8 continue
       n=n+1
       nen(me+1,n)=lbbl(i,1)+1
     7 continue
 c
-      call ga_igop(mrg_d04,nen,26*np,'+')
+      call ga_igop(mrg_d04,nen,mbbl*np,'+')
 c
 c     determine the least busy neighbor of each node
 c
