@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.2 2002-09-18 23:33:23 bylaska Exp $
+* $Id: psi_marat_write.F,v 1.3 2003-02-13 20:26:42 marat Exp $
 *
 
 *     ***********************************
@@ -8,10 +8,11 @@
 *     *             			*
 *     ***********************************
 
-      subroutine psi_marat_write(ispin,ne,psi2)
+      subroutine psi_marat_write(filename,ispin,ne,psi2)
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
+      character(*) filename
 
 #include "mafdecls.fh"
 
@@ -21,7 +22,6 @@
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3),scale
-      character*30 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -82,7 +82,7 @@ c     complex*16 tmp(*)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
-         filename = "marat.psi"
+c         filename = "marat.psi"
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)

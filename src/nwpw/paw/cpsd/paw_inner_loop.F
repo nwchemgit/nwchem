@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.10 2003-02-13 02:28:46 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.11 2003-02-13 20:26:42 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -176,7 +176,15 @@
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 
+*       ***************************
+*       ****generate comp charge***
+*       ***************************
+        call paw_comp_charge_update()
 
+*       **********************************
+*       ***generate atomic potentials*****
+*       **********************************
+        call paw_pot_hartree_solve()
 
 *       *********************
 *       **** generate dn ****
@@ -207,11 +215,10 @@
 *       **** generate local pseudopotential  ****
 *       **** and also get force if move true ****
 *       *****************************************
-        call paw_vloc(dcpl_mb(vl(1)),
+       call paw_vloc(dcpl_mb(vl(1)),
      >               move,
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
-
 
 *       ************************************
 *       **** generate coulomb potential ****

@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.26 2003-02-13 02:28:46 bylaska Exp $
+* $Id: paw_sd.F,v 1.27 2003-02-13 20:26:42 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -214,13 +214,13 @@
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
       call init_paw_core_matrix()
-      !call init_paw_hartree_matrix()
+      call init_paw_hartree_matrix()
       call init_paw_overlap_matrix()
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
       call paw_proj_init()
-      call paw_vloc_init()
       call paw_comp_charge_init()
+      call init_paw_pot_hartree()
       !call dealloc_paw_basis_data()
       !call paw_proj_end()
 
@@ -279,41 +279,41 @@
 
       !**** intialize overlap coefficient data structure ***
       call phafac()
-      call paw_ovlp_init(ne)
+      call paw_ovlp_init()
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
-      call paw_comp_charge_update()
+      call paw_pot_hartree_solve()
 
-
-      !**** Ortho Check ****
-      do ms=1,ispin
-        deltae=paw_psi_CheckOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-
-        if (deltae.gt.1.0d-10) then
-          call paw_psi_MakeOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-          deltac=paw_psi_CheckOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-          if (taskid.eq.MASTER) then
-            if (ms.eq.1) then
-              write(*,*) "Warning: ",
-     >                   "Gram-Schmidt performed on up spin of psi2 "
-              write(*,*) "       : (old error=",deltae,
-     >                   " new error=",deltac,")"
-            end if
-            if (ms.eq.2) then
-              write(*,*) "Warning: ",
-     >                   "Gram-Schmidt performed on down spin of psi2 "
-              write(*,*) "       : (old error=",deltae,
-     >                   " new error=",deltac,")"
-            end if
-
-          end if
-        end if
-     
-      end do
-
+      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
+c      !**** Ortho Check ****
+c      do ms=1,ispin
+c        deltae=paw_psi_CheckOrtho(npack1,ne(ms),
+c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+c
+c        if (deltae.gt.1.0d-10) then
+c          call paw_psi_MakeOrtho(npack1,ne(ms),
+c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+c          deltac=paw_psi_CheckOrtho(npack1,ne(ms),
+c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+c          if (taskid.eq.MASTER) then
+c            if (ms.eq.1) then
+c              write(*,*) "Warning: ",
+c     >                   "Gram-Schmidt performed on up spin of psi2 "
+c              write(*,*) "       : (old error=",deltae,
+c     >                   " new error=",deltac,")"
+c            end if
+c            if (ms.eq.2) then
+c              write(*,*) "Warning: ",
+c     >                   "Gram-Schmidt performed on down spin of psi2 "
+c              write(*,*) "       : (old error=",deltae,
+c     >                   " new error=",deltac,")"
+c            end if
+c
+c          end if
+c        end if
+c     
+c      end do
+c
 *                |**************************|
 ******************   summary of input data  **********************
 *                |**************************|
@@ -429,12 +429,16 @@
       icount = 0
    1  continue
          icount = icount + 1
+         
          call paw_inner_loop(ispin,ne,
      >             npack1,nfft3d,nemax,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
      >             it_in,E,deltae,deltac,deltar,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
+         deltae = 0.0d0
+         deltac = 0.0d0
+         deltar = 0.0d0
        
          if (taskid.eq.MASTER) then 
            write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
@@ -463,102 +467,6 @@
       if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
       if (taskid.eq.MASTER) call current_second(cpu3)
 
-
-
-*         |****************************************|
-*********** produce CHECK file and diagonalize hml *****************
-*         |****************************************|
-
-*     **** produce CHECK FILE ****
-      if (taskid.eq.MASTER) then
-         call util_file_name('CHECK',.true.,
-     >                               .false.,
-     >                        full_filename)
-         open(unit=17,file=full_filename,form='formatted')
-      end if
-
-*     **** check total number of electrons ****
-      do ms =1,ispin
-         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*lattice_omega()
-     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
-      end do
-      if (taskid.eq.MASTER) then
-         write(17,1320) (en(ms),ms=1,ispin)
-      end if
-
-*     **** comparison between hamiltonian an lambda matrix ****
-      n = ne(1)
-      nn = n*n
-      if (taskid.eq.MASTER) then
-         write(17,1330)
-         do ms=1,ispin
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               do j=n1(ms),n2(ms)
-                  jj = j-n1(ms)
-                  index = (ii+1) + jj*n +(ms-1)*nn
-                  write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+index-1),
-     >                           dbl_mb(lmd(1)+index-1),
-     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
-               end do
-            end do
-         end do
-      end if
-
-
-*     **** check orthonormality ****
-      if (taskid.eq.MASTER) then
-         write(17,1350)
-      end if
-
-      do ms=1,ispin
-         do i=n1(ms),n2(ms)
-            ii = i-n1(ms)+1
-            do j=i,n2(ms)
-               jj = j-n1(ms)+1
-               call paw_overlap_matrix_gen(1,1,
-     >                          dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                          dcpl_mb(psi1(1)+(j-1)*npack1),
-     >                          w)
-               if (taskid.eq.MASTER) then
-                  write(17,1360) ms,ii,jj,w
-               end if
-            end do
-         end do
-      end do
-
-*     **** close check file ****
-      if (taskid.eq.MASTER) then
-         close(17)
-      end if
-
-*     ***** diagonalize the hamiltonian matrix ****
-      n = ne(1)
-      nn = n*n
-      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
-      do ms=1,ispin
-         call eigen(n,ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
-     >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),ierr)
-      end do
-
-      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
-      do ms=1,ispin
-         do j=n1(ms),n2(ms)
-            jj = j-n1(ms)
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               index = (ii+1) + jj*n + (ms-1)*nn
-
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
-     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                            dcpl_mb(psi2(1)+(j-1)*npack1))
-            end do
-         end do
-      end do
 
 
 
@@ -634,7 +542,7 @@
 !*     ***** write psi2 wavefunctions ****
 !      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
 
-       call psi_marat_write(ispin,ne,dcpl_mb(psi2(1)))
+*       call psi_marat_write(ispin,ne,dcpl_mb(psi2(1)))
 
 
 !*     **** write geometry to rtdb ****
@@ -654,7 +562,6 @@
      
       call dealloc_paw_basis_data()
       call paw_proj_end()
-      call paw_vloc_end()
       call paw_ovlp_end()
       call paw_comp_charge_end()
       call end_paw_kin_matrix()

@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.13 2003-02-13 02:27:32 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.14 2003-02-13 20:26:42 marat Exp $
 *
 
 
@@ -103,7 +103,8 @@ c       !*** set values for l=0 m=0 elements ***
           ia = ion_katm(na)
           mult_l = paw_basis_mult_l(ia)
           i_matr0 = int_mb(i_comp_charge_matrix(1) + ia - 1)
-          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
+c          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
+          i_w0 = int_mb(i_paw_ovlp_w(1) + na - 1)
           nb =paw_basis_nbasis(ia)
           nb2 = nb*nb
           nproj = paw_proj_nbasis(ia)

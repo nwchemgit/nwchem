@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.28 2003-02-13 02:30:27 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.29 2003-02-13 20:26:42 marat Exp $
 *
 
 !**************************************************
@@ -44,11 +44,14 @@ c     !*** calculate the size and indexing for weight coefficients  ***
       value = my_alloc(mt_int,ion_nion(),"i_paw_ovlp_w",i_paw_ovlp_w)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
       paw_ovlp_w_size = 0
-      do ia=1,ion_nkatm()
-         int_mb(i_paw_ovlp_w(1) + ia - 1) = paw_ovlp_w_size
+
+      do in=1,nion
+         int_mb(i_paw_ovlp_w(1) + in - 1) = paw_ovlp_w_size
+         ia = ion_katm(in)
          paw_ovlp_w_size = paw_ovlp_w_size
      >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       end do
+
 
 c     !*** calculate the size for diagonal weight coefficients  ***
       paw_ovlp_w_d_size = 0
@@ -246,7 +249,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
            nlmii = nlmii + 1
            do n=1,neall
              indx_coeff = (nlmii-1)*neall + (n-1)
-             write(*,*) i,li,mi,ni,n
+             write(*,*) i,mi,ni,n
              write(*,*) dcpl_mb(coeff(1)+indx_coeff)
            end do
            end do
@@ -296,6 +299,8 @@ c      write(*,*)
       integer nbasis
       integer indx_coeff,indx_coeff1
       integer i,j,mi,mj,li,lj
+      integer i_w0,i_w
+      integer nilm,njlm,niplm,njplm
       double complex w_tmp
       
       
@@ -351,24 +356,33 @@ c     *** calculate diagonal weights mi=mj***
  
       write(*,*) " paw weights"
       ii = 0
+      nilm = 0
+      njlm = 0
       do in=1,ion_nion()
         ia = ion_katm(in)
+        i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
         nbasis = paw_basis_nbasis(ia)
+        nilm = 0
         do i=1,nbasis
           li = paw_basis_orb_l(i,ia)
           do mi=-li,li
+            njlm = 0
             do j=1,nbasis
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
+                  i_w   = i_w0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(in)
                   write(*,*) i,mi,j,mj,in
-                  write(*,*) dcpl_mb(paw_ovlp_w(1)+ii)
+                  write(*,*) dcpl_mb(paw_ovlp_w(1)+ii),ii
+                  write(*,*) dcpl_mb(paw_ovlp_w(1)+i_w),i_w,nilm,njlm
                   ii =ii +1
                 end do
+                njlm=njlm + 2*lj+1
              end do
            end do   
+           nilm = nilm + 2*li+1
          end do
       end do
-     
      
       return
       end

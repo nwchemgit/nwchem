@@ -1,5 +1,5 @@
 c
-c $Id: paw_utils.F,v 1.1 2003-01-31 02:01:13 bylaska Exp $
+c $Id: paw_utils.F,v 1.2 2003-02-13 20:26:42 marat Exp $
 c
 
       function find_multipole_energy(l,nrange,g_r,
@@ -7,11 +7,11 @@ c
       implicit none
       integer           l
       integer           nrange
-      double precision  g_r(nrange)
+      double precision  g_r(*)
       integer           power_q2
-      double precision  q1(nrange)
+      double precision  q1(*)
       integer           power_q1
-      double precision  q2(nrange)
+      double precision  q2(*)
       double precision  log_amesh
 
       double precision find_multipole_energy  !result
