@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.334 2000-08-01 21:02:01 d3g681 Exp $
+# $Id: makefile.h,v 1.335 2000-08-11 05:01:27 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -289,6 +289,9 @@ endif
 ifeq ($(TARGET),SOLARIS)
       SHELL := $(NICE) /bin/sh
 	CPP = /usr/ccs/lib/cpp
+     RANLIB = echo
+  MAKEFLAGS = -j 4 --no-print-directory
+    INSTALL = echo $@ is built
 #
 # You can use either the f77 or f90 compiler BUT if using f90
 # you'll need to specify -DINTEGER_1='integer*1' in the selci
@@ -311,11 +314,8 @@ ifeq ($(TARGET),SOLARIS)
 
    COPTIONS = 
   COPTIMIZE = -g -O
-     RANLIB = echo
-  MAKEFLAGS = -j 4 --no-print-directory
-    INSTALL = echo $@ is built
-   FOPTIONS = -stackvar -fast
-  FOPTIMIZE = -O5 -fsimple=2 -depend -xvector=yes
+   FOPTIONS = -stackvar -dalign 
+  FOPTIMIZE = -fast -O5 -fsimple=2 -depend -xvector=yes
      FDEBUG = -g -O1 -nodepend
 
 ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
@@ -1358,7 +1358,7 @@ ifeq ($(FC),pgf77)
      LINK.f = pgf77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 else
-  LDOPTIONS = -g
+  LDOPTIONS = -g -Xlinker -export-dynamic
      LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 ifndef EGCS
