@@ -94,6 +94,8 @@ int context_rtdb_match(int rtdb, const char *name, int reslen,
     
     /* Append name to current context */
     
+    printf("blen=%d buf=%s\n", blen, buf); fflush(stdout);
+    
     (void) strcpy(buf+blen, name);
     
     if (rtdb_get_info(rtdb, buf, &ma_type, &nelem, date)) {
@@ -120,7 +122,9 @@ int context_rtdb_match(int rtdb, const char *name, int reslen,
       if (!blen)
 	return 0;		/* Stack is alredy empty */
       
-      while (blen--)
+      blen--;
+      printf("2) blen=%d buf=%s\n", blen, buf); fflush(stdout);
+      while (--blen > 0)
 	if (buf[blen] == ':')
 	  break;
     }

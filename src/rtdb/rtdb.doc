@@ -5,7 +5,7 @@ using simple character string names.
      
        To store an array of N integers with the name 'counts'
 
-       call rtdb_put(rtdb, 'counts', MA_INT, N, count_array)
+       call rtdb_put(rtdb, 'counts', MT_INT, N, count_array)
 
 
   The MA type definitions are used to support typing of data.
