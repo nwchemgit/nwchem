@@ -1,7 +1,7 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
      $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e,
      $                 s34, oactive)
-c$Id: grad2.F,v 1.9 1995-02-03 01:01:52 vg038 Exp $
+c$Id: grad2.F,v 1.10 1995-04-18 05:39:03 d3e129 Exp $
 
       implicit real*8 (a-h,o-z)
 
@@ -11,9 +11,13 @@ c$Id: grad2.F,v 1.9 1995-02-03 01:01:52 vg038 Exp $
 #include "schwarz.fh"
 #include "tcgmsg.fh"
 #if defined(REPORT_LOOP)        
+#if defined(KSR) || defined(SUN)
       logical reportit
       character*26 fdate
       external fdate
+#else
+* check to see if fdate is on your system
+#endif
 #endif
 
       integer g_dens, basis
@@ -32,8 +36,9 @@ c$Id: grad2.F,v 1.9 1995-02-03 01:01:52 vg038 Exp $
       next = nxtval(nproc)
       do 95, iat3 = nat, 1, -1
 #if defined(REPORT_LOOP)        
+#if defined(KSR) || defined(SUN)
         if(ga_nodeid().eq.0) then
-          reportit = mod(iat3,5).eq.0
+          reportit = mod(iat3,10).eq.0
           reportit = reportit.or.(iat3.eq.1)
           reportit = reportit.or.(iat3.eq.nat)
           if (reportit) then
@@ -41,6 +46,9 @@ c$Id: grad2.F,v 1.9 1995-02-03 01:01:52 vg038 Exp $
             call util_flush(6)
           endif
         endif
+#else
+* check to see if fdate is on your system
+#endif
 #endif
         do iat4 = 1, iat3
           s34(iat4) = schwarz_atom(iat3,iat4) ! Precompute
