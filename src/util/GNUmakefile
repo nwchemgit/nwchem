@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.96 1998-12-12 22:46:55 d3g681 Exp $
+# $Id: GNUmakefile,v 1.97 1999-02-16 17:49:09 d3j191 Exp $
 
 include ../config/makefile.h
 
@@ -103,7 +103,7 @@ endif
               util_file_unlink.o util_system.o util_sleep.o \
               util_rtdb_state.o ecce_print.o \
               util_random.o util_job.o util_getenv.o util_getarg.o\
-              util_nwchemrc.o util_geometry.o\
+              util_nwchemrc.o util_md.o\
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
               nw_inp_from_file.o \
