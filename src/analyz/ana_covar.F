@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.12 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_covar.F,v 1.13 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -23,19 +23,19 @@ c
 c     create nsel x nsel global array covariance matrix
 c
       if(.not.ga_create(mt_dbl,3*nsel,3*nsel,'covar',0,3*nsel,ga_cov))
-     + call errquit('Failed to create global array covar',me)
+     + call md_abort('Failed to create global array covar',me)
       call ga_zero(ga_cov)
       if(.not.ga_create(mt_dbl,3*nsel,3*nsel,'vector',0,3*nsel,ga_vec))
-     + call errquit('Failed to create global array vector',me)
+     + call md_abort('Failed to create global array vector',me)
 c
 c     allocate memory
 c
       if(.not.ma_push_get(mt_int,3*nsel,'ndx',l_ndx,i_ndx))
-     + call errquit('Failed to allocate memory for ndx',me)
+     + call md_abort('Failed to allocate memory for ndx',me)
       if(.not.ma_push_get(mt_dbl,3*nsel,'cov',l_cov,i_cov))
-     + call errquit('Failed to allocate memory for cov',me)
+     + call md_abort('Failed to allocate memory for cov',me)
       if(.not.ma_push_get(mt_int,3*nsel,'ord',l_ord,i_ord))
-     + call errquit('Failed to allocate memory for ord',me)
+     + call md_abort('Failed to allocate memory for ord',me)
 c
       if(me.eq.0) then
       write(*,1002) 3*nsel
@@ -56,18 +56,18 @@ c
 c     deallocate memory
 c
       if(.not.ma_pop_stack(l_ord))
-     + call errquit('Failed to deallocate memory for ord',me)
+     + call md_abort('Failed to deallocate memory for ord',me)
       if(.not.ma_pop_stack(l_cov))
-     + call errquit('Failed to deallocate memory for cov',me)
+     + call md_abort('Failed to deallocate memory for cov',me)
       if(.not.ma_pop_stack(l_ndx))
-     + call errquit('Failed to deallocate memory for ndx',me)
+     + call md_abort('Failed to deallocate memory for ndx',me)
 c
 c     destroy global array covariance matrix
 c
       if(.not.ga_destroy(ga_vec))
-     + call errquit('Failed to destroy global array vector',me)
+     + call md_abort('Failed to destroy global array vector',me)
       if(.not.ga_destroy(ga_cov))
-     + call errquit('Failed to destroy global array covar',me)
+     + call md_abort('Failed to destroy global array covar',me)
 c
       return
       end

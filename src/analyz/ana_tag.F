@@ -1,6 +1,6 @@
       subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.9 2000-08-24 18:30:44 d3j191 Exp $
+c $Id: ana_tag.F,v 1.10 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -129,7 +129,7 @@ c
 c
  9999 continue
 c
-      call errquit('Error in settag',0)
+      call md_abort('Error in settag',0)
       return
       end
       subroutine ana_initag(tag,val)

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.92 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_task.F,v 1.93 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -134,11 +134,11 @@ c
       ngroup=0
       ngroups=0
       if(.not.ma_push_get(mt_int,maxgrp*mxdef*mxnum,'iwrk',l_wrk,i_wrk))
-     + call errquit('Could not allocate wrk',0)
+     + call md_abort('Could not allocate wrk',0)
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
-     + call errquit('Error rtdb_get filcmd',0)
+     + call md_abort('Error rtdb_get filcmd',0)
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old',err=9999)
       rewind(unit=lfncmd)
@@ -203,11 +203,11 @@ c
       filtop=card(8:80)
       call ana_siztop()
       if(.not.ma_push_get(mt_int,7*msgm,'iram',l_iram,i_iram))
-     + call errquit('Could not allocate iram',0)
+     + call md_abort('Could not allocate iram',0)
       if(.not.ma_push_get(mt_int,msa,'imol',l_imol,i_imol))
-     + call errquit('Could not allocate imol',0)
+     + call md_abort('Could not allocate imol',0)
       if(.not.ma_push_get(mt_int,2*msb,'sbnd',l_sbnd,i_sbnd))
-     + call errquit('Could not allocate sbnd',0)
+     + call md_abort('Could not allocate sbnd',0)
       call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram),
      + int_mb(i_imol),int_mb(i_sbnd))
 c
@@ -381,7 +381,7 @@ c
 c
       call ana_wall(int_mb(i_wsel),0,int_mb(i_ndxw))
 c
-      if(nsel.eq.0) call errquit('No solute atoms selected',0)
+      if(nsel.eq.0) call md_abort('No solute atoms selected',0)
 c
       call ana_rdhdr(byte_mb(i_snam))
       nread=0
@@ -464,7 +464,7 @@ c
       nhis=nhis+1
       rhis=-0.6d0*box(3)
       if(nhis.gt.mhis)
-     + call errquit('Too many histogram directives ',nhis)
+     + call md_abort('Too many histogram directives ',nhis)
       read(card(8:21),'(2i7)') idhis(nhis,1),idhis(nhis,2)
       if(idhis(nhis,2).eq.0) idhis(nhis,2)=mlhis
       do 45 i=1,mlhis
@@ -472,7 +472,7 @@ c
    45 continue
       fil=card(54:80)
       if(fil(1:1).eq.' ')
-     + call errquit('No histogram filename given',nhis)
+     + call md_abort('No histogram filename given',nhis)
       open(unit=idhis(nhis,3),file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown')
       endif
@@ -485,8 +485,8 @@ c
       if(card(1:7).eq.'order  ') then
       read(card(8:26),'(i5,2i7)') it,ia,ja
       if(it.eq.nord+1) nord=nord+1
-      if(it.gt.nord) call errquit('Order index too large',it)
-      if(it.gt.mord) call errquit('Order index too large',it)
+      if(it.gt.nord) call md_abort('Order index too large',it)
+      if(it.gt.mord) call md_abort('Order index too large',it)
       idord(it,1)=ia
       idord(it,2)=ja
       if(me.eq.0) then
@@ -522,8 +522,8 @@ c
       if(card(1:6).eq.'bond  ') then
       read(card(8:12),'(i5)') it
       if(it.eq.nbnds+1) nbnds=nbnds+1
-      if(it.gt.nbnds) call errquit('Bond index too large',it)
-      if(it.gt.mxbnds) call errquit('Bond index too large',it)
+      if(it.gt.nbnds) call md_abort('Bond index too large',it)
+      if(it.gt.mxbnds) call md_abort('Bond index too large',it)
       if(me.eq.0) then
       do 7 i=1,2
       read(lfncmd,1000,end=9999) card
@@ -542,8 +542,8 @@ c
       if(card(1:5).eq.'angle') then
       read(card(8:12),'(i5)') it
       if(it.eq.nangs+1) nangs=nangs+1
-      if(it.gt.nangs) call errquit('Angle index too large',it)
-      if(it.gt.mxangs) call errquit('Angle index too large',it)
+      if(it.gt.nangs) call md_abort('Angle index too large',it)
+      if(it.gt.mxangs) call md_abort('Angle index too large',it)
       if(me.eq.0) then
       do 8 i=1,3
       read(lfncmd,1000,end=9999) card
@@ -562,8 +562,8 @@ c
       if(card(1:6).eq.'torsio') then
       read(card(8:12),'(i5)') it
       if(it.eq.ntors+1) ntors=ntors+1
-      if(it.gt.ntors) call errquit('Torsion index skipped',it)
-      if(it.gt.mxtors) call errquit('Torsion index too large',it)
+      if(it.gt.ntors) call md_abort('Torsion index skipped',it)
+      if(it.gt.mxtors) call md_abort('Torsion index too large',it)
       if(me.eq.0) then
       do 9 i=1,4
       read(lfncmd,1000,end=9999) card
@@ -582,8 +582,8 @@ c
       if(card(1:6).eq.'improp') then
       read(card(8:12),'(i5)') it
       if(it.eq.nimps+1) nimps=nimps+1
-      if(it.gt.nimps) call errquit('Improper index too large',it)
-      if(it.gt.mximps) call errquit('Improper index too large',it)
+      if(it.gt.nimps) call md_abort('Improper index too large',it)
+      if(it.gt.mximps) call md_abort('Improper index too large',it)
       if(me.eq.0) then
       do 12 i=1,4
       read(lfncmd,1000,end=9999) card
@@ -626,21 +626,21 @@ c
       endif
       if(card(1:6).eq.'rotatx') then
       nrot=nrot+1
-      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      if(nrot.gt.100) call md_abort('Increase dimension irot',0)
       irot(nrot)=1
       read(card(8:19),'(f12.6)') arot(nrot)
       goto 1
       endif
       if(card(1:6).eq.'rotaty') then
       nrot=nrot+1
-      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      if(nrot.gt.100) call md_abort('Increase dimension irot',0)
       irot(nrot)=2
       read(card(8:19),'(f12.6)') arot(nrot)
       goto 1
       endif
       if(card(1:6).eq.'rotatz') then
       nrot=nrot+1
-      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      if(nrot.gt.100) call md_abort('Increase dimension irot',0)
       irot(nrot)=3
       read(card(8:19),'(f12.6)') arot(nrot)
       goto 1
@@ -702,7 +702,7 @@ c
      + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.not.lsonly,int_mb(i_ndxw))
       else
-      call errquit('Illegal file format specified',0)
+      call md_abort('Illegal file format specified',0)
       endif
       endif
       if(me.eq.0) then
@@ -723,7 +723,7 @@ c
      + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.false.,int_mb(i_ndxw))
       else
-      call errquit('Illegal file format specified',0)
+      call md_abort('Illegal file format specified',0)
       endif
       if(me.eq.0) then
       close(unit=lfncop)
@@ -747,7 +747,7 @@ c
       fmt=filcop(i+1:i+3)
       root=filcop(1:i)
 c
-c      if(nsel.eq.0) call errquit('No atoms selected',0)
+c      if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
 c     write header
 c
@@ -795,7 +795,7 @@ c
       fmt=filsup(i+1:i+3)
       root=filsup(1:i)
 c
-      if(nsel.eq.0) call errquit('No atoms selected',0)
+      if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
 c     write header
 c
@@ -880,7 +880,7 @@ c
       call ana_hbond_header(byte_mb(i_snam),int_mb(i_isel),
      + int_mb(i_hbnd))
       if(.not.ma_push_get(mt_int,mwm,'temp',l_temp,i_temp))
-     + call errquit('Could not allocate temp',0)
+     + call md_abort('Could not allocate temp',0)
       endif
       if(ngroups.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
@@ -906,7 +906,7 @@ c
 c
       if(ldist.gt.0) then
       if(.not.ma_push_get(mt_dbl,2*ldist,'hist',l_hist,i_hist))
-     + call errquit('Failed to allocate hist',0)
+     + call md_abort('Failed to allocate hist',0)
       open(unit=lfnhis,file=filhis(1:index(filhis,' ')-1),
      + form='formatted',status='unknown')
       endif
@@ -950,7 +950,7 @@ c
 c     charge histogram
 c
       if(ldist.gt.0) then
-      if(.not.ltop) call errquit('Topology needed',0)
+      if(.not.ltop) call md_abort('Topology needed',0)
       call ana_chgdst(dbl_mb(i_hist),dbl_mb(i_xdat),dbl_mb(i_qdat))
       endif
 c
@@ -1031,13 +1031,13 @@ c
 c
       if(ldist.gt.0) then
       if(.not.ma_pop_stack(l_hist))
-     + call errquit('Failed to deallocate hist',0)
+     + call md_abort('Failed to deallocate hist',0)
       close(unit=lfnhis)
       endif
 c
       if(lhbond) then
       if(.not.ma_pop_stack(l_temp))
-     + call errquit('Failed to deallocate temp',0)
+     + call md_abort('Failed to deallocate temp',0)
       endif
 c
       if(me.eq.0) then
@@ -1113,7 +1113,7 @@ c
       fmt=filcop(i+1:i+3)
       endif
 c
-      if(nsel.eq.0) call errquit('No atoms selected',0)
+      if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
       call ana_rdhdr(byte_mb(i_snam))
       nave=0
@@ -1178,7 +1178,7 @@ c     -----------------------
 c
       if(card(1:6).eq.'covar ') then
       fil=card(8:80)
-      if(nsel.eq.0) call errquit('No atoms selected',0)
+      if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
       if(active) call ana_edfinal()
       active=.true.
@@ -1274,8 +1274,8 @@ c
       filmax=fil(1:i-1)//'_max.pdb'
       endif
 c
-      if(nsel.eq.0) call errquit('No atoms selected',0)
-      if(.not.active) call errquit('No ED matrix active',0)
+      if(nsel.eq.0) call md_abort('No atoms selected',0)
+      if(.not.active) call md_abort('No ED matrix active',0)
 c
       if(me.eq.0) then
       open(unit=lfnprj,file=filprj(1:index(filprj,' ')-1),
@@ -1438,23 +1438,23 @@ c
       if(active) call ana_edfinal()
 c
       if(.not.ma_pop_stack(l_sbnd))
-     + call errquit('Could not deallocate sbnd',0)
+     + call md_abort('Could not deallocate sbnd',0)
       if(.not.ma_pop_stack(l_imol))
-     + call errquit('Could not deallocate imol',0)
+     + call md_abort('Could not deallocate imol',0)
       if(.not.ma_pop_stack(l_iram))
-     + call errquit('Could not deallocate iram',0)
+     + call md_abort('Could not deallocate iram',0)
 c
       call ana_finish(byte_mb(i_snam),.true.)
 c
       if(.not.ma_pop_stack(l_wrk))
-     + call errquit('Could not deallocate iwrk',0)
+     + call md_abort('Could not deallocate iwrk',0)
 c
       ignore=rtdb_parallel(.true.)
 c
       return
 c
  9999 continue
-      call errquit('Error opening command file',0)
+      call md_abort('Error opening command file',0)
 c
       return
       end

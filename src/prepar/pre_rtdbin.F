@@ -6,7 +6,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + fcount,mfract,nfract,ifract,scale,cpk,his,itopol)
 c
-c $Id: pre_rtdbin.F,v 1.37 2003-09-26 15:44:05 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.38 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -43,7 +43,7 @@ c
       if(util_nwchemrc_get(key,value)) then
       ffield=value(1:index(value,' ')-1)
       if(.not.pre_paths())
-     + call errquit('Error reading path info from .nwchemrc',0)
+     + call md_abort('Error reading path info from .nwchemrc',0)
       endif
 c
       source=' '
@@ -61,15 +61,15 @@ c
 
       if(rtdb_cget(irtdb,'prep:ffield',1,ffield)) then
       if(.not.pre_paths())
-     + call errquit('Error reading path info from .nwchemrc',0)
+     + call md_abort('Error reading path info from .nwchemrc',0)
       endif
 c
-      if(.not.pre_paths2(irtdb)) call errquit('prepaths2 ',0)
+      if(.not.pre_paths2(irtdb)) call md_abort('prepaths2 ',0)
 c
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,sysnam)) then
       if(.not.rtdb_cget(irtdb,'arg:project',1,sysnam)) then
       if(.not.rtdb_cget(irtdb,'file_prefix',1,sysnam))
-     + call errquit('rtdb_get failed on sysnam',9999)
+     + call md_abort('rtdb_get failed on sysnam',9999)
       endif
       endif
 c
@@ -88,25 +88,25 @@ c
       if(.not.rtdb_get(irtdb,'prep:nfract',mt_int,1,nfract)) nfract=0
       if(nfract.gt.0) then
       if(.not.rtdb_get(irtdb,'prep:ifract',mt_int,nfract,ifract))
-     + call errquit('Fraction input problem',0)
+     + call md_abort('Fraction input problem',0)
       endif
 c
       if(.not.rtdb_get(irtdb,'prep:ncount',mt_int,1,ncount)) ncount=0
       if(ncount.gt.0) then
       if(.not.rtdb_get(irtdb,'prep:icount',mt_int,ncount,icount))
-     + call errquit('Counter ion input problem',0)
+     + call md_abort('Counter ion input problem',0)
       if(.not.rtdb_cget(irtdb,'prep:scount',ncount,scount))
-     + call errquit('Counter ion input problem',0)
+     + call md_abort('Counter ion input problem',0)
       endif
       if(.not.rtdb_get(irtdb,'prep:fcount',mt_dbl,1,fcount))
-     + call errquit('Counter ion input problem',0)
+     + call md_abort('Counter ion input problem',0)
       if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24
       if(.not.rtdb_get(irtdb,'prep:nrgrid',mt_int,1,nrgrid)) nrgrid=0
       if(nrgrid.gt.0) then
       if(.not.rtdb_get(irtdb,'prep:iogrid',mt_int,nrgrid,iogrid))
-     + call errquit('pre_rtdb: rtdb_get failed',0)
+     + call md_abort('pre_rtdb: rtdb_get failed',0)
       if(.not.rtdb_get(irtdb,'prep:rogrid',mt_int,2*nrgrid,rogrid))
-     + call errquit('pre_rtdbin: rtdb_get failed',0)
+     + call md_abort('pre_rtdbin: rtdb_get failed',0)
       endif
       if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0
 c

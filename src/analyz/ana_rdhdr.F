@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.14 2002-04-30 16:46:29 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.15 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -44,7 +44,7 @@ c
       read(lfntrj,1003) nwa,nsa,nsb,nwb
       write(44,1003) nwa,nsa,nsb,nwb
  1003 format(4i10)
-      if(nsa.gt.msa) call errquit('Error in trj',0)
+      if(nsa.gt.msa) call md_abort('Error in trj',0)
       if(nwa.gt.0) then
       do 2 i=1,nwa
       read(lfntrj,1004) wnam(i)
@@ -85,7 +85,7 @@ c
       read(card(11:19),'(i9)') nsb
       else
       if(card(1:5).ne.'time:') goto 11
-      if(.not.ltop) call errquit('Format error trajectory file',0)
+      if(.not.ltop) call md_abort('Format error trajectory file',0)
       endif
       rewind(lfntrj)
       nwa=0
@@ -95,7 +95,7 @@ c
       rewind(44)
       write(44,1003) nwa,nsa,nsb,0
       endif
-      if(nsa.gt.msa) call errquit('Error in trj',0)
+      if(nsa.gt.msa) call md_abort('Error in trj',0)
       if(fmttrj.ne.'coo') then
    12 continue
       read(lfntrj,1000,err=9998,end=9997) card
@@ -120,7 +120,7 @@ c
       endif
       if(.not.ltop) close(unit=44)
       else
-      call errquit('Trajectory file format error',0)
+      call md_abort('Trajectory file format error',0)
       endif
 c
       endif
@@ -128,10 +128,10 @@ c
       return
 c
  9997 continue
-      call errquit('End of file reading trajectory file',0)
+      call md_abort('End of file reading trajectory file',0)
  9998 continue
-      call errquit('Error reading trajectory file',0)
+      call md_abort('Error reading trajectory file',0)
  9999 continue
-      call errquit('Failed to open trajectory file',0)
+      call md_abort('Failed to open trajectory file',0)
       return
       end

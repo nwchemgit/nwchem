@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.24 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.25 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -124,7 +124,7 @@ c     SSBOND
 c
       if(card(1:6).eq.'SSBOND') then
       nssb=nssb+1
-      if(nssb.gt.mssb) call errquit('increase mssb',9999)
+      if(nssb.gt.mssb) call md_abort('increase mssb',9999)
       read(card,2007) lssb(1,nssb),lssb(2,nssb)
  2007 format(17x,i4,10x,i4)
       goto 1
@@ -133,7 +133,7 @@ c
 c     LINK
 c
       if(card(1:6).eq.'LINK  ') then
-      if(nlnk.gt.mlnk) call errquit('pdbseq: increase mlnk',9999)
+      if(nlnk.gt.mlnk) call md_abort('pdbseq: increase mlnk',9999)
       if(card(22:22).ne.' '.and.
      + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(card(52:52).ne.' '.and.

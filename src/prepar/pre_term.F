@@ -1,7 +1,7 @@
       logical function pre_term(lfnout,lfnsgm,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.14 2003-10-17 14:56:06 d3j191 Exp $
+c $Id: pre_term.F,v 1.15 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -34,7 +34,7 @@ c
       if(isgm.eq.0.or.jsgm.eq.0) then
       write(lfnout,1003) llnk(1,i),llnk(2,i)
  1003 format(' Error in link ',2i5)
-      call errquit('error in pre_term',9999)
+      call md_abort('error in pre_term',9999)
       endif
 c
       if(util_print('where',print_high)) then
@@ -45,46 +45,46 @@ c
       if(.not.pre_sgmfil(cseq(isgm),lfnsgm,filsgm)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
  1001 format('Segment ',a,' not found')
-      call errquit('pre_sgmfil failed',9999)
+      call md_abort('pre_sgmfil failed',9999)
       endif
 c
       if(.not.pre_atmscn(lfnsgm,filsgm,clnk(1,i),num,link)) then
       write(lfnout,1002) clnk(1,i),filsgm(1:index(filsgm,' ')-1)
  1002 format('Atom ',a4,'not found in segment ',a)
-      call errquit('pre_atmscn failed',9999)
+      call md_abort('pre_atmscn failed',9999)
       endif
 c
       if(link.eq.1) then
-cx      if(lseq(2,isgm).ge.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,isgm).ge.0)  call md_abort('multiple links',9999)
       if(lseq(2,isgm).eq.-1) lseq(2,isgm)=0
       if(lseq(2,isgm).eq.-2) lseq(2,isgm)=1
       endif
       if(link.eq.2) then
-cx      if(lseq(2,isgm).eq.-1) call errquit('multiple links',9999)
-cx      if(lseq(2,isgm).eq.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,isgm).eq.-1) call md_abort('multiple links',9999)
+cx      if(lseq(2,isgm).eq.0)  call md_abort('multiple links',9999)
       if(lseq(2,isgm).eq.-2) lseq(2,isgm)=-1
       if(lseq(2,isgm).gt.0) lseq(2,isgm)=0
       endif
 c
       if(.not.pre_sgmfil(cseq(jsgm),lfnsgm,filsgm)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
-      call errquit('pre_sgmfil failed',9999)
+      call md_abort('pre_sgmfil failed',9999)
       endif
 c
       if(.not.pre_atmscn(lfnsgm,filsgm,clnk(2,i),num,link)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
       write(lfnout,1002) clnk(2,i),filsgm(1:index(filsgm,' ')-1)
-      call errquit('pre_atmscn failed',9999)
+      call md_abort('pre_atmscn failed',9999)
       endif
 c
       if(link.eq.1) then
-cx      if(lseq(2,jsgm).ge.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,jsgm).ge.0)  call md_abort('multiple links',9999)
       if(lseq(2,jsgm).eq.-1) lseq(2,jsgm)=0
       if(lseq(2,jsgm).eq.-2) lseq(2,jsgm)=1
       endif
       if(link.eq.2) then
-cx      if(lseq(2,jsgm).eq.-1) call errquit('multiple links',9999)
-cx      if(lseq(2,jsgm).eq.0)  call errquit('multiple links',9999)
+cx      if(lseq(2,jsgm).eq.-1) call md_abort('multiple links',9999)
+cx      if(lseq(2,jsgm).eq.0)  call md_abort('multiple links',9999)
       if(lseq(2,jsgm).eq.-2) lseq(2,jsgm)=-1
       if(lseq(2,jsgm).gt.0) lseq(2,jsgm)=0
       endif

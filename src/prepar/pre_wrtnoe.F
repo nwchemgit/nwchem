@@ -38,6 +38,6 @@ c
       return
 c
  9999 continue
-      call errquit('Could not open filtop to write noe',0)
+      call md_abort('Could not open filtop to write noe',0)
       return
       end

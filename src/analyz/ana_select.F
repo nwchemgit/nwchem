@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x,numsel)
 c
-c $Id: ana_select.F,v 1.11 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_select.F,v 1.12 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
  1000 format(f12.6,a)
 c
       if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
-     + call errquit('Failed to allocate list',0)
+     + call md_abort('Failed to allocate list',0)
 c
       call ana_selection(sgmnam,nsa,target,int_mb(i_list))
 c
@@ -47,7 +47,7 @@ c
     1 continue
 c
       if(.not.ma_pop_stack(l_list))
-     + call errquit('Failed to deallocate list',0)
+     + call md_abort('Failed to deallocate list',0)
 c
       endif
 c

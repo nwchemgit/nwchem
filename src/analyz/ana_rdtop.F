@@ -55,7 +55,7 @@ c
     3 continue
     2 continue
       if(.not.ma_push_get(mt_dbl,naq*nparms,'tmp',l_tmp,i_tmp))
-     + call errquit('Failed to allocate tmp',0)
+     + call md_abort('Failed to allocate tmp',0)
       do 4 i=1,naq*nparms
       read(lfntop,1002) dbl_mb(i_tmp-1+i)
  1002 format(f12.6)
@@ -100,7 +100,7 @@ c
       read(lfntop,1000) cdummy
    20 continue
       if(.not.ma_push_get(mt_int,nas,'itmp',l_itmp,i_itmp))
-     + call errquit('Failed to allocate itmp',0)
+     + call md_abort('Failed to allocate itmp',0)
       do 6 i=1,nas
       read(lfntop,1005) sname,aname,imol(i),num,j
  1005 format(a5,5x,a5,6x,2i5,15x,i5)
@@ -138,11 +138,11 @@ c
       endif
     8 continue
       if(.not.ma_pop_stack(l_itmp))
-     + call errquit('Failed to deallocate itmp',0)
+     + call md_abort('Failed to deallocate itmp',0)
       close(unit=44)
       close(unit=lfntop)
       if(.not.ma_pop_stack(l_tmp))
-     + call errquit('Failed to deallocate tmp',0)
+     + call md_abort('Failed to deallocate tmp',0)
 c
       ltop=.true.
       endif

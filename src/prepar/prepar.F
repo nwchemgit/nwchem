@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.56 2003-10-03 18:53:48 d3j191 Exp $
+c $Id: prepar.F,v 1.57 2003-10-19 03:30:59 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -120,7 +120,7 @@ c
       if(ga_nodeid().ne.0) then
   100 continue
       if(.not.pre_task(irtdb,itask,lfnout))
-     + call errquit('pre_task failed',9999)
+     + call md_abort('pre_task failed',9999)
       if(itask.eq.0) then
       lstate=rtdb_parallel(.true.)
 c
@@ -151,7 +151,7 @@ c
      + gdist,mnoe,mpmf,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
      + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol))
-     + call errquit('pre_rtdbin failed',9999)
+     + call md_abort('pre_rtdbin failed',9999)
 c
 c     construct file names
 c     --------------------
@@ -179,7 +179,7 @@ c      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
       nmerge=0
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,prefix))
-     + call errquit('rtdb_cget failed on file_prefix',9999)
+     + call md_abort('rtdb_cget failed on file_prefix',9999)
       filcmd=prefix(1:index(prefix,' ')-1)//'.cmd '
       filmod=prefix(1:index(prefix,' ')-1)//'.mod '
 c
@@ -229,7 +229,7 @@ c
       goto 8
     7 continue
       if(source(1:3).eq.'pdb')
-     + call errquit('pdb file could not be found',9999)
+     + call md_abort('pdb file could not be found',9999)
     8 continue
       endif
       if(source(1:1).eq.' ') source='geometry'
@@ -288,7 +288,7 @@ c      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
      + lfntmp,filtmp,lfnmod,filmod,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his))
-     + call errquit('pre_mkseq failed',9999)
+     + call md_abort('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)
  2009 format(/,' Created sequence',t40,a,/)
@@ -302,7 +302,7 @@ c
       if(.not.pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
      + lfnhdb,lfnhop,filhop,ignore,slvnam,itopol))
-     + call errquit('pre_mktop failed',9999)
+     + call md_abort('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
  2010 format(/,' Created topology',t40,a,/)
@@ -351,7 +351,7 @@ c
      + altloc,chain,model,
      + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat,
      + lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol))
-     + call errquit('pre_mkrst failed',9999)
+     + call md_abort('pre_mkrst failed',9999)
 c
     6 continue
 c
@@ -361,7 +361,7 @@ c
       if(mnoe.gt.0.or.mpmf.gt.0) then
       if(.not.pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam))
-     + call errquit('re_mknoe failed',9999)
+     + call md_abort('re_mknoe failed',9999)
       endif
 c
 c     remove temporary files if they exist
@@ -387,7 +387,7 @@ c     ----------------------------
 c
       itask=0
       if(.not.pre_task(irtdb,itask,lfnout))
-     + call errquit('pre_task failed',9999)
+     + call md_abort('pre_task failed',9999)
 c
       lstate=rtdb_parallel(.true.)
 c

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.112 2003-09-26 16:46:21 d3j191 Exp $
+c $Id: pre_input.F,v 1.113 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -126,7 +126,7 @@ c
       needwt=.false.
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,commnd))
-     + call errquit('rtdb_cget failed on file_prefix',9999)
+     + call md_abort('rtdb_cget failed on file_prefix',9999)
       modify=commnd(1:index(commnd,' ')-1)//'.mod '
       open(unit=67,file=modify(1:index(modify,' ')-1),
      + form='formatted',status='unknown',err=9999)
@@ -148,7 +148,7 @@ c     ----------------------------
 c
     1 continue
 c
-      if(.not.inp_read()) call errquit('pre_input: inp_read failed',0)
+      if(.not.inp_read()) call md_abort('pre_input: inp_read failed',0)
 c
     2 continue
 c
@@ -192,13 +192,13 @@ c
 c
    57 continue
 c
-      if(.not.inp_read()) call errquit('pre_input: inp_read failed',0)
-      if(.not.inp_line(card)) call errquit('pre_input: inp_line',0)
-      if(.not.inp_a(item)) call errquit('pre_input: inp_read failed',0)
+      if(.not.inp_read()) call md_abort('pre_input: inp_read failed',0)
+      if(.not.inp_line(card)) call md_abort('pre_input: inp_line',0)
+      if(.not.inp_a(item)) call md_abort('pre_input: inp_read failed',0)
       if(inp_compare(.false.,'title',item)) goto 56
       if(inp_compare(.false.,'end_title',item)) goto 1
       ntitle=ntitle+1
-      if(ntitle.gt.3) call errquit('pre_input: too many title lines',0)
+      if(ntitle.gt.3) call md_abort('pre_input: too many title lines',0)
       if(ititle.eq.0) then
       title(1,ntitle)=card
       title(2,ntitle)=card
@@ -243,7 +243,7 @@ c
       goto 2
       endif
       if(inp_compare(.false.,'ffield',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: error ffield',0)
+      if(.not.inp_a(item)) call md_abort('pre_input: error ffield',0)
       goto 5
       endif
 c
@@ -269,7 +269,7 @@ c
       do 314 i=1,9
       write(string,'(a,i1)') 'directory_',i
       if(inp_compare(.false.,string,item)) then
-      if(.not.inp_a(dirs(i))) call errquit('pre_input: error dirs',i)
+      if(.not.inp_a(dirs(i))) call md_abort('pre_input: error dirs',i)
       len=index(dirs(i),' ')-1
       if(len.gt.0.and.dirs(i)(len:len).ne.'/'.and.
      + dirs(i)(len-3:len).ne.'.par') dirs(i)(len+1:len+2)='/ '
@@ -281,7 +281,7 @@ c     sysnam
 c     ------
 c
       if(inp_compare(.false.,'system',item)) then
-      if(.not.inp_a(sysnam)) call errquit('pre_input: error sysnam',0)
+      if(.not.inp_a(sysnam)) call md_abort('pre_input: error sysnam',0)
       if(ntitle.lt.0) then
       title(1,1)=
      + 'NWChem topology file for '//sysnam(1:index(sysnam,' ')-1)
@@ -295,7 +295,7 @@ c     source
 c     ------
 c
       if(inp_compare(.false.,'source',item)) then
-      if(.not.inp_a(source)) call errquit('pre_input: error source',0)
+      if(.not.inp_a(source)) call md_abort('pre_input: error source',0)
       goto 2
       endif
 c
@@ -310,11 +310,11 @@ c     max atoms in scf and charge scaling
 c     -----------------------------------
 c
       if(inp_compare(.false.,'maxscf',item)) then
-      if(.not.inp_i(maxscf)) call errquit('pre_input: error maxscf',0)
+      if(.not.inp_i(maxscf)) call md_abort('pre_input: error maxscf',0)
       goto 2
       endif
       if(inp_compare(.false.,'qscale',item)) then
-      if(.not.inp_f(qscale)) call errquit('pre_input: error qscale',0)
+      if(.not.inp_f(qscale)) call md_abort('pre_input: error qscale',0)
       goto 2
       endif
 c
@@ -322,7 +322,7 @@ c     povray scaling
 c     --------------
 c
       if(inp_compare(.false.,'scale',item)) then
-      if(.not.inp_f(scale)) call errquit('pre_input: error qscale',0)
+      if(.not.inp_f(scale)) call md_abort('pre_input: error qscale',0)
       goto 2
       endif
       if(inp_compare(.false.,'cpk',item)) then
@@ -336,16 +336,16 @@ c
       if(inp_compare(.false.,'solvent',item)) then
       num=0
    20 continue
-      if(.not.inp_a(item)) call errquit('pre_input: solvent',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: solvent',9999)
       if(inp_compare(.false.,'name',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: solvent',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: solvent',9999)
       slvnam=item(1:3)
       if(num.eq.2) goto 2
       num=1
       goto 20
       else
       if(inp_compare(.false.,'model',item)) then
-      if(.not.inp_a(slvmdl)) call errquit('pre_input: solvent',9999)
+      if(.not.inp_a(slvmdl)) call md_abort('pre_input: solvent',9999)
       if(num.eq.1) goto 2
       num=2
       goto 20
@@ -357,7 +357,7 @@ c     alternate location
 c     ------------------
 c
       if(inp_compare(.false.,'altloc',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: altloc',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: altloc',9999)
       altloc=item(1:1)
       goto 2
       endif
@@ -366,7 +366,7 @@ c     chain
 c     -----
 c
       if(inp_compare(.false.,'chain',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: chain',9999)
       chain=item(1:1)
       goto 2
       endif
@@ -375,7 +375,7 @@ c     histidine protonation
 c     ---------------------
 c
       if(inp_compare(.false.,'histidine',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: chain',9999)
       if(inp_compare(.false.,'hid',item)) his='D'
       if(inp_compare(.false.,'hie',item)) his='E'
       if(inp_compare(.false.,'hip',item)) his='P'
@@ -400,7 +400,7 @@ c     model
 c     -----
 c
       if(inp_compare(.false.,'model',item)) then
-      if(.not.inp_i(model)) call errquit('pre_input: model',9999)
+      if(.not.inp_i(model)) call md_abort('pre_input: model',9999)
       goto 2
       endif
 c
@@ -416,41 +416,41 @@ c     counterion grid parameters
 c     --------------------------
 c
       if(inp_compare(.false.,'grid',item)) then
-      if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
+      if(.not.inp_i(mgrid)) call md_abort('pre_input: grid',9999)
       do 6865 i=1,4
       if(inp_f(rgrid)) goto 6867
       if(i.eq.4) goto 6867
-      if(.not.inp_a(item)) call errquit('pre_input: grid',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: grid',9999)
       j=-1
       if(inp_compare(.false.,'inside',item)) j=0
       if(inp_compare(.false.,'outside',item)) j=1
-      if(j.eq.-1) call errquit('pre_input: remove',9999)
+      if(j.eq.-1) call md_abort('pre_input: remove',9999)
       nrgrid=nrgrid+1
       if(inp_a(item)) then
       if(inp_compare(.false.,'x',item)) then
-      if(.not.inp_f(xrmin)) call errquit('pre_input remove x',0)
-      if(.not.inp_f(xrmax)) call errquit('pre_input remove x',0)
+      if(.not.inp_f(xrmin)) call md_abort('pre_input remove x',0)
+      if(.not.inp_f(xrmax)) call md_abort('pre_input remove x',0)
       iogrid(nrgrid)=1+j
       rogrid(1,nrgrid)=xrmin
       rogrid(2,nrgrid)=xrmax
       endif
       if(inp_compare(.false.,'y',item)) then
-      if(.not.inp_f(yrmin)) call errquit('pre_input remove y',0)
-      if(.not.inp_f(yrmax)) call errquit('pre_input remove y',0)
+      if(.not.inp_f(yrmin)) call md_abort('pre_input remove y',0)
+      if(.not.inp_f(yrmax)) call md_abort('pre_input remove y',0)
       iogrid(nrgrid)=3+j
       rogrid(1,nrgrid)=yrmin
       rogrid(2,nrgrid)=yrmax
       endif
       if(inp_compare(.false.,'z',item)) then
-      if(.not.inp_f(zrmin)) call errquit('pre_input remove z',0)
-      if(.not.inp_f(zrmax)) call errquit('pre_input remove z',0)
+      if(.not.inp_f(zrmin)) call md_abort('pre_input remove z',0)
+      if(.not.inp_f(zrmax)) call md_abort('pre_input remove z',0)
       iogrid(nrgrid)=5+j
       rogrid(1,nrgrid)=zrmin
       rogrid(2,nrgrid)=zrmax
       endif
       if(inp_compare(.false.,'xy',item)) then
-      if(.not.inp_f(zrmin)) call errquit('pre_input remove xy',0)
-      if(.not.inp_f(zrmax)) call errquit('pre_input remove xy',0)
+      if(.not.inp_f(zrmin)) call md_abort('pre_input remove xy',0)
+      if(.not.inp_f(zrmax)) call md_abort('pre_input remove xy',0)
       iogrid(nrgrid)=7+j
       rogrid(1,nrgrid)=zrmin
       rogrid(2,nrgrid)=zrmax
@@ -490,7 +490,7 @@ c
     4 continue
       if(.not.inp_i(i)) goto 2
       nfract=nfract+1
-      if(nfract.gt.mfract) call errquit('Too many fractions',nfract)
+      if(nfract.gt.mfract) call md_abort('Too many fractions',nfract)
       ifract(nfract)=i
       goto 4
       endif
@@ -500,14 +500,14 @@ c     ---------------------------------
 c
       if(inp_compare(.false.,'counter',item)) then
       ncount=ncount+1
-      if(ncount.gt.mcount) call errquit('Too many counters',ncount)
+      if(ncount.gt.mcount) call md_abort('Too many counters',ncount)
       if(.not.inp_i(icount(ncount))) then
       if(.not.inp_f(fcount))
-     + call errquit('pre_input: counter',9999)
+     + call md_abort('pre_input: counter',9999)
       ncount=ncount-1
       goto 2
       else
-      if(.not.inp_a(item)) call errquit('pre_input: counter',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: counter',9999)
       scount(ncount)=item(1:4)
       goto 2
       endif
@@ -517,24 +517,24 @@ c     fix commands
 c     ------------
 c
       if(inp_compare(.false.,'fix',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: fix',9999)
       if(inp_compare(.false.,'atoms',item)) then
       cfix(8:11)='atm '
       else if(inp_compare(.false.,'segments',item)) then
       cfix(8:11)='sgm '
       else
-      call errquit('pre_input: fix',9999)
+      call md_abort('pre_input: fix',9999)
       endif
-      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: fix',9999)
       if(inp_compare(.false.,'beyond',item)) then
       cfix(1:7)='fixout '
       else if(inp_compare(.false.,'within',item)) then
       cfix(1:7)='fixwin '
       else
-      call errquit('pre_input: fix',9999)
+      call md_abort('pre_input: fix',9999)
       endif
-      if(.not.inp_f(rfix)) call errquit('pre_input: fix',9999)
-      if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
+      if(.not.inp_f(rfix)) call md_abort('pre_input: fix',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: fix',9999)
       write(68,6841) cfix,rfix,item
  6841 format(a11,f12.6,1x,a)
       numcmd=numcmd+1
@@ -545,18 +545,18 @@ c     topology modification commands
 c     ------------------------------
 c
       if(inp_compare(.false.,'modify',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: modify',9999)
 c
       if(inp_compare(.false.,'atom',item)) then
-      if(.not.inp_a(atom)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atom)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
  3312 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3312
       endif
       if(inp_compare(.false.,'initial',item)) then
@@ -571,21 +571,21 @@ c
       goto 3312
       endif
       if(inp_compare(.false.,'charge',item)) then
-      if(.not.inp_f(charge)) call errquit('pre_input: charge',9999)
+      if(.not.inp_f(charge)) call md_abort('pre_input: charge',9999)
       write(67,6701) (atom(1:index(atom,' ')-1),mset(i),charge,i=1,nset)
  6701 format('atom ',a,t19,i1,' chg ',f12.6)
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'polar',item)) then
-      if(.not.inp_f(polar)) call errquit('pre_input: polar',9999)
+      if(.not.inp_f(polar)) call md_abort('pre_input: polar',9999)
       write(67,6702) (atom(1:index(atom,' ')-1),mset(i),polar,i=1,nset)
  6702 format('atom ',a,t19,i1,' pol ',f12.9)
       nummod=nummod+1
       goto 3312
       endif
       if(inp_compare(.false.,'type',item)) then
-      if(.not.inp_a(type)) call errquit('pre_input: type',9999)
+      if(.not.inp_a(type)) call md_abort('pre_input: type',9999)
       write(67,6703) (atom(1:index(atom,' ')-1),mset(i),
      + type(1:index(type,' ')-1),i=1,nset)
  6703 format('atom ',a,t19,i1,' typ ',a)
@@ -616,26 +616,26 @@ c
       nummod=nummod+1
       goto 3312
       else
-      call errquit('pre_input: atom',9999)
+      call md_abort('pre_input: atom',9999)
       endif
 c
       else if(inp_compare(.false.,'segment',item)) then
-      if(.not.inp_i(isgm)) call errquit('pre_input: modify',9999)
+      if(.not.inp_i(isgm)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
  3313 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'protonation',item)) then
-      if(.not.inp_i(i)) call errquit('pre_input: modify',9999)
+      if(.not.inp_i(i)) call md_abort('pre_input: modify',9999)
       write(67,6720) isgm,i
  6720 format('segment ',i5,t18,i2,' hop ')
       nummod=nummod+1
       goto 3313
       endif
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3313
       endif
       if(inp_compare(.false.,'initial',item)) then
@@ -679,17 +679,17 @@ c
       nummod=nummod+1
       goto 3313
       else
-      call errquit('pre_input: segment',9999)
+      call md_abort('pre_input: segment',9999)
       endif
 c
       else if(inp_compare(.false.,'bond',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
  3314 continue
       if(inp_f(value)) then
-      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      if(.not.inp_f(forcon)) call md_abort('pre_input: modify',9999)
       write(67,6710) (mset(i),value,forcon,atomi(1:index(atomi,' ')-1),
      + atomj(1:index(atomj,' ')-1),i=1,nset)
  6710 format('bond ',i1,1x,f12.6,e12.5,1x,a,1x,a)
@@ -697,9 +697,9 @@ c
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3314
       endif
       if(inp_compare(.false.,'initial',item)) then
@@ -713,18 +713,18 @@ c
       nset=1
       goto 3314
       else
-      call errquit('pre_input: bond',9999)
+      call md_abort('pre_input: bond',9999)
       endif
 c
       else if(inp_compare(.false.,'angle',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
  3315 continue
       if(inp_f(value)) then
-      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      if(.not.inp_f(forcon)) call md_abort('pre_input: modify',9999)
       write(67,6711) (mset(i),value,forcon,atomi(1:index(atomi,' ')-1),
      + atomj(1:index(atomj,' ')-1),atomk(1:index(atomk,' ')-1),i=1,nset)
  6711 format('angle ',i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a)
@@ -732,9 +732,9 @@ c
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3315
       elseif(inp_compare(.false.,'initial',item)) then
       mset(1)=1
@@ -746,20 +746,20 @@ c
       nset=1
       goto 3315
       else
-      call errquit('pre_input: angle',9999)
+      call md_abort('pre_input: angle',9999)
       endif
 c
       else if(inp_compare(.false.,'torsion',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atoml)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
       multip=0
  3316 continue
       if(inp_f(value)) then
-      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      if(.not.inp_f(forcon)) call md_abort('pre_input: modify',9999)
       write(67,6712) (mset(i),multip,value,forcon,
      + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
      + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1),i=1,nset)
@@ -768,9 +768,9 @@ c
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3316
       endif
       if(inp_compare(.false.,'initial',item)) then
@@ -785,24 +785,24 @@ c
       goto 3316
       endif
       if(inp_compare(.false.,'multiplicity',item)) then
-      if(.not.inp_i(multip)) call errquit('pre_input: multip',9999)
+      if(.not.inp_i(multip)) call md_abort('pre_input: multip',9999)
       if(multip.lt.0.or.multip.gt.3)
-     + call errquit('pre_input: multip',9999)
+     + call md_abort('pre_input: multip',9999)
       goto 3316
       else
-      call errquit('pre_input: torsion',9999)
+      call md_abort('pre_input: torsion',9999)
       endif
 c
       else if(inp_compare(.false.,'plane',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
-      if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call md_abort('pre_input: modify',9999)
+      if(.not.inp_a(atoml)) call md_abort('pre_input: modify',9999)
       mset(1)=0
       nset=1
  3317 continue
       if(inp_f(value)) then
-      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      if(.not.inp_f(forcon)) call md_abort('pre_input: modify',9999)
       write(67,6713) (mset(i),value,forcon,
      + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
      + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1),i=1,nset)
@@ -811,9 +811,9 @@ c
       endif
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
-      if(.not.inp_i(mset(1))) call errquit('pre_input: mset',9999)
+      if(.not.inp_i(mset(1))) call md_abort('pre_input: mset',9999)
       if(mset(1).lt.0.or.mset(1).gt.3)
-     + call errquit('pre_input: mset',9999)
+     + call md_abort('pre_input: mset',9999)
       goto 3317
       endif
       if(inp_compare(.false.,'initial',item)) then
@@ -827,11 +827,11 @@ c
       nset=1
       goto 3317
       else
-      call errquit('pre_input: plane',9999)
+      call md_abort('pre_input: plane',9999)
       endif
 c
       elseif(inp_compare(.false.,'sequence',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: sequence',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: sequence',9999)
  3318 continue
       write(67,6716) item
  6716 format('sequence ',a)
@@ -840,7 +840,7 @@ c
       goto 1
 c
       else
-      call errquit('pre_input: modify',9999)
+      call md_abort('pre_input: modify',9999)
       endif
       goto 2
       endif
@@ -849,14 +849,14 @@ c     topology link commands
 c     ----------------------
 c
       if(inp_compare(.false.,'link',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: link atom 1',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: link atom 2',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: link atom 1',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: link atom 2',9999)
       i=index(atomi,':')
-      if(i.le.1) call errquit('pre_input: link atom 1',9999)
+      if(i.le.1) call md_abort('pre_input: link atom 1',9999)
       read(atomi(1:i-1),*) ires
       atomi=atomi(i+1:80)
       i=index(atomj,':')
-      if(i.le.1) call errquit('pre_input: link atom 2',9999)
+      if(i.le.1) call md_abort('pre_input: link atom 2',9999)
       read(atomj(1:i-1),*) jres
       atomj=atomj(i+1:80)
       if(atomi(1:1).eq.'_') atomi(1:1)=' '
@@ -871,14 +871,14 @@ c
 c     update
 c
       if(inp_compare(.false.,'update',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: update',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: update',9999)
 c
       if(inp_compare(.false.,'lists',item)) then
       write(67,6714)
  6714 format('update')
       nummod=nummod+1
       else
-      call errquit('pre_input: update',9999)
+      call md_abort('pre_input: update',9999)
       endif
       goto 2
       endif
@@ -887,13 +887,13 @@ c     noe's
 c     -----
 c
       if(inp_compare(.false.,'noe',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: noe',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: noe',9999)
-      if(.not.inp_f(dnoe(1))) call errquit('pre_input: noe',9999)
-      if(.not.inp_f(dnoe(2))) call errquit('pre_input: noe',9999)
-      if(.not.inp_f(dnoe(3))) call errquit('pre_input: noe',9999)
-      if(.not.inp_f(dnoe(4))) call errquit('pre_input: noe',9999)
-      if(.not.inp_f(dnoe(5))) call errquit('pre_input: noe',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: noe',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(1))) call md_abort('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(2))) call md_abort('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(3))) call md_abort('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(4))) call md_abort('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(5))) call md_abort('pre_input: noe',9999)
       mnoe=mnoe+1
       write(68,6820) atomi(1:index(atomi,' ')-1),
      + atomj(1:index(atomj,' ')-1),dnoe
@@ -911,7 +911,7 @@ c
       irepeat=0
       goto 2
       endif
-      if(.not.inp_i(irepeat)) call errquit('pre_input: sel_rep',9999)
+      if(.not.inp_i(irepeat)) call md_abort('pre_input: sel_rep',9999)
       goto 2
       endif
 c
@@ -919,8 +919,8 @@ c     select
 c     ------
 c
       if(inp_compare(.false.,'select',item)) then
-      if(.not.inp_i(igroup)) call errquit('pre_input: select',9999)
-      if(.not.inp_a(atomi)) call errquit('pre_input: noe',9999)
+      if(.not.inp_i(igroup)) call md_abort('pre_input: select',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: noe',9999)
  6830 continue
       write(68,6831) igroup,atomi(1:index(atomi,' ')-1)
  6831 format('select',i5,1x,a)
@@ -950,7 +950,7 @@ c
       jopt=0
       kopt=0
  6883 continue
-      if(.not.inp_a(type)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_a(type)) call md_abort('pre_input: pmf',9999)
       if(inp_compare(.false.,'all',type)) then
       iopt=1
       goto 6883
@@ -971,24 +971,24 @@ c
       kopt=1
       goto 6883
       endif
-      if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(igroup)) call md_abort('pre_input: pmf',9999)
       if(type(1:8).eq.'distance'.or.type(1:9).eq.'zdistance'.or.
      + type(1:8).eq.'basepair') then
-      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(jgroup)) call md_abort('pre_input: pmf',9999)
       endif
       if(type(1:5).eq.'angle') then
-      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(jgroup)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_i(kgroup)) call md_abort('pre_input: pmf',9999)
       endif
       if(type(1:7).eq.'torsion') then
-      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(jgroup)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_i(kgroup)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_i(lgroup)) call md_abort('pre_input: pmf',9999)
       endif
       if(type(1:8).eq.'improper') then
-      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(jgroup)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_i(kgroup)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_i(lgroup)) call md_abort('pre_input: pmf',9999)
       endif
       if(type(1:6).ne.'zalign'.and.type(1:5).ne.'zaxis'.and.
      + type(1:7).ne.'xyplane') then
@@ -996,8 +996,8 @@ c
       if(.not.inp_f(value1)) value1=2.8d-1
       if(.not.inp_f(value2)) value2=2.8d-1
       else
-      if(.not.inp_f(value1)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_f(value2)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_f(value1)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_f(value2)) call md_abort('pre_input: pmf',9999)
       endif
       else
       value1=0.0d0
@@ -1007,8 +1007,8 @@ c
       if(.not.inp_f(forcon)) forcon=1.0d4
       if(.not.inp_f(forc2)) forc2=1.0d4
       else
-      if(.not.inp_f(forcon)) call errquit('pre_input: pmf',9999)
-      if(.not.inp_f(forc2)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_f(forcon)) call md_abort('pre_input: pmf',9999)
+      if(.not.inp_f(forc2)) call md_abort('pre_input: pmf',9999)
       endif
       if(type(1:6).eq.'zalign') then
       write(68,6844) iopt,jopt,kopt,igroup,forcon,forc2
@@ -1064,8 +1064,8 @@ c     repeat selections and pmfs
 c     --------------------------
 c
       if(inp_compare(.false.,'pmf_repeat',item)) then
-      if(.not.inp_i(npmfr)) call errquit('pre_input: pmf_repeat',9999)
-      if(.not.inp_i(isarep)) call errquit('pre_input: pmf_repeat',9999)
+      if(.not.inp_i(npmfr)) call md_abort('pre_input: pmf_repeat',9999)
+      if(.not.inp_i(isarep)) call md_abort('pre_input: pmf_repeat',9999)
       write(68,6846) npmfr,isarep
  6846 format('rep_pmf',i5,i10)
       numcmd=numcmd+1
@@ -1076,7 +1076,7 @@ c     touch
 c     -----
 c
       if(inp_compare(.false.,'touch',item)) then
-      if(.not.inp_f(touch)) call errquit('pre_input: touch',9999)
+      if(.not.inp_f(touch)) call md_abort('pre_input: touch',9999)
       write(68,6801) touch
  6801 format('touch ',f12.6)
       ltouch=.true.
@@ -1196,36 +1196,45 @@ c     translate
 c     ---------
 c
       if(inp_compare(.false.,'translate',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: translate',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: translate',9999)
       if(inp_compare(.false.,'molecule',item)) then
-      if(.not.inp_i(itran)) call errquit('pre_input: translate',9999)
+      if(.not.inp_i(itran)) call md_abort('pre_input: translate',9999)
       if(.not.inp_i(jtran)) jtran=itran
-      if(.not.inp_f(xtran(1))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(2))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(1)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(2)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(3)))
+     + call md_abort('pre_input: translate',9999)
       write(68,6852) itran,jtran,xtran
  6852 format('tramol ',2i5,3f12.6)
       numcmd=numcmd+1
       elseif(inp_compare(.false.,'segment',item)) then
-      if(.not.inp_i(itran)) call errquit('pre_input: translate',9999)
+      if(.not.inp_i(itran)) call md_abort('pre_input: translate',9999)
       if(.not.inp_i(jtran)) jtran=itran
-      if(.not.inp_f(xtran(1))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(2))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(1)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(2)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(3)))
+     + call md_abort('pre_input: translate',9999)
       write(68,6853) itran,jtran,xtran
  6853 format('trasgm ',2i5,3f12.6)
       numcmd=numcmd+1
       elseif(inp_compare(.false.,'atom',item)) then
-      if(.not.inp_i(itran)) call errquit('pre_input: translate',9999)
+      if(.not.inp_i(itran)) call md_abort('pre_input: translate',9999)
       if(.not.inp_i(jtran)) jtran=itran
-      if(.not.inp_f(xtran(1))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(2))) call errquit('pre_input: translate',9999)
-      if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(1)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(2)))
+     + call md_abort('pre_input: translate',9999)
+      if(.not.inp_f(xtran(3)))
+     + call md_abort('pre_input: translate',9999)
       write(68,6854) itran,jtran,xtran
  6854 format('traatm ',2i5,3f12.6)
       numcmd=numcmd+1
       else
-      call errquit('pre_input: translate',9999)
+      call md_abort('pre_input: translate',9999)
       endif
       goto 2
       endif
@@ -1234,39 +1243,39 @@ c     rotate
 c     ------
 c
       if(inp_compare(.false.,'rotate',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: rotate',9999)
       if(inp_compare(.false.,'molecule',item)) then
-      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(irot)) call md_abort('pre_input: rotate',9999)
       if(.not.inp_i(jrot)) jrot=irot
-      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(arot)) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(1))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call md_abort('pre_input: rotate',9999)
       write(68,6872) irot,jrot,arot,xrot
  6872 format('rotmol ',2i5,4f12.6)
       numcmd=numcmd+1
       elseif(inp_compare(.false.,'segment',item)) then
-      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(irot)) call md_abort('pre_input: rotate',9999)
       if(.not.inp_i(jrot)) jrot=irot
-      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(arot)) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(1))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call md_abort('pre_input: rotate',9999)
       write(68,6873) irot,jrot,arot,xrot
  6873 format('rotsgm ',2i5,4f12.6)
       numcmd=numcmd+1
       elseif(inp_compare(.false.,'atom',item)) then
-      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(irot)) call md_abort('pre_input: rotate',9999)
       if(.not.inp_i(jrot)) jrot=irot
-      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
-      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(arot)) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(1))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call md_abort('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call md_abort('pre_input: rotate',9999)
       write(68,6874) irot,jrot,arot,xrot
  6874 format('rotatm ',2i5,4f12.6)
       numcmd=numcmd+1
       else
-      call errquit('pre_input: rotate',9999)
+      call md_abort('pre_input: rotate',9999)
       endif
       goto 2
       endif
@@ -1275,7 +1284,7 @@ c     remove solvent
 c     --------------
 c
       if(inp_compare(.false.,'remove',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: remove',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: remove',9999)
       if(inp_compare(.false.,'solvent',item)) then
       xrmin=0.0d0
       xrmax=0.0d0
@@ -1283,24 +1292,24 @@ c
       yrmax=0.0d0
       zrmin=0.0d0
       zrmax=0.0d0
-      if(.not.inp_a(item)) call errquit('pre_input: remove',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: remove',9999)
       j=-1
       if(inp_compare(.false.,'inside',item)) j=1
       if(inp_compare(.false.,'outside',item)) j=0
-      if(j.eq.-1) call errquit('pre_input: remove',9999)
+      if(j.eq.-1) call md_abort('pre_input: remove',9999)
       do 6855 i=1,3
       if(inp_a(item)) then
       if(inp_compare(.false.,'x',item)) then
-      if(.not.inp_f(xrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(xrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(xrmin)) call md_abort('pre_input remove',0)
+      if(.not.inp_f(xrmax)) call md_abort('pre_input remove',0)
       endif
       if(inp_compare(.false.,'y',item)) then
-      if(.not.inp_f(yrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(yrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(yrmin)) call md_abort('pre_input remove',0)
+      if(.not.inp_f(yrmax)) call md_abort('pre_input remove',0)
       endif
       if(inp_compare(.false.,'z',item)) then
-      if(.not.inp_f(zrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(zrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(zrmin)) call md_abort('pre_input remove',0)
+      if(.not.inp_f(zrmax)) call md_abort('pre_input remove',0)
       endif
       else
       goto 6857
@@ -1318,7 +1327,7 @@ c     expand with
 c     -----------
 c
       if(inp_compare(.false.,'expand',item)) then
-      if(.not.inp_f(xpnd(1))) call errquit('pre_input: xpndw',9999)
+      if(.not.inp_f(xpnd(1))) call md_abort('pre_input: xpndw',9999)
       if(.not.inp_f(xpnd(2))) xpnd(2)=xpnd(1)
       if(.not.inp_f(xpnd(3))) xpnd(3)=xpnd(2)
       write(68,6849) xpnd
@@ -1331,7 +1340,7 @@ c     expand-set with
 c     ---------------
 c
       if(inp_compare(.false.,'envelope',item)) then
-      if(.not.inp_f(xpnd(1))) call errquit('pre_input: xpndw',9999)
+      if(.not.inp_f(xpnd(1))) call md_abort('pre_input: xpndw',9999)
       if(.not.inp_f(xpnd(2))) xpnd(2)=xpnd(1)
       if(.not.inp_f(xpnd(3))) xpnd(3)=xpnd(2)
       goto 2
@@ -1412,9 +1421,9 @@ c     box
 c     ---
 c
       if(inp_compare(.false.,'box',item)) then
-      if(.not.inp_f(box(1))) call errquit('pre_input: box',9999)
-      if(.not.inp_f(box(2))) call errquit('pre_input: box',9999)
-      if(.not.inp_f(box(3))) call errquit('pre_input: box',9999)
+      if(.not.inp_f(box(1))) call md_abort('pre_input: box',9999)
+      if(.not.inp_f(box(2))) call md_abort('pre_input: box',9999)
+      if(.not.inp_f(box(3))) call md_abort('pre_input: box',9999)
       write(68,8686) box
  8686 format('setbox',3f12.6)
       numcmd=numcmd+1
@@ -1427,17 +1436,17 @@ c
       if(inp_compare(.false.,'write',item)) then
       irenum=0
       lrgpdb=0
-      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: write',9999)
       if(inp_compare(.false.,'large',item)) then
       lrgpdb=1
-      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: write',9999)
       endif
       if(inp_compare(.false.,'solute',item)) then
       if(.not.inp_i(nkeepw)) nkeepw=-1
-      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: write',9999)
       if(inp_compare(.false.,'renumber',item)) then
       irenum=1
-      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: write',9999)
       endif
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
@@ -1470,7 +1479,7 @@ c
       lwrcoo=.true.
       numcmd=numcmd+1
       else
-      call errquit('pre_input: write solute',9999)
+      call md_abort('pre_input: write solute',9999)
       endif
       elseif(inp_compare(.false.,'pdb',item)) then
  6839 continue
@@ -1533,7 +1542,7 @@ c
       lwrcoo=.true.
       numcmd=numcmd+1
       else
-      call errquit('Problem with write file',0)
+      call md_abort('Problem with write file',0)
       endif
       needwt=.false.
       numcmd=numcmd+1
@@ -1549,19 +1558,19 @@ c
  6817 format('rdcoor')
       else
       if(inp_compare(.false.,'pdb',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: read',9999)
       if(numcmd.eq.0) rewind(68)
       write(68,6809) item(1:index(item,' ')-1)
  6809 format('rd_pdb ',a)
       lrdcoo=.true.
       elseif(inp_compare(.false.,'rst',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: read',9999)
       if(numcmd.eq.0) rewind(68)
       write(68,6810) item(1:index(item,' ')-1)
  6810 format('rd_rst ',a)
       lrdcoo=.true.
       elseif(inp_compare(.false.,'rst_old',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: read',9999)
       if(numcmd.eq.0) rewind(68)
       write(68,6825) item(1:index(item,' ')-1)
  6825 format('rd_old ',a)
@@ -1592,19 +1601,19 @@ c     align
 c     -----
 c
       if(inp_compare(.false.,'align',item)) then
-      if(.not.inp_a(atomi)) call errquit('pre_input: align',9999)
-      if(.not.inp_a(atomj)) call errquit('pre_input: align',9999)
-      if(.not.inp_a(atomk)) call errquit('pre_input: align',9999)
+      if(.not.inp_a(atomi)) call md_abort('pre_input: align',9999)
+      if(.not.inp_a(atomj)) call md_abort('pre_input: align',9999)
+      if(.not.inp_a(atomk)) call md_abort('pre_input: align',9999)
       i=index(atomi,':')
-      if(i.le.1) call errquit('pre_input: align atom 1',9999)
+      if(i.le.1) call md_abort('pre_input: align atom 1',9999)
       read(atomi(1:i-1),*) ires
       atomi=atomi(i+1:80)
       i=index(atomj,':')
-      if(i.le.1) call errquit('pre_input: align atom 2',9999)
+      if(i.le.1) call md_abort('pre_input: align atom 2',9999)
       read(atomj(1:i-1),*) jres
       atomj=atomj(i+1:80)
       i=index(atomk,':')
-      if(i.le.1) call errquit('pre_input: align atom 3',9999)
+      if(i.le.1) call md_abort('pre_input: align atom 3',9999)
       read(atomk(1:i-1),*) kres
       atomk=atomk(i+1:80)
       if(atomi(1:1).eq.'_') atomi(1:1)=' '
@@ -1626,7 +1635,7 @@ c
       irrep=0
  6838 continue
       if(.not.inp_i(nxrep)) then
-      if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: repeat 1',9999)
       if(inp_compare(.false.,'random',item)) then
       irrand=4
       goto 6838
@@ -1654,17 +1663,17 @@ c
       if(inp_compare(.false.,'chains',item)) iopt=1
       if(inp_compare(.false.,'molecules',item)) iopt=2
       if(inp_compare(.false.,'fractions',item)) iopt=3
-      if(.not.inp_i(nxrep)) call errquit('pre_input: repeat 2',9999)
+      if(.not.inp_i(nxrep)) call md_abort('pre_input: repeat 2',9999)
       endif
-      if(.not.inp_i(nyrep)) call errquit('pre_input: repeat 3',9999)
-      if(.not.inp_i(nzrep)) call errquit('pre_input: repeat 4',9999)
+      if(.not.inp_i(nyrep)) call md_abort('pre_input: repeat 3',9999)
+      if(.not.inp_i(nzrep)) call md_abort('pre_input: repeat 4',9999)
       if(.not.inp_f(rrep)) then
       endif
       if(.not.inp_f(rdist)) then
       endif
-      if(nxrep.lt.0) call errquit('pre_input: repeat 5',9999)
-      if(nyrep.lt.0) call errquit('pre_input: repeat 6',9999)
-      if(nzrep.lt.-2) call errquit('pre_input: repeat 7',9999)
+      if(nxrep.lt.0) call md_abort('pre_input: repeat 5',9999)
+      if(nyrep.lt.0) call md_abort('pre_input: repeat 6',9999)
+      if(nzrep.lt.-2) call md_abort('pre_input: repeat 7',9999)
       write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt,irrand,invert,
      + irrep
  6851 format('repeat ',3i5,2f12.6,4i5)
@@ -1676,9 +1685,9 @@ c     skip
 c     ----
 c
       if(inp_compare(.false.,'skip',item)) then
-      if(.not.inp_i(iskip)) call errquit('pre_input: skip',9999)
-      if(.not.inp_i(jskip)) call errquit('pre_input: skip',9999)
-      if(.not.inp_i(kskip)) call errquit('pre_input: skip',9999)
+      if(.not.inp_i(iskip)) call md_abort('pre_input: skip',9999)
+      if(.not.inp_i(jskip)) call md_abort('pre_input: skip',9999)
+      if(.not.inp_i(kskip)) call md_abort('pre_input: skip',9999)
       write(68,6859) iskip,jskip,kskip
  6859 format('skip   ',3i5)
       numcmd=numcmd+1
@@ -1696,7 +1705,7 @@ c
       if(.not.inp_f(xmerge(2))) goto 6884
       if(.not.inp_f(xmerge(3))) goto 6884
  6884 continue
-      if(.not.inp_a(item)) call errquit('pre_input: merge',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: merge',9999)
       xmerge(1)=1.0d1*xmerge(1)
       xmerge(2)=1.0d1*xmerge(2)
       xmerge(3)=1.0d1*xmerge(3)
@@ -1710,7 +1719,7 @@ c     maintenance directives
 c     ----------------------
 c
       if(inp_compare(.false.,'master',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: master',9999)
+      if(.not.inp_a(item)) call md_abort('pre_input: master',9999)
       write(68,6880) item(1:index(item,' ')-1)
  6880 format('master ',a)
       numcmd=numcmd+1
@@ -1720,7 +1729,7 @@ c
 c
       write(6,1000) item
  1000 format('pre_input: unknown field ',a)
-      call errquit('pre_input: error reading input file',0)
+      call md_abort('pre_input: error reading input file',0)
 c
 c     end
 c     ---
@@ -1731,128 +1740,128 @@ c     put on rtdb
 c     -----------
 c
       if(.not.rtdb_cput(irtdb,'prep:title',6,title))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(ffield(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:ffield',1,ffield))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       do 316 i=1,9
       if(dirs(i)(1:1).ne.' ') then
       write(string,'(a,i1)') 'prep:dir_',i
       if(.not.rtdb_cput(irtdb,string,1,dirs(i)))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
   316 continue
 c
       if(sysnam(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:sysnam',1,sysnam))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(source(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:source',1,source))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(altloc(1:1).ne.'A') then
       if(.not.rtdb_cput(irtdb,'prep:altloc',1,altloc))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(chain(1:1).ne.'A') then
       if(.not.rtdb_cput(irtdb,'prep:chain',1,chain))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(his(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:his',1,his))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(model.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:model',mt_int,1,model))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(slvnam(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:slvnam',1,slvnam))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
       if(slvmdl(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:slvmdl',1,slvmdl))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(.not.rtdb_put(irtdb,'prep:newtop',mt_int,1,newtop))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:newseq',mt_int,1,newseq))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:nfract',mt_int,1,nfract))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(nfract.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:ifract',mt_int,nfract,ifract))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
 c
       if(.not.rtdb_put(irtdb,'prep:iconst',mt_int,1,iconst))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:icyren',mt_int,1,icyren))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:ncount',mt_int,1,ncount))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(ncount.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:icount',mt_int,ncount,icount))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_cput(irtdb,'prep:scount',ncount,scount))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
       if(.not.rtdb_put(irtdb,'prep:fcount',mt_dbl,1,fcount))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(mgrid.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:rgrid',mt_dbl,1,rgrid))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:nrgrid',mt_int,1,nrgrid))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(nrgrid.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:iogrid',mt_int,nrgrid,iogrid))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:rogrid',mt_int,2*nrgrid,rogrid))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
       endif
 c
       if(.not.rtdb_put(irtdb,'prep:itopol',mt_int,1,itopol))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:ignore',mt_int,1,ignore))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(maxscf.ge.0) then
       if(.not.rtdb_put(irtdb,'prep:maxscf',mt_int,1,maxscf))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
       if(qscale.gt.0.0d0) then
       if(.not.rtdb_put(irtdb,'prep:qscale',mt_dbl,1,qscale))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       endif
       if(.not.rtdb_put(irtdb,'prep:scale',mt_dbl,1,scale))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:cpk',mt_dbl,1,cpk))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:mnoe',mt_int,1,mnoe))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:mpmf',mt_int,1,mpmf))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:nxlnk',mt_int,1,nxlnk))
-     + call errquit('pre_input: rtdb_put failed',0)
+     + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(nummod.gt.0) then
       close(unit=67)
@@ -1873,6 +1882,6 @@ c
       return
 c
  9999 continue
-      call errquit('pre_input failed',9999)
+      call md_abort('pre_input failed',9999)
       return
       end

@@ -5,7 +5,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.22 2003-10-07 15:26:43 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.23 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -87,19 +87,19 @@ c     ---------------------------
 c
       if(card(1:17).eq.'Parameters C6 C12') then
       if(icomb.ne.0.and.icomb.ne.1)
-     + call errquit('Combination rules should not be mixed',9999)
+     + call md_abort('Combination rules should not be mixed',9999)
       icomb=1
       goto 1
       endif
       if(card(1:24).eq.'Parameters epsilon sigma') then
       if(icomb.ne.0.and.icomb.ne.2)
-     + call errquit('Combination rules should not be mixed',9999)
+     + call md_abort('Combination rules should not be mixed',9999)
       icomb=2
       goto 1
       endif
       if(card(1:21).eq.'Parameters epsilon R*') then
       if(icomb.ne.0.and.icomb.ne.3)
-     + call errquit('Combination rules should not be mixed',9999)
+     + call md_abort('Combination rules should not be mixed',9999)
       icomb=3
       goto 1
       endif

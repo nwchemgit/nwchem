@@ -1,7 +1,7 @@
       logical function pre_rdgeom(irtdb,csa,isar,isgm,isfnd,xs,vs,
      + msa,nsa,nmis,msm,nsm)
 c
-c $Id: pre_rdgeom.F,v 1.3 1998-04-29 18:35:21 d3j191 Exp $
+c $Id: pre_rdgeom.F,v 1.4 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -20,13 +20,13 @@ c
       real*8 chrg,coord(3)
 c
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('pre_rdgeom: geom_create failed',9999)
+     + call md_abort('pre_rdgeom: geom_create failed',9999)
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('pre_rdgeom: geom_rtdb_load failed',9999)
+     + call md_abort('pre_rdgeom: geom_rtdb_load failed',9999)
 c
       do 1 i=1,msa
       if(.not.geom_cent_get(igeom,i,tag,coord,chrg))
-     + call errquit('pre_rdgeom: geom_cent_get failed',9999)
+     + call md_abort('pre_rdgeom: geom_cent_get failed',9999)
       xs(1,i)=cau2nm*coord(1)
       xs(2,i)=cau2nm*coord(2)
       xs(3,i)=cau2nm*coord(3)
@@ -40,7 +40,7 @@ c
       nmis=0
 c
       if(.not.geom_destroy(igeom))
-     + call errquit('pre_rdgeom: geom_destroy failed',9999)
+     + call md_abort('pre_rdgeom: geom_destroy failed',9999)
 c
       pre_rdgeom=.true.
       return

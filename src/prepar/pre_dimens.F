@@ -1,7 +1,7 @@
       logical function pre_dimens(lfnout,lfnsgm,
      + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp,nparms)
 c
-c $Id: pre_dimens.F,v 1.9 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_dimens.F,v 1.10 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to determine total system array dimensions
 c
@@ -53,7 +53,7 @@ c     -----------------------
 c
       if(.not.pre_sgmsiz(lfnsgm,filsgm,nsatm,nsbnd,nsang,nsdih,nsimp,
      + nparms))
-     + call errquit('pre_sgmsiz failed',9999)
+     + call md_abort('pre_sgmsiz failed',9999)
 c
       natm=natm+nsatm
       nbnd=nbnd+nsbnd

@@ -1,6 +1,6 @@
       logical function pre_paths2(irtdb)
 c
-c $Id: pre_paths2.F,v 1.2 2003-08-01 00:02:37 d3j191 Exp $
+c $Id: pre_paths2.F,v 1.3 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -41,7 +41,7 @@ c      print*,'PRE_PATHS2'
 c
       if(add) then
       if(dirpar(i)(1:index(string,' ')).ne.string(1:index(string,' ')))
-     + call errquit('Parameter file added from different directory',0)
+     + call md_abort('Parameter file added from different directory',0)
       lend=lend+1
       else
       dirpar(i)=string(1:index(string,' '))

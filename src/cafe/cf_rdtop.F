@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.30 2003-08-19 21:02:01 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.31 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -28,7 +28,7 @@ c
       external cf_charge
 c
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY USE AT START RDTOP',0)
+      call md_abort('ERROR IN MEMORY USE AT START RDTOP',0)
       endif
 c
       if(me.eq.0) then
@@ -71,7 +71,7 @@ c
   101 continue
     1 continue
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY IN RDTOP ATOM TYPES',0)
+      call md_abort('ERROR IN MEMORY IN RDTOP ATOM TYPES',0)
       endif
       do 2 i=1,natyps
       do 3 j=i,natyps
@@ -82,7 +82,7 @@ c
     3 continue
     2 continue
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY IN RDTOP VDWAALS',0)
+      call md_abort('ERROR IN MEMORY IN RDTOP VDWAALS',0)
       endif
       do 4 i=1,nqtyps
       read(lfntop,1007,end=9997,err=9998)
@@ -91,7 +91,7 @@ c
       call cf_parq(i,qdata)
     4 continue
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY IN RDTOP CHARGE TYPES',0)
+      call md_abort('ERROR IN MEMORY IN RDTOP CHARGE TYPES',0)
       endif
       do 4004 i=1,nseq
       read(lfntop,4008,end=9997,err=9998) string
@@ -152,9 +152,9 @@ c
       call cf_parimp(1,i,idata,pdata)
     9 continue
       if(.not.ma_push_get(mt_int,max(ntw,nnw,nts,nxs),'i',l_i,i_i))
-     + call errquit('Failed to allocate temp array',0)
+     + call md_abort('Failed to allocate temp array',0)
       if(.not.ma_push_get(mt_int,max(ntw,nnw,nts,nxs),'j',l_j,i_j))
-     + call errquit('Failed to allocate temp array',0)
+     + call md_abort('Failed to allocate temp array',0)
       if(ntw.gt.0) then
       read(lfntop,1015,end=9997,err=9998) (int_mb(i_i+i-1),i=1,ntw)
  1015 format(11i7)
@@ -172,7 +172,7 @@ c
       read(lfntop,1024,end=9997,err=9998) (ewc(i),i=1,nparms)
  1024 format(f12.6)
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY IN RDTOP SOLVENT',0)
+      call md_abort('ERROR IN MEMORY IN RDTOP SOLVENT',0)
       endif
       do 10 i=1,nas
       read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m,m2,m3,m4
@@ -190,7 +190,7 @@ c      snam(i)=stemp
 c      if(j.gt.nsm) nsm=j
       totchg=totchg+cf_charge(m)
       if(k.gt.msm)
-     + call errquit('Topology and Restart are incompatible',0)
+     + call md_abort('Topology and Restart are incompatible',0)
       if(m4.lt.0) nhop=nhop+1
    10 continue
       if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto)
@@ -251,13 +251,13 @@ c      if(j.gt.nsm) nsm=j
       read(lfntop,1023,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nxs)
       endif
       call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
-      if(.not.ma_pop_stack(l_j)) call errquit('Dealloc failed',0)
-      if(.not.ma_pop_stack(l_i)) call errquit('Dealloc failed',0)
+      if(.not.ma_pop_stack(l_j)) call md_abort('Dealloc failed',0)
+      if(.not.ma_pop_stack(l_i)) call md_abort('Dealloc failed',0)
 c
       close(unit=lfntop)
 c
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY IN RDTOP',1)
+      call md_abort('ERROR IN MEMORY IN RDTOP',1)
       endif
 c
       endif
@@ -381,13 +381,13 @@ c
       mmuli=nmult(1)+nmult(2)+nmult(3)+nmult(4)
       if(mmult.gt.0) then
       if(.not.ma_push_get(mt_int,mmuli,'ixmul',l_ixmul,i_ixmul))
-     + call errquit('Failed to allocate memory for ixmul',0)
+     + call md_abort('Failed to allocate memory for ixmul',0)
       if(.not.ma_push_get(mt_int,4*mmult,'imul',l_imul,i_imul))
-     + call errquit('Failed to allocate memory for imul',0)
+     + call md_abort('Failed to allocate memory for imul',0)
       if(.not.ma_push_get(mt_dbl,3*mmult,'xmul',l_xmul,i_xmul))
-     + call errquit('Failed to allocate memory for xmul',0)
+     + call md_abort('Failed to allocate memory for xmul',0)
       if(.not.ma_push_get(mt_dbl,3*mmult,'fmul',l_fmul,i_fmul))
-     + call errquit('Failed to allocate memory for fmul',0)
+     + call md_abort('Failed to allocate memory for fmul',0)
       call cf_lstmul(int_mb(i_ixmul),int_mb(i_imul),
      + mbt(2),int_mb(i_ibnd(2)),mht(2),int_mb(i_iang(2)),
      + mdt(2),int_mb(i_idih(2)),mit(2),int_mb(i_iimp(2)))
@@ -409,17 +409,17 @@ c
      + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+nsad-nsc-3*islow))
 c
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY USE AFTER RDTOP',0)
+      call md_abort('ERROR IN MEMORY USE AFTER RDTOP',0)
       endif
 c
       return
 c
  9997 continue
-      call errquit('EOF reading topology file',0)
+      call md_abort('EOF reading topology file',0)
  9998 continue
-      call errquit('Error reading topology file',0)
+      call md_abort('Error reading topology file',0)
  9999 continue
-      call errquit('Failed to open topology file',0)
+      call md_abort('Failed to open topology file',0)
       return
       end
       subroutine cf_topol_init()

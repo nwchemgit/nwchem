@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.41 2003-10-17 14:56:06 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.42 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          integer lfnpdb    = logical file number for pdb file
@@ -63,14 +63,14 @@ c
       if(source(1:3).eq.'pdb') then
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,model,
      + natm,nseq,nssb,nlnk,slvnam,numslv,altloc,chain))
-     + call errquit('pre_pdbsiz failed',9999)
+     + call md_abort('pre_pdbsiz failed',9999)
       else
       if(.not.geom_create(igeom,source))
-     + call errquit('pre_mkseq: geom_create failed',0)
+     + call md_abort('pre_mkseq: geom_create failed',0)
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('pre_mkseq: geom_rtdb_load failed',0)
+     + call md_abort('pre_mkseq: geom_rtdb_load failed',0)
       if(.not.geom_ncent(igeom,natm))
-     + call errquit('pre_mkseq: geom_ncent failed',0)
+     + call md_abort('pre_mkseq: geom_ncent failed',0)
       nseq=1
       nssb=0
       nlnk=0
@@ -94,24 +94,24 @@ c                  4       : atom center type
 c                  5       : link number
 c
       if(.not.ma_push_get(mt_int,5*matm,'latm',l_latm,i_latm))
-     + call errquit('Memory allocation failed for latm',9999)
+     + call md_abort('Memory allocation failed for latm',9999)
 c
 c     char*6  catm(1,matm) : atom name on pdb
 c                  2       : atom name on top
 c                  3       : atom type
 c
       if(.not.ma_push_get(mt_byte,18*matm,'catm',l_catm,i_catm))
-     + call errquit('Memory allocation failed for catm',9999)
+     + call md_abort('Memory allocation failed for catm',9999)
 c
 c     real*8  xatm(1:3,matm) : atomic coordinates in nm
 c
       if(.not.ma_push_get(mt_dbl,3*matm,'xatm',l_xatm,i_xatm))
-     + call errquit('Memory allocation failed for xatm',9999)
+     + call md_abort('Memory allocation failed for xatm',9999)
 c
 c     real*8 qatm(matm) : partial atomic charges
 c
       if(.not.ma_push_get(mt_dbl,matm,'qatm',l_qatm,i_qatm))
-     + call errquit('Memory allocation failed for qatm',9999)
+     + call md_abort('Memory allocation failed for qatm',9999)
 c
 c     allocate memory for secondary segment links
 c     -------------------------------------------
@@ -120,7 +120,7 @@ c     integer lssb(1,mssb) : link segment 1
 c                  2       : link segment 2
 c
       if(.not.ma_push_get(mt_int,2*mssb,'lssb',l_lssb,i_lssb))
-     + call errquit('Memory allocation failed for lssb',9999)
+     + call md_abort('Memory allocation failed for lssb',9999)
 c
 c     integer llnk(1,mlnk) : link segment 1
 c                  2       : link segment 2 atom number
@@ -130,9 +130,9 @@ c     char*4  clnk(1,mlnk) : link segment 1 atom name
 c                  2       : link segment 2 atom name
 c
       if(.not.ma_push_get(mt_int,4*mlnk,'llnk',l_llnk,i_llnk))
-     + call errquit('Memory allocation failed for llnk',9999)
+     + call md_abort('Memory allocation failed for llnk',9999)
       if(.not.ma_push_get(mt_byte,8*mlnk,'clnk',l_clnk,i_clnk))
-     + call errquit('Memory allocation failed for clnk',9999)
+     + call md_abort('Memory allocation failed for clnk',9999)
 c
 c     allocate memory for sequence
 c     ----------------------------
@@ -143,13 +143,13 @@ c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
       if(.not.ma_push_get(mt_int,6*mseq,'lseq',l_lseq,i_lseq))
-     + call errquit('Memory allocation failed for lseq',9999)
+     + call md_abort('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
 c                  2       : name of sequence entry on top
 c
       if(.not.ma_push_get(mt_byte,10*mseq,'cseq',l_cseq,i_cseq))
-     + call errquit('Memory allocation failed for cseq',9999)
+     + call md_abort('Memory allocation failed for cseq',9999)
 c
 c
 c     read the sequence and atom list from the pdb file
@@ -161,7 +161,7 @@ c
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,altloc,chain))
-     + call errquit('pre_pdbseq failed',9999)
+     + call md_abort('pre_pdbseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2000) filpdb(1:index(filpdb,' ')-1)
  2000 format(' PDB geometry',t40,a,/)
@@ -170,7 +170,7 @@ c
       if(.not.pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm))
-     + call errquit('pre_rtdbsq failed',9999)
+     + call md_abort('pre_rtdbsq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2001)
  2001 format(' RTDB geometry',/)
@@ -183,7 +183,7 @@ c
       if(.not.pre_namiup(lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
-     + call errquit('pre_namiup failed',9999)
+     + call md_abort('pre_namiup failed',9999)
 c
 c     assign segments if not obtained from pdb
 c     ----------------------------------------
@@ -192,9 +192,9 @@ c     dallocate memory for sequence
 c     -----------------------------
 c
 c      if(.not.ma_pop_stack(l_cseq))
-c     + call errquit('Memory deallocation failed for cseq',9999)
+c     + call md_abort('Memory deallocation failed for cseq',9999)
 c      if(.not.ma_pop_stack(l_lseq))
-c     + call errquit('Memory deallocation failed for lseq',9999)
+c     + call md_abort('Memory deallocation failed for lseq',9999)
 c
 c     reallocate memory for sequence
 c     ------------------------------
@@ -205,13 +205,13 @@ c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
 c      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
-c     + call errquit('Memory allocation failed for lseq',9999)
+c     + call md_abort('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
 c                  2       : name of sequence entry on top
 c
 c      if(.not.ma_push_get(mt_byte,10*mseq,'cseq',l_cseq,i_cseq))
-c     + call errquit('Memory allocation failed for cseq',9999)
+c     + call md_abort('Memory allocation failed for cseq',9999)
 c
 c     check segment links
 c     -------------------
@@ -220,30 +220,30 @@ c
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk,nlnkf))
-     + call errquit('pre_links failed',9999)
+     + call md_abort('pre_links failed',9999)
 c
 c     comply with force field segment names
 c     -------------------------------------
 c
       if(.not.pre_rename(lfnout,lfnmod,filmod,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
-     + int_mb(i_latm),byte_mb(i_catm),matm,natm,
-     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,icyren,his))
-     + call errquit('pre_rename failed',9999)
+     + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
+     + byte_mb(i_clnk),mlnk,nlnk,icyren,his))
+     + call md_abort('pre_rename failed',9999)
 c
 c     write atom names to temporary file
 c     ----------------------------------
 c
       if(.not.pre_wrtnam(lfnout,lfntmp,filtmp,
      + byte_mb(i_catm),matm,natm))
-     + call errquit('pre_wrtnam failed',9999)
+     + call md_abort('pre_wrtnam failed',9999)
 c
 c     get number of unique segments
 c     -----------------------------
 c
       if(.not.pre_sgmnum(lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,nsgm))
-     + call errquit('pre_sgmnum failed',9999)
+     + call md_abort('pre_sgmnum failed',9999)
 c
 c     set dimension
 c     -------------
@@ -258,12 +258,12 @@ c                  2       : source, 0,1,2,3,4=?,s,x,u,t
 c                  3       : number of atoms in segment
 c
       if(.not.ma_push_get(mt_int,3*msgm,'lsgm',l_lsgm,i_lsgm))
-     + call errquit('Memory allocation failed for lsgm',9999)
+     + call md_abort('Memory allocation failed for lsgm',9999)
 c
 c     char*5  csgm(msgm)   : segment names
 c
       if(.not.ma_push_get(mt_byte,5*msgm,'csgm',l_csgm,i_csgm))
-     + call errquit('Memory allocation failed for csgm',9999)
+     + call md_abort('Memory allocation failed for csgm',9999)
 c
 c     scan the database directories for segment files
 c     -----------------------------------------------
@@ -286,19 +286,19 @@ c     allocate memory for segment atom lists
 c     --------------------------------------
 c
       if(.not.ma_push_get(mt_int,5*mato,'lato',l_lato,i_lato))
-     + call errquit('Memory allocation failed for lato',9999)
+     + call md_abort('Memory allocation failed for lato',9999)
 c
       if(.not.ma_push_get(mt_byte,18*mato,'cato',l_cato,i_cato))
-     + call errquit('Memory allocation failed for cato',9999)
+     + call md_abort('Memory allocation failed for cato',9999)
 c
       if(.not.ma_push_get(mt_dbl,3*mato,'xato',l_xato,i_xato))
-     + call errquit('Memory allocation failed for xato',9999)
+     + call md_abort('Memory allocation failed for xato',9999)
 c
       if(.not.ma_push_get(mt_dbl,mato,'qato',l_qato,i_qato))
-     + call errquit('Memory allocation failed for qato',9999)
+     + call md_abort('Memory allocation failed for qato',9999)
 c
       if(.not.ma_push_get(mt_int,2*mfrb,'frb',l_frb,i_frb))
-     + call errquit('mkseq: Memory allocation failed for frb',9999)
+     + call md_abort('mkseq: Memory allocation failed for frb',9999)
 c
 c     allocate memory for the bonded lists
 c     ------------------------------------
@@ -306,22 +306,22 @@ c
 c     integer lbnd(1:2,mbnd) : bond indices
 c
       if(.not.ma_push_get(mt_int,2*mbnd,'bnd',l_bnd,i_bnd))
-     + call errquit('mkseq: Memory allocation failed for bnd',9999)
+     + call md_abort('mkseq: Memory allocation failed for bnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
 c
       if(.not.ma_push_get(mt_int,3*mang,'ang',l_ang,i_ang))
-     + call errquit('mkseq: Memory allocation failed for ang',9999)
+     + call md_abort('mkseq: Memory allocation failed for ang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mdih,'dih',l_dih,i_dih))
-     + call errquit('mkseq: Memory allocation failed for dih',9999)
+     + call md_abort('mkseq: Memory allocation failed for dih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mimp,'imp',l_imp,i_imp))
-     + call errquit('mkseq: Memory allocation failed for imp',9999)
+     + call md_abort('mkseq: Memory allocation failed for imp',9999)
 c
 c     generate fragment files for missing segments in dir_t
 c
@@ -335,29 +335,29 @@ c
      + int_mb(i_bnd),mbnd,int_mb(i_ang),mang,int_mb(i_dih),mdih,
      + int_mb(i_imp),mimp,maxscf,qscale,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
-     + call errquit('pre_mkfrg failed',9999)
+     + call md_abort('pre_mkfrg failed',9999)
 c
 c     deallocate memory
 c     -----------------
 c
       if(.not.ma_pop_stack(l_imp))
-     + call errquit('mkseq: Memory deallocation failed for imp',9999)
+     + call md_abort('mkseq: Memory deallocation failed for imp',9999)
       if(.not.ma_pop_stack(l_dih))
-     + call errquit('mkseq: Memory deallocation failed for dih',9999)
+     + call md_abort('mkseq: Memory deallocation failed for dih',9999)
       if(.not.ma_pop_stack(l_ang))
-     + call errquit('mkseq: Memory deallocation failed for ang',9999)
+     + call md_abort('mkseq: Memory deallocation failed for ang',9999)
       if(.not.ma_pop_stack(l_bnd))
-     + call errquit('mkseq: Memory deallocation failed for bnd',9999)
+     + call md_abort('mkseq: Memory deallocation failed for bnd',9999)
       if(.not.ma_pop_stack(l_frb))
-     + call errquit('Memory deallocation failed for frb',9999)
+     + call md_abort('Memory deallocation failed for frb',9999)
       if(.not.ma_pop_stack(l_qato))
-     + call errquit('Memory deallocation failed for qato',9999)
+     + call md_abort('Memory deallocation failed for qato',9999)
       if(.not.ma_pop_stack(l_xato))
-     + call errquit('Memory deallocation failed for xato',9999)
+     + call md_abort('Memory deallocation failed for xato',9999)
       if(.not.ma_pop_stack(l_cato))
-     + call errquit('Memory deallocation failed for cato',9999)
+     + call md_abort('Memory deallocation failed for cato',9999)
       if(.not.ma_pop_stack(l_lato))
-     + call errquit('Memory deallocation failed for lato',9999)
+     + call md_abort('Memory deallocation failed for lato',9999)
       endif
 c
 c     generate segment files
@@ -365,7 +365,7 @@ c     ----------------------
 c
       if(.not.pre_gensgm(lfnout,lfnfrg,lfnsgm,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm))
-     + call errquit('pre_gensgm failed',9999)
+     + call md_abort('pre_gensgm failed',9999)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1001)
@@ -380,7 +380,7 @@ c
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl,
      + mcount,ncount,icount,scount,mfract,nfract,ifract))
-     + call errquit('pre_wrtseq failed',9999)
+     + call md_abort('pre_wrtseq failed',9999)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1002)
@@ -391,31 +391,31 @@ c     deallocate memory
 c     -----------------
 c
       if(.not.ma_pop_stack(l_csgm))
-     + call errquit('Memory deallocation failed for csgm',9999)
+     + call md_abort('Memory deallocation failed for csgm',9999)
       if(.not.ma_pop_stack(l_lsgm))
-     + call errquit('Memory deallocation failed for lsgm',9999)
+     + call md_abort('Memory deallocation failed for lsgm',9999)
       if(.not.ma_pop_stack(l_cseq))
-     + call errquit('Memory deallocation failed for cseq',9999)
+     + call md_abort('Memory deallocation failed for cseq',9999)
       if(.not.ma_pop_stack(l_lseq))
-     + call errquit('Memory deallocation failed for lseq',9999)
+     + call md_abort('Memory deallocation failed for lseq',9999)
       if(.not.ma_pop_stack(l_clnk))
-     + call errquit('Memory deallocation failed for clnk',9999)
+     + call md_abort('Memory deallocation failed for clnk',9999)
       if(.not.ma_pop_stack(l_llnk))
-     + call errquit('Memory deallocation failed for llnk',9999)
+     + call md_abort('Memory deallocation failed for llnk',9999)
       if(.not.ma_pop_stack(l_lssb))
-     + call errquit('Memory deallocation failed for lssb',9999)
+     + call md_abort('Memory deallocation failed for lssb',9999)
       if(.not.ma_pop_stack(l_qatm))
-     + call errquit('Memory deallocation failed for qatm',9999)
+     + call md_abort('Memory deallocation failed for qatm',9999)
       if(.not.ma_pop_stack(l_xatm))
-     + call errquit('Memory deallocation failed for xatm',9999)
+     + call md_abort('Memory deallocation failed for xatm',9999)
       if(.not.ma_pop_stack(l_catm))
-     + call errquit('Memory deallocation failed for catm',9999)
+     + call md_abort('Memory deallocation failed for catm',9999)
       if(.not.ma_pop_stack(l_latm))
-     + call errquit('Memory deallocation failed for latm',9999)
+     + call md_abort('Memory deallocation failed for latm',9999)
 c
       if(source(1:3).ne.'pdb') then
       if(.not.geom_destroy(igeom))
-     + call errquit('pre_mkseq: geom_destroy failed',9999)
+     + call md_abort('pre_mkseq: geom_destroy failed',9999)
       endif
 c
       pre_mkseq=.true.

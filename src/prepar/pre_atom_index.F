@@ -1,6 +1,6 @@
       integer function pre_atom_index(card,isegm,csa,msa,nsa)
 c
-c $Id: pre_atom_index.F,v 1.2 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_atom_index.F,v 1.3 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       ifr=0
       iatom=0
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find group number',9999)
+     + call md_abort('Unable to find group number',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       if(ndx.eq.0) then
@@ -33,7 +33,7 @@ c
       read(target(1:ndx-1),*,err=9999) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       endif
       iatom=0
       do 1 i=1,nsa
@@ -44,7 +44,7 @@ c
       endif
     1 continue
     3 format(' Unable to find  atom ',i4,':',a4)
-      call errquit('Atom in atom_index not found:',isgm)
+      call md_abort('Atom in atom_index not found:',isgm)
     2 continue
 c
       pre_atom_index=iatom

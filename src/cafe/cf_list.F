@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.29 2003-10-15 15:47:18 d3j191 Exp $
+c $Id: cf_list.F,v 1.30 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -75,7 +75,7 @@ c
       endif
     9 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 5 ilist=1,nlist
       lwwj(npairs+ilist)=list(ilist,1)
     5 continue
@@ -95,7 +95,7 @@ c
       endif
    12 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 13 ilist=1,nlist
       lwwj(npairs+ilist)=list(ilist,2)
    13 continue
@@ -182,7 +182,7 @@ c
       endif
   402 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 5 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,1)
     5 continue
@@ -202,7 +202,7 @@ c
       endif
  8402 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 8005 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,2)
  8005 continue
@@ -305,7 +305,7 @@ c
       lswin(iisa-isafr+1,1)=nlist
    18 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 19 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,1)
    19 continue
@@ -327,7 +327,7 @@ c
       lswin(iisa-isafr+1,2)=nlist
  8018 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 8019 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,2)
  8019 continue
@@ -474,7 +474,7 @@ c
       endif
     4 continue
       if(npairs+nlist1+nlist2.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 11 ilist=1,nlist1
       lssj(npairs+ilist)=list(ilist,1)
    11 continue
@@ -608,7 +608,7 @@ c
 c      write(*,2222) nlda,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
 c     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),sqrt(rw(jsa))
  2222 format(9i5,f12.6)
-      if(nlda.gt.3*nhop) call errquit('Increase nhop',nhop)
+      if(nlda.gt.3*nhop) call md_abort('Increase nhop',nhop)
       lda(1,nlda)=iga(idon)
       lda(2,nlda)=idon
       lda(3,nlda)=isgm(idon)
@@ -902,7 +902,7 @@ c     + iand(iss(jsa),256).ne.0
       endif
    59 continue
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       leq=0
 c
 c     check if this pairlist section was generated before
@@ -916,7 +916,7 @@ c
 c
       if(leq.eq.0) then
       if(npairs+nlist.gt.mpairs)
-     + call errquit('Insufficient memory for pairlist',0)
+     + call md_abort('Insufficient memory for pairlist',0)
       do 61 ilist=1,nlist
       lssj(npairs+ilist)=list(ilist,3)
    61 continue
@@ -1003,7 +1003,7 @@ c      if(lbi.or.lbj) then
       nbonds=nbonds+1
       if(idb(isb,3).eq.1) nconst=nconst+1
       if(nbonds.gt.mbonds)
-     + call errquit('Insufficient memory for bond list',0)
+     + call md_abort('Insufficient memory for bond list',0)
       lbonds(nbonds)=isb
 c      endif
       endif
@@ -1093,7 +1093,7 @@ c
       nangls=nangls+1
       if(idh(ish,4).eq.1) nconst=nconst+1
       if(nangls.gt.mangls)
-     + call errquit('Insufficient memory for angle list',0)
+     + call md_abort('Insufficient memory for angle list',0)
       langls(nangls)=ish
       endif
       endif
@@ -1190,7 +1190,7 @@ c
       ndihes=ndihes+1
       if(idd(isd,5).eq.1) nconst=nconst+1
       if(ndihes.gt.mdihes)
-     + call errquit('Insufficient memory for torsion list',0)
+     + call md_abort('Insufficient memory for torsion list',0)
       ldihes(ndihes)=isd
       endif
       endif
@@ -1292,7 +1292,7 @@ c
       nimprs=nimprs+1
       if(ido(iso,5).eq.1) nconst=nconst+1
       if(nimprs.gt.mimprs)
-     + call errquit('Insufficient memory for improper list',0)
+     + call md_abort('Insufficient memory for improper list',0)
       limprs(nimprs)=iso
       endif
       endif
@@ -1383,7 +1383,7 @@ c
       if((lself.and.nti.eq.2).or.(.not.lself.and.nti.eq.4)) then
       nthird=nthird+1
       if(nthird.gt.mthird)
-     + call errquit('Insufficient memory for third neighbor list',0)
+     + call md_abort('Insufficient memory for third neighbor list',0)
       lthird(nthird)=ist
       endif
       endif
@@ -1410,7 +1410,7 @@ c
       if(idtn(isa-1,1).lt.ist.and.idtn(isa,1).ge.ist) goto 11
    10 continue
    11 continue
-      if(itloc.lt.0) call errquit('Error in cf_lst',me)
+      if(itloc.lt.0) call md_abort('Error in cf_lst',me)
       jtloc=itemp(idtn(ist,2))
       iq=iand(idt(itloc),lquant)
       jq=iand(idt(jtloc),lquant)

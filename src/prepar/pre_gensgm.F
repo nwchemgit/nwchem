@@ -1,7 +1,7 @@
       logical function pre_gensgm(lfnout,lfnfrg,lfnsgm,
      + lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_gensgm.F,v 1.9 2003-08-07 21:47:55 d3j191 Exp $
+c $Id: pre_gensgm.F,v 1.10 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to generate segment files
 c
@@ -59,7 +59,7 @@ c
       endif
 c
       if(.not.pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm))
-     + call errquit('pre_mksgm failed',9999)
+     + call md_abort('pre_mksgm failed',9999)
 c
       lsgm(2,i)=mdirpar
       endif

@@ -4,7 +4,7 @@
      + isar,isgm,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep,
      + mseq,nseq,lseq,ips,istat,lfnmod,filmod,itopol)
 c
-c $Id: pre_wrtrst.F,v 1.18 2003-08-07 21:47:56 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.19 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -30,7 +30,7 @@ c
 c     process modifications
 c
       if(.not.pre_rstmod(lseq,mseq,nseq,lfnmod,filmod,lfnout))
-     + call errquit('pre_rstmod failed',9999)
+     + call md_abort('pre_rstmod failed',9999)
 c
       if(itopol.eq.3) then
       do 111 i=1,nsa
@@ -46,7 +46,7 @@ c     + ips(i)
       endif
 c
       if(.not.pre_ssize(isgm,xs,msa,nsa,rsgm))
-     + call errquit('pre_ssize failed',9999)
+     + call md_abort('pre_ssize failed',9999)
 c
 c     open the restart file
 c     ---------------------

@@ -6,7 +6,7 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.18 2003-09-09 23:26:31 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.19 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
      + nsatm,nsbnd,nsang,nsdih,nsimp,nzmat,npar,ipardef
  1002 format(8i5)
       if(ipardef.eq.0) ipardef=1
-      if(npar.gt.nparms) call errquit('Error in number par sets',npar)
+      if(npar.gt.nparms) call md_abort('Error in number par sets',npar)
       do 2 i=1,npar
       read(lfnsgm,1003) wcorr(i)
  1003 format(f12.6)
@@ -76,11 +76,11 @@ c
       wcorr(i)=wcorr(npar)
   102 continue
 c
-      if(natm+nsatm.gt.matm) call errquit('increase matm',9999)
-      if(nbnd+nsbnd.gt.mbnd) call errquit('increase mbnd',9999)
-      if(nang+nsang.gt.mang) call errquit('increase mang',9999)
-      if(ndih+nsdih.gt.mdih) call errquit('increase mdih',9998)
-      if(nimp+nsimp.gt.mimp) call errquit('increase mimp',9999)
+      if(natm+nsatm.gt.matm) call md_abort('increase matm',9999)
+      if(nbnd+nsbnd.gt.mbnd) call md_abort('increase mbnd',9999)
+      if(nang+nsang.gt.mang) call md_abort('increase mang',9999)
+      if(ndih+nsdih.gt.mdih) call md_abort('increase mdih',9998)
+      if(nimp+nsimp.gt.mimp) call md_abort('increase mimp',9999)
 c
 c     read the atom list
 c     ------------------

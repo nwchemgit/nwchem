@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.16 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_init.F,v 1.17 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
       if(.not.rtdb_cget(irtdb,'arg:project',1,filnam)) then
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,filnam)) then
       if(.not.rtdb_cget(irtdb,'file_prefix',1,filnam))
-     + call errquit('arg_rdname: error rtdb_cget project',0)
+     + call md_abort('arg_rdname: error rtdb_cget project',0)
       endif
       endif
       endif
@@ -50,29 +50,29 @@ c
 c     allocate memory
 c
       if(.not.ma_push_get(mt_int,nsa,'hbnd',l_hbnd,i_hbnd))
-     + call errquit('Failed to allocate memory for hbnd',me)
+     + call md_abort('Failed to allocate memory for hbnd',me)
       if(.not.ma_push_get(mt_int,nsa,'isel',l_isel,i_isel))
-     + call errquit('Failed to allocate memory for isel',me)
+     + call md_abort('Failed to allocate memory for isel',me)
       if(.not.ma_push_get(mt_int,nsa,'ssel',l_ssel,i_ssel))
-     + call errquit('Failed to allocate memory for ssel',me)
+     + call md_abort('Failed to allocate memory for ssel',me)
       if(.not.ma_push_get(mt_int,nsa,'osel',l_osel,i_osel))
-     + call errquit('Failed to allocate memory for osel',me)
+     + call md_abort('Failed to allocate memory for osel',me)
 c
       if(.not.ma_push_get(mt_byte,48*nsa,'tag',l_tag,i_tag))
-     + call errquit('Failed to allocate memory for tag',me)
+     + call md_abort('Failed to allocate memory for tag',me)
       if(.not.ma_push_get(mt_dbl,2*nsa,'val',l_val,i_val))
-     + call errquit('Failed to allocate memory for val',me)
+     + call md_abort('Failed to allocate memory for val',me)
 c
       if(.not.ma_push_get(mt_dbl,3*nsa,'xref',l_xref,i_xref))
-     + call errquit('Failed to allocate memory for xref',me)
+     + call md_abort('Failed to allocate memory for xref',me)
       if(.not.ma_push_get(mt_dbl,nsa,'xrms',l_xrms,i_xrms))
-     + call errquit('Failed to allocate memory for xrms',me)
+     + call md_abort('Failed to allocate memory for xrms',me)
       if(.not.ma_push_get(mt_dbl,nsa,'wt',l_wt,i_wt))
-     + call errquit('Failed to allocate memory for wt',me)
+     + call md_abort('Failed to allocate memory for wt',me)
       if(.not.ma_push_get(mt_dbl,nsa,'swt',l_swt,i_swt))
-     + call errquit('Failed to allocate memory for swt',me)
+     + call md_abort('Failed to allocate memory for swt',me)
       if(.not.ma_push_get(mt_dbl,nsa,'owt',l_owt,i_owt))
-     + call errquit('Failed to allocate memory for owt',me)
+     + call md_abort('Failed to allocate memory for owt',me)
 c
 c     initialize rms and wt arrays
 c
@@ -92,23 +92,23 @@ c     currently only solute coordinates are analyzed
 c
       if(ltask) then
       if(.not.ma_push_get(mt_byte,16*nsa,'sgmnam',l_snam,i_snam))
-     + call errquit('Failed to allocate memory for sgmnam',me)
+     + call md_abort('Failed to allocate memory for sgmnam',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xdat',l_xdat,i_xdat))
-     + call errquit('Failed to allocate memory for xdat',me)
+     + call md_abort('Failed to allocate memory for xdat',me)
       if(.not.ma_push_get(mt_dbl,nsa,'qdat',l_qdat,i_qdat))
-     + call errquit('Failed to allocate memory for qdat',me)
+     + call md_abort('Failed to allocate memory for qdat',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xadat',l_xadat,i_xadat))
-     + call errquit('Failed to allocate memory for xadat',me)
+     + call md_abort('Failed to allocate memory for xadat',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xp',l_xp,i_xp))
-     + call errquit('Failed to allocate memory for xp',me)
+     + call md_abort('Failed to allocate memory for xp',me)
       if(.not.ma_push_get(mt_int,nsa,'idat',l_idat,i_idat))
-     + call errquit('Failed to allocate memory for idat',me)
+     + call md_abort('Failed to allocate memory for idat',me)
       if(.not.ma_push_get(mt_dbl,3*mwm*mwa,'wdat',l_wdat,i_wdat))
-     + call errquit('Failed to allocate memory for wdat',me)
+     + call md_abort('Failed to allocate memory for wdat',me)
       if(.not.ma_push_get(mt_int,mwm,'wdat',l_wsel,i_wsel))
-     + call errquit('Failed to allocate memory for wsel',me)
+     + call md_abort('Failed to allocate memory for wsel',me)
       if(.not.ma_push_get(mt_int,mwm,'ndxw',l_ndxw,i_ndxw))
-     + call errquit('Failed to allocate memory for ndxw',me)
+     + call md_abort('Failed to allocate memory for ndxw',me)
       endif
 c
 c     set the number of analyzed frames to zero

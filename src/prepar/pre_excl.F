@@ -2,7 +2,7 @@
      + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx,catt,matt,
      + lats,mats,latm,matm,natm,lupdat)
 c
-c $Id: pre_excl.F,v 1.8 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_excl.F,v 1.9 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
 c
       integer i,j,k,l,in,jn,ln,itmp,ir
 c
-      if(n3rd.gt.mexc) call errquit('increase mexc',9999)
+      if(n3rd.gt.mexc) call md_abort('increase mexc',9999)
       do 1 i=1,n3rd
       lexc(1,i)=l3rd(1,i)
       lexc(2,i)=l3rd(2,i)
@@ -27,13 +27,13 @@ c
 c
       do 2 i=1,nbnd
       nexc=nexc+1
-      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      if(nexc.gt.mexc) call md_abort('increase mexc',9999)
       lexc(1,nexc)=lbnd(1,i)
       lexc(2,nexc)=lbnd(2,i)
     2 continue
       do 3 i=1,nang
       nexc=nexc+1
-      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      if(nexc.gt.mexc) call md_abort('increase mexc',9999)
       lexc(1,nexc)=min(lang(1,i),lang(3,i))
       lexc(2,nexc)=max(lang(1,i),lang(3,i))
     3 continue
@@ -44,7 +44,7 @@ c
       do 5 j=i+1,natm
       if(catt(1,lats(3,latm(3,j)))(6:6).eq.'D') then
       nexc=nexc+1
-      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      if(nexc.gt.mexc) call md_abort('increase mexc',9999)
       lexc(1,nexc)=i
       lexc(2,nexc)=j
       write(*,'(a,2i5)') 'Excluding ',i,j
@@ -54,7 +54,7 @@ c
       do 6 j=i+1,natm
       if(catt(1,lats(2,latm(3,j)))(6:6).eq.'D') then
       nexc=nexc+1
-      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      if(nexc.gt.mexc) call md_abort('increase mexc',9999)
       lexc(1,nexc)=i
       lexc(2,nexc)=j
       write(*,'(a,2i5)') 'Excluding ',i,j

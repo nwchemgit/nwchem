@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.18 2002-06-12 17:35:48 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.19 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -26,11 +26,11 @@ c
 c     allocate memory for coordinates and charges
 c
       if(.not.ma_push_get(mt_dbl,3*nsa,'x',l_x,i_x))
-     + call errquit('Failed to allocate memory for x',me)
+     + call md_abort('Failed to allocate memory for x',me)
       if(.not.ma_push_get(mt_dbl,nq*nsa,'q',l_q,i_q))
-     + call errquit('Failed to allocate memory for q',me)
+     + call md_abort('Failed to allocate memory for q',me)
       if(.not.ma_push_get(mt_byte,2*nsa,'t',l_t,i_t))
-     + call errquit('Failed to allocate memory for t',me)
+     + call md_abort('Failed to allocate memory for t',me)
 c
 c     read coordinates and charges
 c
@@ -53,7 +53,7 @@ c
  2001 format(' Periodic boundary conditions')
 c
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid)) then
-      call errquit('Failed to allocate memory for grid',me)
+      call md_abort('Failed to allocate memory for grid',me)
       endif
 c
 c     calculate the electrostatic potential on the grid
@@ -64,18 +64,18 @@ c
 c     deallocate memory
 c
       if(.not.ma_pop_stack(l_grid))
-     + call errquit('Failed to deallocate grid',0)
+     + call md_abort('Failed to deallocate grid',0)
       if(.not.ma_pop_stack(l_t))
-     + call errquit('Failed to deallocate t',0)
+     + call md_abort('Failed to deallocate t',0)
       if(.not.ma_pop_stack(l_q))
-     + call errquit('Failed to deallocate q',0)
+     + call md_abort('Failed to deallocate q',0)
       if(.not.ma_pop_stack(l_x))
-     + call errquit('Failed to deallocate x',0)
+     + call md_abort('Failed to deallocate x',0)
 c
       close(unit=lfnchg)
       return
  9999 continue
-      call errquit('ana_pltgrd: error',0)
+      call md_abort('ana_pltgrd: error',0)
       return
       end
       subroutine ana_rdchg(x,q,t)

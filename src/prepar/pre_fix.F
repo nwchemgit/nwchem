@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.8 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_fix.F,v 1.9 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -46,10 +46,10 @@ c
       endif
   999 continue
       if(ndy-ndx.gt.5)
-     + call errquit('pre_fix: atom name problem',9999)
+     + call md_abort('pre_fix: atom name problem',9999)
       aname(1:ndy-ndx)=cfix(ndx+1:ndy)
       else
-      if(ndy.gt.5) call errquit('pre_modify: atom name problem',9999)
+      if(ndy.gt.5) call md_abort('pre_modify: atom name problem',9999)
       aname(1:ndy-1)=cfix(1:ndy-1)
       endif
       do 1 i=1,index(aname,' ')-1
@@ -89,7 +89,7 @@ c
       if(util_print('restart',print_low)) then
       write(lfnout,'(a,i8,a,a)') 'Unable to find ',isgmnt,':',aname
       endif
-      call errquit('pre_fix: center not found',9999)
+      call md_abort('pre_fix: center not found',9999)
       endif
 c
       if(util_print('restart',print_high)) then

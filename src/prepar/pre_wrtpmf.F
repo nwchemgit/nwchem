@@ -57,7 +57,7 @@ c
       nume=1
       if(mgroup(ipmf(i,2)).gt.0) then
       l=iequi(mgroup(ipmf(i,2)),3)
-      if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
+      if(l.ne.0) call md_abort('pmf not on first equivalent molecule',0)
       do 51 j=1,nsm
       if(iequi(j,3).eq.mgroup(ipmf(i,2))) then
       nump=nump+lgroup(ipmf(i,2))
@@ -77,7 +77,7 @@ c
       nume=1
       if(mgroup(ipmf(i,2)).gt.0) then
       l=iequi(mgroup(ipmf(i,2)),3)
-      if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
+      if(l.ne.0) call md_abort('pmf not on first equivalent molecule',0)
       do 52 j=1,nsm
       if(iequi(j,3).eq.mgroup(ipmf(i,2))) then
       nume=nume+1
@@ -135,7 +135,7 @@ c      do 12 l=1,npmfr
       io=0
       do 1 i=1,numpmf
       if(i.le.ipmfr.or.l.eq.1) then
-      if(ipmf(i,1).eq.0) call errquit('Unknown pmf type',ipmf(i,1))
+      if(ipmf(i,1).eq.0) call md_abort('Unknown pmf type',ipmf(i,1))
 c
 c     distance pmf
 c
@@ -146,7 +146,7 @@ c
  1001 format(3i5,2f12.6,2e12.5,5i5)
       do 2 k=2,3
       if(lgroup(ipmf(i,k)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,k))
+     + call md_abort('No atoms selected in group',ipmf(i,k))
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
  1002 format(10i7)
     2 continue
@@ -156,7 +156,7 @@ c
       natoms=natoms+1
       itemp(natoms)=igroup(ipmf(i,2),k)
       if(iequi(ismol(itemp(natoms)),3).ne.0)
-     + call errquit('pmf combine not on first equivalent molecule',0)
+     + call md_abort('pmf combine not on first equivalent molecule',0)
   111 continue
       do 112 im=1,nsm
       do 113 k=1,lgroup(ipmf(i,2))
@@ -168,13 +168,13 @@ c
   113 continue
   112 continue
       if(natoms.le.0)
-     + call errquit('No atoms selected in group',ipmf(i,2))
+     + call md_abort('No atoms selected in group',ipmf(i,2))
       natomsj=0
       do 211 k=1,lgroup(ipmf(i,3))
       natomsj=natomsj+1
       jtemp(natomsj)=igroup(ipmf(i,3),k)
       if(iequi(ismol(jtemp(natomsj)),3).ne.0)
-     + call errquit('pmf combine not on first equivalent molecule',0)
+     + call md_abort('pmf combine not on first equivalent molecule',0)
   211 continue
       do 212 im=1,nsm
       do 213 k=1,lgroup(ipmf(i,3))
@@ -186,7 +186,7 @@ c
   213 continue
   212 continue
       if(natoms.le.0)
-     + call errquit('No atoms selected in group',ipmf(i,3))
+     + call md_abort('No atoms selected in group',ipmf(i,3))
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),natoms,natomsj,0,0,i
       write(lfntop,1002) (itemp(im),im=1,natoms)
@@ -201,7 +201,7 @@ c
      + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,4),0,i
       do 3 k=2,4
       if(lgroup(ipmf(i,k)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,k))
+     + call md_abort('No atoms selected in group',ipmf(i,k))
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
     3 continue
       endif
@@ -213,7 +213,7 @@ c
      + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5),i
       do 4 k=2,5
       if(lgroup(ipmf(i,k)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,k))
+     + call md_abort('No atoms selected in group',ipmf(i,k))
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
     4 continue
       endif
@@ -225,7 +225,7 @@ c
      + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5),i
       do 13 k=2,5
       if(lgroup(ipmf(i,k)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,k))
+     + call md_abort('No atoms selected in group',ipmf(i,k))
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
    13 continue
       endif
@@ -234,7 +234,7 @@ c     alignment pmf
 c
       if(ipmf(i,1).eq.5) then
       if(lgroup(ipmf(i,2)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,2))
+     + call md_abort('No atoms selected in group',ipmf(i,2))
       do 71 im=1,nsm
       if(im.eq.1) then
       io=0
@@ -263,7 +263,7 @@ c
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),lgroup(ipmf(i,2)),0,0,0,i
       if(lgroup(ipmf(i,2)).le.0)
-     + call errquit('No atoms selected in group',ipmf(i,2))
+     + call md_abort('No atoms selected in group',ipmf(i,2))
       write(lfntop,1002) (igroup(ipmf(i,2),j),j=1,lgroup(ipmf(i,2)))
       else
       natoms=0
@@ -271,7 +271,7 @@ c
       natoms=natoms+1
       itemp(natoms)=igroup(ipmf(i,2),k)
       if(iequi(ismol(itemp(natoms)),3).ne.0)
-     + call errquit('pmf combine not on first equivalent molecules',0)
+     + call md_abort('pmf combine not on first equivalent molecules',0)
    81 continue
       do 82 im=1,nsm
       do 83 k=1,lgroup(ipmf(i,2))
@@ -283,7 +283,7 @@ c
    83 continue
    82 continue
       if(natoms.le.0)
-     + call errquit('No atoms selected in group',ipmf(i,2))
+     + call md_abort('No atoms selected in group',ipmf(i,2))
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),natoms,0,0,0,i
       write(lfntop,1002) (itemp(im),im=1,natoms)
@@ -296,7 +296,7 @@ c
       ibase=pre_base(ipmf(i,2),isegm,csa,msa,nsa)
       jbase=pre_base(ipmf(i,3),isegm,csa,msa,nsa)
       if(ibase.eq.0.or.jbase.eq.0)
-     + call errquit('Error in pmf basepair: not a base',0)
+     + call md_abort('Error in pmf basepair: not a base',0)
       if((ibase.eq.1.and.jbase.eq.5).or.
      + (ibase.eq.2.and.jbase.eq.3)) then
 c
@@ -395,6 +395,6 @@ c
       return
 c
  9999 continue
-      call errquit('Could not read filtop to write pmf',0)
+      call md_abort('Could not read filtop to write pmf',0)
       return
       end

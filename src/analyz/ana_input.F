@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.65 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_input.F,v 1.66 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       endif
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,prefix))
-     + call errquit('rtdb_cget failed on file_prefix',9999)
+     + call md_abort('rtdb_cget failed on file_prefix',9999)
 c
       len=0
       lfncmd=69
@@ -44,7 +44,7 @@ c
 c
     1 continue
 c
-      if(.not.inp_read()) call errquit('ana_input: inp_read failed',0)
+      if(.not.inp_read()) call md_abort('ana_input: inp_read failed',0)
 c
     2 continue
 c
@@ -56,8 +56,8 @@ c     system command defines initial filenames and opens command file
 c     ---------------------------------------------------------------
 c
       if(inp_compare(.false.,'system',item)) then
-      if(len.gt.0) call errquit('ana_input: duplicate system',0)
-      if(.not.inp_a(prefix)) call errquit('ana_input: error system',0)
+      if(len.gt.0) call md_abort('ana_input: duplicate system',0)
+      if(.not.inp_a(prefix)) call md_abort('ana_input: error system',0)
       len=index(prefix,' ')-1
       filcmd=prefix(1:len)//'.cmd '
       filchg=prefix(1:len)//'.q '
@@ -81,10 +81,10 @@ c     define reference file
 c     ---------------------
 c
       if(inp_compare(.false.,'reference',item)) then
-      if(.not.inp_a(filref)) call errquit('Error in reference file',0)
+      if(.not.inp_a(filref)) call md_abort('Error in reference file',0)
       lent=index(filref,'_')-1
       if(lent.le.0) lent=index(filref,'.')-1
-      if(lent.le.0) call errquit('Error in topology file',0)
+      if(lent.le.0) call md_abort('Error in topology file',0)
       filtop=filref(1:lent)//'.top '
       write(lfncmd,1000) filref(1:index(filref,' ')-1)
       write(lfncmd,2000) filtop(1:index(filtop,' ')-1)
@@ -106,7 +106,7 @@ c     define trajectory file(s)
 c     -------------------------
 c
       if(inp_compare(.false.,'file',item)) then
-      if(.not.inp_a(filtrj)) call errquit('Error in trajectory file',0)
+      if(.not.inp_a(filtrj)) call md_abort('Error in trajectory file',0)
       if(index(filtrj,'.trj').le.0.and.index(filtrj,'.sco').le.0.and.
      + index(filtrj,'.coo').le.0)
      + filtrj=filtrj(1:index(filtrj,' ')-1)//'.trj '
@@ -123,7 +123,7 @@ c     define simulation time offset
 c     -----------------------------
 c
       if(inp_compare(.false.,'time',item)) then
-      if(.not.inp_f(timoff)) call errquit('Error in time offset',0)
+      if(.not.inp_f(timoff)) call md_abort('Error in time offset',0)
       write(lfncmd,1002) timoff
  1002 format('time   ',f12.6)
       numcmd=numcmd+1
@@ -134,7 +134,7 @@ c     define centering fraction
 c     -------------------------
 c
       if(inp_compare(.false.,'center',item)) then
-      if(.not.inp_i(icent)) call errquit('Error in center',0)
+      if(.not.inp_i(icent)) call md_abort('Error in center',0)
       if(.not.inp_i(jcent)) jcent=icent
       write(lfncmd,1306) icent,jcent
  1306 format('center ',2i5)
@@ -146,7 +146,7 @@ c     define frequency processing frames
 c     ----------------------------------
 c
       if(inp_compare(.false.,'frames',item)) then
-      if(.not.inp_i(ifrfr)) call errquit('Error in frames',0)
+      if(.not.inp_i(ifrfr)) call md_abort('Error in frames',0)
       if(.not.inp_i(ifrto)) then
       ifrto=ifrfr
       ifrfr=1
@@ -164,7 +164,7 @@ c     define scale (for povray output only)
 c     -------------------------------------
 c
       if(inp_compare(.false.,'scale',item)) then
-      if(.not.inp_f(scale)) call errquit('Error in scale',0)
+      if(.not.inp_f(scale)) call md_abort('Error in scale',0)
       write(lfncmd,1303) scale
  1303 format('scale ',f12.6)
       numcmd=numcmd+1
@@ -198,7 +198,7 @@ c
       lsol=.false.
       lsuper=.false.
  3301 continue
-      if(.not.inp_a(filcop)) call errquit('Error in copy',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
       if(filcop(1:6).eq.'solute') then
       lsol=.true.
       goto 3301
@@ -212,7 +212,7 @@ c
       if(lsol) option=option(1:3)//' sol '
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.pdb '
-      if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
       write(lfncmd,3004) idpdb,option,filcop(1:index(filcop,' ')-1)
  3004 format('wrtpdb',i8,a8,a)
       numcmd=numcmd+1
@@ -223,20 +223,20 @@ c     copy frames to file
 c     -------------------
 c
       if(inp_compare(.false.,'copy',item)) then
-      if(.not.inp_a(filcop)) call errquit('Error in copy',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
       lsol=.false.
       if(filcop(1:6).eq.'solute') then
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
       lsol=.true.
       endif
       rang=0.0d0
       if(filcop(1:6).eq.'rotate') then
-      if(.not.inp_f(rang)) call errquit('Error in rotation time',0)
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
       endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
-      if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
       if(lsol) then
       write(lfncmd,1004) rang,filcop(1:index(filcop,' ')-1)
  1004 format('copys  ',f12.6,a)
@@ -252,20 +252,20 @@ c     superimpose frames and write to file
 c     ------------------------------------
 c
       if(inp_compare(.false.,'super',item)) then
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
       lsol=.false.
       if(filcop(1:6).eq.'solute') then
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
       lsol=.true.
       endif
       rang=0.0d0
       if(filcop(1:6).eq.'rotate') then
-      if(.not.inp_f(rang)) call errquit('Error in rotation time',0)
-      if(.not.inp_a(filcop)) call errquit('Error in super',0)
+      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
       endif
       if(index(filcop,'.').le.0)
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
-      if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
       if(lsol) then
       write(lfncmd,1005) rang,filcop(1:index(filcop,' ')-1)
  1005 format('supers ',f12.6,a)
@@ -281,9 +281,9 @@ c     scan frames and write to file
 c     -----------------------------
 c
       if(inp_compare(.false.,'scan',item)) then
-      if(.not.inp_a(item)) call errquit('Error in scan',0)
+      if(.not.inp_a(item)) call md_abort('Error in scan',0)
       if(inp_compare(.false.,'super',item)) then
-      if(.not.inp_a(filcop)) call errquit('Error in scan',0)
+      if(.not.inp_a(filcop)) call md_abort('Error in scan',0)
       write(lfncmd,1016) filcop(1:index(filcop,' ')-1)
  1016 format('scans  ',a)
       else
@@ -303,7 +303,7 @@ c
       lselo=.false.
       rsel=0.0d0
  1255 continue
-      if(.not.inp_a(atom)) call errquit('Error in select',0)
+      if(.not.inp_a(atom)) call md_abort('Error in select',0)
       if(atom(1:5).eq.'super') then
       lsuper=.true.
       lselo=.false.
@@ -315,19 +315,19 @@ c
       goto 1255
       endif
       if(atom(1:5).eq.'range') then
-      if(.not.inp_f(rsel)) call errquit('Error in select',1)
+      if(.not.inp_f(rsel)) call md_abort('Error in select',1)
       goto 1255
       endif
       if(atom(1:7).eq.'solvent') then
-      if(lsuper) call errquit('Can not select super solvent',0)
-      if(.not.inp_f(rsel)) call errquit('No range specified',0)
+      if(lsuper) call md_abort('Can not select super solvent',0)
+      if(.not.inp_f(rsel)) call md_abort('No range specified',0)
       write(lfncmd,1206) rsel
  1206 format('wselct ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
       if(atom(1:4).eq.'save') then
-      if(.not.inp_a(atom)) call errquit('No file specified',0)
+      if(.not.inp_a(atom)) call md_abort('No file specified',0)
       if(lsuper) then
       write(lfncmd,1258) atom(1:index(atom,' ')-1)
  1258 format('savsls ',a)
@@ -339,7 +339,7 @@ c
       goto 2
       endif
       if(atom(1:4).eq.'read') then
-      if(.not.inp_a(atom)) call errquit('No file specified',0)
+      if(.not.inp_a(atom)) call md_abort('No file specified',0)
       if(lsuper) then
       write(lfncmd,1259) atom(1:index(atom,' ')-1)
  1259 format('rdsels ',a)
@@ -370,9 +370,9 @@ c     define groups of solute atoms
 c     -----------------------------
 c
       if(inp_compare(.false.,'define',item)) then
-      if(.not.inp_i(isel)) call errquit('ana_input: define',0)
+      if(.not.inp_i(isel)) call md_abort('ana_input: define',0)
       if(.not.inp_f(rsel)) rsel=0.0d0
-      if(.not.inp_a(atom)) call errquit('ana_input: define',0)
+      if(.not.inp_a(atom)) call md_abort('ana_input: define',0)
       if(atom(1:7).eq.'solvent') then
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_a(atom)) atom=' '
@@ -393,15 +393,15 @@ c     do things with groups of atoms
 c     ------------------------------
 c
       if(inp_compare(.false.,'groups',item)) then
-      if(.not.inp_i(isel)) call errquit('No igroup specified',0)
+      if(.not.inp_i(isel)) call md_abort('No igroup specified',0)
       if(.not.inp_i(jsel)) jsel=-1
       if(.not.inp_i(ksel)) ksel=-1
       if(.not.inp_i(lsel)) lsel=-1
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       ipbc=0
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(ipbc)) ipbc=3
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       endif
       iopt=0
       if(inp_compare(.false.,'distance',item)) iopt=1
@@ -412,13 +412,13 @@ c
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '
       if(iopt.eq.1.and.jsel.le.0)
-     + call errquit('Error in groups definition',4)
+     + call md_abort('Error in groups definition',4)
       if(iopt.eq.2.and.jsel.le.0)
-     + call errquit('Error in groups definition',4)
+     + call md_abort('Error in groups definition',4)
       if(iopt.eq.4.and.(jsel.le.0.or.ksel.le.0))
-     + call errquit('Error in groups definition',4)
+     + call md_abort('Error in groups definition',4)
       if(iopt.eq.5.and.(jsel.le.0.or.ksel.le.0.or.lsel.le.0))
-     + call errquit('Error in groups definition',4)
+     + call md_abort('Error in groups definition',4)
       write(lfncmd,1022) isel,jsel,ksel,lsel,iopt,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1022 format('groups ',4i7,i5,i3,2f12.6,a)
@@ -430,13 +430,13 @@ c     do things with groups of atoms on the trajectory
 c     ------------------------------------------------
 c
       if(inp_compare(.false.,'histogram',item)) then
-      if(.not.inp_i(isel)) call errquit('No group specified',0)
+      if(.not.inp_i(isel)) call md_abort('No group specified',0)
       if(.not.inp_i(jsel)) jsel=0
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       ipbc=0
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(ipbc)) ipbc=3
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       endif
       ksel=0
       if(inp_compare(.false.,'zcoordinate',item)) ksel=1
@@ -454,19 +454,19 @@ c     group analysis
 c     --------------
 c
       if(inp_compare(.false.,'group',item)) then
-      if(.not.inp_i(isel)) call errquit('No group specified',0)
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_i(isel)) call md_abort('No group specified',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       ipbc=0
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(ipbc)) ipbc=3
-      if(.not.inp_a(item)) call errquit('No group function',0)
+      if(.not.inp_a(item)) call md_abort('No group function',0)
       endif
       ksel=0
       if(inp_compare(.false.,'local',item)) ksel=1
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '
-      if(ksel.eq.0) call errquit('Unknown group function specified',0)
+      if(ksel.eq.0) call md_abort('Unknown group function specified',0)
       write(lfncmd,1030) isel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1030 format('group  ',i7,i5,i3,2f12.6,a)
@@ -478,12 +478,12 @@ c     calculate order parameter
 c     -------------------------
 c
       if(inp_compare(.false.,'order',item)) then
-      if(.not.inp_i(iorder)) call errquit('No iorder specified',0)
-      if(.not.inp_i(isel)) call errquit('No igroup specified',0)
-      if(.not.inp_i(jsel)) call errquit('No jgroup specified',0)
-      if(.not.inp_a(atomi)) call errquit('No iatom specified',0)
-      if(.not.inp_a(atomj)) call errquit('No jatom specified',0)
-      if(isel.eq.jsel) call errquit('Order groups identical',isel)
+      if(.not.inp_i(iorder)) call md_abort('No iorder specified',0)
+      if(.not.inp_i(isel)) call md_abort('No igroup specified',0)
+      if(.not.inp_i(jsel)) call md_abort('No jgroup specified',0)
+      if(.not.inp_a(atomi)) call md_abort('No iatom specified',0)
+      if(.not.inp_a(atomj)) call md_abort('No jatom specified',0)
+      if(isel.eq.jsel) call md_abort('Order groups identical',isel)
       write(lfncmd,1028) iorder,isel,jsel 
  1028 format('order  ',i5,2i7)
       write(lfncmd,1029) atomi(1:index(atomi,' ')-1)
@@ -497,9 +497,9 @@ c     define vectors
 c     --------------
 c
       if(inp_compare(.false.,'vector',item)) then
-      if(.not.inp_i(ivctr)) call errquit('Error in vector',0)
-      if(.not.inp_a(atomi)) call errquit('Error in vector',0)
-      if(.not.inp_a(atomj)) call errquit('Error in vector',0)
+      if(.not.inp_i(ivctr)) call md_abort('Error in vector',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in vector',0)
+      if(.not.inp_a(atomj)) call md_abort('Error in vector',0)
       write(lfncmd,1026) ivctr
  1026 format('vector ',i5)
       write(lfncmd,1027) atomi(1:index(atomi,' ')-1)
@@ -513,9 +513,9 @@ c     ------------
 c
       if(inp_compare(.false.,'bond',item).or.
      + inp_compare(.false.,'distance',item)) then
-      if(.not.inp_i(ibond)) call errquit('Error in bond',0)
-      if(.not.inp_a(atomi)) call errquit('Error in bond',0)
-      if(.not.inp_a(atomj)) call errquit('Error in bond',0)
+      if(.not.inp_i(ibond)) call md_abort('Error in bond',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in bond',0)
+      if(.not.inp_a(atomj)) call md_abort('Error in bond',0)
       write(lfncmd,1012) ibond
  1012 format('bond   ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
@@ -529,10 +529,10 @@ c     define angles
 c     -------------
 c
       if(inp_compare(.false.,'angle',item)) then
-      if(.not.inp_i(iangl)) call errquit('Error in angle',0)
-      if(.not.inp_a(atomi)) call errquit('Error in angle',0)
-      if(.not.inp_a(atomj)) call errquit('Error in angle',0)
-      if(.not.inp_a(atomk)) call errquit('Error in angle',0)
+      if(.not.inp_i(iangl)) call md_abort('Error in angle',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in angle',0)
+      if(.not.inp_a(atomj)) call md_abort('Error in angle',0)
+      if(.not.inp_a(atomk)) call md_abort('Error in angle',0)
       write(lfncmd,1014) iangl
  1014 format('angle  ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
@@ -545,11 +545,11 @@ c     define torsions
 c     ---------------
 c
       if(inp_compare(.false.,'torsion',item)) then
-      if(.not.inp_i(itors)) call errquit('Error in torsion',0)
-      if(.not.inp_a(atomi)) call errquit('Error in torsion',0)
-      if(.not.inp_a(atomj)) call errquit('Error in torsion',0)
-      if(.not.inp_a(atomk)) call errquit('Error in torsion',0)
-      if(.not.inp_a(atoml)) call errquit('Error in torsion',0)
+      if(.not.inp_i(itors)) call md_abort('Error in torsion',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      if(.not.inp_a(atomj)) call md_abort('Error in torsion',0)
+      if(.not.inp_a(atomk)) call md_abort('Error in torsion',0)
+      if(.not.inp_a(atoml)) call md_abort('Error in torsion',0)
       write(lfncmd,1015) itors
  1015 format('torsio ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
@@ -563,11 +563,11 @@ c     define impropers
 c     ----------------
 c
       if(inp_compare(.false.,'improper',item)) then
-      if(.not.inp_i(iplan)) call errquit('Error in improper',0)
-      if(.not.inp_a(atomi)) call errquit('Error in improper',0)
-      if(.not.inp_a(atomj)) call errquit('Error in improper',0)
-      if(.not.inp_a(atomk)) call errquit('Error in improper',0)
-      if(.not.inp_a(atoml)) call errquit('Error in improper',0)
+      if(.not.inp_i(iplan)) call md_abort('Error in improper',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in improper',0)
+      if(.not.inp_a(atomj)) call md_abort('Error in improper',0)
+      if(.not.inp_a(atomk)) call md_abort('Error in improper',0)
+      if(.not.inp_a(atoml)) call md_abort('Error in improper',0)
       write(lfncmd,1017) iplan
  1017 format('improp ',i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
@@ -581,7 +581,7 @@ c     charge distribution
 c     -------------------
 c
       if(inp_compare(.false.,'charge_distribution',item)) then
-      if(.not.inp_i(icd)) call errquit('Error in improper',0)
+      if(.not.inp_i(icd)) call md_abort('Error in improper',0)
       write(lfncmd,1018) icd
  1018 format('chgdst ',i5)
       goto 2
@@ -600,9 +600,9 @@ c
       elseif(inp_compare(.false.,'color',item)) then
       itag=2
       else
-      if(.not.inp_i(itag)) call errquit('Error in label',0)
+      if(.not.inp_i(itag)) call md_abort('Error in label',0)
       endif
-      if(.not.inp_a(tag)) call errquit('Error in label',0)
+      if(.not.inp_a(tag)) call md_abort('Error in label',0)
       iatag=-1
       jatag=-1
       if(inp_i(iatag)) then
@@ -631,7 +631,7 @@ c     define rotation
 c     ---------------
 c
       if(inp_compare(.false.,'rotate',item)) then
-      if(.not.inp_a(item)) call errquit('Error in rotate',0)
+      if(.not.inp_a(item)) call md_abort('Error in rotate',0)
       if(inp_compare(.false.,'off',item)) then
       write(lfncmd,1588)
  1588 format('rotat0 ')
@@ -639,21 +639,21 @@ c
       goto 2
       endif
       if(inp_compare(.false.,'x',item)) then
-      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      if(.not.inp_f(arota)) call md_abort('Error in rotate',0)
       write(lfncmd,1587) arota
  1587 format('rotatx ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
       if(inp_compare(.false.,'y',item)) then
-      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      if(.not.inp_f(arota)) call md_abort('Error in rotate',0)
       write(lfncmd,1586) arota
  1586 format('rotaty ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
       if(inp_compare(.false.,'z',item)) then
-      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      if(.not.inp_f(arota)) call md_abort('Error in rotate',0)
       write(lfncmd,1585) arota
  1585 format('rotatz ',f12.6)
       numcmd=numcmd+1
@@ -688,7 +688,7 @@ c
       if(inp_a(item)) then
  6644 continue
       if(inp_compare(.false.,'distance',item)) then
-      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmin)) call md_abort('Error in hbond',0)
       if(.not.inp_f(rmax)) then
       rmax=rmin
       rmin=0.0d0
@@ -698,13 +698,13 @@ c
       if(inp_a(item)) goto 6644
       elseif(inp_compare(.false.,'donorangle',item).or.
      + inp_compare(.false.,'angle',item)) then
-      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmin)) call md_abort('Error in hbond',0)
       if(.not.inp_f(rmax)) rmax=3.1416d0
       write(lfncmd,1067) rmin,rmax
  1067 format('hbdang ',2f12.6)
       if(inp_a(item)) goto 6644
       elseif(inp_compare(.false.,'acceptorangle',item)) then
-      if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
+      if(.not.inp_f(rmin)) call md_abort('Error in hbond',0)
       if(.not.inp_f(rmax)) then
       rmax=3.1416d0
       endif
@@ -727,9 +727,9 @@ c     average structure
 c     -----------------
 c
       if(inp_compare(.false.,'average',item)) then
-      if(.not.inp_a(item)) call errquit('No average file',0)
+      if(.not.inp_a(item)) call md_abort('No average file',0)
       if(item(1:5).eq.'super') then
-      if(.not.inp_a(item)) call errquit('No average file',0)
+      if(.not.inp_a(item)) call md_abort('No average file',0)
       write(lfncmd,1070) item
  1070 format('saver ',a)
       numcmd=numcmd+1
@@ -756,8 +756,8 @@ c     essential dynamics analysis
 c     ---------------------------
 c
       if(inp_compare(.false.,'project',item)) then
-      if(.not.inp_i(ivec)) call errquit('No vector specified',0)
-      if(.not.inp_a(item)) call errquit('No projection file',0)
+      if(.not.inp_i(ivec)) call md_abort('No vector specified',0)
+      if(.not.inp_a(item)) call md_abort('No projection file',0)
       write(lfncmd,1010) ivec,item(1:index(item,' ')-1)
  1010 format('projec ',i7,a)
       numcmd=numcmd+1
@@ -814,7 +814,7 @@ c     make report
 c     -----------
 c
       if(inp_compare(.false.,'report',item)) then
-      if(.not.inp_a(item)) call errquit('No report file',0)
+      if(.not.inp_a(item)) call md_abort('No report file',0)
       if(.not.inp_a(tag)) tag=' '
       option='        '
       if(inp_compare(.false.,'local',tag)) option='local   '
@@ -827,7 +827,7 @@ c
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,1999) item
  1999 format('Unknown field ',a)
-      call errquit('Error reading input file',0)
+      call md_abort('Error reading input file',0)
       endif
 c
 c     close command file
@@ -835,17 +835,17 @@ c
       write(lfncmd,1099)
  1099 format('end    ')
       close(unit=lfncmd)
-      if(numcmd.le.0) call errquit('Error: no analysis commands',0)
+      if(numcmd.le.0) call md_abort('Error: no analysis commands',0)
 c
 c     put command file name on rtdb
 c     -----------------------------
 c
       if(.not.rtdb_cput(irtdb,'ana:filcmd',1,filcmd))
-     + call errquit('Error rtdb_put filcmd failed',0)
+     + call md_abort('Error rtdb_put filcmd failed',0)
 c
       return
 c
- 9999 call errquit('Error opening command file',0)
+ 9999 call md_abort('Error opening command file',0)
 c
       return
       end

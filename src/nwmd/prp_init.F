@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf,lguide,lqmmm,lqmd)
 c
-c $Id: prp_init.F,v 1.63 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: prp_init.F,v 1.64 2003-10-19 03:30:57 d3j191 Exp $
 c
       implicit none
 c
@@ -301,7 +301,7 @@ c
       it=0
       do 3 i=1,nsf
       it=isprop+(i-1)*29
-      if(it+27.gt.maxpro) call errquit('Increase dimension maxpro',0)
+      if(it+27.gt.maxpro) call md_abort('Increase dimension maxpro',0)
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
       pronam(it+2)='Energy solute     intra-electrostatic       kJ/mol'
       lp(it+2)=.true.
@@ -361,7 +361,7 @@ c
 c
       if(nsf.gt.1) then
       if(it+nsf*(nsf-1)*2.gt.maxpro)
-     + call errquit('Increase dimension maxpro',0)
+     + call md_abort('Increase dimension maxpro',0)
       do 5 i=1,nsf-1
       do 6 j=i+1,nsf
       it=it+1
@@ -408,7 +408,7 @@ c
 c
       if(msm.gt.0.and.npstat.gt.0) then
       if(it+2*nsm.gt.maxpro)
-     + call errquit('Increase dimension maxpro',0)
+     + call md_abort('Increase dimension maxpro',0)
       do 7 i=1,nsm
       it=it+1
       pronam(it)='Moment of inertia solute molecule       kg nm2/mol'
@@ -436,7 +436,7 @@ c
 c
       if(npmfi.gt.0) then
       if(it+npmfi.gt.maxpro)
-     + call errquit('Increase dimension maxpro',0)
+     + call md_abort('Increase dimension maxpro',0)
       do 43 i=1,npmfi
       it=it+1
       pronam(it)='Energy pmf                                  kJ/mol'
@@ -447,7 +447,7 @@ c
 c
       if(iprof.eq.1) then
       if(it+42.gt.maxpro)
-     + call errquit('Increase dimension maxpro',0)
+     + call md_abort('Increase dimension maxpro',0)
       it=it+1
       pronam(it)='Prof: Initialization velocities                  s'
       lp(it)=.true.
@@ -630,9 +630,9 @@ c
       mda=mdacq
       if(ntype.eq.3.and.me.eq.0) then
       if(.not.ma_push_get(mt_dbl,mda,'dfr',l_dfr,i_dfr))
-     + call errquit('Failed to allocate memory for dfr',0)
+     + call md_abort('Failed to allocate memory for dfr',0)
       if(.not.ma_push_get(mt_dbl,mda,'dfrm',l_dfrm,i_dfrm))
-     + call errquit('Failed to allocate memory for dfrm',0)
+     + call md_abort('Failed to allocate memory for dfrm',0)
       endif
       lfreem=.false.
 c
@@ -744,10 +744,10 @@ c
 c
       return
  9998 continue
-      call errquit('Unable to read restart file in prp_rdrest ',me)
+      call md_abort('Unable to read restart file in prp_rdrest ',me)
       return
  9999 continue
-      call errquit('Unable to open restart file in prp_rdrest ',me)
+      call md_abort('Unable to open restart file in prp_rdrest ',me)
       return
       end
       subroutine prp_finish()
@@ -759,9 +759,9 @@ c
 c
       if(ntype.eq.3.and.me.eq.0) then
       if(.not.ma_pop_stack(l_dfrm))
-     + call errquit('Failed to deallocate dfrm',me)
+     + call md_abort('Failed to deallocate dfrm',me)
       if(.not.ma_pop_stack(l_dfr))
-     + call errquit('Failed to deallocate dfr',me)
+     + call md_abort('Failed to deallocate dfr',me)
       endif
 c
       return

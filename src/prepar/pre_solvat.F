@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.9 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.10 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -101,7 +101,7 @@ c
      + (abs(x)/box(1)+abs(y)/box(2)+abs(z)/box(3))/3.0d0)
       if(pbc.ne.0.0d0) goto 9
       endif
-      if(nwm.ge.mwm) call errquit('pre_solvat: increase mwm',9999)
+      if(nwm.ge.mwm) call md_abort('pre_solvat: increase mwm',9999)
       nwm=nwm+1
       do 13 j=1,nwa
       xw(1,j,nwm)=xslv(1,j,is)+dble(ix)*boxs(1)

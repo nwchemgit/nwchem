@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.33 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.34 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -55,7 +55,7 @@ c
       endif
 c
       if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu,nseq))
-     + call errquit('pre_topsiz failed',9999)
+     + call md_abort('pre_topsiz failed',9999)
 c
       if(util_print('where',print_high)) then
       write(lfnout,1001) filtop(1:index(filtop,' ')-1),mat,msa,mwa,msb
@@ -83,43 +83,43 @@ c     real*8 qsa(msa)        : solute atom charges
 c     real*8 xs(3,msa)       : solute atom coordinates
 c
       if(.not.ma_push_get(mt_dbl,nqu,'qu',l_qu,i_qu))
-     + call errquit('Memory allocation failed for qu',9999)
+     + call md_abort('Memory allocation failed for qu',9999)
       if(.not.ma_push_get(mt_int,2*mnoe,'inoe',l_inoe,i_inoe))
-     + call errquit('Memory allocation failed for inoe',9999)
+     + call md_abort('Memory allocation failed for inoe',9999)
       if(.not.ma_push_get(mt_dbl,5*mnoe,'dnoe',l_dnoe,i_dnoe))
-     + call errquit('Memory allocation failed for dnoe',9999)
+     + call md_abort('Memory allocation failed for dnoe',9999)
       if(.not.ma_push_get(mt_int,mat,'anum',l_num,i_num))
-     + call errquit('Memory allocation failed for anum',9999)
+     + call md_abort('Memory allocation failed for anum',9999)
       if(.not.ma_push_get(mt_dbl,mat,'amass',l_mas,i_mas))
-     + call errquit('Memory allocation failed for amass',9999)
+     + call md_abort('Memory allocation failed for amass',9999)
       if(.not.ma_push_get(mt_byte,16*mwa,'cwa',l_cwa,i_cwa))
-     + call errquit('Memory allocation failed for cwa',9999)
+     + call md_abort('Memory allocation failed for cwa',9999)
       if(.not.ma_push_get(mt_dbl,mwa,'qwa',l_qwa,i_qwa))
-     + call errquit('Memory allocation failed for qwa',9999)
+     + call md_abort('Memory allocation failed for qwa',9999)
       if(.not.ma_push_get(mt_byte,16*msa,'csa',l_csa,i_csa))
-     + call errquit('Memory allocation failed for csa',9999)
+     + call md_abort('Memory allocation failed for csa',9999)
       if(.not.ma_push_get(mt_int,mwa,'wat',l_wat,i_wat))
-     + call errquit('Memory allocation failed for wat',9999)
+     + call md_abort('Memory allocation failed for wat',9999)
       if(.not.ma_push_get(mt_int,msa,'sat',l_sat,i_sat))
-     + call errquit('Memory allocation failed for sat',9999)
+     + call md_abort('Memory allocation failed for sat',9999)
       if(.not.ma_push_get(mt_int,msa,'sgm',l_sgm,i_sgm))
-     + call errquit('Memory allocation failed for sgm',9999)
+     + call md_abort('Memory allocation failed for sgm',9999)
       if(.not.ma_push_get(mt_int,msa,'sfr',l_sfr,i_sfr))
-     + call errquit('Memory allocation failed for sfr',9999)
+     + call md_abort('Memory allocation failed for sfr',9999)
       if(.not.ma_push_get(mt_int,msa,'sml',l_sml,i_sml))
-     + call errquit('Memory allocation failed for sml',9999)
+     + call md_abort('Memory allocation failed for sml',9999)
       if(.not.ma_push_get(mt_dbl,msa,'qsa',l_qsa,i_qsa))
-     + call errquit('Memory allocation failed for qsa',9999)
+     + call md_abort('Memory allocation failed for qsa',9999)
       if(.not.ma_push_get(mt_int,2*msb,'idsb',l_isb,i_isb))
-     + call errquit('Memory allocation failed for idsb',9999)
+     + call md_abort('Memory allocation failed for idsb',9999)
       if(.not.ma_push_get(mt_dbl,msb,'cdsb',l_csb,i_csb))
-     + call errquit('Memory allocation failed for cdsb',9999)
+     + call md_abort('Memory allocation failed for cdsb',9999)
       if(.not.ma_push_get(mt_int,mseq,'lseq',l_lseq,i_lseq))
-     + call errquit('Memory allocation failed for lseq',9999)
+     + call md_abort('Memory allocation failed for lseq',9999)
       if(.not.ma_push_get(mt_int,msa,'ihop',l_ihop,i_ihop))
-     + call errquit('Memory allocation failed for ihop',9999)
+     + call md_abort('Memory allocation failed for ihop',9999)
       if(.not.ma_push_get(mt_int,msa,'istat',l_istat,i_istat))
-     + call errquit('Memory allocation failed for istat',9999)
+     + call md_abort('Memory allocation failed for istat',9999)
 c
       nwa=0
       nsa=0
@@ -142,7 +142,7 @@ c
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam,
      + mseq,nseq,int_mb(i_lseq),int_mb(i_ihop),int_mb(i_istat)))
-     + call errquit('pre_toprd failed',9999)
+     + call md_abort('pre_toprd failed',9999)
       if(util_print('coordinates',print_default)) then
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)
  1003 format(' Topology',t40,a,/)
@@ -151,14 +151,14 @@ c
       msm=nsm
 c
       if(.not.ma_push_get(mt_int,4*msm,'eq',l_eq,i_eq))
-     + call errquit('Memory allocation failed for eq',9999)
+     + call md_abort('Memory allocation failed for eq',9999)
 c
 c     determine equivalent solute molecules
 c     -------------------------------------
 c
       if(.not.pre_equiv(byte_mb(i_csa),int_mb(i_sml),int_mb(i_sgm),
      + msa,nsa,int_mb(i_eq),msm,nsm))
-     + call errquit('Solute molecule equivalent test failed',0)
+     + call md_abort('Solute molecule equivalent test failed',0)
 c
 c     open the command file
 c     ---------------------
@@ -184,7 +184,7 @@ c
       read(lfncmd,1101,end=9,err=9997) card2
       if(.not.pre_disres(card,card2,int_mb(i_sgm),byte_mb(i_csa),msa,
      + nsa,int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
-     + call errquit('pre_disres failed',9999)
+     + call md_abort('pre_disres failed',9999)
       endif
 c
 c     read pmf replication
@@ -202,7 +202,7 @@ c
       if(.not.pre_select(card,int_mb(i_sgm),int_mb(i_sml),
      + byte_mb(i_csa),msa,
      + nsa,maxgrp,maxatm,igroup,lgroup,mgroup))
-     + call errquit('pre_select failed',9999)
+     + call md_abort('pre_select failed',9999)
       endif
 c
 c     read pmf
@@ -210,7 +210,7 @@ c     ========
 c
       if(card(1:3).eq.'pmf') then
       numpmf=numpmf+1
-      if(numpmf.gt.maxpmf) call errquit('Increase maxpmf',maxpmf)
+      if(numpmf.gt.maxpmf) call md_abort('Increase maxpmf',maxpmf)
       ipmf(numpmf,1)=0
       if(card(5:7).eq.'con') ipmf(numpmf,1)=-1
       if(card(5:7).eq.'dis') ipmf(numpmf,1)=1
@@ -242,17 +242,17 @@ c
 c
       if(numpmf.gt.0) then
       if(.not.ma_push_get(mt_int,msa,'temp',l_temp,i_temp))
-     + call errquit('Memory allocation failed for temp',9999)
+     + call md_abort('Memory allocation failed for temp',9999)
       if(.not.ma_push_get(mt_int,msa,'tempj',l_tempj,i_tempj))
-     + call errquit('Memory allocation failed for tempj',9999)
+     + call md_abort('Memory allocation failed for tempj',9999)
       call pre_wrtpmf(lfntop,filtop,numpmf,
      + maxpmf,ipmf,rpmf,iopt,maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,
      + ipmfr,nsarep,msa,nsa,int_mb(i_sgm),int_mb(i_sml),byte_mb(i_csa),
      + int_mb(i_eq),msm,nsm,int_mb(i_temp),int_mb(i_tempj))
       if(.not.ma_pop_stack(l_tempj))
-     + call errquit('Memory deallocation failed for tempj',9999)
+     + call md_abort('Memory deallocation failed for tempj',9999)
       if(.not.ma_pop_stack(l_temp))
-     + call errquit('Memory deallocation failed for temp',9999)
+     + call md_abort('Memory deallocation failed for temp',9999)
       write(lfnout,1005)
  1005 format(/,' Potential of mean force appended to topology')
       endif
@@ -263,45 +263,45 @@ c     deallocate memory
 c     -----------------
 c
       if(.not.ma_pop_stack(l_eq))
-     + call errquit('Memory deallocation failed for eq',9999)
+     + call md_abort('Memory deallocation failed for eq',9999)
       if(.not.ma_pop_stack(l_istat))
-     + call errquit('Memory deallocation failed for istat',9999)
+     + call md_abort('Memory deallocation failed for istat',9999)
       if(.not.ma_pop_stack(l_ihop))
-     + call errquit('Memory deallocation failed for ihop',9999)
+     + call md_abort('Memory deallocation failed for ihop',9999)
       if(.not.ma_pop_stack(l_lseq))
-     + call errquit('Memory deallocation failed for lseq',9999)
+     + call md_abort('Memory deallocation failed for lseq',9999)
       if(.not.ma_pop_stack(l_csb))
-     + call errquit('Memory deallocation failed for cdsb',9999)
+     + call md_abort('Memory deallocation failed for cdsb',9999)
       if(.not.ma_pop_stack(l_isb))
-     + call errquit('Memory deallocation failed for idsb',9999)
+     + call md_abort('Memory deallocation failed for idsb',9999)
       if(.not.ma_pop_stack(l_qsa))
-     + call errquit('Memory deallocation failed for qsa',9999)
+     + call md_abort('Memory deallocation failed for qsa',9999)
       if(.not.ma_pop_stack(l_sml))
-     + call errquit('Memory deallocation failed for qsa',9999)
+     + call md_abort('Memory deallocation failed for qsa',9999)
       if(.not.ma_pop_stack(l_sfr))
-     + call errquit('Memory deallocation failed for sfr',9999)
+     + call md_abort('Memory deallocation failed for sfr',9999)
       if(.not.ma_pop_stack(l_sgm))
-     + call errquit('Memory deallocation failed for sgm',9999)
+     + call md_abort('Memory deallocation failed for sgm',9999)
       if(.not.ma_pop_stack(l_sat))
-     + call errquit('Memory deallocation failed for sat',9999)
+     + call md_abort('Memory deallocation failed for sat',9999)
       if(.not.ma_pop_stack(l_wat))
-     + call errquit('Memory deallocation failed for wat',9999)
+     + call md_abort('Memory deallocation failed for wat',9999)
       if(.not.ma_pop_stack(l_csa))
-     + call errquit('Memory deallocation failed for csa',9999)
+     + call md_abort('Memory deallocation failed for csa',9999)
       if(.not.ma_pop_stack(l_qwa))
-     + call errquit('Memory deallocation failed for qwa',9999)
+     + call md_abort('Memory deallocation failed for qwa',9999)
       if(.not.ma_pop_stack(l_cwa))
-     + call errquit('Memory deallocation failed for cwa',9999)
+     + call md_abort('Memory deallocation failed for cwa',9999)
       if(.not.ma_pop_stack(l_mas))
-     + call errquit('Memory deallocation failed for amass',9999)
+     + call md_abort('Memory deallocation failed for amass',9999)
       if(.not.ma_pop_stack(l_num))
-     + call errquit('Memory deallocation failed for anum',9999)
+     + call md_abort('Memory deallocation failed for anum',9999)
       if(.not.ma_pop_stack(l_dnoe))
-     + call errquit('Memory deallocation failed for dnoe',9999)
+     + call md_abort('Memory deallocation failed for dnoe',9999)
       if(.not.ma_pop_stack(l_inoe))
-     + call errquit('Memory deallocation failed for inoe',9999)
+     + call md_abort('Memory deallocation failed for inoe',9999)
       if(.not.ma_pop_stack(l_qu))
-     + call errquit('Memory deallocation failed for qu',9999)
+     + call md_abort('Memory deallocation failed for qu',9999)
 c
       pre_mknoe=.true.
       return

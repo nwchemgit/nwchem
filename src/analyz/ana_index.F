@@ -21,7 +21,7 @@ c
       if(card(1:1).ne.'W'.and.card(1:1).ne.'w') then
 c
       i=index(card,':')-1
-      if(i.le.0.or.i.gt.10) call errquit('Error in atom name',0)
+      if(i.le.0.or.i.gt.10) call md_abort('Error in atom name',0)
       word='          '
       word(11-i:10)=card(1:i)
       read(word,'(i10)') isgm
@@ -42,7 +42,7 @@ c
       else
 c
       i=index(card,':')-1
-      if(i.le.1) call errquit('Error in atom name',0)
+      if(i.le.1) call md_abort('Error in atom name',0)
       if(i.eq.2) then
       read(card(2:i),'(i1)') ia
       elseif(i.eq.3) then
@@ -54,10 +54,10 @@ c
       elseif(i.eq.6) then
       read(card(2:i),'(i5)') ia
       else
-      call errquit('Error in ana_index',me)
+      call md_abort('Error in ana_index',me)
       endif
       ia=ia-nsgm
-      if(ia.le.0) call errquit('Error in ana_index',me)  
+      if(ia.le.0) call md_abort('Error in ana_index',me)  
       atom=card(i+2:80)
       j=index(atom,' ')-1
       if(atom(1:1).eq.'_') atom(1:1)=' '
@@ -74,7 +74,7 @@ c
       write(atom,'(a,a,a)') 'Atom ',card(1:index(card,' ')-1),
      + ' could not be found' 
 c
-      call errquit(atom,0)
+      call md_abort(atom,0)
 c
       return
       end

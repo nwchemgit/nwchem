@@ -1,7 +1,7 @@
       logical function pre_disres(card,card2,isegm,csa,msa,nsa,
      + inoe,dnoe,mnoe,nnoe)
 c
-c $Id: pre_disres.F,v 1.4 2000-02-20 16:05:13 d3j191 Exp $
+c $Id: pre_disres.F,v 1.5 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -23,21 +23,21 @@ c
 c
       ifr=0
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) jsgm
       atomj=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomj,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       iatom=0
       jatom=0
       do 1 i=1,nsa
@@ -45,9 +45,9 @@ c
       if(jsgm.eq.isegm(i).and.atomj(1:4).eq.csa(i)(11:14)) jatom=i
     1 continue
       if(iatom.eq.0.or.jatom.eq.0)
-     + call errquit('pre_disres error',9999)
+     + call md_abort('pre_disres error',9999)
       nnoe=nnoe+1
-      if(nnoe.gt.mnoe) call errquit('Increase mnoe',9999)
+      if(nnoe.gt.mnoe) call md_abort('Increase mnoe',9999)
       inoe(1,nnoe)=iatom
       inoe(2,nnoe)=jatom
       read(card2,1000) (dnoe(i,nnoe),i=1,5)

@@ -6,7 +6,7 @@
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_params.F,v 1.17 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_params.F,v 1.18 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -57,7 +57,7 @@ c
       if(catm(1+j,i).eq.catt(1,k)) goto 2
     3 continue
       natt=natt+1
-      if(natt.gt.matt) call errquit('increase matt',9999)
+      if(natt.gt.matt) call md_abort('increase matt',9999)
       catt(1,natt)=catm(1+j,i)
       latt(natt)=0
     2 continue
@@ -76,7 +76,7 @@ c
       endif
     4 continue
       nats=nats+1
-      if(nats.gt.mats) call errquit('increase mats',9999)
+      if(nats.gt.mats) call md_abort('increase mats',9999)
       do 6 k=1,natt
       do 66 kk=1,nparms
       if(catm(kk+1,i).eq.catt(1,k)) lats(kk,nats)=k
@@ -113,7 +113,7 @@ c     convert non-bonded parameters to C6 and C12
 c     -------------------------------------------
 c
       if(.not.pre_parcnv(icomb,latt,patt,catt,matt,natt))
-     + call errquit('pre_parcnv failed',9999)
+     + call md_abort('pre_parcnv failed',9999)
 c
 c     copy bonded parameters for dummy atoms
 c     --------------------------------------
@@ -122,7 +122,7 @@ c
      + latm,catm,matm,natm,lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms))
-     + call errquit('pre_dummy failed',9999)
+     + call md_abort('pre_dummy failed',9999)
 c
 c     check if all required parameters have been found
 c     ------------------------------------------------
@@ -131,13 +131,13 @@ c
      + latt,catt,matt,natt,catm,latm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq))
-     + call errquit('pre_check failed',9999)
+     + call md_abort('pre_check failed',9999)
 c
 c     check for angles, dihedrals and impropers that involve more than 2 processors
 c
       if(.not.pre_multip(lseq,mseq,nseq,latm,matm,natm,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp))
-     + call errquit('pre_multip failed',9999)
+     + call md_abort('pre_multip failed',9999)
 c
       pre_params=.true.
       return

@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.10 2001-02-22 18:36:10 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.11 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -106,12 +106,12 @@ c
       return
 c
  9999 continue
-      call errquit('Unable to open reference file',0)
+      call md_abort('Unable to open reference file',0)
       return
       end
       subroutine ana_center_ref(x)
 c
-c $Id: ana_rdref.F,v 1.10 2001-02-22 18:36:10 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.11 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -126,7 +126,7 @@ c
 c     center and fold
 c
       if(me.eq.0.and.icent.gt.0) then
-      if(.not.ltop) call errquit('No topology for center',0)
+      if(.not.ltop) call md_abort('No topology for center',0)
       call ana_center_fold(x,x,int_mb(i_imol),0)
       endif
 c

@@ -1,10 +1,9 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.84 2003-10-17 22:58:20 carlfahl Exp $
+c $Id: sp_main.F,v 1.85 2003-10-19 03:30:57 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -31,10 +30,10 @@ c
       nsaloc=numsa
       call sp_qatoms(isl,numsa)
       if(.not.ma_push_get(mt_int,nsa,'qlst',l_qlst,i_qlst))
-     + call errquit('Failed to allocate memory for qlst',0, MA_ERR)
+     + call md_abort('Failed to allocate memory for qlst',0)
       call sp_latoms(isl,int_mb(i_qlst),numsa)
       if(.not.ma_pop_stack(l_qlst))
-     + call errquit('Failed to deallocate memory for qlst',0, MA_ERR)
+     + call md_abort('Failed to deallocate memory for qlst',0)
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
 c
@@ -63,18 +62,17 @@ c
       subroutine sp_pack_finish()
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 c
       if(npackw.gt.0) then
       if(.not.ma_pop_stack(l_packw))
-     + call errquit('Failed to deallocate memory for packw',0, MA_ERR)
+     + call md_abort('Failed to deallocate memory for packw',0)
       endif
       if(npack.gt.0) then
       if(.not.ma_pop_stack(l_pack))
-     + call errquit('Failed to deallocate memory for pack',0, MA_ERR)
+     + call md_abort('Failed to deallocate memory for pack',0)
       endif
 c
       return
@@ -82,7 +80,6 @@ c
       subroutine sp_pack_init(isl,numsa,iwl,numwm,lfnout)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -206,11 +203,11 @@ c      npackw=0
 c
       if(npack.gt.0) then
       if(.not.ma_push_get(mt_int,msa*npack,'lpack',l_pack,i_pack))
-     + call errquit('Failed to allocate memory for pack',0, MA_ERR)
+     + call md_abort('Failed to allocate memory for pack',0)
       endif
       if(npackw.gt.0) then
       if(.not.ma_push_get(mt_int,mwm*npackw,'lpackw',l_packw,i_packw))
-     + call errquit('Failed to allocate memory for packw',0, MA_ERR)
+     + call md_abort('Failed to allocate memory for packw',0)
       endif
 c
       call sp_pack_ga(numsa,isl,int_mb(i_pack),
@@ -1074,7 +1071,6 @@ c
      + xs,vs,gs,isl,numsa)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -1100,11 +1096,11 @@ c
 c
       lenx=max(nwm,nsa)
       if(.not.ma_push_get(mt_int,lenx,'ndx',l_ndx,i_ndx))
-     + call errquit('Failed to allocate ndx',0, MA_ERR)
+     + call md_abort('Failed to allocate ndx',0)
       if(.not.ma_push_get(mt_int,lenx,'itmp',l_itmp,i_itmp))
-     + call errquit('Failed to allocate itmp',0, MA_ERR)
+     + call md_abort('Failed to allocate itmp',0)
       if(.not.ma_push_get(mt_dbl,lenx,'rtmp',l_rtmp,i_rtmp))
-     + call errquit('Failed to allocate rtmp',0, MA_ERR)
+     + call md_abort('Failed to allocate rtmp',0)
 c
       call sp_trvl(xw,vw,xwcr,gw,iwl,int_mb(i_packw),
      + xs,vs,gs,isl,int_mb(i_pack),
@@ -1114,11 +1110,11 @@ c
       call ga_sync()
 c
       if(.not.ma_pop_stack(l_rtmp))
-     + call errquit('Failed to de-allocate rtmp',0, MA_ERR)
+     + call md_abort('Failed to de-allocate rtmp',0)
       if(.not.ma_pop_stack(l_itmp))
-     + call errquit('Failed to de-allocate itmp',0, MA_ERR)
+     + call md_abort('Failed to de-allocate itmp',0)
       if(.not.ma_pop_stack(l_ndx))
-     + call errquit('Failed to de-allocate ndx',0, MA_ERR)
+     + call md_abort('Failed to de-allocate ndx',0)
 c
       call sp_gaputixv(me,iwl,int_mb(i_packw),xw,xwcr,vw,nwmloc,
      + isl,int_mb(i_pack),xs,vs,nsaloc,int_mb(i_ipl))
@@ -1132,7 +1128,6 @@ c
      + boxsiz,ibownr,ipl,ndx,itmp,rtmp,lenx)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "global.fh"
@@ -1286,7 +1281,7 @@ c
      +  'sp_travel: solvent molecule ',
      + iwl(iwm,lwgmn),' moving to non-neighbor ',iwl(iwm,lwnod),
      + ' from ',me,((xw(iwm,i,j),i=1,3),j=1,3)
-      call errquit(string,me, UNKNOWN_ERR)
+      call md_abort(string,me)
   223 continue
 c
       endif
@@ -1412,7 +1407,7 @@ c
      +  'sp_travel: solute segment ',
      + isl(isa,lssgm),' moving to non-neighbor ',isl(isa,lsnod),
      + ' from ',me,(xs(isa,i),i=1,3)
-      call errquit(string,me, UNKNOWN_ERR)
+      call md_abort(string,me)
   445 continue
 c
       endif
@@ -1556,9 +1551,9 @@ c
       if(isfr.eq.0) nsnew=0
 c
       if(nwstay+nwnew.gt.mwm)
-     + call errquit('Travel: Increase mwm',nwstay+nwnew, INPUT_ERR)
+     + call md_abort('Travel: Increase mwm',nwstay+nwnew)
       if(nsstay+nsnew.gt.msa)
-     + call errquit('Travel: Increase msa',nsstay+nsnew, INPUT_ERR)
+     + call md_abort('Travel: Increase msa',nsstay+nsnew)
 c
       lrec(i)=.true.
 c
@@ -2055,7 +2050,6 @@ c
      + lbbl,ipl)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 c
@@ -2069,7 +2063,7 @@ c
       character*255 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
-     + call errquit('Index to lbbl out of range',ibbl, INPUT_ERR)
+     + call md_abort('Index to lbbl out of range',ibbl)
 c
       ibox=lbbl(ibbl,3)
       lhandl=lbbl(ibbl,4)
@@ -2085,7 +2079,7 @@ c
  1000 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
       write(string,1001) ibox,me
  1001 format('SP0001: Could not find box',i5,' on node',i5)
-      call errquit(string,0, UNKNOWN_ERR)
+      call md_abort(string,0)
       endif
 c
       iwfr=ipl(ndx,2)
@@ -2183,7 +2177,6 @@ c
      + lbbl,ipl,jpl,lself,lpp)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "global.fh"
@@ -2202,7 +2195,7 @@ c
       character*80 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
-     + call errquit('Index to lbbl out of range',ibbl, INPUT_ERR)
+     + call md_abort('Index to lbbl out of range',ibbl)
 c
       jnode=lbbl(ibbl,1)
       jbox=lbbl(ibbl,2)
@@ -2228,7 +2221,7 @@ c
  1000 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
       write(string,1001) ibox,me
  1001 format('SP0001: Could not find local ibox',i5,' on node',i5)
-      call errquit(string,me, UNKNOWN_ERR)
+      call md_abort(string,me)
       endif
 c
       icbox=ibox
@@ -2250,7 +2243,7 @@ c
       write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
       write(string,1002) jbox,me
  1002 format('SP0001: Could not find local jbox',i5,' on node',i5)
-      call errquit(string,me, UNKNOWN_ERR)
+      call md_abort(string,me)
       endif
 c
       jcbox=jbox
@@ -2286,7 +2279,7 @@ c
  1003 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
       write(string,1004) jbox,jnode
  1004 format('SP0002: Could not find remote jbox',i5,' on node',i5)
-      call errquit(string,me, UNKNOWN_ERR)
+      call md_abort(string,me)
 c
       endif
       jcbox=jbox
@@ -2297,7 +2290,7 @@ c
       if(jwfr.gt.0) then
       nwnon=jwto-jwfr+1
       if(nwmloc+nwnon.gt.mwm)
-     + call errquit('Dimension mwm too small',nwmloc+nwnon, INPUT_ERR)
+     + call md_abort('Dimension mwm too small',nwmloc+nwnon)
       call ga_distribution(ga_iw,jnode,il,ih,jl,jh)
       if(npackw.eq.0) then
       call ga_get(ga_iw,il+jwfr-1,il+jwto-1,jl,jh,iwl(nwmloc+1,1),mwm)
@@ -2321,7 +2314,7 @@ c
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call errquit('Dimension msa too small',nsaloc+nsnon, INPUT_ERR)
+     + call md_abort('Dimension msa too small',nsaloc+nsnon)
       call ga_distribution(ga_is,jnode,il,ih,jl,jh)
       if(npack.eq.0) then
       call ga_get(ga_is,il+jsfr-1,il+jsto-1,jl,jh,isl(nsaloc+1,1),msa)
@@ -2369,7 +2362,6 @@ c
       subroutine sp_acpbl(ibbl,lhandl,pw,pwp,ps,psp,lbbl,jpl)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "global.fh"
@@ -2384,7 +2376,7 @@ c
       integer jwfr,jwto,jsfr,jsto
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
-     + call errquit('Index to lbbl out of range',ibbl, INPUT_ERR)
+     + call md_abort('Index to lbbl out of range',ibbl)
 c
       jnode=lbbl(ibbl,1)
       jbox=lbbl(ibbl,2)
@@ -2408,7 +2400,7 @@ c
  8001 format('Box list obtained from node',i5,' is',/,(20i5))
       call util_flush(lfndbg)
       endif
-      call errquit('Remote node box not found',0, INPUT_ERR)
+      call md_abort('Remote node box not found',0)
       endif
       jwfr=jpl(ndx,2)
       jwto=jpl(ndx,3)
@@ -2417,7 +2409,7 @@ c
       if(jwfr.gt.0) then
       nwnon=jwto-jwfr+1
       if(nwmloc+nwnon.gt.mwm)
-     + call errquit('Dimension mwm too small',nwmloc+nwnon, INPUT_ERR)
+     + call md_abort('Dimension mwm too small',nwmloc+nwnon)
       call ga_distribution(ga_w,jnode,il,ih,jl,jh)
       call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+12*mwa+3,jl+15*mwa+2,
      + pw(nwmloc+1,1,1,1),mwm,one)
@@ -2433,7 +2425,7 @@ c      endif
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call errquit('Dimension msa too small',nsaloc+nsnon, INPUT_ERR)
+     + call md_abort('Dimension msa too small',nsaloc+nsnon)
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
      + ps(nsaloc+1,1,1),msa,one)
@@ -2486,7 +2478,6 @@ c
       subroutine sp_acfbl(ibbl,lhandl,fw,fs,lbbl,jpl,lpair,iwz,isz)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "global.fh"
@@ -2502,7 +2493,7 @@ c
       integer jwfr,jwto,jsfr,jsto
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
-     + call errquit('Index to lbbl out of range',ibbl, INPUT_ERR)
+     + call md_abort('Index to lbbl out of range',ibbl)
 c
       jnode=lbbl(ibbl,1)
       jbox=lbbl(ibbl,2)
@@ -2518,8 +2509,7 @@ c
       do 3 i=1,jpl(1,1)
       if(jpl(30+i,1).eq.jbox) ndx=30+i
     3 continue
-      if(ndx.eq.0) call errquit('Remote node box not found',0,
-     &       INPUT_ERR)
+      if(ndx.eq.0) call md_abort('Remote node box not found',0)
       jwfr=jpl(ndx,2)
       jwto=jpl(ndx,3)
       jsfr=jpl(ndx,4)
@@ -2527,7 +2517,7 @@ c
       if(jwfr.gt.0) then
       nwnon=jwto-jwfr+1
       if(nwmloc+nwnon.gt.mwm)
-     + call errquit('Dimension mwm too small',nwmloc+nwnon, INPUT_ERR)
+     + call md_abort('Dimension mwm too small',nwmloc+nwnon)
       call ga_distribution(ga_w,jnode,il,ih,jl,jh)
       call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+6*mwa+3,jl+9*mwa+2,
      + fw(nwmloc+1,1,1,1),mwm,one)
@@ -2541,7 +2531,7 @@ c
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
       if(nsaloc+nsnon.gt.msa)
-     + call errquit('Dimension msa too small',nsaloc+nsnon, INPUT_ERR)
+     + call md_abort('Dimension msa too small',nsaloc+nsnon)
       call ga_distribution(ga_s,jnode,il,ih,jl,jh)
       call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+6,jl+8,
      + fs(nsaloc+1,1,1),msa,one)
@@ -2612,7 +2602,6 @@ c
       subroutine sp_balanc(stime,syntim,waltim,lpsyn)
 c
       implicit none
-#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2628,41 +2617,41 @@ c
 c      if(loadb.eq.0) return
 c
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Problems in sp_balanc at 1',me, MA_ERR)
+     + call md_abort('Problems in sp_balanc at 1',me)
       if(.not.ma_push_get(mt_int,np,'nod',l_nod,i_nod))
-     + call errquit('Failed to allocate nod',me, MA_ERR)
+     + call md_abort('Failed to allocate nod',me)
       if(.not.ma_push_get(mt_int,2*(np+1),'lst',l_lst,i_lst))
-     + call errquit('Failed to allocate lst',me, MA_ERR)
+     + call md_abort('Failed to allocate lst',me)
       if(.not.ma_push_get(mt_int,mbbl*np,'nen',l_nen,i_nen))
-     + call errquit('Failed to allocate nen',me, MA_ERR)
+     + call md_abort('Failed to allocate nen',me)
       if(.not.ma_push_get(mt_dbl,np+1,'dlb',l_dlb,i_dlb))
-     + call errquit('Failed to allocate dlb',me, MA_ERR)
+     + call md_abort('Failed to allocate dlb',me)
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Problems in sp_balanc at 2',me, MA_ERR)
+     + call md_abort('Problems in sp_balanc at 2',me)
 c
       call sp_dldbal(stime,syntim,waltim,int_mb(i_nod),int_mb(i_lst),
      + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb),lpsyn,int_mb(i_bindex),
      + int_mb(i_buren),np+1)
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Problems in sp_balanc at 3',me, MA_ERR)
+     + call md_abort('Problems in sp_balanc at 3',me)
 c
       if(.not.ma_pop_stack(l_dlb))
-     + call errquit('Failed to deallocate dlb',me, MA_ERR)
+     + call md_abort('Failed to deallocate dlb',me)
       if(.not.ma_pop_stack(l_nen))
-     + call errquit('Failed to deallocate nen',me, MA_ERR)
+     + call md_abort('Failed to deallocate nen',me)
       if(.not.ma_pop_stack(l_lst))
-     + call errquit('Failed to deallocate lst',me, MA_ERR)
+     + call md_abort('Failed to deallocate lst',me)
       if(.not.ma_pop_stack(l_nod))
-     + call errquit('Failed to deallocate nod',me, MA_ERR)
+     + call md_abort('Failed to deallocate nod',me)
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Problems in sp_balanc at 4',me, MA_ERR)
+     + call md_abort('Problems in sp_balanc at 4',me)
 c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng))) then
       call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
       call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
       endif
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Problems in sp_balanc at 5',me, MA_ERR)
+     + call md_abort('Problems in sp_balanc at 5',me)
 c
       return
       end

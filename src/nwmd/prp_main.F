@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.95 2003-10-13 20:45:58 d3j191 Exp $
+c $Id: prp_main.F,v 1.96 2003-10-19 03:30:57 d3j191 Exp $
 c
       implicit none
 c
@@ -734,16 +734,16 @@ c
 c
       if(npgdec.gt.0) then
       if(.not.ma_push_get(mt_dbl,6*nsa,'dec',l_dec,i_dec))
-     + call errquit('Failed to allocate dec',0)
+     + call md_abort('Failed to allocate dec',0)
       else
       if(.not.ma_push_get(mt_dbl,1,'dec',l_dec,i_dec))
-     + call errquit('Failed to allocate dec',0)
+     + call md_abort('Failed to allocate dec',0)
       endif
 c
       call prp_mcti_s(dbl_mb(i_dfr),dbl_mb(i_dfrm),dbl_mb(i_dec))
 c
       if(.not.ma_pop_stack(l_dec))
-     + call errquit('Failed to deallocate dec',0)
+     + call md_abort('Failed to deallocate dec',0)
 c
       return
       end
@@ -1074,10 +1074,10 @@ c
       read(lfnmri,err=9,end=9) nderiv,nda,nprp,nsum,nsumt,ndec,nmxp
       if(mropt.ne.2) then
       if(nprop.ne.nprp) then
-      call errquit('Number of properties nprop changed',0)
+      call md_abort('Number of properties nprop changed',0)
       endif
       if(maxp.ne.nmxp) then
-      call errquit('Number of properties maxp changed',0)
+      call md_abort('Number of properties maxp changed',0)
       endif
       endif
       read(lfnmri,err=9,end=9) deriv

@@ -1,7 +1,7 @@
       logical function pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm)
 c
-c $Id: pre_rtdbsq.F,v 1.9 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_rtdbsq.F,v 1.10 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to read sequence from the rtdb
 c
@@ -40,7 +40,7 @@ c
 c
       do 1 i=1,natm
       if(.not.geom_cent_get(igeom,i,tag,c,q))
-     + call errquit('pre_rtdbsq: geom_cent_get failed',i)
+     + call md_abort('pre_rtdbsq: geom_cent_get failed',i)
       latm(1,i)=1
       latm(2,i)=0
       latm(3,i)=0
@@ -50,7 +50,7 @@ c
       xatm(2,i)=cau2nm*c(2)
       xatm(3,i)=cau2nm*c(3)
       if(.not.geom_tag_to_element(tag,symbol,element,iatn))
-     + call errquit('geom_tag_to_element failed',9999)
+     + call md_abort('geom_tag_to_element failed',9999)
       latm(2,1)=iatn
       catm(1,i)='      '
       if(symbol(2:2).eq.' ') then

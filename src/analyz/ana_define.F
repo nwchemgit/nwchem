@@ -1,6 +1,6 @@
       subroutine ana_define(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_define.F,v 1.5 2002-07-20 19:17:38 d3j191 Exp $
+c $Id: ana_define.F,v 1.6 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -29,11 +29,11 @@ c
  1000 format(i7,f12.6,a)
 c
       if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
-     + call errquit('Failed to allocate list',0)
+     + call md_abort('Failed to allocate list',0)
 c
       call ana_selection(sgmnam,nsa,target,int_mb(i_list))
 c
-      if(abs(id).gt.mxdef) call errquit('Group number too large',id)
+      if(abs(id).gt.mxdef) call md_abort('Group number too large',id)
 c
       if(id.eq.0) then
       ndef=0
@@ -46,7 +46,7 @@ c
       ndef=id
       ldef(id)=0
       endif
-      if(id.gt.ndef) call errquit('Groups to be defined in order',id)
+      if(id.gt.ndef) call md_abort('Groups to be defined in order',id)
       endif
 c
       do 3 i=1,nsa
@@ -55,7 +55,7 @@ c
       if(idef(id,k).eq.i) goto 3
     4 continue
       ldef(id)=ldef(id)+1
-      if(ldef(id).gt.mxnum) call errquit('Too many atoms in group',id)
+      if(ldef(id).gt.mxnum) call md_abort('Too many atoms in group',id)
       idef(id,ldef(id))=i
       if(rtag.gt.0.0d0) then
       rtag2=rtag*rtag
@@ -66,7 +66,7 @@ c
       if(idef(id,l).eq.k) goto 5
     6 continue
       ldef(id)=ldef(id)+1
-      if(ldef(id).gt.mxnum) call errquit('Too many atoms in group',id)
+      if(ldef(id).gt.mxnum) call md_abort('Too many atoms in group',id)
       idef(id,ldef(id))=k
     7 continue
       endif
@@ -76,7 +76,7 @@ c
     3 continue
 c
       if(.not.ma_pop_stack(l_list))
-     + call errquit('Failed to deallocate list',0)
+     + call md_abort('Failed to deallocate list',0)
 c
       write(*,1001) id,ldef(id)
  1001 format(' Atom group',i5,' contains ',i7,' atoms')
@@ -127,7 +127,7 @@ c
       ndef=id
       ldef(id)=0
       endif
-      if(id.gt.ndef) call errquit('Groups to be defined in order',id)
+      if(id.gt.ndef) call md_abort('Groups to be defined in order',id)
       if(ldef(id).gt.0) ldef(id)=0
 c
       if(cs(1:1).eq.'_') cs(1:1)=' '
@@ -142,7 +142,7 @@ c
       if(idef(id,k).eq.i) goto 7
     6 continue
       ldef(id)=ldef(id)-1
-      if(-ldef(id).gt.mxnum) call errquit('Too many atoms in group',id)
+      if(-ldef(id).gt.mxnum) call md_abort('Too many atoms in group',id)
       idef(id,-ldef(id))=i
     7 continue
       endif

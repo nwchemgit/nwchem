@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.173 2003-09-22 22:49:09 d3j191 Exp $
+c $Id: md_main.F,v 1.174 2003-10-19 03:30:57 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
       call md_ti()
 c
       else
-      call errquit('Unknown calculation type',ntype)
+      call md_abort('Unknown calculation type',ntype)
       endif
 c
       return
@@ -75,7 +75,7 @@ c
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
       if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call errquit('Failed to allocate memory for wws',me)
+     + call md_abort('Failed to allocate memory for wws',me)
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -101,7 +101,7 @@ c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
       if(.not.ma_pop_stack(l_wws))
-     + call errquit('Failed to deallocate memory for wws',me)
+     + call md_abort('Failed to deallocate memory for wws',me)
 c
 c     print energies
 c
@@ -173,7 +173,7 @@ c
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
       if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call errquit('Failed to allocate memory for wws',me)
+     + call md_abort('Failed to allocate memory for wws',me)
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -202,7 +202,7 @@ c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
       if(.not.ma_pop_stack(l_wws))
-     + call errquit('Failed to deallocate memory for wws',me)
+     + call md_abort('Failed to deallocate memory for wws',me)
 c
 c     print energies
 c
@@ -254,7 +254,7 @@ c
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
 c
       if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
-     + call errquit('Failed to allocate memory for wws',me)
+     + call md_abort('Failed to allocate memory for wws',me)
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -270,22 +270,22 @@ c
 c
       if(mcgit.gt.0) then
       if(.not.ma_push_get(mt_dbl,3*mwa*mwm,'pcgw',l_pcgw,i_pcgw))
-     + call errquit('Failed to allocate memory for pcgw',me)
+     + call md_abort('Failed to allocate memory for pcgw',me)
       if(.not.ma_push_get(mt_dbl,3*msa,'pcgs',l_pcgs,i_pcgs))
-     + call errquit('Failed to allocate memory for pcgs',me)
+     + call md_abort('Failed to allocate memory for pcgs',me)
       call md_congra(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
      + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_fw),dbl_mb(i_pcgw),
      + int_mb(i_is+(lsdyn-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
      + dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_pcgs),dbl_mb(i_wws),
      + dbl_mb(i_wws+mwa))
       if(.not.ma_pop_stack(l_pcgs))
-     + call errquit('Failed to deallocate memory for pcgs',me)
+     + call md_abort('Failed to deallocate memory for pcgs',me)
       if(.not.ma_pop_stack(l_pcgw))
-     + call errquit('Failed to deallocate memory for pcgw',me)
+     + call md_abort('Failed to deallocate memory for pcgw',me)
       endif
 c
       if(.not.ma_pop_stack(l_wws))
-     + call errquit('Failed to deallocate memory for wws',me)
+     + call md_abort('Failed to deallocate memory for wws',me)
 c
       call cf_print_energy(lfnout)
 c
@@ -725,7 +725,7 @@ c
       call ga_dgop(mrg_d09,ypa,1,'+')
       call ga_dgop(mrg_d10,pnorm,1,'+')
 c
-      if(pnorm.lt.zero) call errquit('congra: pnorm<zero',0)
+      if(pnorm.lt.zero) call md_abort('congra: pnorm<zero',0)
       pnorm=sqrt(pnorm)
 c
       alpha=zero
@@ -1194,7 +1194,7 @@ c
       open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmri) npp
-      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      if(npp.ne.np) call md_abort('Number of nodes changed',npp)
       endif
       krun=0
       endif
@@ -1209,7 +1209,7 @@ c
       open(unit=lfnmro,file=filmro(1:index(filmro,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmro) npp,mrun,mequi,mdacq
-      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      if(npp.ne.np) call md_abort('Number of nodes changed',npp)
       endif
       krun=0
       do 11 irun=1,mrun
@@ -1228,10 +1228,10 @@ c
       open(unit=lfnmri,file=filmri(1:index(filmri,' ')-1),
      + form='unformatted',status='unknown',err=9999)
       read(lfnmri) npp
-      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      if(npp.ne.np) call md_abort('Number of nodes changed',npp)
       rewind(lfnmro)
       read(lfnmro) npp,mrun,mequi,mdacq
-      if(npp.ne.np) call errquit('Number of nodes changed',npp)
+      if(npp.ne.np) call md_abort('Number of nodes changed',npp)
       rewind(lfngib)
       endif
 c
@@ -1240,18 +1240,18 @@ c
       read(lfnmri) irunp,kequi,kdacq
       endif
       if(.not.prp_rdmri(lfnmri,ndec,mropt))
-     + call errquit('Error in mri file',0)
+     + call md_abort('Error in mri file',0)
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
-     + call errquit('Error in mri file',0)
+     + call md_abort('Error in mri file',0)
       read(lfnmro) irunp,kequi,kdacq
       if(.not.prp_rdmri(lfnmro,ndec,mropt))
-     + call errquit('Error in mro file',0)
+     + call md_abort('Error in mro file',0)
       if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
-     + call errquit('Error in mro file',0)
+     + call md_abort('Error in mro file',0)
       if(me.eq.0) then
       read(lfngib,2000) ndum
  2000 format(7x,i7)
@@ -1307,9 +1307,9 @@ c
       if(mropt.ge.2) then
       if(me.eq.0) then
       read(lfnmri,end=399,err=399) irunp,kequi,kdacq
-      if(irunp.ne.irun) call errquit('Number of run changed',irunp)
+      if(irunp.ne.irun) call md_abort('Number of run changed',irunp)
       if(.not.prp_rdmri(lfnmri,ndec,mropt))
-     + call errquit('Error in mri',0)
+     + call md_abort('Error in mri',0)
       if(kequi+kdacq.lt.mequi) then
       kequi=kequi+kdacq
       kdacq=0
@@ -1336,12 +1336,12 @@ c     lambda run.
 c     if this is the first run there must be something wrong
 c
       if(kequi.eq.0.and.kdacq.eq.0) then
-      if(irun.eq.1) call errquit('No records found on mri',me)
+      if(irun.eq.1) call md_abort('No records found on mri',me)
       else
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs)))
-     + call errquit('Error reading mri in sp_rdmri',0)
+     + call md_abort('Error reading mri in sp_rdmri',0)
       endif
       endif
 c
@@ -1486,7 +1486,7 @@ c
       return
 c
  9999 continue
-      call errquit('Failed to open file mro',0)
+      call md_abort('Failed to open file mro',0)
       return
       end
       subroutine md_newton()
@@ -2525,7 +2525,7 @@ c
       return
 c
  9999 continue
-      call errquit('Unable to open restart for writing',me)
+      call md_abort('Unable to open restart for writing',me)
       return
       end
       subroutine md_server
@@ -2631,7 +2631,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.173 2003-09-22 22:49:09 d3j191 Exp $
+c $Id: md_main.F,v 1.174 2003-10-19 03:30:57 d3j191 Exp $
 c
       implicit none
 c
@@ -2787,4 +2787,3 @@ c
 c
       return
       end
-

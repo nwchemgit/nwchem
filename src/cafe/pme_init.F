@@ -1,6 +1,6 @@
       subroutine pme_start(a,m,imffti,nodpmi,
      + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
-c $Id: pme_init.F,v 1.21 2003-04-23 22:59:38 edo Exp $
+c $Id: pme_init.F,v 1.22 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -46,57 +46,57 @@ c
       mgry=ngry
       mgrz=mgz
       if(nodpme*mgz.lt.ngz)
-     + call errquit('Inconsistent number of pme nodes',0)
+     + call md_abort('Inconsistent number of pme nodes',0)
 c
 c     allocate memory for spline coefficients
 c
       if(.not.ma_push_get(mt_dbl,3*ngmax,'bmod',l_bmod,i_bmod))
-     + call errquit('Failed to allocate bmod',0)
+     + call md_abort('Failed to allocate bmod',0)
       if(.not.ma_push_get(mt_dbl,ngmax,'barr',l_barr,i_barr))
-     + call errquit('Failed to allocate barr',0)
+     + call md_abort('Failed to allocate barr',0)
 c
 c     allocate memory for the grids
 c
       mem=2*mgx*mgy*mgz
       if(.not.ma_push_get(mt_dbl,mem,'grid1',l_grd1,i_grd1))
-     + call errquit('Failed to allocate grid1',0)
+     + call md_abort('Failed to allocate grid1',0)
       if(.not.ma_push_get(mt_dbl,mem,'grid2',l_grd2,i_grd2))
-     + call errquit('Failed to allocate grid2',0)
+     + call md_abort('Failed to allocate grid2',0)
       if(.not.ma_push_get(mt_dbl,mgrx*mgry*mgz,'grid',l_grd,i_grd))
-     + call errquit('Failed to allocate grid',0)
+     + call md_abort('Failed to allocate grid',0)
 c
 c     allocate memory for node arrays
 c
       if(.not.ma_push_get(mt_int,np,'lnode',l_lnod,i_lnod))
-     + call errquit('Failed to allocate lnode',0)
+     + call md_abort('Failed to allocate lnode',0)
       if(.not.ma_push_get(mt_int,np,'kfrom',l_kfr,i_kfr))
-     + call errquit('Failed to allocate kfrom',0)
+     + call md_abort('Failed to allocate kfrom',0)
       if(.not.ma_push_get(mt_int,np,'kto',l_kto,i_kto))
-     + call errquit('Failed to allocate kto',0)
+     + call md_abort('Failed to allocate kto',0)
       if(.not.ma_push_get(mt_int,np,'nodep',l_nodp,i_nodp))
-     + call errquit('Failed to allocate nodep',0)
+     + call md_abort('Failed to allocate nodep',0)
 c
       if(.not.ma_push_get(mt_int,ngz,'knode',l_knod,i_knod))
-     + call errquit('Failed to allocate knode',0)
+     + call md_abort('Failed to allocate knode',0)
 c
       if(.not.ma_push_get(mt_log,mgz*np,'lsldo',l_lsld,i_lsld))
-     + call errquit('Failed to allocate ldldo',0)
+     + call md_abort('Failed to allocate ldldo',0)
       if(.not.ma_push_get(mt_int,4*mgz*np,'slmax',l_slmax,i_slmax))
-     + call errquit('Failed to allocate slmax',0)
+     + call md_abort('Failed to allocate slmax',0)
 c
 c     allocate memory for fft node maps
 c
       mem=3*max(ngx,ngy,ngz)
       if(.not.ma_push_get(mt_int,mem,'map1',l_map1,i_map1))
-     + call errquit('Failed to allocate map1',0)
+     + call md_abort('Failed to allocate map1',0)
       if(.not.ma_push_get(mt_int,mem,'map2',l_map2,i_map2))
-     + call errquit('Failed to allocate map2',0)
+     + call md_abort('Failed to allocate map2',0)
 c
 c     allocate memory for slab arrays
 c
       mem=mgz*np
       if(.not.ma_push_get(mt_int,mem,'slab',l_slab,i_slab))
-     + call errquit('Failed to allocate slab',0)
+     + call md_abort('Failed to allocate slab',0)
 c
 c     create the global arrays for the slabs
 c
@@ -105,7 +105,7 @@ c
 c     create the flag array
 c
       if(.not.ga_create(mt_int,np,5,'flg',1,5,ga_flg))
-     + call errquit('Failed to allocate global array flg',0)
+     + call md_abort('Failed to allocate global array flg',0)
       call pme_flag(0,0,me)
       call pme_flag(1,0,me)
 c
@@ -131,41 +131,41 @@ c
 #include "global.fh"
 c
       if(.not.ga_destroy(ga_flg))
-     + call errquit('Failed to deallocate flg',0)
+     + call md_abort('Failed to deallocate flg',0)
 c
       call ga_destroy_list(mgz,lslab)
 c
       if(.not.ma_pop_stack(l_slab))
-     + call errquit('Failed to deallocate slab',0)
+     + call md_abort('Failed to deallocate slab',0)
       if(.not.ma_pop_stack(l_map2))
-     + call errquit('Failed to deallocate map2',0)
+     + call md_abort('Failed to deallocate map2',0)
       if(.not.ma_pop_stack(l_map1))
-     + call errquit('Failed to deallocate map1',0)
+     + call md_abort('Failed to deallocate map1',0)
       if(.not.ma_pop_stack(l_slmax))
-     + call errquit('Failed to deallocate slmax',0)
+     + call md_abort('Failed to deallocate slmax',0)
       if(.not.ma_pop_stack(l_lsld))
-     + call errquit('Failed to deallocate lsldo',0)
+     + call md_abort('Failed to deallocate lsldo',0)
       if(.not.ma_pop_stack(l_knod))
-     + call errquit('Failed to deallocate knode',0)
+     + call md_abort('Failed to deallocate knode',0)
       if(.not.ma_pop_stack(l_nodp))
-     + call errquit('Failed to deallocate nodep',0)
+     + call md_abort('Failed to deallocate nodep',0)
       if(.not.ma_pop_stack(l_kto))
-     + call errquit('Failed to deallocate kto',0)
+     + call md_abort('Failed to deallocate kto',0)
       if(.not.ma_pop_stack(l_kfr))
-     + call errquit('Failed to deallocate kfrom',0)
+     + call md_abort('Failed to deallocate kfrom',0)
       if(.not.ma_pop_stack(l_lnod))
-     + call errquit('Failed to deallocate lnode',0)
+     + call md_abort('Failed to deallocate lnode',0)
       if(.not.ma_pop_stack(l_grd))
-     + call errquit('Failed to deallocate grid',0)
+     + call md_abort('Failed to deallocate grid',0)
       if(.not.ma_pop_stack(l_grd2))
-     + call errquit('Failed to deallocate grid2',0)
+     + call md_abort('Failed to deallocate grid2',0)
       if(.not.ma_pop_stack(l_grd1))
-     + call errquit('Failed to deallocate grid1',0)
+     + call md_abort('Failed to deallocate grid1',0)
 c
       if(.not.ma_pop_stack(l_barr))
-     + call errquit('Failed to deallocate barr',0)
+     + call md_abort('Failed to deallocate barr',0)
       if(.not.ma_pop_stack(l_bmod))
-     + call errquit('Failed to deallocate bmod',0)
+     + call md_abort('Failed to deallocate bmod',0)
 c
       return
       end
@@ -180,13 +180,13 @@ c
       integer i_trgt,l_trgt
 c
       if(.not.ma_push_get(mt_dbl,np,'target',l_trgt,i_trgt))
-     + call errquit('Failed to allocate target',0)
+     + call md_abort('Failed to allocate target',0)
 c
       call pme_selnod(value,dbl_mb(i_trgt),int_mb(i_nodp),
      + int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),int_mb(i_map1))
 c
       if(.not.ma_pop_stack(l_trgt))
-     + call errquit('Failed to deallocate target',0)
+     + call md_abort('Failed to deallocate target',0)
 c
       return
       end
@@ -260,7 +260,7 @@ c
     9 continue
 c
       if(kto(nodep(nodpme)+1).ne.ngz)
-     + call errquit('Error in pme_select',me)
+     + call md_abort('Error in pme_select',me)
       kto(nodep(nodpme)+1)=ngz
 c
 c     for point i in the z direction: knode(i) is the owning node
@@ -289,8 +289,8 @@ c
       call blacs_gridexit(icntxt)
       else
       call blacs_pinfo(myr,myc)
-      if(me.ne.myr) call errquit('Identity crisis',me)
-      if(np.ne.myc) call errquit('Node count inconsistent',me)
+      if(me.ne.myr) call md_abort('Identity crisis',me)
+      if(np.ne.myc) call md_abort('Node count inconsistent',me)
       endif
 c
       do 12 i=1,np
@@ -305,7 +305,7 @@ c
       map(number)=knode(i)
       endif
    13 continue
-      if(number.ne.nodpme) call errquit('Node assignment problem',me)
+      if(number.ne.nodpme) call md_abort('Node assignment problem',me)
 c
       call blacs_get(0,0,icntxt)
 c
@@ -313,7 +313,7 @@ c
       call blacs_gridinfo(icntxt,npr,npc,myr,myc)
 c
       if(lpnode.and.(myr.ge.npr.or.myc.ge.npc)) then
-      call errquit('arg_fft3d: fft initialization failed',me)
+      call md_abort('arg_fft3d: fft initialization failed',me)
       endif
 c
       endif

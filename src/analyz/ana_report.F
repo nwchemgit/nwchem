@@ -1,6 +1,6 @@
       subroutine ana_report_file(opt,fil,lfn)
 c
-c $Id: ana_report.F,v 1.3 2003-06-09 22:45:16 d3j191 Exp $
+c $Id: ana_report.F,v 1.4 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -29,27 +29,27 @@ c
     1 continue
       read(lfn,1000) numj
       if(.not.ma_push_get(mt_int,3*numi,'ii',l_ii,i_ii))
-     + call errquit('Could not allocate ii',0)
+     + call md_abort('Could not allocate ii',0)
       if(.not.ma_push_get(mt_byte,12*numi,'ic',l_ic,i_ic))
-     + call errquit('Could not allocate ic',0)
+     + call md_abort('Could not allocate ic',0)
       if(.not.ma_push_get(mt_int,4*numj,'ji',l_ji,i_ji))
-     + call errquit('Could not allocate ji',0)
+     + call md_abort('Could not allocate ji',0)
       if(.not.ma_push_get(mt_byte,12*numj,'jc',l_jc,i_jc))
-     + call errquit('Could not allocate jc',0)
+     + call md_abort('Could not allocate jc',0)
       if(.not.ma_push_get(mt_dbl,numj,'jr',l_jr,i_jr))
-     + call errquit('Could not allocate jr',0)
+     + call md_abort('Could not allocate jr',0)
       call ana_report_loc(lfn,numi,numj,int_mb(i_ii),int_mb(i_ji),
      + byte_mb(i_ic),byte_mb(i_jc),dbl_mb(i_jr))
       if(.not.ma_pop_stack(l_jr))
-     + call errquit('Failed to deallocate jr',0)
+     + call md_abort('Failed to deallocate jr',0)
       if(.not.ma_pop_stack(l_jc))
-     + call errquit('Failed to deallocate jc',0)
+     + call md_abort('Failed to deallocate jc',0)
       if(.not.ma_pop_stack(l_ji))
-     + call errquit('Failed to deallocate ji',0)
+     + call md_abort('Failed to deallocate ji',0)
       if(.not.ma_pop_stack(l_ic))
-     + call errquit('Failed to deallocate ic',0)
+     + call md_abort('Failed to deallocate ic',0)
       if(.not.ma_pop_stack(l_ii))
-     + call errquit('Failed to deallocate ii',0)
+     + call md_abort('Failed to deallocate ii',0)
       close(unit=lfn)
       endif
 c

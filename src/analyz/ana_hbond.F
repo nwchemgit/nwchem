@@ -13,7 +13,7 @@ c
       integer i,j,k
 c
       if(np.gt.1)
-     + call errquit('hydrogen bond analysis on single processor only',0)
+     + call md_abort('h-bond analysis on single processor only',0)
 c
       do 1 i=1,nsa
       ihbnd(i)=0

@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.36 2003-10-01 10:25:37 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.37 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -173,7 +173,7 @@ c
       d(2)=d(2)/dble(num)-c(2)
       d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9001)
+      if(r.lt.0.0001) call md_abort('pre_misfit: vector too small',9001)
       xs(1,i)=c(1)-dr*d(1)/r
       xs(2,i)=c(2)-dr*d(2)/r
       xs(3,i)=c(3)-dr*d(3)/r
@@ -214,7 +214,7 @@ c
       d(2)=d(2)/dble(num)-c(2)
       d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9002)
+      if(r.lt.0.0001) call md_abort('pre_misfit: vector too small',9002)
       d(1)=dr*d(1)/r
       d(2)=dr*d(2)/r
       d(3)=dr*d(3)/r
@@ -246,7 +246,7 @@ c
       d(2)=d(2)+c(2)
       d(3)=d(3)+c(3)
       r=sqrt((xs(1,ic)-c(1))**2+(xs(2,ic)-c(2))**2+(xs(3,ic)-c(3))**2)
-      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9004)
+      if(r.lt.0.0001) call md_abort('pre_misfit: vector too small',9004)
       t(1)=dr*(xs(1,ic)-c(1))/r+c(1)
       t(2)=dr*(xs(2,ic)-c(2))/r+c(2)
       t(3)=dr*(xs(3,ic)-c(3))/r+c(3)
@@ -297,7 +297,7 @@ c
       d(2)=d(2)/dble(num)-c(2)
       d(3)=d(3)/dble(num)-c(3)
       r=sqrt(d(1)*d(1)+d(2)*d(2)+d(3)*d(3))
-      if(r.lt.0.0001) call errquit('pre_misfit: vector too small',9005)
+      if(r.lt.0.0001) call md_abort('pre_misfit: vector too small',9005)
       d(1)=dr*d(1)/r
       d(2)=dr*d(2)/r
       d(3)=dr*d(3)/r
@@ -328,7 +328,7 @@ c
 c
 c     three missing hydrogens from atom with other than 4 neighbors
 c
-      call errquit('pre_misfit: case not implemented involving atom',i)
+      call md_abort('pre_misfit: case not implemented involving atom',i)
       endif
       endif
 c
@@ -498,7 +498,7 @@ c
    14 continue
       ngrid=ngrid-1
 c
-      if(ngrid.le.0) call errquit('No grid points',9999)
+      if(ngrid.le.0) call md_abort('No grid points',9999)
 c
 c     calculate grid potential
 c
@@ -564,7 +564,7 @@ c
 c
       endif
 c
-      if(ngrid.le.0) call errquit('No grid points',9999)
+      if(ngrid.le.0) call md_abort('No grid points',9999)
 c
 c     find extrema
 c
@@ -633,7 +633,7 @@ c
       endif
    21 continue
 c
-      if(ngrid.le.0) call errquit('No grid points left',9999)
+      if(ngrid.le.0) call md_abort('No grid points left',9999)
 c
       else
       miss=miss+1
@@ -651,7 +651,7 @@ c
       endif
 c
       if(miss.ne.0) then
-      call errquit('pre_misfit: missing non hydrogen coordinates',9999)
+      call md_abort('pre_misfit: missing non hydrogen coordinates',9999)
       endif
 c
       endif

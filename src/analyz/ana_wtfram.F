@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.52 2003-01-25 00:12:50 edo Exp $
+c $Id: ana_wtfram.F,v 1.53 2003-10-19 03:31:02 d3j191 Exp $
 c
       implicit none
 c
@@ -515,6 +515,6 @@ c
 c
       return
 c
- 9999 call errquit('Oops',0)
+ 9999 call md_abort('Oops',0)
       return
       end

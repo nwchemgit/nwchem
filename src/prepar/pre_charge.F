@@ -2,7 +2,7 @@
      + source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.28 2003-08-29 15:32:24 d3j191 Exp $
+c $Id: pre_charge.F,v 1.29 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -121,7 +121,7 @@ c
       if(util_print('sequence',print_default)) write(lfnout,1000) charge
  1000 format(' Fragment charge',t40,f12.6,/)
 c      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
-c     + call errquit('pre_charge: rtdb_put nconst failed',0)
+c     + call md_abort('pre_charge: rtdb_put nconst failed',0)
       goto 100
       endif
 c
@@ -129,11 +129,11 @@ c
 c
       if(util_print('sequence',print_default)) write(lfnout,1000) charge
       if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
-     + call errquit('pre_charge: rtdb_put nconst failed',0)
+     + call md_abort('pre_charge: rtdb_put nconst failed',0)
       if(.not.geom_create(igeom2,'geometry'))
-     + call errquit('pre_charge: geom_create 1 failed',9999)
+     + call md_abort('pre_charge: geom_create 1 failed',9999)
       if(.not.geom_set_user_units(igeom2,'nanometer'))
-     + call errquit('pre_charge: geom_set_user_units failed',9999)
+     + call md_abort('pre_charge: geom_set_user_units failed',9999)
       nout=0
       do 12 i=1,nbnd
       ia=ilo-1+lbnd(1,i)
@@ -145,7 +145,7 @@ c
    12 continue
       nout=nout+ihi-ilo+1
       if(.not.geom_cart_set(igeom2,nout,tag,xatm,xatm))
-     + call errquit('pre_charge: geom_cart_set failed',9999)
+     + call md_abort('pre_charge: geom_cart_set failed',9999)
       do 10 i=1,ihi-ilo+1
       tag='                '
       if(latm(2,i).eq.1) then
@@ -162,7 +162,7 @@ c
       coord(2)=cnm2au*xatm(2,i)
       coord(3)=cnm2au*xatm(3,i)
       if(.not.geom_cent_set(igeom2,i,tag,coord,chrge))
-     + call errquit('pre_charge: geom_cent_set failed',9999)
+     + call md_abort('pre_charge: geom_cent_set failed',9999)
    10 continue
       nout=ihi-ilo+1
       do 11 i=1,nbnd
@@ -179,16 +179,16 @@ c
       coord(2)=cnm2au*xatm(2,ka)
       coord(3)=cnm2au*xatm(3,ka)
       if(.not.geom_cent_set(igeom2,nout,tag,coord,chrge))
-     + call errquit('pre_charge: geom_cent_set failed',9999)      
+     + call md_abort('pre_charge: geom_cent_set failed',9999)      
       endif
    11 continue
       if(.not.geom_rtdb_store(irtdb,igeom2,'geometry'))
-     + call errquit('pre_charge: geom_rtdb_store failed',9999)
+     + call md_abort('pre_charge: geom_rtdb_store failed',9999)
       if(.not.geom_destroy(igeom2))
-     + call errquit('pre_charge: geom_destroy failed',9999)
+     + call md_abort('pre_charge: geom_destroy failed',9999)
 c
       if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
-     + call errquit('pre_charge: rtdb_put newgrd failed',0)
+     + call md_abort('pre_charge: rtdb_put newgrd failed',0)
       if(rtdb_get(irtdb,'esp:nconst',mt_int,1,nconst)) goto 101
       nconst=0
       if(nout.gt.ihi-ilo+1) then
@@ -202,14 +202,14 @@ c
       rcon=0.0d0
       endif
       if(.not.rtdb_put(irtdb,'esp:nconst',mt_int,1,nconst))
-     + call errquit('pre_charge: rtdb_put nconst failed',0)
+     + call md_abort('pre_charge: rtdb_put nconst failed',0)
       if(nconst.gt.0) then
       if(.not.rtdb_put(irtdb,'esp:ncon',mt_int,1,ncon))
-     + call errquit('pre_charge: rtdb_put ncon failed',0)
+     + call md_abort('pre_charge: rtdb_put ncon failed',0)
       if(.not.rtdb_put(irtdb,'esp:icon',mt_int,ncon,icon))
-     + call errquit('pre_charge: rtdb_put icon failed',0)
+     + call md_abort('pre_charge: rtdb_put icon failed',0)
       if(.not.rtdb_put(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
-     + call errquit('pre_charge: rtdb_put rcon failed',0)
+     + call md_abort('pre_charge: rtdb_put rcon failed',0)
       endif
   100 continue
       irest=2
@@ -220,45 +220,45 @@ c
       toler=1.0d-04
       idump=0
       if(.not.rtdb_put(irtdb,'esp:irest',mt_int,1,irest))
-     + call errquit('pre_charge: rtdb_put irest failed',0)
+     + call md_abort('pre_charge: rtdb_put irest failed',0)
       if(.not.rtdb_put(irtdb,'esp:resa',mt_dbl,1,resa))
-     + call errquit('pre_charge: rtdb_put resa failed',0)
+     + call md_abort('pre_charge: rtdb_put resa failed',0)
       if(.not.rtdb_put(irtdb,'esp:resb',mt_dbl,1,resb))
-     + call errquit('pre_charge: rtdb_put resb failed',0)
+     + call md_abort('pre_charge: rtdb_put resb failed',0)
       if(.not.rtdb_put(irtdb,'esp:hfree',mt_int,1,ihfree))
-     + call errquit('pre_charge: rtdb_put hfree failed',0)
+     + call md_abort('pre_charge: rtdb_put hfree failed',0)
       if(.not.rtdb_put(irtdb,'esp:maxit',mt_int,1,maxit))
-     + call errquit('pre_charge: rtdb_put maxit failed',0)
+     + call md_abort('pre_charge: rtdb_put maxit failed',0)
       if(.not.rtdb_put(irtdb,'esp:toler',mt_dbl,1,toler))
-     + call errquit('pre_charge: rtdb_put toler failed',0)
+     + call md_abort('pre_charge: rtdb_put toler failed',0)
       if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
-     + call errquit('pre_charge: rtdb_put dump failed',0)
+     + call md_abort('pre_charge: rtdb_put dump failed',0)
   101 continue
 c
       itask=1
       if(.not.pre_task(irtdb,itask,lfnout))
-     + call errquit('pre_task failed',9999)
+     + call md_abort('pre_task failed',9999)
 c
       if(.not.geom_create(igeom2,'pre:geometry'))
-     + call errquit('pre_charge: geom_create 2 failed',0)
+     + call md_abort('pre_charge: geom_create 2 failed',0)
 c
       if(rtdb_get(irtdb,'geometry:esp_fit:geometry:ncenter',mt_int,1,n))
      + then
       if(.not.geom_rtdb_load(irtdb,igeom2,'esp_fit:geometry'))
-     + call errquit('pre_charge: geom_rtdb_load failed',0) 
+     + call md_abort('pre_charge: geom_rtdb_load failed',0) 
       else
-      call errquit('pre_charge: esp_fit geometry not found on rtdb',0)
+      call md_abort('pre_charge: esp_fit geometry not found on rtdb',0)
       endif
 c
       qsum=0.0d0
       do 9 i=1,ihi-ilo+1
       if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
-     + call errquit('pre_charge: geom_cent_get failed',i)
+     + call md_abort('pre_charge: geom_cent_get failed',i)
       qatm(i)=chrge
       qsum=qsum+chrge
     9 continue
       if(.not.geom_destroy(igeom2))
-     + call errquit('pre_charge: geom_destroy failed',9999)
+     + call md_abort('pre_charge: geom_destroy failed',9999)
       if(abs(qsum).lt.1.0d-5) then
       do 14 i=1,ihi-ilo+1
       qatm(i)=qscale*qatm(i)
@@ -270,7 +270,7 @@ c
   200 continue
 c
       if(.not.ma_push_get(mt_dbl,mbnd,'qb',l_qb,i_qb))
-     + call errquit('Failed to allocate qb',0)
+     + call md_abort('Failed to allocate qb',0)
 c
       call pre_quick_charge(lfnout,lfnpar,
      + ilo,ihi,
@@ -278,7 +278,7 @@ c
      + lbnd,dbl_mb(i_qb),mbnd,nbnd)
 c
       if(.not.ma_pop_stack(l_qb))
-     + call errquit('Failed to deallocate qb',0)
+     + call md_abort('Failed to deallocate qb',0)
 c
       do 3 i=1,natm
       nb=0
@@ -444,6 +444,6 @@ c
 c
       return
  9999 continue
-      call errquit('Error in pre_quick_charge',0)
+      call md_abort('Error in pre_quick_charge',0)
       return
       end

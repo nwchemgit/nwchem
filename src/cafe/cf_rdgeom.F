@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.9 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.10 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -43,17 +43,17 @@ c
       call cf_inita(natyps,4,nqtyps,4,3)
 c
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('cf_rdgeom: geom_create failed',0)
+     + call md_abort('cf_rdgeom: geom_create failed',0)
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('cf_rdgeom: geom_rtdb_load failed',0)
+     + call md_abort('cf_rdgeom: geom_rtdb_load failed',0)
       if(.not.geom_ncent(igeom,nsa))
-     + call errquit('cf_rdgeom: geom_ncent failed',0)
+     + call md_abort('cf_rdgeom: geom_ncent failed',0)
 c
       do 1 i=1,natyps
       if(.not.geom_cent_get(igeom,i,tag,c,q))
-     + call errquit('cf_rdgeom: geom_cent_get failed',i)
+     + call md_abort('cf_rdgeom: geom_cent_get failed',i)
       if(.not.geom_mass_get(igeom,i,w))
-     + call errquit('cf_rdgeom: geom_mass_get failed',i)
+     + call md_abort('cf_rdgeom: geom_mass_get failed',i)
       snam(i)='      '//tag(1:10)
       do 2 j=1,3
       cdata(j)=tag(1:6)
@@ -68,7 +68,7 @@ c
       call cf_parq(i,vadata)
     1 continue
       if(.not.geom_destroy(igeom))
-     + call errquit('arg_rdqdim: geom_destroy failed',0)
+     + call md_abort('arg_rdqdim: geom_destroy failed',0)
 c
       do 3 i=1,6
       vadata(i)=0.0d0
@@ -218,13 +218,13 @@ c
       mmuli=nmult(1)+nmult(2)+nmult(3)+nmult(4)
       if(mmult.gt.0) then
       if(.not.ma_push_get(mt_int,mmuli,'ixmul',l_ixmul,i_ixmul))
-     + call errquit('Failed to allocate memory for ixmul',0)
+     + call md_abort('Failed to allocate memory for ixmul',0)
       if(.not.ma_push_get(mt_int,4*mmult,'imul',l_imul,i_imul))
-     + call errquit('Failed to allocate memory for imul',0)
+     + call md_abort('Failed to allocate memory for imul',0)
       if(.not.ma_push_get(mt_dbl,3*mmult,'xmul',l_xmul,i_xmul))
-     + call errquit('Failed to allocate memory for xmul',0)
+     + call md_abort('Failed to allocate memory for xmul',0)
       if(.not.ma_push_get(mt_dbl,3*mmult,'fmul',l_fmul,i_fmul))
-     + call errquit('Failed to allocate memory for fmul',0)
+     + call md_abort('Failed to allocate memory for fmul',0)
       call cf_lstmul(int_mb(i_ixmul),int_mb(i_imul),
      + mbt(2),int_mb(i_ibnd(2)),mht(2),int_mb(i_iang(2)),
      + mdt(2),int_mb(i_idih(2)),mit(2),int_mb(i_iimp(2)))

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.161 2003-10-13 18:32:40 d3j191 Exp $
+c $Id: cf_main.F,v 1.162 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -394,7 +394,7 @@ c
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
      + dbl_mb(i_mas),iwgmn,isgan)
       else
-      call errquit('Unknown integration algorithm',mdalgo)
+      call md_abort('Unknown integration algorithm',mdalgo)
       endif
 c
       return
@@ -617,7 +617,7 @@ c
 c
       if(.not.lscr) then
       if(.not.ma_push_get(mt_dbl,3*mscr,'s3r1',l_s3r1,i_s3r1))
-     + call errquit('Failed to allocate scratch array s3r1',0)
+     + call md_abort('Failed to allocate scratch array s3r1',0)
       endif
 c
       call cf_fld(numw,xw,xwm,nums,isat,isml,xs,xsm,
@@ -625,7 +625,7 @@ c
 c
       if(.not.lscr) then
       if(.not.ma_pop_stack(l_s3r1))
-     + call errquit('Failed to deallocate scratch array s3r1',0)
+     + call md_abort('Failed to deallocate scratch array s3r1',0)
       endif
 c
       return
@@ -715,11 +715,11 @@ c
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       if(.not.ma_push_get(mt_dbl,3*msm,'vsm',l_vsm,i_vsm))
-     + call errquit('Failed to allocate scratch array vsm',0)
+     + call md_abort('Failed to allocate scratch array vsm',0)
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,ishop,
      + dbl_mb(i_wsm),dbl_mb(i_mas),dbl_mb(i_vsm))
       if(.not.ma_pop_stack(l_vsm))
-     + call errquit('Failed to deallocate scratch array vsm',0)
+     + call md_abort('Failed to deallocate scratch array vsm',0)
 c
       if(ltwin) then
       do 1 i=1,3
@@ -1498,7 +1498,7 @@ c
       if(ipmf(i,1).eq.6) m=1
       if(ipmf(i,1).eq.8) m=1
       if(ipmf(i,1).eq.9) m=2
-      if(m.eq.0) call errquit('Error in pmf xx',ipmf(i,1))
+      if(m.eq.0) call md_abort('Error in pmf xx',ipmf(i,1))
       skip=.false.
       do 3 j=1,m
       wmtot=0.0d0
@@ -2567,14 +2567,14 @@ c
       integer i_temp,l_temp
 c
       if(.not.ma_push_get(mt_int,nsatot,'itemp',l_temp,i_temp))
-     + call errquit('Unable to allocate temp array in cf_fix',0) 
+     + call md_abort('Unable to allocate temp array in cf_fix',0) 
 c
       call cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
      + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs,
      + int_mb(i_ibnd(2)),mbt(2),int_mb(i_temp))
 c
       if(.not.ma_pop_stack(l_temp)) 
-     + call errquit('Unable to deallocate temp array in cf_fix',0) 
+     + call md_abort('Unable to deallocate temp array in cf_fix',0) 
       return
       end
       subroutine cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
@@ -3461,7 +3461,7 @@ c
 c
       integer lfnmri
 c
-      if(npgdec.eq.0) call errquit('rdmri error',0)
+      if(npgdec.eq.0) call md_abort('rdmri error',0)
 c
       cf_rdmri=cf_rmri(lfnmri,dbl_mb(i_sti))
 c
@@ -3545,7 +3545,7 @@ c
       integer lfngib
       real*8 dec(6,nsatot),dlambd
 c
-      if(npgdec.eq.0) call errquit('rdgib error',0)
+      if(npgdec.eq.0) call md_abort('rdgib error',0)
 c
       call cf_rgib(lfngib,dbl_mb(i_sti),dec,dlambd)
 c

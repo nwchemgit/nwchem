@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.12 2003-09-23 19:04:25 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.13 2003-10-19 03:30:56 d3j191 Exp $
 c
       implicit none
 c
@@ -25,20 +25,20 @@ c
       lhop=.true.
 c
       if(.not.ma_push_get(mt_int,np,'itmp',l_itmp,i_itmp))
-     + call errquit('Failed to allocate itmp',me)
+     + call md_abort('Failed to allocate itmp',me)
 c
       call cf_hoplist(int_mb(i_itmp),int_mb(i_lda),dbl_mb(i_rda))
 c
       if(.not.ma_pop_stack(l_itmp))
-     + call errquit('Failed to deallocate itmp',me)
+     + call md_abort('Failed to deallocate itmp',me)
 c
       cf_hopping=.true.
       elseif(lhop) then
 c
       if(.not.ma_push_get(mt_dbl,nldat,'dtmp',l_dtmp,i_dtmp))
-     + call errquit('Failed to allocate dtmp',me)
+     + call md_abort('Failed to allocate dtmp',me)
       if(.not.ma_push_get(mt_int,nldat,'itmp',l_itmp,i_itmp))
-     + call errquit('Failed to allocate itmp',me)
+     + call md_abort('Failed to allocate itmp',me)
 c
       cf_hopping=cf_hop(int_mb(i_lseq),issgm,
      + int_mb(i_lda),dbl_mb(i_rda),dbl_mb(i_uda),
@@ -46,9 +46,9 @@ c
      + int_mb(i_lsthop),dbl_mb(i_timhop))
 c
       if(.not.ma_pop_stack(l_itmp))
-     + call errquit('Failed to deallocate itmp',me)
+     + call md_abort('Failed to deallocate itmp',me)
       if(.not.ma_pop_stack(l_dtmp))
-     + call errquit('Failed to deallocate dtmp',me)
+     + call md_abort('Failed to deallocate dtmp',me)
 c
       endif
 c

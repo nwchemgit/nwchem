@@ -1,7 +1,7 @@
       logical function pre_third(lbnd,mbnd,nbnd,lang,mang,nang,
      + l3rd,m3rd,n3rd,ib,ia,i3,nval,ival,ndx,natm)
 c
-c $Id: pre_third.F,v 1.6 2000-06-21 03:48:16 d3j191 Exp $
+c $Id: pre_third.F,v 1.7 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -125,7 +125,7 @@ c
     3 continue
 c
       if(n3rd.gt.nval)
-     + call errquit('pre_third: increase dimension nval',n3rd)
+     + call md_abort('pre_third: increase dimension nval',n3rd)
       if(n3rd.gt.0) then
       do 16 i=1,n3rd
       ndx(i)=i

@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert,ihop,ips)
 c
-c $Id: pre_wrtpdb.F,v 1.42 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.43 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -111,7 +111,7 @@ c      if(filmrg(1:1).ne.' ') then
  6060 continue
       ioff=inum
 c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
-      if(ioff.lt.0) call errquit('Error in pre_merge',ioff)
+      if(ioff.lt.0) call md_abort('Error in pre_merge',ioff)
       if(inum.ge.0) ioff=ioff+1-isgm(1)
       endif
 c
@@ -224,7 +224,7 @@ c
       ioff=inum
 c      if(filmrg(1:1).ne.' ') then
 c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
-      if(ioff.lt.0) call errquit('Error 2 in pre_merge',0)
+      if(ioff.lt.0) call md_abort('Error 2 in pre_merge',0)
       endif
 c
       if(iropt.le.1) then
@@ -329,7 +329,7 @@ c
       endif
       endif
       else
-      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(char(icharr).ne.' ') call md_abort('Error in LRGPDB ',icharr)
       if(nzrep.gt.0) then
       write(lfnpdb,2001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
      + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
@@ -496,7 +496,7 @@ c
       endif
       endif
       else
-      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(char(icharr).ne.' ') call md_abort('Error in LRGPDB ',icharr)
       if(nzrep.gt.0) then
       write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
      + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
@@ -544,7 +544,7 @@ c
       endif
       endif
       else
-      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(char(icharr).ne.' ') call md_abort('Error in LRGPDB ',icharr)
       if(nzrep.gt.0) then
       write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
      + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),

@@ -3,7 +3,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + nparms,mparms)
 c
-c $Id: pre_dummy.F,v 1.3 2003-08-07 21:47:55 d3j191 Exp $
+c $Id: pre_dummy.F,v 1.4 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -33,13 +33,13 @@ c
       do 1 i=1,nbnd
 c      write(*,'(3i5)') (lbnd(j,i),j=1,3)
       k=-lbnd(3,i)
-c      if(k.eq.0) call errquit('Error in pre_dummy',1)
+c      if(k.eq.0) call md_abort('Error in pre_dummy',1)
       if(k.ne.0) then
       kpar=0
       do 2 j=nparms,1,-1
       if(iand(k,2**(j-1)).ne.0) kpar=j
     2 continue
-      if(kpar.eq.0) call errquit('Error in pre_dummy',2)
+      if(kpar.eq.0) call md_abort('Error in pre_dummy',2)
       do 3 j=1,nparms
       if(iand(k,2**(j-1)).eq.0) then
       if(catm(j+1,lbnd(1,i))(6:6).eq.'D'.or.
@@ -58,13 +58,13 @@ c
       k=-lang(4,i)
 c      print*,i,k
 c      write(*,'(4i5)') (lang(j,i),j=1,4)
-c      if(k.eq.0) call errquit('Error in pre_dummy',3)
+c      if(k.eq.0) call md_abort('Error in pre_dummy',3)
       if(k.gt.0) then
       kpar=0
       do 5 j=nparms,1,-1
       if(iand(k,2**(j-1)).ne.0) kpar=j
     5 continue
-      if(kpar.eq.0) call errquit('Error in pre_dummy',4)
+      if(kpar.eq.0) call md_abort('Error in pre_dummy',4)
       do 6 j=1,nparms
 c      if(iand(k,2**(j-1)).eq.0) then
       if(catm(j+1,lang(1,i))(6:6).eq.'D'.or.
@@ -84,13 +84,13 @@ c      endif
 c
       do 7 i=1,ndih
       k=-ldih(5,i)
-c      if(k.eq.0) call errquit('Error in pre_dummy',5)
+c      if(k.eq.0) call md_abort('Error in pre_dummy',5)
       if(k.gt.0) then
       kpar=0
       do 8 j=nparms,1,-1
       if(iand(k,2**(j-1)).ne.0) kpar=j
     8 continue
-      if(kpar.eq.0) call errquit('Error in pre_dummy',6)
+      if(kpar.eq.0) call md_abort('Error in pre_dummy',6)
       do 9 j=1,nparms
       if(iand(k,2**(j-1)).eq.0) then
       if(catm(j+1,ldih(1,i))(6:6).eq.'D'.or.
@@ -113,13 +113,13 @@ c      if(k.eq.0) call errquit('Error in pre_dummy',5)
 c
       do 11 i=1,nimp
       k=-limp(5,i)
-c      if(k.eq.0) call errquit('Error in pre_dummy',7)
+c      if(k.eq.0) call md_abort('Error in pre_dummy',7)
       if(k.gt.0) then
       kpar=0
       do 12 j=nparms,1,-1
       if(iand(k,2**(j-1)).ne.0) kpar=j
    12 continue
-      if(kpar.eq.0) call errquit('Error in pre_dummy',8)
+      if(kpar.eq.0) call md_abort('Error in pre_dummy',8)
       do 13 j=1,nparms
       if(iand(k,2**(j-1)).eq.0) then
       if(catm(j+1,limp(1,i))(6:6).eq.'D'.or.

@@ -1,6 +1,6 @@
       subroutine ana_sizref(nsai,msai)
 c
-c $Id: ana_sizref.F,v 1.4 2000-02-04 17:35:48 d3j191 Exp $
+c $Id: ana_sizref.F,v 1.5 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -60,7 +60,7 @@ c
       return
 c
  9999 continue
-      call errquit('Unable to open reference file',0)
+      call md_abort('Unable to open reference file',0)
       return
       end
 

@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
+c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
 c
       implicit none
 c
@@ -209,7 +209,7 @@ c
       nax2=nax2+lwwin(iwm,ipww)
    31 continue
 c
-      if(nax.ne.nax2) call errquit('Error in dipww',me)
+      if(nax.ne.nax2) call md_abort('Error in dipww',me)
 c
 c
       do 40 iwa=1,mwa
@@ -288,7 +288,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
+c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
 c
       implicit none
 c
@@ -598,7 +598,7 @@ c
       nax2=nax2+lswin(isa,ipsw)
    31 continue
 c
-      if(nax.ne.nax2) call errquit('Error in dipsw',me)
+      if(nax.ne.nax2) call md_abort('Error in dipsw',me)
 c
       do 41 iax=1,nax
       fi(iax,1)=zero
@@ -677,7 +677,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwc,rwi1,rwi2,rwi6,
      + rwx,rw,fi,fj,f,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.6 2003-07-17 19:44:23 d3j191 Exp $
+c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
 c
       implicit none
 c
@@ -975,7 +975,7 @@ c
       nax2=nax2+lssin(isa,ipss)
    16 continue
 c
-      if(nax2.ne.nax) call errquit('Error in dips',me)
+      if(nax2.ne.nax) call md_abort('Error in dips',me)
 c
       do 18 iax=1,nax
       isa=isal(iax)

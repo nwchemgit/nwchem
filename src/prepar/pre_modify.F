@@ -4,7 +4,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
      + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.17 2003-08-07 21:47:55 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.18 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -71,10 +71,10 @@ c
       if(ndx.gt.0) then
       read(target(1:ndx-1),*) isgm
       if(ndy-ndx.gt.5)
-     + call errquit('pre_modify: atom name problem',9999)
+     + call md_abort('pre_modify: atom name problem',9999)
       aname(1:ndy-ndx)=target(ndx+1:ndy)
       else
-      if(ndy.gt.5) call errquit('pre_modify: atom name problem',9999)
+      if(ndy.gt.5) call md_abort('pre_modify: atom name problem',9999)
       aname(1:ndy-1)=target(1:ndy-1)
       endif
       if(aname(1:1).eq.'_') aname(1:1)=' '
@@ -168,7 +168,7 @@ c
    13 continue
       endif
    12 continue
-      if(.not.foundit) call errquit('Atom not found for quantum',0)
+      if(.not.foundit) call md_abort('Atom not found for quantum',0)
       endif
       if(card(21:23).eq.'QTM') then
       if(util_print('where',print_default)) then
@@ -184,7 +184,7 @@ c
   113 continue
       endif
   112 continue
-      if(.not.foundit) call errquit('Atom not found for quantum',0)
+      if(.not.foundit) call md_abort('Atom not found for quantum',0)
       endif
       endif
 c
@@ -378,21 +378,21 @@ c
       card=card(33:80)
       ifr=0
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) jsgm
       atomj=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomj,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       iatom=0
       jatom=0
       do 20 i=1,natm
@@ -409,7 +409,7 @@ c
       endif
    21 continue
    22 continue
-      if(ibnd.eq.0) call errquit('Bond could not be found',9999)
+      if(ibnd.eq.0) call md_abort('Bond could not be found',9999)
       do 23 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rbnd(i,1,ibnd)=value
@@ -429,29 +429,29 @@ c
       card=card(34:80)
       ifr=0
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) jsgm
       atomj=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomj,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) ksgm
       atomk=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomk,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       iatom=0
       jatom=0
       katom=0
@@ -471,7 +471,7 @@ c
       endif
    25 continue
    26 continue
-      if(iang.eq.0) call errquit('Angle could not be found',9999)
+      if(iang.eq.0) call md_abort('Angle could not be found',9999)
       do 27 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rang(i,1,iang)=value
@@ -492,37 +492,37 @@ c
       card=card(38:80)
       ifr=0
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) jsgm
       atomj=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomj,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) ksgm
       atomk=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomk,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) lsgm
       atoml=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atoml,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       iatom=0
       jatom=0
       katom=0
@@ -545,7 +545,7 @@ c
       endif
    29 continue
    30 continue
-      if(idih.eq.0) call errquit('Torsion could not be found',9999)
+      if(idih.eq.0) call md_abort('Torsion could not be found',9999)
       m=0
       do 531 j=1,nparms
       m=max(m,nfdih(j,i))
@@ -574,38 +574,38 @@ c
       card=card(34:80)
       ifr=0
       if(.not.inp_strtok(card,' ',ifr,ito)) then
-      call errquit('Unable to find atom',9999)
+      call md_abort('Unable to find atom',9999)
       endif
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomi,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) jsgm
       atomj=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomj,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) ksgm
       atomk=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atomk,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       if(.not.inp_strtok(card,' ',ifr,ito))
-     + call errquit('Unable to find atom',9999)
+     + call md_abort('Unable to find atom',9999)
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       read(target(1:ndx-1),*) lsgm
       atoml=target(ndx+1:index(target,' ')-1)//'      '
       if(.not.str_replace(atoml,'_',' '))
-     + call errquit('str_replace',9999)
+     + call md_abort('str_replace',9999)
       iatom=0
       jatom=0
       katom=0
@@ -656,7 +656,8 @@ c
       endif
    35 continue
    36 continue
-      if(iimp.eq.0) call errquit('Out-of-plane could not be found',9999)
+      if(iimp.eq.0) call
+     + md_abort('Out-of-plane could not be found',9999)
       do 37 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rimp(i,1,iimp)=value

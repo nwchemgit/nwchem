@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.16 2000-07-06 18:48:56 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.17 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -63,7 +63,7 @@ c
       nl(nn)=j
       if(j.gt.i.and.j.le.ihi) then
       nbnd=nbnd+1
-      if(nbnd.gt.mbnd) call errquit('Dimension problem',0)
+      if(nbnd.gt.mbnd) call md_abort('Dimension problem',0)
       lbnd(1,nbnd)=(i-ilo+1)
       lbnd(2,nbnd)=(j-ilo+1)
       endif
@@ -94,12 +94,12 @@ c
 c
       nang=0
       if(.not.pre_ang(lbnd,mbnd,nbnd,lang,mang,nang))
-     + call errquit('pre_ang failed',9999)
+     + call md_abort('pre_ang failed',9999)
       ndih=0
       if(.not.pre_dih(lang,mang,nang,ldih,mdih,ndih))
-     + call errquit('pre_dih failed',9999)
+     + call md_abort('pre_dih failed',9999)
       if(.not.pre_ring(lato,mato,nato,lang,mang,nang,ldih,mdih,ndih))
-     + call errquit('pre_ring failed',9999)
+     + call md_abort('pre_ring failed',9999)
 c
       do 20 i=1,nato
       nadd=0
@@ -167,7 +167,7 @@ c
       if(lato(2,nl(1)).eq.7.and.lato(4,nl(1)).eq.5.and.
      + lato(2,nl(2)).eq.7.and.lato(4,nl(2)).eq.5) then
       if(itmp(11,nl(1)).eq.3.and.itmp(11,nl(2)).eq.3)
-     + call errquit('N(3)-C(3)-N(3) in 5R',0)
+     + call md_abort('N(3)-C(3)-N(3) in 5R',0)
       lato(1,nl(2))=0
       if(itmp(11,nl(1)).eq.2.and.itmp(11,nl(2)).eq.3) then
       lato(1,nl(1))=0
@@ -243,7 +243,7 @@ c
       cato(3,i)='     '
    11 continue
       k=k+1
-      if(k.ge.10) call errquit('Too many hydrogens',0)
+      if(k.ge.10) call md_abort('Too many hydrogens',0)
       write(cato(1,i)(1:1),'(i1)') k
       write(cato(2,i)(1:1),'(i1)') k
       do 10 l=1,i-1

@@ -5,7 +5,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.42 2003-08-29 15:32:24 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.43 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -85,11 +85,11 @@ c
 c
       nbndt=0
       if(.not.pre_bonds(xatm,latm,matm,1,natm,lbndt,mbndt,nbndt,
-     + llnk,clnk,mlnk,nlnk)) call errquit('Error in pre_bonds',0)
+     + llnk,clnk,mlnk,nlnk)) call md_abort('Error in pre_bonds',0)
 c
       if(iconst.gt.0) then
       if(.not.pre_hybrid(xatm,latm,matm,natm,lbndt,mbndt,nbndt))
-     + call errquit('Error in pre_hybrid',0)
+     + call md_abort('Error in pre_hybrid',0)
       endif
 c
       do 1 i=1,nsgm
@@ -152,20 +152,20 @@ c     -------------------------------------------
 c
       nbnd=0
       if(.not.ma_push_get(mt_int,12*mato,'wrk',l_wrk,i_wrk))
-     + call errquit('Unable to allocate wrk array',0)
+     + call md_abort('Unable to allocate wrk array',0)
       if(.not.pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,
      + int_mb(i_wrk)))
-     + call errquit('pre_bnd failed',9999)
+     + call md_abort('pre_bnd failed',9999)
       if(.not.ma_pop_stack(l_wrk))
-     + call errquit('Unable to deallocate wrk array',0)
+     + call md_abort('Unable to deallocate wrk array',0)
 c
 c     redetermine hydrogen names
 c     --------------------------
       if(source(1:3).ne.'pdb') then
       if(.not.pre_hnames(lato,cato,mato,nato,lbnd,mbnd,nbnd))
-     + call errquit('pre_hnames failed',9999)
+     + call md_abort('pre_hnames failed',9999)
       endif
 c
 c     complete the list of angles for the fragment
@@ -173,14 +173,14 @@ c     --------------------------------------------
 c
       nang=0
       if(.not.pre_ang(lbnd,mbnd,nbnd,lang,mang,nang))
-     + call errquit('pre_ang failed',9999)
+     + call md_abort('pre_ang failed',9999)
 c
 c     complete the list of torsions for the fragment
 c     --------------------------------------------
 c
       ndih=0
       if(.not.pre_dih(lang,mang,nang,ldih,mdih,ndih))
-     + call errquit('pre_dih failed in pre_mkfrg',9999)
+     + call md_abort('pre_dih failed in pre_mkfrg',9999)
 c
 c     count number of bonds for each atom
 c     -----------------------------------
@@ -204,14 +204,14 @@ c
       if(.not.pre_impctr(lfnout,lato,mato,1,1,nato,nato,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6))
-     + call errquit('pre_impctr failed',9999)
+     + call md_abort('pre_impctr failed',9999)
 c
 c     memory allocation for work array ltyp
 c     -------------------------------------
 c
       mtyp=nato+50
       if(.not.ma_push_get(mt_int,15*mtyp,'ltyp',l_ltyp,i_ltyp))
-     + call errquit('Memory allocation failed for ltyp',9999)
+     + call md_abort('Memory allocation failed for ltyp',9999)
 c
 c     determine atom types
 c     --------------------
@@ -221,14 +221,14 @@ c
      + 1,1,nato,nato,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6,
      + latm,matm,natm,lbndt,mbndt,nbndt)) then
-      call errquit('pre_atype failed',9999)
+      call md_abort('pre_atype failed',9999)
       endif
 c
 c     memory deallocation
 c     -------------------
 c
       if(.not.ma_pop_stack(l_ltyp))
-     + call errquit('Memory deallocation failed for ltyp',9999)
+     + call md_abort('Memory deallocation failed for ltyp',9999)
 c
 c     check if all atom types could be determined
 c     -------------------------------------------
@@ -247,12 +247,12 @@ c
       if(.not.pre_charge(irtdb,lfnout,lfnpar,
      + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,maxscf,qscale))
-     + call errquit('pre_charge failed',9999)
+     + call md_abort('pre_charge failed',9999)
       else
       if(.not.pre_charge(irtdb,lfnout,lfnpar,
      + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
-     + call errquit('pre_charge failed',9999)
+     + call md_abort('pre_charge failed',9999)
       endif
 c
 c     write the fragment file
@@ -355,7 +355,7 @@ c
       write(lfnout,3008) csgm(i)(1:length)
  3008 format(' Unresolved atom types in fragment ',a,/)
       pre_mkfrg=.false.
-c      call errquit('Unresolved atom types',0)
+c      call md_abort('Unresolved atom types',0)
       endif
 c
       lsgm(2,i)=-6

@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel,logw)
 c
-c $Id: ana_wthdr.F,v 1.17 2001-05-16 15:56:20 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.18 2003-10-19 03:31:02 d3j191 Exp $
 c
       implicit none
 c
@@ -232,6 +232,6 @@ c
       return
 c
  9999 continue
-      call errquit('Failed to open file',iunit)
+      call md_abort('Failed to open file',iunit)
       return
       end

@@ -1,7 +1,7 @@
       logical function pre_short(xatm,latm,matm,ilo,ihi,jlo,jhi,
      + ishort,jshort,rshort)
 c
-c $Id: pre_short.F,v 1.9 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_short.F,v 1.10 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm 
@@ -61,7 +61,7 @@ c
       integer function pre_shorts(xatm,latm,matm,ilo,ihi,jlo,jhi,
      + ishort,jshort,rshort)
 c
-c $Id: pre_short.F,v 1.9 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_short.F,v 1.10 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm 
@@ -119,7 +119,7 @@ c
       if(ishrt.gt.0) then
       number=number+1
       if(number.gt.10)
-     + call errquit('Too many links between fragment pair',number) 
+     + call md_abort('Too many links between fragment pair',number) 
       ishort(number)=ishrt
       jshort(number)=jshrt
       rshort(number)=short

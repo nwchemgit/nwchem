@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi)
-c $Id: cf_init.F,v 1.99 2003-10-13 18:32:39 d3j191 Exp $
+c $Id: cf_init.F,v 1.100 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -33,7 +33,7 @@ c
       character*3 string
 c
       if(.not.ma_verify_allocator_stuff()) then
-      call errquit('ERROR IN MEMORY USE AT START CF_START',0)
+      call md_abort('ERROR IN MEMORY USE AT START CF_START',0)
       endif
 c
       me=ga_nodeid()
@@ -206,7 +206,7 @@ c
       lqhop=nfhop.ne.0
 c
       if(lqhop.and.lfree)
-     + call errquit('Proton hopping thermodynamics not allowed',0)
+     + call md_abort('Proton hopping thermodynamics not allowed',0)
 c
       ithint=ntype.eq.3
       ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
@@ -218,14 +218,14 @@ c
     2 continue
 c
       if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
-     + call errquit('Failed to allocate snam',me)
+     + call md_abort('Failed to allocate snam',me)
 c
       if(npgdec.gt.1) then
       if(.not.ma_push_get(mt_dbl,6*nsatot,'sti',l_sti,i_sti))
-     + call errquit('Failed to allocate sti',me)
+     + call md_abort('Failed to allocate sti',me)
       else
       if(.not.ma_push_get(mt_dbl,1,'sti',l_sti,i_sti))
-     + call errquit('Failed to allocate sti',me)
+     + call md_abort('Failed to allocate sti',me)
       endif
 c
       if(lqmd) then
@@ -253,11 +253,11 @@ c
       call ga_brdcst(mcf_55,ndrs,ma_sizeof(mt_int,1,mt_byte),0)
       if(ndrs.gt.0) then
       if(.not.ma_push_get(mt_int,2*ndrs,'idrs',l_idrs,i_idrs))
-     + call errquit('Failed to allocate idrs',0)
+     + call md_abort('Failed to allocate idrs',0)
       if(.not.ma_push_get(mt_dbl,6*ndrs,'rdrs',l_rdrs,i_rdrs))
-     + call errquit('Failed to allocate rdrs',0)
+     + call md_abort('Failed to allocate rdrs',0)
       if(.not.ma_push_get(mt_dbl,6*ndrs,'xdrs',l_xdrs,i_xdrs))
-     + call errquit('Failed to allocate xdrs',0)
+     + call md_abort('Failed to allocate xdrs',0)
       endif
       call cf_rddrs(lfntop,int_mb(i_idrs),dbl_mb(i_rdrs))
       if(me.eq.0) then
@@ -270,17 +270,17 @@ c     ---------------------------------------------------
 c
       if(nhop.gt.0) then
       if(.not.ma_push_get(mt_int,10*nhop*3,'lda',l_lda,i_lda))
-     + call errquit('Failed to allocate lda',0)
+     + call md_abort('Failed to allocate lda',0)
       if(.not.ma_push_get(mt_dbl,5*nhop*3,'rda',l_rda,i_rda))
-     + call errquit('Failed to allocate rda',0)
+     + call md_abort('Failed to allocate rda',0)
       if(.not.ma_push_get(mt_dbl,4*nhop*3,'uda',l_uda,i_uda))
-     + call errquit('Failed to allocate uda',0)
+     + call md_abort('Failed to allocate uda',0)
       if(.not.ma_push_get(mt_dbl,nhop*3,'pda',l_pda,i_pda))
-     + call errquit('Failed to allocate pda',0)
+     + call md_abort('Failed to allocate pda',0)
       if(.not.ma_push_get(mt_int,nhop*30,'lsthop',l_lsthop,i_lsthop))
-     + call errquit('Failed to allocate lsthop',0)
+     + call md_abort('Failed to allocate lsthop',0)
       if(.not.ma_push_get(mt_dbl,nhop*15,'timhop',l_timhop,i_timhop))
-     + call errquit('Failed to allocate timhop',0)
+     + call md_abort('Failed to allocate timhop',0)
       endif
 c
 c     potential of mean force
@@ -302,19 +302,19 @@ c
       npmfa=itemp(2)
       if(numpmf.gt.0) then
       if(.not.ma_push_get(mt_int,8*numpmf,'ipmf',l_ipmf,i_ipmf))
-     + call errquit('Failed to allocate ipmf',0)
+     + call md_abort('Failed to allocate ipmf',0)
       if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
-     + call errquit('Failed to allocate jpmf',0)
+     + call md_abort('Failed to allocate jpmf',0)
       if(.not.ma_push_get(mt_dbl,18*numpmf,'rpmf',l_rpmf,i_rpmf))
-     + call errquit('Failed to allocate rpmf',0)
+     + call md_abort('Failed to allocate rpmf',0)
       if(.not.ma_push_get(mt_dbl,16*numpmf,'xpmf',l_xpmf,i_xpmf))
-     + call errquit('Failed to allocate xpmf',0)
+     + call md_abort('Failed to allocate xpmf',0)
       if(.not.ma_push_get(mt_dbl,12*numpmf,'ypmf',l_ypmf,i_ypmf))
-     + call errquit('Failed to allocate ypmf',0)
+     + call md_abort('Failed to allocate ypmf',0)
       if(.not.ma_push_get(mt_dbl,4*numpmf,'wpmf',l_wpmf,i_wpmf))
-     + call errquit('Failed to allocate wpmf',0)
+     + call md_abort('Failed to allocate wpmf',0)
       if(.not.ma_push_get(mt_dbl,numpmf,'upmf',l_upmf,i_upmf))
-     + call errquit('Failed to allocate upmf',0)
+     + call md_abort('Failed to allocate upmf',0)
       endif
       call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
       call ga_brdcst(mcf_75,nbias,ma_sizeof(mt_int,1,mt_byte),0)
@@ -344,7 +344,7 @@ c
       ngrz=ngz
       pmetol=spmet
       if(ipme.gt.0) then
-      if(morder.gt.25) call errquit('morder too large',0)
+      if(morder.gt.25) call md_abort('morder too large',0)
       call cf_alpha
       call pme_start(alpha,morder,1,nodpme,
      + ngx,ngy,ngz,mwm,mwa,msa,icntrl)
@@ -376,9 +376,9 @@ c
       return
 
  9998 continue
-      call errquit('Potentials of mean force input not found',0)
+      call md_abort('Potentials of mean force input not found',0)
  9999 continue
-      call errquit('Distance restraints file not found',0)
+      call md_abort('Distance restraints file not found',0)
 c
       return
       end
@@ -466,7 +466,7 @@ c
       if(ipmf(i,1).eq.3) ith(21)=.true.
       if(ipmf(i,1).eq.4) ith(22)=.true.
       endif
-      if(m.eq.0) call errquit('Error in pmf from top',m)
+      if(m.eq.0) call md_abort('Error in pmf from top',m)
       do 3 j=1,m
       read(lfntop,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
  1001 format(10i7)
@@ -535,7 +535,7 @@ c                                                          5 : set 1
 c                                                          6 : set 2
 c
       if(.not.ma_push_get(mt_dbl,mat*mat*map*mset,'vdw',l_vdw,i_vdw))
-     + call errquit('Allocation failed for vdw',0)
+     + call md_abort('Allocation failed for vdw',0)
 c
 c     for atomic masses 1 : mass set 1
 c                       2 : mass set 2
@@ -545,36 +545,36 @@ c                       5 : mass set 1
 c                       6 : mass set 2
 c                           
       if(.not.ma_push_get(mt_dbl,mat*mset,'mas',l_mas,i_mas))
-     + call errquit('Allocation failed for mas',0)
+     + call md_abort('Allocation failed for mas',0)
 c
 c     for atom type names 1 : name set 1
 c                         2 : name set 2
 c                         3 : name set 3
 c
       if(.not.ma_push_get(mt_byte,6*mat*nparms,'nam',l_nam,i_nam))
-     + call errquit('Allocation failed for nam',0)
+     + call md_abort('Allocation failed for nam',0)
 c
 c     for atomic numbers  1 : atomic number set 1
 c                         2 : atomic number set 2
 c                         3 : atomic number set 3
 c
       if(.not.ma_push_get(mt_int,mat*nparms,'num',l_num,i_num))
-     + call errquit('Allocation failed for num',0)
+     + call md_abort('Allocation failed for num',0)
 c
 c     for special type    1 : type in set 1
 c                         2 : type in set 2
 c                         3 : type in set 3
 c
       if(.not.ma_push_get(mt_int,mat*nparms,'typ',l_typ,i_typ))
-     + call errquit('Allocation failed for typ',0)
+     + call md_abort('Allocation failed for typ',0)
 c
       if(.not.ma_push_get(mt_int,mat*mat,'ias',l_ias,i_ias))
-     + call errquit('Allocation failed for ias',0)
+     + call md_abort('Allocation failed for ias',0)
 c
 c     for charge types
 c
       if(.not.ma_push_get(mt_dbl,mqt*mqp*mset,'chg',l_chg,i_chg))
-     + call errquit('Allocation failed for chg',0)
+     + call md_abort('Allocation failed for chg',0)
 c
       return
       end
@@ -590,7 +590,7 @@ c
       real*8 wgt(24)
       integer num(24)
 c
-      if(ia.lt.1.or.ia.gt.mat) call errquit('Error in para',0)
+      if(ia.lt.1.or.ia.gt.mat) call md_abort('Error in para',0)
 c
       call cf_copya(ia,nam,wgt,num,byte_mb(i_nam),
      + dbl_mb(i_mas),int_mb(i_num),int_mb(i_typ))
@@ -660,8 +660,8 @@ c
 c     vdwai(1:6) : c6a (set 1,2,3),  c6b (set 1,2,3)
 c     vdwri(1:6) : c12a (set 1,2,3), c12b (set 1,2,3)
 c
-      if(ia.lt.1.or.ia.gt.mat) call errquit('Error in para',0)
-      if(ja.lt.1.or.ja.gt.mat) call errquit('Error in para',0)
+      if(ia.lt.1.or.ia.gt.mat) call md_abort('Error in para',0)
+      if(ja.lt.1.or.ja.gt.mat) call md_abort('Error in para',0)
 c
       call cf_copyv(ia,ja,vdwi,dbl_mb(i_vdw))
 c
@@ -687,7 +687,7 @@ c
 c
       integer i
 c
-      if(ia.lt.1.or.ia.gt.mqt) call errquit('Error in parq',0)
+      if(ia.lt.1.or.ia.gt.mqt) call md_abort('Error in parq',0)
 c
       call cf_copyq(ia,chgi,dbl_mb(i_chg))
 c
@@ -836,8 +836,8 @@ c
 #include "mafdecls.fh"
 c
       nbs=nbs+1
-      if(nbs.gt.mbs) call errquit('Error 1 in initb',0)
-      if(id.ne.nbs) call errquit('Error 2 in initb',0)
+      if(nbs.gt.mbs) call md_abort('Error 1 in initb',0)
+      if(id.ne.nbs) call md_abort('Error 2 in initb',0)
 c
       numb(id)=nbt
       numh(id)=nht
@@ -865,72 +865,72 @@ c     for bond types
 c
       if(.not.ma_push_get(mt_dbl,mbt(id)*mbp(id)*mset,'bnd',
      + l_bnd(id),i_bnd(id)))
-     + call errquit('Allocation failed for bnd',0)
+     + call md_abort('Allocation failed for bnd',0)
       if(.not.ma_push_get(mt_int,mbt(id)*mbp(id)*3,'ibnd',
      + l_ibnd(id),i_ibnd(id)))
-     + call errquit('Allocation failed for ibnd',0)
+     + call md_abort('Allocation failed for ibnd',0)
       if(.not.ma_push_get(mt_dbl,mbt(id)*2,'rbnd',
      + l_rbnd(id),i_rbnd(id)))
-     + call errquit('Allocation failed for rbnd',0)
+     + call md_abort('Allocation failed for rbnd',0)
 c
 c     for angle types
 c
       if(.not.ma_push_get(mt_dbl,mht(id)*mhp(id)*mset,'ang',
      + l_ang(id),i_ang(id)))
-     + call errquit('Allocation failed for ang',0)
+     + call md_abort('Allocation failed for ang',0)
       if(.not.ma_push_get(mt_int,mht(id)*mhp(id)*4,'iang',
      + l_iang(id),i_iang(id)))
-     + call errquit('Allocation failed for iang',0)
+     + call md_abort('Allocation failed for iang',0)
       if(.not.ma_push_get(mt_dbl,mht(id)*2,'rang',
      + l_rang(id),i_rang(id)))
-     + call errquit('Allocation failed for rang',0)
+     + call md_abort('Allocation failed for rang',0)
 c
 c     for dihedral types
 c
       if(.not.ma_push_get(mt_dbl,mdt(id)*mdp(id)*mset,'dih',
      + l_dih(id),i_dih(id)))
-     + call errquit('Allocation failed for dih',0)
+     + call md_abort('Allocation failed for dih',0)
       if(.not.ma_push_get(mt_int,mdt(id)*mdp(id)*5,'idih',
      + l_idih(id),i_idih(id)))
-     + call errquit('Allocation failed for idih',0)
+     + call md_abort('Allocation failed for idih',0)
       if(.not.ma_push_get(mt_dbl,mdt(id)*2,'rdih',
      + l_rdih(id),i_rdih(id)))
-     + call errquit('Allocation failed for rdih',0)
+     + call md_abort('Allocation failed for rdih',0)
 c
 c     for improper dihedral types
 c 
       if(.not.ma_push_get(mt_dbl,mit(id)*mip(id)*mset,'imp',
      + l_imp(id),i_imp(id)))
-     + call errquit('Allocation failed for imp',0)
+     + call md_abort('Allocation failed for imp',0)
       if(.not.ma_push_get(mt_int,mit(id)*mip(id)*5,'iimp',
      + l_iimp(id),i_iimp(id)))
-     + call errquit('Allocation failed for iimp',0)
+     + call md_abort('Allocation failed for iimp',0)
       if(.not.ma_push_get(mt_dbl,mit(id)*2,'rimp',
      + l_rimp(id),i_rimp(id)))
-     + call errquit('Allocation failed for rimp',0)
+     + call md_abort('Allocation failed for rimp',0)
 c
 c     for third neighbor lists
 c
       if(.not.ma_push_get(mt_int,(mtt(id)+1)*mtp(id),'trd',
      + l_itrd(id),i_itrd(id)))
-     + call errquit('Allocation failed for trd',0)
+     + call md_abort('Allocation failed for trd',0)
 c
 c     for excluded or non-bonded lists
 c
       if(.not.ma_push_get(mt_int,(mxt(id)+1)*mxp(id),'xcl',
      + l_ixcl(id),i_ixcl(id)))
-     + call errquit('Allocation failed for xcl',0)
+     + call md_abort('Allocation failed for xcl',0)
 c
       if(id.eq.1.and.mwa.gt.0) then
       if(.not.ma_push_get(mt_int,mwa,'iwa',l_iwa,i_iwa))
-     + call errquit('Allocation failed for iw',0)
+     + call md_abort('Allocation failed for iw',0)
       if(.not.ma_push_get(mt_int,mwa,'iwq',l_iwq,i_iwq))
-     + call errquit('Allocation failed for iwq',0)
+     + call md_abort('Allocation failed for iwq',0)
       endif
 c
       if(id.eq.2.and.msm.gt.0) then
       if(.not.ma_push_get(mt_dbl,msm,'wsm',l_wsm,i_wsm))
-     + call errquit('Allocation failed for wsm',0)
+     + call md_abort('Allocation failed for wsm',0)
 c
       endif
 c
@@ -945,7 +945,7 @@ c
 c
       integer id,ia,iq
 c
-      if(id.lt.1.or.id.gt.mwa) call errquit('Error in parwiq',0)
+      if(id.lt.1.or.id.gt.mwa) call md_abort('Error in parwiq',0)
       call cf_copwiq(id,ia,iq,int_mb(i_iwa),int_mb(i_iwq),
      + dbl_mb(i_mas),dbl_mb(i_chg),dbl_mb(i_vdw))
 c
@@ -1006,8 +1006,8 @@ c
       integer id,idp,ip(4)
       real*8 p(4,24)
 c
-      if(id.le.0.or.id.gt.nbs) call errquit('Error in parbnd',0)
-      if(idp.lt.1.or.idp.gt.mbt(id)) call errquit('Error in parbnd',0)
+      if(id.le.0.or.id.gt.nbs) call md_abort('Error in parbnd',0)
+      if(idp.lt.1.or.idp.gt.mbt(id)) call md_abort('Error in parbnd',0)
       if(id.eq.2.and.ip(3).lt.0) nmult(1)=nmult(1)+1
 c
       call cf_pcopy(idp,ip,p,4,mbp(id),int_mb(i_ibnd(id)),
@@ -1026,8 +1026,9 @@ c
       integer id,idp,ip(5)
       real*8 p(4,24)
 c
-      if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parang',0)
-      if(idp.lt.1.or.idp.gt.mht(id)) call errquit('Error 2 in parang',0)
+      if(id.le.0.or.id.gt.nbs) call md_abort('Error 1 in parang',0)
+      if(idp.lt.1.or.idp.gt.mht(id))
+     + call md_abort('Error 2 in parang',0)
       if(id.eq.2.and.ip(4).lt.0) nmult(2)=nmult(2)+1
 c
       call cf_pcopy(idp,ip,p,5,mhp(id),int_mb(i_iang(id)),
@@ -1046,8 +1047,9 @@ c
       integer id,idp,ip(6)
       real*8 p(4,24)
 c
-      if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in pardih',0)
-      if(idp.lt.1.or.idp.gt.mdt(id)) call errquit('Error 2 in pardih',0)
+      if(id.le.0.or.id.gt.nbs) call md_abort('Error 1 in pardih',0)
+      if(idp.lt.1.or.idp.gt.mdt(id))
+     + call md_abort('Error 2 in pardih',0)
       if(id.eq.2.and.ip(5).lt.0) nmult(3)=nmult(3)+1
 c
       call cf_pcopy(idp,ip,p,6,mdp(id),int_mb(i_idih(id)),
@@ -1066,8 +1068,9 @@ c
       integer id,idp,ip(6)
       real*8 p(4,24)
 c
-      if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parimp',0)
-      if(idp.lt.1.or.idp.gt.mit(id)) call errquit('Error 2 in parimp',0)
+      if(id.le.0.or.id.gt.nbs) call md_abort('Error 1 in parimp',0)
+      if(idp.lt.1.or.idp.gt.mit(id))
+     + call md_abort('Error 2 in parimp',0)
       if(id.eq.2.and.ip(5).lt.0) nmult(4)=nmult(4)+1
 c
       call cf_pcopy(idp,ip,p,6,mip(id),int_mb(i_iimp(id)),
@@ -1122,7 +1125,7 @@ c
       integer id,n
       integer idx(n),jdx(n)
 c
-      if(n.gt.mtt(id)) call errquit('Error in ndxtrd',0)
+      if(n.gt.mtt(id)) call md_abort('Error in ndxtrd',0)
 c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_itrd(id)),mtt(id))
@@ -1144,7 +1147,7 @@ c
       integer id,n
       integer idx(n),jdx(n)
 c
-      if(n.gt.mxt(id)) call errquit('Error in ndxxcl',0)
+      if(n.gt.mxt(id)) call md_abort('Error in ndxxcl',0)
 c
       if(id.eq.1) then
       call cf_icopy(idx,jdx,n,int_mb(i_ixcl(id)),mxt(id))
@@ -1251,83 +1254,83 @@ c
 c
       integer lenscr
 c
-      if(lscr) call errquit('Error 1 in cf_salloc',0)
-      if(mscr.le.0) call errquit('Error 2 in cf_salloc',0)
+      if(lscr) call md_abort('Error 1 in cf_salloc',0)
+      if(mscr.le.0) call md_abort('Error 2 in cf_salloc',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i1',l_s1i1,i_s1i1))
-     + call errquit('Failed to allocate scratch array s1i1',0)
+     + call md_abort('Failed to allocate scratch array s1i1',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i2',l_s1i2,i_s1i2))
-     + call errquit('Failed to allocate scratch array s1i2',0)
+     + call md_abort('Failed to allocate scratch array s1i2',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i3',l_s1i3,i_s1i3))
-     + call errquit('Failed to allocate scratch array s1i3',0)
+     + call md_abort('Failed to allocate scratch array s1i3',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i4',l_s1i4,i_s1i4))
-     + call errquit('Failed to allocate scratch array s1i4',0)
+     + call md_abort('Failed to allocate scratch array s1i4',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i5',l_s1i5,i_s1i5))
-     + call errquit('Failed to allocate scratch array s1i5',0)
+     + call md_abort('Failed to allocate scratch array s1i5',0)
 c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i6',l_s1i6,i_s1i6))
-     + call errquit('Failed to allocate scratch array s1i6',0)
+     + call md_abort('Failed to allocate scratch array s1i6',0)
 c
       lenscr=max(nsatot,3*mscr)
       if(.not.ma_alloc_get(mt_int,lenscr,'s2i1',l_s2i1,i_s2i1))
-     + call errquit('Failed to allocate scratch array s2i1',0)
+     + call md_abort('Failed to allocate scratch array s2i1',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r1',l_s1r1,i_s1r1))
-     + call errquit('Failed to allocate scratch array s1r1',0)
+     + call md_abort('Failed to allocate scratch array s1r1',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r2',l_s1r2,i_s1r2))
-     + call errquit('Failed to allocate scratch array s1r2',0)
+     + call md_abort('Failed to allocate scratch array s1r2',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r3',l_s1r3,i_s1r3))
-     + call errquit('Failed to allocate scratch array s1r3',0)
+     + call md_abort('Failed to allocate scratch array s1r3',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r4',l_s1r4,i_s1r4))
-     + call errquit('Failed to allocate scratch array s1r4',0)
+     + call md_abort('Failed to allocate scratch array s1r4',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r5',l_s1r5,i_s1r5))
-     + call errquit('Failed to allocate scratch array s1r5',0)
+     + call md_abort('Failed to allocate scratch array s1r5',0)
 c
       if(.not.ma_alloc_get(mt_dbl,mscr,'s1r6',l_s1r6,i_s1r6))
-     + call errquit('Failed to allocate scratch array s1r6',0)
+     + call md_abort('Failed to allocate scratch array s1r6',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mscr,'s3r1',l_s3r1,i_s3r1))
-     + call errquit('Failed to allocate scratch array s3r1',0)
+     + call md_abort('Failed to allocate scratch array s3r1',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mscr,'s3r2',l_s3r2,i_s3r2))
-     + call errquit('Failed to allocate scratch array s3r2',0)
+     + call md_abort('Failed to allocate scratch array s3r2',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr1',l_smr1,i_smr1))
-     + call errquit('Failed to allocate scratch array smr1',0)
+     + call md_abort('Failed to allocate scratch array smr1',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr2',l_smr2,i_smr2))
-     + call errquit('Failed to allocate scratch array smr2',0)
+     + call md_abort('Failed to allocate scratch array smr2',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr3',l_smr3,i_smr3))
-     + call errquit('Failed to allocate scratch array smr3',0)
+     + call md_abort('Failed to allocate scratch array smr3',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr4',l_smr4,i_smr4))
-     + call errquit('Failed to allocate scratch array smr4',0)
+     + call md_abort('Failed to allocate scratch array smr4',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr5',l_smr5,i_smr5))
-     + call errquit('Failed to allocate scratch array smr5',0)
+     + call md_abort('Failed to allocate scratch array smr5',0)
 c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr6',l_smr6,i_smr6))
-     + call errquit('Failed to allocate scratch array smr6',0)
+     + call md_abort('Failed to allocate scratch array smr6',0)
 c
       if(ipme.gt.0) then
       if(.not.ma_alloc_get(mt_dbl,3*msa,'pmes',l_pmes,i_pmes))
-     + call errquit('Failed to allocate scratch array pmes',0)
+     + call md_abort('Failed to allocate scratch array pmes',0)
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'pmew',l_pmew,i_pmew))
-     + call errquit('Failed to allocate scratch array pmew',0)
+     + call md_abort('Failed to allocate scratch array pmew',0)
       lenscr=3*morder*(mwa*mwm+msa)
       if(.not.ma_alloc_get(mt_dbl,lenscr,'theta',l_theta,i_theta))
-     + call errquit('Failed to allocate scratch array theta',0)
+     + call md_abort('Failed to allocate scratch array theta',0)
       if(.not.ma_alloc_get(mt_dbl,lenscr,'dtheta',l_dtheta,i_dtheta))
-     + call errquit('Failed to allocate scratch array dtheta',0)
+     + call md_abort('Failed to allocate scratch array dtheta',0)
       endif
 c
       lscr=.true.
@@ -1341,82 +1344,82 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-c      if(.not.lscr) call errquit('Error 1 in cf_sfree',0)
+c      if(.not.lscr) call md_abort('Error 1 in cf_sfree',0)
       if(.not.lscr) return
 c
       if(ipme.gt.0) then
       if(.not.ma_free_heap(l_dtheta))
-     + call errquit('Failed to free scratch array dtheta',0)
+     + call md_abort('Failed to free scratch array dtheta',0)
       if(.not.ma_free_heap(l_theta))
-     + call errquit('Failed to free scratch array theta',0)
+     + call md_abort('Failed to free scratch array theta',0)
       if(.not.ma_free_heap(l_pmew))
-     + call errquit('Failed to free scratch array pmew',0)
+     + call md_abort('Failed to free scratch array pmew',0)
       if(.not.ma_free_heap(l_pmes))
-     + call errquit('Failed to free scratch array pmes',0)
+     + call md_abort('Failed to free scratch array pmes',0)
       endif
 c
       if(.not.ma_free_heap(l_smr6))
-     + call errquit('Failed to free scratch array smr6',0)
+     + call md_abort('Failed to free scratch array smr6',0)
 c
       if(.not.ma_free_heap(l_smr5))
-     + call errquit('Failed to free scratch array smr5',0)
+     + call md_abort('Failed to free scratch array smr5',0)
 c
       if(.not.ma_free_heap(l_smr4))
-     + call errquit('Failed to free scratch array smr4',0)
+     + call md_abort('Failed to free scratch array smr4',0)
 c
       if(.not.ma_free_heap(l_smr3))
-     + call errquit('Failed to free scratch array smr3',0)
+     + call md_abort('Failed to free scratch array smr3',0)
 c
       if(.not.ma_free_heap(l_smr2))
-     + call errquit('Failed to free scratch array smr2',0)
+     + call md_abort('Failed to free scratch array smr2',0)
 c
       if(.not.ma_free_heap(l_smr1))
-     + call errquit('Failed to free scratch array smr1',0)
+     + call md_abort('Failed to free scratch array smr1',0)
 c
       if(.not.ma_free_heap(l_s3r2))
-     + call errquit('Failed to free scratch array s3r2',0)
+     + call md_abort('Failed to free scratch array s3r2',0)
 c
       if(.not.ma_free_heap(l_s3r1))
-     + call errquit('Failed to free scratch array s3r1',0)
+     + call md_abort('Failed to free scratch array s3r1',0)
 c
       if(.not.ma_free_heap(l_s1r6))
-     + call errquit('Failed to free scratch array s1r6',0)
+     + call md_abort('Failed to free scratch array s1r6',0)
 c
       if(.not.ma_free_heap(l_s1r5))
-     + call errquit('Failed to free scratch array s1r5',0)
+     + call md_abort('Failed to free scratch array s1r5',0)
 c
       if(.not.ma_free_heap(l_s1r4))
-     + call errquit('Failed to free scratch array s1r4',0)
+     + call md_abort('Failed to free scratch array s1r4',0)
 c
       if(.not.ma_free_heap(l_s1r3))
-     + call errquit('Failed to free scratch array s1r3',0)
+     + call md_abort('Failed to free scratch array s1r3',0)
 c
       if(.not.ma_free_heap(l_s1r2))
-     + call errquit('Failed to free scratch array s1r2',0)
+     + call md_abort('Failed to free scratch array s1r2',0)
 c
       if(.not.ma_free_heap(l_s1r1))
-     + call errquit('Failed to free scratch array s1r1',0)
+     + call md_abort('Failed to free scratch array s1r1',0)
 c
       if(.not.ma_free_heap(l_s2i1))
-     + call errquit('Failed to free scratch array s2i1',0)
+     + call md_abort('Failed to free scratch array s2i1',0)
 c
       if(.not.ma_free_heap(l_s1i6))
-     + call errquit('Failed to free scratch array s1i6',0)
+     + call md_abort('Failed to free scratch array s1i6',0)
 c
       if(.not.ma_free_heap(l_s1i5))
-     + call errquit('Failed to free scratch array s1i5',0)
+     + call md_abort('Failed to free scratch array s1i5',0)
 c
       if(.not.ma_free_heap(l_s1i4))
-     + call errquit('Failed to free scratch array s1i4',0)
+     + call md_abort('Failed to free scratch array s1i4',0)
 c
       if(.not.ma_free_heap(l_s1i3))
-     + call errquit('Failed to free scratch array s1i3',0)
+     + call md_abort('Failed to free scratch array s1i3',0)
 c
       if(.not.ma_free_heap(l_s1i2))
-     + call errquit('Failed to free scratch array s1i2',0)
+     + call md_abort('Failed to free scratch array s1i2',0)
 c
       if(.not.ma_free_heap(l_s1i1))
-     + call errquit('Failed to free scratch array s1i1',0)
+     + call md_abort('Failed to free scratch array s1i1',0)
 c
       lscr=.false.
 c
@@ -1429,12 +1432,12 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      if(llst) call errquit('Error 1 in cf_lalloc',0)
+      if(llst) call md_abort('Error 1 in cf_lalloc',0)
 c
       maxl=ma_inquire_avail(mt_int)/2
       if(lqmd) maxl=1
       if(.not.ma_alloc_get(mt_int,maxl,'list',l_list,i_list))
-     + call errquit('Failed to allocate list',0)
+     + call md_abort('Failed to allocate list',0)
 c
       llst=.true.
       llist=.false.
@@ -1448,11 +1451,11 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-c      if(.not.llst) call errquit('Error 1 in cf_lfree',0)
+c      if(.not.llst) call md_abort('Error 1 in cf_lfree',0)
 c
       if(llst) then
       if(.not.ma_free_heap(l_list))
-     + call errquit('Failed to free list',0)
+     + call md_abort('Failed to free list',0)
       endif
 c
       llst=.false.

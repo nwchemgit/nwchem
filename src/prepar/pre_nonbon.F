@@ -1,7 +1,7 @@
       logical function pre_nonbon(iatm,natm,lbnd,mbnd,ibnd,nbnd,
      + lang,mang,iang,nang,l3rd,m3rd,i3rd,n3rd,lnon,mnon,nnon)
 c
-c $Id: pre_nonbon.F,v 1.1 1998-04-16 19:04:29 d3j191 Exp $
+c $Id: pre_nonbon.F,v 1.2 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       if(lnon(1,k).eq.i.and.lnon(2,k).eq.j) goto 2
     6 continue
       nnon=nnon+1
-      if(nnon.gt.mnon) call errquit('increase mnon',9999)
+      if(nnon.gt.mnon) call md_abort('increase mnon',9999)
       lnon(1,nnon)=i
       lnon(2,nnon)=j
     2 continue

@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.20 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_finish.F,v 1.21 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,132 +15,132 @@ c
 c
       if(numpmf.gt.0) then
       if(.not.ma_pop_stack(l_upmf))
-     + call errquit('Failed to deallocate upmf',0)
+     + call md_abort('Failed to deallocate upmf',0)
       if(.not.ma_pop_stack(l_wpmf))
-     + call errquit('Failed to deallocate wpmf',0)
+     + call md_abort('Failed to deallocate wpmf',0)
       if(.not.ma_pop_stack(l_ypmf))
-     + call errquit('Failed to deallocate ypmf',0)
+     + call md_abort('Failed to deallocate ypmf',0)
       if(.not.ma_pop_stack(l_xpmf))
-     + call errquit('Failed to deallocate xpmf',0)
+     + call md_abort('Failed to deallocate xpmf',0)
       if(.not.ma_pop_stack(l_rpmf))
-     + call errquit('Failed to deallocate rpmf',0)
+     + call md_abort('Failed to deallocate rpmf',0)
       if(.not.ma_pop_stack(l_jpmf))
-     + call errquit('Failed to deallocate jpmf',0)
+     + call md_abort('Failed to deallocate jpmf',0)
       if(.not.ma_pop_stack(l_ipmf))
-     + call errquit('Failed to deallocate ipmf',0)
+     + call md_abort('Failed to deallocate ipmf',0)
       endif
 c
       if(nhop.gt.0) then
       if(.not.ma_pop_stack(l_timhop))
-     + call errquit('Failed to deallocate timhop',0)
+     + call md_abort('Failed to deallocate timhop',0)
       if(.not.ma_pop_stack(l_lsthop))
-     + call errquit('Failed to deallocate lsthop',0)
+     + call md_abort('Failed to deallocate lsthop',0)
       if(.not.ma_pop_stack(l_pda))
-     + call errquit('Failed to deallocate pda',0)
+     + call md_abort('Failed to deallocate pda',0)
       if(.not.ma_pop_stack(l_uda))
-     + call errquit('Failed to deallocate uda',0)
+     + call md_abort('Failed to deallocate uda',0)
       if(.not.ma_pop_stack(l_rda))
-     + call errquit('Failed to deallocate rda',0)
+     + call md_abort('Failed to deallocate rda',0)
       if(.not.ma_pop_stack(l_lda))
-     + call errquit('Failed to deallocate lda',0)
+     + call md_abort('Failed to deallocate lda',0)
       endif
       if(ndrs.gt.0) then
       if(.not.ma_pop_stack(l_xdrs))
-     + call errquit('Failed to deallocate xdrs',0)
+     + call md_abort('Failed to deallocate xdrs',0)
       if(.not.ma_pop_stack(l_rdrs))
-     + call errquit('Failed to deallocate rdrs',0)
+     + call md_abort('Failed to deallocate rdrs',0)
       if(.not.ma_pop_stack(l_idrs))
-     + call errquit('Failed to deallocate idrs',0)
+     + call md_abort('Failed to deallocate idrs',0)
       endif
 c
       call cf_free()
 c
       if(mmult.gt.0) then
       if(.not.ma_pop_stack(l_fmul))
-     + call errquit('Failed to deallocate fmul',0)
+     + call md_abort('Failed to deallocate fmul',0)
       if(.not.ma_pop_stack(l_xmul))
-     + call errquit('Failed to deallocate xmul',0)
+     + call md_abort('Failed to deallocate xmul',0)
       if(.not.ma_pop_stack(l_imul))
-     + call errquit('Failed to deallocate imul',0)
+     + call md_abort('Failed to deallocate imul',0)
       if(.not.ma_pop_stack(l_ixmul))
-     + call errquit('Failed to deallocate ixmul',0)
+     + call md_abort('Failed to deallocate ixmul',0)
       endif
 c
       do 1 id=nbs,1,-1
 c
       if(id.eq.2.and.msa.gt.0) then
       if(.not.ma_pop_stack(l_wsm))
-     + call errquit('Failed to deallocate wsm',id)
+     + call md_abort('Failed to deallocate wsm',id)
       endif
 c
       if(id.eq.1.and.mwa.gt.0) then
       if(.not.ma_pop_stack(l_iwq))
-     + call errquit('Failed to deallocate iwq',id)
+     + call md_abort('Failed to deallocate iwq',id)
       if(.not.ma_pop_stack(l_iwa))
-     + call errquit('Failed to deallocate iwa',id)
+     + call md_abort('Failed to deallocate iwa',id)
       endif
 c
       if(.not.ma_pop_stack(l_ixcl(id)))
-     + call errquit('Failed to deallocate ixcl',id)
+     + call md_abort('Failed to deallocate ixcl',id)
       if(.not.ma_pop_stack(l_itrd(id)))
-     + call errquit('Failed to deallocate itrd',id)
+     + call md_abort('Failed to deallocate itrd',id)
 c
       if(.not.ma_pop_stack(l_rimp(id)))
-     + call errquit('Failed to deallocate rimp',id)
+     + call md_abort('Failed to deallocate rimp',id)
       if(.not.ma_pop_stack(l_iimp(id)))
-     + call errquit('Failed to deallocate iimp',id)
+     + call md_abort('Failed to deallocate iimp',id)
       if(.not.ma_pop_stack(l_imp(id)))
-     + call errquit('Failed to deallocate imp',id)
+     + call md_abort('Failed to deallocate imp',id)
 c
       if(.not.ma_pop_stack(l_rdih(id)))
-     + call errquit('Failed to deallocate rdih',id)
+     + call md_abort('Failed to deallocate rdih',id)
       if(.not.ma_pop_stack(l_idih(id)))
-     + call errquit('Failed to deallocate idih',id)
+     + call md_abort('Failed to deallocate idih',id)
       if(.not.ma_pop_stack(l_dih(id)))
-     + call errquit('Failed to deallocate dih',id)
+     + call md_abort('Failed to deallocate dih',id)
 c
       if(.not.ma_pop_stack(l_rang(id)))
-     + call errquit('Failed to deallocate rang',id)
+     + call md_abort('Failed to deallocate rang',id)
       if(.not.ma_pop_stack(l_iang(id)))
-     + call errquit('Failed to deallocate iang',id)
+     + call md_abort('Failed to deallocate iang',id)
       if(.not.ma_pop_stack(l_ang(id)))
-     + call errquit('Failed to deallocate ang',id)
+     + call md_abort('Failed to deallocate ang',id)
 c
       if(.not.ma_pop_stack(l_rbnd(id)))
-     + call errquit('Failed to deallocate rbnd',id)
+     + call md_abort('Failed to deallocate rbnd',id)
       if(.not.ma_pop_stack(l_ibnd(id)))
-     + call errquit('Failed to deallocate ibnd',id)
+     + call md_abort('Failed to deallocate ibnd',id)
       if(.not.ma_pop_stack(l_bnd(id)))
-     + call errquit('Failed to deallocate bnd',id)
+     + call md_abort('Failed to deallocate bnd',id)
 c
     1 continue
 c
       if(.not.ma_pop_stack(l_chg))
-     + call errquit('Failed to deallocate chg',0)
+     + call md_abort('Failed to deallocate chg',0)
 c
       if(.not.ma_pop_stack(l_ias))
-     + call errquit('Failed to deallocate ias',0)
+     + call md_abort('Failed to deallocate ias',0)
 c
       if(.not.ma_pop_stack(l_typ))
-     + call errquit('Failed to deallocate typ',0)
+     + call md_abort('Failed to deallocate typ',0)
 c
       if(.not.ma_pop_stack(l_num))
-     + call errquit('Failed to deallocate num',0)
+     + call md_abort('Failed to deallocate num',0)
 c
       if(.not.ma_pop_stack(l_nam))
-     + call errquit('Failed to deallocate nam',0)
+     + call md_abort('Failed to deallocate nam',0)
 c
       if(.not.ma_pop_stack(l_mas))
-     + call errquit('Failed to deallocate mas',0)
+     + call md_abort('Failed to deallocate mas',0)
 c
       if(.not.ma_pop_stack(l_vdw))
-     + call errquit('Failed to deallocate vdw',0)
+     + call md_abort('Failed to deallocate vdw',0)
 c
       if(.not.ma_pop_stack(l_sti))
-     + call errquit('Failed to deallocate sti',0)
+     + call md_abort('Failed to deallocate sti',0)
 c
       if(.not.ma_pop_stack(l_snam))
-     + call errquit('Failed to deallocate snam',0)
+     + call md_abort('Failed to deallocate snam',0)
 c
 c      if(lanal) call ana_finish(byte_mb(i_snam),.false.)
 c

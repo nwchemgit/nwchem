@@ -2,7 +2,7 @@
      + jlo,ilo,ihi,jhi,lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6)
 c
-c $Id: pre_impctr.F,v 1.5 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_impctr.F,v 1.6 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to determine the center type
 c
@@ -64,7 +64,7 @@ c
      + (lang(1,li).eq.lbnd(2,lj).and.lang(3,li).eq.lbnd(1,lj))) then
       nring3=nring3+1
       if(nring3.gt.mring)
-     +  call errquit('increase mring in pre_impctr',9999)
+     +  call md_abort('increase mring in pre_impctr',9999)
       lring(1,nring3)=lang(1,li)
       lring(2,nring3)=lang(2,li)
       lring(3,nring3)=lang(3,li)
@@ -105,7 +105,7 @@ c
      + (lang(1,li).eq.lang(3,lj).and.lang(3,li).eq.lang(1,lj))) then
       nring4=nring4+1
       if(nring4.gt.mring)
-     +  call errquit('increase mring in pre_impctr',9999)
+     +  call md_abort('increase mring in pre_impctr',9999)
       lring(1,nring4)=lang(1,li)
       lring(2,nring4)=lang(2,li)
       lring(3,nring4)=lang(3,li)
@@ -147,7 +147,7 @@ c
      + (ldih(1,li).eq.lang(3,lj).and.ldih(4,li).eq.lang(1,lj))) then
       nring5=nring5+1
       if(nring5.gt.mring)
-     +  call errquit('increase mring in pre_impctr',9999)
+     +  call md_abort('increase mring in pre_impctr',9999)
       do 6 i=1,4
       lring(i,nring5)=ldih(i,li)
     6 continue
@@ -189,7 +189,7 @@ c
      + (ldih(1,li).eq.ldih(4,lj).and.ldih(4,li).eq.ldih(1,lj))) then
       nring6=nring6+1
       if(nring6.gt.mring)
-     +  call errquit('increase mring in pre_impctr',9999)
+     +  call md_abort('increase mring in pre_impctr',9999)
       do 13 i=1,4
       lring(i,nring6)=ldih(i,li)
    13 continue

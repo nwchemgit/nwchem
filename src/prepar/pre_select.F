@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.15 2002-07-09 15:28:08 d3j191 Exp $
+c $Id: pre_select.F,v 1.16 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -31,8 +31,8 @@ c
 c     read group number
 c
       read(card,'(i5)',err=9999) igrp
-      if(igrp.le.0) call errquit('Group number error',igrp)
-      if(igrp.gt.maxgrp) call errquit('Group number error',igrp)
+      if(igrp.le.0) call md_abort('Group number error',igrp)
+      if(igrp.gt.maxgrp) call md_abort('Group number error',igrp)
 c
       card=card(7:80)
 c
@@ -40,7 +40,7 @@ c
       target=card(1:ndx-1)
 c
       if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
-     + call errquit('Failed to allocate list',0)
+     + call md_abort('Failed to allocate list',0)
 c
       call atom_selection(csa,isegm,nsa,card,int_mb(i_list))
 c
@@ -56,7 +56,7 @@ c
       if(iatom.eq.1) mgroup(igrp)=ismol(i)
       if(mgroup(igrp).ne.ismol(i)) mgroup(igrp)=0
       if(lgroup(igrp).gt.maxatm)
-     + call errquit('Increase group maxatm',maxatm)
+     + call md_abort('Increase group maxatm',maxatm)
       igroup(igrp,lgroup(igrp))=i
       endif
  1    continue
@@ -65,7 +65,7 @@ c
      + lgroup(igrp),' atoms'
 c
       if(.not.ma_pop_stack(l_list))
-     + call errquit('Failed to deallocate list',0)
+     + call md_abort('Failed to deallocate list',0)
 c
       pre_select=.true.
 c

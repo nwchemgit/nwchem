@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.30 2002-05-07 20:04:41 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.31 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
       nwa=inwa
       endif
       if(nwm.gt.mwm)
-     + call errquit('Restart file not compatible with trajectory',nwm)
+     + call md_abort('Restart file not compatible with trajectory',nwm)
       if(util_print('frames_read',print_debug)) then
       write(*,'(a,f12.6,3i10,1x,4l1)')
      + ' Frame read:',time,inwm,inwa,nsa,lxw,lvw,lsx,lsv
@@ -75,7 +75,7 @@ c
  1003 format(4l1,3i10,2l1)
  1006 format(8l1,3i10)
  1007 format(6l1,3i10)
-      if(nsa.gt.msa) call errquit('Error in trj 1',0)
+      if(nsa.gt.msa) call md_abort('Error in trj 1',0)
       if((lxw.or.lvw).and.nwm.gt.0) then
       do 2 i=1,nwm
       do 3 j=1,nwa
@@ -133,7 +133,7 @@ c
       succes=.true.
       goto 9000
       else
-      call errquit('Trajectory file format error',0)
+      call md_abort('Trajectory file format error',0)
       endif
 c
  9999 continue 
@@ -168,7 +168,7 @@ c     --------------------------
 c
       if(me.eq.0) then
       if(icent.gt.0) then
-      if(.not.ltop) call errquit('No topology for center',0)
+      if(.not.ltop) call md_abort('No topology for center',0)
       call ana_center_fold(x,w,int_mb(i_imol),nwm)
       endif
       if(nrot.gt.0) then
@@ -225,7 +225,7 @@ c
       xc(3)=xc(3)+xs(i,3)
       endif
     1 continue
-      if(ncount.eq.0) call errquit('No atom in molecule',icent)
+      if(ncount.eq.0) call md_abort('No atom in molecule',icent)
       xc(1)=xc(1)/dble(ncount)
       xc(2)=xc(2)/dble(ncount)
       xc(3)=xc(3)/dble(ncount)

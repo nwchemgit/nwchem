@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.20 2003-10-17 21:31:52 d3j191 Exp $
+c $Id: pre_links.F,v 1.21 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -79,7 +79,7 @@ c
       goto 121
       endif
    22 continue
-      call errquit('Illegal link',i)
+      call md_abort('Illegal link',i)
   121 continue
       do 212 j=1,nseq
       if(llnk(2,i).eq.lseq(1,j)) then
@@ -87,7 +87,7 @@ c
       goto 21
       endif
   212 continue
-      call errquit('Illegal link',i)
+      call md_abort('Illegal link',i)
    21 continue
       do 23 i=1,nlnk
       do 24 j=lseq(3,llnk(1,i)),lseq(3,llnk(1,i)+1)-1
@@ -119,17 +119,17 @@ c
       if(latm(5,ishort(j)).eq.0.or.latm(5,ishort(j)).gt.1) then
       latm(5,ishort(j))=4
       else
-      call errquit('inconsistent links',9999)
+      call md_abort('inconsistent links',9999)
       endif
       if(latm(5,jshort(j)).eq.0.or.latm(5,jshort(j)).gt.1) then
       latm(5,jshort(j))=3
       else
-      call errquit('inconsistent links',9999)
+      call md_abort('inconsistent links',9999)
       endif
       if(.not.pre_protein(ffield,cseq(1,i)).or.
      + .not.pre_protein(ffield,cseq(1,i+1))) then
       nlnk=nlnk+1
-      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
+      if(nlnk.gt.mlnk) call md_abort('increase mlnk',9999)
       llnk(1,nlnk)=i
       llnk(2,nlnk)=i+1
       llnk(3,nlnk)=ishort(j)
@@ -165,7 +165,7 @@ c
       if(latm(5,ishort(k)).eq.0) latm(5,ishort(k))=3
       if(latm(5,jshort(k)).eq.0) latm(5,jshort(k))=3
       nlnk=nlnk+1
-      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
+      if(nlnk.gt.mlnk) call md_abort('increase mlnk',9999)
       llnk(1,nlnk)=i
       llnk(2,nlnk)=j
       llnk(3,nlnk)=ishort(k)

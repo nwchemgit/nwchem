@@ -1,6 +1,6 @@
       logical function pre_task(irtdb,itask,lfnout)
 c
-c $Id: pre_task.F,v 1.5 2000-06-21 05:59:41 d3j191 Exp $
+c $Id: pre_task.F,v 1.6 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -28,12 +28,12 @@ c
       pre_task=.false.
 c
 c      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
-c     + call errquit('pre_task1: rtdb_cput failed',9999)
+c     + call md_abort('pre_task1: rtdb_cput failed',9999)
 c
       if(scf(irtdb)) then
 c
 c      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
-c     + call errquit('pre_task1: rtdb_cput failed',9999)
+c     + call md_abort('pre_task1: rtdb_cput failed',9999)
 c
       if(esp(irtdb)) then
       pre_task=.true.

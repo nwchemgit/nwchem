@@ -4,7 +4,7 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.19 2003-10-07 15:26:43 d3j191 Exp $
+c $Id: pre_atype.F,v 1.20 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -284,7 +284,7 @@ c
       if(card(1:3).eq.'End') goto 17
       if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 16
       ntype=ntype+1
-      if(ntype.gt.maty) call errquit('increase maty',9999)
+      if(ntype.gt.maty) call md_abort('increase maty',9999)
       read(card,1001) atype(ntype),(itype(k,ntype),k=1,10)
  1001 format(a4,i7,i3,2i5,i3,i7,i3,3i7)
       read(lfnpar,1002) (itype(k,ntype),k=11,15)

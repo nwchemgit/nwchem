@@ -9,7 +9,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.30 2003-08-29 15:32:24 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.31 2003-10-19 03:30:58 d3j191 Exp $
 c
       implicit none
 c
@@ -79,7 +79,7 @@ c     generate segment filename
 c     -------------------------
 c
       if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm))
-     + call errquit('pre_sgmfil failed',9998)
+     + call md_abort('pre_sgmfil failed',9998)
 c
 c     append the atom and bonded lists
 c     --------------------------------
@@ -91,7 +91,7 @@ c
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + wcorr,nsgmpar,ipdef,itopol))
-     + call errquit('pre_rdsgm failed',9999)
+     + call md_abort('pre_rdsgm failed',9999)
 c
       lseq(5,i)=nsgmpar
       lseq(6,i)=ipdef
@@ -122,7 +122,7 @@ c
     4 continue
       if(link1.gt.0.and.link2.gt.0) then
       nbnd=nbnd+1
-      if(nbnd.gt.mbnd) call errquit('increase mbnd',9999)
+      if(nbnd.gt.mbnd) call md_abort('increase mbnd',9999)
       lbnd(1,nbnd)=link1
       lbnd(2,nbnd)=link2
       lbnd(3,nbnd)=0
@@ -158,7 +158,7 @@ c
       if(lseq(1,j).eq.llnk(2,i)) jsgm=j
     6 continue
       if(isgm.eq.0.or.jsgm.eq.0) then
-      call errquit('mklist: illegal segment in explicit link',9999)
+      call md_abort('mklist: illegal segment in explicit link',9999)
       endif
 c
 c     find the atoms involved in explicit link
@@ -172,7 +172,7 @@ c
       if(catm(1,j)(1:4).eq.clnk(2,i)) link2=j
     8 continue
       if(link1.eq.0.or.link2.eq.0) then
-      call errquit('mklist: illegal atom in explicit link',9999)
+      call md_abort('mklist: illegal atom in explicit link',9999)
       endif
 c
 c     test if this appears to be a chain link already present
@@ -209,7 +209,7 @@ c
 c      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
 c     + llnk(2,i),clnk(2,i),latm(3,link2)
 c 1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
-c      call errquit('mklist: explicit link to nonbonding atom',9999)
+c      call md_abort('mklist: explicit link to nonbonding atom',9999)
       goto 5
       else
       if(util_print('topology',print_low)) then
@@ -228,7 +228,7 @@ c
 c     accept explicit link
 c
       nbnd=nbnd+1
-      if(nbnd.gt.mbnd) call errquit('increase mbnd',9999)
+      if(nbnd.gt.mbnd) call md_abort('increase mbnd',9999)
       lbnd(1,nbnd)=link1
       lbnd(2,nbnd)=link2
       lbnd(3,nbnd)=0
@@ -253,7 +253,7 @@ c
       do 13 i=nb+1,nbnd
       do 14 j=1,i-1
       if(lbnd(1,i).eq.lbnd(1,j)) then
-      if(nang.ge.mang) call errquit('increase mang',9999)
+      if(nang.ge.mang) call md_abort('increase mang',9999)
       nang=nang+1
       lang(1,nang)=lbnd(2,i)
       lang(2,nang)=lbnd(1,i)
@@ -262,7 +262,7 @@ c
       lang(5,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(1,j)) then
-      if(nang.ge.mang) call errquit('increase mang',9999)
+      if(nang.ge.mang) call md_abort('increase mang',9999)
       nang=nang+1
       lang(1,nang)=lbnd(1,i)
       lang(2,nang)=lbnd(2,i)
@@ -271,7 +271,7 @@ c
       lang(5,nang)=0
       else
       if(lbnd(1,i).eq.lbnd(2,j)) then
-      if(nang.ge.mang) call errquit('increase mang',9999)
+      if(nang.ge.mang) call md_abort('increase mang',9999)
       nang=nang+1
       lang(1,nang)=lbnd(2,i)
       lang(2,nang)=lbnd(1,i)
@@ -280,7 +280,7 @@ c
       lang(5,nang)=0
       else
       if(lbnd(2,i).eq.lbnd(2,j)) then
-      if(nang.ge.mang) call errquit('increase mang',9999)
+      if(nang.ge.mang) call md_abort('increase mang',9999)
       nang=nang+1
       lang(1,nang)=lbnd(1,i)
       lang(2,nang)=lbnd(2,i)
@@ -301,7 +301,7 @@ c
       do 15 i=na+1,nang
       do 16 j=1,i-1
       if(lang(2,i).eq.lang(1,j).and.lang(3,i).eq.lang(2,j)) then
-      if(ndih.ge.mdih) call errquit('increase mdih',9999)
+      if(ndih.ge.mdih) call md_abort('increase mdih',9999)
       ndih=ndih+1
       ldih(1,ndih)=lang(1,i)
       ldih(2,ndih)=lang(2,i)
@@ -311,7 +311,7 @@ c
       ldih(6,ndih)=0
       else
       if(lang(2,i).eq.lang(3,j).and.lang(3,i).eq.lang(2,j)) then
-      if(ndih.ge.mdih) call errquit('increase mdih',9999)
+      if(ndih.ge.mdih) call md_abort('increase mdih',9999)
       ndih=ndih+1
       ldih(1,ndih)=lang(1,i)
       ldih(2,ndih)=lang(2,i)
@@ -321,7 +321,7 @@ c
       ldih(6,ndih)=0
       else
       if(lang(1,i).eq.lang(2,j).and.lang(2,i).eq.lang(3,j)) then
-      if(ndih.ge.mdih) call errquit('increase mdih',9999)
+      if(ndih.ge.mdih) call md_abort('increase mdih',9999)
       ndih=ndih+1
       ldih(1,ndih)=lang(1,j)
       ldih(2,ndih)=lang(1,i)
@@ -331,7 +331,7 @@ c
       ldih(6,ndih)=0
       else
       if(lang(1,i).eq.lang(2,j).and.lang(2,i).eq.lang(1,j)) then
-      if(ndih.ge.mdih) call errquit('increase mdih',9999)
+      if(ndih.ge.mdih) call md_abort('increase mdih',9999)
       ndih=ndih+1
       ldih(1,ndih)=lang(3,j)
       ldih(2,ndih)=lang(1,i)
@@ -393,7 +393,7 @@ c     planar
 c
       if(latm(4,iatm).eq.1.and.nn.eq.3) then
       nimp=nimp+1
-      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      if(nimp.ge.mimp) call md_abort('increase mimp',9999)
       limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
@@ -406,7 +406,7 @@ c     chiral
 c
       if((latm(4,iatm).eq.2.or.latm(4,iatm).eq.3).and.nn.eq.3) then
       nimp=nimp+1
-      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      if(nimp.ge.mimp) call md_abort('increase mimp',9999)
       limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
@@ -420,7 +420,7 @@ c
       if(ffield(1:5).eq.'amber'.or.ffield(1:5).eq.'charm') then
       if(latm(4,iatm).eq.4.and.nn.eq.3) then
       nimp=nimp+1
-      if(nimp.ge.mimp) call errquit('increase mimp',9999)
+      if(nimp.ge.mimp) call md_abort('increase mimp',9999)
       limp(1,nimp)=iatm
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
@@ -931,14 +931,14 @@ c
       filmat=cseq(i)(1:index(cseq(nseq+1),' ')-1)//'.mat '
       lseq(3,nseq+1)=natm+1
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm))
-     + call errquit('pre_sgmfil failed',9999)
+     + call md_abort('pre_sgmfil failed',9999)
       if(.not.pre_rdsgm(lfnout,nparms,mparms,
      + 0,0,igrp,ipgrp,lfnsgm,
      + filsgm,lfnmat,filmat,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
      + ldih,nfdih,kdih,rdih,mdih,ndiht,limp,kimp,rimp,mimp,nimpt,
      + wcorr,nsgmpar,ipdef,itopol))
-     + call errquit('pre_rdsgm failed',9999)
+     + call md_abort('pre_rdsgm failed',9999)
       endif
       lseq(3,nseq+2)=natmt+1
 c

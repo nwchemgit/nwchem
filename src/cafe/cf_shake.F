@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.25 2003-08-19 21:02:01 d3j191 Exp $
+c $Id: cf_shake.F,v 1.26 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -111,7 +111,7 @@ c
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
-      if(ipmf(i,1).ne.1) call errquit('SHAKE on distance only',me)
+      if(ipmf(i,1).ne.1) call md_abort('SHAKE on distance only',me)
       do 3 j=1,m
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
@@ -176,7 +176,7 @@ c
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
-      if(ipmf(i,1).ne.1) call errquit('SHAKE on distance only',me)
+      if(ipmf(i,1).ne.1) call md_abort('SHAKE on distance only',me)
       do 9 j=1,m
       do 10 k=1,ipmf(i,j+1)
       do 11 l=1,nums
@@ -191,10 +191,10 @@ c
 c
       endif
 c      if(ipmf(i,1).eq.3) then
-c      call errquit('Angle pmf not implemented',0)
+c      call md_abort('Angle pmf not implemented',0)
 c      endif
 c      if(ipmf(i,1).eq.4) then
-c      call errquit('Torsion pmf not implemented',0)
+c      call md_abort('Torsion pmf not implemented',0)
 c      endif
     6 continue
 c
@@ -271,7 +271,7 @@ c
       if(rwi2(iwm).lt.small) ndtl=iwgm(iwm)
     8 continue
       if(ndtl.gt.0)
-     + call errquit('Deviation too large for solvent',ndtl)
+     + call md_abort('Deviation too large for solvent',ndtl)
       do 9 iwm=1,nwmloc
       rwi6(iwm)=half*rwi1(iwm)/(rwi2(iwm)*w)
     9 continue
@@ -299,7 +299,7 @@ c
     2 continue
       niterw=niterw+1
       if(niterw.gt.mshitw)
-     + call errquit('Too many shake iterations',niterw)
+     + call md_abort('Too many shake iterations',niterw)
       if(.not.ready) goto 1
 c
       do 24 iwm=1,nwmloc
@@ -519,7 +519,7 @@ c
 c
       niters=niters+1
 c
-      if(niters.gt.mshits) call errquit('Too many iterations',0)
+      if(niters.gt.mshits) call md_abort('Too many iterations',0)
 c
       if(dtl) then
       isaglo=ibnd(ndtl,1)
@@ -549,7 +549,7 @@ c
       endif
     4 continue
       close(unit=16)
-      call errquit('Deviation too large solute',isaglo)
+      call md_abort('Deviation too large solute',isaglo)
       endif
 c
       if(.not.ready) goto 1

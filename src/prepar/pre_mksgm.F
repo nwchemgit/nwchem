@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.16 2003-08-01 06:40:13 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.17 2003-10-19 03:30:58 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -41,7 +41,7 @@ c
 c
       if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd,nzmat,
      + nparms,ipardef))
-     + call errquit('pre_frgsiz failed',9999)
+     + call md_abort('pre_frgsiz failed',9999)
 c
 c     allocate memory for bonds, angles, torsions and impropers
 c     ---------------------------------------------------------
@@ -67,51 +67,51 @@ c                  4       :
 c                  5       :
 c
       if(.not.ma_push_get(mt_int,6*matm,'latm',l_latm,i_latm))
-     + call errquit('mksgm: Memory allocation failed for latm',9999)
+     + call md_abort('mksgm: Memory allocation failed for latm',9999)
 c
 c    char*255 fil
 c
       if(.not.ma_push_get(mt_byte,255*nparms,'fil',l_fil,i_fil))
-     + call errquit('mksgm: Memory allocation failed for fil',9999)
+     + call md_abort('mksgm: Memory allocation failed for fil',9999)
 c
 c     char*6  catm(1,matm) : atom name
 c                  2       : atom type
 c
       if(.not.ma_push_get(mt_byte,6*(nparms+1)*matm,'catm',
      + l_catm,i_catm))
-     + call errquit('mksgm: Memory allocation failed for catm',9999)
+     + call md_abort('mksgm: Memory allocation failed for catm',9999)
 c
 c     real*8 qatm(1,matm) : partial atomic charges
 c                 2       : polarizabilities
 c
       if(.not.ma_push_get(mt_dbl,2*nparms*matm,'qatm',l_qatm,i_qatm))
-     + call errquit('mksgm: Memory allocation failed for qatm',9999)
+     + call md_abort('mksgm: Memory allocation failed for qatm',9999)
 c
 c     integer lbnd(1:2,mbnd) : bond indices
 c
       if(.not.ma_push_get(mt_int,2*mbnd,'bnd',l_bnd,i_bnd))
-     + call errquit('mksgm: Memory allocation failed for bnd',9999)
+     + call md_abort('mksgm: Memory allocation failed for bnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
 c
       if(.not.ma_push_get(mt_int,3*mang,'ang',l_ang,i_ang))
-     + call errquit('mksgm: Memory allocation failed for ang',9999)
+     + call md_abort('mksgm: Memory allocation failed for ang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mdih,'dih',l_dih,i_dih))
-     + call errquit('mksgm: Memory allocation failed for dih',9999)
+     + call md_abort('mksgm: Memory allocation failed for dih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mimp,'imp',l_imp,i_imp))
-     + call errquit('mksgm: Memory allocation failed for imp',9999)
+     + call md_abort('mksgm: Memory allocation failed for imp',9999)
 c
       if(mzmat.gt.0) then
       if(.not.ma_push_get(mt_int,4*mzmat,'izmat',l_izmat,i_izmat))
-     + call errquit('mksgm: Memory allocation failed for izmat',mzmat)
+     + call md_abort('mksgm: Memory allocation failed for izmat',mzmat)
       if(.not.ma_push_get(mt_dbl,3*mzmat,'zmat',l_zmat,i_zmat))
-     + call errquit('mksgm: Memory allocation failed for zmat',mzmat)
+     + call md_abort('mksgm: Memory allocation failed for zmat',mzmat)
       endif
 c
 c     read atom list and bond list from fragment file
@@ -121,33 +121,33 @@ c
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
      + dbl_mb(i_zmat),mzmat,nzmat,byte_mb(i_fil)))
-     + call errquit('mksgm: pre_frgrd failed',9999)
+     + call md_abort('mksgm: pre_frgrd failed',9999)
 c
 c     make the angle list
 c     -------------------
 c
       if(.not.pre_ang(int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang))
-     + call errquit('mksgm: pre_ang failed',9999)
+     + call md_abort('mksgm: pre_ang failed',9999)
 c
 c     make the dihedral list
 c     ----------------------
 c
       if(.not.pre_dih(int_mb(i_ang),mang,nang,int_mb(i_dih),mdih,ndih))
-     + call errquit('mksgm: pre_dih failed',9999)
+     + call md_abort('mksgm: pre_dih failed',9999)
 c
 c     make the improper list
 c     ----------------------
 c
       if(.not.pre_imp(int_mb(i_latm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_imp),mimp,nimp))
-     + call errquit('mksgm: pre_imp failed',9999)
+     + call md_abort('mksgm: pre_imp failed',9999)
 c
 c     select dihedrals
 c     ----------------
 c
       if(.not.pre_dihsel(byte_mb(i_catm),nparms,nparms+1,matm,natm,
      + int_mb(i_dih),mdih,ndih))
-     + call errquit('mksgm: pre_dihsel failed',9999)
+     + call md_abort('mksgm: pre_dihsel failed',9999)
 c
 c     switch propers to impropers
 c     ---------------------------
@@ -155,7 +155,7 @@ c
       if(.not.pre_dihimp(int_mb(i_latm),matm,natm,
      + int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))
-     + call errquit('mksgm: pre_dihsel failed',9999)
+     + call md_abort('mksgm: pre_dihsel failed',9999)
 c
 c     write segment file
 c     ------------------
@@ -165,33 +165,33 @@ c
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp,
      + int_mb(i_izmat),dbl_mb(i_zmat),mzmat,nzmat,ipardef))
-     + call errquit('mksgm: pre_wrtsgm failed',9999)
+     + call md_abort('mksgm: pre_wrtsgm failed',9999)
 c
 c     deallocate memory
 c     -----------------
 c
       if(mzmat.gt.0) then
       if(.not.ma_pop_stack(l_zmat))
-     + call errquit('mksgm: Memory deallocation failed for zmat',9999)
+     + call md_abort('mksgm: Memory deallocation failed for zmat',9999)
       if(.not.ma_pop_stack(l_izmat))
-     + call errquit('mksgm: Memory deallocation failed for izmat',9999)
+     + call md_abort('mksgm: Memory deallocation failed for izmat',9999)
       endif
       if(.not.ma_pop_stack(l_imp))
-     + call errquit('mksgm: Memory deallocation failed for imp',9999)
+     + call md_abort('mksgm: Memory deallocation failed for imp',9999)
       if(.not.ma_pop_stack(l_dih))
-     + call errquit('mksgm: Memory deallocation failed for dih',9999)
+     + call md_abort('mksgm: Memory deallocation failed for dih',9999)
       if(.not.ma_pop_stack(l_ang))
-     + call errquit('mksgm: Memory deallocation failed for ang',9999)
+     + call md_abort('mksgm: Memory deallocation failed for ang',9999)
       if(.not.ma_pop_stack(l_bnd))
-     + call errquit('mksgm: Memory deallocation failed for bnd',9999)
+     + call md_abort('mksgm: Memory deallocation failed for bnd',9999)
       if(.not.ma_pop_stack(l_qatm))
-     + call errquit('mksgm: Memory deallocation failed for qatm',9999)
+     + call md_abort('mksgm: Memory deallocation failed for qatm',9999)
       if(.not.ma_pop_stack(l_catm))
-     + call errquit('mksgm: Memory deallocation failed for catm',9999)
+     + call md_abort('mksgm: Memory deallocation failed for catm',9999)
       if(.not.ma_pop_stack(l_fil))
-     + call errquit('mksgm: Memory deallocation failed for fil',9999)
+     + call md_abort('mksgm: Memory deallocation failed for fil',9999)
       if(.not.ma_pop_stack(l_latm))
-     + call errquit('mksgm: Memory deallocation failed for latm',9999)
+     + call md_abort('mksgm: Memory deallocation failed for latm',9999)
 c
       pre_mksgm=.true.
       return

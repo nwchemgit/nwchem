@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.22 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_finish.F,v 1.23 2003-10-19 03:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -30,50 +30,50 @@ c     deallocate memory
 c
       if(ltask) then
       if(.not.ma_pop_stack(l_ndxw))
-     + call errquit('Failed to deallocate ndxw',0)
+     + call md_abort('Failed to deallocate ndxw',0)
       if(.not.ma_pop_stack(l_wsel))
-     + call errquit('Failed to deallocate wsel',0)
+     + call md_abort('Failed to deallocate wsel',0)
       if(.not.ma_pop_stack(l_wdat))
-     + call errquit('Failed to deallocate wdat',0)
+     + call md_abort('Failed to deallocate wdat',0)
       if(.not.ma_pop_stack(l_idat))
-     + call errquit('Failed to deallocate idat',0)
+     + call md_abort('Failed to deallocate idat',0)
       if(.not.ma_pop_stack(l_xp))
-     + call errquit('Failed to deallocate xp',0)
+     + call md_abort('Failed to deallocate xp',0)
       if(.not.ma_pop_stack(l_xadat))
-     + call errquit('Failed to deallocate xadat',0)
+     + call md_abort('Failed to deallocate xadat',0)
       if(.not.ma_pop_stack(l_qdat))
-     + call errquit('Failed to deallocate qdat',0)
+     + call md_abort('Failed to deallocate qdat',0)
       if(.not.ma_pop_stack(l_xdat))
-     + call errquit('Failed to deallocate xdat',0)
+     + call md_abort('Failed to deallocate xdat',0)
       if(.not.ma_pop_stack(l_snam))
-     + call errquit('Failed to deallocate sgmnam',0)
+     + call md_abort('Failed to deallocate sgmnam',0)
       endif
 c
       if(.not.ma_verify_allocator_stuff()) print*,'Oops'
 c
       if(.not.ma_pop_stack(l_owt))
-     + call errquit('Failed to deallocate owt',0)
+     + call md_abort('Failed to deallocate owt',0)
       if(.not.ma_pop_stack(l_swt))
-     + call errquit('Failed to deallocate swt',0)
+     + call md_abort('Failed to deallocate swt',0)
       if(.not.ma_pop_stack(l_wt))
-     + call errquit('Failed to deallocate wt',0)
+     + call md_abort('Failed to deallocate wt',0)
       if(.not.ma_pop_stack(l_xrms))
-     + call errquit('Failed to deallocate xrms',0)
+     + call md_abort('Failed to deallocate xrms',0)
       if(.not.ma_pop_stack(l_xref))
-     + call errquit('Failed to deallocate xref',0)
+     + call md_abort('Failed to deallocate xref',0)
 c
       if(.not.ma_pop_stack(l_val))
-     + call errquit('Failed to deallocate val',0)
+     + call md_abort('Failed to deallocate val',0)
       if(.not.ma_pop_stack(l_tag))
-     + call errquit('Failed to deallocate tag',0)
+     + call md_abort('Failed to deallocate tag',0)
       if(.not.ma_pop_stack(l_osel))
-     + call errquit('Failed to deallocate osel',0)
+     + call md_abort('Failed to deallocate osel',0)
       if(.not.ma_pop_stack(l_ssel))
-     + call errquit('Failed to deallocate ssel',0)
+     + call md_abort('Failed to deallocate ssel',0)
       if(.not.ma_pop_stack(l_isel))
-     + call errquit('Failed to deallocate isel',0)
+     + call md_abort('Failed to deallocate isel',0)
       if(.not.ma_pop_stack(l_hbnd))
-     + call errquit('Failed to deallocate hbnd',0)
+     + call md_abort('Failed to deallocate hbnd',0)
 c
       return
       end

@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: pre_rename.F,v 1.20 2003-07-23 02:38:47 d3j191 Exp $
+c $Id: pre_rename.F,v 1.21 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -162,7 +162,7 @@ c
       if(card(1:8).eq.'sequence') then
       card=card(9:80)
       i=index(card,':')
-      if(i.le.1) call errquit('modify sequence error',0)
+      if(i.le.1) call md_abort('modify sequence error',0)
       read(card(1:i-1),*) j
       do 6 k=1,nseq
       if(lseq(1,k).eq.j) then

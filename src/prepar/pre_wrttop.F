@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.45 2003-09-02 14:59:33 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.46 2003-10-19 03:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -88,7 +88,7 @@ c
       endif
   332 continue
       nqu=nqu+1
-      if(nqu.gt.mqu) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call md_abort('Increase mqu',0)
       latm(7,i)=nqu
       do 333 j=ipfr,ipto
       qatm(j,1,nqu)=qatm(j,1,i)
@@ -123,7 +123,7 @@ c
       endif
   337 continue
       nqu=nqu+1
-      if(nqu.gt.mqu) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call md_abort('Increase mqu',0)
       latm(7,i)=nqu
       do 338 j=ipfr,ipto
       qatm(j,1,nqu)=qatom(j,1)
@@ -155,7 +155,7 @@ c
       endif
   341 continue
       nqu=nqu+1
-      if(nqu.gt.mqu) call errquit('Increase mqu',0)
+      if(nqu.gt.mqu) call md_abort('Increase mqu',0)
       latm(7,i)=nqu
       latm(8,i)=nqu
       do 342 j=ipfr,ipto

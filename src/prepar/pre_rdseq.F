@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.14 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.15 2003-10-19 03:30:59 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -54,7 +54,7 @@ c
       endif
       if(card(1:4).eq.'link') then
       ilnk=ilnk+1
-      if(ilnk.gt.mlnk) call errquit('increase dimension mlnk',9999)
+      if(ilnk.gt.mlnk) call md_abort('increase dimension mlnk',9999)
       read(card,1002,err=9999) (llnk(j,ilnk),clnk(j,ilnk),j=1,2)
  1002 format(5x,i5,a4,i5,a4)
       llnk(3,ilnk)=0
@@ -62,7 +62,7 @@ c
       endif
       if(card(1:4).eq.'LINK') then
       ilnk=ilnk+1
-      if(ilnk.gt.mlnk) call errquit('increase dimension mlnk',9999)
+      if(ilnk.gt.mlnk) call md_abort('increase dimension mlnk',9999)
       read(card,1002,err=9999) (llnk(j,ilnk),clnk(j,ilnk),j=1,2)
       llnk(3,ilnk)=1
       goto 1
@@ -83,7 +83,7 @@ c
       if(util_print('where',print_debug)) then
       write(lfnout,2001) card
       endif
-      if(iseq+1.gt.mseq) call errquit('increase dimension mseq',9999)
+      if(iseq+1.gt.mseq) call md_abort('increase dimension mseq',9999)
       read(card,1001,err=9999) lseq(1,iseq+1),cseq(iseq+1)
       lseq(2,iseq+1)=-2
       lseq(4,iseq+1)=0
@@ -92,12 +92,12 @@ c
       if(card(1:4).eq.'stop') goto 9
 c
       iseq=iseq+1
-      if(iseq.gt.mseq) call errquit('increase dimension mseq',9999)
+      if(iseq.gt.mseq) call md_abort('increase dimension mseq',9999)
       read(card,1001,err=9999) lseq(1,iseq),cseq(iseq)
  1001 format(i5,a10)
       lseq(2,iseq)=0
       lseq(4,iseq)=imol
-      if(iseq+1.gt.mseq) call errquit('increase dimension mseq',9999)
+      if(iseq+1.gt.mseq) call md_abort('increase dimension mseq',9999)
       cseq(iseq+1)='          '
       lseq(1,iseq+1)=0
       lseq(2,iseq+1)=0

@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.19 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: pme_fft.F,v 1.20 2003-10-19 03:30:56 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -59,7 +59,7 @@ c
       endif
 #endif
       if(itype.gt.1)
-     + call errquit('pme_fft: 3D-pFFt no implemented',itype)
+     + call md_abort('pme_fft: 3D-pFFt no implemented',itype)
 c
 c     generic 3d-fft routine
 c
@@ -80,10 +80,10 @@ cx
 cx
 c
       if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',l_rwrk,i_rwrk))
-     + call errquit('Failed to allocate rwork',0)
+     + call md_abort('Failed to allocate rwork',0)
 c
       if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
-     + call errquit('Failed to allocate iwork',0)
+     + call md_abort('Failed to allocate iwork',0)
 c
       call timer_start(205)
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
@@ -91,13 +91,13 @@ c
       call timer_stop(205)
 c
       if(.not.ma_verify_allocator_stuff())
-     +     call errquit('FFT buffer problems after',me)
+     +     call md_abort('FFT buffer problems after',me)
 c      call ffflush(6)
 c
       if(.not.ma_pop_stack(l_iwrk))
-     + call errquit('Failed to deallocate iwork',0)
+     + call md_abort('Failed to deallocate iwork',0)
       if(.not.ma_pop_stack(l_rwrk))
-     + call errquit('Failed to deallocate rwork',0)
+     + call md_abort('Failed to deallocate rwork',0)
 c
       if(isign.eq.-1) then
       do 3 i=1,nd1*nd2*mgz*2
@@ -105,7 +105,7 @@ c
     3 continue
       endif
 c
-      if(jstat.ne.0) call errquit('pme_fft: fft failed on node',me)
+      if(jstat.ne.0) call md_abort('pme_fft: fft failed on node',me)
       endif
 c
       return
@@ -147,9 +147,9 @@ c
       do 5 j=1,ngy
       do 6 i=1,ngx
       if(abs(grid2(1,i,j,k)-one).gt.small)
-     + call errquit('fftchk : forward fft failed',me)
+     + call md_abort('fftchk : forward fft failed',me)
       if(abs(grid2(2,i,j,k)-two).gt.small)
-     + call errquit('fftchk : forward fft failed',me)
+     + call md_abort('fftchk : forward fft failed',me)
     6 continue
     5 continue
     4 continue
@@ -163,14 +163,14 @@ c
       do 9 i=1,ngx
       if(me.eq.nodep(1).and.i+j+k.eq.3) then
       if(abs(grid1(1,i,j,k)-one).gt.small)
-     + call errquit('fftchk : reverse fft failed',me)
+     + call md_abort('fftchk : reverse fft failed',me)
       if(abs(grid1(2,i,j,k)-two).gt.small)
-     + call errquit('fftchk : reverse fft failed',me)
+     + call md_abort('fftchk : reverse fft failed',me)
       else
       if(abs(grid1(1,i,j,k)).gt.small)
-     + call errquit('fftchk : reverse fft failed',me)
+     + call md_abort('fftchk : reverse fft failed',me)
       if(abs(grid1(2,i,j,k)).gt.small)
-     + call errquit('fftchk : reverse fft failed',me)
+     + call md_abort('fftchk : reverse fft failed',me)
       endif
     9 continue
     8 continue
