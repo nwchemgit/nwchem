@@ -5,7 +5,7 @@
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm)
 c
-c $Id: tddft_residual.F,v 1.7 2002-06-21 17:13:41 sohirata Exp $
+c $Id: tddft_residual.F,v 1.8 2003-04-07 16:24:32 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -298,7 +298,7 @@ c
         if ((n.gt.nroots).and.(apbval(n)-apbval(nroots).gt.1.0d-4))
      1    continue
         if (residual_1(n).gt.thresh) then
-          if (nnewtrials.ge.maxvecs) call errquit
+          if (nnewtrials.gt.maxvecs) call errquit
      1      ('tddft_residual: out of memory',nnewtrials)
           call ga_sync()
           do i=1,ipol
@@ -383,7 +383,7 @@ c
         if ((n.gt.nroots).and.(apbval(n)-apbval(nroots).gt.1.0d-4))
      1    continue
           if (residual_2(n).gt.thresh) then
-            if (nnewtrials.ge.maxvecs) call errquit
+            if (nnewtrials.gt.maxvecs) call errquit
      1        ('tddft_residual: out of memory',nnewtrials)
 c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
