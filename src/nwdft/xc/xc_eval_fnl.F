@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau)
 c
-c     $Id: xc_eval_fnl.F,v 1.43 2003-04-14 20:50:59 sohirata Exp $
+c     $Id: xc_eval_fnl.F,v 1.44 2003-05-27 22:35:13 pollack Exp $
 c
       implicit none
 c
@@ -367,6 +367,7 @@ c     meta GGA
             call xc_xpkzb99_d2()
          endif
       endif
+
 c
 c     LB94 or CS00 correction is added to xc potential only
 c     (xc functional and functional 2nds are unchanged)
@@ -377,6 +378,28 @@ c
       else if (lb94) then
          call xc_lb94(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol)
       endif
+
+c     
+c     PKZB99-COR is special in that the GGA part is
+c     defined to be  PBE COR GGA  and also is dependent on
+c     the E(LDA) ... 
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA setting cannot be
+c     set by the user
+c     
+      if (abs(cfac(25)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cpkzb99(tol_rho, cfac(25), lcfac(25), nlcfac(25),  
+     &           rho, delrho,  nq, ipol, 
+     &           Ec, qwght,  tau)
+
+         else
+            call xc_cpkzb99_d2()
+         endif
+      endif
+
+
+
 c     
 c     Combine with quadrature weights
 c
