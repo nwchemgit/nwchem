@@ -1,4 +1,6 @@
-HEADERS   = ecp_nwc.fh
+# $Id: GNUmakefile,v 1.3 1998-10-23 18:47:08 mg201 Exp $
+
+HEADERS = rel_consts.fh
 
 OBJ_ENERGY = \
       rel_onel.o \
@@ -19,8 +21,6 @@ else
 
 OBJ_OPTIMIZE = $(OBJ_ENERGY)
 endif
-
-HEADERS = ecp_nwc.fh
 
 USES_BLAS = \
       rel_onel.F \
