@@ -10,7 +10,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0b.F,v 1.4 2000-04-05 01:41:23 edo Exp $
+c$Id: grid_quadv0b.F,v 1.5 2000-04-05 04:22:39 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -221,7 +221,7 @@ c
       enddo
       ff=abs(funcmax*delmax*pmax)
       do i=1,nqpts
-         if(ff*qwght(i).lt.tol_rho*1d-4) then
+         if(ff*qwght(i).lt.tol_rho) then
             nzero=nzero+1
             qwght(i)=0d0
          endif
@@ -237,10 +237,10 @@ c
      .        call errquit('grid_pcom: pushget failed',2)
             endif
 c        write(0,'(" % ",f12.6,I4,2X,1PE12.6)') 
-c     .           (nzero*100d0)/nqpts,nzero,tol_rho*1d-4
+c     .           (nzero*100d0)/nqpts,nzero,tol_rho
          call grid_pcompress(nqpts,qwght,chi,qxyz,delchi,
      ,           int_mb(k_iscr),dbl_mb(k_dscr),
-     ,        mbf_ao,1d-19)
+     ,        mbf_ao,1d-19,grad)
             if (.not.ma_chop_stack(l_iscr))
      &           call errquit('grid_quadv0_a: cannot pop stack', 11)
       endif

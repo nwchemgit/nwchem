@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.149 2000-04-05 01:41:24 edo Exp $
+c     $Id: dft_scf.F,v 1.150 2000-04-05 04:22:39 edo Exp $
 c     
       implicit none
 c
@@ -1718,10 +1718,8 @@ c
      &      ('dft_scf: could not destroy g_fockt', 0)
       endif
       if(reuse.ne.0) then
-         write(0,*) ' 0 '
          call ga_diag_reuse(-1,
      .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
-         write(0,*) ' 1'
       if (.not. ga_destroy(g_sf)) call errquit
      &   ('dft_scf: could not destroy g_sf', 0)
       endif
