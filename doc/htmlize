@@ -13,6 +13,8 @@ endif
 set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
 set TMP=tmp.$$
 
+set L2HOPT="-split 1 -bottom_navigation  -show_section_numbers"
+
 # works also with a list of files here but not currently
 # used in this fashion
 
@@ -41,7 +43,7 @@ foreach document ($1)
 
   echo "   Running latex2html on $document.tex"
 
-  latex2html $document.tex >& $document.latex2html.log
+  latex2html $L2HOPT $document.tex >& $document.latex2html.log
   if ($status != 0) then
     echo htmlize: latex2html errors reported in $document.latex2html.log
     exit 1
