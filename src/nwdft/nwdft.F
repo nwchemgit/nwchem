@@ -2,11 +2,10 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.15 1995-04-26 03:47:18 og845 Exp $
+C$Id: nwdft.F,v 1.16 1995-04-26 18:09:36 og845 Exp $
       implicit real*8 (a-h,o-z)
-      logical LResult,converged
-      logical ok,CDFIT,XCFIT
-      logical status
+      logical LResult
+      logical CDFIT,XCFIT
 c****
 c**** nwchem handles
 c****
@@ -39,7 +38,6 @@ c
       if (.not. context_push('dft'))
      $     call errquit('dft: context_push failed', 0)
 c
-c**** status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
 c-->  Allocate memory for checkpoint file constants.
 c

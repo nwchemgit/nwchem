@@ -2,10 +2,10 @@
      &                     CD_coef,iga_vc,Ecoul,nbf_cd,
      &                     iVcoul_opt,iga_2ceri,iga_dens,IOLGC,itol2e)
 
-C$Id: dft_getvc.F,v 1.1 1995-04-26 03:43:37 og845 Exp $
+C$Id: dft_getvc.F,v 1.2 1995-04-26 18:09:51 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-      logical LResult,IOLGC
+      logical IOLGC
 
 c****
 c**** nwchem handles
