@@ -2,7 +2,7 @@
      &                      d_conv, g_conv, ipol, iter, iterations, 
      &                      idone, rtdb, converged, diising)
 c
-c     $Id: dft_scfcvg.F,v 1.11 2000-04-22 01:05:46 edo Exp $
+c     $Id: dft_scfcvg.F,v 1.12 2001-12-24 02:02:12 edo Exp $
 c
       implicit none
 c
@@ -43,6 +43,7 @@ c
 c     Evaluate change in energy.
 c     
       de = etnew - etold
+      etold=etnew
       abde = dabs(de)
 c     
 c     Check to see if energy is converged.

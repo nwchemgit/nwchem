@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.214 2001-12-22 23:55:12 edo Exp $
+c     $Id: dft_scf.F,v 1.215 2001-12-24 02:02:12 edo Exp $
 c     
       implicit none
 c
@@ -138,19 +138,17 @@ c
 c
 c     slow switching of annealing
 c
-      double precision s_rabuck,ss,smear_in,derrt
-      integer nn,nss,n_dep
+      double precision smear_in,ss,dft_rabuck
+      integer n_dep
       integer n_rabuck
       logical rabuck_act,spinset
-      external dft_cosmoe,dft_cosmoadde
+      external dft_cosmoe,dft_cosmoadde,dft_rabuck
 
 
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear
-      s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
-     *     log(1d-10/ss)*(nn-1d0)),delta*1d-4)
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -193,7 +191,7 @@ c
 c     check if smearing is on
 c
       ssmear=0.d0
-      delta=1d20
+      delta=0d0
       derr(1)=1d99
       derr(2)=1d99
       n_rabuck=0
@@ -717,14 +715,6 @@ c     DIIS step taken here.
 c     
          if (oprint_time)
      &        call dft_tstamp(' calling diis driver ')
-         if(n_rabuck.ne.0) then
-            derrt=derr(1)
-            if(ipol.eq.2) derrt=max(derr(1),derr(2))
-            ssmear=s_rabuck(iter,smear_in,n_rabuck,derrt)
-!            ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
-            
-            rabuck_act=gotsmear(ssmear)
-         endif
             call diis_driver(toll_s, derr,  ipol, 
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_focks, g_dens, 
@@ -802,6 +792,11 @@ c
       enddo                     ! end big loop over ispin
 
       call ga_sync
+         if(n_rabuck.ne.0) then
+            ssmear=dft_rabuck(ipol,iter,n_rabuck,noc,derr,
+     ,     dbl_mb(k_eval(1)),dbl_mb(k_eval(2)))
+            rabuck_act=gotsmear(ssmear)
+         endif
 c     
 c     Form a new density matrix.
 c     
@@ -841,9 +836,7 @@ c
       endif
          etnew=etnew+tdots
 c
-!      delta = abs(etold-etnew)
       delta = -etold+etnew
-      Etold = Etnew
 c
 c     check for symmetry breaking
 c

@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.8 2001-12-22 23:55:11 edo Exp $
+c     $Id: dft_canorg.F,v 1.9 2001-12-24 02:02:12 edo Exp $
 c     
       implicit none
 c
@@ -244,7 +244,11 @@ c
 c     
 c     Check convergence parameters.
 c     
-      if ((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
+      if(oprint) then
+         write(luout,*) ' delta = ',delta
+      endif
+      if ((abs(delta).lt.dampon.and.abs(delta).gt.dampoff).
+     .     or.iter.le.ncydp.or.iter.eq.0)then
          damping = .true.
          ndamp = ndamp_input
       else
@@ -252,7 +256,7 @@ c
          ndamp = ndamp_def
       endif
 c     
-      if ((delta.lt.levlon.and.delta.gt.levloff).or.
+      if ((abs(delta).lt.levlon.and.abs(delta).gt.levloff).or.
      &    (iter.le.ncysh).or.levelshifting)then
          if (homo_lumo_gap.lt.hl_tol.and.(.not.gotsmear(ssmear)))then
             levelshifting = .true.
@@ -273,7 +277,7 @@ c
          rlshift = rlshift_def
       endif
 c     
-      if ((delta.lt.diison.and.delta.gt.diisoff).or.
+      if ((abs(delta).lt.diison.and.abs(delta).gt.diisoff).or.
      &     iter.le.ncyds.or.keep_diis_on)then
          diising = .true.
 c     
@@ -283,7 +287,8 @@ c
       else
          diising = .false.
       endif
-      if (delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
+      if (abs(delta).lt.diisoff.or.
+     .     (ncyds.gt.0.and.iter.gt.ncyds))then
          diising = .false.
          keep_diis_on = .false.
       endif
@@ -342,4 +347,29 @@ c
  4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 
+      end
+      double precision function dft_rabuck(ipol,iter,n_rabuck,noc,
+     ,     derr,evala,evalb)
+      implicit none
+      integer ipol,iter,n_rabuck,noc(2)
+      double precision evala(*),evalb(*),derr(*),delta
+c
+      integer nn,nss
+      double precision ss,s_rabuck,derrt
+      double precision smear_in
+      s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
+     *     log(1d-10/ss)*(nn-1d0)),delta*1d-4)
+c
+      derrt=derr(1)
+      if(ipol.eq.2) derrt=max(derr(1),derr(2))
+      
+      smear_in=abs(evala(noc(1))-evala(noc(1)+1))
+      if(ipol.eq.2) smear_in=max(smear_in,
+     ,     abs(evalb(noc(2))-evalb(noc(2)+1)))
+!      smear_in=2d0*smear_in
+      dft_rabuck=s_rabuck(iter,smear_in,n_rabuck,derrt)
+c     ssmear=s_rabuck(iter,smear_in,n_rabuck,derrt)
+c     ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
+      
+      return
       end
