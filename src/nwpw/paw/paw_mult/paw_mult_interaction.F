@@ -1,7 +1,10 @@
 *
-* $Id: paw_mult_interaction.F,v 1.10 2003-03-22 01:03:46 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.11 2003-03-24 20:31:08 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2003/03/22 01:03:46  bylaska
+* bug in z-component of multipole force fixed....EJB
+*
 * Revision 1.9  2003/02/25 02:36:49  bylaska
 * debug write statements removed...EJB
 *
@@ -210,6 +213,12 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         DO l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
 
 
+        !*** gaunt coefficent is non-zero ***
+        if ((m.eq.(m2+m1))       .and.
+     >      (mod(l+l2+l1,2).eq.0).and.
+     >      (l1.le.(l+l2))       .and.
+     >      (l1.ge.abs(l-l2)))    then
+
         gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
 
             
@@ -243,6 +252,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
            fx = fx + tmp_cmplx*sin_theta*cos_phi
            fy = fy + tmp_cmplx*sin_theta*sin_phi
            fz = fz + tmp_cmplx*cos_theta
+
+           end if
 
            phase_factor = -phase_factor
 
@@ -471,21 +482,28 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
                 phase_factor  = 1.0d0
                 do l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
 
+                !*** gaunt coefficent is non-zero ***
+                if ((m.eq.(m2+m1))       .and.
+     >              (mod(l+l2+l1,2).eq.0).and.
+     >              (l1.le.(l+l2))       .and.
+     >              (l1.ge.abs(l-l2)))    then
                 gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
 
                 p1 = (l1+l2+l)/2
                 f = f + paw_get_mult_coeff(l1,l2,l)*phase_factor
      >                  *gaunt_coeff*find_Y_lm(l,m,cos_theta,phi)
      >                  *(
-     >  -r_over_s4**l
+     >  -(r_over_s4**l)
      >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s4)**2)*phase_factor4
-     > - r_over_s3**l
+     > - (r_over_s3**l)
      >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s3)**2)*phase_factor3
-     > + r_over_s2**l
+     > + (r_over_s2**l)
      >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s2)**2)*phase_factor2
-     > + r_over_s1**l
+     > + (r_over_s1**l)
      >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s1)**2)*phase_factor1
      >                   ) 
+
+                end if
                 phase_factor = -phase_factor
 
                 end do !*l*

@@ -7,6 +7,7 @@
 !  ************************************************************************
  
       DOUBLE PRECISION FUNCTION PAW_LN_GAMMA (XX)
+      implicit none
       DOUBLE PRECISION XX
       INTEGER J
       DOUBLE PRECISION SER
@@ -22,17 +23,16 @@
       X = XX
       Y = X
       TMP = X + 5.5D0
-      TMP = (X + 0.5D0)*LOG(TMP) - TMP
+      TMP = (X + 0.5D0)*DLOG(TMP) - TMP
       SER = 1.000000000190015D0
       DO J = 1, 6
          Y = Y + 1.0D0
          SER = SER + COF(J)/Y
       END DO
  
-      PAW_LN_GAMMA = TMP + LOG(STP*SER/X)
+      PAW_LN_GAMMA = TMP + DLOG(STP*SER/X)
  
       RETURN 
- 
       END 
  
 !  *************************************************
@@ -46,15 +46,17 @@
 !     Created :
 !  
 !  *************************************************
-      DOUBLE PRECISION FUNCTION PAW_GAMMA (X)
+      DOUBLE PRECISION FUNCTION PAW_GAMMA(X)
+      implicit none
       DOUBLE PRECISION X
  
       DOUBLE PRECISION XX
       DOUBLE PRECISION PAW_LN_GAMMA
  
       XX = X
-      PAW_GAMMA = EXP(PAW_LN_GAMMA(XX))
+      PAW_GAMMA = DEXP(PAW_LN_GAMMA(XX))
  
+      return
       END 
  
  
@@ -71,22 +73,24 @@
 !  
 !  *************************************************
       DOUBLE PRECISION FUNCTION PAW_GAMMP (A, X)
+      implicit none
       DOUBLE PRECISION A, X
  
       DOUBLE PRECISION GAMMCF, GAMSER, GLN
  
       IF (X .LT. A+1.0D0) THEN
  
-         CALL PAW_GSER (GAMSER, A, X, GLN)
+         CALL PAW_GSER(GAMSER, A, X, GLN)
          PAW_GAMMP = GAMSER
  
       ELSE
  
-         CALL PAW_GCF (GAMMCF, A, X, GLN)
+         CALL PAW_GCF(GAMMCF, A, X, GLN)
          PAW_GAMMP = 1.0D0 - GAMMCF
  
       ENDIF
  
+      return
       END 
  
 !  *************************************************
@@ -101,12 +105,15 @@
 !  
 !  *************************************************
       SUBROUTINE PAW_GCF(GAMMCF, A, X, GLN)
+      implicit none
       INTEGER ITMAX
       DOUBLE PRECISION A, GAMMCF, GLN, X, EPS, FPMIN
       PARAMETER (ITMAX = 100, EPS = 3.D-16, FPMIN = 1.D-30)
       DOUBLE PRECISION AN, B, C, D, DEL, H
       INTEGER I
+
       DOUBLE PRECISION PAW_LN_GAMMA
+      EXTERNAL         PAW_LN_GAMMA
  
       GLN = PAW_LN_GAMMA(A)
       B = X + 1.0D0 - A
@@ -117,18 +124,19 @@
          AN = -I*(I - A)
          B = B + 2.0D0
          D = AN*D + B
-         IF (ABS(D) .LT. 1.D-30) D = 1.D-30
+         IF (DABS(D) .LT. 1.D-30) D = 1.D-30
          C = B + AN/C
-         IF (ABS(C) .LT. 1.D-30) C = 1.D-30
+         IF (DABS(C) .LT. 1.D-30) C = 1.D-30
          D = 1.0D0/D
          DEL = D*C
          H = H*DEL
-         IF (ABS(DEL - 1.0D0) .LT. 3.D-16) GO TO 1
+         IF (DABS(DEL - 1.0D0) .LT. 3.D-16) GO TO 1
       END DO
       PAUSE 'a too large, ITMAX too small in gcf'
     1 CONTINUE
-      GAMMCF = EXP((-X) + A*LOG(X) - GLN)*H
+      GAMMCF = DEXP((-X) + A*DLOG(X) - GLN)*H
  
+      return
       END 
  
 !  *************************************************
@@ -143,6 +151,7 @@
 !  
 !  *************************************************
       SUBROUTINE PAW_GSER(GAMSER, A, X, GLN)
+      implicit none
       DOUBLE PRECISION A, X
       DOUBLE PRECISION GAMSER, GLN
  
@@ -153,7 +162,9 @@
       PARAMETER (EPS = 3.0D-16)
       INTEGER N
       DOUBLE PRECISION AP, DEL, SUM
+
       DOUBLE PRECISION PAW_LN_GAMMA
+      EXTERNAL         PAW_LN_GAMMA
  
  
       GLN = PAW_LN_GAMMA(A)
@@ -171,7 +182,7 @@
          AP = AP + 1.0D0
          DEL = DEL*X/AP
          SUM = SUM + DEL
-         IF (ABS(DEL) .LT. ABS(SUM)*3.0D-16) GO TO 1
+         IF (DABS(DEL) .LT. DABS(SUM)*3.0D-16) GO TO 1
  
       END DO
  
@@ -179,9 +190,9 @@
      >     ("a too large,ITMAX too small in PAW_GSER",1)
  
     1 CONTINUE
-      GAMSER = SUM*EXP((-X) + A*LOG(X) - GLN)
+      GAMSER = SUM*DEXP((-X) + A*DLOG(X) - GLN)
  
- 
+      return 
       END 
  
  

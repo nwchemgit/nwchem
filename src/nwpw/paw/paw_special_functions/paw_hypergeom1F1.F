@@ -10,6 +10,7 @@
 !  
 !  ********************************************************************
       DOUBLE PRECISION FUNCTION PAW_HYPERGEOM1F1 (N, L, Z)
+      implicit none
  
       INTEGER N, L
       DOUBLE PRECISION Z
@@ -21,8 +22,8 @@
       DOUBLE PRECISION EPS
       DOUBLE PRECISION S
  
-      DOUBLE PRECISION PAW_GAMMA
-      EXTERNAL PAW_GAMMA
+      DOUBLE PRECISION PAW_GAMMA,PAW_GAMMP
+      EXTERNAL         PAW_GAMMA,PAW_GAMMP
  
 !    *** cannot handle positive z ***
       IF (Z .GT. 0) THEN
@@ -37,25 +38,26 @@
          RETURN 
       ENDIF
  
-      X = SQRT(ABS(Z))
+      X = dsqrt(dabs(Z))
  
       IF (N .EQ. L) THEN
  
-         PAW_HYPERGEOM1F1 = GAMMP(N + 0.5D0,(-Z))*(N + 0.5)*(-Z)**((-N)
-     1       - 0.5D0)*PAW_GAMMA(N + 0.5D0)
+         PAW_HYPERGEOM1F1 = PAW_GAMMP(N + 0.5D0,(-Z))
+     >                     *(N + 0.5)*(-Z)**((-N)- 0.5D0)
+     >                     *PAW_GAMMA(N + 0.5D0)
  
          RETURN 
  
-      ELSE IF (N .EQ. L+1) THEN
+      ELSE IF (N .EQ. (L+1)) THEN
  
-         PAW_HYPERGEOM1F1 = EXP(Z)
+         PAW_HYPERGEOM1F1 = DEXP(Z)
  
          RETURN 
  
       ENDIF
  
 !    *** do inifinite series for small z
-      IF (ABS(Z) .LE. 1.0) THEN
+      IF (dabs(Z) .LE. 1.0d0) THEN
  
          EPS = 1.0D-16
  
@@ -70,7 +72,7 @@
  
             PAW_HYPERGEOM1F1 = PAW_HYPERGEOM1F1 + S
  
-            IF (ABS(S) .LT. EPS) RETURN 
+            IF (dabs(S) .LT. EPS) RETURN 
  
          END DO
  
@@ -88,8 +90,8 @@
  
       !*** M1 = M(a,b-1) ***
       !*** M2 = M(a,b,z) ***
-         M1 = EXP(Z)
-         PAW_HYPERGEOM1F1 = GAMMP(A,(-Z))*A/(-Z)**A*PAW_GAMMA(A)
+         M1 = dexp(Z)
+         PAW_HYPERGEOM1F1 = PAW_GAMMP(A,(-Z))*A/(-Z)**A*PAW_GAMMA(A)
  
       !**********************************************
       ! using recursion formula
@@ -108,7 +110,7 @@
  
          END DO
  
-      ELSE IF (N .GT. L+1) THEN
+      ELSE IF (N .GT. (L+1)) THEN
  
       !*** starting point n=l+1 or b=a ***
          A = L + 1.5D0
@@ -116,9 +118,9 @@
  
       !*** M1 = M(a-1,b) ***
       !*** M2 = M(a,a,z) ***
-         M1 = GAMMP(A - 1.0D0,(-Z))*(A - 1.0D0)/(-Z)**(A - 1.0D0)*
+         M1 = PAW_GAMMP(A - 1.0D0,(-Z))*(A - 1.0D0)/(-Z)**(A - 1.0D0)*
      1      PAW_GAMMA(A - 1.0D0)
-         PAW_HYPERGEOM1F1 = EXP(Z)
+         PAW_HYPERGEOM1F1 = dexp(Z)
  
       !**********************************************
       ! using recursion formula
@@ -138,7 +140,8 @@
  
       ENDIF
  
-      END 
+      return
+      end 
  
  
  
