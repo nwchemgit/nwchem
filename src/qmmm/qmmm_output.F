@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.5 2004-10-18 23:55:38 marat Exp $
+c $Id: qmmm_output.F,v 1.6 2004-10-19 01:33:28 marat Exp $
 c
 c
       subroutine qmmm_print_header(irtdb)
@@ -53,7 +53,7 @@ c
       character*32 optimization
       character*32 interface
       real*8 eatoms,qatoms
-      logical xyz,xyzq,fixqm
+      logical fixqm
       integer linkatm,bq_exclude
 
       

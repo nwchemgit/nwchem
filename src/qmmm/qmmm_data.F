@@ -17,7 +17,7 @@ c
       character*32 interface
       character*32 link_ecp
       real*8 eatoms,qatoms
-      logical xyz,xyzq,fixqm
+      logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
 
@@ -46,22 +46,6 @@ c     initialize rtdb parameters
       if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
         if (.not.rtdb_put(irtdb,tag,mt_log,1,fixlinks)) 
      >      call errquit(pname//'failed to store fixlinks',0,
-     >       RTDB_ERR)
-
-       end if
-
-      tag = "qmmm:xyz"
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,xyz)) then
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,xyz)) 
-     >      call errquit(pname//'failed to store xyz',0,
-     >       RTDB_ERR)
-
-       end if
-
-      tag = "qmmm:xyzq"
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,xyzq)) then
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,xyzq)) 
-     >      call errquit(pname//'failed to store xyzq',0,
      >       RTDB_ERR)
 
        end if
