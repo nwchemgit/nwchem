@@ -1,6 +1,12 @@
-!$Id: paw_density.F,v 1.2 2003-02-17 00:52:31 marat Exp $
+!$Id: paw_density.F,v 1.3 2003-02-17 05:53:40 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.2  2003/02/17 00:52:31  marat
+!generated multipole expansion of the atomic densities
+!freed the memory
+!
+!MV
+!
 !Revision 1.1  2003/02/16 21:40:00  marat
 !initial version
 !MV
@@ -219,7 +225,7 @@
       ok = my_dealloc(paw_rho_d_ps) 
       ok = ok .and. my_dealloc(paw_rho_u_ps) 
       ok = ok .and. my_dealloc(paw_rho_d_ae) 
-      ok = ok .and. my_dealloc(paw_rho_u_ps) 
+      ok = ok .and. my_dealloc(paw_rho_u_ae) 
       ok = ok .and. my_dealloc(i_paw_rho)
 
       if (.not.ok)
