@@ -1,4 +1,4 @@
-c $Id: hnd_1emem.F,v 1.3 1999-01-22 19:01:16 windus Exp $
+c $Id: hnd_1emem.F,v 1.4 2000-01-04 00:15:39 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- memory routine
@@ -14,8 +14,9 @@ c     The HONDO integrals assume that the nw code sets up the
 c     buffer size appropriately.
 c     The scrmem size is the size of a g-g shell of integrals
 c     (the maximum that the code needs since it can only do up to g).
+c     Times 2 because need to hold T and a scratch space.
 c
-      scrmem = 255
+      scrmem = 255*2
       maxbuf = 0
 c
       isz_1e = max(isz_1e,maxbuf)

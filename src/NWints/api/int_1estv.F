@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.1 1999-12-30 22:06:53 mg201 Exp $
+c $Id: int_1estv.F,v 1.2 2000-01-04 00:15:04 windus Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -384,8 +384,6 @@ c
       call int_1estv(i_basis,ish,j_basis,jsh,lscr-lh1,scr(lh1+1),lh1,
      &    scr,scr,H1,.false.,.true.,.true.)
 c                     doS     doT    doV
-      if (cando_hnd_1e(i_basis,ish,0).and.cando_hnd_1e(j_basis,jsh,0)
-     &    .and..not.dyall_mod_dir) return
       do i = 1,lh1
         H1(i) = H1(i)+scr(i)
       end do

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvint.F,v 1.2 1999-04-10 00:15:17 windus Exp $
+c $Id: hnd_stvint.F,v 1.3 2000-01-04 00:15:39 windus Exp $
 c
 c Taken from HONDO
 c
@@ -48,7 +48,7 @@ c
       integer ijx, ijy, ijz, minprim, maxprim, ij, i, j
       integer ni, nj, maxrys, i1, i2, j1, j2, ig, ic, iroot
       integer ix, iy, iz, jx, jy, jz
-      logical some, doH1
+      logical some
       common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                  ni,nj,ccx,ccy,ccz
       dimension ijx(35),ijy(35),ijz(35)
@@ -77,7 +77,6 @@ c
       data maxprim / 1, 4,10,20,35/
 c
       tol=rln10*itol
-      doH1 = doT.and.doV.and..not.doS
 c
 c     ----- calculate -s-, -t-, and -v- integrals -----
 c
@@ -248,14 +247,7 @@ c
         dum =xt(ix,jx)*ys(iy,jy)*zs(iz,jz)
      1      +xs(ix,jx)*yt(iy,jy)*zs(iz,jz)
      2      +xs(ix,jx)*ys(iy,jy)*zt(iz,jz)
-c
-c  This is to handle the case when you want H1
-c
-        if (doH1) then
-          vi(ij)=vi(ij)+(dum*dij(ij))
-        else
-          ti(ij)=ti(ij)+(dum*dij(ij))
-        endif
+        ti(ij)=ti(ij)+(dum*dij(ij))
       endif
   380 continue
   390 continue
