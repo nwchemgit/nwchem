@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.17 1995-06-15 21:16:36 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.18 1995-06-19 16:14:16 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -395,7 +395,7 @@ C                 B with A transpose, but on a block-wise basis.
 C
                   Call GA_Sync
                   Call PStat_On( PS_form_ab)
-                  If ( ISpin .eq. JSpin) then
+                  If ( PermSym ) then
                      Call GA_Zero(G_bigB)
 C
                      Do I = ILo, IHi
@@ -498,9 +498,9 @@ C
                   Do I = ILo, IHi
 C
 C                    Use permutational symmetry if possible
-C                    (already know that ISpin .eq. JSpin)
 C                       
-                     If ( ILo .eq. JLo .AND. IHi .eq. JHi) then
+                     If ( (ILo .eq. JLo .AND. IHi .eq. JHi) 
+     $                  .AND. PermSym) then
                         JTop2 = I
                      Else
                         JTop2 = JHi
