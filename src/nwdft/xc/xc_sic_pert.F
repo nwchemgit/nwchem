@@ -3,7 +3,7 @@
      &                       wght_GA, rdens_atom, cetobfr, natoms,
      &                       g_movecs, noc, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.8 2000-04-24 19:37:16 edo Exp $
+C$Id: xc_sic_pert.F,v 1.9 2000-04-26 23:03:13 jolguin Exp $
 c
       implicit none
 c      
@@ -13,7 +13,7 @@ c
      &        g_vxc_orb(4), g_movecs(2), g_coul_orb,
      &        i_temp_vec, l_temp_vec
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
-     &                 totsic
+     &                 totsic, tot
       logical wght_GA, oprint_sic
 c
 #include "mafdecls.fh"
@@ -73,6 +73,15 @@ c
      &     l_temp_vec, i_temp_vec))
      &     call errquit('xc_sic_pert: cannot allocate temp vec',0)
 c
+
+        tot = -xfac(1)
+        do ik = 1,numfunc
+          tot = tot + xfac(ik)
+        end do
+        if (tot.lt.1e-8 )then
+          if (me.eq.0.and.oprint_sic) write(LuOut,*) 
+     &                               ' No SIC in coulomb contribution'
+        endif
         do isp = 1,ipol
           n_states = noc(isp)
 ccccc   Start loop of total states by spin        
@@ -90,10 +99,10 @@ ccccc   Start loop of total states by spin
      &                  DBl_MB(i_temp_vec), nbf_ao)
             call ga_dgemm('n', 't', nbf_ao, nbf_ao, nbf_ao, 1.0d00,
      &                    g_orb, g_orb, 0.d00, g_dens_orb(1))
-            if (abs(xfac(1)).gt.1e-8 )then
-              if (me.eq.0.and.oprint_sic) write(LuOut,*) 
-     &                                    ' no sic in coulomb part'
-            else
+            if (tot.gt.1e-8 )then
+c             if (me.eq.0.and.oprint_sic) write(LuOut,*) 
+c    &                                    ' No sic in coulomb part'
+c           else
 cccc g_dens_orb(1) is the orbital density of orb(ik) states
               kfac(1) = 0.d00
               jfac(1) = 1.0d0
@@ -104,7 +113,7 @@ cccc g_dens_orb(1) is the orbital density of orb(ik) states
               ecoul_orb = 0.0d0
               ecoul_orb = 0.5d0*ga_ddot(g_dens_orb(1), g_vxc_orb(1))
               tot_sic_coul = tot_sic_coul - 
-     &           dble(sic_orb_occ)*ecoul_orb
+     &           dble(sic_orb_occ)*(1.0d0 - xfac(1))*ecoul_orb
 cccc ecoul_orb is the orbital coulomb energy 
               call ga_copy(g_vxc_orb(1), g_coul_orb)
             end if
