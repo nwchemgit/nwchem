@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.32 1994-11-27 10:11:57 og845 Exp $
+c $Id: basis.F,v 1.33 1995-02-07 00:48:02 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1134,7 +1134,8 @@ c
 c     Name is not present ... add and rewrite info
 c     
       if (nbasis_rtdb .eq. nbasis_rtdb_mx) then
-         write(6,*) ' bas_rtdb_add: too many basetries on rtdb ', name
+         write(6,*) ' bas_rtdb_add: too many basis tries on rtdb ',
+     &      name
          bas_rtdb_add = .false.
          return
       endif
