@@ -85,6 +85,34 @@ The net charge of a subset of atoms can be constrained using
 where \verb+charge+ is the net charge of the set of atoms \verb+{iatom}+.
 A negative atom number \verb+iatom+ can be used to specify that the
 partial charge of that atom is substracted in the sum for the set.
+\item
+The net charge of a sequence of atoms can be constrained using
+\begin{verbatim}
+  constrain <real charge> <integer iatom> through <integer jatom>
+\end{verbatim}
+where \verb+charge+ is the net charge of the set of atoms \verb+{[iatom:jatom]}+.
+\item
+A group of atoms can be constrained to have the same charge with
+\begin{verbatim}
+  constrain equal {<integer iatom>}
+\end{verbatim}
+\item
+The individual charge of a group of atoms can be constrained to be equal to
+those of a second group of atoms with
+\begin{verbatim}
+  constrain group <integer iatom> <integer jatom> to <integer katom> <integer latom>
+\end{verbatim}
+resulting in the same charge for atoms \verb+iatom+ and \verb+katom+, for
+atoms \verb.iatom+1. and \verb.katom+1., ... for atoms \verb+jatom+ and \verb+latom+.
+\item
+A special constraint
+\begin{verbatim}
+  constrain equal <integer iatom> {<integer jatom>}
+\end{verbatim}
+can be used to constrain the set \verb+{iatom,{jatom}}+ to zero charge, and
+constrain all atoms in \verb+{jatom}+ to have the same charge. This can be used,
+for example, to restrain a methyl group to zero charge, and have all hydrogen
+carrying identical charges.
 \end{itemize}
 
 \section{Restraints}
