@@ -1,6 +1,6 @@
       logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.2 2003-08-07 00:24:42 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.3 2003-08-07 03:40:58 d3j191 Exp $
 c
       implicit none
 c
@@ -108,7 +108,7 @@ c
 c
       nldat=nhopl(np)
       call ga_igop(mcf_77,lda,10*nldat,'+')
-      call ga_dgop(mcf_78,rda,3*nldat,'+')
+      call ga_dgop(mcf_78,rda,5*nldat,'+')
 c
 ctest
 c      if(me.eq.0) then
