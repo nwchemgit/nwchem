@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.45 2000-10-23 16:23:48 windus Exp $
+C$Id: rimp2.F,v 1.46 2003-02-22 05:58:52 edo Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -52,6 +52,7 @@ C
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
       Character*(80) FNInt, Approx
+      character*255 actualname
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
       Character*(1) Mem_Opt
@@ -243,7 +244,7 @@ C
      $      'disk arrays'
 #else
          Write (LuOut, 8500) 'Type of storage for MO integrals',
-     $      'Fortran direct access files'
+     $      'EAF library'
 #endif
          Write (LuOut, *)
 C
@@ -321,7 +322,7 @@ C
 C
       If ( .NOT. RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $   MinEVal, Approx, G_AOXF) ) Call ErrQuit(
+     $   MinEVal, Approx, G_AOXF,actualname) ) Call ErrQuit(
      $   'rimp2: rimp2_xf_driver failed', 911)
 C
 C     Finished with the AO transformation
@@ -358,7 +359,8 @@ C     **********************
 C
       If ( .NOT. RIMP2_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi,
      $   NFit, FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2)) ) Call ErrQuit(
+     $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
+     ,     actualname)) Call ErrQuit(
      $   'rimp2: rimp2_v_e2 failed', 911)
 C
 C     Also get the SCF energy so we can report the total energy

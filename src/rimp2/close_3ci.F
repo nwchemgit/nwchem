@@ -1,13 +1,16 @@
-      Logical function Close_3ci_file( LU, Stat)
-C$Id: close_3ci.F,v 1.3 1998-01-31 20:14:13 bernhold Exp $
+      Logical function Close_3ci_file( LU, Stat,actualname)
+C$Id: close_3ci.F,v 1.4 2003-02-22 05:58:52 edo Exp $
       Implicit NONE
       Integer LU
       Character*1 Stat
+      character*(*) actualname
 C
       Logical LSame
       External LSame
 C
 #include "stdio.fh"
+#include "eaf.fh"
+#include "global.fh"
 #ifdef RIMP2_USE_DA
 #include "dra.fh"
 #endif
@@ -31,9 +34,16 @@ C
       EndIf
 #else
       If ( Keep ) then
-         Close(LU, STATUS='KEEP', ERR=8000, IOSTAT=Code)
+         if (eaf_close(LU) .ne. 0) call errquit
+     $        ('close_3ci: eaf_close failed',0)
+cold         Close(LU, STATUS='KEEP', ERR=8000, IOSTAT=Code)
       Else
-         Close(LU, STATUS='DELETE', ERR=8000, IOSTAT=Code)
+         if (eaf_close(LU) .ne. 0) call errquit
+     $        ('close_3ci: eaf_close failed',0)
+cedo need to transfer actualname
+         if (eaf_delete(actualname) .ne. 0) call errquit
+     $        ('close3ci: delete failed', 0)
+cold         Close(LU, STATUS='DELETE', ERR=8000, IOSTAT=Code)
       EndIf
 #endif
 C

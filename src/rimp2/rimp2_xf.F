@@ -4,17 +4,17 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.5 2000-10-23 16:23:49 windus Exp $
+C     $Id: rimp2_xf.F,v 1.6 2003-02-22 05:58:53 edo Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi,
-     $   NILimit, Neglect, MinEVal, Approx, G_C)
+     $   NILimit, Neglect, MinEVal, Approx, G_C,actualname)
       Implicit NONE
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
       Integer ALo(TopSpin), AHi(TopSpin), ILo(TopSpin), IHi(TopSpin)
       Double precision Neglect, MinEVal
-      Character*(*) FNInt, Approx
+      Character*(*) FNInt, Approx,actualname
       Integer G_C(TopSpin), D_Int(TopSpin)
 C
 C ARGUMENTS
@@ -226,7 +226,7 @@ C        * Create the file to hold the transformed integrals *
 C        *****************************************************
 C
          Status = Open_3ci_file(D_Int(ISpin), FNInt, ISpin, NA, NI,
-     $      G_Out)
+     $      G_Out,actualname)
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver: Unable to open integral file', ISpin)
@@ -264,7 +264,7 @@ C
      $      'RIMP2_XF_Driver:  Unable to free global arrays',
      $      ISpin)
 C
-         Status = Close_3ci_file(D_Int(ISpin), 'KEEP')
+         Status = Close_3ci_file(D_Int(ISpin), 'KEEP',actualname)
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver:  Problems closing integral file',

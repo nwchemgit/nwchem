@@ -1,14 +1,17 @@
-      Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.8 2000-05-09 18:54:11 edo Exp $
+      Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out,
+     , filnam)
+C$Id: open_3ci.F,v 1.9 2003-02-22 05:58:52 edo Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
+      Character*(*) FilNam! actualname
 C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "ftnio.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "eaf.fh"
 C
 C
 C
@@ -21,7 +24,7 @@ C
       Integer Type, AILen, FitLen
       Double Precision FileL, FileLMB
       Character*1 Sp
-      Character*256 FilNam, tmpname
+      Character*255  tmpname
 C
 C     Use the global array to figure out how large the fitting basis is
 C
@@ -70,10 +73,12 @@ C
 C
       Integer LNBlnk
       External LNBlnk
+      integer ierr
+      character*80 errmsg
 C
       Integer RecL, Code, IALo, IAHi, SLo, SHi, NS, RecLB
       Character*1 Sp
-      Character*256 FilNam, String, tmpname
+      Character*255  String, tmpname
 C
 C     Use the global array to figure out how much of the s (fitting basis)
 C     space we have on this node.
@@ -135,9 +140,14 @@ C
       tmpname(lnblnk(tmpname)+1:) = sp
       call util_file_name(tmpname, .true., .true., filnam)
 C
-      If ( RecL .gt. 0)
-     $   Open(UNIT=LU, FILE=FilNam(:LNBlnk(FilNam)),
-     $   ACCESS='DIRECT', RECL=RecL, ERR=8000, IOSTAT=Code)
+      If ( RecL .gt. 0) then
+        ierr=eaf_open(FilNam(:LNBlnk(FilNam)), eaf_rw, LU)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('open_3ci: eaf_open failed', ierr)
+        endif
+      endif
 C
       Open_3ci_File = .TRUE.
       Return

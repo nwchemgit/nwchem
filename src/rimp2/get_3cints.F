@@ -1,5 +1,5 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: get_3cints.F,v 1.10 1998-01-31 20:14:15 bernhold Exp $
+C$Id: get_3cints.F,v 1.11 2003-02-22 05:58:52 edo Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
@@ -30,11 +30,15 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "eaf.fh"
+#include "inp.fh"
 C
 C LOCAL VARIABLES
       Logical Status
       Integer AILo, AIHi, SLo, SHi, NS, H_Local, Local_Idx, I, LocalI
-      Integer Junk
+      Integer ierr
+      character*80 errmsg      
+      double precision offset
 C
       Call GA_Distribution( G_I, GA_NodeID(), AIlo, AIhi, Slo, Shi)
       NS = SHi-SLo+1
@@ -55,8 +59,18 @@ C
 C
          Do I = ILo, IHi
             LocalI = I - ILo + 1
-            Read(LU, REC=I, Err=8000) (Dbl_MB( Local_Idx+Junk),
-     $         Junk=0,NA*NS-1)
+               offset=8.d0*NA*NS*(I-1)
+               ierr = eaf_read(LU, offset, dbl_mb(local_idx),
+     .              8*NA*NS)
+               if (ierr .ne. 0) then
+                  call eaf_errmsg(ierr, errmsg)
+                  write(LuOut,*) ' IO offset ', offset
+                  write(LuOut,*) ' IO error message ',
+     $                 errmsg(1:inp_strlen(errmsg))
+                  call errquit('put_3cints: read failed',0)
+               endif
+               offset=offset+8.d0*NA*NS
+
             Call GA_Put( G_I, 1+NA*(LocalI-1), NA*LocalI, SLo, SHi,
      $         Dbl_MB( Local_Idx), NA)
          EndDo

@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.14 1997-04-01 03:43:35 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.15 2003-02-22 05:58:53 edo Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -141,9 +141,10 @@ C
 C     If we're supposed to put the results on disk, the file had better
 C     already be setup because we don't do it!
 C
-      If ( Disk ) then
-         Inquire(Unit=IntFil, Opened=Status)
-      EndIf
+! not available for EAF
+!      If ( Disk ) then
+!         Inquire(Unit=IntFil, Opened=Status)
+!      EndIf
 #endif
 C
 C     Now sanity check the index ranges provided.

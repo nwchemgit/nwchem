@@ -3,12 +3,12 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.26 2000-10-23 16:23:49 windus Exp $
+C     $Id: rimp2_v_e2.F,v 1.27 2003-02-22 05:58:52 edo Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
      $   NOcc, NVir, NFit, FitBas, Eig, LDEig, Contrib, E2,
-     $   Mem_Opt, IBlock, JBlock)
+     $   Mem_Opt, IBlock, JBlock,actualname)
       Implicit NONE
 C
       Character*(*) FNInt
@@ -17,7 +17,7 @@ C
       Integer NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
-      Character*(*) Mem_Opt
+      Character*(*) Mem_Opt,actualname
 C
 C ARGUMENTS
 C     D_Int    Handles for integral files [IN]
@@ -216,7 +216,7 @@ C
 C        Open integral file
 C
          Status = Open_3ci_file(D_Int(ISpin), FNInt, ISpin,
-     $      NVir(ISpin), NOcc(ISpin), G_bigI)
+     $      NVir(ISpin), NOcc(ISpin), G_bigI,actualname)
          If ( .NOT. Status ) then
             Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
      $         'integral file for spin ', ISpin, '!'
@@ -262,7 +262,7 @@ C              not change with the spin case.
 C
                If ( JSpin .ne. ISpin) then
                   Status = Open_3ci_file(D_Int(JSpin), FNInt, JSpin,
-     $               NVir(JSpin), NOcc(JSpin), G_bigI)
+     $               NVir(JSpin), NOcc(JSpin), G_bigI,actualname)
                   If ( .NOT. Status ) then
                      Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
      $                  'integral file for spin ', JSpin, ' !'
@@ -598,7 +598,8 @@ C     ************************
 C
       Status = .TRUE.
       Do ISpin = 1, TopSpin
-         Status = Status .AND. Close_3cI_File( D_Int(ISpin), 'DELETE')
+         Status = Status .AND. Close_3cI_File( D_Int(ISpin), 'DELETE',
+     ,        actualname)
       EndDo
 C
       If ( .NOT. Status ) then
