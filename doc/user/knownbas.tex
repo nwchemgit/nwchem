@@ -1,6 +1,6 @@
 \label{sec:knownbasis}
 
-Basis sets and effective core potentials were obtained (7/6/2000) from
+Basis sets and effective core potentials were obtained (1/1/2002) from
 the Extensible Computational Chemistry Environment (ECCE) Basis Set
 Database, as developed and distributed by the Molecular Science
 Computing Facility, Environmental and Molecular Sciences Laboratory
@@ -30,30 +30,31 @@ names should be specified exactly as provided below.  A good method is
 just to cut/paste from the WWW pages since they were generated
 electronically from the library source.
 
-Errors found in the basis set library of NWChem version 3.3 have been corrected in 
-the current library of NWChem version 4.0. The changes are listed below:
+Errors found in the basis set library of NWChem version 4.0 have been corrected in 
+the current library of NWChem version 4.1. The changes are listed below:
 
 \begin{enumerate}
 
-\item Basis Set \verb#"Hay-Wadt VDZ (n+1) ECP"# \newline 
- Element: Ag \newline
- Correction of contraction coefficient in first s contraction.
+\item Basis Set \verb#"aug-cc-pVTZ"# \newline 
+ Element: Br \newline
+ Correction of the diffuse s-exponent from 0.041601 to 0.045593.
 
-\item Basis Set \verb#"LANL2DZ ECP"# \newline 
- Element: Ag \newline
- Correction of contraction coefficient in first s contraction.
+\item Basis Set \verb#"cc-pV5Z"# \newline 
+ Element: Ar \newline
+ Questionable contraction coefficients were replaced with HF AO's.
 
-\item Basis Set \verb#"CRENBS ECP"# \newline 
- Element: All elements in the \verb#"CRENBS ECP"# Family \newline
- Complete revision of basis sets. The original sets were completely uncontracted and
- some of the first row transition metals were missing all of their d functions. The
- current sets relflect the minimal contraction of the original papers.
-
-\item ECP \verb#"SBKJC VDZ ECP"# \newline 
- Element: Ce \newline
- Correction of switched integer powers for d-f component.
+\item Basis Set \verb#"Stuttgart RSC 1997 ECP"# \newline 
+ Element: Ba \newline
+ The 4th s- and p-primitive are now uncontracted.
 
 \end{enumerate}
+
+IMPORTANT NOTE:
+The Stuttgart basis set and ECP developers have recently developed a new set of 
+Stuttgart RSC ECP's for the Lanthanide series of elements. This new set is 
+now called "Stuttgart RSC ECP", while the previous, and most widely used, 
+set has been renamed to "Stuttgart RSC 1997 ECP" in both the EMSL Basis Set 
+library and in the NWChem basis set library. 
 
 Relativistic contractions of standard basis sets for use in the Douglas-Kroll 
 and Dyall-modified-Dirac method have also been included in the library. These
@@ -77,11 +78,13 @@ and \verb+sc+ for the small component:
     oxygen library cc-pvdz_pt_sf_lc
 \end{verbatim} 
 Basis sets which are available with either the DmD or DK contractions are
-indicated in the list below.
+indicated in the list below. Additional DmD basis sets are available in the
+directory \verb#nwchem/contrib/basissets/Dyall_DMD#.
 
 \sloppy
 Here is a list of known all-electron non-relativistic, DK and DmD basis sets, 
-effective core potentials with their respective basis sets, and fitting basis sets 
+effective core potentials with their respective basis sets, fitting basis sets, 
+and Polarization, Diffuse and Core-valence sets of functions,
 along with the elements included for each. Additional information about each 
 basis set in the NWChem library can be obtained from the online 
 \htmladdnormallink{EMSL Gaussian Basis Set library}
@@ -91,378 +94,466 @@ Standard all-electron basis sets:
 
 \begin{enumerate}
 
-\item Basis Set \verb#"STO-2G"# (number of atoms 20)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+\item Basis Set \verb#"STO-2G"# (number of atoms 21)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sr
 
 
-\item Basis Set \verb#"STO-3G"# (number of atoms 52)  \newline 
+\item Basis Set \verb#"STO-3G"# (number of atoms 53)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te
+ Sb Te I
 
 
-\item Basis Set \verb#"STO-6G"# (number of atoms 36)  \newline 
+\item Basis Set \verb#"STO-6G"# (number of atoms 36)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"STO-3G*"# (number of atoms 18)  \newline 
+\item Basis Set \verb#"STO-3G*"# (number of atoms 18)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"3-21G"# (number of atoms 55)  \newline 
+\item Basis Set \verb#"3-21G"# (number of atoms 55)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe Cs
 
 
-\item Basis Set \verb#"3-21++G"# (number of atoms 18)  \newline 
+\item Basis Set \verb#"3-21++G"# (number of atoms 18)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"3-21G*"# (number of atoms 17)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl
-
-
-\item Basis Set \verb#"3-21++G*"# (number of atoms 18)  \newline 
+\item Basis Set \verb#"3-21G*"# (number of atoms 18)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"3-21GSP"# (number of atoms 18)  \newline 
+\item Basis Set \verb#"3-21++G*"# (number of atoms 18)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"4-22GSP"# (number of atoms 18)  \newline 
+\item Basis Set \verb#"3-21GSP"# (number of atoms 18)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"4-31G"# (number of atoms 13)  \newline 
+\item Basis Set \verb#"4-22GSP"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+\item Basis Set \verb#"4-31G"# (number of atoms 13)  \newline
   H He Li Be B C N O F Ne P S Cl
 
 
-\item Basis Set \verb#"6-31G"# (number of atoms 30)  \newline 
+\item Basis Set \verb#"6-31G"# (number of atoms 30)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-\item Basis Set \verb#"6-31++G"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"6-31G*"# (number of atoms 30)  \newline 
+\item Basis Set \verb#"6-31G*"# (number of atoms 30)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-\item Basis Set \verb#"6-31G**"# (number of atoms 30)  \newline 
+\item Basis Set \verb#"6-31G**"# (number of atoms 30)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-\item Basis Set \verb#"6-31+G*"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"6-31++G*"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"6-31++G**"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"6-31G(3df,3pd)"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"6-31G-Blaudeau"# (number of atoms 2)  \newline 
-  K Ca
-
-
-\item Basis Set \verb#"6-31G*-Blaudeau"# (number of atoms 2)  \newline 
-  K Ca
-
-
-\item Basis Set \verb#"6-311G"# (number of atoms 24)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"6-311G*"# (number of atoms 24)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"6-311G**"# (number of atoms 24)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"6-311++G**"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
-\item Basis Set \verb#"6-311++G(2d,2p)"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
-\item Basis Set \verb#"6-311G(2df,2pd)"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
-\item Basis Set \verb#"6-311+G*"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
-\item Basis Set \verb#"6-311++G(3df,3pd)"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"MINI (Huzinaga)"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"MINI (Scaled)"# (number of atoms 20)  \newline 
+\item Basis Set \verb#"6-31++G"# (number of atoms 20)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
 
 
-\item Basis Set \verb#"MIDI (Huzinaga)"# (number of atoms 18)  \newline 
-  H He Li Be B C N O F Ne Na Al Si P S Cl Ar K
+\item Basis Set \verb#"6-31++G*"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"MIDI!"# (number of atoms 11)  \newline 
+\item Basis Set \verb#"6-31++G**"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"6-31+G*"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"6-31G(3df,3pd)"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"6-31G-Blaudeau"# (number of atoms 2)  \newline
+  K Ca
+
+\item Basis Set \verb#"6-31G*-Blaudeau"# (number of atoms 2)  \newline
+  K Ca
+
+
+\item Basis Set \verb#"6-311G"# (number of atoms 25)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+
+
+\item Basis Set \verb#"6-311G*"# (number of atoms 25)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+
+
+\item Basis Set \verb#"6-311G**"# (number of atoms 25)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+
+
+\item Basis Set \verb#"6-311++G**"# (number of atoms 10)  \newline
+  H He Li Be B C N O F Ne
+
+
+\item Basis Set \verb#"6-311++G(2d,2p)"# (number of atoms 20)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+
+\item Basis Set \verb#"6-311G(2df,2pd)"# (number of atoms 12)  \newline
+  H He Li Be B C N O F Ne K Ca
+
+
+\item Basis Set \verb#"6-311+G*"# (number of atoms 10)  \newline
+  H He Li Be B C N O F Ne
+
+
+\item Basis Set \verb#"6-311++G(3df,3pd)"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+\item Basis Set \verb#"MINI (Huzinaga)"# (number of atoms 20)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+
+\item Basis Set \verb#"MINI (Scaled)"# (number of atoms 20)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+
+\item Basis Set \verb#"MIDI (Huzinaga)"# (number of atoms 19)  \newline
+  H He Li Be B C N O F Ne Na Al Si P S Cl Ar K Cs
+
+
+\item Basis Set \verb#"MIDI!"# (number of atoms 11)  \newline
   H C N O F Si P S Cl Br I
 
 
-\item Basis Set \verb#"SV (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SV (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"SVP (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SVP (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"SVP + Diffuse (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SVP + Diffuse (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"TZ (Dunning)"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"TZ (Dunning)"# (number of atoms 8)  \newline
   H Li B C N O F Ne
 
 
-\item Basis Set \verb#"Chipman DZP + Diffuse"# (number of atoms 6)  \newline 
+\item Basis Set \verb#"Chipman DZP + Diffuse"# (number of atoms 6)  \newline
   H B C N O F
 
 
-\item Basis Set \verb#"DZ (Dunning)"# (number of atoms 12)  \newline 
-  H B C N O F Ne Al Si P S Cl
+\item Basis Set \verb#"DZ (Dunning)"# (number of atoms 13)  \newline
+  H Li B C N O F Ne Al Si P S Cl
 
 
-\item Basis Set \verb#"DZP (Dunning)"# (number of atoms 12)  \newline 
-  H B C N O F Ne Al Si P S Cl
+\item Basis Set \verb#"DZP (Dunning)"# (number of atoms 13)  \newline
+  H Li B C N O F Ne Al Si P S Cl
 
-
-\item Basis Set \verb#"DZP + Diffuse (Dunning)"# (number of atoms 7)  \newline 
+\item Basis Set \verb#"DZP + Diffuse (Dunning)"# (number of atoms 7)  \newline
   H B C N O F Ne
 
 
-\item Basis Set \verb#"cc-pVDZ"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"cc-pVDZ"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"cc-pVTZ"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"cc-pVTZ"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"cc-pVQZ"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"cc-pVQZ"# (number of atoms 22)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se
 
 
-\item Basis Set \verb#"cc-pV5Z"# (number of atoms 21)  \newline 
-  H He Li B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"cc-pV5Z"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"cc-pV6Z"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"cc-pV6Z"# (number of atoms 14)  \newline
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"cc-pCVDZ"# (number of atoms 6)  \newline 
-  B C N O F Ne
+\item Basis Set \verb#"pV6Z"# (number of atoms 4)  \newline
+  H C N O
 
 
-\item Basis Set \verb#"cc-pCVTZ"# (number of atoms 6)  \newline 
-  B C N O F Ne
+\item Basis Set \verb#"cc-pVDZ(seg-opt)"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"cc-pCVQZ"# (number of atoms 6)  \newline 
-  B C N O F Ne
+\item Basis Set \verb#"cc-pVTZ(seg-opt)"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"cc-pCV5Z"# (number of atoms 6)  \newline 
-  B C N O F Ne
+\item Basis Set \verb#"cc-pVQZ(seg-opt)"# (number of atoms 4)  \newline
+  H He C O
+
+\item Basis Set \verb#"cc-pCVDZ"# (number of atoms 12)  \newline
+  Li Be B C N O F Ne Na Mg Si Cl
 
 
-\item Basis Set \verb#"aug-cc-pVDZ"# (number of atoms 20)  \newline 
+\item Basis Set \verb#"cc-pCVTZ"# (number of atoms 13)  \newline
+  Li Be B C N O F Ne Na Mg Si P Cl
+
+
+\item Basis Set \verb#"cc-pCV5Z"# (number of atoms 8)  \newline
+  B C N O F Ne Na Mg
+
+
+\item Basis Set \verb#"cc-pCV6Z"# (number of atoms 1)  \newline
+  O
+
+
+\item Basis Set \verb#"aug-cc-pVDZ"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"aug-cc-pVTZ"# (number of atoms 23)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br
+
+
+\item Basis Set \verb#"aug-cc-pVQZ"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"aug-cc-pV5Z"# (number of atoms 20)  \newline
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"aug-cc-pVTZ"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pVQZ"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pV5Z"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pV6Z"# (number of atoms 14)  \newline 
+\item Basis Set \verb#"aug-cc-pV6Z"# (number of atoms 14)  \newline
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pCVDZ"# (number of atoms 5)  \newline 
-  B C N O F
+\item Basis Set \verb#"aug-cc-pCVDZ"# (number of atoms 7)  \newline
+  B C N O F Na Mg
 
 
-\item Basis Set \verb#"aug-cc-pCVTZ"# (number of atoms 6)  \newline 
+\item Basis Set \verb#"aug-cc-pCVTZ"# (number of atoms 8)  \newline
+  B C N O F Ne Na Mg
+
+\item Basis Set \verb#"aug-cc-pCVQZ"# (number of atoms 6)  \newline
   B C N O F Ne
 
 
-\item Basis Set \verb#"aug-cc-pCVQZ"# (number of atoms 6)  \newline 
-  B C N O F Ne
-
-
-\item Basis Set \verb#"aug-cc-pCV5Z"# (number of atoms 5)  \newline 
+\item Basis Set \verb#"aug-cc-pCV5Z"# (number of atoms 5)  \newline
   B C N O F
 
 
-\item Basis Set \verb#"d-aug-cc-pVDZ"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"d-aug-cc-pVDZ"# (number of atoms 8)  \newline
   H He B C N O F Ne
 
 
-\item Basis Set \verb#"d-aug-cc-pVTZ"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"d-aug-cc-pVTZ"# (number of atoms 8)  \newline
   H He B C N O F Ne
 
 
-\item Basis Set \verb#"d-aug-cc-pVQZ"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"d-aug-cc-pVQZ"# (number of atoms 8)  \newline
   H He B C N O F Ne
 
 
-\item Basis Set \verb#"d-aug-cc-pV5Z"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"d-aug-cc-pV5Z"# (number of atoms 8)  \newline
   H He B C N O F Ne
 
 
-\item Basis Set \verb#"d-aug-cc-pV6Z"# (number of atoms 5)  \newline 
+\item Basis Set \verb#"d-aug-cc-pV6Z"# (number of atoms 5)  \newline
   H B C N O
 
 
-\item Basis Set \verb#"GAMESS VTZ"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"cc-pV(D+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"cc-pV(T+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"cc-pV(Q+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+\item Basis Set \verb#"cc-pV(5+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"cc-pV(6+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"aug-cc-pV(D+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"aug-cc-pV(T+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"aug-cc-pV(Q+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"aug-cc-pV(5+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"aug-cc-pV(6+d)Z"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"Feller Misc. CVDZ"# (number of atoms 1)  \newline
+  K
+
+
+\item Basis Set \verb#"Feller Misc. CVTZ"# (number of atoms 1)  \newline
+  K
+
+
+\item Basis Set \verb#"Feller Misc. CVQZ"# (number of atoms 1)  \newline
+  K
+
+
+\item Basis Set \verb#"GAMESS VTZ"# (number of atoms 16)  \newline
+  H Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+\item Basis Set \verb#"GAMESS PVTZ"# (number of atoms 8)  \newline
   H Be B C N O F Ne
 
 
-\item Basis Set \verb#"GAMESS PVTZ"# (number of atoms 8)  \newline 
-  H Be B C N O F Ne
+\item Basis Set \verb#"Partridge Uncontr. 1"# (number of atoms 36)  \newline
+  Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr
 
 
-\item Basis Set \verb#"Partridge Uncontr. 1"# (number of atoms 34)  \newline 
+\item Basis Set \verb#"Partridge Uncontr. 2"# (number of atoms 34)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Partridge Uncontr. 2"# (number of atoms 34)  \newline 
-  Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
- Ni Cu Zn Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"Partridge Uncontr. 3"# (number of atoms 28)  \newline 
+\item Basis Set \verb#"Partridge Uncontr. 3"# (number of atoms 28)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn
 
 
-\item Basis Set \verb#"Ahlrichs VDZ"# (number of atoms 36)  \newline 
+\item Basis Set \verb#"Ahlrichs VDZ"# (number of atoms 36)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Ahlrichs pVDZ"# (number of atoms 36)  \newline 
+\item Basis Set \verb#"Ahlrichs pVDZ"# (number of atoms 36)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Ahlrichs VTZ"# (number of atoms 36)  \newline 
+\item Basis Set \verb#"Ahlrichs VTZ"# (number of atoms 36)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Binning/Curtiss SV"# (number of atoms 6)  \newline 
+\item Basis Set \verb#"Ahlrichs TZV"# (number of atoms 34)  \newline
+  Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"Binning/Curtiss SV"# (number of atoms 6)  \newline
+  Ga Ge As Se Br Kr
+
+\item Basis Set \verb#"Binning/Curtiss VTZ"# (number of atoms 6)  \newline
   Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Binning/Curtiss VTZ"# (number of atoms 6)  \newline 
+\item Basis Set \verb#"Binning/Curtiss SVP"# (number of atoms 6)  \newline
   Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Binning/Curtiss SVP"# (number of atoms 6)  \newline 
+\item Basis Set \verb#"Binning/Curtiss VTZP"# (number of atoms 6)  \newline
   Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"Binning/Curtiss VTZP"# (number of atoms 6)  \newline 
-  Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"McLean/Chandler VTZ"# (number of atoms 8)  \newline 
+\item Basis Set \verb#"McLean/Chandler VTZ"# (number of atoms 8)  \newline
   Na Mg Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"SV + Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SV + Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"SVP + Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SVP + Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"SVP + Diffuse + Rydberg"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SVP + Diffuse + Rydberg"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"DZ + Rydberg (Dunning)"# (number of atoms 12)  \newline 
+\item Basis Set \verb#"DZ + Rydberg (Dunning)"# (number of atoms 12)  \newline
   H B C N O F Ne Al Si P S Cl
 
 
-\item Basis Set \verb#"DZP + Rydberg (Dunning)"# (number of atoms 12)  \newline 
+\item Basis Set \verb#"DZP + Rydberg (Dunning)"# (number of atoms 12)  \newline
   H B C N O F Ne Al Si P S Cl
 
 
-\item Basis Set \verb#"DZ + Double Rydberg (Dunning-Hay)"# (number of atoms 12)  \newline 
+\item Basis Set \verb#"DZ + Double Rydberg (Dunning-Hay)"# (number of atoms 12)  \newline
   H B C N O F Ne Al Si P S Cl
 
-
-\item Basis Set \verb#"SV + Double Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"SV + Double Rydberg (Dunning-Hay)"# (number of atoms 9)  \newline
   H Li Be B C N O F Ne
 
 
-\item Basis Set \verb#"Wachters+f"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"Wachters+f"# (number of atoms 9)  \newline
   Sc Ti V Cr Mn Fe Co Ni Cu
 
 
-\item Basis Set \verb#"Bauschlicher ANO"# (number of atoms 9)  \newline 
+\item Basis Set \verb#"Bauschlicher ANO"# (number of atoms 9)  \newline
   Sc Ti V Cr Mn Fe Co Ni Cu
 
-
-\item Basis Set \verb#"NASA Ames ANO"# (number of atoms 12)  \newline 
+\item Basis Set \verb#"NASA Ames ANO"# (number of atoms 12)  \newline
   H B C N O F Ne Al P Ti Fe Ni
 
 
-\item Basis Set \verb#"Sadlej pVTZ"# (number of atoms 18)  \newline 
-  H Li Be C N O F Na Mg Si P S Cl K Ca Br Rb Sr
+\item Basis Set \verb#"NASA Ames cc-pVTZ"# (number of atoms 1)  \newline
+  Ti
 
 
-\item Basis Set \verb#"WTBS"# (number of atoms 84)  \newline 
+\item Basis Set \verb#"NASA Ames cc-pVQZ"# (number of atoms 1)  \newline
+  Ti
+
+
+\item Basis Set \verb#"NASA Ames cc-pV5Z"# (number of atoms 1)  \newline
+  Ti
+
+
+\item Basis Set \verb#"NASA Ames cc-pCVTZ"# (number of atoms 1)  \newline
+  Ti
+
+
+\item Basis Set \verb#"NASA Ames cc-pCVQZ"# (number of atoms 1)  \newline
+  Ti
+
+
+\item Basis Set \verb#"NASA Ames cc-pCV5Z"# (number of atoms 1)  \newline
+  Ti
+
+
+\item Basis Set \verb#"Sadlej pVTZ"# (number of atoms 19)  \newline
+  H Li Be C N O F Na Mg Si P S Cl K Ca Br Rb Sr I
+
+
+\item Basis Set \verb#"WTBS"# (number of atoms 84)  \newline
   He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
  Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
  Te I Xe Cs Ba La Ce Pr Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
  Pt Au Hg Tl Pb Bi Po At Rn
-
 
 \end{enumerate}
 
@@ -483,17 +574,15 @@ Density functional specific basis sets:
 
 \begin{enumerate}
 
-\item Basis Set \verb#"DZVP (DFT Orbital)"# (number of atoms 54)  \newline 
+\item Basis Set \verb#"DZVP (DFT Orbital)"# (number of atoms 54)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
-
-\item Basis Set \verb#"DZVP2 (DFT Orbital)"# (number of atoms 25)  \newline 
+\item Basis Set \verb#"DZVP2 (DFT Orbital)"# (number of atoms 25)  \newline
   H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
 
-
-\item Basis Set \verb#"TZVP (DFT Orbital)"# (number of atoms 11)  \newline 
+\item Basis Set \verb#"TZVP (DFT Orbital)"# (number of atoms 11)  \newline
   H C N O F Al Si P S Cl Ar
 
 \end{enumerate}
@@ -502,36 +591,36 @@ Density functional Coulomb and Exchange fitting basis sets:
 
 \begin{enumerate}
 
-\item Basis Set \verb#"DGauss A1 DFT Coulomb Fitting"# (number of atoms 54)  \newline 
+\item Basis Set \verb#"DGauss A1 DFT Coulomb Fitting"# (number of atoms 54)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
 
-\item Basis Set \verb#"DGauss A1 DFT Exchange Fitting"# (number of atoms 54)  \newline 
+\item Basis Set \verb#"DGauss A1 DFT Exchange Fitting"# (number of atoms 54)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
-
-\item Basis Set \verb#"DGauss A2 DFT Coulomb Fitting"# (number of atoms 25)  \newline 
-  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
-
-
-
-\item Basis Set \verb#"DGauss A2 DFT Exchange Fitting"# (number of atoms 25)  \newline 
-  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+\item Basis Set \verb#"DGauss A2 DFT Coulomb Fitting"# (number of atoms 28)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn
 
 
-\item Basis Set \verb#"DeMon Coulomb Fitting"# (number of atoms 54)  \newline 
+\item Basis Set \verb#"DGauss A2 DFT Exchange Fitting"# (number of atoms 64)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn
+
+\item Basis Set \verb#"Ahlrichs Coulomb Fitting"# (number of atoms 70)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe Cs Ba Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At
+
+\item Basis Set \verb#"DeMon Coulomb Fitting"# (number of atoms 54)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
-
-\item Basis Set \verb#"Ahlrichs Coulomb Fitting"# (number of atoms 50)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
 
 \end{enumerate}
 
@@ -539,55 +628,65 @@ Effective core potentials and their respective basis sets:
 
 \begin{enumerate}
 
-\item Basis Set \verb#"Hay-Wadt MB (n+1) ECP"# (number of atoms 24)  \newline 
-  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
+\item Basis Set \verb#"Hay-Wadt MB (n+1) ECP"# (number of atoms 32)  \newline
+  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
 
 
-\item ECP \verb#"Hay-Wadt MB (n+1) ECP"# (number of atoms 24)  \newline 
-  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
+\item ECP \verb#"Hay-Wadt MB (n+1) ECP"# (number of atoms 32)  \newline
+  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
 
 
-\item Basis Set \verb#"Hay-Wadt VDZ (n+1) ECP"# (number of atoms 24)  \newline 
-  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
+\item Basis Set \verb#"Hay-Wadt VDZ (n+1) ECP"# (number of atoms 32)  \newline
+  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
 
 
-\item ECP \verb#"Hay-Wadt VDZ (n+1) ECP"# (number of atoms 24)  \newline 
-  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
+\item ECP \verb#"Hay-Wadt VDZ (n+1) ECP"# (number of atoms 32)  \newline
+  K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
 
 
-\item Basis Set \verb#"LANL2DZ ECP"# (number of atoms 67)  \newline 
+\item Basis Set \verb#"LANL2DZ ECP"# (number of atoms 67)  \newline
   H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
  Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
  Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au U Np Pu
 
 
-\item ECP \verb#"LANL2DZ ECP"# (number of atoms 57)  \newline 
+\item ECP \verb#"LANL2DZ ECP"# (number of atoms 58)  \newline
   Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br
  Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W
- Re Os Ir Pt Au U Np
+ Re Os Ir Pt Au U Np Pu
 
 
-\item Basis Set \verb#"SBKJC VDZ ECP"# (number of atoms 73)  \newline 
+\item Basis Set \verb#"LANL2DZdp ECP"# (number of atoms 19)  \newline
+  H C N O F Si P S Cl Ge As Se Br Sn Sb Te I Pb Bi
+
+
+\item ECP \verb#"LANL2DZdp ECP"# (number of atoms 13)  \newline
+  Si P S Cl Ge As Se Sn Sb Te I Pb Bi
+
+\item Basis Set \verb#"SBKJC VDZ ECP"# (number of atoms 73)  \newline
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
 
 
-\item ECP \verb#"SBKJC VDZ ECP"# (number of atoms 71)  \newline 
+\item ECP \verb#"SBKJC VDZ ECP"# (number of atoms 71)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
  I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
 
 
-\item Basis Set \verb#"CRENBL ECP"# (number of atoms 116)  \newline 
+\item Basis Set \verb#"CRENBL ECP"# (number of atoms 116)  \newline
   H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
  Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
  Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os
  Ir Pt Au Hg Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No
  Lr Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
-
-\item ECP \verb#"CRENBL ECP"# (number of atoms 115)  \newline 
+\item ECP \verb#"CRENBL ECP"# (number of atoms 115)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
  I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
@@ -595,40 +694,82 @@ Effective core potentials and their respective basis sets:
  Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
 
-\item Basis Set \verb#"CRENBS ECP"# (number of atoms 50)  \newline 
+\item Basis Set \verb#"CRENBS ECP"# (number of atoms 50)  \newline
+  Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
+ Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+\item ECP \verb#"CRENBS ECP"# (number of atoms 50)  \newline
   Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
  Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
-
-
-\item ECP \verb#"CRENBS ECP"# (number of atoms 50)  \newline 
-  Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
- Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
-
-
-
-\item Basis Set \verb#"Stuttgart RLC ECP"# (number of atoms 57)  \newline 
+\item Basis Set \verb#"Stuttgart RLC ECP"# (number of atoms 57)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
  Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
  Bk Cf Es Fm Md No Lr
 
 
-\item ECP \verb#"Stuttgart RLC ECP"# (number of atoms 57)  \newline 
+\item ECP \verb#"Stuttgart RLC ECP"# (number of atoms 57)  \newline
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
  Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
  Bk Cf Es Fm Md No Lr
 
-
-\item Basis Set \verb#"Stuttgart RSC ECP"# (number of atoms 64)  \newline 
+\item Basis Set \verb#"Stuttgart RSC 1997 ECP"# (number of atoms 64)  \newline
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
  Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
 
 
-\item ECP \verb#"Stuttgart RSC ECP"# (number of atoms 64)  \newline 
+\item ECP \verb#"Stuttgart RSC 1997 ECP"# (number of atoms 64)  \newline
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
  Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
+
+
+\item Basis Set \verb#"Stuttgart RSC Segmented/ECP"# (number of atoms 15)  \newline
+  La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+
+\item ECP \verb#"Stuttgart RSC Segmented/ECP"# (number of atoms 15)  \newline
+  La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+
+\item Basis Set \verb#"Stuttgart RSC ANO/ECP"# (number of atoms 15)  \newline
+  La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+
+\item ECP \verb#"Stuttgart RSC ANO/ECP"# (number of atoms 15)  \newline
+  La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+\item Basis Set \verb#"SDB-cc-pVTZ"# (number of atoms 12)  \newline
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+
+\item ECP \verb#"SDB-cc-pVTZ"# (number of atoms 12)  \newline
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+
+\item Basis Set \verb#"SDB-cc-pVQZ"# (number of atoms 12)  \newline
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+
+\item ECP \verb#"SDB-cc-pVQZ"# (number of atoms 12)  \newline
+  Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+
+\item Basis Set \verb#"SDB-aug-cc-pVTZ"# (number of atoms 10)  \newline
+  Ga Ge As Se Br In Sn Sb Te I
+
+
+\item ECP \verb#"SDB-aug-cc-pVTZ"# (number of atoms 30)  \newline
+  Ga Ge As Se Br In Sn Sb Te I           Ga Ge As Se Br
+ In Sn Sb Te I
+
+
+\item Basis Set \verb#"SDB-aug-cc-pVQZ"# (number of atoms 10)  \newline
+  Ga Ge As Se Br In Sn Sb Te I
+
+
+\item ECP \verb#"SDB-aug-cc-pVQZ"# (number of atoms 10)  \newline
+  Ga Ge As Se Br In Sn Sb Te I
 
 \end{enumerate}
 
@@ -753,200 +894,186 @@ Dyall's Modified Dirac (DmD) all-electron basis sets:
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"aug-cc-pvdz fi sf fw"# (number of atoms 20)  \newline 
+\end{enumerate}
+
+Polarization functions:
+
+\begin{enumerate}
+
+\item Basis Set \verb#"STO-3G* Polarization"# (number of atoms 8)  \newline
+  Na Mg Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"3-21G* Polarization"# (number of atoms 8)  \newline
+  Na Mg Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"6-31G* Polarization"# (number of atoms 27)  \newline
+  Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Co Ni
+ Cu Zn
+
+
+\item Basis Set \verb#"6-31G** Polarization"# (number of atoms 29)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Co Ni Cu Zn
+
+
+\item Basis Set \verb#"6-311G* Polarization"# (number of atoms 23)  \newline
+  Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+
+\item Basis Set \verb#"6-311G** Polarization"# (number of atoms 25)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+
+\item Basis Set \verb#"Pople (2d,2p) Polarization"# (number of atoms 26)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Ga Ge As Se Br
+ Kr
+
+\item Basis Set \verb#"Pople (2df,2pd) Polarization"# (number of atoms 12)  \newline
+  H He Li Be B C N O F Ne K Ca
+
+
+\item Basis Set \verb#"Pople (3df,3pd) Polarization"# (number of atoms 18)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+\item Basis Set \verb#"HONDO7 Polarization"# (number of atoms 17)  \newline
+  H He Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+\item Basis Set \verb#"Huzinaga Polarization"# (number of atoms 22)  \newline
+  K Ca Ga Ge As Se Br Kr Rb Sr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+\item Basis Set \verb#"DHMS Polarization"# (number of atoms 15)  \newline
+  H He Li Be B C N O F Ne Al Si P S Cl
+
+\item Basis Set \verb#"Binning-Curtiss (1d) Polarization"# (number of atoms 6)  \newline
+  Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"Binning-Curtiss (df) Polarization"# (number of atoms 6)  \newline
+  Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"Ahlrichs Polarization"# (number of atoms 36)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"Glendening Polarization"# (number of atoms 3)  \newline
+  K Rb Cs
+
+
+\item Basis Set \verb#"Blaudeau Polarization"# (number of atoms 2)  \newline
+  K Ca
+
+\item Basis Set \verb#"LANL2DZdp ECP Polarization"# (number of atoms 19)  \newline
+  H C N O F Si P S Cl Ge As Se Br Sn Sb Te I Pb Bi
+
+\item Basis Set \verb#"Dunning-Hay Rydberg"# (number of atoms 12)  \newline
+  B C N O F Ne Al Si P S Cl Ar
+
+
+\item Basis Set \verb#"Dunning-Hay Double Rydberg"# (number of atoms 12)  \newline
+  B C N O F Ne Al Si P S Cl Ar
+
+\end{enumerate}
+
+Diffuse functions:
+
+\begin{enumerate}
+
+\item Basis Set \verb#"Pople-style Diffuse"# (number of atoms 19)  \newline
+  H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+\item Basis Set \verb#"Dunning-Hay Diffuse"# (number of atoms 9)  \newline
+  H Li Be B C N O F Ne
+
+
+\item Basis Set \verb#"aug-cc-pVDZ Diffuse"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"aug-cc-pVTZ Diffuse"# (number of atoms 23)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br
+
+
+\item Basis Set \verb#"aug-cc-pVQZ Diffuse"# (number of atoms 24)  \newline
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+
+\item Basis Set \verb#"aug-cc-pV5Z Diffuse"# (number of atoms 20)  \newline
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-\item Basis Set \verb#"aug-cc-pvdz fi sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV6Z Diffuse"# (number of atoms 14)  \newline
+  H He B C N O F Ne Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvdz fi sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"d-aug-cc-pVDZ Diffuse"# (number of atoms 8)  \newline
+  H He B C N O F Ne
 
 
-\item Basis Set \verb#"aug-cc-pvdz pt sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"d-aug-cc-pVTZ Diffuse"# (number of atoms 8)  \newline
+  H He B C N O F Ne
 
 
-\item Basis Set \verb#"aug-cc-pvdz pt sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"d-aug-cc-pVQZ Diffuse"# (number of atoms 8)  \newline
+  H He B C N O F Ne
 
+\item Basis Set \verb#"d-aug-cc-pV5Z Diffuse"# (number of atoms 8)  \newline
+  H He B C N O F Ne
 
-\item Basis Set \verb#"aug-cc-pvdz pt sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
 
+\item Basis Set \verb#"d-aug-cc-pV6Z Diffuse"# (number of atoms 5)  \newline
+  H B C N O
 
-\item Basis Set \verb#"aug-cc-pvtz fi sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV(D+d)Z Diffuse"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvtz fi sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV(T+d)Z Diffuse"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvtz fi sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV(Q+d)Z Diffuse"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvtz pt sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV(5+d)Z Diffuse"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvtz pt sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"aug-cc-pV(6+d)Z Diffuse"# (number of atoms 6)  \newline
+  Al Si P S Cl Ar
 
 
-\item Basis Set \verb#"aug-cc-pvtz pt sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"SDB-aug-cc-pVTZ Diffuse"# (number of atoms 10)  \newline
+  Ga Ge As Se Br In Sn Sb Te I
 
 
-\item Basis Set \verb#"aug-cc-pvqz fi sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"SDB-aug-cc-pVQZ Diffuse"# (number of atoms 10)  \newline
+  Ga Ge As Se Br In Sn Sb Te I
 
+\end{enumerate}
 
-\item Basis Set \verb#"aug-cc-pvqz fi sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+Core-valence functions:
 
+\begin{enumerate}
 
-\item Basis Set \verb#"aug-cc-pvqz fi sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"Core/val. Functions (cc-pCVDZ)"# (number of atoms 12)  \newline
+  Li Be B C N O F Ne Na Mg Si Cl
 
 
-\item Basis Set \verb#"aug-cc-pvqz pt sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"Core/val. Functions (cc-pCVTZ)"# (number of atoms 13)  \newline
+  Li Be B C N O F Ne Na Mg Si P Cl
 
 
-\item Basis Set \verb#"aug-cc-pvqz pt sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+\item Basis Set \verb#"Core/val. Functions (cc-pCV5Z)"# (number of atoms 8)  \newline
+  B C N O F Ne Na Mg
 
 
-\item Basis Set \verb#"aug-cc-pvqz pt sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z fi sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z fi sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z fi sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z pt sf fw"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z pt sf lc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"aug-cc-pv5z pt sf sc"# (number of atoms 20)  \newline 
-  H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
-
-
-\item Basis Set \verb#"dyall relpvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcpvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcpvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcpvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcpvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcpvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcpvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relapvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relapvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relapvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcapvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcapvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relrcapvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcapvdz fi sf fw"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcapvdz fi sf lc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall relpcapvdz fi sf sc"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall reldz aug"# (number of atoms 15)  \newline 
-  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
-
-
-\item Basis Set \verb#"dyall nrpvdz fi"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall nrpcpvdz fi"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall nrrcpvdz fi"# (number of atoms 18)  \newline 
-  Ga Ge As Se Br Kr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
-
-
-\item Basis Set \verb#"dyall nrapvdz fi"# (number of atoms 15)  \newline 
-  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
-
-
-\item Basis Set \verb#"dyall nrrcapvdz fi"# (number of atoms 15)  \newline 
-  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
-
-
-\item Basis Set \verb#"dyall nrpcapvdz fi"# (number of atoms 15)  \newline 
-  Ga Ge As Se Br In Sn Sb Te I Tl Pb Bi Po At
+\item Basis Set \verb#"Core/val. Functions (cc-pCV6Z)"# (number of atoms 1)  \newline
+  O
 
 \end{enumerate}
 
