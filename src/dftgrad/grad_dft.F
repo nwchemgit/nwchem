@@ -32,7 +32,7 @@ c
 c     Push context down to DFTGRAD
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      call util_print_push('dftgrad')
+      call util_print_push()
       call util_print_rtdb_load(rtdb,'dft_grad')
       call ecce_print_module_entry ('dft')
 c
