@@ -1,8 +1,8 @@
       Subroutine dftg_gridv0a(iga_dens,ldew,
-     &                         ncoef_max, NXprim, max_at_bf,
+     &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
-     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &                         iandex, expo, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.24 2004-03-25 00:39:44 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.25 2004-03-31 00:25:28 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -29,7 +29,7 @@ c !!! BGJ test !!!
 #include "bgj.fh"
 c !!! BGJ test !!!
       integer natoms
-      integer ncoef_max, NXprim, max_at_bf
+      integer max_at_bf
       integer nqtot
       integer nactive
       logical oactive(natoms)
@@ -65,7 +65,7 @@ c      double precision tau(n_per_rec,3,ipol)
       integer ibf_ao(nbf_ao),curatoms(natoms)
       double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
       double precision ppp(*),ff(*),zzz(*)
-      double precision ccoef(ncoef_max), expo(NXprim)
+      double precision expo(*)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
@@ -203,7 +203,7 @@ c
      &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
-     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &                         iandex, expo, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),

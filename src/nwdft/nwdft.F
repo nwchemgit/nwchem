@@ -9,7 +9,7 @@ c
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
       dft_energy = nwdft(rtdb)
-      call grid_cleanup(rtdb,.true.)
+      call grid_cleanup(.true.)
 c
       end
       logical function sodft_energy(rtdb)
@@ -23,14 +23,14 @@ c
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
       sodft_energy = nwdft(rtdb)
-      call grid_cleanup(rtdb,.true.)
+      call grid_cleanup(.true.)
 c
       end
       logical function nwdft(rtdb)
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.68 2004-01-20 19:08:40 edo Exp $
+C$Id: nwdft.F,v 1.69 2004-03-31 00:25:27 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -139,7 +139,7 @@ c
             if(grid_ok) igok=1
             call ga_igop(999,igok,1,'+')
             grid_ok=igok.eq.ga_nnodes()
-            if(.not.grid_ok) call grid_cleanup(rtdb,.true.)
+            if(.not.grid_ok) call grid_cleanup(.true.)
             if (movecs_converged(rtdb, ao_bas_han,theory, movecs_in).
      &      and.grid_ok)     then
 c

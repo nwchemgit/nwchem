@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.24 2004-03-25 00:39:39 edo Exp $
+c     $Id: fock_xc.F,v 1.25 2004-03-31 00:25:28 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -307,7 +307,7 @@ c
          endif
       endif
 c
-      call grid_cleanup(rtdb, .true.)
+      call grid_cleanup(.true.)
 c
       if (oprint) then
          if(ga_nodeid().eq.0)write(luout,*)'XC matrix at end fock_xc:'

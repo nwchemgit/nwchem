@@ -1,17 +1,15 @@
-      Subroutine grid_cleanup(rtdb,okeep)
+      Subroutine grid_cleanup(okeep)
 c
-c$Id: grid_cleanup.F,v 1.10 2004-03-25 00:39:43 edo Exp $
+c$Id: grid_cleanup.F,v 1.11 2004-03-31 00:25:28 edo Exp $
 c
       implicit none
 #include "errquit.fh"
 c      
-#include "rtdb.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "cgridfile.fh"
 c
-      integer rtdb
       logical grid_file_close
       logical okeep
       logical xc_gotxc

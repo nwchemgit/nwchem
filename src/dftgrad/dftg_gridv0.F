@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.20 2004-03-25 00:39:44 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.21 2004-03-31 00:25:28 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.20 2004-03-25 00:39:44 edo Exp $
+c $Id: dftg_gridv0.F,v 1.21 2004-03-31 00:25:28 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -350,7 +350,7 @@ c     Set up space for derivatives of density wrt significant nuclei
 c
          if (.not.MA_push_get(MT_DBL, ipol*n_per_rec*3*nactive,
      &        'drhonuc', l_drhonuc, k_drhonuc)) call
-     &        errquit('dftg_gridv0a: cannot allocate drhonuc',1, MA_ERR)
+     &        errquit('dftg_gridv0: cannot allocate drhonuc',1, MA_ERR)
          if (grad) then
             if (.not.MA_push_get(MT_DBL,
      &           ipol*3*n_per_rec*3*nactive, 'ddelrhonuc',
@@ -445,12 +445,12 @@ c
 c
       if(grid_written) then
       call dftg_gridv0a(iga_dens,ldew,
-     &                   ncoef_max, NXprim, max_at_bf,
+     &                   max_at_bf,
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
      &                   dbl_mb(id_qwght), dbl_mb(iqwght),
      &                   dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
-     &                   int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
+     &                   int_mb(iandex), dbl_mb(iexpo),
      &                   dbl_mb(iAmat), dbl_mb(k_Amat2),
      &                   dbl_mb(iCmat), dbl_mb(k_Cmat2),
      &                   dbl_mb(iBmat), dbl_mb(iDmat),
@@ -475,7 +475,7 @@ c
      &        rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), 
      &        dbl_mb(ifunc), dbl_mb(id_qwght), dbl_mb(iqwght),
-     &                   dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
+     &                   dbl_mb(iqxyz), dbl_mb(ixyz),
      &        int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
      &          dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
      &        dbl_mb(k_Cmat2), dbl_mb(iBmat), dbl_mb(iDmat),

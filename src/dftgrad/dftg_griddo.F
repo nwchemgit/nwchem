@@ -2,7 +2,7 @@
      &     g_dens,ldew,
      &                         ncoef_max, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
-     &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
+     &                         func, d_qwght, qwght, qxyz, xyz,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
@@ -12,7 +12,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_griddo.F,v 1.1 2004-03-25 00:38:08 edo Exp $
+c     $Id: dftg_griddo.F,v 1.2 2004-03-31 00:25:28 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -63,7 +63,7 @@ c      double precision tau(n_per_rec,3,ipol)
       double precision func(n_per_rec)
       double precision d_qwght(3,n_per_rec,*)
       double precision qwght(n_per_rec), qxyz(3,n_per_rec)
-      double precision xyz(3,natoms),xyzm(3,natoms)
+      double precision xyz(3,natoms)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
       integer ibf_ao(nbf_ao),curatoms(natoms)

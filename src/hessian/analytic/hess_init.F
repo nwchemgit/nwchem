@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.51 2003-10-25 18:07:17 edo Exp $
+C $Id: hess_init.F,v 1.52 2004-03-31 00:25:29 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -516,7 +516,7 @@ c
          if (.not. rtdb_put(rtdb, 'dft:gridsym',
      $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0, RTDB_ERR)
-         call grid_cleanup(rtdb,.false.)
+         call grid_cleanup(.false.)
 c
 c     set deltaE at least to 1d-7 
 c

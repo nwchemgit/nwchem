@@ -2,12 +2,12 @@
      &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
-     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &                         iandex, expo, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,bas_cent_info,bas_cset_info,docset,
      .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
-     .     drhonuc,ddelrhonuc,d2scr,nscr,
+     .     drhonuc,ddelrhonuc,d2scr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.25 2004-03-25 00:39:44 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.26 2004-03-31 00:25:28 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -73,11 +73,10 @@ c      double precision tau(n_per_rec,3,ipol)
       logical docset(*)
       double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
       double precision ppp(*),ff(*),zzz(*)
-      double precision ccoef(*), expo(*)
+      double precision expo(*)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
-      integer nscr ! [in]
 c     
 c     external
 c

@@ -1,22 +1,22 @@
       Subroutine dftg_loop(
-     ,     ncu,nq_out,iqsh,irsh,rad_sh,dosympts,
+     ,     nq_out,iqsh,irsh,rad_sh,dosympts,
      ,     fnxyz,nxyz,nops,grad,
      ,     nq_cube,nqtotc,symfact,
-     ,     iang_done,nwrbuf,
+     ,     iang_done,
      ,     gridscr,
      ,     iscr_loc,symops,gops,
      ,     qsh,aqbuf,rij, 
      ,     g_dens, ncoef_max, natoms, 
-     &     rho_int, nqtot, 
+     &     rho_int,
      &     iniz, ifin, rho, delrho, 
-     &     hess, qwght, qxyz, xyz,iscr,nscr,
-     &     expo, ccoef, Bmat, Fmat, 
+     &     hess, qwght, qxyz, xyz,iscr,
+     &     expo, Bmat, Fmat, 
      &     Pmat, rq,  rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet, tau, kske,Mmat,
+     ,     tau, kske,Mmat,
      D     func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
@@ -24,7 +24,7 @@
      I     iandex,max_at_bf,curatoms,g_rhs,
      I     nbf_ao_mxnbf_ce2,nactive)
 c
-c$Id: dftg_loop.F,v 1.1 2004-03-25 00:38:11 edo Exp $
+c$Id: dftg_loop.F,v 1.2 2004-03-31 00:25:28 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -55,13 +55,11 @@ c
       integer nqtotc,nq_cube ! [in/out]
 c
       integer nq_left ! [local]
-      integer ntot_cube,npts_per_ang
-      integer iang,ictr,nq,ncu
-      integer nq_out,nwrbuf
+      integer npts_per_ang
+      integer iang,ictr,nq
+      integer nq_out
       integer grid_nxyz
       external grid_nxyz
-      logical l3d
-      logical triplet
 
       logical kske
       double precision tau(*), Mmat(*)
@@ -98,8 +96,6 @@ c
      .     ncenters, rij,
      .     rq,bp,expo,
      .     oskel,symfact)
-!      nwrbuf=nwrbuf+1
-!      nq_out=nq_out+1
       do n=1,nq
          qxyz(1,n) = aqbuf(1,n)
          qxyz(2,n) = aqbuf(2,n)
@@ -133,12 +129,12 @@ c
      &                         max_at_bf,
      &                         rho_int, nq, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, bp,
-     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &                         iandex, expo, Amat, Amat2, Cmat,
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
-     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,nscr,
+     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
