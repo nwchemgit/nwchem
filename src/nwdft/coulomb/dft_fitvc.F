@@ -1,8 +1,9 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
-     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
-c     $Id: dft_fitvc.F,v 1.22 1998-12-19 00:38:36 edo Exp $
+     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
+     &                     dermat, nmat, do_init)
+c     $Id: dft_fitvc.F,v 1.23 1999-05-08 13:29:47 bjohnson Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -21,12 +22,13 @@ c
 #include "timer.fh"
 #endif
 c
-      integer natoms      
+      integer natoms            !!! not needed !!! ask jeff
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
-      double precision rdens_atom(natoms,natoms,ipol)
+     &        cetobfr(2,natoms) !!! not needed !!! ask jeff
+      double precision rdens_atom(natoms,natoms,ipol) !!! not needed !!!
       integer rtdb
-      integer g_vc    ! GA handle for V Coulomb [output]
+      integer nmat    ! number of J matrices to make [input]
+      integer g_vc(nmat)     ! GA handles for V Coulomb [output]
       integer g_2ceri ! GA handle for repulsion int. [input]
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
@@ -36,11 +38,11 @@ c
       integer n_semi_bufs
       integer fd
 c
-      double precision CD_coef(nbf_cd)
+      double precision CD_coef(nbf_cd,nmat)
       double precision i3c_ERI(n3c_dbl)
       double precision Ecoul2 ! [output]
 c
-      Logical IOLGC
+      Logical IOLGC, dermat, do_init
 c     
 c     Compute the fitted Coulomb potential. The fitting coefficients are
 c     obtained by solving the normal equations for a standard linear least
@@ -50,7 +52,7 @@ c
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
      ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,niter,next,nsh_blocks,
-     ,     ntasks,nshbf_cd
+     ,     ntasks,nshbf_cd,imat
       integer lcd_shell,icd_shell,lgvec,igvec,lsvec,isvec,
      ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
@@ -70,6 +72,12 @@ c
       call t_stat(10,-1)
       call dft_second(ts1)
 #endif
+c !!! BGJ test !!!
+c      write(*,*)'*** dft_fitvc: dermat nmat =',dermat,nmat
+      if (.not.dermat .and. nmat.ne.1) then
+         call errquit('nmat must be 1 for regular fit in dft_fitvc',0)
+      endif
+c !!! BGJ test !!!
       oprint_ioinfo = util_print('io info',print_debug)
 c
       THRESHOLD=10.d0**(-itol2e)
@@ -86,12 +94,16 @@ c
      &  lcd_shell,icd_shell))
      &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
 c      
-      if(.not.MA_Push_Get(MT_Dbl,nbf_cd_mxnbf_cn,'gvec',lgvec,igvec))
-     &  call errquit('dft_fitvc: cannot allocate gvec',0)
+c!!! Is gvec needed???
+c!!!      if(.not.MA_Push_Get(MT_Dbl,nbf_cd_mxnbf_cn,'gvec',lgvec,igvec))
+c!!!     &  call errquit('dft_fitvc: cannot allocate gvec',0)
 c      
 c     Determine the largest magnitude of the CD expansion coefficients in
 c     each shell.
 c      
+c     Note that for multiple matrices the max over all fitting coefficient
+c     sets is taken
+c
       CD_coef_max = 0.D0
       i1 = 1
       do 5 ishp = 1,nshells_cd
@@ -100,7 +112,9 @@ c
         end if
         shmax = 0.D0
         do 2 i = ishbf,lshbf
-          shmax = max(abs(CD_coef(i)), shmax)
+           do imat = 1, nmat
+              shmax = max(abs(CD_coef(i,imat)), shmax)
+           enddo
     2   continue
         Dbl_MB((icd_shell-1)+ishp) = shmax
         CD_coef_max = max(shmax, CD_coef_max)
@@ -119,7 +133,6 @@ c     &               nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
         endif
         call ga_sync
         if(me.eq.0.and.oprint_ioinfo)then
-          write(6,*)' g_2ceri = ', g_2ceri
           call ga_print(g_2ceri)
         endif
       endif
@@ -141,7 +154,7 @@ c      call dft_tstamp(' In dft_fitvc 1          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       Nao2 = nbf_ao_mxnbf_cn**2
-      if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec',lsvec,isvec))
+      if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0)
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2))
      &  call errquit('dft_fitvc: cannot allocate isvec2',0)
@@ -154,8 +167,12 @@ c      nERI    = Nao2*nbf_cd_mxnbf_cn
       nscr    = mscratch_2e3c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0)
-
-      call ga_zero(g_vc)
+c
+      if (do_init) then
+         do imat = 1, nmat
+            call ga_zero(g_vc(imat))
+         enddo
+      endif
 c
       if(.not.incore)then
         iwhat_max = -1
@@ -185,6 +202,7 @@ c
       current_nbuf = 0
 c      write(6,*)' n_semi_bufs = ',n_semi_bufs
       if (n_semi_bufs.gt.0)then
+c         write(*,*)'*** In n_semi_bufs case'
 c
 c        check to make sure file is there
 c
@@ -241,20 +259,39 @@ c
             if( CD_coef_max*ERI_est.gt.THRESHOLD )then
               ischw1 = ischw1 + nshells_cd
               
-              call dfill(Nao2,0.D0,dbl_mb(isvec),1)
+c!!!              call dfill(Nao2*nmat,0.D0,dbl_mb(isvec),1)
               nfunz=0
               ipoint2=ipoint
 c                 
 c             Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c                 
-              call dgemv('N',Nao2,nbf_cd,1.D0,
-     &             i3c_ERI(ipoint),Nao2,
-     &             CD_coef,1,1.D0,Dbl_MB(isvec),1)
+              if (nmat.eq.1) then
+c
+c                Use dgemv when only 1 mat is being made - should be
+c                more efficient than dgemm
+c
+                 call dgemv('N',Nao2,nbf_cd,1.D0,
+     &                i3c_ERI(ipoint),Nao2,
+     &                CD_coef,1,0.D0,Dbl_MB(isvec),1)
+c!!!     &                CD_coef,1,1.D0,Dbl_MB(isvec),1)
+c
+              else
+c
+c                Case of more than 1 matrix
+c
+                 call dgemm('N','N',Nao2,nmat,nbf_cd,1d0,
+     &                i3c_ERI(ipoint),Nao2,CD_coef,nbf_cd,
+     &                0d0,dbl_mb(isvec),Nao2)
+c
+              endif
 c           
 c             Scatter the computed values of Vcoul.
 c           
-              call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &             nshbfc,nshbfd,g_vc,DBL_MB(isvec),dbl_mb(isvec2))
+              do imat = 1, nmat
+                 call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &                nshbfc,nshbfd,g_vc(imat),
+     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2))
+              enddo
 c
             endif
 c            
@@ -353,7 +390,7 @@ c
             if( CD_coef_max*ERI_est.gt.THRESHOLD )then
               ischw1 = ischw1 + nshells_cd
 c              
-              call dfill(Nao2,0.D0,dbl_mb(isvec),1)
+              call dfill(Nao2*nmat,0.D0,dbl_mb(isvec),1)
               nfunz=0
               do 220 ishp = 1,nshells_cd
 c                
@@ -371,7 +408,7 @@ c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD 
 c                   
 c                 check for use of symmetry
 c
-                  if (oskel) then
+                  if (oskel .and. .not.dermat) then
                      if (sym_shell(cd_bas_han, ishp, q1))then
                         call int_2e3c(CD_bas_han,ishp,AO_bas_han,
      &                  ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
@@ -380,9 +417,15 @@ c
 c                   
 c                       Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c
-                        call dgemv('N',Nao2,nshbf_cd,1.D0,
-     &                       Dbl_MB(iERI),Nao2,
-     &                       CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                        if (nmat.eq.1) then
+                           call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                          Dbl_MB(iERI),Nao2,CD_coef(1+nfunz,1),
+     &                          1,1.D0,Dbl_MB(isvec),1)
+                        else
+                           call dgemm('N','N',Nao2,nmat,nshbf_cd,1.D0,
+     &                          Dbl_MB(iERI),Nao2,CD_coef(1+nfunz,1),
+     &                          nbf_cd,1.D0,Dbl_MB(isvec),Nao2)
+                        endif
                      else
                         call dzero(Dbl_MB(iERI),Nintegrals)
                      endif
@@ -393,9 +436,15 @@ c
 c                   
 c                    Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c
-                     call dgemv('N',Nao2,nshbf_cd,1.D0,
-     &                    Dbl_MB(iERI),Nao2,
-     &                    CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                     if (nmat.eq.1) then
+                        call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                       Dbl_MB(iERI),Nao2,
+     &                       CD_coef(1+nfunz,1),1,1.D0,Dbl_MB(isvec),1)
+                     else
+                        call dgemm('N','N',Nao2,nmat,nshbf_cd,1.D0,
+     &                       Dbl_MB(iERI),Nao2,CD_coef(1+nfunz,1),
+     &                       nbf_cd,1.D0,Dbl_MB(isvec),Nao2)
+                     endif
                   endif
                 endif
 c
@@ -405,12 +454,13 @@ c
 c
 c             Scatter the computed values of Vcoul.
 c           
-              call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &             nshbfc,nshbfd,g_vc,DBL_MB(isvec),dbl_mb(isvec2))
+              do imat = 1, nmat
+                 call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &                nshbfc,nshbfd,g_vc(imat),
+     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2))
+              enddo
             endif
 c            
-c            write(*,*)' Done with: ishc,ishd; n1,n2 ',
-c     &                             ishc,ishd, n1,n2
 c            call util_flush(LuOut)
 c
             n1 = nxtask(nproc,icount)
@@ -448,21 +498,30 @@ c
 c
       n1 = nxtask(-nproc,icount)
 c      
-      if(.not.ma_pop_stack(lgvec))
-     &  call errquit('dft_fitvc: cannot pop stack',0)
+c!!!      if(.not.ma_pop_stack(lgvec))
+c!!!     &  call errquit('dft_fitvc: cannot pop stack',0)
       if(.not.ma_pop_stack(lcd_shell))
      &  call errquit('dft_fitvc: cannot pop stack',0)
-c      
+c
 c     Compute the Coulombic self-energy of the fitted charge density.
 c      
+      if (dermat) then
+         write(*,*)'*** Fix self-energy calculation in dft_fitvc'
+      endif
+c
 c     Obtain the matrix of 2-ctr ERIs.
 c      
+c     !!! Not needed if not doing Ecoul2
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0)
 c
       call ga_sync
 c      call dft_tstamp(' In dft_fitvc 5          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+c
+c     Compute Ecoul2 only for the first set of fit coefficients
+c     !!! Should modify this so that nothing is done if nmat > 1
+c     !!! Looks like g_2ceri not needed in that case
 c
       Ecoul2=0.D0
       next=nxtval(nproc)+1
@@ -471,7 +530,7 @@ c
           next=nxtval(nproc)+1
           call get_col(g_2ceri,nbf_cd,i,DBL_MB(iscr))
           Ecoul2 = Ecoul2+ddot(
-     *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i)
+     *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i,1)
         endif
       enddo
 c     
@@ -488,6 +547,7 @@ c      if(IOLGC) call gadest(g_2ceri)
      &   ('dft_fitvc: could not destroy g_2ceri', 0)
       endif         
 c
+c         write(*,*)'*** After destroy g_2ceri'
       call ga_sync
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
 c
