@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.47 1999-11-17 00:15:37 d3j191 Exp $
+c $Id: md_main.F,v 1.48 1999-11-17 00:53:16 d3j191 Exp $
 c
       implicit none
 c
@@ -815,7 +815,7 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,epot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -1653,14 +1653,14 @@ c
 c
       if(.not.lserver) return
 c
-c      write(string,1000) stime,temp,pres*1.0125d-5,volume,char(13)
-c 1000 format("tETpV",5f12.3,a1)
+      write(string,1000) stime,etot,temp,pres*1.0125d-5,volume
+ 1000 format("tETpV",4f12.3,f12.6)
 c
-      write(string,1000) stime,temp,pres*1.0125d-5,volume
- 1000 format("TIM",f12.6,"TMP",f12.6,"PRS",f12.6,"VOL",f12.6)
-      write(*,'(a)') string
-      lens=61
-      string(61:61)=char(13)
+c      write(string,1000) stime,temp,pres*1.0125d-5,volume
+c 1000 format("TIM",f12.6,"TMP",f12.6,"PRS",f12.6,"VOL",f12.6)
+c      write(*,'(a)') string
+      lens=66
+      string(66:66)=char(13)
 c
       numbyt=client_socket_write(isocket,string,lens)
 c

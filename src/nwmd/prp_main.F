@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.24 1999-11-17 00:15:38 d3j191 Exp $
+c $Id: prp_main.F,v 1.25 1999-11-17 00:53:16 d3j191 Exp $
 c
       implicit none
 c
@@ -250,6 +250,8 @@ c
       vol=volume
       ekin=p(27)
       etot=ekin+epot
+c
+c      write(*,'(3e12.5)') epot,ekin,etot
 c
       return
       end
