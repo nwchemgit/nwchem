@@ -1,14 +1,11 @@
-title C2
+title "C2"
 
-start C2
-
-memory global 56 mb stack 36 mb heap 20 mb
+start
 
 geometry units au
-C 1.2000000000 0.00000000  0.00000000
-C -1.2000000000 0.00000000 0.00000000
+  C 1.2000000000 0.00000000  0.00000000
+  C -1.2000000000 0.00000000 0.00000000
 end
-
 
 PSPW 
    PSP_GENERATOR
@@ -18,8 +15,6 @@ PSPW
       mass_number: 12.0
       solver_type: pauli
       pseudopotential_type: hamann
-      exchange_type: pbe96
-      correlation_type: pbe96
       atomic_filling: 1 2
         1 s 2.0
         2 s 2.0
@@ -48,17 +43,12 @@ PSPW
    END
 
    WAVEFUNCTION_INITIALIZER
-      unrestricted
-      up_filling: 5
+      restricted
+      up_filling: 4
                0 0 0     0
                1 0 0    -1
                0 1 0    -1
                0 0 1    -1
-               1 0 0    +2
-      down_filling: 3
-               0 0 0     0
-               1 0 0    -1
-               0 1 0    -1
       wavefunction_filename: c2.small.00.elc
       cell_name: small
    END 
@@ -70,11 +60,10 @@ PSPW
       output_wavefunction_filename: c2.small.00.elc
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 10 100
+      loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       energy_cutoff:       21.0d0
       wavefunction_cutoff: 21.0d0
-      exchange_correlation: vosko
    END 
 END
 task pspw psp_generator
@@ -91,49 +80,10 @@ PSPW
       output_wavefunction_filename: c2.small.00.elc
       fake_mass: 400000.0d0
       time_step: 5.8d0
-      loop: 10 100
+      loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       energy_cutoff:       21.0d0
       wavefunction_cutoff: 21.0d0
-      exchange_correlation: vosko
    END 
 END
 task pspw steepest_descent
-
-
-
-PSPW
-   STEEPEST_DESCENT
-      cell_name: small
-      formatted_filename: C.vpp
-      input_wavefunction_filename:  c2.small.00.elc
-      output_wavefunction_filename: c2.small.00.elc
-      fake_mass: 400000.0d0
-      time_step: 51.8d0
-      loop: 10 100
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      energy_cutoff:       21.0d0
-      wavefunction_cutoff: 21.0d0
-      exchange_correlation: pbe96
-   END 
-END
-task pspw steepest_descent
-
-PSPW
-   STEEPEST_DESCENT
-      cell_name: small
-      geometry_optimize
-      formatted_filename: C.vpp
-      input_wavefunction_filename:  c2.small.00.elc
-      output_wavefunction_filename: c2.small.00.elc
-      fake_mass: 400000.0d0
-      time_step: 5.8d0
-      loop: 10 100
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      energy_cutoff:       21.0d0
-      wavefunction_cutoff: 21.0d0
-      exchange_correlation: pbe96
-   END 
-END
-task pspw steepest_descent
-

@@ -1,0 +1,31 @@
+start h2o_scf
+
+geometry units au
+  O 0.00000000 0.00000000 0.24029800 
+  H 0.00000000 1.43256600 -0.96119100 
+  H 0.00000000 -1.43256600 -0.96119100 
+end
+
+basis noprint
+ H library sto-3g
+ O library sto-3g
+end
+
+scf
+  thresh 1.e-10
+  print none
+end
+
+gradients
+  print none
+end
+
+md
+ system h2o_scf
+ equil 0 data 10 step 0.0005
+ print step 1 stat 10
+ record scoor 1 prop 1
+ test 10
+end
+
+task scf dynamics

@@ -1,0 +1,125 @@
+title "carbene triplet"
+
+start
+
+geometry units au
+C  .10000000E+02  .00000000E+00  .00000000E+00 .000E+00  .000E+00  .000E+00
+C  .75484000E+01  .00000000E+00  .00000000E+00 .000E+00  .000E+00  .000E+00
+C  .51322000E+01  .00000000E+00  .00000000E+00 .000E+00  .000E+00  .000E+00
+C  .26806000E+01  .00000000E+00  .00000000E+00 .000E+00  .000E+00  .000E+00
+H -.85950000E+01  .10000000E+01  .00000000E+00 .100E-02  .000E+00  .000E+00
+H -.10000000E+02  .10000000E+01  .00000000E+00 .100E-02  .000E+00  .000E+00
+end
+
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: C.psp
+      element: C
+      charge: 6.0
+      mass_number: 12.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      atomic_filling: 1 2
+        1 s 2.0
+        2 s 2.0
+        2 p 2.0
+      cutoff: 3
+         s 0.8
+         p 0.85
+         d 0.85
+   END
+END
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: H.psp
+      element: H
+      charge: 1.0
+      mass_number: 2.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      atomic_filling: 0 1
+        1 s 1.0
+      cutoff: 2
+         s 0.8
+         p 0.8
+   END
+END
+
+PSPW
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 32 32 32
+   END
+END
+
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: H.psp
+      formatted_filename: H.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: C.psp
+      formatted_filename: C.vpp
+   END
+END
+task pspw psp_formatter
+
+
+
+
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      unrestricted
+      up_filling: 10
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+               1 0 0    +1
+               0 1 0    +1
+               0 0 1    +1
+               1 1 0    -1
+               1 0 1    -1
+               0 1 1    -1
+      down_filling: 8
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+               1 0 0    +1
+               0 1 0    +1
+               0 0 1    +1
+               1 1 0    -1
+      wavefunction_filename: triplet.00.elc
+      cell_name: small
+   END 
+
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: H.vpp
+      input_wavefunction_filename:  triplet.00.elc
+      output_wavefunction_filename: triplet.00.elc
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 100 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+   END 
+END
+
+task pspw wavefunction_initializer
+task pspw steepest_descent
+
