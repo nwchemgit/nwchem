@@ -732,9 +732,11 @@ Solvent or solute may be fixed using the following keywords.
 \begin{description}
 \item
 \begin{verbatim}
-( fix | free ) (solvent [<integer idfirst> [<integer idlast>]] | \
- solute [<integer idfirst> [<integer idlast>]] [ heavy | {<string atomname>}] | \
- permanent )
+( fix | free ) 
+ solvent ( [<integer idfirst> [<integer idlast>]] | 
+            ( within | beyond) <real rfix> <string atomname> ) | \
+ solute  ( [<integer idfirst> [<integer idlast>]] [ heavy | {<string atomname>}] |
+            ( within | beyond) <real rfix> <string atomname> )
 \end{verbatim}
 For solvent the molecule numbers \verb+idfirst+ and \verb+idlast+may be 
 specified to be the first and last molecule to which the directive
@@ -838,13 +840,13 @@ pair lists are regenerated.
 
 \item
 \begin{verbatim}
-update center <integer nfcntr> [zonly] [fraction <integer idscb(1:5)>]
+update center <integer nfcntr> [zonly | xyonly] [fraction <integer idscb(1:5)>]
 \end{verbatim}
 specifies the frequency \verb+<nfcntr>+ in molecular dynamics steps in 
 which the center of geometry of the solute(s) is translated to the
-center of the simulation volume. Optional keyword \verb+zonly+ can be
-used to specify that centering will take place in the z-direction
-only.
+center of the simulation volume. Optional keyword \verb+zonly+ or
+\verb+xyonly+ can be used to specify that centering will take place in 
+the z-direction or in the xy-plane only.
 The solute fractions determining the
 solutes that will be centered are specified by the keyword 
 {\tt fraction} and the vector \verb+<idscb>+, with a maximum of 5 entries.
