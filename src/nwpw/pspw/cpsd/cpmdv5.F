@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.26 2003-07-29 20:56:25 bylaska Exp $
+* $Id: cpmdv5.F,v 1.27 2003-08-01 23:44:55 bylaska Exp $
 *
 
 ***********************************************************************
@@ -59,7 +59,7 @@
     
 
 *     ***** energy variables ****
-      real*8  E(20),eke
+      real*8  E(30),eke,eave,evar,cv
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -172,7 +172,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(10,0.0d0,0,E,1)
+      call dcopy(30,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -605,11 +605,13 @@
            if (control_Nose()) then
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
-     >                    e(7),e(8),e(9),e(10)
+     >                    e(7),e(8),e(9),e(10),
+     >                    e(25)/dble(icount),e(26)/dble(icount)
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
-     >                    e(7),e(8)
+     >                    e(7),e(8),
+     >                    e(25)/dble(icount),e(26)/dble(icount)
            end if
            call util_flush(31)
 
@@ -895,6 +897,14 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1480) eki0
          write(6,1490) ion_com_Temperature()
 
+         eave = E(25)/dble(icount)
+         evar = E(26)/dble(icount)
+         cv = (evar - eave*eave)/(kb*ion_Temperature()**2)
+         cv = cv/dble(ion_nion())
+         write(6,1492) eave
+         write(6,1493) evar
+         write(6,1494) cv
+
          write(6,1500)
          NN=NE(1)-NE(2)
          EV=27.2116d0
@@ -1114,6 +1124,10 @@ c    >              dbl_mb(lmd(1)),ierr)
  1480 FORMAT(' Temperature :    ',F10.1,' K (ion)')
  1490 FORMAT('             :    ',F10.1,' K (c.o.m.)')
  1491 FORMAT(' Temperature :    ',F10.1,' K (elc)')
+ 1492 FORMAT(/' Eaverage           :    ',E19.10)
+ 1493 FORMAT( ' Evariance          :    ',E19.10)
+ 1494 FORMAT( ' Cv - f*kb/(2*nion) :    ',E19.10)
+ 
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
