@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
       implicit none
 c
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
       implicit none
 c
@@ -1240,7 +1240,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
       implicit none
 c
@@ -2193,7 +2193,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2472,7 +2472,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2738,7 +2738,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3071,7 +3071,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3388,7 +3388,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3732,7 +3732,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.30 2000-08-30 17:34:58 d3j191 Exp $
+c $Id: cf_f.fh,v 1.31 2000-09-01 00:02:39 d3j191 Exp $
 c
       implicit none
 c
@@ -3754,7 +3754,7 @@ c      real*8 ca6(mat,mat,6),ca12(mat,mat,6)
 c      real*8 cb6(mat,mat,6),cb12(mat,mat,6)
 c      integer iwl(mwm,miw2),
 c
-       integer idwt(mwt,2),idwn(mwn,2)
+       integer idwt(0:mwt,2),idwn(0:mwn,2)
 c
 c      real*8 cdwb(mwb,6),ddwb(mwb,6)
 c      integer iwbs(mwb),idwb(mwb),jdwb(mwb),iwatm(mwa)
