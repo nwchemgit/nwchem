@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.17 2001-11-14 23:35:56 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.18 2002-03-22 02:20:55 sohirata Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -317,7 +317,7 @@ c     delrho
 c
                   call xc_cpks_coeff(drhonuc,
      &                 ddelrhonuc, Amat2, Cmat2, Cmat, delrho,
-     &                 3*ncuratoms, ipol, nqpts, GRAD)
+     &                 3*ncuratoms, ipol, nqpts, GRAD, .false.)
 #if 1
                   call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat,
      &                 drhonuc, Bmat, ddelrhonuc,
