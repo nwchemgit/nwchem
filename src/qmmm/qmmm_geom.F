@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.15 2004-09-14 17:17:36 marat Exp $
+c $Id: qmmm_geom.F,v 1.16 2004-09-17 20:07:00 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -9,6 +9,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "global.fh"
 #include "mm_utils.fh"
       integer irtdb
 c     local variables
@@ -211,6 +212,7 @@ c     ------------------
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "global.fh"
       integer irtdb
 c     local variables
       integer i
@@ -339,9 +341,11 @@ c    --------------------------------------
 
 c     print geometry
 c     -------------
+      if(ga_nodeid().eq.0) then
       call util_print_centered(6,"QM/MM geometry", 36, .true.)
       if(.not.geom_print(igeom))
      +    call errquit('qmmm: Failed to print geometry',0)
+      end if
 
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
