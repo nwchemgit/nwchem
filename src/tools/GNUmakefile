@@ -2,12 +2,23 @@
 #
      TOPDIR = ${NWCHEM_TOP}/src/tools 
 MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
-    SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas server tcgmsg armci/src pario
+    SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas tcgmsg armci/src pario
+  USE_ARMCI = yes
+ifndef USE_MPI
+  EXTRA_INC = "TCG_INCLUDE=../../include"
+      EXTRA = "MSG_COMMS=TCGMSG"
+endif
 
 include ../config/makefile.h
 
 ifdef NWCHEM_TARGET_CPU
     TARGET_CPU = $(NWCHEM_TARGET_CPU)
+endif
+
+ifdef OLD_GA
+    unexport USE_ARMCI
+else
+    export USE_ARMCI
 endif
 
 ifndef TARGET
@@ -28,10 +39,6 @@ tools:   lib/$(TARGET) include
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
-ifdef USE_ARMCI
-		@echo '>>> making ARMCI remote memory copy library <<< '
-		(cd ./armci/src; $(MAKE) LIB_DISTRIB=../../lib )
-endif
 	@echo '>>> making Memory Allocator (MA) library <<< '
 	(cd ./ma; $(MAKE))
         ifdef USE_MPI
@@ -44,8 +51,15 @@ endif
 	@echo '>>> making Linear Algebra utility libraries <<< '
 	(cd ./LinAlg/lapack+blas; $(MAKE))
 	(cd ./LinAlg/summa; $(MAKE))
+ifndef  OLD_GA
+ifdef   USE_ARMCI
+		@echo '>>> making ARMCI remote memory copy library <<< '
+		(cd ./armci/src; \
+		$(MAKE) LIB_DISTRIB=../../lib $(EXTRA) $(EXTRA_INC) )
+endif
+endif
 	@echo '>>> making Global Arrays library <<< '
-	(cd ./global; $(MAKE) DIAG=PAR)
+	(cd ./global; $(MAKE) DIAG=PAR )
 	(cd ./pario; $(MAKE))
 
 lib/$(TARGET):
