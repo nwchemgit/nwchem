@@ -1,4 +1,4 @@
-C $Id: ecp_grad_b.F,v 1.3 1996-10-18 22:19:32 mg201 Exp $
+C $Id: ecp_grad_b.F,v 1.4 1996-10-18 23:28:42 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_grad_b (l_b,n_p,n_o,n_m,n_cb,intp,intm,grad,n_a,
@@ -67,7 +67,7 @@ C $Id: ecp_grad_b.F,v 1.3 1996-10-18 22:19:32 mg201 Exp $
 *     Add contributions from derivative of monomial
 *
       if (n_m .eq. 0) return
-      if (debug_arrays) call ecp_matp(intm,1,n_m*n_cb,1,n_a,
+      if (debug_arrays) call ecp_matpr (intm,1,n_m*n_cb,1,n_a,
      &    1,n_m*n_cb,1,n_a,'l-1 integrals','E',78,4)
       ix = 0
       do i = l_b-1,0,-1
