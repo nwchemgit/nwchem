@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.15 2001-05-24 20:03:05 edo Exp $
+# $Id: GNUmakefile,v 1.16 2003-08-14 03:20:30 edo Exp $
 #
 
  LIBRARY = libddscf.a
@@ -19,7 +19,7 @@ ifdef TESTING
   OBJ_OPTIMIZE = 
 endif
 
- USES_BLAS = potential.F pot_shell.F fmm.F newfmm.F testfmm.F cart_trans.f
+ USES_BLAS = potential.F pot_shell.F fmm.F newfmm.F testfmm.F cart_trans.f xlm_poles.F
  LIB_TARGETS = solver testcheby testcarttrans testfmm
 
 
