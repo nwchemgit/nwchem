@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -425,8 +425,8 @@ c
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
             call moints_Jtrf34a( nbf, vlo, vhi, c,
      $                           dbl_mb(k_local), tmp )
-            if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
-     $                                     dbl_mb(k_local))
+            if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
+     $                                     a1, a2, dbl_mb(k_local))
             call ga_release(g_coul,rlo,rhi,aa,aa)
           endif
         enddo
@@ -533,7 +533,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
+C$Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -577,7 +577,7 @@ C$Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.12 1996-01-26 21:50:20 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
