@@ -4,7 +4,7 @@
 #
 # rak pnl/94
 #
-# $Id: update_look,v 1.4 1998-08-05 17:22:12 d3e129 Exp $
+# $Id: update_look,v 1.5 1998-09-14 23:14:31 d3e129 Exp $
 #
 #
 if (! $?CVSROOT) then
@@ -61,8 +61,8 @@ grep "? " .tmp.update.ls | egrep "\.fh|\.f|\.F|\.c|\.h|\.th|\.java" >> update.ls
 grep "ignored" .tmp.update.ls | grep -v plane_wave | grep -v nwmd >> update.ls
 grep "pertinent" .tmp.update.ls | grep longer >> update.ls
 # remove .fh files in include directory (done with a .cvsignore file in the include directory?)
-mv update.ls .tmp.update.ls
-cat .tmp.update.ls | grep -v "include/" > update.ls
+#mv update.ls .tmp.update.ls
+#cat .tmp.update.ls | grep -v "include/" > update.ls
 # sort makefile info to top of file
 mv update.ls .tmp.update.ls
 date > update.ls
