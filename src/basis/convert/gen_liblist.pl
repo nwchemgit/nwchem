@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: gen_liblist.pl,v 1.3 1998-08-14 23:02:42 d3e129 Exp $
+# $Id: gen_liblist.pl,v 1.4 1998-08-14 23:28:02 d3e129 Exp $
 #
 # get the basis family names and atom list from an nwchem formatted library
 #
@@ -148,7 +148,8 @@ foreach $libraryfile (@ARGV) {
 	print LISTFILE "$families[$i] (number of atoms $atsp)\n";
 	$texline = "\\item " . "$families[$i] (number of atoms $atsp)" . "  \\newline"  ;
 	$texline =~ s/Basis Set /Basis Set \\verb\#/;
-	$texline =~ s/\(/\# \(/ ;
+	$texline =~ s/ECP /ECP \\verb\#/;
+	$texline =~ s/\" \(/\" \# \(/ ;   #"
         $texline =~ s/ \#/\#/;
         $texline =~ s/ \#/\#/;
         $texline =~ s/ \#/\#/;
