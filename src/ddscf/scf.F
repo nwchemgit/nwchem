@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.55 1997-05-21 22:04:34 d3g681 Exp $
+C$Id: scf.F,v 1.56 1997-06-11 18:16:03 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,6 +26,7 @@ c
 c
       integer nbf_per_ir(20)
       integer natoms, Nff, molo, mohi
+      integer g_dens(2) ! dummy global array handles for initial guess
       logical rohf, uhf, riscf_init, movecs_converged
       external rohf, uhf, riscf_init, movecs_converged
       logical int_normalize
@@ -197,7 +198,17 @@ c     Form intial guess vectors
 c
       if (ga_nodeid().eq.0 .and. oprint) write(6,711) util_wallsec()
  711  format(/' Forming initial guess at ',f9.1,'s'/)
-      call scf_vectors_guess(rtdb)
+c      call scf_vectors_guess(rtdb)
+c
+c     prev call replaced with new call
+c
+      call scf_vectors_guess(rtdb, tol2e, geom, basis, trans, 
+     &                       movecs_in, movecs_out, movecs_guess,
+     &                       scftype, nclosed, nopen, nbf, nmo,
+     &                       nalpha, nbeta,  k_eval, k_occ, k_irs,
+     &                       g_movecs, g_dens, 'vectors', 
+     &                       'scf', title, oskel, oadapt, 
+     &                       oinitialized) 
 c
 c     Here branch to the appropriate wavefunction type ... returns
 c     true if happily converged, false otherwise (e.g., if restart

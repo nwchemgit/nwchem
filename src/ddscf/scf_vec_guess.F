@@ -1,14 +1,63 @@
-      subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.14 1997-05-08 21:59:01 d3g681 Exp $
+      subroutine scf_vectors_guess(rtdb, tol2e, geom, basis, trans, 
+     &                             movecs_in, movecs_out, movecs_guess,
+     &                             scftype, nclosed, nopen, nbf, nmo,
+     &                             nalpha, nbeta,  k_eval, k_occ, k_irs,
+     &                             g_movecs, g_dens, vecs_or_dens, 
+     &                             calling_module, title, oskel, oadapt, 
+     &                             oinitialized) 
+c
+c     $Id: scf_vec_guess.F,v 1.15 1997-06-11 18:16:05 d3h449 Exp $
+c
       implicit none
+c
+c     arguments:
+c
+c     tol2e         = 2-e integral selection threshold for energy/gradient
+c     geom          = Geometry handle
+c     basis         = Basis handle
+c     trans         = Translated basis set name
+c     movecs_in     = Name of input movecs file
+c     movecs_out    = Name of output movecs file
+c     movecs_guess  = Name of source of guess orbtials (=movecs_in initially)
+c     scftype       = type of SCF (UHF/ROHF)
+c     nclosed       = no. of closed shells
+c     nopen         = no. of open shells
+c     nbf           = no. of basis functions
+c     nmo           = no. of linearly indep. MOs (= nbf for now)
+c     nalpha        = no. of alpha spin electrons for UHF only
+c     nbeta         = no. of beta spin electrons for UHF only
+c     k_eval        = scf eigen values (ma index)
+c     k_occ         = scf occupation (ma index)
+c     k_irs         = MO symmetries (2*nmo for UHF) (ma index)
+c     g_movecs      = eigen-vectors (global ga handle) (2x array for UHF)
+c     g_dens        = AO densisty (global ga handle) (2x array for UHF)
+c     vecs_or_dens  = "vectors" or "density" requested
+c     calling_module= calculation type; SCF and DFT currently recognized
+c     title         = Job Title
+c     oskel         = if true use symmetry in fock building
+c     oadapt        = if true force symmetry on the MOs
+c     oinitialized  = true if initialized
+c
+      integer geom, basis, nopen, nclosed, nelec, nbf, nmo
+      integer nalpha, nbeta
+      double precision tol2e
+      logical oskel, oadapt, oinitialized
+      integer g_movecs(2), g_dens(2)
+      character*255 movecs_in, movecs_out, title, trans
+      character*8 movecs_guess
+      character*7 vecs_or_dens
+      character*4 scftype
+      character*3 calling_module
+      integer k_eval, k_occ, k_irs
+c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "bas.fh"
 #include "rtdb.fh"
-#include "cscf.fh"
-#include "cfock.fh"
+c#include "cscf.fh"
+c#include "cfock.fh"
 c
 c     Form guess vectors on disk for SCF wavefunctions
 c
@@ -17,27 +66,34 @@ c
 c     local variables
 c
       logical oprint
-      integer g_aodens          ! Atomic density guess
       integer g_tmp, g_tmp2
       integer i, nprint
       character*255 title_vecs, bas_vecs
       integer nbf_vecs, nsets, nmo_vecs(2)
       logical status
-      double precision tolguess
+      double precision tolguess, zero, one, two
       character*20 file_scftype
+      character*255 string
 c
 c     externals
 c
       integer ga_create_atom_blocked
-      logical movecs_read_header
-      external movecs_read_header
+      logical movecs_read_header, movecs_write, movecs_read
+      parameter (zero = 0.d0, one = 1.d0, two = 2.d0)
+      external movecs_read_header, movecs_write, movecs_read
       external ga_create_atom_blocked
 c
       if (.not. oinitialized) call errquit
-     $     ('scf_v_g: not initialized?', 0)
+     &     ('scf_v_g: not initialized?', 0)
 c
       oprint = util_print('mo guess', print_default) .and.
-     $     ga_nodeid().eq.0
+     &     ga_nodeid().eq.0
+      if (oprint)write(6,*)' Calling module = ',calling_module
+      if (inp_compare(.false., 'DFT', calling_module))then
+         nmo = nbf
+         if (oprint)write(6,*)' Skipping linear dependence check. '
+         goto 3212
+      endif
 c
 c     Analyze linear dependence ... put eigenvectors of S into g_movecs
 c     and if necessary reallocate the mo vectors to reflect the number
@@ -46,25 +102,25 @@ c
       call scf_lindep(rtdb, geom, basis, g_movecs, nmo)
       if (nmo .ne. nbf) then
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs',
-     $        32, 32, g_tmp)) call errquit('scf_v_g: tmp MOs', 0)
+     &        32, 32, g_tmp)) call errquit('scf_v_g: tmp MOs', 0)
          call ga_copy_patch('n', 
-     $        g_movecs, 1, nbf, 1, nmo, g_tmp, 1, nbf, 1, nmo)
+     &        g_movecs, 1, nbf, 1, nmo, g_tmp, 1, nbf, 1, nmo)
          if (.not. ga_destroy(g_movecs)) 
-     $        call errquit('scf_v_g: ga_destroy?',0)
+     &        call errquit('scf_v_g: ga_destroy?',0)
          if (scftype .eq. 'UHF') then
             if (.not. ga_destroy(g_movecs(2))) 
-     $           call errquit('scf_v_g: ga_destroy(2)?',0)
+     &           call errquit('scf_v_g: ga_destroy(2)?',0)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: alpha MOs',
-     $           32, 32, g_movecs)) call errquit('scf_v_g: alpha MOs',0)
+     &           32, 32, g_movecs)) call errquit('scf_v_g: alpha MOs',0)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g beta MOs',
-     $           32, 32, g_movecs(2)))call errquit('scf_v_g:beta MOs',0)
+     &           32, 32, g_movecs(2)))call errquit('scf_v_g:beta MOs',0)
          else
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_g_g: MOs',
-     $           32,32, g_movecs)) call errquit('scf_v_g: MOs', 0)
+     &           32,32, g_movecs)) call errquit('scf_v_g: MOs', 0)
          endif
          call ga_copy(g_tmp, g_movecs)
          if (.not. ga_destroy(g_tmp)) 
-     $        call errquit('scf_v_g: ga_destroy?',0)
+     &        call errquit('scf_v_g: ga_destroy?',0)
       endif
 c
  3212 continue
@@ -72,10 +128,13 @@ c
 c
 c     hcore or atomic guess
 c
-         g_aodens = ga_create_atom_blocked(geom, basis, 'Guess density')
-         call ga_zero(g_aodens)
+         if (.not.inp_compare(.false., 'density', vecs_or_dens))then
+            g_dens(1) = 
+     &         ga_create_atom_blocked(geom, basis, 'Guess density')
+         endif
+         call ga_zero(g_dens(1))
          if (movecs_in .eq. 'atomic') then
-            call guess_dens(rtdb, geom, basis, g_aodens)
+            call guess_dens(rtdb, geom, basis, g_dens(1))
          endif
 c
 c     Since the caching of integrals may be turned on automagically
@@ -88,33 +147,35 @@ c     guess
 *         endif
          tolguess = tol2e
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
-     $        nbf, nmo, tolguess,
-     $        g_aodens, g_movecs, oskel, dbl_mb(k_eval))
+     &        nbf, nmo, tolguess,
+     &        g_dens(1), g_movecs, oskel, dbl_mb(k_eval))
 c
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))
             call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),1)
          endif
 c
-         if (.not. ga_destroy(g_aodens)) call errquit
-     $        ('scf_vectors_guess: destroy of density failed',0)
+         if (.not.inp_compare(.false., 'density', vecs_or_dens))then
+            if (.not. ga_destroy(g_dens(1))) call errquit
+     &        ('scf_vectors_guess: destroy of density failed',0)
+         endif
 c
       else if (movecs_in .eq. 'project') then
          if (nmo .ne. nbf) call errquit
-     $        ('projection not yet working with linear dependence ',0)
+     &        ('projection not yet working with linear dependence ',0)
 c
-c     Project from a smaller basis set ... must orthog before
-c     the symmetry adaption. Also, sym adapt thoroughly
-c     since the strong linear dependence in the 
-c     random vectors may cause loss of precision.
+c        Project from a smaller basis set ... must orthog before
+c        the symmetry adaption. Also, sym adapt thoroughly
+c        since the strong linear dependence in the 
+c        random vectors may cause loss of precision.
 c
          call movecs_project(rtdb, geom, basis, g_movecs)
          call ga_orthog_mos(basis, g_movecs)
          if (oadapt) then
-           call scf_movecs_sym_adapt(basis, g_movecs, .false.,
-     $          0, '- projected ', .true.,int_mb(k_irs))
-           call scf_movecs_sym_adapt(basis, g_movecs, .false.,
-     $          0, '- projected ', .true.,int_mb(k_irs))
+            call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     &           0, '- projected ', .true.,int_mb(k_irs))
+            call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     &           0, '- projected ', .true.,int_mb(k_irs))
          endif
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))
@@ -123,72 +184,96 @@ c
 c
       else if (movecs_in .eq. 'fragment') then
          if (scftype .ne. 'UHF') then
-            call movecs_fragment(rtdb, geom, basis, 'scf', 1,
-     $           nclosed, nopen, g_movecs(1), dbl_mb(k_eval))
+            call movecs_fragment(rtdb, geom, basis, 
+     &           calling_module(1:inp_strlen(calling_module)), 1,
+     &           nclosed, nopen, g_movecs(1), dbl_mb(k_eval))
          else
-            call movecs_fragment(rtdb, geom, basis, 'scf', 1,
-     $           0, nalpha, g_movecs(1), dbl_mb(k_eval))
-            call movecs_fragment(rtdb, geom, basis, 'scf', 2,
-     $           0, nbeta, g_movecs(2), dbl_mb(k_eval+nbf))
+            call movecs_fragment(rtdb, geom, basis, 
+     &           calling_module(1:inp_strlen(calling_module)), 1,
+     &           0, nalpha, g_movecs(1), dbl_mb(k_eval))
+            call movecs_fragment(rtdb, geom, basis, 
+     &           calling_module(1:inp_strlen(calling_module)), 2,
+     &           0, nbeta, g_movecs(2), dbl_mb(k_eval+nbf))
          endif
       else
 c
-c     Attempt to read vectors from file movecs_in and see if 
-c     they make sense
+c        Attempt to read vectors from file movecs_in and see if 
+c        they make sense
 c
          status = movecs_read_header(movecs_in, title_vecs, bas_vecs,
-     $        file_scftype, nbf_vecs, nsets, nmo_vecs, 2)
+     &        file_scftype, nbf_vecs, nsets, nmo_vecs, 2)
          if (status) then
 c     
-c     Check that:
-c     1) nbf from file = current nbf
-c     2) name of basis from file = current basis name
-c     3) nmo from file = current nmo (in case of change of linear dep)
+c        Check that:
+c        1) nbf from file = current nbf
+c        2) name of basis from file = current basis name
+c        3) nmo from file = current nmo (in case of change of linear dep)
 c     
             if (nbf.eq.nbf_vecs .and. bas_vecs.eq.trans .and.
-     $           nmo.eq.nmo_vecs(1)) then
+     &         nmo.eq.nmo_vecs(1)) then
 c
-c     If there is linear dependency, save the eigen vectors of
-c     S, read in the MOs (perhaps from another geometry), and project
-c     them into the linearly independent MO space of this geometry.
+c              If there is linear dependency, save the eigen vectors of
+c              S, read in the MOs (perhaps from another geometry), and project
+c              them into the linearly independent MO space of this geometry.
 c
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g:tmp',
-     $                 32,32, g_tmp)) call errquit('scf_v_g: tmp', 0)
+     &                 32,32, g_tmp)) call errquit('scf_v_g: tmp', 0)
                   call ga_copy(g_movecs, g_tmp)
                endif
-*
-               call scf_movecs_read
+c
+c              Try reading movecs
+c
+               if (.not. movecs_read(movecs_in, 1,
+     &            dbl_mb(k_occ), dbl_mb(k_eval), g_movecs))
+     &            call errquit('scf_movecs_read failed ',0)
+c
+               if (scftype .eq. 'UHF') then
+                  if (.not. movecs_read(movecs_in, 2,
+     &               dbl_mb(k_occ+nbf), dbl_mb(k_eval+nbf),
+     &               g_movecs(2))) then
+                     if (ga_nodeid() .eq. 0 .and.
+     &                  util_print('information', print_default)) then
+                        write(6,*) 
+     &                  '  Duplicating RHF/ROHF vectors for UHF'
+                     endif
+                     call ga_copy(g_movecs(1), g_movecs(2))
+                     call dcopy(nbf,dbl_mb(k_occ),1,dbl_mb(k_occ+nbf),1)
+                     call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),
+     &                          1)
+                  endif
+               endif
+c               call scf_movecs_read
 *
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nmo, nmo, 'scf_v_g:tmp2',
-     $                 32,32, g_tmp2)) call errquit('scf_v_g: tmp2', 0)
+     &                 32,32, g_tmp2)) call errquit('scf_v_g: tmp2', 0)
                   call ga_dgemm('t', 'n', nmo, nmo, nbf, 1.0d0, 
-     $                 g_tmp, g_movecs, 0.0d0, g_tmp2)
+     &                 g_tmp, g_movecs, 0.0d0, g_tmp2)
                   call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0,
-     $                 g_tmp, g_tmp2, 0.0d0, g_movecs)
+     &                 g_tmp, g_tmp2, 0.0d0, g_movecs)
                   if (scftype .eq. 'UHF') then
                      call ga_dgemm('t', 'n', nmo, nmo, nbf, 1.0d0,
-     $                    g_tmp, g_movecs(2), 0.0d0, g_tmp2)
+     &                    g_tmp, g_movecs(2), 0.0d0, g_tmp2)
                      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, 
-     $                    g_tmp, g_tmp2, 0.0d0, g_movecs(2))
+     &                    g_tmp, g_tmp2, 0.0d0, g_movecs(2))
                   endif
                   if (.not. ga_destroy(g_tmp))
-     $                 call errquit('scf_v_g: ga_destroy?',0)
+     &                 call errquit('scf_v_g: ga_destroy?',0)
                   if (.not. ga_destroy(g_tmp2))
-     $                 call errquit('scf_v_g: ga_destroy?',0)
+     &                 call errquit('scf_v_g: ga_destroy?',0)
                endif
             else
                if (ga_nodeid() .eq. 0 ) then
                   write(6,111) nbf, nbf_vecs, nmo, nmo_vecs(1),
-     $              trans(1:inp_strlen(trans)),
-     $              bas_vecs(1:inp_strlen(bas_vecs))
+     &              trans(1:inp_strlen(trans)),
+     &              bas_vecs(1:inp_strlen(bas_vecs))
  111              format(/' !! nbf/nmo/basis-name mismatch '/
-     $                 10x, ' nbf=', i4, ' nbf_file=',i4/
-     $                 10x , ' nmo=', i4, 'nmo_file=',i4/
-     $                 10x, ' basis="',a,'"', ' basis_file="',a,'"'/)
+     &                 10x, ' nbf=', i4, ' nbf_file=',i4/
+     &                 10x , ' nmo=', i4, 'nmo_file=',i4/
+     &                 10x, ' basis="',a,'"', ' basis_file="',a,'"'/)
                   write(6,*) ' Either an incorrect movecs file was ',
-     $                 'specified, or linear dependence has changed,'
+     &                 'specified, or linear dependence has changed,'
                   write(6,*) ' or the basis name was changed. '
                   call util_flush(6)
                endif
@@ -206,7 +291,7 @@ c
             if (ga_nodeid() .eq. 0 ) then
                write(6,*) 
                write(6,*) ' Load of old vectors failed. ',
-     $              '  Forcing atomic density guess'
+     &              '  Forcing atomic density guess'
                write(6,*) 
             endif
             movecs_in = 'atomic'
@@ -216,8 +301,9 @@ c
 c
 c     Apply any swaps of orbitals
 c
-      call movecs_swap(rtdb, 'scf', scftype, g_movecs,
-     $     dbl_mb(k_occ), dbl_mb(k_eval))
+      call movecs_swap(rtdb, 
+     &     calling_module(1:inp_strlen(calling_module)), scftype, 
+     &     g_movecs, dbl_mb(k_occ), dbl_mb(k_eval))
 c
 c     Optionally symmetry adapt the initial molecular orbitals
 c
@@ -229,17 +315,17 @@ c     if we are asked to!
 c     
             nprint = min(nalpha+10,nmo)
             if (util_print('all vector symmetries', print_high))
-     $           nprint = nmo
+     &           nprint = nmo
             call scf_movecs_sym_adapt(basis, g_movecs, oprint,
-     $           nprint, '- initial alpha',.true.,int_mb(k_irs))
+     &           nprint, '- initial alpha',.true.,int_mb(k_irs))
             call scf_movecs_sym_adapt(basis, g_movecs(2), oprint,
-     $           nprint, '- initial beta', .true.,int_mb(k_irs+nmo))
+     &           nprint, '- initial beta', .true.,int_mb(k_irs+nmo))
          else
             nprint = min(nclosed+nopen+10,nmo)
             if (util_print('all vector symmetries', print_high))
-     $           nprint = nmo
+     &           nprint = nmo
             call scf_movecs_sym_adapt(basis, g_movecs, oprint,
-     $           nprint, '- initial ', .true.,int_mb(k_irs))
+     &           nprint, '- initial ', .true.,int_mb(k_irs))
          endif
       endif
 c
@@ -299,15 +385,38 @@ c
 c
 c     Save vectors to disk
 c
-      call scf_movecs_write(rtdb)
+      nmo_vecs(1) = nmo
+      if (scftype .eq. 'UHF') then
+         nsets = 2
+         nmo_vecs(2) = nmo
+      else
+         nsets = 1
+      endif
+c
+      if (.not. movecs_write(rtdb, basis, movecs_out, 
+     &     calling_module(1:inp_strlen(calling_module)), title, 
+     &     nbf, nsets, nmo_vecs,
+     &     dbl_mb(k_occ), nbf, dbl_mb(k_eval),
+     &     nbf, g_movecs)) call errquit
+     &     ('scf_v_g: movecs_write failed', 0)
+c
+c      call scf_movecs_write(rtdb)
 c     
 c     Overwrite the input movecs option with where the final movecs
 c     will end up so that a restart automatically picks them up
 c
-      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
-     $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
-      if (.not. rtdb_cput(rtdb, 'scf:output vectors', 1, movecs_out))
-     $     call errquit('scf:rtdb_cput failed scf:output vectors',0)
+      string = ' '
+      write(string,'(a,a)') 
+     &   calling_module(1:inp_strlen(calling_module)),':input vectors'
+      if (.not. rtdb_cput(rtdb, string(1:inp_strlen(string)),
+     &     1, movecs_out)) 
+     &     call errquit('scf_v_g:rtdb_cput failed scf:input vectors',0)
+      string = ' '
+      write(string,'(a,a)') 
+     &   calling_module(1:inp_strlen(calling_module)),':output vectors'
+      if (.not. rtdb_cput(rtdb, string(1:inp_strlen(string)),
+     &     1, movecs_out)) 
+     &     call errquit('scf_v_g:rtdb_cput failed scf:output vectors',0)
 c
       movecs_in = movecs_out
 c
@@ -317,23 +426,59 @@ c
          nprint = min(nclosed+nopen+20,nmo)
          if (scftype.eq.'RHF' .or. scftype.eq.'ROHF') then
             call movecs_print_anal(basis, max(1,nclosed-20),
-     $           nprint, 0.15d0, g_movecs, 
-     $           'ROHF Initial Molecular Orbital Analysis', 
-     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
-     $           .true., dbl_mb(k_occ))
+     &           nprint, 0.15d0, g_movecs, 
+     &           'ROHF Initial Molecular Orbital Analysis', 
+     &           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     &           .true., dbl_mb(k_occ))
          else
             nprint = min(nalpha+20,nmo)
             call movecs_print_anal(basis, max(1,nbeta-20),
-     $           nprint, 0.15d0, g_movecs, 
-     $           'UHF Initial Alpha Molecular Orbital Analysis', 
-     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
-     $           .true., dbl_mb(k_occ))
+     &           nprint, 0.15d0, g_movecs, 
+     &           'UHF Initial Alpha Molecular Orbital Analysis', 
+     &           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     &           .true., dbl_mb(k_occ))
             call movecs_print_anal(basis, max(1,nbeta-20),
-     $           nprint, 0.15d0, g_movecs(2), 
-     $           'UHF Initial Beta Molecular Orbital Analysis', 
-     $           .true., dbl_mb(k_eval+nbf), oadapt, int_mb(k_irs+nmo),
-     $           .true., dbl_mb(k_occ+nbf))
+     &           nprint, 0.15d0, g_movecs(2), 
+     &           'UHF Initial Beta Molecular Orbital Analysis', 
+     &           .true., dbl_mb(k_eval+nbf), oadapt, int_mb(k_irs+nmo),
+     &           .true., dbl_mb(k_occ+nbf))
          endif
       endif
 c
+c     If 'density' has been requested form it here before returning.
+c
+      if (inp_compare(.false., 'density', vecs_or_dens))then
+         if (scftype .eq. 'UHF') then
+            call ga_dgemm('n', 't', nbf, nmo, nalpha, one, g_movecs(1),
+     &      g_movecs(1), zero, g_dens(1))
+            call ga_dgemm('n', 't', nbf, nmo, nbeta, one, g_movecs(2),
+     &      g_movecs(2), zero, g_dens(2))
+         else
+            call ga_dgemm('n', 't', nbf, nmo, nclosed, two, g_movecs(1),
+     &      g_movecs(1), zero, g_dens(1))
+         endif
+c
+c        Symmetrize the guess density
+c
+         if (oadapt)then
+            call sym_symmetrize(geom, basis, .true., g_dens(1))
+            if (scftype .eq. 'UHF')
+     &         call sym_symmetrize(geom, basis, .true., g_dens(2))
+         endif
+c
+c        Print guess density if debugging
+c
+         if (util_print('initial density', print_debug)) then
+            if (ga_nodeid() .eq. 0) then
+               write(6,*)
+               call util_print_centered(6,'Initial Density',40,.true.)
+               write(6,*)
+               call util_flush(6)
+            endif
+            call ga_print(g_dens)
+            if (scftype .eq. 'UHF') call ga_print(g_dens(2))
+         endif
+c
+      endif
+      return
       end
