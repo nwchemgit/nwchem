@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.47 1994-08-19 01:24:39 d3g681 Exp $
+# $Id: makefile.h,v 1.48 1994-08-19 17:03:26 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -250,7 +250,7 @@ ifeq ($(TARGET),IBM)
 #
 
     SUBDIRS_EXTRA = lapack blas
-         FC = xlf 
+         FC = xlf -qEXTNAME 
          CC = cc
          AR = ar
      RANLIB = ranlib
@@ -260,7 +260,7 @@ ifeq ($(TARGET),IBM)
     INSTALL = echo $@ is built
         CPP = /usr/lib/cpp -P
 
-       FOPT = -g -qEXTNAME 
+       FOPT = -g
    FOPT_REN = $(FOPT)
        COPT = -g
      FLDOPT = $(FOPT) 
