@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.10 2002-05-16 16:58:13 bylaska Exp $
+* $Id: pspw_sic.F,v 1.11 2002-05-16 21:33:36 bylaska Exp $
 *
 
 *     *************************
@@ -271,18 +271,22 @@
 
 *          ***** free-space coulomb solver ****
            else
+c             if (ispin.eq.1) 
+c     >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
+c     >                            dbl_mb(dn(1)),
+c     >                            dbl_mb(dn(1)))
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
               eh = 0.5d0*eh*dv
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh
            end if
-           eh_sic = eh_sic + eh
-           ph_sic = ph_sic + ph
+           eh_sic = eh_sic - eh
+           ph_sic = ph_sic - ph
 
 
-*          **** generate (Vcoul-Vxc)*psi_r ***
-           call D3dB_rr_Sub(1,dbl_mb(tmp1(1)),
+*          **** generate (Vcoul+Vxc)*psi_r ***
+           call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
      >                        dbl_mb(xcp(1)),
      >                        dbl_mb(xcp(1)))
            call D3dB_rr_Mul(1,dbl_mb(xcp(1)),
@@ -290,7 +294,7 @@
      >                        dbl_mb(tmp1(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
-*          **** add to Hpsi_k ***
+*          **** add (Vcoul+Vxc)*psi_r to Hpsi_k ***
            call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
            call Pack_c_pack(1,dbl_mb(tmp1(1)))
            call Pack_cc_daxpy(1,(scal1),
@@ -415,6 +419,7 @@
 *          ***** free-space coulomb solver ****
            else
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
               eh = 0.5d0*eh*dv
               if (ispin.eq.1) eh = eh + eh
