@@ -6,7 +6,7 @@
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.2 2003-10-13 21:19:36 pollack Exp $
+c$Id: xc_cpkzb99.F,v 1.3 2003-10-15 19:20:04 pollack Exp $
 c
 
 c     References:
@@ -188,14 +188,15 @@ c         build GGA part
              mt=rhoval*epGGA*bigC*( Weiz/tauN )**2
 
              Ec = Ec + mt*qwght(n)*fac
-          Amat(n,1)=Amat(n,1)+aterm1+aterm2+aterm3
+          Amat(n,1)=Amat(n,1)+(aterm1+aterm2+aterm3)*fac
 
-          Cmat(n,1)=Cmat(n,1)+cterm1+cterm2+cterm3
-          Cmat(n,2)=Cmat(n,2) + dneGGAdg(2) +
-     &        (( Weiz/tauN )**2)*bigC*dneGGAdg(2)
+          Cmat(n,1)=Cmat(n,1)+(cterm1+cterm2+cterm3)*fac
+          Cmat(n,2)=Cmat(n,2) + (dneGGAdg(2) +
+     &        (( Weiz/tauN )**2)*bigC*dneGGAdg(2))*fac
 
 
-         Mmat(n,1)=Mmat(n,1)-2.d0*bigC*neGGA*(Weiz**2)/(tauN**3)
+         Mmat(n,1)=Mmat(n,1)-(2.d0*bigC*neGGA*(Weiz**2)/
+     &             (tauN**3))*fac
 
 
 
@@ -325,12 +326,12 @@ c           if(rho(n,2).lt.tol_rho) goto199
       cterm3=neGGA*2.d0*bigC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,2))
          mterm=-2.d0*bigC*neGGA*(sumWeiz**2)/sumTau**3
       
-           Amat(n,1)= Amat(n,1)+aterma1+aterma2+aterma3  
-           Cmat(n,1)= Cmat(n,1)+cterm1+cterm2+cterm3
-           Mmat(n,1)=Mmat(n,1)+mterm
+           Amat(n,1)= Amat(n,1)+(aterma1+aterma2+aterma3)*fac  
+           Cmat(n,1)= Cmat(n,1)+(cterm1+cterm2+cterm3)*fac
+           Mmat(n,1)=Mmat(n,1)+mterm*fac
 
-          Cmat(n,2)=Cmat(n,2) + dneGGAdg(2) +
-     &       bigC*dneGGAdg(2)*( sumWeiz/sumTau )**2
+          Cmat(n,2)=Cmat(n,2) + (dneGGAdg(2) +
+     &       bigC*dneGGAdg(2)*( sumWeiz/sumTau )**2)*fac
 
 
 
@@ -340,15 +341,15 @@ c199           if(rho(n,3).lt.tol_rho) goto20
         atermb2=dneGGAdn(2)*bigC*( sumWeiz/sumTau )**2 
       atermb3=-neGGA*2.d0*bigC*(sumWeiz/sumTau)*(WeizB/sumTau)/rho(n,3)    
       
-           Amat(n,2)= Amat(n,2)+atermb1+atermb2+atermb3  
+           Amat(n,2)= Amat(n,2)+(atermb1+atermb2+atermb3)*fac  
 
          ctermb1=dneGGAdg(3)
         ctermb2=dneGGAdg(3)*bigC*( sumWeiz/sumTau )**2
       ctermb3=neGGA*2.d0*bigC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,3))
-           Cmat(n,3)= Cmat(n,3)+ctermb1+ctermb2+ctermb3
+           Cmat(n,3)= Cmat(n,3)+(ctermb1+ctermb2+ctermb3)*fac
 
         mterm=-2.d0*bigC*neGGA*(sumWeiz**2)/sumTau**3
-           Mmat(n,2)=Mmat(n,2)+mterm
+           Mmat(n,2)=Mmat(n,2)+mterm*fac
 
 
 20      continue
@@ -455,10 +456,10 @@ C FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF sprep
             mterm= -2.d0*neFSP*(WeizA **2)/TauNA**3
 
             Ec = Ec - (2.d0)*mt*qwght(n)*fac
-         Amat(n,1)=Amat(n,1)-2.d0*(1.d0+bigC)*(aterm1+aterm2)
-        Cmat(n,1)=Cmat(n,1)-2.d0*(1.d0+bigC)*(cterm1+cterm2)
+         Amat(n,1)=Amat(n,1)-2.d0*(1.d0+bigC)*(aterm1+aterm2)*fac
+        Cmat(n,1)=Cmat(n,1)-2.d0*(1.d0+bigC)*(cterm1+cterm2)*fac
 
-        Mmat(n,1)=Mmat(n,1)-2.d0*(1.d0+bigC)*mterm
+        Mmat(n,1)=Mmat(n,1)-2.d0*(1.d0+bigC)*mterm*fac
 
 c      the 2 is because we know n_up = n_dn = n/2
 c      so we can just double the results     
@@ -573,9 +574,9 @@ c
 
             mterm= -2.d0*neFSP*((WeizA/TauNA )**2)/TauNA
 
-           Amat(n,1)=Amat(n,1)-(1.d0+bigC)*(aterma1+aterma2)
-          Cmat(n,1)=Cmat(n,1)-(1.d0+bigC)*(cterm1+cterm2)
-          Mmat(n,1)=Mmat(n,1)-(1.d0+bigC)*mterm
+           Amat(n,1)=Amat(n,1)-(1.d0+bigC)*(aterma1+aterma2)*fac
+          Cmat(n,1)=Cmat(n,1)-(1.d0+bigC)*(cterm1+cterm2)*fac
+          Mmat(n,1)=Mmat(n,1)-(1.d0+bigC)*mterm*fac
 
 50      continue
 
@@ -667,15 +668,15 @@ c    must this be protected against
             atermb1=dneFSPdn(1)*( WeizB/TauNB )**2
             atermb2= -2.d0*neFSP*((WeizB/TauNB )**2)/rhovalF
 
-           Amat(n,2)=Amat(n,2)-(1.d0+bigC)*(atermb1+atermb2)
+           Amat(n,2)=Amat(n,2)-(1.d0+bigC)*(atermb1+atermb2)*fac
 
             cterm1=dneFSPdg(1)*( WeizB/TauNB )**2
             cterm2=neFSP*2.d0*((WeizB/TauNB )**2)/gammavalB
 
-          Cmat(n,3)=Cmat(n,3)-(1.d0+bigC)*(cterm1+cterm2)
+          Cmat(n,3)=Cmat(n,3)-(1.d0+bigC)*(cterm1+cterm2)*fac
 
             mterm= -2.d0*neFSP*((WeizB/TauNB )**2)/TauNB
-          Mmat(n,2)=Mmat(n,2)-(1.d0+bigC)*mterm
+          Mmat(n,2)=Mmat(n,2)-(1.d0+bigC)*mterm*fac
 
 75      continue
 
