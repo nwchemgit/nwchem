@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.2 2000-04-22 01:05:44 edo Exp $
+* $Id: dft_mem3c.F,v 1.3 2000-05-30 18:56:32 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -59,7 +59,7 @@ c        estimate and subtract off amount needed for XC numerical integration
 c     in xc_quadv0
 c
       availm = availm - (natoms*(natoms+1)/2 + 13*natoms + 
-     &     nqmax*(7*ipol +  npol + natoms + 
+     &     3*nqmax*(7*ipol +  npol + natoms + 
      &     nbf_ao_mxnbf_ce + 4) + 
      &     nbf_ao_mxcont + nbf_ao_mxprim + 
      &     2*nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce)
