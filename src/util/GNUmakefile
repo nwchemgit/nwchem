@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.80 1998-01-28 00:08:43 d3h449 Exp $
+# $Id: GNUmakefile,v 1.81 1998-01-30 16:35:32 vg038 Exp $
 
 include ../config/makefile.h
 
@@ -47,6 +47,13 @@ endif
 
 ifeq ($(TARGET),DECOSF)
   EXTRA_OBJ = dec_fpe.o
+endif
+
+ifeq ($(TARGET),FUJITSU_VPP)
+   LIB_DEFINES = -Wp,-DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
+                 -Wp,-DPERM_DEF_DIR=$(PERM_DEF_DIR) \
+                 -Wp,-DBINDIR=\"$(BINDIR)\" \
+                 -Wp,-DHAVE_FORTRAN_INTEGER2,-DHAVE_FORTRAN_BYTE
 endif
 
        BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
@@ -131,3 +138,4 @@ $(BINDIR)/jobtime:	jobtime
 $(BINDIR)/jobtime.pl:	jobtime.pl
 	/bin/cp $^ $@
 endif
+

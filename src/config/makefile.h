@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.250 1998-01-28 00:08:35 d3h449 Exp $
+# $Id: makefile.h,v 1.251 1998-01-30 16:34:47 vg038 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -963,14 +963,14 @@ ifeq ($(TARGET),LINUX)
     INSTALL = @echo $@ is built
 
 ifdef USE_F2C
-   FOPTIONS = -Nc40 -Nn2500 -Nx1000
+   FOPTIONS = -Nc40 -Nn2500 -Nx1000 -fno-globals -malign-double
   EXPLICITF = TRUE
 else
   FOPTIONS  = -fno-second-underscore
          FC = g77
 endif
 
-   COPTIONS = -Wall -m486
+   COPTIONS = -Wall -m486 -malign-double
   FOPTIMIZE = -g -O2
   COPTIMIZE = -g -O2
 
@@ -985,6 +985,40 @@ endif
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
+endif
+
+ifeq ($(TARGET),FUJITSU_VPP)
+#
+# FUJITSU VX/VPP
+#
+# HAF Sept. 97
+
+         FC = frt
+      CPP = /lib/cpp -P -C
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+                        
+    DEFINES = -DFUJITSU_VPP
+    USE_MPI = TRUE
+
+#change DEFINES so that frt understands them and simply add them to FOPTIONS
+ FDEFINES_1 = $(strip  $(DEFINES))
+   FDEFINES = -Wp,$(subst $(space),$(comma),$(FDEFINES_1))   
+   FOPTIONS = -w -Sw $(FDEFINES)
+   COPTIONS = 
+     FDEBUG = -Ob -g
+  FOPTIMIZE = -Kfast -Wv,-s8
+  COPTIMIZE = -K4
+
+# removed global, ma, tcgmsg-mpi, as they are part of the native GA
+NW_CORE_SUBDIRS = include basis geom inp input chemio ma \
+	pstat rtdb task symmetry util $(CORE_SUBDIRS_EXTRA)
+
+       CORE_LIBS = -lutil -lchemio -lpeigs \
+                   -L/home/fruechtl/lib -lglobal -ltcgmsg-mpi -lma \
+                   -llapackvp -lblasvp
+      EXTRA_LIBS = -L /opt/tools/lib/ -lmp -lgen  -lpx -lelf -Wl,-J,-P,-t
 endif
 
 ###################################################################

@@ -345,13 +345,16 @@ ifeq ($(peigs_TARGET),LINUX)
 # Linux running on an x86 using f77 on f2c
 #
 peigs_COMM = TCGMSG
-peigs_CPU = PENTIUM
 peigs_CODEOBJ = DBLE
 #
 # on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
 # or make link from /usr/bin
 #
 peigs_CPP = cpp -P -C -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET_definition}
+endif
+
+ifeq ($(peigs_TARGET),FUJITSU_VPP)
+peigs_CPU = VPP
 endif
 
 export peigs_COMM

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.37 1997-12-10 01:00:56 d3e129 Exp $
+#$Id: GNUmakefile,v 1.38 1998-01-30 16:34:33 vg038 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -25,6 +25,14 @@ ifdef BASIS_LIBRARY_PATH
    LIB_DEFINES = -DBASIS_LIBRARY=$(BASIS_LIBRARY_PATH)
 else
    LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
+endif
+endif
+
+ifeq ($(TARGET),FUJITSU_VPP)
+ifdef BASIS_LIBRARY_PATH
+   LIB_DEFINES = -Wp,-DBASIS_LIBRARY=$(BASIS_LIBRARY_PATH)
+else
+   LIB_DEFINES = -Wp,-DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
 endif
 endif
 
