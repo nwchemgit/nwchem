@@ -1,11 +1,11 @@
       logical function pre_params(lfnpar,filpar,lfnout,
-     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
+     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,ignore,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.10 1999-05-10 22:38:05 d3j191 Exp $
+c $Id: pre_params.F,v 1.11 1999-07-12 20:23:54 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       logical pre_ffield,pre_parcnv,pre_check
       external pre_ffield,pre_parcnv,pre_check
 c
-      integer lfnpar,lfnout
+      integer lfnpar,lfnout,ignore
       character*255 filpar,dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       integer matm,natm
@@ -132,7 +132,7 @@ c
 c     check if all required parameters have been found
 c     ------------------------------------------------
 c
-      if(.not.pre_check(lfnout,ffield,
+      if(.not.pre_check(lfnout,ffield,ignore,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp))
      + call errquit('pre_check failed',9999)

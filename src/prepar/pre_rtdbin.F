@@ -1,9 +1,9 @@
       logical function pre_rtdbin(irtdb,ffield,
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
      + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale,
-     + altloc,chain,icyren,model,nxlnk,mdold)
+     + altloc,chain,icyren,model,nxlnk,mdold,ignore)
 c
-c $Id: pre_rtdbin.F,v 1.15 1999-03-15 21:25:31 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.16 1999-07-12 20:23:54 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -21,7 +21,7 @@ c
       character*80 ffield,sysnam,calc
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer newtop,newseq,newrst,icount,icyren
+      integer newtop,newseq,newrst,icount,icyren,ignore
       integer len,ndx,mgrid,mnoe,maxscf,model,nxlnk,mdold
       real*8 gdist,qscale
       character*1 altloc,chain
@@ -69,6 +69,8 @@ c
       if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0
 c
       if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,mnoe)) mnoe=1
+c
+      if(.not.rtdb_get(irtdb,'prep:ignore',mt_int,1,ignore)) ignore=0
 c
       if(.not.rtdb_get(irtdb,'prep:maxscf',mt_int,1,maxscf)) maxscf=20
       if(.not.rtdb_get(irtdb,'prep:qscale',mt_dbl,1,qscale))

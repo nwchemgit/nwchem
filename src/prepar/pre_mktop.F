@@ -1,8 +1,8 @@
       logical function pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
+     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.17 1999-05-10 22:57:35 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.18 1999-07-12 20:23:53 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -28,7 +28,7 @@ c
       logical pre_nonbon,pre_modify
       external pre_nonbon,pre_modify
 c
-      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod
+      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore
       character*80 ffield
       character*255 filseq,filtop,filpar,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -351,7 +351,7 @@ c     substitute force field parameters
 c     ---------------------------------
 c
       if(.not.pre_params(lfnpar,filpar,lfnout,
-     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
+     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,ignore,
      + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,

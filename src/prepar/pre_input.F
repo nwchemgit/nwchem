@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.26 1999-03-15 21:25:16 d3j191 Exp $
+c $Id: pre_input.F,v 1.27 1999-07-12 20:23:53 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain
-      integer ires,jres,i
+      integer ires,jres,i,ignore
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -67,6 +67,7 @@ c
       icyren=0
       model=0
       nxlnk=0
+      ignore=0
 c
       touch=0.25
       xpndw=0.20
@@ -181,6 +182,13 @@ c     ------
 c
       if(inp_compare(.false.,'source',item)) then
       if(.not.inp_a(source)) call errquit('pre_input: error source',0)
+      goto 2
+      endif
+c
+c     ignore not found bonded parameters for quantum atoms
+c
+      if(inp_compare(.false.,'ignore',item)) then
+      ignore=1
       goto 2
       endif
 c
@@ -868,6 +876,9 @@ c
       if(.not.rtdb_put(irtdb,'prep:rgrid',mt_dbl,1,rgrid))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
+c
+      if(.not.rtdb_put(irtdb,'prep:ignore',mt_int,1,ignore))
+     + call errquit('pre_input: rtdb_put failed',0)
 c
       if(maxscf.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:maxscf',mt_int,1,maxscf))

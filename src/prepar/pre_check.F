@@ -1,14 +1,14 @@
-      logical function pre_check(lfnout,ffield,
+      logical function pre_check(lfnout,ffield,ignore,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_check.F,v 1.10 1999-05-19 20:16:15 d3j191 Exp $
+c $Id: pre_check.F,v 1.11 1999-07-12 20:23:53 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,matm,natm
+      integer lfnout,matm,natm,ignore
       integer matt,natt,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
       integer latt(3,matt),lbnd(4,mbnd),lang(5,mang),ldih(9,mdih)
       integer limp(9,mimp)
@@ -43,6 +43,8 @@ c
       if(lbnd(3,i).le.0.and.lbnd(3,i).gt.-7) then
       k=-lbnd(3,i)
       do 3 j=1,3
+      if(catm(1+j,lbnd(1,i))(6:6).eq.'Q'.and.
+     + catm(1+j,lbnd(2,i))(6:6).eq.'Q'.and.ignore.ne.0) goto 3
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 3
       if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 3
       if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 3
@@ -78,6 +80,9 @@ c
       if(lang(4,i).le.0.and.lang(4,i).gt.-7) then
       k=-lang(4,i)
       do 5 j=1,3
+      if(catm(1+j,lang(1,i))(6:6).eq.'Q'.and.
+     + catm(1+j,lang(2,i))(6:6).eq.'Q'.and.
+     + catm(1+j,lang(3,i))(6:6).eq.'Q'.and.ignore.ne.0) goto 5
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 5
       if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 5
       if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 5
@@ -114,6 +119,10 @@ c
       if(ldih(5,i).le.0.and.ldih(5,i).gt.-7) then
       k=-ldih(5,i)
       do 7 j=1,3
+      if(catm(1+j,ldih(1,i))(6:6).eq.'Q'.and.
+     + catm(1+j,ldih(2,i))(6:6).eq.'Q'.and.
+     + catm(1+j,ldih(3,i))(6:6).eq.'Q'.and.
+     + catm(1+j,ldih(4,i))(6:6).eq.'Q'.and.ignore.ne.0) goto 7
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 7
       if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 7
       if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 7
@@ -153,6 +162,10 @@ c
       if(limp(5,i).le.0.and.limp(5,i).gt.-7) then
       k=-limp(5,i)
       do 9 j=1,3
+      if(catm(1+j,limp(1,i))(6:6).eq.'Q'.and.
+     + catm(1+j,limp(2,i))(6:6).eq.'Q'.and.
+     + catm(1+j,limp(3,i))(6:6).eq.'Q'.and.
+     + catm(1+j,limp(4,i))(6:6).eq.'Q'.and.ignore.ne.0) goto 9
       if(j.eq.1.and.(k.eq.1.or.k.eq.3.or.k.eq.5)) goto 9
       if(j.eq.2.and.(k.eq.2.or.k.eq.3.or.k.eq.6)) goto 9
       if(j.eq.3.and.(k.eq.4.or.k.eq.5.or.k.eq.6)) goto 9

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.26 1999-06-17 17:20:40 d3j191 Exp $
+c $Id: prepar.F,v 1.27 1999-07-12 20:23:54 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -50,6 +50,7 @@ c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
+      integer ignore
       real*8 gdist,qscale
       logical lstate
 c
@@ -104,7 +105,8 @@ c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold))
+     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold,
+     + ignore))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -226,7 +228,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t))
+     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
