@@ -40,8 +40,6 @@ c
       itask=1
       call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
       if(itask.eq.1) then
-      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
-     + call errquit('pre_charge: rtdb_cput failed',9999)
       if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
       if(.not.geom_create(igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_create failed',0)
