@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.62 2004-11-03 00:42:07 edo Exp $
+c     $Id: dft_main0d.F,v 1.63 2004-11-15 23:02:39 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -280,7 +280,11 @@ c
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_svecs)
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call ga_pdsyev(g_s, g_svecs, Dbl_MB(isvals))
+#else
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
+#endif
 #else 
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
 #endif

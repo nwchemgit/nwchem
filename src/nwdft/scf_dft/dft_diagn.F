@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.11 2004-10-30 00:55:12 edo Exp $
+c     $Id: dft_diagn.F,v 1.12 2004-11-15 23:02:39 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -96,8 +96,13 @@ c
 
       if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call ga_pdsyev(
+     .     g_fockt,  g_vecstt, evals)
+#else
       call ga_diag_std(
      .     g_fockt,  g_vecstt, evals)
+#endif
 #else 
       call ga_diag_std_seq(g_fockt, g_vecstt, evals)
 #endif
