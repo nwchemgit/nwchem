@@ -1,6 +1,6 @@
       subroutine ana_pltgrd
 c
-c $Id: ana_pltgrd.F,v 1.1 1999-01-29 18:10:40 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.2 1999-07-16 16:34:37 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
 c
 c     open the charge file
 c
-      write(*,'(2a)') 'filchg=',filchg(1:index(filchg,' ')-1)
+c      write(*,'(2a)') 'filchg=',filchg(1:index(filchg,' ')-1)
       open(unit=lfnchg,file=filchg(1:index(filchg,' ')-1),
      + form='formatted',status='old',err=9999)
 c
@@ -38,8 +38,9 @@ c
       ngz=ngrd(3)
       mgrd=ngx*ngy*ngz
 c
-      if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid))
-     + call errquit('Failed to allocate memory for grid',me)
+      if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid)) then
+      call errquit('Failed to allocate memory for grid',me)
+      endif
 c
 c     calculate the electrostatic potential on the grid
 c
@@ -190,12 +191,13 @@ c     write coordinates in xyz format
 c
       open(unit=lfnxyz,file=filxyz(1:index(filxyz,' ')-1),
      + form='formatted',status='unknown')
+      rewind(lfnxyz)
       write(lfnxyz,2000) nsa
  2000 format('* Coordinates in XYZ format',/,i5)
       do 8 i=1,nsa
-      write(lfnxyz,2001) t(i)(1:index(t(i),' ')-1),
+      write(lfnxyz,2001) t(i),
      + (10.0d0*x(i,j),j=1,3)
- 2001 format(a,1x,3f12.6)
+ 2001 format(a2,1x,3f12.6)
     8 continue
       close(lfnxyz)
       endif
