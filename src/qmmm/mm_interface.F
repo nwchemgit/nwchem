@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.29 2004-11-10 07:26:55 marat Exp $
+c $Id: mm_interface.F,v 1.30 2004-11-11 00:00:44 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -13,6 +13,26 @@ c
 c
 c     this call is very important
       call mm_task_sp()
+c
+      return
+      end
+
+      subroutine mm_write_restart()
+      implicit none
+c
+#include "util.fh"
+#include "inp.fh"
+c
+      character*255 rfile
+      integer lfnrst
+      integer nf
+c
+      rfile = " "
+      call util_file_name("rst", .false., .false., rfile)
+
+      lfnrst = 54
+      call md_wrtrst(lfnrst,rfile,.false.)
+      write(*,*) "writing restart file", rfile
 c
       return
       end

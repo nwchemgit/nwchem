@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.33 2004-10-22 19:02:19 marat Exp $
+c $Id: qmmm.F,v 1.34 2004-11-11 00:00:45 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -162,6 +162,7 @@ c     -------------------------
       qmmm_energy=status
 
       call util_print_pop()
+      call mm_write_restart()
 
       end
 
@@ -273,6 +274,7 @@ c
       call qmmm_geom_finish(rtdb)
 
       call util_print_pop()
+      call mm_write_restart()
 
       end
 

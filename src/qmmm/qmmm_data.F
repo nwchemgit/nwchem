@@ -21,6 +21,7 @@ c
       integer linkatm,bq_exclude
       character*30 operation
 
+
       pname = "qmmm_data_init: "
 
       call mm_get_tot_nqm(nqm)
