@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.49 2004-08-01 02:02:45 bylaska Exp $
+* $Id: cgsdv5.F,v 1.50 2004-09-06 16:18:31 bylaska Exp $
 *
 
 ***********************************************************************
@@ -548,38 +548,44 @@ c     end if
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(electron_count())
-         write(6,*)
-         write(6,*) '-----------------'
-         write(6,*) 'cputime in seconds'
-         write(6,*) 'prologue    : ',T1
-         write(6,*) 'main loop   : ',T2
-         write(6,*) 'epilogue    : ',T3
-         write(6,*) 'total       : ',T4
-         write(6,*) 'cputime/step: ',AV,
-     >              '   (',electron_count(),' evalulations, ', 
-     >                     linesearch_count(),' line searches)'
+         write(6,1801)
+         write(6,1802)
+         write(6,1803) T1
+         write(6,1804) T2
+         write(6,1805) T3
+         write(6,1806) T4
+         write(6,1807) AV,electron_count(),linesearch_count()
+
          if (oprint) then
-         write(6,*)
-         write(6,*) '-------------------------------'
-         write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', nwpw_timing(1),
-     >                          nwpw_timing(1)/dble(electron_count())           
-         write(6,*) '  dot products               : ', nwpw_timing(2),
-     >                          nwpw_timing(2)/dble(electron_count())           
-         write(6,*) '  geodesic                   : ', nwpw_timing(10),
-     >                          nwpw_timing(10)/dble(electron_count())           
-         write(6,*) '  exchange correlation       : ', nwpw_timing(4),
-     >                          nwpw_timing(4)/dble(electron_count())           
-         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
-     >                          nwpw_timing(5)/dble(electron_count())           
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
-     >                          nwpw_timing(6)/dble(electron_count())           
-         write(6,*) '  hartree potentials         : ', nwpw_timing(7),
-     >                          nwpw_timing(7)/dble(electron_count())           
-         write(6,*) '  structure factors          : ', nwpw_timing(8),
-     >                          nwpw_timing(8)/dble(electron_count())           
-         write(6,*) '  masking and packing        : ', nwpw_timing(9),
-     >                          nwpw_timing(9)/dble(electron_count())           
+         write(6,1809) 'Time spent doing               ',
+     >              'total','step'
+         write(6,1808) '  FFTs                       : ', 
+     >                 nwpw_timing(1),
+     >                 nwpw_timing(1)/dble(electron_count())           
+         write(6,1808) '  dot products               : ', 
+     >                 nwpw_timing(2),
+     >                 nwpw_timing(2)/dble(electron_count())           
+         write(6,1808) '  geodesic                   : ', 
+     >                 nwpw_timing(10),
+     >                 nwpw_timing(10)/dble(electron_count())           
+         write(6,1808) '  exchange correlation       : ', 
+     >                 nwpw_timing(4),
+     >                 nwpw_timing(4)/dble(electron_count())           
+         write(6,1808) '  local pseudopotentials     : ', 
+     >                 nwpw_timing(5),
+     >                 nwpw_timing(5)/dble(electron_count())           
+         write(6,1808) '  non-local pseudopotentials : ', 
+     >                 nwpw_timing(6),
+     >                 nwpw_timing(6)/dble(electron_count())           
+         write(6,1808) '  hartree potentials         : ', 
+     >                 nwpw_timing(7),
+     >                 nwpw_timing(7)/dble(electron_count())           
+         write(6,1808) '  structure factors          : ', 
+     >                 nwpw_timing(8),
+     >                 nwpw_timing(8)/dble(electron_count())           
+         write(6,1808) '  masking and packing        : ', 
+     >                 nwpw_timing(9),
+     >                 nwpw_timing(9)/dble(electron_count())           
          end if
          write(6,*)
          CALL nwpw_MESSAGE(4)
@@ -695,6 +701,18 @@ c     end if
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
+
+ 1801 FORMAT(//'== Timing ==')
+ 1802 FORMAT(/'cputime in seconds')
+ 1803 FORMAT( '  prologue    : ',E14.6)
+ 1804 FORMAT( '  main loop   : ',E14.6)
+ 1805 FORMAT( '  epilogue    : ',E14.6)
+ 1806 FORMAT( '  total       : ',E14.6)
+ 1807 FORMAT( '  cputime/step: ',E14.6,
+     >        '       (',I8,' evalulations,', I8,' linesearches)')
+ 1808 FORMAT(A,E14.6,E14.6)
+ 1809 FORMAT(//A,2A14)
+
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
  9000 if (taskid.eq.MASTER) write(6,9010) ierr
