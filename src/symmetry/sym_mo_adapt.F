@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.12 1996-11-05 06:04:14 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.13 1997-05-30 19:09:26 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -94,10 +94,12 @@ c     Allocate global and local memory
 c
       call ga_inquire(g_vecs, type, nbf, nvec)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,1,g_t))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_t',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc g_t',
+     $     nbf*nvec)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,1,g_q))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_q',0)
-
+     $     call errquit('sym_movecs_adapt: unable to alloc g_q',
+     $     nbf*nvec)
+c
       g_s = ga_create_atom_blocked(geom, basis,'sym: S')
 
 *      if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',1,1,g_s))
