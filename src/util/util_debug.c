@@ -74,6 +74,13 @@ void FATR util_debug_(Integer *rtdb)
   argv[9] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/X11R6/bin/xterm");
+#elif defined(HPUX)
+  argv[6] = "gdb";
+  argv[7] = path;
+  argv[8] = pid;
+  argv[9] = 0;
+  if (!xterm[0])
+    strcpy(xterm, "/usr/bin/X11/xterm");
 #elif defined(SGI_N32) || defined(SGI) || defined(SGIFP)
   argv[6] = "dbx";
   argv[7] = "-p";
