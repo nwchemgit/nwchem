@@ -11297,6 +11297,7 @@ c
 c
       integer          i_init,init,need 
       integer          num3
+      integer          i
 c*    integer          i,j,ij
       integer          i00,i10
 c
