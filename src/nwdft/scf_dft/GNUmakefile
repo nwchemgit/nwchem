@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1999-07-14 22:59:27 edo Exp $
+# $Id: GNUmakefile,v 1.41 1999-08-10 21:21:12 jolguin Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -28,6 +28,7 @@
 	dft_swapab.o \
 	dft_main0d.o \
 	dft_scf.o \
+        fukui.o
 
 
      LIBRARY = libnwdft.a
@@ -37,7 +38,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F
+   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F 
 
 include ../../config/makefile.h
 include ../../config/makelib.h

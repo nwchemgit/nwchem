@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.32 1999-07-14 00:29:04 d3e129 Exp $
+C$Id: cdft.fh,v 1.33 1999-08-10 21:21:03 jolguin Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -34,13 +34,14 @@ c
      &     nbf_cd, nbf_cd_mxprim, nbf_cd_mxang, nbf_cd_mxcont, 
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
-     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,numfunc,
+     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc, numfunc,
 c
 c     old common handles 
 c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
-     , g_cdinv, g_2ceri
+     ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
+     ,     g_sic_dens(2)
 c
       parameter(numfunc=16)
       character*255 movecs_in, movecs_out
@@ -78,7 +79,8 @@ c     old common handles
 c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
-     , g_cdinv, g_2ceri
+     ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
+     ,     g_sic_dens
 c
 c     Characters
 c

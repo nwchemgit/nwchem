@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.126 1999-07-22 22:34:20 edo Exp $
+c     $Id: dft_scf.F,v 1.127 1999-08-10 21:21:11 jolguin Exp $
 c     
       implicit none
 c
@@ -46,6 +46,10 @@ c
       external dft_n3cint
       double precision dft_n3cdbl
       external dft_n3cdbl
+cc    Jorge Garza/Begin
+      integer test_sic, condfukui
+      double precision totsic
+cc    Jorge Garza/End
       Integer l_eval
       integer k_eval(2)
       integer lmax              ! CMM
@@ -96,7 +100,7 @@ c
      &        oprint_info, oprint_tol, oprint_final_vecs, 
      &        oprint_energy_step, oprint_intermediate_fock,
      &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2,
-     &        oprint_conv_details
+     &        oprint_conv_details, oprint_sic
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
@@ -128,7 +132,6 @@ c !!! BGJ
 c !!! BGJ
 c
       call ecce_print_module_entry('dft')
-c
       dft_scf = .false.
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
@@ -151,8 +154,32 @@ c
       oprint_interm_overlap = util_print('intermediate overlap',
      &                                      print_high)
       oprint_final_vecs = util_print('final vectors', print_high)
+      oprint_sic = util_print('SIC information', print_high)
       me = ga_nodeid()
       nproc = ga_nnodes()
+c
+c    Jorge Garza/Begin
+c
+      if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
+     &   test_sic))test_sic = 0
+      if (.not. rtdb_get(rtdb, 'dft:condfukui', mt_int, 1,
+     &   condfukui)) condfukui = 0
+      if (me.eq.0.and.oprint_sic)then
+         if (test_sic.eq.1) then
+            write(LuOut,*) ' SIC perturbative approximation is used'
+         elseif (test_sic.eq.2) then
+            write(LuOut,*) ' SIC+OEP and NO localization'
+         elseif (test_sic.eq.3) then
+            write(LuOut,*) ' SIC+OEP and localization after SCF'
+         elseif (test_sic.eq.4) then
+            write(LuOut,*) ' SIC+OEP and localization in the SCF'
+         else
+            write(LuOut,*) ' unidentified SIC/OEP option '
+         end if
+      end if
+c
+c     Jorge Garza/End
+c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
@@ -165,7 +192,7 @@ c
       nstdis=1
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
-        if(me.eq.0) write(0,*) ' SMEAR = ',ssmear
+        if(me.eq.0) write(LuOut,*) ' SMEAR = ',ssmear
       endif
       if (.not.rtdb_get(rtdb, 'dft:check_deg', mt_log, 1,
      &   check_deg))check_deg=.false.
@@ -578,7 +605,7 @@ C     $     call errquit('dft_scf: VVV', 1)
 C	elseif(movecs_in.eq.'atomic') then
 C           if(ipol.eq.2) then
 C              ffac=noc(2)/dble(noc(1)+noc(2))
-C              if(me.eq.0) write(0,*) ' ffac ',ffac
+C              if(me.eq.0) write(LuOut,*) ' ffac ',ffac
 C            call ga_copy(g_dens(1),g_dens(2))
 C            call ga_dscal(g_dens(2),ffac)
 C              ffac=noc(1)/dble(noc(1)+noc(2))
@@ -592,7 +619,7 @@ c
 c
 c     set initial coulomb acc
 c
-c      write(6,*)' movecs_guess = ',movecs_guess
+c      write(LuOut,*)' movecs_guess = ',movecs_guess
       if (movecs_guess.eq.'restart')ltight=.true.
 c     
 c     May not want levelshifting initially until sure that the
@@ -686,6 +713,8 @@ c
      +     g_denso(2) = 
      =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
  1000 continue
+
+c
       if (me.eq.0 .and. oprint_conv_details)
      &   write(LuOut,124)damping, levelshifting, diising
  124  format(10x,' DAMPING=',l1,' LEVELSHIFTING=',l1,
@@ -817,6 +846,24 @@ c
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             dbl_mb(irdens_atom), int_mb(icntoce), 
      &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+c
+c  Jorge Garza/Begin
+c       
+      totsic=0.0d00
+      if (test_sic.eq.2.or.test_sic.eq.4.or.test_sic.eq.3) then
+         if (test_sic.eq.4) then
+            call localize_sic(g_movecs, noc)
+         end if
+         call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
+     &               g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA, rho_n,
+     &               dbl_mb(irdens_atom), int_mb(icntoce), 
+     &               int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &               g_movecs, noc, k_eval, totsic)
+         Exc(1) = Exc(1) + totsic
+      end if
+c
+c  Jorge Garza/End
+c
       call ga_sync
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
       if (ipol.gt.1)then
@@ -842,8 +889,8 @@ c
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
-c      write(6,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2): ',
-c     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2)
+      write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
+     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2), totsic
 c     
       if (last_time_energy)then
          etnew=etnew+tdots
@@ -1416,6 +1463,26 @@ c
       endif
 c     
  2000 continue
+      Etnew = Ecore + Ecoul + Exc(1)
+c
+c     Jorge Garza / Begin
+c
+      if (test_sic.eq.1.or.test_sic.eq.3) then
+         call localize_sic(g_movecs, noc)
+         call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
+     &                    g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq,
+     &                    wght_GA, rho_n,
+     &                    dbl_mb(irdens_atom), int_mb(icntoce),
+     &                    int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &                    g_movecs, noc, k_eval, totsic)
+         if (me.eq.0.and.oprint_sic)then
+            write(LuOut,*) ' SIC after localization',totsic
+         endif
+         Etnew = Etnew + totsic
+         Exc(1) = Exc(1) + totsic
+      end if
+c
+c     Jorge Garza / End
 c     
       if (me.eq.0.and.oprint)then
          if (.not.converged)then
@@ -1509,6 +1576,16 @@ c
             endif
          endif
       enddo
+c
+c Jorge Garza/Begin
+c
+      if (condfukui.eq.1) then
+         call fukui(geom, nbf_ao, AO_bas_han, g_movecs,
+     &              noc, k_eval, ipol)
+      endif
+c
+c Jorge Garza/End
+c
 c     
 c     call to Mulliken Pop Ananlysis
 c     
@@ -1716,7 +1793,7 @@ c !!! BGJ
          do_poliz = .false.
       endif
       if (do_poliz) then
-         write(*,*)'*** dft_scf: calling cphf_poliz'
+         write(LuOut,*)'*** dft_scf: calling cphf_poliz'
          if (.not. cphf_poliz(rtdb)) ! Never executed.
      $        call errquit(' cphf_poliz: failed from dft_scf !',0)
       endif
