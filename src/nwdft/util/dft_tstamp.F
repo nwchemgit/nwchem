@@ -1,16 +1,11 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.1 1995-04-27 03:16:44 og845 Exp $
+C$Id: dft_tstamp.F,v 1.2 1995-06-20 17:46:45 og845 Exp $
       implicit real*8 (a-h,o-z)
 #include "global.fh"
 #include "tcgmsg.fh"
       character*8 istime,isdate
       character*(*) name
-#if defined(VAX)
-      character*23 datime
-      call lib$date_time (datime)
-      isdate=datime(1:6)
-      istime=datime(13:20)
-#elif defined(CRAY)
+#if defined(CRAY)
       character*24 datime
       call date(datime)
       isdate=datime(1:9)
