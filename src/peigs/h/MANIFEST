@@ -1,0 +1,8 @@
+File		comment
+------------------------------------------
+
+clustr_inv.h	some constants for the peigs/src/c/clustrxx.c
+
+cmbbfr.h	common block for the communication buffer
+
+mxsubs.h	communication definitions for the mxsubs.cpp routines
