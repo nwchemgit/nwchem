@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.11 1998-06-08 23:29:32 d3j191 Exp $
+c $Id: pre_input.F,v 1.12 1998-06-11 18:51:52 d3j191 Exp $
 c
       implicit none
 c
@@ -10,18 +10,22 @@ c
 #include "mafdecls.fh"
 c
       integer irtdb
-      character*255 item
+      character*255 item,atom,type
 c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
       character*80 ffield,sysnam
-      character*255 dir_s,dir_x,dir_u,dir_t,commnd
+      character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
       integer newtop,newseq,newrst
 c
-      integer len,number,mgrid,mnoe,inoe(2),maxscf,num
-      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale
+      integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
+      integer isgm
+      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
+      real*8 polar
       character*4  cnoe(2)
+c
+      logical ltouch,lrdcoo,lslvnt
 c
 c      if(ga_nodeid().eq.0) then
 c      if(util_print('prepare',print_medium)) then
@@ -57,13 +61,22 @@ c
       touch=0.25
       xpndw=0.10
 c
+      ltouch=.false.
+      lrdcoo=.false.
+      lslvnt=.false.
+c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,commnd))
      + call errquit('rtdb_cget failed on file_prefix',9999)
+      modify=commnd(1:index(commnd,' ')-1)//'.mod '
+      open(unit=67,file=modify(1:index(modify,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      rewind(unit=67)
+      nummod=0
       commnd=commnd(1:index(commnd,' ')-1)//'.cmd '
       open(unit=68,file=commnd(1:index(commnd,' ')-1),
      + form='formatted',status='unknown',err=9999)
       rewind(unit=68)
-      number=0
+      numcmd=0
 c
 c     read the prepare input block
 c     ----------------------------
@@ -214,6 +227,93 @@ c
       goto 2
       endif
 c
+c     topology modification commands
+c     ------------------------------
+c
+      if(inp_compare(.false.,'modify',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: modify',9999)
+      if(inp_compare(.false.,'atom',item)) then
+      if(.not.inp_a(atom)) call errquit('pre_input: modify',9999)
+      mset=0
+ 3312 continue
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      goto 3312
+      endif
+      if(inp_compare(.false.,'charge',item)) then
+      if(.not.inp_f(charge)) call errquit('pre_input: charge',9999)
+      write(67,6701) atom(1:index(atom,' ')-1),mset,charge
+ 6701 format('atom ',a,t19,i1,' chg ',f12.6)
+      nummod=nummod+1
+      goto 3312
+      endif
+      if(inp_compare(.false.,'polar',item)) then
+      if(.not.inp_f(polar)) call errquit('pre_input: polar',9999)
+      write(67,6702) atom(1:index(atom,' ')-1),mset,polar
+ 6702 format('atom ',a,t19,i1,' pol ',f12.9)
+      nummod=nummod+1
+      goto 3312
+      endif
+      if(inp_compare(.false.,'type',item)) then
+      if(.not.inp_a(type)) call errquit('pre_input: type',9999)
+      write(67,6703) atom(1:index(atom,' ')-1),mset,
+     + type(1:index(type,' ')-1)
+ 6703 format('atom ',a,t19,i1,' typ ',a)
+      nummod=nummod+1
+      goto 3312
+      endif
+      if(inp_compare(.false.,'dummy',item)) then
+      write(67,6704) atom(1:index(atom,' ')-1),mset
+ 6704 format('atom ',a,t19,i1,' dum ')
+      nummod=nummod+1
+      goto 3312
+      endif
+      if(inp_compare(.false.,'self',item)) then
+      write(67,6705) atom(1:index(atom,' ')-1),mset
+ 6705 format('atom ',a,t19,i1,' ego ')
+      nummod=nummod+1
+      goto 3312
+      endif
+      if(inp_compare(.false.,'quantum',item)) then
+      write(67,6706) atom(1:index(atom,' ')-1),mset
+ 6706 format('atom ',a,t19,i1,' qtm ')
+      nummod=nummod+1
+      goto 3312
+      endif
+      else if(inp_compare(.false.,'segment',item)) then
+      if(.not.inp_i(isgm)) call errquit('pre_input: modify',9999)
+      mset=0
+ 3313 continue
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      goto 3313
+      endif
+      if(inp_compare(.false.,'dummy',item)) then
+      write(67,6707) isgm,mset
+ 6707 format('segment ',i5,t19,i1,' dum ')
+      nummod=nummod+1
+      goto 3313
+      endif
+      if(inp_compare(.false.,'self',item)) then
+      write(67,6708) isgm,mset
+ 6708 format('segment ',i5,t19,i1,' ego ')
+      nummod=nummod+1
+      goto 3313
+      endif
+      if(inp_compare(.false.,'quantum',item)) then
+      write(67,6709) isgm,mset
+ 6709 format('segment ',i5,t19,i1,' qtm ')
+      nummod=nummod+1
+      goto 3313
+      endif
+      else
+      call errquit('pre_input: modify',9999)
+      endif
+      goto 2
+      endif
+c
 c     noe's
 c     -----
 c
@@ -230,7 +330,7 @@ c
       mnoe=mnoe+1
       write(68,6820) inoe,cnoe,dnoe
  6820 format('disres',2i5,2a4,3f12.6,2e12.5)
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -241,7 +341,8 @@ c
       if(.not.inp_f(touch)) call errquit('pre_input: touch',9999)
       write(68,6801) touch
  6801 format('touch ',f12.6)
-      number=number+1
+      ltouch=.true.
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -251,7 +352,7 @@ c
       if(inp_compare(.false.,'periodic',item)) then
       write(68,6802)
  6802 format('period ')
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -261,7 +362,7 @@ c
       if(inp_compare(.false.,'vacuo',item)) then
       write(68,6803)
  6803 format('vacuum ')
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -271,7 +372,7 @@ c
       if(inp_compare(.false.,'center',item)) then
       write(68,6818)
  6818 format('center ')
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -281,7 +382,15 @@ c
       if(inp_compare(.false.,'orient',item)) then
       write(68,6819)
  6819 format('orient ')
-      number=number+1
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     expand with
+c     -----------
+c
+      if(inp_compare(.false.,'expand',item)) then
+      if(.not.inp_f(xpndw)) call errquit('pre_input: xpndw',9999)
       goto 2
       endif
 c
@@ -289,32 +398,44 @@ c     solvate
 c     ------
 c
       if(inp_compare(.false.,'solvate',item)) then
-      write(68,6804) touch
+      if(.not.ltouch) write(68,6804) touch
  6804 format('touch ',f12.6)
+      ltouch=.true.
+      if(.not.lrdcoo) write(68,7804)
+ 7804 format('rdcoor ')
+      lrdcoo=.true.
+      if(.not.lslvnt) write(68,7805)
+ 7805 format('solvnt ')
+      lrdcoo=.true.
       if(.not.inp_a(item)) then
       write(68,6805) xpndw
- 6805 format('rdcoor',/,'period ',/,'solvnt',/,'solvat cube ',/,
+ 6805 format('period ',/,'solvat cube ',/,
      + 'expand with ',f12.6,/,'wr_rst')
-      number=number+1
+      numcmd=numcmd+1
       goto 1
       else
       if(inp_compare(.false.,'cube',item)) then
       if(.not.inp_f(edge)) then
       write(68,6811)
  6811 format('period',/,'solvat cube')
+      write(68,7807) xpndw
+ 7807 format('expand with ',f12.6)
       else
       write(68,6812) edge
  6812 format('period',/,'solvat cube',f12.6)
+      write(68,7807) xpndw
       endif
       elseif(inp_compare(.false.,'box',item)) then
       if(.not.inp_f(edges(1))) then
       write(68,6813)
  6813 format('period',/,'solvat box')
+      write(68,7807) xpndw
       else
       if(.not.inp_f(edges(2))) edges(2)=edges(1)
       if(.not.inp_f(edges(2))) edges(3)=edges(2)
       write(68,6814) edges
  6814 format('period',/,'solvat box',3f12.6)
+      write(68,7807) xpndw
       endif
       elseif(inp_compare(.false.,'sphere',item)) then
       if(.not.inp_f(edge)) then
@@ -326,7 +447,9 @@ c
       endif
       endif
       endif
-      number=number+1
+      write(68,7808)
+ 7808 format('wr_rst')
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -360,7 +483,7 @@ c
  6808 format('wr_rst ',a)
       endif
       endif
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -382,7 +505,7 @@ c
  6810 format('rd_rst ',a)
       endif
       endif
-      number=number+1
+      numcmd=numcmd+1
       goto 2
       endif
 c
@@ -477,7 +600,13 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c
-      if(number.gt.0) then
+      if(nummod.gt.0) then
+      close(unit=67)
+      else
+      close(unit=67,status='delete')
+      endif
+c
+      if(numcmd.gt.0) then
       close(unit=68)
       else
       close(unit=68,status='delete')

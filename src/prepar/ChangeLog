@@ -45,3 +45,6 @@ Jun 04 1998      Bug fix in atom typing (pre_atype)
 Jun 05 1998	 Bug fix in residue renaming (pre_rename)
 Jun 08 1998	 Compliance with util_print
 Jun 09 1998	 Avoid geom_rtdb_load error message
+Jun 11 1998	 Add topology modification commands
+		 Fix bugs in reading solvent from pdb file
+		 Keep name file

@@ -5,7 +5,7 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.8 1998-06-08 23:29:35 d3j191 Exp $
+c $Id: pre_params.F,v 1.9 1998-06-11 18:51:53 d3j191 Exp $
 c
       implicit none
 c
@@ -126,7 +126,7 @@ c
 c     convert non-bonded parameters to C6 and C12
 c     -------------------------------------------
 c
-      if(.not.pre_parcnv(icomb,latt,patt,matt,natt))
+      if(.not.pre_parcnv(icomb,latt,patt,catt,matt,natt))
      + call errquit('pre_parcnv failed',9999)
 c
 c     check if all required parameters have been found

@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.9 1998-06-08 23:29:33 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.10 1998-06-11 18:51:52 d3j191 Exp $
 c
       implicit none
 c
@@ -234,11 +234,11 @@ c
 c     read the pdb file
 c     -----------------
 c
-      if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
+      if(.not.pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,.true.,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
@@ -366,7 +366,7 @@ c
       lslvnt=.true.
       if(util_print('where',print_debug)) then
       write(lfnout,1009) filslv(1:index(filslv,' ')-1),nwms,boxs
- 1009 format(' Solvent',t40,//,
+ 1009 format(' Solvent',t40,a,//,
      + ' Number of solvent molecules',t40,i8,/,
      + ' Solvent box size',t40,3f12.6)
       endif
@@ -385,11 +385,11 @@ c
 c     read the pdb file
 c     -----------------
 c
-      if(.not.pre_rdpdb(filnam,lfnpdb,filtmp,lfntmp,lnames,
+      if(.not.pre_rdpdb(lfnout,filnam,lfnpdb,filtmp,lfntmp,lnames,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
@@ -506,11 +506,11 @@ c
 c     read the pdb file
 c     -----------------
 c
-      if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
+      if(.not.pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,.true.,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1011) filnam(1:index(filnam,' ')-1),nmis,nsa

@@ -1,12 +1,13 @@
-      logical function pre_parcnv(icomb,latt,patt,matt,natt)
+      logical function pre_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: pre_parcnv.F,v 1.2 1998-04-29 18:35:20 d3j191 Exp $
+c $Id: pre_parcnv.F,v 1.3 1998-06-11 18:51:54 d3j191 Exp $
 c
       implicit none
 c
       integer icomb,matt,natt
       integer latt(2,matt)
       real*8 patt(4,2,matt,matt)
+      character*6 catt(2,matt)
 c
       integer i,j,k
       real*8 epsil,rstar
@@ -45,6 +46,31 @@ c
     3 continue
     1 continue
       endif
+c
+c     modify parameters for self and dummy
+c     ------------------------------------
+c
+      do 5 i=1,natt
+      do 6 j=i,natt
+      if((catt(1,i)(6:6).eq.'S'.and.catt(1,j)(6:6).ne.'S').or.
+     + (catt(1,i)(6:6).ne.'S'.and.catt(1,j)(6:6).eq.'S')) then
+      patt(1,1,i,j)=0.0d0
+      patt(1,2,i,j)=0.0d0
+      patt(2,1,i,j)=0.0d0
+      patt(2,2,i,j)=0.0d0
+      patt(1,1,j,i)=0.0d0
+      patt(1,2,j,i)=0.0d0
+      patt(2,1,j,i)=0.0d0
+      patt(2,2,j,i)=0.0d0
+      endif
+    6 continue
+      if(catt(1,i)(6:6).eq.'D'.or.catt(1,i)(6:6).eq.'Q') then
+      patt(1,1,i,i)=0.0d0
+      patt(1,2,i,i)=0.0d0
+      patt(2,1,i,i)=0.0d0
+      patt(2,2,i,i)=0.0d0
+      endif
+    5 continue
 c
       pre_parcnv=.true.
       return

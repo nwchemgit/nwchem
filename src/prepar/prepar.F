@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.18 1998-06-08 23:29:41 d3j191 Exp $
+c $Id: prepar.F,v 1.19 1998-06-11 18:51:55 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -39,6 +39,7 @@ c
       integer irtdb0,irtdb,itask
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
+      character*255 filmod,prefix
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 sysnam,calc,ffield
       character*10 slvmdl
@@ -46,7 +47,7 @@ c
       character*80 source
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer len,lenc,lend,lfntmp,lfncmd,lfnslv
+      integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf
       real*8 gdist,qscale
       logical lstate
@@ -72,6 +73,7 @@ c
       lfntmp=19
       lfncmd=20
       lfnslv=21
+      lfnmod=22
 c
 c     node 0 only please
 c     ------------------
@@ -134,11 +136,12 @@ c
       filtop=sysnam(1:len)//'.top '
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
-      filtmp=sysnam(1:len)//'_tmp_pdb.nam '
+      filtmp=sysnam(1:len)//'.nam '
 c
-      if(.not.rtdb_cget(irtdb,'file_prefix',1,filcmd))
+      if(.not.rtdb_cget(irtdb,'file_prefix',1,prefix))
      + call errquit('rtdb_cget failed on file_prefix',9999)
-      filcmd=filcmd(1:index(filcmd,' ')-1)//'.cmd '
+      filcmd=prefix(1:index(prefix,' ')-1)//'.cmd '
+      filmod=prefix(1:index(prefix,' ')-1)//'.mod '
 c
 c     check if the source file exists
 c     -------------------------------
@@ -222,7 +225,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t))
+     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
@@ -273,17 +276,21 @@ c
 c
     6 continue
 c
-c     remove temporary file if they exist
-c     -----------------------------------
+c     remove temporary files if they exist
+c     ------------------------------------
 c
-      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+      open(unit=lfnmod,file=filmod(1:index(filmod,' ')-1),
      + form='formatted',status='old',err=11)
-      close(unit=lfncmd,status='delete')
+      close(unit=lfnmod,status='delete')
    11 continue
-      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old',err=12)
-      close(unit=lfntmp,status='delete')
+      close(unit=lfncmd,status='delete')
    12 continue
+c      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
+c     + form='formatted',status='old',err=13)
+c      close(unit=lfntmp,status='delete')
+c   13 continue
 c
 c     reset print
 c     -----------

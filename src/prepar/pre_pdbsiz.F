@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
-c $Id: pre_pdbsiz.F,v 1.6 1998-06-08 23:29:36 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.7 1998-06-11 18:51:54 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -190,11 +190,12 @@ c
       endif
 c
       if(util_print('where',print_high)) then
-      write(lfnout,2002) filnam(1:length),natm,nseq,nssb
+      write(lfnout,2002) filnam(1:length),natm,nseq,nssb,numslv
  2002 format(' PDB file',t40,a,/,
      + ' Number of atoms',t40,i10,/,
      + ' Number of segments',t40,i10,/,
-     + ' Number of SS-bonds',t40,i10,/)
+     + ' Number of SS-bonds',t40,i10,/,
+     + ' Number of solvent molecules',t40,i10,/)
       endif
 c
       pre_pdbsiz=.true.

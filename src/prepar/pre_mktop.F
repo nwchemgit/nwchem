@@ -1,8 +1,8 @@
       logical function pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t)
+     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.8 1998-06-08 23:29:34 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.9 1998-06-11 18:51:53 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -25,12 +25,12 @@ c
       external pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
       logical pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
       external pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
-      logical pre_nonbon
-      external pre_nonbon
+      logical pre_nonbon,pre_modify
+      external pre_nonbon,pre_modify
 c
-      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar
+      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod
       character*80 ffield
-      character*255 filseq,filtop,filpar
+      character*255 filseq,filtop,filpar,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
 c
       integer mseq,nseq
@@ -312,6 +312,13 @@ c     ---------------------------------
 c
       if(.not.ma_pop_stack(l_lmat))
      + call errquit('Memory deallocation failed for lmat',9999)
+c
+c     apply topology modifications
+c     ----------------------------
+c
+      if(.not.pre_modify(lfnout,lfnmod,filmod,int_mb(i_latm),
+     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm))
+     + call errquit('pre_modify failed',9999)
 c
 c     get number of atom types
 c     ------------------------

@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.10 1998-06-08 23:29:41 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.11 1998-06-11 18:51:55 d3j191 Exp $
 c
       implicit none
 c
@@ -45,8 +45,9 @@ c
       integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
       real*8 wcorr(3)
 c
-      integer i,j,k,l,length,nd,ifrac,imol
+      integer i,j,k,l,length,nd,ifrac,imol,iq
       character*10 topdat,toptim
+      real*8 qq(3,6)
 c
       length=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:length),form='formatted',
@@ -92,7 +93,7 @@ c
       do 4 i=natm+1,natmt
       write(lfntop,1007) latm(3,i),0,0,0,0,cseq(nseq+1),catm(1,i)(1:5),
      + i-natm
- 1007 format(5i7,a10,a5,i10)
+ 1007 format(5i7,a10,a5,1x,i7)
       write(lfntop,1217) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
  1217 format(6f12.6)
     4 continue
@@ -167,11 +168,37 @@ c
       imol=-imol
       ifrac=ifrac+1
       endif
+      iq=0
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=3
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=3
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=3
       write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
-     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,0,ifrac
+     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,iq,ifrac
  1010 format(5i7,a10,a5,1x,i7,2i5)
+      if(iq.eq.0) then
       write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
  1011 format(6f12.6)
+      else
+      do 101 j=1,3
+      qq(1,j)=qatm(2*j-1,i)
+      qq(1,3+j)=qatm(2*j,i)
+  101 continue
+      do 102 j=1,6
+      qq(2,j)=qq(1,j)
+      qq(3,j)=qq(1,j)
+  102 continue
+      do 103 j=1,3
+      if(catt(1,lats(j,latm(3,i)))(6:6).eq.'S') then
+      qq(1,j)=0.0d0
+      qq(1,j+3)=0.0d0
+      qq(2,j)=0.0d0
+      qq(2,j+3)=0.0d0
+      endif
+  103 continue
+      write(lfntop,1011) (qq(1,j),j=1,6)
+      write(lfntop,1011) (qq(2,j),j=1,6)
+      write(lfntop,1011) (qq(3,j),j=1,6)
+      endif
    10 continue
 c
       do 11 i=1,nbnd

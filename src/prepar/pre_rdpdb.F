@@ -1,15 +1,18 @@
-      logical function pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,lnams,
-     + csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,mwm,mwa,nwm,nwa)
+      logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
+     + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
+     + xw,vw,cwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_rdpdb.F,v 1.5 1998-04-29 18:35:22 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.6 1998-06-11 18:51:54 d3j191 Exp $
 c
       implicit none
 c
+#include "util.fh"
+c
+      integer lfnout
       integer lfnpdb,lfntmp,msa,nsa,nmis,msm,nsm,mwm,mwa,nwm,nwa
       logical lnams,lnames
       character*255 filpdb,filtmp
-      character*16 csa(msa)
+      character*16 cwa(mwa),csa(msa)
       integer isar(msa),isgm(msa),iwmr(mwm),isfnd(msa),iwfnd(mwm)
       real*8 xs(3,msa),vs(3,msa)
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
@@ -24,7 +27,7 @@ c
       logical lsolut
 c
       lnames=lnams
-      iw=1
+      iw=0
 c
 c     open pdb file
 c     -------------
@@ -61,6 +64,7 @@ c
       if(isgm(i).gt.last) last=isgm(i)
     1 continue
       nsa=0
+      nwm=0
       lsolut=.true.
 c
   100 continue
@@ -103,8 +107,20 @@ c
       endif
     3 continue
       else
-      iwfnd(iw)=iwfnd(iw+1)
-      iwmr(iw)=0
+      if(iw.ne.num) then
+      nwm=nwm+1
+      iw=num
+      iwfnd(nwm)=0
+      endif
+      iwfnd(nwm)=iwfnd(nwm)+1
+      iwmr(nwm)=0
+      do 5 i=1,nwa
+      if(cwa(i)(11:14).eq.nama) then
+      xw(1,i,nwm)=1.0d-01*x
+      xw(2,i,nwm)=1.0d-01*y
+      xw(3,i,nwm)=1.0d-01*z
+      endif
+    5 continue
       endif
 c
       goto 100

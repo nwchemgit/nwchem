@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 1998-06-03 14:36:36 d3j191 Exp $
+# $Id: GNUmakefile,v 1.12 1998-06-11 18:51:51 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -38,6 +38,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_mkseq.o\
              pre_mksgm.o\
              pre_mktop.o\
+             pre_modify.o\
              pre_namiup.o\
              pre_natyps.o\
              pre_nonbon.o\

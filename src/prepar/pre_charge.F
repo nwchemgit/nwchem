@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.14 1998-06-09 16:49:18 d3j191 Exp $
+c $Id: pre_charge.F,v 1.15 1998-06-11 18:51:52 d3j191 Exp $
 c
       implicit none
 c
@@ -9,6 +9,7 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "util.fh"
 c
       logical pre_task
       external pre_task
@@ -89,12 +90,16 @@ c
 c
       if(source(1:8).eq.'geometry') then
       nout=natm
+      if(util_print('sequence',print_default)) write(lfnout,1000) charge
+ 1000 format(' Fragment charge',t40,f12.6,/)
+      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
+     + call errquit('pre_charge: rtdb_put nconst failed',0)
       goto 100
       endif
 c
       if(ihi-ilo+1.gt.maxscf) goto 200
 c
-      write(*,'(a,f12.6)') ' Fragment charge is ',charge
+      if(util_print('sequence',print_default)) write(lfnout,1000) charge
       if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
      + call errquit('pre_charge: rtdb_put nconst failed',0)
       if(.not.geom_create(igeom2,'geometry'))
