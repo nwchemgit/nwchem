@@ -815,12 +815,18 @@ The input for this type of grid takes the form,
   GRID lebedev <integer radpts default 50> <integer iangquad default 4> 
 \end{verbatim}
 In this context the variable iangquad specifies a certain number of
-angular points as indicated by the table below.
+angular points as indicated by the table below.\footnote{The first 10
+quadratures up to order 59 are from
+B. Delley, Journal of Computational Chemistry {\bf 17}, 1152 (1996);
+the last quadrature, of oder 131, is from
+V.I. Lebedev and D.N. Laikov, Doklady Mathematics {\bf 366}, 741 (1999)
+}
 
 \begin{center}
-\begin{tabular}[right]{|l|r r r r r r r r r r |} \hline
-$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\ \hline
-$N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 & 1202\\ \hline
+\begin{tabular}[right]{|l|r r r r r r r r r r r|} \hline
+$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 &11\\ \hline
+$N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 &
+1202& 5810\\ \hline
 \end{tabular}
 \end{center}
 
