@@ -3,7 +3,7 @@
      &    lscr, scr, lmpint, MP, num_mpint,
      &    idatom)
 *
-* $Id: intd_mpolel.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
+* $Id: intd_mpolel.F,v 1.6 2004-12-03 22:34:31 bert Exp $
 *
 c
 c routine to compute multipole integral derivatives at a given lvalue 
@@ -208,7 +208,7 @@ c
         call errquit('intd_mpolel: lmpint too small ',911, INT_ERR)
       endif
       if ((lval.eq.0).and.(i_cent.eq.j_cent)) then
-        call dfill(num_intd,0.0d00,MP,1)
+        call dcopy(num_intd,0.0d00,0,MP,1)
         call ifill(3,0,idatom,1)
         return
       endif

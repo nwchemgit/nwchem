@@ -1,6 +1,6 @@
       subroutine intdd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e2c.F,v 1.3 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intdd_2e2c.F,v 1.4 2004-12-03 22:34:32 bert Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -147,7 +147,7 @@ c
       idatom(4)=0
 c
       if (iatom.eq.jatom) then
-        call dfill((nint*78),0.0d00,eri,1)
+        call dcopy((nint*78),0.0d00,0,eri,1)
         call ifill(4,-1,idatom,1)
         return
       endif
@@ -158,7 +158,7 @@ c
      &    cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
 c
       if (status_txs) then
-        call dfill(3,0.0d00,roff,1)
+        call dcopy(3,0.0d00,0,roff,1)
         q4 = 1.0d00
         txs_i = ish
         txs_j = 0
@@ -180,7 +180,7 @@ c...............gen labs .. more_integrals
         if (nint .eq. 0) then
           nintzero = int_nint(brain,ish,0,0,ketin,jsh, 0,0)
           nintzero = nintzero*78
-          call dfill(nintzero, 0.0d0, eri, 1)
+          call dcopy(nintzero, 0.0d0, 0, eri, 1)
           call ifill(4,-9,idatom,1)
         endif
 c

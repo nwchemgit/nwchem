@@ -1,15 +1,12 @@
-c $Id: int_1eelec.F,v 1.3 2004-12-03 22:34:31 bert Exp $
+c $Id: int_pso.F,v 1.1 2004-12-03 22:34:31 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsection{int\_1eelec}
-c:tex-This routine computes the 1 electron electronic wave function (nder=-2) for shell ish, 
-c:tex-electronic density (nder=-1), electrostatic potential (nder=0), 
-c:tex-electric field (nder=1), and electric field gradient (nder=2).
-c:tex-
+c:tex-\subsection{int\_pso}
+c:tex-This routine computes the 1-elec Paramagnetic Spin-Orbit integrals
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
-      subroutine int_1eelec(i_basis,ish,j_basis,jsh,lscr,scr,lelec,elec,
-     &                      nder,xyzpt,npts)
+      subroutine int_pso(i_basis,ish,j_basis,jsh,lscr,scr,lh11,h11,
+     &                       xyzpt,nat)
 c:tex-\end{verbatim}
       implicit none
 #include "nwc_const.fh"
@@ -41,12 +38,13 @@ c:tex-\begin{verbatim}
       integer j_basis ! [input] basis set handle for jsh
       integer jsh     ! [input] j shell/contraction
       integer lscr    ! [input] length of scratch array
-      double precision scr(lscr)   ! [scratch] scratch array
-      integer lelec                ! [input] length of elec buffer
-      double precision elec(lelec) ! [output] elec integrals
-      integer nder    ! [input] nder of integral
-      double precision xyzpt(3,*) ! [input] points where integral is calculated
-      integer npts    ! [input] number of points where integral is calculated
+      double precision scr(lscr) ! [scratch] scratch array
+      integer lh11               ! [input] length of h11 buffer
+      double precision h11(lh11) ! [output] h11 integrals
+      integer nat    ! [input] number of atoms under consideration
+      double precision xyzpt(3,nat) ! [input] coords of atoms under consideration
+      logical para   ! [input] flag for calculating paramagnetic integrals
+      logical dia    ! [input] flag for calculating diamagnetic integrals
 c:tex-\end{verbatim}
 c::local
       integer igeom, jgeom, ibas, jbas, ucont
@@ -63,20 +61,20 @@ c
 c
 c check initialization and shells
 c
-      if (.not.int_chk_init('int_1eelec'))
-     &       call errquit('int_1eelec: int_init was not called' ,0,
+      if (.not.int_chk_init('int_pso'))
+     &       call errquit('int_pso: int_init was not called' ,0,
      &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eelec: invalid contraction/shell',0,
+     &       call errquit('int_pso: invalid contraction/shell',0,
      &       INT_ERR)
 c
 c  check if gencont
 c
-      call int_nogencont_check(i_basis,'int_1eelec:i_basis')
-      call int_nogencont_check(j_basis,'int_1eelec:j_basis')
+      call int_nogencont_check(i_basis,'int_pso:i_basis')
+      call int_nogencont_check(j_basis,'int_pso:j_basis')
 c
       ibas = i_basis + basis_handle_offset
       jbas = j_basis + basis_handle_offset
@@ -100,16 +98,16 @@ c
       jgeom = ibs_geom(jbas)
 c
       if (igeom.ne.jgeom) then
-        write(luout,*)'int_1eelec: two different geometries for',
+        write(luout,*)'int_pso: two different geometries for',
      &         ' properties?'
-        call errquit('int_1eelec: geom error ',911, GEOM_ERR)
+        call errquit('int_pso: geom error ',911, GEOM_ERR)
       endif
 c
 c     Determine # of cartesian integrals in block
 c
       ncartint = int_nbf_x(itype)*int_nbf_x(jtype)
 c
-      call hnd_elfder(
+      call hnd_pso(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
      &       dbl_mb(mb_exndcf(icf,ibas)),
@@ -120,27 +118,18 @@ c
      &       dbl_mb(mb_exndcf(jcf,jbas)),
      &       jnp,jgen,jtype,
 c
-     &       nder,ncartint,elec,scr,lscr,xyzpt,npts)
+     &       ncartint,h11,scr,lscr,
 c
-c     elec now has the cartesian integral block  
-c     nder=-2 : (iblock,npts)
-c     nder=-1 : (jblock,iblock,npts)
-c     nder= 0 : (jblock,iblock,npts)
-c     nder= 1 : (jblock,iblock,npts,3)
-c     nder= 2 : (jblock,iblock,npts,6)
+     &       xyzpt,nat)        
+c
+c
+c     h11 now has three blocks, for each point/atom
 c      
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
       if (.not.any_spherical) return
 c
       i_nbf_x = int_nbf_x(itype)
-c
-c     Make sure that in case of electronic wave function we only look at ish (jsh is not used)
-c
-      if (nder.eq.-2) then
-         j_nbf_x  = 1
-      else
-         j_nbf_x = int_nbf_x(jtype)
-      endif
+      j_nbf_x = int_nbf_x(jtype)
 c
 c... assume we need to transform both i and j integrals
 c
@@ -149,20 +138,19 @@ c
 *.. do not tranform i component
       if (.not.bas_spherical(ibas)) trani = .false.
 *.. do not tranform j component
-      if (nder.eq.-2.or..not.bas_spherical(jbas)) tranj = .false.
+      if (.not.bas_spherical(jbas)) tranj = .false.
 c        
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4.
 c
       if (itype.eq.-1) igen = 1
       if (jtype.eq.-1) jgen = 1
-      ipts = npts*(max(3*nder,1))
-      call spcart_2cBtran(elec,scr,lscr,
+      call spcart_2cBtran(h11,scr,lscr,
      &    j_nbf_x,int_nbf_s(jtype),jtype,jgen,tranj,
      &    i_nbf_x,int_nbf_s(itype),itype,igen,trani,
-     &    ipts,.false.)
+     &    3*nat,.false.)
 c
-c     We now have the integrals in array (nsph_ints,npts,(max(3*nder,1)))
+c     We now have the integrals in array (nsph_ints,3,nat)
 c
       return
       end

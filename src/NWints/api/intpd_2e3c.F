@@ -1,7 +1,7 @@
       subroutine intpd_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri, idatom)
 *
-* $Id: intpd_2e3c.F,v 1.5 2003-10-17 22:53:43 carlfahl Exp $
+* $Id: intpd_2e3c.F,v 1.6 2004-12-03 22:34:32 bert Exp $
 *
       implicit none
 c
@@ -111,7 +111,7 @@ c
       d_cent  = (sf_ibs_cn2ce(ksh,ket))
       mynint = int_nint_cart(brain,ish,ketin,jsh,ketin,ksh,0,0)
       if (p_cent.eq.c_cent.and.c_cent.eq.d_cent) then
-        call dfill((mynint*3*4),0.0d00,eri,1)
+        call dcopy((mynint*3*4),0.0d00,0,eri,1)
         call ifill(4,-1,idatom,1)
         return
       endif

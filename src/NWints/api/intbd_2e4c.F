@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.13 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intbd_2e4c.F,v 1.14 2004-12-03 22:34:31 bert Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -236,7 +236,7 @@ c::local
       double precision vals(3,4)
       integer numgt1
 *
-      call dfill((12*nint_s),0.0d00,eri,1)
+      call dcopy((12*nint_s),0.0d00,0,eri,1)
       nint = 0
       numgt1 = 0
       do i = 1,4
@@ -246,7 +246,7 @@ c::local
 *
       do i = 1,4
         if (idatom(i).lt.1) then   ! ensure that unused buffers from idatom are zero
-          call dfill((3*nint_s),0.0d00,
+          call dcopy((3*nint_s),0.0d00,0,
      &        eri_nworder(llo,klo,jlo,ilo,1,i),1)
         endif
       enddo

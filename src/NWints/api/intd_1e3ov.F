@@ -1,4 +1,4 @@
-c $Id: intd_1e3ov.F,v 1.6 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intd_1e3ov.F,v 1.7 2004-12-03 22:34:31 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1e3ov}
@@ -167,7 +167,7 @@ c
         idatom(1) = 0
         idatom(2) = 0
         idatom(3) = 0
-        call dfill((9*nint_intrnl),0.0d00,dOV3,1)
+        call dcopy((9*nint_intrnl),0.0d00,0,dOV3,1)
         return
       endif
 c
@@ -221,7 +221,7 @@ c
       else if (i_cent.eq.j_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(j_pov3),1,dOV3(i_pov3),1)
         call dcopy(3*nint_intrnl,dOV3(k_pov3),1,dOV3(j_pov3),1)
-        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        call dcopy(3*nint_intrnl,0.0d00,0,dOV3(k_pov3),1)
         idatom(1) = i_cent
         idatom(2) = k_cent
         idatom(3) = 0
@@ -237,7 +237,7 @@ c
         endif
       else if (i_cent.eq.k_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(i_pov3),1)
-        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        call dcopy(3*nint_intrnl,0.0d00,0,dOV3(k_pov3),1)
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = 0
@@ -253,7 +253,7 @@ c
         endif
       else if (j_cent.eq.k_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(j_pov3),1)
-        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        call dcopy(3*nint_intrnl,0.0d00,0,dOV3(k_pov3),1)
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = 0

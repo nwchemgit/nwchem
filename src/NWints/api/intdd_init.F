@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.11 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intdd_init.F,v 1.12 2004-12-03 22:34:32 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -196,7 +196,7 @@ c
 00300 continue
 *
 * test for higher than g functions  0123456
-      if (ang2use.ge.5) call errquit
+      if (ang2use.ge.7) call errquit
      &    ('only basis sets with s through g functions are allowed',
      &    911, INT_ERR)
 *

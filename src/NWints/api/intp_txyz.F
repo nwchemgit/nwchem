@@ -1,5 +1,5 @@
       subroutine intp_txyz(n_cent, n_geom, R, xyz_new)
-c $Id: intp_txyz.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_txyz.F,v 1.5 2004-12-03 22:34:32 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -15,8 +15,8 @@ c::local
       integer ixyz
 c
 c.. zero local arrays
-      call dfill(3,0.0d00,xyz_new,1)
-      call dfill(3,0.0d00,xyz_frac,1)
+      call dcopy(3,0.0d00,0,xyz_new,1)
+      call dcopy(3,0.0d00,0,xyz_frac,1)
 c
 c... compute n center fractional coordinates
 c....    xyz_frac = amatrix_inv*coords(*,n_cent,n_geom)

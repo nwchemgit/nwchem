@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.25 2003-10-17 22:53:42 carlfahl Exp $
+*     $Id: intb_2e4c.F,v 1.26 2004-12-03 22:34:31 bert Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -126,7 +126,7 @@ c
 c     
       intb_2e4c = .true.
 c     
-      call dfill(3,0.0d00,roff,1)
+      call dcopy(3,0.0d00,0,roff,1)
       call texas_hf2_m(
      $     brain, icl(num_q_start), jcl(num_q_start),
      $     ketin, kcl(num_q_start), lcl(num_q_start), 

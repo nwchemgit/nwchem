@@ -1,7 +1,7 @@
       subroutine intpd_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri, idatom2)
 *
-* $Id: intpd_2e2c.F,v 1.4 2003-10-17 22:53:43 carlfahl Exp $
+* $Id: intpd_2e2c.F,v 1.5 2004-12-03 22:34:32 bert Exp $
 *
       implicit none
 c
@@ -106,7 +106,7 @@ c
       p_cent  = (sf_ibs_cn2ce(ish,bra))
       q_cent  = (sf_ibs_cn2ce(jsh,ket))
       if (p_cent.eq.q_cent) then
-        call dfill((mynint*3*4),0.0d00,eri,1)
+        call dcopy((mynint*3*4),0.0d00,0,eri,1)
         call ifill(2,-1,idatom2,1)
         return
       endif

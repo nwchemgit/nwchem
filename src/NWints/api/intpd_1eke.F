@@ -1,7 +1,7 @@
       subroutine intpd_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,
      &    lKea,Kea,idatom)
 *
-* $Id: intpd_1eke.F,v 1.5 2003-10-17 22:53:43 carlfahl Exp $
+* $Id: intpd_1eke.F,v 1.6 2004-12-03 22:34:32 bert Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -97,7 +97,7 @@ c
       if (i_cent.eq.j_cent) then
 *        write(luout,*)' automatic zero '
         call ifill(2,0,idatom,1)
-        call dfill((mynint*3*2),0.0d00,Kea,1)
+        call dcopy((mynint*3*2),0.0d00,0,Kea,1)
         return
       endif
       idatom(1) = i_cent

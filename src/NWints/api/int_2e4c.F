@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.40 2003-10-17 22:53:41 carlfahl Exp $
+c $Id: int_2e4c.F,v 1.41 2004-12-03 22:34:31 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -32,6 +32,7 @@ c
 #include "stdio.fh"
 #include "rel_nwc.fh"
 #include "util.fh"
+#include "global.fh"
 c
 c::external subroutines used
 c errquit
@@ -255,7 +256,7 @@ c............... gen labs .. more_integrals
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1
            c_nbf = sf_ibs_cn2bfr(2,ksh,ket) - sf_ibs_cn2bfr(1,ksh,ket)+1
            d_nbf = sf_ibs_cn2bfr(2,lsh,ket) - sf_ibs_cn2bfr(1,lsh,ket)+1
-           call dfill(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, eri, 1)
+           call dcopy(a_nbf*b_nbf*c_nbf*d_nbf, 0.0d0, 0, eri, 1)
         endif
 
       elseif(status_nw) then

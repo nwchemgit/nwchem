@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intd_2e4c.F,v 1.20 2004-12-03 22:34:31 bert Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -235,7 +235,7 @@ c
 c
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom.and.katom.eq.latom) then
-        call dfill((nint_ck*3*4),0.0d00,eri,1)
+        call dcopy((nint_ck*3*4),0.0d00,0,eri,1)
         call ifill(4,-1,idatom,1)
         return
       endif
@@ -262,7 +262,7 @@ ckw
 *************************************************************************
 c
       if (status_txs .and. .not.status_rel) then
-        call dfill(3,0.0d00,roff,1)
+        call dcopy(3,0.0d00,0,roff,1)
         q4 = 1.0d00
         txs_i = ish
         txs_j = jsh
@@ -283,7 +283,7 @@ c...............gen labs .. more_integrals
         if (nint_ck .eq. 0) then
           nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
           nintzero = nintzero*12
-          call dfill(nintzero, 0.0d0, eri, 1)
+          call dcopy(nintzero, 0.0d0, 0, eri, 1)
         endif
 c
         if (nint_ck*12.gt.lscr) call errquit
@@ -534,7 +534,7 @@ c::local
       endif
 #if defined(VECTOR_MODE)
       call dcopy((nint_x*nblocks),int_buf,1,scr,1)
-      call dfill((nint_x*nblocks),0.0d00,int_buf,1)
+      call dcopy((nint_x*nblocks),0.0d00,0,int_buf,1)
       do z = 1,nblocks
         offset_x = (z-1)*nint_x + 1
         offset_s = (z-1)*nint_s + 1

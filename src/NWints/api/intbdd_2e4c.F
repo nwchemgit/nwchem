@@ -1,4 +1,4 @@
-c $Id: intbdd_2e4c.F,v 1.3 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intbdd_2e4c.F,v 1.4 2004-12-03 22:34:31 bert Exp $
 *
       logical function intbdd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -248,7 +248,7 @@ c::local
       double precision vals(3,4)
       integer numgt1
 *
-      call dfill((78*nint_s),0.0d00,eri,1)
+      call dcopy((78*nint_s),0.0d00,0,eri,1)
       nint = 0
       numgt1 = 0
       do i = 1,4
@@ -261,7 +261,7 @@ c correctly.  May have to zero the buffer before making the call to that
 c routine.
 c     do i = 1,4
 c       if (idatom(i).lt.1) then   ! ensure that unused buffers from idatom are zero
-c         call dfill((3*nint_s),0.0d00,
+c         call dcopy((3*nint_s),0.0d00,0,
 c    &        eri_nworder(llo,klo,jlo,ilo,1,i),1)
 c       endif
 c     enddo

@@ -1,6 +1,6 @@
       subroutine intd_2e3c(brain, ish, ketin, jsh, ksh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e3c.F,v 1.8 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intd_2e3c.F,v 1.9 2004-12-03 22:34:31 bert Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -144,7 +144,7 @@ c
 c
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom)then
-        call dfill((nint*3*4),0.0d00,eri,1)
+        call dcopy((nint*3*4),0.0d00,0,eri,1)
         call ifill(4,-1,idatom,1)
         return
       endif

@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.66 2004-07-21 16:13:46 bert Exp $
+c $Id: int_init.F,v 1.67 2004-12-03 22:34:31 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -324,9 +324,9 @@ c
         end if
 00300 continue
 *
-* test for higher than h functions  0123456
-      if (ang2use.ge.6) call errquit
-     &    ('only basis sets with s through h functions are allowed',
+* test for higher than L functions  0123456789
+      if (ang2use.ge.9) call errquit
+     &    ('only basis sets with s through l functions are allowed',
      &    911, BASIS_ERR)
 *
       call defNxyz(ang2use)

@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.31 2004-07-21 16:13:46 bert Exp $
+c $Id: intd_init.F,v 1.32 2004-12-03 22:34:31 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -303,7 +303,7 @@ c
 00300 continue
 *
 * test for higher than h functions  0123456
-      if (ang2use.ge.6) call errquit
+      if (ang2use.ge.8) call errquit
      &    ('only basis sets with s through h functions are allowed',
      &    911 , INT_ERR)
 *
