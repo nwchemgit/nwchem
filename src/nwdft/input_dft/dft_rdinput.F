@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.38 1997-03-18 01:18:11 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.39 1997-03-29 01:15:58 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -27,7 +27,6 @@ c
       integer bases(3)
       integer iproc,ichg,itype,
      &     icenter,jcenter,i3
-      integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom,lrot,irot
       integer iline, n
@@ -683,8 +682,6 @@ c
      &     call errquit('rdinput: int_norm_2c failed', 208)
         if (.not. bas_numbf(CD_bas_han, nbf_cd))
      &     call errquit('rdinput:rdinput:',86)
-        if (.not. bas_numcont(CD_bas_han, nshells_cd))
-     &     call errquit('rdinput:rdinput:',87)
       else
         if (.not. bas_destroy(CD_bas_han))
      &     call errquit('rdinput:not able to destroy CD_bas:',86)
@@ -702,8 +699,6 @@ c
      &     call errquit('rdinput: int_normalize failed', 208)
         if (.not. bas_numbf(XC_bas_han, nbf_xc))
      &     call errquit('rdinput:rdinput:',86)
-        if (.not. bas_numcont(XC_bas_han, nshells_xc))
-     &     call errquit('rdinput:rdinput:',88)
       else
         if (.not. bas_destroy(XC_bas_han))
      &     call errquit('rdinput:not able to destroy XC_bas:',88)
@@ -809,9 +804,6 @@ c
       if ( .not. MA_Pop_Stack(lrot))
      &   call errquit('dft_rdinput: pop stack failed.',0)
 c
-      if (.not. bas_numcont(AO_bas_han, nshells))
-     &     call errquit('rdinput:rdinput:',86)
-c
 c     Check the user supplied input for any inconsistencies.
 c
       call dft_inpana(rtdb)
@@ -821,27 +813,6 @@ c
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol ))
      $     call errquit('inpana: dft:ipol put failed', 0)
 c
-      if( iproc.eq.0 .and. util_print('information', print_low))then
-        write(LuOut,*)
-        write(LuOut,1) 
-     &       '       AO basis - No. of functions:   ',nbf,
-     &       '                  No. of shells   :   ',nshells
-        if(nbf_cd.ne.0) then
-          write(LuOut,1) 
-     &         '       CD basis - No. of functions:   ',nbf_cd,
-     &         '                  No. of shells   :   ',nshells_cd
-        endif
-        if(nbf_xc.ne.0) then
-          write(LuOut,1) 
-     &         '       XC basis - No. of functions:   ',nbf_xc,
-     &         '                  No. of shells   :   ',nshells_xc
-        endif
-        write(LuOut,*)
-        write(LuOut,1) 
-     &       '       No. of quadrature shells   :   ',nqshells
-    1   format(2(3x,A,1x,i6/))
-        call flush(LuOut)
-      endif
       call ga_sync
 c****
 c**** initialize the integral object

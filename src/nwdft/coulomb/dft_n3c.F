@@ -1,6 +1,6 @@
       double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.6 1996-12-03 18:30:36 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.7 1997-03-29 01:15:51 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -13,6 +13,7 @@ c****
 #include "global.fh"
 #include "schwarz.fh"
 #include "stdio.fh"
+#include "util.fh"
 c     
 c     compute no. of 3-ctr integrals non null 
 c     according to Schwarz screening
@@ -21,7 +22,9 @@ c
      &        ifirstd,ilastd,nshbfd,nbf_cd,nbf_ao,mxshbf_ao,
      &        nao2_max,icount
       double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
+      logical oprint_3c2e
 c
+      oprint_3c2e = util_print('3c 2e integrals', print_default)
       THRESHOLD=10.d0**(-itol2e)
       nproc=ga_nnodes()
 c      
@@ -106,9 +109,13 @@ c     cannot be smaller than mxsh*mxsh*nbf_cd*icount
 c
       dft_n3cdbl = max(dft_n3cdbl,batch_max)
 c
-      if(me.eq.0)write(LuOut,1111)n3, ischw1, dft_n3cdbl, batch_max
- 1111 format(/,
-     &       10x,'Maximum number of 3-center 2e- integrals is: ',f15.0,
+      if (oprint_3c2e.and.me.eq.0)then
+         write(LuOut,*)
+         call util_print_centered
+     &      (LuOut,'3 Center 2 Electron Integral Information',25,.true.)
+         write(LuOut,1111)n3, ischw1, dft_n3cdbl, batch_max
+      endif
+ 1111 format(10x,'Maximum number of 3-center 2e- integrals is: ',f15.0,
      &     /,10x,'  This is reduced with Schwarz screening to: ',f15.0,
      &     /,10x,'  Incore requires a per proc buffer size of: ',f15.0,
      &     /,10x,'        The minimum integral buffer size is: ',f15.0)
@@ -117,7 +124,7 @@ c
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.6 1996-12-03 18:30:36 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.7 1997-03-29 01:15:51 d3h449 Exp $
       implicit none
             
 c****

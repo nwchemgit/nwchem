@@ -1,6 +1,6 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
      &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
-C$Id: dft_3cincor.F,v 1.8 1997-03-05 07:34:03 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.9 1997-03-29 01:15:50 d3h449 Exp $
       implicit none
             
 c****
@@ -45,6 +45,7 @@ c
       character*255 filename, actualname
       integer fd, other_stuff, n_batch_buf
       logical oprint_semi_file, file_opened
+      logical oprint_3c2e
       double precision offset
 c
       double precision THRESHOLD, ERI_est, ratio
@@ -55,6 +56,7 @@ C      write(0,*) ' in 3CINCO',itol2e
 c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_default)
+      oprint_3c2e = util_print('3c 2e integrals', print_default)
       me = ga_nodeid()
       call dzero(i3c_eri, n3c_dbl)
 c
@@ -361,11 +363,13 @@ c
   243 continue
       ishd = nlast - (ishc*(ishc-1))/2
 c
-      if (me.eq.0)then
-         if (n_semi_bufs .eq. 0)then
-            write(LuOut,3241)ratio*100.d0
-         else
-            write(LuOut,3242)ratio*100.d0, current_nbuf
+      if (oprint_3c2e)then
+         if (me.eq.0)then
+            if (n_semi_bufs .eq. 0)then
+               write(LuOut,3241)ratio*100.d0
+            else
+               write(LuOut,3242)ratio*100.d0, current_nbuf
+            endif
          endif
       endif
 c
@@ -397,10 +401,11 @@ c        endif
 c        call ga_sync
 c      enddo
 c      call ga_sync
- 3241 format(/,10x,'The percent of 3c 2e- integrals held in-core is',
-     &       /,10x,f6.2)
- 3242 format(/,10x,'The percent of 3c 2e- integrals held on-disk is',
-     &       /,10x,f6.2,', in ',i6,' integral buffers.')
+ 3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',
+     &       f6.2,/)
+ 3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
+     &       f6.2,/,
+     &       10x,' in ',i6,' integral buffers.',/)
       return
       end
       subroutine i_output (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
@@ -426,7 +431,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.8 1997-03-05 07:34:03 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.9 1997-03-29 01:15:50 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
