@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.14 2000-05-08 05:53:36 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.15 2000-05-09 00:05:30 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -457,6 +457,16 @@ c
      $     dbl_mb(k_bmos),dbl_mb(k_amos),
      $     dbl_mb(k_bmos),dbl_mb(k_amos), 
      $     dbl_mb(k_iba), 'Dirac')
+c
+c  test amplitudes
+c
+      call uccsdtest_mp2(
+     $     nmo,
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_aeval), dbl_mb(k_beval),
+     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
 c
       energyaaa = uccsdtest_triples_pure(
      $     nmo,
@@ -2283,6 +2293,12 @@ c
      &                     spin, spin, spin, t_buf)
                         call uccsdt_get_3x(k_blk, a_blk, b_blk, 
      &                     spin, spin, spin, int_buf)
+C****      call writeblock('t2_ecji', t_buf, 
+C****     &   e_blk_lo, e_blk_hi, c_blk_lo, c_blk_hi, 
+C****     &   j_blk_lo, j_blk_hi, i_blk_lo, i_blk_hi)
+C****      call writeblock('int_ekab', int_buf, 
+C****     &   e_blk_lo, e_blk_hi, k_blk_lo, k_blk_hi, 
+C****     &   a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi)
                         call w_t2_ecji_int_ekab
      &                    (w, t_buf, int_buf,
      &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
