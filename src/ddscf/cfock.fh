@@ -1,5 +1,15 @@
 c
-C$Id: cfock.fh,v 1.5 1995-03-31 01:34:59 d3g681 Exp $
-      integer task_chunks
-      common/cfock/ task_chunks
+C$Id: cfock.fh,v 1.6 1995-05-22 06:56:08 d3g681 Exp $
+c
+      integer task_chunks       ! Task chunk parameter in fock_2e_a
+      integer filesize          ! Max integral file size in doubles
+      integer memsize           ! Max integral cache size in doubles
+      logical oreadfile         ! True if file/cache being read from
+      logical owritefile        ! True if writing integrals to file
+      common/cfock/
+     $     task_chunks,
+     $     filesize,
+     $     memsize,
+     $     oreadfile,
+     $     owritefile
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 1995-04-11 19:01:55 rg240 Exp $
+# $Id: GNUmakefile,v 1.31 1995-05-22 06:56:14 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -14,22 +14,23 @@
 	ga_create_cont_blocked.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_project.o \
-	fock_2e.o \
-	fock_2e_a.o \
-	fock_2e_b.o \
-	fock_upd_atom_blk.o  \
+	fock_2e.o                 fock_2e_label.o fock_eri_label_scale.o \
+	fock_2e_a.o               fock_2e_shell_to_labels.o \
+	fock_2e_b.o               int2e_file.o \
+	fock_upd_atom_blk.o       fock_2e_cache_dens_fock.o \
 	fock_get_atom_blk.o      scf_vectors_guess.o \
         rohf.o                   rohf_nr_solve.o     \
         rohf_wrap.o             rohf_canon.o \
         rohf_k2cf.o             rohf_search_precond.o \
         rohf_make_shift.o       rohf_step_energy.o \
         rohf_rotate_movecs.o    scf_get_info.o \
-        rohf_hdiag_scale.o \
+        rohf_hdiag_scale.o      fock_2e_from_file.o \
         rohf_hessv_xx.o         rohf_fock.o \
         rohf_fock2grad.o        scf_movecs.o \
         rohf_hessv_1e.o         rohf_hessv_2e.o \
         rohf_dens.o             movecs_fix_phase.o \
-        uhf.o
+        uhf.o                   fock_2e_report.o fock_2e_task.o \
+        print_integ_list.o
 
 
 
@@ -68,3 +69,5 @@ fock_2e.o fock_2e_b.o ga_orthog_mos.o int_1e_ga.o matrix_exp.o rhf_canon.o rhf_c
 schwarz_atom.o schwarz_init.o schwarz_max.o schwarz_shell.o schwarz_tidy.o:	 cschwarz.fh
 rhf_dens_to_mo.o rhf_energy.o rhf_hessv.o:	 cskeleton.fh
 fock_2e.o fock_2e_a.o fock_2e_b.o rhf_fock_2e.o rhf_fock_2e_a.o rhf_fock_2e_b.o schwarz_atom.o schwarz_init.o schwarz_max.o schwarz_print.o schwarz_shell.o schwarz_tidy.o:	 schwarz.fh
+
+int2e_file.o:	cint2efile.fh

@@ -156,7 +156,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.4 1995-04-06 20:55:13 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.5 1995-05-22 06:56:15 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -199,7 +199,12 @@ c
 #include "global.fh"
 #include "util.fh"
       integer rtdb
+c
       integer chunktmp
+      character*255 filename
+c
+      logical int2e_file_open
+      external int2e_file_open
 c
       if (rtdb_get(rtdb, 'scf:task_chunks',
      $     MT_INT, 1, chunktmp)) then
@@ -212,6 +217,21 @@ c
          endif
       endif
 c
+      if (.not. rtdb_get(rtdb, 'scf:filesize',
+     $     MT_INT, 1, filesize)) filesize = 0
+      if (.not. rtdb_get(rtdb, 'scf:memsize',
+     $     MT_INT, 1, memsize)) memsize = 0
+c
+      oreadfile = .false.
+      owritefile= .false.
+c
+      if (filesize.gt.0 .or. memsize.gt.0) then
+         owritefile = .true.
+         call util_file_prefix('aoints',filename)
+         if (.not. int2e_file_open(filename, memsize, filesize))
+     $        call errquit('get_fock_param: opening aoints?', 0)
+      endif
+c
       end
       subroutine scf_tidy(rtdb)
       implicit none
@@ -220,9 +240,12 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "cfock.fh"
       integer rtdb
 c
       logical status
+      logical int2e_file_close
+      external int2e_file_close
 c
       if (oinitialized) then
          if (.not. geom_destroy(geom)) call errquit
@@ -242,6 +265,11 @@ c
 c
          oinitialized = .false.
 c
+      endif
+c
+      if (filesize.gt.0 .or. memsize.gt.0) then
+         if (.not. int2e_file_close())
+     $        call errquit('scf_tidy: closing aoints?', 0)
       endif
 c
       end

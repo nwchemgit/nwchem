@@ -1,8 +1,7 @@
-
       subroutine fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: fock_2e.F,v 1.4 1995-04-06 20:11:08 d3g681 Exp $
+c$Id: fock_2e.F,v 1.5 1995-05-22 06:56:10 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -11,6 +10,7 @@ c
 #include "geom.fh"
 #include "schwarz.fh"
 #include "cscfps.fh"
+#include "cfock.fh"
 c
 c  Distributed-data AO 2e-Fock construction routine
 c
@@ -47,6 +47,10 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c
       if (oscfps) call pstat_on(ps_fock_2e)
+c
+c     If reading/writing to/from cache/file then rewind
+c
+      if (oreadfile .or. owritefile) call int2e_file_rewind
 c
 c     Halve exchange factor to conform to internal definition
 c
@@ -98,13 +102,23 @@ c     Zero screening statistics
 c     
       call ifill(nscreen, 0, iscreen, 1)
 c     
-      call fock_2e_a( geom, basis, nfock, ablklen,
-     $                jfac, kfac, tol2e, oskel,
-     $                dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
-     $                dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
-     $                dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
-     $                dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
-     $                dbl_mb(k_atmp), vg_dens, vg_fock )
+      if (oreadfile) then
+         call fock_2e_from_file( geom, basis, nfock, ablklen,
+     $        jfac, kfac, tol2e, oskel,
+     $        dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
+     $        dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
+     $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
+     $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
+     $        dbl_mb(k_atmp), vg_dens, vg_fock )
+      else
+         call fock_2e_a( geom, basis, nfock, ablklen,
+     $        jfac, kfac, tol2e, oskel,
+     $        dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
+     $        dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
+     $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
+     $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
+     $        dbl_mb(k_atmp), vg_dens, vg_fock )
+      endif
 c     
       status = .true.
       status = status .and. ma_pop_stack(l_atmp)
@@ -120,7 +134,7 @@ c
       status = status .and. ma_pop_stack(l_dli)
       status = status .and. ma_pop_stack(l_dik)
       status = status .and. ma_pop_stack(l_dij)
-      if (.not. status) call errquit('rhf_fock_2e: ma_pop?', 0)
+      if (.not. status) call errquit('fock_2e: ma_pop?', 0)
 c     
       call ga_sync()
 c     
@@ -132,10 +146,20 @@ c
         if (.not. oskel) call ga_symmetrize(vg_fock(i))
       end do
 c
-c  Reset exchange factors
+c     Reset exchange factors
 c
       call dscal(nfock, 2.d0, kfac, 1)
 c
       if (oscfps) call pstat_off(ps_fock_2e)
+c
+c     Disable writing integrals to cache/file and enable reading for
+c     next call if we were just writing.  Also flush trailing block.
+c
+      if (owritefile) then
+         oreadfile = .true.
+         owritefile = .false.
+         call int2e_buf_write
+c     insert munge of incomplete blocks here.
+      endif
 c     
       end
