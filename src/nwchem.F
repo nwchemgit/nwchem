@@ -158,11 +158,11 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 12)
+      parameter (ntasks = 13)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
      $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2',
-     &    'riscf', 'checksum', 'dft'/
+     &    'riscf', 'checksum', 'dft','md'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -172,7 +172,8 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120) ind
+         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120,130)
+     $   ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -238,6 +239,13 @@ c        dft
 c
   120    continue 
          call nwdft(rtdb)
+         goto 1000
+c
+c     MD
+c
+  130    continue
+         write(6,*) 'MD not linked into this executable'
+C        call mdmain(rtdb)
          goto 1000
       else
 c
