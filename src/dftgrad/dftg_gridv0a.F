@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.8 2000-07-18 01:13:20 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.9 2000-08-01 19:37:14 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -138,11 +138,12 @@ c
 c     
 c     rewind grid pts file
 c
-      if (.not. grid_file_rewind())
-     $   call errquit('grid_setspac: rewinding gridpts?', 0)
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
+      if(n_rec_in_file.eq.0) goto 2001
+      if (.not. grid_file_rewind())
+     $   call errquit('grid_setspac: rewinding gridpts?', 0)
       nqpts_per_buf = n_per_rec
 c
       ntot_cube=0

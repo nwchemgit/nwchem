@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.27 2000-07-28 15:34:51 edo Exp $
+* $Id: dftg_getxc.F,v 1.28 2000-08-01 19:37:14 edo Exp $
 *
       implicit none
 c      
@@ -43,8 +43,8 @@ c
       character*255 gridfilename
       integer nproc,i
       double precision  tot,enuc
-      logical grid_file_open,grid_file_rewin
-      external grid_file_open,grid_file_rewind
+      logical grid_file_open
+      external grid_file_open
 c
       nproc = ga_nnodes()
 c
