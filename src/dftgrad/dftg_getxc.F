@@ -1,8 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
-     &                      nactive, s34, rdens_atom, cntoce,
-     &                      cntobfr, cetobfr)
+     &                      nactive, s34, rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.21 2000-05-05 02:00:27 bjohnson Exp $
+* $Id: dftg_getxc.F,v 1.22 2000-06-09 19:11:55 edo Exp $
 *
       implicit none
 c      
@@ -33,8 +32,7 @@ c!!! BGJ test !!!
 c!!! BGJ test !!!
 #include "cgridfile.fh"
 c 
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natom)
+      integer cetobfr(2,natom)
       double precision rdens_atom(ipol*natom*natom)    
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
@@ -64,12 +62,10 @@ c
       endif
       if(grid_on_file.and.grid_written) then
          call dftg_gridv0(rtdb, iga_dens, force, natom, oactive, 
-     &                    nactive, rdens_atom, cntoce,
-     &                    cntobfr, cetobfr)
+     &                    nactive, rdens_atom,  cetobfr)
       else
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
-     &                    nactive, rdens_atom, cntoce,
-     &                    cntobfr, cetobfr)
+     &                    nactive, rdens_atom, cetobfr)
       endif
 
 c!!! BGJ test !!!

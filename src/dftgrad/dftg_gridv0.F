@@ -5,10 +5,9 @@ c
 c     BGJ - 8/98
 c
       Subroutine dftg_gridv0(rtdb, iga_dens, force, natoms, oactive,
-     &                       nactive, rdens_atom, cntoce, cntobfr,
-     &                       cetobfr)
+     &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.5 2000-04-18 00:35:28 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.6 2000-06-09 19:11:55 edo Exp $
 c
       implicit none      
 c
@@ -18,12 +17,11 @@ c
       logical oactive(natoms)
       integer iga_dens(2)
       double precision force(3*natoms)
-      integer cntoce(*), cntobfr(*), cetobfr(*)
+      integer cetobfr(*)
       double precision rdens_atom(*)
 c
       call dftgh_gridv0(rtdb, iga_dens, force, 0d0, 0, 1, natoms,
-     &                  oactive, nactive, rdens_atom, cntoce, cntobfr,
-     &                  cetobfr)
+     &                  oactive, nactive, rdens_atom, cetobfr)
 c
       return
       end
@@ -33,9 +31,9 @@ c     Generalized to do XC gradient and hessian
 c
       Subroutine dftgh_gridv0(rtdb, iga_dens, force, hess, g_rhs,
      &                        calc_type, natoms, oactive, nactive,
-     &                        rdens_atom, cntoce, cntobfr, cetobfr)
+     &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.5 2000-04-18 00:35:28 edo Exp $
+c $Id: dftg_gridv0.F,v 1.6 2000-06-09 19:11:55 edo Exp $
 c     
       implicit none      
 c
@@ -64,8 +62,7 @@ c
 #include "dft2drv.fh"
 c
 c
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
       logical LResult, GRAD, GRADCHI, HESSCHI, DER3CHI
       logical xc_chkgrad
@@ -111,10 +108,12 @@ c     &     do_hess, do_cpks_r
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
 c
-c     Determine the XC energy functionals.
+c     weight derivatives switched on by default
 c
       if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
-     &   ldew))ldew=.false.
+     &   ldew))ldew=.true.
+      if(ldew.and.(me.eq.0).and.oprint) 
+     .     write(LuOut,*) '  weight derivatives on'
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
@@ -396,7 +395,7 @@ c
      &     ('dftg_gridv0: cannot allocate rho scr',13)
       
 c
-      call dftg_gridv0a(rtdb, iga_dens,ldew,
+      call dftg_gridv0a(iga_dens,ldew,
      &                   ncoef_max, NXprim, max_at_bf,
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
@@ -415,7 +414,7 @@ c
      .     dbl_mb(iscr),nscr,dbl_mb(irscr),
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
-     &                   rdens_atom,  cntobfr, cetobfr)
+     &                   rdens_atom,  cetobfr)
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1)
       if (do_hess .or. do_cpks_r) then

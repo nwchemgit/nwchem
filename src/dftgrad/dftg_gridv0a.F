@@ -1,4 +1,4 @@
-      Subroutine dftg_gridv0a(rtdb, iga_dens,ldew,
+      Subroutine dftg_gridv0a(iga_dens,ldew,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
@@ -9,14 +9,12 @@
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      &                         do_hess, do_cpks_r, natoms, oactive,
-     &                         nactive, rdens_atom, cntobfr,
-     &                         cetobfr)
+     &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.6 2000-04-18 00:35:28 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.7 2000-06-09 19:11:55 edo Exp $
 c     
       implicit none
 #include "bas.fh"
-#include "rtdb.fh"
 #include "cdft.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -28,7 +26,6 @@ c
 c !!! BGJ test !!!
 #include "bgj.fh"
 c !!! BGJ test !!!
-      integer rtdb
       integer natoms
       integer ncoef_max, NXprim, max_at_bf
       integer nqtot
@@ -40,8 +37,7 @@ c !!! BGJ test !!!
       logical ldew
       logical do_force, do_hess, do_cpks_r
 c
-      integer cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
       double precision Force(3*natoms), hess(3*natoms,3*natoms)
       integer g_rhs(*)
@@ -117,10 +113,6 @@ c     and primitives comprising any given shell of this basis set.
 c
       acc_AO_gauss= iAOacc
 c
-c
-c     weight derivatives switched off
-c
-      if(ldew.and.(me.eq.0)) write(0,*) ' derivtive weights on'
       if (ldelley.and.ldew)then
          if (me.eq.0)write(LuOut,*) 
      &      ' derivative weights not available for Delley weights '
