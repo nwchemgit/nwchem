@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.9 2002-02-22 20:04:05 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.10 2003-01-03 22:44:16 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.9 2002-02-22 20:04:05 edo Exp $
+c $Id: dftg_gridv0.F,v 1.10 2003-01-03 22:44:16 edo Exp $
 c     
       implicit none      
 c
@@ -462,4 +462,35 @@ c
 c
       return 
 c     
+      end
+      subroutine oactive_to_curatoms(oactive, natoms, curatoms,
+     &                               ncuratoms)
+c
+c     Converts list of active logicals to indexing array, mapping
+c     an atom to its position in a compressed list of atoms, or 0 if
+c     atom is not active.
+c
+c     !!! Make more sophisticated to use cutoffs !!!
+c
+      implicit none
+c
+      integer natoms           ! Total number of atoms [input]
+      logical oactive(natoms)  ! Whether atom is active [input]
+      integer curatoms(natoms) ! Mapping array [output]
+      integer ncuratoms        ! Number of significant atoms [output]
+c
+      integer i
+c
+      ncuratoms = 0
+      do i = 1, natoms
+         curatoms(i) = 0
+         if (oactive(i)) then
+            ncuratoms = ncuratoms + 1
+            curatoms(i) = ncuratoms
+         endif
+c         write(*,*)'oactive_to_curatoms:',i,oactive(i),curatoms(i)
+      enddo
+c      write(*,*)'oactive_to_curatoms: ncuratoms',ncuratoms
+c
+      return
       end

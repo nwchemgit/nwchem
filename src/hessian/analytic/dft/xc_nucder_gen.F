@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -172,10 +172,11 @@ c
      &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
      &        int_mb(k_cetobfr))
       else
-         call dftgh_quadv0(rtdb,geom,basis, ipol,
-     .        g_dens, 0d0, hess, g_rhs, calc_type,
-     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-     &        int_mb(k_cetobfr))
+         call errquit('xc_deriv_gen: no gridfile',0)
+!         call dftgh_quadv0(rtdb,geom,basis, ipol,
+!     .        g_dens, 0d0, hess, g_rhs, calc_type,
+!     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
+!     &        int_mb(k_cetobfr))
       endif
 c
 c     Clean up indexing arrays

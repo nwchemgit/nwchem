@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.18 2002-03-22 02:20:55 sohirata Exp $
+c     $Id: dftg_gridv0b.F,v 1.19 2003-01-03 22:44:16 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -135,10 +135,10 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao, 'chi_ao',
      &            lchi_ao, ichi_ao))call errquit
-     &            (' exiting in dftg_quadv0: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9)
                if (.not. MA_Push_Get(MT_Dbl, 3*nqpts*mbf_ao, 
      &            'gradchi_ao', lgradchi_ao,idelchi_ao))call errquit
-     &            (' exiting in dftg_quadv0: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9)
 c         
 c              hessian is used only for derivatives; set array to length 1
 c              here
@@ -152,7 +152,7 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, m4, 'heschi_ao', 
      &            lheschi_ao, iheschi_ao))call errquit
-     &            (' exiting in dftg_quadv0: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9)
 c    
                if (der3chi)then
                   m4 = 10*nqpts*mbf_ao
@@ -162,39 +162,13 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, m4, 'd3chi_ao', 
      &            ld3chi_ao, id3chi_ao))call errquit
-     &            (' exiting in dftg_quadv0: insuff stack',19)
+     &            (' exiting in dftg_gridv0b: insuff stack',19)
 c
                call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
-      if (donewbf) then
                call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
      &              dbl_mb(id3chi_ao), rq, qxyz, xyz, nqpts, natoms,
      &              iniz, docset, bas_cent_info, bas_cset_info)
-      else
-c !!! Can delete this once confident in new basis fn code
-               if (der3chi) then
-                  call new_eval_gbsets_d3(ao_bas_han,
-     &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
-     &                 dbl_mb(iheschi_ao), dbl_mb(id3chi_ao),
-     &                 ibf_ao, 0, rq0, rq,
-     &                 qxyz, xyz, nqpts, nqpts, mbf_ao,
-     &                 natoms, iscr, nscr, expo, NXprim,
-     &                 ccoef, ncoef_max, 
-     &                 iniz,ifin)
-               else
-                  call new_eval_gbsets(ao_bas_han, gradchi, 
-     &                                 hesschi, dbl_mb(ichi_ao), 
-     &                                 dbl_mb(idelchi_ao), 
-     &                                 dbl_mb(iheschi_ao), 
-     &                                 ibf_ao, 0, rq0,
-     &                                 rq, qxyz, xyz, nqpts, 
-     &                                 nqpts, mbf_ao, natoms, 
-     .                 iscr, 
-     &                                 nscr, expo, NXprim, ccoef, 
-     &                                 ncoef_max, 
-     &                                 iniz,ifin)
-               endif
-      endif
 c         
 c
 c              Pre-compute reduced Xi(r) and dXi(r) over atoms

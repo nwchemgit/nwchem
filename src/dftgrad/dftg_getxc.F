@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.33 2001-12-23 01:45:32 edo Exp $
+* $Id: dftg_getxc.F,v 1.34 2003-01-03 22:44:16 edo Exp $
 *
       implicit none
 c      
@@ -78,9 +78,10 @@ c
      .        iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom,  cetobfr)
       else
-         call dftg_quadv0(rtdb, geom,ao_bas_han,ipol,
-     .        iga_dens, force, natom, oactive, 
-     &                    nactive, rdens_atom, cetobfr)
+         call errquit(' no grid file available ',0)
+!         call dftg_quadv0(rtdb, geom,ao_bas_han,ipol,
+!     .        iga_dens, force, natom, oactive, 
+!     &                    nactive, rdens_atom, cetobfr)
       endif
       oreopen=.false.
 
