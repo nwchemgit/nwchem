@@ -259,7 +259,7 @@ Once starting vectors have been obtained using any of the possible
 options, they may be reordered through use of the \verb+SWAP+ keyword.
 This optional keyword requires a list of orbital pairs that will be
 swapped.  For UHF calculations, separate \verb+SWAP+ keywords may be
-provided for the alpha and beta orbitals, as necessary.  
+provided for the alpha and beta orbitals, as necessary.
 
 An example of use of the \verb+SWAP+ directive:
 \begin{verbatim}
@@ -270,6 +270,16 @@ file \verb+"try1.movecs"+.  The vectors for the orbitals within the
 pairs 173--175 will be swapped with those within 174--176.  The final
 orbitals obtained in the calculation will be written to the file
 \verb+"try2.movecs"+.
+
+The swapping of orbitals occurs as a sequential process in the order
+(left to right) input by the user.  Thus, regarding each pair as an
+elementary transposition it is possible to construct arbitrary
+permutations of the orbitals.  For instance, to apply the permutation
+$(6 7 8 9)$ we note that this is equal to $(6 7)(7 8)(8 9)$, and thus
+may be specified as
+\begin{verbatim}
+  vectors swap 8 9  7 8  6 7
+\end{verbatim}
 
 Another example, now illustrating this feature for a UHF calculation
 is the directive
