@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.15 2000-10-03 19:50:28 d3j191 Exp $
+c $Id: pme_fft.F,v 1.16 2000-10-25 20:32:12 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -136,8 +136,8 @@ c
     2 continue
     1 continue
       if(me.eq.nodep(1)) then
-         grid1(1,1,1,1)=one
-         grid1(2,1,1,1)=two
+      grid1(1,1,1,1)=one
+      grid1(2,1,1,1)=two
       endif
       call pme_fft(ngx,ngy,ngz,1,grid1,grid2,int_mb(i_map1),
      + int_mb(i_map2),int_mb(i_knod),imfft)
