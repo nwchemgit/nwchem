@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.11 2000-05-02 19:43:45 mg201 Exp $
+c $Id: hf2.F,v 1.12 2000-05-02 22:07:37 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -235,7 +235,6 @@ c   If insufficient memory, do multipassing.
         maxpp = NPP
         maxpq = NPQ
       else if (NPP .ge. NPQ) then
-        write (6,*) 'Multipassing'
         if (MaxPairs .ge. NPP) then
           maxpp = NPP
           maxpq = MaxPairs/NPP
@@ -248,7 +247,6 @@ c   If insufficient memory, do multipassing.
           maxpq = 1
         end if
       else
-        write (6,*) 'Multipassing'
         if (MaxPairs .ge. NPQ) then
           maxpq = NPQ
           maxpp = MaxPairs/NPQ
