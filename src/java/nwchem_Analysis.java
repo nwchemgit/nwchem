@@ -16,12 +16,17 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     BufferedReader br;
     String card;
 
+    JFileChooser dataChooser;
+    PrintWriter prop;
+    ExtensionFilter dataFilter;
+
     Graph anaPlot = new Graph();
 
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
     JButton clearButton = new JButton("clear");
-    JButton plotButton = new JButton("plot");
+    JButton writeButton = new JButton("write");
+    JRadioButton histButton = new JRadioButton("histo");
     
     double time;
     double data[][];
@@ -33,6 +38,10 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     DefaultListModel propList = new DefaultListModel();
     JList pList = new JList(propList);
     JScrollPane propPane = new JScrollPane(pList);
+
+    int currentSelection = 0;
+
+    boolean histogram = false;
     
     public nwchem_Analysis(){
 	
@@ -52,6 +61,10 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	dialogFrame = new JFrame();
 	dialogFrame.setSize(300,400);
 	chooser.showOpenDialog(dialogFrame);
+
+	dataChooser = new JFileChooser("./");
+	dataFilter = new ExtensionFilter(".dat");
+	dataChooser.setFileFilter(dataFilter);
 	
 	JPanel header = new JPanel();
 	header.setLayout(new GridBagLayout());
@@ -91,34 +104,42 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    };
 	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
-	
-	addComponent(header,plotButton,0,1,1,1,1,1,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	plotButton.addActionListener(new ActionListener(){
-		public void actionPerformed(ActionEvent e){ 
-		    anaPlot.fillPlot(); }});
 
-	addComponent(header,clearButton,1,1,1,1,1,1,
+	anaPlot.setSize(800,600);
+        anaPlot.init();
+
+	addComponent(header,anaPlot,0,1,20,10,10,10,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	
+	addComponent(header,histButton,21,2,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.SOUTHWEST);
+	histButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){ 
+		    for(int i=0; i<iset; i++){anaPlot.removeSet(i);}; iset=0; anaPlot.fillPlot();
+		    histogram=!histogram;
+		}});
+    
+	addComponent(header,propPane,21,3,3,1,1,10,
+		     GridBagConstraints.NONE,GridBagConstraints.WEST);
+       	pList.addMouseListener(this);
+	
+	addComponent(header,writeButton,21,4,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	writeButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){ 
+		    if(currentSelection>0){write_ana(currentSelection);}; }});
+
+	addComponent(header,clearButton,21,5,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	clearButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    for(int i=0; i<iset; i++){anaPlot.removeSet(i);}; iset=0; anaPlot.fillPlot(); }});
 
-	addComponent(header,doneButton,2,1,1,1,1,1,
+	addComponent(header,doneButton,21,6,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
-
-	anaPlot.setSize(800,600);
-        anaPlot.init();
-
-	addComponent(header,anaPlot,0,2,20,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-    
-	addComponent(header,propPane,21,2,3,1,1,10,
-		     GridBagConstraints.NONE,GridBagConstraints.WEST);
-       	pList.addMouseListener(this);
 
         number=0;
 	for(int i=0; i<nb; i++){
@@ -150,13 +171,46 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     }
 
     void plot_ana(int ndx){
-	boolean first=true;
-	for(int i=0; i<numdat; i++){
-	    if(ndx>nb && i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
-	    anaPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
+        if(histogram){
+	    double dmax = data[ndx][0];
+	    double dmin = data[ndx][0];
+	    for(int i=0; i<numdat; i++){
+		if(data[ndx][i]>dmax){dmax=data[ndx][i];};
+		if(data[ndx][i]<dmin){dmin=data[ndx][i];};
+	    };
+	    int id;
+	    Double dd;
+	    int hist[] = new int[1001];
+	    for(int i=0; i<1001; i++){hist[i]=0;};
+	    for(int i=0; i<numdat; i++){
+		id =(int)  Math.round(((data[ndx][i]-dmin)*1000)/(dmax-dmin));
+		hist[id]=hist[id]+1;
+	    };
+	    boolean first=true;
+	    for(int i=0; i<1000; i++){
+		anaPlot.addData(iset,i,hist[i],!first,false); first=false;
+	    };
+	} else {
+	    boolean first=true;
+	    for(int i=0; i<numdat; i++){
+		if(ndx>nb && i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
+		anaPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
+	    };
 	};
 	anaPlot.fillPlot();
 	iset++;
+    };
+
+    void write_ana(int ndx){
+	try{ 
+	    dataChooser.showOpenDialog(dialogFrame);
+	    prop = new PrintWriter( new FileWriter(dataChooser.getSelectedFile().toString()));
+	    System.out.println("Writing data "+ndx);
+	    for(int i=0; i<numdat; i++){
+		prop.println(data[0][i]+" "+data[ndx][i]);
+	    };
+	    prop.close();
+	} catch (Exception ee) { System.out.println("Error writing to data file"); };
     };
 
     void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
@@ -217,7 +271,8 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     public void mouseReleased(MouseEvent mouse){
 	if(mouse.getModifiers()==MouseEvent.BUTTON1_MASK){
 	    if(mouse.getSource()==pList){
-		plot_ana(pList.getSelectedIndex()+1);
+		currentSelection=pList.getSelectedIndex()+1;
+		plot_ana(currentSelection);
 	    };
 	};
     }
