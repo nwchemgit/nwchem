@@ -1,3 +1,4 @@
+\label{sec:toplevel}
 
 Top-level directives are directives that affect all modules in the code.  In
 general, they provide the user with the means to start a calculation, 
@@ -398,7 +399,7 @@ Sun             & 48 \\
 \end{table}
 
 \subsection{ECHO}
-
+\label{sec:echo}
 % This is a startup directive (section \ref{sec:inputstructure}).
 
 This directive is provided as a convenient means to include a listing of
@@ -635,7 +636,7 @@ using the directive
   set "ao basis" "production basis"
 \end{verbatim}
 
-The \+SET+ directive can also be used as an indirect means of 
+The \verb+SET+ directive can also be used as an indirect means of 
 supplying input to modules under development.  It can also allow the more 
 intrepid users of the code to access modules that do not yet have
 input routines.  For example, some of the parameters used to tune the
