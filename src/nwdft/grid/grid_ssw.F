@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.21 2004-01-23 00:07:09 edo Exp $
+C$Id: grid_ssw.F,v 1.22 2004-01-23 01:53:04 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -23,13 +23,11 @@ c
       double precision rq(nq,*)  ! sum of p(n) [ output]
 
 c
-      integer i, j,   ij
+      integer i
       integer  AA,NN
-      double precision mu, radwgh
+      double precision radwgh
       double precision x, y, z, x0i, y0i, z0i
-      double precision sk
-      double precision  toll_scr,rag 
-      logical inotA
+      double precision  toll_scr
 c
       integer n,n1,n2
       double precision ass,distnc,distnn,wsum
@@ -106,7 +104,7 @@ c
 32     continue
 c
       do n=n1,n2
-         call grid_ssw0(nq,n,nctrs_pruned,AA,
+         call grid_ssw0(nq,n,nctrs_pruned,
      ,     p,rq,rij,ass)
 c       
 c       compute sum of partitioning weights for normalization
@@ -128,27 +126,24 @@ c
       return
       end
 
-      subroutine grid_ssw0(nq,n,nctrs_pruned,AA,
+      subroutine grid_ssw0(nq,n,nctrs_pruned,
      ,     p,rq,rij,ass)
       implicit none
       integer nq ! complete no. grid pts
       integer n ! grid point
       integer nctrs_pruned ! no. centers
-      integer AA ! atom ctr of grid
       double precision p(*)
       double precision rq(nq,*)
       double precision rij(*)
       double precision ass ! erfc spread
       integer i,j,ij
       double precision rag,mu,sk
-      logical inota
-      double precision x,leps,toll_scr
+      double precision leps,toll_scr,x
       parameter(leps=1d-4,toll_scr=1d-10)
 #include "xc_erftab.fh"
 c
       call dcopy(nctrs_pruned,1.d0,0,p,1)
       do  i = 2, nctrs_pruned
-         inota=i.ne.AA
          ij = (i*(i-1))/2
          rag=rq(n,i)
          
