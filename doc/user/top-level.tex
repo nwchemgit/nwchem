@@ -820,17 +820,29 @@ the total charge of the system.  The form of the directive is as follows,
   CHARGE <real charge default 0>
 \end{verbatim}
 
-The default charge is zero if this directive is omitted.  An example of
-a case where the directive would be needed is for a calculation on a
- doubly charged cation.  In such a case, the directive is simply,
+The default charge\footnote{The charge directive in conjunction with
+  the charge of atomic nuclei (which can be changed via the geometry
+  input, c.f. Section \ref{sec:cart}) determine the total number of
+  electrons in the chemical system.  Therefore, a \verb+charge n+
+  specification deletes ``n'' electrons from the chemical system
+  system.  Similaryly, \verb+charge -n+ adds ``n'' electrons.} is zero
+if this directive is omitted.  An example of a case where the
+directive would be needed is for a calculation on a doubly charged
+cation.  In such a case, the directive is simply,
 \begin{verbatim}
   charge 2
 \end{verbatim}
 
-\Large
-**What happens if the user specifies charge(s) on individual atom(s) in the
-GEOMETRY directive input, *and* also specifies some non-zero charge on the
-CHARGE directive?  Do they have to 'add up', in some sense?  Or does the
-code work this out automatically?  Can the geometry input defeat the
-CHARGE directive input, in some sense?***
-\normalsize
+% \Large
+% **What happens if the user specifies charge(s) on individual atom(s) in the
+% GEOMETRY directive input, *and* also specifies some non-zero charge on the
+% CHARGE directive?  Do they have to 'add up', in some sense?  Or does the
+% code work this out automatically?  Can the geometry input defeat the
+% CHARGE directive input, in some sense?***
+% \normalsize
+%
+% They do not have to add up.  This notion of charge is the standard
+% chemical definition.  The sum of atomic charges is the default net
+% charge of zero; the charge directive modifies this as per the
+% footnote above.
+% RAK

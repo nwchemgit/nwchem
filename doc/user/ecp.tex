@@ -1,24 +1,25 @@
 \label{sec:ecp}
 
-This optional directive allows the user to describe an 
-effective core potential (ECP) basis set
-of contracted gaussian functions.  The ECPs are fit to Gaussians 
-with the form 
+This optional directive allows the user to describe an effective core
+potential (ECP) in terms of contracted gaussian functions.  The ECPs
+are fit to Gaussians with the form
 \[
  r^2V_l(r) = \sum_{k} A_{lk} r^{n_{lk}} e^{B_{lk}r^{2}}
 \]
 where $A_{lk}$ is the contraction coefficient, $n_{lk}$ is the
 exponent of the ``r'' term (r-exponent), and $B_{lk}$ is the gaussian
-exponent.  The r-exponent is shifted by 2 as per most of the ECP
-literature, e.g., an r-exponent of 0 implies $r^{-2}$.
+exponent.  The $n_{lk}$ is shifted by 2 as per most of the ECP
+literature and implementations, e.g., an $n_{lk} = 0$ implies
+$r^{-2}$.  The current implementation only allows for $n_{lk}$ values
+of only 0, 1, or 2. 
 
-The EMSL library does not currently support a standard set of ECP basis
-functions.  Basis sets using these functions must be specified explicitly
-by user input in the \verb+ECP+ directive.  This directive has
-essentially the same form as the standard \verb+BASIS+ directive,
-except for differences in the type of information to be supplied for
-each atom or center using the ECP basis set.  The form of the input for
-the \verb+ECP+ directive is as follows;
+The EMSL library does not currently support a standard set of ECPs.
+Basis sets using these functions must be specified explicitly by user
+input in the \verb+ECP+ directive.  This directive has essentially the
+same form as the standard \verb+BASIS+ directive, except for
+differences in the type of information to be supplied for each atom or
+center using the ECP basis set.  The form of the input for the
+\verb+ECP+ directive is as follows;
 
 \begin{verbatim}
   ecp [<string name default "ecp basis">] \
@@ -37,25 +38,27 @@ the \verb+ECP+ directive is as follows;
   END
 \end{verbatim}    
 
-By default ECP basis sets are automatically segmented and cartesian
-even if general contractions are input. 
-ECP basis functions are associated with centers in geometries through
-tags or names of centers.  These tags must match exactly (including case)
-in the \verb+GEOMETRY+ and \verb+ECP+ directives, 
-and are limited to sixteen (16) characters.  Each center with the same
-tag will have the same ECP basis set.  By default the input module
-prints each ECP basis set encountered.  The \verb+NOPRINT+ option
-can be used
-to disable printing.  There can be only one active ECP basis set, even
-though several may exist in the input deck.  The ECP modules load
-``ecp basis'' with any ``ao basis'' present.  The ECP functionality
-works for energy and gradients.
+By default ECPs are automatically segmented and cartesian even if
+general contractions are input.  ECPs are associated with centers in
+geometries through tags or names of centers.  These tags must match
+exactly (including case) in the \verb+GEOMETRY+ and \verb+ECP+
+directives, and are limited to sixteen (16) characters.  Each center
+with the same tag will have the same ECP.  By default the input module
+prints each ECP encountered.  The \verb+NOPRINT+ option can be used to
+disable printing.  There can be only one active ECP, even though
+several may exist in the input deck.  The ECP modules load ``ecp
+basis'' with any ``ao basis'' present.  The ECP functionality works
+for energy and gradients.  Second derivative code exists and will be
+incorporated once this functionality is stable within the rest of
+NWChem.  There are limits associated with angular momentum of both the
+ECP and ``ao basis'' but these issues will be addressed. The standard
+Hay-Wadt, Stevens et al., or Christiansen-Ermler ECPs are acceptable.
+The Stuuttgart ECPs should be avoided.
 
-ECP basis sets are named in the same fashion as for geometries 
-or regular basis sets,
-with the default name being \verb+"ecp basis"+.  It
-should be clear from the above discussion on geometries and database
-entries how indirection is supported.
+ECPs are named in the same fashion as for geometries or regular basis
+sets, with the default name being \verb+"ecp basis"+.  It should be
+clear from the above discussion on geometries and database entries how
+indirection is supported.
 
 Basis functions currently may not be drawn from a standard set in the
 EMSL basis set library; they must be specified explicitly.  All
@@ -71,12 +74,11 @@ The following keyword pairs are included as input options for the
   print || noprint
 \end{verbatim}
 
-These keyword pairs are interpreted in the \verb+ECP+ 
-directive in the same manner as for
-the \verb+BASIS+ directive, but only the defaults are currently
-available for the coordinate system and segmentation in the \verb+ECP+
-directive.  NWChem assumes that all ECP basis sets are segmented and
-cartesian.  The keywords are included in the directive, however,
+These keyword pairs are interpreted in the \verb+ECP+ directive in the
+same manner as for the \verb+BASIS+ directive, but only the defaults
+are currently available for the coordinate system and segmentation in
+the \verb+ECP+ directive.  NWChem assumes that all ECPs are segmented
+and cartesian.  The keywords are included in the directive, however,
 because it is expected that eventually the code will include the
 options for the user to specify basis functions in either spherical or
 cartesian coordinates, segmented or unsegmented.  The print keyword is
@@ -87,33 +89,31 @@ the user's discretion.
 % user or defined in the standard library sets.
 
 As with the input for the standard basis sets using the \verb+BASIS+
-directive, the input specified for the \verb+ECP+ directive in lines 
-beginning with the string \verb+tag+
-allow particular centers or atoms in a calculation to be associated with
-particular basis functions.  The values specified for \verb+tag+
-must correspond exactly with the names supplied for the \verb+tag+ entries
-on the \verb+GEOMETRY+ directive for a particular calculation.  Each atom
-or center with the same \verb+tag+ will have the same basis set, which must
-also be specified with the same name \verb+tag+.
+directive, the input specified for the \verb+ECP+ directive in lines
+beginning with the string \verb+tag+ allow particular centers or atoms
+in a calculation to be associated with particular basis functions.
+The values specified for \verb+tag+ must correspond exactly with the
+names supplied for the \verb+tag+ entries on the \verb+GEOMETRY+
+directive for a particular calculation.  Each atom or center with the
+same \verb+tag+ will have the same basis set, which must also be
+specified with the same name \verb+tag+.
 
-The keyword \verb+NELEC+ allows the user to specify the number of core 
-electrons replaced by
-the ECP basis specification for the atom represented by the tag.  Additional
-input lines can then be used to define the specific coefficients.
-The string \verb+shell_type+ is used to specify the components of the
-ECP basis function.  The label \verb+ul+ entered for \verb+shell_type+
-for a given atom or center (identified by the string \verb+tag+) denotes
-the local part of the ECP basis.  This is equivalent to the highest 
-angular momentum
-functions specified in the literature for most ECP basis sets.  The
-standard entries (\verb+s, p, d+, etc.) for \verb+shell_type+ delineate 
-the angular momentum projector onto the local function.  The shell type 
-label of \verb+s+ indicates the \verb+ul-s+ projector input, \verb+p+ 
-indicates the \verb+ul-p+, etc.
+The keyword \verb+NELEC+ allows the user to specify the number of core
+electrons replaced by the ECP for the atom represented by the tag.
+Additional input lines can then be used to define the specific
+coefficients and exponents.  The string \verb+shell_type+ is used to
+specify the components of the ECP.  The label \verb+ul+ entered for
+\verb+shell_type+ for a given atom or center (identified by the string
+\verb+tag+) denotes the local part of the ECP.  This is equivalent to
+the highest angular momentum functions specified in the literature for
+most ECPs.  The standard entries (\verb+s, p, d+, etc.) for
+\verb+shell_type+ delineate the angular momentum projector onto the
+local function.  The shell type label of \verb+s+ indicates the
+\verb+ul-s+ projector input, \verb+p+ indicates the \verb+ul-p+, etc.
 
-An application of the \verb+ECP+ directive is illustrated in the following 
-example for the molecule  H$_2$CO.  This input defines an ECP basis set 
-for the  carbon and oxygen atoms in the molecule.
+An application of the \verb+ECP+ directive is illustrated in the
+following example for the molecule H$_2$CO.  This input defines an ECP
+for the carbon and oxygen atoms in the molecule.
 
 % \centerline{{\bf H$_2$CO }}
 
@@ -146,7 +146,7 @@ for the  carbon and oxygen atoms in the molecule.
   end
 \end{verbatim}
 
-Generally contracted ECP basis sets are not in wide use, but the
-functionality has been included in NWChem for applications where they
-might be useful. 
+%Generally contracted ECP basis sets are not in wide use, but the
+%functionality has been included in NWChem for applications where they
+%might be useful. 
 

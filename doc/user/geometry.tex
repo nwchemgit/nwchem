@@ -223,8 +223,11 @@ and is interpreted as follows;
 \begin{itemize}
 \item If it begins with either the symbol or name of an element
   (regardless of case) then the center is treated as an atom of that type.
-  The default charge is the atomic number (adjusted for the
-  presence of ECPs; see Section \ref{sec:ecp}).  Additional characters can
+  The default charge is the atomic number. 
+% (adjusted for the presence of ECPs; see Section \ref{sec:ecp}).  
+% this is handled only by the ECP ``nelec'' directive now.  
+% RAK
+  Additional characters can
   be added to the string, to distinguish between atoms of the same element.
   (For example, the tags \verb+oxygen+, \verb+O+, \verb+o34+, \verb+olonepair+,
   and \verb+Oxygen-ether+, will all be interpreted as oxygen
