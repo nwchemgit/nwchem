@@ -1,5 +1,5 @@
       logical function dkdiv_energy(rtdb)
-c $Id: dkdiv_energy.F,v 1.1 1999-11-18 01:29:47 bert Exp $
+c $Id: dkdiv_energy.F,v 1.2 1999-12-10 01:28:55 bert Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -38,6 +38,9 @@ c
      $     call errquit('dkdiv_energy: bas_create failed', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('dkdiv_energy: bas_rtdb_load failed', 0)
+c
+      call int_init(rtdb,1,basis)
+c
       if (.not. int_normalize(basis))
      $     call errquit('dkdiv_energy: int_normalize failed',0)
       if (.not. bas_numbf(basis,nbf))
@@ -82,6 +85,9 @@ c
      $   call errquit('dkdiv_energy: destroy GAs failed',0)
       if (.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit('dkdiv_energy: destroy bas or geom failed',0)
+c
+      call int_terminate()
+c
       return
 c
       end
