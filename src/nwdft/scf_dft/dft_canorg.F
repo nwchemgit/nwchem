@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.4 2001-11-01 01:26:25 edo Exp $
+c     $Id: dft_canorg.F,v 1.5 2001-11-02 19:08:13 edo Exp $
 c     
       implicit none
 c
@@ -142,14 +142,12 @@ c
 c
       if(nmo(1).ne.nbf_ao) then
          call ga_zero(g_movecs(1))
-            write(0,*) ' nbf nm1 ',nbf_ao,nmo(1)
          call ga_copy_patch('n', g_gmovecs(1), 1, nbf_ao, 
      .        1, nmo(1),
      ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
       if (.not. ga_destroy(g_gmovecs(1))) call errquit
      &     ('dft_scf: could not destroy g_denso', 0)
          if(ipol.eq.2) then
-            write(0,*) ' nbf nm2 ',nbf_ao,nmo(2)
             nmo(2)=nmo(1)
             call ga_zero(g_movecs(2))
             call ga_copy_patch('n', g_gmovecs(2), 1, nbf_ao, 
