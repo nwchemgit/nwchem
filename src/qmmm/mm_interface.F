@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.30 2004-11-11 00:00:44 marat Exp $
+c $Id: mm_interface.F,v 1.31 2004-11-12 20:14:22 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -32,7 +32,6 @@ c
 
       lfnrst = 54
       call md_wrtrst(lfnrst,rfile,.false.)
-      write(*,*) "writing restart file", rfile
 c
       return
       end

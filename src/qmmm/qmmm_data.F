@@ -29,7 +29,7 @@ c
 c
 c     allocate data arrays
 c     --------------------
-      call qmmm_data_alloc(nqm)
+      call qmmm_data_alloc(nqm,nlink)
 
 c 
 c     establish persistent mapping between mm and qm atoms
@@ -255,13 +255,16 @@ c
 
       end
 
-      subroutine qmmm_data_alloc(nat)
+      subroutine qmmm_data_alloc(nat,nl)
       implicit none
 c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_data.fh"
       integer nat
+      integer nl
+c
+      integer i
 
       nqm = nat
 c
@@ -315,6 +318,18 @@ c     -------------------
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nqm, MA_ERR)
       call ifill(nqm,0,int_mb(i_num),1)
+    
+c
+c     list atoms bonded to links
+c     -------------------
+      if(nl.ne.0) then
+        if(.not.ma_alloc_get(MT_INT, nl, 'qmmm link bond array',
+     &      h_lai, i_lai) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nqm, MA_ERR)
+        call ifill(nl,-1,int_mb(i_lai),1)
+        write(*,*) "link list",(int_mb(i_lai+i-1),i=1,nl)
+      end if
     
        
       end
@@ -378,6 +393,15 @@ c     -------------------
       integer qmmm_get_i_ai
 
       qmmm_get_i_ai = i_ai
+
+      end 
+
+      function qmmm_get_i_lai()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_lai
+
+      qmmm_get_i_lai = i_lai
 
       end 
 

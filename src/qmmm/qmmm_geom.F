@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.31 2004-11-05 20:21:24 marat Exp $
+c $Id: qmmm_geom.F,v 1.32 2004-11-12 20:14:30 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -21,6 +21,7 @@ c     local variables
       integer i_t
       integer i_m
       integer i_ind
+      integer i_lind
       integer i_num
       integer i_q
       character*255 basis_string,namespace
@@ -35,6 +36,7 @@ c     local variables
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
+      i_lind = qmmm_get_i_lai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
       i_q   = qmmm_get_i_q()
@@ -58,12 +60,18 @@ c     --------------------------
       end do
       if(nlink.gt.0) then
        call qmmm_link_atoms(nlink,
-     >                       nqm,
+     >                      nqm,
+     >                      int_mb(i_lind),
      >                      int_mb(i_num),
      >                      dbl_mb(i_q),
      >                      byte_mb(i_t),
      >                      dbl_mb(i_c),
      >                      dbl_mb(i_m))
+
+       if(ga_nodeid().eq.0) then
+         write(*,*) "link list"
+         write(*,*) (int_mb(i_lind+i-1),i=1,nlink)
+       end if
 
       end if
 
@@ -639,13 +647,14 @@ c     ----------
 
       end
 
-      subroutine qmmm_link_atoms(nl,n,inum,q,t,c,m)
+      subroutine qmmm_link_atoms(nl,n,lind,inum,q,t,c,m)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
 #include "qmmm.fh"
       integer nl
       integer n
+      integer lind(nl)
       double precision inum(n)
       double precision q(n)
       double precision c(3,n)
@@ -657,6 +666,7 @@ c     ---------------
       integer tmp(2)
       integer i
       integer i1
+      integer il
       integer k
       logical h_link
       integer qmmm_geom_heavy_neighbor
@@ -665,10 +675,13 @@ c     ---------------
       double precision qmmm_geom_distance
       external qmmm_geom_distance
 
+      il = 0
       h_link=qmmm_h_link()
       if(h_link) then
       do i=n-nl+1,n
         i1=qmmm_geom_heavy_neighbor(i,n,inum,c)
+        il=il+1
+        lind(il)=i1
         do k=1,3
          r1(k)=c(k,i)
          r2(k)=c(k,i1)
