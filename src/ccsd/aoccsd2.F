@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom)
       implicit none
-C     $Id: aoccsd2.F,v 2.13 1997-05-29 16:42:49 gg502 Exp $
+C     $Id: aoccsd2.F,v 2.14 1997-05-30 18:06:31 d3j191 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,convi,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -57,7 +57,7 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C     Temporary stuff added to play density matrix games
 C
-      Integer A, Ad1, Ad2, J, B, LSab
+      Integer A,J, B, LSab
       Integer L_Sb, K_Sb, L_Sa, K_Sa
       Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
       Integer G_DenT2, G_DenZ2, G_1PDM
