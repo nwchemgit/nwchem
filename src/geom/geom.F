@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.60 1997-03-05 07:36:32 gutowski Exp $
+C$Id: geom.F,v 1.61 1997-03-25 01:42:56 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1306,13 +1306,22 @@ c     full names of the elements
 c
       atn = 0
       if (lbuf .ge. 4) then
-         if (inp_match(nelements,.false.,buf(1:4),elements,ind)) then
+        do ind = 1,nelements
+          if (inp_compare(.false.,buf(1:4),elements(ind)(1:4))) then
             symbol  = symbols(ind)
             element = elements(ind)
             atn     = ind
             geom_tag_to_element = .true.
             return
-         end if
+          endif
+        enddo
+*rak:         if (inp_match(nelements,.false.,buf(1:4),elements,ind)) then
+*rak:            symbol  = symbols(ind)
+*rak:            element = elements(ind)
+*rak:            atn     = ind
+*rak:            geom_tag_to_element = .true.
+*rak:            return
+*rak:         end if
       end if
 c
 c     Failed ... attempt to match the first two characters
