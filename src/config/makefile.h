@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.422 2003-09-10 23:17:37 edo Exp $
+# $Id: makefile.h,v 1.423 2003-09-16 16:38:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1308,7 +1308,11 @@ ifeq ($(LINUXCPU),x86)
    EXTRA_LIBS += -lm
   else
     ifeq ($(_FC),ifc)
-      EXTRA_LIBS += -fpe2 -Vaxlib  
+    ifeq ($(_IFCV8),Y)
+      EXTRA_LIBS +=  
+    else
+      EXTRA_LIBS +=   -Vaxlib  
+    endif
       ifeq ($(_CPU),i786)
         EXTRA_LIBS +=  -lsvml
       endif
