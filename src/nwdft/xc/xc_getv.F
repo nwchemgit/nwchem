@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.40 2000-08-11 00:12:19 edo Exp $
+C$Id: xc_getv.F,v 1.41 2001-01-09 22:31:55 edo Exp $
 c
       implicit none
 c      
@@ -103,9 +103,10 @@ c
              jfac(2) = 1.0d0
              kfac(2) = 0d0
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
+              call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
+     &             tol2e, oskel, g_dens, g_vxc, .false.)
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
