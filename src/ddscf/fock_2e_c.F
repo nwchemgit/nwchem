@@ -1,3 +1,4 @@
+
 c     
 c  Add integrals into atomic fock matrix blocks ... 
 c  symmetrization will be needed later
@@ -10,16 +11,16 @@ c
      $                      dij, dik, dli, djk, dlj, dlk, 
      $                      fij, fik, fli, fjk, flj, flk )
 c
-c$Id: fock_2e_c.F,v 1.1 1995-03-14 01:52:05 rg240 Exp $
+c$Id: fock_2e_c.F,v 1.2 1995-03-14 02:27:51 rg240 Exp $
 c
       implicit none
 c     
       integer nfock
       double precision tol2e
       double precision q4_shell
-      double precision eri(lslo:lshi,kslo:kshi,jslo:jshi,islo:ishi)
       integer islo, ishi, jslo, jshi, kslo, kshi, lslo, lshi
       integer ialo, iahi, jalo, jahi, kalo, kahi, lalo, lahi
+      double precision eri(lslo:lshi,kslo:kshi,jslo:jshi,islo:ishi)
       double precision dij(nfock,ialo:iahi,jalo:jahi)
       double precision dik(nfock,ialo:iahi,kalo:kahi)
       double precision dli(nfock,lalo:lahi,ialo:iahi)
