@@ -20,7 +20,7 @@ c
       end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.7 2000-10-12 17:58:45 d3g681 Exp $
+* $Id: localize.F,v 1.8 2000-10-12 18:33:00 d3g681 Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -40,7 +40,6 @@ c
       double precision y, w, ef, scale
 c
       integer g_uc(4), x, g_mosc
-      integer ga_create_atom_blocked
 c
       if (.not. rtdb_cget(rtdb, 'scf:loctype', 1, loctype)) 
      $     loctype = 'PM'
