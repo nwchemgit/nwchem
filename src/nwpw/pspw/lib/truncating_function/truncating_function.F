@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.8 2002-03-05 23:25:57 bylaska Exp $
+c $Id: truncating_function.F,v 1.9 2002-03-05 23:33:40 bylaska Exp $
 c
   
 ***********************************************************
@@ -205,7 +205,7 @@ c      integer rho(2),f(2)
 *     **** local variables ****
       integer ia,i
       real*8 xii,yii,zii,r,rr,pp2
-      real*8 x,y,z
+      real*8 x,y,z,f
 
 *     **** external functions ****
       integer  ion_katm
@@ -225,7 +225,10 @@ c      integer rho(2),f(2)
          y = (yii-rgrid(2,i))
          z = (zii-rgrid(3,i))
          r = dsqrt(x*x + y*y + z*z)
-         T(i) = (1.0d0-(1.0d0-dexp(-(r/rr)**pp2))**pp)
+         f = 0.0d0
+         if (r.lt.rr) f = 1.0d0
+c         f = (1.0d0-(1.0d0-dexp(-(r/rr)**pp2))**pp)
+         T(i) = f
       end do
 
       return
@@ -273,13 +276,17 @@ c      integer rho(2),f(2)
          y = (yii-rgrid(2,i))
          z = (zii-rgrid(3,i))
          rii = dsqrt(x*x + y*y + z*z)
-         fii = (1.0d0-(1.0d0-dexp(-(rii/rrii)**pp2))**pp)
+         fii = 0.0d0
+         if (rii.lt.rrii) fii=1.0d0
+c         fii = (1.0d0-(1.0d0-dexp(-(rii/rrii)**pp2))**pp)
 
          x = (xjj-rgrid(1,i))
          y = (yjj-rgrid(2,i))
          z = (zjj-rgrid(3,i))
          rjj = dsqrt(x*x + y*y + z*z)
-         fjj = (1.0d0-(1.0d0-dexp(-(rjj/rrjj)**pp2))**pp)
+         fjj = 0.0d0
+         if (rjj.lt.rrjj) fjj = 1.0d0
+c         fjj = (1.0d0-(1.0d0-dexp(-(rjj/rrjj)**pp2))**pp)
 
          T(i) = 0.5d0*dabs(fii-fjj)
       end do
