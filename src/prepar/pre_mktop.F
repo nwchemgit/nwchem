@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.21 2000-06-21 03:48:16 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.22 2000-09-05 22:00:46 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -407,14 +407,14 @@ c     -----------------------------
 c
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
      + mang,nang,int_mb(i_l3rd),m3rd,n3rd,1,1,1,
-     + nval,int_mb(i_ival),int_mb(i_ndx),natm))
+     + nval,int_mb(i_ival),int_mb(i_ndx),matm))
      + call errquit('pre_third failed',9999)
 c
       n3rdt=n3rd
       if(nbndt.gt.nbnd.and.nangt.gt.nang) then
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbndt,int_mb(i_lang),
      + mang,nangt,int_mb(i_l3rd),m3rd,n3rdt,nbnd+1,nang+1,n3rd+1,
-     + nval,int_mb(i_ival),int_mb(i_ndx),natm))
+     + nval,int_mb(i_ival),int_mb(i_ndx),matm))
      + call errquit('pre_third failed',9999)
       endif
       if(.not.ma_pop_stack(l_ndx))
