@@ -10,6 +10,8 @@ and complicated when presented in its general form, as follows:
 \begin{verbatim}
   GEOMETRY [<string name default geometry>] \
            [units <string units default angstroms>] \
+           [(angstrom_to_au || ang2au) \
+                  <real angstrom_to_au default 1.8897265>] \
            [print [xyz] || noprint] \
            [center || nocenter] \
            [bqbq] \
@@ -92,7 +94,8 @@ list describes  all options and their defaults.
   units for the geometry input are \angstroms\ (Note: atomic units or
   Bohr are used within the code, regardless of the option specified
   for the input units.  The default conversion factor used in the code
-  to convert from {\angstroms} to Bohr is $1.8897265$).  The code
+  to convert from {\angstroms} to Bohr is $1.8897265$ which may be
+  overidden with the \verb+angstrom_to_au+ keyword described below.).  The code
   recognizes the following possible values for the string variable
   \verb+<units>+:
 \begin{itemize}
@@ -106,6 +109,11 @@ list describes  all options and their defaults.
   A.U. using a conversion factor computed as $0.01$ times the 
   \AA\ to A.U. conversion factor)
 \end{itemize}
+
+\item \verb+angstrom_to_au+ -- may also be specified as
+  \verb+ang2au+.  This enables the user to modify the conversion
+  factors used to convert between \AA\ and A.U..  The default value is
+  $1.8897265$. 
       
 \item \verb+bqbq+ -- keyword to specify the treatment of interactions
   between dummy centers.  The default in NWChem is to ignore such
@@ -278,7 +286,7 @@ atom, the user must enter the keyword \verb+charge+, followed by the
 desired value for the variable \verb+<charge>+.
 
 The default mass for an atom is taken to be the mass of its most
-abundant naturally occurring isotope.  If the user wishes to model
+abundant naturally occurring isotope.  To model
 some other isotope of the element, its mass must be defined explicitly
 by specifying the keyword \verb+mass+, followed by the value (in
 atomic mass units) for the variable \verb+<mass>+.

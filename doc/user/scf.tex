@@ -15,8 +15,7 @@ SCF module:
 \end{verbatim}
 
 Each of the additional directives are either simple (e.g.,
-``SINGLET'') or compound (e.g., ``VECTOR'') must be on a separate
-logical line of input.
+``SINGLET'') or compound (e.g., ``VECTOR'').
 
 
 \section{Wavefunction type}
@@ -55,7 +54,7 @@ is the default, and specifies a closed shell; \verb+DOUBLET+ specifies
 one singly occupied orbital; \verb+TRIPLET+ specifies two singly
 occupied orbitals; and so forth.  If there are more than seven singly
 occupied orbitals, the keyword \verb+NOPEN+ must be used, with the
-integer \verb+nopen+ defining the exact number of singly occupied
+integer \verb+nopen+ defining the number of singly occupied
 orbitals (sometimes referred to as open shells).
 
 If the multiplicity is any value other than \verb+SINGLET+, the
@@ -74,12 +73,10 @@ a UHF calculation with 2 more alpha-spin orbitals than beta-spin
 orbitals can be obtained by specifying
 
 \begin{verbatim}
-scf
+  scf
      triplet ; uhf    # (Note: two logical lines of input)
-
      ...
-
-end
+  end
 \end{verbatim}
 
 The user should be aware that, by default, molecular orbitals are
@@ -102,7 +99,7 @@ for restart behavior).
  \end{verbatim}
 
 This directive enables/disables the use of symmetry to speed up Fock matrix
-construction (via the petite or skeleton algorithm) in the SCF, if
+construction (via the petite-list or skeleton algorithm) in the SCF, if
 symmetry was used in the specification of the geometry.  Symmetry
 adaptation of the molecular orbitals is not affected by this option.
 The default is to use symmetry if it is specified in the geometry
@@ -146,9 +143,7 @@ screening threshold for the evaluation of the energy and related
 Fock-like matrices.  The Schwarz inequality is used to screen the
 product of integrals and density matrices in a manner that results in
 an accuracy in the energy and Fock matrices that approximates the
-value specified for \verb+tol2e+.  This differs from many
-computational chemistry codes, where the error in the energy is
-typically much greater than this threshold.
+value specified for \verb+tol2e+. 
 
 It is generally not necessary to set this parameter directly.  Specify
 instead the required precision in the wavefunction, using the
@@ -166,6 +161,9 @@ directive is, for example:
   tol2e 1e-6
 \end{verbatim}
 
+For very diffuse basis sets, or for high-accuracy calculations it
+might be necessary to set this parameter.  A value of $10^{-10}$ is
+sufficient for nearly all such purposes.
 
 \section{{\tt VECTORS} --- input/output of MO vectors}
 \label{sec:vectors}
@@ -192,11 +190,15 @@ The optional keyword \verb+INPUT+ allows the user to specify the
 source of the input molecular orbital vectors as any of the following:
 \begin{itemize}
 \item \verb+ATOMIC+ --- eigenvectors of a Fock-like matrix formed from
-  a superposition of the atomic densities (the default guess).
+  a superposition of the atomic densities (the default guess).  See
+  Sections \ref{sec:atomscf} and \ref{sec:tolguess}.
 \item \verb+HCORE+ --- eigenvectors of the bare-nucleus Hamiltonian or
   the one-electron Hamiltonian.
 \item \verb+filename+ --- the name of a file containing the MO vectors
-  from a previous calculation.
+  from a previous calculation.  Note that unless the path is fully
+  qualified, or begins with a dot (``.''), then it is assumed to
+  reside in the directory for permanent files (see Section
+  \ref{sec:dirs}).
 \item \verb+PROJECT basisname filename+ --- projects the existing MO
   vectors in the file \verb+filename+ from the smaller basis with name
   \verb+basisname+ into the current basis.  The definition of the
@@ -327,7 +329,7 @@ instances:
   calculation on the fragment using dummy charges to model a ligand
   field.
 \item The atomic initial guess currently does not work correctly in
-  the presence of ECPs.  Independenly converging fragments with ECPs 
+  the presence of ECPs.  Independently converging fragments with ECPs 
   can save a lot of resources.
 \item The molecular occupation predicted by the atomic initial guess
   is often wrong for systems with heavy metals which may have
@@ -444,7 +446,7 @@ state of Fe(III) complexed with water, imidazole and a heme with a net
 unit positive charge.  The default atomic guess does not give the
 correct $d^5$ occupation for the metal and also gives an incorrect
 state for the double anion of the heme.  The following performs
-calculations on the all of the fragments.  Things to note are:
+calculations on all of the fragments.  Things to note are:
 \begin{enumerate}
 \item The use
 of a dummy $+2$ charge in the initial guess on the heme which in part
@@ -669,6 +671,20 @@ subsequent atomic guess calculations unless the data is deleted from
 the database with the \verb+UNSET+ directive (Section
 \ref{sec:unset}).
 
+\section{Accuracy of initial guess}
+\label{sec:tolguess}
+
+The initial Fock-matrix construction from the atomic guess is
+performed to a very low precision.  In charged, or diffuse basis sets,
+this precision may not be sufficient and could result in incorrect
+ordering of the initial orbitals.  The accuracy may be increased with
+the following directive which should be inserted in the top-level of
+input (i.e., outside of the SCF input block) and before the {\tt TASK}
+directive.  
+\begin{verbatim}
+  set tolguess 1e-7
+\end{verbatim}
+
 \section{{\tt THRESH} --- convergence threshold}
 \label{sec:thresh}
 
@@ -785,7 +801,7 @@ The next three parameters determine the computational strategy:
   in memory.  If insufficient memory is available, an error results.
 
 \item \verb+DISK+ --- If the ''Disk Resident Array'' library is
-  implemented in the user's installation of NWChem, the keyword
+  implemented in the local installation of NWChem, the keyword
   \verb+DISK+ can be used to specify that the 3-center integrals will
   be stored on disk.  Otherwise, an error results.
 \end{itemize}
@@ -851,8 +867,7 @@ The default behavior of the SCF module is
   (see Section \ref{sec:dirs}) is assumed to be available for this
   purpose, and as many integrals as possible are cached on disk (with
   no memory being used for caching).  Some attempt is made to store
-  the most expensive integrals in the cache.  (Note that, in computing
-  available space, no allowance is made for processes sharing disks.)
+  the most expensive integrals in the cache.  
  \item If there is not enough room in memory or on disk for all the
    integrals, then the ones that are not cached are recomputed in a
    semidirect fashion.
@@ -871,15 +886,10 @@ semidirect calculation.
 
 On the IBM SP or any other computer with fast disks local to each
 processor, semidirect calculation offers the best behavior.  It can
-result in {\em quadratic speedup} as more processors are added.  On
-other machines, it may be necessary to resort to additional strategies
-to achieve faster performance, such as limiting the use of disk space,
-forcing the use of more memory for caching, changing the default file
-names, or using fully direct SCF.
+result in {\em quadratic speedup} as more processors are added.  
 
-The user has the option of forcing a fully direct calculation (with
-recomputation of the integrals at each iteration).  This is
-accomplished by specifying the directive
+A fully direct calculation (with recomputation of the integrals at
+each iteration) is forced by specifying the directive
 
 \begin{verbatim}
   DIRECT
@@ -1049,7 +1059,7 @@ The iterations required to solve the linear equations are referred to
 as micro-iterations.  A macro-iteration comprises both the iterative
 solution and a line search.
 
-Level-shifting plays {\em exactly} the same role in this algorithm as
+Level-shifting plays the same role in this algorithm as
 it does in the conventional iterative solution of the SCF equations.
 The approximate Hessian used for preconditioning should be positive
 definite.  If this is not the case, then level-shifting by a positive
@@ -1083,6 +1093,8 @@ molecule.  Possible actions are
 \item Converging the calculation in a minimial basis set, which is
   usually easier, and then projecting into a larger basis set (Section
   \ref{sec:vectors}).
+\item Using the fragment orbital initial guess (Section
+  \ref{sec:fragguess}).
 \end{itemize}
 
 Small or negative Hessian eigenvalues can occur even though the
