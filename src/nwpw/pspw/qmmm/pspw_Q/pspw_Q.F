@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.6 2001-11-01 18:58:47 bylaska Exp $
+c $Id: pspw_Q.F,v 1.7 2001-11-02 00:49:46 bylaska Exp $
 c
 
 
@@ -83,16 +83,16 @@ c
           write(*,*)
           write(*,*) 'Ion Electrostatic Parameters:'
           do i=1,nkatm_ion
-            write(*,'(A3,4x,A12,E10.3)') 
+            write(*,'(A3,4x,A12,E10.3,A3)') 
      >                  ion_atom(i),
-     >                  'Q:',  dbl_mb(q_ion(1)  + i-1) 
+     >                  'Q:',dbl_mb(q_ion(1)  + i-1),'au'
           end do
          write(*,*)
          write(*,*) 'MM Electrostatic Parameters:'
          do i=1,nkatm_mm
-            write(*,'(A3,4x,A12,E10.3)') 
+            write(*,'(A3,4x,A12,E10.3,A3)') 
      >                  pspw_qmmm_atom(i),
-     >                  'Q:',  dbl_mb(q_mm(1)  + i-1) 
+     >                  'Q:',dbl_mb(q_mm(1)  + i-1),'au'
           end do
           write(*,*)
 

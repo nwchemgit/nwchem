@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.5 2001-11-01 18:58:46 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.6 2001-11-02 00:49:45 bylaska Exp $
 c
 
 *     *************************
@@ -65,8 +65,8 @@ c
      >                  mt_dbl,2,sigma_epsilon)
          if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
-         dbl_mb(sigma_mm(1)+i-1)   = sigma_epsilon(1)
-         dbl_mb(epsilon_mm(1)+i-1) = sigma_epsilon(2)
+        dbl_mb(sigma_mm(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
+        dbl_mb(epsilon_mm(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
       
 *     **** read in Ion LJ parameters ***
@@ -77,8 +77,8 @@ c
      >                  mt_dbl,2,sigma_epsilon)
          if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
-         dbl_mb(sigma_ion(1)+i-1)   = sigma_epsilon(1)
-         dbl_mb(epsilon_ion(1)+i-1) = sigma_epsilon(2)
+        dbl_mb(sigma_ion(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
+        dbl_mb(epsilon_ion(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
 
       
@@ -87,18 +87,26 @@ c
           write(*,*)
           write(*,*) 'Ion LJ Parameters:'
           do i=1,nkatm_ion
-            write(*,'(A3,4x,A12,E10.3,A12,E10.3)') 
-     >                  ion_atom(i),
-     >                  'sigma:',  dbl_mb(sigma_ion(1)  + i-1), 
-     >                  'epsilon:',dbl_mb(epsilon_ion(1)+ i-1)
+            write(*,'(A3,4x,A12,E10.3,A9,A12,E10.3,A9)') 
+     >         ion_atom(i),
+     >         'sigma:',  
+     >         dbl_mb(sigma_ion(1)+i-1)*(0.529177d0), 
+     >         'Angstrom',
+     >         'epsilon:',
+     >         dbl_mb(epsilon_ion(1)+ i-1)*(23.06d0*27.2116d0),
+     >         'kcal/mol'
           end do
          write(*,*)
          write(*,*) 'MM LJ Parameters:'
          do i=1,nkatm_mm
-            write(*,'(A3,4x,A12,E10.3,A12,E10.3)') 
-     >                  pspw_qmmm_atom(i),
-     >                  'sigma:',  dbl_mb(sigma_mm(1)  + i-1), 
-     >                  'epsilon:',dbl_mb(epsilon_mm(1)+ i-1)
+            write(*,'(A3,4x,A12,E10.3,A9,A12,E10.3,A9)') 
+     >         pspw_qmmm_atom(i),
+     >         'sigma:',  
+     >         dbl_mb(sigma_mm(1)+i-1)*(0.529177d0), 
+     >         'Angstrom',
+     >         'epsilon:',
+     >         dbl_mb(epsilon_mm(1)+i-1)*(23.06d0*27.2116d0),
+     >         'kcal/mol'
           end do
           write(*,*)
 

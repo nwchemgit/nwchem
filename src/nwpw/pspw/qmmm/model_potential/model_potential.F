@@ -1,5 +1,5 @@
 c
-c $Id: model_potential.F,v 1.3 2001-11-01 18:58:45 bylaska Exp $
+c $Id: model_potential.F,v 1.4 2001-11-02 00:49:45 bylaska Exp $
 c
 
 *     **********************************
@@ -339,6 +339,7 @@ c
       external pspw_qmmm_katm,pspw_qmmm_nion
       external pspw_qmmm_rion,pspw_Q_zv_MM,util_erf
 
+
       sqrtpi = dsqrt(4.0d0*datan(1.0d0))
       do ii=1,pspw_qmmm_nion()
          r1(1) = pspw_qmmm_rion(1,ii)
@@ -346,7 +347,7 @@ c
          r1(3) = pspw_qmmm_rion(3,ii)
          ia =pspw_qmmm_katm(ii)
 
-         call dcopy(3,0.0d0,ftmp,1)
+         call dcopy(3,0.0d0,0,ftmp,1)
 
 *        **** Add the SR contribution ****
          do i=1,Nbasis
@@ -397,6 +398,7 @@ c
          f_mm(1,ii) = f_mm(1,ii) + ftmp(1)
          f_mm(2,ii) = f_mm(2,ii) + ftmp(2)
          f_mm(3,ii) = f_mm(3,ii) + ftmp(3)
+
 
       end do
 

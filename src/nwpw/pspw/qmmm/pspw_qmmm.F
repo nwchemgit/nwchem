@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.8 2001-11-01 18:58:44 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.9 2001-11-02 00:49:44 bylaska Exp $
 c
 
 ***********************************************************
@@ -74,7 +74,7 @@ c
 *     **** don't do anything if there are no MM atoms ****
       if (nion.gt.0) then
 
-*        ***** Boundary condtion check ****
+*        ***** Boundary condition check ****
          if (control_version().ne.4) then
           value = geom_destroy(geom)
           call errquit(
@@ -481,6 +481,7 @@ c
       return
       end
 
+
 *     **********************************
 *     *	                               *
 *     *         pspw_qmmm_frag         *
@@ -864,7 +865,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *     **********************************
       subroutine pspw_qmmm_Update(algorithm,
      >                           n2ft3d,rgrid,rho,dv,
-     >                           dt,fion,deltawater)
+     >                           dt,fion,deltar)
       implicit none
       integer algorithm
       integer n2ft3d
@@ -873,8 +874,67 @@ c     >                                   n2ft3d,rgrid,Vqm)
       real*8 dv
       real*8 dt
       real*8 fion(3,*)
-      real*8 deltawater
+      real*8 deltar
 
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      logical value
+      integer fmm(2)
+
+
+*     **** allocate fmm force ***
+      value = MA_push_get(mt_dbl,(3*nion),
+     >                     'fmm',fmm(2),fmm(1))
+      if (.not.value)
+     > call errquit('pspw_qmmm_Update:error push stack',0)
+
+*     **** Get Forces ****
+      call pspw_qmmm_Fion(fion)
+      call pspw_qmmm_Fmm(n2ft3d,rgrid,rho,dv,dbl_mb(fmm(1)))
+      deltar = 0.0d0
+
+
+*     **** steepest descent update of water ****
+      if (algorithm.eq.0) then
+      call pspw_qmmm_SD_subUpdate(nion,dbl_mb(r2(1)),
+     >                                  dbl_mb(r1(1)),
+     >                                  dbl_mb(fmm(1)),
+     >                                  dbl_mb(mass(1)),
+     >                                  dt,
+     >                                  deltar)
+
+*     **** Newton step update of water ****
+      else if (algorithm.eq.1) then
+        call pspw_qmmm_Newton_subUpdate(nion,dbl_mb(r2(1)),
+     >                                  dbl_mb(r1(1)),
+     >                                  dbl_mb(r0(1)),
+     >                                  dbl_mb(fmm(1)),
+     >                                  dbl_mb(mass(1)),
+     >                                  dt,ekw)
+        ekw_total = ekw_total + ekw
+        ekw_count = ekw_count + 1
+
+*     **** Verlet step update of water ****
+      else if (algorithm.eq.2) then
+        call pspw_qmmm_Verlet_subUpdate(nion,dbl_mb(r2(1)),
+     >                                  dbl_mb(r1(1)),
+     >                                  dbl_mb(r0(1)),
+     >                                  dbl_mb(fmm(1)),
+     >                                  dbl_mb(mass(1)),
+     >                                  dt,ekw)
+        ekw_total = ekw_total + ekw
+        ekw_count = ekw_count + 1
+      end if
+
+
+*     **** deallocate fmm force ***
+      value = MA_pop_stack(fmm(2))
+      if (.not.value)
+     > call errquit('pspw_qmmm_Update:error pop stack',0)
       return
       end
 
@@ -1088,3 +1148,138 @@ c     >                                   n2ft3d,rgrid,Vqm)
       end if
       return
       end
+
+*     **********************************
+*     *                                *
+*     *      pspw_qmmm_SD_subUpdate    *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_SD_subUpdate(nion,r2,r1,fmm,mass,
+     >                                  dt,deltar)
+      implicit none
+      integer nion
+      real*8 r2(3,*)
+      real*8 r1(3,*)
+      real*8 fmm(3,*)
+      real*8 mass(*)
+      real*8 dt
+      real*8 deltar
+
+*     **** local variables ***
+      integer ii
+      real*8 dti,sum
+
+
+*     **** steepest descent update of MM subsystem ****
+      do ii=1,nion
+        dti = dt/dsqrt(mass(ii))
+        r2(1,ii) = r1(1,ii) + dti*fmm(1,ii)
+        r2(2,ii) = r1(2,ii) + dti*fmm(2,ii)
+        r2(3,ii) = r1(3,ii) + dti*fmm(3,ii)
+
+      end do
+
+*    **** find maximum force ****
+      deltar = 0.0d0
+      do ii=1,nion
+        sum = dsqrt(fmm(1,ii)**2
+     >             +fmm(2,ii)**2
+     >             +fmm(3,ii)**2)
+        if (sum.gt.deltar) deltar = sum
+      end do
+
+      return
+      end
+
+*     **********************************
+*     *                                *
+*     *  pspw_qmmm_Newton_subUpdate    *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_Newton_subUpdate(nion,
+     >                                      r2,r1,v,fmm,mass,
+     >                                      dt,ekw)
+      implicit none
+      integer nion
+      real*8 r2(3,*)
+      real*8 r1(3,*)
+      real*8 v(3,*)
+      real*8 fmm(3,*)
+      real*8 mass(*)
+      real*8 dt,ekw
+
+*     **** local variables ****
+      integer ii
+      real*8  dti
+
+
+*     **** steepest descent update of water ****
+      do ii=1,nion
+        dti = 0.5d0*dt*dt/(mass(ii))
+        r2(1,ii) = r1(1,ii) + dt *v(1,ii) + dti*fmm(1,ii)
+        r2(2,ii) = r1(2,ii) + dt *v(2,ii) + dti*fmm(2,ii)
+        r2(3,ii) = r1(3,ii) + dt *v(3,ii) + dti*fmm(3,ii)
+      end do
+
+*     ***** find kinetic energy ****
+      ekw = 0.0d0
+      do ii=1,nion
+         ekw = ekw + mass(ii)*(v(1,ii)**2+v(2,ii)**2+v(3,ii)**2)
+      end do
+      ekw = 0.5d0*ekw
+
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *  pspw_qmmm_Verlet_subUpdate    *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_Verlet_subUpdate(nion,
+     >                                 r2,r1,r0,fmm,mass,
+     >                                 dt,ekw)
+      implicit none
+      integer nion
+      real*8 r2(3,*)
+      real*8 r1(3,*)
+      real*8 r0(3,*)
+      real*8 fmm(3,*)
+      real*8 mass(*)
+      real*8 dt,ekw
+
+*     **** local variables ****
+      integer i,ii
+      real*8 h,dti
+
+*     **** verlet update of water ****
+      do ii=1,nion
+        dti = dt*dt/(mass(ii))
+        r2(1,ii) = 2*r1(1,ii) - r0(1,ii) + dti*fmm(1,ii)
+        r2(2,ii) = 2*r1(2,ii) - r0(2,ii) + dti*fmm(2,ii)
+        r2(3,ii) = 2*r1(3,ii) - r0(3,ii) + dti*fmm(3,ii)
+      end do
+
+*     **** make rwater0 the velocity - note that velocity is deleted after ****
+*     **** pspw_qmmm_shift call                                            ****
+      h = 1.0d0/(2.0d0*dt)
+      do ii=1,nion
+      do i=1,3
+         r0(i,ii) = h*(r2(i,ii) - r0(i,ii))
+      end do
+      end do
+
+*     ***** find kinetic energy ****
+      ekw = 0.0d0
+      do ii=1,nion
+         ekw = ekw + mass(ii)*(r0(1,ii)**2+r0(2,ii)**2+r0(3,ii)**2)
+      end do
+      ekw = 0.5d0*ekw
+
+      return
+      end
+
+
+
