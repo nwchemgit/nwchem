@@ -14,7 +14,7 @@ c Non-destructive interface (see below).
 c ------------------------------------------------------------------------
       SUBROUTINE nwfft3d(nd1,nd2,nd3,isign,
      .                   x1,x2,map1,map2,doMap,
-     .                   iwrklen,iwrk,rwrklen,rwrk,jstatus)
+     .                   iwrklen,iwrk,rwrklen,rwrk,jstatus,ffttype)
       implicit none
       INTEGER nd1,nd2,nd3, isign, jstatus
       INTEGER map1(*), map2(*)
@@ -24,6 +24,7 @@ c ------------------------------------------------------------------------
       DOUBLE PRECISION rwrk(*)
       INTEGER iwrklen
       INTEGER iwrk(*)
+      INTEGER ffttype
 #include "mafdecls.fh"
 c *** input parameters described
 c
@@ -42,6 +43,7 @@ c        NOTE2: map1 and map2 are NOT used for ESSL call (may dimension to 1)
 c  doMap: (EMSL) forces recomputation of map; map computed on first
 c              call and saved.  Can also be use 
 c  rwrklen,iwrklen: if <> 0, use for EMSL routine scratch memory 
+c  ffttype:  1=>EMSL fft;  2=>ESSL fft
 c
 c *** local variables
       integer d1,d2,d3, owner
@@ -83,6 +85,13 @@ c scale for forward (isign==1) and reverse (isign==-1) fft
       else
          scale = 1.D0
       endif
+
+#ifdef ESSLFFT
+      ffttype = 2
+#else
+      ffttype = 1
+#endif
+     
 #ifdef EMSLFFT
       blksz = nd3/ nproc
 #endif
