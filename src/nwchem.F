@@ -167,11 +167,12 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 15)
+      parameter (ntasks = 16)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
      $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2',
-     &    'riscf', 'checksum', 'dft','md', 'dftgrad','optdft'/
+     &    'riscf', 'checksum', 'dft','md', 'dftgrad','optdft',
+     $    'direct_mp2'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -182,7 +183,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
-     &         140, 150)
+     &         140, 150, 160)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -225,7 +226,7 @@ c
  70      call scf_optimize(rtdb)
          goto 1000
 c
-c     atwtest (4-index)
+c     atwtest (4-index & MCSCF crap)
 c
  80      call atwtest(rtdb)
          goto 1000
@@ -267,6 +268,11 @@ c
 c        optdft ... dft optimization
 c
   150    call dft_optimize(rtdb)
+         goto 1000
+c
+c     conventional direct MP2 (requires moints module)
+c
+  160    call direct_mp2(rtdb)
          goto 1000
 
       else
