@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.34 2000-04-25 17:20:17 d3j191 Exp $
+c $Id: prp_main.F,v 1.35 2000-05-03 19:22:49 d3j191 Exp $
 c
       implicit none
 c
@@ -212,7 +212,15 @@ c
       do 37 i=1,nsm
       it=it+1
       p(it)=gsm(i,iset)
+      if(p(it).lt.tiny) lp(it)=.false.
    37 continue
+      nprop=0
+      do 137 i=1,maxpro
+      if(lp(i)) then
+      nprop=nprop+1
+      ixp(nprop)=i
+      endif
+  137 continue
       maxp=it
       endif
 c
