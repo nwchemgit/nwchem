@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 2000-03-29 01:59:10 edo Exp $
+# $Id: GNUmakefile,v 1.28 2000-03-29 17:53:59 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_sphere.o \
@@ -46,7 +46,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F grid_quadv0a.F grid_quadv0b.F
+   USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F grid_quadv0a.F grid_quadv0b.F grid_quadvw.F grid_tasks.F
 
 
 

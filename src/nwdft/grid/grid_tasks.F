@@ -1,7 +1,7 @@
-      subroutine grid_tasks(rtdb, coord, qsh, nqlen,
+      subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.24 2000-03-28 19:52:37 edo Exp $
+c$Id: grid_tasks.F,v 1.25 2000-03-29 17:54:00 edo Exp $
 c
       implicit none
 c
@@ -15,9 +15,9 @@ c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
-      double precision coord, aqbuf, rad,rad_sh,
+      double precision xyz, aqbuf, rad,rad_sh,
      ,     rmax,rmin,rad_write,symfact
-      dimension coord(3,ncenters)
+      dimension xyz(3,ncenters)
       dimension qsh(3,nqlen)
       dimension aqbuf(4,npts_per_ang)
 c
@@ -38,6 +38,12 @@ c
       external grid_test_mem
       integer nxtask,n1,n2,icount
       external nxtask
+      integer iang_done
+      integer nops ! [out]
+      integer k_symops,l_symops ! [out]  symops handles
+      integer k_gridscr,l_gridscr ! [out]  grid handles
+      integer k_iscr,l_iscr ! [out] iscr handles
+      integer nq_left	
 c
 c     input   
 c        qsh(1,iqsh) = irsh | where within nrad
@@ -88,7 +94,7 @@ c
       ndbl = (ncenters*(ncenters+1))/2
       if (.not.MA_Push_Get(MT_Dbl,ndbl,'Rij',lRij,iRij))
      &   call errquit('  in grid_tasks: cannot allocate Rij',0)
-C      call a_dist(coord, Dbl_MB(iRij), ncenters)
+C      call a_dist(xyz, Dbl_MB(iRij), ncenters)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'rq',lrq,irq))
      &   call errquit('grid_tasks: cannot allocate rq',0)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'p',lp,ip))
@@ -116,6 +122,8 @@ c
       icount = 1
       n1 = 0
       n2 = nxtask(nproc,icount)
+      call grid_sympts0(geom,nops,k_symops,l_symops,
+     ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
       do 111 i_a =1,ncenters
          if(oskel) then
             if (.not.sym_atom(geom, i_a, symfact))  goto 111
@@ -167,14 +175,20 @@ c
 c     Generate all angular quadrature points for this radial shell
 c     and keep only those inside cube
 c     
-                     call grid_qpts(rad_sh,coord(1,ictr), ictr, 
-     ,                    irsh, iang, 
-     ,                    aqbuf, nq,  nx,ny,nz)
+                     call grid_sympts(.false.,
+     .                    rad_sh,xyz(1,ictr), ictr, 
+     .                    irsh, iang, iang_done,nq_left,
+     ,                    aqbuf, nq, nx,ny,nz,nxyz,
+     ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
+     .                    int_mb(k_iscr))
+cedo                     call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
+cedo     ,                    irsh, iang, 
+cedo     ,                    aqbuf, nq,  nx,ny,nz)
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
                      if(ncenters.gt.1) then
-                        call grid_setspac(rtdb, coord, aqbuf,
+                        call grid_setspac(rtdb, xyz, aqbuf,
      ,                       dbl_mb(irij), 
      &                       dbl_mb(irq), dbl_mb(ip), ictr, nq,
      ,                       dbl_mb(iexpo), rad_sh, trunc_neigh)
@@ -210,6 +224,7 @@ c
             endif
          enddo                  ! end loop over cubes
  111  continue ! endd loop over atoms
+      call grid_sympts2(l_symops,l_gridscr,l_iscr)
       n1 = nxtask(-nproc,icount)
       call dft_tstamp(' done atom loop')
 

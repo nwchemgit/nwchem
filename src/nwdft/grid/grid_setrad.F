@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.25 2000-03-22 03:01:42 edo Exp $
+c$Id: grid_setrad.F,v 1.26 2000-03-29 17:53:59 edo Exp $
 c
       implicit none
 c      
@@ -300,8 +300,8 @@ c
       if (ga_nodeid().eq.0.and.oprint_grid)then
          write(LuOut,*)' nrad: ',(nrad(itype), itype = 1, ntypes)
          write(LuOut,*)' radgrid: ',radgrid
-         write(LuOut,*)' tol_reset, mul_reset: ', 
-     &               tol_reset, mul_reset
+         write(LuOut,*)' tol_reset,  ', 
+     &               tol_reset
       endif
       return
       end
