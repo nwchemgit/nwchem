@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.34 2004-12-18 20:01:52 bylaska Exp $
+* $Id: ion.F,v 1.35 2005-01-01 00:35:27 bylaska Exp $
 *
 
 *     ***************************
@@ -76,7 +76,8 @@
       end do
 
 *     **** if md code then write velocities ****
-      if (control_code().eq.2) then
+      if ((control_code().eq.2).or.
+     >    (control_code().eq.7)) then
          value = geom_vel_set(geom,dbl_mb(r0(1)))
       end if
 
@@ -86,7 +87,8 @@
         value = geom_rtdb_delete(rtdb,'pspwgeometry')
       if ((control_code().eq.1).or.
      >    (control_code().eq.2).or.
-     >    (control_code().eq.6)) then
+     >    (control_code().eq.6).or.
+     >    (control_code().eq.7)) then
         value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = geom_destroy(geom)
@@ -98,7 +100,8 @@
 *     *****************************************************
       if ((control_code().eq.1).or.
      >    (control_code().eq.2).or.
-     >    (control_code().eq.6)) then
+     >    (control_code().eq.6).or.
+     >    (control_code().eq.7)) then
 
 
 *       *****************************************
@@ -117,9 +120,9 @@
       end
 
 *     ***************************
-*     *							*
-*     *		ion_destroy 		*
-*     *							*
+*     *				*
+*     *		ion_destroy 	*
+*     *				*
 *     ***************************
       subroutine ion_destroy()
       implicit none
