@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.18 1997-06-06 21:07:35 pg481 Exp $
+*     $Id: intb_2e4c.F,v 1.19 1997-12-01 22:56:42 d3e129 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -169,6 +169,9 @@ c:tex-\end{verbatim}
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+c::   functions
+      integer int_nint_cart
+      external int_nint_cart
 c::   passed
 c:tex-\begin{verbatim}
       integer brain             ! [input]  basis set handle for bra 
@@ -219,19 +222,16 @@ c
       endif
       num_q_last = num_q_start
       nint = 0
-*     this will have to change for spherical code
       do 00100 i_q = num_q_start, num_q
-         numinti=(sf_ibs_cn2bfr(2,icl(i_q),bra))-
-     $        (sf_ibs_cn2bfr(1,icl(i_q),bra))+1
-         numintj=(sf_ibs_cn2bfr(2,jcl(i_q),bra))-
-     $        (sf_ibs_cn2bfr(1,jcl(i_q),bra))+1
-         numintk=(sf_ibs_cn2bfr(2,kcl(i_q),ket))-
-     $        (sf_ibs_cn2bfr(1,kcl(i_q),ket))+1
-         numintl=(sf_ibs_cn2bfr(2,lcl(i_q),ket))-
-     $        (sf_ibs_cn2bfr(1,lcl(i_q),ket))+1
-         numint=numinti*numintj*numintk*numintl
+         numint=int_nint_cart(
+     &       brain,icl(i_q),brain,jcl(i_q),
+     &       ketin,kcl(i_q),ketin,lcl(i_q))
          if (numint.gt.leri_left) then
 #if defined(DEBUG_TXS)
+           numinti=int_nint_cart(brain,icl(i_q),0,0,0,0,0,0)
+           numintj=int_nint_cart(brain,jcl(i_q),0,0,0,0,0,0)
+           numintk=int_nint_cart(ketin,kcl(i_q),0,0,0,0,0,0)
+           numintl=int_nint_cart(ketin,lcl(i_q),0,0,0,0,0,0)
            write(6,*)' shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q)
            write(6,*)' numinti  ',numinti
            write(6,*)' numintj  ',numintj
