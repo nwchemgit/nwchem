@@ -1,0 +1,9 @@
+C$Id: util_sgroup.fh,v 1.1 2004-11-29 21:37:17 edo Exp $
+	integer maxgroups
+	parameter(maxgroups=512)
+	integer grouplist(maxgroups)! sgroup handle
+	integer mygroup
+	integer ngroups
+	logical sgactive
+	common /sgroup/ grouplist,
+     *	  ngroups, mygroup,sgactive
