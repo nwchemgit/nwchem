@@ -1,0 +1,64 @@
+% $Id: interface.tex,v 1.1 2000-11-07 00:09:54 windus Exp $
+\label{sec:interface}
+
+NWChem has interfaces to several different packages which are listed below.
+In general, the NWChem authors work with the authors of the other packages
+to make sure that the interface works.  However, any problems with the 
+interface should be reported to the
+{\tt nwchem-support@emsl.pnl.gov} e-mail list.
+
+\section{NBO --- Natural Bond Orbital Analysis}
+\label{sec:nbo}
+\begin{verbatim}
+  NBO
+    ...
+  END
+\end{verbatim}
+
+This directive is used to run the NBO package within NWChem.  (To only print
+out an input file for NBO, see Section \ref{sec:Nbofile}.)
+
+Inside the NBO block are the typical commands that would be needed for NBO
+(Please see an NBO user's manual for more information.).  The following
+directive is needed to execute NBO.
+\begin{verbatim}
+task nbo
+\end{verbatim}
+As an example:
+
+\begin{verbatim}
+title "Methylamine...rhf/3-21g//Pople-Gordon standard geometry"
+
+start methylamine
+
+echo
+
+memory 8 mw
+
+basis
+ C library 3-21g
+ N library 3-21g
+ H library 3-21g
+end
+
+geometry
+ C            .052902     .711852     .000000
+ N            .052902    -.758148     .000000
+ H           -.974760    1.075185     .000000
+ H            .566733    1.075185     .889981
+ H            .566733    1.075185    -.889981
+ H           -.423217   -1.094815     .824662
+ H           -.423217   -1.094815    -.824662
+ symmetry c1
+end
+
+task SCF energy
+
+nbo
+ $nbo cmo $end
+end
+
+task nbo 
+
+\end{verbatim}
+
