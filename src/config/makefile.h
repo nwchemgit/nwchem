@@ -1,6 +1,5 @@
 
-
-# $Id: makefile.h,v 1.89 1995-01-09 19:13:09 pg511 Exp $
+# $Id: makefile.h,v 1.90 1995-01-10 19:07:41 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -213,12 +212,12 @@ ifeq ($(TARGET),CRAY-T3D)
 # remember to run make sngl_to_dbl to use CRAY blas and lapack
 # and to setenv TARGET CRAY-T3D (for C compiler)
 #
-    CORE_SUBDIRS_EXTRA = 
+    CORE_SUBDIRS_EXTRA = blas lapack 
        LINK.f = /mpp/bin/mppldr -Drdahead=on \
                 -Dbin=inp/inp.o,basis/basisP.o,ddscf/rhf_fock_2e_a.o,ddscf/scf_pstat.o,NWints/api/int_init.o\
-                -L$(LIBDIR)
+                -L$(LIBDIR) 
      RANLIB = @echo
-  MAKEFLAGS = -j 5
+  MAKEFLAGS = -j 6
     INSTALL = @echo $@ is built
 
          FC = /mpp/bin/cf77 
@@ -230,8 +229,8 @@ ifeq ($(TARGET),CRAY-T3D)
 
     DEFINES =  -DPARALLEL_DIAG
 
-       CORE_LIBS =  -lglobal -lpeigs\
-                -ltcgmsg 
+       CORE_LIBS =  -lglobal -lpeigs \
+                -ltcgmsg -llapack -lblas
 
   EXPLICITF = TRUE
 endif
@@ -252,7 +251,7 @@ ifeq ($(TARGET),KSR)
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
 #     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
-     LIBPATH += -L/home2/d3g270/peigs1.1 -L/home/d3g681/TCGMSG_DISTRIB
+     LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
 
@@ -418,17 +417,17 @@ ifeq ($(TARGET),IBM)
 	      -brename:.dgetrf_,.dgetrf \
 	      -brename:.dgetrs_,.dgetrs \
 	      -brename:.dscal_,.dscal \
-	      -brename:.idamax_,.idamax
-
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.times_,.times 
-
+	      -brename:.idamax_,.idamax 
 
  EXPLICITF = TRUE
 #
 endif
+#	      -brename:.dpotri_,.dpotri \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.times_,.times 
+#	      -brename:.lsame_,.lsame \
+#	      -brename:.xerbla_,.xerbla \
 
 
 
@@ -489,5 +488,3 @@ endif
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
 endif
-
-
