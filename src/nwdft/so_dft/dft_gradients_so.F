@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.2 2000-04-18 00:31:12 edo Exp $
+c     $Id: dft_gradients_so.F,v 1.3 2000-05-01 05:35:02 zzhang Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -210,7 +210,7 @@ c
 c     
 c     forces on atoms (3xnat)
 c     
-      status = ga_create (mt_dbl, 3, nat, 'forces', 3, 1, g_force)
+      status = ga_create (mt_dbl, 3, nat, 'forces', 3, 0, g_force)
       call ga_zero (g_force)
 c     
 c     local replication (separate for the different pieces)
