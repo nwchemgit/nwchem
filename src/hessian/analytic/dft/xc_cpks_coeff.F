@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.4 1999-02-19 02:40:58 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.5 1999-03-04 14:14:16 bjohnson Exp $
 c
       Subroutine xc_cpks_coeff(prho, pdelrho, Amat2, Cmat2, Cmat,
      &                         delrho, npert, ipol, nq, GRAD)
@@ -32,7 +32,7 @@ c     GC first derivatives of XC functional [input]
 c
       double precision Cmat(nq,*)
 c
-c     Gradients of spin densities [input, destroyed]
+c     Gradients of spin densities [input]
 c
       double precision delrho(nq,3,ipol)
 c
@@ -233,6 +233,13 @@ c
          endif
 c
       enddo
+c
+      if (ipol.eq.1 .and. GRAD) then
+c
+c     Put delrho back the way it was since it may be used later on
+c
+         call dscal(nq*3*ipol,2d0,delrho,1)
+      endif
 c
 #if 0
       if (bgj_print() .gt. 1) then
