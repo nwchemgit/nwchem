@@ -223,7 +223,7 @@ c
 c
 c terminate integral scope
 c
-      call int_terminate()
+      call intd_terminate()
 c
       if (.not. context_pop('dftgrad')) 
      $     call errquit('context_pop failed',0)
