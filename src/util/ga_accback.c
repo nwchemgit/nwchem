@@ -1,10 +1,10 @@
-#if defined(CRAY) || defined(ARDENT) || defined(WIN32)
+#if (defined(CRAY) || defined(ARDENT) || defined(WIN32))&& !defined(__crayx1)
 #   define ga_access_callback_release_ GA_ACCESS_CALLBACK_RELEASE 
 #endif
 
 #include "global.h"
 #include "macdecls.h"
-#ifdef CRAY
+#if defined(CRAY)&& !defined(__crayx1) 
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif /* CRAY */
