@@ -1,6 +1,6 @@
       subroutine sym_op_class_name(op_type, order, power, direction,
      $     group_name, class)
-C$Id: sym_op_cname.F,v 1.2 1998-04-06 22:13:37 d3g681 Exp $
+C$Id: sym_op_cname.F,v 1.3 1998-06-15 22:16:22 d3g681 Exp $
       implicit none
 #include "inp.fh"
 c     
@@ -15,9 +15,11 @@ c
 c     Try to assign the class name of an operator given all the other info
 c     
 c     Powers of rotations in Cn, Cnh and Sn are all in separate classes
+c     Also for T and Th
 c     
       abspow = abs(power)
       if (group_name(1:1).eq.'S' .or. 
+     $     group_name.eq.'T' .or. group_name.eq.'Th' .or.
      $     (group_name(1:1).eq.'C' .and.
      $     (group_name(3:3).eq.'h' .or. inp_strlen(group_name).eq.2)))
      $     then
@@ -29,7 +31,7 @@ c
             endif
          endif
       endif
-c     
+c
       class = ' '
       if (op_type .eq. 'identity') then
          class = 'e'
