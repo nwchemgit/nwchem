@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.70 2002-02-08 04:47:56 d3j191 Exp $
+c $Id: sp_main.F,v 1.71 2002-02-08 22:18:31 d3j191 Exp $
 c
       implicit none
 c
@@ -371,7 +371,7 @@ c
       lst(i)=0
     1 continue
 c
-      call cf_links(nums,isl(1,lsgan),isl(1,lsdyn),lst)
+      call cf_links(lquant,nums,isl(1,lsgan),isl(1,lsdyn),lst)
 c
       call ga_igop(msp_21,lst,nsa,'+')
 c
@@ -379,6 +379,19 @@ c
       if(iand(isl(i,lsdyn),lquant).eq.0.and.lst(isl(i,lsgan)).gt.0)
      + isl(i,lsdyn)=ior(isl(i,lsdyn),lqlink)
     2 continue
+c
+      do 3 i=1,nsa
+      lst(i)=0
+    3 continue
+c
+      call cf_links(lqlink,nums,isl(1,lsgan),isl(1,lsdyn),lst)
+c
+      call ga_igop(msp_26,lst,nsa,'+')
+c
+      do 4 i=1,nums
+      if(iand(isl(i,lsdyn),lqlink).eq.0.and.lst(isl(i,lsgan)).gt.0)
+     + isl(i,lsdyn)=ior(isl(i,lsdyn),lqsoft)
+    4 continue
 c
       return
       end

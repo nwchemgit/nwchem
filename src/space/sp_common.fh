@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.30 2001-11-19 17:14:43 d3j191 Exp $
+c $Id: sp_common.fh,v 1.31 2002-02-08 22:18:31 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -54,9 +54,10 @@ c
       parameter(lsct2=13)
       parameter(lsct3=14)
 c
-      integer lquant,lqlink
+      integer lquant,lqlink,lqsoft
       parameter(lquant=16)
       parameter(lqlink=32)
+      parameter(lqsoft=64)
 c
       integer madbox
       parameter(madbox=6)
