@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.3 2002-08-28 22:16:19 bert Exp $
+c$Id: cterm.F,v 1.4 2002-08-29 17:01:04 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -465,6 +465,8 @@ c
 c
       integer qO_handles(0:7)
 c
+c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
+c     HENCE ADD CONTRIBUTIONS TO qO_handles
 c     spini=spinj and spinf=spina
 c     do sum_i C_hole(ua) Z2(iu,if) and store in q_2_O(a,f) -> qO_handles(2)
 c     do sum over i first to get u,f and then do dgemm with c_hole
@@ -490,6 +492,8 @@ c
 c
       integer qV_handles(0:7)
 c
+c     WE NEED TO ACCUMULATE THE Q's DURING THE BLOCKING LOOP IN acefterms.F
+c     HENCE ADD CONTRIBUTIONS TO qO_handles
 c     spini=spinj and spinf=spina
 c     do sum_u C_hole(ua) Z2(iu,ma) and store in q_2_V(i,m) -> qV_handles(2)
 c     need to do dgemm with c_hole first and then do sum
