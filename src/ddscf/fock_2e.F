@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock )
-c$Id: fock_2e.F,v 1.9 1999-05-08 13:10:44 bjohnson Exp $
+c$Id: fock_2e.F,v 1.10 1999-05-18 23:50:56 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -27,6 +27,7 @@ c     !!! BGJ test !!!
       integer ifock
       integer g_xc(100) ! Assume no more than 100 fock matrices !!!
       integer ga_create_atom_blocked
+      integer vg_fockc
       external ga_create_atom_blocked
       logical xc_active, jfit
 c     !!! BGJ test !!!
@@ -54,9 +55,23 @@ c
       jfit = bgj_have_j_fit()
 
 c     !!! BGJ test !!!
-
       if (jfit) then
-         call fock_j_fit(nfock, vg_dens, vg_fock)
+c
+c     get the HF exchange part (must be replaced by DFT X)
+c
+         vg_fockc = ga_create_atom_blocked
+     $        (geom1, ao_basis, 'fock_2e: vg_fockc')
+         jfac(1)=0d0
+         kfac(1)=-0.5d0
+         call ao_fock_2e( geom1, ao_basis, 1, jfac, kfac,
+     $                    tol2e1, oskel1, vg_dens, vg_fock )
+
+         call fock_j_fit(nfock, vg_dens, vg_fockc)
+         call ga_add(1.0d0, vg_fockc, 1.0d0, vg_fock,
+     &        vg_fock)
+         if (.not.ga_destroy(vg_fockc))
+     .      call errquit('fock_2e: problem destroying test array',1)
+         return
       else if (nriscf.gt.1) then
         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
      $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
