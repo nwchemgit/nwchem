@@ -18,6 +18,7 @@ c
        integer nactel, nela, nelb, multip, orlen
        integer l_occ, k_occ, l_sym, k_sym
        integer l_evals, k_evals
+       integer l_eval2, k_eval2
        integer l_dm1, k_dm1, l_dm2, k_dm2
        integer l_tmp, k_tmp
        integer g_movecs, g_coul, g_exch
@@ -35,6 +36,7 @@ c
        double precision tol2e, gnorm, xx
        double precision ttotal, torb, tci, ttmp
        logical oconj
+       logical ocjrst
        logical oskel
        logical oorbsolve
        logical oprinfo
@@ -150,18 +152,20 @@ c
 c  Create occupation and orbital energy vectors
 c
        if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
-     $     call errquit('rohf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0)
+       if (.not.ma_push_get(MT_DBL, nbf, 'mcscf eps', l_eval2, k_eval2))
+     $     call errquit('mcscf: cannot allocate',0)
        if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
-     $     call errquit('rohf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0)
 c
 c  Allocate 1- & 2-PDM
 c
        if (.not.ma_push_get(MT_DBL, (nact*nact*nact*nact),
      $                      '2P density', l_dm2, k_dm2))
-     $     call errquit('rohf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0)
        if (.not.ma_push_get(MT_DBL, (nact*nact),
      $                      '1P density', l_dm1, k_dm1))
-     $     call errquit('rohf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0)
 c
 c  Initialize some stuff
 c
@@ -176,6 +180,12 @@ c
      $   call errquit('mcscf: cannot allocate MO vectors',0)
        call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_movecs )
+       call dcopy(nbf, dbl_mb(k_evals), 1, dbl_mb(k_eval2), 1)
+
+       WRITE(6,550)
+ 550   FORMAT(/,5x,'Orbital Energies')
+       WRITE(6,551) (DBL_MB(K_EVALS+I-1),I=1,NBF)
+ 551   FORMAT(7F12.6)
 c
 c  Get orbital symmetries
 c 
@@ -204,7 +214,8 @@ c
        call ga_zero(g_conj)
        call ga_zero(g_gradold)
        pfac = 1.d0
-       oconj = .false.
+       oconj = .true.
+       ocjrst = .false.
 c
 c   Allocate operator matrices
 c   Memory test required here!
@@ -224,7 +235,6 @@ c
      $                      g_exch, .true., g_jact, .true.,
      $                      blen )
 #else
-
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
@@ -255,14 +265,14 @@ c
          call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                       nsym, int_mb(k_sym), dbl_mb(k_evals),
      $                       g_hcore, g_coul, dbl_mb(k_dm1),
-     $                       dbl_mb(k_dm2), .true., .false. )
+     $                       dbl_mb(k_dm2), (iter.ne.1),
+     $                       .true., .false. )
          if (omcscfprof) call pstat_off(ps_ci)
          tci = tci + util_cpusec() - ttmp
 c
 c   Orbital solver
 c
-         oconj = .true.
-         if ((oconj).and.(mod(iter,icgreset).eq.0)) then
+         if ((oconj).and.((mod(iter,icgreset).eq.0).or.(ocjrst))) then
            call ga_zero(g_conj)
            call ga_zero(g_gradold)
            pfac = 1.d0
@@ -273,9 +283,9 @@ c
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                          oskel, int_mb(k_sym), dbl_mb(k_dm1),
      $                          dbl_mb(k_dm2), g_coul, g_exch, g_jact,
-     $                          oconj, pfac, g_conj, g_gradold,
-     $                          g_hcore, dbl_mb(k_evals), eone,
-     $                          etwo, gnorm, g_movecs )
+     $                          oconj, ocjrst, pfac, g_conj, g_gradold,
+     $                          g_hcore, eone, etwo, gnorm,
+     $                          dbl_mb(k_eval2), g_movecs )
            if (omcscfprof) call pstat_off(ps_orb)
            torb = torb + util_cpusec() - ttmp
          else
@@ -301,20 +311,37 @@ c
  929       format(//,5x,'--- maximum iterations reached ---')
          endif
          write(6,930) torb, tci, ttotal
- 930     format(5x,'== MCSCF Timing:',3(5x,f14.3),/,)
+ 930     format(5x,'== MCSCF Timing:',3(5x,f14.3),/)
        endif
-       GOTO 403
+C       GOTO 403
 c
-c   Transform to natural orbitals
+c  Solve CI for converged MOs
+c
+       call moints_build_2x( basis, ohalf, oskel,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
+     $                       g_movecs, g_coul, .true.,
+     $                       g_exch, .true., blen )
+       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $                   g_coul, g_exch, g_hcore )
+       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
+     $                     g_hcore, g_coul, dbl_mb(k_dm1),
+     $                     dbl_mb(k_dm2), .true., .false., .false. )
+c
+c  Transform to natural orbitals
 c
        call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
-     $                        dbl_mb(k_occ), g_movecs )
-       if ((oprinfo).and.(util_print('mo',print_high))) then
+     $                        dbl_mb(k_occ), dbl_mb(k_evals),
+     $                        g_movecs )
+c
+c  Print natural orbitals
+c
+       if ((oprinfo).and.(util_print('mo',print_default))) then
          write(6,880)
  880     format(///,10x,'Natural Orbitals and Occupation')
          if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
      $                        l_tmp, k_tmp))
-     $     call errquit('mcscf: cannot allocate local MO',0)
+     $        call errquit('mcscf: cannot allocate local MO',0)
          call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
      $               dbl_mb(k_tmp), nbf)
          chi = 0
@@ -331,27 +358,25 @@ c
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('mcscf: cannot pop local MO',0)
        endif
-c
-c  Resolve secular eqn with natural orbitals
-c
-       call moints_build_6x( basis, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., 16 )
-       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                   g_coul, g_exch, g_hcore )
-       if (oprinfo) write(6,882)
- 882   format(//,10x,' Active Space Ground State CI vector')
-       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
-     $                     g_hcore, g_coul, dbl_mb(k_dm1),
-     $                     dbl_mb(k_dm2), .false., .true. )
-c
+c     
 c  Save natural orbitals to disk
 c
  403   CONTINUE
-      call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_occ),
-     $                         dbl_mb(k_evals), g_movecs )
+c$$$       call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_occ),
+c$$$     $                          dbl_mb(k_evals), g_movecs )
+c
+c  Solve CI for Natural Orbitals
+c
+       call moints_build_2x( basis, ohalf, oskel,
+     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
+     $                       g_movecs, g_coul, .true.,
+     $                       g_exch, .true., blen )
+       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $                   g_coul, g_exch, g_hcore )
+       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
+     $                     g_hcore, g_coul, dbl_mb(k_dm1),
+     $                     dbl_mb(k_dm2), .false., .false., .true. )
 c
 c  Free temporaries
 c
@@ -415,6 +440,7 @@ c
      $      call errquit('mcscf: cannot allocate inactive Fock',0)
        if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
      $      call errquit('mcscf: cannot allocate general Fock',0)
+
 c
 c  Allocate MCSCF Gradient vector
 c
@@ -427,6 +453,9 @@ c
        call ga_zero(g_grad)
        call ga_zero(g_x)
        call ga_zero(g_prod)
+c
+c  Regenerate MO integrals
+c
 #ifdef APPROX_E2
        call moints_mcscf_2x(basis, mo_lo, mo_hi, 1, nbf,
      $                      g_movecs, g_coul, .true.,
@@ -479,7 +508,7 @@ c
        endif
        if (util_print('final gradient norm',print_default)) then
          if (oprinfo) write(6,676) gnorm
- 676     format(20x,'Gradient norm:',e20.4)
+ 676     format(20x,'Gradient norm:',e20.8)
        endif
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -643,6 +672,8 @@ c
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ma_pop_stack(l_occ))
      $      call errquit('mcscf: cannot pop stack?',0)
+       if (.not.ma_pop_stack(l_eval2))
+     $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ma_pop_stack(l_evals))
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ga_destroy(g_exch))
@@ -774,9 +805,9 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL, orlen, 'H', l_hv, k_hv))
-     $     call errquit('rohf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0)
        if (.not.ma_push_get(MT_DBL, orlen, 'Hy', l_hy, k_hy))
-     $     call errquit('rohf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0)
        nvir = nbf - nclosed - nact
 C       goto 10000
        open(unit=88,file='hess',form='unformatted',
@@ -822,7 +853,7 @@ c
 c
 c
 c$$$       if (.not.ma_push_get(MT_DBL, orlen, 'Hy', l_hd, k_hd))
-c$$$     $     call errquit('rohf: cannot allocate',0)
+c$$$     $     call errquit('mcscf: cannot allocate',0)
 c$$$c
 c$$$c
 c$$$c
@@ -852,14 +883,14 @@ c$$$       write(6,901) (dbl_mb(k_hd+i-1),i=1,orlen)
 c$$$ 901   format(10f12.6)
 
 c$$$       if (.not.ma_pop_stack(l_hd))
-c$$$     $      call errquit('rohf: damn',0)
+c$$$     $      call errquit('mcscf: damn',0)
 c
 c  Clean up
 c
        if (.not.ma_pop_stack(l_hy))
-     $      call errquit('rohf: damn',0)
+     $      call errquit('mcscf: damn',0)
        if (.not.ma_pop_stack(l_hv))
-     $      call errquit('rohf: damn',0)
+     $      call errquit('mcscf: damn',0)
 
        return
        end

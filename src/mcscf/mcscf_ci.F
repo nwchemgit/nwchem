@@ -4,7 +4,7 @@ c   MCSCF Secular solution front-end
 c
       subroutine mcscf_cisolve( rtdb, geom, basis, nbf, nclosed,
      $                          nact, nsym, orbsym, eps, g_h, g_coul,
-     $                          dm1, dm2, oprint, ociprint )
+     $                          dm1, dm2, ociread, oprint, ociprint )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -28,12 +28,13 @@ c
       double precision eps(nbf)
       double precision dm1(nact,nact)
       double precision dm2(nact,nact,nact,nact)
+      logical ociread
       logical oprint
       logical ociprint
 c
 #ifdef OLD_DAVIDSON
       integer mxworkvec
-      parameter(mxworkvec=10)
+      parameter(mxworkvec=12)
 #else
       integer mxworkvec
       parameter(mxworkvec=5)
@@ -69,7 +70,7 @@ c
 c
       save hasprint
       data hasprint/0/
-      data citol/1.e-8/
+      data citol/1.e-10/
       data civec_in/'civec'/
 c
 c
@@ -143,13 +144,13 @@ c
         call ga_zero(g_wvec(i))
       enddo
 c
-c   Guess CI vector for first time thru
+c   Guess CI vector
 c   Can manually set the guess config. in the database
 c   otherwise generate guess via Aufbau rules with correct
 c   symmetry. Automatic
 c
       inquire(file=civec_in,exist=civec_saved)
-      if ((hasprint.le.1).or.(.not.(civec_saved))) then
+      if ((.not.(ociread)).or.(.not.(civec_saved))) then
         if (rtdb_get(rtdb,'mcscf:guess',MT_INT,(nela+nelb),itmp)) then
           do i=1,(nela+nelb)
             guess_cfg(i) = itmp(i)
@@ -195,8 +196,11 @@ c
 c
 c   Print out converged ground state CI vector
 c
-      if ((ociprint).or.(odebugpr))
-     $  call detci_print( g_civec, 2.d-2 )
+      if ((ociprint).or.(odebugpr)) then
+        if (ga_nodeid().eq.0) write(6,885) 
+ 885    format(/,10x,'Converged CI vector')
+        call detci_print( g_civec, 2.d-2 )
+      endif
 c
 c   Check symmetry contamination of soln vector
 c

@@ -1,13 +1,13 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.14 1996-04-09 22:14:22 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.15 1996-04-12 00:10:24 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
-     $                           nact, oskel, orbsym, dm1, dm2,
-     $                           g_coul, g_exch, g_jact, oconj, pfac,
-     $                           g_conj, g_gradold, g_hcore, orbe,
-     $                           eone, etwo, gnorm, g_movecs )
+     $                           nact, oskel, orbsym, dm1, dm2, 
+     $                           g_coul, g_exch, g_jact, oconj, ocjrst,
+     $                           pfac, g_conj, g_gradold, g_hcore,
+     $                           eone, etwo, gnorm, orbe, g_movecs )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -22,21 +22,22 @@ c
        integer rtdb, geom, basis                       ! [input] Handles
        integer nbf, nclosed, nact                      ! [input] Orbital parameters
        logical oskel                                   ! [input] Symmetry toggle
-       integer orbsym                                  ! [input] Orbital irreps
+       integer orbsym(*)                               ! [input] Orbital irreps
        double precision dm1(*)                         ! [input] 1-PDM
        double precision dm2(*)                         ! [input] 2-PDM
        integer g_coul                                  ! [input] Coulomb operator
        integer g_exch                                  ! [input] Exchange operator
        integer g_jact                                  ! [input] (pt|vu) Integrals
        logical oconj                                   ! [input] Conjugacy toggle
+       logical ocjrst                                  ! [input/output] Force conjucy reset
        double precision pfac                           ! [input/output] Conj projection factor
        integer g_conj                                  ! [input] Conjugacy vector
        integer g_gradold                               ! [input] Old gradient
        integer g_hcore                                 ! [input] 1e hamiltonian
-       double precision orbe(*)                        ! [input] ROHF orbital energies
        double precision eone                           ! [output] 1e-energy + nuclear repulsion
        double precision etwo                           ! [output] 2e-energy
        double precision gnorm                          ! [output] gradient norm
+       double precision orbe(nbf)                      ! [output] MCSCF orbital energies
        integer g_movecs                                ! [input/output] MO vectors
 c
        integer maxpiter
@@ -52,8 +53,9 @@ c
        double precision xx, yy, eold, hmax, hmin, maxx
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
-       integer blen
+       integer blen, nmixed, nflip
        logical olsrchprint
+       logical ocanonical
        logical ostepci
        logical ocoul, oexch, ohalf
        double precision lshift
@@ -69,6 +71,7 @@ c
        data lshift/1.0d0/
        data ostepci/.false./
        data blen/16/
+       data nflip/0/
        data ohalf/.true./
        data ocoul/.true./
 c
@@ -83,9 +86,10 @@ c
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
        endif
-       if (.not. rtdb_get(rtdb,'mcscf:hessiantype',MT_INT,1,pflg)) then
-         pflg = 2
-       endif
+       if (.not. rtdb_get(rtdb,'mcscf:hessiantype',MT_INT,1,pflg))
+     $   pflg = 2
+       if (.not. rtdb_get(rtdb,'mcscf:canonical',MT_LOG,1,ocanonical))
+     $   ocanonical = .true.
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        molo = nclosed + 1
@@ -216,9 +220,10 @@ c$$$       CALL GA_ROWPRINT(' SEARCH DIRECTION ', g_srch )
        call ga_screen(g_srch, 1.d-10 )
        snorm = sqrt(ga_ddot(g_srch,g_srch))
 c
-c  Conjugacy
+c  Conjugacy 
+c  Apply only if previous iteration did not force reset
 c
-       if (oconj)
+       if ((oconj).and.(.not.(ocjrst)))
      $   call mcscf_conj( g_grad, g_gradold, pfac, g_conj, g_srch )
 c
 c  Info
@@ -304,10 +309,29 @@ c
      $                 g_movecs, g_newvecs )
 c  
 c  Safe to copy new MOs into result
+c  Canonicalization and symmetry adaption
 c
  100   continue
-       call ga_copy(g_newvecs, g_movecs )
        gnorm = sqrt(ga_ddot(g_grad, g_grad))
+       if (ocanonical) then
+         call mcscf_canonical( nbf, nclosed, nact, g_ifock, g_afock,
+     $                         g_gfock, orbe, g_newvecs, nflip )
+         call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
+       endif
+       call ga_copy(g_newvecs, g_movecs )
+       call sym_movecs_adapt( basis, 1.d-8, g_movecs, orbsym, nmixed )
+       if (nmixed .ne. 0)
+     $   call errquit('mcscf_orb: symmetry contamination', nmixed)
+c
+c  Conjugacy must be reset if orbitals have flipped ordering
+c
+       ocjrst = (nflip.gt.0)
+c
+c  Save updated MOs
+c  Orbitals maybe reordered on save (movecs_lock)
+c  so pass temporary MOs
+c
+       call mcscf_save_vec( rtdb, geom, basis, nbf, orbe, g_newvecs )
 c
 c  Update Coulomb and Exchange operator
 c
@@ -325,7 +349,7 @@ c
        if (.not.(ostepci)) then
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
-     $                         g_movecs, g_coul, .false.,
+     $                         g_movecs, g_coul, .true.,
      $                         g_exch, .true., blen )
        endif
 #endif
@@ -336,11 +360,11 @@ c
        if (.not.ga_destroy(g_newvecs))
      $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0)
        if (.not.ga_destroy(g_afock))
-     $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy act fock',0)
        if (.not.ga_destroy(g_ifock))
-     $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy inact fock',0)
        if (.not.ga_destroy(g_gfock))
-     $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy gen fock',0)
        if (.not.ga_destroy(g_grad))
      $      call errquit('mcscf_orbsolve: cannot destroy gradient',0)
        if (.not.ga_destroy(g_kvec))
@@ -358,7 +382,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.14 1996-04-09 22:14:22 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.15 1996-04-12 00:10:24 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch
