@@ -1,4 +1,4 @@
-c$Id: diis_hamwgt.F,v 1.4 2000-03-15 00:33:34 edo Exp $
+c$Id: diis_hamwgt.F,v 1.5 2000-03-16 00:06:27 edo Exp $
 c***********************************************************************
 c
 c     subroutine hamwght
@@ -36,7 +36,7 @@ c
       irow(j) = mod(j-1,mxhist)+1
       ii=(ispin-1)*mxhist + irow(icall(ispin))
       istep=(ii-1)*nbf
-      call ga_sync
+cedo      call ga_sync
 c
 cedo      call ga_copy_patch('N',
 cedo     *     g_fock,1,nbf,1,nbf, 

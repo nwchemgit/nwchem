@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.142 2000-03-15 03:20:26 edo Exp $
+c     $Id: dft_scf.F,v 1.143 2000-03-16 00:06:26 edo Exp $
 c     
       implicit none
 c
@@ -1045,7 +1045,7 @@ c        Put s-1/2 in g_scr.
 c     
          iw = 2
          call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                   g_tmp, nbf_ao, iw)
+     &                   g_tmp, iw)
 c     
 c        Transform Fock matrix.
 c     
@@ -1072,7 +1072,7 @@ c           Use S^+1/2 * old movecs (as a transform).
 c     
             iw = 3
             call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_tmp, nbf_ao, iw)
+     &                      g_tmp,  iw)
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), zero, g_tmp)
             call ga_copy(g_tmp,  g_movecs(ispin))
@@ -1135,7 +1135,7 @@ c           Put S^-1/2 back in g_scr (use g_fock as temp scr).
 c     
             iw = 2
             call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_fock, nbf_ao, iw)
+     &                      g_fock, iw)
 c     
 c           Put old-movecs back.
 c     

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.31 1999-11-14 02:59:24 d3g681 Exp $
+c     $Id: dft_main0d.F,v 1.32 2000-03-16 00:06:26 edo Exp $
 c     
       implicit none
 c
@@ -369,7 +369,7 @@ c
       iw = 2
       g_tmp = g_s
       call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
-     &                g_tmp, nbf_ao, iw)
+     &                g_tmp,  iw)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (CDFIT)then

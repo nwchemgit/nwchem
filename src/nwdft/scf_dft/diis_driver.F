@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
      .     g_diis,nbf_ao_mxnbf_ce)
 c
-C$Id: diis_driver.F,v 1.16 2000-03-15 03:20:26 edo Exp $
+C$Id: diis_driver.F,v 1.17 2000-03-16 00:06:27 edo Exp $
 c
       implicit none
 c      
@@ -36,7 +36,7 @@ c
 #endif
 c
       integer g_fsm12, g_s12p, me, nproc, iw, lenp
-      integer lfwght, ifwght, lrow, irow, lcol, icol
+      integer lfwght, ifwght
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -52,7 +52,6 @@ c
       if (icall(ispin).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
      &      call errquit('diis_driver: cannot free heap',0)
-c         call gadest(g_diis)
          do i=1,2*mxhist*ipol
             if (.not. ga_destroy(g_diis(i))) call errquit
      &           ('diis_driver: could not destroy g_diis', 0)
@@ -103,16 +102,10 @@ c
               if (me.eq.0)write(LuOut,2119)mxhist
            endif
          endif
-c        call gacrea(geom,AO_bas_han,
-c     &    nbf,nbf*(2*mxhist*ipol),
-c     &    'diis bufs',g_diis,'row')
 *ga:1:0
          do i=1,mxhist*ipol*2
             g_diis(i) = ga_create_atom_blocked(
      .           geom, AO_bas_han, 'g_diis')
-c            if (.not. ga_create(mt_dbl, nbf, nbf, 
-c     &           'diis bufs', nbf, 0, g_diis(i))) 
-c     &           call errquit('diis_driver: error creating g_diis',i)
          enddo
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
@@ -136,22 +129,18 @@ c
 c       
 c     Construct a temporary global array.
 c       
-c      call gacrea(geom,AO_bas_han,
-c     &     nbf,nbf,'ga temp2',g_fsm12,'atom')
       g_fsm12 = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp2')
 c
 c     Mat mult Fock * s-1/2
 c
       iw = 2
       call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_fsm12,
-     &                nbf, iw)
+     &                 iw)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock,g_tmp,zero,g_fsm12)
-c      call gacrea(geom,AO_bas_han,
-c     &     nbf,nbf,'ga temp3',g_s12p,'atom')
       g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp3')
       iw = 3
       call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_s12p, 
-     &                nbf, iw)
+     &                 iw)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -177,7 +166,6 @@ c
 c
 c     Destroy temp globals.
 c
-c      call gadest(g_s12p)
       if (.not. ga_destroy(g_s12p)) call errquit
      &   ('diis_driver: could not destroy g_s12p', 0)
 c
@@ -186,21 +174,12 @@ c
      &   call errquit('xc_quadv0: cant allocate atblock',22)
       if (.not.MA_Push_Get(MT_dbl,nn2,'ablock',l_down,k_down))
      &   call errquit('xc_quadv0: cant allocate atblock',33)
-      if (.not.MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow))
-     &   call errquit('diis_driver: cannot allocate row',0)
-      if (.not.MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol))
-     &   call errquit('diis_driver: cannot allocate',0)
 c
-      call diis_refvec(g_tmp,dbl_mb(irow),dbl_mb(icol),
+      call diis_refvec(g_tmp,
      .     dbl_mb(k_up),dbl_mb(k_down),g_fsm12)
-c      call gadest(g_fsm12)
       if (.not. ga_destroy(g_fsm12)) call errquit
      &   ('diis_driver: could not destroy g_fsm12', 0)
 c
-      if (.not.ma_pop_stack(lcol))
-     &   call errquit('diis_driver: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrow))
-     &   call errquit('diis_driver: cannot pop stack',0)
       if (.not.ma_pop_stack(l_down))
      &   call errquit('diis_driver: cannot pop stack',0)
       if (.not.ma_pop_stack(l_up))

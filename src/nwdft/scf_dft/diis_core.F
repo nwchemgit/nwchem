@@ -1,6 +1,6 @@
       subroutine diis_core(derr,pulay,
      &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.8 2000-03-15 03:20:26 edo Exp $
+C$Id: diis_core.F,v 1.9 2000-03-16 00:06:27 edo Exp $
       implicit none
 c
       integer mxhist
@@ -53,7 +53,7 @@ c
 #include "util.fh"
 c
       integer irow,ijcanon,i,j
-      integer me,nproc,i1,ii,istep,ijm1,ijlast,jj,ij
+      integer me,nproc,i1,ii,ijm1,ijlast,jj,ij
       double precision derr
       logical oprint
 c
@@ -81,15 +81,11 @@ c
         nhist(ispin)=0
       endif 
       ii=(ipol+ispin-1)*mxhist + irow(icall(ispin))
-      istep=(ii-1)*nbf
 cedo      call ga_sync
 c
 C     Store new errvec
 c
 
-cedo      call ga_copy_patch('N',
-cedo     *     g_err,1,nbf,1,nbf, 
-cedo     *     g_diis,1,nbf,istep+1,istep+nbf)
       call ga_copy(g_err,g_diis(ii))
 c
 c     If more than mxhist histories are stored, shift the
@@ -116,12 +112,9 @@ c     Construct the last row of the B matrix.
 c
 
       derr=ga_ddot(g_err,g_err)
-C      if(me.eq.0.and.oprint)write(LuOut,1111)temp
       do jj = 1,nhist(ispin)
 c
         ii=(ipol+ispin-1)*mxhist+irow(icall(ispin)-jj+1)
-        istep=(ii-1)*nbf
-cedo        call ga_sync
 
         ijlast = ijcanon(nhist(ispin)+1,nhist(ispin)+2-jj)
         pulay(ijlast,ispin)=ga_ddot(g_diis(ii),g_err)
