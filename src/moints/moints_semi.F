@@ -96,11 +96,11 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.18 1996-03-20 18:59:29 mg141 Exp $
+c  $Id: moints_semi.F,v 1.19 1996-07-02 21:02:58 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
-c  segment.
+c  segment, (oseglo:oseghi)
 c
 c  Half-transformed integrals are transposed in GA memory 
 c  buffers and flushed when full. Size of buffer is determined
@@ -392,7 +392,7 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 c
-c Arguments
+c   Arguments
 c
        integer basis                          ! [input] Basis handle
        integer nbf                            ! [input] Basis functions
@@ -420,7 +420,7 @@ c
        integer g_jbuf                         ! [scratch] Buffer for half-trans Coulomb
        integer g_kbuf                         ! [scratch] Buffer for half-trans exchange
 c
-c Local variables
+c   Local variables
 c
        integer nmo1, nmo2
        integer ish0, jsh0, ish, jsh, ilen, jlen

@@ -1,13 +1,12 @@
        subroutine moints_stats_print( algo )
-C$Id: moints_stats.F,v 1.4 1995-04-19 00:43:36 rg240 Exp $
+C$Id: moints_stats.F,v 1.5 1996-07-02 21:03:00 rg240 Exp $
        implicit none
+#include "msgids.fh"
 #include "global.fh"
        character*(*) algo
 #include "moints_stats.fh"       
        integer NSTATS
-       integer MSG_MOINTS_STATS
        parameter(NSTATS=20)
-       parameter(MSG_MOINTS_STATS=1963)
        double precision mv(NSTATS),amv(NSTATS)
        integer i,npass,num_nodes,nflop
        double precision taskavgJ, taskavgK, synchavg
@@ -39,14 +38,14 @@ C$Id: moints_stats.F,v 1.4 1995-04-19 00:43:36 rg240 Exp $
        mv(20) = mi_aggsynch
 
        call ga_sync()
-       call ga_dgop(MSG_MOINTS_STATS,mv,NSTATS,'+')
-       call ga_dgop((MSG_MOINTS_STATS+1),mi_maxsynch,1,'max')
-       call ga_dgop((MSG_MOINTS_STATS+2),mi_minsynch,1,'min')
-       call ga_dgop((MSG_MOINTS_STATS+3),mi_maxtaskJ,1,'max')
-       call ga_dgop((MSG_MOINTS_STATS+4),mi_mintaskJ,1,'min')
-       call ga_dgop((MSG_MOINTS_STATS+5),mi_maxtaskK,1,'max')
-       call ga_dgop((MSG_MOINTS_STATS+6),mi_mintaskK,1,'min')
-       do i=1,NSTATS
+       call ga_dgop(msg_moints_stats_1,mv,nstats,'+')
+       call ga_dgop(msg_moints_stats_2,mi_maxsynch,1,'max')
+       call ga_dgop(msg_moints_stats_3,mi_minsynch,1,'min')
+       call ga_dgop(msg_moints_stats_4,mi_maxtaskj,1,'max')
+       call ga_dgop(msg_moints_stats_5,mi_mintaskj,1,'min')
+       call ga_dgop(msg_moints_stats_6,mi_maxtaskk,1,'max')
+       call ga_dgop(msg_moints_stats_7,mi_mintaskk,1,'min')
+       do i=1,nstats
          amv(i) = mv(i)/num_nodes
        enddo
 

@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.5 1995-10-27 23:25:32 rg240 Exp $
+C$Id: moints_gsh1.F,v 1.6 1996-07-02 21:02:56 rg240 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -177,10 +177,10 @@ c
       integer ibflo, ibfhi, jbflo, jbfhi
       integer i, j, ijlen, incr
       integer ntask, ipass
-      integer gtype, dim1, dim2
+      integer gtype, ioreclen, dim2
       logical status
       
-      call ga_inquire(g_buf,gtype,dim1,dim2)
+      call ga_inquire(g_buf,gtype,ioreclen,dim2)
       nnbf = 0
       incr =  0
       ntask = 0
@@ -194,7 +194,7 @@ c
             status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
             ijlen = (ibfhi - ibflo + 1)*(jbfhi - jbflo + 1)
-            if ((incr+ijlen).gt.dim1) then
+            if ((incr+ijlen).gt.ioreclen) then
               rlen(ipass) = incr
               ipass = ipass + 1
               incr = 0
