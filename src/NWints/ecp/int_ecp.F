@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.9 1997-10-03 01:48:44 mg201 Exp $
+* $Id: int_ecp.F,v 1.10 1997-10-03 17:11:02 mg201 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
@@ -772,7 +772,7 @@ c
      &      n_ecp,l_ecp,
      &      0,
      &      dbl_mb(k_ecp_c2s),mem_c2s,
-     &      ecp_ints,sz_ints,
+     &      ecp_ints,sz_ints,1,   ! nblk 1 for ecp integrals only 
      &      dryrun,scr,lscr,
      &      0)  ! ibug
 #endif
@@ -848,7 +848,7 @@ c
      &      n_ecp,l_ecp,
      &      0,
      &      dbl_mb(k_ecp_c2s),mem_c2s,
-     &      ecp_grad,sz_grad,nat,
+     &      ecp_grad,sz_grad,1,nat,          ! nblock = 1 for ECP only 
      &      dryrun,scr,lscr,
      &      0)  ! ibug
 #endif

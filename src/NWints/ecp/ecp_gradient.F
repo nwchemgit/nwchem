@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.9 1997-10-03 01:39:44 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.10 1997-10-03 17:11:03 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -8,7 +8,7 @@ C $Id: ecp_gradient.F,v 1.9 1997-10-03 01:39:44 mg201 Exp $
      &    ind_z,ind_c,n_zeta_C,n_coef_C,
      &    l_C,i_cent_C,n_C,l_ecp_max,
      &    sphcart,csco,lcsco,
-     &    ecp_grads,n_int,n_cent,
+     &    ecp_grads,n_int,n_blk,n_cent,
      &    DryRun,scr,lscr,ibug)
 *                                                                      *
 *   Calculate ecp gradient integrals.                                  *
@@ -57,6 +57,7 @@ C $Id: ecp_gradient.F,v 1.9 1997-10-03 01:39:44 mg201 Exp $
 *   n_int (inp) - number of ECP gradient integrals for a given centre  *
 *                 and cartesian derivative. Should be equal to         *
 *                 NCA*NCB*[(La+1)*(La+2)/2]*[(Lb+1)*(Lb+2)/2]          *
+*   n_blk (inp) - 1 for scalar only, 3 for s-o only, 4 for both        *
 *   n_cent (inp) - total number of centres in the molecule             *
 *   DryRun (inp) - logical for dry run. If true, routine only returns  *
 *                  maximum scratch space needed, if false, integrals   *
@@ -77,9 +78,6 @@ C $Id: ecp_gradient.F,v 1.9 1997-10-03 01:39:44 mg201 Exp $
      &    n_prim_B,n_cont_B,l_B,i_c_B,
      &    n_zeta_C,n_coef_C,n_C,i_c_C,l_ecp_max,
      &    n_int,n_blk,n_cent,sphcart,lscr,ibug
-Ctest
-      parameter (n_blk=1)
-Cend
       integer n_prim_C(0:2,-1:l_ecp_max,n_C*2),
      &    n_colc_C(-1:l_ecp_max,n_C*2),
      &    ind_z(-1:l_ecp_max,n_C*2),ind_c(-1:l_ecp_max,n_C*2),
