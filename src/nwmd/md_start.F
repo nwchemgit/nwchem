@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.76 2000-08-07 18:55:12 d3j191 Exp $
+c $Id: md_start.F,v 1.77 2000-09-06 16:33:17 d3j191 Exp $
 c
       implicit none
 c
@@ -1164,8 +1164,47 @@ c
       if(nftime.gt.0) then
       open(unit=lfntim,file=filtim(1:index(filtim,' ')-1),
      + form='formatted',status='unknown')
-      write(lfntim,1200) np
- 1200 format(i5)
+      write(lfntim,1200) np,20
+ 1200 format(2i5)
+      write(lfntim,1201)
+      write(lfntim,1202)
+      write(lfntim,1203)
+      write(lfntim,1204)
+      write(lfntim,1205)
+      write(lfntim,1206)
+      write(lfntim,1207)
+      write(lfntim,1208)
+      write(lfntim,1209)
+      write(lfntim,1210)
+      write(lfntim,1211)
+      write(lfntim,1212)
+      write(lfntim,1213)
+      write(lfntim,1214)
+      write(lfntim,1215)
+      write(lfntim,1216)
+      write(lfntim,1217)
+      write(lfntim,1218)
+      write(lfntim,1219)
+ 1201 format('  1 : (10) replicated data interactions')
+ 1202 format('  2 : (11) PME charge grid calculation')
+ 1203 format('  3 : (12) PME subset synchronization')
+ 1204 format('  4 : (13) 3D-FFT')
+ 1205 format('  5 : (14) PME energy and potential grid calculation')
+ 1206 format('  6 : (15) PME subset synchronization')
+ 1207 format('  7 : (16) 3D-FFT')
+ 1208 format('  8 : (17) recording')
+ 1209 format('  9 : (18) local coordinate retrieval')
+ 1210 format(' 10 : (19) local forces calculation')
+ 1211 format(' 11 : (20) local force accumulation')
+ 1212 format(' 12 : (21) non-local coordinate retrieval')
+ 1213 format(' 13 : (22) non-local forces calculation')
+ 1214 format(' 14 : (23) non-local force accumulation')
+ 1215 format(' 15 : (24) PME wait')
+ 1216 format(' 16 : (25) PME forces calculation')
+ 1217 format(' 17 : ( 2) synchronization')
+ 1218 format(' 18 :      total')
+ 1219 format(' ',/,18i7)
+c          
       endif
       if(itest.gt.0) then
       open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
