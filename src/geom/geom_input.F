@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.152 2002-01-17 20:56:28 edo Exp $
+C     $Id: geom_input.F,v 1.153 2002-04-04 22:51:20 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -197,8 +197,6 @@ c
  778     format(/,' Adjusting existing geometry named ',a,/)
       endif
 c
-      if (include_bqbq) status = geom_set_bqbq(geom, .true.)
-c     
       if (found_au2ang_conv.and.found_ang2au_conv) call errquit
      &     ('geom_input: user specified both au->ang and ang->au '//
      &     'conversion factors.  This is not allowed', 911)
@@ -509,6 +507,8 @@ c
          call geom_zmt_remember_constants(geom)
          call geom_hnd_parallel(.true.)
       endif
+c     
+      if (include_bqbq) status = geom_set_bqbq(geom, .true.)
 c     
       if (oprint) then
          if (.not. geom_print(geom))
