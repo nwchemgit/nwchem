@@ -1,0 +1,34 @@
+Comment: 
+Comment: PAW basis set generation file for Iron
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 26.0
+<orbitals>
+7 1 0
+1  0   2.0
+2  0   2.0
+2  1   6.0
+3  0   2.0
+3  1   6.0
+3  2   6.0
+4  0   2.0
+4  1   0.0
+<paw_basis>
+3
+3  2   2.2
+4  0   2.2
+4  1   2.3
+<ref_potential_matching_radius> 2.0
+<ref_potential_at_zero>     -1.0
+<compensation_charge_radius> 2.0
+<nodal_constraint> on
+<projector_method> blochl
+
+<scattering_test>
+3
+1  -1.0  0.5  1.8 300
+0  -1.0  0.5  1.8 300
+2  -1.0  0.5  1.8 100
+
