@@ -1,13 +1,11 @@
 Things to follow up on
 ----------------------
-o /para1/ should be replaced with called to GA_NodeID() and
-  GA_NNodes().  RSize and ISize have already been eliminated from the
-  code. 
 o Frozen orbitals do not work for energies.
-o Common blocks should be in include files: /len/, /debug/ (/para1/ done)
 
 Wish list of additional features
 -------------------------------
+o convergence of amplitudes should be measured with residuals,
+  not updates. (RJH)
 o Norms of amplitudes & related measures
 o Largest amplitudes
 o CCD (because its there)
@@ -24,5 +22,10 @@ o Made term debugging switches available via input deck (not sure if
   this is really a good idea or not!)
 o Commented out calls to rtc (doesn't exist on Solaris, links, but
   does not work as intended on IBM)
-o Converted /PARA1/ into include file & eliminated RSize & ISize
+o Eliminated RSize & ISize
 o Made DIIS subspace size an input directive (DIISBAS)
+o /para1/ replaced with called to GA_NodeID() and GA_NNodes()
+o /len/ turned into ccsd_len.fh include file
+o /debug/ turned into ccsd_debug.fh include file
+o Implicit NONE in all routines
+o Default convergence threshold 1.0e-8 --> 1.0e-6 at suggestion of RJH

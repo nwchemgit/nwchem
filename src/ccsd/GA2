@@ -1,0 +1,73 @@
+ccsd_driver: g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
+ccsd_driver: ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,g_objv)
+ccsd_driver: ga_create(MT_DBL,lnof,lnof,'ncoul', nbf,nbf,g_ncoul))
+ccsd_driver: ga_create(MT_DBL,lnof,lnof,'nexch', nbf,nbf,g_nexch))
+ccsd_driver: g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
+ccsd_driver: g_exch = ga_create_JKblocked(noper,nbf,nmo2,'X oper')
+ccsd_driver: g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
+ccsd_driver: ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),'epair',1,1,g_epair))
+ccsd_driver:	call moints_build_6x or moints_build_2x
+ccsd_driver:	call moints_e2pair
+ccsd_driver: ga_destroy(g_epair)
+ccsd_driver:	call ccsd_get_param
+ccsd_driver:	call ccsd_sortmo
+ccsd_driver: ga_destroy(g_coul)
+ccsd_driver: ga_destroy(g_exch)
+aoccsd: ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_t2', mxvec*lnoov,1,g_t2)
+aoccsd: ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_ht2', mxvec*lnoov,1,g_ht2)
+aoccsd: 	call ccsd_iterdrv2 --> ccsd_itf
+ccsd_itf: ga_create(MT_DBL,lnov,lnov,'nt2', nvir,nvir,g_nt2)
+ccsd_itf: ga_create(MT_DBL,lnov,lnov,'nht2', nvir,nvir,g_nht2)
+ccsd_itf: 	call ccsd_pampt3
+ccsd_pampt3: ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x', nbf*nbf,1,g_x)
+ccsd_pampt3: ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c', nbf*nbf,1,g_c)
+ccsd_pampt3: ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2', nocc*nocc,1,g_sht2)
+ccsd_pampt3: ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2', nocc*nocc,1,g_st2)
+ccsd_pampt3: 	call ccsd_t2pm
+ccsd_t2pm: ga_create(MT_DBL,nbf*nbf,lnoo,'st2t', nbf*nbf,1,g_st2t)
+ccsd_t2pm: ga_destroy(g_st2t)
+ccsd_pampt3: 	call ccsd_sxy
+ccsd_pampt3: ga_destroy(g_st2)
+ccsd_pampt3: 	call ccsd_ht2pm
+ccsd_ht2pm: ga_create(MT_DBL,nbf*nbf,lnoo,'sht2t', nbf*nbf,1,g_sht2t))
+ccsd_ht2pm:	call ga_transpose
+ccsd_ht2pm: ga_destroy(g_sht2)
+ccsd_ht2pm: ga_create(MT_DBL,nbf*nbf,lnoo,'sht2', nbf*nbf,1,g_sht2)
+ccsd_ht2pm: ga_destroy(g_sht2t)
+ccsd_pampt3: 	call ccsd_itm
+ccsd_itm: ga_create(MT_DBL,lnoo,lnoo,'aitm', nocc,nocc,g_aitm)
+ccsd_itm: ga_create(MT_DBL,lnvv,lnoo,'tmt1', lnvv,1,g_tmt1)
+ccsd_itm: ga_create(MT_DBL,lnvv,lnoo,'tmt2', lnvv,1,g_tmt2)
+ccsd_itm: 	(terms A1-A4, B2-B3, D1-D7, G2, H4, H2, H8, S4-S7)
+ccsd_itm: ga_destroy(g_tmt2)
+ccsd_itm: ga_destroy(g_tmt1)
+ccsd_itm: ga_destroy(g_aitm)
+ccsd_itm: ga_create(MT_DBL,lnov,lnov,'tmt', nvir,nvir,g_tmt)
+ccsd_itm: ga_create(MT_DBL,lnov,lnov,'tmp', nvir,nvir,g_tmp)
+ccsd_itm: ga_create(MT_DBL,lnov,lnov,'tmp2', nvir,nvir,g_tmp2)
+ccsd_itm:	(terms D9-D10, J4-J5, K4)
+ccsd_itm: ga_destroy(g_tmp2)
+ccsd_itm: ga_destroy(g_tmp)
+ccsd_itm: ga_destroy(g_tmt)
+ccsd_pampt3: ga_destroy(g_sht2)
+ccsd_pampt3: ga_destroy(g_c)
+ccsd_pampt3: ga_destroy(g_x)
+ccsd_itf: ga_destroy(g_nht2)
+ccsd_itf: ga_destroy(g_nt2)
+aoccsd: ga_destroy(g_ht2)
+aoccsd: ga_destroy(g_t2)
+aoccsd: ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo)
+aoccsd: 	call ccsd_rdtrpo
+aoccsd: g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
+aoccsd: g_exch = ga_create_JKblocked(noper,nbf,nvir,'X oper')
+aoccsd: 	call moints_trp
+moints_trp: ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp)
+moints_trp: ga_destroy(g_tmp)
+aoccsd: 	call ccsd_trpdrv
+aoccsd: ga_destroy(g_coul)
+aoccsd: ga_destroy(g_exch)
+aoccsd: ga_destroy(g_objo)
+ccsd_driver: ga_destroy(g_nexch)
+ccsd_driver: ga_destroy(g_ncoul)
+ccsd_driver: ga_destroy(g_objv)
+ccsd_driver: ga_destroy(g_vecs)

@@ -1,0 +1,13 @@
+Memory requirements
+
+--------------
+SGI_N32, 1 CPU
+--------------
+Job		NBF	NO	NV	MaxVec	Global	Heap	Stack (MB)
+
+h2o631g		 13	 5	  8	   5	    1	   1	   6
+h2odzp		 26	 5	 21	   5	    3	   1	   9
+formamide	 33	12	 21	   5	   16	   1	   5
+form		 60	12	 48	   5	   67	   2	  11
+gly		100	20	 80	   5	  510	   1	  35
+cytosine	145	29	116	   2	>1431
