@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.26 1994-09-08 22:33:43 d3g681 Exp $
+c $Id: basis.F,v 1.27 1994-09-25 08:05:48 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1844,3 +1844,25 @@ c
 c
       return
       end
+      logical function bas_geom(basisin,geom)	
+      implicit none 
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+c::functions
+      logical bas_check_handle
+      external bas_check_handle
+c:: passed
+      integer basisin       ! [input] basis set handle
+      integer basis
+      integer geom          ! [output] geometry used to load basis set
+c
+      if (.not.bas_check_handle(basisin,'bas_geom'))
+     & call errquit('bas_geom: handle invalid',911)
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      geom = ibs_geom(basis)
+      bas_geom = .true.
+      end
+
