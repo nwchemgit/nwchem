@@ -44,7 +44,7 @@ c     dynamically allocate memory
 c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
-     $     call errquit('guess_dens: ma_push failed', memq)
+     $     call errquit('atomscf:guess_dens: ma_push failed', memq)
 c
 c     This is verbatim from denat
 c
@@ -71,7 +71,7 @@ c
       icc = itransf + nsq
       last = icc + nsq
       if ((last - i10) .gt. memq) call errquit
-     $     ('guess_dens: memory?', memq)
+     $     ('atomscf:guess_dens: memory?', memq)
 c..
       call atscf_do_atscf(geom, basis, iat,
      $     dbl_mb(i10), oprint,
@@ -131,7 +131,8 @@ c
       endif
 c
       if (.not. ma_pop_stack(l_scr))
-     $     call errquit('guess_dens: pop_stack failed', 0)
+     $     call errquit
+     &    ('atomscf:guess_dens: pop_stack failed', 0)
 c
       end
       subroutine atscf_do_atscf(geom, basis, iat,

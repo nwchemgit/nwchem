@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps)
-C$Id: atcond.F,v 1.3 1997-03-04 06:15:48 d3e129 Exp $
+C$Id: atcond.F,v 1.4 1997-04-29 19:50:28 d3e129 Exp $
       implicit none
 c.......................................................................
 c     
@@ -12,6 +12,17 @@ c     to allow for pseudo-potentials the effective charge znps
 c     is used to determine the number of closed shells filled
 c     jvl  (daresbury 1988): corrected July 93
 c.......................................................................
+*
+*
+*  This is where you want to read user input of the occupancy.
+*  results from this routine are ncsh, noch, nccup, ajmn, and nsym
+*  ncsh number of closed shells
+*  nosh number of open shells
+*  nccup occupancy of open shells
+*  nsym number of symmetrires (s,p,d,f) that are occupied
+*  ajmn K integrals (see below) (may assume only one open shell?)
+*  
+*
       real *8 zn, znps
       real *8 ajmn(*)
       integer ncsh(*),nccup(*),nosh(*)
@@ -75,7 +86,8 @@ c     determine pseudopotential type (hw or cep)
          else if (nelcep(nz).eq.idiff) then
             ihw = 2
          else
-            call errquit('unrecognised pseudopotential',0)
+            call errquit
+     &         ('atomscf:atcond:unrecognised pseudopotential',0)
          endif
       endif
       nzps = idiff

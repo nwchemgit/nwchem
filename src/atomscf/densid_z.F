@@ -4,7 +4,7 @@ c.......................................................................
 c
 c     driver routine for density matrix processing
 c.......................................................................
-C$Id: densid_z.F,v 1.1 1996-03-29 04:53:27 d3e129 Exp $
+C$Id: densid_z.F,v 1.2 1997-04-29 19:50:30 d3e129 Exp $
       implicit none
 #include "atomz.fh"
 #include "inp.fh"
@@ -50,7 +50,8 @@ c
         endif
       enddo
       if (delta_n.gt.0.0d00) call errquit
-     &    ('densid_z: cannot add electrons to closed shell atom ',911)
+     &('atomscf:densid_z: cannot add electrons to closed shell atom ',
+     &    911)
 00001   continue
       if (delta_n.lt.0.0d00) then
         num_occupied = k - 1
@@ -65,7 +66,8 @@ c
         occ_vec(indx) = occ_vec(indx)  + occ_remove
         delta_n       = delta_n - occ_remove
         if (occ_remove.eq.0.0d00) call errquit
-     &      ('densid_z: you cannot have positrons in NWChem', 911)
+     &      ('atomscf:densid_z: you cannot have positrons in NWChem',
+     &      911)
         goto 00001
       endif
       nstep1 = 1
@@ -99,7 +101,8 @@ c
       enddo
 c
       if (delta_n .ne. 0.0d00)
-     &    call errquit('densid_z: adding charge failed somewhere', 911)
+     &    call errquit
+     &    ('atomscf:densid_z: adding charge failed somewhere', 911)
 c
       tlarge = 0.0d0
       icount = 0

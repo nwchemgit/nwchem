@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.9 1996-12-13 22:30:14 d3e129 Exp $
+C$Id: atomd.F,v 1.10 1997-04-29 19:50:29 d3e129 Exp $
       implicit none
 #include "inp.fh"
 c
@@ -115,7 +115,8 @@ cjvl
          if (oprin) write (iwr,6070) (nosh(i),i=1,nsym)
          if (oprin) write (iwr,6080) (nccup(i),i=1,nsym)
 cjvl
-         if (ndim.eq.0) call errquit('atomd: error in atom scf',0)
+         if (ndim.eq.0)
+     &       call errquit('atomscf:atomd: error in atom scf',0)
 cjvl
          maxitr = 100
 c

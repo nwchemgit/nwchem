@@ -1,5 +1,5 @@
       subroutine starcd(c,ss,nbci,ncshi,noshi)
-C$Id: starcd.F,v 1.2 1995-02-02 23:09:13 d3g681 Exp $
+C$Id: starcd.F,v 1.3 1997-04-29 19:50:31 d3e129 Exp $
       implicit none
       integer nbci, ncshi, noshi
       real *8 ss(*), c(nbci,nbci)
@@ -25,8 +25,11 @@ c.......................................................................
 c
       nshti = ncshi + noshi
       if (nshti.eq.0) return
-      if (nshti.gt.nbci) call errquit(
-     +  'more atomic shells than basis functions in atomic startup',0)
+      if (nshti.gt.nbci) then
+        write(6,*)' more atomic shells than basis ',
+     &      'functions in atomic startup'
+        call errquit('atomscf:startcd: fatal error',0)
+      endif
       ixx = nbci/nshti
       khi = 0
       do j = 1 , nshti

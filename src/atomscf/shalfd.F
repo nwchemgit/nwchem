@@ -1,5 +1,5 @@
       subroutine shalfd(s,v,n)
-C$Id: shalfd.F,v 1.2 1995-02-02 23:09:10 d3g681 Exp $
+C$Id: shalfd.F,v 1.3 1997-04-29 19:50:31 d3e129 Exp $
       implicit none
 c.......................................................................
 c
@@ -16,7 +16,8 @@ c
       icount = 0
       nnd = n*(n+1)/2
       nn = n*n
-      if (n.gt.50) call errquit('dimensioning error in shalfd',0)
+      if (n.gt.50)
+     &    call errquit('atomscf:dimensioning error in shalfd',0)
       do i = 1 , n
          do j = 1 , i
             v(i,j) = 0.0d0
