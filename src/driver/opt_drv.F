@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.5 1996-10-18 19:41:10 mdupuis Exp $
+C$Id: opt_drv.F,v 1.6 1996-10-23 22:07:14 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -26,9 +26,14 @@ c
       end
       logical function hnd_optx(rtdb)
       implicit double precision (a-h,o-z)
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
 #include "geom.fh"
       integer  rtdb
       integer  geom
+      logical  status
+      logical  opt_input
       logical  some
       logical  dbug
       logical  cvged
@@ -64,6 +69,26 @@ c
       if(some) then
          write(iw,9999)
       endif
+c
+c     ----- parameters for optimization driver -----
+c           may have been read in already. if
+c           not, use default.
+c
+      status=rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)
+      if(.not.status) then
+         cvgopt=8.0d-04
+         nptopt=20
+         linopt=10
+         inhess=0
+         modupd=1
+         do i=1,mxcoor
+            icfrz(i)=0
+         enddo
+         do i=1,mxatom
+            iatfrz(i)=0
+         enddo
+      endif
+c
       write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd
 c
 c     ----- get going ... -----
@@ -237,8 +262,24 @@ c
       end
       subroutine optdrv_input(rtdb)
       implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
       integer  rtdb
-      call hnd_opt_input
+      logical  status
+      logical  opt_input
+c
+      if(ga_nodeid().eq.0) then
+c
+         call hnd_opt_input
+c
+         opt_input=.true.
+         status=rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
+         if(.not.status) then
+            call errquit('optdrv_input : rtdb_put failed',911)
+         endif
+      endif
+c
       return
       end
       subroutine hnd_opt_input
