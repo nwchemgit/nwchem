@@ -1,4 +1,3 @@
-c
 c==========================================================
 c  This stupid section is to try an localize the
 c  interface differences between CRAY and the rest
@@ -19,6 +18,7 @@ c
       len = inp_strlen(fname)
       call wopen( unit, fname, len, nblk, istat, ierr )
 #else
+      integer i
       double precision fdummy
       character*8 aunit
       equivalence (fdummy,aunit)
@@ -86,14 +86,14 @@ c
       double precision xu
 
       xu = dunits(unit)
-      call getwa( xu, v, addr, rlen, ierr )
+      call getwa( xu, v, addr, len, ierr )
 #endif
       return
       end
 
 
 c
-c  $Id: moints_semi.F,v 1.11 1996-01-19 07:31:52 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.12 1996-01-25 23:15:38 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
