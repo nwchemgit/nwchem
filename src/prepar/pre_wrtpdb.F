@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep)
 c
-c $Id: pre_wrtpdb.F,v 1.11 1999-11-04 22:53:08 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.12 1999-11-30 02:59:19 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
 c
       integer i,j,k,nats,nums,numslv,isoff,iaoff
       integer ixrep,iyrep,izrep
-      real*8 temp
+      real*8 temp,dbx,dby,dbz
 c
       isoff=0
       iaoff=0
@@ -46,9 +46,11 @@ c
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
      + 'BOX   ',3f12.6)
 c
-      print*,nxrep,nyrep,nzrep
+      if(nxrep.lt.1) nxrep=1
+      if(nyrep.lt.1) nyrep=1
+      if(nzrep.lt.1) nzrep=1
 c
-      if(nxrep.le.0.and.nyrep.le.0.and.nzrep.le.0) then
+      if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
       nums=0
       do 1 i=1,nsa
       temp=4.009103873d1*amass(isat(i))*
@@ -60,19 +62,22 @@ c
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
       else
-      do 4 izrep=-nzrep,nzrep
-      do 5 iyrep=-nyrep,nyrep
-      do 6 ixrep=-nxrep,nxrep
+      do 4 izrep=1,nzrep
+      dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
+      do 5 iyrep=1,nyrep
+      dby=(dble(iyrep)-0.5d0*dble(nyrep+1))*drep(2)
+      do 6 ixrep=1,nxrep
+      dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
+c
       nums=0
+c
       do 7 i=1,nsa
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + isgm(i)+isoff,
-     + 1.0d1*(xs(1,i)+dble(ixrep)*drep(1)),
-     + 1.0d1*(xs(2,i)+dble(iyrep)*drep(2)),
-     + 1.0d1*(xs(3,i)+dble(izrep)*drep(3)),
+     + isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
+     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)+dbz),
      + temp,pre_atnam(num(isat(i)))
       if(isgm(i).gt.nums) nums=isgm(i)
     7 continue

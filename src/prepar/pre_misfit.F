@@ -1,25 +1,28 @@
       logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
-     + qwa,mwm,mwa,nwm,nwa)
+     + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.11 1999-11-02 18:27:46 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.12 1999-11-30 02:59:18 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
       integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
-      integer isfnd(msa),idsb(2,msb),iwfnd(mwm)
+      integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
-      real*8 xw(3,mwa,mwm),qwa(mwa)
+      real*8 xw(3,mwa,mwm),qwa(mwa),box(3)
 c
-      real*8 grid(4,mgrid)
+      real*8 grid(4,mgrid),distx,disty,distz
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
       real*8 d(3),c(3),p(3),t(3),r,dr,dd,px(3),pn(3),pz(3),pw(3)
-      real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle
+      real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle,boxh(3)
       integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
 c
       gdist2=gdist*gdist
+      boxh(1)=0.5d0*box(1)
+      boxh(2)=0.5d0*box(2)
+      boxh(3)=0.5d0*box(3)
 c
 c     loop over all solute atoms
 c     --------------------------
@@ -322,8 +325,27 @@ c
       grid(3,ngrid)=xmin(3)+dble(iz-1)*dx(3)
       do 17 k=1,nsa
       if(isfnd(k).eq.1) then
+      if(npbtyp.eq.0) then
       dist2=(grid(1,ngrid)-xs(1,k))**2+(grid(2,ngrid)-xs(2,k))**2+
      + (grid(3,ngrid)-xs(3,k))**2
+      else
+      distx=grid(1,ngrid)-xs(1,k)
+      disty=grid(2,ngrid)-xs(2,k)
+      distz=grid(3,ngrid)-xs(3,k)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      if(abs(distx).gt.boxh(1))
+     + distx=distx-arg_nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2))
+     + disty=disty-arg_nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3))
+     + distz=distz-arg_nint(distx/box(3))*box(3)
+#else
+      if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
+#endif
+      dist2=distx**2+disty**2+distz**2
+      endif
       if(dist2.lt.gdist2) goto 16
       endif
    17 continue
@@ -341,8 +363,27 @@ c
       grid(4,k)=0.0d0
       do 19 j=1,nsa
       if(isfnd(j).eq.1) then
+      if(npbtyp.eq.0) then
       dist2=dsqrt((grid(1,k)-xs(1,j))**2+
      + (grid(2,k)-xs(2,j))**2+(grid(3,k)-xs(3,j))**2)
+      else
+      distx=grid(1,ngrid)-xs(1,k)
+      disty=grid(2,ngrid)-xs(2,k)
+      distz=grid(3,ngrid)-xs(3,k)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      if(abs(distx).gt.boxh(1))
+     + distx=distx-arg_nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2))
+     + disty=disty-arg_nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3))
+     + distz=distz-arg_nint(distx/box(3))*box(3)
+#else
+      if(abs(distx).gt.boxh(1)) distx=distx-nint(distx/box(1))*box(1)
+      if(abs(disty).gt.boxh(2)) disty=disty-nint(distx/box(2))*box(2)
+      if(abs(distz).gt.boxh(3)) distz=distz-nint(distx/box(3))*box(3)
+#endif
+      dist2=distx**2+disty**2+distz**2
+      endif
       grid(4,k)=grid(4,k)+qsa(j)/dist2
       endif
    19 continue

@@ -2,10 +2,14 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.6 1999-11-02 22:02:06 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.7 1999-11-30 02:59:19 d3j191 Exp $
 c
       implicit none
 c
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer arg_nint
+      external arg_nint
+#endif
       integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa
       integer nwmc,mwmc
       integer iwmr(mwm)
