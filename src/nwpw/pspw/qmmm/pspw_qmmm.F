@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.12 2002-01-14 21:06:29 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.13 2002-02-26 22:45:55 bylaska Exp $
 c
 
 ***********************************************************
@@ -56,10 +56,10 @@ c
 *     *************************
       if (ion_mmexist()) then
     
-*        **** Model potential is the default, qmmm_type = 1 ****
+*        **** model potential is the default, qmmm_type = 1 ****
          if (.not.
      >      rtdb_get(rtdb,'pspw:qmmm_type',mt_int,1,qmmm_type))
-     >      qmmm_type = 0
+     >      qmmm_type = 1
 
          value = geom_create(geom,'qmmmgeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'qmmmgeometry')

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.fh,v 1.5 2001-11-01 16:37:06 bylaska Exp $
+c $Id: pspw_qmmm.fh,v 1.6 2002-02-26 22:45:56 bylaska Exp $
 c
 
 *     ***** pspw_qmmm common block ************************************
@@ -22,10 +22,10 @@ c
      >                     indx_from_frag,dsqm_frag,
      >                     size_frag,shake_frag,
      >                     ekw_count,
-     >                     nion,              ! number QM/MM ions
-     >                     nkatm,             ! number of kind of QM/MM ions
-     >                     nfrag,             ! number of fragments
-     >                     max_frag_length,   ! maximum fragment size
-     >                     qmmm_type,         ! 1-model potential, 2-model charge
+     > nion,              ! number QM/MM ions
+     > nkatm,             ! number of kind of QM/MM ions
+     > nfrag,             ! number of fragments
+     > max_frag_length,   ! maximum fragment size
+     > qmmm_type, ! 1-model potential,2-switching charge,3-model charge
      >                     geom
 *     ******************************************************************
