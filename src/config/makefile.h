@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.115 1995-06-29 04:55:45 pg511 Exp $
+# $Id: makefile.h,v 1.116 1995-06-29 05:02:26 pg511 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -428,31 +428,28 @@ ifeq ($(TARGET),IBM)
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
        CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
-	      -brename:.dgesv_,.dgesv \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
 	      -brename:.dgemm_,.dgemm \
 	      -brename:.dgemv_,.dgemv \
+	      -brename:.dgesv_,.dgesv \
 	      -brename:.dgetrf_,.dgetrf \
 	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dlaset_,.dlaset \
+	      -brename:.dpotrf_,.dpotrf \
+	      -brename:.dpotri_,.dpotri \
 	      -brename:.dscal_,.dscal \
-	      -brename:.idamax_,.idamax 
+	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.idamax_,.idamax \
+	      -brename:.lsame_,.lsame \
+	      -brename:.times_,.times \
+	      -brename:.xerbla_,.xerbla
 
 
  EXPLICITF = TRUE
 #
 endif
-# include these for DFT?  
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.times_,.times \
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.times_,.times 
-#	      -brename:.lsame_,.lsame \
-#	      -brename:.xerbla_,.xerbla \
+
 
 ifeq ($(TARGET),SP1)
 #
