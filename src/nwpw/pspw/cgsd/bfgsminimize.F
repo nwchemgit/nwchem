@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.13 2002-03-05 03:47:34 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.14 2002-08-13 23:24:14 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -185,6 +185,7 @@ c     dte = 1.0d0
          else
             deltat = deltat_min
          end if
+c         deltat = 1.0d0  !** debug **
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
@@ -228,6 +229,7 @@ c        call dng_2to1()
       else
          deltat = deltat_min
       end if
+c      deltat = 1.0d0  !** debug **
 c      Eold = psi_geodesic_energy(0.0d0)
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,

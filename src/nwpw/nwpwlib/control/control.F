@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.25 2002-07-03 19:00:39 bylaska Exp $
+* $Id: control.F,v 1.26 2002-08-13 23:24:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -1544,6 +1544,34 @@ c      end
       if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rlocal)) 
      >  rlocal = 1.0d0
       
+      return
+      end
+
+
+*     ***************************
+*     *                	   	*
+*     *        control_Ep	*
+*     *                  	*
+*     ***************************
+      real*8 function control_Ep()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 Ep
+
+      if (.not.rtdb_get(rtdb,'nwpw:Eprecondition',
+     >                  mt_dbl,1,Ep)) 
+     >  then
+         Ep = 0.5d0
+      end if
+
+      control_Ep = Ep
       return
       end
 

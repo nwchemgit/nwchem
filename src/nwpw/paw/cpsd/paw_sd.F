@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.9 2002-08-13 23:09:49 bylaska Exp $
+* $Id: paw_sd.F,v 1.10 2002-08-13 23:24:13 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -299,6 +299,7 @@
 
       !**** intialize overlap coefficient data structure ***
       call paw_ovlp_init()
+      call paw_ovlp_set(dcpl_mb(psi2(1)))
 
 
 *                |**************************|

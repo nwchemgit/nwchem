@@ -1,7 +1,29 @@
 *
-* $Id: psi_H.F,v 1.5 2002-05-16 00:07:42 bylaska Exp $
+* $Id: psi_H.F,v 1.6 2002-08-13 23:24:15 bylaska Exp $
 *
 
+*     *************************************
+*     *                                   *
+*     *             psi_H                 *
+*     *                                   *
+*     *************************************
+*
+*  This routine calculates 
+*
+*       Hpsi_k = KE*psi_k + Vnl*psi_k +VSic*psi_k + FFT[(vall+xcp)*psi_r]
+*
+*  where vall = iFFT[Vl+Vc] + Vfield
+*
+*   Entry - ispin,ne            - spin and number of electron in each spin
+*           psi_k,psi_r         - orbitals in k-space and r-space
+*           vl                  - local psp in k-space
+*           v_field,field_exist - external fields (e.g. QM/MM)
+*           vc                  - coulomb potential in k-space
+*           xcp                 - xc potential in r-space
+*           move                - flag to compute ionic forces
+*   Exit - Hpsi_k - gradient in k-space
+*          fion   - ionic forces
+*
       subroutine psi_H(ispin,ne,
      >                 psi_k,psi_r,
      >                 vl,
@@ -22,8 +44,6 @@
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
-
-
 
 *     **** local variables ****
       integer ms,n,n1(2),n2(2)
@@ -68,37 +88,30 @@ c     complex*16 vpsi(nfft3d)
       n2(2) = ne(1) + ne(2)
 
 
-*     ****************************
-*     **** add kinetic energy ****
-*     ****************************
+*     ************************************************
+*     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
+*     ************************************************
       call ke(ispin,ne,psi_k,Hpsi_k)
 
 
-
-*     **************************
-*     **** add non-local psp ***
-*     **************************
+*     *********************************************************
+*     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
+*     *********************************************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 
-*     **************************
-*     **** SIC corrections?? ***
-*     **************************
+*     ***************************
+*     **** SIC corrections?? ****
+*     ***************************
       if (pspw_SIC().and.pspw_SIC_relaxed()) then
          call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
       end if
 
-
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
 *     **********************************************************
-c      call D3dB_c_SMul(1,scal2,vl,dcpl_mb(vall(1)))
-c      call D3dB_cc_Sum(1,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
-c      call mask_C(0,dcpl_mb(vall(1)))
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
       call Pack_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
       
-
-
 *     **********************************************
 *     **** fourier transform k-space potentials ****
 *     **********************************************
@@ -112,14 +125,13 @@ c      call mask_C(0,dcpl_mb(vall(1)))
      >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
 
 
-         
+*     **************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r] **** 
+*     **************************************************        
       do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-*           *************************************
 *           **** vpsi_r = (vall_r+xcp)*psi_r ****
-*           *************************************
-c           call D3dB_rr_Sum(1,vall_r,xcp(1+(ms-1)*n2ft3d),vpsi_r)
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
@@ -127,25 +139,14 @@ c           call D3dB_rr_Sum(1,vall_r,xcp(1+(ms-1)*n2ft3d),vpsi_r)
      >                       psi_r(1+(n-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
-*           *******************************
-*           **** get vpsi_r in k-space ****
-*           *******************************
+*           **** put vpsi_r in k-space ****
             call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-c            call mask_C(1,dcpl_mb(vpsi(1)))
             call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
-*           ***********************
 *           **** add to Hpsi_k ****
-*           ***********************
-c            call D3dB_cc_daxpy(1,(-scal1),
-c     >                           dcpl_mb(vpsi(1)),
-c     >                           Hpsi_k(1+(n-1)*nfft3d))
-c            call mask_C(1,Hpsi_k(1+(n-1)*nfft3d))
             call Pack_cc_daxpy(1,(-scal1),
      >                           dcpl_mb(vpsi(1)),
      >                           Hpsi_k(1+(n-1)*npack1))
-
-
          end do
       end do
 

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.12 2002-06-26 19:26:54 bylaska Exp $
+* $Id: electron.F,v 1.13 2002-08-13 23:24:15 bylaska Exp $
 *
 
 
@@ -178,6 +178,8 @@
 #include "electron_common.fh"
 
 
+
+c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
      >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
      >                           dte)
@@ -1284,9 +1286,9 @@ c    >                         sum)
 
 
 *     ***********************************
-*     *			 						*
-*     *   electron_psi_vnl_ave	 		*
-*     *									*
+*     *			 		*
+*     *   electron_psi_vnl_ave	 	*
+*     *					*
 *     ***********************************
 
       real*8 function electron_psi_vnl_ave(psi1)
@@ -1354,7 +1356,7 @@ c    >                         sum)
 
 *     ***********************************
 *     *			 		*
-*     *   electron_psi_v_field_ave	 	*
+*     *   electron_psi_v_field_ave	*
 *     *					*
 *     ***********************************
 

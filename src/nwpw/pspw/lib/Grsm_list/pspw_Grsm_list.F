@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.5 2001-12-28 23:17:54 bylaska Exp $ 
+*     $Id: pspw_Grsm_list.F,v 1.6 2002-08-13 23:24:14 bylaska Exp $ 
 *
       subroutine pspw_Grsm_list_start()
       implicit none
@@ -83,6 +83,33 @@
       return
       end
 
+*     ************************************
+*     *                                  *
+*     *        pspw_Grsm_list_ptr        *
+*     *                                  *
+*     ************************************
+*
+*  Warning - should not be used if Grassmann
+*          list is stored on disk.
+*
+      subroutine pspw_Grsm_list_ptr(m,ptr)
+      implicit none
+      integer m
+      integer ptr
+
+#include "mafdecls.fh"
+#include "pspw_Grsm_list_common.fh"
+
+      ptr = grsm_mem(1,indx(m))
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *        pspw_Grsm_list_load       *
+*     *                                  *
+*     ************************************
       subroutine pspw_Grsm_list_load(m,A)
       implicit none
       integer m
@@ -100,6 +127,11 @@
       end
 
 
+*     ************************************
+*     *                                  *
+*     *        pspw_Grsm_list_store      *
+*     *                                  *
+*     ************************************
       subroutine pspw_Grsm_list_store(m,A)
       implicit none
       integer m
@@ -116,6 +148,12 @@
       return
       end
 
+
+*     ************************************
+*     *                                  *
+*     *        pspw_Grsm_list_shift      *
+*     *                                  *
+*     ************************************
       subroutine pspw_Grsm_list_shift()
       implicit none
 

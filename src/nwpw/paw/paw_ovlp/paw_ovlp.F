@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.2 2002-08-13 23:09:49 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.3 2002-08-13 23:24:14 bylaska Exp $
 *
 
 !**************************************************
@@ -27,49 +27,36 @@
       external paw_proj_nbasis,paw_proj_m,psi_ne
       external ion_nion,ion_natm,ion_nkatm,ion_katm
 
-      write(*,*) "paw_ovlp_init 1"
       total_nbasis = 0
       do ia=1,ion_nkatm()
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
       end do
       neall = (psi_ne(1) + psi_ne(2))
-      nbasis = paw_proj_nbasis(1)
-      write(*,*) "gera:",total_nbasis,neall
+
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
      >                               'coeff',coeff(2),coeff(1))
-      nbasis = paw_proj_nbasis(1)
-      nbasis = paw_proj_nbasis(2)
-      write(*,*) "gerb:",total_nbasis,neall
       value = value.and.MA_alloc_get(mt_dcpl,
      >                               (total_nbasis*neall),
      >                               'toeff',toeff(2),toeff(1))
-      nbasis = paw_proj_nbasis(1)
-      write(*,*) "gerc"
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'indx2',indx2(2),indx2(1))
-      nbasis = paw_proj_nbasis(1)
-      write(*,*) "gerd"
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
       nbasis = paw_proj_nbasis(1)
-      write(*,*) "paw_ovlp_init 2"
+      write(*,*) "paw_ovlp_init set unscramble arrays"
 
       !*** set unsrcramble arrays ***
       nion = ion_nion()
       nlmii = 0
       do ii=1,nion
-         write(*,*) "hera"
          ia = ion_katm(ii)
-         write(*,*) "herb, ia:",ia
          nbasis = paw_proj_nbasis(ia)
-         write(*,*) "herc,ia,nbasis:",ia,nbasis
          do nlm=1,nbasis
             nlmii = nlmii + 1
-            write(*,*) "herb"
             m = paw_proj_m(nlm,ia)
             mabs = abs(m)
             if (mod(mabs,2).eq.0) then
@@ -77,7 +64,6 @@
             else
               isgn = -1
             end if
-            write(*,*) "herc"
             do n=1,neall
               i1 = (nlmii-1)*neall + (n-1)
               i2 = i1 - 2*m*neall
@@ -190,6 +176,17 @@
      >              *dconjg(dcpl_mb(toeff(1)+i2)))
       end do     
 
+
+      !*** debug - write out the overlap coefficients ***
+      write(*,*)
+      write(*,*) "Overlap coefficients:"
+      do i2=1,neall
+      do i1=1,total_nbasis
+         indx_coeff = i2 + (i1-1)*neall
+         write(*,*) "nlm n c(n,nlm):",i1,i2,dcpl_mb(coeff(1)+indx_coeff)
+      end do
+      end do
+      write(*,*)
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_set: pop stack',1)

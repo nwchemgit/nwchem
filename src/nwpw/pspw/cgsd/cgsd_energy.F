@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.28 2002-06-26 19:26:54 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.29 2002-08-13 23:24:14 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -70,6 +70,7 @@ c#include "rtdb.fh"
          if (minimizer.eq.2) write(luout,1306)
          if (minimizer.eq.3) write(luout,1307)
          if (minimizer.eq.4) write(luout,1308)
+         if (minimizer.eq.5) write(luout,1309)
          call util_flush(luout)
       end if
 
@@ -84,7 +85,7 @@ c#include "rtdb.fh"
       E(1)=0.0d0
       if (taskid.eq.MASTER) call nwpw_message(2)
       if (taskid.eq.MASTER) call util_flush(luout)
-      if (newpsi) call sdminimize(5)
+      if (newpsi) call sdminimize(15)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
    2  continue
          icount = icount + 1
@@ -106,13 +107,21 @@ c#include "rtdb.fh"
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
            call cgminimize2(E,deltae,deltac,bfgscount)
+         else if (minimizer.eq.5) then
+           bfgscount = bfgscount + 1
+           call bybminimize(E,deltae,deltac,bfgscount)
          end if
 
-         if ((dabs(deltae).gt.dabs(deltae_old)).or.
-     >       (dabs(deltae).gt.1.0d-3)) then
-            stalled = .true.
+c         if ((dabs(deltae).gt.dabs(deltae_old)).or.
+c     >       (dabs(deltae).gt.1.0d-2)) then
+c            stalled = .true.
+c         else
+c            stalled = .false.
+c         end if
+         if (dabs(deltae).gt.1.0d-2) then
+           stalled = .true.
          else
-            stalled = .false.
+           stalled = .false.
          end if
 
          if (taskid.eq.MASTER) then 
@@ -296,6 +305,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
  1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
+ 1309 FORMAT(10X,'==== band by band conjugate gradient iteration =====')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')

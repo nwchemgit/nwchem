@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.19 2002-06-25 19:51:26 bylaska Exp $
+* $Id: psi.F,v 1.20 2002-08-13 23:24:15 bylaska Exp $
 *
 
 *     ***************************
@@ -1242,7 +1242,7 @@ c     real*8 sum1,sum2
 *     **** do a steepest descent step ****
       call electron_sd_update(dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi2(1)),
-     >						  dte)
+     >			      dte)
 
 *     **** lagrange multiplier corrections ****
       nemax = ne(1)+ne(2)

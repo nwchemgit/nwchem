@@ -1,5 +1,5 @@
 /*
- $Id: name.c,v 1.1 2001-08-30 16:58:36 bylaska Exp $
+ $Id: name.c,v 1.2 2002-08-13 23:24:13 bylaska Exp $
 */
 #include	"name.h"
 
@@ -11,6 +11,9 @@ char *spd_Name(int l)
    else if (l==2) s = "d";
    else if (l==3) s = "f";
    else if (l==4) s = "g";
+   else if (l==5) s = "h";
+   else if (l==6) s = "i";
+   else if (l==7) s = "j";
    else s = "?";
    return s;
 }

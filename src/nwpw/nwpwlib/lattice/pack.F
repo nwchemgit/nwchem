@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.7 2002-06-06 00:15:21 bylaska Exp $
+* $Id: pack.F,v 1.8 2002-08-13 23:24:13 bylaska Exp $
 *
 
 
@@ -628,6 +628,39 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       end 
 
 
+*     ***********************************
+*     *                                 *
+*     *          Pack_cc_izdot          *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_cc_izdot(nb,A,B,sum)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 sum
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+
+*     **** external functions ****
+      complex*16 zdotc
+      external   zdotc
+
+      call nwpw_timing_start(2)
+
+      sum =         zdotc(nida(nb),A,1,B,1)
+      sum = sum + 2*zdotc(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
+
+      call nwpw_timing_end(2)
+
+      return
+      end
 
 
 *     ***********************************
@@ -1167,9 +1200,10 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 *     **** local variables ****
       integer i
 
-      do i=1,(nida(nb)+nidb(nb))
-        C(i) = C(i) + alpha*A(i)
-      end do
+c      do i=1,(nida(nb)+nidb(nb))
+c        C(i) = C(i) + alpha*A(i)
+c      end do
+      call daxpy((nida(nb)+nidb(nb)),alpha,A,1,C,1)
 
       return
       end
