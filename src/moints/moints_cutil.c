@@ -4,17 +4,27 @@ void c_print_sparsemat( int, int, int *, int *, int, double * );
 
 
 
+#if defined(SGITFP)
+long onbitmask_( long *len )
+{
+  unsigned long		mask;
+
+  mask = ~((~0) << *len);
+  return ((long)mask);
+}
+#else  
 #if defined(CRAY_T3E) || defined(CRAY_T3D)
 int ONBITMASK( int *len )
 #else
 int onbitmask_( int *len )
-#endif
 {
   unsigned int		mask;
 
   mask = ~((~0) << *len);
   return ((int)mask);
 }
+#endif
+#endif
 
   
 

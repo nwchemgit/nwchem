@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.58 1997-05-15 22:13:03 rg240 Exp $
+C$Id: mointdriver.F,v 1.59 1997-06-12 22:53:20 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -16,7 +16,6 @@ c
        integer rtdb                        ! [input] database handle
        integer geom, basis
        character*255 movecs_in
-c
 c
 c
        character*255 title_vecs, basis_vecs
@@ -100,8 +99,6 @@ c
      $                   1, oaoreuse)) oaoreuse = .false.
        if (.not.rtdb_get(rtdb,'fourindex:aokeep', MT_LOG,
      $                   1, oaokeep)) oaokeep = .false.
-       if (.not.moints_aodisk_init( odisk, oaoreuse ))
-     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -267,18 +264,27 @@ c
            write(6,962)
  962       format(10x,'Use single quartet AO integrals')
          endif
+         if (odisk) then
+           write(6,963)
+ 963       format(10x,'AO integrals cached to disk')
+         endif
            
          write(6,*)
          call util_flush(6)
        endif
-       goto 333    ! skip direct MP2 section
+C       goto 333    ! skip direct MP2 section
 c
-c Clear 4-index statistics
+c  Initialize aodisk
+c
+       if (.not.moints_aodisk_init( odisk, oaoreuse ))
+     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
+c
+c   Clear 4-index statistics
 c
        call moints_stats_clear()
 
 c
-c Loop over segments of occupied orbitals
+c   Loop over segments of occupied orbitals
 c
        npass = 0
        oseg_hi = occ_lo - 1
@@ -297,6 +303,11 @@ c
      $                         g_coul, ocoul, g_exch, oexch,
      $                         blen, oblk )
        else
+         call moints_build_2x( basis,  ohalf, osym, occ_lo,
+     $                         oseg_lo, oseg_hi,
+     $                         vir_lo, vir_hi, g_vecs,
+     $                         g_coul, ocoul, g_exch, oexch,
+     $                         blen, oblk )
          call moints_build_2x( basis,  ohalf, osym, occ_lo,
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
@@ -371,7 +382,7 @@ c
  333   continue
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
-C       goto 444          !skip semi-direct code
+       goto 444          !skip semi-direct code
 c
 c ---------------------------
 c  Test semi-direct routine
@@ -395,13 +406,13 @@ c
        seg_incr = gmem/(nvir*mxrlen)
        seg_incr = min(max(seg_incr,1),nocc_correl)
 
-       IF (GA_NODEID().EQ.0) THEN
-         WRITE(6,738) LMEMREQ, GMEM, MXRLEN, SEG_INCR
- 738     FORMAT(' Local memory required:',2x,i20,/,
+       if (ga_nodeid().eq.0) then
+         write(6,738) lmemreq, gmem, mxrlen, seg_incr
+ 738     format(' Local memory required:',2x,i20,/,
      $          ' Global memory remaining:',i20,/,
      $          ' Record length:',10x,i20,/,
      $        ' Occupied segment length:',i20)
-       ENDIF
+       endif
 
        if (ga_nodeid().eq.0) then
          write(6,978) seg_incr
@@ -412,6 +423,7 @@ c
          call util_flush(6)
        endif
  222   continue
+
        tpass = tcgtime()
        ipass = ipass + 1
        oseg_lo = oseg_hi + 1
