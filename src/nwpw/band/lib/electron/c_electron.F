@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.8 2002-05-03 19:44:01 bylaska Exp $
+* $Id: c_electron.F,v 1.9 2003-01-25 00:10:41 edo Exp $
 *
 
 *     ***********************************
@@ -439,7 +439,7 @@
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call Stfl_gg_Copy(ispin,ne,npack1,(ne(1)+ne(2)),
+      call Stfl_gg_Copy(ispin,ne,npack1,(ne(1)+ne(2)),nbrill,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  Hpsi_k_new)
       return

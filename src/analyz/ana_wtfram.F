@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.51 2002-07-23 21:52:02 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.52 2003-01-25 00:12:50 edo Exp $
 c
       implicit none
 c
@@ -508,7 +508,7 @@ c
      + .false.,.not.lsonly,int_mb(i_ndxw))
       write(filchg,'(a,i5.5,a)')
      + root(1:index(root,'.')-1),indx,'.xyzq '
-      call ana_pltgrd(.true.)
+      call ana_pltgrd(.true.,int_mb(i_isel))
       endif
 c
       endif
