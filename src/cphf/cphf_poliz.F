@@ -1,92 +1,186 @@
-      subroutine cphf_poliz(rtdb)
+      logical function cphf_poliz(rtdb)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
-#include "inp.fh"
-#include "cscfps.fh"
-#include "sym.fh"
 #include "util.fh"
-#include "cscf.fh"
-#include "crohf.fh"
       integer rtdb              ! [input] database handle
-      double precision eone,etwo,enrep,energy,pol
-      integer g_grad,g_x,g_y,g_z,g_tmp,g_work
-      integer max_iter,max_sub
-      double precision accuracy,precond_acc
-      integer precond_iter
-      logical ga_iter_lsolve
-      external ga_iter_lsolve
-      external rohf_hessv_precond, rohf_hessv
-      logical oprint
-c     
-      call scf_init(rtdb)
-      call scf_pstat_init(rtdb)
+c
+      logical movecs_read,movecs_read_header, cphf, file_write_ga,
+     $     file_read_ga
+      external movecs_read,movecs_read_header, cphf, file_write_ga,
+     $     file_read_ga
+      character*(nw_max_path_len) movecs, fname
+      character*10 scftype
+      character*255 title_vecs, basis_vecs, title
+      integer nbf, nbf_vecs, nsets, nmos(2), nmo
+      integer noa, nob, nva, nvb, nvirt, nclosed, nopen
+      integer vlen
+      integer k_occ_a, l_occ_a, k_eval_a, l_eval_a
+      integer k_occ_b, l_occ_b, k_eval_b, l_eval_b
+      integer geom, basis
+      integer g_vecs_a, g_vecs_b, g_dip(3),ix, g_tmp, g_rhs, g_scratch
+      integer g_sol
+c
+c     Compute the SCF polarizability by solving the CPHF equations
+c
+c     Get MO vectors etc.
+c
+      if(.not.rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+      if(.not.geom_create(geom, 'geometry'))
+     $     call errquit('cphf_poliz: geom_create?', 0)
+      if(.not.geom_rtdb_load(rtdb, geom, 'geometry'))
+     $     call errquit('cphf_poliz: no geometry ', 0)
+      if(.not.bas_create(basis, 'ao basis'))
+     $     call errquit('cphf_poliz: bas_create?', 0)
+      if(.not.bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $     call errquit('cphf_poliz: no ao basis ', 0)
       call int_normalize(basis)
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
+     $     call errquit('cphf_poliz: no SCF MO vectors',0)
+      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
+     $     call errquit('cphf_poliz: scftype', 0)
+      if (.not. bas_numbf(basis,nbf))
+     $     call errquit('cphf_poliz: could not get nbf',0)
+c
+      if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
+     $     nbf_vecs,nsets,nmos,2))
+     $     call errquit('cphf_poliz: problem with movecs_read_header',1)
+      if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0)
+      nmo = nmos(1)
+c
+      if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
+     $     l_occ_a,k_occ_a))      
+     $     call errquit('cphf_poliz ma problem with alpha occ',1)
+      if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
+     $     l_eval_a,k_eval_a))
+     $     call errquit('cphf_poliz: problem with ma for a evals',1)
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,1,
+     $     g_vecs_a))call errquit('cphf_poliz: ga_create failed',0)
+      if (scftype .eq. 'UHF') then
+         if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,
+     $        g_vecs_b))call errquit('cphf_poliz: ga_create failed',0)
+         if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
+     $        l_occ_b,k_occ_b))
+     $        call errquit('cphf_poliz ma problem with beta occ',1)
+         if(.not.ma_push_get(mt_dbl,nbf,'beta evals',
+     $        l_eval_b,k_eval_b))
+     $        call errquit('cphf_poliz: problem with ma for b evals',1)
+      endif
+      if(scftype.eq.'UHF')then
+         if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
+     $        call errquit('no alphas',1)
+         if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
+     $        call errquit('no betas',1)
+      else if(scftype.eq.'RHF')then
+         if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
+     $        call errquit('no occ',1)
+         noa=nclosed
+         nob=nclosed
+         nopen = 0
+      else
+         call errquit('mp2_grad: unknown SCFTYPE ', 0)
+      end if
+      nopen = 0
+      nva=nmo-noa
+      nvb=nmo-nob
+      if (scftype.eq.'UHF') then 
+         vlen = noa*nva + nob*nvb
+      else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
+         nvirt = nmo - nclosed - nopen
+         vlen = nclosed*(nopen+nvirt) + nopen*nvirt
+      else
+         call errquit('cphf: unknown SCF type',0)
+      endif
+c
+      if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
+     $     dbl_mb(k_eval_a),g_vecs_a))
+     $     call errquit('cphf_poliz: could not read alpha vecs',1)
+      if(scftype.eq.'UHF')then
+         if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
+     $        dbl_mb(k_eval_b),g_vecs_b))
+     $        call errquit('cphf_poliz: could not read beta vecs',1)
+      endif
+c     
+c     Generate dipole integrals
+c
+      do ix = 1, 3
+         if(.not. ga_create(mt_dbl,nbf,nbf,' ao integs x ',
+     $        1,1,g_dip(ix))) call errquit('cphf_poliz: ga',ix)
+      enddo
+c
       call int_init(rtdb,1,basis)
-      call schwarz_init(geom, basis)
-      call int_1e_cache_ga(basis,oskel)
-      call scf_vectors_guess(rtdb)
-      call rohf_init(rtdb)
-      if(.not.ga_create(mt_dbl,crohf_vlen,1,'rohf_nr_solve: grad',
-     $     1,1,g_grad)) call errquit('rohf_nr_solve: ga_cre grad',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_x)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_y)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_z)) call errquit('ga',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
-     $     1,1,g_tmp)) call errquit('ga',0)
-      call int_dip_ga(basis,basis,g_x,g_y,g_z)
-      call two_index_transf(g_x,g_movecs,
-     $     g_movecs,g_tmp,crohf_g_fcv)
-      if(nopen.gt.0)then
-         call ga_copy(crohf_g_fcv,crohf_g_fcp)
-         call ga_copy(crohf_g_fcv,crohf_g_fpv)
-      endif
-      call rohf_get_grad(g_grad)
-      lshift=0.0d0
-      accuracy=1d-3
-      pflg=2
-      max_iter=20
-      max_sub=10
-      oprint=.false.
-      if(.not.ga_create(mt_dbl,crohf_vlen,1,'rohf_nr_solve: grad',
-     $     1,1,g_work)) call errquit('rohf_nr_solve: ga_cre grad',0)
-      call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
-      oskel=.false.
-      call ga_zero(g_work)
-      if(.not.ga_iter_lsolve(crohf_vlen,max_iter,
-     $     max_sub,accuracy, 
-     $     rohf_hessv_precond,rohf_hessv,oprint, 
-     $     g_grad,g_work,precond_acc,precond_iter))
-     $     call errquit('cphf did not converge',1)
-      pol=ga_ddot(g_work,g_grad)
-      if(ga_nodeid().eq.0)then
-         write(6,999) pol
- 999     format(//,15x,40('-'),
-     $        /,15x,'Polarizability is:',f16.6,
-     $        /,15x,40('-'),/)
-      endif
-      call int_1e_uncache_ga()
-      call schwarz_tidy()
+      call int_dip_ga(basis, basis, g_dip(1), g_dip(2), g_dip(3))
       call int_terminate()
-      call rohf_tidy
-      call scf_tidy 
-      if(.not.ga_destroy(g_grad))call errquit(
-     $     'could not destroy gradient handle',1)
-      if(.not.ga_destroy(g_x))call errquit(
-     $     'could not destroy < |x| > handle',1)
-      if(.not.ga_destroy(g_y))call errquit(
-     $     'could not destroy < |y| > handle',1)
-      if(.not.ga_destroy(g_z))call errquit(
-     $     'could not destroy < |z| > handle',1)
-      if(.not.ga_destroy(g_tmp))call errquit(
-     $     'could not destroy tmp handle',1)
-      if(.not.ga_destroy(g_work))call errquit(
-     $     'could not destroy work array',1)
+c
+      if (.not. bas_destroy(basis)) call errquit('cphf_poliz: bas?',0)
+      if (.not. geom_destroy(geom)) call errquit('cphf_poliz: geom?',0)
+c
+c     Assemble the RHS vectors ... currently just solve one at a  time
+c
+      if(.not.ga_create(mt_dbl, nbf, nbf,'scratch', 1, 1,g_scratch)) 
+     $     call errquit('cphf_poliz: ga create of scratch', nbf)
+      if(.not.ga_create(mt_dbl, nmo, nmo,'tmp', 1, 1,g_tmp)) 
+     $     call errquit('cphf_poliz: ga create of tmp', nbf)
+      if(.not.ga_create(mt_dbl, vlen, 1,'rhs', 1, 1,g_rhs)) 
+     $     call errquit('cphf_poliz: ga create of rhs', vlen)
+      if(.not.ga_create(mt_dbl, vlen, 1,'sol', 1, 1,g_sol)) 
+     $     call errquit('cphf_poliz: ga create of sol', vlen)
+c
+      call ga_print(g_vecs_a)
+      if (scftype .eq. 'UHF') call ga_print(g_vecs_b)
+      do ix = 1, 3
+         call two_index_transf(g_dip(ix), g_vecs_a, g_vecs_a, 
+     $        g_scratch, g_tmp)
+         call ga_print(g_tmp)
+         call ga_copy_patch('n', g_tmp, noa+1, nmo, 1, noa,
+     $        g_rhs, 1, noa*nva, 1, 1)
+         if (scftype .eq. 'UHF') then
+            call two_index_transf(g_dip(ix), g_vecs_b, g_vecs_b, 
+     $           g_scratch, g_tmp)
+            call ga_copy_patch('n', g_tmp, nob+1, nmo, 1, nob,
+     $           g_rhs, noa*nva+1, vlen, 1, 1)
+         endif
+         call util_file_name('cphf_rhs',.true.,.true.,fname)
+         call ga_print(g_rhs)
+         if(.not.file_write_ga(fname,g_rhs))
+     $        call errquit('cphf_poliz: could not write cphf_rhs',1)
+         if (.not. cphf(rtdb)) call errquit('cphf_poliz: cphf?',0)
+         call util_file_name('cphf_sol',.true.,.true.,fname)
+         if(.not.file_read_ga(fname,g_sol))
+     $        call errquit('cphf_poliz: could not read cphf_rhs',1)
+         call ga_print(g_sol)
+c
+         if (scftype .eq. 'UHF') then
+            write(6,*) ' POLIZ ', ix, ga_ddot(g_rhs, g_sol)*4.0d0
+         else
+            write(6,*) ' POLIZ ', ix, ga_ddot(g_rhs, g_sol)*16.0d0
+         endif
+c
+      enddo
+c
+      if (.not. ga_destroy(g_vecs_a)) call errquit('cphf_poliz: ga',1)
+      if (scftype .eq. 'UHF') then
+         if (.not. ga_destroy(g_vecs_b))call errquit('cphf_poliz: ga',2)
+      endif
+      if (.not. ga_destroy(g_rhs)) call errquit('cphf_poliz: ga',3)
+      if (.not. ga_destroy(g_tmp)) call errquit('cphf_poliz: ga',4)
+      if (.not. ga_destroy(g_scratch)) call errquit('cphf_poliz: ga',5)
+      do ix = 1, 3
+         if (.not. ga_destroy(g_dip(ix))) 
+     $        call errquit('cphf_poliz: ga',5+ix)
+      enddo
+      if (.not. ga_destroy(g_sol)) call errquit('cphf_poliz: ga',6)
+c
+      if (scftype .eq. 'UHF') then
+         if (.not.ma_pop_stack(l_eval_b))call errquit('cphf_poliz:ma',1)
+         if (.not.ma_pop_stack(l_occ_b))call errquit('cphf_poliz:ma',2)
+      endif
+      if (.not.ma_pop_stack(l_eval_a))call errquit('cphf_poliz:ma',3)
+      if (.not.ma_pop_stack(l_occ_a))call errquit('cphf_poliz:ma',4)
+c
+      cphf_poliz = .true.
+c
       end

@@ -29,7 +29,10 @@ c
       character*(nw_max_path_len) cphf_sol
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
-      integer vlen, nvirt
+      integer vlen, nvirt, nmos(2), nbf_vecs, nsets
+      character*255 title_vecs, basis_vecs
+      logical movecs_read_header
+      external movecs_read_header
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
@@ -40,15 +43,39 @@ c
       oprint_conv = util_print('information',print_low) .and.
      $     ga_nodeid() .eq. 0
       oprint_solve = util_print('solve',print_default)
-c     
 c
+c     Must use the same vectors as the converged SCF
+c
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $     call errquit('cphf: no SCF MO vectors',0)
+c     
       call scf_init(rtdb)
       call int_normalize(basis)
       call int_init(rtdb,1,basis)
       call schwarz_init(geom, basis)
       oskel=sym_number_ops(geom).gt.0
       call int_1e_cache_ga(basis,oskel)
-      call scf_vectors_guess(rtdb)
+c
+c     Get the MO vectors
+c
+      if(.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
+     $     nbf_vecs,nsets,nmos,2))
+     $     call errquit('cphf: problem with movecs_read_header',1)
+      if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0)
+      nmo = nmos(1)
+c
+      if (nmo .ne. nbf) then
+         if (.not. ga_destroy(g_movecs(1))) call errquit('cphf: ga',1)
+         if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs a',
+     $        1, 1, g_movecs(1))) call errquit('scf_v_g: tmp MOs', 0)
+         if (scftype .eq. 'UHF') then
+            if (.not. ga_destroy(g_movecs(2)))call errquit('cphf: ga',2)
+            if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs b',
+     $           1, 1, g_movecs(2))) call errquit('scf_v_g: tmp MOs', 0)
+         endif
+      endif
+c         
+      call scf_movecs_read
 c
       if (scftype.eq.'UHF') then 
          vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
@@ -74,7 +101,7 @@ c
          else
             write(6,172) nalpha, nbeta
  172        format('     nalpha = ', i4/
-     $             '       nbeta = ', i4)
+     $             '      nbeta = ', i4)
          endif
          write(6,173) vlen, precond_tol, max_precond_iter
  173     format('  variables = ', i8/
@@ -159,5 +186,9 @@ c
          call rohf_tidy
       endif
       call scf_tidy(rtdb)
+c
+      return
+c
+      call cphf_poliz(rtdb)     ! Never executed.
 c
       end
