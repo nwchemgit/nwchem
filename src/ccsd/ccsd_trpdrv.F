@@ -1,149 +1,154 @@
       subroutine ccsd_trpdrv(t1,buff,bufo,lbfo,bufv,lbfv,
-     &                       f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
-     &                       eccsdt,g_objo,g_objv,g_coul,g_exch,
-     &                       ncor,nocc,nvir,iprt,emp4,emp5,
-     &                       oseg_lo,oseg_hi)
-C     $Id: ccsd_trpdrv.F,v 2.6 1997-10-18 20:14:39 d3g681 Exp $
+     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
+     &     eccsdt,g_objo,g_objv,g_coul,g_exch,
+     &     ncor,nocc,nvir,iprt,emp4,emp5,
+     &     oseg_lo,oseg_hi)
+C     $Id: ccsd_trpdrv.F,v 2.7 1997-10-22 23:06:00 d3g681 Exp $
       implicit none
       double precision t1(*),buff(*),bufo(*),
-     &                 bufv(*),f1n(*),f1t(*),f2n(*),
-     &                 f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
-     &                 emp4,emp5
+     &     bufv(*),f1n(*),f1t(*),f2n(*),
+     &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
+     &     emp4,emp5
       integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
-     &        g_exch,oseg_lo,oseg_hi
-c
+     &     g_exch,oseg_lo,oseg_hi
+c     
       double precision eaijk,eccsdt
       integer a,i,j,k,aold,av,inode,t2j,eintc,eintx,
-     &        dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
-     &        next,nxtval
-C
+     &     dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
+     &     next,nxtval
+C     
       Integer Nodes, IAm
-C
+C     
 #include "ccsd_len.fh"
 #include "global.fh"
-c
+c     
       double precision zip
       data zip/0.0d00/
-c
-capr      call ga_print(g_coul)
-capr      call ga_print(g_exch)
+c     
+c     apr      call ga_print(g_coul)
+c     apr      call ga_print(g_exch)
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
-C
+C     
       call ga_sync()
       call qenter('trpdrv',0)
       inode=-1
       aold=0
       next=nxtval(nodes)
       do a=oseg_lo,oseg_hi
-       av=a-ncor-nocc
-       do j=1,nocc
-        inode=inode+1
-        if (inode.eq.next)then
-c         print *,'iam,a,j',iam,a,j
-         t2j=1
-         eintc=t2j+lnovv
-         eintx=eintc+lnoov
-         len=eintx+lnoov-1
-         call ga_get(g_objo,1,len,j,j,bufo,len)
-         if (iprt.gt.10)then
-          print *,'t2j ',a,j,iam
-          write(6,4859)(bufo(i),i=t2j,t2j+lnovv-1)
-          print *,'eintc ',a,j,iam
-          write(6,4859)(bufo(i),i=eintc,eintc+lnoov-1)
-          print *,'eintx ',a,j,iam
-          write(6,4859)(bufo(i),i=eintx,eintx+lnoov-1)
-         endif
-         if (aold.ne.a)then
-          dint=1
-          t2c=dint+lnoov
-          t2x=t2c+lnoov
-          len=t2x+lnoov-1
-          call ga_get(g_objv,1,len,av,av,bufv,len)
-          fintc=1
-          fintx=fintc+lnovv
-c - make fints
-CRK note change - unsure
-          ad1=(a-oseg_lo)*nocc
-          call ga_get(g_coul,1,lnvv,ad1+1,ad1+nocc,buff(fintc),lnvv)
-          call ga_get(g_exch,1,lnvv,ad1+1,ad1+nocc,buff(fintx),lnvv)
-c
-          if (iprt.gt.10)then
-           print *,'fintc ',a,iam
-           write(6,4859)(buff(i),i=fintc,fintc+lnovv-1)
-           print *,'fintx ',a,iam
-           write(6,4859)(buff(i),i=fintx,fintx+lnovv-1)
- 4859      format(1x,5e14.4)
-           print *,'t2c ',a,iam
-           write(6,4859)(bufv(i),i=t2c,t2c+lnoov-1)
-           print *,'t2x ',a,iam
-           write(6,4859)(bufv(i),i=t2x,t2x+lnoov-1)
-           print *,'dint ',a,iam
-           write(6,4859)(bufv(i),i=dint,dint+lnoov-1)
-          endif
-          aold=a
-         endif
-c
-         do i=1,nocc
-          do k=1,i
-           call dfill(lnvv,zip,f1n,1)
-           call dfill(lnvv,zip,f1t,1)
-           call dfill(lnvv,zip,f2n,1)
-           call dfill(lnvv,zip,f2t,1)
-           call dfill(lnvv,zip,f3n,1)
-           call dfill(lnvv,zip,f3t,1)
-           call dfill(lnvv,zip,f4n,1)
-           call dfill(lnvv,zip,f4t,1)
-           ad1=(i-1)*lnvv
-           ad2=(k-1)*lnvv
-           call ccsd_dovvv(buff(ad1+fintc),buff(ad1+fintx),
-     $                     bufo(ad2+t2j),f1n,f2n,f3n,f4n,nocc,nvir)
-           call ccsd_dovvv(buff(ad2+fintc),buff(ad2+fintx),
-     $                     bufo(ad1+t2j),f1t,f2t,f3t,f4t,nocc,nvir)
-           ad1=(k-1)*lnov
-           ad2=(i-1)*lnov
-           call ccsd_doooo(bufo(ad1+eintc),bufo(ad1+eintx),
-     $                     bufv(ad2+t2c),bufv(ad2+t2x),f1n,f2n,
-     $                     f3n,f4n,nocc,nvir)
-           call ccsd_doooo(bufo(ad2+eintc),bufo(ad2+eintx),
-     $                     bufv(ad1+t2c),bufv(ad1+t2x),f1t,f2t,
-     $                     f3t,f4t,nocc,nvir)
-           if (iprt.gt.50)then
-            call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,nvir)
-           endif
-           eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)-eorb(a)
-           ad1=(j-1)*lnov+(i-1)*nvir
-           ad2=(i-1)*lnov+(j-1)*nvir
-           ad3=(k-1)*nvir+1
-           call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-     &                     bufv(dint+ad1),bufv(dint+ad2),
-     $                     t1(ad3),eorb,eaijk,emp4,emp5,
-     $                     ncor,nocc,nvir)
-c          write(6,2234)i,k,iam,a,j,emp4,emp5
-c 2234     format(' te1 iam aijk',5i5,2e15.5)
-           if (i.ne.k)then
-            ad1=(j-1)*lnov+(k-1)*nvir
-            ad2=(k-1)*lnov+(j-1)*nvir
-            ad3=(i-1)*nvir+1
-            call ccsd_tengy(f1t,f1n,f2t,f2n,f3t,f3n,f4t,f4n,
-     &                      bufv(dint+ad1),bufv(dint+ad2),
-     $                      t1(ad3),eorb,eaijk,emp4,emp5,
-     $                      ncor,nocc,nvir)
-c          write(6,3234)i,k,iam,a,j,emp4,emp5
-c 3234     format(' te2 iam aijk',5i5,2e15.5)
-           endif
-          enddo
-         enddo
-         if (iprt.gt.50)then
-          write(6,1234)iam,a,j,emp4,emp5
- 1234     format(' iam aijk',3i5,2e15.5)
-         endif
-         next=nxtval(nodes)
-        endif
-       enddo
-      enddo
-c      print *,'end of loops'
-c
+         av=a-ncor-nocc
+         do j=1,nocc
+            inode=inode+1
+            if (inode.eq.next)then
+c     print *,'iam,a,j',iam,a,j
+               t2j=1
+               eintc=t2j+lnovv
+               eintx=eintc+lnoov
+               len=eintx+lnoov-1
+               call ga_get(g_objo,1,len,j,j,bufo,len)
+               if (iprt.gt.10)then
+                  print *,'t2j ',a,j,iam
+                  write(6,4859)(bufo(i),i=t2j,t2j+lnovv-1)
+                  print *,'eintc ',a,j,iam
+                  write(6,4859)(bufo(i),i=eintc,eintc+lnoov-1)
+                  print *,'eintx ',a,j,iam
+                  write(6,4859)(bufo(i),i=eintx,eintx+lnoov-1)
+               end if
+               if (aold.ne.a)then
+                  dint=1
+                  t2c=dint+lnoov
+                  t2x=t2c+lnoov
+                  len=t2x+lnoov-1
+                  call ga_get(g_objv,1,len,av,av,bufv,len)
+                  fintc=1
+                  fintx=fintc+lnovv
+c     - make fints
+C     RK note change - unsure
+                  ad1=(a-oseg_lo)*nocc
+                  call ga_get(g_coul,1,lnvv,ad1+1,ad1+nocc,
+     $                 buff(fintc),lnvv)
+                  call ga_get(g_exch,1,lnvv,ad1+1,ad1+nocc,
+     $                 buff(fintx),lnvv)
+c     
+                  if (iprt.gt.10)then
+                     print *,'fintc ',a,iam
+                     write(6,4859)(buff(i),i=fintc,fintc+lnovv-1)
+                     print *,'fintx ',a,iam
+                     write(6,4859)(buff(i),i=fintx,fintx+lnovv-1)
+ 4859                format(1x,5e14.4)
+                     print *,'t2c ',a,iam
+                     write(6,4859)(bufv(i),i=t2c,t2c+lnoov-1)
+                     print *,'t2x ',a,iam
+                     write(6,4859)(bufv(i),i=t2x,t2x+lnoov-1)
+                     print *,'dint ',a,iam
+                     write(6,4859)(bufv(i),i=dint,dint+lnoov-1)
+                  end if
+                  aold=a
+               end if
+c     
+               do i=1,nocc
+                  do k=1,i
+                     call dfill(lnvv,zip,f1n,1)
+                     call dfill(lnvv,zip,f1t,1)
+                     call dfill(lnvv,zip,f2n,1)
+                     call dfill(lnvv,zip,f2t,1)
+                     call dfill(lnvv,zip,f3n,1)
+                     call dfill(lnvv,zip,f3t,1)
+                     call dfill(lnvv,zip,f4n,1)
+                     call dfill(lnvv,zip,f4t,1)
+                     ad1=(i-1)*lnvv
+                     ad2=(k-1)*lnvv
+                     call ccsd_dovvv(buff(ad1+fintc),buff(ad1+fintx),
+     $                    bufo(ad2+t2j),f1n,f2n,f3n,f4n,nocc,nvir)
+                     call ccsd_dovvv(buff(ad2+fintc),buff(ad2+fintx),
+     $                    bufo(ad1+t2j),f1t,f2t,f3t,f4t,nocc,nvir)
+                     ad1=(k-1)*lnov
+                     ad2=(i-1)*lnov
+                     call ccsd_doooo(bufo(ad1+eintc),bufo(ad1+eintx),
+     $                    bufv(ad2+t2c),bufv(ad2+t2x),f1n,f2n,
+     $                    f3n,f4n,nocc,nvir)
+                     call ccsd_doooo(bufo(ad2+eintc),bufo(ad2+eintx),
+     $                    bufv(ad1+t2c),bufv(ad1+t2x),f1t,f2t,
+     $                    f3t,f4t,nocc,nvir)
+                     if (iprt.gt.50)then
+                        call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+     $                       nvir)
+                     end if
+                     eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)-
+     $                    eorb(a)
+                     ad1=(j-1)*lnov+(i-1)*nvir
+                     ad2=(i-1)*lnov+(j-1)*nvir
+                     ad3=(k-1)*nvir+1
+                     call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+     &                    bufv(dint+ad1),bufv(dint+ad2),
+     $                    t1(ad3),eorb,eaijk,emp4,emp5,
+     $                    ncor,nocc,nvir)
+c     write(6,2234)i,k,iam,a,j,emp4,emp5
+c     2234     format(' te1 iam aijk',5i5,2e15.5)
+                     if (i.ne.k)then
+                        ad1=(j-1)*lnov+(k-1)*nvir
+                        ad2=(k-1)*lnov+(j-1)*nvir
+                        ad3=(i-1)*nvir+1
+                        call ccsd_tengy(f1t,f1n,f2t,f2n,
+     $                       f3t,f3n,f4t,f4n,
+     &                       bufv(dint+ad1),bufv(dint+ad2),
+     $                       t1(ad3),eorb,eaijk,emp4,emp5,
+     $                       ncor,nocc,nvir)
+c     write(6,3234)i,k,iam,a,j,emp4,emp5
+c     3234     format(' te2 iam aijk',5i5,2e15.5)
+                     end if
+                  end do
+               end do
+               if (iprt.gt.50)then
+                  write(6,1234)iam,a,j,emp4,emp5
+ 1234             format(' iam aijk',3i5,2e15.5)
+               end if
+               next=nxtval(nodes)
+            end if
+         end do
+      end do
+c     print *,'end of loops'
+c     
       call ga_sync
       next=nxtval(-nodes)
       call ga_sync
