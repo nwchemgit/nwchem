@@ -1,0 +1,14 @@
+[lmax] 2
+ <atom>
+ Si
+  0.140000E+02  0.280000E+02   3   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.200000E+01
+ <end>
+ <solver> pauli                     <end>
+ <correlation>  pbe96                      <end>
+ <exchange>     pbe96                      <end>
+ <pseudopotential> hamann                    <end>
