@@ -1,4 +1,4 @@
-       OBJ = gradients.o force.o grad1.o grad2.o scf_gradient.o
+       OBJ = gradients.o force.o grad1.o grad2.o scf_gradient.o get_dens.o
 
    LIBRARY = libgradients.a
 

@@ -62,12 +62,9 @@ C             if (mod(ijatom, nproc) .eq. iproc) then
      $              call errquit('grad2: error with bas_ce2cnr',0)
 
 C            get density matrix blocks
-             call ga_get (g_dens, iab1f, iab1l, iab2f, iab2l, d_ij,ldim)     
-             call ga_get (g_dens, iab3f, iab3l, iab4f, iab4l, d_kl,ldim)
-             call ga_get (g_dens, iab1f, iab1l, iab3f, iab3l, d_ik,ldim)
-             call ga_get (g_dens, iab2f, iab2l, iab4f, iab4l, d_jl,ldim)
-             call ga_get (g_dens, iab1f, iab1l, iab4f, iab4l, d_il,ldim)
-             call ga_get (g_dens, iab2f, iab2l, iab3f, iab3l, d_jk,ldim)
+             call get_dens ( d_ij, d_kl, d_ik, d_jl, d_il, d_jk, ldim,
+     $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
+     $           g_dens )
 
                 oij = iat1.eq.iat2
                 okl = iat3.eq.iat4
