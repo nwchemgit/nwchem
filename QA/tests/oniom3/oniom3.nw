@@ -1,0 +1,57 @@
+start
+
+# Non-physical test of 3-layer ONIOM gradients
+
+# Gradients for CF2H2 using SCF 6-31g*/3-21g/sto-3g SCF for the
+# three levels of theory, and CF2H2/CFH3/CH4 for the three systems
+
+# The test run under Linux had 6 dp agreement between the numerical
+# and analytic derivatives.
+
+driver; clear; end
+
+geometry
+  C -0.4    -0.0     0.0
+  H -1.1    -0.9     0.0
+  H -1.1     0.9     0.0
+  F  0.3     0.0    -1.1
+  F  0.3     0.0     1.1
+end
+
+basis sto-3g
+  C library sto-3g
+  H library sto-3g
+  F library sto-3g
+end
+
+basis 3-21g
+  C library 3-21g
+  H library 3-21g
+  F library 3-21g
+end
+
+basis 6-31g*
+  C library 6-31g*
+  H library 6-31g*
+  F library 6-31g*
+end
+
+scf; print low geometry; thresh 1e-8; end
+
+oniom
+  high   scf 6-31g*
+  medium scf 3-21g
+  low    scf sto-3g
+  model 3  1 4 0.8  1 5 0.8
+  inter 4  1 5 0.8
+end
+
+task oniom gradient
+
+set tng:fivept t
+
+scf; print none; end
+
+task oniom gradient numerical
+
+
