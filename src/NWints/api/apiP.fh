@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.13 1998-12-10 23:48:03 d3e129 Exp $
+c $Id: apiP.fh,v 1.14 1999-10-26 22:04:59 mg201 Exp $
 c
 c common block that holds memory information
 c
@@ -55,4 +55,12 @@ c
       integer ecp_bsh  ! ecp basis set handle
       integer so_bsh   ! so potential handle 
       common /capi_ecp/any_ecp,any_so,ecp_bsh,so_bsh
-      
+c
+c Relativistic basis set stuff for the API
+c      
+      logical any_rel   ! is any basis set a relativistic set
+      logical any_large ! does a relativistic set have a separate large component
+      logical any_small ! does a relativistic set have a separate small component
+      integer lc_bsh    ! large component basis set handle
+      integer sc_bsh    ! small component basis set handle 
+      common /capi_rel/any_rel,any_large,any_small,lc_bsh,sc_bsh
