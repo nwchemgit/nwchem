@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.21 2000-07-06 20:29:57 d3j191 Exp $
+c $Id: util_md.F,v 1.22 2000-07-06 20:31:56 d3j191 Exp $
 c
       implicit none
 c
@@ -241,7 +241,7 @@ c
       open(unit=lfn,file='camera.inc',form='formatted',status='new',
      + err=9)
       write(lfn,1000)
-     + 0.0d0,0.0d0,2.0d0*zmax,
+     + 0.0d0,0.0d0,-2.0d0*zmax,
      + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin),
      + 0.0d0, 1.0d0, 5.0d-1,
      + 1.0d0, 0.0d0, 0.0d0,
