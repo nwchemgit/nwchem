@@ -1,4 +1,4 @@
-C $Id: ecp_sph_tens.f,v 1.5 1999-03-05 22:32:49 mg201 Exp $
+C $Id: ecp_sph_tens.f,v 1.6 1999-03-05 22:54:14 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_sph_tens (l,n_n,n_t,R,X,Y,Z,xn,yn,zn,tmp,G_kq,
@@ -26,7 +26,7 @@ C $Id: ecp_sph_tens.f,v 1.5 1999-03-05 22:32:49 mg201 Exp $
       double precision X,Y,Z,R,xr,yr,zr,xn(0:l),yn(0:l),zn(0:l),
      &    tmp(n_t),G_kq(n_n),tooclose
       double precision csco(lcsco)
-      data close/1.0d-14/
+      data tooclose/1.0d-14/
 *
 *   Set up monomials in X, Y and Z
 *
