@@ -2299,6 +2299,8 @@ c
       logical     dolinb
       logical     zdone
       logical     linbnd
+      logical     oprint
+      logical     ofail
       integer iw
       parameter (iw=6)
       dimension c(3,*)
