@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.11 2000-03-15 20:51:04 d3j191 Exp $
+c $Id: cf_shake.F,v 1.12 2000-03-28 23:15:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -80,7 +80,7 @@ c
       real*8 xs(msa,3),ys(msa,3)
       integer isgan(msa),isat(msa)
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,4),ypmf(numpmf,4,3)
+      real*8 rpmf(2,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
       real*8 wgt(mat,6),ft(4,3),rv(2),w(4)
       integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
 c
@@ -90,40 +90,40 @@ c
 c
       do 1 i=1,numpmf
       do 2 j=1,4
-      xpmf(i,j,1)=zero
-      xpmf(i,j,2)=zero
-      xpmf(i,j,3)=zero
-      xpmf(i,j,4)=zero
-      ypmf(i,j,1)=zero
-      ypmf(i,j,2)=zero
-      ypmf(i,j,3)=zero
+      xpmf(j,1,i)=zero
+      xpmf(j,2,i)=zero
+      xpmf(j,3,i)=zero
+      xpmf(j,4,i)=zero
+      ypmf(j,1,i)=zero
+      ypmf(j,2,i)=zero
+      ypmf(j,3,i)=zero
     2 continue
       do 3 j=1,ipmf(i,1)
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
-      xpmf(i,j,1)=xpmf(i,j,1)+xs(l,1)
-      xpmf(i,j,2)=xpmf(i,j,2)+xs(l,2)
-      xpmf(i,j,3)=xpmf(i,j,3)+xs(l,3)
-      xpmf(i,j,4)=xpmf(i,j,4)+wgt(isat(l),iset)
-      ypmf(i,j,1)=ypmf(i,j,1)+ys(l,1)
-      ypmf(i,j,2)=ypmf(i,j,2)+ys(l,2)
-      ypmf(i,j,3)=ypmf(i,j,3)+ys(l,3)
+      xpmf(j,1,i)=xpmf(j,1,i)+xs(l,1)
+      xpmf(j,2,i)=xpmf(j,2,i)+xs(l,2)
+      xpmf(j,3,i)=xpmf(j,3,i)+xs(l,3)
+      xpmf(j,4,i)=xpmf(j,4,i)+wgt(isat(l),iset)
+      ypmf(j,1,i)=ypmf(j,1,i)+ys(l,1)
+      ypmf(j,2,i)=ypmf(j,2,i)+ys(l,2)
+      ypmf(j,3,i)=ypmf(j,3,i)+ys(l,3)
       endif
     5 continue
     4 continue
-      xpmf(i,j,1)=xpmf(i,j,1)/dble(ipmf(i,j+1))
-      xpmf(i,j,2)=xpmf(i,j,2)/dble(ipmf(i,j+1))
-      xpmf(i,j,3)=xpmf(i,j,3)/dble(ipmf(i,j+1))
-      ypmf(i,j,1)=ypmf(i,j,1)/dble(ipmf(i,j+1))
-      ypmf(i,j,2)=ypmf(i,j,2)/dble(ipmf(i,j+1))
-      ypmf(i,j,3)=ypmf(i,j,3)/dble(ipmf(i,j+1))
+      xpmf(j,1,i)=xpmf(j,1,i)/dble(ipmf(i,j+1))
+      xpmf(j,2,i)=xpmf(j,2,i)/dble(ipmf(i,j+1))
+      xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
+      ypmf(j,1,i)=ypmf(j,1,i)/dble(ipmf(i,j+1))
+      ypmf(j,2,i)=ypmf(j,2,i)/dble(ipmf(i,j+1))
+      ypmf(j,3,i)=ypmf(j,3,i)/dble(ipmf(i,j+1))
       do 14 k=1,ipmf(i,j+1)
       do 15 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
-      xs(l,1)=xs(l,1)-xpmf(i,j,1)
-      xs(l,2)=xs(l,2)-xpmf(i,j,2)
-      xs(l,3)=xs(l,3)-xpmf(i,j,3)
+      xs(l,1)=xs(l,1)-xpmf(j,1,i)
+      xs(l,2)=xs(l,2)-xpmf(j,2,i)
+      xs(l,3)=xs(l,3)-xpmf(j,3,i)
       endif
    15 continue
    14 continue
@@ -150,15 +150,15 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=1
-      call cf_shks(1,it,1,2,ip,rpmf(i,1,1),rv,2,4,ign,iml,idt,
-     + xpmf(i,1,1),ypmf(i,1,1),w)
+      call cf_shks(1,it,1,2,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,
+     + xpmf(1,1,i),ypmf(i,1,1),w)
       do 9 j=1,ipmf(i,1)
       do 10 k=1,ipmf(i,j+1)
       do 11 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
-      xs(l,1)=xs(l,1)+xpmf(i,j,1)
-      xs(l,2)=xs(l,2)+xpmf(i,j,2)
-      xs(l,3)=xs(l,3)+xpmf(i,j,3)
+      xs(l,1)=xs(l,1)+xpmf(j,1,i)
+      xs(l,2)=xs(l,2)+xpmf(j,2,i)
+      xs(l,3)=xs(l,3)+xpmf(j,3,i)
       endif
    11 continue
    10 continue

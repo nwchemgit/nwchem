@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.33 2000-03-15 00:17:57 d3j191 Exp $
+c $Id: cf_main.F,v 1.34 2000-03-28 23:15:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1179,13 +1179,13 @@ c
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa)
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,3)
+      real*8 rpmf(2,6,numpmf),xpmf(4,3,numpmf)
       real*8 et(2),ft(4,3)
       integer ip(4)
       real*8 rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
 c
-      integer i,j,k,l
+      integer i,j,k,l,m
 c
       epmf=zero
 c
@@ -1193,31 +1193,34 @@ c
 c
       do 1 i=1,numpmf
       do 2 j=1,4
-      xpmf(i,j,1)=zero
-      xpmf(i,j,2)=zero
-      xpmf(i,j,3)=zero
+      xpmf(j,1,i)=zero
+      xpmf(j,2,i)=zero
+      xpmf(j,3,i)=zero
     2 continue
-      do 3 j=1,ipmf(i,1)
+      m=ipmf(i,1)
+      if(ipmf(i,1).eq.5) m=2
+      do 3 j=1,m
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
-      xpmf(i,j,1)=xpmf(i,j,1)+xs(l,1)
-      xpmf(i,j,2)=xpmf(i,j,2)+xs(l,2)
-      xpmf(i,j,3)=xpmf(i,j,3)+xs(l,3)
+      xpmf(j,1,i)=xpmf(j,1,i)+xs(l,1)
+      xpmf(j,2,i)=xpmf(j,2,i)+xs(l,2)
+      xpmf(j,3,i)=xpmf(j,3,i)+xs(l,3)
       endif
     5 continue
     4 continue
-      xpmf(i,j,1)=xpmf(i,j,1)/dble(ipmf(i,j+1))
-      xpmf(i,j,2)=xpmf(i,j,2)/dble(ipmf(i,j+1))
-      xpmf(i,j,3)=xpmf(i,j,3)/dble(ipmf(i,j+1))
+      xpmf(j,1,i)=xpmf(j,1,i)/dble(ipmf(i,j+1))
+      xpmf(j,2,i)=xpmf(j,2,i)/dble(ipmf(i,j+1))
+      xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
     3 continue
+      if(ipmf(i,1).eq.5) xpmf(2,3,i)=xpmf(1,3,i)
     1 continue
 c
       call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.2) then
+      if(ipmf(i,1).eq.2.or.ipmf(i,1).eq.5) then
       do 7 j=1,2
       ign(j)=j
       iml(j)=1
@@ -1231,8 +1234,9 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=0
-      call cf_fsb(1,it,1,2,ip,rpmf(i,1,1),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(i,1,1),ft,et,.true.,.false.)
+      call cf_fsb(1,it,1,2,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.)
+c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Bond: ',rv,(ft(3,j),j=1,3)
       if(me.eq.0) epmf=epmf+rv(2)
       do 9 j=1,2
       do 10 k=1,ipmf(i,j+1)
@@ -1262,9 +1266,9 @@ c
       ip(2)=2
       ip(3)=3
       ip(4)=0
-      call cf_fsh(1,it,1,3,ip,rpmf(i,1,1),rv,3,4,ign,iml,idt,ich,chg,
-     + xpmf(i,1,1),ft,et,.true.,.false.)
-      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
+      call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,ign,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.)
+c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) epmf=epmf+rv(2)
       do 14 j=1,3
       do 15 k=1,ipmf(i,j+1)
@@ -1432,7 +1436,7 @@ c
       call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0)
       endif
 c
       if(nmult(2).gt.0) then
@@ -1440,7 +1444,7 @@ c
       call cf_fsh(nmult(2),ixmul(ix),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0)
       endif
 c
       if(nmult(3).gt.0) then
@@ -1448,7 +1452,7 @@ c
       call cf_fsd(nmult(3),ixmul(ix),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0)
       endif
 c
       if(nmult(4).gt.0) then
@@ -1456,7 +1460,7 @@ c
       call cf_fso(nmult(4),ixmul(ix),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,me.eq.0)
+     + xmul,fmul,ess,.true.,.true.,me.eq.0)
       endif
 c
       do 3 i=1,nmul

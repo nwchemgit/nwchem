@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.39 2000-03-16 00:43:56 d3j191 Exp $
+c $Id: cf_init.F,v 1.40 2000-03-28 23:15:33 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -320,25 +320,27 @@ c
 c
       integer lfnpmf
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(numpmf,2,6)
+      real*8 rpmf(2,6,numpmf)
 c
-      integer i,j,k,lenint,lendbl
+      integer i,j,k,m,lenint,lendbl
 c
       lenint=ma_sizeof(mt_int,1,mt_byte)
       lendbl=ma_sizeof(mt_dbl,1,mt_byte)
 c
       if(me.eq.0) then
       do 1 i=1,numpmf
-      read(lfnpmf,1000) ipmf(i,1),(rpmf(i,j,1),rpmf(i,j,3),j=1,2),
+      read(lfnpmf,1000) ipmf(i,1),(rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5)
  1000 format(i5,2f12.6,2e12.5,4i5)
       do 2 j=1,2
-      rpmf(i,j,2)=rpmf(i,j,1)
-      rpmf(i,j,4)=rpmf(i,j,3)-rpmf(i,j,2)
-      rpmf(i,j,5)=rpmf(i,j,2)
-      rpmf(i,j,6)=rpmf(i,j,3)
+      rpmf(j,2,i)=rpmf(j,1,i)
+      rpmf(j,4,i)=rpmf(j,3,i)-rpmf(j,2,i)
+      rpmf(j,5,i)=rpmf(j,2,i)
+      rpmf(j,6,i)=rpmf(j,3,i)
     2 continue
-      do 3 j=1,ipmf(i,1)
+      m=ipmf(i,1)
+      if(ipmf(i,1).eq.5) m=2
+      do 3 j=1,m
       read(lfnpmf,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
  1001 format(10i7)
     3 continue
@@ -1739,14 +1741,14 @@ c
 c
 #include "cf_common.fh"
 c
-      real*8 rlam(3),slam(3),rpmf(numpmf,2,6)
+      real*8 rlam(3),slam(3),rpmf(2,6,numpmf)
 c
       integer i,j,k
 c
       do 1 i=1,numpmf
       do 2 j=1,2
       do 3 k=1,3
-      rpmf(i,j,k)=rlam(k)*rpmf(i,j,6)+slam(k)*rpmf(i,j,5)
+      rpmf(j,k,i)=rlam(k)*rpmf(j,6,i)+slam(k)*rpmf(j,5,i)
     3 continue
     2 continue
     1 continue
