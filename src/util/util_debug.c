@@ -29,7 +29,7 @@ void FATR util_debug_(Integer *rtdb)
 
   if (!rtdb_get(*rtdb, "dbg:path", MT_CHAR, sizeof(path), path)) 
     strcpy(path, "nwchem");
-  if (!rtdb_get(*rtdb, "dbg:xterm", MT_CHAR, sizeof(path), path)) 
+  if (!rtdb_get(*rtdb, "dbg:xterm", MT_CHAR, sizeof(xterm), xterm)) 
     xterm[0] = 0;
   if (!rtdb_get(*rtdb, "dbg:display", MT_CHAR, sizeof(display), display)) {
     char *disp = getenv("DISPLAY");
@@ -38,7 +38,7 @@ void FATR util_debug_(Integer *rtdb)
     strcpy(display, disp);
   }
 
-  argv[0] = "xterm";
+  argv[0] = xterm;
   argv[1] = "-T";
   argv[2] = title;
   argv[3] = "-display";
