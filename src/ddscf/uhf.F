@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
+C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
+C     $Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -242,6 +242,8 @@ c
 c
       double precision tlastwrite,ttest  ! time last wrote the MO vectors
       double precision step     ! Step to take in search direction
+      double precision time_iter_start
+      integer time_prev_iter
 c
       double precision gnorm    ! measures for convergence
       logical converged
@@ -302,6 +304,9 @@ c
 c     
 c     PCG iterative loop
 c     
+      time_prev_iter = 0
+      time_iter_start = util_wallsec()
+c
       mode = 'startup'
       converged = .false.
  10   if (.not. converged) then
@@ -336,6 +341,8 @@ c     updated MO coefficients.
 c     
             call uhf_rotate_movecs(step, g_search)
             converged = gnorm .lt. gnorm_tol
+            time_prev_iter = util_wallsec() - time_iter_start
+            time_iter_start = util_wallsec()
             if ((iter.le.maxiter).and.(.not. converged)) then
 c     
 c     Not finished ... dump mo-vectors to disk for restart and
@@ -359,7 +366,8 @@ c
                  call scf_movecs_write(rtdb)
                  tlastwrite = util_cpusec()
                endif
-               goto 10
+               if (util_test_time_remaining(rtdb,time_prev_iter*3))
+     $              goto 10
             end if
 c            
          end if
@@ -495,7 +503,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
+C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -586,7 +594,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
+c     $Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1072,7 +1080,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
+C$Id: uhf.F,v 1.47 1997-11-14 00:19:24 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

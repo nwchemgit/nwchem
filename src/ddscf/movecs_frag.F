@@ -1,7 +1,7 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
 *
-* $Id: movecs_frag.F,v 1.6 1997-11-07 11:35:13 d3e129 Exp $
+* $Id: movecs_frag.F,v 1.7 1997-11-14 00:19:23 d3g681 Exp $
 *
       implicit none
 #include "util.fh"
@@ -79,10 +79,10 @@ c
      $        call errquit('movecs_fragment: GA for frag MOs', nmo_frag)
          if (.not. ma_push_get(mt_dbl, nbf_frag, 
      $        ' fragment eva', l_eval, k_eval)) call errquit
-     $        ('movecs fragment: insufficient memory?', nmo_frag(1))
+     $        ('movecs fragment: insufficient memory?', nbf_frag)
          if (.not. ma_push_get(mt_dbl, nbf_frag, 
      $        ' fragment eva', l_occ, k_occ)) call errquit
-     $        ('movecs fragment: insufficient memory?', nmo_frag(1))
+     $        ('movecs fragment: insufficient memory?', nbf_frag)
 c     
          if (.not. movecs_read(fragments(frag), iset, dbl_mb(k_occ), 
      $        dbl_mb(k_eval), g_frag)) call errquit

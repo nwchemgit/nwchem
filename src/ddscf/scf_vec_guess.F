@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.23 1997-11-13 23:48:23 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.24 1997-11-14 00:19:23 d3g681 Exp $
 c
       implicit none
 c
@@ -123,6 +123,8 @@ c
      &        call errquit('scf_v_g: ga_destroy?',0)
       endif
 c
+      if (nmo .ne. nbf) tol2e = min(tol2e, 1d-9)
+c
  3212 continue
       if (movecs_in .eq. 'hcore' .or. movecs_in .eq. 'atomic') then
 c
@@ -149,8 +151,9 @@ c
             tolguess = tol2e
          else
             call fock_force_direct(rtdb)
-            if (.not. rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess))
-     &        tolguess = 1d-5 ! 1e-4 broke clark still crown ether
+            tolguess = 1d-5     ! 1e-4 broke clark still crown ether
+            if (nmo .ne. nbf) tolguess = 1d-7
+            status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
          endif
 *         write(6,*) ' tolguess', tolguess
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,

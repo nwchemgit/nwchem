@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.17 1997-04-26 21:37:33 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.18 1997-11-14 00:19:23 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -45,6 +45,8 @@ c
       double precision tol2e_save ! Used with variable integral tolerance
       double precision eprec_tol
       double precision tlastwrite,ttest  ! time last wrote the MO vectors
+      double precision time_iter_start
+      integer time_prev_iter
 c     
 c     Functions
 c     
@@ -58,7 +60,7 @@ c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
 c     
       if (.not. rtdb_get(rtdb, 'scf:variable', mt_log, 1, ovariable))
-     $     ovariable = .true.
+     $     ovariable = (nmo .eq. nbf)  ! Need high acc. if linear dependence
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: grad',
      $     1, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: serch',
@@ -121,9 +123,13 @@ c
 c     
 c     PCG iterative loop
 c     
+      time_iter_start = util_wallsec()
+c
       mode = 'startup'
       converged = .false.
+c
  10   if (.not. converged) then
+c
          call ga_pcg_minim(crohf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
      $        oprint_conv, oprint_ls, iwork, dwork, mode)
@@ -161,7 +167,9 @@ c     updated MO coefficients.
 c     
             call rohf_rotate_movecs(step, g_search)
             converged = (gnorm.lt.gnorm_tol)
-*            write(6,*) ' CONVERGED ', converged
+            time_prev_iter = util_wallsec() - time_iter_start
+            time_iter_start = util_wallsec()
+c
             if (tol2e .ne. tol2e_save) then
 c
 c     Switch of variable screening will happen in the middle of a line
@@ -210,7 +218,8 @@ c
                  call scf_movecs_write(rtdb)
                  tlastwrite = util_wallsec()
                endif
-               goto 10
+               if (util_test_time_remaining(rtdb,time_prev_iter*3))
+     $              goto 10
             endif
 c            
          endif
