@@ -2,6 +2,7 @@
      $     nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
      $     cc_out, energy_out, eps_out)
       implicit none
+* $Id: atscf_atscf.F,v 1.5 1997-10-31 19:50:05 d3e129 Exp $
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"
