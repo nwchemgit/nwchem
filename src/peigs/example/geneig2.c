@@ -567,10 +567,6 @@ void geneig_res( n, dA, eA, dB, eB, colZ, mapZ, eval, iwork, work, res, info)
   extern Integer          count_list(), reduce_list2();
   extern void             gmax00();
 
-#ifndef RIOS  
-  extern DoublePrecision fabs ();
-#endif
-  
   ll = *n;
   
   *res = 0.e0;

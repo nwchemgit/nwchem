@@ -1,6 +1,6 @@
 include ../DEFS
 
-peigs_LIBS 	=	$(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB)
+peigs_LIBS 	=	$(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB) $(peigs_EXAMPLE_LIB)
 #
 # Do not use -lkmath on delta, it occasionally causes 
 # erroneous results (e.g. with tri_test.c with robert_tri as input
