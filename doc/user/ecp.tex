@@ -5,7 +5,7 @@ electrons in a calculation with an effective potential, thereby eliminating
 the need for the core basis functions, which usually require a large set of
 Gaussians to describe them. In addition to replacing the core, they may be
 used to represent relativistic effects, which are largely confined to the
-core. In this context, both the scalar (spin-free) relativistic effecst and
+core. In this context, both the scalar (spin-free) relativistic effects and
 spin-orbit (spin-dependent) relativistic effects may be included in
 effective potentials. NWChem has the facility to use both, and these are
 described in the next two sections.
@@ -31,12 +31,13 @@ given $\ell$ to give an averaged relativistic effective potential, or AREP,
 U^{\rm AREP}_\ell(r) = \frac{1}{2\ell+1} \left[ \ell U^{\rm REP}_{\ell-1/2}(r)
 + (\ell+1) U^{\rm REP}_{\ell+1/2}(r) \right].
 \end{equation}
-These are summed into the full potential,
+These are summed into the full potential.
 %\begin{equation}
 %U^{\rm AREP} = U^{\rm AREP}_{L}(r) + \sum_{\ell=0}^{L-1}
 %\left[ U^{\rm AREP}_{\ell}(r) -  U^{\rm AREP}_{L}(r)
 %\sum_m | \ell m \rangle \langle \ell m |.
 %\end{equation}
+
 The spin-orbit potential is obtained from the difference between the REPs
 for the two $j$ values for a given \ell, and may be 
 represented in terms of an effective spin-orbit operator,
@@ -207,16 +208,18 @@ scalar RECPs and have the same properties, with the exception that there is
 no local potential ul, no $s$ potential and no effective charge has to be
 defined. Spin-orbit potentials are
 specified in the same way as ECPs except that the directive \verb+SO+ is
-used instead of \verb+ECP+. The \verb+SO+ directive is as follows:
+used instead of \verb+ECP+. Note that there currently are no spin-orbit
+ECPs defined in the standard NWChem library.  The \verb+SO+ 
+directive is as follows:
 
+%     <string tag> library [<string tag_in_lib>] \
+%                  <string standard_set> [file <filename>]
+%
+%        ...
+%
 \begin{verbatim}
   SO [<string name default "so basis">] \
         [print || noprint default print]
-
-     <string tag> library [<string tag_in_lib>] \
-                  <string standard_set> [file <filename>]
-
-        ...
 
      <string tag> <string shell_type>
      <real r-exponent> <real Gaussian-exponent> <real list_of_coefficients>
