@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.43 2002-12-03 17:16:48 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.44 2002-12-04 00:00:44 d3k958 Exp $
 c
       implicit none
 c
@@ -225,10 +225,9 @@ c
           endif
 c
       else if (movecs_in .eq. 'rotate') then
-           call movecs_rotate(rtdb, geom, basis,1, g_movecs)
-         if (scftype .eq. 'UHF') then
-           call movecs_rotate(rtdb, geom, basis,2, g_movecs)
-         endif
+         nsets = 1
+         if (scftype .eq. 'UHF') nsets = 2
+         call movecs_rotate(rtdb, geom, basis,nsets, g_movecs)
 c
       else if (movecs_in .eq. 'fragment') then
          if (scftype .ne. 'UHF') then

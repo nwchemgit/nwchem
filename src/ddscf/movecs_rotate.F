@@ -1,5 +1,5 @@
-      subroutine movecs_rotate(rtdb, geom, basis, iset, g_vecs)
-C$Id: movecs_rotate.F,v 1.2 2002-12-03 21:40:44 d3k958 Exp $
+      subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs)
+C$Id: movecs_rotate.F,v 1.3 2002-12-04 00:00:44 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -13,7 +13,7 @@ c     Rotate the MO's calculated for a particular geometry to the current geomet
 c     using the symmetry routine sym_bas_rot.
 c
       integer rtdb, geom, basis, g_vecs(2)
-      integer iset ! [in] 1 = alpha 2 =beta
+      integer iset, nset ! [in] 1 = rhf, 2 = uhf (2 sets_
       integer file_nbf, nbf, i, j, nmo, nsets
       character*80 geomname, basisname, filename, title
       character*80 rotate(2), name(100) !max_geom=100 
@@ -223,9 +223,14 @@ c
       rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
       rot(3,3) = q(1)**2 - q(2)**2 - q(3)**2 + q(4)**2
 c
-      do i = 1,3
-        print *,rot(i,1), rot(i,2), rot(i,3)
-      enddo
+   4  format(3F12.6)
+      if (oprint)   then
+        write(6,*)
+        call util_print_centered(6,'Rotation matrix',15,.true.)
+          do i = 1,3
+            write(6,4) rot(i,1), rot(i,2), rot(i,3)
+          enddo
+      endif
 c
 c     rotate second molecule to best fit with first molecule
 c
@@ -272,11 +277,13 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'evals',l_evals, k_evals))
      $     call errquit('movecs_rotate: ma occ', nbf)
 c
+      do iset = 1,nset
       if (.not. movecs_read(filename, iset, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs(iset))) call errquit
-     $     ('movecs_project: failed reading vectors', 0)
+     $     ('movecs_project: failed reading vectors', 0) 
+      enddo
 c
-      call ga_print (g_vecs(iset))
+c      call ga_print (g_vecs(iset))
 c
       if (.not. ma_pop_stack(l_evals)) call errquit
      $     ('movecs_rotate: ma pop', 0)
@@ -294,14 +301,20 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors out', l_b, k_b))
      $     call errquit('sym_movecs_apply_rot: ma?', nbf)
 c
+      do iset = 1,nset
+c
       do j = 1,nmo
         do i = 1,nbf
           dbl_mb(k_a+i-1)=0.0d0
           dbl_mb(k_b+i-1)=0.0d0
         enddo
+c        write(6,*)
+c        write(6,*)'mo# ',j
         call ga_get(g_vecs(iset),1,nbf,j,j,dbl_mb(k_a),1)
         call sym_movecs_apply_rot(basis, rot, dbl_mb(k_a), dbl_mb(k_b))
         call ga_put(g_vecs(iset),1,nbf,j,j,dbl_mb(k_b),1)
+      enddo
+c
       enddo
 c
       if (.not. ma_pop_stack(l_b)) call errquit
@@ -309,13 +322,13 @@ c
       if (.not. ma_pop_stack(l_a)) call errquit
      $     ('movecs_rotate: ma pop', 0)
 c
-      call ga_print (g_vecs(iset))
+c      call ga_print (g_vecs(iset))
     
       end
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.2 2002-12-03 21:40:44 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.3 2002-12-04 00:00:44 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -363,11 +376,11 @@ c
      &    (geom, matrix, dbl_mb(k_r), maxf, ang_max, do_spherical)
 c      call sym_inv_op(geom, op, opinv)
 c
-      write(6,*)
-      do i = 1, nbf
-         write(6,11) v(i), t(i)
-      enddo
-      write(6,*)
+c      write(6,*)
+c      do i = 1, nbf
+c         write(6,11) v(i), t(i)
+c      enddo
+c      write(6,*)
 **      call dfill(nbf, 0.0d0, t, 1) ! Now defined to add in to result
 c
       do icent = 1, ncent
@@ -408,10 +421,10 @@ c
       enddo
 c
 *      write(6,*) ' sym_movecs_apply_rot: ', op
-      do i = 1, nbf
-         write(6,11) v(i), t(i)
- 11      format(2f12.6)
-      enddo
+c      do i = 1, nbf
+c         write(6,11) v(i), t(i)
+c 11      format(2f12.6)
+c      enddo
 c
       if (.not. ma_pop_stack(l_r)) call errquit
      $     ('sym_movecs_apply_rot: ma?', 0)
@@ -448,7 +461,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.2 2002-12-03 21:40:44 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.3 2002-12-04 00:00:44 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
