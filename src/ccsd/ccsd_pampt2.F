@@ -32,12 +32,12 @@ c
       data tol2e/1.d-12/
 c
       integer i,j,a,b,av,bv,ad1,ad2,ixyz,offt2,icnt,nvp1,ilo,ihi,
-     &        jlo,jhi,x,y,ish,jsh,inode,next,nxtval,aold
+     &        jlo,jhi,x,y,ish,jsh,inode,next,aold
       integer l_eri2,k_eri2,l_sc1,k_sc1,l_sc2,k_sc2,lsc1,maxbfsh
       integer l_offsh,k_offsh
       integer lssni,l_snsi,k_snsi,l_sisn,k_sisn,l_t1ao,k_t1ao
       logical stat
-      double precision xdot,ddot,eccsd,eccsd1,eccsd2
+      double precision xdot,eccsd,eccsd1,eccsd2
 c
       integer ibflo,ibfhi,jbflo,jbfhi
       integer max2e,mem2,max1e,mem1

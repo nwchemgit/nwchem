@@ -279,7 +279,7 @@ c
       double precision tol2e,eri1(max2e),eri2(max2e),scre(mem2),
      &                 t1(nocc*nvir),cmo(nbf,nbf),scra(lscr),
      &                 scrb(lscr),snsi(lssni),sisn(lssni),
-     &                 t1ao(nocc*nbf),ddot,tx(2)
+     &                 t1ao(nocc*nbf),tx(2)
 
 #include "mafdecls.fh"
 #include "global.fh"
