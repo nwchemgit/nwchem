@@ -3,7 +3,7 @@ C NAME
 C     inp_ilist -- read an integer list, possibly including ranges
 C
 C REVISION
-C     $Id: inp_ilist.F,v 1.3 1997-03-05 23:20:31 d3g681 Exp $
+C     $Id: inp_ilist.F,v 1.4 2004-01-14 00:25:07 marat Exp $
 C
 C SYNOPSIS
       Logical Function Inp_IList( MaxList, List, N)
@@ -73,3 +73,55 @@ C
       inp_ilist = (inp_cur_field() .eq. inp_n_field()) 
 C
       End
+
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+c name
+c     inp_ilist_size -- returns number of elements in list
+c
+c revision
+c     $id: inp_ilist.f,v 1.3 1997/03/05 23:20:31 d3g681 exp $
+c
+c synopsis
+      logical function inp_ilist_size(n)
+      implicit none
+      integer n                 ! [out]   number of elements in list
+
+c
+c description
+c     reads the line of a list of integers and 
+c     and returns total number of elements
+c     designed to be use a helper routine for inp_ilist
+c     on exit from this routine the input is repositioned back
+c     to the original value
+c
+c external routines
+      integer  inp_cur_field, inp_n_field
+      external inp_cur_field, inp_n_field
+      logical  inp_irange
+      external inp_irange
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+c local variables
+      integer first, last, stride, i
+      integer nc
+c
+c     
+      nc = inp_cur_field()
+      n = 0
+c
+c     read as many fields as possible as integer ranges
+c
+ 10   if ( Inp_IRange(first, last, stride) ) then
+c
+c     expand the triplet.  if there are too many elements for the list, 
+c     we count them but do not overwrite the array bounds.
+c
+         do i = first, last, stride
+            n = n + 1
+         enddo
+         goto 10
+      endif
+c
+c
+      inp_ilist_size = (inp_cur_field() .eq. inp_n_field()) 
+      call inp_set_field(nc)
+      end
