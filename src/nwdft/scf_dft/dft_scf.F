@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.131 1999-08-30 22:32:21 edo Exp $
+c     $Id: dft_scf.F,v 1.132 1999-08-31 23:00:04 edo Exp $
 c     
       implicit none
 c
@@ -1472,7 +1472,7 @@ c
       endif
 c     
  2000 continue
-      Etnew = Ecore + Ecoul + Exc(1)
+      Etnew = Ecore + Ecoul + Exc(1) +tdots
 c
 c     Jorge Garza / Begin
 c
