@@ -65,7 +65,7 @@ peigs_TARGET_definition = $(peigs_TARGET)
 peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
 peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
 peigs_COMM = TCGMSG
-peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition)
+peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition) -P
 
 #ifdef EXPLICITF
 peigs_FCONVERT = $(FCONVERT) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET_definition}
@@ -104,7 +104,7 @@ peigs_NODE = uniproc
 peigs_COMM = TCGMSG
 peigs_FC += $(FOPTIMIZE) -e 0 -DCRAY_T3D
 peigs_FOPT +=   -DCRAY_T3D
-peigs_CPP +=   -DCRAY_T3D
+peigs_CPP +=   -DCRAY_T3D -P
 endif
 
 ifeq ($(peigs_TARGET),DELTA)
@@ -178,7 +178,7 @@ peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -dalign -D$(peigs_CPU)
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 #	this is the worst to find for any machine
@@ -199,7 +199,7 @@ peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -align64
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 endif  
@@ -210,7 +210,7 @@ peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -align64
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 endif  
@@ -224,7 +224,7 @@ peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2
 peigs_FC += -align64  -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
@@ -239,7 +239,7 @@ peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -64 
 peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
 peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
@@ -284,7 +284,7 @@ peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000 \
 -qfloat=rsqrt:fltint:hssngl -qinline
 
-peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR)
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 endif
 
 
@@ -298,7 +298,7 @@ ifeq ($(peigs_TARGET),KSR8)
 # KSR/TCGMSG
 peigs_CC += -DSTD_DBL -DKSR8
 peigs_CODEOBJ = DBLE
-peigs_CPP +=
+peigs_CPP += -P
 peigs_CPU =KSR
 peigs_COMM =TCGMSG
 #
@@ -317,7 +317,7 @@ peigs_CODEOBJ	= DBLE
 peigs_CC += -DSTD_DBL -O2
 peigs_COPT = -O2
 peigs_FC += -O2
-peigs_CPP  +=
+peigs_CPP  += -P
 peigs_CPU  =KSR
 peigs_COMM =TCGMSG
 #
@@ -344,14 +344,14 @@ peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict -qarch=pwr2 -qtune=pwr2s \
 -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128
 
-peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR)
+peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 endif
 
 ifeq ($(peigs_TARGET),DECOSF)
 #alpha with /tcgmsg
 peigs_CPU  = ALPHA
 peigs_COMM = TCGMSG
-peigs_CPP += -D${CPU} -DSTD_DBL -D_fastmath -O3
+peigs_CPP += -D${CPU} -DSTD_DBL -D_fastmath -O3 -P
 peigs_CODEOBJ = DBLE
 peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3
 peigs_F77 += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3
@@ -366,7 +366,7 @@ peigs_CODEOBJ = DBLE
 peigs_CPU = PENTIUM
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT
-peigs_CPP += -DSTD_INT -DSTD_DBL
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 # on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
