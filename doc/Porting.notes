@@ -1,0 +1,7 @@
+Intel Paragon OSF/1 R1.2.1	16 July 1994	DE Bernholdt
+
+PGI's compilation system is braindamaged in some fascinating ways.
+1) cpp860 by default defines __PARAGON__ and other things, as stated in
+   the man page, but when invoked by if77, these things are _not_ defined.
+2) ld's -L prepends directories to the search path instead of
+   appending like every other unix compiler package I've encountered.
