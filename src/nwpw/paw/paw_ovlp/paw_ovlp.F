@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.1 2002-08-13 22:01:10 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.2 2002-08-13 23:09:49 bylaska Exp $
 *
 
 !**************************************************
@@ -19,7 +19,7 @@
 *     **** local variables ****
       logical value
       integer ii,ia,nlm,nlmii,n,m,mabs
-      integer nbasis,i2,i1,isgn,nion,neall
+      integer nbasis,i2,i1,isgn,nion
 
 *     **** external functions ****
       integer  paw_proj_nbasis,paw_proj_m,psi_ne
@@ -27,31 +27,49 @@
       external paw_proj_nbasis,paw_proj_m,psi_ne
       external ion_nion,ion_natm,ion_nkatm,ion_katm
 
+      write(*,*) "paw_ovlp_init 1"
       total_nbasis = 0
       do ia=1,ion_nkatm()
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
       end do
       neall = (psi_ne(1) + psi_ne(2))
+      nbasis = paw_proj_nbasis(1)
+      write(*,*) "gera:",total_nbasis,neall
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
      >                               'coeff',coeff(2),coeff(1))
-      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis*neall),
-     >                               'tcoeff',tcoeff(2),tcoeff(1))
+      nbasis = paw_proj_nbasis(1)
+      nbasis = paw_proj_nbasis(2)
+      write(*,*) "gerb:",total_nbasis,neall
+      value = value.and.MA_alloc_get(mt_dcpl,
+     >                               (total_nbasis*neall),
+     >                               'toeff',toeff(2),toeff(1))
+      nbasis = paw_proj_nbasis(1)
+      write(*,*) "gerc"
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'indx2',indx2(2),indx2(1))
+      nbasis = paw_proj_nbasis(1)
+      write(*,*) "gerd"
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
-     >                               'sign',sign(2),sign(1))
+     >                               'sgn',sgn(2),sgn(1))
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
+      nbasis = paw_proj_nbasis(1)
+      write(*,*) "paw_ovlp_init 2"
 
       !*** set unsrcramble arrays ***
+      nion = ion_nion()
       nlmii = 0
       do ii=1,nion
+         write(*,*) "hera"
          ia = ion_katm(ii)
+         write(*,*) "herb, ia:",ia
          nbasis = paw_proj_nbasis(ia)
+         write(*,*) "herc,ia,nbasis:",ia,nbasis
          do nlm=1,nbasis
             nlmii = nlmii + 1
+            write(*,*) "herb"
             m = paw_proj_m(nlm,ia)
             mabs = abs(m)
             if (mod(mabs,2).eq.0) then
@@ -59,14 +77,18 @@
             else
               isgn = -1
             end if
+            write(*,*) "herc"
             do n=1,neall
               i1 = (nlmii-1)*neall + (n-1)
               i2 = i1 - 2*m*neall
+              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
               int_mb(indx2(1)+i1) = i2     ! conjugate array
-              int_mb(sign(1) +i1) = isgn   ! sign array
+              int_mb(sgn(1) +i1) = isgn   ! sign array
             end do
          end do 
       end do    
+
+      write(*,*) "paw_ovlp_init 3"
 
       return
       end
@@ -89,9 +111,9 @@
       logical value
       
       value =           MA_free_heap(coeff(2))
-      value = value.and.MA_free_heap(tcoeff(2))
+      value = value.and.MA_free_heap(toeff(2))
       value = value.and.MA_free_heap(indx2(2))
-      value = value.and.MA_free_heap(sign(2))
+      value = value.and.MA_free_heap(sgn(2))
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end
@@ -126,7 +148,6 @@
       external ion_nion,ion_katm,psi_ne 
 
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
 
       !*** allocate temporary space ***
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
@@ -154,7 +175,7 @@
              call Pack_cc_izdot(1,
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
-     >                         dcpl_mb(tcoeff(1)+indx_coeff))
+     >                         dcpl_mb(toeff(1)+indx_coeff))
            end do
         end do
       end do 
@@ -164,9 +185,9 @@
       do i1=1,total_nbasis*neall
          i2 = int_mb(indx2(1)+i1-1)
          dcpl_mb(coeff(1)+i1) 
-     >     = 0.5d0*( dcpl_mb(tcoeff(1)+i1)
-     >             + int_mb(sign(1)+i1)
-     >              *dconjg(dcpl_mb(tcoeff(1)+i2)))
+     >     = 0.5d0*( dcpl_mb(toeff(1)+i1)
+     >             + int_mb(sgn(1)+i1)
+     >              *dconjg(dcpl_mb(toeff(1)+i2)))
       end do     
 
       value =           MA_pop_stack(tmp(2))

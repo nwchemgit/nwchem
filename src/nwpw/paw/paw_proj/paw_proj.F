@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.6 2002-08-06 19:20:49 bylaska Exp $
+* $Id: paw_proj.F,v 1.7 2002-08-13 23:09:49 bylaska Exp $
 *
 
 !**************************************************
@@ -18,7 +18,7 @@
   
 *     **** local variables ****
       logical value,found
-      integer ia,ntotal,npack1
+      integer ia,npack1
       character*4 element
       character*20 fname
 
@@ -44,6 +44,7 @@
      >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0)
 
+      write(*,*) "ptr nbasis:",nbasis(1),nbasis(2)
 
 *     *** make sure prj names are formatted correctly ***
       call paw_proj_check_format()
@@ -122,6 +123,45 @@
 
 !**************************************************
 !
+!	Name: paw_proj_i_prj
+!
+!	Purpose: returns the dcpl_mb ma index of
+!                the paw projectors.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_i_prj()
+      implicit none
+      
+#include "paw_proj.fh"
+
+      paw_proj_i_prj = prj(1)
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_proj_i_prj_atom
+!
+!	Purpose: returns the dcpl_mb ma index of
+!                the paw projectors.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_i_prj_atom(ia)
+      implicit none
+      integer ia
+      
+#include "mafdecls.fh"
+#include "paw_proj.fh"
+
+      paw_proj_i_prj_atom = prj(1) + int_mb(prj_indx(1)+ia-1)
+      return
+      end
+
+
+!**************************************************
+!
 !	Name: paw_proj_nbasis
 !
 !	Purpose: returns the number of the paw projectors
@@ -139,6 +179,30 @@
       paw_proj_nbasis = int_mb(nbasis(1)+ia-1)
       return
       end
+
+
+!**************************************************
+!
+!	Name: paw_proj_total_nbasis
+!
+!	Purpose: returns the number of the paw projectors
+!                for this kind of atom.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_total_nbasis()
+      implicit none
+      integer ia
+      
+#include "mafdecls.fh"
+#include "paw_proj.fh"
+
+      paw_proj_total_nbasis = ntotal
+      return
+      end
+
+
+
 
 !**************************************************
 !
@@ -198,7 +262,7 @@
 
 *     **** local variables ****
       logical value,found
-      integer ia,ntotal,nkatm
+      integer ia,nkatm
       character*4 element
       character*20 fname
 

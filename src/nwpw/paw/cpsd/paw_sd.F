@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.8 2002-08-07 22:10:31 marat Exp $
+* $Id: paw_sd.F,v 1.9 2002-08-13 23:09:49 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -297,6 +297,8 @@
 
       if (.not. value) call errquit('out of heap memory',0)
 
+      !**** intialize overlap coefficient data structure ***
+      call paw_ovlp_init()
 
 
 *                |**************************|
@@ -543,6 +545,7 @@
      
       call dealloc_paw_basis_data()
       call paw_proj_end()
+      call paw_ovlp_end()
 
 
       value = MA_free_heap(psir(2))

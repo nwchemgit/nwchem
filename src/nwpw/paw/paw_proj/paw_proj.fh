@@ -1,5 +1,5 @@
 ! 
-! $Id: paw_proj.fh,v 1.1 2002-08-07 18:13:17 bylaska Exp $
+! $Id: paw_proj.fh,v 1.2 2002-08-13 23:09:49 bylaska Exp $
 ! 
 
 !     **** paw_proj.fh common blocks ****
@@ -7,6 +7,8 @@
       integer    nbasis(2)
       integer    prj_indx(2)
       integer    i_prj_l(2),i_prj_m(2)
-      integer    nkatm
-      common / paw_proj / prj,nbasis,prj_indx,i_prj_l,i_prj_m,nkatm
+      integer    nkatm,ntotal
+      common / paw_proj / prj,nbasis,prj_indx,
+     >                    i_prj_l,i_prj_m,
+     >                    nkatm,ntotal
 

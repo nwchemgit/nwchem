@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-08-01 01:18:27 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2002-08-13 23:09:48 bylaska Exp $
 #
-      SUBDIRS = cpsd paw_basis paw_utils paw_matrix paw_proj
+      SUBDIRS = cpsd paw_basis paw_utils paw_matrix paw_proj paw_ovlp
 
           OBJ = task_paw.o
 
@@ -20,6 +20,7 @@
 include ../../config/makefile.h
 include ../../config/makelib.h
 include makefile.h
+
 
 
 
