@@ -1,4 +1,4 @@
-C $Id: rel_2e4c_sf.F,v 1.2 2000-02-04 01:03:14 mg201 Exp $
+C $Id: rel_2e4c_sf.F,v 1.3 2000-05-27 18:09:31 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_2e4c\_sf}
 c:tex-Wrapper routine for evaluation of the two-electron four-center
@@ -77,15 +77,27 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
       integer iscr      ! address of free space in scr
       integer nscr      ! length of free space in scr
       integer neri      ! number of integrals
+      integer nallAB    ! number of densities in bra
+      integer nallCD    ! number of densities in ket
       integer max_mem   ! maximum memory used
       logical do_CD     ! do relativistic CD corrections
       logical do_AB     ! do relativistic AB corrections
 *
+      logical debug_gen       ! do general debug printing
+      logical debug_addresses ! do address debug printing
+      logical debug_arrays    ! do array debug printing
+*
+      debug_gen = ibug .gt. 0
+      debug_addresses = mod(ibug,2) .eq. 1
+      debug_arrays = mod(ibug,10)/2 .eq. 1
+      if (debug_gen) write (LuOut,*) 'Entering rel_2e4c_sf'
+*
       max_mem = 0
-      neri = n_cont_A*(l_A+1)*(l_A+2)/2
-      neri = neri*n_cont_B*(l_B+1)*(l_B+2)/2
-      neri = neri*n_cont_C*(l_C+1)*(l_C+2)/2
-      neri = neri*n_cont_D*(l_D+1)*(l_D+2)/2
+      nallAB = n_cont_A*(l_A+1)*(l_A+2)/2
+      nallAB = nallAB*n_cont_B*(l_B+1)*(l_B+2)/2
+      nallCD = n_cont_C*(l_C+1)*(l_C+2)/2
+      nallCD = nallCD*n_cont_D*(l_D+1)*(l_D+2)/2
+      neri = nallAB*nallCD
       if ((neri .gt. leri) .and. (.not.DryRun)) call errquit 
      &    ('rel_2e4c_sf: eri buffer too small ',99)
 *
@@ -99,6 +111,8 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
      &    Dxyz,zeta_D,coefL_D,n_prim_D,n_cont_D,l_D,
      &    eri,leri,canAB,canCD,canPQ,DryRun,scr,nscr)
       if (DryRun) max_mem = max(max_mem, nscr)
+      if (debug_arrays) call ecp_matpr(eri,1,nallAB,1,nallCD,
+     &    1,nallAB,1,nallCD,'LLLL ints','E',120,6)
 *
 *  .. then the LLSS integrals
 *
@@ -113,10 +127,12 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
      &      Cxyz,zeta_C,coefS_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefS_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug,1)
+     &      DryRun,scr(iscr),nscr,ibug/10,1)
         if (DryRun) then
-          max_mem = max(max_mem, nscr)
+          max_mem = max(max_mem, nscr+neri)
         else
+          if (debug_arrays) call ecp_matpr(scr,1,nallAB,1,nallCD,
+     &        1,nallAB,1,nallCD,'LLSS ints','E',120,6)
           call daxpy (neri,qalsq,scr,1,eri,1)
         end if
       end if
@@ -133,10 +149,12 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
      &      Cxyz,zeta_C,coefL_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefL_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug,1)
+     &      DryRun,scr(iscr),nscr,ibug/10,1)
         if (DryRun) then
-          max_mem = max(max_mem, nscr)
+          max_mem = max(max_mem, nscr+neri)
         else
+          if (debug_arrays) call ecp_matpr(scr,1,nallAB,1,nallCD,
+     &        1,nallAB,1,nallCD,'SSLL ints','E',120,6)
           call daxpy (neri,qalsq,scr,1,eri,1)
         end if
       end if
@@ -151,10 +169,12 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
      &      Cxyz,zeta_C,coefS_C,n_prim_C,n_cont_C,l_C,
      &      Dxyz,zeta_D,coefS_D,n_prim_D,n_cont_D,l_D,
      &      scr,neri,canAB,canCD,canPQ,
-     &      DryRun,scr(iscr),nscr,ibug,1,1)
+     &      DryRun,scr(iscr),nscr,ibug/10,1,1)
         if (DryRun) then
-          max_mem = max(max_mem, nscr)
+          max_mem = max(max_mem, nscr+neri)
         else
+          if (debug_arrays) call ecp_matpr(scr,1,nallAB,1,nallCD,
+     &        1,nallAB,1,nallCD,'SSSS ints','E',120,6)
           call daxpy (neri,salf,scr,1,eri,1)
         end if
       end if
