@@ -28,7 +28,6 @@ echo
 #end
 #task prepare
 
-task shell "cp eth0.rst eth_em.rst"
 md
  system eth_em
  sd 5 init 0.001 
