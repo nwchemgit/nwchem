@@ -1,14 +1,14 @@
       Program asc2mov
       Implicit NONE
 C
-C     Writes formatted (ASCII) movecs file, reads binary version
+C     Reads formatted (ASCII) movecs file, writes binary version
 C
 C     Usage: asc2mov guess_nbf infile outfile
 C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: asc2mov.F,v 1.3 1997-04-01 22:26:13 rg240 Exp $
+C     $Id: asc2mov.F,v 1.4 2000-11-04 00:18:02 windus Exp $
 C
 #include "mafdecls.fh"
 c
@@ -39,7 +39,7 @@ C     Interpret command line
 C
       NArgs = IArgc()
       If ( NArgs .ne. 3) then
-         Write (0, *) 'Usage: mov2asc guess_nbf infile outfile'
+         Write (0, *) 'Usage: asc2mov guess_nbf infile outfile'
          Call Exit(1)
       EndIf
 #ifdef _CRAY
@@ -71,15 +71,12 @@ c
       read(asclu,'(a32)') geomsum
       read(asclu,'(a20)') scftype20
       read(asclu,'(a26)') date
-      read(asclu, *) 
       write(binlu) basissum, geomsum, scftype20, date
 c
       read(asclu,'(a20)') scftype20
       write(binlu) scftype20
 C
       read(asclu, '(I10)') LenTit
-      if (len(title) .lt. lentit) call errquit
-     $   ('movecs_write_header: title too short', lentit)
       write(binlu) lentit
 C
       title = ' '

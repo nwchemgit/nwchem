@@ -1,11 +1,11 @@
-$Id: README,v 1.1 1995-06-02 04:16:29 gg502 Exp $
+$Id: README,v 1.2 2000-11-04 00:18:02 windus Exp $
 
 This is a pair of programs that translate between NWChem movecs files
 in the usual binary format and an ASCII form that can be moved to
-abother platform and converted back into a binary file for that
+another platform and converted back into a binary file for that
 machine.  They are quite simple, and don't do much error checking, but
 they seem to work.
 
-Known to work on KSR, Cray-T3D.
+Known to work on Sun and SGI
 Requires NWChem's include files and libutil.a containing the MA
 library.
