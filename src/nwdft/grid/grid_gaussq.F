@@ -1,5 +1,8 @@
         subroutine grid_gausslag(nn,x,realwt,idum)
 c
+c$Id: grid_gaussq.F,v 1.5 2000-02-23 01:37:57 edo Exp $
+c
+c
 c this subroutine calculates the Gauss-Laguerre points and weights for
 c  associated Laguerre polynomials using subroutines provided in
 c  Stroud and Secrest.  These routines are modified to allow continuous
@@ -16,7 +19,7 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.4 1999-11-13 02:37:42 bjohnson Exp $
+C$Id: grid_gaussq.F,v 1.5 2000-02-23 01:37:57 edo Exp $
       implicit none
 #include "cdft.fh"      
 c

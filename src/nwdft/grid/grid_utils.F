@@ -1,5 +1,8 @@
       subroutine qshell_sort
 c
+c$Id: grid_utils.F,v 1.12 2000-02-23 01:37:57 edo Exp $
+c
+c
 c     Sort quadrature shells, most work to least, based on radius 
 c     (assuming largest radius has most angular pieces).
 c
@@ -119,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.11 2000-01-06 20:14:37 edo Exp $
+C$Id: grid_utils.F,v 1.12 2000-02-23 01:37:57 edo Exp $
 c
       implicit none
 c      
@@ -675,7 +678,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.11 2000-01-06 20:14:37 edo Exp $
+C$Id: grid_utils.F,v 1.12 2000-02-23 01:37:57 edo Exp $
 c
       implicit none
 c

@@ -1,4 +1,7 @@
       subroutine grid_buckinit(g_buck,g_buckind)
+c
+c$Id: grid_bucket.F,v 1.2 2000-02-23 01:37:56 edo Exp $
+c
       implicit none
       integer g_buck,g_buckind
 c     

@@ -1,4 +1,7 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
+c
+c$Id: grid_sphere.F,v 1.2 2000-02-23 01:37:57 edo Exp $
+c
       implicit none
       integer nx,ny,nz
       double precision l_rect,rad
