@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.31 1994-11-10 17:58:58 d3g681 Exp $
+c $Id: basis.F,v 1.32 1994-11-27 10:11:57 og845 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -617,10 +617,12 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.rtdb_status) then
+        if(ga_nodeid().eq.0) then
         write(6,*)' bas_rtdb_load: ERROR '
         write(6,*)' basis set is not there '
         write(6,*)' name requested            <|',bs_name(basis),'|>'
         write(6,*)' translated name requested <|',bs_trans(basis),'|>'
+        endif
         bas_rtdb_load = .false.
 c..... add diagnostics later
         return
