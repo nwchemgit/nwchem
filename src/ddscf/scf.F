@@ -95,6 +95,7 @@ c
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
       logical converged
+      logical status
       character*255 name, title
       double precision energy
       double precision charge
@@ -108,7 +109,7 @@ c
       if (.not. context_push('scf'))
      $     call errquit('scf: context_push failed', 0)
 c
-*      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
 c     Extract high level info from the data-base setting defaults
 c
