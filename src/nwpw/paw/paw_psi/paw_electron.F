@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.5 2004-11-08 23:37:41 bylaska Exp $
+* $Id: paw_electron.F,v 1.6 2005-02-09 02:39:00 bylaska Exp $
 *
 
 
@@ -1517,7 +1517,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     ***** local variables ****
       logical value
-      integer n2ft3d,nx,ny,nz
+      integer n2ft3d,nx,ny,nz,gga
       integer tmp1(2),tmp2(2)
       real*8  vzero,scal1
 
@@ -1631,14 +1631,15 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       
 
 *     **** plane wave portion ****
-      if (control_gga().eq.0) then
+      gga = control_gga()
+      if (gga.eq.0) then
         call vxc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)),
      >                    dcpl_mb(tmp1(1)))
 
       else
-        call v_bwexc(n2ft3d,ispin,dn,
+        call v_bwexc(gga,n2ft3d,ispin,dn,
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
