@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.38 2001-12-28 20:48:44 edo Exp $
+C$Id: vectors.F,v 1.39 2002-02-19 21:41:23 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -331,7 +331,7 @@ c
       character*32 geomsum, basissum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
-      double precision energy
+      double precision energy, enrep
 c
       if (oscfps) call pstat_on(ps_vecio)
       call ga_sync()
@@ -370,6 +370,11 @@ c
       if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy)) then
         energy=0.0d0
       endif
+c
+c get nuclear repulsion energy
+      if (.not. geom_nuc_rep_energy(geom, enrep))
+     $  call errquit('unable to get nuclear rep energy',geom)
+c
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
             write(6,*) ' movecs_write: nsets > 2 ', nsets
@@ -411,7 +416,7 @@ c
 c Write scf energy at the end of the movecs file. If energy
 c is not in rtdb, it's given a value of zero.
 c
-         write(unitno, err=1001) energy
+         write(unitno, err=1001) energy, enrep
 c         
          close(unitno,err=1002)
          ok = 1
