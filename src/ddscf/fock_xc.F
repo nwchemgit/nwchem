@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.8 2000-08-11 00:12:38 edo Exp $
+c     $Id: fock_xc.F,v 1.9 2000-08-11 17:58:57 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -148,6 +148,8 @@ c
 c
       if (.not.ma_pop_stack(l_g_dens_local))
      &   call errquit('fock_xc: cannot pop stack',0)
+
+      call grid_cleanup(rtdb)
 c
       if (bgj_print() .gt. 0) then
          do imat = 1, nmat
