@@ -198,7 +198,8 @@ void pdspgv (Integer *ifact, Integer *n, DoublePrecision **vecA, Integer *mapA, 
 void pdspgvx (Integer *ifact, Integer *ivector, Integer *irange, Integer *n, DoublePrecision **vecA, Integer *mapA, DoublePrecision **vecB, Integer *mapB, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision **vecZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision **dblptr, Integer *ibuffsize, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdsptri.c */
-void pdsptri (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *dd, DoublePrecision *ee, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision **vecZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision **dblptr, Integer *ibuffsize, DoublePrecision *scratch, Integer *ssize, Integer *info);
+void pdsptri ( Integer *ivector, Integer *irange, Integer *n,  DoublePrecision *dd, DoublePrecision *ee, DoublePrecision *dplus, DoublePrecision *lplus, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision **vecZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision **dblptr, Integer *ibuffsize, DoublePrecision *scratch, Integer *ssize, Integer *info);
+
 
 /* peigvc.c */
 void peigvc_ (Integer *n, DoublePrecision *dd, DoublePrecision *ee, Integer neigval, DoublePrecision *eval, Integer *iblock, Integer *nsplit, Integer *isplit, DoublePrecision *ptbeval, Integer *one_blk, Integer *clustr_info, Integer *proclist, Integer *schedule, Integer *i_scrat, Integer *cvecs, Integer **iptr, Integer *mapZ, Integer *mapvZ, DoublePrecision **vecZ, DoublePrecision *d_scrat, Integer *iscrat, int numvec);
@@ -352,7 +353,7 @@ void pdspgvf_ (Integer *ifact, Integer *n, DoublePrecision *matrixA, Integer *ma
 void pdspgvxf_ (Integer *ifact, Integer *ivector, Integer *irange, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdsptri_f.c */
-void pdsptrif_ (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *dd, DoublePrecision *ee, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
+
 
 /* resid_f.c */
 void residf_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, Integer *m, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
