@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.16 2000-06-16 16:26:01 windus Exp $
+C     $Id: memory_def.F,v 1.17 2000-10-20 20:08:42 edo Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -105,6 +105,8 @@ C
 #elif defined(IBM) 
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (ibm)
       Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node (ibm)
+#elif defined(FUJITSU_VPP)
+      Parameter ( Total_Dflt = 67108864) ! 512 MB (Fujitsu VPP)
 #endif
 C
 C     Fraction of total memory which goes into each memory category
