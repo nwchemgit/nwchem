@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.45 2002-01-29 20:47:49 windus Exp $
+# $Id: GNUmakefile,v 1.46 2003-01-06 04:13:29 edo Exp $
  
 include ../../config/makefile.h
 
@@ -17,6 +17,7 @@ ifeq ($(TARGET),LAPI)
 endif
 
       LIB_DEFINES = -DUSE_TEXAS
+  OBJ = abcd.o
   OBJ_OPTIMIZE = texas_face.o \
                  texas_hf.o \
                  big_service.o \
@@ -59,6 +60,12 @@ endif
        HEADERS = screened_op.fh
 
 include ../../config/makelib.h
+ifeq ($(FC),efc)
+        FDEBUG=
+	FOPTIONS+= $(FOPTIMIZE) -mP3OPT_ecg_fp_control_safety=TRUE  
+else
+        FOPTIONS+= $(FOPTIMIZE)
+endif
 
 txs:
 	@touch texas_stubs.F
