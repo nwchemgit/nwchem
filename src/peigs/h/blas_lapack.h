@@ -1,8 +1,13 @@
+/*
+  CPU definitions and machine precision definitions
+  */
+
 #ifdef ALPHA
 
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHB        2.0000000000000000E+00
-#define DLAMCHS        2.2250738585072014-308
+#define DLAMCHE        2.22044604925031308E-16
+#define DLAMCHB        2.E+00
+#define DLAMCHS        2.22507385850720138E-308
+
 /*
  Single Precision results
  depsilon      5.9604644775390625E-08
@@ -10,14 +15,18 @@
  dsafeulp      1.1754943508222875E-38
  */
 #endif
-#ifdef SPARC
 
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHB        2.e0
-#define DLAMCHS        2.2250738585072014-308
-
+#ifdef HPPA
+#define DLAMCHE  1.1102230246251564E-16
+#define DLAMCHB  2.0000000000000000E+00
+#define DLAMCHS  2.2250738585072028-308
 #endif
 
+#ifdef SPARC
+
+/*
+  sparc
+  */
 /*
  Double Precision results
    depsilon      1.1102230246251565E-16
@@ -30,14 +39,15 @@
    dsafeulp      1.1754943508222875E-38
 */
 
-
+#define DLAMCHE        1.1102230246251565E-16
+#define DLAMCHB        2.e0
+#define DLAMCHS        2.2250738585072014-308
+#endif
+#ifdef MIPS
 /*
-  sparc
-*/
-
-#ifdef SGI64
-/*
-  SGI PowerChallenge T8000 chip
+  SGI PowerChallenge R4010 fpu ... R8000 chip
+  seems to have the same reps .... probably have
+  to print out hex to get real differences
   */
 
 #define DLAMCHE        1.1102230246251565E-16
@@ -45,14 +55,14 @@
 #define DLAMCHS        2.2250738585072014-308
 
 #endif
-
-#ifdef IBM
+#ifdef RS6000
 
 /* rs6000 */
 
 #define DLAMCHE        0.111022302462515654E-15
 #define DLAMCHB        2.
 #define DLAMCHS        0.22250738585072013E-307
+
 /*
   depsilon  0.111022302462515654E-15 
   dbase   2.00000000000000000     
@@ -60,21 +70,19 @@
   depsilon  0.5960464478E-07 
   dbase   2.000000000     
   dsafeulp  0.1175494351E-37 
-*/
+  */
 #endif
-
 #ifdef i860
 
 /*
-   with -Knoieee
-*/ 
+  with -Knoieee
+  */ 
 
 #define DLAMCHE        1.1102230246251565E-016
 #define DLAMCHB        2.
 #define DLAMCHS        2.2250738585072014E-308
 
 #endif
-
 #ifdef KSR
 
 #define DLAMCHE        1.1102230246251565E-16
@@ -83,7 +91,6 @@
 
 
 #endif
-
 #ifdef KSR8
 
 #define DLAMCHE        1.1102230246251565E-16
@@ -107,8 +114,8 @@
 #define dlarnv_ slarnv_
 
 /*
-peigs
-*/
+  peigs
+  */
 
 #define heapsort_ sheapsort_
 #define neblw2_   sneblw2_ 
@@ -116,14 +123,8 @@ peigs
 #define dstebz1_  sstebz1_
 #define dlaebz2_  slaebz2_
 #define damax_    samax_
-
 #endif
-
 #ifdef CRAY_T3D
-
-#define DLAMCHE        2.22044604925031308E-16
-#define DLAMCHB        2.
-#define DLAMCHS        2.22507385850720138E-308
 
 #define dscal_  SSCAL
 #define ddot_   SDOT
@@ -192,7 +193,7 @@ peigs
 #define mxtime_   MXTIME
 
 /*
-peigs ctof 
+  peigs ctof 
 */
 
 #define  choleski_                 CHOLESKI
@@ -217,9 +218,4 @@ peigs ctof
 #define pstein_                    PSTEIN
 #define resid_                     RESID
 #define xstop_                     XSTOP
-
 #endif
-
-
-
-

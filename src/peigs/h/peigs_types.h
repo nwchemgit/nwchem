@@ -18,7 +18,7 @@ Integer fil_mapvec_ (Integer *me, Integer *n, Integer *map, Integer *mapvec);
 Integer clustrf_ (Integer *n, DoublePrecision *d, DoublePrecision *e, Integer *m, DoublePrecision *w, Integer *mapZ, DoublePrecision **vecZ, Integer *iblock, Integer *nsplit, Integer *isplit, DoublePrecision *ptbeval, Integer *num_clustr, Integer *clustr_info, Integer *imin, Integer *proclist, Integer *nacluster, Integer *icsplit, Integer *iscratch);
 
 /* clustrxx.c */
-Integer clustrinv_ (Integer *n, DoublePrecision *d, DoublePrecision *e, DoublePrecision *eval, Integer *schedule, Integer *num_clustr, Integer *mapZ, Integer *mapvecZ, DoublePrecision **vecZ, Integer *imin, Integer *nacluster, Integer *icsplit, Integer *iscratch, DoublePrecision *scratch);
+Integer clustrinv_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, Integer *, Integer *, Integer *, DoublePrecision **, Integer *, Integer *, Integer *, Integer *, DoublePrecision *);
 
 /* conjug.c */
 void lsl_conjugation (Integer *n, DoublePrecision **vecA, Integer *mapA, DoublePrecision **vecB, Integer *mapB, Integer *iwork, DoublePrecision *work, DoublePrecision **buff_ptr);
@@ -126,7 +126,7 @@ void mxm (Integer *n, DoublePrecision **colQ, Integer *mapQ, Integer *m, DoubleP
 void mxm2 (Integer *n, DoublePrecision **rowQ, Integer *mapQ, Integer *m, DoublePrecision **colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
 
 /* mxm25.c */
-void mxm25 (Integer *n1, Integer *n2, DoublePrecision **rowQ, Integer *mapQ, Integer *m, DoublePrecision **colW, Integer *mapW, DoublePrecision **colZ, Integer *iwork, DoublePrecision *work);
+void mxm25(Integer *n1, Integer *n2, DoublePrecision **rowQ, Integer *mapQ, Integer *m, DoublePrecision **colW, Integer *mapW, DoublePrecision **colZ, Integer *iwork, DoublePrecision *work);
 
 /* mxm3.c */
 void mxm3 (Integer *n, Integer *mapQ, DoublePrecision **colQ, Integer *m, Integer *mapW, DoublePrecision **colW, Integer *iwork, DoublePrecision *work);
@@ -313,76 +313,75 @@ Integer find_large_store (Integer indx, Integer nprocs, Integer *size, Integer *
 void mem_cpy (Integer *list1, Integer *list2, Integer n);
 
 /* bortho_f.c */
-void bortho_ (Integer *n, DoublePrecision *matB, Integer *mapB, Integer *m, DoublePrecision *matZ, Integer *mapZ, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
+void borthof_ (Integer *n, DoublePrecision *matB, Integer *mapB, Integer *m, DoublePrecision *matZ, Integer *mapZ, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
 
 /* choleski_f.c */
-void choleski_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *iwork, DoublePrecision *work, Integer *info);
+void choleskif_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *iwork, DoublePrecision *work, Integer *info);
 
 /* inverse_f.c */
-void inversel_ (Integer *msize, Integer *map, DoublePrecision *matrix, Integer *iwork, DoublePrecision *work, Integer *info);
+void inverself_ (Integer *msize, Integer *map, DoublePrecision *matrix, Integer *iwork, DoublePrecision *work, Integer *info);
 
 /* mxm25_f.c */
-void mxm25_ (Integer *n1, Integer *n2, DoublePrecision *rowQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, DoublePrecision *colZ, Integer *iwork, DoublePrecision *work);
+void mxm25f_ (Integer *n1, Integer *n2, DoublePrecision *rowQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, DoublePrecision *colZ, Integer *iwork, DoublePrecision *work);
 
 /* mxm2_f.c */
 void mxm2_ (Integer *n, DoublePrecision *rowQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
 
-/* mxm35_f.c */
-void mxm35_ (Integer *n1, Integer *n2, DoublePrecision *colQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, DoublePrecision *colZ, Integer *iwork, DoublePrecision *work);
-
-/* mxm3_f.c */
-void mxm3_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
-
-/* mxm4_f.c */
-void mxm4_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
-
 /* mxm5x_f.c */
-void mxm5x_ (Integer *n, DoublePrecision *matA, Integer *mapA, Integer *m, DoublePrecision *matB, Integer *mapB, Integer *iwork, DoublePrecision *work);
+void mxm5xf_ (Integer *n, DoublePrecision *matA, Integer *mapA, Integer *m, DoublePrecision *matB, Integer *mapB, Integer *iwork, DoublePrecision *work);
 
 /* mxm88_f.c */
-void mxm88_ (Integer *n, DoublePrecision *matA, Integer *mapA, Integer *m, DoublePrecision *matB, Integer *mapB, Integer *iwork, DoublePrecision *work);
-
-/* mxm8_f.c */
-void mxm8_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
-
-/* mxm_f.c */
-void mxm_ (Integer *n, DoublePrecision *colQ, Integer *mapQ, Integer *m, DoublePrecision *colW, Integer *mapW, Integer *iwork, DoublePrecision *work);
+void mxm88f_ (Integer *n, DoublePrecision *matA, Integer *mapA, Integer *m, DoublePrecision *matB, Integer *mapB, Integer *iwork, DoublePrecision *work);
 
 /* onenorm_f.c */
-void one_nrm_ (Integer *n, Integer *m, DoublePrecision *matA, Integer *mapA, DoublePrecision *norm, Integer *iwork, DoublePrecision *work);
+void one_nrmf_ (Integer *n, Integer *m, DoublePrecision *matA, Integer *mapA, DoublePrecision *norm, Integer *iwork, DoublePrecision *work);
 
 /* ortho_f.c */
-void ortho_ (Integer *n, Integer *m, DoublePrecision *matZ, Integer *mapZ, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
+void orthof_ (Integer *n, Integer *m, DoublePrecision *matZ, Integer *mapZ, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
 
 /* pdspev_f.c */
-void pdspev_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
+void pdspevf_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdspevx_f.c */
-void pdspevx_ (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
+void pdspevxf_ (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdspgv_f.c */
-void pdspgv_ (Integer *ifact, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
-
-/* pdspgv_f2.c */
-void pdspgv2_ (Integer *ifact, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision **dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
+void pdspgvf_ (Integer *ifact, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdspgvx_f.c */
-void pdspgvx_ (Integer *ifact, Integer *ivector, Integer *irange, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
+void pdspgvxf_ (Integer *ifact, Integer *ivector, Integer *irange, Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* pdsptri_f.c */
-void pdsptri_ (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *dd, DoublePrecision *ee, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
-
-/* pstein_f.c */
-void pstein_ (Integer *n, DoublePrecision *dd, DoublePrecision *ee, Integer *meigval, DoublePrecision *eval, Integer *iblock, Integer *nsplit, Integer *isplit, Integer *mapZ, DoublePrecision *matZ, DoublePrecision *ddwork, Integer *iiwork, DoublePrecision *ppiwork, Integer *info);
+void pdsptrif_ (Integer *ivector, Integer *irange, Integer *n, DoublePrecision *dd, DoublePrecision *ee, DoublePrecision *lb, DoublePrecision *ub, Integer *ilb, Integer *iub, DoublePrecision *abstol, Integer *meigval, DoublePrecision *matZ, Integer *mapZ, DoublePrecision *eval, Integer *iscratch, Integer *iscsize, DoublePrecision *dblptr, Integer *ibuffsz, DoublePrecision *scratch, Integer *ssize, Integer *info);
 
 /* resid_f.c */
-void resid_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, Integer *m, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
+void residf_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, Integer *m, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
 
 /* residual_f.c */
-void residual_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, Integer *m, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
+void residualf_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *matrixB, Integer *mapB, Integer *m, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
 
-void sonenrm_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *norm, Integer *iwork, DoublePrecision *work, Integer *info);
+void sonenrmf_ (Integer *n, DoublePrecision *matrixA, Integer *mapA, DoublePrecision *norm, Integer *iwork, DoublePrecision *work, Integer *info);
 
 /* tresid_f.c */
-void tresid_ (Integer *n, Integer *m, DoublePrecision *d, DoublePrecision *e, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
+void tresidf_ (Integer *n, Integer *m, DoublePrecision *d, DoublePrecision *e, DoublePrecision *matrixZ, Integer *mapZ, DoublePrecision *eval, Integer *iwork, DoublePrecision *work, DoublePrecision *res, Integer *info);
 
+
+/*
+   fortran stuff
+*/
+
+/*
+   blas 1
+*/
+
+void dcopy_(Integer *, DoublePrecision *, Integer *, DoublePrecision *, Integer *);
+void daxpy_(Integer *, DoublePrecision *, DoublePrecision *, Integer *, DoublePrecision *, Integer *);
+
+void xerbla_ (char *ptr, Integer *m);
+void mxpend_();
+Integer mxmynd_();
+Integer mxnprc_();
+
+/*
+void mxcombv1_(char *buf, Integer *sum(), Integer *isize, Integer *items, Integer *n, Integer *list, Integer *msgtype, char *work);
+*/

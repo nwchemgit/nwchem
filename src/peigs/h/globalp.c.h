@@ -14,17 +14,6 @@ typedef   double         DoublePrecision;
 typedef   long double    DoublePrecision;
 #endif
 
-#ifdef CRAY_T3D
-/*
- *
- * Remap Fortran names to upper case
- * and remove trailing underscore
- *
- */
-
-#define xstop_	XSTOP
-#endif
-
 #include "blas_lapack.h"
 #include "peigs_types.h"
 
