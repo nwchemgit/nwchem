@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.25 1999-07-28 00:39:34 d3e129 Exp $
+ $Id: pstebz10.c,v 1.26 1999-11-04 22:37:46 d3g270 Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -339,12 +339,12 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    }
    
    onenrm = ffabs( d[0] ) + ffabs( e[1] );
-   tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
-   onenrm = max(onenrm, tmp);
    for (i = 1; i < msize-1; ++i) {
      tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
      onenrm = max(onenrm, tmp);
    }
+   tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
+   onenrm = max(onenrm, tmp);
    
    /*
     *  Quick Return if possible.
@@ -574,36 +574,71 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      }
      */
    
-   psgn = 1.0e0;
-   psigma = 0.e0;
 
-   leig = eval[0]; 
-   shift = d[0] - fabs(e[1]);
-   for ( i = 1; i < msize - 1 ; i++ ){
+   /*
+     can be bad
+   */
+   /*
+     leig = eval[0]; 
+     shift = d[0] - fabs(e[1]);
+     for ( i = 1; i < msize - 1 ; i++ ){
      dummy = d[i] - fabs(e[i]) - fabs(e[i+1]);
      shift = min(shift, dummy);
-   }
-   dummy = d[msize-1] - fabs(e[msize-1]);
-   shift = min(shift, dummy);
-   
-   psgn = 1.0;
-   if ( shift < 0.e0){
+     }
+     dummy = d[msize-1] - fabs(e[msize-1]);
+     shift = min(shift, dummy);
+     
+     psgn = 1.0;
+     if ( shift < 0.e0){
      psgn = 1.;
      psigma = shift;
-   }
-   if ( shift == 0.0e0 )
+     }
+     if ( shift == 0.0e0 )
      shift = sqrt(DLAMCHE);
-   
-   
-   for (i = 0; i < msize; i++ )
-     work[i] = d[i] - psgn*psigma;
-   
-   for (i = 0; i < msize; i++ )
-     work[msize + i] = e[i];
+   */
    
    /*
      compute splitting
    */
+   
+   il = 1;
+   iu = 1;
+   range = 3;
+   order = 1;
+   m = 0;
+   *info = 0;
+   dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+	     &m, nsplit, eval, iblock, isplit, &work[msize], i_work, info);
+   
+   if ( *info != 0 ) {
+     if ( me == 0 )
+       printf(" PeIGS error from dstebz %d ...trying dsterf \n", *info );
+     
+     for (i = 0; i < msize; i++ )
+       work[i] = d[i];
+     
+     for (i = 0; i < msize; i++ )
+       work[msize + i] = e[i];
+     
+     dsterf_( &msize, &work[0], &work[msize+1], info);
+     if ( *info != 0 ){
+       if ( me == 0 )
+	 printf(" error from dsterf %d \n", *info );
+     }
+     eval[0] = work[0];
+   }
+   
+   psigma = 0.e0;
+   psgn = 1.0;
+   if ( eval[0] < sqrt(sqrt(DLAMCHE)))
+     psigma = -fabs(eval[0])-sqrt(sqrt(DLAMCHE));
+
+#ifdef DEBUG99   
+   printf("eval %g shift %f sqrt %f  \n", eval[0], psigma, sqrt(sqrt(DLAMCHE)));
+#endif
+   
+   for (i = 0; i < msize; i++ )
+     work[i] = d[i] - psgn*psigma;
    
    il = 1;
    iu = msize;
@@ -613,7 +648,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    *info = 0;
    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, work, e+1,
 	     &m, nsplit, eval, iblock, isplit, &work[msize], i_work, info);
-   
+
 #ifdef DEBUG99
    for ( jjj = 0; jjj < msize; jjj++ )
      printf(" eval[%d] = %g \n", jjj, eval[jjj]);
@@ -624,50 +659,24 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      printf(" isplit[%d] = %d \n", jjj, isplit[jjj]);
 #endif
    
-   leig = eval[0];
    if ( *info != 0 ) {
-     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
-   
-   for (i = 0; i < msize; i++ )
-     work[i] = d[i] - psgn*psigma;
-   
-   for (i = 0; i < msize; i++ )
-     work[msize + i] = e[i];
-   
-   dsterf_( &msize, &work[0], &work[msize+1], info);
-   
-   if ( *info != 0 ){
-     if ( me == 0 )
-       printf(" error from dsterf %d \n", *info );
-   }
-   
-   for (i = 0; i < msize; i++ ){
-     eval[i] = work[i];
-   }
-   
-   for (i = 0; i < msize; i++ )
-     iblock[i] = 1;
-   
-   for (i = 0; i < msize; i++ )
-     isplit[i] = 0;
-   *nsplit = 1;
-   }
-   
-   /*
      for (i = 0; i < msize; i++ )
-     work[i] = d[i] - psgn*psigma;
+       work[i] = d[i];
      
      for (i = 0; i < msize; i++ )
-     work[msize + i] = e[i];
+       work[msize + i] = e[i];
      
-     *info = 0;
-     peigs_dlasq2a( msize, &work[0], &work[msize+1], eval, &work[2*msize], info);
+     dsterf_( &msize, &work[0], &work[msize+1], info);
      if ( *info != 0 ){
-     if ( me == 0 )
-     printf(" error from dlasq2a %d \n", *info );
+       if ( me == 0 )
+	 printf(" error from dsterf %d \n", *info );
      }
-   */
-   
+     
+     for (i = 0; i < msize; i++ ){
+       eval[i] = work[i];
+     }
+   }
+
 #ifdef DEBUG1    
    printf(" psigma = %f psgn = %f onenrm %g  \n", psigma, psgn, onenrm);
 #endif
@@ -675,28 +684,15 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    /*
      factor shifted matrix into dplus and lplus
-     */
+   */
    
    /*
     */
-   
-   ncol = numeig / nn_procs;
-   irem = (numeig % nn_procs);
-   
-   if ( ifakeme < irem ) {
-     il = ifakeme * (ncol + 1) + nlow;
-     iu = il + ncol;
-   }
-   else {
-     il = irem + ifakeme * ncol + nlow;
-     iu = il + ncol - 1;
-   }
    
    for (i = 0; i < *n; i++ )
      work[i] = d[i] - psgn*psigma;
    
    i1split = 0;
-
    for ( iii = 0; iii < *nsplit; iii++ ){
      jsplit = isplit[iii];
      blksz = jsplit-i1split;
@@ -704,7 +700,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      lptr = &lplus[i1split];
      
      /*
-       LDL' factorization of tridiagonal
+       LDL' factorization of SHIFTED tridiagonal
      */
      
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
@@ -713,15 +709,22 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
      */
      
+     /*
+     for ( jjj = 0; jjj< blksz; jjj++ )
+       printf(" jjj = %d dptr %f lptr %f \n", jjj, dptr[jjj], lptr[jjj]);
+     */
+     
+     
      j = iii+1;
      for ( jjj = i1split; jjj < jsplit; jjj++ )
        iblock[jjj] = j;
      i1split = jsplit;
    }
    
-   
    /* The following assumes that the matrix does not split */
    
    return;
 }
+
+
 
