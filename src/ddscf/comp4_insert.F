@@ -31,6 +31,10 @@ c
       nbits = 4*(i - (index-1)*(2*nb_per_i) - 1)
 *      write(6,*) s, ' -> ', v, index, nbits
 c
+#if defined(CRAY)
+      m(index) = ior(m(index), shiftl(v, nbits))
+#else
       m(index) = ior(m(index), lshift(v, nbits))
+#endif
 c
       end
