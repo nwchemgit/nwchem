@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.150 2000-04-05 04:22:39 edo Exp $
+c     $Id: dft_scf.F,v 1.151 2000-04-05 18:50:00 edo Exp $
 c     
       implicit none
 c
@@ -959,15 +959,15 @@ c
             if (oprint_time)
      &           call dft_tstamp(' calling diag ')
 #if defined(PARALLEL_DIAG)
-            if(reuse.eq.0) then
-               g_sf = ga_create_atom_blocked(geom,AO_bas_han,'gsf')
-               call ga_copy(g_s,g_sf)
-            endif
-         call ga_diag_reuse(reuse,
-     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
-!        call ga_diag(
-!     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
-         reuse=reuse+1
+!            if(reuse.eq.0) then
+!               g_sf = ga_create_atom_blocked(geom,AO_bas_han,'gsf')
+!               call ga_copy(g_s,g_sf)
+!            endif
+!         call ga_diag_reuse(reuse,
+!     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
+!         reuse=reuse+1
+        call ga_diag(
+     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
 #else 
          call ga_diag_seq(g_fock, g_s,g_tmp, Dbl_MB(k_eval(ispin)))
 #endif
