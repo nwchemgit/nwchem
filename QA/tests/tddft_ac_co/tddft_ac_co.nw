@@ -1,0 +1,36 @@
+#
+# Test for Casida-Salahub asymptotic correction
+# Casida, Salahub JCP 113, 8918 (2000).
+# CO AC-LDA -HOMO = 13.78 eV (different geometry, different basis set)
+# CO Delta SCF IP = 14.10 eV versus -HOMO = 9.10 eV (shift = 5.00 eV)
+# Tozer, Handy, JCP 109, 10180 (1998).
+# Experimental vertical excitation energies of CO
+# Singlet: 8.51, 9.88, 10.23, 10.78, 11.40, 11.53, 12.4 eV
+# Triplet: 6.32, 8.51, 9.36, 9.88, 10.4, 11.3, 11.55 eV
+#
+start tddft_ac_co
+
+echo
+
+charge 0
+
+geometry
+O 0.0 0.0  0.0000
+C 0.0 0.0  1.1283
+end
+
+basis spherical
+C library aug-cc-pVDZ
+O library aug-cc-pVDZ
+end
+
+dft
+xc slater vwn_5
+cs00 0.1837
+end
+
+tddft
+nroots 12
+end
+
+task tddft energy
