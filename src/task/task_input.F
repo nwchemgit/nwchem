@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.27 2002-02-12 17:46:22 edo Exp $
+* $Id: task_input.F,v 1.28 2002-04-24 16:04:59 bylaska Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -100,6 +100,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'cell_optimize')) then
             operation='cell_optimize'
+         else if (inp_compare(.false.,test,
+     >                        'stress')) then
+            operation='stress'
          else if (inp_compare(.false.,test,
      >                        'pspw_dplot')) then
             operation='pspw_dplot'
