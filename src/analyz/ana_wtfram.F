@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.40 2001-07-06 06:29:00 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.41 2001-10-10 21:47:16 d3j191 Exp $
 c
       implicit none
 c
@@ -342,7 +342,12 @@ c
      + color(1:index(color,' ')-1)
       endif
  8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
-     + 3x,f12.6,/,'  texture { pigment { ',a,' } }',/,'}')
+     + 3x,f12.6,/,
+     + '  texture { pigment { ',a,' }',/,
+     + '            finish  { ambient 0.16 ',/,
+     + '                      diffuse 0.48 ',/,
+     + '                      phong 1.25 ',/,
+     + '                      phong_size 200 } }',/,'}')
       endif
       endif
    10 continue
