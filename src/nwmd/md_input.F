@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.88 2004-04-23 15:15:39 d3j191 Exp $
+c $Id: md_input.F,v 1.89 2004-10-22 00:50:19 marat Exp $
 c
       implicit none
 c
@@ -865,6 +865,7 @@ c
 c
       ifix=1
       afix=' '
+      rfix=0.0d0
       if(inp_compare(.false.,'free',item)) ifix=0
 c
       if(.not.inp_a(item)) call md_abort('md_input : error fix',1)
