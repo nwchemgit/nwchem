@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.24 1997-04-25 23:13:22 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.25 1997-04-26 21:37:32 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -415,10 +415,11 @@ c     We could constrain the pair loops to run over a wierd unique
 c     list of quartets, but we need the conventional 'canonical'
 c     unique list to use petite-list symmetry.
 c     
+      nproc = ga_nnodes()
+c
       if (oreadfile .and. incomplete.eq.-1) 
      $     goto 12321           ! Semidirect ... I have none to compute
 c
-      nproc = ga_nnodes()
       if (oreadfile) then
 c     
 c     Semi-direct.  This process filled up the file at task incomplete

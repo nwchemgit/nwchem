@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.16 1997-04-23 01:59:35 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.17 1997-04-26 21:37:33 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -133,6 +133,7 @@ c
 c     Compute the energy and gradient at step*search direction
 c     
 *            write(6,*) ' TOL2E ', tol2e
+*            call util_flush(6)
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
@@ -141,6 +142,7 @@ c
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
             eprec = max(gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
 *            write(6,*) ' EPREC ', eprec
+*            call util_flush(6)
             goto 10
 c     
          else if (mode .eq. 'precondition') then
