@@ -14,30 +14,50 @@
       Integer g_Vec,g_Dns,nBF
       Double Precision nOcc(nBF)
 *---- Local variables
+      Integer iProc,iLo,iHi,jLo,jHi,lthi,lthj
       Integer g_Scr,k_Scr,l_Scr,iCol
       Double Precision Scale
-      Logical LResult
+      Logical LResult,DeBug
 *
 ************************************************************************
 *     
+      DeBug = .False.
+      iProc = ga_nodeid()
+*
+*---- Allocate the global array
       Call GACrea(Geom,Basis,nBF,nBF,'Scr',g_Scr,'atom')
       Call GA_Copy(g_Vec,g_Scr)
+      Call GA_Sync
 *
-      LResult = MA_Push_Get(MT_Dbl,nBF,'Vector',l_Scr,k_Scr)
+*---- Find the distribution of the g_Scr
+      Call GA_Distribution(g_Scr,iProc,iLo,iHi,jLo,jHi)
+      lthi = iHi - iLo + 1
+      lthj = jHi - jLo + 1
+      If (DeBug) Then
+         Write(*,*)' DMat: iProc,iLo,iHi,lthi ',iProc,iLo,iHi,lthi
+         Write(*,*)' DMat: iProc,jLo,jHi,lthj ',iProc,jLo,jHi,lthj
+      End If
+      If (lthi.eq.0 . or . lthj.eq.0) GoTo 9999
+      If (lthi.lt.0 . or . lthj.lt.0)
+     &   Call ErrQuit('DMat: Wrong distribution !!!',0)
+*
+*---- Allocate the local vector
+      LResult = MA_Push_Get(MT_Dbl,lthi,'Vector',l_Scr,k_Scr)
       Call ErrMem(LResult,'DMat: Failed to allocate Vector',0)
 *
-*---- PARALLELIZE IN THE FUTURE !!!
-      Do iCol = 1, nBF
-         Call GA_Get(g_Scr,1,nBF,iCol,iCol,Dbl_mb(k_Scr),nBF)
+*---- Scale each column of g_Scr by corresponding occupation number
+      Do iCol = jLo, jHi
+         Call GA_Get(g_Scr,iLo,iHi,iCol,iCol,Dbl_mb(k_Scr),lthi)
          Scale = nOcc(iCol)
-         Call dscal(nBF,Scale,Dbl_mb(k_Scr),1)
-         Call GA_Sync
-         Call GA_Put(g_Scr,1,nBF,iCol,iCol,Dbl_mb(k_Scr),nBF)
+         Call dscal(lthi,Scale,Dbl_mb(k_Scr),1)
+         Call GA_Put(g_Scr,iLo,iHi,iCol,iCol,Dbl_mb(k_Scr),lthi)
       End Do
 *
+*---- Deallocate vector
       LResult = MA_Pop_Stack(l_Scr)
       Call ErrMem(LResult,'DMat: Failed to deallocate Vector',0)
 *
+ 9999 Continue
       Call GA_Sync
       Call GA_Dgemm('N','T',nBF,nBF,nBF,1.d0,g_Vec,g_Scr,0.d0,g_Dns)
 *
