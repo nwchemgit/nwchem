@@ -1,5 +1,5 @@
       Subroutine PStat_Off( Handle )
-C$Id: pstat_off.F,v 1.7 1995-02-02 23:20:57 d3g681 Exp $
+C$Id: pstat_off.F,v 1.8 1995-05-22 22:31:27 vg038 Exp $
       Implicit NONE
       Integer Handle
 C
@@ -22,8 +22,9 @@ C
 C
       status = handle.gt.0 .and. handle.le.pstat_max_items
       if (status) status = pstat_active(handle)
-      if (.not. status) Call ErrQuit
-     $     ('pstat_off: Timer not assigned', Handle)
+CHF   if (.not. status) Call ErrQuit
+CHF  $     ('pstat_off: Timer not assigned', Handle)
+      if (.not. status) return
 C
       If ( PStat_Unmatched_Starts( Handle ) .ne. 1  ) then
          Call ErrQuit('pstat_off: Timer is not on', Handle)
