@@ -1,6 +1,8 @@
 c
 c include file for def/get Nxyz.  defines maximum angular 
 c momentum for integrals and derivatives
+c Note: lrmax is the total angular momentum on the single center
+c for the ERI.
 c lrmax = 24   I type energies and H type derivatives
 c lrmax = 20   H type energies and G type derivatives
 c lrmax = 16   G type energies and F type derivatives
@@ -9,7 +11,7 @@ c lrmax =  8   D type energies and P type derivatives
 c lrmax =  4   P type energies and S type derivatives
 c lrmax =  1   S type energies only
 c
-c $Id: sh_order.fh,v 1.1 1994-09-28 17:57:20 d3e129 Exp $
+c $Id: sh_order.fh,v 1.2 1997-02-04 21:22:11 d3e129 Exp $
       integer lrmax,lrmax3,ixyz,linit
 
       Parameter(lRmax=24,lRmax3=((lRmax+1)*(lRmax+2)*(lRmax+3))/6)
