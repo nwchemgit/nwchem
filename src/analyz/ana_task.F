@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.66 2001-05-16 22:44:19 d3j191 Exp $
+c $Id: ana_task.F,v 1.67 2001-05-17 21:14:16 d3j191 Exp $
 c
       implicit none
 c
@@ -275,6 +275,7 @@ c
       if(card(1:6).eq.'savsel') then
       filsel=card(8:80)
       call ana_savsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      goto 1
       endif
 c
 c     read atom selection
@@ -283,6 +284,7 @@ c
       if(card(1:5).eq.'rdsel') then
       filsel=card(8:80)
       call ana_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      goto 1
       endif
 c
 c     index
@@ -290,6 +292,7 @@ c     -----
 c
       if(card(1:6).eq.'index ') then
       read(card(7:16),'(i10)') indx
+      goto 1
       endif
 c
 c     set hydrgen bond criteria
@@ -297,12 +300,15 @@ c     -------------------------
 c
       if(card(1:6).eq.'hbdist ') then
       read(card(7:30),'(2f12.6)') rhbmin,rhbmax
+      goto 1
       endif
       if(card(1:6).eq.'hbdang ') then
       read(card(7:30),'(2f12.6)') hbdmin,hbdmax
+      goto 1
       endif
       if(card(1:6).eq.'hbaang ') then
       read(card(7:30),'(2f12.6)') hbamin,hbamax
+      goto 1
       endif
 c
 c     solvent selection
