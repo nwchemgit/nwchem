@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.30 1997-04-02 00:42:07 d3e129 Exp $
+c $Id: bas_input.F,v 1.31 1997-04-02 19:38:20 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -206,9 +206,9 @@ c
       if (oprint) then
          if (.not. bas_print(basis))
      $        call errquit('bas_input: print failed', 0)
+         if (.not.bas_summary_print(basis))
+     &        call errquit('scf: basis summary print failed',911)
       endif
-      if (.not.bas_summary_print(basis))
-     &    call errquit('bas_input: summary print failed',911)
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
      $     ('bas_input: failed to store basis', 0)

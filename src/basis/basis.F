@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.59 1997-04-02 00:42:08 d3e129 Exp $
+c $Id: basis.F,v 1.60 1997-04-02 19:38:22 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -674,16 +674,11 @@ c::-local
       integer basis   ! lexical index
       integer i_tag   ! loop counter
       integer i_cont  ! loop counter
-      integer ip      ! loop counter
       integer mytags  ! dummy 
       integer myfcont ! loop range value (first)
       integer mylcont ! loop range value (last)
       integer mycont  ! number of contractions
       integer mynbf   ! number of functions
-      integer itlen   ! length of tag
-      integer istlen  ! length of standard name 
-      integer itlenmax  ! maximum length of any tag
-      integer istlenmax ! maximum length of any basis name on a tag
 *
 #include "ecp_sfnP.fh"
 *
@@ -708,14 +703,6 @@ c::-local
      &    bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
      &    polynomial
       mytags = infbs_head(Head_Ntags,basis)
-      itlenmax = 0 
-      istlenmax = 0
-      do i_tag = 1,mytags
-        itlen     = inp_strlen(bs_tags(i_tag,basis))
-        itlenmax  = max(itlenmax,itlen)
-        istlen    = inp_strlen(bs_stdname(i_tag,basis))
-        istlenmax = max(istlenmax,istlen)
-      enddo
       do i_tag = 1,mytags
         myfcont = infbs_tags(Tag_Fcont,i_tag,basis)
         mylcont = infbs_tags(Tag_Lcont,i_tag,basis)
@@ -725,18 +712,10 @@ c::-local
           mynbf = mynbf + nbf_from_ucont(i_cont,basisin)
         enddo
         dum_tag = bs_tags(i_tag,basis)
-        itlen   = inp_strlen(dum_tag)
-        do ip = (itlen+1),itlenmax
-          dum_tag(ip:ip) = ' '
-        enddo
         dum_stdtag = bs_stdname(i_tag,basis)
-        istlen = inp_strlen(dum_stdtag)
-        do ip = (istlen+1),istlenmax
-          dum_stdtag(ip:ip) = ' '
-        enddo
         write(luout,10001)
-     &      dum_tag(1:itlenmax),
-     &      dum_stdtag(1:istlenmax),
+     &      dum_tag,
+     &      dum_stdtag(1:21),
      &      mycont,
      &      mynbf
       enddo
@@ -744,10 +723,11 @@ c::-local
       call util_flush(luout)
       bas_summary_print = .true.
 *
-10000 format('  Summary:  Basis "',a,'" -> "',a,'"',a,/,
-     &       '            -----')
-10001 format(1x,a,' has a ',a,' basis set with',i4,
-     &    ' general contractions (shells) and',i4,' basis function(s).')
+10000 format(' Summary of "',a,'" -> "',a,'"',a/
+     $    ' ---------------------------------------------------------'/
+     $    '       Tag             Description       Shells  Functions'/
+     $    ' ---------------- ---------------------  ------  ---------')
+10001 format(1x,a16,1x,a21,2x,i4,5x,i4)
 *
       end
 *.....................................................................
