@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.40 1999-12-10 01:30:01 bert Exp $
+c     $Id: grad_force.F,v 1.41 1999-12-10 17:50:24 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -137,7 +137,7 @@ c
       logical dkdiv_energy, num_grad, file_write_ga  ! Three data blocks needed
       external dkdiv_energy, num_grad, file_write_ga ! for the possible addition
       integer l_dkdivfrc, k_dkdivfrc                 ! of Douglas-Kroll contribution
-      character*255 dkdiv_name
+      character*(nw_max_path_len) dkdiv_name
       character*128 mytheory
 c
 *     Stuff for DFT
@@ -500,9 +500,10 @@ c        Add total Douglas-Kroll - Non-relativistic contribution to
 c        array on node 0. There is a global sum later on.
 c
          if (ga_nodeid() .eq. 0) then
+            status = rtdb_parallel(.false.)
             if (.not. ma_push_get(mt_dbl, 3*nat, 'dkdiv_frc',
      $          l_dkdivfrc, k_dkdivfrc)) call errquit
-     $          ('grad_force: ma_push_get dkdiv_frc array failed',0)
+     $          ('grad_force: ma_push_get dkdiv_frc failed',0)
             if (.not. rtdb_get(rtdb, 'grad_dk:dkdiv_frc', mt_dbl,
      $          3*nat, dbl_mb(k_dkdivfrc))) call errquit
      $          ('grad_force: could not read grad_dk:dkdiv_frc',0)
@@ -512,6 +513,7 @@ c
             enddo
             if (.not. ma_pop_stack(l_dkdivfrc))
      $         call errquit('grad_force: ma_pop_stack failed',0)
+            status = rtdb_parallel(.true.)
          endif
          call util_file_unlink(dkdiv_name)
          call intd_init(rtdb, 1, basis)
