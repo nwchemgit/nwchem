@@ -1,18 +1,17 @@
-      logical function pre_center(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
-     + xs,msa,nsa,iopt)
+      logical function pre_center(lfnout,xw,mwm,mwa,nwm,nwa,
+     + xwc,mwmc,nwmc,xs,msa,nsa,iopt)
 c
-c $Id: pre_center.F,v 1.11 2000-10-23 21:01:54 d3j191 Exp $
+c $Id: pre_center.F,v 1.12 2001-07-06 03:45:13 d3j191 Exp $
 c
       implicit none
 c
-      integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc,iopt
+#include "util.fh"
+c
+      integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc,iopt,lfnout
       real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc),xs(3,msa)
 c
       integer i,j,k,imax,imin,kfr,kto
       real*8 s,smin,smax
-c
-      write(*,1000)
- 1000 format(/,' Centering solute')
 c
       kfr=1
       kto=3
@@ -50,7 +49,19 @@ c
     7 continue
     6 continue
       endif
-      write(*,'(i2,2i5,3f12.6)') k,imin,imax,smin,smax,s
+      if(util_print('restart',print_high)) then
+      write(lfnout,'(i2,2i5,3f12.6)') k,imin,imax,smin,smax,s
+      endif
+      if(util_print('restart',print_low)) then
+      if(k.eq.0) write(lfnout,1000)
+ 1000 format(' Solute centered')
+      if(k.eq.1) write(lfnout,1001)
+ 1001 format(' Solute centered in x-dimension')
+      if(k.eq.2) write(lfnout,1002)
+ 1002 format(' Solute centered in y-dimension')
+      if(k.eq.3) write(lfnout,1003)
+ 1003 format(' Solute centered in z-dimension')
+      endif
     1 continue
 c
       pre_center=.true.

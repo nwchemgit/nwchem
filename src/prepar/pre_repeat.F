@@ -1,14 +1,14 @@
-      logical function pre_repeat(card,drep,box,
+      logical function pre_repeat(card,lfnout,drep,box,
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.7 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.8 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc
+      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc,lfnout
       integer isat(msa),isgm(msa)
       character*16 csa(msa)
       real*8 xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
@@ -42,8 +42,10 @@ c
       dx(k)=xmax-xmin+1.5d0*touch
     1 continue
 c
-      write(*,1000)
+      if(util_print('restart',print_high)) then
+      write(lfnout,1000)
  1000 format(/,' Convergence',/,15x,'x',11x,'y',11x,'z',/)
+      endif
 c
    10 continue
 c 
@@ -85,14 +87,21 @@ c
       if(ddx(k).gt.0.01) done=.false.
     9 continue
 c
-      write(*,1001) ddx
+      if(util_print('restart',print_high)) then
+      write(lfnout,1001) ddx
  1001 format(10x,3f12.6)
+      endif
 c
       if(.not.done) goto 10
 c
       do 8 k=1,3
       drep(k)=dx(k)
     8 continue
+c
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1002)
+ 1002 format(' Repeat separation determined')
+      endif
 c
       pre_repeat=.true.
       return

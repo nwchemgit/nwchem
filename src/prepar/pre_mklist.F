@@ -10,7 +10,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx)
 c
-c $Id: pre_mklist.F,v 1.24 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.25 2001-07-06 03:45:13 d3j191 Exp $
 c
       implicit none
 c
@@ -110,6 +110,10 @@ c
       lbnd(2,nbnd)=link2
       lbnd(3,nbnd)=0
       lbnd(4,nbnd)=0
+      if(util_print('topology',print_debug)) then
+      write(lfnout,1004) lseq(1,i),lseq(1,i+1)
+ 1004 format(' Main chain link ',2i5)
+      endif
       else
 c
 c     possible chain links appears to be missing here
@@ -174,20 +178,24 @@ c
       if(atl1(1:1).eq.' ') atl1(1:1)='_'
       if(atl2(1:1).eq.' ') atl2(1:1)='_'
       if(llnk(3,i).eq.0) then
+      if(util_print('topology',print_low)) then
       write(lfnout,1000) llnk(1,i),atl1,llnk(2,i),atl2,
      + link1,link2,latm(3,link1),latm(3,link2)
  1000 format(' Skipped link ',i5,':',a4,i5,':',a4,' = ',i5,'-',i5,
      + ' (',i1,',',i1,')')
+      endif
 c      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
 c     + llnk(2,i),clnk(2,i),latm(3,link2)
 c 1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
 c      call errquit('mklist: explicit link to nonbonding atom',9999)
       goto 5
       else
+      if(util_print('topology',print_low)) then
       write(lfnout,1001) llnk(1,i),atl1,llnk(2,i),atl2,
      + link1,link2,latm(3,link1),latm(3,link2)
  1001 format(' Forced link  ',i5,':',a4,i5,':',a4,' = ',i5,'-',i5,
      + ' (',i1,',',i1,')')
+      endif
 c      write(lfnout,1001) llnk(1,i),clnk(1,i),latm(3,link1),
 c     + llnk(2,i),clnk(2,i),latm(3,link2),link1,link2
 c 1001 format(' Forced link ',
@@ -206,8 +214,10 @@ c
 c
     5 continue
 c
-      write(lfnout,1002)
- 1002 format(' ')
+      if(util_print('topology',print_low)) then
+      write(lfnout,1003)
+ 1003 format(' ')
+      endif
 c
 c     append the angle list
 c     ---------------------

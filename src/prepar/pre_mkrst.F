@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat)
 c
-c $Id: pre_mkrst.F,v 1.64 2000-10-23 21:01:54 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.65 2001-07-06 03:45:13 d3j191 Exp $
 c
       implicit none
 c
@@ -38,6 +38,7 @@ c
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
+      real*8 edgex,edgey,edgez
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
@@ -55,7 +56,7 @@ c
       real*8 xtran(3)
       real*8 rdist,xr(3,2)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1000)
  1000 format(' RESTART FILE GENERATION')
       endif
@@ -63,7 +64,7 @@ c
       if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu))
      + call errquit('pre_topsiz failed',9999)
 c
-      if(util_print('where',print_high)) then
+      if(util_print('restart',print_high)) then
       write(lfnout,1001) filtop(1:index(filtop,' ')-1),mat,msa,mwa,msb
  1001 format(' Topology',t40,a,//,
      + ' Number of atom types',t40,i8,/,
@@ -180,7 +181,7 @@ c
       lsolva=.true.
       endif
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1002) 
  1002 format(' Memory allocated')
       endif
@@ -214,7 +215,7 @@ c
 c     write restart when no command file is found
 c     ===========================================
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1004) source(1:index(source,' ')-1)
  1004 format(' No command file for',t40,a,/)
       endif
@@ -223,7 +224,7 @@ c
      + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
      + msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdgeom failed',9999)
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1005) 
  1005 format(' Geometry read from rtdb')
       endif
@@ -268,7 +269,7 @@ c
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
      + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
  1006 format(' PDB file',t40,a,/)
       endif
@@ -291,14 +292,14 @@ c
 c     center the solute
 c     -----------------
 c
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_center(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,0))
      + call errquit('pre_center failed',9999)
 c
 c     orient the solute
 c     -----------------
 c
-      if(.not.pre_orient(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_orient(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_orient failed',9999)
 c
@@ -309,9 +310,9 @@ c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_medium)) then
       write(lfnout,1007) box
- 1007 format(' Boxsize',t40,3f12.6,/)
+ 1007 format(/,' Boxsize determined to ',t40,3f12.6,/)
       endif
 c
 c     write the restart file
@@ -341,7 +342,7 @@ c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
 c
-      if(util_print('where',print_high)) then
+      if(util_print('restart',print_high)) then
       write(lfnout,1099) card
  1099 format('command card ',a)
       endif
@@ -390,9 +391,9 @@ c     -------------------------------------
 c
       if(.not.util_nwchemrc_get(slvmdl,filslv))
      + call errquit('util_nwchemrc_get failed on slvmdl',9999)
-      if(util_print('coordinates',print_high)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1008) filslv(1:index(filslv,' ')-1)
- 1008 format(' Solvent',t40,a,/)
+ 1008 format(' Solvent coordinates from ',t40,a,/)
       endif
 c
 c     check if solvent restart file exists
@@ -427,9 +428,9 @@ c
      + mwms,mwa,nwms,nwa,boxs))
      + call errquit('pre_slvrd failed',9999)
       lslvnt=.true.
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_medium)) then
       write(lfnout,1009) filslv(1:index(filslv,' ')-1),nwms,boxs
- 1009 format(' Solvent',t40,a,//,
+ 1009 format(/,' Solvent file',t40,a,/,
      + ' Number of solvent molecules',t40,i8,/,
      + ' Solvent box size',t40,3f12.6)
       endif
@@ -485,7 +486,7 @@ c
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
      + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
-      if(util_print('where',print_default)) then
+      if(util_print('restart',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
  1010 format(' PDB file',t40,a,/,
      + ' Number of missing coordinates',t40,i8,/,
@@ -509,6 +510,10 @@ c     set box
 c
       if(card(1:6).eq.'setbox') then
       read(card(7:42),'(3f12.6)') box
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1050) box
+ 1050 format(' Box dimensions set to ',3f12.6)
+      endif
       endif
 c
 c     read restart file
@@ -750,7 +755,7 @@ c
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
      + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
-      if(util_print('where',print_default)) then
+      if(util_print('restart',print_default)) then
       write(lfnout,1011) filpdb(1:index(filpdb,' ')-1),nmis,nsa
  1011 format(' PDB file',t40,a,/,
      + ' Number of missing coordinates',t40,i8,/,
@@ -775,9 +780,9 @@ c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_medium)) then
       write(lfnout,1012) box
- 1012 format(' boxsize',t40,3f12.6)
+ 1012 format(/,' Boxsize determined to ',t40,3f12.6,/)
       endif
       endif
 c
@@ -836,25 +841,25 @@ c     center solute
 c     -------------
 c
       if(card(1:6).eq.'center') then
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_center(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,0))
      + call errquit('pre_center failed',9999)
       endif
 c
       if(card(1:6).eq.'centrx') then
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_center(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,1))
      + call errquit('pre_center failed',9999)
       endif
 c
       if(card(1:6).eq.'centry') then
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_center(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,2))
      + call errquit('pre_center failed',9999)
       endif
 c
       if(card(1:6).eq.'centrz') then
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_center(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa,3))
      + call errquit('pre_center failed',9999)
       endif
@@ -863,7 +868,7 @@ c     orient solute
 c     -------------
 c
       if(card(1:6).eq.'orient') then
-      if(.not.pre_orient(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_orient(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_orient failed',9999)
       endif
@@ -974,7 +979,7 @@ c
       nbxtyp=2
       endif
       if(islv.eq.0) call errquit('Illegal solvation type',9999)
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1013) islv,box
  1013 format(' Solvent type',t40,i8,/,
      + ' Box size',t40,3f12.6,/)
@@ -999,7 +1004,7 @@ c
       if(.not.pre_slvnum(islv,boxs,nwms,box,mwm))
      + call errquit('pre_slvnum failed',9999)
       nwm=0
-      if(util_print('where',print_debug)) then
+      if(util_print('restart',print_debug)) then
       write(lfnout,1014) mwm
  1014 format(' Maximum number of solvent molecules',t40,i8,/)
       endif
@@ -1018,15 +1023,15 @@ c
 c     solvate the system
 c     ------------------
 c
-      if(.not.pre_solvat(islv,boxs,dbl_mb(i_xslv),dbl_mb(i_vslv),
+      if(.not.pre_solvat(islv,lfnout,boxs,dbl_mb(i_xslv),dbl_mb(i_vslv),
      + mwms,mwa,nwms,nwa,touch,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,nwm,
      + dbl_mb(i_xs),msa,nsa,
      + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('pre_solvat failed',9999)
-      if(util_print('where',print_low)) then
+      if(util_print('restart',print_low)) then
       write(lfnout,1015) nwm
- 1015 format(' Number of solvent molecules',t40,i8,/)
+ 1015 format(/,' Number of solvent molecules',t40,i8,/)
       endif
       endif
 c
@@ -1041,19 +1046,28 @@ c     ----------
 c
       if(card(1:6).eq.'expand') then
       if(card(8:9).eq.'to') then
-      read(card(11:22),'(f12.6)',end=9999,err=9999) edge
-      box(1)=box(1)+edge
-      read(card(23:34),'(f12.6)',end=9999,err=9999) edge
-      box(2)=box(2)+edge
-      read(card(35:46),'(f12.6)',end=9999,err=9999) edge
-      box(3)=box(3)+edge
+      read(card(11:22),'(f12.6)',end=9999,err=9999) edgex
+      box(1)=edgex
+      read(card(23:34),'(f12.6)',end=9999,err=9999) edgey
+      box(2)=edgey
+      read(card(35:46),'(f12.6)',end=9999,err=9999) edgez
+      box(3)=edgez
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1060) box
+ 1060 format(' Box expanded with to ',t40,3f12.6)
+      endif
       elseif(card(8:11).eq.'with') then
-      read(card(13:24),'(f12.6)',end=9999,err=9999) edge
-      box(1)=box(1)+edge
-      read(card(25:36),'(f12.6)',end=9999,err=9999) edge
-      box(2)=box(2)+edge
-      read(card(37:48),'(f12.6)',end=9999,err=9999) edge
-      box(3)=box(3)+edge
+      read(card(13:24),'(f12.6)',end=9999,err=9999) edgex
+      box(1)=box(1)+edgex
+      read(card(25:36),'(f12.6)',end=9999,err=9999) edgey
+      box(2)=box(2)+edgey
+      read(card(37:48),'(f12.6)',end=9999,err=9999) edgez
+      box(3)=box(3)+edgez
+      endif
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1061) edgex,edgey,edgez,box
+ 1061 format(' Box expanded with ',t40,3f12.6,/,
+     +       '                to ',t40,3f12.6,/)
       endif
       endif
 c
@@ -1063,6 +1077,10 @@ c
       if(card(1:6).eq.'boxsiz') then
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1033) box
+ 1033 format(/,' Boxsize determined to ',t40,3f12.6,/)
+      endif
       endif
 c
 c     set periodic boundary conditions
@@ -1070,6 +1088,10 @@ c     --------------------------------
 c
       if(card(1:6).eq.'period') then
       npbtyp=1
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1031)
+ 1031 format(/,' Periodic boundary conditions on')
+      endif
       endif
 c
 c     set vacuum conditions
@@ -1077,6 +1099,10 @@ c     ---------------------
 c
       if(card(1:6).eq.'vacuum') then
       npbtyp=0
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1032)
+ 1032 format(/,' Periodic boundary conditions off')
+      endif
       endif
 c
 c     set velocities to zero
@@ -1091,14 +1117,14 @@ c
       if(card(1:6).eq.'zerocd') then
       endif
 c
-c     set envelope
-c     ------------
+c     set touch distance
+c     ------------------
 c
       if(card(1:5).eq.'touch') then
       read(card(7:19),'(f12.6)') touch
-      if(util_print('where',print_high)) then
+      if(util_print('restart',print_medium)) then
       write(lfnout,1016) touch
- 1016 format(' Envelope',t40,f12.6,/)
+ 1016 format(' Touch distance set to ',t40,f12.6,' nm')
       endif
       endif
 c
@@ -1107,8 +1133,10 @@ c     ------
 c
       if(card(1:6).eq.'rshell') then
       read(card(8:19),'(f12.6)') rshell
+      if(util_print('restart',print_medium)) then
       write(lfnout,1022) rshell
- 1022 format(' Rshell',t40,f12.6,/)
+ 1022 format(' Rshell set to ',t40,f12.6,' nm',/)
+      endif
       endif
 c
 c     fix
@@ -1142,7 +1170,7 @@ c     align
 c     =====
 c
       if(card(1:6).eq.'align ') then
-      if(.not.pre_align(card,
+      if(.not.pre_align(card,lfnout,
      + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
@@ -1160,7 +1188,7 @@ c
       read(card(47:51),'(i5)') iropt
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
-      if(.not.pre_repeat(card,drep,box,
+      if(.not.pre_repeat(card,lfnout,drep,box,
      + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))

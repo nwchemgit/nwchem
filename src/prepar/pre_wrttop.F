@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.33 2000-09-22 21:43:59 evorpa Exp $
+c $Id: pre_wrttop.F,v 1.34 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
 c
@@ -285,9 +285,9 @@ c
       qtot(2)=0.0d0
       qtot(3)=0.0d0
       if(natm.gt.0) then
-      if(util_print('files',print_default)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,2000)
- 2000 format(' Segment charges',t25,7x,'set 1',7x,'set 2',7x,'set 3',/)
+ 2000 format(' Segment charges',t40,7x,'set 1',7x,'set 2',7x,'set 3',/)
       endif
       do 10 i=1,natm
       imol=latm(6,i)
@@ -374,9 +374,9 @@ c      endif
       qtot(3)=qtot(3)+qatm(5,iql(3))
       if(isgm.ne.lseq(1,latm(5,i))) then
       if(isgm.ne.0) then
-      if(util_print('files',print_default)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,2001) lseq(1,latm(5,i-1)),cseq(latm(5,i-1)),qsum
- 2001 format(i7,1x,a10,t25,3f12.6)
+ 2001 format(i7,1x,a10,t40,3f12.6)
       endif
       endif
       isgm=lseq(1,latm(5,i))
@@ -388,11 +388,14 @@ c      endif
       qsum(2)=qsum(2)+qatm(3,iql(2))
       qsum(3)=qsum(3)+qatm(5,iql(3))
    10 continue
-      if(util_print('files',print_default)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,2001) lseq(1,latm(5,natm)),cseq(latm(5,natm)),qsum
-      write(lfnout,2002) qtot
- 2002 format(t25,'------------------------------------',/,
-     + ' Total charge',t25,3f12.6,/)
+      write(lfnout,2002)
+ 2002 format(t25,'------------------------------------',/)
+      endif
+      if(util_print('topology',print_default)) then
+      write(lfnout,2003) qtot
+ 2003 format(' Total charge',t40,3f12.6,/)
       endif
       endif
 c

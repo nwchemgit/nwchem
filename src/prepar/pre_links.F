@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.14 2001-06-11 22:01:06 d3j191 Exp $
+c $Id: pre_links.F,v 1.15 2001-07-06 03:45:13 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -36,7 +36,7 @@ c
       integer i,j,iu,k,l,m,nlnko,nlnkp
       integer link1,link2,link3,mol
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_links ')
       endif
@@ -55,9 +55,11 @@ c
       read(card(6:80),1001)
      + llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
  1001 format(i5,a4,i5,a4)
+      if(util_print('sequence',print_low)) then
       write(lfnout,1002)
      +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
  1002 format(' Input link   ',i5,':',a4,i5,':',a4)
+      endif
       endif
       goto 26
    99 continue
@@ -75,7 +77,7 @@ c
       goto 121
       endif
    22 continue
-      call errquit('Illegal link on pdb',i)
+      call errquit('Illegal link',i)
   121 continue
       do 212 j=1,nseq
       if(llnk(2,i).eq.lseq(1,j)) then
@@ -83,7 +85,7 @@ c
       goto 21
       endif
   212 continue
-      call errquit('Illegal link on pdb',i)
+      call errquit('Illegal link',i)
    21 continue
       do 23 i=1,nlnk
       do 24 j=lseq(3,llnk(1,i)),lseq(3,llnk(1,i)+1)-1
@@ -132,6 +134,11 @@ c
       llnk(4,nlnk)=jshort(j)
       clnk(1,nlnk)=catm(2,ishort(j))(1:4)
       clnk(2,nlnk)=catm(2,jshort(j))(1:4)
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1003) nlnk,
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
+ 1003 format(' Chain link   ',2i5,':',a4,i5,':',a4)
+      endif
       endif
   101 continue
       endif
@@ -157,6 +164,11 @@ c
       llnk(4,nlnk)=jshort(k)
       clnk(1,nlnk)=catm(2,ishort(k))(1:4)
       clnk(2,nlnk)=catm(2,jshort(k))(1:4)
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1004) nlnk,
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
+ 1004 format(' Side link    ',2i5,':',a4,i5,':',a4)
+      endif
       l=lseq(4,j)
       do 4 m=1,nseq
       if(lseq(4,m).eq.l) lseq(4,m)=lseq(4,i)
@@ -189,6 +201,11 @@ c
       llnk(4,nlnk)=llnk(4,i)
       clnk(1,nlnk)=clnk(1,i)
       clnk(2,nlnk)=clnk(2,i)
+      if(util_print('sequence',print_debug)) then
+      write(lfnout,1005) nlnk,
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
+ 1005 format(' Link    ',2i5,':',a4,i5,':',a4)
+      endif
       if(i.le.nlnkp) nlnkf=nlnk
     5 continue
       do 55 i=1,nlnk
@@ -241,12 +258,26 @@ c
       iu=index(cseq(1,i),'_')
       if(iu.eq.0) iu=index(cseq(1,i),' ')
       if(link1.gt.0) then
-      if(link2.eq.0) cseq(1,i)(iu:iu+1)='_C'
+      if(link2.eq.0) then
+      cseq(1,i)(iu:iu+1)='_C'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1006) lseq(1,i),cseq(1,i)
+ 1006 format(' Segment renamed ',i5,a)
+      endif
+      endif
       else
       if(link2.gt.0) then
       cseq(1,i)(iu:iu+1)='_N'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1007) lseq(1,i),cseq(1,i)
+ 1007 format(' Segment renamed ',i5,a)
+      endif
       else
       cseq(1,i)(iu:iu+1)='_M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1008) lseq(1,i),cseq(1,i)
+ 1008 format(' Segment renamed ',i5,a)
+      endif
       endif
       endif
       goto 11
@@ -262,12 +293,26 @@ c
       iu=index(cseq(1,i),'_')
       if(iu.eq.0) iu=index(cseq(1,i),' ')
       if(link1.gt.0) then
-      if(link2.eq.0) cseq(1,i)(iu:iu+1)='_3'
+      if(link2.eq.0) then
+      cseq(1,i)(iu:iu+1)='_3'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1009) lseq(1,latm(1,i)),cseq(1,i)
+ 1009 format(' Segment renamed ',i5,a)
+      endif
+      endif
       else
       if(link2.gt.0) then
       cseq(1,i)(iu:iu+1)='_5'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1010) lseq(1,latm(1,i)),cseq(1,i)
+ 1010 format(' Segment renamed ',i5,a)
+      endif
       else
       cseq(1,i)(iu:iu+1)='_M'
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1011) lseq(1,latm(1,i)),cseq(1,i)
+ 1011 format(' Segment renamed ',i5,a)
+      endif
       endif
       endif
    11 continue

@@ -1,14 +1,14 @@
-      logical function pre_align(card,
+      logical function pre_align(card,lfnout,
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_align.F,v 1.3 2000-02-20 16:05:13 d3j191 Exp $
+c $Id: pre_align.F,v 1.4 2001-07-06 03:45:13 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc
+      integer msa,nsa,mwm,nwm,mwa,nwa,mwmc,nwmc,lfnout
       integer isat(msa),isgm(msa)
       character*16 csa(msa)
       character*80 card
@@ -29,9 +29,6 @@ c
       if(isgm(i).eq.jseg.and.csa(i)(11:14).eq.atomj) jatom=i
       if(isgm(i).eq.kseg.and.csa(i)(11:14).eq.atomk) katom=i
     1 continue
-c
-      write(*,1000) iseg,atomi,jseg,atomj,kseg,atomk
- 1000 format(/,' Aligning atoms ',i5,':',a,i5,':',a,i5,':',a)
 c
 c     put iatom on the origin
 c
@@ -110,6 +107,11 @@ c
       call rotate(o,rv,angle,xwc(1,j,i),xwc(1,j,i))
    14 continue
    12 continue
+      endif
+c
+      if(util_print('restart',print_medium)) then
+      write(lfnout,1000) iseg,atomi,jseg,atomj,kseg,atomk
+ 1000 format(' Aligned atoms ',i5,':',a,i5,':',a,i5,':',a)
       endif
 c
       pre_align=.true.

@@ -5,7 +5,7 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.11 1999-07-12 20:23:54 d3j191 Exp $
+c $Id: pre_params.F,v 1.12 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
 c
@@ -118,7 +118,7 @@ c
       endif
       endif
 c
-      if(util_print('files',print_default)) then
+      if(util_print('topology',print_default)) then
       write(lfnout,1000)
  1000 format(' ')
       endif

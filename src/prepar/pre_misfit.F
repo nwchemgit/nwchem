@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.27 2000-10-18 21:52:22 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.28 2001-07-06 03:45:13 d3j191 Exp $
 c
       implicit none
 c
@@ -480,8 +480,10 @@ c
       imin=imax
       endif
       isfnd(i)=1
-      write(6,6000) qsa(i)*grid(4,imin)*138.9354d0
- 6000 format(' Added counterion with energy ',f12.3,' kJ/mol')
+      if(util_print('restart',print_medium)) then
+      write(lfnout,6000) qsa(i)*grid(4,imin)*138.9354d0
+ 6000 format(' Added counterion with energy ',t40,f12.3,' kJ/mol')
+      endif
 c
 c     remove grid point from list
 c
@@ -504,7 +506,7 @@ c
 c
       else
       miss=miss+1
-      if(util_print('coordinates',print_none)) then
+      if(util_print('restart',print_none)) then
       write(lfnout,9998) isgm(i),csa(i)
  9998 format(' Coordinates missing for atom ',i5,':',a)
       endif

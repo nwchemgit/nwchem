@@ -1,16 +1,18 @@
-      logical function pre_solvat(islv,boxs,xslv,vslv,
+      logical function pre_solvat(islv,lfnout,boxs,xslv,vslv,
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.8 2000-07-27 17:48:18 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.9 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       integer util_nint
       external util_nint
 #endif
-      integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa
+      integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa,lfnout
       integer nwmc,mwmc
       integer iwmr(mwm)
       real*8 xw(3,mwa,mwm),xs(3,nsa),xslv(3,mwa,mwms)
@@ -116,6 +118,15 @@ c
     8 continue
     7 continue
     4 continue
+c
+      if(util_print('restart',print_medium)) then
+      if(islv.eq.1) write(lfnout,1000) box
+ 1000 format(/,' Solvated in box',t40,3f12.6)
+      if(islv.eq.2) write(lfnout,1001) 0.5d0*box(1)
+ 1001 format(/,' Solvated in sphere with radius',t40,f12.6)
+      if(islv.eq.3) write(lfnout,1002) box
+ 1002 format(/,' Solvated in truncated octahedron with size',t40,3f12.6)
+      endif
 c
       pre_solvat=.true.
       return

@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.5 2001-01-18 23:55:34 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.6 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
 c
@@ -37,12 +37,12 @@ c
 c
       real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
 c
-      xbmax=xs(1,1)
-      xbmin=xs(1,1)
-      ybmax=xs(2,1)
-      ybmin=xs(2,1)
-      zbmax=xs(3,1)
-      zbmin=xs(3,1)
+      xbmax=xs(1,1)+0.2d0
+      xbmin=xs(1,1)-0.2d0
+      ybmax=xs(2,1)+0.2d0
+      ybmin=xs(2,1)-0.2d0
+      zbmax=xs(3,1)+0.2d0
+      zbmin=xs(3,1)-0.2d0
       do 1 i=2,nsa
       xbmax=max(xbmax,xs(1,i))
       xbmin=min(xbmin,xs(1,i))
@@ -51,8 +51,13 @@ c
       zbmax=max(zbmax,xs(3,i))
       zbmin=min(zbmin,xs(3,i))
     1 continue
+      print*,xbmin,xbmax
+      print*,ybmin,ybmax
+      print*,zbmin,zbmax
+      print*,'scale=',scale
       if(scale.le.0.0d0) then
       scale=2.0d0/max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
+      print*,'scale=',scale
       xbmax=scale*xbmax
       xbmin=scale*xbmin
       ybmax=scale*ybmax
@@ -68,7 +73,8 @@ c
       open(unit=lfnpov,file=filpov(1:length),form='formatted',
      + status='unknown',err=9999)
       write(lfnpov,8000)
- 8000 format('#include "camera.inc"',/,'#include "colors.inc"')
+ 8000 format('#include "camera.inc"',/,'#include "colors.inc"',/,
+     + '#include "plane.inc"')
 c
       do 2 i=1,nsa
       k=pre_atnum(csa(i)(11:12))

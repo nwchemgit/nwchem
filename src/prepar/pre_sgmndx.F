@@ -1,7 +1,7 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: pre_sgmndx.F,v 1.9 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.10 2001-07-06 03:45:14 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -45,9 +45,9 @@ c
       len_u=index(dir_u,' ')-1
       len_t=index(dir_t,' ')-1
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('sequence',print_high)) then
       write(lfnout,2000)
- 2000 format(/,'pre_sgmndx ')
+ 2000 format(/,' Segment definition files ',/)
       endif
 c
       pre_sgmndx=.true.
@@ -162,9 +162,27 @@ c
 c
       if(lsgm(2,i).eq.0) pre_sgmndx=.false.
 c
-      if(util_print('where',print_debug)) then
-      write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i)
- 1001 format(i5,2x,a5,i5,2x,i5)
+      if(util_print('sequence',print_high)) then
+      if(lsgm(2,i).eq.-1) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_s(1:len_s)//csgm(i)(1:length)//'.frg '
+      if(lsgm(2,i).eq.1) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_s(1:len_s)//csgm(i)(1:length)//'.sgm '
+      if(lsgm(2,i).eq.-2) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_x(1:len_x)//csgm(i)(1:length)//'.frg '
+      if(lsgm(2,i).eq.2) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_x(1:len_x)//csgm(i)(1:length)//'.sgm '
+      if(lsgm(2,i).eq.-3) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
+      if(lsgm(2,i).eq.3) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_u(1:len_u)//csgm(i)(1:length)//'.sgm '
+      if(lsgm(2,i).eq.-4) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
+      if(lsgm(2,i).eq.4) write(lfnout,1001) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i),dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+ 1001 format(i5,2x,a5,i5,2x,i5,1x,a) 
+      if(lsgm(2,i).eq.0)write(lfnout,1002) i,csgm(i),lsgm(1,i),
+     + lsgm(2,i)
+ 1002 format(i5,2x,a5,i5,2x,i5,1x,' no definition file found') 
       endif
 c
     3 continue

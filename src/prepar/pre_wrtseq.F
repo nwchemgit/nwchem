@@ -1,14 +1,16 @@
-      logical function pre_wrtseq(lfnseq,filseq,
+      logical function pre_wrtseq(lfnseq,filseq,lfnout,
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
      + slvmdl,mcount,ncount,icount,scount,mfract,nfract,ifract)
 c
-c $Id: pre_wrtseq.F,v 1.10 2000-03-29 20:29:01 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.11 2001-07-06 03:45:14 d3j191 Exp $
 c
 c     function to write the sequence file
 c
       implicit none
 c
-      integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk,nlnkf
+#include "util.fh"
+c
+      integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk,nlnkf,lfnout
       integer lseq(4,mseq),lssb(2,mssb),llnk(4,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
@@ -65,6 +67,10 @@ c
       if(i.lt.ncount.or.j.lt.icount(i)) write(lfnseq,1007)
  1007 format('molecule')
    33 continue
+      if(util_print('topology',print_medium)) then
+      write(lfnout,1060) icount(i),scount(i)
+ 1060 format(' Appended ',i5,' counter ions ',a,' to topology')
+      endif
     3 continue
       endif
 c

@@ -3,7 +3,7 @@
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.13 2000-03-17 17:22:56 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.14 2001-07-06 03:45:14 d3j191 Exp $
 c
       implicit none
 c
@@ -79,7 +79,7 @@ c
 c
       if(util_print('files',print_default)) then
       write(lfnout,2000) filrst(1:length)
- 2000 format(' Created restart',t40,a,/)
+ 2000 format(/,' Created restart',t40,a,/)
       endif
 c
       pre_wrtrst=.true.

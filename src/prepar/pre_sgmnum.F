@@ -1,7 +1,7 @@
       logical function pre_sgmnum(lfnout,
      + lseq,cseq,mseq,nseq,nsgm)
 c
-c $Id: pre_sgmnum.F,v 1.5 1998-06-08 23:29:38 d3j191 Exp $
+c $Id: pre_sgmnum.F,v 1.6 2001-07-06 03:45:14 d3j191 Exp $
 c
 c     function to scan database for unique segments in sequence
 c
@@ -24,9 +24,9 @@ c
 c
       integer i,j
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('sequence',print_high)) then
       write(lfnout,2000)
- 2000 format(/,'pre_sgmnum  ')
+ 2000 format(/,' Unique segments  ',/)
       endif
 c
       nsgm=0
@@ -39,6 +39,10 @@ c
     2 continue
       nsgm=nsgm+1
       lseq(2,i)=nsgm
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2001) lseq(2,i),cseq(2,i)
+ 2001 format(i5,2x,a)
+      endif
     1 continue
 c
       pre_sgmnum=.true.

@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: pre_rename.F,v 1.17 2000-09-21 15:40:41 d3j191 Exp $
+c $Id: pre_rename.F,v 1.18 2001-07-06 03:45:14 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -35,17 +35,43 @@ c
       if(ffield(1:5).eq.'amber') then
       do 2 i=1,natm
 c
-      if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HD1  ')
-     + cseq(2,latm(1,i))(1:3)='HID'
-      if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HE2  ')
-     + cseq(2,latm(1,i))(1:3)='HIE'
-      if(cseq(2,latm(1,i))(1:3).eq.'HID'.and.catm(2,i).eq.' HE2  ')
-     + cseq(2,latm(1,i))(1:3)='HIP'
-      if(cseq(2,latm(1,i))(1:3).eq.'HIE'.and.catm(2,i).eq.' HD1  ')
-     + cseq(2,latm(1,i))(1:3)='HIP'
+      if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HD1  ') then
+      cseq(2,latm(1,i))(1:3)='HID'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1004) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1004 format(' Renamed ',a,i3.3,' (HD1 found)')
+      endif
+      endif
+      if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HE2  ') then
+      cseq(2,latm(1,i))(1:3)='HIE'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1005) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1005 format(' Renamed ',a,i3.3,' (HE2 found)')
+      endif
+      endif
+      if(cseq(2,latm(1,i))(1:3).eq.'HID'.and.catm(2,i).eq.' HE2  ') then
+      cseq(2,latm(1,i))(1:3)='HIP'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1006) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1006 format(' Renamed ',a,i3.3,' (HE2 found)')
+      endif
+      endif
+      if(cseq(2,latm(1,i))(1:3).eq.'HIE'.and.catm(2,i).eq.' HD1  ') then
+      cseq(2,latm(1,i))(1:3)='HIP'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1007) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1007 format(' Renamed ',a,i3.3,' (HD1 found)')
+      endif
+      endif
       if(icyren.eq.0) then
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   '.and.
-     + latm(5,i).eq.3) cseq(2,latm(1,i))(1:3)='CYX'
+     + latm(5,i).eq.3) then
+      cseq(2,latm(1,i))(1:3)='CYX'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1008) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1008 format(' Renamed ',a,i3.3,' (SG found with link id 3)')
+      endif
+      endif
       else
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   ') then
       if(latm(5,i).ge.3) then
@@ -56,6 +82,10 @@ c
      + catm(2,llnk(3,latm(5,i)-2)).eq.' SG   '.and.
      + catm(2,llnk(4,latm(5,i)-2)).eq.' SG   ') then
       cseq(2,latm(1,i))(1:3)='CYX'
+      if(util_print('connectivity',print_high)) then
+      write(lfnout,1009) cseq(2,latm(1,i)),lseq(1,latm(1,i))
+ 1009 format(' Renamed ',a,i3.3,' (SG-SG found with link id 3)')
+      endif
       endif
       endif
       endif
@@ -141,8 +171,8 @@ c
       else
       cseq(2,k)=card(i+1:i+5)
       endif
-      write(lfnout,1004) j,string,cseq(2,k)
- 1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
+      write(lfnout,1010) j,string,cseq(2,k)
+ 1010 format(' Sequence modification: ',i6,':',a5,' to ',a5)
       endif
     6 continue
       endif
@@ -151,9 +181,9 @@ c
       close(unit=lfnmod)
   999 continue
 c
-      if(util_print('connectivity',print_high)) then
+      if(util_print('connectivity',print_debug)) then
       if(natm.gt.0) write(lfnout,1001)
- 1001 format(
+ 1001 format(/,
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link   ',
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link',/,
      + '  number number name  name   name   name        ',
@@ -175,8 +205,10 @@ c
       endif
  1002 format(2(i8,i6,2(1x,a5),2(1x,a6),i5,3x))
     7 continue
+      if(util_print('topology',print_low)) then
       write(lfnout,1003)
  1003 format(' ')
+      endif
       endif
 c
       pre_rename=.true.

@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,
      + slvnam)
 c
-c $Id: pre_mktop.F,v 1.25 2000-10-23 15:53:16 windus Exp $
+c $Id: pre_mktop.F,v 1.26 2001-07-06 03:45:13 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -79,7 +79,7 @@ c
       real*8 timer_wall_total
       external timer_wall_total
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1000)
  1000 format('TOPOLOGY GENERATION')
       endif
@@ -91,7 +91,7 @@ c
       mseq=nseq+2
       mlnk=nlnk+1
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1001) nseq
  1001 format('sequence length is',i10)
       endif
@@ -136,7 +136,7 @@ c
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_rdseq failed',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1002)
  1002 format('sequence is read')
       endif
@@ -149,7 +149,7 @@ c
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_term failed',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1003)
  1003 format('termini are determined')
       endif
@@ -171,7 +171,7 @@ c
       mdih=ndih+45*nseq+1
       mimp=nimp+6*nseq+1
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1004) mseq,matm,mbnd,mang,mdih,mimp
  1004 format('list dimensions are determined:',/,
      + ' number of segments  ',i10,/,
@@ -328,7 +328,7 @@ c
       if(.not.ma_pop_stack(l_ival))
      + call errquit('Memory deallocation failed for ival',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1005)
  1005 format('lists are generated')
       endif
@@ -351,7 +351,7 @@ c
      + call errquit('pre_natyps failed',9999)
       matt=natt
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1006) natt
  1006 format('number of atom types is ',i10)
       endif
@@ -384,7 +384,7 @@ c
      + dbl_mb(i_ratt),matt,natt,nats))
      + call errquit('pre_params failed',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1007)
  1007 format('force field parameters are substituted')
       endif
@@ -422,9 +422,9 @@ c
       if(.not.ma_pop_stack(l_ival))
      + call errquit('Memory deallocation failed for ival',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,1008) n3rd
- 1008 format('third neighbor list length is',i10)
+ 1008 format(' Solute third neighbor list length is',i10)
       endif
 c
 c     allocate memory for excluded pair list
@@ -452,9 +452,9 @@ c
       if(.not.ma_pop_stack(l_ival))
      + call errquit('Memory deallocation failed for ival',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,1009) nexc
- 1009 format('excluded pair list length is',i10)
+ 1009 format(' Solute excluded pair list length is',i10)
       endif
 c
 c     allocate memory for solvent non-bonded list
@@ -474,9 +474,9 @@ c
      + int_mb(i_lnon),mnon,nnon))
      + call errquit('pre_nonbon failed',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_high)) then
       write(lfnout,1010) nnon
- 1010 format('solvent non-bonded list length is',i10)
+ 1010 format(' Solvent non-bonded list length is',i10)
       endif
 c
 c     apply topology modifications to bonded parameters
@@ -506,9 +506,9 @@ c
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam))
      + call errquit('pre_wrttop failed',9999)
 c
-      if(util_print('where',print_debug)) then
+      if(util_print('topology',print_debug)) then
       write(lfnout,1011)
- 1011 format('topology file is written')
+ 1011 format(' Topology file is written')
       endif
 c
 c     deallocate memory

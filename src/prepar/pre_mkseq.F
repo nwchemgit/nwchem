@@ -5,7 +5,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.36 2000-09-21 15:40:41 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.37 2001-07-06 03:45:13 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -242,7 +242,8 @@ c
 c     write atom names to temporary file
 c     ----------------------------------
 c
-      if(.not.pre_wrtnam(lfntmp,filtmp,byte_mb(i_catm),matm,natm))
+      if(.not.pre_wrtnam(lfnout,lfntmp,filtmp,
+     + byte_mb(i_catm),matm,natm))
      + call errquit('pre_wrtnam failed',9999)
 c
 c     get number of unique segments
@@ -383,7 +384,7 @@ c
 c     write the sequence file
 c     -----------------------
 c
-      if(.not.pre_wrtseq(lfnseq,filseq,
+      if(.not.pre_wrtseq(lfnseq,filseq,lfnout,
      + byte_mb(i_cseq),int_mb(i_lseq),mseq,nseq,
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl,
