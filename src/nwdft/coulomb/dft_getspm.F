@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,iga_dens,AO_bas_han)
 
-C$Id: dft_getspm.F,v 1.2 1995-05-04 04:59:27 og845 Exp $
+C$Id: dft_getspm.F,v 1.3 1995-05-19 00:21:37 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult
@@ -21,7 +21,7 @@ c****
         if (.not. geom_ncent(geom, natoms))
      &       call errquit('dft_scf: geom_ncent failed',73)      
 
-        if(.not.Ma_Push_Get(MT_Dbl,natoms*3,'coordinates',lcoord,
+        if(.not.Ma_Alloc_Get(MT_Dbl,natoms*3,'coordinates',lcoord,
      &       icoord))
      &       call errquit('dft_scf: push_get failed',74)
         if(.not.Ma_Push_Get(MT_Dbl,natoms,'charges',lcharge,
@@ -50,7 +50,6 @@ c****
           centerl(2) = centerl(2) + q*dbl_mb(icoord+3*icent+1)
           centerl(3) = centerl(3) + q*dbl_mb(icoord+3*icent+2)
       enddo 
-
       if (.not. geom_nuc_charge(geom,total_nuc_charge)) call errquit(
      &     'dft_mpole:dft_nuc_mpole: geom_nuc_charge failed',20)
 
@@ -81,14 +80,128 @@ c****
         call dft_genspm(lmax,iga_dens,AO_bas_han,
      &       natoms,centerl,dbl_MB(iPmat),max_at_bf,
      &       DBL_MB(icharge),DBL_MB(idipole))
+c
+c       move the coordinates form coord(3,nat) to x y z arrays
+c
+        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lxcrd,ixcrd))
+     &       call errquit('dft_scf: push_get failed',74)
+        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lycrd,iycrd))
+     &       call errquit('dft_scf: push_get failed',74)
+        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lzcrd,izcrd))
+     &       call errquit('dft_scf: push_get failed',74)
+        istart=0
+        do i=0,natoms-1
+          dbl_mb(ixcrd+i)=dbl_mb(icoord+istart)
+          dbl_mb(iycrd+i)=dbl_mb(icoord+istart+1)
+          dbl_mb(izcrd+i)=dbl_mb(icoord+istart+2)
+          istart=istart+3
+        enddo
 
+        LResult = MA_Free_Heap(lcoord)
+c
+c       re-center using geometrical center
+c
+        call dft_geocent(natoms,
+     &       dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd))
+c
+c       call to CMM code
+c
+c       call ???(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
+c     & dbl_mb(icharge)
+
+        LResult = MA_Pop_Stack(lzcrd)
+        LResult = MA_Pop_Stack(lycrd)
+        LResult = MA_Pop_Stack(lxcrd)
         LResult = MA_Pop_Stack(lPmat)
         if(lmax.gt.0) then
           LResult = Lresult.and.MA_Pop_Stack(ldipole)
         endif
         LResult = Lresult.and.MA_Pop_Stack(lcharge)
-        LResult = Lresult.and.MA_Pop_Stack(lcoord)
         if(.not.Lresult) call errquit('dft_scf: pop_stack failed',74)
 
+c
+c       compute geometrical center for CMM
+c
+
+      return
+      end
+      subroutine dft_geocent(natoms,xcrd,ycrd,zcrd)
+      implicit none
+c-----------------------------------------------------------------------
+c     Find the ranges of the molecular system in the x, y, and z directions
+c-----------------------------------------------------------------------
+#include <stdio.fh>
+#include <global.fh>
+#include <tcgmsg.fh>
+      integer natoms
+      double precision xcrd(natoms),ycrd(natoms),zcrd(natoms)
+c     
+      double precision xmin,xmax
+      double precision ymin,ymax
+      double precision zmin,zmax
+      double precision xorigin,yorigin,zorigin
+      double precision xrange,yrange,zrange
+      double precision two
+      parameter (two=2.d0)
+      
+      integer i
+
+      xmin = 1.e+30
+      ymin = 1.e+30
+      zmin = 1.e+30
+      xmax = -1.e+30
+      ymax = -1.e+30
+      zmax = -1.e+30
+
+      do i = 1 , natoms
+
+        xmin = min(xmin,xcrd(i))
+        ymin = min(ymin,ycrd(i))
+        zmin = min(zmin,zcrd(i))
+        xmax = max(xmax,xcrd(i))
+        ymax = max(ymax,ycrd(i))
+        zmax = max(zmax,zcrd(i))
+
+      end do
+
+      xrange = dabs(xmin-xmax)
+      yrange = dabs(ymin-ymax)
+      zrange = dabs(zmin-zmax)
+
+c-----------------------------------------------------------------------
+c     Compute the geometrical center of molecular system
+c-----------------------------------------------------------------------
+
+      xorigin = (xmin + xmax)/TWO
+      yorigin = (ymin + ymax)/TWO
+      zorigin = (zmin + zmax)/TWO
+
+c-----------------------------------------------------------------------
+c     Refer the coordinates to the geometrical center of molecular system
+c-----------------------------------------------------------------------
+
+      do i = 1 , natoms
+
+        xcrd(i) =  xcrd(i) - xorigin
+        ycrd(i) =  ycrd(i) - yorigin
+        zcrd(i) =  zcrd(i) - zorigin
+
+      end do
+
+c-----------------------------------------------------------------------
+c     Output for checking
+c-----------------------------------------------------------------------
+      if(ga_nodeid().eq.0) then
+        write(LuOut, '("minima",3(1x,f8.3))') xmin, ymin, zmin
+        write(LuOut, '("maxima",3(1x,f8.3)/)') xmax, ymax, zmax
+
+        write(LuOut, '("xwidth",f8.3)')  xrange
+        write(LuOut, '("ywidth",f8.3)')  yrange
+        write(LuOut, '("zwidth",f8.3/)') zrange 
+
+        write(LuOut, '("origin",3(f8.3,1x)//)') 
+     &       xorigin, yorigin, zorigin
+      endif
+      
       return
       end
