@@ -149,6 +149,10 @@ large and/or small component basis sets. For the one-electron approximation
 the large and small component basis sets MUST be of the same size and
 construction, i.e. differing only in the contraction coefficients.
 
+It should also be noted that the relativistic code will NOT work with basis
+sets that contain sp shells, nor will it work with ECPs. Both of these are
+tested and flagged as an error.
+
 Some examples follow. The first example sets up the data for a relativistic
 calculation on water, using the library basis sets.
 
