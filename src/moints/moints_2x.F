@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.30 1997-08-14 17:45:55 rg240 Exp $
+c  $Id: moints_2x.F,v 1.31 1997-08-19 17:18:46 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -56,14 +56,14 @@ c
 
        integer nmo, nmo1, nmo2, nbf, nsh, maxbfsh
        integer qlo, qhi
-       integer nblk, bsize, ngrp
+       integer bsize, ngrp
        integer ii, jj, ish, jsh, ilen, jlen
        integer ibflo, ibfhi, jbflo, jbfhi
        integer kbflo, kbfhi, lbflo, lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
        integer kgr, lgr
-       integer kb, lb, i
+       integer i
        integer iz, jz, kz
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni, l_hlp2, k_hlp2
@@ -74,7 +74,7 @@ c
        integer k_sym, l_sym
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
        integer mem2, max2e
-       integer num_nodes, ploop, next, itmp
+       integer num_nodes, ploop, next
        integer nmixed
        double precision tol2e, scale, schw_ij, integ_acc
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx

@@ -1,6 +1,6 @@
 
 c
-c  $Id: moints_semi.F,v 1.47 1997-08-14 18:06:45 rg240 Exp $
+c  $Id: moints_semi.F,v 1.48 1997-08-19 17:18:47 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -100,7 +100,7 @@ c     Initial block length is very generous for efficiency.  Reduce it
 c     in while loop (1212) if things do not fit.
 c
        blen = min(nbf,16*maxbfsh) ! Initial generous allocation
-       blen = 32
+*       blen = 32
  1212  continue
 c
 c  Memory arithmetic
@@ -746,49 +746,71 @@ c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
       double precision h(vlo:vhi,jlo:jhi,ilo:ihi),h2(*)
       double precision ct(qlo:qhi,nbf),s, sum
       integer g_buf
-      integer ilen, jlen, ijlen
-      integer glo, ghi, i, j, ij,k
-      integer o, v, vo, jtop
+      integer ilen, jlen, ijlen, vlen, qlen
+      integer glo, ghi, i, j, ij,k, jtop, klo, khi
+      integer o, v, vo, vtop, vbot
+      integer kchunk, vchunk
+      parameter (kchunk=32, vchunk=96) ! For cache reuse
+
+*      integer ilen, jlen, ijlen
+*      integer glo, ghi, i, j, ij,k
+*      integer o, v, vo, jtop
+
 c
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
+      vlen = vhi - vlo + 1
+      qlen = qhi - qlo + 1
+      glo  = gloc(ilo,jlo)
+      ghi  = gloc(ihi,jhi)
       ijlen = ilen*jlen
-      glo = gloc(ilo,jlo)
-      ghi = gloc(ihi,jhi)
 
       do o = oseglo, oseghi
-        call dfill((vhi-vlo+1)*ilen*jlen,0.0d0,h,1)
-        do i = ilo, ihi
-          do j = jlo, jhi
-            do k = 1, nbf
-              s = ssni(k,j,i,o)
-              if (abs(s) .gt. 1d-12) then
-                do v = vlo,vhi
-                  h(v,j,i) = h(v,j,i) + s*ct(v,k)
-                enddo
-              endif
+*     call dgemm('n','n',vlen,ijlen,nbf,1.0d0,ct(vlo,1),qlen,
+*     $        ssni(1,1,1,o),nbf,0.0d0,h,vlen)
+c     
+c     Following is the same as the above dgemm but using
+c     sparsity of the integrals and restricting diagonal where possible
+c     
+         call dfill((vhi-vlo+1)*ilen*jlen,0.0d0,h,1)
+         do klo = 1, nbf, kchunk ! Blocking for cache
+            khi = min(nbf,klo+kchunk-1)
+            do vbot = vlo, vhi, vchunk ! Blocking for cache
+               vtop = min(vhi,vbot+vchunk-1)
+               do i = ilo, ihi
+                  jtop = jhi
+                  if (ilo .eq. jlo) jtop = i
+                  do j = jlo, jtop
+                     do k = klo, khi
+                        s = ssni(k,j,i,o)
+                        if (abs(s) .gt. 1d-12) then
+                           do v = vbot,vtop
+                              h(v,j,i) = h(v,j,i) + s*ct(v,k)
+                           enddo
+                        endif
+                     enddo
+                  enddo
+               enddo
             enddo
-          enddo
-        enddo
-        do v=vlo,vhi
-          vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
-          ij = 0
-          sum = 0.0d0
-          do i=ilo,ihi
-            jtop = jhi
-            if (ihi.eq.jhi) jtop = i
-            do j=jlo,jtop
-              ij =   ij + 1
-              h2(ij) = h(v,j,i) 
-              sum = sum + h(v,j,i)*h(v,j,i)
+         enddo
+         do v=vlo,vhi
+            vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
+            ij = 0
+            sum = 0.0d0
+            do i=ilo,ihi
+               jtop = jhi
+               if (ihi.eq.jhi) jtop = i
+               do j=jlo,jtop
+                  ij =   ij + 1
+                  h2(ij) = h(v,j,i) 
+                  sum = sum + h(v,j,i)*h(v,j,i)
+               enddo
             enddo
-          enddo
 c     Note that sum is the sum of squares hence test against tol**2
-          if (sum .gt. 1d-20) call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
-        enddo
+            if (sum .gt. 1d-20) call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
+         enddo
       enddo
-
-
+c
       return
       end
 
