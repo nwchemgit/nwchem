@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.54 2003-03-15 01:47:43 bylaska Exp $
+* $Id: paw_sd.F,v 1.55 2003-03-15 02:14:44 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2003/03/15 01:47:43  bylaska
+* steepest descent loop has been modified for the inclusion of forces....
+* Lagrange Multipliers require a recalculation of the phase factors
+* after call to paw_overlap_S and before paw_psi_lagrange.....EJB
+*
 * Revision 1.53  2003/03/14 01:20:59  marat
 * moved call to paw_force_solve after nonlocal
 * matrices have been calculated
@@ -594,6 +599,7 @@
          write(17,1350)
       end if
 
+      call phafac()  !*** reset phase factors to r1 ***
       do ms=1,ispin
          do i=n1(ms),n2(ms)
             ii = i-n1(ms)+1

@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop.F,v 1.32 2003-03-15 01:47:43 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.33 2003-03-15 02:14:44 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.32  2003/03/15 01:47:43  bylaska
+* steepest descent loop has been modified for the inclusion of forces....
+* Lagrange Multipliers require a recalculation of the phase factors
+* after call to paw_overlap_S and before paw_psi_lagrange.....EJB
+*
 * Revision 1.31  2003/03/14 01:20:59  marat
 * moved call to paw_force_solve after nonlocal
 * matrices have been calculated
@@ -457,16 +462,16 @@
 !           write(23,*) "DEBUG: iteration=",it
 !           write(23,*) "DEBUG: overlap matrix"
 !           call paw_overlap_matrix_gen(ne(ms),ne(ms),
-!     >                                 psi1(1,n1(ms)),
-!     >                                 psi1(1,n1(ms)),
+!     >                                 psi2(1,n1(ms)),
+!     >                                 psi2(1,n1(ms)),
 !     >                                 dbl_mb(tmp_L(1)))
 !           write(23,*) "Overlap matrix, spin:",ms
 !           do i=1,ne(ms) 
 !             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
 !     >                   j=1,ne(ms))
 !           end do
-!
 !         end do
+!*        ***** debug ***
 
 
       end do
