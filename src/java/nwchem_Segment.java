@@ -37,6 +37,19 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     JLabel toLabel = new JLabel("  To  ");
     boolean frBool = true;
 
+    JLabel help1 = new JLabel("SGM list: LEFT selects segment, RIGHT toggles between segments");
+    JLabel help2 = new JLabel("ATM list: in SELECT mode: LEFT splits atoms");
+    JLabel help3 = new JLabel("ATM list: in SELECT mode: CTRL-SHIFT-LEFT selects atom to join");
+    JLabel help4 = new JLabel("ATM list: in SELECT mode: LEFT joins atom to previous selected atom");
+    JLabel help5 = new JLabel("ATM list: in SELECT mode: SHIFT-LEFT moves atom one position up");
+    JLabel help6 = new JLabel("ATM list: in SELECT mode: CTRL-LEFT moves atom one position down");
+    JLabel help7 = new JLabel("ATM list: in ORDER mode: LEFT selects atoms in order");
+    JLabel help8 = new JLabel("WRITE writes new segment file to NEW.sgm");
+    JLabel help9 = new JLabel("ORDER/SELECT toggles between ORDER and SELECT mode");
+
+    JLabel xxx = new JLabel("   ");
+    JLabel yyy = new JLabel("   ");
+
     boolean frRead=false, toRead=false;
 
     boolean ordering = false;
@@ -81,19 +94,22 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	
 	JButton doneButton = new JButton("Done");
 	
-	addComponent(header,doneButton,6,0,1,1,1,1,
+	addComponent(header,doneButton,7,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 	
-	addComponent(header,writeButton,5,0,1,1,1,1,
+	addComponent(header,writeButton,6,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	writeButton.addActionListener(this);
 
-	addComponent(header,orderButton,7,0,1,1,1,1,
+	addComponent(header,orderButton,5,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	orderButton.addActionListener(this);
+
+	addComponent(header,xxx,8,0,1,1,10,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 
 	frLabel.setBackground(Color.yellow);
 	toLabel.setBackground(Color.lightGray);
@@ -104,6 +120,27 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	addComponent(header,toLabel,2,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+
+	addComponent(header,help1,5,1,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help2,5,2,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help3,5,3,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help4,5,4,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help5,5,5,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help6,5,6,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help7,5,7,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help8,5,8,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,help9,5,9,10,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	addComponent(header,yyy,6,10,1,1,10,25,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader("./.nwchemrc"));
@@ -151,10 +188,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		};
 	    };
 	};
-	addComponent(header,sgmPane,0,1,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	addComponent(header,sgmPane,0,1,1,12,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	
 	setLocation(25,225);	
-	setSize(1000,800);
+	setSize(800,800);
 	setVisible(true);
 	
     }	
@@ -250,7 +287,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 	    }
 	};
 	atmList.clearSelection();
-	addComponent(header,atmPane,1,1,2,1,2,2,GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	addComponent(header,atmPane,1,1,2,12,2,2,GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	header.validate();
     };
 
@@ -408,6 +445,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		};
 		sgmFile.printf("%41d",number);
 		sgmFile.println();
+		int polgrp= 1;
+		int chgrp = 1;
+		double charge1 = 0.0;
+		double charge2 = 0.0;
+		double charge3 = 0.0;
 		for(int k=0; k<atmNumber; k++){
 		    sgmFile.printf("%5d",k+1);
 		    if(id[k][0]>=0){
@@ -419,8 +461,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			} else {
 			    sgmFile.print(FrSgm.atom[id[k][0]].Type1+"D");
 			};
-			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].cgroup);
-			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].pgroup);
+			sgmFile.printf("%4d",chgrp);
+			sgmFile.printf("%4d",polgrp);
+			// sgmFile.printf("%4d",FrSgm.atom[id[k][0]].cgroup);
+			// sgmFile.printf("%4d",FrSgm.atom[id[k][0]].pgroup);
 			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].link);
 			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].type);
 			sgmFile.println();
@@ -428,9 +472,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
+			charge1=charge1+FrSgm.atom[id[k][0]].q1;
 			if(id[k][1]>=0){
 			    sgmFile.printf("%12.6f",ToSgm.atom[id[k][1]].q1);
 			    sgmFile.printf("%12.5E",ToSgm.atom[id[k][1]].p1);
+			    charge3=charge3+ToSgm.atom[id[k][1]].q1;
 			} else {
 			    sgmFile.printf("%12.6f",0.0);
 			    sgmFile.printf("%12.5E",0.0);
@@ -441,8 +487,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
 			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
 			sgmFile.print(ToSgm.atom[id[k][1]].Type1+" ");
-			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].cgroup);
-			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].pgroup);
+			sgmFile.printf("%4d",chgrp);
+			sgmFile.printf("%4d",polgrp);
+			// sgmFile.printf("%4d",ToSgm.atom[id[k][1]].cgroup);
+			// sgmFile.printf("%4d",ToSgm.atom[id[k][1]].pgroup);
 			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].link);
 			sgmFile.printf("%4d",ToSgm.atom[id[k][1]].type);
 			sgmFile.println();
@@ -452,8 +500,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%12.5E",0.0);
 			sgmFile.printf("%12.6f",ToSgm.atom[id[k][1]].q1);
 			sgmFile.printf("%12.5E",ToSgm.atom[id[k][1]].p1);
+			charge3=charge3+ToSgm.atom[id[k][1]].q1;
 			sgmFile.println();
 		    };
+		    if(charge1==0.0 && charge3==0.0) chgrp++;
 		};
 		number=0;
 	        int jfound=-1;
@@ -680,10 +730,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%10.6f",ToSgm.torsion[jfound].torsion1);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[jfound].force1);
 			} else {
-			    sgmFile.printf("%1d",FrSgm.torsion[i].source);
+			    sgmFile.printf("%3d",FrSgm.torsion[i].source);
 			    sgmFile.printf("%1d",FrSgm.torsion[i].source);
 			    if(id[ida[number][0]][1]>=0 && id[ida[number][1]][1]>=0 && id[ida[number][2]][1]>=0 && id[ida[number][3]][1]>=0) {
-				sgmFile.printf("%3d",1);
+				sgmFile.printf("%1d",1);
 			    } else { 
 				sgmFile.printf("%1d",FrSgm.torsion[i].source); 
 			    }; 
@@ -836,7 +886,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    found=false;
 		    for(int j=0; j<number; j++){
 			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
-			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
 		    };
 		    if(!found) {
 			sgmFile.printf("%5d",number+1);
