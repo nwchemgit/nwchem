@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.19 2000-06-09 01:53:43 edo Exp $
+c$Id: grid_utils.F,v 1.20 2001-06-16 00:00:47 edo Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.19 2000-06-09 01:53:43 edo Exp $
+C$Id: grid_utils.F,v 1.20 2001-06-16 00:00:47 edo Exp $
 c
       implicit none
 c      
@@ -202,7 +202,7 @@ c
                y = coord(2,ictr) - coord(2,m)
                z = coord(3,ictr) - coord(3,m)
                r2 = sqrt(x*x + y*y + z*z)
-               rq0(m)=(r2-r)**2
+               rq0(m)=(r2-r)*(r2-r)
    40    continue
 c
          if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -499,7 +499,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.19 2000-06-09 01:53:43 edo Exp $
+C$Id: grid_utils.F,v 1.20 2001-06-16 00:00:47 edo Exp $
 c
       implicit none
 c

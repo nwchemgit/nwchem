@@ -1,8 +1,8 @@
       subroutine grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
-     ,     mbf_ao,grad)
+     ,     mbf_ao,grad,ipol)
 c
-c$Id: grid_pscreen.F,v 1.3 2000-10-19 01:26:32 edo Exp $
+c$Id: grid_pscreen.F,v 1.4 2001-06-16 00:00:47 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -15,11 +15,12 @@ c
       integer iniz(*),mbf_ao
       double precision tol_rho
       logical grad
+      integer ipol
 c
       double precision dabsmax
       external dabsmax
 c
-      integer nzero,i,j
+      integer nzero,i,j,ispin
       double precision pmax,funcmax,ff,delmax
 c
       nzero=0
@@ -30,10 +31,11 @@ c
       funcmax=dabsmax(natoms,rchi_atom)
       delmax=funcmax
       if(grad) delmax=max(delmax,dabsmax(natoms,rdelchi_atom))
-      do i=1,natoms
-         if(iniz(i).ne.0) then
-             pmax=max(pmax,dabsmax(natoms,rdens_atom(1,i,1)))
-          endif
+      do ispin=1,ipol
+         do i=1,natoms
+            if(iniz(i).ne.0) 
+     .           pmax=max(pmax,dabsmax(natoms,rdens_atom(1,i,ispin)))
+         enddo
       enddo
       ff=abs(funcmax*delmax*pmax)
       do i=1,nqpts

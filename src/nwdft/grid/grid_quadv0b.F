@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.19 2001-05-05 05:20:15 edo Exp $
+c$Id: grid_quadv0b.F,v 1.20 2001-06-16 00:00:47 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -130,7 +130,8 @@ c
       
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
-     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad)
+     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
+     ,     ipol)
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)
