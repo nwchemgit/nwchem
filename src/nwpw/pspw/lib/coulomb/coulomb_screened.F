@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.7 2003-01-25 01:47:52 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.8 2003-01-25 02:12:16 edo Exp $
 
 
 *
@@ -345,7 +345,7 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
 *     **** local variables ****
       integer nfft3d,n2ft3d,index
       integer i,j,k,p,q,taskid
-      integer index,k1,k2,k3
+      integer k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
       real*8  a(3,3),r,pp2
