@@ -1,4 +1,7 @@
       logical function oniom_energy(rtdb)
+*
+* $Id: oniom.F,v 1.11 2003-09-12 18:28:08 edo Exp $
+*
       implicit none
       integer rtdb
       logical oniom
@@ -76,6 +79,7 @@ c
 c     
       logical task_energy_doit, task_gradient_doit, geom_zmtmak
       logical usesymmol
+      integer nops
       external task_energy_doit, task_gradient_doit, geom_zmtmak
 c     
       status = rtdb_parallel(.true.)
@@ -363,7 +367,7 @@ c
 c     
       nattest = nat             ! sym_nwc corrupts the input #atoms
       call sym_nwc(geom, rtdb, nattest, .false., 1.0d0, 1d-4,
-     ,     usesymmol)
+     ,     nops, usesymmol)
       if (.not. geom_ncent(geom,nattest)) call errquit
      $     ('oniom: getting ncent',0)
       if (nat .ne. nattest) call errquit
@@ -409,7 +413,8 @@ c
          if (.not. geom_cart_set(geom,nat,tags,coords,charge))
      $        call errquit('oniom: geom_cart_get failed', 0)
          nattest = nat          ! sym_nwc corrupts the input #atoms
-         call sym_nwc(geom, rtdb, nattest, .false., 1.0d0, 1d-4)
+         call sym_nwc(geom, rtdb, nattest, .false., 1.0d0, 1d-4,
+     ,        nops, usesymmol)
          if (.not. geom_ncent(geom,nattest)) call errquit
      $        ('oniom: getting ncent',0)
          if (nat .ne. nattest) call errquit
