@@ -1,7 +1,7 @@
-      Subroutine xc_perdew91(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,
-     *     qwght)
+      Subroutine xc_perdew91(tol_rho,
+     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.2 1995-05-01 21:46:26 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.3 1995-05-02 04:14:17 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -62,12 +62,10 @@ c
 c       ======> SPIN-RESTRICTED <======
 
         do 10 n = 1,nq
-
           rhoval = rho(1,n)
-          rho13  = rhoval**ONE3
-          rho43  = rhoval*rho13
-          rho76  = rhoval**SEV6 
+          if(rhoval.le.tol_rho) goto 10
           arho=1.d0/rhoval
+          rho13  = rhoval**ONE3
           rs=rsfact/rho13
           rs2=rs*rs
           rs3=rs2*rs
@@ -84,21 +82,87 @@ C
      -         (anum*aden)*(pgamma+(rs+rs)*delta+beta10*rs2*THREE))
           CCPRIME=CCPRIME*drsdrho
 
-            
-c          AAadd = ?
+          egas=0.d0
+          dp81drho(1)=0.d0
+C
+C         call for LDA bit
+C
+          call xc_p81(rhoval,dp81drho,1,ipol,egas,1.d0)
 
-          Amat(1,n) = Amat(1,n) + AAadd
-
-          if(dsqgamma.gt.0.d0) then
-
-C            g =?
-            
-            Cmat(1,1,n) = Cmat(1,1,n) + g*delrho(1,1,n)
-            Cmat(1,2,n) = Cmat(1,2,n) + g*delrho(1,2,n)
-            Cmat(1,3,n) = Cmat(1,3,n) + g*delrho(1,3,n)
-          endif
-          Ec      = Ec + func*qwght(n)
+          degasda=arho*(dp81drho(1) - egas)
           
+          akf=TPP*rho13
+          aks=sqrt(4.d0*akf/pi)
+          dksdrho=aks*arho/6.d0
+          dkfdrho=akf*arho*ONE3
+
+
+          t=0.5*dsqgamma*arho/aks
+          t2=t*t
+          t3=t2*t
+          t4=t3*t
+          dtdrhoa=-t*(dksdrho/aks+arho)
+          dtdgamma=0.5d0*t/gammaval
+
+          dexpo1=twoab2*(egas*arho)
+          dexpo2=(10.d0*(aks/akf)*t)**2
+          expo1=0.d0
+          if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
+          expo2=0.d0
+          if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
+
+          A=twoab/(expo1-ONE)
+          A1p2At2=ONE+2.d0*A*t2
+          aden1=ONE/(ONE+A*t2+A*A*t4)
+          alognd=(t2+A*t4)*aden1
+          H0=atwob2*log(ONE+twoab*alognd)
+          H1=nu*(CC-CINF-CX37)*t2*expo2
+
+
+          func=H0+H1
+
+          Ec = Ec + (egas+func*rhoval)*qwght(n)
+
+c
+c         df/drho = func + rhoval*dfunc/drho
+c
+          dH1drhoa = H1*(
+     *         CCPRIME/(CC-CINF-CX37) +
+     *         2.d0*dtdrhoa/t -
+     *         2.d0*dexpo2*(
+     *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
+
+          dAdrhoa = A/(expo1-ONE)*
+     *         twoab2*degasda
+          dH0drhoa = 
+     =         bb*aden1/(ONE+twoab*alognd)*(
+     (         2.d0*t*dtdrhoa*A1p2At2 + dAdrhoa*t4 -
+     -         alognd*A1p2At2*(2.d0*A*t*dtdrhoa +
+     +         dAdrhoa*t2))
+          Amat(1,n) = Amat(1,n) +  dp81drho(1) + func +
+     +         rhoval*(dH0drhoa+dH1drhoa)
+c
+C         df/dgamma
+c
+
+          if(dsqgamma.gt.TOLL) then
+
+            dH1dgamma = H1*2.d0*dtdgamma/t*(
+     (           ONE - dexpo2 )
+
+            dH0dgamma = bb/(ONE+twoab*alognd)*
+     *           aden1*2.d0*t*dtdgamma*A1p2At2*
+     *           (aden1-alognd*A)
+
+            gaa = (dH0dgamma +dH1dgamma)*rhoval
+            gbb = gaa
+            
+            Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n)
+            Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n)
+            Cmat(1,3,n) = Cmat(1,3,n) + gaa*delrho(1,3,n)
+          endif
+
+
    10   continue
 
       else
@@ -107,10 +171,9 @@ c       ======> SPIN-UNRESTRICTED <======
 
         do 20 n = 1,nq
           rhoval = rho(1,n)
+          if(rhoval.le.tol_rho) goto 20
           arho=1.d0/rhoval
           rho13  = rhoval**ONE3
-          rho43  = rhoval*rho13
-          rho76  = rhoval**SEV6 
           rs=rsfact/rho13
           rs2=rs*rs
           rs3=rs2*rs
@@ -160,16 +223,19 @@ C
           dtdrhob=-t*(dgzetadb/g+dksdrho/aks+arho)
           dtdgamma=0.5d0*t/gammaval
 
-          dexpo1=twoab2*egas*arho/g3
+          dexpo1=twoab2*(egas*arho)/g3
           dexpo2=(10.d0*g2*(aks/akf)*t)**2
+          expo1=0.d0
+          if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
+          expo2=0.d0
+          if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
 
-          A=twoab/(exp(-dexpo1)-ONE)
+          A=twoab/(expo1-ONE)
+          A1p2At2=ONE+2.d0*A*t2
           aden1=ONE/(ONE+A*t2+A*A*t4)
-          anum1=t2+A*t4
-          alognd=anum1*aden1
+          alognd=(t2+A*t4)*aden1
           H0=atwob2*g3*log(ONE+twoab*alognd)
-          H1=nu*(CC-CINF-CX37)*g3*t2*
-     *         exp(-dexpo2)
+          H1=nu*(CC-CINF-CX37)*g3*t2*expo2
 
           func=H0+H1
 
@@ -179,33 +245,33 @@ c
 c         df/drho = func + rhoval*dfunc/drho
 c
           dH1drhoa = H1*(
-     *         (CC-CINF-CX37)*CCPRIME +
+     *         CCPRIME/(CC-CINF-CX37) +
      *         THREE*dgzetada/g + 2.d0*dtdrhoa/t -
      *         2.d0*dexpo2*(2.d0*dgzetada/g +
      *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
 
           dH1drhob = H1*(
-     *         (CC-CINF-CX37)*CCPRIME +
+     *         CCPRIME/(CC-CINF-CX37) +
      *         THREE*dgzetadb/g + 2.d0*dtdrhob/t -
      *         2.d0*dexpo2*(2.d0*dgzetadb/g +
      *         dtdrhob/t + dksdrho/aks - dkfdrho/akf))
 
-          dAdrhoa = A/(exp(-dexpo1)-ONE)*
+          dAdrhoa = A/(expo1-ONE)*
      *         twoab2/g3*(-THREE*dgzetada/g + degasda)
 
-          dAdrhob = A/(exp(-dexpo1)-ONE)*
+          dAdrhob = A/(expo1-ONE)*
      *         twoab2/g3*(-THREE*dgzetadb/g + degasdb)
 
           dH0drhoa = Three*H0*dgzetada/g +
      +         g3*bb*aden1/(ONE+twoab*alognd)*(
-     (         2.d0*t*dtdrhoa*(ONE+2.d0*A*t2) + dAdrhoa*t4 -
-     -         alognd*(ONE+2.d0*A*t2)*(2.d0*A*t*dtdrhoa +
+     (         2.d0*t*dtdrhoa*A1p2At2 + dAdrhoa*t4 -
+     -         alognd*A1p2At2*(2.d0*A*t*dtdrhoa +
      +         dAdrhoa*t2))
 
           dH0drhob = Three*H0*dgzetadb/g +
      +         g3*bb*aden1/(ONE+twoab*alognd)*(
-     (         2.d0*t*dtdrhob*(ONE+2.d0*A*t2) + dAdrhob*t4 -
-     -         alognd*(ONE+2.d0*A*t2)*(2.d0*A*t*dtdrhob +
+     (         2.d0*t*dtdrhob*A1p2At2 + dAdrhob*t4 -
+     -         alognd*A1p2At2*(2.d0*A*t*dtdrhob +
      +         dAdrhob*t2))
 
           Amat(1,n) = Amat(1,n) +  dp81drho(1) + func +
@@ -213,6 +279,7 @@ c
 
           Amat(2,n) = Amat(2,n) +  dp81drho(2) + func +
      +         rhoval*(dH0drhob+dH1drhob)
+
           
 c
 C- (func*add)*dzetadb
@@ -224,25 +291,24 @@ c
      (           ONE - dexpo2 )
 
             dH0dgamma = g3*bb/(ONE+twoab*alognd)*
-     *           aden*2.d0*t*dtdgamma*(ONE+2.d0*A*t2)*
-     *           (ONE-alognd*A)
+     *           aden1*2.d0*t*dtdgamma*A1p2At2*
+     *           (aden1-alognd*A)
 
             gaa = (dH0dgamma +dH1dgamma)*rhoval
             gbb = gaa
-            gab = gaa
             
-            Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n)+
-     +           gab*delrho(2,1,n)
-            Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n)+
-     +           gab*delrho(2,2,n)
-            Cmat(1,3,n) = Cmat(1,3,n) + gaa*delrho(1,3,n)+
-     +           gab*delrho(2,3,n)
-            Cmat(2,1,n) = Cmat(2,1,n) + gbb*delrho(2,1,n)+
-     +           gab*delrho(1,1,n)
-            Cmat(2,2,n) = Cmat(2,2,n) + gbb*delrho(2,2,n)+
-     +           gab*delrho(1,2,n)
-            Cmat(2,3,n) = Cmat(2,3,n) + gbb*delrho(2,3,n)+
-     +           gab*delrho(1,3,n)
+            Cmat(1,1,n) = Cmat(1,1,n) + 
+     +           gaa*(delrho(1,1,n)+delrho(2,1,n))
+            Cmat(1,2,n) = Cmat(1,2,n) + 
+     +           gaa*(delrho(1,2,n)+delrho(2,2,n))
+            Cmat(1,3,n) = Cmat(1,3,n) + 
+     +           gaa*(delrho(1,3,n)+delrho(2,3,n))
+            Cmat(2,1,n) = Cmat(2,1,n) + 
+     +           gbb*(delrho(2,1,n)+delrho(1,1,n))
+            Cmat(2,2,n) = Cmat(2,2,n) + 
+     +           gbb*(delrho(2,2,n)+delrho(1,2,n))
+            Cmat(2,3,n) = Cmat(2,3,n) + 
+     +           gbb*(delrho(2,3,n)+delrho(1,3,n))
           endif
 
    20   continue

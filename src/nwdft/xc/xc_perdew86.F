@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,
      *     qwght)
 
-C     $Id: xc_perdew86.F,v 1.2 1995-04-30 12:27:04 og845 Exp $
+C     $Id: xc_perdew86.F,v 1.3 1995-05-02 04:14:16 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -157,7 +157,7 @@ C
 
           if(dsqgamma.gt.TOLL) then
 
-            gaa = func/gammaval*(2.d0-phi)*.5d0
+            gaa = func/gammaval*(2.d0-phi)
             gbb = gaa
             gab = gaa
             
