@@ -1,12 +1,13 @@
       subroutine dftg_get_xden( d_ik, d_jl, d_il, d_jk, ldim,
      $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
      $           g_dens )
-c$Id: dftg_getxden.F,v 1.1 1995-12-13 01:34:56 d3g681 Exp $
+c$Id: dftg_getxden.F,v 1.2 1995-12-18 04:58:44 og845 Exp $
 C
 C     get atomic blocks from density matrix and make sure no block is
 C     transferred twice
 C
       implicit real*8 (a-h,o-z)
+      integer g_dens
 
       dimension d_ik(ldim,ldim),
      $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim)

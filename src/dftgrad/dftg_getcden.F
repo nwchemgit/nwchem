@@ -10,6 +10,7 @@ C
       implicit real*8 (a-h,o-z)
 
       dimension d_ij(ldim,ldim),d_kl(ldim,ldim)
+      integer g_dens
 
       logical eij, ejk, ekl, eil, eik, ejl
 

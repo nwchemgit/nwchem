@@ -1,5 +1,5 @@
-      Subroutine dftg_getxc( rtdb, geom, AO_bas_han, CD_bas_han, 
-     &                    XC_bas_han, ipol, natom, 
+      Subroutine dftg_getxc( rtdb, geom, AO_bas_han, 
+     &                     ipol, natom, 
      &                    iga_dens, force,
      &                    oactive, nactive)
       Implicit real*8 (a-h,o-z)
@@ -9,7 +9,7 @@ c**** compute XC component of energy gradient.
 c****
 c**** nwchem handles
 c****
-      integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
+      integer rtdb, geom, AO_bas_han
 c**** 
 #include "mafdecls.fh"
 #include "rtdb.fh"
