@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.11 2003-02-04 01:00:29 marat Exp $
+! $Id: paw_basis_data.F,v 1.12 2003-02-07 06:40:01 marat Exp $
 
 !**************************************************
 !
@@ -139,7 +139,10 @@
         ok = ok .and. my_dealloc(i_cut)
         ok = ok .and. my_dealloc(nbasis)
 
-        call chkerr("failed to dealloc_paw_basis_data",ok)
+        if(.not. ok) then
+          call errquit("failed to deallocate paw_basis data ",0)
+        end if
+
 
 
       END SUBROUTINE
