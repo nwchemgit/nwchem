@@ -11,7 +11,7 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
   
   JMenuItem quit;
   JMenuItem nwchem, rasmol, gopmol;
-  JMenuItem proper, anal, rms, free, synch, timing, rama;
+  JMenuItem proper, anal, rms, free, synch, times, timing, rama;
   JMenuItem frgmnt, segmnt, param, seqnce, topol;
 
   // Status TextArea
@@ -112,12 +112,19 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
 	nwchem_Synch synch_View = new nwchem_Synch();
 	synch_View.setVisible(true); 
       }});
-    view.add(timing = new JMenuItem("timings"));
-    timing.addActionListener(new ActionListener(){
+    view.add(times = new JMenuItem("times"));
+    times.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	System.out.println("Timing Analysis Viewer");
 	nwchem_Times times_View = new nwchem_Times();
 	times_View.setVisible(true); 
+      }});
+    view.add(timing = new JMenuItem("timings"));
+    timing.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("Timing Analysis Viewer");
+	nwchem_Timing timing_View = new nwchem_Timing();
+	timing_View.setVisible(true); 
       }});
 
     JMenu edit = new JMenu("Edit");

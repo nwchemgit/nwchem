@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.21 2001-10-24 15:35:41 d3j191 Exp $
+# $Id: GNUmakefile,v 1.22 2002-01-29 04:49:31 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -7,13 +7,13 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
 	nwchem_MD_energy.class nwchem_MD_optimize.class \
 	nwchem_MD_dynamics.class nwchem_MD_thermo.class \
         nwchem_Free.class nwchem_Analysis.class nwchem_RMS.class\
-	nwchem_Synch.class nwchem_Input.class nwchem_Times.class\
+	nwchem_Synch.class nwchem_Input.class nwchem_Times.class nwchem_Timing.class\
 	nwchem_MD_control.class nwchem_Property.class nwchem_Rasmol.class\
         nwchem_NWChem.class nwchem_Socket.class\
         nwchem_Prepare_topology.class nwchem_Prepare_restart.class\
         nwchem_Prepare.class nwchem_Rama.class nwchem_Param.class nwchem_Segment.class nwchem_Fragment.class\
 	IntegerField.class DoubleField.class Graph.class \
-	Atom.class Cros.class Bond.class Angle.class Torsion.class Improper.class Rule.class Segment.class Fragment.class
+	Atom.class Cros.class Bond.class Angle.class Torsion.class Improper.class Rule.class Segment.class Fragment.class TimingSet.class
 
 CLASS_PATH = .:${MYCLASSES}:$(PTPLOT_APPLICATION)
 
