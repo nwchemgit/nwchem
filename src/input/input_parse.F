@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.52 1999-08-16 23:04:09 d3e129 Exp $
+C     $Id: input_parse.F,v 1.53 1999-11-11 21:30:51 bert Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -136,6 +136,8 @@ c
 	       call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then
                call qmmm_input(rtdb)
+            else if (inp_compare(.false.,test,'douglas-kroll')) then
+               call dk_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
