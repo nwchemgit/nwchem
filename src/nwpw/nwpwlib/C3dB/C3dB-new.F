@@ -1,7 +1,7 @@
-#define TCGMS
-#define NBLOCKS 1
+#define TCGMSG
+#define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.2 2001-11-16 22:53:12 bylaska Exp $
+* $Id: C3dB-new.F,v 1.3 2001-11-17 01:01:16 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -68,11 +68,10 @@
 #include "mafdecls.fh"
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+      common	/ C3dB / nq,nx,ny,nz
 
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
       integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
+      common /C3dB_mapping / q_map,p_map,k_map
 
       integer k,q,p
 *     integer kn
@@ -101,7 +100,6 @@ c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
          int_mb(q_map(1,nb)+k-1) = q
          int_mb(p_map(1,nb)+k-1) = p
          if (p .eq. taskid) nq(nb) = q
-
          p        = p+1
          if (p .ge. np) then
             p = 0
@@ -340,8 +338,11 @@ c     p = p_map(k)
 
 
 *     **** do other initializations ****
+      write(*,*) "HERC",nx(nb),ny(nb),nz(nb),nb
       call Mapping_Init_C3dB(nb)
+      write(*,*) "HERD",nx(nb),ny(nb),nz(nb),nq(nb),nb
       call C3dB_c_transpose_jk_init(nb)
+      write(*,*) "HERE"
 
       return
       end
@@ -1076,6 +1077,7 @@ c     integer i2_start(NFFT3+1)
       external full_ps_C3dB
 
 
+      write(*,*) "gera"
 *     **** allocate trans_blk common block ****
       value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
@@ -1089,14 +1091,13 @@ c     integer i2_start(NFFT3+1)
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+      write(*,*) "gerb"
 
       index1 = 1 
       index2 = 1
       do it=0,np-1
          proc_to   = mod(taskid+it,np)
          proc_from = mod(taskid-it+np,np)
-c        i1_start(it+1) = index1
-c        i2_start(it+1) = index2
          int_mb(i1_start(1,nb)+it) = index1
          int_mb(i2_start(1,nb)+it) = index2
 
@@ -1110,7 +1111,6 @@ c        i2_start(it+1) = index2
                do i=1,nx(nb)
                   itmp = i + (j-1)*nx(nb) 
      >                     + (qhere-1)*nx(nb)*ny(nb)
-c                 iq_to_i1(itmp) = index1
                   int_mb(iq_to_i1(1,nb)+itmp-1) = index1
                   index1 = index1 + 1
                end do
@@ -1123,7 +1123,6 @@ c                 iq_to_i1(itmp) = index1
                do i=1,nx(nb)
                   itmp = i + (k-1)*nx(nb) 
      >                     + (qhere-1)*nx(nb)*ny(nb)
-c                 iq_to_i2(itmp) = index2
                   int_mb(iq_to_i2(1,nb)+itmp-1) = index2
                   index2 = index2 + 1
                end do
@@ -1131,18 +1130,18 @@ c                 iq_to_i2(itmp) = index2
          end do
          end do
       end do
-c     i1_start(np+1) = index1
-c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
 
+      write(*,*) "gerc",index1,index2
 
 *
 *     **** Define Channels - which are used to avoid ****
 *     **** asynchronous communications               ****
-      
+      write(*,*) "gercc",nb,np
       value = MA_alloc_get(mt_int,(2*np),
      >        'channel_proc',channel_proc(2,nb),channel_proc(1,nb))
+      write(*,*) "gerccc",nb,np
       value = value.and.
      >        MA_alloc_get(mt_int,(2*np),
      >        'channel_type',channel_type(2,nb),channel_type(1,nb))
@@ -1159,6 +1158,7 @@ c     i2_start(np+1) = index2
      >        MA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
       if (.not. value) call errquit('out of stack memory',0)
+      write(*,*) "gerd"
 
 *     *** define pair1,pair2 ****
       icount = 0
@@ -1169,6 +1169,7 @@ c     i2_start(np+1) = index2
          int_mb(pair2(1)+icount-1) = j
       end do
       end do
+      write(*,*) "gere"
 
 *     **** define pair_step ****
       do i=1,(np*(np-1)/2)
@@ -1197,6 +1198,7 @@ c     i2_start(np+1) = index2
          end do
       end do
       Nstep=step
+      write(*,*) "gerf"
 
 *     **** define channels ***
       Nchannels(nb)=0
@@ -1230,6 +1232,7 @@ c     i2_start(np+1) = index2
          end do
       end do
 
+      write(*,*) "gere"
 
 
       value=MA_pop_stack(pair_step(2))
@@ -1252,7 +1255,7 @@ c     i2_start(np+1) = index2
          if (ps(i).eq.(-1)) value=.false.
       end do
 
-      full_ps=value
+      full_ps_C3dB=value
       return
       end
              

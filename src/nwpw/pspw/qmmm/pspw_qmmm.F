@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.9 2001-11-02 00:49:44 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.10 2001-11-17 01:01:17 bylaska Exp $
 c
 
 ***********************************************************
@@ -311,8 +311,32 @@ c
       end
 
 
+*     **********************************
+*     *	                               *
+*     *        pspw_qmmm_destroy       *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_destroy()
+      implicit none
 
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
 
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+*     **** local variables ****
+      logical value
+
+      if (nion.gt.0) then
+        value = geom_destroy(geom)
+        if (.not. value) 
+     >     call errquit('error destroying qmmmgeometry', 0)
+      end if
+
+      return
+      end
 
 *     **********************************
 *     *	                               *
@@ -337,6 +361,9 @@ c
       double precision rxyz(3),q
       character*16 t
 
+      integer  control_code
+      external control_code
+
 *     ***************************
 *     **** write out MM data ****
 *     ***************************
@@ -350,7 +377,10 @@ c
         value = value.and.geom_vel_set(geom,dbl_mb(r0(1)))
 
         value = value.and.geom_rtdb_delete(rtdb,'qmmmgeometry')
+        if ((control_code().eq.1).or.
+     >      (control_code().eq.2)) then
         value = value.and.geom_rtdb_store(rtdb,geom,'qmmmgeometry')
+        end if
         value = value.and.geom_destroy(geom)
         if (.not. value) call errquit('error writing qmmmgeometry', 0)
       end if

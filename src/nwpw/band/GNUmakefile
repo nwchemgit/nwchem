@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-11-16 22:53:12 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-11-17 01:01:16 bylaska Exp $
 #
-      SUBDIRS = 
+      SUBDIRS = minimizer
 
 		OBJ_OPTIMIZE = 	band_energy.o \
-						band_gradient.o 
+						band_gradient.o
 
           OBJ = band_input.o
 

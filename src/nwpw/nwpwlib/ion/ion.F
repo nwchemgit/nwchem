@@ -6,7 +6,7 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.5 2001-10-26 02:28:22 bylaska Exp $
+* $Id: ion.F,v 1.6 2001-11-17 01:01:16 bylaska Exp $
 *
       implicit none
 
@@ -78,61 +78,98 @@
          value = geom_vel_set(geom,dbl_mb(r0(1)))
       end if
 
-      value = geom_rtdb_delete(rtdb,'pspwgeometry')
-      value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
+*     *****************************************************
+*     **** update rtdb if md or steepest descent code  ****
+*     *****************************************************
+        value = geom_rtdb_delete(rtdb,'pspwgeometry')
+      if ((control_code().eq.1).or.
+     >    (control_code().eq.2)) then
+        value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
+      end if
       value = geom_destroy(geom)
 
       if (control_frac_coord()) call fcoord_to_real(nion,dbl_mb(r1(1)))     
 
-*     **********************************************************
-*     **** put together ions and molecular pseudopotentials ****
-*     **********************************************************
-      value = geom_create(geom1,'geometry')
-      value = value.and.geom_create(geom2,'pspwgeometry')
-      if (mmexist) 
-     >  value = value.and.geom_create(geom3,'qmmmgeometry')
-      value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
-      value = value.and.geom_ncent(geom1,nion1)
-      value = value.and.geom_rtdb_load(rtdb,geom2,'pspwgeometry')
-      value = value.and.geom_ncent(geom2,nion2)
-      if (mmexist) then
-         value = value.and.geom_rtdb_load(rtdb,geom3,'qmmmgeometry') 
-         value = value.and.geom_ncent(geom3,nion3)
-      else
-         nion3 = 0
+*     *****************************************************
+*     **** update rtdb if md or steepest descent code  ****
+*     *****************************************************
+      if ((control_code().eq.1).or.
+     >    (control_code().eq.2)) then
+
+
+*       **********************************************************
+*       **** put together ions and molecular pseudopotentials ****
+*       **********************************************************
+        value = geom_create(geom1,'geometry')
+        value = value.and.geom_create(geom2,'pspwgeometry')
+        if (mmexist) 
+     >    value = value.and.geom_create(geom3,'qmmmgeometry')
+        value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
+        value = value.and.geom_ncent(geom1,nion1)
+        value = value.and.geom_rtdb_load(rtdb,geom2,'pspwgeometry')
+        value = value.and.geom_ncent(geom2,nion2)
+        if (mmexist) then
+           value = value.and.geom_rtdb_load(rtdb,geom3,'qmmmgeometry') 
+           value = value.and.geom_ncent(geom3,nion3)
+        else
+           nion3 = 0
+        end if
+        if (.not. value) 
+     >   call errquit('pspwgeometry->geometry write 1',0)
+
+        value = MA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
+        if (.not. value) call errquit('out of stack memory',0)
+
+        do i=1,nion2
+           value = value.and.geom_cent_get(geom2,i,t,rxyz,q)
+           value = value.and.geom_cent_set(geom1,i,t,rxyz,q)
+        end do
+        do i=1,nion3
+           value = value.and.geom_cent_get(geom3,i,t,rxyz,q)
+           value = value.and.geom_cent_set(geom1,(i+nion2),t,rxyz,q)
+        end do
+        value = value.and.geom_vel_get(geom2,dbl_mb(rt(1)))
+        if (nion3.gt.0)
+     >     value = value.and.geom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
+        value = value.and.geom_vel_set(geom1, dbl_mb(rt(1)))
+
+        value = value.and.geom_rtdb_delete(rtdb,'geometry')
+        value = value.and.geom_rtdb_delete(rtdb,'pspwgeometry')
+        if (nion3.gt.0)
+     >     value = value.and.geom_rtdb_delete(rtdb,'qmmmgeometry')
+        value = value.and.geom_rtdb_store(rtdb,geom1,'geometry')
+        if (mmexist)
+     >     value = value.and.geom_destroy(geom3)
+        value = value.and.geom_destroy(geom2)
+        value = value.and.geom_destroy(geom1)
+        value = value.and.MA_pop_stack(rt(2))
+        if (.not. value) 
+     >   call errquit('pspwgeometry->geometry write 2',0)
+
       end if
-      if (.not. value) call errquit('pspwgeometry->geometry write 1',0)
-
-      value = MA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
-      if (.not. value) call errquit('out of stack memory',0)
-
-      do i=1,nion2
-         value = value.and.geom_cent_get(geom2,i,t,rxyz,q)
-         value = value.and.geom_cent_set(geom1,i,t,rxyz,q)
-      end do
-      do i=1,nion3
-         value = value.and.geom_cent_get(geom3,i,t,rxyz,q)
-         value = value.and.geom_cent_set(geom1,(i+nion2),t,rxyz,q)
-      end do
-      value = value.and.geom_vel_get(geom2,dbl_mb(rt(1)))
-      if (nion3.gt.0)
-     >   value = value.and.geom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
-      value = value.and.geom_vel_set(geom1, dbl_mb(rt(1)))
-
-      value = value.and.geom_rtdb_delete(rtdb,'geometry')
-      value = value.and.geom_rtdb_delete(rtdb,'pspwgeometry')
-      if (nion3.gt.0)
-     >   value = value.and.geom_rtdb_delete(rtdb,'qmmmgeometry')
-      value = value.and.geom_rtdb_store(rtdb,geom1,'geometry')
-      if (mmexist)
-     >   value = value.and.geom_destroy(geom3)
-      value = value.and.geom_destroy(geom2)
-      value = value.and.geom_destroy(geom1)
-      value = value.and.MA_pop_stack(rt(2))
-      if (.not. value) call errquit('pspwgeometry->geometry write 2',0)
-
       return
       end
+
+*     ***************************
+*     *							*
+*     *		ion_destroy 		*
+*     *							*
+*     ***************************
+      subroutine ion_destroy()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+      integer geom
+      common / ION2/ geom
+      logical value
+
+      value = geom_destroy(geom)
+      return
+      end
+    
 
 
 

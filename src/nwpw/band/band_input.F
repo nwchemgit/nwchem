@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.1 2001-11-16 22:53:12 bylaska Exp $
+c $Id: band_input.F,v 1.2 2001-11-17 01:01:16 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -50,16 +50,16 @@ c
       call util_file_prefix('movecs',output_wavefunction_filename)
 
       ind = index(input_wavefunction_filename,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+      value = rtdb_cput(rtdb,'band:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
 
 *     **** used by task_save_state ****
       ind = index(input_wavefunction_filename,' ') - 1
-      value = rtdb_cput(rtdb,'cg_pspw:input vectors',
+      value = rtdb_cput(rtdb,'band:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
 
       ind = index(output_wavefunction_filename,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+      value = rtdb_cput(rtdb,'band:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
 
 
@@ -82,13 +82,13 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'cgsd_input: inp_read failed', 0)
+     >           'band_input: inp_read failed', 0)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'cgsd_input: failed to read keyword', 0)
+     >           'band_input: failed to read keyword', 0)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'cgsd_input: unknown directive', 0)
+     >           'band_input: unknown directive', 0)
 
 
       goto ( 100, 200, 300, 400, 500, 600, 700, 800,

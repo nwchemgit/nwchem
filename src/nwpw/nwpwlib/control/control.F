@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.2 2001-10-17 23:48:10 bylaska Exp $
+* $Id: control.F,v 1.3 2001-11-17 01:01:16 bylaska Exp $
 *
 
 *     ***********************************
@@ -244,6 +244,46 @@
 
          control_read = value
          return
+
+*     **** band: stuff ****
+
+      else if (code.eq.5) then
+      value = value.and.
+     >        rtdb_cget(rtdb,'band:cell_name',1,cell_name)
+      value = value.and.
+     >        rtdb_cget(rtdb,'band:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'band:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename)
+      value = value.and.
+     >        rtdb_cget(rtdb,'band:exchange_correlation',
+     >                  1,exchange_correlation)
+      if (exchange_correlation.eq.'vosko') then
+         gga = 0
+      else
+         gga = 1
+      end if
+
+      value = value.and.
+     >        rtdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:time_step',mt_dbl,1,time_step)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:loop',mt_int,2,loop)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:tolerances',mt_dbl,3,tolerances)
+      scaling(1) = 0.0d0
+      scaling(2) = 0.0d0
+
+      value = value.and.
+     >        rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut)     
+      value = value.and.
+     >        rtdb_get(rtdb,'band:ncut',mt_int,1,ncut)
 
 *     **** unknown code type ****
 
