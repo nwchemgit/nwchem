@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.443 2004-01-28 20:17:50 edo Exp $
+# $Id: makefile.h,v 1.444 2004-01-31 00:48:33 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -827,7 +827,6 @@ ifeq ($(TARGET),IBM)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
-# -qarch=pwr (for peril) com (for any) , pwr2  or ppc
   FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
@@ -972,87 +971,36 @@ endif
      MPILIB = 
 LARGE_FILES = YES
 
-ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000 -bloadmap:nwchem.lapi_map
-   LINK.f   = mpxlf_r   $(LDFLAGS)
-else
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000  -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
-endif
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k  -qxlf77=leadzero
+  ifdef  USE_GPROF
+    FOPTIONS += -pg
+    COPTIONS += -pg
+    LDOPTIONS += -pg
+  endif
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
-  ifdef RSQRT
-    FOPTIMIZE  += -qfloat=rsqrt:fltint
-  endif
+RSQRT=y
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint:rsqrt -NQ40000 -NT80000 -NS10000 -qipa=level=2
   COPTIMIZE = -O
-ifeq ($(NWCHEM_TARGET_CPU),P2SC)
-# These from George from Kent Winchell
-  FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
-        -qcache=type=i:level=1:size=32:line=128
-  COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
-        -qcache=type=i:level=1:size=32:line=128
-else
 	FC += -qarch=auto -qtune=auto -qcache=auto -qthreaded
 	CC += -qarch=auto -qtune=auto -qcache=auto
-endif
 
 
     DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
-#
-# Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
-#
-#  LIBPATH += -L/sphome/harrison/peigs2.0
-
+    DEFINES += -DCHKUNDFLW
 
 USE_ESSL = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
-ifeq ($(NWCHEM_TARGET_CPU),P2SC)
- CORE_LIBS += -lpesslp2_t -lblacsp2_t -lesslp2_r
-else
  CORE_LIBS += -lpessl -lblacs -lessl
 endif
-# renames not needed for 4.1.  Still are for 3.2.
-#	      -brename:.daxpy_,.daxpy \
-#	      -brename:.dgesv_,.dgesv \
-#	      -brename:.dcopy_,.dcopy \
-#	      -brename:.ddot_,.ddot \
-#	      -brename:.dgemm_,.dgemm \
-#	      -brename:.dgemv_,.dgemv \
-#	      -brename:.dgetrf_,.dgetrf \
-#	      -brename:.dgetrs_,.dgetrs \
-#	      -brename:.dscal_,.dscal \
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.idamax_,.idamax 
-endif
-
 # Need ESSL before our own BLAS library but still need our
 # own stuff for misc. missing routines
 
 CORE_LIBS +=  -llapack -lblas
 
-# IMPORTANT:  These renames are necessary if you try to link against
-# a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
-# see INSTALL)
-# mpipriv is a common block used in MPICH's implementation of MPI.  It
-# is critical that this common block is renamed correctly because
-# the linker will not detect any problems (there will be separate
-# common blocks labeled mpipriv_ and mpipriv) but the program will not
-# operate correctly.
-#ifdef USE_MPI
-#   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
-#		-brename:.mpi_initialized_,.mpi_initialized \
-#		-brename:.mpi_init_,.mpi_init \
-#		-brename:.mpi_comm_rank_,.mpi_comm_rank \
-#		-brename:.mpi_comm_size_,.mpi_comm_size \
-#		-brename:.mpi_finalize_,.mpi_finalize \
-#		-brename:.mpi_send_,.mpi_send \
-#		-brename:mpipriv_,mpipriv
-#endif
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -1075,17 +1023,16 @@ LARGE_FILES = YES
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64  -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
    LINK.f   = mpcc_r   $(LDFLAGS)
 
-   FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k -qxlf77=leadzero
+   FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k -qxlf77=leadzero -qthreaded
        AR   = ar -X 64
    COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
-  ifdef RSQRT
-    FOPTIMIZE  += -qfloat=rsqrt:fltint
-  endif
-  FOPTIMIZE += -qarch=auto -qtune=auto
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint:rsqrt -NQ40000 -NT80000
+  FOPTIMIZE += -qarch=auto -qtune=auto -qcache=auto
+  FVECTORIZE = -O5 -qhot -qfloat=fltint:rsqrt 
   COPTIMIZE = -O
 
     DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX -DPARALLEL_DIAG
+    DEFINES += -DCHKUNDFLW
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
  CORE_LIBS += -lessl_r -llapack -lblas # need 64-bit essl
@@ -1094,6 +1041,7 @@ else
         DEFINES += -DEXT_INT
   CORE_LIBS +=  -llapack -lblas
 endif
+  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64map# IBM claims maxstack and maxdata not needed on 64-bit
 
 
  EXPLICITF = TRUE
