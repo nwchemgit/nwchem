@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.25 2003-08-04 02:10:15 bylaska Exp $
+* $Id: ion.F,v 1.26 2003-08-04 02:19:44 bylaska Exp $
 *
 
 *     ***************************
@@ -661,7 +661,7 @@ c         eki1=0.5d0*eki1
 
  
 *     **** shift by velocity COM ****
-      if (control_COM_shift().eq. .true.) then
+      if (control_COM_shift()) then
       do i=1,nion
          dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
          dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
