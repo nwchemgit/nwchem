@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.21 2003-10-17 22:58:22 carlfahl Exp $
+*     $Id: stpr_gh_at.F,v 1.22 2003-11-14 21:43:08 bert Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -544,8 +544,8 @@ c
      &        35, RTDB_ERR)
 c     
 *          call util_print_push
-          if (print_level.gt.print_none)
-     &          call util_print_set_level(print_none) ! Minimize output
+          if (print_level.gt.print_low)
+     &          call util_print_set_level(print_low) ! Minimize output
           time_taskg2 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
