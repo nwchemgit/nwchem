@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.5 2003-02-12 18:08:54 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.6 2003-03-05 23:13:16 bylaska Exp $
 *
 
 *
@@ -58,12 +58,15 @@ c
            write(luout,*)
      &      ' library name resolved from: compiled reference'
        endif
-      write(luout,*)' library file name is: <',
-     &     libname(1:inp_strlen(libname)),'>'
-      write(luout,*) ' '
+
 
 *     **** library for paw ****
       if (flag.eq.2) then
+        write(luout,*)' library file name is: <',
+     &     libname(1:inp_strlen(libname)),
+     &     'library2/', element, '_basis','>'
+        write(luout,*) ' '
+
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
         filename=
@@ -72,6 +75,11 @@ c
 
 *     **** library for pspw and band ****
       else
+        write(luout,*)' library file name is: <',
+     &     libname(1:inp_strlen(libname)),
+     &     'library1/', element, '>'
+        write(luout,*) ' '
+
         filename=libname(1:inp_strlen(libname))//'/library1/'//element
       end if
 
