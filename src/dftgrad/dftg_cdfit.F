@@ -8,10 +8,11 @@
       Subroutine dfth_cdfit (rtdb, geom, AO_bas_han, CD_bas_han,
      &                       nbf_ao, nbf_cd, nat, tol2e, scr, 
      &                       lscr, buf, lbuf, vec, PPP, max_sh_bf,
+     &                       max_sh_bfcd,
      &                       iga_dens, hess, CD_coef, oskel)
 #endif
 *
-* $Id: dftg_cdfit.F,v 1.13 1999-02-15 17:00:40 bjohnson Exp $
+* $Id: dftg_cdfit.F,v 1.14 1999-02-15 18:27:42 bjohnson Exp $
 *
       implicit none
 c
