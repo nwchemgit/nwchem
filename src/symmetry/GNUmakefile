@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.19 1996-01-10 16:00:50 d3g681 Exp $
+#$Id: GNUmakefile,v 1.20 1996-01-19 07:32:25 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -7,7 +7,7 @@ USES_BLAS = sym_put_geom.F sym_pr_all.F sym_g_sym.F \
 HEADERS = sym.fh
 
 OBJ_OPTIMIZE = sym_sh_pair.o sym_sym.o \
-               sym_mo_ap_op.o
+               sym_mo_ap_op.o sym_bas_op.o
 OBJ =     dosymops.o \
           gensym.o \
           ludcmp.o \
@@ -23,7 +23,6 @@ OBJ =     dosymops.o \
           sym_ap_cart.o \
           sym_cent_map.o \
           sym_num_ops.o \
-          sym_bas_op.o \
           sym_ops_get.o \
           sym_pr_all.o \
           sym_geom_prj.o \

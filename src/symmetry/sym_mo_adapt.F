@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.3 1995-12-16 02:19:01 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.4 1996-01-19 07:32:27 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -94,7 +94,7 @@ c
      $     call errquit('sym_movecs_adapt: unable to alloc g_t',0)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,1,g_q))
      $     call errquit('sym_movecs_adapt: unable to alloc g_q',0)
-      if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:S',1,1,g_s))
+      if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',1,1,g_s))
      $     call errquit('sym_movecs_adapt: unable to alloc g_s',0)
       if (.not. ma_push_get(mt_dbl, nbf, 'sym:v', l_v, k_v))
      $     call errquit('sym_movecs_adapt: unable to alloc v',0)
