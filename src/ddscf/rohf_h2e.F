@@ -1,6 +1,6 @@
       subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.4 1997-04-06 20:55:27 d3g681 Exp $
+C     $Id: rohf_h2e.F,v 1.5 2000-05-01 21:19:07 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -179,7 +179,7 @@ c
       enddo
 c
       call fock_2e( geom, basis, nfock, jfac, kfac,
-     $     tol2e, oskel, iv_dens, iv_fock)
+     $     tol2e, oskel, iv_dens, iv_fock,.false.)
 c     
       if (oskel) then
          if (oscfps) call pstat_on(ps_sym_sym)
