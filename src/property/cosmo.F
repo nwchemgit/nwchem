@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.2 2004-07-22 19:37:23 bert Exp $
+* $Id: cosmo.F,v 1.3 2004-07-22 23:40:10 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -34,7 +34,7 @@ c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',911)
       do iat=1,nw_max_atom
-         dbl_mb(k_rad-1)=0.0d+00
+         dbl_mb(k_rad+iat-1)=0.0d+00
       enddo
 c
 c     ----- read values from input -----
@@ -63,16 +63,6 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
-c     Let SCF/DFT know cosmo has to be calculated
-c
-         if (do_cosmo) then 
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $          call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
-         else
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $          call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
-         endif
-c
 c   --- rsolv
 c
       else if(inp_compare(.false.,'rsolv',field)) then
@@ -89,7 +79,7 @@ c
    30    if(nfield.gt.0) then
             if(inp_f(rad)) then
                irad=irad+1
-               dbl_mb(k_rad-1)=rad
+               dbl_mb(k_rad+irad-1)=rad
                nfield=nfield-1
                go to 30
             else
@@ -162,6 +152,16 @@ c
 c
    40 continue
 c
+c     Let SCF/DFT know cosmo has to be calculated
+c
+      if (do_cosmo) then 
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
+     $       call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+      else
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $       call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+      endif
+c
       if(.not.ma_pop_stack(l_rad))
      & call errquit('cosmo_input, ma_pop_stack of l_rad failed',911)
 c
@@ -223,7 +223,7 @@ C
      1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
      2   0.00,0.00,0.00/
 c
-c     VDW RADII FROM mERZ/kOLLMAN/sINGH
+c     vdw radii from Merz/Kollman/Singh
 c
       data (vander(i),i=1,36)
      1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
@@ -257,11 +257,6 @@ c
       if(odbug.and.me.eq.0) then
          write(Luout,*) 'in cosmo_initialize ...'
       endif
-c
-c     Check if spherical basis sets are requested
-c
-      if(bas_is_spherical(basis)) call errquit(
-     .   ' cosmo does not handle spherical basis yet',0, BASIS_ERR)
 c
 c     Create a geometry for the COSMO efc charges, to be used later on
 c
@@ -306,33 +301,25 @@ c
       if(.not.ma_pop_stack(l_tag))
      & call errquit('cosmo_initialize,ma_pop_stack of l_tag failed',911)
 c
-      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo))
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem))
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
-      if (.not. rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq)) 
-     $     call errquit('cosmo_initialize: rtdb_get failed',911,
-     &       RTDB_ERR)
+      do_cosmo = .true.
+      dielec   =78.4d+00
+      iscren   =0
+      ifscrn   =2
+      minbem   =2
+      maxbem   =3
+      ificos   =0
+      lineq    =1
+      rsolv    =0.0d+00
+c
+      status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
+      status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec) 
+      status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
+      status = rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren) 
+      status = rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn)
+      status = rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem) 
+      status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
+      status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
+      status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
       nrad = 0
       if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
       if (nrad.gt.0) then
@@ -531,13 +518,13 @@ c
       i30 =i20 +  nat              !   nspa(  nat)
       i40 =i30 +  nat              !   nppa(  nat)
       i50 =i40 +  nat              ! ijkfac(3,mxface)
-      i60 =i50 +3*nfac             ! xyzseg(3,mxface)
-      i70 =i60 +3*nfac             ! ijkseg(  mxface)
-      i80 =i70 +  nfac             ! insseg(  mxface,nat)
-      i90 =i80 +  nfac*nat         ! xyzspa(3,mxface,nat)
-      i100=i90 +3*nfac*nat         ! ijkspa(  mxface,nat)
-      i110=i100+  nfac*nat         ! numpps(  mxface,nat)
-      i120=i110+  nfac*nat         ! apex(3,mxapex)
+      i60 =i50 +3*mxface             ! xyzseg(3,mxface)
+      i70 =i60 +3*mxface             ! ijkseg(  mxface)
+      i80 =i70 +  mxface             ! insseg(  mxface,nat)
+      i90 =i80 +  mxface*nat         ! xyzspa(3,mxface,nat)
+      i100=i90 +3*mxface*nat         ! ijkspa(  mxface,nat)
+      i110=i100+  mxface*nat         ! numpps(  mxface,nat)
+      i120=i110+  mxface*nat         ! apex(3,mxapex)
 c
 c     ----- get -cosmo- surface -----
 c
@@ -1643,8 +1630,8 @@ c
  9997 format(' --- dmin = ',f12.8,' --- mface = ',i10)
       end
 c
-      subroutine cosmo_charges(rtdb,basis,geom,ecos,iter,some,itype_wfn,
-     1                         g_movecs_dft,nclosed,nopen,nbf,nmo)
+      subroutine cosmo_charges(rtdb,basis,geom,ecos,some,itype_wfn,
+     1                         vectors,nclosed,nopen,nbf,nmo)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "global.fh"
@@ -1658,10 +1645,10 @@ c
       integer basis
       integer geom, itype_wfn
       double precision ecos
-      integer g_movecs_dft(2), itype_wfn, iter, nclosed(2), nopen(2)
+      integer vectors(2), itype_wfn, iter, nclosed(2), nopen(2)
 
       logical dbug, out, some
-      character*8 scftyp
+      character*8 scfruntyp
 c
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
@@ -1719,10 +1706,10 @@ c
 c
 c     ----- get density matrix -----
 c
-      scftyp='RHF'
+      scfruntyp='RHF'
       nocc=nclosed(1)+nopen(1)
       if (itype_wfn.eq.2) then
-         scftyp='UHF'
+         scfruntyp='UHF'
          nocc=max(nocc,nclosed(2)+nopen(2))
       endif
       if(.not.ma_push_get(mt_dbl,nocc*2,'cosmo occ',l_occ,k_occ))
@@ -1731,16 +1718,16 @@ c
          dbl_mb(k_occ+i-1)=1.0d0
       enddo
       call hnd_prop_dens_make(rtdb,geom,basis,nbf,nmo,nclosed,nopen,
-     &                       nvirt,scftyp,vectors,dbl_mb(k_occ),
+     &                       nvirt,scfruntyp,vectors,dbl_mb(k_occ),
      &                       g_dens,ndens)
 c
       if(out) then
          write(luout,*) 'in -cosmo_charges, wfntyp = ',itype_wfn
-         write(luout,*) 'in -cosmo_charges, scftyp = ',scftyp
+         write(luout,*) 'in -cosmo_charges, scftyp = ',scfruntyp
          if(dbug) then
             write(luout,*) 'in -cosmo_charges, -da- ...'
             call ga_print(g_dens(1))
-            if(scftyp.eq.'UHF     ') then
+            if(scfruntyp.eq.'UHF     ') then
                write(luout,*) 'in -cosmo_charges, -db- ...'
                call ga_print(g_dens(2))
             endif
@@ -1749,7 +1736,7 @@ c
 c
 c     ----- get -cosmo- charges -----
 c
-      call hnd_coschg(g_dens,rtdb,geom,nefc,dbl_mb(k_efcc),
+      call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,dbl_mb(k_efcc),
      &                dbl_mb(k_efcs),dbl_mb(k_efcz))
 c
 c     ----- release memory block -----
@@ -1768,7 +1755,8 @@ c
      2       /,10X,15(1H-))
       end
 c
-      subroutine hnd_coschg(g_dens,rtdb,geom,nefc,efcc,efcs,efcz)
+      subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
+     &                      efcc,efcs,efcz)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "global.fh"
@@ -1781,6 +1769,7 @@ c
 c
       integer  rtdb
       integer  geom
+      integer  basis
       logical  status
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
@@ -1795,7 +1784,7 @@ c
       data pt5    /0.5d+00/
       data one    /1.0d+00/
       data two    /2.0d+00/
-      integer g_dens(3)
+      integer g_dens(ndens)
 c
       more=.false.
       dbug=.false.
@@ -1849,7 +1838,7 @@ c
 c
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nat,x(i12),0)
+      call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
 c
 c     ----- nuclear contribution -----
 c
@@ -2379,7 +2368,7 @@ c
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_pop_stack(i_init))
+      if(.not.ma_chop_stack(i_init))
      & call errquit('hnd_coschg, ma_pop_stack of init failed',911)
 c
       return

@@ -77,12 +77,4 @@ c
         call ga_symmetrize(g_dens(3))
       endif
 c
-      if (.not.ga_destroy(vectors(1))) call
-     &    errquit('hnd_prp_make_dens: ga_destroy vecs 1',0, GA_ERR)
-      if (scftyp.eq.'UHF') then
-         if (.not.ga_destroy(vectors(2))) call
-     &       errquit('hnd_prp_make_dens: ga_destroy vecs 2',0, GA_ERR)
-      endif
-c
-      return
       end

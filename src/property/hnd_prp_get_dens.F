@@ -40,6 +40,13 @@ c
      &                       nvirt,scftyp,vectors,dbl_mb(k_occ),
      &                       g_dens,ndens)
 c
+      if (.not.ga_destroy(vectors(1))) call
+     &    errquit('hnd_prp_get_dens: ga_destroy vecs 1',0, GA_ERR)
+      if (scftyp.eq.'UHF') then
+         if (.not.ga_destroy(vectors(2))) call
+     &       errquit('hnd_prp_get_dens: ga_destroy vecs 2',0, GA_ERR)
+      endif
+c
 c     Cleanup of MA arrays that are not needed
 c
       if (.not.ma_pop_stack(l_occ)) call

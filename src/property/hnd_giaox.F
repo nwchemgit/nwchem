@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.2 2004-07-22 19:37:23 bert Exp $
+c $Id: hnd_giaox.F,v 1.3 2004-07-22 23:40:10 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -577,9 +577,9 @@ c
          if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
      &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
 c
-c     Symmetrize diamagnetic and paramagnetic contributions to tensor
+c     Symmetrize the tensors
 c
-         call hnd_giasym(dbl_mb(k_dia+ioff), dbl_mb(k_para+ioff))
+         call hnd_giasym(dbl_mb(k_dia+ioff),dbl_mb(k_para+ioff))
 c
 c      Print tensor pieces and sum for total shielding tensor
 c
@@ -607,13 +607,14 @@ c
             a(4) = dbl_mb(k_para+ioff+2)
             a(5) = dbl_mb(k_para+ioff+5)
             a(6) = dbl_mb(k_para+ioff+8)
+            ij = 0
             do 241 i = 1, 3
             do 241 j = 1, i
                ij = ij + 1
                axs(i,j) = a(ij)
                axs(j,i) = a(ij)
   241       continue
-            call hnd_diag(axs,eig,3,.true.,.false.)
+            call hnd_diag(axs,eig,3,.true.,.true.)
             isotr =(eig(1) + eig(2) + eig(3))/3.0d0
             aniso = eig(1) -(eig(2) + eig(3))/2.0d0
             write(luout,9987) isotr,aniso
