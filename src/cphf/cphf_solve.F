@@ -66,7 +66,7 @@ c
 c
 c     Compute necessary Fock matrices
 c
-      oskel=.false.
+      oskel=sym_number_ops(geom).gt.0
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
