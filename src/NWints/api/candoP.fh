@@ -1,6 +1,27 @@
 *
-* $Id: candoP.fh,v 1.2 1996-07-18 23:57:22 d3e129 Exp $
+* $Id: candoP.fh,v 1.3 1996-10-03 16:34:47 d3e129 Exp $
 * 
+* user_* variables determine .true. a user set some value for the 
+*        specific integral code.  
+* def_* variables is the value that the user set.
+*
+* this means that if the user does not want to run the sp integral code
+* he/she would set "int:cando_sp" false and the values of would be
+* user_cando_sp = .true. and def_cando_sp = .false.
+*
+* to test then use: 
+*
+* if(user_cando_sp.and.(.not.def_cando_sp) then
+*    do not do anything with sp code
+* endif
+* 
+* or 
+* 
+* if (.not.((user_cando_sp.and.(.not.def_cando_sp)))) call sp_code
+*
+*
+* Ricky A. Kendall, HPCCG, EMSL, PNNL 
+*
       logical user_cando_sp  ! did user set a value for sp 
       logical user_cando_nw  ! did user set a value for nw 
       logical user_cando_txs ! did user set a value for txs
