@@ -12,11 +12,13 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
   ExtensionFilter synchFilter;
   JFrame dialogFrame;
   int type = 0;
+  int node = 0;
   double time;
   double synt;
   double stpt;
   Graph synPlot = new Graph();
   Graph timPlot = new Graph();
+  Graph nodPlot = new Graph();
 
   public nwchem_Synch(){
 
@@ -78,10 +80,21 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 	    synPlot.addData(setnumber,time,synt,!first,false);
 	    timPlot.addData(setnumber,time,stpt,!first,false); first=false;
 	    if(type==1){card=br.readLine();};
-	    for(int i=0; i<np; i++) {card=br.readLine();};
+	    for(int i=0; i<np; i++) {
+		card=br.readLine();
+		if(i==0){
+		    node=Integer.parseInt(card.substring(1,5).trim());
+		    nodPlot.addData(1,time,node,false,false);
+		};
+		if(i==1){
+		    node=Integer.parseInt(card.substring(1,5).trim());
+		    nodPlot.addData(2,time,node,false,false);
+		};
+	    };
 	  };
 	  synPlot.fillPlot();
 	  timPlot.fillPlot();
+	  nodPlot.fillPlot();
 	  br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
       }});
@@ -95,6 +108,8 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
       addComponent(header,timPlot,0,7,5,5,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+      addComponent(header,nodPlot,0,13,5,5,1,1,
+    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
       synPlot.init();
       synPlot.resize(500,300);
       synPlot.setNumSets(5);
@@ -105,6 +120,12 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
       timPlot.setNumSets(5);
       timPlot.setTitle("MD Step Wall Clock Time");
       timPlot.setXLabel("Time");
+      nodPlot.init();
+      nodPlot.resize(500,300);
+      nodPlot.setNumSets(5);
+      nodPlot.setTitle("Nodes");
+      nodPlot.setXLabel("Time");
+      nodPlot.setMarksStyle("points");
       validate();
     } catch(Exception e) {e.printStackTrace();};
 
@@ -123,10 +144,21 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 	synPlot.addData(0,time,synt,!first,false);
 	timPlot.addData(0,time,stpt,!first,false); first=false;
 	if(type==1){card=br.readLine();};
-	for(int i=0; i<np; i++) {card=br.readLine();};
+	for(int i=0; i<np; i++) {
+	    card=br.readLine();
+		if(i==0){
+		    node=Integer.parseInt(card.substring(1,5).trim());
+		    nodPlot.addData(1,time,node,false,false);
+		};
+		if(i==1){
+		    node=Integer.parseInt(card.substring(1,5).trim());
+		    nodPlot.addData(2,time,node,false,false);
+		};
+	};
       };
       synPlot.fillPlot();
       timPlot.fillPlot();
+      nodPlot.fillPlot();
       br.close();
     } catch(Exception e) {e.printStackTrace();};
   }	

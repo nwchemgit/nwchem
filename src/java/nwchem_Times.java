@@ -22,9 +22,13 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
   boolean first = true;
 
   int ndx[];
+    double sdata[][][];
   double ndata[][];
   double tdata[];
   double time;
+
+    int numData = 0;
+    int curData = 0;
 
   public nwchem_Times(){
 
@@ -58,14 +62,14 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
     systemLabel.setForeground(Color.black);
     
     JButton doneButton = new JButton("Done");
-    addComponent(header,doneButton,4,1,1,1,1,1,
+    addComponent(header,doneButton,5,1,1,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     doneButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	setVisible(false); }});
     
     JButton orderButton = new JButton("Order");
-    addComponent(header,orderButton,2,1,1,1,1,1,
+    addComponent(header,orderButton,3,1,1,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     orderButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
@@ -82,7 +86,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       }});
     
     JButton resetButton = new JButton("Reset");
-    addComponent(header,resetButton,3,1,1,1,1,1,
+    addComponent(header,resetButton,4,1,1,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     resetButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
@@ -92,7 +96,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       }});
     
     JButton allButton = new JButton("All");
-    addComponent(header,allButton,1,1,1,1,1,1,
+    addComponent(header,allButton,2,1,1,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     allButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
@@ -107,7 +111,20 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     nextButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
-	readData(); addAccuData(); addNodeData(); nodPlot.fillPlot(); accPlot.fillPlot();
+	  System.out.println("Next "+curData+" "+numData);
+	  if(curData==numData) {readData(); addAccuData(); accPlot.fillPlot();} else {curData++; retrieveData();}; 
+	  addNodeData(); nodPlot.fillPlot(); 
+      }
+    });
+    
+    JButton previousButton = new JButton("Previous");
+    addComponent(header,previousButton,1,1,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+    previousButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	  System.out.println("Prev "+curData+" "+numData);
+	  if(curData==0) { readData(); } else { curData--; retrieveData();};
+	  addNodeData(); nodPlot.fillPlot();
       }
     });
 
@@ -146,6 +163,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       };
       first=true;
       ndx = new int[np];
+      sdata = new double[1000][np][17];
       ndata = new double[np][17];
       tdata = new double[17];
     } catch(Exception e) {e.printStackTrace();};
@@ -179,14 +197,32 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
 	  ndata[ip][i]=ndata[ip][i]+ndata[ip][i-1];
 	};
       };
+      storeData();
       return true;
     } catch (Exception e) {return false;};
   };
 
+    void storeData(){
+	for(int i=1; i<17; i++){
+	    for(int ip=0; ip<np; ip++){  
+		sdata[numData][ip][i]=ndata[ip][i];
+	    };
+	};
+	numData++; curData=numData;
+    };
+
+    void retrieveData(){
+	for(int i=1; i<17; i++){
+	    for(int ip=0; ip<np; ip++){  
+		ndata[ip][i]=sdata[curData][ip][i];
+	    };
+	};
+    };
+
   void addNodeData(){
-    for(int i=0; i<16; i++){
-	nodPlot.clear(i);
-	//	try{ nodPlot.removeSet(i); } catch(exception ee){};
+    for(int i=0; i<17; i++){
+	//	nodPlot.clear(i);
+      try{ nodPlot.removeSet(i); } catch(Exception ee){};
     };
     for(int i=0; i<17; i++){
       for(int ip=0; ip<np; ip++){
