@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.2 1999-12-16 01:10:05 bert Exp $
+* $Id: rel_input.F,v 1.3 1999-12-16 01:14:03 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -37,7 +37,7 @@ c
          endif
          write(luout,10) clight
   10        format(/,'The speed of light used in the relativistic ',
-     $               'calculations is ',F16.10, 'au.'//)
+     $               'calculations is ',F16.10, 'au.'/)
 c
       elseif (inp_compare(.false.,'douglas-kroll', test)) then
 c

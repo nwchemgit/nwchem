@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.6 1999-12-16 01:10:51 bert Exp $
+* $Id: dk_input.F,v 1.7 1999-12-16 01:14:18 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -57,17 +57,17 @@ c
             write(luout,21)
   21        format(/'Integrals for the no-pair equation with ',
      $             'free-particle projection operators'/
-     $             'will be computed.')
+     $             'will be computed.'/)
          elseif (dk_type .eq. 2) then
             write(luout,22)
   22        format(/'Integrals for the no-pair equation with ',
      $             'external-field projection operators'/
-     $             'will be computed (Douglas-Kroll-Hess).')
+     $             'will be computed (Douglas-Kroll-Hess).'/)
          else  
             write(luout,23)
   23        format(/'Integrals for the no-pair equation with ',
      $             'external-field projection operators'/,
-     $             'including cross-product terms will be computed.')
+     $             'including cross-product terms will be computed.'/)
          endif
       endif
 c
