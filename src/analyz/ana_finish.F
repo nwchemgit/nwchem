@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.6 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_finish.F,v 1.7 2000-01-24 23:16:26 d3j191 Exp $
 c
       implicit none
 c
@@ -17,10 +17,12 @@ c
       if(lcop.gt.0) then
       if(fmtcop.eq.'eci') write(lfncop,'(a)') 'End'
       close(unit=lfncop)
+      write(*,'(a)') ' Closing copy file '
       endif
       if(lsup.gt.0)  then
       if(fmtsup.eq.'eci') write(lfnsup,'(a)') 'End'
       close(unit=lfnsup)
+      write(*,'(a)') ' Closing super file '
       endif
       endif
 c

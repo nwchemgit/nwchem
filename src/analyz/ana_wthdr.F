@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag)
 c
-c $Id: ana_wthdr.F,v 1.5 2000-01-04 19:07:53 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.6 2000-01-24 23:16:27 d3j191 Exp $
 c
       implicit none
 c
@@ -40,7 +40,8 @@ c
       open(unit=lfncop,file=fname(1:index(fname,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
-      write(*,'(a,a)') 'Opened copy file ',fname(1:index(fname,' ')-1)
+      write(*,3333) fname(1:index(fname,' ')-1)
+ 3333 format(/,' Opening copy file ',a,/)
       endif
 c
       if(iunit.eq.lfnsup) then
@@ -57,7 +58,8 @@ c
       open(unit=lfnsup,file=fname(1:index(fname,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
-      write(*,'(a,a)') 'Opened super file ',fname(1:index(fname,' ')-1)
+      write(*,3333) fname(1:index(fname,' ')-1)
+ 3334 format(/,' Opening super file ',a,/)
       endif
 c
       if(fmt.eq.'trj') then

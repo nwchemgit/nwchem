@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.10 2000-01-04 19:07:53 d3j191 Exp $
+c $Id: ana_input.F,v 1.11 2000-01-24 23:16:27 d3j191 Exp $
 c
       implicit none
 c
@@ -11,9 +11,9 @@ c
 c
       integer irtdb
 c
-      character*255 item,prefix,atom,tag
+      character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      integer lfncmd,numcmd,len,ivec,nspac
+      integer lfncmd,numcmd,len,ivec,nspac,itors
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut
       logical lref,lfil
@@ -155,6 +155,20 @@ c
       goto 2
       endif
 c
+c     scan frames and write to file
+c     -----------------------------
+c
+      if(inp_compare(.false.,'scan',item)) then
+      if(.not.inp_a(filcop)) call errquit('Error in scan',0)
+      if(index(filcop,'.').le.0)
+     + filcop=filcop(1:index(filcop,' ')-1)//'.scn '
+      if(filcop.eq.filtrj) call errquit('File name conflict',0)
+      write(lfncmd,1016) filcop(1:index(filcop,' ')-1)
+ 1016 format('scan   ',a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
 c     select atoms
 c     ------------
 c
@@ -178,6 +192,25 @@ c
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 4
+      goto 2
+      endif
+c
+c     define torsions
+c     ---------------
+c
+      if(inp_compare(.false.,'torsion',item)) then
+      if(.not.inp_i(itors)) call errquit('Error in torsion',0)
+      if(.not.inp_a(atomi)) call errquit('Error in torsion',0)
+      if(.not.inp_a(atomj)) call errquit('Error in torsion',0)
+      if(.not.inp_a(atomk)) call errquit('Error in torsion',0)
+      if(.not.inp_a(atoml)) call errquit('Error in torsion',0)
+      write(lfncmd,1012) itors
+ 1012 format('torsio ',i5)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
+      write(lfncmd,1013) atomk(1:index(atomk,' ')-1)
+      write(lfncmd,1013) atoml(1:index(atoml,' ')-1)
+ 1013 format(a)
       goto 2
       endif
 c

@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.3 1999-10-25 17:44:26 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.4 2000-01-24 23:16:27 d3j191 Exp $
 c
       implicit none
 c
@@ -59,6 +59,7 @@ c
  9999 continue 
 c
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
 c
       fname=filtrj
 c
@@ -72,7 +73,8 @@ c
       fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9998)
-      write(*,'(a,a)') 'Opening trj file ',fname(1:index(fname,' ')-1)
+      write(*,3333) fname(1:index(fname,' ')-1)
+ 3333 format(/,' Opening trj file ',a)
       goto 1
 c
  9998 continue

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.6 2000-01-04 19:07:53 d3j191 Exp $
+c $Id: ana_task.F,v 1.7 2000-01-24 23:16:27 d3j191 Exp $
 c
       implicit none
 c
@@ -16,14 +16,16 @@ c
       character*255 filcmd,fil
 c
       character*80 card
-      integer nsai,msai,ifrsk
+      integer nsai,msai,ifrsk,it
       integer nframe,nread,nwrit,ifr,ito,num,i,ivec
       real*8 rms0,rms1,val
       character*3 fmt
       logical active
 c
       logical ana_rdfram
-      external ana_rdfram
+      integer ana_index
+      real*8 ana_torsion
+      external ana_rdfram,ana_index,ana_torsion
 c
 c
 c     set sequential access to rtdb
@@ -46,6 +48,8 @@ c
       ifrsk=1
       ifrst=0
       ilast=0
+c
+      ntors=0
 c
       lsel=.false.
       active=.false.
@@ -117,6 +121,7 @@ c
 c
       call ana_rdhdr(byte_mb(i_snam))
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
       call ana_all(int_mb(i_isel),1,dbl_mb(i_wt))
       lsel=.false.
 c
@@ -137,6 +142,22 @@ c
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
+      goto 1
+      endif
+c
+c     torsion specification
+c     ---------------------
+c
+      if(card(1:6).eq.'torsio') then
+      read(card(8:12),'(i5)') it
+      if(it.eq.ntors+1) ntors=ntors+1
+      if(it.gt.ntors) call errquit('Torsion index too large',it)
+      if(it.gt.mxtors) call errquit('Torsion index too large',it)
+      do 7 i=1,4
+      read(lfncmd,1000,end=9999) card
+      itors(it,i)=ana_index(card,byte_mb(i_snam))
+    7 continue
+      write(*,'(4i5)') (itors(it,i),i=1,4)
       goto 1
       endif
 c
@@ -189,8 +210,10 @@ c
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 2
       endif
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
 c
       if(me.eq.0) then
+      close(unit=lfncop)
       write(*,'(/,a,i10,a,a)') ' Copied ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
@@ -198,7 +221,7 @@ c
       goto 1
       endif
 c
-c     copy frames
+c     super frames
 c     -----------
 c
       if(card(1:6).eq.'super ') then
@@ -232,10 +255,61 @@ c
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 3
       endif
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
 c
 c
       if(me.eq.0) then
+      close(unit=lfncop)
       write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
+     + filcop(1:index(filcop,' ')-1)
+      endif
+c
+      goto 1
+      endif
+c
+c     scan frames
+c     -----------
+c
+      if(card(1:6).eq.'scan  ') then
+      read(card(8:80),'(a)') filcop
+      i=index(filcop,'.')
+      fmt=filcop(i+1:i+3)
+c
+c     read file header
+c
+      call ana_rdhdr(byte_mb(i_snam))
+c
+      if(me.eq.0) then
+      open(unit=lfncop,file=filcop(1:index(filcop,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      print*,'filcop=',filcop(1:index(filcop,' ')-1)
+      endif
+c
+      nread=0
+      nwrit=0
+      nframe=0
+   10 continue
+      if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+      nread=nread+1
+      if(nread.lt.ifrfr) goto 10
+      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+      do 11 i=1,ntors
+      rtors(i)=ana_torsion(dbl_mb(i_xdat),msa,
+     + itors(i,1),itors(i,2),itors(i,3),itors(i,4))
+   11 continue
+      write(lfncop,2323) time,(rtors(i),i=1,ntors)
+ 2323 format(5f12.6)
+      nwrit=nwrit+1
+      endif
+      nframe=nframe+1
+      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 10
+      endif
+      close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
+c
+      if(me.eq.0) then
+      close(unit=lfncop)
+      write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
 c
@@ -270,6 +344,7 @@ c
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 4
       endif
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
       call ana_xmean(dbl_mb(i_xadat+ifr-1),num,msa,nave)
 c
       if(me.eq.0) then
@@ -331,6 +406,7 @@ c
       endif
 c
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
 c
       goto 1
       endif
@@ -385,6 +461,7 @@ c
       endif
 c
       close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
       endif
 c
 c     generate esp grid from an xyzq file
