@@ -416,7 +416,7 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
 
   /* Open the physical data base */
 
-  openinfo.bsize = 1024;
+  openinfo.bsize = 1024*4;
   openinfo.cachesize = 128*1024;
   openinfo.ffactor = 16;
   openinfo.hash = 0;
