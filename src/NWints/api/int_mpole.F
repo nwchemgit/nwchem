@@ -1,6 +1,6 @@
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.2 1995-01-10 06:06:22 d3e129 Exp $
+c $Id: int_mpole.F,v 1.3 1995-03-01 01:17:01 d3g681 Exp $
 c
 c routine to compute multipole integrals up to level lmax
 c The general form is <shell|pole|shell>
@@ -45,6 +45,7 @@ c::local
       integer l_int, ij_int, num_int
       integer int_point, int_size
       logical inline_chk_sh      
+      integer lmpsiz            ! Local copy of lmpint
 c
       integer WarnP
       save WarnP
@@ -61,6 +62,8 @@ c
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
+c
+      lmpsiz = lmpint
 c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
@@ -102,12 +105,12 @@ c
         l_int  = (lval+1)*(lval+2)/2
         ij_int = int_nint(i_basis, ish, j_basis, jsh, 0,0, 0,0)
         int_point = num_int + 1
-        int_size  = lmpint - num_int
+        int_size  = lmpsiz - num_int
         num_int = num_int + l_int*ij_int
-        if (num_int.gt.lmpint) then
-          write(6,*)' int_mpole: lmpint  = ',lmpint
+        if (num_int.gt.lmpsiz) then
+          write(6,*)' int_mpole: lmpsiz  = ',lmpsiz
           write(6,*)' int_mpole: num_int = ',num_int
-          call errquit('int_mpole: lmpint too small ',911)
+          call errquit('int_mpole: lmpsiz too small ',911)
         endif
         call hf3ois(
      &       coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
@@ -119,5 +122,5 @@ c
 c...................................TriDiag..DryRun
      &       MP(int_point),int_size,.false.,.false.,scr,lscr)
 00100 continue
-      lmpint = num_int
+      lmpsiz = num_int
       end
