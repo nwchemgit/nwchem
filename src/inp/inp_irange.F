@@ -85,11 +85,16 @@ C
          JFirst = JTmp(1)
          JLast  = JTmp(1)
          JStride = 1
-      ElseIf (Term .eq. 2) then   ! Start and end, no stride
+      ElseIf (Term .eq. 2) then   ! Start and end, stride defaults to 1
+         If ( JTmp(2) .gt. JTmp(1) ) Goto 125 ! Stride 1 won't work here
          JFirst = JTmp(2)
          JLast  = JTmp(1)
          JStride = 1
       ElseIf (Term .eq. 3) then   ! Full triplet
+         If ( JTmp(1) .eq. 0) Goto 126 ! Stride 0 not allowed
+         If ( JTmp(2) .ne. JTmp(3) ) then
+            If ( (JTmp(2) - JTmp(3)) * JTmp(1) .lt. 0) Goto 127
+         EndIf
          JFirst = JTmp(3)
          JLast  = JTmp(2)
          JStride = JTmp(1)
@@ -102,4 +107,22 @@ c
       jrec = jrec-1
       return
 c     
+ 125  ierrpos = ist
+      errmsg = 'invalid range spec. -- first > last'
+      Inp_IRange = .FALSE.
+      JRec = JRec - 1
+      Return
+C
+ 126  ierrpos = ist
+      errmsg = 'invalid range spec. -- stride can not be 0'
+      Inp_IRange = .FALSE.
+      JRec = JRec - 1
+      Return
+C
+ 127  ierrpos = ist
+      errmsg = 'invalid range spec. -- stride incompatable with range'
+      Inp_IRange = .FALSE.
+      JRec = JRec - 1
+      Return
+C
       end
