@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.6 2001-10-26 21:05:06 bylaska Exp $
+* $Id: cgsdv5.F,v 1.7 2001-11-26 21:34:21 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -66,7 +66,7 @@
 *     **** local variables ****
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      integer i,k,ia,nion
+      integer i,k,ia,nion,icharge
   
 
 
@@ -76,14 +76,14 @@
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
-      integer     psp_lmmax,psp_lmax,psp_locp
+      integer     psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       character*2 psp_atom,ion_aname
       external    psp_zv,psp_rc,ewald_rcut
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass
       external    ewald_ncut,ewald_nshl3d,psp_npsp
-      external    psp_lmmax,psp_lmax,psp_locp
+      external    psp_lmmax,psp_lmax,psp_locp,ion_nkatm
       external    psp_atom,ion_aname
 
 
@@ -263,6 +263,13 @@ c         ENDIF
      >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
            write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          end do
+
+         icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
+         do ia=1,ion_nkatm()
+           icharge = icharge + ion_natm(ia)*psp_zv(ia)
+         end do
+         write(6,1159) icharge
+
          write(6,1160)
          write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
          write(6,1180)
@@ -484,6 +491,7 @@ c     end if
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')

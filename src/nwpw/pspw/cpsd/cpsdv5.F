@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.7 2001-10-26 21:05:08 bylaska Exp $
+* $Id: cpsdv5.F,v 1.8 2001-11-26 21:34:22 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -59,7 +59,7 @@
       integer npack1
 
 *     **** electronic variables ****
-      integer ispin
+      integer ispin,icharge
       integer ne(2),n1(2),n2(2),nemax
       real*8  en(2)
       real*8  dipole(3)
@@ -347,6 +347,13 @@
      >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
            write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          end do
+
+         icharge = -(ne(1)+ne(ispin))
+         do ia=1,ion_nkatm()
+           icharge = icharge + ion_natm(ia)*psp_zv(ia)
+         end do
+         write(6,1159) icharge
+
          write(6,1160)
          write(6,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          write(6,1180)
@@ -755,6 +762,7 @@
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
