@@ -1,0 +1,133 @@
+title C6
+
+start C6
+
+memory global 56 mb stack 36 mb heap 20 mb
+
+geometry units angstrom
+C           6.5506172        5.2963788        5.2908035
+C           6.0612667        6.5231665        5.2920195
+C           4.8168120        6.0730312        5.2908666
+C           3.9956507        5.0359221        5.2921372
+C           5.0264072        4.2093395        5.2909275
+C           6.3304175        3.9927847        5.2920632
+end
+
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: C.psp
+      element: C
+      charge: 6.0
+      mass_number: 12.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      exchange_type: dirac
+      correlation_type: vosko
+      atomic_filling: 1 2
+        1 s 2.0
+        2 s 2.0
+        2 p 2.0
+      cutoff: 3
+         s 0.8
+         p 0.85
+         d 0.85
+   END
+
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 32 32 32
+   END
+
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: C.psp
+      formatted_filename: C.vpp
+      locp: 0
+   END
+
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      up_filling: 12
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -2
+               1 0 0    +1
+               0 1 0    +1
+               0 0 1    +1
+               1 1 0    -2
+               1 0 1    -1
+               0 1 1    -1
+               1 1 0    +1
+               1 0 1    +2
+      wavefunction_filename: c6.small.00.elc
+      cell_name: small
+   END 
+END
+task psp_generator pspw
+task psp_formatter pspw
+task wavefunction_initializer pspw
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  c6.small.00.elc
+      output_wavefunction_filename: C6.movecs
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: vosko
+   END
+END
+task steepest_descent pspw
+
+
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  C6.movecs
+      output_wavefunction_filename: C6.movecs
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 5 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: vosko
+   END 
+END
+#task rtdbprint
+task pspw conjugate_gradient
+driver
+   xyz C6.xyz
+end
+task cg_pspw optimize
+task cg_pspw freq
+
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      geometry_optimize
+      formatted_filename: C.vpp
+      input_wavefunction_filename:  C6.movecs
+      output_wavefunction_filename: C6.movecs
+      fake_mass: 400000.0d0
+      time_step: 10.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      exchange_correlation: vosko
+   END
+END
+ task steepest_descent pspw
