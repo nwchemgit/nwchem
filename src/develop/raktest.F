@@ -1,6 +1,16 @@
+#ifdef IPSC
+      real function etime(t)
+      real t(2)
+      real*8 dclock
+      external dclock
+      etime = dclock()
+      t(1)  = etime
+      t(2)  = etime
+      end
+#endif
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.21 1994-09-13 05:14:16 d3e129 Exp $
+c $Id: raktest.F,v 1.22 1994-09-14 14:34:33 d3g681 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
