@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.30 1994-11-06 14:16:20 d3e129 Exp $
+c $Id: raktest.F,v 1.31 1995-02-06 20:40:51 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,7 +13,7 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100) raktask
+      goto (00100,00200) raktask
 c
       write(6,*)' default raktest task '
       call raktest0(rtdb)
@@ -23,7 +23,85 @@ c
       call raktest1(rtdb)
       goto 00001
 c
+00200 write(6,*)' raktest task 2 '
+      call raktest2(rtdb)
+      goto 00001
+c
 00001 continue
+      end
+      subroutine raktest0(rtdb)
+      implicit none
+c test0 "default raktest"
+#include "global.fh"
+      integer rtdb
+c::functions
+      logical gen_apphess_at
+      external gen_apphess_at
+c
+      double precision delta
+c
+#if defined(SUN)
+      real etime,tarray(2)
+      external etime
+#endif
+      real t1
+      t1 = 0.0
+c
+c      logical status
+c
+      if(ga_nodeid().eq.0) then
+        write(6,*) ' rak test'
+      endif
+      delta = 0.01d00
+#if defined(SUN)
+      t1 = etime(tarray)
+#endif
+      if(.not.gen_apphess_at(rtdb,delta)) call errquit
+     &    ('raktest:gen_apphess_at failed',911)
+#if defined(SUN)
+      t1 = etime(tarray) - t1 
+#endif
+      if(ga_nodeid().eq.0) then
+        write(6,'(1x,a,f8.2)')
+     &      'time for rak test',t1
+      endif
+      end
+      subroutine raktest2(rtdb)
+      implicit none
+c test0 "default raktest"
+#include "global.fh"
+      integer rtdb
+c::functions
+      logical gen_apphess_opt
+      external gen_apphess_opt
+c
+      double precision delta
+c
+#if defined(SUN)
+      real etime,tarray(2)
+      external etime
+#endif
+      real t1
+      t1 = 0.0
+c
+c      logical status
+c
+      if(ga_nodeid().eq.0) then
+        write(6,*) ' rak test'
+      endif
+      delta = 0.01d00
+#if defined(SUN)
+      t1 = etime(tarray)
+#endif
+      if(.not.gen_apphess_opt(rtdb,delta)) call errquit
+     &    ('raktest:2:gen_apphess_opt failed',911)
+#if defined(SUN)
+      t1 = etime(tarray) - t1 
+#endif
+      if(ga_nodeid().eq.0) then
+        write(6,'(1x,a,f8.2)')
+     &      'time for rak test 2',t1
+      endif
       end
       subroutine raktest1(rtdb)
       implicit none
@@ -572,48 +650,6 @@ c
      &    ' fd =',d20.10,' diff =',d20.10)
 c
       end
-      subroutine raktest0(rtdb)
-      implicit none
-c test0 "default raktest"
-#include "global.fh"
-      integer rtdb
-c::functions
-      logical gen_apphess_at
-      external gen_apphess_at
-c
-      double precision delta
-c
-#if defined(SUN)
-      real etime,tarray(2)
-      external etime
-#endif
-      real t1
-      t1 = 0.0
-c
-c      logical status
-c
-      if(ga_nodeid().eq.0) then
-        write(6,*) ' rak test'
-      endif
-      delta = 0.01d00
-#if defined(SUN)
-      t1 = etime(tarray)
-#endif
-      if(.not.gen_apphess_at(rtdb,delta)) call errquit
-     &    ('raktest:gen_apphess_at failed',911)
-#if defined(SUN)
-      t1 = etime(tarray) - t1 
-#endif
-      if(ga_nodeid().eq.0) then
-        write(6,'(1x,a,f8.2)')
-     &      'time for rak test',t1
-      endif
-      end
-      logical function gen_apphess_opt(rtdb,delta)
-      implicit none
-      integer rtdb
-      double precision delta
-      end
       logical function gen_apphess_at(rtdb,delta)
       implicit none
 #include "mafdecls.fh"
@@ -674,9 +710,9 @@ c
 c
 c.. try to load "fd basis"
 c.. create basis handle
-        if(.not.bas_create(basis,'fd basis')) call errquit
+        if(.not.bas_create(basis,fd_basis)) call errquit
      &      ('gen_apphess_at: bas_create failed?',7)
-        if(bas_rtdb_load(rtdb,geom,basis,'fd basis')) then
+        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
           continue
         else
 c...  if fd basis not defined use current mo_basis
@@ -865,6 +901,107 @@ c
 00200   continue
 00100 continue
 c
+      end
+      logical function gen_apphess_opt(rtdb,delta)
+      implicit none
+c
+c function to generate approximate hessian
+c
+#include "bas.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "context.fh"
+      integer rtdb
+      double precision delta
+c
+      integer whoiam, master
+      logical ignore_status
+      integer geom,nat,basis
+      character*40 mo_basis,mo_basis_ref,fd_basis,new_geom_name
+      character*40 movecs_in_ref
+c
+      gen_apphess_opt=.false.
+      whoiam = ga_nodeid()
+      master = 0
+      ignore_status = rtdb_parallel(.false.)
+      if (whoiam.eq.master) then
+c
+c.. create/load reference geometry
+        if (.not.geom_create(geom,'geometry')) call errquit
+     &      ('gen_apphess_at:geom_create failed?',1)
+        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
+c..  get the number of atoms
+        if (.not. geom_ncent(geom,nat)) call errquit
+     &      ('gen_apphess_at:geom_ncent failed?',3)
+c
+c.. copy reference geometry and store on rtdb
+        if (.not.
+     &      geom_rtdb_store(rtdb,geom,'reference'))
+     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
+c
+c.. determine what fd basis name is
+c
+        if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
+     &      mo_basis = 'mo basis'
+        mo_basis_ref = mo_basis
+        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+     &      fd_basis = 'fd basis'
+c
+c.. try to load "fd basis"
+c.. create basis handle
+        if(.not.bas_create(basis,fd_basis)) call errquit
+     &      ('gen_apphess_at: bas_create failed?',7)
+        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+          continue
+        else
+c...  if fd basis not defined use current mo_basis
+          fd_basis = mo_basis
+          write(6,*) ' fd basis is the mo basis This will be expensive'
+          call util_flush(6)
+        endif
+c
+c.. set "mo basis" to point to "fd basis"
+        if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
+     &      ('gen_apphess_at: rtdb_cpu failed?',8)
+c... destroty basis and geom handles
+        if (.not.(bas_destroy(basis))) call errquit
+     &      ('gen_apphess_at: bas_destroy failed?',9)
+        if (.not.(geom_destroy(geom))) call errquit
+     &      ('gen_apphess_at: geom_destroy failed?',9)
+c set "geometry" to "reference"
+        new_geom_name='reference'
+        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &      call errquit
+     &        ('gen_apphess_at: rtdb_cput failed ?',911)
+      endif
+c... store movecs initial state
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+     $     movecs_in_ref = 'atomic'
+c... set initial guess for fd basis to atomic
+      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, 'atomic'))
+     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
+c
+      ignore_status = rtdb_parallel(.true.)
+      call gen_apphess_at(rtdb,delta)
+      call scf_opt(rtdb)
+c
+c.. reset stepper so it knows to restart the calculation
+      call stpr_walk_reset
+      ignore_status = rtdb_parallel(.false.)
+c.. set "mo basis" to point to %val<mo_basis_ref
+      if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis_ref))
+     &    call errquit ('gen_apphess_opt: rtdb_cput failed?',8)
+c
+c... reset input vectors option here to original guess if appropriate
+      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
+c
+      call scf_opt(rtdb)
+c
+      gen_apphess_opt = .true.
       end
 *rak:      subroutine size_integ(rtdb,geom_name, basis_name)
 *rak:      implicit none
