@@ -24,8 +24,26 @@ c
        nbf = nocc + nvir
        my_id = ga_nodeid()
        call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
-       if (ilo.ne.1) call
-     $   errquit('moints_mp2_eval: wrond distrib for exch',0)
+
+#ifdef DEBUG
+       if (ga_nodeid().eq.0) write(6,944)
+       do i=0,ga_nnodes()-1
+         if (i.eq.my_id) then
+           write(6,923) i,ilo,ihi,jlo,jhi
+ 923       format('moints_mp2_eval: distribution','[',i5,']',3x,
+     $            2(2i5,3x))
+           call util_flush(6)
+	 endif
+         call ga_sync()
+       enddo
+       if (ga_nodeid().eq.0) write(6,944)
+ 944   format(/,'===================================================',/)
+#endif
+c
+c Check if this node has any data
+c
+       if ((ilo.ne.1).and.(ihi.ne.-1)) call 
+     $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
 c
 c Set to handle different exchange matrix sizes
 c
@@ -35,7 +53,7 @@ c
        else if (ihi.eq.(nvir*nvir)) then
          ndim = nvir
          vstart = 0
-       else
+       else if (ihi.ne.-1) then
          call errquit('moints_mp2_eval: odd exchange matrix size',0)
        endif
 c
