@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.25 1996-08-15 17:37:57 rg240 Exp $
+C$Id: direct_mp2.F,v 1.26 1996-08-19 15:24:35 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -344,7 +344,7 @@ c
          call util_flush(6)
        endif
        call ga_sync()
-       call ga_brdcst(msg_direct_mp2_emp2, emp2, mitob(1), 0 )
+       call ga_brdcst(msg_direct_mp2_emp2, emp2, mdtob(1), 0 )
        ttotal = tcgtime() - ttotal
        if ((ga_nodeid().eq.0).and.(oprint)) then
          write(6,823) ttotal

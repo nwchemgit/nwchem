@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.11 1996-07-26 16:32:34 d3g681 Exp $
+C     $Id: moints_full.F,v 1.12 1996-08-19 15:24:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11,6 +11,7 @@ C     $Id: moints_full.F,v 1.11 1996-07-26 16:32:34 d3g681 Exp $
 #include "sym.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "cmointsbuf.fh"
 c     
       integer rtdb              ! [input] database handle
 c     
@@ -71,8 +72,6 @@ c
       double precision tol2e, tol_out, tol_sym
       character*7 algo
       character*10 intfmt
-      integer buflen
-      parameter (buflen = 1024)
 c     
       logical movecs_read_header, movecs_read, movecs_write
       external movecs_read_header, movecs_read, movecs_write
@@ -176,7 +175,7 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. rtdb_cget(rtdb,'fourindex:file format',1, intfmt))
-     $     intfmt = 'ascii'
+     $     intfmt = 'nwchem'
       if (intfmt .eq. 'ascii') then
       else if (intfmt .eq. 'nwchem') then
       else if (intfmt .eq. 'columbus') then
@@ -914,61 +913,34 @@ c
       end
       subroutine moints_wrt_buf(moints_unit, n, buf, labels)
       implicit none
+#include "cmointsbuf.fh"
       integer moints_unit
       integer n
       double precision buf(*)
       integer labels(*)
 c
-      integer buflen
-      parameter (buflen = 1024) ! MUST MATCH MAIN PROGRAM
-      double precision fbuf
-      integer plab
-      integer n_in_rec, pad
-      common/cmointsbuf/fbuf(buflen),plab(buflen),n_in_rec,pad
-      double precision fred(buflen*2+1)
-      equivalence (fred(1),fbuf(1))
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save fred
-#endif
+c     SWRITE CALL ASSUMES 32 BIT INTEGER
 c
-c     DIMENSIONING OF PLAB ASSUMES 32 BIT MACHINE!!!!!!
-c
-      call util_pack_8(buflen, plab, labels)
+      call dcopy(n, buf, 1, fbuf, 1)
+      if (n.gt.0) call util_pack_8(4*n, plab, labels)
       n_in_rec = n
-      write(moints_unit,err=10) fred
-      return
+      call swrite(moints_unit, fbuf, buflen+buflen/2+1)
 c
- 10   call errquit('moints_wrt_buf: err', moints_unit)
       end
       subroutine moints_read_buf(moints_unit, n, buf, labels)
       implicit none
+#include "cmointsbuf.fh"
       integer moints_unit
       integer n
       double precision buf(*)
       integer labels(*)
 c
-      integer buflen
-      parameter (buflen = 1024) ! MUST MATCH MAIN PROGRAM
-      double precision fbuf
-      integer plab
-      integer n_in_rec, pad
-      common/cmointsbuf/fbuf(buflen),plab(buflen),n_in_rec,pad
-      double precision fred(buflen*2+1)
-      equivalence (fred(1),fbuf(1))
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save fred
-#endif
+c     SWRITE CALL ASSUMES 32 BIT INTEGER
 c
-c     DIMENSIONING OF PLAB ASSUMES 32 BIT MACHINE!!!!!!
-c
-      read(moints_unit,err=10,end=10) fred
+      call sread(moints_unit, fbuf, buflen+buflen/2+1)
       n = n_in_rec
-      call util_unpack_8(buflen, plab, labels)
-      return
-c
- 10   call errquit('moints_read_buf: eof/err', moints_unit)
+      if (n.gt.0) call util_unpack_8(4*buflen, plab, labels)
+      if (n.gt.0) call dcopy(n, fbuf, 1, buf, 1)
 c
       end
 
