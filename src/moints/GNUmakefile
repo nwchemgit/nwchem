@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.68 2000-11-02 23:53:39 edo Exp $
+#$Id: GNUmakefile,v 1.69 2000-11-22 20:42:28 edo Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -33,7 +33,8 @@ OBJ_OPTIMIZE = \
               moints_ccsd.F \
               moints_full.F \
               moints_semi.F \
-              sifs.F
+              sifs0.F \
+              sifs1.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 
