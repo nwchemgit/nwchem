@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.39 2002-07-03 19:44:57 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.40 2002-07-12 22:29:08 d3k958 Exp $
 c
       implicit none
 c
@@ -196,15 +196,15 @@ c
          endif
 c
       else if (movecs_in .eq. 'project') then
-         if (nmo .ne. nbf) call errquit
-     &        ('projection not yet working with linear dependence ',0)
+c         if (nmo .ne. nbf) call errquit
+c     &        ('projection not yet working with linear dependence ',0)
 c
 c        Project from a smaller basis set ... must orthog before
 c        the symmetry adaption. Also, sym adapt thoroughly
 c        since the strong linear dependence in the 
 c        random vectors may cause loss of precision.
 c
-         call movecs_project(rtdb, geom, basis, g_movecs,1)
+         call movecs_project(rtdb, nmo, geom, basis, g_movecs,1)
          call ga_orthog_mos(basis, g_movecs)
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs, .false.,
@@ -213,7 +213,7 @@ c
      &           0, '- projected ', .true.,int_mb(k_irs))
          endif
          if (scftype .eq. 'UHF') then
-         call movecs_project(rtdb, geom, basis, g_movecs,2)
+         call movecs_project(rtdb, nmo, geom, basis, g_movecs,2)
          call ga_orthog_mos(basis, g_movecs(2))
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,
