@@ -5,7 +5,7 @@
      $                             g_int1t,
      $                             blen )
 *
-* $Id: moints_ccsd.F,v 1.10 1997-11-04 09:58:03 d3e129 Exp $
+* $Id: moints_ccsd.F,v 1.11 1999-08-20 21:48:49 d3g681 Exp $
 *
       implicit none
 #include "tcgmsg.fh"
@@ -211,6 +211,7 @@ c
         enddo
       enddo
       next = nxtval(-num_nodes)
+      call ga_sync
 c
 c Clean-up
 c

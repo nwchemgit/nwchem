@@ -219,7 +219,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
+C     $Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -560,7 +560,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
+C     $Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1210,7 +1210,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
+C$Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1254,7 +1254,7 @@ C$Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.35 1999-07-26 22:31:29 d3e129 Exp $
+c$$$C$Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
@@ -1316,9 +1316,11 @@ c$$$       end
       col_dist = 1
       row_dist = n1*n2
       if (.not.ga_create(MT_DBL,(n1*n2),noper,label,
-     $                    row_dist,col_dist,g_a))
-     $      call errquit('ga_create_JKblocked: cannot allocate',0)
-
+     $                    row_dist,col_dist,g_a)) then
+         write(6,*) ' ga_create_JKblocked: ', label
+         call util_flush(6)
+         call errquit('ga_create_JKblocked: cannot allocate',0)
+      endif
       ga_create_JKblocked = g_a
       
       return

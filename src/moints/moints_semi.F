@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.54 1999-06-16 00:10:23 d3e129 Exp $
+c  $Id: moints_semi.F,v 1.55 1999-08-20 21:48:49 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -618,6 +618,7 @@ c
          enddo
        enddo
        t0 = util_cpusec()
+       call ga_sync
        next = nxtval(-num_nodes)
        t1 = util_cpusec() - t0
        mi_nsynchs = mi_nsynchs + 1

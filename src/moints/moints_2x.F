@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.33 1997-12-08 19:47:09 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.34 1999-08-20 21:48:48 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -342,11 +342,13 @@ c
          enddo
        enddo
        tsynch = util_cpusec()
+       call ga_sync()
        next = moints_nxttask(-num_nodes)
        tsynch = util_cpusec() - tsynch
        thalf = util_cpusec() - thalf
        call moints_aodisk_tidy()
-
+c
+*       write(6,*) ' halfway g_exch ', ga_ddot(g_exch, g_exch)
 c
 c  Clean-up
 c
@@ -424,6 +426,8 @@ C	 CALL MOINTS_OP_PRINT(OCC_START,MO1_LO,MO1_HI,NMO2,G_COUL)
      $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
        endif
 c
+       call ga_sync
+c
 c  Clean-up
 c
        if (.not. ma_pop_stack(l_hlp))
@@ -469,6 +473,8 @@ c
        mi_ntasks = mi_ntasks + tottask
 c
 c
+       call ga_sync()
+*       write(6,*) ' fullway g_exch ', ga_ddot(g_exch, g_exch)
 c
        return
        end
