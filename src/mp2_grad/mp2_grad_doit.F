@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.38 1997-10-15 19:20:24 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.39 1998-03-07 01:31:41 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -338,10 +338,12 @@ c...  Form the terms in the Lagrangian which are not Fock builds:
 c
 c     (logic assumes noa_frozen=nob_frozen, noa>=nob, nva<=nvb)
 c
-            if(.not.ma_push_get(mt_dbl, max(nvb,nob_frozen)*nvb,
+            if(.not.ma_push_get(mt_dbl, 
+     $           max(max(nva,noa_frozen)*nva,max(nvb,nob_frozen)*nvb),
      $           'vvvo',l_vvvo,k_vvvo))
      $           call errquit('mp2_grad: could not alloc vvvo',1)
-            if(.not.ma_push_get(mt_dbl, max(noa,noa_frozen)*noa,
+            if(.not.ma_push_get(mt_dbl, 
+     $           max(max(noa,noa_frozen)*noa,max(nob,nob_frozen)*nob),
      $           'vooo',l_vooo,k_vooo))
      $           call errquit('mp2_grad: could not alloc vooo',1)
 c
