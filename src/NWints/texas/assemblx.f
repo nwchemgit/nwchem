@@ -1,4 +1,4 @@
-* $Id: assemblx.f,v 1.9 2001-06-22 22:07:07 pg481 Exp $
+* $Id: assemblx.f,v 1.10 2001-07-02 21:30:03 d3g681 Exp $
 c----------------------------------------------------------------
 c All routines of the type name_2 are used when 
 c          IROUTE=2
@@ -141,7 +141,6 @@ c
 C
 c-------
       IF(where.eq.'buff') THEN
-c
         ijs=nfu(nqij)+1
         IF (FIRSTC) THEN
            DO 501 KL=nfu(nqkl)+1,LNKL
@@ -153,12 +152,24 @@ c
 C
            FIRSTC=.FALSE.
         ELSE
-           DO 601 KL=nfu(nqkl)+1,LNKL
-           DO 601 ij=ijs,LNIJ
-           do 601 i=1,nbls1
-           ijkl=indx(i)
-           BUF2(ijkl,IJ,KL)=BUF2(ijkl,IJ,KL)+XT1(i,IJ,KL)
-  601      CONTINUE
+           if (nbls .eq. nbls1) then
+              DO KL=nfu(nqkl)+1,LNKL
+                 DO ij=ijs,LNIJ
+                    do i=1,nbls1
+                       BUF2(i,IJ,KL)=BUF2(i,IJ,KL)+XT1(i,IJ,KL)
+                    end do
+                 end do
+              end do
+           else
+              DO KL=nfu(nqkl)+1,LNKL
+                 DO ij=ijs,LNIJ
+                    do i=1,nbls1
+                       ijkl=indx(i)
+                       BUF2(ijkl,IJ,KL)=BUF2(ijkl,IJ,KL)+XT1(i,IJ,KL)
+                    end do
+                 end do
+              end do
+           end if
         ENDIF
       ENDIF
 c
