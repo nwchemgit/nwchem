@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.7 2003-10-28 21:48:40 edo Exp $
+C $Id: geninterface.F,v 1.8 2003-11-01 00:57:36 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -224,13 +224,28 @@ C
       implicit none
 #include "geninterface.fh"
 #include "rtdb.fh"
+#include "util.fh"
 
       character*(*) theoryName
+      character*32 dft_func
+
+      external nw_inp_from_character
+      logical nw_inp_from_character
 
       setTheory = .false.
 
-      if (.not. rtdb_cput(rtdb, 'task:theory', 1, theoryName))
+      if (theoryName.eq.'b3lyp') then 
+         write(dft_func, '(''dft; XC b3lyp; end'')')
+         if (.not. nw_inp_from_character(rtdb, dft_func))
+     $   call errquit('setTheoryB3LYP: setting rtdb failed', 555,0)
+         if (.not. rtdb_cput(rtdb, 'task:theory', 1, 'dft'))
      $     call errquit('setTheory: failed setting theory',555,0)
+
+      else
+
+         if (.not. rtdb_cput(rtdb, 'task:theory', 1, theoryName))
+     $     call errquit('setTheory: failed setting theory',555,0)
+      end if
 
       setTheory = .true.
 
