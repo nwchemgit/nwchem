@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.13 2003-02-04 01:04:40 edo Exp $
+* $Id: paw_basis.F,v 1.14 2003-02-04 01:52:02 marat Exp $
 *
 
 !**************************************************
@@ -29,9 +29,11 @@ c      include "myma.fh"
       character*20 fname
 
 c      !*** external functions ***
-      integer ion_nkatm
       double precision dabsmax
-      external ion_nkatm,dabsmax
+      external dabsmax
+      integer ion_nkatm
+      external ion_nkatm
+      
 
       nt = ion_nkatm()
       ok = MA_push_get(MT_INT,nt, "nb_tmp_array", l_nb,i_nb)
