@@ -1,6 +1,6 @@
       Subroutine dft_rdinput( rtdb, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.11 1996-05-01 23:53:17 og845 Exp $
+C$Id: dft_rdinput.F,v 1.12 1996-06-17 16:15:55 og845 Exp $
       implicit none
       
       integer rtdb                               ! [input] database handle
@@ -22,7 +22,7 @@ C$Id: dft_rdinput.F,v 1.11 1996-05-01 23:53:17 og845 Exp $
 c
       integer bases(3)
       character*255 title
-      integer ncenters,iproc,ichg,itscf,iscfcon,iguess,mult,ipol,
+      integer ncenters,iproc,ichg,iscfcon,iguess,mult,ipol,
      ,     igcon,icvgtyp,nfock,ncysh,idirect,idisoff,noio,
      ,     ndamp,idecomp,nagrid,nrinc,nrmax,
      ,     itype,numgrp,numset,itrscf,
