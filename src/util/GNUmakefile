@@ -1,25 +1,27 @@
-# $Id: GNUmakefile,v 1.77 1997-10-22 16:43:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.78 1997-11-14 00:23:23 d3g681 Exp $
 
 include ../config/makefile.h
 
    LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
+                 -DPERM_DEF_DIR=$(PERM_DEF_DIR) \
+                 -DBINDIR=\"$(BINDIR)\"
 
 ifeq ($(TARGET),SOLARIS)
   EXTRA_OBJ = ieeetrap.o
-  SPEECH = YES
+#  SPEECH = YES
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
-  SPEECH = YES
+#  SPEECH = YES
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
 ifeq ($(TARGET),SP1)
   EXTRA_OBJ = ibm_cputime.o
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),IBM)
@@ -72,8 +74,8 @@ endif
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
               util_rtdb_state.o ecce_print.o \
-              util_random.o \
-	      dgewr.o atoi.o indint.o \
+              util_random.o util_job.o \
+	      dgewr.o atoi.o indint.o util_wall_remain.o\
               $(EXTRA_OBJ)
 
 #nxtval_ga.o 
@@ -114,4 +116,10 @@ testecce:      testecce.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 
+ifeq ($(TARGET),SP1)
+$(BINDIR)/jobtime:	jobtime
+	/bin/cp $^ $@
 
+$(BINDIR)/jobtime.pl:	jobtime.pl
+	/bin/cp $^ $@
+endif

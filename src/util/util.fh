@@ -1,16 +1,22 @@
 #include "printlevels.fh"
 c      
       logical util_print
-C$Id: util.fh,v 1.9 1997-04-16 18:31:10 d3j191 Exp $
+C$Id: util.fh,v 1.10 1997-11-14 00:23:23 d3g681 Exp $
       double precision ddot
       double precision util_cpusec
       double precision util_wallsec
       double precision util_random
+      integer util_batch_job_time_remaining
+      integer util_time_remaining
+      logical util_test_time_remaining
       external util_print
       external ddot
       external util_cpusec
       external util_wallsec
       external util_random
+      external util_batch_job_time_remaining
+      external util_time_remaining
+      external util_test_time_remaining
 c
       integer nw_max_path_len   ! Maximum path len -> posix standard is what?
       parameter (nw_max_path_len = 255)

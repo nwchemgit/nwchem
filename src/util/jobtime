@@ -1,0 +1,21 @@
+#!/bin/csh
+
+#
+# CSH WRAPPER TO JOBTIME.PL FOR IBMSP TO HANDLE SEARCH FOR PERL PATH
+
+# Find the path to perl (need version 5)
+
+foreach perl (perl5 perl /usr/local/bin/perl /usr/local/perl)
+  $perl << EOF >& /dev/null
+require 5
+EOF
+  if ($status == 0) goto gotperl
+endif
+end
+
+echo "jobtime.sp: Perl version 5 not found"
+exit 1;
+
+gotperl:
+
+$perl < $0.pl
