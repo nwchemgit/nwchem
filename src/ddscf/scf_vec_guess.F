@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.32 1999-09-21 22:29:52 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.33 2000-07-19 18:34:39 edo Exp $
 c
       implicit none
 c
@@ -209,7 +209,7 @@ c        the symmetry adaption. Also, sym adapt thoroughly
 c        since the strong linear dependence in the 
 c        random vectors may cause loss of precision.
 c
-         call movecs_project(rtdb, geom, basis, g_movecs)
+         call movecs_project(rtdb, geom, basis, g_movecs,1)
          call ga_orthog_mos(basis, g_movecs)
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs, .false.,
@@ -218,9 +218,15 @@ c
      &           0, '- projected ', .true.,int_mb(k_irs))
          endif
          if (scftype .eq. 'UHF') then
-            call ga_copy(g_movecs(1),g_movecs(2))
-            call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),1)
-         endif
+         call movecs_project(rtdb, geom, basis, g_movecs,2)
+         call ga_orthog_mos(basis, g_movecs(2))
+         if (oadapt) then
+            call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,
+     &           0, '- projected ', .true.,int_mb(k_irs+nmo))
+            call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,
+     &           0, '- projected ', .true.,int_mb(k_irs+nmo))
+          endif
+          endif
 c
       else if (movecs_in .eq. 'fragment') then
          if (scftype .ne. 'UHF') then

@@ -1,5 +1,5 @@
-      subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.10 2000-02-04 19:48:05 mg201 Exp $
+      subroutine movecs_project(rtdb, geom, basis, g_vecs,iset)
+C$Id: movecs_proj.F,v 1.11 2000-07-19 18:34:39 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -8,7 +8,7 @@ C$Id: movecs_proj.F,v 1.10 2000-02-04 19:48:05 mg201 Exp $
 #include "inp.fh"
 #include "util.fh"
 c
-      integer rtdb, geom, basis, g_vecs
+      integer rtdb, geom, basis, g_vecs(2)
       double precision one, zero, mone
 c
 c     Project the MO vectors in old_basis_name into the current basis.  
@@ -26,6 +26,7 @@ c     Snew-old is the mixed basis overlap
 c
 c     !! THE RESULTING MOS WILL NOT BE ORTHONORMAL
 c
+      integer iset ! [in] 1 = alpha 2 =beta
       integer basis_handles(2)
       integer old_nbf, old_nsets, old_nmo, file_nbf
       integer g_old_vecs
@@ -102,7 +103,7 @@ c
      $     l_old_evals, k_old_evals)) call errquit
      $     ('movecs_project: ma old evals', old_nbf)
 *
-      if (.not. movecs_read(old_filename, 1, dbl_mb(k_old_occ),
+      if (.not. movecs_read(old_filename, iset, dbl_mb(k_old_occ),
      $     dbl_mb(k_old_evals), g_old_vecs)) call errquit
      $     ('movecs_project: failed reading old vectors', 0)
 *
@@ -189,20 +190,20 @@ c
 
 *     Multiply by inverse overlap
 
-      call ga_zero(g_vecs)
+      call ga_zero(g_vecs(iset))
 
 *
 *      if (ga_nodeid().eq.0) then
 *         call ga_summarize(0)
 *         write(6,*) ' nbf, old_nbf, g_over, g_mix, g_vecs ',
-*     $         nbf, old_nbf, g_over, g_mix, g_vecs
+*     $         nbf, old_nbf, g_over, g_mix, g_vecs(iset)
 *         call util_flush(6)
 *      endif
 *      call ga_sync
 *
 
       call ga_dgemm('n','n',nbf,old_nbf,nbf,one,g_over,g_mix,
-     $     zero,g_vecs)
+     $     zero,g_vecs(iset))
       if (.not. ga_destroy(g_over)) call errquit
      $     ('movecs project: ga_destroy?', 0)
       if (.not. ga_destroy(g_mix)) call errquit
@@ -220,7 +221,7 @@ c
          do j = 1, nbf
             dbl_mb(k_ran+j-1) = (drand(0) - 0.5d0)
          end do
-         call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_ran), 1)
+         call ga_put(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_ran), 1)
       end do
       if (.not. ma_pop_stack(l_ran)) call errquit
      $     ('movecs_project: ma pop?', 0)
