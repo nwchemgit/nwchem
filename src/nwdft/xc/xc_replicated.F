@@ -1,6 +1,6 @@
       subroutine xc_rep_init(rtdb, geom, basis, nbf_ao,ipol,goforit)
 c
-C$Id: xc_replicated.F,v 1.2 2003-06-05 22:06:21 edo Exp $
+C$Id: xc_replicated.F,v 1.3 2003-06-06 23:23:07 edo Exp $
 c
       implicit none
 c      
@@ -16,9 +16,9 @@ c
       logical goforit
       integer geom,basis
 c
-      integer xcrep_glob
+      integer xcrep_glob,ii
       logical xcreplicated_l,oprint
-      integer plist,dims(2),map(2),nblock(2),l_map,k_map
+      integer plist,dims(2),nblock(2),l_map,k_map
 c
       oprint = util_print('xcreplicated', print_high)
 c
@@ -54,23 +54,35 @@ c
             dims(1)=nbf_ao
             dims(2)=nbf_ao
             if(.not.ma_push_get(MT_int,ga_cluster_nnodes()*2,
-     .           'ga block maps',l_map,k_map))
-     .           call errquit('gacratblock: not enough local mem',0)
-            call util_atom_blocked(ga_nnodes(),
+     .           'ga block maps',l_map,k_map)) then
+               call errquit('xcrepl: not enough local mem',
+     .              ga_cluster_nnodes()*2)
+               endif
+            call util_atom_blocked(ga_cluster_nnodes(),
      .           geom, basis, int_mb(k_map), nblock)
 
+c
+c     compress map array
+c
+            do ii=0,nblock(2)-1
+               int_mb(k_map+nblock(1)+ii)=
+     =              int_mb(k_map+ga_cluster_nnodes()+ii)
+            enddo
             xcreplicated_l=nga_create_irreg_config(MT_DBL, 2, dims,
      .           'replicated xc GA',
      .           int_mb(k_map),nblock,
      .           plist, k_repxc(1))
+            call ga_print_distribution(k_repxc(1))
+            call ga_zero(k_repxc(1))
             if(ipol.eq.2) then
                xcreplicated_l=nga_create_irreg_config(MT_DBL, 2, dims,
      .              'replicated xc GA',
-     .              map,nblock,
+     .              int_mb(k_map),nblock,
      .              plist, k_repxc(2))
+               call ga_zero(k_repxc(2))
             endif
-         if (.not.ma_chop_stack(l_map))
-     &        call errquit('xc_rep_init: cannot chop stack',0)
+            if (.not.ma_pop_stack(l_map))
+     &           call errquit('xc_rep_init: cannot pop stack',11)
 
          endif
          
@@ -87,11 +99,8 @@ c     deallocate MA if cannot go replicated globally
 c
       if(.not.xcreplicated.and.xcreplicated_l) then
          if(oldway) then
-         if (.not.ma_chop_stack(l_repxc(1)))
-     &        call errquit('xc_rep_init: cannot chop stack',1)
-         else
-cedo         if (.not.ga_destroy(l_repxc(1)))
-cedo     &        call errquit('xc_rep_init: cannot chop stack',1)
+         if (.not.ma_pop_stack(l_repxc(1)))
+     &        call errquit('xc_rep_init: cannot pop stack',21)
          endif
       endif
       if(oprint.and.ga_nodeid().eq.0) then
@@ -106,7 +115,7 @@ cedo     &        call errquit('xc_rep_init: cannot chop stack',1)
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)
 c
-C$Id: xc_replicated.F,v 1.2 2003-06-05 22:06:21 edo Exp $
+C$Id: xc_replicated.F,v 1.3 2003-06-06 23:23:07 edo Exp $
 c
       implicit none
 c      
@@ -129,13 +138,14 @@ c
      $              dbl_mb(k_repxc(i)), nbf_ao)
             end do
          end if
-!         if (.not.ma_chop_stack(l_repxc(1)))
-!     &        call errquit('xc_getv: cannot chop stack',1)
          xc_rep_close=ma_chop_stack(l_repxc(1))
          else
             do i = 1, ipol
                call ga_merge_mirrored(k_repxc(i))
-               call ga_copy(k_repxc(i),g_vxc(i))
+               call ga_print_distribution(k_repxc(1))
+               call ga_print_distribution(g_vxc(1))
+               call ga_copy(k_repxc(i),
+     &              g_vxc(i))
                if (.not.ga_destroy(k_repxc(i)))
      &              call errquit('xc_rep_close: cannot gadestr',i)
             enddo
