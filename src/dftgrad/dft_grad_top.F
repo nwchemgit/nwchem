@@ -8,7 +8,7 @@ c
 c
       if (.not. nwdft(rtdb))
      $     call errquit('dft_gradient: nwdft failed', 0)
-c      write (6,*) "dft_grad_top: before grad_dft"
+c      write (6,*) 'dft_grad_top: before grad_dft'
 
       if (.not. grad_dft(rtdb))
      $     call errquit('dft_gradient: dft_gradients failed', 0)

@@ -1,7 +1,7 @@
       logical function movecs_to_logfile( rtdb, n_homo, n_lumo,
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
-C$Id: movecs_log.F,v 1.1 1995-12-13 01:36:13 d3g681 Exp $
+C$Id: movecs_log.F,v 1.2 1995-12-16 07:26:28 d3g681 Exp $
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -45,11 +45,11 @@ c****
       integer i_below_gap
       character*6 alpha_or_beta(2)
 c----------------------------------------------------------------------- 
-      alpha_or_beta(1) = "alpha "
-      alpha_or_beta(2) = "beta  "
+      alpha_or_beta(1) = 'alpha '
+      alpha_or_beta(2) = 'beta  '
 
       if ( nsets .eq. 1) then ! spin-restricted
-        alpha_or_beta(1) = "      "
+        alpha_or_beta(1) = '      '
       endif 
 c**** number of occupied orbitals
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))

@@ -97,7 +97,7 @@ c
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) then
-        write (6,*) "status: ", status, "    converged: ",converged
+        write (6,*) 'status: ', status, '    converged: ',converged
         call errquit(
      &       'dft grad_dft: no converged DFT wavefunction available',
      &     0)
