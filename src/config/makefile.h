@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.139 1996-02-08 08:48:24 d3g681 Exp $
+# $Id: makefile.h,v 1.140 1996-02-13 17:07:27 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -446,7 +446,6 @@ endif
 ifeq ($(TARGET),IBM)
 #
 # IBM AIX
-# note: using only source blas.
 #
 
     CORE_SUBDIRS_EXTRA = lapack
@@ -490,7 +489,8 @@ endif
 	      -brename:.idamax_,.idamax \
 	      -brename:.dswap_,.dswap \
 	      -brename:.dger_,.dger \
-	      -brename:.dtrsm_,.dtrsm 
+	      -brename:.dtrsm_,.dtrsm \
+	      -brename:.dnrm2_,.dnrm2
 
 #	      -brename:.times_,.times 
 ifdef USE_ESSL
