@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.8 1998-04-28 19:38:10 d3j191 Exp $
+c $Id: esp_out.F,v 1.9 1998-08-10 17:05:04 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
       character*16 Atag
       character*80 name
       real*8 coord(3)
+      logical done
 c
       if(me.eq.0) then
 c
@@ -78,6 +79,10 @@ c
 c     put charges on rtdb
 c     -------------------
 c
+      done=geom_rtdb_delete(irtdb,'esp:geometry')
+      done=geom_rtdb_delete(irtdb,'cesp:geometry')
+      done=geom_rtdb_delete(irtdb,'resp:geometry')
+      done=geom_rtdb_delete(irtdb,'cresp:geometry')
       do 3 i=1,nf
       k=1
       if(labelf(i).ne.'      ESP   ') k=k+2

@@ -16,3 +16,5 @@ Apr 27 1998	defaults without esp input block
 
 Jun 15 1998     print probe radius and atom radius factor
 Jun 16 1998     change default factor to 2.0
+
+Aug 08 1998     destroy geometries on rtdb before storing new
