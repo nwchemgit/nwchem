@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.429 2003-10-22 01:31:47 edo Exp $
+# $Id: makefile.h,v 1.430 2003-10-22 16:59:54 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1160,9 +1160,13 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
      RANLIB = ranlib
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
+        CPP = gcc -E -nostdinc -undef -P
+   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
+			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+			/bin/rm -f /tmp/$$$$.c) || exit 1
 
          LINUXCPU = $(shell uname -m |\
-                 awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc/ { print "ppc"} ' )
+                 awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
 
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
@@ -1293,17 +1297,32 @@ ifeq ($(LINUXCPU),x86)
   endif
 endif
 
-ifeq ($(LINUXCPU),ppc)
+  ifeq ($(LINUXCPU),ppc)
 # this are for PowerPC
-  FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
-  FOPTIMIZE  = -g -O2
-  COPTIONS   = -Wall
-  COPTIMIZE  = -g -O2
-endif
+    ifeq ($(FC),xlf)
+      FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
+      FDEBUG= -O2 -g
+      EXPLICITF = TRUE
+      DEFINES  +=   -DXLFLINUX
+      CPP=/usr/bin/cpp  -P -C -traditional
+      FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+    else
+      FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
+      FOPTIMIZE  = -g -O2
+    endif
+    ifeq ($(CC),xlc)
+      COPTIONS  +=  -q32 -qlanglvl=extended
+    else
+      COPTIONS   = -Wall
+      COPTIMIZE  = -g -O2
+    endif
+    LDOPTIONS = -v
+  endif
 
 
-  LDOPTIONS = -g -Xlinker -export-dynamic 
-#  LDOPTIONS = --Xlinker -O -Xlinker -static
+
       LINK.f = $(FC) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
@@ -1321,6 +1340,8 @@ ifeq ($(LINUXCPU),x86)
       endif
       EXTRA_LIBS +=  #-static
     else
+  LDOPTIONS = -g -Xlinker -export-dynamic 
+#  LDOPTIONS = --Xlinker -O -Xlinker -static
       EXTRA_LIBS += -lm
     endif
   endif
@@ -1333,10 +1354,6 @@ endif
 
 CORE_LIBS += -llapack $(BLASOPT) -lblas
 
-        CPP = gcc -E -nostdinc -undef -P
-   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
-			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
-			/bin/rm -f /tmp/$$$$.c) || exit 1
 
 # end of Linux, Cygnus
 endif
@@ -1471,9 +1488,9 @@ endif
 
     ifeq ($(_CPU),ppc64)
       ifeq ($(FC),xlf)
-        FOPTIONS  =  -q64 -qextname -qfixed
+        FOPTIONS  =  -q64 -qextname -qfixed -qnosave -qsmallstack  -qalign
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192
-        FOPTIMIZE= -O3 -qstrict 
+        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -1766,7 +1783,7 @@ ifdef EXPLICITF
 
 .F.f:
 	@echo Converting $*.F '->' $*.f
-	$(FCONVERT)
+	@$(FCONVERT)
 .f.o:
 	$(FC) -c $(FFLAGS) $<
 endif
@@ -1800,10 +1817,12 @@ endif
 
 # a .F.f rule is needed for any system target where the default .F.f rule does not work
 # AND the EXPLICITF is not already true.  Right now this is only LINUX with g77
+      ifneq ($(FC),xlf)
 ifeq ($(TARGET),LINUX)
 .F.f:
 	$(FC) -c $(FFLAGS) -E $(CPPFLAGS) $< -o $*.f
 endif
+      endif
 
 # else for ifndef Flint
 else
