@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.367 2001-08-07 01:59:25 edo Exp $
+# $Id: makefile.h,v 1.368 2001-08-16 21:15:14 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1179,7 +1179,10 @@ endif
 ifeq ($(_CPU),i686)
  FOPTIONS  += -tp p6 -Mvect=prefetch
 endif
-  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll
+ifeq ($(_CPU),i786)
+ FOPTIONS  += -tp piv -Mvect=sse -Mcache_align  -Mvect=prefetch
+endif
+  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
   COPTIONS   = -Wall -m486 -malign-double
   COPTIMIZE  = -g -O2
   MAKEFLAGS += FC=pgf77
@@ -1191,8 +1194,15 @@ FOPTIMIZE = -O3 -prefetch  -unroll
 ifeq ($(_CPU),i586)
   FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
 endif
+ifeq ($(_CPU),k7)
+#  FOPTIMIZE +=  -tpp6 -axK -prefetch-  # this are for Athlon
+  FOPTIMIZE +=  -xM  # this are for Athlon
+endif
 ifeq ($(_CPU),i686)
   FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
+endif
+ifeq ($(_CPU),i786)
+  FOPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
 endif
   DEFINES   += -DIFCLINUX
  else
@@ -1202,6 +1212,8 @@ endif
   FOPTIMIZE  =  -O2  -malign-double -finline-functions 
   FOPTIMIZE  +=  -march=$(_CPU)
   COPTIONS   = -Wall -march=$(_CPU) -malign-double 
+#  FOPTIMIZE  +=  -m486
+#  COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
 #
@@ -1209,11 +1221,24 @@ endif
 ifdef EGCS
   FOPTIONS  += -Wno-globals
   FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
+  FOPTIONS  +=  -Wunused -fno-silent  -malign-double
   FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
   FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
   FOPTIMIZE += -fforce-mem -fforce-addr #-ffloat-store
 endif
-
+ ifeq ($(CC),icc)
+  COPTIONS   =   -mp1 -w -g -vec_report3
+COPTIMIZE = -O3 -prefetch  -unroll 
+ifeq ($(_CPU),i586)
+  COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
+endif
+ifeq ($(_CPU),i686)
+  COPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
+endif
+ifeq ($(_CPU),i786)
+  COPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
+endif
+endif
 
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
   FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
@@ -1258,13 +1283,13 @@ endif
 
 ifeq ($(NWCHEM_TARGET),LINUXIA64)
 # Itanium cross compiled on i386 with Intel Compilers 
-# (FC=efc CC=ecc)
 # i4 not working 
-# sgi compilers not working
 #
+    FC=efc
+    CC=ecc
     CORE_SUBDIRS_EXTRA = blas lapack
      RANLIB = echo
-  DEFINES   +=   -DLINUX -DLINUXIA64 #-DPARALLEL_DIAG
+  DEFINES   +=   -DLINUX -DLINUXIA64 -DPARALLEL_DIAG
   CDEBUG=
   EXTRA_LIBS = 
   COPTIMIZE = -O1
@@ -1275,14 +1300,8 @@ ifeq ($(FC),efc)
   FVECTORIZE = -O3 -hlo -pad
   FOPTIMIZE =  -O3 -hlo -unroll
 endif
-ifeq ($(FC),sgif90)
-  FOPTIMIZE =  -O
-  FOPTIONS = -macro_expand  
-  DEFINES  +=   -DSGILINUX
-  FVECTORIZE = -O3
-  CPP = /usr/bin/cpp -P  -traditional
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-  EXPLICITF=TRUE
+ifeq ($(FC),ecc)
+  COPTIONS   =   -vec_report3 -ftz
 endif
   FOPTIONS += -i8 
   DEFINES  += -DEXT_INT  
@@ -1295,9 +1314,6 @@ endif
 ifeq ($(FC),efc)
   LINK.f = efc  -O -Qoption,link,-v  $(LDFLAGS)  
    EXTRA_LIBS +=  -ml   -Vaxlib 
-endif
-ifeq ($(FC),sgif90)
-  LINK.f = sgif90 -Wl,-Bstatic  -Wl,--relax     $(LDFLAGS)  
 endif
 endif
 
