@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.27 2000-08-07 18:55:12 d3j191 Exp $
+c $Id: md_input.F,v 1.28 2000-08-10 20:35:49 d3j191 Exp $
 c
       implicit none
 c
@@ -684,9 +684,11 @@ c
       numfix=numfix+1
       goto 2
       else
+ 1113 continue
       write(lfncmd,1004) ifix,ifirst,ilast,item(1:index(item,' ')-1)
  1004 format('fix s ',i2,2i10,a)
       numfix=numfix+1
+      if(inp_a(item)) goto 1113
       goto 2
       endif
       endif
