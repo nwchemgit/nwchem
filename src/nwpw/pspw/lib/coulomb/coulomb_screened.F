@@ -1,9 +1,9 @@
 *
-* $Id: coulomb_screened.F,v 1.3 2002-02-16 00:53:15 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.4 2002-02-16 21:40:00 bylaska Exp $
 *
-      subroutine coulomb_screened_init(rcut)
+      subroutine coulomb_screened_init(rcut,pp)
       implicit none 
-      real*8 rcut
+      real*8 rcut,pp
 
 #include "mafdecls.fh"
 
@@ -16,7 +16,7 @@
       integer i,j,k
       integer zero,qzero,pzero,taskid
       integer nx,ny,nxh,nyh
-      real*8  fourpi,gg,rr,f
+      real*8  fourpi,gg
       logical value
       integer tmp1(2)
 
@@ -24,7 +24,9 @@
 *     **** external functions ****
 *     real*8 G(nfft3d,3)
       integer  G_indx
+      real*8   kiril_coulomb_transform
       external G_indx
+      external kiril_coulomb_transform
 
       call nwpw_timing_start(7)
 
@@ -58,7 +60,6 @@
      >     + i+1
 
 *     ***** form Vc = 4*pi/G**2  *****
-      rr     = rcut*rcut
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
       do i = 1,nfft3d
          
@@ -66,15 +67,21 @@
      >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
      >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
 
-         f = 1.0d0 - dexp(-0.25d0*rr*gg)
 
          if ((pzero.eq.taskid) .and. (i.eq.zero)) then
             dbl_mb(tmp1(1)+i-1) = 0.0d0
          else
-            dbl_mb(tmp1(1)+i-1) = f*fourpi/gg
+c          f = 1.0d0 - dexp(-0.25d0*rr*gg)
+c          dbl_mb(tmp1(1)+i-1) = f*fourpi/gg
+           if (rcut.le.0.0d0) then
+             dbl_mb(tmp1(1)+i-1) = fourpi/gg
+           else
+             dbl_mb(tmp1(1)+i-1) = kiril_coulomb_transform(gg,rcut,pp)
+           end if
          end if
         
       end do
+      if (rcut.eq.0.0d0) call dcopy(nfft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
       call Pack_t_pack(0,dbl_mb(tmp1(1)))
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx))
       value = MA_pop_stack(tmp1(2))
@@ -163,5 +170,53 @@ c     real*8  tmp1(*)
 
       coulomb_screened_e = ec
       return 
+      end
+
+*     *******************************
+*     *                             *
+*     *   kiril_coulomb_transform   *
+*     *                             *
+*     *******************************
+
+*     This function returns the fourier transform of 
+*
+*            v_kiril = exp(-(r/rcut)**pp)/r
+*
+*     Entry - gg: g squared
+*             rcut: 
+*             pp:
+*                                           
+*     Exit - returns 
+*                              /infty
+*                             | 
+*      v_kiril(g) = (4*pi/g)* | r**2 * v_kiril(r)* j0(gr) dr
+*                             |
+*                            / 0
+
+      real*8 function kiril_coulomb_transform(gg,rcut,pp)
+      implicit none
+      real*8 gg,rcut,pp
+
+*     **** local variables ****
+      integer nrho
+      parameter (nrho=5000)
+
+      integer i
+      real*8 q,fourpi,r,sum,drho
+
+      drho   = 2.0d0*rcut/dble(nrho)
+      q      = dsqrt(gg)
+      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
+
+      sum = 0.0d0
+      do i=2,nrho-1
+         r = (i-1)*drho
+         sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
+      end do
+      r = drho*(nrho-1)
+      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
+
+      kiril_coulomb_transform = (fourpi/q)*sum*drho
+      return
       end
 
