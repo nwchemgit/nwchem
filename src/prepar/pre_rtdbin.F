@@ -2,10 +2,10 @@
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
      + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
      + maxscf,qscale,
-     + altloc,chain,icyren,model,nxlnk,mdold,ignore,scount,
+     + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract)
 c
-c $Id: pre_rtdbin.F,v 1.19 2000-03-29 20:29:01 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.20 2000-04-26 20:32:20 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -25,7 +25,7 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t
       integer newtop,newseq,newrst,icount(mcount),icyren,ignore
       integer len,ndx,mgrid,mnoe,maxscf,model,nxlnk,mdold
-      integer mfract,nfract
+      integer mfract,nfract,iconst
       integer ifract(mfract)
       real*8 gdist,qscale
       character*1 altloc,chain
@@ -101,6 +101,7 @@ c
       if(.not.rtdb_get(irtdb,'prep:model',mt_int,1,model)) model=0
 c
       if(.not.rtdb_get(irtdb,'prep:icyren',mt_int,1,icyren)) icyren=0
+      if(.not.rtdb_get(irtdb,'prep:iconst',mt_int,1,iconst)) iconst=0
 c
       if(slvnam.eq.'HOH'.and.slvmdl(1:1).eq.' ') slvmdl='spce      '
 c

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.34 2000-04-24 19:41:12 d3j191 Exp $
+c $Id: prepar.F,v 1.35 2000-04-26 20:32:20 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -59,7 +59,7 @@ c
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
-      integer ncount,icyren,model
+      integer ncount,icyren,model,iconst
       integer nfract,ifract(mfract)
       integer ignore
       real*8 gdist,qscale
@@ -121,7 +121,8 @@ c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
      + icount,mgrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold,
+     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
+     + model,nxlnk,mdold,
      + ignore,scount,mfract,nfract,ifract))
      + call errquit('pre_rtdbin failed',9999)
 c
@@ -236,7 +237,7 @@ c
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + mcount,ncount,icount,scount,mfract,nfract,ifract))
+     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.46 2000-04-25 05:44:12 d3j191 Exp $
+c $Id: pre_input.F,v 1.47 2000-04-26 20:32:20 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       integer nfract,ifract(mfract)
 c
       integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset(2),nset
-      integer isgm,icyren,model,nxlnk
+      integer isgm,icyren,model,nxlnk,iconst
       real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
       character*11 cfix
@@ -75,6 +75,7 @@ c
       ncount=0
       nfract=0
       icyren=0
+      iconst=0
       model=0
       nxlnk=0
       ignore=0
@@ -308,6 +309,14 @@ c     ---------------
 c
       if(inp_compare(.false.,'sscyx',item)) then
       icyren=1
+      goto 2
+      endif
+c
+c     completion
+c     ----------
+c
+      if(inp_compare(.false.,'construct',item)) then
+      iconst=1
       goto 2
       endif
 c
@@ -1185,6 +1194,8 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c
+      if(.not.rtdb_put(irtdb,'prep:iconst',mt_int,1,iconst))
+     + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:icyren',mt_int,1,icyren))
      + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:ncount',mt_int,1,ncount))

@@ -1,12 +1,12 @@
       logical function pre_mkfrg(irtdb,source,iunit,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,
-     + lfnout,
+     + lfnout,iconst,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lbndt,mbndt,
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.30 2000-03-21 23:58:04 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.31 2000-04-26 20:32:20 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -33,7 +33,7 @@ c
 c
       integer irtdb
       character*80 source
-      integer mring,maxscf
+      integer mring,maxscf,iconst
       parameter (mring=2000)
       integer lring(6,mring)
       logical aring(mring)
@@ -85,8 +85,10 @@ c
       if(.not.pre_bonds(xatm,latm,matm,1,natm,lbndt,mbndt,nbndt,
      + llnk,clnk,mlnk,nlnk)) call errquit('Error in pre_bonds',0)
 c
+      if(iconst.gt.0) then
       if(.not.pre_hybrid(xatm,latm,matm,natm,lbndt,mbndt,nbndt))
      + call errquit('Error in pre_hybrid',0)
+      endif
 c
       do 1 i=1,nsgm
       if(lsgm(2,i).eq.0) then
@@ -149,7 +151,7 @@ c
       nbnd=0
       if(.not.pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
-     + llnk,clnk,mlnk,nlnk))
+     + llnk,clnk,mlnk,nlnk,iconst))
      + call errquit('pre_bnd failed',9999)
 c
 c     redetermine hydrogen names

@@ -2,9 +2,9 @@
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + mcount,ncount,icount,scount,mfract,nfract,ifract)
+     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst)
 c
-c $Id: pre_mkseq.F,v 1.33 2000-03-29 20:29:00 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.34 2000-04-26 20:32:20 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -36,7 +36,7 @@ c
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk,mato,nato
       integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
-      integer mcount,ncount
+      integer mcount,ncount,iconst
       integer mfract,nfract,ifract(mfract)
       integer mfrb,i_frb,l_frb
       integer l_lseq,i_lseq,l_cseq,i_cseq
@@ -332,7 +332,7 @@ c
 c     generate fragment files for missing segments in dir_t
 c
       if(.not.pre_mkfrg(irtdb,source,lfnfrg,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,lfnout,
+     + dir_s,dir_x,dir_u,dir_t,lfnout,iconst,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,

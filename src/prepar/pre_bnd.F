@@ -1,8 +1,8 @@
       logical function pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
-     + llnk,clnk,mlnk,nlnk)
+     + llnk,clnk,mlnk,nlnk,iconst)
 c
-c $Id: pre_bnd.F,v 1.8 2000-03-21 23:58:03 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.9 2000-04-26 20:32:17 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -24,7 +24,7 @@ c
       external pre_atrad
 c
       integer matm,mbnd,mato
-      integer natm,nbnd,nato,maxscf
+      integer natm,nbnd,nato,maxscf,iconst
       real*8 xatm(3,matm),xato(3,mato)
       integer latm(5,matm),lato(5,mato),lbnd(2,mbnd)
       character*6 catm(3,matm),cato(3,mato)
@@ -40,6 +40,7 @@ c
 c
       nato=0
       do 1 i=ilo,ihi
+      write(*,'(5i5)') (latm(j,i),j=1,5)
       neigh=0
       if(latm(2,i).gt.0) then
       nn=0
@@ -83,6 +84,7 @@ c     carbon
 c     ------
 c
       nadd=0
+      if(iconst.gt.0) then
       if(latm(2,i).eq.6) then
       if(nn.eq.0) then
       nadd=4
@@ -117,6 +119,7 @@ c
       elseif(nn.eq.1) then
       if(latm(3,nl(1)).eq.3) nadd=0
       if(latm(3,nl(1)).eq.4) nadd=1
+      endif
       endif
       endif
 c
