@@ -1,5 +1,5 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs)
-C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -78,7 +78,11 @@ c
       if (.not.geom_cart_get(oldgeom,nat,atom_tags,cold,zan))
      $     call errquit('movecs_rotate: geom_cart_get', 0)
 c
+      if (.not. geom_destroy(oldgeom))
+     $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
+c
        if (ga_nodeid().eq.0) then
+c
          do i = 1,nat
            x1(i) = cold(1,i)
            y1(i) = cold(2,i)
@@ -91,8 +95,6 @@ c
            z2(i) = cact(3,i)
          enddo
 c
-      if (.not. geom_destroy(oldgeom))
-     $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
 c
 c     ----------------------------------------------------------
 c     calculate the 3x3 rotation matrix which transforms the old
@@ -217,15 +219,15 @@ c
 c
 c     Assemble the rotation matrix that superimposes the molecules.
 c
-        rot(1,1) = q(1)**2 + q(2)**2 - q(3)**2 - q(4)**2
+        rot(1,1) = q(1)**2.0d0 + q(2)**2.0d0 - q(3)**2.0d0 - q(4)**2.0d0
         rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
         rot(3,1) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
         rot(1,2) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
-        rot(2,2) = q(1)**2 - q(2)**2 + q(3)**2 - q(4)**2
+        rot(2,2) = q(1)**2.0d0 - q(2)**2.0d0 + q(3)**2.0d0 - q(4)**2.0d0
         rot(3,2) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
         rot(1,3) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
         rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
-        rot(3,3) = q(1)**2 - q(2)**2 - q(3)**2 + q(4)**2
+        rot(3,3) = q(1)**2.0d0 - q(2)**2.0d0 - q(3)**2.0d0 + q(4)**2.0d0
 c
       endif  ! ga_nodeid().eq.0
       call ga_sync()
@@ -348,7 +350,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -477,7 +479,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.7 2002-12-11 23:09:38 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
