@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.117 1999-07-14 00:22:08 d3e129 Exp $
+c     $Id: nwchem.F,v 1.118 1999-07-14 18:59:02 edo Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -147,6 +147,7 @@ C
       else
         if (.not.ma_init(mt_dbl,stack,heap))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911)
+         call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
       endif
 *old:------------------------------------------------------- START ---------
 *old:C     GA allocations come out of MA space, so lump them together
