@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.9 1996-08-06 05:55:53 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.10 1996-08-19 15:27:09 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -61,7 +61,7 @@ c
       logical owarn             ! True if to print warning messages
 c
       odebug = util_print('sym_movecs_adapt_debug',print_never)
-      owarn = util_print('sym_movecs_adapt_warn',print_high)
+      owarn = util_print('sym_movecs_adapt_warn',print_debug)
 c
       if (odebug) then
          write(6,*) ' sym_movecs_adapt input orbitals'
@@ -308,7 +308,7 @@ c
 c     
       call ga_sync
       call ga_igop(msg_sym_1, nmixed, 1, '+')
-      call ga_igop(msg_sym_2, irs, nbf, '+')
+      call ga_igop(msg_sym_2, irs, nvec, '+')
       call ga_sync
 c     
       if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0)
