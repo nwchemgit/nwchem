@@ -640,10 +640,10 @@ c
       do 13 i=1,ncyc
       if(nsa-number.lt.nums) nums=nsa-number
       read(lfnrst,1011,end=9997,err=9998)
-     + (ibs(k,10),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),k=1,nums)
+     + (ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),k=1,nums)
  1011 format(i1,1x,6f13.8)
-      read(lfntop,2009,end=9897,err=9898) ((ibs(k,j),j=1,9),k=1,nums)
- 2009 format(16x,9i5)
+      read(lfntop,2009,end=9897,err=9898) ((ibs(k,j),j=1,10),k=1,nums)
+ 2009 format(16x,10i5)
       do 14 k=1,nums
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
       ibx=0
@@ -703,8 +703,8 @@ c
       isl(new,lsct1)=ibs(k,7)
       isl(new,lsct2)=ibs(k,8)
       isl(new,lsct3)=ibs(k,9)
-      isl(new,lsdyn)=ibs(k,10)
-      isl(new,lssss)=0
+      isl(new,lssss)=ibs(k,10)
+      isl(new,lsdyn)=ibs(k,11)
       xs(new,1)=bxs(k,1)
       xs(new,2)=bxs(k,2)
       xs(new,3)=bxs(k,3)
