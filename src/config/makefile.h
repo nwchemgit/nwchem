@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.467 2004-05-20 01:11:35 edo Exp $
+# $Id: makefile.h,v 1.468 2004-05-20 01:31:00 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1544,8 +1544,9 @@ endif # end of ia32 bit
 	@echo 
 	@exit 1
       endif
-      FC=pgf90
-      _FC=pgf90
+      ifeq ($(FC),pgf90)
+        _FC=pgf90
+      endif
       ifeq ($(FC),pgf77)
         _FC=pgf90
       endif
