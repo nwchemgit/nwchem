@@ -312,8 +312,9 @@ c      stop 999
       mxread = kxread (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
-        icopy = mxmynd() + 100*iproc
-	icopy = mod(icopy, 32767) + 1
+c        icopy = mxmynd() + 100*iproc
+c	icopy = mod(icopy, 32767) + 1
+	icopy = mod(icopy, 399) + 25001
 c      write(*,*) ' me ', mxmynd(), ' rcv ', iproc, ' isize ',
 c     $     isize, ' itype ', itype
       call rcv(icopy, data, isize, len, iproc, ifrom, 1)
@@ -332,7 +333,8 @@ c
 	call crecv (10000*iproc+me,data,isize)
 #endif
 #ifdef MPI
-      icopy = mod(itype, 32767) + 1
+c      icopy = mod(itype, 32767) + 1
+	icopy = mod(icopy, 399) + 25001
       CALL MPI_RECV( DATA, ISIZE, MPI_BYTE, IPROC, ICOPY,
      $               MPI_COMM_WORLD, STATUS, IERROR )
 
@@ -406,7 +408,8 @@ c
 c	write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
 c     $ 	    isize, ' itype ', itype
 c
-	icopy = mod(icopy, 32767) + 1
+c	icopy = mod(icopy, 32767) + 1
+	icopy = mod(icopy, 399) + 25001
 c
 c to get within range of tcgmsg message types
 c
@@ -414,7 +417,9 @@ c
       mxwrit = isize
 #endif
 #ifdef MPI
-      icopy = mod(itype, 32767) + 1
+c      icopy = mod(itype, 32767) + 1
+c	icopy = mod(icopy, 999) + 10000
+	icopy = mod(icopy, 399) + 25001
       CALL MPI_SEND( DATA, ISIZE, MPI_BYTE, IPROC, ICOPY,
      $               MPI_COMM_WORLD, IERROR )
 
@@ -528,7 +533,7 @@ c.      write (*,*) me,' in mxsync returned from sync0'
       call alogfg (ipid, AE_SYNC, 0, sdata, 0)
 #endif
 #ifdef TCGMSG
-	ijunk = 1000*mxnprc() + 1
+	ijunk = 10*mxnprc() + 1
 	call synch(ijunk)
         mxsync = 0
 #endif
