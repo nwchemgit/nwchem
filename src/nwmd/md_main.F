@@ -309,10 +309,12 @@ c
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
 c
-      call prp_mcti(idacq)
-c
       call timer_stop(1)
+c
+      if(prp_mcti(idacq)) goto 4
+c
     3 continue
+    4 continue
 c
     1 continue
 c
