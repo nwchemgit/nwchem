@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.29 2001-11-14 04:10:59 d3j191 Exp $
+c $Id: cf_common.fh,v 1.30 2001-11-15 04:31:00 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -101,7 +101,7 @@ c
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
       integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
-      integer ipolt,niterw,niters,mshitw,mshits,noshak
+      integer ipolt,niterw,niters,mshitw,mshits,noshak,nbias
       integer itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npgdec
       real*8 box(3),boxh(3),vlat(3,3),vlati(3,3),rshrt,rlong,rrest,
      + rqmmm,rshrt2,rlong2,rrest2,rqmmm2,deriv(24,2),ep2(2),ep3(2),
@@ -113,7 +113,7 @@ c
       real*8 factmp,factmw,factms,scalew,scales,ewk,ek
       real*8 ewkc(3,3),eskc(3,3),ekc(3,3),z(3,3),prx(3,3)
       real*8 edrs,field,fvect(3),ffreq,totchg
-      real*8 virial,scaleq
+      real*8 virial,scaleq,ubias
       integer llww,lsww,llsw,lssw,llss,lsss
       logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
@@ -124,10 +124,10 @@ c
      + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
      + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,totchg,
-     + prx,z,ekc,scaleq,
+     + prx,z,ekc,scaleq,ubias,
      + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
-     + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
+     + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,nbias,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npgdec,
      + llww,lsww,llsw,lssw,llss,lsss,

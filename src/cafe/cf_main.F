@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.115 2001-11-14 06:44:43 d3j191 Exp $
+c $Id: cf_main.F,v 1.116 2001-11-15 04:31:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1162,14 +1162,14 @@ c
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
      + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
-     + edistr,epomef,vir,prest,virt,ekct)
+     + edistr,epomef,vir,prest,virt,ekct,ubiasi)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
-      real*8 edistr,epomef,vir
+      real*8 edistr,epomef,vir,ubiasi
       real*8 prest(3,3),virt(3,3),ekct(3,3)
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
@@ -1202,6 +1202,8 @@ c
 c
       edistr=edrs
       epomef=epmf
+c
+      ubiasi=ubias
 c
       do 1 i=1,3
       do 2 j=1,3
@@ -1517,7 +1519,10 @@ c
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
  1000 format(i3,f12.6,e12.5)
+      if(me.eq.0) then
+      if(ipmf(i,7).gt.0) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
+      endif
       endif
       do 9 j=1,2
       do 10 k=1,ipmf(i,j+1)
@@ -1551,7 +1556,10 @@ c
       call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,ign,iml,idt,ich,chg,
      + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
-      if(me.eq.0) epmf=epmf+rv(2)
+      if(me.eq.0) then
+      epmf=epmf+rv(2)
+      if(ipmf(i,7).gt.0) ubias=ubias+rv(2)
+      endif
       do 14 j=1,3
       do 15 k=1,ipmf(i,j+1)
       do 16 l=1,nums
@@ -1592,7 +1600,10 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Dih:',rv,(ft(3,j),j=1,3)
      + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
-      if(me.eq.0) epmf=epmf+rv(2)
+      if(me.eq.0) then
+      epmf=epmf+rv(2)
+      if(ipmf(i,7).gt.0) ubias=ubias+rv(2)
+      endif
       do 19 j=1,4
       do 20 k=1,ipmf(i,j+1)
       do 21 l=1,nums

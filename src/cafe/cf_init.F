@@ -4,8 +4,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.66 2001-11-14 06:44:43 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi)
+c $Id: cf_init.F,v 1.67 2001-11-15 04:31:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -22,7 +22,7 @@ c
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,iipopt
       integer nodpme,ntyp,idset,ipset1,ipset2
-      integer issscl,npenrg
+      integer issscl,npenrg,nbiasi
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc
 c
@@ -267,6 +267,7 @@ c
      + call errquit('Failed to allocate wpmf',0)
       endif
       call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
+      call ga_brdcst(mcf_75,nbias,ma_sizeof(mt_int,1,mt_byte),0)
       if(me.eq.0) then
       close(unit=lfntop)
       endif
@@ -310,6 +311,7 @@ c
      + ' and restart files'
       endif
       nsfi=nsf
+      nbiasi=nbias
 c
       return
 
@@ -366,12 +368,14 @@ c
       lendbl=ma_sizeof(mt_dbl,1,mt_byte)
       lenlog=ma_sizeof(mt_log,1,mt_byte)
 c
+      nbias=0
       if(me.eq.0) then
       do 1 i=1,numpmf
       read(lfntop,1000) ipmf(i,1),ipmf(i,6),ipmf(i,7),
      + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5)
  1000 format(3i5,2f12.6,2e12.5,4i5)
+      if(ipmf(i,7).ne.0) nbias=nbias+1
       do 2 j=1,2
       rpmf(j,2,i)=rpmf(j,1,i)
       rpmf(j,4,i)=rpmf(j,3,i)-rpmf(j,2,i)
