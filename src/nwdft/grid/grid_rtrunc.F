@@ -13,7 +13,7 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 c
-      integer rtdb, me,ncenters,nproc
+      integer rtdb, me,nproc
       logical tol_reset
       logical llind ! [in]
       integer ll(*) ! [out] for lindh grid
