@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.24 2002-01-10 02:32:57 edo Exp $
+c$Id: fock_2e.F,v 1.25 2002-01-14 20:38:02 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -187,27 +187,5 @@ c     the CPSCF RHS that needs to be applied to XC also.
       
 c     !!! BGJ test !!!
 
-      return
-      end
-      subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.24 2002-01-10 02:32:57 edo Exp $
-      implicit none
-      integer g_fock
-      integer imat
-      integer nbf
-      double precision buf(*)
-c      
-      integer lo(3)  !array of starting indices for ga   [input]
-      integer hi(3)  !  array of ending indices for ga     [input]
-      integer ld(2) !array specifying leading dimensions for buffer 
-      ld(1)=1  
-      ld(2)=nbf
-      lo(1)=imat
-      hi(1)=imat
-      lo(2)=1
-      hi(2)=nbf
-      lo(3)=1
-      hi(3)=nbf
-      call nga_get(g_fock, lo, hi, buf, ld)
       return
       end
