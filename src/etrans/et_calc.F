@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.12 2002-07-01 19:14:38 d3k958 Exp $
+* $Id: et_calc.F,v 1.13 2002-09-03 23:17:54 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -299,8 +299,8 @@ c
      $   call errquit('et_movecs_read failed for Hbb',0)
 c
       if (me.eq.0) then
-      write(6,9995) 'Electronic energy of reactants   ','H(rr)',Haa
-      write(6,9995) 'Electronic energy of products    ','H(pp)',Hbb
+      write(6,9995) 'Electronic energy of reactants   ','H(RR)',Haa
+      write(6,9995) 'Electronic energy of products    ','H(PP)',Hbb
       endif
 c
 c -----------------------------------------------
@@ -560,12 +560,11 @@ c calculate overlap of state A with state B
 c -----------------------------------------
 c
        Sba = prod(1)*prod(2)*detprod
-c       write(6,*) 'Srp debug:',prod(1),prod(2),detprod
 c
 c
       if(me.eq.0) then
        write(6,*)
-       write(6,9995) 'Reactants/Products overlap       ','S(rp)',Sba
+       write(6,9995) 'Reactants/Products overlap       ','S(RP)',Sba
        write(6,*)
       endif
 c
@@ -607,7 +606,7 @@ c
       if(me.eq.0) then
        write(6,*) 'Reactants/Products interaction energy:    '
        write(6,*) '-------------------------------------           '
-       write(6,9995) 'One-electron contribution        ','H1(rp)',omega1
+       write(6,9995) 'One-electron contribution        ','H1(RP)',omega1
       endif
 c
       call util_flush(6) 
@@ -626,7 +625,15 @@ c
        tol2e    =  min(1.0d-7,dabs(Sba)*1.0d-7)
        tol2e    =  max(1.0d-12,tol2e)
       endif
-c
+
+ 9993 format(1x,'Two-electron integral screening (tol2e) : ',1Pd8.2)
+      if(me.eq.0) then
+       write(6,*) 
+       write(6,*) 'Beginning calculation of 2e contribution'
+       write(6,9993) tol2e
+       write(6,*)
+      endif
+
 c two methods are available. One uses the scf fock builder (method_2e=1),
 c the other uses et_2e (method_2e=2). et_2e is more accurate, but much more
 c time consuming and should only be used for very small systems, or 
@@ -659,8 +666,8 @@ c
        Hba = omega1+omega2
 c
       if(me.eq.0) then
-       write(6,9995) 'Two-electron contribution        ','H2(rp)',omega2
-       write(6,9995) 'Total interaction energy         ','H(rp)',Hba
+       write(6,9995) 'Two-electron contribution        ','H2(RP)',omega2
+       write(6,9995) 'Total interaction energy         ','H(RP)',Hba
        write(6,*)
       endif
 c
@@ -674,8 +681,8 @@ c
        Vba = Vba/(1.0d0-Sba*Sba)
        Vba = dabs (Vba)
 c
-       if (.not. rtdb_put(rtdb,'et:Vrp', MT_DBL, 1, Vba))
-     $        call errquit('et_calc: rtdb_put of Vrp failed',0)
+       if (.not. rtdb_put(rtdb,'et:V(RP)', MT_DBL, 1, Vba))
+     $        call errquit('et_calc: rtdb_put of V(RP) failed',0)
 c
 c
 c -------------
@@ -689,7 +696,7 @@ c
       endif
 c
  9995 format (a34,1x,a6,1x,F18.10)
- 9996 format( 1x,'Electron Transfer Coupling Energy, |Vrp|',1x,F18.10,/, 
+ 9996 format( 1x,'Electron Transfer Coupling Energy |V(RP)|',F18.10,/, 
      &  49x,F11.3,' cm-1',/,
      &  49x,F11.6,' eV',/,
      &  49x,F11.3,' kcal/mol')
