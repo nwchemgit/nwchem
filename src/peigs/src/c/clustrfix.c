@@ -38,7 +38,7 @@
 
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #define max(a,b) ((a) > (b) ? (a) : (b))
-#define ffabs(a) ((a) > (0.) ? (a) : (-a))
+#define ffabs(a) ((a) >= ((DoublePrecision) 0.e0) ? (a) : (-a))
 
 
 #define R_ZERO (DoublePrecision) 0.0e0
@@ -61,10 +61,10 @@ static Integer clustr_check(c1, cn, imin, imax)
      Integer c1, cn, imin, imax;
 {
   /*
-    routine to determine if
-    the cluster is
-    actually in the desired region of the clustr finder
-    */
+     routine to determine if
+     the cluster is
+     actually in the desired region of the clustr finder
+     */
   
   if ( cn < imin )
     return(-1);
@@ -78,21 +78,21 @@ static Integer clustr_check(c1, cn, imin, imax)
 static DoublePrecision relgap(l1, l2)
      DoublePrecision l1, l2;
 {
-
-  /*
-    assume l1 & l2 != 0
-    */
-
-  DoublePrecision alpha;
   
-  alpha=ffabs(l1-l2)/max(fabs(l1), fabs(l2));
-  return(alpha);
+  /*
+     assume l1 & l2 != 0
+     */
+  
+  DoublePrecision alpha, beta;
+  
+  alpha=ffabs(l1-l2);
+  beta = max(ffabs(l1), ffabs(l2));
+  return(alpha/beta);
 }
 
 
 Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
-		  isplit, num_clustr,
-		  clustr_info )
+		    isplit, num_clustr, clustr_info )
      Integer n, m, *iblock, nsplit, *isplit, *num_clustr, *clustr_info;
      DoublePrecision *d, *e, *w;
      /*
@@ -129,13 +129,13 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
   Integer max_clustr_size;
   Integer beg_of_block, end_of_block;
   Integer bn;
-  Integer clustrptr, blksiz, c1, c2, xj1, xj2, xj3, cn, ptr;
+  Integer clustrptr, blksiz, c1=-1, c2=-1, cn, ptr;
   Integer me;
   Integer *c_ptr;
   Integer iflag, k, imax, tail;
-  Integer ii, nn_proc;
+  Integer ii, nn_proc, clustr_size=-1;
   
-  DoublePrecision tmp, *eval, sep, eps;
+  DoublePrecision tmp, *eval, sep, eps, xj1, xj2, xj3;
   DoublePrecision onenrm, pertol;
   DoublePrecision xjm, eps1;
   DoublePrecision ortol, xj, relgap();
@@ -219,10 +219,10 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     beg_of_block = end_of_block;
     
     /*
-      find the end of the block
+       find the end of the block
       */
     
-
+    
     
     while (( iblock[end_of_block] == iblock[beg_of_block] )
 	   && ( end_of_block < num_eig )) {
@@ -243,6 +243,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     
     bn = isplit[nblk]-1;
     blksiz = bn - b1 + 1;
+    c1 = b1;
     
     /*
       Skip all the work if the block size is one.
@@ -255,6 +256,9 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
       *(c_ptr++) = bn;
       num_cls++;
     }
+
+    c1 = b1;
+    c2 = bn;
     
     if ( blksiz == 2 ) {
       if ( relgap(w[b1],w[bn]) < (DoublePrecision) max(100, n) ) {
@@ -281,41 +285,72 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     if ( blksiz > 2 ) {
       jblk = 0;
       /*
-      printf(" beg of block %d end_of_block %d \n", beg_of_block, end_of_block);
-      */
+	 printf(" beg of block %d end_of_block %d \n", beg_of_block, end_of_block);
+	 */
       ptr = beg_of_block;
       tail = beg_of_block;
-      for (j = beg_of_block; j < ( end_of_block -2 ) ; ++j) {
-	++jblk;
-	xj1 = w[j];
-	xj2 = w[j+1];
-	xj3 = w[j+2];
-	if ( min(relgap( xj1, xj2),relgap(xj2, xj3)) > min(1.e-3, 1./(DoublePrecision) n)) {
+      clustr_size = 1;
+      xj = w[ptr];
+      
+      for (j = beg_of_block+1; j < end_of_block-1 ; ++j) {
+	if ( j == (end_of_block-1 )){
 	  *(c_ptr++) = ptr;
 	  *(c_ptr++) = tail;
 	  *(c_ptr++) = b1;
-	  *(c_ptr++) = bn;
+	  *(c_ptr) = bn;
 	  num_cls++;
-	  max_clustr_size = max( j - clustrptr, max_clustr_size);
-	  ptr = j;
-	  tail = j;
+	  max_clustr_size = max(( ptr - tail + 1), max_clustr_size);
+	  break;
 	}
-	else
-	  tail++;
+	
+	if ( clustr_size == 1 ) {
+	  xj1 = w[j];
+	  if ( relgap(xj, xj1) < (DoublePrecision) max(100, n) ) {
+	    tail++;
+	    clustr_size = 2;
+	  }
+	  else {
+	    *(c_ptr++) = ptr;
+	    *(c_ptr++) = tail;
+	    *(c_ptr++) = b1;
+	    *(c_ptr++) = bn;
+	    num_cls++;
+	    max_clustr_size = max(( ptr - tail + 1), max_clustr_size);
+	    ptr = j;
+	    tail = j;
+	    xj = xj1;
+	  }
+	}
+	
+	if ( clustr_size >= 2 ) {
+	  xj2 = w[j];
+	  if ( min(relgap( xj, xj1),relgap(xj1, xj2)) 
+	      > min(1.e-3, 1./(DoublePrecision) n)) {
+	    *(c_ptr++) = ptr;
+	    *(c_ptr++) = tail;
+	    *(c_ptr++) = b1;
+	    *(c_ptr++) = bn;
+	    num_cls++;
+	    max_clustr_size = max( (ptr-tail+1) , max_clustr_size);
+	    ptr = j;
+	    tail = j;
+	    xj = xj2;
+	  }
+	  else{
+	    tail++;
+	    clustr_size++;
+	    xj1 = xj;
+	    xj1 = xj2;
+	  }
+	}
       }
-      *(c_ptr++) = ptr;
-      *(c_ptr++) = end_of_block-1;
-      *(c_ptr++) = b1;
-      *(c_ptr++) = bn;
-      num_cls++;
-      max_clustr_size = max( j - clustrptr, max_clustr_size);
     }
   }
   
   *num_clustr = num_cls;
-    
-  return(max_clustr_size);
   
+  return(max_clustr_size);
+    
 }
 
 
