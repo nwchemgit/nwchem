@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.12 1997-05-04 19:45:23 d3g681 Exp $
+* $Id: task_energy.F,v 1.13 1997-12-03 10:09:03 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -94,7 +94,7 @@ c
            write(6,*)'task_energy: you probably reversed the order ',
      &         'of the task input '
            write(6,*)'task [qmmm] <string theory> [<string operatio',
-     &         'n = energy>] [numerical] [ignore]'
+     &         'n = energy>] [numerical || analytic] [ignore]'
          endif
          status = .false.
       else if (theory .eq. 'nwargos') then

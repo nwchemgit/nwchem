@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.13 1997-04-11 23:23:18 d3g681 Exp $
+* $Id: task_freq.F,v 1.14 1997-12-03 10:09:04 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -31,137 +31,63 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "util.fh"
+c
+      logical task_hessian
+      external task_hessian
 c     
       integer rtdb
 c     
-      double precision delta_pass
-      double precision dbl_tmp
       integer nat, geom
       logical status
-      logical numerical
       character*(nw_max_path_len) filehess
-      integer ecce_old_print, ecce_junk_print
 c     
       double precision cpu, wall
-      logical stpr_gen_hess_at
-      external stpr_gen_hess_at
 c 
-      character*4  scftype
-      character*80 theory
-      logical      scf_hessian
-      external     scf_hessian
-      logical      hess_analy
+      logical      ignore
 c    
       call ecce_print_module_entry('task frequencies')
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
-      status = rtdb_delete(rtdb, 'task:hessian file name')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
      $     call errquit('task_freq: failed to invalidate status',0)
-      call util_file_name('hess',  .false., .false.,filehess)
-c     
-c     check for change of finite difference delta
-c     
-      if (rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,dbl_tmp)) then
-         delta_pass = dbl_tmp
-      else
-         delta_pass = 0.01d00
+      if (ga_nodeid().eq.0 .and.
+     $    util_print('task_freq', print_low)) then
+        write(6,*)
+        write(6,*)
+        call util_print_centered(6,
+     $      'NWChem Nuclear Hessian and Frequency Analysis',
+     $      40,.true.)
+        write(6,*)
       endif
-c
-c     Analytic rhf_hessian or finite difference hessian
-c  
-      if (.not. rtdb_get(rtdb,'task:numerical',mt_log,1,numerical))
-     &    numerical = .false.
 
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:frequency: theory not specified',0)
-
-      if (.not.numerical.and.theory.eq.'scf') then
-         if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $        scftype = 'RHF'
-         call inp_ucase(scftype)
-      endif
-c
-      if (.not.numerical.and.theory.eq.'scf'.and.scftype.eq.'RHF') then 
-         hess_analy = .true.
-
-        if (ga_nodeid().eq.0 .and.
-     $     util_print('task_freq', print_low)) then
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6,
-     $        'NWChem Analytic Hessian and Frequency Analysis',
-     $        40,.true.)
-         write(6,*)
-        endif
-c
-        if (.not.scf_hessian(rtdb))
-     $     call errquit
-     $     ('task_freq: scf_hessian failed ',911)
-
-      else           
-* overide numerical since task gradient knows what to do for theory
-        if (numerical) then
-          if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
-     &     call errquit('task_freq:numerical store failed',0)
-        endif
-
-
-        if (ga_nodeid().eq.0 .and. 
-     $     util_print('task_freq', print_low)) then
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6,
-     $        'NWChem Finite-difference Hessian and Frequency Analysis',
-     $        40,.true.)
-         write(6,*)
-         write(6,*)
-        endif
-c
-        call ecce_print_control(0, ecce_old_print) ! Disable ECCE printing
-        if (.not.stpr_gen_hess_at(rtdb,delta_pass))
-     $     call errquit
-     $     ('task_freq: stpr_gen_hess_at failed ',911)
-* reset numerical since task may not be the only task
-        if (numerical) then
-          if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,numerical))
-     &     call errquit('task_freq:numerical store failed',0)
-        endif
-        call ecce_print_control(ecce_old_print, ecce_junk_print)
-      endif
-c     
+      status = task_hessian(rtdb)
+      ignore = rtdb_parallel(.false.)
       if ((ga_nodeid()).eq.0) then
-         status = rtdb_parallel(.false.)
+        if (.not. rtdb_cget(rtdb, 'task:hessian file name', 1,
+     $      filehess)) call errquit
+     $      ('task_freq: failed reading hessian filename from rtdb',0)
 c
 c     create/load reference geometry
 c
-         if (.not.geom_create(geom,'geometry')) call errquit
-     $        ('task_freq:geom_create failed?',1)
-         if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     $        call errquit
-     $        ('task_freq:geom_rtdb_load failed?',2)
-         if (.not. geom_ncent(geom,nat)) call errquit
-     $        ('task_freq:geom_ncent failed?',3)
-         if (.not. geom_destroy(geom)) call errquit
-     $        ('task_freq:geom_destroy failed?',911)
-         if (hess_analy.eqv..true.) then
-            call vib_vib(rtdb,filehess,.true.,
-     $           0,.false.,0,.false.,nat)
-         else 
-            call vib_vib(rtdb,filehess,.true.,
-     $           0,.false.,0,.false.,nat)
-         endif
-         status = rtdb_parallel(.true.)
+        if (.not.geom_create(geom,'geometry')) call errquit
+     $      ('task_freq:geom_create failed?',1)
+        if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     $      call errquit
+     $      ('task_freq:geom_rtdb_load failed?',2)
+        if (.not. geom_ncent(geom,nat)) call errquit
+     $      ('task_freq:geom_ncent failed?',3)
+        if (.not. geom_destroy(geom)) call errquit
+     $      ('task_freq:geom_destroy failed?',911)
+        call vib_vib(rtdb,filehess,.true.,
+     $      0,.false.,0,.false.,nat)
       endif
       call ga_sync()
+      ignore = rtdb_parallel(.true.)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - cpu
 c
-      if (.not. rtdb_cput(rtdb, 'task:hessian file name', 1,
-     $     filehess)) call errquit
-     $     ('task_freq: failed storing hessian file name',0)
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
      $     call errquit('task_freq: failed storing cputime',0)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
@@ -170,8 +96,12 @@ c
      $     call errquit('task_freq: failed to set status',0)
 c
 c
-      call ecce_print_module_exit('task frequencies', 'ok')
+      task_freq = status
+      if (task_freq) then
+        call ecce_print_module_exit('task frequencies', 'ok')
+      else
+        call ecce_print_module_exit('task frequencies', 'failed')
+      endif
 c
-      task_freq = .true.
 c
       end

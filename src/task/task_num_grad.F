@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.19 1997-07-30 02:08:20 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.20 1997-12-03 10:09:06 d3e129 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -24,6 +24,7 @@ c
       integer l_ncoord, k_ncoord, l_grad, k_grad, l_q, k_q, l_t, k_t
       integer natoms, natoms3, ecce_old_print, ecce_junk_print
       logical oprint_mode, oprint_step, oprint_info, osaved
+      logical analytic
       character*128 name, key, theory
       character*16 thetag
       double precision eref, eplus, eminus, grad, crd(3), q
@@ -35,6 +36,17 @@ c
 c
       task_num_grad = .false.
       osaved = .false.
+c
+c check for analytic user input 
+c
+      if (.not.rtdb_get(rtdb,'task:analytic', mt_log, 1,
+     &    analytic)) analytic = .false.
+      if (analytic) then
+* reuse of varable 'key' 
+        key = 'task_num_grad: fatal error: requested analytic '
+        key = key//'gradient when none existed'
+        call errquit(key,911)
+      endif
 c
       call ecce_print_control(0, ecce_old_print) ! Disable ECCE printing
 c

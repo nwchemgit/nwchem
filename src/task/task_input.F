@@ -1,8 +1,9 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.14 1997-05-14 01:16:01 d3g681 Exp $
+* $Id: task_input.F,v 1.15 1997-12-03 10:09:05 d3e129 Exp $
 *
       implicit none
+#include "stdio.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -15,14 +16,16 @@ c
 c     Called whenever the input parser encounters a task directive.
 c     Terminates by calling errquit if there was any error.
 c
-c     task [qmmm] <string theory> [<string operation = energy>] [numerical] 
+c     task [qmmm] <string theory> [<string operation = energy>] [numerical || analytic] 
 c          [ignore]
 c
-      logical numerical, ignore, oqmmm
+      logical numerical, ignore, oqmmm, analytic
       character*20 test, theory, operation
+      character*128 err_string
 c
       theory    = ' '
       operation = ' '
+      analytic  = .false.
       numerical = .false.
       ignore    = .false.
       oqmmm     = .false.
@@ -51,6 +54,8 @@ c
             operation = 'freq'
          else if (inp_compare(.false.,test,'numerical')) then
             numerical = .true.
+         else if (inp_compare(.false.,test,'analytic')) then
+            analytic  = .true.
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
@@ -68,9 +73,18 @@ c
       endif
       call inp_clear_err()
 c
+      if (numerical.and.analytic) then
+        write(luout,*)' ********** fatal input error ************'
+        write(luout,*)' both numerical and analytic specified '
+        goto 1000
+      endif
       if (numerical) then
          if (.not. rtdb_put(rtdb, 'task:numerical', mt_log, 1, 
      $        numerical)) call errquit('task_input: rtdb is corrupt',0)
+      endif
+      if (analytic) then
+         if (.not. rtdb_put(rtdb, 'task:analytic', mt_log, 1, 
+     $        analytic)) call errquit('task_input: rtdb is corrupt',0)
       endif
       if (oqmmm) then
         if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
@@ -94,8 +108,10 @@ c
 c
       return
 c
- 1000 call errquit('usage: task <string theory>'//
-     $     ' [<string operation = energy>] [numerical]',0)
+ 1000 err_string =             'usage: task <string theory>'
+      err_string = err_string//' [<string operation = energy>] '
+      err_string = err_string//'[numerical || analytic] [ignore]'
+      call errquit(err_string,911)
 c
 c     THIS IS NEVER EXECUTED.  IT IS HERE BEACUSE -ltask IS AT
 c     THE FRONT OF THE LINK PATH AND THE STATE ROUTINES ARE NOT
