@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.18 2004-03-02 19:51:31 bylaska Exp $
+c $Id: nwpw_input.F,v 1.19 2004-03-04 15:12:20 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 59)
+      parameter (num_dirs = 60)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -74,6 +74,7 @@ c
      >            'zone_name',
      >            'dos_filename',
      >            'efield',
+     >            'occupations',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -122,7 +123,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
-     >       4100,4200,
+     >       4100,4200,4300,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -599,6 +600,12 @@ c
  4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
 
+      goto 10
+
+c
+c OCCUPATIONS
+c
+ 4300 call frac_occ_input(rtdb)
       goto 10
 
 

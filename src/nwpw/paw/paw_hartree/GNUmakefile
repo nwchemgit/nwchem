@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-02-20 01:00:11 marat Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ = paw_matrix_hartree.o paw_pot_hartree.o \
+          OBJ_OPTIMIZE = paw_matrix_hartree.o paw_pot_hartree.o \
                           paw_energy_hartree_atom.o
           HEADERS = paw_energy_hartree_atom.fh
 

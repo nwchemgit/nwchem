@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda_sic.f,v 1.1 2004-01-29 02:27:53 bylaska Exp $
+* $Id: psi_lmbda_sic.f,v 1.2 2004-03-04 15:12:24 bylaska Exp $
 *
 
       subroutine psi_lmbda_sic(ispin,ne,nemax,npack1,
@@ -166,14 +166,44 @@ c    >                          tmp(s11))
 
         do it=1,itrlmd
           CALL dcopy(nn,tmp(s22),1,tmp(sa1),1)
-          CALL DMMUL(n,ne(MS), tmp(s21), tmp(sa0), tmp(st1))
-          CALL DMMUL(n,ne(MS), tmp(sa0), tmp(s12), tmp(st2))
-          CALL DMADD(n,ne(MS), tmp(st1), tmp(st2), tmp(st1))
-          CALL DMADD(n,ne(MS), tmp(st1), tmp(sa1), tmp(sa1))
-          CALL DMMUL(n,ne(MS), tmp(s11), tmp(sa0), tmp(st1))
-          CALL DMMUL(n,ne(MS), tmp(sa0), tmp(st1), tmp(st2))
-          CALL DMADD(n,ne(MS), tmp(st2), tmp(sa1), tmp(sa1))
-          CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
+c         CALL DMMUL(n,ne(MS), tmp(s21), tmp(sa0), tmp(st1))
+c         CALL DMMUL(n,ne(MS), tmp(sa0), tmp(s12), tmp(st2))
+c         CALL DMADD(n,ne(MS), tmp(st1), tmp(st2), tmp(st1))
+c         CALL DMADD(n,ne(MS), tmp(st1), tmp(sa1), tmp(sa1))
+c         CALL DMMUL(n,ne(MS), tmp(s11), tmp(sa0), tmp(st1))
+c         CALL DMMUL(n,ne(MS), tmp(sa0), tmp(st1), tmp(st2))
+c         CALL DMADD(n,ne(MS), tmp(st2), tmp(sa1), tmp(sa1))
+c         CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
+
+          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >                (1.0d0),
+     >                tmp(s21),n,
+     >                tmp(sa0),n,
+     >                (1.0d0),
+     >                tmp(sa1),n)
+          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >                (1.0d0),
+     >                tmp(sa0),n,
+     >                tmp(s12),n,
+     >                (1.0d0),
+     >                tmp(sa1),n)
+
+          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >                (1.0d0),
+     >                tmp(s11),n,
+     >                tmp(sa0),n,
+     >                (0.0d0),
+     >                tmp(st1),n)
+
+          call DGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >                (1.0d0),
+     >                tmp(sa0),n,
+     >                tmp(st1),n,
+     >                (1.0d0),
+     >                tmp(sa1),n)
+          CALL dcopy(nn,tmp(sa1),1,tmp(st1),1)
+          call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
+
           adiff=tmp(st1 - 1 + (idamax(n*ne(ms),tmp(st1),1)))
           if(adiff.lt.convg) GO TO 630
           call dcopy(n*ne(ms),tmp(sa1),1,tmp(sa0),1)

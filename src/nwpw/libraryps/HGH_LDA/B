@@ -8,3 +8,23 @@ B 3 0.433930 -5.578642 0.804251
 0.360393 0.000000
 0.000878
 <end>
+
+
+Comment: 
+Comment: 
+Comment: Used for atomic orbital generation
+<atom>
+B
+5.0 11.0 1 2
+1  0      2.0
+2  0      2.0
+2  1      1.0
+<end>
+<solver>      pauli <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 1.100
+       1 0.900
+       2 1.100
+<end>
+

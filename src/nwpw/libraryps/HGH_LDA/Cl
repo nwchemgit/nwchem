@@ -8,3 +8,24 @@ Cl 7 	0.410000 -6.864754
 	0.376137 4.465876 0.000000
          	 0.010020 0.025784
 <end>
+
+
+Comment: Used for atomic orbital generation
+<atom>
+ Cl
+  0.170000E+02  0.350000E+02   3   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.500000E+01
+ <end>
+ <solver> pauli           <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.340000
+   1  1.450000
+   2  1.450000
+ <end>
+ <semicore> 1.30 <end>
+

@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-03-10 05:43:27 marat Exp $
+# $Id: GNUmakefile,v 1.6 2004-03-04 15:12:23 bylaska Exp $
 #
 
-          OBJ = paw_ovlp.o paw_overlap_matrix.o
+          OBJ_OPTIMIZE = paw_ovlp.o paw_overlap_matrix.o
 
 
       LIBRARY =	libpaw.a

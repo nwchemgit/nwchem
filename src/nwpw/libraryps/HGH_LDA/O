@@ -6,3 +6,21 @@
 O 6 0.247621 -16.580318 2.395701
 0.221786 18.266917
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+O
+8.0 16.0 1 2
+1  0      2.0
+2  0      2.0
+2  1      4.0
+<end>
+<solver>      pauli <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 0.700
+       1 0.700
+       2 0.700
+<end>
+

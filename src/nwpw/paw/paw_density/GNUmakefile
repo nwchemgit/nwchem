@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-02-18 02:11:31 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ =  paw_density.o
+          OBJ_OPTIMIZE =  paw_density.o
           HEADERS = paw_density_data.fh
 
 

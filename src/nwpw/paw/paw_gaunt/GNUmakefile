@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-02-19 23:43:40 marat Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ =  paw_gaunt.o
+          OBJ_OPTIMIZE =  paw_gaunt.o
           HEADERS = paw_gaunt.fh 
 
 

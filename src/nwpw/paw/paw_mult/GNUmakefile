@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.6 2003-03-17 23:12:22 marat Exp $
+# $Id: GNUmakefile,v 1.7 2004-03-04 15:12:23 bylaska Exp $
 #
 
-          OBJ =  paw_mult.o paw_mult_interaction.o paw_mult_energy.o
+          OBJ_OPTIMIZE =  paw_mult.o paw_mult_interaction.o paw_mult_energy.o
           HEADERS = paw_mult_data.fh
 
 

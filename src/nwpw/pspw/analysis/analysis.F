@@ -111,7 +111,7 @@
             DD = '                          '
             DD = psp_atom(k)
             ind = index(DD,' ') - 1
-            test = DD(1:ind)//'.psp'
+            test = DD(1:ind)//'.psp1'
 
             !write(*,*) "test:",test,ind
             value = rtdb_parallel(.false.)
@@ -134,7 +134,7 @@
             DD = '                          '
             DD = psp_atom(k)
             ind = index(DD,' ') -1
-            test = DD(1:ind)//'.psp'
+            test = DD(1:ind)//'.psp1'
             call analysis_expansion_coef(test,-1,rtdb)
 
             if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),

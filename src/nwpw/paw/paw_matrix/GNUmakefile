@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.15 2003-02-14 19:55:07 marat Exp $
+# $Id: GNUmakefile,v 1.16 2004-03-04 15:12:23 bylaska Exp $
 #
 
-          OBJ = paw_comp_charge_matrix.o 
+          OBJ_OPTIMIZE = paw_comp_charge_matrix.o 
         
           
 

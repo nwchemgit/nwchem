@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-11 22:42:43 marat Exp $
+# $Id: GNUmakefile,v 1.2 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ = paw_energy_core_atom.o paw_matrix_core.o
+          OBJ_OPTIMIZE = paw_energy_core_atom.o paw_matrix_core.o
           HEADERS = paw_energy_core_atom.fh 
 
 

@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-02-19 23:41:16 marat Exp $
+# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:24 bylaska Exp $
 #
 
-          OBJ =  paw_spher_func.o paw_double_factorial.o paw_gamma_function.o \
+          OBJ_OPTIMIZE =  paw_spher_func.o paw_double_factorial.o paw_gamma_function.o \
                            paw_hypergeom1F1.o
           HEADERS = paw_spher_func.fh paw_gamma_function.fh paw_hypergeom.fh \
                               paw_double_factorial.fh

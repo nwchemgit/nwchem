@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-03-10 05:45:24 marat Exp $
+# $Id: GNUmakefile,v 1.2 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ = paw_force.o
+          OBJ_OPTIMIZE = paw_force.o
 
 
       LIBRARY =	libpaw.a

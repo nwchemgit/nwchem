@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.4 2003-02-21 22:41:19 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-03-04 15:12:22 bylaska Exp $
 #
 
-          OBJ = paw_matrix_comp_pot.o paw_pot_comp.o
+          OBJ_OPTIMIZE = paw_matrix_comp_pot.o paw_pot_comp.o
           HEADERS = paw_matrix_comp_pot.fh paw_pot_comp_data.fh
           
 

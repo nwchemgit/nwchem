@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-26 02:13:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2004-03-04 15:12:23 bylaska Exp $
 #
 
-          OBJ =  paw_nonlocal.o 
+          OBJ_OPTIMIZE =  paw_nonlocal.o 
           HEADERS = 
 
 

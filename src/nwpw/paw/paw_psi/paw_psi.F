@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.8 2004-02-23 16:37:32 bylaska Exp $
+* $Id: paw_psi.F,v 1.9 2004-03-04 15:12:23 bylaska Exp $
 *
 
 
@@ -181,19 +181,27 @@
 
 
 *         ****  correction due to the constraint ****
-          do ii=n1(ms),n2(ms)
-             i=ii-n1(ms)+1
+          call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+     >              (1.0d0),
+     >              psi1(1,n1(ms)),2*npack1,
+     >              tmp(st1),n,
+     >              (1.0d0),
+     >              psi2(1,n1(ms)),2*npack1)
 
-             do jj=n1(ms),n2(ms)
-                j=jj-n1(ms)+1
+c          do ii=n1(ms),n2(ms)
+c             i=ii-n1(ms)+1
+c
+c             do jj=n1(ms),n2(ms)
+c                j=jj-n1(ms)+1
+c
+c                index = (i-1) + (j-1)*n
+c                !alpha = dte*lmbda(sl(ms) + index)
+c                alpha = tmp(st1 + index)
+c
+c                call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
+c             end do
+c          end do
 
-                index = (i-1) + (j-1)*n
-                !alpha = dte*lmbda(sl(ms) + index)
-                alpha = tmp(st1 + index)
-
-                call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
-             end do
-            end do
         end if
   640   continue
       end do !*ms*
