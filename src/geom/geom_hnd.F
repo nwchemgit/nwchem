@@ -1494,13 +1494,17 @@ C
       IF(NATURL.OR.SYMTRC) THEN
          NVAR=NZVAR
       ELSE
-         IF(OUT) THEN
-            IF(NINDEP.NE.NVAR) THEN
-               WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
-            ENDIF
-            IF(NREDUN.NE.NZVAR-NVAR) THEN
-               WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
-            ENDIF
+         IF(NINDEP.NE.NVAR) THEN
+            WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
+            call errquit
+     $           ('hnd_binvr: insufficient independent variables',
+     $           nindep)
+         ENDIF
+         IF(NREDUN.NE.NZVAR-NVAR) THEN
+            WRITE(IW,9988) NZVAR,NINDEP,NREDUN,NVAR
+            call errquit
+     $           ('hnd_binvr: inconsistent independent variables',
+     $           nindep)
          ENDIF
       ENDIF
 C
@@ -3250,7 +3254,7 @@ C
          ENDDO
 c
          call geom_check_all_connected(nat,nbnds,ijmods,okay)
-         if (.not. okay) goto 55555
+***         if (.not. okay) goto 55555
 c
          CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
