@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 2004-12-03 21:50:20 bert Exp $
+# $Id: GNUmakefile,v 1.23 2004-12-16 18:47:22 bert Exp $
 #
 
 
@@ -29,7 +29,8 @@
          hnd_sdfc.o \
          hnd_pso.o \
          hnd_dso.o \
-         prop_atom.o
+         prop_atom.o \
+         xc_tabcd_giao_nmr_rhs.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
