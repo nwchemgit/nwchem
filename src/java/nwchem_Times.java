@@ -121,14 +121,14 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
       nodPlot.init();
       nodPlot.resize(700,300);
-      nodPlot.setNumSets(8);
+      nodPlot.setNumSets(16);
       nodPlot.setTitle("Wall Clock Time Decomposition per Processor");
       nodPlot.setXLabel("Processor");
       nodPlot.setBars(1.1,0.0);
       nodPlot.setMarksStyle("none");
       accPlot.init();
       accPlot.resize(700,300);
-      accPlot.setNumSets(8);
+      accPlot.setNumSets(16);
       accPlot.setTitle("Wall Clock Time Decomposition Accumulated");
       accPlot.setXLabel("Time");
       //      accPlot.setBars(1.1,0.0);
@@ -143,8 +143,8 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       np = Integer.parseInt(card.substring(1,5).trim());
       first=true;
       ndx = new int[np];
-      ndata = new double[np][8];
-      tdata = new double[8];
+      ndata = new double[np][16];
+      tdata = new double[16];
     } catch(Exception e) {e.printStackTrace();};
 
     for(int ip=0; ip<np; ip++){
@@ -160,17 +160,17 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       int num = 0;
       for(int ip=0; ip<np; ip++){
 	card=br.readLine();
-	for(int i=0; i<8; i++){
-	  ndata[ip][i]=Double.valueOf(card.substring(i*10+1,i*10+10)).doubleValue();
+	for(int i=0; i<16; i++){
+	  ndata[ip][i]=Double.valueOf(card.substring(i*7+1,i*7+7)).doubleValue();
 	};
       };
-      for(int i=0; i<8; i++){
+      for(int i=0; i<16; i++){
 	tdata[i]=0.0;
 	for(int ip=0; ip<np; ip++){
 	  tdata[i]=tdata[i]+ndata[ip][i];
 	};
       };
-      for(int i=1; i<8; i++){
+      for(int i=1; i<16; i++){
 	tdata[i]=tdata[i]+tdata[i-1];
 	for(int ip=0; ip<np; ip++){  
 	  ndata[ip][i]=ndata[ip][i]+ndata[ip][i-1];
@@ -181,10 +181,10 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
   };
 
   void addNodeData(){
-    for(int i=0; i<8; i++){
+    for(int i=0; i<16; i++){
       nodPlot.removeSet(i);
     };
-    for(int i=0; i<8; i++){
+    for(int i=0; i<16; i++){
       for(int ip=0; ip<np; ip++){
 	nodPlot.addData(i,ip,ndata[ndx[ip]][i],false,false);
       };
@@ -192,9 +192,9 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
   };
 
   void addAccuData(){
-    for(int i=7; i>=0; i--){
-      accPlot.addData(7-i,time,tdata[i],!first,false);
-      //accPlot.addData(7-i,time,tdata[i],false,false);
+    for(int i=15; i>=0; i--){
+      accPlot.addData(15-i,time,tdata[i],!first,false);
+      //accPlot.addData(15-i,time,tdata[i],false,false);
     };
     first=false;
   };
