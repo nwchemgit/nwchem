@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.6 2005-01-12 01:50:28 edo Exp $
+c$Id: xc_ft97.F,v 1.7 2005-01-27 21:45:05 edo Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,
@@ -444,6 +444,9 @@ C     See formulas for FSSP, eq.(45), and FSS, eq.(46).
       PARAMETER (A5=3.600612059D0)
 C     NUMERICAL CUTOFF FOR MUAA, MUAB, MUBA, MUBB, see eqs.(13) and (33).
       PARAMETER (CUTOFF=1.0D7)
+      parameter(ksspbig=1.291551074D0 - 0.349064173D0,big=1d4)
+      parameter(KSS0BIG  = 1.200801774D0 + 0.859614445D0-
+     -           0.812904345D0)
 C
 C *** DEFINITION OF FORMULA FUNCTIONS.
 C
@@ -451,13 +454,10 @@ C     R        : Density parameter Rs (Wigner radius), see eq.(8).
 C     KSSP0    : See eq.(39) for k(sigma,sigma').
       KSSP0(R) = 1.291551074D0 - 0.349064173D0*(1.D0-
      .           EXP(-0.083275880D0*R**0.8D0))
-      parameter(ksspbig=1.291551074D0 - 0.349064173D0,big=1d4)
 C     KSS0     : See eq.(40) for k(sigma,sigma).
       KSS0(R)  = 1.200801774D0 + 0.859614445D0*(1.D0-
      .           EXP(-1.089338848*SQRT(R)))-
      .           0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
-      parameter(KSS0BIG  = 1.200801774D0 + 0.859614445D0-
-     -           0.812904345D0)
 C
 C     FSSP     : See eq.(45) for F(sigma,sigma').
       FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2)*
