@@ -58,6 +58,20 @@ In addition, automatic interfaces are provided to
 \item The natural bond orbital (NBO) package
 \end{itemize}
 
+\section{Relativistic effects}
+
+The following methods for including relativity in quantum chemistry 
+calculations are available:
+\begin{itemize}
+\item Spin-free one-electron Douglas-Kroll approximation is available for all 
+ quantum mechanical methods and their gradients.
+\item Dyall's spin-free Modified Dirac Hamiltonian approximation is available 
+ for the Hartree-Fock method and its gradients.
+\item One-electron spin-orbit effects can be included via spin-orbit potentials.
+ This option is available for DFT and its gradients, but hasto be run without 
+ symmetry.
+\end{itemize}
+
 \section{Periodic system electronic structure}
 
 A module is available to compute energies by Gaussian Density
