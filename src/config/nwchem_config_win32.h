@@ -1,4 +1,4 @@
-# $Id: nwchem_config_win32.h,v 1.19 2002-01-15 18:37:11 edo Exp $
+# $Id: nwchem_config_win32.h,v 1.20 2003-01-24 21:17:03 edo Exp $
 
 !IFDEF PYTHONHOME
 PYTHON_NWLIB = python.lib
@@ -9,7 +9,7 @@ PYTHON_SUBDIR = python
 NW_CORE_SUBDIRS = basis geom inp input \
 	pstat rtdb task symmetry util peigs lapack blas
 
-NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 stepper driver dftgrad cphf ccsd vib mcscf prepar  esp hessian selci dplot mp2_grad property nwpw fft nbo analyz nwmd cafe space drdy qmmm qmd  etrans $(PYTHON_SUBDIR)
+NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 stepper driver dftgrad cphf ccsd vib mcscf prepar  esp hessian selci dplot mp2_grad property nwpw fft nbo analyz nwmd cafe space drdy qmmm qmd  etrans tce $(PYTHON_SUBDIR)
 #NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 stepper driver dftgrad cphf ccsd vib mcscf prepar  esp hessian selci dplot mp2_grad property nwpw fft nbo analyz nwmd cafe space drdy qmmm qmd mcstep etrans $(PYTHON_SUBDIR)
 
 !IFNDEF LINK_F90
