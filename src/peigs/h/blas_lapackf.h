@@ -1,161 +1,4 @@
-#define NO_EVEC 0
-
-/*
-  CPU definitions and machine precision definitions
-  */
-
-#ifdef ALPHA
-
-#define DLAMCHE        2.22044604925031308D-16
-#define DLAMCHP        2.22044604925031308D-16
-#define DLAMCHB        2.D0
-#define DLAMCHS        2.22507385850720138D-308
-#define DLAMCHU        2.22507385850720138D-308
-#define SLAMCHE        2.22044604925031308E-16
-#define SLAMCHP        2.22044604925031308E-16
-#define SLAMCHB        2.e0
-#define SLAMCHS        2.22507385850720138E-308
-#define SLAMCHU        2.22507385850720138E-308
-
-
-/*
- Single Precision results
- depsilon      5.9604644775390625E-08
- dbase      2.0000000000000000E+00
- dsafeulp      1.1754943508222875E-38
- */
-#endif
-
-#ifdef HPPA
-#define DLAMCHE 1.1102230246251564D-16
-#define DLAMCHP 1.1102230246251564D-16
-#define DLAMCHB 2.0000000000000000D+00
-#define DLAMCHS 2.2250738585072028D-308
-#define DLAMCHU 2.2250738585072028D-308
-
-#endif
-
-#ifdef SPARC
-
-/*
-  sparc
-  */
-/*
- Double Precision results
-   depsilon      1.1102230246251565D-16
-      dbase      2.0000000000000000D+00
-   dsafeulp      2.2250738585072014D-308
-
- Single Precision results
-   depsilon      5.9604644775390625E-08
-      dbase      2.0000000000000000E+00
-   dsafeulp      1.1754943508222875E-38
-*/
-
-#define DLAMCHE        1.1102230246251565D-16
-#define DLAMCHP        1.1102230246251565D-16
-#define DLAMCHB        2.D0
-#define DLAMCHS        2.2250738585072014D-308
-#define DLAMCHU        2.2250738585072014D-308
-
-#endif
-
-#ifdef PENTIUM
-/* wild ass guess; same as sparc */
-#define DLAMCHE 2.2204460492503131D-16
-#define DLAMCHP 2.2204460492503131D-16
-#define DLAMCHB 2.0000000000000000E+00
-#define DLAMCHS 2.2250738585072014D-308
-#define DLAMCHU 2.2250738585072014D-308
-
-#endif
-#ifdef MIPS
-/*
-  SGI PowerChallenge R4010 fpu ... R8000 chip
-  seems to have the same reps .... probably have
-  to print out hex to get real differences
-  */
-
-#define DLAMCHE 1.1102230246251565D-16
-#define DLAMCHP 1.1102230246251565D-16
-#define DLAMCHB 2.e0
-#define DLAMCHS 2.2250738585072014D-308
-#define DLAMCHU 2.2250738585072014D-308
-
-
-#endif
-#ifdef RS6000
-
-/* rs6000 */
-
-#define DLAMCHE 1.11022302462515654D-16
-#define DLAMCHP 1.11022302462515654D-16
-#define DLAMCHB 2.D0
-#define DLAMCHS 0.22250738585072013D-307
-#define DLAMCHU 0.22250738585072013D-307
-
-
-/*
-  depsilon  0.111022302462515654D-15 
-  dbase   2.00000000000000000     
-  dsafeulp  0.22250738585072013D-307 
-  depsilon  0.5960464478D-07 
-  dbase   2.000000000     
-  dsafeulp  0.1175494351D-37 
-  */
-#endif
-#ifdef i860
-
-/*
-  with -Knoieee
-  */ 
-
-#define DLAMCHE 1.1102230246251565D-016
-#define DLAMCHB 2.d0
-#define DLAMCHS 2.2250738585072014D-308
-#define DLAMCHE  1.1102230246251565D-016
-#define DLAMCHP  1.1102230246251565D-016
-#define DLAMCHB  2.d0
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHU  2.2250738585072014D-308
-
-
-#endif
-#ifdef FUJITSU_VPP
-
-#define DLAMCHE  1.1102230246251565D-016
-#define DLAMCHP  1.1102230246251565D-016
-#define DLAMCHB  2.D0
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHU  2.2250738585072014D-308
-
-
-#endif
-#ifdef KSR
-
-#define DLAMCHE  1.1102230246251565D-16
-#define DLAMCHB  2.
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHE  1.1102230246251565D-16
-#define DLAMCHP  1.1102230246251565D-16
-#define DLAMCHB  2.
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHU  2.2250738585072014D-308
-
-
-
-#endif
 #ifdef KSR8
-
-#define DLAMCHE  1.1102230246251565D-16
-#define DLAMCHB  2.D0
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHE  1.1102230246251565D-16
-#define DLAMCHP  1.1102230246251565D-16
-#define DLAMCHB  2.d0
-#define DLAMCHS  2.2250738585072014D-308
-#define DLAMCHU  2.2250738585072014D-308
-
 
 #define dscal_  sscal_
 #define ddot_   sdot_
@@ -183,21 +26,10 @@
 #define dstebz1_  sstebz1_
 #define dlaebz2_  slaebz2_
 #define damax_    samax_
+
 #endif
 
 #ifdef CRAY_T3D
-
-#define DLAMCHE  2.22044604925031308E-16
-#define DLAMCHP  2.22044604925031308E-16
-#define DLAMCHB  2.E0
-#define DLAMCHS  2.22507385850720138E-308
-#define DLAMCHU  2.22507385850720138E-308
-#define SLAMCHE  2.22044604925031308E-16
-#define SLAMCHP  2.22044604925031308E-16
-#define SLAMCHB  2.E0
-#define SLAMCHS  2.22507385850720138E-308
-#define SLAMCHU  2.22507385850720138E-308
- 
 
 #define dscal_  SSCAL
 #define ddot_   SDOT
@@ -306,3 +138,9 @@ peigs
 #define DCOPY  SCOPY
 
 #endif
+
+
+
+
+
+
