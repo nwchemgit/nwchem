@@ -9,7 +9,7 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.19 2000-07-26 01:48:20 edo Exp $
+* $Id: dftg_cdfit.F,v 1.20 2003-06-18 23:47:44 edo Exp $
 *
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf
@@ -50,6 +50,9 @@ c
 #include "msgids.fh"
 #include "util.fh"
 #include "sym.fh"
+#include "eaf.fh"
+#include "stdio.fh"
+#include "inp.fh"
 c
       integer  AO_bas_han, CD_bas_han
       integer  nbf_cd, nat, max_sh_bf
@@ -95,10 +98,12 @@ c
       integer nshells_ao,nshells_cd,ishp,ishq
       integer ifirstq, ilastq, ifirstp, ilastp,nshbfq,nshbfp,Nao2
       integer mu,nu,Nintegrals,ishd,ifirstd,ilastd,nshbfd
-      integer iat,icount2,ifp,i,next,nxtask,icart,ist,l_dfkl,k_dfkl
+      integer iat,icount2,ifp,next,nxtask,icart,ist,l_dfkl,k_dfkl
       integer iatom,ishatf,ishatl
       double precision PPP_max,dE,fac,schwarz_shell,q1
       logical do_force, do_cpks_r, do_hess
+      integer ierr,LU
+      character*255 errmsg
 c
       character*(nw_max_path_len) cdfit
 c
@@ -137,10 +142,30 @@ c
          inquire(file=cdfit,exist=doesit)
          if (.not. doesit)call errquit
      &        ('dftg_cdfit_gen: file cdfit does not exist',0)
-         open(unit=79,file=cdfit,access='sequential',
-     &        form='unformatted',status='old')
-         read(79)(CD_coef(i),i=1,nbf_cd)
-         close(79)
+         LU=79
+         ierr=eaf_open(cdfit(1:inp_strlen(cdfit)),eaf_rw, LU)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('dftg_fitcd: eaf_open failed', ierr)
+        endif
+        ierr = eaf_read(LU, 0d0, cd_coef, 8*nbf_cd)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr, errmsg)
+           write(LuOut,*) ' IO error message ',
+     $          errmsg(1:inp_strlen(errmsg))
+           call errquit('dftg_fitcd: write failed',0)
+        endif
+        ierr=eaf_close(LU)
+        if (ierr .ne. 0) then
+           write(luout,*) ga_nodeid(),' closing FD =',LU,
+     ,          ' cdfit '
+           call eaf_errmsg(ierr, errmsg)
+           write(LuOut,*) ' IO error message ',
+     $          errmsg(1:inp_strlen(errmsg))
+           call util_flush(luout)
+           call errquit('dftg_fitcd: eaf_close failed',0)
+        endif
       endif
 c
       call ga_brdcst(Msg_dftg_cdf,CD_coef,mdtob(nbf_cd),0)

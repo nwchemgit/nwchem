@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.36 2002-08-16 00:39:51 edo Exp $
+* $Id: dft_fitcd.F,v 1.37 2003-06-18 23:47:47 edo Exp $
 *
       implicit none
 c
@@ -20,6 +20,7 @@ c
 #include "eaf.fh"
 #include "sym.fh"
 #include "geom.fh"
+#include "inp.fh"
 c
       integer natoms
       integer nfit           ! number of different fits to perform
@@ -50,7 +51,7 @@ c
      &        ischw1, icount, Nao2, n1, n2, ishc, ifirstc, ilastc,
      &        nshbfc, ishd, ifirstd,  ilastd, nshbfd, istart,
      &        ishp, ifirstp, ilastp, nshbfp, Nintegrals, nscr,
-     &        max1e, nscr1e, j, next, i, mscratch_2e3c,
+     &        max1e, nscr1e, j, next,  mscratch_2e3c,
      &        ifirst, ilast, nshbf, maxg, ish, lmiss, ifit
       integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
      &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
@@ -66,6 +67,8 @@ c
       integer          itype,nprimo,isphere
       external dabsmax,nxtask
       logical spherical
+      integer LU,ierr
+      character*255 errmsg
       
 #if defined(DFT_TIMER)
       integer nsh_blocks,niter
@@ -649,12 +652,36 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
             call util_file_name('cdfit', .true., .false.,
      &           cdfit_filename)
          endif
-         open(unit=79,file=cdfit_filename,access='sequential',
-     &         form='unformatted',status='unknown')
+         LU=79
+         ierr=eaf_open(cdfit_filename(1:inp_strlen(cdfit_filename)),
+     ,        eaf_rw, LU)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('dft_fitcd: eaf_open failed', ierr)
+        endif
          do ifit = 1, nfit
-            write(79) (CD_coef(i,ifit),i=1,nbf_cd)
+            offset=(ifit-1)*8d0*nbf_cd
+            ierr = eaf_write(LU, offset, cd_coef(1,ifit),
+     .           8*nbf_cd)
+            if (ierr .ne. 0) then
+               call eaf_errmsg(ierr, errmsg)
+               write(LuOut,*) ' IO offset ', offset
+               write(LuOut,*) ' IO error message ',
+     $              errmsg(1:inp_strlen(errmsg))
+               call errquit('dft_fitcd: write failed',ifit)
+               endif
          enddo
-         close(79)
+         ierr=eaf_close(LU)
+         if (ierr .ne. 0) then
+            write(luout,*) ga_nodeid(),' closing FD =',LU,
+     ,           cdfit_filename(1:inp_strlen(cdfit_filename)) 
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call util_flush(luout)
+            call errquit('dft_fitcd: eaf_close failed',0)
+         endif
       endif
 c      
 c     Compute the integrated electron density from the fit.
