@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1998-07-31 21:27:52 d3g681 Exp $
+# $Id: GNUmakefile,v 1.41 1998-07-31 21:28:49 d3g681 Exp $
  
 include ../../config/makefile.h
 
@@ -10,6 +10,9 @@ ifeq ($(TARGET),SOLARIS)
  FOPTIMIZE += -inline=amtfer,tfer_i
 endif
 ifeq ($(TARGET),SP1)
+ FOPTIMIZE += -Q+amtfer:tfer_i
+endif
+ifeq ($(TARGET),LAPI)
  FOPTIMIZE += -Q+amtfer:tfer_i
 endif
 
