@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.8 1994-04-04 22:00:24 d3g681 Exp $
+# $Id: makefile.h,v 1.9 1994-04-07 18:44:10 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -25,7 +25,12 @@
 # Define TARGET to be the machine you wish to build for
 # (one of SUN, IPSC, KSR)
 #
-     TARGET = SUN
+# Either do a setenv for NWCHEM_TARGET or define it here
+# ... it is preferable to do the setenv then this file is independent
+# ... of who is using it!!!
+#
+# NWCHEM_TARGET = SUN
+     TARGET = $(NWCHEM_TARGET)
 
 #
 # Define SUBDIRS to be list of subdirectories of SRC to be made
@@ -33,7 +38,7 @@
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
-    SUBDIRS = include develop global db NWints ints_sp rtdb basis inp util \
+    SUBDIRS = include develop global db NWints rtdb basis inp util \
               geom input ma tcgmsg
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -87,7 +92,7 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lnwints -lspints \
+              -ltest -lnwints \
               -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
 	      -lutil -lma -ltcgmsg
 
@@ -109,7 +114,7 @@ ifeq ($(TARGET),IPSC)
       FOPT = -O2 -Knoieee -Mquad -node -Minline=100
   FOPT_REN = -O2 -Knoieee -Mquad -Mreentrant -Mrecursive -node
       COPT = -O2 -Knoieee -Mreentrant -node
-  INCLUDES =  -I. -I$(SRCDIR)/rtdb -I$(SRCDIR)/global -I$(SRCDIR)/tcgmsg -I$(SRCDIR)/ints \
+  INCLUDES =  -I. -I$(SRCDIR)/rtdb -I$(SRCDIR)/global -I$(SRCDIR)/tcgmsg -I$(SRCDIR)/NWints \
               -I$(SRCDIR)/util -I$(SRCDIR)/ma -I$(SRCDIR)/db -I$(SRCDIR)/tcgmsg/ipcv4.0
    DEFINES = -DNX -DIPSC -DNO_BCOPY  $(LIB_DEFINES)
 #  -DGA_TRACE
@@ -121,7 +126,7 @@ ifeq ($(TARGET),IPSC)
    ARFLAGS = rcv
       LIBS = $(SRCDIR)/input/libinput.a \
              $(SRCDIR)/ddscf/libddscf.a \
-             $(SRCDIR)/ints/libints.a  \
+             $(SRCDIR)/NWints/libnwints.a  \
              $(SRCDIR)/rtdb/librtdb.a \
              $(SRCDIR)/db/libdb.a \
              $(SRCDIR)/global/libglobal.a \
