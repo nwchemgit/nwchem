@@ -12,7 +12,6 @@ c****
 c**** 
 
 #include <bas.fh>
-#include <dimensions.fh>
  
       Dimension vec(nshbfb,*),vec2(nshbfa,*)
 c     

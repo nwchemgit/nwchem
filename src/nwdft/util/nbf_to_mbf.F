@@ -9,7 +9,6 @@
 
       Logical LResult
 
-#include <dimensions.fh>
 #include <bas.fh>
 
 c--   > Distance Squared between Sampling Points and Centers
