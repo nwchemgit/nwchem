@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.41 2004-01-06 01:39:58 marat Exp $
+C$Id: geom.fh,v 1.42 2004-07-22 17:19:56 bert Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -28,6 +28,7 @@ C$Id: geom.fh,v 1.41 2004-01-06 01:39:58 marat Exp $
       logical geom_tag_to_element
       logical geom_charge_center
       logical geom_center_of_mass
+      logical geom_center_of_charge
       logical geom_nuc_charge
       logical geom_nuc_rep_energy
       logical geom_verify_coords
@@ -128,6 +129,7 @@ c
       external geom_tag_to_element
       external geom_charge_center
       external geom_center_of_mass
+      external geom_center_of_charge
       external geom_nuc_charge
       external geom_nuc_rep_energy
       external geom_verify_coords

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.128 2004-06-29 19:59:41 edo Exp $
+C$Id: geom.F,v 1.129 2004-07-22 17:19:56 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2158,6 +2158,40 @@ c
 c     
       call geom_compute_values(geom)
 c
+      end
+      logical function geom_center_of_charge(geom, center)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+      integer geom              ! [input]
+      double precision center(3)! [output] 
+      integer i, k
+      double precision qsum
+      logical geom_check_handle
+      external geom_check_handle
+c
+c  Get the center of charge of the geometry
+c  DOES not shift the center of charge to the origin
+c
+      geom_center_of_charge=geom_check_handle(geom,'geom_charge_center')
+      if (.not. geom_center_of_charge) return
+      call geom_compute_values(geom)
+      qsum = 0.0d0
+      do i = 1, ncenter(geom)
+         qsum = qsum + charge(i,geom)
+      end do
+c
+      if (qsum .eq. 0.0d0) then ! System is charge neutral
+         do k = 1, 3
+            center(k) = 0.0d0
+         enddo
+      else
+         do k = 1, 3
+            center(k) = ndipole(k,geom)/qsum
+         end do
+      endif
+c
+      geom_center_of_charge=.true.
       end
       logical function geom_center_of_mass(geom, center)
       implicit none
