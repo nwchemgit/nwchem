@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.2 2000-04-10 10:52:35 hvd Exp $
+C     $Id: get_inp_file.F,v 1.3 2000-05-05 23:08:13 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -16,7 +16,12 @@ c
 #if defined(CRAY)
       integer ilen,ierror
 #endif
-      integer arg, nargs, l
+#if defined(SOLARIS64)
+      integer*4 arg, nargs
+#else
+      integer arg, nargs
+#endif
+      integer l
       integer iargc
       external iargc
 c     
