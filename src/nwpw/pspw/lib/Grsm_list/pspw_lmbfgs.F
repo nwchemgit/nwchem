@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.2 2001-12-21 16:50:29 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.3 2001-12-21 22:54:35 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -43,7 +43,7 @@
 *     **** local variables ****
       logical value
       integer k
-      real*8 alpha(20),beta,sum
+      real*8 alpha(20),beta,sum,h0
       integer yy(2),ss(2)
 
 *     **** allocate yy and ss ****
@@ -64,6 +64,13 @@
      >                   dcpl_mb(ss(1)),
      >                   sum)
       rho(m) = 1.0d0/sum
+      write(*,*) "M,RHO:",m,rho(m)
+      call Grsm_gg_trace(npack1,neall,
+     >                   dcpl_mb(yy(1)),
+     >                   dcpl_mb(yy(1)),
+     >                   h0)
+      write(*,*) "h0:",h0
+      h0 = sum/h0
 
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(ss(1)),
@@ -82,8 +89,20 @@
      >                   s,
      >                   sum)
          alpha(k) = rho(k)*sum
-         call Grsm_gg_daxpy(npack1,neall,alpha(k),dcpl_mb(yy(1)),s)
+         call Grsm_gg_daxpy(npack1,neall,-alpha(k),dcpl_mb(yy(1)),s)
+
+*     **** debug ****
+      call Grsm_gg_trace(npack1,neall,
+     >                   dcpl_mb(yy(1)),
+     >                   dcpl_mb(ss(1)),
+     >                   sum)
+      write(*,*) "    debug k,RHO:",k,1.0d0/sum,rho(k)
+
       end do
+
+*     **** preconditioner ****
+      call Grsm_gg_dScale(npack1,neall,h0,s,s)
+
 
       do k=1,(m-1)
          call Grsm_gg_trace(npack1,neall,

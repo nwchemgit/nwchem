@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.1 2001-12-21 16:52:47 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.2 2001-12-21 22:54:35 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -33,7 +33,7 @@ c
 
       integer it,it_in
       real*8 deltat
-      real*8 max_sigma
+      real*8 max_sigma,dt,dte
 
       logical value
       integer neall,npack1
@@ -89,7 +89,15 @@ c
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
 
+      real*8   control_time_step,control_fake_mass
+      external control_time_step,control_fake_mass
 
+      dt = control_time_step()
+c     dte = dt/dsqrt(control_fake_mass())
+      dte = dsqrt(control_fake_mass())/dt
+
+
+      write(*,*) "start,tmin:",tmin
        
   
       call Pack_npack(1,npack1)
@@ -111,6 +119,8 @@ c
 
 *        ***** use the initial gradient for the direction ****
          call psi_1get_Tgradient(dcpl_mb(G0(1)))
+         call Grsm_gg_dScale(npack1,neall,dte,
+     >                       dcpl_mb(G0(1)),dcpl_mb(G0(1)))
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
@@ -144,6 +154,7 @@ c
      >                        psi_geodesic_denergy,
      >                        tole,tmin,deltae)
          call psi_geodesic_final(tmin)
+      write(*,*) "tmin:",tmin
          deltac = rho_error()
 
 *        **** exit loop early ****
@@ -152,6 +163,8 @@ c
      
 *        **** get the new gradient - also updates densities****
          call psi_2get_Tgradient(dcpl_mb(G0(1)))
+         call Grsm_gg_dScale(npack1,neall,dte,
+     >                       dcpl_mb(G0(1)),dcpl_mb(G0(1)))
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 
@@ -179,15 +192,16 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
+      write(*,*) "END,tmin:",tmin
 
 *     **** free memory ****
-      value = MA_pop_stack(G0(2))
+ 30   value = MA_pop_stack(G0(2))
       value = value.and.
      >        MA_pop_stack(S0(2))
       if (.not. value) 
      >  call errquit('bfgsminimize:error freeing heap memory',0)
 
- 30   call psi_2to1()
+      call psi_2to1()
       call psi_1toelectron() 
 c     call rho_2to1()
 c     call dng_2to1()
