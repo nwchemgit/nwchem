@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.4 1996-03-29 04:53:20 d3e129 Exp $
+C     $Id: scf_vec_guess.F,v 1.5 1996-04-19 23:54:47 rg240 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -75,7 +75,7 @@ c
          endif
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
      $        nbf, nmo, tol2e,
-     $        g_aodens, g_movecs, oskel)
+     $        g_aodens, g_movecs, oskel, dbl_mb(k_eval))
 c
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))

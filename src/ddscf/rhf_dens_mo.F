@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
-     $     tol2e, g_dens, g_mocf, oskel)
-C     $Id: rhf_dens_mo.F,v 1.4 1996-04-16 03:17:39 d3g681 Exp $
+     $     tol2e, g_dens, g_mocf, oskel, evals )
+C     $Id: rhf_dens_mo.F,v 1.5 1996-04-19 23:54:46 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -14,6 +14,7 @@ C     $Id: rhf_dens_mo.F,v 1.4 1996-04-16 03:17:39 d3g681 Exp $
       double precision tol2e    ! [input] selection threshold for 2e integs
       integer g_dens            ! [input] AO density in GA
       integer g_mocf            ! [input/output] Indep vectors/MO vectors in GA
+      double precision evals(nbf)  ! [output] Orbital energies
 c     
 c     Given a density in g_dens and the nmo independent eigenvectors of S 
 c     in g_mocf, return an orthonormal set of
@@ -23,7 +24,6 @@ c
       logical oprint, osplit, oskel
       integer g_fock, g_over, g_hcore, g_tmp, g_mofock, g_u
       integer nocc
-      integer l_ev, k_ev
       integer i,j
       double precision escf, eone, etwo, enrep, dens_norm
       integer ga_create_atom_blocked
@@ -41,8 +41,6 @@ c
 c     
       if (.not. geom_nuc_rep_energy(geom, enrep))
      $     call errquit('rhf_dens_to_mo: no enrep?', 0)
-      if (.not. ma_push_get(MT_DBL, nmo, 'Evals', l_ev, k_ev))
-     $     call errquit('rhf_dens_to_mo: push of evals failed', nmo)
 c     
       g_fock  = ga_create_atom_blocked(geom, basis,'Temp Fock')
       g_hcore = ga_create_atom_blocked(geom, basis,'Temp HCore')
@@ -117,9 +115,9 @@ c
 c     
       if (oscfps) call pstat_on(ps_diag)
 #ifdef PARALLEL_DIAG
-      call ga_diag_std(g_mofock, g_u, dbl_mb(k_ev))
+      call ga_diag_std(g_mofock, g_u, evals )
 #else
-      call ga_diag_std_seq(g_mofock, g_u, dbl_mb(k_ev))
+      call ga_diag_std_seq(g_mofock, g_u, evals )
 #endif
       if (oscfps) call pstat_off(ps_diag)
       call ga_sync()
@@ -133,14 +131,13 @@ c
 c     Check for splitting ... not yet functional but it MUST be eventually
 c     
       nocc = (nelec+1)/2
-c$$$  osplit = abs(dbl_mb(k_ev+nocc-1)-dbl_mb(k_ev+nocc)).lt.1.0e-3
+c$$$  osplit = abs(evals(nocc)-evals(nocc+1)).lt.1.0e-3
       osplit = .false.
       if (ga_nodeid().eq.0 .and. (oprint .or. osplit)) then
          write(6,*)
          call util_print_centered(6, 'Non-variational initial energy',
      $        20, .true.)
-         write(6,901) escf, eone, etwo,
-     $        dbl_mb(k_ev+nocc-1), dbl_mb(k_ev+nocc)
+         write(6,901) escf, eone, etwo, evals(nocc), evals(nocc+1)
  901     format(/
      $        ' Total energy = ',f14.6/
      $        ' 1-e energy   = ',f14.6/
@@ -158,12 +155,9 @@ c$$$  $           'non-symmetric occupation ... swap orbitals or '/
 c$$$  $           ' !! must disable skeleton Fock build'/)
 c$$$  write(6,*) ' Eigenvalues '
 c$$$  write(6,*)
-c$$$  call output(dbl_mb(k_ev), 1, nmo, 1, 1, nmo, 1, 1)
+c$$$  call output(evals, 1, nmo, 1, 1, nmo, 1, 1)
 c$$$  endif
          call util_flush(6)
       endif
-c     
-      if (.not. ma_pop_stack(l_ev)) call errquit
-     $     ('rhf_dens_to_mo: destroy of ev?', 0)
 c     
       end
