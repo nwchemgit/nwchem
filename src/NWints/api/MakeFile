@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.5 2000-04-18 16:37:26 edo Exp $	
+#	$Id: MakeFile,v 1.6 2000-05-04 17:02:37 windus Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -50,6 +50,8 @@ OBJ =          $(OBJDIR)\cando_sp.obj \
                $(OBJDIR)\intd_1e3ov.obj \
                $(OBJDIR)\intbd_init4c.obj \
                $(OBJDIR)\intbd_2e4c.obj \
+               $(OBJDIR)\intbdd_init4c.obj \
+               $(OBJDIR)\intbdd_2e4c.obj \
                $(OBJDIR)\intd_mpolel.obj \
                $(OBJDIR)\intdd_1eh1.obj \
                $(OBJDIR)\intdd_1eov.obj \
