@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.14 2003-04-14 20:00:50 bylaska Exp $
+* $Id: vib_wrtfreq.F,v 1.15 2003-06-07 02:04:42 bylaska Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -30,6 +30,7 @@ c
       double precision inertia_A,inertia_B,inertia_C,thetaA,thetaB,
      ,     thetaC,M
       double precision Strans,Srot,Svib
+      double precision Cv_trans,Cv_rot,Cv_vib
       integer sigma
       integer i,it,ntemp,h_actlist,l_actlist,ma_type
       logical linear
@@ -194,11 +195,13 @@ c     &      temp = 298.15d0
 *     **** Formulas taken from Herzberg                   ****
 *     ********************************************************
 
+        Cv_trans = (3.0d0/2.0d0)*Rgas
         Strans = (5.0d0/2.0d0)*Rgas*log(temp)
      >         + (3.0d0/2.0d0)*Rgas*log(M) 
      >         - 2.3135d0/AUKCAL/1000.0d0
         inertprod=inertia_A*inertia_B*inertia_C
         if (abs(inertprod).lt.1d-9) then
+           Cv_rot = (2.0d0/2.0d0)*Rgas
            Srot=0.0d0
            if (linear) then
              Srot   = (Rgas)*(  log(temp) 
@@ -207,6 +210,7 @@ c     &      temp = 298.15d0
      >              + 1.2639d0/AUKCAL/1000.0d0
            end if
         else
+           Cv_rot = (3.0d0/2.0d0)*Rgas
            Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
      >          log(inertprod) -
      >          2.0d0*log(dble(sigma))) +
@@ -214,6 +218,7 @@ c     &      temp = 298.15d0
         endif
 
 *       **** add up vibrational contributions ****
+        Cv_vib = 0.0d0
         Svib   = 0.0d0
         if (temp.gt.0.0d0) then
         do i=1,nat3
@@ -223,12 +228,14 @@ c     &      temp = 298.15d0
           if (freq.gt.(0.1d0)) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
             xdum   = thetav/temp
-            Svib   = Svib + xdum/(exp(xdum)-1.0d0) - 
-     -           log(1.0d0-exp(-xdum))
+            Cv_vib = Cv_vib + exp(xdum)* (xdum/(exp(xdum)-1.0d0))**2 
+            Svib   = Svib + xdum/(exp(xdum)-1.0d0)   
+     >             - log(1.0d0-exp(-xdum))
           end if
         end do
         end if
-        Svib = Svib*Rgas
+        Cv_vib = Cv_vib*Rgas
+        Svib   = Svib*Rgas
 
 
         write(6,10030) (Strans+Srot+Svib)*AUKCAL*1000.0d0
@@ -244,6 +251,18 @@ c     &      temp = 298.15d0
 10033   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
      .       ' cal/mol-K')
 
+        write(6,10040) (Cv_trans+Cv_rot+Cv_vib)*AUKCAL*1000.0d0
+        write(6,10041) Cv_trans*AUKCAL*1000.0d0
+        write(6,10042) Cv_rot*AUKCAL*1000.0d0
+        write(6,10043) Cv_vib*AUKCAL*1000.0d0
+10040   FORMAT(/1X,'Cv (constant volume heat capacity) = ',f8.3,
+     .       ' cal/mol-K')
+10041   FORMAT( 1X,'  - Translational                  = ',f8.3,
+     .       ' cal/mol-K')
+10042   FORMAT( 1X,'  - Rotational                     = ',f8.3,
+     .       ' cal/mol-K')
+10043   FORMAT( 1X,'  - Vibrational                    = ',f8.3,
+     .       ' cal/mol-K')
 
        end do !it loop
 
