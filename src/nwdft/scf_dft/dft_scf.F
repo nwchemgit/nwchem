@@ -5,13 +5,12 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.3 1995-05-04 04:59:45 og845 Exp $
+C$Id: dft_scf.F,v 1.4 1995-05-05 23:49:52 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
       parameter(itol_min=5,iAOacc_min=15)
-      parameter(au2Debye=2.541d0)
       
 c**** 
 c**** nwchem handles
@@ -825,12 +824,8 @@ c
 c     computation of dipole moments
 c
 
-      call dft_mpole( geom, AO_bas_han, AO_bas_han, 1, 
+      call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
      &     iga_dens, ipol, rmoments, 3)
-      call dft_header('Dipole Moments (debye):       ')
-      write(LuOut,'(3A12)') 'x','y','z'
-      write (LuOut,'(3f12.5)') (rmoments(ii)*au2Debye,ii=1,3)
-      write(LuOut,*)
 c**** 
 c**** this is the final section of the ddscf routine rhf()
 c**** have substituted SCF with DFT

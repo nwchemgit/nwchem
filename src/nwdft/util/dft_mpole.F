@@ -1,13 +1,17 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.3 1995-05-04 05:13:32 og845 Exp $
+C     $Id: dft_mpole.F,v 1.4 1995-05-05 23:50:06 og845 Exp $
       implicit none
 
 #include "mafdecls.h"
 #include "global.fh"
+#include "tcgmsg.fh"
 #include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "stdio.fh"
+      double precision au2Debye
+      parameter(au2Debye=2.541d0)
 C     
       Integer NxTask ! From TCGMSG
       External NxTask
@@ -98,14 +102,6 @@ c****
 C      write (6,'(a,3e15.5)')
 C     &     'dft_mpole: nuclear part of rmoments: ',
 C     &     (rmoments(ii),ii=1,3)
-c**** 
-c**** Basis set info
-c**** 
-      if ( i_basis .ne. j_basis ) then
-        call errquit(
-     &       'dft_mpole: only defined for same basis left and right',
-     &       5)
-      endif 
 c**** 
 c**** number of contractions in left and right bases
 c**** 
@@ -315,8 +311,15 @@ c****
       do ixyz = 1,3
         if (.not. ga_destroy(iga_mpole(ixyz)) ) call errquit(
      &       'dft_mpole:  ga_destroy failed ',ixyz)
-      enddo 
-
+      enddo
+ 
+      if(ga_nodeid().eq.0) then
+        call dft_header('Dipole Moments (debye):       ')
+        write(LuOut,'(3A12)') 'x','y','z'
+        write (LuOut,'(3f12.5)') (rmoments(ixyz)*au2Debye,ixyz=1,3)
+        write(LuOut,*)
+      endif
+        
       return
       end
 c**** 
