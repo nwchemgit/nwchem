@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.16 2000-01-21 17:32:38 d3j191 Exp $
+c $Id: util_md.F,v 1.17 2000-05-24 18:00:20 d3j191 Exp $
 c
       implicit none
 c
@@ -175,9 +175,8 @@ c
       do 18 j=1,3
       sd=sd+(q(j)-y(ix(k),j)+yt(j))**2
    18 continue
-      sd=w(ix(k))*sd
       sdev(ix(k))=sdev(ix(k))+sd
-      rms1=rms1+sd
+      rms1=rms1+w(ix(k))*sd
    14 continue
       call ga_dgop(mag_d11,rms1,1,'+')
       rms1=sqrt(rms1/wnorm)
