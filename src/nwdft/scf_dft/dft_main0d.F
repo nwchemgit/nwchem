@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.53 2001-11-14 17:13:29 edo Exp $
+c     $Id: dft_main0d.F,v 1.54 2001-12-11 21:19:16 edo Exp $
 c     
       implicit none
 c
@@ -34,7 +34,7 @@ c
       double precision Enuc, Etold
       integer iter
       integer iVxc_opt, lmiss, ivcoul_opt
-      integer isvals, lsvals,  idum
+      integer isvals, lsvals,  idum,n_dep
       double precision toll_s
       logical dft_scf,l1ecache
       external dft_scf
@@ -78,15 +78,6 @@ c
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
          call errquit('Exiting from dft_main0d',1)
       endif 
-c
-c     Set orbital overlap tolerance
-c     
-      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
-         toll_s = 1.d-5
-         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
-      endif
-c
       iter = 0
       Etold = 0.D0
 c     
@@ -206,7 +197,6 @@ c
          CDFIT      = .TRUE.
       endif
 
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2a'
       if (CDFIT)then
 c     
 c        Determine the characteristics of the CD Gaussian basis set.
@@ -282,22 +272,17 @@ c                  call errquit(' temp stop this should not happen',0)
                call ga_print(g_cdinv)
                call ga_print(g_2ceri)
             endif
-cedo            call ga_sync
 c         endif
          if (IOLGC) then
-c            call gadest(g_cdinv)
             if (.not. ga_destroy(g_cdinv)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
-c            call gadest(g_2ceri)
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
          endif
-cedo         call ga_sync
       endif
 c
 c     Done with CD setup stuff
 c
-cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -340,7 +325,6 @@ c
       if(me.eq.0) call ffflush(ltime)
 #endif
 c     
-cedo      call ga_sync
       g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                    'alpha evecs')
       call ga_zero(g_evecs(1))
@@ -366,15 +350,12 @@ c
 c     keeps hardwired right now ... better something smarter
 c
       lkeeps=.false.
-      if(lkeeps) then
 c
-c     get s-12 and s+12
-c
-cnso         call diis_gets12pm(geom,ao_bas_han,toll_s,dbl_mb(isvals), 
-cnos     ,        g_svecs,g_s12m, g_s12p)
-cnos         call ga_copy(g_s12m,g_evecs(1))
-      else
+c     Set orbital overlap tolerance
 c     
+c
+      call util_tolls(rtdb,.false.,toll_s,n_dep,dbl_mb(isvals),nbf_ao)
+cc     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'temp')
@@ -382,16 +363,10 @@ c
      &        g_tmp,  2)
          if (.not. ga_destroy(g_tmp)) call errquit
      &      ('dft_main0d: could not destroy g_tmp', 0)
-      endif
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
-c     
-c     if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
-c      dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
-c     &     iter, g_dens, g_evecs, g_vxc, g_fock, 
-c     &     g_svecs, isvals, g_xcinv, g_s)
 c 
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0)
@@ -453,18 +428,14 @@ cnos      endif
      &   ('dft_main0d: could not destroy g_svecs', 0)
       if(l1ecache) call int_1e_uncache_ga()
       call schwarz_tidy
-cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
-Cedo      if (oprint_time) then
          if (me.eq.0)then
-C            ltime = LuOut
             ltime = 7
             write(ltime,*)
          endif  
          pgmname = ' SCFDRIVER'
          call t_stat(11,2)
-cedo      endif
 #endif
 c     
       return
