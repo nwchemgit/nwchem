@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.10 1999-06-25 18:42:50 edo Exp $
+C$Id: dft_densm.F,v 1.11 1999-06-25 19:49:58 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -349,12 +349,12 @@ c      call dfill(noc, rhfuhf, focc, 1)
       logical function dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,
      , me,mult)
       implicit none
+      integer ipol
+      integer nbf
       double precision evals(ipol*nbf)
       double precision focc(ipol*nbf)
-      integer nbf
       integer ntotel
       integer noc(2)
-      integer ipol
       integer me,mult
 c
       integer i,isp,nup,ndown
