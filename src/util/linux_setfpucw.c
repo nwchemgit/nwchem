@@ -1,21 +1,22 @@
 /*
- $Id: linux_setfpucw.c,v 1.9 2003-09-15 20:21:32 edo Exp $
+ $Id: linux_setfpucw.c,v 1.10 2003-10-09 20:13:47 edo Exp $
  */
 #include <stdio.h>
 #ifdef __CYGWIN__
 #include <mingw/fenv.h>
 #else
+#define __USE_GNU
 #include <fenv.h>
 #endif
-#define FTZ 0x8000
-#define FP_QUIET
+//#define FPSWAMOD /* this modifies fpswa behavior on ia64 */
 
 void linux_trapfpe_(void) { 
-#ifdef LINUXIA64
+int retval;
+#if defined(LINUXIA64) && defined(FPSWAMOD)
+#define FP_QUIET /* this prevents fp assist fault messages in syslog */
 #include <linux/prctl.h>
 //#include </usr/src/linux/include/linux/prctl.h>
 /* grabbed from ftp://linux.hpl.hp.com/pub/linux-ia64/prctl-1.3.tar.gz  */
-int retval;
 /* this causes a Sigbus for each unaligned access */
     retval = prctl(PR_SET_UNALIGN,  PR_UNALIGN_SIGBUS);
 	if (retval == -1) fprintf(stderr, "Failed to sigbus align \n");
@@ -27,11 +28,11 @@ int retval;
 /* this causes a SigFPE for each fpswa */
     retval = prctl(PR_SET_FPEMU,  PR_FPEMU_SIGFPE);
 #endif
-        if (retval == -1) fprintf(stderr, "Failed to sigfpe fpswa \n");
 #endif
 
 #else
-            feenableexcept(FE_OVERFLOW | FE_DIVBYZERO);
+            retval = feenableexcept(FE_OVERFLOW | FE_DIVBYZERO|FE_INVALID);
 #endif
+        if (retval == -1) fprintf(stderr, "Failed to enable sigfpe  \n");
  }
 
