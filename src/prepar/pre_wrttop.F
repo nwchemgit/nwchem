@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.46 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.47 2003-10-31 16:48:06 d3j191 Exp $
 c
       implicit none
 c
@@ -221,7 +221,7 @@ c
       endif
       do 5342 i=1,nseq
       write(lfntop,1355) i,cseq(i),(lseq(j,i),j=1,6)
- 1355 format(i5,a10,6i5)
+ 1355 format(i7,a10,i7,i5,2i7,2i5)
  5342 continue
 c
       nd=0
