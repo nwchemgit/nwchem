@@ -4,7 +4,7 @@
      &                     n_semi_bufs, fd, IOLGC, rdens_atom,
      &                     cntoce, cntobfr, cetobfr, natoms)
 
-C$Id: dft_getvc.F,v 1.16 1997-11-26 17:26:57 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.17 1999-02-13 00:25:16 edo Exp $
       implicit none
 c
 #include "bas.fh"
@@ -51,23 +51,24 @@ c
       call ga_sync
 c
       if( iVcoul_opt.eq.0 )then
-c
-c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
-c
-        tol2e=10.d0**(-itol2e)
-        call ga_zero(g_vc)
-        call rhf_fock_2e(geom, AO_bas_han, g_dens(1), g_vc, tol2e,
-     &       .true., .false., oskel)
-        call ga_sync
-c
-c       Symmetrize Vcoul?
-c
-c        if (oskel)
-c     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
-c
-c       Compute the Coulomb energy.
-c
-        Ecoul = 0.5d0*ga_ddot(g_dens(1),g_vc)
+c$$$c
+c$$$c       Compute the Coulomb potential via evaluation of the AO set of 4-ctr ERIs.
+c$$$c
+c$$$        tol2e=10.d0**(-itol2e)
+         call ga_zero(g_vc)
+c$$$        call rhf_fock_2e(geom, AO_bas_han, g_dens(1), g_vc, tol2e,
+c$$$     &       .true., .false., oskel)
+c$$$        call ga_sync
+c$$$c
+c$$$c       Symmetrize Vcoul?
+c$$$c
+c$$$c        if (oskel)
+c$$$c     &     call sym_symmetrize(geom, AO_bas_han, .false., g_vc)
+c$$$c
+c$$$c       Compute the Coulomb energy.
+c$$$c
+c$$$        Ecoul = 0.5d0*ga_ddot(g_dens(1),g_vc)
+            Ecoul = 0.0d0
 c
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.
@@ -108,3 +109,4 @@ c
 c
       return
       end
+

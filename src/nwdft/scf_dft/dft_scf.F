@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.112 1999-02-05 01:55:48 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.113 1999-02-13 00:25:15 edo Exp $
 c     
       implicit none
 c
@@ -728,7 +728,7 @@ c
       rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv, g_dens, 
+      call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, wght_GA, rho_n,
      &             dbl_mb(irdens_atom), int_mb(icntoce), 
      &             int_mb(icntobfr), int_mb(icetobfr), natoms)
