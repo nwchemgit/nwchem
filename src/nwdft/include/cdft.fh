@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.35 1999-12-17 00:31:59 edo Exp $
+C$Id: cdft.fh,v 1.36 1999-12-17 17:24:33 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -93,7 +93,7 @@ c-->  old dimensions.fh
 c
       integer MXqshells, MXrad, MXagrid, MXtheta, MXphi
 C
-      Parameter (MXqshells=30000,MXrad=480)
+      Parameter (MXqshells=30000,MXrad=999)
       Parameter (MXagrid=48,MXtheta=MXagrid,MXphi=2*MXtheta)
 c
 c-->  old quad.fh; Quadrature Points & Weights

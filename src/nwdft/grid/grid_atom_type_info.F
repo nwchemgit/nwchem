@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.3 1999-12-17 00:20:13 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.4 1999-12-17 17:24:25 edo Exp $
 c
       implicit none
 c      
@@ -186,7 +186,6 @@ c
 c
             if (i_atomic_number.ne.0)then ! not ghost atom
             ityp2ctr(itype)=ictr
-            write(0,*) ' itype ictr ',itype,ictr
 c
                bsrad_atom_type(itype) = BSrad(i_atomic_number)*ANGTOAU
                if (bsrad_atom_type(itype).lt.EPS)then ! no radius found for atom
