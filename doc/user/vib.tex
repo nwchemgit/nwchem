@@ -1,8 +1,9 @@
-% $Id: vib.tex,v 1.8 1998-03-10 23:25:37 d3g681 Exp $
+% $Id: vib.tex,v 1.9 1999-07-30 00:47:20 d3e129 Exp $
+\label{sec:vib}
 
 The nuclear hessian which is used to compute the vibrational
 frequencies can be computed by finite difference for any ab initio
-wavefunction that has analytic gradients.  An analytic nuclear hessian
+wave-function that has analytic gradients.  An analytic nuclear hessian
 is available only for small, closed-shell SCF.  The appropriate
 nuclear hessian generation algorithm is chosen based on the user input
 when \verb+TASK <theory> frequencies+ is the task directive.
@@ -13,7 +14,7 @@ no required input for the ``VIB'' package.  VIB computes the
 frequencies and intensities\footnote{Intensities are only computed if
   the dipole derivatives are available; these are computed by default
   for most methods that use the finite difference driver routines} for
-for the comptued nuclear hessian and the ``projected'' nuclear
+for the computed nuclear hessian and the ``projected'' nuclear
 hessian.  The VIB module projects out the translations and rotations
 of the nuclear hessian using the standard Eckart projection algorithm.
 The VIB module also computes the zero point energy for the molecular
@@ -27,4 +28,27 @@ element.\footnote{c.f., "The Elements" by John Emsley, Oxford
 was roughly equal the mass of the isotope with the longest half life
 was used.
 
-
+\section{Animation} 
+The ``VIB'' module also can generate mode animation input files in the
+form standard xyz format files for graphics packages like
+RasMol or XMol\footnote{There are scripts to automate this for RasMol in
+.../nwchem/contrib/rasmolmovie}.  Each mode will have 20 xyz
+files generated that cycle from the equilibrium geometry to 5 steps in
+the positive direction of the mode vector, back to 5 steps in the
+negative direction of the mode vector, and finally back to the
+equilibrium geometry.  By default these files are {\bf not} generated.
+\subsection{Activating the Animation File Generation}
+To activate this mechanism simply use the following set directive 
+\begin{verbatim}
+set ``vib:animate'' logical true
+\end{verbatim}
+anywhere in the input deck prior to the task frequencies specification.  
+\subsection{Controlling the Step Size Along the Mode Vector}
+By default, the step size used is 0.15 a.u. which will give reliable
+animation for most systems.  This can be changed via another set
+directive:
+\begin{verbatim}
+set ``vib:animate:step_size'' real <step_size>
+\end{verbatim}
+where \verb+<step_size>+ is the real number that is the magnitude of
+each step along the eigenvector of each nuclear hessian mode.
