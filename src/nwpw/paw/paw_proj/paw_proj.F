@@ -1,7 +1,23 @@
 *
-* $Id: paw_proj.F,v 1.28 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_proj.F,v 1.29 2003-10-28 19:50:51 edo Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.28  2003/10/21 02:05:17  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.27  2003/03/22 04:04:59  edo
 * removed extra arg to rayleigh_itol_...
 *
@@ -652,7 +668,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       value = value.and.
      >        MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.value) 
-     > call errquit('paw_proj_formatter_auto, push stack',0)
+     > call errquit('paw_proj_formatter_auto, push stack',0,0)
 
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(Gy(1)),1)
@@ -729,7 +745,7 @@ c           pause
       value = value.and.MA_pop_stack(prj(2))
       value = value.and.MA_pop_stack(rayleigh(2))
       if (.not.value) 
-     >  call errquit('paw_proj_formatter_auto, pop stack',1)
+     >  call errquit('paw_proj_formatter_auto, pop stack',1,0)
       
       return
       end

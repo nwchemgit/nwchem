@@ -1,8 +1,24 @@
 *
-* $Id: paw_mult.F,v 1.24 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_mult.F,v 1.25 2003-10-28 19:50:51 edo Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2003/10/21 02:05:17  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.23  2003/03/21 23:41:13  bylaska
 *
 * paw updates ...EJB
@@ -385,7 +401,7 @@
       tmp(2) = exi(2)
       if (.not.ok)
      > call errquit(
-     >  'paw_mult_dn_cmp_get: out of stack memory',0)
+     >  'paw_mult_dn_cmp_get: out of stack memory',0,0)
 
 
       call dcopy(2*npack0,0.0d0,0,dn_cmp,1)
@@ -513,7 +529,7 @@
      >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.ok)
      > call errquit(
-     >  'paw_mult_pw_force: out of stack memory',0)
+     >  'paw_mult_pw_force: out of stack memory',0,0)
 
       !**** define Gx,Gy and Gz in packed space ****
       G(1)  = G_indx(1)
@@ -661,7 +677,7 @@
      >                 't_mult',t_mult(2),t_mult(1))
       if (.not.ok)
      > call errquit(
-     >  'paw_mult_coeff_set: out of stack memory',0)
+     >  'paw_mult_coeff_set: out of stack memory',0,0)
 
       nion = ion_nion()
       do ii=1,nion
