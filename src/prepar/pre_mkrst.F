@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.75 2002-02-02 04:29:26 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.76 2002-02-05 21:44:56 d3j191 Exp $
 c
       implicit none
 c
@@ -1277,7 +1277,6 @@ c     repeat
 c     ======
 c
       if(card(1:6).eq.'repeat') then
-      write(*,'(a)') card
       read(card(8:12),'(i5)') nxrep
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
