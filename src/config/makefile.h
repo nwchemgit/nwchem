@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.151 1996-05-10 21:58:24 d3g681 Exp $
+# $Id: makefile.h,v 1.152 1996-05-13 16:21:59 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -81,7 +81,7 @@ endif
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-	plane_wave selci dplot mp2_grad nwaprep
+	plane_wave selci dplot mp2_grad nwaprep oimp2
 
 
 # These are the libraries for the high-level modules.  They should be
@@ -91,7 +91,8 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints -lrimp2 \
                     -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
-                    -lvib -lutil -lnwints -lideaz -lnwargos -ldplot -lnwaprep
+                    -lvib -lutil -lnwints -lideaz -lnwargos -ldplot -lnwaprep \
+		    -loimp2
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
