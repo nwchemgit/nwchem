@@ -1,0 +1,16 @@
+c
+c     $Id: screened_op.fh,v 1.1 2001-08-19 21:11:18 bjohnson Exp $
+c
+c     Screened exchange routines and implementation
+c
+      external screened_exchange
+      logical screened_exchange
+c
+      external screened_operator_Ks
+      double precision screened_operator_Ks
+c
+      external screened_operator_enabled
+      logical screened_operator_enabled
+c
+      double precision ijkl_theta(5000)
+      common /ints_theta/ ijkl_theta
