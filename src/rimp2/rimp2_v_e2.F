@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.6 1994-08-27 21:15:58 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.7 1994-08-28 01:37:17 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
@@ -161,7 +161,7 @@ C
          Do JSpin = ISpin, TopSpin
             Status = Status .AND.
      $         GA_Create( MT_Dbl, NOcc(ISpin), NOcc(JSpin),
-     $         'Pair Energies', 10, 10, !MinChunk, MinChunk,
+     $         'Pair Energies', MinChunk, MinChunk,
      $         Int_MB(IH_PairE + ISpin + JSpin - 2) )
             Call GA_Zero( Int_MB(IH_PairE + ISpin + JSpin - 2 ) )
          EndDo
