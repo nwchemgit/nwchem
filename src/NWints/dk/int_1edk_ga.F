@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.13 1999-11-17 19:15:45 bert Exp $
+c $Id: int_1edk_ga.F,v 1.14 1999-11-24 23:06:54 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -75,6 +75,15 @@ c     At this point we set oskel to false. Having symmetry and oskel is true
 c     lead to NWChem hanging, no progress and no crash!
 c
       oskel = .false.
+c
+c     Recheck if some variables have changed in case of more then one run
+c
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:type',
+     $    MT_INT,1,dk_form_type)) dk_form_type = 2
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:eventemp',
+     $    MT_LOG,1,dk_even_bas)) dk_even_bas = .false.
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:etratio',
+     $    MT_DBL,1,dk_ratio)) dk_ratio = 2.0d0
 c
 c     Create an uncontracted basis from basis_in
 c
