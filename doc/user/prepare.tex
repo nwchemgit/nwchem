@@ -451,7 +451,7 @@ Directive \verb+select+ specifies a group of atoms used in the
 definition of potential of mean force potentials.
 
 \begin{verbatim}
-pmf ( align | planar ) <integer isel> <real forcon1> <real forcon2>
+pmf ( zalign | xyplane ) <integer isel> <real forcon1> <real forcon2>
 pmf distance <integer isel> <integer jsel> \
              <real dist1> <real dist2> <real forcon1> <real forcon2>
 pmf angle <integer isel> <integer jsel> <integer ksel> \
@@ -461,7 +461,12 @@ pmf torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \
 \end{verbatim}
 
 Directive \verb+pmf+ specifies a potential of mean force potential
-in terms of atom selection.
+in terms of the specified atom selection. Option \verb+zalign+ specifies
+the atoms in the selection to be restrained to a line parallel to the
+z-axis. Option \verb+xyplane+ specifies the atoms in the selection to 
+be restrained to a plane perpendicular to the z-axis. Options
+\verb+distance+, \verb+angle+ and \verb+torsion+, are defined in terms
+of the center of geometry of the specified atom selections.
 
 \section{Generating a restart file}
 
