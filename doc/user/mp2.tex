@@ -1,50 +1,155 @@
 \label{sec:mp2}
-The RI-MP2 module can be invoked by specifying
+\Large
+***need a brief summary here of what the MP2 modules do. Will the input
+module be finished in time for the release of the code in March (or is
+it April)?  I'm going to naively assume that it will be, and it will follow
+the same structure as the other modules.***
+\normalsize
+
+
+When the input module is finished, the MP2 modules will be invoked in NWChem 
+by specifying the keyword \verb+MP2+ on the compound directive,
 
 \begin{verbatim}
-  TASK RI-MP2
+  MP2
+    ...
+  END
 \end{verbatim}
-on a \verb+RESTART+ or \verb+CONTINUE+ job -- the MO vectors and
-database from the SCF calculation must be present.  At present, the
-RI-MP2 does not have its own input module, instead it can be
-controlled by \verb+SET+ing entries in the database.  Currently
-recognized entries are described below. {\em The names of these
-  entries in the database will change in the very near future.}
 
-Alternatively, the fully-direct MP2 module using conventional
-four-index transformation (see also section \ref{sec:fourindex}) may be
-invoked by the input line
-\begin{verbatim}
-  TASK DIRECT_MP2
-\end{verbatim}
-In future releases, the two MP2 modules will be amalgamated into a
-single task where the choice of method will be an input parameter.  In
-cases where the MP2 is restarted using a \verb+RESTART+ or
-\verb+CONTINUE+ directive -- the MO vectors and database from the SCF
-calculation must be present.  Currently, there is no specific MP2
-input module, instead the behavior can be modified by using the
-\verb+SET+ command on the database entries. Currently recognized
-entries are described below, the first three entries apply to both the
-\verb+RI-MP2+ and \verb+DIRECT_MP2+ tasks while the remainder are
-specific to \verb+RI-MP2+.  {\em The names of these entries in the
-  database are subject to change in the near future.}
-
-\subsection{Frozen Orbitals}
+The keyword \verb+mp2+ tells the code that this is a compound directive,
+and additional directives may be specified by the user to define the particular
+problem.  The \verb+MP2+ input will be processed until the
+\verb+END+ directive is encountered.  The actual MP2 calculation will
+be performed when the input encounters a \verb+TASK+ directive of the form,
 
 \begin{verbatim}
-  set "mp2:freeze by atoms" integer <occupied> <virtual>
-  set "mp2:freeze orbitals" <integer array>
+  TASK mp2_flag
 \end{verbatim}
 
-Determines which orbitals from the SCF reference are to be frozen (not
-correlated) for the MP2 calculation.  The first entry instructs the
-code to guess how many occupied and virtual orbitals to drop based on
-the atoms present in the system.  The two integer elements expected in
-this entry control whether this guess is used to freeze parts of the
-occupied (first element) and/or virtual spaces (second element).  A
-value of 1 in the element requests the guess be used; any other value
-and it will not be used.  Table \ref{tbl:freeze-by-atoms} details how
-the ``guess'' is produced.
+The present version of NWChem recognizes two options for an MP2 calculation.
+One is the
+resolution of the identity (RI) intergral approximation, which is invoked
+by specifying \verb+mp2_flag+ as \verb+RI_MP2+.  The other is the fully direct
+solution using conventional four-index transformation (see also Section 
+\ref{sec:fourindex}), and is invoked by
+specifying \verb+mp2_flag+ as \verb+DIRECT_MP2+.
+
+\Large
+**What about OIMP2 and SEMI-DIR\_MP2?  These are listed under possible
+inputs for \verb+theory+ in the \verb+TASK+ directive.***
+\normalsize
+
+
+% The RI-MP2 module can be invoked by specifying
+
+% \begin{verbatim}
+%   TASK RI-MP2
+% \end{verbatim}
+% on a \verb+RESTART+ or \verb+CONTINUE+ job -- the MO vectors and
+% database from the SCF calculation must be present.  At present, the
+% RI-MP2 does not have its own input module, instead it can be
+% controlled by \verb+SET+ing entries in the database.  Currently
+% recognized entries are described below. {\em The names of these
+%   entries in the database will change in the very near future.}
+
+The RI-MP2 option for this module requires that the molecular orbital
+vectors and database from an SCF calculation as the starting point for
+the MP2 calculation.  This means that this option can be invoked only
+on a job that is being restarted or continued (see Section \ref{sec:start}
+for a description of the \verb+RESTART+ and \verb+CONTINUE+ directives).
+
+\Large
+**any special requirements of the DIRECT\_MP2 option should be mentioned
+here, (as well as those of any other options that might be available in
+the released version).***
+\normalsize
+
+% Alternatively, the fully-direct MP2 module using conventional
+% four-index transformation (see also section \ref{sec:fourindex}) may be
+% invoked by the input line
+% \begin{verbatim}
+%   TASK DIRECT_MP2
+% \end{verbatim}
+% In future releases, the two MP2 modules will be amalgamated into a
+% single task where the choice of method will be an input parameter.  In
+% cases where the MP2 is restarted using a \verb+RESTART+ or
+% \verb+CONTINUE+ directive -- the MO vectors and database from the SCF
+% calculation must be present.  Currently, there is no specific MP2
+% input module, instead the behavior can be modified by using the
+% \verb+SET+ command on the database entries. Currently recognized
+% entries are described below, the first three entries apply to both the
+% \verb+RI-MP2+ and \verb+DIRECT_MP2+ tasks while the remainder are
+% specific to \verb+RI-MP2+.  {\em The names of these entries in the
+%  database are subject to change in the near future.}
+
+Currently, the MP2 module has no input processor.  Input parameters that 
+must be different from the defaults for a given application are specified
+by means of \verb+SET+ directives.  These \verb+SET+ directives must appear
+in the input file {\em before} the \verb+TASK+ directive invoking the
+MP2 calculation.  The following subsections describe the input for the
+MP2 module that can be modified by the user.
+
+\subsection{Input Parameters Applicable to both RI\_MP2 and DIRECT\_MP2}
+
+\subsubsection{Frozen Orbitals for the MP2 Options}
+
+The user has the option of specifying which orbitals from the SCF reference
+calculation are to be frozen (i.e., not correlated) for the MP2 calculation.
+This can be done either by freezing atoms, or by freezing orbitals, or
+both.  To freeze by atoms, the input parameter must be modified using a 
+\verb+SET+ directive of the form,
+
+\begin{verbatim}
+  set "mp2:freeze by atoms" <integer occupied default 0> \
+                            <integer virtual default 0>
+\end{verbatim}
+
+The string \verb+"mp2:freeze by atoms"+ instructs the code to guess how 
+many occupied and virtual orbitals to be dropped, based on the atoms
+present in the system.  Table \ref{tbl:freeze-by-atoms} details how
+the ``guess'' is produced.  The integer variables \verb+occupied+ and
+\verb+virtual+ are binary switches, and must have values of 0 or 1.  If
+the integer \verb+occupied+ is set to 1, the initial MO vectors are
+used to freeze parts of the occupied spaces.  If the integer \verb+virtual+
+is set to 1, the initial guess is to freeze the virtual spaces.  Both 
+input parameters can be set to 1 for a particular calculation.  The default
+for each of these parameters is zero, which means that no orbitals (occupied
+or virtual) will be frozen in the MP2 calculation. 
+
+\Large
+***NOTE: is this really what the default is?  I'm just guessing...***
+\normalsize
+
+Alternatively, the user can define a more general but less automatic
+specification of which orbitals are to be frozen.  This option is 
+obttained by a \verb+SET+ directive of the form,
+
+\begin{verbatim}
+  set "mp2:freeze orbitals" <integer array default 0>
+\end{verbatim}
+
+The integer entries specified for \verb+array+ correspond to the virtual
+and occupied orbitals of an atom in the system.  By convention, the 
+highest-lying virtual orbital is 0, the second-highest is -1, and so on
+down to the lowest-energy occupied orbital, -N+1 (for N basis functions).
+If values outside the range [-N+1,N] are specified for \verb+array+,
+the code will detect an error at the start of the MP2 task and
+halt the calculation.
+
+The user can use {\em both} methods for specifying frozen orbitals in a
+given calculation.  In such a case, both \verb+SET+ directives are
+included in the input, and all of the orbitals specified in each
+directive will be frozen in the MP2 calculation.
+
+% Determines which orbitals from the SCF reference are to be frozen (not
+% correlated) for the MP2 calculation.  The first entry instructs the
+% code to guess how many occupied and virtual orbitals to drop based on
+% the atoms present in the system.  The two integer elements expected in
+% this entry control whether this guess is used to freeze parts of the
+% occupied (first element) and/or virtual spaces (second element).  A
+% value of 1 in the element requests the guess be used; any other value
+% and it will not be used.  Table \ref{tbl:freeze-by-atoms} details how
+% the ``guess'' is produced.
 
 \begin{table}
 \caption{Number of orbitals considered ``core'' in the ``freeze by
@@ -66,17 +171,17 @@ Period & Elements & Core Orbitals & Number of Core \\
 \end{tabular}
 \end{table}
 
-The second entry allows a more general, but less automatic,
-specification of which orbitals are to be frozen.  For convenience,
-non-positive entries are understood to refer to highest-lying virtual
-orbital (0), second highest (-1), and so on, down to the lowest-energy
-occupied orbital ($-N+1$, for $N$ basis functions).  Entries outside
-the range $[-N+1, N]$ constitute an error, which would be detected at
-the start of the MP2 calculation (the number of basis functions is not
-generally known when the input is read).
+% The second entry allows a more general, but less automatic,
+% specification of which orbitals are to be frozen.  For convenience,
+% non-positive entries are understood to refer to highest-lying virtual
+% orbital (0), second highest (-1), and so on, down to the lowest-energy
+% occupied orbital ($-N+1$, for $N$ basis functions).  Entries outside
+% the range $[-N+1, N]$ constitute an error, which would be detected at
+% the start of the MP2 calculation (the number of basis functions is not
+% generally known when the input is read).
 
-Both entries may be present, and orbitals in the union of the two sets
-will be frozen.
+% Both entries may be present, and orbitals in the union of the two sets
+% will be frozen.
 
 {\em Cautions:\/}  The rules for freezing orbitals ``by atoms'' are
 rather unsophisticated at the moment and may not do what you want.
@@ -85,74 +190,159 @@ paid to systems including third- and higher- period atoms, and perhaps
 to the use of spherical harmonic or Cartesian representation of
 higher-angular momentum shells.
 
-\subsection{Schwarz Integral Screening}
+\Large
+**Are you saying this doesn't really work?  Or just that it's hard to
+use correctly?  Some examples might be helpful...***
+\normalsize
 
-\subsection{Fitting Basis}
+\subsubsection{Schwarz Integral Screening for MP2 Calculations}
+
+\Large
+**Do we have anything to say about this?  Or should this section be deleted?
+\normalsize
+
+\subsubsection{Fitting Basis for the MP2 Calculation}
+
+The user must define the basis set to be used in the MP2 module, as
+either the ``fitting'' basis for the direct calculation, or the ``resolution
+of the identity'' basis for the RI\_MP2 calculation.  This is accomplished
+with a \verb+SET+ directive of the following form
 
 \begin{verbatim}
   set "mp2:ri-mp2 basis" <string value>
 \end{verbatim}
 
-This {\em required} entry specifies the basis to be used as the
-``fitting'', or ``resolution of the identity'' basis.  It should name
-a basis set defined in a \verb+BASIS+ directive somewhere in the
-current or any previous input file.
+The basis set named by the string \verb+value+ must already exist in the
+database.  Alternatively, it can be defined prior to the MP2 task 
+in the current input file, using a \verb+BASIS+ directive 
+(see Section \ref{sec:basis}).
 
+\Large
+***Is this input really needed for \verb+DIRECT_MP2+?***
+\normalsize
 
-\subsection{Transformed Integral Filename}
+% This {\em required} entry specifies the basis to be used as the
+% ``fitting'', or ``resolution of the identity'' basis.  It should name
+% a basis set defined in a \verb+BASIS+ directive somewhere in the
+% current or any previous input file.
+
+\subsection{Input Directives for RI-MP2 Calculations Only}
+
+\subsubsection{Transformed Integral Filename for RI-MP2 Calculations}
+
+The user can specify the file prefix of the filenames for the transformed
+three-center integrals using a \verb+SET+ directive of the following form,
 
 \begin{verbatim}
-  set "mp2:mo 3-center integral file" <string name default "$file_prefix$.mo3cint">
+  set "mp2:mo 3-center integral file" \
+          <string name default "$file_prefix$.mo3cint">
 \end{verbatim}
 
-Specifies the base for constructing the file names for the transformed
-three-center integrals.  The full name consists of this value followed
-by a letter indicating the spin case of the integrals and the node
-number padded to four digits.
+% Specifies the base for constructing the file names for the transformed
+% three-center integrals.  
+The full name of a file consists of the string specified for \verb+name+,
+followed by a letter indicating the spin case of the integrals and an 
+integer corresponding to the node number, padded to four digits.
 
-\subsection{Reference Spin Mapping}
+\subsubsection{Reference Spin Mapping for RI-MP2 Calculations}
+
+The user has the option of specifying that the RI-MP2 calculations 
+are to be done with variations of the SCF reference wavefunction.  This
+is accomplished with a \verb+SET+ directive of the form,
 
 \begin{verbatim}
-  set "mp2:reference spin mapping" <integer array>
+  set "mp2:reference spin mapping" <integer array default 0>
 \end{verbatim}
 
-Allows RI-MP2 calculations to be done with variations of the SCF
-reference wavefunction.  Each element is the SCF spin case to be used
+% Allows RI-MP2 calculations to be done with variations of the SCF
+% reference wavefunction.  
+
+Each element specified for \verb+array+ is the SCF spin case to be used
 for the corresponding spin case of the correlated calculation.  The
 number of elements set determines the overall type of correlated
 calculation to be performed.  The default is to use the unadulterated
-SCF reference.  Some examples of settings and their meanings:
-\begin{enumerate}
-\item[``\verb+1 1+''] Performs a spin-unrestricted calculation (two
-elements) using the alpha spin orbitals (spin case 1) from the
-reference for both of the correlated reference spin cases. SCF
-reference may be RHF or UHF in this case.
-\item[``\verb+2 2+''] Similar to the previous instance, but uses the beta-spin
-SCF orbtials for both correlated spin cases.  The SCF reference
-obviously must be UHF in this case.
-\item[``\verb+2+''] Performs a spin-restricted calculation (one element)
-from the beta-spin SCF orbitals.
-\item[``\verb+2 1+''] Performs a spin-unrestricted calculation with the
-spins flipped from the original SCF reference.
-\end{enumerate}
+SCF reference wavefunction.  
 
-\subsection{Batch Sizes}
+% Some examples of settings and their meanings:
+% \begin{enumerate}
+% \item[``\verb+1 1+''] 
+
+For example, to perform a spin-unrestricted calculation (two
+elements) using the alpha spin orbitals (spin case 1) from the
+reference for both of the correlated reference spin cases, the \verb+SET+
+directive would be as follows,
+
+\begin{verbatim}
+  set "mp2:reference spin mapping" 1 1
+\end{verbatim}
+
+The SCF calculation to produce the reference wavefuncion could be either
+RHF or UHF in this case.
+
+
+% \item[``\verb+2 2+''] Similar to the previous instance, 
+% but uses the beta-spin
+% SCF orbtials for both correlated spin cases.  The SCF reference
+% obviously must be UHF in this case.
+
+The \verb+SET+ directive for a similar case, but this time using
+the beta-spin SCF orbtials for both correlated spin cases, is as follows,
+\begin{verbatim}
+  set "mp2:reference spin mapping" 2 2
+\end{verbatim}
+
+The SCF reference calculation must be UHF in this case.
+ 
+
+% \item[``\verb+2+''] Performs a spin-restricted calculation (one element)
+% from the beta-spin SCF orbitals.
+
+The \verb+SET+ directive for a spin-restricted calculation (one element)
+from the beta-spin SCF orbitals using this option is as follows,
+\begin{verbatim}
+  set "mp2:reference spin mapping" 2
+\end{verbatim}
+
+
+% \item[``\verb+2 1+''] Performs a spin-unrestricted calculation with the
+% spins flipped from the original SCF reference.
+% \end{enumerate}
+
+The \verb+SET+ directive for a spin-unrestricted calculation with the
+% spins flipped from the original SCF reference wavefunction is as follows,
+\begin{verbatim}
+  set "mp2:reference spin mapping" 2 1
+\end{verbatim}
+
+
+\subsubsection{Batch Sizes for the RI-MP2 Calculation}
+
+The user can control the size of each batch in the transformation and
+energy evaluation in the MP2 calculation, and consequently the memory
+requirements and number of passes required.  This is done using two
+\verb+SET+ directives of the following form,
 
 \begin{verbatim}
   set "mp2:transformation batch size" <integer size default -1>
   set "mp2:energy batch size" <integer isize jsize default -1 -1>
 \end{verbatim}
 
-These entries control the size of each batch in the transformation and
-energy evaluation, and consequently, the memory requirements and
-number of passes required.  Values less than 1 for these batch sizes
-tell the code to determine the batch size based on the available
-memory, which is the default.  Should there be problems with the
-program-determined batch sizes, these variables allow the user to
-override them.  The program will always use the smaller of the user's
-value of these entries and the internally computed batch size.
+% These entries control the size of each batch in the transformation and
+%  energy evaluation, and consequently, the memory requirements and
+% number of passes required.  Values less than 1 for these batch sizes
+% tell the code to determine the batch size based on the available
+% memory, which is the default.  Should there be problems with the
+% program-determined batch sizes, these variables allow the user to
+% override them.  The program will always use the smaller of the user's
+% value of these entries and the internally computed batch size.
 
-For the transformation, this is the number of occupied orbitals in the
+The default is for the code to determine the batch size based on the 
+available memory.  The user can specify {\em smaller} batch sizes using
+these \verb+SET+ directives, but it is not possible to specify {\em larger}
+batch sizes than the code computes internally.
+
+The transformation batch size computed in the code is the number of 
+occupied orbitals in the
 $({occ}\ {vir} | {fit})$ three-center integrals to
 be produced at a time.  If this entry is less than the number of occupied
 orbitals in the system, the transformation will require multiple
@@ -163,7 +353,8 @@ dimension distributed across all processors (on shell-block
 boundaries).  The compromise here is memory space versus multiple
 integral evaluations.
 
-For the energy evaluation, this is the number of occupied orbitals in
+The energy evaluation batch sizes are computed in the code from the 
+number of occupied orbitals in
 the the two sets of three-center integrals to be multiplied together
 to produce a matrix of approximate four-center integrals.  Two blocks
 of integrals of dimension $({<batch isize>}\times {vir})$ and
@@ -173,35 +364,64 @@ approximate integrals.  The compromise here is performance of the
 distributed matrix multiplication (which requires large matrices)
 versus memory space.
 
-\subsection{Energy Memory Allocation Mode}
+\Large
+**When would the user know better than the code what size is appropriate?
+What are the consequences of specifying batch sizes that are ``too small''?
+***
+\normalsize
+
+\subsubsection{Energy Memory Allocation Mode: RI-MP2 Calculation}
+
+The user must choose a  strategy for the memory allocation in the energy
+evaluation phase of the RI-MP2 calculation, either by minimizing the amount
+of I/O, or minimizing the amount of compulation.  This is be accomplished 
+using a \verb+SET+ directive of the form,
 
 \begin{verbatim}
-  set "mp2:energy mem minimize" <string mem_opt default "I">
+  set "mp2:energy mem minimize" <string mem_opt default I>
 \end{verbatim}
 
-Choose the strategy for the memory allocation for the energy
-evaluation phase.  Choices are to minimize the amount of I/O
-(``\verb+I+'') or the amount of computation (``\verb+C+'') done by the
-code.  In order to minimize I/O, the strategy is to make the
-\verb+ISIZE+ as large as possible so that the total number of passes
-through the integral files is as small as possible.  In order to
-minimize computation, the blocks are chosen as close to square as
+% Choose the strategy for the memory allocation for the energy
+% evaluation phase.  Choices are to minimize the amount of I/O
+% (``\verb+I+'') or the amount of computation (``\verb+C+'') done by the
+% code.
+A value of \verb+I+ entered for the string \verb+mem_opt+ means that
+a strategy to minimize I/O will be employed.  A value of \verb+C+ tells
+the code to use a strategy that minimizes computation.
+
+When the option to minimize I/O is selected, the block sizes are made
+as large as possible so that the total number of passes
+through the integral files is as small as possible.  When the option to
+minimize computation is selected, the blocks are chosen as close to square as
 possible so that permutational symmetry in the energy evaluation can
 be used most effectively.
 
-\subsection{RI Approximation}
+\subsubsection{RI Approximation for the RI-MP2 Calculation}
+
+The type of RI approximation used in the RI-MP2 calculation is controlled
+by means of a \verb+SET+ directive of the form,
 
 \begin{verbatim}
-  set "mp2:ri approximation" <string approx default "V">
+  set "mp2:ri approximation" <string approx default V>
 \end{verbatim}
 
-Controls the type of RI approximation used in the calculation.  The
-strings \verb+"V"+ and \verb+"SVS"+ are recognized (case
-sensitive!), following the notation used in O.~Vahtras, J~Alml\"of,
-and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
-(1993).  The \verb+"S"+ approximation will also be supported eventually.
+% Controls the type of RI approximation used in the calculation.  
 
-\subsection{Local Memory Usage in Three-Center Transformation}
+The code recognizes two possible values for the string \verb+approx+;
+the strings \verb+V+ and \verb+SVS+.  The default is \verb+V+, which 
+specifies ***what?***.  The string \verb+SVS+ specifies ***what?***.
+Both of these options follow the notation used in O.~Vahtras, J~Alml\"of,
+and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
+(1993).  Note that the input for the string \verb+approx+ is case sensitive.
+
+
+%  The \verb+"S"+ approximation will also be supported eventually.
+
+\subsubsection{Local Memory Usage in Three-Center Transformation}
+
+Local memory usage in the first two steps of the transformation is
+controlled in the RI-MP2 ccacluattion using the following \verb+SET+
+directives,
 
 \begin{verbatim}
   set "xf3ci:AO 1 batch size" <integer max>
@@ -209,30 +429,44 @@ and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
   set "xf3ci:fit batch size" <integer max>
 \end{verbatim}
 
-These entries control local memory usage in the first two steps of the
-transformation.  The size of the local arrays determines the sizes of
+% These entries control local memory usage in the first two steps of the
+transformation.  
+
+The size of the local arrays determines the sizes of
 the two matrix multiplications.  These entries set limits on the size
-of blocks to be used in each index.  The listing above indicates the
-order of importance of the parameters to performance, with
-\verb+xf3ci:AO 1 batch size+ being most important.
+of blocks to be used in each index.  The size of \verb+xf3ci:AO 1 batch size+
+is tthe most important of the three, in terms of the effect on performance.
+
+%    The listing above indicates the
+% order of importance of the parameters to performance, with
+% \verb+xf3ci:AO 1 batch size+ being most important.
 
 Note that these entries are only upper bounds and that the program
-will size the blocks according to what it determines the best usage of
-the available local memory is.  The absolute maximum block sizes are
-the number of functions in the AO basis or the number of fitting basis
-functions on a node.  The absolute minimum block sizes are the largest
-shell in the appropriate basis.  Batch size entries outside of this
-range are silently reset to an appropriate value.
+will size the blocks according to what it determines as the best usage of
+the available local memory.  The absolute maximum for a block size is
+the number of functions in the AO basis, or the number of fitting basis
+functions on a node.  The absolute minimum value for block size is the 
+size of the largest shell in the appropriate basis.  Batch size entries 
+specified for \verb+max+  that are larger than these limits are 
+automatically reset to an appropriate value.
 
-It is unlikely that users will have any reason to use these entries
-unless they are doing very particular performance measurements.
+For most applications, the code will be able to size the blocks without
+help from the user.  Therefore, it is unlikely that users will have 
+any reason to specify values for these entries
+except when doing very particular performance measurements.
 
-\subsection{Printing Control}
+\subsubsection{Printing Control for the RI-MP2 Calculation}
 
 Printable items which are recognized by the RI-MP2 module are listed
 in Table \ref{tbl:mp2-printable}.  At the moment, these items can be
-controlled by directly setting the
-\verb+mp2:print+ entry in the RTDB.
+controlled by directly using a \verb+SET+ directive of the form,
+
+\begin{verbatim}
+   SET mp2:print [<string type default automatic>] <$type$ data>
+\end{verbatim}
+
+Items listed in Table \ref{tbl:mp2-printable} above can be named in 
+$type$ to obtain output from the RI-MP2 calculation.
 
 \begin{table}
 \caption{Printable items in the RI-MP2 module and their default print levels.}
