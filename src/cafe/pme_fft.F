@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.14 2000-07-18 00:10:25 d3j191 Exp $
+c $Id: pme_fft.F,v 1.15 2000-10-03 19:50:28 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -30,7 +30,7 @@ c
 c
 c     IBM-SP2 specific
 c
-#if defined(USE_ESSL)
+#if defined(ESSL)
       integer icntxt,ip(40)
 #endif
 c
@@ -42,7 +42,7 @@ c
 c
 c     brand name 3d-fft routines
 c
-#if defined(USE_ESSL)
+#if defined(ESSL)
       if(itype.gt.1) then
       ip(1)=1
       ip(2)=1
@@ -58,6 +58,8 @@ c
       return
       endif
 #endif
+      if(itype.gt.1)
+     + call errquit('pme_fft: 3D-pFFt no implemented',itype)
 c
 c     generic 3d-fft routine
 c

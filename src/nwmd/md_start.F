@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.81 2000-09-25 15:54:44 d3j191 Exp $
+c $Id: md_start.F,v 1.82 2000-10-03 19:50:57 d3j191 Exp $
 c
       implicit none
 c
@@ -1300,6 +1300,17 @@ c
      + ' Grid size ',i5,'x',i5,'x',i5,/,
      + ' Number of processors for p-FFT ',i5,/,
      + ' Tolerance at cutoff ',1pe12.5)
+      if(imfft.le.1) then
+      write(lfnout,1036)
+ 1036 format(' Using NWChem 3D-pFFT')
+      else
+      write(lfnout,1037)
+#if defined(ESSL)
+ 1037 format(' Using PESSL 3D-pFFT')
+#else
+ 1037 format(' Using system specific 3D-pFFT')
+#endif
+      endif
       endif
 c
       if(ipolt.eq.1) then

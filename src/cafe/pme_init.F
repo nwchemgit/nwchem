@@ -1,6 +1,6 @@
       subroutine pme_start(a,m,imffti,nodpmi,
      + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
-c $Id: pme_init.F,v 1.17 2000-09-18 18:36:46 d3j191 Exp $
+c $Id: pme_init.F,v 1.18 2000-10-03 19:50:28 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -188,7 +188,7 @@ c
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),map(np)
 c
       integer i,j,k,npls,nlnd
-#if defined(USE_ESSL)
+#if defined(ESSL)
       integer number,npr,npc,myr,myc
       integer icntxt,lfftok
 #endif
@@ -265,7 +265,7 @@ c
       if(me.eq.nodep(i)) lpnode=.true.
    11 continue
 c
-#if defined(USE_ESSL)
+#if defined(ESSL)
 c
 c     setup process grid for pessl grid
 c
