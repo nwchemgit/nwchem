@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.197 2004-12-22 20:03:58 marat Exp $
+c $Id: md_main.F,v 1.198 2005-01-08 19:17:19 d3j191 Exp $
 c
       implicit none
 c
@@ -341,7 +341,7 @@ c
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
       real*8 ww(mwa),ws(msa),xsm(msm,3),fm(msm,7)
 c
-      integer i,j,k
+      integer i,j
       logical ldone
       real*8 edif,epsd,epsdw,epsdsw,epsds,ecrit
       real*8 da,damsd,dx,dxf,dxmax,factor,dxstep,eqrs
@@ -2234,7 +2234,7 @@ c
       logical lself,local,lpbcs
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
-      integer nbbl,i,j,k
+      integer nbbl
       integer itcom1,itforc,itcom2
 c
       logical lforce,ldone,lnew
@@ -2325,9 +2325,10 @@ c
      + dbl_mb(i_xsm),fs,dbl_mb(i_ps),dbl_mb(i_psp),dbl_mb(i_zs),
      + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
-     + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
+     + isl(1,lssgm),isl(1,lshop),int_mb(i_isz),
+     + isfr,isto,jsfr,jsto,lpbc,lhandl,
      + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_fss),
-     + dbl_mb(i_esa))
+     + dbl_mb(i_esa),int_mb(i_lseq))
       endif
       call timer_stop(itforc)
 c
@@ -2773,7 +2774,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.197 2004-12-22 20:03:58 marat Exp $
+c $Id: md_main.F,v 1.198 2005-01-08 19:17:19 d3j191 Exp $
 c
       implicit none
 c

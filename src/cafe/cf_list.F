@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.31 2003-11-06 16:45:48 d3j191 Exp $
+c $Id: cf_list.F,v 1.32 2005-01-08 19:17:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -379,7 +379,7 @@ c
       integer lda(10,*)
       real*8 rda(5,*)
 c
-      real*8 xhop(4,3),xacc(5)
+      real*8 xacc(5)
       integer idon,iacc,i
 c
 c

@@ -1,7 +1,7 @@
       subroutine induce(lself,lpbcs,xw,xwm,pw,pwp,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,ps,psp,
-     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr)
+     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isgm,ishop,isz,
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lseq)
 c
 c     in     log : lself           : true for box self interactions
 c     in     r*8 : xw(mwm,3,mwa)   : solvent coordinates
@@ -31,7 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_induce.F,v 1.8 2000-05-02 19:00:14 d3j191 Exp $
+c $Id: cf_induce.F,v 1.9 2005-01-08 19:17:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -44,6 +44,8 @@ c
       integer iwdt(mwm),iwz(mwm),isz(msa)
       integer isga(msa),isat(msa),isdt(msa),isgr(msa),ismf(msa)
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
+      integer isgm(msa),ishop(msa)
+      integer lseq(mseq)
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
       logical lself,lpbc,lpbcs
@@ -86,8 +88,8 @@ c     ---------
 c
       if(lpair) call pairs(lself,lpbcs,xw,xwm,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,
-     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr)
+     + isga,isat,isdt,isgr,isgm,ismf,isml,isss,isq1,isq2,isq3,ishop,isz,
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lseq)
 c
 c     induced dipoles
 c     ---------------

@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti)
-c $Id: cf_init.F,v 1.106 2004-10-02 02:48:35 d3j191 Exp $
+c $Id: cf_init.F,v 1.107 2005-01-08 19:17:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -537,8 +537,6 @@ c
 c
       integer nat,nap,nqt,nqp
 c
-      integer ndim
-c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
@@ -607,7 +605,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer ia,is
+      integer ia
       character*6 nam(24)
       real*8 wgt(24)
       integer num(24)
@@ -797,7 +795,7 @@ c
       integer ia,ja
       real*8 vdwai(24,4),vdw(mat,mat,map,mset)
 c
-      integer i,j,k
+      integer i,j
 c
       if(.not.lfree) then
       do 1 i=1,4

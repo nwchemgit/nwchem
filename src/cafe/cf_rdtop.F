@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.33 2003-11-25 00:07:56 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.34 2005-01-08 19:17:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
       real*8 releps
       character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
-      real*8 rdata(24),vdata(24,4),qdata(24,2),ddata(24,3),pdata(4,24)
+      real*8 rdata(24),vdata(24,4),qdata(24,2),pdata(4,24)
       integer idata(24)
       character*6 cdata(24)
       integer i,ia,iq,j,k,l,m,m2,m3,m4,itemp(24),i_i,i_j,l_i,l_j

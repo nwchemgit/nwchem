@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.14 2004-09-13 15:19:40 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.15 2005-01-08 19:17:20 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
       integer lda(10,*)
       real*8 rda(5,*)
 c
-      integer i,j,k,m,ioff
+      integer i,j,ioff
 c
       do 1 i=1,np
       nhopl(i)=0

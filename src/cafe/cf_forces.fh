@@ -1,10 +1,10 @@
-c $Id: cf_forces.fh,v 1.22 2003-11-25 16:40:12 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.23 2005-01-08 19:17:20 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
-     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,fss,esa)
+     + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isgm,ishop,isz,
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,fss,esa,lseq)
 #elif defined(CAFE_FORCES)
       subroutine forces(lself,lpbcs,
      + xw,xwm,fw,zwi,rtos,iwdt,iwz,
@@ -90,7 +90,7 @@ c
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
-      integer i,j,ntemp
+      integer i,j
 c
 c      print*,'CAFE forces'
 c

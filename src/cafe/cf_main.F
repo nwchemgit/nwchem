@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.173 2004-12-17 02:20:49 marat Exp $
+c $Id: cf_main.F,v 1.174 2005-01-08 19:17:20 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -519,7 +519,7 @@ c
       integer iwat(mwa)
       real*8 wgt(mat,mset)
 c
-      integer iwa,iwm,isa,i,ndxrel
+      integer iwa,iwm,isa
       real*8 factor
 c
       if(numw.gt.0) then
