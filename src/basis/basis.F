@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.83 1998-07-30 08:45:44 d3e129 Exp $
+c $Id: basis.F,v 1.84 1998-08-12 23:41:58 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3104,9 +3104,10 @@ c:: local
       integer atn, len_tag, len_ele
       character*2 symbol
       character*16 element
+      character*9 cartorsph
       character*3 ctype(-1:6)
       character*3 shell_type
-      character*60 buffer 
+      character*60 buffer
 c
 #include "bas_exndcf.fh"
 c
@@ -3126,12 +3127,15 @@ c
 c
 c print basis set information
 c      
+      if (bas_spherical(ecpid)) then
+         cartorsph = 'spherical'
+      else
+         cartorsph = 'cartesian'
+      endif
       write(6,1)bs_name(ecpid)(1:inp_strlen(bs_name(ecpid))), 
-     $    bs_trans(ecpid)(1:inp_strlen(bs_trans(ecpid)))
- 1    format('                 ECP       "',a,'" -> "',a,'"'/
-     $    '                      -----')
-      if (bas_spherical(ecpid)) write(6,2)
- 2    format('    ECP Basis is spherical, 5d, 7f, 9g ... ')
+     $    bs_trans(ecpid)(1:inp_strlen(bs_trans(ecpid))),cartorsph
+ 1    format('                 ECP       "',a,'" -> "',a,'"',' (',a,')'/
+     $       '                -----')
       mytags  = infbs_head(HEAD_NTAGS,ecpid)
       if (mytags.le.0) then
         write(6,*)' Empty ECP '
@@ -3166,7 +3170,7 @@ c
         write(6,6)
  6      format(
      $      '          R-exponent    Exponent     Coefficients '/
-     $      '         ------------ ',60('-'))
+     $      '         ------------ ',57('-'))
         do 00200 j=1,myucont
           myprim = infbs_cont(CONT_NPRIM,ifcont,ecpid)
           mygen  = infbs_cont(CONT_NGEN,ifcont,ecpid)
@@ -3873,7 +3877,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.83 1998-07-30 08:45:44 d3e129 Exp $
+C$Id: basis.F,v 1.84 1998-08-12 23:41:58 d3g681 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
