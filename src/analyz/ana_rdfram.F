@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.26 2001-11-21 17:27:24 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.27 2001-11-21 20:48:04 d3j191 Exp $
 c
       implicit none
 c
@@ -52,11 +52,11 @@ c
       endif
       read(lfntrj,1000) card
       if(card(5:5).eq.'F'.or.card(5:5).eq.'T') then
+      read(card,1006) lxw,lvw,lfw,lsx,lsv,lfs,inwm,inwa,nsa
+      else
       read(card,1003) lxw,lvw,lsx,lsv,inwm,inwa,nsa
       lfw=.false.
       lfs=.false.
-      else
-      read(card,1006) lxw,lvw,lfw,lsx,lsv,lfs,inwm,inwa,nsa
       endif
       if(inwm.gt.0) then
       nwm=inwm
