@@ -2,7 +2,7 @@
      $     nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
      $     cc_out, energy_out, eps_out)
       implicit none
-* $Id: atscf_atscf.F,v 1.5 1997-10-31 19:50:05 d3e129 Exp $
+* $Id: atscf_atscf.F,v 1.6 1998-10-29 00:28:29 d3e129 Exp $
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"
@@ -46,6 +46,7 @@ c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
      $     call errquit('atomscf:guess_dens: ma_push failed', memq)
+      call dfill(memq,0.0d00,dbl_mb(k_scr),1)
 c
 c     This is verbatim from denat
 c

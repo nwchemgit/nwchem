@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.15 1997-02-07 01:28:53 d3g681 Exp $
+C$Id: denat.F,v 1.16 1998-10-29 00:28:31 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -84,6 +84,7 @@ c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
      $     call errquit('guess_dens: ma_push failed', memq)
+      call dfill(memq,0.0d00,dbl_mb(k_scr),1)
 c
       i10 = k_scr
       ipcap = i10 + l2

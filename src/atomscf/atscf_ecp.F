@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.8 1998-04-29 07:33:46 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.9 1998-10-29 00:28:30 d3e129 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -164,6 +164,7 @@ c..   allocate memory for exponents
      &    'atscf ecp exponents',
      &    h_zetac,k_zetac)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+      call dfill(sz_zeta,0.0d00,dbl_mb(k_zetac),1)
 
 c..   allocate memory for coeffs
       if (.not.
@@ -171,6 +172,7 @@ c..   allocate memory for coeffs
      &    'atscf ecp coeffs',
      &    h_coefc,k_coefc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+      call dfill(sz_zeta,0.0d00,dbl_mb(k_coefc),1)
 
 c.. get lmax for all ecps
       if (.not.bas_high_angular(ecpis,lmax_all_ecp)) call errquit
@@ -186,6 +188,7 @@ c.. allocate memory for n_prim_c array (see ecp_integral for def)
      &    'atscf ecp nprimc',
      &    h_nprimc,k_nprimc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+      call ifill((3*(lmax_all_ecp+2)),0,int_mb(k_nprimc),1)
 
 c.. allocate memory for n_coef_c array (see ecp_integral for def)
       if (.not.
@@ -193,6 +196,7 @@ c.. allocate memory for n_coef_c array (see ecp_integral for def)
      &    'atscf ecp ncoefc',
      &    h_ncoefc,k_ncoefc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+      call ifill((lmax_all_ecp+2),0,int_mb(k_ncoefc),1)
 
 c.. allocate memory for ind_c array (see ecp_integral for def)
       if (.not.
@@ -200,6 +204,7 @@ c.. allocate memory for ind_c array (see ecp_integral for def)
      &    'atscf ecp nindc',
      &    h_indc,k_indc)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+      call ifill((lmax_all_ecp+2),0,int_mb(k_indc),1)
 
 c..   allocate memory for ecp integral buffer array
       lbuf = (lmaxbs+1)*(lmaxbs+2)/2
@@ -209,6 +214,7 @@ c..   allocate memory for ecp integral buffer array
      &    'atscf ecp integrals',
      &    h_buf,k_buf)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+* does not need to be zeroed      
 
 c..   allocate memory for scratch array used by ecp code
       lscr = max(lbuf*10,20000)
@@ -217,6 +223,7 @@ c..   allocate memory for scratch array used by ecp code
      &    'atscf ecp scr',
      &    h_scr,k_scr)) call errquit
      &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+* does not need to be zeroed      
 
 c.. call routine that does computation
       call atscf_ecp_build_hatom(geom,basis,ecpis,
