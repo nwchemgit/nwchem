@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.15 2002-02-26 20:06:37 bylaska Exp $
+* $Id: ion.F,v 1.16 2002-03-02 23:26:24 bylaska Exp $
 *
 
 *     ***************************
@@ -456,8 +456,47 @@ c     call ion_shift()
       return
       end
 
+*     ***********************
+*     *						*
+*     *	     ion_atn		*
+*     *						*
+*     ***********************
+      integer function ion_atn(ia)
+      implicit none
+      integer ia
 
+#include "inp.fh"
 
+*     **** local variables ****
+      logical     done
+      character*2 symbol,symbol2
+      integer     atn,ii
+
+*     **** external functions ****
+      character*2 ion_atom,ion_aname
+      integer     ion_nion
+      real*8      ion_q
+      external    ion_atom,ion_aname
+      external    ion_nion
+      external    ion_q
+
+      atn    = 106
+      symbol = ion_atom(ia)
+      done = .false.
+      ii = 0
+      do while (.not.done)
+          ii = ii+1
+          if (ii.gt.ion_nion()) done = .true.
+          symbol2 = ion_aname(ii)
+          if (inp_compare(.false.,symbol,symbol2)) then
+             done = .true.
+             atn  = nint(ion_q(ii))
+          end if
+      end do
+
+      ion_atn = atn
+      return
+      end 
 
 
 *     ***************************
