@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.87 2001-08-07 01:59:28 edo Exp $
+# $Id: DEFS,v 1.88 2001-08-07 23:08:13 edo Exp $
 #
 #======================================================================
 #
@@ -475,6 +475,11 @@ else
 peigs_CC  +=  -DSTD_DBL -O2  -fast -tune host -arch host 
 endif
 peigs_FC +=  -O1 -DLINUX64  -DSTD_DBL  -D$(peigs_COMM) -DLINUX -tune host -arch host
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+  endif
 endif
 
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
