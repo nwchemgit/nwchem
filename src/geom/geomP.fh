@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.25 1999-05-24 23:39:55 d3g681 Exp $
+* $Id: geomP.fh,v 1.26 1999-05-27 17:50:44 d3g681 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -97,6 +97,7 @@ c     names(1:max_geom) = names of open geometries
 c     trans(1:max_geom) = translations of names of open geoms
 c     names_rtdb(1:max_geom_rtdb) = names of geometries in the rtdb
 c     tag(1:max_cent,1:max_geom) = tags associated with centers
+c     zmt_source(1:max_geom) = source of zmatrix (user or autoz)
 c     lenn(1:max_geom) = length of names(geom) minus trailing blanks
 c     lent(1:max_geom) = length of trans(geom) ...
 c     lenr(1:max_geom_rtdb) = length of names_rtdb(geom) ...
@@ -188,7 +189,7 @@ c
       character*10 group_name
       character*10 user_units
       character*10 sym_spgnames,sym_molgnames
-      character*8 zmt_varname
+      character*8 zmt_varname, zmt_source
       common/ccgeometry/
      $     names(1:max_geom),
      $     trans(1:max_geom),
@@ -198,7 +199,8 @@ c
      $     user_units(max_geom),
      $     sym_spgnames(230),
      $     sym_molgnames(46),
-     $     zmt_varname(max_izmat,max_geom)
+     $     zmt_varname(max_izmat,max_geom),
+     $     zmt_source(max_geom)
 c
 
 

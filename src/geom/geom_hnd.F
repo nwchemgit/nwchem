@@ -2716,6 +2716,7 @@ c
       LOGICAL SOME,OUT,DBUG
       LOGICAL DBUG1
       LOGICAL BADZ
+      LOGICAL OKAY
       LOGICAL REMOVE
       LOGICAL NUBOND
       LOGICAL MODBND
@@ -2797,6 +2798,7 @@ C
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
 c
+      zdone = .false.
       DBUG1=.FALSE.
       DBUG =.FALSE.
       OUT  =.FALSE.
@@ -2857,7 +2859,7 @@ C
             XYZLNB(I,MLNBA)=ZERO
          ENDDO
       ENDDO
-      CVR_SCALING=1.20D+00
+      CVR_SCALING=1.0D+00
 C
 C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----    
 C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
@@ -3098,15 +3100,23 @@ C
          NIBOND(IAT)=MBNDS-IIBOND(IAT)
          IF(NIBOND(IAT).GT.1) THEN
             ENDATM(IAT)=.FALSE.
-         ELSE
+            if (nibond(iat).gt.6) write(6,30304) nibond(iat),iat
+30304       format(1x,'     Warning. AUTOZ generated',i5,
+     $           ' bonds for atom',i5)
+         ELSE if (nibond(iat).eq.1) then
             ENDATM(IAT)=.TRUE.
+         else if (nibond(iat).le.0) then ! Check for unconnected atoms
+            write(6,30303) iat
+30303       format(1x,'      AUTOZ did not connect atom ',i5)
+            goto 55555
          ENDIF
       ENDDO
       NBNDS=MBNDS
 C
       IF(NBNDS.LE.0) THEN
          WRITE(IW,9999)
-         CALL HND_HNDERR(3,ERRMSG)
+         goto 55555             ! Increase the radius
+***         CALL HND_HNDERR(3,ERRMSG)
       ENDIF
 C
 C     ----- DEBUG PRINTING OF CONNECTIVITY -----
@@ -3126,7 +3136,6 @@ C
             ENDIF
          ENDDO
       ENDIF
-C
 C
 C     -----    TERMINAL ATOMS HAVE BEEN DETECTED   -----
 C           TRY FOR SEGMENTS ( RINGS AND BRIDGES )
@@ -3239,32 +3248,27 @@ C
             IIMODS(IAT)=IIBOND(IAT)
             NIMODS(IAT)=NIBOND(IAT)
          ENDDO
-         CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,C,
+c
+         call geom_check_all_connected(nat,nbnds,ijmods,okay)
+         if (.not. okay) goto 55555
+c
+         CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
      2                   IJKANG,NUMANG,IJKLTO,NUMTOR,
      3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB)
 c
-c     Attempt to recover from a failure by increasing cvfac.
-c
-         if (.not. zdone) then
-            if (cvfac .lt. 2.5d0) then
-               write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
- 9876          format(//i5,' AUTOZ failed with cvr_scaling =',f4.1,
-     $              ' increasing to',f4.1)
-               cvfac = cvfac + 0.1d0
-               goto 10101
-            endif
-         endif
+
+         NZMAT=NIZMAT
+         NLNBA=3*MXLNBA
+         if (.not. zdone) goto 55555 ! Attempt to recover
 C
 C     ----- SAVE -IZMAT(1:NZMAT)-   -----
 C           SAVE -XYZLNB(1:MXLNBA)-
 C
-         NZMAT=NIZMAT
-         NLNBA=3*MXLNBA
 C
-         IF(SOME .and. oprint) THEN
-            WRITE(IW,8877) ZDONE
-         ENDIF
+*         IF(SOME .and. oprint) THEN
+*            WRITE(IW,8877) ZDONE
+*         ENDIF
          RETURN
       ENDIF
 C
@@ -3443,7 +3447,23 @@ C
       ENDIF
 C
       RETURN
- 9999 FORMAT(' SOMETHING IS WRONG ... NO BONDS COULD BE DETECTED. STOP')
+c
+c     Get here if something went wrong and we are trying to recover
+c     by adjusting cvr_scaling.
+c     
+55555 continue
+      if (cvfac .lt. 2.5d0) then
+         write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
+ 9876    format(1x,i5,' AUTOZ failed with cvr_scaling =',f4.1,
+     $        ' changing to',f4.1)
+         cvfac = cvfac + 0.1d0
+         goto 10101
+      else
+         zdone = .false.
+         return
+      endif
+c
+ 9999 FORMAT(' AUTOZ: SOMETHING IS WRONG. NO BONDS COULD BE DETECTED.')
  9998 FORMAT(' TOTAL NUMBER OF BONDS = ',I5)
  9997 FORMAT(1X,'ATOM   NUM. OF BONDS   FIRST BOND  ENDATM',/,
      1       1X,41(1H-))
@@ -3490,7 +3510,7 @@ C
  8878 FORMAT('   NO IMPOSED LINEAR-BENDS    IN -ZMTMAK- ')
  8877 FORMAT(' zdone = ',L4)
       END
-      SUBROUTINE HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,C,
+      SUBROUTINE HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND,
      2                      IJKANG,NUMANG,IJKLTO,NUMTOR,
      3                      IJKLOP,NUMOOP,
@@ -3505,7 +3525,7 @@ C
       LOGICAL     DBUG
       LOGICAL     OUT
       LOGICAL     ZDONE
-      LOGICAL     DOOOPA
+*      LOGICAL     DOOOPA
       LOGICAL     DOLINB
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -3533,7 +3553,7 @@ C
 C
 C     ----- BONDS -----
 C
-      CALL HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,
+      CALL HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,mxizmt,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND)
       IF(DBUG) THEN
          WRITE(IW,9998)
@@ -3565,7 +3585,7 @@ C
 C     ----- ANGLES -----
 C
       DOLINB=.FALSE.
-      CALL HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,C,
+      CALL HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
      2                DOLINB)
       IF(DBUG) THEN
@@ -3587,7 +3607,7 @@ C
 C
 C     ----- TORSIONS -----
 C
-      CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,C,
+      CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLTO,NUMTOR)
 C
       IF(DBUG) THEN
@@ -3606,14 +3626,15 @@ c     .     and just use the regular bends.
 c
 c     .     In the meantime just punt after the torsions
 c     .     and then analyze the generated coordinates to
-c     .     make sure that we have at least (3n-6) coordinates.
+c     .     make sure that we have at least (3n-6) linearly
+c     .     independent coordinates.
 c
 c$$$      DOOOPA=.FALSE.
 c$$$      IF(DOOOPA) THEN
 c$$$C
 c$$$C     ----- OUT-OF-PLANE BENDS -----
 c$$$C
-c$$$         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
+c$$$         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,mxizmt,
 c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
 c$$$         IF(DBUG) THEN
 c$$$            WRITE(IW,9998)
@@ -3626,7 +3647,7 @@ c$$$C
 c$$$C     ----- LINEAR BENDS -----
 c$$$C
 c$$$      IF(DOLINB) THEN
-c$$$         CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
+c$$$         CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,mxizmt,C,
 c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
 c$$$     2                   IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
 c$$$         IF(DBUG) THEN
@@ -3658,7 +3679,7 @@ C
  9992 FORMAT(' AFTER -ZMTYP4- , NZVAR = ',I5)
  9991 FORMAT(' AFTER -ZMTYP5- , NZVAR = ',I5)
       END
-      SUBROUTINE HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,
+      SUBROUTINE HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,mxizmt,
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IONE=1)
@@ -3714,6 +3735,8 @@ C
                   ENDIF
                ENDDO
             ENDIF
+            if (nizmat+3 .gt. mxizmt) call errquit
+     $           ('autoz bonds: too many internals',0)
              IZMAT(NIZMAT+1)=IONE
              IZMAT(NIZMAT+2)=II
              IZMAT(NIZMAT+3)=IJ   
@@ -3736,7 +3759,7 @@ C
  9997 FORMAT(12(I4,1H,))
  9996 FORMAT(' $END   ')
       END
-      SUBROUTINE HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,C,
+      SUBROUTINE HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1           NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
      2           DOLINB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -3901,6 +3924,9 @@ C
                ENDIF
             ENDIF
             IF(.NOT.LINBND) THEN
+               if (nizmat+4 .gt. mxizmt) call errquit
+     $              ('autoz angles: too many internals ... reduce '//
+     $              'cvr_scaling or individual radii',0)
                 IZMAT(NIZMAT+1)=ITWO
                 IZMAT(NIZMAT+2)=IJKANG(1,IANG)
                 IZMAT(NIZMAT+3)=IJKANG(2,IANG)
@@ -3947,7 +3973,7 @@ C
  9992 FORMAT(' NO BOND ANGLES FOUND ')
  9991 FORMAT(' COLLINEAR ATOMS FOUND. DO -LINEAR BENDS- ... ')
       END
-      SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,C,
+      SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
      2                                       IJKLTO,NUMTOR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -4161,6 +4187,9 @@ C
                ENDIF
             ENDIF
             IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
+               if (nizmat+5 .gt. mxizmt) call errquit
+     $              ('autoz torsions: too many internals. reduce '//
+     $              'cvr_scaling or individual radii',0)
                 IZMAT(NIZMAT+1)=ITHREE
                 IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
                 IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
@@ -5915,3 +5944,133 @@ C
   560 CONTINUE
       RETURN
       END
+      subroutine geom_check_all_connected(nat,nbnds,ijmods,okay)
+      implicit none
+#include "mafdecls.fh"
+#include "util.fh"
+      integer nat, nbnds
+      integer ijmods(2,nbnds)
+      logical okay              ! return true if all connected
+c
+c     Examine the connectivity generated by autoz and ensure
+c     that it connects everything.  If it does not then
+c     whine to the user and return false.
+c 
+      logical oprint
+      integer i, j, k, k_m, l_m, k_clus, l_clus, ibig, test, nclus
+      integer ninclus
+      integer ind
+      ind(i,j) = k_m + (i-1) + (j-1)*nat
+c
+      oprint = util_print("warnings",print_low)
+      if (nbnds .eq. 0) then
+         okay = nat .eq. 1
+         return
+      endif
+c
+      if (.not. ma_push_get(mt_int, nat*nat,'check all',l_m, k_m))
+     $     call errquit('geom_check_all_connected: ma?',nat*nat)
+      if (.not. ma_push_get(mt_int, nat,'check all',l_clus, k_clus))
+     $     call errquit('geom_check_all_connected: ma?',nat)
+c
+      ibig = 99999999
+      call ifill(nat*nat, ibig, int_mb(k_m), 1)
+c
+c     Run Floyd's algorithm to find minimal path from each
+c     node to any other
+c
+      do k = 1, nbnds
+         i = ijmods(1,k)
+         j = ijmods(2,k)
+         int_mb(ind(i,j)) = 1
+         int_mb(ind(j,i)) = 1
+      enddo
+      do i = 1, nat
+         int_mb(ind(i,i)) = 0
+      enddo
+c
+      do k = 1, nat
+         do i = 1, nat
+            do j = 1, nat
+               test = int_mb(ind(i,k)) + int_mb(ind(k,j))
+               if (test .lt. int_mb(ind(i,j))) 
+     $              int_mb(ind(i,j)) = test
+            enddo
+         enddo
+      enddo
+c
+      okay = .true.
+      do j = 1, nat
+         do i = 1, nat
+            if (int_mb(ind(i,j)) .eq. ibig) then
+               int_mb(ind(i,j)) = -1
+               okay = .false.
+            endif
+         enddo
+      enddo
+c
+      if (util_print('connection matrix',print_debug)) then
+         write(6,*) ' No. of bonds between each pair of atoms'
+         do j = 1, nat
+            write(6,1) (int_mb(ind(i,j)),i=1,nat)
+ 1          format(1x,150i3)
+         enddo
+      endif
+c
+c     First identify connected fragments ... print them out
+c     if there are more than one.
+c
+      if (oprint) then
+         call ifill(nat, 0, int_mb(k_clus), 1)
+         nclus = 0
+         do j = 1, nat
+            if (int_mb(k_clus+j-1) .eq. 0) then
+               nclus = nclus + 1
+               do i = j, nat
+                  if (int_mb(k_clus+i-1) .eq. 0) then
+                     if (int_mb(ind(i,j)).ne.-1) then
+                        int_mb(k_clus+i-1) = 1
+                     endif
+                  endif
+               enddo
+            endif
+         enddo
+c
+         if (nclus .gt. 1) then
+            write(6,*) ' The atoms group into disjoint clusters'
+            call ifill(nat, 0, int_mb(k_clus), 1)
+            nclus = 0
+            do j = 1, nat
+               if (int_mb(k_clus+j-1) .eq. 0) then
+                  nclus = nclus + 1
+                  ninclus = 0
+                  write(6,2) nclus
+ 2                format(' cluster ',i3,':'$)
+                  do i = j, nat
+                     if (int_mb(k_clus+i-1) .eq. 0) then
+                        if (int_mb(ind(i,j)).ne.-1) then
+                           ninclus = ninclus + 1
+                           int_mb(k_clus+i-1) = 1
+                           write(6,3) i
+ 3                         format(i5$)
+                           if (ninclus .gt. 10) then
+                              write(6,*)
+                              write(6,22)
+ 22                           format('             '$)
+                              ninclus = 0
+                           endif
+                        endif
+                     endif
+                  enddo
+                  write(6,*)
+               endif
+            enddo
+         endif
+      endif
+c      
+      if (.not. ma_chop_stack(l_m)) 
+     $     call errquit('geom_check_all_connected: ma pop?',nat)
+c
+      end
+
+         

@@ -8,7 +8,7 @@
       external geom_check_handle
 c
       integer i
-      geom_zmt_get_varinfo = geom_check_handle(geom, 'geom_zm_put_data')
+      geom_zmt_get_varinfo = geom_check_handle(geom, 'geom_zm_getvinfo')
       if (.not. geom_zmt_get_varinfo) return
 c
       do i = 1, zmt_nzvar(geom)
@@ -17,13 +17,28 @@ c
       enddo
 c
       end
+      logical function geom_zmt_get_source(geom,source)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      character*(*) source
+      logical geom_check_handle
+      external geom_check_handle
+c
+      integer i
+      geom_zmt_get_source = geom_check_handle(geom, 'geom_zmt_source')
+      if (.not. geom_zmt_get_source) return
+c
+      source = zmt_source(geom)
+c
+      end
       logical function geom_zmt_put_data(geom, nizmat, izmat,
-     $     nzfrz, izfrz, nzvar, zvarname, zvarsign)
+     $     nzfrz, izfrz, nzvar, zvarname, zvarsign, source)
       implicit none
 #include "geomP.fh"
 c
       integer geom, nizmat, izmat(*), nzfrz, izfrz(*), nzvar
-      character*(*) zvarname(*)
+      character*(*) zvarname(*), source
       double precision zvarsign(*)
 c
       integer i
@@ -46,6 +61,7 @@ c
          zmt_varname(i,geom) = zvarname(i)
          zmt_varsign(i,geom) = zvarsign(i)
       enddo
+      zmt_source(geom) = source
 c
       end
       logical function geom_zmt_get_nizmat(geom,nizmat)
@@ -183,3 +199,4 @@ c
       geom_zmt_put_zmat=.true.
       return
       end
+      

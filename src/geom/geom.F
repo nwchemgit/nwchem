@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.82 1999-05-27 15:07:18 d3e129 Exp $
+C$Id: geom.F,v 1.83 1999-05-27 17:50:43 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -359,6 +359,8 @@ c
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cget(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
+         tmp(k:) = ':zmt_source'
+         s = s .and. rtdb_cget(rtdb, tmp, 1, zmt_source(geom))
          tmp(k:) = ':ijbond'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 2*max_zcoord, 
      $        ijbond(1,1,geom))
@@ -675,6 +677,8 @@ c
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cput(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
+         tmp(k:) = ':zmt_source'
+         s = s .and. rtdb_cput(rtdb, tmp, 1, zmt_source(geom))
          tmp(k:) = ':ijbond'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 2*max_zcoord, 
      $        ijbond(1,1,geom))
@@ -4217,6 +4221,7 @@ c
       zmt_nizmat(geom) = 0
       zmt_nzvar(geom) = 0
       zmt_nzfrz(geom) = 0
+      zmt_source(geom) = ' '
       cvr_scaling(geom) = 0d0   ! Indicates no user zcoord input
 c
       do i = 1, 3

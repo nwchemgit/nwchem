@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.94 1999-05-25 22:06:58 d3g681 Exp $
+C     $Id: geom_input.F,v 1.95 1999-05-27 17:50:44 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -633,7 +633,7 @@ c
 c
       double precision cvr_scaling
       double precision cvr_factor
-      parameter (cvr_factor=1.20d+00)
+      parameter (cvr_factor=1.0d+00)
       character*30 field
       integer ijbond(2,*), max_zcoord
       integer ijkang(3,*)
@@ -827,7 +827,7 @@ c
 c     ----- store all zmatrix data for nwchem -----
 c
       if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $     nzfrz, izfrz, nzvar, zvarname, zvarsign))
+     $     nzfrz, izfrz, nzvar, zvarname, zvarsign, 'user'))
      $     call errquit('geom_zmt_input: bad geom handle',geom)
 
       if(dbug) then
@@ -1606,7 +1606,7 @@ c
          zvarsign(i) = 1d0
       enddo
       if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $     0, 0, nzvar, zvarname, zvarsign))
+     $     0, 0, nzvar, zvarname, zvarsign,'autoz'))
      $     call errquit('geom_zmt_input: bad geom handle',geom)
 c
 c     ----- print -zmat- data -----
@@ -2123,10 +2123,10 @@ c
      $        ' You have several options: ',/
      $        ' 1. Disable use of internals for taking the step '/
      $        '    (they will still be used to generate the step)'//
-     $        '    driver; noqstep; end'//
+     $        '       driver; noqstep; end'//
      $        '    and restart at the current geometry.  However, '/
-     $        '    constants will not be exactly enforced, and',/
-     $        '    constraints will not work at all.',
+     $        '    constants and constraints will not be exactly'//
+     $        ' enforced',/
      $        ' 2. Manually adjust the current internal coordinates',
      $        ' to give '/
      $        '    a better guess that won''t step thru a linear bond.'/
