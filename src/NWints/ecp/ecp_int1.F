@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.2 1996-10-16 20:36:56 mg201 Exp $
+C $Id: ecp_int1.F,v 1.3 1997-05-23 21:03:20 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -91,13 +91,15 @@ C $Id: ecp_int1.F,v 1.2 1996-10-16 20:36:56 mg201 Exp $
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
 *
+      if (DryRun) mem_max = 0
+      if ((sphcart .ne. 0) .and. (l_b .gt. l_ecp_max)) return
+*
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_int1 ...'
       if (debug_gen) write (LuOut,*) 'ibug =',ibug
       if (debug_addresses) then
         write (LuOut,*) p_min,p_max,l_ecp_max
         write (LuOut,*) ((n_prim_c(i,k),i=p_min,p_max),k=-1,l_ecp_max)
       end if
-      if ((sphcart .ne. 0) .and. (l_b .gt. l_ecp_max)) return
 *
 *   Allocate memory for ecp-independent quantities
 *
