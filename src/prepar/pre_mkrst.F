@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.52 2000-05-03 18:03:58 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.53 2000-05-03 19:58:44 d3j191 Exp $
 c
       implicit none
 c
@@ -1084,7 +1084,7 @@ c
       read(card(8:12),'(i5)') nxrep
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
-      read(card(23:34),'(f12.6)') rdist
+      read(card(35:46),'(f12.6)') rdist
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,drep,box,

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.50 2000-05-03 18:03:57 d3j191 Exp $
+c $Id: pre_input.F,v 1.51 2000-05-03 19:58:44 d3j191 Exp $
 c
       implicit none
 c
@@ -34,7 +34,7 @@ c
       character*1 altloc,chain
       integer ires,jres,kres,i,ignore,igroup,jgroup,kgroup,lgroup
       integer nxrep,nyrep,nzrep,itran,jtran,j
-      real*8 rrep,xtran(3)
+      real*8 rrep,rdist,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
@@ -84,6 +84,7 @@ c
       nyrep=0
       nzrep=0
       rrep=0.25d0
+      rdist=0.0d0
 c
       touch=0.25d0
       xpnd(1)=0.00d0
@@ -1138,11 +1139,13 @@ c
       if(.not.inp_i(nzrep)) call errquit('pre_input: repeat',9999)
       if(.not.inp_f(rrep)) then
       endif
+      if(.not.inp_f(rdist)) then
+      endif
       if(nxrep.lt.0) call errquit('pre_input: repeat',9999)
       if(nyrep.lt.0) call errquit('pre_input: repeat',9999)
       if(nzrep.lt.-2) call errquit('pre_input: repeat',9999)
-      write(68,6851) nxrep,nyrep,nzrep,rrep
- 6851 format('repeat ',3i5,f12.6)
+      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist
+ 6851 format('repeat ',3i5,2f12.6)
       numcmd=numcmd+1
       goto 1
       endif
