@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.65 2004-04-22 17:42:05 edo Exp $
+$Id: INSTALL,v 1.66 2004-04-23 22:36:33 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -408,12 +408,12 @@ BUILDING WITH MPI:
         setenv MPI_LOC /usr/local #location of mpich
         setenv MPI_LIB $MPI_LOC/lib
         setenv MPI_INCLUDE $MPI_LOC/include
-        setenv LIBMPI "-lmpich -lpmpich"
+        setenv LIBMPI "-lfmpich -lmpich -lpmpich"
      MPIPro: 
         setenv LIBMPI "-lmpipro -lpthread"
-     LAM version 6.5 
+     LAM version 6.5, 7.0.x
         setenv MPI_LIB /usr/lib
-        setenv LIBMPI "-lmpi -llam -lpthread"
+        setenv LIBMPI "-llamf77mpi -lmpi -llam -lpthread"
         setenv MPI_INCLUDE /usr/include/
      MPICH/GM
       same as for MPICH, plus
@@ -423,7 +423,7 @@ BUILDING WITH MPI:
         setenv ARMCI_NETWORK GM
         setenv GMPI_SHMEM_FILE /tmp/$USER.gm
      HP SC Alpha serie
-        setenv LIBMPI "-lmpi -lelan"
+        setenv LIBMPI "-lfmpi -lmpi -lelan"
         setenv ARMCI_NETWORK QUADRICS
      HPUX
         setenv MPI_INCLUDE /opt/mpi/include
