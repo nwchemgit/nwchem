@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.44 2000-03-22 03:01:26 edo Exp $
+C$Id: nwdft.F,v 1.45 2000-03-27 19:17:45 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -26,6 +26,7 @@ c
 #include "rtdb.fh"
 #include "cdft.fh"
 #include "util.fh"
+#include "cgridfile.fh"
 c     
 c     local declarations
 c
@@ -90,6 +91,7 @@ c
 c
 c     Build the grid.
 c
+      grid_written=.false.
       call grid_setquad(rtdb)
 c
 c     Analyze set parameters for consistency
