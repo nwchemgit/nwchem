@@ -9,11 +9,12 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.14 1999-08-16 23:05:08 d3e129 Exp $
+C$Id: util_print.F,v 1.15 2000-04-10 12:05:34 hvd Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "inp.fh"
+#include "stdio.fh"
       character*(*) name
       external bd_printcommon  ! block data for T3D linker
       integer level
@@ -24,12 +25,12 @@ c
      $        print_names(1,depth), ind)) then
             util_print = .true.
             if (oprint_print(depth)) then
-               write(6,*) ' up: explicit on for: ', name
+               write(LuOut,*) ' up: explicit on for: ', name
             endif
             goto 10
          else if (ind .eq. 0) then
-            write(6,*) ' util_print: ambiguous print option: ', name
-            call util_flush(6)
+            write(LuOut,*) ' util_print: ambiguous print option: ', name
+            call util_flush(LuOut)
          endif
       endif
 c     
@@ -38,23 +39,23 @@ c
      $        no_print_names(1,depth), ind)) then
             util_print = .false.
             if (oprint_print(depth)) then
-               write(6,*) ' up: explicit off for: ', name
+               write(LuOut,*) ' up: explicit off for: ', name
             endif
             goto 10
          else if (ind .eq. 0) then
-            write(6,*) ' util_print: ambiguous print option: ', name
-            call util_flush(6)
+            write(LuOut,*) ' util_print: ambiguous print option: ', name
+            call util_flush(LuOut)
          endif
       endif
 c     
       if (oprint_print(depth)) then
-         write(6,*) ' up: general rule for: ', name
+         write(LuOut,*) ' up: general rule for: ', name
       endif
       util_print = level .le. print_level(depth)
 
  10   continue
       if (oprint_print(depth)) then
-         write(6,*) ' up: ', name, ' ', depth,
+         write(LuOut,*) ' up: ', name, ' ', depth,
      &        level, print_level(depth), 
      $        util_print
       endif
@@ -112,6 +113,7 @@ c
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
+#include "stdio.fh"
       character*(*) name
 c
       if (n_print(depth) .eq. maxnames) then
@@ -125,7 +127,7 @@ c
             print_names(n_print(depth), depth) = name
          endif
          if (oprint_print(depth)) then
-            write(6,*) ' up: enabling: ', name
+            write(LuOut,*) ' up: enabling: ', name
          endif
       endif
 c
@@ -134,6 +136,7 @@ c
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
+#include "stdio.fh"
       character*(*) name
 c
       if (n_no_print(depth) .eq. maxnames) then
@@ -143,7 +146,7 @@ c
          n_no_print(depth) = n_no_print(depth) + 1
          no_print_names(n_no_print(depth), depth) = name
          if (oprint_print(depth)) then
-            write(6,*) ' up: disabling: ', name
+            write(LuOut,*) ' up: disabling: ', name
          endif
       endif
 c

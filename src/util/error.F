@@ -1,5 +1,5 @@
       block data error_data
-C$Id: error.F,v 1.8 1996-01-26 18:19:17 d3e129 Exp $
+C$Id: error.F,v 1.9 2000-04-10 12:05:34 hvd Exp $
       implicit none
 #include "errorP.h"
 c
@@ -9,6 +9,7 @@ c
       end
       subroutine error(level, message, status)
       implicit none
+#include"stdio.fh"
       integer level             ! [input]
       character*(*) message     ! [input]
       integer status            ! [input]
@@ -31,7 +32,7 @@ c        quietly continue execution
 c     endif
 c
       if (level .le. fatal_level) then
-         write(6, 1) message, icode
+         write(LuOut, 1) message, icode
  1       format(//' fatal error(',i2,'): ',a,'(',i,')'/)
 #ifdef TCGMSG
          call parerr(status)
@@ -49,7 +50,7 @@ c
          stop status
 #endif
       else if (level .le. warn_level .or. level .gt. 2) then
-         write(6, 1) level, message, icode
+         write(LuOut, 1) level, message, icode
  1       format(' warning(',i2,'): ',a,'(',i,')')
       endif
 c

@@ -41,6 +41,7 @@ c
       implicit none
 #include "cfileprefix.fh"
 #include "inp.fh"
+#include "stdio.fh"
       character*(*) name, fullname
       external bfileprefix  ! This for T3D linker
 c
@@ -49,9 +50,9 @@ c     returning the result in fullname.
 c
       if ((inp_strlen(name)+inp_strlen(file_prefix)+1) .gt.
      $     len(fullname)) then
-         write(6,*) ' file_prefix: name = ', name
-         write(6,*) ' file_prefix: prfx = ', file_prefix
-         call util_flush(6)
+         write(LuOut,*) ' file_prefix: name = ', name
+         write(LuOut,*) ' file_prefix: prfx = ', file_prefix
+         call util_flush(LuOut)
          call errquit('file_prefix: insufficient space ', len(fullname))
       endif
 c
@@ -67,6 +68,7 @@ c
 #include "inp.fh"      
 #include "cfileprefix.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       character*(*) stub      ! [input] stub name for file
       logical oscratch        ! [input] true=scratch, false=permanent
@@ -82,16 +84,16 @@ c
 c
       call util_directory_name(dir, oscratch, me)
 c
-*      write(6,*) ' dir = |', dir,'|'
+*      write(LuOut,*) ' dir = |', dir,'|'
 c
       call util_file_prefix(stub, tmp)
       ltmp = inp_strlen(tmp)
       ldir  = inp_strlen(dir)
       if (ltmp+ldir+1 .gt. len(name)) then
-         write(6,*) ' util_file_name: stub = ', stub
-         write(6,*) ' util_file_name: ltmp, ldir, lname',
+         write(LuOut,*) ' util_file_name: stub = ', stub
+         write(LuOut,*) ' util_file_name: ltmp, ldir, lname',
      $        ltmp, ldir, len(name)
-         call util_flush(6)
+         call util_flush(LuOut)
          call errquit('util_file_name: name too small', ltmp+ldir+1)
       endif
       if (dir .ne. ' ') then
@@ -104,8 +106,8 @@ c
 c
       if (oparallel) then
          if (inp_strlen(name) .gt. len(tmp)) then
-            write(6,*) ' util_file_name: name = ', name
-            call util_flush(6)
+            write(LuOut,*) ' util_file_name: name = ', name
+            call util_flush(LuOut)
             call errquit('util_file_name: tmp too small',
      $           inp_strlen(name))
          endif
@@ -138,7 +140,7 @@ c
             call util_directory_name(pdir, .false., node)
 c
             if ((pdir.ne.prevpdir .or. sdir.ne.prevsdir)) then
-               write(6,1) node, pdir(1:inp_strlen(pdir)), node,
+               write(LuOut,1) node, pdir(1:inp_strlen(pdir)), node,
      $              sdir(1:inp_strlen(sdir))
  1             format(i3,' permanent = ', a/
      $              i3,' scratch   = ', a)
@@ -146,8 +148,8 @@ c
             prevpdir = pdir
             prevsdir = sdir
          enddo
-         write(6,*)
-         call util_flush(6)
+         write(LuOut,*)
+         call util_flush(LuOut)
       endif
 c
       end
@@ -155,6 +157,7 @@ c
       implicit none
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
       character*(*) dirlist     ! [input] List of dirs (by host/proc)
       character*(*) dir         ! [output] Returns matching dir
 c
@@ -171,7 +174,7 @@ c
       integer istart, iend, i, ind, p, ihostend, def1, spe1, nspe, ndef
       data numbers /'0','1','2','3','4','5','6','7','8','9'/
 c
-*      write(6,*) nodeid, ' dirlist in ufpd |',dirlist,'|'
+*      write(LuOut,*) nodeid, ' dirlist in ufpd |',dirlist,'|'
 c
       util_file_parse_dir = .true.
       ndef = 0                  ! No. of default dirs found
@@ -214,21 +217,21 @@ c
      $              ('util_dir_parse: bad character in process id',0)
                p = p*10 + ind - 1
             enddo
-*            write(6,*) ' p ',p
+*            write(LuOut,*) ' p ',p
             if (p .eq. nodeid) then ! Dir for me and only me
                dir = dirlist(ihostend+2:iend)
                return
             endif
          else
             if (hostname .eq. ' ') call util_hostname(hostname)
-*            write(6,*) ' hostname ', hostname
-*            write(6,*) ' ........ ', dirlist(istart:ihostend)
+*            write(LuOut,*) ' hostname ', hostname
+*            write(LuOut,*) ' ........ ', dirlist(istart:ihostend)
             if (inp_compare(.false., hostname,
      $           dirlist(istart:ihostend))) then
                specific(spe1:) = dirlist(ihostend+2:iend)
                nspe = nspe + 1
                spe1 = spe1 + iend - ihostend-2 + 2
-*               write(6,*) ' set spe to |',specific,'|'
+*               write(LuOut,*) ' set spe to |',specific,'|'
             endif
          endif
          goto 10
@@ -264,7 +267,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.14 2000-01-19 00:38:36 windus Exp $
+C$Id: util_file_name.F,v 1.15 2000-04-10 12:05:34 hvd Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -319,8 +322,8 @@ c
       rtdb_name  = ' '
       call input_default_file_prefix(input_filename,file_prefix)
 c
-      rewind 5
-      call inp_init(5,6)
+      rewind LuIn
+      call inp_init(LuIn,LuOut)
  10   if (inp_search(.false., keys, nkeys)) then ! While
          if (.not. inp_a(field)) call errquit('input_start: inp?',0)
          if (inp_compare(.false.,'start',field)) then
@@ -362,10 +365,10 @@ c
          endif
          goto 10                ! End while
       endif
-      rewind 5
-      call inp_init(5,6)
+      rewind LuIn
+      call inp_init(LuIn,LuOut)
 c
-      if (echo) call input_echo(5,6)
+      if (echo) call input_echo(LuIn,LuOut)
 c
       if (rtdb_name .eq. ' ')
      $     call util_file_name('db',.false.,.false.,rtdb_name)
@@ -379,8 +382,8 @@ c
          ostartup = .not. status
       endif
 c
-      rewind 5
-      call inp_init(5,6)
+      rewind LuIn
+      call inp_init(LuIn,LuOut)
 c
 c     Broadcast start options to everyone else
 c
