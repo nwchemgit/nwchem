@@ -10,6 +10,13 @@ all postscript user.ps:	$(SOURCE)
 	latex user.tex
 	latex user.tex
 	dvips -D 300 -N0 -o user.ps user.dvi
+odd:	$(SOURCE)
+	latex user.tex
+	latex user.tex
+	latex user.tex
+	dvips -D 300 -N0 -A -o userodd.ps user.dvi 
+	dvips -D 300 -N0 -B -o usereven.ps user.dvi 
+
 quick:		$(SOURCE)
 	latex user.tex
 	dvips -D 300 -N0 -o user.ps user.dvi
