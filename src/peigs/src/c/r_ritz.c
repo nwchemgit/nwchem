@@ -66,7 +66,6 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
       
       if ( fabs(eval[i]) > DLAMCHS ) {
 	val =fabs(val1 - eval[i] )/fabs(eval[i]);
-	printf(" rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16g \n", i, val1, eval[i], val);
 	if ( val > 1.e-8 ){
 	  printf(" rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16g \n", i, val1, eval[i], val);
 	  *info = -100;
