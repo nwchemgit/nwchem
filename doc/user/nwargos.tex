@@ -665,7 +665,7 @@ where {\bf iset} is the parameter set in [1,2,3] found on the
 topology file. The default for {\bf iset} is 1.
 \end{itemize}
 \subsection{Multiconfiguration thermodynamic integration}
-The following keywrods control free energy difference simulations.
+The following keywords control free energy difference simulations.
 Multiconfiguration thermodynamic integrations are always combined
 with multiple step thermodynamic perturbations.
 \begin{itemize}
@@ -709,6 +709,17 @@ mcti [sss [delta <r delta>]]
 \end{verbatim}
 where {\bf delta} is the separation-shifted scaling factor with a default
 of 0.075 nm$^2$.
+\item
+To specify the starting point
+\begin{verbatim}
+[new | renew | extend]
+\end{verbatim}
+where {\bf new} indicates that this is an initial mcti calculation, which
+is also the default. {\bf renew} instructs to obtain the initial
+conditions for each $\lambda$ from the {\bf mro}-file from a previous 
+mcti calculation, which has to be renamed to an {\bf mri}-file. The
+keyword {\bf extend} will extend a previous mcti calculation from the
+data read from an {\bf mri}-file.
 \end{itemize}
 The \verb+mcti+ directives may be combined in a single directive.
 \subsection{Time and integration algorithm directives}
@@ -734,7 +745,7 @@ variable {\bf ldacq} specifies the minimum numberof datagathering steps
 in each ensemble. In regular molecular dynamics simulations {\bf ldacq}
 is not used. The default value for {\bf ldacq} is the value of {\bf mdacq}.
 \item
-To specify statt time and time step
+To specify start time and time step
 \begin{verbatim}
 [time <r stime>] [step <r tstep>]
 \end{verbatim}
@@ -812,7 +823,6 @@ Constraints are satisfied using the SHAKE coordinate resetting preocedure.
 \begin{verbatim}
 [shake [<i mshitw> [<i mshits>]] [<r tlwsha> [<r tlssha>]]]
 \end{verbatim}
-\end{itemize}
 where {\bf mshitw} is the maximum number of solvent SHAKE iterations,
 and {\bf mshits} is the maximum number of solute SHAKE iterations. If
 only {\bf mshitw} is specified, the value will also be used for {\bf mshits}.
@@ -821,6 +831,7 @@ The default maximum number of iterations is 100 for both.
 the solute SHAKE tolerance in nm. If only {\bf tlwsha} is specified, the
 value given will also be used for {\bf tlwsha}. The default tolerance
 is 0.001~nm for both.
+\end{itemize}
 \subsection{Long range interaction corrections}
 No method of long range interaction treatment is implemented in the
 current release. For development only:
