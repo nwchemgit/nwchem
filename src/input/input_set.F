@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.6 1995-03-31 01:41:16 d3g681 Exp $
+C$Id: input_set.F,v 1.7 1995-04-18 17:31:46 gg502 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -15,12 +15,9 @@ C$Id: input_set.F,v 1.6 1995-03-31 01:41:16 d3g681 Exp $
       integer ma_types(4)
       logical status            ! accumulates return codes
       integer ind               ! used to match types
-      integer i, nvalues, max_values
+      integer i, nvalues, max_values, H_Values, I_Values, Space_Avail
       parameter (max_values = 100)
-      double precision dvals(max_values)
       character*32     cvals(max_values)
-      integer          ivals(max_values)
-      logical          lvals(max_values)
       character*8 test
       data types /'string', 'real', 'integer', 'logical'/
 c
@@ -67,48 +64,77 @@ c
       else
          call errquit('input_set: very wierd error matching type', 0)
       endif
-c
-c     How many values are provided ?  For character variables
-c     we will always have statically allocatated buffers, but
-c     for integer/real we could make some with ma?
-c
+C
+C     How much data is there to read? (For integers there may be more,
+C     since each field may actually be a range.
+C
       nvalues = inp_n_field() - inp_cur_field()
-      if (nvalues .gt. max_values) call errquit
-     $     ('input_set: too many values', nvalues)
-c
-      do i = 1, nvalues
-         if (ma_type .eq. mt_int) then
-c     integer
-            status = inp_i(ivals(i))
-         else if (ma_type .eq. mt_dbl) then
-c     real
-            status = inp_f(dvals(i))
-         else if (ma_type .eq. mt_log) then
-c     logical
-            status = inp_a(test)
-            if (inp_compare(.false.,test,'true') .or.
-     $          inp_compare(.false.,test,'.true.')) then
-               lvals(i) = .true.
-            else if (inp_compare(.false.,test,'false') .or.
-     $          inp_compare(.false.,test,'.false.')) then
-               lvals(i) = .false.
-            else
-               call errquit('input_set: error parsing logical', i)
+C
+C     Read the data according to the specified type.  For integers, we
+C     allocate an obnoxiously large buffer in the hopes of insuring
+C     sufficient space to expand any ranges.  For reals and logicals
+C     we can just dynamically allocate NValues.  Characters must be
+C     handled statically.
+C     
+      If ( Ma_Type .eq. MT_Int) then
+C
+         Space_Avail = Min( 100000, MA_Inquire_Avail(ma_type) )
+         If ( .NOT. MA_Push_Get( ma_type, Space_Avail, 'Input scratch',
+     $      H_Values, I_Values) ) Call ErrQuit(
+     $      'input_set: unable to allocate input scratch space',
+     $      Space_avail)
+C
+         Status = Inp_IList(Space_Avail, Int_MB(I_Values), NValues)
+         If ( .NOT. Status) Call ErrQuit(
+     $      'input_set: failed reading integer list ', 0)
+C
+      ElseIf (MA_Type .eq. MT_Dbl .OR. MA_Type .eq. MT_Log) then
+         If ( .NOT. MA_Push_Get( MA_Type, NValues, 'Input scratch',
+     $      H_Values, I_Values) ) Call ErrQuit(
+     $      'input_set: unable to allocate input scratch space',
+     $      NValues)
+C
+         do i = 1, nvalues
+            if (ma_type .eq. mt_dbl) then
+c              real
+               status = inp_f( dbl_MB(i_Values + i - 1) )
+            else if (ma_type .eq. mt_log) then
+c              logical
+               status = inp_a(test)
+               if (inp_compare(.false.,test,'true') .or.
+     $            inp_compare(.false.,test,'.true.')) then
+                  Log_MB( I_Values + i - 1) = .true.
+               else if (inp_compare(.false.,test,'false') .or.
+     $               inp_compare(.false.,test,'.false.')) then
+                  Log_MB( I_Values + i - 1) = .false.
+               else
+                  call errquit('input_set: error parsing logical', i)
+               endif
             endif
-         else
-c     string
+            if (.not. status) call errquit
+     $         ('input_set: failed reading value ', i)
+         enddo
+C
+      Else                      ! Character strings
+         If ( NValues .gt. Max_Values) Call ErrQuit(
+     $      'input_set: too many values', NValues)
+C
+         do i = 1, nvalues
             status = inp_a(cvals(i))
-         endif
-         if (.not. status) call errquit
-     $        ('input_set: failed reading value ', i)
-      enddo
+            if (.not. status) call errquit
+     $         ('input_set: failed reading value ', i)
+         enddo
+      EndIf
 c
       if (ma_type .eq. mt_int) then
-         status = rtdb_put(rtdb, name, mt_int, nvalues, ivals)
+         status = rtdb_put(rtdb, name, mt_int, nvalues,
+     $      Int_MB(I_Values))
       else if (ma_type .eq. mt_dbl) then
-         status = rtdb_put(rtdb, name, mt_dbl, nvalues, dvals)
+         status = rtdb_put(rtdb, name, mt_dbl, nvalues,
+     $      Dbl_MB(I_Values))
       else if (ma_type .eq. mt_log) then
-         status = rtdb_put(rtdb, name, mt_log, nvalues, lvals)
+         status = rtdb_put(rtdb, name, mt_log, nvalues,
+     $      Log_MB(I_Values))
       else
          status = rtdb_cput(rtdb, name, nvalues, cvals)
       endif
@@ -116,6 +142,12 @@ c
       if (.not. status) call errquit
      $     ('input_set: failed writing to rtdb', 0)
 c
+      If ( Ma_type .eq. MT_Int .OR. Ma_Type .eq. MT_Dbl
+     $   .OR. Ma_Type .eq. MT_Log) then
+         if ( .NOT. MA_Pop_Stack(H_Values) ) Call ErrQuit(
+     $      'input_set: unable to free scratch space', H_Values)
+      EndIf
+C
       return
 c
  1000 call errquit
