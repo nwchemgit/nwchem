@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.58 2004-04-22 07:21:04 edo Exp $
+* $Id: grid_file.F,v 1.59 2004-05-19 18:37:27 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -152,7 +152,7 @@ c
          k_cache = -1
          n_rec_in_file = 0
          grid_file_open = .true.
-#if (defined(DECOSF) || defined(SGI)) & !defined(LANGUAGE_FORTRAN_90) & !defined(LANGUAGE_FORTRAN_95)
+#if (defined(DECOSF) || defined(SGI) ||defined(PGLINUX)) & !defined(LANGUAGE_FORTRAN_90) & !defined(LANGUAGE_FORTRAN_95)
          open(unit=gr_unit,file=grinfo,status='unknown',
      .        form='formatted')
 #else
