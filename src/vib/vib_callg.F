@@ -1,6 +1,6 @@
       SUBROUTINE vib_CALLG(G,IGDIM,SCR,fv1,fv2,
      &    ROOT,ALPH,LVAL,NROOTS)
-* $Id: vib_callg.F,v 1.3 1995-10-21 09:16:01 d3e129 Exp $
+* $Id: vib_callg.F,v 1.4 1997-03-04 06:09:17 d3e129 Exp $
 C
 C Routine to set up actual spaces for call to GIVENS
 C
@@ -58,11 +58,7 @@ c-----parameters---------------
       t2     = 1.d-12
 c------------------------------
       ierr   = 0
-#if defined(KSR) || defined(CRAY)
-      avgf   = real(n*(n-1))*0.55d0
-#else
       avgf   = dble(n*(n-1))*0.55d0
-#endif
       if(n.lt.1) then
         goto 160
       else if(n.lt.2) then

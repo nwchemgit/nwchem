@@ -27,7 +27,7 @@ c
       enddo
 c
       write(6,1) 
-      write(6,2) (dfloat(npres(i))/noconf, i=1,norbs)
+      write(6,2) (dble(npres(i))/noconf, i=1,norbs)
  1    format(/' Average occupancy of each orbital ')
  2    format(15f5.2)
 c

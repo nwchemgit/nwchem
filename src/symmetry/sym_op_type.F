@@ -1,5 +1,5 @@
       subroutine sym_op_type(r, op_type, order, power, direction)
-C$Id: sym_op_type.F,v 1.2 1995-10-19 16:36:24 d3g681 Exp $
+C$Id: sym_op_type.F,v 1.3 1997-03-04 06:08:46 d3e129 Exp $
       implicit none
       double precision r(3,3)
       character*(*) op_type
@@ -65,7 +65,8 @@ c
          angle = acos(acos_arg) ! Angle should be 2*pi*m/n
          do n = 2, 12
             do m = 1, n-1
-               if (abs(twopi*m/dfloat(n) - angle) .lt. 1.0d-6) goto 10
+               if (abs(twopi*dble(m)/dble(n) - angle) .lt.
+     &            1.0d-6) goto 10
             enddo
          enddo
          write(6,*) ' sym_op_type: angle is not 2*pi*m/n ', angle

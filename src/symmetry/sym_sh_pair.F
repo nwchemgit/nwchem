@@ -45,12 +45,12 @@ c
          endif
       end do
 c
-      q1 = dfloat(nops + 1) / dfloat(n)
+      q1 = dble(nops + 1) / dble(n)
       sym_atom = .true.
 c
       end
       logical function sym_shell(basis, ishell, q1)
-C$Id: sym_sh_pair.F,v 1.3 1997-03-04 01:12:35 d3g681 Exp $
+C$Id: sym_sh_pair.F,v 1.4 1997-03-04 06:08:47 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
@@ -82,7 +82,7 @@ c
 c
       end
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.3 1997-03-04 01:12:35 d3g681 Exp $
+C$Id: sym_sh_pair.F,v 1.4 1997-03-04 06:08:47 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
@@ -190,7 +190,7 @@ c
          endif
       end do
 c
-      q2 = dfloat(nops + 1) / dfloat(n)
+      q2 = dble(nops + 1) / dble(n)
       sym_atom_pair = .true.
 c
       end
@@ -262,7 +262,7 @@ c
          endif
       end do
 c
-      q4 = dfloat(nops + 1) / dfloat(n)
+      q4 = dble(nops + 1) / dble(n)
       sym_atom_quartet = .true.
 c
       end
@@ -357,7 +357,7 @@ c
          endif
       end do
 c
-      q4 = dfloat(nops+1) / dfloat(n)
+      q4 = dble(nops+1) / dble(n)
       if (abs(q4-nint(q4)).gt.1e-12) call errquit
      $     ('sym_atom_gen_quartet: not divisible', 0)
       sym_atom_gen_quartet = .true.

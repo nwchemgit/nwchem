@@ -7,7 +7,7 @@
       dimension ept_mp(nroot), ptnorm_mp(nroot)
       integer selci_isum
 c
-      write(ifllog,101) (10.0d0**(dfloat(1-i)*0.5d0), irange(i),
+      write(ifllog,101) (10.0d0**(dble(1-i)*0.5d0), irange(i),
      $     i=1,21)
  101  format(/
      $     ' Analysis of PT Interactions by Size '/

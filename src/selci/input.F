@@ -269,13 +269,13 @@ c.... the number itself
       if (ia(i:i).eq.xchar(j)) go to 70
 60    continue
       goto 100
-70    buf=buf*ten+ dfloat(j-1)
+70    buf=buf*ten+ dble(j-1)
       go to 90
  80   if(orep)go to 100
       iexp=iexp+i-i2
       orep=.true.
 90    continue
-      buf = buf* dfloat(isign) * ten**iexp
+      buf = buf* dble(isign) * ten**iexp
       return
 100   call errout(i)
       call errquit('illegal character reading floating point number',

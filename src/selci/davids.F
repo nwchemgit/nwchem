@@ -506,7 +506,7 @@ c
                irange(ihash) = irange(ihash) + 1
             endif
  70      continue
-         write(6,101) (10.0d0**(dfloat(1-i)*0.5d0), irange(i),
+         write(6,101) (10.0d0**(dble(1-i)*0.5d0), irange(i),
      $        i=1,21)
  101     format(/
      $     ' Analysis of CI Coefficients by Size '/

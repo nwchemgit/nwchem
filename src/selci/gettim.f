@@ -11,7 +11,7 @@
         elast = util_cpusec()
       endif
       call cputm(now)
-      elapsd = dfloat(now-last)*0.01d0
+      elapsd = dble(now-last)*0.01d0
       timediff = util_cpusec() - elast
       cpud = dble(timediff)
       end
