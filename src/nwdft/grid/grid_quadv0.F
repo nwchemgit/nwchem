@@ -1,7 +1,18 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.7 2000-03-27 19:15:31 edo Exp $
+C$Id: grid_quadv0.F,v 1.8 2000-04-11 20:49:40 edo Exp $
 c
+      integer rtdb
+      integer g_dens(2),nexc,g_vxc(4)
+      double precision rho_n
+      double precision Exc(2)
+      call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
+     ,     1,1)
+      return
+      end
+c
+      Subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
+     ,      nmat,  calc_type)
       implicit none
 c
       integer rtdb
@@ -9,6 +20,13 @@ c
       Logical oprint,grad,xc_chkgrad
       external xc_chkgrad
       double precision Exc(2)
+      double precision rho_n
+      integer nmat              ! [input] number of XC matrices to make;
+c                               !         only used for lhs cpks
+      integer calc_type         ! what to calculate [input]
+c                               !   1 = XC matrices for SCF
+c                               !   2 = XC matrices for CPKS LHS
+c                               !   3 = XC matrices for CPKS RHS
 c
 #include "cgridfile.fh"
 #include "geom.fh"
@@ -16,12 +34,11 @@ c
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "util.fh"
 #include "rtdb.fh"
+#include "dft2drv.fh"
 c
-      double precision rho_n
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
      &        ncoef_max,
@@ -32,7 +49,6 @@ c
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat, 
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags
-      integer len_rho, len_delrho
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
@@ -41,6 +57,9 @@ c
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
       integer iqs,lqs,nqlen,mxnrad,nq_list,
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
+      integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
+      integer len_rho, len_delrho, len_Amat2, len_Cmat2
+      logical do_scf, do_cpks_l, do_cpks_r
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -55,6 +74,34 @@ c
 c
       npol = (ipol*(ipol+1))/2
 c
+c     Open grid pts file
+c     
+      if(.not.grid_written) call grid_packing_info
+c
+c
+c     Set up logicals denoting calculation type
+c
+      do_scf = calc_type .eq. 1
+      do_cpks_l = calc_type .eq. 2
+      do_cpks_r = calc_type .eq. 3
+      if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r)) then
+         call errquit('xc_quadv0_gen: illegal calculation type',1)
+      endif
+      if (do_scf) then
+         len_rho = npol*n_per_rec
+         len_delrho = 3*ipol*n_per_rec
+         len_Amat2 = 1
+         len_Cmat2 = 1
+      elseif (do_cpks_l) then
+         len_rho = ipol*n_per_rec*(nmat+1)
+         len_delrho = 3*ipol*n_per_rec*(nmat+1)
+         len_Amat2 = n_per_rec*NCOL_AMAT2
+         len_Cmat2 = n_per_rec*NCOL_CMAT2
+      elseif (do_cpks_r) then
+         call errquit('xc_quadv0: what for do_cpks_r?',0)
+         len_Amat2 = n_per_rec*NCOL_AMAT2
+         len_Cmat2 = n_per_rec*NCOL_CMAT2
+      endif
       if (.not. geom_ncent(geom, nctrs))
      &   call errquit('grid_den: geom_ncent failed',73)     
       nxyz = 3*nctrs
@@ -83,14 +130,6 @@ c     Divide the multi-center integrand into a set of single center integrands.
 c
       nqtot = 0
       rho_int = 0.D0
-      if(.not.grid_written) then
-c
-c     Open grid pts file
-c     
-         call grid_packing_info
-      endif
-      len_rho = npol*n_per_rec
-      len_delrho = 3*ipol*n_per_rec
 c
       if (.not.MA_Push_get(mt_dbl,3*n_per_rec,'qxyz',lqxyz,iqxyz))
      &   call errquit('grid_den: cannot allocate qxyz',0)
@@ -167,10 +206,16 @@ c
       if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',lamat,iamat))
      &   call errquit('xc_quadv0: cannot allocate Amat',0)
       call dfill(ipol*n_per_rec, 0.0d0, dbl_mb(iAmat), 1)
+      if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
+     &   call errquit('xc_quadv0: cannot allocate Amat2',0)
+      call dfill(len_Amat2, 0.0d0, dbl_mb(k_Amat2), 1)
       if (.not.MA_Push_Get(
      .     mt_dbl,3*n_per_rec*ipol,'Cmat',lcmat,icmat))
      &   call errquit('xc_quadv0: cannot allocate Cmat',0)
       call dfill(3*ipol*n_per_rec, 0.0d0, dbl_mb(iCmat), 1)
+      if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
+     &   call errquit('xc_quadv0: cannot allocate Cmat2',0)
+      call dfill(len_Cmat2, 0.0d0, dbl_mb(k_Cmat2), 1)
 c
 c     allocate scratch array for grid compression
 c
@@ -216,7 +261,9 @@ c
      ,        int_mb(iibf_ao),dbl_mb(irqbuf),dbl_mb(ibp),
      ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
-     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
+     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
+     ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -251,7 +298,9 @@ c
      ,        int_mb(iibf_ao),dbl_mb(ibp),
      ,        dbl_mb(irscr),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
-     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
+     ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
+     ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)
       endif

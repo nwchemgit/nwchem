@@ -1,13 +1,12 @@
-# $Id: GNUmakefile,v 1.29 2000-03-30 03:05:59 edo Exp $
+# $Id: GNUmakefile,v 1.30 2000-04-11 20:49:39 edo Exp $
 
       OBJ_OPTIMIZE= \
+        grid_pscreen.o \
         grid_sphere.o \
 	grid_ssw.o \
         grid_beckew.o \
 	grid_signf.o \
 	grid_rchi_2.o \
-	grid_quadv0a.o \
-	grid_quadv0b.o \
 	grid_quadvw.o \
 	grid_quadvc.o \
 	grid_nbfm.o \
@@ -17,6 +16,7 @@
 	grid_qpts.o  \
         grid_file.o 
       OBJ= \
+	grid_sic.o \
 	grid_checks.o \
         grid_balance.o \
 	grid_daul.o \
@@ -37,6 +37,8 @@
 	grid_neighb.o \
 	grid_cleanup.o \
 	grid_quadv0.o \
+	grid_quadv0a.o \
+	grid_quadv0b.o \
         grid_gaussq.o \
         grid_roland.o 
 

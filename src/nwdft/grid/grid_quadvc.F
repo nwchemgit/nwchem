@@ -10,8 +10,9 @@
      &     Pmat, rq, rdens_atom, 
      &     cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc)
-C$Id: grid_quadvc.F,v 1.3 2000-04-05 01:41:23 edo Exp $
+     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+C$Id: grid_quadvc.F,v 1.4 2000-04-11 20:49:40 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -58,7 +59,8 @@ c
      &        Pmat, rq,  rdens_atom, 
      &        cntobfr, cetobfr, 
      ,        ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
-     ,        Ex, Ec, amat,cmat,g_vxc)
+     ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

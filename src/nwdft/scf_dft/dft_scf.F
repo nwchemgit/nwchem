@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.151 2000-04-05 18:50:00 edo Exp $
+c     $Id: dft_scf.F,v 1.152 2000-04-11 20:49:46 edo Exp $
 c     
       implicit none
 c
@@ -53,14 +53,11 @@ c
       double precision lamda, p_lamda, dif_lamda, lamda_old,
      &                 Ecoul_aux(2)
 c
-      integer test_sic, condfukui, l_degen, i_degen(2), isp,
-     &        tot_oc
-      double precision totsic, homo_test, start
+      integer test_sic, condfukui, l_degen, i_degen(2)
+      double precision totsic
 cc    Jorge Garza/End
       Integer l_eval
       integer k_eval(2)
-      integer lmax              ! CMM
-      integer finest            ! CMM
       integer natoms, nTotEl
       integer l_occ, k_occ
       integer i, j
@@ -99,7 +96,7 @@ c     for the entire convergence sequence.
 c     
       logical diising, damping, levelshifting,ldmix
       logical keep_damp_on,keep_levl_on, keep_diis_on
-      Logical LResult, IOLGC, mulliken, lSPM
+      Logical  IOLGC, mulliken
       logical converged, wght_GA
       logical oprint_parm, oprint_conv, oprint_vecs, 
      &        oprint_eval, oprint_syma, oprint_time, 
@@ -132,7 +129,7 @@ c
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
-     .     mult_loc,l_gdiis,k_gdiis,reuse,g_sf
+     .     mult_loc,l_gdiis,k_gdiis
       logical dft_mem3c
       external dft_mem3c
 c !!! BGJ
@@ -142,7 +139,6 @@ c !!! BGJ
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
-      reuse=0
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
@@ -169,27 +165,7 @@ c
       nproc = ga_nnodes()
 c
 c    Jorge Garza/Begin
-c
-      if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
-     &   test_sic))test_sic = 0
-      if (.not. rtdb_get(rtdb, 'dft:condfukui', mt_int, 1,
-     &   condfukui)) condfukui = 0
-      if (.not. rtdb_get(rtdb, 'dft:exact_pot', mt_int, 1,
-     &   exact_pot)) exact_pot = 0
-      if (me.eq.0.and.oprint_sic)then
-         if (test_sic.eq.1) then
-            write(LuOut,*) ' SIC perturbative approximation is used'
-         elseif (test_sic.eq.2) then
-            write(LuOut,*) ' SIC+OEP and NO localization'
-         elseif (test_sic.eq.3) then
-            write(LuOut,*) ' SIC+OEP and localization after SCF'
-         elseif (test_sic.eq.4) then
-            write(LuOut,*) ' SIC+OEP and localization in the SCF'
-         else
-            write(LuOut,*) ' unidentified SIC/OEP option '
-         end if
-      end if
-c
+      call xc_sicinit(rtdb,test_sic,condfukui,exact_pot)
 c     Jorge Garza/End
 c
 c !!! BGJ
@@ -489,41 +465,9 @@ c
          end if
 c
 c Jorge Garza/End/Exact_pot
-c
-c     compute the integrated density (numerical)
-c
-!      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-!     &   grid_on_file))then
-!         grid_on_file = .false.
-!      endif
-!      if (grid_on_file)then
-!         call grid_den(rtdb, g_dens, rho_n)
-!      endif
 
-      if (me .eq. 0.and.oprint_eval)then
-         if (util_print('intermediate evals', print_default))then
-            call util_print_centered(LuOut,'alpha eigenvalues',
-     &                               20,.true.)
-            call output(dbl_mb(k_eval(1)), 1, min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            call util_print_centered(LuOut,'alpha foccs',
-     &                               20,.true.)
-            call output(dbl_mb(k_occ), 1, min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            if (ipol.eq.2)then
-               write(LuOut,*)
-               call util_print_centered(LuOut,'beta eigenvalues',
-     &                                  20,.true.)
-               call output(dbl_mb(k_eval(2)), 1, min(noc(2)+10,nbf_ao),
-     &                     1, 1, nbf_ao, 1, 1)
-            call util_print_centered(LuOut,'beta foccs',
-     &                               20,.true.)
-            call output(dbl_mb(k_occ+nbf_ao),1,min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            endif
-            call util_flush(6)
-         endif
-      endif
+      call dft_prevals(me,oprint_eval,oprint_vecs,noc,
+     ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 
          endif
 c
@@ -544,8 +488,6 @@ c
          levelshifting = .true.
       else
          levelshifting = .false.
-c         levelshifting = .true.
-c         rlshift = 2.0
       endif
       iswitc = 0
       if (ltight)then
@@ -573,45 +515,10 @@ c
 c     
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
-      if (mulliken)then
-         if (me.eq.0)call dft_header
-     &      (' Total Density - Mulliken Population Analysis')
-         call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
-         if (ipol.eq.2)then
-c         
-c           Analysis of spin density
-c         
-            if (me.eq.0) call dft_header
-     &         (' Spin Density - Mulliken Population Analysis')
-            call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin') 
-c
-c           Restore beta density in g_dens(2)
-c
-            call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
-            call ga_dscal(g_dens(2),0.5d0)
-         endif
-      endif
+      if (mulliken) call dft_mulwrap(me,g_dens,g_s)
 c Jorge Garza/Begin
       if (test_sic.ne.0) then
-        tot_oc = noc(1) + noc(2)
-        if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
-     &                 l_degen, i_degen(1)))
-     &         call errquit('dft_scf: cannot allocate degen homo',0)
-        do isp=1,ipol
-          if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
-          if (noc(isp).ne.0) then
-           homo_test = Dbl_MB(k_eval(isp)+noc(isp)-1)
-           do j = 1,noc(isp)
-             start = Dbl_MB(k_eval(isp)+j-1)
-             if (dabs(start-homo_test).le.1.0d-04) then
-                 Int_MB(i_degen(isp) + j - 1) = 1
-             else
-                 Int_MB(i_degen(isp) + j -1) = 0
-             end if
-           end do
-          end if
-        end do
+         call xc_sicdeg(l_degen,i_degen,dbl_mb(k_eval(1)),noc)
       end if
 c Jorge Garza/End
 c
@@ -677,20 +584,6 @@ c
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
 c
       Ecore = ga_ddot(g_dens(1), g_fock)
-c     
-c     Perform SPM analysis
-c     
-      LSPM=.true.
-      if (.not. rtdb_get(rtdb, 'dft:cmm', mt_int, 1, lmax))
-     &                   LSPM = .false.
-      if (LSPM)then
-         lresult = geom_charge_center(geom)
-         if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
-     &        finest = 4
-         if (oprint_time)call dft_tstamp(' Before call to CMM.   ')
-         call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
-         call errquit('dft_scf: end of CMM ',1234)
-      endif
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
@@ -959,13 +852,6 @@ c
             if (oprint_time)
      &           call dft_tstamp(' calling diag ')
 #if defined(PARALLEL_DIAG)
-!            if(reuse.eq.0) then
-!               g_sf = ga_create_atom_blocked(geom,AO_bas_han,'gsf')
-!               call ga_copy(g_s,g_sf)
-!            endif
-!         call ga_diag_reuse(reuse,
-!     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
-!         reuse=reuse+1
         call ga_diag(
      .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
 #else 
@@ -1174,44 +1060,9 @@ c
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &   call errquit('dft_scf: movec_write failed', 0)
-c     
-cedo      call ga_sync
-c     
-      if (me .eq. 0.and.oprint_eval)then
-         if (util_print('intermediate evals', print_default))then
-            call util_print_centered(LuOut,'alpha eigenvalues',
-     &                               20,.true.)
-            call output(dbl_mb(k_eval(1)), 1, min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            call util_print_centered(LuOut,'alpha foccs',
-     &                               20,.true.)
-            call output(dbl_mb(k_occ), 1, min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            if (ipol.eq.2)then
-               write(LuOut,*)
-               call util_print_centered(LuOut,'beta eigenvalues',
-     &                                  20,.true.)
-               call output(dbl_mb(k_eval(2)), 1, min(noc(1)+10,nbf_ao),
-     &                     1, 1, nbf_ao, 1, 1)
-            call util_print_centered(LuOut,'beta foccs',
-     &                               20,.true.)
-            call output(dbl_mb(k_occ+nbf_ao),1,min(noc(1)+10,nbf_ao),
-     &                  1, 1, nbf_ao, 1, 1)
-            endif
-            call util_flush(6)
-         endif
-      endif
-      if (oprint_vecs)then
-         if (me .eq. 0)then
-            write(LuOut,*)
-            call util_print_centered(LuOut,
-     &           'Intermediate MO vectors',40,.true.)
-            write(LuOut,*)
-            call util_flush(LuOut)
-         endif
-         call ga_print(g_movecs)
-         if (ipol.eq.2)call ga_print(g_movecs(2))
-      endif
+
+      call dft_prevals(me,oprint_eval,oprint_vecs,noc,
+     ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
 c     If open shell compute overlap of alpha orbitals with beta 
 c     orbitals.
@@ -1235,7 +1086,6 @@ c
       if (ipol.eq.2)then
          call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       endif
-cedo      call ga_sync
 c     
 c     Check for SCF convergence.
 c     
@@ -1257,22 +1107,6 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = iswitc+1
-c     
-c        Re-initialize DIIS
-c     
-c         if (iswitc.eq.1.and.icall(1).gt.0.and.
-c     .        ssmear.gt.1d-9)then
-cc         if (icall(1).gt.0.and.iswitc.eq.1)then
-c            if(me.eq.0) write(LuOut,*) ' resetting Diis'
-c            icall(1) = -1
-c            nstdis=1
-c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-c     &                       diising, nodiis)
-c            icall(1) = 0
-c            icall(2) = 0
-c         endif
       endif
 c     
       iter = iter + 1
@@ -1483,18 +1317,6 @@ c
          call util_flush(LuOut)
       endif
 c
-c     symmetry adapt vectors last time print symmetries, etc.
-c
-c      if (oadapt)then
-c         call scf_movecs_sym_adapt(ao_bas_han, g_movecs, oprint, 
-c     &                             nbf_ao, '- alpha', .true., 
-c     &                             int_mb(k_ir))
-c         if (ipol.eq.2)
-c     &      call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), oprint, 
-c     &                                nbf_ao, '- beta', .true., 
-c     &                                int_mb(k_ir+nbf_ao))
-c      endif      
-c
 c     Vector analysis stolen from rohf.F
 c
       do ispin = 1, ipol
@@ -1552,26 +1374,7 @@ c
 c
 c Jorge Garza/End
 c
-c     
-c     call to Mulliken Pop Ananlysis
-c     
-      if (mulliken)then
-         if (me.eq.0)
-     &      call dft_header
-     &      (' Total Density - Mulliken Population Analysis')
-         call mull_pop(geom,ao_bas_han,g_dens(1),g_s, 'total')
-         if (ipol.eq.2)then
-c     
-c           analysis of spin density
-c     
-            if (me.eq.0)call dft_header
-     &         (' Spin Density - Mulliken Population Analysis')
-            call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin')
-            call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
-            call ga_dscal(g_dens(2),0.5d0)
-         endif
-      endif
+      if (mulliken) call dft_mulwrap(me,g_dens,g_s)
 c     
 c     end infinite loop for SCF iterations
 c     
@@ -1704,24 +1507,12 @@ c
       if (nexc.gt. 1)then
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
-c Jorge Garza/Begin
-      if (test_sic.ne.0) then
-        if (.not.ma_pop_stack(l_degen))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      end if
-c Jorge Garza/End
-      if (.not.ma_pop_stack(l_ir))
-     &   call errquit('dft_scf: cannot pop stack',0)
+      if (.not.ma_chop_stack(l_ir))
+     &   call errquit('dft_scf: cannot chop stack',98)
 c     
       if (ipol.gt.1)then
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0)
-      endif
-      if(reuse.ne.0) then
-         call ga_diag_reuse(-1,
-     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
-      if (.not. ga_destroy(g_sf)) call errquit
-     &   ('dft_scf: could not destroy g_sf', 0)
       endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
@@ -1742,24 +1533,8 @@ c
 c     
 c     eval deallocation moved here from inside iteration loop
 c     
-      if (.not.ma_pop_stack(l_eval))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      if (CDFIT)then
-         if (.not.ma_pop_stack(l_3cwhat))
-     &      call errquit('dft_scf: cannot pop stack',0)
-         if (.not.ma_pop_stack(l_3cERI))
-     &      call errquit('dft_scf: cannot pop stack',0)
-      endif
-      if (.not.ma_pop_stack(l_occ))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrdens_atom))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcetobfr))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntobfr))
-     &   call errquit('dft_scf: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntoce))
-     &   call errquit('dft_scf: cannot pop stack',0)
+      if (.not.ma_chop_stack(lcntoce))
+     &   call errquit('dft_scf: cannot chop stack',99)
 c
       dft_scf = converged
 c

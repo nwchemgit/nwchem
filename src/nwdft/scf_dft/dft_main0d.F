@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.39 2000-04-11 10:51:38 hvd Exp $
+c     $Id: dft_main0d.F,v 1.40 2000-04-11 20:49:45 edo Exp $
 c     
       implicit none
 c
@@ -416,7 +416,7 @@ c
 c     Clean up memory usage.
 c     
       if (.not.ma_pop_stack(lsvals))
-     &     call errquit('dft_main0d: cannot pop stack', 0)
+     &     call errquit('dft_main0d: cannot pop stack', 12)
 cnos      if (.not.CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0)

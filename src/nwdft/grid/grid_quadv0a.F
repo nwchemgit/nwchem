@@ -6,9 +6,11 @@
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc)
+     ,     Ex, Ec, amat,cmat,g_vxc,
+     ,     Amat2, Cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
 c
-c$Id: grid_quadv0a.F,v 1.16 2000-03-30 03:05:59 edo Exp $
+c$Id: grid_quadv0a.F,v 1.17 2000-04-11 20:49:40 edo Exp $
 c
       implicit none
 c
@@ -22,6 +24,7 @@ c
 c
       double precision rqbuf(*)
       double precision rad
+      
       integer iqsh
       integer nqpts, ictr_buf
       integer ncube,istep,ntot_cube
@@ -69,7 +72,7 @@ c
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc)
+     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2)
             ntot_cube=ntot_cube+1
          endif
       enddo
