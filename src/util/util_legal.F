@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.20 2000-12-05 19:09:11 d3j191 Exp $
+* $Id: util_legal.F,v 1.21 2000-12-05 19:19:08 d3j191 Exp $
 *--------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,2000  *
 *         Pacific Northwest National Laboratory,         * 
@@ -253,19 +253,19 @@ c
      &    'Generations Computer Systems  12(4), 273, (1996).'
      &    /,/)
 10106 format(1x,i5,'.',1x,
-     &    'Kendall, R. A; Apra, E; Bernholdt, D. E; Bylaska, E.J.; ',
-     &    'Dupuis, M; Fann, G. I; Harrison, R. J; Ju, J; ',
-     &    'Nichols, J. A; Nieplocha, J; Straatsma, T. P; ',
-     &    'Windus, T. L; Wong, A. T; Computer Phys. Comm. 128, ',
+     &    'R. A. Kendall, E. Apra, D. E. Bernholdt, E. J. Bylaska, ',
+     &    'M. Dupuis,',/,8x,'G. I. Fann, R. J. Harrison, J. Ju, ',
+     &    'J. A. Nichols, J. Nieplocha,',/,8x,'T. P. Straatsma, ',
+     &    'T. L. Windus, A. T. Wong, Computer Phys. Comm. 128, ',
      &    '260 (2000).'
      &    /,/)
 10107 format(1x,i5,'.',1x,
      + 'T. P. Straatsma and V. Helms, in Molecular Dynamics on',
-     + ' Parallel Computers',/,
+     + ' Parallel Computers',/,8x,
      + '2000, R. Esser et al. editors, p 70.',//)
 10108 format(1x,i5,'.',1x,
      + ' T. P. Straatsma, M. Philippopoulos and J. A. McCammon,',
-     + ' Computer Phys. Comm. 128, ',
+     + /,8x,' Computer Phys. Comm. 128, ',
      &    '377 (2000).'
      &    /,/)
 c
