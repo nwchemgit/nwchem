@@ -1,88 +1,83 @@
       subroutine esp_matinv(a,n,is,iad1,iad2,d,mdm)
-      implicit real*8 (a-h,o-z)
+c
+c $Id: esp_matinv.F,v 1.3 1997-10-08 17:36:08 d3j191 Exp $
+c
+      implicit none
+c
 #include "esp_params.fh"
+#include "esp_common.fh"
 c
 c     inversion of square matrix a by means of the gauss-jordan
 c     algorithm
 c
-c     april 72/rs9b
-c
+      integer mdm,n
       real*8 a(mdm,mdm),d(mdm)
       integer is(2,mdm),iad1(mdm),iad2(mdm)
 c
- 2000 format(' warning from inv: matrix is singular')
+      integer i,j,k,l,m,ima
+      real*8 b,e
 c
       do 1 l=1,n
       is(1,l)=0
-  1   is(2,l)=0
-      do 9 ima=1,n
+      is(2,l)=0
+    1 continue
+c
+      do 2 ima=1,n
       b=zero
-      do 2 l=1,n
-      do 2 m=1,n
-      if(is(1,l).eq.1.or.is(2,m).eq.1) goto 2
+      do 3 l=1,n
+      do 4 m=1,n
+      if(is(1,l).ne.1.and.is(2,m).ne.1) then
       e=dabs(a(l,m))
-      if(e.lt.b) goto 8
+      if(e.ge.b) then
       i=l
       k=m
-    8 b=dmax1(b,e)
-  2   continue
+      endif
+      b=dmax1(b,e)
+      endif
+    4 continue
+    3 continue
       is(1,i)=1
       is(2,k)=1
       iad1(k)=i
       iad2(i)=k
       b=a(i,k)
 c
-c     pivot
-c
-      if(dabs(b).lt.tiny) goto 20
+      if(dabs(b).lt.tiny) call errquit('esp_matinv singular matrix',me)
       a(i,k)=one/b
-      do 6 l=1,n
-      if(l.eq.k) goto 6
-c
-c     kellerzeile
-c
-      a(i,l)=-a(i,l)/b
-  6   continue
       do 5 l=1,n
-      do 5 m=1,n
-      if(l.eq.i.or.m.eq.k) goto 5
+      if(l.ne.k) a(i,l)=-a(i,l)/b
+    5 continue
 c
-c     rechteck-regel
+      do 6 l=1,n
+      do 7 m=1,n
+      if(l.ne.i.and.m.ne.k) a(l,m)=a(l,m)+a(l,k)*a(i,m)
+    7 continue
+    6 continue
 c
-      a(l,m)=a(l,m)+a(l,k)*a(i,m)
-  5   continue
-      do 11 l=1,n
-      if(l.eq.i) goto 11
+      do 8 l=1,n
+      if(l.ne.i) a(l,k)=a(l,k)/b
+    8 continue
+    2 continue
 c
-c     pivot-spalte
-c
-      a(l,k)=a(l,k)/b
-  11  continue
-  9   continue
-c
-c     permutation der zeilen, um die natuerliche ordnung wieder herzuste
-c
-      do 15 l=1,n
-      do 13 j=1,n
+      do 9 l=1,n
+      do 10 j=1,n
       k=iad1(j)
-  13  d(j)=a(k,l)
-      do 14 j=1,n
-  14  a(j,l)=d(j)
-  15  continue
+      d(j)=a(k,l)
+   10 continue
+      do 11 j=1,n
+      a(j,l)=d(j)
+   11 continue
+    9 continue
 c
-c     permutation der spalten
-c
-      do 16 l=1,n
-      do 17 j=1,n
+      do 12 l=1,n
+      do 13 j=1,n
       k=iad2(j)
-  17  d(j)=a(l,k)
-      do 18 j=1,n
-  18  a(l,j)=d(j)
-  16  continue
+      d(j)=a(l,k)
+   13 continue
+      do 14 j=1,n
+      a(l,j)=d(j)
+   14 continue
+   12 continue
+c
       return
-c
-c     error exit: matrix is singular
-c
-  20  write(*,2000)
-      stop 'inv in polar'
       end

@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,pot,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.2 1997-10-07 18:09:47 d3j191 Exp $
+c $Id: esp_esp.F,v 1.3 1997-10-08 17:36:07 d3j191 Exp $
 c
       implicit none
 c
@@ -46,7 +46,7 @@ c
 c
 c     get AO density matrix
 c
-      call esp_denmat(igeom,ibasis,lg_v,lg_d,occ,nbf)
+      call esp_denmat(igeom,ibasis,lg_v,lg_d,occ)
 c
 c     get density matrix
 c
