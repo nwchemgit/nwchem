@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_align.F,v 1.1 1999-11-03 15:43:50 d3j191 Exp $
+c $Id: pre_align.F,v 1.2 2000-01-10 22:17:28 d3j191 Exp $
 c
       implicit none
 c
@@ -30,14 +30,13 @@ c
       if(isgm(i).eq.kseg.and.csa(i)(11:14).eq.atomk) katom=i
     1 continue
 c
-      print*,card
-      print*,'atoms ',iatom,jatom,katom
+      write(*,1000) iseg,atomi,jseg,atomj,kseg,atomk
+ 1000 format(/,' Aligning atoms ',i5,':',a,i5,':',a,i5,':',a)
 c
 c     put iatom on the origin
 c
       do 2 k=1,3
       xx=xs(k,iatom)
-      print*,k,xx
       do 3 i=1,nsa
       xs(k,i)=xs(k,i)-xx
     3 continue
@@ -80,7 +79,6 @@ c
     8 continue
 c
       if(katom.gt.0) then
-      print*,'katom=',katom
 c
 c     rotation vector
 c
