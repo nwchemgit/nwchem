@@ -1,5 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
+c$Id: fock_2e.F,v 1.15 2000-05-26 01:26:28 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -25,8 +26,10 @@ c     !!! BGJ test !!!
       logical asym                   ! [input] flag to antisymmetrize Fock matrices
 c     !!! BGJ test !!!
       integer ifock
-      integer g_xc(100) ! Assume no more than 100 fock matrices !!!
-      double precision kfac(4), jfac(4)
+      integer maxfocks
+      parameter(maxfocks=100)
+      integer g_xc(maxfocks) ! Assume no more than 100 fock matrices !!!
+      double precision kfac(maxfocks), jfac(maxfocks)
       integer ga_create_atom_blocked
       integer vg_fockc
       external ga_create_atom_blocked
@@ -36,7 +39,7 @@ c     !!! BGJ test !!!
 c
 c     Make local copy of J and K prefactors in case we need to manipulate them
 c
-      if (nfock .gt. 4) then
+      if (nfock .gt. maxfocks) then
          call errquit('Dimensioning assumption incorrect in fock_2e',0)
       endif
       call dcopy(nfock, fack, 1, kfac, 1)
@@ -88,11 +91,16 @@ c
      .      call errquit('fock_2e: problem destroying test array',1)
          return
       else if (nriscf.gt.1) then
-         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
-     $        jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
-      else if (nriscf.eq.1 .and. rifock) then
-         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
-     $        jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
+        call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
+     $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
+      else if (nriscf.eq.1) then
+        if (rifock) then
+          call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
+     $         jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
+        else
+          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
+     $          tol2e1, oskel1, vg_dens, vg_fock,asym )
+        endif
       else
          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
@@ -109,7 +117,7 @@ c         write(*,*)'*** fock_2e: no xc, returning'
       endif
 
 c      write(*,*)'*** fock_2e: nfock =',nfock
-      if (nfock.gt.100)
+      if (nfock.gt.maxfocks)
      &   call errquit('fock_2e: dimension error in test',0)
 
       do ifock = 1, nfock
