@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.15 2002-03-02 19:58:27 edo Exp $
+* $Id: create_contour.F,v 1.16 2002-03-04 18:54:21 edo Exp $
 *
       Implicit None
 *
@@ -161,8 +161,7 @@ cedo      double precision rdens_atom(natom*natom)
      &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      .     int_mb(k_ibf),
-     &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss,
-     ,byte_mb(k_tags))
+     &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss)
       If (What.eq.'VIEW' . and . nBF.ne.mBF)
      &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
@@ -398,7 +397,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.15 2002-03-02 19:58:27 edo Exp $
+C$Id: create_contour.F,v 1.16 2002-03-04 18:54:21 edo Exp $
 c
       implicit none
 c      
