@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.129 2002-05-14 19:01:42 d3j191 Exp $
+c $Id: md_main.F,v 1.130 2002-05-20 16:54:28 d3j191 Exp $
 c
       implicit none
 c
@@ -1222,8 +1222,6 @@ c
       endif
       call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
-      mrun=21
-      print*,'KRUN,MRUN=',krun,mrun
       do 1 irun=krun+1,mrun
 c
       if(irun.eq.1.and.iand(ivopt,2).eq.2) nfgaus=ivreas
@@ -2425,7 +2423,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.129 2002-05-14 19:01:42 d3j191 Exp $
+c $Id: md_main.F,v 1.130 2002-05-20 16:54:28 d3j191 Exp $
 c
       implicit none
 c
