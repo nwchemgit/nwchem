@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.71 1998-03-06 08:05:14 mdupuis Exp $
+C     $Id: geom_input.F,v 1.72 1998-04-09 00:38:08 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -18,6 +18,7 @@ c
       logical oprint
       logical ozmatrix
       logical oautoz
+      logical oautosym
       logical ocenter
       logical oforce_autoz
       logical include_bqbq
@@ -80,6 +81,7 @@ c
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .false.        ! Default is don't try -autoz-
+      oautosym = .false.        ! Default is don't try -autosym-
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
@@ -106,12 +108,16 @@ c
          else if (inp_compare(.false.,'autoz',field)) then
             oautoz       = .true.  
             oforce_autoz = .true.
+         else if (inp_compare(.false.,'noautoz',field)) then
+            oautoz       = .false.
+         else if (inp_compare(.false.,'autosym',field)) then
+            oautosym     = .true.  
+         else if (inp_compare(.false.,'noautosym',field)) then
+            oautosym     = .false.
          else if (inp_compare(.false.,'center', field)) then
             ocenter = .true.
          else if (inp_compare(.false.,'nocenter', field)) then
             ocenter = .false.
-         else if (inp_compare(.false.,'noautoz',field)) then
-            oautoz       = .false.
          else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
 c     
@@ -316,7 +322,7 @@ c     call geom_compute_values(geom)
 c     
       if(oautoz) then
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_set failed', 0)
+     $        call errquit('geom_input: geom_cart_get failed', 0)
 c     
 c     ----- call auto-z-matrix generation -----
 c     
@@ -327,8 +333,17 @@ c
 c     ----- no auto-z -----
 c     
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_set failed', 0)
+     $        call errquit('geom_input: geom_cart_get failed', 0)
          call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
+      endif
+c
+      if(oautosym) then
+         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_get failed', 0)
+c
+c     ----- detect symmetry -----
+c
+         call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter)
       endif
 c     
       if (oprint) then
@@ -2639,11 +2654,9 @@ C
 C
       LOGICAL OUT 
       LOGICAL DBUG
-      COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW
 C
-      DBUG=.FALSE.
-      DBUG=DBUG.OR.NPRINT.EQ.1
+      DBUG=.TRUE.
       OUT =.FALSE.
       OUT =OUT.OR.DBUG
 C
@@ -9189,4 +9202,94 @@ c
      &    1x,'center',i4,1x,a16,' has a ',a,' of ',f20.13,/,
      &    1x,' differ by ',31x,f20.13,/,
      &    1x,' which is larger than the threshold:',6x,f20.13,/,/)
+      end
+      subroutine  geom_auto_sym(rtdb,geom,
+     1                          coords,charge,tags,ncenter)
+      implicit none
+#include "stdio.fh"
+      integer      rtdb
+      integer      geom
+      integer      mxatom
+      parameter    (mxatom=500)
+      integer      ir
+      integer      iw
+      integer      i
+      integer      ncenter
+      integer      nuc
+      integer      nat
+      logical      odone
+      logical      dbug 
+      logical      some 
+      double precision coords
+      double precision charge
+      double precision c
+      double precision zan
+      character*16 tags
+      character*16 atmlab
+      character*8  errmsg
+      common/hnd_iofile/ir,iw
+      common/hnd_molnuc/nuc(mxatom)
+      common/hnd_mollab/atmlab(mxatom)
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      dimension coords(3,*)
+      dimension charge(  *)
+      dimension   tags(  *)
+      dimension errmsg(3)
+      data errmsg /'program ','stop in ','-autsym-'/
+c
+      dbug=.true. 
+      some=.false.
+      some=some.or.dbug
+c
+      ir=LuIN 
+      iw=LuOut 
+      if(some) then
+         write(iw,9999)
+         if(dbug) then
+            do i=1,nat    
+               write(iw,9998) i,charge(i),
+     1                        coords(1,i),coords(2,i),coords(3,i),
+     2                        tags(i)
+            enddo
+         endif
+      endif
+c
+      nat=ncenter
+      do i=1,ncenter
+         atmlab(i)=tags(i)
+         zan(i)=     charge(i) 
+         nuc(i)=nint(charge(i))
+         c(1,i)=coords(1,i)
+         c(2,i)=coords(2,i)
+         c(3,i)=coords(3,i)
+      enddo
+      if(dbug) then
+         do i=1,nat    
+            write(iw,9997) i,nuc(i),c(1,i),c(2,i),c(3,i),zan(i)
+         enddo
+      endif
+c
+      odone=.false.
+c
+c     ----- call auto_sym -----
+c
+      call hnd_autsym(odone,rtdb)
+c
+      if(.not.odone) then
+         write(iw,9996)
+      endif
+c
+      return
+ 9999 format(' in -geom_auto_sym- ')
+ 9998 format(1x,i5,f5.1,3f10.6,2x,a16)
+ 9997 format(1x,i5,i5,3f10.6,f10.3)
+ 9996 format(' -autsym- has failed to detect a symmetry group.',/,
+     1  ' program will continue without changing symmetry data.')
+      end
+      subroutine hnd_autsym(odone,rtdb)
+      implicit none
+      integer  rtdb
+      logical  odone
+      odone = .false.
+      return
       end
