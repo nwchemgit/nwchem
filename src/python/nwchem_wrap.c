@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.18 2001-05-11 18:40:06 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.19 2001-11-29 22:22:11 bert Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -25,6 +25,8 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define task_energy_ TASK_ENERGY
 #define task_gradient_ TASK_GRADIENT
 #define task_optimize_ TASK_OPTIMIZE
+#define task_coulomb_ TASK_COULOMB
+#define task_coulomb_ref_ TASK_COULOMB_REF
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -32,6 +34,8 @@ extern int nw_inp_from_string(int, const char *);
 extern Integer FATR task_energy_(const Integer *);
 extern Integer FATR task_gradient_(const Integer *);
 extern Integer FATR task_optimize_(const Integer *);
+extern Integer FATR task_coulomb_(const Integer *);
+extern Integer FATR task_coulomb_ref_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -482,6 +486,79 @@ PyObject *wrap_rtdb_next(PyObject *self, PyObject *args)
    return returnObj;
 }
 
+static PyObject *wrap_task_coulomb_ref(PyObject *self, PyObject *args)
+{
+    char *theory;
+    double energy;
+    
+    if (PyArg_Parse(args, "s", &theory)) {
+	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+		      strlen(theory)+1, theory)) {
+	    PyErr_SetString(NwchemError, "task_coulomb_ref: putting theory failed");
+	    return NULL;
+	}
+        if (!rtdb_put(rtdb_handle, "scf:scftype", MT_CHAR, 3, "UHF")) {
+            PyErr_SetString(NwchemError, "task_coulomb_ref: putting UHF failed");
+            return NULL;
+        }
+	if (!task_energy_(&rtdb_handle)) {
+	    PyErr_SetString(NwchemError, "task_coulomb_ref: failed");
+	    return NULL;
+	}
+	if (!rtdb_get(rtdb_handle, "uhf:coulomb", MT_F_DBL, 1, &energy)) {
+	    PyErr_SetString(NwchemError, "task_coulomb_ref: getting coulomb energy failed");
+	    return NULL;
+	}
+/*      printf("Coulomb ref: %f",energy); */
+	if (!rtdb_put(rtdb_handle, "uhf:coulombref", MT_F_DBL, 1, &energy)) {
+	    PyErr_SetString(NwchemError, "task_coulomb_ref: putting reference energy failed");
+	    return NULL;
+	}
+    }
+    else {
+	PyErr_SetString(PyExc_TypeError, "Usage: task_coulomb_ref(theory)");
+	return NULL;
+    }
+    
+    return Py_BuildValue("d", energy);
+}
+static PyObject *wrap_task_coulomb(PyObject *self, PyObject *args)
+{
+    char *theory;
+    double energy, refenergy;
+    
+    if (PyArg_Parse(args, "s", &theory)) {
+	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+		      strlen(theory)+1, theory)) {
+	    PyErr_SetString(NwchemError, "task_coulomb: putting theory failed");
+	    return NULL;
+	}
+        if (!rtdb_put(rtdb_handle, "scf:scftype", MT_CHAR, 3, "UHF")) {
+            PyErr_SetString(NwchemError, "task_coulomb_ref: putting UHF failed");
+            return NULL;
+        }
+	if (!task_energy_(&rtdb_handle)) {} /*{
+	    PyErr_SetString(NwchemError, "task_coulomb: failed");
+	    return NULL;
+	} */
+	if (!rtdb_get(rtdb_handle, "uhf:coulomb", MT_F_DBL, 1, &energy)) {
+	    PyErr_SetString(NwchemError, "task_coulomb: getting coulomb energy failed");
+	    return NULL;
+	}
+	if (!rtdb_get(rtdb_handle, "uhf:coulombref", MT_F_DBL, 1, &refenergy)) {
+	    PyErr_SetString(NwchemError, "task_coulomb: getting coulomb ref energy failed");
+	    return NULL;
+	}
+    }
+    else {
+	PyErr_SetString(PyExc_TypeError, "Usage: task_coulomb(theory)");
+	return NULL;
+    }
+    
+/*  printf("\n\n Reference energy = %f   Energy = %f         Error = %f \n\n",refenergy,energy,fabs(refenergy-energy)); */
+    return Py_BuildValue("d", fabs(refenergy-energy));
+}
+
 static PyObject *wrap_task_energy(PyObject *self, PyObject *args)
 {
     char *theory;
@@ -651,6 +728,8 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
    {"task_optimize",   wrap_task_optimize, 0}, 
+   {"task_coulomb",    wrap_task_coulomb, 0}, 
+   {"task_coulomb_ref",    wrap_task_coulomb_ref, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
    {"ga_nodeid",       wrap_ga_nodeid, 0}, 
    {NULL, NULL}
