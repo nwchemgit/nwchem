@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.25 2002-10-15 23:27:47 edo Exp $
+C$Id: util_file_name.F,v 1.26 2002-11-19 00:06:42 sohirata Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -597,6 +597,7 @@ c
       if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
       ierr=eaf_delete(mine)
       nuse=nint((avail0-avail1)/8d0)
+      if (nuse .eq. 0) nuse = 1
       if(oprint) then
          call util_directory_name(dirscr, .true., ga_nodeid())
          write(luout,11) ga_nodeid(),nuse,avail0/nuse,
