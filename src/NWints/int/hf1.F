@@ -37,7 +37,29 @@ c two shells of contracted Gaussians functions. This driver is NOT capable of
 c evaluating integral derivatives.
 c
 c******************************************************************************
-
+#if defined(INTDEBUG)
+      write(6,*)' inside hf1 '
+      write(6,*)' npa,nca,la = ',npa,nca,la
+      write(6,*)' npb,ncb,lb = ',npb,ncb,lb
+      write(6,*)' ncenters   = ',ncenters
+      write(6,*)' NINT       = ',nint
+      write(6,*)' maxW0      = ',maxw0
+      write(6,*)' <canAB:DryRun>-<',canab,':',dryrun,'>'
+      write(6,*)' <o2i:kei:nai>-<',o2i,':',kei,':',nai,'>'
+      write(6,'(a,3(2x,1pd20.10))')' Axyz =',Axyz
+      write(6,'(a,3(2x,1pd20.10))')' Bxyz =',Bxyz
+      write(6,'(a,100(3(2x,1pd20.10/)))')' Cxyz =',Cxyz
+      do iiii = 1,npa
+        write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &         'Aprims:Acoeffs:(',iiii,') =',Aprims(iiii),
+     &         Acoefs(iiii,1)
+      enddo
+      do iiii = 1,npb
+        write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &         'Bprims:Bcoeffs:(',iiii,') =',Bprims(iiii),
+     &         Bcoefs(iiii,1)
+      enddo
+#endif
       MXD = 0
 
 c Determine whether general or segmented contraction is used.
