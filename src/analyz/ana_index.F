@@ -10,6 +10,7 @@ c
 c
       character*80 card,atom
       character*16 sgmnam(nsa)
+      character*10 word
       integer ia,ja
 c
       integer i,j,k,isgm
@@ -20,8 +21,10 @@ c
       if(card(1:1).ne.'W'.and.card(1:1).ne.'w') then
 c
       i=index(card,':')-1
-      if(i.le.0) call errquit('Error in atom name',0)
-      read(card(1:i),'(i)') isgm
+      if(i.le.0.or.i.gt.10) call errquit('Error in atom name',0)
+      word='          '
+      word(11-i:10)=card(1:i)
+      read(word,'(i10)') isgm
       atom=card(i+2:80)
       j=index(atom,' ')-1
       if(atom(1:1).eq.'_') atom(1:1)=' '
