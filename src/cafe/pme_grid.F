@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.24 2002-06-04 23:13:03 d3j191 Exp $
+c $Id: pme_grid.F,v 1.25 2002-11-08 17:23:45 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -56,22 +56,30 @@ c
 c
       call pme_putgrd(dbl_mb(i_grd2))
 c
+      call timer_stop(41)
+c
 c     synchronize pme nodes
 c
+      call timer_start(42)
+c
       call pme_sync(nodpme,int_mb(i_nodp))
+c
+      call timer_stop(42)
 c
 c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
 c
+      call timer_start(43)
+c
       if(me.eq.int_mb(i_nodp)) call pme_flag(0,1,-1)
 c
-      call timer_stop(41)
+      call timer_stop(43)
       endif
 c
-      call timer_start(41)
+      call timer_start(43)
       if(icntrl.eq.1) call ga_sync()
 c
-      call timer_stop(41)
+      call timer_stop(43)
 c
       return
       end
@@ -286,10 +294,10 @@ c
 c
 c     wait until potential grid is available
 c
-      call timer_start(48)
+      call timer_start(50)
       call pme_wait(0,1)
-      call timer_stop(48)
-      call timer_start(49)
+      call timer_stop(50)
+      call timer_start(51)
 c
       do 1 inode=1,np
       node=me+inode
@@ -306,18 +314,18 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
-      call timer_stop(49)
-      call timer_start(50)
+      call timer_stop(51)
+      call timer_start(52)
       call pme_getgrd(node,ngznon,dbl_mb(i_grd1))
-      call timer_stop(50)
-      call timer_start(49)
+      call timer_stop(52)
+      call timer_start(51)
 c
       call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd1),mgz,
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue
 c
-      call timer_stop(49)
+      call timer_stop(51)
 c
       return
       end

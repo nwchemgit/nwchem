@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.138 2002-08-21 14:55:15 d3j191 Exp $
+c $Id: md_start.F,v 1.139 2002-11-08 17:23:48 d3j191 Exp $
 c
       implicit none
 c
@@ -1267,7 +1267,7 @@ c
       if(nftime.gt.0) then
       open(unit=lfntim,file=filtim(1:index(filtim,' ')-1),
      + form='formatted',status='unknown')
-      write(lfntim,1200) np,54
+      write(lfntim,1200) np,56
  1200 format(2i5)
       write(lfntim,1201)
       write(lfntim,1202)
@@ -1323,6 +1323,8 @@ c
       write(lfntim,1252)
       write(lfntim,1253)
       write(lfntim,1254)
+      write(lfntim,1255)
+      write(lfntim,1256)
  1201 format('  1 : Initialization velocities')
  1202 format('  2 : Periodic Boundary Conditions')
  1203 format('  3 : Dynamic Load Balancing')
@@ -1364,19 +1366,21 @@ c
  1239 format(' 39 : PME Wait')
  1240 format(' 40 : PME Forces Evaluation')
  1241 format(' 41 : PME Forces Communication')
- 1242 format(' 42 : Synchronization')
- 1243 format(' 43 : SPACE Finalization')
- 1244 format(' 44 : QM/MM Forces Evaluation')
- 1245 format(' 45 : Forces Normalization')
- 1246 format(' 46 : Guided MD Forces')
- 1247 format(' 47 : MD Time Step')
- 1248 format(' 48 : SHAKE')
- 1249 format(' 49 : CAFE Finalization')
- 1250 format(' 50 : Center of Mass Motion Removal')
- 1251 format(' 51 : SPACE Update')
- 1252 format(' 52 : Property Evaluation')
- 1253 format(' 53 : Property Recording')
- 1254 format(' 54 : TOTAL TIME PER STEP')
+ 1242 format(' 42 : PME Node Synchronization')
+ 1243 format(' 43 : PME Flag')
+ 1244 format(' 44 : Synchronization')
+ 1245 format(' 45 : SPACE Finalization')
+ 1246 format(' 46 : QM/MM Forces Evaluation')
+ 1247 format(' 47 : Forces Normalization')
+ 1248 format(' 48 : Guided MD Forces')
+ 1249 format(' 49 : MD Time Step')
+ 1250 format(' 50 : SHAKE')
+ 1251 format(' 51 : CAFE Finalization')
+ 1252 format(' 52 : Center of Mass Motion Removal')
+ 1253 format(' 53 : SPACE Update')
+ 1254 format(' 54 : Property Evaluation')
+ 1255 format(' 55 : Property Recording')
+ 1256 format(' 56 : TOTAL TIME PER STEP')
 c          
       endif
       if(itest.gt.0) then

@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.87 2002-08-13 19:00:27 d3j191 Exp $
+c $Id: prp_main.F,v 1.88 2002-11-08 17:23:48 d3j191 Exp $
 c
       implicit none
 c
@@ -318,7 +318,7 @@ c
       endif
 c
       if(iprof.eq.1) then
-      do 56 i=1,51
+      do 56 i=1,53
       it=it+1
       p(it)=timer_wall_total(i+9)
    56 continue
