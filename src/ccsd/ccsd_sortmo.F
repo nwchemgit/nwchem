@@ -15,7 +15,7 @@ c
       iam = ga_nodeid()
       call ga_distribution(g_coul,iam,jlo,jhi,ilo,ihi)
       ndima=nocc*nocc*nocc*(nocc+1)/2
-      call dcopy(ndima,0.0d00,0,aint,1)
+      call dfill(ndima,0.0d00,aint,1)
       do ij=1,nocc*(nocc+1)/2
        if (ij.ge.ilo.and.ij.le.ihi)then
         call ga_get(g_exch,1,nocc*nbf,ij,ij,scr,nocc*nbf)
