@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.1 1998-09-22 16:14:51 d3e129 Exp $
+c $Id: intdd_init.F,v 1.2 1998-09-24 00:18:00 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -41,7 +41,7 @@ c:tex-\end{verbatim}
 c::local
       integer ibas, ang2use, angm
       logical status, oprint
-      integer intdd_memtmp
+      integer intd_memtmp
       integer nqmax_texas  ! maximum number of quartets in texas blocking interface
       parameter (nqmax_texas = 10000)
       integer txs_mem_min
@@ -128,7 +128,8 @@ c
           def_cando_txs = .false.
           if (ga_nodeid().eq.0 .and. oprint) then
             write(6,*)
-     &          ' intdd_init: internal texas instability possible cando',
+     &          ' intdd_init: internal texas instability ',
+     &          'possible cando',
      &          '_txs set to always be ',def_cando_txs
             call util_flush(6)
           endif
@@ -192,14 +193,14 @@ c.. read in approximate memory from rtdb
 c.  
 c.. parameter is default value used in hf2d
 c.. input memory in words should be scaled by 1/12 for same range
-      intdd_memthresh = intdd_memp
-      if (rtdb_get(rtdb,'intdd:approxmem',MT_INT,1,intdd_memtmp)) then
+      intd_memthresh = intd_memp
+      if (rtdb_get(rtdb,'intdd:approxmem',MT_INT,1,intd_memtmp)) then
         if(ga_nodeid().eq.0)then
           write(6,'(/a,i10,a/)')
      &        ' approximate memory for derivative integrals set to:',
-     &        intdd_memtmp
+     &        intd_memtmp
         endif
-        intdd_memthresh = intdd_memtmp/12
+        intd_memthresh = intd_memtmp/12
       endif
 c
 c... generate memory requirements and store in structures in apiP.fh
