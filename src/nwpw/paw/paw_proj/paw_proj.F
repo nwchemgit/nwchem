@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.3 2002-08-01 01:05:03 bylaska Exp $
+* $Id: paw_proj.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
 *
 
 !**************************************************
@@ -288,10 +288,24 @@
 !**************************************************
       subroutine paw_proj_formatter_auto(ia)
       implicit none
-      integer ia
+      integer ia    
+
+#include "mafdecls.fh"
 
       !*** local variables ***
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      integer nbasis,l,ngrid(3)
+      integer i_rgrid,i_prj
+      real*8  unita(3,3)
       character*20 jppname,atomname
+      character*255 full_filename
+    
+      !*** external functions ***
+      integer  get_i_rgrid,get_i_prj_ps,get_i_nbasis
+      real*8   lattice_unita
+      external get_i_rgrid,get_i_prj_ps,get_i_nbasis
+      external lattice_unita
 
       call ion_atom_plus_suffix(ia,'_basis',atomname)
       call ion_atom_plus_suffix(ia,'.jpp',jppname)
@@ -299,8 +313,40 @@
       write(*,*) "atomname,jppname:",atomname,jppname
 
       !*** read in projectors from _basis file ***
+      i_rgrid  = get_i_rgrid(ia)
+      i_prj    = get_i_prj_ps(ia)
+      nbasis = int_mb(get_i_nbasis(ia))
+      write(*,*) "nbasis:",nbasis
+      
+      call Parallel_taskid(taskid)
+      unita(1,1) = lattice_unita(1,1)
+      unita(2,1) = lattice_unita(2,1)
+      unita(3,1) = lattice_unita(3,1)
+      unita(1,2) = lattice_unita(1,2)
+      unita(2,2) = lattice_unita(2,2)
+      unita(3,2) = lattice_unita(3,2)
+      unita(1,3) = lattice_unita(1,3)
+      unita(2,3) = lattice_unita(2,3)
+      unita(3,3) = lattice_unita(3,3)
+      call D3dB_nx(1,ngrid(1))
+      call D3dB_ny(1,ngrid(2))
+      call D3dB_nz(1,ngrid(3))
 
-      stop
+
+*     **** open jppname binary file ****
+      if (taskid.eq.MASTER) then
+         call util_file_name_noprefix(jppname,.false.,
+     >                             .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') - 1
+         call openfile(6,full_filename,l,'w',l)
+         call iwrite(6,ngrid,3)
+         call dwrite(6,unita,9)
+         call iwrite(6,nbasis,1)
+         call closefile(6)
+      end if
+
+      !stop
 
       return
       end

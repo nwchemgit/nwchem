@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.3 2002-08-01 01:18:27 bylaska Exp $
+* $Id: paw_sd.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -203,9 +203,9 @@
       call center_mass(gx,gy,gz)
 
 
-*     **** allocate psp data structure and read in psedupotentials into it ****
+*     **** allocate paw data structure and read in paw basis into it ****
       write(*,*) "generating PAW basis"
-      call init_paw_basis(2,(/"h","o"/))
+      call init_paw_basis()
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
@@ -213,9 +213,6 @@
       call paw_proj_init()
       call dealloc_paw_basis_data()
 
-!      call psp_init()
-!      call psp_readall()
-!      if (psp_semicore(0)) call semicore_check()
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()

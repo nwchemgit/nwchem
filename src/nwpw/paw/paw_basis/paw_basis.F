@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.3 2002-08-01 01:07:25 marat Exp $
+* $Id: paw_basis.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
 *
 
 !**************************************************
@@ -10,16 +10,14 @@
 !
 !	Created:	7/11/2002
 !**************************************************
-      subroutine init_paw_basis(nt, ion_type)
+      subroutine init_paw_basis()
       implicit none
-      integer      nt
-      character(*) ion_type(*)
 
       include "paw_basis.fh"
       include "myma.fh"
   
 *     !*** local variables ***
-      integer it, ir
+      integer it, ir, nt
       integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
@@ -27,20 +25,29 @@
 	integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
+      character*20 fname
+
+      !*** external functions ***
+      integer  ion_nkatm
+      external ion_nkatm
+
+      nt = ion_nkatm()
 
       ok = MA_push_get(MT_INT,nt, "nb_tmp_array", l_nb,i_nb)
       ok = MA_push_get(MT_INT,nt, "ng_tmp_array", l_ng,i_ng)
   
       do it = 1, nt
+       call ion_atom_plus_suffix(it,'_basis',fname)
        call read_paw_basis_dims(int_mb(i_nb-1 + it),
      >                          int_mb(i_ng-1 + it),
-     >                          ion_type(it)//"_basis")
+     >                          fname)
       end do
 
       call alloc_paw_basis_data(nt,int_mb(i_nb),int_mb(i_ng))
 
 
       do it = 1,nt 
+         call ion_atom_plus_suffix(it,'_basis',fname)
          call read_paw_basis  ( dbl_mb(get_i_r1(it)),
      >                         dbl_mb(get_i_rmax(it)),
      >                         int_mb(get_i_ngrid(it)),
@@ -62,7 +69,7 @@
      >                         dbl_mb(get_i_core_density(it)),
      >                         dbl_mb(get_i_ps_core_density(it)),
      >                         dbl_mb(get_i_v_ps(it)),
-     >                         ion_type(it)//"_basis")
+     >                         fname)
 
   
          log_amesh = LOG(dbl_mb(get_i_rmax(it))
