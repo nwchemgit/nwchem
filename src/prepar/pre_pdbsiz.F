@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: pre_pdbsiz.F,v 1.12 1999-12-17 05:56:02 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.13 2000-06-01 22:28:59 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -28,7 +28,7 @@ c
       character*255 filnam
       integer numslv
       character*3 namslv
-      character*1 ,altloc,chain
+      character*1 ,altloc,chain,pchain
 c
       character*80 card
       integer length,mdl,nsgm,isgm,i
@@ -44,6 +44,7 @@ c
       nlnk=0
       lslvnt=.false.
       numslv=0
+      pchain=' '
 c
       length=index(filnam,' ')-1
 c
@@ -138,7 +139,7 @@ c
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i
  1003 format(i4)
-      if(i.ne.isgm) then
+      if(i.ne.isgm.or.card(22:22).ne.pchain) then
       isgm=i
       if(lslvnt) then
       numslv=numslv+1
@@ -147,6 +148,7 @@ c
       nchain=nchain+1
       endif
       endif
+      pchain=card(22:22)
       endif
       goto 1
       endif
@@ -163,7 +165,7 @@ c
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1004) i
  1004 format(i4)
-      if(i.ne.isgm) then
+      if(i.ne.isgm.or.card(22:22).ne.pchain) then
       isgm=i
       if(lslvnt) then
       numslv=numslv+1
@@ -172,6 +174,7 @@ c
       nchain=nchain+1
       endif
       endif
+      pchain=card(22:22)
       endif
       goto 1
       endif
