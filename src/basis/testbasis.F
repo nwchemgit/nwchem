@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.11 1994-08-03 06:40:32 d3g681 Exp $
+c $Id: testbasis.F,v 1.12 1994-10-27 08:17:13 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -187,6 +187,12 @@ c
 c
       status = bas_nbf_ce_max(basis,nbf)
       write(6,*)' max block of nbf on an atom for basis is:',nbf
+c
+      status = bas_ncoef_cn_max(basis,nbf)
+      write(6,*)' max num coefs in any contraction ',nbf
+c
+      status = bas_nprim_cn_max(basis,nbf)
+      write(6,*)' max num prims in any contraction ',nbf
 c
       stop ' testbasis done '
       end

@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.9 1994-09-25 08:05:46 d3e129 Exp $
+c $Id: bas.fh,v 1.10 1994-10-27 08:17:06 d3e129 Exp $
 c:bas.fh
 c
       logical bas_version        
@@ -35,6 +35,8 @@ c
       logical bas_nbf_cn_max
       logical bas_nbf_ce_max
       logical bas_geom
+      logical bas_ncoef_cn_max
+      logical bas_nprim_cn_max
 c
       external bas_version        
       external bas_create         
@@ -70,4 +72,6 @@ c
       external bas_nbf_cn_max
       external bas_nbf_ce_max
       external bas_geom
+      external bas_ncoef_cn_max
+      external bas_nprim_cn_max
 c

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.29 1994-09-28 16:47:23 d3g681 Exp $
+c $Id: basis.F,v 1.30 1994-10-27 08:17:10 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -638,6 +638,11 @@ c..... add diagnostics later
 c
 c build center to unique center map
 c
+      if (nat.gt.nat_mx) then
+        write(6,*)' nat     = ',nat
+        write(6,*)' nat max = ',nat_mx
+        call errquit ('bas_rtdb_load: nat.gt.nat_mx',911)
+      endif
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
@@ -685,7 +690,13 @@ c
 00200 continue
 c
       if (ncont_tot_gb(basis) .eq. 0) call errquit
-     $     ('bas_rtdb_load: no functions in basis set', 0)
+     $    ('bas_rtdb_load: no functions in basis set', 0)
+      if (ncont_tot_gb(basis) .gt. ncont_mx) then
+        write(6,*)' number of contractions     = ',
+     &      ncont_tot_gb(basis)
+        write(6,*)' number of contractions max = ',ncont_mx
+        call errquit ('bas_rtdb_load: ncont.gt.ncont_mx ',911)
+      endif
 c      
 c build contraction -> center map
 c
@@ -754,9 +765,8 @@ c
 c build high angular momentum of this loaded <basis|geom> pair
 c note angular_bs(*) initialized in block data function
 c
-      do 00800 i = 1, ncont_tot_gb(basis)
-        iu_cont = ibs_cn2ucn(i,basis)
-        myang   = abs(infbs_cont(CONT_TYPE,iu_cont,basis))
+      do 00800 i = 1, infbs_head(HEAD_NCONT,basis)
+        myang   = abs(infbs_cont(CONT_TYPE,i,basis))
         angular_bs(basis) = max(angular_bs(basis),myang)
 00800 continue
       return
@@ -1897,4 +1907,46 @@ c
       geom = ibs_geom(basis)
       bas_geom = .true.
       end
-
+      logical function bas_ncoef_cn_max(basisin, ncoef_max)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+      integer basisin   ! [input] basis set handle
+      integer ncoef_max ! [output] maximum number of coefs
+c
+      integer basis
+      integer nu_cont, iu_cont, my_prim, my_gen
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      if (.not.bsactive(basis)) call errquit
+     &    ('bas_ncoef_cn_max: basis handle invalid',911)
+      nu_cont = infbs_head(HEAD_NCONT,basis)
+      ncoef_max = 0
+      do 00100 iu_cont = 1,nu_cont
+        my_prim = infbs_cont(CONT_NPRIM,iu_cont,basis)
+        my_gen  = infbs_cont(CONT_NGEN, iu_cont,basis)
+        ncoef_max = max(ncoef_max,(my_prim*my_gen))
+00100 continue
+      bas_ncoef_cn_max = .true.
+      end
+      logical function bas_nprim_cn_max(basisin, nprim_max)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+      integer basisin   ! [input] basis set handle
+      integer nprim_max ! [output] maximum number of prims in any contraction
+c
+      integer basis
+      integer nu_cont, iu_cont, my_prim
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      if (.not.bsactive(basis)) call errquit
+     &    ('bas_nprim_cn_max: basis handle invalid',911)
+      nu_cont = infbs_head(HEAD_NCONT,basis)
+      nprim_max = 0
+      do 00100 iu_cont = 1,nu_cont
+        my_prim = infbs_cont(CONT_NPRIM,iu_cont,basis)
+        nprim_max = max(nprim_max,my_prim)
+00100 continue
+      bas_nprim_cn_max = .true.
+      end
