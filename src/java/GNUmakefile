@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.16 2000-09-27 06:34:13 d3j191 Exp $
+# $Id: GNUmakefile,v 1.17 2000-09-27 23:50:01 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -12,7 +12,8 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
         nwchem_NWChem.class nwchem_Socket.class\
         nwchem_Prepare_topology.class nwchem_Prepare_restart.class\
         nwchem_Prepare.class nwchem_Rama.class nwchem_Param.class\
-	IntegerField.class DoubleField.class Graph.class
+	IntegerField.class DoubleField.class Graph.class \
+	Atom.class Cros.class Bond.class Angle.class Torsion.class Improper.class Rule.class
 
 CLASS_PATH = .:$(PTPLOT_APPLICATION)
 
@@ -31,7 +32,8 @@ classes:
 	-test -d $(CLASSDIR) || $(MKDIR) -p $(CLASSDIR) 
 	$(MAKE) $(OBJ_CLASS)
 	-mv *.class $(CLASSDIR)
-	-chmod a+rx $(CLASSDIR)/*
+	-cd $(CLASSDIR)
+	-chmod a+rx *
 
 javacheck:	whichjava.class
 	java whichjava || exit 911

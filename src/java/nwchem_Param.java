@@ -4,7 +4,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class nwchem_Param extends JFrame implements ActionListener, ChangeListener, WindowListener {
+class nwchem_Param extends JFrame implements ActionListener, ChangeListener, WindowListener, MouseListener {
   
   Font defaultFont;
 
@@ -14,25 +14,39 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     String file_u = " ";
     String file_t = " ";
 
-    int mAtoms=100, mCross=100, mBonds=250, mAngles=250, mTorsions=200, mImpropers=100, mRules=100;
+    int mAtoms=100, mCross=100, mBonds=250, mAngles=500, mTorsions=200, mImpropers=100, mRules=100;
 
-    String Atoms[][];
-    String Cross[];
-    String Bonds[] = new String[500];
-    String Angles[];
-    String Torsions[];
-    String Impropers[];
-    String Rules[][];
-
-    int idAtoms[];
-    int idCross[];
-    int idBonds[] = new int[500];
-    int idAngles[];
-    int idTorsions[];
-    int idImpropers[];
-    int idRules[];
+    Atom[] Atoms = new Atom[mAtoms];
+    Cros[] Cross = new Cros[mCross];
+    Bond[] Bonds = new Bond[mBonds];
+    Angle[] Angles = new Angle[mAngles];
+    Torsion[] Torsions = new Torsion[mTorsions];
+    Improper[] Impropers = new Improper[mImpropers];
+    Rule[] Rules = new Rule[mRules];
 
     int nAtoms=0, nCross=0, nBonds=0, nAngles=0, nTorsions=0, nImpropers=0, nRules=0;
+
+    DefaultListModel atomList = new DefaultListModel();
+    JList aList = new JList(atomList);
+    JScrollPane atomPane = new JScrollPane(aList);
+    DefaultListModel crossList = new DefaultListModel();
+    JList cList = new JList(crossList);
+    JScrollPane crossPane = new JScrollPane(cList);
+    DefaultListModel bondList = new DefaultListModel();
+    JList bList = new JList(bondList);
+    JScrollPane bondPane = new JScrollPane(bList);
+    DefaultListModel angleList = new DefaultListModel();
+    JList hList = new JList(angleList);
+    JScrollPane anglePane = new JScrollPane(hList);
+    DefaultListModel torsionList = new DefaultListModel();
+    JList tList = new JList(torsionList);
+    JScrollPane torsionPane = new JScrollPane(tList);
+    DefaultListModel improperList = new DefaultListModel();
+    JList iList = new JList(improperList);
+    JScrollPane improperPane = new JScrollPane(iList);
+    DefaultListModel ruleList = new DefaultListModel();
+    JList rList = new JList(ruleList);
+    JScrollPane rulePane = new JScrollPane(rList);
 
   public nwchem_Param(){
 
@@ -53,35 +67,44 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     addComponent(super.getContentPane(),header,0,0,2,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.WEST);
 
+    addComponent(header,atomPane,0,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,crossPane,1,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,bondPane,2,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,anglePane,3,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,torsionPane,4,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,improperPane,5,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,rulePane,6,0,1,1,1,1,
+		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    aList.addMouseListener(this);
+    cList.addMouseListener(this);
+    bList.addMouseListener(this);
+    hList.addMouseListener(this);
+    tList.addMouseListener(this);
+    iList.addMouseListener(this);
+    rList.addMouseListener(this);
+    aList.setVisibleRowCount(15);
+    cList.setVisibleRowCount(15);
+    bList.setVisibleRowCount(15);
+    hList.setVisibleRowCount(15);
+    tList.setVisibleRowCount(15);
+    iList.setVisibleRowCount(15);
+    rList.setVisibleRowCount(15);
+
     JButton doneButton = new JButton("Done");
-    addComponent(header,doneButton,5,0,1,1,1,1,
+    addComponent(header,doneButton,0,3,1,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
     doneButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){ 
 	setVisible(false); }});
 
-    setLocation(25,225);	
-    setSize(900,700);
-    setVisible(true);
-
-    Atoms = new String[mAtoms][2];
-    Cross = new String[mCross];
-    //    Bonds = new String[mBonds];
-    Angles = new String[mAngles];
-    Torsions = new String[mTorsions];
-    Impropers = new String[mImpropers];
-    Rules = new String[mRules][3];
-
-    idAtoms = new int[mAtoms];
-    idCross = new int[mCross];
-    //    idBonds = new int[mBonds];
-    idAngles = new int[mAngles];
-    idTorsions = new int[mTorsions];
-    idImpropers = new int[mImpropers];
-    idRules = new int[mRules];
-
     try{
-      BufferedReader br = new BufferedReader(new FileReader("/home/strtsm/.nwchemrc"));
+      BufferedReader br = new BufferedReader(new FileReader("/usr/people/d3j191/.nwchemrc"));
       String card;
       while((card=br.readLine()) != null){
 	  if(card.startsWith("ffield")) {ffield=card.substring(7,12).trim();};
@@ -97,12 +120,21 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     if(file_u!=" ") { param_Read(file_u,3);};
     if(file_t!=" ") { param_Read(file_t,4);};
     System.out.println(nAtoms+" "+nCross+" "+nBonds+" "+nAngles+" "+nTorsions+" "+nImpropers+" "+nRules);
+    checkRedefinitions();
+    displayEntries();
+
+    setLocation(25,225);	
+    setSize(900,700);
+    setVisible(true);
+
   }	
 
     void param_Read(String file, int ftype){
 	try {
 	    BufferedReader br = new BufferedReader(new FileReader(file));
 	    String card;
+	    String card2;
+	    String card3;
 	    int dataType=0;
 	    while((card=br.readLine()) != null){
 		if(card.startsWith("Atoms")){
@@ -123,33 +155,153 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
 		} else {
 		    if(dataType==0){
 		    } else if(dataType==1){
-			Atoms[nAtoms][0]=card; card=br.readLine(); Atoms[nAtoms][1]=card; idAtoms[nAtoms]=ftype; nAtoms++;
+			card2=br.readLine(); Atoms[nAtoms] = new Atom(card,card2,ftype); nAtoms++;
 			if(nAtoms>=mAtoms) { System.out.println("Increase mAtoms"); setVisible(false); };
 		    } else if(dataType==2){
-			Atoms[nCross][0]=card; idCross[nCross]=ftype; nCross++; 
+			card2=br.readLine(); Cross[nCross] = new Cros(card,card2,ftype); nCross++;
 			if(nCross>=mCross) { System.out.println("Increase mCross"); setVisible(false); };
 		    } else if(dataType==3){
-			Atoms[nBonds][0]=card; idBonds[nBonds]=ftype; nBonds++; 
+			Bonds[nBonds] = new Bond(card,ftype); nBonds++;
 			if(nBonds>=mBonds) { System.out.println("Increase mBonds"); setVisible(false); };
 		    } else if(dataType==4){
-			Atoms[nAngles][0]=card; idAngles[nAngles]=ftype; nAngles++; 
+			Angles[nAngles] = new Angle(card,ftype); nAngles++;
 			if(nAngles>=mAngles) { System.out.println("Increase mAngles"); setVisible(false); };
 		    } else if(dataType==5){
-			Atoms[nTorsions][0]=card; idTorsions[nTorsions]=ftype; nTorsions++; 
+			Torsions[nTorsions] = new Torsion(card,ftype); nTorsions++;
 			if(nTorsions>=mTorsions) { System.out.println("Increase mTorsions"); setVisible(false); };
 		    } else if(dataType==6){
-			Atoms[nImpropers][0]=card; idImpropers[nImpropers]=ftype; nImpropers++; 
+			Impropers[nImpropers] = new Improper(card,ftype); nImpropers++;
 			if(nImpropers>=mImpropers) { System.out.println("Increase mImpropers"); setVisible(false); };
 		    } else if(dataType==7){
-			Atoms[nRules][0]=card; idRules[nRules]=ftype; nRules++; 
+			card2=br.readLine(); card3=br.readLine(); Rules[nRules] = new Rule(card,card2,card3,ftype); nRules++;
 			if(nRules>=mRules) { System.out.println("Increase mRules"); setVisible(false); };
 		    } else {
 		    };
 		};
-    System.out.println(nAtoms+" "+nCross+" "+nBonds+" "+nAngles+" "+nTorsions+" "+nImpropers+" "+nRules+" "+card);
 	    };
 	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
+    }
+
+    void checkRedefinitions(){
+	if(nAtoms>1){
+	    for(int i=1; i<nAtoms; i++){
+		for(int j=0; j<i; j++){
+		    if(Atoms[i].type.equals(Atoms[j].type)) Atoms[j].redefined=true;
+		};
+	    }
+	};
+	if(nBonds>1){
+	    for(int i=1; i<nBonds; i++){
+		for(int j=0; j<i; j++){
+		    if(Bonds[i].type1.equals(Bonds[j].type1) && Bonds[i].type2.equals(Bonds[j].type2)) {
+			Bonds[j].redefined=true;
+		    } else if(Bonds[i].type1.equals(Bonds[j].type2) && Bonds[i].type2.equals(Bonds[j].type1)) {
+			Bonds[j].redefined=true;
+		    };
+		};
+	    }
+	};
+	if(nAngles>1){
+	    for(int i=1; i<nAngles; i++){
+		for(int j=0; j<i; j++){
+		    if(Angles[i].type1.equals(Angles[j].type1) && Angles[i].type2.equals(Angles[j].type2) && Angles[i].type3.equals(Angles[j].type3)) {
+			Angles[j].redefined=true;
+		    } else if(Angles[i].type1.equals(Angles[j].type3) && Angles[i].type2.equals(Angles[j].type2) && Angles[i].type3.equals(Angles[j].type1)) {
+			Angles[j].redefined=true;
+		    };
+		};
+	    }
+	};
+	if(nTorsions>1){
+	    for(int i=1; i<nTorsions; i++){
+		for(int j=0; j<i; j++){
+		    if(Torsions[i].type2.equals(Torsions[j].type2) && Torsions[i].type3.equals(Torsions[j].type3)) {
+			if(Torsions[i].type1.equals(Torsions[j].type1) && Torsions[i].type4.equals(Torsions[j].type4)) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals("  ") && Torsions[i].type4.equals(Torsions[j].type4)) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals(Torsions[j].type1) && Torsions[i].type4.equals("  ")) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals("  ") && Torsions[i].type4.equals("  ")) Torsions[j].redefined=true;
+		    } else if(Torsions[i].type2.equals(Torsions[j].type3) && Torsions[i].type3.equals(Torsions[j].type2)) {
+			if(Torsions[i].type1.equals(Torsions[j].type4) && Torsions[i].type4.equals(Torsions[j].type1)) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals("  ") && Torsions[i].type4.equals(Torsions[j].type1)) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals(Torsions[j].type4) && Torsions[i].type4.equals("  ")) Torsions[j].redefined=true;
+			if(Torsions[i].type1.equals("  ") && Torsions[i].type4.equals("  ")) Torsions[j].redefined=true;
+		    };
+		};
+	    }
+	};
+	if(nImpropers>1){
+	    for(int i=1; i<nImpropers; i++){
+		for(int j=0; j<i; j++){
+		    if(Impropers[i].type3.equals(Impropers[j].type3) && Impropers[i].type4.equals(Impropers[j].type4)) {
+			if(Impropers[i].type1.equals(Impropers[j].type1) && Impropers[i].type2.equals(Impropers[j].type2)) Impropers[j].redefined=true;
+			if(Impropers[i].type1.equals("  ") && Impropers[i].type2.equals(Impropers[j].type2)) Impropers[j].redefined=true;
+			if(Impropers[i].type1.equals(Impropers[j].type1) && Impropers[i].type2.equals("  ")) Impropers[j].redefined=true;
+			if(Impropers[i].type1.equals("  ") && Impropers[i].type2.equals("  ")) Impropers[j].redefined=true;
+		    };
+		};
+	    }
+	};
+    }
+
+    void displayEntries(){
+	if(nAtoms>1){
+	    for(int i=0; i<nAtoms; i++){
+		atomList.addElement(Atoms[i].type);
+		if(Atoms[i].redefined){
+		    System.out.println("Atom "+i+" "+aList.getSelectedIndex());
+		};
+	    };
+	};
+	if(nCross>1){
+	    for(int i=0; i<nCross; i++){
+		crossList.addElement(Cross[i].type1+"-"+Cross[i].type2);
+		if(Cross[i].redefined){
+		    System.out.println("Cross "+i+" "+cList.getSelectedIndex());
+		};
+	    }
+	};
+	if(nBonds>1){
+	    for(int i=0; i<nBonds; i++){
+		bondList.addElement(Bonds[i].type1+"-"+Bonds[i].type2);
+		if(Bonds[i].redefined){
+		    //		    JList.AccessibleJList.AccessibleJListChild(aList,i).setBackground(Color.blue);
+		    System.out.println("Bond "+i+" "+bList.getSelectedIndex());
+		};
+	    }
+	};
+	if(nAngles>1){
+	    for(int i=0; i<nAngles; i++){
+		angleList.addElement(Angles[i].type1+"-"+Angles[i].type2+"-"+Angles[i].type3);
+		if(Angles[i].redefined){
+		    System.out.println("Angle "+i+" "+hList.getSelectedIndex());
+		};
+	    }
+	};
+	if(nTorsions>1){
+	    for(int i=0; i<nTorsions; i++){
+		torsionList.addElement(Torsions[i].type1+"-"+Torsions[i].type2+"-"+Torsions[i].type3+"-"+Torsions[i].type4);
+		if(Torsions[i].redefined){
+		    System.out.println("Torsion  "+i+" "+tList.getSelectedIndex());
+		};
+	    }
+	};
+	if(nImpropers>1){
+	    for(int i=0; i<nImpropers; i++){
+		improperList.addElement(Impropers[i].type1+"-"+Impropers[i].type2+"-"+Impropers[i].type3+"-"+Impropers[i].type4);
+		if(Impropers[i].redefined){
+		    System.out.println("Improper "+i+" "+iList.getSelectedIndex());
+		};
+	    }
+	};
+	if(nRules>1){
+	    for(int i=0; i<nRules; i++){
+		ruleList.addElement(Rules[i].type);
+		if(Rules[i].redefined){
+		    System.out.println("Rule "+i+" "+rList.getSelectedIndex());
+		};
+	    }
+	};
     }
 
   void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
@@ -203,5 +355,16 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
   public void windowOpened(WindowEvent event) {}
   
   public void mouseClicked(MouseEvent mouse) {}
+
+    public void mousePressed(MouseEvent mouse){}
+
+    public void mouseReleased(MouseEvent mouse){
+    }
+
+    public void mouseEntered(MouseEvent mouse){
+    }
+
+    public void mouseExited(MouseEvent mouse){
+    }
   
 }
