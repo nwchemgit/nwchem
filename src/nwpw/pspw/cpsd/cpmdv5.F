@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.45 2005-02-01 02:49:22 bylaska Exp $
+* $Id: cpmdv5.F,v 1.46 2005-02-08 17:23:03 bylaska Exp $
 *
 
 ***********************************************************************
@@ -732,7 +732,7 @@
          end if
       if (icount.lt.it_out) go to 101
       if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(6,*) '*** arived at the Maximum iteration.   terminated.'
  
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
