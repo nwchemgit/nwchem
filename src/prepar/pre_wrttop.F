@@ -6,7 +6,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.37 2002-01-24 22:25:56 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.38 2002-02-21 15:58:16 d3j191 Exp $
 c
       implicit none
 c
@@ -302,15 +302,15 @@ c
       iql(2)=latm(8,i)
       iql(3)=latm(9,i)
 c
-c     bits set in iq : 0 set 1 s-w is dummy
-c                      1 set 2 s-w is dummy
-c                      2 set 3 s-w is dummy
-c                      3 set 1 s-s non-self is dummy
-c                      4 set 2 s-s non-self is dummy
-c                      5 set 3 s-s non-self is dummy
-c                      6 set 1 s-s self is dummy
-c                      7 set 2 s-s self is dummy
-c                      8 set 3 s-s self is dummy
+c     bits set in iq : 0 set 1 s-w is dummy               (1)
+c                      1 set 2 s-w is dummy               (2)
+c                      2 set 3 s-w is dummy               (4)
+c                      3 set 1 s-s non-self is dummy      (8)
+c                      4 set 2 s-s non-self is dummy     (16)
+c                      5 set 3 s-s non-self is dummy     (32)
+c                      6 set 1 s-s self is dummy         (64)
+c                      7 set 2 s-s self is dummy        (128)
+c                      8 set 3 s-s self is dummy        (256)
 c
       if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=ior(iq,9)
       if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=ior(iq,18)
