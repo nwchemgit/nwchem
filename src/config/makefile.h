@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.238 1997-07-30 02:04:35 d3g681 Exp $
+# $Id: makefile.h,v 1.239 1997-08-08 07:21:15 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -399,7 +399,7 @@ ifeq ($(TARGET),CRAY-T3E)
 
                    FC = f90
                   CPP = /opt/ctl/CC/CC/lib/mppcpp -P  -N
-             FOPTIONS = -d p -F
+             FOPTIONS = -d p -F 
              COPTIONS =
                FDEBUG = -O scalar1
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
@@ -408,7 +408,7 @@ ifeq ($(TARGET),CRAY-T3E)
 #
 # to debug code you must remove the -s flag unless you know assembler
 #
-            LDOPTIONS = -L$(LIBDIR) -Xm -Wl"-Dstreams=on -s" -lmfastv
+            LDOPTIONS = -L$(LIBDIR) -Wl"-s" -Xm  -lmfastv
 
               DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG
 
