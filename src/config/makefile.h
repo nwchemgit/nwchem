@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.283 1999-06-09 23:56:51 d3e129 Exp $
+# $Id: makefile.h,v 1.284 1999-06-14 21:00:49 d3h325 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -30,6 +30,9 @@ error1:
 	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
 	@exit 1
 endif
+
+# Select the old (pre-1999 version of GA) by uncommenting the next line
+OLD_GA = y 
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine and NWCHEM_TARGET_CPU the CPU to build for
@@ -1283,6 +1286,12 @@ ifdef USE_MPI
 else
     CORE_LIBS += -ltcgmsg
 endif
+
+#the new GA uses ARMCI library
+ifndef OLD_GA
+      CORE_LIBS += -larmci
+endif
+
 
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
