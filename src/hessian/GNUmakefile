@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.17 2001-06-21 19:25:55 zzhang Exp $
+# $Id: GNUmakefile,v 1.18 2004-04-23 18:22:14 edo Exp $
 #
 
  SUBDIRS = analytic
 
- OBJ = scf_hessian.o rhf_hessian.o hess_blas.o hess_input.o nw_tddft.o 
+ OBJ = scf_hessian.o rhf_hessian.o hess_blas.o hess_input.o
  
  OBJ_OPTIMIZE =  
 
