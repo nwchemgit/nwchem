@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.36 2000-08-01 17:32:18 d3j191 Exp $
+c $Id: ana_task.F,v 1.37 2000-08-15 23:12:31 d3j191 Exp $
 c
       implicit none
 c
@@ -311,7 +311,7 @@ c
       if(card(1:6).eq.'torsio') then
       read(card(8:12),'(i5)') it
       if(it.eq.ntors+1) ntors=ntors+1
-      if(it.gt.ntors) call errquit('Torsion index too large',it)
+      if(it.gt.ntors) call errquit('Torsion index skipped',it)
       if(it.gt.mxtors) call errquit('Torsion index too large',it)
       if(me.eq.0) then
       do 9 i=1,4

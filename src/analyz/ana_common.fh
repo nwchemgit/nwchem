@@ -1,10 +1,10 @@
 c
-c $Id: ana_common.fh,v 1.30 2000-08-01 17:32:17 d3j191 Exp $
+c $Id: ana_common.fh,v 1.31 2000-08-15 23:12:30 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
       parameter(mxangs=100)
-      parameter(mxtors=100)
+      parameter(mxtors=250)
       parameter(mximps=100)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
