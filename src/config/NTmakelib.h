@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.5 2000-08-02 01:16:37 bjohnson Exp $
+#	$Id: NTmakelib.h,v 1.6 2000-08-08 23:36:32 bjohnson Exp $
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)
@@ -20,7 +20,11 @@ LIBRARY_PATH_IF_EXISTS = path_error
 # Use pseudotarget for library since that is the only way to ensure
 # in general that subdirs will be checked properly.
 #
+!IFNDEF FORCE_LIB_UPDATE
 library: $(OBJDIR) $(LIB_DISTRIB) $(LIBRARY_PATH)
+!ELSE
+library: $(OBJDIR) $(LIB_DISTRIB) force_lib_update
+!ENDIF
 !IFDEF SUBDIRS
 	@nmake -nologo foreach_subdir
 !ENDIF
@@ -40,6 +44,16 @@ $(LIBRARY_PATH): $(OBJS)
 	$(ARFLAGS) $(LIBRARY_PATH_IF_EXISTS) $?
 <<
 
+#
+# Force the AR command to run. This is useful for updating libraries
+# such as util made from multiple dirs without having to delete and
+# recompile the objects.
+#
+force_lib_update: $(OBJS)
+	$(AR) @<<
+	$(ARFLAGS) $(LIBRARY_PATH_IF_EXISTS) $(OBJS)
+<<
+
 WIN32.stamp: $(HEADERS)
 !IFDEF HEADERS
 	!copy $? $(INCDIR)
@@ -49,10 +63,6 @@ WIN32.stamp: $(HEADERS)
 !IFDEF SUBDIRS
 	@nmake -nologo SUBDIR_TARGET=WIN32.stamp foreach_subdir
 !ENDIF
-
-#MakeFile: GNUmakefile
-#	@echo Trying to make $@
-#	$(CNFDIR)\win32\convmake.exe
 
 "$(LIB_DISTRIB)" :
 	@if not exist "$(LIB_DISTRIB)/$(NULL)" mkdir "$(LIB_DISTRIB)"
