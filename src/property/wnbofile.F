@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.7 1997-04-02 19:02:14 d3e129 Exp $
+* $Id: wnbofile.F,v 1.8 1998-02-11 10:36:13 d3e129 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -45,13 +45,15 @@ c>>>  handles
 c
 
       integer lbasis, lchg, lcoef,lcoord, leval, lexp, lgeom, lind1, 
-     $     lind2, locc, lprim, lptr, lscr, lscr2, ltags, ltri, ltype
+     $    lind2, locc, lprim, lptr, lscr, lscr2, ltags, ltri, ltype,
+     &    lncomp
       integer g_bo(2), g_fock(2), g_movecs(2),  g_over, g_scr
 c
 c>>>  indices
 c
       integer ichg, icoef, icoord, ieval, iexp, iind1, iind2, iocc,
-     $     iprim, iptr, iscr, itags, itype
+     $    iprim, iptr, iscr, itags, itype,
+     &    incomp
 c
 c>>>  basis set objects
 c
@@ -146,11 +148,14 @@ c
       if (restricted) then
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: MOs',
      $       1, 1, g_movecs(1))) call errquit('wnbofile: MOs', 0)
+        call ga_zero(g_movecs(1))
       else
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: alpha MOs',
      $       1, 1, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0)
+        call ga_zero(g_movecs(1))
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: beta MOs',
      $       1, 1, g_movecs(2))) call errquit('wnbofile: beta MOs', 0)
+        call ga_zero(g_movecs(2))
       endif
 c
 c>>>  Extract title, geometry, nuclear charges, and label info.
@@ -191,10 +196,10 @@ c
           ix = 3*(iat-1) + icoord -1
           iy = ix+1
           iz = iy+1
-          index = itags+iat-1
+          index = itags+(iat-1)*16
 
           if(.not.geom_tag_to_element(Byte_MB(index),sym,elem,atn))
-     $         call errquit('wnbofile: geom_tag_cent failed',1)
+     $         call errquit('wnbofile: geom_tag_to_element failed',1)
 
           charge = Dbl_MB(ichg+iat-1)
           write(lfn,9150)atn, charge, Dbl_MB(ix), Dbl_MB(iy), Dbl_MB(iz)
@@ -223,6 +228,10 @@ c
       if(.not.MA_Push_Get(MT_INT,ncont,'contraction type',ltype,
      $     itype))
      $     call errquit('wnbofile: ltype memory alloc. failed',0)
+
+      if(.not.MA_Push_Get(MT_INT,ncont,'contraction/shell size',lncomp,
+     $     incomp))
+     $     call errquit('wnbofile: lncomp memory alloc. failed',0)
 
       if(ga_nodeid().eq.0)then
         write(lfn,'(a)')'$BASIS'
@@ -269,6 +278,7 @@ c
               int_mb(index+8) = 205
               int_mb(index+9) = 206
               i = i+10
+              int_mb(incomp+icont-1) = 10
             elseif(sphcart.eq.1)then
               int_mb(index+4) = 251
               int_mb(index+5) = 252
@@ -276,6 +286,7 @@ c
               int_mb(index+7) = 254
               int_mb(index+8) = 255
               i = i+9
+              int_mb(incomp+icont-1) = 10
             endif 
 
           elseif(type.eq.-1) then
@@ -287,6 +298,7 @@ c
             int_mb(index+2) = 102
             int_mb(index+3) = 103
             i = i+4
+            int_mb(incomp+icont-1) = 4
 
           elseif(type.eq.0) then
 c
@@ -294,6 +306,7 @@ c>>>        s shell
 c
             int_mb(index)   = 1
             i = i+1
+            int_mb(incomp+icont-1) = 1
 
           elseif(type.eq.1) then
 c
@@ -303,6 +316,7 @@ c
               int_mb(index+j) = 101+j
             enddo 
             i = i+3
+            int_mb(incomp+icont-1) = 3
 
           elseif(type.eq.2) then
 c
@@ -313,13 +327,14 @@ c
                 int_mb(index+j) = 201+j
               enddo 
               i = i+6
+              int_mb(incomp+icont-1) = 6
             elseif(sphcart.eq.1)then
 
               do j = 0,4
                 int_mb(index+j) = 251+j
               enddo 
               i = i+5
-
+              int_mb(incomp+icont-1) = 5
             endif 
 
           elseif(type.eq.3) then
@@ -331,13 +346,14 @@ c
                 int_mb(index+j) = 301+j
               enddo 
               i = i+10
+              int_mb(incomp+icont-1) = 10
             elseif(sphcart.eq.1)then
 
               do j = 0,6
                 int_mb(index+j) = 351+j
               enddo 
               i = i+7
-
+              int_mb(incomp+icont-1) = 7
             endif 
 
           elseif(type.eq.4) then
@@ -349,11 +365,17 @@ c
                 int_mb(index+j) = 401+j
               enddo 
               i = i+15
+              int_mb(incomp+icont-1) = 15
             elseif(sphcart.eq.1)then
-              call errquit('wnbofile: no spherical harmonics for g',0)
+              do j = 0,8
+                int_mb(index+j) = 451+j
+              enddo
+              i = i+9
+              int_mb(incomp+icont-1) = 9
             endif 
 
           elseif(type.gt.4) then
+            write(6,*)' only up to g functions allowed '
             call errquit('wnbofile: max angular momentum exceeded',0)
           endif 
           
@@ -392,6 +414,8 @@ c
         write(lfn,'(a)') '$CONTRACT'
         write(lfn,'(1x,a10,i5)') 'NSHELLS = ', ncont
         write(lfn,'(1x,a10,i5)') '   NEXP = ', nprim
+        write(lfn,'(1x,a10)') '  NCOMP = '
+        write(lfn,'(5x,10i6)') (int_mb(incomp+i),i=0,(ncont-1))
         write(lfn,'(1x,a10)') '  NPRIM = '
         write(lfn,'(5x,10i6)') (int_mb(iprim+i-1),i=1,ncont)
         write(lfn,'(1x,a10)') '   NPTR = '
@@ -543,12 +567,15 @@ c
       if( restricted) then
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: bond order', 
      $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+        call ga_zero(g_bo(1))
       else 
 
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: a bond order', 
      $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+        call ga_zero(g_bo(1))
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: b bond order', 
      $     1, 1, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0)
+        call ga_zero(g_bo(2))
 
       endif 
 c
@@ -570,13 +597,21 @@ c
           int_mb( iind2+i-1 ) = i
         enddo
 
+*        write(6,*)' g_bo B4 zero'
+*        call ga_print(g_bo(1))
+*        call ga_zero (g_bo(1))
+*        write(6,*)' g_bo after zero/B4 scatter'
+*        call ga_print(g_bo(1))
         call ga_scatter ( g_bo(1), dbl_mb(iocc), int_mb(iind1),
      $       int_mb(iind2), nmo )
 
+*        write(6,*)' g_bo after scatter'
+*        call ga_print(g_bo(1))
       endif
 
       if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: scratch', 
      $     1, 1, g_scr)) call errquit('wnbofile: scratch', 0)
+      call ga_zero(g_scr)
 c                                                t
 c>>>  Form the product (Movecs)(Gamma_mo)(Movecs)  = Bond order matrix.
 c
@@ -676,12 +711,15 @@ c
       if(restricted) then
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: Fock matrix', 
      $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+        call ga_zero(g_fock(1))
       else 
 
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: alpha Fock', 
      $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+        call ga_zero(g_fock(1))
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: beta Fock', 
      $     1, 1, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0)
+        call ga_zero(g_fock(2))
 
       endif 
 c
@@ -819,6 +857,9 @@ c
       if (.not. ma_pop_stack(leval))
      $     call errquit('wnbofile: leval pop stack failed',0)
 
+      if (.not. ma_pop_stack(lncomp))
+     $     call errquit('wnbofile: lncomp pop stack failed',0)
+
       if (.not. ma_pop_stack(ltype))
      $     call errquit('wnbofile: ltype pop stack failed',0)
 
@@ -837,6 +878,8 @@ c
       if (.not. ma_pop_stack(lcoord))
      $     call errquit('wnbofile: lcoord pop stack failed',0)
 
+
+      call int_terminate()
 
       if (.not. bas_destroy(lbasis)) call errquit
      $     ('wnbofile: basis destroy failed',0)
