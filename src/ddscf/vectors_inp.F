@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.10 2002-12-04 22:07:50 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.11 2002-12-27 17:45:00 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -129,14 +129,14 @@ c
       endif
 c     
 c ================================================================
-c     reorder <integer list of pairs of nuclei>
+c     reorder <list containing new order of atoms>
 c
  550  nswap = 0
  551  if (.not. inp_i(itest)) then
 c
 c     Have hit end of pair list ... EOL or another directive
 c
-         if (mod(nswap,2).ne.0 .or. nswap.le.0) call errquit
+         if (nswap.le.0) call errquit
      $        ('vectors_input: invalid no. of nuclei to swap', nswap)
 c
          if (.not. rtdb_put(rtdb, 'reorder', mt_int, nswap,swap))
@@ -144,12 +144,9 @@ c
          goto 10
       else
          swap(nswap+1) = itest
-         if (.not. inp_i(swap(nswap+2))) call errquit
-     $        ('vectors input: it takes two to swap!', 0)
-         nswap = nswap + 2
+         nswap = nswap + 1
          goto 551
       endif
-      print *,'reorder',nswap
 c
 c ================================================================
 
@@ -167,7 +164,7 @@ c
  650  if (.not. inp_a(rotate(1))) goto 10000
       if (.not. inp_a(rotate(2))) goto 10000
       vectors_in = 'rotate'
-c      print *,rotate(1), rotate(2)
+      print *,rotate(1), rotate(2)
       if (.not. rtdb_cput(rtdb, 'vectors:rotate', 2, rotate))
      $     call errquit('vectors_input: failed to store rotate',0)
       goto 10

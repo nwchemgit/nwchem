@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.44 2002-12-20 23:09:36 d3k958 Exp $
+C$Id: vectors.F,v 1.45 2002-12-27 17:45:00 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -511,7 +511,7 @@ c
      $        handle)) goto 1000
          if (.not. ma_get_index(handle,index)) call errquit
      $        ('movecs_swap: get index failed', handle)
-         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
+         if (type.ne.mt_int) call errquit
      $        ('movecs_swap: invalid list of pairs',nelem)
 c
          call ga_sync()
@@ -567,6 +567,7 @@ c
 c
       end
 
+
       subroutine movecs_swap_nuclei(rtdb,basis,geom,scftype,g_vecs)
       implicit none
 c
@@ -579,9 +580,8 @@ c
 #include "geom.fh"
 c
 c     In the database may be an entry 'reorder' which is a list
-c     of pairs of nuclei to swap. The MO blocks over each atom's
-c     range of basis functions will be reordered according to the
-c     pair list.  
+c     containing the new ordering of the atoms. The MO blocks over each atom's
+c     range of basis functions will be reordered according to this list.
 c
 c     Apply these to the input vectors only (eigenvalues and
 c     occupation numbers are unchanged since the MO ordering is
@@ -593,11 +593,11 @@ c     a restart does not re-reorder the vectors.
 c
       character*(*) scftype
       integer rtdb, basis,g_vecs(*), nbf, nat, geom
-      integer type, nelem, handle, index
-      integer pair, i, j, ii,jj,ioff, joff,set, nset, mlen
-      integer l_bfi, k_bfi, l_bfj, k_bfj
-      integer dim1, dim2
-      integer g_tempv(2), ilo, ihi, jlo, jhi, copy
+      integer type, nelem, handle, index, g_temp
+      integer pair, i, j, k, ioff, joff, set, nset
+      integer l_atm, k_atm, l_batm, k_batm
+      integer ilo, ihi, jlo, jhi
+      integer dim1, dim2, start_from, end_from, start_to, end_to
       logical oprint
 c
       oprint = util_print('mo guess',print_default)  
@@ -614,77 +614,109 @@ c
       if (.not. geom_ncent(geom, nat))
      &     call errquit('movecs_swap_nuclei: geom_ncent failed',0)
 c
-      do set = 1,nset
-         if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem, 
-     $        handle)) goto 1000
-         if (.not. ma_get_index(handle,index)) call errquit
-     $        ('movecs_swap_nuclei: get index failed', handle)
-         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
-     $        ('movecs_swap_nuclei: invalid list of pairs',nelem)
+c  set up the list of atoms to reorder
+c  -----------------------------------
 c
-      call ga_sync()
-      call ga_inquire(g_vecs, type, dim1, dim2)
+      if (.not.ma_push_get(mt_int,nat,'atom list',l_atm, k_atm))
+     &    call errquit('movecs_swap_nuclei: ma_push failed',0)
+c
+      if (.not.ma_push_get(mt_int,nat,'nbf_at list',l_batm, k_batm))
+     &    call errquit('movecs_swap_nuclei: ma_push failed',0)
+c
+      if (.not. rtdb_ma_get(rtdb, 'reorder', type, nelem,handle)) 
+     $   call errquit('movecs_swap_nuclei: invalid list of pairs',nelem)
+      if (.not. ma_get_index(handle,index)) call errquit
+     $    ('movecs_swap_nuclei: get index failed', handle)
+      if (type.ne.mt_int) call errquit
+     $    ('movecs_swap_nuclei: invalid list of pairs',nelem)
+      if (nelem.ne.nat) call errquit
+     $    ('movecs_swap_nuclei: reorder list.ne.#atoms',0)
+c
+      do i = 1, nelem
+         j = int_mb(index+i-1)
+           if (i.lt.0.or.i.gt.nat) 
+     &       call errquit('movecs_swap_nucei: invalid vector',0)
+           if (j.lt.0.or.j.gt.nat) 
+     &       call errquit('movecs_swap_nucei: invalid vector',0)
+         int_mb(k_atm+i-1) = j
+      enddo
+c
+c  find nbf for each atom 
+c  ----------------------
+c
       if (ga_nodeid().eq.0) then
+         call util_print_centered(6,'Reordering MO coeffs on atoms',25,
+     $        .true.)
+         write(6,*) 
+         write(6,101) 'old','new','old','new'
+         write(6,102) 'atom#','atom#','basis range','basis range'
+         write(6,*) '-------------------------------------------------'
+      endif
 c
-        if (.not.ma_push_get(mt_dbl,dim2,'swapi',l_bfi, k_bfi))
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
-        if (.not.ma_push_get(mt_dbl,dim2,'swapj',l_bfj, k_bfj))
-     &     call errquit('movecs_swap_nuclei: ma_push failed',0)
+      int_mb(k_batm) = 0
+      do i = 1,nat
+        j = int_mb(k_atm+i-1)
+        if (.not.bas_ce2bfr(basis,i,jlo,jhi)) 
+     &    call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
+        int_mb(k_batm+j-1) = jhi-jlo+1
+      enddo
 c
-            do pair = 1, nelem, 2
-               i = int_mb(index+pair-1)
-               j = int_mb(index+pair  )
-                 if (oprint) then
-                 write(6,*) 'swapping MOs of centers',i,j,' in set',set
-                 endif
-                 if (i.lt.0.or.i.gt.nat) 
-     &              call errquit('movecs_swap_nucei: invalid vector',0)
-                 if (j.lt.0.or.j.gt.nat) 
-     &              call errquit('movecs_swap_nucei: invalid vector',0)
+c  reorder atoms in each set
+c  -------------------------
 c
-               if (.not.bas_ce2bfr(basis,i,ilo,ihi)) 
-     &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
+      do set = 1,nset
+      call ga_inquire(g_vecs(set),type,dim1,dim2)
+c 
+      if ( .not. ga_create( mt_dbl, dim1, dim2, 'temp vectors',
+     $    0,0,g_temp) ) 
+     $    call errquit('movecs_swap_nuclei: ga_create failed', 0)
+      call ga_zero(g_temp)
 c
-               if (.not.bas_ce2bfr(basis,j,jlo,jhi)) 
-     &          call errquit('movecs_swap_nuclei: bas_ce2bfr',0)
+      start_to = 1
 c
-               ioff = ihi-ilo
-               joff = jhi-jlo
-               if (ioff.ne.joff) then
-               if (oprint) write(6,*) 'nbf(i), atom(i)',ioff+1,i
-               if (oprint) write(6,*) 'nbf(j), atom(j)',joff+1,j
-               call errquit('nbf for atoms i and j are different',0)
-               endif
+      do i= 1, nat
+      j = int_mb(k_atm+i-1)
 c
-c  swap the MO's on the atoms one at a time
+        start_from = 0
+        do k = 1,j-1
+          start_from = start_from + int_mb(k_batm+k-1)
+        enddo
+        start_from = start_from + 1
 c
-                 ii = ilo
-                 jj = jlo
-               do i = 1,ioff+1
-                 call ga_get(g_vecs(set), ii,ii,1,dim2, dbl_mb(k_bfi),1)
-                 call ga_get(g_vecs(set), jj,jj,1,dim2, dbl_mb(k_bfj),1)
-                 call ga_put(g_vecs(set), jj,jj,1,dim2, dbl_mb(k_bfi),1)
-                 call ga_put(g_vecs(set), ii,ii,1,dim2, dbl_mb(k_bfj),1)
-                 ii = ii + 1
-                 jj = jj + 1
-               enddo
+        end_from = start_from + int_mb(k_batm+j-1) - 1
 c
-            enddo              
+        end_to = start_to + int_mb(k_batm+j-1) - 1
+
+        if (ga_nodeid().eq.0.and.set.eq.1) then
+        write(6,103) i,j,start_from,end_from,start_to,end_to
+        endif
+c
+        call ga_copy_patch('N',g_vecs(set),start_from,end_from,1,dim2,
+     &       g_temp,start_to,end_to,1,dim2)
+c
+        start_to = start_to + int_mb(k_batm+j-1)
+       enddo ! nat
 c
             if (oprint) call util_flush(6)
 c
-            if (.not.ma_pop_stack(l_bfj)) 
-     &        call errquit('movecs_swap_nuclei: ma_pop failed',0)
+      call ga_copy(g_temp, g_vecs(set))
 c
-            if (.not.ma_pop_stack(l_bfi)) 
-     &        call errquit('movecs_swap_nuclei: ma_pop failed',0)
-
-       endif  ! ga_nodeid()
+      if ( .not. ga_destroy(g_temp))
+     $    call errquit('movecs_swap_nuclei: ga_destroy failed', 0)
 c
-       call ga_sync()
-c
- 1000 continue
       enddo  ! set
+c
+      call ga_sync()
+c
+  101 format(2x,a3,4x,a3,11x,a3,16x,a3)
+  102 format(1x,a5,2x,a5,7x,a11,8x,a11)
+  103 format(i4,2x,i4,5x,i6,2x,i6,5x,i6,2x,i6)
+        if (.not. ma_pop_stack(l_batm))
+     $    call errquit('movecs_swap_nuclei: ma pop failed', 0)
+c
+        if (.not. ma_pop_stack(l_atm))
+     $    call errquit('movecs_swap_nuclei: ma pop failed', 0)
+c
        if (.not.rtdb_delete(rtdb,'reorder') )
      &   call errquit('movecs_swap_nuclei: rtdb delete failed',0)
 c
@@ -692,6 +724,7 @@ c
      &   call errquit('movecs_swap_nuclei: cant free heap',0)
 c
       end
+
 
       logical function file_write_ga(fname, g_a)
       implicit none
