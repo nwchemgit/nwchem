@@ -46,7 +46,6 @@ c
       integer msg_gen_at_iatom, msg_gen_at_ixyz
       integer msg_dftg_cdf,msg_schw2,msg_schw3
       integer msg_mull1,msg_mull2
-      integer msg_act_energy
       integer msg_trace_diag
       integer msg_grad_nquad
       integer msg_grad_finished
@@ -101,6 +100,23 @@ c
       integer mrg_d39
       integer msg_hessmin
       integer msg_hessmax
+      integer msg_moints_stats_1
+      integer msg_moints_stats_2
+      integer msg_moints_stats_3
+      integer msg_moints_stats_4
+      integer msg_moints_stats_5
+      integer msg_moints_stats_6
+      integer msg_moints_stats_7
+      integer msg_detci_maxsync
+      integer msg_detci_sum
+      integer msg_mcscf_sumflip
+      integer msg_mcscf_symcheck
+      integer msg_mcscf_ifocktrace
+      integer msg_mcscf_ifocktrace2
+      integer msg_mcscf_etrace
+      integer msg_mcscf_actenergy
+      integer msg_mcscf_chkhess
+      
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -219,8 +235,6 @@ c
       parameter (msg_mull2    = msg_ftn_base - 85) ! dft: mulliken pop
 c     
 c     
-      parameter (msg_act_energy     = msg_ftn_base - 86) ! mcscf: active energy sum
-c     
       parameter (msg_trace_diag     = msg_ftn_base - 87) ! util: trace of ga
 c     
       parameter (msg_grad_nquad = msg_ftn_base - 88) ! gradients: grad_store
@@ -285,7 +299,24 @@ c
 c
       parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
       parameter (msg_hessmax = msg_ftn_base - 171 )         ! MCSCF orbital hessian max
-
-
-
-
+c
+c
+      parameter (msg_moints_stats_1 = msg_ftn_base - 172 )   ! moints stats 1
+      parameter (msg_moints_stats_2 = msg_ftn_base - 173 )   ! moints stats 2
+      parameter (msg_moints_stats_3 = msg_ftn_base - 174 )   ! moints stats 3
+      parameter (msg_moints_stats_4 = msg_ftn_base - 175 )   ! moints stats 4
+      parameter (msg_moints_stats_5 = msg_ftn_base - 176 )   ! moints stats 5
+      parameter (msg_moints_stats_6 = msg_ftn_base - 177 )   ! moints stats 6
+      parameter (msg_moints_stats_7 = msg_ftn_base - 178 )   ! moints stats 7
+c
+c
+      parameter (msg_detci_maxsync = msg_ftn_base - 179 )    ! detci max sync time
+      parameter (msg_detci_sum     = msg_ftn_base - 180 )    ! detci sum
+c
+      parameter (msg_mcscf_sumflip     = msg_ftn_base - 181 )
+      parameter (msg_mcscf_symcheck    = msg_ftn_base - 182 )
+      parameter (msg_mcscf_ifocktrace  = msg_ftn_base - 183 )
+      parameter (msg_mcscf_ifocktrace2 = msg_ftn_base - 184 )
+      parameter (msg_mcscf_etrace      = msg_ftn_base - 185 )
+      parameter (msg_mcscf_actenergy   = msg_ftn_base - 186 )
+      parameter (msg_mcscf_chkhess     = msg_ftn_base - 187 )
