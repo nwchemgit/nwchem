@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.3 2004-10-15 00:58:41 marat Exp $
+c $Id: qmmm_output.F,v 1.4 2004-10-18 22:45:01 marat Exp $
 c
 c
       subroutine qmmm_print_header(irtdb)
@@ -10,12 +10,14 @@ c
 #include "qmmm_data.fh"
 #include "qmmm_params.fh"
 #include "rtdb.fh"
+#include "qmmm.fh"
 
       integer irtdb
 c
       character*32 pname
       character*48 string
 
+      if(.not.qmmm_master()) return
       
       pname = "qmmm_print_header:"
       string = "     NWChem QM/MM Interface Module"

@@ -413,3 +413,20 @@ c     -------------------
 
       end 
 
+      function qmmm_print_default(name)
+      implicit none
+#include "qmmm_data.fh"
+#include "util.fh"
+
+      logical qmmm_print_default
+      character*(*) name
+c 
+      logical oprint
+
+      oprint = util_print(name, print_default)
+
+      qmmm_print_default = oprint .and. master
+
+      end 
+
+

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.27 2004-10-15 00:58:41 marat Exp $
+c $Id: qmmm.F,v 1.28 2004-10-18 22:45:01 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -26,8 +26,10 @@ c     --------------------------------------------
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
-      call qmmm_print_header(irtdb)
-      call qmmm_print_params(irtdb)
+      if(qmmm_master()) then
+        call qmmm_print_header(irtdb)
+        call qmmm_print_params(irtdb)
+      end if
 
       return
       end
