@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.111 2004-12-10 01:36:38 marat Exp $
+* $Id: opt_drv.F,v 1.112 2005-04-03 06:05:50 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -2260,7 +2260,8 @@ c
      $     rtdb_get_info(rtdb, 'geometry:inactlist', ma_type, 
      $     nelem, date) .or.
      $     isystype .ne. 0 .or.
-     $     task_qmmm) then
+     $     task_qmmm .or. 
+     $     geom_extbq_on() ) then
 c     
 c     Some atoms are frozen or we have a periodic system so don't have
 c     invariance ...  also store unit matrix for P.
