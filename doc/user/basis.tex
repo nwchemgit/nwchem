@@ -40,20 +40,20 @@ Examining first the keywords on the \verb+BASIS+ directive line:
 \item {\tt NAME}
 
 By default the basis set is stored in the database with the name
-\verb+"ao basis".  By specifying another name in the \verb=BASIS=
+\verb+"ao basis"+.  By specifying another name in the \verb+BASIS+
 directive, multiple basis sets may be stored at once in the database.
 Also, the DFT (Section \ref{sec:dft}), RISCF (Section \ref{sec:riscf})
 and RIMP2 (Section \ref{sec:rimp2}) modules require multiple basis
 sets with specific names.
 
-The user can associate the \verb+"ao basis" with another named basis
+The user can associate the \verb+"ao basis"+ with another named basis
 using the \verb+SET+ directive (see Section \ref{sec:set}).  
 
-\item {\tt SPHERICAL} and {\tt CARTESIAN}}
+\item {{\tt SPHERICAL} and {\tt CARTESIAN}}
 
 The keywords \verb+spherical+ and \verb+cartesian+ offer the option of
 using either spherical-harmonic (5 d, 7 f, 9 g, \ldots) or Cartesian
-(6 d, 10 f, 15 g, \ldota) angular functions.  The default is
+(6 d, 10 f, 15 g, \ldots) angular functions.  The default is
 Cartesian because the current integral derivative program cannot
 handle spherical functions.  If only energy calculations are being
 performed, then {\tt SPHERICAL} can be specified.  
