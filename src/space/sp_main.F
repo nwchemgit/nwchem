@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.17 1999-08-26 15:26:59 d3j191 Exp $
+c $Id: sp_main.F,v 1.18 1999-08-26 15:44:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1728,13 +1728,14 @@ c
 c
       call ga_igop(msp_16,nen,mbbl*np,'+')
       call ga_igop(msp_17,nlst,2*np,'+')
-      if(me.eq.0) then
-      do 3031 i=1,np
-      write(lfnsyn,3030) i-1,nlst(i,1),nlst(i,2),
-     + dlb(i),(nen(i,j)-1,j=1,16)
- 3030 format(i3,2i5,f12.6,20i3)
- 3031 continue
-      endif
+c
+c      if(me.eq.0) then
+c      do 3031 i=1,np
+c      write(lfnsyn,3030) i-1,nlst(i,1),nlst(i,2),
+c     + dlb(i),(nen(i,j)-1,j=1,16)
+c 3030 format(i3,2i5,f12.6,20i3)
+c 3031 continue
+c      endif
 c
 c     determine the least busy neighbor of each node
 c
