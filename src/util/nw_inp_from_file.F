@@ -1,4 +1,7 @@
       logical function nw_inp_from_file(rtdb, filename)
+*
+* $Id: nw_inp_from_file.F,v 1.5 1999-07-27 21:00:19 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

@@ -1,5 +1,7 @@
 #!/bin/csh
-
+#
+# $Id: jobtime,v 1.2 1999-07-27 21:00:19 d3e129 Exp $
+#
 #
 # CSH WRAPPER TO JOBTIME.PL FOR IBMSP TO HANDLE SEARCH FOR PERL PATH
 

@@ -1,2 +1,7 @@
+#
+# $Id: README,v 1.2 1999-07-27 21:04:57 d3e129 Exp $
+#
+
 Tools libraries reside under /msrc/proj/hpctools AFS volume.
 Use get-tools script to checkout the files for the first time.
+Use get-tools-remote for remote checkouts 

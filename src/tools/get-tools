@@ -1,4 +1,7 @@
 #!/bin/csh
+#
+# $Id: get-tools,v 1.4 1999-07-27 21:04:57 d3e129 Exp $
+#
 # We need to rename CVS associated with nwchem repository while
 # checking out tools for the first time
 mv CVS CVS0

@@ -1,3 +1,6 @@
+/*
+ $Id: util_wall_remain.c,v 1.9 1999-07-27 21:00:20 d3e129 Exp $
+*/
 #include <stdio.h>
 #include "typesf2c.h"
 

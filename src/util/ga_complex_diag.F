@@ -1,5 +1,7 @@
-c
       subroutine ga_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
+*
+* $Id: ga_complex_diag.F,v 1.6 1999-07-27 21:00:18 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,3 +1,6 @@
+/*
+ $Id: sgi_flush6.c,v 1.2 1999-07-27 21:00:19 d3e129 Exp $
+*/
 #include <stdio.h>
 void sgi_flush6_(void)
 {

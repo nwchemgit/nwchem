@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.9 1999-07-27 21:04:56 d3e129 Exp $
+#
 # This makefile has to be processed by GNU make
 #
      TOPDIR = ${NWCHEM_TOP}/src/tools 

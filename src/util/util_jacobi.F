@@ -1,4 +1,7 @@
       subroutine util_jacobi(n, a, lda, e)
+*
+* $Id: util_jacobi.F,v 1.2 1999-07-27 21:00:19 d3e129 Exp $
+*
       implicit none
 #include "util.fh"
 #include "mafdecls.fh"
