@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.28 1999-11-02 19:47:03 bert Exp $
+c $Id: exactd_mem.F,v 1.29 1999-11-02 21:56:21 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
 #include "bas.fh"
 #include "apiP.fh"
 #include "stdio.fh"
+#include "bgj.fh"
 c
 c:: functions
       logical api_is_atomic_basis
@@ -37,6 +38,7 @@ c:: local
       integer ibas,jbas
       integer nbfmax, nbf
       logical o_do_full
+      logical doug_kroll ! Logical for setting/reading Douglas-Kroll integrals
 c
 c check to see if a full memory check is needed
 c
@@ -49,6 +51,10 @@ c:tex-
       if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
      &    o_do_full = .false.
 c
+c     Check if Douglas-Kroll is done or not
+c
+      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll',MT_LOG,1,
+     $   doug_kroll)) doug_kroll = .false.
       call int_mem_zero()
 c
       nbfmax = 0
@@ -79,8 +85,8 @@ c.... 1e
               mem_1e = max(mem_1e, lmem_1e)
               isz_1e = max(isz_1e, lsz_1e)
 c.... p.Vp one-electron
-              call emem_d1e_pvp(bases(ibas), bases(jbas),
-     &                                     lsz_1e, lmem_1e)
+              if (doug_kroll) call emem_d1e_pvp(bases(ibas), 
+     $             bases(jbas), lsz_1e, lmem_1e)
 
 *debug:          write(luout,*)' ibas|jbas ', ibas, '|', jbas
 *debug:          write(luout,*)' mem_2e4c: ',mem_2e4c
