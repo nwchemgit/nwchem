@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.21 1995-11-13 06:39:55 d3g681 Exp $
+# $Id: makelib.h,v 1.22 1995-11-13 06:54:51 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -131,7 +131,7 @@ update_archive:
 	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
 	  if [ "$$list" ] ; then \
 		echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
-		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>1 | \
+		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
 				grep -v truncated ; \
 		/bin/rm -f $$list ; \
 		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
