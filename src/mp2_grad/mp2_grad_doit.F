@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.42 2003-02-01 07:57:46 edo Exp $
+* $Id: mp2_grad_doit.F,v 1.43 2003-04-01 21:01:06 bert Exp $
 *
       implicit none
 #include "global.fh"
@@ -148,8 +148,8 @@ c
          write(6,201) ga_uses_ma(), ga_memory_limited()
  201     format(/' GA uses MA = ',l1,'    GA memory limited = ',l1)
          write(6,21) avail_ma, avail_ga, avail_file
- 21      format(/' Available: local mem=',i10,' global mem=',i10,
-     $        ' local disk=',f10.0)
+ 21      format(/' Available: local mem=',i12,' global mem=',i15,
+     $        ' local disk=',f15.0)
          call util_flush(6)
       end if
 c     
@@ -161,8 +161,8 @@ c
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
  22         format(1x,i3,' passes of',i4,':  ',
-     $           ' ',i10,'            ',i10,
-     $           '            ',f10.0)
+     $           ' ',i12,'            ',i15,
+     $           '            ',f15.0)
             call util_flush(6)
          end if
          if(ga_uses_ma().and..not.ga_memory_limited())then
