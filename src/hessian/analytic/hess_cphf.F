@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.7 2000-06-01 20:17:09 windus Exp $
+C $Id: hess_cphf.F,v 1.8 2000-07-18 14:58:14 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -35,11 +35,6 @@ c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       external cphf, file_write_ga, file_read_ga, movecs_read
-c
-c call terminate since cphf will call it's own integral initialization
-c
-      call schwarz_tidy()    ! need to get rid of temp buffers
-      call intdd_terminate()
 c
       hf_job = theory .eq. 'HF'
 c
