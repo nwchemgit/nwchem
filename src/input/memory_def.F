@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.18 2001-10-31 21:10:31 windus Exp $
+C     $Id: memory_def.F,v 1.19 2002-01-31 20:52:24 windus Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -54,11 +54,13 @@ C     This is probably a minimum configuration for most IBM
 C     platforms, but many will have more.  Assumes dedicated node
 C     access.
 C
-      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sp1 or lapi)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sp1 or lapi)
+      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB 
 #elif defined(LINUX) || defined(WIN32)
 *
 *     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
-      Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
+      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB 
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
 *     Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
 *     Parameter ( Total_Dflt = 4194304)  ! 32 MB  (linux)
 #elif defined(SUN) || defined(SOLARIS) || defined(HPUX) || defined(FUJITSU_SOLARIS)
