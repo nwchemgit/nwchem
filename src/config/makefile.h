@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.18 1994-04-27 01:40:54 d3e129 Exp $
+# $Id: makefile.h,v 1.19 1994-04-28 21:44:38 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -194,25 +194,39 @@ endif
 
 ifeq ($(TARGET),IBM)
 #
-# IBM AIX .... NOT YET TESTED !!!!!
+# IBM AIX . tested rak 4/94
+# note: using only source blas.
 #
-#        FC = xlf
-#        CC = xlc
-#        AR = ar
-#    RANLIB = ranlib
-#   INSTALL = echo
-#     SHELL = /bin/sh
-#      FOPT = -g
-#      COPT = -g
-#  INCLUDES = -I. -I../ma
-#   DEFINES = -DTCGMSG
-#    FFLAGS = -qEXTNAME $(FOPT)
-#    FLDOPT = $(FOPT) -b rename:.exit_,.exit
-#    CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
-#    CLDOPT = $(COPT)
-#   ARFLAGS = rcv
-#      LIBS = ../tcgmsg/ipcv4.0/libtcgmsg.a ../ma/libma.a -lc
-# EXPLICITF = TRUE
+
+    SUBDIRS_EXTRA = lapack blas
+         FC = xlf 
+         CC = cc
+         AR = ar
+     RANLIB = ranlib
+      SHELL = /bin/sh
+       MAKE = make
+  MAKEFLAGS = -j 1
+    INSTALL = echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+       FOPT = -g -qEXTNAME 
+   FOPT_REN = $(FOPT)
+       COPT = -g
+     FLDOPT = $(FOPT) 
+     CLDOPT = $(COPT)
+  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+   WARNINGS = 
+    DEFINES = -DIBM -DEXTNAME $(LIB_DEFINES) 
+     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
+     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES) $(WARNINGS)
+    ARFLAGS = rcv
+
+       LIBS = -L$(LIBDIR) $(LIBPATH) \
+              -ltest -lddscf -lnwints \
+              -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
+	      -lutil -lma -ltcgmsg -llapack -lblas
+
+ EXPLICITF = TRUE
 #
 endif
 
@@ -230,8 +244,9 @@ ifeq ($(EXPLICITF),TRUE)
 	/bin/rm -f $*.f
 
 .F.f:	
-	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
-
+#IBM	$(CPP) $(INCLUDES) $(DEFINES) $*.F > $*.f
+#other	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
+	$(CPP) $(INCLUDES) $(DEFINES) $*.F > $*.f
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 endif
