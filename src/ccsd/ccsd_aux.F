@@ -1,7 +1,7 @@
         subroutine mxtrn(mxin,mxout,idim,jdim)
         implicit none
-        double precision mxin(idim,jdim),mxout(jdim,idim)
         integer idim,jdim
+        double precision mxin(idim,jdim),mxout(jdim,idim)
         integer i,j
 c
         do i=1,idim
@@ -17,10 +17,10 @@ c
     
       subroutine prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,nvir)
       implicit none
+      integer nvir
       double precision f1n(nvir,nvir),f1t(nvir,nvir),f2n(nvir,nvir),
      &                 f2t(nvir,nvir),f3n(nvir,nvir),f3t(nvir,nvir),
      &                 f4n(nvir,nvir),f4t(nvir,nvir)
-      integer nvir
 c
       integer c,b
 c
