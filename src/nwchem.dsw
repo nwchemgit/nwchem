@@ -1,0 +1,614 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "NWints_wrap"=".\NWints\NWints_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "analyz_wrap"=".\analyz\analyz_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "atomscf"=".\atomscf\atomscf.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "basis_wrap"=".\basis\basis_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cafe_wrap"=".\cafe\cafe_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ccsd"=".\ccsd\ccsd.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "cphf"=".\cphf\cphf.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "ddscf_wrap"=".\ddscf\ddscf_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "dftgrad"=".\dftgrad\dftgrad.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "dplot"=".\dplot\dplot.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "drdy"=".\drdy\drdy.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "driver"=".\driver\driver.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "esp"=".\esp\esp.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "fft_wrap"=".\fft\fft_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "geom"=".\geom\geom.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "gradients"=".\gradients\gradients.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "hessian_wrap"=".\hessian\hessian_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "inp_wrap"=".\inp\inp_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "input_wrap"=".\input\input_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "lapack_wrap"=".\lapack\lapack_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "mcscf_wrap"=".\mcscf\mcscf_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "moints"=".\moints\moints.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "mp2_grad_wrap"=".\mp2_grad\mp2_grad_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "nwargos_wrap"=".\nwargos\nwargos_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "nwchem"=".\nwchem.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name basis_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inp_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name input_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name rtdb_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name pstat_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name task_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name symmetry_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name util_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name peigs_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name NWints_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ddscf_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nwdft_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mcscf_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name hessian_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name selci_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cphf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name atomscf
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ccsd
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name driver
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dplot
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name moints
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dftgrad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name esp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name property
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name stepper
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name gradients
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name geom
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name prepar_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nwargos_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nwmd_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cafe_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name space_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name analyz_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name fft_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name drdy
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mp2_grad_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name rimp2_wrap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lapack_wrap
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nwdft_wrap"=".\nwdft\nwdft_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "nwmd_wrap"=".\nwmd\nwmd_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "peigs_wrap"=".\peigs\peigs_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "prepar_wrap"=".\prepar\prepar_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "property"=".\property\property.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "pstat_wrap"=".\pstat\pstat_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "rimp2_wrap"=".\rimp2\rimp2_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "rtdb_wrap"=".\rtdb\rtdb_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "selci_wrap"=".\selci\selci_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "space_wrap"=".\space\space_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "stepper"=".\stepper\stepper.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "symmetry_wrap"=".\symmetry\symmetry_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "task_wrap"=".\task\task_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "util_wrap"=".\util\util_wrap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vib"=".\vib\vib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
