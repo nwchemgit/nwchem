@@ -1,9 +1,12 @@
-/*$Id: context_f2c.c,v 1.4 1995-10-17 08:56:05 d3g681 Exp $*/
+/*$Id: context_f2c.c,v 1.5 1999-11-13 03:01:34 bjohnson Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #ifdef CRAY
 #include <fortran.h>
+#endif
+#ifdef WIN32
+#include "typesf2c.h"
 #endif
 #include "context.h"
 
@@ -13,7 +16,7 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_FALSE ((logical) 0)
 
 #define MAX_CLEN 4096
-#ifdef CRAY 
+#if defined(CRAY) || defined(USE_FCD) 
 static int fortchar_to_string(_fcd f, int flen, char *buf, 
 			      const int buflen)
 #else
@@ -21,7 +24,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 			      const int buflen)
 #endif
 {
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   char *fstring = _fcdtocp(f);
   flen = _fcdlen(f);
 
@@ -54,21 +57,21 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 static int string_to_fortchar( f, flen, buf)
   int flen;
   char *buf;
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   _fcd f;
 #else
   char *f;
 #endif
 {
   int len = strlen(buf), i;
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   flen = _fcdlen(f);
 #endif
 
   if (len > flen) 
     return 0;			/* Won't fit */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   for (i=0; i<len; i++)
     _fcdtocp(f)[i] = buf[i];
   for (i=len; i<flen; i++)
@@ -82,7 +85,7 @@ static int string_to_fortchar( f, flen, buf)
   return 1;
 }
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 logical context_set_(_fcd  string, int len)
 #else
 logical context_set_(const char *string, int len)
@@ -128,12 +131,15 @@ logical context_rtdb_load_(integer *prtdb)
   else
     return FORTRAN_FALSE;
 }
-#ifdef CRAY
-logical context_push_(_fcd string, int len)
+#if defined(CRAY) || defined(USE_FCD)
+logical FATR context_push_(_fcd string)
 #else
 logical context_push_(const char *string, int len)
 #endif
 {
+#if defined(CRAY) || defined(USE_FCD)
+  int len = _fcdlen(string);
+#endif
   char buf[MAX_CLEN];
 
   if (!fortchar_to_string(string, len, buf, sizeof buf)) {
@@ -146,12 +152,15 @@ logical context_push_(const char *string, int len)
   else
     return FORTRAN_FALSE;
 }
-#ifdef CRAY
-logical context_pop_(_fcd string, int len)
+#if defined(CRAY) || defined(USE_FCD)
+logical FATR context_pop_(_fcd string)
 #else
 logical context_pop_(const char *string, int len)
 #endif
 {
+#if defined(CRAY) || defined(USE_FCD)
+  int len = _fcdlen(string);
+#endif
   char buf[MAX_CLEN];
 
   if (!fortchar_to_string(string, len, buf, sizeof buf)) {
@@ -164,12 +173,16 @@ logical context_pop_(const char *string, int len)
   else
     return FORTRAN_FALSE;
 }
-#ifdef CRAY
-logical context_prefix_(_fcd name, _fcd result, int nlen, int rlen)
+#if defined(CRAY) || defined(USE_FCD)
+logical FATR context_prefix_(_fcd name, _fcd result)
 #else
 logical context_prefix_(const char *name, char *result, int nlen, int rlen)
 #endif
 {
+#if defined(CRAY) || defined(USE_FCD)
+  int nlen = _fcdlen(name);
+  int rlen = _fcdlen(result);
+#endif
   char buf[MAX_CLEN], rbuf[MAX_CLEN];
 
   if (!fortchar_to_string(name, nlen, buf, sizeof(buf))) {
@@ -185,14 +198,17 @@ logical context_prefix_(const char *name, char *result, int nlen, int rlen)
 
     return FORTRAN_TRUE;
 }
-#ifdef CRAY  
-logical context_rtdb_match_(integer *prtdb, _fcd name, _fcd result,
-			    int nlen, int rlen)
+#if defined(CRAY) || defined(USE_FCD)  
+logical FATR context_rtdb_match_(integer *prtdb, _fcd name, _fcd result)
 #else
 logical context_rtdb_match_(integer *prtdb, const char *name, char *result,
 			    int nlen, int rlen)
 #endif
 {
+#if defined(CRAY) || defined(USE_FCD)
+  int nlen = _fcdlen(name);
+  int rlen = _fcdlen(result);
+#endif
   char buf[MAX_CLEN], rbuf[MAX_CLEN];
 
   if (!fortchar_to_string(name, nlen, buf, sizeof(buf))) {
