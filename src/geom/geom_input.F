@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.53 1997-02-27 23:42:14 mdupuis Exp $
+C     $Id: geom_input.F,v 1.54 1997-02-27 23:49:26 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -75,7 +75,7 @@ c     systype must precede symmetry
 c     
 c     
       old_format_input = .false.
-      units = 'angstrom'        ! The new default
+      units = 'angstroms'        ! The new default
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
@@ -167,7 +167,7 @@ c
      &     units(1:2) .eq. 'at') then
          units = 'a.u.'
       else if (units(1:2) .eq. 'an') then
-         units = 'angstrom'
+         units = 'angstroms'
       else if (units(1:2).eq.'nm' .or. units(1:2).eq.'na') then
          units = 'nanometer'
       else  if (units(1:2).eq.'pm' .or. units(1:2).eq.'pi') then

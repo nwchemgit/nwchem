@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.58 1997-02-27 19:12:49 d3e129 Exp $
+C$Id: geom.F,v 1.59 1997-02-27 23:49:23 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -806,7 +806,7 @@ c
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
-      user_units(geom) = 'angstrom'
+      user_units(geom) = 'angstroms'
       include_bqbq(geom) = .false.
 c
       do i = 1, 3
@@ -1648,7 +1648,7 @@ c
 c
       if (user_units(geom) .eq. 'a.u.') then
          scale = 1.0d0
-      else if (user_units(geom) .eq. 'angstrom') then
+      else if (user_units(geom) .eq. 'angstroms') then
          scale = angstrom_to_au
       else if (user_units(geom) .eq. 'nanometer') then
          scale = angstrom_to_au * 10.0d0
