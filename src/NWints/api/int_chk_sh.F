@@ -1,5 +1,5 @@
       logical function int_chk_sh(basisin,shell)
-c $Id: int_chk_sh.F,v 1.2 1994-04-04 20:27:35 d3e129 Exp $
+c $Id: int_chk_sh.F,v 1.3 1994-04-08 15:59:41 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -14,7 +14,7 @@ c
 c
       basis = basisin + BASIS_HANDLE_OFFSET
       int_chk_sh = shell.gt.0 .and.
-     &             shell.lt.ncont_tot_gb(basis)
+     &             shell.le.ncont_tot_gb(basis)
       if (.not.int_chk_sh) then
         write(6,*)'invalid contraction/shell index'
         write(6,*)' shell range is: <1:',ncont_tot_gb(basis),'>'

@@ -1,4 +1,4 @@
-c $Id: api.doc,v 1.4 1994-04-07 18:56:38 d3e129 Exp $
+c $Id: api.doc,v 1.5 1994-04-08 15:59:30 d3e129 Exp $
 c
 critical path
 --------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ critical path
 ... eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 . int_2e4c (bra_basis, ish, jsh, ket_basis, ksh, lsh, lscr, scr, leri, eri)
 . int_l2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, zerotol,
-             canonicalize, leri, eri, nints, ilab, jlab, klab, llab, scr, lscr)
+             canonicalize, leri, eri, nints, ilab, jlab, klab, llab, lscr, scr)
 
 ... one electron integrals 
 . int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, lt, T)
@@ -21,7 +21,7 @@ critical path
 . int_1eov (i_basis, j_basis, ish, jsh, lscr, scr, ls, S)
 . int_1eh1 (i_basis, j_basis, ish, jsh, lscr, scr, lh1, H1)
 . int_1eall(i_basis, j_basis, ish, jsh, lscr, scr, lstv, S, T, V)
-. int_lgen1e (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, [S|T|V|H1], [nums|numt|numv|numh1]) 
+. int_lgen1e (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, len[S|T|V|H1], [S|T|V|H1], [nums|numt|numv|numh1]) 
 . int_l1eall(i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, T, V, numstv) 
 
 next to be done

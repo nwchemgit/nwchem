@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.3 1994-04-07 18:56:42 d3e129 Exp $
+c $Id: exact_mem.F,v 1.4 1994-04-08 15:59:32 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c
@@ -19,11 +19,11 @@ c
       do 00100 ibas = 1,nbas
         do 00200 jbas = 1,ibas
 c.... 2e 4 center
-          call emem_2e4c(ibas, jbas, lsz_2e4c, lmem_2e4c)
+          call emem_2e4c(bases(ibas), bases(jbas), lsz_2e4c, lmem_2e4c)
           mem_2e4c = max(mem_2e4c, lmem_2e4c)
           isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 1e
-          call emem_1e(ibas, jbas, lsz_1e, lmem_1e)
+          call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
           mem_1e = max(mem_1e, lmem_1e)
           isz_1e = max(isz_1e, lsz_1e)
 00200   continue
@@ -57,13 +57,8 @@ c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
-      
-      status = bas_numcont(brain,bra_ucont,.true.)
-      status = status .and. bas_numcont(ketin,ket_ucont,.true.)
-      if (.not.status) then
-        write(6,*)'emem_1e: number of unique contractions error '
-        stop 'error'
-      endif
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -100,9 +95,14 @@ c
         stop ' error '
       endif
       angm = max(bra_ang,ket_ang)
-      max1e = angm*(angm+1)/2
+      max1e = (angm+1)*(angm+2)/2
+      max1e = max1e*max1e
 c... insure scratch is large enough to hold 3*max1e
       memsize = max(max1e,memsize)
+c
+      write(6,'(a,i10)')'emem_1e: memsize =',memsize
+      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+c
       end
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
       implicit none
@@ -127,13 +127,8 @@ c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
-      
-      status = bas_numcont(brain,bra_ucont,.true.)
-      status = status .and. bas_numcont(ketin,ket_ucont,.true.)
-      if (.not.status) then
-        write(6,*)'emem_2e4c: number of unique contractions error '
-        stop 'error'
-      endif
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
@@ -202,7 +197,7 @@ c
         stop ' error '
       endif
       angm = max(bra_ang,ket_ang)
-      maxg = angm*(angm+1)/2
+      maxg = (angm+1)*(angm+2)/2
       maxg = maxg**4
 c
       write(6,'(a,i10)')'emem_2e4c: memsize =',memsize

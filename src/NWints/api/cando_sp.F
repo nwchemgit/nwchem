@@ -28,19 +28,22 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
 c.... check ish
-      if (ish.gt.0.) then
+      if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ish,basis),basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1))
       endif
 c
 c.... check jsh
-      if (jsh.gt.0.) then
+      if (jsh.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(jsh,basis),basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1))
       endif
 c
+#if defined(DEBUGNW)
+      if(cando_sp) cando_sp = .false.
+#endif
       end
       logical function cando_nw(basisin,ish,jsh)
       implicit none
@@ -75,13 +78,13 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
 c.... check ish
-      if (ish.gt.0.) then
+      if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ish,basis),basis)
         cando_nw = cando_nw .and.(mytype.ne.-1)
       endif
 c
 c.... check jsh
-      if (jsh.gt.0.) then
+      if (jsh.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(jsh,basis),basis)
         cando_nw = cando_nw .and.(mytype.ne.-1)
       endif

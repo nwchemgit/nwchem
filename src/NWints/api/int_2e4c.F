@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.4 1994-04-07 18:56:49 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.5 1994-04-08 15:59:40 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -84,6 +84,7 @@ c
 c        
       elseif(cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)) then
 c
+        write(6,*)' using nwints '
         ucont   = ibs_cn2ucn(ish,bra)
         La      = infbs_cont(CONT_TYPE ,ucont,bra)
         a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)

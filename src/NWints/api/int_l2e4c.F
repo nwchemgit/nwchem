@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
-     &       llab, scr, lscr)
-c $Id: int_l2e4c.F,v 1.3 1994-04-07 18:56:53 d3e129 Exp $
+     &       llab, lscr, scr)
+c $Id: int_l2e4c.F,v 1.4 1994-04-08 15:59:44 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -23,7 +23,8 @@ c::passed
       integer ilab(leri), jlab(leri), klab(leri), llab(leri), nint
       logical canonicalize
 c::local
-      logical braket, allshl, ignore_ij_kl, shells_ok, ijsh, klsh
+      logical braket, allshl, ignore_ij_kl, shells_ok
+      integer ijsh, klsh
       integer isym2
       integer i,j,k,l,bra,ket,icount,ij,kl
 c
@@ -44,11 +45,11 @@ c
 c
 c   check canonicalizations of input shells
 c      
-      shells_ok = ish.gt.jsh
-      shells_ok = shells_ok .and. ksh.gt.lsh
+      shells_ok = ish.ge.jsh
+      shells_ok = shells_ok .and. ksh.ge.lsh
       ijsh = isym2(ish,jsh)
       klsh = isym2(ksh,lsh)
-      if (brain.eq.ketin) shells_ok = shells_ok .and. ijsh.gt.klsh
+      if (brain.eq.ketin) shells_ok = shells_ok .and. ijsh.ge.klsh
       if (.not.shells_ok) then
         write(6,*)'int_2e4c: shells not canonical on input '
         write(6,*)'bra basis set handle:',brain
@@ -83,7 +84,7 @@ c
             do 00400 l = ibs_cn2bfr(1,lsh,ket), ibs_cn2bfr(2,lsh,ket)
               kl = isym2(k,l)
               icount = icount + 1
-              if (abs(scr(icount).gt.zerotol)) then
+              if (abs(scr(icount)).gt.zerotol) then
                 if (i.ge.j.and.k.ge.l.and.
      &                 (ignore_ij_kl.or.(ij.ge.kl)))then
                   nint = nint + 1

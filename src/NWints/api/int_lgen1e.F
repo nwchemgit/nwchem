@@ -1,6 +1,6 @@
       subroutine int_lgen1e(i_basis, j_basis, ish, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.1 1994-04-07 18:56:54 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.2 1994-04-08 15:59:45 d3e129 Exp $
 #include "basP.fh"
 #include "geobasmapP.fh"
       implicit none
@@ -51,7 +51,7 @@ c
               numgen = numgen + 1
               Gen1e(numgen) = scr(icount)
               ilab(numgen) = i
-              ilab(numgen) = j
+              jlab(numgen) = j
             endif
           endif
 c
