@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.6 1997-12-05 08:46:06 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.7 1998-08-04 16:12:27 d3g681 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -53,7 +53,7 @@ c
      &      num_q-num_q_start+1,
      &      q4(num_q_start), use_q4,
      &      roff,roff,roff,roff,.false.,
-     &      eri,(12*l_erilab), ilab, jlab, klab, llab, nint, .true.,
+     &      eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
      &      more_ints_txs, scr, lscr, zerotol,'der1_int')
         intbd_2e4c = more_ints_txs
       else
