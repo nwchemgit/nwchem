@@ -1,46 +1,39 @@
-#ifdef IPSC
-      real function etime(t)
-      real t(2)
-      real*8 dclock
-      external dclock
-      etime = dclock()
-      t(1)  = etime
-      t(2)  = etime
-      end
-#endif
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.22 1994-09-14 14:34:33 d3g681 Exp $
+c $Id: raktest.F,v 1.23 1994-09-15 03:15:58 d3e129 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
       logical gen_apphess_at
       external gen_apphess_at
 c
-      integer i
       double precision delta
 c
+#if defined(SUN)
       real etime,tarray(2)
-      real t1
       external etime
+#endif
+      real t1
+      t1 = 0.0
 c
 c      logical status
 c
       if(ga_nodeid().eq.0) then
         write(6,*) ' rak test'
       endif
-      delta = 0.1d00
-      do 00100 i = 1,5
-        t1 = etime(tarray)
-        if(.not.gen_apphess_at(rtdb,delta)) call errquit
-     &      ('raktest:gen_apphess_at failed',911)
-        t1 = etime(tarray) - t1 
-        delta = delta*0.1d00
-        if(ga_nodeid().eq.0) then
-          write(6,'(1x,a,f8.2)')
-     &        'time for rak test',t1
-        endif
-00100 continue
+      delta = 0.01d00
+#if defined(SUN)
+      t1 = etime(tarray)
+#endif
+      if(.not.gen_apphess_at(rtdb,delta)) call errquit
+     &    ('raktest:gen_apphess_at failed',911)
+#if defined(SUN)
+      t1 = etime(tarray) - t1 
+#endif
+      if(ga_nodeid().eq.0) then
+        write(6,'(1x,a,f8.2)')
+     &      'time for rak test',t1
+      endif
       end
       logical function gen_apphess_at(rtdb,delta)
       implicit none
@@ -184,6 +177,9 @@ c
       write(6,*)' finite difference hessian delta = ',delta
       call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
      &    rank_hess,rank_hess,1)
+      call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'new_fd_hess')
+      write(6,*)' triangle hessian written to new_fd_hess'
+      
 c
 c.. redefine mo basis to it's original setting
       if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis)) call errquit
@@ -207,6 +203,30 @@ c
       if(.not.geom_destroy(geom_ref))
      &    call errquit('gen_apphess_at: geom_destroy failed?',27)
       gen_apphess_at = .true.
+      end
+      subroutine wrt_fd_from_sq(hess,rank_hess,filename)
+      implicit none
+c
+      integer rank_hess
+      double precision hess(rank_hess,rank_hess)
+      character*(*) filename
+c
+      integer i, j, lu
+c
+      lu = 69
+      open(unit=lu,file=filename,
+     &    form='formatted',
+     &    access='sequential',
+     &    status='unknown')
+c
+      do 00100 i = 1,rank_hess
+        do 00200 j = 1,i
+          write(lu,10000)hess(i,j)
+00200   continue
+00100 continue
+c
+10000 format(1x,1pd20.10)
+c
       end
       subroutine fd_cdupd_hess(hess,grad0,gradp,delta,nat,
      &    iatom_t,ixyz_t)
