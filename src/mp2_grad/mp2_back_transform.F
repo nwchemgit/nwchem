@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.19 1997-06-24 23:28:44 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.20 1997-06-28 05:15:49 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -55,6 +55,10 @@ c
       integer twopdmunit
       integer junk, ninseg, ierr, i, j, ish, ishlo, ishhi, shmax, tdim
       integer nsh, natoms, nactive
+c
+      integer k_scr, l_scr, k_lab, l_lab, k_eri, l_eri, leneri, lenscr
+      integer k_bftosh, l_bftosh, k_bftoce, l_bftoce, k_pdm, l_pdm
+c
       character*(nw_max_path_len) fname
 c
       double precision tol2e
@@ -188,6 +192,25 @@ c
             log_mb(k_actsh+ish-1) = log_mb(k_act+i-1)
          end do
       end do
+c
+      call intd_init(rtdb, 1, basis)
+      call intb_mem_2e4c(leneri, lenscr) ! blocking algorithm
+      leneri = 15**4          ! 1 G quartet = 39 D quartets ... SEE MP2_MEMORY
+      if (.not. ma_push_get(mt_dbl,12*leneri,'deriv buffer',
+     $     l_eri,k_eri)) call errquit
+     $     ('mp2:backt could not allocate buffer',12*leneri)
+      if (.not. ma_push_get(mt_dbl,shmax**4,'pdm buffer',
+     $     l_pdm,k_pdm)) call errquit
+     $     ('mp2:backt could not allocate pdm',shmax*4)
+      if (.not. ma_push_get(mt_int,4*leneri,'deriv labels',l_lab,k_lab))
+     $     call errquit('mp2:backt could not allocate labels',leneri)
+      if (.not. ma_push_get(mt_dbl,lenscr,'deriv scratch',
+     $     l_scr,k_scr))
+     $     call errquit('mp2:backt could not allocate scr',lenscr)
+      if (.not. ma_push_get(mt_int,nbf,'shmap',l_bftosh,k_bftosh))
+     $     call errquit('mp2:backt could not allocate bftosh',nbf)
+      if (.not. ma_push_get(mt_int,nbf,'cemap',l_bftoce,k_bftoce))
+     $     call errquit('mp2:backt could not allocate bftoce',nbf)
 c      
       call ga_sync()
       call pstat_on(ps_nonsep)
@@ -199,9 +222,12 @@ c
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_tmp), grad,
      $     tol2e, oskel,
-     $     log_mb(k_actsh))
+     $     log_mb(k_actsh), leneri, dbl_mb(k_eri), int_mb(k_lab),
+     $     lenscr, dbl_mb(k_scr), int_mb(k_bftosh), int_mb(k_bftoce),
+     $     dbl_mb(k_pdm))
       call pstat_off(ps_nonsep)
       call ga_sync()
+      call intd_terminate()
 c
 c     Zero out gradients on inactive atoms
 c
@@ -637,7 +663,8 @@ c
      $     nsh, nbf, ninseg,
      $     nshpairlocal, shpairslocal, shdim, shlo,
      $     t, tbuf, grad,
-     $     tol2e, oskel, oactive)
+     $     tol2e, oskel, oactive, leneri, eri, labels, lenscr, 
+     $     scratch, shmap, cemap, pdm)
       implicit none
 #include "schwarz.fh"
 #include "mafdecls.fh"
@@ -649,59 +676,63 @@ c
 #include "rtdb.fh"
 #include "sym.fh"
 c     
-      integer rtdb
-      integer basis
-      integer twopdmunit
-      integer nsh, nbf, ninseg
-      double precision c_t(ninseg,nbf) ! Transposed MOs in segment
-      integer nshpairlocal, shpairslocal(2,*), shdim(nsh), shlo(nsh)
-      double precision t(*)     ! ninseg*nbf*S*S
-      double precision tbuf(*)  ! nbf*S*S
-      double precision tol2e
-      logical oskel
-      logical oactive(*)        ! oactive(ish)=true if shell is active
-
-      double precision grad(3,*)
+      integer rtdb              ! [input]
+      integer basis             ! [input]
+      integer twopdmunit        ! [input]
+      integer nsh, nbf, ninseg  ! [input] 
+      double precision c_t(ninseg,nbf) ! [input] Transposed MOs in segment
+      integer nshpairlocal, shpairslocal(2,*), shdim(nsh), shlo(nsh) ! [input]
+      double precision t(*)     ! [scratch] ninseg*nbf*S*S
+      double precision tbuf(*)  ! [scratch] nbf*S*S
+      double precision grad(3,*) ! [input/output]
+      double precision tol2e    ! [input]
+      logical oskel             ! [input]
+      logical oactive(*)        ! [input] oactive(ish)=true if shell is active
+      integer leneri, lenscr    ! [input]
+      integer labels(leneri,4), nq, nint ! [scratch]
+      double precision eri(3,4,leneri), scratch(lenscr) ! [scratch]
+      integer shmap(*), cemap(*) ! [scratch]
+      double precision pdm(*)   ! [scratch]
 c     
-      double precision fileptr
-      integer i, leng, lenscr, count
-      integer ishpair
+      double precision fileptr, energy, scale, psum, q4, block_eff
+      integer i, count, ishpair
       integer ush, vsh, xsh, ysh, u, v, x, y
       integer udim, vdim, xdim, ydim, xlo, ylo
-      double precision energy, g
-      double precision scale, p
-      integer l_g, k_g
-      integer duvxy, uvxy, vuoff, xvuoff, yvuoff
+      integer ush_cur, vsh_cur, xsh_cur, ysh_cur
+      integer ush_prev, vsh_prev, xsh_prev, ysh_prev
+      integer xcent, ycent, ucent, vcent, ijkl, xsh_start, ysh_start
+      logical omore
+c
+      integer maxq
+      parameter (maxq=10000)
+      integer sh_list(maxq,4)
+      double precision q4_list(maxq)
+c
+      logical intbd_init4c, intbd_2e4c
+      external intbd_init4c, intbd_2e4c
 c     
-      double precision psum, q4
-c     
-      integer nat, idatom, lengd, lenscrd, l_gd, k_gd, iat, icart, 
-     $     k_scrd, l_scrd, idum, geom, idum2
-      dimension idatom(4)
+      integer nat, geom,
+     $     ulo_cur, uhi_cur, vlo_cur, vhi_cur, xlo_cur, xhi_cur, 
+     $     ylo_cur, yhi_cur, udim_cur, vdim_cur, xdim_cur, ydim_cur
       logical status, odebug, odoit, sym_shell_quartet
       external sym_shell_quartet
-c
+c     
       odebug = util_print('mp2_backt', print_debug)
-c
+c     
       energy = 0.0d0
 c     
-      call int_init(rtdb,1,basis)
-      call int_mem_2e4c(leng, lenscr)
-      call int_terminate()
-      call intd_init(rtdb,1,basis)
-      call int_mem ( idum, lengd, idum2, lenscrd )
-      lenscr = max(lenscr, leng)
-      lenscrd = max(lenscrd, lengd, lenscr)
       status = bas_geom ( basis, geom )
       status = geom_ncent ( geom, nat )
-c
-      if (.not. ma_push_get(mt_dbl, leng, 'mp2:test2', l_g, k_g))
-     $     call errquit('mp2:test ma-2', leng)
-      if (.not. ma_push_get(mt_dbl, lenscrd, 'mp2:test3',l_scrd,k_scrd))
-     $     call errquit('mp2:test ma-3', lenscrd)
-      if (.not. ma_push_get(mt_dbl, lengd, 'mp2:test4', l_gd, k_gd))
-     $     call errquit('mp2:test ma-4', lengd)
-c
+c     
+      do u = 1, nbf
+         if (.not. bas_bf2ce(basis,u,ucent))
+     $        call errquit('mp2g: bad something?',0)
+         if (.not. bas_bf2cn(basis,u,ush))
+     $        call errquit('mp2g: bad something?',0)
+         cemap(u) = ucent
+         shmap(u) = ush
+      enddo
+c     
       if (odebug) then
          write(6,*) ' Transposed occupied MOS in segment '
          call output(c_t, 1, ninseg, 1, nbf, ninseg, nbf, 1)
@@ -727,22 +758,24 @@ c
             fileptr = fileptr + count*8.0d0
             call dcopy(count, tbuf, 1, t(i), ninseg)
          end do
+c     
+         xsh_start = 1          ! For braindead multipassing
+         ysh_start = 1
 c
-         do xsh = 1, nsh
-            do ysh = 1, xsh
+ 333     nq = 0
+         do xsh = xsh_start, nsh
+            do ysh = ysh_start, xsh
                odoit = schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
      $              .gt. tol2e*0.1d0
                odoit = odoit .and. 
      $              (oactive(ush).or.oactive(vsh).or.
-     $               oactive(xsh).or.oactive(ysh))
+     $              oactive(xsh).or.oactive(ysh))
                q4 = 1.0d0
                if (odoit .and. oskel) odoit = 
      $              sym_shell_quartet(basis, ush, vsh, xsh, ysh, q4)
-*               if (odebug) 
-*     $              write(6,*) ush, vsh, xsh, ysh, q4, odoit
-c
+c     
                if (odoit) then
-c
+c     
                   scale = q4
                   if (xsh .eq. ysh) scale = scale*0.5d0
                   xdim = shdim(xsh)
@@ -750,87 +783,185 @@ c
                   xlo  = shlo(xsh)
                   ylo  = shlo(ysh)
 
-                  if (odebug) then
-c     first the energy just to validate the 2pdm
-                     call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
-     $                    lenscr, dbl_mb(k_scrd), leng, dbl_mb(k_g))
-                  end if
-
-c     reuse the energy integral buffer for the 2PDM
-
-                  uvxy = k_g
-                  psum = 0.0d0
-                  do u = 1, udim
-                     do v = 1, vdim
-                        vuoff = nbf*(v-1 + vdim*(u-1))
-                        do x = xlo, xlo+xdim-1
-                           xvuoff = ninseg*(x-1 + vuoff)
-                           do y = ylo, ylo+ydim-1
-                              yvuoff = ninseg*(y-1 + vuoff)
-                              p = 0.0d0
-c
-                              do i = 1, ninseg
-                                 p = p +
-     $                                t(i+xvuoff)*c_t(i,y)+
-     $                                t(i+yvuoff)*c_t(i,x)
-                              end do
-c
-                              p = p*scale
-                              psum = psum + p*p
-                              if (odebug) then
-                                 g = dbl_mb(uvxy)
-                                 energy = energy + p * g
-                              end if
-                              dbl_mb(uvxy) = p
-c
-                              uvxy = uvxy + 1
-                           end do
-                        end do
-                     end do
-                  end do
-                  psum = sqrt(psum)
-
+                  call mp2_make_two_particle_density(psum,
+     $                 udim, vdim, xdim, ydim, xlo, ylo, 
+     $                 ninseg, nbf, 
+     $                 scale, c_t, t, pdm)
+c     
 c     use density to screen evaluation of gradient integrals
 
                   if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)*psum
      $                 .gt. tol2e) then
-                     
-                     call intd_2e4c(basis, ush, vsh, basis, xsh, ysh,
-     $                    lenscrd, dbl_mb(k_scrd), lengd, dbl_mb(k_gd), 
-     $                    idatom)
-                     
-                     duvxy = k_gd
-                     do iat = 1, 4
-                        if ( idatom(iat) .gt. 0 ) then
-                           do icart = 1, 3
-                              grad(icart,idatom(iat)) = 
-     $                             grad(icart,idatom(iat)) +
-     $                             ddot(udim*vdim*xdim*ydim,
-     $                             dbl_mb(k_g), 1, dbl_mb(duvxy), 1)
-                              duvxy = duvxy + udim*vdim*xdim*ydim
-                           end do ! icart
-                        else
-                           duvxy = duvxy + 3*udim*vdim*xdim*ydim
-                        end if  ! idatom
-                     end do     ! iat
-                  end if         ! Density * Schwarz screening
-               end if           ! Schwarz screening
-            end do
-         end do
+
+                     nq = nq + 1
+                     sh_list(nq,1) = ysh
+                     sh_list(nq,2) = xsh
+                     sh_list(nq,3) = vsh
+                     sh_list(nq,4) = ush
+                     q4_list(nq)   = scale
+                     if (nq .eq. maxq) goto 666 ! UGLY 
+                  endif         ! schwarz and density
+               endif            ! schwarz
+            enddo               ! ysh
+            ysh_start = 1
+         enddo                  ! xsh
+c
+ 666     xsh_start = xsh
+         ysh_start = ysh+1
+c     
+         omore = .false.
+c     
+         if (.not. intbd_init4c(
+     $        basis, sh_list(1,1), sh_list(1,2),
+     $        basis, sh_list(1,3), sh_list(1,4),
+     $        nq, q4_list, .true., lenscr, scratch, leneri, 
+     $        block_eff)) call errquit('mp2:backt: txs init?',nq)
+c     
+ 1000    omore = intbd_2e4c(
+     $        basis, sh_list(1,1), sh_list(1,2),
+     $        basis, sh_list(1,3), sh_list(1,4),
+     $        nq, q4_list, .true., tol2e, .false.,
+     $        labels(1,1),labels(1,2), 
+     $        labels(1,3), labels(1,4), 
+     $        eri, leneri, nint, lenscr, scratch)
+
+         if (nint .eq. 0) goto 1001
+c     
+         ush_prev = -1
+         vsh_prev = -1
+         ysh_prev = -1
+         xsh_prev = -1
+         do ijkl = 1, nint
+            u = labels(ijkl,4)
+            v = labels(ijkl,3)
+            x = labels(ijkl,2)
+            y = labels(ijkl,1)
+            ush_cur = shmap(u)
+            vsh_cur = shmap(v)
+            xsh_cur = shmap(x)
+            ysh_cur = shmap(y)
+c
+            if ( ush_cur.ne.ush_prev .or.
+     $           vsh_cur.ne.vsh_prev .or.
+     $           xsh_cur.ne.xsh_prev .or.
+     $           ysh_cur.ne.ysh_prev ) then
+c     
+               ush_prev = ush_cur
+               vsh_prev = vsh_cur
+               xsh_prev = xsh_cur
+               ysh_prev = ysh_cur
+c     
+               ulo_cur  = shlo(ush_cur)
+               vlo_cur  = shlo(vsh_cur)
+               xlo_cur  = shlo(xsh_cur)
+               ylo_cur  = shlo(ysh_cur)
+c     
+               udim_cur = shdim(ush_cur)
+               vdim_cur = shdim(vsh_cur)
+               xdim_cur = shdim(xsh_cur)
+               ydim_cur = shdim(ysh_cur)
+c     
+               uhi_cur  = ulo_cur + udim_cur - 1
+               vhi_cur  = vlo_cur + vdim_cur - 1
+               xhi_cur  = xlo_cur + xdim_cur - 1
+               yhi_cur  = ylo_cur + ydim_cur - 1
+c     
+               ucent = cemap(u)
+               vcent = cemap(v)
+               xcent = cemap(x)
+               ycent = cemap(y)
+c     
+               call mp2_make_two_particle_density( psum,
+     $              udim_cur, vdim_cur, xdim_cur, ydim_cur, 
+     $              xlo_cur, ylo_cur, 
+     $              ninseg, nbf, 
+     $              1.0d0, c_t, t, pdm)
+            endif
+c     
+            call make_mp2grad(ucent,vcent,xcent,ycent, u,v,x,y,
+     $           ulo_cur, uhi_cur, vlo_cur, vhi_cur,
+     $           xlo_cur, xhi_cur, ylo_cur, yhi_cur,
+     $           pdm, eri(1,1,ijkl), grad )
+c     
+         enddo
+c     
+         if (omore) goto 1000   ! Texas split the request
+ 1001    continue               ! Done with this request
+c
+         if (xsh_start .le. nsh) goto 333
+c     
       end do
 c     
       if (odebug) then
          call ga_dgop(1,energy,1,'+')
          write(6,*) ' The energy from the two PDM is ', energy
       end if
-c
-      if (.not. ma_pop_stack(l_gd))
-     $     call errquit('mp2:test: ma pop failed', 0)
-      if (.not. ma_pop_stack(l_scrd))
-     $     call errquit('mp2:test: ma pop failed', 0)
-      if (.not. ma_pop_stack(l_g))
-     $     call errquit('mp2:test: ma pop failed', 0)
-c
-      call int_terminate()
 c     
       end
+      subroutine mp2_make_two_particle_density(
+     $     psum, udim, vdim, xdim, ydim, xlo, ylo, ninseg, nbf, 
+     $     scale, c_t, t, density)
+      implicit none
+c     
+      double precision psum     ! [output] Norm of density
+      integer udim, vdim, xdim, ydim ! [input] Shell dimensions
+      integer xlo, ylo          ! [input] Start of shells
+      integer ninseg            ! [input] No. of i in the batch
+      integer nbf               ! [input]
+      double precision scale    ! [input] Q4 and other factors
+      double precision c_t(ninseg,nbf) ! [input] Transposed MO vectors in batch
+      double precision t(ninseg,nbf,vdim,udim) ! [input] Partially transformed amplitudes
+      double precision density(ydim,xdim,vdim,udim) ! [output] 
+c
+      integer u, v, x, y, i
+      double precision p
+c
+      psum = 0.0d0
+      do u = 1, udim
+         do v = 1, vdim
+            do x = 1, xdim
+               do y = 1, ydim
+                  p = 0.0d0
+                  do i = 1, ninseg
+                     p = p + t(i,x+xlo-1,v,u)*c_t(i,y+ylo-1)
+     $                     + t(i,y+ylo-1,v,u)*c_t(i,x+xlo-1)
+                  end do
+                  p = p*scale
+                  psum = psum + p*p
+                  density(y,x,v,u) = p
+               end do
+            end do
+         end do
+      end do
+c
+      psum = sqrt(psum)
+c
+      end
+      subroutine make_mp2grad(ucent,vcent,xcent,ycent, u,v,x,y,
+     $                        ulo, uhi, vlo, vhi, xlo, xhi, ylo, yhi,
+     $                        density, eri, grad )
+      implicit none
+      integer ucent,vcent,xcent,ycent, u,v,x,y 
+      integer ulo, uhi, vlo, vhi, xlo, xhi, ylo, yhi 
+      integer icart
+      double precision density(ylo:yhi,xlo:xhi,vlo:vhi,ulo:uhi)
+      double precision eri(3,4) , grad(3,*)
+c
+c ycent - eri(*,1)
+c xcent - eri(*,2)
+c vcent - eri(*,3)
+c ucent - eri(*,4)
+c
+      do icart=1,3
+         grad(icart,ucent)=grad(icart,ucent)+
+     $                     density(y,x,v,u)*eri(icart,4)
+         grad(icart,vcent)=grad(icart,vcent)+
+     $                     density(y,x,v,u)*eri(icart,3)
+         grad(icart,xcent)=grad(icart,xcent)+
+     $                     density(y,x,v,u)*eri(icart,2)
+         grad(icart,ycent)=grad(icart,ycent)+
+     $                     density(y,x,v,u)*eri(icart,1)
+      enddo
+c
+      end
+c--------------------------------------------------
