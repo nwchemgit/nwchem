@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.36 1999-01-07 23:14:00 windus Exp $
+* $Id: prp.F,v 1.37 1999-01-22 00:52:52 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -4899,89 +4899,6 @@ C
  8000 CONTINUE
  9000 CONTINUE
 C
-      RETURN
-      END
-      SUBROUTINE HND_SXYZ
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- GAUSS-HERMITE QUADRATURE USING MINIMUM POINT FORMULA -----
-C
-#include "hnd_whermt.fh"
-c
-      COMMON/HND_XYZSTV/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
-     &                  NI,NJ
-      DIMENSION MIN(7),MAX(7)
-      DATA MIN  /1,2,4, 7,11,16,22/
-      DATA MAX  /1,3,6,10,15,21,28/
-      DATA ZERO /0.0D+00/
-C
-      XINT=ZERO
-      YINT=ZERO
-      ZINT=ZERO
-      NPTS=(NI+NJ-2)/2+1
-      IMIN=MIN(NPTS)
-      IMAX=MAX(NPTS)
-      DO 16 I=IMIN,IMAX
-      DUM=W(I)
-      PX=DUM
-      PY=DUM
-      PZ=DUM
-      DUM=H(I)*T
-      PTX=DUM+X0
-      PTY=DUM+Y0
-      PTZ=DUM+Z0
-      AX=PTX-XI
-      AY=PTY-YI
-      AZ=PTZ-ZI
-      BX=PTX-XJ
-      BY=PTY-YJ
-      BZ=PTZ-ZJ
-      GO TO (7,6,5,4,3,2,1),NI
-    1 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    2 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    3 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    4 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    5 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    6 PX=PX*AX
-      PY=PY*AY
-      PZ=PZ*AZ
-    7 GO TO (15,14,13,12,11,10,9,8),NJ
-    8 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-    9 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   10 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   11 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   12 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   13 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   14 PX=PX*BX
-      PY=PY*BY
-      PZ=PZ*BZ
-   15 CONTINUE
-      XINT=XINT+PX
-      YINT=YINT+PY
-      ZINT=ZINT+PZ
-   16 CONTINUE
       RETURN
       END
       SUBROUTINE HND_ELFMAP(RTDB,BASIS,GEOM)
