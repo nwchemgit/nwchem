@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin)
-* $Id: int_ecp.F,v 1.2 1996-10-16 20:35:46 mg201 Exp $
+* $Id: int_ecp.F,v 1.3 1996-10-16 22:40:51 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
@@ -17,7 +17,9 @@
 #include "bas_ibs_dec.fh"
 #include "geom.fh"
 #include "geomP.fh"
+#include "apiP.fh"
 #include "ecp_nwc.fh"
+#include "int_nbf.fh"
 *::passed
       integer ecpidin   ! [input] ecp basis handle
 *::local
@@ -36,6 +38,12 @@ c
       integer idum
       integer basis_handle
       integer l_bas
+      integer bas_id
+      integer basis_ncont
+      integer i_cont, ic, iuc, ie, icf, inp, ing, il, ig
+      integer j_cont, jc, juc, je, jcf, jnp, jng, jl, jg
+      integer lecp_mem, mem_ecp
+      integer nV
       double precision dpdum(2)
 *
       external ecp_init_bd
@@ -211,8 +219,66 @@ c l_ecp currently has Lmax for ecp basis
       call ecp_init_c2s(lmax_both,
      &      dbl_mb(k_ecp_c2s),dbl_mb(k_ecp_c2s),mem_c2s,1,1,.false.,
      &      idum)
-      call ecp_init_con
+c
+c initialize constants for ecp integral code
+c
+      call ecp_init_con()
+c
+c determine maximum memory for ecp integrals
+c
+      bas_id = basis_handle + basis_handle_offset
+      basis_ncont = ncont_tot_gb(bas_id)
+      ig = ibs_geom(bas_id)
+      jg = ig
+      mem_ecp = 0
+*      if (.not.bas_print(basis_handle)) stop ' error'
+*      if (.not.gbs_map_print(basis_handle)) stop ' error '
+*      if (.not.bas_print(ecpidin)) stop 'error'
+*      if (.not.gbs_map_print(ecpidin)) stop ' error'
+      do i_cont = 1,basis_ncont
+        ic  = sf_ibs_cn2ce(i_cont,bas_id)
+        iuc = sf_ibs_cn2ucn(i_cont,bas_id)
+        ie  = infbs_cont(cont_iexp,iuc,bas_id)
+        icf = infbs_cont(cont_icfp,iuc,bas_id)
+        inp = infbs_cont(cont_nprim,iuc,bas_id)
+        ing = infbs_cont(cont_ngen,iuc,bas_id)
+        il  = infbs_cont(cont_type,iuc,bas_id)
+        do j_cont = 1,basis_ncont
+*          if (.not.bas_print(basis_handle)) stop ' error'
+*          if (.not.gbs_map_print(basis_handle)) stop ' error '
+          jc = sf_ibs_cn2ce(j_cont,bas_id)
+          juc = sf_ibs_cn2ucn(j_cont,bas_id)
+          je  = infbs_cont(cont_iexp,juc,bas_id)
+          jcf = infbs_cont(cont_icfp,juc,bas_id)
+          jnp = infbs_cont(cont_nprim,juc,bas_id)
+          jng = infbs_cont(cont_ngen,juc,bas_id)
+          jl  = infbs_cont(cont_type,juc,bas_id)
+          nV  = int_nbf_x(il)*int_nbf_x(jl)
+          lecp_mem = 90000
+          call int_ecp_hf1(
+     &        coords(1,ic,ig),
+     &        dbl_mb(mb_exndcf(ie,bas_id)),
+     &        dbl_mb(mb_exndcf(icf,bas_id)),
+     &        inp,ing,il,
+     &        coords(1,jc,jg),
+     &        dbl_mb(mb_exndcf(je,bas_id)),
+     &        dbl_mb(mb_exndcf(jcf,bas_id)),
+     &        jnp,jng,jl,
+     &        dpdum,nV,dpdum,lecp_mem,.true.)
+          lecp_mem = lecp_mem + nV  ! nint block used in api routine
+          mem_ecp = max(mem_ecp,lecp_mem)
+*          write(6,*)' i_cont ',i_cont
+*          write(6,*)' j_cont ',j_cont
+*          write(6,*)' lecp_mem from int_ecp_init is ',
+*     &        lecp_mem,mem_ecp
+        enddo
+      enddo
+      write(6,*)' scr 1e memory without ecp',mem_1e
+      mem_1e = max(mem_1e,mem_ecp)
+      write(6,*)' scr 1e memory with    ecp',mem_1e
+*
       int_ecp_init = .true.
+*
       end
       subroutine int_ecp_terminate()
       implicit none

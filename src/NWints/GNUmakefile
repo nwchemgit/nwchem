@@ -1,7 +1,7 @@
 
-# $Id: GNUmakefile,v 1.36 1996-10-01 18:46:57 d3e129 Exp $
+# $Id: GNUmakefile,v 1.37 1996-10-16 22:40:45 d3e129 Exp $
 
-    HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh
+    HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh api/int_nbf.fh
     LIBRARY = libnwints.a
     SUBDIRS = api int aux ints_sp deriv texas ecp
 
