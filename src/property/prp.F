@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.58 2004-07-22 19:37:24 bert Exp $
+* $Id: prp.F,v 1.59 2004-07-23 20:52:58 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -10,7 +10,6 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
-      parameter  (mxefc=3*7*7*7)
       integer     rtdb, basis, geom
       logical     status
       logical     some
@@ -21,18 +20,6 @@
       character*8 prop
       character*8 blank
       character*4 iblk 
-      character*4 iefc 
-      common/hnd_restar/nrest
-      common/hnd_output/nprint
-      common/hnd_runopt/runtyp
-      common/hnd_symtry/invt(48),nt,ntmax,ntwd,nosym
-      common/hnd_efcpar/efcc(3,mxefc),efcz(mxefc),efclab(mxefc),nefc
-      common/hnd_efcopt/iefc
-      common/hnd_datdpl/dpol( 6)
-      common/hnd_datdhp/hpol(10)
-      common/hnd_datfpl/fpol( 6)
-      common/hnd_wfnopt/wfntyp
-      common/hnd_scfopt/scftyp
       data scf     /'scf     '/
       data rhf     /'rhf     '/
       data zero    /0.0d+00/
@@ -105,16 +92,10 @@ c     ----- symmetry turned off   -----
 c
 *     if(nosym.ne.0) call hnd_symoff
 c
-*     do i=1,6
-*        dpol(i)=zero
-*     enddo
 *     if(nodpl.eq.0.and.nofpl.ne.0) call hnd_dpl
 c
 c     ----- dipole hyperpolarizability -----
 c
-*     do i=1,10
-*        hpol(i)=zero
-*     enddo
 *     if(nodhp.eq.0.and.nofhp.ne.0) call hnd_dhp
 c
 c     ----- dipole second hyperpolarizability -----
@@ -123,9 +104,6 @@ c
 c
 c     ----- frequency dependent dipole polarizability -----
 c
-*     do i=1,6
-*        fpol(i)=zero
-*     enddo
 *     if(nofpl.eq.0) call hnd_fpl
 c
 c     ----- freqency dependent dipole hyperpolarizability -----
