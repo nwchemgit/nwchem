@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.98 1997-12-09 04:42:12 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.99 1997-12-16 23:57:26 d3h449 Exp $
 c     
       implicit none
 c
@@ -306,6 +306,13 @@ c
          endif
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
+         if (availm_r.lt.n3c_dbl_r)then
+c
+c           cannot all be done incore so let's restrict memory use to a
+c           max of 3 MW for semi-direct (I/O)
+c
+            availm_r = min(availm_r,3d+6)
+         endif
          n3c_dbl = nint(availm_r)
          if (me.eq.0 .and. oprint_parm)
      &      write(LuOut,3228)avail, availm, n3c_dbl

@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght)
 c
-C$Id: xc_lyp88.F,v 1.7 1997-03-28 18:45:48 d3h449 Exp $
+C$Id: xc_lyp88.F,v 1.8 1997-12-16 23:57:35 d3h449 Exp $
 c
       implicit none 
 c
@@ -13,7 +13,7 @@ c
 c
 c     Charge Density & Its Cube Root
 c
-      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision rho(nq,(ipol*(ipol+1))/2)
 c
 c     Charge Density Gradient
 c
@@ -26,7 +26,7 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol), Cmat(nq,3,ipol)
-      double precision P13, P43, P83, P19, EPS, P1, tol_rho, TOLL, A, 
+      double precision P13, P43, P83, P19, EPS, P1, tol_rho, A, 
      &                 B, C, D, P2,  P3
 c
       Parameter (P13 = 1.D0/3.D0, P43 = 4.D0*P13, P83 = 8.D0*P13, 
@@ -36,7 +36,6 @@ c
 c     P1 = 2**(11/3)*(3/10)*(3*PI**2)**(2/3)
 c
       Parameter (P1 = 0.3646239897876487D+02)
-      Parameter (TOLL = 1.d-20)
 c
 c     Colle-Salvetti Empirical Parameters
 c
@@ -135,11 +134,9 @@ c
 c
             Amat(n,1) = Amat(n,1) + dElypdCDa*fac
             gaa = (dElypdGaa + 0.5d0*dElypdGab)*fac
-            if (dabs(gaa).gt.TOLL) then
-               Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1)
-               Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1)
-               Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1)
-            endif
+            Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1)
+            Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1)
+            Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1)
             Ec = Ec + Elyp*qwght(n)*fac
    10    continue
       else
