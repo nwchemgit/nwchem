@@ -441,6 +441,7 @@ c$$$      call intd_terminate()
 c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ',e2
 c
+      call ga_dgop(1,dbl_mb(k_frc),3*natoms,'+')
       write (luout,1000) (dbl_mb(k_frc+i),i=0,3*natoms-1)
  1000 format (1000(3(F14.8,1X)/))
       if(.not.rtdb_ma_get(rtdb,'mp2:scf+separable gradient',junk1,
