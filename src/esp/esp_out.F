@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.7 1998-04-24 08:02:34 d3e129 Exp $
+c $Id: esp_out.F,v 1.8 1998-04-28 19:38:10 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       character*80 name
       real*8 coord(3)
 c
-      if(me.ne.0) return
+      if(me.eq.0) then
 c
       if(util_print('output',print_medium)) then
       write(lfnout,600)
@@ -73,6 +73,8 @@ c
   614 format(/,' RMS deviation %',t49,4f12.6)
       endif
 c
+      endif
+c
 c     put charges on rtdb
 c     -------------------
 c
@@ -99,7 +101,7 @@ c
       endif
     3 continue
 c
-      if(idump.eq.1) then
+      if(me.eq.0.and.idump.eq.1) then
       call util_file_name('grid',.false.,.false.,grdfil)
       open(unit=lfngrd,file=grdfil,form='formatted',status='unknown')
       do 10 i=1,ngrid
