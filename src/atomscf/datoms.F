@@ -1,7 +1,8 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
-     +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C     $Id: datoms.F,v 1.17 1996-08-06 05:26:06 d3g681 Exp $
+     +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
+     $     odens, eatom)
+C     $Id: datoms.F,v 1.18 1996-10-21 16:43:47 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -10,6 +11,8 @@ C     $Id: datoms.F,v 1.17 1996-08-06 05:26:06 d3g681 Exp $
 #include "cguess.fh"
 #include "msgids.fh"
       integer geom, basis
+      logical odens             ! If true make the global density
+      double precision eatom    ! Return sum of atomic energies
 c     
 c...  subroutine to coordinate atom-scf calls and d-matrix gathering
 c...  for atomic startup
@@ -131,29 +134,32 @@ c
      $           call errquit('guess atom dens: bas_ce2bfr', iat)
             do jat = iat, natoms
                if ((.not. odone(jat)) .and. tags(iat).eq.tags(jat)) then
-                  if (.not. bas_ce2bfr(basis, jat, jbflo, jbfhi))
-     $                 call errquit('guess atom dens: bas_ce2bfr', jat)
+                  toteng = toteng + energ
+                  odone(jat) = .true.
+c
+                  if (odens) then
+                     if (.not. bas_ce2bfr(basis, jat, jbflo, jbfhi))
+     $                    call errquit('guess atom dens:bas_ce2bfr',jat)
 c     
 c     shift adjusts iiloc() from atom iat to atom jat
 c     
-                  shift = jbflo - ibflo
-                  do ispdf = 1, 4
-                     do j = 1, nbc(ispdf)
-                        iiloc(j,ispdf) = iiloc(j,ispdf) + shift
+                     shift = jbflo - ibflo
+                     do ispdf = 1, 4
+                        do j = 1, nbc(ispdf)
+                           iiloc(j,ispdf) = iiloc(j,ispdf) + shift
+                        enddo
                      enddo
-                  enddo
 c     
-                  odone(jat) = .true.
-                  toteng = toteng + energ
-                  call creded(g_dens, dt, iiloc, nbb, ospherical)
+                     call creded(g_dens, dt, iiloc, nbb, ospherical)
 c     
 c     undo the shifting ready for next atom ... clearer than fudging shift
 c     
-                  do ispdf = 1, 4
-                     do j = 1, nbc(ispdf)
-                        iiloc(j,ispdf) = iiloc(j,ispdf) - shift
+                     do ispdf = 1, 4
+                        do j = 1, nbc(ispdf)
+                           iiloc(j,ispdf) = iiloc(j,ispdf) - shift
+                        enddo
                      enddo
-                  enddo
+                  endif
                endif
             enddo
          endif
@@ -168,6 +174,8 @@ c
          write (iwrite,6010) toteng
          call util_flush(iwrite)
       endif
+c
+      eatom = toteng
 c
 *ZIJING      call basis_map(geom,basis)
 c     

@@ -1,5 +1,17 @@
       subroutine guess_dens(rtdb, geom, basis, g_dens)
-C$Id: denat.F,v 1.12 1996-06-29 01:51:34 d3g681 Exp $
+      implicit none
+      integer rtdb, geom, basis, g_dens
+c
+      logical odens
+      double precision eatom
+c
+      odens = .true.
+c
+      call guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
+c
+      end
+      subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
+C$Id: denat.F,v 1.13 1996-10-21 16:43:48 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -13,7 +25,9 @@ C$Id: denat.F,v 1.12 1996-06-29 01:51:34 d3g681 Exp $
 #include "stdio.fh"
       integer rtdb              ! Run Time Data Base Handle
       integer geom, basis       ! Handles
+      integer odens             ! [input] If true make the density
       integer g_dens            ! GA returns superposition of atomic densities
+      double precision eatom    ! returns sum of atomic SCF energies
 c
 c..   get starting vectors from superposition of atomic densities
 c..
@@ -39,7 +53,8 @@ c
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
       data iwrite/6/, oprint_dens/.false./, oprint_scf/.false./
 c
-      oprint_dens = util_print('atomic guess density',print_debug)
+      oprint_dens = (odens .and. 
+     $     util_print('atomic guess density',print_debug))
       oprint_scf  = util_print('atomic scf', print_debug)
       oprint_ener = util_print('mo guess', print_default)
       oprint_mod_z = util_print('mo guess', print_default)
@@ -124,7 +139,8 @@ c..
      +     dbl_mb(it), dbl_mb(ih), dbl_mb(idc), dbl_mb(idos), 
      $     dbl_mb(idt), dbl_mb(idold), dbl_mb(iss) ,
      +     dbl_mb(ic), dbl_mb(icopn), dbl_mb(ismin), dbl_mb(iqmin), 
-     $     dbl_mb(itransf), dbl_mb(icc), nb, oprint_ener) 
+     $     dbl_mb(itransf), dbl_mb(icc), nb, oprint_ener,
+     $     odens, eatom) 
 c
 c..   print if requested
 c
