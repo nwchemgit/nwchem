@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.85 1997-08-21 06:49:08 gutowski Exp $
+c     $Id: dft_scf.F,v 1.86 1997-08-27 23:50:21 gutowski Exp $
 c     
       implicit none
 c
@@ -90,7 +90,7 @@ c
      &        oprint_eval, oprint_syma, oprint_time, 
      &        oprint_info, oprint_tol, oprint_final_vecs, 
      &        oprint_energy_step, oprint_intermediate_fock,
-     &        oprint_3c2e
+     &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2
       integer itol_min, iAOacc_min
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
@@ -126,6 +126,9 @@ c
       oprint_energy_step = util_print('intermediate energy info',
      &                                print_high)
       oprint_intermediate_fock = util_print('intermediate fock matrix',
+     &                                      print_high)
+      oprint_interm_S2 = util_print('intermediate S2',print_high)
+      oprint_interm_overlap = util_print('intermediate overlap',
      &                                      print_high)
       oprint_final_vecs = util_print('final vectors', print_high)
       me = ga_nodeid()
@@ -360,7 +363,10 @@ c
       rlshift = rlshift_def
 c     
       if (nodamping)damping = .false.
-      if (nolevelshifting)levelshifting = .false.
+      if (nolevelshifting) then 
+        levelshifting = .false.
+        rlshift = rlshift_def
+      endif
       if (nodiis)diising = .false.
       if (ncydp.ne.0)then
          damping = .true. 
@@ -762,7 +768,6 @@ c
            homo=-100.0d0
            lumo=100.0d0
          endif
-         homo_lumo_gap = min(homo_lumo_gap, (lumo - homo))
 c     
 c        If levelshifting then tidy up.
 c     
@@ -779,8 +784,6 @@ c
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), zero, g_fock)
             call ga_copy(g_fock, g_movecs(ispin))
-            lumo = lumo - rlshift
-            homo_lumo_gap = min(homo_lumo_gap,(lumo - homo))
          endif
 c     
 c        Back-transform eigenvectors with S^-1/2.
@@ -792,23 +795,27 @@ c
 c     
 c        Keep orbital ordering according to principle
 c        of maximum overlap with previous iteration.
-c        Note, do this after MOs have settled down a
-c        few iterations.
 c     
-         if (lmaxov.and.(delta.lt.0.01))then
+         if (lmaxov)then
             call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
      &                     g_fock, g_movecs(ispin), g_tmp)
             homo = -100.0d0
             lumo =  100.0d0
-            do i = 1, noc(ispin)
-               homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
-            enddo
-            do i = noc(ispin)+1, nbf
-               lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
-            enddo
+            if(noc(ispin).gt.0) then
+              do i = 1, noc(ispin)
+                 homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
+              enddo
+              do i = noc(ispin)+1, nbf
+                 lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
+              enddo
+            endif
          else
             call ga_copy(g_fock, g_movecs(ispin))
          endif
+c        
+c        determine homo-lumo gap 
+c
+         homo_lumo_gap = min(homo_lumo_gap, (lumo-homo-rlshift))
 c     
          call ga_sync
 #if defined(DFT_TIMER)
@@ -941,6 +948,24 @@ c
          if (ipol.eq.2)call ga_print(g_movecs(2))
       endif
 c     
+c     If open shell compute overlap of alpha orbitals with beta 
+c     orbitals.
+c     
+      if ((ipol.gt.1).and.(oprint_interm_overlap)) then
+         call dft_mxspin_ovlp(ao_bas_han, g_movecs(1), g_movecs(2), 
+     &                        g_tmp)
+      endif
+c     
+c     computation of <S2> for open shell
+c     
+      if ((ipol.gt.1).and.(oprint_interm_S2)) then
+
+         call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
+     &        nbf_ao,g_dens(1),g_dens(2))
+
+      endif
+c     
+c     
 c     Form the total density matrix.
 c     
       if (ipol.eq.2)then
@@ -982,13 +1007,13 @@ c
          if (homo_lumo_gap.lt.hl_tol)then
             levelshifting = .true.
             rlshift = rlshift_input
-            if (check_shift)then
-               if (lumo .lt. homo)then
-                  levelshifting = .false.
-                  if (me.eq.0 .and. oprint_conv)
-     &               write(LuOut,2224)homo, lumo
-               endif
-            endif
+c            if (check_shift)then
+c               if (lumo .lt. homo)then
+c                  levelshifting = .false.
+c                  if (me.eq.0 .and. oprint_conv)
+c     &               write(LuOut,2224)homo, lumo
+c               endif
+c            endif
          else
             levelshifting = .false.
             rlshift = rlshift_def
@@ -1017,19 +1042,22 @@ c
       endif
 c     
       if (nodamping)damping = .false.
-      if (nolevelshifting)levelshifting = .false.
+      if (nolevelshifting) then 
+        levelshifting = .false.
+        rlshift=rlshift_def
+      endif        
       if (nodiis)diising = .false.
 c     
       Etold = Etnew
 c     
-      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-         lmaxov = .false.
-         if (me.eq.0 .and. oprint_conv)write(LuOut,224)homo, lumo
- 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &        /,10x,'Significant orbital reordering with',
-     &        ' maximum overlap',
-     &        /,10x,'turned ON.  Turning max_ovl OFF.')
-      endif
+c      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
+c         lmaxov = .false.
+c         if (me.eq.0 .and. oprint_conv)write(LuOut,224)homo, lumo
+c 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+c     &        /,10x,'Significant orbital reordering with',
+c     &        ' maximum overlap',
+c     &        /,10x,'turned ON.  Turning max_ovl OFF.')
+c      endif
 c     
       if (oprint_energy_step.and.me.eq.0)then         
          if (nexc.le.1)then
@@ -1050,7 +1078,7 @@ c
  225     format(/,10x,'Done. Constructing final Fock matrix, orbitals',
      &        ' and orbital energies.',/)
          diising = .false.
-         levelshifting = .false.
+c         levelshifting = .false.
          damping = .false.
          go to 1000             ! build final orbitals/energies
       endif
@@ -1060,7 +1088,7 @@ c
          if (me.eq.0 .and. oprint_conv)write(LuOut,226)
  226     format(/,10x,'      Constructing final total energies.',/)
          diising = .false.
-         levelshifting = .false.
+c         levelshifting = .false.
          damping = .false.
          go to 1000             ! build final total energies
       endif
