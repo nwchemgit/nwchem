@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.48 2002-01-19 01:05:02 windus Exp $
+C $Id: hess_cphf.F,v 1.49 2002-02-06 01:11:16 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -270,13 +270,9 @@ c
      &   call errquit('hess_cphf: could not allocate g_dip',555)
       call ga_zero(g_dip)
       call hess_dipint(rtdb, geom, basis, g_dip)
-      write(luout,*) 'g_dip in AO basis'
-      call ga_print(g_dip)
       ndip = 3
       call hess_aotomo(g_dip, g_vecs, g_modx, oprint,
      $          ocphfprint, nocc, nvirt, ndens, ndip, num)
-      write(luout,*) 'g_dip in MO basis'
-      call ga_print(g_dip)
       call hess_sxdip(g_rhs, dbl_mb(k_dder), g_dip, nocc, ndens, 
      $   n3xyz, num)
       if (ocphfprint.and.ga_nodeid().eq.0) then

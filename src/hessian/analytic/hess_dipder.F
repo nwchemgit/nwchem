@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.2 2002-01-20 05:51:52 windus Exp $
+C  $Id: hess_dipder.F,v 1.3 2002-02-06 01:11:16 windus Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
@@ -8,6 +8,7 @@ C
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "msgids.fh"
 c
 c  This routine takes the dipole derivative integrals and condenses
 c  them with the total density to get an initial contribution into
@@ -31,6 +32,9 @@ c
       logical geom_center_of_mass 
       external geom_center_of_mass
 c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+c
       lmax = 1
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('hess_dipder: bad basis', 555)
@@ -40,15 +44,6 @@ c
      &     ('hess_dipder: bas_nbf_cn_max failed',555)
       if (.not. geom_center_of_mass(geom, center)) call errquit
      *     ('hess_dipder: geom_center_of_mass failed',555)
-c
-c  Get nuclear contribution
-c
-      do i = 1, 3
-        do iat = 1, ncent
-          index = (iat-1)*3 + i
-          dder(i,index) = dder(i,index) + charge(iat,geom)
-        enddo
-      enddo
 c
 c  Get integral buffers
 c
@@ -64,10 +59,19 @@ c
       if(.not. ma_push_get(mt_dbl, maxd, 'mult:dens', l_dens, k_dens))
      &     call errquit('hess_dipder: cannot allocate dens', maxd)
 c
+c  Get nuclear contribution
+c
+      if (me.eq.0) then
+        do i = 1, 3
+          do iat = 1, ncent
+            index = (iat-1)*3 + i
+            dder(i,index) = dder(i,index) + charge(iat,geom)
+          enddo
+        enddo
+      endif
+c
 c  Start the computation
 c
-      me = ga_nodeid()
-      nproc = ga_nnodes()
       ijshell = 0
       do ishell = 1, nshell
 c
@@ -100,18 +104,6 @@ c
                call contract_ddip(dbl_mb(k_dens), idim, jdim,
      &              idatom, dbl_mb(k_buf), maxbuf, dder, n3xyz)
 c
-c              ind = 0
-c              do i = 1, idim
-c                 ioff = (i-1)*jdim + k_dens - 1
-c                 do m = 1, ((l+1)*(l+2))/2
-c                    moff = (l*(l+1)*(l+2))/6 + k_m - 1 + m
-c                    do j = 1, jdim
-c                       dbl_mb(moff) = dbl_mb(moff) -
-c    $                       dbl_mb(j+ioff)*dbl_mb(ind)
-c                       ind = ind + 1
-c                    end do
-c     enddo
-c              end do
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
@@ -120,6 +112,10 @@ c  Get rid of extra memory
 c
       if (.not. ma_chop_stack(l_buf)) call errquit
      *  ('hess_dipder: problem chopping stack',555)
+c
+c  Make sure everyone has the full contribution
+c
+      call ga_dgop(msg_hess_exy,dder,n3xyz*3,'+')
 c
       return
       end
@@ -135,7 +131,7 @@ c
       integer n3xyz           ! [input] 3 times no. of atoms
       double precision dens(idim, jdim) ! [input] density
       double precision buf(lbuf)  ! [input] integrals
-      double precision dder(3, n3xyz) ! [output]
+      double precision dder(3, 3, *) ! [output]
 c
       integer index, at, i, atind, ip1, ip2
       double precision xdip, ydip, zdip, zero
@@ -148,7 +144,7 @@ c
             xdip = zero
             ydip = zero
             zdip = zero
-            atind = (idatom(at) - 1) * 3 + 1
+            atind = idatom(at)
 c
             do ip1 = 1, idim      ! over basis functions
               do ip2 = 1, jdim
@@ -161,12 +157,9 @@ c
               enddo
             enddo
 c
-            dder(i,atind) = dder(i,atind) - xdip
-            atind = atind + 1
-            dder(i,atind) = dder(i,atind) - ydip
-            atind = atind + 1
-            dder(i,atind) = dder(i,atind) - zdip
-            atind = atind + 1
+            dder(1,i,atind) = dder(1,i,atind) - xdip
+            dder(2,i,atind) = dder(2,i,atind) - ydip
+            dder(3,i,atind) = dder(3,i,atind) - zdip
           enddo
         endif
       enddo
@@ -190,11 +183,12 @@ c
       integer nocc(ndens)    ! [input] no. of occ.
       integer n3xyz          ! [input] 3 times the no. of atoms
       integer num            ! [input] no. of basis functions
-      double precision dder(3, n3xyz) ! [input/output] dipole der. tensor
+      double precision dder(3, 3, *) ! [input/output] dipole der. tensor
 c
-      integer ndns, offset1, offset2, ind, i
+      integer ndns, offset1, offset2, ind, i, j, k, nxyz
       integer alo(3), ahi(3), blo(3), bhi(3)
 c
+      nxyz = n3xyz/3
       alo(2) = 1
       alo(3) = 1
       blo(2) = 1
@@ -206,16 +200,20 @@ c
         bhi(3) = nocc(ndns)
         offset1 = (ndns - 1) * n3xyz
         offset2 = (ndns - 1) * 3
-        do ind = 1, n3xyz
+        ind = 1
+        do k = 1, nxyz
+        do j = 1, 3
           alo(1) = offset1 + ind
           ahi(1) = offset1 + ind
           do i = 1, 3
             blo(1) = offset2 + i
             bhi(1) = offset2 + i
-            dder(i, ind) = dder(i, ind) +
+            dder(i, j, k) = dder(i, j, k) + 2.0d00*
      *                     nga_ddot_patch(g_sx, 'N', alo, ahi,
      *                                    g_dip, 'N', blo, bhi)
           enddo
+          ind = ind + 1
+        enddo
         enddo
       enddo
 c
@@ -240,11 +238,12 @@ c
       integer nvirt(ndens)   ! [input] no. of virt.
       integer n3xyz          ! [input] 3 times the no. of atoms
       integer num            ! [input] no. of basis functions
-      double precision dder(3, n3xyz) ! [input/output] dipole der. tensor
+      double precision dder(3, 3, *) ! [input/output] dipole der. tensor
 c
-      integer ndns, offset, ind, i
+      integer ndns, offset, ind, i, j, k, nxyz
       integer alo(2), ahi(2), blo(3), bhi(3)
 c
+      nxyz = n3xyz/3
       ahi(1) = 0    ! initialize
       do ndns = 1, ndens
         alo(1) = 1
@@ -255,16 +254,20 @@ c
         blo(3) = nocc(ndns) + 1
         bhi(3) = num
         offset = (ndns - 1) * 3
-        do ind = 1, n3xyz
+        ind = 1
+        do k = 1, nxyz
+        do j = 1, 3
           alo(2) = ind
           ahi(2) = ind
           do i = 1, 3
             blo(1) = offset + i
             bhi(1) = offset + i
-            dder(i, ind) = dder(i, ind) +
+            dder(i, j, k) = dder(i, j, k) + 4.0d00 *
      *                     nga_ddot_patch(g_res, 'N', alo, ahi,
      *                                    g_dip, 'T', blo, bhi)
           enddo
+          ind = ind + 1
+        enddo
         enddo
       enddo
 c
@@ -288,10 +291,10 @@ c
       integer g_dip           ! [output] dipole integrals
 c
       integer nshell, nbf_max
-      integer l_scr, k_scr, l_buf, k_buf, l_dens, k_dens
+      integer l_scr, k_scr, l_buf, k_buf
       integer lmax, maxbuf, maxscr, maxd
       integer me, nproc, ishell, jshell, ilo, ihi, jlo, jhi
-      integer ijshell, idim, jdim, nint, offset, i
+      integer ijshell, idim, jdim, nint, numint, offset, i
       integer lo(3), hi(3), ld(2)
       double precision center(3)
 c
@@ -312,13 +315,12 @@ c
       call int_mem_dipole(maxbuf,maxscr,basis,basis,lmax)
       maxbuf = 3*maxbuf  ! need xyz derivatives
       maxscr = max(100000,maxscr)
+      maxscr = max(maxscr, maxbuf) ! this allows it to be used for temp
       if (.not. ma_push_get(mt_dbl,maxbuf,'intd buffer',l_buf,k_buf))
      *  call errquit('hess_dipder:could not get intd buffer',maxbuf)
       if (.not. ma_push_get(mt_dbl,maxscr,'intd scratch',
      *  l_scr, k_scr))
      *  call errquit('hess_dipder: scratch alloc failed',maxscr)
-      if(.not. ma_push_get(mt_dbl, maxd, 'mult:dens', l_dens, k_dens))
-     &     call errquit('hess_dipder: cannot allocate dens', maxd)
 c
 c  Start the computation
 c
@@ -346,25 +348,13 @@ c
 c
 c  Get the integrals
 c
-               call int_mpole(basis, ishell, basis, jshell,
+               call int_mpolel(basis, ishell, basis, jshell,
      &              lmax, center, maxscr, dbl_mb(k_scr),
-     &              maxbuf, dbl_mb(k_buf))
+     &              maxbuf, dbl_mb(k_buf),numint)
 c
-               lo(2) = ilo
-               hi(2) = ihi
-               lo(3) = jlo
-               hi(3) = jhi
-               ld(1) = 1
-               ld(2) = idim
+               call hess_dip_in_g(g_dip, dbl_mb(k_buf),
+     &              dbl_mb(k_scr), ilo, ihi, jlo, jhi)
 c
-               offset = nint
-               do i = 1, 3
-                  lo(1) = i
-                  hi(1) = i
-                  call nga_acc(g_dip, lo, hi, dbl_mb(k_buf+offset),
-     &                         ld, 1.0d0)
-                  offset = offset + nint
-               end do
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
@@ -378,5 +368,42 @@ c  Terminate integral api
 c
       call int_terminate()
 c
+      return
+      end
+c
+      subroutine hess_dip_in_g(g_dip, buf, scr,
+     *   ilo, ihi, jlo, jhi)
+      implicit none
+c
+      integer g_dip          ! [output] dipole matrices
+      integer ilo            ! [input] low i index
+      integer ihi            ! [input] high i index
+      integer jlo            ! [input] low j index
+      integer jhi            ! [input] high j index
+      double precision buf(3,ilo:ihi,jlo:jhi)   ! [input] integrals
+      double precision scr(ilo:ihi,jlo:jhi)     ! [input] scratch space
+c
+      integer i, j, xyz, nint
+      integer lo(3), hi(3), ld(2)
+c
+      nint = (ihi-ilo+1) * (jhi-jlo+1)
+c
+      ld(1) = 1
+      ld(2) = ihi-ilo+1
+      lo(2) = ilo
+      hi(2) = ihi
+      lo(3) = jlo
+      hi(3) = jhi
+      do xyz = 1, 3
+        lo(1) = xyz
+        hi(1) = xyz
+        call dfill(nint,0.0d0,scr,1)
+        do j = jlo, jhi ! gather proper integrals
+          do i = ilo, ihi
+            scr(i,j) = scr(i,j) + buf(xyz,i,j)
+          enddo
+        enddo
+        call nga_acc(g_dip,lo,hi,scr,ld,1.0d0)
+      enddo
       return
       end
