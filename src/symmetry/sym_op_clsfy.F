@@ -1,5 +1,5 @@
       subroutine sym_op_classify(geom, op_class_index)
-C$Id: sym_op_clsfy.F,v 1.2 1998-06-15 22:16:57 d3g681 Exp $
+C$Id: sym_op_clsfy.F,v 1.3 2002-12-04 18:36:27 edo Exp $
       implicit none
 #include "sym.fh"
 #include "inp.fh"
@@ -13,7 +13,7 @@ c     between the operator and the character table.
 c
       integer h, g, f, i, j, ir, count(20)
       double precision ff(3,4), hh(3,4), gg(3,4), t1(3,3), t2(3,3), 
-     $     diff
+     $     diff,gg1(3,3)
       integer maxop, maxireps
       parameter (maxop = 120, maxireps=20)
       character*20 op_type, group_name, op_class_name(maxop)
@@ -93,7 +93,8 @@ c     Indentify f=gThg
 c     
                call sym_get_cart_op(geom, g, gg)
                call dgemm('n','n',3,3,3,1.0d0,hh,3,gg,3,0.0d0,t1,3)
-               call dgemm('t','n',3,3,3,1.0d0,gg,3,t1,3,0.0d0,t2,3)
+               call dcopy(9,gg,1,gg1,1)
+               call dgemm('t','n',3,3,3,1.0d0,gg1,3,t1,3,0.0d0,t2,3)
 c     
                do f= 1, nop
                   call sym_get_cart_op(geom, f, ff)
