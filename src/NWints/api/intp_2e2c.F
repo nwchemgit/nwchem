@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.1 1995-03-14 09:46:43 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.2 1995-06-16 09:44:18 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -23,9 +23,14 @@ c::functions
       external int_chk_sh
       external int_chk_init
 c:: passed
-      integer brain, ketin, lscr, leri
-      integer ish,jsh
-      double precision scr(lscr), eri(leri)
+      integer brain  ! basis set handle for bra function
+      integer ketin  ! basis set handle for ket function
+      integer ish    ! lexical contraction/shell index
+      integer jsh    ! lexical contraction/shell index
+      integer lscr   ! length of scratch array
+      integer leri   ! length of ERI array
+      double precision scr(lscr) ! scratch array 
+      double precision eri(leri) ! ERI array
       double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
 c:: local
       logical shells_ok

@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.2 1995-03-14 09:46:45 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.3 1995-06-16 09:44:17 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -18,8 +18,14 @@ c::functions
       external cando_sp
       external cando_nw
 c::passed
-      integer i_basis, j_basis, ish, jsh, lscr, lpe
-      double precision scr(lscr), Pe(lpe)
+      integer i_basis ! basis set handle for ish functions
+      integer j_basis ! basis set handle for jsh functions
+      integer ish     ! lexical contraction/shell index
+      integer jsh     ! lexical contraction/shell index
+      integer lscr    ! length of the scratch array
+      integer lpe     ! length of potential energy integral array
+      double precision Pe(lpe)   ! kinetic energy integral array
+      double precision scr(lscr) ! scratch array
       double precision Ri(3)  ! translation vector for ish center (fractional coordinates)
       double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
 c::local

@@ -1,5 +1,5 @@
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.3 1995-01-09 08:48:41 d3e129 Exp $
+c $Id: intp_1eov.F,v 1.4 1995-06-16 09:44:15 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -17,9 +17,15 @@ c::functions
       external cando_sp
       external cando_nw
 c::passed
-      integer i_basis, j_basis, ish, jsh, lscr, lov
-      double precision scr(lscr), Ov(lov)
-      double precision R(3)  ! translational vector for periodic
+      integer i_basis ! basis set handle for ish functions
+      integer j_basis ! basis set handle for jsh functions
+      integer ish     ! lexical contraction/shell index
+      integer jsh     ! lexical contraction/shell index
+      integer lscr    ! length of the scratch array
+      integer lov     ! length of the overlap integral array
+      double precision Ov(lov)   ! overlap integral array
+      double precision scr(lscr) ! scratch array
+      double precision R(3)  ! translational vector fractional coordinates
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont
@@ -76,30 +82,6 @@ c
 c
 c.. translate coordinates based on R
       call intp_txyz(j_cent,j_geom,R,xyz_new)
-*rak:c.. zero local arrays
-*rak:      call dfill(3,0.0d00,xyz_new,1)
-*rak:      call dfill(3,0.0d00,xyz_frac,1)
-*rak:c
-*rak:c... compute j center fractional coordinates
-*rak:c....    xyz_frac = amatrix_inv*coords(jsh)
-*rak:c
-*rak:      call dgemv('n',3,3,1.0d00,amatrix_inv(1,1,j_geom),3,
-*rak:     &    coords(1,j_cent,j_geom),1,
-*rak:     &    0.0d00,xyz_frac,1)
-*rak:c
-*rak:c... compute j translated fractional coordinates
-*rak:c.........  xyz_frac = xyz_frac + R
-*rak:c
-*rak:      do 00100 jjj=1,3
-*rak:        xyz_frac(jjj) = xyz_frac(jjj) + R(jjj)
-*rak:00100 continue
-*rak:c
-*rak:c... computer j translated cart. coordinates.
-*rak:c........ xyz_new = amatrix*xyz_frac
-*rak:c
-*rak:      call dgemv('n',3,3,1.0d00,amatrix(1,1,j_geom),3,
-*rak:     &    xyz_frac,1,
-*rak:     &    0.0d00,xyz_new,1)
 c
       if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
         call int_hf1sp(

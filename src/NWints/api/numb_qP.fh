@@ -1,4 +1,6 @@
 c
+* $Id: numb_qP.fh,v 1.2 1995-06-16 09:44:22 d3e129 Exp $
+c
       integer num_q_start, num_q_last
       common /c_intb/ num_q_start, num_q_last
 c

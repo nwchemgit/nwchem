@@ -1,7 +1,7 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
-     &    lscr, scr, lmpint, MP)
-c $Id: intp_mpole.F,v 1.2 1995-04-26 00:20:31 d3e129 Exp $
+     &    lscr, scr, lmpint, MP, num_mpint)
+c $Id: intp_mpole.F,v 1.3 1995-06-16 09:44:21 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
@@ -9,13 +9,21 @@ c The general form is <shell|pole|shell>
 c
 c  Integrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax
 c  one block for each L value.  
-c  for ish = p and L = 1 and jsh = p you would get:
+c  for ish = p and Lmax = 1 and jsh = p you would get:
 c      (3*1*3)+(3*3*3)=36 integrals
 c  order would be 
 c   <x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
 c   <x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (2nd nine)
 c   <y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (3rd nine)
-c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (rth nine)
+c   <z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (4th nine)
+c
+c  for ish = p and Lmax = 1 and jsh = d you would get:
+c      (3*1*6) + (3*3*6) = 18 + 54 = 72 integrals
+c  order would be 
+c   <x|xx>, <x|xy>, <x|xz>, ... , <x|zz>, <y|xx>, ... <z|zz> (first 18)
+c   <x|x|xx>, <x|x|xy>, <x|x|xz>, ... , <x|x|zz>, <x|y|xx>, ... <x|z|zz> (second 18)
+c   <y|x|xx>, <y|x|xy>, <y|x|xz>, ... , <y|x|zz>, <y|y|xx>, ... <y|z|zz> (third 18)
+c   <z|x|xx>, <z|x|xy>, <z|x|xz>, ... , <z|x|zz>, <z|y|xx>, ... <z|z|zz> (fourth 18)
 c
 c
       implicit none
@@ -44,9 +52,10 @@ c...     translation vectors are in fractional coordinates
       double precision centerl(3) ! [input] coordinates of multipole
       integer lscr                ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input/output] length of multipole 
-*................................................. integrals array
+      integer lmpint              ! [input] length of multipole 
+*.......................................... integrals array
       double precision MP(lmpint) ! [output] multipole integrals
+      integer num_mpint           ! [output] number of multipole integrals
 c::local      
       logical shells_ok
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
@@ -134,5 +143,5 @@ c
 c...................................TriDiag..DryRun
      &       MP(int_point),int_size,.false.,.false.,scr,lscr)
 00100 continue
-      lmpint = num_int
+      num_mpint = num_int
       end

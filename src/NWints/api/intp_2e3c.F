@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.2 1995-04-26 00:20:29 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.3 1995-06-16 09:44:19 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -26,13 +26,18 @@ c::functions
       external int_chk_sh
       external int_chk_init
 c:: passed
-      integer brain, ketin, lscr, leri
-      integer ish,jsh,ksh
-      double precision scr(lscr), eri(leri)
+      integer brain  ! basis set handle for bra function
+      integer ketin  ! basis set handle for ket function
+      integer ish    ! lexical contraction/shell index
+      integer jsh    ! lexical contraction/shell index
+      integer ksh    ! lexical contraction/shell index
+      integer lscr   ! length of scratch array
+      integer leri   ! length of ERI array
+      double precision scr(lscr) ! scratch array 
+      double precision eri(leri) ! ERI array
 c translation vectors are in fractional coordinates !
       double precision Ri(3)  ! translation vector for ish center 
       double precision Rj(3)  ! translation vector for jsh center 
-
 c:: local
       logical shells_ok
       integer bra, ket 

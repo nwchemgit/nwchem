@@ -1,5 +1,5 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.1 1995-01-09 08:48:40 d3e129 Exp $
+c $Id: intp_1eke.F,v 1.2 1995-06-16 09:44:13 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -17,9 +17,15 @@ c::functions
       external cando_sp
       external cando_nw
 c::passed
-      integer i_basis, j_basis, ish, jsh, lscr, lke
-      double precision scr(lscr), Ke(lke)
-      double precision R(3)  ! translational vector for periodic
+      integer i_basis ! basis set handle for ish functions
+      integer j_basis ! basis set handle for jsh functions
+      integer ish     ! lexical contraction/shell index
+      integer jsh     ! lexical contraction/shell index
+      integer lscr    ! length of the scratch array
+      integer lke     ! length of kinetic energy integral array
+      double precision Ke(lke)   ! kinetic energy integral array
+      double precision scr(lscr) ! scratch array
+      double precision R(3)      ! translational vector in fractional coords
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont
@@ -76,33 +82,6 @@ c
 c
 c.. translate coordinates based on R
       call intp_txyz(j_cent,j_geom,R,xyz_new)
-*rak:c 
-*rak:c.. zero local arrays
-*rak:      call dfill(3,0.0d00,xyz_new,1)
-*rak:      call dfill(3,0.0d00,xyz_frac,1)
-*rak:c... compute j center fractional coordinates
-*rak:c...    xyz_frac = amatrix_inv*coords(jsh)
-*rak:      call dgemv('n',3,3,1.0d00,amatrix_inv(1,1,j_geom),3,
-*rak:     &    coords(1,j_cent,j_geom),1,
-*rak:     &    0.0d00,xyz_frac,1)
-*rak:      write(6,*)'intp_1eke: debug original   coords:xyz: ',
-*rak:     &    (coords(jjj,j_cent,j_geom),jjj=1,3)
-*rak:      write(6,*)'intp_1eke: debug j fractional coords:xyz: ',
-*rak:     &    (xyz_frac(jjj),jjj=1,3)
-*rak:c... compute j translated fractional coordinates
-*rak:c.........  xyz_frac = xyz_frac + R
-*rak:      do 00100 jjj=1,3
-*rak:        xyz_frac(jjj) = xyz_frac(jjj) + R(jjj)
-*rak:00100 continue
-*rak:      write(6,*)'intp_1eke: debug j fractional coords tranlated:xyz: ',
-*rak:     &    (xyz_frac(jjj),jjj=1,3)
-*rak:c... computer j translated cart. coordinates.
-*rak:c........ xyz_new = amatrix*xyz_frac
-*rak:      call dgemv('n',3,3,1.0d00,amatrix(1,1,j_geom),3,
-*rak:     &    xyz_frac,1,
-*rak:     &    0.0d00,xyz_new,1)
-*rak:      write(6,*)'intp_1eke: debug j cart. coords tranlated:xyz: ',
-*rak:     &    (xyz_new(jjj),jjj=1,3)
 c
       if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
         call int_hf1sp(
