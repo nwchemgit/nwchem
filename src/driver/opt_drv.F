@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.32 1997-06-06 11:12:57 mdupuis Exp $
+C$Id: opt_drv.F,v 1.33 1997-06-14 02:16:36 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -280,6 +280,7 @@ c
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
+         hnd_optx=.false.
          return
       endif
       do i=1,ncoord
