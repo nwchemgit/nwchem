@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -59,7 +59,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -150,7 +150,7 @@ c     derivative 2e3c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -224,7 +224,7 @@ c     derivative 2e2c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -278,7 +278,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -439,7 +439,7 @@ c     3-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -485,7 +485,7 @@ c      write(*,*)'*** d2int_2e3c_block_jhess called: idatom',idatom
                      do ip1 = 1, nf1
                         do ip3 = 1, nf3
                            do ip4 = 1, nf4
-c !!! Is factor of 1/2 right???
+c !!! Is factor of 1/2 right?
                               den2 = 0.5D0 * coef1(ip1) * d_kla(ip3,ip4)
                               d2E = d2E
      &                            + den2 * d2int(indij,ip4,ip3,ip1)
@@ -597,7 +597,7 @@ c     2-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.8 1999-05-08 19:09:43 bjohnson Exp $
+c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
 c
       implicit none
 c
@@ -644,7 +644,7 @@ c      write(*,*)'*** d2int_2e2c_block_jhess called: idatom',idatom
 
                      do ip1 = 1, nf1
                         do ip2 = 1, nf2
-c !!! Is factor of 1/2 right???
+c !!! Is factor of 1/2 right?
                            den2 = 0.5D0 * coef1(ip1) * coef2(ip2)
                            d2E = d2E + den2 * d2int(indij,ip2,ip1)
 c       write(*,*) abcd(i), xyz(icart), abcd(j), xyz(jcart), indij,

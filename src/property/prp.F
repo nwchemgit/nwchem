@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.39 1999-04-10 04:28:28 windus Exp $
+* $Id: prp.F,v 1.40 1999-07-08 19:10:59 d3e129 Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -3466,7 +3466,7 @@ C        ----- PRINT OUT ORBS. IN SPH.HARM. BASIS -----
 C        ----- ( WITH CORRECT LABELS )            -----
 C
          if (ga_nodeid().eq.0) WRITE(IW,9994)
-c%% T = E ??
+c%% T = E ?
 C        CALL HND_DAREAD(IDAF,IODA,T,L1,NDAF+2)
 c%%
          DO I=1,NUM

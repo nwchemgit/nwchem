@@ -1,6 +1,6 @@
       logical function selci(rtdb)
 *
-* $Id: selci.F,v 1.9 1997-10-31 23:42:26 d3e129 Exp $
+* $Id: selci.F,v 1.10 1999-07-08 19:11:01 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -90,7 +90,7 @@ c
       if (.not. ma_push_get(mt_dbl, lword, 'selci', l_mem, k_mem))
      $     call errquit('selci: could not allocate all memory',lword)
 c
-c     tcgmsg vs GA numbering of processes ????????
+c     tcgmsg vs GA numbering of processes ?
 c
 c     Get remaining parameters and filenames ...
 c     What should we do?  Default is ci+davids from current ciconf.

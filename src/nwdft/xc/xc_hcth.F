@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.13 1999-06-25 01:59:35 edo Exp $
+c$Id: xc_hcth.F,v 1.14 1999-07-08 19:10:59 d3e129 Exp $
 c
       Implicit none
 c
@@ -402,7 +402,7 @@ Cfah these are the first derivatives of the terms of F_xc with respect to
 Cfah the 4 quantities. the index
 Cfah runs over the particular partial derivatives of each term.  
 Cfah More explicitly: these are the partial functional derivatives of 
-Cfah F_??? with respect to rhoa, rhob, za and zb. 
+Cfah F_XXX with respect to rhoa, rhob, za and zb. 
 
 c      DOUBLE PRECISION d2F_xa(4,4)
 c      DOUBLE PRECISION d2F_xb(4,4)

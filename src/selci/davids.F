@@ -1,6 +1,6 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.9 1998-03-14 01:45:12 d3g681 Exp $
+* $Id: davids.F,v 1.10 1999-07-08 19:11:01 d3e129 Exp $
 *
 #include "implicit.fh"
 #include "cbuff.fh"
@@ -66,8 +66,8 @@ c
      $         ' no. of roots sought     ',i7/
      $         ' convergence           ',d9.2/)
       endif
-      if (nroot.lt.0 .or. nroot.gt.nci) call errquit(' nroot ?? ',nroot)
-      if (thresh.lt.0.0d0) call errquit(' thresh -ve?? ',0)
+      if (nroot.lt.0 .or. nroot.gt.nci) call errquit(' nroot ? ',nroot)
+      if (thresh.lt.0.0d0) call errquit(' thresh -ve? ',0)
 c
 c     allocate core
 c

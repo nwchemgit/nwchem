@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.55 1999-05-20 23:03:13 d3e129 Exp $
+c $Id: texas_face.F,v 1.56 1999-07-08 19:10:49 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -135,12 +135,12 @@ c
       write(8,*)'       LEAVING TEXAS-INTEGRAL PROGRAM'
       write(8,*)'       Statistics of memory in blscr:'
       write(8,*)'                                               '
-ctest ??????
+ctest ?
 c     write(8,*)' max number of allocations =',nreque_bl
 c     write(8,*)' max number of marks       =',nmark_bl
 c     write(8,*)' max memory used overall   =',maxmem_bl,' (high water)'
 c     write(8,*)' total memory available    =',memtot_bl
-ctest ??????
+ctest ?
       write(8,*)' max number of allocations =',nall_peak
       write(8,*)' max number of marks       =',mark_peak
       write(8,*)' max memory used overall   =',mem_peak,' (high water)'

@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.4 1997-06-05 17:46:27 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.5 1999-07-08 19:10:52 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -115,7 +115,7 @@ c$$$     $   'Final Omega1', 80, 'F20.15')
 C
 C     *****************************************************
 C     * Omega2(i,a) = sum(m,e) tau(m,i,a,e) Z(m,e)        *
-C     *             = Omega1(i,a) + t(m,a) t(i,e) Z(m,e) ???????
+C     *             = Omega1(i,a) + t(m,a) t(i,e) Z(m,e) -  ?  *
 C     * APR & TJL Eq. 53                                  *
 C     *****************************************************
 C
@@ -241,7 +241,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.4 1997-06-05 17:46:27 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.5 1999-07-08 19:10:52 d3e129 Exp $
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(Node, NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.7 1998-12-14 23:47:22 jhvan Exp $
+*     $Id: jvltest.F,v 1.8 1999-07-08 19:10:52 d3e129 Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -838,7 +838,7 @@ c     = t(ij,ce) (cb||fi) (ab||ek) t(kj,af)
 c     weighting 1.
 c
 c...  fac has to be added to i,j,k,a,b,c (there is choice)
-c...  early is done / late might be better ??
+c...  early is done / late might be better ?
 c
       implicit none
 c
@@ -1756,7 +1756,7 @@ c
        end do
 c
       else 
-         call errquit(' what ???',0)
+         call errquit(' what ?',0)
       end if
 c
       end

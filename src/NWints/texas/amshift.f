@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.5 1998-07-31 21:27:51 d3g681 Exp $
+c $Id: amshift.f,v 1.6 1999-07-08 19:10:49 d3e129 Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -1502,7 +1502,7 @@ cc-> * b3l(mnbls,lt5,4)
      * vij(mnbls,lt6,lt7),uij(mnbls,lt6,lt7),sij(mnbls,lt6,lt7)
       dimension xij(mnbls,lt8,lt3,lt9),yij(mnbls,lt8,lt10,lt4)
      *                            ,zij(mnbls,lt8,lt10,lt4)
-c???? dimension ssss(nbls)
+c   ? dimension ssss(nbls)
       dimension ssss(mnbls)
       dimension buf(mnbls,*)
       dimension xab(mnbls,3),xcd(mnbls,3)

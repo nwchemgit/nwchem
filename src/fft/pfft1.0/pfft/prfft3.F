@@ -1,5 +1,5 @@
 *
-* $Id: prfft3.F,v 1.2 1997-11-04 10:07:47 d3e129 Exp $
+* $Id: prfft3.F,v 1.3 1999-07-08 19:10:55 d3e129 Exp $
 *
 *======================================================================
 *
@@ -283,14 +283,14 @@
 *
 *   LWORK ...... (Input) INTEGER
 *                The size of the DOUBLE PRECISION work array WORK.
-*                LWORK >= ???
+*                LWORK >= ?
 *
 *   WORK ....... (Workspace) DOUBLE PRECISION array, dim( >= LWORK )
 *                DOUBLE PRECISION workspace
 *
 *   LIWORK ..... (Input) INTEGER
 *                The size of the INTEGER work array WORK.
-*                LIWORK >= ???
+*                LIWORK >= ?
 *
 *   IWORK ...... (Workspace) INTEGER array, dim( >= LIWORK )
 *                INTEGER workspace

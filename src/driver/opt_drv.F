@@ -676,7 +676,7 @@ C
             IF(IDEGEN.EQ.2) IDEGEN=0
          ENDIF
          IF(ITYPE.EQ.6) IZ=IZ+6
-         IF(ITYPE.EQ.7) IZ=IZ+5 ! RJH WAS 7 ... only place 7 appeared????
+         IF(ITYPE.EQ.7) IZ=IZ+5 ! RJH WAS 7 ... only place 7 appeared?
          IF(OUT) THEN
             WRITE(IW,9148) I,ITYPE,IZ1,IZ2,IZ3,IZ4,
      1           IZA,IZB,IZC,IZD,HSSQ(I,I)

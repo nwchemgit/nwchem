@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.87 1998-12-10 23:48:44 d3e129 Exp $
+c $Id: basis.F,v 1.88 1999-07-08 19:10:51 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3632,7 +3632,7 @@ c
       endif
 c
 c... first match full geometry tag to full basis tag list 
-c          did the user specifically assign a tag ??
+c          did the user specifically assign a tag ?
 
       nbtgs = infbs_head(HEAD_NTAGS,basis)
       do i = 1, nbtgs

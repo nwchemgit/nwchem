@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.90 1999-06-17 13:55:30 d3e129 Exp $
+c $Id: raktest.F,v 1.91 1999-07-08 19:10:52 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -5297,7 +5297,7 @@ c
 *
       if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
         if (ga_nodeid().eq.0) then
-          write(6,*)' you are trying to turn an integral code on?? '
+          write(6,*)' you are trying to turn an integral code on ? '
           write(6,*)' sp  ', def_cando_sp
           write(6,*)' nw  ', def_cando_nw
           write(6,*)' txs ', def_cando_txs

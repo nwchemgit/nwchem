@@ -1,5 +1,5 @@
       SUBROUTINE vib_CHKHESS(HESS,NAT3,first_pass)
-* $Id: vib_chkhess.F,v 1.3 1997-04-11 09:26:38 d3e129 Exp $
+* $Id: vib_chkhess.F,v 1.4 1999-07-08 19:11:02 d3e129 Exp $
 C
 C  This routine checks to make sure the analytic Hessian is symmetric
 C
@@ -21,7 +21,7 @@ C
          DO 00100 JJJ = 1,JJJEND
             XDIFF = HESS(III,JJJ)-HESS(JJJ,III)  ! difference of ij and ji
             XDIFF = ABS(XDIFF)
-            IF(XDIFF.GT.THRESH)THEN ! is it symmetric??
+            IF(XDIFF.GT.THRESH)THEN ! is it symmetric?
                WRITE(luout,*)
                WRITE(luout,*)' **** HESSIAN NOT SYMMETRIC ****'
                WRITE(luout,*)' HESS(',III,',',JJJ,') =',HESS(III,JJJ)

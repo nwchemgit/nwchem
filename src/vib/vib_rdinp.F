@@ -2,7 +2,7 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb,first_pass)
-* $Id: vib_rdinp.F,v 1.6 1997-04-22 20:01:43 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.7 1999-07-08 19:11:02 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -121,7 +121,7 @@ c
 *rak:      IPLBL =  IP10(19)         ! tape10 pointer to atom labels
 *rak:      IPC   =  IP10(42)         ! tape10 pointer to atom coordinates
 *rak:C
-*rak:*rak: zan not really needed map integer to atomic number instead of charges??
+*rak:*rak: zan not really needed map integer to atomic number instead of charges?
 *rak:      CALL WREADW(ITAP10,ZAN,INTOWP(NATOM),IPCHG,IJUNK)  ! read charges
 *rak:      CALL WREADW(ITAP10,OLDLBLAT,2*NATOM,IPLBL,IJUNK)      ! read labels
 *rak:      CALL WREADW(ITAP10,COORD,INTOWP(NAT3),IPC,IJUNK)   ! read coordinates

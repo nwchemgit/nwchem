@@ -1,13 +1,13 @@
 c----------------------------------------------------------------------
 c include for only statement functions.
 c----------------------------------------------------------------------
-* $Id: bas_ibs_sfn.fh,v 1.2 1996-01-23 08:34:14 d3e129 Exp $
+* $Id: bas_ibs_sfn.fh,v 1.3 1999-07-08 19:10:50 d3e129 Exp $
 c
 c... statement functions to get ibs arrays from heap
-c... sf_ibs_??? gives value of index
-c... mb_ibs_??? gives ma pointer into dbl_mb
+c... sf_ibs_XXX gives value of index
+c... mb_ibs_XXX gives ma pointer into dbl_mb
 c
-c..... where ??? is cn2ucn or
+c..... where XXX is cn2ucn or
 c                   cn2ce 
 c                   ce2uce
 c                   cn2bfr

@@ -1514,7 +1514,7 @@ c
 c     
          if(ijkl.eq.0) go to 10
          iqreq=ipres(ijkl)
-c??   
+c?   
          if(iqreq.eq.0) go to 10
          iorder=iqorder(iqreq)
 ctest

@@ -1,5 +1,5 @@
 /*
- $Id: hdbm.c,v 1.5 1997-10-31 23:51:44 d3e129 Exp $
+ $Id: hdbm.c,v 1.6 1999-07-08 19:11:00 d3e129 Exp $
  */
 
 #include <stdlib.h>
@@ -519,7 +519,7 @@ static int hdbm_clear(hdbm db)
     
     for (bin=0; bin<NBINS; bin++)
 	if (hash_tables[db].nentry[bin]) {
-	    (void) fprintf(stderr,"hdbm_clear: ghost entries ??\n");
+	    (void) fprintf(stderr,"hdbm_clear: ghost entries ?\n");
 	    return 0;
 	}
     

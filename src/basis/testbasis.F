@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.16 1998-04-29 07:29:55 d3e129 Exp $
+c $Id: testbasis.F,v 1.17 1999-07-08 19:10:51 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -151,7 +151,7 @@ c
       if (.not. bas_add_ucnt(basis, 'H', 2, 3, 3, expnt_new,
      &    expnt_new, coeff_new, 4, 'none'))
      &    write(6,*) ' basis_add_ucnt failed'
-      if (.not. bas_print(basis)) write(6,*) ' print ???'
+      if (.not. bas_print(basis)) write(6,*) ' print ?'
 c
 c     Try adding new contractions on a new center
 c
@@ -159,7 +159,7 @@ c
       if (.not. bas_add_ucnt(basis, 'Cl', 4, 2, 3, expnt_new,
      $     coeff_new, 4, 'none'))
      &    write(6,*) ' basis_add_ucnt failed'
-      if (.not. bas_print(basis)) write(6,*) ' print ???'
+      if (.not. bas_print(basis)) write(6,*) ' print ?'
 c
 c
       write(6,'(///,1x,a)')' bas_print_all '

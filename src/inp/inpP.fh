@@ -6,7 +6,7 @@ c
 **      implicit character *4 (y)
 c
       integer max_width         ! Maximum input width of an input line
-C$Id: inpP.fh,v 1.7 1998-06-15 04:31:02 d3g681 Exp $
+C$Id: inpP.fh,v 1.8 1999-07-08 19:10:55 d3e129 Exp $
       integer max_field         ! Maximum no. of fields in an input line
       parameter (max_width = 1024)
       parameter (max_field = max_width/2 + 1)
@@ -32,7 +32,7 @@ c
       integer nline             ! Current logical line inside physical line
       integer noline            ! No. of logical lines inside physical line
       integer input_line        ! No. of current physical input line
-      integer nerr              ! ????
+      integer nerr              ! ?
       logical oswit             ! True if EOF has beeen detected
       integer ierrpos           ! Input char position where error was detected
       integer nstart

@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.34 1999-01-22 00:50:21 windus Exp $
+c $Id: cando_sp.F,v 1.35 1999-07-08 19:10:48 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -405,7 +405,7 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
 c check shell range
-c also check for general contractions which the code doesn't
+c also check for general contractions which the code does not
 c currently handle
 c
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))

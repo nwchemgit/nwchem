@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.7 1999-05-06 17:25:48 windus Exp $
+c $Id: intdd_init.F,v 1.8 1999-07-08 19:10:48 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -157,7 +157,7 @@ c
       if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
      &    def_cando_hnd) then
         if (ga_nodeid().eq.0) then
-          write(luout,*)' you are trying to turn an integral code on?? '
+          write(luout,*)' you are trying to turn an integral code on? '
           write(luout,*)' sp  ', def_cando_sp
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs

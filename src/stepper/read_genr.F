@@ -15,7 +15,7 @@ c
 c     compute nat <=> number of atoms
 c
       if (mod(rank,3).ne.0) then
-        write(6,*)' rank is not a multiple of 3??'
+        write(6,*)' rank is not a multiple of 3?'
         stop ' rank error '
       endif
       nat = rank/3
@@ -121,7 +121,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: read_genr.F,v 1.1 1996-02-16 00:47:34 d3e129 Exp $
+C$Id: read_genr.F,v 1.2 1999-07-08 19:11:01 d3e129 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

@@ -561,7 +561,7 @@ c
 c
           symmetry = (se.eq.sf).and.spin.eq.spin 
           size = ne*nf*n_occ_virt(sa,spina,a)*n_occ_virt(sc,spinc,c) 
-c         if (.not.symmetry) size = size * 2 ????????
+c         if (.not.symmetry) size = size * 2 ?
           nbatch = max(size/(ga_memory-size_1),1)
 c...   'squares' for now  CHECK !!!
           nbcha = dsqrt((nbatch-1)*1.0d0) + 1.00001d0 
@@ -706,7 +706,7 @@ c...   of that spin/space/occupation "symmetry" => bbb,bbk
 c...   the first be and bf are used to denote full range of
 c...   that  spin/occupation "symmetry"  => eb,fb
 c
-c...   IS SYMMETRY FULLY EXPLOITED ????????????
+c...   IS SYMMETRY FULLY EXPLOITED ?
 c
 #include "mafdecls.fh"
 #include "cct_table_uhf.fh"

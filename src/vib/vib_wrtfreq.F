@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.4 1997-04-22 20:01:44 d3e129 Exp $
+* $Id: vib_wrtfreq.F,v 1.5 1999-07-08 19:11:02 d3e129 Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -49,7 +49,7 @@ C      WRITE(6,10000)    ! write header
 10001 FORMAT(1X,I5,D20.10,F20.3)
       ZERO=0.0D00
       SUMFREQ=zero
-*rak: where does this come from??
+*rak: where does this come from?
       RATE=2.860D-03  
       DO 00100 I=1,NAT3 ! loop over coordinates
          XDUM = EIGVAL(I) ! eigenvalue

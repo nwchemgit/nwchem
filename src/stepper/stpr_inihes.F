@@ -1,5 +1,5 @@
       SUBROUTINE stpr_inihes ( HESIAN,rtdb )
-c $Id: stpr_inihes.F,v 1.4 1998-03-13 01:28:15 d3g681 Exp $
+c $Id: stpr_inihes.F,v 1.5 1999-07-08 19:11:01 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       PARAMETER (ZERO=0.0D0, ONE=1.0D0)
 #include "stdio.fh"
@@ -20,7 +20,7 @@ c $Id: stpr_inihes.F,v 1.4 1998-03-13 01:28:15 d3g681 Exp $
 c
 * zeroed matrix
       call dfill (NAT3TR,0.0d00, HESIAN,1)
-* print initial hessian??
+* print initial hessian?
       oprint_inithess = util_print('inithess',print_debug)
 * check for active atom list
 #if defined(WEIGHT_HESS)

@@ -3,7 +3,7 @@
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.26 1999-06-16 00:10:26 d3e129 Exp $
+c     $Id: dft_fitvc.F,v 1.27 1999-07-08 19:10:59 d3e129 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -92,7 +92,7 @@ c
      &  lcd_shell,icd_shell))
      &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
 c      
-c!!! Is gvec needed???
+c!!! Is gvec needed?
 c!!!      if(.not.MA_Push_Get(MT_Dbl,nbf_cd_mxnbf_cn,'gvec',lgvec,igvec))
 c!!!     &  call errquit('dft_fitvc: cannot allocate gvec',0)
 c      

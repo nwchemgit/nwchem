@@ -1,4 +1,4 @@
-c $Id: int_chk_sum.F,v 1.21 1997-02-21 00:16:47 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.22 1999-07-08 19:10:48 d3e129 Exp $
 *
 *rak:      subroutine int_chk_sum(rtdb,basisin,print_ints)
 *rak:      implicit none
@@ -531,8 +531,8 @@ c
       integer klab(num),llab(num)   ! labels for moieties
       double precision Eri(num)     ! 2e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
-      logical printem               ! print values as you go??
-      logical print69               ! print values to unit 69??
+      logical printem               ! print values as you go?
+      logical print69               ! print values to unit 69?
       character*(*) tagout
 c::local 
       integer ltagout
@@ -604,7 +604,7 @@ c
       integer klab(num)             ! labels for moieties
       double precision Eri(num)     ! 2e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
-      logical printem               ! print values as you go??
+      logical printem               ! print values as you go?
       logical print69
       character*(*) tagout
 c::local 
@@ -680,7 +680,7 @@ c
 *rak:      integer ilab(num),jlab(num)   ! labels for moieties
 *rak:      double precision Eri(num)     ! 2e moieties
 *rak:      double precision stats(5,3)   ! stats array (zeroed elsewhere)
-*rak:      logical printem               ! print values as you go??
+*rak:      logical printem               ! print values as you go?
 *rak:      logical print69
 *rak:c::local 
 *rak:      integer ii,i,j

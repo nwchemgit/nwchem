@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.25 1999-06-17 17:21:52 d3e129 Exp $
+c $Id: int_spcart.F,v 1.26 1999-07-08 19:10:48 d3e129 Exp $
 *::cr::7
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
@@ -2081,7 +2081,7 @@ c.................................. both r and c need to be transformed
         endif
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_tran1e: should never get here ?? ',911)
+        call errquit('spcart_tran1e: should never get here ? ',911)
       endif
 c
       end
@@ -2240,7 +2240,7 @@ c........................ both j and i need to be transformed
 c
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_bra2etran: should never get here ?? ',911)
+        call errquit('spcart_bra2etran: should never get here ? ',911)
       endif
 c
       end
@@ -2402,7 +2402,7 @@ c........................ both k and l need to be transformed
 c
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_ket2etran: should never get here ?? ',911)
+        call errquit('spcart_ket2etran: should never get here ? ',911)
       endif
 c
       end

@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.15 1999-06-16 00:10:28 d3e129 Exp $
+C$Id: sym_mo_adapt.F,v 1.16 1999-07-08 19:11:02 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -191,7 +191,7 @@ c
 c
 c     This is the wierd case noted above.  Simply pretend that
 c     this irrep does not exist and double the previous entry
-c     since it will be off by a factor of two ??????
+c     since it will be off by a factor of two ?
 c
                v(ir) = 0.0d0
                v(ir-1) = v(ir-1)*2.0d0

@@ -4872,7 +4872,7 @@ c
 c     Figure out if this is a duplicate.  Must remove duplicates
 c     now otherwise we will not know if something is missing.
 c     
-c     But this should count in the overall number for this bond.  Really???
+c     But this should count in the overall number for this bond.  Really?
 c     
       ntor_for_ij = ntor_for_ij + 1
       do itor = 1, ntor

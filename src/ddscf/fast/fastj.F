@@ -721,7 +721,7 @@ c
                               ind = ind+i+(2**level)*(j+2**level*k)
 c
          if (ind .le. 0 .or. ind.gt.(8**(depth+1)-1)/7) call errquit
-     $        ('ind ???? ', ind)
+     $        ('ind ? ', ind)
 *                              call xlm_accumulate_to_packed(lmax,
 *     $                             poles(1,ind), q, lmax)
          call fmm_tree_add_cell(tree, level, i, j, k, q, lmax, lmax)
@@ -1306,7 +1306,7 @@ c
       else
          minorder = 11           ! Actually will use 11
          maxorder = 27          
-         nborder = 5            ! ???
+         nborder = 5             ! ?
          stride = 4
       endif
 c

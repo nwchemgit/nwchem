@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.20 1999-06-16 00:10:13 d3e129 Exp $
+* $Id: cphf_solve.F,v 1.21 1999-07-08 19:10:52 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -67,7 +67,7 @@ c
       else
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
      $        call errquit('cphf_solve: no DFT MO vectors',0)
-c !!! Hack to set up scftype properly for later code !!! ??? need this?
+c !!! Hack to set up scftype properly for later code !!! ? need this?
          if (bgj_restricted()) then
             scftype = 'RHF'
          else

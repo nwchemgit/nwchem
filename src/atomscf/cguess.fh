@@ -2,8 +2,8 @@ c
 c     common used by guess routines for storing info and passing arguments
 c
       integer nb                ! Maximum no. of primitives on any atom
-C$Id: cguess.fh,v 1.5 1996-12-13 22:30:15 d3e129 Exp $
-      integer no                ! Maximum no. of orbitals on any atom ??
+C$Id: cguess.fh,v 1.6 1999-07-08 19:10:50 d3e129 Exp $
+      integer no                ! Maximum no. of orbitals on any atom ?
       integer maxatsym          ! Maximum no. of syms (s/p/d/f)
       parameter (nb=200, no=50, maxatsym=4)
 c
@@ -12,7 +12,7 @@ c
       integer ncsh              ! No. of closed shell orbs of each sym
       integer nosh              ! No. of open ...
       integer nsht              ! No. of open+closed shells of each sym
-      integer nccup             ! No. of open-shell electrons of each sym ??
+      integer nccup             ! No. of open-shell electrons of each sym ?
       integer nitscf            ! Current/final no. of SCF iterations
       integer n1                ! nbas(i) * (nbas(i) + 1 ) / 2
       integer nconv             ! =1 if SCF is converged
