@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.28 1997-02-15 00:02:59 d3e129 Exp $
+c $Id: bas_input.F,v 1.29 1997-03-30 22:34:05 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -638,8 +638,11 @@ c
          endif
          goto 33
       endif
- 35   write(6,*) ' bas_tag_lib: failed to locate ', string
+ 35   call inp_restore_state    ! Failure ... restore unit 5 and abort
+      call inp_clear_err
+      write(6,*) ' bas_tag_lib: failed to locate ', string
       call errquit('bas_tag_lib: no such basis available', 0)
+c
  34   continue                  ! success
 c
 c     Now read the basis for this magical atom type in using
@@ -677,6 +680,7 @@ c
 c
  9000 close(33)
       call inp_restore_state    ! Restore state for unit 5
+c
       return
 c
  1000 write(6,*) ' bas_tag_lib: looking for ', tag_in_lib, standard,
