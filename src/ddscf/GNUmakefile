@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.95 1997-04-06 20:55:10 d3g681 Exp $
+# $Id: GNUmakefile,v 1.96 1997-04-18 21:54:05 d3e129 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -60,14 +60,6 @@
     USES_BLAS = ao_fock_2e.F ao_replicated.F fock_2e_file.F fock_2e_slab.F int2e_file.F \
                 movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F
-#
-# do not have blas routines
-#    USES_BLAS =	fock_2e.F fock_2e_a.F \
-#		rhf_dens_mo.F scf.F schwarz_init.F vectors.F \
-#		movecs_proj.F fock_2e_b.F rohf.F rohf_nr_sol.F \
-#		rohf_precon.F \
-#		rohf_fock.F rohf_h2e.F \
-#		scf_get_info.F 
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh
 
