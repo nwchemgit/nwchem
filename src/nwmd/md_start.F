@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.27 1999-08-25 23:21:37 d3j191 Exp $
+c $Id: md_start.F,v 1.28 1999-08-31 17:24:41 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
-     + tstep,tlwsha,mshitw,mshits,
+     + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta)
@@ -1069,6 +1069,12 @@ c
       if(ntype.eq.3) then
       open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
      + form='formatted',status='unknown')
+      endif
+      if(nftime.gt.0) then
+      open(unit=lfntim,file=filtim(1:index(filtim,' ')-1),
+     + form='formatted',status='unknown')
+      write(lfntim,1200) np
+ 1200 format(i5)
       endif
       endif
 c

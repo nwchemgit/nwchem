@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.8 1999-08-25 19:34:28 d3j191 Exp $
+c $Id: md_finish.F,v 1.9 1999-08-31 17:24:41 d3j191 Exp $
 c
       implicit none
 c
@@ -81,6 +81,12 @@ c
       endif
       if(ntype.eq.3) then
       close(unit=lfngib,status='keep')
+      endif
+      if(nftime.gt.0) then
+      close(unit=lfntim,status='keep')
+      endif
+      if(nfsync.gt.0) then
+      close(unit=lfnsyn,status='keep')
       endif
       endif
 c

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.33 1999-08-28 02:13:15 d3j191 Exp $
+c $Id: md_main.F,v 1.34 1999-08-31 17:24:41 d3j191 Exp $
 c
       implicit none
 c
@@ -821,6 +821,7 @@ c
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nftime)) call md_wrtime
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
@@ -920,6 +921,7 @@ c
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nftime)) call md_wrtime
 c
       call timer_stop(1)
 c
@@ -1243,18 +1245,23 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
-      logical lself
+      logical lself,local,locali
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
 c
+      call timer_start(10)
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
+      call timer_stop(10)
 c
       if(ipme.gt.0) then
       call pme_chgrid(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),isl(1,lsct1),
      + nsaloc,epme)
       endif
+c
+      locali=.true.
+      call timer_start(13)
 c
       call sp_nbbl(nbbl)
 c
@@ -1263,8 +1270,14 @@ c
 c
       do 1 ibbl=1,nbbl
 c
-      call sp_getxbl(ibbl,lhandl,
+      call sp_getxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,lself)
+c
+      if(locali.and..not.local) then
+      call timer_stop(13)
+      call timer_start(14)
+      locali=.false.
+      endif
 c
       call cf_comw(xw,xwm,jwfr,jwto)
 c
@@ -1280,6 +1293,12 @@ c
      + lpair,int_mb(i_iwz),int_mb(i_isz))
 c
     1 continue
+c
+      if(locali) then
+      call timer_stop(13)
+      else
+      call timer_stop(14)
+      endif
 c
       if(ipme.gt.0) then
       call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
@@ -1361,6 +1380,46 @@ c
       numbyt=client_socket_write(isocket,string,60)
 c
       print*,'Bytes written to socket is ',numbyt
+c
+      return
+      end
+      subroutine md_wrtime
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      external timer_wall
+      real*8 timer_wall
+c
+      integer i,j
+      real*8 tim(8,1024)
+c
+      do 1 i=1,np
+      do 2 j=1,8
+      tim(j,i)=zero
+    2 continue
+    1 continue
+c
+      tim(1,me+1)=timer_wall(10)
+      tim(2,me+1)=timer_wall(11)
+      tim(3,me+1)=timer_wall(12)
+      tim(4,me+1)=timer_wall(13)
+      tim(5,me+1)=timer_wall(14)
+      tim(6,me+1)=timer_wall(15)
+      tim(7,me+1)=timer_wall(16)
+      tim(8,me+1)=timer_wall(2)
+c
+      call ga_dgop(mrg_d04,tim,8*np,'+')
+c
+      if(me.eq.0) then
+      write(lfntim,1000) stime
+ 1000 format('timings',/,f12.6)
+      write(lfntim,1001) ((tim(i,j),i=1,8),j=1,np)
+ 1001 format(8f10.3)
+      endif
 c
       return
       end
