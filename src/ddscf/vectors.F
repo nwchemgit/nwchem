@@ -133,11 +133,18 @@ c
      $           (dbl_mb(k_vecs+j), j=0,nbf-1)
             call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs))
          enddo
+	 if (.not. ma_pop_stack(l_vecs)) call errquit
+     $      ('movecs_read: pop failed', l_vecs)
  9       close(unitno,err=1002)
          ok = 1
       endif
 c
  10   call brdcst(1+MSGINT, ok, mitob(1), 0) ! Propagate status
+      if (ok .eq. 1) then
+	 call brdcst(2+MSGINT, nbf, mitob(1), 0)
+	 call brdcst(3+MSGDBL, evals, mdtob(nbf), 0)
+	 call brdcst(4+MSGDBL, occ,   mdtob(nbf), 0)
+      endif
 c
       movecs_read = ok .eq. 1
       return
