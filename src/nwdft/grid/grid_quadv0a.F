@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.12 2000-03-21 23:11:59 edo Exp $
+c$Id: grid_quadv0a.F,v 1.13 2000-03-22 03:01:42 edo Exp $
 c
       implicit none
 c
@@ -28,15 +28,15 @@ c
      &        cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
       double precision rho(*), delrho(*), hess(1), 
-     &                 Bmat(nbf_ao_mxnbf_ce*nqmax)
+     &                 Bmat(nbf_ao_mxnbf_ce*n_per_rec)
       double precision Pmat(nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce), 
      &                 Fmat(nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce)
-      double precision qwght(nqmax), qxyz(3,nqmax)
+      double precision qwght(n_per_rec), qxyz(3,n_per_rec)
       double precision xyz(3,natoms)
       integer iniz(natoms), ifin(natoms)
       integer max_elem_ang_scr, max_component
       double precision ccoef(ncoef_max), expo(nbf_ao_mxprim)
-      double precision rq(nqmax, natoms)
+      double precision rq(n_per_rec, natoms)
       double precision rq0(natoms)
       double precision  rho_int
       double precision acc_AO_gauss, rad, dummy(1)
@@ -59,8 +59,6 @@ c
       external xc_chkgrad
 c
       oprint = util_print('quadrature', print_high)
-c      write(*,*)'grid_quadv0a: pmat 1'
-c      call ga_print(g_dens(1))
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -81,6 +79,21 @@ c
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+c
+c     compute variables for scratch space in function evaluation
+c     assumes cartesian; spherical set would only require 2*MXang + 1
+c     
+         max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
+c     
+c     Allocate scratch space.
+c     
+         if (nbf_ao_mxang .eq. 0)then
+            max_elem_ang_scr = max_component * 3
+         elseif (nbf_ao_mxang .le. 3)then
+            max_elem_ang_scr = max_component * 9
+         else                   ! general case
+            max_elem_ang_scr = max_component * 28
+         endif 
 c
 c     rewind grid pts file
 c
@@ -107,7 +120,6 @@ c
       endif
 C
       ntot_cube=0
-!      do 200 iqsh = 1, n_tot_tasks
       do 200 iqsh = 1, n_rec_in_file
 c
 c     Define the current range of radial shells and integration center.
@@ -164,20 +176,6 @@ c
      &           call errquit('grid_quadv0a: cant alloc delchi_ao',0)
          endif
 c     
-c     assumes cartesian; spherical set would only require 2*MXang + 1
-c     
-         max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
-c     
-c     Allocate scratch space.
-c     
-         if (nbf_ao_mxang .eq. 0)then
-            max_elem_ang_scr = max_component * 3
-         elseif (nbf_ao_mxang .le. 3)then
-            max_elem_ang_scr = max_component * 9
-         else                   ! general case
-            max_elem_ang_scr = max_component * 28
-         endif 
-c     
          nscr = 3*nqpts*nbf_ao_mxcont + 
      &        max(3*nqpts*nbf_ao_mxprim,
      &        nqpts*max_elem_ang_scr) + 1
@@ -224,8 +222,6 @@ c
 c
          rho_int = rho_int + 
      &        ddot(nqpts, qwght, 1, rho, 1)
-c      write(6,*)' iqsh,  nq, rho_int: ',
-c     &                  iqsh,  nqpts, rho_int
 c
             call xc_eval_fnl(rho, delrho, Amat,
 !     &           Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
@@ -260,18 +256,18 @@ c
          if (.not.ma_pop_stack(lrdelchi_atom))
      &        call errquit('grid_quadv0a: cannot pop stack',5)
       endif
-      if (.not.ma_pop_stack(lrchi_atom))
-     &     call errquit('grid_quadv0a: cannot pop stack',6)
-      if (.not.ma_pop_stack(lrscr))
-     &     call errquit('grid_quadv0a: cannot pop stack',7)
-      if (.not.ma_pop_stack(lbp))
-     &     call errquit('grid_quadv0a: cannot pop stack',8)
+!      if (.not.ma_pop_stack(lrchi_atom))
+!     &     call errquit('grid_quadv0a: cannot pop stack',6)
+!      if (.not.ma_pop_stack(lrscr))
+!     &     call errquit('grid_quadv0a: cannot pop stack',7)
+!      if (.not.ma_pop_stack(lbp))
+!     &     call errquit('grid_quadv0a: cannot pop stack',8)
 c
-      if (.not.ma_pop_stack(lrqbuf))
-     &     call errquit('grid_quadv0a: cannot pop stack', 9)
+!      if (.not.ma_pop_stack(lrqbuf))
+!     &     call errquit('grid_quadv0a: cannot pop stack', 9)
 c
 
-      if (.not.ma_pop_stack(libf_ao))
+      if (.not.ma_chop_stack(libf_ao))
      &     call errquit('grid_quadv0a: cannot pop stack', 10)
 c
       call ga_sync

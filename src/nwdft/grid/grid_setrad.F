@@ -1,14 +1,12 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.24 2000-03-21 23:11:59 edo Exp $
+c$Id: grid_setrad.F,v 1.25 2000-03-22 03:01:42 edo Exp $
 c
       implicit none
 c      
-#include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "cdft.fh"
@@ -72,8 +70,6 @@ c
          write(0,*) ' radgrid eq ',radgrid
          call errquit('grid_setrad: unknown radial grid type', 0)
       endif
-      write(0,*) ' radgrid ',radgrid
-      write(0,*) ' wradgrid ',wradgrid,llind
 c
 c     check radial cutoffs
 c
@@ -115,7 +111,8 @@ c
 c        debug writes
 c
          if (ga_nodeid().eq.0.and.oprint_grid)then
-            write(*,*)' itype, bsrad_atom_type(itype), nrad(itype): ',
+            write(LuOut,*)
+     .           ' itype, bsrad_atom_type(itype), nrad(itype): ',
      &                  itype, bsrad_atom_type(itype), nrad(itype)
          endif
          if (bsrad_atom_type(itype).gt.EPS)then
@@ -168,7 +165,7 @@ c           midpoint=bsrad_atom_type(itype)*2
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe',0d0)
 c           call grid_gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
 c     ,          midpoint)
-            write(6,*) ' itype midpoint n1',itype,midpoint,n1
+            write(LuOut,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(wradgrid.eq.7) then
 c
 c     Chebyshev with endpoint defined from grid_rtrunc
@@ -301,9 +298,9 @@ c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
-         write(6,*)' nrad: ',(nrad(itype), itype = 1, ntypes)
-         write(6,*)' radgrid: ',radgrid
-         write(6,*)' tol_reset, mul_reset: ', 
+         write(LuOut,*)' nrad: ',(nrad(itype), itype = 1, ntypes)
+         write(LuOut,*)' radgrid: ',radgrid
+         write(LuOut,*)' tol_reset, mul_reset: ', 
      &               tol_reset, mul_reset
       endif
       return

@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.4 2000-03-17 22:44:43 edo Exp $
+C$Id: grid_quadv0.F,v 1.5 2000-03-22 03:01:42 edo Exp $
 c
       implicit none
 c
@@ -179,45 +179,7 @@ c
      &                int_mb(icntobfr), int_mb(icetobfr),
      ,     ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc)
 c
-      if (.not.ma_pop_stack(lcmat))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lamat))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrdens_atom))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcetobfr))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntobfr))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntoce))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lhess))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lBmat))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(ldelrho))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrho))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lPmat))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lFmat))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcoef))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lexpo))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lfin))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lniz))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrq))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lrq0))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lqwght))
-     &   call errquit('grid_den: cannot pop stack',0)
-      if (.not.ma_pop_stack(lqxyz))
+      if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0)
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
