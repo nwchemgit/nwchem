@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.186 1996-11-06 18:07:00 rg240 Exp $
+# $Id: makefile.h,v 1.187 1996-11-15 01:56:55 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -242,7 +242,7 @@ ifeq ($(TARGET),SOLARIS)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -276,7 +276,7 @@ ifdef PURECOV
          CC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir gcc -g
          FC = purecov -cache-dir=/scratch/d3g270 -always-use-cache-dir f77 -g
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on t
@@ -941,10 +941,16 @@ endif
 
 
 ifdef FLINT
+AR = echo
+RANLIB = echo
+MAKEFLAGS = -j 1 --no-print-directory
+CPPFLAGS += -p -w -u -O207,276,76,261 -Ttrim -x -f -g -s -t -B/scratch/d3g270/nwchem.fdb
 
-.F.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+export AR
+export RANLIB
 
-.f.o:; flint $(CPPFLAGS) -m -P SGI,SUN,CRAY -u $<
+.F.o:; flint $(CPPFLAGS) -m -P SUN -P SGI -P CRAY $<
+.f.o:; flint $(CPPFLAGS) -m -P SUN -P SGI -P CRAY $<
 
 endif
 
