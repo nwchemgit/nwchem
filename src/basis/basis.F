@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.55 1997-03-25 01:42:26 d3e129 Exp $
+c $Id: basis.F,v 1.56 1997-03-25 01:57:26 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3270,6 +3270,7 @@ c::local
       character*16 gstring    ! geometry or basis tags can only be *16
       character*16 bsmatch    ! the matched basis set tag
       integer lgstring        ! length of gstring
+      integer lgstring_old    ! length of gstring at first test
       integer lnotalpha
       integer i               ! loop counter
       integer ind             ! dummy counter
@@ -3295,7 +3296,7 @@ c
 *rak:c      
 *rak:      data digits /'0','1','2','3','4','5','6','7','8','9'/
 c      
-      debug = .true.
+      debug = .false.
 c
       bas_match_tags = .false.
 c
@@ -3320,11 +3321,12 @@ c... Now check to see if the tag has non alpha chracters.
 c...  the substring prior to the first non-alpha character is the users idea
 c...  of the "name" of the tag.  
 c
+      lgstring = inp_strlen(gstring)
       lnotalpha = lgstring+1
       do i = 1,lgstring
         if (.not.(inp_match(na2z,.false.,
-     &      gstring(lgstring:lgstring),a2z,ind))) then ! compare character to alpha (case-less test)
-          lnotalpha = ind
+     &      gstring(i:i),a2z,ind))) then ! compare character to alpha (case-less test)
+          lnotalpha = i
           goto 00001
         endif
       enddo
@@ -3332,6 +3334,8 @@ c
       do i = lnotalpha,lgstring
         gstring(i:i) = ' '
       enddo
+      if (debug) write(luout,*)' the string:', tag_from_geom,
+     &    'has the user substring of ',gstring
 *rak:
 *rak:      digits_found = .false.
 *rak:00001 continue
@@ -3350,15 +3354,19 @@ c
 *rak:c
 *rak:c... first match numberless geometry tag to full basis tag list
 c
-c... match user substring to basis set tags
-      do i = 1, nbtgs
-        if (gstring.eq.bs_tags(i,basis)) then
-          bas_match_tags = .true.
-          btag = i
-          bsmatch = bs_tags(i,basis)
-          goto 00009
-        endif
-      enddo
+c... match user substring to basis set tags (only if it gstring has a different length)
+      lgstring_old = lgstring
+      lgstring = inp_strlen(gstring)
+      if (lgstring_old.gt.lgstring) then
+        do i = 1, nbtgs
+          if (gstring.eq.bs_tags(i,basis)) then
+            bas_match_tags = .true.
+            btag = i
+            bsmatch = bs_tags(i,basis)
+            goto 00009
+          endif
+        enddo
+      endif
 c
 c... now get symbol and element names for each tag and match those
 c    geometry tag is based on users substring
@@ -3394,7 +3402,8 @@ c
           goto 00009
         endif
       enddo
-      write(luout,*)'bas_match_tags:debug: no match for tag <',
+      if (debug)
+     &    write(luout,*)'bas_match_tags:debug: no match for tag <',
      &    tag_from_geom,'>'
       return  ! no match
 c
