@@ -173,7 +173,7 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
 	setVisible(false); }});
 
     try{
-      BufferedReader br = new BufferedReader(new FileReader("/home/strtsm/.nwchemrc"));
+      BufferedReader br = new BufferedReader(new FileReader("./.nwchemrc"));
       String card;
       while((card=br.readLine()) != null){
 	  if(card.startsWith("ffield")) {ffield=card.substring(7,12).trim();};
