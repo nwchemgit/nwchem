@@ -1,6 +1,6 @@
       subroutine ana_report_file(opt,fil,lfn)
 c
-c $Id: ana_report.F,v 1.2 2001-05-17 17:28:18 d3j191 Exp $
+c $Id: ana_report.F,v 1.3 2003-06-09 22:45:16 d3j191 Exp $
 c
       implicit none
 c
@@ -99,7 +99,7 @@ c
       read(lfn,1002,end=11) ctime,it,(jt(k),k=1,10)
  1002 format(f12.6,i6,10i6)
       if(ptime.le.0.0d0) timi=ctime
-      timf=ctime
+      if(timf.lt.ctime) timf=ctime
       if(it.ne.ndxi(i,1)) goto 5
 c
       if(ptime.ge.0.0d0) then

@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.10 2002-07-21 18:01:20 d3j191 Exp $
+c $Id: ana_groups.F,v 1.11 2003-06-09 22:45:16 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.10 2002-07-21 18:01:20 d3j191 Exp $
+c $Id: ana_groups.F,v 1.11 2003-06-09 22:45:16 d3j191 Exp $
 c
       implicit none
 c
@@ -208,7 +208,7 @@ c
       igrp=igroup(igr,1)
       ito=ldef(igrp)
 c
-c      write(lfnloc,1000) time
+c      write(lfngrp,1000) time
 c 1000 format('Atom distances for selected atoms at time ',f12.6)
 c
       do 1 i=1,ito
@@ -251,13 +251,13 @@ c
     3 continue
       do 5 j=1,num
       if(ndx(j).eq.0) goto 6
-      if(ndx(j).ne.iwrk(igrp,i,j)) goto 6
+      if(ndx(j).ne.iwrk(igrp,j,i)) goto 6
     5 continue
-      if(iwrk(igrp,i,num+1).eq.0) goto 1
+      if(iwrk(igrp,num+1,i).eq.0) goto 1
     6 continue
-      iwrk(igrp,i,num+1)=0
+      iwrk(igrp,num+1,i)=0
       do 7 j=1,num
-      iwrk(igrp,i,j)=ndx(j)
+      iwrk(igrp,j,i)=ndx(j)
     7 continue
       if(num.lt.11) then
       write(lfnloc,1001) time,ia,(ndx(j),j=1,num)

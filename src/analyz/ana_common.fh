@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.58 2003-04-30 21:42:43 d3j191 Exp $
+c $Id: ana_common.fh,v 1.59 2003-06-09 22:45:16 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -12,7 +12,7 @@ c
       parameter(mxnum=1000)
 c
       integer maxgrp
-      parameter(maxgrp=20)
+      parameter(maxgrp=50)
 c
       integer mhis,mlhis
       parameter(mhis=10)
