@@ -26,26 +26,26 @@ c
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)
-         read(unitno, err=1001, end=1001) lentit
+         read(unitno, err=1001, end=2001) lentit
          if (len(title) .lt. lentit) call errquit
      $        ('movecs_read_header: title too short', lentit)
          title = ' '
-         read(unitno, err=1001, end=1001) title(1:lentit)
-         read(unitno, err=1001, end=1001) lenbas
+         read(unitno, err=1001, end=2001) title(1:lentit)
+         read(unitno, err=1001, end=2001) lenbas
          if (len(basis_name) .lt. lenbas) call errquit
      $        ('movecs_read_header: basis_name too short', lenbas)
          basis_name = ' '
-         read(unitno, err=1001, end=1001) basis_name(1:lenbas)
+         read(unitno, err=1001, end=2001) basis_name(1:lenbas)
          
-         read(unitno, err=1001, end=1001) nsets
-         read(unitno, err=1001, end=1001) nbf
+         read(unitno, err=1001, end=2001) nsets
+         read(unitno, err=1001, end=2001) nbf
          if (nsets .gt. ldnmo) then
             write(6,*) ' movecs_read_header: ldnmo too small ',
      $           nsets, ldnmo
             close(unitno, err=1002)
             goto 10
          endif
-         read(unitno, err=1001, end=1001) (nmo(i),i=1,nsets)
+         read(unitno, err=1001, end=2001) (nmo(i),i=1,nsets)
          close(unitno, err=1002)
          ok = 1
       endif
@@ -68,6 +68,13 @@ c
       goto 10
 c
  1001 write(6,*) ' movecs_read_header: failing reading from ', filename
+      call util_flush(6)
+      ok = 0
+      close(unitno, err=1002)
+      goto 10
+c
+ 2001 write(6,*) ' movecs_read_header:eof: failing reading from '
+     &    , filename
       call util_flush(6)
       ok = 0
       close(unitno, err=1002)
@@ -218,7 +225,7 @@ c
          write(unitno, err=1001) basis_name(1:lenbas)
          write(unitno, err=1001) nsets
          write(unitno, err=1001) nbf
-         write(unitno, err=1001) nmo
+         write(unitno, err=1001) (nmo(i),i=1,nsets)
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_write',l_vecs,k_vecs))
      $        call errquit('movecs_write: ma failed', nbf)
          do iset = 1, nsets
