@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf_so.F,v 1.1 2000-04-17 21:45:53 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.2 2000-04-18 00:24:02 edo Exp $
 c     
       implicit none
 c     
@@ -14,7 +14,7 @@ c
       integer iter
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &     g_fock, g_svecs, isvals, 
-     &     g_cdinv, g_xcinv, g_2ceri, g_scr
+     &     g_xcinv,  g_scr
 c     so
       integer g_densso(2), g_tmp_ri,   
      &     g_moso(2), g_old(2),
@@ -86,7 +86,7 @@ c
       integer natoms, nTotEl
 
       integer l_occ, k_occ
-      integer i, j, iw, i1
+      integer i, j,  i1
       integer me, nproc
       integer g_tmp, g_fockt, g_s, g_wght, g_xyz,g_nq
 c     so
@@ -198,6 +198,7 @@ c
       oprint_final_vecs = util_print('final vectors', print_high)
       me = ga_nodeid()
       nproc = ga_nnodes()
+      ispin=1
 c     !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
@@ -1190,13 +1191,14 @@ c      write(*,*)"compare"
 c         write(*,*)"i=", i 
 c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
          do j=1,i 
-            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=cmplx(dbl_mb(ibuff+j-1),0)
+            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
+     =           cmplx(dbl_mb(ibuff+j-1),0d0)
          enddo 
          call ga_get(g_fockso(2), 1,i, i,i, dbl_mb(ibuff),1)
          do j=1,i 
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
      $               DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))
-     $           +cmplx(0,dbl_mb(ibuff+j-1))
+     $           +cmplx(0d0,dbl_mb(ibuff+j-1))
          enddo 
       enddo
  61   continue
