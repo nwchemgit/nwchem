@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_focks, g_dens, 
      &                       g_tmp, g_svecs, svals, diis, nodiis,
-     .     g_diis,keeps,g_s12m,g_s12p,reset,os_constr)
+     .     g_diis,keeps,g_s12m,g_s12p,reset)
 c
-C$Id: diis_driver.F,v 1.25 2003-03-12 02:54:36 edo Exp $
+C$Id: diis_driver.F,v 1.26 2003-04-02 23:08:25 edo Exp $
 c
       implicit none
 c      
@@ -22,7 +22,7 @@ c
       double precision derr(2) ! Diis error norm [output]
       double precision toll_s
       integer lpulay, npulay, ipulay
-      logical reset,os_constr
+      logical reset
       Save lpulay, npulay, ipulay, nhist
 c
 #include "mafdecls.fh"
@@ -42,7 +42,7 @@ c
 c
       logical diis, nodiis,keeps
       double precision avail, dw_agg_avail
-      integer n_n2_objs,i,nloops,iloop,iptr,hw_ipol
+      integer n_n2_objs,i
       double precision one, zero
       parameter (one = 1.d0, zero = 0.d0)
 c
@@ -52,7 +52,6 @@ c
       if(reset) then
          if( icall(1).eq.0 ) return
          icall(1) = -1
-        if(os_constr) icall(2)=-1
       endif
       if (icall(1).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
@@ -82,7 +81,6 @@ c
 c       Create necessary DIIS arrays.
 c
         npulay  = (MXhist+1)*(MXhist+2)/2
-        if(os_constr) npulay=npulay*ipol
         if (.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
      &     call errquit('diis_driver: cannot allocate Pulay',0)
         call dfill(npulay, 0.0d0, dbl_mb(ipulay), 1)
@@ -125,14 +123,14 @@ c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
  2119 format(/,10x,'The amount of global memory currently available',
      &       /,10x,'for DIIS only allows: ',i2,' Fock matrices to be',
      &       /,10x,'stored and used in the extrapolation.')
-c
-c     begin of ispin do
-c
+      if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
+     &   call errquit('diis_driver: cannot allocate Fock wghts',0)
       do ispin=1,ipol
+      call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
 c
 c     Increment call counter.
 c
-         icall(ispin) = icall(ispin) + 1
+      icall(ispin) = icall(ispin) + 1
 c
 #if defined(DFT_TIMER)
       call dft_second(tp1)
@@ -204,42 +202,37 @@ c
       if (.not. ga_destroy(g_tmp2)) call errquit
      &     ('diis_driver: could not destroy g_tmp2', 0)
 c
+c
 c     Compute Pulays B matrix.
 c
-      call diis_core(derr(ispin), Dbl_MB(ipulay), MXhist, 
-     .     nhist(ispin),
-     .     icall, 
-     &               ispin, ipol, g_diis, g_tmp,os_constr)
+      call diis_core(derr(ispin), Dbl_MB(ipulay), MXhist, nhist,
+     .     icall(ispin), 
+     &               ispin, ipol, g_diis, g_tmp)
 c
       enddo
-c
-c     end of ispin do
-c
 c
 c     Solve DIIS equation for Hamiltonian weights.
 c
-      if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
-     &   call errquit('diis_driver: cannot allocate Fock wghts',0)
-      nloops=1
-      hw_ipol=ipol
-      if(os_constr) then
-         nloops=ipol
-         hw_ipol=1
-      endif
-      do iloop=1,nloops
-      call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
-      iptr=(iloop-1)*(mxhist+1)*(mxhist+2)/2
-      call diis_bsolve(Dbl_MB(ipulay+iptr), 
-     &     Dbl_MB(ifwght), MXhist, nhist(iloop))
+      call diis_bsolve(Dbl_MB(ipulay), Dbl_MB(ifwght),
+     &                 MXhist, nhist(1))
 c
+#if defined(DFT_TIMER)
+      call dft_second(tp2)
+      subsect(3) = '  bsolve   '
+      call tcllct(t_sub(1,3),tp2,tp1)
+      call dft_second(tp1)
+#endif
 c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
-      call diis_hamwgt(Dbl_MB(ifwght), MXhist, 
-     &     nhist(iloop), icall(iloop), 
-     &                 hw_ipol,  g_focks(iloop), 
-     &     g_diis((iloop-1)*mxhist+1))
-      enddo
+      call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, icall, 
+     &                 ipol,  g_focks, g_diis)
+c
+#if defined(DFT_TIMER)
+      call dft_second(tp2)
+      subsect(4) = '  hamwght '
+      call tcllct(t_sub(1,4),tp2,tp1)
+#endif
 c
       if (.not.ma_pop_stack(lfwght))
      &   call errquit('diis_driver: cannot pop stack',0)
