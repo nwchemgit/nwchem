@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.38 1996-10-18 21:39:15 mdupuis Exp $
+C     $Id: geom_input.F,v 1.39 1996-10-23 22:05:54 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -193,6 +193,9 @@ c
             osymmetry = .true.
             call geom_sys_input(geom)
             goto 20
+          else if (inp_compare(.false.,'zcoord', field)) then
+            call geom_autoz_input(rtdb)
+            goto 20
           else
             if ((ncenter+1) .eq. max_center) call errquit
      $          ('geom_input: too many centers?', ncenter)
@@ -288,7 +291,7 @@ c
 c
 c     ----- call auto-z-matrix generation -----
 c
-         call geom_zmt_autoz(geom,coords,charge,tags,ncenter)
+         call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter)
 c
 c     ----- get internal coordinates -----
 c
@@ -470,16 +473,401 @@ c
       end if
 c     
       end
+      subroutine geom_autoz_input(rtdb)
+      implicit double precision (a-h,o-z)
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      integer  rtdb
+      logical  status
+      logical  zcoord_input
+c
+      parameter (max_zcoord=16)
+      integer ir
+      integer iw
+      common/hnd_iofile/ir,iw
+      dimension ijbond(2,max_zcoord)
+      dimension ijkang(3,max_zcoord)
+      dimension ijklto(4,max_zcoord)
+      dimension ijklop(4,max_zcoord)
+      dimension ijklnb(4,max_zcoord)
+c
+      ir=LuIn
+      iw=LuOUT
+c
+      if(ga_nodeid().eq.0) then
+c
+         call hnd_autoz_input(ijbond,ijkang,ijklto,
+     1                        ijklop,ijklnb,max_zcoord)
+c
+         zcoord_input=.true.
+         status=rtdb_put(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
+     2                                                    ijbond)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:ijkang',mt_int,3*max_zcoord,  
+     2                                                    ijkang)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:ijklto',mt_int,4*max_zcoord,  
+     2                                                    ijklto)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:ijklop',mt_int,4*max_zcoord,  
+     2                                                    ijklop)
+         status=status.or.
+     1          rtdb_put(rtdb,'autoz:ijklnb',mt_int,4*max_zcoord,  
+     2                                                    ijklnb)
+         if(.not.status) then
+            call errquit('zcoord_input : rtdb_put failed',911)
+         endif
+      endif
+c
+      return
+      end
+      subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
+     1                           ijklop,ijklnb,max_zcoord)
+      implicit double precision (a-h,o-z)
+#include "inp.fh"
+c
+      parameter (mxatom=500)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=1500)
+      parameter (mxcoor=1500)
+c                mxcoor=max(mxcart,mxzmat)
+      character*255 field
+      logical       status
+      logical       ready
+      logical       dbug
+      common/hnd_iofile/ir,iw
+      dimension ijbond(2,*)
+      dimension ijkang(3,*)
+      dimension ijklto(4,*)
+      dimension ijklop(4,*)
+      dimension ijklnb(4,*)
+c
+      dbug=.false. 
+c
+      nbond=0
+      nangl=0
+      ntors=0
+      nopla=0
+      nlinb=0
+      do i=1,max_zcoord
+         ijbond(1,i)=0
+         ijbond(2,i)=0
+         ijkang(1,i)=0
+         ijkang(2,i)=0
+         ijkang(3,i)=0
+         ijklto(1,i)=0
+         ijklto(2,i)=0
+         ijklto(3,i)=0
+         ijklto(4,i)=0
+         ijklop(1,i)=0
+         ijklop(2,i)=0
+         ijklop(3,i)=0
+         ijklop(4,i)=0
+         ijklnb(1,i)=0
+         ijklnb(2,i)=0
+         ijklnb(3,i)=0
+         ijklnb(4,i)=0
+      enddo
+c
+c     ----- read values from input -----
+c
+      call inp_set_field(0)
+      ifield=inp_cur_field()
+      if(dbug) then
+         write(iw,*) 'in hnd_autoz_input, ifield = ',ifield
+      endif
+      ready=.false.
+c
+   10 continue
+      if(.not.inp_a(field)) then
+c
+         if(.not.inp_read()) then
+            write(iw,*)  'unexpected eof while reading ',
+     1                   'hnd_autoz_input data'
+            call errquit('hnd_autoz_input: unexpected eof',911)
+         else
+            if(dbug) then
+               write(iw,*) 'new line read in hnd_autoz_input'
+            endif
+            go to 10
+         endif
+c
+      else
+         if(dbug) then
+            write(iw,*) 'in hnd_autoz_input, field = ',field
+         endif
+         if(.not.ready) then
+            if(inp_compare(.false.,'zcoord',field)) then
+               ready=.true.
+               go to 10
+            else
+               write(iw,*) 'un-expected value of field'
+               call errquit('hnd_autoz_input: misposition',911)
+            endif
+         endif
+c
+         if(inp_compare(.false.,'zend',field)) then
+            go to 100
+         else
+   20       continue
+            if(inp_compare(.false.,'ijbond',field)) then
+   30          continue
+               if(inp_i(idum)) then
+   40             continue
+                  if(inp_i(jdum)) then
+                     nbond=nbond+1
+                     ijbond(1,nbond)=idum
+                     ijbond(2,nbond)=jdum
+                     go to 30
+                  else
+                     if(.not.inp_read()) then
+                        write(iw,*)  'unexpected eof while reading ',
+     1                               'ijbond data'
+                        call errquit
+     1                       ('hnd_autoz_input: unexpected eof',911)
+                     else
+                        go to 40
+                     endif
+                  endif
+               else
+                  go to 10
+               endif
+            elseif(inp_compare(.false.,'ijkang',field)) then
+  130          continue
+               if(inp_i(idum)) then
+  140             continue
+                  if(inp_i(jdum)) then
+  150                continue
+                     if(inp_i(kdum)) then
+                        nangl=nangl+1
+                        ijkang(1,nangl)=idum
+                        ijkang(2,nangl)=jdum
+                        ijkang(3,nangl)=kdum
+                        go to 130
+                     else
+                        if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijkang data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                        else
+                           go to 150
+                        endif
+                     endif
+                  else
+                     if(.not.inp_read()) then
+                        write(iw,*)  'unexpected eof while reading ',
+     1                               'ijkang data'
+                        call errquit
+     1                       ('hnd_autoz_input: unexpected eof',911)
+                     else
+                        go to 140
+                     endif
+                  endif
+               else 
+                  go to 10
+               endif
+            elseif(inp_compare(.false.,'ijklto',field)) then
+  230          continue
+               if(inp_i(idum)) then
+  240             continue
+                  if(inp_i(jdum)) then
+  250                continue
+                     if(inp_i(kdum)) then
+  260                   continue
+                        if(inp_i(ldum)) then
+                           ntors=ntors+1
+                           ijklto(1,ntors)=idum
+                           ijklto(2,ntors)=jdum
+                           ijklto(3,ntors)=kdum
+                           ijklto(4,ntors)=ldum
+                           go to 230
+                        else
+                           if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklto data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                           else
+                              go to 260
+                           endif
+                        endif
+                     else
+                        if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklto data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                        else
+                           go to 250
+                        endif
+                     endif
+                  else
+                     if(.not.inp_read()) then
+                        write(iw,*)  'unexpected eof while reading ',
+     1                               'ijklto data'
+                        call errquit
+     1                       ('hnd_autoz_input: unexpected eof',911)
+                     else
+                        go to 240
+                     endif
+                  endif
+               else
+                  go to 10
+               endif
+            elseif(inp_compare(.false.,'ijklop',field)) then
+  330          continue
+               if(inp_i(idum)) then
+  340             continue
+                  if(inp_i(jdum)) then
+  350                continue
+                     if(inp_i(kdum)) then
+  360                   continue
+                        if(inp_i(ldum)) then
+                           nopla=nopla+1
+                           ijklop(1,nopla)=idum
+                           ijklop(2,nopla)=jdum
+                           ijklop(3,nopla)=kdum
+                           ijklop(4,nopla)=ldum
+                           go to 330
+                        else
+                           if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklop data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                           else
+                              go to 360
+                           endif
+                        endif
+                     else
+                        if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklop data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                        else
+                           go to 350
+                        endif
+                     endif
+                  else
+                     if(.not.inp_read()) then
+                        write(iw,*)  'unexpected eof while reading ',
+     1                               'ijklop data'
+                        call errquit
+     1                       ('hnd_autoz_input: unexpected eof',911)
+                     else
+                        go to 340
+                     endif
+                  endif
+               else
+                  go to 10
+               endif
+            elseif(inp_compare(.false.,'ijklnb',field)) then
+  430          continue
+               if(inp_i(idum)) then
+  440             continue
+                  if(inp_i(jdum)) then
+  450                continue
+                     if(inp_i(kdum)) then
+  460                   continue
+                        if(inp_i(ldum)) then
+                           nlinb=nlinb+1
+                           ijklnb(1,nlinb)=idum
+                           ijklnb(2,nlinb)=jdum
+                           ijklnb(3,nlinb)=kdum
+                           ijklnb(4,nlinb)=ldum
+                           go to 430
+                        else
+                           if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklnb data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                           else
+                              go to 460
+                           endif
+                        endif
+                     else
+                        if(.not.inp_read()) then
+                           write(iw,*)  'unexpected eof while reading ',
+     1                                  'ijklnb data'
+                           call errquit
+     1                          ('hnd_autoz_input: unexpected eof',911)
+                        else
+                           go to 450
+                        endif
+                     endif
+                  else
+                     if(.not.inp_read()) then
+                        write(iw,*)  'unexpected eof while reading ',
+     1                               'ijklnb data'
+                        call errquit
+     1                       ('hnd_autoz_input: unexpected eof',911)
+                     else
+                        go to 440
+                     endif
+                  endif
+               else
+                  go to 10
+               endif
+            endif
+         endif
+c
+      endif
+c
+  100 continue
+      if(dbug) then
+         if(nbond.gt.0) then
+            do mbond=1,nbond
+               write(iw,*) 'ijbond',
+     1                      ijbond(1,mbond),ijbond(2,mbond) 
+            enddo
+         endif
+         if(nangl.gt.0) then
+            do mangl=1,nangl
+               write(iw,*) 'ijkang',
+     1                      ijkang(1,mangl),ijkang(2,mangl), 
+     2                      ijkang(3,mangl)
+            enddo
+         endif
+         if(ntors.gt.0) then
+            do mtors=1,ntors
+               write(iw,*) 'ijklto',
+     1                      ijklto(1,mtors),ijklto(2,mtors), 
+     2                      ijklto(3,mtors),ijklto(4,mtors)
+            enddo
+         endif
+         if(nopla.gt.0) then
+            do mopla=1,nopla
+               write(iw,*) 'ijklop',
+     1                      ijklop(1,mopla),ijklop(2,mopla), 
+     2                      ijklop(3,mopla),ijklop(4,mopla)
+            enddo
+         endif
+         if(nlinb.gt.0) then
+            do mlinb=1,nlinb
+               write(iw,*) 'ijklnb',
+     1                      ijklnb(1,mlinb),ijklnb(2,mlinb), 
+     2                      ijklnb(3,mlinb),ijklnb(4,mlinb)
+            enddo
+         endif
+      endif
+c
+      return
+      end
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,charge,mass,ncenter)
       implicit none
 #include "stdio.fh"
       integer      mxizmt
       integer      mxatom
-      integer      mxbfn
       parameter    (mxizmt=6000)
       parameter    (mxatom=500)
-      parameter    (mxbfn=3072)
       integer      i
       integer      nizmat
       integer      izmat
@@ -492,7 +880,6 @@ c
       character*16 tags
       character*16 element
       character*16 atmlab 
-      character*8  bflab
       character*2  symbol
       logical      is_atom
       integer      geom
@@ -502,7 +889,7 @@ c
       logical      dbug 
       logical      some 
       common/hnd_iofile/ir,iw
-      common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
+      common/hnd_mollab/atmlab(mxatom)
       double precision coords(3,*)
       double precision charge(*)
       double precision   mass(*)
@@ -914,13 +1301,11 @@ c
       subroutine  geom_no_autoz(geom,coords,charge,tags,ncenter)
       implicit none
 #include "stdio.fh"
-      integer      mxbfn
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
       integer      mxcart
       integer      mxcoor
-      parameter    (mxbfn=3072)
       parameter    (mxizmt=6000)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
@@ -950,11 +1335,10 @@ c                   mxcoor=max(mxcart,mxzmat)
       double precision zan
       character*16 tags
       character*16 atmlab
-      character*8  bflab 
       character*8  errmsg
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
-      common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
+      common/hnd_mollab/atmlab(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
@@ -997,16 +1381,16 @@ c
  9999 format(' in -geom_no_autoz- ')
  9998 format(1x,i5,i5,3f10.6)
       end
-      subroutine  geom_zmt_autoz(geom,coords,charge,tags,ncenter)
+      subroutine  geom_zmt_autoz(rtdb,
+     1                           geom,coords,charge,tags,ncenter)
       implicit none
 #include "stdio.fh"
-      integer      mxbfn
+      integer      rtdb
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
       integer      mxcart
       integer      mxcoor
-      parameter    (mxbfn=3072)
       parameter    (mxizmt=6000)
       parameter    (mxzmat=1500)
       parameter    (mxatom=500)
@@ -1035,11 +1419,10 @@ c
       double precision zan
       character*16 tags
       character*16 atmlab
-      character*8  bflab 
       character*8  errmsg
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
-      common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
+      common/hnd_mollab/atmlab(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
@@ -1074,7 +1457,7 @@ c
          enddo
       endif
 c
-      call hnd_zmtmak(zdone)
+      call hnd_zmtmak(zdone,rtdb)
 c
       if(.not.zdone) then
          write(iw,9997)
@@ -1185,7 +1568,7 @@ c
  9996 format(12(i5,','))
  9995 format(' $END ')
       end
-      SUBROUTINE HND_ICOORD
+      SUBROUTINE HND_ICOORD(RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1195,6 +1578,7 @@ c
 #include "context.fh"
 c
       logical status
+      integer rtdb
       integer ga_zmt_bmat
       integer ga_zmt_binv
       integer ga_zmt_zsym
@@ -1206,7 +1590,6 @@ C     --- -NZMAT-  =  NUMBER OF ELEMENTS OF -IZMAT- GIVEN IN $ZMAT ---
 C     --- -NZVAR-  =  NUMBER OF INTERNAL COORDINATES FROM -IZMAT-  ---
 C     --- -NVAR-   =  (3N-6) OR (3N-5) OR -NZMOD-  .LE. -NZVAR-    ---
 C
-      PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=500)
       LOGICAL ZDONE
       LOGICAL DBUG
@@ -1214,7 +1597,7 @@ C
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
+      COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM)
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
@@ -1231,7 +1614,7 @@ C
          WRITE(IW,*) 'IFZMAT',IFZMAT
       ENDIF
 C
-C     ----- IN -nwchem- , some MUST BE true -----
+C     ----- in -nwchem- , some MUST BE true -----
 C
       SOME=.TRUE.
 C
@@ -1273,7 +1656,7 @@ C     -----       THERE IS NO -Z- MATRIX     -----
 C     ----- TRY TO CREAT ONE ; IF SUCCESSFUL -----
 C     -----    CALCULATE -B- AND -B**(-1)-   -----
 C
-         CALL HND_ZMTMAK(ZDONE)
+         CALL HND_ZMTMAK(ZDONE,RTDB)
          IF(ZDONE) THEN
             STATUS=
      1      GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BMAT',1,1,
@@ -3815,8 +4198,18 @@ C
   950 FORMAT(1X,'THIS MESSAGE COMES TO YOU FROM -DIHPLA-, WHERE ',
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
-      SUBROUTINE HND_ZMTMAK(ZDONE)
+      SUBROUTINE HND_ZMTMAK(ZDONE,RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+      integer  rtdb
+      integer  geom
+      logical  status
+      logical  zcoord_input
+      parameter (max_zcoord=16)
+c
       PARAMETER (TOANGS=0.52917724924D+00)
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -3903,8 +4296,6 @@ C
      5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
      6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
 C
-C     NAMELIST /COORDI/ IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
-C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1                   (C(2,IAT)-C(2,JAT))**2+
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
@@ -3970,10 +4361,35 @@ C
 C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----    
 C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
 C
-c--   REWIND IR
-c--   READ(IR,COORDI,END=10,ERR=10)
-c--10 CONTINUE
-C
+c           read in zcoord data from -rtdb-
+c          IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
+c
+      status=rtdb_get(rtdb,'autoz:zcoord',mt_log,1,zcoord_input)
+      status=status.or.        
+     1       rtdb_get(rtdb,'autoz:ijbond',mt_int,2*max_zcoord,  
+     2                                                 ijbond)
+      status=status.or.
+     1       rtdb_get(rtdb,'autoz:ijkang',mt_int,3*max_zcoord,  
+     2                                                 ijkang)
+      status=status.or.
+     1       rtdb_get(rtdb,'autoz:ijklto',mt_int,4*max_zcoord,  
+     2                                                 ijklto)
+      status=status.or.
+     1       rtdb_get(rtdb,'autoz:ijklop',mt_int,4*max_zcoord,  
+     2                                                 ijklop)
+      status=status.or.
+     1       rtdb_get(rtdb,'autoz:ijklnb',mt_int,4*max_zcoord,  
+     2                                                 ijklnb)
+      if(status) then
+         if(dbug) then
+            write(iw,*) 'zcoord data read from rtdb'
+         endif
+      else
+         if(dbug) then
+            write(iw,*) 'no zcoord data found on rtdb'
+         endif
+      endif
+c
       NUMBND=0
       DO MBOND=1,MXBOND
          ICON=IJBOND(1,MBOND)
@@ -4560,7 +4976,7 @@ C
      4                      IJKLNB,NUMLNB,XYZLNB,DOLINB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
       LOGICAL     DBUG
       LOGICAL     ZDONE
       LOGICAL     DOLINB
@@ -4670,7 +5086,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IONE=1)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -4746,8 +5162,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITWO=2)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
-      PARAMETER (MXANGS=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXANGS= 6*MXATOM)
       LOGICAL     DBUG
       LOGICAL     DOLINB
       LOGICAL     LINBND
@@ -4932,8 +5348,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITHREE=3)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
-      PARAMETER (MXTORS=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXTORS= 6*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5115,8 +5531,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IFOUR=4)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
-      PARAMETER (MXOOPA=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXOOPA= 6*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5295,8 +5711,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IFOUR=4)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS=12*MXATOM)
-      PARAMETER (MXOOPA=12*MXATOM)
+      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXOOPA= 6*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -7617,28 +8033,50 @@ C
 C
 C     ----- GENERAL CALLING  ROUTINE FOR -----
 C               -GIVEIS- OR -GIVDIA-
-C     ----------------------------------------------------------
-C     NOTE: GIVDIA IS NOT AS FAST AND LESS RELIABLE THAN GIVEIS
-C           THIS IS PARTICULARLY TRUE ON THE VAX.   S.T.ELBERT
-C     ----------------------------------------------------------
 C
+#include "mafdecls.fh"
+#include "global.fh"
+      logical status
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DIAOPT/MODDIA
       DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
-      CALL HND_GIVDIA(A,VEC,EIG,IA,N,NDIM)
+      dimension x(1),ix(1)
+      equivalence (dbl_mb(1),x(1)),(int_mb(1),ix(1))
+c
+c     ----- memory -----
+c
+      status=ma_push_get(MT_DBL,4*ndim,'mem_dbl dia',i_idbl,idbl)
+      status=ma_push_get(MT_INT,3*ndim,'mem_int dia',i_iint,iint)
+c
+c     ----- call -----
+c
+      CALL HND_GIVDIA(A,VEC,EIG,IA,N,NDIM,
+     1     x(idbl), x(idbl+  ndim), x(idbl+2*ndim), x(idbl+3*ndim),
+     2                              x(idbl+2*ndim), x(idbl+2*ndim),
+     3    ix(iint),ix(iint+  ndim),ix(iint+2*ndim)                )
+c
+c     ----- memory -----
+c
+      status=ma_pop_stack(i_iint)
+      if(.not.status) then
+         call errquit('hnd_diagiv,ma_pop_stack of -iint- failed',911)
+      endif
+      status=ma_pop_stack(i_idbl)
+      if(.not.status) then
+         call errquit('hnd_diagiv,ma_pop_stack of -idbl- failed',911)
+      endif
+c
       RETURN
       END
-      SUBROUTINE HND_GIVDIA(A,VEC,EIG,IA,N,NDIM)
+      SUBROUTINE HND_GIVDIA(A,VEC,EIG,IA,N,NDIM,
+     1           w,gamma,beta,betasq,p,q,iposv,ivpos,iord)
       IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (MXBFN=3072)
 C        -----  A GIVENS HOUSHOLDER MATRIX DIAGONALIZATION  -----
 C        -----  ROUTINE SAME AS EIGEN BUT WORKS WITH A      -----
 C        -----  LINEAR ARRAY.                               -----
       DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
-      DIMENSION W(MXBFN),GAMMA(MXBFN),BETA(MXBFN),BETASQ(MXBFN)
-      DIMENSION P(MXBFN),Q(MXBFN),IPOSV(MXBFN),IVPOS(MXBFN),IORD(MXBFN)
-      EQUIVALENCE (P(1),Q(1)),(P(1),BETA(1)),(P(1),IVPOS(1))
-      EQUIVALENCE (BETASQ(1),IORD(1)),(IPOSV(1),GAMMA(1))
+      DIMENSION W(*),GAMMA(*),BETA(*),BETASQ(*)
+      DIMENSION P(*),Q(*),IPOSV(*),IVPOS(*),IORD(*)
       DATA ZERO,PT5,ONE,TWO /0.0D+00,0.5D+00,1.0D+00,2.0D+00/
       DATA RHOSQ /1.0D-22/
 C
