@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.30 2000-08-24 18:30:43 d3j191 Exp $
+c $Id: ana_input.F,v 1.31 2000-08-31 16:07:42 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,8 @@ c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
-      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
+      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel
+      integer itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx
@@ -291,6 +292,40 @@ c
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 4
+      goto 2
+      endif
+c
+c     select atoms
+c     ------------
+c
+      if(inp_compare(.false.,'define',item)) then
+      if(.not.inp_i(ksel)) call errquit('ana_input: define',0)
+      rsel=0.0d0
+      isel=0
+      jsel=0
+      if(inp_i(isel)) then
+      if(.not.inp_i(jsel)) jsel=isel
+      else
+      if(inp_f(rsel)) then
+      if(inp_i(isel)) then
+      if(.not.inp_i(jsel)) jsel=isel
+      endif
+      endif
+      endif
+      if(.not.inp_a(atom)) atom=' '
+      if(atom(1:7).eq.'solvent') then
+      if(.not.inp_f(rsel)) call errquit('No range specified',0)
+      write(lfncmd,1207) ksel,rsel
+ 1207 format('wdefin ',i7,f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+    6 continue
+      write(lfncmd,1020) ksel,isel,jsel,rsel,atom(1:index(atom,' ')-1)
+ 1020 format('define ',3i7,f12.6,a)
+      numcmd=numcmd+1
+      if(atom(1:1).eq.' ') goto 2
+      if(inp_a(atom)) goto 6
       goto 2
       endif
 c

@@ -1,11 +1,15 @@
 c
-c $Id: ana_common.fh,v 1.35 2000-08-24 18:30:43 d3j191 Exp $
+c $Id: ana_common.fh,v 1.36 2000-08-31 16:07:42 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
       parameter(mxangs=100)
       parameter(mxtors=250)
       parameter(mximps=100)
+c
+      integer mxdef,mxnum
+      parameter(mxdef=10)
+      parameter(mxnum=1000)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
@@ -72,3 +76,6 @@ c
 c
       real*8 wval(100,2)
       common/ana_val/wval
+c
+      integer ndef,ldef(mxdef),idef(mxdef,mxnum)
+      common/ana_def/ndef,ldef,idef

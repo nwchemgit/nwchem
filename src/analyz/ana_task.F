@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.42 2000-08-24 18:30:44 d3j191 Exp $
+c $Id: ana_task.F,v 1.43 2000-08-31 16:07:42 d3j191 Exp $
 c
       implicit none
 c
@@ -65,6 +65,8 @@ c
       nangs=0
       ntors=0
       nimps=0
+c
+      ndef=0
 c
       lsel=.false.
       active=.false.
@@ -222,6 +224,9 @@ c
       goto 1
       endif
 c
+c     index
+c     -----
+c
       if(card(1:6).eq.'index ') then
       read(card(7:16),'(i10)') indx
       endif
@@ -264,6 +269,19 @@ c
  3303 format(/,' Selected',i5,' out of',i5,' solvent molecules')
       endif
 c
+      goto 1
+      endif
+c
+c     atom group definition
+c     ---------------------
+c
+      if(card(1:6).eq.'define') then
+      call ana_define(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
+     + dbl_mb(i_xref))
+      if(me.eq.0) then
+      write(*,3004) nsel,nsa
+ 3004 format(' Defined',i5,' out of',i5,' atoms')
+      endif
       goto 1
       endif
 c
