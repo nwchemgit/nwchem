@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.14 2001-11-14 06:44:43 d3j191 Exp $
+c $Id: cf_shake.F,v 1.15 2001-12-11 17:41:54 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -80,11 +80,11 @@ c
       real*8 xs(msa,3),ys(msa,3)
       integer isgan(msa),isat(msa)
       integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
-      real*8 rpmf(2,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
+      real*8 rpmf(3,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
       real*8 wgt(mat,6),ft(4,3),rv(2),w(4)
       integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
 c
-      integer i,j,k,l
+      integer i,j,k,l,m
 c
       epmf=zero
 c
@@ -98,7 +98,13 @@ c
       ypmf(j,2,i)=zero
       ypmf(j,3,i)=zero
     2 continue
-      do 3 j=1,ipmf(i,1)
+      m=0
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.2) m=3
+      if(ipmf(i,1).eq.3) m=4
+      if(ipmf(i,1).eq.4) m=4
+      if(ipmf(i,1).ne.1) call errquit('SHAKE on distance only',me)
+      do 3 j=1,m
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
@@ -130,14 +136,14 @@ c
     3 continue
     1 continue
 c
-      call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
+      call ga_dgop(mcf_59,xpmf,16*numpmf,'+')
       call ga_dgop(mcf_63,ypmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.2) then
+      if(ipmf(i,1).eq.1) then
       do 7 j=1,2
-      w(j)=xpmf(i,j,4)
+      w(j)=xpmf(j,4,i)
       ign(j)=j
       iml(j)=j
       idt(j)=0
@@ -150,9 +156,15 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=1
-      call cf_shks(1,it,1,2,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,
-     + xpmf(1,1,i),ypmf(i,1,1),w)
-      do 9 j=1,ipmf(i,1)
+      call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,
+     + xpmf(1,1,i),ypmf(1,1,i),w)
+      m=0
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.2) m=3
+      if(ipmf(i,1).eq.3) m=4
+      if(ipmf(i,1).eq.4) m=4
+      if(ipmf(i,1).ne.1) call errquit('SHAKE on distance only',me)
+      do 9 j=1,m
       do 10 k=1,ipmf(i,j+1)
       do 11 l=1,nums
       if(isgan(l).eq.jpmf(i,j,k)) then
