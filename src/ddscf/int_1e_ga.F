@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.23 1999-12-14 01:14:22 bert Exp $
+C$Id: int_1e_ga.F,v 1.24 2000-04-17 21:57:27 zzhang Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -27,7 +27,7 @@ c
 c     arguments
 c     
       integer ibas, jbas        ! [input] bra and ket basis sets
-      integer g                 ! [output] GA handle to array 
+      integer g(*)              ! [output] GA handle to array 
       character*(*) integ_type  ! [input] Name of integrals to compute
       logical oskel             ! [input] If true generate symmetry unique list
 c
@@ -50,6 +50,8 @@ c
          type = 3
       else if (inp_compare(.false., integ_type, 'pvp')) then
          type = 4
+      else if (inp_compare(.false., integ_type, 'so'))then 
+         type = 5 
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -97,7 +99,7 @@ c
 c     arguments
 c     
       integer ibas, jbas        ! [input] bra and ket basis sets
-      integer g                 ! [output] GA handle to array 
+      integer g(3)              ! [output] GA handle to array 
       character*(*) integ_type  ! [input] Name of integrals to compute
       logical oskel             ! [input] If true generate symmetry unique list
 c     
@@ -112,6 +114,7 @@ c
       logical odoit
       double precision q2
       external block_int1e      ! For T3D
+      integer i, noffset
 c
       call ga_sync()
       if (oscfps) call pstat_on(ps_int_1e)
@@ -129,6 +132,8 @@ c
          type = 3
       else if (inp_compare(.false., integ_type, 'pvp')) then
          type = 4
+      else if (inp_compare(.false., integ_type, 'so'))then 
+         type = 5 
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -136,6 +141,7 @@ c
 c
 c     In-core caching
 c
+      ocache = .false.
       if (ocache .and. (ibas.eq.bas1) .and. (jbas.eq.bas1)) then
 *         if (ga_nodeid().eq.0) then
 *           call ga_summarize(1)
@@ -162,7 +168,13 @@ c     l_scr ... workspace for integral routines
 c     
 c     k_* are the offsets corrsponding to the l_* handles
 c     
+cso
       call int_mem_1e(max1e, mem1)
+      if (type .eq. 5) then  
+         max1e = 3*max1e 
+         mem1 = 3*mem1 
+      endif 
+cso
       if (.not. MA_push_get(MT_DBL,max1e,'int_1e_ga:buf',l_buf,k_buf))
      $     call errquit('int_1e_ga: ma failed', max1e)
       if (.not. MA_push_get(MT_DBL, mem1,'int_1e_ga:scr',l_scr,k_scr))
@@ -203,14 +215,26 @@ c
                   else if (type .eq. 4) then
                      call int_1epvpe (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 5) then 
+                     call intso_1e (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type)
                   end if
 c     
 c     Add the integrals into the global array
-c     
-                  call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
-     $                 idim, q2)
+c    
+                  if (inp_compare(.false., integ_type, 'so')) then
+                     do i = 1, 3
+                        noffset = (ihi-ilo+1)*(jhi-jlo+1)*(i-1)   
+                        call ga_acc(g(i), ilo, ihi, jlo, jhi, 
+     $                    dbl_mb(k_buf+noffset),
+     $                    idim, q2)
+                     enddo 
+                  else  
+                     call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
+     $                    idim, q2) 
+                  end if
                end if
             endif
             ijshell = ijshell + 1
