@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.7 2000-08-08 20:46:07 windus Exp $
+C $Id: twodd_cont.F,v 1.8 2000-08-09 21:55:04 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -361,7 +361,7 @@ c  not zero out the matrices when they enter the routines.
 c  I will copy the results into the actual "permanent" storage for now so
 c  the rest of the code will work properly.
 c
-      if (theory.eq.'DFT') then
+      if (theory.eq.'dft') then
         if (bgj_print() .gt. 0)
      *    write(6,*)'*** In twodd_cont: calling xc_hessian'
         call xc_hessian(g_dens, log_mb(k_act), nactive, 

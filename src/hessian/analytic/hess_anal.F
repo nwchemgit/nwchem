@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.5 2000-07-26 23:39:24 windus Exp $
+C $Id: hess_anal.F,v 1.6 2000-08-09 21:55:04 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -53,6 +53,7 @@ c     initialize hessian variables
 c
       if (.not.bgj_get_scf_method(theory)) call errquit
      *  ('hess_anal: failure to get theory type', 555)
+      if (theory.eq.'hyb') theory = 'dft'
       write(6,*) 'before the hess_init call'
       call flush(6)
       call hess_init(rtdb)

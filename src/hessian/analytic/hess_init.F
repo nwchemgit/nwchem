@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.8 2000-08-09 20:38:46 bjohnson Exp $
+C $Id: hess_init.F,v 1.9 2000-08-09 21:55:04 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -92,7 +92,7 @@ c    Need to fix jfac and kfac for UHF
 c
       jfac(1) = 1.0d0   ! Only changed for DFT
       kfac(1) = 1.0d0
-      if (theory .eq. 'HF') then
+      if (theory .eq. 'hf') then
         if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
      *    call errquit('hess_init: failed to get nmo', 555)
         if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
@@ -115,7 +115,7 @@ c       nopen = nopen + 1
           if (.not. rtdb_get(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
      *      call errquit('hess_init: failed to get nbeta',555)
         endif
-      elseif (theory .eq. 'DFT') then
+      elseif (theory .eq. 'dft') then
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *    mult = 1
         nopen = mult - 1

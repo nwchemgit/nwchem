@@ -1,5 +1,5 @@
 C
-C $Id: get_wdens.F,v 1.1 1999-05-06 17:29:34 windus Exp $
+C $Id: get_wdens.F,v 1.2 2000-08-09 21:55:03 windus Exp $
 C
       subroutine get_wdens(g_dens,ndens,theory,scftype,rtdb,
      *                     g_wdens,nbfs)
@@ -40,10 +40,10 @@ c
 c
 c Get the movecs file name
 c
-      if (theory.eq.'HF') then
+      if (theory.eq.'hf') then
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
      *    call errquit('get_wdens: SCF MO vectors not defined',555)
-      else if (theory.eq.'DFT') then
+      else if (theory.eq.'dft') then
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs))
      *   call errquit('get_wdens: DFT MO vectors not defined',555)
       else

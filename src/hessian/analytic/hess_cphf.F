@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.9 2000-08-08 20:46:06 windus Exp $
+C $Id: hess_cphf.F,v 1.10 2000-08-09 21:55:04 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -36,7 +36,7 @@ c
       external ga_create_atom_blocked
       external cphf, file_write_ga, file_read_ga, movecs_read
 c
-      hf_job = theory .eq. 'HF'
+      hf_job = theory .eq. 'hf'
 c
       write(6,*) 'k_exy at entry ',k_exy
       call flush(6)
