@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.8 1994-08-03 06:40:27 d3g681 Exp $
+c $Id: bas_input.F,v 1.9 1994-09-14 14:32:23 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -304,6 +304,8 @@ c     If cannot read the first field as an exponent then
 c     it is the end of this contraction
 c     
             goto 30
+         else if (expnt(iprim) .le. 0.0d0) then
+            call errquit('bas_input_cont: invalid exponent', 0)
          else
             if ((inp_n_field()-1) .ne. ngen) then
                write(6,*) ' bas_input_cont: no. of coefficients?'
@@ -314,6 +316,8 @@ c
                   write(6,*) ' bas_input_cont: failed reading ',
      $                 'coefficient'
                   goto 10000
+               else if (coeff(iprim,i) .eq. 0.0d0) then
+                  call errquit('bas_input_cont: invalid coefficient', 0)
                endif
             enddo
             if (.not. inp_read()) goto 10000
