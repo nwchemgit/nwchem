@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.25 2004-10-14 00:26:32 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.26 2004-10-25 21:21:15 nwchem Exp $
 c
 
 *     ***************************************
@@ -572,8 +572,8 @@ c
       psp_in = "junk.inp "
       ka = index(atom,' ') - 1
       if (ka.lt.0) ka = 2
-      if (iopt==1) psp_out = atom(1:ka)//".psp "
-      if (iopt==2) psp_out = atom(1:ka)//"_basis "
+      if (iopt.eq.1) psp_out = atom(1:ka)//".psp "
+      if (iopt.eq.2) psp_out = atom(1:ka)//"_basis "
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
