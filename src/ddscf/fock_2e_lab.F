@@ -37,7 +37,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -143,7 +143,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -215,7 +215,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -295,7 +295,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -381,7 +381,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -481,7 +481,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -568,7 +568,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -628,7 +628,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -696,7 +696,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -770,7 +770,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -848,7 +848,7 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -932,7 +932,7 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1016,7 +1016,7 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1079,7 +1079,7 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1151,7 +1151,7 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1232,7 +1232,7 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1314,7 +1314,7 @@ c
       subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1369,7 +1369,7 @@ c
             il = im(i) + l
             jl = im(j) + l
             jk = im(j) + k
-c
+
             fik = fock(ik) + gk*dens(jl)
             fil = fock(il) + gk*dens(jk)
             fjk = fock(jk) + gk*dens(il)
@@ -1394,7 +1394,7 @@ c
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1450,7 +1450,7 @@ c
       subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -1512,10 +1512,349 @@ c
       end do
 c     
       end
-      subroutine fock_2e_rep_mod_4_label(nfock, nbf, jfac, kfac, tol2e,
+      subroutine fock_2e_rep_mod_4_label
+     $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.9 1996-09-19 01:09:21 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(0:*), dens(0:*)
+      double precision jfac(nfock), kfac(nfock)
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, gj, gk, gk1, gj1, gj2, gk2, gj3, gk3, gj4, gk4
+      double precision 
+     $     fock1ij, fock1kl, fock2ij, fock2kl, fock3ij, fock3kl, 
+     $     fock4ij, fock4kl, fock1ik, fock1il, fock1jl, fock1jk,
+     $     fock2ik, fock2il, fock2jl, fock2jk, fock3ik, fock3il,
+     $     fock3jl, fock3jk, fock4ik, fock4il, fock4jl, fock4jk
+c     
+      if (
+     $     jfac(1).eq.1.0d0 .and. jfac(2).eq.0.0d0 .and. 
+     $     jfac(3).eq.1.0d0 .and. jfac(4).eq.0.0d0 .and. 
+     $     kfac(1).eq.0.0d0 .and. kfac(2).eq.0.5d0 .and. 
+     $     kfac(3).eq.0.0d0 .and. kfac(4).eq.0.5d0 ) then ! UHF special
+         do ind = 1, neri
+            g = eri(ind)
+            if (abs(g) .gt. tol2e) then
+               i = labels(1,ind)
+               j = labels(2,ind)
+               k = labels(3,ind)
+               l = labels(4,ind)
+c     
+               ij = (im(i) + j)*4
+               kl = (im(k) + l)*4
+c     
+               gj = g
+               if (ij .eq. kl) gj = gj + gj
+c     
+               fock1ij = fock(  ij) + gj*dens(  kl)
+               fock3ij = fock(2+ij) + gj*dens(2+kl)
+               fock1kl = fock(  kl) + gj*dens(  ij)
+               fock3kl = fock(2+kl) + gj*dens(2+ij)
+c     
+               gk = g * 0.5d0
+c
+               fock(  ij) = fock1ij
+               fock(2+ij) = fock3ij
+               fock(  kl) = fock1kl
+               fock(2+kl) = fock3kl
+c     
+               if (i .eq. j) gk = gk + gk
+c     
+               ik = (im(i) + k)*4 + 1
+               jl = (im(j) + l)*4 + 1
+c
+               if (k .eq. l) gk = gk + gk
+c
+               il = (im(i) + l)*4 + 1
+               jk = (im(j) + k)*4 + 1
+c     
+               fock2ik = fock(  ik) + gk*dens(  jl)
+               fock4ik = fock(2+ik) + gk*dens(2+jl)
+               fock2il = fock(  il) + gk*dens(  jk)
+               fock4il = fock(2+il) + gk*dens(2+jk)
+               fock2jl = fock(  jl) + gk*dens(  ik)
+               fock4jl = fock(2+jl) + gk*dens(2+ik)
+               fock2jk = fock(  jk) + gk*dens(  il)
+               fock4jk = fock(2+jk) + gk*dens(2+il)
+c     
+               fock(  ik) = fock2ik
+               fock(2+ik) = fock4ik
+               fock(  il) = fock2il
+               fock(2+il) = fock4il
+               fock(  jl) = fock2jl
+               fock(2+jl) = fock4jl
+               fock(  jk) = fock2jk
+               fock(2+jk) = fock4jk
+c     
+            end if
+         end do
+
+      else
+
+         do ind = 1, neri
+            g = eri(ind)
+            if (abs(g) .gt. tol2e) then
+               i = labels(1,ind)
+               j = labels(2,ind)
+               k = labels(3,ind)
+               l = labels(4,ind)
+c     
+               ij = (im(i) + j)*4 
+               kl = (im(k) + l)*4
+c     
+               gj = g
+               if (ij .eq. kl) gj = gj + gj
+               gj1 = gj*jfac(1)
+               gj2 = gj*jfac(2)
+               gj3 = gj*jfac(3)
+               gj4 = gj*jfac(4)
+c     
+               fock1ij = fock(  ij) + gj1*dens(  kl)
+               fock2ij = fock(1+ij) + gj2*dens(1+kl)
+               fock3ij = fock(2+ij) + gj3*dens(2+kl)
+               fock4ij = fock(3+ij) + gj4*dens(3+kl)
+               fock1kl = fock(  kl) + gj1*dens(  ij)
+               fock2kl = fock(1+kl) + gj2*dens(1+ij)
+               fock3kl = fock(2+kl) + gj3*dens(2+ij)
+               fock4kl = fock(3+kl) + gj4*dens(3+ij)
+c     
+               fock(  ij) = fock1ij
+               fock(1+ij) = fock2ij
+               fock(2+ij) = fock3ij
+               fock(3+ij) = fock4ij
+               fock(  kl) = fock1kl
+               fock(1+kl) = fock2kl
+               fock(2+kl) = fock3kl
+               fock(3+kl) = fock4kl
+c     
+c     
+               gk = g
+               if (i .eq. j) gk = gk + gk
+               if (k .eq. l) gk = gk + gk
+               gk1 = gk*kfac(1)
+               gk2 = gk*kfac(2)
+               gk3 = gk*kfac(3)
+               gk4 = gk*kfac(4)
+c     
+               ik = (im(i) + k)*4
+               il = (im(i) + l)*4
+               jl = (im(j) + l)*4
+               jk = (im(j) + k)*4
+c     
+               fock1ik = fock(  ik) + gk1*dens(  jl)
+               fock2ik = fock(1+ik) + gk2*dens(1+jl)
+               fock3ik = fock(2+ik) + gk3*dens(2+jl)
+               fock4ik = fock(3+ik) + gk4*dens(3+jl)
+               fock1il = fock(  il) + gk1*dens(  jk)
+               fock2il = fock(1+il) + gk2*dens(1+jk)
+               fock3il = fock(2+il) + gk3*dens(2+jk)
+               fock4il = fock(3+il) + gk4*dens(3+jk)
+               fock1jl = fock(  jl) + gk1*dens(  ik)
+               fock2jl = fock(1+jl) + gk2*dens(1+ik)
+               fock3jl = fock(2+jl) + gk3*dens(2+ik)
+               fock4jl = fock(3+jl) + gk4*dens(3+ik)
+               fock1jk = fock(  jk) + gk1*dens(  il)
+               fock2jk = fock(1+jk) + gk2*dens(1+il)
+               fock3jk = fock(2+jk) + gk3*dens(2+il)
+               fock4jk = fock(3+jk) + gk4*dens(3+il)
+c     
+               fock(  ik) = fock1ik
+               fock(1+ik) = fock2ik
+               fock(2+ik) = fock3ik
+               fock(3+ik) = fock4ik
+               fock(  il) = fock1il
+               fock(1+il) = fock2il
+               fock(2+il) = fock3il
+               fock(3+il) = fock4il
+               fock(  jl) = fock1jl
+               fock(1+jl) = fock2jl
+               fock(2+jl) = fock3jl
+               fock(3+jl) = fock4jl
+               fock(  jk) = fock1jk
+               fock(1+jk) = fock2jk
+               fock(2+jk) = fock3jk
+               fock(3+jk) = fock4jk
+c     
+            end if
+         end do
+      endif
+c     
+      end
+      subroutine fock_2e_rep_mod_4_label_new_ok
+     $     (nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
+c     
+      implicit none
+#include "cfockmul.fh"
+c     
+      integer nfock, nbf
+      double precision tol2e
+      integer neri
+      integer labels(4,neri)
+      double precision eri(neri)
+      double precision fock(4,0:*), dens(4,0:*)
+      double precision jfac(*), kfac(*)
+c     
+      integer i, j, k, l, ind
+      integer ij, ik, jk, kl, il, jl
+      double precision g, g2, gk1, gj1, gj2, gk2, gj3, gk3, gj4, gk4
+      double precision 
+     $     fock1ij, fock1kl, fock2ij, fock2kl, fock3ij, fock3kl, 
+     $     fock4ij, fock4kl, fock1ik, fock1il, fock1jl, fock1jk,
+     $     fock2ik, fock2il, fock2jl, fock2jk, fock3ik, fock3il,
+     $     fock3jl, fock3jk, fock4ik, fock4il, fock4jl, fock4jk
+c
+      do ind = 1, neri
+         g = eri(ind)
+         if (abs(g) .gt. tol2e) then
+            i = labels(1,ind)
+            j = labels(2,ind)
+            k = labels(3,ind)
+            l = labels(4,ind)
+c
+c
+            ij = im(i) + j      ! NOT im1 since go from 0
+            kl = im(k) + l
+c
+            if (ij .eq. kl) then
+               g2 = g + g
+               gj1 = g2*jfac(1)
+               gj2 = g2*jfac(2)
+               gj3 = g2*jfac(3)
+               gj4 = g2*jfac(4)
+            else
+               gj1 = g*jfac(1)
+               gj2 = g*jfac(2)
+               gj3 = g*jfac(3)
+               gj4 = g*jfac(4)
+            endif
+c
+            fock1ij = fock(1,ij) + gj1*dens(1,kl)
+            fock2ij = fock(2,ij) + gj2*dens(2,kl)
+            fock3ij = fock(3,ij) + gj3*dens(3,kl)
+            fock4ij = fock(4,ij) + gj4*dens(4,kl)
+            fock1kl = fock(1,kl) + gj1*dens(1,ij)
+            fock2kl = fock(2,kl) + gj2*dens(2,ij)
+            fock3kl = fock(3,kl) + gj3*dens(3,ij)
+            fock4kl = fock(4,kl) + gj4*dens(4,ij)
+c
+            fock(1,ij) = fock1ij
+            fock(2,ij) = fock2ij
+            fock(3,ij) = fock3ij
+            fock(4,ij) = fock4ij
+            fock(1,kl) = fock1kl
+            fock(2,kl) = fock2kl
+            fock(3,kl) = fock3kl
+            fock(4,kl) = fock4kl
+c
+c     Working non-overwrite code for exchange
+c
+c$$$            ik = im(i) + k
+c$$$            il = im(i) + l
+c$$$            jl = im(j) + l
+c$$$            jk = im(j) + k
+c$$$c
+c$$$            gk1 = g*kfac(1)
+c$$$            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
+c$$$            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
+c$$$            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
+c$$$            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+c$$$c
+c$$$            gk2 = g*kfac(2)
+c$$$            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
+c$$$            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
+c$$$            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
+c$$$            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+c$$$c
+c$$$            gk3 = g*kfac(3)
+c$$$            fock(3,ik) = fock(3,ik) + gk3*dens(3,jl)
+c$$$            fock(3,il) = fock(3,il) + gk3*dens(3,jk)
+c$$$            fock(3,jl) = fock(3,jl) + gk3*dens(3,ik)
+c$$$            fock(3,jk) = fock(3,jk) + gk3*dens(3,il)
+c$$$c
+c$$$            gk4 = g*kfac(4)
+c$$$            fock(4,ik) = fock(4,ik) + gk4*dens(4,jl)
+c$$$            fock(4,il) = fock(4,il) + gk4*dens(4,jk)
+c$$$            fock(4,jl) = fock(4,jl) + gk4*dens(4,ik)
+c$$$            fock(4,jk) = fock(4,jk) + gk4*dens(4,il)
+c
+c
+c
+            if (i .eq. j) g = g + g
+            if (k .eq. l) then
+               g2 = g + g
+               gk1 = g2*kfac(1)
+               gk2 = g2*kfac(2)
+               gk3 = g2*kfac(3)
+               gk4 = g2*kfac(4)
+            else
+               gk1 = g*kfac(1)
+               gk2 = g*kfac(2)
+               gk3 = g*kfac(3)
+               gk4 = g*kfac(4)
+            endif
+c
+            ik = im(i) + k
+            il = im(i) + l
+            jl = im(j) + l
+            jk = im(j) + k
+c
+            fock1ik = fock(1,ik) + gk1*dens(1,jl)
+            fock2ik = fock(2,ik) + gk2*dens(2,jl)
+            fock3ik = fock(3,ik) + gk3*dens(3,jl)
+            fock4ik = fock(4,ik) + gk4*dens(4,jl)
+            fock1il = fock(1,il) + gk1*dens(1,jk)
+            fock2il = fock(2,il) + gk2*dens(2,jk)
+            fock3il = fock(3,il) + gk3*dens(3,jk)
+            fock4il = fock(4,il) + gk4*dens(4,jk)
+            fock1jl = fock(1,jl) + gk1*dens(1,ik)
+            fock2jl = fock(2,jl) + gk2*dens(2,ik)
+            fock3jl = fock(3,jl) + gk3*dens(3,ik)
+            fock4jl = fock(4,jl) + gk4*dens(4,ik)
+            fock1jk = fock(1,jk) + gk1*dens(1,il)
+            fock2jk = fock(2,jk) + gk2*dens(2,il)
+            fock3jk = fock(3,jk) + gk3*dens(3,il)
+            fock4jk = fock(4,jk) + gk4*dens(4,il)
+c
+            fock(1,ik) = fock1ik
+            fock(2,ik) = fock2ik
+            fock(3,ik) = fock3ik
+            fock(4,ik) = fock4ik
+            fock(1,il) = fock1il
+            fock(2,il) = fock2il
+            fock(3,il) = fock3il
+            fock(4,il) = fock4il
+            fock(1,jl) = fock1jl
+            fock(2,jl) = fock2jl
+            fock(3,jl) = fock3jl
+            fock(4,jl) = fock4jl
+            fock(1,jk) = fock1jk
+            fock(2,jk) = fock2jk
+            fock(3,jk) = fock3jk
+            fock(4,jk) = fock4jk
+c
+         end if
+      end do
+c     
+      end
+      subroutine fock_2e_rep_mod_4_label_old
+     $     (nfock, nbf, jfac, kfac, tol2e,
+     $     neri, labels, eri, dens, fock)
+c     
+c     $Id: fock_2e_lab.F,v 1.10 1997-09-06 01:16:59 d3g681 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
