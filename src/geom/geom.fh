@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.32 2000-01-25 19:31:46 mg201 Exp $
+C$Id: geom.fh,v 1.33 2000-11-04 03:24:33 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -18,6 +18,7 @@ C$Id: geom.fh,v 1.32 2000-01-25 19:31:46 mg201 Exp $
       logical geom_centv_get
       logical geom_centv_set
       logical geom_ncent
+      logical geom_ncent_set
       logical geom_ncent_unique
       logical geom_cent_tag
       logical geom_print
@@ -107,6 +108,7 @@ c
       external geom_centv_get
       external geom_centv_set
       external geom_ncent
+      external geom_ncent_set
       external geom_ncent_unique
       external geom_cent_tag
       external geom_print
