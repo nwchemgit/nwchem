@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.113 1999-02-13 00:25:15 edo Exp $
+c     $Id: dft_scf.F,v 1.114 1999-03-03 03:19:41 edo Exp $
 c     
       implicit none
 c
@@ -55,7 +55,7 @@ c
       integer l_occ, k_occ
       integer i, j, iw
       integer me, nproc
-      integer g_tmp, g_fockt, g_s, g_wght, g_xyz
+      integer g_tmp, g_fockt, g_s, g_wght, g_xyz,g_nq
       integer nheap, nstack
       integer ispin, idone
       integer nexc
@@ -729,7 +729,7 @@ c
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
-     &             g_vxc, IOLGC, g_wght, g_xyz, wght_GA, rho_n,
+     &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             dbl_mb(irdens_atom), int_mb(icntoce), 
      &             int_mb(icntobfr), int_mb(icetobfr), natoms)
       call ga_sync
@@ -1437,6 +1437,8 @@ c
      &      ('dft_scf: could not destroy g_wght', 0)
          if (.not. ga_destroy(g_xyz)) call errquit
      &      ('dft_scf: could not destroy g_xyz', 0)
+         if (.not. ga_destroy(g_nq)) call errquit
+     &      ('dft_scf: could not destroy g_nq', 0)
       endif
 c     
 c     Restore alpha and beta densities.
