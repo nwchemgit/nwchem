@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.16 2000-01-26 21:04:02 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.17 2000-03-07 20:35:39 d3j191 Exp $
 c
       implicit none
 c
@@ -300,7 +300,7 @@ c     setup grid
 c
       if(ngrid.eq.0) then
       do 10 j=1,nsa
-      if(isfnd(i).eq.1) then
+      if(isfnd(j).eq.1) then
       xmax(1)=xs(1,j)
       xmax(2)=xs(2,j)
       xmax(3)=xs(3,j)
