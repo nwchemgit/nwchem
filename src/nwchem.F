@@ -167,11 +167,11 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 14)
+      parameter (ntasks = 15)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
      $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2',
-     &    'riscf', 'checksum', 'dft','md', 'grad_dft'/
+     &    'riscf', 'checksum', 'dft','md', 'dftgrad','optdft'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -182,7 +182,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
-     &       140)
+     &         140, 150)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -260,9 +260,15 @@ c
 c     dft gradient
 c
   140    continue
-         write(6,*) 'NWdft gradient not linked into this executable'
-C        call dft_grad_top(rtdb)
+C         write(6,*) 'NWdft gradient not linked into this executable'
+         call dft_grad_top(rtdb)
          goto 1000
+c
+c        optdft ... dft optimization
+c
+  150    call dft_optimize(rtdb)
+         goto 1000
+
       else
 c
          write(6,*) ' task_name = ', 
