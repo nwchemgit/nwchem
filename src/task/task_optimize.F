@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.13 1998-02-26 01:20:49 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -117,7 +117,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.13 1998-02-26 01:20:49 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -239,4 +239,84 @@ c
 c     
       task_saddle = status
 c     
+      end
+      logical function task_lst(rtdb)
+c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+      integer rtdb
+c
+c     Calculate energies ( and gradients ) on a -lst- path   
+c
+c     Since this routine can be directly invoked by application modules
+c     no input is processed in this routine.
+c
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - must be set for task_gradient to work
+c
+c     RTDB output parameters
+c     ----------------------
+c     task:energy (real)   - final energy from optimization
+c     task:gradient (real) - final gradient from optimization
+c     task:status (real)   - T/F on success/failure
+c     task:cputime
+c     task:walltime
+c     geometry             - final geometry from optimization
+c
+      double precision cpu, wall
+c
+      logical status 
+c
+      character*20 theory
+c
+      logical  drv_lst 
+      external drv_lst
+c
+      call ecce_print_module_entry('task lst')
+c
+      cpu  = util_cpusec()
+      wall = util_wallsec()
+c
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
+     $     call errquit('task_lst: failed to invalidate status',0)
+c
+      if (ga_nodeid().eq.0 .and.
+     $     util_print('task_lst', print_low)) then
+         write(6,*)
+         write(6,*)
+         call util_print_centered(6,
+     $        'NWChem LST Path Calculation',
+     $        40,.true.)
+         write(6,*)
+         write(6,*)
+      endif
+c
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     +     call errquit('task_lst: failed rtdb_cget task:theory',0)
+c
+      status = drv_lst(rtdb)
+c
+      cpu  = util_cpusec() - cpu
+      wall = util_wallsec() - wall
+      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+     $     call errquit('task_lst: failed storing cputime',0)
+      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+     $     call errquit('task_lst: failed storing walltime',0)
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
+     $     call errquit('task_lst: failed to set status',0)
+c
+      if (status) then
+         call ecce_print_module_exit('task lst', 'ok')
+      else
+         call ecce_print_module_exit('task lst', 'failed')
+      endif
+c
+      task_lst = status
+c
       end

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.21 1998-04-14 18:16:45 d3j191 Exp $
+* $Id: task.F,v 1.22 1998-04-24 16:40:54 mdupuis Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -34,14 +34,14 @@ c
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
       logical esp,prepar
       logical  task_energy, task_gradient, task_optimize, task_freq
-      logical  task_hessian, task_saddle
+      logical  task_hessian, task_saddle, task_lst
       logical  task_qmmm
       logical task_version
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
-      external task_hessian
+      external task_hessian, task_saddle, task_lst
       external task_version
       external esp,prepar
 c
@@ -152,6 +152,8 @@ c
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'saddle', operation)) then
          status = task_saddle(rtdb)
+      else if (inp_compare(.false., 'lst', operation)) then
+         status = task_lst(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
@@ -175,6 +177,7 @@ c
             endif
          endif
       endif
+      call ga_sync()
 99999 continue
 c
       if (oprint_task_times) then
