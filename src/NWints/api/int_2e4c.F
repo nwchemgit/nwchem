@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.34 2000-01-26 23:31:52 d3j191 Exp $
+c $Id: int_2e4c.F,v 1.35 2000-02-04 01:15:13 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -79,7 +79,6 @@ c.txs
 c.rel-dmd
       logical status_rel, bra_rel, ket_rel
       logical i_rel, j_rel, k_rel, l_rel
-c      integer rel_dbg, rel_typ
       integer sbas, abas, bras, kets
 c
       logical any_spherical
@@ -304,7 +303,7 @@ c
      &        dbl_mb(mb_exndcf(d_icfps,ket)), d_prim,d_gen,Ld,d_cent,
 c...................... canAB   canCD   canPQ   DryRun
      &        eri,leri,.false.,.false.,.false.,.false.,scr,lscr,
-     &        bra_rel,ket_rel,ss_one_cent,rel_dbg)
+     &        bra_rel,ket_rel,ss_one_cent,do_ssss,rel_dbg)
         else
           call hf2(
      &        coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
