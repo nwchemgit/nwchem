@@ -4,7 +4,7 @@
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.28 1999-05-10 22:43:44 edo Exp $
+* $Id: dft_fitcd.F,v 1.29 1999-05-10 23:49:20 edo Exp $
 *
       implicit none
 c
@@ -60,7 +60,7 @@ c
       integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
      &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
      &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd,
-     &     lTcgtf, iTcgtf
+     &     lTcgtf, iTcgtf,ninteg_api
       logical oprint, dowork, oprint_ioinfo
       integer nlast, ntasks
       integer ishc_be, ishd_be
@@ -362,7 +362,7 @@ c
                 nshbfp = ilastp-ifirstp+1
 c                  
                 Nintegrals = nshbfp*Nao2
-                nscr = mscratch_2e3c
+                Ninteg_api = maxg
 c
 c               check for use of symmetry
 c
@@ -372,14 +372,14 @@ c
                 if (oskel .and. .not.derfit) then
                    if (sym_shell(cd_bas_han, ishp, q1))then
                       call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &                ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+     &                ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
                       call dscal(Nintegrals, q1, Dbl_MB(istart), 1)
                    else
                       call dzero(Dbl_MB(istart),Nintegrals)
                    endif
                 else
                    call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &             ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+     &             ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
                 endif                   
 c
                 istart = istart+Nintegrals

@@ -2,7 +2,7 @@
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
      &                       cntoce, cntobfr, cetobfr, natoms)
 c 
-C$Id: dft_3cincor.F,v 1.13 1998-12-22 02:04:58 edo Exp $
+C$Id: dft_3cincor.F,v 1.14 1999-05-10 23:49:20 edo Exp $
 c
       implicit none
 c    
@@ -36,7 +36,7 @@ c
       integer me, nproc, ishp, icount, Nao2, maxg, 
      &        mscratch_2e3c, nscr, n1, n2, ishc, ifirstc,
      &        ilastc, nshbfc, ishd, ifirstd, ilastd,
-     &        nshbfd, ifirstp, ilastp, nintegrals,
+     &        nshbfd, ifirstp, ilastp, nintegrals,ninteg_api,
      &        nshbf_cd, ndone
       integer lscr, iscr, n_semi_bufs
       integer nlast, ntasks, nxtbuf, nbufs, n_chk
@@ -52,8 +52,6 @@ c
 c
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
-      integer nxtask
-      external nxtask
 c      write(0,*) ' in 3CINCO',itol2e
 c
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
@@ -183,7 +181,8 @@ c
                 nshbf_cd=ilastp-ifirstp+1
 
                 nintegrals=nshbf_cd*nao2
-c                 
+                Ninteg_api = maxg
+
 c               compute the 3 center 2e- integrals between this given pair 
 c               of ao shells and cd shell.
 c
@@ -198,14 +197,14 @@ c
                 if (oskel) then
                    if (sym_shell(cd_bas_han, ishp, q1))then
                       call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
-     &                ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
+     &                ishd,nscr,dbl_mb(iscr),ninteg_api,i3c_ERI(ndone))
                       call dscal(nintegrals, q1, i3c_ERI(ndone), 1)
                     else
                       call dzero(i3c_ERI(ndone),Nintegrals)
                    endif
                 else
                    call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
-     &             ishd,nscr,dbl_mb(iscr),nintegrals,i3c_ERI(ndone))
+     &             ishd,nscr,dbl_mb(iscr),ninteg_api,i3c_ERI(ndone))
                 endif                   
 
                 ndone=ndone+nintegrals
@@ -424,7 +423,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.13 1998-12-22 02:04:58 edo Exp $
+C$Id: dft_3cincor.F,v 1.14 1999-05-10 23:49:20 edo Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
