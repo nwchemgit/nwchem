@@ -5,9 +5,56 @@
 c    
 c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
+c
+c     Turned into wrapper to call generalized function
+c
+c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.6 1997-11-04 10:12:15 d3e129 Exp $
+* $Id: dftg_grad2.F,v 1.7 1998-09-23 21:46:19 bjohnson Exp $
+*
+      implicit none
+c      
+      integer g_dens(2), basis, nactive, geom
+      integer ldim
+      integer nat
+      integer nproc
+      integer lbuf
+      integer lscr
+      double precision tol2e, s34(nat)
+      logical oskel, oactive(nat)
+c
+      double precision scr(lscr), buf(lbuf), frc(3, nat)
+      double precision d_ija(ldim,ldim), d_kla(ldim,ldim)
+c
+c     Dummy arguments
+c
+      double precision hess
+      integer g_dj
+c
+      call dftg_grad2_gen(d_ija, d_kla, frc, hess, g_dj, g_dens,
+     &                    ldim, basis, nproc, nat, scr, lscr, buf, 
+     &                    lbuf, tol2e, oactive, nactive,
+     &                    geom, s34, oskel, 1)
+c
+      return
+      end
+c
+c     Generalized from dftg_grad2 to calculate J derivative matrices
+c     and J hessian as well as J forces
+c
+c     BGJ - 9/98
+c
+      subroutine dftg_grad2_gen(d_ija, d_kla, frc, hess, g_dj, g_dens,
+     &                      ldim, basis, nproc, nat, scr, lscr, buf, 
+     &                      lbuf, tol2e, oactive, nactive,
+     &                      geom, s34, oskel, calc_type)
+c    
+c     exchange density matrices removed from call list for DFT
+c     coulomb-only term.
+c    
+*
+* $Id: dftg_grad2.F,v 1.7 1998-09-23 21:46:19 bjohnson Exp $
 *
       implicit none
 c      
@@ -24,12 +71,15 @@ c
       integer nproc
       integer lbuf
       integer lscr
+      integer g_dj(3, nat)
       double precision tol2e,  s34(nat), s12, q2, q4, scale
       logical osym, oskel, oadapt, oschwarz12
+      integer calc_type
 c
       logical status, oij, okl, oikjl, oactive(nat)
 c
-      double precision scr(lscr), buf(lbuf), frc(3, nat)
+      double precision scr(lscr), buf(lbuf), frc(3, nat),
+     &     hess(3, nat, 3, nat)
       integer idatom(4)
       double precision d_ija(ldim,ldim), d_kla(ldim,ldim)
 c
@@ -41,6 +91,28 @@ c
      &     id1,id2,id3,id4,
      &     nshbfp,nshbfq,Nintegrals,icount,i,icart,ip1,ip2,ip3,ip4
       double precision dE,den2
+c
+      logical do_force, do_cpks_r, do_hess
+      integer l_dfij, k_dfij, l_dfkl, k_dfkl
+c
+      write(*,*)'*** dftg_grad2 called'
+      do_force = calc_type .eq. 1
+      do_hess = calc_type .eq. 2
+      do_cpks_r = calc_type .eq. 3
+      if (.not. (do_force .or. do_cpks_r .or. do_hess)) then
+         call errquit('dft_grad2_gen: illegal calculation type',1)
+      endif
+      if (do_cpks_r) then
+c
+c     Need scratch space for locally formed J mat derivative blocks
+c
+         if (.not.MA_push_get(MT_DBL, ldim*ldim, 'dfij',
+     &        l_dfij, k_dfij)) call
+     &        errquit('dftg_grad2_gen: cannot allocate dfij',1)
+         if (.not.MA_push_get(MT_DBL, ldim*ldim, 'dfkl',
+     &        l_dfkl, k_dfkl)) call
+     &        errquit('dftg_grad2_gen: cannot allocate dfkl',1)
+      endif
 c
       iproc = ga_nodeid()
       q4 = 1.0d0                ! If not using symmetry
@@ -179,11 +251,24 @@ c
 c
 c                                         2el. integral derivatives
 c
-                                          call intd_2e4c(basis, ish1, 
-     &                                         ish2, basis, ish3, ish4,
-     &                                         lscr, scr, lbuf, buf, 
-     &                                         idatom)
+                                          if (do_force.or.do_cpks_r)
+     &                                       then
+                                             call intd_2e4c(basis, ish1, 
+     &                                            ish2, basis, ish3,
+     &                                            ish4, lscr, scr, lbuf,
+     &                                            buf, idatom)
+                                          else if (do_hess) then
+         write(*,*)'Uncomment call to 2nd deriv API in dftg_grad2!'
+c         write(*,*)'Hope call to 2nd deriv API in dftg_grad2 is right'
+#if 0
+                                             call intdd_2e4c(basis,
+     &                                            ish1, ish2, basis,
+     &                                            ish3, ish4, lscr, scr,
+     &                                            lbuf, buf, idatom)
+#endif
+                                          endif
 c
+            if (.not.do_force) write(*,*)'*** Scale factor?'
                                           scale = 1.0d0
                                           if (.not.oij .or. 
      &                                       ish1.ne.ish2) 
@@ -191,49 +276,34 @@ c
                                           if (.not.okl .or. 
      &                                       ish3.ne.ish4) 
      &                                       scale = scale*2.0d0
-                                          if (.not.oikjl .or. 
-     &                                       ish1.ne.ish3 .or. 
-     &                                       ish2.ne.ish4) 
-     &                                       scale = scale*2.0d0
+                                          if (.not. do_cpks_r) then
+                                             if (.not.oikjl .or. 
+     &                                          ish1.ne.ish3 .or. 
+     &                                          ish2.ne.ish4) 
+     &                                          scale = scale*2.0d0
+                                          endif
 c
 c - indent - region redefine
 c---------------------------------------------------------------------
 c
-      icount = 1
-      do i = 1, 4
-         if (idatom(i).ge.1) then
-            do icart = 1, 3
-               dE = 0.D0
-               do ip1 = if1, il1
-                  do ip2 = if2, il2
-                     do ip3 = if3, il3
-                        do ip4 = if4, il4
-c                   
-c                          hacked for DFT; exchange contributions deleted
-c                   
-c                          den2 = 0.5D0   * (d_ij(ip1,ip2) * d_kl(ip3,ip4))
-c                   &           - 0.125D0 * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
-c                   &                     +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+      if (do_force) then
 c
-                           den2 = 0.5D0 *
-     &                            (d_ija(ip1,ip2) * d_kla(ip3,ip4))
+         call dint_block_jfrc(d_ija, d_kla, ldim, frc, buf, q4*scale,
+     &        idatom, if1, il1, if2, il2, if3, il3, if4, il4)
 c
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
+      else if (do_cpks_r) then
 c
-                        enddo 
-                     enddo
-                  enddo
-               enddo
+         call dint_block_jdmat(d_ija, d_kla, ldim, g_dj, dbl_mb(k_dfij),
+     &        dbl_mb(k_dfkl), buf, q4*scale, idatom, if1, il1, if2, il2,
+     &        if3, il3, if4, il4)
 c
-               frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     &                                dE * q4 * scale
+      else if (do_hess) then
 c
-            enddo
-         else
-            icount = icount + 3 * Nintegrals
-         endif
-      enddo 
+c     !!!         what should buf be?
+         call d2int_block_jhess(d_ija, d_kla, ldim, hess, nat, buf,
+     &        q4*scale, idatom, if1, il1, if2, il2, if3, il3, if4, il4)
+c
+      endif
 c
 c---------------------------------------------------------------------
 c - indent - region pick back up
@@ -257,5 +327,13 @@ c
    90    continue                              ! iat1
    95 continue                                 ! iat3
       next = nxtval(-nproc)
+c
+      if (do_cpks_r) then
+         if (.not.MA_pop_stack(l_dfkl))
+     &        call errquit('dftg_grad2_gen: cannot pop dfkl',1)
+         if (.not.MA_pop_stack(l_dfij))
+     &        call errquit('dftg_grad2_gen: cannot pop dfij',1)
+      endif
+c
       return
       end
