@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.6 1999-04-22 23:20:34 mg201 Exp $
+C $Id: rel_pot.F,v 1.7 1999-10-26 19:35:12 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -6,7 +6,9 @@ c:tex-energy integrals from a set of potential energy integrals for
 c:tex-shifted angular momenta. The routine uses the modified Dirac 
 c:tex-formalism, and returns integrals in various formats, depending
 c:tex-on the input parameter ntyp, which also determines how many 
-c:tex-integral blocks are returned.
+c:tex-integral blocks are returned. The factors of $\alpha^2/4$ are 
+c:tex-NOT included in the integrals, these must be added by the calling
+c:tex-routine.
 c:tex-
 c:tex-\noindent Author: K. G. Dyall
 c:tex-
@@ -20,9 +22,8 @@ c:tex-\end{verbatim}
 ************************************************************************
       implicit none
 #include "stdio.fh"
-#include "rel_consts.fh"
-      double precision zero
-      parameter (zero = 0.0d00)
+      double precision zero,one
+      parameter (zero = 0.0d00, one = 1.0d00)
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -130,9 +131,9 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
 *   Assemble scalar integrals
 *
         if ((ntyp .eq. 1) .or. (ntyp .eq. 4)) then
-          call daxpy (nab,qalsq,scr(i_scr),1,Vrel,1)
-          call daxpy (nab,qalsq,scr(i_scr+4*nab),1,Vrel,1)
-          call daxpy (nab,qalsq,scr(i_scr+8*nab),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr+4*nab),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr+8*nab),1,Vrel,1)
           if (debug_arrays) call ecp_matpr (Vrel,1,n_all_b,1,n_all_a,
      &        1,n_all_b,1,n_all_a,'Scalar integrals','E',78,4)
         end if
@@ -141,12 +142,12 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
 *
         k = ntyp-3
         if (k .ge. 0) then
-          call daxpy (nab,qalsq,scr(i_scr+5*nab),1,Vrel(1,k+3),1)
-          call daxpy (nab,qalsq,scr(i_scr+6*nab),1,Vrel(1,k+2),1)
-          call daxpy (nab,qalsq,scr(i_scr+nab),1,Vrel(1,k+1),1)
-          call daxpy (nab,-qalsq,scr(i_scr+7*nab),1,Vrel(1,k+3),1)
-          call daxpy (nab,-qalsq,scr(i_scr+2*nab),1,Vrel(1,k+2),1)
-          call daxpy (nab,-qalsq,scr(i_scr+3*nab),1,Vrel(1,k+1),1)
+          call daxpy (nab,one,scr(i_scr+5*nab),1,Vrel(1,k+3),1)
+          call daxpy (nab,one,scr(i_scr+6*nab),1,Vrel(1,k+2),1)
+          call daxpy (nab,one,scr(i_scr+nab),1,Vrel(1,k+1),1)
+          call daxpy (nab,-one,scr(i_scr+7*nab),1,Vrel(1,k+3),1)
+          call daxpy (nab,-one,scr(i_scr+2*nab),1,Vrel(1,k+2),1)
+          call daxpy (nab,-one,scr(i_scr+3*nab),1,Vrel(1,k+1),1)
           if (debug_arrays) call ecp_matpr (Vrel(1,k+1),
      &        1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
      &        'Z spin-orbit integrals','E',78,4)
