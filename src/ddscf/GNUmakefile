@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.60 1996-01-23 00:27:24 d3e129 Exp $
+# $Id: GNUmakefile,v 1.61 1996-01-25 01:13:47 rg240 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -37,7 +37,7 @@
 	riscf_dovecs.o \
         uhf.o                   fock_2e_rep.o \
         print_integ.o \
-        rohf_lagr.o 
+        rohf_lagr.o             rohf_diis.o 
 
 
  OBJ_OPTIMIZE =	\
@@ -74,6 +74,7 @@ $(LIBRARY_PATH)(ao_fock_2e.o):	 $(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecl
 $(LIBRARY_PATH)(comp4_bins.o):	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
 $(LIBRARY_PATH)(comp4_ext.o):	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
 $(LIBRARY_PATH)(comp4_insert.o):	 $(INCDIR)/bitops.fh 
+$(LIBRARY_PATH)(do_ri.o):	 ./cfock.fh 
 $(LIBRARY_PATH)(do_riscf.o):	 ./cfock.fh 
 $(LIBRARY_PATH)(fock_2e.o):	 ./cscf.fh ./cfock.fh 
 $(LIBRARY_PATH)(fock_2e_a.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh 
@@ -105,6 +106,7 @@ $(LIBRARY_PATH)(riscf_trans.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INC
 $(LIBRARY_PATH)(rohf.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_canon.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_dens.o):	 $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(rohf_diis_solve.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_fock.o):	 $(INCDIR)/util.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_fock2g.o):	 $(INCDIR)/global.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_h1e.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 

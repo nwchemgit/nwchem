@@ -57,6 +57,11 @@ c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)
 c
+c   DIIS toggle
+c
+      if (.not.rtdb_get(rtdb, 'scf:diis',MT_LOG, 1, odiis))
+     $   odiis = .false.
+c
 c     is RI approximation to be used?
 c
       if (rtdb_get(rtdb, 'scf:ri', MT_INT, 1, nriscf)) then
@@ -68,6 +73,7 @@ c
         nriscf = 0
         riscf_basis = 0
       endif
+
 c
 c     Figure input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
@@ -187,7 +193,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.22 1996-01-19 07:29:26 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.23 1996-01-25 01:13:50 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

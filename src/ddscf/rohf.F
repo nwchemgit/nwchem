@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.7 1996-01-19 07:29:05 d3g681 Exp $
+C$Id: rohf.F,v 1.8 1996-01-25 01:13:49 rg240 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -32,7 +32,9 @@ C
       Integer NAtoms, NShells
 c
       logical rohf_nr_solve
+      logical rohf_diis_solve
       external ga_create_atom_blocked, rohf_nr_solve
+      external rohf_diis_solve
 c
       oprint = util_print('information',print_low)
 c
@@ -47,7 +49,11 @@ c
 c
 c     Newton-Raphson based SCF
 c
-      converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+      if (odiis) then
+        converged = rohf_diis_solve( rtdb, energy, eone, etwo, enrep )
+      else
+        converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+      endif
 c
       call ga_sync()
       rohf_time = rohf_time + util_cpusec()

@@ -66,7 +66,7 @@ c
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
       double precision ls_tol, lshift, precond_tol, charge, eprec
       logical oconjugacy, ododiag, odisable_nr, ouser_changed_conv
-      logical oskel, oadapt, oinitialized, olagr
+      logical oskel, oadapt, oinitialized, olagr, odiis
       integer pflg, pflg_prev, maxiter, iter, g_movecs
       character*255 movecs_in, movecs_out, title, trans
       character*4 scftype
@@ -83,7 +83,7 @@ c
 c     Logicals
 c
      $     oconjugacy, ododiag, odisable_nr, ouser_changed_conv,
-     $     oskel, oadapt, oinitialized, olagr,
+     $     oskel, oadapt, oinitialized, olagr, odiis,
 c
 c     Integers
 c
