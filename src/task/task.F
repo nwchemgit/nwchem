@@ -33,10 +33,13 @@ c
       external nwargos, property, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
 c      
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task: no task input for theory?', 0)
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory)) then
+         if (operation .ne. 'nwargos')
+     $     call errquit('task: no task input for theory?', 0)
+         theory = ' '
+      endif
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
@@ -55,8 +58,6 @@ c
             status = mdmain(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
-         else if (inp_compare(.false.,'nwargos', theory)) then
-            status = nwargos(rtdb)
          else if (inp_compare(.false.,'property', theory)) then
             status = property(rtdb)
          else if (inp_compare(.false.,'gapss', theory)) then
@@ -93,6 +94,8 @@ c
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
+      else if (inp_compare(.false.,'nwargos', operation)) then
+         status = nwargos(rtdb)
       else
          call errquit('task: unknown generic operation',0)
       endif

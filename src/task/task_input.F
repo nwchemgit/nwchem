@@ -34,6 +34,8 @@ c
             operation = 'optimize'
          else if (inp_compare(.false.,test,'gradient')) then
             operation = 'gradient'
+         else if (inp_compare(.false.,test,'nwargos')) then
+            operation = 'nwargos'
          else if (inp_compare(.false.,test,'freq') .or.
      $            inp_compare(.false.,test,'frequencies')) then
             operation = 'freq'
@@ -63,9 +65,13 @@ c
      $        ignore)) call errquit('task_input: rtdb is corrupt',0)
       endif
 c
-      if (theory .eq. ' ') goto 1000 ! No default theory
-      if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_input: rtdb is corrupt', 0)
+      if (theory .eq. ' ' .and. operation.ne.'nwargos') then
+         goto 1000              ! No default theory unless doing MD
+      endif
+      if (theory .ne. ' ') then
+         if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
+     $        call errquit('task_input: rtdb is corrupt', 0)
+      endif
       if (operation .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'task:operation',1,operation))
      $        call errquit('task_input: rtdb is corrupt', 0)
