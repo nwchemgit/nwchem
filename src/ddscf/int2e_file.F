@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.53 2001-04-12 22:00:11 edo Exp $
+* $Id: int2e_file.F,v 1.54 2001-11-14 21:11:35 edo Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -21,7 +21,7 @@
       integer cachesize, filesize
       double precision precision_arg
       logical orestart
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY)
       external cint2efdata
 #endif
 c
