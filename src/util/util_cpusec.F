@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.11 1998-01-31 01:49:29 d3g270 Exp $
+c $Id: util_cpusec.F,v 1.12 1999-11-13 03:24:14 bjohnson Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -60,11 +60,14 @@ c
       util_cpusec = dclock() - first
 #endif
 #if defined(LINUX)
+#if defined(CYGNUS)
+#else
 #define __UTIL_CPUSEC__
       double precision linux_cputime
       external linux_cputime
 c
       util_cpusec = linux_cputime()
+#endif
 #endif
 #if defined(CRAY)
 #define __UTIL_CPUSEC__
