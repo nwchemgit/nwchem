@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.17 2002-07-07 00:40:44 edo Exp $
+C $Id: hess_anal.F,v 1.18 2002-10-01 00:46:57 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -135,8 +135,9 @@ c
         call nucdd_cont(rtdb)
         if (ohessprof) call pstat_off(ps_nucdd)
         call hess_restart(rtdb,1)
-        if (oprintsome) write(LuOut,*) 'HESSIAN: the one electron ',
-     $    'contributions are done'
+        if (oprintsome) write(LuOut,11) util_wallsec()   
+ 11     format(/' HESSIAN: the one electron ',
+     $    'contributions are done in ',f9.1,'s'/)
       else 
         call hess_getrestart(restr)
       endif
@@ -149,8 +150,9 @@ c
         call twodd_cont(rtdb)
         if (ohessprof) call pstat_off(ps_twodd)
         call hess_restart(rtdb,2)
-        if (oprintsome) write(LuOut,*) 'HESSIAN: the two electron ',
-     $    'contributions are done'
+        if (oprintsome) write(LuOut,12) util_wallsec()   
+ 12     format(/' HESSIAN: the two electron ',
+     $    'contributions are done in ',f9.1,'s'/)
       endif
 c
 c  solve the CPSCF problem
