@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.27 1998-03-05 23:06:30 mdupuis Exp $
+* $Id: prp.F,v 1.28 1998-05-14 17:40:13 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -64,6 +64,7 @@ C
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:iglo',MT_INT,1,noiglo)
+      status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)
 C
       NEFC  =0
       IEFC  =IBLK
