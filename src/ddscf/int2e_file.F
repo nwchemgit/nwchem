@@ -54,7 +54,7 @@ c
       file_opened = .false.
       nlarge = 0
       cur_rec = 1
-      n_rec_in_file = 1
+      n_rec_in_file = 0
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call int2e_buf_clear()
       call dfill(buffer_size, 0.0d0, values, 1)
@@ -116,7 +116,8 @@ c
      $        ('int2e_file_open: unable to determine file length',0)
 c
          n_rec_in_file = length / (8*rec_len_in_dbl)
-         if ( (length/8 - dfloat(n_rec_in_file*rec_len_in_dbl)) .ne. 0)
+         if ((length - 8.0d0*dfloat(n_rec_in_file*rec_len_in_dbl))
+     $        .ne. 0)
      $        call errquit('int2e_file: bad file length ', 0)
 c
          call ga_igop(555, n_rec_in_file, 1, '+')
@@ -125,6 +126,7 @@ c
  1020       format(/' Opened integral file with',i8,' records'/)
             call util_flush(6)
          end if
+         n_rec_in_file = length / (8*rec_len_in_dbl) ! recompute local len
       end if
 c
 c     defer allocation of memory until the first write otherwise
@@ -294,7 +296,7 @@ c
 c
 c     The default of 8 bits is not enough.  If first write reset to 16
 c
-            if (cur_rec.eq.1 .and. n_rec_in_file.eq.1 .and.
+            if (cur_rec.eq.1 .and. n_rec_in_file.eq.0 .and.
      $           next_value.eq.2) then
                lab_pack_len = 16
                call int2e_packing_info()
@@ -695,14 +697,20 @@ c
       end
       logical function int2e_buf_write(oend)
       implicit none
+#include "cint2efile.fh"
       logical oend
+c
       logical int2e_packed_buf_write
       external int2e_packed_buf_write
 c
-      call int2e_buf_cntr_pack()
-      call int2e_buf_pack()
-c
-      int2e_buf_write = int2e_packed_buf_write(oend)
+      if (n_in_rec .gt. 1) then      ! First entry is just the counter
+        call int2e_buf_cntr_pack()
+        call int2e_buf_pack()
+        int2e_buf_write = int2e_packed_buf_write(oend)
+      else
+        int2e_buf_write = .true.
+        call int2e_buf_clear()
+      endif
 c
       end
       logical function int2e_packed_buf_write(oend)
@@ -799,7 +807,7 @@ c
       end if
 c
       call int2e_buf_clear
-      n_rec_in_file   = n_rec_in_file + 1
+      n_rec_in_file   = cur_rec ! was n_rec_in_file + 1
       cur_rec         = cur_rec + 1
       int2e_packed_buf_write = .true.
 c
@@ -816,11 +824,11 @@ c
       call int2e_buf_unpack()
       call int2e_buf_cntr_unpack()
 c
-      if (n_in_rec .gt. 1) then
-         int2e_buf_read = .true.
-      else
-         int2e_buf_read = .false.
-      end if
+*      if (n_in_rec .gt. 1) then
+*         int2e_buf_read = .true.
+*      else
+*         int2e_buf_read = .false.
+*      end if
 c     
       if (otrace) then
             write(6,2) n_in_rec, cur_rec-1, n_rec_in_file
@@ -836,8 +844,11 @@ c
 #include "mafdecls.fh"
 #include "cint2esave.fh"
 #include "eaf.fh"
+#include "global.fh"
 c
       double precision offset
+      integer ierr
+      character*80 errmsg
 c
       call int2e_buf_clear
       if (cur_rec .gt. n_rec_in_file) then
@@ -850,15 +861,19 @@ c
          return
       end if
 c
+      int2e_packed_buf_read = .true.
       if (cur_rec .le. max_cache_rec) then
          call dcopy(rec_len_in_dbl, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
      $        buf, 1)
-         int2e_packed_buf_read = .true.
       else
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
-         int2e_packed_buf_read = 
-     $        eaf_read(fd, offset, buf, 8*rec_len_in_dbl) .eq. 0
+         ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
+         if (ierr.ne.0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(6,*) ga_nodeid(),errmsg
+           call errquit('int2e_buf_read:premature end of file',cur_rec)
+         endif
       end if
 c
       cur_rec = cur_rec + 1

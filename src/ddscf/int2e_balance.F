@@ -36,6 +36,8 @@ c
       used = util_wallsec()
       odebug = util_print('balance debug',print_never) 
       oprint = util_print('balance', print_default) .and.  me.eq.0
+      if (odebug) 
+     $     write(6,*) me, ' initial n_re_in_file ', n_rec_in_file
 c
       nexch = 0                 ! Just for printing statistics
       nmoved= 0
@@ -143,13 +145,6 @@ c
          n_rec_in_file = n_rec_in_file - his_count
       endif
 c     
-      if (n_rec_in_file .gt. max_cache_rec) then
-         newfilelen = max(0.0d0,
-     $        8.0d0*rec_len_in_dbl*(n_rec_in_file-max_cache_rec))
-         if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $        ('int2e_file_balance: file truncate failed', 0)
-      endif
-c
 c     Adjust everyone's counters by repeating above logic on all nodes
 c
       do p = 0, (nproc-2)/2
@@ -171,9 +166,18 @@ c
 c            
       goto 10
 c     
- 100  call ga_sync()
-*      if (n_rec_in_file .ne. (nrec+info(2,i))) call errquit
-*     $     ('int2e_file_balance: algorithm failure', n_rec_in_file)
+ 100  if (n_rec_in_file .gt. max_cache_rec) then
+         newfilelen = max(0.0d0,
+     $        8.0d0*rec_len_in_dbl*(n_rec_in_file-max_cache_rec))
+         if (odebug) then
+            write(6,*) me,' truncating at ', n_rec_in_file, newfilelen
+            call util_flush(6)
+         endif
+         if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
+     $        ('int2e_file_balance: file truncate failed', 0)
+         cur_rec = n_rec_in_file
+      endif
+c
       if (oprint) then
          used = util_wallsec() - used
          write(6,21) nexch, nmoved, used
@@ -183,6 +187,7 @@ c
       endif
 c
       call int2e_file_rewind
+      call ga_sync()
 c
 #endif
       end
