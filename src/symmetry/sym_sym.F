@@ -1,11 +1,14 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.1 1995-12-13 01:28:44 d3g681 Exp $
+C$Id: sym_sym.F,v 1.2 1996-05-14 18:07:49 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
+*     KAP on SGI breaks this routine
+c*$*optimize(0)
+c*$*scalar optimize(0)
       integer geom, basis, g_a
       logical odensity
 c
@@ -103,7 +106,7 @@ c
      $              int_mb(k_cn_info), int_mb(k_cn_bfr))
 c
                next = nxtval(nproc)
-            endif
+            end if
             ijcent = ijcent + 1
          end do
       end do
@@ -123,6 +126,9 @@ c
       call ga_copy(g_b, g_a)
       if (.not. ga_destroy(g_b)) call errquit
      $     ('sym_symmetrize: ga_destroy of b', 0)
+c
+c*$*optimize(1)
+c*$*scalar optimize(1)
 c
       end
       subroutine sym_symm2(geom, basis, g_b, icent, jcent, aij, aji,
@@ -190,7 +196,7 @@ c
             call sym_inv_op(geom, op, opinv)
             icent_new = sym_center_map(geom, icent, opinv)
             jcent_new = sym_center_map(geom, jcent, opinv)
-         endif
+         end if
 c
          call sym_bas_op(geom, op, r, maxf, ang_max)
 c     
@@ -271,7 +277,7 @@ c
                         do j = 1, nj
                            do k = 1, ni
                               sum(k,j)=0.0d0
-                           enddo
+                           end do
                            do l = 1, nj
                               factor = R(j,l,jsh_type)
                               if (factor .ne. 0.0d0) then
@@ -279,9 +285,9 @@ c
                                     sum(k,j) = sum(k,j) + 
      $                                   aij(ioff+k,joff+l)*factor
                                  end do
-                              endif
-                           enddo
-                        enddo
+                              end if
+                           end do
+                        end do
                         do k = 1, ni
                            do i = 1, ni
                               factor = R(i,k,ish_type)
@@ -291,7 +297,7 @@ c
      $                                   tmp(ioff+i,joff+j) +
      $                                   factor*sum(k,j)
                                  end do
-                              endif
+                              end if
                            end do
                         end do
                      else
@@ -301,7 +307,7 @@ c
                         do j = 1, nj
                            do k = 1, ni
                               sum(k,j)=0.0d0
-                           enddo
+                           end do
                            do l = 1, nj
                               factor = R(l,j,jsh_type)
                               if (factor .ne. 0.0d0) then
@@ -309,9 +315,9 @@ c
                                     sum(k,j) = sum(k,j) + 
      $                                   aij(ioff+k,joff+l)*factor
                                  end do
-                              endif
-                           enddo
-                        enddo
+                              end if
+                           end do
+                        end do
                         do k = 1, ni
                            do i = 1, ni
                               factor = R(k,i,ish_type)
@@ -321,10 +327,10 @@ c
      $                                   tmp(ioff+i,joff+j) +
      $                                   factor*sum(k,j)
                                  end do
-                              endif
+                              end if
                            end do
                         end do
-                     endif
+                     end if
                   end do         ! jsh  
                end do            ! ish  
             end do               ! jcn

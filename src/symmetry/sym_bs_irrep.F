@@ -1,5 +1,5 @@
       subroutine sym_bas_irreps(basis, oprint, nbf_per_ir)
-C$Id: sym_bs_irrep.F,v 1.1 1995-12-13 01:28:07 d3g681 Exp $
+C$Id: sym_bs_irrep.F,v 1.2 1996-05-14 18:07:48 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -92,7 +92,7 @@ c
      $                 ('sym_bas_irreps: bas_continfo', icent)
                   if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
      $                 call errquit('sym_bas_irreps: bas_ce2cnr',0)
-                  n = ihi - ilo + 1
+                  n = (ihi - ilo + 1)
                   trace = 0.0d0
                   if (itype .eq. -1) then
                      trace = trace + sym_trace_bas_op(dbl_mb(k_r),
@@ -101,6 +101,7 @@ c
      $                    ang_max, maxf, 3, 1)
                      ngen = 1
                   else
+                     n = n / ngen
                      trace = trace + sym_trace_bas_op(dbl_mb(k_r),
      $                    ang_max, maxf, n, itype)
                   endif
