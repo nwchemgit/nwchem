@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
+C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -141,7 +141,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
+C     $Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -403,7 +403,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
+C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -489,7 +489,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
+c     $Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -504,6 +504,7 @@ c
       double precision jfac(4), kfac(4), one, zero, mone
       parameter (one=1.0d0, zero=0.0d0, mone=-1.0d0)
       double precision e_a_coul, e_a_exch, e_b_coul, e_b_exch
+      double precision errmaxa, errmaxb
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical odebug
@@ -529,10 +530,6 @@ c
       g_b_exch = ga_create_atom_blocked(geom, basis, 'uhf:b exch')
       g_a_dens = ga_create_atom_blocked(geom, basis, 'uhf:a dens')
       g_b_dens = ga_create_atom_blocked(geom, basis, 'uhf:b dens')
-      call ga_zero(g_a_coul)
-      call ga_zero(g_b_coul)
-      call ga_zero(g_a_exch)
-      call ga_zero(g_b_exch)
       call ga_zero(g_a_dens)
       call ga_zero(g_b_dens)
 c
@@ -543,6 +540,33 @@ c
       call ga_dgemm('n', 't', nbf, nbf, nbeta, one, g_vecs(2),
      $     g_vecs(2), zero, g_b_dens)
 c
+c     Since UHF can break spatial symmetry by localizing the orbitals
+c     the densities may not be totally symmetric, but since the Hamiltonian
+c     is symmetric contraction with the integrals projects out the totally 
+c     symmetric component ... hence we can symmetrize the densities and
+c     exploit symmetry.  Compute the max change in any element due to
+c     symmetrizing and print a warning if it is big.
+c
+c     If this is the case then where does the 'force' for symmetry breaking
+c     come from?  Must be missing something?
+c
+      call ga_copy(g_a_dens,g_a_coul)
+      call ga_copy(g_b_dens,g_b_coul)
+      call sym_symmetrize(geom, basis, .true., g_a_dens)
+      call sym_symmetrize(geom, basis, .true., g_b_dens)
+      call ga_dadd(one, g_a_dens, mone, g_a_coul, g_a_coul)
+      call ga_dadd(one, g_b_dens, mone, g_b_coul, g_b_coul)
+      call ga_maxelt(g_a_coul, errmaxa)
+      call ga_maxelt(g_b_coul, errmaxb)
+      if (max(errmaxa,errmaxb).gt.1d-10) then
+         if (ga_nodeid().eq.0) then
+            write(6,77) errmaxa,errmaxb
+ 77         format(' Warning: spatial symmetry breaking in UHF: ',
+     $           1p,2d9.2)
+            call util_flush(6)
+         endif
+      endif
+c
       if (odebug) then
          call ga_print(g_vecs(1))
          call ga_print(g_vecs(2))
@@ -550,6 +574,10 @@ c
          call ga_print(g_b_dens)
       endif
 c
+      call ga_zero(g_a_coul)
+      call ga_zero(g_b_coul)
+      call ga_zero(g_a_exch)
+      call ga_zero(g_b_exch)
       d(1) = g_a_dens
       d(2) = g_a_dens
       d(3) = g_b_dens
@@ -560,7 +588,7 @@ c
       f(4) = g_b_exch
 c
       call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
-     $     .false., d, f)
+     $     oskel, d, f)
 c
       e_a_coul = 0.5d0*
      $     (ga_ddot(g_a_dens,g_a_coul) + ga_ddot(g_a_dens,g_b_coul))
@@ -601,6 +629,9 @@ c
      $     (ga_ddot(g_a_dens,g_hcore) + ga_ddot(g_b_dens,g_hcore))
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)
       call ga_dadd(one, g_hcore, one, g_b_coul, g_b_coul)
+c
+      call sym_symmetrize(geom, basis, .false., g_a_coul)
+      call sym_symmetrize(geom, basis, .false., g_b_coul)
 c
       if (odebug) then
          call ga_print(g_a_coul)
@@ -817,7 +848,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.2 1995-04-06 20:11:17 d3g681 Exp $
+C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

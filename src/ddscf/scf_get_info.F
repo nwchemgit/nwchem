@@ -113,10 +113,6 @@ c
       nalpha = nclosed + nopen
       nbeta  = nclosed
 c
-c     UHF unrestricts symmetry also so cannot exploit it
-c
-      if (scftype .eq. 'UHF') oskel = .false.
-c
 c     Store the derived info in the database for other wavefunction
 c     modules and/or restart to access
 c
@@ -160,7 +156,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.3 1995-04-05 19:51:46 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.4 1995-04-06 20:55:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
