@@ -1,7 +1,7 @@
+c
+c $Id: psp_stress_formatter.F,v 1.2 2002-01-21 06:31:35 bylaska Exp $
+c
       logical function psp_stress_formatter(rtdb)
-c
-c $Id: psp_stress_formatter.F,v 1.1 2001-08-30 00:38:59 edo Exp $
-c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -107,7 +107,8 @@ c
 *     ***** run Periodic code *****
       if (boundry(1:l).eq.'periodic') then
          value = value.and.
-     >     kbppv3_stress(3,psp_filename,formatted_stress_filename,
+     >     kbppv3_stress(.true.,3,psp_filename,
+     >            formatted_stress_filename,
      >            ngrid,unita,locp,lmax,rlocal)
 
 *     ***** run APeriodic code *****
@@ -126,3 +127,88 @@ c
       psp_stress_formatter = value
       return
       end
+
+
+
+*     ***************************************
+*     *										*
+*     *		psp_stress_formatter_auto		*
+*     *										*
+*     ***************************************
+      subroutine psp_stress_formatter_auto(atom)
+      implicit none
+      character*2  atom
+
+*     ***** local variables *****
+      logical       value
+      integer       i,j,l
+      integer	    locp,lmax
+      character*20  psp_filename,formatted_filename
+      character*4   element
+      real*8        rlocal
+
+*     ***** simulation cell  variables *****
+      double precision unita(3,3)
+      integer          ngrid(3),version
+
+*     ***** external functions *****
+      integer      control_version
+      integer      control_ngrid
+      real*8       control_unita
+      logical      kbppv3_stress, nwpw_filefind
+      external     control_version
+      external     control_ngrid
+      external     control_unita
+      external     kbppv3_stress, nwpw_filefind
+
+      value  = .true.
+
+*     **** get lmax,locp,and rlocal from psp library ****
+      lmax  = -1
+      locp  = -1
+      rlocal = 1.0d0
+
+*     **** define psp_filename and formatted_filename ****
+      element = '    '
+      element = atom
+      l = index(element,' ') - 1
+      psp_filename       = element(1:l)//'.psp'
+      formatted_filename = element(1:l)//'.vpp2'
+
+*     **** generate one-dimensional pseudopotential file ****
+      if (.not.nwpw_filefind(psp_filename)) then
+         call psp_generator_auto(atom,lmax,locp,rlocal)
+
+*     **** get lmax,locp,and rlocal from rtdb ****
+      else
+         call control_pspparameters(atom,lmax,locp,rlocal)
+      end if
+
+
+*     **** cell information ****
+      version = control_version()
+      do i=1,3
+         ngrid(i) = control_ngrid(i)
+         do j=1,3
+           unita(i,j) = control_unita(i,j)
+         end do
+      end do
+
+      if (version .eq.3) then
+        value = value.and.
+     >       kbppv3_stress(.false.,
+     >              version,psp_filename,formatted_filename,ngrid,unita,
+     >              locp,lmax,rlocal)
+      else
+        write(*,*) 
+     >  "Only periodic boundary conditions appropriate for stress."
+        value = .false.
+      end if
+
+*     *** exit if error found ***
+      if(.not. value) call errquit('psp_stress_formatter_auto: error',0)
+
+      return
+      end
+
+

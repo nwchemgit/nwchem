@@ -4,17 +4,18 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbppv3_stress(version,
+      logical function kbppv3_stress(oprint,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3-stress.F,v 1.1 2001-08-30 00:38:59 edo Exp $
+* $Id: kbppv3-stress.F,v 1.2 2002-01-21 06:31:35 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
+      logical          oprint
       integer          version
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -179,7 +180,7 @@
 
 
 
-      if (taskid.eq.MASTER) then
+      if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ***********************************************"
       write(*,*) "     *                                             *"
       write(*,*) "     *  KBPPV3-Stress - Pseudopotential Formatter  *"
@@ -227,7 +228,8 @@
      >                    full_filename)
       l = index(full_filename,' ') - 1
       write(*,*)
-      write(*,*) "Outputing formatted_filename: ",full_filename(1:l)
+      write(*,*) "Outputing formatted_stress_filename: ",
+     > full_filename(1:l)
       write(*,*)
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
@@ -239,20 +241,20 @@
 
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
-      value = MA_free_heap(vp_hndl)
-      value = MA_free_heap(wp_hndl)
-      value = MA_free_heap(sc_r_hndl)
-      value = MA_free_heap(sc_k_hndl)
-      value = MA_free_heap(f_hndl)
-      value = MA_free_heap(cs_hndl)
-      value = MA_free_heap(sn_hndl)
+      value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(wp_hndl)
+      value = value.and.MA_free_heap(sc_r_hndl)
+      value = value.and.MA_free_heap(sc_k_hndl)
+      value = value.and.MA_free_heap(f_hndl)
+      value = value.and.MA_free_heap(cs_hndl)
+      value = value.and.MA_free_heap(sn_hndl)
 
-      value = MA_free_heap(vl_hndl)
-      value = MA_free_heap(vnl_hndl)
-      value = MA_free_heap(G_hndl)
+      value = value.and.MA_free_heap(vl_hndl)
+      value = value.and.MA_free_heap(vnl_hndl)
+      value = value.and.MA_free_heap(G_hndl)
 
       
-      if (taskid.eq.MASTER) call message(4)
+      if ((taskid.eq.MASTER).and.(oprint)) call message(4)
 
       kbppv3_stress = value
       return
