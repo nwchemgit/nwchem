@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.31 2000-03-28 23:15:59 d3j191 Exp $
+c $Id: prp_main.F,v 1.32 2000-04-11 19:38:31 d3j191 Exp $
 c
       implicit none
 c
@@ -115,7 +115,7 @@ c
 c
 c     fill the property vector
 c
-      do 7 i=1,250
+      do 7 i=1,maxpro
       p(i)=zero
     7 continue
 c
@@ -286,7 +286,7 @@ c
 c
       nsum=nsum+1
       nsumt=nsumt+1
-      do 8 i=1,250
+      do 8 i=1,maxpro
       if(abs(p(i)).lt.tiny) p(i)=zero
       psum(i)=psum(i)+p(i)
       p2sum(i)=p2sum(i)+p(i)*p(i)

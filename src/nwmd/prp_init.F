@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi)
 c
-c $Id: prp_init.F,v 1.20 2000-03-28 23:15:59 d3j191 Exp $
+c $Id: prp_init.F,v 1.21 2000-04-11 19:38:29 d3j191 Exp $
 c
       implicit none
 c
@@ -54,7 +54,7 @@ c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c
-      do 1 i=1,250
+      do 1 i=1,maxpro
       lp(i)=.false.
     1 continue
 c
@@ -285,7 +285,7 @@ c
       endif
 c
       nprop=0
-      do 2 i=1,250
+      do 2 i=1,maxpro
       if(lp(i)) then
       nprop=nprop+1
       ixp(nprop)=i
@@ -314,7 +314,7 @@ c
 c
       nsum=0
       nsumt=0
-      do 1 i=1,250
+      do 1 i=1,maxpro
       psum(i)=zero
       p2sum(i)=zero
       pslop(i)=zero
