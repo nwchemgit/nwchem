@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.12 2003-10-19 06:07:32 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.13 2003-10-19 06:13:20 d3j191 Exp $
 c
       implicit none
 c
@@ -26,17 +26,17 @@ c     l_qf iqfptr 'qf' :  4*natoms : fitted atomic charges
 c
       ndim=natoms+nconst
       if(.not.ma_push_get(mt_byte,natoms*16,'t',l_t,itptr))
-     + call ma_abort('esp: ma_push_get t failed',me)
+     + call md_abort('esp: ma_push_get t failed',me)
       if(.not.ma_push_get(mt_dbl,natoms*3,'x',l_x,ixptr))
-     + call ma_abort('esp: ma_push_get x failed',me)
+     + call md_abort('esp: ma_push_get x failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'q',l_q,iqptr))
-     + call ma_abort('esp: ma_push_get q failed',me)
+     + call md_abort('esp: ma_push_get q failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'qk',l_qk,iqkptr))
-     + call ma_abort('esp: ma_push_get qk failed',me)
+     + call md_abort('esp: ma_push_get qk failed',me)
       if(.not.ma_push_get(mt_dbl,4*ndim,'qf',l_qf,iqfptr))
-     + call ma_abort('esp: ma_push_get qf failed',me)
+     + call md_abort('esp: ma_push_get qf failed',me)
       if(.not.ma_push_get(mt_int,natoms,'n',l_n,inptr))
-     + call ma_abort('esp: ma_push_get n failed',me)
+     + call md_abort('esp: ma_push_get n failed',me)
 c
 c     get atomic coordinates
 c
@@ -62,19 +62,19 @@ c
 c     initialize integrals
 c
       if(.not.int_normalize(irtdb,ibasis))
-     + call ma_abort('esp: int_normalize failed',me, INT_ERR)
+     + call md_abort('esp: int_normalize failed',me)
       call int_init(irtdb,1,ibasis)
 c
 c     get number of shells
 c
       if(.not.bas_numcont(ibasis,nshell))
-     + call ma_abort('esp: bas_numcont failed',me, BASIS_ERR)
+     + call md_abort('esp: bas_numcont failed',me)
       call int_mem_1e(max1e,mem1)
 c
       mbf=0
       do 1 ish=1,nshell
       if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
-     + call ma_abort('esp: bas_cn2bfr failed',me, BASIS_ERR)
+     + call md_abort('esp: bas_cn2bfr failed',me)
       mbf=max(mbf,ihi-ilo+1)
     1 continue
       else
@@ -89,11 +89,11 @@ c     l_e ieptr 'e' :   2*nbf : orbital energies
 c     l_o ioptr 'o' :   2*nbf : orbital occupation
 c
       if(.not.ma_push_get(mt_dbl,mbf*mbf,'d',l_d,idptr))
-     + call ma_abort('esp: ma_push_get d failed',me)
+     + call md_abort('esp: ma_push_get d failed',me)
       if(.not.ma_push_get(mt_dbl,2*nbf,'e',l_e,ieptr))
-     + call ma_abort('esp: ma_push_get e failed',me)
+     + call md_abort('esp: ma_push_get e failed',me)
       if(.not.ma_push_get(mt_dbl,2*nbf,'o',l_o,ioptr))
-     + call ma_abort('esp: ma_push_get o failed',me)
+     + call md_abort('esp: ma_push_get o failed',me)
 c
 c     allocate memory:
 c
@@ -102,13 +102,13 @@ c     l_b ibptr 'b' : (natoms+nconst)   : solution vector
 c     l_c icptr 'c' : (natoms+nconst)   : result vector
 c
       if(.not.ma_push_get(mt_dbl,ndim*ndim,'A',l_a,iaptr))
-     + call ma_abort('esp: ma_push_get A failed',me)
+     + call md_abort('esp: ma_push_get A failed',me)
       if(.not.ma_push_get(mt_dbl,ndim*ndim,'Ak',l_ak,iakptr))
-     + call ma_abort('esp: ma_push_get Ak failed',me)
+     + call md_abort('esp: ma_push_get Ak failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'b',l_b,ibptr))
-     + call ma_abort('esp: ma_push_get b failed',me)
+     + call md_abort('esp: ma_push_get b failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'c',l_c,icptr))
-     + call ma_abort('esp: ma_push_get c failed',me)
+     + call md_abort('esp: ma_push_get c failed',me)
 c
 c     check how much memory is available
 c
@@ -129,9 +129,9 @@ c     l_g igptr 'g' : 3*mxgrid : grid point coordinates
 c     l_v ivptr 'v' :   mxgrid : grid point values
 c
       if(.not.ma_push_get(mt_dbl,mxgrid*3,'g',l_g,igptr))
-     + call ma_abort('esp: ma_push_get g failed',me)
+     + call md_abort('esp: ma_push_get g failed',me)
       if(.not.ma_push_get(mt_dbl,mxgrid,'v',l_v,ivptr))
-     + call ma_abort('esp: ma_push_get v failed',me)
+     + call md_abort('esp: ma_push_get v failed',me)
 c
       if(me.eq.0.and.newgrd.eq.0)
      + call esp_getg(dbl_mb(igptr),dbl_mb(ivptr))
