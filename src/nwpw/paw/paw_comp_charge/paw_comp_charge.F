@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.16 2003-02-15 22:15:46 marat Exp $
+* $Id: paw_comp_charge.F,v 1.17 2003-02-16 00:52:28 marat Exp $
 *
 
 
@@ -107,7 +107,7 @@
         
         integer i,j,li,lj,mi,mj
         integer l,m
-        integer i_qlm
+        integer i_qlm,i_qlm0
         integer nilm,njlm
         double precision gen_gaunt_coeff
         external gen_gaunt_coeff
@@ -129,99 +129,57 @@ c       !*** set values for l=0 m=0 elements ***
           nb2 = nb*nb
           i_matr0 = int_mb(i_comp_charge_matrix(1) + ia - 1)
           i_w0 = int_mb(i_paw_ovlp_w(1) + na - 1)
+          i_qlm0 = int_mb(i_paw_qlm(1) + na - 1)
           nilm = 0
           do i=1,nb
           li = paw_basis_orb_l(i,ia)
           njlm = 0
           do j=1,nb
           lj = paw_basis_orb_l(j,ia)
-            do i_qlm = 1,paw_qlm(3)
+          nlmi = 0
+          do l=0,mult_l
               qlm_tmp = dcmplx(0.0,0.0)
-              l = int_mb(paw_qlm_l(1) + i_qlm - 1)
-              m = int_mb(paw_qlm_m(1) + i_qlm - 1)
               if(l.le.(li+lj) .and. l.ge.abs(li-lj)) then
+                do m=-l,l
                 do mi=-li,li
                  do mj=-lj,lj
                    if(m.eq.(mj-mi)) then
                    i_w   = i_w0-1+(njlm+lj+mj+1)+
      >                   (nilm+li+mi)*paw_proj_nbasis(ia)
                       
-                   i_matr = i_matr0-1+i+(j-1)*nb+l*nb2
-                   qlm_tmp = qlm_tmp + 
+                   i_qlm = i_qlm0-1+nlmi+l+m+1
+                   i_matr = i_matr0-1+j+(i-1)*nb+l*nb2
+                   dcpl_mb(paw_qlm(1)+i_qlm) = 
+     >                     dcpl_mb(paw_qlm(1)+i_qlm)+
      >                     dbl_mb(comp_charge_matrix(1) + i_matr)* 
      >                     gen_gaunt_coeff(l,m,lj,mj,li,mi)*
      >                     dcpl_mb(paw_ovlp_w(1) + i_w) 
-        write(*,*) "i,j,li,lj,mi,mj,l,m",i,j,li,lj,mi,mj,l,m
-        write(*,*) "charge-matrix",
-     >              dbl_mb(comp_charge_matrix(1) + i_matr) 
-        write(*,*) "gaunt",
-     >              gen_gaunt_coeff(l,m,lj,mj,li,mi)
-        write(*,*) "overlap,i_w",
-     >               i_w,dcpl_mb(paw_ovlp_w(1) + i_w)
-        write(*,*) "qlm_tmp",
-     >               qlm_tmp
-                   end if
+                  end if
                  end do
                 end do
+                end do !m
               end if
-              dcpl_mb(paw_qlm(1)+i_qlm-1) = dcpl_mb(paw_qlm(1)+i_qlm-1)+
-     >                                      qlm_tmp
-            end do !i_qlm
+             nlmi = nlmi + 2*l+1
+          end do !l
           njlm = njlm + 2*lj+1
           end do !j
           nilm = nilm + 2*li+1
           end do !i
         end do !na
         
-c        nlmi = 0
-c        do na=1,tot_natom
-c          ia = ion_katm(na)
-c          mult_l = paw_basis_mult_l(ia)
-c          i_matr0 = int_mb(i_comp_charge_matrix(1) + ia - 1)
-cc          i_w0 = int_mb(i_paw_ovlp_w(1) + ia - 1)
-c          i_w0 = int_mb(i_paw_ovlp_w(1) + na - 1)
-c          nb =paw_basis_nbasis(ia)
-c          nb2 = nb*nb
-c          nproj = paw_proj_nbasis(ia)
-c          do l=0,mult_l  
-c            do m=0,l
-c              qlm_tmp = cmplx(0.0,0.0)
-c              i_w1 = 0
-c              do i1=1,nb
-c                l1 = paw_basis_orb_l(i1,ia)
-c                do m1=-l1,l1
-c                  do i2=1,nb
-c                    l2 = paw_basis_orb_l(i2,ia)
-c                    do m2=-l2,l2
-c                      i_matr = i_matr0 +i1+(i2-1)*nb+l*nb2
-c                      i_w = i_w0 + i_w1
-c                      qlm_tmp = qlm_tmp + 
-c     >                     dbl_mb(comp_charge_matrix(1) + i_matr-1)* 
-c     >                     gen_gaunt_coeff(l,m,l2,m2,l1,m1)*
-c     >                     dcpl_mb(paw_ovlp_w(1) + i_w) 
-c                      i_w1 = i_w1 + 1
-c                     end do
-c                   end do
-c                 end do
-c               end do
-c               dcpl_mb(paw_qlm(1) + nlmi) = dcpl_mb(paw_qlm(1) + nlmi)
-c     >                                  + qlm_tmp
-c               nlmi = nlmi+1
-c             end do
-c           end do
-c         end do 
-c 
+ 
         write(*,*) "paw_comp_charge_coeff"
-        nlmi = 0
         do na=1,tot_natom
+          i_qlm0 = int_mb(i_paw_qlm(1) + na - 1)
           ia = ion_katm(na)
           mult_l = paw_basis_mult_l(ia)
+          nlmi = 0
           do l=0,mult_l  
           do m=-l,l
-            write(*,*) l,m
-            write(*,*) dcpl_mb(paw_qlm(1) + nlmi) 
-            nlmi = nlmi+1
+            i_qlm = i_qlm0-1+nlmi+l+m+1
+            write(*,*) nlmi+l+m+1,na,dcpl_mb(paw_qlm(1) + i_qlm) 
           end do
+          nlmi = nlmi + 2*l+1
           end do
          end do 
       end !subroutine
