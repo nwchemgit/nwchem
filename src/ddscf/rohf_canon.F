@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.4 1996-06-27 22:42:40 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.5 1997-03-30 20:58:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -31,7 +31,7 @@ c
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: u',
      $     1, 1, g_u)) call errquit('rohf_canon: ga failed for u', 0)
-      call ga_zero(g_u)
+      call ga_zero(g_u)         ! ESSENTIAL FOR SYMM BLOCKED SUBSPACE CANON
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: fock',
      $     1, 1, g_fock)) call errquit
      $     ('rohf_canon: ga failed for fock', 0)
@@ -49,20 +49,20 @@ c
 c     closed-closed piece
 c
          if (nclosed .gt. 0) call rohf_canon_subspace
-     $        (g_fock, g_u, dbl_mb(k_eval), 1, nclosed)
+     $        (g_fock, g_u, dbl_mb(k_eval), 1, nclosed,int_mb(k_irs))
 c
 c     open-open piece
 c
          if (nopen .gt. 0) call rohf_canon_subspace
      $        (g_fock, g_u, dbl_mb(k_eval+nclosed),
-     $        nclosed+1, nclosed+nopen)
+     $        nclosed+1, nclosed+nopen, int_mb(k_irs))
 c     
 c     virt-virt piece
 c     
          if (nmo-nclosed-nopen .gt. 0)
      $        call rohf_canon_subspace(g_fock, g_u,
      $        dbl_mb(k_eval+nclosed+nopen),
-     $        nclosed+nopen+1, nmo)
+     $        nclosed+nopen+1, nmo, int_mb(k_irs))
       endif
 c
       if (oscfps) call pstat_off(ps_diag)
@@ -120,40 +120,127 @@ c
      $     call errquit('rohf_canon: destroy', 0)
 c
       end
-      subroutine rohf_canon_subspace(g_fock, g_u, evals, ilo, ihi)
+      subroutine rohf_canon_subspace(g_fock, g_u, evals, ilo, ihi,
+     $     irs)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-      integer g_fock, g_u, ilo, ihi
+      integer g_fock, g_u, ilo, ihi, irs(*)
       double precision evals(*)
 c
-      integer n
+      integer map(10000)        ! Should be dynamically allocated
+      double precision work(10000) 
+      double precision tmp(10000) 
+c
+      integer n, i, j, nirs, irrep
       integer g_v
       integer g_tmp
 c     
-      n = ihi - ilo + 1
+      nirs = 0
+      do i = ilo, ihi
+         nirs = max(irs(i),nirs)
+      enddo
 c
-      if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
-     $     1, 1, g_tmp)) call errquit
-     $     ('rohf_canon: ga failed for tmp', 0)
-      if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: v',
-     $     1, 1, g_v)) call errquit
-     $     ('rohf_canon: ga failed for v', 0)
+      do irrep = 1, nirs
+         n = 0
+         do i = ilo, ihi
+            if (irs(i) .eq. irrep) then
+               n = n + 1
+               map(n) = i
+            endif
+         enddo
+         if (n .gt. 0) then
 c
-      call ga_copy_patch('n', 
-     $     g_fock, ilo, ihi, ilo, ihi, 
-     $     g_tmp, 1, n, 1, n)
+            if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
+     $           1, 1, g_tmp)) call errquit
+     $           ('rohf_canon: ga failed for tmp', 0)
+            if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: v',
+     $           n, 1, g_v)) call errquit
+     $           ('rohf_canon: ga failed for v', 0)
+c
+            call ga_sync
+            do i = 1+ga_nodeid(),n,ga_nnodes()
+               call ga_get(g_fock,ilo,ihi,map(i),map(i),work(ilo),1)
+               do j = 1, n
+                  tmp(j) = work(map(j))
+               enddo
+               call ga_put(g_tmp,1, n, i, i, tmp, 1)
+            enddo
+            call ga_sync
 c
 #if defined(PARALLEL_DIAG)
-      call ga_diag_std(g_tmp, g_v, evals)
+      call ga_diag_std(g_tmp, g_v, tmp)
 #else 
-      call ga_diag_std_seq(g_tmp, g_v, evals)
+      call ga_diag_std_seq(g_tmp, g_v, tmp)
 #endif
-      call ga_copy_patch('n', 
-     $     g_v, 1, n, 1, n,
-     $     g_u, ilo, ihi, ilo, ihi)
-      if (.not. (ga_destroy(g_tmp) .and. ga_destroy(g_v)))
-     $     call errquit('rohf_canon: ga_destroy ?', 0)
+            call ga_sync
+            do i = 1, n
+               evals(map(i)-ilo+1) = tmp(i)
+            enddo
+            do i = 1+ga_nodeid(),n,ga_nnodes()
+               call ga_get(g_v,1, n, i, i, tmp, 1)
+               call dfill((ihi-ilo+1), 0.0d0, work(ilo), 1)
+               do j = 1, n
+                  work(map(j)) = tmp(j)
+               enddo
+               call ga_acc(g_u,ilo,ihi,map(i),map(i),work(ilo),1,1.0d0)
+            enddo
+            call ga_sync
+            if (.not. (ga_destroy(g_tmp) .and. ga_destroy(g_v)))
+     $           call errquit('rohf_canon: ga_destroy ?', 0)
+         endif
+      enddo
+c
+      if (nirs .eq. 1) return
+c
+c     Now we have diagonalized each symmetry block we need to reorder
+c     so that have Auf Bau ordering within the entire block
+c
+      do i = ilo, ihi
+	 map(i) = i
+	 do j = ilo, i-1
+	    if (evals(map(i)-ilo+1).lt.evals(map(j)-ilo+1)) then
+	       n = map(i)
+	       map(i) = map(j)
+	       map(j) = n
+            endif
+         enddo
+      enddo
+      do i = ilo, ihi
+	 if (map(i) .ne. i) goto 100
+      enddo
+      return
+c
+100   continue
+*      do i = ilo, ihi
+*         if (map(i) .ne. i) write(6,*) ' FLIP ', i, map(i)
+*      enddo
+      n = ihi - ilo + 1
+      if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
+     $        n, 1, g_tmp)) call errquit
+     $        ('rohf_canon: ga failed for tmp', 0)
+      do i = ilo+ga_nodeid(),ihi,ga_nnodes()
+         call ga_get(g_u,ilo,ihi, map(i), map(i), tmp(ilo), 1)
+         call ga_put(g_tmp,1,n,i-ilo+1,i-ilo+1,tmp(ilo),1)
+      enddo
+      call ga_sync
+      do i = ilo+ga_nodeid(),ihi,ga_nnodes()
+         call ga_get(g_tmp,1,n,i-ilo+1,i-ilo+1,work(ilo),1)
+         call ga_put(g_u,ilo,ihi, i, i, work(ilo), 1)
+      enddo
+*      write(6,*) ' input '
+*      call output(evals,ilo,ihi,1,1,ihi,1,1)
+      do i = ilo, ihi
+	 tmp(i) = evals(map(i))
+	 work(i)= irs(map(i))
+      enddo
+      do i = ilo, ihi
+	 evals(i) = tmp(i)
+	 irs(i)   = work(i)
+      enddo
+*      write(6,*) ' output '
+*      call output(evals,ilo,ihi,1,1,ihi,1,1)
+c
+      if (.not. ga_destroy(g_tmp)) call errquit('rohf_canon: ga?',0)
 c
       end
-

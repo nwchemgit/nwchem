@@ -199,6 +199,8 @@ c
      $     l_irs, k_irs)) call errquit
      $     ('scf_init: insufficient memory?', len_occ)
 c
+      call ifill(len_occ, 1, int_mb(k_irs), 1) ! In case not adapting
+c
 c     Fill in the SCF convergence info
 c     
       call scf_get_conv_info(rtdb)
@@ -208,7 +210,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.37 1997-03-11 01:42:51 d3e129 Exp $
+C$Id: scf_get_info.F,v 1.38 1997-03-30 20:58:49 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
+C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -179,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
+C     $Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -458,7 +458,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
+C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -549,7 +549,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
+c     $Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1035,7 +1035,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.33 1997-03-19 23:17:49 d3g681 Exp $
+C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1094,14 +1094,14 @@ c     occ-occ piece
 c
             if (nocc(iset) .gt. 0) call rohf_canon_subspace
      $           (g_fock, g_u, dbl_mb(k_eval+ioff),
-     $           1, nocc(iset))
+     $           1, nocc(iset), int_mb(k_irs+(iset-1)*nmo))
 c
 c     virt-virt piece
 c     
             if (nmo-nocc(iset) .gt. 0)
      $           call rohf_canon_subspace(g_fock, g_u,
      $           dbl_mb(k_eval+ioff+nocc(iset)),
-     $           nocc(iset)+1, nmo)
+     $           nocc(iset)+1, nmo, int_mb(k_irs+(iset-1)*nmo))
 
          end if
 c

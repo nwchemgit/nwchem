@@ -76,3 +76,33 @@ c
       endif
 c
       end
+      subroutine scf_sym_mat_screen(g_m, nmo, irs)
+      implicit none
+#include "global.fh"
+      integer g_m               ! [input/output] MO GA to be screened.
+      integer nmo               ! [input] NO. of MOs
+      integer irs(nmo)          ! [input] Symmetry of each MO
+c
+c     Force to zero elements of the MO array that should be zero
+c     by symmetry.
+c
+c     Tested but no longer used.
+c
+      integer i, j
+      integer ilo, ihi, jlo, jhi
+c
+      call ga_sync()
+      call ga_distribution(g_m, ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         do i = ilo, ihi
+            do j = jlo, jhi
+               if (irs(i).ne.irs(j)) 
+     $              call ga_put(g_m, i, i, j, j, 0.0d0, 1)
+            enddo
+         enddo
+      endif
+      call ga_sync()
+c
+      end
+
+      
