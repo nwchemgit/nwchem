@@ -13,15 +13,11 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.12 2001-03-03 10:47:49 bjohnson Exp $
+C$Id: xc_dirac.F,v 1.13 2001-03-06 19:54:08 bjohnson Exp $
 c
       Implicit none
 c
 #include "stdio.fh"
-c
-#ifdef BETTIS
-#include "bettis.fh"
-#endif
 c
       integer nq, ipol
       double precision fac, Ex
@@ -63,24 +59,6 @@ c
       double precision rho13, rho32, rho33, one_third, Exp
       Parameter (one_third = 1.d0/3.d0)
       integer n
-c
-#ifdef BETTIS
-      call bettis_average(rho, qwght, nq, ipol, 1)
-c
-c     If doing a screened exchange calculation, call the screened routine
-c     instead
-c
-      if (bettis_screened_x()) then
-#ifndef SECOND_DERIV
-         call xc_dirac_screened(tol_rho, fac, lfac, nlfac, rho, Amat,
-     &        nq, ipol, Ex, bettis_Ks(), qwght, ldew, func)
-#else
-         call xc_dirac_screened_d2(tol_rho, fac, lfac, nlfac, rho, Amat,
-     &        Amat2, nq, ipol, Ex, bettis_Ks(), qwght, ldew, func)
-#endif
-         return
-      endif
-#endif
 c
       Exp = 0.d0
 c
