@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.53 2000-01-12 06:07:38 d3j191 Exp $
+c $Id: md_main.F,v 1.54 2000-01-24 23:15:53 d3j191 Exp $
 c
       implicit none
 c
@@ -852,11 +852,6 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
-      if(frequency(mdstep,nftime)) call md_wrtime
-      if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
-     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_xs))
-c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
       lxs=frequency(mdstep,nfscoo)
@@ -868,6 +863,11 @@ c
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
+c
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nftime)) call md_wrtime
+      if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
+     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_xs))
 c
       call timer_stop(1)
     2 continue
@@ -963,9 +963,6 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
-      if(frequency(mdstep,nftime)) call md_wrtime
-c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
       lxs=frequency(mdstep,nfscoo)
@@ -977,6 +974,9 @@ c
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
+c
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nftime)) call md_wrtime
 c
       call timer_stop(1)
 c
