@@ -1,0 +1,62 @@
+Title "qmmm of ethane with halogen links"
+
+memory noverify heap 8 mb stack 54 mb global 54 mb
+
+start eth
+
+echo
+
+#prepare
+# system eth_em
+# new_top new_seq
+# new_rst
+# modify atom 1:_C2  quantum
+# modify atom 1:_C1  quantum
+# modify atom 1:2H1  quantum
+# modify atom 1:3H1  quantum
+# modify atom 1:4H1  quantum 
+# modify segment 1 uncharged
+# ignore
+# update lists
+#end
+#task prepare
+#
+#prepare
+#read eth_em.rst
+#write eth_start.pdb
+#write eth_em0.rst
+#end
+#task prepare
+
+task shell "cp eth0.rst eth_em.rst"
+md
+ system eth_em
+ sd 5 init 0.001 
+ noshake solute
+end
+
+
+basis spherical
+  * library "6-31G*"
+end
+
+
+dft
+xc b3lyp
+iterations 100
+end
+
+driver
+clear
+end
+
+qmmm
+ eatoms -68.8154
+ bq_exclude none
+ link_atoms halogen
+ optimization all
+end
+
+task qmmm dft optimize 
+
+
