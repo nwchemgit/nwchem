@@ -1,0 +1,36 @@
+start tagbug
+memory global 3 mb heap 3 mb stack 30 mb
+title; tag matching check with ECPs
+basis noprint
+  Ca      library "lanl2dz ecp"
+  F       library "6-31g"
+  H       library "sto-3g"
+end
+ecp noprint
+  CA      library "lanl2dz ecp"
+end
+geometry noautoz
+  symmetry d2h
+  h  0. 0. 2.77715371
+  F  0. 0. 1.81331659
+  cA 0.0 0. 0. 
+end
+scf;noprint "final vectors analysis";end
+task scf gradient
+unset scf*
+basis noprint
+  Ca      library "lanl2dz ecp"
+  F       library "6-31g"
+  H       library "sto-3g"
+end
+ecp noprint
+  Ca      library "lanl2dz ecp"
+end
+geometry noautoz
+  symmetry d2h
+  h  0. 0. 2.77715371
+  F  0. 0. 1.81331659
+  cA 0.0 0. 0. 
+end
+scf;noprint "final vectors analysis";end
+task scf gradient

@@ -1,0 +1,866 @@
+ argument  1 = tagcheck
+  Unable to open tagcheck --- appending .nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.3
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname      = cagle
+    program       = nwchem
+    date          = Tue Jun  8 17:20:21 1999
+
+    compiled      = Tue Jun  8 17:01:40 PDT 1999
+    source        = /files/home/users/d3e129/nwchem
+    nwchem branch = Development
+    input         = tagcheck.nw
+    prefix        = tagbug.
+    data base     = ./tagbug.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+            Memory information
+            ------------------
+
+    heap      =     393217 doubles =      3.1 Mbytes
+    stack     =    3932161 doubles =     31.5 Mbytes
+    global    =     393216 doubles =      3.1 Mbytes (distinct from heap & stack)
+    total     =    4718594 doubles =     37.7 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                           tag matching check with ECPs
+                           ----------------------------
+ 
+  library name resolved from: .nwchemrc
+  library file name is: </msrc/proj/nwchem/share/library>
+  
+
+ **** WARNING Zero Coefficient **** on atom "              Ca"
+ angular momentum value: 0  standard basis set name: "lanl2dz ecp"
+ input line that generated warning:
+ 41087:       0.1447000  0.0000000  1.0251221
+  
+  library name resolved from: .nwchemrc
+  library file name is: </msrc/proj/nwchem/share/library>
+  
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     2.77715371
+    2 h                    1.0000     0.00000000     0.00000000    -2.77715371
+    3 F                    9.0000     0.00000000     0.00000000     1.81331659
+    4 F                    9.0000     0.00000000     0.00000000    -1.81331659
+    5 cA                  20.0000     0.00000000     0.00000000     0.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      h                  1.007825
+      F                 18.998400
+      cA                39.962590
+ 
+
+ Effective nuclear repulsion energy (a.u.)     136.5519706625
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             D2h       
+ Group number             26
+ Group order               8
+ No. of unique centers     3
+ 
+      Symmetry unique atoms
+ 
+     1    3    5
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    3 F                |   1 h                |     1.82139  |     0.96384
+    4 F                |   2 h                |     1.82139  |     0.96384
+    5 cA               |   3 F                |     3.42667  |     1.81332
+    5 cA               |   4 F                |     3.42667  |     1.81332
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    1 h                |   3 F                |   5 cA               |   180.00
+    2 h                |   4 F                |   5 cA               |   180.00
+    3 F                |   5 cA               |   4 F                |   180.00
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          3
+ ==============================================================================
+
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                           tag matching check with ECPs
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    32
+  atoms           =     5
+  closed shells   =    11
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./tagbug.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Ca                       lanl2dz ecp                6       12   3s3p
+ F                           6-31g                   5        9   3s2p
+ H                           sto-3g                  1        1   1s
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag          9
+        au          0
+        b1g         0
+        b1u         9
+        b2g         2
+        b2u         5
+        b3g         2
+        b3u         5
+ 
+
+ Forming initial guess at       4.3s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -200.98609683
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -197.442223
+ 1-e energy   =    -345.487868
+ 2-e energy   =     112.905749
+ HOMO         =      -0.077179
+ LUMO         =       0.033031
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+
+ !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+
+  Symmetry fudging
+
+ !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 ag          2 b1u         3 ag          4 b1u         5 ag      
+     6 b1u         7 b3g         8 b2g         9 b3u        10 b2u     
+    11 ag         12 b1u        13 b3u        14 b2u        15 b3u     
+    16 b2u        17 b1u        18 ag         19 b1u        20 b2g     
+    21 b3g     
+ 
+
+ Starting SCF solution at       5.7s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ Integral file          = ./tagbug.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  21844
+ Max. records in memory =      2        Max. records in file   =   2754
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 7.370D+03 #integrals = 2.204D+04 #direct =  0.0% #cached =100.0%
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1     -200.5068810848  9.52D-01  3.77D-01      7.2
+                 2     -200.5473676177  2.48D-01  1.10D-01      7.5
+                 3     -200.5509320471  4.44D-02  1.58D-02      7.5
+                 4     -200.5511444847  2.34D-04  8.59D-05      7.8
+                 5     -200.5511444889  1.67D-06  5.45D-07      8.0
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -200.551144488912
+      One-electron energy =   -349.529113267407
+      Two-electron energy =    113.838072600737
+ Nuclear repulsion energy =     35.139896177758
+
+        Time for solution =      2.5s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 b1u         2 ag          3 ag          4 b1u         5 ag      
+     6 b1u         7 b3g         8 b2g         9 b2u        10 b3u     
+    11 ag         12 b1u        13 b2u        14 b3u        15 b2u     
+    16 b3u        17 b1u        18 ag         19 b1u        20 b3g     
+    21 b2g     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -26.3715
+    2  -26.3715
+    3   -1.6907
+    4   -1.6760
+    5   -0.8755
+    6   -0.8399
+    7   -0.7475
+    8   -0.7475
+    9   -0.7444
+   10   -0.7444
+   11   -0.1174
+   12    0.0344
+   13    0.0466
+   14    0.0466
+   15    0.2301
+   16    0.2301
+   17    0.2935
+   18    0.3940
+   19    0.4584
+   20    1.3720
+   21    1.3720
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.51   0.51
+    2 H    1     0.51   0.51
+    3 F    9     9.49   2.00  0.95  3.33  0.98  2.24
+    4 F    9     9.49   2.00  0.95  3.33  0.98  2.24
+    5 Ca   2     2.01   0.09  0.10  1.86 -0.02 -0.02  0.00
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0      0.000000      0.000000     22.000000
+ 
+     1   1 0 0      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000
+ 
+     2   2 0 0    -24.052809      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0    -24.052809      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 0 2     -2.925103      0.000000    266.441652
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                              NWChem Gradients Module
+                              -----------------------
+ 
+ 
+                           tag matching check with ECPs
+ 
+
+  wavefunction    =   RHF     
+
+  Using symmetry
+
+ Read molecular orbitals from ./tagbug.movecs
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 h       0.000000   0.000000   5.248060    0.000000   0.000000  -0.001293
+   2 h       0.000000   0.000000  -5.248060    0.000000   0.000000   0.001293
+   3 F       0.000000   0.000000   3.426671    0.000000   0.000000  -0.001906
+   4 F       0.000000   0.000000  -3.426671    0.000000   0.000000   0.001906
+   5 cA      0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.75   |       9.63   |
+                 ----------------------------------------
+                 |  WALL  |       0.75   |       9.68   |
+                 ----------------------------------------
+
+ Task  times  cpu:       14.9s     wall:       15.0s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+  unset: scf:nopen
+  unset: scf:nclosed
+  unset: scf:nmo
+  unset: scf:dipole
+  unset: scf:output vectors
+  unset: scf:input vectors
+  unset: scf:converged
+  unset: scf:nelec
+  unset: scf:scftype
+  unset: scf:gradient
+  unset: scf:noprint
+  unset: scf:energy
+  library name resolved from: .nwchemrc
+  library file name is: </msrc/proj/nwchem/share/library>
+  
+
+ **** WARNING Zero Coefficient **** on atom "              Ca"
+ angular momentum value: 0  standard basis set name: "lanl2dz ecp"
+ input line that generated warning:
+ 41087:       0.1447000  0.0000000  1.0251221
+  
+  library name resolved from: .nwchemrc
+  library file name is: </msrc/proj/nwchem/share/library>
+  
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000     2.77715371
+    2 h                    1.0000     0.00000000     0.00000000    -2.77715371
+    3 F                    9.0000     0.00000000     0.00000000     1.81331659
+    4 F                    9.0000     0.00000000     0.00000000    -1.81331659
+    5 cA                  20.0000     0.00000000     0.00000000     0.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      h                  1.007825
+      F                 18.998400
+      cA                39.962590
+ 
+
+ Effective nuclear repulsion energy (a.u.)     136.5519706625
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             D2h       
+ Group number             26
+ Group order               8
+ No. of unique centers     3
+ 
+      Symmetry unique atoms
+ 
+     1    3    5
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    3 F                |   1 h                |     1.82139  |     0.96384
+    4 F                |   2 h                |     1.82139  |     0.96384
+    5 cA               |   3 F                |     3.42667  |     1.81332
+    5 cA               |   4 F                |     3.42667  |     1.81332
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    1 h                |   3 F                |   5 cA               |   180.00
+    2 h                |   4 F                |   5 cA               |   180.00
+    3 F                |   5 cA               |   4 F                |   180.00
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          3
+ ==============================================================================
+
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                           tag matching check with ECPs
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    32
+  atoms           =     5
+  closed shells   =    11
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./tagbug.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Ca                       lanl2dz ecp                6       12   3s3p
+ F                           6-31g                   5        9   3s2p
+ H                           sto-3g                  1        1   1s
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag          9
+        au          0
+        b1g         0
+        b1u         9
+        b2g         2
+        b2u         5
+        b3g         2
+        b3u         5
+ 
+
+ Forming initial guess at      23.0s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -200.98609683
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -197.442223
+ 1-e energy   =    -345.487868
+ 2-e energy   =     112.905749
+ HOMO         =      -0.077179
+ LUMO         =       0.033031
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+
+ !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+
+  Symmetry fudging
+
+ !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 ag          2 b1u         3 ag          4 b1u         5 ag      
+     6 b1u         7 b3g         8 b2g         9 b3u        10 b2u     
+    11 ag         12 b1u        13 b3u        14 b2u        15 b3u     
+    16 b2u        17 b1u        18 ag         19 b1u        20 b2g     
+    21 b3g     
+ 
+
+ Starting SCF solution at      24.4s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+ Integral file          = ./tagbug.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  21844
+ Max. records in memory =      2        Max. records in file   =   2754
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 7.370D+03 #integrals = 2.204D+04 #direct =  0.0% #cached =100.0%
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1     -200.5068810848  9.52D-01  3.77D-01     25.8
+                 2     -200.5473676177  2.48D-01  1.10D-01     26.0
+                 3     -200.5509320471  4.44D-02  1.58D-02     26.1
+                 4     -200.5511444847  2.34D-04  8.59D-05     26.3
+                 5     -200.5511444889  1.67D-06  5.45D-07     26.5
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -200.551144488912
+      One-electron energy =   -349.529113267407
+      Two-electron energy =    113.838072600737
+ Nuclear repulsion energy =     35.139896177758
+
+        Time for solution =      2.4s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 b1u         2 ag          3 ag          4 b1u         5 ag      
+     6 b1u         7 b3g         8 b2g         9 b2u        10 b3u     
+    11 ag         12 b1u        13 b2u        14 b3u        15 b2u     
+    16 b3u        17 b1u        18 ag         19 b1u        20 b3g     
+    21 b2g     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1  -26.3715
+    2  -26.3715
+    3   -1.6907
+    4   -1.6760
+    5   -0.8755
+    6   -0.8399
+    7   -0.7475
+    8   -0.7475
+    9   -0.7444
+   10   -0.7444
+   11   -0.1174
+   12    0.0344
+   13    0.0466
+   14    0.0466
+   15    0.2301
+   16    0.2301
+   17    0.2935
+   18    0.3940
+   19    0.4584
+   20    1.3720
+   21    1.3720
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.51   0.51
+    2 H    1     0.51   0.51
+    3 F    9     9.49   2.00  0.95  3.33  0.98  2.24
+    4 F    9     9.49   2.00  0.95  3.33  0.98  2.24
+    5 Ca   2     2.01   0.09  0.10  1.86 -0.02 -0.02  0.00
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0      0.000000      0.000000     22.000000
+ 
+     1   1 0 0      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000
+ 
+     2   2 0 0    -24.052809      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0    -24.052809      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 0 2     -2.925103      0.000000    266.441652
+ 
+
+ Parallel integral file used       2 records with       0 large values
+
+                              NWChem Gradients Module
+                              -----------------------
+ 
+ 
+                           tag matching check with ECPs
+ 
+
+  wavefunction    =   RHF     
+
+  Using symmetry
+
+ Read molecular orbitals from ./tagbug.movecs
+
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 h       0.000000   0.000000   5.248060    0.000000   0.000000  -0.001293
+   2 h       0.000000   0.000000  -5.248060    0.000000   0.000000   0.001293
+   3 F       0.000000   0.000000   3.426671    0.000000   0.000000  -0.001906
+   4 F       0.000000   0.000000  -3.426671    0.000000   0.000000   0.001906
+   5 cA      0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.75   |       9.62   |
+                 ----------------------------------------
+                 |  WALL  |       0.76   |       9.68   |
+                 ----------------------------------------
+
+ Task  times  cpu:       14.8s     wall:       14.9s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  644      644     3.19e+04 5544     9802        2        0        0     
+bytes total:             9.41e+06 3.08e+06 4.35e+06 1.76e+02 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 118080 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        40	        29
+	current total bytes		         0	         0
+	maximum total bytes		    546164	  23288324
+	maximum total K-bytes		       547	     23289
+	maximum total M-bytes		         1	        24
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 3.2.1" (1998), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Clark, T.; 
+            Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;Dyall, K.; 
+            Fann, G.; Fruchtl, H.; Gutowski, M.; Harrison, R.; Hess, A.;
+            Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, R.; Lin, Z.; 
+            Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; Nieplocha, J.; 
+            Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; 
+            Wolinski, K.; Wong, A.; "NWChem, A Computational Chemistry 
+            Package for Parallel Computers, Version 3.2.1" (1998),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:       37.4s     wall:       37.8s
