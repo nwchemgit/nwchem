@@ -8,6 +8,11 @@
 #include "bas.fh"
 #include "schwarz.fh"
 #include "tcgmsg.fh"
+#if defined(REPORT_LOOP)        
+      logical reportit
+      character*26 fdate
+      external fdate
+#endif
 
       integer g_dens, basis
 
@@ -22,6 +27,17 @@
       ijatom = -1
       next = nxtval(nproc)
       do 95, iat3 = nat, 1, -1
+#if defined(REPORT_LOOP)        
+        if(ga_nodeid().eq.0) then
+          reportit = mod(iat3,5).eq.0
+          reportit = reportit.or.(iat3.eq.1)
+          reportit = reportit.or.(iat3.eq.nat)
+          if (reportit) then
+            write(6,*) 'grad2: atom =',iat3,' ',fdate()
+            call util_flush(6)
+          endif
+        endif
+#endif
         do 90, iat1 = iat3, 1, -1
           do 85, iat2 = iat1, 1, -1
             if (schwarz_atom(iat1,iat2)*schwarz_max() .ge. tol2e) then
