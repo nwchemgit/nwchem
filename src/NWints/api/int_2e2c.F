@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.19 2003-10-17 22:53:41 carlfahl Exp $
+c $Id: int_2e2c.F,v 1.20 2003-10-21 23:22:24 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -92,7 +92,7 @@ c
 c check initialization
 c
       if (.not.int_chk_init('int_2e2c'))
-     &       call errquit('int_2e2c: int_init was not called' ,0)
+     &       call errquit('int_2e2c: int_init was not called' ,0,0)
 c
 c     check input shell ranges
 c
@@ -100,7 +100,7 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
 c
       if (.not.shells_ok)
-     &       call errquit('int_2e2c: invalid contraction/shell',0)
+     &       call errquit('int_2e2c: invalid contraction/shell',0,0)
 cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e2c:bra')
       call int_nogencont_check(ketin,'int_2e2c:ket')
@@ -227,6 +227,6 @@ c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
         write(luout,*)' ketin :',ketin
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
-        call errquit('int_2e2c: fatal error ',0)
+        call errquit('int_2e2c: fatal error ',0,0)
       endif
       end

@@ -1,6 +1,6 @@
       subroutine intdd_1eecp1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eecp1.F,v 1.4 2003-10-17 22:53:42 carlfahl Exp $
+C $Id: intdd_1eecp1.F,v 1.5 2003-10-21 23:22:24 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -249,7 +249,7 @@ c
         enddo
       else
       call errquit(
-     &        'intdd_1eecp1P: cant do sphericals',911)
+     &        'intdd_1eecp1P: cant do sphericals',911 ,INT_ERR)
       endif
 c
 c now shuffle transformed buffers to contiguous space
@@ -258,7 +258,8 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &   ('intdd_1eecp1P: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &   ('intdd_1eecp1P: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &   INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       else

@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.29 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: intd_init.F,v 1.30 2003-10-21 23:22:24 edo Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -305,7 +305,7 @@ c
 * test for higher than h functions  0123456
       if (ang2use.ge.6) call errquit
      &    ('only basis sets with s through h functions are allowed',
-     &    911)
+     &    911 , INT_ERR)
 *
 c.. for first derivatives add 1
       call defNxyz(ang2use+1)
