@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.137 2000-10-23 23:37:46 windus Exp $
+C     $Id: geom_input.F,v 1.138 2000-10-27 00:40:16 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -48,7 +48,7 @@ c     .                           and for forcing symmetry
       logical found_ang2au_conv
       logical found_au2ang_conv
       double precision ang2au, au2ang
-      integer atn, isys
+      integer atn, isys, fcent
       character*16 format, nucmodel
       logical geom_zmtmak
       external geom_zmtmak
@@ -264,14 +264,25 @@ c
             oautoz = .false.
             if (oadjust) call errquit
      $           ('geom_input: zmatrix not allowed for adjust',0)
-            call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
-     $           scale,oprint,found_cart)
+            call geom_zmt_input(geom,coords,tags,charge,mass,
+     $           ncenter,scale,oprint,found_cart)
 c
 c           If we have a mixed cartesian/zmatrix input in the 
 c           zmatrix input we have to do autoz to define the 
 c           correct internals
 c
             if (found_cart) oautoz = .true.
+c
+c           If (ofinite = .true.) set invnucexp finite nucleus values
+c
+            if (ofinite) then
+               do fcent = 1, ncenter
+               if (.not. geom_mass_to_invnucexp (mass(ncenter),
+     &            invnucexp(ncenter))) write (luout,*)
+     &            '***** WARNING *****',
+     &            'Nuclear exponent failure for center ',ncenter
+               enddo
+            endif
             goto 20
          else
             if ((ncenter+1) .gt. max_center) call errquit
