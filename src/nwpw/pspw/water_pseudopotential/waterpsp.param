@@ -1,0 +1,12 @@
+*     ***** water parameters block *****
+
+*     **** BLCJ Coulomb Parameters ****
+      real*8 DELTA,Rcoul,ncoul,q1,q2,q3
+      parameter (DELTA=0.22183756d0, Rcoul=0.9d0, ncoul=2.5d0)
+      parameter (q1=0.6d0,q2=0.6d0,q3=-1.2d0)
+
+*     **** BLCJ Polarization parameters ****
+      real*8 Rp,alpha
+      parameter (Rp=1.6d0, alpha=9.7446d0)
+
+*     **********************************************************

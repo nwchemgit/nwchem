@@ -1,0 +1,11 @@
+*     ***** water common block *****
+*     integer   MAX_WATER
+*     parameter (MAX_WATER=1)
+*     real*8  RO(3,MAX_WATER),RH1(3,MAX_WATER),RH2(3,MAX_WATER)
+*     real*8  VO(3,MAX_WATER),VH1(3,MAX_WATER),VH2(3,MAX_WATER)
+      integer rwater2(2),rwater1(2),rwater0(2)
+      integer nwater
+      real*8  ekw,ekw_total,ekw_count
+      common / WATER_PSP / ekw,ekw_total,ekw_count,
+     >                     rwater2,rwater1,rwater0,nwater
+*     **********************************************************
