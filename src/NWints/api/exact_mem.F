@@ -1,4 +1,5 @@
       subroutine exact_mem(bases,nbas)
+c $Id: exact_mem.F,v 1.2 1994-04-04 20:27:29 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c
@@ -56,7 +57,7 @@ c
       status = bas_numcont(brain,bra_ucont,.true.)
       status = status .and. bas_numcont(ketin,ket_ucont,.true.)
       if (.not.status) then
-        write(6,*)'emem_2e4c: number of unique contractions error '
+        write(6,*)'emem_1e: number of unique contractions error '
         stop 'error'
       endif
 c
@@ -96,6 +97,8 @@ c
       endif
       angm = max(bra_ang,ket_ang)
       max1e = angm*(angm+1)/2
+c... insure scratch is large enough to hold 3*max1e
+      memsize = max(max1e,memsize)
       end
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
       implicit none

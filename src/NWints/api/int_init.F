@@ -1,4 +1,5 @@
       subroutine int_init(nbas, bases)
+c $Id: int_init.F,v 1.2 1994-04-04 20:27:36 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c

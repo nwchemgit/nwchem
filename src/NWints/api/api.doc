@@ -1,3 +1,5 @@
+c $Id: api.doc,v 1.3 1994-04-04 20:27:26 d3e129 Exp $
+c
 critical path
 --------------------------------------------------------------------------------
 . int_init(num_basis, basis_array)  : generate internal int structures
@@ -13,16 +15,16 @@ critical path
              canonicalize, leri, eri, nints, ilab, jlab, klab, llab, scr, lscr)
 
 ... one electron integrals 
- int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, T)
+ int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, lt, T)
  int_1epe (i_basis, j_basis, ish, jsh, lscr, scr, V)
  int_1eov (i_basis, j_basis, ish, jsh, lscr, scr, S)
  int_1eh1 (i_basis, j_basis, ish, jsh, lscr, scr, H1)
- int_1eall(i_basis, j_basis, ish, jsh, lscr, scr, S, T, V)
- lab_1eke (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, T, numt) 
- lab_1epe (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, V, numv) 
- lab_1eov (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, nums) 
- lab_1eh1 (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, H1, numh1) 
- lab_1eall(i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, T, V, numstv) 
+. int_1eall(i_basis, j_basis, ish, jsh, lscr, scr, lstv, S, T, V)
+ int_l1eke (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, T, numt) 
+ int_l1epe (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, V, numv) 
+ int_l1eov (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, nums) 
+ int_l1eh1 (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, H1, numh1) 
+. int_l1eall(i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, T, V, numstv) 
 
 next to be done
 --------------------------------------------------------------------------------
@@ -34,27 +36,27 @@ next to be done
 .   3 center 2e integrals
  eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh)>
  int_2e3c (bra_basis, ish, jsh, ket_basis, ksh, lscr, scr, eri)
- lab_2e3c (bra_basis, ish, jsh ket_basis, ksh, canonical_bra, canonical_both, zerotol, 
+ int_l2e3c (bra_basis, ish, jsh ket_basis, ksh, canonical_bra, canonical_both, zerotol, 
               eri, nints, ilab, jlab, klab, scr, lscr)
 
 .   2 center 2e integrals 
  eri = <bra_g(ish)|ket_g(jsh)>
  int_2e2c (bra_basis, ish, ket_basis, jsh, lscr, scr, eri)
- lab_2e2c (bra_basis, ish, ket_basis, jsh, canonical_both, zerotol, eri,
+ int_l2e2c (bra_basis, ish, ket_basis, jsh, canonical_both, zerotol, eri,
               nints, ilab, jlab, scr, lscr)
 
 
  one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
  int_1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, lscr,
                    scr, OV3)
- lab_1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
+ int_l1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
                OV3, ilab, jlab, klab, numov3)
 
 
 less critical
 --------------------------------------------------------------------------------
    int_mpole(i_basis, j_basis, Lvalue, ish, jsh, lscr, scr, MPINTS)
-   lab_mpole(i_basis, j_basis, Lvalue, ish, jsh, MPINTS, ilab, jlab, zerotol)
+   int_lmpole(i_basis, j_basis, Lvalue, ish, jsh, MPINTS, ilab, jlab, zerotol)
 
    int_set_eri_timing()
    int_report_eri_timings()

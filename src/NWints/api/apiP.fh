@@ -1,4 +1,6 @@
 c
+c $Id: apiP.fh,v 1.2 1994-04-04 20:27:28 d3e129 Exp $
+c
 c common block that holds memory information
 c
       integer mem_2e4c, mem_1e

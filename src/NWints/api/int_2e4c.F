@@ -1,11 +1,11 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
+c $Id: int_2e4c.F,v 1.3 1994-04-04 20:27:31 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
 c eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 c
-#include "apiP.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -14,6 +14,8 @@ c
 c::functions
       logical int_chk_sh
       external int_chk_sh
+      logical int_chk_init
+      external int_chk_init
 c:: passed
       integer brain, ketin, lscr, leri
       integer ish,jsh,ksh,lsh, i,j
@@ -30,11 +32,10 @@ c:: local
 c:statement function
       isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
 c
-      if (init_int.eq.0) then
-        write(6,*)' int_2e4c: ERROR '
-        write(6,*)' int_init was not called '
-        stop ' error '
-      endif
+c check initialization
+c
+      if (.not.int_chk_init('int_2e4c'))
+     &       call errquit('int_2e4c: int_init was not called' ,0)
 c
 c     check input shell ranges
 c
@@ -62,18 +63,20 @@ c
         write(6,*)'                 jsh:',jsh
         write(6,*)'                 ksh:',ksh
         write(6,*)'                 lsh:',lsh
-        write(6,*)'                ijsh:',ijsh
-        write(6,*)'                klsh:',klsh
-        stop ' error '
+        if (brain.eq.ketin) then
+          write(6,*)'                ijsh:',ijsh
+          write(6,*)'                klsh:',klsh
+        endif
+        call errquit('int_2e4c: shells not in canonical order',0)
       endif
 c
 c     define center information required 
 c
       bra = brain + BASIS_HANDLE_OFFSET
 c
-      ab_geom  = ibs_geom(bra)
+      ab_geom = ibs_geom(bra)
 c
-      ucont = ibs_cn2ucn(ish,bra)
+      ucont   = ibs_cn2ucn(ish,bra)
       La      = infbs_cont(CONT_TYPE ,ucont,bra)
       a_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
       a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
@@ -81,7 +84,7 @@ c
       a_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
       a_ucent = ibs_ce2uce(ibs_cn2ce(ish,bra),bra)
 c
-      ucont = ibs_cn2ucn(jsh,bra)
+      ucont   = ibs_cn2ucn(jsh,bra)
       Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
       b_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
       b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
@@ -91,7 +94,7 @@ c
 c      
       ket = ketin + BASIS_HANDLE_OFFSET
 c
-      cd_geom  = ibs_geom(ket)
+      cd_geom = ibs_geom(ket)
 c
       ucont   = ibs_cn2ucn(ksh,ket)
       Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
@@ -109,6 +112,11 @@ c
       d_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
       d_ucent = ibs_ce2uce(ibs_cn2ce(lsh,ket),ket)
 c      
+      if (ab_geom.ne.cd_geom) then
+        write(6,*)'int_2e4c: WARNING: possible geometry inconsistency'
+        write(6,*)'bra geometry handle:',ab_geom
+        write(6,*)'ket geometry handle:',cd_geom
+      endif
 c
       call hf2(
      &       coords(1,a_ucent,ab_geom), exndcf(a_iexp,bra),
@@ -119,7 +127,9 @@ c
      &       exndcf(c_icfp,ket), c_prim, c_gen, Lc,
      &       coords(1,d_ucent,cd_geom), exndcf(d_iexp,ket),
      &       exndcf(d_icfp,ket), d_prim,d_gen,Ld,
+c....................... canAB    canCD    canPQ
      &       eri, leri, .false., .false., .false.,
+c............ dryrun
      &       .false., scr, lscr)
 c
       end

@@ -1,4 +1,5 @@
       logical function int_chk_sh(basisin,shell)
+c $Id: int_chk_sh.F,v 1.2 1994-04-04 20:27:35 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"

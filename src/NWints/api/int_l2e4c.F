@@ -1,8 +1,8 @@
       subroutine int_l2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, scr, lscr)
+c $Id: int_l2e4c.F,v 1.2 1994-04-04 20:27:38 d3e129 Exp $
       implicit none
-#include "apiP.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -11,6 +11,8 @@
 c::externals used
 c dcopy
 c::functions
+      logical int_chk_init
+      external int_chk_init
 c::passed
       integer bra_basis, ish, jsh, ket_basis, ksh, lsh, leri, lscr
       double precision zerotol, eri(leri), scr(lscr)
@@ -24,6 +26,12 @@ c
 c:statement function
 c
       isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
+c
+c check initialization
+c
+      if (.not.int_chk_init('int_l2e4c'))
+     &       call errquit('int_l2e4c: int_init was not called' ,0)
+
 c
 c copy eri's to scr
       call dcopy(leri,eri,1,scr,1)
@@ -50,7 +58,7 @@ c
                   nint = nint + 1
                   eri(nint) = scr(icount)
                   if (canonicalize.and.braket) then
-                    call canonical(i,j,k,l,
+                    call int_canon(i,j,k,l,
      &                     ilab(nint),jlab(nint),
      &                     klab(nint),llab(nint))
                   else
@@ -65,37 +73,5 @@ c
 00300     continue
 00200   continue
 00100 continue
-c
-      end
-      subroutine canonical(i, j, k, l, ii, jj, kk, ll)
-      implicit none
-      integer i,j,k,l,ii,jj,kk,ll,iii,jjj
-c
-c     return in ii,jj,kk,ll the cannonically ordered i,j,k,l
-c
-c     (i>=j) >= (k>=l)
-c
-      if (i .ge. j) then
-         ii = i
-         jj = j
-      else
-         ii = j
-         jj = i
-      endif
-      if (k .ge. l) then
-         kk = k
-         ll = l
-      else
-         kk = l
-         ll = k
-      endif
-      if (ii.lt.kk .or. (ii.eq.k .and. jj.lt.ll)) then
-         iii = ii
-         jjj = jj
-         ii = kk
-         jj = ll
-         kk = iii
-         ll = jjj
-      endif
 c
       end

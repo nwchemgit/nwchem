@@ -1,4 +1,5 @@
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
+c $Id: int_mem.F,v 1.2 1994-04-04 20:27:40 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c::passed
