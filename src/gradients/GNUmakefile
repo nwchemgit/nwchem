@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 1997-02-17 20:51:56 d3g681 Exp $
+# $Id: GNUmakefile,v 1.28 1997-03-25 21:21:56 d3e129 Exp $
 
  OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_getdens.o \
        grad_dens.o grad_store.o grad_inp.o
@@ -11,7 +11,7 @@ else
  OBJ += grad2.o
 endif
 
-   USES_BLAS = grad_dens.F
+   USES_BLAS = grad2.F
 
    LIBRARY = libgradients.a
 
