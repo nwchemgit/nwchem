@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.40 1998-09-23 21:47:32 bjohnson Exp $
+# $Id: GNUmakefile,v 1.41 1998-09-24 20:56:49 d3e129 Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
@@ -19,7 +19,7 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ_OPTIMIZE = dftg_quadv0b.o 
 endif
 
-   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F
+   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F
 
 LIB_INCLUDES = -I../nwdft/include
 
