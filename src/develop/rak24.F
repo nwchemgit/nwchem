@@ -78,6 +78,7 @@ c
           call dfill(mscr,0.0d00,dbl_mb(k_scr),1)
           call dfill(max1e,0.0d00,dbl_mb(k_buff),1)
           write(6,*)'<ish,jsh> = <',ish,',',jsh,'>...'
+          call util_flush(6)
           call int_1epe(basis,jsh,basis,ish,
      &        mscr,dbl_mb(k_scr),
      &        max1e,dbl_mb(k_buff))
