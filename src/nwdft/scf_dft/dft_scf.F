@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.137 1999-11-05 19:37:37 jolguin Exp $
+c     $Id: dft_scf.F,v 1.138 2000-02-05 00:38:51 edo Exp $
 c     
       implicit none
 c
@@ -135,7 +135,8 @@ c
       character*4 scftype
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans
-      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis
+      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
+     .     mult_loc
 c !!! BGJ
       logical cphf_poliz, do_poliz
       external cphf_poliz
@@ -202,6 +203,8 @@ c     check if smearing is on
 c
       ssmear=0.d0
       nstdis=1
+      if (.not.rtdb_get(rtdb, 'dft:newmult', mt_int, 1,
+     &     mult_loc)) mult_loc=mult
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
         if(me.eq.0) write(LuOut,*) ' SMEAR = ',ssmear
@@ -578,7 +581,7 @@ C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
      &        nbf_ao, ipol, 
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &        ssmear,tdots,iter,.false.,mult,check_deg)
+     &        ssmear,tdots,iter,.false.,mult_loc,check_deg)
 c
 c  Jorge Garza/Begin/Exact_pot
 c
@@ -1216,7 +1219,7 @@ c
      &     nbf_ao, ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &     ssmear,tdots,iter,.true.,mult,check_deg)
+     &     ssmear,tdots,iter,.true.,mult_loc,check_deg)
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
       
@@ -1231,6 +1234,7 @@ c
       if (.not.ma_pop_stack(l_tmp))
      &   call errquit('dft_scf: cannot pop stack',33)
             if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+            if(diising) then
             icall(1) = -1
             nstdis=1
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
@@ -1239,6 +1243,7 @@ c
      &                       diising, nodiis)
             icall(1) = 0
             icall(2) = 0
+            endif
       endif
          etnew=etnew+tdots
 c

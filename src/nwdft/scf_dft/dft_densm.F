@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.11 1999-06-25 19:49:58 edo Exp $
+C$Id: dft_densm.F,v 1.12 2000-02-05 00:38:50 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -359,56 +359,65 @@ c      call dfill(noc, rhfuhf, focc, 1)
 c
       integer i,isp,nup,ndown
       integer neldeg
-      integer nlevdeg
+      integer nlevdeg,nnintg
       double precision rhfuhf,nck,ehomo
-      double precision deps,fracc
+      double precision deps,fracc,eee,fnoc(2)
       parameter (deps=1d-3)
 c      
       if(ipol.eq.2) then
          rhfuhf=1d0
-      noc(1) = mult - 1
-      noc(2) = (ntotel - noc(1)) / 2
-      noc(1)=noc(2)+noc(1)
+         fnoc(1) = mult - 1
+         fnoc(2) = (ntotel - fnoc(1)) *.5d0
+         fnoc(1)=fnoc(2)+fnoc(1)
+         write(0,*) ' n1 n2 ',fnoc(1),fnoc(2)
       else
          rhfuhf=2d0
-         noc(1)=ntotel/2
+         fnoc(1)=ntotel*.5d0
       endif
       call dfill(nbf*ipol, 0.d0, focc, 1)
       dft_checkdg=.false.
       do isp=1,ipol
-         do i=1,noc(isp)
-            focc(i+nbf*(isp-1))=rhfuhf
-         enddo
 c
 c     check degen
 c      
          
-         ehomo=evals(noc(isp)+nbf*(isp-1))
+         ehomo=evals(nint(fnoc(isp))+nbf*(isp-1))
 c     up
          nup=0
-         do i=noc(isp)+1,nbf
-            if(abs(evals(i+nbf*(isp-1))-ehomo).lt.deps)
-     *           nup=nup+1
-         enddo
          ndown=0
-         do i=noc(isp)-1,1,-1
-            if(abs(evals(i+nbf*(isp-1))-ehomo).lt.deps)
-     *           ndown=ndown+1
+         nnintg=0
+         if(fnoc(isp).ne.0) then
+         do i=1,nbf
+            eee=evals(i+nbf*(isp-1))
+            if((eee.gt.ehomo).and.(eee.lt.ehomo+deps))nup=nup+1
+            if((eee.lt.ehomo).and.(eee.gt.ehomo-deps))ndown=ndown+1
+            if(eee.lt.ehomo-deps) nnintg=nnintg+1
          enddo
+         endif
          neldeg=ndown+1
          nlevdeg=nup+ndown+1
+         write(0,*) ' ehomo ',ehomo
+          write(0,*) '      neldeg,nlevdeg ',neldeg,nlevdeg
+          write(0,*) ' nup ndown nnint ',ndown,nup,nnintg
+               do i=1,nnintg
+                  focc(i+nbf*(isp-1))=rhfuhf
+               enddo
          if(mod(neldeg,nlevdeg).ne.0) then
             dft_checkdg=.true.
-c     ,           neldeg,nlevdeg
 c
 c     we have degeneracy
 c           
-         fracc=dble(neldeg)/dble(nlevdeg)*rhfuhf
-            do i=noc(isp)-ndown,noc(isp)+nup
-               focc(i+nbf*(isp-1))=fracc
-            enddo
-            noc(isp)=noc(isp)+nup
+c         fracc=dble(neldeg)/dble(nlevdeg)*rhfuhf
+            fracc=(fnoc(isp)-nnintg)/dble(nlevdeg)
+            write(0,*) ' fracc ',fracc
+            noc(isp)=nint(fnoc(isp))+nup
+            fnoc(isp)=fnoc(isp)+nup
+         else
+            fracc=rhfuhf
          endif
+         do i=nnintg+1,nnintg+nlevdeg
+            focc(i+nbf*(isp-1))=fracc
+         enddo
       enddo
 c
 c     check if ntot ok
@@ -422,6 +431,7 @@ c
           do i=1,nbf*ipol
              write(6,*) ' i focc ',i,focc(i),evals(i)
           enddo
+             write(0,*) ' ntot ntotel',nck,ntotel
 	endif	
         call   errquit(' dftdeg: lost electrons',ntotel-nint(nck))
       endif

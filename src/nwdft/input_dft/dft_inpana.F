@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.45 2000-02-02 02:37:39 edo Exp $
+c     $Id: dft_inpana.F,v 1.46 2000-02-05 00:38:50 edo Exp $
 c
 c*********************************************************************
 c     
@@ -100,12 +100,10 @@ c
             noc(2) = (nel - mult + 1)/2
             noc(1) = nel - noc(2)
             noc1  = noc(1) + noc(2)
-            if(me.eq.0) write(0,*) 'p noc1 noc2 ',noc(1),noc(2)
          else
             noc(1) = (nel + mult + 1)/2
             noc(2) = nel - noc(1)
             noc1  = noc(1) + noc(2)
-            if(me.eq.0) write(0,*) 'n noc1 noc2 ',noc(1),noc(2)
          endif
       endif
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))

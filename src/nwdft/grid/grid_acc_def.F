@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.15 2000-02-02 02:57:39 edo Exp $
+c$Id: grid_acc_def.F,v 1.16 2000-02-05 00:38:23 edo Exp $
 c
       implicit none
 c      
@@ -395,7 +395,6 @@ c
      &              ('grid_acc_def: non-bq center with zero charge', 0)
                endif
             endif
-            write(0,*) ' iat ',i_atomic_number
             if (i_atomic_number.eq.0)then
                nrad(itype) = 0
                nang(itype) = 0
