@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.51 1996-12-30 21:55:00 d3h449 Exp $
+C$Id: dft_scf.F,v 1.52 1997-01-16 17:59:27 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -319,10 +319,6 @@ c
       rlshift_def = 0.0
       ndamp = ndamp_input
       rlshift = rlshift_def
-c
-c     Turn max overlap initially ON.
-c
-      lmaxov = .true.
 c
 c     Three types of convergence speedup schemes:
 c     1) based on differences of total energy less than some threshold,
@@ -818,7 +814,7 @@ c
      $         'RMS-Dens  Diis-err    time'/
      $      1x,'---------------- ----- ----------------- --------- ',
      $         '--------- ---------  ------')
-      if(oprint.and.me.eq.0) then
+      if(.not.last_time.and.oprint.and.me.eq.0) then
         if(diising) then
           write(LuOut,2) ndamp,rlshift,
      &         iter, Etnew+Enuc,
@@ -909,7 +905,7 @@ c
         if(oprint_conv.and.me.eq.0) write(LuOut,1111) Ecore
       else
         call ga_sync
-        call dft_scfcvg(rms,
+        if(.not.last_time)call dft_scfcvg(rms,
      &       Etold,Etnew,Enuc,
      &       scfcon,ipol,igcon,iter,itrscf,idone,converged,rtdb)
         if(delta.lt.1.d-4) then
@@ -922,7 +918,7 @@ c
           iswitc=iswitc+1
         endif
 c
-        iter = iter + 1
+        if(.not.last_time)iter = iter + 1
 c
 c       Check convergence parameters.
 c
@@ -974,14 +970,12 @@ c
 c
 c        write(*,*)'homo,lumo,lumo-homo,-hl_tol: ',
 c     &             homo,lumo,lumo-homo,-hl_tol
-        if ((lumo - homo).lt.-hl_tol)then
+        if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
           lmaxov = .false.
           if(me.eq.0)write(LuOut,224)homo, lumo
   224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
      &     /,10x,'Significant orbital reordering with maximum overlap',
-     &     /,10x,'turned ON.  Turning max_ovl OFF next iteration.')
-        else
-          lmaxov = .true.
+     &     /,10x,'turned ON.  Turning max_ovl OFF.')
         endif
 c         
         if( idone.eq.0.or.
