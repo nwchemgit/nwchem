@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.8 2002-10-08 00:36:35 edo Exp $
+* $Id: vib_wrtfreq.F,v 1.9 2002-10-08 21:19:55 bylaska Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -31,7 +31,7 @@ c
      ,     thetaC,M
       double precision Strans,Srot,Svib
       integer sigma
-      integer i
+      integer i,it,ntemp,h_actlist,l_actlist,ma_type
 
 *     ****  conversions and constants ****
       double precision AUKCAL,c,h,kgas,Rgas
@@ -92,15 +92,55 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 
 
 *     ********************************************************
-*     **** Write out thermal Corrections to Energies      ****
-*     **** frequencies are assumed to be in units of cm-1 ****
+*     **** Cannoncial Partition Equations for Ideal       ****
+*     **** polyatomic gas                                 ****
 *     ********************************************************
       IF(ZEROPE)THEN
 
+*       *** define rotational constants ****
+        call vib_geom_parameters_get(rtdb,M,
+     >     inertia_A,inertia_B,inertia_C,sigma)
+        thetaA = inertia_A*(h*c/kgas)
+        thetaB = inertia_B*(h*c/kgas)
+        thetaC = inertia_C*(h*c/kgas)
+        write(6,10010) 
+        write(6,10011) inertia_A,thetaA
+        write(6,10012) inertia_B,thetaB
+        write(6,10013) inertia_C,thetaC
+10010 FORMAT(/1X,'Rotational Constants',
+     >       /1X,'--------------------')
+10011 FORMAT( 1X,'A= ',f10.6,' cm-1  (',f10.6,' K)')
+10012 FORMAT( 1X,'B= ',f10.6,' cm-1  (',f10.6,' K)')
+10013 FORMAT( 1X,'C= ',f10.6,' cm-1  (',f10.6,' K)')
+       
 *       *** define temperature ***
-        if(.not. rtdb_get(rtdb,'vib:temperature',MT_DBL,1,temp))
-     &      temp = 298.15d0
+c        if(.not. rtdb_get(rtdb,'vib:temperature',MT_DBL,1,temp))
+c     &      temp = 298.15d0
 
+*        **** define temperatures
+         if (.not. rtdb_ma_get(rtdb, 'vib:temperature', ma_type,
+     >        ntemp, h_actlist)) then
+            ntemp = 1
+
+            if (.not.MA_alloc_get(mt_dbl,(ntemp),'temp',h_actlist,l_actlist))
+     >      call errquit(
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911)
+
+            dbl_mb(l_actlist) = 298.15d0
+         else        
+
+            if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911)
+         end if
+
+        do it=1,ntemp
+        temp = dbl_mb(l_actlist+it-1)
+
+*       ********************************************************
+*       **** Write out thermal Corrections to Energies      ****
+*       **** frequencies are assumed to be in units of cm-1 ****
+*       ********************************************************
         ezero    = 0.0d0
         ethermal = 0.0d0
 
@@ -109,7 +149,7 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
             
           freq = eigval(i) ! eigenvalue
 
-          if (freq.gt.zero) then
+          if (freq.gt.0.1d0) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
             if (temp.gt.zero) then
               xdum   = exp(-thetav/temp)
@@ -127,16 +167,16 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
         ethermal = ethermal + 3.0d0*Rgas*temp ! add translational(3/2RT) and rotation(3/2RT) thermal corrections
         hthermal = ethermal + Rgas*temp       ! htermal = ethermal+pV=ethermal+RT, since pV=RT
        
-        WRITE (6,10003) temp
-        WRITE (6,10004) ezero*AUKCAL,   ezero
-        WRITE (6,10005) ethermal*AUKCAL,ethermal
-        WRITE (6,10006) hthermal*AUKCAL,hthermal
-10003 FORMAT(/1X,'Temperature                      = ',f8.2,'K')
-10004 FORMAT(/1X,'Zero-Point correction to Energy  = ',f8.3, 
+        WRITE (6,10023) temp
+        WRITE (6,10024) ezero*AUKCAL,   ezero
+        WRITE (6,10025) ethermal*AUKCAL,ethermal
+        WRITE (6,10026) hthermal*AUKCAL,hthermal
+10023 FORMAT(//1X,'Temperature                      = ',f8.2,'K')
+10024 FORMAT(/1X,'Zero-Point correction to Energy  = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
-10005 FORMAT( 1X,'Thermal correction to Energy     = ',f8.3, 
+10025 FORMAT( 1X,'Thermal correction to Energy     = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
-10006 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, 
+10026 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
 
 *     ********************************************************
@@ -144,14 +184,9 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 *     **** frequencies are assumed to be in units of cm-1 ****
 *     **** Formulas taken from Herzberg                   ****
 *     ********************************************************
-        call vib_geom_parameters_get(rtdb,M,
-     ,     inertia_A,inertia_B,inertia_C,sigma)
-        thetaA = inertia_A*(h*c/kgas)
-        thetaB = inertia_B*(h*c/kgas)
-        thetaC = inertia_C*(h*c/kgas)
 
-        Strans = (5.0d0/2.0d0)*Rgas*log(temp) + 
-     +       (3.0d0/2.0d0)*Rgas*log(M) 
+        Strans = (5.0d0/2.0d0)*Rgas*log(temp)
+     >         + (3.0d0/2.0d0)*Rgas*log(M) 
      >         - 2.3135d0/AUKCAL/1000.0d0
 
         Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) 
@@ -166,7 +201,7 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 
           freq = eigval(i) ! eigenvalue
 
-          if (freq.gt.zero) then
+          if (freq.gt.(0.1d0)) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
             xdum   = thetav/temp
             Svib   = Svib + xdum/(exp(xdum)-1.0d0) - 
@@ -177,18 +212,25 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
         Svib = Svib*Rgas
 
 
-        write(6,10010) (Strans+Srot+Svib)*AUKCAL*1000.0d0
-        write(6,10011) Strans*AUKCAL*1000.0d0,M
-        write(6,10012) Srot*AUKCAL*1000.0d0,sigma
-        write(6,10013) Svib*AUKCAL*1000.0d0
-10010   FORMAT(/1X,'Total Entropy                    = ',f8.3,
+        write(6,10030) (Strans+Srot+Svib)*AUKCAL*1000.0d0
+        write(6,10031) Strans*AUKCAL*1000.0d0,M
+        write(6,10032) Srot*AUKCAL*1000.0d0,sigma
+        write(6,10033) Svib*AUKCAL*1000.0d0
+10030   FORMAT(/1X,'Total Entropy                    = ',f8.3,
      .       ' cal/mol-K')
-10011   FORMAT( 1X,'  - Translational                = ',f8.3,
+10031   FORMAT( 1X,'  - Translational                = ',f8.3,
      .       ' cal/mol-K (mol. weight =',f9.4,')')
-10012   FORMAT( 1X,'  - Rotational                   = ',f8.3,
+10032   FORMAT( 1X,'  - Rotational                   = ',f8.3,
      .       ' cal/mol-K (symmetry #  =',I9,  ')')
-10013   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
+10033   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
      .       ' cal/mol-K')
+
+
+       end do !it loop
+
+*      *** free heap ***
+       if (.not. MA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0)
 
       END IF
 *rak:      IF (NPRI.EQ.0) WRITE (ITAP96,10002)ZPE
@@ -199,22 +241,37 @@ C
 00096 RETURN                    ! go home
       END
 
-      subroutine vib_geom_parameters_get(rtdb,M,A,B,C,sigma)
+      subroutine vib_geom_parameters_get(rtdb,M,AA,BB,CC,sigma)
       implicit none
       integer rtdb
-      double precision M,A,B,C
+      double precision M,AA,BB,CC
       integer          sigma
 
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "sym.fh"
 
 *     **** local variables ****
-      integer          geom,natoms,ii
-      double precision amass,mtensor 
+      integer          geom,natoms,ii,nops
+      double precision amass,meig(3),mtensor(3,3),q
+      integer          r1(2)
+      integer          lwork,ierr
+      parameter (lwork=9)
+      double precision work(lwork)
+      character*16 t
 
-      sigma = 1
+*     ****  conversions and constants ****
+      double precision AUKCAL,c,h,kgas,Rgas
+      parameter (AUKCAL=627.5093314d0)
+      parameter (c=2.998e+10,h=6.626e-27,kgas=1.3807e-16)   ! cgs units
+      parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
+
+*     **** external functions ****
+      double precision deter3
+      external         deter3
+
 
       if (.not.geom_create(geom,'geometry')) call errquit
      &    ('vib_geom_parameters_get: error creating geometry',911)
@@ -223,9 +280,32 @@ C
       if (.not.geom_ncent(geom,natoms)) call errquit
      &    ('vib_geom_parameters_get: errorgetting number of atoms',911)
 
-c
+*     **** calculate the symmetry number ****
+      nops  = sym_number_ops(geom)
+      if (.not. MA_push_get(mt_dbl,(nops*3*4),'r1',r1(2),r1(1)))
+     >   call errquit('vib_geom_parameters_set: push stack',0)
+      call sym_ops_get(geom,nops,dbl_mb(r1(1)))
+      sigma = 1                                                 ! Identity not included
+      do ii=1,nops
+        mtensor(1,1) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 0*(nops*3)) !crazy format
+        mtensor(2,1) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 0*(nops*3))
+        mtensor(3,1) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 0*(nops*3))
+        mtensor(1,2) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 1*(nops*3))
+        mtensor(2,2) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 1*(nops*3))
+        mtensor(3,2) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 1*(nops*3))
+        mtensor(1,3) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 2*(nops*3))
+        mtensor(2,3) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 2*(nops*3))
+        mtensor(3,3) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 2*(nops*3))
+        q = deter3(mtensor) 
+        if (abs(q-1.0d0) .lt. 1.0d-6) sigma = sigma+1
+      end do
+
+      if (.not. MA_pop_stack(r1(2)))
+     >  call errquit('vib_geom_parameters_set: pop stack',1)
+
+
 *     ***** calculate molecular weight ****
-      M = 0.0d0     ! M = 32.0261d0
+      M = 0.0d0     
       do ii=1,natoms
          if(.not.geom_mass_get(geom, ii, amass)) call
      &        errquit(' mass_get  failed ',ii)
@@ -233,9 +313,32 @@ c
       enddo
 
 *     ***** calculate inertia tensor ****
-      A = 4.194766472d0  ! not implemented yet
-      B = 0.826501251d0
-      C = 0.797463164d0
+      if (.not. MA_push_get(mt_dbl,(3*natoms),'r1',r1(2),r1(1)))
+     >   call errquit('vib_geom_parameters_set: push stack',2)
+
+      call dcopy(3*natoms,0.0d0,0,dbl_mb(r1(1)),1)
+      do ii=1,natoms
+         if (.not.geom_cent_get(geom,ii,t,dbl_mb(r1(1)+(ii-1)*3),q))
+     >    call errquit('vib_geom_parameters_set: error reading ions',0)
+      end do
+
+      call geom_momint0(geom,dbl_mb(r1(1)),natoms,meig,mtensor,.true.)
+
+      if (.not. MA_pop_stack(r1(2)))
+     >  call errquit('vib_geom_parameters_set: pop stack',3)
+
+      call DSYEV('N','U',3,mtensor,3,meig,work,lwork,ierr)
+
+      meig(1) = 4.6497791d-41*meig(1)  ! convert to cgs units
+      meig(2) = 4.6497791d-41*meig(2)
+      meig(3) = 4.6497791d-41*meig(3)
+
+      q = 4.0d0*datan(1.0d0)
+      q = 8.0d0*q*q             ! 8*pi^2
+      q = h/(q*c)               ! h/(8*pi^2*c) - there is an error in old McQuarrie
+      AA = q/meig(1)    ! in units of cm-1
+      BB = q/meig(2)
+      CC = q/meig(3)
 *
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_geom_parameters_get: geom_destroy failed',911)
