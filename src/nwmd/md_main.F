@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.64 2000-02-29 19:24:35 windus Exp $
+c $Id: md_main.F,v 1.65 2000-03-09 00:34:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1390,7 +1390,8 @@ c
 c
       endif
 c
-      call cf_fnorm(fw,nwmloc,isl(1,lsatt),fs,nsaloc,fnorm,fmax)
+      call cf_fnorm(iwl(1,lwdyn),fw,nwmloc,
+     + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
 c
       return
       end
