@@ -2,7 +2,7 @@
      &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
      &                       g_tmp, g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver.F,v 1.13 1999-06-16 00:10:27 d3e129 Exp $
+C$Id: diis_driver.F,v 1.14 1999-09-02 17:31:19 edo Exp $
 c
       implicit none
 c      
@@ -60,7 +60,7 @@ c         call gadest(g_diis)
 c
 #if defined(DFT_TIMER)
       call ga_sync
-      call t_stat(10,-1)
+      call t_stat(11,-1)
 #endif
 c
 c     Allocate scratch space.

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.27 1999-08-30 22:35:24 edo Exp $
+c     $Id: dft_main0d.F,v 1.28 1999-09-02 17:31:18 edo Exp $
 c     
       implicit none
 c
@@ -206,15 +206,17 @@ c
 c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
 *ga:1:0
-         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
-     &                       nbf_cd, 0, g_2ceri)) 
-     &      call errquit('dft_main0d: error creating g_2ceri',0)
+!         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
+!     &                       0, nbf_cd, g_2ceri)) 
+!     &      call errquit('dft_main0d: error creating g_2ceri',0)
+      g_2ceri = ga_create_atom_blocked(geom, CD_bas_han, 'CD2cer')
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri, geom)
 *ga:1:0
-         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-     &                       nbf_cd, 0, g_cdinv)) 
-     &      call errquit('dft_main0d: error creating g_cdinv',0)
+!         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
+!     &                        0, nbf_cd,g_cdinv)) 
+!     &      call errquit('dft_main0d: error creating g_cdinv',0)
+      g_cdinv = ga_create_atom_blocked(geom, CD_bas_han, 'CD2ceriv')
          call ga_zero(g_cdinv)
          lmiss = 1
 c         if (lmiss.eq.1) then
@@ -307,12 +309,6 @@ c
       call int_1e_ga(AO_bas_han, AO_bas_han, g_s, 'overlap', oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      pgmsect(3) = '  Overl   '
-      call tcllct(t_pgm(1,3),tp2,tp1)
-      call dft_second(tp1)
-#endif
 c     
 c     orthog BS
 c     
@@ -334,9 +330,11 @@ c
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
-      pgmsect(4) = '  Xortho   '
-      call tcllct(t_pgm(1,4),tp2,tp1)
+      pgmsect(3) = '  S Diag   '
+      call tcllct(t_pgm(1,3),tp2,tp1)
       call dft_second(tp1)
+            ltime = 7
+      if(me.eq.0) call ffflush(ltime)
 #endif
 c     
       call ga_sync

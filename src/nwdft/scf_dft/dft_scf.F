@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.132 1999-08-31 23:00:04 edo Exp $
+c     $Id: dft_scf.F,v 1.133 1999-09-02 17:31:18 edo Exp $
 c     
       implicit none
 c
@@ -435,8 +435,9 @@ c            if(me.eq.0) call MA_summarize_allocated_blocks()
      &     'turned off. ')
 #if defined(DFT_TIMER)
       call dft_second(tp4)
-      pgmsect(5) = ' 3c-2e Ints'
-      call tcllct(t_pgm(1,5),tp4,tp3)
+      pgmsect(4) = ' 3c-2e Ints'
+      call tcllct(t_pgm(1,4),tp4,tp3)
+      call dft_second(tp3)
 #endif
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
@@ -713,6 +714,11 @@ c
       if(ipol.eq.2)
      +     g_denso(2) = 
      =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
+#if defined(DFT_TIMER)
+      call dft_second(tp4)
+      pgmsect(5) = ' initial gu'
+      call tcllct(t_pgm(1,5),tp4,tp3)
+#endif
  1000 continue
 
 c
@@ -730,6 +736,8 @@ c
 c     
 c     Accumulate core hamiltonian into Fock matrix; compute core energy
 c     
+      if (oprint_time)
+     &     call dft_tstamp(' calling 1-e int ')
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
@@ -756,11 +764,13 @@ c
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('dft_scf: cannot allocate scr',0)
+         if (oprint_time)call dft_tstamp(' Before call to mat_red   ')
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0)
+         if (oprint_time)call dft_tstamp(' called mat_red   ')
 c
 #if defined(DFT_TIMER)
       call dft_second(tp3)
@@ -936,14 +946,16 @@ c
 c     
 c           DIIS step taken here.
 c     
-            if (diising)then
-               nstdis=nstdis+1
-               call diis_driver(toll_s, derr(ispin), ispin, ipol, 
-     &                          icall, nfock, nbf_ao, geom, 
-     &                          ao_bas_han, g_fock, g_dens(ispin), 
-     &                          g_tmp, g_svecs, isvals, diising, 
-     &                          nodiis)
-            endif
+            if (oprint_time)
+     &           call dft_tstamp(' calling diis driver ')
+            nstdis=nstdis+1
+            call diis_driver(toll_s, derr(ispin), ispin, ipol, 
+     &           icall, nfock, nbf_ao, geom, 
+     &           ao_bas_han, g_fock, g_dens(ispin), 
+     &           g_tmp, g_svecs, isvals, diising, 
+     &           nodiis)
+            if (oprint_time)
+     &           call dft_tstamp(' called diis driver ')
          endif
 c     
 #if defined(DFT_TIMER)
@@ -1024,11 +1036,15 @@ c
          call tcllct(t_pgm(1,10),tp4,tp3)
          call dft_second(tp3)
 #endif
+            if (oprint_time)
+     &           call dft_tstamp(' calling diag ')
 #if defined(PARALLEL_DIAG)
          call ga_diag_std(g_fock, g_tmp, Dbl_MB(k_eval(ispin)))
 #else 
          call ga_diag_std_seq(g_fock, g_tmp, Dbl_MB(k_eval(ispin)))
 #endif
+            if (oprint_time)
+     &           call dft_tstamp(' called diag ')
 c     
 c        Check HOMO/LUMO gap.
 c     
@@ -1134,11 +1150,15 @@ c
 c     Form a new density matrix.
 c     
       tdots=0.d0
+      if (oprint_time)
+     &     call dft_tstamp(' calling densm ')
       call dft_densm(g_dens, g_movecs, 
      &     nbf_ao, ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &     ssmear,tdots,iter,.true.,mult,check_deg)
+      if (oprint_time)
+     &     call dft_tstamp(' called densm ')
       
       if(ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
@@ -1306,10 +1326,14 @@ c
 c     Check for SCF convergence.
 c     
       call ga_sync
+      if (oprint_time)
+     &     call dft_tstamp(' calling scfcvg ')
       call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)
+      if (oprint_time)
+     &     call dft_tstamp(' called scfcvg ')
       if (abs(delta).lt.1.d-3)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
