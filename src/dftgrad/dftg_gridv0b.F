@@ -13,9 +13,9 @@
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr, tau)
+     &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.22 2003-05-27 22:23:15 pollack Exp $
+c     $Id: dftg_gridv0b.F,v 1.23 2003-10-13 21:22:51 pollack Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -39,7 +39,7 @@ c !!! temporary !!!
       integer nqtot
       integer nactive
       logical oactive(natoms)
-      logical grad, gradchi, hesschi, der3chi
+      logical grad, gradchi, hesschi, der3chi, kske
       logical ldew
       logical do_force, do_hess, do_cpks_r
 c
@@ -52,8 +52,8 @@ c
       double precision delrho(n_per_rec,3,ipol)
 
 c      double precision tau(n_per_rec,3,ipol)
-      double precision tau(*)
-
+      double precision tau(*),Mmat(*)
+ 
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
@@ -108,6 +108,7 @@ c
 c
       integer ncuratoms
       integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
+
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -193,7 +194,7 @@ c
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr,wmax, tau, .false.)
+     &              rdens_atom, cetobfr,wmax, tau, kske)
 c
                if (do_hess .or. do_cpks_r) then
                   call oactive_to_curatoms(oactive, natoms,
@@ -227,7 +228,8 @@ c
 
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
-     &              do_hess .or. do_cpks_r, tau)
+     &              do_hess .or. do_cpks_r, tau, kske,Mmat)
+c for moment    kske should be false
 c     
 c              exchange-correlation contribution, with or without gradient
 c              terms

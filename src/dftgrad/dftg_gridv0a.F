@@ -9,9 +9,9 @@
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
      &                         do_hess, do_cpks_r, natoms, oactive,
-     &                         nactive, rdens_atom, cetobfr, tau)
+     &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.20 2003-05-27 22:20:49 pollack Exp $
+c     $Id: dftg_gridv0a.F,v 1.21 2003-10-13 21:22:51 pollack Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -33,9 +33,9 @@ c !!! BGJ test !!!
       integer nactive
       logical oactive(natoms)
       logical grad, gradchi, hesschi, der3chi
-      logical xc_chkgrad
-      external xc_chkgrad
-      logical ldew
+      logical xc_chkgrad, xc_chktau
+      external xc_chkgrad, xc_chktau
+      logical ldew, kske
       logical do_force, do_hess, do_cpks_r
 c
       integer cetobfr(2,natoms)
@@ -47,7 +47,7 @@ c
       double precision delrho(n_per_rec,3,ipol)
 
 c      double precision tau(n_per_rec,3,ipol)
-       double precision tau(*)
+       double precision tau(*), Mmat(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
@@ -135,6 +135,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
+      kske=xc_chktau()
 c
 c     allocate scratch array for grid compression
 c
@@ -210,7 +211,7 @@ c
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
      &                         cetobfr,
-     &                         tau )
+     &                         tau,kske,Mmat )
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop
