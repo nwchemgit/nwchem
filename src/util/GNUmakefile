@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.110 2000-01-06 03:11:59 d3g681 Exp $
+# $Id: GNUmakefile,v 1.111 2000-02-08 23:07:39 bjohnson Exp $
 
 include ../config/makefile.h
 
@@ -39,7 +39,7 @@ ifeq ($(TARGET),IBM)
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
 endif
 
-ifeq ($(TARGET),LINUX)
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
 #
 # If you want to turn traps on for LINUX uncomment this line. That is it.
