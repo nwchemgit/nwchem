@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.41 2000-10-25 22:50:09 windus Exp $
+c     $Id: ao_replicated.F,v 1.42 2003-01-27 23:17:09 edo Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -381,7 +381,8 @@ c     Thus now use the default integral accuracy unless set by the
 c     user.  Sigh.
 c     
       if (intacc .eq. 0.0d0) then
-         integ_acc = 1d-15 ! Not used
+cedo         integ_acc = 1d-15 ! Not used
+         integ_acc = 1d-11 !   This seems fine with txs EA 1/2003
          continue
 *         integ_acc = min(1d-15,max(0.01d0*dentol,1d-30)) ! Variable
 *         call int_acc_set(integ_acc)

@@ -5,7 +5,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -49,7 +49,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.10 2002-03-28 18:36:31 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -133,8 +133,6 @@ c
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
-*      data jfac / 1.0d0, 1.0d0, 0.0d0/
-*      data kfac /-0.5d0,-0.5d0, 0.5d0/
       oprint= util_print('rohf_hessv2',print_debug)
       xc_xfac1=bgj_kfac()
 c     

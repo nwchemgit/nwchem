@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.62 2002-03-28 18:36:31 edo Exp $
+C$Id: uhf.F,v 1.63 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -212,7 +212,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.62 2002-03-28 18:36:31 edo Exp $
+C     $Id: uhf.F,v 1.63 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -513,7 +513,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.62 2002-03-28 18:36:31 edo Exp $
+C$Id: uhf.F,v 1.63 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -606,7 +606,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-c     $Id: uhf.F,v 1.62 2002-03-28 18:36:31 edo Exp $
+c     $Id: uhf.F,v 1.63 2003-01-27 23:17:10 edo Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -627,14 +627,11 @@ c
       external ga_create_atom_blocked
       logical odebug
       logical cphf_uhf
-      data jfac / 1.0d0, 0.0d0, 1.0d0, 0.0d0/
-      data kfac / 0.0d0, 1.0d0, 0.0d0, 1.0d0/
-*      data jfac / 2.0d0, 0.0d0, 2.0d0, 0.0d0/
-*      data kfac / 0.0d0, 2.0d0, 0.0d0, 2.0d0/
 c     
 c     Check
 c     
       odebug = util_print('uhf_debug', print_debug)
+      call uhf_jkfac(jfac,kfac)
       if (.not.cuhf_init_flag)
      $     call errquit('uhf_energy: UHF internal block invalid',0)
       call ga_inquire(g_grad, gtype, grow, gcol)
@@ -1132,7 +1129,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.62 2002-03-28 18:36:31 edo Exp $
+C$Id: uhf.F,v 1.63 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.17 2000-11-28 20:39:11 mdupuis Exp $
+* $Id: rohf_fock.F,v 1.18 2003-01-27 23:17:09 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -58,13 +58,12 @@ c
 c
       integer itype_wfn
 c
-      data jfactor / 1.0d0, 1.0d0, 0.0d0/
-      data kfactor /-0.5d0, 0.0d0,-0.5d0/
 c     
 c     Initialise
 c     
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('rohf_solve: bas_numbf failed',0)
+      call rohf_jkfac(jfactor,kfactor)
       nvir = nmo - nclosed - nopen
 c     
 c     hcore = 1-e integrals

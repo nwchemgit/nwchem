@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.114 2002-12-03 17:16:45 d3k958 Exp $
+# $Id: GNUmakefile,v 1.115 2003-01-27 23:17:09 edo Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -43,7 +43,7 @@
 	riscf_square.o 		riscf_io.o movecs_pr_anal.o \
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
-        movecs_frag.o  localize.o int_dip_ga.o fock_xc.o fock_j_fit.o 
+        movecs_frag.o  localize.o int_dip_ga.o fock_xc.o fock_j_fit.o rohf_jkfac.o
 
 
  OBJ_OPTIMIZE = \

@@ -1,6 +1,6 @@
       subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.7 2002-03-28 18:36:31 edo Exp $
+C     $Id: rohf_h2e.F,v 1.8 2003-01-27 23:17:10 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,8 +43,6 @@ c
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
-*      data jfac / 1.0d0, 1.0d0, 0.0d0/
-*      data kfac /-0.5d0,-0.5d0, 0.5d0/
 c     
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
