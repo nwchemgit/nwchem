@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.144 1996-03-15 00:58:36 d3h449 Exp $
+# $Id: makefile.h,v 1.145 1996-03-20 18:15:31 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -187,6 +187,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
     ARFLAGS = r
      FDEBUG = -g
      CDEBUG = -g
+         AR = ar
 
 #
 # Machine specific stuff
@@ -213,12 +214,12 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
+       CORE_LIBS = -lutil -lglobal -llapack -lblas
 endif
 
 ifeq ($(TARGET),SOLARIS)
 #
-# Sun running Solaris 5.4 or later
+# Sun running Solaris 2.4 or later
 #
 
        NICE = nice
@@ -237,7 +238,8 @@ ifeq ($(TARGET),SOLARIS)
    LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS
 
-       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lsocket -lrpcsvc -lnsl -lucb
+       CORE_LIBS = -lutil -lglobal -llapack -lblas
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb
 endif
 
 
@@ -280,11 +282,7 @@ ifeq ($(TARGET),CRAY-T3D)
 
                LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
 
-            CORE_LIBS = -lglobal \
-			-lpeigs \
-			-ltcgmsg \
-			-llapack \
-			-lblas
+            CORE_LIBS = -lglobal -lpeigs -llapack -lblas
 
      EXPLICITF = TRUE
              FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
@@ -307,10 +305,11 @@ ifeq ($(TARGET),KSR)
 
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-#     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
-     LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
+#       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+        LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
-              -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
+                   -lksrlapk -lksrblas -llapack2 -lblas2  
+      EXTRA_LIBS = -para -lrpc
 endif
 
 ifeq ($(TARGET),PARAGON)
@@ -347,10 +346,10 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
-       LIBPATH += -L/home/delilah11/gifann/lib
+       LIBPATH  += -L/home/delilah11/gifann/lib
        CORE_LIBS = -lglobal -lutil \
-	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
-              -lkmath -nx
+	           -lpeigs_paragon -llapack $(LIBDIR)/liblapack.a -lkmath 
+      EXTRA_LIBS = -nx
 endif
 
 ifeq ($(TARGET),DELTA)
@@ -375,9 +374,10 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
-      LIBPATH += -L/home/delilah11/gifann/lib
-      CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta -ltcgmsg \
-	$(LIBDIR)/liblapack.a -llapack -lblas -node
+        LIBPATH += -L/home/delilah11/gifann/lib
+       CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta\
+   	            $(LIBDIR)/liblapack.a -llapack -lblas
+      EXTRA_LIBS = -node
 endif
 
 
@@ -401,8 +401,6 @@ ifeq ($(TARGET),SGITFP)
 #
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
-         CC = cc
-         AR = ar
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
@@ -416,7 +414,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DLongInteger
-  CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
+  CORE_LIBS = -lutil -lglobal -llapack -lblas
 endif
 
 
@@ -428,21 +426,50 @@ ifeq ($(TARGET),SGI)
 
     CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
-         CC = cc
          AR = ar
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
+    DEFINES = -DSGI 
 
   FOPTIONS = -mips2
   COPTIONS = -mips2 -fullwarn
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
-    DEFINES = -DSGI 
-       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lmalloc 
+       CORE_LIBS = -lutil -lglobal -llapack -lblas
+      EXTRA_LIBS = -lmalloc 
 endif
+
+
+
+ifeq ($(TARGET),CONVEX-SPP)
+#
+# Convex SPP-1200 running SPP-UX 3.2
+#
+
+        CPP = /lib/cpp -P
+         FC = fc
+
+# -g is not recognized; 
+# Convex debug flag -cxdb does not disable optimization 
+     CDEBUG = -no
+     FDEBUG = -no
+   FOPTIONS = -ppu -or none
+   COPTIONS = -or none
+  FOPTIMIZE = -O1
+  COPTIMIZE = -O
+
+
+    DEFINES = -DCONVEX -DHPUX -DEXTNAME
+
+# &%@~* Convex compiler will preprocess only *.f and *.FORT files !
+  EXPLICITF = TRUE
+   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+endif
+
+
 
 ifeq ($(TARGET),IBM)
 #
@@ -470,10 +497,8 @@ ifdef USE_ESSL
 endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
-ifdef MPI
-       LIBPATH += -L$(MPI_LOC)/rs6000/ch_p4
-endif
-       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
+
+       CORE_LIBS = -lglobal -lutil -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -509,9 +534,6 @@ endif
 ifdef USE_ESSL
        CORE_LIBS += -lessl
 endif
-ifdef MPI
-       CORE_LIBS += -lmpi
-endif
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -538,7 +560,7 @@ ifeq ($(TARGET),SP1)
 
     DEFINES = -DSP1 -DEXTNAM -DPARALLEL_DIAG
    LIBPATH += -L/usr/lib -L/sphome/harrison/peigs2.0
-  CORE_LIBS = -lglobal -lutil -ltcgmsg -lpeigs -llapack
+  CORE_LIBS = -lglobal -lutil -lpeigs -llapack
 
 ifdef MPI
    LIBPATH += -L$(MPI_LOC)/rs6000/ch_eui
@@ -563,9 +585,6 @@ else
     CORE_SUBDIRS_EXTRA += blas
              CORE_LIBS += -lblas
 endif
-ifdef MPI
-       CORE_LIBS += -lmpi
-endif
 
 
  EXPLICITF = TRUE
@@ -583,7 +602,6 @@ ifeq ($(TARGET),DECOSF)
                   NICE = nice
                 SHELL := $(NICE) /bin/sh
                     FC = f77
-                    CC = cc
                     AR = ar
                 RANLIB = echo
 
@@ -596,7 +614,7 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DLongInteger
-             CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
+             CORE_LIBS = -lutil -lglobal -llapack -lblas
 endif
 
 
@@ -622,7 +640,8 @@ ifeq ($(TARGET),LINUX)
 
   LDOPTIONS = -g
      LINK.f = gcc $(LDFLAGS)
-  CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lf2c -lm
+  CORE_LIBS = -lutil -lglobal -llapack -lblas
+ EXTRA_LIBS = -lf2c -lm
 
         CPP = gcc -E -nostdinc -undef -P
   EXPLICITF = TRUE
@@ -635,6 +654,19 @@ endif
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
+
+
+# MPI version requires tcgmsg-mpi library
+ifdef USE_MPI
+   ifdef MPI_LIB
+       LIBPATH += -L$(MPI_LIB)
+   endif
+   CORE_LIBS += -ltcgmsg-mpi -lmpi 
+else
+   CORE_LIBS += -ltcgmsg
+endif
+CORE_LIBS += $(EXTRA_LIBS)
+
 
 ifdef OPTIMIZE
     FFLAGS = $(FOPTIONS) $(FOPTIMIZE)
