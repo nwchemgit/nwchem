@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.10 2000-08-25 20:05:11 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.11 2000-09-20 14:08:06 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -116,6 +116,13 @@ c
          if (me.eq.0)write(LuOut,*) 
      &      ' derivative weights not available for Delley weights '
          ldew=.false.
+      endif
+c
+c     Check for functional with problematic unrestricted 2nd derivative
+c     at rhoa=rhob
+c
+      if (do_hess) then
+         call bgj_check_xc_u2d()
       endif
 c
 c     see if any Gradient Corrected Functional is not null
