@@ -1,7 +1,8 @@
+#define GAIRREG_ 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.14 2003-07-08 20:47:07 edo Exp $
+C$Id: xc_replicated.F,v 1.15 2003-07-08 21:26:34 edo Exp $
 c
       implicit none
 c      
@@ -79,16 +80,18 @@ c
          do ii=1,ipol
 #ifdef GAIRREG
             if(dorepxc) then
-            if(.not.dograd) then
-                if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
-     .           'replicated xc GA',
-     .           int_mb(k_map),nblock,plist,k_repxc(ii))) goto 1984
-            endif
+               if(.not.dograd) then
+                  if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+     .                 'replicated xc GA',int_mb(k_map),nblock,plist,
+     .                 k_repxc(ii))) goto 1984
+                  call ga_zero(k_repxc(ii))
+               endif
             endif
             if(dorepdm) then
-            if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
-     .           'replicated DM GA',
-     .           int_mb(k_map),nblock,plist,g_repdm(ii))) goto 1984
+               if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+     .              'replicated DM GA',int_mb(k_map),nblock,plist,
+     .              g_repdm(ii))) goto 1984
+               call ga_copy(g_dens(ii),g_repdm(ii))
             endif
 #else 
             nblock(1)=0
@@ -140,7 +143,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.14 2003-07-08 20:47:07 edo Exp $
+C$Id: xc_replicated.F,v 1.15 2003-07-08 21:26:34 edo Exp $
 c
       implicit none
 c      
