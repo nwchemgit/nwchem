@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.5 1998-01-31 20:14:17 bernhold Exp $
+C$Id: open_3ci.F,v 1.6 1998-04-17 23:32:32 gg502 Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -52,15 +52,19 @@ C
       tmpname(lnblnk(tmpname)+1:) = sp
       call util_file_name(tmpname, .true., .true., filnam)
 C
-C     By opening with DRA_RW we avoid having to worry about whether the
-C     file already exists or not.
+C     Try to open existing file first, then create it.  CAUTION:  This
+C     may not work properly if there happens to be a file with the same
+C     name, but the "wrong" contents!
 C
-      If ( DRA_Create(Type, NI*NA, FitLen,
+      If ( DRA_Open(FilNam(:LNBlnk(FilNam)), DRA_RW, LU) .eq. 0) then
+         Open_3ci_File = .TRUE.
+      ElseIf ( DRA_Create(Type, NI*NA, FitLen,
      $   'MO 3-center integrals', FilNam(:LNBlnk(FilNam)),
-     $   DRA_RW, NA, FitLen, LU) .ne. 0)
-     $   Call Errquit('Open_3cI_File (DRA) failed', Spin)
-C
-      Open_3ci_File = .TRUE.
+     $   DRA_RW, NA, FitLen, LU) .eq. 0) then
+         Open_3ci_File = .TRUE.
+      Else
+         Call Errquit('Open_3cI_File (DRA) failed', Spin)
+      EndIf
 C
 #else
 C

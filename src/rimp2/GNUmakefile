@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.42 1998-04-17 21:15:35 gg502 Exp $
+# $Id: GNUmakefile,v 1.43 1998-04-17 23:32:31 gg502 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -37,4 +37,3 @@ include ../config/makelib.h
 # Uncomment this definition to switch to use disk arrays instead.
 # You must also build and link against the DA library (see ../global/da).
 DEFINES += -DRIMP2_USE_DA
-
