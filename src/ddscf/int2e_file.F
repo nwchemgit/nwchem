@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.51 1999-09-01 21:48:08 d3g681 Exp $
+* $Id: int2e_file.F,v 1.52 2000-10-12 22:07:41 d3g681 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -74,7 +74,7 @@ c     work out dynamic ranges and scaling for integral compression
 c
       precision = precision_arg
       ocompress = precision .gt. 1d-9 ! Was 1d-10 but not accurate enuf
-*      ocompress = .false.
+**      ocompress = .false.
 *      write(6,*) ' precision, ocompress ', precision, ocompress
 c
       if (ocompress) then
@@ -82,7 +82,7 @@ c
          maxvalue = 2147483647*precision ! Max value compreses to 2^31-1
       else
          scale = 1.0d0
-         maxvalue = 1.0d99
+         maxvalue = 1.0d300
       end if
 c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
@@ -198,7 +198,7 @@ c     value=64bits labels=64bits
       else
          call errquit('int2e_file_open: bad lab_pack_len', lab_pack_len)
       endif
-      n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
+      n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it a multiple of 2
 c
       if (nint_per_dbl .eq. 2) then
          if (ocompress) then
@@ -823,8 +823,10 @@ c
                goto 10          ! Dirty ... go back and try again
             end if
          end if
-         call dcopy(rec_len_in_dbl, buf, 1, 
-     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
+*         call dcopy(rec_len_in_dbl, buf, 1, 
+*     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
+         call util_memcpy(dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 
+     $        buf, rec_len_in_dbl*8)
       else
          if (.not. file_opened) then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
@@ -911,9 +913,12 @@ c
 c
 c     Record is cached in memory
 c
-         call dcopy(rec_len_in_dbl, 
-     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
-     $        buf, 1)
+*         call dcopy(rec_len_in_dbl, 
+*     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
+*     $        buf, 1)
+         call util_memcpy(buf, 
+     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl),
+     $        rec_len_in_dbl*8)
       else
 c
 c     Record is on disk
@@ -942,7 +947,8 @@ c
                call errquit('int2e_buf_read:eaf_wait failed',cur_rec)
             endif
             oiopending = .false.
-            call dcopy(rec_len_in_dbl, buf2, 1, buf, 1)
+**            call dcopy(rec_len_in_dbl, buf2, 1, buf, 1)
+            call util_memcpy(buf, buf2, rec_len_in_dbl*8)
          endif
 c         
          if (oasyncio .and. ((cur_rec+1).le.n_rec_in_file)) then
@@ -1095,9 +1101,9 @@ c
 c     Copy compressed values and labels 
 c
       if (.not. ocompress) then
-         call dcopy(n_per_rec, buf, 1, values, 1)
+         call dcopy(n_in_rec, buf, 1, values, 1)   ! was n_per_rec
       else if (nint_per_dbl .eq. 2) then
-         do i = 1, n_per_rec
+         do i = 1, n_in_rec ! was n_per_rec
             values(i) = precision * dble(ibuf(i))
          end do
       else if (nint_per_dbl .eq. 1) then
@@ -1143,9 +1149,9 @@ c
 c     Optionally compress values
 c
       if (.not. ocompress) then
-         call dcopy(n_per_rec, values, 1, buf, 1)
+         call dcopy(n_in_rec, values, 1, buf, 1)   ! was n_per_rec
       else if (nint_per_dbl .eq. 2) then
-         do i = 1, n_per_rec
+         do i = 1, n_in_rec   ! was n_per_rec
             ibuf(i) = nint(values(i)*scale)
          end do
       else if (nint_per_dbl .eq. 1) then
