@@ -1,4 +1,4 @@
-C $Id: rel_pot2.F,v 1.2 1998-09-25 18:44:25 mg201 Exp $
+C $Id: rel_pot2.F,v 1.3 1999-04-22 23:22:28 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot2}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -113,13 +113,13 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
      &      ('Insufficient memory in rel_pot',99)
         call dfill (np,zero,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cA,Vpp,Vpm,
-     &      scr(i_grdp),n_allp_B)
+     &      scr(i_grdp),n_allp_B,ibug/10)
         call dfill (nm,zero,scr(i_grdm),1)
         if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_ca,
-     &      Vmp,Vmm,scr(i_grdm),n_allm_B)
+     &      Vmp,Vmm,scr(i_grdm),n_allm_B,ibug/10)
         call dfill (nn,zero,scr,1)
         call ecp_grad_a (l_b,np_b,n_b,nm_b,n_cb*n_all_A*3,
-     &      scr(i_grdp),scr(i_grdm),scr,n_x)
+     &      scr(i_grdp),scr(i_grdm),scr,n_x,ibug/10)
         call dfill (nints*ntyp,zero,Vrel,1)
 *
 *   Return with derivative integrals only
