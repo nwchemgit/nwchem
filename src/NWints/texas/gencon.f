@@ -42,12 +42,12 @@ c-------------------------------------------------------------------
              do 2041 igc=1,ngci1
              coefi=gci(ijpar,igc,ii)
              ngcjx=ngcj1
-             if(jcs.eq.ics) ngcjx=igc
+ctry         if(jcs.eq.ics) ngcjx=igc
              do 2041 jgc=1,ngcjx
              coefj=gcj(ijpar,jgc,jj)*coefi
 c in txs     if(jcs.eq.ics .and. jgc.eq.igc) coefj=coefj*0.5d0
 c pnl:
-             if(jcs.eq.ics .and. jgc.NE.igc) coefj=coefj*2.0d0
+ctry         if(jcs.eq.ics .and. jgc.NE.igc) coefj=coefj*2.0d0
              ijpg=ijpg+1
              gcij(ijpg,ijkl)=coefj
  2041        continue
@@ -79,12 +79,12 @@ c
              do 2042 kgc=1,ngck1
              coefk=gck(klpar,kgc,kk)
              ngclx=ngcl1
-             if(lcs.eq.kcs) ngclx=kgc
+ctry         if(lcs.eq.kcs) ngclx=kgc
              do 2042 lgc=1,ngclx
              coefl=gcl(klpar,lgc,ll)*coefk
 c txs        if(lcs.eq.kcs .and. lgc.eq.kgc) coefl=coefl*0.5d0
 c pnl:
-             if(lcs.eq.kcs .and. lgc.NE.kgc) coefl=coefl*2.0d0
+ctry         if(lcs.eq.kcs .and. lgc.NE.kgc) coefl=coefl*2.0d0
              klpg=klpg+1
              gckl(klpg,ijkl)=coefl
  2042        continue
@@ -126,7 +126,7 @@ c
              ijpg=0
              do 2041 igc=1,ngci1
              ngcjx=ngcj1
-             if(jcs.eq.ics) ngcjx=igc
+ctry         if(jcs.eq.ics) ngcjx=igc
              do 2041 jgc=1,ngcjx
              ijpg=ijpg+1
  2041        continue
@@ -134,7 +134,7 @@ c
              klpg=0
              do 2042 kgc=1,ngck1
              ngclx=ngcl1
-             if(lcs.eq.kcs) ngclx=kgc
+ctry         if(lcs.eq.kcs) ngclx=kgc
              do 2042 lgc=1,ngclx
              klpg=klpg+1
  2042        continue
@@ -143,19 +143,13 @@ c
              do 2043 ijp1=1,ijpg
              gcoefij=gcij(ijp1,ijkl)
              klpx=klpg
-             if(klcs.eq.ijcs) klpx=ijp1
+ckw          if(klcs.eq.ijcs) klpx=ijp1
              do 2043 klp1=1,klpx
              ijklg=ijklg+1
              gcoef(ijklg,ijkl)=gcoefij*gckl(klp1,ijkl)
-c------
-c pnl ?      if(klcs.eq.ijcs .and. klp1.ne.ijp1) then
-c pnl ?         gcoef(ijklg,ijkl)=gcoef(ijklg,ijkl)*2.d0
-c pnl ?      endif
-c------
-             if(klcs.eq.ijcs .and. klp1.ne.ijp1) then
-                gcoef(ijklg,ijkl)=gcoef(ijklg,ijkl)*2.d0
-             endif
-c------
+ckw          if(klcs.eq.ijcs .and. klp1.ne.ijp1) then
+ckw             gcoef(ijklg,ijkl)=gcoef(ijklg,ijkl)*2.d0
+ckw          endif
  2043        continue
       indgc(ijkl)=ijklg
   204 continue
@@ -190,29 +184,12 @@ c
          call dfill(nbls,gcij(1,lcij),gcijx,1)
       else
          do ijkl=1,nbls
-cccc  ijcs=nblok1(1,indxp(ijkl))
             ijcs=nblok1(ij,indxp(ijkl))
             ics=iis(ijcs)
             jcs=jjs(ijcs)
-            if (ics .ne. jcs) then
                do ijpg = 1, ngci1ngcj1
                   gcijx(ijpg,ijkl)=gcij(ijpg,lcij)
                enddo
-            else
-               ijpg=0
-               ioff = 0
-               do igc=1,ngci1
-                  do jgc=1,igc
-                     coefij=gcij(ioff+jgc,lcij)
-c     in txs:    if(jgc.eq.igc) coefij=coefij*0.5d0
-c     pnl:
-                     if(jgc.NE.igc) coefij=coefij*2.0d0
-                     ijpg=ijpg+1
-                     gcijx(ijpg,ijkl)=coefij
-                  enddo
-                  ioff = ioff + ngci1
-               enddo
-            endif
          enddo
       endif
 c     
@@ -236,6 +213,9 @@ c
 c     FOR GENERAL CONTRACTED SHELLS
 c------------------------------------------------------
 c     
+      ijpg = ngci1*ngcj1
+      klpg = ngck1*ngcl1
+c
       if (ngck1*ngcl1.eq.1) then
 c
 c     Either have ijcs.ne.klcs OR both are not generally contracted 
@@ -247,12 +227,6 @@ c
             ijcs=nblok1(1,indxp(ijkl))
             ics=iis(ijcs)
             jcs=jjs(ijcs)
-            if (ics.ne.jcs) then
-               ijpg = ngci1*ngcj1
-            else
-               ijpg = ngci1*(ngci1+1)/2
-            endif
-c     
             do ijp1=1,ijpg
                gcoef(ijp1,ijkl)=gcij(ijp1,ijkl)*gckl(1,ijkl)
             enddo
@@ -270,19 +244,7 @@ c
             kcs=iis(klcs)
             lcs=jjs(klcs)
 c     
-            if (ics.ne.jcs) then
-               ijpg = ngci1*ngcj1
-            else
-               ijpg = ngci1*(ngci1+1)/2
-            endif
-            if (kcs.ne.lcs) then
-               klpg = ngck1*ngcl1
-            else
-               klpg = ngck1*(ngck1+1)/2
-            endif
-c     
             ijklg=0
-            if (klcs .ne. ijcs) then
                do ijp1=1,ijpg
                   gcoefij=gcij(ijp1,ijkl)
                   do klp1=1,klpg
@@ -290,18 +252,6 @@ c
                   enddo
                   ijklg=ijklg+klpg
                enddo
-            else
-               do ijp1=1,ijpg
-                  gcoefij=gcij(ijp1,ijkl)
-                  do klp1=1,ijp1
-                     ijklg=ijklg+1
-                     gcoef(ijklg,ijkl)=gcoefij*gckl(klp1,ijkl)
-                     if(klp1.ne.ijp1) then
-                        gcoef(ijklg,ijkl)=gcoef(ijklg,ijkl)*2.d0
-                     endif
-                  enddo
-               enddo
-            endif
             indgc(ijkl)=ijklg
          enddo
       endif
@@ -476,6 +426,10 @@ C
       subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
      *                    igcoet,ndiag)
       implicit real*8 (a-h,o-z)
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+c
       logical firstc
       common /memor4/ iwt0,iwt1,iwt2,ibuf,ibuf2,
      * ibfij1,ibfij2,ibfkl1,ibfkl2,
@@ -488,15 +442,36 @@ C
      * idx1,idx2,indx
       common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
      *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+c new for grad. derivatives:
+      common /memor5dd/ iaax,ibbx,iccx
+c
       dimension bl(*)
 c--------------------------------------------------------
+c for ordinary scf integrals:
 c
-      if(ndiag.eq.0) then
-        call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
-     *                bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
-      else
-        call asselg_n(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
-     *                bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
+      if(where.eq.'buff') then
+         if(ndiag.eq.0) then
+           call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
+         else
+           call asselg_n(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
+         endif
+      endif
+c
+c--------------------------------------------------------
+c for gradient integral derivatives:
+c
+      if(where.eq.'forc') then
+         if(ndiag.eq.0) then
+           call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
+     *                   bl(iaax),bl(ibbx),bl(iccx))
+         else
+           call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
+     *                   bl(iaax),bl(ibbx),bl(iccx))
+         endif
       endif
 c
 c--------------------------------------------------------
@@ -596,6 +571,139 @@ c-------------------------------------------------------------
         if(abs(xint).gt.0.d0) then
           do 602 iqu=1,ngcq
           buf2(ijkl,ij,kl,iqu)=buf2(ijkl,ij,kl,iqu)+xint*gcoef(ijkl,iqu)
+  602     continue
+        endif
+  601   continue
+      ENDIF
+c-------------------------------------------------------------
+      end
+c===============================================================
+c
+c subroutines for gradient integral derivatives
+c
+      subroutine asselg_n_der(firstc,xt1,lt1,lt2,nbls,buf2,
+     *                        indx,nbls1,ngcd,indgc,gcoef,
+     *                        aax,bbx,ccx)
+      implicit real*8 (a-h,o-z)
+      logical firstc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+      common /logic4/ nfu(1)
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension indgc(nbls) 
+      dimension gcoef(nbls,ngcd)
+ccc   dimension gcoef(ngcd,nbls)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+C
+      dimension buf2(4,nbls,lt1,lt2,ngcd)
+c               buf2(1,nbls,lt1,lt2) - ordinary contraction
+c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
+c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
+c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
+c-------------------------------------------------------------
+      ijs=nfu(nqij)+1
+      kls=nfu(nqkl)+1
+c-------------------------------------------------------------
+c--non diagonal block : gen.con. loop goes to ngcd (always)---
+c
+      IF (FIRSTC) THEN
+        do 501 iqu=1,ngcd
+        do 501 kl=kls,lnkl
+        do 501 ij=ijs,lnij
+        do 501 i=1,nbls1
+        ijkl=indx(i)
+        xint=xt1(i,ij,kl)
+          buf2(1,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
+          buf2(2,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*aax(i)
+          buf2(3,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*bbx(i)
+          buf2(4,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*ccx(i)
+  501   continue
+        firstc=.false.
+      ELSE
+        do 601 iqu=1,ngcd
+        do 601 kl=kls,lnkl
+        DO 601 ij=ijs,lnij
+        do 601 i=1,nbls1
+        ijkl=indx(i)
+        xint=xt1(i,ij,kl)
+          buf2(1,ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)
+          buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*aax(i)
+          buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*bbx(i)
+          buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*ccx(i)
+  601   continue
+      ENDIF
+c-------------------------------------------------------------
+      end
+c===============================================================
+      subroutine asselg_d_der(firstc,xt1,lt1,lt2,nbls,buf2,
+     *                        indx,nbls1,ngcd,indgc,gcoef,
+     *                        aax,bbx,ccx)
+      implicit real*8 (a-h,o-z)
+      logical firstc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+      common /logic4/ nfu(1)
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension buf2(4,nbls,lt1,lt2,ngcd)
+      dimension indgc(nbls) 
+c     dimension gcoef(ngcd,nbls)
+      dimension gcoef(nbls,ngcd)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+c-------------------------------------------------------------
+      ijs=nfu(nqij)+1
+      kls=nfu(nqkl)+1
+c-------------------------------------------------------------
+      IF (FIRSTC) THEN
+        DO 501 kl=kls,lnkl
+        DO 501 ij=ijs,lnij
+        do 501 i=1,nbls1
+        ijkl=indx(i)
+        ngcq=indgc(ijkl)
+        xint=xt1(i,ij,kl)
+        if(abs(xint).gt.0.d0) then
+          do 502 iqu=1,ngcq
+          buf2(1,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
+          buf2(2,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*aax(i)
+          buf2(3,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*bbx(i)
+          buf2(4,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*ccx(i)
+  502     continue
+        else
+          do 503 iqu=1,ngcq
+          buf2(1,ijkl,ij,kl,iqu)=0.d0
+          buf2(2,ijkl,ij,kl,iqu)=0.d0
+          buf2(3,ijkl,ij,kl,iqu)=0.d0
+          buf2(4,ijkl,ij,kl,iqu)=0.d0
+  503     continue
+        endif
+  501   continue
+           FIRSTC=.FALSE.
+      ELSE
+        DO 601 kl=kls,lnkl
+        DO 601 ij=ijs,lnij
+        do 601 i=1,nbls1
+        ijkl=indx(i)
+        ngcq=indgc(ijkl)
+        xint=xt1(i,ij,kl)
+        if(abs(xint).gt.0.d0) then
+          do 602 iqu=1,ngcq
+          buf2(1,ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)
+          buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*aax(i)
+          buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*bbx(i)
+          buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+     *                          +xint*gcoef(ijkl,iqu)*ccx(i)
   602     continue
         endif
   601   continue

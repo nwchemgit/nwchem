@@ -1,4 +1,472 @@
 c==============================================================
+      subroutine destduf(ikbl,nbls,nblok1,iis,jjs,ncs,inx,buf,
+     *                   buffer, itxspnl, q4,use_q4,
+     *                   icfg,jcfg,kcfg,lcfg,ngcd,lnijkl,indxp,ipres)
+c----------------------------------------------------------------
+c gradient derivatives 
+c
+c This is called for PNL-requested ONE contracted shell quartet.
+c All Integrals (including zeros) return WITHOUT labels but they 
+c have to be in PNL-requested order.
+c----------------------------------------------------------------
+c
+      implicit real*8 (a-h,o-z)
+      logical use_q4
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+      common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
+      common /neglect/ eps,eps1,epsr
+      common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
+c
+      dimension nblok1(2,*)
+      dimension iis(*),jjs(*)
+      dimension buf(9,nbls,lnijkl,ngcd)
+      dimension inx(12,*)
+c
+      dimension buffer(9,*)
+      dimension itxspnl(*)
+      dimension icfg(*),jcfg(*),kcfg(*),lcfg(*)
+      dimension indxp(*),ipres(*)
+      dimension q4(*)
+c--------------------------------
+      data zero,half /0.d0,0.5d0/
+c--------------------------------------------------------
+c  loop over quartets belonging to the block IKBL :
+c--------------------------------------------------------
+      IF(use_q4) THEN
+c-----symmetry is used---------------------------
+        integral=0
+        do 10  ijklp=1,nbls
+        ijkl=indxp(ijklp)
+        if(ijkl.eq.0) go to 10
+        iqreq=ipres(ijkl)
+        symfact=q4(iqreq)
+c
+        ijcs=nblok1(1,ijkl)   
+        klcs=nblok1(2,ijkl)  
+        ics=iis(ijcs)    
+        jcs=jjs(ijcs)   
+        kcs=iis(klcs)  
+        lcs=jjs(klcs) 
+        if(ngcd.eq.1) then
+           ngcq=1
+           icfg(1)=inx(11,ics)
+           jcfg(1)=inx(11,jcs)
+           kcfg(1)=inx(11,kcs)
+           lcfg(1)=inx(11,lcs)
+        else
+           call indexg(inx,ics,jcs,kcs,lcs,ijcs,klcs,
+     *                 ilen,jlen,klen,llen, icfg,jcfg,kcfg,lcfg,ngcq)
+        endif
+c
+          do 15  iqu=1,ngcq
+          icff=icfg(iqu)
+          jcff=jcfg(iqu)
+          kcff=kcfg(iqu)
+          lcff=lcfg(iqu)
+c
+c  Indices and integrals in the quartet ijkl :
+c
+             integ=0
+             do 20  iii=1,ilen
+             icf=icff+iii
+             ii=icf*(icf-1)/2
+             do 20  jjj=1,jlen
+             jcf=jcff+jjj
+             jj=jcf*(jcf-1)/2
+             do 20  kkk=1,klen
+             kcf=kcff+kkk
+             kk=kcf*(kcf-1)/2
+             do 20  lll=1,llen
+             lcf=lcff+lll
+c---
+             integ=integ+1
+             integral=integral+1
+ccccc        xint0=buf(ijklp,integ,iqu)
+             xinta=buf(1,ijklp,integ,iqu)
+             xintb=buf(2,ijklp,integ,iqu)
+             xintc=buf(3,ijklp,integ,iqu)
+             yinta=buf(4,ijklp,integ,iqu)
+             yintb=buf(5,ijklp,integ,iqu)
+             yintc=buf(6,ijklp,integ,iqu)
+             zinta=buf(7,ijklp,integ,iqu)
+             zintb=buf(8,ijklp,integ,iqu)
+             zintc=buf(9,ijklp,integ,iqu)
+c---
+             ipnl=itxspnl(integral)
+cccccc       buffer(ipnl    )=xint0*symfact
+             buffer(1,ipnl)=xinta*symfact
+             buffer(2,ipnl)=xintb*symfact
+             buffer(3,ipnl)=xintc*symfact
+             buffer(4,ipnl)=yinta*symfact
+             buffer(5,ipnl)=yintb*symfact
+             buffer(6,ipnl)=yintc*symfact
+             buffer(7,ipnl)=zinta*symfact
+             buffer(8,ipnl)=zintb*symfact
+             buffer(9,ipnl)=zintc*symfact
+c---
+  20         continue
+  15      continue
+  10    continue
+c--------------------------------------------------------
+      ELSE
+c-----symmetry is not used---------------------------
+c
+        integral=0
+        do 100 ijklp=1,nbls
+        ijkl=indxp(ijklp)
+        if(ijkl.eq.0) go to 100
+c
+        ijcs=nblok1(1,ijkl)   
+        klcs=nblok1(2,ijkl)  
+        ics=iis(ijcs)    
+        jcs=jjs(ijcs)   
+        kcs=iis(klcs)  
+        lcs=jjs(klcs) 
+        if(ngcd.eq.1) then
+           ngcq=1
+           icfg(1)=inx(11,ics)
+           jcfg(1)=inx(11,jcs)
+           kcfg(1)=inx(11,kcs)
+           lcfg(1)=inx(11,lcs)
+        else
+           call indexg(inx,ics,jcs,kcs,lcs,ijcs,klcs,
+     *                 ilen,jlen,klen,llen, icfg,jcfg,kcfg,lcfg,ngcq)
+        endif
+c
+          do 150 iqu=1,ngcq
+          icff=icfg(iqu)
+          jcff=jcfg(iqu)
+          kcff=kcfg(iqu)
+          lcff=lcfg(iqu)
+c
+c  Indices and integrals in the quartet ijkl :
+c
+             integ=0
+             do 200 iii=1,ilen
+             icf=icff+iii
+             ii=icf*(icf-1)/2
+             do 200 jjj=1,jlen
+             jcf=jcff+jjj
+             jj=jcf*(jcf-1)/2
+             do 200 kkk=1,klen
+             kcf=kcff+kkk
+             kk=kcf*(kcf-1)/2
+             do 200 lll=1,llen
+             lcf=lcff+lll
+c---
+             integ=integ+1
+             integral=integral+1
+cccccccc     xint0=buf(ijklp,integ,iqu)
+c            xinta=buf(1,ijklp,integ,iqu)
+c            xintb=buf(2,ijklp,integ,iqu)
+c            xintc=buf(3,ijklp,integ,iqu)
+c            yinta=buf(4,ijklp,integ,iqu)
+c            yintb=buf(5,ijklp,integ,iqu)
+c            yintc=buf(6,ijklp,integ,iqu)
+c            zinta=buf(7,ijklp,integ,iqu)
+c            zintb=buf(8,ijklp,integ,iqu)
+c            zintc=buf(9,ijklp,integ,iqu)
+c---
+             ipnl=itxspnl(integral)
+ccccccc      buffer(ipnl    )=xint0
+             buffer(1,ipnl)=buf(1,ijklp,integ,iqu)
+             buffer(2,ipnl)=buf(2,ijklp,integ,iqu)
+             buffer(3,ipnl)=buf(3,ijklp,integ,iqu)
+             buffer(4,ipnl)=buf(4,ijklp,integ,iqu)
+             buffer(5,ipnl)=buf(5,ijklp,integ,iqu)
+             buffer(6,ipnl)=buf(6,ijklp,integ,iqu)
+             buffer(7,ipnl)=buf(7,ijklp,integ,iqu)
+             buffer(8,ipnl)=buf(8,ijklp,integ,iqu)
+             buffer(9,ipnl)=buf(9,ijklp,integ,iqu)
+c---
+  200        continue
+  150     continue
+  100   continue
+c
+c--------------------------------------------------------
+      ENDIF
+c--------------------------------------------------------
+      integ_n0=integ_n0+integral
+c--------------------------------------------------------
+      end
+c==============================================================
+#if defined(IBM)
+*IBM COMPILER OPTIONS JUST FOR DESTBUL
+@PROCESS OPT(2)
+#endif
+      subroutine destdul(ikbl,nbls,nblok1,iis,jjs,ncs,inx,buf,
+     *     buffer, icfx,jcfx,kcfx,lcfx, q4, use_q4,
+     *     icfg,jcfg,kcfg,lcfg,ngcd,lnijkl,indxp,ipres,iqorder,
+     *     map_txs_pnl)
+c----------------------------------------------------------------
+c gradient derivatives 
+c
+c     This is called for PNL-requested set of contracted shell quartets.
+c     Only non-zero Integrals return WITH labels and they do not have 
+c     to be in PNL-requested order.
+c     
+c     buf           - in-comming integrals
+c     
+c     buffer        - outgoing integrals
+c     icfx()-lcfx() - corresponding labels (PNL)
+c----------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      integer map_txs_pnl(*)        ! txs to pnl basis map = ncfunct
+      logical use_q4
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+      common /lengt/ ilen,jlen,klen,llen, ilen1,jlen1,klen1,llen1
+      common /neglect/ eps,eps1,epsr
+      common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
+      common /intgop/ ncache,maxprice,iprint,iblock
+c----------------------------------------------------------------------
+      double precision savezerotol
+      common /csavezerotol/ savezerotol ! Used in detbul,set in texas_hf
+c----------------------------------------------------------------------
+c     
+      dimension icfx(*),jcfx(*),kcfx(*),lcfx(*)
+      dimension nblok1(2,*)
+      dimension iis(*),jjs(*)
+      dimension buf(9,nbls,lnijkl,ngcd)
+      dimension inx(12,*)
+c     
+      dimension buffer(9,*)
+c     
+      dimension icfg(*),jcfg(*),kcfg(*),lcfg(*)
+      dimension ipres(*), iqorder(*)
+      dimension indxp(*)
+      dimension q4(*)
+c
+      double precision threshold ! For screening output integrals
+c--------------------------------
+      data zero,half /0.d0,0.5d0/
+c----------------------------
+c     do not zero out integ_n0 here
+c----------------------------
+c     loop over quartets belonging to the block IKBL :
+c     
+c     
+      do 10  ijklp=1,nbls
+         ijkl=indxp(ijklp)
+c     
+         if(ijkl.eq.0) go to 10
+         iqreq=ipres(ijkl)
+c     
+         if(iqreq.eq.0) go to 10
+         iorder=iqorder(iqreq)
+         if(use_q4) THEN
+            symfact=q4(iqreq)
+         else
+            symfact = 1.0d0
+         endif
+c
+         threshold = savezerotol/symfact
+c
+c---------------------------------------
+c     write(6 ,1230)  ijkl,iqreq,iorder
+c     1230 format('quart=',i5,' req-quart=,i5,'  iorder=',i4 )
+c---------------------------------------
+         ijcs=nblok1(1,ijkl)   
+         klcs=nblok1(2,ijkl)  
+         ics=iis(ijcs)    
+         jcs=jjs(ijcs)   
+         kcs=iis(klcs)  
+         lcs=jjs(klcs) 
+         if(ngcd.eq.1) then
+            ngcq=1
+            icfg(1)=inx(11,ics)
+            jcfg(1)=inx(11,jcs)
+            kcfg(1)=inx(11,kcs)
+            lcfg(1)=inx(11,lcs)
+         else
+            call indexg(inx,ics,jcs,kcs,lcs,ijcs,klcs,
+     *           ilen,jlen,klen,llen, icfg,jcfg,kcfg,lcfg,ngcq)
+         endif
+c     
+         do iqu=1,ngcq
+            icff=icfg(iqu)
+            jcff=jcfg(iqu)
+            kcff=kcfg(iqu)
+            lcff=lcfg(iqu)
+            icff=map_txs_pnl(icff+1)-1 ! Relies on txs order = pnl order
+            jcff=map_txs_pnl(jcff+1)-1
+            kcff=map_txs_pnl(kcff+1)-1
+            lcff=map_txs_pnl(lcff+1)-1
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+               integ=0
+               do icf=icff+1,icff+ilen
+                  do jcf=jcff+1,jcff+jlen
+                     do kcf=kcff+1,kcff+klen
+                        do lcf=lcff+1,lcff+llen
+                           integ=integ+1
+c------>                   xint0=buf(integ)
+                           xinta=buf(1,ijklp,integ,iqu)
+                           xintb=buf(2,ijklp,integ,iqu)
+                           xintc=buf(3,ijklp,integ,iqu)
+                           yinta=buf(4,ijklp,integ,iqu)
+                           yintb=buf(5,ijklp,integ,iqu)
+                           yintc=buf(6,ijklp,integ,iqu)
+                           zinta=buf(7,ijklp,integ,iqu)
+                           zintb=buf(8,ijklp,integ,iqu)
+                           zintc=buf(9,ijklp,integ,iqu)
+                           absxa=abs(xinta)
+                           absxb=abs(xintb)
+                           absxc=abs(xintc)
+                           absya=abs(yinta)
+                           absyb=abs(yintb)
+                           absyc=abs(yintc)
+                           absza=abs(zinta)
+                           abszb=abs(zintb)
+                           abszc=abs(zintc)
+                           absmax=min(absxa,absxb,absxc,
+     *                                absya,absyb,absyc,  
+     *                                absza,abszb,abszc)
+                           if(absmax.gt. threshold ) then
+                              integ_n0=integ_n0+1
+                              buffer(1,integ_n0)=xinta*symfact
+                              buffer(2,integ_n0)=xintb*symfact
+                              buffer(3,integ_n0)=xintc*symfact
+                              buffer(4,integ_n0)=yinta*symfact
+                              buffer(5,integ_n0)=yintb*symfact
+                              buffer(6,integ_n0)=yintc*symfact
+                              buffer(7,integ_n0)=zinta*symfact
+                              buffer(8,integ_n0)=zintb*symfact
+                              buffer(9,integ_n0)=zintc*symfact
+                              icfx(integ_n0)=icf
+                              jcfx(integ_n0)=jcf
+                              kcfx(integ_n0)=kcf
+                              lcfx(integ_n0)=lcf
+                           endif
+c
+                          if(iprint.ge.2) then
+                             call print_der1(ics,jcs,kcs,lcs,inx,
+     *                                       xinta,xintb,xintc,
+     *                                       yinta,yintb,yintc,
+     *                                       zinta,zintb,zintc,
+     *                                       icf,jcf,kcf,lcf,iix)
+                          endif
+c
+                        enddo
+                     enddo
+                  enddo
+               enddo
+            enddo
+c     
+ 10      continue
+c--------------------------------------------------------
+         end
+c==============================================================
+c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+      subroutine print_der1(ics,jcs,kcs,lcs,inx,
+     *                      xinta,xintb,xintc,
+     *                      yinta,yintb,yintc,
+     *                      zinta,zintb,zintc,
+     *                      icf,jcf,kcf,lcf,iix)
+      implicit real*8 (a-h,o-z)
+      dimension inx(12,*)
+      dimension iix(4)
+      dimension at_der(3,100)
+c
+         iat=inx(2,ics)
+         jat=inx(2,jcs)
+         kat=inx(2,kcs)
+         lat=inx(2,lcs)
+c
+         if(iat.gt.100 .or. jat.gt.100) then
+            write(6,*) 'too many atoms; derivatives can not be printed'
+            return
+         endif
+         if(kat.gt.100 .or. lat.gt.100) then
+            write(6,*) 'too many atoms; derivatives can not be printed'
+            return
+         endif
+c
+c-----test print only : begining -----------------------------
+c
+                   xintd=-(xinta+xintb+xintc)
+                   yintd=-(yinta+yintb+yintc)
+                   zintd=-(zinta+zintb+zintc)
+c
+                   at_der(1,iat)=0.d0
+                   at_der(2,iat)=0.d0
+                   at_der(3,iat)=0.d0
+                   at_der(1,jat)=0.d0
+                   at_der(2,jat)=0.d0
+                   at_der(3,jat)=0.d0
+                   at_der(1,kat)=0.d0
+                   at_der(2,kat)=0.d0
+                   at_der(3,kat)=0.d0
+                   at_der(1,lat)=0.d0
+                   at_der(2,lat)=0.d0
+                   at_der(3,lat)=0.d0
+c
+                   at_der(1,iat)=at_der(1,iat)+xinta
+                   at_der(2,iat)=at_der(2,iat)+yinta
+                   at_der(3,iat)=at_der(3,iat)+zinta
+c
+                   at_der(1,jat)=at_der(1,jat)+xintb
+                   at_der(2,jat)=at_der(2,jat)+yintb
+                   at_der(3,jat)=at_der(3,jat)+zintb
+c
+                   at_der(1,kat)=at_der(1,kat)+xintc
+                   at_der(2,kat)=at_der(2,kat)+yintc
+                   at_der(3,kat)=at_der(3,kat)+zintc
+c
+                   at_der(1,lat)=at_der(1,lat)+xintd
+                   at_der(2,lat)=at_der(2,lat)+yintd
+                   at_der(3,lat)=at_der(3,lat)+zintd
+c
+canonical order :
+c
+                   call descend(icf,jcf,kcf,lcf,iix)
+c
+                   do icart=1,3
+                      if(abs( at_der(icart,iat)) .gt.1d-9) then
+                              write(6,111) 
+     $                             iat       , icart, 
+     $                             iix(1),iix(2),iix(3),iix(4),
+     $                             at_der(icart,iat)
+                      endif
+                   enddo
+                if(jat.ne.iat) then
+                   do icart=1,3
+                      if(abs( at_der(icart,jat)) .gt.1d-9) then
+                              write(6,111) 
+     $                             jat       , icart, 
+cccc $                             icf,jcf,kcf,lcf,
+     $                             iix(1),iix(2),iix(3),iix(4),
+     $                             at_der(icart,jat)
+                      endif
+                   enddo
+                endif
+                if(kat.ne.iat .and. kat.ne.jat) then
+                   do icart=1,3
+                      if(abs( at_der(icart,kat)) .gt.1d-9) then
+                              write(6,111) 
+     $                             kat       , icart, 
+ccc  $                             icf,jcf,kcf,lcf,
+     $                             iix(1),iix(2),iix(3),iix(4),
+     $                             at_der(icart,kat)
+                      endif
+                   enddo
+                endif
+                if(lat.ne.iat .and. lat.ne.jat .and. lat.ne.kat) then
+                   do icart=1,3
+                      if(abs( at_der(icart,lat)) .gt.1d-9) then
+                              write(6,111) 
+     $                             lat       , icart, 
+ccc  $                             icf,jcf,kcf,lcf,
+     $                             iix(1),iix(2),iix(3),iix(4),
+     $                             at_der(icart,lat)
+                      endif
+                   enddo
+                endif
+ 111                          format(' atom=',i2,', xyz=',i2,', ijkl=',
+     $                             4i3,', d(ij|kl)/dq=',f12.7   )
+c
+c-----test print only : end      -----------------------------
+c
+      end
+c==============================================================
       subroutine destbuf(ikbl,nbls,nblok1,iis,jjs,ncs,inx,buf,
      *                   buffer, itxspnl, q4,use_q4,
      *                   icfg,jcfg,kcfg,lcfg,ngcd,lnijkl,indxp,ipres)
@@ -200,7 +668,7 @@ c
 c TEST --------------------------
 c
 c      IF( max(ilen,jlen,klen,llen).ge.5) then
-c      write(6,*) ' BLOCK=',ikbl,' shell-size=',ilen,jlen,klen,llen
+c      write(6,*) ' shell-size=',ilen,jlen,klen,llen
 c      ENDIF
 c
 c TEST --------------------------
@@ -238,6 +706,12 @@ c---------------------------------------
          jcs=jjs(ijcs)   
          kcs=iis(klcs)  
          lcs=jjs(klcs) 
+ctest
+c        if(use_q4) THEN
+c           write(6,666) ijklp,ijkl,iqreq, ics,jcs,kcs,lcs,symfact
+c666        format('ijklp,ijkl,iqreq,=',3i4,' shells=',4i3,2x,f12.7)
+c        endif
+ctest
          if(ngcd.eq.1) then
             ngcq=1
             icfg(1)=inx(11,ics)
@@ -526,7 +1000,7 @@ c
              icf=icff
              do 2041 igc=0,ngci
              ngcjx=ngcj
-             if(jcs.eq.ics) ngcjx=igc
+ctry         if(jcs.eq.ics) ngcjx=igc
                jcf=jcff
                do 2042 jgc=0,ngcjx
                ijpg=ijpg+1
@@ -542,7 +1016,7 @@ c
              kcf=kcff
              do 2043 kgc=0,ngck
              ngclx=ngcl
-             if(lcs.eq.kcs) ngclx=kgc
+ctry         if(lcs.eq.kcs) ngclx=kgc
                lcf=lcff
                do 2044 lgc=0,ngclx
                klpg=klpg+1
@@ -556,7 +1030,7 @@ c
              ijklg=0
              do 2045 ijp1=1,ijpg
              klpx=klpg
-             if(klcs.eq.ijcs) klpx=ijp1
+ckw          if(klcs.eq.ijcs) klpx=ijp1
              do 2045 klp1=1,klpx
              ijklg=ijklg+1
 c
@@ -571,4 +1045,25 @@ c
 c
       return
       end
+c==============================================================
+      subroutine descend(i,j,k,l,iix)
+      dimension iix(4) 
+c     this routine orders the 4 indices in canonical order
+c    i>=j; k>=l; ij>=kl
+      ij1=max0(i,j)
+      ij0=min0(i,j)
+      kl1=max0(k,l)
+      kl0=min0(k,l)
+      if(ij1.gt.kl1.or.(ij1.eq.kl1.and.ij0.ge.kl0)) then
+        iix(1)=ij1
+        iix(2)=ij0
+        iix(3)=kl1
+        iix(4)=kl0
+      else
+        iix(1)=kl1
+        iix(2)=kl0
+        iix(3)=ij1
+        iix(4)=ij0
+      end if
+      end        
 c==============================================================
