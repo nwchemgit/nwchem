@@ -110,3 +110,4 @@ Nov 17 1998	 Truncated octahedron
 Nov 23 1998	 Implement 'modify segment' and 'update lists' commands
 Dec 23 1998	 Allow comment lines in seqence file
 		 Always recalculate grid if esp required
+		 Bug fix in pre_modify.F

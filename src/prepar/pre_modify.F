@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.4 1998-11-23 20:31:00 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.5 1998-12-29 18:43:18 d3j191 Exp $
 c
       implicit none
 c
@@ -476,7 +476,7 @@ c
      + (limp(2,i).eq.latom.and.limp(3,i).eq.jatom.and.
      + limp(4,i).eq.iatom))) then
       iimp=i
-      goto 30
+      goto 36
       endif
       else
       if(limp(3,i).eq.katom.and.
