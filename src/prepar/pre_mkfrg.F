@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.32 2000-04-26 22:12:44 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.33 2000-04-26 22:48:35 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -307,7 +307,7 @@ c
     6 continue
       if(util_print('sequence',print_medium)) then
       write(lfnout,3009) qsum
- 3009 format(37x,'------------',/,25x,'total charge ',f12.6)
+ 3009 format(38x,'------------',/,25x,'total charge ',f12.6)
       endif
 c
       nconn=0 
