@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.439 2004-01-01 00:28:15 edo Exp $
+# $Id: makefile.h,v 1.440 2004-01-03 20:28:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -820,7 +820,7 @@ ifeq ($(TARGET),IBM)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -qxlf77=leadzero
 # -qinitauto=FF
    COPTIONS = 
 # -qstrict required with -O3 (according to Edo)
@@ -922,7 +922,7 @@ ifeq ($(TARGET),IBM64)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qxlf77=leadzero
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
   FVECTORIZE = -O5 -qhot -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto 
@@ -979,7 +979,7 @@ else
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000  -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave -qalign=4k  -qxlf77=leadzero
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
@@ -1075,7 +1075,7 @@ LARGE_FILES = YES
   LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64  -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
    LINK.f   = mpcc_r   $(LDFLAGS)
 
-   FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k -qxlf77=leadzero
        AR   = ar -X 64
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
@@ -1167,8 +1167,8 @@ endif
 
   ifeq ($(FC),xlf)
     XLFMAC=y
-    FOPTIONS  = -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
-    FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
+    FOPTIONS = -qextname -qfixed -qnosave -qsmallstack -qalign=4k
+    FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
     FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
     FDEBUG= -O2 -g
     DEFINES  +=-DXLFLINUX
@@ -1367,7 +1367,7 @@ endif
 # this are for PowerPC
     ifeq ($(FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
-      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap -qxlf77=leadzero
       FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
       FDEBUG= -O2 -g
       EXPLICITF = TRUE
@@ -1560,7 +1560,7 @@ endif
       CC=/opt/cross/bin/powerpc64-linux-gcc
       ifeq ($(FC),xlf)
         FOPTIONS  =  -q64 -qextname -qfixed -qnosave   -qalign=4k
-        FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192
+        FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
         ifdef  USE_GPROF
           FOPTIONS += -pg
           COPTIONS += -pg
