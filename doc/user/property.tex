@@ -1,15 +1,18 @@
 \label{sec:property}
 \begin{verbatim}
   PROPERTY
-    ...
+    [property name]
+    [VECTORS ...]
   END
 \end{verbatim}
 
-The following properties can be extracted from 
-Hartree-Fock (closed-shell RHF, open-shell ROHF,
-and open-shell UHF) wavefunctions, as well as
-DFT (closed-shell and open-shell spin unrestricted)
-wavefunctions.
+Calculation of properties is accomplished with \verb+TASK PROPERTY+
+after the completion of an energy (or MP2 gradient) calculation.  The
+following properties can be computed for all wavefunctions that produce
+orbitals, including Hartree-Fock (closed-shell RHF, open-shell ROHF, and
+open-shell UHF), DFT (closed-shell and open-shell spin unrestricted),
+MCSCF (complete active space), and MP2 (closed-shell RHF and open-shell
+UHF).
 
 \begin{itemize}
 \item natural bond analysis
@@ -25,12 +28,20 @@ wavefunctions.
 \item spin density
 \end{itemize}
 
-\subsection{subdirectives}
+The default molecular orbital file \verb+$file_prefix$.movecs+ is used
+unless a vectors directive (Section \ref{sec:vectors}) is provided.  It is
+therefore only necessary to include a vectors directive if the MO vectors
+to be analyzed are not coming from the default file, e.g., if they have
+been previously redirected, or if MP2 natural orbitals (file extension
+\verb+".mp2nos") are being anaylzed.
 
-Calculation of properties is accomplished via a call to
-TASK PROPERTY following the completion of an energy calculation.
-Each property can be requested by means of a subdirective among
-the subdirectives provided :
+\section{Subdirectives}
+
+Note that presenting any property input causes all previous property input
+to be ``forgotten'', unlike other NWChem modules.
+
+Each property can be requested by means of a subdirective among the
+subdirectives provided :
 
 \begin{itemize}
 \item nbofile
@@ -60,7 +71,7 @@ By default, the input file used for the calculation of the properties
 has the .movecs name extension. The output file name ought to be
 used to store the Boys' localized molecular orbitals.
 
-\subsection{nbofile}
+\subsection{Nbofile}
 
 Following the successful completion of an electronic structure
 calculation, a Natural Bond Orbital (NBO) analysis may be carried out

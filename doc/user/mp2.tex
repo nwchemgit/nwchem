@@ -38,6 +38,8 @@ the size of system that can be treated and use of other approximations
 \end{verbatim}
 \end{itemize}
 
+\section{Input directives}
+
 All three MP2 tasks share the same input block.
 
 \begin{verbatim}
@@ -55,7 +57,7 @@ All three MP2 tasks share the same input block.
   END
 \end{verbatim}
 
-\section{{\tt FREEZE} --- Freezing orbitals}
+\subsection{{\tt FREEZE} --- Freezing orbitals}
 \label{mp2:core}
 
 All MP2 modules support frozen core orbitals, however, only the direct
@@ -127,7 +129,7 @@ keyword.  For instance, to freeze the top 5 virtuals
 Again, note that this only works for the direct-MP2 and RI-MP2 energy
 codes.
 
-\section{{\tt AOTOL2E} and {\tt MOTOL2E} --- Integral Screening}
+\subsection{{\tt AOTOL2E} and {\tt MOTOL2E} --- Integral Screening}
 
 The screening of AO and MO two-electron integrals are controlled by
 these parameters.  The defaults of $10^{-9}$ are adequate except for
@@ -135,7 +137,7 @@ high-accuracy calculations, weakly interacting systems, and in the
 presence of near linear dependence in the orbital basis.  For very
 high accuracy calculations values of $10^{-12}$ are suitable.
 
-\section{{\tt PRINT} and {\tt NOPRINT}}
+\subsection{{\tt PRINT} and {\tt NOPRINT}}
 
 The standard print control options are recognized.  The list of
 recognized names are given in Table \ref{tbl:mp2-printable}.
@@ -172,7 +174,7 @@ Item                    & Print Level   & Description \\
 \end{tabular}
 \end{table}
 
-\section{{\tt VECTORS} --- MO vectors}
+\subsection{{\tt VECTORS} --- MO vectors}
 \label{sec:mp2vectors}
 
 All of the (supported) MP2 modules require use of converged canonical
@@ -198,7 +200,7 @@ The swap capability is examined in more detail in Section
 \ref{sec:vectors}.
 
 
-\section{RI-MP2 fitting basis}
+\subsection{RI-MP2 fitting basis}
 
 \sloppy
 
@@ -234,7 +236,7 @@ the \verb+"ri-mp2 basis"+.
 \fussy
 
 
-\section{{\tt FILE3C} --- RI-MP2 3-center integral filename}
+\subsection{{\tt FILE3C} --- RI-MP2 3-center integral filename}
 
 \sloppy
 
@@ -249,7 +251,7 @@ specify the file \verb+/scratch/h2o.3c+, use this directive
 \fussy
 
 
-\section{{\tt RIAPPROX} --- RI-MP2 Approximation}
+\subsection{{\tt RIAPPROX} --- RI-MP2 Approximation}
 
 The type of RI approximation used in the RI-MP2 calculation is controlled
 by means of the RIAPPROX directive.  The two possible values are
@@ -260,12 +262,12 @@ and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
 
 %  The \verb+"S"+ approximation will also be supported eventually.
 
-\section{Advanced options for RI-MP2}
+\subsection{Advanced options for RI-MP2}
 
 These options, which functioned at the time of writing, are not
 currently supported.
 
-\subsection{Control of linear dependence}
+\subsubsection{Control of linear dependence}
 
 Construction of the RI fit requires the inversion of a matrix of
 fitting basis integrals which is carried out via diagonalization.  If
@@ -281,7 +283,7 @@ For instance, to set it to $10^{-10}$
   set "mp2:fit min eval" 1e-10
 \end{verbatim}
 
-\subsection{Reference Spin Mapping for RI-MP2 Calculations}
+\subsubsection{Reference Spin Mapping for RI-MP2 Calculations}
 
 The user has the option of specifying that the RI-MP2 calculations are
 to be done with variations of the SCF reference wavefunction.  This is
@@ -329,7 +331,7 @@ follows,
 \end{verbatim}
 
 
-\subsection{Batch Sizes for the RI-MP2 Calculation}
+\subsubsection{Batch Sizes for the RI-MP2 Calculation}
 
 The user can control the size of each batch in the transformation and
 energy evaluation in the MP2 calculation, and consequently the memory
@@ -368,7 +370,7 @@ read in from disk and multiplied together to produce $<batch isize>
 performance of the distributed matrix multiplication (which requires
 large matrices) versus memory space.
 
-\subsection{Energy Memory Allocation Mode: RI-MP2 Calculation}
+\subsubsection{Energy Memory Allocation Mode: RI-MP2 Calculation}
 
 The user must choose a  strategy for the memory allocation in the energy
 evaluation phase of the RI-MP2 calculation, either by minimizing the amount
@@ -391,7 +393,7 @@ possible so that permutational symmetry in the energy evaluation can
 be used most effectively.
 
 
-\subsection{Local Memory Usage in Three-Center Transformation}
+\subsubsection{Local Memory Usage in Three-Center Transformation}
 
 For most applications, the code will be able to size the blocks
 without help from the user.  Therefore, it is unlikely that users will
@@ -425,5 +427,20 @@ functions on a node.  The absolute minimum value for block size is the
 size of the largest shell in the appropriate basis.  Batch size entries 
 specified for \verb+max+  that are larger than these limits are 
 automatically reset to an appropriate value.
+
+
+\section{One-electron properties and natural orbitals}
+
+If an MP2 energy gradient is computed, all contributions are available
+to form the MP2 linear response density.  This is the density that
+when contracted with any spin-free, one-electron operator yields the
+associated property.  Only dipole moments are printed by the MP2
+gradient code, but natural orbitals are produced and stored in the
+permanent directory with a file extension of \verb+".mp2nos".  These
+may be fed into the property package (see Section \ref{sec:property})
+to compute more general properties.  Note that the MP2 linear response
+density matrix is not necessarily positive definite so it is not
+unusual to see a few {\em small} negative natural orbital occupation
+numbers.
 
 
