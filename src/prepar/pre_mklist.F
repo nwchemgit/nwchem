@@ -7,9 +7,10 @@
      + lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp,
-     + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
+     + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
+     + nval,ival,rval,ndx)
 c
-c $Id: pre_mklist.F,v 1.21 1999-07-14 22:16:16 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.22 2000-06-15 06:48:16 d3j191 Exp $
 c
       implicit none
 c
@@ -46,12 +47,16 @@ c
       real*8 rimp(6,mimp)
       integer natmt,nbndt,nangt,ndiht,nimpt
       real*8 wcorr(3)
+      integer nval
+      integer ival(nval),ndx(nval)
+      real*8 rval(nval)
 c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
       integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
       character*4 atl1,atl2
       character*255 filsgm
+      integer in,jn,ln,ir,itmp
 c
       igrp=0
       ipgrp=0
@@ -336,16 +341,16 @@ c
       nia(1)=0
       nia(2)=0
       nia(3)=0
-      do 54 k=1,nbnd
+      do 79 k=1,nbnd
       if(lbnd(1,k).eq.ia(1)) nia(1)=nia(1)+1
       if(lbnd(2,k).eq.ia(1)) nia(1)=nia(1)+1
       if(lbnd(1,k).eq.ia(2)) nia(2)=nia(2)+1
       if(lbnd(2,k).eq.ia(2)) nia(2)=nia(2)+1
       if(lbnd(1,k).eq.ia(3)) nia(3)=nia(3)+1
       if(lbnd(2,k).eq.ia(3)) nia(3)=nia(3)+1
-   54 continue
-      do 55 k=1,2
-      do 56 l=2,3
+   79 continue
+      do 80 k=1,2
+      do 81 l=2,3
       if(nia(k).lt.nia(l)) then
       ltemp=nia(k)
       nia(k)=nia(l)
@@ -354,8 +359,8 @@ c
       ia(k)=ia(l)
       ia(l)=ltemp
       endif
-   56 continue
-   55 continue
+   81 continue
+   80 continue
 c
 c     planar
 c
@@ -500,59 +505,152 @@ c
       lbnd(2,i)=ltemp
       endif
    34 continue
-      do 35 i=1,nbnd-1
-      do 36 j=i+1,nbnd
-      if(lbnd(1,i).gt.lbnd(1,j).or.
-     + (lbnd(1,i).eq.lbnd(1,j).and.lbnd(2,i).gt.lbnd(2,j))) then
-      do 37 k=1,4
-      ltemp=lbnd(k,i)
-      lbnd(k,i)=lbnd(k,j)
-      lbnd(k,j)=ltemp
-   37 continue
-      do 38 k=1,6
-      rtemp=rbnd(k,i)
-      rbnd(k,i)=rbnd(k,j)
-      rbnd(k,j)=rtemp
-   38 continue
-      endif
-   36 continue
+c
+      do 35 i=1,nbnd
+      ndx(i)=i
    35 continue
+      ln=nbnd/2+1
+      ir=nbnd
+   36 continue
+      if(ln.gt.1) then
+      ln=ln-1
+      itmp=ndx(ln)
+      else
+      itmp=ndx(ir)
+      ndx(ir)=ndx(1)
+      ir=ir-1
+      if(ir.eq.1) then
+      ndx(1)=itmp
+      goto 37
+      endif
+      endif
+      in=ln
+      jn=ln+ln
+   38 continue
+      if(jn.le.ir) then
+      if(jn.lt.ir) then
+      if(lbnd(1,ndx(jn)).gt.lbnd(1,ndx(jn+1)).or.
+     + (lbnd(1,ndx(jn)).eq.lbnd(1,ndx(jn+1)).and.
+     + lbnd(2,ndx(jn)).gt.lbnd(2,ndx(jn+1)))) then
+      else
+      jn=jn+1
+      endif
+      endif
+      if(lbnd(1,itmp).gt.lbnd(1,ndx(jn)).or.
+     + (lbnd(1,itmp).eq.lbnd(1,ndx(jn)).and.
+     + lbnd(2,itmp).gt.lbnd(2,ndx(jn)))) then
+      jn=ir+1
+      else
+      ndx(in)=ndx(jn)
+      in=jn
+      jn=jn+jn
+      endif
+      goto 38
+      endif
+      ndx(in)=itmp
+      goto 36
+   37 continue
+c
+      do 39 k=1,4
+      do 40 i=1,nbnd
+      ival(i)=lbnd(k,i)
+   40 continue
+      do 41 i=1,nbnd
+      lbnd(k,i)=ival(ndx(i))
+   41 continue
+   39 continue
+      do 42 k=1,6
+      do 43 i=1,nbnd
+      rval(i)=rbnd(k,i)
+   43 continue
+      do 44 i=1,nbnd
+      rbnd(k,i)=rval(ndx(i))
+   44 continue
+   42 continue
 c
 c     sort the angle lists
 c     --------------------
 c
-      do 39 i=1,nang
+      do 45 i=1,nang
       if(lang(1,i).gt.lang(3,i)) then
       ltemp=lang(1,i)
       lang(1,i)=lang(3,i)
       lang(3,i)=ltemp
       endif
-   39 continue
+   45 continue
 c
-      do 40 i=1,nang-1
-      do 41 j=i+1,nang
-      if(lang(2,i).gt.lang(2,j).or.
-     + (lang(2,i).eq.lang(2,j).and.lang(1,i).gt.lang(1,j)).or.
-     + (lang(2,i).eq.lang(2,j).and.lang(1,i).eq.lang(1,j).and.
-     + lang(3,i).gt.lang(3,j))) then
-      do 42 k=1,5
-      ltemp=lang(k,i)
-      lang(k,i)=lang(k,j)
-      lang(k,j)=ltemp
-   42 continue
-      do 43 k=1,6
-      rtemp=rang(k,i)
-      rang(k,i)=rang(k,j)
-      rang(k,j)=rtemp
-   43 continue
+      do 46 i=1,nang
+      ndx(i)=i
+   46 continue
+      ln=nang/2+1
+      ir=nang
+   47 continue
+      if(ln.gt.1) then
+      ln=ln-1
+      itmp=ndx(ln)
+      else
+      itmp=ndx(ir)
+      ndx(ir)=ndx(1)
+      ir=ir-1
+      if(ir.eq.1) then
+      ndx(1)=itmp
+      goto 48
       endif
-   41 continue
-   40 continue
+      endif
+      in=ln
+      jn=ln+ln
+   49 continue
+      if(jn.le.ir) then
+      if(jn.lt.ir) then
+      if(lang(2,ndx(jn)).gt.lang(2,ndx(jn+1)).or.
+     + (lang(2,ndx(jn)).eq.lang(2,ndx(jn+1)).and.
+     + lang(1,ndx(jn)).gt.lang(1,ndx(jn+1))).or.
+     + (lang(2,ndx(jn)).eq.lang(2,ndx(jn+1)).and.
+     + lang(1,ndx(jn)).eq.lang(1,ndx(jn+1)).and.
+     + lang(3,ndx(jn)).gt.lang(3,ndx(jn+1)))) then
+      else
+      jn=jn+1
+      endif
+      endif
+      if(lang(2,itmp).gt.lang(2,ndx(jn)).or.
+     + (lang(2,itmp).eq.lang(2,ndx(jn)).and.
+     + lang(1,itmp).gt.lang(1,ndx(jn))).or.
+     + (lang(2,itmp).eq.lang(2,ndx(jn)).and.
+     + lang(1,itmp).eq.lang(1,ndx(jn)).and.
+     + lang(3,itmp).gt.lang(3,ndx(jn)))) then
+      jn=ir+1
+      else
+      ndx(in)=ndx(jn)
+      in=jn
+      jn=jn+jn
+      endif
+      goto 49
+      endif
+      ndx(in)=itmp
+      goto 47
+   48 continue
+c
+      do 50 k=1,5
+      do 51 i=1,nang
+      ival(i)=lang(k,i)
+   51 continue
+      do 52 i=1,nang
+      lang(k,i)=ival(ndx(i))
+   52 continue
+   50 continue
+      do 54 k=1,6
+      do 55 i=1,nang
+      rval(i)=rang(k,i)
+   55 continue
+      do 56 i=1,nang
+      rang(k,i)=rval(ndx(i))
+   56 continue
+   54 continue
 c
 c     sort dihedral list
 c     ------------------
 c
-      do 44 i=1,ndih
+      do 57 i=1,ndih
       if(ldih(2,i).gt.ldih(3,i)) then
       ltemp=ldih(2,i)
       ldih(2,i)=ldih(3,i)
@@ -561,77 +659,134 @@ c
       ldih(1,i)=ldih(4,i)
       ldih(4,i)=ltemp
       endif
-   44 continue
+   57 continue
 c
-      do 45 i=1,ndih-1
-      do 46 j=i+1,ndih
-      if(ldih(2,i).gt.ldih(2,j).or.
-     + (ldih(2,i).eq.ldih(2,j).and.ldih(3,i).gt.ldih(3,j)).or.
-     + (ldih(2,i).eq.ldih(2,j).and.ldih(3,i).eq.ldih(3,j).and.
-     +  ldih(1,i).gt.ldih(1,j)).or.
-     + (ldih(2,i).eq.ldih(2,j).and.ldih(3,i).eq.ldih(3,j).and.
-     +  ldih(1,i).eq.ldih(1,j).and.ldih(4,i).gt.ldih(4,j))) then
-      do 47 k=1,9
-      ltemp=ldih(k,i)
-      ldih(k,i)=ldih(k,j)
-      ldih(k,j)=ltemp
-   47 continue
-      do 147 l=1,6
-      do 48 k=1,6
-      rtemp=rdih(l,k,i)
-      rdih(l,k,i)=rdih(l,k,j)
-      rdih(l,k,j)=rtemp
-   48 continue
-      do 148 k=1,3
-      ltemp=kdih(l,k,i)
-      kdih(l,k,i)=kdih(l,k,j)
-      kdih(l,k,j)=ltemp
-  148 continue
-  147 continue
+      do 58 i=1,ndih
+      ndx(i)=i
+   58 continue
+      ln=ndih/2+1
+      ir=ndih
+   59 continue
+      if(ln.gt.1) then
+      ln=ln-1
+      itmp=ndx(ln)
+      else
+      itmp=ndx(ir)
+      ndx(ir)=ndx(1)
+      ir=ir-1
+      if(ir.eq.1) then
+      ndx(1)=itmp
+      goto 60
       endif
-   46 continue
-   45 continue
+      endif
+      in=ln
+      jn=ln+ln
+   61 continue
+      if(jn.le.ir) then
+      if(jn.lt.ir) then
+      if(ldih(2,ndx(jn)).gt.ldih(2,ndx(jn+1)).or.
+     + (ldih(2,ndx(jn)).eq.ldih(2,ndx(jn+1)).and.
+     + ldih(3,ndx(jn)).gt.ldih(3,ndx(jn+1))).or.
+     + (ldih(2,ndx(jn)).eq.ldih(2,ndx(jn+1)).and.
+     + ldih(3,ndx(jn)).eq.ldih(3,ndx(jn+1)).and.
+     +  ldih(1,ndx(jn)).gt.ldih(1,ndx(jn+1))).or.
+     + (ldih(2,ndx(jn)).eq.ldih(2,ndx(jn+1)).and.
+     + ldih(3,ndx(jn)).eq.ldih(3,ndx(jn+1)).and.
+     +  ldih(1,ndx(jn)).eq.ldih(1,ndx(jn+1)).and.
+     + ldih(4,ndx(jn)).gt.ldih(4,ndx(jn+1)))) then
+      else
+      jn=jn+1
+      endif
+      endif
+      if(ldih(2,itmp).gt.ldih(2,ndx(jn)).or.
+     + (ldih(2,itmp).eq.ldih(2,ndx(jn)).and.
+     + ldih(3,itmp).gt.ldih(3,ndx(jn))).or.
+     + (ldih(2,itmp).eq.ldih(2,ndx(jn)).and.
+     + ldih(3,itmp).eq.ldih(3,ndx(jn)).and.
+     +  ldih(1,itmp).gt.ldih(1,ndx(jn))).or.
+     + (ldih(2,itmp).eq.ldih(2,ndx(jn)).and.
+     + ldih(3,itmp).eq.ldih(3,ndx(jn)).and.
+     +  ldih(1,itmp).eq.ldih(1,ndx(jn)).and.
+     + ldih(4,itmp).gt.ldih(4,ndx(jn)))) then
+      jn=ir+1
+      else
+      ndx(in)=ndx(jn)
+      in=jn
+      jn=jn+jn
+      endif
+      goto 61
+      endif
+      ndx(in)=itmp
+      goto 59
+   60 continue
+      do 62 k=1,9
+      do 63 i=1,ndih
+      ival(i)=ldih(k,i)
+   63 continue
+      do 64 i=1,ndih
+      ldih(k,i)=ival(ndx(i))
+   64 continue
+   62 continue
+      do 65 l=1,6
+      do 66 k=1,6
+      do 67 i=1,ndih
+      rval(i)=rdih(l,k,i)
+   67 continue
+      do 68 i=1,ndih
+      rdih(l,k,i)=rval(ndx(i))
+   68 continue
+   66 continue
+      do 69 k=1,3
+      do 70 i=1,ndih
+      ival(i)=kdih(l,k,i)
+   70 continue
+      do 71 i=1,ndih
+      kdih(l,k,i)=ival(ndx(i))
+   71 continue
+   69 continue
+   65 continue
+c
 c
 c     sort improper list
 c     ------------------
 c
-      do 49 i=1,nimp-1
-      do 50 j=i+1,nimp
+      do 72 i=1,nimp-1
+      do 73 j=i+1,nimp
       if(limp(1,i).gt.limp(1,j).or.
      + (limp(1,i).eq.limp(1,j).and.limp(2,i).gt.limp(2,j)).or.
      + (limp(1,i).eq.limp(1,j).and.limp(2,i).eq.limp(2,j).and.
      + limp(3,i).gt.limp(3,j)).or.
      + (limp(1,i).eq.limp(1,j).and.limp(2,i).eq.limp(2,j).and.
      + limp(3,i).eq.limp(3,j).and.limp(4,i).gt.limp(4,j))) then
-      do 51 k=1,9
+      do 74 k=1,9
       ltemp=limp(k,i)
       limp(k,i)=limp(k,j)
       limp(k,j)=ltemp
-   51 continue
-      do 52 k=1,6
+   74 continue
+      do 75 k=1,6
       rtemp=rimp(k,i)
       rimp(k,i)=rimp(k,j)
       rimp(k,j)=rtemp
-   52 continue
+   75 continue
       endif
-   50 continue
-   49 continue
+   73 continue
+   72 continue
 c
 c     check number of segments involved in angles
 c     -------------------------------------------
 c
-      do 53 i=1,nang
+      do 76 i=1,nang
       if(lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(2,i))).and.
      + lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(3,i))).and.
      + lseq(1,latm(5,lang(2,i))).ne.lseq(1,latm(5,lang(3,i)))) then
       lang(5,i)=-1
       endif
-   53 continue
+   76 continue
 c
 c     check number of segments involved in dihedrals
 c     ----------------------------------------------
 c
-      do 57 i=1,ndih
+      do 77 i=1,ndih
       if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
      + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
      + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i)))) then
@@ -655,12 +810,12 @@ c
       endif
       endif
       endif
-   57 continue
+   77 continue
 c
 c     check number of segments involved in improper dihedrals
 c     -------------------------------------------------------
 c
-      do 58 i=1,nimp
+      do 78 i=1,nimp
       if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
      + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
      + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i)))) then
@@ -684,7 +839,7 @@ c
       endif
       endif
       endif
-   58 continue
+   78 continue
 c
 c     read solvent segment
 c     --------------------

@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.18 1999-07-12 20:23:53 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.19 2000-06-15 06:48:16 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -58,6 +58,9 @@ c
       integer l_latt,i_latt,l_catt,i_catt,l_patt,i_patt,l_ratt,i_ratt
       integer l_lats,i_lats
 c
+      integer nval
+      integer l_ival,i_ival,l_rval,i_rval,l_ndx,i_ndx
+c
       integer m3rd,n3rd
       integer i_l3rd,l_l3rd
 c
@@ -70,6 +73,11 @@ c
       integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt,mqu
 c
       real*8 releps,q14fac,wcorr(3)
+c
+      real*8 timer_wall_total
+      external timer_wall_total
+c
+      integer i
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -293,6 +301,13 @@ c
       ndih=0
       nimp=0
 c
+      nval=max(mbnd,mang,mdih,mimp)
+      if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
+     + call errquit('Memory allocation failed for ival',9999)
+      if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
+     + call errquit('Memory allocation failed for ndx',9999)
+      if(.not.ma_push_get(mt_dbl,nval,'rval',l_rval,i_rval))
+     + call errquit('Memory allocation failed for rval',9999)
       if(.not.pre_mklist(lfnout,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
@@ -302,8 +317,15 @@ c
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,
-     + natmt,nbndt,nangt,ndiht,nimpt,wcorr))
+     + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
+     + nval,int_mb(i_ival),dbl_mb(i_rval),int_mb(i_ndx)))
      + call errquit('pre_mklist failed',9999)
+      if(.not.ma_pop_stack(l_rval))
+     + call errquit('Memory deallocation failed for rval',9999)
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('Memory deallocation failed for ndx',9999)
+      if(.not.ma_pop_stack(l_ival))
+     + call errquit('Memory deallocation failed for ival',9999)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1005)
@@ -373,20 +395,31 @@ c
       n3rd=0
       if(.not.ma_push_get(mt_int,2*m3rd,'l3rd',l_l3rd,i_l3rd))
      + call errquit('Memory allocation failed for l3rd',9999)
+      nval=m3rd
+      if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
+     + call errquit('Memory allocation failed for ival',9999)
+      if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
+     + call errquit('Memory allocation failed for ndx',9999)
 c
 c     construct third neighbor list
 c     -----------------------------
 c
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
-     + mang,nang,int_mb(i_l3rd),m3rd,n3rd,1,1,1))
+     + mang,nang,int_mb(i_l3rd),m3rd,n3rd,1,1,1,
+     + nval,int_mb(i_ival),int_mb(i_ndx)))
      + call errquit('pre_third failed',9999)
 c
       n3rdt=n3rd
       if(nbndt.gt.nbnd.and.nangt.gt.nang) then
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbndt,int_mb(i_lang),
-     + mang,nangt,int_mb(i_l3rd),m3rd,n3rdt,nbnd+1,nang+1,n3rd+1))
+     + mang,nangt,int_mb(i_l3rd),m3rd,n3rdt,nbnd+1,nang+1,n3rd+1,
+     + nval,int_mb(i_ival),int_mb(i_ndx)))
      + call errquit('pre_third failed',9999)
       endif
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('Memory deallocation failed for ndx',9999)
+      if(.not.ma_pop_stack(l_ival))
+     + call errquit('Memory deallocation failed for ival',9999)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1008) n3rd
@@ -404,9 +437,19 @@ c
 c     construct excluded pair list
 c     ----------------------------
 c
+      nval=mexc
+      if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
+     + call errquit('Memory allocation failed for ival',9999)
+      if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
+     + call errquit('Memory allocation failed for ndx',9999)
       if(.not.pre_excl(int_mb(i_l3rd),m3rd,n3rd,int_mb(i_lbnd),
-     + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc))
+     + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc,
+     + nval,int_mb(i_ival),int_mb(i_ndx)))
      + call errquit('pre_excl failed',9999)
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('Memory deallocation failed for ndx',9999)
+      if(.not.ma_pop_stack(l_ival))
+     + call errquit('Memory deallocation failed for ival',9999)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1009) nexc
