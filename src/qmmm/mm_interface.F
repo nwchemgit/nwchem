@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.34 2004-12-08 00:47:06 marat Exp $
+c $Id: mm_interface.F,v 1.35 2004-12-10 01:44:35 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -32,7 +32,8 @@ c
   
 
 c     this call is very important
-      call mm_task_sp()
+c      call mm_task_sp()
+      call md_sp()
       if(qmmm_print_debug()) write(*,*) "out "//pname
 c
       return
@@ -82,10 +83,13 @@ c
       subroutine mm_task_sp()
       implicit none
 #include "qmmm.fh"
+#include "md_common.fh"
       character*32 pname
       pname = "mm_task_sp"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
+c      lpair = .false.
+c      llong = .false.
       call md_sp()
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname

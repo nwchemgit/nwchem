@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.41 2004-12-08 19:59:00 marat Exp $
+c $Id: qmmm_geom.F,v 1.42 2004-12-10 01:44:35 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -163,6 +163,7 @@ c
      >                    dbl_mb(i_q),
      >                    byte_mb(i_t))
 
+       call qmmm_bq_data_load()
 
       end
 
@@ -336,7 +337,7 @@ c     load bq information (coord and charges)
 c     into qmmm common arrays from md module
 c     --------------------------------------
       if(.not.nobq) then
-         call qmmm_bq_data_load()
+c         call qmmm_bq_data_load()
       end if
 
       nqm   = qmmm_get_nqm()
@@ -957,6 +958,8 @@ c     local variables
      &                   link,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))
+        
+      call qmmm_bq_data_load()
 
       end
 
