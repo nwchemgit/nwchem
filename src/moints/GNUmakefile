@@ -1,7 +1,8 @@
 
-        OBJ = atwtest.o \
+        OBJ = \
               brdcst_vec.o \
-	      ga_create_moblocked.o \
+	      ga_create_JKblocked.o \
+	      ga_check_JKblocked.o \
 	      ga_check_moblocked.o \
 	      mointdriver.o \
 	      moints.o \

@@ -40,8 +40,8 @@ c
 c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
-       integer ga_create_atom_blocked,ga_create_moblocked
-       external ga_create_atom_blocked,ga_create_moblocked
+       integer ga_create_atom_blocked,ga_create_JKblocked
+       external ga_create_atom_blocked,ga_create_JKblocked
 c
 c
 c
@@ -154,9 +154,9 @@ c
 c
 c
        if (ocoul)
-     $      g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
+     $      g_coul = ga_create_JKblocked(noper,nmo2,'Coulomb operator')
        if (oexch)
-     $      g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
+     $      g_exch = ga_create_JKblocked(noper,nmo2,'exchange operator')
 c
 c
 c
