@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.8 2000-10-27 02:31:40 bylaska Exp $
+# $Id: doqmtests,v 1.9 2000-10-27 20:25:51 bylaska Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -24,7 +24,7 @@ runtests.unix br2_dk
 runtests.unix uo2_sodft
 runtests.unix uo2_sodft_grad
 runtests.unix si2cl6_gc
-runtests.unix pspw pspw_SiC pspw_md 
+runtests.unix pspw pspw_md pspw_SiC
 #---   long  may not run on workstations
 runtests.unix aump2 
 runtests.unix uoverlap
