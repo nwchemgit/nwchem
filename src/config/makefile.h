@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.347 2000-11-20 18:04:30 windus Exp $
+# $Id: makefile.h,v 1.348 2000-11-22 20:33:08 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -730,6 +730,10 @@ ifeq ($(TARGET),HPUX)
   RANLIB = echo
 
  DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
+ifeq ($(BUILDING_PYTHON),python)
+# needed if python was compiled with gcc (common)
+      EXTRA_LIBS += -L/usr/local/lib/gcc-lib/hppa1.0-hp-hpux11.00/2.8.0 -lgcc
+endif
 
 endif
 
