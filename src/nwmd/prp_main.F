@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.23 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: prp_main.F,v 1.24 1999-11-17 00:15:38 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       return
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
-     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr)
+     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot)
 c
       implicit none
 c
@@ -40,7 +40,7 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
-      real*8 epot,epotw,epotsw,epots,vol
+      real*8 epot,epotw,epotsw,epots,vol,ekin,etot
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
@@ -248,6 +248,8 @@ c
    37 continue
 c
       vol=volume
+      ekin=p(27)
+      etot=ekin+epot
 c
       return
       end

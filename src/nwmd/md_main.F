@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.46 1999-10-29 17:26:40 d3j191 Exp $
+c $Id: md_main.F,v 1.47 1999-11-17 00:15:37 d3j191 Exp $
 c
       implicit none
 c
@@ -63,7 +63,7 @@ c
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
       call prp_print()
 c
@@ -176,7 +176,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
       epsd=epot
       epsdw=epotw
@@ -258,7 +258,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -354,7 +354,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
       ecgnew=epot
       eqrs=epot
@@ -581,7 +581,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
       ecg2=epot
       epcgw=epotw
@@ -656,7 +656,7 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
 c
       dxmax=zero
       dxwmax=zero
@@ -802,7 +802,7 @@ c
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
       call md_server
     1 continue
 c
@@ -815,7 +815,7 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,epot)
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -1628,6 +1628,8 @@ c
       integer client_socket_write
       external create_client_socket,client_socket_write
 c
+      integer*4 iiport,lens
+c
       character*255 string
       integer numbyt
 c
@@ -1635,10 +1637,11 @@ c
 c
 c     open socket to server
 c
+      iiport=iport
       if(.not.lserver) then
-      write(*,1) server(1:index(server,' ')-1),iport
+      write(*,1) server(1:index(server,' ')-1),iiport
     1 format('Attempt to open socket to ',a,' port ',i5)
-      isocket=create_client_socket(server,iport)
+      isocket=create_client_socket(server,iiport)
       lserver=isocket.gt.0
       endif
 c
@@ -1650,10 +1653,16 @@ c
 c
       if(.not.lserver) return
 c
-      write(string,1000) stime,temp,pres,volume
- 1000 format("TIM",f12.6,"TMP",f12.6,"PRS",e12.5,"VOL",f12.6)
+c      write(string,1000) stime,temp,pres*1.0125d-5,volume,char(13)
+c 1000 format("tETpV",5f12.3,a1)
 c
-      numbyt=client_socket_write(isocket,string,60)
+      write(string,1000) stime,temp,pres*1.0125d-5,volume
+ 1000 format("TIM",f12.6,"TMP",f12.6,"PRS",f12.6,"VOL",f12.6)
+      write(*,'(a)') string
+      lens=61
+      string(61:61)=char(13)
+c
+      numbyt=client_socket_write(isocket,string,lens)
 c
       print*,'Bytes written to socket is ',numbyt
 c
