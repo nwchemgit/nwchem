@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.3 1994-04-01 22:35:28 d3g681 Exp $
+# $Id: makefile.h,v 1.4 1994-04-01 22:56:18 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -10,7 +10,7 @@
 # Set TOPDIR to point to your top-level directory that contains
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 #
-     TOPDIR = /msrc/home/d3g681/nwchem
+     TOPDIR = /msrc/home/d3e129/NW/nwchem
      SRCDIR = $(TOPDIR)/src
      LIBDIR = $(TOPDIR)/lib
      BINDIR = $(TOPDIR)/bin
@@ -28,9 +28,8 @@
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
-    SUBDIRS = include global db ints_sp rtdb basis inp util \
+    SUBDIRS = include global db NWints ints_sp rtdb basis inp util \
               geom input ma tcgmsg
-
 #
 # Define LIBPATH to be paths for libraries that you are linking in
 # from precompiled sources and are not building now. These libraries
