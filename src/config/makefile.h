@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.201 1997-02-07 06:57:00 d3j191 Exp $
+# $Id: makefile.h,v 1.202 1997-02-15 02:25:29 twclark Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -653,7 +653,7 @@ ifeq ($(TARGET),IBM)
 # IBM AIX
 #
 
-    CORE_SUBDIRS_EXTRA = lapack
+    CORE_SUBDIRS_EXTRA = lapack fft peigs
 #blas
          FC = xlf
     ARFLAGS = urs
@@ -680,7 +680,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas\
+       CORE_LIBS = -lglobal -lchemio -lutil -lpfft -lpeigs -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
