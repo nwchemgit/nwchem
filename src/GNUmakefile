@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.69 1998-05-07 18:26:44 d3e129 Exp $
+# $Id: GNUmakefile,v 1.70 1998-07-13 22:45:46 d3g681 Exp $
 
 include config/makefile.h
 
@@ -12,11 +12,8 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'"
 endif
 
-ifeq ($(TARGET),LAPI)
-   NWBINNAME = nwchem.lapi
-else
-   NWBINNAME = nwchem
-endif
+NWBINNAME = nwchem
+
 #
 # This should be the first target so that a simple make builds
 # the entire world
