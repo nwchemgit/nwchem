@@ -1,5 +1,5 @@
       subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.21 1996-02-13 17:23:09 pborowsk Exp $
+C     $Id: input_parse.F,v 1.22 1996-06-05 17:29:40 ng716 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -22,7 +22,7 @@ c
      $     'title',    'start',    'restart' , 'stepper',  'echo',
      $     'charge',   'dft',      'md',       'gradient', 'ccsd',
      $     'print',    'noprint',  'unset',    'mcscf',    'plnwv',
-     $     'dplot',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
+     $     'dplot',    'property', 'xxxxt',    'xxxxf',    'xxxxv',
      $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
      $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
      $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
@@ -57,7 +57,7 @@ c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
      $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-     $        2000, 2100, 2200, 2300, 2400, 2500, 2600) ind
+     $        2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700) ind
          call errquit('input_parse: unimplemented directive', ind)
 c     
 c     Memory ... already handled by input_mem_size() but will soon
@@ -181,6 +181,11 @@ c
 c     DPlot
 c
  2600    call dplot_input(rtdb)
+         goto 10
+c
+c     Property
+c
+ 2700    call prop_input(rtdb)
          goto 10
 c     
 c     

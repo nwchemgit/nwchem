@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.26 1996-05-14 18:02:34 d3g681 Exp $
+#$Id: GNUmakefile,v 1.27 1996-06-05 17:29:41 ng716 Exp $
 
  LIBRARY = libutil.a
 
@@ -6,7 +6,8 @@
            input_start.o input_title.o task_input.o scf_input.o \
            get_inp_file.o vectors_inp.o stepper_inp.o input_echo.o \
 	   dft_input.o md_input.o grad_inp.o memory_def.o \
-	   ccsd_input.o mcscf_input.o plnwv_input.o dplot_input.o
+	   ccsd_input.o mcscf_input.o plnwv_input.o dplot_input.o \
+	   prop_input.o
 
      HEADERS = ../global/src/types.f2c.h
 
