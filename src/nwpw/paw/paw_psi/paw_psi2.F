@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.4 2004-09-04 17:56:21 bylaska Exp $
+* $Id: paw_psi2.F,v 1.5 2004-09-05 02:18:26 bylaska Exp $
 *
 
 
@@ -847,7 +847,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***************************
 *     *				*
-*     *		paw_psi_1get_psi	*
+*     *	    paw_psi_1get_psi	*
 *     *				*
 *     ***************************
       subroutine paw_psi_1get_psi(rpsi)
@@ -867,7 +867,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***************************
 *     *				*
-*     *		paw_psi_2get_psi	*
+*     *     paw_psi_2get_psi	*
 *     *				*
 *     ***************************
       subroutine paw_psi_2get_psi(rpsi)
@@ -1446,11 +1446,70 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value)
-     > call errquit('paw_psi_1gen_residual:error popping stack',1,
+     > call errquit('paw_psi_1get_residual:error popping stack',1,
      >     MA_ERR)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         paw_psi_2get_residual   *
+*     *                                 *
+*     ***********************************
+
+*
+*     R = Hpsi - S*Y*Y^t*Hpsi ! used by Grassman minimizers
+*
+      subroutine paw_psi_2get_residual(option,R,Spsi,Eout)
+      implicit none
+      integer option
+      complex*16 R(*)
+      complex*16 Spsi(*)
+      real*8 Eout
+
+#include "mafdecls.fh"
+#include "paw_psi.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer tmp1(2)
+
+*     **** external functions ****
+      real*8   paw_electron_energy
+      external paw_electron_energy
+
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value)
+     >   call errquit('out of stack memory in paw_psi_2get_residual',0,
+     &       MA_ERR)
+
+
+      if (option.le.1) then
+        call paw_electron_run(dcpl_mb(psi2(1)),
+     >                     dbl_mb(rho2(1)),
+     >                     dcpl_mb(dng2(1)))
+      end if
+      Eout =  paw_electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(2)))
+
+      call paw_electron_gen_hml(dcpl_mb(psi2(1)),             ! tmp = <psi|Hpsi>
+     >                       dbl_mb(tmp1(1)))
+
+      call paw_ovlp_S((ne(1)+ne(2)),dcpl_mb(psi2(1)),Spsi)         ! Spsi = S*psi1
+
+      call paw_electron_get_Tgradient(Spsi,dbl_mb(tmp1(1)),R) ! R = Hpsi - Spsi*tmp
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value)
+     > call errquit('paw_psi_2get_residual:error popping stack',1,
+     >     MA_ERR)
+      return
+      end
 
 
 
@@ -1628,38 +1687,43 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+
 *     ***********************************
-*     *					*
-*     *		paw_psi_2gen_Tangent	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2gen_Tangent    *
+*     *                                 *
 *     ***********************************
-      subroutine paw_psi_2gen_Tangent(THpsi)
+
+*     T = T - Y*Y^t*S*T ! used by Grassman minimizers
+*
+      subroutine paw_psi_2gen_Tangent(T)
       implicit none
-      complex*16 THpsi(*)
+      complex*16 T(*)
 
 #include "mafdecls.fh"
 #include "paw_psi.fh"
 #include "errquit.fh"
 
-*     *** local variables ****
+*     **** local variables ****
       logical value
-      integer tmp1(2)
+      integer tmp1(2),ii,jj
+
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >call errquit('paw_psi_2gen_Tangent: out of stack memory',0,MA_ERR)
+      if (.not. value)
+     >call errquit('paw_psi_2gen_Tangent:out of stack memory',0,MA_ERR)
 
       call paw_electron_gen_psiTangenthml_S(dcpl_mb(psi2(1)),
-     >                                THpsi,
+     >                                T,
      >                                dbl_mb(tmp1(1)))
       call paw_electron_gen_Tangent(dcpl_mb(psi2(1)),
      >                          dbl_mb(tmp1(1)),
-     >                          THpsi)
-      
+     >                          T)
+
       value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. value)
      > call errquit(
-     > 'error popping stack memory in paw_psi_1get_Tradient',0,MA_ERR)
+     > 'error popping stack memory in paw_psi_2gen_Tangent',0,MA_ERR)
 
       return
       end

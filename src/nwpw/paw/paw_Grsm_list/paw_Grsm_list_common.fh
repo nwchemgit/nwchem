@@ -1,0 +1,15 @@
+c
+c     $Id: paw_Grsm_list_common.fh,v 1.1 2004-09-05 02:18:25 bylaska Exp $
+c
+      integer max_list
+      parameter (max_list=40)
+      logical ondisk
+      integer grsm_mem(2,max_list)
+      integer indx(max_list),nsize,size_list
+      character*20 tag_list(max_list)
+      character*20 tag_list2(max_list)
+      common / paw_Grsm_block / indx,grsm_mem,
+     >                           tag_list,tag_list2,
+     >                           nsize,size_list,
+     >                           ondisk
+

@@ -1,0 +1,8 @@
+*
+*     $Id: paw_lmbfgs_common.fh,v 1.1 2004-09-05 02:18:25 bylaska Exp $
+*
+
+      real*8 rho(20)
+      integer npack1,neall,nsize,max_m,m
+      common / paw_lmbfgs_common / rho,npack1,neall,nsize,max_m,m
+

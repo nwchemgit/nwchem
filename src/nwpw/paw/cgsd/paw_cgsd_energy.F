@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.4 2004-09-05 02:18:25 bylaska Exp $                       
 
 
 *     ***************************
@@ -98,7 +98,7 @@ c#include "rtdb.fh"
       end if
 
       if (oprint) call util_flush(luout)
-      if (minimizer.gt.1) call pspw_Grsm_list_start()
+      if (minimizer.gt.1) call paw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
       !if (newpsi) then
       !  call sdminimize(15)
@@ -117,7 +117,7 @@ c#include "rtdb.fh"
            call paw_cgminimize(E,deltae,deltac,bfgscount,it_in)
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
-           !call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+           call paw_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
          else if (minimizer.eq.3) then
            bfgscount = bfgscount + 1
            !call bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
@@ -179,7 +179,7 @@ c#include "rtdb.fh"
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
-      if (minimizer.gt.1) call pspw_Grsm_list_end()
+      if (minimizer.gt.1) call paw_Grsm_list_end()
       if (oprint) CALL NWPW_MESSAGE(3)
 
 
