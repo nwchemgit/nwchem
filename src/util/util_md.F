@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.30 2000-10-20 02:39:44 d3j191 Exp $
+c $Id: util_md.F,v 1.31 2000-10-25 19:00:13 d3j191 Exp $
 c
       implicit none
 c
@@ -604,97 +604,98 @@ c
 #endif
 c
       today='00/00/00  '
-      now='00:00:00  '
+      now='00:00:00'
 c
 #if defined(IBM)
       call fdate(string)
-      if(string(4:6).eq.'Jan') today(4:5)='01'
-      if(string(4:6).eq.'Feb') today(4:5)='02'
-      if(string(4:6).eq.'Mar') today(4:5)='03'
-      if(string(4:6).eq.'Apr') today(4:5)='04'
-      if(string(4:6).eq.'May') today(4:5)='05'
-      if(string(4:6).eq.'Jun') today(4:5)='06'
-      if(string(4:6).eq.'Jul') today(4:5)='07'
-      if(string(4:6).eq.'Aug') today(4:5)='08'
-      if(string(4:6).eq.'Sep') today(4:5)='09'
-      if(string(4:6).eq.'Oct') today(4:5)='10'
-      if(string(4:6).eq.'Nov') today(4:5)='11'
-      if(string(4:6).eq.'Dec') today(4:5)='12'
-      today(1:2)=string(8:9)
-      today(7:8)=string(1:2)
+      if(string(4:6).eq.'Jan') today(1:2)='01'
+      if(string(4:6).eq.'Feb') today(1:2)='02'
+      if(string(4:6).eq.'Mar') today(1:2)='03'
+      if(string(4:6).eq.'Apr') today(1:2)='04'
+      if(string(4:6).eq.'May') today(1:2)='05'
+      if(string(4:6).eq.'Jun') today(1:2)='06'
+      if(string(4:6).eq.'Jul') today(1:2)='07'
+      if(string(4:6).eq.'Aug') today(1:2)='08'
+      if(string(4:6).eq.'Sep') today(1:2)='09'
+      if(string(4:6).eq.'Oct') today(1:2)='10'
+      if(string(4:6).eq.'Nov') today(1:2)='11'
+      if(string(4:6).eq.'Dec') today(1:2)='12'
+      today(7:8)=string(8:9)
+      today(4:5)=string(1:2)
       now=string(11:20)
 #endif
 #if defined(KSR)
       string=ctime(time())
-      if(string(5:7).eq.'Jan') today(4:5)='01'
-      if(string(5:7).eq.'Feb') today(4:5)='02'
-      if(string(5:7).eq.'Mar') today(4:5)='03'
-      if(string(5:7).eq.'Apr') today(4:5)='04'
-      if(string(5:7).eq.'May') today(4:5)='05'
-      if(string(5:7).eq.'Jun') today(4:5)='06'
-      if(string(5:7).eq.'Jul') today(4:5)='07'
-      if(string(5:7).eq.'Aug') today(4:5)='08'
-      if(string(5:7).eq.'Sep') today(4:5)='09'
-      if(string(5:7).eq.'Oct') today(4:5)='10'
-      if(string(5:7).eq.'Nov') today(4:5)='11'
-      if(string(5:7).eq.'Dec') today(4:5)='12'
-      today(1:2)=string(23:24)
-      today(7:8)=string(9:10)
+      if(string(5:7).eq.'Jan') today(1:2)='01'
+      if(string(5:7).eq.'Feb') today(1:2)='02'
+      if(string(5:7).eq.'Mar') today(1:2)='03'
+      if(string(5:7).eq.'Apr') today(1:2)='04'
+      if(string(5:7).eq.'May') today(1:2)='05'
+      if(string(5:7).eq.'Jun') today(1:2)='06'
+      if(string(5:7).eq.'Jul') today(1:2)='07'
+      if(string(5:7).eq.'Aug') today(1:2)='08'
+      if(string(5:7).eq.'Sep') today(1:2)='09'
+      if(string(5:7).eq.'Oct') today(1:2)='10'
+      if(string(5:7).eq.'Nov') today(1:2)='11'
+      if(string(5:7).eq.'Dec') today(1:2)='12'
+      today(7:8)=string(23:24)
+      today(4:5)=string(9:10)
       now=string(11:20)
 #endif
 #if defined(CRAY_T3D) || defined(SP1) || defined(CRAY_T3E) || defined(SOLARIS)
       call util_date(string)
-      if(string(5:7).eq.'Jan') today(4:5)='01'
-      if(string(5:7).eq.'Feb') today(4:5)='02'
-      if(string(5:7).eq.'Mar') today(4:5)='03'
-      if(string(5:7).eq.'Apr') today(4:5)='04'
-      if(string(5:7).eq.'May') today(4:5)='05'
-      if(string(5:7).eq.'Jun') today(4:5)='06'
-      if(string(5:7).eq.'Jul') today(4:5)='07'
-      if(string(5:7).eq.'Aug') today(4:5)='08'
-      if(string(5:7).eq.'Sep') today(4:5)='09'
-      if(string(5:7).eq.'Oct') today(4:5)='10'
-      if(string(5:7).eq.'Nov') today(4:5)='11'
-      if(string(5:7).eq.'Dec') today(4:5)='12'
-      today(1:2)=string(23:24)
-      today(7:8)=string(9:10)
+      if(string(5:7).eq.'Jan') today(1:2)='01'
+      if(string(5:7).eq.'Feb') today(1:2)='02'
+      if(string(5:7).eq.'Mar') today(1:2)='03'
+      if(string(5:7).eq.'Apr') today(1:2)='04'
+      if(string(5:7).eq.'May') today(1:2)='05'
+      if(string(5:7).eq.'Jun') today(1:2)='06'
+      if(string(5:7).eq.'Jul') today(1:2)='07'
+      if(string(5:7).eq.'Aug') today(1:2)='08'
+      if(string(5:7).eq.'Sep') today(1:2)='09'
+      if(string(5:7).eq.'Oct') today(1:2)='10'
+      if(string(5:7).eq.'Nov') today(1:2)='11'
+      if(string(5:7).eq.'Dec') today(1:2)='12'
+      today(7:8)=string(23:24)
+      today(4:5)=string(9:10)
       now=string(11:20)
 #endif
 #if defined(LINUX)
       call util_date(string)
-      if(string(5:7).eq.'Jan') today(4:5)='01'
-      if(string(5:7).eq.'Feb') today(4:5)='02'
-      if(string(5:7).eq.'Mar') today(4:5)='03'
-      if(string(5:7).eq.'Apr') today(4:5)='04'
-      if(string(5:7).eq.'May') today(4:5)='05'
-      if(string(5:7).eq.'Jun') today(4:5)='06'
-      if(string(5:7).eq.'Jul') today(4:5)='07'
-      if(string(5:7).eq.'Aug') today(4:5)='08'
-      if(string(5:7).eq.'Sep') today(4:5)='09'
-      if(string(5:7).eq.'Oct') today(4:5)='10'
-      if(string(5:7).eq.'Nov') today(4:5)='11'
-      if(string(5:7).eq.'Dec') today(4:5)='12'
+      if(string(5:7).eq.'Jan') today(1:2)='01'
+      if(string(5:7).eq.'Feb') today(1:2)='02'
+      if(string(5:7).eq.'Mar') today(1:2)='03'
+      if(string(5:7).eq.'Apr') today(1:2)='04'
+      if(string(5:7).eq.'May') today(1:2)='05'
+      if(string(5:7).eq.'Jun') today(1:2)='06'
+      if(string(5:7).eq.'Jul') today(1:2)='07'
+      if(string(5:7).eq.'Aug') today(1:2)='08'
+      if(string(5:7).eq.'Sep') today(1:2)='09'
+      if(string(5:7).eq.'Oct') today(1:2)='10'
+      if(string(5:7).eq.'Nov') today(1:2)='11'
+      if(string(5:7).eq.'Dec') today(1:2)='12'
       now=string(11:20)
 #endif
 #if defined(SGI)
       call date(string)
-      if(string(4:6).eq.'Jan') today(4:5)='01'
-      if(string(4:6).eq.'Feb') today(4:5)='02'
-      if(string(4:6).eq.'Mar') today(4:5)='03'
-      if(string(4:6).eq.'Apr') today(4:5)='04'
-      if(string(4:6).eq.'May') today(4:5)='05'
-      if(string(4:6).eq.'Jun') today(4:5)='06'
-      if(string(4:6).eq.'Jul') today(4:5)='07'
-      if(string(4:6).eq.'Aug') today(4:5)='08'
-      if(string(4:6).eq.'Sep') today(4:5)='09'
-      if(string(4:6).eq.'Oct') today(4:5)='10'
-      if(string(4:6).eq.'Nov') today(4:5)='11'
-      if(string(4:6).eq.'Dec') today(4:5)='12'
-      today(1:2)=string(8:9)
-      today(7:8)=string(1:2)
+      if(string(4:6).eq.'Jan') today(1:2)='01'
+      if(string(4:6).eq.'Feb') today(1:2)='02'
+      if(string(4:6).eq.'Mar') today(1:2)='03'
+      if(string(4:6).eq.'Apr') today(1:2)='04'
+      if(string(4:6).eq.'May') today(1:2)='05'
+      if(string(4:6).eq.'Jun') today(1:2)='06'
+      if(string(4:6).eq.'Jul') today(1:2)='07'
+      if(string(4:6).eq.'Aug') today(1:2)='08'
+      if(string(4:6).eq.'Sep') today(1:2)='09'
+      if(string(4:6).eq.'Oct') today(1:2)='10'
+      if(string(4:6).eq.'Nov') today(1:2)='11'
+      if(string(4:6).eq.'Dec') today(1:2)='12'
+      today(7:8)=string(8:9)
+      today(4:5)=string(1:2)
       call time(now(1:8))
       now(9:10)='  '
 #endif
+      if(today(4:4).eq.' ') today(4:4)='0'
       return
       end
       subroutine matinv(a,n,ndim)
