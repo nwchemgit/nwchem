@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.59 2003-10-17 22:55:26 carlfahl Exp $
+c  $Id: moints_semi.F,v 1.60 2004-05-20 02:22:53 edo Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -808,6 +808,9 @@ c
       double precision faddr
       integer o, vv, pv, nocc, npv, ooffset
       integer myid, rlo, rhi, clo, chi, k_local, ld
+#ifdef  BAD_GACCESS
+      integer l_local
+#endif
       integer ierr
       character*80 errmsg
 c
@@ -815,7 +818,12 @@ c
       npv = pvhi - pvlo + 1
       myid = ga_nodeid()
       call ga_distribution(g_buf, myid, rlo, rhi, clo, chi )
-
+#ifdef  BAD_GACCESS
+      if(.not.ma_push_get(MT_DBL,(rhi-rlo+1)*(chi-clo+1),
+     $  'scratch buff', l_local, k_local)) call
+     $  errquit('mointsemi: pushget failed',0)
+#endif
+c
       do o=1,nocc
         ooffset = (o-1)*rlen
         do pv=pvlo,pvhi	
@@ -823,7 +831,11 @@ c
           faddr = iocnt + 
      $            ma_sizeof(MT_DBL,((o-1)*npv+pv-pvlo)*nnbf,MT_BYTE)
           if ((vv.ge.clo).and.(vv.le.chi)) then
+#ifdef  BAD_GACCESS
+            call ga_get(g_buf,rlo,rhi,vv,vv,dbl_mb(k_local),ld)
+#else
             call ga_access(g_buf, rlo, rhi, vv, vv, k_local, ld )
+#endif
             ierr=eaf_write(munit, faddr, dbl_mb(k_local+ooffset), 
      $                    ma_sizeof(MT_DBL,rlen,MT_BYTE))
             if(ierr.ne.0) then
@@ -833,13 +845,20 @@ c
      ,              errmsg(1:inp_strlen(errmsg))
                call errquit('moints_wrbuf: failed on write',0, DISK_ERR)
             endif
+#ifdef BAD_GACCESS
+#else
             call ga_release(g_buf, rlo, rhi, vv, vv )
+#endif
           else
             call errquit('moints_semi: wrong distrib for GA buffer',0,
      &       GA_ERR)
           endif
         enddo
       enddo
+#ifdef  BAD_GACCESS
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('mointsemi: popstack failed',0,0)
+#endif
       return
       end
           
