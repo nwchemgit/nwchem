@@ -46,6 +46,6 @@ else
   OBJ_OPTIMIZE = nwfft3d.o
 endif
 
-include $(NWCHEM_TOP)/src/config/makefile.h
-include $(NWCHEM_TOP)/src/config/makelib.h
+include ../../config/makefile.h
+include ../../config/makelib.h
 

@@ -57,24 +57,24 @@ endif
 
 DO_ESSL = YES
 ifeq ($(NWCHEM_TARGET),SP1)
-  LIB_INC = -I$(NWCHEM_TOP)/src/include -I/usr/lpp/ppe.poe/include
+  LIB_INC = -I../../include -I/usr/lpp/ppe.poe/include
   LIBDIRS = -L/usr/lpp/ppe.poe/lib -L/usr/lib -L$(HOME)/pfft1.0/lib  \
-          -L$(NWCHEM_TOP)/nwchem/lib/SP1
+          -L../../..//lib/SP1
   ifeq ($(FFTTYPE),EMSLFFT)
      DO_ESSL = NO
   endif
 else
-  LIB_INC = -I$(NWCHEM_TOP)/src/include 
-  LIBDIRS = -L$(NWCHEM_TOP)/lib/$(TARGET)
+  LIB_INC = -I../../include 
+  LIBDIRS = -L../../../lib/$(TARGET)
   ifeq ($(FFTTYPE),EMSLFFT)
      DO_ESSL = NO
   endif
 endif
 
 
-include $(NWCHEM_TOP)/src/config/makefile.h
+include ../../config/makefile.h
 
-WRAP = $(NWCHEM_TOP)/src/fft/pfftwrap
+WRAP = ../../fft/pfftwrap
 
 test:	$(OBJ) 
 	touch $(WRAP)/nwfft3d.F

@@ -67,6 +67,6 @@ OBJ_OPTIMIZE=	blktrn.o \
 		pfft1.o
 
 USES_BLAS = drain.F fillup.F
-include $(NWCHEM_TOP)/src/config/makefile.h
-include $(NWCHEM_TOP)/src/config/makelib.h
+include ../../../config/makefile.h
+include ../../../config/makelib.h
 

@@ -73,6 +73,6 @@ OBJ_OPTIMIZE=	dcfftb.o \
 		dradf5.o \
 		dradfg.o
 
-include $(NWCHEM_TOP)/src/config/makefile.h
+include ../../../config/makefile.h
 include $(CNFDIR)/makelib.h
 
