@@ -1,7 +1,7 @@
 
- MOLECULAR DYNAMICS                                                                                          00/10/25  08:21:22  
+ MOLECULAR DYNAMICS                                                                                          02/10/02  14:20:16  
 
- Title   NWChem:MD input                                                                                     00/10/25  08:21:22  
+ Title   NWChem:MD input                                                                                     02/10/02  14:20:16  
                                                                                          
                                                                                          
 
@@ -16,12 +16,15 @@
 
  Cutoff radius     0.900000 nm
 
- Isothermal ensemble external temperature   298.150000 K
- Temperature relaxation time solvent     0.100000 ps
- Temperature relaxation time solute      0.100000 ps
+ Isothermal ensemble external temperature   298.150000  298.150000 K
+ Temperature relaxation time solvent          0.100000 ps
+ Temperature relaxation time solute           0.100000 ps
+ Temperature annealing between times          0.000000    0.000000 ps
  Isobaric ensemble external pressure  1.02500E+05 Pa
  Pressure relaxation time     0.500000 ps
  Compressebility  4.53000E-10 m**2/N
+
+ Leap-frog integration
 
  Maximum number of solvent SHAKE iterations   100, solvent SHAKE tolerance     0.000001 nm
  Maximum number of solute SHAKE iterations    100, solute SHAKE tolerance      0.000001 nm
@@ -36,71 +39,52 @@
  Frequency recording solute coordinates                   0
  Frequency recording system velocities                    0
  Frequency recording solute velocities                    0
+ Frequency recording system forces                        0
+ Frequency recording solute forces                        0
 
  LOAD BALANCING
 
- None
+ Redistribution of inter-processor box pairs: retry    10
+ Resizing of processor domains: smallest scaling     0.750000
 
  Load balancing based on last synchronization time
 
  TOPOLOGY
 
- ATOM TYPES
+ DATA PACKING
 
-       Type                              Atomic number    Mass
+ Packing solute in   1 integers :   14
+               significant bits :    2   5   3   2   2   2   2   2   5   2   2   2   2   2
+ Packing solvent in  1 integers :    4
+               significant bits :   11   5   3   5
 
-    1  Na         Na         K            11   11   19   22.989770   22.989770   39.100000
-    2  OWS  w     OWS  w     OWS  w        8    8    8   15.999400   15.999400   15.999400
-    3  HWS  w     HWS  w     HWS  w        1    1    1    1.008000    1.008000    1.008000
+ POSITIONAL CONSTRAINTS
+ Number of fix directives is     0
 
- VAN DER WAALS PARAMETERS
-
-            Atom types  v. d. Waals v. d. Waals Atom types  v. d. Waals v. d. Waals Atom types  v. d. Waals v. d. Waals
-                                    3rd neighb                          3rd neighb                          3rd neighb 
-
-    1    1  Na    Na    0.70613E-04 0.35303E-04 Na    Na    0.70613E-04 0.35303E-04 K     K     0.61945E-04 0.30973E-04
-                        0.20152E-07 0.10075E-07             0.20152E-07 0.10075E-07             0.69901E-06 0.34951E-06
-    1    2  Na    OWS   0.44430E-03 0.21632E-03 Na    OWS   0.44430E-03 0.21632E-03 K     OWS   0.45437E-03 0.22217E-03
-                    w   0.24609E-06 0.11797E-06         w   0.24609E-06 0.11797E-06         w   0.17279E-05 0.83543E-06
-    1    3  Na    HWS   0.00000E+00 0.00000E+00 Na    HWS   0.00000E+00 0.00000E+00 K     HWS   0.00000E+00 0.00000E+00
-                    w   0.00000E+00 0.00000E+00         w   0.00000E+00 0.00000E+00         w   0.00000E+00 0.00000E+00
-    2    2  OWS   OWS   0.26169E-02 0.12444E-02 OWS   OWS   0.26169E-02 0.12444E-02 OWS   OWS   0.26169E-02 0.12444E-02
-                   ww   0.26332E-05 0.12174E-05        ww   0.26332E-05 0.12174E-05        ww   0.26332E-05 0.12174E-05
-    2    3  OWS   HWS   0.00000E+00 0.00000E+00 OWS   HWS   0.00000E+00 0.00000E+00 OWS   HWS   0.00000E+00 0.00000E+00
-                   ww   0.00000E+00 0.00000E+00        ww   0.00000E+00 0.00000E+00        ww   0.00000E+00 0.00000E+00
-    3    3  HWS   HWS   0.00000E+00 0.00000E+00 HWS   HWS   0.00000E+00 0.00000E+00 HWS   HWS   0.00000E+00 0.00000E+00
-                   ww   0.00000E+00 0.00000E+00        ww   0.00000E+00 0.00000E+00        ww   0.00000E+00 0.00000E+00
-
- CHARGE TYPES
-
-         Charge                                 Polarization
-
-    1    1.000000    1.000000    1.000000       0.000000    0.000000    0.000000
-    2   -0.847600   -0.847600   -0.847600       0.000000    0.000000    0.000000
-    3    0.423800    0.423800    0.423800       0.000000    0.000000    0.000000
-    4    0.000000    0.000000    0.000000       0.000000    0.000000    0.000000
-
- SOLUTE
-
-
- Total solute charge is         1.0000000000
+ Solute fix applied to         0 out of        1 atoms
+ Solvent fix applied to        0 out of      529 molecules
 
 
  DOMAIN DECOMPOSITION
 
- Processor count     1 =    1 x    1 x    1
- Box count           8 =    2 x    2 x    2
+ Processor count     2 =    1 x    1 x    2
+ Cell count          8 =    2 x    2 x    2
+
+ Minimum cell size     0.945945 x    0.945945 x    0.945945
+
+ Unable to read previous box pair list
+
 
  Initial distribution p:b(w+s)
 
-      0:    8(   1587+      1)
+      0:    4(    798+      1)      1:    4(    789+      0)
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  08:21:25  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    02/10/02  14:20:17  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.02000  295.98 1.88E+07    16.252 1.0000 1.0000 1.0000-2.6745E+04 4.7707E+03-2.1974E+04 3.9092E+03-1.8065E+04
+    0.02000  297.48 3.38E+07    16.260 1.0000 1.0000 1.0001-2.6714E+04 4.8050E+03-2.1909E+04 3.9289E+03-1.7980E+04
 
  TIMING ANALYSIS
 
@@ -108,4 +92,4 @@
 
                                                Wall            CPU
 
- MD step                   10                 0.256          0.162
+ MD step                   10                 0.103          0.096
