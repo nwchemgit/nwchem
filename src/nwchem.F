@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.62 1996-01-27 02:06:32 d3g681 Exp $
+c     $Id: nwchem.F,v 1.63 1996-02-08 08:47:40 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -226,7 +226,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 22)
+      parameter (ntasks = 23)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
      $     'raktest',           ! 2
@@ -249,7 +249,8 @@ c
      $     'freqdft',           ! 19
      $     'mcscf',             ! 20
      $     'nwargos',           ! 21
-     $     'fourindex'          ! 22
+     $     'fourindex',         ! 22
+     $     'selci'              ! 23
      $     /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -260,9 +261,9 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
-     &        140, 150, 160, 170, 180, 190, 200, 210, 220, 230)
-     $        ind
+         goto (10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 
+     $        110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+     $        210, 220, 230) ind
 c     
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -313,79 +314,79 @@ C     RI-MP2 energy (SCF must be done separately first)
 c     
  90      call rimp2(rtdb)
          goto 1000
-c$$$  c
-c$$$  C        RI-SCF
-c$$$  c
-c$$$  100     call ri_scf(rtdb)
-c$$$  goto 1000
 c     
 c     integral check sum
 c     
- 110     call task_check_sum(rtdb)
+ 100     call task_check_sum(rtdb)
          goto 1000
 c     
 c     dft
 c     
- 120     continue 
+ 110     continue 
          call nwdft(rtdb)
          goto 1000
 c     
 c     MD
 c     
- 130     continue
+ 120     continue
          call mdmain(rtdb)
          goto 1000
 c     
 c     dft gradient
 c     
- 140     continue
+ 130     continue
 C     write(6,*) 'NWdft gradient not linked into this executable'
          call dft_grad_top(rtdb)
          goto 1000
 c     
 c     optdft ... dft optimization
 c     
- 150     call dft_optimize(rtdb)
+ 140     call dft_optimize(rtdb)
          goto 1000
 c     
 c     conventional direct MP2 (requires moints module)
 c     
- 160     call direct_mp2(rtdb)
+ 150     call direct_mp2(rtdb)
          goto 1000
 c     
 c     Miles test 
 c     
- 170     call mjdtest(rtdb)
+ 160     call mjdtest(rtdb)
          goto 1000
 c     
 c     CCSD
 c     
- 180     call ccsd(rtdb)
+ 170     call ccsd(rtdb)
          goto 1000
 c     
 c     SCF frequencies by finite difference (in stepper)
 c     
- 190     call scf_freq(rtdb)
+ 180     call scf_freq(rtdb)
          goto 1000
 c     
 c     DFT frequencies by finite difference (in stepper)
 c     
- 200     call dft_freq(rtdb)
+ 190     call dft_freq(rtdb)
          goto 1000
 c     
 c     MCSCF 
 c     
- 210     call mcscf(rtdb)
+ 200     call mcscf(rtdb)
          goto 1000
 c     
 c     NW_ARGOS the md package supurbum
 c     
- 220     call nwargos(rtdb)
+ 210     call nwargos(rtdb)
          goto 1000
 c     
 c     Four index
 c     
- 230     call moints_full(rtdb)
+ 220     call moints_full(rtdb)
+         goto 1000
+c
+c     Selected CI
+c
+ 230     call selci(rtdb)
          goto 1000
 c     
       else
