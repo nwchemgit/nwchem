@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.4 2003-03-14 01:18:56 marat Exp $
+* $Id: paw_force.F,v 1.5 2003-03-15 00:05:20 bylaska Exp $
 *
 
 !**************************************************
@@ -297,20 +297,23 @@ c     *** calculate weights ***
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
              
-              wx_tmp = wx_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+              wx_tmp = wx_tmp 
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
              
-              wy_tmp = wy_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cy_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+              wy_tmp = wy_tmp 
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
              
-              wz_tmp = wz_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cz_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+              wz_tmp = wz_tmp 
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
              
            end do
            dcpl_mb(paw_force_wx_u(1)+ii) = wx_tmp*occup
@@ -326,32 +329,35 @@ c           !*** this loop is not computed when ispin=1 ***
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
 
-             wx_tmp = wx_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+             wx_tmp = wx_tmp 
+     >              + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >               *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+     >              + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >               *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
              
-              wy_tmp = wy_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cy_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+              wy_tmp = wy_tmp 
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
              
-              wz_tmp = wz_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cz_u(1)+indx_coeff1)+
-     >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+              wz_tmp = wz_tmp 
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
  
            end do
            dcpl_mb(paw_force_wx_d(1)+ii) = wx_tmp*occup
            dcpl_mb(paw_force_wy_d(1)+ii) = wy_tmp*occup
            dcpl_mb(paw_force_wz_d(1)+ii) = wz_tmp*occup
 
-           dcpl_mb(paw_force_wx(1)+ii) = dcpl_mb(paw_force_wx_u(1)+ii)+
-     >                                 dcpl_mb(paw_force_wx_d(1)+ii)    
-           dcpl_mb(paw_force_wy(1)+ii) = dcpl_mb(paw_force_wy_u(1)+ii)+
-     >                                 dcpl_mb(paw_force_wy_d(1)+ii)    
-           dcpl_mb(paw_force_wz(1)+ii) = dcpl_mb(paw_force_wz_u(1)+ii)+
-     >                                 dcpl_mb(paw_force_wz_d(1)+ii)    
+           dcpl_mb(paw_force_wx(1)+ii) = dcpl_mb(paw_force_wx_u(1)+ii)
+     >                                 + dcpl_mb(paw_force_wx_d(1)+ii)    
+           dcpl_mb(paw_force_wy(1)+ii) = dcpl_mb(paw_force_wy_u(1)+ii)
+     >                                 + dcpl_mb(paw_force_wy_d(1)+ii)    
+           dcpl_mb(paw_force_wz(1)+ii) = dcpl_mb(paw_force_wz_u(1)+ii)
+     >                                 + dcpl_mb(paw_force_wz_d(1)+ii)    
            
            ii=ii +1
         end do
@@ -407,13 +413,13 @@ c           !*** this loop is not computed when ispin=1 ***
             do j=1,nbasis
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
-                  i_w   = i_w0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+                  i_w   = i_w0-1+(njlm+lj+mj+1)
+     >                  +(nilm+li+mi)*paw_proj_nbasis(ia)
 
                   write(nu,*) i,mi,j,mj,in
-                  write(nu,*)dcpl_mb(paw_force_wx_u(1)+ii)
-                  write(nu,*)dcpl_mb(paw_force_wy_u(1)+ii)
-                  write(nu,*)dcpl_mb(paw_force_wz_u(1)+ii)
+                  write(nu,*) dcpl_mb(paw_force_wx_u(1)+ii)
+                  write(nu,*) dcpl_mb(paw_force_wy_u(1)+ii)
+                  write(nu,*) dcpl_mb(paw_force_wz_u(1)+ii)
                 
                   ii =ii +1
                 end do
@@ -474,9 +480,9 @@ c           !*** this loop is not computed when ispin=1 ***
         i_w = int_mb(i_paw_ovlp_w(1) + in - 1)
  
 
-        tmp_fx = dcmplx(0.0,0.0)
-        tmp_fy = dcmplx(0.0,0.0)
-        tmp_fz = dcmplx(0.0,0.0)
+        tmp_fx = dcmplx(0.0d0,0.0d0)
+        tmp_fy = dcmplx(0.0d0,0.0d0)
+        tmp_fz = dcmplx(0.0d0,0.0d0)
         do ii=1,nb2
            tmp_fx = tmp_fx + 
      >             dcpl_mb(gop_u(1)+i_w+ii-1)*
