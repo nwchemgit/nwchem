@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.58 2002-02-13 18:17:11 windus Exp $ 
+% $Id: dft.tex,v 1.59 2002-02-14 22:42:26 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -1009,11 +1009,10 @@ Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-29).
 
 The user can also specify grid parameters specific for a given atom type: 
-parameters that must be supplied are: atom tag, number of radial points, number
-of angular points and \verb+accQrad+ (all three parameters must be given).
+parameters that must be supplied are: atom tag and number of radial points.
 As an example, here is a grid input line for the water molecule
 \begin{verbatim}
-grid lebedev 80 11 H 70 8 12 O 90 11 15 
+grid lebedev 80 11 H 70 8  O 90 11 
 \end{verbatim}
 
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
