@@ -3,7 +3,7 @@
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
-c $Id: pre_atype.F,v 1.10 1998-06-08 23:29:29 d3j191 Exp $
+c $Id: pre_atype.F,v 1.11 1998-07-14 15:47:26 d3j191 Exp $
 c
       implicit none
 c
@@ -328,7 +328,8 @@ c     determine the atom types
 c     ------------------------
 c
       if(util_print('atomtypes',print_debug)) then
-      write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+      write(lfnout,'(i5,a4,5i5)')
+     +  (i,catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
       endif
 c
       do 38 i=ilo,ihi

@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_pdbseq.F,v 1.9 1998-06-11 18:51:54 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.10 1998-07-14 15:47:29 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -25,7 +25,7 @@ c
 #include "util.fh"
 c
       integer iunit,lfnout,model,mseq,nseq,matm,natm,mssb,nssb,mlnk,nlnk
-      integer lseq(4,mseq),latm(5,matm),lssb(2,mssb),llnk(2,mlnk)
+      integer lseq(4,mseq),latm(5,matm),lssb(2,mssb),llnk(4,mlnk)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
@@ -51,6 +51,8 @@ c
       endif
 c
 c     initialize the lists
+c
+c     lseq(1,i) : actual residue number on pdb file
 c
       do 10 i=1,mseq
       cseq(1,i)='     '
@@ -121,10 +123,12 @@ c     LINK
 c
       if(card(1:6).eq.'LINK  ') then
       nlnk=nlnk+1
-      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
+      if(nlnk.gt.mlnk) call errquit('pdbseq: increase mlnk',9999)
       read(card,2011)
      + clnk(1,nlnk),llnk(1,nlnk),clnk(2,nlnk),llnk(2,nlnk)
  2011 format(6x,a4,6x,i4,17x,a4,6x,i4)
+      llnk(3,nlnk)=0
+      llnk(4,nlnk)=0
       goto 1
       endif
 c

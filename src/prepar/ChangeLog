@@ -52,3 +52,11 @@ Jun 15 1998	 Bug fixes: pre_boxsiz, pre_orient, pre_wrtrst, pre_wrttop
 Jun 24 1998	 Fix memory problem occurring in solvent-only preparations
 Jul 09 1998      Add positional fix commands
                  Slightly increase hydrogen radius
+Jul 14 1998	 Add routine to determine if a segment is amino acid (pre_protein)
+		 Put modified residue name on sequence file
+		 Number non chain link atoms from 3 up ( instead of all being 3)
+		 Fix file name problem in pre_mkrst
+		 Expand link array to include global atom number
+		 Fix bug in solvation routine
+	         Fix bug in bonded list overwrite in pre_mkfrg
+		 More diagnostic messages added

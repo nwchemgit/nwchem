@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.13 1998-07-09 20:20:58 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.14 1998-07-14 15:47:28 d3j191 Exp $
 c
       implicit none
 c
@@ -331,8 +331,10 @@ c
 c     get restart file name for the solvent
 c     -------------------------------------
 c
+      print*,slvmdl
       if(.not.util_nwchemrc_get(slvmdl,filslv))
      + call errquit('util_nwchemrc_get failed on slvmdl',9999)
+      print*,filslv
       if(util_print('coordinates',print_high)) then
       write(lfnout,1008) filslv(1:index(filslv,' ')-1)
  1008 format(' Solvent',t40,a,/)
@@ -517,7 +519,7 @@ c
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
-      write(lfnout,1011) filnam(1:index(filnam,' ')-1),nmis,nsa
+      write(lfnout,1011) filpdb(1:index(filpdb,' ')-1),nmis,nsa
  1011 format(' PDB file',t40,a,/,
      + ' Number of missing coordinates',t40,i8,/,
      + ' Total number of atoms',t40,i8,/)

@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.15 1998-07-09 20:20:57 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.16 1998-07-14 15:47:27 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -61,7 +61,7 @@ c
       integer nring3,nring4,nring5,nring6
 c
       integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
-      integer ibnd,nbnd,nang,ndih,nconn
+      integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
 c
       if(util_print('where',print_debug)) then
@@ -96,6 +96,14 @@ c                  jhi : last atom
 c
       ilo=lseq(3,iseq)
       ihi=lseq(3,iseq+1)-1
+c
+      linkid=3
+      do 55 j=ilo,ihi
+      if(latm(5,j).ge.3) then
+      latm(5,j)=linkid
+      linkid=linkid+1
+      endif
+   55 continue
 c
       if(ilist.eq.0) then
 c
@@ -257,7 +265,7 @@ c
       if(util_print('sequence',print_medium)) then
       write(lfnout,3003) j+1-ilo,catm(2,j),catm(3,j),
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
- 3003 format(i5,1xa4,2x,a6,4i5,2f12.6)
+ 3003 format(i5,1x,a4,2x,a6,4i5,2f12.6)
       endif
       write(iunit,2003) j+1-ilo,catm(2,j),catm(3,j),
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
@@ -273,30 +281,34 @@ c
       write(iunit,2004) lbnd(1,ibnd)+1-ilo,lbnd(2,ibnd)+1-ilo
  2004 format(2i5)
       nconn=nconn+1
-      lbnd(1,nconn)=lbnd(1,ibnd)+1-ilo
-      lbnd(2,nconn)=lbnd(2,ibnd)+1-ilo
       endif
    15 continue
 c
       if(nconn.gt.0.and.util_print('sequence',print_medium)) then
-      write(lfnout,3004) (lbnd(1,ibnd),lbnd(2,ibnd),ibnd=1,nconn)
- 3004 format(/,' Connectivity',//,(5x,10(i3,'-',i3,2x)))
+      write(lfnout,3004) 
+      do 18 ibnd=1,nbnd
+      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
+     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi)
+     + write(lfnout,3005) lbnd(1,ibnd)+1-ilo,lbnd(2,ibnd)+1-ilo
+   18 continue
+ 3004 format(/,' Connectivity',/)
+ 3005 format(5x,i3,'-',i3)
       endif
 c
       close(unit=iunit)
       if(util_print('sequence',print_medium)) then
-      write(lfnout,3005)
- 3005 format(' ')
+      write(lfnout,3006)
+ 3006 format(' ')
       endif
 c
       if(util_print('sequence',print_medium)) then
-      write(lfnout,3006) filnam(1:len_f)
- 3006 format(' Created fragment',t40,a,/)
+      write(lfnout,3007) filnam(1:len_f)
+ 3007 format(' Created fragment',t40,a,/)
       endif
 c
       if(.not.found.and.util_print('sequence',print_none)) then
-      write(lfnout,3007) csgm(i)(1:length)
- 3007 format(' Unresolved atom types in fragment',a,/)
+      write(lfnout,3008) csgm(i)(1:length)
+ 3008 format(' Unresolved atom types in fragment',a,/)
       goto 9999
       endif
 c

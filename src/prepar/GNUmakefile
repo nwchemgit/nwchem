@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 1998-07-09 20:20:56 d3j191 Exp $
+# $Id: GNUmakefile,v 1.14 1998-07-14 15:47:26 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -48,6 +48,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_parcnv.o\
              pre_pdbseq.o\
              pre_pdbsiz.o\
+             pre_protein.o\
              pre_rdgeom.o\
              pre_rdpdb.o\
              pre_rdrst.o\

@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.6 1998-06-08 23:29:39 d3j191 Exp $
+c $Id: pre_term.F,v 1.7 1998-07-14 15:47:30 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -34,6 +34,11 @@ c
       if(lseq(1,j).eq.llnk(2,i)) jsgm=j
     2 continue
       if(isgm.eq.0.or.jsgm.eq.0) call errquit('error in pre_term',9999)
+c
+      if(util_print('where',print_high)) then
+      write(lfnout,1000) llnk(1,i),clnk(1,i),llnk(2,i),clnk(2,i)
+ 1000 format(' Link ',i5,':',a4,4x,i5,':',a4)
+      endif
 c
       if(.not.pre_sgmfil(cseq(isgm),lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t))
@@ -74,18 +79,6 @@ c
       endif
 c
     1 continue
-c
-c     adjust the segment names
-c     ------------------------
-c
-      do 3 i=1,nseq+1
-      if(lseq(2,i).ne.0) then
-      iu=index(cseq(i),' ')
-      if(lseq(2,i).eq.-2) cseq(i)(iu:iu+1)='_M'
-      if(lseq(2,i).eq.-1) cseq(i)(iu:iu+1)='_N'
-      if(lseq(2,i).gt.0) cseq(i)(iu:iu+1)='_C'
-      endif
-    3 continue
 c
       pre_term=.true.
       return

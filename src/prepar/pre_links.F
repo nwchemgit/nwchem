@@ -1,8 +1,8 @@
-      logical function pre_links(lfnout,xatm,catm,latm,matm,
+      logical function pre_links(lfnout,ffield,xatm,catm,latm,matm,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_links.F,v 1.5 1998-06-08 23:29:32 d3j191 Exp $
+c $Id: pre_links.F,v 1.6 1998-07-14 15:47:27 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -16,14 +16,15 @@ c
 c
 #include "util.fh"
 c
-      logical pre_short
-      external pre_short
+      logical pre_short,pre_protein
+      external pre_short,pre_protein
 c
       integer lfnout,matm,mseq,nseq,mlnk,nlnk
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
-      integer lseq(4,mseq),llnk(2,mlnk)
+      character*80 ffield
+      integer lseq(4,mseq),llnk(4,mlnk)
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
       integer ishort,jshort
@@ -35,6 +36,33 @@ c
       if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_links ')
+      endif
+c
+c     get atom index for links input from pdb
+c     ---------------------------------------
+c
+      if(nlnk.gt.0) then
+      do 21 j=1,nseq
+      do 22 i=1,nlnk
+      if(llnk(1,i).eq.lseq(1,j)) then
+      llnk(1,i)=i
+      goto 21
+      endif
+      if(llnk(2,i).eq.lseq(1,j)) then
+      llnk(2,i)=i
+      goto 21
+      endif
+   22 continue
+      call errquit('Illegal link on pdb',9999)
+   21 continue
+      do 23 i=1,nlnk
+      do 24 j=lseq(3,llnk(1,i)),lseq(3,llnk(1,i)+1)-1
+      if(clnk(1,i).eq.catm(2,j)(1:4)) llnk(3,i)=j
+   24 continue
+      do 25 j=lseq(3,llnk(2,i)),lseq(3,llnk(2,i)+1)-1
+      if(clnk(2,i).eq.catm(2,j)(1:4)) llnk(4,i)=j
+   25 continue
+   23 continue
       endif
 c
       mol=0
@@ -60,6 +88,17 @@ c
       else
       call errquit('inconsistent links',9999)
       endif
+      if(.not.pre_protein(ffield,cseq(1,i)).or.
+     + .not.pre_protein(ffield,cseq(1,i+1))) then
+      nlnk=nlnk+1
+      if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
+      llnk(1,nlnk)=i
+      llnk(2,nlnk)=i+1
+      llnk(3,nlnk)=ishort
+      llnk(4,nlnk)=jshort
+      clnk(1,nlnk)=catm(2,ishort)(1:4)
+      clnk(2,nlnk)=catm(2,jshort)(1:4)
+      endif
       endif
     1 continue
 c
@@ -77,6 +116,8 @@ c
       if(nlnk.gt.mlnk) call errquit('increase mlnk',9999)
       llnk(1,nlnk)=i
       llnk(2,nlnk)=j
+      llnk(3,nlnk)=ishort
+      llnk(4,nlnk)=jshort
       clnk(1,nlnk)=catm(2,ishort)(1:4)
       clnk(2,nlnk)=catm(2,jshort)(1:4)
       l=lseq(4,j)
@@ -106,10 +147,17 @@ c
     6 continue
     4 continue   
 c     
-c     change segment names based on links
-c     -----------------------------------
+c     change amino acid segment names based on links
+c     ----------------------------------------------
 c
       do 8 i=1,nseq
+      if(pre_protein(ffield,cseq(1,i))) goto 11
+      do 12 j=lseq(3,i),lseq(3,i+1)-1
+      if(latm(5,j).eq.1) latm(5,j)=3
+      if(latm(5,j).eq.2) latm(5,j)=3
+   12 continue
+      goto 8
+   11 continue
       link1=0
       link2=0
       link3=0

@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.2 1998-05-15 19:11:27 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.3 1998-07-14 15:47:30 d3j191 Exp $
 c
       implicit none
 c
@@ -57,13 +57,13 @@ c
 c
       if(ltry) then
       do 10 i=1,nsa
-      if((x-xs(1,i))**2+(y-xs(2,i))**2+(z-xs(3,i))**2.lt.touch2) goto 4
+      if((x-xs(1,i))**2+(y-xs(2,i))**2+(z-xs(3,i))**2.lt.touch2) goto 9
    10 continue
       if(nwmc.gt.0) then
       do 11 i=1,nwmc
       do 12 j=1,nwa
       if((x-xwc(1,j,i))**2+(y-xwc(2,j,i))**2+(z-xwc(3,j,i))**2
-     + .lt.touch2) goto 4
+     + .lt.touch2) goto 9
    12 continue
    11 continue
       endif

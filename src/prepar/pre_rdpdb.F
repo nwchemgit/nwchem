@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv)
 c
-c $Id: pre_rdpdb.F,v 1.7 1998-06-24 20:06:38 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.8 1998-07-14 15:47:29 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num,iw
+      integer i,last,nprv,num,iw,length
       real*8 x,y,z
       character*3 namr
       character*4 nama
@@ -30,11 +30,22 @@ c
       lnames=lnams
       iw=0
 c
+      length=index(filpdb,' ')-1
+      if(util_print('where',print_debug)) then
+      write(lfnout,2006) filpdb(1:length)
+ 2006 format(/,'pdb_read  ',a)
+      endif
+c
 c     open pdb file
 c     -------------
 c
       open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
      + form='formatted',status='old',err=9999)
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,2000) filpdb(1:length)
+ 2000 format(' PDB OPEN  ',a)
+      endif
 c
 c     open the alternate names file
 c     -----------------------------
@@ -131,6 +142,11 @@ c
     9 continue
 c
       close(unit=lfnpdb)
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,2003) filpdb(1:length)
+ 2003 format(' PDB CLOSE ',a)
+      endif
 c
       nmis=0
       do 4 i=1,msa

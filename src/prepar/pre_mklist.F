@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.10 1998-06-08 23:29:33 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.11 1998-07-14 15:47:28 d3j191 Exp $
 c
       implicit none
 c
@@ -123,13 +123,25 @@ c
    11 continue
       if(link1.eq.0.or.link2.eq.0)
      + call errquit('error 2 in pre_mklist',9999)
-      if(latm(3,link1).eq.0)
-     + call errquit('error 3 in pre_mklist',9999)
-      if(latm(3,link2).eq.0)
-     + call errquit('error 4 in pre_mklist',9999)
+      if(latm(3,link1).eq.0) then
+      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
+     + llnk(2,i),clnk(2,i),latm(3,link2)
+      call errquit('error 3 in pre_mklist',9999)
+      endif
+      if(latm(3,link2).eq.0) then
+      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
+     + llnk(2,i),clnk(2,i),latm(3,link2)
+ 1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
+      call errquit('error 4 in pre_mklist',9999)
+      endif
       lmat(latm(3,link1),isgm)=link2
       lmat(latm(3,link2),jsgm)=link1
     8 continue
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1005) (i,(lmat(j,i),j=1,10),i=1,nseq)
+ 1005 format(' Link matrix',//,(i5,':',10i5))
+      endif
 c
       nb=nbnd
       do 12 i=1,natm

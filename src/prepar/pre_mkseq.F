@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.14 1998-06-08 23:29:34 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.15 1998-07-14 15:47:28 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -80,7 +80,7 @@ c
       matm=natm
       mseq=nseq+1
       mssb=nssb
-      mlnk=nlnk+100
+      mlnk=nlnk+5*nseq
 c
 c     allocate memory for atom list
 c     -----------------------------
@@ -121,13 +121,13 @@ c
      + call errquit('Memory allocation failed for lssb',9999)
 c
 c     integer llnk(1,mlnk) : link segment 1
-c                  2       : link segment 1 atom number
-c                  3       : link segment 2
-c                  4       : link segment 2 atom number
+c                  2       : link segment 2 atom number
+c                  3       : link segment 1 global atom number
+c                  4       : link segment 2 global atom number
 c     char*4  clnk(1,mlnk) : link segment 1 atom name
 c                  2       : link segment 2 atom name
 c
-      if(.not.ma_push_get(mt_int,2*mlnk,"llnk",l_llnk,i_llnk))
+      if(.not.ma_push_get(mt_int,4*mlnk,"llnk",l_llnk,i_llnk))
      + call errquit('Memory allocation failed for llnk',9999)
       if(.not.ma_push_get(mt_byte,8*mlnk,"clnk",l_clnk,i_clnk))
      + call errquit('Memory allocation failed for clnk',9999)
@@ -214,7 +214,7 @@ c
 c     check segment links
 c     -------------------
 c
-      if(.not.pre_links(lfnout,
+      if(.not.pre_links(lfnout,ffield,
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk))

@@ -2,14 +2,14 @@
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,
      + slvmdl)
 c
-c $Id: pre_wrtseq.F,v 1.5 1998-04-29 18:35:30 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.6 1998-07-14 15:47:30 d3j191 Exp $
 c
 c     function to write the sequence file
 c
       implicit none
 c
       integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk
-      integer lseq(4,mseq),lssb(2,mssb),llnk(2,mlnk)
+      integer lseq(4,mseq),lssb(2,mssb),llnk(4,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
       character*10 slvmdl
@@ -30,7 +30,8 @@ c
       mol=lseq(4,i)
       length=index(cseq(2,i),'_')-1
       if(length.le.0) length=5
-      write(lfnseq,1000) lseq(1,i),cseq(2,i)(1:length)
+c      write(lfnseq,1000) lseq(1,i),cseq(2,i)(1:length)
+      write(lfnseq,1000) lseq(1,i),cseq(2,i)
  1000 format(i5,a)
     1 continue
 c
