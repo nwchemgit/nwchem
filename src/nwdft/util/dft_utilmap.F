@@ -168,6 +168,7 @@ c
       integer q,iat,jf
       double precision sum,mxsum
 c
+      mxsum=0d0
       do iat=1,natoms
         if(iniz(iat).eq.0) then
           rchi(iat)=0d0
