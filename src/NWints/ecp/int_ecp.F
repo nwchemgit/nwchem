@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.15 1999-03-09 19:26:10 mg201 Exp $
+* $Id: int_ecp.F,v 1.16 1999-03-10 00:47:24 d3e129 Exp $
       implicit none
 *::cr::7
 *------------------------------------------------*
@@ -335,7 +335,7 @@ c
         icf = infbs_cont(cont_icfp,iuc,bas_id)
         inp = infbs_cont(cont_nprim,iuc,bas_id)
         ing = infbs_cont(cont_ngen,iuc,bas_id)
-        il  = infbs_cont(cont_type,iuc,bas_id) + indx_grad ! for grads
+        il  = infbs_cont(cont_type,iuc,bas_id) 
         do j_cont = 1,basis_ncont
 *          if (.not.bas_print(basis_handle)) stop ' error'
 *          if (.not.gbs_map_print(basis_handle)) stop ' error '
@@ -345,11 +345,12 @@ c
           jcf = infbs_cont(cont_icfp,juc,bas_id)
           jnp = infbs_cont(cont_nprim,juc,bas_id)
           jng = infbs_cont(cont_ngen,juc,bas_id)
-          jl  = infbs_cont(cont_type,juc,bas_id) + indx_grad  ! one for grads
+          jl  = infbs_cont(cont_type,juc,bas_id)
           nV  = int_nbf_x(il)*int_nbf_x(jl)
           lecp_mem = 90000
-          call int_ecp_hf1(
-     &        coords(1,ic,ig),
+          if (indx_grad.eq.0) then
+            call int_ecp_hf1(
+     &          coords(1,ic,ig),
      &        dbl_mb(mb_exndcf(ie,bas_id)),
      &        dbl_mb(mb_exndcf(icf,bas_id)),
      &        inp,ing,il,ic,
@@ -358,6 +359,21 @@ c
      &        dbl_mb(mb_exndcf(jcf,bas_id)),
      &        jnp,jng,jl,jc,
      &        dpdum,nV,dpdum,lecp_mem,.true.)
+          elseif (indx_grad.eq.1) then
+            call intd_ecp_hf1(
+     &          coords(1,ic,ig),
+     &        dbl_mb(mb_exndcf(ie,bas_id)),
+     &        dbl_mb(mb_exndcf(icf,bas_id)),
+     &        inp,ing,il,ic,
+     &        coords(1,jc,jg),
+     &        dbl_mb(mb_exndcf(je,bas_id)),
+     &        dbl_mb(mb_exndcf(jcf,bas_id)),
+     &        jnp,jng,jl,jc,
+     &        dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+          else
+            call errquit('int_ecp_init: unknown initializaton',911)
+          endif
+
           lecp_mem = lecp_mem + nV  ! nint block used in api routine int_hf1sp
           mem_ecp = max(mem_ecp,lecp_mem)
 *          write(6,*)' i_cont ',i_cont
