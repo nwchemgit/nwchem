@@ -4,7 +4,7 @@ C     begin_seq_output -- Mark the start of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.1 1995-12-13 01:37:41 d3g681 Exp $
+C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine Begin_Seq_Output
@@ -50,7 +50,7 @@ C     end_seq_output -- Mark the end of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.1 1995-12-13 01:37:41 d3g681 Exp $
+C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine End_Seq_Output
@@ -99,6 +99,8 @@ C     If we are not node 0, simply say we are done
 C
       If ( Me .ne. TCG_Master) then
          Call SND(Msg_SeqOut_Ctrl, -Me, MItoB(1), TCG_Master, 1)
+         If ( .NOT. MA_Pop_Stack(H_Map)) Call ErrQuit(
+     $      'End_Seq_Output: Unable to free local memory', 0)
          Return
       EndIf
 C
@@ -138,7 +140,7 @@ C NAME
 C     write_seq -- Write sequentialized output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.1 1995-12-13 01:37:41 d3g681 Exp $
+C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine Write_Seq(LUN, Text)
