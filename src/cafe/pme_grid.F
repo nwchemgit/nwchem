@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.14 2000-07-18 17:42:40 d3j191 Exp $
+c $Id: pme_grid.F,v 1.15 2000-08-15 16:57:48 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -57,7 +57,7 @@ c
 c
 c     synchronize pme nodes
 c
-      call pme_sync(nodpme,int_mb(i_nodp))
+cxx      call pme_sync(nodpme,int_mb(i_nodp))
 c
 c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
@@ -180,9 +180,11 @@ c
 c     the following pme_flag/pme_wait/pme_flag combination may be
 c     replaced by a ga_sync() at loss of performance
 c
-      call pme_flag(1,-1,-1)
-      if(lpnode) call pme_wait(1,np)
-      call pme_flag(1,0,me)
+cxx      call pme_flag(1,-1,-1)
+cxx      if(lpnode) call pme_wait(1,np)
+cxx      call pme_flag(1,0,me)
+      call pme_sync(nodpme,int_mb(i_nodp))
+cxxx
 c
 c     retrieve local slab from global array space
 c
