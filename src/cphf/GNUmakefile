@@ -1,12 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.16 1998-04-01 18:32:40 d3e129 Exp $
+# $Id: GNUmakefile,v 1.17 1998-04-03 17:01:12 d3e129 Exp $
 #
 
         OBJ = cphf.o \
               cphf_poliz.o \
 	      cphf_solve.o 
-	      
-	      
+
+
 
     LIBRARY = libcphf.a
 
