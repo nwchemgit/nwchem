@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.124 2003-11-06 16:26:07 d3j191 Exp $
+c $Id: sp_init.F,v 1.125 2003-11-07 17:44:45 d3j191 Exp $
 c
       implicit none
 c
@@ -3040,6 +3040,7 @@ c
       bxs(j,1)=xs(i,1)
       bxs(j,2)=xs(i,2)
       bxs(j,3)=xs(i,3)
+      if(isl(i,lshop).eq.0) nonh=i
       if(iand(isl(i,lshop),1).eq.1) then
       if(nonh.gt.0) then
       bxs(j,1)=xs(nonh,1)-xs(i,1)
@@ -3051,8 +3052,6 @@ c
       bxs(j,2)=xs(nonh,2)-dist*bxs(j,2)
       bxs(j,3)=xs(nonh,3)-dist*bxs(j,3)
       endif
-      else
-      nonh=i
       endif
       if(lvs) then
       bvs(j,1)=vs(i,1)
