@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.7 1995-11-01 03:06:10 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.8 1995-11-01 20:07:13 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -338,10 +338,10 @@ c
      +         dAdrhoa*t2))/(ONE+twoab*alognd)
 
           dH0drhob = Three*H0*dgzetadbg +
-     +         g3*bb*aden1/(ONE+twoab*alognd)*(
+     +         g3*bb*aden1*(
      (         2.d0*t*dtdrhob*A1p2At2 + dAdrhob*t4 -
      -         alognd*A1p2At2*(2.d0*A*t*dtdrhob +
-     +         dAdrhob*t2))
+     +         dAdrhob*t2))/(ONE+twoab*alognd)
 
           if(.not.grad_corr) then
             Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
@@ -368,7 +368,7 @@ c
 
             dH0dgamma = g3*bb/(ONE+twoab*alognd)*
      *           aden1*2.d0*t*dtdgamma*A1p2At2*
-     *           (aden1-alognd*A)
+     *           (ONE-alognd*A)
 
             gaa = 2.d0*(dH0dgamma +dH1dgamma)*rhoval*fac
             gbb = gaa*fac
