@@ -1,9 +1,10 @@
 *
-* $Id: prp.F,v 1.20 1997-07-02 17:06:45 mdupuis Exp $
+* $Id: prp.F,v 1.21 1997-07-02 20:20:59 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
+#include "global.fh"
 #include "rtdb.fh"
       integer     rtdb, basis, geom
       logical     status
@@ -49,6 +50,7 @@ C
       OUT   =.FALSE.
       SOME  =.TRUE.        
       SOME  =SOME.OR.OUT
+      SOME  =SOME.and.ga_nodeid().eq.0
 C
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)
@@ -410,7 +412,8 @@ C
      1 DIPEFC,DIPTOT
 C
       NCALL=NCALL+1
-      GO TO 10
+      NCODE=1 
+C     GO TO 10
 C
   100 CONTINUE
 C
@@ -892,7 +895,7 @@ C
       IF(NCALL.GT.2)  GO TO 60
       IF(NCALL.EQ.2) REWIND IR
 c%%
-      READ(IR,MASS,END=60,ERR=60)
+c%%   READ(IR,MASS,END=60,ERR=60)
 c%%
 C
       SAME=.TRUE.
@@ -1328,7 +1331,7 @@ C
       endif
 C
       NCALL=NCALL+1
-      GO TO 10
+C     GO TO 10
 C
   100 CONTINUE
 C
@@ -1848,7 +1851,7 @@ C
       IF(NCALL.EQ.1) GO TO 30
       IF(NCALL.GT.2)  GO TO 60
       IF(NCALL.EQ.2) REWIND IR
-      READ(IR,MASS,END=60,ERR=60)
+C%%   READ(IR,MASS,END=60,ERR=60)
 C
       SAME=.TRUE.
       DO 20 IAT=1,NAT
@@ -2152,7 +2155,7 @@ C
       endif
 C
       NCALL=NCALL+1
-      GO TO 10
+C     GO TO 10
 C
   100 CONTINUE
 C
@@ -2737,7 +2740,7 @@ C
       IF(NCALL.EQ.1) GO TO 30
       IF(NCALL.GT.2)  GO TO 60
       IF(NCALL.EQ.2) REWIND IR
-      READ(IR,MASS,END=60,ERR=60)
+C%%   READ(IR,MASS,END=60,ERR=60)
 C
       SAME=.TRUE.
       DO 20 IAT=1,NAT
@@ -11430,7 +11433,6 @@ c       density matrix  D_up and D_down
         call ga_zero(g_dens(2))
         if(nopen .gt.0) then
            do iopen=1,nopen
-              write(6,*) 'iopen occ = ',iopen,occ(iopen)
               call ga_matmul_patch('n', 't', occ(iopen), 1.0d0,
      $           g_vecs,    1, nbf,        iopen , iopen          ,
      $           g_vecs,iopen, iopen          , 1, nbf,
@@ -11439,7 +11441,6 @@ c       density matrix  D_up and D_down
         endif
         if(nopenu.gt.0) then
            do iopen=1,nopenu
-              write(6,*) 'iopen occ = ',iopen,occ(iopen+nbf)
               call ga_matmul_patch('n', 't', occ(nbf+iopen), 1.0d0,
      $           g_vecs2,    1, nbf,       iopen , iopen          ,
      $           g_vecs2,iopen,iopen          , 1, nbf,
