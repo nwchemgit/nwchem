@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.1 2002-01-19 01:05:02 windus Exp $
+C  $Id: hess_dipder.F,v 1.2 2002-01-20 05:51:52 windus Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
@@ -161,11 +161,11 @@ c
               enddo
             enddo
 c
-            dder(i,atind) = dder(i,atind) + xdip
+            dder(i,atind) = dder(i,atind) - xdip
             atind = atind + 1
-            dder(i,atind) = dder(i,atind) + ydip
+            dder(i,atind) = dder(i,atind) - ydip
             atind = atind + 1
-            dder(i,atind) = dder(i,atind) + zdip
+            dder(i,atind) = dder(i,atind) - zdip
             atind = atind + 1
           enddo
         endif
