@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.35 2003-01-25 00:49:04 bylaska Exp $
+* $Id: control.F,v 1.36 2003-03-06 03:19:31 bylaska Exp $
 *
 
 *     ***********************************
@@ -463,6 +463,12 @@ c
       est_step_time   = -1
       est_finish_time = -1
       call current_second(cpu1_time)
+
+*     **** set gram_schmidt ***
+      gram_schmidt = .false.
+      if (.not.rtdb_get(rtdb,
+     >      'nwpw:gram-schmidt',mt_log,1,gram_schmidt))
+     >  gram_schmidt = .false.
       
       control_read = value
       return
@@ -1737,3 +1743,16 @@ c      end
       end
 
 
+*     ***************************
+*     *                	   	*
+*     *    control_gram_schmidt *
+*     *                  	*
+*     ***************************
+      logical function control_gram_schmidt()
+      implicit none
+
+#include "control.fh"
+
+      control_gram_schmidt=gram_schmidt
+      return
+      end
