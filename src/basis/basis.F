@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.40 1996-05-14 17:54:28 d3g681 Exp $
+c $Id: basis.F,v 1.41 1996-07-20 20:38:04 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -408,137 +408,137 @@ c add p now
      &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
-*rak:      bs_tags(1,usebas) = 'H'
-*rak:      bs_tags(2,usebas) = 'He'
-*rak:      bs_tags(3,usebas) = 'O'
-*rak:      infbs_head(HEAD_NTAGS,usebas) = 3
-*rak:      infbs_head(HEAD_NCONT,usebas) = 9
-*rak:      infbs_head(HEAD_NPRIM,usebas) = 30
-*rak:      infbs_head(HEAD_NCOEF,usebas) = 30
-*rak:c.. hydrogen
-*rak:      itag = 1
-*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 2
-*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
-*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
-*rak:      infbs_tags(TAG_FCONT,itag,usebas) = 1
-*rak:      infbs_tags(TAG_LCONT,itag,usebas) = 2
-*rak:c.. hydrogen cont 1 bas 1
-*rak:      icont = 1
-*rak:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas)  = 2
-*rak:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP ,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_ICFP ,icont,usebas)  = 3
-*rak:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
-*rak:      exndcf(1,usebas) =  5.44717800d00
-*rak:      exndcf(2,usebas) =  0.82454700d00
-*rak:      exndcf(3,usebas) =  0.15628500d00
-*rak:      exndcf(4,usebas) =  0.90469100d00
-*rak:c.. hydrogen cont 2 bas 2
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP ,icont,usebas)  = 5
-*rak:      infbs_cont(CONT_ICFP ,icont,usebas)  = 6
-*rak:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
-*rak:      exndcf(5,usebas) =  0.18319200d00
-*rak:      exndcf(6,usebas) =  1.00000000d00
-*rak:c.. helium 
-*rak:      itag = itag + 1
-*rak:      icont = icont + 1
-*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 2
-*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
-*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
-*rak:      infbs_tags(TAG_FCONT,itag,usebas) = icont
-*rak:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 2 - 1
-*rak:c.. helium cont 1 bas 3
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 7
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 9
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
-*rak:      exndcf(7,usebas) = 13.62670000
-*rak:      exndcf(8,usebas) =  1.99935000
-*rak:      exndcf(9,usebas) =  0.17523000
-*rak:      exndcf(10,usebas)=  0.89348300
-*rak:c.. helium cont 2 bas 4
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 11
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 12
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
-*rak:      exndcf(11,usebas) =  0.38299300
-*rak:      exndcf(12,usebas) =  1.00000000
-*rak:c.. oxygen
-*rak:      itag = itag + 1
-*rak:      icont = icont + 1
-*rak:      infbs_tags(TAG_NCONT,itag,usebas) = 5
-*rak:      infbs_tags(TAG_NPRIM,itag,usebas) = 9
-*rak:      infbs_tags(TAG_NCOEF,itag,usebas) = 9
-*rak:      infbs_tags(TAG_FCONT,itag,usebas) = icont
-*rak:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 5 - 1
-*rak:c.. oxygen cont 1 bas 5
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 3
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 13
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 16
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = itag
-*rak:      exndcf(13,usebas)  =  322.03700000d00
-*rak:      exndcf(14,usebas)  =   48.43080000d00
-*rak:      exndcf(15,usebas)  =   10.42060000d00
-*rak:      exndcf(16,usebas) =    0.05923940d00
-*rak:      exndcf(17,usebas) =    0.35150000d00
-*rak:      exndcf(18,usebas) =    0.70765800d00  
-*rak:c.. oxygen cont 2 bas 6
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 19
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 21
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
-*rak:      exndcf(19,usebas) =   7.40294000d00
-*rak:      exndcf(20,usebas) =   1.57620000d00
-*rak:      exndcf(21,usebas) =  -0.40445300d00
-*rak:      exndcf(22,usebas) =   1.22156000d00
-*rak:c.. oxygen cont 3 bas 7      
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 23
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 25
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
-*rak:      exndcf(23,usebas) =   7.40294000d00
-*rak:      exndcf(24,usebas) =   1.57620000d00
-*rak:      exndcf(25,usebas) =   0.24458600d00
-*rak:      exndcf(26,usebas) =   0.85395500d00
-*rak:c.. oxygen cont 4 bas 8
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 27
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 28
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
-*rak:      exndcf(27,usebas) = 0.37368400d00
-*rak:      exndcf(28,usebas) = 1.00000000d00
-*rak:c.. oxygen cont 5 bas 9
-*rak:      icont = icont + 1
-*rak:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
-*rak:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
-*rak:      infbs_cont(CONT_IEXP,icont,usebas)  = 29
-*rak:      infbs_cont(CONT_ICFP,icont,usebas)  = 30
-*rak:      infbs_cont(CONT_TAG,icont,usebas)   = 2
-*rak:      exndcf(29,usebas) = 0.37368400d00
-*rak:      exndcf(30,usebas) = 1.00000000d00
-*rak:c
+*_old_checking_code:      bs_tags(1,usebas) = 'H'
+*_old_checking_code:      bs_tags(2,usebas) = 'He'
+*_old_checking_code:      bs_tags(3,usebas) = 'O'
+*_old_checking_code:      infbs_head(HEAD_NTAGS,usebas) = 3
+*_old_checking_code:      infbs_head(HEAD_NCONT,usebas) = 9
+*_old_checking_code:      infbs_head(HEAD_NPRIM,usebas) = 30
+*_old_checking_code:      infbs_head(HEAD_NCOEF,usebas) = 30
+*_old_checking_code:c.. hydrogen
+*_old_checking_code:      itag = 1
+*_old_checking_code:      infbs_tags(TAG_NCONT,itag,usebas) = 2
+*_old_checking_code:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
+*_old_checking_code:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
+*_old_checking_code:      infbs_tags(TAG_FCONT,itag,usebas) = 1
+*_old_checking_code:      infbs_tags(TAG_LCONT,itag,usebas) = 2
+*_old_checking_code:c.. hydrogen cont 1 bas 1
+*_old_checking_code:      icont = 1
+*_old_checking_code:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas)  = 2
+*_old_checking_code:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP ,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_ICFP ,icont,usebas)  = 3
+*_old_checking_code:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
+*_old_checking_code:      exndcf(1,usebas) =  5.44717800d00
+*_old_checking_code:      exndcf(2,usebas) =  0.82454700d00
+*_old_checking_code:      exndcf(3,usebas) =  0.15628500d00
+*_old_checking_code:      exndcf(4,usebas) =  0.90469100d00
+*_old_checking_code:c.. hydrogen cont 2 bas 2
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE ,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_NGEN ,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP ,icont,usebas)  = 5
+*_old_checking_code:      infbs_cont(CONT_ICFP ,icont,usebas)  = 6
+*_old_checking_code:      infbs_cont(CONT_TAG  ,icont,usebas)  = itag
+*_old_checking_code:      exndcf(5,usebas) =  0.18319200d00
+*_old_checking_code:      exndcf(6,usebas) =  1.00000000d00
+*_old_checking_code:c.. helium 
+*_old_checking_code:      itag = itag + 1
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_tags(TAG_NCONT,itag,usebas) = 2
+*_old_checking_code:      infbs_tags(TAG_NPRIM,itag,usebas) = 3
+*_old_checking_code:      infbs_tags(TAG_NCOEF,itag,usebas) = 3
+*_old_checking_code:      infbs_tags(TAG_FCONT,itag,usebas) = icont
+*_old_checking_code:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 2 - 1
+*_old_checking_code:c.. helium cont 1 bas 3
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 7
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 9
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*_old_checking_code:      exndcf(7,usebas) = 13.62670000
+*_old_checking_code:      exndcf(8,usebas) =  1.99935000
+*_old_checking_code:      exndcf(9,usebas) =  0.17523000
+*_old_checking_code:      exndcf(10,usebas)=  0.89348300
+*_old_checking_code:c.. helium cont 2 bas 4
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 11
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 12
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*_old_checking_code:      exndcf(11,usebas) =  0.38299300
+*_old_checking_code:      exndcf(12,usebas) =  1.00000000
+*_old_checking_code:c.. oxygen
+*_old_checking_code:      itag = itag + 1
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_tags(TAG_NCONT,itag,usebas) = 5
+*_old_checking_code:      infbs_tags(TAG_NPRIM,itag,usebas) = 9
+*_old_checking_code:      infbs_tags(TAG_NCOEF,itag,usebas) = 9
+*_old_checking_code:      infbs_tags(TAG_FCONT,itag,usebas) = icont
+*_old_checking_code:      infbs_tags(TAG_LCONT,itag,usebas) = icont + 5 - 1
+*_old_checking_code:c.. oxygen cont 1 bas 5
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 3
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 13
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 16
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = itag
+*_old_checking_code:      exndcf(13,usebas)  =  322.03700000d00
+*_old_checking_code:      exndcf(14,usebas)  =   48.43080000d00
+*_old_checking_code:      exndcf(15,usebas)  =   10.42060000d00
+*_old_checking_code:      exndcf(16,usebas) =    0.05923940d00
+*_old_checking_code:      exndcf(17,usebas) =    0.35150000d00
+*_old_checking_code:      exndcf(18,usebas) =    0.70765800d00  
+*_old_checking_code:c.. oxygen cont 2 bas 6
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 19
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 21
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*_old_checking_code:      exndcf(19,usebas) =   7.40294000d00
+*_old_checking_code:      exndcf(20,usebas) =   1.57620000d00
+*_old_checking_code:      exndcf(21,usebas) =  -0.40445300d00
+*_old_checking_code:      exndcf(22,usebas) =   1.22156000d00
+*_old_checking_code:c.. oxygen cont 3 bas 7      
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 2
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 23
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 25
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*_old_checking_code:      exndcf(23,usebas) =   7.40294000d00
+*_old_checking_code:      exndcf(24,usebas) =   1.57620000d00
+*_old_checking_code:      exndcf(25,usebas) =   0.24458600d00
+*_old_checking_code:      exndcf(26,usebas) =   0.85395500d00
+*_old_checking_code:c.. oxygen cont 4 bas 8
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 0
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 27
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 28
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*_old_checking_code:      exndcf(27,usebas) = 0.37368400d00
+*_old_checking_code:      exndcf(28,usebas) = 1.00000000d00
+*_old_checking_code:c.. oxygen cont 5 bas 9
+*_old_checking_code:      icont = icont + 1
+*_old_checking_code:      infbs_cont(CONT_TYPE,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_NPRIM,icont,usebas) = 1
+*_old_checking_code:      infbs_cont(CONT_NGEN,icont,usebas)  = 1
+*_old_checking_code:      infbs_cont(CONT_IEXP,icont,usebas)  = 29
+*_old_checking_code:      infbs_cont(CONT_ICFP,icont,usebas)  = 30
+*_old_checking_code:      infbs_cont(CONT_TAG,icont,usebas)   = 2
+*_old_checking_code:      exndcf(29,usebas) = 0.37368400d00
+*_old_checking_code:      exndcf(30,usebas) = 1.00000000d00
+*_old_checking_code:c
       bas_321g_load = bas_rtdb_do_store(rtdb,
      &       bs_name(usebas), bs_tags(1,usebas), 
      &       infbs_head(1,usebas), infbs_tags(1,1,usebas),
@@ -683,11 +683,11 @@ c routine that loads a basis set from the rtdb and using the
 c geometry information builds the mapping arrays to contractions/
 c shells, basis functions, and centers.
 c
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
-#include "mafdecls.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -825,11 +825,11 @@ c
 *......................................................................
       logical function bas_geobas_build(basisin)
       implicit none
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
-#include "mafdecls.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -1196,10 +1196,10 @@ c
 c stores from argument data structures the basis set information to
 c the rtdb. 
 c
+#include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
 #include "rtdb.fh"
 c
 c     This routine stores the basis set information in the appropriate 
@@ -1320,9 +1320,9 @@ c
 *......................................................................
       logical function gbs_map_clear(basisin)
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c
 c routine to clear online map information and basis information
@@ -1411,11 +1411,11 @@ c
 c
 c prints the basis set <-> geometry mapping information
 c
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
 #include "geom.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1521,9 +1521,9 @@ c
 c     output to rtdb info about known basis sets
 c     
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.fh"
 c     
 c::passed
       integer rtdb ! [input] run time data base handle
@@ -1544,9 +1544,9 @@ c
 c
 c add basis set name to known basis set list on rtdb
 c
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input] run time data base handle
@@ -1618,9 +1618,9 @@ c     load in info about known basis sets ... this is more
 c     for diagnostic and debugging purposes
 c     
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb     ! [input] run time data base handle
@@ -1648,9 +1648,9 @@ c
 c
 c returns the center for a given mapped contraction
 c
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1684,9 +1684,9 @@ c
 c
 c returns the UNIQUE center for a given mapped contraction
 c
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1722,9 +1722,9 @@ c returns the first basis function index of a mapped contraction
 c in ifirst and the last basis function index in ilast
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1793,10 +1793,10 @@ c
 c returns the mapped contraction range on a given center
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1846,10 +1846,10 @@ c
 c routine to return the center of a given basis function 
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geom.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -1896,9 +1896,9 @@ c returns the mapped contraction index that contains the given
 c basis function index
 c 
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_numcont
@@ -2055,10 +2055,10 @@ c
 c  returns the generic information about the given mapped contraction
 c
       implicit none
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "basdeclsP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::function
       logical bas_check_handle
@@ -2373,11 +2373,11 @@ c
 c  calculate, return and store maximum basis function block size
 c   for all contractions in a given basis. 
 c
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "geom.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
-#include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::functions
       logical bas_check_handle
