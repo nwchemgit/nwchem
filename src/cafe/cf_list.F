@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.28 2003-09-23 19:04:25 d3j191 Exp $
+c $Id: cf_list.F,v 1.29 2003-10-15 15:47:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -553,6 +553,17 @@ c
    25 continue
       endif
       endif
+      if(nhop.gt.0) then
+      if(ish(isa).gt.0.and.iand(ish(isa),1).ne.0) then
+      do 326 jsa=jsafr,jsato
+      list(jsa,1)=0
+  326 continue
+      endif
+      do 327 jsa=jsafr,jsato
+      if(ish(jsa).gt.0.and.iand(ish(jsa),1).ne.0)
+     + list(jsa,1)=0
+  327 continue
+      endif
 c
 c     donor acceptor pair list
 c
@@ -642,6 +653,17 @@ c
       if(iand(idt(jsa),mdynam).eq.ldynam.and.rw(jsa).lt.rlong2)
      + list(jsa,2)=1
    30 continue
+      endif
+      if(nhop.gt.0) then
+      if(ish(isa).gt.0.and.iand(ish(isa),1).ne.0) then
+      do 426 jsa=jsafr,jsato
+      list(jsa,1)=0
+  426 continue
+      endif
+      do 427 jsa=jsafr,jsato
+      if(ish(jsa).gt.0.and.iand(ish(jsa),1).ne.0)
+     + list(jsa,1)=0
+  427 continue
       endif
       endif
       if(isa.lt.isato) then
