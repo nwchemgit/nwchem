@@ -682,9 +682,11 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        eval[i] = eval[i] - psgn*psigma; 
    }
    
+/*
    if ( me == 0 ) 
      for ( i =0; i < msize; i++ )
        printf(" eval  i %d eval %f \n", i, eval[i]);
+       */
    
    /*
      should delete this and reshift all psigma back after inverse iteration
