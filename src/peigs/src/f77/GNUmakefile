@@ -39,7 +39,7 @@ FOBJ = samax.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
-	dlaebz.o
+	dlaebz.o \
 	dlascl.o
 endif
 
