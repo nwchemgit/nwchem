@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.23 1996-07-17 16:31:16 d3g681 Exp $
+C$Id: inp.F,v 1.24 1996-07-26 16:28:49 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -710,6 +710,48 @@ c
       endif
 c
       inp_search = .false.
+c
+      end
+      logical function inp_search_fast(z)
+      implicit none
+#include "inpP.fh"
+      character*(*) z
+      integer length
+      integer inp_strlen
+      logical inp_read, inp_a, inp_compare
+      external inp_read, inp_a, inp_compare, inp_strlen
+c
+c     Quicker search that 
+c
+c     1) matches case 
+c     2) assumes the token being searched for is at the beginning of the line
+c     3) ignores continutation lines, comments, quotes etc. 
+c     4) Still attempts to track line numbers EOF.
+c
+c     Only called from inside the basis set input routine?
+c
+      integer length
+c
+      inp_search_fast = .false.
+      length = max(3,inp_strlen(z)) ! 3 for EOF/eof detection
+c
+ 10   read(iread,'(a)',end=300) ja(1:length)
+      input_line = input_line + 1
+      if (ja(1:3).eq.'EOF' .or. ja(1:3).eq.'eof') goto 300
+      if (z(1:length) .eq. ja(1:length)) then
+         backspace(iread)       ! Re-read line with full input routine
+         input_line = input_line - 1
+         if (.not. inp_read()) call errquit('inp_search_fast: inp?',0)
+         inp_search_fast = .true.
+         return
+      endif
+      goto 10
+c
+ 300  oswit = .true.            ! EOF code copied from inp_read
+      ierrpos = -1
+      errmsg = 'unexpected end of data file'
+      jump=0
+      jrec=0
 c
       end
       subroutine inp_save_state
