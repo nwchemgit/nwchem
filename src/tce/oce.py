@@ -1,8 +1,6 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-#
-# $Id: oce.py,v 1.2 2002-10-23 01:38:51 sohirata Exp $
-#
+# $Id: oce.py,v 1.3 2002-11-07 19:02:21 sohirata Exp $
 
 import string
 
@@ -31,9 +29,9 @@ def stringtooperatorsequence(expression):
    # (1) Numerical factor (with no permutation allowed) (optional), summation (optional), amplitudes (optional), normal ordered sequence,
    # (2) Numerical factor can be an arithmatic expression such as (1.0/4.0),
    # (3) Summation starts with either "SUM" or "sum" followed by a parenthesis of indexes,
-   # (4) Indexes can be either in one-letter notation (a-h for virtuals, i-o for occupieds, p-z for either, case matters) 
+   # (4) Indexes can be either in one-letter notation (a-h, A-H for virtuals, i-o, I-O for occupieds, p-z, P-Z for either, case matters) 
    #     or in OCE notation (p1,p2 for virtuals, h3,h4 for occupieds, g5,g6 for either, no overlap in numbering)
-   # (5) Amplitudes start with "t" or any one-letter name followed by a parenthesis of indexes,
+   # (5) Amplitudes start with "t" or any name followed by a dagger ("+") indicating complex conjugate (optional) and a parenthesis of indexes,
    # (6) Normal ordered operator sequence must exist even when it is empty "{}".
    # (7) An example is: (1.0/16.0) Sum (p q r s c d k l) v(p q r s) t(c d k l) {i+ j+ b a}{p+ q+ s r}{c+ d+ l k}
    
@@ -45,8 +43,7 @@ def stringtooperatorsequence(expression):
    while (string.find(sequences,"{") != -1):
       sequences = sequences[0:string.find(sequences,"{")] + sequences[string.find(sequences,"{")+1:]
    if (sequences[len(sequences)-1] != "}"):
-      print "Syntax error: the string must end with a normal ordered operator sequence"
-      stop
+      raise RuntimeError, "Syntax error: the string must end with a normal ordered operator sequence"
    sequences = sequences[0:len(sequences)-1]
    sequences = string.split(sequences,"}")
    for sequence in sequences:
@@ -170,7 +167,18 @@ def stringtooperatorsequence(expression):
    for tobeamplitude in tobeamplitudes:
       newamplitude = Amplitude()
       tobeamplitude = string.split(tobeamplitude,"(")
-      newamplitude.type = string.strip(tobeamplitude[0])
+      type = tobeamplitude[0]
+      conjugate = 1
+      lastdaggerposition = len(type)
+      for i in range(len(type)-1,-1,-1):
+         if (type[i] == "+"):
+            conjugate = - conjugate
+            lastdaggerposition = i
+      if (conjugate == -1):
+         newamplitude.conjugate = 1
+      else:
+         newamplitude.conjugate = 0
+      newamplitude.type = string.strip(type[0:lastdaggerposition])
       index = 0
       for amplitude in amplitudes:
          if ((amplitude.type == newamplitude.type) and (amplitude.index > index)):
@@ -439,11 +447,12 @@ class Summation:
 
 class Amplitude:
 
-   def __init__(self,type="unknown",indexes=[],index=0):
+   def __init__(self,type="unknown",indexes=[],index=0,conjugate=0):
       """Creates an integral/amplitude"""
       self.type = type
       self.indexes = indexes
       self.index = index
+      self.conjugate = conjugate
 
    def __str__(self):
       """Print the amplitude"""
@@ -451,7 +460,10 @@ class Amplitude:
 
    def show(self):
       """Returns a human-friendly string of the content"""
-      show = string.join([self.type, "("])
+      show = self.type
+      if (self.conjugate):
+         show = string.join([show, "+"],"")
+      show = string.join([show, "("])
       for index in self.indexes:
          show = string.join([show, index.showwithoutdagger()])
       show = string.join([show,")"])
@@ -459,7 +471,7 @@ class Amplitude:
       
    def duplicate(self):
       """Returns a deepcopy of itself"""
-      duplicate = Amplitude(self.type,[],self.index)
+      duplicate = Amplitude(self.type,[],self.index,self.conjugate)
       for index in self.indexes:
          duplicate.indexes.append(index.duplicate())
       return duplicate
@@ -469,6 +481,8 @@ class Amplitude:
       if (self.type != another.type):
          return 0
       if (len(self.indexes) != len(another.indexes)):
+         return 0
+      if (self.conjugate != another.conjugate):
          return 0
       nself = 0
       for operator in self.indexes:
@@ -508,6 +522,8 @@ class Amplitude:
          return 0
       elif (len(self.indexes) != len(another.indexes)):
          return 0
+      elif (self.conjugate != another.conjugate):
+         return 0
       else:
          for nindex in range(len(self.indexes)):
             selfindex = self.indexes[nindex]
@@ -522,15 +538,19 @@ class Amplitude:
       # count the number of like amplitudes in operatorsequence
       nself = 0
       for amplitude in operatorsequence.amplitudes:
-         if ((amplitude.type == self.type) and (len(amplitude.indexes) == len(self.indexes))):
+         if ((amplitude.type == self.type) and (len(amplitude.indexes) == len(self.indexes)) and (amplitude.conjugate == self.conjugate)):
             nself = nself + 1
       nanother = 0
       for amplitude in operatorsequence.amplitudes:
-         if ((amplitude.type == another.type) and (len(amplitude.indexes) == len(another.indexes))):
+         if ((amplitude.type == another.type) and (len(amplitude.indexes) == len(another.indexes)) and (amplitude.conjugate == another.conjugate)):
             nanother = nanother + 1
       if (nself > nanother):
          return 0
       elif (nself < nanother):
+         return 1
+      if (self.conjugate > another.conjugate):
+         return 0
+      elif (self.conjugate < another.conjugate):
          return 1
       if (self.type > another.type):
          return 1
@@ -1419,6 +1439,23 @@ class OperatorSequence:
 
       return another
 
+   def isacycliccontraction(self):
+      """Returns 1 if self is a cyclic contraction"""
+      ncontractions = 0
+      for namplitudea in range(len(self.amplitudes)):
+         for namplitudeb in range(len(self.amplitudes)):
+            if (namplitudea > namplitudeb):
+               amplitudea = self.amplitudes[namplitudea]
+               amplitudeb = self.amplitudes[namplitudeb]
+               for operator in self.summation.indexes:
+                  if (operator.isin(amplitudea.indexes) and operator.isin(amplitudeb.indexes)):
+                     ncontractions = ncontractions + 1
+                     break
+      if (ncontractions > len(self.amplitudes) - 1):
+         return 1
+      else:
+         return 0
+
 class ListOperatorSequences:
 
    def __init__(self):
@@ -1583,10 +1620,12 @@ class ListOperatorSequences:
    def simplify(self):
       """Call simplyone through four"""
       #self.simplifyone(1)
+      if (self.containscycliccontractions()):
+         print " ... a cyclic contraction is found"
+         self.simplifythree(0)
       self.simplifytwo(0)
       # the followings do not seem to affect the result, yet it costs enormous memory & time
-      #self.simplifythree(1)
-      #self.simplifyfour(1)
+      # self.simplifyfour(1)
       return self
 
    def simplifyone(self,verbose=0):
@@ -1685,10 +1724,8 @@ class ListOperatorSequences:
             done = 0
          else:
             done = 1
-      if (originallength - len(self.list) > 0):
-         print " ... ***** warning *****"
-         print " ... %d terms have been consolidated" %(originallength - len(self.list))
-         print " ... number of terms = %d" %(len(self.list))
+      print " ... %d terms have been consolidated" %(originallength - len(self.list))
+      print " ... number of terms = %d" %(len(self.list))
       return self
 
    def simplifyfour(self,verbose=0):
@@ -1918,3 +1955,10 @@ class ListOperatorSequences:
       print " ... %d disconnected terms have been deleted" %(originallength - newlength)
 
       return result
+
+   def containscycliccontractions(self):
+      """Returns 1 if self contains a cyclic contraction"""
+      for operatorsequence in self.list:
+         if (operatorsequence.isacycliccontraction()):
+            return 1
+      return 0

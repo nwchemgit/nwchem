@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.11 2002-11-01 01:51:22 sohirata Exp $
+c $Id: tce_init.F,v 1.12 2002-11-07 19:02:21 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -166,12 +166,20 @@ c
         ctype='Coupled-cluster singles, doubles, & triples'
       else if (model.eq.'ccsdtq') then
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
+      else if (model.eq.'qcisd') then
+        ctype='Quadratic CI singles & doubles'
       else if (model.eq.'cisd') then
-        ctype='CI interaction singles & doubles'
+        ctype='CI singles & doubles'
       else if (model.eq.'cisdt') then
         ctype='CI singles, doubles, & triples'
       else if (model.eq.'cisdtq') then
         ctype='CI singles, double, triples, & quadruples'
+      else if (model.eq.'mbpt2') then
+        ctype='Second-order many-body perturbation theory'
+      else if (model.eq.'mbpt3') then
+        ctype='Third-order many-body perturbation theory'
+      else if (model.eq.'mbpt4') then
+        ctype='Fourth-order many-body perturbation theory'
       else
         call errquit('tce_init: unknown theory',0)
       endif

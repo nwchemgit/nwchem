@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.5 2002-10-25 20:35:02 sohirata Exp $
+# $Id: tce.py,v 1.6 2002-11-07 19:02:21 sohirata Exp $
 
 import string
 import types
@@ -93,7 +93,12 @@ def readfromfile(filename):
                   if (selfexpr[pointer] == "*"):
                      counter = counter + 1
                      if (counter == itensor + offset):
-                        tensortype = selfexpr[pointer + 1]
+                        if (selfexpr[pointer+1][len(selfexpr[pointer+1])-1] == "+"):
+                           tensortype = selfexpr[pointer + 1][0:len(selfexpr[pointer+1])-1]
+                           tensorconj = 1
+                        else:
+                           tensortype = selfexpr[pointer + 1]
+                           tensorconj = 0
                         tensorlabel = itensor + 1
                         anotherpointer = pointer + 2
                         indexes = []
@@ -108,7 +113,7 @@ def readfromfile(filename):
                                   type = "general"
                               label = string.atoi(selfexpr[anotherpointer][1:])
                               indexes.append(Index(type,label))
-               tensors.append(Tensor(tensortype,indexes,tensorlabel))
+               tensors.append(Tensor(tensortype,indexes,tensorlabel,tensorconj))
       newlist.list.append(TensorContraction(factor,summation,tensors))
 
 def factorial(n):
@@ -257,6 +262,20 @@ def performpermutation(list,permutation,reverse=0):
          result.append(indexa)
 
    return result
+
+def parityofpermutation(permutation):
+   """Returns the parity of a given permutation"""
+   origin = permutation[0:len(permutation)/2]
+   destination = permutation[len(permutation)/2:len(permutation)]
+   allpermutations = permutationwithparity(len(permutation)/2)
+   for onepermutation in allpermutations:
+      found = 1
+      for i in range(len(permutation)/2):
+         if (not origin[i].isidenticalto(destination[onepermutation[i+1]-1])):
+            found = 0
+      if (found):
+         return onepermutation[0]
+   raise RuntimeError, "permutation not found"
 
 def arethesamelists(list1,list2):
    """Returns true if two lists of indexes are the same (permutation allowed)"""
@@ -707,11 +726,12 @@ class Summation:
 
 class Tensor:
 
-   def __init__(self,type="unknown",indexes=[],label=0):
+   def __init__(self,type="unknown",indexes=[],label=0,conjugate=0):
       """Creates an integral/amplitude"""
       self.type = type
       self.indexes = indexes
       self.label = label
+      self.conjugate = conjugate
 
    def __str__(self):
       """Prints the content"""
@@ -722,6 +742,8 @@ class Tensor:
       show = self.type
       if (self.type == "i"):
          show = string.join([show, repr(self.label)],"")
+      if (self.conjugate):
+         show = string.join([show, "+"],"")
       show = string.join([show, "("])
       for index in self.indexes:
          show = string.join([show, index.show()])
@@ -734,6 +756,7 @@ class Tensor:
       duplicate.type = self.type
       duplicate.indexes = copy.deepcopy(self.indexes)
       duplicate.label = self.label
+      duplicate.conjugate = self.conjugate
       return duplicate
  
    def usesindexlabel(self,label):
@@ -822,6 +845,8 @@ class Tensor:
          return 0
       if (self.label != another.label):
          return 0
+      if (self.conjugate != another.conjugate):
+         return 0
       if (len(self.indexes) != len(another.indexes)):
          return 0
       for nindex in range(len(self.indexes)):
@@ -862,8 +887,18 @@ class Tensor:
    def contracts(self,another,label):
       """Return the tensor obtained by a contraction of self and another tensors"""
 
-      indexes = self.indexes[0:len(self.indexes)/2] + another.indexes[0:len(another.indexes)/2] \
-              + self.indexes[len(self.indexes)/2:]  + another.indexes[len(another.indexes)/2:]
+      if ((not self.conjugate) and (not another.conjugate)):
+         indexes = self.indexes[0:len(self.indexes)/2] + another.indexes[0:len(another.indexes)/2] \
+                 + self.indexes[len(self.indexes)/2:]  + another.indexes[len(another.indexes)/2:]
+      elif ((not self.conjugate) and (another.conjugate)):
+         indexes = self.indexes[0:len(self.indexes)/2] + another.indexes[len(another.indexes)/2:] \
+                 + self.indexes[len(self.indexes)/2:]  + another.indexes[0:len(another.indexes)/2]
+      elif ((self.conjugate) and (not another.conjugate)):
+         indexes = self.indexes[len(self.indexes)/2:]  + another.indexes[0:len(another.indexes)/2] \
+                 + self.indexes[0:len(self.indexes)/2] + another.indexes[len(another.indexes)/2:]
+      elif ((self.conjugate) and (another.conjugate)):
+         indexes = self.indexes[len(self.indexes)/2:]  + another.indexes[len(another.indexes)/2:] \
+                 + self.indexes[0:len(self.indexes)/2] + another.indexes[0:len(another.indexes)/2]
 
       # Eliminate any common indexes between super/subindexes
       alwaystrue = 1
@@ -2282,7 +2317,13 @@ class ElementaryTensorContraction:
       sublocalone = []
       supercommonone = []
       subcommonone = []
-      for nindex in range(len(self.tensors[1].indexes)/2):
+      if (not self.tensors[1].conjugate):
+         superrangeone = range(len(self.tensors[1].indexes)/2)
+         subrangeone = range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes))
+      else:
+         superrangeone = range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes))
+         subrangeone = range(len(self.tensors[1].indexes)/2)
+      for nindex in superrangeone:
          index = self.tensors[1].indexes[nindex]
          if (index.isin(globaltargetindexes)):
             superglobalone.append(index)
@@ -2293,7 +2334,7 @@ class ElementaryTensorContraction:
                superlocalone.append(index)
          else:
             superlocalone.append(index)
-      for nindex in range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes)):
+      for nindex in subrangeone:
          index = self.tensors[1].indexes[nindex]
          if (index.isin(globaltargetindexes)):
             subglobalone.append(index)
@@ -2313,7 +2354,13 @@ class ElementaryTensorContraction:
       supercommontwo = []
       subcommontwo = []
       if (three):
-         for nindex in range(len(self.tensors[2].indexes)/2):
+         if (not self.tensors[2].conjugate):
+            superrangetwo = range(len(self.tensors[2].indexes)/2)
+            subrangetwo = range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes))
+         else:
+            superrangetwo = range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes))
+            subrangetwo = range(len(self.tensors[2].indexes)/2)
+         for nindex in superrangetwo:
             index = self.tensors[2].indexes[nindex]
             if (index.isin(globaltargetindexes)):
                superglobaltwo.append(index)
@@ -2324,7 +2371,7 @@ class ElementaryTensorContraction:
                   superlocaltwo.append(index)
             else:
                superlocaltwo.append(index)
-         for nindex in range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes)):
+         for nindex in subrangetwo:
             index = self.tensors[2].indexes[nindex]
             if (index.isin(globaltargetindexes)):
                subglobaltwo.append(index)
@@ -2486,18 +2533,21 @@ class ElementaryTensorContraction:
       for superpermutation in superpermutations:
          superline = ""
          if (self.tensors[1].type == "i"):
-            permutation = superlocalone + supercommonone
+            if (superpermutation[1] == "empty"):
+               superpermutedindexes = superglobalone + sortindexes(superlocalone + supercommonone)
+               superfactor = 1
+            else:
+               superpermutedindexes = superglobalone + superpermutation[1:]
+               superfactor = parityofpermutation(superglobalone + sortindexes(superlocalone + supercommonone) + \
+                                                 superglobalone + superpermutation[1:])
          else:
-            permutation = superglobalone + superlocalone + supercommonone
-         if (superpermutation[1] == "empty"):
-            permutation = permutation + permutation
-         else:
-            permutation = permutation + superpermutation[1:]
-         if (self.tensors[1].type == "i"):
-            indexesintheoriginalorder = copy.deepcopy(superglobalone + sortindexes(superlocalone + supercommonone))
-         else:
-            indexesintheoriginalorder = copy.deepcopy(self.tensors[1].indexes[0:len(self.tensors[1].indexes)/2])
-         superpermutedindexes = performpermutation(indexesintheoriginalorder,permutation,0)
+            if (superpermutation[1] == "empty"):
+               superpermutedindexes = self.tensors[1].indexes[0:len(self.tensors[1].indexes)/2]
+               superfactor = 1
+            else:
+               superpermutedindexes = superpermutation[1:]
+               superfactor = parityofpermutation(self.tensors[1].indexes[0:len(self.tensors[1].indexes)/2] + \
+                                                 superpermutation[1:])
          if (superpermutation[1] != "empty"):
             for nindex in range(len(superpermutedindexes)-1):
                indexa = superpermutedindexes[nindex]
@@ -2521,18 +2571,21 @@ class ElementaryTensorContraction:
          for subpermutation in subpermutations:
             subline = superline
             if (self.tensors[1].type == "i"):
-               permutation = sublocalone + subcommonone
+               if (subpermutation[1] == "empty"):
+                  subpermutedindexes = subglobalone + sortindexes(sublocalone + subcommonone)
+                  subfactor = 1
+               else:
+                  subpermutedindexes = subglobalone + subpermutation[1:]
+                  subfactor = parityofpermutation(subglobalone + sortindexes(sublocalone + subcommonone) + \
+                                                  subglobalone + subpermutation[1:])
             else:
-               permutation = subglobalone + sublocalone + subcommonone
-            if (subpermutation[1] == "empty"):
-               permutation = permutation + permutation
-            else:
-               permutation = permutation + subpermutation[1:]
-            if (self.tensors[1].type == "i"):
-               indexesintheoriginalorder = copy.deepcopy(subglobalone + sortindexes(sublocalone + subcommonone))
-            else:
-               indexesintheoriginalorder = copy.deepcopy(self.tensors[1].indexes[len(self.tensors[1].indexes)/2:len(self.tensors[1].indexes)])
-            subpermutedindexes = performpermutation(indexesintheoriginalorder,permutation,0)
+               if (subpermutation[1] == "empty"):
+                  subpermutedindexes = self.tensors[1].indexes[len(self.tensors[1].indexes)/2:len(self.tensors[1].indexes)]
+                  subfactor = 1
+               else:
+                  subpermutedindexes = subpermutation[1:]
+                  subfactor = parityofpermutation(self.tensors[1].indexes[len(self.tensors[1].indexes)/2:len(self.tensors[1].indexes)] + \
+                                                  subpermutation[1:])
             if (subpermutation[1] != "empty"):
                for nindex in range(len(subpermutedindexes)-1):
                   indexa = subpermutedindexes[nindex]
@@ -2564,7 +2617,7 @@ class ElementaryTensorContraction:
                ifblock = 1
 
             permutedindexes = superpermutedindexes + subpermutedindexes
-      
+
             # get a block
             arguments = ""
             argumentsend = ""
@@ -2587,12 +2640,16 @@ class ElementaryTensorContraction:
                      else:
                         arguments = string.join([arguments," + nvab * (",permutedindexes[nindex].show(),boffset],"")
                   argumentsend = string.join([argumentsend,")"],"")
-            arguments = string.join([arguments,argumentsend,")"],"")
+            if (not arguments):
+               arguments = "d_a,dbl_mb(k_a),dima,int_mb(k_a_offset)"
+            else:
+               arguments = string.join([arguments,argumentsend,")"],"")
             newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
 
             # sort indexes of tensor 1
+            doloopofa = 0
             for nindex in range(len(permutedindexes)):
                index = permutedindexes[nindex]
                newint = index.show()
@@ -2602,6 +2659,7 @@ class ElementaryTensorContraction:
                newcode.pointer = newcode.pointer + 1
                newline = "END DO"
                newcode.statements.insert(newcode.pointer,newline)
+               doloopofa = 1
                if ((not ifblock) and (nindex == 0)):
                   newcode.setamark(1)
             newline = ""
@@ -2615,6 +2673,8 @@ class ElementaryTensorContraction:
                                          " * ((",permutedindexes[nindex].show()," - 1)"],"")
                   newlineend = string.join([newlineend,")"],"")
             newline = string.join([newline,newlineend],"")
+            if (not newline):
+               newline = "idima = 1"
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
             newline = ""
@@ -2629,13 +2689,17 @@ class ElementaryTensorContraction:
                                          " * ((",sorted[nindex].show()," - 1)"],"")
                   newlineend = string.join([newlineend,")"],"")
             newline = string.join([newline,newlineend],"")
+            if (not newline):
+               newline = "idima_sort = 1"
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
-            if (superpermutation[0]*subpermutation[0] == 1):
+            if (superfactor * subfactor == 1):
                newline = "dbl_mb(k_a_sort + idima_sort - 1) = dbl_mb(k_a + idima - 1)"
             else:
                newline = "dbl_mb(k_a_sort + idima_sort - 1) = - dbl_mb(k_a + idima - 1)"
             newcode.statements.insert(newcode.pointer,newline)
+            if (not doloopofa):
+               newcode.setamark(1)
             newcode.pointer = newcode.pointer + 1
 
       newcode.pointer = newcode.getamark(1) + 1
@@ -2677,18 +2741,21 @@ class ElementaryTensorContraction:
          for superpermutation in superpermutations:
             superline = ""
             if (self.tensors[2].type == "i"):
-               permutation = superlocaltwo + supercommontwo
+               if (superpermutation[1] == "empty"):
+                  superpermutedindexes = superglobaltwo + sortindexes(superlocaltwo + supercommontwo)
+                  superfactor = 1
+               else:
+                  superpermutedindexes = superglobaltwo + superpermutation[1:]
+                  superfactor = parityofpermutation(superglobaltwo + sortindexes(superlocaltwo + supercommontwo) + \
+                                                    superglobaltwo + superpermutation[1:])
             else:
-               permutation = superglobaltwo + superlocaltwo + supercommontwo
-            if (superpermutation[1] == "empty"):
-               permutation = permutation + permutation
-            else:
-               permutation = permutation + superpermutation[1:]
-            if (self.tensors[2].type == "i"):
-               indexesintheoriginalorder = copy.deepcopy(superglobaltwo + sortindexes(superlocaltwo + supercommontwo))
-            else:
-               indexesintheoriginalorder = copy.deepcopy(self.tensors[2].indexes[0:len(self.tensors[2].indexes)/2])
-            superpermutedindexes = performpermutation(indexesintheoriginalorder,permutation,0)
+               if (superpermutation[1] == "empty"):
+                  superpermutedindexes = self.tensors[2].indexes[0:len(self.tensors[2].indexes)/2]
+                  superfactor = 1
+               else:
+                  superpermutedindexes = superpermutation[1:]
+                  superfactor = parityofpermutation(self.tensors[2].indexes[0:len(self.tensors[2].indexes)/2] + \
+                                                    superpermutation[1:])
             if (superpermutation[1] != "empty"):
                for nindex in range(len(superpermutedindexes)-1):
                   indexa = superpermutedindexes[nindex]
@@ -2712,18 +2779,21 @@ class ElementaryTensorContraction:
             for subpermutation in subpermutations:
                subline = superline
                if (self.tensors[2].type == "i"):
-                  permutation = sublocaltwo + subcommontwo
+                  if (subpermutation[1] == "empty"):
+                     subpermutedindexes = subglobaltwo + sortindexes(sublocaltwo + subcommontwo)
+                     subfactor = 1
+                  else:
+                     subpermutedindexes = subglobaltwo + subpermutation[1:]
+                     subfactor = parityofpermutation(subglobaltwo + sortindexes(sublocaltwo + subcommontwo) + \
+                                                     subglobaltwo + subpermutation[1:])
                else:
-                  permutation = subglobaltwo + sublocaltwo + subcommontwo
-               if (subpermutation[1] == "empty"):
-                  permutation = permutation + permutation
-               else:
-                  permutation = permutation + subpermutation[1:]
-               if (self.tensors[2].type == "i"):
-                  indexesintheoriginalorder = copy.deepcopy(subglobaltwo + sortindexes(sublocaltwo + subcommontwo))
-               else:
-                  indexesintheoriginalorder = copy.deepcopy(self.tensors[2].indexes[len(self.tensors[2].indexes)/2:len(self.tensors[2].indexes)])
-               subpermutedindexes = performpermutation(indexesintheoriginalorder,permutation,0)
+                  if (subpermutation[1] == "empty"):
+                     subpermutedindexes = self.tensors[2].indexes[len(self.tensors[2].indexes)/2:len(self.tensors[2].indexes)]
+                     subfactor = 1
+                  else:
+                     subpermutedindexes = subpermutation[1:]
+                     subfactor = parityofpermutation(self.tensors[2].indexes[len(self.tensors[2].indexes)/2:len(self.tensors[2].indexes)] + \
+                                                     subpermutation[1:])
                if (subpermutation[1] != "empty"):
                   for nindex in range(len(subpermutedindexes)-1):
                      indexa = subpermutedindexes[nindex]
@@ -2755,7 +2825,7 @@ class ElementaryTensorContraction:
                   ifblock = 1
    
                permutedindexes = superpermutedindexes + subpermutedindexes
-         
+
                # get a block
                arguments = ""
                argumentsend = ""
@@ -2778,12 +2848,16 @@ class ElementaryTensorContraction:
                         else:
                            arguments = string.join([arguments," + nvab * (",permutedindexes[nindex].show(),boffset],"")
                      argumentsend = string.join([argumentsend,")"],"")
-               arguments = string.join([arguments,argumentsend,")"],"")
+               if (not arguments):
+                  arguments = "d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset)"
+               else:
+                  arguments = string.join([arguments,argumentsend,")"],"")
                newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
    
                # sort indexes of tensor 2
+               doloopofb = 0
                for nindex in range(len(permutedindexes)):
                   index = permutedindexes[nindex]
                   newint = index.show()
@@ -2793,6 +2867,7 @@ class ElementaryTensorContraction:
                   newcode.pointer = newcode.pointer + 1
                   newline = "END DO"
                   newcode.statements.insert(newcode.pointer,newline)
+                  doloopofb = 1
                   if ((not ifblock) and (nindex == 0)):
                      newcode.setamark(2)
                newline = ""
@@ -2806,6 +2881,8 @@ class ElementaryTensorContraction:
                                             " * ((",permutedindexes[nindex].show()," - 1)"],"")
                      newlineend = string.join([newlineend,")"],"")
                newline = string.join([newline,newlineend],"")
+               if (not newline):
+                  newline = "idimb = 1"
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
                newline = ""
@@ -2821,13 +2898,17 @@ class ElementaryTensorContraction:
                                             " * ((",sorted[nindex].show()," - 1)"],"")
                      newlineend = string.join([newlineend,")"],"")
                newline = string.join([newline,newlineend],"")
+               if (not newline):
+                  newline = "idimb_sort = 1"
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
-               if (superpermutation[0]*subpermutation[0] == 1):
+               if (superfactor * subfactor == 1):
                   newline = "dbl_mb(k_b_sort + idimb_sort - 1) = dbl_mb(k_b + idimb - 1)"
                else:
                   newline = "dbl_mb(k_b_sort + idimb_sort - 1) = - dbl_mb(k_b + idimb - 1)"
                newcode.statements.insert(newcode.pointer,newline)
+               if (not doloopofb):
+                  newcode.setamark(2)
                newcode.pointer = newcode.pointer + 1
 
          newcode.pointer = newcode.getamark(2) + 1
@@ -3481,6 +3562,8 @@ class OperationTree:
       newcode.add("headers",newline)
       newline = '#include "mafdecls.fh"'
       newcode.add("headers",newline)
+      newline = '#include "util.fh"'
+      newcode.add("headers",newline)
       newline = '#include "tce.fh"'
       newcode.add("headers",newline)
       
@@ -3613,8 +3696,12 @@ class OperationTree:
                newcode.add("integers",newint)
                newline = string.join(["CALL OFFSET_",name,"(",d_c,",",l_c_offset,",",k_c_offset,",size)"],"")
                newcode.statements.insert(0,newline)
+               newchar = "filename"
+               newcode.add("characters",newchar)
                filename = string.join([name,"_i",repr(child.contraction.tensors[1].label)],"")
-               newline = string.join(["CALL CREATEFILE('",filename,"',",d_c,",size)"],"")
+               newline = string.join(["CALL UTIL_FILE_NAME('",filename,"',.true.,.false.,filename)"],"")
+               newcode.statements.insert(0,newline)
+               newline = string.join(["CALL CREATEFILE(filename,",d_c,",size)"],"")
                newcode.statements.insert(0,newline)
                callee = child.contraction.tensors[0].fortran77y(globaltargetindexes,name)
                callees.add(callee)
@@ -5123,7 +5210,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.5 2002-10-25 20:35:02 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.6 2002-11-07 19:02:21 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -5267,7 +5354,7 @@ class Code:
                show.insert(pointer,string.join([self.indent,"CHARACTER*(*) ",n],""))
                pointer = pointer + 1
             else:
-               show.insert(pointer,string.join([self.indent,"CHARACTER*20 ",n],""))
+               show.insert(pointer,string.join([self.indent,"CHARACTER*255 ",n],""))
                pointer = pointer + 1
          for n in self.externals:
             show.insert(pointer,string.join([self.indent,"EXTERNAL ",n],""))
