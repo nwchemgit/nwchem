@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.42 2004-10-19 21:55:10 edo Exp $
+ $Id: pdspevx.c,v 1.43 2004-10-26 15:48:58 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -313,8 +313,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern DoublePrecision dnrm2_();
 
     extern Integer  tred2();
-    extern void     pstebz11_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
-    extern void synch_(), gmax00();
+    extern void     pstebz10_(), pstebz11_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
+    extern void mxsync_(), gmax00();
     extern void r_ritz_(), tresidd();
     
 /*
@@ -851,11 +851,17 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	printf(" e[%d] = %g \n", iii, ee[iii]);
       */
 
-	
+#ifdef USE_PSTEBZ11
       pstebz11_( irange, &msize, lb, ub, ilb, iub, abstol,
 		 dd, ee, dplus, lplus, mapZ, &neigval, 
 		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
+#else
+      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
+		 dd, ee, dplus, lplus, mapZ, &neigval, 
+		 &nsplit, eval, iblock, isplit,
+		 d_scrat, i_scrat, &linfo);
+#endif
 
 /*
 for ( iii = 0; iii < msize; iii++)
