@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.32 2001-12-15 01:24:39 windus Exp $
+C $Id: hess_cphf.F,v 1.33 2001-12-26 21:16:43 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -994,8 +994,8 @@ c     Activate XC contribution to OO derivative Fock matrix
      $       call errquit('hess_cphf: rtdb_put of xc_active failed',1)
         if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
      $       call errquit('hess_cphf: rtdb_put of calc_type failed',0)
-        call int_terminate()
         call schwarz_tidy()
+        call int_terminate()
 c       if(skelsym) call 
 c    $       sym_symmetrize(geom,basis,.false.,g_rhs_x(ind))
         if (ocphfprint) then
@@ -1109,8 +1109,8 @@ c
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',1)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
      $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
-      call int_terminate()
       call schwarz_tidy()
+      call int_terminate()
 c
       if (.not.ma_pop_stack(l_kfac))
      $  call errquit('hess_cphf: pop problem with l_jfac',555)

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.28 2001-12-22 02:07:06 edo Exp $
+C $Id: twodd_cont.F,v 1.29 2001-12-26 21:16:43 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -74,6 +74,11 @@ c
       oprint = util_print('hess_follow',print_high)
       otwoprint = util_print('twodd_cont',print_debug)
 c
+c Need to do a bit of cleanup so DFT and SCF work OK
+c
+      call schwarz_tidy()    ! need to get rid of temp buffers
+      call intdd_terminate()
+c
 c  First let's do the DFT part.
 c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
 c  that the xc contributions are coming out O.K.  Eventually, the xc routines
@@ -91,13 +96,12 @@ c
         call xc_cpks_rhs(geom,rtdb,nbf,basis,
      *       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
         if (ocdfit) then
-           call schwarz_tidy()  ! need to get rid of temp buffers
-           call intdd_terminate()
-           call int_init(rtdb, nbasis, basis_list)
+           call int_init(rtdb, nbasis, basis_list) !should this be intd?
            call schwarz_init(geom, basis)
            call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
-           call int_terminate()
+           call schwarz_tidy()   ! need to get rid of temp buffers
+           call int_terminate()  !should this be intd?
         endif
       if (otwoprint) then
         if(ga_nodeid().eq.0) then
@@ -169,7 +173,6 @@ c
 c
 c initialize for integrals
 c
-      call schwarz_tidy()    ! need to get rid of temp buffers
       call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
       call int_terminate()
