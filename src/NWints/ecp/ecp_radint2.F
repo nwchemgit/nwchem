@@ -1,4 +1,4 @@
-C $Id: ecp_radint2.F,v 1.2 1996-10-16 20:37:42 mg201 Exp $
+C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint2 (p_min,p_max,
@@ -84,8 +84,11 @@ C $Id: ecp_radint2.F,v 1.2 1996-10-16 20:37:42 mg201 Exp $
         write (LuOut,'(//A,/)') 'Entering ecp_radint2 ...'
         write (LuOut,*) 'ibug =',ibug
       end if
-      if (debug_addresses) write (LuOut,*) 'n_ab,n_abc,n_Q,m_count',
-     &    n_ab,n_abc,n_Q,m_count
+      if (debug_addresses) then
+	write (LuOut,*) 'l_a,l_b,l_c',l_a,l_b,l_c
+        write (LuOut,*) 'n_ab,n_abc,n_Q,m_count',
+     &      n_ab,n_abc,n_Q,m_count
+      end if
       k_max = l_a+l_b
       l_max = max(l_a,l_b)
       l_min = min(l_a,l_b)
@@ -115,6 +118,7 @@ C $Id: ecp_radint2.F,v 1.2 1996-10-16 20:37:42 mg201 Exp $
         j = 0
         h = 1
       end if
+      if (debug_addresses) write (LuOut,*) 'j,h',j,h
 *
 *   Zero out arrays for accumulation
 *
