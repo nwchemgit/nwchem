@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.8 1997-04-16 16:52:24 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.9 1998-07-02 20:17:19 ng972 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -48,6 +48,12 @@ c
 c     If the norm of the density matrix is non-zero then adjust
 c     it so that it specifies the correct no. of electrons
 c     
+      if (util_print('ao kinetic',print_debug)) then
+        call ga_zero(g_over)
+        call int_1e_ga(basis, basis, g_over, 'kinetic', .false.)
+        call ga_print(g_over)
+      endif
+c
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
       if (util_print('ao overlap',print_debug))

@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.18 1997-01-15 23:52:11 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.19 1998-07-02 20:17:18 ng972 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -185,7 +185,7 @@ c
 c	The use of ga_dadd to do the copy requires all uses of
 c	these integrals to be allocated via ga_create_atom_blocked
 c
-**      write(6,*) ' Enabling caching of 1-e integrals '
+*      write(6,*) ' Enabling caching of 1-e integrals '
 c
       g_cache(1) = ga_create_atom_blocked(geom, basis,'int1e: t')
       g_cache(2) = ga_create_atom_blocked(geom, basis,'int1e: v')
@@ -205,7 +205,7 @@ c
 #include "cint1cache.fh"
       logical ga_destroy
 c
-**      write(6,*) ' Disabling caching of 1-e integrals '
+*      write(6,*) ' Disabling caching of 1-e integrals '
 c
       if (.not. ocache) return
       if (.not. ga_destroy(g_cache(1))) call errquit('i1ega: gad?',0)
