@@ -2,7 +2,7 @@
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     mbf_ao,grad)
 c
-c$Id: grid_pscreen.F,v 1.1 2000-04-11 20:49:40 edo Exp $
+c$Id: grid_pscreen.F,v 1.2 2000-06-15 20:31:04 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -38,7 +38,7 @@ c
       enddo
       ff=abs(funcmax*delmax*pmax)
       do i=1,nqpts
-         if(ff*qwght(i).lt.tol_rho) then
+         if(abs(ff*qwght(i)).lt.tol_rho) then
             nzero=nzero+1
             qwght(i)=0d0
          endif
