@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.26 1999-07-27 17:45:39 d3e129 Exp $
+c $Id: rhf_hessian.F,v 1.27 1999-11-13 02:21:05 bjohnson Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -18176,8 +18176,8 @@ c     ----- add -W_x^a*x^b- contribution to -fcm^ab -----
          do ix = 1,nc
            x(i00+(iy-1)*nc+ix-1) =
      &     x(i00+(iy-1)*nc+ix-1) -
-     & ga_ddot_patch(g_wax_tot,n,1,nbov,ix,ix,
-     &               g_xa_tot ,n,1,nbov,iy,iy)
+     & ga_ddot_patch(g_wax_tot,'N',1,nbov,ix,ix,
+     &               g_xa_tot ,'N',1,nbov,iy,iy)
 
         enddo
       enddo
