@@ -105,8 +105,8 @@ c
 c     fock_2e_a stuffs contributions into both the lower and upper
 c     triangles ... need to symmetrize and multiply by 2
 c     
-      call ga_symmetrize(g_fock)
       call ga_dscal(g_fock, 2.0d0)
+      call ga_symmetrize(g_fock)
 c
       if (oscfps) call pstat_off(ps_fock_2e)
 c     
