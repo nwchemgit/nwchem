@@ -31,7 +31,8 @@ The general form of the \verb+BASIS+ directive is as follows:
         [rel]
 
      <string tag> library [<string tag_in_lib>] \
-                  <string standard_set> [file <filename>] [rel]
+                  <string standard_set> [file <filename>] \
+                  [except <string tag list>] [rel]
 
         ...
 
@@ -108,13 +109,19 @@ basis functions.  To facilitate the specification of the geometry and
 the basis set for any chemical system, the matching process of a basis
 set tag to a geometry tag first looks for an exact match.  If no match
 is found, NWChem will attempt to match, ignoring case, the name or
-symbol of the element.  E.g., all hydrogen atoms in asystem could be
+symbol of the element.  E.g., all hydrogen atoms in a system could be
 labeled ``H1'', ``H2'', \ldots, in the geometry but only
 one basis set specification for ``H'' or ``hydrogen'' is necessary.
 If desired, a special basis may be added to one or more centers (e.g.,
 ``H1'') by providing a basis for that tag.
 If the matching mechanism fails then NWChem stops with an appropriate
 error message.
+
+A special set of tags, ``*'' and tags ending with a ``*'' (E.g. ``H*'')
+can be used in combination with the keyword \verb+library+ (see section
+below). These tags facilitate the definition of a certain type of basis 
+set of all atoms, or a group of atoms, in a geometry using only a single 
+or very few basis set entries.
 
 Examined next is how to reference standard basis sets in the basis set
 library, and finally, how to define a basis set using exponents and
@@ -130,6 +137,15 @@ standard basis sets are not case sensitive.  See Appendix
 \ref{sec:knownbasis} for a complete list of the basis sets in the
 NWChem library and their specifications.  
 
+The general form of the input line requesting basis sets from the NWChem
+basis set library is:
+\begin{verbatim}
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard set> [file < filename> \
+                  [except <string tag list>] [rel]
+        ...
+\end{verbatim}
+
 For example, the NWChem basis set library contains the Dunning cc-pvdz
 basis set.  These may be used as follows
 \begin{verbatim}
@@ -139,9 +155,9 @@ basis set.  These may be used as follows
   end
 \end{verbatim}
 
-A default path to the basis set library is provided on installation of
-the code, but a different path can be defined by specifying the
-keyword \verb+file+ and then explicitly naming the file to be accessed
+A default location/path of the NWChem basis set libraries is provided on 
+installation of the code, but a different path can be defined by specifying 
+the keyword \verb+file+, and one can explicitly name the file to be accessed
 for the basis functions. For example,
 \begin{verbatim}
   basis
@@ -151,7 +167,35 @@ for the basis functions. For example,
 \end{verbatim}
 This directive tells the code to use the basis sets \verb+3-21g+ in
 the file {\tt /usr/\-d3g681/\-nwchem/\-library} for atoms \verb+o+ and
-\verb+si+, rather than look for them in the default library.
+\verb+si+, rather than look for them in the default librares.
+
+The ``*'' tag can be used to efficiently define basis set input directives 
+for large numbers of atoms. For example,
+\begin{verbatim}
+  basis
+    *  library 3-21g
+  end
+\end{verbatim}
+This directive tells the code to assign the basis sets \verb+3-21g+ to
+all the atom tags defined in the geometry. If one wants to place a
+different basis set on one of the atoms defined in the geometry, the 
+following directive can be used:
+\begin{verbatim}
+  basis
+    *  library 3-21g except H
+  end
+\end{verbatim}
+This directive tells the code to assign the basis sets \verb+3-21g+ to
+all the atoms in the geometry, except the hydrogen atoms. Remember that 
+the user will have to explicitly define the hydrogen basis set in this
+directive! One may also define tags that end with a ``*'': 
+\begin{verbatim}
+  basis
+    oxy*  library 3-21g 
+  end
+\end{verbatim}
+This directive tells the code to assign the basis sets \verb+3-21g+ to 
+all atom tags in the geometry that start with ``oxy''.
 
 If standard basis sets are to be placed upon a dummy center, the
 variable \verb+<tag_in_lib>+ must also be entered on this line, to
@@ -170,6 +214,9 @@ respectively, the \verb+BASIS+ directive is as follows:
     bqh library h cc-pvdz
   end
 \end{verbatim}
+A special dummy center tag is \verb+bq*+, which will assign the same basis 
+set to all bq centers in the geometry. Just as with the ``*'' tag, the 
+\verb+except+ list can be used to assign basis sets to unique dummy centers.
 
 The library basis sets can also be marked as relativistic by adding the
 \verb+rel+ keyword to the tag line. See Section \ref{sec:dyall-mod-dir} for
