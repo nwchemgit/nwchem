@@ -1,4 +1,4 @@
-c $Id: et_det.F,v 1.2 2001-12-31 17:50:28 windus Exp $
+c $Id: et_det.F,v 1.3 2002-02-19 21:38:23 d3k958 Exp $
       subroutine et_det(op,handle,n,detval)
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -17,9 +17,10 @@ c
       character*1 op
       integer handle
       integer n,i,j,ipvt(n),info
-      double precision detval,a(n,n),work(n)
+      double precision detval,a(n,n),work(n),det(2),ten
 c
 c
+      ten = 10.0d0
 c
       do i = 1,n
       do j = 1,n
@@ -29,8 +30,10 @@ c
       enddo
 c
       call dgefa(a,n,n,ipvt,info)
-      call dgedi (a,n,n,ipvt,detval,work,10)
+      call dgedi (a,n,n,ipvt,det,work,10)
+      detval =  det(1) * ten**det(2)
 c
+      call ga_sync()
       return
       end
 

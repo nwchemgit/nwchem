@@ -24,7 +24,7 @@ c
       integer unitno
       parameter (unitno = 67)
       character scftype3
-      double precision energy
+      double precision energy, enrep
 c     
       l_vecs = -1               ! An invalid MA handle
 c
@@ -62,7 +62,8 @@ c
          enddo
 c
       if (iset.eq.3) then
-        read(unitno, err=1001) energy
+        read(unitno, err=1001) energy, enrep
+        energy = energy - enrep
       else
 c
          read(unitno, err=1001, end=1001) (occ(j),j=1,nbf)
@@ -93,8 +94,8 @@ c
       et_movecs_read = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and. et_movecs_read .and.
      $     util_print('vectors i/o', print_default)) then
-         write(6,22) filename(1:inp_strlen(filename))
- 22      format(/' Read molecular orbitals from ',a/)
+c         write(6,22) filename(1:inp_strlen(filename))
+c 22      format(/' Read molecular orbitals from ',a/)
          call util_flush(6)
       endif
       if (oscfps) call pstat_off(ps_vecio)
