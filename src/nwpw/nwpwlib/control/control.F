@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.68 2005-01-28 01:32:40 bylaska Exp $
+* $Id: control.F,v 1.69 2005-02-09 02:38:51 bylaska Exp $
 *
 
 *     ***********************************
@@ -92,12 +92,14 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
         value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,2)
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
         gga = 1
-      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
         gga = 2
+      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,
      >                     'hartree-fock')) then
-        gga = 2
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
         gga = 3
@@ -209,12 +211,14 @@ c     *     call errquit(' control: rtdb_put failed ',0,0)
         value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,2)
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
         gga = 1
-      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
         gga = 2
+      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,
      >                     'hartree-fock')) then
-        gga = 2
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
         gga = 3
@@ -361,12 +365,14 @@ c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
         value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,2)
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
         gga = 1
-      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
         gga = 2
+      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,
      >                     'hartree-fock')) then
-        gga = 2
+        gga = 4
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
         gga = 3
@@ -535,6 +541,8 @@ c
          gga = 0
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
          gga = 1
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
+         gga = 2
       else
          gga = 0
       end if
@@ -610,6 +618,8 @@ c
          gga = 0
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
          gga = 1
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
+         gga = 2
       else
          gga = 0
       end if
@@ -678,6 +688,8 @@ c
          gga = 0
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
          gga = 1
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
+         gga = 2
       else
          gga = 0
       end if
