@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.4 1996-04-22 18:07:19 gg502 Exp $
+        $Id: INSTALL,v 1.5 1996-04-22 21:34:21 gg502 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -116,6 +116,11 @@ The current version of the MPI standard does not guarantee
 mixed-language operation, so it is safer to avoid it.
 
 NOTE TO MPI USERS ON THE IBM SP:
+
+If you are adventurous enough to try linking against a copy of PeIGS
+configured for MPI instead of TCGMSG, you'll probably need to
+uncomment a section in src/config/makefile.h to handle the Fortran/C
+interface renaming for PeIGS MPI calls.
 
 For SP systems running AIX 3.2.5, there are two main MPI
 implementations available (not at all sites).  MPICH from ANL/Missippi
