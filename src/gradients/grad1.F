@@ -2,7 +2,7 @@
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.15 2000-09-19 21:40:02 mdupuis Exp $
+c$Id: grad1.F,v 1.16 2005-04-02 02:07:48 marat Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -50,9 +50,12 @@ C-------------------------local variables--------------------------
 
       double precision dE, dx, dy, dz, qfac, fact, q1, q2
 
-      logical status, pointforce
+      logical status, pointforce,dobq
 
       character*16 name
+
+      integer bq_ncent
+      integer i_qbq,i_cbq
 
       integer nxtask, task_size
       external nxtask
@@ -61,7 +64,7 @@ C-------------------------local variables--------------------------
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 
       pointforce = geom_include_bqbq(geom)
-
+      dobq = geom_extbq_on()
       call hf_print_set(1)
 
       ijatom = -1
@@ -135,8 +138,14 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
                 endif
 
 C               1el. derivatives
+                if(.not.dobq) then
                 call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
      &               lbuf,H)
+                else
+                call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
+     &               lbuf,H)
+                end if
+                  
 
 C     D x H
 
@@ -191,6 +200,47 @@ C               no forces between point charges (for John Nicholas)
  90   continue
       next = nxtask(-nproc,task_size)
 
+c     
+c     continue with forces if there are external charges (MV)
+c     --------------------------------------------------
+      if(.not.dobq) return
+
+      bq_ncent = geom_extbq_ncenter()
+      i_cbq = geom_extbq_coord()
+      i_qbq = geom_extbq_charge()
+
+      ijatom = -1
+      next = nxtask(nproc,task_size)
+      do 91, iat1 = 1, nat
+        do 81, iat2 = 1, bq_ncent
+
+          ijatom = ijatom + 1
+          if ( ijatom .eq. next ) then
+            status = geom_cent_get (geom, iat1, name, crd1, q1)
+
+            q2      = dbl_mb(i_qbq+iat2-1)
+            crd2(1) = dbl_mb(i_cbq+(iat2-1)*3) 
+            crd2(2) = dbl_mb(i_cbq+(iat2-1)*3+1)
+            crd2(3) = dbl_mb(i_cbq+(iat2-1)*3+2)
+            
+            dx = crd2(1) - crd1(1)
+            dy = crd2(2) - crd1(2)
+            dz = crd2(3) - crd1(3)
+            fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
+            dE = dx * fact
+            frc_nuc(1,iat1) = frc_nuc(1,iat1) + dE
+            dE = dy * fact
+            frc_nuc(2,iat1) = frc_nuc(2,iat1) + dE
+            dE = dz * fact
+            frc_nuc(3,iat1) = frc_nuc(3,iat1) + dE
+
+            next = nxtask(nproc,task_size)
+          endif
+ 81     continue
+ 91   continue
+      next = nxtask(-nproc,task_size)
+
+
       return
       end
       subroutine grad_hnd_cos ( H, lbuf, scr, lscr, 
@@ -198,7 +248,7 @@ C               no forces between point charges (for John Nicholas)
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.15 2000-09-19 21:40:02 mdupuis Exp $
+c$Id: grad1.F,v 1.16 2005-04-02 02:07:48 marat Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
