@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.21 2001-10-02 23:50:25 windus Exp $
+C $Id: hess_init.F,v 1.22 2001-11-21 02:06:24 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -36,8 +36,10 @@ c     integer rtdb, mult, g_vecs(2)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical int_normalize
-      external int_normalize
+      logical int_normalize,int_norm_2c
+      external int_normalize,int_norm_2c
+      logical cdfit
+      integer cd_basis,nbf_cd
 c
 c  print out follow information
 c
@@ -58,7 +60,17 @@ c
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      *  call errquit('hess_init: no ao basis set', 555)
       if (.not. bas_numbf(basis, nbf)) 
-     *  call errquit ('scf_init: basis info', 555)
+     *  call errquit ('hess_init: basis info', 555)
+      if (.not. bas_create(cd_basis, 'cd basis'))
+     &   call errquit('hess_init: bas_create?',102)
+      cdfit=bas_rtdb_load(rtdb, geom, cd_basis, 'cd basis')
+      if (cdfit)then
+         if (.not. bas_numbf(cd_basis, nbf_cd))
+     &        call errquit('hess_init: basis set error:', 86)
+         else
+            if (.not. bas_destroy(cd_basis))
+     &           call errquit('rdinput:not able to destroy CD_bas:',86)
+         endif
 c
 c  initialize the second derivative integrals
 c  making sure that the schwarz stuff is initialized
@@ -68,7 +80,12 @@ c
       call schwarz_init(geom, basis)
       call int_terminate()
       call intdd_init(rtdb,1,basis)
-      status = int_normalize(rtdb,basis)
+      if(.not.int_normalize(rtdb,basis))
+     &        call errquit('hess_init: int_normalize failed', 208)
+      if(cdfit) then
+         if (.not. int_norm_2c(rtdb,cd_basis))
+     &        call errquit('hess_init: int_norm_2c failed', 208)
+      endif
 c
 c Are we using symmetry?  Assume not!
 c

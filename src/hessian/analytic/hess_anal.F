@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.10 2001-04-05 22:25:06 windus Exp $
+C $Id: hess_anal.F,v 1.11 2001-11-21 02:06:24 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -124,8 +124,10 @@ c
 c
 c  dump hessian with the final result
 c
-      call hess_wrt()
-c
+      if(ga_nodeid().eq.0) then
+         call hess_wrt()
+      endif
+c     
 c  clean up any hessian specific stuff
 c
       if (oprint) write(LuOut,*) 'HESS: before the hess_tidy call'

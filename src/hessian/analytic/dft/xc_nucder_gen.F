@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.12 2001-11-16 02:10:55 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -221,16 +221,18 @@ c
 c
          else if (do_cpks_r) then
 c
-            do i1 = 1, ipol
-            do i = 1, natoms
-               if (oactive(i)) then
-                  do j = 1, 3
-                     write(*,*)'*** xc cpks rhs matrix',j,i,i1
-                     call ga_print(g_rhs(j,i,i1))
-                  enddo
-               endif
-            enddo
-            enddo
+!            do i1 = 1, ipol
+!            do i = 1, natoms
+!               if (oactive(i)) then
+!                  do j = 1, 3
+!                     write(*,*)'*** xc cpks rhs matrix',j,i,i1
+                     write(*,*)'*** xc cpks rhs matrix'
+                     call ga_print(g_rhs)
+!                     call ga_print(g_rhs(j,i,i1))
+!                  enddo
+!               endif
+!            enddo
+!            enddo
 c
 c     TI check
 c
@@ -242,6 +244,8 @@ c
             do j = 1, 3
               call ga_zero(g_ti(j))
             enddo
+#if 0
+c switched off after 3d transition
             do i = 1, natoms
                if (oactive(i)) then
                   do j = 1, 3
@@ -254,6 +258,7 @@ c
                write(*,*)'*** TI check',j, i1
                call ga_print(g_ti(j))
             enddo
+#endif
             enddo
             do j = 1, 3
                if (.not. ga_destroy(g_ti(j)))

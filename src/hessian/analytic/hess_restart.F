@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.5 2001-10-02 21:52:34 windus Exp $
+C $Id: hess_restart.F,v 1.6 2001-11-21 02:06:24 edo Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -46,7 +46,9 @@ c
 c
 c  Write hessian out to disk
 c
-      call hess_wrt()
+      if(ga_nodeid().eq.0) then
+         call hess_wrt()
+      endif
 c
 c  Scale for next step
 c
