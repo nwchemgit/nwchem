@@ -1,5 +1,5 @@
       subroutine int_acc_std()
-C $Id: int_acc.F,v 1.4 1994-10-07 19:38:38 d3g681 Exp $
+C $Id: int_acc.F,v 1.5 1995-11-29 02:10:36 d3e129 Exp $
       implicit none
 #include "apiP.fh"
       double precision val_def
@@ -14,6 +14,7 @@ c......................................................................
 #include "apiP.fh"
       val_int_acc = 1.0d-20
       call int_sp_acc(val_int_acc)
+      call texas_set_accy(val_int_acc,val_int_acc)
       end
 c......................................................................
       subroutine int_acc_get(retval)
@@ -29,4 +30,5 @@ c......................................................................
       double precision setval
       val_int_acc = setval
       call int_sp_acc(val_int_acc)
+      call texas_set_accy(val_int_acc,val_int_acc)
       end

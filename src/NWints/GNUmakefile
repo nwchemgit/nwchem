@@ -1,26 +1,22 @@
 
-# $Id: GNUmakefile,v 1.25 1995-11-21 19:35:34 gg502 Exp $
+# $Id: GNUmakefile,v 1.26 1995-11-29 02:10:16 d3e129 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
     SUBDIRS = api int aux ints_sp deriv texas
 
     USE_TEXAS = NOPE
+
 include ../config/makefile.h
 include ../config/makelib.h
 
 txs:
-	rm -f $(LIBRARY_PATH)
-	rm -f api/cando_sp.o texas/texas_stubs.o
+	touch api/cando_sp.F texas/texas_stubs.F
 	$(MAKE) "USE_TEXAS=YEP"
 fix:
-	rm -f $(LIBRARY_PATH)
-	rm -f api/cando_sp.o texas/*.o
+	(cd texas; $(MAKE) "USE_TEXAS=YEP" removeobj)
+	touch api/cando_sp.F texas/*.F texas/*.f
 	$(MAKE)
-
-nocan:
-	rm -f api/cando_sp.o
-
 nolib:
 	rm -i $(LIBRARY_PATH)
 
