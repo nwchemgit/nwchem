@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.29 1999-05-31 23:15:39 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.30 1999-06-16 00:59:25 edo Exp $
 c
       implicit none
 c
@@ -40,7 +40,7 @@ c     oinitialized  = true if initialized
 c
       integer geom, basis, nopen, nclosed, nbf, nmo
       integer nalpha, nbeta
-      double precision tol2e
+      double precision tol2e,ssmear
       logical oskel, oadapt, oinitialized
       integer g_movecs(2), g_dens(2)
       character*255 movecs_in, movecs_out, title, trans
@@ -98,6 +98,13 @@ c
       oprint = util_print('mo guess', print_default) .and.
      &     ga_nodeid().eq.0
 *      if (oprint)write(6,*)' Calling module = ',calling_module
+c
+c     check if smearing is on
+c
+      if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
+     &   ssmear))then
+      ssmear=0.d0
+      endif
       if (inp_compare(.false., 'DFT', calling_module))then
          nmo = nbf
          if (oprint)write(6,*)' Skipping SCF linear dependence check. '
@@ -371,6 +378,7 @@ c
          call ga_orthog_mos(basis, g_movecs)
          if (scftype .eq. 'UHF') call ga_orthog_mos(basis, g_movecs(2))
       endif
+      if(ssmear.lt.1.e-9) then
 c
 c     Generate correct occupation numbers
 c
@@ -390,6 +398,7 @@ c
          do i = nclosed+1,nclosed+nopen
             dbl_mb(i-1+k_occ) = 1.0d0
          enddo
+      endif
       endif
 c
 c     Apply phase conventions
