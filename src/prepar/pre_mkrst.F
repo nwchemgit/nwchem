@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.14 1998-07-14 15:47:28 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.15 1998-07-14 17:29:24 d3j191 Exp $
 c
       implicit none
 c
@@ -541,7 +541,10 @@ c     write restart file
 c     ------------------
 c
       if(card(1:6).eq.'wr_rst') then
-      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
+      filnam=card(8:80)
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filrst
+      if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
