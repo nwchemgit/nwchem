@@ -13,6 +13,7 @@ c
       logical status            ! scratch for return codes
       logical oprint
       integer max_center        ! parameter for local array dimension
+      double precision scale    ! For unit conversion
       parameter (max_center = 1000)
       double precision coords(3,max_center)
       double precision charge(max_center)
@@ -49,8 +50,10 @@ c
          else if (inp_compare(.false.,'units', field)) then
             if (.not. inp_a(units)) call errquit
      $          ('geom_input: geometry [<name>] [units <units>]', 0)
-            if (units(1:2).ne.'au' .and. units(1:2).ne.'bo')
-     $           call errquit('geom_input: au only!', 0)
+
+*            if (units(1:2).ne.'au' .and. units(1:2).ne.'bo')
+*     $           call errquit('geom_input: au only!', 0)
+
          else
             if (name .ne. ' ') call errquit
      $          ('geom_input: geometry [<name>] [units <units>]', 0)
@@ -59,9 +62,22 @@ c
          goto 10
       endif
 c
+      if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
+     $     units(1:2) .eq. 'at') then
+         scale = 1.0d0
+      else if (units(1:2) .eq. 'an') then
+         scale = 1.8897265d0
+      else
+         call errquit('geom_input: unknown units', 0)
+      endif
+
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
+
+      if (scale.ne.1.0d0) write(6,1) name(1:inp_strlen(name)), scale
+ 1    format(/'Scaling coordinates for geometry "',a,'" by ',f10.8/)
+
 c     
 c     tag charge x y z
 c
@@ -78,6 +94,11 @@ c
             status = status .and. inp_f(coords(1,ncenter+1))
             status = status .and. inp_f(coords(2,ncenter+1))
             status = status .and. inp_f(coords(3,ncenter+1))
+
+            coords(1,ncenter+1) = coords(1,ncenter+1)*scale
+            coords(2,ncenter+1) = coords(2,ncenter+1)*scale
+            coords(3,ncenter+1) = coords(3,ncenter+1)*scale
+
             if (.not. status) call errquit
      $           ('geom_input: <tag> <charge> <x> <y> <z>', 0)
             ncenter = ncenter + 1

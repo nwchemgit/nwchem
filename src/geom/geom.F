@@ -501,6 +501,8 @@ c
       ncenter(geom) = 0
       active(geom) = .true.
       geom_create = .true.
+      oefield(geom) = .false.
+      operiodic(geom) = .false.
 c
       end
       logical function geom_destroy(geom)
