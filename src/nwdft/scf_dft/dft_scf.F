@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.55 1997-02-13 01:07:39 d3g681 Exp $
+C     $Id: dft_scf.F,v 1.56 1997-02-13 23:21:03 mdupuis Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -1416,7 +1416,6 @@ c
       write(*,*)' diisoff = ', diisoff
       write(*,*)' rcharge = ', rcharge
       write(*,*)' rm = ', rm
-      write(*,*)' TOLL = ', TOLL
       write(*,*)' radius = ', radius
       write(*,*)' rscale = ', rscale
       write(*,*)' cfac = ', (cfac(i),i=1,15)
