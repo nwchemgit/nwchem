@@ -1,3 +1,5 @@
+Comment: C pseudopotential parameters taken from
+Comment: Bylaska, Taylor, Kawai, and Weare(1996), J.Phys.Chem., vol 100, page 6966.
 [lmax] -1
 [locp] -1
 [rlocal] 1.0
