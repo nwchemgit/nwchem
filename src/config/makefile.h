@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.397 2003-02-14 23:28:13 edo Exp $
+# $Id: makefile.h,v 1.398 2003-02-18 00:44:04 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -252,9 +252,8 @@ endif
 
 ifeq ($(TARGET),SOLARIS)
       SHELL := $(NICE) /bin/sh
-	CPP = /usr/ccs/lib/cpp
      RANLIB = echo
-  MAKEFLAGS = -j 4 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 #
 # You can use either the f77 or f90 compiler BUT if using f90
@@ -270,51 +269,51 @@ ifdef BLASOPT
 CORE_SUBDIRS_EXTRA = blas lapack 
 endif
 
+    DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
 # Note that WS6 does not optimize robustly and if using this you must 
 #   - put "-nodpend -xvector=no" on FOPTIONS after -fast
 #   - remove "-fsimple=2 -depend -xvector=yes" from FOPTIMIZE.
 #   - remove -lmvec from CORELIBS
-# Also in WS6 -fast implies -native so NWCHEM_TARGET_CPU does not
-# really add anything.
 #
 # These options are set for WS5
 
-   COPTIONS = 
-  COPTIMIZE = -g -O
-   FOPTIONS = -stackvar -dalign 
-  FOPTIMIZE = -fast -O5 -fsimple=2 -depend -xvector=yes
+  ifeq ($(_CC),fcc)
+#    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
+    COPTIONS = -Kdalign
+    COPTIMIZE = -Kfast_GP=2
+    DEFINES += -DFUJITSU_SOLARIS
+  endif
+
+  ifeq ($(_FC),frt)
+#    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
+# Fujitsu with Parallelnavi compilers
+# If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
+#  -Kfast
+     DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+     FOPTIONS = -Kdalign -w -fw -X9 
+     FOPTIMIZE = -Kfast_GP=2 
+     FDEBUG=
+   else
+     FOPTIONS = -stackvar -dalign 
+     FOPTIMIZE = -fast -O5 -fsimple=2 -depend -xvector=yes
      FDEBUG = -g -O1 -nodepend
+   endif
 
-ifeq ($(NWCHEM_TARGET_CPU), ULTRA)
-  FOPTIMIZE += -xarch=v8plusa 
-endif
-
-    DEFINES = -DSOLARIS  -DNOAIO  -DPARALLEL_DIAG
-  LDOPTIONS = -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-ifndef BLASOPT
-  CORE_LIBS +=  -xlic_lib=sunperf -lmvec
-else
-  CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
-endif
+  ifeq ($(_FC),frt)
+     CORE_LIBS +=  -llapack -lblas
+  else
+    LDOPTIONS = -xildoff
+    CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
+  endif
+
 
       EXTRA_LIBS = -ldl 
 # this creates a static executable
 #EXTRA_LIBS = -Bdynamic -ldl -lXext -lnsl  -Bstatic  
 
-ifdef LARGE_FILES
-  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
-  EXTRA_LIBS += $(shell getconf LFS_LIBS)
-  DEFINES    += -DLARGE_FILES
-endif
 
 ifeq ($(BUILDING_PYTHON),python)
-# needed if python was compiled with gcc (common)
-      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
-# needed here if using a python version with tk/tcl extensions (common)
-      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
-# needed here if using a python version built with BLT extensions
-#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
 # Both tk/tcl and BLT need X11 (common)
       EXTRA_LIBS += -lX11
 endif
@@ -335,40 +334,65 @@ ifeq ($(TARGET),SOLARIS64)
 
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
-	CPP = /usr/ccs/lib/cpp
          CC = cc
          FC = f77
+   DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DPARALLEL_DIAG
+ifdef USE_INTEGER4
+   DEFINES  +=  -DEXT_INT
+endif
 
-   COPTIONS = -xarch=v9 -dalign
   COPTIMIZE = -O
      RANLIB = echo
   MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 
-# These options are set for WS6.1
+  ifeq ($(_CC),fcc)
+#    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
+    COPTIONS = -Kdalign
+    COPTIMIZE = -Kfast_GP=2
+    DEFINES += -DFUJITSU_SOLARIS
+  else
+# SUN/Solaris options for WS6.1
+   COPTIONS = -xarch=v9 -dalign
+  endif
 
-   FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a
-    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DPARALLEL_DIAG
-ifdef USE_INTEGER4
-   FOPTIONS +=  -xtypemap=real:64,double:64,integer:32
-else
-   FOPTIONS +=  -xtypemap=real:64,double:64,integer:64
-   DEFINES  +=  -DEXT_INT
-endif
-  FOPTIMIZE = -g -O5
-     FDEBUG = -g -O1
+  ifeq ($(_FC),frt)
+#    Fujitsu SPARC systems (thanks to Herbert Fruchtl)
+# Fujitsu with Parallelnavi compilers
+# If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
+#  -Kfast
+     DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+     FOPTIONS = -Kdalign -w -fw -X9 
+     ifdef USE_INTEGER4
+       FOPTIONS += -CcdLL8 -CcdRR8
+     else
+       FOPTIONS += -CcdLL8 -CcdII8 -CcdRR8
+     endif
+     FOPTIMIZE = -Kfast_GP=2 
+     FDEBUG=
+   else
+#  SUN/Solaris f77 options 
+     FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a
+     ifdef USE_INTEGER4
+       FOPTIONS +=  -xtypemap=real:64,double:64,integer:32
+     else
+       FOPTIONS +=  -xtypemap=real:64,double:64,integer:64
+     endif
+       FOPTIMIZE = -g -O5
+       FDEBUG = -g -O1
+    endif
 
-
-  LDOPTIONS = -xs -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
-       CORE_LIBS += -llapack $(BLASOPT)   -lblas 
+  ifeq ($(_FC),frt)
+    LDOPTIONS = -SSL2
+    CORE_LIBS +=  -llapack -lblas
+  else
+    LDOPTIONS = -xs -xildoff
+    CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
+    CORE_LIBS += -lsocket -lrpcsvc -lnsl
+  endif
       EXTRA_LIBS =  -ldl -lfsu
 
-ifdef LARGE_FILES
-  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
-  EXTRA_LIBS += $(shell getconf LFS_LIBS)
-  DEFINES    += -DLARGE_FILES
-endif
 
 #end of solaris
 endif
@@ -615,36 +639,6 @@ endif
 endif
 
 
-ifeq ($(TARGET),SGI)
-#
-# SGI normal (32-bit platform)
-#
-# CORE_SUBDIRS_EXTRA are those machine specific libraries required 
-#
-# JN 12/4/96: 
-# removed -lblas from CORE_SUBDIRS_EXTRA and -lmalloc from the EXTRA_LIBS
-# replaced -mips2 with -mips3
-# On IRIX >= 6.1, SGI recomends using -n32 to utilize internal 64-bit
-# registers (up to 50% better floating point performance over -32 flag) 
-
-    CORE_SUBDIRS_EXTRA = lapack
-         FC = f77
-         AR = ar
-     RANLIB = echo
-     CPP = /usr/lib/cpp
-
-    INSTALL = @echo nwchem is built
-  MAKEFLAGS = -j 4 --no-print-directory
-    DEFINES = -DSGI
-
-  FOPTIONS = -32 -Nn10000 # -mips3
-  COPTIONS =  -32 -fullwarn #-mips3
- FOPTIMIZE = -O2
- COPTIMIZE = -O2
-
-       CORE_LIBS = -llapack $(BLASOPT) -lblas
-#     EXTRA_LIBS = -lmalloc 
-endif
 
 
 ifeq ($(TARGET),SGI_N32)
@@ -796,30 +790,6 @@ ifeq ($(TARGET),HPUX64)
 
 endif
 
-
-ifeq ($(TARGET),CONVEX-SPP)
-#
-# Convex SPP-1200 running SPP-UX 3.2
-#
-
-        CPP = /lib/cpp -P
-         FC = fc
-
-# -g is not recognized; 
-# Convex debug flag -cxdb does not disable optimization 
-     CDEBUG = -no
-     FDEBUG = -no
-   FOPTIONS = -ppu -or none
-   COPTIONS = -or none
-  FOPTIMIZE = -O1
-  COPTIMIZE = -O
-
-    DEFINES = -DCONVEX -DHPUX -DEXTNAME
-
-# &%@~* Convex compiler will preprocess only *.f and *.FORT files !
-  EXPLICITF = TRUE
-   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-endif
 
 
 
@@ -1475,66 +1445,6 @@ ifeq ($(TARGET),FUJITSU_VPP)
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
 #end of FUJITSU_VPP 
-endif
-
-ifeq ($(TARGET),FUJITSU_SOLARIS)
-#
-# Fujitsu PrimePower / GP7000F (64-bit version)
-#
-# HAF Aug. 2001
-#
-# requires binary Global Array libraries in $GA_LIBDIR
-# download from www.fecit.co.uk or ftp.fecit.co.uk
-# (libraries and "parallel" executable)
-#
-      SHELL := $(NICE) /bin/sh
-        CPP = /lib/cpp
-     RANLIB = echo
-  MAKEFLAGS = -j2 --no-print-directory
-    INSTALL = echo $@ is built
-    CORE_SUBDIRS_EXTRA = blas lapack
-#
-#
-         CC = fcc
-         FC = frt
- 
-   COPTIONS = -Kdalign -KV9FMADD
-  COPTIMIZE = -Kfast -KV9FMADD
-   FOPTIONS = -Kdalign -w -fw -KV9FMADD  -CcdII8 -CcdLL8 -X9
-  FOPTIMIZE = -Kfast -KV9FMADD  -CcdII8 -CcdLL8
-    BLASOPT = yes
-     FDEBUG =
- 
-    DEFINES = -DNOAIO  -DPARALLEL_DIAG -DEXTNAME -DFUJITSU_SOLARIS -DEXT_INT
-  LDOPTIONS =
-  LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
- 
-     CORE_LIBS = -lnwcutil \
-                 -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma -ltcgmsg
- 
-     CORE_LIBS += -lsocket -lrpcsvc -lnsl
- 
- #search include files for tools directories that are not built
-   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
-                   -I$(NWCHEM_TOP)/src/tools/ma \
-                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
-                   -I$(NWCHEM_TOP)/src/tools/global/src \
-                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
-                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
-                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
-                   -I$(NWCHEM_TOP)/src/tools/pario/dra
- 
- NW_CORE_SUBDIRS = include basis geom inp input  \
-       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
- 
-ifdef BLASOPT
-  CORE_LIBS +=  -llapack -lblas
-else
-# only available for 64-bit version
-  LDOPTIONS = -SSL2
-endif
- 
-#end of Fujitsu Solaris
 endif
 
 #-do not use# ifeq ($(TARGET),PGLINUX)
