@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal)
-c $Id: cf_init.F,v 1.32 1999-12-14 06:06:12 d3j191 Exp $
+c $Id: cf_init.F,v 1.33 2000-01-04 16:21:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -325,7 +325,7 @@ c
  1000 format(i5,2f12.6,2e12.5,4i5)
       do 2 j=1,2
       rpmf(i,j,2)=rpmf(i,j,1)
-      rpmf(i,j,4)=rpmf(i,j,1)
+      rpmf(i,j,4)=rpmf(i,j,3)-rpmf(i,j,2)
       rpmf(i,j,5)=rpmf(i,j,2)
       rpmf(i,j,6)=rpmf(i,j,3)
     2 continue
