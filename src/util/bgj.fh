@@ -1,0 +1,23 @@
+c
+c     $Id: bgj.fh,v 1.1 1998-09-14 23:10:46 d3e129 Exp $
+c
+c     Information-hiding routines used by BGJ
+c
+      external bgj_print
+      integer bgj_print
+c
+      external bgj_get_rtdb_handle
+      integer bgj_get_rtdb_handle
+c
+      external bgj_get_scf_method
+      logical bgj_get_scf_method
+c
+      external bgj_have_xc
+      logical bgj_have_xc
+c
+      external bgj_restricted
+      logical bgj_restricted
+c
+      external bgj_get_scf_dens
+      logical bgj_get_scf_dens
+c
