@@ -9,12 +9,13 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.7 2000-05-18 16:21:52 jolguin Exp $
+c     $Id: dft_fockbld.F,v 1.8 2000-06-28 22:01:09 mdupuis Exp $
 c     
       implicit none
 #include "cdft.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
@@ -47,6 +48,13 @@ c
       external ga_create_atom_blocked
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
+c     ----- cosmo -----
+c
+      logical ocosmo
+      logical odbug
+      logical osome
+
+c
       me=ga_nodeid()
 c
 
@@ -73,6 +81,36 @@ c
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
+
+c
+c     ----- cosmo potential -----
+c
+      odbug=.false.
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(ocosmo) then
+c
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            odbug=odbug.and.ga_nodeid().eq.0
+            osome=osome.and.ga_nodeid().eq.0
+c
+            if(odbug) then
+               call ga_print(g_fock)
+            endif
+c
+            call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
+     &                     'cos_chg_pot',.false.)
+c
+            if(odbug) then
+               call ga_print(g_fock)
+            endif
+c
+         endif
+      endif
+      call ga_sync()
 c
       Ecore = ga_ddot(g_dens(1), g_fock)
 c
