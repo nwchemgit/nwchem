@@ -1,9 +1,11 @@
+ argument  1 = pbo_nesc1e.nw
+ARMCI configured for 3 cluster nodes
                                          
                                          
  
  
-             Northwest Computational Chemistry Package (NWChem) 3.3.1
-             --------------------------------------------------------
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
  
  
                     Environmental Molecular Sciences Laboratory
@@ -14,7 +16,7 @@
                                          
  
  
-                   COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -70,28 +72,29 @@
            Job information
            ---------------
 
-    hostname      = et2908.nwmpp1.emsl.pnl.gov
-    program       = /scratch/nwchem
-    date          = Mon Jun 12 14:25:19 2000
+    hostname      = x01n05.ecs1.emsl.pnl.gov
+    program       = /u/bert/sources/ecs1/nwchem/bin/LAPI64_PWR3/nwchem
+    date          = Mon Feb  4 11:31:34 2002
 
-    compiled      = Fri Jun  9 16:19:11 PDT 2000
-    source        = /u/mg201/nwchem
+    compiled      = Tue Jan 29 13:33:33 PST 2002
+    source        = /u/bert/sources/ecs1/nwchem
     nwchem branch = Development
-    input         = /u/mg201/pblock/PbO/PbO1e190.nw
+    input         = pbo_nesc1e.nw
     prefix        = PbO.
     data base     = ./PbO.db
     status        = startup
-    nproc         =   16
+    nproc         =   48
     time left     =     -1s
-    batch job id  = sw1515.nwmpp1.emsl.pnl.gov.11413
+
+
 
            Memory information
            ------------------
 
-    heap      =   37748737 doubles =    302.0 Mbytes
-    stack     =   12582913 doubles =    100.7 Mbytes
-    global    =   50331659 doubles =    402.7 Mbytes (within heap+stack)
-    total     =   50331650 doubles =    402.7 Mbytes
+    heap      =   32571378 doubles =    248.5 Mbytes
+    stack     =   32571391 doubles =    248.5 Mbytes
+    global    =   65142784 doubles =    497.0 Mbytes (distinct from heap & stack)
+    total     =  130285553 doubles =    994.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -105,18 +108,12 @@
  
  
  
- 
- 
- 
- 
- 
- 
                                 NWChem Input Module
                                 -------------------
  
  
-                          PbO relativistic calculations
-                          -----------------------------
+                                                                                                                  PbO relativistic calculations
+                                                                                                                  -----------------------------
  
 
  Scaling coordinates for geometry "geometry" by  1.889725989
@@ -124,10 +121,6 @@
 
  ORDER OF PRIMARY AXIS IS BEING SET TO 4
  C4V symmetry detected
- coordinates in local symmetry frame 
-
-     1   .00000000   .00000000  -.25641384
-     2   .00000000   .00000000  3.33406554
 
           ------
           auto-z
@@ -194,6 +187,15 @@
 
 
 
+  library name resolved from: .nwchemrc
+  library file name is: </u/bert/sources/jupiter/nwchem/src/basis/libraries/>
+  
+  library name resolved from: .nwchemrc
+  library file name is: </u/bert/sources/jupiter/nwchem/src/basis/libraries/>
+  
+  library name resolved from: .nwchemrc
+  library file name is: </u/bert/sources/jupiter/nwchem/src/basis/libraries/>
+  
 
 
  Relativistic calculation using Dyall's modification to the Dirac equation,
@@ -230,8 +232,8 @@
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- Pb                 dyall_relrcpvdz_fi_sf_fw        10       61   8s7p5d1f
- O                    aug-cc-pvdz_fi_sf_fw           8       23   4s3p2d
+ Pb                      user specified             10       61   8s7p5d1f
+ O                       user specified              8       23   4s3p2d
 
 
       Symmetry analysis of basis
@@ -244,7 +246,7 @@
         e          38
  
 
- Forming initial guess at    1986.7s
+ Forming initial guess at     744.3s
 
  
       Non-variational initial energy
@@ -265,7 +267,7 @@
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   16 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
  
@@ -277,15 +279,15 @@
      6 a1          7 a1          8 e           9 e          10 a1      
     11 e          12 e          13 b1         14 b2         15 a1      
     16 a1         17 e          18 e          19 a1         20 e       
-    21 e          22 b1         23 b2         24 a1         25 e       
+    21 e          22 b2         23 b1         24 a1         25 e       
     26 e          27 b2         28 b1         29 e          30 e       
     31 a1         32 a1         33 e          34 e          35 a1      
     36 e          37 e          38 b2         39 b1         40 a1      
     41 a1         42 e          43 e          44 a1         45 a1      
-    46 e          47 e          48 a1         49 b2         50 b1      
+    46 e          47 e          48 a1         49 b1         50 b2      
  
 
- Starting SCF solution at    1988.2s
+ Starting SCF solution at     769.9s
 
 
 
@@ -298,46 +300,46 @@
  ----------------------------------------------
 
 
- Integral file          = ./PbO.aoints.00
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      4        Max. records in file   =  10293
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
  #quartets = 1.471D+04 #integrals = 1.452D+06 #direct =   .0% #cached =100.0%
 
 
-File balance: exchanges=     8  moved=     8  time=    .0
+ Integral file          = ./PbO.aoints.00
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  53642
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1   -20852.2518974451  2.59D+01  1.09D+01   8173.0
+                 1   -20852.2518974697  2.59D+01  1.09D+01   1626.5
   Setting level-shift to 137.35 to force positive preconditioner
-                 2   -20875.8212964983  5.15D+01  2.34D+01   8175.7
+                 2   -20875.8212965947  5.15D+01  2.34D+01   1684.5
   Setting level-shift to 118.17 to force positive preconditioner
-                 3   -20933.1231331262  3.11D+01  1.07D+01   8182.4
+                 3   -20933.1231330754  3.11D+01  1.09D+01   1815.1
   Setting level-shift to  11.97 to force positive preconditioner
-                 4   -20936.7920434225  2.00D+01  6.98D+00   8184.1
+                 4   -20936.7920434156  2.00D+01  6.55D+00   1867.2
   Setting level-shift to   7.15 to force positive preconditioner
-                 5   -20939.8826594081  2.49D+00  7.56D-01   8185.6
-                 6   -20939.9404452810  2.21D+00  7.52D-01   8186.9
-                 7   -20940.0514738780  1.42D+00  4.12D-01   8188.0
-                 8   -20940.0670207086  4.58D-01  1.39D-01   8188.8
-                 9   -20940.0681926037  3.90D-02  1.06D-02   8189.5
-                10   -20940.0682583196  1.25D-03  3.92D-04   8191.2
-                11   -20940.0682585455  1.42D-06  4.93D-07   8192.9
+                 5   -20939.8826594102  2.49D+00  7.56D-01   1913.0
+                 6   -20939.9404452849  2.21D+00  7.52D-01   1954.2
+                 7   -20940.0514738788  1.42D+00  3.99D-01   1996.5
+                 8   -20940.0670207088  4.58D-01  1.38D-01   2028.8
+                 9   -20940.0681926039  3.90D-02  1.16D-02   2062.8
+                10   -20940.0682583198  1.25D-03  3.47D-04   2129.2
+                11   -20940.0682585457  1.42D-06  4.37D-07   2205.3
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy = -20940.068258545463
-      One-electron energy = -28677.700099886311
-      Two-electron energy =   7554.926433265162
+         Total SCF energy = -20940.068258545682
+      One-electron energy = -28677.700099920788
+      Two-electron energy =   7554.926433299421
  Nuclear repulsion energy =    182.705408075685
 
-        Time for solution =   6229.2s
+        Time for solution =   1461.2s
 
 
  
@@ -357,7 +359,7 @@ File balance: exchanges=     8  moved=     8  time=    .0
     21 e          22 a1         23 b2         24 b1         25 a1      
     26 a1         27 e          28 e          29 b1         30 b2      
     31 e          32 e          33 a1         34 e          35 e       
-    36 a1         37 e          38 e          39 b1         40 b2      
+    36 a1         37 e          38 e          39 b2         40 b1      
     41 a1         42 e          43 e          44 a1         45 a1      
     46 e          47 e          48 a1         49 e          50 e       
  
@@ -422,12 +424,12 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   31  Occ=2.000000D+00  E=-9.869174D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    61       .839914  1 Pb f  3              55       .542720  1 Pb f -3       
+    61       .984035  1 Pb f  3              55      -.177975  1 Pb f -3       
  
  Vector   32  Occ=2.000000D+00  E=-9.869174D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    55       .839914  1 Pb f -3              61      -.542720  1 Pb f  3       
+    55       .984035  1 Pb f -3              61       .177975  1 Pb f  3       
  
  Vector   33  Occ=2.000000D+00  E=-7.807024D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -437,12 +439,12 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   34  Occ=2.000000D+00  E=-7.733732D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18       .949463  1 Pb px                19      -.434715  1 Pb py         
+    18      1.043382  1 Pb px         
  
  Vector   35  Occ=2.000000D+00  E=-7.733732D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19       .949463  1 Pb py                18       .434715  1 Pb px         
+    19      1.043382  1 Pb py         
  
  Vector   36  Occ=2.000000D+00  E=-5.791533D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -453,22 +455,22 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   37  Occ=2.000000D+00  E=-4.945901D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    41      1.050695  1 Pb d -1              43       .252066  1 Pb d  1       
+    43       .893859  1 Pb d  1              41      -.607052  1 Pb d -1       
  
  Vector   38  Occ=2.000000D+00  E=-4.945901D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    43      1.050695  1 Pb d  1              41      -.252066  1 Pb d -1       
+    41       .893859  1 Pb d -1              43       .607052  1 Pb d  1       
  
- Vector   39  Occ=2.000000D+00  E=-4.830558D+00  Symmetry=b1
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    44      1.103726  1 Pb d  2              49      -.172716  1 Pb d  2       
- 
- Vector   40  Occ=2.000000D+00  E=-4.830558D+00  Symmetry=b2
+ Vector   39  Occ=2.000000D+00  E=-4.830558D+00  Symmetry=b2
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     40      1.103726  1 Pb d -2              45      -.172716  1 Pb d -2       
+ 
+ Vector   40  Occ=2.000000D+00  E=-4.830558D+00  Symmetry=b1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44      1.103726  1 Pb d  2              49      -.172716  1 Pb d  2       
  
  Vector   41  Occ=0.000000D+00  E=-4.531191D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -481,14 +483,14 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   42  Occ=0.000000D+00  E=-4.450527D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67      1.103277  2 O  py                66       .770224  2 O  px         
-    70      -.401354  2 O  py                69      -.280195  2 O  px         
+    66      1.341845  2 O  px                69      -.488141  2 O  px         
+    43       .171345  1 Pb d  1       
  
  Vector   43  Occ=0.000000D+00  E=-4.450527D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66      1.103277  2 O  px                67      -.770224  2 O  py         
-    69      -.401354  2 O  px                70       .280195  2 O  py         
+    67      1.341845  2 O  py                70      -.488141  2 O  py         
+    41      -.171345  1 Pb d -1       
  
  Vector   44  Occ=0.000000D+00  E=-4.266187D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -499,7 +501,7 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   45  Occ=0.000000D+00  E=-3.541872D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.779840  1 Pb s                  8     -1.095170  1 Pb s          
+     6      1.779840  1 Pb s                  8     -1.095169  1 Pb s          
     23       .870321  1 Pb pz                29      -.640476  1 Pb pz         
     68       .434058  2 O  pz                63      -.396746  2 O  s          
      7       .250413  1 Pb s                  5      -.205139  1 Pb s          
@@ -508,20 +510,18 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   46  Occ=0.000000D+00  E=-2.980881D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      1.491193  1 Pb px                27     -1.035507  1 Pb px         
-    22       .839354  1 Pb py                28      -.582861  1 Pb py         
-    69       .371518  2 O  px                66      -.330214  2 O  px         
-    48      -.274038  1 Pb d  1              43       .237539  1 Pb d  1       
-    70       .209118  2 O  py                83       .205688  2 O  d  1       
+    21      1.710881  1 Pb px                27     -1.188062  1 Pb px         
+    69       .426252  2 O  px                66      -.378863  2 O  px         
+    48      -.314411  1 Pb d  1              43       .272535  1 Pb d  1       
+    83       .235991  2 O  d  1              24       .194190  1 Pb px         
  
  Vector   47  Occ=0.000000D+00  E=-2.980881D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.491193  1 Pb py                28     -1.035507  1 Pb py         
-    21      -.839354  1 Pb px                27       .582861  1 Pb px         
-    70       .371518  2 O  py                67      -.330214  2 O  py         
-    46       .274038  1 Pb d -1              41      -.237539  1 Pb d -1       
-    69      -.209118  2 O  px                81      -.205688  2 O  d -1       
+    22      1.710881  1 Pb py                28     -1.188062  1 Pb py         
+    70       .426252  2 O  py                67      -.378863  2 O  py         
+    46       .314411  1 Pb d -1              41      -.272535  1 Pb d -1       
+    81      -.235991  2 O  d -1              25       .194190  1 Pb py         
  
  Vector   48  Occ=0.000000D+00  E=-2.937457D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -535,18 +535,20 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   49  Occ=0.000000D+00  E=-2.530681D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      1.620763  1 Pb px                27     -1.061976  1 Pb px         
-    69      -.987193  2 O  px                66       .616800  2 O  px         
-    83      -.496072  2 O  d  1              43      -.266928  1 Pb d  1       
-    48       .255270  1 Pb d  1              24       .177563  1 Pb px         
+    22      1.462030  1 Pb py                28      -.957969  1 Pb py         
+    70      -.890510  2 O  py                21      -.704770  1 Pb px         
+    67       .556392  2 O  py                27       .461788  1 Pb px         
+    81       .447488  2 O  d -1              69       .429270  2 O  px         
+    66      -.268208  2 O  px                41       .240786  1 Pb d -1       
  
  Vector   50  Occ=0.000000D+00  E=-2.530681D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.620763  1 Pb py                28     -1.061976  1 Pb py         
-    70      -.987193  2 O  py                67       .616800  2 O  py         
-    81       .496072  2 O  d -1              41       .266928  1 Pb d -1       
-    46      -.255270  1 Pb d -1              25       .177563  1 Pb py         
+    21      1.462030  1 Pb px                27      -.957969  1 Pb px         
+    69      -.890510  2 O  px                22       .704770  1 Pb py         
+    66       .556392  2 O  px                28      -.461788  1 Pb py         
+    83      -.447488  2 O  d  1              70      -.429270  2 O  py         
+    67       .268208  2 O  py                43      -.240786  1 Pb d  1       
  
  Vector   51  Occ=0.000000D+00  E=-2.493487D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -574,18 +576,18 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   54  Occ=0.000000D+00  E=-2.262509D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    69       .943490  2 O  px                66      -.583907  2 O  px         
-    83      -.530823  2 O  d  1              48       .293757  1 Pb d  1       
-    78      -.212315  2 O  d  1              72       .165720  2 O  px         
-    53      -.151159  1 Pb d  1       
+    70       .828660  2 O  py                67      -.512842  2 O  py         
+    81       .466218  2 O  d -1              69       .455653  2 O  px         
+    66      -.281995  2 O  px                46      -.258005  1 Pb d -1       
+    83      -.256358  2 O  d  1              76       .186474  2 O  d -1       
  
  Vector   55  Occ=0.000000D+00  E=-2.262509D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70       .943490  2 O  py                67      -.583907  2 O  py         
-    81       .530823  2 O  d -1              46      -.293757  1 Pb d -1       
-    76       .212315  2 O  d -1              73       .165720  2 O  py         
-    51       .151159  1 Pb d -1       
+    69       .828660  2 O  px                66      -.512842  2 O  px         
+    83      -.466218  2 O  d  1              70      -.455653  2 O  py         
+    67       .281995  2 O  py                48       .258005  1 Pb d  1       
+    81      -.256358  2 O  d -1              78      -.186474  2 O  d  1       
  
  Vector   56  Occ=0.000000D+00  E=-2.236728D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -620,20 +622,20 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   60  Occ=0.000000D+00  E=-2.014291D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    69       .963324  2 O  px                53       .840557  1 Pb d  1       
-    83       .605187  2 O  d  1              48       .578585  1 Pb d  1       
-    21      -.455224  1 Pb px                43      -.446352  1 Pb d  1       
-    66      -.391507  2 O  px                27       .207862  1 Pb px         
-    18      -.204269  1 Pb px                70       .178373  2 O  py         
+    70       .968810  2 O  py                51      -.845344  1 Pb d -1       
+    81      -.608634  2 O  d -1              46      -.581880  1 Pb d -1       
+    22      -.457817  1 Pb py                41       .448894  1 Pb d -1       
+    67      -.393737  2 O  py                28       .209045  1 Pb py         
+    19      -.205432  1 Pb py         
  
  Vector   61  Occ=0.000000D+00  E=-2.014291D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70       .963324  2 O  py                51      -.840557  1 Pb d -1       
-    81      -.605187  2 O  d -1              46      -.578585  1 Pb d -1       
-    22      -.455224  1 Pb py                41       .446352  1 Pb d -1       
-    67      -.391507  2 O  py                28       .207862  1 Pb py         
-    19      -.204269  1 Pb py                69      -.178373  2 O  px         
+    69       .968810  2 O  px                53       .845344  1 Pb d  1       
+    83       .608634  2 O  d  1              48       .581880  1 Pb d  1       
+    21      -.457817  1 Pb px                43      -.448894  1 Pb d  1       
+    66      -.393737  2 O  px                27       .209045  1 Pb px         
+    18      -.205432  1 Pb px         
  
  Vector   62  Occ=0.000000D+00  E=-1.980631D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -647,20 +649,20 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   63  Occ=0.000000D+00  E=-1.763660D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      2.078011  1 Pb py                22     -1.416219  1 Pb py         
-    46      -.827969  1 Pb d -1              51       .736038  1 Pb d -1       
-    70      -.651352  2 O  py                27       .340663  1 Pb px         
-    25      -.307886  1 Pb py                67       .272374  2 O  py         
-    21      -.232171  1 Pb px                41       .230158  1 Pb d -1       
+    28      2.103689  1 Pb py                22     -1.433719  1 Pb py         
+    46      -.838201  1 Pb d -1              51       .745133  1 Pb d -1       
+    70      -.659400  2 O  py                25      -.311690  1 Pb py         
+    67       .275739  2 O  py                41       .233002  1 Pb d -1       
+    73       .158786  2 O  py         
  
  Vector   64  Occ=0.000000D+00  E=-1.763660D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      2.078011  1 Pb px                21     -1.416219  1 Pb px         
-    48       .827969  1 Pb d  1              53      -.736038  1 Pb d  1       
-    69      -.651352  2 O  px                28      -.340663  1 Pb py         
-    24      -.307886  1 Pb px                66       .272374  2 O  px         
-    22       .232171  1 Pb py                43      -.230158  1 Pb d  1       
+    27      2.103689  1 Pb px                21     -1.433719  1 Pb px         
+    48       .838201  1 Pb d  1              53      -.745133  1 Pb d  1       
+    69      -.659400  2 O  px                24      -.311690  1 Pb px         
+    66       .275739  2 O  px                43      -.233002  1 Pb d  1       
+    72       .158786  2 O  px         
  
  Vector   65  Occ=0.000000D+00  E=-1.665682D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -669,13 +671,13 @@ File balance: exchanges=     8  moved=     8  time=    .0
     65     -2.914166  2 O  s                 29     -2.614868  1 Pb pz         
     71      2.275586  2 O  pz                64     -1.473702  2 O  s          
     52      1.305081  1 Pb d  0              20      1.242002  1 Pb pz         
-    74      1.003159  2 O  pz                63       .799358  2 O  s          
+    74      1.003158  2 O  pz                63       .799358  2 O  s          
  
  Vector   66  Occ=0.000000D+00  E=-1.602747D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     64      4.192355  2 O  s                 63     -2.484043  2 O  s          
-    71     -1.611027  2 O  pz                23     -1.503716  1 Pb pz         
+    71     -1.611027  2 O  pz                23     -1.503715  1 Pb pz         
     52     -1.248727  1 Pb d  0               8     -1.105559  1 Pb s          
     20      -.688007  1 Pb pz                62      -.618679  2 O  s          
     65       .465214  2 O  s                 74       .406721  2 O  pz         
@@ -683,27 +685,27 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   67  Occ=0.000000D+00  E=-1.509446D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      1.423036  1 Pb px                72     -1.148560  2 O  px         
-    28      1.055762  1 Pb py                73      -.852126  2 O  py         
-    69       .643695  2 O  px                21      -.626297  1 Pb px         
-    48      -.611483  1 Pb d  1              70       .477563  2 O  py         
-    22      -.464655  1 Pb py                46       .453664  1 Pb d -1       
+    28      1.769215  1 Pb py                73     -1.427968  2 O  py         
+    70       .800286  2 O  py                22      -.778655  1 Pb py         
+    46       .760237  1 Pb d -1              51      -.341314  1 Pb d -1       
+    67      -.316705  2 O  py                41      -.257876  1 Pb d -1       
+    25      -.216956  1 Pb py                81       .196059  2 O  d -1       
  
  Vector   68  Occ=0.000000D+00  E=-1.509446D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.423036  1 Pb py                73     -1.148560  2 O  py         
-    27     -1.055762  1 Pb px                72       .852126  2 O  px         
-    70       .643695  2 O  py                22      -.626297  1 Pb py         
-    46       .611483  1 Pb d -1              69      -.477563  2 O  px         
-    21       .464655  1 Pb px                48       .453664  1 Pb d  1       
+    27      1.769215  1 Pb px                72     -1.427968  2 O  px         
+    69       .800286  2 O  px                21      -.778655  1 Pb px         
+    48      -.760237  1 Pb d  1              53       .341314  1 Pb d  1       
+    66      -.316705  2 O  px                43       .257876  1 Pb d  1       
+    24      -.216956  1 Pb px                83      -.196059  2 O  d  1       
  
  Vector   69  Occ=0.000000D+00  E=-1.452359D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     64      2.303504  2 O  s                 65     -1.860951  2 O  s          
     63     -1.540296  2 O  s                 71      1.020457  2 O  pz         
-     8       .805406  1 Pb s                 29       .805380  1 Pb pz         
+     8       .805405  1 Pb s                 29       .805380  1 Pb pz         
     74      -.611145  2 O  pz                47       .553154  1 Pb d  0       
     62      -.368080  2 O  s                 68      -.338158  2 O  pz         
  
@@ -722,32 +724,32 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   72  Occ=0.000000D+00  E=-1.343988D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    46      2.708880  1 Pb d -1              51     -2.573393  1 Pb d -1       
-    73      1.020413  2 O  py                41      -.672796  1 Pb d -1       
-    28      -.355381  1 Pb py                70      -.193908  2 O  py         
+    46      2.707804  1 Pb d -1              51     -2.572372  1 Pb d -1       
+    73      1.020008  2 O  py                41      -.672528  1 Pb d -1       
+    28      -.355240  1 Pb py                70      -.193831  2 O  py         
  
  Vector   73  Occ=0.000000D+00  E=-1.343988D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    48      2.708880  1 Pb d  1              53     -2.573393  1 Pb d  1       
-    72     -1.020413  2 O  px                43      -.672796  1 Pb d  1       
-    27       .355381  1 Pb px                69       .193908  2 O  px         
+    48      2.707804  1 Pb d  1              53     -2.572372  1 Pb d  1       
+    72     -1.020008  2 O  px                43      -.672528  1 Pb d  1       
+    27       .355240  1 Pb px                69       .193831  2 O  px         
  
  Vector   74  Occ=0.000000D+00  E=-1.310206D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      7.410581  1 Pb s                 65     -5.789902  2 O  s          
-    74      3.024240  2 O  pz                29      1.809541  1 Pb pz         
+     8      7.410582  1 Pb s                 65     -5.789902  2 O  s          
+    74      3.024240  2 O  pz                29      1.809540  1 Pb pz         
     23      1.714039  1 Pb pz                 6     -1.680833  1 Pb s          
     47       .971266  1 Pb d  0              71       .800980  2 O  pz         
-    20       .729575  1 Pb pz                 5       .628122  1 Pb s          
+    20       .729575  1 Pb pz                 5       .628123  1 Pb s          
  
  Vector   75  Occ=0.000000D+00  E=-1.142756D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      4.138750  1 Pb s                 47     -3.489980  1 Pb d  0       
+     8      4.138751  1 Pb s                 47     -3.489980  1 Pb d  0       
     29      3.320667  1 Pb pz                52      3.085777  1 Pb d  0       
-    65     -2.556987  2 O  s                  6     -2.350005  1 Pb s          
+    65     -2.556988  2 O  s                  6     -2.350005  1 Pb s          
     23     -2.006905  1 Pb pz                64      1.289605  2 O  s          
     63     -1.064818  2 O  s                  5       .837456  1 Pb s          
  
@@ -766,26 +768,28 @@ File balance: exchanges=     8  moved=     8  time=    .0
  Vector   78  Occ=0.000000D+00  E=-5.375497D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    78      1.125072  2 O  d  1              83     -1.030817  2 O  d  1       
-    53      -.529028  1 Pb d  1              21       .448979  1 Pb px         
-    72      -.391159  2 O  px                76       .274986  2 O  d -1       
-    81      -.251948  2 O  d -1              18       .168924  1 Pb px         
+    76      1.054687  2 O  d -1              81      -.966329  2 O  d -1       
+    51      -.495931  1 Pb d -1              78       .478580  2 O  d  1       
+    83      -.438486  2 O  d  1              22      -.420890  1 Pb py         
+    73       .366688  2 O  py                53      -.225036  1 Pb d  1       
+    21       .190985  1 Pb px                72      -.166390  2 O  px         
  
  Vector   79  Occ=0.000000D+00  E=-5.375497D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    76      1.125072  2 O  d -1              81     -1.030817  2 O  d -1       
-    51      -.529028  1 Pb d -1              22      -.448979  1 Pb py         
-    73       .391159  2 O  py                78      -.274986  2 O  d  1       
-    83       .251948  2 O  d  1              19      -.168924  1 Pb py         
+    78      1.054687  2 O  d  1              83      -.966329  2 O  d  1       
+    53      -.495931  1 Pb d  1              76      -.478580  2 O  d -1       
+    81       .438486  2 O  d -1              21       .420890  1 Pb px         
+    72      -.366688  2 O  px                51       .225036  1 Pb d -1       
+    22       .190985  1 Pb py                73      -.166390  2 O  py         
  
  Vector   80  Occ=0.000000D+00  E=-4.420878D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      3.024692  1 Pb pz                65     -1.902304  2 O  s          
+    23      3.024692  1 Pb pz                65     -1.902305  2 O  s          
     20      1.746138  1 Pb pz                29     -1.672426  1 Pb pz         
      5     -1.591911  1 Pb s                 82     -1.490005  2 O  d  0       
-     7     -1.407249  1 Pb s                  6      1.222012  1 Pb s          
+     7     -1.407249  1 Pb s                  6      1.222011  1 Pb s          
      8      1.149748  1 Pb s                 77      1.125886  2 O  d  0       
  
  Vector   81  Occ=0.000000D+00  E= 6.727441D-02  Symmetry=a1
@@ -793,37 +797,47 @@ File balance: exchanges=     8  moved=     8  time=    .0
   ----- ------------  ---------------      ----- ------------  ---------------
     26      4.213982  1 Pb pz                20     -4.180488  1 Pb pz         
     23     -2.817628  1 Pb pz                29      2.313291  1 Pb pz         
-     7      2.054396  1 Pb s                  5      1.790063  1 Pb s          
-    17     -1.483382  1 Pb pz                 4      1.201795  1 Pb s          
+     7      2.054397  1 Pb s                  5      1.790063  1 Pb s          
+    17     -1.483382  1 Pb pz                 4      1.201796  1 Pb s          
     64       .775195  2 O  s                  6      -.706580  1 Pb s          
  
  Vector   82  Occ=0.000000D+00  E= 7.880109D-02  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      4.169242  1 Pb py                19     -4.042328  1 Pb py         
-    22     -2.291285  1 Pb py                28      2.103601  1 Pb py         
-    16     -1.459928  1 Pb py                24      -.442755  1 Pb px         
-    18       .429277  1 Pb px                13      -.269336  1 Pb py         
-    21       .243324  1 Pb px                27      -.223393  1 Pb px         
+    24      4.175322  1 Pb px                18     -4.048223  1 Pb px         
+    21     -2.294626  1 Pb px                27      2.106668  1 Pb px         
+    15     -1.462057  1 Pb px                25      -.381187  1 Pb py         
+    19       .369584  1 Pb py                12      -.269728  1 Pb px         
+    22       .209488  1 Pb py                28      -.192329  1 Pb py         
  
  Vector   83  Occ=0.000000D+00  E= 7.880109D-02  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      4.169242  1 Pb px                18     -4.042328  1 Pb px         
-    21     -2.291285  1 Pb px                27      2.103601  1 Pb px         
-    15     -1.459928  1 Pb px                25       .442755  1 Pb py         
-    19      -.429277  1 Pb py                12      -.269336  1 Pb px         
-    22      -.243324  1 Pb py                28       .223393  1 Pb py         
+    25      4.175322  1 Pb py                19     -4.048223  1 Pb py         
+    22     -2.294626  1 Pb py                28      2.106668  1 Pb py         
+    16     -1.462057  1 Pb py                24       .381187  1 Pb px         
+    18      -.369584  1 Pb px                13      -.269728  1 Pb py         
+    21      -.209488  1 Pb px                27       .192329  1 Pb px         
  
- Vector   84  Occ=0.000000D+00  E= 4.655526D-01  Symmetry=a1
+ Vector   84  Occ=0.000000D+00  E= 4.655525D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     10.146344  1 Pb s                  5      9.752215  1 Pb s          
      4      6.264073  1 Pb s                  8      6.067003  1 Pb s          
      6     -4.728354  1 Pb s                  3     -2.531345  1 Pb s          
-    65     -2.162516  2 O  s                 29      1.278665  1 Pb pz         
-    64       .915507  2 O  s                 74       .912652  2 O  pz         
+    65     -2.162515  2 O  s                 29      1.278665  1 Pb pz         
+    64       .915507  2 O  s                 74       .912651  2 O  pz         
  
+
+ center of mass
+ --------------
+ x =    .00000000 y =    .00000000 z =   -.06273988
+
+ moments of inertia (a.u.)
+ ------------------
+         191.473365237564            .000000000000            .000000000000
+            .000000000000         191.473365237564            .000000000000
+            .000000000000            .000000000000            .000000000000
  
   Mulliken analysis of the total density
   --------------------------------------
@@ -833,10 +847,10 @@ File balance: exchanges=     8  moved=     8  time=    .0
     1 Pb  82    75.82  10.07  -.08  -.02 24.22  -.30   .04 28.66  -.72  -.06 14.00
     2 O    8     4.18   4.77  -.92   .03   .29  -.04   .00   .00   .03
 
- Parallel integral file used      44 records with       0 large values
+ Parallel integral file used      62 records with       0 large values
 
 
- Task  times  cpu:     8177.5s     wall:     8277.2s
+ Task  times  cpu:     2232.6s     wall:     2234.9s
  
  
                                 NWChem Input Module
@@ -868,8 +882,8 @@ File balance: exchanges=     8  moved=     8  time=    .0
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- Pb                 dyall_relrcpvdz_fi_sf_fw        10       61   8s7p5d1f
- O                    aug-cc-pvdz_fi_sf_fw           8       23   4s3p2d
+ Pb                      user specified             10       61   8s7p5d1f
+ O                       user specified              8       23   4s3p2d
 
 
       Symmetry analysis of basis
@@ -882,7 +896,7 @@ File balance: exchanges=     8  moved=     8  time=    .0
         e          38
  
 
- Forming initial guess at   10264.2s
+ Forming initial guess at    2977.7s
 
 
  Read molecular orbitals from ./PbO.mo
@@ -909,13 +923,13 @@ PbO relativistic calculations
     21 e          22 a1         23 b2         24 b1         25 a1      
     26 a1         27 e          28 e          29 b1         30 b2      
     31 e          32 e          33 a1         34 e          35 e       
-    36 a1         37 e          38 e          39 b1         40 b2      
+    36 a1         37 e          38 e          39 b2         40 b1      
     41 a1         42 e          43 e          44 a1         45 a1      
     46 e          47 e          48 a1         49 e          50 e       
     51 a1         52 b1         53 b2         54 e          55 e       
  
 
- Starting SCF solution at   10265.1s
+ Starting SCF solution at    2989.7s
 
 
 
@@ -941,34 +955,34 @@ PbO relativistic calculations
 
  Integral file          = ./PbO.aoints.00
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      4        Max. records in file   =  10293
+ Max. records in memory =      2        Max. records in file   =  53446
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
-File balance: exchanges=     8  moved=     6  time=    .0
+File balance: exchanges=     0  moved=     0  time=    .0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1   -20957.2026605638  8.69D+00  2.34D+00  16354.3
+                 1   -20957.2026605656  8.69D+00  2.34D+00   3843.6
   Setting level-shift to   9.28 to force positive preconditioner
-                 2   -20961.7237322750  3.17D+00  1.16D+00  16355.9
-                 3   -20962.2392572081  2.85D-01  1.14D-01  16357.6
-                 4   -20962.2505288916  2.19D-02  7.91D-03  16360.0
-                 5   -20962.2505833278  1.73D-04  4.10D-05  16362.2
-                 6   -20962.2505833308  1.67D-08  1.28D-08  16365.3
-                 7   -20962.2505833309  8.74D-12  2.37D-12  16367.9
+                 2   -20961.7237322786  3.17D+00  1.16D+00   3896.7
+                 3   -20962.2392572097  2.85D-01  1.14D-01   3962.7
+                 4   -20962.2505288930  2.19D-02  7.91D-03   4064.7
+                 5   -20962.2505833292  1.73D-04  4.10D-05   4170.5
+                 6   -20962.2505833322  1.69D-08  1.28D-08   4358.1
+                 7   -20962.2505833323  9.22D-12  3.30D-12   4481.0
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy = -20962.250583330864
-      One-electron energy = -29043.804260380177
-      Two-electron energy =   7898.848268973627
+         Total SCF energy = -20962.250583332250
+      One-electron energy = -29043.804260520752
+      Two-electron energy =   7898.848269112815
  Nuclear repulsion energy =    182.705408075685
 
-        Time for solution =   6226.8s
+        Time for solution =   1521.3s
 
 
  
@@ -1074,12 +1088,12 @@ File balance: exchanges=     8  moved=     6  time=    .0
  Vector   39  Occ=2.000000D+00  E=-1.103378D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    43       .894326  1 Pb d  1              41      -.441375  1 Pb d -1       
+    41       .966858  1 Pb d -1              43       .244575  1 Pb d  1       
  
  Vector   40  Occ=2.000000D+00  E=-1.103378D+00  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    41       .894326  1 Pb d -1              43       .441375  1 Pb d  1       
+    43       .966858  1 Pb d  1              41      -.244575  1 Pb d -1       
  
  Vector   41  Occ=2.000000D+00  E=-1.047972D+00  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1095,14 +1109,12 @@ File balance: exchanges=     8  moved=     6  time=    .0
  Vector   43  Occ=2.000000D+00  E=-3.857248D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67       .679031  2 O  py                66       .436621  2 O  px         
-    22       .303129  1 Pb py                21       .194914  1 Pb px         
+    66       .806569  2 O  px                21       .360064  1 Pb px         
  
  Vector   44  Occ=2.000000D+00  E=-3.857248D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66       .679031  2 O  px                67      -.436621  2 O  py         
-    21       .303129  1 Pb px                22      -.194914  1 Pb py         
+    67       .806569  2 O  py                22       .360064  1 Pb py         
  
  Vector   45  Occ=2.000000D+00  E=-3.702336D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1114,16 +1126,14 @@ File balance: exchanges=     8  moved=     6  time=    .0
  Vector   46  Occ=0.000000D+00  E= 1.334037D-02  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22       .549169  1 Pb py                28       .470231  1 Pb py         
-    67      -.286571  2 O  py                21       .248314  1 Pb px         
-    73      -.220500  2 O  py                27       .212621  1 Pb px         
+    22       .595482  1 Pb py                28       .509887  1 Pb py         
+    67      -.310739  2 O  py                73      -.239096  2 O  py         
  
  Vector   47  Occ=0.000000D+00  E= 1.334037D-02  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21       .549169  1 Pb px                27       .470231  1 Pb px         
-    66      -.286571  2 O  px                22      -.248314  1 Pb py         
-    72      -.220500  2 O  px                28      -.212621  1 Pb py         
+    21       .595482  1 Pb px                27       .509887  1 Pb px         
+    66      -.310739  2 O  px                72      -.239096  2 O  px         
  
  Vector   48  Occ=0.000000D+00  E= 1.080325D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1134,7 +1144,7 @@ File balance: exchanges=     8  moved=     6  time=    .0
      6      -.221000  1 Pb s                 52       .195591  1 Pb d  0       
     42       .187532  1 Pb d  0              71       .180517  2 O  pz         
  
- Vector   49  Occ=0.000000D+00  E= 2.443532D-01  Symmetry=a1
+ Vector   49  Occ=0.000000D+00  E= 2.443531D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     65      2.828588  2 O  s                  8     -2.073931  1 Pb s          
@@ -1146,16 +1156,16 @@ File balance: exchanges=     8  moved=     6  time=    .0
  Vector   50  Occ=0.000000D+00  E= 2.654560D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    72      1.286357  2 O  px                73       .632889  2 O  py         
-    21      -.281056  1 Pb px                69      -.279565  2 O  px         
-    27      -.270285  1 Pb px                66      -.239349  2 O  px         
+    73      1.386270  2 O  py                72       .365403  2 O  px         
+    22      -.302886  1 Pb py                70      -.301279  2 O  py         
+    28      -.291279  1 Pb py                67      -.257939  2 O  py         
  
  Vector   51  Occ=0.000000D+00  E= 2.654560D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    73      1.286357  2 O  py                72      -.632889  2 O  px         
-    22      -.281056  1 Pb py                70      -.279565  2 O  py         
-    28      -.270285  1 Pb py                67      -.239349  2 O  py         
+    72      1.386270  2 O  px                73      -.365403  2 O  py         
+    21      -.302886  1 Pb px                69      -.301279  2 O  px         
+    27      -.291279  1 Pb px                66      -.257939  2 O  px         
  
  Vector   52  Occ=0.000000D+00  E= 2.687603D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1164,23 +1174,21 @@ File balance: exchanges=     8  moved=     6  time=    .0
      6      -.868490  1 Pb s                 74       .594683  2 O  pz         
     23       .586963  1 Pb pz                 8       .560600  1 Pb s          
     64      -.457930  2 O  s                  5       .418497  1 Pb s          
-    52      -.317504  1 Pb d  0              71      -.256820  2 O  pz         
+    52      -.317503  1 Pb d  0              71      -.256820  2 O  pz         
  
  Vector   53  Occ=0.000000D+00  E= 3.790062D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      3.247673  1 Pb py                22     -2.960677  1 Pb py         
-    19      -.674397  1 Pb py                73      -.412066  2 O  py         
-    25       .218668  1 Pb py                27       .190317  1 Pb px         
-    67       .174847  2 O  py                21      -.173499  1 Pb px         
+    28      3.253162  1 Pb py                22     -2.965681  1 Pb py         
+    19      -.675537  1 Pb py                73      -.412763  2 O  py         
+    25       .219038  1 Pb py                67       .175143  2 O  py         
  
  Vector   54  Occ=0.000000D+00  E= 3.790062D-01  Symmetry=e
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      3.247673  1 Pb px                21     -2.960677  1 Pb px         
-    18      -.674397  1 Pb px                72      -.412066  2 O  px         
-    24       .218668  1 Pb px                28      -.190317  1 Pb py         
-    66       .174847  2 O  px                22       .173499  1 Pb py         
+    27      3.253162  1 Pb px                21     -2.965681  1 Pb px         
+    18      -.675537  1 Pb px                72      -.412763  2 O  px         
+    24       .219038  1 Pb px                66       .175143  2 O  px         
  
  Vector   55  Occ=0.000000D+00  E= 3.914730D-01  Symmetry=b2
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -1197,10 +1205,10 @@ File balance: exchanges=     8  moved=     6  time=    .0
  Vector   57  Occ=0.000000D+00  E= 4.608787D-01  Symmetry=a1
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      2.630766  1 Pb s                 65     -2.108192  2 O  s          
+     8      2.630764  1 Pb s                 65     -2.108191  2 O  s          
     23      1.906391  1 Pb pz                74      1.296735  2 O  pz         
-    29     -1.278579  1 Pb pz                52     -1.222484  1 Pb d  0       
-    64       .945411  2 O  s                  6      -.744038  1 Pb s          
+    29     -1.278580  1 Pb pz                52     -1.222484  1 Pb d  0       
+    64       .945411  2 O  s                  6      -.744037  1 Pb s          
     47       .555425  1 Pb d  0              20       .499643  1 Pb pz         
  
  Vector   58  Occ=0.000000D+00  E= 5.013460D-01  Symmetry=a1
@@ -1208,10 +1216,20 @@ File balance: exchanges=     8  moved=     6  time=    .0
   ----- ------------  ---------------      ----- ------------  ---------------
      8      6.623643  1 Pb s                  6     -3.872369  1 Pb s          
     65     -3.139645  2 O  s                 29      3.120103  1 Pb pz         
-     5      2.164029  1 Pb s                 23     -1.620950  1 Pb pz         
-    74      1.214847  2 O  pz                 4       .874770  1 Pb s          
+     5      2.164029  1 Pb s                 23     -1.620949  1 Pb pz         
+    74      1.214847  2 O  pz                 4       .874771  1 Pb s          
      7       .531196  1 Pb s                 68      -.347550  2 O  pz         
  
+
+ center of mass
+ --------------
+ x =    .00000000 y =    .00000000 z =   -.06273988
+
+ moments of inertia (a.u.)
+ ------------------
+         191.473365237564            .000000000000            .000000000000
+            .000000000000         191.473365237564            .000000000000
+            .000000000000            .000000000000            .000000000000
  
   Mulliken analysis of the total density
   --------------------------------------
@@ -1221,10 +1239,10 @@ File balance: exchanges=     8  moved=     6  time=    .0
     1 Pb  82    80.84  11.89  -.01  -.02 25.47  -.01  -.49 29.99   .04  -.02 14.00
     2 O    8     9.16   3.83   .09   .11  4.52   .31   .27   .00   .02
 
- Parallel integral file used      43 records with       0 large values
+ Parallel integral file used      61 records with       0 large values
 
 
- Task  times  cpu:     8175.0s     wall:     8276.2s
+ Task  times  cpu:     2275.3s     wall:     2276.1s
  
  
                                 NWChem Input Module
@@ -1241,10 +1259,10 @@ File balance: exchanges=     8  moved=     6  time=    .0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1390     1390     8446     2543     1.02e+04    0        0        0     
-bytes total:             9.05e+07 1.20e+07 4.30e+07 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            6.91e+07 4.92e+05 3.37e+07 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 245880 bytes
+calls: 1394     1394     7294     1813     1.01e+04    0        0        0     
+bytes total:             8.98e+07 1.14e+07 4.30e+07 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            6.88e+07 2.19e+06 3.40e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 233840 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1254,11 +1272,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        45	        14
+	maximum number of blocks	        30	        14
 	current total bytes		         0	         0
-	maximum total bytes		   2382576	 124765588
-	maximum total K-bytes		      2383	    124766
-	maximum total M-bytes		         3	       125
+	maximum total bytes		   1099480	 124766296
+	maximum total K-bytes		      1100	    124767
+	maximum total M-bytes		         2	       125
 
 
 
@@ -1270,7 +1288,7 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 3.3.1" (1999), Pacific Northwest National Laboratory,
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -1280,17 +1298,15 @@ MA usage statistics:
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Bylaska, E.; 
-            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; Deegan, M.; 
-            Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; Fruchtl, H.; 
-            Glendenning, E.; Gutowski, M.; Harrison, R.; Hess, A.; 
-            Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; Kobayashi, R.; 
-            Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; Meng, B.; 
-            Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;Sandrone, G; 
-            Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; van Lenthe, J.; 
-            Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A 
-            Computational Chemistry Package for Parallel Computers, 
-            Version 3.3.1" (1999),
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
@@ -1310,4 +1326,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:    16369.2s     wall:    16570.8s
+ Total times  cpu:     4509.8s     wall:     4533.2s
