@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.19 2000-06-09 22:30:14 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.20 2000-06-13 22:29:52 d3j191 Exp $
 c
       implicit none
 c
@@ -33,9 +33,13 @@ c
       integer ixrep,iyrep,izrep
       real*8 temp,dbx,dby,dbz,dist,dbz0
       character*3 sname
+      character*1 charr
+      integer icharr
 c
       isoff=0
       iaoff=0
+      charr=' '
+      icharr=ichar(charr)
 c
 c     open PDB file
 c
@@ -67,9 +71,9 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),' ',
      + csa(j)(11:14),csa(j)(1:3),isgm(j)
- 1101 format('LINK',t13,a4,1x,a3,2x,i4,16x,a4,1x,a3,2x,i4)
+ 1101 format('LINK',t13,a4,1x,a3,1x,a1,i4,16x,a4,1x,a3,2x,i4)
       endif
       endif
    11 continue
@@ -81,13 +85,15 @@ c
       if(sname(1:1).eq.'_') sname(1:1)=' '
       if(sname(2:2).eq.'_') sname(2:2)=' '
       if(sname(3:3).eq.'_') sname(3:3)=' '
-      write(lfnpdb,1001) i,csa(i)(11:14),sname,
+      write(lfnpdb,1001) i,csa(i)(11:14),sname,' ',
      + isgm(i),(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
- 1001 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3,6x,f6.2,4x,a2)
+ 1001 format('ATOM',i7,1x,a4,1x,a3,1x,a1,i4,4x,3f8.3,6x,f6.2,4x,a2)
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
       else
       dbz0=0.0d0
+      charr='A'
+      icharr=ichar(charr)
       if(nzrep.lt.0) then
       if(nsa.gt.0.and.nwm.eq.0) dbz0=xs(3,1)
       if(nsa.eq.0.and.nwm.gt.0) dbz0=xw(3,1,1)
@@ -116,6 +122,7 @@ c
       do 6 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
 c
+      write(*,'(i5,a1)') icharr,char(icharr)
       do 111 k=1,nsb
       i=idsb(1,k)
       j=idsb(2,k)
@@ -124,7 +131,7 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i)+isoff,
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),char(icharr),
      + csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
       endif
       endif
@@ -138,18 +145,18 @@ c
       if(temp.gt.999.0) temp=999.989
       if(nzrep.gt.0) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
+     + char(icharr),isgm(i),1.0d1*(xs(1,i)+dbx),
      + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)+dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       if(izrep.eq.1) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
+     + char(icharr),isgm(i),1.0d1*(xs(1,i)+dbx),
      + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)-dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + isgm(i)+isoff,-1.0d1*(xs(1,i)+dbx),
+     + char(icharr),isgm(i),-1.0d1*(xs(1,i)+dbx),
      + -1.0d1*(xs(2,i)+dby),-1.0d1*(xs(3,i)-dbz),
      + temp,pre_atnam(num(isat(i)))
       endif
@@ -158,6 +165,7 @@ c
     7 continue
       isoff=isoff+nums
       iaoff=iaoff+nsa
+      icharr=icharr+1
     6 continue
     5 continue
     4 continue
