@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.2 2004-02-10 04:27:25 edo Exp $
+* $Id: band_structure.F,v 1.3 2004-03-15 15:17:40 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -182,7 +182,7 @@
 
 *     **** initialize D3dB data structure and mask for GGA ****
       IF (control_gga().eq.1) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
       call G_init()
       call mask_init()
       END IF

@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.6 2004-02-10 04:27:25 edo Exp $
+* $Id: ewald.F,v 1.7 2004-03-15 15:17:43 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -257,10 +257,11 @@ c           sum = sum + yerfc/ea
       i=0
       j=0
       k=0
-      call D3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nxh+1)*ny
-     >     + j*(nxh+1)
-     >     + i+1
+c     call D3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nxh+1)*ny
+c    >     + j*(nxh+1)
+c    >     + i+1
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       
 
 *     ***** initialize common block and find w *****

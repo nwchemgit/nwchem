@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.5 2004-02-10 04:27:25 edo Exp $
+* $Id: paw_cpmd.F,v 1.6 2004-03-15 15:17:41 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.5  2004/02/10 04:27:25  edo
+* spellinggggggggggggg
+*
 * Revision 1.4  2003/10/21 02:05:15  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -259,13 +262,13 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3))
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
 
 
 *     **** initialize lattice and packing data structure ****

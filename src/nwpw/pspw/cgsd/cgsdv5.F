@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.44 2004-03-09 21:25:57 bylaska Exp $
+* $Id: cgsdv5.F,v 1.45 2004-03-15 15:17:42 bylaska Exp $
 *
 
 ***********************************************************************
@@ -198,13 +198,13 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4)
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3))
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
 
 
  

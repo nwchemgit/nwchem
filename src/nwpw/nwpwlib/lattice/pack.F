@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.16 2004-03-08 22:51:25 bylaska Exp $
+* $Id: pack.F,v 1.17 2004-03-15 15:17:41 bylaska Exp $
 *
 
 *     ***********************************
@@ -70,9 +70,10 @@
          k1=0
          k2=0
          k3=0
-         call D3dB_ktoqp(1,k3+1,q,p)
+         !call D3dB_ktoqp(1,k3+1,q,p)
+         call D3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
          if (p.eq.taskid) then
-            indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
+            !indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
             if (.not.log_mb(masker(1,nb)+indx-1)) then
                nida(nb) = nida(nb) + 1
                int_mb(pack(1,nb)+nida(nb)-1) = indx
@@ -84,9 +85,10 @@
             k1=0
             k2=0
             k3=k
-            call D3dB_ktoqp(1,k3+1,q,p)
+            !call D3dB_ktoqp(1,k3+1,q,p)
+            call D3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
             if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
+               !indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
                if (.not.log_mb(masker(1,nb)+indx-1)) then
                   nidb(nb) = nidb(nb) + 1
                   int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
@@ -102,9 +104,10 @@
             k3=k
             if (k3.lt.0) k3 = k3 + nz
 
-            call D3dB_ktoqp(1,k3+1,q,p)
+            !call D3dB_ktoqp(1,k3+1,q,p)
+            call D3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
             if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
+               !indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
                if (.not.log_mb(masker(1,nb)+indx-1)) then
                   nidb(nb) = nidb(nb) + 1
                   int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
@@ -124,9 +127,10 @@
             if (k2.lt.0) k2 = k2 + ny
             if (k3.lt.0) k3 = k3 + nz
 
-            call D3dB_ktoqp(1,k3+1,q,p)
+            !call D3dB_ktoqp(1,k3+1,q,p)
+            call D3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
             if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
+               !indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
                if (.not.log_mb(masker(1,nb)+indx-1)) then
                   nidb(nb) = nidb(nb) + 1
                   int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
@@ -495,7 +499,8 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 *     *********************************************************
 *     index = (qzero-1)*(nx/2+1)*ny + (j-1)*(nx/2+1) + i 
       zero = 1
-      call D3dB_ktoqp(1,1,qzero,pzero)
+      !call D3dB_ktoqp(1,1,qzero,pzero)
+      call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
 
       return
       end
@@ -1797,11 +1802,12 @@ c      end do
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-      integer p,q,taskid
+      integer indx,p,q,taskid
 
       call Parallel_taskid(taskid)
-      call D3dB_ktoqp(1,1,q,p)
-      if (p.eq.taskid) A(1) = dcmplx(vzero,0.0d0)
+      !call D3dB_ktoqp(1,1,q,p)
+      call D3dB_ijktoindexp(1,1,1,1,indx,p)
+      if (p.eq.taskid) A(indx) = dcmplx(vzero,0.0d0)
 
       return
       end

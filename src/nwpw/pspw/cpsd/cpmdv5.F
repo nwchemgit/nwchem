@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.35 2004-03-08 22:51:26 bylaska Exp $
+* $Id: cpmdv5.F,v 1.36 2004-03-15 15:17:42 bylaska Exp $
 *
 
 ***********************************************************************
@@ -226,11 +226,11 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       if (control_version().eq.4) 
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3))
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
 
 
 *     **** initialize lattice data structure ****

@@ -1,8 +1,9 @@
 
+*
+* $Id: coulomb.F,v 1.7 2004-03-15 15:17:42 bylaska Exp $
+*
+
       subroutine coulomb_init()
-*
-* $Id: coulomb.F,v 1.6 2003-10-17 22:57:27 carlfahl Exp $
-*
       implicit none 
 #include "errquit.fh"
 
@@ -51,10 +52,11 @@ c     real*8 vc(nfft3d)
       i=0
       j=0
       k=0
-      call D3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nxh+1)*ny
-     >     + j*(nxh+1)
-     >     + i+1
+c     call D3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nxh+1)*ny
+c    >     + j*(nxh+1)
+c    >     + i+1
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 *     ***** form Vc = 4*pi/G**2  *****
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
@@ -164,7 +166,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.6 2003-10-17 22:57:27 carlfahl Exp $
+* $Id: coulomb.F,v 1.7 2004-03-15 15:17:42 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.51 2004-03-01 05:14:32 bylaska Exp $
+* $Id: control.F,v 1.52 2004-03-15 15:17:41 bylaska Exp $
 *
 
 *     ***********************************
@@ -516,11 +516,39 @@ c
 *     **** pspw_wannier ****
       else if (code.eq.9) then
 
-         value = rtdb_cget(rtdb,'wannier:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-         value = value.and.
-     >           rtdb_cget(rtdb,'wannier:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
+c     **** Figure input/output MO vectors ****
+c
+      if (rtdb_cget(rtdb,'wannier:input vectors',
+     >                  1,input_wavefunction_filename)) then
+      if (.not. rtdb_cget(rtdb, 'pspw:input vectors',
+     >                    1,input_wavefunction_filename))
+     >  input_wavefunction_filename = 'atomic'
+      end if
+
+      if (rtdb_cget(rtdb,'wannier:output vectors',
+     >                  1,output_wavefunction_filename)) then
+      if (.not. rtdb_cget(rtdb, 'pspw:output vectors',
+     >                    1,output_wavefunction_filename))
+     >     output_wavefunction_filename = ' '
+      if (output_wavefunction_filename.eq.' ')then
+         if (input_wavefunction_filename.eq.'atomic')then
+            call util_file_name('movecs', .false.,.false.,
+     >                          output_wavefunction_filename)
+         else
+            output_wavefunction_filename = input_wavefunction_filename
+         endif
+      endif
+      endif
+
+      if (input_wavefunction_filename.eq.'atomic')then
+         input_wavefunction_filename = output_wavefunction_filename
+      end if
+
+c         value = rtdb_cget(rtdb,'wannier:input_wavefunction_filename',
+c     >                  1,input_wavefunction_filename)
+c         value = value.and.
+c     >           rtdb_cget(rtdb,'wannier:output_wavefunction_filename',
+c     >                  1,output_wavefunction_filename)
 
 
          call psi_get_header(i,ngrid,unita,ispin0,ne)

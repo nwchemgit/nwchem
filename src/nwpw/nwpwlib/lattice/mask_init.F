@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.7 2003-10-17 22:56:44 carlfahl Exp $
+* $Id: mask_init.F,v 1.8 2004-03-15 15:17:41 bylaska Exp $
 *
 
       subroutine mask_end()
@@ -102,15 +102,15 @@
                   if (j .lt. 0) j = j + ny
                   if (k .lt. 0) k = k + nz
 
-                  call D3dB_ktoqp(1,k+1,q,p)
-
+c                 call D3dB_ktoqp(1,k+1,q,p)
+                  call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
                   if (p .eq. taskid) then
                      gg = g1*g1 + g2*g2 + g3*g3
                      gg= gg-ggcut
                      if (gg.lt.-eps) then
-                        index = (q-1)*(nxh+1)*ny
-     >                        + j*(nxh+1)
-     >                        + i+1
+c                       index = (q-1)*(nxh+1)*ny
+c    >                        + j*(nxh+1)
+c    >                        + i+1
                         log_mb(masker(1,nb)+index-1) = .false.
                         nwave(nb) = nwave(nb) + 1
                      end if

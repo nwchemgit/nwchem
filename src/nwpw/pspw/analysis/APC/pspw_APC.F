@@ -103,10 +103,11 @@
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       nxh = nx/2
-      call D3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nxh+1)*ny
-     >     + j*(nxh+1)
-     >     + i+1
+c     call D3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nxh+1)*ny
+c    >     + j*(nxh+1)
+c    >     + i+1
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)

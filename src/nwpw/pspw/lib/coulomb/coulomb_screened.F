@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.12 2003-10-17 22:57:27 carlfahl Exp $
+* $Id: coulomb_screened.F,v 1.13 2004-03-15 15:17:42 bylaska Exp $
 
 
 *
@@ -84,10 +84,12 @@
       i=0
       j=0
       k=0
-      call D3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nxh+1)*ny
-     >     + j*(nxh+1)
-     >     + i+1
+c     call D3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nxh+1)*ny
+c    >     + j*(nxh+1)
+c    >     + i+1
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
 
 *     **** short-range part of Greens function ****
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
@@ -122,16 +124,20 @@
          if (j.lt.0) j=j+ny
          if (k.lt.0) k=k+nz
 
-         call D3dB_ktoqp(1,k+1,q,p)
+         !call D3dB_ktoqp(1,k+1,q,p)
+         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
-            index = (q-1)*(nx+2)*ny
-     >            + j    *(nx+2)
-     >            + i+1
+c           index = (q-1)*(nx+2)*ny
+c    >            + j    *(nx+2)
+c    >            + i+1
 
-*           **** reverse y and z ****
-            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
-            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
-            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+            x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
+            y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
+            z = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+c*           **** reverse y and z ****
+c            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+c            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
             temp = dsqrt(x*x + y*y + z*z)
 
             if (temp .gt. 1.0d-10) then
@@ -165,16 +171,20 @@
          if (j.lt.0) j=j+ny 
          if (k.lt.0) k=k+nz 
 
-         call D3dB_ktoqp(1,k+1,q,p)
+         !call D3dB_ktoqp(1,k+1,q,p)
+         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
-            index = (q-1)*(nx+2)*ny
-     >            + j    *(nx+2)
-     >            + i+1
+c           index = (q-1)*(nx+2)*ny
+c    >            + j    *(nx+2)
+c    >            + i+1
 
-*           **** reverse y and z ****
-            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
-            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
-            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+            x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
+            y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
+            z = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+c*           **** reverse y and z ****
+c            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+c            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
             temp = dsqrt(x*x + y*y + z*z)
 
             dbl_mb(glr(1)+index-1) 
@@ -520,11 +530,12 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
          if (j.lt.0) j=j+np2
          if (k.lt.0) k=k+np3
 
-         call D3dB_ktoqp(1,k+1,q,p)
+         !call D3dB_ktoqp(1,k+1,q,p)
+         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
-            index = (q-1)*(np1+2)*np2
-     >            + j    *(np1+2)
-     >            + i+1
+c           index = (q-1)*(np1+2)*np2
+c    >            + j    *(np1+2)
+c    >            + i+1
 
 *         **** reverse y and z ****
           r = a(1,1)*k1

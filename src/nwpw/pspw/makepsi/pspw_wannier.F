@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.6 2004-03-08 22:51:28 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.7 2004-03-15 15:17:43 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -94,7 +94,7 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 

@@ -1,8 +1,8 @@
-c  #define TCGMSG
+ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.22 2004-03-14 17:28:49 bylaska Exp $
+* $Id: D3dB-new.F,v 1.23 2004-03-15 15:17:40 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -246,6 +246,70 @@ c     p = p_map(k)
       return
       end
 
+
+*     ***********************************
+*     *					*
+*     *	          D3dB_ijktoindexp	*	
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_ijktoindexp(nb,i,j,k,indx,p)      
+      implicit none
+      integer nb
+      integer i,j,k
+      integer indx,p
+
+#include "mafdecls.fh"
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ D3dB / nq,nx,ny,nz
+
+      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
+      common /D3dB_mapping / q_map,p_map,k_map
+
+      integer q
+
+      q = int_mb(q_map(1,nb)+k-1)
+      p = int_mb(p_map(1,nb)+k-1)
+
+      indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *           D3dB_ijktoindex2p     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_ijktoindex2p(nb,i,j,k,indx,p)
+      implicit none
+      integer nb
+      integer i,j,k
+      integer indx,p
+
+#include "mafdecls.fh"
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common    / D3dB / nq,nx,ny,nz
+
+      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
+      common /D3dB_mapping / q_map,p_map,k_map
+
+      integer q
+
+      q = int_mb(q_map(1,nb)+j-1)
+      p = int_mb(p_map(1,nb)+j-1)
+
+      indx = i + (k-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+      return
+      end
+
+
+
+
+
 *     ***********************************
 *     *					*
 *     *	        D3dB_nfft3d		*
@@ -363,10 +427,11 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_Init(nb,nx_in,ny_in,nz_in)
+      subroutine D3dB_Init(nb,nx_in,ny_in,nz_in,map_in)
       implicit none
       integer nb
       integer nx_in,ny_in,nz_in
+      integer map_in
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz

@@ -45,7 +45,7 @@ c     **** local variables  ****
       
       integer nfft3d,n2ft3d
       integer i,j,k,i1,j1,k1,q,nq,nx,ny,nz
-      integer index1
+      integer index1,p,taskid
 
 c     **** external functions ****
       real*8   lattice_unita,util_erf
@@ -62,6 +62,7 @@ c     **** external functions ****
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
+      call Parallel_taskid(taskid)
       call D3dB_nq(2,nq)
       call D3dB_nz(2,nz)
       call D3dB_ny(2,ny)
@@ -108,15 +109,15 @@ c     *** Set up the Green's function ***
 
 *     **** short-range part of Greens function ****
       call dcopy(nfft3d,0.0d0,0,dbl_mb(gk(1)),1)
-      do q = 1, nq
-         call D3dB_qtok(2,q,k)
-         k = k-1
+      do k = 0, nz-1
          do j = 0, ny-1
          do i = 0, (nx/2)
             i1  = i
             j1  = j
             k1  = k
            
+            call D3dB_ijktoindexp(2,i+1,j+1,k+1,index1,p)
+            if (p.eq.taskid) then
             if ((i1+j1+k1) .gt. 0) then
                   
                if (j1 .gt. ny/2) j1 = j1-ny
@@ -134,19 +135,19 @@ c     *** Set up the Green's function ***
                temp = pi/EPSILON**2
             end if
 
-            index1     = (i+1) 
-     >                 + j*(nx/2+1) 
-     >                 + (q-1)*(nx/2+1)*ny
+c           index1     = (i+1) 
+c    >                 + j*(nx/2+1) 
+c    >                 + (q-1)*(nx/2+1)*ny
             dbl_mb(gk(1)+index1-1) = temp
 
+            end if
          end do
          end do
       end do
 
 *     **** long-range part of Greens function ****
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
-      do q = 1, nq
-         call D3dB_qtok(2,q,k)
+      do k = 1, nz
          k1=k-1
          if (k1 .gt. nz/2) k1 = k1-nz
 
@@ -158,25 +159,27 @@ c     *** Set up the Green's function ***
                i1=i-1
                if (i1 .gt. nx/2) i1 = i1-nx
 
-c              x = i1*dunita(1,1)/dble(nx)
-c    >           + j1*dunita(1,2)/dble(ny)
-c    >           + k1*dunita(1,3)/dble(nz)
-c              y = i1*dunita(2,1)/dble(nx)
-c    >           + j1*dunita(2,2)/dble(ny)
-c    >           + k1*dunita(2,3)/dble(nz)
-c              z = i1*dunita(3,1)/dble(nx)
-c    >           + j1*dunita(3,2)/dble(ny)
-c    >           + k1*dunita(3,3)/dble(nz)
-
+               call D3dB_ijktoindex2p(2,i,j,k,index1,p)
+               if (p.eq.taskid) then
                x = i1*dunita(1,1)/dble(nx)
-     >           + k1*dunita(1,2)/dble(ny)
-     >           + j1*dunita(1,3)/dble(nz)
+     >           + j1*dunita(1,2)/dble(ny)
+     >           + k1*dunita(1,3)/dble(nz)
                y = i1*dunita(2,1)/dble(nx)
-     >           + k1*dunita(2,2)/dble(ny)
-     >           + j1*dunita(2,3)/dble(nz)
+     >           + j1*dunita(2,2)/dble(ny)
+     >           + k1*dunita(2,3)/dble(nz)
                z = i1*dunita(3,1)/dble(nx)
-     >           + k1*dunita(3,2)/dble(ny)
-     >           + j1*dunita(3,3)/dble(nz)
+     >           + j1*dunita(3,2)/dble(ny)
+     >           + k1*dunita(3,3)/dble(nz)
+
+c              x = i1*dunita(1,1)/dble(nx)
+c    >           + k1*dunita(1,2)/dble(ny)
+c    >           + j1*dunita(1,3)/dble(nz)
+c              y = i1*dunita(2,1)/dble(nx)
+c    >           + k1*dunita(2,2)/dble(ny)
+c    >           + j1*dunita(2,3)/dble(nz)
+c              z = i1*dunita(3,1)/dble(nx)
+c    >           + k1*dunita(3,2)/dble(ny)
+c    >           + j1*dunita(3,3)/dble(nz)
 
                temp = dsqrt(x*x + y*y + z*z)
                if (temp .gt. 1.0d-15) then
@@ -194,9 +197,10 @@ c                 temp = yerf/temp
                   temp = 2.0d0*EPSILON/dsqrt(PI)
                end if
 
-               index1 = i + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+               !index1 = i + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
                dbl_mb(glr(1)+index1-1) = temp*dV
 
+               end if
             end do
          end do
       end do

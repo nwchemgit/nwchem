@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.13 2003-10-17 22:56:44 carlfahl Exp $
+* $Id: strfac.F,v 1.14 2004-03-15 15:17:41 bylaska Exp $
 *
 
 *     ***********************************
@@ -55,19 +55,21 @@
      >  call errquit('strfac_init:out of heap memory',nb+1, MA_ERR)
 
         do k=0,nz-1
-         call D3dB_ktoqp(1,(k+1),q,p)
-         if (p.eq.taskid) then
-            do j=0,ny-1
-            do i=0,nxh
-              index = (q-1)*(nxh+1)*ny
-     >              + j*(nxh+1)
-     >              + i+1
+         !call D3dB_ktoqp(1,(k+1),q,p)
+         !if (p.eq.taskid) then
+         do j=0,ny-1
+         do i=0,nxh
+            call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
+            if (p.eq.taskid) then
+c             index = (q-1)*(nxh+1)*ny
+c    >              + j*(nxh+1)
+c    >              + i+1
               int_mb(i_indx(1,nb)+index-1) = i
               int_mb(j_indx(1,nb)+index-1) = j
               int_mb(k_indx(1,nb)+index-1) = k
-            end do
-            end do
-         end if
+            end if
+         end do
+         end do
         end do
         call Pack_i_pack(nb,int_mb(i_indx(1,nb)))
         call Pack_i_pack(nb,int_mb(j_indx(1,nb)))
@@ -467,19 +469,21 @@ C
 
 *     **** structure factor ****
       do k=0,nz-1
-         call D3dB_ktoqp(1,(k+1),q,p)
-         if (p.eq.taskid) then
-            do j=0,ny-1
-            do i=0,nxh
-                index = (q-1)*(nxh+1)*ny
-     >                + j*(nxh+1)
-     >                + i+1
+         !call D3dB_ktoqp(1,(k+1),q,p)
+         !if (p.eq.taskid) then
+         do j=0,ny-1
+         do i=0,nxh
+            call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
+            if (p.eq.taskid) then
+c               index = (q-1)*(nxh+1)*ny
+c    >                + j*(nxh+1)
+c    >                + i+1
                 exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
      >                     * dcpl_mb(ex2(1)+j+(II-1)*ny)
      >                     * dcpl_mb(ex3(1)+k+(II-1)*nz)
-            end do
-            end do
-         end if
+            end if
+         end do
+         end do
       end do
 
       call nwpw_timing_end(8)

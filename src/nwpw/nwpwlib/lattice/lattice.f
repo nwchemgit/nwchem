@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.7 2003-07-12 22:12:31 bylaska Exp $
+* $Id: lattice.f,v 1.8 2004-03-15 15:17:41 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -240,19 +240,20 @@ c     call D3dB_nz(1,nz)
                j = k2 + nph2
                k = k3 + nph3
 
-               call D3dB_ktoqp(1,k+1,q,p)
+               !call D3dB_ktoqp(1,k+1,q,p)
+               call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
                if (p .eq. taskid) then
-                  index = (q-1)*(np1+2)*np2
-     >                  + j    *(np1+2)
-     >                  + i+1
-c               r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
-c               r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
-c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+c                 index = (q-1)*(np1+2)*np2
+c    >                  + j    *(np1+2)
+c    >                  + i+1
+                r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
+                r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
+                r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 
-*               **** reverse y and z ****
-                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
-                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
-                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+c*               **** reverse y and z ****
+c                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+c                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
                end if
           end do
@@ -310,19 +311,20 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
                j = k2 + nph2
                k = k3 + nph3
 
-               call D3dB_ktoqp(1,k+1,q,p)
+               !call D3dB_ktoqp(1,k+1,q,p)
+               call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
                if (p .eq. taskid) then
-                  index = (q-1)*(np1+2)*np2
-     >                  + j    *(np1+2)
-     >                  + i+1
-c               r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
-c               r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
-c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+c                 index = (q-1)*(np1+2)*np2
+c    >                  + j    *(np1+2)
+c    >                  + i+1
+                r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
+                r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
+                r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 
-*               **** reverse y and z ****
-                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
-                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
-                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+c*               **** reverse y and z ****
+c                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+c                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
                end if
           end do
@@ -368,11 +370,12 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
                j = k2 + nph2
                k = k3 + nph3
 
-               call D3dB_ktoqp(1,k+1,q,p)
+               !call D3dB_ktoqp(1,k+1,q,p)
+               call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
                if (p .eq. taskid) then
-                  index = (q-1)*(np1+2)*np2
-     >                  + j    *(np1+2)
-     >                  + i+1
+c                 index = (q-1)*(np1+2)*np2
+c    >                  + j    *(np1+2)
+c    >                  + i+1
 
                 r(index) =  1.0d0
                end if
