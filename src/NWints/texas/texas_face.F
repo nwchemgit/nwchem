@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.48 1998-07-17 16:15:07 d3g681 Exp $
+c $Id: texas_face.F,v 1.49 1998-07-31 21:27:55 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------

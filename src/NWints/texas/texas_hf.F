@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.32 1998-07-17 16:15:08 d3g681 Exp $
+* $Id: texas_hf.F,v 1.33 1998-07-31 21:27:55 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -460,11 +460,14 @@ c  7 calls to getmem
 c--------------------------------------------------------
       call memo1_int(nquart,isupblk)
       call memo1_int(nsupblk,isblpoin)
+         call txs_second(time_beg)
       call swap_shells(nquart,icspnl,jcspnl,kcspnl,lcspnl,
      *     nbl2,
      *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
      *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock1_back),
      *     bl(iqorder),bl(isblpoin) )
+         call txs_second(time_end)
+         time_swap=time_swap +(time_end-time_beg)
       call retmem(1)
       call retmem(1)
 c  
@@ -493,6 +496,7 @@ c (maximum sizes calculated in blksizer (spec_block.f) )
 c
       call memo1_int(nsupblk,isbl_part)
       call supblks_split(bl,nquart,bl(mxsize),bl(mxpair),
+     *                   bl(ijblock),bl(klblock),
      *                   leri,inx, bl(nblock1),nbl2,
      *                   bl(isblqrts),bl(isblpoint),
      *        bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
@@ -500,7 +504,7 @@ c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
       call memo1_int(nsupblk+2,isbl_split)
-      call request_split(leri,inx, nbl2,
+      call request_split(leri,inx, nbl2,bl(ijblock),bl(klblock),
      *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isblqrts),
      *     bl(isbl_part),
      *     bl(isbl_split),isplit )
@@ -957,6 +961,7 @@ c
       end
 c=====================================================================
       subroutine supblks_split(bl,nquart,maxsize,maxpair,
+     *                         ijblock,klblock,
      *                         leri,inx, nblock1,nbl2,
      *                         isbl_q,isbl_point,
      *                         ijpres2,klpres2,isbl_s,isbl_part)
@@ -981,6 +986,7 @@ c
       dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
       dimension isbl_q(*), isbl_point(*)
 c
+      dimension ijblock(nbl2),klblock(nbl2)
       dimension bl(*)
 c---------------------------------------------------------------------
 c for derivatives of all kinds :
@@ -998,10 +1004,20 @@ c---------------------------------------------------------------------
          i_blks=0
          isupb=0
          do 10 ibl=1,nbl2
+         if(ijblock(ibl).eq.0) then
+            iibl=ibl*(ibl-1)/2
+            iibl1=iibl+1
+            iibl2=iibl+ibl
+            do iiii=iibl1,iibl2
+               isbl_part(iiii)=1
+            enddo
+            isupb=isupb+ibl
+            go to 10
+         endif
          call get_ics_jcs(nblock1,ibl,1,ics1,jcs1)
          icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
          integ_ij=inx(3,ics1)*inx(3,jcs1)*icont_ij
-         do 10 kbl=1,ibl
+            do 20 kbl=1,ibl
             isupb=isupb+1 
             isbl_part(isupb)=1
             isbl_size=isbl_s(isupb)
@@ -1012,7 +1028,7 @@ c
                integ_kl=inx(3,kcs1)*inx(3,lcs1)*icont_kl
                integ1=integ_ij*integ_kl
 c
-               integ1=integ1*n_times  ! derivatives
+ccccccc        integ1=integ1*n_times  ! derivatives
 c
 c first re-define maximum size according to leri :
 c
@@ -1065,13 +1081,15 @@ c
               i_blks=i_blks+isbl_part(isupb)
 c
             endif
+   20       continue
    10    continue
 c---------------------------------------------------------
       if(i_blks.gt.0) nsize_pnl=nsize_pnl+ nquart/i_blks
 c---------------------------------------------------------
       end
 c=====================================================================
-      subroutine request_split(leri,inx,nbl2,ijpres2,klpres2,
+      subroutine request_split(leri,inx,nbl2, ijblock,klblock,
+     *                         ijpres2,klpres2,
      *                         isbl_s,isbl_q, isbl_part,
      *                         isbl_split,isplit)
 c--------------------------------------------------------------------
@@ -1081,6 +1099,7 @@ c--------------------------------------------------------------------
       dimension isbl_s(*)               ! dimension nbl2*(nbl2+1)/2  
       dimension isbl_q(*)               ! dimension nquart
       dimension ijpres2(*),klpres2(*)   ! dimension nquart
+      dimension ijblock(nbl2),klblock(nbl2)
       dimension isbl_part(*)            ! dim. nbl2*(nbl2+1)/2
       dimension isbl_split(0:*)
 c---------------------------------------------------------------------
@@ -1098,49 +1117,51 @@ c
          integrals=0
          ipoint=0
 c
-         do 60 ibl=1,nbl2
+         do 50 ibl=1,nbl2
+         if(ijblock(ibl).eq.0) go to 50
          iibl=ibl*(ibl-1)/2
-         do 60 kbl=1,ibl
-         isupb=iibl+kbl
-         isbl_size=isbl_s(isupb)
-         nparts=isbl_part(isupb)
-         if(isbl_size.eq.0) go to 60
+            do 60 kbl=1,ibl
+            isupb=iibl+kbl
+            isbl_size=isbl_s(isupb)
+            nparts=isbl_part(isupb)
+            if(isbl_size.eq.0) go to 60
 ctest
 ccc      write(6,*)'block=',isupb,' size=',isbl_size,' nparts=',nparts
 ctest
 c
-           iq1=isbl_q(ipoint+1)
-           ijcs1=ijpres2(iq1)
-           klcs1=klpres2(iq1)
-           call get_ij_half(ijcs1,ics1,jcs1)
-           icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
-           call get_ij_half(klcs1,kcs1,lcs1)
-           icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
-           integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
-           integ1=integ1*icont_ij*icont_kl
+            iq1=isbl_q(ipoint+1)
+            ijcs1=ijpres2(iq1)
+            klcs1=klpres2(iq1)
+            call get_ij_half(ijcs1,ics1,jcs1)
+            icont_ij=(inx(4,ics1)+1)*(inx(4,jcs1)+1)
+            call get_ij_half(klcs1,kcs1,lcs1)
+            icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
+            integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
+            integ1=integ1*icont_ij*icont_kl
 c
-           integ1=integ1*n_times ! derivatives
+cccccc      integ1=integ1*n_times ! derivatives
 c
 c  splitting among super-blocks :
 c
-           if(nparts.eq.1) then
-              integ=integ1*isbl_size
-              if((integrals+integ).gt.leri) then
-                 isplit=isplit+1
-                 integrals=integ
-                 isbl_split(isplit)=isupb
-              else
-                 integrals=integrals+integ
-              endif
-           else 
+            if(nparts.eq.1) then
+               integ=integ1*isbl_size
+               if((integrals+integ).gt.leri) then
+                  isplit=isplit+1
+                  integrals=integ
+                  isbl_split(isplit)=isupb
+               else
+                  integrals=integrals+integ
+               endif
+            else 
 c  splitting inside of one super-block : force splitting :
-              integrals=leri
-              isplit=isplit+1
-              isbl_split(isplit)=isupb
-           endif
+               integrals=leri
+               isplit=isplit+1
+               isbl_split(isplit)=isupb
+            endif
 c
-           ipoint=ipoint+isbl_size
-   60    continue
+            ipoint=ipoint+isbl_size
+   60       continue
+   50    continue
 c
          isblast=nbl2*(nbl2+1)/2
          isbl_split(0)=1

@@ -1,5 +1,5 @@
       subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc,datbas)
-c $Id: lab_reorder.f,v 1.8 1996-08-19 17:55:41 d3g681 Exp $
+c $Id: lab_reorder.f,v 1.9 1998-07-31 21:27:52 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
@@ -24,10 +24,10 @@ c      maybe this latter is not needed
 c find the lowest ang. momentum, and within that the highest contr.
 c length and within that the lowest atom number in the new
 c atomic ordering       
-c>>d     write(*,*) 'original basis set'
-c>>d     do 100 ics=1,ncs
-c>>d      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
-c>>d100  continue
+c     write(*,*) 'original basis set'
+c     do 100 ics=1,ncs
+c     write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
+c100  continue
 c------------------------------------
  400  continue
       iexch=0
@@ -51,8 +51,6 @@ charge:
         endif
 c
 c contr. length :
-c06     iclen0=inx(5,ics0)-inx(1,ics0)-1
-c06     iclen1=inx(5,ics1)-inx(1,ics1)-1
         iclen0=inx(5,ics0)-inx(1,ics0)
         iclen1=inx(5,ics1)-inx(1,ics1)
 c 
@@ -78,6 +76,11 @@ c
  420        continue
           else if(ict1.eq.ict0.and.iclen0.eq.iclen1
      *                            .and.nzi0.gt.nzi1) then
+c
+ctxs *                            .and.nzi1.gt.nzi0) then
+ctxs :    from heavier to lighter .......................
+cpnl *                            .and.nzi0.gt.nzi1) then
+cpnl :    from lighter to heavier .......................
             iexch=1
             do 430 k=1,12
                itemp=inx(k,ics0)
@@ -86,7 +89,12 @@ c
  430        continue
           else if(ict1.eq.ict0.and.iclen0.eq.iclen1
      *                            .and.nzi0.eq.nzi1
-     *                            .and.exp0.lt.exp1) then
+     *                            .and.exp0.gt.exp1) then
+ccc  *                            .and.exp0.lt.exp1) then
+c.......  from BIG exp to SMALL exp
+c
+ccc  *                            .and.exp0.gt.exp1) then
+c.......  from SMALL exp to BIG exp
 c06 NEW
             iexch=1
             do 440 k=1,12
@@ -108,12 +116,29 @@ c       end of contr= beginning+(shell-size)*(1+number of gen. contr.)
  700  continue
       if (iexch.eq.1) go to 400
 c------------------------------------
-c>>d     write(*,*) 'reordered basis set'
-c>>d     do 600 ics=1,ncs
-c>>d      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
-c>>d666    format(' ics=',i3,' ib=',i3,' nat=',i3,' shz=',i3,' gc=',i3,
-c>>d    1  ' ie=',i3,' lcf=',i3,' fcf=',i3, ' type=',i2)
-c>>d600  continue
+c     write(*,*) 'reordered basis set'
+c     do 600 ics=1,ncs
+c      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
+c666    format(' ics=',i3,' ib=',i3,' nat=',i3,' shz=',i3,' gc=',i3,
+c    1  ' ie=',i3,' lcf=',i3,' fcf=',i3, ' type=',i2)
+c600  continue
+c------------------------------------
+c     write(6,*)'----------------------------------------'
+c     write(6,*)'       reordered basis set'
+c     write(6,*)'----------------------------------------'
+c     write(6,*)' shell,center,itype,icont,igenc,ichar, exponent'
+c     write(6,*)'----------------------------------------'
+c     do ics=1,ncs
+c       itype=inx(12,ics)                 ! cond 1
+c       icont=inx(5,ics)-inx(1,ics)       ! cond 2
+c       igenc=inx(4,ics)                  ! cond 3
+c         iatom=inx(2,ics)
+c       ichar=datnuc(1,iatom)             ! cond 4
+c         icb=inx(1,ics)+1
+c       expon=datbas(1,icb)               ! cond 5
+c       write(6,777) ics,iatom,itype,icont,igenc,ichar,expon
+c     enddo
+c 777 format(6(i5,1x),f15.8)
 c------------------------------------
 c  set up a basis set relation between 
 c  original (PNL) and re-ordered (TXS)

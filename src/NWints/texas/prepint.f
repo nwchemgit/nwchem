@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.14 1998-07-17 16:15:01 d3g681 Exp $
+c $Id: prepint.f,v 1.15 1998-07-31 21:27:53 d3g681 Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)

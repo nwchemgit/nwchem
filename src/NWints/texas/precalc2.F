@@ -356,7 +356,7 @@ c
 c---------------------------------------------------------------
 c check for numerical stablility :
 c
-      call num_stability_1(dbl_mb(ibas),inx,
+      call num_stability_1(dbl_mb(ibas),inx,bl(icij),bl(ickl),
      *               nij_uniqe,bl(ij_uniqe_p),nkl_uniqe,bl(kl_uniqe_p))
 c---------------------------------------------------------------
       end
@@ -1063,7 +1063,8 @@ c---------------------------------------------------------------
 c
 c numerical stability :
       logical stable_2
-      common /stability_2/ stable_2      
+      logical stable_kind_1,stable_kind_2
+      common /stability_2/ stable_2,stable_kind_1,stable_kind_2   ! use here and in num_s..
       logical stable 
       common /tracy_stability/ stable(5000) ! this is limit limblks
 c
@@ -1091,9 +1092,25 @@ c
 c---------------------------------------------------------------
       x_prim_all=x_prim_all + nbls1
 c---------------------------------------------------------------
+ctest ONLY
+c        stable_2=.false.
+c        do i=1,nbls1
+c           ijkl=index(i)
+c           ijpar=indxij(ijkl)      
+c           klpar=indxkl(ijkl)     
+c           abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+c           stable(i)=.false.
+c        enddo
+c
+c      RETURN
+c
+ctest ONLY
+c---------------------------------------------------------------
       if(stable_2) then
 ctest
-c       write(6,*)'abcd_1: stable_2=',stable_2
+c       write(6,*)'abcd_1: stable_2=',stable_2,
+c    *            ' kind_1,_2=',stable_kind_1,stable_kind_2,
+c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
 ctest
          do i=1,nbls1
             ijkl=index(i)
@@ -1101,9 +1118,20 @@ ctest
             klpar=indxkl(ijkl)     
             abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
             stable(i)=.true.
+ctest
+c           a_exp=aaa(ijpar,lci)
+c           b_exp=bbb(ijpar,lcj)
+c           write(6,*)' a,b=',0.5*a_exp,0.5*b_exp
+c           write(6,*)' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
+c           write(6,*)' abcd=',abcd(i)
+ctest
          enddo
       else
-c       write(6,*)'abcd_1: stable_2=',stable_2
+ctest
+c       write(6,*)'abcd_1: stable_2=',stable_2,
+c    *            ' kind_1,_2=',stable_kind_1,stable_kind_2,
+c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest
          x_prim_wr1=x_prim_wr1 + nbls1              ! test 
 c
          do i=1,nbls1
@@ -1111,53 +1139,94 @@ c
             ijpar=indxij(ijkl)      
             klpar=indxkl(ijkl)     
 c
-            a_exp=aaa(ijpar,lci)
-            b_exp=bbb(ijpar,lcj)
-            boa=2.d0*b_exp/max(2.d0,a_exp) ! exp. are already *2 .
+c make it stable first :
+c
+            stable(i)=.true.
+            abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
+c
+            if(.not.stable_kind_1) then
+               a_exp=aaa(ijpar,lci)
+               b_exp=bbb(ijpar,lcj)
+               boa=2.d0*b_exp/max(2.d0,a_exp) ! exp. are already *2 .
 ctest
-c      write(6,*)'contr=',lci,lcj,lcij,' a,b=',a_exp,b_exp,' boa=',boa
+c              write(6,*)' a,b=',0.5*a_exp,0.5*b_exp
+c              write(6,*)' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
 ctest
-c
-            if(boa .ge. 10.d0) then
-               x_prim_wr2=x_prim_wr2 + 1.d0         !   test
-c
-               xost_digit_1= log10(boa*rcpd(klpar,lckl))
-               xost_digit  = (nskl-1)*xost_digit_1 
-c
-               if(ngcd.gt.1) then
-                  call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
-                  lost_const  =int( log10( gc_max*abs( const(i) ) ) )
-               else
-                  lost_const  =int( log10( abs( const(i) ) ) )
-               endif
-c
-               lost_const  =max( -14, lost_const )
-c
-               lost_digit= int( xost_digit ) + lost_const
-c
-               if(lost_digit.gt.lost_allow) then
-                  x_prim_wr3=x_prim_wr3 + 1.d0                !   test
-                  stable(i)=.false.
-                  abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+               if(boa .ge. 10.d0) then
+                  x_prim_wr2=x_prim_wr2 + 1.d0         !   test
+                  xost_digit_1= log10(boa*rcpd(klpar,lckl))
+                  xost_digit  = (nskl-1)*xost_digit_1 
+                  lost_digit= int( xost_digit )
+                  if(ngcd.gt.1) then
+                     call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
+                     lost_const  =int( log10( gc_max*abs(const(i)) ) )
+                  else
+                     lost_const  =int( log10( abs( const(i) ) ) )
+                  endif
+                  lost_const = max( -14, lost_const )
+                  lost_digit = lost_digit + lost_const
+                  if(lost_digit.gt.lost_allow) then
+                     x_prim_wr3=x_prim_wr3 + 1.d0                !   test
+                     stable(i)=.false.
+                     abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+                  endif
 ctest..................................................................
-c                 write(6,*)'Quartet no=',i
-c                 write(6,*)'const=',const(i) ,
-c    *            ' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
-c                 write(6,*)'Lost : in ',nskl-1,' steps =',
-c    *               int( xost_digit ),
-c    *            '; due to const=',lost_const,
-c    *            '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
-c                 write(6,*)'==> stable=',stable(i),
-c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+c                    write(6,*)'I st-kind stability: Quartet no=',i
+c                    write(6,*)'const=',const(i) ,
+c    *               ' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
+c                    write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *                  int( xost_digit ),
+c    *               '; due to const=',lost_const,
+c    *               '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c                    write(6,*)'==> stable=',stable(i),
+c    *               ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
 ctest..................................................................
-               else
-                  stable(i)=.true.
-                  abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
+               endif       !    if(boa .ge. 10.d0) then
+            endif          ! if(.not.stable_kind_1) then
+c
+            if(.not.stable_kind_2) then 
+ctest
+c              a_exp=aaa(ijpar,lci)
+c              b_exp=bbb(ijpar,lcj)
+c              write(6,*)' a,b=',0.5*a_exp,0.5*b_exp
+c              write(6,*)'const=',const(i) ,
+c    *         ' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
+ctest
+               if( stable(i)) then
+                  abcd_max=abcd(i)
+                  if(abcd_max.gt.  10.d0) then
+                     x_prim_wr2=x_prim_wr2 + 1.d0         !   test
+                     abcd_max=abcd(i)
+                     xost_digit_1= 0.5d0*log10(abcd_max)
+c 2 are ok           xost_digit  = (nskl-1)*xost_digit_1 
+                     xost_digit  = (nskl-3)*xost_digit_1 
+                     if(ngcd.gt.1) then
+                        call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
+                        lost_const  =int(log10(gc_max*abs(const(i))))
+                     else
+                        lost_const  =int(log10(abs(const(i))))
+                     endif
+                     lost_const  =max( -14, lost_const )
+                     lost_digit= int( xost_digit ) + lost_const
+                     if(lost_digit.gt.lost_allow) then
+                        x_prim_wr3=x_prim_wr3 + 1.d0                !   test
+                        stable(i)=.false.
+                        abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+                     endif
+ctest..................................................................
+c                       write(6,*)'IIed-kind stability: Quartet no=',i
+c                       write(6,*)'const=',const(i) ,
+c    *                  ' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
+c                       write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *                     int( xost_digit ),
+c    *                  '; due to const=',lost_const,
+c    *                  '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c                       write(6,*)'==> stable=',stable(i),
+c    *                  ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+                  endif
                endif
-            else
-               abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
-               stable(i)=.true.
-            endif
+            endif          ! if(.not.stable_kind_2) then
          enddo
       endif
 c---------------------------------------------------------------
@@ -1541,8 +1610,8 @@ c
 c---------------------------------------------------------------
 c check for numerical stablility :
 c
-      call num_stability_2(dbl_mb(ibas),inx,
-     *                     bl(ij_uniqe_p),bl(kl_uniqe_p))
+      call num_stability_2(dbl_mb(ibas),inx,bl(icij),bl(ickl),
+     *               nij_uniqe,bl(ij_uniqe_p),nkl_uniqe,bl(kl_uniqe_p))
 c---------------------------------------------------------------
       end
 c====================================================================
@@ -2209,7 +2278,8 @@ c
 c---------------------------------------------------------------
 c accuracy :
       logical stable_2
-      common /stability_2/ stable_2      
+      logical stable_kind_1,stable_kind_2
+      common /stability_2/ stable_2,stable_kind_1,stable_kind_2 ! use here and in num_s..
       common /stability_3/ b_over_a(1000) 
 c
 c used only here and in trobsa.f :
@@ -2224,61 +2294,110 @@ c
       common /count_primitive/ x_prim_all,
      *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
 c---------------------------------------------------------------
+c This routine tries to determine stability for Tracy's recursive
+c for the WHOLE block , not for individual quartets (as it is done
+c for iroute=1 in abcd_1 ).
+c---------------------------------------------------------------
 c for accuracy in Tracy's recursive : 
-c
-      stable(1)=.true.
-      abcd=apb(lcij)*rcpd(lckl)
-c
-      x_prim_all=x_prim_all + nbls1         ! test only
-c
-        if( .not.stable_2 ) then
-           x_prim_wr1=x_prim_wr1 + nbls1    ! test only
-           boa=b_over_a(lcij)
-           if( boa .gt. 0.d0 ) then
-c............ boa=0.d0 means that it was ok ......
-c
-              x_prim_wr2=x_prim_wr2 + nbls1     ! test only
-c 
-c calculate number of lost digit in all (nskl-) recursive steps :
-c
-              xost_digit= (nskl-1)*log10(boa*rcpd(lckl))
-c
 c final integrals are obtained by multiplying pruducts from Tracy's rec.
 c by the CONST factor (involving contr.coeff.) which can be very small.
 c In such cases the final integrals are also very small and we may
 c allow ourselves to loose some digit. In the other words, small value 
 c of const may let us "get back" some lost digit. However, we can not 
 c get back more than 14 digit ( double precission limit ). Thus :
-c
-c first find maximum value of const()*gcoef() :
-c
-              call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
-c
-              lost_const=int( log10(const_max) )
-              lost_const=max( -14, lost_const )
-c 
-              lost_digit= int( xost_digit ) + lost_const
-c
-              if(lost_digit.gt.lost_allow) then
-                 stable(1)=.false.
-                 abcd=rapb(lcij)*cpd(lckl)
-                 x_prim_wr3 =x_prim_wr3 + nbls1     ! test only
-              endif
-           endif
-        endif
 c---------------------------------------------------------------
+      x_prim_all=x_prim_all + nbls1         ! test only
+c---------------------------------------------------------------
+ctest ONLY
+c        stable_2=.false.
+c        abcd=rapb(lcij)*cpd(lckl)
+c        stable(1)=.false.
+c
+c      RETURN
+c
+ctest ONLY
+c---------------------------------------------------------------
+      if(stable_2) then
 ctest
-c       if( .not.stable(1) ) then
-c           write(6,*)'const_max=',const_max,
-c    *                ' a+b=',apb(lcij),' c+d=',cpd(lckl)
-c           write(6,*)'Lost : in ',nskl-1,' steps =',
-c    *            int( xost_digit ),
+c        write(6,*)'abcd_2: stable_2=',stable_2,
+c    *             ' kind_1,_2=',stable_kind_1,stable_kind_2,
+c    *             ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+c        write(6,*)' a+b=',apb(lcij),' c+d=',cpd(lckl)
+ctest
+         abcd=apb(lcij)*rcpd(lckl)
+         stable(1)=.true.
+      else
+ctest
+c        write(6,*)'abcd_2: stable_2=',stable_2,
+c    *            ' kind_1,_2=',stable_kind_1,stable_kind_2,
+c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+c        write(6,*)' a+b=',apb(lcij),' c+d=',cpd(lckl)
+ctest
+         x_prim_wr1=x_prim_wr1 + nbls1              ! test 
+c
+c make it stable first :
+c
+         stable(1)=.true.
+         abcd=apb(lcij)*rcpd(lckl)
+c
+         if(.not.stable_kind_1) then
+            boa=b_over_a(lcij)
+            if(boa .ge. 10.d0) then
+               x_prim_wr2=x_prim_wr2 + nbls1        !   test
+               xost_digit_1= log10(boa*rcpd(lckl))
+               xost_digit  = (nskl-1)*xost_digit_1 
+               lost_digit= int( xost_digit )
+          call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
+               lost_const=int( log10(const_max) )
+               lost_const = max( -14, lost_const )
+               lost_digit = lost_digit + lost_const
+               if(lost_digit.gt.lost_allow) then
+                  x_prim_wr3=x_prim_wr3 + nbls1               !   test
+                  stable(1)=.false.
+                  abcd=rapb(lcij)*cpd(lckl)
+               endif
+ctest..................................................................
+c              write(6,*)'I st-kind stability: const_max=',const_max
+c              write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *         int( xost_digit ),
 c    *         '; due to const=',lost_const,
 c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
-c           write(6,*)'==> stable=',stable(1),
+c              write(6,*)'==> stable=',stable(1),
 c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
-c       endif
-ctest
+ctest..................................................................
+            endif       !    if(boa .ge. 10.d0) then
+         endif          ! if(.not.stable_kind_1) then
+c
+         if(.not.stable_kind_2) then 
+            if( stable(1)) then
+               abcd_max=abcd
+               if(abcd_max.gt.  10.d0) then
+                  x_prim_wr2=x_prim_wr2 + 1.d0         !   test
+                  xost_digit_1= 0.5d0*log10(abcd_max)
+c 2 are ok        xost_digit  = (nskl-1)*xost_digit_1 
+                  xost_digit  = (nskl-3)*xost_digit_1 
+             call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
+                  lost_const=int( log10(const_max) )
+                  lost_const = max( -14, lost_const )
+                  lost_digit= int( xost_digit ) + lost_const
+                  if(lost_digit.gt.lost_allow) then
+                     x_prim_wr3=x_prim_wr3 + nbls1               !   test
+                     stable(1)=.false.
+                     abcd=rapb(lcij)*cpd(lckl)
+                  endif
+ctest..................................................................
+c                 write(6,*)'IIed-kind stability: const_max=',const_max 
+c                 write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *            '; due to const=',lost_const,
+c    *            '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c                 write(6,*)'==> stable=',stable(1),
+c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+               endif
+            endif
+         endif          ! if(.not.stable_kind_2) then
+      endif
 c---------------------------------------------------------------
 c old fashion way :
 c
@@ -2464,28 +2583,27 @@ c     isab =iabprim   + ijdim*2
 c--------------
       end
 c====================================================================
-      subroutine num_stability_2(datbas,inx,ij_uniqe,kl_uniqe)
+      subroutine num_stability_2(datbas,inx,coefij,coefkl,
+     *                        nij_uniqe,ij_uniqe,nkl_uniqe,kl_uniqe)
       implicit real*8 (a-h,o-z)
       logical stable_2
-      common /stability_2/ stable_2       ! use here and in xwpq_2
-      common /stability_3/ b_over_a(1000) ! use here and in xwpq_2
+      logical stable_kind_1,stable_kind_2
+      common /stability_2/ stable_2,stable_kind_1,stable_kind_2   ! use here and in abcd_
+      common /stability_3/ b_over_a(1000)                         ! use here and in abcd_
 c 1000 above is enough for contractions as long as 31 (31*31=961)
-c
-      character*11 scftype
-      character*4 where
-      common /runtype/ scftype,where
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
-c number of digit allowed to loose (calculated in prepint2)
+c number of digit allowed to loose 
       common /allow_lost/ lost_allow
 c
       dimension datbas(13,*)
       dimension inx(12,*)
-      dimension ij_uniqe(*)  ! ij_uniqe(nij_uniqe)
-      dimension kl_uniqe(*)  ! kl_uniqe(nkl_uniqe)
+      dimension ij_uniqe(nij_uniqe)
+      dimension kl_uniqe(nkl_uniqe)
+      dimension coefij(nij_uniqe,*),coefkl(nkl_uniqe,*)
 c-------------------------------------------------------------
 c June 1998
 c Numerical stability of Tracy's recursive depends on the relative
@@ -2497,8 +2615,9 @@ c (s,s|i+j+k+l,s) ---> (i+j,s|k+l,s)
 c from center 3 to center 1 (tracy's recursive) 
 c 
 c Before numerical instability in Tracy's recursive has been
-c realized the program ALWAYS calculated (i+j+k+l,s|s,s) and
-c then shifted ang. mom. from 1 to 3.
+c realized the program calculated (i+j+k+l,s|s,s) for nsij.GE.nskl
+c and onother way aroubd for nsij.LT.nskl .
+c then shifted ang. mom. from 1 to 3 or fro 3 to 1.
 c-------------------------------------------------------------
 c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
 c these two above will determine numerical stability in
@@ -2533,98 +2652,196 @@ c          acc_requested = 10**-10 =10**-(14-4)  for example.
 c
 c (14 comes from double precission)
 c-------------------------------------------------------------
+c-------------------------------------------------------------
+c const=c_ij*c_kl*Sij*Skl/(a+b+c+d)  - S -radial overlap.
+c maximum of it is needed
+c-------------------------------------------------------------
 c
-           stable_2=.true.
+      stable_2     =.true.
+      stable_kind_1=.true.
+      stable_kind_2=.true.
 c
-           if(mmax.gt.2 .and. nskl.gt.1) then
+      if(mmax.gt.2 .and. nskl.gt.1) then
 c
 c left side pairs:
 c
-              ijcs=ij_uniqe(1)    
-              call get_ij_half(ijcs,ics,jcs)
-              ie=inx(5,ics)
-              ia=inx(1,ics)+1
-              je=inx(5,jcs)
-              ja=inx(1,jcs)+1
-                 b_exp_max=datbas(1,ja)
-                 a_exp_min=datbas(1,ie)
-                 a_1_max=max(1.d0,a_exp_min)
+         const_ij_max=0.d0     ! ij-part of const
+         do ijpar=1,nij_uniqe
+            ijcs=ij_uniqe(ijpar)
+            call get_ij_half(ijcs,ics,jcs)
+            ia=inx(1,ics)+1    !  starting contr
+            ja=inx(1,jcs)+1
+            ie=inx(5,ics)      !      last contr
+            je=inx(5,jcs)
+            ij=0
+            do is=ia,ie
+               do js=ja,je
+                  ij=ij+1
+                  const_ij=abs(coefij(ijpar,ij))
+                  if(const_ij.gt.const_ij_max) const_ij_max=const_ij
+               enddo
+            enddo
+         enddo
 c
-c two b over max(1,a)  :
-c
-                 boa_max=2.d0*b_exp_max/a_1_max
-c
-c
-              if(boa_max .lt. 10.d0) return  ! stable_2=.true. 
-c
+c---------------------------------------------------
 c right side pairs:
 c
-              klcs=kl_uniqe(1)    
-              call get_ij_half(klcs,kcs,lcs)
-              ke=inx(5,kcs)
-              le=inx(5,lcs)
-                 c_exp_min=datbas(1,ke)
-                 d_exp_min=datbas(1,le)
-                 cpd_min=c_exp_min+d_exp_min
-                 cpd_max=1.d0/cpd_min
+         const_kl_max=0.d0     ! kl-part of const
+         do klpar=1,nkl_uniqe
+            klcs=kl_uniqe(klpar)
+            call get_ij_half(klcs,kcs,lcs)
+            ka=inx(1,kcs)+1    !  starting contr
+            la=inx(1,lcs)+1
+            ke=inx(5,kcs)      !      last contr
+            le=inx(5,lcs)
+            kl=0
+            do ks=ka,ke
+               do ls=la,le
+                  kl=kl+1
+                  const_kl=abs(coefkl(klpar,kl))
+                  if(const_kl.gt.const_kl_max) const_kl_max=const_kl
+               enddo
+            enddo
+         enddo 
+c---------------------------------------------------
+         ijcs=ij_uniqe(1)    
+         call get_ij_half(ijcs,ics,jcs)
+         ie=inx(5,ics)
+         ia=inx(1,ics)+1
+         je=inx(5,jcs)
+         ja=inx(1,jcs)+1
+            a_exp_max=datbas(1,ia)
+            b_exp_max=datbas(1,ja)
+            a_exp_min=datbas(1,ie)
+            b_exp_min=datbas(1,je)
+            a_1_max=max(1.d0,a_exp_min)
+c---------------------------------------------------
+         klcs=kl_uniqe(1)    
+         call get_ij_half(klcs,kcs,lcs)
+         ke=inx(5,kcs)
+         le=inx(5,lcs)
+            c_exp_min=datbas(1,ke)
+            d_exp_min=datbas(1,le)
+            cpd_min=c_exp_min+d_exp_min
+            cpd_max=1.d0/cpd_min
+c---------------------------------------------------
 c
-c Lost allow is -log(10**-14)=14 (double precision)
-c                    minus (for example)
-c               -log(10**-10)=10 (given integral's threshold)
+         apb_min=a_exp_min+b_exp_min
+         apb_max=a_exp_max+b_exp_max
+         cpd_min=c_exp_min+d_exp_min
+         cpd_max=1.d0/cpd_min
 c
-c Lost commited :
+         sqrt_abcd=sqrt(1.d0/(apb_min+cpd_min))
+         const_max=const_ij_max*const_kl_max*sqrt_abcd
+         lost_const  = int( log10(const_max) )
+         lost_const  = max( -14, lost_const )
+c---------------------------------------------------
+c test
+c        write(6,*)'num_stability_2: BEG'
+c              write(6,*)'MAX of: const=',const_max ,
+c    *         'min of : a+b=',apb_min,' c+d=',cpd_min,
+c    *     ' coef_ij,kl=',const_ij_max,const_kl_max
+ctest
+c---------------------------------------------------
+c for stability of the first  kind :
 c
-              xost_digit_1= log10( boa_max*cpd_max )
-              xost_digit  = (nskl-1)*xost_digit_1
-              lost_digit  = int( xost_digit )
+         a_1_max=max(1.d0,a_exp_min)
+         boa_max=2.d0*b_exp_max/a_1_max
 c
-c this is very conservative because the contraction coeff. are
-c not taken into account. It is done later in XWPQ_2 .
+         if(boa_max .ge. 10.d0) then
+            if(boa_max.GE.1.0d+07) then
+               stable_kind_1=.false.
+ctest
+c              write(6,*)'Lost : due to 2b/max(1,a)=',
+c    *            int( log10( boa_max) )
+c              write(6,*)'==> stable_kind_1=',stable_kind_1,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest
+            else
+               xost_digit  = (nskl-1)*log10(boa_max*cpd_max) 
+               lost_digit  = int( xost_digit)
+               if(lost_digit.GT.0) then
+                  lost_digit  = lost_digit + lost_const
+                  if(lost_digit.gt.lost_allow) stable_kind_1=.false.
+               endif  !  if(lost_digit.GT.0) then
+ctest..................................................................
+c              write(6,*)'I st-kind stability: ','boa_max =',boa_max 
+c              write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *         '; due to const=',int( log10(const_max) ),
+c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c              write(6,*)'==> stable_kind_1=',stable_kind_1,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+            endif     !  if(boa_max.GE.1.0d+07) then
+         endif
+c---------------------------------------------------
+c for stability of the second kind :
 c
-              if(lost_digit.gt.lost_allow) stable_2=.false.
+         abcd_max=apb_max*cpd_max
+         if(abcd_max.ge. 10.d0) then
+            xost_digit_1= 0.5d0*log10(abcd_max)
+            xost_digit  = (nskl-3)*xost_digit_1
+            lost_digit  = int( xost_digit ) + lost_const
+            if(lost_digit.gt.lost_allow) stable_kind_2=.false.
+ctest..................................................................
+c              write(6,*)'IIed-kind stability: ','abcd_max=',abcd_max
+c              write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *         '; due to const=',lost_const,
+c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c              write(6,*)'==> stable_kind_2=',stable_kind_2,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+         endif
 c
-c     write(6,*)'num_stability_2: Max lost in digits :',
-c    * ' in 1 step =',int(xost_digit_1),
-c    * ' ; in ',nskl-1,' steps =',lost_digit,
-c    *              ' ==> stable_2=',stable_2 
+c        write(6,*)'num_stability_2: END'
 c-------------------------------------------------------------
-              if(stable_2) return
+c final stability :
+c
+         if(.not.stable_kind_1) stable_2=.false.
+         if(.not.stable_kind_2) stable_2=.false.
+c
 c-------------------------------------------------------------
+         if(.not.stable_kind_1) then
+c
 c calculate and save 2*b/max(1,a) for each left side contraction 
 c
-              ij=0
-              do is=ia,ie
-                 aa=datbas(1,is)
-                 a_1_max=max(1.d0,aa)
-                 a2=2.d0/a_1_max
-                 do js=ja,je
-                    bb=datbas(1,js)
-                    ij=ij+1
-c
-                    b_over_a(ij)=0.d0
-                    boa=bb*a2
-                    boa_max_cpd=boa*cpd_max
-                    if(boa_max_cpd .ge. 10.d0) then
-                       xost_digit_1= log10( boa_max_cpd )
-                       xost_digit  = (nskl-1)*xost_digit_1 
-                       lost_digit  = int( xost_digit )
-                       if(lost_digit.gt.lost_allow) then
-                          b_over_a(ij)=boa
-                       endif
-                    endif
-                 enddo ! js=ja,je
-              enddo    ! is=ia,ie
+            ij=0
+            do is=ia,ie
+               aa=datbas(1,is)
+               a_1_max=max(1.d0,aa)
+               a2=2.d0/a_1_max
+               do js=ja,je
+                  bb=datbas(1,js)
+                  ij=ij+1
+                  b_over_a(ij)=0.d0
+                  boa=bb*a2
+                  if(boa .ge. 10.d0) then
+                     boa_max_cpd=boa*cpd_max
+                     xost_digit_1= log10( boa_max_cpd )
+                     xost_digit  = (nskl-1)*xost_digit_1 
+                     lost_digit  = int( xost_digit )
+                     lost_digit  = lost_digit + lost_const
+                     if(lost_digit.gt.lost_allow) then
+                        b_over_a(ij)=boa
+                     endif
+                  endif
+               enddo ! js=ja,je
+            enddo    ! is=ia,ie
+         endif       ! if(.not.stable_kind_1) then
 c-------------------------------------------------------------
-           endif   !  if(mmax.gt.2 .and. nskl.gt.1) then
+      endif   !  if(mmax.gt.2 .and. nskl.gt.1) then
 c
       end
 c===================================================================
-      subroutine num_stability_1(datbas,inx,
+      subroutine num_stability_1(datbas,inx,coefij,coefkl,
      *                        nij_uniqe,ij_uniqe,nkl_uniqe,kl_uniqe)
       implicit real*8 (a-h,o-z)
       logical stable_2
-      common /stability_2/ stable_2       ! use here and in xwpq_
-      common /stability_3/ b_over_a(1000) ! use here and in xwpq_
+      logical stable_kind_1,stable_kind_2
+      common /stability_2/ stable_2,stable_kind_1,stable_kind_2   ! use here and in abcd_
+      common /stability_3/ b_over_a(1000)                         ! use here and in abcd_
 c 1000 above is enough for contractions as long as 31 (31*31=961)
 c
       character*11 scftype
@@ -2642,6 +2859,7 @@ c
       dimension inx(12,*)
       dimension ij_uniqe(nij_uniqe)
       dimension kl_uniqe(nkl_uniqe)
+      dimension coefij(nij_uniqe,*),coefkl(nkl_uniqe,*)
 c-------------------------------------------------------------
 c for description see num_stability_2()
 c-------------------------------------------------------------
@@ -2649,8 +2867,13 @@ c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
 c these two above will determine numerical stability in
 c Tracy's recursive 
 c-------------------------------------------------------------
+c const=c_ij*c_kl*Sij*Skl/(a+b+c+d)  - S -radial overlap.
+c maximum of it is needed
+c-------------------------------------------------------------
 c
-      stable_2=.true.
+      stable_2     =.true.
+      stable_kind_1=.true.
+      stable_kind_2=.true.
 c
       if(mmax.gt.2 .and. nskl.gt.1) then
 c
@@ -2658,8 +2881,11 @@ c left side pairs:
 c
 c        write(6,*)'num_stability_1:'
 c
-         a_exp_min=1.0d+10
-         b_exp_max=0.0d0  
+         const_ij_max=0.d0     ! ij-part of const
+         a_exp_min=1.0d+10     ! for stable_kind_1
+         b_exp_min=1.0d+10     ! for both
+         a_exp_max=0.0d0       ! for stable_kind_2
+         b_exp_max=0.0d0       ! for both
          do ijpar=1,nij_uniqe
             ijcs=ij_uniqe(ijpar)
             call get_ij_half(ijcs,ics,jcs)
@@ -2672,24 +2898,28 @@ c
             do is=ia,ie
                aa=datbas(1,is)
                if(aa.lt.a_exp_min) a_exp_min=aa
+               if(aa.gt.a_exp_max) a_exp_max=aa
             enddo
             do js=ja,je
                bb=datbas(1,js)
+               if(bb.lt.b_exp_min) b_exp_min=bb
                if(bb.gt.b_exp_max) b_exp_max=bb
+            enddo
+            ij=0
+            do is=ia,ie
+               do js=ja,je
+                  ij=ij+1
+                  const_ij=abs(coefij(ijpar,ij))
+                  if(const_ij.gt.const_ij_max) const_ij_max=const_ij
+               enddo
             enddo
          enddo
 c
-         a_1_max=max(1.d0,a_exp_min)
-c
-c two b over max(1,a)  :
-c
-         boa_max=2.d0*b_exp_max/a_1_max
-c
-         if(boa_max .lt. 10.d0) return  ! stable_2=.true. 
-       
+c---------------------------------------------------
 c
 c right side pairs:
 c
+         const_kl_max=0.d0     ! kl-part of const
          c_exp_min=1.0d+10
          d_exp_min=1.0d+10
          do klpar=1,nkl_uniqe
@@ -2709,20 +2939,94 @@ c
                dd=datbas(1,ls)
                if(dd.lt.d_exp_min) d_exp_min=dd
             enddo
+            kl=0
+            do ks=ka,ke
+               do ls=la,le
+                  kl=kl+1
+                  const_kl=abs(coefkl(klpar,kl))
+                  if(const_kl.gt.const_kl_max) const_kl_max=const_kl
+               enddo
+            enddo
          enddo 
 c
+         apb_min=a_exp_min+b_exp_min
+         apb_max=a_exp_max+b_exp_max
          cpd_min=c_exp_min+d_exp_min
          cpd_max=1.d0/cpd_min
 c
-         xost_digit_1= log10( boa_max*cpd_max )
-         xost_digit  = (nskl-1)*xost_digit_1
-         lost_digit  = int( xost_digit )
-         if(lost_digit.gt.lost_allow) stable_2=.false.
+         sqrt_abcd=sqrt(1.d0/(apb_min+cpd_min))
+         const_max=const_ij_max*const_kl_max*sqrt_abcd
+c---------------------------------------------------
+c test
+c        write(6,*)'num_stability_1: BEG'
+c              write(6,*)'MAX of: const=',const_max ,
+c    *         'min of : a+b=',apb_min,' c+d=',cpd_min,
+c    *     ' coef_ij,kl=',const_ij_max,const_kl_max
+ctest
+c---------------------------------------------------
+c for stability of the first  kind :
 c
-c     write(6,*)'num_stability_1: Max lost in digits :',
-c    * ' in 1 step =',int(xost_digit_1),
-c    * ' ; in ',nskl-1,' steps =',lost_digit,
-c    *              ' ==> stable_2=',stable_2 
+         a_1_max=max(1.d0,a_exp_min)
+         boa_max=2.d0*b_exp_max/a_1_max
+c
+         if(boa_max .ge. 10.d0) then
+            if(boa_max.GE.1.0d+07) then
+               stable_kind_1=.false.
+ctest
+c              write(6,*)'Lost : due to 2b/max(1,a)=',
+c    *            int( log10( boa_max) )
+c              write(6,*)'==> stable_kind_1=',stable_kind_1,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest
+            else
+               xost_digit  = (nskl-1)*log10(boa_max*cpd_max) 
+               lost_digit  = int( xost_digit)
+               if(lost_digit.GT.0) then
+                  lost_const  = int( log10(const_max) )
+                  lost_const  = max( -14, lost_const )
+                  lost_digit  = lost_digit + lost_const
+                  if(lost_digit.gt.lost_allow) stable_kind_1=.false.
+               endif  !  if(lost_digit.GT.0) then
+ctest..................................................................
+c              write(6,*)'I st-kind stability: ','boa_max =',boa_max 
+c              write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *         '; due to const=',int( log10(const_max) ),
+c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c              write(6,*)'==> stable_kind_1=',stable_kind_1,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+            endif     !  if(boa_max.GE.1.0d+07) then
+         endif
+c---------------------------------------------------
+c for stability of the second kind :
+c
+         abcd_max=apb_max*cpd_max
+         if(abcd_max.ge. 10.d0) then
+            xost_digit_1= 0.5d0*log10(abcd_max)
+            xost_digit  = (nskl-3)*xost_digit_1
+            lost_const  = int( log10(const_max) )
+            lost_const  = max( -14, lost_const )
+            lost_digit  = int( xost_digit ) + lost_const
+            if(lost_digit.gt.lost_allow) stable_kind_2=.false.
+ctest..................................................................
+c              write(6,*)'IIed-kind stability: ','abcd_max=',abcd_max
+c              write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *         '; due to const=',lost_const,
+c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c              write(6,*)'==> stable_kind_2=',stable_kind_2,
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+         endif
+c
+c        write(6,*)'num_stability_1: END'
+c-------------------------------------------------------------
+c final stability :
+c
+         if(.not.stable_kind_1) stable_2=.false.
+         if(.not.stable_kind_2) stable_2=.false.
+c
 c-------------------------------------------------------------
 c        if(stable_2) return
 c-------------------------------------------------------------
