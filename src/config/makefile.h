@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.223 1997-03-21 23:51:40 d3e129 Exp $
+# $Id: makefile.h,v 1.224 1997-03-23 23:38:22 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -238,11 +238,11 @@ ifeq ($(TARGET),SOLARIS)
      FDEBUG = -g -O1
   COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
-    DEFINES = -DSOLARIS
+    DEFINES = -DSOLARIS -DPARALLEL_DIAG
 
   LDOPTIONS = -xildoff
 
-       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 

@@ -16,6 +16,10 @@ $(BINDIR)/depend.x:	depend.c
 	$(CC) $(DEPENDCFLAGS) -g -o $@ $^
 	/bin/rm -f depend.o
 
-realclean clean:
+clean:
 	/bin/rm -f $(BINDIR)/depend.x depend.o
+
+realclean:	clean
+	/bin/rm -f nwchem_config.h NWCHEM_CONFIG
+
 
