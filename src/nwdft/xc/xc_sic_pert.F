@@ -3,7 +3,7 @@
      &                       wght_GA, rdens_atom, cetobfr, natoms,
      &                       g_movecs, noc, totsic, i_degen, n_levels)
 c
-C$Id: xc_sic_pert.F,v 1.11 2000-05-18 18:15:45 jolguin Exp $
+C$Id: xc_sic_pert.F,v 1.12 2002-05-08 22:07:27 edo Exp $
 c
       implicit none
 c      
@@ -38,7 +38,7 @@ c
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
-      double precision tol2e
+      double precision tol2e,edodumm
 c
       oprint_intermediate_xc = util_print('intermediate XC matrix',
      $     print_debug)
@@ -129,10 +129,8 @@ cccc ecoul_orb is the orbital coulomb energy
      &                                  ' Before call to xc_quadv0.')
               sic_orb_spin = isp
               sic_orb_index = 0
-              call xc_quadv0(rtdb, nExc, g_vxc_orb, g_dens_orb,
-     &                         g_wght, g_xyz, g_nq, wght_GA,
-     &                         Exc_orb, rho_n, rdens_atom, 
-     &                         cetobfr, natoms)
+              call grid_quadv0(rtdb,   g_dens_orb, g_vxc_orb,
+     &                         nexc,  rho_n,Exc_orb,  edodumm)
               tot_sic_xc = tot_sic_xc - dble(sic_orb_occ)*Exc_orb(1)
 cccc Exc_orb(1) is the orbital exchange-correlation energy
               if (naux_ipol.eq.1) ipol = 1

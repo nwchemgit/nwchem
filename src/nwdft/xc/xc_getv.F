@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.47 2002-04-08 18:51:52 windus Exp $
+C$Id: xc_getv.F,v 1.48 2002-05-08 22:07:27 edo Exp $
 c
       implicit none
 c      
@@ -187,7 +187,6 @@ c
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
          endif
          
-         if (grid_on_file)then
             if(havehfxc.or.(.not.cdfit)) then
                if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
      .         call errquit('xcgetv: gaduplicate failed',1)
@@ -213,35 +212,6 @@ c
      .              ' xc_getv: ga_destroy failed ',0)
                endif
             endif
-         else
-            if(.not.xcfit) then
-c     
-c     Option A:  Compute via direct numerical quadrature.
-c     
-c     compute the integrated density (numerical)
-c     
-c     
-               call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,
-     /              g_xyz,g_nq, 
-     &              wght_GA, Exc, rho_n, rdens_atom, 
-     &              cetobfr, natoms)
-               
-            else
-c     
-c     Option B:  Compute via a LSQ fitting procedure.
-c     
-c     Define the dimensions of the "T" matrix.
-c     
-               if (.not. bas_numbf(XC_bas_han,nbf_xc) )then
-                  call errquit('Exiting in getvxc.',1)
-               endif
-c     
-c     
-               call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &              rho_n, rdens_atom, cetobfr, 
-     &              natoms)
-            endif
-         endif
          if(xcfit) then
 c     
 c     symmetrize the "T" vector
