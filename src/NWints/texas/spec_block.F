@@ -60,7 +60,7 @@ c
       last2=nsym*ncs*(ncs+1)/2  +  nbl2*(nbl2+1)/2
       memneed=last1+last2
 c--------
-      if(memneed.ge. lcore )then
+      if(memneed .gt. lcore )then
          write(6,*) ' Memory problem in txs-bl-replacing scratch : '
          write(6,*) ' requested=',memneed,' ; available=',lcore  
          write(6,*) ' check in TXSARRAG : ntxs_scr_size too small '

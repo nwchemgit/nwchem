@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.33 1997-04-10 09:13:14 d3e129 Exp $
+c $Id: texas_face.F,v 1.34 1997-05-01 03:22:02 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -907,9 +907,9 @@ c
 c------------------------------------
 c only texas correction to the pnl norm :
 c
-      iprint0=0
 CC--> call txs_cor_norm(bl,inx(inxx),ibas,inuc,ncs,iprint0)
-      call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs,iprint0)
+cccc  call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs,iprint0)
+      call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs)
 c------------------------------------
 c reserve memory for: ncfunct,ncshell and iny :
 c
@@ -948,7 +948,7 @@ c setup common /cpu/ intsize,iacc,icache,memreal
 c
 c machine characteristics - integer size, cache memory, real fast
 c memory (as distinct from virtual memory)
-#if defined(SGITFP) || defined(KSR) || defined(CRAY) || defined(DECOSF)
+#if defined(SGITFP) || defined(KSR) || defined(CRAY) || defined(CRAY_T3D) || defined(DECOSF)
       intsize=1
 #else
       intsize=2
@@ -974,7 +974,7 @@ c
       call texas_input
 c------------------------------------
 c return address for the case when LIMPAIR has been decreased
-c in the blockin2 set of routeins called by prepint :
+c in the blockin2 set of routines called by prepint :
 c
   999 CONTINUE
 c
@@ -1010,15 +1010,25 @@ c
 *c RJH ... brute force and ignorance ... just give it all that
 *c we have available and cross your fingers.
 *c
-*      ntxs_scr_size = ma_inquire_avail(mt_dbl)
-*
+ckw
+*      m_all_can_get= ma_inquire_avail(mt_dbl)
+*c
+*      if(m_all_can_get.lt.ntxs_scr_size) then
+*        write(6,*)'not enough memory for txs scratch'
+*        write(6,*)'needed=',ntxs_scr_size,' all availabe=',m_all_can_get
+*	write(6,*)' execution stopped in txsarrag'
+*	call ma_summarize_allocated_blocks()
+*	stop 'not enough memory for txs scratch'
+*      else 
+*        ntxs_scr_size = m_all_can_get
+*      endif
+c
       lcore=ntxs_scr_size
-*rak:      write(6,*)' lcore = ',lcore
 c
       call retall
 c
 c------------------------------------
-c allocate memory repleacing txs bl():
+c allocate memory repleacing txs bl() according to the estimate above:
 c
       if (.not. MA_alloc_get(MT_DBL,ntxs_scr_size, 'for txs scratch ',
      &                       h_txs_prep2 , k_txs_prep2 ))
@@ -1028,20 +1038,19 @@ c
       ntxs_bl_scr=k_txs_prep2 
 c
 c this is starting address in dbl_mb() which repleaces original
-c texas scratch bl(). Since hereafter texas-bl is eliminated.
+c texas scratch bl(). From hereafter texas-bl is eliminated.
 c and lcore is now equal to ntxs_scr_size .
 c
 cccc  write(8,*)' Memory allocated to repleace txs BL :',ntxs_scr_size
+c     write(6,*)'1 Memory allocated to repleace txs BL :',ntxs_scr_size
+c     write(6,*)'1 starting address is ntxs_bl_scr=',ntxs_bl_scr
 c
 c------------------------------------
 c make setup like in Twoint :
 c common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
 c common /runtype/ scftype,where
-c
-c     eps=par(1)
 c threshold is already setup by subroutine texas_set_accy(pnl_thresh1)
 c--
-      eps=0.d0   
       icache=icache*ncache
       nprint=iprint
       iblok=iblock
@@ -1067,59 +1076,88 @@ c
         h_txs_prep2  = -1
         k_txs_prep2  =  0
 ctest
-         write(6,*)'from texas_face: iret_limit.NE.0 , memory freed'
+*         write(6,*)'from texas_face: iret_limit.NE.0 , memory freed'
 ctest
         GO TO 999
       endif
 c------------------------------------
-c Construct an array showing to which pair-block
-c a given pair of shells belongs:
-c
-       call pair_in2(dbl_mb(ntxs_bl_scr),dbl_mb)
-c
-c on return nblock2(ijcs)--> ibl 
-c placed in bl(nblock2)
+      call pair_in2(dbl_mb(ntxs_bl_scr),dbl_mb)
 c------------------------------------
 c Check out maximum memory needed so far and reserved
 c in the TXS-BL() :
 c
       call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
 c
-*rak:
+c MAXMEM_BL is memory needed for blocking procedure (& pair_in2).
+c
       IF(IPRINT.gt.0) THEN
       write(8,*)'-----------------------------------------------'
-      write(8,*)'   memory status after execution of prepint2   '
+cc    write(8,*)'   memory status after execution of prepint2   '
+      write(8,*)'memory status after first execution of prepint2'
       write(8,*)'   -----------------------------------------   '
       write(8,*)' number of allocations =',nreque_bl
       write(8,*)' number of marks       =',nmark_bl
       write(8,*)' maximum memory used   =',maxmem_bl,'(high water)'
       write(8,*)' total memory available=',memtot_bl
       write(8,*)'-----------------------------------------------'
-*rak:
       ENDIF
 c------------------------------------
-c release memory allocated for prepint2 (& pair_in2) 
-c and allocate it again according to "high water" :
+c increase the "high water" by 1
+      maxmem_bl=maxmem_bl+1
+c------------------------------------
+c release memory allocated for prepint2 & pair_in2 and allocate 
+c it again according to "high water" and repeat execution of
+c prepint2 & par_in2 :
+c
+c release memory :
 c
         if (.not.MA_free_heap(h_txs_prep2 ))
      &        call errquit('texas_terminate: failed ?', 911)
         h_txs_prep2  = -1
         k_txs_prep2  =  0
 c
-c allocate memory again according to "high water" :
+c and allocate memory again according to "high water"  :
 c
       if (.not. MA_alloc_get(MT_DBL,maxmem_bl    , 'for txs scratch ',
      &                       h_txs_prep2 , k_txs_prep2 ))
      &    call errquit('texas_init: alloc for for txs scratch failed',
      &    911)
 c
-ctest
-c      write(6,*)' Release & allocate :'
-c      write(6,*)' address before=',ntxs_bl_scr,' after=',k_txs_prep2
-ctest
-      lcore=maxmem_bl
+c and repeat execution of prepint2 & par_in2 :
 c
+      lcore=maxmem_bl
       ntxs_bl_scr=k_txs_prep2 
+      call retall
+c
+      scftype='    '
+c
+      call prepint2(dbl_mb(ntxs_bl_scr),
+     *              eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
+     *              maxprice,scftype,iret_limit)
+c
+c Construct an array showing to which pair-block
+c a given pair of shells belongs:
+c
+      call pair_in2(dbl_mb(ntxs_bl_scr),dbl_mb)
+c
+c on return nblock2(ijcs)--> ibl 
+c placed in bl(nblock2)
+c------------------------------------
+c
+      call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
+c
+      IF(IPRINT.gt.0) THEN
+      write(8,*)'-----------------------------------------------'
+      write(8,*)'memory status after final execution of prepint2'
+      write(8,*)'   -----------------------------------------   '
+      write(8,*)' number of allocations =',nreque_bl
+      write(8,*)' number of marks       =',nmark_bl
+      write(8,*)' maximum memory used   =',maxmem_bl,'(high water)'
+      write(8,*)' total memory available=',memtot_bl
+      write(8,*)'-----------------------------------------------'
+      ENDIF
+c------------------------------------
+c Finally, blocking is done .
 c------------------------------------
 c MAXMEM_BL is memory needed for blocking procedure (& pair_in2).
 c To execute texas-integral program more memory is needed, for
@@ -1135,14 +1173,12 @@ c
       call txs_scratch_siz2(iprint,nquart_pnl,maxmem_bl,l_blsize)
 c
 c------------------------------------
-*rak:
       IF(IPRINT.gt.0) THEN
       write(8,*)'   MEMORY REQUIREMENT FOR TEXAS-INTEGRAL PROGRAM'
       write(8,*)'   -----------------------------------------   '
       write(8,*)' maximum used in txs_arrag (+blocking) =',maxmem_bl 
       write(8,*)' MAXIMUM ESTIMATED FOR SCRATCH l_blsize=',l_blsize  
       write(8,*)'-----------------------------------------------'
-*rak:
       ENDIF
 c------------------------------------
       end

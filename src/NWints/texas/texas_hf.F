@@ -278,7 +278,7 @@ c$$$         enddo
 c$$$      enddo
 c     
       end
-c $Id: texas_hf.F,v 1.18 1997-04-10 09:13:15 d3e129 Exp $
+c $Id: texas_hf.F,v 1.19 1997-05-01 03:22:04 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -756,7 +756,7 @@ ccc   write(6,*)'general contraction deep=',ngcont
 c
          call ordr_shells(icspnl,jcspnl,kcspnl,lcspnl,
      *                    isize,jsize,ksize,lsize,bl(itxspnl),
-     *                    bl(iqorder),ngcq)
+     *                    bl(iqorder),ngcont)
 c       1 call to getmem
       endif
 c--------------------------------------------------------
