@@ -24,8 +24,7 @@ UHF).
 \item electric field at nuclei 
 \item electric field gradient at nuclei 
 \item electron density and electron wavefunction at nuclei 
-\item Boy's localized orbitals
-\item spin density
+\item spin density at nuclei
 \end{itemize}
 
 The default molecular orbital file \verb+$file_prefix$.movecs+ is used
@@ -54,7 +53,6 @@ subdirectives provided :
 \item efieldgrad
 \item electrondensity
 \item spindensity
-\item boyslocalization
 \end{itemize}
 
 The request to NBOFILE does not execute the Natural Bond Analysis
@@ -68,8 +66,7 @@ properties. This is the 'vectors' subdirective, also used in the
 SCF and DFT tasks. For a full description of this subdirective
 the user is refered to the description found in the SCF description.
 By default, the input file used for the calculation of the properties
-has the .movecs name extension. The output file name ought to be
-used to store the Boys' localized molecular orbitals.
+has the .movecs name extension. 
 
 \subsection{Nbofile}
 
