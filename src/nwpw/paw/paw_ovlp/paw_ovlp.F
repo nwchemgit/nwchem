@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.27 2003-02-12 21:38:39 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.28 2003-02-13 02:30:27 bylaska Exp $
 *
 
 !**************************************************
@@ -10,8 +10,9 @@
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_ovlp_init()
+      subroutine paw_ovlp_init(ne)
       implicit none
+      integer ne(2)
 
 #include "mafdecls.fh"
 #include "paw_proj.fh"
@@ -26,12 +27,8 @@
       integer nbasis,i2,i1,isgn,nion
       integer paw_ovlp_w_size
       integer paw_ovlp_w_d_size
-      integer neall
       integer in,li,lj,mi,mj,i,j
 
-*     **** external functions ****
-      integer  psi_ne
-      external psi_ne
 
       nion = ion_nion()
 
@@ -73,7 +70,7 @@ c     !*** calculate the size for diagonal weight coefficients  ***
  
 c     !*** allocate storage for paw_ovlp arrays*** 
 c     !-- total number of electron states
-      neall = (psi_ne(1) + psi_ne(2))
+      neall = ne(1) + ne(2)
 
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
      >                               'coeff',coeff(2),coeff(1))
@@ -180,23 +177,18 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
 
       !*** local variables ***
       logical value
-      integer ii,ia,nbasis,nlm,nlmii,neall,npack1
+      integer ii,ia,nbasis,nlm,nlmii,npack1
       integer nion,prj,i1,i2,n
       integer indx_psi,indx_prj,indx_coeff
       integer exi(2),tmp(2)
       integer ni,i,li,mi
 
-      !*** nwpw external functions ****
-      integer  psi_ne
-      external psi_ne 
 
 
-c     !*** total number of electron states ***
-      neall = (psi_ne(1) + psi_ne(2))
 
-      call Pack_npack(1,npack1)
 
       !*** allocate temporary space ***
+      call Pack_npack(1,npack1)
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
@@ -301,17 +293,12 @@ c      write(*,*)
 
       integer i_nbasis,ii,ii1
       integer in,nlm,nlm1,ia,n
-      integer neall,nbasis
+      integer nbasis
       integer indx_coeff,indx_coeff1
       integer i,j,mi,mj,li,lj
       double complex w_tmp
       
-c     **** external functions ****
-      integer  psi_ne
-      external psi_ne
       
-c     !*** total number of electron states ***
-      neall = (psi_ne(1) + psi_ne(2))
 
       ii = 0
       i_nbasis = 0

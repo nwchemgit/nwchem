@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.12 2003-02-11 01:41:23 edo Exp $
+* $Id: paw_comp_charge.F,v 1.13 2003-02-13 02:27:32 bylaska Exp $
 *
 
 
@@ -68,8 +68,6 @@
 #include "paw_comp_charge_matrix.fh"
 #include "paw_ovlp_data.fh"
 
-        integer  psi_ne
-        external psi_ne
 
         integer na
         integer ia

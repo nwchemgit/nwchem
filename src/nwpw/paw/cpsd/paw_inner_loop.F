@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.9 2003-02-13 01:58:07 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.10 2003-02-13 02:28:46 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -293,37 +293,37 @@
 
 *        ***** debug ***
          do ms=1,ispin
-           write(*,*) "DEBUG: overlap matrix"
+           write(23,*)
+           write(23,*)
+           write(23,*) "DEBUG: iteration=",it
+           write(23,*) "DEBUG: overlap matrix"
            call paw_overlap_matrix_gen(ne(ms),ne(ms),
      >                                 psi1(1,n1(ms)),
      >                                 psi1(1,n1(ms)),
      >                                 dbl_mb(tmp_L(1)))
-           write(*,*) "Overlap matrix, spin:",ms
+           write(23,*) "Overlap matrix, spin:",ms
            do i=1,ne(ms) 
-             write(*,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
      >                   j=1,ne(ms))
            end do
 
          end do
 *        ***** debug2 ***
          do ms=1,ispin
-           write(*,*)
-           write(*,*) "Testing paw_ovlp_S...."
-           write(*,*) "DEBUG2: overlap matrix2"
+           write(23,*)
+           write(23,*) "Testing paw_ovlp_S...."
+           write(23,*) "DEBUG2: overlap matrix2"
            call paw_ovlp_S(ne(ms),psi1(1,n1(ms)),psi_r(1,n1(ms))) 
            call Grsm_ggm_dot(npack1,ne,
      >                  psi1(1,n1(ms)),psi_r(1,n1(ms)),
      >                  dbl_mb(tmp_L(1)))
-
-           write(*,*) "Overlap matrix2, spin:",ms
+           write(23,*) "Overlap matrix2, spin:",ms
            do i=1,ne(ms) 
-             write(*,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
      >                   j=1,ne(ms))
            end do
 
          end do
-
-
 
       end do
 

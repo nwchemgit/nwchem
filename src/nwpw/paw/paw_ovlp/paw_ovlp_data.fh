@@ -1,11 +1,11 @@
 ! 
-! $Id: paw_ovlp_data.fh,v 1.5 2003-02-10 23:24:44 marat Exp $
+! $Id: paw_ovlp_data.fh,v 1.6 2003-02-13 02:30:27 bylaska Exp $
 ! 
 
 !     **** paw_ovlp.fh common blocks ****
       integer    coeff(2),toeff(2)     ! overlap coefficientss 
       integer    indx2(2),sgn(2)
-      integer    total_nbasis
+      integer    total_nbasis,neall
       integer    i_paw_ovlp_w(4)
       integer    paw_ovlp_w(4)
       integer    paw_ovlp_w_d(4)
@@ -14,5 +14,5 @@
       common / paw_ovlp / coeff,toeff,indx2,sgn,
      >                    i_paw_ovlp_w,paw_ovlp_w,paw_ovlp_w_d,
      >                    paw_ovlp_w_up,paw_ovlp_w_down, 
-     >                    total_nbasis
+     >                    total_nbasis,neall
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.25 2003-02-13 01:58:07 bylaska Exp $
+* $Id: paw_sd.F,v 1.26 2003-02-13 02:28:46 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -279,7 +279,7 @@
 
       !**** intialize overlap coefficient data structure ***
       call phafac()
-      call paw_ovlp_init()
+      call paw_ovlp_init(ne)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
       call paw_comp_charge_update()
@@ -435,9 +435,6 @@
      >             it_in,E,deltae,deltac,deltar,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
-         deltae = 0.0d0
-         deltac = 0.0d0
-         deltar = 0.0d0
        
          if (taskid.eq.MASTER) then 
            write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
