@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
      $     frc, oinit, ofinish, oactive, oskel, omp2 )
 
-c$Id: grad_store.F,v 1.4 1996-10-21 00:39:36 vg038 Exp $
+c$Id: grad_store.F,v 1.5 1996-10-21 17:18:09 vg038 Exp $
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 
@@ -227,3 +227,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
+C     unfinished routine for automaic restart
+C     check if geometry has changed since the partial forces were stored
+C     put on hold for release
+      grad_same_geom = .true.
+      return
+      end
