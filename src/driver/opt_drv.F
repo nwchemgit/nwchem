@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.96 2002-05-10 02:16:43 bylaska Exp $
+* $Id: opt_drv.F,v 1.97 2003-05-09 17:03:52 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -407,7 +407,7 @@ c
          endif
          call hnd_opt_hss_init_zmt(dbl_mb(k_hess),
      $        nzvar, dbl_mb(k_zmat), int_mb(k_izmat), .false.,
-     $        bscale, ascale, tscale)
+     $        bscale, ascale, tscale,odebug)
          if (odebug) then
             write(6,*) ' The initial hessian '
             call output(dbl_mb(k_hess),1,nzvar,1,nzvar,nzvar,nzvar,1)
@@ -486,7 +486,7 @@ c
 c
       END
       SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME,
-     $     bscale, ascale, tscale)
+     $     bscale, ascale, tscale,odebug)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 #include "nwc_const.fh"
       PARAMETER (ZERO=0.0D+00,      ONE=1.0D+00,
@@ -494,9 +494,8 @@ c
      2     THIRD=ONE/3.0D+00, TOHB2=6.423D-02,
      3     TOANGS=0.52917724924D+00)
       PARAMETER (MXATOM=nw_max_atom)
-      LOGICAL OUT 
+      LOGICAL odebug
       LOGICAL SOME
-      LOGICAL DBUG
       LOGICAL BADZ
       CHARACTER*8 HGUESS
       CHARACTER*8 GUESS
@@ -564,11 +563,7 @@ C
      1     (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
 C     
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-C
-      IF(OUT) THEN
+      IF(odebug) THEN
          WRITE(IW,9168)
          WRITE(IW,9188) NAT,NVAR,NZVAR,NINT,NZMAT
       ENDIF
@@ -592,12 +587,12 @@ C     BADGER'S RULES, OR PURE FISCHER/ALMLOF RULES.
 C     THE DEFAULT -GUESS- USES F/A FOR STRETCHES AND BENDS,
 C     BUT NOT FOR TORSIONS OR OUT-OF-PLANE BENDS.
 C     
-      IF(DBUG) THEN
+      IF(odebug) THEN
          WRITE(IW,9208) (IZMAT(IZ),IZ=1,NZMAT)
          WRITE(IW,9128) ( ZMAT(IZ),IZ=1,NZVAR)
       ENDIF
       HGUESS=GUESS2
-      IF(OUT) THEN
+      IF(odebug) THEN
          WRITE(IW,9008) HGUESS
       ENDIF
 C     
@@ -795,7 +790,7 @@ C
          ENDIF
          IF(ITYPE.EQ.6) IZ=IZ+6
          IF(ITYPE.EQ.7) IZ=IZ+5 ! RJH WAS 7 ... only place 7 appeared?
-         IF(OUT) THEN
+         IF(odebug) THEN
             WRITE(IW,9148) I,ITYPE,IZ1,IZ2,IZ3,IZ4,
      1           IZA,IZB,IZC,IZD,HSSQ(I,I)
          ENDIF
@@ -809,7 +804,7 @@ c     ENDDO
 c     HSSQ(J,J)=0.5D+00
 c     ENDDO
 c--   
-      IF(OUT) THEN
+      IF(odebug) THEN
          WRITE(IW,9048)
          CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
       ENDIF
