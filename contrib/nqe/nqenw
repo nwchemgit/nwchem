@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqenw,v 1.1 1998-07-29 21:20:40 d3e129 Exp $
+# $Id: nqenw,v 1.2 1998-07-29 21:34:29 d3e129 Exp $
 #
 
 onintr interrupted
@@ -272,8 +272,10 @@ endif
 set REQUEST_NAME = `basename $NQE_JOB .job`
 
 
-# Remove ~ since poe will not expand it
+# Remove ~ since nqe will not expand it
 set THEINPUT = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
+set THEOUTPUT = `echo $OUTPUT | sed -e "s,~,$PWDHOME,"`
+set THE_NQE_ERR = `echo $NQE_ERR | sed -e "s,~,$PWDHOME,"`
 # Remove the .err off of the error file so the jobid can be appended
 # set NQE_ERR = $NQE_ERR:r
 
@@ -293,8 +295,8 @@ cat <<EOF > $NQE_JOB
 #QSUB -lT 7200   # per request limit 
 #QSUB -lt 3600   # per process limit 
 #QSUB -q $QUEUE
-#QSUB -o $OUTPUT
-#QSUB -e $NQE_ERR
+#QSUB -o $THEOUTPUT
+#QSUB -e $THE_NQE_ERR
 #QSUB -l p_mpp_t=$TIME
 #QSUB -l mpp_t=$TIME
 #QSUB -l mpp_p=$NPROC
