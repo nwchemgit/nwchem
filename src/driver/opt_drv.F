@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.103 2003-12-22 20:24:36 marat Exp $
+* $Id: opt_drv.F,v 1.104 2004-02-06 00:08:05 yuri Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -67,12 +67,14 @@ c
 c     
 c     Zero the gradient associated with atoms frozen in cartesians
 c     
+       if (ga_nodeid().eq.0) write(6,*) 'Zeroing constrained gradient'
+
          if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
             do iat = 1, nat_real
                if (.not. oactive(iat)) then
                   do i = 1, 3
-                     write(6,*) ' Zeroing constrained gradient', 
-     $                    iat, i, gx((iat-1)*3+i)
+c                     write(6,*) ' Zeroing constrained gradient', 
+c     $                    iat, i, gx((iat-1)*3+i)
                      gx((iat-1)*3+i) = 0.0
                   end do
                end if
