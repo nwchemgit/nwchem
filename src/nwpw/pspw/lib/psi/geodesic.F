@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.15 2003-10-21 21:38:06 bylaska Exp $
+* $Id: geodesic.F,v 1.16 2003-10-22 19:45:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -569,10 +569,9 @@ c     end if
      >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
 
           do k=1,n
-           dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
-     >       = scal1 * dbl_mb(Vt(1)+j-1+(k-1)*n+shift2)
-           dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2) 
-     >       = scal3 * dbl_mb(Vt(1)+j-1+(k-1)*n+shift2)
+           shift = j-1 + (k-1)*n + shift2
+           dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
+           dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
           end do
         end do
 
