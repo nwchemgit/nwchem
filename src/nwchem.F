@@ -132,10 +132,10 @@ c
       logical status 
       logical scf, gradients, stpr_walk
       external scf, gradients, stpr_walk
-      parameter (ntasks = 7)
+      parameter (ntasks = 8)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients', 'optscf'/
+     $   'debtest', 'gradients', 'optscf','atwtest'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -145,7 +145,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70) ind
+         goto (10, 20, 30, 40, 50, 60, 70, 80) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -185,6 +185,11 @@ c
 c     optscf ... scf optimization
 c
  70      call scf_optimize(rtdb)
+         goto 1000
+c
+c     atwtest (4-index)
+c
+ 80      call atwtest(rtdb)
          goto 1000
       else
 c
