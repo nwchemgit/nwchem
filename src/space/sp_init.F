@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.115 2003-01-14 16:31:17 d3j191 Exp $
+c $Id: sp_init.F,v 1.116 2003-04-04 17:54:51 d3j191 Exp $
 c
       implicit none
 c
@@ -3061,6 +3061,7 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
 c
       integer lfntri,nb
       logical lxw,lvw,lfw,lxs,lvs,lfs
@@ -3097,8 +3098,24 @@ c
       prs=pres
       read(lfntri,1002) ((vlat(i,j),j=1,3),i=1,3)
  1002 format(3f12.6)
-      read(lfntri,1003) lxw,lvw,lfw,lpw,lxs,lvs,lfs,lps,nwm,nwa,nsa
+      read(lfntri,1000,end=9999) card
+c
+      if(card(8:8).eq.'T'.or.card(8:8).eq.'F') then
+      read(card,1003) lxw,lvw,lfw,lpw,lxs,lvs,lfs,lps,nwm,nwa,nsa
  1003 format(8l1,3i10)
+      elseif(card(6:6).eq.'T'.or.card(6:6).eq.'F') then
+      read(card,1023) lxw,lvw,lfw,lxs,lvs,lfs,nwm,nwa,nsa
+ 1023 format(6l1,3i10)
+      lpw=.false.
+      lps=.false.
+      else
+      read(card,1033) lxw,lvw,lxs,lvs,nwm,nwa,nsa
+ 1033 format(4l1,3i10)
+      lpw=.false.
+      lps=.false.
+      lfw=.false.
+      lfs=.false.
+      endif
 c
       if((lxw.or.lvw.or.lfw).and.nwm.gt.0) then
       number=0
@@ -3265,6 +3282,16 @@ c
       endif
 c
       endif
+c
+      call ga_brdcst(msp_15,vlat,
+     + 9*ma_sizeof(mt_dbl,1,mt_byte),0)
+c
+      box(1)=vlat(1,1)
+      box(2)=vlat(2,2)
+      box(3)=vlat(3,3)
+      boxh(1)=5.0d-1*box(1)
+      boxh(2)=5.0d-1*box(2)
+      boxh(3)=5.0d-1*box(3)
 c
       sp_rtrj=.true.
 c
