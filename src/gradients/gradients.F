@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.17 1996-08-29 01:43:24 vg038 Exp $
+c$Id: gradients.F,v 1.18 1996-09-19 16:58:13 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,8 +26,6 @@ c
       character*255 title
       double precision charge
 c
-      character*255 movecs_in, movecs_out
-c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
       call util_print_rtdb_load(rtdb,'gradients')
@@ -50,18 +48,6 @@ c
      $     call errquit('gradients: no ao basis ', 0)
       if(.not. int_normalize(basis))
      $     call errquit('gradients: normalization failed',911)
-c
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $     movecs_in = 'atomic'
-      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
-     $     movecs_out = ' '
-      if (movecs_out.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
-         else
-            movecs_out = movecs_in
-         endif
-      endif
 c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -96,15 +82,9 @@ c
          endif
       endif
 c
-c initialize for schwarz screening
-      call intd_init(rtdb,1,basis)
-      call schwarz_init (geom, basis)
+      call grad_force ( rtdb, basis, geom )
 c
-      call grad_force(rtdb,basis,geom,movecs_out)
-c
-      call schwarz_tidy ()
-c
-c gradients is done destroy basis and geomtry handles  
+c gradients is done destroy basis and geometry handles  
 c (e.g., preserve the memory available to other modules!!)
 c
       if (.not.(
@@ -114,10 +94,6 @@ c
      &    ))
      &    call errquit
      &    ('gradients:error destroying geom and basis handles',911)
-c
-c terminate integral scope
-c
-      call intd_terminate()
 c
       call util_print_pop
       gradients = .true.

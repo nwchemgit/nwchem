@@ -1,8 +1,8 @@
       subroutine grad_dens (geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
-     $     movecs)
+     $     movecs, omp2)
 
-c$Id: grad_dens.F,v 1.4 1996-07-17 16:30:41 d3g681 Exp $
+c$Id: grad_dens.F,v 1.5 1996-09-19 16:58:08 vg038 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -10,25 +10,38 @@ C     movecs (and Lagrangian in ROHF case) on disk
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
 
       integer geom, basis, g_dens, g_wdens, g_eigen_diag, ndens, 
      $     nbf, nbf2, nopen, nclosed
       double precision evals, occ
       character*4 scftype
       character*(*) movecs
+      logical omp2
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical movecs_read, file_read_ga
       external movecs_read, file_read_ga
 
-      character*255 lagr_file
+      character*255 lagr_file ! filename for lagrangian (ROHF) 
+                              ! or second-order contributions (MP2)
+      character*255 dens_file ! filename for second-order density contribution
 
-      dimension evals(nbf2), occ(nbf2), g_dens(ndens)
+      dimension evals(nbf2), occ(nbf2), g_dens(ndens), lagr_file(2),
+     $     dens_file(2)
 
 C     local variables
-      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2, i
+      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2, i, 
+     $     idum
+      double precision zero, one, mone, two
       logical status
+
+      parameter ( zero = 0.D0 )
+      parameter ( one = 1.D0 )
+      parameter ( mone = -1.D0 )
+      parameter ( two = 2.D0 )
 
 C  get MO vectors from file (taken from Roberts scf_movecs_read)
 
@@ -45,8 +58,10 @@ C  get MO vectors from file (taken from Roberts scf_movecs_read)
       if (scftype .eq. 'UHF') then
         if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
      $       g_vecs2)) then
-          if (ga_nodeid() .eq. 0) then
-            write(6,*) '  Duplicating RHF/ROHF vectors for UHF'
+          if ( util_print('information',print_low)) then
+            if (ga_nodeid() .eq. 0) then
+              write(luout,*) '  Duplicating RHF/ROHF vectors for UHF'
+            endif
           endif
           call ga_copy(g_vecs, g_vecs2)
           call dcopy (nbf, occ, 1, occ(nbf+1), 1)
@@ -74,11 +89,11 @@ C       create eigenvalue diagonal matrix
         endif
 
 C       multiply to weighted density
-        call ga_matmul_patch ('n','n', 2.D0, 0.D0,
+        call ga_matmul_patch ('n','n', two, zero,
      $                         g_vecs,       1, nbf,  1, nocc,
      $                         g_eigen_diag, 1, nocc, 1, nocc,
      $                         g_dens(1),    1, nbf,  1, nocc )
-        call ga_matmul_patch ('n','t', 1.D0, 0.D0,
+        call ga_matmul_patch ('n','t', one, zero,
      $                         g_dens(1),    1, nbf,  1, nocc,
      $                         g_vecs,       1, nocc, 1, nbf,
      $                         g_wdens,      1, nbf,  1, nbf )
@@ -101,11 +116,11 @@ C       read in Lagrangian matrix ('eigenvalue matrix' in ROHF case)
         endif
 
 C       multiply to weighted density
-        call ga_matmul_patch ('n','n', 2.D0, 0.D0,
+        call ga_matmul_patch ('n','n', two, zero,
      $                         g_vecs,       1, nbf,  1, nocc,
      $                         g_eigen_diag, 1, nocc, 1, nocc,
      $                         g_dens(1),    1, nbf,  1, nocc )
-        call ga_matmul_patch ('n','t', 1.D0, 0.D0,
+        call ga_matmul_patch ('n','t', one, zero,
      $                         g_dens(1),    1, nbf,  1, nocc,
      $                         g_vecs,       1, nocc, 1, nbf,
      $                         g_wdens,      1, nbf,  1, nbf )
@@ -128,7 +143,7 @@ C       (same as in ddscf (I think...))
      $       g_dens(3), 1,         nbf,  1,         nbf )
 
         call ga_copy ( g_dens(1), g_dens(2) )
-        call ga_dadd (1.D0, g_dens(1), 0.5D0, g_dens(3), g_dens(1))
+        call ga_dadd (one, g_dens(1), 0.5D0, g_dens(3), g_dens(1))
         call ga_symmetrize(g_dens(1))
         call ga_symmetrize(g_dens(2))
         call ga_symmetrize(g_dens(3))
@@ -151,12 +166,12 @@ C       create eigenvalue diagonal matrix
         endif
 
 C       multiply to weighted density
-        call ga_matmul_patch ('n','n', 1.D0, 0.D0,
+        call ga_matmul_patch ('n','n', one, zero,
      $                         g_vecs,       1, nbf,  1, nocc,
      $                         g_eigen_diag, 1, nocc, 1, nocc,
-     $                         g_dens,       1, nbf,  1, nocc )
-        call ga_matmul_patch ('n','t', 1.D0, 0.D0,
-     $                         g_dens,       1, nbf,  1, nocc,
+     $                         g_dens(1),    1, nbf,  1, nocc )
+        call ga_matmul_patch ('n','t', one, zero,
+     $                         g_dens(1),    1, nbf,  1, nocc,
      $                         g_vecs,       1, nocc, 1, nbf,
      $                         g_wdens,      1, nbf,  1, nbf )
 
@@ -173,18 +188,29 @@ C       multiply to weighted density
         endif
 
 C       multiply to weighted density and add to spin up part
-        call ga_matmul_patch ('n','n', 1.D0, 0.D0,
+        call ga_matmul_patch ('n','n', one, zero,
      $                         g_vecs2,      1, nbf,  1, nocc,
      $                         g_eigen_diag, 1, nocc, 1, nocc,
-     $                         g_dens,       1, nbf,  1, nocc )
-        call ga_matmul_patch ('n','t', 1.D0, 1.D0,
-     $                         g_dens,       1, nbf,  1, nocc,
+     $                         g_dens(1),    1, nbf,  1, nocc )
+        call ga_matmul_patch ('n','t', one, one,
+     $                         g_dens(1),    1, nbf,  1, nocc,
      $                         g_vecs2,      1, nocc, 1, nbf,
      $                         g_wdens,      1, nbf,  1, nbf )
         call ga_symmetrize(g_wdens)
 
+        if ( omp2 ) then
+C         read 2nd order correction to weighted density from disk
+C         use g_dens(3) as buffer
+          call util_file_name ('w_a_ao', .true., .true., lagr_file(1))
+          status = file_read_ga (lagr_file(1), g_dens(3))
+          call ga_add ( one, g_wdens, mone, g_dens(3), g_wdens )
+          call util_file_name ('w_b_ao', .true., .true., lagr_file(2))
+          status = file_read_ga (lagr_file(2), g_dens(3))
+          call ga_add ( one, g_wdens, mone, g_dens(3), g_wdens )
+        endif
+
 C       density matrix
-C       D_up and D_down
+C       D_up and D_down (or and b)
         call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
      $       g_vecs,    1, nbf,           1, nopen+nclosed,
      $       g_vecs,    1, nopen+nclosed, 1, nbf,
@@ -193,11 +219,41 @@ C       D_up and D_down
      $       g_vecs2,      1, nbf,     1, nclosed,
      $       g_vecs2,      1, nclosed, 1, nbf,
      $       g_vecs,       1, nbf,     1, nbf)
-C       D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
-        call ga_dadd ( 1.D0, g_dens(1), -1.D0, g_vecs, g_dens(2) )
-        call ga_dadd ( 1.D0, g_dens(1),  1.D0, g_vecs, g_dens(1) )
-        call ga_symmetrize(g_dens(1))
-        call ga_symmetrize(g_dens(2))
+
+        if ( .not. omp2 ) then
+C         D+ and D- (Formalism from Dupuis & King, JCP 68(9), p4000
+          call ga_dadd ( one, g_dens(1), mone, g_vecs, g_dens(2) )
+          call ga_dadd ( one, g_dens(1), one,  g_vecs, g_dens(1) )
+          call ga_symmetrize(g_dens(1))
+          call ga_symmetrize(g_dens(2))
+        else   ! UMP2
+C         g_dens(1) = D(a+b) (HF+(2))   for 1-el. contribution
+C         g_dens(2) = D(a) (HF)         for 2-el. contr.
+C         g_dens(3) = D(b) (HF)           "
+C         g_dens(4) = D(a) (HF+2(2))      "
+C         g_dens(5) = D(b) (HF+2(2))      "
+
+C         move HF matrices to g_dens(2:3)
+          call ga_copy ( g_dens(1), g_dens(2) )
+          call ga_copy ( g_vecs, g_dens(3) )
+
+          call ga_dadd ( one, g_dens(1), one,  g_dens(3), g_dens(1) )
+C         read and add MP2 contribution for spin up
+          call util_file_name ('p_a_ao', .true., .true., lagr_file(1))
+          status = file_read_ga (lagr_file(1), g_dens(4))
+          call ga_dadd ( one, g_dens(4), one, g_dens(1), g_dens(1) )
+          call ga_dadd ( two, g_dens(4), one, g_dens(2), g_dens(4) )
+C         spin down
+          call util_file_name ('p_b_ao', .true., .true., lagr_file(2))
+          status = file_read_ga (lagr_file(2), g_dens(5))
+          call ga_dadd ( one, g_dens(5), one, g_dens(1), g_dens(1) )
+          call ga_dadd ( two, g_dens(5), one, g_dens(3), g_dens(5) )
+          call ga_symmetrize(g_dens(1))
+          call ga_symmetrize(g_dens(2))
+          call ga_symmetrize(g_dens(3))
+          call ga_symmetrize(g_dens(4))
+          call ga_symmetrize(g_dens(5))
+        endif   !  UMP2
 c       
       endif
 

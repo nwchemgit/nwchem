@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
-     $     frc, oinit, ofinish, oactive, oskel )
+     $     frc, oinit, ofinish, oactive, oskel, omp2 )
 
-c$Id: grad_store.F,v 1.2 1996-07-26 16:28:30 d3g681 Exp $
+c$Id: grad_store.F,v 1.3 1996-09-19 16:58:11 vg038 Exp $
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 
@@ -25,12 +25,16 @@ C=======================================================================
       logical oinit, ! initialize time and return
      $     ofinish,  ! this is the final storage of forces
      $     oactive,  ! array of active atoms (or point charges)
-     $     oskel     ! use symmetry
+     $     oskel,    ! use symmetry
+     $     omp2      ! this is the separable part for mp2
       dimension oactive (nat)
 
       integer lnquad
       double precision last, now, interval
       logical status
+
+      character*26 rtdb_string
+      data rtdb_string /'gradients:partial gradient'/
 
       save last
 
@@ -45,9 +49,16 @@ C=======================================================================
       if ( ofinish .or. ((now-last) .gt. interval) ) then
 C       CREATE A CHECKPOINT
 
-C       accumulate local sums to global force array
-        call ga_acc ( g_force, 1, 3, 1, nat, frc, 3, 1.D0 )
+        rtdb_string = 'gradients:partial gradient'
+
+        call ga_dgop ( msg_grad_2el, frc, 3*nat, '+' )
+        if ( ga_nodeid() .eq. 0 ) then
+          call ga_acc ( g_force, 1, 3, 1, nat, frc, 3, 1.D0 )
+        endif
         call ga_sync()
+        if ( ga_nodeid() .eq. 0 ) then
+          call ga_get ( g_force, 1, 3, 1, nat, frc, 3 )
+        endif
 
 C       find out highest atom quadrupel
         lnquad = nquad
@@ -60,36 +71,24 @@ C       process zero only gets the accumulated forces
         if (ga_nodeid().eq.0) then
 
           call ga_get ( g_force, 1, 3, 1, nat, frc, 3 )
-          if ( ofinish ) then
-C           only in the end (not for checkpoint)
 
-C           zero force contributions on inactive atoms
-            call zero_forces ( frc, oactive, nat )
-
-C           symmetrize
-            if (oskel) then
-              call sym_grad_symmetrize(geom, frc)
-            endif
+          if ( util_print('information', print_high) ) then
+            call util_print_centered ( luout,
+     $           'writing forces to rtdb', 35, .false.)
+            call util_flush(luout)
           endif
 
-*          call util_print_centered ( luout,
-*     $         'writing forces to rtdb', 35, .false.)
-*          call util_flush(luout)
-
 C         store forces and # of atom quadruples in the database
-          status = rtdb_put ( rtdb, 'scf:gradient', MT_DBL, 3*nat, frc)
+          status = rtdb_put ( rtdb, rtdb_string, MT_DBL, 3*nat, frc)
           if ( .not. status ) 
      $         call errquit('could not store gradients',1)
           status = rtdb_put ( rtdb, 'gradients:ndone', MT_INT, 1, 
      $         lnquad )
-        else
-C         zero the forces on other nodes (node 0 has them now)
-          call dfill ( 3*nat, 0.D0, frc, 1 )
         endif
+C       zero the local 2-el. force array
+        call dfill ( 3*nat, 0.D0, frc, 1 )
         status = rtdb_parallel (.true.)
 
-C       zero the global array (the next ga_acc from node 0 contains all)
-        call ga_zero ( g_force )
         call ga_sync()
 
         last = now
@@ -111,6 +110,7 @@ C========================================================================
 #include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
 
       integer rtdb, nat,
      $     ndone, g_force
@@ -138,30 +138,34 @@ C         delete one-electron derivatives (they come from the previous run)
 
           if ( ga_nodeid() .eq. 0 ) then
 C           node 0 gets the old forces
-            call util_print_centered ( luout,
-     $           'read forces from rtdb', 35, .false.)
-            call util_flush(luout)
+            if ( util_print('information', print_high) ) then
+              call util_print_centered ( luout,
+     $             'read forces from rtdb', 35, .false.)
+              call util_flush(luout)
+            endif
 
             status = rtdb_parallel (.false.)
-            status = rtdb_get ( rtdb, 'scf:gradient', mt_dbl, 3*nat, 
-     $           frc )
+            status = rtdb_get ( rtdb, 'gradients:partial gradient', 
+     $           mt_dbl, 3*nat, frc )
             if ( .not. status ) 
-     $           call errquit('could not read gradients',1)
+     $           call errquit('could not read partial gradients',1)
             status = rtdb_parallel (.true.)
 
           else  ! node <> 0
 C           all other nodes simply zero their forces
 C           1el. forces are already in the rtdb
-            call dfill ( 3*nat, 0.D0, frc, 1 )
+CCC            call dfill ( 3*nat, 0.D0, frc, 1 )
           endif
 C         successful completion
           grad_restart = .true.
         else
           if ( ga_nodeid() .eq. 0 ) then
-            call util_print_centered ( luout,
-     $           'grad_restart: no start indices', 35, .false.)
-            call util_print_centered ( luout,
-     $          'starting from the beginning', 35, .true.)
+            if ( util_print('information', print_medium) ) then
+              call util_print_centered ( luout,
+     $             'grad_restart: no start indices', 35, .false.)
+              call util_print_centered ( luout,
+     $             'starting from the beginning', 35, .true.)
+            endif
           endif
           ndone = 0
           grad_restart = .false.

@@ -1,9 +1,11 @@
-      subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
+      subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc_nuc,
+     $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.12 1995-11-13 16:56:38 d3g681 Exp $
+c$Id: grad1.F,v 1.13 1996-09-19 16:58:05 vg038 Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
+C     now also UMP2
 
       implicit none
 
@@ -18,25 +20,27 @@ C-------------------------parameters--------------------------------
       integer lbuf, lscr,
      $     g_dens,        ! density matrix (summed if ROHF, UHF)
      $     g_wdens,       ! weighted density (Lagrangian)
+     $     g_force,       ! global force array
      $     basis, geom, nproc, nat, max_at_bf, rtdb
 
       double precision H, ! integral derivatives
      $     scr, 
      $     dens,          ! local density block
      $     wdens,         ! local weighted density block
-     $     frc            ! forces array
+     $     frc_nuc, frc_kin, frc_wgh   ! forces arrays
 
-      dimension H ( lbuf ), frc ( 3, nat ), scr(lscr),
+      dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
+     $          frc_wgh(3, nat), scr(lscr),
      $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
 
       logical oskel   ! symmetry?
 
 C-------------------------local variables--------------------------
 
-      integer iproc, ijatom, next, iat1, iat2, iat3, ish1, ish2,
+      integer ijatom, next, iat1, iat2, iat3, ish1, ish2,
      $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
      $     if1, il1, if2, il2,
-     $     icart, ic, nint, ip1, ip2
+     $     icart, ic, nint, ip1, ip2, i, j
 
       double precision crd1, crd2 ! atomic coordinates
       dimension crd1(3), crd2(3)
@@ -54,7 +58,6 @@ C-------------------------local variables--------------------------
       external nxtask
 
       task_size = 1
-      iproc = ga_nodeid()
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 
       pointforce = geom_include_bqbq(geom)
@@ -124,9 +127,9 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
  20                   continue
  22                 continue
                     dE = dE * qfac
-                    frc(icart,idatom(1)) = frc(icart,idatom(1)) 
+                    frc_wgh(icart,idatom(1)) = frc_wgh(icart,idatom(1)) 
      $                                      - dE - dE
-                    frc(icart,idatom(2)) = frc(icart,idatom(2)) 
+                    frc_wgh(icart,idatom(2)) = frc_wgh(icart,idatom(2)) 
      $                                      + dE + dE
  28               continue
                 endif
@@ -149,7 +152,7 @@ C     D x H
  31                 continue
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
-                    frc(icart,iat3) = frc(icart,iat3) + dE
+                    frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
  40               continue
  50             continue
 
@@ -170,14 +173,14 @@ C               no forces between point charges (for John Nicholas)
                 dz = crd2(3) - crd1(3)
                 fact = q1 * q2 / SQRT ( dx*dx + dy*dy + dz*dz ) **3
                 dE = dx * fact
-                frc(1,iat1) = frc(1,iat1) + dE
-                frc(1,iat2) = frc(1,iat2) - dE
+                frc_nuc(1,iat1) = frc_nuc(1,iat1) + dE
+                frc_nuc(1,iat2) = frc_nuc(1,iat2) - dE
                 dE = dy * fact
-                frc(2,iat1) = frc(2,iat1) + dE
-                frc(2,iat2) = frc(2,iat2) - dE
+                frc_nuc(2,iat1) = frc_nuc(2,iat1) + dE
+                frc_nuc(2,iat2) = frc_nuc(2,iat2) - dE
                 dE = dz * fact
-                frc(3,iat1) = frc(3,iat1) + dE
-                frc(3,iat2) = frc(3,iat2) - dE
+                frc_nuc(3,iat1) = frc_nuc(3,iat1) + dE
+                frc_nuc(3,iat2) = frc_nuc(3,iat2) - dE
               endif
             endif
 
