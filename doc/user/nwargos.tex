@@ -582,7 +582,14 @@ where {\tt filrst} is a restart file
 
 \item
 \begin{verbatim}
-solvate [box [<r bx>[<r by>[<r bz>]]]]
+orient
+\end{verbatim}
+changes the orientation of the solute to fit the smallest rectangular
+box with largest dimension along z and smallest dimension along x.
+
+\item
+\begin{verbatim}
+solvate box [<r bx>[<r by>[<r bz>]]]
 \end{verbatim}
 solvates the system in a rectangular box with dimensions 
 bx $\times$ by $\times$ bz in nm
