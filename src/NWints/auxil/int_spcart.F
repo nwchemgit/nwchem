@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.21 1998-09-03 23:56:55 d3e129 Exp $
+c $Id: int_spcart.F,v 1.22 1998-11-04 08:52:26 d3e129 Exp $
 *::cr::7
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
@@ -71,6 +71,7 @@ c
      &      h_sp2c,k_sp2c)
       if (.not.active_sp2c)  call errquit
      &      ('spcart_init: alloc_get failed for size',size_sp2c)
+      call dfill(size_sp2c,0.0d00,dbl_mb(k_sp2c),1)
 c
 * generate transformation matricies by recursion
       call xlmcoeff(lmaxin,dbl_mb(k_sp2c),normalize)
@@ -82,6 +83,7 @@ c
      &      h_sp2c_lindx,k_sp2c_lindx)
       if (.not.active_sp2c_lindx) call errquit
      &      ('spcart_init: alloc_get failed (index) ',911)
+      call ifill((lmaxin+1),0,int_mb(k_sp2c_lindx),1)
 * allocate memory for index array for inverse transform
       active_invsp2c_lindx = ma_alloc_get(
      &      mt_int,(lmaxin+1),
@@ -89,6 +91,7 @@ c
      &      h_invsp2c_lindx,k_invsp2c_lindx)
       if (.not.active_invsp2c_lindx) call errquit
      &      ('spcart_init: alloc_get failed (index) ',911)
+      call ifill((lmaxin+1),0,int_mb(k_invsp2c_lindx),1)
 * determine size of compressed transformation arrays
       l_block_size = 0
       do 00100 lval=0,Lmaxin
@@ -102,13 +105,14 @@ c
      &      h_sp2c_cmp,k_sp2c_cmp)
       if (.not. active_sp2c_cmp) call errquit
      &      ('spcart_init: alloc_get failed (array cmp) ',911)
+      call dfill(l_block_size,0.0d00,dbl_mb(k_sp2c_cmp),1)
 * allocate memory for compressed inverse transformation arrays
       active_invsp2c_cmp = ma_alloc_get
      &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
      &      h_invsp2c_cmp,k_invsp2c_cmp)
       if (.not. active_invsp2c_cmp) call errquit
      &      ('spcart_init: alloc_get failed (inv array cmp) ',911)
-      
+      call dfill(l_block_size,0.0d00,dbl_mb(k_invsp2c_cmp),1)
 * allocate memory for scale vector
       active_cart_norm_scale= ma_alloc_get
      &      (mt_dbl,(2*lmaxin+1)*(lmaxin+1),
@@ -116,7 +120,8 @@ c
      &      h_cart_norm_scale,k_cart_norm_scale)
       if (.not. active_cart_norm_scale) call errquit
      &      ('spcart_init: alloc_get failed (array scale) ',911)
-
+      call dfill(((2*lmaxin+1)*(lmaxin+1)),0.0d00,
+     &    dbl_mb(k_cart_norm_scale),1)
 * set normalize scale vector so cartesian vectors of transformation 
 * matrix are normalized to unity
       call xlm_cart_norm_scale(lmaxin,dbl_mb(k_sp2c),
@@ -304,9 +309,11 @@ c
       if (.not.ma_push_get(mt_dbl,ld2s*ld2s,
      &    'xlm_ptrsinv overlap',h_ov,k_ov)) call errquit
      &    ('xlm_ptrsinv: could not allocate overlap',911)
+      call dfill((ld2s*ld2s),0.0d00,dbl_mb(k_ov),1)
       if (.not.ma_push_get(mt_dbl,ld2s*(2*ld+1),
      &    'xlm_ptrsinv scratch',h_scr,k_scr)) call errquit
      &    ('xlm_ptrsinv: could not allocate scratch',911)
+      call dfill((ld2s*(2*ld+1)),0.0d00,dbl_mb(k_scr),1)
       icount = 1
       do 00100 lval = 0,Ld
         Dindex(lval) =
@@ -2710,6 +2717,7 @@ c
      &    h_scr,k_scr)) call errquit
      &    ('spcart_cart_overlap: could not allocate scratch buffer',
      &    911)
+      call dfill(scr_size,0.0d00,dbl_mb(k_scr),1)
 *      write(6,*)' spcart_cart_overlap verify 4',' lval   = ',lval,
 *     &      ' rankov = ',rankov
 *      if (.not. ma_verify_allocator_stuff())

@@ -1,5 +1,5 @@
       logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.4 1996-03-12 01:42:58 d3h449 Exp $
+c $Id: int_norm_2c.F,v 1.5 1998-11-04 08:52:25 d3e129 Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -46,6 +46,7 @@ c
       lscr = maxg2c + mem2c
       int_norm_2c =
      &    MA_push_get(mt_dbl,lscr,'int_norm_2c:scr',h_scr,i_scr)
+      call dfill(lscr,0.0d00,dbl_mb(i_scr),1)
 c
 c... define xyz for angular momentum      
       if (.not.bas_high_angular(basisin,maxang)) call errquit

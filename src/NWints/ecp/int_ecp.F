@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.13 1998-09-03 23:56:56 d3e129 Exp $
+* $Id: int_ecp.F,v 1.14 1998-11-04 08:52:29 d3e129 Exp $
       implicit none
 *::cr::7
 *------------------------------------------------*
@@ -140,6 +140,7 @@ c.. allocate space for coordintates of ecp/so centers
      &    'ecp center coords',
      &    h_xyzecp, k_xyzecp)) call errquit
      &    (' int_ecp_init: ecp center coords ma failed ',911)
+      call dfill((3*n_ecp),0.0d00,dbl_mb(k_xyzecp),1)
 
 c.. get coordinates for ecp centers.
       if (o_both) then
@@ -210,11 +211,13 @@ c.. allocate space for ecp/so exponents and ecp/so coefficients
      &    'ecp exponents',
      &    h_ecp_e, k_ecp_e)) call errquit
      &    (' int_ecp_init: ecp exponent ma failed ',911)
+      call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_e),1)
       if (.not.ma_alloc_get(mt_dbl,
      &    n_zeta_c,
      &    'ecp coefficients',
      &    h_ecp_c, k_ecp_c)) call errquit
      &    (' int_ecp_init: ecp coefficients ma failed ',911)
+      call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_c),1)
 c
 c... determine maximum angular momentum of ecp basis
       l_ecp = 0
@@ -236,36 +239,42 @@ c... allocate space for n_prim_C(0:2,-1:l_ecp_max,n_C*2),
      &    'ecp n_prim_C',
      &    h_ecp_nprim_c, k_ecp_nprim_c)) call errquit
      &    (' int_ecp: ecp nprim_c ma failed ',911)
+      call ifill((3*l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_nprim_c),1)
 c... allocate space for n_coef_C(-1:l_ecp_max,n_C*2)
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp n_coef_C',
      &    h_ecp_ncoef_c, k_ecp_ncoef_c)) call errquit
      &    (' int_ecp: ecp ncoef_c ma failed ',911)
+      call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ncoef_c),1)
 c... allocate space for ind_C      
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp ind_C',
      &    h_ecp_ind_c, k_ecp_ind_c)) call errquit
      &      (' int_ecp: ecp ind_c ma failed ',911)
+      call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_c),1)
 c... allocate space for ind_z      
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp ind_z',
      &    h_ecp_ind_z, k_ecp_ind_z)) call errquit
      &      (' int_ecp: ecp ind_z ma failed ',911)
+      call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_z),1)
 c... allocate space for l_C      
       if (.not.ma_alloc_get(mt_int,
      &    n_ecp,
      &    'ecp l_C',
      &    h_ecp_l_c, k_ecp_l_c)) call errquit
      &    (' int_ecp: ecp l_c ma failed ',911)
+      call ifill(n_ecp,0,int_mb(k_ecp_l_c),1)
 c... allocate space for ecp center pointer list
       if (.not.ma_alloc_get(mt_int,
      &    n_ecp,
      &    'ecp lexical indeces for ecp centers',
      &    h_ecp_lip, k_ecp_lip)) call errquit
      &    (' int_ecp: ecp_lip ma failed',911)
+      call ifill(n_ecp,0,int_mb(k_ecp_lip),1)
 c
       call int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
      &    o_both,o_ecp,o_so,
@@ -299,6 +308,7 @@ c l_ecp currently has Lmax for ecp basis
      &      'ecp c2s routines',
      &      h_ecp_c2s, k_ecp_c2s)) call errquit
      &      ('int_ecp_init: ma failed for c2s',911)
+      call dfill(mem_c2s,0.0d00,dbl_mb(k_ecp_c2s),1)
       call ecp_init_c2s(lmax_both,
      &      dbl_mb(k_ecp_c2s),dbl_mb(k_ecp_c2s),mem_c2s,1,1,.false.,
      &      idum)

@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.6 1997-02-20 10:51:06 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.7 1998-11-04 08:52:27 d3e129 Exp $
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 
@@ -192,6 +192,20 @@ c
      &      ma_push_get(MT_DBL,(5*3),'summary stats',h_stats,i_stats)
         if(.not.status) call errquit
      &      ('intb_chk_sum: ma_push_get failed somewhere',911)
+* zero memory
+        call ifill(memb,0,int_mb(i_ilab),1)
+        call ifill(memb,0,int_mb(i_jlab),1)
+        call ifill(memb,0,int_mb(i_klab),1)
+        call ifill(memb,0,int_mb(i_llab),1)
+        call ifill(max_shell_q,0,int_mb(i_iqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_jqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_kqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_lqtet),1)
+        call dfill(max_shell_q,0.0d00,dbl_mb(k_q4),1)
+        call dfill((5*3),0.0d00,dbl_mb(i_stats),1)
+        call dfill(memb,0.0d00,dbl_mb(i_eri),1)
+        call dfill(memscr,0.0d00,dbl_mb(i_scr),1)
+*
         call intb_all_at_once_gen(
      &      geom,basis,nat,max_shell_q,
      &      int_mb(i_iqtet),int_mb(i_jqtet),
@@ -290,6 +304,24 @@ c
      &      h_lat,i_lat)
         if(.not.status) call errquit
      &      ('intb_chk_sum: ma_push_get failed somewhere',911)
+* zero memory
+        call ifill(memb,0,int_mb(i_ilab),1)
+        call ifill(memb,0,int_mb(i_jlab),1)
+        call ifill(memb,0,int_mb(i_klab),1)
+        call ifill(memb,0,int_mb(i_llab),1)
+        call ifill(max_shell_q,0,int_mb(i_iqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_jqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_kqtet),1)
+        call ifill(max_shell_q,0,int_mb(i_lqtet),1)
+        call ifill(atom_blk_sz,0,int_mb(i_iat),1)
+        call ifill(atom_blk_sz,0,int_mb(i_jat),1)
+        call ifill(atom_blk_sz,0,int_mb(i_kat),1)
+        call ifill(atom_blk_sz,0,int_mb(i_lat),1)
+        call dfill(max_shell_q,0.0d00,dbl_mb(k_q4),1)
+        call dfill((5*3),0.0d00,dbl_mb(i_stats),1)
+        call dfill(memb,0.0d00,dbl_mb(i_eri),1)
+        call dfill(memscr,0.0d00,dbl_mb(i_scr),1)
+*
         call intb_atom_blocks_chksum(
      &      memb,memscr,max_shell_q,atom_blk_sz,nat,
      &      geom,basis,

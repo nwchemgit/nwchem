@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.3 1995-12-20 22:50:27 d3e129 Exp $
+* $Id: xlmcoeff.F,v 1.4 1998-11-04 08:52:27 d3e129 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -164,12 +164,13 @@ c... allocate space for e
      &      ' tmp e buf xlm ',
      &      h_xlm_e, k_xlm_e)) call errquit
      &      ('xlmcoeff: error allocating e bug ',911)
-      
+* does not need to be zeroed      
 c... allocate space for qn
       if (.not.ma_push_get(mt_dbl,((2*lmax+1)*(lmax+1)),
      &      ' tmp qn buf xlm ',
      &      h_xlm_qn, k_xlm_qn)) call errquit
      &      ('xlmcoeff: error allocating qn bug ',911)
+* does not need to be zeroed      
 
       call xlm_norm(dbl_mb(k_xlm_qn),dbl_mb(k_xlm_e),d,lmax)
 c... free tmp space

@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.50 1998-08-12 01:15:30 d3e129 Exp $
+c $Id: texas_face.F,v 1.51 1998-11-04 08:52:30 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -374,6 +374,7 @@ c
      &                       h_txs_basnuc, k_txs_basnuc))
      &    call errquit('texas_init: alloc for texas basis/nuc failed',
      &    911)
+      call dfill(size_from_ma,0.0d00,dbl_mb(k_txs_basnuc),1)
       inuc = k_txs_basnuc
 c>>>  ibas = inuc + 5*natoms
       ibas = inuc + 5*(natoms+1)
@@ -935,6 +936,7 @@ c
      &                       h_txs_mapp1, k_txs_mapp1))
      &    call errquit('texas_init: alloc for texas mapping1 failed',
      &    911)
+      call dfill(isize_from_ma,0.0d00,dbl_mb(k_txs_mapp1),1)
 c
       ncfunct=k_txs_mapp1
       ncshell=ncfunct+ncf
@@ -1003,6 +1005,7 @@ c
      &                       h_txs_tempr , k_txs_tempr ))
      &    call errquit('texas_init: alloc for for txs_scr_temp failed',
      &    911)
+      call dfill((ncs+1),0.0d00,dbl_mb(k_txs_tempr),1)
 c--------
 c
       call txs_scratch_siz1(dbl_mb(ibas),dbl_mb(inuc),
@@ -1028,6 +1031,7 @@ c
      &                       h_txs_prep2 , k_txs_prep2 ))
      &    call errquit('texas_init: alloc for for txs scratch failed',
      &    911)
+      call dfill(ntxs_scr_size,0.0d00,dbl_mb(k_txs_prep2),1)
 c
       ntxs_bl_scr=k_txs_prep2 
 c
