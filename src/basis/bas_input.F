@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.39 1998-04-29 07:29:50 d3e129 Exp $
+c $Id: bas_input.F,v 1.40 1998-05-18 18:17:16 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -372,14 +372,14 @@ c
 c     library
 c     
  24            if (.not. inp_a(standard)) goto 10000
-	       tag_in_lib = tag
-	       if (inp_a(field)) then
+               tag_in_lib = tag
+               if (inp_a(field)) then
                  if (inp_match(nopts, .false., field, opts, ind)) then
-		   call inp_prev_field
+                   call inp_prev_field
                  else
-		   tag_in_lib = standard
-		   standard   = field
-		   write(6,*) ' tag_in_lib, standard ', 
+                   tag_in_lib = standard
+                   standard   = field
+                   write(6,*) ' tag_in_lib, standard ', 
      $                tag_in_lib, standard
                  endif
                endif
@@ -904,6 +904,7 @@ c
           write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
      &        libname(1:inp_strlen(libname)),'>'
           write(luout,*)' but file does not exist !'
+          write(luout,*)' using .nwchemrc or compiled library'
         endif
       endif
 *2: check for NWCHEM_BASIS_LIBRARY defined in users .nwchemrc file
@@ -956,6 +957,7 @@ c
               write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
      &            libname(1:inp_strlen(libname)),'>'
               write(luout,*)' but file does not exist !'
+              write(luout,*)' using compiled in library'
             endif
             goto 99998
           else
