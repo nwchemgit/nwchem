@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.30 2002-02-22 06:54:15 edo Exp $
+c     $Id: dft_input.F,v 1.31 2002-03-01 19:47:31 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -40,6 +40,11 @@ c
 c     Any DFT input causes calculation to be marked as not converged
 c
       status = rtdb_delete(rtdb,'dft:converged')
+      ipol=1
+      nel_fon(1)=0
+      nmo_fon(1)=0
+      nel_fon(2)=0
+      nmo_fon(2)=0
 c
 c     Lebedev on by default
 c
@@ -51,11 +56,6 @@ c
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      $     call errquit('dft_input: unknown directive', 0)
 c     
-      nel_fon(1)=0
-      nmo_fon(1)=0
-      nel_fon(2)=0
-      nmo_fon(2)=0
-      ipol=1
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 9999) ind
