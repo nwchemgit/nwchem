@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.17 1999-08-02 21:40:10 d3e129 Exp $
+$Id: INSTALL,v 1.18 1999-08-02 21:44:16 d3e129 Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -69,24 +69,27 @@ BUILDING NWCHEM:
                    R10000          R10000
     SGI_N32        R8000           R8000
                    R10000          R10000
-    SP             Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
+    SP or LAPI     Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
                    Power 2 super   P2SC
                    604e chip       604
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
                    Alpha           ALPHA  (Build is currently broke)
 
+   Note: LAPI is now the primary way to use NWChem on an IBM SP system.
+         If you don't have it get it from IBM.
+
 4) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
    modules.  Choose one or more from
 
         Name        Description
-        -------------------------------------------------
-        pnnl        Everything including NBO and python
+        ---------------------------------------------------------
+        pnnl        Everything useful including NBO and python
         all         Everything useful
         qm          All quantum mechanics modules
 	argos       MD only build 
-        - - - - - - - - - - - - - - - - - - - - - - - - -
+        - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           If you are familiar with building NWChem you 
           can be more selective with the modules you 
           really nead.  If you are a novice at this then
@@ -102,9 +105,9 @@ BUILDING NWCHEM:
         rimp2       RI-MP2
         ccsd        CCSD & CCSD(T)
         property    Properties analysis
+        pspw        Build the plane wave pseudo-potential code
         python      Build python interface to NWChem
-        -------------------------------------------------
-
+        ---------------------------------------------------------
 
     To configure to build everything use the command
 
@@ -114,6 +117,10 @@ BUILDING NWCHEM:
        % cd $NWCHEM_TOP/src
        % setenv NWCHEM_MODULES all
        % make nwchem_config
+
+    Combinations of these tags are allowed.  For example,
+       % setenv NWCHEM_MODULES "all pspw python" 
+    will build the union of these three modules identifiers.  
 
 5) Run the precision conversion according to the Precision column
    above for your target. This is necessary only on machines where 64
