@@ -1,0 +1,52 @@
+! 
+! $Id: paw_force_data.fh,v 1.1 2003-03-10 05:45:24 marat Exp $
+! 
+
+!     **** paw_force_data.fh common blocks ****
+      integer    indx2(4),sgn(4)
+      integer    total_nbasis
+      integer    ne_d,ne_u,neall,ispin
+
+      integer    paw_force_cx_s(4)     ! scrambled overlap coefficients 
+      integer    paw_force_cx_u(4)     ! unscrambled overlap coefficients 
+
+      integer    paw_force_cy_s(4)     
+      integer    paw_force_cy_u(4)     
+
+      integer    paw_force_cz_s(4)     
+      integer    paw_force_cz_u(4)     
+
+      integer    i_paw_force_w(4)
+      integer    paw_force_wx(4)       ! overlap weights
+      integer    paw_force_wx_u(4)     ! overlap weights spin-up
+      integer    paw_force_wx_d(4)     ! overlap weights spin-down
+ 
+      integer    paw_force_wy(4)       
+      integer    paw_force_wy_u(4)     
+      integer    paw_force_wy_d(4)     
+
+      integer    paw_force_wz(4)       
+      integer    paw_force_wz_u(4)     
+      integer    paw_force_wz_d(4)     
+
+      common / paw_force / 
+     >                    paw_force_cx_s,
+     >                    paw_force_cx_u, 
+     >                    paw_force_cy_s,
+     >                    paw_force_cy_u, 
+     >                    paw_force_cz_s,
+     >                    paw_force_cz_u, 
+     >                    i_paw_force_w,
+     >                    paw_force_wx,
+     >                    paw_force_wx_u,
+     >                    paw_force_wx_d, 
+     >                    paw_force_wy,
+     >                    paw_force_wy_u,
+     >                    paw_force_wy_d, 
+     >                    paw_force_wz,
+     >                    paw_force_wz_u,
+     >                    paw_force_wz_d, 
+     >                    total_nbasis,
+     >                    ne_d,ne_u,neall,ispin,
+     >                    indx2,sgn
+
