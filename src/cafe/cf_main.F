@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.36 2000-04-01 01:56:24 d3j191 Exp $
+c $Id: cf_main.F,v 1.37 2000-04-04 18:08:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -785,7 +785,6 @@ c
       endif
 c
       endif
-c
 c
       if(np.gt.1) then
       call ga_dgop(mcf_40,ewk,1,'+')

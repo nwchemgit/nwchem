@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.50 2000-03-29 17:46:46 d3j191 Exp $
+c $Id: md_start.F,v 1.51 2000-04-04 18:08:17 d3j191 Exp $
 c
       implicit none
 c
@@ -151,7 +151,8 @@ c     ------------
 c
       call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),nsaloc)
-      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      if(.not.lqmd)
+     + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
 c
 c     initialize packing
 c     ------------------
@@ -208,6 +209,7 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "constants.fh"
 c
       character*20 operat
       character*32 theory
@@ -909,18 +911,6 @@ c
       if(.not.rtdb_get(irtdb,'md:pmetol',mt_dbl,1,pmetol))
      + pmetol=1.0d-05
 c
-c      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,oqmmm))
-c     + oqmmm=.false.
-c      if(rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm)) then
-c      osepatset=.true.
-c      else
-c      osepatset=.false.
-c      uqmatm=zero
-c      endif
-c      iqmmm=0
-c      lqmmm=.false.
-c      if(oqmmm) iqmmm=-1
-c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)
       if(theory.eq.'md'.or.theory.eq.'nwargos') then
@@ -932,6 +922,7 @@ c
       if(iqmmm.eq.1) then
       if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
      + uqmatm=0.0d0
+      uqmatm=cau2kj*uqmatm
       iquant=0
       else
       iquant=1
@@ -1126,6 +1117,7 @@ c
       ltwin=rlong.gt.rshort
 c
       lpack=nopack.eq.0
+      if(lqmd) lpack=.false.
 c
       msa=msareq
       mwm=mwmreq

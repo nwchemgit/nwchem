@@ -1,11 +1,12 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.3 2000-02-20 15:59:33 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.4 2000-04-04 18:08:29 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "rtdb.fh"
 #include "geom.fh"
 c
       real*8 releps,c(3),q,w
@@ -19,6 +20,10 @@ c
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd
+c
+      logical lstate
+c
+      lstate=rtdb_parallel(.false.)
 c
       if(me.eq.0) then
 c
@@ -96,6 +101,8 @@ c
       ewc(3)=0.0d0
 c
       endif
+c
+      lstate=rtdb_parallel(.true.)
 c
       if(np.gt.1) then
 c
