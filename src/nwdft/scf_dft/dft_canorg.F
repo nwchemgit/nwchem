@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.12 2003-01-15 19:01:12 edo Exp $
+c     $Id: dft_canorg.F,v 1.13 2003-02-04 02:33:29 edo Exp $
 c     
       implicit none
 c
@@ -365,7 +365,7 @@ c
       double precision ss,s_rabuck,derrt
       double precision smear_in
       s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
-     *     log(1d0-10d0/ss)*(nn-1d0)),delta*1d-4)
+     *     log(abs(1d0-10d0/ss))*(nn-1d0)),delta*1d-4)
 c
       derrt=derr(1)
       if(ipol.eq.2) derrt=max(derr(1),derr(2))
@@ -373,7 +373,6 @@ c
       smear_in=max(abs(evala(noc(1))-evala(noc(1)+1)),1d-6)
       if(ipol.eq.2) smear_in=max(smear_in,
      ,     abs(evalb(noc(2))-evalb(noc(2)+1)))
-!      smear_in=2d0*smear_in
       dft_rabuck=s_rabuck(iter,smear_in,n_rabuck,derrt)
 c     ssmear=s_rabuck(iter,smear_in,n_rabuck,derrt)
 c     ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
