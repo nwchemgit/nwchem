@@ -22,8 +22,6 @@ c
       integer n
       integer h_act,i_act
       integer h_tmp_id,i_tmp_id 
-      integer h_tmp_act,i_tmp_act
-      character(255) tag_id
       character(255) tag_n
       character(255) namespace
       logical oprint
@@ -66,7 +64,9 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
 
-
+c
+c     check if fixed atoms were specified using old style
+c     ---------------------------------------------------
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
      $        nact, h_act)) then
             if (.not. ma_get_index(h_act, i_act))
@@ -85,15 +85,13 @@ c     --------------------
        old_style=.false.
       end if
 
-      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) then
-         n = 0
-      end if
-
-      if (n.eq.0) then
-        new_style=.false.
-      else
-        new_style=.true.
-      end if
+c
+c     check of fixed atoms were specified using new style
+c     ---------------------------------------------------
+      new_style = .true.
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) n=0
+      if (n.eq.0) new_style=.false.
 
       if(old_style) then
        if ( .not. ma_push_get( MT_INT, nat, 'h_tmp_id',
@@ -108,7 +106,7 @@ c     --------------------
      >             .false.,.false.,.true. )
          call banner(6,"fixed atom constraints is not         ","*" ,
      >             .false.,.false.,.true. )
-         call banner(6,"reccomended. Check output below for   ","*" ,
+         call banner(6,"recommended. Check output below for   ","*" ,
      >             .false.,.false.,.true. )
          call banner(6,"for potential problems.               ","*" ,
      >             .false.,.true.,.true. )
@@ -128,7 +126,6 @@ c     --------------------
      &    'cons_init: unable to free actlist',
      &    0, MA_ERR)
 
-
       end if
 
       status=geom_destroy(geom)
@@ -147,6 +144,22 @@ c
       return
       end
 c
+      subroutine cons_end(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+#include "cons_params.fh"
+#include "cons.fh"
+#include "global.fh"
+      integer rtdb
+c
+      call cons_unload_fixed_atoms(rtdb)
+      return
+      end
+c
       subroutine cons_load_geom(rtdb)
       implicit none
 #include "errquit.fh"
@@ -158,7 +171,6 @@ c
       integer rtdb
 c
       integer i_c,h_c
-      integer i
       integer geom
       integer nat
       logical status
@@ -318,6 +330,23 @@ c
 
       end
 c
+      subroutine cons_unload_fixed_atoms(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cons.fh"
+#include "geom.fh"
+c     
+      integer rtdb
+c
+      logical ignore
+
+      if(.not. rtdb_delete(rtdb,"geometry:actlist"))
+     >     call errquit("unable to delete actlist",0,0)
+
+      end
+c
       subroutine cons_load_fixed_atoms(namespace,rtdb)
       implicit none
 #include "errquit.fh"
@@ -340,6 +369,20 @@ c
       integer nat
       integer geom
 c
+      call cons_fxd_atoms_id_tag(namespace,tag_id)
+      call cons_fxd_atoms_n_tag(namespace,tag_n)
+c
+c     load fixed atoms
+c
+      status = rtdb_get(rtdb,tag_n,
+     >     mt_int,1,nfa) 
+      if(.not.status) then
+          nfa=0
+      end if
+      if(nfa.eq.0) then
+        return
+      end if
+c
 c     load geometry 
 c     -------------
       if (.not. geom_create(geom, 'geometry'))
@@ -353,21 +396,9 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
 
-c
-      call cons_fxd_atoms_id_tag(namespace,tag_id)
-      call cons_fxd_atoms_n_tag(namespace,tag_n)
-c
-c     load fixed atoms
-c
-      status = rtdb_get(rtdb,tag_n,
-     >     mt_int,1,nfa) 
-      if(.not.status) then
-          nfa=0
-      end if
-      if(nfa.eq.0) then
-        write(*,*) "no fixed atoms found"
-        return
-      end if
+      status=geom_destroy(geom)
+      if(.not.status) 
+     & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
       if ( .not. ma_push_get( MT_INT, nfa, 'h_tmp_id',
      &      h_tmp_id, i_tmp_id) ) call errquit(
@@ -404,10 +435,10 @@ c
         do i=1,nat
           if(log_mb(i_active+i-1)) then
             j=j+1
-            int_mb(i_tmp_id1-j+1)=i  
+            int_mb(i_tmp_id1+j-1)=i  
           end if
         end do
-        
+
       status = rtdb_put(rtdb,'geometry:actlist',
      >     mt_int,nat-nfa,int_mb(i_tmp_id1))
         if(.not.status) call errquit(
@@ -415,14 +446,14 @@ c
      >      0, MA_ERR)
 
       if (.not. ma_pop_stack(h_active) ) call errquit(
-     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    'cons_load_fixed_atoms:ma_pop_stack h_active',
      &    0, MA_ERR)
       if (.not. ma_pop_stack(h_tmp_id1) ) call errquit(
-     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    'cons_load_fixed_atoms:ma_pop_stack h_tmp_id1',
      &    0, MA_ERR)
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
-     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    'cons_load_fixed_atoms:ma_pop_stack h_tmp_id',
      &    0, MA_ERR)
 
 
@@ -484,7 +515,6 @@ c
       double precision gx(*)
       logical status
       integer nhb
-      character(255) tag_n
       character(255) namespace
 c
       if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
@@ -517,7 +547,6 @@ c
       double precision energy
       logical status
       integer nhb
-      character(255) tag_n
       character(255) namespace
 c
       if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
@@ -551,13 +580,11 @@ c
       double precision energy
       logical status
       logical oprint
-      integer i
       integer inb
       integer iat,jat
       double precision r
-      double precision ciat(3),cjat(3)
       double precision r0,k
-      double precision e,enb,enb1
+      double precision e,enb
       integer i_c,i_rhb,i_khb,i_ijhb
       integer nhb
 c
@@ -619,12 +646,10 @@ c     local variables
 c     ---------------
       logical status
       logical oprint
-      logical pdefault
       integer i
       integer inb,nhb
       integer iat,jat
       double precision r
-      double precision ciat(3),cjat(3)
       double precision r0,k
       double precision e,f(3)
       integer i_c,i_rhb,i_khb,i_ijhb
@@ -699,7 +724,6 @@ c     ---------------
       integer inb,nhb
       integer iat,jat
       double precision r
-      double precision ciat(3),cjat(3)
       double precision r0,k
       integer i_c,i_rhb,i_khb,i_ijhb
       double precision etot,e,f(3)
