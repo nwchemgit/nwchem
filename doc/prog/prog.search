@@ -18,6 +18,8 @@ Search:
 <input type="text" size="30" name="words" value="">
 <input type="submit" value="Search">
 </form>
-<P><A HREF="prog.ps.Z">Compressed postscript</A>
-<P><A HREF="prog.ps">Postscript</A>
+<P><A HREF="prog.001.ps.Z">Compressed postscript</A> Part 1
+<P><A HREF="prog.002.ps.Z">Compressed postscript</A> Part 2
+<P><A HREF="prog.001.ps">Postscript</A> Part 1
+<P><A HREF="prog.002.ps">Postscript</A> Part 2
 <HR>
