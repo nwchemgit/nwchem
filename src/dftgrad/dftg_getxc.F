@@ -1,9 +1,9 @@
       Subroutine dftg_getxc( rtdb, geom, AO_bas_han, CD_bas_han, 
      &                    XC_bas_han, ipol, natom, 
-     &                    iga_dens, force)
+     &                    iga_dens, force,
+     &                    oactive, nactive)
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-
 c****
 c**** compute XC component of energy gradient.  
 c****
@@ -11,7 +11,7 @@ c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
 c**** 
-#include <mafdecls.h>
+#include <mafdecls.fh>
 #include <rtdb.fh>
 #include <bas.fh>
 #include <global.fh>
@@ -19,7 +19,10 @@ c****
       
       parameter(zero = 0.0d0,one = 1.0d0,onem = -1.0d0)
 
+      integer nactive
       logical status
+      logical oactive(natom)
+
       double precision xfac(10),cfac(10)
 c
 c--> Matrix Elements of the XC Potential & Energy
@@ -82,6 +85,7 @@ c
         lscratch = max ( mscratch_1e, mscratch_2e )
         status = MA_Push_get(MT_DBL, lbuf, 'deriv buffer', l_buf,
      &     k_buf)
+
         if (.not.status) call errquit('could not allocate buffer',1)
         status = MA_Push_get(MT_DBL, lscratch, 'deriv scratch', 
      &       l_scr, k_scr)
@@ -100,7 +104,6 @@ C     allocate local density matrix block
      &       'local_w_density', l_jl, i_jl)
         if (.not.status) 
      &       call errquit('force_dft: could not allocate scratch',1)
-
 c
 c     store total DM in ga_dens(1)
 c
@@ -110,10 +113,11 @@ c
           call dftg_hf_x(xfac(1),
      &         dbl_mb(i_ik), dbl_mb(i_jl),
      &         dbl_mb(i_il), dbl_mb(i_jk),
-     &       force, iga_dens,
-     &       max_at_bf, AO_bas_han, nproc,
-     &       natom, dbl_mb(k_scr), lscratch, dbl_mb(k_buf),
-     &       lbuf, tol2e )
+     &         force, iga_dens,
+     &         max_at_bf, AO_bas_han, nproc,
+     &         natom, dbl_mb(k_scr), lscratch, dbl_mb(k_buf),
+     &         lbuf, tol2e,
+     &         oactive, nactive )
 
         status = MA_Pop_Stack ( l_jl )
         status = MA_Pop_Stack ( l_jk )
@@ -129,7 +133,7 @@ c
       endif 
 
         if (.not.status) 
-     &       call errquit(' dftg_getcx: failed to dellocate',11)
+     &       call errquit(' dftg_getcx: failed to deallocate',11)
 
       endif
       call ga_sync
@@ -137,13 +141,14 @@ c
       do i=1,10
         tot=tot+xfac(i)+cfac(i)
       enddo
+
       if(abs(tot).gt.1e-8) then
 c     
 c       Compute via direct numerical quadrature.
 c     
         call dftg_quadv0(rtdb,geom, AO_bas_han, 
      &       ipol,
-     &       iga_dens,force,natom) 
+     &       iga_dens, force,natom, oactive, nactive) 
       endif
 
       return

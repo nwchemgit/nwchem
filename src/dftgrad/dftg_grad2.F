@@ -1,7 +1,7 @@
       subroutine dftg_grad2(d_ija,d_kla,frc,g_dens,
      &                 ldim,
      $                 basis,nproc,nat, scr, lscr, buf, lbuf,
-     &                 tol2e )
+     &                 tol2e, oactive, nactive )
 c****
 c**** exchange density matrices removed from call list for DFT
 c**** coulomb-only term.
@@ -15,9 +15,9 @@ c****
 #include "schwarz.fh"
 #include "tcgmsg.fh"
 
-      integer g_dens(2), basis
+      integer g_dens(2), basis, nactive
 
-      logical status, oij, okl,oikjl
+      logical status, oij, okl,oikjl, oactive(nat)
 
       dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4)
       dimension d_ija(ldim,ldim),d_kla(ldim,ldim)
@@ -33,12 +33,23 @@ c****
               ihi4 = iat3
               if ( iat1.eq.iat3 ) ihi4 = iat2
               do 80, iat4 = ihi4, 1, -1
+
                 if ( schwarz_atom(iat1,iat2) * schwarz_atom(iat3,iat4) 
      $               .ge. tol2e ) then
 
               ijatom = ijatom + 1
 C             if (mod(ijatom, nproc) .eq. iproc) then
               if ( next .eq. ijatom ) then
+
+c****           include only terms with at least one active center
+                if ( .not.oactive(iat1) .and. .not.oactive(iat2)
+     &               .and.
+     &               .not.oactive(iat3) .and. .not.oactive(iat4) ) 
+     &               then 
+c                 All centers are inactive; next atom
+                  goto 1010
+                endif 
+
 
                 status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
                 if (.not.status) 
