@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.17 2004-11-08 23:37:42 bylaska Exp $
+* $Id: inner_loop.F,v 1.18 2004-11-11 19:54:56 bylaska Exp $
 *
 
 *  ************************************************************
@@ -44,7 +44,7 @@
 
 
 *     **** local variables ****
-      logical move,sic
+      logical move,sic,hfx
       integer n2ft3d,np
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
@@ -121,6 +121,7 @@ c     real*8     fion(3,natmx)
 
       field_exist = pspw_charge_found().or.pspw_qmmm_found()
       sic        = pspw_SIC()
+      hfx        = pspw_HFX()
       gga = control_gga()
 
       call nwpw_timing_start(12)
@@ -434,7 +435,7 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte,dbl_mb(fweight(1)),
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
-        else if (sic) then
+        else if (sic.or.hfx) then
         call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         else

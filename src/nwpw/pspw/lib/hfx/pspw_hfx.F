@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.7 2004-11-10 23:05:33 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.8 2004-11-11 19:54:57 bylaska Exp $
 *
 
 *     *************************
@@ -547,12 +547,13 @@
 *     *     pspw_potential_HFX_orb   *
 *     *                              *
 *     ********************************
-      subroutine pspw_potential_HFX_orb(ispin0,ne,ms,n,psi_r,Hpsi_r)
+      subroutine pspw_potential_HFX_orb(ms,psi_r,
+     >                                  orb_r,Horb_r)
       implicit none
-      integer    ispin0,ne(2)
-      integer    ms,n
+      integer    ms
       real*8     psi_r(*)
-      real*8     Hpsi_r(*)
+      real*8     orb_r(*)
+      real*8     Horb_r(*)
 
 #include "mafdecls.fh"
 #include "pspw_hfx.fh"
@@ -561,7 +562,7 @@
 *     **** local variables ****
       logical value
       integer i,j,n2ft3d,n1,n2,n3
-      integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
+      integer dn(2),vij(2),tmp1(2),tmp2(2),index2
       real*8  scal1,scal2,dv,eh,ph
 
 *     **** external functions ****
@@ -589,19 +590,12 @@
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
-        if (ms.eq.1) then
-           i = n
-        else
-           i = n-ne(1)
-        end if
         
-        dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
         do j=1,norbs(ms)
-           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
            index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
 
 *          **** generate dnij for Vij  ****
-           call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),dbl_mb(dn(1)))
+           call D3dB_rr_Mul(1,psi_r(index2),orb_r,dbl_mb(dn(1)))
            call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
@@ -634,11 +628,9 @@
            call D3dB_r_SMul(1,hfx_parameter,
      >                      dbl_mb(vij(1)),
      >                      dbl_mb(vij(1)))
-           if (ispin0.eq.1) eh = eh + eh
+           if (ispin.eq.1) eh = eh + eh
            ph = 2.0d0*eh
 
-
-           dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1) - eh
 
 *          **** generate (Vij)*psi_r ***
            call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -647,9 +639,9 @@
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *          **** add -(Vij)*psi_r to Hpsi_r ***
-           call D3dB_rr_Sub(1,Hpsi_r(index1),
+           call D3dB_rr_Sub(1,Horb_r,
      >                        dbl_mb(tmp1(1)),
-     >                        Hpsi_r(index1))
+     >                        Horb_r)
 
         end do
 

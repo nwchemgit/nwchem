@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.14 2004-11-08 01:32:49 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.15 2004-11-11 19:54:57 bylaska Exp $
 *
 
 *     *************************************
@@ -220,30 +220,31 @@
 *   Exit - Hpsi_k - gradient in k-space
 *
 
-      subroutine psi_Horbv4(ispin,ne,
-     >                 ms,n,
-     >                 psi_k,psi_r,
+      subroutine psi_Horbv4(ispin,ms,
+     >                 psi_r,
      >                 vall,
-     >                 Hpsi_k)
+     >                 orb_k,orb_r,
+     >                 Horb_k)
       implicit none
-      integer    ispin,ne(2)
-      integer    ms,n
-      complex*16 psi_k(*)
+      integer    ispin,ms
       real*8     psi_r(*)
       real*8     vall(*)
-      complex*16 Hpsi_k(*)
+      complex*16 orb_k(*)
+      real*8     orb_r(*)
+      complex*16 Horb_k(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
+      logical dohfx
       integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
 
 *     **** tempory space ****
-      integer nfft3d,n2ft3d,npack1,index1,index1r
-      integer vpsi(2)
+      integer nfft3d,n2ft3d,npack1
+      integer vpsi(2),Horb_r(2)
       logical value
 
 
@@ -256,6 +257,7 @@
       external lattice_omega
 
 
+      dohfx = pspw_HFX().and.pspw_HFX_relaxed()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -265,6 +267,11 @@
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (dohfx) then
+         value = value.and.
+     >           MA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
+         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+      end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call nwpw_timing_end(12)
       
@@ -278,19 +285,17 @@
       end if
 *
       scal1 = 1.0d0/dble(nx*ny*nz)
-      index1  = 1+(n-1)*npack1
-      index1r = 1+(n-1)*n2ft3d
 
 
 *     ****************************
 *     **** add kinetic energy ****
 *     ****************************
-      call ke(ispin,nne,psi_k(index1),Hpsi_k(index1))
+      call ke(ispin,nne,orb_k,Horb_k)
 
 *     **************************
 *     **** add non-local psp ***
 *     **************************
-      call v_nonlocal(ispin,nne,psi_k(index1),Hpsi_k(index1),
+      call v_nonlocal(ispin,nne,orb_k,Horb_k,
      >                .false.,fion)
 
 *     **************************
@@ -303,8 +308,11 @@ c     end if
 *     **********************
 *     **** HFX energy   ****
 *     **********************
-      if (pspw_HFX().and.pspw_HFX_relaxed()) then
-         call pspw_potential_HFX_orb(ispin,ne,ms,n,psi_r,Hpsi_k)
+      if (dohfx) then
+         call pspw_potential_HFX_orb(ms,
+     >                               psi_r,
+     >                               orb_r,
+     >                               dbl_mb(Horb_r(1)))
       end if
 
 
@@ -312,21 +320,30 @@ c     end if
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r] **** 
 *     **************************************************       
 
-*      **** vpsi_r = (vall_r)*psi_r ****
+*     **** vpsi_r = (vall_r)*orb_r ****
       call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
-     >                   psi_r(index1r),
+     >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
+
+*     **** vpsi_r = vpsi_r + Horb_r ****
+      if (dohfx)
+     >   call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
+     >                      dbl_mb(Horb_r(1)),
+     >                      dcpl_mb(vpsi(1)))
 
 *     **** get vpsi_r in k-space ****
       call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
       call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
-*     **** add to Hpsi_k ****
+*     **** add to Horb_k ****
       call Pack_cc_daxpy(1,(-scal1),
      >                     dcpl_mb(vpsi(1)),
-     >                     Hpsi_k(index1))
+     >                     Horb_k)
 
       call nwpw_timing_start(12)
+      value = .true.
+      if (dohfx)
+     >  value = value.and.MA_pop_stack(Horb_r(2))
       value = MA_pop_stack(vpsi(2))
       call nwpw_timing_end(12)
 

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.34 2004-11-08 23:37:42 bylaska Exp $
+* $Id: electron.F,v 1.35 2004-11-11 19:54:57 bylaska Exp $
 *
 
 
@@ -1192,7 +1192,7 @@ c    >                     hmlt(shift+1))
 
 
 *     **** local variables ****
-      integer ms
+      integer ms,index1,index1r
 
 *     **** external functions ****
       integer  control_version
@@ -1204,21 +1204,27 @@ c    >                     hmlt(shift+1))
       else
         ms=2
       end if 
+      index1  = (n-1)*nfft3d  
+      index1r = 2*index1
 
 *     ******************
 *     **** get Hpsi ****
 *     ******************
       if (control_version().eq.3)
-     >  call psi_Horb(ispin,ne,ms,n,psi_k,
+     >  call psi_Horb(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             dcpl_mb(Hpsi_k(1)))
+     >             psi_k(index1+1),
+     >             dbl_mb(  psi_r(1)+index1r),
+     >             dcpl_mb(Hpsi_k(1)+index1))
 
       if (control_version().eq.4)
-     >  call psi_Horbv4(ispin,ne,ms,n,psi_k,
+     >  call psi_Horbv4(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             dcpl_mb(Hpsi_k(1)))
+     >             psi_k(index1+1),
+     >             dbl_mb(  psi_r(1)+index1r),
+     >             dcpl_mb(Hpsi_k(1)+index1))
 
       call Pack_c_SMul(1,(-1.0d0),
      >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
@@ -1235,31 +1241,24 @@ c    >                     hmlt(shift+1))
 
       subroutine electron_get_gradient_virtual(ms,orb,Horb)
       implicit none
-#include "errquit.fh"
       integer    ms
       complex*16 orb(*)
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
       logical value
-      integer nne(2),n2ft3d
+      integer n2ft3d
       integer tmp_r(2)
 
 *     **** external functions ****
       integer  control_version
       external control_version
 
-      if (ms.eq.1) then
-        nne(1) = 1
-        nne(2) = 0
-      else
-        nne(1) = 0
-        nne(2) = 1
-      end if 
 
       n2ft3d = 2*nfft3d
 
@@ -1276,15 +1275,19 @@ c    >                     hmlt(shift+1))
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb(ispin,nne,ms,1,orb,
-     >             dbl_mb(tmp_r(1)),
+     >  call psi_Horb(ispin,ms,
+     >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
+     >             orb,
+     >             dbl_mb(tmp_r(1)),
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4(ispin,nne,ms,1,orb,
-     >             dbl_mb(tmp_r(1)),
+     >  call psi_Horbv4(ispin,ms,
+     >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
+     >             orb,
+     >             dbl_mb(tmp_r(1)),
      >             Horb)
 
       call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
@@ -1296,8 +1299,6 @@ c    >                     hmlt(shift+1))
 
       return
       end
-
-
 
 
 
