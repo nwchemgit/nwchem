@@ -19,7 +19,7 @@ c
       subroutine detci_vatable( norb, nel, nsym, osym,
      $                          vtxtab, arctab )
 *
-* $Id: detci_aux.F,v 1.14 2000-10-23 15:52:24 windus Exp $
+* $Id: detci_aux.F,v 1.15 2000-11-14 21:56:57 edo Exp $
 *
       implicit none
 #include "detciP.fh"
@@ -991,7 +991,8 @@ c
 c  String index range for some irrep
 c
       subroutine detci_symstrr( norb, nsym, nel, nstr, atab,
-     $                          ksym, slo, shi )
+     $                          ksym, slo, shi ,
+     .     mxcnt, kci,domxcnt,oscreen)
       implicit none
 #include "detciP.fh"
 #include "detci.fh"
@@ -1002,6 +1003,10 @@ c
       integer atab(norb,nel,nsym)
       integer ksym
       integer slo, shi
+      logical domxcnt,oscreen
+      double precision kci(*)
+      double precision mxcnt
+      integer jstr
 c
 c  slo > shi is possible for no orbital of symmetry ksym
 c
@@ -1014,6 +1019,13 @@ c
         else
           shi = atab(1,1,ksym+1)
         endif
+      endif
+      
+      if(domxcnt) then
+         do jstr=slo,shi
+            mxcnt = max(mxcnt,abs(kci(jstr)))
+            if (oscreen) kci(jstr) = 0.d0
+         enddo
       endif
       
       return
@@ -1369,18 +1381,20 @@ c
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       do asym=1,nsym
         call detci_symstrr( norb, nsym, nela, nstra, ataba, asym,
-     $                      alo, ahi )
+     $                      alo, ahi ,
+     ,        mxcnt, dbl_mb(k_ci), .false.,oscreen)
         do istr=alo,ahi
           if ((istr.ge.cilo).and.(istr.le.cihi)) then
             call ga_access( g_civec, rlo, rhi, istr, istr, k_ci, ldc )
             do bsym=1,nsym
               if (MULX(asym,bsym).ne.ksym) then
                 call detci_symstrr( norb, nsym, nelb, nstrb, atabb,
-     $                              bsym, blo, bhi )
-                do jstr=blo,bhi
-                  mxcnt = max(mxcnt,abs(dbl_mb(k_ci+jstr-1)))
-                  if (oscreen) dbl_mb(k_ci+jstr-1) = 0.d0
-                enddo
+     $                              bsym, blo, bhi ,
+     ,        mxcnt, dbl_mb(k_ci), .true., oscreen)
+!                do jstr=blo,bhi
+!                  mxcnt = max(mxcnt,abs(dbl_mb(k_ci+jstr-1)))
+!                  if (oscreen) dbl_mb(k_ci+jstr-1) = 0.d0
+!                enddo
               endif
             enddo
             call ga_release( g_civec, rlo, rhi, istr, istr )
