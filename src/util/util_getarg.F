@@ -1,5 +1,5 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.6 2000-11-14 19:03:37 edo Exp $
+* $Id: util_getarg.F,v 1.7 2003-08-13 22:15:38 edo Exp $
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.
@@ -16,7 +16,7 @@
 #endif
 #endif
 #if defined(CRAY)
-      integer length,ierror
+      integer*4 length,ierror
 #endif
 #if defined(HPUX)
 C

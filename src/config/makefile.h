@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.417 2003-07-29 15:18:41 edo Exp $
+# $Id: makefile.h,v 1.418 2003-08-13 22:13:32 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -480,7 +480,7 @@ ifeq ($(TARGET),CRAY-T3D)
             LDOPTIONS = -s -Drdahead=on -L$(LIBDIR) 
 
 # Compilation also depends on compilers defining CRAY
-              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
+              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG -DUSE_FCD
 
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDFLAGS)
@@ -516,7 +516,7 @@ ifeq ($(TARGET),CRAY-T3E)
 #            LDOPTIONS = -g -Xm  -lmfastv
             LDOPTIONS = -Wl"-s" -Xm  -lmfastv
 
-              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG
+              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DPARALLEL_DIAG -DUSE_FCD
 
                LINK.f = f90 $(LDFLAGS)
 
@@ -1548,6 +1548,34 @@ ifeq ($(TARGET),FUJITSU_VPP64)
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
        EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
 #end of FUJITSU_VPP64
+endif
+
+ifeq ($(TARGET),cray-sv2)
+#
+# Cray sv2 aka x1
+#
+
+         FC = ftn
+#      CPP = /lib/cpp -P -C
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+                        
+    DEFINES =  -DEXT_INT  -DUSE_POSIXF #add x1 specific define? -D__crayx1
+     CORE_SUBDIRS_EXTRA = blas lapack
+
+    FOPTIONS =  -F -s integer64
+#  FOPTIMIZE =  -O vector3,msgs,negmsgs -rm 
+  FOPTIMIZE =  -O vector3
+  COPTIMIZE = -O -h inline2 
+
+
+#       EXTRA_LIBS = -lsci64 -llapack  -lblas  # need make dbl_to_sngl for this
+       EXTRA_LIBS =  -llapack  -lblas 
+
+#      EXPLICITF     = TRUE
+      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+#end of sv2
 endif
 
 

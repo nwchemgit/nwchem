@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.11 2003-08-13 21:17:54 edo Exp $
+C     $Id: get_inp_file.F,v 1.12 2003-08-13 22:15:38 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -22,9 +22,10 @@ c
 #endif
       integer l
 #ifdef USE_POSIXF
-      integer ipxfargc
+      integer*4 ipxfargc
       external ipxfargc
       nargs =ipxfargc() 
+      write(0,*) ' narg ',nargs
 #else
 #if defined(EXT_INT) && !defined(HPUX64)
       integer*4 iargc
