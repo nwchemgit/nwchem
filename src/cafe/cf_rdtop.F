@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.34 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.35 2005-01-08 20:27:06 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -321,7 +321,7 @@ c
 c     initialize on nodes other than 0
 c
       if(me.ne.0) then
-      call cf_inita(natyps,4,nqtyps,4,nparms)
+      call cf_inita(natyps,4,nqtyps,4)
       call cf_initb(1,1,nbw,2,nhw,nhp,ndw,3,now,3,ntw,2,nnw,2,naw)
       call cf_initb(2,nas,nbt,2,nhs,nhp,nds,3,nos,3,nts,2,nxs,2,0)
       endif
