@@ -43,7 +43,7 @@ C
       Integer NMO(MaxSpin), I, Me
       Integer H_Eval, Eval_Idx, H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
-      Character*(80) Title, SCFBasNam, FNVec, FNInt, String
+      Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
       Logical Status
 C
       Status = .TRUE.
@@ -145,7 +145,7 @@ C
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
-      Call RIMP2_Get_Param( RTDB, Thresh, NILimit)
+      Call RIMP2_Get_Param( RTDB, Thresh, NILimit, Approx)
 C
 C     *************************************
 C     * Integral transformation (to disk) *
@@ -154,7 +154,8 @@ C
 c$$$      Write (LuOut, *) 'About to call transformation'
       Status = Status .AND.
      $   RIMP2_XF_Driver( Geom, AOBas, FitBas, Dbl_MB(EVal_Idx), NAOBF,
-     $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh)
+     $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh,
+     $   Approx)
 C
 C     Shift ranges of virtual and occupieds into the _number_ of each
 C
