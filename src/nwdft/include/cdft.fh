@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.58 2003-01-30 01:15:02 bert Exp $
+C$Id: cdft.fh,v 1.59 2003-04-10 17:50:07 sohirata Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -19,12 +19,12 @@ c
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac, xfac, tol_rho, radius, rm, hl_tol,
-     &     e_conv, d_conv, g_conv,delta_ac
+     &     e_conv, d_conv, g_conv, delta_ac
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
-     &     oadapt, lssw, lkeeps,trunc_neigh, cosmo_on
+     &     oadapt, lssw, lkeeps,trunc_neigh, cosmo_on, lb94, cs00
       integer
      &     iAOacc, iCDacc, iXCacc, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -55,7 +55,7 @@ c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(numfunc), xfac(numfunc),
      &     tol_rho, radius, rm, hl_tol, e_conv, d_conv, g_conv,
-     .     delta_ac,
+     &     delta_ac,
 c
 c     Logicals
 c
@@ -64,6 +64,7 @@ c
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
      &     direct, oskel, oadapt, lssw, lkeeps,trunc_neigh, cosmo_on,
+     &     lb94, cs00,
 c
 c     Integers
 c
