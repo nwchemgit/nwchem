@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.91 1997-11-14 06:24:40 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.92 1997-11-15 04:44:34 d3h449 Exp $
 c     
       implicit none
 c
@@ -67,6 +67,9 @@ c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr, max_component, max_elem_ang_scr
+      double precision start_wall, current_wall, elapsed_wall,
+     &                 save_wall, current_cpu, start_cpu,
+     &                 wall_time_reqd
       double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
@@ -95,6 +98,11 @@ c
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
+      integer ilo, ihi          ! For printing movecs analysis
+      double precision eval_pr_tol_lo, eval_pr_tol_hi
+      parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
+C
+c
 c     early convergence tolerances
 c
       parameter(itol_min = 6, iAOacc_min = 15)
@@ -103,7 +111,7 @@ c
       external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
-      logical last_time, last_time_vecs, last_time_energy
+      logical last_time_energy
       logical check_shift
       character*7 name
       character*4 scftype
@@ -509,19 +517,20 @@ c
 c     Write prep time required
 c
       if (me.eq.0.and.oprint)then
-         write(LuOut,20)util_cpusec()
+         current_cpu = util_cpusec()
+         write(LuOut,20)current_cpu
    20    format(2x,' Time prior to 1st pass: ',f8.1)
       endif
 c     
 c     start DFT_SCF timer
 c     
-      dft_time = -util_cpusec()
+      start_wall = util_wallsec()
+      start_cpu = util_cpusec()
+      dft_time = -start_cpu
 c
       if (oprint_time)
      &     call dft_tstamp('   Before SCF iter loop. ')
 c
-      last_time = .false.
-      last_time_vecs = .false.
       last_time_energy = .false.
 c
  1000 continue
@@ -908,16 +917,17 @@ c
      &     'RMS-Dens  Diis-err    time'/
      &     1x,'---------------- ----- ----------------- --------- ',
      &     '--------- ---------  ------')
-      if (.not.last_time.and.oprint_conv.and.me.eq.0)then
+      if (oprint_conv.and.me.eq.0)then
+         current_cpu = util_cpusec()
          if (diising)then
             write(LuOut,2)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           -etold+etnew,sqrt(rms(1)),derr(1),util_cpusec()
+     &           -etold+etnew,sqrt(rms(1)),derr(1),current_cpu
             if (ipol.eq.2)write(LuOut,3)sqrt(rms(2)),derr(2)
          else
             write(LuOut,22)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           -etold+etnew,sqrt(rms(1)), util_cpusec()
+     &           -etold+etnew,sqrt(rms(1)), current_cpu
             if (ipol.eq.2)write(LuOut,23)sqrt(rms(2))
          endif
          call util_flush(LuOut)
@@ -1003,10 +1013,10 @@ c
 c     Check for SCF convergence.
 c     
       call ga_sync
-      if (.not.last_time)call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
-     &                                   e_conv, d_conv, g_conv, ipol, 
-     &                                   iter, iterations, idone, rtdb,
-     &                                   converged, diising)
+      call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
+     &                e_conv, d_conv, g_conv, ipol, 
+     &                iter, iterations, idone, rtdb,
+     &                converged, diising)
       if (delta.lt.1.d-4)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
@@ -1017,7 +1027,7 @@ c
          iswitc = iswitc+1
       endif
 c     
-      if (.not.last_time)iter = iter + 1
+      iter = iter + 1
 c     
 c     Check convergence parameters.
 c     
@@ -1087,36 +1097,53 @@ c     &        /,10x,'turned ON.  Turning max_ovl OFF.')
 c      endif
 c     
       if (oprint_energy_step.and.me.eq.0)then         
+         current_cpu = util_cpusec()
          if (nexc.le.1)then
             write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
-     &                      rho_n, util_cpusec()
+     &                      rho_n, current_cpu
          else
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     &                      enuc, rho_n, util_cpusec()
+     &                      enuc, rho_n, current_cpu
          endif
       endif
-c     
+c
+c     Check for remaining time to exit "gracefully"
+c
+      current_wall = util_wallsec()
+      if ((iter-1).gt.1)then
+         elapsed_wall = current_wall - save_wall
+         save_wall = current_wall
+      else
+         elapsed_wall = current_wall - start_wall
+         save_wall = current_wall
+      endif
+c
+      if (converged)then
+c
+c        If converged probably need a few seconds to clean things up 
+c        and calculate a few properties.
+c
+         wall_time_reqd = 5.0
+      else
+c
+c        If not converged probably need at least the amount time
+c        required for previous iteration (multiply by 1.2 to be on the safe side).
+c
+         wall_time_reqd = elapsed_wall*1.2d0
+      endif
+      if (.not.util_test_time_remaining(rtdb, wall_time_reqd))then
+         if (me.eq.0)then
+            write(LuOut,*)
+            call util_print_centered(LuOut,
+     &           'Exiting due to time limitations.', 20, .true.)
+            write(LuOut,*)
+            goto 2000
+         endif
+      endif
       if (idone.eq.0.or.(iswitc.lt.2.and.iter.lt.iterations))
      &   go to 1000 ! begin new iteration
-      if (idone.eq.1.and.(.not.last_time_vecs))then
-         last_time_vecs = .true.
-         last_time = .true.
-         if (me.eq.0 .and. oprint_conv)write(LuOut,225)
- 225     format(/,10x,'Done. Constructing final Fock matrix, orbitals',
-     &        ' and orbital energies.',/)
-         diising = .false.
-c         levelshifting = .false.
-         damping = .false.
-         go to 1000             ! build final orbitals/energies
-      endif
       if (idone.eq.1.and.(.not.last_time_energy))then
          last_time_energy = .true.
-         last_time = .true.
-         if (me.eq.0 .and. oprint_conv)write(LuOut,226)
- 226     format(/,10x,'      Constructing final total energies.',/)
-         diising = .false.
-c         levelshifting = .false.
-         damping = .false.
          go to 1000             ! build final total energies
       endif
 c     
@@ -1161,11 +1188,40 @@ c     symmetry adapt vectors last time print symmetries, etc.
 c
       if (oadapt)then
          call scf_movecs_sym_adapt(ao_bas_han, g_movecs, oprint, 
-     &                             nbf_ao, '- alpha', .false., 1)
+     &                             nbf_ao, '- alpha', .true., 
+     &                             int_mb(k_ir))
          if (ipol.eq.2)
      &      call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), oprint, 
-     &                                nbf_ao, '- beta', .false., 1)
+     &                                nbf_ao, '- beta', .true., 
+     &                                int_mb(k_ir+nbf_ao))
       endif      
+c
+c     Vector analysis stolen from rohf.F
+c
+      do ispin = 1, ipol
+         if (util_print('final vectors analysis', print_default)) then
+            do ilo = 1,max(1,nclosed-10)
+               if (dbl_mb(k_eval(ispin)+ilo-1) .ge. eval_pr_tol_lo) 
+     &            goto 961
+            enddo
+ 961        do ihi = min(nclosed+nopen+10,nbf_ao), nbf_ao
+               if (dbl_mb(k_eval(ispin)+ihi-1) .ge. eval_pr_tol_hi) 
+     &            goto 9611
+            enddo
+            ihi = max(ihi-1,1)
+ 9611       continue
+            if (util_print('final vectors analysis', print_high)) then
+               ilo = 1
+               ihi = nbf_ao
+            endif
+            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+     &           g_movecs(ispin), 
+     &           'DFT Final Molecular Orbital Analysis', 
+     &           .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &           int_mb(k_ir+(ispin-1)*nbf_ao),
+     &           .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+         endif
+      enddo
 c     
 c     call to Mulliken Pop Ananlysis
 c     
@@ -1260,7 +1316,7 @@ c
       endif
 c     
       if (me .eq. 0)then
-         if (util_print('final evals', print_default))then
+         if (util_print('final evals', print_high))then
             call util_print_centered(LuOut,'Final alpha eigenvalues',
      &           20,.false.)
             call util_print_centered(LuOut,

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.51 1997-11-14 06:24:07 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.52 1997-11-15 04:44:01 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -584,7 +584,6 @@ c
      &   call errquit('rdinput: basis set error:', 86)
       if (.not. bas_high_angular(AO_bas_han,nbf_ao_mxang))
      &   call errquit('rdinput: basis set error:', 86)
-      nbf_ao_mxang=((nbf_ao_mxang+2)*(nbf_ao_mxang+1))/2
       if (.not. bas_ncontr_cn_max(AO_bas_han,nbf_ao_mxcont))
      &   call errquit('rdinput: basis set error:', 86)
       if (.not. bas_nbf_cn_max(AO_bas_han,nbf_ao_mxnbf_cn))
@@ -608,7 +607,6 @@ c
      &      call errquit('rdinput: basis set error:', 86)
          if (.not. bas_high_angular(CD_bas_han,nbf_cd_mxang))
      &      call errquit('rdinput: basis set error:', 86)
-         nbf_cd_mxang=((nbf_cd_mxang+2)*(nbf_cd_mxang+1))/2
          if (.not. bas_ncontr_cn_max(CD_bas_han,nbf_cd_mxcont))
      &      call errquit('rdinput: basis set error:', 86)
          if (.not. bas_nbf_cn_max(CD_bas_han,nbf_cd_mxnbf_cn))
@@ -644,7 +642,6 @@ c
      &      call errquit('rdinput: basis set error:', 86)
          if (.not. bas_high_angular(XC_bas_han,nbf_xc_mxang))
      &      call errquit('rdinput: basis set error:', 86)
-         nbf_xc_mxang=((nbf_xc_mxang+2)*(nbf_xc_mxang+1))/2
          if (.not. bas_ncontr_cn_max(XC_bas_han,nbf_xc_mxcont))
      &      call errquit('rdinput: basis set error:', 86)
          if (.not. bas_nbf_cn_max(XC_bas_han,nbf_xc_mxnbf_cn))
