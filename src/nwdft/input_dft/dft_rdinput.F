@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.79 2000-06-09 02:49:51 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.80 2000-07-08 06:30:44 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -757,8 +757,10 @@ c
          if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, whichssw))
      &        call errquit('dftrdi: rtdb_cput failed', 1720)
       else
+         if(lssw) then
          if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichssw))
      &        call errquit('dftrdi: rtdb_cget failed', 1700)
+         endif
       endif
 c
 c     new schem on file on by default

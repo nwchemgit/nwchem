@@ -80,6 +80,9 @@ c
   200 lbecke = .true.
       if (.not. rtdb_put(rtdb, 'dft:becke', mt_log, 1, lbecke))
      &   call errquit('grid_inp: rtdb_put failed', 200)
+      lssw=.false.
+      if (.not. rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw))
+     &   call errquit('grid_inp: rtdb_put failed', 1700)
 c
       goto 10
 
