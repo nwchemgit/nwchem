@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.46 1995-11-03 20:44:06 d3g681 Exp $
+# $Id: GNUmakefile,v 1.47 1995-11-16 20:38:53 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -65,11 +65,9 @@ version:	../config/nwchem_config.h
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-ga_iter_project.o:	cproject.fh
 
-file_prefix.o:	cfileprefix.fh
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-circus.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 error.o :	 $(INCDIR)/errorP.h 
 file_prefix.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh cfileprefix.fh 
 fortchar.o :	 $(INCDIR)/sndrcv.h 

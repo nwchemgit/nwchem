@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.23 1995-11-01 17:33:49 d3e129 Exp $
+# $Id: GNUmakefile,v 1.24 1995-11-16 20:38:03 d3g681 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
@@ -20,13 +20,17 @@ fix:
 
 nocan:
 	rm -f api/cando_sp.o
+
 nolib:
 	rm -i $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/$(LIBRARY)
+
 tasks tasks.ps:	tasks.tex
 	latex tasks
 	latex tasks
 	dvips tasks -o
 	rm -f tasks.aux tasks.dvi tasks.log
+
 view tasks.v:	tasks.ps
 	ghostview tasks.ps
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

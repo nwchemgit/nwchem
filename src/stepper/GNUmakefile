@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1995-10-17 08:56:17 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1995-11-16 20:38:52 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -27,18 +27,6 @@
 
 include ../config/makefile.h
 include ../config/makelib.h
-
-stpr_cheker.F:	chow.fh
-stpr_driver.F:	chow.fh
-stpr_hesupd.F:	chow.fh
-stpr_inihes.F:	chow.fh
-stpr_face.F:	chow.fh
-stpr_mkstep.F:	chow.fh
-stpr_partit.F:	chow.fh
-stpr_save.F:	chow.fh
-stpr_sumstc.F:	chow.fh
-
-
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

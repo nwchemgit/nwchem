@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.31 1995-10-29 00:29:44 og845 Exp $
+#$Id: GNUmakefile,v 1.32 1995-11-16 20:38:38 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -69,6 +69,7 @@ endif
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 bas_ncontr_cn_max.o :	 $(INCDIR)/bas.fh 
 dft_eval_basis.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
@@ -85,7 +86,6 @@ ga_chol_seq.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(IN
 ga_inv_seq.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 ga_inverse.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 gacrea.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-gat_lab_can.o :	 $(INCDIR)/bas.fh 
 int_eval_gbsets.o :	 $(INCDIR)/bas.fh 
 nbf_to_mbf.o :	 $(INCDIR)/bas.fh 
 new_eval_gbsets.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.10 1995-11-13 06:44:57 d3g681 Exp $
+#$Id: GNUmakefile,v 1.11 1995-11-16 20:38:24 d3g681 Exp $
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain
@@ -22,9 +22,9 @@ include_stamp sngl_to_dbl dbl_to_sngl:
 # up the include files if there's a serious cleanup.
 
 clean:
-
+	
 cleanF:
-
+	
 depend:
 	
 

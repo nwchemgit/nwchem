@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.12 1995-11-15 02:55:44 og845 Exp $
+# $Id: GNUmakefile,v 1.13 1995-11-16 20:38:23 d3g681 Exp $
 
 ifeq ($(NWCHEM_TARGET),SGITFP)
-            OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
-			grad_dens.o grad2.o
+     OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
+           grad_dens.o grad2.o
 else
-            OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
-			grad_dens.o 
+     OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
+           grad_dens.o 
    OBJ_OPTIMIZE = grad2.o
 endif
 
@@ -15,6 +15,7 @@ endif
 
 include ../config/makefile.h
 include ../config/makelib.h
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 grad1.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 grad2.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 

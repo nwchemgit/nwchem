@@ -1,7 +1,6 @@
-#$Id: GNUmakefile,v 1.10 1995-10-17 08:53:20 d3g681 Exp $
+#$Id: GNUmakefile,v 1.11 1995-11-16 20:38:20 d3g681 Exp $
 
  LIBRARY = libutil.a
-#LIBRARY = libgeom.a
      OBJ = geom.o geom_input.o geom_3d.o geom_num_core.o
  HEADERS = geom.fh geomP.fh
 
@@ -9,8 +8,6 @@
 
 include ../config/makefile.h
 include ../config/makelib.h
-
-geom_input.o geom.o geom_3d.o:	geomP.fh
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

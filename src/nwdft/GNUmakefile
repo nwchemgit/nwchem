@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.13 1995-10-25 20:35:35 og845 Exp $
+#$Id: GNUmakefile,v 1.14 1995-11-16 20:38:33 d3g681 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
@@ -18,18 +18,12 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 #
-# add any include dependencies here...
-# e.g. ...
-# rhf.o:		schwarz.fh
-#
 
 nwdft.o:  \
       include/timer.fh   \
       include/quad.fh  \
       include/cdft.fh  \
       include/dimensions.fh  
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-bas.fh :	 $(INCDIR)/context.fh 
-geom.fh :	 $(INCDIR)/global.fh 
-mafdecls.fh :	 $(INCDIR)/rtdb.fh 
-stdio.fh :	 $(INCDIR)/tcgmsg.fh 
+nwdft.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/cdft.fh $(INCDIR)/bas.fh 

@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.126 1995-11-13 06:39:53 d3g681 Exp $
+# $Id: makefile.h,v 1.127 1995-11-16 20:38:13 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -363,7 +363,7 @@ ifeq ($(TARGET),SGITFP)
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
-  MAKEFLAGS = -j 4 --no-print-directory
+  MAKEFLAGS = -j 12 --no-print-directory
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 

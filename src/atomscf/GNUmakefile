@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1995-10-17 08:52:41 d3g681 Exp $
+# $Id: GNUmakefile,v 1.8 1995-11-16 20:38:06 d3g681 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -38,7 +38,6 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
-$(OBJ):	cguess.fh
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 atomd.o :	 $(INCDIR)/inp.fh cguess.fh 
 creded.o :	 $(INCDIR)/global.fh cguess.fh 

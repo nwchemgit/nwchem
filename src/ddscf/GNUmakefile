@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.47 1995-11-15 01:01:11 d3g681 Exp $
+# $Id: GNUmakefile,v 1.48 1995-11-16 20:38:16 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -35,9 +35,6 @@
         uhf.o                   fock_2e_report.o fock_2e_task.o \
         print_integ_list.o \
         do_ri.o rohf_lagr.o 
-
-
-
 
 
 # rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP

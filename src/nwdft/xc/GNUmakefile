@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1995-11-03 00:08:00 og845 Exp $
+# $Id: GNUmakefile,v 1.24 1995-11-16 20:38:39 d3g681 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb_list.o
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -34,12 +34,14 @@ include ../../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+a_dist.o :	 $(INCDIR)/quad.fh 
 qpts.o :	 $(INCDIR)/quad.fh 
 xc_beckew.o :	 $(INCDIR)/bas_staticP.fh 
 xc_fitv.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 xc_get2oi.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 xc_getv.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 xc_lebedev.o :	 $(INCDIR)/stdio.fh $(INCDIR)/quad.fh 
+xc_neighb_list.o :	 $(INCDIR)/quad.fh 
 xc_quadv0.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 xc_quadv0_a.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/quad.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 xc_quadv1.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 

@@ -1,8 +1,7 @@
-# $Id: GNUmakefile,v 1.9 1995-10-17 08:56:06 d3g681 Exp $
+# $Id: GNUmakefile,v 1.10 1995-11-16 20:38:50 d3g681 Exp $
 
 include ../config/makefile.h
 
-#        LIBRARY = librtdb.a
          LIBRARY = libutil.a
 
              OBJ = rtdb_f2c.o rtdb.o rtdb_seq.o \
@@ -49,10 +48,6 @@ rtdbtest:	rtdbtest.o $(LIBRARY_PATH)
 rtdbpartest:	rtdb_par_test.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ rtdb_par_test.o $(TEST_LIBS)
 
-rtdb.o rtdbf2c.o rtdbtest.o:	misc.h
-rtdb.o rtdbf2c.o rtdbtest.o:	rtdb.h
-test.o:	rtdb.fh
-
 context:	context.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ context.o $(TEST_LIBS)
 
@@ -66,6 +61,5 @@ rtdb.o :	 $(INCDIR)/sndrcv.h rtdb.h $(INCDIR)/macdecls.h
 rtdb.save.o :	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h 
 rtdb_f2c.o :	 rtdb.h $(INCDIR)/macdecls.h 
 rtdb_seq.o :	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h $(INCDIR)/hdbm.h 
-rtdb_seq.save.o :	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h 
 rtdbtest.o :	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h 
 test.o :	 rtdb.fh $(INCDIR)/mafdecls.fh 

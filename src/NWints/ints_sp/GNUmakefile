@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1995-10-17 08:52:38 d3g681 Exp $
+# $Id: GNUmakefile,v 1.8 1995-11-16 20:38:04 d3g681 Exp $
 
 
       OBJ_OPTIMIZE = genr70.o init70.o qout70.o \
@@ -16,6 +16,8 @@ include ../../config/makelib.h
 
 $(OBJ):	auxvar.fh geom.fh maxc.fh  pgeom.fh qgeom.fh \
 	const.fh  ginf.fh miscg.fh picon.fh shllfo.fh
+
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 genr70.o :	 shllfo.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 init70.o :	 picon.fh maxc.fh auxvar.fh 
