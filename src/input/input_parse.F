@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.50 1999-06-23 16:30:24 mdupuis Exp $
+C     $Id: input_parse.F,v 1.51 1999-07-26 18:44:53 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -154,8 +154,7 @@ c
             else if (inp_compare(.false.,test,'ecce_print')) then
                continue         ! Already digested by input_file_info
             else
-               write(6,*) ' Skipping unknown directive '
-               call inp_outrec()
+               call errquit('input_parse: unknown directive',0)
             endif
 c
             goto 10 
