@@ -1,4 +1,4 @@
-c $Id: int_l2e2c.F,v 1.10 1997-05-29 23:43:04 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.11 1997-06-16 18:43:11 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -60,22 +60,6 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       if (.not.shells_ok)
      &       call errquit('int_l2e2c: invalid contraction/shell',0)
-c
-c   check canonicalizations of input shells for canket
-c      
-      if (brain.eq.ketin) then
-        shells_ok = ish.ge.jsh
-      else
-        shells_ok = .true.
-      endif
-      if (.not.shells_ok) then
-        write(6,*)'int_2e2c: shells not canonical on input '
-        write(6,*)'bra basis set handle:',brain
-        write(6,*)'ket basis set handle:',ketin
-        write(6,*)'                 ish:',ish
-        write(6,*)'                 jsh:',jsh
-        call errquit('int_l2e2c: shells not in canonical order',0)
-      endif
 c
 c  check if spherical
 c
