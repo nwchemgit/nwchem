@@ -1,5 +1,5 @@
       subroutine guess_dens(geom, basis, g_dens)
-C$Id: denat.F,v 1.7 1995-02-02 23:08:54 d3g681 Exp $
+C$Id: denat.F,v 1.8 1995-10-10 06:06:31 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -42,7 +42,7 @@ c
      $     (oprint_dens .or. oprint_scf .or. oprint_ener)) then
          write(6,*)
          call util_print_centered(6,
-     $        'Superposition of Atomic Density Guess', 20, .true.)
+     $        'Superposition of Atomic Density Guess', 23, .true.)
          write(6,*)
       endif
 c..
