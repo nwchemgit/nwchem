@@ -3,10 +3,7 @@
 
 typedef long integer;		/* FORTRAN integer type */
 
-#if defined(SPEECH)
-#define SPEAK
-#endif
-#ifdef SPEAK
+#ifdef SPEECH
 extern int udp_send(const char *hostname, int port, const char *buf, int);
 
 static char *hostname;		/* Speech server hostname */
@@ -18,7 +15,7 @@ void util_speak_init(const char *host, const int p)
   Get info to connect to remote speech server
   */
 {
-#ifdef SPEAK
+#ifdef SPEECH
     if (hostname) free(hostname); /* In case of multiple inits */
     if (!(hostname = strdup(host)))
 	return;
@@ -34,7 +31,7 @@ void util_speak(const char *string)
   String is a null terminated character string
   */
 {
-#ifdef SPEAK
+#ifdef SPEECH
     if (!hostname) return;	/* Not initialized */
 
     (void) udp_send(hostname, port, string, strlen(string));
@@ -43,7 +40,7 @@ void util_speak(const char *string)
 
 void util_speak_(const char *string, int len)
 {
-#ifdef SPEAK
+#ifdef SPEECH
     char buf[256];
 
     if (!fortchar_to_string(string, len, buf, sizeof(buf)))
@@ -55,7 +52,7 @@ void util_speak_(const char *string, int len)
 
 void util_speak_init_(const char *host, integer *fp, int len)
 {
-#ifdef SPEAK
+#ifdef SPEECH
     char buf[256];
     int p = (int) *fp;
 
