@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.14 2000-01-10 21:40:34 edo Exp $
+c$Id: grid_setrad.F,v 1.15 2000-01-12 23:10:09 edo Exp $
 c
       implicit none
 c      
@@ -76,7 +76,7 @@ c
       if(llind) then
          if (.not.MA_Push_Get(mt_int,ntypes,'l+l',l_2l,k_2l))
      &        call errquit('grid_setrad: cannot allocate 2l',0)
-         if (.not.MA_Push_Get(MT_Dbl,ntypes,'l+l',l_2ex,k_2ex))
+         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2ex,k_2ex))
      &        call errquit('grid_setrad: cannot allocate 2e',0)
       else
          k_2l=0
