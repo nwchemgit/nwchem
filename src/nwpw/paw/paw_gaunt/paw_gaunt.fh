@@ -1,0 +1,9 @@
+c
+c $Id: paw_gaunt.fh,v 1.1 2003-02-20 00:48:48 marat Exp $
+c
+c $Log: not supported by cvs2svn $
+c
+
+      double precision gen_gaunt_coeff
+      external gen_gaunt_coeff
+
