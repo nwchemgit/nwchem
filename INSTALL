@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.53 2003-03-26 01:58:52 edo Exp $
+$Id: INSTALL,v 1.54 2003-04-02 01:03:48 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -134,35 +134,34 @@ BASIC BUILD INSTRUCTIONS:
    NWCHEM_TARGET  Platform        OS/Version    compilers    LARGE_FILES
    ----------------------------------------------------------------------
    SOLARIS        Sun             Solaris 2.X                     y
-   SOLARIS64      Sun             Solaris 2.X                     -
+   SOLARIS64      Sun             Solaris 2.X    Sun,Fujitsu      y
    				 		   
    IBM            IBM RS/6000     AIX 4.X                         y
-   IBM64          IBM RS/6000     AIX 4.X                         -
+   IBM64          IBM RS/6000     AIX 4.X                         y
    				 		   
-   DECOSF         DEC AXP         Tru64 4.0-5.0                   -
+   DECOSF         DEC AXP         Tru64 4.0-5.0                   y
    				 		   
    SGI_N32        SGI 64 bit os   IRIX 6.5        
                   using 32 ints 		   
-   SGITFP         SGI 64 bit os   IRIX 6.5       
+   SGITFP         SGI 64 bit os   IRIX 6.5                        y
    				 		   
    CRAY-T3D       Cray T3D        UNICOS         
    CRAY-T3E       Cray T3E        UNICOS         
    				 		   
    LAPI           IBM SP          AIX/LAPI                        y
-   LAPI64         IBM SP          AIX/LAPI                        -
+   LAPI64         IBM SP          AIX/LAPI                        y
    				 		   
-   LINUX          x86             RH,MDK          GNU,Intel*,PGI  y
+   LINUX          x86             RH,MDK          GNU,Intel,PGI   y
                   ppc             RH6.0,YD2.1     GNU
-   LINUX64        Alpha           RedHat 6.2      Compaq          -
-                  ia64            RedHat 7.2      Intel           -
+   LINUX64        Alpha           RedHat 6.2      Compaq          y
+                  ia64            RedHat 7.2      Intel           y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
-   HPUX64         hppa            HPUX 11.0                       -
-                  ia64            HPUX 11.0                       -
+   HPUX64         hppa            HPUX 11.0                       y
+                  ia64            HPUX 11.0                       y
    				 		   
    WIN32          Intel x86       Windows98/NT    Compaq 
    ----------------------------------------------------------------------
-   *Note: For Pentium IV, make FC=ifc _CPU=i786 to get optimized code (25% gain)
 
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
@@ -225,7 +224,6 @@ BASIC BUILD INSTRUCTIONS:
         property    Properties analysis
         nwpw        Build the plane wave pseudo-potential code
         python      Build python interface to NWChem
-        gapss       Build the periodic DFT code
         ---------------------------------------------------------
 
     To configure to build everything use the command
@@ -285,6 +283,35 @@ BASIC BUILD INSTRUCTIONS:
    cd $NWCHEM_TOP/src
    make link
 
+USE OF NON DEFAULT COMPILERS:
+-----------------------------
+
+  Use of compilers different from the  default ones is possible by
+  supplying the following options  to the make command:
+     make FC="fortran compiler" and/or CC="C compiler" 
+
+  E.g: 
+   make FC=ifc 
+  (Intel Fortran compiler replacing GNU g77 on x86 platforms)
+
+  Possible choices
+
+   NWCHEM_TARGET       FC     CC
+   ------------------------------
+   LINUX               ifc    icc   Intel compilers for IA32
+   LINUX               pgf77        Portland Group f77 compiler
+   LINUX64                    ecc   Intel C compiler for IA64
+   SOLARIS64           frt    fcc   Fujitsu Compilers         
+  
+   Notes:
+    1) On Pentium4/Xeon machine, use of  the Intel compiler is  strongly
+    recommended since performance gains of 30-40% with respect to g77 are
+    not unusual. On PentiumIII and AMD computers perfomance
+    improvements of 10-20% have been observed.
+    2) using the Portland Group Compiler, pgf77, is available.  
+    However, NWChem development is under the GNU and Intel suite of
+    compilers and so the pgf77 version is far from being optimal. 
+
 
 ALTERNATIVE ONE-TIME BUILD:
 ---------------------------
@@ -341,6 +368,7 @@ D) cd $NWCHEM_TOP/src/basis
    cp -r data /usr/local/NWChem/data
    cd $NWCHEM_TOP/src/nwpw/libraryps
    cp -r library1 /usr/local/NWChem/data
+   cp -r library2 /usr/local/NWChem/data
 
 E) Each user will need a .nwchemrc file to point to these default data
    files.  A global one could be put in /usr/local/NWChem/data and a
@@ -354,11 +382,13 @@ F) Contents of the default.nwchemrc file based on the above
 
    nwchem_basis_library /usr/local/NWChem/data/libraries/
    ffield amber
-   amber_s /usr/local/NWChem/data/amber/amber_s/
-   amber_x /usr/local/NWChem/data/amber/amber_x/
+   amber_s /usr/local/NWChem/data/amber_s/
+   amber_q /usr/local/NWChem/data/amber_q/
+   amber_x /usr/local/NWChem/data/amber_x/
    spce /usr/local/NWChem/data/solvents/spce.rst
-   charmm_s /usr/local/NWChem/data/charmm/charmm_s/
-   charmm_x /usr/local/NWChem/data/charmm/charmm_x/
+   charmm_s /usr/local/NWChem/data/charmm_s/
+   charmm_s /usr/local/NWChem/data/charmm_q/
+   charmm_x /usr/local/NWChem/data/charmm_x/
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
@@ -527,6 +557,13 @@ OPTIMIZATION TIPS:
    If you are using IBM RS6000 computers, you might
    want to try the ESSL library
    http://www-1.ibm.com/servers/eserver/pseries/library/sp_books/essl.html
+   
+   WARNING: In the  case of 64-bit platforms, most vendors optimized BLAS
+   libraries cannot be used. This is due to the fact that while
+   nwchem uses 64-bit integers (i.e. integer*8) on 64-bit platforms,
+   most of the vendors optimized BLAS libraries used 32-bit integers.
+   BLAS libraries not supporting 64-bit integers: 
+   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64).
 
    If you are interested in "tweaking" compile options, the 
    appropriate place to do this is the $NWCHEM_TOP/config/makefile.h
