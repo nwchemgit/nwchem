@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.34 1999-07-14 00:28:38 d3e129 Exp $
+c $Id: exact_mem.F,v 1.35 1999-10-26 22:08:48 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -88,6 +88,14 @@ c.... 1e
 00200     continue
         endif
 00100 continue
+c
+c.. memory for relativistic one-electron integrals
+c
+      if (any_rel) then
+        call emem_1e_rel(sc_bsh, sc_bsh, lsz_1e, lmem_1e)
+        mem_1e = max(mem_1e, lmem_1e)
+        isz_1e = max(isz_1e, lsz_1e)
+      end if
 c
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
@@ -355,7 +363,8 @@ c
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
-     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),1,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),1,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),1,.true.,.true.,.true.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
@@ -376,6 +385,129 @@ c
 #if defined(API_DEBUG)
       write(luout,'(a,i10)')'emem_1e: memsize =',memsize
       write(luout,'(a,i10)')'emem_1e: max1e   =',max1e
+#endif
+c
+      end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsection{emem\_1e\_rel}
+c:tex-This routine computes the memory for any type of relativistic 1e 
+c:tex-integrals based on the basis sets used.  
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
+c:tex-
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine emem_1e_rel(brain, ketin, max1e, memsize)
+c:tex-\end{verbatim}
+      implicit none
+#include "bas.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "stdio.fh"
+c::passed
+c:tex-\begin{verbatim}
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer max1e   ! [output] max size of 1e integrals buffer
+      integer memsize ! [output] max size of scratch space for 1e integral evaluation
+c:tex-\end{verbatim}
+c::local
+      integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
+      integer bra_type, ket_type, memdum
+      integer bra_prim, ket_prim, ket_lim
+      integer bra_gen, ket_gen
+      integer max_nbf_bra,max_nbf_ket
+      integer rel_dbg, rel_typ
+c
+#include "bas_exndcf_sfn.fh"
+c
+      memsize = 0
+      max1e = 0
+c
+c     relativistic integral options. rel_typ selects scalar (1),
+c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
+c     integrals are needed, or included in a common block.
+c
+      rel_dbg = 0
+      rel_typ = 1
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
+*error checking
+      if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
+        call errquit('emem_1e_rel: bad basis info ',911)
+      endif
+c
+      do 00100 ibc = 1, bra_ucont
+        bra_type = infbs_cont(CONT_TYPE,ibc,bra)
+        bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
+        bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_type.lt.0) then
+          bra_type = abs(bra_type)
+          bra_gen  = 1
+        endif
+c
+        if (bra.eq.ket) then
+          ket_lim = ibc
+        else
+          ket_lim = ket_ucont
+        endif
+c
+        do 00200 ikc = 1, ket_lim
+          ket_type = infbs_cont(CONT_TYPE,ikc,ket)
+          ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
+          ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_type.lt.0) then
+            ket_type = abs(ket_type)
+            ket_gen  = 1
+          endif
+c
+          memdum = 14 000 000
+*
+          call rel_onel(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        bra_prim,bra_gen,bra_type,1,
+     &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        ket_prim,ket_gen,ket_type,1,
+     &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        dbl_mb(mb_exndcf(1,1)),1,
+     &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &        dbl_mb(mb_exndcf(1,1)),1,.true.,.true.,.true.,.false.,
+     &        .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &        'emem_1e_rel',rel_dbg,rel_typ)
+          memsize = max(memsize,memdum)
+00200   continue
+00100 continue
+c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
+      max1e = max_nbf_bra*max_nbf_ket
+c... insure scratch is large enough to hold 3*max1e
+      memsize = max(3*max1e,memsize)
+c
+#if defined(API_DEBUG)
+      write(luout,'(a,i10)')'emem_1e_rel: memsize =',memsize
+      write(luout,'(a,i10)')'emem_1e_rel: max1e   =',max1e
 #endif
 c
       end
