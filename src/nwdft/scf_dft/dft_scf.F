@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.100 1998-03-03 02:12:49 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.101 1998-03-10 00:22:26 d3h449 Exp $
 c     
       implicit none
 c
@@ -1635,40 +1635,46 @@ c
       integer ir, jr, i, j
       double precision sum
 c     
-c      write(6,*) ' util_mat_reduce: input matrix '
-c      call output(a, 1, n_row, 1, n_col, n_row, n_col, 1)
-c     
       do jr = 1, nr_col
          do ir = 1, nr_row
             sum = 0.0d0
             if (op .eq. 'abssum') then
                do j = col_map(1,jr), col_map(2,jr)
                   do i = row_map(1,ir), row_map(2,ir)
-                     sum = sum + abs(a(i,j))
+                     if (i.ne.0.and.j.ne.0)sum = sum + abs(a(i,j))
                   end do
                end do
             else if (op .eq. 'absmax') then
                do j = col_map(1,jr), col_map(2,jr)
                   do i = row_map(1,ir), row_map(2,ir)
-                     sum = max(sum, abs(a(i,j)))
+                     if (i.ne.0.and.j.ne.0)sum = max(sum, abs(a(i,j)))
                   end do
                end do
             else if (op .eq. 'rms') then
                do j = col_map(1,jr), col_map(2,jr)
                   do i = row_map(1,ir), row_map(2,ir)
-                     sum = sum + a(i,j)*a(i,j)
+                     if (i.ne.0.and.j.ne.0)sum = sum + a(i,j)*a(i,j)
                   end do
                enddo
                sum = sqrt(sum)
             else
-               call errquit('util_mat_reduce: unknown op', 0)
+               call errquit('util_irreg_mat_reduce: unknown op', 0)
             end if
             r(ir,jr) = max(r(ir,jr),sum)
          end do
       end do
 c     
-c      write(6,*) ' util_mat_reduce: reduced matrix '
+c      write(6,*) ' util_irreg_mat_reduce: input matrix '
+c      call output(a, 1, n_row, 1, n_col, n_row, n_col, 1)
+c
+c      write(6,*) ' Row map begin: ',(row_map(1,ir),ir = 1,nr_row)
+c      write(6,*) ' Row map end: ',(row_map(2,ir),ir = 1,nr_row)
+c      write(6,*) ' Col map begin: ',(col_map(1,ir),ir = 1,nr_col)
+c      write(6,*) ' Col map end: ',(col_map(2,ir),ir = 1,nr_col)
+c     
+c      write(6,*) ' util_irreg_mat_reduce: reduced matrix '
 c      call output(r, 1, nr_row, 1, nr_col, nr_row, nr_col, 1)
+c
       end
       subroutine dft_dump_info(me)
       implicit none
