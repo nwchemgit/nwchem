@@ -1,8 +1,171 @@
+c
+c $Id: qmmm_main.F,v 1.15 2004-01-23 02:49:24 marat Exp $
+c
+      subroutine qmmm_optimize(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
+     + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
+      implicit none
+#include "errquit.fh"
+c
+#include "rtdb.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "qmmm_common.fh"
+c
+      external task_optimize
+      logical task_optimize
+c
+      integer cf_element
+      external cf_element
+c
+      integer inrtdb
+      integer mwm,nwm,mwa,nwa,msa,nsa,lnkatm,nbq
+      integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
+      real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
+c
+      integer i,np,ioffq,ioffz,igeom
+      integer i_ioff,l_ioff,i_c,l_c,i_q,l_q,i_t,l_t
+      integer i_i,l_i,i_j,l_j,i_m,l_m
+      integer nzatom,nqatom,nzatomt,nqatomt
+      logical lesp
+      logical xyz, xyzq
+      character*(nw_max_path_len) filename
+c
+      np=ga_nnodes()
+      me=ga_nodeid()
+      irtdb=inrtdb
+c
+      linkatm=lnkatm
+      nobq=nbq
+c
+      if(.not.ma_push_get(mt_int,2*np,'ioff',l_ioff,i_ioff))
+     + call errquit('qmmm: Failed to allocate memory for ioff',me,
+     &       MA_ERR)
+c
+c---- calculate number of quantum (nqatom) and Bq (nzatom) atoms.
+      nzatom=0
+      nqatom=0
+      do 1 i=1,nsa
+        if(iand(isdt(i),lquant).ne.0) then
+          nqatom=nqatom+1
+        else
+         if(iand(isdt(i),lqsoft).ne.0) then
+c--------- no zero charges == "nobq all"
+           if(nobq.eq.2) then
+             isz(i)=0
+c--------- zero charge on H ==  "nobq hydrogen"
+           else if(nobq.eq.1) then
+             if(cf_element(isat(i)).eq.1) isz(i)=0
+           end if
+         endif
+         if(isz(i).gt.0) nzatom=nzatom+1
+      endif
+    1 continue
+      do 2 i=1,nwm
+      if(iwz(i).gt.0) nzatom=nzatom+mwa
+    2 continue
+c
+      if(util_print('qmmm',print_high)) then
+      write(*,8888) me,(isdt(i),i=1,nsa)
+ 8888 format(/,' Solute dynamics types',/,1x,i1,':',25i3,/,(3x,25i3))
+      write(*,8889) me,(isz(i),i=1,nsa)
+ 8889 format(/,' Solute zone types',/,1x,i1,'=',25i3,/,(3x,25i3))
+      endif
+c
+      call qmmm_offset(np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
+     + int_mb(i_ioff))
+c
+      if(.not.ma_pop_stack(l_ioff))
+     + call errquit('qmmm: Failed to deallocate memory for ioff',me,
+     &       MA_ERR)
+c
+      if(.not.ma_push_get(mt_dbl,3*(nqatomt+nzatomt),'c',l_c,i_c))
+     + call errquit('qmmm: Failed to allocate memory for c',me, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'q',l_q,i_q))
+     + call errquit('qmmm: Failed to allocate memory for q',me, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'m',l_m,i_m))
+     + call errquit('qmmm: Failed to allocate memory for m',me, MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*(nqatomt+nzatomt),'t',l_t,i_t))
+     + call errquit('qmmm: Failed to allocate memory for t',me, MA_ERR)
+      if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
+     + call errquit('qmmm: Failed to allocate memory for i',me, MA_ERR)
+      if(.not.ma_push_get(mt_int,2*(nqatomt+nzatomt),'j',l_j,i_j))
+     + call errquit('qmmm: Failed to allocate memory for i',me, MA_ERR)
+c
+      call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
+     + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
+c
+      if(.not.ma_pop_stack(l_j))
+     + call errquit('qmmm: Failed to deallocate memory for j',me,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(l_i))
+     + call errquit('qmmm: Failed to deallocate memory for i',me,
+     &       MA_ERR)
+c
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+      if(.not.geom_cart_set(igeom,nqatomt+nzatomt,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+      if(.not.geom_masses_set(igeom,nqatomt+nzatomt,dbl_mb(i_m)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(igeom)
+
+      if (.not.rtdb_get(inrtdb,'qmmm:xyz',mt_log,1,xyz)) xyz=.false.
+      if (.not.rtdb_get(inrtdb,'qmmm:xyzq',mt_log,1,xyzq)) xyzq=.false.
+
+c      if(xyz) then
+        call util_file_name('xyz', .false., .false., filename)
+        open(unit=43,status="new",form="formatted",file=filename)
+        if(.not.geom_print_xyz(igeom,43))
+     +    call errquit('qmmm: Failed to xyz file',0)
+        close(43)
+c      end if
+
+c      if(xyzq) then
+        call util_file_name('xyzq', .false., .false., filename)
+        open(unit=43,status="new",form="formatted",file=filename)
+        if(.not.geom_print_xyzq(igeom,43))
+     +    call errquit('qmmm: Failed to xyzq file',0)
+        close(43)
+c      end if
+      stop
+
+c
+      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+c
+      if(.not.ma_pop_stack(l_t))
+     + call errquit('qmmm: Failed to deallocate memory for t',me,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(l_m))
+     + call errquit('qmmm: Failed to deallocate memory for m',me,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(l_q))
+     + call errquit('qmmm: Failed to deallocate memory for q',me,
+     &       MA_ERR)
+c
+      call ga_sync()
+      if(.not.task_optimize(irtdb))
+     + call errquit('qmmm: Task_gradient failed',0, GA_ERR)
+      call ga_sync()
+c
+      call qmmm_f(nqatomt+nzatomt,dbl_mb(i_c),ioffq,ioffz,
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,fw,fs,energy)
+c
+      if(.not.ma_pop_stack(l_c))
+     + call errquit('qmmm: Failed to deallocate memory for c',me,
+     &       MA_ERR)
+c
+      if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',me, GEOM_ERR)
+c
+      return
+      end
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
-c
-c $Id: qmmm_main.F,v 1.14 2004-01-06 01:43:06 marat Exp $
-c
       implicit none
 #include "errquit.fh"
 c
@@ -43,16 +206,23 @@ c
      + call errquit('qmmm: Failed to allocate memory for ioff',me,
      &       MA_ERR)
 c
+c---- calculate number of quantum (nqatom) and Bq (nzatom) atoms.
       nzatom=0
       nqatom=0
       do 1 i=1,nsa
-      if(iand(isdt(i),lquant).ne.0) then
-      nqatom=nqatom+1
-      else
-      if(iand(isdt(i),lqsoft).ne.0) then
-      if((nobq.eq.1.and.cf_element(isat(i)).eq.1).or.nobq.eq.2) isz(i)=0
-      endif
-      if(isz(i).gt.0) nzatom=nzatom+1
+        if(iand(isdt(i),lquant).ne.0) then
+          nqatom=nqatom+1
+        else
+         if(iand(isdt(i),lqsoft).ne.0) then
+c--------- no zero charges == "nobq all"
+           if(nobq.eq.2) then
+             isz(i)=0
+c--------- zero charge on H ==  "nobq hydrogen"
+           else if(nobq.eq.1) then
+             if(cf_element(isat(i)).eq.1) isz(i)=0
+           end if
+         endif
+         if(isz(i).gt.0) nzatom=nzatom+1
       endif
     1 continue
       do 2 i=1,nwm
@@ -420,14 +590,21 @@ c
      + call errquit('qmmm_f: rtdb_get energy failed',0, RTDB_ERR)
 c
 c
+      write(*,*) "*****************debug*****************"
       do 1 i=1,nsa
       if(iand(isdt(i),lquant).ne.0) then
       ioq=ioq+1
+      write(*,*) "quantum atom"
+      write(*,*) "fs=",fs(i,1),fs(i,2),fs(i,3)
+      write(*,*) "c=",c(1,ioq),c(2,ioq),c(3,ioq)
       fs(i,1)=fs(i,1)-c(1,ioq)*(cau2kj/cau2nm)
       fs(i,2)=fs(i,2)-c(2,ioq)*(cau2kj/cau2nm)
       fs(i,3)=fs(i,3)-c(3,ioq)*(cau2kj/cau2nm)
       endif
       if(isz(i).gt.0) then
+      write(*,*) "Bq atom"
+      write(*,*) "fs=",fs(i,1),fs(i,2),fs(i,3)
+      write(*,*) "c",c(1,ioz),c(2,ioz),c(3,ioz)
       ioz=ioz+1
       fs(i,1)=fs(i,1)-c(1,ioz)*(cau2kj/cau2nm)
       fs(i,2)=fs(i,2)-c(2,ioz)*(cau2kj/cau2nm)
@@ -446,6 +623,7 @@ c
     2 continue
 c
       energy=energy*cau2kj
+      write(*,*) "*****************debug*****************"
 c
       return
       end
