@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.52 2000-07-27 17:15:01 d3j191 Exp $
+c $Id: sp_main.F,v 1.53 2000-10-25 20:51:19 edo Exp $
 c
       implicit none
 c
@@ -227,6 +227,7 @@ c
 #include "sp_common.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer numsa,isl(msa,mis2),islp(msa,npack)
 c
@@ -254,6 +255,7 @@ c
 #include "sp_common.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer numsa,isl(msa,mis2),islp(msa,npack)
 c
