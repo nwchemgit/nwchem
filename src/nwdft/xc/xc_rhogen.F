@@ -7,7 +7,7 @@
      &     rho,delrho,gamma,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.2 1995-04-26 18:12:47 og845 Exp $
+c$Id: xc_rhogen.F,v 1.3 1995-04-28 02:43:00 og845 Exp $
 c
       Implicit double precision (a-h,o-z)
       Implicit integer (i-n)
@@ -156,7 +156,6 @@ cdir$ UNROLL 3
 
   230 continue
       if(ipol.eq.2) then
-        call cut_tol(nq,rho(2,1),3,rho_tol1)
         call cut_tol(nq,rho(3,1),3,rho_tol1)
         do 240 n = 1,nq
 
@@ -182,8 +181,6 @@ cdir$ UNROLL 3
         endif
       else
         call cut_tol(nq,rho,1,rho_tol0)
-        if(ldelley) 
-     &       call cut_tol(nq*natoms,rhoat,1,rho_tol0)
         if(GRAD) then
 
           do  n = 1,nq
@@ -197,6 +194,8 @@ cdir$ UNROLL 3
           enddo
         endif
       endif
+      if(ldelley) 
+     &     call cut_tol(nq*natoms,rhoat,1,rho_tol0)
       return
       end
       
