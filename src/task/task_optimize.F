@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -32,7 +32,6 @@ c
       double precision cpu, wall
 c     
       logical ousedriver, status, ts, omin
-      integer modsad
 c     
       character*20 theory
 c     
@@ -107,6 +106,8 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_optimize: failed to set status',0)
 c     
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call ecce_print_module_exit('task optimize', 'ok')
       else
@@ -117,7 +118,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -231,6 +232,8 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_saddle: failed to set status',0)
 c     
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call ecce_print_module_exit('task saddle', 'ok')
       else
@@ -241,7 +244,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.14 1998-04-24 16:40:55 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -311,6 +314,8 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_lst: failed to set status',0)
 c
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call ecce_print_module_exit('task lst', 'ok')
       else

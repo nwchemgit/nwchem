@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.24 1998-07-02 20:28:12 ng972 Exp $
+* $Id: task.F,v 1.25 1998-08-26 00:27:52 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -46,10 +46,9 @@ c
       external esp,prepar
 c
       oprint_task_times = util_print('task time',print_default)
-      if (oprint_task_times) then
-        task_wall = -util_wallsec()
-        task_cpu  = -util_cpusec()
-      endif
+      task_wall = -util_wallsec()
+      task_cpu  = -util_cpusec()
+*
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c      
@@ -184,15 +183,17 @@ c
       call ga_sync()
 99999 continue
 c
+      task_wall = task_wall + util_wallsec()
+      task_cpu  = task_cpu  + util_cpusec()
       if (oprint_task_times) then
-        task_wall = task_wall + util_wallsec()
-        task_cpu  = task_cpu  + util_cpusec()
         if (ga_nodeid().eq.0) then
           write(6,00001) task_cpu, task_wall
 00001     format(/' Task  times  cpu:',f11.1,'s     wall:',f11.1,'s')
           call util_flush(6)
         endif
       endif
+      call ecce_print1('single task cpu time',mt_dbl,task_cpu,1)
+      call ecce_print1('single task wall time',mt_dbl,task_wall,1)
       call ga_sync()
 c
       return

@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.110 1998-08-03 18:10:46 d3g681 Exp $
+c     $Id: nwchem.F,v 1.111 1998-08-26 00:27:40 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -266,14 +266,18 @@ c
      $        call util_version
          if (util_print('citation', print_low))
      &       call util_cite()
-         if (util_print('total time', print_low)) then
-            total_wall = total_wall + util_wallsec()
-            total_cpu  = total_cpu  + util_cpusec()
-            write(6,1) total_cpu, total_wall
- 1          format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
-            call util_flush(6)
-         endif
       endif
+      total_wall = total_wall + util_wallsec()
+      total_cpu  = total_cpu  + util_cpusec()
+      if (ga_nodeid() .eq. 0) then
+        if (util_print('total time', print_low)) then
+          write(6,1) total_cpu, total_wall
+ 1        format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
+          call util_flush(6)
+        endif
+      endif
+      call ecce_print1('all tasks cpu time',mt_dbl,total_cpu,1)
+      call ecce_print1('all tasks wall time',mt_dbl,total_wall,1)
       call ga_sync()
 c
 c     Tidy up the global memory

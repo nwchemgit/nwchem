@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.15 1997-12-05 12:33:58 d3e129 Exp $
+* $Id: task_freq.F,v 1.16 1998-08-26 00:27:52 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -98,6 +98,8 @@ c
      $     call errquit('task_freq: failed to set status',0)
 c
 c
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       task_freq = status
       if (task_freq) then
         call ecce_print_module_exit('task frequencies', 'ok')
