@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.11 1996-10-07 16:50:15 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.12 1997-02-20 09:08:52 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_2e3c}
@@ -38,8 +38,8 @@ c::functions
       external cando_sp
       external int_chk_sh
       external int_chk_init
-#define USE_TEXAS
-#if defined(USE_TEXAS)
+*----------------------------#define USE_TEXAS
+#if defined(USE_TEXAS_BROKE)
       logical cando_txs
       external cando_txs
 #endif
@@ -63,7 +63,7 @@ c:: local
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
       logical status_nw, status_sp
-#if defined(USE_TEXAS)
+#if defined(USE_TEXAS_BROKE)
       logical status_gen
       logical status_txs
       integer num_quart, dummy_lab(2)
@@ -134,7 +134,7 @@ c set integral code status
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
       status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,ksh)
-#if defined(USE_TEXAS)
+#if defined(USE_TEXAS_BROKE)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
       status_gen = (max(p_gen,c_gen,d_gen)) .gt. 1  ! if general contraction texas is only option
 
@@ -151,7 +151,7 @@ c
      &         ketin,jsh,coords(1,c_cent,cd_geom),
      &               ksh,coords(1,d_cent,cd_geom),
      &         eri)
-#if defined(USE_TEXAS)
+#if defined(USE_TEXAS_BROKE)
       else if (status_txs) then
         num_quart = 1
         dummy_lab(1) = 0

@@ -2,7 +2,7 @@
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.14 1996-10-07 16:50:40 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.15 1997-02-20 09:08:52 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -99,7 +99,7 @@ c
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.14 1996-10-07 16:50:40 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.15 1997-02-20 09:08:52 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -146,6 +146,10 @@ c
       ip_int = 1
       leri_left = l_erilab
       i_q_done = num_q_start - 1
+#if defined(DEBUG_TXS)
+      write(6,*)' num_q_start ',num_q_start
+      write(6,*)' num_q_last  ',num_q_last
+#endif
       if (num_q_start.eq.num_q_last) then
          write(luout,*)' l_erilab: too small ',l_erilab
          call errquit(' intb_nw_2e4c: infinite blocking loop ',911)
@@ -164,6 +168,15 @@ c
      $        (sf_ibs_cn2bfr(1,lcl(i_q),ket))+1
          numint=numinti*numintj*numintk*numintl
          if (numint.gt.leri_left) then
+#if defined(DEBUG_TXS)
+           write(6,*)' shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q)
+           write(6,*)' numinti  ',numinti
+           write(6,*)' numintj  ',numintj
+           write(6,*)' numintk  ',numintk
+           write(6,*)' numintl  ',numintl
+           write(6,*)' numint   ',numint
+           write(6,*)' leri_left',leri_left
+#endif
             goto 00002
          else
             call int_l2e4c(brain, icl(i_q), jcl(i_q),
@@ -175,6 +188,17 @@ c
             if (use_q4 .and. nint_for_q.gt.0)
      $           call dscal(nint_for_q,q4(i_q),eri(ip_int),1)
             i_q_done = i_q_done + 1
+#if defined(DEBUG_TXS)
+            write(6,*)' numinti  ',numinti
+            write(6,*)' numintj  ',numintj
+            write(6,*)' numintk  ',numintk
+            write(6,*)' numintl  ',numintl
+            write(6,*)' i_q_done = ',i_q_done,
+#endif
+     &          '   shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q),
+     &          '   numint ',numint,' nint_for_q ',nint_for_q
+
+
             ip_int = ip_int + nint_for_q
             leri_left = leri_left - nint_for_q
             nint = nint + nint_for_q
@@ -183,5 +207,8 @@ c
       intb_nw_2e4c = .false.
 00002 continue
       num_q_start = i_q_done + 1
+#if defined(DEBUG_TXS)
+      write(6,*)' num_q_start on next pass is ',num_q_start
+#endif
 c     
       end

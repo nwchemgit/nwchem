@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.23 1996-10-09 19:52:21 d3g681 Exp $
+c $Id: cando_sp.F,v 1.24 1997-02-20 09:08:51 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -345,6 +345,69 @@ c.... check jsh
         cando_nw_1e = cando_nw_1e .and.(mytype.ge.-1)
       endif
 c
+      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsubsection{int\_app\_set\_no\_texas}
+c:tex-This routine stores any current user setting for the texas 
+c:tex-integral code and then sets the cando_txs flag on the RTDB to
+c:tex-false.  This is for applications that have problems using the
+c:tex-texas integrals.  Right now this is the dft module.  This
+c:tex-routine should be called right before the call to ``int_init''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_set_no_texas(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      integer user_status
+c
+      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,user_status)) then
+        app_stored_txs = user_status
+      else
+        app_stored_txs = .true.
+      endif
+      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &    call errquit('int_app_set_no_texas:rtdb_put failed',911)
+      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsubsection{int\_app\_unset\_no\_texas}
+c:tex-This routine resets the current user setting for the texas 
+c:tex-integral code and that was stored by int\_app\_set\_no\_texas by 
+c:tex-setting the cando_txs flag on the RTDB to the state prior to 
+c:tex-turning texas off.  This is for applications that have problems 
+c:tex-using the texas integrals.  Right now this is the dft module.  
+c:tex-Note: This routine should be called right after the call to 
+c:tex-``int_terminate''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_unset_no_texas(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      if (app_stored_txs) then
+        if(.not.rtdb_delete(rtdb,'int:cando_txs')) 
+     &      call errquit
+     &      ('int_app_unset_no_texas:rtdb_delete failed',911)
+      else
+        if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,app_stored_txs))
+     &      call errquit('int_app_unset_no_texas:rtdb_put failed',911)
+      endif
       end
 *_old_code:      subroutine int_set_cando_txs(user_value)
 *_old_code:      implicit none

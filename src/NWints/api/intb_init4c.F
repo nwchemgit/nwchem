@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, q4, use_q4, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.7 1996-10-08 04:56:00 d3g681 Exp $  
+c $Id: intb_init4c.F,v 1.8 1997-02-20 09:08:53 d3e129 Exp $  
       implicit none
 *
 c
@@ -126,7 +126,9 @@ c
                endif
             endif
  10      enddo
-*         write(6,*) ' num_q nsp ', num_q, nsp
+#if defined(DEBUG_TXS)
+         write(6,*) ' num_q nsp ', num_q, nsp
+#endif
       endif
 c
 

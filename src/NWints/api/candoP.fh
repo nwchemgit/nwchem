@@ -1,5 +1,5 @@
 *
-* $Id: candoP.fh,v 1.3 1996-10-03 16:34:47 d3e129 Exp $
+* $Id: candoP.fh,v 1.4 1997-02-20 09:08:50 d3e129 Exp $
 * 
 * user_* variables determine .true. a user set some value for the 
 *        specific integral code.  
@@ -29,7 +29,9 @@
       logical def_cando_nw   ! default user setable value for cando_nw
       logical def_cando_txs  ! default user setable value for cando_txs
 c
+      logical app_stored_txs ! value stored in int_app_set_no_texas
+c
       common /clcando/ user_cando_sp, user_cando_nw, user_cando_txs,
-     &    def_cando_sp, def_cando_nw, def_cando_txs
+     &    def_cando_sp, def_cando_nw, def_cando_txs, app_stored_txs
 c
 
