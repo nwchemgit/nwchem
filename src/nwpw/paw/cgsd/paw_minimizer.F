@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.6 2004-11-29 16:05:19 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.7 2005-02-09 02:38:54 bylaska Exp $
 *
 
 ***********************************************************************
@@ -335,6 +335,9 @@ c     write(*,*) "time10:",t2-t1
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131) 
+     >      'BLYP (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
