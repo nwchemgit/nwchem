@@ -278,7 +278,7 @@ c$$$         enddo
 c$$$      enddo
 c     
       end
-c $Id: texas_hf.F,v 1.17 1996-10-10 20:35:05 d3g681 Exp $
+c $Id: texas_hf.F,v 1.18 1997-04-10 09:13:15 d3e129 Exp $
 c=================================================================
       subroutine texas_hf2_m2(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -408,7 +408,7 @@ c=================================================================
 #include "mafdecls.fh"
       logical use_q4,use_r,labels,more_int
       double precision ra(3), rb(3), rc(3), rd(3)
-      common /index/ maxsh,ifp,inx(1)
+      common /txs_index/ maxsh,ifp,inx(1)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
 c----------------------------------------------------------------

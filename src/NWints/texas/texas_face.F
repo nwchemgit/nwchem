@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.32 1997-03-04 06:06:25 d3e129 Exp $
+c $Id: texas_face.F,v 1.33 1997-04-10 09:13:14 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -505,7 +505,7 @@ c the common block /big/ bl(lcx) has been repleaced by pnl scratch
 c-----------------------------------------------------------------
       parameter(mxsh= 50 000)
 c------------------------------------
-      common /index/ maxsh,ifp,inx(mxsh)
+      common /txs_index/ maxsh,ifp,inx(mxsh)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -567,7 +567,7 @@ c
       logical cart_2_sphe
       logical spcart_init
       external spcart_init
-      common /index/ maxsh,ifp,inx(1)
+      common /txs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       dimension datbas(13,*)
 c---------------------------------------------------------------
@@ -733,7 +733,7 @@ c
 #include "basP.fh"
       integer bas,basis
       logical cart_2_sphe
-      common /index/ maxsh,ifp,inx(1)
+      common /txs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -829,7 +829,7 @@ cccc  common /big/ bl(1) repleaced by pnl dbl_mb(ntxs_bl_scr) .
 c
       common /bl_txs_add/ ntxs_bl_scr 
 c----------------------------------------
-      common /index/ maxsh,ifp,inx(1)
+      common /txs_index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -1164,7 +1164,7 @@ c------------------------------------
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
       common /ganz/ lcore,iov,last,nganz(67)
-      common /index/ maxsh,ifp,inx(1)
+      common /txs_index/ maxsh,ifp,inx(1)
 c------------------------------------
 c open files for texas
 c
@@ -1955,7 +1955,7 @@ c==================================================================
 c------------------------------------------------------------------
 c This routine adds one uncontracted s-orbital to the basis set:
 c------------------------------------------------------------------
-      common /index/ maxsh,ifp,inx(1)    
+      common /txs_index/ maxsh,ifp,inx(1)    
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
@@ -2073,7 +2073,7 @@ c==================================================================
 c==================================================================
       subroutine print_inx_nuc_bas(nbas,datnuc,datbas)
       implicit real*8 (a-h,o-z)
-      common /index/ maxsh,ifp,inx(1)    
+      common /txs_index/ maxsh,ifp,inx(1)    
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
