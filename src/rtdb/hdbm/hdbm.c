@@ -7,6 +7,7 @@
 
 /* Not defined on the SUN */
 
+#ifdef SUN
 extern int printf(const char *, ...);
 extern int fprintf(FILE *, const char *, ...);
 extern void rewind(FILE *);
@@ -15,6 +16,7 @@ extern int fflush(FILE *);
 extern size_t fread(void *, size_t, size_t, FILE *);
 extern size_t fwrite(const void *, size_t, size_t, FILE *);
 extern int fseek(FILE *,long int, int);
+#endif
 
 static unsigned int hash(const void *, int);
 
