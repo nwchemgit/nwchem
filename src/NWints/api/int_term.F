@@ -10,13 +10,15 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.11 1998-09-22 16:14:51 d3e129 Exp $
+c $Id: int_term.F,v 1.12 1998-10-20 23:44:25 windus Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
+      logical hnd_terminate 
+      external hnd_terminate 
 c
       if (init_int .eq. 0) then
         write(6,*)' warning: int_init has not been called '
@@ -30,6 +32,9 @@ c
       endif
       if (.not.spcart_terminate()) then
         call errquit('int_terminate: spcart_terminate failed',0)
+      endif
+      if (.not.hnd_terminate()) then
+        call errquit('int_terminate: hnd_terminate failed', 555)
       endif
       if (any_ecp) then
         call int_ecp_terminate()

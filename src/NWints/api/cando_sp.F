@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.32 1998-08-26 23:57:50 d3e129 Exp $
+c $Id: cando_sp.F,v 1.33 1998-10-20 23:44:24 windus Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -359,6 +359,70 @@ c.... check jsh
 c
       end
 ***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsection{cando\_hnd_\1e}
+c:tex-This routine returns ``.true.'' to the calling integral API
+c:tex-routine if the one electron integrals over ISH and JSH can be
+c:tex-computed using the HONDO code.
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      logical function cando_hnd_1e(basisin,ish,jsh)
+c:tex-\end{verbatim}
+      implicit none
+c
+c this routine does not check the shell and int_init
+c because it is only called by routines that do this.
+c
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "candoP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
+c::passed
+c:tex-\begin{verbatim}
+      integer basisin  ! [input] basis set handle for identified shells
+      integer ish,jsh  ! [input] lexical shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function
+c:tex-for all 1e permutations and multiple basis sets.
+c::local
+      integer basis, mytype, ucont
+c
+c
+#include "bas_ibs_sfn.fh"
+c
+      cando_hnd_1e = .true.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c check shell range
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_hnd_1e: bad ish =', ish)
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_hnd_1e: bad jsh =', jsh)
+c.... check ish
+      if (ish.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_hnd_1e = cando_hnd_1e .and.(mytype.ge.-1)
+      endif
+c
+c.... check jsh
+      if (jsh.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        cando_hnd_1e = cando_hnd_1e .and.(mytype.ge.-1)
+      endif
+c
+c Temporary to check if the other code is working O.K.
+c
+      cando_hnd_1e = .false.
+
+      end
+***********************************************************************
 c:tex-% part of API application interface
 c:tex-\subsection{int\_app\_set\_no\_texas}
 c:tex-This routine stores any current user setting for the texas 
@@ -511,8 +575,73 @@ c
      &      call errquit
      &      ('int_app_unset_no_spint:rtdb_delete failed',911)
       else
-        if (.not.rtdb_put(rtdb,'int:cando_txs',
+        if (.not.rtdb_put(rtdb,'int:cando_sp',
      &      mt_log,1,app_stored_spint))
      &      call errquit('int_app_unset_no_spint:rtdb_put failed',911)
+      endif
+      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsection{int\_app\_set\_no\_hnd}
+c:tex-This routine stores any current user setting for the hondo
+c:tex-integral code and then sets the cando_hnd flag on the RTDB to
+c:tex-false.  This is for applications that have problems using the
+c:tex-hondo integrals.  This routine should be called right before the
+c:tex-call to ``int_init''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_set_no_hnd(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      logical user_status
+c
+      if (rtdb_get(rtdb,'int:cando_hnd',MT_LOG,1,user_status)) then
+        app_stored_hnd = user_status
+      else
+        app_stored_hnd = .true.
+      endif
+      if (.not.rtdb_put(rtdb,'int:cando_hnd',mt_log,1,.false.))
+     &    call errquit('int_app_set_no_hnd:rtdb_put failed',911)
+      rtdbIused = rtdb
+      end
+***********************************************************************
+c:tex-% part of API application interface
+c:tex-\subsection{int\_app\_unset\_no\_hnd}
+c:tex-This routine resets the current user setting for the hondo
+c:tex-integral code and that was stored by int\_app\_set\_no\_hnd by
+c:tex-setting the cando_hnd flag on the RTDB to the state prior to
+c:tex-turning hondo integrals off.  This is for applications that have
+c:tex-problems using the hondo integrals.
+c:tex-Note: This routine should be called right after the call to
+c:tex-``int_terminate''
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_app_unset_no_hnd(rtdb)
+c:tex-\end{verbatim}
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "candoP.fh"
+c:tex-\begin{verbatim}
+      integer rtdb ! [input] Run Time Data Base (RTDB) handle
+c:tex-\end{verbatim}
+c
+      if (app_stored_hnd) then
+        if(.not.rtdb_delete(rtdb,'int:cando_hnd'))
+     &      call errquit
+     &      ('int_app_unset_no_hnd:rtdb_delete failed',911)
+      else
+        if (.not.rtdb_put(rtdb,'int:cando_hnd',
+     &      mt_log,1,app_stored_hnd))
+     &      call errquit('int_app_unset_no_hnd:rtdb_put failed',911)
       endif
       end

@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.39 1998-08-12 22:02:35 d3g681 Exp $
+c $Id: int_init.F,v 1.40 1998-10-20 23:44:25 windus Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -88,9 +88,11 @@ c
       user_cando_sp   = .false.
       user_cando_nw   = .false.
       user_cando_txs  = .false.
+      user_cando_hnd  = .false.
       def_cando_sp    = .false.
       def_cando_nw    = .false.
       def_cando_txs   = .false.
+      def_cando_hnd   = .false.
 c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
@@ -121,7 +123,17 @@ c
           call util_flush(6)
         endif
       endif
-*
+c
+      if (rtdb_get(rtdb,'int:cando_hnd',MT_LOG,1,status)) then
+        user_cando_hnd = .true.
+        def_cando_hnd  = status
+        if (ga_nodeid().eq.0 .and. oprint) then
+          write(6,*)
+     &        ' int_init: cando_hnd set to always be ',def_cando_hnd
+          call util_flush(6)
+        endif
+      endif
+c
       if (.not.user_cando_txs) then
         if (.not.texas_check_basis_ok(nbas,bases)) then
           user_cando_txs = .true.
@@ -137,12 +149,14 @@ c
 * sanity checking: e.g., you only want to turn off a particular integral
 * code never always turn it on.
 *
-      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
+     &    def_cando_hnd) then
         if (ga_nodeid().eq.0) then
           write(6,*)' you are trying to turn an integral code on?? '
           write(6,*)' sp  ', def_cando_sp
           write(6,*)' nw  ', def_cando_nw
           write(6,*)' txs ', def_cando_txs
+          write(6,*)' hnd ', def_cando_hnd
           call util_flush(6)
         endif
         call errquit
@@ -195,6 +209,7 @@ c
       call exact_mem(rtdb,bases,nbas)
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
+      call hnd_init()
       call int_acc_std()
 * def u=f d=f -> f.and.!f -> f -> e = t
 * no txs u=t d=f -> t.and.!f -> t -> e = f

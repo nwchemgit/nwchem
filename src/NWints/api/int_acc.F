@@ -1,4 +1,4 @@
-C $Id: int_acc.F,v 1.11 1998-07-13 22:48:01 d3g681 Exp $
+C $Id: int_acc.F,v 1.12 1998-10-20 23:44:24 windus Exp $
 *
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_std}
@@ -21,6 +21,7 @@ c
       val_int_acc = val_def
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
+      call hnd_set_acc(val_int_acc)
       end
 c......................................................................
 c:tex-% part of API Internal Routines
@@ -47,6 +48,7 @@ c:tex-
       val_int_acc = val_def_high
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
+      call hnd_set_acc(val_int_acc)
       end
 c......................................................................
 c:tex-% part of API Internal Routines
@@ -85,4 +87,5 @@ c:tex-\end{verbatim}
       val_int_acc = setval
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
+      call hnd_set_acc(val_int_acc)
       end
