@@ -1,4 +1,5 @@
-.SUFFIXES:    .tex .dvi .ps .log .aux
+.SUFFIXES:	
+.SUFFIXES:    .ps .dvi .aux .log .tex
 
 PSFLAGS	      = -D 300
 
