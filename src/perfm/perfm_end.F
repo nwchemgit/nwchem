@@ -1,13 +1,13 @@
 c
-c     $Id: perfm_end.F,v 1.1 2004-10-11 19:39:05 edo Exp $
+c     $Id: perfm_end.F,v 1.2 2004-10-11 20:05:36 edo Exp $
 c
       subroutine perfm_end()
       implicit none
 #include "perfm.fh"
       double precision conv2m
-      parameter(conv2m=1d-6)
+      parameter(conv2m=1d-9)
 #ifdef USE_PAPI
-      integer*8 flpsum,flpmax,flpmin
+      double precision flpsum,flpmax,flpmin
       integer retvals
 #ifdef PAPI_FPINS
       call ga_sync()
@@ -31,19 +31,19 @@ c
          write(luout,*) ' Proc_time: ', proc_time
          write(luout,*) ' Total flpins: ', flpins
          write(luout,*) ' MFLOPS: ', mflops
-         write(luout,12) ' Aggregate MFLOP : ', 
-     ,        int(flpsum*conv2m)
-         write(luout,12) ' Aggregate MFLOPS (Real_time): ', 
-     ,        int(flpsum/real_time*conv2m)
-         write(luout,12) ' Aggregate MFLOPS (Proc_time): ', 
-     ,        int(flpsum/proc_time*conv2m)
-         write(luout,12) ' Average   MFLOPS: ', 
-     ,        int(conv2m*flpsum/real_time/ga_nnodes())
-         write(luout,12) ' Max       MFLOPS: ', 
-     ,        int(flpmax/real_time*conv2m)
-         write(luout,12) ' Min       MFLOPS: ', 
-     ,        int(flpmin/real_time*conv2m)
- 12      format(A32,I10) 
+         write(luout,12) ' Aggregate GFLOP : ', 
+     ,        flpsum*conv2m
+         write(luout,12) ' Aggregate GFLOPS (Real_time): ', 
+     ,        flpsum/real_time*conv2m
+         write(luout,12) ' Aggregate GFLOPS (Proc_time): ', 
+     ,        flpsum/proc_time*conv2m
+         write(luout,12) ' Average   GFLOPS: ', 
+     ,        conv2m*flpsum/real_time/ga_nnodes()
+         write(luout,12) ' Max       GFLOPS: ', 
+     ,        flpmax/real_time*conv2m
+         write(luout,12) ' Min       GFLOPS: ', 
+     ,        flpmin/real_time*conv2m
+ 12      format(A32,F10.2) 
       endif
 #else
       call PAPIf_stop(es, values(1), retval)
