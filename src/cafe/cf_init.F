@@ -6,7 +6,7 @@
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.83 2002-08-16 16:37:11 d3j191 Exp $
+c $Id: cf_init.F,v 1.84 2002-08-21 14:39:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1427,12 +1427,14 @@ c
     7 continue
     6 continue
    16 continue
+      if(m.eq.2) then
       vpme(1)=zero
       vpme(2)=zero
       vpme(3)=zero
       vpme(4)=zero
       vpme(5)=zero
       vpme(6)=zero
+      endif
       if(ntype.eq.3) then
       do 9 i=1,24
       deriv(i,l)=zero
