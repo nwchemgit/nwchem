@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.51 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: prepar.F,v 1.52 2003-07-31 12:35:45 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -36,9 +36,9 @@ c
 #include "pre_common.fh"
 c
       logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
-      logical pre_mknoe
+      logical pre_mknoe,pre_admin
       external pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
-      external pre_mknoe
+      external pre_mknoe,pre_admin
 c
       integer irtdb0,irtdb,itask
 c
@@ -153,11 +153,6 @@ c
      + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol))
      + call errquit('pre_rtdbin failed',9999)
 c
-      if(itopol.eq.2) then
-      nparms=3
-      mparms=nparms+1
-      endif
-c
 c     construct file names
 c     --------------------
 c
@@ -187,6 +182,16 @@ c
      + call errquit('rtdb_cget failed on file_prefix',9999)
       filcmd=prefix(1:index(prefix,' ')-1)//'.cmd '
       filmod=prefix(1:index(prefix,' ')-1)//'.mod '
+c
+c     do maintenance
+c     --------------
+c
+      if(pre_admin(lfncmd,filcmd,lfnout,lfnfrg)) goto 9999
+c
+      if(itopol.eq.2) then
+      nparms=3
+      mparms=nparms+1
+      endif
 c
 c     directories
 c     -----------
@@ -388,6 +393,8 @@ c     reset print
 c     -----------
 c
       call util_print_pop
+c
+ 9999 continue
 c
       prepar=.true.
       return

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.107 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_input.F,v 1.108 2003-07-31 12:35:45 d3j191 Exp $
 c
       implicit none
 c
@@ -1692,6 +1692,17 @@ c
       xmerge(3)=1.0d1*xmerge(3)
       write(68,6869) xmerge,item(1:index(item,' ')-1)
  6869 format('merge ',3f8.3,a)
+      numcmd=numcmd+1
+      goto 1
+      endif
+c
+c     maintenance directives
+c     ----------------------
+c
+      if(inp_compare(.false.,'master',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: master',9999)
+      write(68,6880) item(1:index(item,' ')-1)
+ 6880 format('master ',a)
       numcmd=numcmd+1
       goto 1
       endif

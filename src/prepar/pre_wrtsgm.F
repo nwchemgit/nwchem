@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat,ipardef)
 c
-c $Id: pre_wrtsgm.F,v 1.14 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.15 2003-07-31 12:35:45 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
       integer izmat(mzmat,4)
       real*8 zmat(mzmat,3)
       character*255 filsgm
+      character*10 date,time
 c
       integer i,j,length
 c
@@ -26,9 +27,11 @@ c
       open(unit=lfnsgm,file=filsgm(1:length),form='formatted',
      + status='new',err=9999)
 c
-      write(lfnsgm,2000)
+      call swatch(date,time)
+c
+      write(lfnsgm,2000) date,time
  2000 format('# This is an automatically generated segment file',/,
-     + '#')
+     + '# ',2a10)
 c
       write(lfnsgm,2001) 4.6
  2001 format(f12.6)

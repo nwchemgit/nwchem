@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.35 2003-07-31 04:09:31 d3j191 Exp $
+# $Id: GNUmakefile,v 1.36 2003-07-31 12:35:45 d3j191 Exp $
 #
 
 OBJ_OPTIMIZE=prepar.o\
+             pre_admin.o\
              pre_align.o\
              pre_ang.o\
              pre_atmscn.o\
