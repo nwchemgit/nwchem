@@ -1325,7 +1325,6 @@ c
 #include "cf_common.fh"
 c
       real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
-      integer iwat(mwa),iwqt(mwa)
       integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
       integer nwb,nwh,nwd,nwo
       integer msb,msh,msd,mso,npb,nph,npd,npo
