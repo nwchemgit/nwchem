@@ -1,23 +1,44 @@
-      Subroutine a_dist(xyz, Rij, ncenter)
+      Subroutine a_dist(xyz, Rij, ncenters)
 
-C$Id: a_dist.F,v 1.5 1995-04-26 18:12:38 og845 Exp $
-      Implicit real*8 (a-h,o-z)
+C$Id: a_dist.F,v 1.6 1995-10-19 02:08:04 og845 Exp $
+      Implicit double precision (a-h,o-z)
       Implicit integer (i-n)
 
-
+#include "quad.fh"
+      integer i,j,ncenters
 c--> Cartesian Coordinates
 
-      Dimension xyz(3,ncenter)
+      double precision xyz(3,ncenters)
 
 c--> Internuclear Distances
 
-      Dimension Rij((ncenter*(ncenter+1))/2)
+      double precision Rij((ncenters*(ncenters+1))/2)
+
+
 c
 c Evaluate the distance between each pair of centers.
 c
 c***************************************************************************
+c
+c     eliminate pt charges from list
+c
+      
+      i=0
+  123 i=i+1
+
+      if (aratio(iatype(i),1).lt.-1200.d0) then
+        do j = i,ncenters-1
+          xyz(1,j) = xyz(1,j+1)
+          xyz(2,j) = xyz(2,j+1)
+          xyz(3,j) = xyz(3,j+1)
+        enddo
+        ncenters=ncenters-1
+        i=i-1
+      endif
+      if(i.lt.ncenters) goto 123
+      
       ij = 0
-      do 20 i = 1,ncenter
+      do 20 i = 1,ncenters
         do 10 j = 1,i
           ij = ij + 1
           if(i.eq.j)then
