@@ -38,9 +38,11 @@ c     cpbe96
 c     xpbe96
 c     xmpw91
 c     ft97
+c     xpkzb99
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 44,numfunc=30)
+      parameter (num_dirs = 45,numfunc=30)
+
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -63,7 +65,9 @@ c
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx','optc','becke97-2','mpw91',
-     ,     'ft97','xft97','cft97'/
+     ,     'ft97','xft97','cft97',
+     &     'xpkzb99' /
+
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -93,6 +97,7 @@ c
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
+     &  3600,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -559,6 +564,7 @@ c
       goto 10
 c     
 c     perdew86; P86 functional for correlation
+c     default local functional (perdew81 LDA) is set later in this file
 c             
   800 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
@@ -589,6 +595,7 @@ c
       goto 10
 c     
 c     perdew91; P91 functional for correlation
+c     default local functional (PW91 LDA) is set later in this file
 c             
   900 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
@@ -958,6 +965,7 @@ c
 c
 c     
 c     cpbe96 Perdew-Burke-Ernzerhof functional for correlation
+c     default local functional (PW91 LDA) is set later in this file
 c             
  2100 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
@@ -1020,6 +1028,44 @@ c
          xfac(7) = 1.0d0
       endif
        goto 10
+
+c            META GGA
+
+c     
+c     xpkzb99; Perdew Kurth Blaha Zupan metaGGA functional for exchange
+c     
+ 3600 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xpkzb "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(18) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(18) = .true.
+            nlxfac(18) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(18) = .true.
+         nlxfac(18) = .true.
+      endif
+      if (.not. inp_f(xfac(18))) then
+         xfac(18) = 1.0d0
+      endif
+       goto 10
+
+
+
+
+
 c     
 c     gill96; Gill '96 functional for exchange
 c     
@@ -1082,7 +1128,7 @@ c
        goto 10
  1999 continue
 c
-c     Check nonlocal functionals: perdew86 and perdew91 to
+c     Check nonlocal COR functionals: perdew86, perdew91, pbe96 to
 c     see if user has specified and accompanying local
 c     functional.  If not, set appropriately.
 c
@@ -1202,7 +1248,9 @@ c
      &       /,' [mpw91]',
      &       /,' [ft97]',
      &       /,' [xft97]',
-     &       /,' [cft97]')
+     &       /,' [cft97]',
+     &       /,' [xpkzb99]')
+ 
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
 c     
