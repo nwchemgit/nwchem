@@ -46,7 +46,7 @@ c
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
       integer lptr,lptrn
-      integer nconst
+      integer nconst,i
 c
       if(lself) then
       jwfr=iwfr

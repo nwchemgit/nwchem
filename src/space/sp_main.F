@@ -10,15 +10,71 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
 c
+      integer i_qlst,l_qlst
+c
       call sp_gagetixv(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa,
      + int_mb(i_ipl))
 c
       if(me.eq.node) then
-c
       nwmloc=numwm
       nsaloc=numsa
-c
+      call sp_qatoms(isl,numsa)
+      if(.not.ma_push_get(mt_int,nsa,'qlst',l_qlst,i_qlst))
+     + call errquit('Failed to allocate memory for qlst',0)
+      call sp_latoms(isl,int_mb(i_qlst),numsa)
+      if(.not.ma_pop_stack(l_qlst))
+     + call errquit('Failed to deallocate memory for qlst',0)
+      call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
+c
+      return
+      end
+      subroutine sp_latoms(isl,lst,nums)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nums
+      integer isl(msa,mis2),lst(nsa)
+c
+      integer i
+c
+      do 1 i=1,nsa
+      lst(i)=0
+    1 continue
+c
+      call cf_links(nums,isl(1,lsgan),isl(1,lsdyn),lst)
+c
+      call ga_igop(msp_21,lst,nsa,'+')
+c
+      do 2 i=1,nums
+      if(iand(isl(i,lsdyn),lquant).eq.0.and.lst(isl(i,lsgan)).gt.0)
+     + isl(i,lsdyn)=ior(isl(i,lsdyn),lqlink)
+    2 continue
+c
+      return
+      end
+      subroutine sp_qatoms(isl,numsa)
+c
+      implicit none
+c
+#include "sp_common.fh"
+c
+      logical cf_quantuma
+      external cf_quantuma
+c
+      integer numsa
+      integer isl(msa,mis2)
+c
+      integer i
+c
+      do 1 i=1,numsa
+      if(cf_quantuma(isl(i,lsatt)))
+     + isl(i,lsdyn)=ior(isl(i,lsdyn),lquant)
+    1 continue
 c
       return
       end
@@ -1183,6 +1239,7 @@ c
       integer n
 c
       n=nbbl
+      if(lqmd) n=0
 c
       return
       end
@@ -1367,7 +1424,7 @@ c
 c
       return
       end
-      subroutine sp_accfbl(ibbl,lhandl,fw,fs)
+      subroutine sp_accfbl(ibbl,lhandl,fw,fs,lpair,iwz,isz)
 c
       implicit none
 c
@@ -1376,12 +1433,15 @@ c
 c
       integer ibbl,lhandl
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
 c
-      call sp_acfbl(ibbl,lhandl,fw,fs,int_mb(i_bb),int_mb(i_jpl))
+      call sp_acfbl(ibbl,lhandl,fw,fs,int_mb(i_bb),int_mb(i_jpl),
+     + lpair,iwz,isz)
 c
       return
       end
-      subroutine sp_acfbl(ibbl,lhandl,fw,fs,lbbl,jpl)
+      subroutine sp_acfbl(ibbl,lhandl,fw,fs,lbbl,jpl,lpair,iwz,isz)
 c
       implicit none
 c
@@ -1392,6 +1452,8 @@ c
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
       integer lbbl(mbbl,mbb2)
       integer jpl(mbox,mip2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
 c
       integer i,j,k,l,m,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
       integer jwfr,jwto,jsfr,jsto
@@ -1427,6 +1489,10 @@ c
      + fw(nwmloc+1,1,1,1),mwm,one)
       if(llong) call ga_acc(ga_w,il+jwfr-1,il+jwto-1,jl+9*mwa+3,
      + jl+12*mwa+2,fw(nwmloc+1,1,1,2),mwm,one)
+      if(lpair) then
+      call ga_distribution(ga_iwz,jnode,il,ih,jl,jh)
+      call ga_acc(ga_iwz,il+jwfr-1,il+jwto-1,jl,jl,iwz(nwmloc+1),mwm,1)
+      endif
       endif
       if(jsfr.gt.0) then
       nsnon=jsto-jsfr+1
@@ -1437,6 +1503,10 @@ c
      + fs(nsaloc+1,1,1),msa,one)
       if(llong) call ga_acc(ga_s,il+jsfr-1,il+jsto-1,jl+9,jl+11,
      + fs(nsaloc+1,1,2),msa,one)
+      if(lpair) then
+      call ga_distribution(ga_isz,jnode,il,ih,jl,jh)
+      call ga_acc(ga_isz,il+jsfr-1,il+jsto-1,jl,jl,isz(nsaloc+1),msa,1)
+      endif
       endif
 c
       m=1

@@ -10,6 +10,9 @@ c
       parameter(mis2=14)
       parameter(mbb2=4)
 c
+      integer mdynam
+      parameter(mdynam=12)
+c
       integer lwgmn,lwbox,lwnod,lwdyn
 c
       parameter(lwgmn=1)
@@ -34,6 +37,10 @@ c
       parameter(lsct2=13)
       parameter(lsct3=14)
 c
+      integer lquant,lqlink
+      parameter(lquant=16)
+      parameter(lqlink=32)
+c
       integer madbox
       parameter(madbox=6)
 c
@@ -46,12 +53,13 @@ c
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl
-      integer ga_ip,ga_iw,ga_w,ga_is,ga_s
+      integer ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_iwz,ga_isz
       integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
       integer i_rng,l_rng
       integer i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
       common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
      + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
+     + ga_iwz,ga_isz,
      + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,i_rng,l_rng,
      + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
 c
@@ -59,10 +67,10 @@ c
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
       integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
       integer nbbdif
-      logical lpbc0,ltwin,lpola,lfree,llong
+      logical lpbc0,ltwin,lpola,lfree,llong,lnode0,lqmd
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
      + bxmin,bymin,bzmin,tsyncp,factld,third,
      + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,nbbdif,
-     + lpbc0,ltwin,lpola,lfree,llong
+     + lpbc0,ltwin,lpola,lfree,llong,lnode0,lqmd
 
 

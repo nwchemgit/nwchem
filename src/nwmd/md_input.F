@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.2 1999-04-30 19:59:15 d3j191 Exp $
+c $Id: md_input.F,v 1.3 1999-06-11 22:50:09 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
-      real*8 frgaus,rbox,disrlx,drsscl
+      real*8 frgaus,rbox,disrlx,drsscl,eqm
 c
       integer i,mtimes,mdold
 c
@@ -190,6 +190,7 @@ c
       rbox=0.0d0
       disrlx=0.1d0
       drsscl=one
+      eqm=0.0d0
 c      do 4 i=1,msf
 c      lsffix(i)=1
 c    4 continue
@@ -689,6 +690,13 @@ c
       else
       goto 3
       endif
+      goto 2
+      endif
+c
+c     QM zero energy
+c
+      if(inp_compare(.false.,'eqm',item)) then
+      if(.not.inp_f(eqm)) call errquit('md_input: error eqm',0)
       goto 2
       endif
 c
@@ -1344,6 +1352,8 @@ c
       if(.not.rtdb_put(irtdb,'md:disrlx',mt_dbl,1,disrlx))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:drsscl',mt_dbl,1,drsscl))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:uqmatm',mt_dbl,1,eqm))
      + call errquit('md_input: rtdb_put failed',0)
       return
       end

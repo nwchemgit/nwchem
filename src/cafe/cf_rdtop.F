@@ -280,6 +280,7 @@ c
       call ga_brdcst(mcf_30,ith,24*numbl,0)
       call ga_brdcst(mcf_31,ip2,24*numbl,0)
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
+      call ga_brdcst(mcf_56,qfac,numbd,0)
 c
       itemp(1)=nwc
       itemp(2)=nsc

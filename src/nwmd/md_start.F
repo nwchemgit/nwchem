@@ -23,7 +23,7 @@ c
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
-     + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps)
+     + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps,lqmd)
 c
 c     start the classical forces API
 c     ------------------------------
@@ -529,6 +529,8 @@ c
       hbang2=two*atan(one)
       verinp=zero
 c
+      uqmd=zero
+c
       iformt=1
 c
 c     parallel execution defaults
@@ -838,17 +840,25 @@ c      else
 c      osepatset=.false.
 c      uqmatm=zero
 c      endif
-      iqmmm=0
+c      iqmmm=0
 c      lqmmm=.false.
 c      if(oqmmm) iqmmm=-1
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)
-c      if(theory.eq.'md'.or.theory.eq.'nwargos'.or.oqmmm) then
       if(theory.eq.'md'.or.theory.eq.'nwargos') then
+      iquant=0
+      iqmmm=0
+      else
+      iqmmm=1
+      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,lqmmm)) iqmmm=0
+      if(iqmmm.eq.1) then
+      if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
+     + uqmatm=0.0d0
       iquant=0
       else
       iquant=1
+      endif
       endif
 c
       if(.not.rtdb_cget(irtdb,'task:operation',1,operat))
@@ -1020,7 +1030,11 @@ c
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
       endif
 c
+      lqmd=iquant.ne.0
+      lqmmm=iqmmm.ne.0
+c
       ltwin=rlong.gt.rshort
+c
       msa=msareq
       mwm=mwmreq
 c

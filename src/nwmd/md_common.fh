@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.11 1999-05-12 20:55:55 d3j191 Exp $
+c $Id: md_common.fh,v 1.12 1999-06-11 22:50:09 d3j191 Exp $
 c
 c     parameters
 c
@@ -112,7 +112,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect(3),xffreq,xfield,drdf
+     + xfvect(3),xffreq,xfield,drdf,uqmatm
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -140,7 +140,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect,xffreq,xfield,drdf,
+     + xfvect,xffreq,xfield,drdf,uqmatm,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -163,8 +163,8 @@ c
      + irun,iequi,idacq,
      + inp_ptr
 c
-      logical lfirst,llong,ltwin,lpbc,lpair
-      common/md_log/lfirst,llong,ltwin,lpbc,lpair
+      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm
+      common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
@@ -172,9 +172,9 @@ c
 c
       real*8 temps,tempw,temp,pres,epme,eww(mpe,2),eskin,
      + zw(3,2),fmax,fnorm,
-     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox
+     + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
       common/md_pro/temps,tempw,temp,pres,epme,eww,eskin,zw,fmax,fnorm,
-     + vlat,vlati,box,rlambd,dlambd,wbox
+     + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,

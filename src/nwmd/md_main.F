@@ -56,18 +56,13 @@ c
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
-c
 c     atomic forces and potential energies
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
       call prp_print()
 c
@@ -167,10 +162,7 @@ c
 c
       isdit=1
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
+      lpair=.true.
 c
 c     atomic forces and potential energies
 c
@@ -178,7 +170,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
       epsd=epot
       eqrs=epot
@@ -250,18 +242,13 @@ c
       lpair=frequency(isdit,nfpair)
       llong=(frequency(isdit,nflong).or.lpair).and.ltwin
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
-c
 c     atomic forces and potential energies
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -344,18 +331,13 @@ c
       icgit=1
       lpair=.true.
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
-c
 c     atomic forces and potential energies
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
       ecgnew=epot
       eqrs=epot
@@ -518,11 +500,6 @@ c
    24 continue
       endif
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
-c
 c     atomic forces and potential energies
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
@@ -586,7 +563,7 @@ c
       call ga_dgop(mrg_d11,ypb,1,'+')
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
       ecg2=epot
       ecgdif=ecg2-ecgold
@@ -651,18 +628,13 @@ c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
-c
 c     atomic forces and potential energies
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
 c
       dxmax=zero
       dxwmax=zero
@@ -813,7 +785,7 @@ c
       call md_newton()
 c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_esk),epme)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
 c
@@ -909,7 +881,7 @@ c
       done=prp_mcti_step(idacq)
 c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_esk),epme)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
 c
@@ -982,6 +954,8 @@ c
       call md_fold(int_mb(i_iw),int_mb(i_is),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
+      if(.not.lqmd) then
+c
 c     dynamic load balancing
 c
       call sp_balanc(timer_wall(2))
@@ -994,10 +968,7 @@ c
 c
       endif
 c
-c     initialize cf
-c
-      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
+      endif
 c
 c     atomic forces and potential energies
 c
@@ -1139,9 +1110,24 @@ c
 c
       integer i,j,k
 c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+      if(lpair) call md_zinit(int_mb(i_iwz),int_mb(i_isz))
+c
+      if(lqmd) then
+      call qmd_forces(irtdb,int_mb(i_is+(lsgan-1)*msa),
+     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_fs),msa,
+     + nsaloc,uqmd)
+      uqmd=uqmd-uqmatm
+      return
+      endif
+c
       call ga_sync()
 c
-      call sp_initf(fw,fs,llong)
+      call sp_initf(fw,fs,llong,int_mb(i_iwz),int_mb(i_isz),lpair)
 c
       call sp_putix(me,iwl,xw,nwmloc,isl,xs,nsaloc)
 c
@@ -1153,7 +1139,14 @@ c
       call ga_sync()
       call timer_stop(2)
 c
-      call sp_final(fw,fs)
+      call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
+c
+      if(lqmmm) then
+      call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
+     + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+     + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm)
+      uqmmm=uqmmm-uqmatm
+      endif
 c
       if(ltwin) then
       do 1 j=1,3
@@ -1169,6 +1162,26 @@ c
       endif
 c
       call cf_fnorm(fw,nwmloc,isl(1,lsatt),fs,nsaloc,fnorm,fmax)
+c
+      return
+      end
+      subroutine md_zinit(iwz,isz)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer iwz(mwm),isz(msa)
+c
+      integer i
+c
+      do 1 i=1,mwm
+      iwz(i)=0
+    1 continue
+c
+      do 2 i=1,msa
+      isz(i)=0
+    2 continue
 c
       return
       end
@@ -1215,7 +1228,8 @@ c
      + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
      + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
 c
-      call sp_accfbl(ibbl,lhandl,fw,fs)
+      call sp_accfbl(ibbl,lhandl,fw,fs,
+     + lpair,int_mb(i_iwz),int_mb(i_isz))
 c
     1 continue
 c

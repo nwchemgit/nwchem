@@ -1,4 +1,4 @@
-      subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme)
+      subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
       implicit none
 c
@@ -12,16 +12,17 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
-      real*8 epot,stime,esk(msf)
+      real*8 epot,stime,esk(msf),uqmd,uqmmm
 c
-      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,epot)
+      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm,epot)
       if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
 c
       if(frequency(mdstep,nfprop)) call prp_record()
 c
       return
       end
-      subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,epot)
+      subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
+     + uqmd,uqmmm,epot)
 c
       implicit none
 c
@@ -35,7 +36,7 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,epot
-      real*8 eq,el,ep,ek,et,ewp
+      real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
@@ -81,6 +82,8 @@ c
       eq=eq+ess(k,j,6,1)+ess(k,j,8,1)
    13 continue
    12 continue
+c
+      if(me.eq.0) ep=ep+uqmd+uqmmm
 c
 c     if using cafe get properties from it
 c

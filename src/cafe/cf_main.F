@@ -1582,3 +1582,153 @@ c
 c
       return
       end
+      subroutine cf_atotyp(nam,ia,at)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer ia
+      character*6 at,nam(mat,3)
+c
+      at=nam(ia,iset)
+c
+      return
+      end
+      integer function cf_element(i)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer cf_atonum
+      external cf_atonum
+c
+      integer i
+c
+      cf_element=cf_atonum(i,int_mb(i_num))
+c
+      return
+      end
+      logical function cf_quantuma(i)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer i
+c
+      character*6 at
+c
+      call cf_atotyp(byte_mb(i_nam),i,at)
+      cf_quantuma=at(6:6).eq.'Q'
+c
+      return
+      end
+      subroutine cf_links(nums,isgan,isdt,lst)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums
+      integer isgan(msa),isdt(msa),lst(nsa)
+c
+      call cf_cntlnk(mbt(2),int_mb(i_ibnd(2)),nums,isgan,isdt,lst)
+      return
+      end
+      subroutine cf_cntlnk(msb,ibnd,nums,isgan,isdt,lst)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer msb,nums
+      integer ibnd(msb,3),isgan(msa),isdt(msa),lst(nsa)
+c
+      integer i,j
+c
+      do 1 j=1,nums
+      if(iand(isdt(j),lquant).ne.0) then
+      do 2 i=1,msb
+      if(ibnd(i,1).eq.isgan(j)) lst(ibnd(i,2))=lst(ibnd(i,2))+1
+      if(ibnd(i,2).eq.isgan(j)) lst(ibnd(i,1))=lst(ibnd(i,1))+1
+    2 continue
+      endif
+    1 continue
+c
+      return
+      end
+      real*8 function cf_charge(iq)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 cf_chg
+      external cf_chg
+c
+      integer iq
+c
+      cf_charge=cf_chg(iq,dbl_mb(i_chg))
+      return
+      end
+      real*8 function cf_chg(iq,chg)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer iq
+      real*8 chg(mqt,mqp,6)
+c
+      cf_chg=chg(iq,1,iset)/qfac
+c
+      return
+      end
+      real*8 function cf_wcharge(iq)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 cf_chg
+      external cf_chg
+c
+      integer iq
+c
+      cf_wcharge=cf_chg(int_mb(i_iwa+iq-1),dbl_mb(i_chg))
+      return
+      end
+      subroutine cf_num2nam(i,a)
+c
+      implicit none
+c
+      integer i
+      character*16 a
+c
+      character*2 symbol(103)
+c
+      data symbol/
+     + 'H ','He','Li','Be','B ','C ','N ','O ','F ','Ne',
+     + 'Na','Mg','Al','Si','P ','S ','Cl','Ar','K ','Ca',
+     + 'Sc','Ti','V ','Cr','Mn','Fe','Co','Ni','Cu','Zn',
+     + 'Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y ','Zr',
+     + 'Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn',
+     + 'Sb','Te','I ','Xe','Cs','Ba','La','Ce','Pr','Nd',
+     + 'Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb',
+     + 'Lu','Hf','Ta','W ','Re','Os','Ir','Pt','Au','Hg',
+     + 'Tl','Pb','Bi','Po','At','Rn','Fr','Ra','Ac','Th',
+     + 'Pa','U ','Np','Pu','Am','Cm','Bk','Cf','Es','Fm',
+     + 'Md','No','Lr'/
+c
+      a='Bq              '
+      if(i.gt.0.and.i.lt.104) a(1:2)=symbol(i)
+c
+      return
+      end

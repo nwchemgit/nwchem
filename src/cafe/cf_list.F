@@ -528,14 +528,14 @@ c
    22 continue
       endif
       if(iqmmm.ne.0) then
-      if(iand(idt(isa),lquant).ne.lquant) then
+      if(iand(idt(isa),lquant).eq.0) then
       do 24 jsa=jsafr,jsato
-      if(iand(idt(jsa),lquant).eq.lquant.and.rw(jsa).lt.rqmmm2)
+      if(iand(idt(jsa),lquant).ne.0.and.rw(jsa).lt.rqmmm2)
      + isz(isa)=1
    24 continue
       else
       do 25 jsa=jsafr,jsato
-      if(iand(idt(jsa),lquant).ne.lquant.and.rw(jsa).lt.rqmmm2)
+      if(iand(idt(jsa),lquant).eq.0.and.rw(jsa).lt.rqmmm2)
      + isz(jsa)=1
    25 continue
       endif

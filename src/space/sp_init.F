@@ -2,7 +2,7 @@
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps)
+     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt
-      logical lpol,lfre,ignore,lpbc
+      logical lpol,lfre,ignore,lpbc,lqd
 c
       integer i,j
 c
@@ -34,6 +34,8 @@ c
       ntwin=1
       if(rlng.gt.rsht) ntwin=2
       ltwin=rlng.gt.rsht
+      lnode0=lqmd
+      lqmd=lqd
 c
       loadb=ldb
       lbpair=lbp
@@ -310,6 +312,11 @@ c
       msa=min(msa,2*nsa+1)
       mwm=min(mwm,2*nwm+1)
 c
+      if(lnode0) then
+      msa=nsa+1
+      mwm=nwm+1
+      endif
+c
       return
  9999 call errquit('Failed to open restart file',0)
       return
@@ -355,6 +362,11 @@ c
       if(.not.ga_create(mt_dbl,np*msa,isize,'s',msa,isize,ga_s))
      + call errquit('Failed to create global array s',0)
 c
+      if(.not.ga_create(mt_int,np*mwm,1,'iwz',mwm,1,ga_iwz))
+     + call errquit('Failed to create global array iwz',0)
+      if(.not.ga_create(mt_int,np*msa,1,'isz',msa,1,ga_isz))
+     + call errquit('Failed to create global array isz',0)
+c
       return
       end
       subroutine sp_free()
@@ -364,6 +376,11 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+c
+      if(.not.ga_destroy(ga_isz))
+     + call errquit('Error ga_destroy isz',ga_isz)
+      if(.not.ga_destroy(ga_iwz))
+     + call errquit('Error ga_destroy iwz',ga_iwz)
 c
       if(.not.ga_destroy(ga_s))
      + call errquit('Error ga_destroy s',ga_s)
@@ -592,6 +609,10 @@ c
 c
       ndx(i)=(ipz*npy+ipy)*npx+ipx
       ibw(i,1)=(ibz*nby+iby)*nbx+ibx
+      if(lnode0) then
+      ndx(i)=0
+      ibw(i,1)=0
+      endif
     5 continue
       do 10 node=0,np-1
       new=0
@@ -692,6 +713,7 @@ c
       ipp=(ibz*nby+iby)*nbx+ibx
       endif
       ndx(k)=ipp
+      if(lnode0) ndx(k)=0
    14 continue
       do 19 node=0,np-1
       new=0
@@ -1356,7 +1378,7 @@ c
 c
       return
       end
-      subroutine sp_initf(fw,fs,llng)
+      subroutine sp_initf(fw,fs,llng,iwz,isz,lpair)
 c
       implicit none
 c
@@ -1365,7 +1387,8 @@ c
 #include "global.fh"
 c
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
-      logical llng
+      integer iwz(mwm),isz(msa)
+      logical llng,lpair
 c
       integer i,j,k,l,m,il,ih,jl,jh
 c
@@ -1405,9 +1428,20 @@ c
       if(llong) call ga_put(ga_s,il,ih,jl+9,jl+11,fs(1,1,2),msa) 
       endif
 c
+      if(lpair) then
+      do 7 i=1,mwm
+      iwz(i)=0
+    7 continue
+      do 8 i=1,msa
+      isz(i)=0
+    8 continue
+      call ga_zero(ga_iwz)
+      call ga_zero(ga_isz)
+      endif
+c
       return
       end
-      subroutine sp_final(fw,fs)
+      subroutine sp_final(fw,fs,lpair,iwz,isz)
 c
       implicit none
 c
@@ -1416,8 +1450,10 @@ c
 #include "global.fh"
 c
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      logical lpair
+      integer iwz(mwm),isz(msa)
 c
-      integer il,ih,jl,jh
+      integer i,il,ih,jl,jh
 c
       if(np.gt.0) then
       if(nwm.gt.0) then
@@ -1435,6 +1471,28 @@ c
       if(llong) call ga_acc(ga_s,il,ih,jl+9,jl+11,fs(1,1,2),msa,one)
       call ga_get(ga_s,il,ih,jl+6,jl+8,fs,msa)
       if(ltwin) call ga_get(ga_s,il,ih,jl+9,jl+11,fs(1,1,2),msa)
+      endif
+      endif
+c
+      print*,lpair,nwm,nsa,nsaloc
+      if(lpair) then
+      if(nwm.gt.0) then
+      call ga_distribution(ga_iwz,me,il,ih,jl,jh)
+      call ga_acc(ga_iwz,il,ih,1,1,iwz,mwm,1)
+      call ga_get(ga_iwz,il,ih,1,1,iwz,mwm)
+      do 1 i=1,nwmloc
+      iwz(i)=min(1,iwz(i))
+    1 continue
+      endif
+      if(nsa.gt.0) then
+      call ga_distribution(ga_isz,me,il,ih,jl,jh)
+      call ga_acc(ga_isz,il,ih,1,1,isz,msa,1)
+      call ga_get(ga_isz,il,ih,1,1,isz,msa)
+      do 2 i=1,nsaloc
+      isz(i)=min(1,isz(i))
+    2 continue
+      write(*,8889) me,(isz(i),i=1,nsa)
+ 8889 format(i1,';',25i3)
       endif
       endif
 c
@@ -1516,6 +1574,7 @@ c
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
+      integer idyn
 c
       if(me.eq.0) then
 c
@@ -1579,7 +1638,9 @@ c
       write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(zero,j=1,3),k=1,nwa)
       endif
  1006 format(2x,6f13.8)
-      write(lfnrst,1007) ibw(i),(brw(i,k),k=1,3)
+      idyn=iand(ibw(i),mdynam)
+      if(idyn.ne.0) idyn=1
+      write(lfnrst,1007) idyn,(brw(i,k),k=1,3)
  1007 format(i1,1x,3f13.8)
     5 continue
     1 continue
@@ -1616,10 +1677,12 @@ c
       endif
     7 continue
       do 9 i=1,nums
+      idyn=iand(ibs(i),mdynam)
+      if(idyn.ne.0) idyn=1
       if(lveloc) then
-      write(lfnrst,1008) ibs(i),(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
       else
-      write(lfnrst,1008) ibs(i),(bxs(i,j),j=1,3),(zero,j=1,3)
+      write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(zero,j=1,3)
       endif
  1008 format(i1,1x,6f13.8)
     9 continue
