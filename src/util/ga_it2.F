@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.5 2002-02-22 01:52:50 edo Exp $
+c $Id: ga_it2.F,v 1.6 2002-12-31 00:03:07 windus Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -548,41 +548,6 @@ c
 c
       if (.not. converged) call errquit('kain: not converged',0)
 c
-      end
-      subroutine ga_lu_solve_seq(op, g_a, g_b)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-      character*(*) op
-      integer g_a, g_b
-c     
-c     Solve A*X=B using LU replacing B with X
-c
-      integer n, nn, nvec, type, l_a, k_a, k_b, l_b, k_piv, l_piv, info
-c     
-      if (op .ne. 'n') call errquit('luseq op',0)
-      if (ga_nodeid() .eq. 0) then
-         call ga_inquire(g_a, type, n, nn)
-         if (n .ne. nn) call errquit('luseq: matrix not square',0)
-         call ga_inquire(g_b, type, nn, nvec)
-         if (n .ne. nn) call errquit('luseq: matrices do not conform',0)
-c     
-         if (.not. ma_push_get(MT_DBL, n*n, 'luseq', l_a, k_a))
-     $        call errquit('luseq: a',n*n)
-         if (.not. ma_push_get(MT_DBL, n*nvec, 'luseq', l_b, k_b))
-     $        call errquit('luseq: b',n*nvec)
-         if (.not. ma_push_get(mt_int, n, 'luseq', l_piv, k_piv))
-     $        call errquit('luseq: piv', n)
-         call ga_get(g_a, 1, n, 1, n, dbl_mb(k_a), n)
-         call ga_get(g_b, 1, n, 1, nvec, dbl_mb(k_b), n)
-         call dgesv(n, nvec, dbl_mb(k_a), n, int_mb(k_piv), 
-     $        dbl_mb(k_b), n, info)
-         if (info .ne. 0) call errquit('luseq: singular', info)
-         call ga_put(g_b, 1, n, 1, nvec, dbl_mb(k_b), n)
-         if (.not. ma_chop_stack(l_a)) call errquit('luseq ma',0)
-      end if
-      call ga_sync()
-c     
       end
       subroutine ga_svd_solve_seq(g_a, g_b, g_x, tol)
       implicit none
