@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.10 1999-09-08 16:49:56 d3j191 Exp $
+c $Id: pme_init.F,v 1.11 1999-11-05 16:33:46 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -257,7 +257,7 @@ c
       if(me.eq.nodep(i)) lpnode=.true.
    11 continue
 c
-#if defined(SP1)
+#if defined(USE_ESSL)
 c
 c     setup process grid for pessl grid
 c
