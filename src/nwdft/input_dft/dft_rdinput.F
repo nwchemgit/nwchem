@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.50 1997-11-14 01:14:25 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.51 1997-11-14 06:24:07 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -39,8 +39,6 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
-      Logical bas_ncontr_cn_max
-      External bas_ncontr_cn_max
 c
       do iline=1,15
           xfac(iline)=0.d0

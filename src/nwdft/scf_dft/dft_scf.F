@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.90 1997-11-14 01:14:28 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.91 1997-11-14 06:24:40 d3h449 Exp $
 c     
       implicit none
 c
@@ -66,7 +66,7 @@ c
       integer leneval, lcd_coef, icd_coef
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
-     &        nscr, lscr, iscr, max_component
+     &        nscr, lscr, iscr, max_component, max_elem_ang_scr
       double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
@@ -265,8 +265,8 @@ c
             max_elem_ang_scr = max_component * 28
          endif 
 c
-         nscr = 3*nq*nbf_ao_mxcont + 
-     &          max(3*nq*nbf_ao_mxprim,nq*max_elem_ang_scr) + 1
+         nscr = 3*nqmax*nbf_ao_mxcont + 
+     &          max(3*nqmax*nbf_ao_mxprim,nqmax*max_elem_ang_scr) + 1
 c
          availm = availm - ipol*(nbf_ao + nbf_cd + nbf_xc) - nscr
      &                   - 100000
