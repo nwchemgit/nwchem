@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.39 2003-07-30 18:16:48 bylaska Exp $
+* $Id: psi.F,v 1.40 2003-07-31 01:15:33 bylaska Exp $
 *
 
 
@@ -3878,7 +3878,10 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
         hnfft(2) = control_ngrid(2)
         hnfft(3) = control_ngrid(3)
         call Parallel_taskid(taskid)
+
+        call ga_sync()
         value = rtdb_parallel(.false.)
+        call ga_sync()
         if (taskid.eq.MASTER) then
        
           filename =  control_input_psi()
@@ -3909,6 +3912,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
           value = wvfnc_expander(rtdb)
 
         end if
+        call ga_sync()
         value = rtdb_parallel(.true.)
 
       end if
