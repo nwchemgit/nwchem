@@ -1,6 +1,6 @@
-      logical function scf_property(rtdb)
+      logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.1 1997-06-11 16:42:00 mdupuis Exp $
+* $Id: hnd_property.F,v 1.2 1997-06-11 22:11:38 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -105,7 +105,7 @@ c
      &    ('property:error destroying geom and basis handles',911)
 c
       call util_print_pop
-      scf_property = .true.
+      hnd_property = .true.
 c
       return
       end

@@ -5,14 +5,14 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.5 1997-06-11 16:44:54 mdupuis Exp $
+* $Id: prop.F,v 1.6 1997-06-11 22:11:39 mdupuis Exp $
 *
       implicit none
       integer rtdb              ! [input]
       integer nbofile
       logical status
-      logical  scf_property
-      external scf_property
+      logical  hnd_property
+      external hnd_property
 #include "context.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
