@@ -64,4 +64,9 @@ Robert
 
 15) make compare in the basis directory and run in the convert directory
     the code assumes that your new library is called library.new and the
-    previous basis set library is called library 
+    previous basis set library is called library.
+
+16) run "gen_liblist.pl library" to generate an updated library.list,
+    library.fam and library.tex (tex file for use in user manual).
+
+Bert
