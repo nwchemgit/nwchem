@@ -1,10 +1,11 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.41 1998-04-29 07:37:35 d3e129 Exp $
+C     $Id: input_parse.F,v 1.42 1998-06-15 23:21:37 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "util.fh"
 c     
 c     All processes call this routine.  Only process 0 actually reads the 
 c     input.  All other processes skip to the end of the routine
@@ -25,11 +26,13 @@ c
 c
       if (ga_nodeid() .eq. 0) then
 c     
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6, 'NWChem Input Module', 40, .true.)
-         write(6,*)
-         write(6,*)
+         if (util_print(print_low,'banner')) then
+           write(6,*)
+           write(6,*)
+           call util_print_centered(6, 'NWChem Input Module',40,.true.)
+           write(6,*)
+           write(6,*)
+         endif
 c     
 c     Do data base operations in sequential mode
 c     
@@ -51,6 +54,8 @@ c
                call geom_input(rtdb)
             else if (inp_compare(.false.,test,'basis')) then
                call bas_input(rtdb)
+            else if (inp_compare(.false.,test,'python')) then
+               call python_input(rtdb)
             else if (inp_compare(.false.,test,'ecp')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'so')) then
@@ -140,10 +145,11 @@ c
             goto 10 
          endif                  ! End while
  9999    status = rtdb_parallel(.true.) ! Restore parallel access to db
-         if (nlines.gt.0 .and. found_task.eq.0) then
+         if (nlines.gt.0 .and. found_task.eq.0 .and. 
+     $       util_print(print_low,'warning')) then
 c
 c     Read input but found no task directive.  Not an error
-c     but is probably undesirable
+c     but is probably undesirable ... unless doing python loop
 c
             write(6,*) 
             write(6,*) ' ! warning: processed input with no task'
