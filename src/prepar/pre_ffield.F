@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.8 1998-04-29 18:35:15 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.9 1998-04-30 01:30:44 d3j191 Exp $
 c
       implicit none
 c
@@ -403,7 +403,7 @@ c
       if(atyp2.eq.btyp2.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4) ifnd=1
       if(atyp2.eq.btyp3.and.atyp3.eq.btyp4.and.atyp4.eq.btyp2) ifnd=1
       if(atyp2.eq.btyp4.and.atyp3.eq.btyp2.and.atyp4.eq.btyp3) ifnd=1
-      if(atyp2.eq.btyp3.and.atyp3.eq.btyp3.and.atyp4.eq.btyp4) ifnd=-1
+      if(atyp2.eq.btyp3.and.atyp3.eq.btyp2.and.atyp4.eq.btyp4) ifnd=-1
       if(atyp2.eq.btyp2.and.atyp3.eq.btyp4.and.atyp4.eq.btyp3) ifnd=-1
       if(atyp2.eq.btyp4.and.atyp3.eq.btyp3.and.atyp4.eq.btyp2) ifnd=-1
       endif
