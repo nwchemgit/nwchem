@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.2 1999-11-17 18:36:49 bjohnson Exp $
+#	$Id: NTmakelib.h,v 1.3 2000-02-08 22:05:42 bjohnson Exp $
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)
@@ -12,7 +12,7 @@ LIBRARY_PATH_IF_EXISTS = $(LIBRARY_PATH)
 LIBRARY_PATH_IF_EXISTS =
 !ENDIF
 
-$(LIBRARY_PATH): $(OBJDIR) $(LIB_DISTRIB) $(OBJS) force_lib_update
+$(LIBRARY_PATH): $(OBJDIR) $(LIB_DISTRIB) $(OBJS)
 	$(AR) @<<
 	$(ARFLAGS) $(LIBRARY_PATH_IF_EXISTS) $(OBJS)
 <<
@@ -64,5 +64,3 @@ subdir_target:
 	@echo Making $(SUBDIR_TARGET) in $(TARGET_DIR)
 	@cd $(TARGET_DIR)
 	@nmake -nologo $(SUBDIR_TARGET)
-
-force_lib_update:
