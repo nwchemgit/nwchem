@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb)
 c
-c $Id: pre_wrtpdb.F,v 1.14 2000-03-23 15:24:20 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.15 2000-04-04 00:12:30 d3j191 Exp $
 c
       implicit none
 c
@@ -40,6 +40,13 @@ c
       open(unit=lfnpdb,file=filpdb(1:length),form='formatted',
      + status='unknown',err=9999)
 c
+      if(nxrep.lt.1) nxrep=1
+      if(nyrep.lt.1) nyrep=1
+      if(nzrep.lt.1) nzrep=1
+      nums=0
+c
+      if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
+c
       write(lfnpdb,1000) (1.0d1*box(i),i=1,3)
  1000 format(
      + 'HEADER',/,
@@ -48,13 +55,6 @@ c
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
      + 'BOX   ',3f12.6)
-c
-      if(nxrep.lt.1) nxrep=1
-      if(nyrep.lt.1) nyrep=1
-      if(nzrep.lt.1) nzrep=1
-      nums=0
-c
-      if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
       nums=0
       do 11 k=1,nsb
       i=idsb(1,k)
@@ -80,6 +80,8 @@ c
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
       else
+      write(lfnpdb,1000) 1.0d1*dble(nxrep)*box(1),
+     + 1.0d1*dble(nyrep)*box(2),1.0d1*dble(nzrep)*box(3)
       do 4 izrep=1,nzrep
       dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
       do 5 iyrep=1,nyrep
