@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.6 1999-09-20 20:15:38 d3j191 Exp $
+c $Id: ana_input.F,v 1.7 1999-10-25 17:44:26 d3j191 Exp $
 c
       implicit none
 c
@@ -131,6 +131,10 @@ c
       if(.not.inp_i(lsup)) lsup=1
       if(.not.inp_i(msupf)) msupf=0
       if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'trj',item)) then
+      fmtsup='trj'
+      if(.not.inp_a(item)) goto 1
+      endif
       if(inp_compare(.false.,'arc',item)) then
       fmtsup='arc'
       if(.not.inp_a(item)) goto 1
@@ -167,6 +171,10 @@ c
       if(.not.inp_i(lcop)) lcop=1
       if(.not.inp_i(mcopf)) mcopf=0
       if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'trj',item)) then
+      fmtcop='trj'
+      if(.not.inp_a(item)) goto 1
+      endif
       if(inp_compare(.false.,'arc',item)) then
       fmtcop='arc'
       if(.not.inp_a(item)) goto 1

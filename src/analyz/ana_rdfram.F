@@ -1,6 +1,6 @@
-      logical function ana_rdfram(x,ix)
+      logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.2 1999-09-20 20:15:38 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.3 1999-10-25 17:44:26 d3j191 Exp $
 c
       implicit none
 c
@@ -8,16 +8,21 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      real*8 x(msa,3)
+      real*8 x(msa,3),w(mwm,mwa,3)
       integer ix(msa)
 c
       character*80 card
-      integer i,j,na,lq
+      integer i,j,k,na,lq
       character*255 fname
       character*3 cnum
       character*1 cdum
 c
-      logical succes,lxw,lvw,lsx,lsv
+      logical succes
+c
+      lxw=.false.
+      lvw=.false.
+      lsx=.false.
+      lsv=.false.
 c
       if(me.eq.0) then
     1 continue
@@ -33,18 +38,20 @@ c
  1003 format(4l1,3i10)
       if(nsa.gt.msa) call errquit('Error in trj',0)
       if((lxw.or.lvw).and.nwm.gt.0) then
-      do 2 i=1,nwm*nwa
-      read(lfntrj,1004) cdum
- 1004 format(a1)
+      do 2 i=1,nwm
+      do 3 j=1,nwa
+      read(lfntrj,1004) (w(i,j,k),k=1,3)
+ 1004 format(3f8.3)
+    3 continue
     2 continue
       endif
       if(nsa.gt.0) then
       if(.not.lsx) call errquit('Error in trj',0)
-      do 3 i=1,nsa
+      do 4 i=1,nsa
       read(lfntrj,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
       ix(i)=i
-    3 continue
+    4 continue
       endif
       succes=.true.
       goto 9000

@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.4 1999-03-15 21:27:44 d3j191 Exp $
+c $Id: ana_init.F,v 1.5 1999-10-25 17:44:26 d3j191 Exp $
 c
       implicit none
 c
@@ -24,6 +24,8 @@ c
 c
       nsa=nsai
       msa=msai
+      mwm=nwm
+      mwa=nwa
 c
 c     read rtdb if on-the-fly
 c     for analysis task calls this has already been done
@@ -79,6 +81,8 @@ c
      + call errquit('Failed to allocate memory for xdat',me)
       if(.not.ma_push_get(mt_int,nsa,'idat',l_idat,i_idat))
      + call errquit('Failed to allocate memory for idat',me)
+      if(.not.ma_push_get(mt_dbl,3*nwm*nwa,'wdat',l_wdat,i_wdat))
+     + call errquit('Failed to allocate memory for wdat',me)
       endif
 c
 c     set the number of analyzed frames to zero
