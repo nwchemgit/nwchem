@@ -91,8 +91,11 @@ USES_BLAS = ecp_bess_pow.f \
       int_ecp.F      
 
 LIBRARY = libnwints.a
+ LIB_TARGETS = test_drive
 
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+test_drive:	test_drive.o 
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)
 
