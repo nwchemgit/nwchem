@@ -20,6 +20,12 @@ c
      $     ps_incore)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:  xc', pstat_qstat, 0, junk,
      $     ps_xc)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:ssw', pstat_qstat, 0, junk,
+     $     ps_ssw)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:xcrho', pstat_qstat, 0, junk,
+     $     ps_xcrho)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:tabcd', pstat_qstat, 0, junk,
+     $     ps_tabcd)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diag', pstat_qstat, 0, junk,
      $     ps_diag)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fitcd', pstat_qstat, 0, junk,
@@ -28,8 +34,6 @@ c
      $     ps_vcoul)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:bld12', pstat_qstat, 0, junk,
      $     ps_bld12)) call errquit('dft: dft_pstat_init', 0,0)
-      if (.not. pstat_allocate('dft:ssw', pstat_qstat, 0, junk,
-     $     ps_ssw)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diis', pstat_qstat, 0, junk,
      $     ps_diis)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fockb', pstat_qstat, 0, junk,

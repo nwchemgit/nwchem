@@ -18,7 +18,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.38 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_quadv0b.F,v 1.39 2004-01-24 02:07:22 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -35,6 +35,7 @@ c !!! temp !!! ***
 #include "rtdb.fh"
 #include "bgj.fh"
 c !!! temp !!! ***
+#include "dftps.fh"
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
@@ -134,6 +135,7 @@ c
 
       wmax= dabsmax(nqpts,qwght)
       if(do_scf) then
+         if (odftps) call pstat_on(ps_xcrho)
             call xc_rhogen(tol_rho, AO_bas_han, g_dens,
      &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
      &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
@@ -141,6 +143,7 @@ c
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,wmax, tau, kske)
+         if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,           rho,delrho,grad,ibf_ao, iniz, ifin,
@@ -234,6 +237,7 @@ c     add beta to 1 to get alpha+beta
      &       MA_ERR)
 c     
          if(do_scf) then
+         if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
      &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
      &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
@@ -242,6 +246,7 @@ c
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat)
+         if (odftps) call pstat_off(ps_tabcd)
          else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
             call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
