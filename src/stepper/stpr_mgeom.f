@@ -1,5 +1,5 @@
       SUBROUTINE stpr_mgeom(COORD,ATMASS,CMASS,TENIN)
-c $Id: stpr_mgeom.f,v 1.2 1995-03-31 01:45:33 d3g681 Exp $
+c $Id: stpr_mgeom.f,v 1.3 1998-05-05 21:48:13 d3e129 Exp $
 C
 C     This routine calculates vector of the center of mass
 C     and tensor of inertia.
@@ -9,7 +9,7 @@ C
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / MASS / TOTM, NUMAS
       DIMENSION COORD(3,NATOM),ATMASS(NATOM),CMASS(3),TENIN(3,3)
-      DIMENSION SHIT(3)
+      DIMENSION SH_I_T(3)
       DO 10 I=1,3
         CMASS(I)=0.D0
         DO 20 J=1,NATOM
@@ -29,14 +29,14 @@ C
    40   CONTINUE
    30 CONTINUE
       DO 60 I=1,3
-        SHIT(I)=0.D0
+        SH_I_T(I)=0.D0
         DO 70 J=1,NATOM
-          SHIT(I)=SHIT(I)+ATMASS(J)*COORD(I,J)**2
+          SH_I_T(I)=SH_I_T(I)+ATMASS(J)*COORD(I,J)**2
    70   CONTINUE
    60 CONTINUE
-      TENIN(1,1)=SHIT(2)+SHIT(3)
-      TENIN(2,2)=SHIT(1)+SHIT(3)
-      TENIN(3,3)=SHIT(2)+SHIT(1)
+      TENIN(1,1)=SH_I_T(2)+SH_I_T(3)
+      TENIN(2,2)=SH_I_T(1)+SH_I_T(3)
+      TENIN(3,3)=SH_I_T(2)+SH_I_T(1)
       WRITE(6,*)'  Moment of inertia'
       DO 80 I=1,3
         WRITE(6,*)(TENIN(I,J),J=1,3)
