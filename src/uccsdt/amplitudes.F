@@ -269,7 +269,7 @@ c
          end do
       end if
 c
-      call uccsdt_ampfile_test()
+c      call uccsdt_ampfile_test()
 c
       uccsdt_ampfile_init = .true.
 c

@@ -1,424 +1,3 @@
-      subroutine uccsdt_check_list(list)
-      implicit none
-#include "cuccsdtP.fh"
-#include "mafdecls.fh"
-      integer list
-c
-      integer offset,i,j,k,l,ptr,reclen,ind,l_buf, k_buf
-      integer blk1, blk2, blk3, blk4
-      integer spini, spinj, spink, spina, spinb, spinc, spine, spinm, 
-     $     syme, symm
-      logical oasym
-c
-c     Offset maps a 4-d array into a 1-d array.  It is used to look up
-c     ptr(ind,i,j,k,l) where ptr is dimensioned ptr(2,dim1,dim2,dim3,dim4) 
-c     with dim1-4 = listinfo(6-9,list)
-c
-      offset(ind,i,j,k,l,list) = 
-     $     ind-1 + 
-     $     2*(i-1 + 
-     $     listinfo(6,list)*(j-1 + 
-     $     listinfo(7,list)*(k-1 + 
-     $     listinfo(8,list)*(l-1))))
-c
-      if (list.lt.1 .or. list.gt.23) call errquit
-     $     ('uccsdt_check_list: bad list', list)
-      write(6,1) list, listname(list), (listinfo(i,list),i=1,9)
- 1    format(' list       ', i8, '       name       ', a/
-     $       ' ptr len    ', i8, '       ptr index  ', i10/
-     $       ' ptr handle ', i8, '       GA len     ', i8/
-     $       ' GA handle  ', i8, '       block dims ', 4i5/)
-c
-      spina = asuper_spin
-      spinb = spina
-      spinc = csuper_spin
-      spini = spina
-      spinj = spina
-      spink = spinc
-c
-      oasym = spina .eq. spinc  ! Pure spin integrals are asymmetric
-c      
-      do blk4 = 1, listinfo(9,list)
-         do blk3 = 1, listinfo(8,list)
-            do blk2 = 1, listinfo(7,list)
-               do blk1 = 1, listinfo(6,list)
-                  ptr = int_mb(listinfo(2,list) +
-     $                 offset(1,blk1,blk2,blk3,blk4,list))
-                  reclen = int_mb(listinfo(2,list) +
-     $                 offset(2,blk1,blk2,blk3,blk4,list))
-                  if (reclen .gt. 0) then
-                     if (.not. ma_push_get(mt_dbl, reclen, 'buf',
-     $                    l_buf, k_buf)) call errquit
-     $                    ('moints_triples_check_list: ma?', reclen)
-                     call uccsdt_triples_get_list(list,
-     $                    blk1, blk2, blk3, blk4, dbl_mb(k_buf), reclen)
-c     
-*                     write(6,2) blk1, blk2, blk3, blk4, ptr, reclen
-* 2                   format(' blocks=(',4i5,') ptr=',i8,' reclen=',i8)
-c
-                     if (list .eq. 1) then      ! <ei||ab>
-                        spine = spina
-                        syme = ieor(oblock(3,blk2,spini),
-     $                       ieor(ablock(3,blk3),bblock(3,blk4)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
-     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
-     $                       ablock(1,blk3), ablock(2,blk3),
-     $                       bblock(1,blk4), bblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, .true.)
-                     else if (list .eq. 2) then ! <ek|ac>
-                        spine = spina
-                        syme = ieor(oblock(3,blk2,spink),
-     $                       ieor(ablock(3,blk3),cblock(3,blk4)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
-     $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
-     $                       ablock(1,blk3), ablock(2,blk3),
-     $                       cblock(1,blk4), cblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 3) then ! <ek|bc>
-                        spine = spina
-                        syme = ieor(oblock(3,blk2,spink),
-     $                       ieor(bblock(3,blk3),cblock(3,blk4)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
-     $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
-     $                       bblock(1,blk3), bblock(2,blk3),
-     $                       cblock(1,blk4), cblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 4) then ! <ei|ca>
-                        spine = spinc
-                        syme = ieor(oblock(3,blk2,spini),
-     $                       ieor(cblock(3,blk3),ablock(3,blk4)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
-     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
-     $                       cblock(1,blk3), cblock(2,blk3),
-     $                       ablock(1,blk4), ablock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 5) then ! <ei|cb>
-                        spine = spinc
-                        syme = ieor(oblock(3,blk2,spini),
-     $                       ieor(cblock(3,blk3),bblock(3,blk4)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
-     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
-     $                       cblock(1,blk3), cblock(2,blk3),
-     $                       bblock(1,blk4), bblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 6) then ! <mc|ik>
-                        spinm = spina
-                        symm  = ieor(oblock(3,blk4,spink),
-     $                       ieor(oblock(3,blk3,spini),cblock(3,blk2)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
-     $                       cblock(1,blk2), cblock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 7) then ! <ma||ij>
-                        spinm = spina
-                        symm  = ieor(oblock(3,blk4,spini),
-     $                       ieor(oblock(3,blk3,spini),ablock(3,blk2)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
-     $                       ablock(1,blk2), ablock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, .true.)
-                     else if (list .eq. 8) then ! <mb||ij>
-                        spinm = spina
-                        symm  = ieor(oblock(3,blk4,spini),
-     $                       ieor(oblock(3,blk3,spini),bblock(3,blk2)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
-     $                       bblock(1,blk2), bblock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, .true.)
-                     else if (list .eq. 9) then ! <ma|ki>
-                        spinm = spink
-                        symm  = ieor(oblock(3,blk4,spini),
-     $                       ieor(oblock(3,blk3,spink),ablock(3,blk2)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
-     $                       ablock(1,blk2), ablock(2,blk2),
-     $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
-     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 10) then ! <mb|ki>
-                        spinm = spink
-                        symm  = ieor(oblock(3,blk4,spini),
-     $                       ieor(oblock(3,blk3,spink),bblock(3,blk2)))
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
-     $                       bblock(1,blk2), bblock(2,blk2),
-     $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
-     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 11) then ! <ab||ij>
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       ablock(1,blk1), ablock(2,blk1),
-     $                       bblock(1,blk2), bblock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, .true.)
-                     else if (list .eq. 12) then ! <ac|ik>
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       ablock(1,blk1), ablock(2,blk1),
-     $                       cblock(1,blk2), cblock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else if (list .eq. 13) then ! <bc|ik>
-                        call uccsdt_do_check_list(
-     $                       dbl_mb(k_buf), 
-     $                       bblock(1,blk1), bblock(2,blk1),
-     $                       cblock(1,blk2), cblock(2,blk2),
-     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
-     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
-     $                       dbl_mb(k_moint), nbf, oasym)
-                     else
-                        call errquit('cannot check this list',0)
-                     endif
-                     if (.not. ma_pop_stack(l_buf)) call errquit
-     $                    ('uccsdt_check_list: ma corrupt?',0)
-                  end if
-               end do
-            end do
-         end do
-      end do
-c$$$      if (list .eq. 1) then ! <ei||ab>
-c$$$      else if (list .eq. 2) then ! <ek|ac>
-c$$$      else if (list .eq. 3) then ! <ek|bc>
-c$$$      else if (list .eq. 4) then ! <ei|ca>
-c$$$      else if (list .eq. 5) then ! <ei|cb>
-c$$$      else if (list .eq. 6) then ! <mc|ik>
-c$$$      else if (list .eq. 7) then ! <ma||ij>
-c$$$      else if (list .eq. 8) then ! <mb||ij>
-c$$$      else if (list .eq. 9) then ! <ma|ki>
-c$$$      else if (list .eq. 10) then ! <mb|ki>
-c$$$      else if (list .eq. 11) then ! <ab||ij>
-c$$$      else if (list .eq. 12) then ! <ac|ik>
-c$$$      else if (list .eq. 13) then ! <bc|ik>
-c$$$      else if (list .eq. 14) then ! t(e,c,i,k)
-c$$$      else if (list .eq. 15) then ! t(e,a,i,j)
-c$$$      else if (list .eq. 16) then ! t(e,b,i,j)
-c$$$      else if (list .eq. 17) then ! t(e,a,k,i)
-c$$$      else if (list .eq. 18) then ! t(e,b,k,i)
-c$$$      else if (list .eq. 19) then ! t(m,i,a,b)
-c$$$      else if (list .eq. 20) then ! t(m,k,a,c)
-c$$$      else if (list .eq. 21) then ! t(m,k,b,c)
-c$$$      else if (list .eq. 22) then ! t(m,i,c,a)
-c$$$      else if (list .eq. 23) then ! t(m,i,c,b)
-c$$$      else
-c$$$         call errquit('uccsdt_triples_check_list: bad list', list)
-c$$$      end if
-c      
-      end
-      subroutine uccsdt_triples_dummy_amplitudes()
-      implicit none
-#include "cuccsdtP.fh"
-#include "mafdecls.fh"
-c
-c     Set the dummy t2 amplitudes to 
-c
-c     t(a,b,i,j) = <ab||ij> / (eps(i)+eps(j)-eps(a)-eps(b))
-c
-      integer spina, spinc, spini, spink, spine, spinm, list
-      integer k_ptr(2:4), k_t2
-      logical oasym
-c
-      spina = asuper_spin
-      spinc = csuper_spin
-      spini = spina
-      spink = spinc
-      oasym = spina .eq. spinc
-c
-      k_ptr(2) = k_t2aa
-      k_ptr(3) = k_t2ab
-      k_ptr(4) = k_t2bb
-c
-c      write(6,*)' k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)',
-c     &            k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)
-c
-c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf,  
-c     $                      nbf, nbf)
-c
-c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf,  
-c     $                      nbf, nbf)
-c
-c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf,  
-c     $                      nbf, nbf)
-c
-c      write(6,*)' spina, spinc, spini, spink ',
-c     &            spina, spinc, spini, spink
-c
-cccccccc      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
-c
-c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
-c
-      list = 14
-      spine = spina
-      k_t2 = k_ptr(spine+spinc)
-c      write(6,*)' list, spine, spinc, k_t2 ', 
-c     &            list, spine, spinc, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     v_sym(1,0,spine), eps(1,spine),
-     $     ncblock, cblock,  eps(1,spinc),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     dbl_mb(k_t2), nbf, k_t2, spine, spinc,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
-c
-c     15.  t(e,a,i,j) spin(e)=spin(a) pure
-c
-      list = 15
-      spine = spina
-      k_t2 = k_ptr(spine+spina)
-c      write(6,*)' list, spine, spina, k_t2 ', 
-c     &            list, spine, spina, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     v_sym(1,0,spine), eps(1,spine),
-     $     nablock, ablock,  eps(1,spina),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
-c
-c     16.  t(e,b,i,j) spin(e)=spin(a) pure
-c
-      list = 16
-      spine = spina
-      k_t2 = k_ptr(spine+spina)
-c      write(6,*)' list, spine, spina, k_t2 ', 
-c     &            list, spine, spina, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     v_sym(1,0,spine), eps(1,spine),
-     $     nbblock, bblock,  eps(1,spina),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
-c
-c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
-c
-      list = 17
-      spine = spinc
-      k_t2 = k_ptr(spine+spina)
-c      write(6,*)' list, spine, spina, k_t2 ', 
-c     &            list, spine, spina, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     v_sym(1,0,spine), eps(1,spine),
-     $     nablock, ablock,  eps(1,spina),
-     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
-c
-c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
-c
-      list = 18
-      spine = spinc
-      k_t2 = k_ptr(spine+spina)
-c      write(6,*)' list, spine, spina, k_t2 ', 
-c     &            list, spine, spina, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     v_sym(1,0,spine), eps(1,spine),
-     $     nbblock, bblock,  eps(1,spina),
-     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
-c
-c     19.  t(m,i,a,b) spin(m)=spin(a) pure
-c
-      list = 19
-      spinm = spina
-      k_t2 = k_ptr(spinm+spini)
-c      write(6,*)' list, spinm, spini, k_t2 ', 
-c     &            list, spinm, spini, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     o_sym(1,0,spinm), eps(1,spinm),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     nablock, ablock,  eps(1,spina),
-     $     nbblock, bblock,  eps(1,spina),
-     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .true.)
-c
-c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
-c
-      list = 20
-      spinm = spina
-      k_t2 = k_ptr(spinm+spink)
-c      write(6,*)' list, spinm, spink, k_t2 ', 
-c     &            list, spinm, spink, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     o_sym(1,0,spinm), eps(1,spinm),
-     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     nablock, ablock,  eps(1,spina),
-     $     ncblock, cblock,  eps(1,spinc),
-     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
-c
-c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
-c
-      list = 21
-      spinm = spina
-      k_t2 = k_ptr(spinm+spink)
-c      write(6,*)' list, spinm, spink, k_t2 ', 
-c     &            list, spinm, spink, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     o_sym(1,0,spinm), eps(1,spinm),
-     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
-     $     nbblock, bblock,  eps(1,spina),
-     $     ncblock, cblock,  eps(1,spinc),
-     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
-c
-c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
-c
-      list = 22
-      spinm = spinc
-      k_t2 = k_ptr(spinm+spini)
-c      write(6,*)' list, spinm, spini, k_t2 ', 
-c     &            list, spinm, spini, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     o_sym(1,0,spinm), eps(1,spinm),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     ncblock, cblock,  eps(1,spinc),
-     $     nablock, ablock,  eps(1,spina),
-     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
-c
-c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
-c
-      list = 23
-      spinm = spinc
-      k_t2 = k_ptr(spinm+spini)
-c      write(6,*)' list, spinm, spini, k_t2 ', 
-c     &            list, spinm, spini, k_t2
-      call uccsdt_do_triples_dummy_amplitudes(
-     $     o_sym(1,0,spinm), eps(1,spinm),
-     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
-     $     ncblock, cblock,  eps(1,spinc),
-     $     nbblock, bblock,  eps(1,spina),
-     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
-     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
-c
-      end
       subroutine uccsdt_do_triples_dummy_amplitudes(
      $     e_sym, eeps,
      $     ncblock, cblock, ceps,
@@ -1331,11 +910,11 @@ c
      $        ('moints_triples: failed to destroy g_ai',0)
       end do
 c
-      if (ocheck) then
-         do list = 1, 13
-            call uccsdt_check_list(list)
-         end do
-      endif
+c      if (ocheck) then
+c         do list = 1, 13
+c            call uccsdt_check_list(list)
+c         end do
+c      endif
 c
 *      call ma_summarize_allocated_blocks()
 c
@@ -2234,5 +1813,426 @@ c
       end if
 c
       end
+C****      subroutine uccsdt_check_list(list)
+C****      implicit none
+C****#include "cuccsdtP.fh"
+C****#include "mafdecls.fh"
+C****      integer list
+C****c
+C****      integer offset,i,j,k,l,ptr,reclen,ind,l_buf, k_buf
+C****      integer blk1, blk2, blk3, blk4
+C****      integer spini, spinj, spink, spina, spinb, spinc, spine, spinm, 
+C****     $     syme, symm
+C****      logical oasym
+C****c
+C****c     Offset maps a 4-d array into a 1-d array.  It is used to look up
+C****c     ptr(ind,i,j,k,l) where ptr is dimensioned ptr(2,dim1,dim2,dim3,dim4) 
+C****c     with dim1-4 = listinfo(6-9,list)
+C****c
+C****      offset(ind,i,j,k,l,list) = 
+C****     $     ind-1 + 
+C****     $     2*(i-1 + 
+C****     $     listinfo(6,list)*(j-1 + 
+C****     $     listinfo(7,list)*(k-1 + 
+C****     $     listinfo(8,list)*(l-1))))
+C****c
+C****      if (list.lt.1 .or. list.gt.23) call errquit
+C****     $     ('uccsdt_check_list: bad list', list)
+C****      write(6,1) list, listname(list), (listinfo(i,list),i=1,9)
+C**** 1    format(' list       ', i8, '       name       ', a/
+C****     $       ' ptr len    ', i8, '       ptr index  ', i10/
+C****     $       ' ptr handle ', i8, '       GA len     ', i8/
+C****     $       ' GA handle  ', i8, '       block dims ', 4i5/)
+C****c
+C****      spina = asuper_spin
+C****      spinb = spina
+C****      spinc = csuper_spin
+C****      spini = spina
+C****      spinj = spina
+C****      spink = spinc
+C****c
+C****      oasym = spina .eq. spinc  ! Pure spin integrals are asymmetric
+C****c      
+C****      do blk4 = 1, listinfo(9,list)
+C****         do blk3 = 1, listinfo(8,list)
+C****            do blk2 = 1, listinfo(7,list)
+C****               do blk1 = 1, listinfo(6,list)
+C****                  ptr = int_mb(listinfo(2,list) +
+C****     $                 offset(1,blk1,blk2,blk3,blk4,list))
+C****                  reclen = int_mb(listinfo(2,list) +
+C****     $                 offset(2,blk1,blk2,blk3,blk4,list))
+C****                  if (reclen .gt. 0) then
+C****                     if (.not. ma_push_get(mt_dbl, reclen, 'buf',
+C****     $                    l_buf, k_buf)) call errquit
+C****     $                    ('moints_triples_check_list: ma?', reclen)
+C****                     call uccsdt_triples_get_list(list,
+C****     $                    blk1, blk2, blk3, blk4, dbl_mb(k_buf), reclen)
+C****c     
+C*****                     write(6,2) blk1, blk2, blk3, blk4, ptr, reclen
+C***** 2                   format(' blocks=(',4i5,') ptr=',i8,' reclen=',i8)
+C****c
+C****                     if (list .eq. 1) then      ! <ei||ab>
+C****                        spine = spina
+C****                        syme = ieor(oblock(3,blk2,spini),
+C****     $                       ieor(ablock(3,blk3),bblock(3,blk4)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
+C****     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
+C****     $                       ablock(1,blk3), ablock(2,blk3),
+C****     $                       bblock(1,blk4), bblock(2,blk4),
+C****     $                       dbl_mb(k_moint), nbf, .true.)
+C****                     else if (list .eq. 2) then ! <ek|ac>
+C****                        spine = spina
+C****                        syme = ieor(oblock(3,blk2,spink),
+C****     $                       ieor(ablock(3,blk3),cblock(3,blk4)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
+C****     $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
+C****     $                       ablock(1,blk3), ablock(2,blk3),
+C****     $                       cblock(1,blk4), cblock(2,blk4),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 3) then ! <ek|bc>
+C****                        spine = spina
+C****                        syme = ieor(oblock(3,blk2,spink),
+C****     $                       ieor(bblock(3,blk3),cblock(3,blk4)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
+C****     $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
+C****     $                       bblock(1,blk3), bblock(2,blk3),
+C****     $                       cblock(1,blk4), cblock(2,blk4),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 4) then ! <ei|ca>
+C****                        spine = spinc
+C****                        syme = ieor(oblock(3,blk2,spini),
+C****     $                       ieor(cblock(3,blk3),ablock(3,blk4)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
+C****     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
+C****     $                       cblock(1,blk3), cblock(2,blk3),
+C****     $                       ablock(1,blk4), ablock(2,blk4),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 5) then ! <ei|cb>
+C****                        spine = spinc
+C****                        syme = ieor(oblock(3,blk2,spini),
+C****     $                       ieor(cblock(3,blk3),bblock(3,blk4)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       v_sym(1,syme,spine), v_sym(2,syme,spine),
+C****     $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
+C****     $                       cblock(1,blk3), cblock(2,blk3),
+C****     $                       bblock(1,blk4), bblock(2,blk4),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 6) then ! <mc|ik>
+C****                        spinm = spina
+C****                        symm  = ieor(oblock(3,blk4,spink),
+C****     $                       ieor(oblock(3,blk3,spini),cblock(3,blk2)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
+C****     $                       cblock(1,blk2), cblock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 7) then ! <ma||ij>
+C****                        spinm = spina
+C****                        symm  = ieor(oblock(3,blk4,spini),
+C****     $                       ieor(oblock(3,blk3,spini),ablock(3,blk2)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
+C****     $                       ablock(1,blk2), ablock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+C****     $                       dbl_mb(k_moint), nbf, .true.)
+C****                     else if (list .eq. 8) then ! <mb||ij>
+C****                        spinm = spina
+C****                        symm  = ieor(oblock(3,blk4,spini),
+C****     $                       ieor(oblock(3,blk3,spini),bblock(3,blk2)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
+C****     $                       bblock(1,blk2), bblock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+C****     $                       dbl_mb(k_moint), nbf, .true.)
+C****                     else if (list .eq. 9) then ! <ma|ki>
+C****                        spinm = spink
+C****                        symm  = ieor(oblock(3,blk4,spini),
+C****     $                       ieor(oblock(3,blk3,spink),ablock(3,blk2)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
+C****     $                       ablock(1,blk2), ablock(2,blk2),
+C****     $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
+C****     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 10) then ! <mb|ki>
+C****                        spinm = spink
+C****                        symm  = ieor(oblock(3,blk4,spini),
+C****     $                       ieor(oblock(3,blk3,spink),bblock(3,blk2)))
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       o_sym(1,symm,spinm), o_sym(2,symm,spinm),
+C****     $                       bblock(1,blk2), bblock(2,blk2),
+C****     $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
+C****     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 11) then ! <ab||ij>
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       ablock(1,blk1), ablock(2,blk1),
+C****     $                       bblock(1,blk2), bblock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+C****     $                       dbl_mb(k_moint), nbf, .true.)
+C****                     else if (list .eq. 12) then ! <ac|ik>
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       ablock(1,blk1), ablock(2,blk1),
+C****     $                       cblock(1,blk2), cblock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else if (list .eq. 13) then ! <bc|ik>
+C****                        call uccsdt_do_check_list(
+C****     $                       dbl_mb(k_buf), 
+C****     $                       bblock(1,blk1), bblock(2,blk1),
+C****     $                       cblock(1,blk2), cblock(2,blk2),
+C****     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+C****     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
+C****     $                       dbl_mb(k_moint), nbf, oasym)
+C****                     else
+C****                        call errquit('cannot check this list',0)
+C****                     endif
+C****                     if (.not. ma_pop_stack(l_buf)) call errquit
+C****     $                    ('uccsdt_check_list: ma corrupt?',0)
+C****                  end if
+C****               end do
+C****            end do
+C****         end do
+C****      end do
+C****c$$$      if (list .eq. 1) then ! <ei||ab>
+C****c$$$      else if (list .eq. 2) then ! <ek|ac>
+C****c$$$      else if (list .eq. 3) then ! <ek|bc>
+C****c$$$      else if (list .eq. 4) then ! <ei|ca>
+C****c$$$      else if (list .eq. 5) then ! <ei|cb>
+C****c$$$      else if (list .eq. 6) then ! <mc|ik>
+C****c$$$      else if (list .eq. 7) then ! <ma||ij>
+C****c$$$      else if (list .eq. 8) then ! <mb||ij>
+C****c$$$      else if (list .eq. 9) then ! <ma|ki>
+C****c$$$      else if (list .eq. 10) then ! <mb|ki>
+C****c$$$      else if (list .eq. 11) then ! <ab||ij>
+C****c$$$      else if (list .eq. 12) then ! <ac|ik>
+C****c$$$      else if (list .eq. 13) then ! <bc|ik>
+C****c$$$      else if (list .eq. 14) then ! t(e,c,i,k)
+C****c$$$      else if (list .eq. 15) then ! t(e,a,i,j)
+C****c$$$      else if (list .eq. 16) then ! t(e,b,i,j)
+C****c$$$      else if (list .eq. 17) then ! t(e,a,k,i)
+C****c$$$      else if (list .eq. 18) then ! t(e,b,k,i)
+C****c$$$      else if (list .eq. 19) then ! t(m,i,a,b)
+C****c$$$      else if (list .eq. 20) then ! t(m,k,a,c)
+C****c$$$      else if (list .eq. 21) then ! t(m,k,b,c)
+C****c$$$      else if (list .eq. 22) then ! t(m,i,c,a)
+C****c$$$      else if (list .eq. 23) then ! t(m,i,c,b)
+C****c$$$      else
+C****c$$$         call errquit('uccsdt_triples_check_list: bad list', list)
+C****c$$$      end if
+C****c      
+C****      end
+C****      subroutine uccsdt_triples_dummy_amplitudes()
+C****      implicit none
+C****#include "cuccsdtP.fh"
+C****#include "mafdecls.fh"
+C****c
+C****c     Set the dummy t2 amplitudes to 
+C****c
+C****c     t(a,b,i,j) = <ab||ij> / (eps(i)+eps(j)-eps(a)-eps(b))
+C****c
+C****      integer spina, spinc, spini, spink, spine, spinm, list
+C****      integer k_ptr(2:4), k_t2
+C****      logical oasym
+C****c
+C****      spina = asuper_spin
+C****      spinc = csuper_spin
+C****      spini = spina
+C****      spink = spinc
+C****      oasym = spina .eq. spinc
+C****c
+C****      k_ptr(2) = k_t2aa
+C****      k_ptr(3) = k_t2ab
+C****      k_ptr(4) = k_t2bb
+C****c
+C****c      write(6,*)' k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)',
+C****c     &            k_t2aa, k_t2ab, k_t2bb, k_ptr(2), k_ptr(3), k_ptr(4)
+C****c
+C****c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf,  
+C****c     $                      nbf, nbf)
+C****c
+C****c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf,  
+C****c     $                      nbf, nbf)
+C****c
+C****c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf,  
+C****c     $                      nbf, nbf)
+C****c
+C****c      write(6,*)' spina, spinc, spini, spink ',
+C****c     &            spina, spinc, spini, spink
+C****c
+C****cccccccc      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
+C****c
+C****c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
+C****c
+C****      list = 14
+C****      spine = spina
+C****      k_t2 = k_ptr(spine+spinc)
+C****c      write(6,*)' list, spine, spinc, k_t2 ', 
+C****c     &            list, spine, spinc, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     v_sym(1,0,spine), eps(1,spine),
+C****     $     ncblock, cblock,  eps(1,spinc),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spine, spinc,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
+C****c
+C****c     15.  t(e,a,i,j) spin(e)=spin(a) pure
+C****c
+C****      list = 15
+C****      spine = spina
+C****      k_t2 = k_ptr(spine+spina)
+C****c      write(6,*)' list, spine, spina, k_t2 ', 
+C****c     &            list, spine, spina, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     v_sym(1,0,spine), eps(1,spine),
+C****     $     nablock, ablock,  eps(1,spina),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
+C****c
+C****c     16.  t(e,b,i,j) spin(e)=spin(a) pure
+C****c
+C****      list = 16
+C****      spine = spina
+C****      k_t2 = k_ptr(spine+spina)
+C****c      write(6,*)' list, spine, spina, k_t2 ', 
+C****c     &            list, spine, spina, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     v_sym(1,0,spine), eps(1,spine),
+C****     $     nbblock, bblock,  eps(1,spina),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
+C****c
+C****c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
+C****c
+C****      list = 17
+C****      spine = spinc
+C****      k_t2 = k_ptr(spine+spina)
+C****c      write(6,*)' list, spine, spina, k_t2 ', 
+C****c     &            list, spine, spina, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     v_sym(1,0,spine), eps(1,spine),
+C****     $     nablock, ablock,  eps(1,spina),
+C****     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
+C****c
+C****c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
+C****c
+C****      list = 18
+C****      spine = spinc
+C****      k_t2 = k_ptr(spine+spina)
+C****c      write(6,*)' list, spine, spina, k_t2 ', 
+C****c     &            list, spine, spina, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     v_sym(1,0,spine), eps(1,spine),
+C****     $     nbblock, bblock,  eps(1,spina),
+C****     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spine, spina,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, oasym)
+C****c
+C****c     19.  t(m,i,a,b) spin(m)=spin(a) pure
+C****c
+C****      list = 19
+C****      spinm = spina
+C****      k_t2 = k_ptr(spinm+spini)
+C****c      write(6,*)' list, spinm, spini, k_t2 ', 
+C****c     &            list, spinm, spini, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     o_sym(1,0,spinm), eps(1,spinm),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     nablock, ablock,  eps(1,spina),
+C****     $     nbblock, bblock,  eps(1,spina),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .true.)
+C****c
+C****c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
+C****c
+C****      list = 20
+C****      spinm = spina
+C****      k_t2 = k_ptr(spinm+spink)
+C****c      write(6,*)' list, spinm, spink, k_t2 ', 
+C****c     &            list, spinm, spink, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     o_sym(1,0,spinm), eps(1,spinm),
+C****     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+C****     $     nablock, ablock,  eps(1,spina),
+C****     $     ncblock, cblock,  eps(1,spinc),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
+C****c
+C****c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
+C****c
+C****      list = 21
+C****      spinm = spina
+C****      k_t2 = k_ptr(spinm+spink)
+C****c      write(6,*)' list, spinm, spink, k_t2 ', 
+C****c     &            list, spinm, spink, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     o_sym(1,0,spinm), eps(1,spinm),
+C****     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+C****     $     nbblock, bblock,  eps(1,spina),
+C****     $     ncblock, cblock,  eps(1,spinc),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spinm, spink,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
+C****c
+C****c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
+C****c
+C****      list = 22
+C****      spinm = spinc
+C****      k_t2 = k_ptr(spinm+spini)
+C****c      write(6,*)' list, spinm, spini, k_t2 ', 
+C****c     &            list, spinm, spini, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     o_sym(1,0,spinm), eps(1,spinm),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     ncblock, cblock,  eps(1,spinc),
+C****     $     nablock, ablock,  eps(1,spina),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
+C****c
+C****c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
+C****c
+C****      list = 23
+C****      spinm = spinc
+C****      k_t2 = k_ptr(spinm+spini)
+C****c      write(6,*)' list, spinm, spini, k_t2 ', 
+C****c     &            list, spinm, spini, k_t2
+C****      call uccsdt_do_triples_dummy_amplitudes(
+C****     $     o_sym(1,0,spinm), eps(1,spinm),
+C****     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+C****     $     ncblock, cblock,  eps(1,spinc),
+C****     $     nbblock, bblock,  eps(1,spina),
+C****     $     dbl_mb(k_t2), nbf, k_t2, spinm, spini,
+C****     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, oasym)
+C****c
+C****      end
 
          
