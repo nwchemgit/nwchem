@@ -43,7 +43,6 @@ c
           if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
      $           call errquit('task_energy: no energy in rtdb?',0,
      &       RTDB_ERR)
-          write(*,*) "qmmm energy",energy
       else if (theory .ne. 'oniom') then
          status = task_energy_doit(rtdb,theory,energy)
       else
@@ -98,7 +97,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.43 2004-10-09 00:20:05 marat Exp $
+* $Id: task_energy.F,v 1.44 2004-10-22 23:51:22 marat Exp $
 *
       implicit none
 #include "errquit.fh"
