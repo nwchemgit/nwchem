@@ -954,9 +954,8 @@ c
       if (.not. inp_f(xfac(19))) then
          xfac(19) = 1.0d0
       endif
-       goto 10
-c
       goto 10
+c
 c     
 c     cpbe96 Perdew-Burke-Ernzerhof functional for correlation
 c             
