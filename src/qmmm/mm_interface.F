@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.38 2004-12-21 02:07:56 marat Exp $
+c $Id: mm_interface.F,v 1.39 2004-12-21 19:19:56 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1814,9 +1814,14 @@ c     local variables:
      + call errquit(pname//'Failed to allocate stack',nqm,
      &       MA_ERR)
 
+      call mm_get_tot_nlink(nl0)
+      if(qmmm_print_debug()) then
+        write(*,*) pname,"number of link atoms",nl0
+      end if
+      if(nl0.eq.0) return
+
       call mm_get_solute_ind_gen(nqm,mm_quant,int_mb(i_qind))
 
-      call mm_get_tot_nlink(nl0)
       if(.not.ma_push_get(mt_int,nl0,'tmp lind',h_lind,i_lind))
      + call errquit(pname//'Failed to allocate stack',nl,
      &       MA_ERR)
@@ -1906,18 +1911,18 @@ c     local variables:
       pname = "mm_count_links"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 
+      call mm_get_tot_nlink(nl0)
+      if(.not.ma_push_get(mt_int,nl0,'tmp lind',h_lind,i_lind))
+     + call errquit(pname//'Failed to allocate stack',nl0,
+     &       MA_ERR)
+      if(nl0.eq.0) return
+
       call mm_get_tot_nqm(nqm)
       if(.not.ma_push_get(mt_int,nqm,'tmp qind',h_qind,i_qind))
      + call errquit(pname//'Failed to allocate stack',nqm,
      &       MA_ERR)
 
       call mm_get_solute_ind_gen(nqm,mm_quant,int_mb(i_qind))
-
-      call mm_get_tot_nlink(nl0)
-      if(.not.ma_push_get(mt_int,nl0,'tmp lind',h_lind,i_lind))
-     + call errquit(pname//'Failed to allocate stack',nl0,
-     &       MA_ERR)
-
 
       call mm_get_solute_ind_gen(nl0,mm_link,int_mb(i_lind))
 
