@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.10 2003-03-16 23:41:18 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.11 2003-08-05 00:37:53 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -103,6 +103,7 @@ c
      1  write(LuOut,9010) filename(1:20)
  9010 format(1x,'2-e (intermediate) file name = ',A)
       call createfile(filename,d_ao2e,sf_size_pq*sf_size_kl)
+      call dratoga(d_ao2e)
 c
 c     =======================
 c     Initialize integral API

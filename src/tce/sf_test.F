@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.8 2003-08-01 22:59:51 sohirata Exp $
+c $Id: sf_test.F,v 1.9 2003-08-05 00:37:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -48,10 +48,11 @@ c
       call tce_filename('filetest',filename)
       call createfile(filename,d_test,size)
       dbl_mb(k_sf) = dfloat(ga_nodeid()+1)
+      call dratoga(d_test)
       call put_block(d_test,dbl_mb(k_sf),1,ga_nodeid())
       call reconcilefile(d_test,size)
-      call dratoga(d_test,size)
       call get_block(d_test,dbl_mb(k_sf),size,0)
+      call gatodra(d_test)
       do i = 1,size
         if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
      1    call errquit('sf_test failed',i)

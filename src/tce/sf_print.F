@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.7 2003-07-25 17:56:55 sohirata Exp $
+c $Id: sf_print.F,v 1.8 2003-08-05 00:37:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -17,7 +17,9 @@ c
 c
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
      1  call errquit('sf_print: MA problem',0)
+      call dratoga(sf_handle)
       call get_block(sf_handle,dbl_mb(k_sf),size,0)
+      call gatodra(sf_handle)
       write(LuOut,9000) ga_nodeid()
 c     call ma_print(dbl_mb(k_sf),size,1,'Global file')
       write(LuOut,9020)

@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.9 2003-08-01 22:59:51 sohirata Exp $
+c $Id: deletefile.F,v 1.10 2003-08-05 00:37:51 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -149,22 +149,29 @@ c
           if (dra_delete(d_temp).ne.0)
      1      call errquit('deletefile: dra problem',1)
         endif
+        filehandles(d_sf) = 2**30
+        if (d_sf.eq.nfiles) nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug))
      1    call filesummary
       else if (ioalg.eq.6) then
         if (fileisga(d_sf)) then
-          if (.not.ga_destroy(filehandles(d_sf)))
-     1      call errquit('deletefile: GA problem',0)
+          if (.not.ga_destroy(filehandles(d_sf))) then
+            write(LuOut,9010) filehandles(d_sf),filenames(d_sf)
+            call errquit('deletefile: GA problem',0)
+          endif
         else
-          if (eaf_close(filehandles(d_sf)).ne.0)
-     1      call errquit('deletefile: eaf problem',0)
+          if (eaf_close(filehandles(d_sf)).ne.0) then
+            write(LuOut,9010) filehandles(d_sf),filenames(d_sf)
+            call errquit('deletefile: eaf problem',0)
+          endif
           call util_file_unlink(filenames(d_sf))
         endif
-        filehandles(d_sf) = 9999999999
+        filehandles(d_sf) = 2**30
+        if (d_sf.eq.nfiles) nfiles = nfiles - 1
       endif
       cpusecs(2) = cpusecs(2) + util_cpusec()
       cpusecs(52) = cpusecs(52) + util_wallsec()
- 9000 format(1x,'delete a file: file handle = ',i3)
- 9010 format(1x,'file handle = ',i3,' file name = ',a)
+ 9000 format(1x,'delete a file: file handle = ',i9)
+ 9010 format(1x,'file handle = ',i9,' file name = ',a)
       return
       end

@@ -1,6 +1,6 @@
       subroutine tce_guess_t1(d_t1,k_t1_offset)
 c
-c $Id: tce_guess_t1.F,v 1.2 2002-11-20 05:03:06 sohirata Exp $
+c $Id: tce_guess_t1.F,v 1.3 2003-08-05 00:37:54 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -27,6 +27,7 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
+      call dratoga(d_t1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (next.eq.count) then
@@ -52,6 +53,7 @@ c
           count = count + 1
         enddo
       enddo
+      call gatodra(d_t1)
       next = nxtval(-nprocs)
       call ga_sync()
       return

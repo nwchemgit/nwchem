@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.15 2003-07-25 17:56:55 sohirata Exp $
+# $Id: tce.py,v 1.16 2003-08-05 00:37:53 sohirata Exp $
 
 import string
 import types
@@ -6221,19 +6221,36 @@ class OperationTree:
     
       return [alltypes,newexcitationtypes,newdeexcitationtypes,intermediatetypes,generaltypes]
 
-   def fortran77(self,filename="NONAME"):
+   def fortran77(self,filename="NONAME",excitation=[],deexcitation=[],intermediate=[],general=[]):
       """Suggests an implementation in Fortran77 for the whole operation tree"""
 
       print " ... generating a Fortran77 code"
       print " "
-      for type in self.tensortypes()[0]:
-         if (type in self.tensortypes()[1]):
+      all = excitation+deexcitation+intermediate+general
+      if (not all):
+         types = self.tensortypes()
+      else:
+         types = [all,excitation,deexcitation,intermediate,general]
+      for type in types[0]:
+         if (type in types[1]):
             print " '"+type+"' is an excitaion tensor"
-         elif (type in self.tensortypes()[2]):
+            if ((type == 'v') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'f') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'd') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+         elif (type in types[2]):
             print " '"+type+"' is a de-excitaion tensor"
-         elif (type in self.tensortypes()[3]):
+            if ((type == 'v') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'f') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'd') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+         elif (type in types[3]):
             print " '"+type+"' is an intermediate tensor"
-         elif (type in self.tensortypes()[4]):
+         elif (type in types[4]):
             print " '"+type+"' is a general tensor"
          else:
             raise RuntimeError, "unknown tensor type"
@@ -6278,7 +6295,7 @@ class OperationTree:
       newcode.add("headers",newline)
       
       # loop over the tree
-      newcode.join(selfcopy.fortran77a(filename,globaltargetindexes,self.tensortypes(),callees).expand())
+      newcode.join(selfcopy.fortran77a(filename,globaltargetindexes,types,callees).expand())
 
       # antisymmetrizer
       newcode.pointer = len(newcode.statements)
@@ -6306,6 +6323,7 @@ class OperationTree:
 #        newlistofcodes.add(antisymmetrizer)
 
       newlistofcodes.list[0].sortarguments()
+      newlistofcodes.list[0].removeredundantio()
       return newlistofcodes
 
    def fortran77a(self,subroutinename,globaltargetindexes,types,callees):
@@ -6391,12 +6409,20 @@ class OperationTree:
             newcode.statements.insert(0,newline)
             newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
+            newline = string.join(["CALL DRATOGA(",d_b,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL DRATOGA(",d_a,")"],"")
+            newcode.statements.insert(0,newline)
             callee = sister.tensors[0].fortran77y(globaltargetindexes,types,name)
             callees.add(callee)
             argument = string.join([d_a,",",k_a_offset],"")
             argument = string.join([argument,",",d_b,",",k_b_offset],"")
             argument = string.join([argument,",",d_c,",",k_c_offset],"")
             newline = string.join(["CALL ",name,"(",argument,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL GATODRA(",d_a,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL GATODRA(",d_b,")"],"")
             newcode.statements.insert(0,newline)
             newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
@@ -6517,6 +6543,13 @@ class OperationTree:
                callees.add(callee)
                createfile = 0
             newcode.statements.insert(0,child.fortran77a(name,globaltargetindexes,types,callees))
+            newline = string.join(["CALL DRATOGA(",d_c,")"],"")
+            newcode.statements.insert(0,newline)
+            if (d_b):
+               newline = string.join(["CALL DRATOGA(",d_b,")"],"")
+               newcode.statements.insert(0,newline)
+            newline = string.join(["CALL DRATOGA(",d_a,")"],"")
+            newcode.statements.insert(0,newline)
             if (child.contraction.tensors[1].type == "i"):
                newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
                newcode.statements.insert(0,newline)
@@ -6529,6 +6562,13 @@ class OperationTree:
                argument = string.join([argument,",",d_b,",",k_b_offset],"")
             argument = string.join([argument,",",d_c,",",k_c_offset],"")
             newline = string.join(["CALL ",name,"(",argument,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL GATODRA(",d_a,")"],"")
+            newcode.statements.insert(0,newline)
+            if (d_b):
+               newline = string.join(["CALL GATODRA(",d_b,")"],"")
+               newcode.statements.insert(0,newline)
+            newline = string.join(["CALL GATODRA(",d_c,")"],"")
             newcode.statements.insert(0,newline)
             if (child.contraction.tensors[1].type == "i"):
                newline = string.join(["CALL DELETEFILE(",d_a,")"],"")
@@ -7088,7 +7128,7 @@ class OperationTree:
 
       return pythoncode
 
-   def fortran90(self,filename="NONAME",mode="nopermutation"):
+   def fortran90(self,filename="NONAME",mode="nopermutation",excitation=[],deexcitation=[],intermediate=[],general=[]):
       """Genrates a partial Fortran90 code for debugging purposes"""
       # Mode = "permutation"   : writes a code which takes index permutation into account
       # Mode = "nopermutation" : writes a code without index permutation considered
@@ -7096,14 +7136,31 @@ class OperationTree:
 
       print " ... generating a Fortran90 code"
       print " "
-      for type in self.tensortypes()[0]:
-         if (type in self.tensortypes()[1]):
+      all = excitation+deexcitation+intermediate+general
+      if (not all):
+         types = self.tensortypes()
+      else:
+         types = [all,excitation,deexcitation,intermediate,general]
+      for type in types[0]:
+         if (type in types[1]):
             print " '"+type+"' is an excitaion tensor"
-         elif (type in self.tensortypes()[2]):
+            if ((type == 'v') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'f') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'd') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+         elif (type in types[2]):
             print " '"+type+"' is a de-excitaion tensor"
-         elif (type in self.tensortypes()[3]):
+            if ((type == 'v') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'f') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+            if ((type == 'd') and (not all)):
+               raise RuntimeError, "unusual naming convention"
+         elif (type in types[3]):
             print " '"+type+"' is an intermediate tensor"
-         elif (type in self.tensortypes()[4]):
+         elif (type in types[4]):
             print " '"+type+"' is a general tensor"
          else:
             raise RuntimeError, "unknown tensor type"
@@ -7132,11 +7189,11 @@ class OperationTree:
          print ""
  
       # loop over the tree
-      f90code.statements.insert(f90code.pointer,selfcopy.fortran90a(globaltargetindexes,self.tensortypes(),mode))
+      f90code.statements.insert(f90code.pointer,selfcopy.fortran90a(globaltargetindexes,types,mode))
       
       # add an antisymmetrizer (only for the target intermediate)
       if (mode == "nopermutation"):
-         f90code.statements.append(selfcopy.children[0].contraction.tensors[0].fortran90x(self.tensortypes()))
+         f90code.statements.append(selfcopy.children[0].contraction.tensors[0].fortran90x(types))
       
       # close the subroutine
       newline = "RETURN"
@@ -8720,7 +8777,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.15 2003-07-25 17:56:55 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.16 2003-08-05 00:37:53 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -9395,11 +9452,52 @@ class Code:
                   done = 0
 
    def reverse(self):
-      """Reverse the execution seqeuence of the whole code"""
+      """Reverses the execution seqeuence of the whole code"""
 
       newstatements = []
       for statement in self.statements:
          newstatements.insert(0,statement)
+      self.statements = copy.deepcopy(newstatements)
+
+   def removeredundantio(self):
+      """Removes unneccesary GATODRA-DRATOGA pairs"""
+
+      newstatements = []
+      temporary = []
+      arguments = []
+      type = []
+      erased = []
+      for statement in self.statements:
+         if (string.find(statement,"DRATOGA") != -1):
+            temporary.append(statement)
+            endline = len(statement)-1
+            beginline = string.find(statement,"(")+1
+            arguments.append(statement[beginline:endline])
+            type.append(1)
+            erased.append(0)
+         elif (string.find(statement,"GATODRA") != -1):
+            temporary.append(statement)
+            endline = len(statement)-1
+            beginline = string.find(statement,"(")+1
+            arguments.append(statement[beginline:endline])
+            type.append(-1)
+            erased.append(0)
+         else:
+            if (temporary):
+               for i in range(len(temporary)):
+                  if (type[i] == 1):
+                     for j in range(len(temporary)):
+                        if (type[j] == -1) and (arguments[i] == arguments[j]) and (not erased[j]):
+                           erased[i] = 1
+                           erased[j] = 1
+               for i in range(len(temporary)):
+                  if (not erased[i]):
+                     newstatements.append(temporary[i])
+               temporary = []
+               arguments = []
+               type = []
+               erased = []
+            newstatements.append(statement)
       self.statements = copy.deepcopy(newstatements)
 
 class ListofCodes:

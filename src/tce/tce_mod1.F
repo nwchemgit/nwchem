@@ -1,6 +1,6 @@
       subroutine tce_mod1(g_aod1,d_mod1,dipole)
 c
-c $Id: tce_mod1.F,v 1.1 2003-07-25 17:56:57 sohirata Exp $
+c $Id: tce_mod1.F,v 1.2 2003-08-05 00:37:54 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c
@@ -30,33 +30,7 @@ c
       external sym_abelian_axis
       double precision factor
 c
-c     =====================================
-c     Determine the size of SF and allocate
-c     =====================================
-c
       nodezero = (ga_nodeid().eq.0)
-      sf_size=0
-      do g1b = 1,noa+nob+nva+nvb
-        do g2b = 1,noa+nob+nva+nvb
-          if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
-          if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
-     1      +int_mb(k_spin+g2b-1).ne.4)) then
-          if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
-     1      .eq. 0) then
-            sf_size = sf_size + int_mb(k_range+g1b-1)
-     1                        * int_mb(k_range+g2b-1)
-          endif
-          endif
-          endif
-        enddo
-      enddo
-      if (.not.ma_push_get(mt_dbl,sf_size,'MO dipole',
-     1  l_mod1,k_mod1)) call errquit('tce_mod1: MA problem',3)
-c
-c     ==============
-c     Transformation
-c     ==============
-c
       if (restricted) then
         factor = 2.0d0
       else
@@ -64,6 +38,23 @@ c
       endif
       do axis = 1,3
         irrep_d = sym_abelian_axis(geom,axis)
+        sf_size=0
+        do g1b = 1,noa+nob+nva+nvb
+          do g2b = 1,noa+nob+nva+nvb
+            if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
+            if ((.not.restricted).or.(int_mb(k_spin+g1b-1)
+     1        +int_mb(k_spin+g2b-1).ne.4)) then
+            if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
+     1        .eq. irrep_d) then
+              sf_size = sf_size + int_mb(k_range+g1b-1)
+     1                          * int_mb(k_range+g2b-1)
+            endif
+            endif
+            endif
+          enddo
+        enddo
+        if (.not.ma_push_get(mt_dbl,sf_size,'MO dipole',
+     1    l_mod1,k_mod1)) call errquit('tce_mod1: MA problem',3)
         sf_offset=0
         do g2b = 1,noa+nob+nva+nvb
           do g1b = 1,noa+nob+nva+nvb
@@ -107,12 +98,14 @@ c
             endif
           enddo
         enddo
+        call dratoga(d_mod1(axis))
         call put_block(d_mod1(axis),dbl_mb(k_mod1),sf_size,0)
+        call gatodra(d_mod1(axis))
+        if (.not.ma_pop_stack(l_mod1))
+     1    call errquit('tce_mod1: MA problem',6)
         if (nodezero.and.util_print('mod1',print_debug))
      1    call sf_print(d_mod1(axis),sf_size)
       enddo
-      if (.not.ma_pop_stack(l_mod1))
-     1  call errquit('tce_mod1: MA problem',6)
       if (.not.ga_destroy(g_aod1(1)))
      1  call errquit('tce_mod1: GA problem',2)
       if (.not.ga_destroy(g_aod1(2)))

@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.7 2003-08-01 22:59:52 sohirata Exp $
+c $Id: tce_tidy.F,v 1.8 2003-08-05 00:37:55 sohirata Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -43,8 +43,10 @@ c
      1  call errquit('tce_tidy: geom_destroy failed',0)
       if (.not.bas_destroy(ao_bas_han))
      1  call errquit('tce_tidy: bas_destroy failed',0)
-      if (dra_terminate().ne.0)
+      if (ioalg.eq.5) then
+        if (dra_terminate().ne.0)
      1  call errquit('tce_tidy: dra termination failed',0)
+      endif
       call fock_2e_tidy(rtdb)
       call int_terminate()
       call schwarz_tidy()

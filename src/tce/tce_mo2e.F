@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.8 2003-03-16 23:41:18 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.9 2003-08-05 00:37:54 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -103,6 +103,7 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
+      call dratoga(d_mo2e)
       do pb = 1,Nb
         do qb = pb,Nb
           if (next.eq.count) then
@@ -187,6 +188,7 @@ c
           count = count + 1
         enddo
       enddo
+      call gatodra(d_mo2e)
       next = nxtval(-nprocs)
 c
 c     ==========

@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
+c $Id: tce_residual_t1.F,v 1.5 2003-08-05 00:37:54 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -42,6 +42,7 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
+      call dratoga(d_r1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (next.eq.count) then
@@ -69,6 +70,7 @@ c
           count = count + 1
         enddo
       enddo
+      call gatodra(d_r1)
       next = nxtval(-nprocs)
       call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)

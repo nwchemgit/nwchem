@@ -1,11 +1,11 @@
-#$Id: GNUmakefile,v 1.20 2003-08-01 23:01:13 sohirata Exp $
+#$Id: GNUmakefile,v 1.21 2003-08-05 00:36:51 sohirata Exp $
 
 OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
-      tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o \
+      tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
       tce_e_offset.o tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \
-      tce_guess_t1.o tce_guess_t2.o tce_guess_t3.o tce_guess_t4.o tce_zero.o \
+      tce_guess_t1.o tce_guess_t2.o tce_zero.o \
       tce_residual_t1.o tce_residual_t2.o tce_residual_t3.o tce_residual_t4.o \
       tce_jacobi_t1.o tce_jacobi_t2.o tce_jacobi_t3.o tce_jacobi_t4.o \
       tce_jacobi_l1.o tce_jacobi_l2.o tce_jacobi_l3.o tce_jacobi_l4.o \

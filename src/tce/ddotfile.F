@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.1 2002-12-24 06:13:31 sohirata Exp $
+c $Id: ddotfile.F,v 1.2 2003-08-05 00:37:51 sohirata Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -31,10 +31,12 @@ c
       endif
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp1,k_temp1))
-     2  call errquit('tce_zero: MA problem',0)
+     2  call errquit('ddotfile: MA problem',0)
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp2,k_temp2))
-     2  call errquit('tce_zero: MA problem',1)
+     2  call errquit('ddotfile: MA problem',1)
+      call dratoga(d_1)
+      if (d_1.ne.d_2) call dratoga(d_2)
       do i = 1,nblocks
         if (nodezero.and.util_print('ddotfile',print_debug))
      1    write(LuOut,9210) (i-1)*blocksize,
@@ -49,6 +51,8 @@ c
           ddotfile = ddotfile + dbl_mb(k_temp1+k-1)*dbl_mb(k_temp2+k-1)
         enddo
       enddo
+      if (d_1.ne.d_2) call gatodra(d_2)
+      call gatodra(d_1)
       if (.not.ma_pop_stack(l_temp2))
      1  call errquit('createfile: MA problem',2)
       if (.not.ma_pop_stack(l_temp1))

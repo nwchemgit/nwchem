@@ -1,6 +1,6 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.12 2003-08-01 22:59:51 sohirata Exp $
+c $Id: get_block.F,v 1.13 2003-08-05 00:37:52 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -101,6 +101,8 @@ c
           call ga_get(filehandles(d_file),offset+1,offset+size,1,1,
      1      array,1)
         else
+          write(LuOut,*) 'filehandles = ',d_file,filehandles(d_file)
+          write(LuOut,*) 'filename = ',filenames(d_file)
           call errquit('get_block: a read request from DRA',1)
         endif
       else if (ioalg.eq.6) then
@@ -109,8 +111,11 @@ c
      1      array,1)
         else
           if (eaf_read(filehandles(d_file),
-     1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0)
-     2      call errquit('get_block: eaf problem',1)
+     1      dfloat(bytes)*dfloat(offset),array,bytes*size).ne.0) then
+            write(LuOut,*) 'filehandles = ',d_file,filehandles(d_file)
+            write(LuOut,*) 'filename = ',filenames(d_file)
+            call errquit('get_block: eaf problem',1)
+          endif
         endif
       endif
  9000 format(1x,'node',i3,' get_block request to file:',i10,

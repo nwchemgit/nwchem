@@ -1,7 +1,7 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
+c $Id: tce_guess_t2.F,v 1.5 2003-08-05 00:37:54 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -38,6 +38,8 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
+      call dratoga(d_t2)
+      call dratoga(d_mo2e)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -92,6 +94,8 @@ c
           enddo
         enddo
       enddo
+      call gatodra(d_mo2e)
+      call gatodra(d_t2)
       next = nxtval(-nprocs)
       call ga_sync()
  9200 format(/,4i3,' has been assigned to node ',i3)

@@ -1,6 +1,6 @@
       subroutine dscalfile(scale,d_1,size)
 c
-c $Id: dscalfile.F,v 1.2 2003-07-25 21:26:59 sohirata Exp $
+c $Id: dscalfile.F,v 1.3 2003-08-05 00:37:51 sohirata Exp $
 c
 c     Multiply a file by a constant
 c
@@ -29,6 +29,7 @@ c
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp,k_temp))
      2  call errquit('dscalfile: MA problem',0)
+      call dratoga(d_1)
       do i = 1,nblocks
         if (nodezero.and.util_print('dscalfile',print_debug))
      1    write(LuOut,9210) (i-1)*blocksize,
@@ -39,6 +40,7 @@ c
         call put_block(d_1,dbl_mb(k_temp),
      1    min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
       enddo
+      call gatodra(d_1)
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('dscalfile: MA problem',1)
       call ga_sync()

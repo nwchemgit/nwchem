@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.1 2003-07-25 17:56:56 sohirata Exp $
+c $Id: tce_eom_xguess.F,v 1.2 2003-08-05 00:37:54 sohirata Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x
@@ -113,8 +113,10 @@ c
               if (needx1) then
                 call tce_filenameindexed(nxtrials,'x1',filename)
                 call createfile(filename,x1(nxtrials),size_x1)
+                call dratoga(x1(nxtrials))
                 call put_block(x1(nxtrials),dbl_mb(k_x1),size,
      1            int_mb(k_x1_offset+(p1b-noab-1)*noab+h3b-1))
+                call gatodra(x1(nxtrials))
                 x1_exist(nxtrials) = .true.
               endif
               if (needx2) then
