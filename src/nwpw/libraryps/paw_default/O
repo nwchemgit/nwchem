@@ -23,9 +23,9 @@ Comment:
 3 0 1.8
 3 1 1.8
 
-<ref_potential_matching_radius> 1.8
-<ref_potential_at_zero> -2.5
-<compensation_charge_radius> 1.0
+<ref_potential_matching_radius> 1.2
+<ref_potential_at_zero> 0
+<compensation_charge_radius> 0.8
 <nodal_constraint> on
 <projector_method> blochl
 
