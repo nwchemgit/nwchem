@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.23 1997-04-25 00:00:50 d3g681 Exp $
+C$Id: rohf.F,v 1.24 1997-04-25 04:00:54 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -130,6 +130,7 @@ c
  961     do ihi = min(nclosed+nopen+10,nmo),nmo
             if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol) goto 9611
          enddo
+         ihi = max(ihi-1,1)
  9611    continue
          call movecs_print_anal(basis, ilo, ihi, 0.15d0, g_movecs, 
      $        'ROHF Final Molecular Orbital Analysis', 

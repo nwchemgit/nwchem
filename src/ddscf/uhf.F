@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
+C$Id: uhf.F,v 1.43 1997-04-25 04:00:55 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -128,6 +128,7 @@ C
  961     do ihi = min(nalpha+10,nmo),nmo
             if (dbl_mb(k_eval+ihi-1) .ge. eval_pr_tol) goto 9611
          enddo
+         ihi = max(ihi-1,1)
  9611    continue
          call movecs_print_anal(basis, ilo, ihi, 0.15d0, g_movecs, 
      $        'UHF Final Alpha Molecular Orbital Analysis', 
@@ -198,7 +199,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
+C     $Id: uhf.F,v 1.43 1997-04-25 04:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -487,7 +488,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
+C$Id: uhf.F,v 1.43 1997-04-25 04:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -578,7 +579,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
+c     $Id: uhf.F,v 1.43 1997-04-25 04:00:55 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1064,7 +1065,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.42 1997-04-25 00:00:55 d3g681 Exp $
+C$Id: uhf.F,v 1.43 1997-04-25 04:00:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
