@@ -4,6 +4,7 @@
 #include "global.fh"
 #include "inp.fh"
 #include "bas.fh"
+#include "cscfps.fh"
 c
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     and ADD them into the given global array.
@@ -24,6 +25,8 @@ c
       integer l_buf, l_scr
       integer k_buf, k_scr
       integer type
+c     
+      if (oscfps) call pstat_on(ps_int_1e)
 c
       if (inp_compare(.false., integ_type, 'kinetic')) then
          type = 1
@@ -103,5 +106,7 @@ c
      $     ('int_1e_ga: pop failed', 0)
 c
       call ga_sync()            ! So that no nasty races can result
+c
+      if (oscfps) call pstat_off(ps_int_1e)
 c
       end

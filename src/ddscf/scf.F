@@ -7,6 +7,7 @@
 #include "rtdb.fh"
 #include "context.fh"
 #include "inp.fh"
+#include "pstat.fh"
 c
 c     RHF module.
 c
@@ -105,6 +106,10 @@ c
       logical rhf
       external rhf
 c
+c     Initialize performance statistics
+c
+      call scf_pstat_init
+c
 c     Push context down to SCF
 c
       if (.not. context_push('scf'))
@@ -125,6 +130,9 @@ c
      $     call errquit('scf: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
      $     call errquit('scf: no mo basis ', 0)
+      if (.not. bas_name(basis, 'mo basis', name))
+     $     name = 'mo basis'
+      if (name .eq. ' ') name = 'mo basis'
 c
 c     Figure output input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
@@ -164,10 +172,11 @@ c
          endif
 *     if (.not. geom_print(geom)) call errquit('scf: geom_print ?',0)
 *     if (.not. bas_print(basis)) call errquit('scf: bas_print ?',0)
-         write(6,1) charge, 'rhf',
+         write(6,1) name(1:inp_strlen(name)), charge, 'rhf',
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out))
  1       format(/
+     $        '  mo basis        = "',a,'"'/
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/
@@ -217,5 +226,7 @@ c     Nothing else for now ... return convergence status
 c
       if (.not. context_pop('scf')) call errquit('context_pop failed',0)
       scf = converged
+c
+      call scf_pstat_print
 c
       end

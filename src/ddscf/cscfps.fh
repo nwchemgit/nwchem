@@ -1,0 +1,10 @@
+c
+c     pstat handles for the SCF code
+c
+      integer ps_fock_2e, ps_int_1e, ps_solve, ps_search,
+     $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add
+      logical oscfps            ! True if gathering stats
+      common /cscfps/ oscfps,
+     $     ps_fock_2e, ps_int_1e, ps_solve, ps_search,
+     $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add
+c

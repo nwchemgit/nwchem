@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1994-08-17 05:49:06 d3e129 Exp $
+# $Id: GNUmakefile,v 1.11 1994-08-19 01:25:22 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -21,7 +21,7 @@
 	ri_invert_v.o             ga_create_cont_blocked.o \
         ri_v_fit_cd.o             ri_v_fit_j.o \
         ri_drive.o                dabssum.o \
-        matrix_exp.o
+        matrix_exp.o              scf_pstat.o
       
 
     LIBRARY = libddscf.a
@@ -39,3 +39,7 @@ include ../config/makelib.h
 rhf.o:		schwarz.fh
 schwarz.o:	schwarz.fh cschwarz.fh
 rhf_hessv.o rhf_nr_solve.o:	crhf.fh
+
+int_1e_ga.o matrix_exp.o rhf_fock_2e.o rhf_fock_2e_b.o \
+rhf_nr_solve.o scf_pstat.o rhf_dens_to_mo.o \
+rhf_do_canon:      cscfps.fh

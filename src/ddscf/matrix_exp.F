@@ -2,6 +2,7 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "cscfps.fh"
 c     
 c     Replace the input matrix with a unitary approximation
 c     to its exponential.  Current algorithm is
@@ -25,7 +26,9 @@ c
       parameter (third = 1.0d0/3.0d0, one = 1.0d0, half = 0.5d0,
      $     zero = 0.0d0)
       integer power
-c     
+c
+      if (oscfps) call pstat_on(ps_matexp)
+c
       call ga_inquire(g_k, type, nbf, nmo)
       if (nbf.ne.nmo) call errquit('matrix_exp: must be square', 0)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
@@ -104,4 +107,6 @@ c
          call ga_iter_orthog(basis, g_k, .false.)
       endif
 c     
+      if (oscfps) call pstat_off(ps_matexp)
+c
       end
