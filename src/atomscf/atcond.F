@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps) 
-* $Id: atcond.F,v 1.6 1999-01-21 02:07:35 d3e129 Exp $
+* $Id: atcond.F,v 1.7 1999-05-20 23:34:32 d3e129 Exp $
       implicit none
 c.......................................................................
 c
@@ -117,6 +117,8 @@ c  Check for known cases that do not work
 c
 c..... case 1 Au with ncore of 60 electrons guess=>ihw=1 but use ihw=2
       if (nz.eq.79.and.ncore.eq.60.and.ihw.eq.1)ihw=2
+      if (nz.eq.78.and.ncore.eq.60.and.ihw.eq.1)ihw=2
+      if (nz.eq.92.and.ncore.eq.60.and.ihw.eq.1)ihw=2
 c
 c.......................................................................
 c
