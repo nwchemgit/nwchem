@@ -12,8 +12,8 @@ c
        integer i, j, ind, ind_max
        integer msgtype
        parameter(msgtype=1965)
-       integer isamax
-       external isamax
+       integer idamax
+       external idamax
 c
 c     Each process first determines max of data local to it
 c
@@ -24,7 +24,7 @@ c
           jdim = jhi - jlo + 1
           call ga_access(g_a, ilo, ihi, jlo, jhi, ind, ld)
           do j = 0, jdim-1
-             ind_max = isamax(idim, dbl_mb(ind), 1) + ind - 1
+             ind_max = idamax(idim, dbl_mb(ind), 1) + ind - 1
              value = max(value, abs(dbl_mb(ind_max)))
              ind = ind + ld
           enddo

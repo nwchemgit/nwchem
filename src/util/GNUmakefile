@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-08-15 17:51:16 d3g681 Exp $
+# $Id: GNUmakefile,v 1.7 1994-08-17 06:23:13 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -19,7 +19,7 @@ endif
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh
 
-    USES_BLAS = util.fh ga_iter_lsolve.o ga_maxelt.o
+    USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F
 
 include ../config/makelib.h
 
