@@ -1,11 +1,12 @@
       Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.4 2000-05-18 18:14:43 jolguin Exp $
+C$Id: localize_sic.F,v 1.5 2000-05-18 22:45:17 jolguin Exp $
 c
       implicit none
 c      
-      integer noc(2), isp, x, me, i_degen(2), n_levels(2), evals(2),
-     &        ij, ik, n_orbitals, i_level, i_orb, j, aux_levels
+      integer noc(2), isp, x, me, i_degen, l_degen, n_levels,
+     &        evals(2), ij, ik, n_orbitals, i_level, i_orb, j,
+     &        aux_levels
       double precision start
      
       integer g_movecs(2)
@@ -38,11 +39,14 @@ c
 c
       do isp=1,ipol
 c
-         if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
-         if (noc(isp).ne.0) then
+         nocc=noc(isp)
+         if (.not.MA_Push_Get(MT_Int, nocc, 'levels',
+     &        l_degen, i_degen))
+     &        call errquit('localize_sic: cannot allocate levels',0)
+         if (nocc.ne.0) then
            aux_levels = 1
            n_orbitals = 1
-           Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+           Int_MB(i_degen + aux_levels - 1) = n_orbitals
            do j = noc(isp),2,-1
              start = (dbl_mb(evals(isp) + j - 1) -
      &                dbl_mb(evals(isp) + j - 2))
@@ -52,14 +56,13 @@ c
                n_orbitals = 1
                aux_levels = aux_levels + 1
              end if
-             Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+             Int_MB(i_degen + aux_levels - 1) = n_orbitals
            end do
-           n_levels(isp) = aux_levels
+           n_levels = aux_levels
          else
-           n_levels(isp) = 0
+           n_levels = 0
          end if
 c
-         nocc=noc(isp)
          if (nocc.gt.0) then
            do x= 1, 4
              if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
@@ -108,11 +111,11 @@ c          do i = ncore+1, nocc
 c             int_mb(iiloc + i - ncore - 1) = i
 c          end do
 c          nloc = nocc - ncore
- 
-           ik = noc(isp) -  Int_MB(i_degen(isp)) + 1
+c
+           ik = noc(isp) -  Int_MB(i_degen) + 1
            ij = 0
-           do 100 i_level = 2,n_levels(isp)
-             n_orbitals = Int_MB(i_degen(isp) + i_level - 1)
+           do 100 i_level = 2,n_levels
+             n_orbitals = Int_MB(i_degen + i_level - 1)
              do 200 i_orb = 1,n_orbitals
                ik = ik - 1
                ij = ij + 1
@@ -124,12 +127,12 @@ c          nloc = nocc - ncore
              if (me.eq.0) 
      $        call util_print_centered(6,
      $    'Foster-Boys orbital localization for the SIC approximation',
-     &         40, .true.)
-             if (me.eq.0.and.oprint_sic) write(LuOut,*) 
-     $                         ' Number of Orbitals to localize',nloc
-             call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc),
-     $                       nloc, int_mb(iiloc), nbf, nbf, 
-     $                       g_movecs(isp), g_uc)
+     &           40, .true.)
+              if (me.eq.0.and.oprint_sic) write(LuOut,*) 
+     $                           ' Number of Orbitals to localize',nloc
+              call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc),
+     $                        nloc, int_mb(iiloc), nbf, nbf, 
+     $                        g_movecs(isp), g_uc)
            end if
 c
            do x=1,4
@@ -145,6 +148,8 @@ c
            if (.not.ma_pop_stack(l_sc))
      &        call errquit('localize_sic: cannot pop stack',0)
           end if
+          if (.not.ma_pop_stack(l_degen))
+     &              call errquit('localize_sic: cannot pop stack',0)
         end do
         if (.not.ma_pop_stack(liloc))
      &        call errquit('localize_sic: cannot pop stack',0)
