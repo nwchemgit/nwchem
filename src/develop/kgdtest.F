@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.5 1999-07-14 00:28:53 d3e129 Exp $
+c $Id: kgdtest.F,v 1.6 1999-10-26 19:28:50 mg201 Exp $
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -153,7 +153,7 @@ C
 C      subroutine rel_onel (
 C     &       Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
 C     &       Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-C     &       Cxyz,zan,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
+C     &       Cxyz,zan,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,nonrel,
 C     &       DryRun,scr,lscr,msg,ibug,ntyp)
 C
 C     modified metric
@@ -166,9 +166,11 @@ C     modified metric
      &        dbl_mb(mb_exndcf(j_iexp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),j_prim,j_gen,Lj,j_cent,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,1,i_geom),charge(1,i_geom),charge(1,i_geom),
+C                                                 temporary fix
+     &        ncenter(i_geom),
      &        dbl_mb(k_buf),dbl_mb(k_buf+1000),dbl_mb(k_buf+2000),
-     &        .true.,.false.,.false.,.false.,
+     &        membuf,.true.,.false.,.false.,.false.,.false.,
      &        .false.,dbl_mb(k_scr),memscr,'kgdtest_rel1e',0,1)
           call ecp_matpr (dbl_mb(k_buf),1,jhi,1,ihi,1,jhi,1,ihi,
      &        'modified overlap integrals','E',120,8)
@@ -182,7 +184,9 @@ C     modified kinetic energy
      &        dbl_mb(mb_exndcf(j_iexp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),j_prim,j_gen,Lj,j_cent,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,1,i_geom),charge(1,i_geom),charge(1,i_geom),
+C                                                 temporary fix
+     &        ncenter(i_geom),
      &        dbl_mb(k_buf),dbl_mb(k_buf+1000),dbl_mb(k_buf+2000),
      &        .false.,.true.,.false.,.false.,
      &        .false.,dbl_mb(k_scr),memscr,'kgdtest_rel1e',0,1)
@@ -198,9 +202,11 @@ C     modified potential energy
      &        dbl_mb(mb_exndcf(j_iexp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),
      &        dbl_mb(mb_exndcf(j_icfp,basis_id)),j_prim,j_gen,Lj,j_cent,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,1,i_geom),charge(1,i_geom),charge(1,i_geom),
+C                                                 temporary fix
+     &        ncenter(i_geom),
      &        dbl_mb(k_buf),dbl_mb(k_buf+1000),dbl_mb(k_buf+2000),
-     &        .false.,.false.,.true.,.false.,
+     &        membuf,.false.,.false.,.true.,.false.,.false.,
      &        .false.,dbl_mb(k_scr),memscr,'kgdtest_rel1e',0,1)
           call ecp_matpr (dbl_mb(k_buf+2000),1,jhi,1,ihi,1,jhi,1,ihi,
      &        'modified potential integrals','E',120,8)
@@ -219,6 +225,6 @@ c
       if (.not.status) call errquit('b/g destroy failed',911)
       return
       end
-      subroutine rel_onel
-      call errquit('ROBERT DID THIS',0)
-      end
+C      subroutine rel_onel
+C      call errquit('ROBERT DID THIS',0)
+C      end
