@@ -1,7 +1,7 @@
       logical function pre_namiup(lfnout,ffield,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: pre_namiup.F,v 1.8 1998-09-23 19:56:43 d3e129 Exp $
+c $Id: pre_namiup.F,v 1.9 2000-02-21 07:05:45 d3j191 Exp $
 c
 c     function to comply with IUPAC atom naming
 c
@@ -72,7 +72,7 @@ c
     3 continue
 c
       do 4 i=1,natm
-      latm(2,i)=pre_atnum(catm(2,i)(1:2))
+      if(latm(2,i).le.0) latm(2,i)=pre_atnum(catm(2,i)(1:2))
       if(latm(2,i).eq.0) then
       elemnt(1:1)=' '
       elemnt(2:2)=catm(2,i)(2:2)     

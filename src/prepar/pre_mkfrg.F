@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.25 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.26 2000-02-21 07:05:44 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -136,7 +136,7 @@ c     ------------------------------------
 c
       natoms=0
       do 5 j=jlo,jhi
-      latm(2,j)=pre_atnum(catm(2,j)(1:2))
+      if(latm(2,j).le.0) latm(2,j)=pre_atnum(catm(2,j)(1:2))
       if(latm(2,j).gt.0) natoms=natoms+1
     5 continue
 c
@@ -231,11 +231,13 @@ c     guestimate partial charges
 c     --------------------------
 c
       if(found) then
-      if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
+      if(.not.pre_charge(irtdb,lfnout,lfnpar,filpar,
+     + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
       else
-      if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
+      if(.not.pre_charge(irtdb,lfnout,lfnpar,filpar,
+     + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
      + call errquit('pre_charge failed',9999)
       endif

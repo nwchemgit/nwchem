@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.30 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.31 2000-02-21 07:05:44 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -289,7 +289,7 @@ c     allocate memory for segment atom lists
 c     --------------------------------------
 c
       if(.not.ma_push_get(mt_int,5*mato,'lato',l_lato,i_lato))
-     + call errquit('Memory allocation failed for latm',9999)
+     + call errquit('Memory allocation failed for lato',9999)
 c
       if(.not.ma_push_get(mt_byte,18*mato,'cato',l_cato,i_cato))
      + call errquit('Memory allocation failed for cato',9999)

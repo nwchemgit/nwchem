@@ -1,7 +1,8 @@
-      logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
+      logical function pre_charge(irtdb,lfnout,lfnpar,filpar,
+     + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.21 1999-07-09 14:46:03 d3j191 Exp $
+c $Id: pre_charge.F,v 1.22 2000-02-21 07:05:44 d3j191 Exp $
 c
       implicit none
 c
@@ -30,7 +31,10 @@ c
 c     out : qatm(matm)        = guestimated atomic partial charges
 c
       character*80 source
-      integer irtdb,lfnout,jlo,ilo,ihi,jhi
+      integer irtdb,lfnout,lfnpar,jlo,ilo,ihi,jhi
+      character*255 filpar
+      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 filnam
       integer matm,natm,maxscf
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -44,6 +48,7 @@ c
       character*16 tag
       real*8 coord(3),chrge,qsum,charge
       integer newgrd
+      integer i_qb,l_qb
 c
       newgrd=1
 c
@@ -264,82 +269,16 @@ c
 c
   200 continue
 c
-      do 2 i=1,nbnd
-      ia=lbnd(1,i)
-      ja=lbnd(2,i)
-      it=latm(2,ia)
-      jt=latm(2,ja)
-      if(it.ne.jt) then
+      if(.not.ma_push_get(mt_dbl,mbnd,'qb',l_qb,i_qb))
+     + call errquit('Failed to allocate qb',0)
 c
-c     smaller atom number in it/ia
+      call pre_quick_charge(lfnout,lfnpar,filpar,
+     + dir_s,dir_x,dir_u,dir_t,ilo,ihi,
+     + latm,catm,qatm,matm,natm,
+     + lbnd,dbl_mb(i_qb),mbnd,nbnd)
 c
-      if(it.gt.jt) then
-      itmp=ia
-      ia=ja
-      ja=itmp
-      itmp=it
-      it=jt
-      jt=itmp
-      endif
-c
-c     H - C : 0.05  : -0.05
-c
-      if(it.eq.1.and.jt.eq.6) then
-      qatm(ia)=qatm(ia)+0.05d0
-      qatm(ja)=qatm(ja)-0.05d0
-      endif
-c
-c     H - N : 0.27  : -0.27
-c
-      if(it.eq.1.and.jt.eq.7) then
-      qatm(ia)=qatm(ia)+0.27d0
-      qatm(ja)=qatm(ja)-0.27d0
-      endif
-c
-c     H - O : 0.19  : -0.19
-c
-      if(it.eq.1.and.jt.eq.8) then
-      qatm(ia)=qatm(ia)+0.40d0
-      qatm(ja)=qatm(ja)-0.40d0
-      endif
-c
-c     H - S : 0.19  : -0.19
-c
-      if(it.eq.1.and.jt.eq.16) then
-      qatm(ia)=qatm(ia)+0.19d0
-      qatm(ja)=qatm(ja)-0.19d0
-      endif
-c
-c     C - N : 0.07  : -0.07
-c
-      if(it.eq.6.and.jt.eq.7) then
-      qatm(ia)=qatm(ia)+0.07d0
-      qatm(ja)=qatm(ja)-0.07d0
-      endif
-c
-c     C - O : 0.30  : -0.30
-c
-      if(it.eq.6.and.jt.eq.8.and.latm(3,ja).eq.2) then
-      qatm(ia)=qatm(ia)+0.30d0
-      qatm(ja)=qatm(ja)-0.30d0
-      endif
-c
-c     C = O : 0.57  : -0.57
-c
-      if(it.eq.6.and.jt.eq.8.and.latm(3,ja).eq.1) then
-      qatm(ia)=qatm(ia)+0.57d0
-      qatm(ja)=qatm(ja)-0.57d0
-      endif
-c
-c     C - S : 0.11  : -0.11
-c
-      if(it.eq.6.and.jt.eq.16) then
-      qatm(ia)=qatm(ia)+0.11d0
-      qatm(ja)=qatm(ja)-0.11d0
-      endif
-c
-      endif
-    2 continue
+      if(.not.ma_pop_stack(l_qb))
+     + call errquit('Failed to deallocate qb',0)
 c
       do 3 i=1,natm
       nb=0
@@ -367,9 +306,9 @@ c
       if(nox.eq.2) then
       do 6 j=1,nb
       if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))-0.23
+     + qatm(iab(j))=qatm(iab(j))-0.33
     6 continue
-      qatm(i)=qatm(i)-0.54
+      qatm(i)=qatm(i)-0.34
       endif
       endif
 c
@@ -383,9 +322,9 @@ c
       if(nhx.eq.3) then
       do 8 j=1,nb
       if(latm(2,iab(j)).eq.1.and.latm(3,iab(j)).eq.1)
-     + qatm(iab(j))=qatm(iab(j))+0.07
+     + qatm(iab(j))=qatm(iab(j))+0.25
     8 continue
-      qatm(i)=qatm(i)+0.79
+      qatm(i)=qatm(i)+0.25
       endif
       endif
 c
@@ -395,5 +334,94 @@ c
       return
 c
  9999 pre_charge=.false.
+      return
+      end
+      subroutine pre_quick_charge(lfnout,lfnpar,filpar,
+     + dir_s,dir_x,dir_u,dir_t,ilo,ihi,
+     + latm,catm,qatm,matm,natm,lbnd,qbnd,mbnd,nbnd)
+c
+      implicit none
+c
+#include "util.fh"
+c
+      integer lfnout,lfnpar
+      character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      integer matm,natm,mbnd,nbnd,ilo,ihi
+      character*255 filnam
+      integer latm(5,matm)
+      real*8 qatm(matm)
+      character*6 catm(3,matm)
+      integer lbnd(2,mbnd)
+      real*8 qbnd(mbnd)
+      character*100 card
+c
+      integer i,j,ia,ja,l,lt,ld
+      real*8 q
+c
+      do 1 i=1,nbnd
+      qbnd(i)=0.0d0
+    1 continue
+c
+      lt=index(filpar,' ')-1
+      ld=index(dir_s,' ')-1
+      l=ld+lt
+      filnam=dir_s(1:ld)//filpar(1:lt)
+      do 7 j=1,4
+      if(j.eq.2) then
+      lt=index(filpar,' ')-1
+      ld=index(dir_x,' ')-1
+      l=ld+lt
+      filnam=dir_x(1:ld)//filpar(1:lt)
+      endif
+      if(j.eq.3) then
+      lt=index(filpar,' ')-1
+      ld=index(dir_u,' ')-1
+      l=ld+lt
+      filnam=dir_u(1:ld)//filpar(1:lt)
+      endif
+      if(j.eq.4) then
+      lt=index(filpar,' ')-1
+      ld=index(dir_t,' ')-1
+      l=ld+lt
+      filnam=dir_t(1:ld)//filpar(1:lt)
+      endif
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
+     + err=2)
+    3 continue
+      read(lfnpar,1000,end=4,err=9999) card
+      if(card(1:5).ne.'Bonds') goto 3
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+ 2000 format(' Bond charge definitions',t40,a)
+      endif
+    5 continue
+      read(lfnpar,1000,end=4,err=9999) card
+ 1000 format(a)
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 5
+      if(card(1:6).eq.'Angles') goto 4
+      read(card(34:45),'(f12.6)') q
+      do 6 i=1,nbnd
+      if(catm(3,lbnd(1,i))(1:4).eq.card(1:4).and.
+     + catm(3,lbnd(2,i))(1:4).eq.card(7:10)) qbnd(i)=q
+      if(catm(3,lbnd(2,i))(1:4).eq.card(1:4).and.
+     + catm(3,lbnd(1,i))(1:4).eq.card(7:10)) qbnd(i)=-q
+    6 continue
+      goto 5
+    4 continue
+      close(unit=lfnpar)
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
+    2 continue
+    7 continue
+c
+      do 8 i=1,nbnd
+      qatm(lbnd(1,i))=qatm(lbnd(1,i))+qbnd(i)
+      qatm(lbnd(2,i))=qatm(lbnd(2,i))-qbnd(i)
+    8 continue
+c
+      return
+ 9999 continue
+      call errquit('Error in pre_quick_charge',0)
       return
       end

@@ -1,7 +1,7 @@
       logical function pre_rtdbsq(irtdb,igeom,lfnout,sysnam,
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm)
 c
-c $Id: pre_rtdbsq.F,v 1.7 1999-06-17 17:45:42 d3j191 Exp $
+c $Id: pre_rtdbsq.F,v 1.8 2000-02-21 07:05:45 d3j191 Exp $
 c
 c     function to read sequence from the rtdb
 c
@@ -51,6 +51,7 @@ c
       xatm(3,i)=cau2nm*c(3)
       if(.not.geom_tag_to_element(tag,symbol,element,iatn))
      + call errquit('geom_tag_to_element failed',9999)
+      latm(2,1)=iatn
       catm(1,i)='      '
       if(symbol(2:2).eq.' ') then
       catm(1,i)(2:2)=symbol(1:1)
