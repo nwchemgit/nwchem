@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.21 2004-08-13 11:22:58 edo Exp $*/
+/*$Id: rtdb.c,v 1.22 2004-08-26 22:26:54 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -17,7 +17,7 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define TYPE_RTDB_DATE    30007
 #define TYPE_RTDB_TYPE    30008
 #define TYPE_RTDB_FNAME   30009
-//#define GAGROUPS 1
+/*#define GAGROUPS 1*/
 
 #ifndef GAGROUPS
 static int me;
