@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.9 1999-05-13 21:26:42 windus Exp $
+c $Id: util_md.F,v 1.10 1999-05-20 00:20:23 d3e129 Exp $
 c
       implicit none
 c
@@ -142,7 +142,7 @@ c
    12 continue
    11 continue
 c
-      call jacobi(c,4,4,b,v,nr)
+      call md_jacobi(c,4,4,b,v,nr)
 c
       do 13 i=1,4
       q(i)=v(i,4)
@@ -184,7 +184,7 @@ c
 c
       return
       end
-      subroutine jacobi(a,n,na,d,v,nrot)
+      subroutine md_jacobi(a,n,na,d,v,nrot)
 c
 c     compute eigenvectors and eigenvalues for real symmetric 
 c     matrix using the Jacobi diagonalization
@@ -283,7 +283,7 @@ c
     9 continue
     3 continue
 c
-      call errquit('jacobi: maximum iterations reached',0)
+      call errquit('md_jacobi: maximum iterations reached',0)
 c
       return
       end
