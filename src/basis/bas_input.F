@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.34 1997-07-01 18:41:14 d3e129 Exp $
+c $Id: bas_input.F,v 1.35 1997-12-03 11:06:02 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -474,7 +474,10 @@ c
      $            'coefficient'
               goto 10000
             else if (coeff(iprim,i) .eq. 0.0d0) then
-              write(luout,*)' **** WARNING Zero Coefficient **** '
+              write(luout,10100)tag(1:inp_strlen(tag)),
+     &            l_value,stdtag(1:inp_strlen(stdtag))
+              call inp_outrec()
+              write(luout,*)' '
             endif
           enddo
           if (.not. inp_read()) goto 10000
@@ -566,6 +569,10 @@ c
      $       '           ... ',/,
      $       ' end basis/ecp')
       call errquit('bas_input_body: format error in the input', 0)
+10100 format(/,' **** WARNING Zero Coefficient **** on atom "', a16,
+     &    '"',/,' angular momentum value:',i2,
+     &    '  standard basis set name: "',a,'"',/,
+     &    1x,'input line that generated warning:')
 c
       end
 *.....................................................................
