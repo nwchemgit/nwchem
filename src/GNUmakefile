@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.11 1994-09-14 14:31:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.12 1994-09-22 21:28:27 d3g681 Exp $
 
 include config/makefile.h
 
@@ -42,7 +42,7 @@ clean:
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
-realclean:	clean
+realclean:
 	-/bin/rm -f *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
