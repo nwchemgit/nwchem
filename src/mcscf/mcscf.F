@@ -39,7 +39,7 @@ c
       logical oconverged
       logical oskel
       logical oprinfo, oprhigh, oprconv, oprciconv
-      logical ohalf, odisk, oblk      ! toggles for 4-index
+      logical ohalf, oaodisk, oblk, oaokeep, oaoreuse      ! toggles for 4-index
       logical ocisolve
       integer ciiterlo, ciiterhi      ! Iteration range for CI solution
 c     
@@ -53,6 +53,8 @@ c
       external movecs_converged
       logical int_normalize
       external int_normalize
+      logical moints_aodisk_init
+      external moints_aodisk_init
 c     
       data ohalf/.true./
       data blen/25/
@@ -287,17 +289,30 @@ c
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
      $        oblk = .false.
       endif
+c
+c  4-Index disk caching info
+c
+      if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, oaodisk)) then
+        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
+     $                    1, oaodisk)) oaodisk = .false.
+      endif
+      if (.not.rtdb_get(rtdb, 'mcscf:aoreuse',MT_LOG,1,oaoreuse)) then
+        if (.not.rtdb_get(rtdb,'fourindex:oaoreuse', MT_LOG,
+     $                    1, oaoreuse)) oaoreuse = .false.
+      endif
+      if (.not.rtdb_get(rtdb, 'mcscf:aokeep', MT_LOG, 1, oaokeep)) then
+        if (.not.rtdb_get(rtdb,'fourindex:oaokeep', MT_LOG,
+     $                    1, oaokeep)) oaokeep = .false.
+      endif
+      if (.not.moints_aodisk_init( oaodisk, oaoreuse ))
+     $  call errquit('mcscf: cannot initialize 4-index AO cache',0)
 c     
 c     Initial 4-Index Tranformation
 c     
-      if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, odisk)) then
-        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
-     $                    1, odisk)) odisk = .false.
-      endif
       call moints_build_2x( basis, ohalf, oskel,
      $     mo_lo, mo_lo, mo_hi, 1, nbf,
      $     g_movecs, g_coul, .true.,
-     $     g_exch, .true., blen, oblk, odisk )
+     $     g_exch, .true., blen, oblk )
 c     
 c     Core energy
 c     
@@ -469,7 +484,7 @@ c
       call moints_build_2x( basis, ohalf, oskel,
      $     mo_lo, mo_lo, mo_hi, 1, nbf,
      $     g_movecs, g_coul, .true.,
-     $     g_exch, .true., blen, oblk, odisk )
+     $     g_exch, .true., blen, oblk )
       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $     g_coul, g_exch, g_hcore )
       ocivecprint = util_print('converged civec',print_default)
@@ -537,7 +552,7 @@ c
          call moints_build_2x( basis, ohalf, oskel,
      $        mo_lo, mo_lo, mo_hi, 1, nbf,
      $        g_movecs, g_coul, .true.,
-     $        g_exch, .true., blen, oblk, odisk )
+     $        g_exch, .true., blen, oblk )
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $        g_coul, g_exch, g_hcore )
          ocivecprint = util_print('civec',print_debug)
@@ -591,6 +606,8 @@ c     Store energy and convergence status
 c     
       if (.not. rtdb_put(rtdb, 'mcscf:energy', MT_DBL, 1, energy)) 
      $     call errquit('mcscf: failed to store energy in rtdb', 0)
+
+      call moints_aodisk_close(oaokeep)
 c     
 c     Cleanup
 c     

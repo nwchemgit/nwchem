@@ -263,7 +263,7 @@ c
        double precision citol
        double precision tol2e, gnorm, xx
        logical oskel
-       logical ohalf, oblk, odisk
+       logical ohalf, oblk
 c
 c---------------------
 c  Debugging variables
@@ -413,17 +413,13 @@ c
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
      $      oblk = .false.
        endif
-       if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, odisk)) then
-         if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
-     $                    1, odisk)) odisk = .false.
-       endif
 c
 c   Initial 4-Index Tranformation
 c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen, oblk, odisk )
+     $                       g_exch, .true., blen, oblk )
 c
 c   Initial core energy
 c
@@ -493,7 +489,7 @@ c$$$ 228   format(/,'Resolving CI for natural orbitals',/)
 c$$$       call moints_build_2x( basis, ohalf, oskel,
 c$$$     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
 c$$$     $                       g_movecs, g_coul, .true.,
-c$$$     $                       g_exch, .true., blen, oblk, odisk )
+c$$$     $                       g_exch, .true., blen, oblk )
 c$$$       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
 c$$$     $                   g_coul, g_exch, g_ifock )
 c$$$       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
@@ -563,7 +559,7 @@ c
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen, oblk, odisk )
+     $                       g_exch, .true., blen, oblk )
 c
 c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
@@ -694,7 +690,7 @@ c$$$     $                  0.d0, g_newgfock )
 c$$$         call moints_build_2x( basis, ohalf, oskel,
 c$$$     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
 c$$$     $                         g_newgfock, g_coul2, .true.,
-c$$$     $                         g_exch2, .true., blen, oblk, odisk )
+c$$$     $                         g_exch2, .true., blen, oblk )
 c$$$         call mcscf_fock( geom, basis, nbf, nclosed, nact,
 c$$$     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
 c$$$     $                    g_newgfock, g_coul2, eone, etwo, e0,

@@ -69,8 +69,7 @@ c
              call moints_build_6x( basis, osym,
      $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
-     $                             g_exch, .false., 16, .false.,
-     $                             .false. )
+     $                             g_exch, .false., 16, .false.)
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                          .true., oskel, tol2e, dm1, dm2,
      $                          g_tmpmo, g_coul, eone, etwo, ecore )
@@ -93,8 +92,7 @@ c$$$           write(6,901) i,(voff+j),ij,g1
              call moints_build_6x( basis, osym,
      $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
-     $                             g_exch, .false., 16, .false.,
-     $                             .false. )
+     $                             g_exch, .false., 16, .false. )
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                          .true., oskel, tol2e, dm1, dm2,
      $                          g_tmpmo, g_coul, eone, etwo, ecore )
@@ -111,8 +109,7 @@ c
        call moints_build_6x( basis, osym,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .false., 16, .false.,
-     $                       .false. )
+     $                       g_exch, .false., 16, .false. )
 c
 c
 c
@@ -216,8 +213,7 @@ c
                call moints_build_6x( basis, osym,
      $                               mo_lo, mo_lo, mo_hi, 1, nbf,
      $                               g_tmp2, g_coul, .true.,
-     $                               g_exch, .false., 16, .false.,
-     $                               .false. )
+     $                               g_exch, .false., 16, .false. )
                call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                            .true., oskel, tol2e, dm1, dm2,
      $                            g_tmp2, g_coul, eone, etwo, ecore )
@@ -236,7 +232,7 @@ c
        call moints_build_6x( basis, osym,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .false., 16, .false., .false. )
+     $                       g_exch, .false., 16, .false. )
 c
 c
 c

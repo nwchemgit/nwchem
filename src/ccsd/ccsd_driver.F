@@ -299,12 +299,12 @@ c
          call moints_build_6x(basis,  OUseSym, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen, OBlk, ODisk )
+     $                        blen, OBlk )
        else
          call moints_build_2x(basis,  ohalf, OUseSym,
      $       occ_lo, oseg_lo, oseg_hi, nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen, OBlk, ODisk )
+     $                        blen, OBlk )
        endif
 c
 c
