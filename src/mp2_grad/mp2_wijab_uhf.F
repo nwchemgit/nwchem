@@ -7,10 +7,10 @@
      $     tunita,tunitb,w_ij_a,w_ab_a,w_ij_b,w_ab_b,
      $     p_ij_a,p_ab_a,p_ij_b,p_ab_b,eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
-#include "global.fh"
       implicit none
-      double precision temp(nbf,nbf)
+#include "global.fh"
       integer i,a_a,nbf
+      double precision temp(nbf,nbf)
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer nob_lo,nob_hi,nvb_lo,nvb_hi
       integer sym_lo_oa(0:7),sym_hi_oa(0:7)
