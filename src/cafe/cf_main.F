@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.78 2000-09-13 19:35:39 d3j191 Exp $
+c $Id: cf_main.F,v 1.79 2000-09-13 19:36:35 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2264,7 +2264,7 @@ c
       call ga_igop(mrg_d48,number,ma_sizeof(mt_int,1,mt_byte),'+')
       endif
 c
-      if(me.eq.0) write(*,'(a,i8,a,i8,a)')
+      if(me.eq.0) write(*,'(a,i8,a,i8,a,/)')
      +  ' Solute fix applied to ',number,' out of ',nsa,' atoms'
 c
 c      if(numw.gt.0) then
