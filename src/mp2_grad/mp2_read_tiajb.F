@@ -1,5 +1,8 @@
       subroutine mp2_read_tijab(nv_lo, nv_hi, irs, symia, 
      $     num_o, sym_hi_o, sym_lo_o, tunit, tunitptr, t)
+*
+* $Id: mp2_read_tiajb.F,v 1.4 1997-03-27 08:50:20 d3e129 Exp $
+*
       implicit none
 #include "eaf.fh"
 #include "util.fh"

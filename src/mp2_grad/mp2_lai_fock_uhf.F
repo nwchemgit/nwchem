@@ -3,6 +3,9 @@
      $     g_vecs_a, g_vecs_b,
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b,rtdb,tol2e)
+*
+* $Id: mp2_lai_fock_uhf.F,v 1.11 1997-03-27 08:49:46 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,7 @@
       subroutine mp2_input(rtdb)
+*
+* $Id: mp2_input.F,v 1.4 1997-03-27 08:49:43 d3e129 Exp $
+*
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"

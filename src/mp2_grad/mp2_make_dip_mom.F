@@ -1,5 +1,8 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
+*
+* $Id: mp2_make_dip_mom.F,v 1.6 1997-03-27 08:49:56 d3e129 Exp $
+*
       implicit none
 #include "util.fh"
 #include "rtdb.fh"

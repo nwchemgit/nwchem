@@ -6,6 +6,9 @@
      $     eval_a,eval_b,toff_a,toff_b,nva,noa,nvb,nob,nir,
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,task,tunita,tunitb,kunit)
+*
+* $Id: mp2_make_tuhf.F,v 1.12 1997-03-27 08:50:05 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

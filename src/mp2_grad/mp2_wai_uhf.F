@@ -7,6 +7,9 @@
      $     ij_ka,g_iajk_a,g_iajk_b,
      $     ioff_vooo_a,ioff_vooo_b,tunita,tunitb,
      $     p_ai_a,p_ai_b,w_ai_a,w_ai_b)
+*
+* $Id: mp2_wai_uhf.F,v 1.3 1997-03-27 08:50:23 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

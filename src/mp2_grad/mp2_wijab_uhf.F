@@ -7,6 +7,9 @@
      $     tunita,tunitb,
      $     eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
+*
+* $Id: mp2_wijab_uhf.F,v 1.12 1997-03-27 08:50:25 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -11,6 +11,9 @@
      $     c_a, c_b,            ! Better left in a GA to conserve memory
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
+*
+* $Id: mp2_back_transform.F,v 1.12 1997-03-27 08:47:42 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,4 +1,7 @@
       subroutine mp2_zero_forces(force,oactive,nat)
+*
+* $Id: mp2_grad_utils.F,v 1.2 1997-03-27 08:49:41 d3e129 Exp $
+*
       implicit none
       integer nat,i
       double precision force(3,nat)

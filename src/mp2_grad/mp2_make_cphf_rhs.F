@@ -4,6 +4,9 @@
      $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $     sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
+*
+* $Id: mp2_make_cphf_rhs.F,v 1.6 1997-03-27 08:49:54 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

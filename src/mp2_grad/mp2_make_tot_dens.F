@@ -2,6 +2,9 @@
      $     g_p_ab_b,g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,
      $     nmo,map_a, map_b,
      $     g_vecs_a,g_vecs_b,basis,scftype)
+*
+* $Id: mp2_make_tot_dens.F,v 1.11 1997-03-27 08:49:59 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

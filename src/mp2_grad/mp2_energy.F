@@ -1,4 +1,7 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
+*
+* $Id: mp2_energy.F,v 1.36 1997-03-27 08:47:47 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

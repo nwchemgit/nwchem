@@ -1,6 +1,9 @@
       subroutine mp2_memory(basis,rtdb,tol2e,oskel,
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
+*
+* $Id: mp2_memory.F,v 1.10 1997-03-27 08:50:07 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

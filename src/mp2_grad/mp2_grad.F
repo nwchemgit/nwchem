@@ -1,4 +1,7 @@
       logical function semi_dir_mp2(rtdb)
+*
+* $Id: mp2_grad.F,v 1.18 1997-03-27 08:47:51 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

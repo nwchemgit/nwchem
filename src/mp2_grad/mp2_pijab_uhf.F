@@ -5,6 +5,9 @@
      $     noa_lo,noa_hi,nob_lo,nob_hi,t_a,t_b,
      $     tunita,tunitb,eval_a,eval_b,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
+*
+* $Id: mp2_pijab_uhf.F,v 1.11 1997-03-27 08:50:10 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

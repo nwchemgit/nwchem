@@ -1,4 +1,7 @@
       subroutine mp2_pstat_init()
+*
+* $Id: mp2_pstat.F,v 1.2 1997-03-27 08:50:18 d3e129 Exp $
+*
       implicit none
 #include "pstat.fh"
 #include "cmp2ps.fh"

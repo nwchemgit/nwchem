@@ -8,6 +8,9 @@
      $     noa,nob,t_a,t_b,ia_cb,ia_jk,ia_uv,tmp,tunita,tunitb,
      $     l_ai3_a,l_ai3_b,l_ai1_a,l_ai1_b,g_lai_a,g_lai_b,
      $     g_wai_a,g_wai_b,kunit)
+*
+* $Id: mp2_lai_uhf.F,v 1.9 1997-03-27 08:49:52 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

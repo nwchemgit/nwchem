@@ -2,6 +2,9 @@
      $     g_w_ab_b,g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
      $     noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
+*
+* $Id: mp2_make_tot_wdens.F,v 1.5 1997-03-27 08:50:03 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

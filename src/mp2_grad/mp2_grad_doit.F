@@ -8,6 +8,9 @@
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
+*
+* $Id: mp2_grad_doit.F,v 1.27 1997-03-27 08:48:45 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
