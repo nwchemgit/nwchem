@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.4 1996-10-18 23:36:36 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.5 1996-10-18 23:45:43 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -166,21 +166,19 @@ C $Id: ecp_gradient.F,v 1.4 1996-10-18 23:36:36 mg201 Exp $
         memscr = lscr-i_scr+1
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in ecp_gradient',99)
-        call dcopy (n_prim_A*n_cont_A,coef_A,1,scr(i_xca),1)
-        call dcopy (n_prim_B*n_cont_B,coef_b,1,scr(i_xcb),1)
         k = i_xca-1
         do j = 1,n_cont_a
           do i = 1,n_prim_A
             scr(k+i) = zeta_A(i)*coef_A(i,j)
           end do
-          k = k+n_cont_A
+          k = k+n_prim_A
         end do
         k = i_xcb-1
         do j = 1,n_cont_B
           do i = 1,n_prim_B
             scr(k+i) = zeta_B(i)*coef_B(i,j)
           end do
-          k = k+n_cont_A
+          k = k+n_prim_B
         end do
       end if
 *
