@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint,scale)
-C$Id: sym_nwc.F,v 1.12 1997-03-05 07:38:59 gutowski Exp $
+C$Id: sym_nwc.F,v 1.13 1997-03-30 22:36:21 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -75,7 +75,7 @@ c
      $     cdist,cang,Int_MB(idatom), oprint)
 c
       if(nareal.gt.max_cent) then
-        write(iw,*)' Too many atoms, increase max_cent in ',
+        write(6,*)' Too many atoms, increase max_cent in ',
      &       'geomP.fh error in sym_nwc : ', nareal
         call errquit('sym: too many atoms', 1)
       endif

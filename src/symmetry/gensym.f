@@ -56,12 +56,15 @@ c                                        9/13/93
 c***********************************************************************
       subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
      $     group_name)
-C$Id: gensym.f,v 1.7 1996-07-15 22:05:56 gutowski Exp $
+C$Id: gensym.f,v 1.8 1997-03-30 22:36:20 d3g681 Exp $
       implicit real*8 (a-h,o-z) 
       parameter(maxops=192,tol=1.0d-07,max_gen=6)
       character*1 let(5)
       character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
-      dimension capr(3,4),caps(3,4),indx(3),symops(maxops*3,4)
+      dimension capr(3,4),caps(3,4),symops(maxops*3,4)
+*      integer indx(3)
+      double precision deter3
+      external deter3
       dimension resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
       character*(*) group_name
       logical oprint
@@ -125,10 +128,12 @@ c
       do 580 i=1,3
          trace=trace+capr(i,i)
 580   continue
-      call ludcmp(detres,3,3,indx,det)
-      do 590 i=1,3
-         det=det*detres(i,i)
-590   continue
+*
+      det = deter3(detres)
+*      call ludcmp(detres,3,3,indx,det)
+*      do 590 i=1,3
+*         det=det*detres(i,i)
+*590   continue
 c
 c--> store type information
 c
@@ -243,10 +248,12 @@ c
       do 180 i=1,3
          trace=trace+resop(i,i)
 180   continue
-      call ludcmp(detres,3,3,indx,det)
-      do 190 i=1,3
-         det=det*detres(i,i)
-190   continue
+*
+      det = deter3(detres)
+**      call ludcmp(detres,3,3,indx,det)
+**      do 190 i=1,3
+**         det=det*detres(i,i)
+**190   continue
 c
 c-->  Check whether {RS|Ru+t} is identical to any of the previous
 c       operators stored in the "symops" matrix.
