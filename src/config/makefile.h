@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.371 2001-09-22 17:35:21 d3e129 Exp $
+# $Id: makefile.h,v 1.372 2001-09-23 02:51:27 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1170,7 +1170,7 @@ endif
 
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
-      DEFINES += -DCYGNUS
+    DEFINES += -DCYGNUS
   endif
   
   _CPU = $(shell uname -m  )
@@ -1257,19 +1257,24 @@ endif
   LDOPTIONS = -g -Xlinker -export-dynamic 
 #  LDOPTIONS = --Xlinker -O -Xlinker -static
       LINK.f = $(FC) $(LDFLAGS) 
-ifeq ($(FC),pgf77)
- EXTRA_LIBS += -lm
-else
-ifeq ($(FC),ifc)
-     EXTRA_LIBS += -ml -Vaxlib  
-else
- EXTRA_LIBS += -lm
+ifeq ($(LINUXCPU),x86)
+  ifeq ($(FC),pgf77)
+   EXTRA_LIBS += -lm
+  else
+    ifeq ($(FC),ifc)
+      EXTRA_LIBS += -ml -Vaxlib  
+    else
+      EXTRA_LIBS += -lm
+      ifndef EGCS
+        EXTRA_LIBS += -lf2c -lm
+      endif
+    endif
+  endif
+endif
+ifeq ($(LINUXCPU),ppc)
+  EXTRA_LIBS += -lm
+endif
 
-ifndef EGCS
- EXTRA_LIBS += -lf2c -lm
-endif
-endif
-endif
 
 CORE_LIBS += -llapack $(BLASOPT) -lblas
 
