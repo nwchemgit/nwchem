@@ -191,7 +191,10 @@ source of the input molecular orbital vectors as any of the following:
 \begin{itemize}
 \item \verb+ATOMIC+ --- eigenvectors of a Fock-like matrix formed from
   a superposition of the atomic densities (the default guess).  See
-  Sections \ref{sec:atomscf} and \ref{sec:tolguess}.
+  Sections \ref{sec:atomscf} and \ref{sec:tolguess}.  The atomic initial 
+  guess currently does not work correctly in the presence of ECPs.  
+  Independently converging fragments, Section \ref{sec:fragguess}, with 
+  ECPs can save a lot of resources.
 \item \verb+HCORE+ --- eigenvectors of the bare-nucleus Hamiltonian or
   the one-electron Hamiltonian.
 \item \verb+filename+ --- the name of a file containing the MO vectors
