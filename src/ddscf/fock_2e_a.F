@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.6 1995-04-05 19:51:33 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.7 1995-04-11 18:38:07 rg240 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -15,7 +15,7 @@ c     see scf_init for input of task_chunks
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.6 1995-04-05 19:51:33 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.7 1995-04-11 18:38:07 rg240 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -62,9 +62,8 @@ c
 c     
 c     
       integer nxtask
-      double precision dabsmax, dabssum
-      external dabsmax, dabssum, nxtask
-c
+      double precision dabsmax
+      external dabsmax, nxtask
 c     How many atoms are there?
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
