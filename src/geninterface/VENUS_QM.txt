@@ -1,0 +1,70 @@
+VENUS parallelization and QM interface
+
+      VENUS parallelization was designed to achieve following goals: simple design, 
+non-intrusive QM and communication calls inside VENUS, and easy port of other QM 
+codes. VENUS is non-parallelized program so parallelization done in the way to have as 
+little interference with VENUS code as possible. First call in VENUS.f is
+call VENUS_parallel_init (myid,nnodes)
+This is purely communication initialization which may call directly MPI_init. In the case 
+of NWChem GA specific initialization is called. After constants are initialized on all 
+nodes, input file is read on master node only. After that NMO value (number of QM 
+atoms) is broadcasted to all children nodes:
+call broadcast_data (NMO)
+If this is QM run  (NMO>0) then all nodes except master node execute following code:
+      if (myid.ne.0) CALL VENUS_parallel_loop (myid,idop)
+VENUS_parallel_loop is an infinite loop calling VENUS_parallel_idop. In subroutine 
+VENUS_parallel_idop, idop (operation number) is broadcasted. There are currently six 
+idop operations implemented:
+idop=1 – QM initialization
+idop=2 – compute gradient
+idop=3 – compute gradient/energy
+idop=4 – compute energy
+idop=5 – QM finalization
+idop=6 – compute Hessian
+The basic setup is following: all children are waiting in broadcast call until master node 
+broadcasts idop number after that all nodes have idop and complete one of the six 
+operations. After operation is complete all children return to broadcast wait while master 
+continues working in sequential mode.
+QM initialization is called right before trajectory starts:
+        idop=1 
+        call VENUS_parallel_idop (myid,idop,theory, basis, natom,
+     *  QQCHEM,labels,printName,qm_grad,qm_energy,charge, stack,
+     *  heap,global,qm_ini_file)
+QM gradient and energy are computed in DVDQ.f by calling QMCALC which in turn 
+calls
+       idop=3
+       call VENUS_parallel_idop (myid,idop,theory, basis, natom,
+     * QNWCHEM,labels,printName,grad,escf,charge,stack,heap,global,
+     * qm_ini_file)
+QM finalization is called right before VENUS stop:
+        idop=5
+        call VENUS_parallel_idop (myid,idop,theory, basis, natom,
+     *  QQCHEM,labels,printName, qm_grad,qm_energy,charge
+     *  stack,heap,global,qm_ini_file)
+There are two ways to initialize QM code which is arguably the most complicated part of 
+the port. First way is to read from VENUS input theory, basis set, charge, etc. Another 
+way is to read QM initialization input which initializes QM but doesn’t run.
+	There are two files needed for VENUS coupled with QM code: QMCALC.f 
+which has subroutines common for all QM codes and Fortran file which contains QM 
+code specific calls (Example NWCHEM_LINK.f, GAMESS_LINK.f ). VENUS can still 
+work in sequential mode only. File STUBS_LINK.f which has empty QM calls should be 
+linked instead of NWCHEM_LINK.f, GAMESS_LINK.f etc. A variable TARGET_QM 
+should be used to link proper files in Makefile. 
+	A person porting QM code to VENUS should implement all QM specific calls 
+(see NWCHEM_LINK.f):
+      Subroutine VENUS_parallel_init (myid,nnodes)
+      Subroutine VENUS_parallel_final()
+      Subroutine broadcast_data(cdata)
+      Subroutine VENUS_QM_init(theory, basis, natom, coordinates,
+     *                    charge, labels,printName,stack,heap,global,
+     *                    nwchem_ini_file)
+      Subroutine VENUS_QM_energy(coordinates,nw_energy)
+      Subroutine VENUS_QM_gradient(coordinates, nw_grad)
+      Subroutine VENUS_QM_gradient_energy(coordinates,nw_energy,
+     *                                           nw_grad)
+      Subroutine VENUS_QM_hessian(coordinates, nw_hessian)
+It is desirable not to put actual QM calls in these subroutines but rather call interface 
+subroutines implemented on QM side. If one needs to use QM code specific initialization 
+etc then it is recommended to use if statements coupled with qm_choice variable (0-no 
+QM code, 1-NWChem) stored in QMINFO common block.
+ 
