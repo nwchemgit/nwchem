@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.50 2004-02-27 20:24:42 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.51 2004-04-07 17:54:13 d3j191 Exp $
 c
       implicit none
 c
@@ -229,10 +229,11 @@ c
 c
       nd=0
       do 29 i=ndih+1,ndiht
-      nd=0
+      j=0
       do 529 k=ipfr,ipto
-      nd=max(nd,nfdih(k,i))
+      j=max(j,nfdih(k,i))
   529 continue
+      nd=nd+j
    29 continue
       if(ffield(1:5).eq.'amber') then
       write(lfntop,1008) natmt-natm,nbndt-nbnd,nangt-nang,
