@@ -5,7 +5,6 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "pstat.fh"
@@ -13,7 +12,6 @@
 c
        integer rtdb
 c
-       character*255 tmpname
        integer geom, basis
        integer nbf, nclosed, nvir, nact, noper, nsym
        integer nactel, nela, nelb, multip, orlen
@@ -475,20 +473,17 @@ c
 c
 c  Store energy and convergence status
 c
-      if (.not. context_prefix('energy', tmpname)) 
-     $  call errquit('mcscf: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, tmpname, MT_DBL, 1, energy)) 
+      if (.not. rtdb_put(rtdb, 'mcscf:energy', MT_DBL, 1, energy)) 
      $  call errquit('mcscf: failed to store energy in rtdb', 0)
-      if (.not. context_prefix('converged', tmpname)) 
-     $  call errquit('mcscf: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, tmpname, MT_LOG, 1, oconverged))
+      if (.not. rtdb_put(rtdb, 'mcscf:converged', MT_LOG, 1,
+     $     oconverged))
      $  call errquit('mcscf: failed to store converged in rtdb', 0)
 c
 c  Cleanup
 c
  401   continue
        call mcscf_profile_tidy()
-       call scf_tidy()
+       call scf_tidy(rtdb)
        call schwarz_tidy()
        call int_terminate()
        if (.not.ga_destroy(g_hcore))
