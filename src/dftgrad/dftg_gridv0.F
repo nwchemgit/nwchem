@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.15 2003-06-09 21:01:08 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.16 2003-10-13 21:21:37 pollack Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.15 2003-06-09 21:01:08 edo Exp $
+c $Id: dftg_gridv0.F,v 1.16 2003-10-13 21:21:37 pollack Exp $
 c     
       implicit none      
 c
@@ -85,7 +85,7 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat, lDmat, iDmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
-     &        itau, ltau
+     &        itau, ltau, immat, lmmat
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
       integer lzzz,  izzz, lff, iff, lppp, ippp
@@ -249,11 +249,17 @@ c
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
 
 c
-c    not used for the moment
+c    not used for the moment, neither tau nor mmat
 c	
       nelem_tau=1
+c      nelem_tau=3*npol*n_per_rec
+
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'tau',ltau,itau))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+
+      if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'Mmat',lmmat,immat))
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+
 
 
 
@@ -434,7 +440,7 @@ c
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr,
-     &                    dbl_mb(itau) )
+     &                    dbl_mb(itau), dbl_mb(immat) )
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
      .     errquit(' dftggridv0: xcrepclose failed ',0)
       if (.not.ma_chop_stack(lhh))
