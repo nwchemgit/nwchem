@@ -384,23 +384,15 @@ case a task will use the one most recently specified.  The format for
 the directive is as follows:
 
 \begin{verbatim}
-  TITLE 
-  <string title>
+  TITLE <string title>
 \end{verbatim}
 
 The character string \verb+<title>+ is assigned to the contents of the
-line following the \verb+TITLE+ directive.  For example,
+string following the \verb+TITLE+ directive.  If the string contains
+white space, it must be surrounded by double quotes.  For example,
 
 \begin{verbatim}
-  title
-  This is the title of my NWChem job
-\end{verbatim}
-
-Alternatively, since a semicolon can be used to denote the end an input line
-(Section \ref{sec:syntax}), the above example can be specified as
-
-\begin{verbatim}
-  title;  This is the title of my NWChem job
+  title "This is the title of my NWChem job"
 \end{verbatim}
 
 The title is stored in the database and will be used in all subsequent
@@ -547,7 +539,7 @@ NWChem.  The following input file shows an example using the
 geometries.  The required input lines are as follows:
 
 \begin{verbatim}
-  title; Ar dimer BSSE corrected MP2 interaction energy
+  title "Ar dimer BSSE corrected MP2 interaction energy"
   geometry "Ar+Ar"
     Ar1 0 0 0
     Ar2 0 0 2
@@ -793,7 +785,7 @@ of the task directive is:
 
 \begin{verbatim}
   TASK shell [(<integer-range process = 0>||all)] \
-             <string command> [ignore]
+             <string command> 
 \end{verbatim}
 
 The keyword \verb+shell+ is required for this directive.  It specifies

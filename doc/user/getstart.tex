@@ -114,7 +114,7 @@ file contains the bare minimum of information the user must specify
 to run this type of problem --- fewer than ten lines of input,
 as follows:
 \begin{verbatim}
-  title; Nitrogen cc-pvdz SCF geometry optimization
+  title "Nitrogen cc-pvdz SCF geometry optimization"
   geometry  
     n 0 0 0
     n 0 0 1.08
@@ -196,7 +196,7 @@ scf
   print low
 end
 
-title; H2O+ : STO-3G UHF geometry optimization
+title "H2O+ : STO-3G UHF geometry optimization"
 
 task scf optimize
 
@@ -205,14 +205,14 @@ basis
   O library 6-31g**
 end
 
-title; H2O+ : 6-31g** UMP2 geometry optimization
+title "H2O+ : 6-31g** UMP2 geometry optimization"
 
 task mp2 optimize
 
 mp2; print none; end
 scf; print none; end
 
-title; H2O+ : 6-31g** UMP2 frequencies
+title "H2O+ : 6-31g** UMP2 frequencies"
 
 task mp2 freq
 \end{verbatim}

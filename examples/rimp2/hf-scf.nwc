@@ -1,7 +1,6 @@
 start hf
 
-title
-HF, cc-pVDZ basis, SCF optimized geometry
+title "HF, cc-pVDZ basis, SCF optimized geometry"
 
 geometry units au
 H	0.1482000000   0.0000000000   0.0000000000

@@ -11,7 +11,7 @@ performed in a single task).
 
 \begin{verbatim}
   start h2o
-  title; Water in 6-31g basis set
+  title "Water in 6-31g basis set"
 
   geometry units au
     O      0.00000000    0.00000000    0.00000000
@@ -31,7 +31,7 @@ The final energy should be -75.983998.
 
 \begin{verbatim}
   restart h2o
-  title; Water geometry optimization
+  title "Water geometry optimization"
 
   task scf optimize
 \end{verbatim}
@@ -46,7 +46,7 @@ previous input deck, though it will do no harm to repeat it.
 
 \begin{verbatim}
   start ne
-  title; Neon
+  title "Neon"
   geometry; ne 0 0 0; end
   basis spherical 
     ne library aug-cc-pvdz
@@ -67,7 +67,7 @@ which is the default for a restart job.
 
 \begin{verbatim}
   restart ne
-  title; Neon in electric field
+  title "Neon in electric field"
   geometry units atomic
     bq1 0 0 100 charge 50
     ne  0 0 0
@@ -89,7 +89,7 @@ The following will compute the SCF energy for formaldehyde with ECPs
 on the Carbon and Oxygen centers.
 
 \begin{verbatim}
-title; formaldehyde ECP deck
+title "formaldehyde ECP deck"
 
 start ecpchho
 

@@ -1,7 +1,6 @@
 start c2h6
 
-title
-C2H6, cc-pVDZ basis, SCF optimized geometry
+title "C2H6, cc-pVDZ basis, SCF optimized geometry"
 
 geometry units au
 C  -1.4283194667   0.4026995833   0.0000000000

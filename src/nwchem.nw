@@ -1,8 +1,8 @@
 #
-# $Id: nwchem.nw,v 1.9 1999-11-15 19:05:01 d3g681 Exp $
+# $Id: nwchem.nw,v 1.10 2000-01-19 17:20:05 windus Exp $
 #
 
-title; Water in cc-pvdz basis set
+title "Water in cc-pvdz basis set"
 
 start h2o
 

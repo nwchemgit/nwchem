@@ -1,7 +1,6 @@
 start h2o
 
-title
-H2O, cc-pVDZ basis, SCF optimized geometry
+title "H2O, cc-pVDZ basis, SCF optimized geometry"
 
 geometry units au
 H	0.0000000000   1.4140780900  -1.1031626600
