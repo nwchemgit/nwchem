@@ -1175,6 +1175,8 @@ c--------------------------------
 c--------------------------------------------------------
 c  loop over quartets belonging to the block IKBL :
 c--------------------------------------------------------
+c      ijkl_size=ilen*jlen*klen*llen
+c      write(6,*)' IJKL_SIZE=',ijkl_size
       IF(use_q4) THEN
 c-----symmetry is used---------------------------
         integral=0
@@ -1275,6 +1277,8 @@ c---
 c---
              ipnl=itxspnl(integral)
              buffer(ipnl    )=xint0
+c                   write(6,66) icf,jcf,kcf,lcf,xint0
+c  66               format(4(i3,1x),2x,'INT=',f12.8)
 c---
   200        continue
   150     continue
@@ -1345,6 +1349,7 @@ c     do not zero out integ_n0 here
 c----------------------------
 c     loop over quartets belonging to the block IKBL :
 c     
+c      ijkl_size=ilen*jlen*klen*llen
 c     
       do 10  ijklp=1,nbls
          ijkl=indxp(ijklp)
@@ -1441,6 +1446,8 @@ c
                               jcfx(integ_n0)=jcf
                               kcfx(integ_n0)=kcf
                               lcfx(integ_n0)=lcf
+c                   write(6,66) icf,jcf,kcf,lcf,xint0
+c  66               format(4(i3,1x),2x,'INT=',f12.8)
                            endif
                            integ=integ+nbls
                         enddo
@@ -1460,6 +1467,7 @@ c
                               jcfx(integ_n0)=jcf
                               kcfx(integ_n0)=lcf
                               lcfx(integ_n0)=kcf
+c                   write(6,66) icf,jcf,lcf,kcf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1479,6 +1487,7 @@ c
                               jcfx(integ_n0)=icf
                               kcfx(integ_n0)=kcf
                               lcfx(integ_n0)=lcf
+c                   write(6,66) jcf,icf,kcf,lcf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1498,6 +1507,7 @@ c
                               jcfx(integ_n0)=icf
                               kcfx(integ_n0)=lcf
                               lcfx(integ_n0)=kcf
+c                   write(6,66) jcf,icf,lcf,kcf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1517,6 +1527,7 @@ c
                               jcfx(integ_n0)=lcf
                               kcfx(integ_n0)=icf
                               lcfx(integ_n0)=jcf
+c                   write(6,66) kcf,lcf,icf,jcf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1538,6 +1549,7 @@ c                   i.e. i->l(4), j->k(3), k->i(1), l->j(2)
                               jcfx(integ_n0)=lcf
                               kcfx(integ_n0)=jcf
                               lcfx(integ_n0)=icf
+c                   write(6,66) kcf,lcf,jcf,icf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1557,6 +1569,7 @@ c                   i.e. i->l(4), j->k(3), k->i(1), l->j(2)
                               jcfx(integ_n0)=kcf
                               kcfx(integ_n0)=icf
                               lcfx(integ_n0)=jcf
+c                   write(6,66) lcf,kcf,icf,jcf,xint0
                            endif
                            integ=integ+nbls
                         enddo
@@ -1576,6 +1589,7 @@ c                   i.e. i->l(4), j->k(3), k->i(1), l->j(2)
                               jcfx(integ_n0)=kcf
                               kcfx(integ_n0)=jcf
                               lcfx(integ_n0)=icf
+c                   write(6,66) lcf,kcf,jcf,icf,xint0
                            endif
                            integ=integ+nbls
                         enddo

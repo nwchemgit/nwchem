@@ -1177,26 +1177,33 @@ c     l12=lensm(mmax)
 c     mem1=l11*l12
       mem1=mmax*lensm(mmax)
 cc
-      mem2=0
-      if(nsij.ge.nskl) then
+c1998 mem2=0
+c1998
+c1998 if(nsij.ge.nskl) then
+c
+      mem2_1=0
         klstep=0
         do 10 ijstep=mmax,nsij,-1
         klstep=klstep+1
         ijdim=lensm(ijstep)
         kldim=lensm(klstep)
         ijkld=ijdim*kldim
-        mem2=mem2+ijkld
+        mem2_1=mem2_1+ijkld
    10   continue
-      else
+c1998 else
+      mem2_2=0
         ijstep=0
         do 11 klstep=mmax,nskl,-1
         ijstep=ijstep+1
         ijdim=lensm(ijstep)
         kldim=lensm(klstep)
         ijkld=ijdim*kldim
-        mem2=mem2+ijkld
+        mem2_2=mem2_2+ijkld
    11   continue
-      endif
+c1998 endif
+c
+      mem2=max(mem2_1,mem2_2)
+c
 c           ----------------------
             memtrob=nbls*(mem0+mem1+mem2)
 c           ----------------------

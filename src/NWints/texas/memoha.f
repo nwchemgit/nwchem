@@ -379,26 +379,31 @@ c
 cc
 c  for Tracy 
 c
-      mem2=0
-      if(nsij.ge.nskl) then
+      mem2_1=0
+c98   if(nsij.ge.nskl) then
         klstep=0
         do 10 ijstep=mmax,nsij,-1
         klstep=klstep+1
         ijdim=lensm(ijstep)
         kldim=lensm(klstep)
         ijkld=ijdim*kldim
-        mem2=mem2+ijkld
+        mem2_1=mem2_1+ijkld
    10   continue
-      else
+c98   else
+      mem2_2=0
         ijstep=0
         do 11 klstep=mmax,nskl,-1
         ijstep=ijstep+1
         ijdim=lensm(ijstep)
         kldim=lensm(klstep)
         ijkld=ijdim*kldim
-        mem2=mem2+ijkld
+        mem2_2=mem2_2+ijkld
    11   continue
-      endif
+c98   endif
+c98
+      mem2=max(mem2_1,mem2_2)
+c
+ccc   write(6,*)' memoha: mem2_1,mem2_2,mem2=',mem2_1,mem2_2,mem2
 c
       call getmem_zero(bl,nbls*mem0,iwt0)   ! for wt0(nbls,lnij,lnkl) ZERO
       call getmem_zero(bl,nbls*mem1,iwt1)   ! for wt1(l11,nbls,l12) ZERO

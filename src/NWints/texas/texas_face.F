@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.46 1998-06-05 16:04:51 d3j191 Exp $
+c $Id: texas_face.F,v 1.47 1998-07-05 19:08:28 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -33,9 +33,15 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
 c----------------------------------------------------------------
+c 1998 (numerical instability in Tracy's recursive)
+c
+c     common /count_primitive/ x_prim_all,
+c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
+c    *                         xobsa4,xobsa4_ineff,xobsa4_more
+c----------------------------------------------------------------
 c
       if(ncall_pnl.gt.0) then 
-c
 c        average block-size in texas calculations for pnl 
 c
          nvect_pnl=nsize_pnl/ncall_pnl
@@ -133,8 +139,27 @@ ctest ??????
       write(8,*)' total memory available    =',memtot_bl
       write(8,*)' -------------------------------------------'
 c
-00001 continue
+c------------------------------------
+c 1998 (numerical instability in Tracy's recursive)
+c print out info about numerical instability in Tracy's recursive:
 c
+c     write(8,9871) x_prim_all,x_prim_wr1,x_prim_wr2,x_prim_wr3
+c9871 format(' total number of primitive blocks  =',f15.0/
+c    *       ' number of unstable blocks after 1 =',f15.0/
+c    *       ' number of unstable blocks after 2 =',f15.0/
+c    *       ' number of unstable blocks after 3 =',f15.0)
+c------------------------------------
+c     write(8,9872) xobsa2,xobsa2_ineff,xobsa2_more,
+c    *              xobsa4,xobsa4_ineff,xobsa4_more
+c9872 format(' number of cases (shift:cent1>cent3=',f15.0/
+c    *       '       inefficient (for L_12<L_34) =',f15.0/
+c    *       '       number of additional shifts =',f15.0/
+c    *       ' number of cases (shift:cent3>cent1=',f15.0/
+c    *       '       inefficient (for L_12>L_34) =',f15.0/
+c    *       '       number of additional shifts =',f15.0)
+c------------------------------------
+00001 continue
+c------------------------------------
       write(8,*)' -------------------------------------------'
       write(8,*)' TEXAS INTEGRAL PROGRAM HAS BEEN TERMINATED'
       write(8,*)' -------------------------------------------'
@@ -801,10 +826,34 @@ c------------------------------------
 c------------------------------------
       common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
 c------------------------------------
+c 1998 (numerical instability in Tracy's recursive)
+c
+c     common /count_primitive/ x_prim_all,
+c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
+c    *                         xobsa4,xobsa4_ineff,xobsa4_more
+c------------------------------------
 c initialize commons number,ener,ganz,type :
 c
       call txs_initial(rtdb)
 c
+c------------------------------------
+c initialize common /count_primitive/ x_prim_all,
+c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c 1998 (numerical instability in Tracy's recursive)
+c
+c
+c     x_prim_all=0.d0
+c     x_prim_wr1=0.d0
+c     x_prim_wr2=0.d0
+c     x_prim_wr3=0.d0
+c
+c     xobsa2=0.d0
+c     xobsa2_ineff=0.d0 
+c     xobsa2_more =0.d0 
+c     xobsa4=0.d0
+c     xobsa4_ineff=0.d0
+c     xobsa4_more =0.d0 
 c------------------------------------
 c initialize common /what_was_calc/ cent2,cent3,cent4
 c
@@ -1181,6 +1230,8 @@ c=================================================================
       common /intlim/ limxmem,limblks,limpair
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /route/ iroute
+cccc  common /limit_lost/ lost_limit
+      common /allow_lost/ lost_allow   
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
       integer int_tmp, rtdb
@@ -1188,20 +1239,19 @@ c=================================================================
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "global.fh"
 c-----------------------------------------------------
 c default values for options in two-el. integ. program 
 c change these if needed by reading in new values from 
 c some input (PNL must tell) :
 c-----------------------------------------------------
 c Defaults :
-c------------------------------------
+c
 c
       rtdb = rtdb_copy
 c:: read parameters from run time database use
 c:: defaults if they are not set on the rtdb
 c
-c------------------------------------
+c-----------------------------------------------------
 c integral's threshould
 c
 c... now set by texas_set_accy
@@ -1222,7 +1272,7 @@ c... now set by texas_set_accy
 *      par(1)=thresh1
 *c *** this value is transferred in par(26)
 *      par(26)=thresh1
-c------------------------------------
+c-----------------------------------------------------
       icheck = 0
       if (rtdb_get(rtdb,'int:txs:icheck',MT_INT,1,int_tmp)) then
         icheck = int_tmp
@@ -1231,6 +1281,7 @@ c------------------------------------
      &      ' texas integral default override: icheck =',
      &      icheck
       endif
+c-----------------------------------------------------
 #ifdef SGITFP
       ncache=64    ! result of tuning on c12h14 6-31g*
 #else
@@ -1249,6 +1300,7 @@ c------------------------------------
      &      ' texas integral default override: ncache =',
      &      ncache
       endif
+c-----------------------------------------------------
 c
       maxprice=1    ! option name is IPAY
       if (rtdb_get(rtdb,'int:txs:maxprice',MT_INT,1,int_tmp)) then
@@ -1264,6 +1316,7 @@ c
      &      ' texas integral default override: maxprice =',
      &      maxprice
       endif
+c-----------------------------------------------------
 c
       iprint=0      ! option name is PRIN
       if (rtdb_get(rtdb,'int:txs:iprint',MT_INT,1,int_tmp)) then
@@ -1279,6 +1332,7 @@ c
      &      ' texas integral default override: iprint =',
      &      iprint
       endif
+c-----------------------------------------------------
       iblock=0      ! option name is IBLO  not used
 c                   ! option name is LIMI (3 numbers)
 c...
@@ -1330,8 +1384,12 @@ c
      &      ' texas integral default override: limpair =',
      &      limpair
       endif
+c-----------------------------------------------------
+c default for iroute is 2 because of numerical stability
 c
-      iroute=0      ! option name is ROUT
+c     iroute=0      ! option name is ROUT
+c
+      iroute=2  
       if (rtdb_get(rtdb,'int:txs:iroute',MT_INT,1,int_tmp)) then
         iroute = int_tmp
         if (ga_nodeid().eq.0)
@@ -1345,6 +1403,20 @@ c
      &      ' texas integral default override: iroute =',
      &      iroute
       endif
+c-----------------------------------------------------
+c for numerical instability in texas :
+c number of "lost digit" allowed to loose in texas integrals
+c i.e. lost_allow=5 means accuracy for integrals is 10**-(14-5)
+c
+      lost_limit=0
+      if(rtdb_get(rtdb,'int:txs:lost_limit',MT_INT,1,int_tmp)) then
+        lost_limit = int_tmp
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: lost_limit=',lost_limit
+      endif
+      lost_allow=lost_limit
+c
 c-----------------------------------------------------
 c
       end
@@ -1368,8 +1440,20 @@ c--------------------------------------------------------
 c find out what blocking strategy will be used (txs93 or 95)
 c
       if(iroute.eq.0) call whichblk(datnuc,na,inx,ncs,iroute)
+ctest
+ccc    write(6,*)' iroute=',iroute
+ctest
 c
 c output : iroute
+c
+c     if(iroute.eq.1) then
+c        write(6,*)'**************************************'
+c        write(6,*)'            WARRNING                  '
+c        write(6,*)'  results maybe numerically unstable  '
+c        write(6,*)'   to ensure stability use iroute=2   '
+c        write(6,*)'**************************************'
+c     endif
+c
 c--------------------------------------------------------
 c make blocks of shells and calculate number of bl1,bl2,bl4
 c output :
@@ -1728,7 +1812,6 @@ c
      *                     nat_bas_1,nat_bas_2,nat_bas_3,
      *                     ncf_bas_1,ncf_bas_2,ncf_bas_3 
       dimension datnuc(5,*), datbas(13,*)
-#include "global.fh"
 c
       do ibasis=1,nbas
         if(ibasis.eq.1) then

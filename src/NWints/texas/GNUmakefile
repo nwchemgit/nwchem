@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.37 1998-06-09 23:36:57 d3e129 Exp $
+# $Id: GNUmakefile,v 1.38 1998-07-05 19:08:18 pg481 Exp $
  
 include ../../config/makefile.h
 
@@ -41,7 +41,6 @@ endif
                  transfor.o\
                  gencon.o\
                  derivat.o\
-                 conv24r.o \
                  test_calc2.o \
                  conbuf2_der.o destdul.o
 else

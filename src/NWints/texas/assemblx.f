@@ -154,6 +154,11 @@ c
            do 501 i=1,nbls1
            ijkl=indx(i)
            BUF2(ijkl,IJ,KL)=XT1(i,IJ,KL)
+c........... abs_x=abs(xt1(i,ij,kl))
+c            if(abs_x.gt.1.0d-08) then
+c               write(6,66) ij,kl,xt1(i,ij,kl)
+c 66         format(' xt1 : ij,kl=',2i4,2x,f12.8 )
+c........... endif
   501      CONTINUE
 C
            FIRSTC=.FALSE.

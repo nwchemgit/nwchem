@@ -1,14 +1,15 @@
 c===================================================================
+c kw, 1998 : the indgc(nbls) array is not used anymore 
+c===================================================================
 c          FOR GENERAL CONTRACTED SHELLS
 c     subroutine gcparij(nbls, indxij,npij,
 c     subroutine gcparkl(nbls,indxkl,npkl,
 c     subroutine gcqijkl(nbls,nbls1, index,indxij,indxkl,npij,npkl,
-c     subroutine gcpairs(ij, nbls, indxp, nblok1,
-c     subroutine gcquart(nbls,nbls1, index,indxp,
+c     subroutine gcpairs(nbls, 
+c     subroutine gcquart(nbls,nbls1, index,
 c     subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
 c     subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
 c     subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
-c     subroutine asselg_d(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
 c===================================================================
 c          FOR GENERAL CONTRACTED SHELLS
 c
@@ -18,14 +19,12 @@ c NOTE :
 c npij and npkl denote now UNIQE pairs , not all pairs in a block.
 c===================================================================
       subroutine gcparij(nbls, indxij,npij, ii,jj,ngci1,ngcj1,ngcij,
-     *                   gci,gcj, gcij, nblok1, indxp)
+     *                   gci,gcj, gcij)
       implicit real*8 (a-h,o-z)
 c
       dimension indxij(*)
       dimension gci(npij,ngci1,*),gcj(npij,ngcj1,*)
-      dimension nblok1(2,*)
       dimension gcij(ngcij,nbls)
-      dimension indxp(*)
 c-------------------------------------------------------------------
 c      This is called from Erinteg and Erintsp 
 c             From contraction loops
@@ -33,18 +32,11 @@ c         FOR GENERAL CONTRACTED SHELLS
 c-------------------------------------------------------------------
       do 204 ijkl=1,nbls
       ijpar=indxij(ijkl)
-      ijcs=nblok1(1,indxp(ijkl))
-      call get_ij_half(ijcs,ics,jcs)
              ijpg=0
              do 2041 igc=1,ngci1
              coefi=gci(ijpar,igc,ii)
-             ngcjx=ngcj1
-ctry         if(jcs.eq.ics) ngcjx=igc
-             do 2041 jgc=1,ngcjx
+             do 2041 jgc=1,ngcj1
              coefj=gcj(ijpar,jgc,jj)*coefi
-c in txs     if(jcs.eq.ics .and. jgc.eq.igc) coefj=coefj*0.5d0
-c pnl:
-ctry         if(jcs.eq.ics .and. jgc.NE.igc) coefj=coefj*2.0d0
              ijpg=ijpg+1
              gcij(ijpg,ijkl)=coefj
  2041        continue
@@ -53,13 +45,11 @@ c
       end
 c====================================================================
       subroutine gcparkl(nbls,indxkl,npkl, kk,ll,ngck1,ngcl1,ngckl,
-     *                   gck,gcl,gckl, nblok1, indxp)
+     *                   gck,gcl,gckl)
       implicit real*8 (a-h,o-z)
       dimension indxkl(*)
       dimension gck(npkl,ngck1,*),gcl(npkl,ngcl1,*)
-      dimension nblok1(2,*)
       dimension gckl(ngckl,nbls)
-      dimension indxp(*)
 c-------------------------------------------------------------------
 c      This is called from Erinteg and Erintsp 
 c             From contraction loops (kl)
@@ -68,18 +58,11 @@ c-------------------------------------------------------------------
 c
       do 204 ijkl=1,nbls
       klpar=indxkl(ijkl)
-      klcs=nblok1(2,indxp(ijkl))
-      call get_ij_half(klcs,kcs,lcs)
              klpg=0
              do 2042 kgc=1,ngck1
              coefk=gck(klpar,kgc,kk)
-             ngclx=ngcl1
-ctry         if(lcs.eq.kcs) ngclx=kgc
-             do 2042 lgc=1,ngclx
+             do 2042 lgc=1,ngcl1
              coefl=gcl(klpar,lgc,ll)*coefk
-c txs        if(lcs.eq.kcs .and. lgc.eq.kgc) coefl=coefl*0.5d0
-c pnl:
-ctry         if(lcs.eq.kcs .and. lgc.NE.kgc) coefl=coefl*2.0d0
              klpg=klpg+1
              gckl(klpg,ijkl)=coefl
  2042        continue
@@ -88,62 +71,34 @@ c
 c
       end
 c====================================================================
-      subroutine gcqijkl(nbls,nbls1, index,indxij,indxkl,
+      subroutine gcqijkl(nbls,nbls1, index,
      *                   ngci1,ngcj1,ngck1,ngcl1,ngcd,
-     *                   nblok1, indgc,gcoef,indxp,
+     *                   indgc,gcoef,
      *                   gcij,ngcij, gckl,ngckl)
       implicit real*8 (a-h,o-z)
-      dimension index(*),indxij(*),indxkl(*)
-      dimension nblok1(2,*)
+      dimension index(*)
 c
       dimension indgc(nbls) 
       dimension gcoef(ngcd,nbls)
       dimension gcij(ngcij,nbls),gckl(ngckl,nbls)
-      dimension indxp(*)
 c-------------------------------------------------------------------
 c      This is called from Erinteg and Erintsp 
 c             From contraction loops
 c       FOR GENERAL CONTRACTED SHELLS
 c-------------------------------------------------------------------
+      ijpg=ngci1*ngcj1
+      klpg=ngck1*ngcl1
+c
       do 204 i=1,nbls1
       ijkl=index(i)
-      ijpar=indxij(ijkl)
-c
-      ijcs=nblok1(1,indxp(ijkl))
-      call get_ij_half(ijcs,ics,jcs)
-      klpar=indxkl(ijkl)
-      klcs=nblok1(2,indxp(ijkl))
-      call get_ij_half(klcs,kcs,lcs)
-c
-             ijpg=0
-             do 2041 igc=1,ngci1
-             ngcjx=ngcj1
-ctry         if(jcs.eq.ics) ngcjx=igc
-             do 2041 jgc=1,ngcjx
-             ijpg=ijpg+1
- 2041        continue
-c
-             klpg=0
-             do 2042 kgc=1,ngck1
-             ngclx=ngcl1
-ctry         if(lcs.eq.kcs) ngclx=kgc
-             do 2042 lgc=1,ngclx
-             klpg=klpg+1
- 2042        continue
-c
              ijklg=0
              do 2043 ijp1=1,ijpg
              gcoefij=gcij(ijp1,ijkl)
-             klpx=klpg
-ckw          if(klcs.eq.ijcs) klpx=ijp1
-             do 2043 klp1=1,klpx
+             do 2043 klp1=1,klpg
              ijklg=ijklg+1
              gcoef(ijklg,ijkl)=gcoefij*gckl(klp1,ijkl)
-ckw          if(klcs.eq.ijcs .and. klp1.ne.ijp1) then
-ckw             gcoef(ijklg,ijkl)=gcoef(ijklg,ijkl)*2.d0
-ckw          endif
  2043        continue
-      indgc(ijkl)=ijklg
+c98       indgc(ijkl)=ijklg
   204 continue
 c
       end
@@ -152,49 +107,36 @@ c===================================================================
 c     Used when iroute=2 (new) : tx95
 c
 c===================================================================
-      subroutine gcpairs(ij, nbls, indxp, nblok1,
-     *                   lcij,ngci1,ngcj1,ngcij, gcij,
-c     output :
-     *     gcijx) 
+      subroutine gcpairs(nbls, lcij,ngcij, gcij,gcijx) 
       implicit real*8 (a-h,o-z)
 c------------------------------------------------------
-      dimension indxp(*)
-      dimension nblok1(2,*)
-      dimension gcij(ngcj1*ngci1,*) ! (ngcj1,ngci1,*)
+      dimension gcij(ngcij,*) ! (ngcj1,ngci1,*)
       dimension gcijx(ngcij,nbls)
 c------------------------------------------------------
 c     This is called from Erinteg and Erintsp 
 c     From contraction loops
-c     
-c     FOR GENERAL CONTRACTED SHELLS
-c     
-c     for pairs IJ (ij=1) and KL (ij=2)
 c------------------------------------------------------
 c     
-      ngci1ngcj1 = ngci1*ngcj1
-      if (ngci1ngcj1 .eq. 1) then
+      if (ngcij .eq. 1) then
          call dfill(nbls,gcij(1,lcij),gcijx,1)
       else
          do ijkl=1,nbls
-            ijcs=nblok1(ij,indxp(ijkl))
-            call get_ij_half(ijcs,ics,jcs)
-               do ijpg = 1, ngci1ngcj1
-                  gcijx(ijpg,ijkl)=gcij(ijpg,lcij)
-               enddo
+            do ijpg = 1, ngcij
+               gcijx(ijpg,ijkl)=gcij(ijpg,lcij)
+            enddo
          enddo
       endif
 c     
       end
 c====================================================================
-      subroutine gcquart(nbls,nbls1, index,indxp,
-     *                   ngci1,ngcj1,ngck1,ngcl1,ngcd,nblok1,
+      subroutine gcquart(nbls,nbls1, index,
+     *                   ngci1,ngcj1,ngck1,ngcl1,ngcd,
      *                   gcij,ngcij,  gckl,ngckl,
 ccc   output :
-     *     indgc,gcoef)
+     *                   indgc,gcoef)
       implicit real*8 (a-h,o-z)
 c------------------------------------------------------
-      dimension index(*),indxp(*)
-      dimension nblok1(2,*)
+      dimension index(*)
       dimension indgc(nbls) 
       dimension gcoef(ngcd,nbls), gcij(ngcij,nbls),gckl(ngckl,nbls)
 c------------------------------------------------------
@@ -207,7 +149,7 @@ c
       ijpg = ngci1*ngcj1
       klpg = ngck1*ngcl1
 c
-      if (ngck1*ngcl1.eq.1) then
+      if ( klpg      .eq.1) then
 c
 c     Either have ijcs.ne.klcs OR both are not generally contracted 
 c     (should not happen here) ... in both cases don't need to worry 
@@ -215,22 +157,14 @@ c     about off-diagonals
 c
          do i=1,nbls1
             ijkl=index(i)
-            ijcs=nblok1(1,indxp(ijkl))
-            call get_ij_half(ijcs,ics,jcs)
             do ijp1=1,ijpg
                gcoef(ijp1,ijkl)=gcij(ijp1,ijkl)*gckl(1,ijkl)
             enddo
-            indgc(ijkl)=ijpg
+c98             indgc(ijkl)=ijpg
          enddo
       else
          do i=1,nbls1
             ijkl=index(i)
-c     
-            ijcs=nblok1(1,indxp(ijkl))
-            call get_ij_half(ijcs,ics,jcs)
-c     
-            klcs=nblok1(2,indxp(ijkl))
-            call get_ij_half(klcs,kcs,lcs)
 c     
             ijklg=0
                do ijp1=1,ijpg
@@ -240,7 +174,7 @@ c
                   enddo
                   ijklg=ijklg+klpg
                enddo
-            indgc(ijkl)=ijklg
+c98             indgc(ijkl)=ijklg
          enddo
       endif
 c     
@@ -248,7 +182,7 @@ c
 c====================================================================
       subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
      *                   buf,buf1, const,rysx,xpqr,txxr,
-     *                   ngcd,indgc,gcoef,ijkln, ndiag)
+     *                   ngcd,indgc,gcoef,ijkln)
       implicit real*8 (a-h,o-z)
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
@@ -290,8 +224,6 @@ c**  output
 c**  ------
 c**  buf(ngcd,nbls,ijkln) - contains final integrals
 c
-c    ndiag - shows if the block is made out of the same pair-blocks(0)
-c            or not (1)
 c***************************************************************
 c
 c* memory for f00,f11 :
@@ -388,8 +320,7 @@ c====================================================================
 C
 C     Assembling for gen. contr.
 C    
-      subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
-     *                    igcoet,ndiag)
+      subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,igcoet)
       implicit real*8 (a-h,o-z)
       character*11 scftype
       character*4 where
@@ -415,13 +346,8 @@ c--------------------------------------------------------
 c for ordinary scf integrals:
 c
       if(where.eq.'buff' .or. where.eq.'shif') then
-c10      if(ndiag.eq.0) then
-c10        call asselg_d(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
-c10  *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
-c10      else
            call asselg_n(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
-     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) )
-c10      endif
+     *                   bl(indx),nbls1, ngcd,bl(igcoet) )
       endif
 c
 c--------------------------------------------------------
@@ -429,22 +355,16 @@ c for gradient integral derivatives:
 c
       if(where.eq.'forc') then
          ibut2=ibuf
-c10      if(ndiag.eq.0) then
-c10        call asselg_d_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
-c10  *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
-c10  *                   bl(iaax),bl(ibbx),bl(iccx))
-c10      else
            call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
-     *                   bl(indx),nbls1, ngcd,bl(indgc),bl(igcoet) ,
+     *                   bl(indx),nbls1, ngcd,bl(igcoet) ,
      *                   bl(iaax),bl(ibbx),bl(iccx))
-c10      endif
       endif
 c
 c--------------------------------------------------------
       end
 c===============================================================
       subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,buf2,
-     *                    indx,nbls1,ngcd,indgc,gcoef)
+     *                    indx,nbls1,ngcd,gcoef)
       implicit real*8 (a-h,o-z)
       logical firstc
       common/obarai/
@@ -456,7 +376,6 @@ c===============================================================
       dimension xt1(nbls1,lt1,lt2)
       dimension buf2(nbls,lt1,lt2,ngcd)
 ccc   dimension but2(ngcd,nbls,lt1,lt2)
-      dimension indgc(nbls) 
       dimension gcoef(nbls,ngcd)
 ccc   dimension gcoef(ngcd,nbls)
 c-------------------------------------------------------------
@@ -490,65 +409,11 @@ ccccc     but2(iqu,ijkl,ij,kl)=but2(iqu,ijkl,ij,kl)+xint*gcoef(iqu,ijkl)
 c-------------------------------------------------------------
       end
 c===============================================================
-      subroutine asselg_d(firstc,xt1,lt1,lt2,nbls,buf2,
-     *                    indx,nbls1,ngcd,indgc,gcoef)
-      implicit real*8 (a-h,o-z)
-      logical firstc
-      common/obarai/
-     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
-     * nqi,nqj,nqk,nql,nsij,nskl,
-     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
-      common /logic4/ nfu(1)
-      dimension indx(*)
-      dimension xt1(nbls1,lt1,lt2)
-      dimension buf2(nbls,lt1,lt2,ngcd)
-      dimension indgc(nbls) 
-c     dimension gcoef(ngcd,nbls)
-      dimension gcoef(nbls,ngcd)
-c-------------------------------------------------------------
-      ijs=nfu(nqij)+1
-      kls=nfu(nqkl)+1
-c-------------------------------------------------------------
-      IF (FIRSTC) THEN
-        DO 501 kl=kls,lnkl
-        DO 501 ij=ijs,lnij
-        do 501 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 502 iqu=1,ngcq
-          buf2(ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
-  502     continue
-        else
-          do 503 iqu=1,ngcq
-          buf2(ijkl,ij,kl,iqu)=0.d0
-  503     continue
-        endif
-  501   continue
-           FIRSTC=.FALSE.
-      ELSE
-        DO 601 kl=kls,lnkl
-        DO 601 ij=ijs,lnij
-        do 601 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 602 iqu=1,ngcq
-          buf2(ijkl,ij,kl,iqu)=buf2(ijkl,ij,kl,iqu)+xint*gcoef(ijkl,iqu)
-  602     continue
-        endif
-  601   continue
-      ENDIF
-c-------------------------------------------------------------
-      end
-c===============================================================
 c
 c subroutines for gradient integral derivatives
 c
       subroutine asselg_n_der(firstc,xt1,lt1,lt2,nbls,buf2,
-     *                        indx,nbls1,ngcd,indgc,gcoef,
+     *                        indx,nbls1,ngcd,gcoef,
      *                        aax,bbx,ccx)
       implicit real*8 (a-h,o-z)
       logical firstc
@@ -559,7 +424,6 @@ c
       common /logic4/ nfu(1)
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
-      dimension indgc(nbls) 
       dimension gcoef(nbls,ngcd)
 ccc   dimension gcoef(ngcd,nbls)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
@@ -603,75 +467,6 @@ c
      *                          +xint*gcoef(ijkl,iqu)*bbx(i)
           buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
      *                          +xint*gcoef(ijkl,iqu)*ccx(i)
-  601   continue
-      ENDIF
-c-------------------------------------------------------------
-      end
-c===============================================================
-      subroutine asselg_d_der(firstc,xt1,lt1,lt2,nbls,buf2,
-     *                        indx,nbls1,ngcd,indgc,gcoef,
-     *                        aax,bbx,ccx)
-      implicit real*8 (a-h,o-z)
-      logical firstc
-      common/obarai/
-     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
-     * nqi,nqj,nqk,nql,nsij,nskl,
-     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
-      common /logic4/ nfu(1)
-      dimension indx(*)
-      dimension xt1(nbls1,lt1,lt2)
-      dimension buf2(4,nbls,lt1,lt2,ngcd)
-      dimension indgc(nbls) 
-c     dimension gcoef(ngcd,nbls)
-      dimension gcoef(nbls,ngcd)
-      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-c-------------------------------------------------------------
-      ijs=nfu(nqij)+1
-      kls=nfu(nqkl)+1
-c-------------------------------------------------------------
-      IF (FIRSTC) THEN
-        DO 501 kl=kls,lnkl
-        DO 501 ij=ijs,lnij
-        do 501 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 502 iqu=1,ngcq
-          buf2(1,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
-          buf2(2,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*aax(i)
-          buf2(3,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*bbx(i)
-          buf2(4,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)*ccx(i)
-  502     continue
-        else
-          do 503 iqu=1,ngcq
-          buf2(1,ijkl,ij,kl,iqu)=0.d0
-          buf2(2,ijkl,ij,kl,iqu)=0.d0
-          buf2(3,ijkl,ij,kl,iqu)=0.d0
-          buf2(4,ijkl,ij,kl,iqu)=0.d0
-  503     continue
-        endif
-  501   continue
-           FIRSTC=.FALSE.
-      ELSE
-        DO 601 kl=kls,lnkl
-        DO 601 ij=ijs,lnij
-        do 601 i=1,nbls1
-        ijkl=indx(i)
-        ngcq=indgc(ijkl)
-        xint=xt1(i,ij,kl)
-        if(abs(xint).gt.0.d0) then
-          do 602 iqu=1,ngcq
-          buf2(1,ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
-     *                          +xint*gcoef(ijkl,iqu)
-          buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
-     *                          +xint*gcoef(ijkl,iqu)*aax(i)
-          buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
-     *                          +xint*gcoef(ijkl,iqu)*bbx(i)
-          buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
-     *                          +xint*gcoef(ijkl,iqu)*ccx(i)
-  602     continue
-        endif
   601   continue
       ENDIF
 c-------------------------------------------------------------

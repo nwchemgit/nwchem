@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.30 1997-09-17 23:10:50 d3g681 Exp $
+* $Id: texas_hf.F,v 1.31 1998-07-05 19:08:30 pg481 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -32,6 +32,15 @@ c
       common /pnl_time/ time4texas_hf2_m,time4mul_quart
 c------------------------------------------------------------------
       call txs_second(time_beg)
+c------------------------------------------------------------------
+c calculate number of decimal places ALLOWED to loose 
+c (because of potential numerical instability in Tracy's recursive)
+c
+c     call set_lost_allowed(zerotol)
+c
+c NOW it is constant and the value is given in texas_input (texas_face.F)
+c the default value is 0 and it can be changed thru input by
+c set int:txs:lost_limit n (n - integer vaule) .
 c------------------------------------------------------------------
 c send info about type of integrals requested :
 c
@@ -218,6 +227,9 @@ c
       if(more_int) then
          nsplit=nsplit+1
          go to 1000
+ctest
+c     else
+c        call zeroit(eri,leri)
       endif
 c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
@@ -800,6 +812,18 @@ c
         jcstxs(iq)=ncshell(jcspnl(iq))
         kcstxs(iq)=ncshell(kcspnl(iq))
         lcstxs(iq)=ncshell(lcspnl(iq))
+ctest98
+c       itxs=icstxs(iq)
+c       ipnl=icspnl(iq)
+c       jtxs=jcstxs(iq)
+c       jpnl=jcspnl(iq)
+c       ktxs=kcstxs(iq)
+c       kpnl=kcspnl(iq)
+c       ltxs=lcstxs(iq)
+c       lpnl=ncshell(lcspnl(iq))
+c       write(6,*)' PNL shells =',ipnl,jpnl,kpnl,lpnl
+c       write(6,*)' TXS shells =',itxs,jtxs,ktxs,ltxs
+ctest98
    10 continue
 c
       do 20 iq=1,nquart
@@ -1515,3 +1539,23 @@ c
 c
       end
 c==================================================================
+      subroutine set_lost_allowed(zerotol)
+      implicit real*8 (a-h,o-z)
+      common /allow_lost/ lost_allow   
+      common /limit_lost/ lost_limit
+c
+c The default value is 1000 (from texas_face.F - texas_input).If it is
+c 1000 then change it here according to the current value of zerotol.
+c
+      if(lost_limit.eq.1000) then
+         lost_allow= 14 + int( log10(zerotol) )
+         if(lost_allow.lt.0) lost_allow=0
+      else
+         lost_allow=lost_limit
+      endif
+c
+      if(lost_allow.lt.0) lost_allow=0
+c
+c     write(6,*)' from texas_hf :lost_allowed=',lost_allow
+c
+      end

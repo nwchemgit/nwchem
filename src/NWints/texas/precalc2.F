@@ -212,13 +212,31 @@ c----------------------------------
 c Sab=(a*b)**3/4 * (a+b)**-1 * exp( -ab/(a+b) * Rab**2)
 c
              if(aa.gt.zero .and. bb.gt.zero) then
+cold            axb=aa*bb
+cold            apb=aa+bb
+cold            apb1=one/apb
+cold            e=axb*apb1
+cold            abprim(ijpar,ij,1)=apb
+cold            abprim(ijpar,ij,2)=apb1
+cold            abprim(ijpar,ij,3)=apb1*sqrt(sqrt(axb))**3*exp(-e*rr)
+cnew98.......................................................
+c
                 axb=aa*bb
                 apb=aa+bb
                 apb1=one/apb
                 e=axb*apb1
+c98
+                err=e*rr
+                if(err.gt.32) then
+                   exp_err=0.d0         ! exp(-32)=1.27*10**-14
+                else
+                   exp_err=exp(-err)
+                endif
+c98
                 abprim(ijpar,ij,1)=apb
                 abprim(ijpar,ij,2)=apb1
-                abprim(ijpar,ij,3)=apb1*sqrt(sqrt(axb))**3*exp(-e*rr)
+                abprim(ijpar,ij,3)=apb1*sqrt(sqrt(axb))**3*exp_err
+cnew98.......................................................
              else
 c center23:
                 if(aa.le.zero .and. bb.gt.zero) then
@@ -403,10 +421,10 @@ c
       contrij=dble(lcii*lcjj)
       contrij=sqrt(contrij)
 c-------------------------------------------------------------
-c* for gen.contr
+c for gen.contr
 c
       ngctot=ngci+ngcj+ngck+ngcl
-c---------------
+c-------------------------------------------------------------
 c precalculations for the pairs IJ :
 c
 c-------------------------------old
@@ -431,6 +449,7 @@ c      starting contr
 c      last contr
         ie=inx(5,ics)
         je=inx(5,jcs)
+c
 c       number of general contr.
 c       ngci=inx(4,ics)
 c       ngcj=inx(4,jcs)
@@ -625,7 +644,8 @@ c
   153      continue
          endif
       endif
-c--------------
+c------------------------------------------------------------------
+c
       end
 c====================================================================
       subroutine precal2b_1(mmax1,lcij,rapb,abnia, nij_uniqe,ij_uniqe )
@@ -690,7 +710,6 @@ c
 c
       data half /0.5d0/
 c-----------------------
-      if(nsij.ge.nskl) then
          do 170 kl=1,lckl
            do 180 ifu=1,nfumax
            hx=hnia(1,ifu)
@@ -704,21 +723,6 @@ cccccccc     do 190 klpar=1,npkl
   190        continue
   180      continue
   170    continue
-      else
-         do 270 ij=1,lcij
-           do 280 ifu=1,nfumax
-           hx=hnia(1,ifu)
-           hy=hnia(2,ifu)
-           hz=hnia(3,ifu)
-ccccccc      do 290 ijpar=1,npij
-             do 290 ijpar=1,nij_uniqe
-             habcd(ijpar,1,ifu,ij)=hx*rapb(ijpar,ij)
-             habcd(ijpar,2,ifu,ij)=hy*rapb(ijpar,ij)
-             habcd(ijpar,3,ifu,ij)=hz*rapb(ijpar,ij)
-  290        continue
-  280      continue
-  270    continue
-      endif
 c
       end
 c====================================================================
@@ -977,8 +981,6 @@ c  ABCD(ijkl1)= apb*rcpd   OR  cpd*rapb
 c-----------------------------------------------
 c
       implicit real*8 (a-h,o-z)
-cflops
-      common /flops/ iflop(20)
 c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
@@ -995,65 +997,69 @@ c
       dimension cpd(nkl_uniqe,*),rcpd(nkl_uniqe,*)
       dimension txab(nij_uniqe,3,*),txcd(nkl_uniqe,3,*)
       dimension rppq(*)
-c
       dimension abcd(nbls1)
+c
+      logical stable 
+      common /tracy_stability/ stable(1)
 c---------------------------------------------------------------
-C
-      do 100 i=1,nbls1
-      ijkl=index(i)
-      ijpar=indxij(ijkl)          ! uniqe pair now !!!!
-      klpar=indxkl(ijkl)          ! uniqe pair now !!!!
+         do 100 i=1,nbls1
 c
-      rppq1=rppq(i)
+            ijkl=index(i)
+            ijpar=indxij(ijkl)          ! uniqe pair now !!!!
+            klpar=indxkl(ijkl)          ! uniqe pair now !!!!
 c
-      xwl=( xpp(ijpar,1,lcij) + xqq(klpar,1,lckl) )*rppq1
-      ywl=( xpp(ijpar,2,lcij) + xqq(klpar,2,lckl) )*rppq1
-      zwl=( xpp(ijpar,3,lcij) + xqq(klpar,3,lckl) )*rppq1
+            rppq1=rppq(i)
 c
-      XWP(i,1)=xwl-XP(ijpar,1,lcij)
-      XWP(i,2)=ywl-XP(ijpar,2,lcij)
-      XWP(i,3)=zwl-XP(ijpar,3,lcij)
+            xwl=( xpp(ijpar,1,lcij) + xqq(klpar,1,lckl) )*rppq1
+            ywl=( xpp(ijpar,2,lcij) + xqq(klpar,2,lckl) )*rppq1
+            zwl=( xpp(ijpar,3,lcij) + xqq(klpar,3,lckl) )*rppq1
 c
-      XWQ(i,1)=XWL-XQ(klpar,1,lckl)
-      XWQ(i,2)=YWL-XQ(klpar,2,lckl)
-      XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
+            XWP(i,1)=xwl-XP(ijpar,1,lcij)
+            XWP(i,2)=ywl-XP(ijpar,2,lcij)
+            XWP(i,3)=zwl-XP(ijpar,3,lcij)
 c
-  100 CONTINUE
+            XWQ(i,1)=XWL-XQ(klpar,1,lckl)
+            XWQ(i,2)=YWL-XQ(klpar,2,lckl)
+            XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
 c
+c for Tracy's recursive :
 c
-c  for tracy1 :
+            rcpd1=rcpd(klpar,lckl)
 c
-      if(nsij.ge.nskl) then
+            p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
+            p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
+            p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
 c
-          do 210 i=1,nbls1
-          ijkl=index(i)
-          ijpar=indxij(ijkl)
-          klpar=indxkl(ijkl)
-          rcpd1=rcpd(klpar,lckl)
+  100    continue
 c
-          abcd(i)=apb(ijpar,lcij)*rcpd1
+c---------------------------------------------------------------
+c because of possible numerical instablity in Tracy's recursive 
+c it is needed to check it out (see xwpq_2) 
 c
-          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
-          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
-          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
-  210     continue
+c FOR now IT IS NOT DONE yet for route=1 . It will go as stable
+c if nsij.GE.nskl and as unstable for nsij.LT.nskl 
+c (just like it used to be) 
+c---------------------------------------------------------------
+c old fashion way regardless of stability or instability (to be changed)
 c
-      else
-c
-          do 310 i=1,nbls1
-          ijkl=index(i)
-          ijpar=indxij(ijkl)
-          klpar=indxkl(ijkl)
-          rapb1=rapb(ijpar,lcij)
-c
-          abcd(i)=cpd(klpar,lckl)*rapb1
-c
-          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rapb1
-          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rapb1
-          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rapb1
-  310     continue
-c
-      endif
+         if(nsij.ge.nskl) then
+            stable(1)=.true.
+            do i=1,nbls1
+               ijkl=index(i)
+               ijpar=indxij(ijkl)      
+               klpar=indxkl(ijkl)     
+               abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
+            enddo
+         else
+            stable(1)=.false.
+            do i=1,nbls1
+               ijkl=index(i)
+               ijpar=indxij(ijkl)    
+               klpar=indxkl(ijkl)   
+               abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+            enddo
+         endif
+c---------------------------------------------------------------
 c
       end
 c====================================================================
@@ -1303,7 +1309,15 @@ c----------------------------------
                   sqrt3=sqrtx(ij)
                   e=eexx(ij)
                 endif
-                sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-e*rr)
+cold            sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-e*rr)
+cnew98......
+                err=e*rr
+                if(err.gt.32.d0) then
+                   sab(ijpar,ij)=0.d0
+                else
+                   sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-err)
+                endif
+cnew98......
              else
 c center23:
                 if(aa.le.zero .and. bb.gt.zero) then
@@ -1376,7 +1390,7 @@ c---------------------------------------------------------------
 c precalculations for pairs ij
 c
       call precal2x_2(iabprim,lcij,iapb,i1apb,isab)
-c--------
+c----------
       lpar_exe=lpar_exe+1
       lpar_num=lpar_num+nij_uniqe
       call precal2a_2(dbl_mb(ibas),dbl_mb(inuc),inx,ibl,nbl2,
@@ -1425,6 +1439,11 @@ c
      *                   bl(ihabcd),nfumax )
       endif
 c---------------------------------------------------------------
+c check for numerical stablility :
+c
+      call num_stability_2(dbl_mb(ibas),inx,
+     *                     bl(ij_uniqe_p),bl(kl_uniqe_p))
+c---------------------------------------------------------------
       end
 c====================================================================
       subroutine precal2a_2(datbas,datnuc,inx,ibl,nbl2,
@@ -1436,6 +1455,7 @@ c====================================================================
 c
       implicit real*8 (a-h,o-z)
       character*5 which
+c
 c for gradient derivatives only :
       character*11 scftype
       character*4 where
@@ -1503,7 +1523,7 @@ c-------------------------------------------------------------
 c for gen.contr
 c
       ngctot=ngci+ngcj+ngck+ngcl
-c---------------
+c-------------------------------------------------------------
 c precalculations for the pairs IJ :
 c
       do 100 ijpar=1,nij_uniqe
@@ -1622,6 +1642,7 @@ c
 c
 c-overlap   coefij(ijpar,ji)=coefij(ijpar,ji)*rapb1*sab1
             coefij(ijpar,ji)=coefij(ijpar,ji)      *sab1
+c--------------------------------
 c
             do 230 l=1,3
             xparij(ijpar,l,ji,1)=aa1*xa(l) + bb1*xb(l)  ! xp(ijpar,l,ji
@@ -1726,7 +1747,7 @@ cold       do 153 ijpar=1,npij
   153      continue
          endif
       endif
-c
+c------------------------------------------------------------------
       end
 c====================================================================
       subroutine precal2b_2(mmax1,lcij, rapb, abnia)
@@ -1760,8 +1781,6 @@ c
 c-----------------------
 c Do it only for one pair (the first one)
 c
-      if(nsij.ge.nskl) then
-c
          do 170 kl=1,lckl
          rcpdkl=rcpd(kl)
            do 180 ifu=1,nfumax
@@ -1773,22 +1792,6 @@ c
              habcd(3,ifu,kl)=hz*rcpdkl
   180      continue
   170    continue
-c
-      else
-c
-         do 270 ij=1,lcij
-         rapbij=rapb(ij)
-           do 280 ifu=1,nfumax
-           hx=hnia(1,ifu)
-           hy=hnia(2,ifu)
-           hz=hnia(3,ifu)
-             habcd(1,ifu,ij)=hx*rapbij
-             habcd(2,ifu,ij)=hy*rapbij
-             habcd(3,ifu,ij)=hz*rapbij
-  280      continue
-  270    continue
-c
-      endif
 c
       end
 c====================================================================
@@ -2018,7 +2021,12 @@ c====================================================================
       subroutine xwpq_2(nbls1,xwp,xwq,p1234,lc12, lc34,lcij,lckl,
      *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
      *                  rppq,xp,xq,xpp,xqq,
-     *                  txab,txcd,abcd,apb,rcpd,cpd,rapb)
+c98  *                  txab,txcd,abcd,apb,rcpd,cpd,rapb)
+     *                  txab,txcd,abcd,apb,rcpd,cpd,rapb,
+     *                  const_max)
+c---------------------------------------------------------------
+c const_max is maximum of abs values of const(nbls1) 
+c OUTPUT :  xwp(nbls1,3),xwq(nbls1,3),p1234(nbls1,3), abcd
 c---------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /flops/ iflop(20)
@@ -2033,65 +2041,145 @@ c
       dimension xp(nij_uniqe,3,*),xq(nkl_uniqe,3,*)
       dimension xpp(nij_uniqe,3,*),xqq(nkl_uniqe,3,*)
       dimension txab(nij_uniqe,3,*),txcd(nkl_uniqe,3,*)
-cnowy
+c
       dimension apb(lc12),rapb(lc12)
       dimension cpd(lc34),rcpd(lc34)
 c---------------------------------------------------------------
+c accuracy :
+      logical stable_2
+      common /stability_2/ stable_2      
+      common /stability_3/ b_over_a(1000) 
+c
+c used only here and in trobsa.f :
+c
+      logical stable 
+      common /tracy_stability/ stable(1)
+c
+c set up in set_lost_allowed() in texas_hf 
+c
+      common /allow_lost/ lost_allow
+c---------------------------------------------------------------
+c For test only : counter of all & unstable blocks of primitive quartets
+c used here and in raktest.F
+c
+c     common /count_primitive/ x_prim_all,
+c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
+c    *                         xobsa4,xobsa4_ineff,xobsa4_more
+c---------------------------------------------------------------
       rppq1=rppq
-C
+      rcpd1=rcpd(lckl)
+c
       do 100 i=1,nbls1
-      ijkl=index(i)
-      ijpar=indxij(ijkl)
-      klpar=indxkl(ijkl)
+         ijkl=index(i)
+         ijpar=indxij(ijkl)
+         klpar=indxkl(ijkl)
 c
-      xwl=( xpp(ijpar,1,lcij) + xqq(klpar,1,lckl) )*rppq1
-      ywl=( xpp(ijpar,2,lcij) + xqq(klpar,2,lckl) )*rppq1
-      zwl=( xpp(ijpar,3,lcij) + xqq(klpar,3,lckl) )*rppq1
+         xwl=( xpp(ijpar,1,lcij) + xqq(klpar,1,lckl) )*rppq1
+         ywl=( xpp(ijpar,2,lcij) + xqq(klpar,2,lckl) )*rppq1
+         zwl=( xpp(ijpar,3,lcij) + xqq(klpar,3,lckl) )*rppq1
 c
-      XWP(i,1)=xwl-XP(ijpar,1,lcij)
-      XWP(i,2)=ywl-XP(ijpar,2,lcij)
-      XWP(i,3)=zwl-XP(ijpar,3,lcij)
+         XWP(i,1)=xwl-XP(ijpar,1,lcij)
+         XWP(i,2)=ywl-XP(ijpar,2,lcij)
+         XWP(i,3)=zwl-XP(ijpar,3,lcij)
 c
-      XWQ(i,1)=XWL-XQ(klpar,1,lckl)
-      XWQ(i,2)=YWL-XQ(klpar,2,lckl)
-      XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
+         XWQ(i,1)=XWL-XQ(klpar,1,lckl)
+         XWQ(i,2)=YWL-XQ(klpar,2,lckl)
+         XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
 c
-  100 CONTINUE
+c for Tarcy's recursive :
 c
+         p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
+         p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
+         p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
 c
-c  for tracy1 :
+  100 continue
 c
-      if(nsij.ge.nskl) then
+c---------------------------------------------------------------
+c for accuracy in Tracy's recursive : 
 c
-          rcpd1=rcpd(lckl)
-          abcd=apb(lcij)*rcpd1
+      stable(1)=.true.
+      abcd=apb(lcij)*rcpd1
 c
-          do 210 i=1,nbls1
-          ijkl=index(i)
-          ijpar=indxij(ijkl)
-          klpar=indxkl(ijkl)
+      x_prim_all=x_prim_all + 1.d0
 c
-          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
-          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
-          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
-  210     continue
+        lost_digit_1=0
+        lost_digit=0
+        if( .not.stable_2 ) then
+ctest      x_prim_wr1=x_prim_wr1 + 1.d0
+           boa=b_over_a(lcij)
+           if( boa .gt. 0.d0 ) then
+ctest         x_prim_wr2=x_prim_wr2 + 1.d0
 c
-      else
+c............ boa=0.d0 means that it was ok ......
 c
-          rapb1 =rapb(lcij)
-          abcd  =cpd(lckl)*rapb1
+              lost_const=int( log10(const_max) )
+c 
+              xost_digit_1= log10(boa*rcpd(lckl))
+              lost_digit_1= int( xost_digit_1 )
+              lost_digit  = (nskl-1)*lost_digit_1 + lost_const
 c
-          do 310 i=1,nbls1
-          ijkl=index(i)
-          ijpar=indxij(ijkl)
-          klpar=indxkl(ijkl)
+              if(lost_digit.gt.lost_allow) then
+                 stable(1)=.false.
+                 abcd=rapb(lcij)*cpd(lckl)
+ctest
+ctest            x_prim_wr3 =x_prim_wr3 + 1.d0
+ctest
+c                write(6,*)'const()=',(const(ii),ii=1,nbls1)
+c                write(6,*)'a+b=',apb(lcij),' c+d=',cpd(lckl)
+c                write(6,*)'Lost : 1 step=',lost_digit_1,
+c    *              ' const=',lost_const,
+c    *              ' total=',lost_digit,'(allowed=',lost_allow,')',
+c    *              '=> stable=',stable(1),
+c    *              ' an.mom. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+              endif
+           endif
+        endif
+ctest
 c
-          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rapb1
-          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rapb1
-          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rapb1
-  310     continue
+c---------------------------------------------------------------
+c calculate how many times the program goes according to :
+c (1) lobsa=2 (when it is stable)
 c
-      endif
+c     if(stable(1)) then
+c        xobsa2=xobsa2+1.0
+c        if(nsij.LT.nskl) then
+c           xobsa2_ineff=xobsa2_ineff + 1.0
+c           xobsa2_more =xobsa2_more + dble(nskl-nsij)
+c        endif
+c     else
+c        xobsa4=xobsa4+1.0
+c        if(nsij.GT.nskl) then
+c           xobsa4_ineff=xobsa4_ineff + 1.0
+c           xobsa4_more =xobsa4_more + dble(nsij-nskl)
+c        endif
+c     endif
+c---------------------------------------------------------------
+c old fashion way :
+c
+c     if(nsij.ge.nskl) then
+c        stable(1)=.true.
+c        abcd=apb(lcij)*rcpd1
+c     else
+c        stable(1)=.false.
+c        abcd=rapb(lcij)*cpd(lckl)
+c     endif
+c---------------------------------------------------------------
+c     write(6,*)' nsij,nskl=',nsij,nskl,
+c    *              ' an.mom. (',nqi,nqj,'|',nqk,nql,')',
+c    *                                  ' stable=',stable(1)
+c
+c for tests :
+c
+c     write(6,*) ' forced to go by lobsa=2'
+c        stable(1)=.true.
+c        abcd=apb(lcij)*rcpd1
+c
+c     write(6,*) ' forced to go by lobsa=4'
+c        stable(1)=.false.
+c        abcd=rapb(lcij)*cpd(lckl)
+c
+c---------------------------------------------------------------
 c
       end
 c====================================================================
@@ -2266,3 +2354,180 @@ c     isab =iabprim   + ijdim*2
 c--------------
       end
 c====================================================================
+      subroutine get_min_exp(datbas,inx,nij_uniqe,ij_uniqe,
+     *                       a_exp_min, b_exp_min )
+c---------------------------------------------------------------
+c Because of numerical instability in Tracy's recursive :
+c select the minimum a_ & b_exponent
+c this routine is called for right side pairs ONLY
+c---------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      dimension datbas(13,*)
+      dimension inx(12,*)
+      dimension ij_uniqe(nij_uniqe)
+c---------------------------------------------------------------
+c
+              ijcs=ij_uniqe(1)    
+              call get_ij_half(ijcs,ics,jcs)
+              ie=inx(5,ics)
+              je=inx(5,jcs)
+              a_exp_min=datbas(1,ie)
+              b_exp_min=datbas(1,je)
+c---------------------------------------------------------------
+      end
+c====================================================================
+      subroutine num_stability_2(datbas,inx,ij_uniqe,kl_uniqe)
+      implicit real*8 (a-h,o-z)
+      logical stable_2
+      common /stability_2/ stable_2       ! use here and in xwpq_2
+      common /stability_3/ b_over_a(1000) ! use here and in xwpq_2
+c 1000 above is enough for contractions as long as 31 (31*31=961)
+c
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+c number of digit allowed to loose (calculated in prepint2)
+      common /allow_lost/ lost_allow
+c
+      dimension datbas(13,*)
+      dimension inx(12,*)
+      dimension ij_uniqe(*)  ! ij_uniqe(nij_uniqe)
+      dimension kl_uniqe(*)  ! kl_uniqe(nkl_uniqe)
+c-------------------------------------------------------------
+c June 1998
+c Numerical stability of Tracy's recursive depends on the relative
+c value of exponents involved. For (ab/cd) instability occurs when
+c the second exponent (b) is much bigger than others.
+c In such a case one has to proceed as follows:
+c construct (s,s|i+j+k+l,s) integrals and then shift ang.mom.
+c (s,s|i+j+k+l,s) ---> (i+j,s|k+l,s)
+c from center 3 to center 1 (tracy's recursive) 
+c 
+c Before numerical instability in Tracy's recursive has been
+c realized the program ALWAYS calculated (i+j+k+l,s|s,s) and
+c then shifted ang. mom. from 1 to 3.
+c-------------------------------------------------------------
+c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
+c these two above will determine numerical stability in
+c Tracy's recursive 
+c-------------------------------------------------------------
+c Lost digit :
+c 
+c in one recursive step :
+c
+c
+c                    2*b
+c          log[-------------------]
+c                max(1,a) * (c+d)
+c
+c in all (nskl-1) steps :
+c
+c                    2*b
+c          log[-------------------] * (nskl-1) + log(const_max)
+c                max(1,a) * (c+d)
+c
+c
+c where const_max is max of const(ijkl) constracted in prec4neg_ .
+c
+c Number of lost digit given above gives the final accuracy for 
+c calculated integrals :
+c
+c          acc_obatained = 10**-(14-lost_digit)
+c
+c The requested accuracy is given by the user's threshold
+c
+c          acc_requested = 10**-10 =10**-(14-4)  for example.
+c
+c (14 comes from double precission)
+c-------------------------------------------------------------
+c
+           stable_2=.true.
+c
+           if(mmax.gt.2 .and. nskl.gt.1) then
+c
+c left side pairs:
+c
+              ijcs=ij_uniqe(1)    
+              call get_ij_half(ijcs,ics,jcs)
+              ie=inx(5,ics)
+              ia=inx(1,ics)+1
+              je=inx(5,jcs)
+              ja=inx(1,jcs)+1
+                 b_exp_max=datbas(1,ja)
+                 a_exp_min=datbas(1,ie)
+                 a_1_max=max(1.d0,a_exp_min)
+c
+c two b over max(1,a)  :
+c
+                 boa_max=2.d0*b_exp_max/a_1_max
+c
+              if(boa_max .lt. 10.d0) return  ! stable_2=.true. 
+c
+c right side pairs:
+c
+              klcs=kl_uniqe(1)    
+              call get_ij_half(klcs,kcs,lcs)
+              ke=inx(5,kcs)
+              le=inx(5,lcs)
+                 c_exp_min=datbas(1,ke)
+                 d_exp_min=datbas(1,le)
+                 cpd_min=c_exp_min+d_exp_min
+                 cpd_max=1.d0/cpd_min
+c
+c Lost allow is -log(10**-14)=14 (double precision)
+c                    minus (for example)
+c               -log(10**-10)=10 (given integral's threshold)
+c
+c Lost commited :
+c
+              xost_digit_1= log10( boa_max*cpd_max )
+              lost_digit_1= int( xost_digit_1 )
+c
+              lost_digit  = (nskl-1)*lost_digit_1
+c
+c this is very conservative because the contraction coeff. are
+c not taken into account. It is done later in XWPQ_2 .
+c
+c     write(6,*)' lost_digits: in 1 step=',lost_digit_1,
+c    *          ' ; in all steps=',lost_digit
+c
+              if(lost_digit.gt.lost_allow) stable_2=.false.
+c
+c     write(6,*)'num_stability_2 : stable_2=',stable_2
+c-------------------------------------------------------------
+              if(stable_2) return
+c-------------------------------------------------------------
+c calculate and save 2*b/max(1,a) for each left side contraction 
+c
+              ij=0
+              do is=ia,ie
+                 aa=datbas(1,is)
+                 a_1_max=max(1.d0,aa)
+                 a2=2.d0/a_1_max
+                 do js=ja,je
+                    bb=datbas(1,js)
+                    ij=ij+1
+c
+                    b_over_a(ij)=0.d0
+                    boa=bb*a2
+                    boa_max_cpd=boa*cpd_max
+                    if(boa_max_cpd .ge. 10.d0) then
+                       xost_digit_1= log10( boa_max_cpd )
+                       lost_digit_1= int( xost_digit_1 ) 
+                       lost_digit  = (nskl-1)*lost_digit_1
+                       if(lost_digit.gt.lost_allow) then
+                          b_over_a(ij)=boa
+                       endif
+                    endif
+                 enddo ! js=ja,je
+              enddo    ! is=ia,ie
+c-------------------------------------------------------------
+           endif   !  if(mmax.gt.2 .and. nskl.gt.1) then
+c
+      end
+c===================================================================

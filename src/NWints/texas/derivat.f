@@ -298,6 +298,22 @@ c
 c
       end
 c=================================================================
+      subroutine conv24r(nbls,npij,idx1,xab,xabq)
+      implicit real*8 (a-h,o-z)
+c
+      dimension idx1(nbls)
+      dimension xab(npij,3),xabq(nbls,3)
+c
+      do 100 ijkl=1,nbls
+      ijpar=idx1(ijkl)
+c     klpar=idx2(ijkl)
+        do 150 i=1,3
+        xabq(ijkl,i)=xab(ijpar,i)
+c       xcdq(ijkl,i)=xcd(klpar,i)
+  150   continue
+  100 continue
+      end
+c=================================================================
       subroutine giao_der(ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                    nqij,nqkl, deriv,  xab,xcd, xyab,xycd)
       implicit real*8 (a-h,o-z)
