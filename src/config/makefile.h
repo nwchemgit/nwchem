@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.408 2003-03-11 02:04:40 edo Exp $
+# $Id: makefile.h,v 1.409 2003-04-03 17:34:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1244,8 +1244,6 @@ ifeq ($(LINUXCPU),x86)
       FOPTIONS  += -tp piv  -Mcache_align  -Mvect=prefetch
     endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
-    COPTIONS   = -Wall -m486 -malign-double
-    COPTIMIZE  = -g -O2
     MAKEFLAGS += FC=pgf77
   endif
   ifeq ($(FC),ifc)
