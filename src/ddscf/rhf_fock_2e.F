@@ -1,5 +1,5 @@
       subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
-     &       ocoul, oexch)
+     &       ocoul, oexch, oskel)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -14,6 +14,7 @@ c
       double precision tol2e    ! [input] integral selection threshold
       logical ocoul, oexch      ! [input] compute coulomb/exchange 
 c                               !         contribution to fock matrix
+      logical oskel             ! [input] compute skeleton fock matrix
 c     
 c     local variables
 c     
@@ -82,7 +83,7 @@ c
      $     dbl_mb(k_djk), dbl_mb(k_dlj), dbl_mb(k_dlk), 
      $     dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $     dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk), maxd,
-     $     tol2e, ocoul, oexch)
+     $     tol2e, ocoul, oexch, oskel)
 c     
       status = .true.
       status = status .and. ma_pop_stack(l_flk)
@@ -105,7 +106,7 @@ c     fock_2e_a stuffs contributions into both the lower and upper
 c     triangles ... need to symmetrize and multiply by 2
 c     
       call ga_dscal(g_fock, 2.0d0)
-      call ga_symmetrize(g_fock)
+      if (.not. oskel) call ga_symmetrize(g_fock)
 c
       if (oscfps) call pstat_off(ps_fock_2e)
 c     
