@@ -327,6 +327,17 @@ c        local variables
          
        end
 
+      function mm_identity(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_identity
+
+         mm_identity = .true.
+         
+       end
+
       function mm_link_bqzone(i)
          implicit none
 #include "mafdecls.fh"
