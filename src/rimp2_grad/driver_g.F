@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.9 1998-10-06 18:36:30 bernhold Exp $
+C     $Id: driver_g.F,v 1.10 1998-10-09 21:24:19 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -130,20 +130,20 @@ C
      $     '    Completing energy-weighted density (incl. Fock build)')
       Call RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct, NVir,
      $     g_P2, g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
-C
-C     *******************
-C     * Clean up memory *
-C     *******************
-C
-      Do ISpin = 1, TopSpin
-         If ( .NOT. GA_Destroy( G_W2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free W2', ISpin)
-C
-C        Created in RIMP2_Driver_E
-C
-         If ( .NOT. GA_Destroy( G_P2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free P2', ISpin)
-      EndDo
+c$$$C
+c$$$C     *******************
+c$$$C     * Clean up memory *
+c$$$C     *******************
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         If ( .NOT. GA_Destroy( G_W2(ISpin) ) ) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G: can''t free W2', ISpin)
+c$$$C
+c$$$C        Created in RIMP2_Driver_E
+c$$$C
+c$$$         If ( .NOT. GA_Destroy( G_P2(ISpin) ) ) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G: can''t free P2', ISpin)
+c$$$      EndDo
 c$$$C
 c$$$C     ************************
 c$$$C     * Close & delete files *
