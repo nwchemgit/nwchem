@@ -2,6 +2,9 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint,
      &    idatom)
+*
+* $Id: intd_mpolel.F,v 1.2 1998-06-09 23:39:25 d3e129 Exp $
+*
 c
 c routine to compute multipole integral derivatives at a given lvalue 
 c 

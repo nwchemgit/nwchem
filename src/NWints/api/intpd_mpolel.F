@@ -2,6 +2,9 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint,
      &    idatom)
+*
+* $Id: intpd_mpolel.F,v 1.2 1998-06-09 23:39:27 d3e129 Exp $
+*
 c
 c routine to compute multipole integral derivatives at a given lvalue 
 c with the jsh translated by the fractional coordinate vector R.

@@ -1,5 +1,8 @@
       subroutine intp_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri)
+*
+* $Id: intp_2e3ct.F,v 1.2 1998-06-09 23:39:25 d3e129 Exp $
+*
       implicit none
 c
 c basic api routine to generate a block of 3 center two 

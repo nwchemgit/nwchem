@@ -1,6 +1,9 @@
       subroutine intp_mpolel(i_basis, ish, j_basis, jsh, R,
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
+*
+* $Id: intp_mpolel.F,v 1.2 1998-06-09 23:39:26 d3e129 Exp $
+*
 c
 c routine to compute multipole integrals at a given lvalue with the
 c jsh translated by the fractional coordinate vector R.
