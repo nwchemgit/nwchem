@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.10 2000-08-09 17:09:54 windus Exp $
+* $Id: task_hessian.F,v 1.11 2000-08-09 18:48:54 bjohnson Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -121,7 +121,7 @@ c
           write(6,*)
         endif
 c
-        if (theory .eq. 'scf') then
+        if (theory .eq. 'scf' .or. theory .eq. 'dft') then
           status = scf_hessian(rtdb)
         else
           call errquit('task_hessian: unknown analytic theory',0)
