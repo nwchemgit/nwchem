@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.63 1997-06-19 17:50:15 d3e129 Exp $
+C     $Id: geom_input.F,v 1.64 1997-07-02 17:05:34 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1293,7 +1293,7 @@ c
       dbug=.false.
 c
       if(opn_bmat) then
-         call util_file_name('zmt.bmat',.false.,.false.,zmt_bmat_fil)
+         call util_file_name('zmt.bmat',.true.,.true.,zmt_bmat_fil)
          open(unit=ift2,file=zmt_bmat_fil,form='unformatted',
      1        access='sequential',status='unknown',err=911)
          if(dbug) then
@@ -1301,7 +1301,7 @@ c
          endif
       endif
       if(opn_binv) then
-         call util_file_name('zmt.binv',.false.,.false.,zmt_binv_fil)
+         call util_file_name('zmt.binv',.true.,.true.,zmt_binv_fil)
          open(unit=ift3,file=zmt_binv_fil,form='unformatted',
      1        access='sequential',status='unknown',err=911)
          if(dbug) then
@@ -1309,7 +1309,7 @@ c
          endif
       endif
       if(opn_zind) then
-         call util_file_name('zmt.zind',.false.,.false.,zmt_zind_fil)
+         call util_file_name('zmt.zind',.true.,.true.,zmt_zind_fil)
          open(unit=ift4,file=zmt_zind_fil,form='unformatted',
      1        access='sequential',status='unknown',err=911)
          if(dbug) then
@@ -1317,7 +1317,7 @@ c
          endif
       endif
       if(opn_zsym) then
-         call util_file_name('zmt.zsym',.false.,.false.,zmt_zsym_fil)
+         call util_file_name('zmt.zsym',.true.,.true.,zmt_zsym_fil)
          open(unit=ift5,file=zmt_zsym_fil,form='unformatted',
      1        access='sequential',status='unknown',err=911)
          if(dbug) then
@@ -3166,10 +3166,10 @@ C
          CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
       ENDIF
       STATUS=RTDB_PARALLEL(.FALSE.)
-      IF( GA_NODEID().EQ.0) THEN
+c--   IF( GA_NODEID().EQ.0) THEN
          IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NDIM))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZIND FAILED',0)
-      ENDIF
+c--   ENDIF
       CALL GA_SYNC
       STATUS=RTDB_PARALLEL(.TRUE.)
 C
@@ -3204,7 +3204,7 @@ C
 C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
-      LOGICAL OUT
+      LOGICAL DBUG,OUT
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
@@ -3215,9 +3215,11 @@ C     ----- RETURN IF NO INTERNAL COORDINATES -----
 C
       IF(NZMAT.EQ.0) RETURN
 C
-      OUT=.FALSE.  
-      OUT=OUT.OR.NPRINT.EQ.1
-      OUT=OUT.OR.IPRZMT.GE.1
+      DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+      OUT =OUT.OR.NPRINT.EQ.1
+      OUT =OUT.OR.IPRZMT.GE.1
       IF(OUT) THEN
          WRITE(IW,9999) NZMAT,NZVAR,NVAR,NAT
       ENDIF
@@ -3500,12 +3502,12 @@ C
 C     ----- STORE FOR -NWCHEM- -----
 C
       STATUS=RTDB_PARALLEL(.FALSE.)
-      IF( GA_NODEID().EQ.0) THEN
+c--   IF( GA_NODEID().EQ.0) THEN
          IF(.NOT.GEOM_ZMT_PUT_ZMAT(GEOM,ZMAT,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZMAT FAILED',0)
          IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BMAT FAILED',0)
-      ENDIF
+c--   ENDIF
       CALL GA_SYNC()
       STATUS=RTDB_PARALLEL(.TRUE.)
 C
