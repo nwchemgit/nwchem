@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.10 1997-09-11 19:53:27 rg240 Exp $
+C$Id: moints_gsh1.F,v 1.11 1998-07-13 23:42:02 d3g681 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -224,7 +224,7 @@ c
 c     
 c  Debug print
 c     
-        if (util_print('shell order',print_high).and.
+        if (util_print('shell order',print_debug).and.
      $       (ga_nodeid().eq.0)) then
           write(6,841) nsht
  841      format(/,'Number of shell types:',i5)
@@ -275,7 +275,7 @@ c
 c
 c  More debug print
 c
-      if (util_print('shell order',print_high).and.
+      if (util_print('shell order',print_debug).and.
      $   (ga_nodeid().eq.0)) then
         write(6,550) ngr
  550    format(/,'Number of groups:',i5,/)
