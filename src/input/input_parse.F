@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.25 1996-07-26 16:30:15 d3g681 Exp $
+C     $Id: input_parse.F,v 1.26 1996-08-06 05:35:41 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -18,7 +18,9 @@ c
       logical status
       integer found_task
       character*255 test
+      integer nlines            ! No. of lines of input read in this call
 c
+      nlines = 0
       found_task = 0            ! 0=false, 1=true
 c
       if (ga_nodeid() .eq. 0) then
@@ -36,6 +38,7 @@ c
 c     While (input is available)
 c     
  10      if (inp_read()) then
+            nlines = nlines + 1
             if (.not. inp_a(test))
      $           call errquit('input_parse: failed to read keyword', 0)
             call inp_prev_field
@@ -111,6 +114,16 @@ c
             goto 10 
          endif                  ! End while
  9999    status = rtdb_parallel(.true.) ! Restore parallel access to db
+         if (nlines.gt.0 .and. found_task.eq.0) then
+c
+c     Read input but found no task directive.  Not an error
+c     but is probably undesirable
+c
+            write(6,*) 
+            write(6,*) ' ! warning: processed input with no task'
+            write(6,*)
+            call util_flush(6)
+         endif
       endif                     ! End node zero only
 c     
 c     Global sum of integer variable for simple broadcast

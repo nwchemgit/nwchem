@@ -1,6 +1,6 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
-     $     global_size, total_size, overify)
-C$Id: memory_input.F,v 1.6 1995-03-23 00:58:34 gg502 Exp $
+     $     global_size, total_size, overify, ohardfail)
+C$Id: memory_input.F,v 1.7 1996-08-06 05:35:43 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -13,6 +13,7 @@ C$Id: memory_input.F,v 1.6 1995-03-23 00:58:34 gg502 Exp $
       integer global_size       ! [output]
       integer total_size        ! [output]
       logical overify           ! [output]
+      logical ohardfail         ! [output]
 c
       character*8 user_units, ctest
       double precision user_stack, user_heap, user_global, user_total
@@ -29,7 +30,7 @@ c     Parse memory directive
 c
 c     memory [[total] <total_size>] [stack <stack_size>] 
 c            [heap <heap_size>] [global <global_size>]
-c            [<units>] [verify|noverify]
+c            [<units>] [verify|noverify] [hardfail|nohardfail]
 c
 c     input units default to doubles
 c
@@ -63,6 +64,10 @@ c
             overify = .true.
          else if (inp_compare(.false.,'noverify',ctest)) then
             overify = .false.
+         else if (inp_compare(.false.,'hardfail',ctest)) then
+            ohardfail = .true.
+         else if (inp_compare(.false.,'nohardfail',ctest)) then
+            ohardfail = .false.
          else if (inp_compare(.false.,'heap', ctest)) then
             if (.not. inp_f(user_heap)) goto 1000
             heap_Src = 'U'
@@ -160,6 +165,7 @@ c
 c
  1000 call errquit('input_mem_size: memory [[total] <total_size>] '//
      $   '[heap <heap_size>] [stack <stack_size>] '//
-     $   '[global <global_size>] [<units>] [verify|noverify]', 0)
+     $   '[global <global_size>] [<units>] [verify|noverify] '//
+     $   '[hardfail|nohardfail]', 0)
 c
       end

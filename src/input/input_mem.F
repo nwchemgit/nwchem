@@ -1,6 +1,6 @@
       subroutine input_mem_size(stack_size, heap_size, global_size,
-     $   overify)
-C$Id: input_mem.F,v 1.3 1996-07-17 16:32:15 d3g681 Exp $
+     $   overify, ohardfail)
+C$Id: input_mem.F,v 1.4 1996-08-06 05:35:40 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -11,6 +11,7 @@ C$Id: input_mem.F,v 1.3 1996-07-17 16:32:15 d3g681 Exp $
       integer heap_size         ! [output]
       integer global_size       ! [output]
       logical overify           ! [output]
+      logical ohardfail         ! [output]
 C
       integer Total_Size
       Character*1 Total_Src, Heap_Src, Stack_Src, Global_Src
@@ -24,13 +25,14 @@ c
 c     Search for memory keyword from beginning of input file
 c
       overify    = .true.       ! Verify unless told otherwise!
+      ohardfail  = .false.      ! Don't hard fail
 C
       if (nodeid() .eq. 0) then ! tcgmsg not GA due to init. order
          rewind 5
          call inp_init(5,6)
          if (inp_search(.false., 'memory', 1)) then
             call memory_input(-1, .false., stack_size, heap_size, 
-     $           global_size, Total_Size, overify)
+     $           global_size, Total_Size, overify, ohardfail)
          Else
             Total_Src = 'N'
             Heap_Src = 'N'
