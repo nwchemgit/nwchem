@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.3 1998-09-24 21:39:17 mg201 Exp $
+C $Id: rel_onel.F,v 1.4 1999-04-20 17:39:19 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -96,7 +96,6 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       integer memscr    ! free space in scr
       integer max_mem   ! maximum memory used
       integer i,j,k     ! loop indices etc.
-      integer ntyptmp   ! temporary value of ntyp, set to 1.
       double precision one ! Obvious!
       parameter (one = 1.0D0)
 *
@@ -287,13 +286,10 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         end if
       end if
 *
-*     Compute only the scalar relativistic integrals; can do others
-*     later. To do this, simply remove the next statement and change
-*     ntyptmp to ntyp in the call to rel_pot. Then the type of integral
-*     will be controlled by ntyp.
+*     Compute the relativistic potential energy integrals
 *
-      ntyptmp = 1
-      call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),scr,ntyptmp,
+      call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
+     &    scr,n_ab,ntyp,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
      &    DryRun,scr(i_scr),memscr,ibug)
@@ -301,7 +297,11 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
       else
-        call daxpy (n_ab,one,scr,1,V,1)
+        i = 1
+        do j = 1,ntyp
+          call daxpy (n_ab,one,scr(i),1,V(1,j),1)
+          i = i+n_ab
+        end do
       end if
 *
       return

@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.4 1998-09-24 21:36:15 mg201 Exp $
+C $Id: rel_pot.F,v 1.5 1999-04-20 17:39:20 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -117,7 +117,7 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
      &      Vmp,Vmm,scr(i_grdm),n_allm_B)
         call dfill (nn,zero,scr,1)
         call ecp_grad_b (l_B,np_b,n_b,nm_b,n_cont_B,
-     &      scr(i_grdp),scr(i_grdm),scr,n_all_a*3)
+     &      scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
         call dfill (nints*ntyp,zero,Vrel,1)
 *
 *   Return with derivative integrals only
