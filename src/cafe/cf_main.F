@@ -1360,8 +1360,6 @@ c
 c
       integer lfnout
 c
-      if(me.ne.0) return
-c
       if(numb(2).gt.0) call cf_pr_bonds(lfnout,numb(2),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)))
 c
@@ -1381,12 +1379,17 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
       integer lfnout,nsb,msb,msp
       integer ibnd(msb,3)
       real*8 bnd(msb,msp,6),rbnd(msb,2)
 c
       integer i,j
+c
+      if(np.gt.1) call ga_dgop(mcf_51,rbnd,2*msb,'+')
+      if(me.ne.0) return
 c
       write(lfnout,1000)
  1000 format(/,' Solute bonds',/,
@@ -1405,12 +1408,17 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
       integer lfnout,nsh,msh,msp
       integer iang(msh,4)
       real*8 ang(msh,msp,6),rang(msh,2)
 c
       integer i,j
+c
+      if(np.gt.1) call ga_dgop(mcf_52,rang,2*msh,'+')
+      if(me.ne.0) return
 c
       write(lfnout,1000)
  1000 format(/,' Solute angles',/,
@@ -1430,12 +1438,17 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
       integer lfnout,nsd,msd,msp
       integer idih(msd,5)
       real*8 dih(msd,msp,6),rdih(msd,2)
 c
       integer i,j
+c
+      if(np.gt.1) call ga_dgop(mcf_53,rdih,2*msd,'+')
+      if(me.ne.0) return
 c
       write(lfnout,1000)
  1000 format(/,' Solute torsions',/,
@@ -1455,12 +1468,17 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
       integer lfnout,nso,mso,msp
       integer ioop(mso,5)
       real*8 oop(mso,msp,6),roop(mso,2)
 c
       integer i,j
+c
+      if(np.gt.1) call ga_dgop(mcf_54,roop,2*mso,'+')
+      if(me.ne.0) return
 c
       write(lfnout,1000)
  1000 format(/,' Solute out of plane torsions',/,

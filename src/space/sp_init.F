@@ -53,6 +53,9 @@ c
       mbbl=0
       nbbdif=-1
 c
+      mwm=mwmi
+      msa=msai
+c
       call sp_nrnode()
 c
       call sp_dimens(lfnrst,filrst)
@@ -720,7 +723,8 @@ c
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       nold=ipl(2,2)
-      if(nold+new.gt.msa) call errquit('Dimension msa too small',0)
+      if(nold+new.gt.msa)
+     + call errquit('Dimension msa too small',nold+new)
       ipl(2,2)=ipl(2,2)+new
       call ga_put(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
@@ -1694,7 +1698,7 @@ c
       write(lfnout,1000)
  1000 format(/,' Initial distribution p:b(w+s)',/)
       write(lfnout,1001) (i-1,(lcnt(i,j),j=1,3),i=1,np)
- 1001 format(4(3x,i4,':',i3,'(',i7,'+',i7,')'))
+ 1001 format(4(3x,i4,':',i5,'(',i7,'+',i7,')'))
       endif
 c
       return
