@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.20 2004-03-25 00:39:43 edo Exp $
+c$Id: grid_gen_pts.F,v 1.21 2004-03-25 05:26:40 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -69,41 +69,5 @@ c
      &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
-      return
-      end
-      subroutine grid_rchi0
-      implicit none
-#include "errquit.fh"
-#include "cgridfile.fh"
-#include "cdft.fh"
-#include "mafdecls.fh"
-c
-      integer n_tsk
-c
-c      n_tsk=ncenters*ntot_sub
-c
-c     HACK?
-c
-!      n_tsk=ncenters*10000
-      n_tsk=ncenters*ncubesmx*(nqmax/buffer_size+5)
-!      write(0,*) ncubesmx*(nqmax/buffer_size+10)
-!      write(0,*) ncubesmx,nqmax,buffer_size
-
-c
-c     allocate rchi
-c
-      if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rchi_tasks',
-     &     lrchi,irchi))
-     &     call errquit('dft_scf: cannot allocate rchi_tasks',0, MA_ERR)
-c fill it with -99 to check later if used
-      call dfill(n_tsk, -99d0, dbl_mb(irchi), 1)
-!      write(0,*) '0irchis ',irchi,irchi+n_tsk-1
-!      call dfill(n_tsk, 999d0, dbl_mb(irchi), 1)
-      
-c
-      if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rdelchi_tasks',
-     &     lrdelchi,irdelchi))
-     &     call errquit('dft_scf: cannot allocate rdelchi_tasks',0,
-     &       MA_ERR)
       return
       end
