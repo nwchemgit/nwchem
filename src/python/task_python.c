@@ -1,11 +1,12 @@
+#include "macdecls.h"
+#include "global.h"
+
 #include <Python.h>
 #include <import.h>
 #include <graminit.h>
 #include <pythonrun.h>
 #include <stdlib.h>
 
-#include "macdecls.h"
-#include "global.h"
 
 #if defined(CRAY_T3E) || defined(CRAY_T3D)
 int TASK_PYTHON(int *rtdb_ptr)
