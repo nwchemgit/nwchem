@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.101 1998-11-09 17:47:48 bernhold Exp $
+c     $Id: msgids.fh,v 1.102 1998-12-04 12:01:39 pg899 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -210,7 +210,11 @@ c
       integer msg_gapss_xcijr      
       integer msg_gapss_lat_tran
       integer msg_gapss_pijr_ef
-      integer msg_gapss_density
+      integer msg_gapss_density, msg_gapss_fitrho
+      integer msg_gapss_gradwt, msg_gapss_gradwt2
+      integer msg_gapss_gradwt3, msg_gapss_pulay
+      integer msg_gapss_pulay2, msg_gapss_pulay3
+      integer msg_gapss_doseig
       integer msg_riscf_free
 c
       integer msg_grad_xc
@@ -631,3 +635,11 @@ c
 c
       parameter (msg_gapss_dvcoul=msg_ftn_base-451)  ! gapss: gap_dvcoul
       Parameter (Msg_CMR_File = Msg_Ftn_Base - 452)  ! Corr_Mk_Ref
+      parameter (msg_gapss_fitrho=msg_ftn_base-453)  ! gapss: gap_fit_rho
+      parameter (msg_gapss_gradwt=msg_ftn_base-454)  ! gapss: gap_gradweight
+      parameter (msg_gapss_gradwt2=msg_ftn_base-455)  ! gapss: gap_gradweight2
+      parameter (msg_gapss_gradwt3=msg_ftn_base-456)  ! gapss: gap_gradweight3
+      parameter (msg_gapss_pulay=msg_ftn_base-457)  ! gapss: gap_pulay
+      parameter (msg_gapss_pulay2=msg_ftn_base-458)  ! gapss: gap_pulay2
+      parameter (msg_gapss_pulay3=msg_ftn_base-459)  ! gapss: gap_pulay3
+      parameter (msg_gapss_doseig=msg_ftn_base-460)  ! gapss: gap_dos_eig
