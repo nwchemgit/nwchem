@@ -1,7 +1,7 @@
-C $Id: rel_init_con.F,v 1.3 1998-10-20 20:16:31 mg201 Exp $
+C $Id: rel_init_con.F,v 1.4 1999-12-30 22:01:33 mg201 Exp $
 ************************************************************************
 *                                                                      *
-      subroutine rel_init_con
+      subroutine rel_init_con (rtdb)
 *                                                                      *
 *   Routine to initialize constants required by relativistic integrals *
 *                                                                      *
@@ -9,15 +9,24 @@ C $Id: rel_init_con.F,v 1.3 1998-10-20 20:16:31 mg201 Exp $
 *                                                                      *
 ************************************************************************
       implicit none
+c     
+      integer rtdb ! [input] handle to database
+c
+#include "rtdb.fh"
+#include "mafdecls.fh"
 #include "rel_consts.fh"
-*
+c
+      double precision clight
+c
       cau = 137.0359895d00
+      if (rtdb_get(rtdb,'relativistic:clight',mt_dbl,1,clight))
+     &    cau = clight
       csq = cau*cau
       alpha = 1.0d00/cau
       halp = 0.5d00*alpha
       halsq = halp*alpha
       qalsq = halp*halp
       salf = qalsq*qalsq
-*
+c
       return
       end

@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.4 1999-12-17 00:47:38 bert Exp $
+* $Id: rel_input.F,v 1.5 1999-12-30 22:02:44 mg201 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -31,8 +31,6 @@ c
 c
 c     Set some relativistic variables we could need later on
 c
-      call rel_init_con
-c
    1  if (.not. inp_read()) call errquit('rel_input: inp_read failed',0)
       if (.not. inp_a(test))
      $     call errquit('rel_input: failed to read keyword', 0)
@@ -42,7 +40,7 @@ c
          if (.not. inp_f(clight)) then
             call errquit('rel_input: failed reading clight', 0)
          else 
-           if(.not.rtdb_put(rtdb,'doug_kroll:clight',mt_dbl,1,clight))
+           if(.not.rtdb_put(rtdb,'relativistic:clight',mt_dbl,1,clight))
      $        call errquit('rel_input: rtdb_put failed', 0)
          endif
          write(luout,10) clight
@@ -68,6 +66,8 @@ c
 c     End of while loop over the input
 c
       if (.not. inp_compare(.false.,'end', test)) goto 1
+c
+      call rel_init_con (rtdb)
 c
 c     User could have set both methods by accident. Check if this is the case 
 c     stop if both methods are set to true.

@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.3 1999-12-17 00:53:10 bert Exp $
+* $Id: dmd_input.F,v 1.4 1999-12-30 22:01:33 mg201 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -23,35 +23,54 @@ c
       integer rtdb ! [input] handle to database
 c    
       character*255 test
-      logical dmd_run
+      logical dmd_run, atomic_nesc, one_e_approx
 c
 c     Read input data beyond Dyall-Modified-Dirac or Dyall-Mod-Dirac; store in rtdb.
 c     
       dmd_run  = .true.
+      atomic_nesc = .true.
+      one_e_approx = .true.
 c
   10  if (inp_a(test)) then
-         if (inp_compare(.false., 'off', test)) then
-            dmd_run = .false.
-         elseif (inp_compare(.false., 'on', test)) then
-            dmd_run  = .true.
-         else
-            call errquit('dmd_input: unknown directive',0)
-         endif
-         goto 10
+        if (inp_compare(.false., 'off', test)) then
+          dmd_run = .false.
+        elseif (inp_compare(.false., 'on', test)) then
+          dmd_run  = .true.
+        else
+          call errquit('dmd_input: unknown directive',0)
+        endif
+        goto 10
       endif
 c
-c     If we are going to do Dyall-Modified-Dirac then print out a line informing user,
+c     If we are going to do Dyall-Modified-Dirac then print out information to user,
 c
       if ((ga_nodeid() .eq. 0) .and . dmd_run .and. 
-     $     util_print('dyall-mod-dirac', print_low)) then
-         write(luout,20)
-  20     format(/'Explain that this is Dyall-Modified-Dirac !')
+     $    util_print('dyall-mod-dirac', print_low)) then
+        write(luout,20)
+   20   format(//' Relativistic calculation using Dyall''s modification'
+     &      ,' to the Dirac equation,',
+     &      /5x,'K. G. Dyall, J. Chem. Phys. 100, 2118 (1994) ',/)
+        if (atomic_nesc) write (luout,30)
+   30   format(' Calculation performed with normalized elimination of ',
+     &      'small components (NESC) and atomic 4-spinor expansion,',/,
+     &      5x,'K. G. Dyall, J. Chem. Phys. 106, 9618 (1997); K. G. Dy',
+     &      'all and T. Enevoldsen, J. Chem. Phys. 111, 10000 (1999).')
+        if (one_e_approx) write (luout,40)
+   40   format (' Electron-electron interaction approximated by ',
+     &      'neglecting the commutator of 1/r12 with the atomic FW ',
+     &      'transformation,',/5x,
+     &      'K. G. Dyall, in preparation.')
+        write (luout,*)
       endif
 c
 c     Put parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
-     $   call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'atomic_nesc', mt_log, 1, atomic_nesc))
+     &    call errquit('dmd_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'nesc_1e_approx', mt_log, 1, 
+     &    one_e_approx)) call errquit('dmd_input: rtdb_put failed', 0)
 c
       return
 c       
