@@ -1,0 +1,22 @@
+[lmax]  1
+[locp]  0
+[rlocal] 1.0
+<atom>
+K
+19.0 39.0 5 1
+1  0      2.0
+2  0      2.0
+2  1      6.0
+3  0      2.0
+3  1      6.0
+4  0      1.0
+<end>
+<solver>            pauli             <end>
+<pseudopotential>   troullier-martins <end>
+ <rcut>
+   0  4.200000
+   1  4.000000
+   2  4.000000
+ <end>
+<semicore> 3.6 <end>
+<linear> 501 0.02 <end>
