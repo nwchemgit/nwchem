@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2003-04-07 22:00:08 windus Exp $
+# $Id: GNUmakefile,v 1.26 2003-04-07 23:49:52 windus Exp $
 #
 
 
@@ -10,7 +10,7 @@ BLAS     = mxma.o
 
 UOBJ = \
 iprtri.o	prtri.o  \
-	selci_icopy.o		output.o	yacobi.o \
+	selci_icopy.o		selci_output.o	yacobi.o \
 tred1.o		tqlrat.o	loadw.o		rdhint.o 	rdhcon.o \
 rdhwmt.o	rdconf.o	upkcon.o	prtcon.o	wrtcon.o \
 iodiff.o	bserch.o	popcnt32.o	readh.o  \
