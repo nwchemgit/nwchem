@@ -129,11 +129,11 @@ c     If no task is present then perform some default action (exit).
 c     
       character*255 task_name
       integer ntasks, ind
-      logical status
-      parameter (ntasks = 5)
+      logical status, scf, gradients
+      parameter (ntasks = 6)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest'/
+     $   'debtest', 'gradients'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -143,7 +143,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50) ind
+         goto (10, 20, 30, 40, 50, 60) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -167,13 +167,19 @@ c
 c     
 c     scf ... eventually there will be no such task name
 c     
- 40      call scf(rtdb)
+ 40      status = scf(rtdb)
          goto 1000
 C
 C     debtest ... I want my own task!
 C
  50      Call DEBTest(RTDB)
          Goto 1000
+c
+c    gradients (scf has to be done first)
+c
+ 60      status = scf(rtdb)
+         status = gradients(rtdb)
+         goto 1000
 c
       else
 c

@@ -4,7 +4,7 @@
      &       Cxyz,zan,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.4 1994-06-08 22:39:49 d3e129 Exp $
+c $Id: hf1d.F,v 1.5 1994-06-23 00:17:44 vg038 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -57,8 +57,8 @@ c                   i=4-6:   d/dRx, d/dRy, d/dRz
 c
 c******************************************************************************
 
-*      call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
-*      call hf_print('hf1d: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
+*     call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
+*     call hf_print('hf1d: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
 
       MXD = 1
 

@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.25 1994-06-14 22:00:36 gg502 Exp $
+# $Id: makefile.h,v 1.26 1994-06-23 00:17:55 vg038 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -14,7 +14,7 @@
 # ... it is preferable to do the setenv then this file is indep of
 # who is using it.
 #
-# NWCHEM_TOP = /msrc/home/d3g681
+# NWCHEM_TOP = /msrc/home/vg038/nwchem
 
 ifndef NWCHEM_TOP
 # This variable must be defined ... the next line will cause an error
@@ -52,8 +52,8 @@ endif
 # files are all present and correct before any compilation
 #
 
-    SUBDIRS = include ddscf develop global db NWints rtdb basis inp util \
-              atomscf geom input ma tcgmsg $(SUBDIRS_EXTRA) rimp2
+    SUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
+              atomscf geom input ma tcgmsg gradients rimp2 $(SUBDIRS_EXTRA)
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -96,7 +96,7 @@ ifeq ($(TARGET),SUN)
   MAKEFLAGS = -j 2
     INSTALL = echo $@ is built
 
-       FOPT = -g -Nl99
+       FOPT = -O -Nl99
    FOPT_REN = $(FOPT)
        COPT = -g
      FLDOPT = $(FOPT)
@@ -110,7 +110,7 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lrimp2 -lddscf -lnwints \
+              -ltest -lrimp2 -lgradients -lddscf -lnwints \
               -linput -lguess -lgeom -lbasis -lutil -lglobal -lrtdb -ldb \
               -linp \
 	      -lutil -lma -ltcgmsg -llapack -lblas
@@ -148,7 +148,7 @@ ifeq ($(TARGET),KSR)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lrimp2 -lddscf -lnwints \
+              -ltest -lrimp2 -lddscf -lgradients -lnwints \
               -linput -lguess -lgeom -lbasis -lutil \
               -lglobal -lpeigs -llapack2 -lblas2 \
               -lrtdb -ldb -linp \

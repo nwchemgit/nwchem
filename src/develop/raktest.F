@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.13 1994-06-09 09:50:30 d3e129 Exp $
+c $Id: raktest.F,v 1.14 1994-06-23 00:18:15 vg038 Exp $
       integer rtdb
 c
       write(6,*)' run rjh test '
@@ -117,7 +117,7 @@ c
       if (.not.int_normalize(basis))
      &       call errquit('dointsum: basis norm. failed', 0)
       write(6,*)' after normalization'
-      call int_init(1,basis)
+      call intd_init(1,basis)
       if (.not. bas_print(basis))
      $      call errquit('dointsum: basis print failed', 0)
 c
@@ -2320,6 +2320,7 @@ c
       if(.not.bas_nbf_cn_max(basis,nbfmax))
      &       call errquit('raktest:',922)
 c
+      call hf_print_set(1)
       used = nbfmax*nbfmax*3*2
       iscr = used + 1
       newnscr = nscr - used
@@ -2363,6 +2364,7 @@ c
      &           ' SaNEW ',1.0d-05)
 01000   continue
 00900 continue
+      call hf_print_set(0)
       end
 c.......................................................................
       subroutine buildHa(Ha,nat,ncont,nbf,basis,

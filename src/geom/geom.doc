@@ -125,7 +125,7 @@ Operations:
   integer icent [input]
   character*16 t [output]
   double precision c(3) [output]
-  double precision q(3) [output]
+  double precision q [output]
    
      Returns tag/coords/charge about the center icent
 

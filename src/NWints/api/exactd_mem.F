@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.1 1994-06-11 00:41:11 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.2 1994-06-23 00:17:19 vg038 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -134,8 +134,8 @@ c
      &       call errquit('emem_d1e:bas_nbf_cn_max error ',2)
       max1e = max_nbf_bra*max_nbf_ket*nat*3
 c
-      write(6,'(a,i10)')'emem_d1e: memsize =',memsize
-      write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
+*     write(6,'(a,i10)')'emem_d1e: memsize =',memsize
+*     write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
 c
       end
       subroutine emem_d2e4c(brain, ketin, maxg, memsize)
@@ -266,8 +266,8 @@ c
       maxg = maxg*12
       
 c
-      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
-      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
+*     write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
+*     write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
 c
       end
 

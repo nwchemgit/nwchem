@@ -184,6 +184,13 @@ c
      $     ('scf: context_prefix failed', 0)
       if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) call errquit
      $     ('scf: failed to store converged in rtdb', 0)
+C
+C    store basis and geometry handle for gradients (are they already somewhere?)
+C
+      status = rtdb_put(rtdb, 'basis', MT_INT, 1, basis)
+      if (.not.status) call errquit('scf: error storing basis handle',0)
+      status = rtdb_put(rtdb, 'geom', MT_INT, 1, geom)
+      if (.not.status) call errquit('scf: error storing geom handle', 0)
 c
 c     Nothing else for now ... return convergence status
 c
