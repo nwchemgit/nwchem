@@ -7,9 +7,9 @@ c     BGJ (8/98)
 c
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
-     &                       do_2nd, xform_Cmat)
+     &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.8 1999-02-19 02:35:02 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.9 1999-03-04 14:18:57 bjohnson Exp $
 c
       implicit none
 c
@@ -21,10 +21,7 @@ c
       double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*)
       double precision Ex, Ec
       double precision qwght(nq), func(nq)
-      logical GRAD, ldew, do_2nd, xform_Cmat
-c
-c     Note: xform_Cmat tells whether the first derivatives of the fnl
-c     wrt gammas should be transformed to derivatives wrt delrho
+      logical GRAD, ldew, do_2nd
 c
       double precision eps
       parameter (eps=1.e-8)
@@ -241,10 +238,10 @@ c     Combine with quadrature weights
 c
       if (.not. do_2nd) then
          call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
-     &                 xform_Cmat)
+     &                 .not. do_2nd)
       else
          call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, ipol,
-     &                    nq, GRAD, xform_Cmat)
+     &                    nq, GRAD, .not. do_2nd)
       endif
 c
       return

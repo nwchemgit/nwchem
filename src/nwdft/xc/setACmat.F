@@ -11,7 +11,7 @@ c
      &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.11 1999-02-19 02:35:01 bjohnson Exp $
+C$Id: setACmat.F,v 1.12 1999-03-04 14:18:56 bjohnson Exp $
 c
       implicit none
 c
@@ -66,27 +66,7 @@ c     Transform derivatives of functional with respect to gammas
 c     to derivatives of functional with respect to density gradient
 c
       if (GRAD .and. xform_Cmat) then
-         if (ipol .eq. 1) then
-            do jj = 1, nq
-c     Must account for delrho being total density gradient, not alpha
-               gaa = Cmat(jj,D1_GAA,1) + Cmat(jj,D1_GAB,1)*0.5d0
-               Cmat(jj,1,1) = delrho(jj,1,1)*gaa
-               Cmat(jj,2,1) = delrho(jj,2,1)*gaa
-               Cmat(jj,3,1) = delrho(jj,3,1)*gaa
-            enddo
-         else
-            do jj = 1, nq
-               gaa = Cmat(jj,D1_GAA,1)
-               gab = Cmat(jj,D1_GAB,1)
-               gbb = Cmat(jj,D1_GBB,1)
-               Cmat(jj,1,1) = 2*delrho(jj,1,1)*gaa + delrho(jj,1,2)*gab
-               Cmat(jj,2,1) = 2*delrho(jj,2,1)*gaa + delrho(jj,2,2)*gab
-               Cmat(jj,3,1) = 2*delrho(jj,3,1)*gaa + delrho(jj,3,2)*gab
-               Cmat(jj,1,2) = 2*delrho(jj,1,2)*gbb + delrho(jj,1,1)*gab
-               Cmat(jj,2,2) = 2*delrho(jj,2,2)*gbb + delrho(jj,2,1)*gab
-               Cmat(jj,3,2) = 2*delrho(jj,3,2)*gbb + delrho(jj,3,1)*gab
-            enddo
-         endif
+         call transform_Cmat(delrho, Cmat, ipol, nq)
       endif
 c
 c     Combine derivatives of functional with quadrature weights
@@ -161,6 +141,50 @@ c
 #endif
       return
       end
+#ifndef SECOND_DERIV
+c
+c     Transform Cmat from gamma form to delrho form
+c
+c     BGJ - 8/98
+c
+      Subroutine transform_Cmat(delrho, Cmat, ipol, nq)
+c
+      implicit none
+c
+#include "dft2drv.fh"
+c
+      integer ipol, nq
+      double precision delrho(nq,3,ipol), Cmat(nq,3,ipol)
+c
+      integer n
+      double precision gaa, gab, gbb
+c
+      if (ipol .eq. 1) then
+         do n = 1, nq
+c     Must account for delrho being total density gradient, not alpha
+            gaa = Cmat(n,D1_GAA,1) + Cmat(n,D1_GAB,1)*0.5d0
+            Cmat(n,1,1) = delrho(n,1,1)*gaa
+            Cmat(n,2,1) = delrho(n,2,1)*gaa
+            Cmat(n,3,1) = delrho(n,3,1)*gaa
+         enddo
+      else
+         do n = 1, nq
+            gaa = Cmat(n,D1_GAA,1)
+            gab = Cmat(n,D1_GAB,1)
+            gbb = Cmat(n,D1_GBB,1)
+            Cmat(n,1,1) = 2d0*delrho(n,1,1)*gaa + delrho(n,1,2)*gab
+            Cmat(n,2,1) = 2d0*delrho(n,2,1)*gaa + delrho(n,2,2)*gab
+            Cmat(n,3,1) = 2d0*delrho(n,3,1)*gaa + delrho(n,3,2)*gab
+            Cmat(n,1,2) = 2d0*delrho(n,1,2)*gbb + delrho(n,1,1)*gab
+            Cmat(n,2,2) = 2d0*delrho(n,2,2)*gbb + delrho(n,2,1)*gab
+            Cmat(n,3,2) = 2d0*delrho(n,3,2)*gbb + delrho(n,3,1)*gab
+         enddo
+      endif
+c
+      return
+      end
+#endif
+c
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
