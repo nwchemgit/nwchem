@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2000-06-02 09:04:29 d3e129 Exp $
+# $Id: GNUmakefile,v 1.25 2002-01-29 20:50:53 windus Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -95,7 +95,7 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_t1_Q1pow.F \
       ecp_t2_p0pow.F \
       ecp_t2_p1pow.F \
-      ecp_skipint.o  \
+      ecp_skipint.F  \
       int_ecp.F      
 
 #      ecp_local.F    \
