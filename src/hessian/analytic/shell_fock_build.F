@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.2 2000-08-10 02:57:59 windus Exp $
+c $Id: shell_fock_build.F,v 1.3 2000-08-14 20:30:08 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
      $     kfac, tol2e, g_dens, g_fock, oactive)
@@ -38,7 +38,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      if (nfock .ne. 1) call errquit('NFOCK', nfock)
+c     if (nfock .ne. 1) call errquit('NFOCK', nfock)
       call dscal(nfock, 0.5d0, kfac, 1)
 c      
       if (.not. bas_numbf(basis,nbf))
