@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.37 1994-07-20 20:55:07 gg502 Exp $
+# $Id: makefile.h,v 1.38 1994-07-28 07:59:07 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -115,7 +115,8 @@ ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
 #
-    SUBDIRS_EXTRA = blas lapack
+    SUBDIRS_EXTRA = 
+#blas lapack
 
          FC = f77
          CC = cc
@@ -123,7 +124,7 @@ ifeq ($(TARGET),KSR)
      RANLIB = echo
       SHELL = /bin/sh
        MAKE = make
-  MAKEFLAGS = -j 20
+  MAKEFLAGS = -j 40
     INSTALL = echo $@ is built
 
        FOPT = -g -r8
@@ -142,10 +143,11 @@ ifeq ($(TARGET),KSR)
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lnwints -lgradients -lstepper -lmoints \
               -linput -lguess -lgeom -lbasis -lutil \
-              -lglobal -lpeigs -llapack2 -lblas2 \
+              -lglobal -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2 \
               -lrtdb -ldb -linp -lpstat \
-	      -lutil -lma -ltcgmsg -lksrlapk -lksrblas -para -lrpc
-#-llapack -lblas 
+	      -lutil -lma -ltcgmsg -para -lrpc
+#-llapack -lblas -lksrblas -lksrlapk
+
 
   EXPLICITF = FALSE
 endif
@@ -196,6 +198,7 @@ ifeq ($(TARGET),PARAGON)
 	      -lutil -lma -ltcgmsg -llapack -lkmath
 #-lrpc -llapack -lblas 
 
+>>>>>>> 1.37
   EXPLICITF = FALSE
 endif
 
