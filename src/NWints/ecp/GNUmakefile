@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.29 2003-02-10 20:54:59 edo Exp $
+# $Id: GNUmakefile,v 1.30 2004-04-27 22:27:43 edo Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -109,6 +109,9 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 ifeq ($(NWCHEM_TARGET),DECOSF)
         FOPTIONS+= -math_library accurate
+endif
+ifeq ($(FC),pathf90)
+       FOPTIMIZE += -LNO:opt=0
 endif
 
 test_drive:	test_drive.o 
