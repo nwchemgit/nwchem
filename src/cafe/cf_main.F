@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.120 2001-12-11 19:26:00 d3j191 Exp $
+c $Id: cf_main.F,v 1.121 2001-12-15 01:19:36 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2648,7 +2648,7 @@ c
   202 continue
 c
       if(np.gt.1) then
-      call ga_igop(mrg_d48,ntotal,2*ma_sizeof(mt_int,1,mt_byte),'+')
+      call ga_igop(mrg_d48,ntotal,2,'+')
       endif
 c
       if(me.eq.0) then
