@@ -15,6 +15,8 @@
       integer junk(4)
 #endif
 c
+c     $Id: nwchem.F,v 1.40 1995-02-02 03:05:41 d3g681 Exp $
+c
       character*255 input_filename
 c
 c     Create parallel processes and initialize IPC layer
