@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.20 1996-07-02 19:25:02 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.21 1996-07-08 23:36:28 rg240 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -232,8 +232,7 @@ c
       parameter (maxcn = 1000)
       integer cn_to_ce(maxcn)
 c
-      logical fock_shell_logic, status
-      external fock_shell_logic
+      logical status
       double precision q2, qq4, sijat, sklat
 c
 c     Form q4 factors over atoms and mapping from shells to atoms
