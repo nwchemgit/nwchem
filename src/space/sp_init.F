@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.69 2000-05-12 18:20:35 d3j191 Exp $
+c $Id: sp_init.F,v 1.70 2000-05-12 19:57:07 d3j191 Exp $
 c
       implicit none
 c
@@ -501,7 +501,7 @@ c
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
       integer ili,ihi,jli,jhi,ilp,ihp,jlp,jhp
 c
-      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
+      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix,nsmr
       real*8 boxi(3)
       logical lforces
 c
@@ -511,6 +511,7 @@ c
 #endif
 c
       lpbc9=.true.
+      nsmr=0
 c
       if(me.eq.0) then
 c
@@ -771,14 +772,12 @@ c
  2009 format(16x,10i5)
   113 continue
       do 14 k=1,nums
+      if(nsmr.lt.ibs(k,2)) nsmr=ibs(k,2)
       if(nserie.eq.0) then
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
-      if(nsm.lt.ibs(k,2)) nsm=ibs(k,2)
       else
       if(nsf.lt.ibs(k,1))
      + call errquit('Error in number of solute fractions',nsf)
-      if(nsm.lt.ibs(k,2))
-     + call errquit('Error in number of solute molecules',nsm)
       endif
       if(.not.lforces) then
       bfs(k,1)=zero
@@ -894,6 +893,8 @@ c
    19 continue
       number=number+nums
    13 continue
+      if(nsm.ne.nsmr)
+     + call errquit('Error in number of solute molecules',nsm)
       endif
 c
       close(unit=lfnrst,status='keep')
