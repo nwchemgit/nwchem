@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.14 1994-10-20 23:27:58 d3e129 Exp $
+c $Id: exact_mem.F,v 1.15 1994-10-28 05:00:45 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -39,6 +39,8 @@ c
 *     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
 *           nbfmax = max(nbfmax,nbftest)
 c.... 2e 4 center
+*debug:    call emem_2e4c_full
+*debug:&           (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
            call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
            mem_2e4c = max(mem_2e4c, lmem_2e4c)
            isz_2e4c = max(isz_2e4c, lsz_2e4c)
@@ -274,7 +276,7 @@ c::local
       integer bra_type, ket_type, memdum
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
-      integer max_nbf_bra,max_nbf_ket
+      integer max_nbf_bra, max_nbf_ket
 c
       logical bra_cando_sp
       logical ket_cando_sp
@@ -323,6 +325,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
+*:debug   write(6,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           memdum = 9 000 000
@@ -333,6 +336,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
+*:debug   write(6,*)' exch ',ibc,ikc,ibc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
@@ -344,6 +348,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
+*:debug     write(6,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
             memdum = 9 000 000
@@ -354,7 +359,9 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
+*:debug     write(6,*)' bkkk ',ibc,ikc,ikc,ikc,memdum
             memsize = max(memsize,memdum)
+*:debug     write(6,*)' full ',memsize
           endif
 00201     continue
 00200   continue
@@ -368,6 +375,8 @@ c
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket
 c
+c... add 10% for abbc and abcc class shells not checked for
+      memsize = memsize + memsize/10
 *      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
@@ -448,6 +457,8 @@ c
       maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket
       maxg = max(maxg,(max_nbf_ket*max_nbf_ket*max_nbf_bra))
 c
+c... add 10% for safety
+      memsize = memsize + memsize/10
 *      write(6,'(a,i10)')'emem_2e3c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e3c: maxg    =',maxg
 c
@@ -527,10 +538,129 @@ c
 c
       maxg = max_nbf_bra*max_nbf_ket
 c
+c... add 10% for safety
+      memsize = memsize + memsize/10
 *      write(6,'(a,i10)')'emem_2e2c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e2c: maxg    =',maxg
 c
 *      stop 'tmp stop'
 c
       end
-
+      subroutine emem_2e4c_full(brain, ketin, maxg, memsize)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      integer nbf_from_ucont
+      external nbf_from_ucont
+      logical cando_sp_u
+      external cando_sp_u
+c::passed
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer maxg    ! [output] max size of 2e integrals buffer
+      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c::local
+      integer bra, ket, bra_ucont, ket_ucont, ibc, jbc, kbc, lbc
+      integer memdum
+      integer i_type, j_type, k_type, l_type
+      integer i_prim, j_prim, k_prim, l_prim
+      integer i_gen,  j_gen,  k_gen,  l_gen
+      integer max_nbf_bra,max_nbf_ket
+c
+      logical bra_cando_sp
+      logical ket_cando_sp
+c
+      memsize = 0
+      maxg = 0
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+      do 00100 ibc = 1, bra_ucont
+        i_type = infbs_cont(CONT_TYPE,ibc,bra)
+        i_prim = infbs_cont(CONT_NPRIM,ibc,bra)
+        i_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (i_type.lt.0) then
+          i_type = abs(i_type)
+          i_gen  = 1
+        endif
+c
+        do 00200 jbc = 1, ibc
+          j_type = infbs_cont(CONT_TYPE,jbc,bra)
+          j_prim = infbs_cont(CONT_NPRIM,jbc,bra)
+          j_gen  = infbs_cont(CONT_NGEN,jbc,bra)
+          if (j_type.lt.0) then
+            j_type = abs(j_type)
+            j_gen  = 1
+          endif
+          bra_cando_sp = cando_sp_u(brain,ibc,jbc)
+c
+          do 00300 kbc = 1, jbc
+            k_type = infbs_cont(CONT_TYPE,kbc,ket)
+            k_prim = infbs_cont(CONT_NPRIM,kbc,ket)
+            k_gen  = infbs_cont(CONT_NGEN,kbc,ket)
+            if (k_type.lt.0) then
+              k_type = abs(k_type)
+              k_gen  = 1
+            endif
+            do 00400 lbc = 1, kbc
+              l_type = infbs_cont(CONT_TYPE,lbc,ket)
+              l_prim = infbs_cont(CONT_NPRIM,lbc,ket)
+              l_gen  = infbs_cont(CONT_NGEN,lbc,ket)
+              if (l_type.lt.0) then
+                l_type = abs(l_type)
+                l_gen  = 1
+              endif
+              ket_cando_sp = cando_sp_u(ketin,kbc,jbc)
+              if (bra_cando_sp.and.ket_cando_sp) goto 00201
+c
+              memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
+              call hf2(
+     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
+     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
+     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
+     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
+     &            exndcf,1,.false.,.false.,.false.,
+     &            .true.,exndcf,memdum)
+              write(6,*)' coul ',ibc,jbc,kbc,lbc,memdum
+              memsize = max(memsize,memdum)
+c
+              memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
+              call hf2(
+     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
+     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
+     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
+     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
+     &            exndcf,1,.false.,.false.,.false.,
+     &            .true.,exndcf,memdum)
+              write(6,*)' exch ',ibc,jbc,kbc,lbc,memdum
+              memsize = max(memsize,memdum)
+              memsize = max(memsize,memdum)
+              write(6,*)' full ',memsize
+00201         continue
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+c
+      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+c
+      maxg = max_nbf_bra*max_nbf_bra
+      maxg = maxg*max_nbf_ket*max_nbf_ket
+c
+      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
+      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+c
+*      stop 'tmp stop'
+c
+      end
