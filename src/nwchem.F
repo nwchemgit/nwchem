@@ -92,132 +92,74 @@ c
       implicit none
       integer rtdb              ! [input] data base handle
 #include "rtdb.fh"
-c
-      call print_integs(rtdb, 'geometry','mo basis')
-c
-      if (.not. rtdb_print(rtdb, .true.))
-     $     call errquit('control: rtdb_print failed', 0)
-c
-      end
-      subroutine print_integs(rtdb, geom_name, basis_name)
-      implicit none
-#include "rtdb.fh"
-#include "geom.fh"
-#include "bas.fh"
 #include "inp.fh"
-      integer rtdb
-      character*(*) geom_name, basis_name
-      integer geom
-      integer basis
-      integer ncenter
-      integer icent, jcent, kcent, lcent
-      integer ish, jsh, ksh, lsh
-      integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
-      integer i, j, k, l, ijkl
-      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
-      double precision eri(256), xi(3), xj(3), xk(3), xl(3)
-      double precision qi, qj, qk, ql
-      character*16 tagi, tagj, tagk, tagl
+c     
+c     Drive the calculation.  Eventually this routine will hook up with the
+c     yet-to-be-written task module.  Right now task_input makes an rtdb
+c     entry task that comprises just the name of the routine to be called.
+c     If no task is present then perform some default action (exit).
+c     
+      character*255 task_name
+      integer ntasks, ind
+      logical status
+      parameter (ntasks = 5)
+      character*10 task_list(ntasks)
+      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf', ' '/
+c     
+      if (.not. rtdb_par_cget(rtdb, 'task', 1, task_name))
+     $     task_name = ' '
+c     
+      if (inp_match(ntasks, .false., task_name, task_list, ind)) then
+         
+         goto (10, 20, 30, 40, 50) ind
 c
-      if (.not. geom_create(geom, geom_name))
-     $     call errquit('print_integs: geom_create failed?', 0)
-      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
-     $     call errquit('print_integs: geom_load failed', 0)
-      if (.not. geom_print(geom))
-     $     call errquit('print_integs: geom_print failed', 0)
-      if (.not. bas_create(basis, basis_name))
-     $     call errquit('print_integs: basis create failed', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-     $      call errquit('print_integs: basis load failed', 0)
-      if (.not. bas_print(basis))
-     $      call errquit('print_integs: basis print failed', 0)
-      if (.not. gbs_map_print(basis))
-     $     call errquit('print_integs: gbs_map_print failed', 0)
+         write(6,*) ' Unimplemented task ', 
+     $        task_name(1:inp_strlen(task_name))
+         goto 1000
+c     
+c     rjhtest
+c     
+ 10      call rjhtest(rtdb)
+         goto 1000
+c     
+c     raktest
+c     
+ 20      call raktest(rtdb)
+         goto 1000
+c     
+c     rtdbprint
+c     
+ 30      if (.not. rtdb_print(rtdb, .true.))
+     $        call errquit('control: rtdb_print failed', 0)
+         goto 1001
+c     
+c     scf ... eventually there will be no such task name
+c     
+ 40      write(6,*) ' SCF not working yet'
+         goto 1000
 c
-      write(6,2) geom_name(1:inp_strlen(geom_name)),
-     $     basis_name(1:inp_strlen(basis_name))
- 2    format(/' Integrals for geometry "',a,'" with basis "',a,'"'/)
+c     Default task ... task_name is blank
 c
-c     Partially redundant four-fold loop thru centers
+ 50      goto 1000
 c
-      if (.not. geom_ncent(geom, ncenter))
-     $     call errquit('print_integs: geom_ncent failed', 0)
-      do icent = 1, ncenter
-         do jcent = 1, icent
-            do kcent = 1, icent
-               do lcent = 1, kcent
+      else
 c
-c     Figure out coords and contractions of each center
+         write(6,*) ' task_name = ', 
+     $        task_name(1:inp_strlen(task_name))
+         call errquit('control: unknown task name', 0)
+      endif
+c     
+c     Eventually this will be where the next task is identified
+c     
+ 1000 if (.not. rtdb_print(rtdb, .false.))
+     $     call errquit('control: rtdb_print failed', 0)
+ 1001 continue
 c
-                  if (.not. geom_cent_get(geom, icent, tagi, xi, qi))
-     $                 call errquit('print_integs: cent_get ?', icent)
-                  if (.not. geom_cent_get(geom, jcent, tagj, xj, qj))
-     $                 call errquit('print_integs: cent_get ?', jcent)
-                  if (.not. geom_cent_get(geom, kcent, tagk, xk, qk))
-     $                 call errquit('print_integs: cent_get ?', kcent)
-                  if (.not. geom_cent_get(geom, lcent, tagl, xl, ql))
-     $                 call errquit('print_integs: cent_get ?', lcent)
-c                  
-                  if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
-     $                 call errquit('print_integs: ce2cnr ?', icent)
-                  if (.not. bas_ce2cnr(basis, jcent, jshlo, jshhi))
-     $                 call errquit('print_integs: ce2cnr ?', jcent)
-                  if (.not. bas_ce2cnr(basis, kcent, kshlo, kshhi))
-     $                 call errquit('print_integs: ce2cnr ?', kcent)
-                  if (.not. bas_ce2cnr(basis, lcent, lshlo, lshhi))
-     $                 call errquit('print_integs: ce2cnr ?', lcent)
+c     Finished ... eventually need to track status of tasks so that
+c     restarts happen correctly.  For now assume that the task completed
+c     and delete task from the database so that a restart will have no
+c     effect.
 c
-c     Partially redundant four-fold loop thru contractions
-c
-                  do ish = ishlo, ishhi
-                     do jsh = jshlo, jshhi
-                        do ksh = kshlo, kshhi
-                           do lsh = lshlo, lshhi
-c
-c     Now compute the SP integrals over these shells
-c
-                              call genr70(
-     $                             basis, ish, xi, jsh, xj,
-     $                             basis, ksh, xk, lsh, xl,
-     $                             eri)
-c
-c     Print the integrals out
-c 
-                              if (.not. bas_cn2bfr(basis, ish, ilo,ihi))
-     $                             call errquit('print_integ: cn2bf?',0)
-                              if (.not. bas_cn2bfr(basis, jsh, jlo,jhi))
-     $                             call errquit('print_integ: cn2bf?',0)
-                              if (.not. bas_cn2bfr(basis, ksh, klo,khi))
-     $                             call errquit('print_integ: cn2bf?',0)
-                              if (.not. bas_cn2bfr(basis, lsh, llo,lhi))
-     $                             call errquit('print_integ: cn2bf?',0)
-c
-                              ijkl = 0
-                              do i = 1, ilo, ihi
-                                 do j = jlo, jhi
-                                    do k = klo, khi
-                                       do l = llo, lhi
-                                          ijkl = ijkl + 1
-                                          write(6,1) i,j,k,l,eri(ijkl)
-                                       enddo
-                                    enddo
-                                 enddo
-                              enddo
-                           enddo
-                        enddo
-                     enddo
-                  enddo
-               enddo
-            enddo
-         enddo
-      enddo
-c
- 1    format(4i6,f20.10)
-
-
-      if (.not. geom_destroy(geom))
-     $     call errquit('print_integs: geom_destroy failed', 0)
-      if (.not.bas_destroy(basis))
-     $     call errquit('print_integs: basis destroy failed', 0)
-c
+      status = rtdb_delete(rtdb, 'task') ! quietly discard the status
+c     
       end
