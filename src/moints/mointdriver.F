@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.39 1996-01-26 21:50:34 rg240 Exp $
+C$Id: mointdriver.F,v 1.40 1996-01-26 21:51:39 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -146,10 +146,10 @@ c
        occ_lo = occ_frozen + 1
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
-c$$$       vir_lo = nocc + 1
-c$$$       vir_hi = nbf - vir_frozen
-       vir_lo = 1
-       vir_hi = nbf
+       vir_lo = nocc + 1
+       vir_hi = nbf - vir_frozen
+c$$$       vir_lo = 1
+c$$$       vir_hi = nbf
        nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
        noper = occ_hi - occ_lo + 1

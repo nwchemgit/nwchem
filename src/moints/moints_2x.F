@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.13 1995-11-01 18:13:16 rg240 Exp $
+c  $Id: moints_2x.F,v 1.14 1996-01-26 21:50:55 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -355,10 +355,8 @@ c$$$     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
 
          t34jidx = tcgtime() - tz
-         itmp = nmo2
-         if (ohalf) itmp = nbf
          if (util_print('coulomb integral',print_debug))
-     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_coul)
+     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
        endif
 c
 c  Clean-up
