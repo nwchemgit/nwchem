@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.265 1998-08-24 18:42:47 d3e129 Exp $
+# $Id: makefile.h,v 1.266 1998-08-24 18:46:56 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1250,8 +1250,8 @@ endif
 
 # Preceding line has a tab to make an empty rule
 
-# a .F.f rule is needed for any target where the default .F.f rule does not work.
-# and EXPLICITF is not already true.  Right now this is only LINUX with g77
+# a .F.f rule is needed for any system target where the default .F.f rule does not work
+# AND the EXPLICITF is not already true.  Right now this is only LINUX with g77
 ifeq ($(TARGET),LINUX)
 .F.f:
 	$(FC) -c $(FFLAGS) -E $(CPPFLAGS) $< -o $*.f
