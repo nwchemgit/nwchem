@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.14 1999-12-30 22:22:28 mg201 Exp $
+c $Id: intd_1eov.F,v 1.15 2000-01-25 20:03:24 mg201 Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -70,6 +70,7 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
+#include "geom.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
@@ -131,6 +132,7 @@ c::local
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom,jsbas,jcfS
       logical any_spherical
       logical orel, oirel, ojrel, oNR
+      logical ohnd_ok, onw_ok
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
@@ -179,12 +181,12 @@ c
 c
 c     check for relativistic shell
 c
-      if (orel .and. (infbs_cont(CONT_RELLS ,ucont,ibas) .ne. 0)) then
+      if (orel .and. (infbs_cont(CONT_RELLS,ucont,ibas) .ne. 0)) then
         oirel = .true.
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'intd_1eov: no relativistic pointer',911)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -200,7 +202,7 @@ c
       icf   = infbs_cont(CONT_ICFP,ucont,ibas)
       itype = infbs_cont(CONT_TYPE,ucont,ibas) 
       igeom = ibs_geom(ibas)
-      icfS  = infbs_cont(CONT_ICFP ,uconts,isbas)
+      icfS  = infbs_cont(CONT_ICFP,uconts,isbas)
 c
 c   j shell
 c
@@ -213,7 +215,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'intd_1eov: no relativistic pointer',911)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -240,61 +242,63 @@ c
         call errquit('intd_1eovP: geom error ',911)
       endif
 c
-      if (cando_nw(i_basis,ish,0).and.
-     &        cando_nw(j_basis,jsh,0)) then
-        if (orel) then
-          call rel_oneld (
-     &        coords(1,iatom,igeom),
-     &        dbl_mb(mb_exndcf(iexp,ibas)),
-     &        dbl_mb(mb_exndcf(icf,ibas)),
-     &        dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
-     &        coords(1,jatom,jgeom),
-     &        dbl_mb(mb_exndcf(jexp,jbas)),
-     &        dbl_mb(mb_exndcf(jcf,jbas)),
-     &        dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
-     &        coords(1,1,igeom),charge(1,igeom),
-     &        geom_invnucexp(1,igeom),ncenter(igeom),
-c........................       doS   doT    doV    canAB  nonrel   
-     &        Ova,scr,scr,nint,.true.,.false.,.false.,.false.,oNR,
-c............. dryrun
-     &        .false.,scr,lscr,rel_dbg,rel_typ)
-        else
-          call hf1d(
-     &        coords(1,iatom,igeom),
-     &        dbl_mb(mb_exndcf(iexp,ibas)),
-     &        dbl_mb(mb_exndcf(icf,ibas)),
-     &        inp,igen,itype,iatom,
+      ohnd_ok = cando_hnd_1e(i_basis,ish,0)
+     &    .and. cando_hnd_1e(j_basis,jsh,0)
+     &    .and. (.not.geom_any_finuc (igeom))
+     &    .and. (.not.geom_any_finuc (jgeom))
+      onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
 c
-     &        coords(1,jatom,jgeom),
-     &        dbl_mb(mb_exndcf(jexp,jbas)),
-     &        dbl_mb(mb_exndcf(jcf,jbas)),
-     &        jnp,jgen,jtype,jatom,
+      if (orel) then
+        call rel_oneld (
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
+     &      coords(1,1,igeom),charge(1,igeom),
+     &      geom_invnucexp(1,igeom),ncenter(igeom),
+c........................       doS   doT    doV    canAB     
+     &      Ova,scr,scr,nint,.true.,.false.,.false.,.false.,onw_ok,
+c...........       nonrel dryrun
+     &      ohnd_ok,oNR,.false.,scr,lscr,rel_dbg,rel_typ)
+      else if (onw_ok) then
+        call hf1d(
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      inp,igen,itype,iatom,
 c
-     &        coords(1,1,igeom),charge(1,igeom),
-     &        geom_invnucexp(1,igeom),ncenter(igeom),
-     &        Ova,scr,scr,nint,
-c.............overlap, k-e,     pot-e,    canab,  dryrun
-     &        .true.,  .false., .false., .false., .false.,
-     &        scr,lscr)
-        end if
-      elseif (cando_hnd_1e(i_basis,ish,0).and.
-     &      cando_hnd_1e(j_basis,jsh,0).and. .not.dyall_mod_dir) then
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      jnp,jgen,jtype,jatom,
+c
+     &      coords(1,1,igeom),charge(1,igeom),
+     &      geom_invnucexp(1,igeom),ncenter(igeom),
+     &      Ova,scr,scr,nint,
+c...........overlap, k-e,     pot-e,    canab,  dryrun
+     &      .true.,  .false., .false., .false., .false.,
+     &      scr,lscr)
+      elseif (ohnd_ok) then
         call hnd_stvintd(
-     &       coords(1,iatom,igeom),
-     &       dbl_mb(mb_exndcf(iexp,ibas)),
-     &       dbl_mb(mb_exndcf(icf,ibas)),
-     &       inp,igen,itype,iatom,
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      inp,igen,itype,iatom,
 c
-     &       coords(1,jatom,jgeom),
-     &       dbl_mb(mb_exndcf(jexp,jbas)),
-     &       dbl_mb(mb_exndcf(jcf,jbas)),
-     &       jnp,jgen,jtype,jatom,
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      jnp,jgen,jtype,jatom,
 c
-     &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
-     &       Ova,scr,scr,nint,
+     &      coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
+     &      Ova,scr,scr,nint,
 c............overlap, k-e,     pot-e,
-     &       .true.,  .false., .false., 
-     &       scr,lscr)
+     &      .true.,  .false., .false., 
+     &      scr,lscr)
       else
         call errquit('intd_1eov: could not do hnd or nw integrals',
      &                0)

@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.17 1999-12-30 22:22:28 mg201 Exp $
+C $Id: intd_1eh1.F,v 1.18 2000-01-25 20:03:23 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -97,6 +97,7 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
+#include "geom.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
@@ -131,6 +132,7 @@ c::local
 c
       logical any_spherical
       logical orel, oirel, ojrel, oNR
+      logical ohnd_ok, onw_ok
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
@@ -155,6 +157,10 @@ c
       orel = .false.
 c
       if (dyall_mod_dir) then
+c
+c     get basis set handles; relativistic integral option only valid
+c     if both ibas and jbas are the ao basis.
+c
         lbas = lc_bsh + BASIS_HANDLE_OFFSET
         sbas = sc_bsh + BASIS_HANDLE_OFFSET
         abas = ao_bsh + BASIS_HANDLE_OFFSET
@@ -172,7 +178,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'intd_1eh1: no relativistic pointer',911)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -202,7 +208,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'intd_1eh1: no relativistic pointer',911)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -235,62 +241,64 @@ c
       else
         doT = .true.
       endif
-        
-       if (cando_nw(i_basis,ish,0).and.
-     &          cando_nw(j_basis,jsh,0)) then
-        if (orel) then
-          call rel_oneld (
-     &        coords(1,iatom,igeom),
-     &        dbl_mb(mb_exndcf(iexp,ibas)),
-     &        dbl_mb(mb_exndcf(icf,ibas)),
-     &        dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
-     &        coords(1,jatom,jgeom),
-     &        dbl_mb(mb_exndcf(jexp,jbas)),
-     &        dbl_mb(mb_exndcf(jcf,jbas)),
-     &        dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
-     &        coords(1,1,igeom),charge(1,igeom),
-     &        geom_invnucexp(1,igeom),ncenter(igeom),
-c........................       doS   doT    doV    canAB  nonrel   
-     &        scr,Ta,H1a,nint,.false.,doT,.true.,.false.,oNR,
-c............. dryrun
-     &        .false.,scr,lscr,rel_dbg,rel_typ)
-        else
-          call hf1d(
-     &         coords(1,iatom,igeom),
-     &         dbl_mb(mb_exndcf(iexp,ibas)),
-     &         dbl_mb(mb_exndcf(icf,ibas)),
-     &         inp,igen,itype,iatom,
 c
-     &         coords(1,jatom,jgeom),
-     &         dbl_mb(mb_exndcf(jexp,jbas)),
-     &         dbl_mb(mb_exndcf(jcf,jbas)),
-     &         jnp,jgen,jtype,jatom,
+      ohnd_ok = cando_hnd_1e(i_basis,ish,0)
+     &    .and. cando_hnd_1e(j_basis,jsh,0)
+     &    .and. (.not.geom_any_finuc (igeom))
+     &    .and. (.not.geom_any_finuc (jgeom))
+      onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
+c        
+      if (orel) then
+        call rel_oneld (
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      dbl_mb(mb_exndcf(icfS,isbas)),inp,igen,itype,iatom,
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
+     &      coords(1,1,igeom),charge(1,igeom),
+     &      geom_invnucexp(1,igeom),ncenter(igeom),
+c........................     doS   doT  doV    canAB  
+     &      scr,Ta,H1a,nint,.false.,doT,.true.,.false.,onw_ok,
+c...........       nonrel dryrun
+     &      ohnd_ok,oNR,.false.,scr,lscr,rel_dbg,rel_typ)
+      else if (onw_ok) then
+        call hf1d(
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      inp,igen,itype,iatom,
 c
-     &         coords(1,1,igeom),charge(1,igeom),
-     &         geom_invnucexp(1,igeom),ncenter(igeom),
-     &         scr,Ta,H1a,nint,
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      jnp,jgen,jtype,jatom,
+c
+     &      coords(1,1,igeom),charge(1,igeom),
+     &      geom_invnucexp(1,igeom),ncenter(igeom),
+     &      scr,Ta,H1a,nint,
 c..............overlap, k-e,  pot-e,  canab,   dryrun
-     &         .false., doT, .true., .false., .false.,
-     &         scr,lscr)
-        end if
-      elseif (cando_hnd_1e(i_basis,ish,0).and.
-     &  cando_hnd_1e(j_basis,jsh,0).and. .not.dyall_mod_dir) then
+     &      .false., doT, .true., .false., .false.,
+     &      scr,lscr)
+      elseif (ohnd_ok) then
         call hnd_stvintd(
-     &       coords(1,iatom,igeom),
-     &       dbl_mb(mb_exndcf(iexp,ibas)),
-     &       dbl_mb(mb_exndcf(icf,ibas)),
-     &       inp,igen,itype,iatom,
+     &      coords(1,iatom,igeom),
+     &      dbl_mb(mb_exndcf(iexp,ibas)),
+     &      dbl_mb(mb_exndcf(icf,ibas)),
+     &      inp,igen,itype,iatom,
 c
-     &       coords(1,jatom,jgeom),
-     &       dbl_mb(mb_exndcf(jexp,jbas)),
-     &       dbl_mb(mb_exndcf(jcf,jbas)),
-     &       jnp,jgen,jtype,jatom,
+     &      coords(1,jatom,jgeom),
+     &      dbl_mb(mb_exndcf(jexp,jbas)),
+     &      dbl_mb(mb_exndcf(jcf,jbas)),
+     &      jnp,jgen,jtype,jatom,
 c
-     &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
-     &       scr,Ta,H1a,nint,
+     &      coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
+     &      scr,Ta,H1a,nint,
 c............overlap, k-e,     pot-e,
-     &       .false.,  doT, .true.,
-     &       scr,lscr)
+     &      .false.,  doT, .true.,
+     &      scr,lscr)
       else
         call errquit('intd_1eh1: could not do hnd or nw integrals',
      &                0)
