@@ -153,7 +153,7 @@ c
       if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
       if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
-     $     oe2approx = .true.
+     $     oe2approx = .false.
       if (.not.rtdb_get(rtdb,'mcscf:cisolve',MT_LOG,1,ocisolve))
      $     ocisolve = .true.
       if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
@@ -324,14 +324,14 @@ c
       g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
       if (.not.rtdb_get(rtdb,'mcscf:aoblock',MT_LOG,1,oblk)) then
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
-     $        oblk = .false.
+     $        oblk = .true.
       endif
 c
 c  4-Index disk caching info
 c
       if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, oaodisk)) then
         if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
-     $                    1, oaodisk)) oaodisk = .false.
+     $                    1, oaodisk)) oaodisk = .true.
       endif
       if (.not.rtdb_get(rtdb, 'mcscf:aoreuse',MT_LOG,1,oaoreuse)) then
         if (.not.rtdb_get(rtdb,'fourindex:oaoreuse', MT_LOG,
