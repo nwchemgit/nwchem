@@ -1,5 +1,5 @@
 /*
- $Id: mgs4.c,v 1.2 1999-07-28 00:39:27 d3e129 Exp $
+ $Id: mgs4.c,v 1.3 2000-02-28 21:41:45 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -49,8 +49,8 @@
    */
 
 void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
-     Integer *n, *mapF, *b1, *bn, *nvecsZ, *first, *iscratch;
-     DoublePrecision **colF, *first_buf, *scratch;
+     Integer *n, mapF[], *b1, *bn, *nvecsZ, *first, iscratch[];
+     DoublePrecision **colF, first_buf[], scratch[];
 {
   /*
    */
@@ -68,7 +68,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
      scratch = double precision scratch space
      */
   
-  static Integer IONE = 1;
+  static Integer IONE = 1, MONE=(DoublePrecision) -1.0e0;
   Integer jndx, vec_len;
   Integer i, k, me, isize, indx, kndx;
   Integer nvecs_in, nvecs, iii;
@@ -161,7 +161,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     for ( jndx = k; jndx < k + nvecs; jndx++ ){
 	dptr = &colF[jndx][bb];
 	t = dnrm2_( &vec_len, dptr, &IONE );
-	t = 1.0e0/t;
+	t = (DoublePrecision) 1.0e0/t;
 	dscal_( &vec_len, &t, dptr, &IONE);
 	for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
 	  dptr1 = &colF[indx][bb];
@@ -253,7 +253,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 	  dscal_( &vec_len, &t, dptr, &IONE);
 	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
 	    dptr1 = &colF[indx][bb];
-	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	    t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	    t *= MONE;
 	    daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
 	  }
         }
@@ -282,7 +283,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
           dptr = &colF[iii][bb];
           dptr1 = in_buffer;
           for ( jndx = 0; jndx < mvecs; jndx++ ){
-            t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+            t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+	    t *= MONE;
             daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
             dptr1 += vec_len;
           }
@@ -304,7 +306,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
       dscal_( &vec_len, &t, dptr, &IONE);
       for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
         dptr1 = &colF[indx][bb];
-        t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+        t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	t *= MONE;
         daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
       }
     }

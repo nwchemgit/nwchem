@@ -1,5 +1,5 @@
 /*
- $Id: shellsort.c,v 1.2 1999-07-28 00:39:36 d3e129 Exp $
+ $Id: shellsort.c,v 1.3 2000-02-28 21:41:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -61,7 +61,7 @@ void gshellsort_ (n, v)
 }
 void dshellsort2_(n, v, indx )
      Integer         *n, *indx;
-     DoublePrecision *v; 
+     DoublePrecision v[]; 
 {
   Integer gap, i, j, itemp;
   Integer ndim; 
@@ -85,7 +85,7 @@ void dshellsort2_(n, v, indx )
 }
 void dshellsort_(n, v )
      Integer         *n;
-     DoublePrecision *v; 
+     DoublePrecision v[]; 
 {
   Integer gap, i, j;
   Integer ndim; 

@@ -1,5 +1,5 @@
 /*
- $Id: clustrfix.c,v 1.8 1999-11-04 22:41:36 d3g270 Exp $
+ $Id: clustrfix.c,v 1.9 2000-02-28 21:41:43 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -362,7 +362,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
       }
     }
   }
-
+  
   jjj =0;
   for ( iii = 0; iii < num_cls; iii++ ) {
     printf(" cptr c1 %d cn  %d b1 %d bn %d \n", clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++]);
@@ -371,7 +371,9 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   *num_clustr = num_cls;
   
   return(max_clustr_size);
-    
+  
+
+  
 }
 
 

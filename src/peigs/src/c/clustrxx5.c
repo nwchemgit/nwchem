@@ -85,17 +85,17 @@
   */
 #define CLUSTRLEN  4
 #define LOOP  3
-#define INV_TIME 3
+#define INV_TIME 2
 #define ITIME1  2
 
 Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
-		    eval, schedule, num_clustr, mapZ,
+		    eval, r_eval, schedule, num_clustr, mapZ,
 		    mapvecZ, vecZ, imin, nacluster,
 		    icsplit, iscratch, scratch)
-     Integer *n, *schedule, *num_clustr, *mapZ,
+     Integer *n, *schedule, *num_clustr, mapZ[],
   *mapvecZ, *imin, *nacluster, *icsplit, *iscratch;
-     DoublePrecision *d, *e, *ld, *lld, *eval, **vecZ,
-  *scratch, *dplus, *lplus;
+     DoublePrecision d[], e[], ld[], lld[], eval[], r_eval[], **vecZ,
+  scratch[], dplus[], lplus[];
 {
   /*
     n = dimension of the tridiagonal matrix
@@ -111,20 +111,21 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     returns the number of eigenvector that this processor holds
     */
   
-  static Integer three = 3, IONE = 1;
-  Integer indx, i, j, iseed[4], bb1, bn, jjj;
+  static Integer three = 3, IONE = 1, IZERO=0, it_count;
+  Integer indx, i, j, iseed[4], bb1, bn;
+  Integer jjj;
   Integer blksiz, clustr_ptr, cn;
   Integer me, naproc, Zvec;
   Integer *cl_ptr;
   Integer c1, csiz, xc1, xcsiz, xblksiz;
-  Integer cl_num;
-  Integer itime;
+  Integer cl_num, r_error, v_error;
+  Integer itime, msize;
   Integer send_num, send_cl, send_to,
           recv_num, recv_cl, recv_from,
           myindx, ime, itype, nvecs, isize, ival, first, ibad, itmp;
   
   DoublePrecision stpcrt, onenrm, eps;
-  DoublePrecision tmp, *dscrat, *first_buf;
+  DoublePrecision tmp, *dscrat, *first_buf, *dptr1, *dptr11, *dptr12;
   
   
   extern void xerbla_();
@@ -135,7 +136,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   extern void mgspnl_(), dscal_(), dlagts_();
   extern void dcopy_(), daxpy_();
   extern Integer count_list ();
-  extern Integer inv_it();
+  extern Integer inv_it3(), inverm_();
   extern void mgs ();
   extern void fil_dbl_lst ();
   
@@ -145,62 +146,28 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   
   me = mxmynd_();
   naproc = mxnprc_();
+  msize = *n;
 
   ibad = 0;
 
   dscrat = scratch;
 
-#ifdef DEBUG5
-
-  if( me == mapZ[0] ){
-    printf(" nacluster = %d \n", *nacluster );
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-      if( cn > c1 ) 
-        printf( " cluster[%d] = %d to %d  owned by %d to %d \n",
-		j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-    for( j = 0; j < *n; j++ )
-      printf( " eval[%d] = %g \n", j, eval[j]);
-    for( j = 0; j < *n; j++ )
-      printf( " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
-  }
-  mxsync_();
-  exit(-1);
-#endif
-#ifdef DEBUG1
-  fprintf(stderr, " in clustrxx me = %d \n", me );
-
-  if( me == mapZ[0] ){
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-  }
-#endif
-  
   /*
     Get machine constants. should set this up somewhere to call it only once
     */
-
+  
   eps = DLAMCHE;
   
   /*
     Initialize seed for random number generator DLARND.
     how about randomizing the randomness?
-    */
+  */
   
   blksiz = 1;
   for (i = 0; i < 4; ++i)
     iseed[i] = 1;
   
-  iseed[3] = 2*me+1;
+  iseed[3] = 1;
   
   /*
     Compute eigenvectors of matrix blocks.
@@ -430,7 +397,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       onenrm = max(onenrm, tmp );
     }
     
-    stpcrt = sqrt((DoublePrecision ) 1.0e-1 / (DoublePrecision ) blksiz);
+    stpcrt = 10.*sqrt((DoublePrecision ) 1.0e-1 / (DoublePrecision ) blksiz);
     
     indx = 0;
     if ( csiz > 1 ){
@@ -441,16 +408,20 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	  
 	  /*
 	    Initialize vector to zero.
-	  */
+	    */
 	  
 	  for ( jjj = 0; jjj < bb1; jjj++ )
-	    vecZ[i][jjj] = 0.0;
+	    vecZ[i][jjj] = 0.0e0;
 	  
 	  /*
 	    fill with random entries
-	  */
+	    */
 	  
-	  dlarnv_(&three, iseed, &blksiz, &vecZ[i][bb1]);
+	  dlarnv_(&IONE, iseed, &blksiz, &vecZ[i][bb1]);
+	  
+          for ( jjj = bn; jjj < msize; jjj ++ )
+	    vecZ[i][jjj] = 0.0e0;
+	  
 	  indx++;
 	}
       }
@@ -469,9 +440,34 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       */
 
     if ( csiz == 1 ){
-      itmp = inv_it5( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ,
-		      dplus, lplus, ld, lld, eval, &eps, &stpcrt,\
-		      &onenrm, iscratch, dscrat);
+      msize = *n;
+      
+      for ( jjj = 0; jjj < bb1; jjj++ )
+	vecZ[Zvec][jjj] = 0.0;
+      for ( jjj = bb1; jjj < bn; jjj++ )
+	vecZ[Zvec][jjj] = 1.0;
+      for ( jjj = bn; jjj < msize; jjj++ )
+	vecZ[Zvec][jjj] = 0.0;
+      
+      itmp = inv_it3( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+      
+      /*
+	itmp = inv_it5( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ,
+	dplus, lplus, ld, lld, eval, &eps, &stpcrt,\
+	&onenrm, iscratch, dscrat);
+*/
+
+/*
+  dcopy_(&msize, d, &IONE, dscrat, &IONE);
+      dptr11 = dscrat + 11*msize/8 + 12;
+      dcopy_(&msize, e, &IONE, dptr11 , &IONE);
+      dptr12 = dptr11+ 11*msize/8 + 12;
+      
+      it_count = 3;
+      inverm_( dscrat, dptr11, dptr12, dptr12 + msize + msize + 12 , &eval[c1],
+      &r_error, &v_error, &eps, &vecZ[Zvec][0], &msize, &it_count, &IZERO);
+      dcopy_(&n, dptr12 + msize + msize + 12, &IONE, vecZ[Zvec], &IONE);
+*/
     }
     else {
       /*
@@ -480,29 +476,12 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       
       itime = 2;
       
-      /*
-	printf(" fine clustr csiz = %d  c1 = %d cn = %d \n", csiz, c1, cn );
-      */
-      
       for ( j = 0; j < INV_TIME; j++ ) {
 	/*
 	  itmp = inv_it4( &j, n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, dplus, lplus, ld, lld, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
 	*/
 	
-#ifdef DEBUG
-	printf(" inv_it3 me = %d before inv_it3 \n", me );
-	fflush(stdout);
-#endif
-	/*
-	  old tridiagonal inverse iteration
-	*/
-	
-	itmp = inv_it3( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
-	
-#ifdef DEBUG
-	printf(" inv_it3 me = %d after inv_it3 \n", me );
-	fflush(stdout);
-#endif
+	  itmp = inv_it3( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
 	
 	if( itmp >  0 )
 	  if( ibad == 0 || itmp < ibad ) 
@@ -510,6 +489,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	
 	for ( i = 0; i < itime ; i++ )
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
+	
 	itime = itime-1 ;
       }
     }
@@ -532,10 +512,10 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
-
+	
         nvecs  = count_list( recv_from, &mapZ[xc1], &xcsiz);
         isize = sizeof( DoublePrecision ) * xblksiz * nvecs;
-
+	
         first_buf = dscrat;
         dscrat += nvecs * xblksiz;
 

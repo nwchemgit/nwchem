@@ -1,5 +1,5 @@
 /*
- $Id: mxm25.c,v 1.3 1999-07-28 00:39:28 d3e129 Exp $
+ $Id: mxm25.c,v 1.4 2000-02-28 21:41:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -38,8 +38,8 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
 void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
-     Integer *n1, *n2, *mapQ, *m, *mapW, *iwork;
-     DoublePrecision **rowQ, **colW, **colZ, *work;
+     Integer *n1, *n2, mapQ[], *m, mapW[], iwork[];
+     DoublePrecision **rowQ, **colW, **colZ, work[];
 
 /**************************************************************
  *
@@ -204,10 +204,6 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
   
   indx = l1 + *m ;
   
-  /*
-    nprocs = reduce_list( indx, &ijunk[0], proclist);
-    */
-  
   nprocs = reduce_list2( indx, &ijunk[0], proclist);
   gshellsort_( &nprocs, proclist);
   
@@ -368,8 +364,6 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
 #endif
 
       indx = proclist[indx]; /* the current processor id number */
-
-
       isize = fil_mapvec_( &indx, &l1, mapQ, mapvec_in);
       nvecsQ = isize;
       isize *= l2;

@@ -1,5 +1,5 @@
 /*
- $Id: inv_it3.c,v 1.7 2000-02-22 20:32:40 d3g270 Exp $
+ $Id: inv_it3.c,v 1.8 2000-02-28 21:41:45 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -54,14 +54,14 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
 
 #include "clustr_inv.h"
 
-#define    ITS   3
-#define    MAXITR 100
+#define    ITS   2
+#define    MAXITR 5
 extern DoublePrecision psigma, psgn;
 
 
 Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps, stpcrt, onenrm, iwork, work)
-     Integer *n, *c1, *cn, *b1, *bn, *Zbegin, *map, *mapvec, *iwork;
-     DoublePrecision *d, *e, **vector, *eval, *work, *eps, *stpcrt, *onenrm;
+     Integer *n, *c1, *cn, *b1, *bn, *Zbegin, map[], mapvec[], iwork[];
+     DoublePrecision d[], e[], **vector, eval[], work[], *eps, *stpcrt, *onenrm;
      /*
        this routine performs inverse iteration on *n vectors given by map[0:*n-1]
        and whose storage location on each processor is given by mm
@@ -203,20 +203,8 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
       tol = ZERO;
       
       
-      /*
-	for (indx22  = 0; indx22 < blksz; indx22++ ) {
-	fprintf(stderr, "before ptr[%d] = %g \n", indx22, ptr[indx22]);
-	}
-	*/
-      
       dlagts_( &IMINUSONE, &blksz, &work[indrv4], &work[ indrv2 + 1],
 	       &work[indrv3], &work[indrv5], &iwork[0], ptr, &tol, &info);
-      
-      /*
-	for ( indx22 = 0; indx22 < blksz; indx22++ ) {
-	fprintf(stderr, "ptr[%d] = %g \n", indx22, ptr[indx22]);
-	}
-      */
       
       jmax = idamax_(&blksz, ptr, &IONE);
       nrm = fabs( *(ptr + jmax - 1 ) );

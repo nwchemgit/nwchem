@@ -1,5 +1,5 @@
 /*
- $Id: mgs5.c,v 1.10 1999-07-28 00:39:27 d3e129 Exp $
+ $Id: mgs5.c,v 1.11 2000-02-28 21:41:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -35,6 +35,7 @@
 #include <memory.h>
 #include <math.h>
 
+#include "blas_lapack.h"
 #include "globalp.c.h"
 
 #define PANELSIZE 5
@@ -42,7 +43,7 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #define ffabs(a) ((a) > (0.) ? (a) : (-a))
-#define sgn(a) ((a) > (0.) ? (1.e0) : (-1.e0))
+#define sgn(a) ((a) >= (0.) ? (1.e0) : (-1.e0))
 
 /*
    Internal PeIGS routine
@@ -51,8 +52,8 @@
    */
 
 void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
-     Integer *n, *mapF, *b1, *bn, *nvecsZ, *first, *iscratch;
-     DoublePrecision **colF, *first_buf, *scratch;
+     Integer *n, mapF[], *b1, *bn, *nvecsZ, *first, iscratch[];
+     DoublePrecision **colF, first_buf[], scratch[];
 {
   
   /*
@@ -67,7 +68,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
      scratch = double precision scratch space
      */
   
-  static Integer IONE = 1;
+  static Integer IONE = 1, MONE = (DoublePrecision) -1.0e0;
   Integer jndx, vec_len;
   Integer i, k, me, isize, indx;
   Integer nvecs_in, nvecs, iii;
@@ -85,6 +86,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 
   extern void dcopy_(), daxpy_(), dscal_();
   extern DoublePrecision ddot_();
+  extern DoublePrecision gdot_();
   extern DoublePrecision dnrm2_();
 
   extern void bbcast00();
@@ -113,7 +115,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
    
    fprintf(stderr, " \n" );
    for( iii = 0; iii < *n; iii++)
-     fprintf(stderr, " mgs1b me = %d mapZ[%d] = %d \n", me, iii, mapF[iii]);
+     fprintf(stderr, " mgs5 me = %d mapZ[%d] = %d \n", me, iii, mapF[iii]);
 #endif
    
    nvecs = count_list( me, mapF, n );
@@ -149,96 +151,97 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
        dscal_( &vec_len, &t, dptr, &IONE);
        for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
 	 dptr1 = &colF[indx][bb];
-	 t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	   daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	 t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	 t *= MONE;
+	 daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
        }
      }
      return;
-  }
-      
-  k = *nvecsZ;
-
-  buffer = (DoublePrecision *) scratch;
-  in_buffer = buffer;
-
-  /*
-   *  MGS my part of cluster against the first part of the cluster,
-   *  which is stored in first_buf.
-   */
-
-  nvecs_in = count_list( proclist[0], mapF, n );
-
-  if( me == proclist[1] ) {
-    isize = vec_len * nvecs_in;
-    dcopy_( &isize, first_buf, &IONE, in_buffer, &IONE);
-  }
-
-  if( nproc > 2 ) {
-    rsize = nvecs_in * vec_len * sizeof(DoublePrecision);
-      
-    if ( rsize != 0 )
-      bbcast00( (char *) in_buffer, rsize, 999,  proclist[1],
-                nproc-1, &proclist[1] );    
-  }
-
-  dptr = in_buffer;
-  for ( iii = k; iii < k + nvecs; iii++ ){
-    dptr = &colF[iii][bb];
-    dptr1 = in_buffer;
-    for ( jndx = 0; jndx < nvecs_in; jndx++ ){
-      t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-	daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
-      dptr1 += vec_len;
-    }
-  }
-
-  /* 
-   * MGS the rest of the cluster.
-   */
-
-  me_indx = indxL( me, nproc, proclist);
-  
-  /* 
-   * Determine maximum number of panels owned by
-   * any processor in this cluster
-   */
-
-  max_vecs = 0;
-  for ( i = 1; i < nproc; i++ ) {
-    kk       = count_list( proclist[i], mapF, n );
-    nleft[i] = kk;
-    max_vecs = max( max_vecs, kk );
-  }
-  
-  max_panel = max_vecs / PANELSIZE;
-  if( max_panel * PANELSIZE != max_vecs )
-    max_panel++;
-
-  kk = k;
-  for ( iter = 0; iter < max_panel; iter++ ){
-
-    for( i = 1; i < nproc; i++ ) {
-    
-      mvecs = min( nleft[i], PANELSIZE );
-
-      if ( mvecs == 0 ) 
-        continue;
-
-      nleft[i] -= mvecs;
-
-      if ( me_indx == i ) {
-      
+   }
+   
+   k = *nvecsZ;
+   
+   buffer = (DoublePrecision *) scratch;
+   in_buffer = buffer;
+   
+   /*
+    *  MGS my part of cluster against the first part of the cluster,
+    *  which is stored in first_buf.
+    */
+   
+   nvecs_in = count_list( proclist[0], mapF, n );
+   
+   if( me == proclist[1] ) {
+     isize = vec_len * nvecs_in;
+     dcopy_( &isize, first_buf, &IONE, in_buffer, &IONE);
+   }
+   
+   if( nproc > 2 ) {
+     rsize = nvecs_in * vec_len * sizeof(DoublePrecision);
+     
+     if ( rsize != 0 )
+       bbcast00( (char *) in_buffer, rsize, 999,  proclist[1],
+		 nproc-1, &proclist[1] );    
+   }
+   
+   dptr = in_buffer;
+   for ( iii = k; iii < k + nvecs; iii++ ){
+     dptr = &colF[iii][bb];
+     dptr1 = in_buffer;
+     for ( jndx = 0; jndx < nvecs_in; jndx++ ){
+       t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+       t *= MONE;
+       daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+       dptr1 += vec_len;
+     }
+   }
+   
+   /* 
+    * MGS the rest of the cluster.
+    */
+   
+   me_indx = indxL( me, nproc, proclist);
+   
+   /* 
+    * Determine maximum number of panels owned by
+    * any processor in this cluster
+    */
+   
+   max_vecs = 0;
+   for ( i = 1; i < nproc; i++ ) {
+     kk       = count_list( proclist[i], mapF, n );
+     nleft[i] = kk;
+     max_vecs = max( max_vecs, kk );
+   }
+   
+   max_panel = max_vecs / PANELSIZE;
+   if( max_panel * PANELSIZE != max_vecs )
+     max_panel++;
+   
+   kk = k;
+   for ( iter = 0; iter < max_panel; iter++ ){
+     for( i = 1; i < nproc; i++ ) {
+       mvecs = min( nleft[i], PANELSIZE );
+       if ( mvecs == 0 ) 
+	 continue;
+       nleft[i] -= mvecs;
+       if ( me_indx == i ) {
         for ( jndx = kk; jndx < kk + mvecs; jndx++ ){
  	  dptr = &colF[jndx][bb];
  	  t = dnrm2_( &vec_len, dptr, &IONE );
-	  t = 1.0e0/t;
+	if ( t != 1.0e0 ) {
+	  t = (DoublePrecision) 1.0e0/t;
 	  dscal_( &vec_len, &t, dptr, &IONE);
+	}
 	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
 	    dptr1 = &colF[indx][bb];
-	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	      daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	    t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	   if ( fabs(t) > DLAMCHE ) {
+	    t *= MONE;
+	    daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
+	}
 	  }
-        }
+	}
 	
         /* load up buffer */
 	
@@ -247,12 +250,12 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 	  dcopy_( &vec_len, &colF[indx][bb], &IONE, dptr, &IONE);
 	  dptr += vec_len;
         }
-
+	
         kk += mvecs;
-      }
-
+       }
+      
       rsize = mvecs * vec_len * sizeof(DoublePrecision);
-
+      
       bbcast00( (char *) in_buffer, rsize, 888,  proclist[i],
                 nproc-1, &proclist[1] );    
       
@@ -265,28 +268,17 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
         dptr = &colF[iii][bb];
         dptr1 = in_buffer;
         for ( jndx = 0; jndx < mvecs; jndx++ ){
-          t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-	    daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+          t = ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+	if ( fabs(t) > DLAMCHE ) {
+	  t *= MONE;
+	  daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+	}
           dptr1 += vec_len;
-        }
+	}
       }
-    }
-  }
-  
-#ifdef DEBUG2
-  i = *nvecsZ-1;
-  for( iii = 0; iii < *n; iii++)
-    if( mapF[iii] == me ) {
-      i++;
-      for( j = *b1; j <= *bn; j++)
-       fprintf(stderr, " mgs1b me = %d vecZ[%d][%d] = %g \n",
-                     me, iii, j, colF[i][j]);
-    }
-  fprintf(stderr, " \n" );
-#endif
-#ifdef DEBUG1
-   fprintf(stderr, " me = %d exiting mgs \n", me );
-#endif
-  
-  return;
+     }
+   }
+   return;
 }
+
+

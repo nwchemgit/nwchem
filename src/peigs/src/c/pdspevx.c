@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.35 1999-11-05 20:16:03 d3g270 Exp $
+ $Id: pdspevx.c,v 1.36 2000-02-28 21:41:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -317,6 +317,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern Integer  tred2();
     extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
     extern void synch_(), gmax00();
+    extern void r_ritz_(), tresidd();
     
 /*
  *  ---------------------------------------------------------------
@@ -777,24 +778,20 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
-   /*
+/*
    for ( iii = 0; iii < *n; iii++ )
      printf(" d[%d] = %g \n", iii, dd[iii]);
    for ( iii = 0; iii < *n; iii++ )
      printf(" e[%d] = %g \n", iii, ee[iii]);
-     */
    
-   /*
-  if ( me == 0 ) {
-     file = fopen(filename, "a+");
-     fprintf(file, "info = %d \n", linfo);
-     fprintf(file, "%d \n", msize);
-     for ( iii = 0; iii < msize; iii++)
-       fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
-     fflush(file);
-     fclose(file);
-  }
-  */
+   file = fopen(filename, "a+");
+   fprintf(file, "info = %d \n", linfo);
+   fprintf(file, "%d \n", msize);
+   for ( iii = 0; iii < msize; iii++)
+     fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
+   fflush(file);
+   fclose(file);
+*/
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
@@ -871,7 +868,7 @@ for ( iii = 0; iii < msize; iii++)
       
       if ( msize == 1 ) {
 	if ( mapZ[0] == me ) {
-	  vecZ[0][0] = 1;
+	  vecZ[0][0] = 1.;
 	}
 	*info = 0;
 	return;
@@ -1027,7 +1024,13 @@ for ( iii = 0; iii < msize; iii++)
     
 #ifdef DEBUG7
       printf(" me = %d just after pstein5 %d \n", me, *info );
+      r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
 #endif
+    /*
+  printf(" me = %d just after pstein5 %d \n", me, *info );
+      r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
+*/
+
       
       /*
 	 mgs loose cluster
@@ -1037,29 +1040,20 @@ for ( iii = 0; iii < msize; iii++)
       printf(" me = %d just before pstein4 %d \n", me, *info );
       fflush(stdout);
 #endif
+      
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, perturbeval, iblock, &nsplit, isplit,
 		&mapZ[0], vecZ, clustr_info, d_scrat,
 		i_scrat, iptr, &linfo);
 
-/*
-      for ( iii = 0; iii < 4*msize; iii++)
-      fprintf(file, " me = %d pstein4 clustr_info %d %d \n", me, iii, clustr_info[iii]);
-      for ( iii = 0; iii < msize; iii++)
-      fprintf(file, " me = %d pstein4 iblock %d %d \n", me, iii, iblock[iii]);
-      for ( iii = 0; iii < msize; iii++)
-	fprintf(file, " me = %d pstein4 isplit %d %d \n", me, iii, isplit[iii]);
-	close(file);
-	fflush(file);
-*/
-      
-      
-      /*
-	synch_(&linfo);
-	*/
-      
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 12, mapA[0], nn_proc, proclist, d_scrat);
+
+      /*
+printf(" me = %d just after pstein4 %d \n", me, *info );
+      r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat);
+*/
+      
       
 #ifdef DEBUG7
       printf(" me = %d just after pstein4 %d \n", me, *info );
@@ -1077,9 +1071,9 @@ for ( iii = 0; iii < msize; iii++)
       mxsync_();
       t2 = mxclock_();
       test_timing.pstein = t2 - t1;
+      
 #endif
-    
-    
+      
       /*
        * Send info, mapZ to any processors in 
      * ({mapA} U {mapZ[neigval:*n-1]}) - {mapZ[0:neigval-1]}
@@ -1095,23 +1089,33 @@ for ( iii = 0; iii < msize; iii++)
      */
 
     nvecsZ = count_list( me, mapZ, &neigval );
-
-#ifdef TIMING
-      t1 = mxclock_();
-#endif
     
-      if (nvecsQ + nvecsZ > 0) {
-	mxm25 ( &msize, &msize, vecQ, mapQ, &neigval,
-		vecZ, mapZ, vecZ, i_scrat, d_scrat);
-      }
-
-      syncco[0] = 0.0e0;
-      gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
-
-      
-      
 #ifdef TIMING
-      mxsync_();
+    t1 = mxclock_();
+#endif
+
+    for ( iii = 0; iii < neigval; iii++){
+      eval[iii] += psgn*psigma;
+    }
+    
+    sorteig(&msize, &neigval, vecZ, mapZ, eval, i_scrat, d_scrat);
+
+    syncco[0] = 0.0e0;
+    gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
+
+	r_ritz_( &msize, dd, &ee[1], eval, mapZ, vecZ, d_scrat, info);
+	if ( *info != 0 )
+	  return;
+    
+    if (nvecsQ + nvecsZ > 0) {
+      mxm25( &msize, &msize, vecQ, mapQ, &msize, vecZ, mapZ, vecZ, i_scrat, d_scrat);
+    }
+    
+    syncco[0] = 0.0e0;
+    gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
+    
+#ifdef TIMING
+    mxsync_();
     t2 = mxclock_();
     test_timing.mxm25 = t2 - t1;
 #endif
@@ -1123,22 +1127,19 @@ for ( iii = 0; iii < msize; iii++)
     
 END:
     
-    for ( iii = 0; iii < neigval; iii++){
-      eval[iii] += psgn*psigma;
-    }
-    
-    sorteig(&msize, &neigval, vecZ, mapZ, eval, i_scrat, d_scrat);
-    
-    syncco[0] = 0.0e0;
+
+    /*
+      sync
+      */
+
+    syncco[0] = 0.0;
     gsum00( (char *) syncco, 1, 5, 117, mapA[0], nn_proc, proclist, d_scrat);
-    
-    
+
 #ifdef PSCALE
     dummy = peigs_scale;
     for ( iii=0; iii < neigval; iii++ )
       eval[iii] = peigs_shift + eval[iii]*dummy;
 #endif
-    
     
     /*
       if ( me == 0 ){
@@ -1197,7 +1198,14 @@ END:
     for ( iii = 0; iii < *n; iii++ )
       printf(" e[%d] = %g \n", iii, ee[iii]);
 #endif
+
+/*
+    for ( iii = 0; iii < *n; iii++ )
+	printf(" pdspevx symm eval %d %g \n", iii, eval[iii]);
+*/
     
     return;
   }
+
+
 

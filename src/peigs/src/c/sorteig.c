@@ -1,5 +1,5 @@
 /*
- $Id: sorteig.c,v 1.3 1999-07-28 00:39:37 d3e129 Exp $
+ $Id: sorteig.c,v 1.4 2000-02-28 21:41:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -37,8 +37,8 @@
 
 void sorteig( n, neigval, vecZ, mapZ, eval, iwork, work )
      
-     Integer           *n, *neigval, *mapZ, *iwork;
-     DoublePrecision   *eval, *work;
+     Integer           *n, *neigval, mapZ[], iwork[];
+     DoublePrecision   eval[], work[];
      DoublePrecision  **vecZ;
 
 /*

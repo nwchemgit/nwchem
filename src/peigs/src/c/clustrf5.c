@@ -1,5 +1,5 @@
 /*
- $Id: clustrf5.c,v 1.12 1999-11-04 22:41:36 d3g270 Exp $
+ $Id: clustrf5.c,v 1.13 2000-02-28 21:41:43 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -438,17 +438,20 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  If eigenvalues j and j-1 are too close, add a relatively small
 	  perturbation.  If the eigenvalues are not in increasing 
 	  order in the block, exit.
-	  */
+	*/
 	
 	if (jblk > 1) {
 	  eps1 = fabs(eps * xj);
+	  pertol = eps1 * R_TEN;
 	  if ((xj - w[j-1]) < -eps1) {
 	    printf(" Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
 	  }
-	  pertol = eps1 * R_TEN;
 	  sep = xj - xjm;
+/*
 	  if (sep < pertol*MAX(fabs(xj), fabs(xjm)))
-	    xj = xjm + pertol;
+*/
+	if ( sep < pertol)
+	 xj = xjm + pertol;
 	}
 	eval[j] = xj;
 	
@@ -469,7 +472,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(fabs(xj), fabs(xjm)));
 	  */
 	  
-	  if (fabs(sep) > 1.*fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
+	  if (fabs(sep) > fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;
@@ -498,7 +501,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  */
 	if ( j == end_of_block ) {
 	  if ( clustr_check(clustrptr, end_of_block, *imin, imax) == 1 ) {
-
+	    
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 5 me = %d \n", me );
 #endif

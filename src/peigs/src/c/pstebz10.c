@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.26 1999-11-04 22:37:46 d3g270 Exp $
+ $Id: pstebz10.c,v 1.27 2000-02-28 21:41:47 d3g270 Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -667,6 +667,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        work[msize + i] = e[i];
      
      dsterf_( &msize, &work[0], &work[msize+1], info);
+
      if ( *info != 0 ){
        if ( me == 0 )
 	 printf(" error from dsterf %d \n", *info );
@@ -701,23 +702,24 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      
      /*
        LDL' factorization of SHIFTED tridiagonal
-     */
+       */
      
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
-     
-     /*
+/*
        peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
-     */
+*/
      
      /*
-     for ( jjj = 0; jjj< blksz; jjj++ )
+       for ( jjj = 0; jjj< blksz; jjj++ )
        printf(" jjj = %d dptr %f lptr %f \n", jjj, dptr[jjj], lptr[jjj]);
-     */
+       */
      
      
      j = iii+1;
+/*
      for ( jjj = i1split; jjj < jsplit; jjj++ )
        iblock[jjj] = j;
+*/
      i1split = jsplit;
    }
    

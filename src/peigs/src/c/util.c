@@ -1,5 +1,5 @@
 /*
- $Id: util.c,v 1.3 1999-07-28 00:39:38 d3e129 Exp $
+ $Id: util.c,v 1.4 2000-02-28 21:41:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -70,7 +70,7 @@
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
 Integer count_list ( me, list, size )
-     Integer me, *list, *size;
+     Integer me, list[], *size;
 {
   /*
     
@@ -119,7 +119,7 @@ Integer indxL( k, nvecs, map)
 
 
 Integer indxlf_ ( k, nvecs, map)
-     Integer *k, *nvecs, *map;
+     Integer *k, *nvecs, map[];
      /*
        this routine computes the index of the real column number
        
@@ -144,7 +144,7 @@ Integer indxlf_ ( k, nvecs, map)
 }
 
 Integer indaint( k, nvecs, map)
-     Integer k, nvecs, *map;
+     Integer k, nvecs, map[];
      /*
        this routine returns the first index indaint of the array map
        such that map[indaint] >= k
@@ -165,7 +165,7 @@ Integer indaint( k, nvecs, map)
 
 void fil_int_lst ( n, list, item)
      Integer n, item;
-     Integer *list;
+     Integer list[];
 {
   /*
     fill an integer array list with item
@@ -204,7 +204,7 @@ void fil_dbl_lst ( n, list, item)
 }
 
 Integer in_list( item, list, list_len)
-     Integer *item, *list, *list_len;
+     Integer *item, list[], *list_len;
 {
   /*
     this routine looks through the *list of length *list_len
@@ -228,7 +228,7 @@ Integer in_list( item, list, list_len)
 }
 
 Integer find_proc_store( indx, nprocs, size, sizelist)
-     Integer indx, nprocs,  size, *sizelist;
+     Integer indx, nprocs,  size, sizelist[];
 {
   /*
     returns the first integer $i in sizelist such that
@@ -247,7 +247,7 @@ Integer find_proc_store( indx, nprocs, size, sizelist)
 	
 
 Integer find_large_store( indx, nprocs, size, sizelist)
-     Integer indx, nprocs,  *size, *sizelist;
+     Integer indx, nprocs,  *size, sizelist[];
 {
   /*
     returns the last integer $i in sizelist
@@ -303,7 +303,7 @@ Integer find_large_store( indx, nprocs, size, sizelist)
 }
 
 void mem_cpy ( list1, list2, n)
-     Integer *list1, *list2, n;
+     Integer list1[], list2[], n;
      /*
        
        copies list1[0:n-1] to list2[0:n-1]

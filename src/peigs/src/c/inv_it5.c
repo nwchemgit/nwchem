@@ -49,8 +49,8 @@
 #define    MAXITR 100
 
 Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, eval, eps, stpcrt, onenrm, iwork, work)
-     Integer *n, *c1, *cn, *b1, *bn, *Zbegin, *map, *mapvec, *iwork;
-     DoublePrecision *d, *e, *ld, *lld, **vector, *eval, *work, *eps, *stpcrt, *onenrm;
+     Integer *n, *c1, *cn, *b1, *bn, *Zbegin, map[], mapvec[], iwork[];
+     DoublePrecision d[], e[], ld[], lld[], **vector, eval[], work[], *eps, *stpcrt, *onenrm;
      
      /*
        this routine performs inverse iteration on *n vectors given by map[0:*n-1]
@@ -127,7 +127,7 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
       dgetavec_( &j, &xj, &delta, n, &bb1, &bbn, e, d, ld, lld, lplus,
 		 dplus, uminus, dminus, t, p, gamma,
 		 vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );
-
+      
 #ifdef DEBUG
       printf(" invit5 me = %d csiz = %d j = %d xj = %f c1 = %d cn = %d ztz = %f \n", me, csiz, j, xj, *c1, *cn, ztz);
 #endif
@@ -143,6 +143,7 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
     free(lplus);
     free(iwork1);
   */
+  
   return(ibad);
 }  
 

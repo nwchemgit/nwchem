@@ -1,5 +1,5 @@
 /*
- $Id: chol_bcst.c,v 1.4 1999-07-28 00:39:20 d3e129 Exp $
+ $Id: chol_bcst.c,v 1.5 2000-02-28 21:41:43 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -57,11 +57,11 @@
 #include "globalp.c.h"
 
 void chol_pipe_bcast(buf, len, type, root, k_indx, map, scratch)
-     char *buf;
+     char buf[];
      Integer len;
      Integer type;
      Integer root, k_indx;
-     Integer *map, *scratch;
+     Integer map[], scratch[];
      
 /*
 

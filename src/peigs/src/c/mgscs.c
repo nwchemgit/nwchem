@@ -1,5 +1,5 @@
 /*
- $Id: mgscs.c,v 1.9 1999-07-28 00:39:27 d3e129 Exp $
+ $Id: mgscs.c,v 1.10 2000-02-28 21:41:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -258,12 +258,13 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
     
     
     bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), c1,
-	     mapA[i], n_procs, proclist);
+	      mapA[i], n_procs, proclist);
     
     k = column_indx ;
     for ( j = i+1; j <= cn; j++ ){
       if ( mapA[j] == me ) {
-	t = -ddot_( &csize, work, &IONE, &vecA[k][b1], &IONE);
+	t = ddot_( &csize, work, &IONE, &vecA[k][b1], &IONE);
+	t *= -1.0e0;
 	daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
 	k++;
       }

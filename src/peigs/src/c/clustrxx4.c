@@ -139,7 +139,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     cn = *n-1;
     mgscs( n, vecZ, mapZ, bb1, bn, c1, cn, iscratch, dscrat);
     return(ibad);
-  */
+    */
   
   
   for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {

@@ -1,5 +1,5 @@
 /*
- $Id: pdspgvx.c,v 1.7 1999-07-28 00:39:30 d3e129 Exp $
+ $Id: pdspgvx.c,v 1.8 2000-02-28 21:41:46 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -828,6 +828,7 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
     if( *info != 0 ) {
       fprintf(stderr, " %s me = %d pdspevx returned info = %d \n", msg, me, *info );
       *info = 3;
+	exit(-1);
     }
   }
 
@@ -889,6 +890,12 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
 #ifdef DEBUG1
       fprintf(stderr, "me = %d Exiting pdspgvx. \n", me );
 #endif
+
+/*
+	for ( i = 0; i < *n; i++ )
+	       printf(" eval i %d eval %g \n", i, eval[i]);
+*/
+
 
   return;
 }

@@ -1,5 +1,5 @@
 /*
- $Id: pmmLSL.c,v 1.2 1999-07-28 00:39:33 d3e129 Exp $
+ $Id: pmmLSL.c,v 1.3 2000-02-28 21:41:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -39,9 +39,9 @@
 void pmmLSL(n, mapA, mapvecA, vecA, mapB, mapvecB, vecB,
             iscratch, dscratch, buff_ptr)
      
-     Integer            *n, *mapA, *mapvecA, *mapB, *mapvecB, *iscratch;
+     Integer            *n, mapA[], mapvecA[], mapB[], mapvecB[], iscratch[];
      
-     DoublePrecision         *dscratch;
+     DoublePrecision         dscratch[];
      
      DoublePrecision        **vecA, **vecB, **buff_ptr;
 {

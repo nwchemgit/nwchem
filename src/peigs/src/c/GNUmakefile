@@ -1,9 +1,10 @@
-## $Id: GNUmakefile,v 1.21 2000-01-19 22:36:16 d3e129 Exp $
+## $Id: GNUmakefile,v 1.22 2000-02-28 21:41:43 d3g270 Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
 
-COBJ  = clustrfix.o \
+COBJ  = \
+	clustrfix.o \
 	pdcomplex.o \
 	mgscs.o \
 	pscale.o \
@@ -75,7 +76,9 @@ COBJ  = clustrfix.o \
 	 inv_it5.o \
 	inv_it3.o \
 	peigs_tldlfact.o \
-	clustrf5.o
+	clustrf5.o \
+	r_ritz.o \
+	gdot.o tresidd.o
 
 #	clustrf4.o \
 #
@@ -94,7 +97,7 @@ all:		$(COBJ)
 .PHONY :	clean
 
 clean:		
-		-rm -f *.o maxx.f
+		-rm -f *.o maxx.f F*.f
 		-rm -f *.c.*
 
 realclean:	

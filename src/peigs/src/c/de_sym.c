@@ -1,5 +1,5 @@
 /*
- $Id: de_sym.c,v 1.4 1999-07-28 00:39:23 d3e129 Exp $
+ $Id: de_sym.c,v 1.5 2000-02-28 21:41:44 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -52,8 +52,8 @@
   */
 
 void de_sym(n, msgtype, buffer, matrix, map, matrix2, iwork, buf_ptr )
-     Integer n, msgtype, *map, *iwork;
-     DoublePrecision *buffer, **matrix, **matrix2, **buf_ptr;
+     Integer n, msgtype, map[], iwork[];
+     DoublePrecision buffer[], **matrix, **matrix2, **buf_ptr;
 {
   /*
     

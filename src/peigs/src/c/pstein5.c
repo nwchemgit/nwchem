@@ -1,5 +1,5 @@
 /*
- $Id: pstein5.c,v 1.13 1999-11-04 22:41:37 d3g270 Exp $
+ $Id: pstein5.c,v 1.14 2000-02-28 21:41:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -44,9 +44,9 @@
 void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, isplit,
 	       mapZ, vecZ, clustr_info, ddwork, iiwork, ppiwork, info )
      
-     Integer            *n, *meigval, *iblock, *nsplit, *isplit, *mapZ,
-  *iiwork, *info, **ppiwork, *clustr_info;
-     DoublePrecision        *dd, *ee, *dplus, *lplus, *ld, *lld,  *eval, **vecZ, *ddwork;
+     Integer            *n, *meigval, iblock[], *nsplit, isplit[], mapZ[],
+  iiwork[], *info, **ppiwork, *clustr_info;
+     DoublePrecision        dd[], ee[], dplus[], lplus[], ld[], lld[],  eval[], **vecZ, ddwork[];
 {
   
   /*
@@ -492,7 +492,8 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   ibad = 0;
   if ( nvecsZ != 0 ) 
-    ibad = clustrinv5_( &msize, dd, ee, dplus, lplus, ld, lld, ptbeval, clustr_info,
+    ibad = clustrinv5_( &msize, dd, ee, dplus, lplus, ld, lld, ptbeval, eval,
+			clustr_info,
 			&nacluster, mapZ,
 			mapvZ, vecZ, &imin, &nacluster, icsplit, i_scrat, d_scrat);
   

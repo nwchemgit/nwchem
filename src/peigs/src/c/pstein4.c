@@ -1,6 +1,6 @@
 
 /*
- $Id: pstein4.c,v 1.14 1999-07-28 00:39:34 d3e129 Exp $
+ $Id: pstein4.c,v 1.15 2000-02-28 21:41:47 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -493,11 +493,11 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
         sync_proc = max(sync_proc, ii);
     }
   }
-
+  
   /*
-  bbcast00( (char *) d_scrat, 1, 999, sync_proc, nn_proc, proclist);
+    bbcast00( (char *) d_scrat, 1, 999, sync_proc, nn_proc, proclist);
   */
-
+  
   
   syncco[0] = 0.0e0;
   gsum00( (char *) syncco, 1, 5, 10, mapZ[0], nn_proc, proclist, d_scrat);
@@ -512,20 +512,20 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 #endif
 
   /*
-  printf(" in pstein4 bbcast00 me = %d numclstr %d \n", me, numclstr);
-  fflush(stdout);
+    printf(" in pstein4 bbcast00 me = %d numclstr %d \n", me, numclstr);
+    fflush(stdout);
   */
   
   nacluster= numclstr;
   
   /*
-     bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
-     */
+    bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
+  */
   
   /*
-     printf(" in pstein4 after bbcast00 me = %d \n", me);
-     fflush(stdout);
-     */
+    printf(" in pstein4 after bbcast00 me = %d \n", me);
+    fflush(stdout);
+  */
   
   ibad = 0;
   ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld,

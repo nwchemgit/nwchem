@@ -1,5 +1,5 @@
 /*
- $Id: reducemap.c,v 1.2 1999-07-28 00:39:35 d3e129 Exp $
+ $Id: reducemap.c,v 1.3 2000-02-28 21:41:48 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -38,7 +38,7 @@
 void reduce_maps( nA, mapA, nB, mapB, nC, mapC, nproc, proclist )
 
   Integer      nA, nB, nC;
-  Integer      *mapA, *mapB, *mapC, *nproc, *proclist;
+  Integer      mapA[], mapB[], mapC[], *nproc, proclist[];
      
 /*
  *  Combine the processor ids in mapA, mapB, and mapC into a single sorted

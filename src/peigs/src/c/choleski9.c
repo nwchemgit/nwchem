@@ -1,5 +1,5 @@
 /*
- $Id: choleski9.c,v 1.5 1999-07-28 00:39:20 d3e129 Exp $
+ $Id: choleski9.c,v 1.6 2000-02-28 21:41:43 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -38,9 +38,9 @@
 
 void choleski( n, vecA, mapA, iscratch, scratch, info )
      
-     Integer            *n, *mapA, *iscratch, *info;
+     Integer            *n, mapA[], iscratch[], *info;
      
-     DoublePrecision         *scratch;
+     DoublePrecision         scratch[];
      
      DoublePrecision        **vecA;
 {
@@ -358,7 +358,7 @@ void sub_chol0( me, n, col, map, ncols, mycols, i_scratch, scratch, info )
 	   }
 	   else
 	     {
-	       t = ONE / sqrt( *col[ j ] );
+	       t = ONE/sqrt( *col[ j ] );
 	       dscal_( &m, &t, col[ j ], &IONE );
 	       dcopy_( &m, col[ j ], &IONE, scratch, &IONE );
 	       j++;
