@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.32 1996-08-19 15:20:02 d3g681 Exp $
+C$Id: dft_scf.F,v 1.33 1996-09-09 15:49:18 d3g681 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -27,10 +27,8 @@ c**** patches for SC95,  ECCE' parsing
 #include "util.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
-#include "cfock.fh"
 #include "cdft.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 
 #if defined(DFT_TIMER)
@@ -1129,10 +1127,12 @@ c
 c
 c
 c
-      if (filesize.gt.0 .or. memsize.gt.0) then
-         if (.not. int2e_file_close())
-     $        call errquit('dft_scf: closing aoints?', 0)
-      endif
+        call fock_2e_tidy(rtdb)
+c
+*      if (filesize.gt.0 .or. memsize.gt.0) then
+*         if (.not. int2e_file_close())
+*     $        call errquit('dft_scf: closing aoints?', 0)
+*      endif
 c
 c-----------------------------------------------------------------------
 c
@@ -1223,10 +1223,10 @@ C
           oprint_sym = util_print('final vector symmetries',
      $         print_default)
           call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
-     $         oprint_sym,nprint, '- alpha')
+     $         oprint_sym,nprint, '- alpha', .false., 1)
           if(ipol.eq.2) 
      $         call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
-     $         oprint_sym, nprint, '- beta')
+     $         oprint_sym, nprint, '- beta', .false., 1)
         endif
       endif
       if (util_print('final vectors', print_debug)) then
