@@ -206,6 +206,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
+#include "util.fh"
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
       integer nva, nva_lo, nva_hi ! Number and ranges of virtual orbitals
@@ -236,8 +237,6 @@ c
       integer map(0:*)          ! First index of g_buf on each node
       integer g_buf             ! Global array handle for transpose buffer
 c     
-      double precision ddot
-      external ddot
 *     double precision tsum
 
       double precision zero, one, scale
@@ -573,8 +572,6 @@ c
      $     k_scrd, l_scrd, idum, geom, idum2
       dimension idatom(4)
       logical status, odebug
-      double precision ddot
-      external ddot
 c     
       odebug = util_print('mp2_backt', print_debug)
 c
