@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.6 2003-03-15 01:47:43 bylaska Exp $
+* $Id: paw_force.F,v 1.7 2003-03-17 23:13:18 marat Exp $
 *
 
 !**************************************************
@@ -76,6 +76,9 @@
      >                           "paw_force_fy_atom",paw_force_fy_atom)
       value = value.and.my_alloc(mt_dbl,nion,
      >                           "paw_force_fz_atom",paw_force_fz_atom)
+
+      value = value.and.my_alloc(mt_dbl,nion*3,
+     >                           "paw_force_f_mult",paw_force_f_mult)
 
 
       if (.not.value) call errquit('paw_force_init: alloc heap',1)
@@ -367,6 +370,10 @@ c           !*** this loop is not computed when ispin=1 ***
       end do
 
       call paw_force_atom(fion)
+c      call paw_force_mult( dbl_mb(paw_force_f_mult(1)))
+      
+      
+
       return
       end
 
@@ -525,6 +532,175 @@ c    >             dbl_mb(paw_force_fx_atom(1)+in-1),
 c    >             dbl_mb(paw_force_fy_atom(1)+in-1),
 c    >             dbl_mb(paw_force_fz_atom(1)+in-1)
 c     end do
+
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_force_mult
+!
+!	Purpose: 
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_force_mult(f_mult)
+
+      implicit none
+
+      double precision f_mult(3,*)
+
+      
+
+
+#include "mafdecls.fh"
+#include "paw_force_data.fh"
+#include "paw_mult_data.fh"
+#include "paw_geom.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh"
+#include "paw_comp_charge_data.fh"      
+
+      !*** local variables ***
+      integer nion
+      integer il,ilp
+      integer i_lshell,lshell
+      integer in,ia,jn,ja
+      integer l1,l2,m1,m2
+      integer mult_l,mult_l_prime
+      integer i_qlm,i_qlmp
+      integer k
+      
+      double precision sigma_a, sigma_a_prime
+      double precision ra(3), ra_prime(3)
+      double precision R
+      
+      complex*16 comp_charge_coeff
+      complex*16 f_tmp(3)
+
+      nion = ion_nion()
+
+      do in=1,nion
+      do k=1,3
+        f_mult(k,in) = 0.0d0
+      end do
+      end do
+
+      do in=1,nion
+      ra(1)   = ion_rion(1,in)
+      ra(2)   = ion_rion(2,in)
+      ra(3)   = ion_rion(3,in)
+      ia = ion_katm(in)
+      sigma_a = paw_basis_sigma(ia)
+      mult_l  = paw_basis_mult_l(ia)
+      i_qlm = int_mb(i_paw_qlm(1) + in - 1)
+
+      do jn=1,nion
+        i_qlmp = int_mb(i_paw_qlm(1) + in - 1)
+        ja = ion_katm(jn)
+        sigma_a_prime = paw_basis_sigma(ja)
+        mult_l_prime  = paw_basis_mult_l(ja)
+
+        i_lshell = 0
+        do lshell=1,nshl3d
+         ra_prime(1)   = ion_rion(1,jn) + dbl_mb(rcell(1)+i_lshell)
+         i_lshell = i_lshell+1
+         ra_prime(2)   = ion_rion(2,jn) + dbl_mb(rcell(1)+i_lshell)
+         i_lshell = i_lshell+1
+         ra_prime(3)   = ion_rion(3,jn) + dbl_mb(rcell(1)+i_lshell)
+         i_lshell = i_lshell+1
+
+        
+         R = dsqrt( (ra(1)-ra_prime(1))**2
+     >              +(ra(2)-ra_prime(2))**2
+     >              +(ra(3)-ra_prime(3))**2)
+
+         if (R.lt.(4*sigma_smooth)) then
+
+            il = 1
+            do l1=0,mult_l
+            do m1=-l1,l1
+
+              ilp = 1
+              do l2=0,mult_l_prime
+              do m2=-l2,l2
+                      
+               comp_charge_coeff = dcpl_mb(paw_qlm(1)+i_qlm+il-1)*
+     >                             dcpl_mb(paw_qlm(1)+i_qlmp+ilp-1)
+
+               call paw_mult_force(l1,m1,sigma_a,
+     >                             ra,
+     >                             l2,m2,sigma_a_prime,
+     >                             ra_prime,
+     >                             f_tmp(1),
+     >                             f_tmp(2),
+     >                             f_tmp(3))
+
+                do k=1,3
+                 f_mult(k,in) = f_mult(k,in)-
+     >                          dble(comp_charge_coeff*f_tmp(k))
+                end do
+
+               call paw_mult_force(l1,m1,sigma_smooth,
+     >                             ra,
+     >                             l2,m2,sigma_smooth,
+     >                             ra_prime,
+     >                             f_tmp(1),
+     >                             f_tmp(2),
+     >                             f_tmp(3))
+
+                do k=1,3
+                 f_mult(k,in) = f_mult(k,in)-
+     >                          dble(comp_charge_coeff*f_tmp(k))
+                end do
+
+
+               call paw_mult_force(l1,m1,sigma_smooth,
+     >                             ra,
+     >                             l2,m2,sigma_a_prime,
+     >                             ra_prime,
+     >                             f_tmp(1),
+     >                             f_tmp(2),
+     >                             f_tmp(3))
+
+                do k=1,3
+                 f_mult(k,in) = f_mult(k,in)+
+     >                          dble(comp_charge_coeff*f_tmp(k))
+                end do
+
+
+               call paw_mult_force(l1,m1,sigma_a,
+     >                             ra,
+     >                             l2,m2,sigma_smooth,
+     >                             ra_prime,
+     >                             f_tmp(1),
+     >                             f_tmp(2),
+     >                             f_tmp(3))
+
+                do k=1,3
+                 f_mult(k,in) = f_mult(k,in)+
+     >                          dble(comp_charge_coeff*f_tmp(k))
+                end do
+
+
+
+
+                ilp = ilp + 1
+              end do !*m2*
+              end do !*l2*
+
+              il = il + 1
+            end do !*m1*
+            end do !*l1*
+
+          end if
+
+        end do !*lshell*
+        end do !*jn*
+        end do !*in*
+
+
+
 
       return
       end
