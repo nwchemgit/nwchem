@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.66 2002-10-09 18:54:54 pg481 Exp $
+c $Id: texas_face.F,v 1.67 2002-10-09 20:35:46 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -938,7 +938,7 @@ c
       lpar_exe=0
       lpar_num=0
 c
-      ntotal=0
+c2002 ntotal=0
       noijkl=0
       nopres=0
       nospec=0
