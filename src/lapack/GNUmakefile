@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.38 2001-10-10 00:02:54 windus Exp $
+#$Id: GNUmakefile,v 1.39 2001-11-14 20:43:36 edo Exp $
 
 include ../config/makefile.h
 
@@ -11,12 +11,6 @@ include ../config/makefile.h
 
        VPATH = double:single
 
-ifeq ($(TARGET),CRAY-T3D)
-       PRECISION = single
-endif
-ifeq ($(TARGET),CRAY-T3E)
-       PRECISION = single
-endif
 ifeq ($(TARGET),KSR)
        PRECISION = single
 endif
@@ -100,21 +94,14 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                csteqr.o      cung2l.o      cung2r.o       cungql.o     \
                cungqr.o      cungtr.o
 endif
-
-ifeq ($(TARGET),CRAY-T3D)
+CRAYS = CRAY-T3E CRAY-T3D CRAY-YMP
+ifeq ($(TARGET),$(findstring $(TARGET),$(CRAYS)))
+       PRECISION = single
 OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
                slaev2.o slasr.o slanst.o slascl.o slasrt.o \
                ssygv.o ssygst.o ssygs2.o slas2.o
 endif
-
-ifeq ($(TARGET),CRAY-T3E)
-OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
-               ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
-               slaev2.o slasr.o slanst.o slascl.o slasrt.o \
-               ssygv.o ssygst.o ssygs2.o slas2.o clanhe.o clascl.o
-endif
-
 
 
 include ../config/makelib.h
