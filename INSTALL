@@ -1,26 +1,25 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.7 1996-09-09 16:57:32 d3h325 Exp $
+        $Id: INSTALL,v 1.8 1996-09-19 17:57:44 d3g681 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
                                        ----
 
 
-1)  The compilation will only work with "GNU" make as the
-    default make in your path. You can check this by seeing 
-    if make understands the "-v" flag.
+1) You must use GNU make with a version of at least 3.71. You can
+   check this by seeing if make understands the "-v" flag.  It does
+   not matter what make is called (.i.e., gmake, gnumake, etc., are
+   all OK).
 
-
-2)  Set the environment variable, NWCHEM_TOP, to the
-    directory where *this* file lives, e.g.
+2) Set the environment variable, NWCHEM_TOP, to the top directory 
+   of the NWChem tree (where *this* file lives), e.g.
 
        % setenv NWCHEM_TOP /home/adrian/nwchem
 
-    All the following directions assume that the current
-    working directory is $NWCHEM_TOP/src.
-
+   All the following directions assume that the current working
+   directory is $NWCHEM_TOP/src.
 
 3)  The currently supported platforms are:
 
@@ -39,17 +38,19 @@
     KSR         KSR2                   KSR OS       single
     ----------------------------------------------------------
 
-    Set the environment variable, NWCHEM_TARGET, to the
-    symbolic name that matches your target platform, e.g.
+   Set the environment variable, NWCHEM_TARGET, to the symbolic name
+   that matches your target platform, e.g.
 
        % setenv NWCHEM_TARGET PARAGON
 
-4)  Configure to build the modules you need.  As a first shot
-    build everything, and if you start running out of memory
-    you can exclude modules.  Choose one or more from
+4) Configure to build the modules you need.  As a first shot build
+   everything, and if you start running out of memory you can exclude
+   modules.  Choose one or more from
 
         Name        Description
-        -------------------------------------
+        -----------------------------------------
+        all         Everything
+        qm          All quantum mechanics modules
 	ddscf       RHF and UHF SCF energies
         nwdft       DFT energies
         gradients   SCF gradients
@@ -59,77 +60,82 @@
         rimp2       RI-MP2
         ccsd        CCSD & CCSD(T)
         property    Properties analysis
-        -------------------------------------
+        -----------------------------------------
 
     To configure to build everything use the command
 
        % cd $NWCHEM_TOP/src
        % make nwchem_config NWCHEM_MODULES=all
 
-5)  Run the precision conversion according to the Precision
-    column above for your target. This is necessary only 
-    on machines where 64 bit is single precision in order 
-    to match BLAS routine names to vendor-supplied libraries
-    (or if converting back from such source into the standard
-    of 64 bit is double precision).
+5) Run the precision conversion according to the Precision column
+   above for your target. This is necessary only on machines where 64
+   bit is single precision in order to match BLAS routine names to
+   vendor-supplied libraries (or if converting back from such source
+   into the standard of 64 bit is double precision).
 
-    For 64 bit single precision source
+   For 64 bit single precision source
 
        % make dbl_to_sngl
 
-
-6)  Make any missing directories
+6) Make any missing directories
 
        % make directories
 
-7)  Finally, compile and link:
+7) Finally, compile and link:
+
        % make >& make.log
-    This should install the executables and libraries
-    into platform-specific subdirectories in the directory
-    tree. For example, if the target platform equals PARAGON
-    then the following subdirectories are created:
+
+   This should install the executables and libraries into
+   platform-specific subdirectories in the directory tree. For
+   example, if the target platform equals PARAGON then the following
+   subdirectories are created:
 
 	$NWCHEM_TOP/bin/PARAGON          (executables)
         $NWCHEM_TOP/lib/PARAGON          (libraries)
 
 NOTE TO MPI USERS:
+-----------------
 
-NWChem can be compiled to use MPI instead of TCGMSG for message
-passing on many systems, though this is still somewhat experimental --
-be on the looking for problems.  The following procedures and remarks
-should be inserted into the procedure above
+   NWChem can be compiled to use MPI instead of TCGMSG for message
+   passing on many systems, though this is still somewhat experimental
+   -- be on the lookout for problems.  The following procedures and
+   remarks should be inserted into the procedure above
 
 3.5) Additional environment variables must be set:
+
 	setenv USE_MPI yes
 	setenv MPI_LIB /usr/local/lib/mpich/rs6000/ch_eui
 	setenv MPI_INCLUDE /usr/local/include
-MPI_LIB and MPI_INCLUDE are paths to the library and include files for
-the MPI implementation you are using (example is appropriate for the
-Cornell Theory Center MPICH installation).  If the MPI libraries and
-includes are in locations already searched by the compiler/linker, it
-is not necessary to set MPI_LIB and MPI_INCLUDE.
 
+   MPI_LIB and MPI_INCLUDE are paths to the library and include files
+   for the MPI implementation you are using (example is appropriate
+   for the Cornell Theory Center MPICH installation).  If the MPI
+   libraries and includes are in locations already searched by the
+   compiler/linker, it is not necessary to set MPI_LIB and
+   MPI_INCLUDE.
+ 
 7) If you are linking NWChem with the PeIGS eigensolver, the best
-approach seems to be to build PeIGS for TCGMSG message passing, not
-MPI!  The tcgmsg-mpi wrapper library will resolve all message passing
-calls from PeIGS.  The reason for this recommendation is that PeIGS
-currently calls MPI from Fortran, while NWChem calls it only from C.
-The current version of the MPI standard does not guarantee
-mixed-language operation, so it is safer to avoid it.
+   approach seems to be to build PeIGS for TCGMSG message passing, not
+   MPI!  The tcgmsg-mpi wrapper library will resolve all message
+   passing calls from PeIGS.  The reason for this recommendation is
+   that PeIGS currently calls MPI from Fortran, while NWChem calls it
+   only from C.  The current version of the MPI standard does not
+   guarantee mixed-language operation, so it is safer to avoid it.
 
 NOTE TO MPI USERS ON THE IBM SP:
+-------------------------------
 
-If you are adventurous enough to try linking against a copy of PeIGS
-configured for MPI instead of TCGMSG, you'll probably need to
-uncomment a section in src/config/makefile.h to handle the Fortran/C
-interface renaming for PeIGS MPI calls.
+   If you are adventurous enough to try linking against a copy of
+   PeIGS configured for MPI instead of TCGMSG, you'll probably need to
+   uncomment a section in src/config/makefile.h to handle the
+   Fortran/C interface renaming for PeIGS MPI calls.
 
-For SP systems running AIX 3.2.5, there are two main MPI
-implementations available (not at all sites).  MPICH from ANL/Missisippi
-State, and MPI-F from IBM itself.  Because NWChem uses both MPL and
-MPI on the SP, it is necessary to link against appropriate libraries
-for both packages.  This is easily done using MPICH, but is not easily
-done using MPI-F.  Rather than spending time getting MPI-F to work,
-we've elected to wait for SPs to upgrade to AIX 4, in which a native
-MPI implementation is available, and is supported to link (and
-work) okay with MPL.
+   For SP systems running AIX 3.2.5, there are two main MPI
+   implementations available (not at all sites).  MPICH from
+   ANL/Missisippi State, and MPI-F from IBM itself.  Because NWChem
+   uses both MPL and MPI on the SP, it is necessary to link against
+   appropriate libraries for both packages.  This is easily done using
+   MPICH, but is not easily done using MPI-F.  Rather than spending
+   time getting MPI-F to work, we've elected to wait for SPs to
+   upgrade to AIX 4, in which a native MPI implementation is
+   available, and is supported to link (and work) okay with MPL.
