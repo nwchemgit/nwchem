@@ -111,9 +111,9 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    while(!card.startsWith("analysis")){
 		rms1=Double.valueOf(card.substring(32,43)).doubleValue();
 		rms2=Double.valueOf(card.substring(44,55)).doubleValue();
-		numa++;
 		rmsaPlot.addData(1,numa,rms1,!first,false);
 		bfacaPlot.addData(1,numa,rms2,!first,false); first=false;
+		numa++;
 		card=br.readLine();
 	    };
 	    numa=0;
@@ -124,7 +124,8 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 		rms2=Double.valueOf(card.substring(24,35)).doubleValue();
                 System.out.println(rms1+" "+rms2);
 		rmsrPlot.addData(0,numa,rms1,!first,false);
-		bfacrPlot.addData(0,numa,rms2,!first,false); numa++;
+		bfacrPlot.addData(0,numa,rms2,!first,false); first=false; 
+		numa++;
 	    };
 	    rmsaPlot.fillPlot();
 	    rmsrPlot.fillPlot();
