@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.6 2002-01-09 00:20:31 bylaska Exp $
+* $Id: cpsp.F,v 1.7 2002-01-11 18:25:59 bylaska Exp $
 *
 
 #define TCGMSG
@@ -8,27 +8,7 @@
       implicit none
 
 #include "mafdecls.fh"
-
-
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
+#include "cpsp_common.fh"
 
       integer nfft3d,npack0,nbrillioun
       logical value
@@ -89,21 +69,8 @@ c     integer    lmmax(nkatmx)
       implicit none
 
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
-
-*     **** common blocks ****
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
 
       logical value
 
@@ -138,26 +105,7 @@ c     integer    lmmax(nkatmx)
       integer ia
 
 #include "mafdecls.fh"
-
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
+#include "cpsp_common.fh"
 
 
       cpsp_zv = dbl_mb(zv(1)+ia-1)
@@ -176,26 +124,7 @@ c     integer    lmmax(nkatmx)
       integer ia
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
+#include "cpsp_common.fh"
 
       cpsp_amass = dbl_mb(amass(1)+ia-1)
       return
@@ -213,26 +142,7 @@ c     integer    lmmax(nkatmx)
       integer i,ia
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
+#include "cpsp_common.fh"
 
 c     cpsp_rc = rc(i,ia)
       cpsp_rc = dbl_mb(rc(1) + i + (lmax_max+1)*(ia-1))
@@ -249,24 +159,7 @@ c     cpsp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
+#include "cpsp_common.fh"
 
       cpsp_atom = atom(ia)
       return
@@ -284,25 +177,7 @@ c     integer    lmmax(nkatmx)
       integer  ia
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx),lmax(2),locp(2)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
+#include "cpsp_common.fh"
 
 
       cpsp_lmmax = int_mb(lmmax(1)+ia-1)
@@ -320,25 +195,8 @@ c     integer    lmmax(nkatmx),lmax(2),locp(2)
       integer  ia
 
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
 
       cpsp_lmax = int_mb(lmax(1)+ia-1)
       return
@@ -355,25 +213,8 @@ c     integer    lmmax(nkatmx)
       integer  ia
 
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
 
       cpsp_locp = int_mb(locp(1)+ia-1)
       return
@@ -388,25 +229,7 @@ c     integer    lmmax(nkatmx)
       integer function cpsp_npsp()
       implicit none
 
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
+#include "cpsp_common.fh"
 
 
       cpsp_npsp = npsp
@@ -428,40 +251,7 @@ c     integer    lmmax(nkatmx)
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - cstrfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
+#include "cpsp_common.fh"
 
 *     *** local variables ***
       integer nfft3d,npack0
@@ -474,7 +264,7 @@ c     integer    lmmax(nkatmx)
       integer  G_indx,ion_nion,ion_katm
       external G_indx,ion_nion,ion_katm
 
-      call current_second(tim1)  
+      call nwpw_timing_start(5)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
 
@@ -539,8 +329,7 @@ c     integer    lmmax(nkatmx)
       value = MA_pop_stack(vtmp(2))
       value = MA_pop_stack(exi(2))
 
-      call current_second(tim2)
-      times(5) = times(5) + (tim2-tim1)
+      call nwpw_timing_end(5)
       return 
       end
 
@@ -557,34 +346,7 @@ c     integer    lmmax(nkatmx)
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
-
-*     **** common blocks ****
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - cstrfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
+#include "cpsp_common.fh"
 
 
 *     *** local variables ***
@@ -598,7 +360,8 @@ c     integer    lmmax(nkatmx)
       integer  G_indx,ion_nion,ion_katm
       external G_indx,ion_nion,ion_katm
 
-      call current_second(tim1)  
+      call nwpw_timing_start(5)
+      
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
@@ -655,8 +418,7 @@ c     integer    lmmax(nkatmx)
       value = MA_pop_stack(vtmp(2))
       value = MA_pop_stack(exi(2))
 
-      call current_second(tim2)
-      times(5) = times(5) + (tim2-tim1)
+      call nwpw_timing_end(5)
       return 
       end
 
@@ -679,35 +441,8 @@ c     integer    lmmax(nkatmx)
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
-*     **** common blocks ****
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - cstrfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
 
 *     *** local variables ***
@@ -727,7 +462,7 @@ c     integer    lmmax(nkatmx)
       external ion_nion,ion_katm,G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
-      call current_second(tim1)
+      call nwpw_timing_start(6)
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
@@ -779,6 +514,8 @@ c     integer    lmmax(nkatmx)
            call cstrfac_k(ii,nb,cxr)
            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
 
+c       write(*,*) "cxr:",nb,ii,cxr
+
 
 *       **** structure factor and local pseudopotential ****
 
@@ -792,6 +529,8 @@ c     integer    lmmax(nkatmx)
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
+c            write(*,*) "in s"
+
               call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(nb-1)*nfft3d*lmmax_max
      >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
@@ -800,6 +539,7 @@ c     integer    lmmax(nkatmx)
 
 *          *** current function is p or f ****
            else
+c            write(*,*) "in p"
               call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*nfft3d
      >                           +(nb-1)*nfft3d*lmmax_max
      >                           +(ia-1)*nfft3d*lmmax_max*nbrill),
@@ -813,6 +553,8 @@ c     integer    lmmax(nkatmx)
      >                      psi1(1+(nb-1)*neall*nfft3d),
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
+
+c         write(*,*) "zsw1:",l,nb,ii,dcpl_mb(zsw1(1))
 
           do n=1,nn
           
@@ -871,6 +613,8 @@ c     integer    lmmax(nkatmx)
        
         
         end do
+c       write(*,*)
+c       write(*,*)
         end do
 
       end do
@@ -888,8 +632,7 @@ c     integer    lmmax(nkatmx)
       value = MA_pop_stack(tmp4(2))
       value = MA_pop_stack(exi(2))
 
-      call current_second(tim2)
-      times(6) = times(6) + (tim2-tim1)
+      call nwpw_timing_end(6)
 
       return 
       end
@@ -909,40 +652,8 @@ c     integer    lmmax(nkatmx)
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
-*     **** common blocks ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
-
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - cstrfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
 
 *     *** local variables ***
@@ -962,7 +673,7 @@ c     integer    lmmax(nkatmx)
       external ion_nion,ion_katm,G_indx
       external lattice_omega
 
-      call current_second(tim1)
+      call nwpw_timing_start(6)
       
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
@@ -1093,8 +804,7 @@ c     integer    lmmax(nkatmx)
       value = MA_pop_stack(vtmp(2))
       value = MA_pop_stack(exi(2))
 
-      call current_second(tim2)
-      times(6) = times(6) + (tim2-tim1)
+      call nwpw_timing_end(6)
 
       return 
       end
@@ -1289,6 +999,7 @@ c       close(11)
       implicit none
       
 #include "mafdecls.fh"
+#include "cpsp_common.fh"
 
 
 *     **** semicore common block ****
@@ -1297,25 +1008,6 @@ c     logocal semicore(0:nkatmx)
       integer ncore(2),rcore(2)
       integer semicore(2)
       common / c_ccore / ncore,rcore,semicore
-
-*     **** psp common block ****
-c     real*8     vl(nfft3d,nkatmx)
-c     real*8     vnl(nfft3d,16,nkatmx)
-c     real*8     vnlnrm(16,nkatmx)
-c     real*8     zv(nkatmx),amass(nkatmx),rc(0:4,nkatmx)
-c     integer    lmmax(nkatmx)
-      integer    vl(2)
-      integer    vnl(2)
-      integer    vnlnrm(2)
-      integer    zv(2),amass(2),rc(2)
-      integer    lmmax(2),lmax(2),locp(2)
-      integer    npsp
-   
-      integer nkatmx,lmmax_max,lmax_max
-      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
-      character*2 atom(nkatmx)
-      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
-     >                     lmmax,lmax,locp,npsp,atom
 
 
 *     **** local variables ****

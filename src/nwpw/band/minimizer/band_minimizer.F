@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.11 2002-01-10 15:36:40 bylaska Exp $
+* $Id: band_minimizer.F,v 1.12 2002-01-11 18:26:00 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -32,8 +32,7 @@
       real*8   t1,t2,t3,t4,av
 
 *     **** lattice variables ****
-      integer ngrid(3),nwave,nfft3d,n2ft3d
-      real*8 ks(4),kv(3)
+      integer ngrid(3),nwave,nfft3d
 
 *     ***** energy variables ****
       real*8  E(10)
@@ -84,8 +83,8 @@
       real*8   brillioun_weight,brillioun_ks,brillioun_k
       external brillioun_nbrillioun
       external brillioun_weight,brillioun_ks,brillioun_k
-      integer  electron_count,linesearch_count
-      external electron_count,linesearch_count
+      integer  c_electron_count,linesearch_count
+      external c_electron_count,linesearch_count
 
       real*8   nwpw_timing
       external nwpw_timing
@@ -197,6 +196,7 @@
       call cphafac()
       call cphafac_k()
 
+
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new()
@@ -206,10 +206,12 @@
       end if
       value = cpsi_initialize()
 
+
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
       call linesearch_init()
+
 
 
 *                |**************************|
@@ -308,6 +310,7 @@
 *                |***************************|
       if (taskid.eq.MASTER) call current_second(cpu2)
 
+
 *     **** calculate energy ****
       EV= c_cgsd_energy(newpsi)
 
@@ -394,7 +397,7 @@
          T2=CPU3-CPU2
          T3=CPU4-CPU3
          T4=CPU4-CPU1
-         AV=T2/dble(electron_count())
+         AV=T2/dble(c_electron_count())
          write(6,*)
          write(6,*) '-----------------'
          write(6,*) 'cputime in seconds'
@@ -403,30 +406,30 @@
          write(6,*) 'epilogue    : ',T3
          write(6,*) 'total       : ',T4
          write(6,*) 'cputime/step: ',AV,
-     >              '   (',electron_count(),' evalulations, ', 
+     >              '   (',c_electron_count(),' evalulations, ', 
      >                     linesearch_count(),' line searches)'
 
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
          write(6,*) '  FFTs                       : ', nwpw_timing(1),
-     >                          nwpw_timing(1)/dble(electron_count())
+     >                          nwpw_timing(1)/dble(c_electron_count())
          write(6,*) '  dot products               : ', nwpw_timing(2),
-     >                          nwpw_timing(2)/dble(electron_count())
+     >                          nwpw_timing(2)/dble(c_electron_count())
          write(6,*) '  geodesic                   : ', nwpw_timing(10),
-     >                          nwpw_timing(10)/dble(electron_count())
+     >                          nwpw_timing(10)/dble(c_electron_count())
          write(6,*) '  exchange correlation       : ', nwpw_timing(4),
-     >                          nwpw_timing(4)/dble(electron_count())
+     >                          nwpw_timing(4)/dble(c_electron_count())
          write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
-     >                          nwpw_timing(5)/dble(electron_count())
+     >                          nwpw_timing(5)/dble(c_electron_count())
          write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
-     >                          nwpw_timing(6)/dble(electron_count())
+     >                          nwpw_timing(6)/dble(c_electron_count())
          write(6,*) '  hartree potentials         : ', nwpw_timing(7),
-     >                          nwpw_timing(7)/dble(electron_count())
+     >                          nwpw_timing(7)/dble(c_electron_count())
          write(6,*) '  structure factors          : ', nwpw_timing(8),
-     >                          nwpw_timing(8)/dble(electron_count())
+     >                          nwpw_timing(8)/dble(c_electron_count())
          write(6,*) '  masking and packing        : ', nwpw_timing(9),
-     >                          nwpw_timing(9)/dble(electron_count())
+     >                          nwpw_timing(9)/dble(c_electron_count())
          write(6,*)
          CALL MESSAGE(4)
       end if 

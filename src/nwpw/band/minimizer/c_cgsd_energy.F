@@ -1,5 +1,5 @@
-*
-*     $Id: c_cgsd_energy.F,v 1.2 2001-12-20 00:30:52 bylaska Exp $                       
+
+*     $Id: c_cgsd_energy.F,v 1.3 2002-01-11 18:26:00 bylaska Exp $                       
 *
 
 *     ***************************

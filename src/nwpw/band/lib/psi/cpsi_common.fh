@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_common.fh,v 1.1 2001-12-14 20:02:44 bylaska Exp $
+* $Id: cpsi_common.fh,v 1.2 2002-01-11 18:26:00 bylaska Exp $
 *
 
 *     ***** psi common block ****
@@ -12,7 +12,7 @@
       integer dng2(2)
       integer hml(2)
       integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+      common / cpsi_block / psi1,psi2,rho1,rho2,dng1,dng2,
      >                     hml,eig,ne,ispin,nfft3d,npack0,nbrillioun
 
 

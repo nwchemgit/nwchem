@@ -1,0 +1,8 @@
+*
+* $Id: cke_common.fh,v 1.1 2002-01-11 18:26:00 bylaska Exp $
+*
+
+*     **** common block used for cke.F ****
+      integer tg_indx,tg_hndl
+      common / c_tg_block / tg_indx,tg_hndl
+

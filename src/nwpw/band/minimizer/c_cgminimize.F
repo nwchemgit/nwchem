@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.6 2002-01-11 18:26:00 bylaska Exp $                       
 *
 
 
@@ -32,7 +32,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8     sum0,sum1,sum3,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,Estart
-      common / cgsd_block / Enew,Eold,Estart
+      common / c_cgsd_block / Enew,Eold,Estart
 
       integer it,it_in
       real*8 tmin,deltat
@@ -98,7 +98,6 @@ c      complex*16 G1(nfft3d,nemax)
       if (.not. value) call errquit('c_cgminimize:out of heap memory',0)
 
       Estart = Enew
-
 
 
 *     ***** get the initial gradient and direction ****
@@ -227,7 +226,7 @@ c              scale = sum3/sum0
 
 c      Eold = cpsi_geodesic_energy(0.0d0)
 c     Eold = cpsi_geodesic_energy(0.0d0)
-c     Enew = Eold
+c     Enew = E0
 c     tmin = 0.0d0
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,

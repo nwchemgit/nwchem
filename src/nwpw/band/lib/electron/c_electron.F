@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.5 2001-12-21 16:50:28 bylaska Exp $
+* $Id: c_electron.F,v 1.6 2002-01-11 18:25:59 bylaska Exp $
 *
 
 *     ***********************************
@@ -18,14 +18,14 @@
       logical value
 
 *     **** external functions ****
-      integer  psi_ispin,psi_ne,brillioun_nbrillioun
-      external psi_ispin,psi_ne,brillioun_nbrillioun
+      integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
 
       counter = 0
 
-      ispin = psi_ispin()
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
+      ispin = cpsi_ispin()
+      ne(1) = cpsi_ne(1)
+      ne(2) = cpsi_ne(2)
 
 *     **** get nfft3d, and npack0 and nbrill****
       call Cram_npack(0,npack0)

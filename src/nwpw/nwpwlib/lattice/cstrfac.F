@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.3 2002-01-07 02:05:37 bylaska Exp $
+* $Id: cstrfac.F,v 1.4 2002-01-11 18:26:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -367,6 +367,39 @@ C ... End STRFAC ....
      >                  + (brillioun_k(3,nb))*ion_rion(3,i)))
       end do
       end do
+
+      return
+      end
+
+      subroutine cstrfac_k_print()
+      implicit none
+
+
+#include "mafdecls.fh"
+
+*     **** local common block ****
+      integer cxr(2)
+      common / strfac_k_block / cxr
+
+
+*     *** local variables
+      integer    i,nb,nion
+
+*     **** external functions ****
+      integer  brillioun_nbrillioun,ion_nion
+      external brillioun_nbrillioun,ion_nion
+
+      write(*,*)
+      write(*,*) "cstrfac_k_print:"
+      nion = ion_nion()
+      do nb=1,brillioun_nbrillioun()
+      do i =1,nion
+        write(*,*) "cstrfac_k nb,ii,cxr:",nb,i,
+     >             dcpl_mb(cxr(1)+i-1+(nb-1)*nion)
+      end do
+      end do
+      write(*,*)
+      write(*,*)
 
       return
       end

@@ -1,10 +1,11 @@
 *
-* $Id: cke.F,v 1.1 2001-12-13 03:49:51 bylaska Exp $
+* $Id: cke.F,v 1.2 2002-01-11 18:26:00 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
 
 #include "mafdecls.fh"
+#include "cke_common.fh"
 
 *     **** local variables ****
       integer nfft3d,G(3)
@@ -20,12 +21,6 @@ c     real*8 G(nfft3d,3)
       real*8   brillioun_k
       external G_indx, brillioun_nbrillioun
       external brillioun_k
-
-*     **** common block used for ke.F ****
-c     real*8 tg(nfft3d)
-      integer tg_indx,tg_hndl
-      common / tg_block / tg_indx,tg_hndl
-
 
       nbrillioun = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
@@ -66,10 +61,7 @@ c     real*8 tg(nfft3d)
       subroutine cke_end()
       implicit none 
 #include "mafdecls.fh"
-*     **** common block used for ke.F ****
-c     real*8 tg(nfft3d)
-      integer tg_indx,tg_hndl
-      common / tg_block / tg_indx,tg_hndl
+#include "cke_common.fh"
 
       logical value
 
@@ -85,10 +77,7 @@ c     real*8 tg(nfft3d)
       complex*16 psi2(*)
 
 #include "mafdecls.fh"
-
-*     **** common block used for ke.F ****
-      integer tg_indx,tg_hndl
-      common / tg_block / tg_indx,tg_hndl
+#include "cke_common.fh"
 
 *     **** local variables ****
       integer nfft3d,nbrillioun
@@ -123,11 +112,7 @@ c     real*8 tg(nfft3d)
       real*8     ave
 
 #include "mafdecls.fh"
-
-*     **** common block used for ke.F ****
-c     real*8 tg(nfft3d)
-      integer tg_indx,tg_hndl
-      common / tg_block / tg_indx,tg_hndl
+#include "cke_common.fh"
 
 
 *     **** local variables ****

@@ -1,0 +1,8 @@
+*
+* $Id: c_coulomb_common.fh,v 1.1 2002-01-11 18:25:59 bylaska Exp $
+*
+    
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / c_vc_block / vc_indx,vc_hndl
+

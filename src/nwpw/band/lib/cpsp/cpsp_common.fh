@@ -1,0 +1,18 @@
+*
+* $Id: cpsp_common.fh,v 1.1 2002-01-11 18:25:59 bylaska Exp $
+*
+
+*     **** common blocks ****
+      integer    vl(2)
+      integer    vnl(2)
+      integer    vnlnrm(2)
+      integer    zv(2),amass(2),rc(2)
+      integer    lmmax(2),lmax(2),locp(2)
+      integer    npsp
+   
+      integer nkatmx,lmmax_max,lmax_max
+      parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
+      character*2 atom(nkatmx)
+      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+     >                     lmmax,lmax,locp,npsp,atom
+

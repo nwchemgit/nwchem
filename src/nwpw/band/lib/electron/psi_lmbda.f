@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.1 2001-12-14 20:02:43 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.2 2002-01-11 18:25:59 bylaska Exp $
 *
       subroutine psi_lmbda(ispin,ne,nemax,npack1,
      >                     psi1,psi2,
@@ -13,21 +13,6 @@
       real*8     lmbda(*)
       real*8     tmp(*)
       integer	 ierr
-
-
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
 
       integer MASTER
@@ -48,7 +33,8 @@
 
 
 
-      call current_second(tim1)
+      call nwpw_timing_start(3)
+
       call Parallel_taskid(taskid)
 
       n    = ne(1)
@@ -186,8 +172,7 @@ C       return
         end do
       end do
 
-      call current_second(tim2)
-      times(3) = times(3) + (tim2-tim1)
+      call nwpw_timing_end(3)
 
       return
       end
