@@ -2,11 +2,11 @@
 
 PSFLAGS	      = -D 300
 
-TEX	      = user.tex
+TEX	      = user.tex prog.tex
 
-DVI           = user.dvi
+DVI           = user.dvi prog.ps
 
-PSFILE	      = user.ps
+PSFILE	      = user.ps prog.ps
 
 
 #
@@ -48,6 +48,4 @@ clean:
 
 ####
 user.dvi:	fullpage.sty dft.tex
-
-
-
+prog.dvi:	fullpage.sty
