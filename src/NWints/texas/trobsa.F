@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.1 2001-08-10 16:05:09 edo Exp $
+* $Id: trobsa.F,v 1.2 2001-08-10 18:51:17 bjohnson Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -516,7 +516,7 @@ C  CALCULATE (SS,SS)(M)  M=1,MMAX
 C    S ORBITALS ARE NORMALIZED
 C
 #ifdef BETTIS
-      if (bettis_screened_operator_enabled()) then
+      if (bs_scroperator_enabled()) then
          do 410 i=1,nbls
          xrys=rysx(i)
          call screened_fm(f0m,mmax-1,xrys,ijkl_theta(i))
