@@ -1,5 +1,5 @@
 %
-% $Id: functionality.tex,v 1.27 2004-04-22 04:50:28 edo Exp $
+% $Id: functionality.tex,v 1.28 2004-05-20 01:21:27 edo Exp $
 %
 \label{sec:functionality}
 
@@ -14,9 +14,8 @@ NWChem is available on almost all high performance computing platforms,
 workstations, PCs running LINUX, as well as clusters of desktop platforms or
 workgroup servers. NWChem development has been devoted to providing
 maximum efficiency on massively parallel processors. It achieves this performance
-on the 512 node IBM SP system in the EMSL's MSCF and on the 512 node CRAY
-T3E-900 system in the National Energy Research Scientific Computing Center. It
-has not been optimized for high performance on single processor desktop systems.
+on the 1960 processors HP Itanium2 system in the EMSL's MSCF.  
+It has not been optimized for high performance on single processor desktop systems.
 
 \section{Molecular electronic structure}
 
@@ -60,9 +59,15 @@ energies.
 \item Resolution of the identity integral approximation MP2 (RI-MP2), with
   RHF and UHF reference.
 \item CIS, TDHF, TDDFT, and Tamm--Dancoff TDDFT for excited states with RHF, UHF, RDFT, or UDFT reference.
+\item CCSD(T) and CCSD[T] for closed- and open-shell systems (TCE module)
 \item UCCD, ULCCD, UCCSD, ULCCSD, UQCISD, UCCSDT, and UCCSDTQ with RHF, UHF, or ROHF reference.
 \item UCISD, UCISDT, and UCISDTQ with RHF, UHF, or ROHF reference.
 \item Non-canonical UMP2, UMP3, and UMP4 with RHF or UHF reference.
+\item EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ for excitation energies, transition
+moments, and excited-state dipole moments of closed- and open-shell
+systems
+\item CCSD, CCSDT, CCSDTQ for dipole moments of closed- and open-shell
+systems
 \end{itemize}
 
 For all methods, the following operations may be performed:

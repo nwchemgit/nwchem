@@ -1,5 +1,5 @@
 %
-% $Id: top-level.tex,v 1.60 2004-05-17 20:29:46 pollack Exp $
+% $Id: top-level.tex,v 1.61 2004-05-20 01:21:27 edo Exp $
 %
 \label{sec:toplevel}
 
@@ -277,7 +277,7 @@ In NWChem there are three distinct regions of memory: stack, heap,
 and global. Stack and heap are node-private, while the union of the 
 global region on all processors is used to provide globally-shared memory.  
 The allowed limits on each category are determined from a default 
-partitioning (currently 25% heap, 25% stack, and 50% global).
+partitioning (currently 25\% heap, 25\% stack, and 50\% global).
 Alternatively, the keywords \verb+stack+, \verb+heap+, and
 \verb+global+ can be used to define specific allocations for each of
 these categories.  If the user sets only one of the stack, heap, or
@@ -303,8 +303,9 @@ a complete partitioning as well:
 The optional keywords \verb+verify+ and \verb+noverify+ in the
 directive give the user the option of enabling or disabling automatic
 detection of corruption of allocated memory.  The default is
-\verb+verify+, which enables the feature. This incurs a small
-overhead, which can be eliminated by specifying \verb+noverify+.
+\verb+verify+, which enables the feature. This incurs some
+overhead (which can be around 10% increase in walltime on some platfors),
+which can be eliminated by specifying \verb+noverify+.
 
 The keywords \verb+hardfail+ and \verb+nohardfail+ give the user the
 option of forcing (or not forcing) the local memory management
