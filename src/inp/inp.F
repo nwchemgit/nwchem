@@ -552,10 +552,10 @@ c
       inp_compare = .false.
       la = inp_strlen(a)
       lb = inp_strlen(b)
-      if (la .gt. lb) then
+      if (la .ne. lb) then      ! use .gt. for short match
          return
       else if (ocase) then
-         inp_compare = a .eq. b(1:la)
+         inp_compare = a(1:la) .eq. b(1:lb)
          return
       else
          do i = 1, la
