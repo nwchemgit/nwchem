@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.20 2001-12-15 04:10:55 d3j191 Exp $
+c $Id: cf_shake.F,v 1.21 2002-04-06 14:30:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -87,7 +87,7 @@ c
       integer i,j,k,l,m
       logical skip
 c
-      epmf=zero
+c      epmf=zero
       skip=.true.
 c
       do 1 i=1,numpmf
