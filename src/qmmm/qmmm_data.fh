@@ -1,8 +1,9 @@
 c
-c $Id: qmmm_data.fh,v 1.6 2004-08-17 23:20:41 marat Exp $
+c $Id: qmmm_data.fh,v 1.7 2004-09-02 23:55:41 marat Exp $
 c
       integer nqm
       integer i_ai,h_ai
+      integer i_bqi,h_bqi
       integer i_c,h_c
       integer i_q,h_q
       integer i_qf,h_qf
@@ -32,6 +33,7 @@ c
      &                 nbqs,
      &                 nbqw,
      &                 i_ai,h_ai,
+     &                 i_bqi,h_bqi,
      &                 i_atn,h_atn,
      &                 i_c,h_c,
      &                 i_cbqs,h_cbqs,

@@ -1,0 +1,27 @@
+c
+c $Id: mm_utils.fh,v 1.1 2004-09-02 23:55:41 marat Exp $
+c
+      logical  mm_quant
+      external mm_quant
+
+      logical  mm_quant_link
+      external mm_quant_link
+ 
+      logical  mm_link
+      external mm_link
+ 
+      logical  mm_lqsoft
+      external mm_lqsoft
+
+      logical  mm_bqzone
+      external mm_bqzone
+
+      logical  mm_bqwzone
+      external mm_bqwzone
+
+      integer mm_element
+      external mm_element
+
+      double precision mm_solute_charge
+      external mm_solute_charge
+

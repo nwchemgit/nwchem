@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.7 2004-08-31 19:45:48 marat Exp $
+c $Id: qmmm_geom.F,v 1.8 2004-09-02 23:55:41 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -9,10 +9,11 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "mm_utils.fh"
       integer irtdb
 c     local variables
       integer i
-      integer nqm
+      integer nqm,nlink
       integer igeom
       integer i_c
       integer i_t
@@ -31,15 +32,39 @@ c     local variables
       i_qf  = qmmm_get_i_qf()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
+      call mm_get_tot_nlink(nlink)
+
+c 
+c     establish persistent mapping between mm and qm atoms
+c     ----------------------------------------------------
+      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ind))
+c     include link atoms if any
+c     -------------------------
+      if(nlink.gt.0) then
+        write(*,*) "found link atoms",nlink
+        call mm_get_solute_link_ind(nlink,int_mb(i_ind+nqm-nlink))
+      end if
 
 
-      call mm_get_geom(nqm,
+      call mm_get_solute_geom_gen(nqm,
+     >                 mm_quant_link,
      >                 int_mb(i_ind),
      >                 int_mb(i_num),
      >                 byte_mb(i_t),
      >                 dbl_mb(i_c),
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
+
+      do i=1,nqm
+       dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
+      end do
+
+      if(nlink.gt.0) then
+       call qmmm_link_atoms(nlink,
+     >                      int_mb(i_num+(nqm-nlink)),
+     >                      byte_mb(i_t+16*(nqm-nlink)),
+     >                      dbl_mb(i_m+(nqm-nlink)))
+      end if
 
       do i=1,nqm
        dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
@@ -445,6 +470,7 @@ c     -----------------------------
      >                          nqm,c,q,t,m,
      >                          nbq,cbq,qbq)
 
+      implicit none
       integer ntot
       double precision c_all(3,ntot)
       double precision q_all(ntot)
@@ -485,4 +511,25 @@ c     ----------
 
       end
 
+      subroutine qmmm_link_atoms(n,inum,t,m)
+      implicit none
+#include "geom.fh"
+#include "errquit.fh"
+      integer n
+      integer inum(n)
+      character*16 t(n)
+      double precision m(n)
+
+c     local variables
+c     ---------------
+      integer i
+
+      do i=1,n
+        inum(i)=9
+        t(i)="F_L"
+        if(.not.geom_tag_to_default_mass(t(i),m(i)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+
+      end
 

@@ -295,6 +295,17 @@ c
       h_cbq=a_h_cbq
 
       end 
+c
+      subroutine qmmm_set_bqi(a_i_bqi,a_h_bqi)
+      implicit none
+#include "qmmm_data.fh"
+      integer a_i_bqi,a_h_bqi
+
+      i_bqi=a_i_bqi
+      h_bqi=a_h_bqi
+
+      end 
+
 
       subroutine qmmm_set_qbq(a_i_qbq,a_h_qbq)
       implicit none

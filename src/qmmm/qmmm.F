@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.11 2004-08-31 19:45:48 marat Exp $
+c $Id: qmmm.F,v 1.12 2004-09-02 23:55:41 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -16,7 +16,7 @@ c
       logical qmmm_init
 c
       integer nqm
-      integer i_ind
+c      integer i_ind
 
       qmmm_init = .true.
 
@@ -33,11 +33,6 @@ c     allocate and initialize qmmm data structure
 c     -------------------------------------------
       call qmmm_data_alloc(nqm)
       call qmmm_data_init(irtdb)
-
-c     establish mapping between mm and qm atoms
-c     ----------------------------------------
-      i_ind = qmmm_get_i_ai()
-      call mm_get_ind(nqm,int_mb(i_ind))
 
 c     create initial qm geometry
 c     --------------------------

@@ -79,6 +79,15 @@
 
        end
 
+       subroutine mm_get_pwl(pwl)
+         implicit none
+#include "md_common.fh"
+         integer pwl
+         
+         pwl = i_iw+(lwgmn-1)*mwm
+
+       end
+
        subroutine mm_get_psl(psl)
          implicit none
 #include "md_common.fh"
@@ -133,6 +142,20 @@
 
        end
 
+       subroutine mm_get_solute_coord(i,r)
+         implicit none
+#include "md_common.fh"
+#include "mafdecls.fh"
+         integer i
+         double precision r(3) 
+         integer j
+         
+         do j=1,3
+           r(j) = dbl_mb(i_xs+(i-1)+(j-1)*msa)
+         end do
+
+       end
+
        subroutine mm_get_pxw(pxw)
          implicit none
 #include "md_common.fh"
@@ -151,4 +174,139 @@
 
        end
 
+      subroutine mm_clear_bqzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+c        local variables
+         integer psz
 
+         call mm_get_psz(psz)
+
+         int_mb(psz+i-1)=0
+         
+       end
+
+       function mm_quant(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_quant
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+         mm_quant = iand(int_mb(psdt+i-1),lquant).ne.0
+         
+       end
+
+       function mm_quant_link(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_quant_link
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+         mm_quant_link = iand(int_mb(psdt+i-1),lquant).ne.0
+         mm_quant_link = mm_quant_link .or. 
+     >                   iand(int_mb(psdt+i-1),lqlink).ne.0
+          
+       end
+
+       function mm_link(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_link
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+         mm_link = iand(int_mb(psdt+i-1),lqlink).ne.0
+         
+       end
+
+       function mm_lqsoft(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_lqsoft
+c        local variables
+         integer psdt,lqsoft
+
+         lqsoft = 64
+         call mm_get_psdt(psdt)
+         mm_lqsoft = iand(int_mb(psdt+i-1),lqsoft).ne.0
+         
+       end       
+
+      function mm_bqwzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_bqwzone
+c        local variables
+         integer pwz
+
+         call mm_get_pwz(pwz)
+
+         mm_bqwzone = int_mb(pwz+i-1).gt.0
+         
+       end
+
+      function mm_bqzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_bqzone
+c        local variables
+         integer psdt,psz
+
+         call mm_get_psdt(psdt)
+         call mm_get_psz(psz)
+
+         mm_bqzone = iand(int_mb(psdt+i-1),lquant).eq.0
+         mm_bqzone = mm_bqzone .and. iand(int_mb(psdt+i-1),lqlink).eq.0
+         mm_bqzone = mm_bqzone .and. int_mb(psz+i-1).gt.0
+         
+       end
+
+      function mm_element(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         integer mm_element
+c        local variables
+         integer psat
+         integer cf_element
+         external cf_element
+
+         call mm_get_psat(psat)
+
+         mm_element = cf_element(int_mb(psat+i-1))
+         
+       end
+
+      function mm_solute_charge(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         double precision  mm_solute_charge
+c        local variables
+         double precision cf_charge
+         external cf_charge
+
+         mm_solute_charge= cf_charge(int_mb(i_is+(lsct1-1)*msa+i-1))
+         
+       end
