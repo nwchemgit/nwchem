@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.17 1997-04-27 04:39:29 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.18 1997-07-17 22:22:01 d3e129 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -333,6 +333,8 @@ c
       integer nactive
       double precision work(maxat3,nwork), eval(maxat3)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
+      integer ifirstmax
+      external ifirstmax
       double precision ddot
       external ddot
 c
@@ -463,14 +465,77 @@ c
             call dscal(natoms3,1.0d0/sqrt(eval(i)),vectors(1,nvec),1)
          endif
       enddo
+      if (oprint) then
+        write(6,*) ' Independent symmetric all-internal modes ',  nvec
+        call output(vectors, 1, natoms3, 1, nvec, natoms3, nvec, 1)
+        call util_flush(6)
+      endif
+c
+c phase align each vector with a positive maximum magnitude value
+c
+      do i = 1,nvec
+        k = ifirstmax(natoms3,vectors(1,i),1)
+        if (vectors(k,i).lt.0.0d00) then
+          call dscal(natoms3,-1.0d00,vectors(1,i),1)
+        endif
+      enddo
 c
       if (oprint) then
-         write(6,*) ' Independent symmetric all-internal modes ',  nvec
+         write(6,*)
+     &      ' Phase Corrected ',
+     &      'Independent symmetric all-internal modes ',
+     &      nvec
          call output(vectors, 1, natoms3, 1, nvec, natoms3, nvec, 1)
          call util_flush(6)
       endif
 c
       end
-
-
-
+      integer function ifirstmax(n,dx,incx)
+c
+c     finds the index of element having max. absolute value.
+c     but finds the first element within a predefined threshold
+c
+      double precision dx(*),dmax, dtmp, diff
+      double precision threshold
+      parameter (threshold = 1.0d-3)
+      integer i,incx,ix,n
+c
+      ifirstmax = 0
+      if( n.lt.1 .or. incx.le.0 ) return
+      ifirstmax = 1
+      if(n.eq.1)return
+      if(incx.eq.1)go to 20
+c
+c        code for increment not equal to 1
+c
+      ix = 1
+      dmax = dabs(dx(1))
+      ix = ix + incx
+      do i = 2,n
+        dtmp = dabs(dx(ix))
+        if(dtmp.lt.dmax) go to 5
+        diff = dabs(dmax-dtmp)
+        if (diff.gt.threshold) then
+          ifirstmax = i
+          dmax = dtmp
+        endif
+ 5      ix = ix + incx
+      enddo
+      return
+c
+c        code for increment equal to 1
+c
+ 20   continue
+      dmax = dabs(dx(1))
+      do  i = 2,n
+        dtmp = dabs(dx(i))
+         if(dtmp.lt.dmax) go to 30
+         diff = dabs(dmax-dtmp)
+         if (diff.gt.threshold) then
+           ifirstmax = i
+           dmax = dtmp
+         endif
+ 30      continue
+       enddo
+      return
+      end
