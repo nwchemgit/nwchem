@@ -1,7 +1,10 @@
 c
-c $Id: paw_spher_func.F,v 1.1 2003-02-06 06:07:12 marat Exp $
+c $Id: paw_spher_func.F,v 1.2 2003-02-10 02:33:32 marat Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.1  2003/02/06 06:07:12  marat
+c initial version
+c
 
 !**************************************************
 !
@@ -171,6 +174,9 @@ c $Log: not supported by cvs2svn $
 !  
 !  *************************************************
       function theta_lm (l, m, cos_theta)
+      implicit none
+
+
       integer l
       integer m
       double precision cos_theta
@@ -179,6 +185,11 @@ c $Log: not supported by cvs2svn $
       integer i
       integer mod_m
       double precision coeff
+      
+#include "paw_params.fh"
+      double precision legendre_lm
+      external legendre_lm
+
       if (m .gt. l) call errquit(
      1   ' PARAMETER OUT OF ORDER IN FUNCTION THETA_LM ',1)
       mod_m = abs(m)
