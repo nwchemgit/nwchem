@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.48 2000-07-13 23:08:02 edo Exp $
+c $Id: prp_main.F,v 1.49 2000-07-14 01:04:58 edo Exp $
 c
       implicit none
 c
@@ -287,7 +287,9 @@ c
       call ga_dgop(mrg_d43,epme,3,'+')
       endif
 c
-      p(98)=(p(98)-p(97))/p(98)
+      if(p(98).ne.0) then
+         p(98)=(p(98)-p(97))/p(98)
+      endif
 c
       if(temp.eq.0d0) then
          p(38)=0d0
