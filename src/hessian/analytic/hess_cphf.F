@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.12 2000-08-10 16:57:51 edo Exp $
+C $Id: hess_cphf.F,v 1.13 2000-08-14 21:16:05 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -106,7 +106,7 @@ c
          g_vecs(2) = ga_create_atom_blocked(geom, basis, 
      $       'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), 
-     $        dbl_mb(k_evals+nbf+1), g_vecs(2))) call errquit
+     $        dbl_mb(k_evals+nbf), g_vecs(2))) call errquit
      $        ('hess_cphf: could not read beta UHF MOs',0)
       end if
 c
