@@ -1,13 +1,16 @@
       logical function pre_wrtrst(lfnout,lfnrst,filrst,
      + npbtyp,nbxtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
-     + isar,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep)
+     + isar,isgm,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep)
 c
-c $Id: pre_wrtrst.F,v 1.15 2002-05-03 18:21:28 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.16 2002-07-09 10:08:45 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+c
+      logical pre_ssize
+      external pre_ssize
 c
       integer lfnout,lfnrst
       integer mwm,mwa,nwm,nwa,msa,nsa,msm,nsm,mwmc,nwmc
@@ -15,11 +18,14 @@ c
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
-      integer iwmrc(mwmc),iwmr(mwm),isar(msa)
+      integer iwmrc(mwmc),iwmr(mwm),isar(msa),isgm(msa)
 c
       integer i,j,k,length,ixrep,iyrep,izrep,nrep
-      real*8 orep(3)
+      real*8 orep(3),rsgm
       character*10 rstdat,rsttim
+c
+      if(.not.pre_ssize(isgm,xs,msa,nsa,rsgm))
+     + call errquit('pre_ssize failed',9999)
 c
 c     open the restart file
 c     ---------------------
@@ -51,9 +57,11 @@ c
       write(lfnrst,1001) 4.0,rstdat,rsttim,0,.false.
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10,i5,4x,l1)
-      write(lfnrst,1002) npbtyp,nbxtyp,dble(nxrep)*box(1),0.0d0,0.0d0,
-     + 0.0d0,dble(nyrep)*box(2),0.0d0,0.0d0,0.0d0,dble(nzrep)*box(3)
- 1002 format(2i5,/,(3f12.6))
+      write(lfnrst,1002) npbtyp,nbxtyp,rsgm,
+     + dble(nxrep)*box(1),0.0d0,0.0d0,
+     + 0.0d0,dble(nyrep)*box(2),0.0d0,
+     + 0.0d0,0.0d0,dble(nzrep)*box(3)
+ 1002 format(2i5,f12.6,/,(3f12.6))
       write(lfnrst,1003) 0.0d0
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0
@@ -271,5 +279,33 @@ c
 c
  9999 continue
       pre_wtrst=.false.
+      return
+      end
+      logical function pre_ssize(isgm,xs,msa,nsa,rsgm)
+c
+      implicit none
+c
+      integer msa,nsa
+      integer isgm(msa)
+      real*8 xs(3,msa)
+      real*8 rsgm
+c
+      integer i,j
+      real*8 d
+c
+      rsgm=0.0d0
+c
+      do 1 i=1,nsa-1
+      do 2 j=i+1,nsa
+      if(isgm(i).eq.isgm(j)) then
+      d=(xs(1,i)-xs(1,j))**2+(xs(2,i)-xs(2,j))**2+(xs(3,i)-xs(3,j))**2
+      rsgm=max(rsgm,d)
+      endif
+    2 continue
+    1 continue
+      if(rsgm.gt.0) rsgm=dsqrt(rsgm)
+c
+      pre_ssize=.true.
+c
       return
       end

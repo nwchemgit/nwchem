@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.83 2002-05-07 16:50:42 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.84 2002-07-09 10:08:45 d3j191 Exp $
 c
       implicit none
 c
@@ -342,8 +342,8 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm,
-     + irrep,nxrep,nyrep,nzrep))
+     + int_mb(i_sar),int_mb(i_sgm),dbl_mb(i_xs),dbl_mb(i_vs),
+     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep))
      + call errquit('pre_wrtrst failed',9999)
       endif
       goto 9
@@ -840,8 +840,8 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm,
-     + irrep,nxrep,nyrep,nzrep))
+     + int_mb(i_sar),int_mb(i_sgm),dbl_mb(i_xs),dbl_mb(i_vs),
+     + msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep))
      + call errquit('pre_wrtrst failed',9999)
       irrep=0
       endif
