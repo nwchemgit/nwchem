@@ -1,5 +1,5 @@
 c
-c $Id: c_G_init.F,v 1.2 2003-10-24 18:48:03 marat Exp $
+c $Id: c_G_init.F,v 1.3 2004-05-05 19:33:50 bylaska Exp $
 c
 
       integer function c_G_indx(i)
@@ -85,10 +85,11 @@ c
                if (j .lt. 0) j = j + ny
                if (k .lt. 0) k = k + nz
 
-               call C3dB_ktoqp(1,k+1,q,p)
+               !call C3dB_ktoqp(1,k+1,q,p)
+               call C3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
                if (p .eq. taskid) then
-                  index = (q-1)*nx*ny
-     >                  + j*nx + i+1
+c                 index = (q-1)*nx*ny
+c    >                  + j*nx + i+1
                   dbl_mb(G(1)+index-1) = g1
                   dbl_mb(G(2)+index-1) = g2
                   dbl_mb(G(3)+index-1) = g3

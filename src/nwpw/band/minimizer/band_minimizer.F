@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.29 2004-03-15 15:17:40 bylaska Exp $
+* $Id: band_minimizer.F,v 1.30 2004-05-05 19:33:49 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -54,6 +54,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
+      integer mapping
   
 
 
@@ -112,6 +113,8 @@
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
       external pspw_reformat_c_wvfnc
+      integer  control_mapping
+      external control_mapping
     
 
 
@@ -160,6 +163,7 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
+      mapping = control_mapping()
 
 
       ierr = 0 
@@ -175,7 +179,7 @@
 
 
 *     **** initialize C3dB data structure ****
-      call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
 
 
@@ -189,7 +193,7 @@
 
 *     **** initialize D3dB data structure and mask for GGA ****
       IF (control_gga().eq.1) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
       END IF
@@ -250,6 +254,9 @@
 
       if (taskid.eq.MASTER) then
          write(luout,1111) np
+         if (mapping.eq.1) write(luout,1112)
+         if (mapping.eq.2) write(luout,1113)
+
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
          if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
@@ -535,6 +542,8 @@
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
+ 1112 FORMAT( ' parallel mapping         : slab')
+ 1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')

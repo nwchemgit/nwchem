@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.8 2004-03-17 02:43:56 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.9 2004-05-05 19:33:51 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -15,7 +15,7 @@
       parameter (MASTER=0)
 
       logical value,oprint
-      integer version
+      integer version,mapping
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
       integer nfft3d,n2ft3d,npack1
       integer indx
@@ -35,13 +35,13 @@
 
 *     **** external functions ****
       logical      control_read
-      integer      control_ngrid,control_ispin
+      integer      control_ngrid,control_ispin,control_mapping
       integer      pack_nwave,pack_nwave_all
       real*8       lattice_unita,lattice_unitg
       real*8       lattice_ecut,lattice_wcut,lattice_omega
       character*30 control_input_psi,control_output_psi
       external     control_read
-      external     control_ngrid,control_ispin
+      external     control_ngrid,control_ispin,control_mapping
       external     pack_nwave,pack_nwave_all
       external     lattice_unita,lattice_unitg
       external     lattice_ecut,lattice_wcut,lattice_omega
@@ -81,6 +81,7 @@
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
+      mapping = control_mapping()
 
 
       if ((np.gt.(control_ngrid(3)))) then
@@ -94,7 +95,7 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 

@@ -1,5 +1,5 @@
 *
-* $Id: nose-hoover.F,v 1.4 2004-03-08 22:51:27 bylaska Exp $
+* $Id: nose-hoover.F,v 1.5 2004-05-05 19:33:51 bylaska Exp $
 *
 
 *     ***************************
@@ -79,6 +79,7 @@
 *     **** Set Ee0 - read from rtdb otherwise use current KE ****
       rtdb  = control_rtdb()
       value = rtdb_get(rtdb,'cpmd:eke0',mt_dbl,1,tmpe)
+      write(*,*) "value:",value,tmpe
       if (value) then
         eke0_init = tmpe
       end if
@@ -88,6 +89,7 @@
       pi = 4.0d0*datan(1.0d0)
       value = rtdb_get(rtdb,'cpmd:Qe',  mt_dbl,1,Qe)
      >   .and.rtdb_get(rtdb,'cpmd:Qr',  mt_dbl,1,Qr)
+      write(*,*) "value:",value,Qe,Qr
       if (.not.value) then
         Qe = Pe*Pe*Ee0/(pi*pi)
         Qr = Pr*Pr*Er0/(pi*pi)

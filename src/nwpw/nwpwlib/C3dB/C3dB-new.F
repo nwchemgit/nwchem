@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.15 2004-02-01 01:10:03 bylaska Exp $
+* $Id: C3dB-new.F,v 1.16 2004-05-05 19:33:49 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -66,12 +66,8 @@
       integer nb
      
 #include "mafdecls.fh"
+#include "C3dB.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
-
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /C3dB_mapping / q_map,p_map,k_map
 
       integer k,q,p
 *     integer kn
@@ -112,6 +108,12 @@
             int_mb(k_map(1,nb)+int_mb(q_map(1,nb)+k-1)-1) = k
          end if
       end do
+
+      nfft3d(nb)     = nx(nb)*ny(nb)*nq(nb)
+      n2ft3d(nb)     = nfft3d(nb)
+      nfft3d_map(nb) = nfft3d(nb)
+      n2ft3d_map(nb) = n2ft3d(nb)
+
  
       return
       end
@@ -126,9 +128,8 @@
       integer nb
 
 #include "mafdecls.fh"
+#include "C3dB.fh"
 
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /C3dB_mapping / q_map,p_map,k_map
 
       integer iq_to_i1(2,NBLOCKS)
       integer iq_to_i2(2,NBLOCKS)
@@ -168,10 +169,7 @@
       integer q,k
 
 #include "mafdecls.fh"
-      
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /C3dB_mapping / q_map,p_map,k_map
+#include "C3dB.fh"
       
 c     k = k_map(q)
       k = int_mb(k_map(1,nb)+q-1)
@@ -191,10 +189,8 @@ c     k = k_map(q)
       integer k,q,p
 
 #include "mafdecls.fh"
+#include "C3dB.fh"
       
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /C3dB_mapping / q_map,p_map,k_map
       
 c     q = q_map(k)
 c     p = p_map(k)
@@ -203,6 +199,67 @@ c     p = p_map(k)
       p = int_mb(p_map(1,nb)+k-1)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *           C3dB_ijktoindexp      *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_ijktoindexp(nb,i,j,k,indx,p)
+      implicit none
+      integer nb
+      integer i,j,k
+      integer indx,p
+
+#include "mafdecls.fh"
+#include "C3dB.fh"
+
+      integer q
+
+      !**** slab mapping ***
+      q = int_mb(q_map(1,nb)+k-1)
+      p = int_mb(p_map(1,nb)+k-1)
+
+      indx = i + (j-1)*(nx(nb)) + (q-1)*(nx(nb))*ny(nb)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           C3dB_ijktoindex2p     *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_ijktoindex2p(nb,i,j,k,indx,p)
+      implicit none
+      integer nb
+      integer i,j,k
+      integer indx,p
+
+#include "mafdecls.fh"
+#include "C3dB.fh"
+
+
+      integer q
+
+      !**** slab mapping ****
+      q = int_mb(q_map(1,nb)+j-1)
+      p = int_mb(p_map(1,nb)+j-1)
+
+      indx = i + (k-1)*(nx(nb)) + (q-1)*(nx(nb))*ny(nb)
+
+
+      return
+      end
+
+
+
+
 
 *     ***********************************
 *     *                                 *
@@ -217,10 +274,8 @@ c     p = p_map(k)
       integer s,r,q,p
 
 #include "mafdecls.fh"
+#include "C3dB.fh"
 
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /C3dB_mapping / q_map,p_map,k_map
 
 c     q = q_map(k)
 c     p = p_map(k)
@@ -241,15 +296,14 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_nfft3d(nb,nfft3d)
+      subroutine C3dB_nfft3d(nb,nfft3d_out)
       implicit none
       integer nb
-      integer nfft3d
+      integer nfft3d_out
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-      nfft3d = (nx(nb))*ny(nb)*nq(nb)
+      nfft3d_out = nfft3d(nb)
       return
       end
 
@@ -259,15 +313,14 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_n2ft3d(nb,n2ft3d)
+      subroutine C3dB_n2ft3d(nb,n2ft3d_out)
       implicit none
       integer nb
-      integer n2ft3d
+      integer n2ft3d_out
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-      n2ft3d = (nx(nb))*ny(nb)*nq(nb)
+      n2ft3d_out = n2ft3d(nb)
       return
       end
 
@@ -283,8 +336,7 @@ c     p = p_map(k)
       integer nb
       integer nqtmp
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       nqtmp = nq(nb)
 
@@ -302,8 +354,7 @@ c     p = p_map(k)
       integer nb
       integer nxtmp
       
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       nxtmp = nx(nb)
       return
@@ -320,8 +371,7 @@ c     p = p_map(k)
       integer nb
       integer nytmp
       
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       nytmp = ny(nb)
       return
@@ -338,8 +388,7 @@ c     p = p_map(k)
       integer nb
       integer nztmp
       
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       nztmp = nz(nb)
       return
@@ -352,20 +401,20 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_Init(nb,nx_in,ny_in,nz_in)
+      subroutine C3dB_Init(nb,nx_in,ny_in,nz_in,map_in)
       implicit none
       integer nb
       integer nx_in,ny_in,nz_in
+      integer map_in
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-     
 
 *     ***** initialize C3dB common block *****
       nx(nb)     = nx_in
       ny(nb)     = ny_in
       nz(nb)     = nz_in
+      mapping    = map_in
 
 
 *     **** do other initializations ****
@@ -446,10 +495,9 @@ c     implicit none
       integer nb
       complex*16 A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-      call dcopy(2*(nx(nb))*ny(nb)*nq(nb),0.0d0,0,A,1)
+      call dcopy(2*nfft3d_map(nb),0.0d0,0,A,1)
       return
       end
 
@@ -459,10 +507,10 @@ c     implicit none
       integer nb
       real*8  A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+  
+#include "C3dB.fh"
 
-      call dcopy((nx(nb))*ny(nb)*nq(nb),0.0d0,0,A,1)
+      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       return
       end
 
@@ -480,10 +528,9 @@ c     implicit none
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-      call dcopy(2*(nx(nb))*ny(nb)*nq(nb),A,1,B,1)
+      call dcopy(2*nfft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -493,10 +540,9 @@ c     implicit none
       real*8 A(*)
       real*8 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
-      call dcopy((nx(nb))*ny(nb)*nq(nb),A,1,B,1)
+      call dcopy(n2ft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -529,15 +575,13 @@ c     implicit none
 *****************************************************
 
       implicit none
-#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
 #include "mafdecls.fh"
+#include "C3dB.fh"
+#include "errquit.fh"
 
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
 
 *     *** local variables ***
       integer i,j,q,indx
@@ -545,7 +589,7 @@ c     implicit none
 c     complex*16  tmp1(*)
 c     complex*16  tmp2(*)
 c     real*8      tmp3(*)
-      integer nfft3d
+      !integer nfft3d
       integer tmp1(2),tmp2(2)
       logical value
 
@@ -554,10 +598,12 @@ c     real*8      tmp3(*)
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
-      call C3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      !call C3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)), 
+     >                    'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dcpl,(nfft3d(nb)), 
+     >                   'ffttmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     ********************************************
@@ -654,19 +700,18 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *****************************************************
 
       implicit none
-#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
 #include "mafdecls.fh"
+#include "C3dB.fh"
+#include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
 
 *     *** local variables ***
       integer i,j,q,indx
 
-      integer nfft3d
+      !integer nfft3d
       integer tmp1(2),tmp2(2)
       logical value
 
@@ -674,10 +719,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
-      call C3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      !call C3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -762,8 +807,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
       complex*16 tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
 #ifdef TCGMSG
 #include "tcgmsg.fh"
@@ -832,8 +876,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       real*8  A(*)
       real*8  tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
 
 #ifdef TCGMSG
@@ -914,12 +957,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -933,12 +975,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -953,12 +994,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -979,12 +1019,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
       real*8     C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = C(i) + w*(dble(A(i))**2 + dimag(A(i))**2)
       end do
       return
@@ -1005,12 +1044,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 A(*)
       real*8     C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
       return
@@ -1032,12 +1070,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       complex*16 B(*)
       real*8     C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common    / C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dble(A(i))*dble(B(i)) + dimag(A(i))*dimag(B(i))
       end do
       return
@@ -1057,12 +1094,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i)**2
       end do
       return
@@ -1080,12 +1116,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dsqrt(A(i))
       end do
       return
@@ -1102,13 +1137,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       subroutine C3dB_c_transpose_jk_init(nb)
       implicit none
-#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "errquit.fh"
+#include "C3dB.fh"
 
 c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
 c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)
@@ -1342,9 +1375,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
 
 #include "mafdecls.fh"
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
 
 *     **** indexing variables ****
@@ -1454,8 +1485,7 @@ c     integer i2_start(NFFT3+1)
       complex*16 A(*)
       complex*16 tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
 #ifdef TCGMSG
 #include "tcgmsg.fh"
@@ -1539,8 +1569,7 @@ c     integer i2_start(NFFT3+1)
       real*8     A(*)
       real*8     tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
 #ifdef TCGMSG
 #include "tcgmsg.fh"
@@ -1617,8 +1646,7 @@ c     integer i2_start(NFFT3+1)
       real*8 B(*)
       real*8     sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer np
       real*8  sum
@@ -1633,8 +1661,8 @@ c     integer i2_start(NFFT3+1)
       call Parallel_np(np)
 
 *     **** sum up dot product on this node ****
-      sum = ddot(nx(nb)*ny(nb)*nq(nb),A(1),2,B(1),2)
-     >    + ddot(nx(nb)*ny(nb)*nq(nb),A(2),2,B(2),2)
+      sum = ddot(nfft3d_map(nb),A(1),2,B(1),2)
+     >    + ddot(nfft3d_map(nb),A(2),2,B(2),2)
 
 
 
@@ -1662,8 +1690,7 @@ c     integer i2_start(NFFT3+1)
       real*8 B(*)
       real*8     sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       real*8  sum
 
@@ -1674,8 +1701,8 @@ c     integer i2_start(NFFT3+1)
       call nwpw_timing_start(2)
 
 *     **** sum up dot product on this node ****
-      sum = ddot(nx(nb)*ny(nb)*nq(nb),A(1),2,B(1),2)
-     >    + ddot(nx(nb)*ny(nb)*nq(nb),A(2),2,B(2),2)
+      sum = ddot(nfft3d_map(nb),A(1),2,B(1),2)
+     >    + ddot(nfft3d_map(nb),A(2),2,B(2),2)
 
 *     **** do not add up sums from other nodes ****       
       call nwpw_timing_end(2)
@@ -1699,8 +1726,7 @@ c     integer i2_start(NFFT3+1)
       real*8  B(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer np
       real*8  sum
@@ -1711,7 +1737,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel_np(np)
 
 *     **** sum up dot product on this node ****
-      sum = ddot(nx(nb)*ny(nb)*nq(nb),A,1,B,1)
+      sum = ddot(n2ft3d_map(nb),A,1,B,1)
 
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
@@ -1735,8 +1761,7 @@ c     integer i2_start(NFFT3+1)
       real*8  B(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer np
       real*8  sum
@@ -1747,7 +1772,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel_np(np)
 
 *     **** sum up dot product on this node ****
-      sum = ddot(nx(nb)*ny(nb)*nq(nb),A,1,B,1)
+      sum = ddot(n2ft3d_map(nb),A,1,B,1)
 
 *     **** add up sums from other nodes ****
 *     if (np.gt.1) then
@@ -1773,12 +1798,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
             C(i) = dconjg(A(i)) * B(i)
          end do
 
@@ -1797,12 +1821,11 @@ c     integer i2_start(NFFT3+1)
       logical    masker(*)
       complex*16 A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
       return
@@ -1820,12 +1843,11 @@ c     integer i2_start(NFFT3+1)
       logical   masker(*)
       real*8    A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = 0.0d0
       end do
       return
@@ -1845,12 +1867,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) * B(i)
       end do
 
@@ -1870,12 +1891,11 @@ c     integer i2_start(NFFT3+1)
       real*8 B(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) * B(i)
       end do
 
@@ -1897,12 +1917,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -1923,12 +1942,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -1949,12 +1967,11 @@ c     integer i2_start(NFFT3+1)
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -1974,12 +1991,11 @@ c     integer i2_start(NFFT3+1)
       real*8     B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = dcmplx((A(i) + B(i)),0.0d0)
       end do
 
@@ -2002,12 +2018,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -2028,12 +2043,11 @@ c     integer i2_start(NFFT3+1)
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -2056,12 +2070,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
 
@@ -2083,12 +2096,11 @@ c     integer i2_start(NFFT3+1)
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
 
@@ -2108,12 +2120,11 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          B(i) = B(i) + alpha* A(i)
       end do
 
@@ -2133,8 +2144,7 @@ c     integer i2_start(NFFT3+1)
       real*8 B(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       real*8 eta
       parameter (eta=1.0d-9)
@@ -2142,7 +2152,7 @@ c     integer i2_start(NFFT3+1)
       integer i
 
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          if (dabs(B(i)) .le. eta) then
            C(i) = 0.0d0
          else
@@ -2165,19 +2175,16 @@ c     integer i2_start(NFFT3+1)
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
       return
       end
-
-
 
 
 
@@ -2194,8 +2201,7 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i,np
       real*8 sum
@@ -2204,7 +2210,7 @@ c     integer i2_start(NFFT3+1)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,n2ft3d_map(nb)
          sum = sum + A(i)
       end do
 
@@ -2230,8 +2236,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16 sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i,np
       complex*16 sum
@@ -2240,7 +2245,7 @@ c     integer i2_start(NFFT3+1)
 
 *     **** sum up dot product on this node ****
       sum = dcmplx(0.0d0,0.0d0)
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          sum = sum + A(i)
       end do
 
@@ -2263,16 +2268,15 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_cc_Vector_dot(nb,nfft3d,nn,ne,A,B,sumall)     
+      subroutine C3dB_cc_Vector_dot(nb,nnfft3d,nn,ne,A,B,sumall)     
       implicit none 
       integer    nb
-      integer    nfft3d,nn,ne
+      integer    nnfft3d,nn,ne
       real*8 A(*)
       real*8 B(*)
       real*8     sumall(nn,nn)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer np
       integer n,m,shift1,shift2
@@ -2289,11 +2293,11 @@ c     integer i2_start(NFFT3+1)
       do n=1,ne
       do m=n,ne
 
-        shift1 = 1 + (n-1)*nfft3d*2
-        shift2 = 1 + (m-1)*nfft3d*2
+        shift1 = 1 + (n-1)*nnfft3d*2
+        shift2 = 1 + (m-1)*nnfft3d*2
 
-        sum = ddot(nx(nb)*ny(nb)*nq(nb),A(shift1),2,B(shift2),2)
-     >      + ddot(nx(nb)*ny(nb)*nq(nb),A(shift1+1),2,B(shift2+1),2)
+        sum = ddot(nfft3d_map(nb),A(shift1),2,B(shift2),2)
+     >      + ddot(nfft3d_map(nb),A(shift1+1),2,B(shift2+1),2)
 
          sumall(n,m) = sum
          sumall(m,n) = sum
@@ -2319,16 +2323,15 @@ c     integer i2_start(NFFT3+1)
 *     *					*
 *     ***********************************
 
-      subroutine C3dB_cc_Vector_ndot(nb,nfft3d,ne,A,B,sumall)     
+      subroutine C3dB_cc_Vector_ndot(nb,nnfft3d,ne,A,B,sumall)     
       implicit none 
       integer    nb
-      integer    nfft3d,ne
+      integer    nnfft3d,ne
       real*8 A(*)
       real*8 B(*)
       real*8     sumall(ne)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer np
       integer n,shift1
@@ -2345,9 +2348,9 @@ c     integer i2_start(NFFT3+1)
 *     **** sum up dot product on this node ****
       do n=1,ne
 
-        shift1 = 1 + (n-1)*nfft3d*2
-        sum = ddot(nx(nb)*ny(nb)*nq(nb),A(shift1),2,B(1),2)
-     >      + ddot(nx(nb)*ny(nb)*nq(nb),A(shift1+1),2,B(2),2)
+        shift1 = 1 + (n-1)*nnfft3d*2
+        sum = ddot(nfft3d_map(nb),A(shift1),2,B(1),2)
+     >      + ddot(nfft3d_map(nb),A(shift1+1),2,B(2),2)
 
         sumall(n) = sum
       end do
@@ -2498,18 +2501,15 @@ c      end
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ C3dB / nq,nx,ny,nz
+#include "C3dB.fh"
 
       integer i
 
-      do i=1,nx(nb)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
 
       return
       end
-
-
 
 

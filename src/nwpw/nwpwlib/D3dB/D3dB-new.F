@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.30 2004-04-26 00:07:53 bylaska Exp $
+* $Id: D3dB-new.F,v 1.31 2004-05-05 19:33:50 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -4732,7 +4732,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       do k=1,nz(nb)
       do j=1,ny(nb)
          i=1
-         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         call D3dB_ijktoindexp(nb,i,j,k,index,p)
          if (p.eq.taskid) then
          sum = sum - A(index)
          end if
@@ -4854,7 +4854,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
         do k=1,nz(nb)
         do j=1,ny(nb)
          i=1
-         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         call D3dB_ijktoindexp(nb,i,j,k,index,p)
          if (p.eq.taskid) then
          index1 = index+shift1
          index2 = index+shift2
@@ -4979,7 +4979,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
         do k=1,nz(nb)
         do j=1,ny(nb)
          i=1
-         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         call D3dB_ijktoindexp(nb,i,j,k,index,p)
          if (p.eq.taskid) then
          index1 = index+shift1
          index2 = index+shift2

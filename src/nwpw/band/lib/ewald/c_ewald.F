@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.4 2003-10-17 22:56:07 carlfahl Exp $
+* $Id: c_ewald.F,v 1.5 2004-05-05 19:33:49 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -137,10 +137,12 @@
       i=0
       j=0
       k=0
-      call C3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nx)*ny
-     >     + j*(nx)
-     >     + i+1
+c     call C3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nx)*ny
+c    >     + j*(nx)
+c    >     + i+1
+      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
       
 
 *     ***** initialize common block and find w *****

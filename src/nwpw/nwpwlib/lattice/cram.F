@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.14 2003-10-17 22:56:44 carlfahl Exp $
+* $Id: cram.F,v 1.15 2004-05-05 19:33:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -107,9 +107,10 @@
             if (k2.lt.0) k2 = k2 + ny
             if (k3.lt.0) k3 = k3 + nz
 
-            call C3dB_ktoqp(1,k3+1,q,p)
+            !call C3dB_ktoqp(1,k3+1,q,p)
+            call C3dB_ijktoindexp(1,k1+1,k2+1,k3+1,indx,p)
             if (p.eq.taskid) then
-               indx = (q-1)*(nx)*ny + k2*(nx) + k1 + 1
+               !indx = (q-1)*(nx)*ny + k2*(nx) + k1 + 1
                if (.not.cloak_masker(indx)) then
                   nidb = nidb + 1
                   int_mb(pack(1)+nidb-1) = indx
@@ -466,7 +467,8 @@
 *     *********************************************************
 *     index = (qzero-1)*(nx/2+1)*ny + (j-1)*(nx/2+1) + i 
       zero = 1
-      call C3dB_ktoqp(1,1,qzero,pzero)
+      !call C3dB_ktoqp(1,1,qzero,pzero)
+      call C3dB_ijktoindexp(1,1,1,1,zero,pzero)
 
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.6 2004-02-01 01:10:04 bylaska Exp $
+* $Id: semicore.F,v 1.7 2004-05-05 19:33:51 bylaska Exp $
 *
 
 #define TCGMSG
@@ -223,6 +223,7 @@ c     logocal semicore(0:nkatmx)
       if (.not. value) 
      >  call errquit('semicore_density_update: push stack',0, MA_ERR)
 
+      
       call dcopy(n2ft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
       do ii=1,ion_nion()
         ia=ion_katm(ii)
@@ -311,10 +312,10 @@ c     logical semicore(0:nkatmx)
       call Pack_npack(0,npack0)
       call D3dB_nfft3d(1,nfft3d)
 
+      
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
      >  call errquit('semicore_check:out of stack memory',0, MA_ERR)
-
 
       do ia=1,ion_nkatm()
 

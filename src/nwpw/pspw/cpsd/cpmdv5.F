@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.38 2004-04-22 15:02:14 bylaska Exp $
+* $Id: cpmdv5.F,v 1.39 2004-05-05 19:33:51 bylaska Exp $
 *
 
 ***********************************************************************
@@ -89,7 +89,7 @@
       integer icount,it_in,it_out,icount_shift
       real*8 w,sumall
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
-      integer nfft3
+      integer nfft3,mapping
       parameter (nfft3=32)
       character*30 filename
       character*255 full_filename
@@ -163,6 +163,8 @@
       real*8   control_SA_decay
       external control_SA,control_Fei,pspw_SIC
       external control_SA_decay
+      integer  control_mapping
+      external control_mapping
      
 
 
@@ -211,6 +213,7 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
+      mapping = control_mapping()
 
 
       ierr = 0 
@@ -226,11 +229,11 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       if (control_version().eq.4) 
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 
 *     **** initialize lattice data structure ****
@@ -397,6 +400,9 @@
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         if (mapping.eq.1) write(6,1112)
+         if (mapping.eq.2) write(6,1113)
+
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(6,1130) 'restricted'
@@ -1157,6 +1163,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
+ 1112 FORMAT( ' parallel mapping         : slab')
+ 1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)

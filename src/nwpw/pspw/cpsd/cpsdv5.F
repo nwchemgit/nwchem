@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.29 2004-03-15 15:17:42 bylaska Exp $
+* $Id: cpsdv5.F,v 1.30 2004-05-05 19:33:51 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -70,7 +70,7 @@
       integer ierr
 
 *     **** local variables ****
-      integer ms
+      integer ms,mapping
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
@@ -141,6 +141,8 @@
       external     psi_filefind
       real*8       nwpw_timing
       external     nwpw_timing
+      integer      control_mapping
+      external     control_mapping
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -185,6 +187,7 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
+      mapping = control_mapping()
 
 
       ierr = 0 
@@ -200,13 +203,13 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 
 *     **** initialize lattice and packing data structure ****
@@ -375,6 +378,9 @@
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         if (mapping.eq.1) write(6,1112)
+         if (mapping.eq.2) write(6,1113)
+
          write(6,1115)
          IF(control_move()) THEN
            write(6,1120) 'yes'
@@ -899,6 +905,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ PSPW input data ===================')
  1111 FORMAT(/' number of processors used:',I3)
+ 1112 FORMAT( ' parallel mapping         : slab')
+ 1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')

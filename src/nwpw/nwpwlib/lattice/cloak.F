@@ -1,11 +1,11 @@
 *
-* $Id: cloak.F,v 1.6 2003-10-17 22:56:44 carlfahl Exp $
+* $Id: cloak.F,v 1.7 2004-05-05 19:33:50 bylaska Exp $
 *
 
 *     *******************************
-*     *								*
+*     *			  	    *
 *     *	        cloak_init          *
-*     *								*
+*     *				    *
 *     *******************************
       subroutine cloak_init()
       implicit none
@@ -28,9 +28,9 @@
       end
 
 *     *******************************
-*     *								*
+*     *				    *
 *     *	        cloak_end           *
-*     *								*
+*     *				    *
 *     *******************************
       subroutine cloak_end()
       implicit none
@@ -48,9 +48,9 @@
       end
 
 *     *******************************
-*     *								*
+*     *				    *
 *     *	        cloak_set           *
-*     *								*
+*     *				    *
 *     *******************************
       subroutine cloak_set(kvector,ecut)
       implicit none
@@ -113,13 +113,15 @@
                if (i .lt. 0) i = i + nx
                if (j .lt. 0) j = j + ny
                if (k .lt. 0) k = k + nz
-                call C3dB_ktoqp(1,k+1,q,p)
+
+                !call C3dB_ktoqp(1,k+1,q,p)
+                call C3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
                 if (p .eq. taskid) then
                   gg = g1*g1 + g2*g2 + g3*g3
                   if (gg.lt.ggcut) then
-                     index = (q-1)*(nx)*ny
-     >                     + j*(nx)
-     >                     + i+1
+c                    index = (q-1)*(nx)*ny
+c    >                     + j*(nx)
+c    >                     + i+1
                      log_mb(masker(1)+index-1) = .false.
                      nwave = nwave + 1
                   end if
@@ -134,9 +136,9 @@
       end
 
 *     *******************************
-*     *								*
+*     *		 		    *
 *     *	        cloak_C             *
-*     *								*
+*     *				    *
 *     *******************************
       subroutine cloak_C(A)
       implicit none
@@ -160,9 +162,9 @@
       end
 
 *     *******************************
-*     *								*
+*     *				    *
 *     *	        cloak_R             *
-*     *								*
+*     *				    *
 *     *******************************
       subroutine cloak_R(A)
       implicit none
@@ -184,9 +186,9 @@
 
 
 *     *******************************
-*     *								*
+*     *			  	    *
 *     *	        cloak_nwave         *
-*     *								*
+*     *				    *
 *     *******************************
       integer function cloak_nwave()
       implicit none
@@ -198,9 +200,9 @@
       end
 
 *     *******************************
-*     *								*
+*     *				    *
 *     *	        cloak_nwave_all     *
-*     *								*
+*     *				    *
 *     *******************************
       integer function cloak_nwave_all()
       implicit none
@@ -212,9 +214,9 @@
       end
 
 *     *******************************
-*     *								*
-*     *	        cloak_masker     *
-*     *								*
+*     *				    *
+*     *	        cloak_masker        *
+*     *				    *
 *     *******************************
       logical function cloak_masker(i)
       implicit none

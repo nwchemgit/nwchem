@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.3 2003-10-24 18:56:58 marat Exp $
+* $Id: c_coulomb.F,v 1.4 2004-05-05 19:33:49 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -45,10 +45,11 @@
       i=0
       j=0
       k=0
-      call C3dB_ktoqp(1,k+1,qzero,pzero)
-      zero = (qzero-1)*(nx)*ny
-     >     + j*(nx)
-     >     + i+1
+c     call C3dB_ktoqp(1,k+1,qzero,pzero)
+c     zero = (qzero-1)*(nx)*ny
+c    >     + j*(nx)
+c    >     + i+1
+      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 
 *     ***** form Vc = 4*pi/G**2  *****

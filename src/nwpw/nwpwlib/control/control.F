@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.52 2004-03-15 15:17:41 bylaska Exp $
+* $Id: control.F,v 1.53 2004-05-05 19:33:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -2038,6 +2038,34 @@ c      end
       control_excited_ne = ne(ii)
       return
       end
+
+
+*     *****************************
+*     *                           *
+*     *    control_mapping        *
+*     *                           *
+*     *****************************
+      integer function control_mapping()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer mapping
+
+      if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
+         mapping = 1
+      end if
+
+      control_mapping = mapping
+      return
+      end
+
+
 
 *     *****************************
 *     *                	 	  *
