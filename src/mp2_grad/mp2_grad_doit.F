@@ -135,9 +135,6 @@ c
          call util_flush(6)
       endif
 c
-      do num_i_perseg = (noa_hi-noa_lo+1), 1, -1
-         npasses = (noa_hi-noa_lo)/num_i_perseg + 1
-c
       do npasses = 1, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,

@@ -43,9 +43,13 @@ c
       max_ga = max_ga / ga_nnodes()
 c     
       call int_init(rtdb,1,basis)
-      call intd_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
+      call int_terminate
+c
+      call int_init(rtdb,1,basis)
+      call intd_init(rtdb,1,basis)
       call int_mem ( idum, lengd, idum2, lenscrd )
+      call int_terminate
 c
       max_ma=2*nbf*nbf+((nva+nvb)*8+nnbf+1)
      $     /ma_sizeof(mt_dbl,1,mt_int)
@@ -61,8 +65,6 @@ c
      $        +batch_size*nbf+lenscr+lenscrd+leng+lengd)
       endif
 c     
-*     call intd_terminate
-      call int_terminate
 c
       max_ga = max_ga * 1.1d0    ! 10% for safety
       max_ma = max_ma * 1.1d0

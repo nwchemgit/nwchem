@@ -64,7 +64,7 @@ c
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
       character*(nw_max_path_len) cphf_sol
-      integer natoms, l_grad, k_grad, l_grad2, k_grad2, junk1, junk2
+      integer natoms, l_grad, k_grad
 c
       otrace = util_print('matrix trace',print_debug) .and.
      $     ga_nodeid().eq.0

@@ -60,9 +60,10 @@ c
 c
 c     Make mapping of shell pairs to processors
 c
-      call intd_init(rtdb,1,basis)
+      call int_init(rtdb,1,basis)     ! intd_init overwrite mem estimates
       call schwarz_init(geom,basis)
-
+      call int_terminate()
+c
       call mp2_backt_info(basis, tol2e, .false., nshpair, nshpairlocal,
      $     nbfpair, nbfpairlocal, shmax, junk, junk, junk, junk, junk)
       if (.not. ma_push_get(mt_int, nshpair*2, 'mp2: shpairs',
@@ -157,7 +158,7 @@ c
       end do
 c      
       call pstat_on(ps_nonsep)
-      call mp2_nonsep_test(basis,
+      call mp2_nonsep_test(rtdb, basis,
      $     twopdmunit,
      $     dbl_mb(k_c_t),
      $     nsh, nbf, ninseg,
@@ -167,7 +168,6 @@ c
      $     tol2e)
       call pstat_off(ps_nonsep)
 c
-      call intd_terminate()
       call schwarz_tidy()
 c
 c     Done.
@@ -529,6 +529,7 @@ c
 c
       end
       subroutine mp2_nonsep_test(
+     $     rtdb,
      $     basis,
      $     twopdmunit,
      $     c_t,
@@ -545,6 +546,7 @@ c
 #include "global.fh"
 #include "eaf.fh"
 c     
+      integer rtdb
       integer basis
       integer twopdmunit
       integer nsh, nbf, ninseg
@@ -577,7 +579,9 @@ c
 c
       energy = 0.0d0
 c     
+      call int_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
+      call intd_init(rtdb,1,basis)
       call int_mem ( idum, lengd, idum2, lenscrd )
       lenscr = max(lenscr, leng)
       lenscrd = max(lenscrd, lengd)
@@ -698,17 +702,11 @@ c     use density to screen evaluation of gradient integrals
          end do
       end do
 c     
-c
       if (odebug) then
          call ga_dgop(1,energy,1,'+')
          write(6,*) ' The energy from the two PDM is ', energy
       endif
 c
-c     DGOP must be deferred until have everything or will double count
-c
-*      call ga_dgop(1,grad,3*nat,'+')
-*      call output(grad, 1, 3, 1, nat, 3, nat, 1)
-c     
       if (.not. ma_pop_stack(l_gd))
      $     call errquit('mp2:test: ma pop failed', 0)
       if (.not. ma_pop_stack(l_scrd))
@@ -717,5 +715,7 @@ c
      $     call errquit('mp2:test: ma pop failed', 0)
       if (.not. ma_pop_stack(l_scr))
      $     call errquit('mp2:test: ma pop failed', 0)
+c
+      call int_terminate()
 c     
       end
