@@ -190,6 +190,8 @@ C
      $   msg_cc_term3, msg_cc_term4, msg_cc_term5, msg_cc_term6,
      $   msg_cc_t1a, msg_cc_t1b
       Integer msg_ccden_1, msg_ccden_2, msg_ccden_3, msg_ccden_4 
+      Integer msg_qstat_1, msg_qstat_2, msg_qstat_3
+
 c
       integer msg_qmmm_sepatset
       integer msg_qmmm_node    
@@ -497,6 +499,9 @@ c
       parameter (msg_ccden_2   = msg_ftn_base - 222) ! ccsd density
       parameter (msg_ccden_3   = msg_ftn_base - 223) ! ccsd density
       parameter (msg_ccden_4   = msg_ftn_base - 224) ! ccsd density
+      parameter (msg_qstat_1   = msg_ftn_base - 225) ! ccsd qstat
+      parameter (msg_qstat_2   = msg_ftn_base - 226) ! ccsd qstat
+      parameter (msg_qstat_3   = msg_ftn_base - 227) ! ccsd qstat
 c
 c     pme
 c

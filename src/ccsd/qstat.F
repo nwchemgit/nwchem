@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.4 1997-10-13 06:34:52 d3e129 Exp $
+C     $Id: qstat.F,v 2.5 1997-10-15 20:00:19 d3e129 Exp $
       Implicit NONE
       Character*(*) NameIn
       Integer IPrint
@@ -119,11 +119,14 @@ c
       Implicit NONE
 *
       Double Precision Tcp2, Tcp3, Tio2, Tio3, TcpTot, TioTot
-      Integer Nodes, IAm, I, NDe
+      Double Precision tcp_min, tcp_ave, tcp_max
+      Integer Nodes, IAm, I
+*old:      Integer NDe
 C
 C
 #include "qdata.fh"
 #include "global.fh"
+#include "msgids.fh"
 *
       double precision zip
       data zip/0.0d00/
@@ -141,22 +144,53 @@ C
  100  continue
       call ga_sync()
      
-      do 310 nde=0,min(3,nodes-1)
-      if (iam.eq.nde)then
-      write(*,*)
-c     write(*,'(5x,a)') 'runtime statistics'
-c     write(*,'(5x,a)') '------------------'
-c     write(*,*)
-      write(*,'(a)') ' node routine      calls     cpu     i/o'
+*old:      do 310 nde=0,min(3,nodes-1)
+*old:      if (iam.eq.nde)then
+*old:      write(*,*)
+*old:c     write(*,'(5x,a)') 'runtime statistics'
+*old:c     write(*,'(5x,a)') '------------------'
+*old:c     write(*,*)
+*old:      write(*,'(a)') ' node routine      calls     cpu     i/o'
+*old:      do 300 i=1,nrout
+*old:         write(*,'(i4,2x,a8,i9,f9.2,f8.2)')
+*old:     &      iam,name(i),ncall(i),tcp(i),tio(i)
+*old:300   continue
+*old:      write(*,'(6x,a8,9x,f9.2,f8.2)')
+*old:     &   'Total   ',tcptot,tiotot
+*old:      endif
+      if (iam.eq.0)write(*,*)
+      if (iam.eq.0)
+     &    write(*,'(a,a)')
+     &    ' routine      calls  cpu(0)   ',
+     &    'cpu-min  cpu-ave  cpu-max   i/o '
       do 300 i=1,nrout
-         write(*,'(i4,2x,a8,i9,f9.2,f8.2)')
-     &      iam,name(i),ncall(i),tcp(i),tio(i)
+         tcp_min = tcp(i)
+         call ga_dgop(msg_qstat_1,tcp_min,1,'min')
+         tcp_ave = tcp(i)
+         call ga_dgop(msg_qstat_2,tcp_ave,1,'+')
+         tcp_ave = tcp_ave/dble(nodes)
+         tcp_max = tcp(i)
+         call ga_dgop(msg_qstat_3,tcp_max,1,'max')
+         if (iam.eq.0) then
+           write(*,'(1x,a8,i9,f9.2,f9.2,f9.2,f9.2,f8.2)')
+     &         name(i),ncall(i),tcp(i),
+     &         tcp_min,tcp_ave,tcp_max,tio(i)
+           call util_flush(6)
+         endif
 300   continue
-      write(*,'(6x,a8,9x,f9.2,f8.2)')
-     &   'Total   ',tcptot,tiotot
+      tcp_min = tcptot
+      call ga_dgop(msg_qstat_1,tcp_min,1,'min')
+      tcp_ave = tcptot
+      call ga_dgop(msg_qstat_2,tcp_ave,1,'+')
+      tcp_ave = tcp_ave/dble(nodes)
+      tcp_max = tcptot
+      call ga_dgop(msg_qstat_3,tcp_max,1,'max')
+      if (iam.eq.0) then
+        write(*,'(1x,a8,9x,f9.2,f9.2,f9.2,f9.2,f8.2)')
+     &      'Total   ',tcptot,tcp_min,tcp_ave,tcp_max,tiotot
+        call util_flush(6)
       endif
       call ga_sync()
- 310  continue
 c
       call cputime(tcp3)
       tio3=zip
