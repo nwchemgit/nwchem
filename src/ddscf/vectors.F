@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.32 1997-11-14 00:19:25 d3g681 Exp $
+C$Id: vectors.F,v 1.33 1997-12-04 22:54:31 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -695,7 +695,7 @@ c
       parameter (unitno = 86)
       character*255 gtitle
       integer l_tmp, k_tmp
-      integer len1, nrow, ncol, type
+      integer len1, nrow, ncol
       integer ok, j
 c
       call ga_sync
@@ -778,9 +778,9 @@ c
       parameter (unitno = 86)
       character*255 gtitle
       integer l_tmp, k_tmp
-      integer len1, nrow, ncol, type
+      integer len1, nrow, ncol
       integer grow, gcol
-      integer ok, i, j
+      integer ok, j
 c
       call ga_sync()
 c
