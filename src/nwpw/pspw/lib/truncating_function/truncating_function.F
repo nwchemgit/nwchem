@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.6 2002-03-05 22:59:30 bylaska Exp $
+c $Id: truncating_function.F,v 1.7 2002-03-05 23:23:35 bylaska Exp $
 c
   
 ***********************************************************
@@ -153,9 +153,10 @@ c      integer rho(2),f(2)
 
 *     ***** local variables ****
       logical value
-      integer ii
+      integer ii,jj
       integer nion,n2ft3d
       integer tmp(2)
+      real*8  scal
 
 *     **** external functions ****
       integer  ion_nion
@@ -171,10 +172,19 @@ c      integer rho(2),f(2)
       call dcopy(n2ft3d,0.0d0,0,T,1)
 
       nion = ion_nion()
-      nion = 1  ! debug
       do ii=1,nion
         call Truncating_Function_atom(n2ft3d,ii,rgrid,dbl_mb(tmp(1)))
         call D3dB_rr_Sum(1,T,dbl_mb(tmp(1)),T)
+      end do
+
+      scal = 0.5d0*dble(3-nion)
+      call D3dB_r_SMul(1,scal,T,T)
+
+      do ii=1,nion-1
+      do jj=ii+1,nion
+         call Truncating_Function_abs(n2ft3d,ii,jj,rgrid,dbl_mb(tmp(1)))
+         call D3dB_rr_Sum(1,T,dbl_mb(tmp(1)),T)
+      end do
       end do
 
       value = MA_pop_stack(tmp(2))
@@ -221,6 +231,61 @@ c      integer rho(2),f(2)
       return
       end
 
+
+      subroutine Truncating_Function_abs(n2ft3d,ii,jj,rgrid,T)
+      implicit none
+      integer n2ft3d,ii,jj
+      real*8 rgrid(3,*)
+      real*8 T(*)
+
+#include "mafdecls.fh"
+#include "truncating_function.fh"
+
+*     **** local variables ****
+      integer ia,i
+      real*8 xii,yii,zii,rii,fii,rrii
+      real*8 xjj,yjj,zjj,rjj,fjj,rrjj
+      real*8 x,y,z,pp2
+
+*     **** external functions ****
+      integer  ion_katm
+      real*8   ion_rion
+      external ion_katm
+      external ion_rion
+
+      pp2 = pp+2.0d0
+
+      ia   = ion_katm(ii)
+      rrii = dbl_mb(Trnc(1)+ia-1)
+      xii  = ion_rion(1,ii)
+      yii  = ion_rion(2,ii)
+      zii  = ion_rion(3,ii)
+
+      ia   = ion_katm(jj)
+      rrjj = dbl_mb(Trnc(1)+ia-1)
+      xjj  = ion_rion(1,jj)
+      yjj  = ion_rion(2,jj)
+      zjj  = ion_rion(3,jj)
+
+
+      do i=1,n2ft3d 
+         x = (xii-rgrid(1,i))
+         y = (yii-rgrid(2,i))
+         z = (zii-rgrid(3,i))
+         rii = dsqrt(x*x + y*y + z*z)
+         fii = (1.0d0-(1.0d0-dexp(-(rii/rrii)**pp2))**pp)
+
+         x = (xjj-rgrid(1,i))
+         y = (yjj-rgrid(2,i))
+         z = (zjj-rgrid(3,i))
+         rjj = dsqrt(x*x + y*y + z*z)
+         fjj = (1.0d0-(1.0d0-dexp(-(rjj/rrjj)**pp2))**pp)
+
+         T(i) = dabs(fii-fjj)
+      end do
+
+      return
+      end
 
 
 *     ********************************
