@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.30 1998-12-14 20:24:02 jhvan Exp $
+* $Id: task.F,v 1.31 1998-12-29 18:02:08 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical  esp, prepar, kgdtest, jvltest, jvltest2
+      logical  analyz,esp,prepar, kgdtest, jvltest, jvltest2
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle, task_lst
       logical  task_qmmm, task_python, task_nbo
@@ -131,6 +131,10 @@ c
           status=esp(rtdb)
          elseif(inp_compare(.false.,'prepare',theory)) then
           status=prepar(rtdb)
+         elseif(inp_compare(.false.,'analysis',theory)) then
+          status=analyz(rtdb)
+         elseif(inp_compare(.false.,'analyze',theory)) then
+          status=analyz(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
