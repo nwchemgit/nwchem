@@ -1302,8 +1302,37 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "mafdecls.fh"
 c
       integer lambda
+c
+      call cf_lam(dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),
+     + mbt(1),numb(1),mbp(1),dbl_mb(i_bnd(1)),
+     + mht(1),numh(1),mhp(1),dbl_mb(i_ang(1)),
+     + mdt(1),numd(1),mdp(1),dbl_mb(i_dih(1)),
+     + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
+     + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
+     + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
+c
+      return
+      end
+      subroutine cf_lam(wgt,vdw,chg,mwb,nwb,nbp,bndw,
+     + mwh,nwh,nhp,angw,mwd,nwd,ndp,dihw,mwo,nwo,nop,oopw,
+     + msb,npb,bnds,msh,nph,angs,msd,npd,dihs,mso,npo,oops)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
+      integer iwat(mwa),iwqt(mwa)
+      integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
+      integer nwb,nwh,nwd,nwo
+      integer msb,msh,msd,mso,npb,nph,npd,npo
+      real*8 bndw(mwb,nbp,6),angw(mwh,nhp,6)
+      real*8 dihw(mwd,ndp,6),oopw(mwo,nop,6)
+      real*8 bnds(msb,npb,6),angs(msh,nph,6)
+      real*8 dihs(msd,npd,6),oops(mso,npo,6)
 c
       return
       end
