@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: mov2asc.F,v 1.2 1996-02-27 19:28:51 d3e129 Exp $
+C     $Id: mov2asc.F,v 1.3 1997-04-01 22:26:13 rg240 Exp $
 C
 #include "mafdecls.fh"
 c
@@ -28,6 +28,9 @@ c
       integer lentit
       integer lenbas
       integer ok, i, guess_nbf, NArgs, jset, j, k_vecs, l_vecs
+      character*32 geomsum, basissum
+      character*26 date
+      character*20 scftype20
 C
       Integer IArgc
       External IArgc
@@ -64,6 +67,19 @@ c
 C
       write (AscLu, 9010)
  9010 Format('# This is an NWChem movecs file translated by mov2asc')
+C
+C Record on convergence and scftype
+C
+      read(binlu) basissum, geomsum, scftype20, date
+      write(asclu,'(a32)') basissum
+      write(asclu,'(a32)') geomsum
+      write(asclu,'(a20)') scftype20
+      write(asclu,'(a26)') date
+c
+c
+      read(binlu) scftype20
+      write(asclu,'(a20)') scftype20
+C
 C
       read(binlu) lentit
       if (len(title) .lt. lentit) call errquit

@@ -1,5 +1,5 @@
 # Makefile for movecs <--> ASCII translators
-# $Id: Makefile,v 1.2 1996-12-09 20:03:14 gg502 Exp $
+# $Id: Makefile,v 1.3 1997-04-01 22:26:12 rg240 Exp $
 
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.
@@ -7,6 +7,11 @@
 
 ifeq ($(NWCHEM_TARGET),CRAY-T3D) # (must run on MPP not host)
    FFLAGS = -Wf"-dp" -Wp"-F" -Ccray-t3d 
+endif
+
+ifeq ($(NWCHEM_TARGET),CRAY-T3E)
+   FFLAGS = -O 1 -d p -F
+   FC     = f90
 endif
 
 ifeq ($(NWCHEM_TARGET),KSR)
@@ -35,3 +40,16 @@ asc2mov:	asc2mov.o
 
 clean realclean:
 	$(RM) *.o mov2asc asc2mov
+
+
+
+%.o:	%.F
+	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
+
+%.o:	%.f
+	$(FC) -c $(FFLAGS) $<
+
+%.o:	%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
+
+

@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: asc2mov.F,v 1.2 1996-02-27 19:28:49 d3e129 Exp $
+C     $Id: asc2mov.F,v 1.3 1997-04-01 22:26:13 rg240 Exp $
 C
 #include "mafdecls.fh"
 c
@@ -28,6 +28,9 @@ c
       integer lentit
       integer lenbas
       integer ok, i, guess_nbf, NArgs, jset, j, k_vecs, l_vecs
+      character*32 geomsum, basissum
+      character*26 date
+      character*20 scftype20
 C
       Integer IArgc
       External IArgc
@@ -63,6 +66,16 @@ c
       open(asclu, status='old', form='formatted', file=afilename)
 C
       Read(AscLu, *)
+c
+      read(asclu,'(a32)') basissum
+      read(asclu,'(a32)') geomsum
+      read(asclu,'(a20)') scftype20
+      read(asclu,'(a26)') date
+      read(asclu, *) 
+      write(binlu) basissum, geomsum, scftype20, date
+c
+      read(asclu,'(a20)') scftype20
+      write(binlu) scftype20
 C
       read(asclu, '(I10)') LenTit
       if (len(title) .lt. lentit) call errquit
