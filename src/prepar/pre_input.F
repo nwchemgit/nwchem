@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.41 2000-03-29 20:29:00 d3j191 Exp $
+c $Id: pre_input.F,v 1.42 2000-03-29 20:54:50 d3j191 Exp $
 c
       implicit none
 c
@@ -971,12 +971,6 @@ c     end
 c     ---
 c
     9 continue
-c
-cx      if(needwt) then
-cx      write(68,7808)
-cx 7808 format('wr_rst')
-cx      lwrcoo=.true.
-cx      endif
 c
       len=index(dir_s,' ')-1
       if(len.gt.0.and.dir_s(len:len).ne.'/') dir_s(len+1:len+2)='/ '
