@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.28 1996-08-19 17:55:44 d3g681 Exp $
+c $Id: texas_face.F,v 1.29 1996-09-27 22:47:03 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1839,16 +1839,20 @@ c--------------------------------------------------------
 c--------------------------------------------------------
 c find texas-shells corresponding to the given set of pnl-shells.
 c
+      ipnl = icspnl             ! Copy shells so don't modify arguments
+      jpnl = jcspnl
+      kpnl = kcspnl
+      lpnl = lcspnl
       call txs_pnl(nquart,dbl_mb(ncshell),
      *             icstxs,jcstxs,kcstxs,lcstxs,
-     *             icspnl,jcspnl,kcspnl,lcspnl)
+     *             ipnl,jpnl,kpnl,lpnl)
 c
-c on return TXS shells in icspnl... again
+c on return TXS shells in ipnl... again
 c--------------------------------------------------------
 c find texas-superblock these shells belong to 
 c and price of ONE integral in this quartet :
 c
-      call txs_superbl(icspnl,jcspnl,kcspnl,lcspnl,
+      call txs_superbl(ipnl,jpnl,kpnl,lpnl,
      *        dbl_mb(nblock2),dbl_mb(ntxs_bl_scr-1+ncost_R),
      *                 isupblk,price) 
 c--------------------------------------------------------
@@ -1859,6 +1863,7 @@ c==================================================================
      *                       isupblk,price)
       dimension nblock2(*) ! dimension ncs*(ncs+1)/2
       dimension ncost(*)   
+      double precision price
 c-----------------------------------------------------------------
 c Input:
 c        icstxs,...,lcstxs -  four PNL shells with TXS numbers
