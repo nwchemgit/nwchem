@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 2002-02-16 01:59:41 edo Exp $
+#$Id: GNUmakefile,v 1.35 2002-02-17 18:22:47 edo Exp $
 
 include ../config/makefile.h
 
@@ -14,19 +14,21 @@ include ../config/makefile.h
 	      mp2_input.o \
               mp2_make_piy.o mp2_make_nos.o
 
-OBJ_OPTIMIZE = \
+OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_read_tiajb.o \
                mp2_pijab_uhf.o \
                mp2_wijab_uhf.o \
                mp2_lai_uhf.o \
-               mp2_make_tuhf.o \
                mp2_lai_fock_uhf.o mp2_memory.o
 
-  ifeq ($(FC),efc)
-    OBJ += mp2_back_transform.o 
-  else
-    OBJ_OPTIMIZE += mp2_back_transform.o 
-  endif
+ifneq (,$(findstring SGI, $(TARGET)))
+   OBJ += mp2_make_tuhf.o
+else
+   OBJ_OPTIMIZE += mp2_make_tuhf.o
+endif
+ifeq ($(FC),efc)
+     FOPTIMIZE += -O0
+endif
 ifeq ($(TARGET),DECOSF)
 	FC = f77 -notransform_loops
 #  -O5 alone breaks on mp2_make_tuhf.o ; -notransform loops keeps O5 going
