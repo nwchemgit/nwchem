@@ -3,7 +3,7 @@
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.15 2000-06-27 18:07:44 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.16 2000-09-05 22:06:04 d3j191 Exp $
 c
       implicit none
 c
@@ -49,7 +49,7 @@ c
   335 continue
       read(lfntop,1003) nwa,nwb,nwh,nwd,nwo,nwt,nwn
       read(lfntop,1003) nsa,nsb,nsh,nsd,nso,nst,nsx
- 1003 format(7i7)
+ 1003 format(5i7,2i10)
       do 5 i=1,nwa
       read(lfntop,1336) cwa(i),iwat(i),idummy
  1336 format(a16,25x,2i5)
@@ -75,6 +75,7 @@ c 1010 format(f12.6)
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
     9 continue
+      print*,nwt,nwn
       if(nwt.gt.0) then
       read(lfntop,1005) (idummy,i=1,nwt)
       read(lfntop,1005) (idummy,i=1,nwt)
