@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.288 1999-06-27 05:07:14 d3e129 Exp $
+# $Id: makefile.h,v 1.289 1999-07-01 22:06:50 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -316,11 +316,15 @@ ifeq ($(TARGET),SOLARIS)
        CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
-# needed if python was compiled with gcc
 ifeq ($(BUILDING_PYTHON),python)
+# needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
-# needed here if using a python version with tk/tcl extensions 
-#     EXTRA_LIBS += -ltk8.0 -ltcl8.0 -lX11
+# needed here if using a python version with tk/tcl extensions (common)
+      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
+# needed here if using a python version built with BLT extensions
+#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT
+# Both tk/tcl and BLT need X11 (common)
+      EXTRA_LIBS += -lX11
 endif
 
 #end of solaris
@@ -712,9 +716,14 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
 ifeq ($(BUILDING_PYTHON),python)
+# needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/mips-sgi-irix6.5/2.8.1 -lgcc
-# needed here if using a python version with tk/tcl extensions 
-#     EXTRA_LIBS += -ltk -ltcl -lX11
+# needed here if using a python version with tk/tcl extensions  (common)
+      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
+# needed here if using a python version built with BLT extensions
+#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT 
+# Both tk/tcl and BLT need X11 (common)
+      EXTRA_LIBS += -lX11
 endif
 
        CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
