@@ -1,7 +1,8 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad)
-c     $Id: stpr_output.F,v 1.6 1996-11-02 02:07:07 vg038 Exp $
+c     $Id: stpr_output.F,v 1.7 1996-11-02 03:00:02 vg038 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
+#include "mafdecls.fh"
       LOGICAL BCKSTP, oprint_info
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -28,11 +29,11 @@ c
       ENDIF
 
 C     ECCE output
-      stepmax  = grad_max  ( step, nat )
-      stepnorm = grad_norm ( step, nat )
+      stepmax  = grad_max  ( step, NATOM )
+      stepnorm = grad_norm ( step, NATOM )
       if ( IWCTR .eq. 1 ) then
 C       initial geometry
-        call ecce_print2 ('geometry', mt_dbl, coord, 3,3,nat)
+        call ecce_print2 ('geometry', mt_dbl, coord, 3, 3, NATOM)
       endif
       call ecce_print1 ('step max',  mt_dbl, stepmax,  1 )
       call ecce_print1 ('step norm', mt_dbl, stepnorm, 1 )

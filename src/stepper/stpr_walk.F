@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.24 1996-11-02 02:13:21 vg038 Exp $
+c     $Id: stpr_walk.F,v 1.25 1996-11-02 03:00:02 vg038 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -154,8 +154,8 @@ c.....set coordinates
      &        call errquit
      &        ('stpr_walk: geom_cart_set failed ?',911)
 C        output to ECCE
-         call ecce_print1 ('iteration', mt_int, step_number, 1)
-         call ecce_print2 ('geometry', mt_dbl, 3, 3, nat)
+*         call ecce_print1 ('iteration', mt_int, step_number, 1)
+*         call ecce_print2 ('geometry', mt_dbl, dbl_mb(k_coord), 3,3,nat)
 c
 c     optionally delete the old geometry (done by default)
 c     
