@@ -1,0 +1,3 @@
+#ifdef LINUXF2C
+#define ieor(a,b) xor(a,b)
+#endif
