@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.21 1997-10-15 19:20:22 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.22 1997-12-05 02:38:06 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -196,6 +196,7 @@ c
       call intd_init(rtdb, 1, basis)
       call intb_mem_2e4c(leneri, lenscr) ! blocking algorithm
       leneri = 15**4          ! 1 G quartet = 39 D quartets ... SEE MP2_MEMORY
+****      leneri = 1296*100        ! 100 D quartets
       if (.not. ma_push_get(mt_dbl,12*leneri,'deriv buffer',
      $     l_eri,k_eri)) call errquit
      $     ('mp2:backt could not allocate buffer',12*leneri)
@@ -825,7 +826,6 @@ c
      $        labels(1,3), labels(1,4), 
      $        eri, leneri, nint, lenscr, scratch)
 
-         if (nint .eq. 0) goto 1001
          if (nint .gt. leneri) call errquit('mp2_nonsep: nint', nint)
 c     
          ush_prev = -1
@@ -887,7 +887,6 @@ c
          enddo
 c     
          if (omore) goto 1000   ! Texas split the request
- 1001    continue               ! Done with this request
 c
          if (xsh_start .le. nsh) goto 333
 c     
