@@ -1,4 +1,4 @@
-C $Id: ecp_t2_p1pow.F,v 1.2 1997-05-28 20:34:41 mg201 Exp $
+C $Id: ecp_t2_p1pow.F,v 1.3 1997-05-28 22:51:08 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p1pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -29,14 +29,11 @@ C $Id: ecp_t2_p1pow.F,v 1.2 1997-05-28 20:34:41 mg201 Exp $
 #include "ecp_consts.fh"
       integer i,idamax,j1,j2,j3,k,k_abs,m,n
       double precision alpha(n),beta(n),gamma(n),term(n),test(n),Q(n),
-     &    temp(n,9),tol,fac0,fac1,fac2,fac3,fac4,fac5,small,logbig
-      data small/1.0D-10/
+     &    temp(n,9),tol,fac0,fac1,fac2,fac3,fac4,fac5,fac0i,fac1i,fac2i
 *
 *   Set up factors for recursion
 *
       if (n .eq. 0) return
-C      write (6,*) ' Entering ecp_t2_p1pow ...'
-      logbig = -log(small)
       fac1 = m+1+min(k,0)
       fac1 = fac1+half
       fac2 = 1-max(k,0)
@@ -53,7 +50,7 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
       end do
       call ecp_t1_Q1int (n,m,beta,Q,temp,temp(1,3),temp(1,9),tol)
       call ecp_t1_Q1int (n,m+1,beta,Q,temp(1,2),temp(1,3),temp(1,9),tol)
-      fac0 = one/fac1
+      fac1i = one/fac1
       do i = 1,n
         temp(i,2) = beta(i)*temp(i,2) + fac4*temp(i,1)
         Q(i) = fac2*temp(i,1)
@@ -62,7 +59,7 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
         if (k .eq. 1) then
           term(i) = one
         else
-          term(i) = fac0*temp(i,4)
+          term(i) = fac1i*temp(i,4)
         end if
         test(i) = one
 	temp(i,9) = -alpha(i)*(beta(i)+beta(i)+alpha(i))
@@ -74,24 +71,19 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
         j1 = mod(j1,3)+1
         j2 = mod(j1,3)+1
         j3 = mod(j2,3)+1
+        fac0 = max(fac2,one)
         fac1 = fac1+one
         fac2 = fac2+one
-        fac0 = one/(fac2*fac1)
+        fac0i = one/fac0
+        fac1i = one/fac1
+        fac2i = one/fac2
         do i = 1,n
           if (test(i) .gt. tol) then
             Q(i) = Q(i)+temp(i,j2)*term(i)
-            temp(i,j3) = (fac5+temp(i,5))*temp(i,j2)
-     &                 - fac3*fac4*temp(i,j1)
-            term(i) = term(i)*temp(i,4)*fac0
+            temp(i,j3) = ((fac5+temp(i,5))*temp(i,j2)
+     &                 - fac3*fac4*fac0i*temp(i,j1))*fac2i
+            term(i) = term(i)*temp(i,4)*fac1i
             test(i) = term(i)*temp(i,j3)/Q(i)
-            if ((Q(i)*small .gt. one) .or. (temp(i,j3)*small .gt. one)) 
-     &          then
-              Q(i) = Q(i)*small
-              temp(i,j1) = temp(i,j1)*small
-              temp(i,j2) = temp(i,j2)*small
-              temp(i,j3) = temp(i,j3)*small
-              temp(i,9) = temp(i,9)+logbig
-            end if
           end if
         end do
         fac3 = fac3+one
@@ -124,6 +116,5 @@ C      write (6,*) fac1,fac5
         Q(i) = Q(i)*exp(temp(i,9))
       end do
 *
-C      write (6,*) ' Exiting ecp_t2_p1pow ...'
       return
       end
