@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.30 2002-01-19 06:13:29 edo Exp $
+C $Id: hess_init.F,v 1.31 2002-01-19 06:22:29 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -198,6 +198,8 @@ c
           endif
           kfac(1) = 1.0d0*xfac(1)
           kfac(2) = 1.0d0*xfac(1)
+          if (.not. rtdb_put(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     *         call errquit('scfinit:rtdbput nopen failed',nopen)
         endif
 
       endif
