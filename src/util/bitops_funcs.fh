@@ -1,5 +1,5 @@
 *
-* $Id: bitops_funcs.fh,v 1.9 2000-11-03 02:24:06 edo Exp $
+* $Id: bitops_funcs.fh,v 1.10 2000-11-04 02:18:16 edo Exp $
 *
 c
 c     Machine dependent defintion of the standard
@@ -24,8 +24,4 @@ c
 #if defined(HPUX) && !defined (HPUX64)
       lshift(iiibit,jjjbit)=iiibit*2**(mod(jjjbit,32))
       rshift(iiibit,jjjbit)=iiibit/2**(mod(jjjbit,32))
-#endif
-#if defined (HPUX64)
-      lshift(iiibit,jjjbit)=iiibit*2**(mod(jjjbit,64))
-      rshift(iiibit,jjjbit)=iiibit/2**(mod(jjjbit,64))
 #endif
