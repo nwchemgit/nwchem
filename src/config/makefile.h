@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.309 2000-02-29 17:30:51 d3j191 Exp $
+# $Id: makefile.h,v 1.310 2000-03-08 21:06:12 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1188,6 +1188,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
 
 ifeq ($(BUILDING_PYTHON),python)
    EXTRA_LIBS += -ltk -ltcl -L/usr/X11/lib -lX11 -ldl
+# needed if python was built with pthread support
+#   EXTRA_LIBS += -lpthread
    INCPATH += -I/usr/include/python1.5
 endif
 
