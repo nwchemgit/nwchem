@@ -125,8 +125,10 @@ c
          nfock = 3
       endif
 c
+      call do_ri (.false.)
       call fock_2e(geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock)
+      call do_ri (.true.)
 c     
 c     Energy evaluation
 c     

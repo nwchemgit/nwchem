@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.1 1995-05-22 22:28:26 vg038 Exp $
+C$Id: riscf_init.F,v 1.2 1995-05-24 23:51:27 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -125,6 +125,9 @@ C     free the temporary arrays
 C     destroy integral setup for expansion basis
       call int_terminate()
       call schwarz_tidy()
+
+C     make ri the default for mixed methods
+      call do_ri (.true.)
 
       riscf_init = status
 

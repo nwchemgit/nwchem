@@ -1,12 +1,13 @@
       subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock )
-c$Id: fock_2e.F,v 1.6 1995-05-22 22:28:22 vg038 Exp $
+c$Id: fock_2e.F,v 1.7 1995-05-24 23:51:24 vg038 Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
 c
       implicit none
 #include "cscf.fh"
+#include "cfock.fh"
 
       integer geom1, ao_basis        ! [input] parameter handles
       integer nfock                  ! [input] number of Fock matrices
@@ -21,15 +22,15 @@ c
         call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
      $       jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
       else if (nriscf.eq.1) then
-        if (tol2e1.gt.tol2e) then
+        if (rifock) then
           call riscf_fock_2e( geom1, ao_basis, riscf_basis, nfock, 
      $         jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
         else
-          call ao_fock_2e( geom, ao_basis, nfock, jfac, kfac,
+          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $         tol2e1, oskel1, vg_dens, vg_fock )
         endif
       else
-          call ao_fock_2e( geom, ao_basis, nfock, jfac, kfac,
+          call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock )
       endif
 

@@ -1,15 +1,18 @@
 c
-C$Id: cfock.fh,v 1.7 1995-05-24 16:12:00 d3g681 Exp $
+C$Id: cfock.fh,v 1.8 1995-05-24 23:51:22 vg038 Exp $
 c
-      integer task_chunks       ! Task chunk parameter in fock_2e_a
-      integer filesize          ! Max integral file size in doubles
-      integer memsize           ! Max integral cache size in doubles
-      logical oreadfile         ! True if file/cache being read from
-      logical owritefile        ! True if writing integrals to file
+      integer task_chunks     ! Task chunk parameter in fock_2e_a
+      integer filesize        ! Max integral file size in doubles
+      integer memsize         ! Max integral cache size in doubles
+      logical oreadfile       ! True if file/cache being read from
+      logical owritefile      ! True if writing integrals to file
+      logical rifock          ! in case of mixed method: ri or directfock build
 c
       common/cfock/
      $     task_chunks,
      $     filesize,
      $     memsize,
      $     oreadfile,
-     $     owritefile
+     $     owritefile,
+     $     rifock
+c

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
+C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -141,7 +141,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
+C     $Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -402,7 +402,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
+C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -488,7 +488,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
+c     $Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -586,8 +586,10 @@ c
       f(3) = g_b_coul
       f(4) = g_b_exch
 c
+      call do_ri (.false.)
       call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
      $     oskel, d, f)
+      call do_ri (.true.)
 c
       e_a_coul = 0.5d0*
      $     (ga_ddot(g_a_dens,g_a_coul) + ga_ddot(g_a_dens,g_b_coul))
@@ -847,7 +849,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
+C$Id: uhf.F,v 1.7 1995-05-24 23:51:31 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

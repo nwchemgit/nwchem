@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.35 1995-05-22 22:28:23 vg038 Exp $
+# $Id: GNUmakefile,v 1.36 1995-05-24 23:51:25 vg038 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -34,7 +34,8 @@
         riscf_list.o            riscf_tidy.o \
         riscf_trans_int.o \
         uhf.o                   fock_2e_report.o fock_2e_task.o \
-        print_integ_list.o
+        print_integ_list.o \
+        do_ri.o
 
 
 
@@ -69,7 +70,7 @@ HEADERS = schwarz.fh cscfps.fh
 include ../config/makefile.h
 include ../config/makelib.h
 
-fock_2e_a.o rhf_fock_2e_a.o rhf_get_param.o rhf_hessv.o scf_get_info.o:	 cfock.fh
+fock_2e_a.o rhf_fock_2e_a.o rhf_get_param.o rhf_hessv.o scf_get_info.o fock_2e.o:	 cfock.fh
 rhf_hessv.o rhf_nr_solve.o:	 crhf.fh
 rohf.o rohf_make_shift.o rohf_nr_solve.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_movecs.o:	 crohf.fh
 rohf_make_shift.o rohf_nr_solve.o rohf_rotate_movecs.o rohf_search_precond.o rohf_step_energy.o rohf_wrap.o scf_get_info.o scf_movecs.o scf_vectors_guess.o:	 cscf.fh
