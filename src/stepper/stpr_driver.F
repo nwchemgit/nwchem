@@ -6,12 +6,14 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
-c $Id: stpr_driver.F,v 1.7 1996-06-22 00:53:25 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.8 1997-05-23 21:45:35 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
       integer rtdb
       LOGICAL SECO, SWSEC, SWFIR
+      integer idamax
+      external idamax
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
@@ -33,7 +35,8 @@ c $Id: stpr_driver.F,v 1.7 1996-06-22 00:53:25 d3e129 Exp $
         ENDIF
       ENDIF
 
-      grad_max = dabsmax(nat3,grad)
+*      grad_max = dabsmax(nat3,grad)
+      grad_max = grad(idamax(nat3,grad,1))
 
       NINTER = NAT3
 C
