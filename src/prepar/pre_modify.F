@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.5 1998-12-29 18:43:18 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.6 1999-05-10 22:38:04 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer iwhich,lfnout,lfnmod,matm,natm
       character*80 ffield
       character*255 filmod
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       real*8 qatm(6,matm)
       integer mbnd,nbnd,nbndt

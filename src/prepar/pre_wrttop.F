@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.21 1999-03-15 21:25:33 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.22 1999-05-10 22:38:09 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       character*6 catt(2,matt)
       real*8 patt(4,2,matt,matt),ratt(matt)
       integer matm,natm
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       real*8 qatm(6,matm)
       integer mbnd,nbnd
@@ -49,7 +49,7 @@ c
 c
       integer i,j,k,l,length,nd,ifrac,imol,iq,isgm
       character*10 topdat,toptim
-      real*8 qq(3,6),qsum(3),qtot(3)
+      real*8 qq(3,6),qsum(3),qtot(3),qatom(6)
       logical lprt
 c
       integer nqu,iql(3)
@@ -64,10 +64,13 @@ c
      + qatm(3,i).eq.qatm(3,j).and.qatm(4,i).eq.qatm(4,j).and.
      + qatm(5,i).eq.qatm(5,j).and.qatm(6,i).eq.qatm(6,j)) then
       latm(7,i)=j
+      latm(8,i)=j
+      latm(9,i)=j
       goto 331
       endif
   332 continue
       nqu=nqu+1
+      if(nqu.gt.matm) call errquit('Increase mqu',0)
       latm(7,i)=nqu
       do 333 j=1,6
       qatm(j,nqu)=qatm(j,i)
@@ -77,6 +80,58 @@ c
       do 334 j=1,6
       qatm(j,nqu)=0.0d0
   334 continue
+      do 335 i=1,natm
+      do 336 j=1,3
+      qatom(2*j-1)=qatm(2*j-1,latm(7,i))
+      qatom(2*j)=qatm(2*j,latm(7,i))
+      if(catt(1,lats(j,latm(3,i)))(6:6).eq.'D') then
+      qatom(2*j-1)=0.0d0
+      qatom(2*j)=0.0d0
+      endif
+  336 continue
+      do 337 j=1,nqu
+      if(qatom(1).eq.qatm(1,j).and.qatom(2).eq.qatm(2,j).and.
+     + qatom(3).eq.qatm(3,j).and.qatom(4).eq.qatm(4,j).and.
+     + qatom(5).eq.qatm(5,j).and.qatom(6).eq.qatm(6,j)) then
+      latm(7,i)=j
+      latm(8,i)=j
+      latm(9,i)=j
+      goto 335
+      endif
+  337 continue
+      nqu=nqu+1
+      if(nqu.gt.matm) call errquit('Increase mqu',0)
+      latm(7,i)=nqu
+      do 338 j=1,6
+      qatm(j,nqu)=qatom(j)
+  338 continue
+  335 continue
+      do 339 i=1,natm
+      do 340 j=1,3
+      qatom(2*j-1)=qatm(2*j-1,latm(7,i))
+      qatom(2*j)=qatm(2*j,latm(7,i))
+      if(catt(1,lats(j,latm(3,i)))(6:6).eq.'S') then
+      qatom(2*j-1)=0.0d0
+      qatom(2*j)=0.0d0
+      endif
+  340 continue
+      do 341 j=1,nqu
+      if(qatom(1).eq.qatm(1,j).and.qatom(2).eq.qatm(2,j).and.
+     + qatom(3).eq.qatm(3,j).and.qatom(4).eq.qatm(4,j).and.
+     + qatom(5).eq.qatm(5,j).and.qatom(6).eq.qatm(6,j)) then
+      latm(7,i)=j
+      latm(8,i)=j
+      goto 339
+      endif
+  341 continue
+      nqu=nqu+1
+      if(nqu.gt.matm) call errquit('Increase mqu',0)
+      latm(7,i)=nqu
+      latm(8,i)=nqu
+      do 342 j=1,6
+      qatm(j,nqu)=qatom(j)
+  342 continue
+  339 continue
 c
       length=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:length),form='formatted',
@@ -228,20 +283,20 @@ c
       endif
       iq=0
       iql(1)=latm(7,i)
-      iql(2)=latm(7,i)
-      iql(3)=latm(7,i)
-      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
-      iq=3
-      iql(1)=nqu
-      endif
-      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') then
-      iq=3
-      iql(2)=nqu
-      endif
-      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') then
-      iq=3
-      iql(3)=nqu
-      endif
+      iql(2)=latm(8,i)
+      iql(3)=latm(9,i)
+c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
+c      iq=3
+c      iql(1)=nqu
+c      endif
+c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') then
+c      iq=3
+c      iql(2)=nqu
+c      endif
+c      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') then
+c      iq=3
+c      iql(3)=nqu
+c      endif
 c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=3
 c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=3
 c      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=3

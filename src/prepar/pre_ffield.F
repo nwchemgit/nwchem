@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.13 1998-10-05 20:16:34 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.14 1999-05-10 22:38:02 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
       character*6 catt(2,matt)
       real*8 patt(4,2,matt,matt),ratt(matt)
       integer matm,natm
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)

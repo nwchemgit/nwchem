@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.8 1999-03-29 23:56:06 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.9 1999-05-10 22:38:09 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
 c
 c     check wich version
 c
-      if(nwm.gt.0) then
+      if(nwm+nwmc.gt.0) then
       if(nwmc.gt.0) then
       do 1 i=1,nwmc
       write(lfnrst,1006) ((xwc(k,j,i),k=1,3),(vwc(k,j,i),k=1,3),j=1,nwa)

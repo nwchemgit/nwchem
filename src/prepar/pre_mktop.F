@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.15 1998-11-23 20:30:59 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.16 1999-05-10 22:38:03 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -191,7 +191,7 @@ c                  2       : atom type set 1
 c                  3       : atom type set 2
 c                  4       : atom type set 3
 c
-      if(.not.ma_push_get(mt_int,8*matm,'latm',l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,9*matm,'latm',l_latm,i_latm))
      + call errquit('Memory allocation failed for latm',9999)
       if(.not.ma_push_get(mt_byte,24*matm,'catm',l_catm,i_catm))
      + call errquit('Memory allocation failed for catm',9999)

@@ -3,7 +3,7 @@
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.11 1999-01-04 23:12:07 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.12 1999-05-10 22:38:06 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
       character*255 filsgm
       character*80 ffield
       integer matm,natm
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       real*8 qatm(6,matm)
       integer mbnd,nbnd

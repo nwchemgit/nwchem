@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.19 1999-03-15 21:25:19 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.20 1999-05-10 22:38:03 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer llnk(3,mlnk)
       character*4 clnk(2,mlnk)
       integer matm,natm
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       real*8 qatm(6,matm)
       integer mbnd,nbnd

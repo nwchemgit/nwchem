@@ -5,7 +5,7 @@
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.9 1998-06-11 18:51:53 d3j191 Exp $
+c $Id: pre_params.F,v 1.10 1999-05-10 22:38:05 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       character*255 filpar,dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       integer matm,natm
-      integer latm(8,matm)
+      integer latm(9,matm)
       character*6 catm(4,matm)
       integer mbnd,nbnd
       integer lbnd(4,mbnd)

@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.4 1998-11-18 01:19:58 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.5 1999-05-10 22:38:07 d3j191 Exp $
 c
       implicit none
 c
@@ -96,3 +96,4 @@ c
  9999 pre_solvat=.false.
       return
       end
+
