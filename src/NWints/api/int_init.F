@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.52 1999-12-09 23:47:36 bert Exp $
+c $Id: int_init.F,v 1.53 1999-12-09 23:54:26 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -39,7 +39,7 @@ c:tex-\begin{verbatim}
       integer bases(nbas) ! [input] basis set handles
 c:tex-\end{verbatim}
 c::local
-      integer mybm_a, mybIm_a, ibas            ! Temporary variables
+      integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
 c
 c     Setup array with basis sets from bases
@@ -49,6 +49,7 @@ c
       do 00500 ibas = 1, nbas
          int_mb(mybIm_a+ibas-1) = bases(ibas)
 00500 continue
+      nrbas = nbas
 c
 c Initialize the Douglas-Kroll variables
 c
@@ -92,9 +93,9 @@ c
 c        Add fitting basis set to list of loaded basis sets for int_init
 c
          int_mb(mybIm_a+nbas) = dk_fitbas
-         ibas = nbas + 1
+         nrbas = nrbas + 1
       endif
-      call int_init_org(rtdb, ibas, int_mb(mybIm_a))
+      call int_init_org(rtdb, nrbas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
      $     call errquit('int_init: ma_pop_stack mybm_a',0)
 c
