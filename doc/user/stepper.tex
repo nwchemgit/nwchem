@@ -167,7 +167,7 @@ specified by input using a line of the following form,
 
 
 \section{Backstepping in Stepper}
-
+\label{sec:stepper:backstep}
 If a step taken during the optimization is too large (e.g., the step
 causes the energy to go up for a minimization or down for a transition
 state search), the STEPPER optimizer will automatically ``backstep''
@@ -176,4 +176,35 @@ If you have an optimization that ``backsteps'' frequently then the
 initial trust radius should most likely be decreased.
 
 
+
+\section{Nuclear Hessian Options}
+Stepper uses a modified Fletcher-Powell algorithm to find the
+transition state or energy minimum on the potential energy
+hypersurface.  There are two files left in the user's permanent
+directory that are used to provide an initial hessian to critical
+point search algorithm.  If these files do not exist then the default
+is to use a unit matrix as the initial hessian.  Once Stepper executes
+it generates a binary dump file by the name of \verb+name.stpr41+
+which will be used on all subsequent stepper runs and modified with
+the current updated hessian.  The default file prefix is the ``name''
+that is used (c.f., \ref{sec:start}). It also stores the information
+for the last valid step in case the algorithm must take a ``backstep''
+(c.f., \ref{sec:stepper:backstep}).  This file is the working data
+store for all stepper-based optimizations.  This file is never deleted
+by default and is the {\bf\it first} source of an initial hessian.
+The second source of an inital hessian is an ascii file that contains
+the lower triangular values of the initial hessian.  This is stored in
+file \verb+name.hess+, where ``name'' is again the default file
+prefix.  This is the {\bf\it second} source of an initial hessian and
+is the method used to incorporate an initial hessian from any other
+source (e.g., another {\it ab initio} code, a molecular mechanics
+code, etc.,).  To get a decent starting hessian at a given point you
+can use the task specification \verb+task scf hessian+, with a smaller
+basis set, which will by default generate the \verb+name.hess+ file.
+Then you may define your basis set of choice and proceed with the
+optimization you desire.\footnote{If you have done a geometry
+optimization and hessian generation in the same input deck using a
+small basis set, you must make sure you delete the \verb+name.stpr41+
+file since stepper will by default use that hessian and not the one in
+the \verb+name.hess+ file}
 
