@@ -3,10 +3,11 @@
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi)
+     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
+     + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.40 1999-10-26 19:32:29 d3j191 Exp $
+c $Id: sp_init.F,v 1.41 1999-11-26 17:25:15 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +19,7 @@ c
       logical sp_rdrest,sp_diffbb
       external sp_rdrest,sp_diffbb
 c
-      integer lfntop,lfnrst,lsyn,nsyn
+      integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
@@ -31,6 +32,9 @@ c
 c
       me=ga_nodeid()
       np=ga_nnodes()
+c
+      idebug=idbg
+      lfndbg=ldbg
 c
       lfnsyn=lsyn
       nfsync=nsyn
@@ -1405,6 +1409,12 @@ c
       if(lbbl(i,1).eq.me) nbbloc=i
     7 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
+c
+      if(idebug.eq.1) then
+      write(lfndbg,8000) (i,(lbbl(i,j),j=1,3),i=1,nbbl)
+ 8000 format('lbbl',/,(4i5))
+      call util_flush(lfndbg)
+      endif
 c
       return
       end

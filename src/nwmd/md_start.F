@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.38 1999-11-01 15:58:44 d3j191 Exp $
+c $Id: md_start.F,v 1.39 1999-11-26 17:25:28 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide)
+     + iguide,lfndbg,idebug)
 c
 c     start the analysis API
 c     ----------------------
@@ -982,6 +982,14 @@ c     pairlist type
 c
       lstype=1
       if(latom.eq.1) lstype=0
+c
+c     Open debug file if requested
+c     ----------------------------
+c
+      if(idebug.gt.0) then
+      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
+      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
+      endif
 c
 c     Count radial distribution functions contributions
 c     -------------------------------------------------
