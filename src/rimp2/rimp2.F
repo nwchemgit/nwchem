@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.15 1995-02-02 23:21:17 d3g681 Exp $
+C$Id: rimp2.F,v 1.16 1995-03-12 21:05:32 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -131,7 +131,7 @@ C
       if (.not. RTDB_CGet(rtdb, 'mp2:input vectors',
      $     1, FNVec)) then
          if (.not. RTDB_CGet(rtdb, 'scf:output vectors',
-     $      1, FNVec)) FNVec = Def_movec
+     $      1, FNVec)) call util_file_prefix(Def_movec, FNVec)
       EndIf
 C
 C     Check MOVecs file for number of spin cases
