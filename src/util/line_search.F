@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.8 1996-10-04 21:50:25 d3g681 Exp $
+C$Id: line_search.F,v 1.9 1997-04-04 21:27:27 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -16,7 +16,8 @@ c
       double precision gs0, gs1, e0, e1, step0, step1, ediff, ls_ratio
       double precision ls_hessian, ls_grad, ls_step, ls_step_max
       double precision e_low, step_low, g_low
-      integer i
+      double precision step_neg_h
+      integer i, nstep_neg_h
 c
 c     Line search with gradients.  Current version only uses the
 c     last two points in the LS but subsequent versions can use
@@ -132,14 +133,20 @@ c
          if (ls_hessian .lt. 0.0d0) then
 c     
 c     If have negative curvature simply step a small amount forward
-c     following the gradient downhill
+c     following the gradient downhill.  If the previous step also
+c     had negative curvature, then double the step size.
 c     
             if (oprint) then
                write(6,912) ls_hessian
                call util_flush(6)
  912           format(20x,' Negative curvature: hessian=',1p,d9.2)
             endif
-            ls_step = sign(0.5d0,-gs1)
+            step_neg_h = 0.501d0  ! 0.501 identifies neg H step
+            ls_step = sign(step_neg_h,-gs1)
+            nstep_neg_h = nint(abs(step0-step1)/step_neg_h)
+            if (abs(step_neg_h*nstep_neg_h-abs(step0-step1)).lt.1d-10)
+     $          ls_step = ls_step*nstep_neg_h*2
+c
          else if ((ls_step+step1) .lt. 0.0) then
 c     
 c     overall step cannot be negative since we have followed the gradient
