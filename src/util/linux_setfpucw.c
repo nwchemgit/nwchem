@@ -1,6 +1,7 @@
 /*
- $Id: linux_setfpucw.c,v 1.6 2003-07-01 18:18:18 edo Exp $
+ $Id: linux_setfpucw.c,v 1.7 2003-07-01 18:20:16 edo Exp $
  */
+#include <stdio.h>
 #ifdef __CYGWIN__
 #include <mingw/fenv.h>
 #else
@@ -11,7 +12,6 @@
 
 void linux_trapfpe_(void) { 
 #ifdef LINUXIA64
-#include <stdio.h>
 #include <linux/prctl.h>
 //#include </usr/src/linux-2.4.19-hp2_pnnl6_Lv15irqstkM/include/linux/prctl.h>
 /* grabbed from ftp://linux.hpl.hp.com/pub/linux-ia64/prctl-1.3.tar.gz  */
