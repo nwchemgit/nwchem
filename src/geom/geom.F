@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.130 2004-08-31 19:44:26 marat Exp $
+C$Id: geom.F,v 1.131 2004-09-14 17:16:03 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1779,7 +1779,7 @@ c
  2    format(1x,a)
       do icent = 1, ncenter(geom)
 
-        write(unit,3) tags(icent,geom), 
+        write(unit,3) icent,tags(icent,geom), 
      $                (coords(j,icent,geom)*scale,j=1,3),
      $                 charge(icent,geom)
 
