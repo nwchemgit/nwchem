@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.4 2001-11-30 17:30:29 bylaska Exp $
+c $Id: cpmd_input.F,v 1.5 2001-11-30 18:36:52 bylaska Exp $
 c
 
 
@@ -300,6 +300,10 @@ c
 c Nose-Hoover
 c
  1900 nose = .true.
+      Pe = 100.00d0
+      Pr = 100.00d0
+      Te = 298.15d0
+      Tr = 298.15d0
       if (.not. inp_f(fe)) goto 1901   
       Pe = fe
       if (.not. inp_f(fe)) goto 1901   
