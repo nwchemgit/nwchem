@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.43 1999-07-09 22:42:07 edo Exp $
+c     $Id: dft_inpana.F,v 1.44 2000-01-06 00:42:24 edo Exp $
 c
 c*********************************************************************
 c     
@@ -41,6 +41,10 @@ c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
       character*16 tag
+      character*20 rgridnames(6)
+      data rgridnames /'Euler-MacLaurin','Mura-Knowles',
+     .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
+     ,     'Lindh'/
 c     
       me=ga_nodeid()
 c     
@@ -92,9 +96,17 @@ c
            call errquit(
      &         ' no. of electrons and multiplicity not compatible',nel)
          endif
-         noc(2) = (nel - mult + 1)/2
-         noc(1) = nel - noc(2)
-         noc1  = noc(1) + noc(2)
+         if(mult.gt.0) then
+            noc(2) = (nel - mult + 1)/2
+            noc(1) = nel - noc(2)
+            noc1  = noc(1) + noc(2)
+            if(me.eq.0) write(0,*) 'p noc1 noc2 ',noc(1),noc(2)
+         else
+            noc(1) = (nel + mult + 1)/2
+            noc(2) = nel - noc(1)
+            noc1  = noc(1) + noc(2)
+            if(me.eq.0) write(0,*) 'n noc1 noc2 ',noc(1),noc(2)
+         endif
       endif
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
      $     call errquit('inpana: dft:ipol put failed', 0)
@@ -416,7 +428,7 @@ c
             call util_print_centered
      &         (LuOut,'Grid Information',20,.true.)
             write(LuOut,9135)gridtype
-            write(LuOut,9136)
+            write(LuOut,9136) rgridnames(wradgrid)
             if (.not.leb)then
                write(LuOut,9142)
             else
@@ -559,7 +571,8 @@ c
  9120 format(10x,'An Exch-Corr fitting basis will be used.')
  9130 format(10x,'A Charge density fitting basis will be used.')
  9135 format(10x,'Grid used for XC integration:  ',a)
- 9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
+cedo 9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
+ 9136 format(10x,'Radial quadrature: ',A)
  9137 format(10x,a16,2x,f6.2,6x,i3,6x,f6.1,3x,i2,1x,'*',1x,i2)
  9138 format(10x,a16,2x,f6.2,6x,i3,8x,f6.1,3x,2x,i5)
  9139 format(10x,'Spatial weights used: Delley. ')
