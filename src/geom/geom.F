@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.62 1997-03-25 19:58:09 mdupuis Exp $
+C$Id: geom.F,v 1.63 1997-04-11 20:24:20 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1326,14 +1326,15 @@ c
       geom_tag_to_element = .false.
 c
 c     eliminate conventions that refer to centers used for
-c     computation purposes .. just bq for now
+c     computation purposes .. just bq and x for now
 c
       buf = tag
       lbuf = inp_strlen(buf)
       if (lbuf .eq. 0) return
 c
       call inp_lcase(buf)
-      if (buf(1:2) .eq. 'bq') then 
+      if (buf(1:2) .eq. 'bq' .or. 
+     $     ((buf(1:1).eq.'x') .and. (buf(2:2).ne.'e'))) then ! X but not Xe
          element = 'point charge' ! Note that false is returned
          symbol  = 'bq'
          atn     = 0
