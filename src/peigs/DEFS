@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.107 2004-01-28 20:17:50 edo Exp $
+# $Id: DEFS,v 1.108 2004-02-06 20:30:13 edo Exp $
 #
 #======================================================================
 #
@@ -64,7 +64,7 @@ peigs_EXAMPLE_LIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) $(CORE_LIBS) $(EXTRA_LIBS) 
 
 peigs_AR = $(AR) $(ARFLAGS)
 peigs_RANLIB = $(RANLIB)
-peigs_FC = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
+peigs_FC = $(FC) $(FOPTIONS) $(FOPTIMIZE) -I$(peigs_HDIR)
 #
 # this is needed because -DCRAY-T3E cannot be a macro definition it should be -DCRAY_T3E
 #
