@@ -46,7 +46,6 @@ endif
 
 EOBJ	= xerbl2.o ilaenv1.o menode.o pairup.o xstop.o
 
-
 all:		$(FOBJ) $(EOBJ)
 
 .EXPORT_ALL_VARIABLES:
@@ -68,6 +67,7 @@ clean:
 		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
 		neblw2.f sneblw2.f sstebz3.f
+		-rm -f F*.f
 
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
