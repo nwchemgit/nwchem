@@ -1,19 +1,23 @@
-c $Id: hnd_dderij.F,v 1.1 1999-04-10 00:15:12 windus Exp $
+c $Id: hnd_dderij.F,v 1.2 1999-04-28 22:48:08 windus Exp $
 c
 c taken from hondo.
 c
       subroutine hnd_dderij2(ddxdii,ddydii,ddzdii,ddxdij,ddydij,ddzdij,
-     1                  dxdi,dydi,dzdi,dxdj,dydj,dzdj,
-     2                  x,y,z,lit,ljt,ai,aj)
+     1                  ddxdjj,ddydjj,ddzdjj,
+     2                  dxdi,dydi,dzdi,dxdj,dydj,dzdj,
+     3                  x,y,z,lit,ljt,ai,aj,nder)
       implicit none
       double precision x, y, z, dxdi, dydi, dzdi, dxdj, dydj, dzdj
-      double precision ddxdii, ddydii, ddzdii, ddxdij, ddydij, ddzdij
+      double precision ddxdii, ddydii, ddzdii 
+      double precision ddxdjj, ddydjj, ddzdjj 
+      double precision ddxdij, ddydij, ddzdij
       double precision ai, aj
-      integer lit, ljt, j, i
+      integer lit, ljt, j, i, nder
       dimension      x(7,*),     y(7,*),     z(7,*)
       dimension   dxdi(5,1),  dydi(5,1),  dzdi(5,1)
       dimension   dxdj(5,1),  dydj(5,1),  dzdj(5,1)
       dimension ddxdii(5,1),ddydii(5,1),ddzdii(5,1)
+      dimension ddxdjj(5,1),ddydjj(5,1),ddzdjj(5,1)
       dimension ddxdij(5,1),ddydij(5,1),ddzdij(5,1)
 c
 c     ----- dxdi ... -----
@@ -53,6 +57,7 @@ c
   150 continue
 c
   200 continue
+      if (nder.lt.2) return
 c
 c     ----- ddxdii ... -----
 c
@@ -96,13 +101,13 @@ c
       ddydij(1,j)=(y(2,j+1)*(aj+aj)-y(2,j-1)*dble(j-1))*(ai+ai)
       ddzdij(1,j)=(z(2,j+1)*(aj+aj)-z(2,j-1)*dble(j-1))*(ai+ai)
   320 continue
-  330 if(lit.eq.1) return
+  330 if(lit.eq.1) go to 400
       do 340 i=2,lit
       ddxdij(i,1)=(x(i+1,2)*(ai+ai)-x(i-1,2)*dble(i-1))*(aj+aj)
       ddydij(i,1)=(y(i+1,2)*(ai+ai)-y(i-1,2)*dble(i-1))*(aj+aj)
       ddzdij(i,1)=(z(i+1,2)*(ai+ai)-z(i-1,2)*dble(i-1))*(aj+aj)
   340 continue
-      if(ljt.eq.1) return
+      if(ljt.eq.1) go to 400
       do 350 i=2,lit
       do 350 j=2,ljt
       ddxdij(i,j)=
@@ -115,5 +120,35 @@ c
      1      (z(i+1,j+1)*(aj+aj)-z(i+1,j-1)*dble(j-1))*(ai+ai)
      2     -(z(i-1,j+1)*(aj+aj)-z(i-1,j-1)*dble(j-1))*dble(i-1)
   350 continue
+c
+  400 continue
+c
+c     ----- ddxdjj ... -----
+c
+      do 410 i=1,lit
+      ddxdjj(i,1)=(x(i,3)*(aj+aj)-x(i,1))*(aj+aj)
+      ddydjj(i,1)=(y(i,3)*(aj+aj)-y(i,1))*(aj+aj)
+      ddzdjj(i,1)=(z(i,3)*(aj+aj)-z(i,1))*(aj+aj)
+  410 continue
+c
+      if(ljt.eq.1) return
+c
+      do 420 i=1,lit
+      ddxdjj(i,2)=(x(i,4)*(aj+aj)-x(i,2)*dble(2+2-1))*(aj+aj)
+      ddydjj(i,2)=(y(i,4)*(aj+aj)-y(i,2)*dble(2+2-1))*(aj+aj)
+      ddzdjj(i,2)=(z(i,4)*(aj+aj)-z(i,2)*dble(2+2-1))*(aj+aj)
+  420 continue
+c
+      if(ljt.eq.2) return
+c
+      do 430 i=1,lit
+      do 430 j=3,ljt
+      ddxdjj(i,j)=(x(i,j+2)*(aj+aj)-x(i,j)*dble(j+j-1))*(aj+aj)
+     1            +x(i,j-2)*dble((j-1)*(j-2))
+      ddydjj(i,j)=(y(i,j+2)*(aj+aj)-y(i,j)*dble(j+j-1))*(aj+aj)
+     1            +y(i,j-2)*dble((j-1)*(j-2))
+      ddzdjj(i,j)=(z(i,j+2)*(aj+aj)-z(i,j)*dble(j+j-1))*(aj+aj)
+     1            +z(i,j-2)*dble((j-1)*(j-2))
+  430 continue
       return
       end

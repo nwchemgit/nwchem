@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintd.F,v 1.1 1999-04-10 00:15:17 windus Exp $
+c $Id: hnd_stvintd.F,v 1.2 1999-04-28 22:48:09 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -57,7 +57,7 @@ c
         call dfill(nint*3*2,zero,sder,1)
         call hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1    xyzj,expj,coefj, j_nprim, j_ngen, Lj, sder, sder(nint*3+1),
-     2    scr, scr, nder,nint)
+     2    scr, scr, scr, nder,nint)
       endif
 c
       if (doV) then

@@ -1,16 +1,16 @@
 c
-c $Id: hnd_sd_ij.F,v 1.1 1999-04-10 00:15:16 windus Exp $
+c $Id: hnd_sd_ij.F,v 1.2 1999-04-28 22:48:09 windus Exp $
 c
 c Taken from HONDO
 c
       subroutine hnd_sd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1  xyzj,expj,coefj, j_nprim, j_ngen, Lj,
-     1  disij,djsij,didisij,didjsij,nder,nint)
+     1  disij,djsij,didisij,didjsij,djdjsij,nder,nint)
 c
 c  This is the routine that actually computes the 1rst and 2nd
 c  derivatives of the overlap.  It is assumed that the buffers
 c  for the integrals have been zeroed before entering this routine
-c  (disij,djsij,didisij,didjsij).
+c  (disij,djsij,didisij,didjsij,djdjsij).
 c
       implicit none
 #include "hnd_tol.fh"
@@ -32,6 +32,7 @@ c
       double precision djsij ! [output] 1rst derivative wrt j
       double precision didisij ! [output] 2nd derivative wrt i,i
       double precision didjsij ! [output] 2nd derivative wrt i,j
+      double precision djdjsij ! [output] 2nd derivative wrt j,j
 
       common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                             ni,nj,cx,cy,cz
@@ -39,7 +40,9 @@ c
       double precision xj, yj, zj, cx, cy, cz
       double precision ijx, ijy, ijz, xs, ys, zs
       double precision dxsdi, dysdi, dzsdi, dxsdj, dysdj, dzsdj
-      double precision dxsdii, dysdii, dzsdii, dxsdij, dysdij, dzsdij
+      double precision dxsdii, dysdii, dzsdii 
+      double precision dxsdjj, dysdjj, dzsdjj 
+      double precision dxsdij, dysdij, dzsdij
       double precision rln10, zero, one, tol, rr, ai, aj, arri
       double precision axi, ayi, azi, csi, cpi, cdi, cfi, cgi
       double precision aa, aa1, dum, fac, csj, cpj, cdj, cfj, cgj
@@ -49,7 +52,7 @@ c
       integer ni, nj, minprim, maxprim
       integer i1, i2, lit, mini, maxi, litder, j1, j2, ljt, minj, maxj
       integer ljtder, ig, jg, ij, i, j, ix, iy, iz, jx, jy, jz
-      dimension didisij(nint,3,3),didjsij(nint,3,3)
+      dimension didisij(nint,3,3),didjsij(nint,3,3),djdjsij(nint,3,3)
       dimension disij(nint,3),djsij(nint,3)
       dimension pij(225)
       dimension ijx(35),ijy(35),ijz(35)
@@ -57,6 +60,7 @@ c
       dimension dxsdi (5,5),dysdi (5,5),dzsdi (5,5)
       dimension dxsdj (5,5),dysdj (5,5),dzsdj (5,5)
       dimension dxsdii(5,5),dysdii(5,5),dzsdii(5,5)
+      dimension dxsdjj(5,5),dysdjj(5,5),dzsdjj(5,5)
       dimension dxsdij(5,5),dysdij(5,5),dzsdij(5,5)
       dimension minprim(5), maxprim(5)
       data rln10  /2.30258d+00/
@@ -224,8 +228,9 @@ c
   370 continue
 c
       call hnd_dderij2(dxsdii,dysdii,dzsdii,dxsdij,dysdij,dzsdij,
-     1            dxsdi ,dysdi ,dzsdi ,dxsdj ,dysdj ,dzsdj ,
-     2            xs,ys,zs,lit,ljt,ai,aj)
+     1            dxsdjj,dysdjj,dzsdjj,
+     2            dxsdi ,dysdi ,dzsdi ,dxsdj ,dysdj ,dzsdj ,
+     3            xs,ys,zs,lit,ljt,ai,aj,nder)
 c
       ij=0
       do 390 i=mini,maxi
@@ -271,15 +276,6 @@ c
       dumxy=dxsdi (ix,jx)*dysdi (iy,jy)* zs   (iz,jz)
       dumxz=dxsdi (ix,jx)* ys   (iy,jy)*dzsdi (iz,jz)
       dumyz= xs   (ix,jx)*dysdi (iy,jy)*dzsdi (iz,jz)
-c     didisij(1,1,ij)=didisij(1,1,ij)+ dumxx*pij(ij) 
-c     didisij(1,2,ij)=didisij(1,2,ij)+ dumxy*pij(ij) 
-c     didisij(1,3,ij)=didisij(1,3,ij)+ dumxz*pij(ij) 
-c     didisij(2,1,ij)=didisij(2,1,ij)+ dumxy*pij(ij) 
-c     didisij(2,2,ij)=didisij(2,2,ij)+ dumyy*pij(ij) 
-c     didisij(2,3,ij)=didisij(2,3,ij)+ dumyz*pij(ij) 
-c     didisij(3,1,ij)=didisij(3,1,ij)+ dumxz*pij(ij) 
-c     didisij(3,2,ij)=didisij(3,2,ij)+ dumyz*pij(ij) 
-c     didisij(3,3,ij)=didisij(3,3,ij)+ dumzz*pij(ij) 
       didisij(ij,1,1)=didisij(ij,1,1)+ dumxx*pij(ij) 
       didisij(ij,1,2)=didisij(ij,1,2)+ dumxy*pij(ij) 
       didisij(ij,1,3)=didisij(ij,1,3)+ dumxz*pij(ij) 
@@ -299,15 +295,6 @@ c
       dumzx=dxsdj (ix,jx)* ys   (iy,jy)*dzsdi (iz,jz)
       dumzy= xs   (ix,jx)*dysdj (iy,jy)*dzsdi (iz,jz)
       dumzz= xs   (ix,jx)* ys   (iy,jy)*dzsdij(iz,jz)
-c     didjsij(1,1,ij)=didjsij(1,1,ij)+ dumxx*pij(ij) 
-c     didjsij(1,2,ij)=didjsij(1,2,ij)+ dumxy*pij(ij) 
-c     didjsij(1,3,ij)=didjsij(1,3,ij)+ dumxz*pij(ij) 
-c     didjsij(2,1,ij)=didjsij(2,1,ij)+ dumyx*pij(ij) 
-c     didjsij(2,2,ij)=didjsij(2,2,ij)+ dumyy*pij(ij) 
-c     didjsij(2,3,ij)=didjsij(2,3,ij)+ dumyz*pij(ij) 
-c     didjsij(3,1,ij)=didjsij(3,1,ij)+ dumzx*pij(ij) 
-c     didjsij(3,2,ij)=didjsij(3,2,ij)+ dumzy*pij(ij) 
-c     didjsij(3,3,ij)=didjsij(3,3,ij)+ dumzz*pij(ij) 
       didjsij(ij,1,1)=didjsij(ij,1,1)+ dumxx*pij(ij) 
       didjsij(ij,1,2)=didjsij(ij,1,2)+ dumxy*pij(ij) 
       didjsij(ij,1,3)=didjsij(ij,1,3)+ dumxz*pij(ij) 
@@ -317,7 +304,24 @@ c     didjsij(3,3,ij)=didjsij(3,3,ij)+ dumzz*pij(ij)
       didjsij(ij,3,1)=didjsij(ij,3,1)+ dumzx*pij(ij) 
       didjsij(ij,3,2)=didjsij(ij,3,2)+ dumzy*pij(ij) 
       didjsij(ij,3,3)=didjsij(ij,3,3)+ dumzz*pij(ij) 
-      endif
+
+      dumxx=dxsdjj(ix,jx)* ys   (iy,jy)* zs   (iz,jz)
+      dumyy= xs   (ix,jx)*dysdjj(iy,jy)* zs   (iz,jz)
+      dumzz= xs   (ix,jx)* ys   (iy,jy)*dzsdjj(iz,jz)
+      dumxy=dxsdj (ix,jx)*dysdj (iy,jy)* zs   (iz,jz)
+      dumxz=dxsdj (ix,jx)* ys   (iy,jy)*dzsdj (iz,jz)
+      dumyz= xs   (ix,jx)*dysdj (iy,jy)*dzsdj (iz,jz)
+      djdjsij(ij,1,1)=djdjsij(ij,1,1)+ dumxx*pij(ij) 
+      djdjsij(ij,1,2)=djdjsij(ij,1,2)+ dumxy*pij(ij) 
+      djdjsij(ij,1,3)=djdjsij(ij,1,3)+ dumxz*pij(ij) 
+      djdjsij(ij,2,1)=djdjsij(ij,2,1)+ dumxy*pij(ij) 
+      djdjsij(ij,2,2)=djdjsij(ij,2,2)+ dumyy*pij(ij) 
+      djdjsij(ij,2,3)=djdjsij(ij,2,3)+ dumyz*pij(ij) 
+      djdjsij(ij,3,1)=djdjsij(ij,3,1)+ dumxz*pij(ij) 
+      djdjsij(ij,3,2)=djdjsij(ij,3,2)+ dumyz*pij(ij) 
+      djdjsij(ij,3,3)=djdjsij(ij,3,3)+ dumzz*pij(ij) 
+
+      endif ! nder=2
 
   380 continue
   390 continue

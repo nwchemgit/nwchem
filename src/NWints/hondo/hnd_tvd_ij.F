@@ -1,12 +1,13 @@
 c
-c $Id: hnd_tvd_ij.F,v 1.1 1999-04-10 00:15:18 windus Exp $
+c $Id: hnd_tvd_ij.F,v 1.2 1999-04-28 22:48:09 windus Exp $
 c
 c Taken from HONDO
 c
       subroutine hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen, Li,
      1  xyzj,expj,coefj, j_nprim, j_ngen, Lj, xyz,
-     2  ditij,djtij,diditij,didjtij,divij,djvij,didivij,didjvij,
-     3  nder,nint,zan,nat,doT,doV,iatom,jatom)
+     2  ditij,djtij,diditij,didjtij,djdjtij,divij,djvij,
+     3  didivij,didjvij,djdjvij,nder,nint,zan,nat,doT,doV,
+     4  iatom,jatom)
       implicit none
 #include "stdio.fh"
 #include "hnd_rys.fh"
@@ -35,10 +36,12 @@ c
       double precision djtij ! [output] 1rst derivative wrt j for T
       double precision diditij ! [output] 2nd derivative wrt i,i for T
       double precision didjtij ! [output] 2nd derivative wrt i,j for T
+      double precision djdjtij ! [output] 2nd derivative wrt j,j for T
       double precision divij ! [output] 1rst derivative wrt i for V
       double precision djvij ! [output] 1rst derivative wrt j for V
       double precision didivij ! [output] 2nd derivative wrt i,i for V
       double precision didjvij ! [output] 2nd derivative wrt i,j for V
+      double precision djdjvij ! [output] 2nd derivative wrt j,j for V
       double precision zan(nat) ! [input] nuclear charges
 c
       double precision xint, yint, zint, x0, y0, z0, xi, yi, zi
@@ -46,14 +49,17 @@ c
       double precision ijx, ijy, ijz, xs, ys, zs
       double precision rln10, zero, one, tol, rr, ai, aj, arri
       double precision pi212, xt, yt, zt, dxsdii, dysdii, dzsdii
+      double precision dxsdjj, dysdjj, dzsdjj
       double precision dxsdij, dysdij, dzsdij, dxsdi, dysdi, dzsdi
       double precision dxsdj, dysdj, dzsdj, dxtdii, dytdii, dztdii
+      double precision dxtdjj, dytdjj, dztdjj
       double precision dxtdij, dytdij, dztdij, dxtdi, dytdi, dztdi
       double precision dxtdj, dytdj, dztdj, dumx, dumy, dumz
       double precision dumxx, dumyy, dumzz, dumyx, dumzx, dumzy
       double precision dumxy, dumxz, dumyz, aax, aay, aaz
       double precision uu, ww, tt, xv, yv, zv
       double precision dxvdii, dyvdii, dzvdii, dxvdij, dyvdij, dzvdij
+      double precision dxvdjj, dyvdjj, dzvdjj
       double precision dxvdi, dyvdi, dzvdi, dxvdj, dyvdj, dzvdj
       double precision axi, ayi, azi, csi, cpi, cdi, cfi, cgi
       double precision tx, aa, aa1, dum, fac, csj, cpj, cdj, cfj, cgj
@@ -68,26 +74,27 @@ c
      1                             ni,nj,cx,cy,cz
       dimension ditij(nint,3),djtij(nint,3)
       dimension divij(nint,3),djvij(nint,3)
-c     dimension diditij(3,3,225),didjtij(3,3,225)
-c     dimension didivij(3,3,225),didjvij(3,3,225)
-      dimension diditij(nint,3,3),didjtij(nint,3,3)
-      dimension didivij(nint,3,3),didjvij(nint,3,3)
+      dimension diditij(nint,3,3),didjtij(nint,3,3),djdjtij(nint,3,3)
+      dimension didivij(nint,3,3),didjvij(nint,3,3),djdjvij(nint,3,3)
       dimension pij(225)
       dimension ijx(35),ijy(35),ijz(35)
       dimension     xs(7,9)  ,    ys(7,9)  ,    zs(7,9)
       dimension  dxsdi(5,5)  , dysdi(5,5)  , dzsdi(5,5)
       dimension  dxsdj(5,5)  , dysdj(5,5)  , dzsdj(5,5)
       dimension dxsdii(5,5)  ,dysdii(5,5)  ,dzsdii(5,5)
+      dimension dxsdjj(5,5)  ,dysdjj(5,5)  ,dzsdjj(5,5)
       dimension dxsdij(5,5)  ,dysdij(5,5)  ,dzsdij(5,5)
       dimension     xt(7,7)  ,    yt(7,7)  ,    zt(7,7)
       dimension  dxtdi(5,5)  , dytdi(5,5)  , dztdi(5,5)
       dimension  dxtdj(5,5)  , dytdj(5,5)  , dztdj(5,5)
       dimension dxtdii(5,5)  ,dytdii(5,5)  ,dztdii(5,5)
       dimension dxtdij(5,5)  ,dytdij(5,5)  ,dztdij(5,5)
+      dimension dxtdjj(5,5)  ,dytdjj(5,5)  ,dztdjj(5,5)
       dimension     xv(7,7,5),    yv(7,7,5),    zv(7,7,5)
       dimension  dxvdi(5,5,5), dyvdi(5,5,5), dzvdi(5,5,5)
       dimension  dxvdj(5,5,5), dyvdj(5,5,5), dzvdj(5,5,5)
       dimension dxvdii(5,5,5),dyvdii(5,5,5),dzvdii(5,5,5)
+      dimension dxvdjj(5,5,5),dyvdjj(5,5,5),dzvdjj(5,5,5)
       dimension dxvdij(5,5,5),dyvdij(5,5,5),dzvdij(5,5,5)
       dimension minprim(5), maxprim(5)
       dimension errmsg(3)
@@ -268,13 +275,13 @@ c
       call hnd_ddtxyz(xt,yt,zt,xs,ys,zs,litder,ljtder,aj)
 c
       call hnd_dderij2(dxsdii,dysdii,dzsdii,dxsdij,dysdij,
-     1            dzsdij,
+     1            dzsdij,dxsdjj,dysdjj,dzsdjj,
      1            dxsdi ,dysdi ,dzsdi ,dxsdj ,dysdj ,dzsdj ,
-     1            xs,ys,zs,lit,ljt,ai,aj)
+     1            xs,ys,zs,lit,ljt,ai,aj,nder)
       call hnd_dderij2(dxtdii,dytdii,dztdii,dxtdij,dytdij,
-     1            dztdij,
+     1            dztdij,dxtdjj,dytdjj,dztdjj,
      1            dxtdi ,dytdi ,dztdi ,dxtdj ,dytdj ,dztdj ,
-     1            xt,yt,zt,lit,ljt,ai,aj)
+     1            xt,yt,zt,lit,ljt,ai,aj,nder)
 c
       ij=0
       do 390 i=mini,maxi
@@ -335,15 +342,6 @@ c
       dumzy= xt   (ix,jx)*dysdi (iy,jy)*dzsdi (iz,jz)
      1     + xs   (ix,jx)*dytdi (iy,jy)*dzsdi (iz,jz)
      2     + xs   (ix,jx)*dysdi (iy,jy)*dztdi (iz,jz)
-c     diditij(1,1,ij)=diditij(1,1,ij)+ dumxx*pij(ij)
-c     diditij(1,2,ij)=diditij(1,2,ij)+ dumyx*pij(ij)
-c     diditij(1,3,ij)=diditij(1,3,ij)+ dumzx*pij(ij)
-c     diditij(2,1,ij)=diditij(2,1,ij)+ dumyx*pij(ij)
-c     diditij(2,2,ij)=diditij(2,2,ij)+ dumyy*pij(ij)
-c     diditij(2,3,ij)=diditij(2,3,ij)+ dumzy*pij(ij)
-c     diditij(3,1,ij)=diditij(3,1,ij)+ dumzx*pij(ij)
-c     diditij(3,2,ij)=diditij(3,2,ij)+ dumzy*pij(ij)
-c     diditij(3,3,ij)=diditij(3,3,ij)+ dumzz*pij(ij)
       diditij(ij,1,1)=diditij(ij,1,1)+ dumxx*pij(ij)
       diditij(ij,1,2)=diditij(ij,1,2)+ dumyx*pij(ij)
       diditij(ij,1,3)=diditij(ij,1,3)+ dumzx*pij(ij)
@@ -353,6 +351,7 @@ c     diditij(3,3,ij)=diditij(3,3,ij)+ dumzz*pij(ij)
       diditij(ij,3,1)=diditij(ij,3,1)+ dumzx*pij(ij)
       diditij(ij,3,2)=diditij(ij,3,2)+ dumzy*pij(ij)
       diditij(ij,3,3)=diditij(ij,3,3)+ dumzz*pij(ij)
+c
       dumxx=dxtdij(ix,jx)* ys   (iy,jy)* zs   (iz,jz)
      1     +dxsdij(ix,jx)* yt   (iy,jy)* zs   (iz,jz)
      2     +dxsdij(ix,jx)* ys   (iy,jy)* zt   (iz,jz)
@@ -380,15 +379,6 @@ c     diditij(3,3,ij)=diditij(3,3,ij)+ dumzz*pij(ij)
       dumzz= xt   (ix,jx)* ys   (iy,jy)*dzsdij(iz,jz)
      1     + xs   (ix,jx)* yt   (iy,jy)*dzsdij(iz,jz)
      2     + xs   (ix,jx)* ys   (iy,jy)*dztdij(iz,jz)
-c     didjtij(1,1,ij)=didjtij(1,1,ij)+ dumxx*pij(ij)
-c     didjtij(1,2,ij)=didjtij(1,2,ij)+ dumxy*pij(ij)
-c     didjtij(1,3,ij)=didjtij(1,3,ij)+ dumxz*pij(ij)
-c     didjtij(2,1,ij)=didjtij(2,1,ij)+ dumyx*pij(ij)
-c     didjtij(2,2,ij)=didjtij(2,2,ij)+ dumyy*pij(ij)
-c     didjtij(2,3,ij)=didjtij(2,3,ij)+ dumyz*pij(ij)
-c     didjtij(3,1,ij)=didjtij(3,1,ij)+ dumzx*pij(ij)
-c     didjtij(3,2,ij)=didjtij(3,2,ij)+ dumzy*pij(ij)
-c     didjtij(3,3,ij)=didjtij(3,3,ij)+ dumzz*pij(ij)
       didjtij(ij,1,1)=didjtij(ij,1,1)+ dumxx*pij(ij)
       didjtij(ij,1,2)=didjtij(ij,1,2)+ dumxy*pij(ij)
       didjtij(ij,1,3)=didjtij(ij,1,3)+ dumxz*pij(ij)
@@ -398,7 +388,35 @@ c     didjtij(3,3,ij)=didjtij(3,3,ij)+ dumzz*pij(ij)
       didjtij(ij,3,1)=didjtij(ij,3,1)+ dumzx*pij(ij)
       didjtij(ij,3,2)=didjtij(ij,3,2)+ dumzy*pij(ij)
       didjtij(ij,3,3)=didjtij(ij,3,3)+ dumzz*pij(ij)
-
+c
+      dumxx=dxtdjj(ix,jx)* ys   (iy,jy)* zs   (iz,jz)
+     1     +dxsdjj(ix,jx)* yt   (iy,jy)* zs   (iz,jz)
+     2     +dxsdjj(ix,jx)* ys   (iy,jy)* zt   (iz,jz)
+      dumyy= xt   (ix,jx)*dysdjj(iy,jy)* zs   (iz,jz)
+     1     + xs   (ix,jx)*dytdjj(iy,jy)* zs   (iz,jz)
+     2     + xs   (ix,jx)*dysdjj(iy,jy)* zt   (iz,jz)
+      dumzz= xt   (ix,jx)* ys   (iy,jy)*dzsdjj(iz,jz)
+     1     + xs   (ix,jx)* yt   (iy,jy)*dzsdjj(iz,jz)
+     2     + xs   (ix,jx)* ys   (iy,jy)*dztdjj(iz,jz)
+      dumyx=dxtdj (ix,jx)*dysdj (iy,jy)* zs   (iz,jz)
+     1     +dxsdj (ix,jx)*dytdj (iy,jy)* zs   (iz,jz)
+     2     +dxsdj (ix,jx)*dysdj (iy,jy)* zt   (iz,jz)
+      dumzx=dxtdj (ix,jx)* ys   (iy,jy)*dzsdj (iz,jz)
+     1     +dxsdj (ix,jx)* yt   (iy,jy)*dzsdj (iz,jz)
+     2     +dxsdj (ix,jx)* ys   (iy,jy)*dztdj (iz,jz)
+      dumzy= xt   (ix,jx)*dysdj (iy,jy)*dzsdj (iz,jz)
+     1     + xs   (ix,jx)*dytdj (iy,jy)*dzsdj (iz,jz)
+     2     + xs   (ix,jx)*dysdj (iy,jy)*dztdj (iz,jz)
+      djdjtij(ij,1,1)=djdjtij(ij,1,1)+ dumxx*pij(ij)
+      djdjtij(ij,1,2)=djdjtij(ij,1,2)+ dumyx*pij(ij)
+      djdjtij(ij,1,3)=djdjtij(ij,1,3)+ dumzx*pij(ij)
+      djdjtij(ij,2,1)=djdjtij(ij,2,1)+ dumyx*pij(ij)
+      djdjtij(ij,2,2)=djdjtij(ij,2,2)+ dumyy*pij(ij)
+      djdjtij(ij,2,3)=djdjtij(ij,2,3)+ dumzy*pij(ij)
+      djdjtij(ij,3,1)=djdjtij(ij,3,1)+ dumzx*pij(ij)
+      djdjtij(ij,3,2)=djdjtij(ij,3,2)+ dumzy*pij(ij)
+      djdjtij(ij,3,3)=djdjtij(ij,3,3)+ dumzz*pij(ij)
+c
       else ! if nder.gt.2
         write(luout,9996) nder
         call errquit('hnd_tvd_ij: derivative order is too high',555)
@@ -445,10 +463,11 @@ c
       call hnd_dderij2(dxvdii(1,1,iroot),dyvdii(1,1,iroot),
      1            dzvdii(1,1,iroot),
      1            dxvdij(1,1,iroot),dyvdij(1,1,iroot),dzvdij(1,1,iroot),
+     1            dxvdjj(1,1,iroot),dyvdjj(1,1,iroot),dzvdjj(1,1,iroot),
      2             dxvdi(1,1,iroot), dyvdi(1,1,iroot), dzvdi(1,1,iroot),
      3             dxvdj(1,1,iroot), dyvdj(1,1,iroot), dzvdj(1,1,iroot),
      4                xv(1,1,iroot),    yv(1,1,iroot),    zv(1,1,iroot),
-     5            lit,ljt,ai,aj)
+     5            lit,ljt,ai,aj,nder)
 c
   420 continue
 c
@@ -535,15 +554,6 @@ c
       dumyx=dumyx*aa1*pi212
       dumzx=dumzx*aa1*pi212
       dumzy=dumzy*aa1*pi212
-c     didivij(1,1,ij)=didivij(1,1,ij)+dumxx*pij(ij)
-c     didivij(1,2,ij)=didivij(1,2,ij)+dumyx*pij(ij)
-c     didivij(1,3,ij)=didivij(1,3,ij)+dumzx*pij(ij)
-c     didivij(2,1,ij)=didivij(2,1,ij)+dumyx*pij(ij)
-c     didivij(2,2,ij)=didivij(2,2,ij)+dumyy*pij(ij)
-c     didivij(2,3,ij)=didivij(2,3,ij)+dumzy*pij(ij)
-c     didivij(3,1,ij)=didivij(3,1,ij)+dumzx*pij(ij)
-c     didivij(3,2,ij)=didivij(3,2,ij)+dumzy*pij(ij)
-c     didivij(3,3,ij)=didivij(3,3,ij)+dumzz*pij(ij)
       didivij(ij,1,1)=didivij(ij,1,1)+dumxx*pij(ij)
       didivij(ij,1,2)=didivij(ij,1,2)+dumyx*pij(ij)
       didivij(ij,1,3)=didivij(ij,1,3)+dumzx*pij(ij)
@@ -592,15 +602,6 @@ c
       dumzx=dumzx*aa1*pi212
       dumzy=dumzy*aa1*pi212
       dumzz=dumzz*aa1*pi212
-c     didjvij(1,1,ij)=didjvij(1,1,ij)+dumxx*pij(ij) 
-c     didjvij(1,2,ij)=didjvij(1,2,ij)+dumxy*pij(ij) 
-c     didjvij(1,3,ij)=didjvij(1,3,ij)+dumxz*pij(ij) 
-c     didjvij(2,1,ij)=didjvij(2,1,ij)+dumyx*pij(ij) 
-c     didjvij(2,2,ij)=didjvij(2,2,ij)+dumyy*pij(ij) 
-c     didjvij(2,3,ij)=didjvij(2,3,ij)+dumyz*pij(ij) 
-c     didjvij(3,1,ij)=didjvij(3,1,ij)+dumzx*pij(ij) 
-c     didjvij(3,2,ij)=didjvij(3,2,ij)+dumzy*pij(ij) 
-c     didjvij(3,3,ij)=didjvij(3,3,ij)+dumzz*pij(ij) 
       didjvij(ij,1,1)=didjvij(ij,1,1)+dumxx*pij(ij) 
       didjvij(ij,1,2)=didjvij(ij,1,2)+dumxy*pij(ij) 
       didjvij(ij,1,3)=didjvij(ij,1,3)+dumxz*pij(ij) 
@@ -610,7 +611,43 @@ c     didjvij(3,3,ij)=didjvij(3,3,ij)+dumzz*pij(ij)
       didjvij(ij,3,1)=didjvij(ij,3,1)+dumzx*pij(ij) 
       didjvij(ij,3,2)=didjvij(ij,3,2)+dumzy*pij(ij) 
       didjvij(ij,3,3)=didjvij(ij,3,3)+dumzz*pij(ij) 
-
+c
+      dumxx=zero
+      dumyy=zero
+      dumzz=zero
+      dumyx=zero
+      dumzx=zero
+      dumzy=zero
+      do 436 iroot=1,nroots
+      dumxx=dumxx
+     1     +dxvdjj(ix,jx,iroot)* yv   (iy,jy,iroot)* zv   (iz,jz,iroot)
+      dumyy=dumyy
+     1     + xv   (ix,jx,iroot)*dyvdjj(iy,jy,iroot)* zv   (iz,jz,iroot)
+      dumzz=dumzz
+     1     + xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdjj(iz,jz,iroot)
+      dumyx=dumyx
+     1     +dxvdj (ix,jx,iroot)*dyvdj (iy,jy,iroot)* zv   (iz,jz,iroot)
+      dumzx=dumzx
+     1     +dxvdj (ix,jx,iroot)* yv   (iy,jy,iroot)*dzvdj (iz,jz,iroot)
+      dumzy=dumzy
+     1     + xv   (ix,jx,iroot)*dyvdj (iy,jy,iroot)*dzvdj (iz,jz,iroot)
+  436 continue
+      dumxx=dumxx*aa1*pi212
+      dumyy=dumyy*aa1*pi212
+      dumzz=dumzz*aa1*pi212
+      dumyx=dumyx*aa1*pi212
+      dumzx=dumzx*aa1*pi212
+      dumzy=dumzy*aa1*pi212
+      djdjvij(ij,1,1)=djdjvij(ij,1,1)+dumxx*pij(ij)
+      djdjvij(ij,1,2)=djdjvij(ij,1,2)+dumyx*pij(ij)
+      djdjvij(ij,1,3)=djdjvij(ij,1,3)+dumzx*pij(ij)
+      djdjvij(ij,2,1)=djdjvij(ij,2,1)+dumyx*pij(ij)
+      djdjvij(ij,2,2)=djdjvij(ij,2,2)+dumyy*pij(ij)
+      djdjvij(ij,2,3)=djdjvij(ij,2,3)+dumzy*pij(ij)
+      djdjvij(ij,3,1)=djdjvij(ij,3,1)+dumzx*pij(ij)
+      djdjvij(ij,3,2)=djdjvij(ij,3,2)+dumzy*pij(ij)
+      djdjvij(ij,3,3)=djdjvij(ij,3,3)+dumzz*pij(ij)
+c
       else ! if nder.gt.2
         write(luout,9996) nder
         call errquit('hnd_tvd_ij: derivative order is too high',555)
