@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.5 2003-02-16 01:17:19 marat Exp $
+c $Id: paw_pot_comp.F,v 1.6 2003-02-16 07:38:04 marat Exp $
 c
 
 !**************************************************
@@ -107,6 +107,11 @@ c     !*** calculate the size and indexing ***
       integer nilm,njlm
       integer i_qlm,i_qlm0
       complex tmp_comp_pot
+
+*       *** initializing to zero ***
+        do i=1,paw_pot_comp(3)
+           dcpl_mb(paw_pot_comp(1)+i-1) = dcmplx(0,0)
+        end do
 
       do in=1,ion_nion()
         ia = ion_katm(in)
