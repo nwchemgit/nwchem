@@ -43,5 +43,10 @@ c
        ENDDO
        ENDDO
 c
+c  Pt array is no longer needed.
+      if (.not.ga_destroy(g_pt))
+     &  call errquit('could not destroy Pt array',g_pt)
+c
+c
        return
        end
