@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.35 2003-01-09 22:13:39 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.36 2003-01-24 23:51:08 edo Exp $
 c
       implicit none
 c
@@ -333,9 +333,7 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
-            call xc_xmpw91_d2(tol_rho,xfac(19),lxfac(19),nlxfac(19), 
-     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
-     &           Ex, qwght,ldew,func)
+            call xc_xmpw91_d2()
          endif
       endif
 c     
