@@ -1,6 +1,6 @@
       subroutine ana_report_file(opt,fil,lfn)
 c
-c $Id: ana_report.F,v 1.1 2001-05-16 22:44:19 d3j191 Exp $
+c $Id: ana_report.F,v 1.2 2001-05-17 17:28:18 d3j191 Exp $
 c
       implicit none
 c
@@ -68,7 +68,7 @@ c
       real*8 tim(numj)
 c
       integer i,j,k,nskip,it,jt(10)
-      real*8 time,ptime,dtime,timi,timf
+      real*8 ctime,ptime,dtime,timi,timf
 c
       rewind(lfn)
       read(lfn,1000) j
@@ -96,14 +96,14 @@ c
       ptime=-1.0d0
       timi=0.0d0
     5 continue
-      read(lfn,1002,end=11) time,it,(jt(k),k=1,10)
+      read(lfn,1002,end=11) ctime,it,(jt(k),k=1,10)
  1002 format(f12.6,i6,10i6)
-      if(ptime.le.0.0d0) timi=time
-      timf=time
+      if(ptime.le.0.0d0) timi=ctime
+      timf=ctime
       if(it.ne.ndxi(i,1)) goto 5
 c
       if(ptime.ge.0.0d0) then
-      dtime=time-ptime
+      dtime=ctime-ptime
       do 7 j=1,numj
       if(ndxj(j,4).ne.0) tim(j)=tim(j)+dtime
     7 continue
@@ -112,7 +112,7 @@ c
       do 8 j=1,numj
       ndxj(j,4)=0
     8 continue
-      ptime=time
+      ptime=ctime
 c
       do 9 k=1,10
       if(jt(k).eq.0) goto 9
@@ -124,7 +124,7 @@ c
       goto 5
    11 continue
 c
-      dtime=time-ptime
+      dtime=ctime-ptime
       do 12 j=1,numj
       if(ndxj(j,4).ne.0) tim(j)=tim(j)+dtime
    12 continue
