@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.152 2004-11-30 03:44:40 edo Exp $
+c     $Id: nwchem.F,v 1.153 2004-12-01 01:59:01 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003, 2004                      *
@@ -370,6 +370,9 @@ c
       character*10 cstart
       Character*40 GStatus
 c
+#ifdef USE_SUBGROUPS
+      luout=6
+#endif
       if (ga_nodeid() .ne.0) goto 10101
 c
       call util_print_centered(LuOut,
