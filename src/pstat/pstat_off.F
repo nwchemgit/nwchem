@@ -4,6 +4,10 @@
 C
 #include "pstatP.fh"
 #include "tcgmsg.fh"
+#if defined(SUN)
+      real etime, tarray(2)
+      external etime
+#endif
 C
       Double precision Zero
       Parameter (Zero = 0.0d0)
@@ -19,8 +23,13 @@ C
       EndIf
 C
       If ( PStat_Functions( Handle, PStat_QStat) ) then
+#if defined(SUN)
+         PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
+     $      + dble(etime(tarray)) - PStat_Start_Times( Handle, 1)
+#else
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
      $      + Zero - PStat_Start_Times( Handle, 1)
+#endif
          PStat_Times( Handle, 2 ) = PStat_Times( Handle, 2 )
      $      + TCGTime() - PStat_Start_Times( Handle, 2)
       EndIf

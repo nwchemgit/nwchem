@@ -8,6 +8,6 @@ C     For now just blank out the name
 C
       PStat_Name( Handle ) = 'Freed!'
 C
-      PStat_Free = .FALSE.
+      PStat_Free = .TRUE.
       Return
       End
