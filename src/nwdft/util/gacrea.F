@@ -1,5 +1,5 @@
       subroutine gacrea(geom,basis,n,m,name,ihand,how)
-C$Id: gacrea.F,v 1.7 1995-10-25 20:56:27 og845 Exp $
+C$Id: gacrea.F,v 1.8 1995-11-02 23:37:06 og845 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,7 +24,7 @@ c
         ok=.true.
       endif
 
-      if(.not.ok)  call ga_error(' ga_create failed ',2)
+      if(.not.ok)  call ga_error('gacrea: ga_create failed ',2)
 c
 #if defined(DFT_GASTAT)
       me = ga_nodeid()
