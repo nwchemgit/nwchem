@@ -76,7 +76,7 @@ c
 c
       if(me.eq.0) then
       write(lfnout,1000)
- 1000 format(/,'Average times per call',
+ 1000 format(/,' TIMING ANALYSIS',//,' Average times per call',
      + //,t40,'        Wall',t55,'         CPU',/)
       write(lfnout,1001) timer_wall_average(1),
      + timer_cpu_average(1)

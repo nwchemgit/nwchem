@@ -340,7 +340,8 @@ c
       dfr(ida)=dfree
       nda=ida
 c
-      call error(0,dfr,ida,aver,drift,stderr,corerr,ratio)
+      call error(.false.,.false.,1,dfr,ida,
+     + aver,drift,stderr,corerr,ratio)
 c
       return
       end
@@ -449,7 +450,8 @@ c
  2003 format(i10,3e20.12)
 c
       if(k.eq.1) then
-      call error(2,dfr,nda,dfree,ddrft,dsterr,dcerr,ratio)
+      call error(.true.,.true.,1000,dfr,nda,
+     + dfree,ddrft,dsterr,dcerr,ratio)
 c
       freeti=freeti+dfree*dlambd
       errti=errti+(dcerr*dlambd)**2
