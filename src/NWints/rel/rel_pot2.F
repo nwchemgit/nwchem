@@ -1,4 +1,4 @@
-C $Id: rel_pot2.F,v 1.3 1999-04-22 23:22:28 mg201 Exp $
+C $Id: rel_pot2.F,v 1.4 2000-01-03 21:44:11 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot2}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -7,7 +7,9 @@ c:tex-shifted angular momenta. The routine uses the modified Dirac
 c:tex-formalism, and returns integrals in various formats, depending
 c:tex-on the input parameter ntyp, which also determines how many 
 c:tex-integral blocks are returned. This routine generalizes rel\_pot
-c:tex-to allow for two-electron integrals of any class.
+c:tex-to allow for two-electron integrals of any class. 
+c:tex-
+c:tex-NOTE: the factor of \alpha^2/4 is NOT included here.
 c:tex-
 c:tex-\noindent Author: K. G. Dyall
 c:tex-
@@ -21,9 +23,8 @@ c:tex-\end{verbatim}
 ************************************************************************
       implicit none
 #include "stdio.fh"
-#include "rel_consts.fh"
-      double precision zero
-      parameter (zero = 0.0d00)
+      double precision zero, one
+      parameter (zero = 0.0d00, one = 1.0d00)
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -97,7 +98,7 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       np = 3*n_all_A*n_allp_B
       nm = 3*n_all_A*n_allm_B
       nab = n_all_A*n_all_B*n_x
-      if (nab .ne. nints) call errquit
+      if ((nab .ne. nints) .and. (.not.DryRun)) call errquit
      &    ('Mismatch between nints and nab in rel_pot',99)
       nn = 9*nab
 *
@@ -132,9 +133,9 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
 *   Assemble scalar integrals
 *
         if ((ntyp .eq. 1) .or. (ntyp .eq. 4)) then
-          call daxpy (nab,qalsq,scr(i_scr),1,Vrel,1)
-          call daxpy (nab,qalsq,scr(i_scr+4*nab),1,Vrel,1)
-          call daxpy (nab,qalsq,scr(i_scr+8*nab),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr+4*nab),1,Vrel,1)
+          call daxpy (nab,one,scr(i_scr+8*nab),1,Vrel,1)
           if (debug_arrays) call ecp_matpr (Vrel,1,n_all_b,1,n_all_a,
      &        1,n_all_b,1,n_all_a,'Scalar integrals','E',78,4)
         end if
@@ -143,12 +144,12 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
 *
         k = ntyp-3
         if (k .ge. 0) then
-          call daxpy (nab,qalsq,scr(i_scr+5*nab),1,Vrel(1,k+3),1)
-          call daxpy (nab,qalsq,scr(i_scr+6*nab),1,Vrel(1,k+2),1)
-          call daxpy (nab,qalsq,scr(i_scr+nab),1,Vrel(1,k+1),1)
-          call daxpy (nab,-qalsq,scr(i_scr+7*nab),1,Vrel(1,k+3),1)
-          call daxpy (nab,-qalsq,scr(i_scr+2*nab),1,Vrel(1,k+2),1)
-          call daxpy (nab,-qalsq,scr(i_scr+3*nab),1,Vrel(1,k+1),1)
+          call daxpy (nab,one,scr(i_scr+5*nab),1,Vrel(1,k+3),1)
+          call daxpy (nab,one,scr(i_scr+6*nab),1,Vrel(1,k+2),1)
+          call daxpy (nab,one,scr(i_scr+nab),1,Vrel(1,k+1),1)
+          call daxpy (nab,-one,scr(i_scr+7*nab),1,Vrel(1,k+3),1)
+          call daxpy (nab,-one,scr(i_scr+2*nab),1,Vrel(1,k+2),1)
+          call daxpy (nab,-one,scr(i_scr+3*nab),1,Vrel(1,k+1),1)
           if (debug_arrays) call ecp_matpr (Vrel(1,k+1),
      &        1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
      &        'Z spin-orbit integrals','E',78,4)
