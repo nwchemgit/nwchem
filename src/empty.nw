@@ -1,5 +1,4 @@
-restart h2o
+restart rtdb /scratch/rjh/permanent/h2o.db
 
-task scf
-
+task rtdbprint
 

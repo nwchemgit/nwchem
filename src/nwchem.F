@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.85 1996-07-19 23:06:46 mg141 Exp $
+c     $Id: nwchem.F,v 1.86 1996-07-26 16:18:19 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -70,6 +70,8 @@ c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
       logical ostartup
+      logical  input_parse
+      external input_parse
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -149,16 +151,32 @@ c     Now are ready to summarize the environment
 c
       call nwchem_banner(input_filename, rtdb_name, ostartup)
 c
-c     Read the input and open the RTDB
+c     Actually open the database and store the file prefix 
 c
-      call start(rtdb, rtdb_name, ostartup)
+c     Note that only process 0 has the database name ... that is OK.
 c
-      if (util_print('debug tcgmsg',print_never)) 
-     $     call setdbg(1)
+      if (ostartup) then
+         if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
+     $        call errquit('start: rtdb_open empty failed ', 0)
+      else
+         if (.not. rtdb_open(rtdb_name, 'old', rtdb))
+     $        call errquit('start: rtdb_open old failed ', 0)
+      endif
 c
-c     Call driver routine to do something useful
+      call util_file_info_rtdb(rtdb) ! Save file info for restart
 c
-      call control(rtdb)
+c     Parse input data, shove into the database and execute tasks
+c
+ 10   if (input_parse(rtdb)) then ! while (tasks to do)
+         call util_print_rtdb_load(rtdb,' ') ! High level print
+         if (util_print('tcgmsg',print_never)) then 
+            call setdbg(1)
+         else
+            call setdbg(0)
+         endif
+         call task(rtdb)
+         goto 10                !    end while
+      endif
 c
 c     Close the RTDB
 c
@@ -217,282 +235,6 @@ c
 c
 c     Done
 c
-      end
-      subroutine start(rtdb, rtdb_name, ostartup)
-      implicit none
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "inp.fh"
-#include "global.fh"
-      integer rtdb              ! [output]
-      character*(*) rtdb_name   ! [input]
-      logical ostartup          ! [input]
-c
-c     Actually open the database and store the file prefix 
-c
-c     Note that only process 0 has the database name ... that is OK.
-c
-      if (ostartup) then
-         if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
-     $        call errquit('start: rtdb_open empty failed ', 0)
-      else
-         if (.not. rtdb_open(rtdb_name, 'old', rtdb))
-     $        call errquit('start: rtdb_open old failed ', 0)
-      endif
-c
-      call util_file_info_rtdb(rtdb)
-c
-c     Parse input data and shove into the database
-c
-      call input_parse(rtdb)
-c
-c     Extract any high level print options
-c
-      call util_print_rtdb_load(rtdb,' ')
-c
-c     Enable speech if requested
-c
-      call util_rtdb_speak(rtdb)
-c
-c     Done
-c
-      end
-      subroutine control(rtdb)
-      implicit none
-#include "rtdb.fh"
-#include "inp.fh"
-#include "util.fh"
-      integer rtdb              ! [input] data base handle
-c     
-c     Drive the calculation.  Eventually this routine will hook up with the
-c     yet-to-be-written task module.  Right now task_input makes an rtdb
-c     entry task that comprises just the name of the routine to be called.
-c     If no task is present then perform some default action (exit).
-c     
-      character*255 task_name
-      integer ntasks, ind
-      logical status 
-      logical  scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
-      external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
-      logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full, gapss
-      external cphf, ccsd, moints_full, mp2_grad
-      logical scf_gradient, direct_mp2
-      external scf_gradient, direct_mp2
-      parameter (ntasks = 28)
-c
-      character*10 task_list(ntasks)
-      data task_list /'rjhtest', ! 1
-     $     'raktest',           ! 2
-     $     'rtdbprint',         ! 3
-     $     'scf',               ! 4
-     $     'oimp2',             ! 5
-     $     'gradients',         ! 6
-     $     'optscf',            ! 7
-     $     'atwtest',           ! 8
-     $     'rimp2',             ! 9
-     $     'checksum',          ! 10
-     $     'dft',               ! 11
-     $     'md',                ! 12
-     $     'dftgrad',           ! 13
-     $     'optdft',            ! 14
-     $     'direct_mp2',        ! 15
-     $     'cphf',              ! 16
-     $     'ccsd',              ! 17
-     $     'freqscf',           ! 18
-     $     'freqdft',           ! 19
-     $     'mcscf',             ! 20
-     $     'nwargos',           ! 21
-     $     'fourindex',         ! 22
-     $     'selci',             ! 23
-     $     'dplot',             ! 24
-     $     'mp2_grad',          ! 25
-     $     'optimize',          ! 26
-     $     'property',          ! 27
-     $     'gapss'              ! 28
-     $     /
-c     
-      if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
-c     
-c     Default action ... do nothing
-c     
-         return
-      endif
-c     
-      if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 
-     $        110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
-     $        210, 220, 230, 240, 250, 260, 270, 280) ind
-c     
-         write(6,*) ' Unimplemented task ', 
-     $        task_name(1:inp_strlen(task_name))
-         goto 1000
-c     
-c     rjhtest
-c     
- 10      status = rjhtest(rtdb)
-         goto 1000
-c     
-c     raktest
-c     
- 20      call raktest(rtdb)
-         goto 1000
-c     
-c     rtdbprint
-c     
- 30      status = rtdb_print(rtdb, .true.)
-         goto 1000
-c     
-c     scf ... eventually there will be no such task name
-c     
- 40      status = scf(rtdb)
-         goto 1000
-C     
-C     OI-MP2 = Orbital Invariant MP2 (different from RI-MP2)
-C     
- 50      status = oimp2(rtdb)
-         goto 1000
-c     
-c     gradients (scf has to be done first)
-c     
- 60      status = scf_gradient(rtdb)
-         goto 1000
-c     
-c     optscf ... scf optimization
-c     
- 70      call scf_optimize(rtdb)
-         goto 1000
-c     
-c     atwtest (4-index)
-c     
- 80      call atwtest(rtdb)
-         goto 1000
-c     
-C     RI-MP2 energy (SCF must be done separately first)
-c     
- 90      status = rimp2(rtdb)
-         goto 1000
-c     
-c     integral check sum
-c     
- 100     status = task_check_sum(rtdb)
-         goto 1000
-c     
-c     dft
-c     
- 110     continue 
-         status = nwdft(rtdb)
-         goto 1000
-c     
-c     MD
-c     
- 120     continue
-         call mdmain(rtdb)
-         goto 1000
-c     
-c     dft gradient
-c     
- 130     continue
-C     write(6,*) 'NWdft gradient not linked into this executable'
-         call dft_grad_top(rtdb)
-         goto 1000
-c     
-c     optdft ... dft optimization
-c     
- 140     call dft_optimize(rtdb)
-         goto 1000
-c     
-c     conventional direct MP2 (requires moints module)
-c     
- 150     status = direct_mp2(rtdb)
-         goto 1000
-c     
-c     Miles test 
-c     
- 160     continue
-         status=cphf(rtdb)
-         goto 1000
-c     
-c     CCSD
-c     
- 170     status = ccsd(rtdb)
-         goto 1000
-c     
-c     SCF frequencies by finite difference (in stepper)
-c     
- 180     call scf_freq(rtdb)
-         goto 1000
-c     
-c     DFT frequencies by finite difference (in stepper)
-c     
- 190     call dft_freq(rtdb)
-         goto 1000
-c     
-c     MCSCF 
-c     
- 200     call mcscf(rtdb)
-         goto 1000
-c     
-c     nw_Argos
-c     
-  210 continue
-      status=nwargos(rtdb)
-      goto 1000
-c     
-c     Four index
-c     
- 220     status = moints_full(rtdb)
-         goto 1000
-c
-c     Selected CI
-c
- 230     status = selci(rtdb)
-         goto 1000
-c     
-c     Plot of the density matrix
-c     
- 240     call DPlot(rtdb)
-         goto 1000
-c
-c     semi-direct mp2 energy and gradient module
-c     
- 250     status=mp2_grad(rtdb)
-         goto 1000
-c
-c     soon to be generic optimization interface
-c     currently just a hook for the energy optimization
-c
- 260     status = eopt(rtdb)
-         goto 1000
-c
-c     evaluate physical properties
-c
- 270     call property(rtdb)
-         goto 1000
-c
-c     gaussian approach to polymers, surfaces, and solids
-c
- 280     continue
-         status = gapss(rtdb)
-         goto 1000
-c
-      else
-c     
-         write(6,*) ' task_name = ', 
-     $        task_name(1:inp_strlen(task_name))
-         call errquit('control: unknown task name', 0)
-      endif
-c     
-c     Eventually this will be where the next task is identified
-c     
- 1000 continue
-c     
-c     Finished ... eventually need to track status of tasks so that
-c     restarts happen correctly.  For now assume that the task completed
-c     and delete task from the database so that a restart will have no
-c     effect.
-c     
-      status = rtdb_delete(rtdb, 'task') ! quietly discard the status
-c     
       end
       subroutine nwchem_banner(input_filename, rtdb_name, ostartup)
       implicit none

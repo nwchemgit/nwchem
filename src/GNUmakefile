@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.41 1996-06-27 22:30:44 d3g681 Exp $
+# $Id: GNUmakefile,v 1.42 1996-07-26 16:18:18 d3g681 Exp $
 
 include config/makefile.h
 
@@ -21,7 +21,7 @@ all $(BINDIR)/nwchem nwchem:	directories libraries
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -32,7 +32,7 @@ link nwchem_link:    nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -42,7 +42,7 @@ prof profile:    nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_prof
 endif
-	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o $(LIBS)
+	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o -ltask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -52,7 +52,7 @@ test:	nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_test
 endif
-	$(LINK.f) -o nwchem_test nwchem.o stubs.o $(LIBS)
+	$(LINK.f) -o nwchem_test nwchem.o stubs.o -ltask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 

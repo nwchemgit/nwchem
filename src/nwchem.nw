@@ -2,10 +2,6 @@ title; Water in 6-31g basis set
 
 start h2o
 
-memory 24 mb
-
-#print low
-
 geometry
   O      0.00000000    0.00000000    0.00000000
   H      0.00000000    1.93042809   -1.10715266
@@ -34,7 +30,6 @@ basis "test mo basis" nosegment noprint
             0.183192    1.000000
 end
 
-task scf
 
 scf
   maxiter 20
@@ -48,3 +43,5 @@ end
 #stepper
 #  print default
 #end
+
+task scf
