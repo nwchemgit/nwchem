@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.45 1996-01-17 22:06:01 d3e129 Exp $
+C$Id: geom.F,v 1.46 1996-01-22 18:44:16 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -906,6 +906,20 @@ c
       geom_ncent = geom_check_handle(geom, 'geom_ncent')
       if (.not. geom_ncent) return
       ncent = ncenter(geom)
+c      
+      end
+      logical function geom_ncent_unique(geom, ncent)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+c
+      geom_ncent_unique = geom_check_handle(geom, 'geom_ncent_unique')
+      if (.not. geom_ncent_unique) return
+      ncent = ncenter_unique(geom)
 c      
       end
       logical function geom_cent_tag(geom, icent, tag)
