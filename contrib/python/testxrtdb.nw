@@ -1,7 +1,7 @@
 # If this was a restart directive with only the python data and task, 
 # an old database could be edited.  
 #
-# As an example, here, we use populate a new database with some
+# As an example, here, we populate a new database with some
 # geometry and basis information
 #
 # Make sure that the directory containing Xrtdb.py is in your PYTHONPATH
