@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.16 2003-02-05 03:18:52 bylaska Exp $
+* $Id: pspw_sic.F,v 1.17 2003-06-27 23:28:46 bylaska Exp $
 *
 
 *     *************************
@@ -332,10 +332,11 @@
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-             if (ispin.eq.1) 
-     >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
-     >                            dbl_mb(dn(1)),
-     >                            dbl_mb(dn(1)))
+c            if (ispin.eq.1) 
+c    >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
+c    >                            dbl_mb(dn(1)),
+c    >                            dbl_mb(dn(1)))
+
              call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                              dbl_mb(dn(1)))
              call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
@@ -343,6 +344,7 @@
 
 *            **** get Ecoul energy ****
              eh = coulomb_screened_e(dbl_mb(dn(1)))
+             if (ispin.eq.1) eh = eh + eh
              ph = 2.0d0*eh
 
 *            **** generate Vcoul ****
