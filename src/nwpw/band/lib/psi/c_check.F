@@ -116,7 +116,7 @@
      >                     'sm2',sm2(2),sm2(1))
       value = value.and.MA_push_get(mt_dbl,2*nbrill,     
      >                     'sm3',sm3(2),sm3(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
 
 
       call Stfl_gg_trace(ispin,ne,npack1,neall,nbrill,
@@ -163,7 +163,7 @@
       value = MA_pop_stack(sm3(2))
       value = value.and.MA_pop_stack(sm2(2))
       if (.not. value)
-     > call errquit('cpsi_initialize:popping stack memory',0)
+     > call errquit('cpsi_initialize:popping stack memory',0,0)
 
  1400 FORMAT('Warning - Orthogonalization performed, spin,zone:',I2,I4)
  1401 FORMAT(8x,'- error(before)=', E14.6,' (',E14.6,')')

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize3.F,v 1.1 2003-10-21 00:57:22 bylaska Exp $                       
+c     $Id: bfgsminimize3.F,v 1.2 2003-10-24 18:56:59 marat Exp $                       
 c
 
 *  ************************************************************
@@ -133,7 +133,7 @@ c     dte = 1.0d0
      >        MA_push_get(mt_dcpl,npack1*neall,
      >                     'Y0',Y0(2),Y0(1))
       if (.not. value) 
-     >   call errquit('bfgsminimize3:out of heap memory',0)
+     >   call errquit('bfgsminimize3:out of heap memory',0,0)
 
 
 
@@ -232,7 +232,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
       value = value.and.
      >        MA_pop_stack(S0(2))
       if (.not. value) 
-     >  call errquit('bfgsminimize3:error freeing heap memory',0)
+     >  call errquit('bfgsminimize3:error freeing heap memory',0,0)
 
       call psi_2to1()
       call psi_1toelectron() 

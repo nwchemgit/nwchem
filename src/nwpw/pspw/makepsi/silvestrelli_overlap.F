@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_overlap.F,v 1.1 2002-10-15 21:24:01 bylaska Exp $
+* $Id: silvestrelli_overlap.F,v 1.2 2003-10-24 18:57:00 marat Exp $
 *
 
 
@@ -53,7 +53,7 @@
       psic = rgrid(1)
       psis = rgrid(1) + n2ft3d
       if (.not. value) 
-     >  call errquit('silvestrelli_overlap:out of stack memory',0)
+     >  call errquit('silvestrelli_overlap:out of stack memory',0,0)
 
 
 *     **** generate T = dcmplx(Tc,Ts) = exp(-i b*r) operator ****
@@ -96,7 +96,7 @@
       value = value.and.MA_pop_stack(Ts(2))
       value = value.and.MA_pop_stack(Tc(2))  
       if (.not. value) 
-     >  call errquit('silvestrelli_overlap:popping stack memory',1)
+     >  call errquit('silvestrelli_overlap:popping stack memory',1,0)
 
       return
       end

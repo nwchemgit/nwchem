@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs3.F,v 1.1 2003-10-21 00:57:22 bylaska Exp $                       
+*     $Id: pspw_lmbfgs3.F,v 1.2 2003-10-24 18:56:59 marat Exp $                       
 *
 
       subroutine pspw_lmbfgs3_init(max_m0,y,g)
@@ -61,7 +61,7 @@
         value = MA_push_get(mt_dbl,2*nsize,'yy',yy(2),yy(1))
         value = value.and.
      >          MA_push_get(mt_dbl,2*nsize,'ss',ss(2),ss(1))
-        if (.not.value) call errquit('pspw_lmbfgs: push stack',0)
+        if (.not.value) call errquit('pspw_lmbfgs: push stack',0,0)
       end if
 
       call Grsm_gg_copy(npack1,neall,g,s)
@@ -165,7 +165,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
         value = MA_pop_stack(ss(2))
         value = value.and.
      >          MA_pop_stack(yy(2))
-        if (.not.value) call errquit('pspw_lmbfgs3:pop stack',2)
+        if (.not.value) call errquit('pspw_lmbfgs3:pop stack',2,0)
       end if
 
       !call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)

@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.2 2003-06-26 21:22:23 bylaska Exp $
+* $Id: c_coulomb.F,v 1.3 2003-10-24 18:56:58 marat Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -32,10 +32,10 @@
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0,0)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
 
       call Parallel_taskid(taskid)
       call C3dB_nx(1,nx)
@@ -130,7 +130,7 @@ c     real*8  tmp1(*)
      
       call Cram_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
       
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)

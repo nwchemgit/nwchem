@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.11 2003-10-17 22:57:29 carlfahl Exp $
+* $Id: psi_Hv4.F,v 1.12 2003-10-24 18:56:59 marat Exp $
 *
 
 *     *************************************
@@ -179,7 +179,7 @@
      >  value = value.and.MA_pop_stack(Hpsi_r(2))
       value = value.and.MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
-      if (.not. value) call errquit('psi_H:popping stack memory',1)
+      if (.not. value) call errquit('psi_H:popping stack memory',1,0)
 
       call nwpw_timing_end(12)
       return

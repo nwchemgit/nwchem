@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.26 2003-10-20 16:40:49 bylaska Exp $
+* $Id: electron.F,v 1.27 2003-10-24 18:56:59 marat Exp $
 *
 
 
@@ -1503,7 +1503,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       call D3dB_n2ft3d(1,n2ft3d)
       value = MA_push_get(mt_dbl,(2*n2ft3d),'V_OEP',v_oep(2),v_oep(1))
       if (.not. value)
-     >  call errquit('electron_add_oep_to_vall:out of stack memory',0)
+     >  call errquit('electron_add_oep_to_vall:out of stack memory',0,0)
       
 
       call pspw_potential_SIC_OEP(ispin,ne,
@@ -1521,7 +1521,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       value = MA_pop_stack(v_oep(2))
       if (.not. value)
-     >  call errquit('electron_add_oep_to_vall:popping stack memory',1)
+     >  call errquit('electron_add_oep_to_vall:popping stack memory',1,0)
 
       return
       end

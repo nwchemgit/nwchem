@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.3 2002-12-10 01:37:27 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.4 2003-10-24 18:57:00 marat Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -118,7 +118,7 @@
      >        MA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
      >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
-     >   call errquit('pspw_wannier:out of heap memory',0)
+     >   call errquit('pspw_wannier:out of heap memory',0,0)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -182,7 +182,7 @@
      >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                     'A',A(2),A(1))
       if (.not. value) 
-     >   call errquit('pspw_wannier:out of heap memory',1)
+     >   call errquit('pspw_wannier:out of heap memory',1,0)
 
       
       if (taskid.eq.MASTER) then
@@ -318,7 +318,7 @@ c        end if
       value = value.and.MA_free_heap(psi2(2))
       value = value.and.MA_free_heap(psi(2))
       if (.not. value) 
-     >   call errquit('pspw_wannier:deallocating heap memory',2)
+     >   call errquit('pspw_wannier:deallocating heap memory',2,0)
 
 
  9000 call nwpw_message(4)

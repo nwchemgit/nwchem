@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.23 2003-10-17 22:57:40 carlfahl Exp $
+* $Id: pspw_sic.F,v 1.24 2003-10-24 18:57:00 marat Exp $
 *
 
 *     *************************
@@ -671,7 +671,7 @@ c    >                        Hpsi_k(index2))
      >             MA_push_get(mt_dbl,((ne(1)+ne(2))),
      >                         'b',b(2),b(1))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',0)
+     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',0,0)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
 
@@ -854,7 +854,7 @@ c    >                        Hpsi_k(index2))
         value = MA_push_get(mt_int,(ne(1)+ne(2)),
      >                      'ipiv',ipv(2),ipv(1))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',1)
+     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',1,0)
         do ms=1,ispin
           call DGESV(ne(ms),1, 
      >             dbl_mb(M(1)+ (ms-1)*ne(1)*ne(1)), ne(ms),
@@ -864,7 +864,7 @@ c    >                        Hpsi_k(index2))
         end do
         value = MA_pop_stack(ipv(2))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',2)
+     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',2,0)
 
         do ms=1,ispin
         do i=1,ne(ms)
@@ -913,7 +913,7 @@ c    >                        Hpsi_k(index2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',3)
+     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',3,0)
 
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.2 2002-12-10 01:37:28 bylaska Exp $
+* $Id: silvestrelli_minimize.F,v 1.3 2003-10-24 18:57:00 marat Exp $
 *
 
 
@@ -57,7 +57,7 @@
      >        MA_push_get(mt_dcpl,(n*n),'expminusAtotal',
      >                    expminusAtotal(2),expminusAtotal(1))
       if (.not. value) 
-     >  call errquit('silvestrelli_minimize:out of stack memory',0)
+     >  call errquit('silvestrelli_minimize:out of stack memory',0,0)
 
 
       call zcopy(n*n,zero,0,dcpl_mb(expminusAtotal(1)),1)
@@ -207,7 +207,7 @@
       value = value.and.MA_pop_stack(Att(2))
       value = value.and.MA_pop_stack(At(2))  
       if (.not. value) 
-     >  call errquit('silvestrelli_minimize:popping stack memory',1)
+     >  call errquit('silvestrelli_minimize:popping stack memory',1,0)
 
 
       return

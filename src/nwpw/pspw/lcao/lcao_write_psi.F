@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_write_psi.F,v 1.4 2003-10-24 18:56:59 marat Exp $
 *
 
 *     *******************************************
@@ -151,7 +151,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
-     >  call errquit('lcao_write_epsi:out of stack memory',0)
+     >  call errquit('lcao_write_epsi:out of stack memory',0,0)
 
 
 *     **** open ELCIN binary file ****
@@ -199,7 +199,7 @@
       value = value.and.
      >        MA_pop_stack(psi(2))
       if (.not. value)
-     >  call errquit('lcao_write_epsi:popping stack memory',0)
+     >  call errquit('lcao_write_epsi:popping stack memory',0,0)
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.11 2003-10-17 22:57:15 carlfahl Exp $
+* $Id: pspw_dplot.F,v 1.12 2003-10-24 18:56:59 marat Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -1170,7 +1170,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,3*nion,'rion', rion(2), rion(1))
-      if (.not. value) call errquit('psi_translate:push stack',0)
+      if (.not. value) call errquit('psi_translate:push stack',0,0)
       call dcopy(3*nion,0.0d0,0,dbl_mb(rion(1)),1)
 
       dbl_mb(rion(1)  ) = trans(1)
@@ -1197,6 +1197,6 @@ c     if (.not. value) call errquit('closing geometry',0)
 
       value =           MA_pop_stack(rion(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('psi_translate:pop stack',1)
+      if (.not. value) call errquit('psi_translate:pop stack',1,0)
       return
       end

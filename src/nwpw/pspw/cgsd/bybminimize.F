@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.8 2003-10-20 16:40:00 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.9 2003-10-24 18:56:59 marat Exp $                       
 c
 
 *  ************************************************************
@@ -150,7 +150,7 @@ c
      >        MA_push_get(mt_dbl,2*n2ft3d,
      >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
-     >   call errquit('bybminimize:out of stack memory',0)
+     >   call errquit('bybminimize:out of stack memory',0,0)
 
 *     **** ion-ion energy ****
       eion = 0.0d0
@@ -359,7 +359,7 @@ c
       value = value.and.MA_pop_stack(vall_out(2))
       value = value.and.MA_pop_stack(vall_in(2))
       if (.not. value) 
-     >  call errquit('bybminimize: popping stack',1)
+     >  call errquit('bybminimize: popping stack',1,0)
 
       call psi_check()
 
