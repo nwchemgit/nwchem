@@ -9,7 +9,7 @@ the size of system that can be treated and use of other approximations
 \item Semi-direct --- this is recommended for most large applications
   (up to about 1000 basis functions), especially on the IBM SP and
   other machines with significant disk I/O capability.  Partially
-  transformed integrals are stored on disk, multipassing as necessary.
+  transformed integrals are stored on disk, multi-passing as necessary.
   RHF and UHF references may be treated including computation of
   analytic derivatives.  This is selected by specifying \verb+mp2+ on
   the task directive, e.g.
@@ -304,7 +304,7 @@ would be as follows,
 \begin{verbatim}
   set "mp2:reference spin mapping" 1 1
 \end{verbatim}
-The SCF calculation to produce the reference wavefuncion could be either
+The SCF calculation to produce the reference wavefunction could be either
 RHF or UHF in this case.
 
 The \verb+SET+ directive for a similar case, but this time using the
@@ -402,7 +402,7 @@ The size of \verb+xf3ci:AO 1 batch size+ is the most important of the
 three, in terms of the effect on performance.
 
 Local memory usage in the first two steps of the transformation is
-controlled in the RI-MP2 ccacluattion using the following \verb+SET+
+controlled in the RI-MP2 calculation using the following \verb+SET+
 directives,
 
 \begin{verbatim}

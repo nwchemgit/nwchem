@@ -1,13 +1,13 @@
 \label{sec:ecp}
 
 This optional directive allows the user to describe an effective core
-potential (ECP) in terms of contracted gaussian functions.  The ECPs
+potential (ECP) in terms of contracted Gaussian functions.  The ECPs
 are fit to Gaussians with the form
 \[
  r^2V_l(r) = \sum_{k} A_{lk} r^{n_{lk}} e^{-B_{lk}r^{2}}
 \]
 where $A_{lk}$ is the contraction coefficient, $n_{lk}$ is the
-exponent of the ``r'' term (r-exponent), and $B_{lk}$ is the gaussian
+exponent of the ``r'' term (r-exponent), and $B_{lk}$ is the Gaussian
 exponent.  The $n_{lk}$ is shifted by 2 as per most of the ECP
 literature and implementations, e.g., an $n_{lk} = 0$ implies
 $r^{-2}$.  The current implementation only allows for $n_{lk}$ values
@@ -38,7 +38,7 @@ center using the ECP basis set.  The form of the input for the
   END
 \end{verbatim}    
 
-By default ECPs are automatically segmented and cartesian even if
+By default ECPs are automatically segmented and Cartesian even if
 general contractions are input.  ECPs are associated with centers in
 geometries through tags or names of centers.  These tags must match
 exactly (including case) in the \verb+GEOMETRY+ and \verb+ECP+
@@ -62,7 +62,7 @@ indirection is supported.
 
 Basis functions currently may not be drawn from a standard set in the
 EMSL basis set library; they must be specified explicitly.  All
-directives that are in common with the standard gaussian basis set
+directives that are in common with the standard Gaussian basis set
 input have the same function and syntax.
 
 The following keyword pairs are included as input options for the 
@@ -77,10 +77,10 @@ These keyword pairs are interpreted in the \verb+ECP+ directive in the
 same manner as for the \verb+BASIS+ directive, but only the defaults
 are currently available for the coordinate system and segmentation in
 the \verb+ECP+ directive.  NWChem assumes that all ECPs are segmented
-and cartesian.  The keywords are included in the directive, however,
+and Cartesian.  The keywords are included in the directive, however,
 because it is expected that eventually the code will include the
 options for the user to specify basis functions in either spherical or
-cartesian coordinates, segmented or unsegmented.  The print keyword is
+Cartesian coordinates, segmented or unsegmented.  The print keyword is
 currently active, and can be used to specify that the descriptions of
 the functions will be printed or not printed by the input module, at
 the user's discretion.

@@ -16,7 +16,7 @@ as an argument (section \ref{sec:inputstructure}).
 
 Output is to standard output, standard error and Fortran unit 6
 (usually the same as standard output).  Files are created by default
-in the current directory, though this may be overriden in the input
+in the current directory, though this may be overridden in the input
 (section \ref{sec:dirs}).
 
 \section{Parallel execution on UNIX-based parallel machines
@@ -175,7 +175,7 @@ nwchem <INPUT_FILE_NAME>
 
 Substitute \verb+<OUTPUT_FILE_NAME>+, \verb+<ERROUT_FILE_NAME>+ and
 \verb+<INPUT_FILE_NAME>+ with the {\em full} path of the appropriate
-files.  These files and the NWChem executable must be in a filesystem
+files.  These files and the NWChem executable must be in a file system
 accessible to all processes.  Put the above into a file (e.g.,
 \verb+"test.job"+) and submit it with the command
 \begin{verbatim}
@@ -194,7 +194,7 @@ executable, reduces startup time to about 1 minute.
 
 Note that on many IBM SPs, including that at EMSL, the local scratch
 disks are wiped clean at the beginning of each job and therefore
-persisent files should be stored elsewhere.  PIOFS is recommended for
+persistent files should be stored elsewhere.  PIOFS is recommended for
 files larger than 1--2 MB.
 
 \section{Intel Paragon}

@@ -59,13 +59,13 @@ directives are ignored.
 
 The start-up directives are
 \begin{itemize}
-\item START
-\item CONTINUE
-\item RESTART
-\item SCRATCH{\verb+_+}DIR
-\item PERMANENT{\verb+_+}DIR
-\item MEMORY
-\item ECHO
+\item \verb+START+
+\item \verb+CONTINUE+
+\item \verb+RESTART+
+\item \verb+SCRATCH_DIR+
+\item \verb+PERMANENT_DIR+
+\item \verb=MEMORY=
+\item \verb=ECHO=
 \end{itemize}
 
 After the input file has been scanned for the start-up directives, it
@@ -76,7 +76,7 @@ the parsers for specific computational modules (e.g., SCF, DFT,
 \ldots).  Any directives that have already been processed (e.g.,
 \verb+MEMORY+) are ignored.  Input is read until a \verb+TASK+
 directive (see Section \ref{sec:task}) is encountered.  A \verb+TASK+
-directive request a calculation to be peformed and specifies the level
+directive request a calculation to be performed and specifies the level
 of theory and the operation to be performed.  Input processing then
 stops and the specified task is executed.  The position of the
 \verb+TASK+ directive in effect marks the end of the input for that
@@ -100,7 +100,7 @@ error is reported and execution terminates.  The following
 section presents two input files to illustrate the directive syntax and 
 input file format for NWChem applications.
 
-\section{Simple N2 Input File}
+\section{Simple Input File --- SCF geometry optimization}
 \label{sec:simplesample}
 
 A simple example of an NWChem input file is an SCF geometry optimization of
@@ -130,7 +130,7 @@ cc-pvdz basis is obtained from the NWChem basis library, as specified
 by the \verb+BASIS+ directive input.  The \verb+TASK+ directive requests 
 an SCF geometry optimization.
 
-The \verb+GEOMETRY+ directive (Section \ref{sec:geom}) defaults to cartesian
+The \verb+GEOMETRY+ directive (Section \ref{sec:geom}) defaults to Cartesian
 coordinates and {\angstroms} (options include atomic units and
 Z-matrix format; see Section \ref{sec:Z-matrix}).  The \verb+BASIS+ 
 directive input block is structured like the \verb+GEOMETRY+ directive
@@ -188,7 +188,7 @@ basis "starting basis"
   O library sto-3g
 end
 
-basis "property basis"
+basis "final basis"
   H library 6-31g**
   O library 6-31g**
 end
@@ -203,7 +203,7 @@ set "ao basis" "starting basis"
 
 task scf optimize
 
-set "ao basis" "property basis"
+set "ao basis" "final basis"
 
 scf
   vectors input atomic
@@ -231,7 +231,7 @@ different jobs to run in the same directory or to share the same
 scratch directory (see Section \ref{sec:dirs}), as long as they use
 different names in this field.
 
-As in the first sample problem, the geometry is given in cartesian
+As in the first sample problem, the geometry is given in Cartesian
 coordinates.  In this case, the units are specified as
 {\angstroms}.  (Since this is the default, explicit specification of the
 units is not actually necessary, however.)  The {\tt CHARGE}
@@ -266,7 +266,7 @@ necessary to use the \verb+SET+ directive in this manner, since the
 \verb+BASIS+ directive used the default name (which is \verb+"ao basis"+).
 An alternative approach that could have been used here, which avoids the 
 necessity of assigning the basis set name using the
-\verb+SET+ directive, would be to defer definition of the property basis
+\verb+SET+ directive, would be to defer definition of the final basis
 until after the first SCF calculation is complete. 
 
 All input up to this point affects only the settings in the run-time
@@ -287,11 +287,11 @@ in subsequent tasks without change, unless they are overridden by new
 input directives.  In this example, there are several important
 changes between the first task (\verb+task scf optimize+) and the
 second task (\verb+task mp2 optimize+).  The {\tt "ao basis"} is set
-to a better basis (i.e., {\tt "property basis"}) using the \verb+SET+
+to a better basis (i.e., {\tt "final basis"}) using the \verb+SET+
 directive.  The SCF output is completely discarded (as a result of the
 {\tt print none} input in the {\tt SCF} directive), which means that
 no output will be produced unless an error occurs.  The SCF starting
-guess vectors are reset to be the atomic guess, since the STO3G
+guess vectors are reset to be the atomic guess, since the STO-3G
 vectors are not appropriate (see Section \ref{sec:vectors} for
 details on the different possible starting guesses).
 
@@ -315,7 +315,7 @@ as input.  For example, a description of the calculation(s) specified
 in the input or notes on the purpose of the task(s), or other
 informational comments can be included in the input file in this way.
 The {\tt eof} directive can also be used to remove a task (or series
-of tasks) from the calculation without actually removing the relevent
+of tasks) from the calculation without actually removing the relevant
 input directives from the file.  Any lines in the file that occur
 after the {\tt eof} directive are ignored by the program.
 
@@ -355,6 +355,24 @@ input lines.  Each logical or physical input line must be no longer
 than 1023 characters.  Data is read until an end-of-file is detected,
 or until an \verb+EOF+ directive is encountered.
 
+In the input file
+\begin{itemize}
+\item a string, token, or field is a sequence of ASCII characters (NOTE: if 
+the string includes blanks or tabs (i.e., white space) the entire string must
+be enclosed in double quotes)
+\item \verb+\+ at the end of a line concatenates it with the next line
+  (note that a space character is inserted at this point so that it is
+  {\em not} possible to split tokens across lines.  Backslash is also
+  used to quote special characters such as whitespace, semi-colons, and
+  hash symbols so as to avoid their special meaning (NOTE: these special
+  symbols must be quoted with backslash even when enclosed within double
+  quotes).
+\item \verb+;+ (semicolon) is used to mark the end of a logical input 
+line within a physical line of input
+\item \verb+#+ (the hash or pound symbol) is the comment character.  All
+characters following \verb+#+ (up to the physical end of the line) are ignored.
+\end{itemize}
+
 Directives consist of a directive name, keywords, and optional input,
 and may contain one line or many.  Simple directives consist of a
 single line of input with one or more fields.  Compound directives can
@@ -371,11 +389,10 @@ modules at runtime.  It is therefore usually impossible to determine
 beforehand whether or not all selected options are consistent with each
 other.
 
-The following notation and syntax conventions are used in the generic 
-descriptions of the NWChem input in the following sections.
-
 \sloppy
 
+The following notation and syntax conventions are used in the generic 
+descriptions of the NWChem input in the following sections.
 \begin{itemize}
 \item a directive name always appears in all-capitals, in computer-type 
 face; (e.g.; \verb+GEOMETRY+, \verb+BASIS+, \verb+SCF+).  Note that 
@@ -387,27 +404,13 @@ and enclosed in angle brackets to distinguish them from keywords (e.g.,
 {\tt <input\_filename>}, {\tt <basisname>}, {\tt <tag>})
 \item \verb+$variable$+ is used to indicate the substitution of the value of a
       variable
-\item a string, token, or field is a sequence of ASCII characters (NOTE: if 
-the string includes blanks or tabs (i.e., white space) the entire string must
-be enclosed in double quotes)
 \item \verb+()+ is used to group items (the parentheses and other
       special symbols do not appear in the input)
 \item \verb+||+ separate exclusive options/parameters/formats
 \item \verb+[ ]+ enclose optional entries with a default value
 \item \verb+< >+ enclose a type, a name of a value to be specified,
       and a default value, if any.
-
-\item \verb+\+ is used to concatenate lines in a description.  It is
-also used to quote special characters such as whitespace, semi-colons,
-and hash symbols so as to avoid their special meaning (NOTE: these
-special symbols must be quoted with backslash even when enclosed
-within double quotes).
-
-\item \verb+;+ (semicolon) is used to mark the end of a logical input 
-line within a physical line of input
-\item \verb+#+ (the hash or pound symbol) is the comment character.  All
-characters following \verb+#+ (up to the physical end of the line) are ignored.
-
+\item \verb+\+ is used to concatenate lines in a description.  
 \item \verb+...+ is used to indicate indefinite continuation of a list
 \end{itemize}
 
@@ -416,7 +419,6 @@ characters following \verb+#+ (up to the physical end of the line) are ignored.
 An input parameter is identified in the description of the directive
 by prefacing the item with the name of the type of data expected;
 i.e.,
-
 \begin{itemize}
 \item \verb+string +  -- an ASCII character string
 \item \verb+integer+ --  integer value(s) for a variable or an array
@@ -428,6 +430,16 @@ an array
 
 If an input item is not prefaced by one of these type names,
 it is assumed to be of type ``string''.
+
+In addition, integer lists may be specified using Fortran triplet
+notation which interprets \verb+lo:hi:inc+ as \verb+lo+, \verb=lo+inc=,
+\verb=lo+2*inc=, \ldots, \verb+hi+.  For example, where a list of
+integers is expected in the input, the following two lines are
+equivalent
+\begin{verbatim}
+   7 10 21:27:2 1:3 99
+   7 10 21 23 25 27 1 2 3 99
+\end{verbatim}
  
 The directive \verb+VECTORS+ (Section \ref{sec:vectors}) is presented here
 as an example of an NWChem input directive.  The general form of the
@@ -446,7 +458,6 @@ user to specify the source of the molecular orbital vectors.  When
 this keyword is invoked, there are two mutually exclusive options for
 specifying the vectors, as indicated by the \verb+||+ symbol
 separating the descriptions of the two input options;
-
 \begin{verbatim}
   (<string input_movecs default atomic>) || \
                   (project <string basisname> <string filename>) \
@@ -479,12 +490,10 @@ specified MO vectors input file or, if this is not available, the file
 A particular example of the VECTOR directive is shown below.  It specifies
 both the \verb+input+ and \verb+output+ keywords, but does not use the 
 \verb+swap+ option.
-
 \begin{verbatim}
   vectors input project "small basis" small_basis.movecs \
           output large_basis.movecs
 \end{verbatim}
-
 This directive tells the code to generate input vectors by projecting
 from vectors in a smaller basis named \verb+"small basis"+, which is
 stored in the file \verb+small_basis.movecs+.  The output vectors will be

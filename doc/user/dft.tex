@@ -1,7 +1,7 @@
 \label{sec:dft}
 
 The NWChem density functional theory (DFT) module uses the
-gaussian basis set approach to compute
+Gaussian basis set approach to compute
 closed shell and open shell densities and Kohn-Sham orbitals
 in the: 
 \begin{itemize}
@@ -10,11 +10,11 @@ in the:
 \item local spin-density approximation (LSD), 
 \item non-local spin-density approximation (NLSD), and
 \item any empirical mixture of local and non-local approximations 
-(inluding exact exchange).
+(including exact exchange).
 \end{itemize}
 
 The formal scaling of the DFT computation can be reduced by choosing
-to use auxiliary gaussian basis sets to fit the charge density (CD) and/or 
+to use auxiliary Gaussian basis sets to fit the charge density (CD) and/or 
 fit the exchange-correlation (XC) potential.
 
 DFT input is provided using the compound \verb+DFT+ directive
@@ -31,7 +31,7 @@ encounters the \verb+TASK+ directive (Section \ref{sec:task}).
 
 Once a user has specified a geometry and a Kohn-Sham orbital basis set
 the DFT module can be invoked with no input directives (defaults 
-invoked throughout).  There are subdirectives which allow for 
+invoked throughout).  There are sub-directives which allow for 
 customized application; those currently provided as options for 
 the DFT module are:
 \begin{verbatim}
@@ -110,7 +110,7 @@ the DFT module are:
 
 The following 
 sections describe these keywords and
-optional subdirectives that can be specified for a \verb+DFT+ calculation
+optional sub-directives that can be specified for a \verb+DFT+ calculation
 in NWChem.
 
 \section{Specification of Basis Sets for the DFT Module}
@@ -187,14 +187,14 @@ approximation for open shell systems.  Within this approximation the
 exchange functional is the Slater $\rho^{1/3}$ functional (from
 J.C.~Slater, {\sl Quantum Theory of Molecules and Solids, Vol.~4: The
   Self-Consistent Field for Molecules and Solids} (McGraw-Hill, New
-York, 1974)), and the correlation functional is the Vosk-Wilk-Nusair
+York, 1974)), and the correlation functional is the Vosko-Wilk-Nusair
 (VWN) functional (functional V) (S.J.~Vosko, L.~Wilk and M.~Nusair,
 Can.~J.~Phys.~{\bf 58}, 1200 (1980)).  The parameters used in this
 formula are obtained by fitting to the Ceperley and
 Alder\footnote{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf
     45}, 566 (1980).}
-Quantum MonteCarlo solution of the {\em
-  homogenous electron gas}.
+Quantum Monte-Carlo solution of the {\em
+  homogeneous electron gas}.
 
 These defaults can be invoked explicitly by specifying the following
 keywords within the DFT module input directive,
@@ -298,7 +298,7 @@ appropriate citation.
   and Y.~Wang, Phys. Rev. B {\bf 45}, 13244 (1992).  The parameters
   used in this formula are obtained by fitting to the Ceperley and
   Alder Quantum Monte Carlo solution of the {\em
-  homogenous electron gas}.  This functional can be invoked with the
+  homogeneous electron gas}.  This functional can be invoked with the
   keyword,
 \begin{verbatim}
    XC pw91lda
@@ -460,12 +460,12 @@ inversion of the iterative subspace\footnote {P.~Pulay, Chem.\ Phys.\
   566 (1982)}.  Damping is also initiated (using 70\% of the previous
 density) for the first 2 iteration.  In addition, if the HOMO - LUMO
 gap is small and the Fock matrix somewhat diagonally dominant, then
-levelshifting is automatically initiated.  There are a variety of ways
+level-shifting is automatically initiated.  There are a variety of ways
 to customize this procedure to whatever is desired.
 
 An alternative optimization strategy is to specify, by using the change 
 in total energy (from iterations when N and N-1), when to turn
-damping, levelshifting, and/or diis on/off.  Start and stop keywords for
+damping, level-shifting, and/or DIIS on/off.  Start and stop keywords for
 each of these is available as,
 \begin{verbatim}
   CONVERGENCE  [dampon <real dampon default 0.0>] \
@@ -476,20 +476,20 @@ each of these is available as,
                [levloff <real levloff default 0.0>]
 \end{verbatim}
 
-So, for example, damping, diis, and/or levelshifting can be turned
+So, for example, damping, DIIS, and/or level-shifting can be turned
 on/off as desired.
 
 Another strategy can be to simply specify how many iterations (cycles) you wish
 each type of procedure to be used.  The necessary keywords to control
-the number of damping cycles (ncydp), the number of diis cycles
-(ncyds), and the number of levelshifting cycles (ncysh) are input as,
+the number of damping cycles (ncydp), the number of DIIS cycles
+(ncyds), and the number of level-shifting cycles (ncysh) are input as,
 \begin{verbatim}
   CONVERGENCE  [ncydp <integer ncydp default 2>] \
                [ncyds <integer ncyds default 30>] \
                [ncysh <integer ncysh default 0>]
 \end{verbatim}
 
-The amount of damping, levelshifting, time at which levelshifting is
+The amount of damping, level-shifting, time at which level-shifting is
 automatically imposed, and Fock matrices used in the DIIS
 extrapolation can be modified by the following keywords
 \begin{verbatim}
@@ -507,7 +507,7 @@ density mixed with the current iterations density.  So, for example
 would mix 30\% of the current iteration density with 70\% of the
 previous iteration density.
 
-Levelshifting\footnote {M.F.~Guest and 
+Level-Shifting\footnote {M.F.~Guest and 
 V.R.~Saunders, Mol.~Phys.~{\bf 28}, 819 (1974)} is defined as the
 amount of shift applied to the diagonal elements of the unoccupied
 block of the Fock matrix.  The shift is specified by the
@@ -517,7 +517,7 @@ keyword \verb+lshift+.  For example the directive,
 \end{verbatim}
 causes the diagonal elements of the Fock matrix
 corresponding to the virtual orbitals to be shifted by 0.5 au.
-By default, this levelshifting procedure is switched on whenever the
+By default, this level-shifting procedure is switched on whenever the
 HOMO-LUMO gap is small.  Small is defined by default to be 0.1 au but
 can be modified by the directive \verb+hl_tol+.  An example of
 changing the HOMO-LUMO gap tolerance to 0.01 would be,
@@ -582,7 +582,7 @@ $total unpruned per center$ & 4480 & 10000 & 21600 & 41160 \\  \hline
   \end{tabular}
 }
 
-The user has the option of specifying a customed quadrature of this
+The user has the option of specifying a custom quadrature of this
 type with the keywords,
 \begin{verbatim}
   GRID gausleg <integer nradpts default 50> <integer nagrid default 10> 

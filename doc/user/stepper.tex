@@ -29,7 +29,7 @@ identity matrix.
 The default in STEPPER is to minimize the energy as a function of the
 geometry with a maximum of 20 geometry optimization iterations.  When
 this is the desired calculation, no input is required other than the
-STEPPER compund directive.  However, the user also has the option of
+STEPPER compound directive.  However, the user also has the option of
 defining different tasks for the STEPPER module, and can vary the
 number of iterations and the convergence criteria from the default
 values.  The input for these options is described in the following
@@ -38,7 +38,7 @@ sections.
 \section{{\tt MIN} and {\tt TS} --- Minimum or transition state search}
 
 The default is for STEPPER to minimize the energy with respect to the
-geometry of the system.  This default behaviour may be forced with the
+geometry of the system.  This default behavior may be forced with the
 directive
 \begin{verbatim}
   MIN
@@ -57,7 +57,7 @@ in the STEPPER input.
 \section{{\tt TRACK} --- Mode selection}
 
 STEPPER has the ability to ``track'' a specific mode during an
-optimation for a transition state search, the user can also have the
+optimization for a transition state search, the user can also have the
 module track the eigenvector corresponding to a specific mode.  This
 is done by specifying the directive 
 \begin{verbatim}
@@ -104,7 +104,7 @@ of 0.5, or greater, usually should be entered for \verb+<radius>+.
 
 Two convergence criteria can be specified explicitly for the 
 STEPPER calculations.  The keyword \verb+CONVGG+ allows the user to
-specify the the convergence tolerence for the gradient norm for
+specify the the convergence tolerance for the gradient norm for
 all degrees of freedom.  The input line is of the following form,
 \begin{verbatim}
    CONVGG <real convgg default 1.0d-04>
@@ -157,14 +157,14 @@ specified by input using a line of the following form,
 %
 
 
-\section{Backsteping in Stepper}
+\section{Backstepping in Stepper}
 
 If a step taken during the optimization is too large (e.g., the step
 causes the energy to go up for a minimization or down for a transition
 state search), the STEPPER optimizer will automatically ``backstep''
 and correct the step based on information prior to the faulty step.
 If you have an optimization that ``backsteps'' frequently then the
-inital trust radius should most likely be decreased.
+initial trust radius should most likely be decreased.
 
 
 

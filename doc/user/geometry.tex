@@ -4,7 +4,7 @@ The \verb+GEOMETRY+ directive is a compound directive that allows the
 user to define the geometry to be used for a given calculation.  The
 directive allows the user to specify the geometry with a relatively
 small amount of input, but there are a large number of optional
-kewords and additional subordinate directives that the user can
+keywords and additional subordinate directives that the user can
 specify, if needed.  The directive therefore appears to be rather long
 and complicated when presented in its general form, as follows,
 \begin{verbatim}
@@ -117,7 +117,7 @@ will be included if the keyword \verb+bqbq+ is specified.
 enable or disable printing of the geometry.  The default is to print   
 the output associated with the geometry.  In addition, the keyword 
 \verb+print+ may
-be qualifed by the additional keyword \verb+xyz+, which specifies
+be qualified by the additional keyword \verb+xyz+, which specifies
 that the coordinates should be printed in the XYZ format of XMol.
 
 \item \verb+center+ and \verb+nocenter+ -- complimentary keyword pair
@@ -177,8 +177,8 @@ how the input for this directive is processed\footnote{For periodic
   a keyword for the group name is useful.}.
 However, a group name must be specified by supplying an entry for the
 string variable \verb+<group_name>+.  The
-group name should be specified as the standard Sch\"{o}files symbol.
-Examples of expected input for the varible \verb+group_name+ include
+group name should be specified as the standard Sch\"{o}flies symbol.
+Examples of expected input for the variable \verb+group_name+ include
 such entries as,
 
 \begin{itemize}
@@ -272,7 +272,7 @@ The values supplied for the coordinates must be in the units specified
 by the value of the variable \verb+<units>+ on the first line of
 the \verb+GEOMETRY+ directive input.
 
-The cartesian coordinate input line also contains the optional
+The Cartesian coordinate input line also contains the optional
 keywords \verb+charge+ and \verb+mass+, which allow the user to
 specify the charge of the atom (or center) and its mass (in atomic
 mass units).  The default charge for an atom is its atomic number,
@@ -328,16 +328,16 @@ The input module recognizes three possible spellings of this directive name.
 It can be invoked with \verb+ZMATRIX+, \verb+ZMT+, or \verb+ZMAT+.
 This compound directive allows the user to specify
 the molecular structure using
-either cartesian coordinates (see Section \ref{sec:zmcart}) or internal
+either Cartesian coordinates (see Section \ref{sec:zmcart}) or internal
 coordinates (bond lengths, bond angles and dihedral angles).  The
 Z-matrix input for a center consists of pairs numbers that define
 connectivity indices and a bond length and bond or torsion angles.
 Cartesian coordinate input for a center consists of three real numbers defining the
 x,y,z coordinates of the atom.  
 
-Within the Z-matrix input, bond lengths and cartesian coordinates must
+Within the Z-matrix input, bond lengths and Cartesian coordinates must
 be input in the user-specified units, as defined by the value specified
-for the varible \verb+<units>+ on the first line of the \verb+GEOMETRY+
+for the variable \verb+<units>+ on the first line of the \verb+GEOMETRY+
 directive.  All angles are specified in
 degrees.
 
@@ -349,7 +349,7 @@ degrees.
 
 The centers (denoted as \verb+i+, \verb+j+, and \verb+k+ below) used
 to specify Z-matrix connectivity may be given either as integers
-(indentifying the centers by number) or as the tag of the center.
+(identifying the centers by number) or as the tag of the center.
 {\em If the tag is used, this tag must be unique.} The use of
 ``dummy'' atoms is possible, by using \verb+X+ or \verb+BQ+ at the
 start of the tag.
@@ -374,7 +374,7 @@ The Z-matrix input is specified sequentially as follows,
 
 The structure of this input is described in more detail below.  
 In the following discussion, the tag or number
-of the center being currently defined is labelled as \verb+C+ (``C''
+of the center being currently defined is labeled as \verb+C+ (``C''
 for current).  The values entered for these tags for centers 
 defined in the Z-matrix input are interpreted
 in the same way as the \verb+<tag>+ entries for Cartesian
@@ -431,7 +431,7 @@ and dihedral angle in Z-matrix input.}
      length ($R_{Ci}$) relative to center \verb+i+, the angle with
      centers \verb+i+ and \verb+j+ ($\alpha = \widehat{Cij}$), and {\em either} 
     \begin{enumerate}
-    \item the dihedral angle ($\beta$) betwen the current center and centers
+    \item the dihedral angle ($\beta$) between the current center and centers
       \verb+i+, \verb+j+, and \verb+k+ (Figure \ref{fig:zmat1}), or
       \item  a second bond angle $\beta = \widehat{Cik}$ and an orientation to 
       the plane containing the other three centers (Figure
@@ -464,23 +464,23 @@ Optionally, an equals sign (\verb+=+) can be included between the
 symbol and its value, for clarity in reading the input file.
 
 Following the \verb+VARIABLES+ directive, the \verb+CONSTANTS+
-directive is used to define Z-matrix symbolic 
-variables that remain unchanged during geometry optimizations.  The
-general form of this directive is as follows;
+directive is used to define Z-matrix symbolic variables that remain
+unchanged during geometry optimizations.  {\em Note that this
+  functionality is not yet available and that all Z-matrix parameters
+  (Cartesian coordinates, numerically specified bond-lengths and
+  angles, and symbolic variables) will be modified during geometry
+  optimizations.} To freeze the Cartesian coordinates of an atom refer
+to Section \ref{sec:activeatoms}).  The general form of this directive
+is as follows;
 \begin{verbatim}
   CONSTANTS
     <string symbol>  <real value>
     ...
 \end{verbatim}
-Each line contains the name of a variable followed by its value.
-As with the \verb+VARIABLES+ directive, 
-an equals sign (\verb+=+) can be included between the
-symbol and its value.
-{\em Note that this functionality is not yet available and that all
-  Z-matrix parameters (Cartesian coordinates, numerically specified
-  bond-lengths and angles, and symbolic variables) will be modified
-  during geometry optimizations.}  To freeze the Cartesian coordinates
-of an atom refer to Section \ref{sec:activeatoms}).
+Each line contains the name of a variable followed by its value.  As
+with the \verb+VARIABLES+ directive, an equals sign (\verb+=+) can be
+included between the symbol and its value.
+
 
 The end of the Z-matrix input using the compound \verb+ZMATRIX+
 directive is signaled by a line containing either \verb+END+ or
@@ -496,8 +496,8 @@ otherwise be identical.
   geometry
     zmatrix 
       O
-      H1 O 1.08
-      H2 O 1.08 H1 108.0
+      H1 O 0.95
+      H2 O 0.95 H1 108.0
     end
   end
 \end{verbatim}
@@ -597,7 +597,7 @@ for the \verb+ZMATRIX+ directive.
 \item {\tt ijklnb} --- a linear bend.  This defines two angles
   corresponding to the deformation of the centers \verb+i--j--k+ 
   which may initially be arranged (nearly) linearly.  The center
-  \verb+l+ must not be colinear.  The two bends are constructed to be
+  \verb+l+ must not be collinear.  The two bends are constructed to be
   within and perpendicular to the plane containing the atoms.
 \end{itemize}   
 

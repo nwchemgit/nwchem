@@ -216,7 +216,7 @@ In the absence of friendly input note that the names
 \verb+"selci:refgen n"+ must be formatted with n in \verb+I2+
 format. Each set specifies a list of creation-annihilation operator
 pairs (in that order).  So for instance, in the above example each set
-is the same and causes the exictations
+is the same and causes the excitations
 \begin{verbatim}
   4->5   4->6   3->5   3->6
 \end{verbatim}
@@ -229,7 +229,7 @@ The precise sequence in which operators are applied is
 \begin{enumerate}
 \item loop through sets of operators
 \item loop through reference configurations
-\item loop through opertors in the set
+\item loop through operators in the set
 \item apply the operator to the configuration, if the result is new add it
   to the new list
 \item end the loop over operators
@@ -268,14 +268,14 @@ states are obtained.
 \section{Accuracy of diagonalization}
 
 By default, the CI wavefunctions are converged to a residual norm of
-$10^{-6}$ which provides similiar accuracy in the perturbation
+$10^{-6}$ which provides similar accuracy in the perturbation
 corrections to the energy, and much higher accuracy in the CI
 eigenvalues.  This may be adjusted with
 \begin{verbatim}
  set "selci:diag tol" real 1d-3
 \end{verbatim}
 the example setting much lower precision, appropriate for the
-approximate diagonalization discussed in the preceeding section.
+approximate diagonalization discussed in the preceding section.
 
 \section{Selection thresholds}
 

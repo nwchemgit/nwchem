@@ -1,102 +1,107 @@
 \label{sec:fourindex}
 
-{\bf ????????????????????}
-\Large
-**What does this module really do?  Is it invoked by any module other than
-DIRECT\_MP2?
-\normalsize
+{\bf THIS SECTION IS BEING REWRITTEN}
 
-%  The four-index transformation module is not designed for explicit
-% invocation but rather as a utility module for other tasks (e.g. direct
-% MP2 section \ref{sec:mp2}). However, there are input parameters which
-% may be set to modify the default behavior of the four-index
-% transformation module which may enhance performance.
-
-The four-index transformation module is a utility invoked by the fully
-direct MP2 module (see Section \ref{sec:mp2}).  For most applications,
-the default parameters for the four-index transformation will be adequate,
-but in some instances, the user may wish to enhance the performance of
-the module.  This can be done by specifying \verb+SET+ directives for
-selected parameters.  The following sections describe the options
-currently available for this module.
-
-\section{Algorithm for the Four-Index Transformation}
-
-The code currently contains two algorithms for the four-index transformation.
-The algorithm to use for a given calculation can be selected by specifying
-a \verb+SET+ directive of the form,
-
-\begin{verbatim}
- set "fourindex:method" <string method default twofold>
-\end{verbatim}
-
-% There is a choice of two algorithms for effecting the transformation.
-The default entry for the string \verb+method+ is \verb+twofold+, which
-specifies ***what?***.  This option should be used in almost all instances.
-However, in cases of high orders of parallelism (i.e., more than 200 nodes),
- better throughput may be obtained with the alternative algorithm, 
-obtained by setting \verb+method+ to \verb+sixfold+.
-
-\section{AO Integral Blocking and Block Length for the Four-Index Transformation}
-
-The default in the four-index transformation is to have no blocking in
-the AO integral generation.  Blocking can be specified explicitly using a
-\verb+SET+ directive of the form,
-
-\begin{verbatim}
- set "fourindex:aoblock" <logical aoblock default .false.>
-\end{verbatim}
-
-Entering a value of \verb+.true.+ for the logical variable \verb+aoblock+ 
-enables blocking in the AO integral generation. This may result in 
-substantial performance enhancement in cases with many identical 
-atoms and basis sets.
-
-The default is 10 for the vector length in the critical first index 
-transformation of the four-index transformation algorithm.  The user has
-the option of specifying the vector length explicitly by entering a 
-\verb+SET+ directive of the form,
-
-\begin{verbatim}
- set "fourindex:blocklength" <integer blocklength default 10>
-\end{verbatim}
-
-% This parameter determines the vector length in the critical first
-% index transformation. 
-
-For larger basis sets, it may be profitable to increase the vector
-length by specifying a value larger than 10 for the integer variable
-\verb+blocklength+.  However, this value should {\em
-  not} exceed $N_{bf} / 3$, since the cost of the redundant computation 
-in the square matrix multiplication would in that case exceed the 
-gain from a longer vector length.
-
-\Large
-***What is $N_{bf} / 3$?
-\normalsize
-
-\section{Frozen orbitals for the Four-Index Transformation}
-
-In most cases, the frozen orbitals will be specified by the input for the 
-MP2 calculation (or calculation in some other module???) that invokes the
-four-index transformation module.  However, the user can specify frozen
-orbitals separately for the four-index transformation, using \verb+SET+
-directives of the form,
-
-\begin{verbatim}
- set "fourindex:occ_frozen" \
-      <integer frozen_occupied default 0>
- set "fourindex:vir_frozen" \
-      <integer frozen_virtual default 0>
-\end{verbatim}
-
-The value specified for the integer variable \verb+frozen_occupied+ 
-designates the lowest frozen occupied orbital.  The value specified
-for the integer variable \verb+frozen_virtual+ designates the highest
-virtual frozen orbital.  The default is zero for both of these variables,
-which specifies no additional frozen orbitals for the four-index
-transformation module.
-
-% Setting these parameters
-% should not be required in the usual circumstances since these are
-% determined by the calling modules, (see section \ref{sec:mp2}).
+%{\bf ????????????????????}
+%\Large
+%**What does this module really do?  Is it invoked by any module other than
+%DIRECT\_MP2?
+%\normalsize
+%
+%%  The four-index transformation module is not designed for explicit
+%% invocation but rather as a utility module for other tasks (e.g. direct
+%% MP2 section \ref{sec:mp2}). However, there are input parameters which
+%% may be set to modify the default behavior of the four-index
+%% transformation module which may enhance performance.
+%
+%The four-index transformation module is a utility invoked by the fully
+%direct MP2 module (see Section \ref{sec:mp2}).  For most applications,
+%the default parameters for the four-index transformation will be adequate,
+%but in some instances, the user may wish to enhance the performance of
+%the module.  This can be done by specifying \verb+SET+ directives for
+%selected parameters.  The following sections describe the options
+%currently available for this module.
+%
+%\section{Algorithm for the Four-Index Transformation}
+%
+%The code currently contains two algorithms for the four-index transformation.
+%The algorithm to use for a given calculation can be selected by specifying
+%a \verb+SET+ directive of the form,
+%
+%\begin{verbatim}
+% set "fourindex:method" <string method default twofold>
+%\end{verbatim}
+%
+%% There is a choice of two algorithms for effecting the transformation.
+%The default entry for the string \verb+method+ is \verb+twofold+, which
+%specifies ***what?***.  This option should be used in almost all instances.
+%However, in cases of high orders of parallelism (i.e., more than 200 nodes),
+% better throughput may be obtained with the alternative algorithm, 
+%obtained by setting \verb+method+ to \verb+sixfold+.
+%
+%\section{AO Integral Blocking and Block Length for the Four-Index Transformation}
+%
+%The default in the four-index transformation is to have no blocking in
+%the AO integral generation.  Blocking can be specified explicitly using a
+%\verb+SET+ directive of the form,
+%
+%\begin{verbatim}
+% set "fourindex:aoblock" <logical aoblock default .false.>
+%\end{verbatim}
+%
+%Entering a value of \verb+.true.+ for the logical variable \verb+aoblock+ 
+%enables blocking in the AO integral generation. This may result in 
+%substantial performance enhancement in cases with many identical 
+%atoms and basis sets.
+%
+%The default is 10 for the vector length in the critical first index 
+%transformation of the four-index transformation algorithm.  The user has
+%the option of specifying the vector length explicitly by entering a 
+%\verb+SET+ directive of the form,
+%
+%\begin{verbatim}
+% set "fourindex:blocklength" <integer blocklength default 10>
+%\end{verbatim}
+%
+%% This parameter determines the vector length in the critical first
+%% index transformation. 
+%
+%For larger basis sets, it may be profitable to increase the vector
+%length by specifying a value larger than 10 for the integer variable
+%\verb+blocklength+.  However, this value should {\em
+%  not} exceed $N_{bf} / 3$, since the cost of the redundant computation 
+%in the square matrix multiplication would in that case exceed the 
+%gain from a longer vector length.
+%
+%\Large
+%***What is $N_{bf} / 3$?
+%\normalsize
+%
+%\section{Frozen orbitals for the Four-Index Transformation}
+%
+%In most cases, the frozen orbitals will be specified by the input for the 
+%MP2 calculation (or calculation in some other module???) that invokes the
+%four-index transformation module.  However, the user can specify frozen
+%orbitals separately for the four-index transformation, using \verb+SET+
+%directives of the form,
+%
+%\begin{verbatim}
+% set "fourindex:occ_frozen" \
+%      <integer frozen_occupied default 0>
+% set "fourindex:vir_frozen" \
+%      <integer frozen_virtual default 0>
+%\end{verbatim}
+%
+%The value specified for the integer variable \verb+frozen_occupied+ 
+%designates the lowest frozen occupied orbital.  The value specified
+%for the integer variable \verb+frozen_virtual+ designates the highest
+%virtual frozen orbital.  The default is zero for both of these variables,
+%which specifies no additional frozen orbitals for the four-index
+%transformation module.
+%
+%% Setting these parameters
+%% should not be required in the usual circumstances since these are
+%% determined by the calling modules, (see section \ref{sec:mp2}).
+%
+%
+%

@@ -6,7 +6,7 @@ function on the molecule defined by input using the \verb+GEOMETRY+
 directive (see Section \ref{sec:geom}).  Geometry optimization is
 either an energy minimization or a transition state optimization.
 The algorithm programmed in DRIVER is a quasi-newton optimization
-with line searches and approximate energy hessian updates.
+with line searches and approximate energy Hessian updates.
 
 DRIVER is selected by default out of the two available modules to
 perform geometry optimization.  In order to force use of DRIVER (e.g.,
@@ -31,7 +31,7 @@ may be user-defined with the Z-matrix input (Section
 nuclear Hessian is the identity matrix and there is an ASCII interface
 file to input a Hessian from another code.  The automatic generation
 of finite difference Hessians will be available soon. When internal
-coordinates are selected an appropriate initial hessian matrix is
+coordinates are selected an appropriate initial Hessian matrix is
 automatically created to match the internal coordinate definition.
 
 Execution of the DRIVER module calculation is invoked with a
@@ -59,7 +59,7 @@ number of geometry optimization steps.
 The value specified for the real \verb+<cvgopt>+ defines the convergence
 threshold of the optimization algorithm. The convergence criterion is
 the largest component of the energy gradient for the coordinates used
-in the optimization ( cartesian or internal coordinates ).
+in the optimization ( Cartesian or internal coordinates ).
 
 \section{{\tt LINOPT} --- Linear search}
 
@@ -80,9 +80,9 @@ number of energy points during any linear search.
   MODUPD  <integer modupt  default 1>
 \end{verbatim}
 
-The value specified for the integer \verb+<modupd>+ defines the hessian 
+The value specified for the integer \verb+<modupd>+ defines the Hessian 
 update algorithm, Fletcher-Powell update (\verb+<modupd> = 0+) or
-Broyden-Fletcher-Goldfar-Shanno update (\verb+<modupd> =  1+)
+Broyden-Fletcher-Goldfarb-Shanno update (\verb+<modupd> =  1+)
 
 \section{{\tt MODSAD} --- Optimization mode}
 
