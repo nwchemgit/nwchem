@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.68 2001-08-20 17:17:46 bjohnson Exp $
+c $Id: pre_mkrst.F,v 1.69 2001-08-29 23:04:05 d3j191 Exp $
 c
       implicit none
 c
@@ -53,7 +53,7 @@ c
       integer l_wat,i_wat,l_lang,i_lang
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
-      integer length,len,islv,idum1,idum2,idum3,idum4,iwater
+      integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
       integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang
       real*8 xtran(3),xrot(3),arot
       real*8 rdist,xr(3,2)
@@ -645,6 +645,7 @@ c     write pdb file
 c     --------------
 c
       if(card(1:6).eq.'wr_pdb') then
+      read(card(7:7),'(i1)') irenum
       if(card(8:13).eq.'solute') then
       read(card(15:24),'(i10)') iopt
       if(iopt.lt.0) iopt=nwmc
@@ -674,7 +675,7 @@ c
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
-     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg))
+     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,irenum))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
@@ -934,7 +935,7 @@ c     rotate molecule
 c     ------------------
 c
       if(card(1:6).eq.'rotmol') then
-      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sml),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
@@ -943,8 +944,8 @@ c
 c     rotate segment
 c     -----------------
 c
-      if(card(1:6).eq.'trasgm') then
-      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      if(card(1:6).eq.'rotsgm') then
+      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sgm),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
@@ -953,11 +954,21 @@ c
 c     rotate atom
 c     --------------
 c
-      if(card(1:6).eq.'traatm') then
-      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      if(card(1:6).eq.'rotatm') then
+      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
+      endif
+c
+c     collapse solute
+c     ---------------
+c
+      if(card(1:10).eq.'collapsexy') then
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sfr),msa,nsa,touch,3)
+      endif
+      if(card(1:9).eq.'collapsez') then
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sfr),msa,nsa,touch,1)
       endif
 c
 c     remove solvent

@@ -1,6 +1,7 @@
-      integer function  pre_merge(iunit,filnam,lfnout,lfnpdb,namslv)
+      integer function  pre_merge(iunit,filnam,lfnout,lfnpdb,namslv,
+     + inum)
 c
-c $Id: pre_merge.F,v 1.2 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_merge.F,v 1.3 2001-08-29 23:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -8,13 +9,14 @@ c
 c
       integer iunit,lfnout,natm,nseq,nssb,nchain,lfnpdb
       character*255 filnam
-      integer numslv
+      integer numslv,inum
       character*3 namslv
-      character*1 ,altloc,chain
+      character*1 altloc,chain
 c
       character*80 card
       integer length,mdl,nsgm,isgm,i
       logical lslvnt
+      character*4 cnum
 c
       natm=0
       nseq=0
@@ -25,6 +27,7 @@ c
       nsgm=0
       lslvnt=.false.
       numslv=0
+      cnum='    '
 c
       length=index(filnam,' ')-1
 c
@@ -82,6 +85,13 @@ c
       else
       nsgm=nsgm+1
       nchain=nchain+1
+      if(inum.ge.0) then
+      if(card(23:26).ne.cnum) then
+      inum=inum+1
+      cnum=card(23:26)
+      endif
+      write(card(23:26),'(i4)') inum
+      endif
       write(lfnpdb,1000) card
       endif
       goto 1
@@ -104,6 +114,13 @@ c
       else
       nsgm=nsgm+1
       nchain=nchain+1
+      if(inum.ge.0) then
+      if(card(23:26).ne.cnum) then
+      inum=inum+1
+      cnum=card(23:26)
+      endif
+      write(card(23:26),'(i4)') inum
+      endif
       write(lfnpdb,1000) card
       endif
       goto 1
@@ -117,6 +134,7 @@ c
 c
       close(iunit)
 c
+      if(inum.gt.0) isgm=inum
       pre_merge=isgm
       return
 c

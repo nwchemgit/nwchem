@@ -3,9 +3,9 @@
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
-     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg)
+     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum)
 c
-c $Id: pre_wrtpdb.F,v 1.30 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.31 2001-08-29 23:04:05 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
       integer iropt,irrand,nxrep,nyrep,nzrep,nskip
       real*8 rdist,drep(3)
-      integer msb,nsb,nmols
+      integer msb,nsb,nmols,irenum
       integer idsb(2,msb),iskip(3,nskip),lang(*)
 c
       integer length,ioff
@@ -38,10 +38,12 @@ c
       real*8 o(3),p(3),x(3),y(3),v(3)
       character*3 sname
       character*1 charr
-      integer icharr,ilang
+      integer icharr,ilang,inum
 c
       isoff=0
       iaoff=0
+      inum=-1
+      if(irenum.ne.0) inum=0
       charr=' '
       icharr=ichar(charr)
       dbz0=0.0d0
@@ -78,8 +80,9 @@ c
 c
       ioff=0
       if(filmrg(1:1).ne.' ') then
-      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam)
+      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
       if(ioff.lt.0) call errquit('Error in pre_merge',ioff)
+      if(inum.ge.0) ioff=ioff+1-isgm(1)
       endif
 c
       nums=0
@@ -144,7 +147,7 @@ c
 c
       ioff=0
       if(filmrg(1:1).ne.' ') then
-      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam)
+      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
       if(ioff.lt.0) call errquit('Error in pre_merge',0)
       endif
 c

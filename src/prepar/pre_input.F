@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.84 2001-08-10 21:16:17 d3j191 Exp $
+c $Id: pre_input.F,v 1.85 2001-08-29 23:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 rfix
       character*1 altloc,chain,his
       integer ires,jres,kres,i,j,k,ignore,igroup,jgroup,kgroup,lgroup
-      integer nxrep,nyrep,nzrep,itran,jtran,nkeepw,irot,jrot
+      integer nxrep,nyrep,nzrep,itran,jtran,nkeepw,irot,jrot,irenum
       real*8 rrep,rdist,xtran(3),arot,xrot(3)
       real*8 value1,value2
       character*4 scount(mcount)
@@ -951,6 +951,22 @@ c
       goto 2
       endif
 c
+c     collapse
+c     --------
+c
+      if(inp_compare(.false.,'collapsexy',item)) then
+      write(68,6882)
+ 6882 format('collapsexy')
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'collapsez',item)) then
+      write(68,6881)
+ 6881 format('collapsez')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
 c     orient
 c     ------
 c
@@ -1192,16 +1208,21 @@ c     write
 c     -----
 c
       if(inp_compare(.false.,'write',item)) then
+      irenum=0
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
       if(inp_compare(.false.,'solute',item)) then
       if(.not.inp_i(nkeepw)) nkeepw=-1
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(inp_compare(.false.,'renumber',item)) then
+      irenum=1
+      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      endif
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
-      write(68,6806) nkeepw,' '
+      write(68,6806) irenum,nkeepw,' '
       else
-      write(68,6806) nkeepw,item(1:index(item,' ')-1)
- 6806 format('wr_pdb solute ',i10,a)
+      write(68,6806) irenum,nkeepw,item(1:index(item,' ')-1)
+ 6806 format('wr_pdb',i1,'solute ',i10,a)
       lwrcoo=.true.
       numcmd=numcmd+1
       endif
@@ -1215,20 +1236,21 @@ c
       numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
-      write(68,6806) nkeepw,item(1:index(item,' ')-1)
+      write(68,6806) irenum,nkeepw,item(1:index(item,' ')-1)
       elseif(index(item,'.xyz').gt.0) then
-      write(68,6824) nkeepw,item(1:index(item,' ')-1)
+      write(68,6824) irenum,nkeepw,item(1:index(item,' ')-1)
       else
       call errquit('pre_input: write solute',9999)
       endif
       elseif(inp_compare(.false.,'pdb',item)) then
+ 6839 continue
       if(.not.inp_a(item)) then
-      write(68,6807) ' '
+      write(68,6807) irenum,' '
       lwrcoo=.true.
       numcmd=numcmd+1
       else
-      write(68,6807) item(1:index(item,' ')-1)
- 6807 format('wr_pdb ',a)
+      write(68,6807) irenum,item(1:index(item,' ')-1)
+ 6807 format('wr_pdb',i1,a)
       lwrcoo=.true.
       numcmd=numcmd+1
       endif
@@ -1260,7 +1282,7 @@ c
       numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
-      write(68,6807) item(1:index(item,' ')-1)
+      write(68,6807) irenum,item(1:index(item,' ')-1)
       lwrcoo=.true.
       numcmd=numcmd+1
       elseif(index(item,'.rst').gt.0) then
