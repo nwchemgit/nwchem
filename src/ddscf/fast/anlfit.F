@@ -11,7 +11,7 @@ c     or asymptotic formula.  See anl_fit_init.  This is a slow
 c     paranoid version of this routine. 
 c
       integer nlcnt, i, k
-      double precision d, value
+      double precision d, value, rx, rx2
 c
       if (n.lt.0 .or. n.gt.maxn) call errquit
      $     ('anl_fit: invalid n ',n)
@@ -32,7 +32,73 @@ c
          enddo
          anl_fit = value
       else
-         anl_fit = prefac(l,n)/x**(2*l+1)
+         rx = 1.0d0/x
+         value = prefac(l,n)*rx
+         rx2 = rx*rx
+         do i = 1, l
+            value = value * rx2
+         enddo
+         anl_fit = value        ! prefac(l,n)/x**(2*l+1)
+      endif
+c
+      end
+      subroutine anl_fit_group(nmax, x, values)
+      implicit none
+#include "canlfit.fh"
+      integer nmax
+      double precision x
+      double precision values(*)
+c
+c     Return the value of Anl(x) computed from the table
+c     or asymptotic formula for all n and l up to nmax.
+c
+c     No error checking is being performed for reaons of speed.
+c
+c     Several values are returned, as follows.
+c
+c     ind = 1
+c     do n = 0, nmax
+c     .  do l = n, 0, -2
+c     .     values(ind) = anl_fit(n, l, x)
+c     .  enddo
+c     end
+c
+c     An upper bound on the dimension of values is ((nmax+2)*(nmax+3)/4)
+c
+      integer nlcnt, i, k, n, l, ind
+      double precision d, value, rx, rx2
+      double precision rx2l1(0:maxn)
+c
+      if (x .lt. xhi) then
+         ind = 1
+         i = int(scale*x)
+         do n = 0, nmax
+            do l = n, 0, -2
+               nlcnt = mapnl(l,n)
+               d = x - table(0,i,nlcnt)
+               value = table(order+1,i,nlcnt)
+               do k = order,1,-1
+                  value = table(k,i,nlcnt) + d*value
+               enddo
+               values(ind) = value
+               ind = ind + 1
+            enddo
+         enddo
+      else
+         rx = 1.0d0/x
+         rx2 = rx*rx
+         rx2l1(0) = rx           ! x^-(2l+1)
+         do l = 1, nmax
+            rx2l1(l) = rx2l1(l-1)*rx2
+         enddo
+c
+         ind = 1
+         do n = 0, nmax
+            do l = n, 0, -2
+               values(ind) = prefac(l,n)*rx2l1(l)
+               ind = ind + 1
+            enddo
+         enddo
       endif
 c
       end
