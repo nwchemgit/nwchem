@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.12 1994-10-18 06:05:23 d3e129 Exp $
+c $Id: exact_mem.F,v 1.13 1994-10-18 06:11:00 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -79,19 +79,19 @@ c
 00300 continue
 c
 c.. debug write statements
-      write(6,*)' mem_2e4c =',mem_2e4c
-      write(6,*)' mem_2e3c =',mem_2e3c
-      write(6,*)' mem_2e2c =',mem_2e2c
-      write(6,*)' mem_1e   =',mem_1e
-      write(6,*)' mem_3ov  =',mem_3ov
-      write(6,*)' '
-      write(6,*)' isz_2e4c =',isz_2e4c
-      write(6,*)' isz_2e3c =',isz_2e3c
-      write(6,*)' isz_2e2c =',isz_2e2c
-      write(6,*)' isz_1e   =',isz_1e
-      write(6,*)' isz_3ov  =',isz_3ov
-      write(6,*)' '
-*      if(isz_2e2c.gt.0)stop 'tmp_stop'
+*rak:      write(6,*)' mem_2e4c =',mem_2e4c
+*rak:      write(6,*)' mem_2e3c =',mem_2e3c
+*rak:      write(6,*)' mem_2e2c =',mem_2e2c
+*rak:      write(6,*)' mem_1e   =',mem_1e
+*rak:      write(6,*)' mem_3ov  =',mem_3ov
+*rak:      write(6,*)' '
+*rak:      write(6,*)' isz_2e4c =',isz_2e4c
+*rak:      write(6,*)' isz_2e3c =',isz_2e3c
+*rak:      write(6,*)' isz_2e2c =',isz_2e2c
+*rak:      write(6,*)' isz_1e   =',isz_1e
+*rak:      write(6,*)' isz_3ov  =',isz_3ov
+*rak:      write(6,*)' '
+*rak:      if(isz_2e2c.gt.0)stop 'tmp_stop'
 c
       end
       subroutine emem_3ov(ibasin,jbasin,kbasin,lsz_buf,memsize)
