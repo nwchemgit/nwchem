@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/bin/csh -f
 
 set sed_script = {$NWCHEM_TOP}/src/config/sngl_to_dbl.sed
 
