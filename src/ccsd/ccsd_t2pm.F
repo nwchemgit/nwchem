@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.17 2004-09-07 06:11:18 windus Exp $
+C     $Id: ccsd_t2pm.F,v 2.18 2004-12-16 23:02:58 edo Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -12,6 +12,7 @@ C     $Id: ccsd_t2pm.F,v 2.17 2004-09-07 06:11:18 windus Exp $
 #include "bas.fh"
 #include "rtdb.fh"
 #include "ccsd_debug.fh"
+#include "ccsdps.fh"
 c
       integer g_sht2t,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
@@ -20,7 +21,11 @@ c
       integer nxtask
       external nxtask
 c
-      call qenter('ht2pm',0)
+      if (occsdps) then
+         call pstat_on(ps_ht2pm)
+      else
+         call qenter('ht2pm',0)
+      endif
 c
       iam=ga_nodeid()
       lnoo=nocc*nocc
@@ -145,7 +150,11 @@ c
       if (.not.ga_destroy(g_sht2t))
      &    call errquit('ga_dest g_sht2t fail',0, GA_ERR)
 c
-      call qexit('ht2pm',0)
+      if (occsdps) then
+         call pstat_off(ps_ht2pm)
+      else
+         call qexit('ht2pm',0)
+      endif
 c
       return
       end
@@ -161,13 +170,18 @@ c
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "ccsdps.fh"
 c
       integer g_st2t,lnoo,iam
       integer i,j,k,l,a,b,ad1,ad2,ad3,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
      &        xy,x,y,ipp,imm,ii,jj,iijj,jjii
 c
-      call qenter('t2pm',0)
+      if (occsdps) then
+         call pstat_on(ps_t2pm)
+      else
+         call qenter('t2pm',0)
+      endif
 c
       iam=ga_nodeid()
       lnoo=nocc*nocc
@@ -269,7 +283,11 @@ c ------------------------------------------------------------
         enddo
       enddo
 c
-      call qexit('t2pm',0)
+      if (occsdps) then
+         call pstat_off(ps_t2pm)
+      else
+         call qexit('t2pm',0)
+      endif
 c
       return
       end
@@ -298,13 +316,18 @@ c
 *rak-s
 #include "ccsd_time.fh"
 *rak-e
+#include "ccsdps.fh"
       integer ad1,ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,next,
      &        icnt,nfi,nfk,lnijkl,offjl,offlj,lnoo,nfj,nfl,nodes,iam
       double precision schwarz1,schwarz2
       integer nxtask
       external nxtask
 c
-      call qenter('sxy',0)
+      if (occsdps) then
+         call pstat_on(ps_sxy)
+      else
+         call qenter('sxy',0)
+      endif
 c
       lnoo=nocc*nocc
       iam=ga_nodeid()
@@ -428,7 +451,11 @@ c
          main_block_time = tx(2)-tx(1)
       endif
 c
-      call qexit('sxy',0)
+      if (occsdps) then
+         call pstat_off(ps_sxy)
+      else
+         call qexit('sxy',0)
+      endif
 c
       return
       end

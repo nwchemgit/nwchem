@@ -4,7 +4,7 @@
 c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
-C     $Id: ccsd_pdiis.F,v 2.9 1998-05-14 21:16:28 d3e129 Exp $
+C     $Id: ccsd_pdiis.F,v 2.10 2004-12-16 23:02:58 edo Exp $
 c
 #include "ccsd_len.fh"
       integer lhoo,lhoov
@@ -18,6 +18,7 @@ c
 C
 #include "msgids.fh"
 #include "global.fh"
+#include "ccsdps.fh"
 c
       INTEGER INFO
       INTEGER ITMP(100)
@@ -28,7 +29,11 @@ c
 c
       det = 0.0d00
       IAm = GA_NodeID()
-      call qenter('pdiis',0)
+      if (occsdps) then
+         call pstat_on(ps_pdiis)
+      else
+         call qenter('pdiis',0)
+      endif
 c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
@@ -163,7 +168,11 @@ c
        endif
       enddo
 c
-      call qexit('pdiis',0)
+      if (occsdps) then
+         call pstat_off(ps_pdiis)
+      else
+         call qexit('pdiis',0)
+      endif
 c
       return
       end

@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: qstat.F,v 2.8 2004-12-16 23:02:58 edo Exp $
       Implicit NONE
 #include "errquit.fh"
       Character*(*) NameIn
@@ -91,7 +91,7 @@ c
       tio1=zip
       if(level.eq.0) then
          write(*,*) 'qexit called with empty subroutine stack'
-         stop 20
+         call errquit(' qexit failure ',0,0)
       end if
 *
 * update exited routine

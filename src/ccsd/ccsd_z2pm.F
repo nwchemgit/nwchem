@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_z2pm.F,v 2.8 2004-12-16 23:02:58 edo Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
@@ -10,6 +10,7 @@ C     $Id: ccsd_z2pm.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "ccsdps.fh"
 c
       integer g_sz2t,lnoo
       integer i,j,k,l,ad1,ad2,ad3,g_jlo,g_jhi,g_ilo,g_ihi,
@@ -20,7 +21,11 @@ c
       Nodes = GA_NNodes()
       IAM = GA_NodeID()
 c
-      call qenter('z2pm',0)
+      if (occsdps) then
+         call pstat_on(ps_z2pm)
+      else
+         call qenter('z2pm',0)
+      endif
 C
       lnoo=nocc*nocc
 c
@@ -115,7 +120,11 @@ c ------------------------------------------------------------
         enddo
       enddo
 c
-      call qexit('z2pm',0)
+      if (occsdps) then
+         call pstat_off(ps_z2pm)
+      else
+         call qexit('z2pm',0)
+      endif
 c
       return
       end
@@ -134,6 +143,7 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
 #include "ccsd_debug.fh"
+#include "ccsdps.fh"
 c
       integer g_shz2t,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
@@ -144,7 +154,11 @@ c
       Nodes = GA_NNodes()
       IAM = GA_NodeID()
 c
-      call qenter('hz2pm',0)
+      if (occsdps) then
+         call pstat_on(ps_hz2pm)
+      else
+         call qenter('hz2pm',0)
+      endif
 c
       lnoo=nocc*nocc
 c
@@ -269,7 +283,11 @@ c
       if (.not.ga_destroy(g_shz2t))
      &    call errquit('ga_dest g_shz2t fail',0, GA_ERR)
 c
-      call qexit('hz2pm',0)
+      if (occsdps) then
+         call pstat_off(ps_hz2pm)
+      else
+         call qexit('hz2pm',0)
+      endif
 c
       return
       end

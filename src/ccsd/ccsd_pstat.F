@@ -1,5 +1,5 @@
       subroutine ccsd_pstat_init(rtdb)
-c  $Id: ccsd_pstat.F,v 2.1 2004-12-16 02:40:47 edo Exp $
+c  $Id: ccsd_pstat.F,v 2.2 2004-12-16 23:02:58 edo Exp $
       implicit none
 #include "pstat.fh"
 #include "ccsdps.fh"
@@ -33,6 +33,30 @@ c
      $     ps_idx34)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:t2eri', pstat_qstat, 0, junk,
      $     ps_t2eri)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:trpdrv', pstat_qstat, 0, junk,
+     $     ps_trpdrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:doooo', pstat_qstat, 0, junk,
+     $     ps_doooo)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:dovvv', pstat_qstat, 0, junk,
+     $     ps_dovvv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:z2pm', pstat_qstat, 0, junk,
+     $     ps_z2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:hz2pm', pstat_qstat, 0, junk,
+     $     ps_hz2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:zvecs', pstat_qstat, 0, junk,
+     $     ps_zvecs)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:pdiis', pstat_qstat, 0, junk,
+     $     ps_pdiis)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:ht2pm', pstat_qstat, 0, junk,
+     $     ps_ht2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:t2pm', pstat_qstat, 0, junk,
+     $     ps_t2pm)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:sxy', pstat_qstat, 0, junk,
+     $     ps_sxy)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:itrdrv', pstat_qstat, 0, junk,
+     $     ps_itrdrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:tengy', pstat_qstat, 0, junk,
+     $     ps_tengy)) call errquit('ccsd: ccsd_pstat_init', 0,0)
 c       
       call pstat_on(ps_ccsd)
       occsdps = .true.
@@ -60,6 +84,18 @@ c
          if(.not.pstat_free(ps_idx2))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_idx34))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_t2eri))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_trpdrv))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_dovvv))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_doooo))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_z2pm))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_hz2pm))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_zvecs))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_pdiis))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_ht2pm))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_t2pm))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_sxy))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_itrdrv))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_tengy))call errquit('ccsd_pstat',0,0)
 c
       endif
 c

@@ -5,11 +5,12 @@
      &     oseg_lo,oseg_hi,
      $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      $     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
-C     $Id: ccsd_trpdrv.F,v 2.9 2004-09-07 06:11:18 windus Exp $
+C     $Id: ccsd_trpdrv.F,v 2.10 2004-12-16 23:02:58 edo Exp $
       implicit none
 c
 #include "global.fh"
 #include "ccsd_len.fh"
+#include "ccsdps.fh"
 c     
       double precision t1(*),
      &     f1n(*),f1t(*),f2n(*),
@@ -55,7 +56,11 @@ c     apr      call ga_print(g_exch)
       IAm = GA_NodeID()
 C     
       call ga_sync()
-      call qenter('trpdrv',0)
+      if (occsdps) then
+         call pstat_on(ps_trpdrv)
+      else
+         call qenter('trpdrv',0)
+      endif
       inode=-1
       next=nxtask(nodes, 1)
 c     
@@ -275,7 +280,11 @@ c
 c     
       next=nxtask(-nodes, 1)
       call ga_sync
-      call qexit('trpdrv',0)
+      if (occsdps) then
+         call pstat_off(ps_trpdrv)
+      else
+         call qexit('trpdrv',0)
+      endif
 c     
       end
 
@@ -286,7 +295,12 @@ c
       integer nocc,nvir
       double precision one
       data one/1.0d00/
-      call qenter('doooo',0)
+#include "ccsdps.fh"
+      if (occsdps) then
+         call pstat_on(ps_doooo)
+      else
+         call qenter('doooo',0)
+      endif
 c
 c      f1n(b,c)=f1n(b,c)-t2(b,l,a,i)*vooo(c,k,l,j)
       call dgemm('n','n',nvir,nvir,nocc,-one,t2c,nvir,
@@ -300,7 +314,11 @@ c      f3n(b,c)=f3n(b,c)-t2(b,l,a,i)*vooo(c,j,l,k)
 c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
       call dgemm('n','n',nvir,nvir,nocc,-one,t2x,nvir,
      &           eintc,nocc,one,f4,nvir)
-      call qexit('doooo',0)
+      if (occsdps) then
+         call pstat_off(ps_doooo)
+      else
+         call qexit('doooo',0)
+      endif
       return
       end
 
@@ -315,7 +333,12 @@ c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
       integer nocc,nvir
       double precision one
       data one/1.0d00/
-      call qenter('dovvv',0)
+#include "ccsdps.fh"
+      if (occsdps) then
+         call pstat_on(ps_dovvv)
+      else
+         call qenter('dovvv',0)
+      endif
 c
 c --  f1n(b,c)=f1n(b,c)+vvvo(b,d,a,i)*t2(d,j,c,k)
       call dgemm('n','t',nvir,nvir,nvir,one,fintc,nvir,
@@ -329,7 +352,11 @@ c --  f3n(b,c)=f3n(b,c)+vvvo(b,d,a,i)*t2(d,k,c,j)
 c --  f4n(b,c)=f4n(b,c)+vvvo(a,d,b,i)*t2(d,k,c,j)
       call dgemm('n','n',nvir,nvir,nvir,one,fintx,nvir,
      &           t2,nvir,one,f4,nvir)
-      call qexit('dovvv',0)
+      if (occsdps) then
+         call pstat_off(ps_dovvv)
+      else
+         call qexit('dovvv',0)
+      endif
       return
       end
 

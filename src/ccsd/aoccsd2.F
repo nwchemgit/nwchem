@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.31 2004-12-16 02:40:46 edo Exp $
+C     $Id: aoccsd2.F,v 2.32 2004-12-16 23:02:58 edo Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -820,6 +820,6 @@ c
  999  if (.not. ga_destroy(g_objv))
      &     call errquit('g_objv ga_destroy failed',0, GA_ERR)
 c
-      call qstat()
+      if(.not.occsdps) call qstat()
       return
       end

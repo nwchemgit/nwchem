@@ -3,7 +3,7 @@
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
      $                      g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_zvecs.F,v 2.7 1997-11-14 19:25:48 d3g681 Exp $
+C     $Id: ccsd_zvecs.F,v 2.8 2004-12-16 23:02:58 edo Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,
@@ -19,6 +19,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "global.fh"
+#include "ccsdps.fh"
 c
       integer i,j,a,b,bv,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
      &        ilo,ihi,jlo,jhi,lhoo,lhoov
@@ -31,7 +32,11 @@ c
       IAM = GA_NodeID()
 C
       call ga_sync()
-      call qenter('zvecs',0)
+      if (occsdps) then
+         call pstat_on(ps_zvecs)
+      else
+         call qenter('zvecs',0)
+      endif
 c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
@@ -209,6 +214,10 @@ c     if (iprt.gt.50.and.iam.eq.0)then
 c
       call ga_sync()
 c
-      call qexit('zvecs',0)
+      if (occsdps) then
+         call pstat_off(ps_zvecs)
+      else
+         call qexit('zvecs',0)
+      endif
       return
       end
