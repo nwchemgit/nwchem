@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.165 2003-01-30 19:48:38 edo Exp $
+# $Id: make_nwchem_config,v 1.166 2003-01-30 22:49:59 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -29,7 +29,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -lprepar -lnwmd -lnwpw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze\
+		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep -letrans\
                     -ltddft -ltce
 
@@ -211,7 +211,7 @@ MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwpw,-lnwpw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwpw,-lnwpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcstep,-lmcstep,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
@@ -259,7 +259,7 @@ STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_paw task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))

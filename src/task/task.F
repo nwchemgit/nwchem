@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.51 2002-11-20 21:18:07 bylaska Exp $
+* $Id: task.F,v 1.52 2003-01-30 22:48:07 bylaska Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -40,7 +40,7 @@ c
       logical task_dynamics
       logical task_qmmm, task_python, task_nbo,task_thermo
       logical task_version, task_vscf
-c     logical task_pspw,task_paw  ! no paw until conversion to f77 done
+      logical task_paw  ! no paw until conversion to f77 done
       logical task_pspw
       logical task_drdy
       logical task_et
@@ -54,7 +54,7 @@ c
       external task_dynamics
       external task_version, task_python, task_nbo, task_thermo
       external kgdtest, task_vscf
-c     external task_pspw,task_paw ! no paw until conversion to f77 done
+      external task_paw ! no paw until conversion to f77 done
       external task_pspw
       external task_drdy
       external task_et
@@ -211,8 +211,8 @@ c     *** task_pspw handles pspw specific "operations" ***
 
 c no paw until conversion to f77 done
 c     *** task_paw handles paw specific "operations" ***
-c     else if (inp_compare(.false.,'paw',theory)) then
-c       status = task_paw(rtdb)
+      else if (inp_compare(.false.,'paw',theory)) then
+        status = task_paw(rtdb)
 
       else
          call errquit('task: unknown generic operation',0)
