@@ -835,14 +835,18 @@ and the format of it is:
 \label{sec:pspw_cp_data}
 
 
-\section{Running a Steepest Descent Simulation}
+\section{Minimizing the one-electron orbitals: Running a Steepest Descent and Conjuagate Gradient Simulation in Tandem}
 \label{sec:pspw_sd}
 
 In this section we show how to setup and run a steepest descent
-simulation to optimize the one-electron orbitals with respect to 
-the total energy for a NaCl molecule.  
+simulation followed by a conjugate gradient simulation to optimize 
+the one-electron orbitals with respect to 
+the total energy for a NaCl molecule.  It is practical to
+start most simulation in such a tandem fashion because the
+conjugate gradient optimizer does not work well when the
+one-electron orbitals are far from minimized. 
 
-Before running a steepest\_descent simulation several files and
+Before running a steepest\_descent or conjugate\_gradient simulation several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
 is required to have defined:
 \begin{enumerate}
@@ -851,6 +855,7 @@ is required to have defined:
   \item {\bf formatted pseudopotential file} for each kind of ion 
   \item {\bf file containing the one-electron orbitals} 
   \item {\bf steepest\_descent PSPW sub-block} 
+  \item {\bf conjugate\_gradient PSPW sub-block}
 \end{enumerate}
 
 In the following tutorial we show the input needed to find an
@@ -992,7 +997,7 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
          ...
    \end{verbatim}
 \normalsize
-\item Optimize the one-electron orbitals with respect to energy using
+\item Do a coarse optimization of the one-electron orbitals with respect to energy using
       steepest descent.
 \tiny \begin{verbatim}
          ...
@@ -1005,13 +1010,34 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
                output_wavefunction_filename: NaCl.small.00.elc
                fake_mass: 400000.0d0
                time_step: 51.8d0
-               loop: 100 10
-               tolerances: 1.0d-9 1.0d-9 1.0d-4
+               loop: 10 100
+               tolerances: 1.0d-4 1.0d-4 1.0d-4
                energy_cutoff:       21.0d0
                wavefunction_cutoff: 21.0d0
             END 
          END
          task PSPW STEEPEST_DESCENT
+         ...
+      \end{verbatim}
+\normalsize
+\item Do a finer optimization of the one-electron orbitals with respect to energy using
+      conjugate gradient.
+   \tiny \begin{verbatim}
+         ...
+         PSPW
+            CONJUGATE_GRADIENT
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:  NaCl.small.00.elc
+               output_wavefunction_filename: NaCl.small.00.elc
+               loop: 25 10
+               tolerances: 1.0d-9 1.0d-9 
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+            END 
+         END
+         task PSPW CONJUGATE_GRADIENT
          ...
       \end{verbatim}
 
@@ -1026,14 +1052,14 @@ source tree in the file: nwchem/examples/pspw/NaCl.nw
 
 In this section we show how to perform a Car-Parrinello
 molecular dynamic simulation for an NaCl molecule.  As with the example in 
-the steepest descent tutorial,  this example uses default Hamann 
+the previous tutorial,  this example uses default Hamann 
 pseudopotentials for Na and Cl, LSDA exchange 
 correlation functional, and a cutoff energy of 12 au.
 
 Before running a PSPW Car-Parrinello  simulation the system should be
 on the Born-Oppenheimer surface, i.e. the one-electron
 orbitals should be minimized with respect to the total energy using steepest
-descent(see section~\ref{sec:pspw_sd}).  
+descent and conjugate gradient simulations(see section~\ref{sec:pspw_sd}).  
 
 Continuning where we left off in section ~\ref{sec:pspw_sd} we now 
 continue the simulation to run a MD simulation of an NaCl molecule.  
