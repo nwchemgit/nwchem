@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.3 2000-05-01 05:35:02 zzhang Exp $
+c     $Id: dft_gradients_so.F,v 1.4 2000-06-09 19:27:00 edo Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -297,17 +297,21 @@ c
 c     Pre-compute mapping vectors
 c     
       if (.not.ma_push_get
+     $     (mt_int,nat*2,'cntoce map',lcetobfr,icetobfr))
+     $     call errquit('dft_scf:push_get failed', 13)
+      if (.not.ma_push_get
      $     (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
      $     call errquit('dft_scf:push_get failed', 13)
       if (.not.ma_push_get
      $     (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
      $     call errquit('dft_scf:push_get failed', 13)
-      if (.not.ma_push_get
-     $     (mt_int,nat*2,'cntoce map',lcetobfr,icetobfr))
-     $     call errquit('dft_scf:push_get failed', 13)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      $     int_mb(icetobfr), nat, nshells_ao)
+      if (.not.ma_pop_stack(lcntobfr))
+     $     call errquit('dft_gradient: cannot pop stack',0)
+      if (.not.ma_pop_stack(lcntoce))
+     $     call errquit('dft_gradient: cannot pop stack',0)
 c     
 c     Pre-compute reduced density matrices over atoms
 c     
@@ -422,8 +426,7 @@ c
      $     call errquit('dft_gradient: could not alloc s34',0)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
      $     log_mb(k_act), nactive, dbl_mb(i_s34),
-     $     dbl_mb(irdens_atom), int_mb(icntoce), 
-     $     int_mb(icntobfr), int_mb(icetobfr))
+     $     dbl_mb(irdens_atom), int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
 c     
       status = ma_pop_stack (l_s34)
@@ -446,10 +449,6 @@ c
       if (.not.ma_pop_stack(lrdens_atom))
      $     call errquit('dft_gradient: cannot pop stack',0)
       if (.not.ma_pop_stack(lcetobfr))
-     $     call errquit('dft_gradient: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntobfr))
-     $     call errquit('dft_gradient: cannot pop stack',0)
-      if (.not.ma_pop_stack(lcntoce))
      $     call errquit('dft_gradient: cannot pop stack',0)
 c     
 c!!! BGJ test !!!
