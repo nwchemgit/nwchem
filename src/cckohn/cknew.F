@@ -1,19 +1,26 @@
-      subroutine cknew(ovbf,hpvb,hpvhp,hpvhm)
+      subroutine cknew(rtdb, g_tr, ovbf,hpvb,hpvhp,hpvhm,
+     &     obbtrn,hbbtrnd)
       implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "global.fh"
 c     
-c     parameters, for explanation see cckohn.F
+c     parameters, for explanations see cckohn.F
 c     
       integer ltop, mtop, lmtop, nchnl, nstate, nsymst, nbfmax, nbfcmx,
      &     maxene
-      parameter (ltop=6, mtop=4, lmtop=43, nchnl=20, nstate=nchnl**2, 
+      parameter (ltop=6, mtop=4, lmtop=43, nchnl=1, nstate=nchnl**2, 
      &     nsymst=nchnl*(nchnl+1)/2, nbfmax=130, nbfcmx=130, maxene=20)
       double precision echan(nchnl),energy(maxene),kchan(nchnl)
 c     
       double complex 
-     1     ovbf(lmtop,nbfcmx,nchnl),
-     2     hpvb(lmtop,nbfcmx,nstate),
-     3     hpvhp(lmtop,lmtop,nsymst),
-     4     hpvhm(lmtop,lmtop,nstate)
+     1     ovbf(lmtop,nbfcmx,nchnl),    ovbfp(lmtop,nbfmax,nchnl),
+     &     ovbftrn(lmtop,nbfmax,nchnl), ovbftrnp(lmtop,nbfmax,nchnl),
+     2     hpvb(lmtop,nbfcmx,nstate), hpvbp(lmtop,nbfmax,nstate),
+     &     hpvbtrn(lmtop,nbfmax,nstate),hpvbtrnp(lmtop,nbfmax,nstate),
+     3     hpvhp(lmtop,lmtop,nsymst), 
+     4     hpvhm(lmtop,lmtop,nstate), hpvhmp(lmtop,lmtop,nstate)
 c
 c*****************modified april1995********************************************
 c     includes pseudopotential option
@@ -68,38 +75,32 @@ c
 c  ### MESA interface implemented 7/12/89 ####
 c  reads file bndmat created my MESA code m950
 c
-      parameter (nblok=1000)
-      parameter (nbig=700)
-      parameter (nsmall=nchnl*lmtop)
+      integer nblok, nbig, nsmall, npvec
+      parameter (nblok=1000,nbig=700,nsmall=nchnl*lmtop)
 c
       integer fmt(10),iclosed(nchnl)
-      integer nlm(nchnl)
+c
       integer ngauss(nchnl),ngch(nbfmax,nchnl)
+      integer nlm(nchnl),lch(lmtop,nchnl),mch(lmtop,nchnl)
+c
       integer nscat(nchnl),nsch(nbfmax,nchnl)
-      integer lch(lmtop,nchnl),mch(lmtop,nchnl)
       integer ntarg(nchnl),ntch(nbfmax,nchnl)
-      integer nbas(nchnl),nbch(nbfmax,nchnl),kpvt(nbig)
+      integer nbas(nchnl),nbch(nbfmax,nchnl)
+      integer kpvt(nbig)
+c
       character*1 jobvl, jobvr
-      double precision kchan(nchnl),kchanp(nchnl)
+      double precision kchanp(nchnl)
       double precision scratch(nbfmax,nbfmax,nstate)
       double complex unity(nsmall,nsmall)
       double precision tr(nbfmax,nbfmax)
       double precision hbb(nbfmax**2),hbbe(nbfmax**2)
-      double precision hbbtrnd(nbfmax,nbfmax,nstate),hbbtrne(nbfmax,nbfmax,nstate)
-      double precision obbtrn(nbfmax,nbfmax,nstate),hbbtrn(nbfmax,nbfmax,nstate)
+      double precision hbbtrnd(nbfmax,nbfmax,nstate)
+      double precision hbbtrne(nbfmax,nbfmax,nstate)
+      double precision obbtrn(nbfmax,nbfmax,nstate)
+      double precision hbbtrn(nbfmax,nbfmax,nstate)
       double precision vopt(nbig,nbig)
       double precision xsecmat(nchnl,nchnl)
       double precision hpptemp(nbig,nbig)
-      double complex ovbf(lmtop,nbfmax,nchnl),ovbfp(lmtop,nbfmax,nchnl)
-      double complex hpvb(lmtop,nbfmax,nchnl**2)
-      double complex hpvbp(lmtop,nbfmax,nchnl**2)
-      double complex hpvbtrn(lmtop,nbfmax,nchnl**2)
-      double complex hpvbtrnp(lmtop,nbfmax,nchnl**2)
-      double complex ovbftrn(lmtop,nbfmax,nchnl)
-      double complex ovbftrnp(lmtop,nbfmax,nchnl)
-      double complex hpvhp(lmtop,lmtop,nstate)
-      double complex hpvhm(lmtop,lmtop,nchnl**2)
-      double complex hpvhmp(lmtop,lmtop,nchnl**2)
       double complex hdenom(nbig,nbig),cov(nbig,nsmall)
       double complex htop(nbig,nsmall)
       double complex bforth(lmtop,nbfmax,nchnl**2)
@@ -110,23 +111,44 @@ c
       double complex seig(nsmall),svec(nsmall,nsmall)
       double complex swork(2*nsmall)
       double precision srwork(2*nsmall)
+c
       equivalence (vopt,hbb)
       equivalence (unity, hdenom),(hbbtrne,hbbe)
       equivalence (hpptemp,hdenom)
-      equivalence (ovbf, hpvb, hpvhm)
-      equivalence (ovbfp, hpvbp, hpvhmp)
-      equivalence (hpvhp,scratch),(hpvbtrnp,cov)
+c      equivalence (ovbf, hpvb, hpvhm)
+c      equivalence (ovbfp, hpvbp, hpvhmp)
+c      equivalence (hpvhp,scratch),(hpvbtrnp,cov)
 c      equivalence (fpfmorth,hdenom),(fpfporth,smat),(bforth,htop)
-      equivalence (bforth,htop),(smat,ovbftrn)
-     1 ,(bforthp,htop2)
+c      equivalence (bforth,htop),(smat,ovbftrn)
+c     1 ,(bforthp,htop2)
+c
+c     variables for basis
+c
+      integer rtdb, geom, all_bas_han, nmotot
+      integer g_tr
 c
 c     variables for options
 c      
+      integer ibcondx, nchan, nener 
       integer iprint, iorth, iopt,ipseudo
       character*8 ioft,iex,itell,jsym,istatic,ihow,istat,isym
       data ioft /"offshell"/
       data iex/"exchange"/, itell/"mesa    "/, jsym/"symmetry"/,
      &     istatic/"static  "/
+c
+c     local variables
+c
+      integer nbmax, nlmax, i, j, ic, jc, nlmic, nlmjc, icc, nsjc, 
+     &     ngic, ngjc, jsc, ntot, iprev, ii, jj, isub, jsub, nterm,
+     &     itarg, nntot, nbtot, mfree, istart, jstart, ni, nj, ifin,
+     &     ntic, nsic, nbftot, nsy, iene, nopen, ist, jst, jfin,ibf, 
+     &     inform, iopen, ilm, ig, jlm, nfree, jprev, ind, lwork
+      double precision eground, summod, phasesum, arg1, arg2, phase,
+     &     rtest, eincidnt
+      logical selci
+      external selci
+c
+      integer ipiv(nbig),info
 c
 c..unicos
 c      call link("unit8=intsbf,unit5=inkohn,unit6=(outkohn,hc,create),
@@ -135,13 +157,25 @@ c     2 ,unit7=(punkohn,create)
 c     3 //")
 c..unicos
 c
+c
+c     Define the geometry
+c
+      if (.not. geom_create(geom, 'geometry'))
+     &     call errquit('cknew: geom_create?',70)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &     call errquit('cknew: load geometry? ',72)
+c     
+c     define the combined gaussian basis
+c     
+      if (.not. bas_create(all_bas_han, 'all'))
+     &     call errquit('cknew: create combined basis', 86)
+      if (.not. bas_rtdb_load(rtdb, geom, all_bas_han, 'all'))
+     &     call errquit('cknew: load combined basis ', 86)
+      if (.not. bas_numbf(all_bas_han, nbftot))
+     &   call errquit('cknew: number of basis function:', 86)
+      
       ai=cmplx(0.,1.)
-czz
-czz      open(5,file='inkohn',status='unknown')
-czz      open(6,file='outkohn',status='unknown')
-czz      read(5,*)iprint,iorth,iopt,ipseudo
-czz      read(5,734) istat
-czz
+c
       write(*,*)"options are hardwired, 
      &     iprint=1, iorth=1, iopt=0, ipseudo=0, istat=nex, ihow =bmesa"
       iprint = 1
@@ -184,9 +218,11 @@ c     open(7,file='punkohn',form='unformatted',status='unknown')
       endif
 c     
 c     read(5,734)isym
-c     write(6,734)isym
 c     
-      
+      write(*,*)"symmetry hardwired to symmetry"
+      isym = "symmetry"
+c      write(6,734)isym
+c      
       write(*,*)"files intsbf, bndmat,intsff eliminated"
 c     
 c      open(8,file='intsbf',form='unformatted',status='old') 
@@ -211,18 +247,47 @@ c
 c     
 c      read(8) nener,nchan,(nlm(ic),ic=1,nchan)
 c
-      if(nchan.gt.nchnl) then
-         write(6,*)' nchan gt nchnl ',nchan,nchnl
-         stop 11
-      end if
-c
 c      read(8) ((lch(j,ic),mch(j,ic),j=1,nlm(ic)),ic=1,nchan)
 c      read(8) eground
 c      read(8) (ngauss(ic),ic=1,nchan)
 c      read(8) ((ngch(j,ic),j=1,ngauss(ic)),ic=1,nchan)
 c
+      nener=1
+      nchan=1
+      iclosed(1)=0
+      nlm(1)=3
+      lch(1,1)=2
+      lch(2,1)=4
+      lch(3,1)=6
+      mch(1,1)=2
+      mch(2,1)=2
+      mch(3,1)=2
+      eground=-108.966594632914
+      ngauss(1)=16
+      ngch(1,1)=6
+      ngch(2,1)=9
+      ngch(3,1)=12
+      ngch(4,1)=17
+      ngch(5,1)=21
+      ngch(6,1)=24
+      ngch(7,1)=27
+      ngch(8,1)=35
+      ngch(9,1)=38
+      ngch(10,1)=41
+      ngch(11,1)=46
+      ngch(12,1)=50
+      ngch(13,1)=53
+      ngch(14,1)=56
+      ngch(15,1)=61
+      ngch(16,1)=67
       nbmax=0
       nlmax=0
+c
+      if(nchan.gt.nchnl) then
+         write(6,*)' nchan gt nchnl ',nchan,nchnl
+         stop 11
+      end if
+c
       do 851 i=1,nchan
          if(nlm(i).gt.nlmax)nlmax=nlm(i)
          if(ngauss(i).gt.nbmax)nbmax=ngauss(i)
@@ -240,7 +305,7 @@ c      read(10)
 c      read(10)
 c      read(10)
 c
-      if(ipseudo.ne.0)then
+      if(ipseudo.ne.0)then ! ipseudo.eq.0
          read(11)
          read(11)
          read(11)
@@ -254,18 +319,31 @@ c
 c     
 c     read assignment of scattering basis to channels
 c     
-      read(5,*) (nscat(ic),ic=1,nchan)
+c      read(5,*) (nscat(ic),ic=1,nchan)
+c      read(5,*) ((nsch(j,ic),j=1,nscat(ic)),ic=1,nchan)
+      nchan=1
+      nscat(1)=9
+      nsch(1,1)=8
+      nsch(2,1)=9
+      nsch(3,1)=10
+      nsch(4,1)=11
+      nsch(5,1)=12
+      nsch(6,1)=13
+      nsch(7,1)=14
+      nsch(8,1)=15
+      nsch(9,1)=16
+c
       write(6,138) (nscat(ic),ic=1,nchan)
-      read(5,*) ((nsch(j,ic),j=1,nscat(ic)),ic=1,nchan)
-      do 875 ic=1,nchan
+      do ic=1,nchan
          write(6,139) ic, (nsch(j,ic),j=1,nscat(ic))
- 875  continue
+      enddo
 c     
 c     read assignment of target orbitals to channels
 c     
       if(iorth.ne.0) then
-         read(5,*) (ntarg(ic),ic=1,nchan)
-         itarg=0
+c         read(5,*) (ntarg(ic),ic=1,nchan)
+         ntarg(1)=0
+         itarg=0                ! total number of target orbitals
          write(6,137) (ntarg(ic),ic=1,nchan)
          do  i=1,nchan
             itarg = itarg + ntarg(i)
@@ -282,19 +360,28 @@ c
          enddo
       endif
 c     
-c     construct total orbital list for orthogonalization of free fcns.
-c     if iorth was zero this list is the same as nscat list
+c     Free orbitals are orthogonalized to the scattering orbitals by default.
+c     if iorth is nonzero then the free functions are also orthogonalized to 
+c     all the target orbitals. 
+c
+c     The following construct total orbital list for orthogonalization of 
+c     free functions, if iorth is zero this list is the same as nscat list
 c     
-      nntot=0
-      nbtot=0
-      mfree=0
+      nntot=0                   ! total number of scattering and free functions
+                                ! this is also the dimension of the scattering 
+                                ! problem
+      nbtot=0                   ! total number of scattering orbitals
+      mfree=0                   ! total number of free functions
       do 4 ic=1,nchan
          nntot=nntot+nlm(ic)+nscat(ic)    
          nbtot=nbtot+nscat(ic)
          mfree=mfree+nlm(ic)
-         ntic=ntarg(ic)
-         nsic=nscat(ic)
-         nbas(ic)=ntic+nsic
+         ntic=ntarg(ic)         ! number of target orbitals
+         nsic=nscat(ic)         ! number of scattering orbitals
+         nbas(ic)=ntic+nsic     ! number of target and scattering orbitals
+                                ! nbch is the list of bound orbitals :
+                                ! the scattering orbitals followed by the target
+                                ! orbitals
          do  i=1,nsic
             nbch(i,ic)=nsch(i,ic)
          enddo
@@ -345,29 +432,34 @@ c
          stop 11
       end if
 c..   bhl      nmotot=nbftot
-      nsy = nbftot
+      nsy = nbftot ! total number of basis functions
 c
 c      call rdbinsqr(tr,nbfmax,nbftot,9)
 c
+      call ga_print(g_tr)
       write(6,99)
+      nmotot = 16
       do 1 i=1,nmotot
+         call ga_get(g_tr, 1, nbftot, i, i, tr(1,i),1)
          write(6,100)i,(tr(j,i),j=1,nbftot)
  1    continue
 c
-c     read in bound-bound overlap matrix
+c     read in bound-bound overlap matrix ! overlap matrix is not transformed.
 c     
-      call rdbintri(hbb,nsy,9)
+c      call rdbintri(hbb,nsy,9)
 c     
 c     transform overlap matrix as a test
 c     
-      call ovtrans(hbb,obbtrn,nsy,nchan,nbas,nbch,tr,scratch,nbfmax
-     1     ,nstate,iprint)
+c      call ovtrans(hbb,obbtrn,nsy,nchan,nbas,nbch,tr,scratch,nbfmax
+c     1     ,nstate,iprint)
 c     
 c     read in energy-independent bound-bound direct hamiltonian
 c     and transform hbb direct
-c     
-      call bbtrans(hbb,hbbtrnd,nsy,nchan,nbas,nbch,tr,scratch,nbfmax
-     1     ,nstate,iprint,hbbe,hbbtrne,istat)
+c
+c     bound-bound direct hamilitonian is transformed in rohf_scat.F
+c
+c      call bbtrans(hbb,hbbtrnd,nsy,nchan,nbas,nbch,tr,scratch,nbfmax
+c     1     ,nstate,iprint,hbbe,hbbtrne,istat)
 c     
 c     open a loop on energies
 c     
@@ -380,6 +472,7 @@ c         read(8) (kchan(ic),ic=1,nchan)
 c         read(8) (iclosed(ic),ic=1,nchan)
 c         read(10)
 c
+         kchan(1)=sqrt(0.2)
          if(ipseudo.ne.0)then
             read(11)
             read(12)
@@ -413,6 +506,17 @@ c
 c     
 c     transform the bound-free overlap matrices
 c     
+      write(*,*)"ovbf"
+      write(*,"(6f10.5)")((ovbf(ilm,ibf,1),ilm=1,3),ibf=1,70)
+c
+      write(*,*)"hpvb"
+      write(*,"(6f10.5)")((hpvb(ilm,ibf,1),ilm=1,3),ibf=1,70)
+c
+      write(*,*)"hpvhp"
+      write(*,"(6f10.5)")((hpvhp(ilm,ibf,1),ilm=1,3),ibf=1,3)
+c
+      write(*,*)"hpvhm"
+      write(*,"(6f10.5)")((hpvhm(ilm,ibf,1),ilm=1,3),ibf=1,3)
          call obftrans(ovbf,ovbftrn,tr,nsy,nchan,nbas,nbch,nlm,ngauss,
      1        ngch,nbfmax,lmtop,nchnl,iprint,ovbftrnp,ovbfp,istat,ioft)
          do ic=1,nchan
@@ -488,7 +592,7 @@ c
                ist=nchan*(ic-1)+jc
                nlmic=nlm(ic)
                nlmjc=nlm(jc)
-               read(10) ((hpvhm(ilm,jlm,ist),ilm=1,nlmic),jlm=1,nlmjc)
+c               read(10) ((hpvhm(ilm,jlm,ist),ilm=1,nlmic),jlm=1,nlmjc)
                if(istat.eq.ioft)then ! ioft = offshell
                   read(77) ((hpvhmp(ilm,jlm,ist),ilm=1,nlmic),
      &                 jlm=1,nlmjc)
@@ -599,13 +703,24 @@ c
 c     
 c     *** end of orthogonalization section ***
 c     
+c     build the p space hamiltonian and compute hpp-e
+c
+         if(.not.selci(rtdb))
+     &        call errquit("selci fialed", 0) 
+c
+         npvec = 9              ! number of bound p space vectors
+         write(6,877)npvec,nsmall
+ 877     format(/' npvec (hardwired for now)',2i5)
+         energy(1)=eground
+         call selci_hpp(rtdb,hpptemp,nbig,npvec,energy)
+c
 c     construct denominator
 c     
          call denom(hdenom,nbig,hpvhp,lmtop,nstate,hpvbtrn,nbfmax,
      1        nchnl,hbbtrn,nchan,nscat,nlm,kchan,eground,obbtrn,iprint,
      2        ntot,vopt,iopt,nsch,hpptemp,nmotot,hbbtrnd,istat,itell,
      3        ihow,isym,jsym,hbbtrne,nopen)
-c
+c     
 c     cnstruct numerator
 c     
          call top(htop,nbig,nsmall,hpvhm,lmtop,nstate,hpvbtrn,nbfmax,
@@ -619,7 +734,7 @@ c
 c     
 c     if this is a mesa run, write out born terms and quit
 c     
-         if(itell.eq.ihow)then ! itell = mesa
+         if(itell.eq.ihow)then  ! itell = mesa
             iprev = 0
             do 651 ic=1,nopen
                nlmic=nlm(ic)
@@ -633,7 +748,7 @@ c
                   do 640 ilm=1,nlmic
                      isub=ilm+iprev
                      if(ibcondx.eq.0) then ! smatrix boundary condition
-c
+c     
 c     ******note**************
 c     this is incorrect for off-shell s-matrix 
 c     because hpvhpp was never calculated
@@ -656,21 +771,21 @@ c
             write(7)((smat(i,j),i=1,nfree),j=1,nfree)
          endif
          if(ihow.eq.itell)go to 1000 ! itell = mesa
-c     
-c     save numerator matrix
-c     
-         nterm=nbig*nsmall
 c
-c     call ccopy(nterm,htop,1,htop2,1)
+         nterm=nbig*nsmall
+c     
+         if(iprint.ne.0) then
+            write(6,1107)
+ 1107       format(//' htop2')
+            do 60 i=1,nfree
+               write(6,108) i,(htop2(j,i),j=1,ntot)
+ 60         continue
+         endif
 c     
 c     solve linear equations
 c     
-c     call matinv(hdenom,ntot,htop2,nfree,det,nbig)
-         call cgefs(hdenom,nbig,ntot,htop2(1,1),1,ind,work,kpvt)
          write(6,*)' solving linear equations'
-         do i=2,nfree
-            call cgefs(hdenom,nbig,ntot,htop2(1,i),2,ind,work,kpvt)
-         enddo
+         call zgesv(ntot,nfree,hdenom,nbig,ipiv,htop2(1,1),nbig,info)
 c     
          if(iprint.ne.0) then
             write(6,107)
@@ -843,17 +958,18 @@ c
  139  format(' channel',i3,' orbs:',20i3,/,(17x,20i3))
  137  format(' number of target orbitals in each channel:', 6i3)
  787  format(//,' *****orthogonalization is on*****',//,
-     &     ' free functions will be orthogonalized to following orbitals')
+     &     ' free functions will be orthogonalized to following 
+     &     orbitals')
  789  format(' in channel',i3,' :  ',10i3/(18x,10i3))
  791  format(//,1x)
  111  format(///,' ********************************',
      #     ' new energy ********************************',
      &     //,' channel momenta:',6e12.5)
  99   format(" transformation matrix")
- 100  format(i5,6f12.7/(5x,6f12.7))
+ 100  format(i5,6f12.5/(5x,6f12.5))
  112  format(' off-shell momenta:',6e12.4)
  107  format(//' solution matrix ')
- 108  format(1x,i3,6e12.5,/,(4x,6e12.5))
+ 108  format(1x,i3,3("(",2f12.5,")"),/,(4x,3("(",2f12.5,")")))
  109  format(//' scattered wave part  ')
  776  format(//,' S-matrix for channel momenta:',3e12.6)
  177  format(4i5,2f20.10)
@@ -871,5 +987,7 @@ c
      &     ' for channel momenta:', (6e12.5))
  884  format(' incident energy =',f15.10)
 c
+      if(.not.bas_destroy(all_bas_han))
+     &     call errquit("can't destroy all_bas_han:cknew", 0)
       return
       end

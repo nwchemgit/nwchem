@@ -1,6 +1,6 @@
       logical function cckohn(rtdb)
 *
-* $Id: cckohn.F,v 1.1 2002-01-12 07:00:36 zzhang Exp $
+* $Id: cckohn.F,v 1.2 2002-01-19 04:12:06 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -79,22 +79,27 @@ c
      3     hpvhp(lmtop,lmtop,nsymst),
      4     hpvhm(lmtop,lmtop,nstate)
 c
+c     declarations for overlap and bound-bound integrals
+c
+      double precision obbtrn(nbfmax,nbfmax,nstate)
+      double precision hbbtrnd(nbfmax,nbfmax,nstate)
+c
       integer ilm,ibf
-      integer g_movecs, g_scat
+      integer g_movecs, g_scat, g_borb
 c     
       call ga_sync()
 c
       status = rtdb_parallel(.true.)
 c
 c     First generate the orbitals using SCF/MCSCF
-c
-      if (.not. rtdb_cget(rtdb, 'selci:reference', 1, reference))
-     $     reference = 'scf'
-      if (reference .eq. 'scf') then
-         cckohn = scf(rtdb)
-      else
-         cckohn = mcscf(rtdb)
-      endif
+c     
+c     if (.not. rtdb_cget(rtdb, 'selci:reference', 1, reference))
+c     $     reference = 'scf'
+c     if (reference .eq. 'scf') then
+      cckohn = scf(rtdb)
+c     else
+c     cckohn = mcscf(rtdb)
+c     endif
 c     
 c     generate the free functions
 c     
@@ -158,17 +163,6 @@ c
      &     dcpl_mb(k_wwl),dbl_mb(k_derl),
      &     dcpl_mb(k_csc),dbl_mb(k_csl))
 c
-c      if(.not.ma_pop_stack(l_csl))
-c     &     call errquit("pop l_csl?",100)
-c      if(.not.ma_pop_stack(l_csc))
-c     &     call errquit("pop l_csc?",100)
-c      if(.not.ma_pop_stack(l_derl))
-c     &     call errquit("pop l_derl?",100)
-c      if(.not.ma_pop_stack(l_wwl))
-c     &     call errquit("pop l_wwl?",100)
-c      if(.not.ma_pop_stack(l_r))
-c     &     call errquit("pop l_r?",100)
-c
 c     Build the grid. grid_cckohn will build the grid and do all 
 c     deeds that are evaluated on the grid. First zero the matrix 
 c     elements
@@ -199,11 +193,11 @@ c
 c
 c     define the scattering orbitals and evaluate bound-bound integrals
 c
-      call rohf_scat(rtdb, g_movecs, g_scat)
+      call rohf_scat(rtdb, g_movecs, g_scat, g_borb,obbtrn,hbbtrnd)
 c
 c     solve the scattering problem
 c
-c      call cknew(ovbf,hpvb,hpvhp,hpvhm)
+      call cknew(rtdb, g_borb, ovbf,hpvb,hpvhp,hpvhm,obbtrn,hbbtrnd)
 c
 c
 c

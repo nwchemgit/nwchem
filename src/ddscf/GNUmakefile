@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.112 2002-01-16 17:22:41 windus Exp $
+# $Id: GNUmakefile,v 1.113 2002-01-19 04:23:13 zzhang Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -35,14 +35,14 @@
         riscf_fock.o         riscf_init.o \
         riscf_list.o            riscf_tidy.o \
         riscf_trans.o 		do_riscf.o \
-	riscf_dovecs.o \
+	riscf_dovecs.o          rohf_scat.o \
         uhf.o                   uhf_hessv.o fock_2e_rep.o \
         uhf_hessv2.o \
         print_integ.o \
 	riscf_square.o 		riscf_io.o movecs_pr_anal.o \
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
-        movecs_frag.o  localize.o int_dip_ga.o fock_xc.o fock_j_fit.o
+        movecs_frag.o  localize.o int_dip_ga.o fock_xc.o fock_j_fit.o 
 
 
  OBJ_OPTIMIZE = \
@@ -56,7 +56,7 @@
 		comp4_ext.o \
 		schwarz_sh.o \
                 int2e_file.o \
-                ao_replicated.o
+		ao_replicated.o
 
       LIBRARY =	libddscf.a
 

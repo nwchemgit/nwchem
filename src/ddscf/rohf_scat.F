@@ -1,4 +1,5 @@
-      subroutine rohf_scat(rtdb, g_vecs, g_scatmo)
+      subroutine rohf_scat(rtdb, g_vecs, g_scatmo, g_borb,
+     &     obbtrn,hbbtrnd)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -51,8 +52,8 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical oforcesym
-      logical movecs_read, movecs_read_header
-      external movecs_read, movecs_read_header
+      logical movecs_read, movecs_write, movecs_read_header
+      external movecs_read, movecs_write, movecs_read_header
       logical int_normalize
       external int_normalize
 c
@@ -66,7 +67,7 @@ c
 c     variables for reading movecs
 c
       character*255 title_vecs, basis_vecs
-      character*20 scftype_vecs
+      character*20 scftype_vecs, kohn_movecs
       integer nbf_vecs, nsets, mbf, noc, nbf_all
 c     integer nmo   ! see cscf.fh 
       logical status, all_bas_han
@@ -90,6 +91,15 @@ c
       common /txs_ma_stuff/ h_txs_basnuc, k_txs_basnuc,
      *                      h_txs_mapp1 , k_txs_mapp1,
      *                      h_txs_prep2 , k_txs_prep2 
+c
+      integer nchnl,nbfmax,nstate,istat,ibf,nstat
+      parameter (nchnl=20,nbfmax=130,nstate=nchnl**2)
+      integer nsc_orb(nchnl), nsch(nbfmax,nchnl)
+      double precision obbtrn(nbfmax,nbfmax,nstate)
+      double precision hbbtrnd(nbfmax,nbfmax,nstate)
+      integer g_tr, g_tmpfock, g_bvb, g_borb
+c
+      integer nswap, swap(20)
 c
       data jfactor / 1.0d0, 1.0d0, 0.0d0/
       data kfactor /-0.5d0, 0.0d0,-0.5d0/
@@ -128,6 +138,7 @@ c
      $     call errquit('rohf_scat: cannot read MO vectors header',0)
       status = MA_push_get(MT_DBL, nbf_all, 'Evals', l_evals, k_evals)
       status = ma_push_get(MT_DBL, nbf_all, 'MO occ', l_occ, k_occ)
+      call dfill(nbf_all    , 0.0d0, dbl_mb(k_occ), 1)
       if (.not. movecs_read(movecs_out, 1, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs)) call
      $     errquit('rohf_scat: cannot read MO vectors',0)
@@ -167,6 +178,36 @@ c
       call ga_zero(g_scat)
       call ga_zero(g_scatmo)
       call ga_zero(g_over)
+c
+c     The following definition is for the transformation matrix, which 
+c     includes all the occupied as well as the target and scattering orbitals.
+c
+      nsc_orb(1)=9
+      if(.not.ga_create(MT_DBL,nbf_all,nclosed+nsc_orb(1),
+     &     'rohf:g_borb',nbf_all,0,g_borb))
+     &     call errquit("can not create bound orbital matrix",0)
+      if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
+     &     'rohf:g_tmpfock',nbf_all,0,g_tmpfock))
+     &     call errquit("can not create tmp fock matrix",0)
+      if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
+     &     'rohf:g_tr',nbf_all,0,g_tr))
+     &     call errquit("can not create transformation matrix",0)
+      if(.not.ga_create(MT_DBL,nsc_orb(1),nsc_orb(1),
+     &     'rohf:g_tr',nsc_orb(1),0,g_bvb))
+     &     call errquit("can not create transformation matrix",0)
+      call ga_zero(g_borb)
+      call ga_zero(g_tmpfock)
+      call ga_zero(g_tr)
+      call ga_zero(g_bvb)
+      nsch(1,1)=8
+      nsch(2,1)=16
+      nsch(3,1)=26
+      nsch(4,1)=31
+      nsch(5,1)=50
+      nsch(6,1)=52
+      nsch(7,1)=57
+      nsch(8,1)=63
+      nsch(9,1)=70
 c
 c     Projected the scf orbitals to the full space. The scattering 
 c     orbitals are initilized with random numbers.
@@ -350,7 +391,69 @@ c
      &     nbf_all, '- final', .true., int_mb(k_irs))
       if (.not. ma_pop_stack(l_irs)) call errquit
      $     ('rohf_scat: ma pop?', 0)
+      write(*,*)"final movecs vectors used"
       call ga_print(g_all)
+c
+c     Form the transformation and bound orbital matrix
+c
+      call ga_copy_patch('n',g_all,1,nbf_all,1,nclosed,
+     &     g_borb,1,nbf_all,1,nclosed)
+      do i = 1, nsc_orb(1)
+         call ga_copy_patch('n',g_all,1,nbf_all,nsch(i,1),nsch(i,1),
+     &        g_tr,1,nbf_all,i,i)
+      enddo
+      call ga_copy_patch('n',g_tr,1,nbf_all,1,nsc_orb(1),
+     &     g_borb,1,nbf_all,nclosed+1,nclosed+nsc_orb(1))
+      call ga_print(g_tr)
+      call ga_print(g_borb)
+      write(*,*)"swap the mo's and write to file"
+      nswap = 16
+      swap(1)=9
+      swap(2)=16
+      swap(3)=10
+      swap(4)=26
+      swap(5)=11
+      swap(6)=31
+      swap(7)=12
+      swap(8)=50
+      swap(9)=13
+      swap(10)=52
+      swap(11)=14
+      swap(12)=57
+      swap(13)=15
+      swap(14)=63
+      swap(15)=16
+      swap(16)=70
+      if (.not. rtdb_put(rtdb, "kohn:swap", mt_int, nswap,swap))
+     $     call errquit('rohf_scat: put of swap?', nswap)
+      if(ga_nodeid().eq.0)then
+         write(*,*)"eigenvalues before swap"
+         write(*,"(6f10.5)")(dbl_mb(k_evals+i-1),
+     &        i=1,nbf+nscat)
+         write(*,*)"occupation numbers before swap"
+         write(*,"(6f10.5)")(dbl_mb(k_occ+i-1),
+     &        i=1,nbf+nscat)
+         call ga_print(g_all)
+      endif
+      call movecs_swap(rtdb,"kohn","kohn",g_all,
+     &     dbl_mb(k_occ),dbl_mb(k_evals))
+      write(*,*)"after swap"
+      call ga_print(g_all)
+      if(ga_nodeid().eq.0)then
+         write(*,*)"eigenvalues after swap"
+         write(*,"(6f10.5)")(dbl_mb(k_evals+i-1),
+     &        i=1,nbf+nscat)
+         write(*,*)"occupation numbers after swap"
+         write(*,"(6f10.5)")(dbl_mb(k_occ+i-1),
+     &        i=1,nbf+nscat)
+      endif
+      call util_file_name('kohn_movecs', .true.,.false.,kohn_movecs)
+      if (.not. movecs_write(rtdb, all_bas_han, kohn_movecs, 
+     $     'kohn', 'kohn scf orbitals', 
+     $     nbf_all, 1, nbf_all,
+     $     dbl_mb(k_occ), nbf_all, dbl_mb(k_evals),
+     $     nbf_all, g_all)) call errquit
+     $     ('rohf_scat: kohn_movecs write failed', 0)
 c     
 c     Generate two-electron closed- and open-shell Fock components
 c     
@@ -382,10 +485,10 @@ C     Dyalls method for RHF
 c
       if ( nopen .eq. 0 ) call riscf_dovecs(.true., g_all)
 c
-c      kfactor(1)=0.0
+      kfactor(1)=0.0
 c
       call fock_2e(geom, all_bas_han, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, iv_fock, .false.)
+     $     tol2e, .false., iv_dens, iv_fock, .false.)
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_all)
 c     
@@ -406,6 +509,40 @@ c
       etwo = etwo_closed + etwo_open
 c     
       call ga_dadd(One, g_hcore, One, g_cfock, g_cfock)
+      call ga_print(g_cfock)
+      call ga_dgemm('n','n',nbf_all,nsc_orb(1),nbf_all,
+     &     1.0d0, g_cfock, g_tr, 0.0d0, g_tmpfock)
+      call ga_dgemm('t','n',nsc_orb(1),nsc_orb(1),nbf_all,
+     &     1.0d0, g_tr, g_tmpfock, 0.0d0, g_bvb)
+      call ga_print(g_bvb)
+      write(*,*)"The bound bound matrix dimentions are hardwired"
+      nstat = 1
+      do istat = 1, nstat
+         do ibf = 1, nsc_orb(1)
+            call ga_get(g_bvb,1,nsc_orb(1),ibf,ibf,
+     &           hbbtrnd(1,ibf,istat),1)
+            write(6,100)ibf,(hbbtrnd(i,ibf,istat),i=1,nsc_orb(1))
+ 100        format(i5,6f12.5/(5x,6f12.5))
+         enddo
+      enddo
+c
+      call ga_zero(g_hcore)
+      call int_1e_ga(all_bas_han,all_bas_han, 
+     &     g_hcore, 'overlap', .false.)
+      call ga_print(g_hcore)
+      call ga_dgemm('n','n',nbf_all,nsc_orb(1),nbf_all,
+     &     1.0d0, g_hcore, g_tr, 0.0d0, g_tmpfock)
+      call ga_dgemm('t','n',nsc_orb(1),nsc_orb(1),nbf_all,
+     &     1.0d0, g_tr, g_tmpfock, 0.0d0, g_bvb)
+      call ga_print(g_bvb)
+c
+      do istat = 1, nstat
+         do ibf = 1, nsc_orb(1)
+            call ga_get(g_bvb,1,nsc_orb(1),ibf,ibf,
+     &           obbtrn(1,ibf,istat),1)
+            write(6,100)ibf,(obbtrn(i,ibf,istat),i=1,nsc_orb(1))
+         enddo
+      enddo
 c     
 c     Assemble Fock components
 c     F(closed-open)    = F(closed) + Fcoul(open)                   (fcp)

@@ -1,12 +1,13 @@
 #
-# $Id: GNUmakefile,v 1.2 2002-01-14 07:44:30 edo Exp $
+# $Id: GNUmakefile,v 1.3 2002-01-19 04:15:55 zzhang Exp $
 #
 
-OBJ = cckohn.o cckohn_input.o
+LIBRARY = libcckohn.a 
 
+BLAS     = 
+OBJ = cckohn.o cckohn_input.o cknew.o obftrans.o hbftrans.o \
+	bforthog.o fforth1.o fforth2.o denom.o top.o
 OBJ_OPTIMIZE = 
-
-LIBRARY = libcckohn.a
 
 USES_BLAS = 
 
