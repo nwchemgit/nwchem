@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.11 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.12 2000-10-29 04:28:51 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -79,9 +79,7 @@ c
 #include "basP.fh"
 #include "numb_qP.fh"
 c::functions
-      logical int_nint
       integer int_nint_cart
-      external int_nint
       external int_nint_cart
 c::   passed
 c:tex-\begin{verbatim}
