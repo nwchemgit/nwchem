@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.1 1999-11-03 15:43:51 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.2 1999-11-03 21:45:56 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       character*80 card
 c
       integer i,j,k,imin(3),jmin(3)
-      real*8 xmax,xmin,r2min,dx(3),ds(3),r2min(3),r2(3),dd(3,3)
+      real*8 xmax,xmin,dx(3),ds(3),r2min(3),r2(3),dd(3,3)
       real*8 touch
       logical done
 c
