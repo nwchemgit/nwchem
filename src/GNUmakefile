@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.63 1998-02-11 23:59:36 d3h325 Exp $
+# $Id: GNUmakefile,v 1.64 1998-02-23 17:25:41 d3h325 Exp $
 
 include config/makefile.h
 
@@ -51,7 +51,7 @@ lapi_link:
 	$(MAKE) nwchem.o stubs.o
 	mpcc_r -lc -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g \
 		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
-		-L../lib/LAPI -L../lib/SP1 $(LIBS) -llapi_r_t
+		-L../lib/LAPI -L../lib/SP1 $(LIBS)
 endif
         
 #
