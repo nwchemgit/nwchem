@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1996-07-17 16:36:41 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1996-07-17 16:37:15 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -30,10 +30,10 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(stpr_gen_aux.o):	$(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh ./cstprfiles.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(stpr_place.o):	./cstprfiles.fh 
 $(LIBRARY_PATH)(stpr_stepcor.o):	$(INCDIR)/util.fh ./cstprfiles.fh 
+$(LIBRARY_PATH)(stpr_place.o):	./cstprfiles.fh 
 $(LIBRARY_PATH)(stpr_filenames.o):	./cstprfiles.fh 
+$(LIBRARY_PATH)(stpr_gen_aux.o):	$(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh ./cstprfiles.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(stpr_fndmde.o):	./cstprfiles.fh 
 $(LIBRARY_PATH)(scf_optimize.o):	./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cstprfiles.fh 
 $(LIBRARY_PATH)(eopt.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
