@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.7 1994-08-22 00:01:08 d3g681 Exp $
+# $Id: GNUmakefile,v 1.8 1994-08-25 08:27:50 d3e129 Exp $
 
 include config/makefile.h
 
@@ -37,7 +37,7 @@ libraries:
 	done
 
 clean:
-	/bin/rm -f nwchem core *.o *.a *.trace
+	/bin/rm -f nwchem core *.o *.a *.trace ../lib/*.a
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir clean || exit 1 ;  \
 	done
