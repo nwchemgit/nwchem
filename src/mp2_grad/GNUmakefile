@@ -1,4 +1,6 @@
-#$Id: GNUmakefile,v 1.28 1997-04-26 21:57:53 d3g681 Exp $
+#$Id: GNUmakefile,v 1.29 1997-05-04 21:56:06 d3g681 Exp $
+
+include ../config/makefile.h
 
         OBJ = \
 	      mp2_grad.o \
@@ -16,9 +18,14 @@ OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_read_tiajb.o \
                mp2_pijab_uhf.o \
                mp2_wijab_uhf.o \
-               mp2_make_tuhf.o \
                mp2_lai_uhf.o \
                mp2_lai_fock_uhf.o mp2_memory.o
+
+ifeq ($(TARGET),SGITFP)
+   OBJ += mp2_make_tuhf.o
+else
+   OBJ_OPTIMIZE += mp2_make_tuhf.o
+endif
 
 USES_BLAS = mp2_energy.F mp2_lai_uhf.F \
             mp2_make_tuhf.F mp2_pijab_uhf.F \
@@ -36,7 +43,6 @@ LIB_DEFINES =  -DDEBUG_PRINT
 #              -DDEBUG_PRINT          /* Debug printing routines */
 
 
-include ../config/makefile.h
 include ../config/makelib.h
 
 
