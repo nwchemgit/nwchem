@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.36 2002-01-16 23:59:07 windus Exp $
+C$Id: geom.fh,v 1.37 2002-05-04 20:04:22 d3g681 Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -38,6 +38,8 @@ cnew ones
       logical geom_amatrix_get
       logical geom_bmatrix_get
       logical geom_amatinv_get
+      logical geom_cart_to_frac
+      logical geom_frac_to_cart
       logical geom_recipvec_get
       logical geom_recipang_get
       logical geom_volume_get
@@ -130,6 +132,8 @@ cnew ones
       external geom_amatrix_get
       external geom_bmatrix_get
       external geom_amatinv_get
+      external geom_cart_to_frac
+      external geom_frac_to_cart
       external geom_recipvec_get
       external geom_recipang_get
       external geom_volume_get

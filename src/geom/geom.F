@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.113 2002-01-17 01:55:25 edo Exp $
+C$Id: geom.F,v 1.114 2002-05-04 20:04:21 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2341,6 +2341,68 @@ c
           amat(i,j)=amatrix(i,j,geom)
         end do
       end do
+      end
+      logical function geom_amatrix_set(geom,amat)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      integer geom,i,j               ! [input]
+      double precision amat(3,3)     ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      double precision c(3,3), vol
+c
+      geom_amatrix_set = geom_check_handle(geom, 'geom_amatrix_set')
+      if (.not. geom_amatrix_set) return
+c
+      do i=1,3
+        do j=1,3
+          amatrix(i,j,geom) = amat(i,j)
+        end do
+      end do
+c
+c     Mmmm ... the original code only set this stuff from the input
+c     using the a,b,c,alpha,beta,gamma, but now we have changed
+c     the amatrix ... need to update ainv and also recompute the
+c     other crap ... for now just set the other crap to crap so that
+c     we'll know if it is used
+c
+      volume_direct(geom) = 1d300
+      do i = 1,3
+         do j = 1,3
+            metric_matrix(i,j,geom) = 1d300
+            bmatrix(i,j,geom) = 1d300
+         end do
+         recip_lat_vectors(i,geom) = 1d300
+         recip_lat_angles(i,geom) = 1d300
+      end do
+c
+c     Update the amatrix inverse
+c
+      call dfill(9,0.0d0,c,1)
+      c(1,1) = amat(2,2)*amat(3,3) - amat(2,3)*amat(3,2)
+      c(2,1) = -(amat(2,1)*amat(3,3) - amat(2,3)*amat(3,1))
+      c(3,1) = amat(2,1)*amat(3,2) - amat(2,2)*amat(3,1)
+
+      c(1,2) = amat(3,2)*amat(1,3) - amat(3,3)*amat(1,2)
+      c(2,2) = -(amat(3,1)*amat(1,3) - amat(3,3)*amat(1,1))
+      c(3,2) = amat(3,1)*amat(1,2) - amat(3,2)*amat(1,1)
+
+      c(1,3) = amat(1,2)*amat(3,3) - amat(1,3)*amat(3,2)
+      c(2,3) = -(amat(1,1)*amat(3,3) - amat(1,3)*amat(3,1))
+      c(3,3) = amat(1,1)*amat(3,2) - amat(1,2)*amat(3,1)
+
+      vol = c(1,1)*amat(1,1) + c(2,1)*amat(1,2) + c(3,1)*amat(1,3)
+
+      call dscal(9,1.0d0/vol,c,1)
+
+      call output(amat,1,3,1,3,3,3,1)
+      call output(c,1,3,1,3,3,3,1)
+
+      call dcopy(9,c,1,amatrix_inv(1,1,geom),1)
+c
       end
       logical function geom_bmatrix_get(geom,bmat)
       implicit none
@@ -5162,7 +5224,75 @@ c
      $     call errquit('uhf_analyze: pop failed', 0)
       return
       end
+      logical function geom_cart_to_frac(geom, c)
+      implicit none
+      integer geom
+      double precision c(3,*)
 c
+      integer iat, nat, i, j
+      logical geom_check_handle, geom_amatinv_get, geom_ncent
+      external geom_check_handle, geom_amatinv_get
+      double precision ainv(3,3), t(3)
+c
+      geom_cart_to_frac = geom_check_handle(geom, 'geom_cart_to_frac')
+      if (.not. geom_cart_to_frac) return
+      if (.not. geom_ncent(geom,nat)) 
+     $     call errquit('geom_frac_to_cart: nat', 0)
+      if (.not. geom_amatinv_get(geom, ainv))
+     $     call errquit('geom_cart_to_frac: ainv', 0)
+      write(6,*) ' The amatrix inverse'
+      call output(ainv, 1, 3, 1, 3, 3, 3, 1)
+c 
+      do iat = 1, nat
+         write(6,*) 'c2f before ', iat, (c(i,iat),i=1,3)
+         do i = 1, 3
+            t(i) = 0.0d0
+            do j = 1, 3
+               t(i) = t(i) + ainv(i,j)*c(j,iat)
+            end do
+         end do
+         do i = 1, 3
+            c(i,iat) = t(i)
+         end do
+         write(6,*) 'c2f after  ', iat, (c(i,iat),i=1,3)
+      end do
+c
+      end
+      logical function geom_frac_to_cart(geom, c)
+      implicit none
+      integer geom
+      double precision c(3,*)
+c
+      integer iat, nat, i, j
+      logical geom_check_handle, geom_amatrix_get, geom_ncent
+      external geom_check_handle, geom_amatrix_get
+      double precision a(3,3), t(3)
+c
+      geom_frac_to_cart = geom_check_handle(geom, 'geom_frac_to_cart')
+      if (.not. geom_frac_to_cart) return
+      if (.not. geom_ncent(geom,nat)) 
+     $     call errquit('geom_frac_to_cart: nat', 0)
+      if (.not. geom_amatrix_get(geom, a))
+     $     call errquit('geom_frac_to_cart: a', 0)
+c
+      write(6,*) ' The amatrix'
+      call output(a, 1, 3, 1, 3, 3, 3, 1)
+c 
+      do iat = 1, nat
+         write(6,*) 'f2c before ', iat, (c(i,iat),i=1,3)
+         do i = 1, 3
+            t(i) = 0.0d0
+            do j = 1, 3
+               t(i) = t(i) + a(i,j)*c(j,iat)
+            end do
+         end do
+         do i = 1, 3
+            c(i,iat) = t(i)
+         end do
+         write(6,*) 'f2c after  ', iat, (c(i,iat),i=1,3)
+      end do
+c
+      end
       logical function geom_makec1(geom1, geom2)
       implicit none
 #include "nwc_const.fh"
