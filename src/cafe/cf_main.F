@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.138 2002-05-02 19:39:34 d3j191 Exp $
+c $Id: cf_main.F,v 1.139 2002-05-02 20:06:08 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -3324,13 +3324,13 @@ c
       write(lfnout,1000) number
  1000 format(//,' Solute MCTI derivatives from last',i8,' steps',//,
      + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
-     + 6x,'Solute',/,
-     + 21x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
-     + 'bonded',/)
+     + 6x,'Solute      Solute',/,
+     + 21x,'v.d.Waals   Electrost   v.d.Waals   Electrost',5x,
+     + 'Bonded        Mass',/)
 c
       do 1 i=1,nsatot
-      write(lfnout,1001) snam(i),(dera(j,i)/dble(number),j=1,5)
- 1001 format(1x,a16,5f12.3)
+      write(lfnout,1001) snam(i),(dera(j,i)/dble(number),j=1,6)
+ 1001 format(1x,a16,6f12.3)
     1 continue
 c
       endif
