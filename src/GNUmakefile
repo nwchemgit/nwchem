@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.64 1998-02-23 17:25:41 d3h325 Exp $
+# $Id: GNUmakefile,v 1.65 1998-03-03 00:58:12 d3e129 Exp $
 
 include config/makefile.h
 
@@ -85,6 +85,9 @@ libraries:
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir || exit 1 ;  \
 	done
+ifeq ($(TARGET),SGITFP)
+	@(cd rtdb/hdbm;ls -l;touch hdbm.c;$(MAKE)) || exit 1
+endif
 
 showdir: 
 	@echo "subdirectories in this build <$(SUBDIRS)>"
