@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.219 2002-01-18 05:59:42 edo Exp $
+c     $Id: dft_scf.F,v 1.220 2002-02-13 18:02:34 sohirata Exp $
 c     
       implicit none
 c
@@ -1071,7 +1071,7 @@ c
 c
 c     ----- reset convergence aids -----
 c
-         iter  =1
+         iter = 0
          if(diising) then
             call diis_driver(toll_s, derr,  ipol, icall, nfock,
      &                       nbf_ao, geom, ao_bas_han, g_focks,
