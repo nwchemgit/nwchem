@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.24 2000-02-04 00:58:13 mg201 Exp $
+c $Id: int_1edk_ga.F,v 1.25 2000-06-01 21:49:48 bert Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -74,6 +74,7 @@ c
       integer Em_a, EIm_a       ! MA handle and index E vector
       integer Am_a, AIm_a       ! MA handle and index A vector
       integer Km_a, KIm_a       ! MA handle and index K vector
+      integer KEm_a, KEIm_a     ! MA handle and index E-mc^2 vector
       integer tempm_a, tempIm_a ! Temporary m_a vector handle and index
       integer iloop             
       logical oskel            
@@ -133,7 +134,7 @@ c
 #else
       call ga_diag_seq(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #endif
-
+c
       if (.not. ga_destroy(Tg_a)) 
      $     call errquit('int_1edk_ga: ga_destroy Tg_a',0)
       call dscal(nbf,2.0d0,dbl_mb(p2Im_a),1)
@@ -166,8 +167,15 @@ c
 c     We have to subtract mc^2 to get the non-relativistic type integrals
 c
       call ga_zero(DKg_a)
-      call ga_copy_todiag(DKg_a,dbl_mb(EIm_a))
-      call ga_add_todiag(DKg_a,-csq)
+      if (.not. ma_push_get(MT_DBL,nbf,'Kinetic',KEm_a,KEIm_a))
+     $     call errquit('int_1edk_ga: ma_push_get failed KEvector',0)
+      do 21 iloop = 1, nbf
+         dbl_mb(KEIm_a+iloop-1) = (dbl_mb(p2Im_a+iloop-1)*csq)/
+     $                            (dbl_mb(EIm_a+iloop-1)+csq)
+   21 continue
+      call ga_copy_todiag(DKg_a,dbl_mb(KEIm_a))
+      if (.not. ma_pop_stack(KEm_a))
+     $       call errquit('int_1edk_ga: ma_pop_stack KEm_a',0)
 c
 c     We have our kinetic energy integrals
 c 
@@ -190,6 +198,7 @@ c
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vg_a)
+      call ga_symmetrize(Vg_a)
 c
 c     Do A Vg_a A, remember A is diagonal stored as vector and store in DKg_a
 c
@@ -217,6 +226,7 @@ c
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vdg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vdg_a)
+      call ga_symmetrize(Vg_a)
 c
 c     Do A K Vdg_a K A, remember A and K are diagonal stored as vector and add to DKg_a
 c
@@ -240,7 +250,9 @@ c
 c     Scale U^tVU (in Vg_a) and U^tp.VpU (in Vdg_a) with 1/(Ep+Ep') for W terms
 c
       call ga_scale_divEpp(Vg_a,dbl_mb(EIm_a))
+      call ga_symmetrize(Vg_a)
       call ga_scale_divEpp(Vdg_a,dbl_mb(EIm_a))
+      call ga_symmetrize(Vdg_a)
 c
 c     Compute - W(1)E(p)W(1) term and add to global array:
 c
@@ -522,15 +534,21 @@ c
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,X_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,X_ga)
+      call ga_symmetrize(X_ga)
       call ga_scale_divEpp(X_ga,dbl_mb(EIm_a))
+      call ga_symmetrize(X_ga)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Y_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Y_ga)
+      call ga_symmetrize(Y_ga)
       call ga_scale_divEpp(Y_ga,dbl_mb(EIm_a))
+      call ga_symmetrize(Y_ga)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Z_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Z_ga)
+      call ga_symmetrize(Z_ga)
       call ga_scale_divEpp(Z_ga,dbl_mb(EIm_a))
+      call ga_symmetrize(Z_ga)
 c
 c     W(1)E(p)W(1): - UAK     pxVp  KAE(p)K^-2p^-2AK pxVp  KAU^t
 c
@@ -627,6 +645,10 @@ c
      $    call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
   100 continue
 c
+c     Symmetrize final set of integrals
+c
+      call ga_symmetrize(DKg_a)
+c
 c     Get overlap and multiply with Ug_a to get SXU
 c
       call ga_zero(tempg_a)
@@ -642,6 +664,7 @@ c
      $              tempg_a)
       call ga_dgemm('n','t',nbf,nbf,nbf,1.0d0,tempg_a,tmpg_a,0.0d0,
      $              DKg_a)
+      call ga_symmetrize(DKg_a)
 c
 c     Free MA's and GA's that are not needed anymore at this time
 c
@@ -708,6 +731,7 @@ c
      $              DKg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf_in,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
      $              1.0d0,g_in)
+      call ga_symmetrize(g_in)
 c
 c     Destroy transformation matrices Mixg_a, tempg_a and DKg_a
 c
