@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.21 1994-07-28 07:58:34 d3g681 Exp $
+c $Id: basis.F,v 1.22 1994-07-28 15:29:03 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -638,7 +638,10 @@ c
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-*          if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
+c
+cconfuses co and c  if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
+c straight fortran compare (STD-F77 space fills shorter string)
+c
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
             ibs_ce2uce(i,basis) = j
             foundit = .true.
