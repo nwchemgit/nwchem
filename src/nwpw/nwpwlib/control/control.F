@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.26 2002-08-13 23:24:13 bylaska Exp $
+* $Id: control.F,v 1.27 2002-09-19 20:32:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -1574,4 +1574,63 @@ c      end
       control_Ep = Ep
       return
       end
+
+
+*     ***************************
+*     *                	   	*
+*     *        control_SA	*
+*     *                  	*
+*     ***************************
+      logical function control_SA()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     *** local variables ***
+      logical value
+      real*8  scaling(2)
+
+      value = rtdb_get(rtdb,'cpmd:SA_decay',mt_dbl,2,scaling) 
+      
+      control_SA=value
+      return
+      end
+
+*     ***************************
+*     *                	   	*
+*     *     control_SA_decay	*
+*     *                  	*
+*     ***************************
+      real*8 function control_SA_decay(choice)
+      implicit none
+      integer choice
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     *** local variables ***
+      logical value
+      real*8  scaling(2)
+
+      if (.not.rtdb_get(rtdb,'cpmd:SA_decay',mt_dbl,2,scaling)) then
+        scaling(1) = 1.0d0 
+        scaling(2) = 1.0d0 
+      end if
+      
+      control_SA_decay = scaling(choice)
+      return
+      end
+
+
+
+
 
