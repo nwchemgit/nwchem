@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.11 1997-11-14 01:15:14 d3h449 Exp $
+* $Id: dftg_getxc.F,v 1.12 1997-11-19 06:00:08 d3j191 Exp $
 *
       implicit none
 c      
@@ -14,9 +14,6 @@ c
       double precision force(3*natom), s34(natom)
       integer nactive
       logical oactive(natom)
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natom)
-      double precision rdens_atom(ipol*natom*natom)
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -25,7 +22,10 @@ c
 #include "tcgmsg.fh"
 #include "sym.fh"
 #include "cdft.fh"
-c     
+c 
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natom)
+      double precision rdens_atom(ipol*natom*natom)    
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       logical status
