@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.5 1994-07-15 17:56:26 d3g681 Exp $
+c $Id: cando_sp.F,v 1.6 1994-07-15 18:52:41 d3g681 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -34,7 +34,7 @@ c.... check ish
         mycont = infbs_cont(CONT_NPRIM,ibs_cn2ucn(ish,basis),basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
-     $         (mycont.le.10)
+     $         (mycont.le.25)
       endif
 c
 c.... check jsh
@@ -43,7 +43,7 @@ c.... check jsh
         mycont = infbs_cont(CONT_NPRIM,ibs_cn2ucn(jsh,basis),basis)
         cando_sp = cando_sp .and.
      &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
-     $         (mycont.le.10)
+     $         (mycont.le.25)
       endif
 c
 #if defined(DEBUGNW)
