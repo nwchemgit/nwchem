@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.27 2003-10-17 22:53:51 carlfahl Exp $
+* $Id: int_ecp.F,v 1.28 2003-11-22 01:24:34 mhackler Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -10,6 +10,7 @@
 *------------> All Rights Reserved <---------------*
 *--------------------------------------------------*
 *
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
@@ -66,7 +67,6 @@ c
 *
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
-#include "errquit.fh"
 *<<<------------------------------------------------------------>
 *<<<-First pass is to explode all information into arrays
 *<<<-The memory used can be reduced by keeping track of the
@@ -467,9 +467,9 @@ c
       end
       subroutine int_ecp_terminate()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "ecp_nwc.fh"
-#include "errquit.fh"
 
       logical status
 
@@ -527,6 +527,7 @@ c
      &    c_exp,
      &    c_coef)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -575,7 +576,6 @@ c
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
-#include "errquit.fh"
 c
 *      write(6,*)' inside build'
       ecpid = ecpidin + BASIS_HANDLE_OFFSET
