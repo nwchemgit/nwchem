@@ -1,11 +1,12 @@
 *
-* $Id: prp.F,v 1.42 1999-07-27 17:46:49 d3e129 Exp $
+* $Id: prp.F,v 1.43 1999-10-12 05:05:40 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
       integer     rtdb, basis, geom
       logical     status
       LOGICAL     SOME
@@ -51,6 +52,9 @@ C
       SOME  =.TRUE.        
       SOME  =SOME.OR.OUT
       SOME  =SOME.and.ga_nodeid().eq.0
+C
+      ir=LuIN
+      iw=LuOut
 C
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)
