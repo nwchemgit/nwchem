@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.46 2004-11-16 23:03:07 edo Exp $
+#$Id: GNUmakefile,v 1.47 2005-01-12 01:48:42 edo Exp $
 
 include ../config/makefile.h
 
@@ -121,6 +121,12 @@ include ../config/makelib.h
 ifeq ($(_FC),ifc)
   ifeq ($(_IFCV81),Y)
     FOPTIMIZE +=-ip_no_inlining
+  endif
+endif
+ifeq ($(TARGET),MACX)
+#this fixes FPE in lapack/dlagts for dft_feco5
+  ifeq ($(FC),g77)
+    FOPTIMIZE +=-fno-fast-math
   endif
 endif
 
