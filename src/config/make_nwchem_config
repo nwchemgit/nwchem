@@ -9,14 +9,14 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.64 1997-05-21 23:03:59 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.65 1997-10-06 23:05:49 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
+	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos esp\
 	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss fft peigs
 
 # These are the libraries for the high-level modules.  They should be
@@ -26,7 +26,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
-                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
+                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos -lesp\
                     -lpfft -lpeigs -ldplot -loimp2 -lproperty 
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -60,7 +60,7 @@ EXPANSIONS = all qm md qmmd argos
 
 EXP_all = $(filter-out gapss oimp2 ideaz scfaux plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
 EXP_ver2 = nwaprep nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver
 #plane_wave ... broken? RJH
@@ -117,6 +117,7 @@ MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
 MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst argos,argos fft NWints,$(MODULES) )
+MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst fft,fft peigs,$(MODULES) )
 MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
@@ -166,6 +167,7 @@ MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwaprep,-lnwaprep,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
@@ -202,6 +204,7 @@ STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst driver,drv_opt driver_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos arg_input qmmm_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
