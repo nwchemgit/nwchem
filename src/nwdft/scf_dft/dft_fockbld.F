@@ -8,10 +8,9 @@
      ,     iter, ecore, ecoul,exc,noc, rho_n,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
-     ,     oprint_time,
-     .     )
+     ,     oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.1 2000-04-24 18:36:02 edo Exp $
+c     $Id: dft_fockbld.F,v 1.2 2000-04-24 18:37:24 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
