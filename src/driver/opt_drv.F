@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.110 2004-12-08 20:11:26 marat Exp $
+* $Id: opt_drv.F,v 1.111 2004-12-10 01:36:38 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3109,7 +3109,7 @@ c
 c     
       integer rtdb,geom
 c
-      integer i
+      integer i,ia,k
       double precision e0, ep, em, grad, hess, step
 c
       logical task_gradient, task_energy, opt_geom_cart_coords_get,
@@ -3168,7 +3168,12 @@ c
      >   write(6,8) "comp","anal-g","num-g","error","hess","step","de" 
  8       format(1x,'checkgrad ',A5,4A16,2x,2A12)
 c
-      do i = 1, ncart
+c      do i = 1, ncart
+      i = 0
+      do ia = 1, ncart/3
+      do k = 1, 3
+         i = i +1
+         if(oactive(ia)) then
 c
          step = 0.01
 c
@@ -3216,6 +3221,8 @@ c
          if (ga_nodeid() .eq. 0) 
      >     write(6,7) i, gx(i), grad,abs(gx(i)-grad), hess, step, ep-e0
  7       format(1x,'checkgrad ',i5,2f16.8,e16.8,f16.8,2x,2f12.6)
+         end if
+      enddo
       enddo
 c
       if (.not. geom_rtdb_load(rtdb,geom,'checkgrad')) 
