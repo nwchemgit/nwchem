@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.1 1998-09-09 13:07:03 bjohnson Exp $
+c     $Id: fock_xc.F,v 1.2 1999-03-05 22:09:55 bjohnson Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -29,7 +29,7 @@ c
       integer imat
       integer rtdb
       integer natoms
-      integer nExc_dum, g_wght_dum, g_xyz_dum,
+      integer nExc_dum, g_wght_dum, g_xyz_dum, g_nq_dum,
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        l_g_dens_local, k_g_dens_local, k_g_dens_scf
@@ -98,14 +98,15 @@ c
       nExc_dum = 1
       g_wght_dum = -1
       g_xyz_dum = -1
+      g_nq_dum = -1
       wght_GA_dum = .false.
       call xc_init_index(int_mb(k_g_dens_scf), l_cntoce, k_cntoce,
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
-     &     g_wght_dum, g_xyz_dum, wght_GA_dum, Exc_dum, rho_n_dum,
-     &     dbl_mb(k_rdens_atom), int_mb(k_cntoce), 
+     &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
+     &     rho_n_dum, dbl_mb(k_rdens_atom), int_mb(k_cntoce), 
      &     int_mb(k_cntobfr), int_mb(k_cetobfr), natoms, nmat,
      &     calc_type)
 c
