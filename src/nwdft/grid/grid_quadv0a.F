@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0a.F,v 1.27 2001-05-25 23:59:01 edo Exp $
+c$Id: grid_quadv0a.F,v 1.28 2001-11-09 02:18:02 edo Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       integer ncube,istep,ntot_cube,ncontrset
       integer lbas_cent_info, ibas_cent_info,
      &        lbas_cset_info, ibas_cset_info,
-     &        ldocset, idocset
+     &        ldocset, idocset,i_iscratch,l_iscratch
 
       logical grid_file_rewind
       external grid_file_rewind
@@ -63,6 +63,9 @@ c
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
       endif
+      if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
+     &     l_iscratch, i_iscratch))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
@@ -95,6 +98,7 @@ c
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom,  cetobfr, 
      ,           ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
+     .           int_mb(i_iscratch),
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
@@ -105,6 +109,8 @@ c
  200  continue
 c
       if (.not.MA_Pop_Stack(ldocset)) 
+     .    call errquit('grid_quadv0a: pop stack failed.',3)
+      if (.not.MA_Pop_Stack(l_iscratch)) 
      .    call errquit('grid_quadv0a: pop stack failed.',3)
       if(donewbf) then
       if (.not.ma_chop_stack(lbas_cent_info))

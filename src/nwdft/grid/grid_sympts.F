@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.15 2001-10-26 01:20:41 edo Exp $
+c$Id: grid_sympts.F,v 1.16 2001-11-09 02:18:02 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -85,9 +85,9 @@ c     Compute the quadrature points & weights for a given
 c     set of radial shells.
 c     Keep only point belonging to cube
 c
-      integer k, ia_ictr,nq_left,k1,h,n_equiv,nops_out
+      integer k, ia_ictr,nq_left,nops_out
       double precision  tx, ty, tz, xor, yor, zor
-      double precision x,y,z,x1,y1,z1,ddd,wsum
+      double precision wsum
 c
       pifact=1d0/dacos(-1d0)*.25d0
       oprint_grid = util_print('griddebug', print_debug)

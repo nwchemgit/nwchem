@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.15 2001-03-08 03:01:24 edo Exp $
+c$Id: grid_sphere.F,v 1.16 2001-11-09 02:18:02 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -50,7 +50,6 @@ c
       endif
       dista=ll*sqrt(ndx*ndx+ndy*ndy+ndz*ndz)
       if(dista.gt.rad) grid_insidesp=.false.
-!      write(6,'("RR ",2f12.6,3f8.2)') rad,dista,ndx,ndy,ndz
       return
       end
       integer function grid_ncubes(rad,ynxyz,fnxyz,l_rect)
@@ -86,12 +85,10 @@ c     inside part of side L/2
             do nx=1,nsub4
                ncount=ncount+1
                ffnxyz=ncount
-!               write(0,'("A0",4I4)') nx,ny,nz
                if(grid_insidesp(ffnxyz,l_rect,rad)) then
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=ncount
-!               write(0,'("A1",4I4)') ninside,fnxyz(ninside)
                      call grid_n2nxyz(nxyz,fnxyz(ninside),onx,ony,onz)
                      if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
                         write(0,'(A,4I4)') ' IN  nx ny nz ',nx,ny,nz,
@@ -121,12 +118,10 @@ c     do nothing --- see above
                endif
                endif
                ffnxyz=nxyz2n(nx,ny,nz,nxyz,shft)
-!               write(0,'("A0",4I4)') nx,ny,nz
                if(grid_insidesp(ffnxyz,l_rect,rad)) then
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=ffnxyz
-!      write(0,'("A1",2I4)') ninside,fnxyz(ninside)
                      nchk=fnxyz(ninside)
                      call grid_n2nxyz(nxyz,nchk,onx,ony,onz)
                      if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
@@ -158,7 +153,6 @@ c
          factxyz=nsub4
       else
          factxyz=nxyz
-!         npu=npoint
          npu=npoint-shft
       endif
       nz=npu/(factxyz*factxyz)+1
@@ -283,11 +277,6 @@ c
             endif
          endif
       endif
-!      write(0,'(A,5I5,3F12.6)') ' fnxyz nx ny nz ',
-!     ,     fnxyz,nx,ny,nz,grid_incube,
-!     ,     x,y,z
-c      write(0,1) x,y,z,nx,ny,nz,grid_incube
-c 1    format(3f20.12,3I3,I5)
       return
       end
       double precision function grid_lcube(rad)

@@ -11,13 +11,13 @@
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
      &                       Pmat, rq, rdens_atom,  cetobfr, 
-     ,     ibf_ao,bas_cent_info,bas_cset_info,docset,
+     ,     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.22 2001-08-14 23:55:31 edo Exp $
+c$Id: grid_quadv0b.F,v 1.23 2001-11-09 02:18:02 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -37,6 +37,7 @@ c !!! temp !!! ***
       integer  ictr_buf ! [in] ctr of grid
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
       logical docset(*)
+      integer iscratch(*)
       double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
@@ -130,7 +131,7 @@ c
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
-     ,     ipol)
+     ,     ipol,iscratch)
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)

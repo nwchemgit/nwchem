@@ -1,8 +1,8 @@
       subroutine grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
-     ,     mbf_ao,grad,ipol)
+     ,     mbf_ao,grad,ipol,iscratch)
 c
-c$Id: grid_pscreen.F,v 1.5 2001-10-25 01:28:40 edo Exp $
+c$Id: grid_pscreen.F,v 1.6 2001-11-09 02:18:02 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -12,7 +12,7 @@ c
       double precision rchi_atom(*),rdelchi_atom(*)
       double precision chi(*),delchi(*)
       double precision rdens_atom(natoms,natoms,*)
-      integer iniz(*),mbf_ao
+      integer iniz(*),mbf_ao,iscratch(*)
       double precision tol_rho
       logical grad
       integer ipol
@@ -57,12 +57,12 @@ c
       enddo
       if(nzero.ne.0) then
          call grid_pcompress(nqpts,qwght,chi,qxyz,delchi,
-     ,        mbf_ao,1d-19,grad)
+     ,        mbf_ao,1d-19,grad,iscratch)
       endif
       return
       end
       subroutine grid_pcompress(nq,qwght,chi,qxyz,delchi,
-     .     mbf_ao,toll,grad)
+     .     mbf_ao,toll,grad,iscr)
       implicit none
       integer nq,mbf_ao
       double precision qwght(*),chi(*),qxyz(3,*),delchi(*)
@@ -71,7 +71,7 @@ c
 c
       integer maxqpts
       parameter(maxqpts=10000)
-      integer q,nzero,mq0,mq1,j,qj,iscr(maxqpts),
+      integer q,nzero,mq0,mq1,j,qj,iscr(*),
      ,     nq_orig
 #if defined(DEBUG)
       integer nqxmbf
