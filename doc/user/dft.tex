@@ -803,18 +803,27 @@ $N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 & 1202\\ \hlin
 Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-10).
 
+The user can also specify grid parameters specific for a given atom type: 
+parameter that must be spupplied are: atom tag, number of radial points, number
+of anular points and \verb+accQrad+ (all three parameters must be give).
+As an example, here is a grid input line for the water molecule
+\begin{verbatim}
+grid lebedev 80 5 H 70 4 12 O 90 5 15 
+\end{verbatim}
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 %{\bf JEFF: store\_weight and nquad\_task need explaining}
 %store\_weight and nquad_task keywords will remain as expert user only
 % and not advertised until further tested. -jan
 %
 
-The user also has the option of choosing one of two types of spatial weights
-implemented in the numerical integration of the XC terms; Delley and Becke.
+% Delley weights do not work .. need to replace with SSWs after input is
+%changed  
+%The user also has the option of choosing one of two types of spatial weights
+%implemented in the numerical integration of the XC terms; Delley and Becke.
 
-\begin{verbatim}
-  GRID [(becke||delley) default becke]
-\end{verbatim}
+%\begin{verbatim}
+%  GRID [(becke||delley) default becke]
+%\end{verbatim}
 
 \section{{\tt TOLERANCES} --- Screening tolerances}
 
