@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.9 1997-09-05 22:24:47 d3e129 Exp $
+c $Id: int_1cg.F,v 1.10 1998-08-24 03:05:56 d3e129 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -48,10 +48,6 @@ c::local
       integer i_geom, ibas, ucont
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
       integer i_nbf_x, i_nbf_s
-c
-      integer WarnP
-      save WarnP
-      data WarnP /0/
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"

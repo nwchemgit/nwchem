@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.20 1997-12-02 01:42:21 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.21 1998-08-24 03:05:57 d3e129 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -202,15 +202,14 @@ c:tex-\begin{verbatim}
       logical canonicalize      ! [input] Canonicalize integral labels?
 c:tex-\end{verbatim}
 c::   local
-      integer bra, ket
       integer ip_int, leri_left
-      integer numint, numinti, numintj, numintk, numintl, nint_for_q
+      integer numint, nint_for_q
+#if defined(DEBUG_TXS)
+      integer numinti, numintj, numintk, numintl
+#endif
       integer i_q, i_q_done
 c     
 #include "bas_ibs_sfn.fh"
-c     
-      bra = brain + BASIS_HANDLE_OFFSET
-      ket = ketin + BASIS_HANDLE_OFFSET
 c     
       intb_nw_2e4c = .true.
 c     

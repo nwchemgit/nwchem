@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.8 1998-08-07 21:15:41 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.9 1998-08-24 03:05:58 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -107,8 +107,6 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 *
 c:local
-      integer bra
-      integer ket
       integer i_q 
       integer i_scr_ptr
       integer newlscr
@@ -119,9 +117,6 @@ c:local
       integer ihi, jhi, khi, lhi
 *
 c
-      bra = brain + Basis_Handle_Offset
-      ket = ketin + Basis_Handle_Offset
-c     
       intbd_nw_2e4c = .true.
 *
       if (num_q_start.eq.num_q_last) then

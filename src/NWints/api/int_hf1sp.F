@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.13 1998-02-05 00:02:15 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.14 1998-08-24 03:05:57 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -53,7 +53,6 @@ c:tex-\begin{verbatim}
       character*(*) msg ![input] calling func. identification message
 c:tex-\end{verbatim}
 c::local
-      integer nintV
       integer offset
       integer nintx, nint_xsp
 c
@@ -64,7 +63,7 @@ c
      &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
      &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c
       elseif (Li.eq.-1.and.Lj.eq.-1) then
 c.............................................................. (SP|SP)
@@ -73,7 +72,7 @@ c________________________________ (S|S)
      &         xyzi,expi,coefi,i_nprim,1,0,ictri,
      &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c________________________________ (S|P)
         offset = 1
         call int_hf1sp_ecp(
@@ -87,7 +86,7 @@ c________________________________ (S|P)
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c________________________________ (P|S)
         offset = 1 + 3 
         call int_hf1sp_ecp(
@@ -101,7 +100,7 @@ c________________________________ (P|S)
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c________________________________ (P|P)
         offset = 1 + 3 + 3
         call int_hf1sp_ecp(
@@ -115,7 +114,7 @@ c________________________________ (P|P)
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 *
         if (doS) call int_1spsp(S,1)
         if (doT) call int_1spsp(T,1)
@@ -127,7 +126,7 @@ c________________________________ (S|X)
      &         xyzi,expi,coefi,i_nprim,1,0,ictri,
      &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c________________________________ (P|X)
         offset = 1*(Lj+1)*(Lj+2)/2*j_ngen
         call int_hf1sp_ecp(
@@ -140,7 +139,7 @@ c________________________________ (P|X)
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
       elseif (Lj.eq.-1) then
 c.............................................................. (X|SP)
 c________________________________ (X|S)
@@ -148,7 +147,7 @@ c________________________________ (X|S)
      &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
      &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c________________________________ (X|P)
         offset = 1*(Li+1)*(Li+2)/2*i_ngen
         call int_hf1sp_ecp(
@@ -161,7 +160,7 @@ c________________________________ (X|P)
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
      &         ,doS,doT,doV,canAB,
-     &         dryrun,scr,lscr)
+     &         dryrun,scr,lscr,msg)
 c
         if (li.eq.0.and.i_ngen.eq.1) then
 c * for i_ngen = 1
@@ -254,7 +253,6 @@ c:tex-\end{verbatim}
 c::local
       integer nintV
       integer offset
-      integer nintx, nint_xsp
 *
       call hf1(
      &      xyzi,expi,coefi,i_nprim,i_ngen,Li,

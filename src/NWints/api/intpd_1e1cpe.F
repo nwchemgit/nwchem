@@ -1,6 +1,6 @@
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1e1cpe.F,v 1.1 1998-05-06 00:50:10 d3e129 Exp $
+* $Id: intpd_1e1cpe.F,v 1.2 1998-08-24 03:05:58 d3e129 Exp $
 *
       implicit none
 #include "apiP.fh"
@@ -65,7 +65,7 @@ c
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
       i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
-      mynint  = int_nint_cart(i_basis,ish,0,0,0,0,0,0,0,0)
+      mynint  = int_nint_cart(i_basis,ish, 0,0, 0,0, 0,0)
       mynat = ncenter(i_geom)
       if (lpea*3*mynat.lt.mynint) stop ' internal error '
 c

@@ -1,4 +1,4 @@
-c $Id: int_l1eall.F,v 1.14 1997-05-29 23:43:01 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.15 1998-08-24 03:05:57 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eall}
@@ -117,7 +117,7 @@ c
               T(numstv) = scr((icount+iscrT))
               V(numstv) = scr((icount+iscrV))
               ilab(numstv) = i
-              ilab(numstv) = j
+              jlab(numstv) = j
             endif
           endif
 c

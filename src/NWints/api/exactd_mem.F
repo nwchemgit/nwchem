@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.21 1998-08-19 21:40:51 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.22 1998-08-24 03:05:56 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -178,15 +178,15 @@ c
       nat = ncenter(bra_geom)
 c
       do 00100 ibc = 1, bra_ucont
-        bra_fact = 1.0d00
-        ket_fact = 1.0d00
+        bra_fact = 1
+        ket_fact = 1
 c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
         if (bra_gen.gt.1) then
           bra_gen = 1
-          bra_fact = 1.05d00
+          bra_fact = 1
         endif
         if (bra_type.lt.0) then
           bra_type = abs(bra_type)
@@ -205,7 +205,7 @@ c
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
           if (ket_gen.gt.1) then
             ket_gen = 1
-            ket_fact = 1.05d00
+            ket_fact = 1
           endif
           if (ket_type.lt.0) then
             ket_type = abs(ket_type)
@@ -282,7 +282,7 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
-      integer bra_geom, ket_geom, nat
+      integer bra_geom, ket_geom
       integer bra_fact, ket_fact
       double precision factor
 *debug:-start-debug
@@ -308,18 +308,16 @@ c
         call errquit('emem_d2e4c: geom error ',911)
       endif
 c
-      nat = ncenter(bra_geom)
-c
       do 00100 ibc = 1, bra_ucont
-        bra_fact = 1.00d00
-        ket_fact = 1.00d00
+        bra_fact = 1
+        ket_fact = 1
 c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
         if (bra_gen.gt.1) then
           bra_gen = 1
-          bra_fact = 1.05d00
+          bra_fact = 1
         endif
         if (bra_type.lt.0) then
           bra_type = abs(bra_type)
@@ -338,7 +336,7 @@ c
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
           if (ket_gen.gt.1) then
             ket_gen = 1
-            ket_fact = 1.05d00
+            ket_fact = 1
           endif
           if (ket_type.lt.0) then
             ket_type = abs(ket_type)
