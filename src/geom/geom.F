@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.131 2004-09-14 17:16:03 marat Exp $
+C$Id: geom.F,v 1.132 2004-10-21 22:41:55 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1773,10 +1773,10 @@ c
 c
       scale = 1.0d0 / angstrom_to_au
 c
-      write(unit,1) ncenter(geom)
- 1    format(1x,i5)
-      write(unit,2) names(geom)(1:inp_strlen(names(geom)))
- 2    format(1x,a)
+      write(unit,1) 
+ 1    format("####",T11,"id",T13,"name",
+     >        T38,"x",T46,"y",T54,"z",T57,"charge")
+
       do icent = 1, ncenter(geom)
 
         write(unit,3) icent,tags(icent,geom), 
