@@ -1,0 +1,35 @@
+#
+# Water UHF-UCCSD/STO-3G
+#
+# UHF-UCCSD   -0.0391885
+#
+start tce_uhf_uccsd
+
+echo
+
+charge 1
+
+geometry units angstrom
+zmat
+H
+O H 0.96
+H O 0.96 H 104.0
+end
+end
+
+basis
+* library sto-3g
+end
+
+scf
+thresh 1e-10
+tol2e 1e-10
+doublet
+uhf
+end
+
+tce
+ccsd
+end
+
+task tce energy
