@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.26 2002-03-06 19:50:58 windus Exp $
+C $Id: onedd_cont.F,v 1.27 2002-06-17 22:35:30 bert Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -22,10 +22,10 @@ c
       integer max1e, max2e, mscratch_1e, mscratch_2e
       integer l_buf, k_buf, l_scr, k_scr
       integer matb, lsqatom, l_dens, k_dens, l_wdens, k_wdens
-      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer alo(3), ahi(3), blo(3), bhi(3), idummy
       double precision one
       data one /1.0D+00/
-      logical doS, doT, doV
+      logical doS, doT, doV, doECP
       logical oprint, oneprint
 c
       character*255 tmpname
@@ -43,7 +43,8 @@ c Get memory for the integral buffers
 c
       if (oprint) write(LuOut,*) 'HESS: getting memory'
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
-      if (.not. ma_push_get(mt_dbl,max1e,'intdd buffer',l_buf,k_buf))
+      if (.not. ma_push_get(mt_dbl,max1e,'intdd buffer',l_buf,
+     *  k_buf))
      *  call errquit('onedd_cont:could not get intdd buffer',max1e)
       if (.not. ma_push_get(mt_dbl,mscratch_1e,'intdd scratch',
      *  l_scr, k_scr))call errquit('onedd_cont: scratch alloc failed',
@@ -91,12 +92,14 @@ c
       doS = .true. 
       doV = .true.
       doT = .true.
+      doECP = .false.
+      doECP = bas_get_ecp_handle(basis,idummy)
 c
 c  Call the actual routine to add the second derivative S, V and T contributions
 c
       call onedd_calc(dbl_mb(k_exy),n3xyz,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
-     *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
+     *  doS,doT,doV,doECP,g_wdens,g_dens,geom,basis,ncent,ndens,
      *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
 c
       if(skelsym)call sym_hess_symmetrize(geom,dbl_mb(k_exy))
