@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.9 1999-12-30 21:02:09 edo Exp $
+c$Id: grid_setrad.F,v 1.10 1999-12-30 21:19:27 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
 c
       integer lexpo, iexpo, insh, lnsh
 c
-      integer n1,ninf,ndivide,mxnrad
+      integer n1,ninf,ndivide,mxnrad,znint
       double precision zz
       double precision braggmult
       double precision midpoint,range_max,range_mk
@@ -146,11 +146,17 @@ c     ,          midpoint)
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'murakn') then
-             zz=3d0
-            call xc_murakn(
-     .              rpts(1,itype),
-     &              rwghts(1,itype), nrad(itype),zz,range_mk,
-     .              tol_reset)
+             if(tol_reset) then
+                range_mk=range_max
+             else
+                range_mk=dble(rad_cutoff(1,itype))
+             endif
+             znint=int(znuc_atom_type(itype))
+             call xc_murakn(
+     .            znint,
+     .            rpts(1,itype), 
+     &            rwghts(1,itype),nrad(itype),range_mk,
+     .            tol_reset)
           elseif(radgrid.eq.'legleg') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
