@@ -257,7 +257,7 @@ c
       ngeom = 0
       do geom = 1, max_geom
          if (active(geom)) then
-            write(6,2) ngeom, info, names(geom)(1:lenn(geom)),
+            write(6,2) geom, info, names(geom)(1:lenn(geom)),
      $           trans(geom)(1:lent(geom))
  2          format(' ',i2,' ',a,': "',a, '" -> "', a,'"')
          end if
@@ -376,10 +376,29 @@ c
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
-      tmp(k:) = ':map_atoms'
-      status = status .and. 
-     $     rtdb_ma_get(rtdb, tmp, ma_type, nelem,
-     $     sym_center_map_handle(geom))
+      if (sym_num_ops(geom) .gt. 0) then
+c
+c     If loading into an old geometry free this memory
+c
+         if (sym_center_map_handle(geom) .ne. -1) then
+            if (.not. ma_free_heap(sym_center_map_handle(geom)))
+     $           call errquit('geom_destroy: free of atom map', 0)
+         end if
+c
+         tmp(k:) = ':map_atoms'
+         status = status .and. 
+     $        rtdb_ma_get(rtdb, tmp, ma_type, nelem,
+     $        sym_center_map_handle(geom))
+         if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
+     $        ('geom_rtdb_load: invalid no. of element in sym map',
+     $        nelem)
+         if (.not. ma_get_index(sym_center_map_handle(geom),
+     $        sym_center_map_index(geom)))call errquit
+     $        ('geom_rtdb_load: bad ma handle for sym map', 0)
+      else
+         sym_center_map_handle(geom) = -1
+         sym_center_map_index(geom) = 1 ! Not used but address is created
+      endif
 c     
       if (.not. status) then
          write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
@@ -389,12 +408,6 @@ c
          geom_rtdb_load = .false.
          return
       end if
-c
-      if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
-     $     ('geom_rtdb_load: invalid no. of element in sym map', nelem)
-      if (.not. ma_get_index(sym_center_map_handle(geom),
-     $     sym_center_map_index(geom)))call errquit
-     $     ('geom_rtdb_load: bad ma handle for sym map', 0)
 c     
 c     Determine if external fields are applied
 c     
@@ -574,10 +587,13 @@ c
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
-      tmp(k:) = ':map_atoms'
-      status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_int, ncenter(geom)*sym_num_ops(geom),
-     $     int_mb(sym_center_map_index(geom)))
+      if (sym_num_ops(geom) .gt. 0) then
+         tmp(k:) = ':map_atoms'
+         status = status .and. 
+     $        rtdb_put(rtdb, tmp, mt_int,
+     $        ncenter(geom)*sym_num_ops(geom),
+     $        int_mb(sym_center_map_index(geom)))
+      endif
 c
 c     insert translated name into list of known geometries
 c
@@ -697,6 +713,7 @@ c
       group_number(geom) = 1
       setting_number(geom) = 0
       sym_center_map_handle(geom) = -1
+      sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       user_units(geom) = 'a.u.'
 c
