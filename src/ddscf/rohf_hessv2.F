@@ -3,7 +3,7 @@
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.5 2002-01-08 07:13:05 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -45,7 +45,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.5 2002-01-08 07:13:05 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -112,13 +112,14 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.5 2002-01-08 07:13:05 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
 #include "cscfps.fh"
 #include "rtdb.fh"
+#include "bgj.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
@@ -155,14 +156,21 @@ c
       external ga_create_atom_blocked
       double precision one, zero, mone, four, half, mhalf, two
       double precision itol_floor, itol_ceil
-      double precision bgj_kfac,xc_xfac1
-      external bgj_kfac
+      double precision xc_xfac1
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
 *      data jfac / 1.0d0, 1.0d0, 0.0d0/
 *      data kfac /-0.5d0,-0.5d0, 0.5d0/
       xc_xfac1=bgj_kfac()
+      cphf_tddft = .false.
+c
+c This is a bogus way of handling this!
+c
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif      
 c     
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
