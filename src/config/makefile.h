@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.392 2003-01-08 01:00:20 edo Exp $
+# $Id: makefile.h,v 1.393 2003-01-09 03:12:03 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1188,23 +1188,32 @@ ifeq ($(LINUXCPU),x86)
 # FC  = g77
   FOPTIONS   = -fno-second-underscore 
   FOPTIMIZE  =  -O2  -malign-double -finline-functions 
-  FOPTIMIZE  +=  -march=$(_CPU)
   COPTIONS   = -Wall -march=$(_CPU) -malign-double 
+
+    ifeq ($(_CPU),i686)
+     _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -1 | awk ' /sse2/  {print "Y"}')
+      ifeq ($(_GOTSSE2),Y) 
+        _CPU=i786
+      endif
+    endif
+
     ifeq ($(_CPU),i786)
-  COPTIONS   = -Wall -march=i686 -malign-double 
+      COPTIONS   = -Wall -march=i686 -malign-double 
+      ifdef USE_GCC31
+        COPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse
+        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse
+      else
+        FOPTIMIZE  +=  -march=i686
+        COPTIONS   = -Wall -march=i686 -malign-double 
+      endif
     endif
 # FOPTIMIZE  +=  -m486
 # COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
-# Most Linux distributions are using EGCS
-  EGCS = YES
-  ifdef EGCS
-    FOPTIONS  +=  -malign-double -fno-globals   -Wunused  -fno-silent
-#    FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
+    FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -Wunused  -fno-silent
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
-    FOPTIMIZE += -fforce-mem -fforce-addr #-ffloat-store
-  endif
+    FOPTIMIZE += -fforce-mem -fforce-addr 
 
   ifeq ($(FC),pgf77)
     DEFINES   += -DPGLINUX
@@ -1281,9 +1290,6 @@ ifeq ($(LINUXCPU),x86)
 #      EXTRA_LIBS +=  -static
     else
       EXTRA_LIBS += -lm
-      ifndef EGCS
-        EXTRA_LIBS += -lf2c -lm
-      endif
     endif
   endif
 endif
