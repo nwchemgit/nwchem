@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm,lbnd,mbnd,nbnd)
 c
-c $Id: pre_hybrid.F,v 1.7 2000-03-21 23:58:04 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.8 2000-05-04 06:30:06 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -19,7 +19,7 @@ c
       integer lbnd(2,mbnd)
 c
       integer i,j,k,l,m,nn,nl(100),ia,ib,ic,id,ie,ig
-      real*8 dist,angle1,angle2,angle3,angle4,angle5,angle6
+      real*8 angle1,angle2,angle3,angle4,angle5,angle6
 c
       do 1 i=1,natm
       if(latm(2,i).gt.0) then
