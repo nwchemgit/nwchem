@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.19 2000-07-06 19:52:56 d3j191 Exp $
+c $Id: util_md.F,v 1.20 2000-07-06 20:23:06 d3j191 Exp $
 c
       implicit none
 c
@@ -426,29 +426,36 @@ c
 c
       integer indexc(0:105)
 c
-      data indexc / 1,
-     + 8, 1, 1, 1, 1, 5, 3, 2, 1, 1,
-     + 9, 1, 1, 1, 7, 6, 1, 1, 1, 9,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     + 1, 1, 1, 1, 1 /
+      data indexc / 12,
+     +  4,  5, 14, 12, 13,  0,  1,  2,  6, 12,
+     +  7, 15,  9,  6,  8,  3, 13, 12, 12,  9,
+     + 12,  9, 12,  9,  9,  8, 12, 10, 10, 10,
+     + 12, 12, 12, 12, 10, 12, 12, 12, 12, 12,
+     + 12, 12, 12, 12, 12, 12,  9, 12, 12, 12,
+     + 12, 12, 11, 12, 12,  8, 12, 12, 12, 12,
+     + 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+     + 12, 12, 12, 12, 12, 12, 12, 12,  6, 12,
+     + 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+     + 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+     + 12, 12, 12, 12, 12 /
 c
       atom_color='white '
-      if(indexc(number).eq.1) atom_color='White '
+      if(indexc(number).eq.0) atom_color='LightGrey '
+      if(indexc(number).eq.1) atom_color='SkyBlue '
       if(indexc(number).eq.2) atom_color='Red '
-      if(indexc(number).eq.3) atom_color='Blue '
-      if(indexc(number).eq.4) atom_color='Green '
-      if(indexc(number).eq.5) atom_color='Gray '
-      if(indexc(number).eq.6) atom_color='Yellow '
-      if(indexc(number).eq.7) atom_color='Orange '
-      if(indexc(number).eq.8) atom_color='LightBlue '
-      if(indexc(number).eq.9) atom_color='Goldenrod '
+      if(indexc(number).eq.3) atom_color='Yellow '
+      if(indexc(number).eq.4) atom_color='White '
+      if(indexc(number).eq.5) atom_color='Pink '
+      if(indexc(number).eq.6) atom_color='Goldenrod '
+      if(indexc(number).eq.7) atom_color='Blue '
+      if(indexc(number).eq.8) atom_color='Orange '
+      if(indexc(number).eq.9) atom_color='Gray85 '
+      if(indexc(number).eq.10) atom_color='Brown '
+      if(indexc(number).eq.11) atom_color='Purple '
+      if(indexc(number).eq.12) atom_color='SpicyPink '
+      if(indexc(number).eq.13) atom_color='Green '
+      if(indexc(number).eq.14) atom_color='Firebrick '
+      if(indexc(number).eq.15) atom_color='DarkGreen '
 c
       return
       end
