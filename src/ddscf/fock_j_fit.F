@@ -1,6 +1,6 @@
       subroutine fock_j_fit(nmat, g_dens, g_j)
 c
-c     $Id: fock_j_fit.F,v 1.2 1999-05-10 23:08:05 edo Exp $
+c     $Id: fock_j_fit.F,v 1.3 2000-04-24 18:43:27 edo Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -23,7 +23,7 @@ c
       subroutine fock_j_fit_gen(nmat, g_dens, g_j, Tvec, have_Tvec,
      &     do_init)
 c
-c     $Id: fock_j_fit.F,v 1.2 1999-05-10 23:08:05 edo Exp $
+c     $Id: fock_j_fit.F,v 1.3 2000-04-24 18:43:27 edo Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -124,18 +124,18 @@ c!!! after things are working
 c
 c     Determine the fitting coefficients
 c
-      call dft_fitcd(nmat,dbl_mb(k_cd_coef), idum, Ecoul, rtdb,
+      call dft_fitcd(nmat,dbl_mb(k_cd_coef), idum, Ecoul, 
      &     g_dens, nTotEl, n_batch, n3c_int,
      &     idum, n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC, 
-     &     ddum, idum, idum, idum, idum, derfit,  Tvec,
+     &     idum, derfit,  Tvec,
      &     have_Tvec)
 c
 c     Compute the J matrices using the fitting coefficients
 c
-      call dft_fitvc(dbl_mb(k_cd_coef), idum, Ecoul, rtdb, g_j,
+      call dft_fitvc(dbl_mb(k_cd_coef), idum, Ecoul,  g_j,
      &     n_batch, n3c_int, idum, n3c_dbl,
-     &     iwhat_max, n_semi_bufs, fd, IOLGC, ddum,
-     &     idum, idum, idum, idum, derfit, nmat, do_init)
+     &     iwhat_max, n_semi_bufs, fd, IOLGC, 
+     &     derfit, nmat, do_init)
 c
 c     Clean up
 c
