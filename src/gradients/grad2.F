@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.29 1997-09-28 17:17:45 d3g681 Exp $
+c     $Id: grad2.F,v 1.30 1998-07-13 23:33:56 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -97,7 +97,7 @@ C-------------------------local variables-----------------------------
       external intbd_init4c, intbd_2e4c
 c     
       smax  = schwarz_max()
-      q4max = 8.0d0*(sym_number_ops(geom) + 1)*100.0d0 ! 100 for max(psum)
+      q4max = 8.0d0*(sym_number_ops(geom) + 1)*10000.0d0 ! 10000 for max(psum)
 c
       call int_acc_std()
 *      integ_acc = min(1d-9,max(0.01d0*tol2e/q4max,1d-17))
