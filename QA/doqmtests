@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.32 2003-03-26 23:52:15 edo Exp $
+# $Id: doqmtests,v 1.33 2003-03-29 02:49:26 edo Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o #pyqa
@@ -39,6 +39,7 @@ runtests.unix si2cl6_gc
 runtests.unix pspw
 runtests.unix pspw_SiC
 runtests.unix pspw_md
+runtests.unix paw
 runtests.unix pspw_polarizability
 runtests.unix tddft_h2o
 runtests.unix tddft_n2+
@@ -46,6 +47,7 @@ runtests.unix tce_h2o
 runtests.unix oniom1
 #---   long  may not run on workstations
 runtests.unix aump2 
+runtests.unix n2_ccsd 
 runtests.unix uoverlap
 runtests.unix grad_nh3_trimer 
 runtests.unix hess_nh3
