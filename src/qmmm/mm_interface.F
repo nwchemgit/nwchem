@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.7 2004-08-16 23:21:48 marat Exp $
+c $Id: mm_interface.F,v 1.8 2004-08-17 17:59:50 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -246,6 +246,9 @@ c     local variables
       integer pxs
       integer psdt
 
+      call dfill(3*nt,0,c,1)
+      call dfill(nt,0,q,1)
+
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
       call mm_get_psz(psz)
@@ -282,7 +285,7 @@ c     -----------------------------
 
       write(*,*) "before mm_get_geom_bqs0"
      
-      call mm_get_geom_bqs0(nbqs,
+      call mm_get_geom_bqs0(nt,
      &                   msa,
      &                   nsa,
      &                   ioq,
@@ -329,6 +332,7 @@ c     -----------------------------
 #include "geom.fh"
 #include "qmmm.fh"
 #include "qmmm_params.fh"
+#include "msgids.fh"
 
       double precision cf_charge
       external cf_charge
@@ -349,7 +353,9 @@ c     local variables
       integer ioq
 
 
+
       ioq = ioff
+      write(*,*) "debug: number of solute atoms,offset",nt,ioff
       do i=1,nsa
       write(*,*) "isz array",i,isz(i)
       if(isz(i).ne.0 .and. iand(isdt(i),lquant).eq.0 .and.
@@ -362,6 +368,11 @@ c     local variables
       endif
       end do
 
+      write(*,*) "before dgop",nt
+      call ga_dgop(msg_qmmm_cbqs,c,3*ioq,'+')
+      write(*,*) "after dgop"
+      call ga_dgop(msg_qmmm_qbqs,q,nt,'+')
+
       end
 
       subroutine mm_get_geom_bqw(nt,
@@ -373,6 +384,7 @@ c     local variables
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
+#include "msgids.fh"
 #include "qmmm.fh"
 
       integer nt
@@ -392,6 +404,9 @@ c     local variables
       integer nwm
       integer pwz
       integer pxw
+
+      call dfill(3*nt,0,c,1)
+      call dfill(nt,0,q,1)
 
       call mm_get_mwa(mwa)
       call mm_get_mwm(mwm)
@@ -418,7 +433,7 @@ c     ------------------
       do i=me+1,np
         int_mb(i_off+i-1)=nbqw
       end do    
-c      call ga_igop(msg_qmmm_offset,loff,np,'+')
+      call ga_igop(msg_qmmm_nbqw_off,int_mb(i_off),np,'+')
 c
 c     set offset for a current node
 c     -----------------------------
@@ -480,6 +495,7 @@ c      write(*,*) " mm_get_geom_bqw0 1"
 #include "geom.fh"
 #include "qmmm.fh"
 #include "qmmm_params.fh"
+#include "msgids.fh"
 
       double precision cf_wcharge
       external cf_wcharge
@@ -517,6 +533,9 @@ c     local variables
       endif
       end do
 
+c      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
+c      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
+
       write(48,*) nt
       write(48,*) "  "
       do i=1,nt
@@ -548,6 +567,8 @@ c     local variables
       integer nsaloc
       integer psdt
       integer psl
+
+      call ifill(nt,0,ind,1)
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsaloc)
@@ -592,9 +613,8 @@ c     local variables
       integer ioff
       integer ioq
 
-      do i=1,np
-        loff(i)=0
-      end do
+      call ifill(np,0,loff,1)
+
 c
 c     accumulate offsets
 c     ------------------
@@ -659,6 +679,11 @@ c     mm local variables
       integer psl
       integer psat
       integer pxs
+
+      call dfill(3*nt,0.0d0,c,1)
+      call dfill(nt,0.0d0,q,1)
+      call dfill(nt,0.0d0,m,1)
+      call ifill(nt,0.0d0,inum,1)
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsaloc)
@@ -757,7 +782,6 @@ c     local variables
       end do
 
       write(*,*) "quantum atoms"
-      call dfill(3*nt,0.0d0,c,1)
       do i=1,nsa
         islink=iand(isdt(i),lqlink).ne.0
         if(iand(isdt(i),lquant).ne.0 .or.
