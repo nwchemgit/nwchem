@@ -294,6 +294,7 @@ c
     4 continue
     3 continue
     2 continue
+      mbxloc=mbox-30
 c
       if(np.gt.1) call ga_igop(mrg_d14,mbox,1,'max')
 c
@@ -1617,12 +1618,61 @@ c
       implicit none
 c
 #include "sp_common.fh"
+#include "mafdecls.fh"
 c
       integer lfnout
 c
+      integer i_lcnt,l_lcnt
+c
       if(me.eq.0) then
       write(lfnout,1000)
- 1000 format(/,' SPACIAL DECOMPOSITION')
+ 1000 format(/,' SPACIAL DECOMPOSITION',/)
+c
+      write(lfnout,1001) np,npx,npy,npz
+ 1001 format(' Processor count ',i5,' =',i5,' x',i5,' x',i5)
+      write(lfnout,1002) nbx*nby*nbz,nbx,nby,nbz
+ 1002 format(' Box count       ',i5,' =',i5,' x',i5,' x',i5)
+      endif
+c
+      if(.not.ma_push_get(mt_int,3*np,'lcnt',l_lcnt,i_lcnt))
+     + call errquit('Failed to allocate memory for lcnt',0)
+c
+      call sp_prtcnt(lfnout,int_mb(i_lcnt))
+c
+      if(.not.ma_pop_stack(l_lcnt))
+     + call errquit('Failed to deallocate lcnt',0)
+c
+      return
+      end
+      subroutine sp_prtcnt(lfnout,lcnt)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "msgids.fh"
+#include "global.fh"
+c
+      integer lfnout,lcnt(np,3)
+c
+      integer i,j
+c
+      do 1 i=1,np
+      lcnt(i,1)=0
+      lcnt(i,2)=0
+      lcnt(i,3)=0
+    1 continue
+c
+      lcnt(me+1,1)=mbxloc
+      lcnt(me+1,2)=nwmloc*nwa
+      lcnt(me+1,3)=nsaloc
+c
+      if(np.gt.1) call ga_igop(mrg_d12,lcnt,3*np,'+')
+c
+      if(me.eq.0) then
+      write(lfnout,1000)
+ 1000 format(/,' Initial distribution p:b(w+s)',/)
+      write(lfnout,1001) (i-1,(lcnt(i,j),j=1,3),i=1,np)
+ 1001 format(4(3x,i4,':',i3,'(',i5,'+',i5,')'))
       endif
 c
       return

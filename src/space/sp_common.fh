@@ -39,10 +39,10 @@ c
 c
       integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode
+     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc
       common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode
+     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl
