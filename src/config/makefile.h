@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.41 1994-08-03 06:40:49 d3g681 Exp $
+# $Id: makefile.h,v 1.42 1994-08-04 17:43:52 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -9,13 +9,15 @@
 #
 # TOPDIR points to your top-level directory that contains
 # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
-#
 # Do a setenv for NWCHEM_TOP to be the top level directory
 #
 
 ifndef NWCHEM_TOP
-# This variable must be defined ... the next line will cause an error
-You must define NWCHEM_TOP in your environment
+error1:
+	@echo You must define NWCHEM_TOP in your environment to be the path
+	@echo of the top level nwchem directory ... something like
+	@echo     setenv NWCHEM_TOP /msrc/home/bill_clinton/nwchem
+	@exit 1
 endif
 
      TOPDIR = $(NWCHEM_TOP)
@@ -31,8 +33,12 @@ endif
 #
 
 ifndef NWCHEM_TARGET
-# This variable must be defined ... the next line will cause an error
-You must define NWCHEM_TARGET in your environment
+error2:
+	@echo You must define NWCHEM_TARGET in your environment to be the name
+	@echo of the machine you wish to build for ... for example
+	@echo     setenv NWCHEM_TARGET SUN
+	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM
+	@exit 1
 endif
 
      TARGET = $(NWCHEM_TARGET)
