@@ -112,3 +112,4 @@ Dec 23 1998	 Allow comment lines in seqence file
 		 Always recalculate grid if esp required
 		 Bug fix in pre_modify.F
 Jan 04 1999	 Fix bug in variable types
+Jan 05 1999	 Add model option

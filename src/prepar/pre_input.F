@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.23 1998-11-23 20:30:59 d3j191 Exp $
+c $Id: pre_input.F,v 1.24 1999-01-05 16:27:22 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer newtop,newseq,newrst,icount,multip
 c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
-      integer isgm,icyren
+      integer isgm,icyren,model
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon
       character*4  cnoe(2)
@@ -64,6 +64,7 @@ c
       qscale=-1.2d0
       icount=0
       icyren=0
+      model=0
 c
       touch=0.25
       xpndw=0.20
@@ -247,6 +248,14 @@ c
       goto 2
       endif
       goto 3
+      endif
+c
+c     model
+c     -----
+c
+      if(inp_compare(.false.,'model',item)) then
+      if(.not.inp_i(model)) call errquit('pre_input: model',9999)
+      goto 2
       endif
 c
 c     newrst
@@ -792,6 +801,11 @@ c
 c
       if(chain(1:1).ne.'A') then
       if(.not.rtdb_cput(irtdb,'prep:chain',1,chain))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
+      if(model.ne.0) then
+      if(.not.rtdb_put(irtdb,'prep:model',mt_int,1,model))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c

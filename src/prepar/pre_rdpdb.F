@@ -1,8 +1,8 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model)
 c
-c $Id: pre_rdpdb.F,v 1.11 1998-09-22 21:35:29 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.12 1999-01-05 16:27:24 d3j191 Exp $
 c
       implicit none
 c
@@ -17,12 +17,12 @@ c
       real*8 xs(3,msa),vs(3,msa)
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
       character*3 namslv
-      integer iwater
+      integer iwater,model
       character*1 altloc,chain
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num,iw,length
+      integer i,last,nprv,num,iw,length,mdl
       real*8 x,y,z
       character*3 namr
       character*4 nama
@@ -33,6 +33,7 @@ c
       lnames=lnams
       iw=0
       iwater=0
+      mdl=0
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -88,11 +89,38 @@ c
       read(lfnpdb,1000,end=9,err=9999) card
  1000 format(a)
 c
+c     MODEL
+c
+      if(model.ne.mdl) then
+      if(card(1:6).eq.'MODEL ') then
+      read(card(7:14),1001) mdl
+ 1001 format(i8)
+      if(model.eq.mdl.and.util_print('where',print_debug)) then
+      write(lfnout,2005) model
+ 2005 format(10x,'MODEL ',i8)
+      endif
+      goto 100
+      endif
+      endif
+c
+c     END and ENDMDL
+c
+      if(card(1:6).eq.'ENDMDL') then
+      if(model.eq.mdl) goto 9
+      goto 1
+      endif
+      if(card(1:6).eq.'END   ') goto 9
+c
       if(card(1:4).ne.'ATOM'.and.card(1:6).ne.'HETATM') goto 100
 c
-      read(card,1001,end=9999,err=9999) hdr,nama,alocal,namr,achain,num,
+      if(mdl.ne.model) goto 100
+c
+      read(card,1002,end=9999,err=9999) hdr,nama,alocal,namr,achain,num,
      + x,y,z
- 1001 format(a6,6x,a4,a1,a3,1x,a1,i4,4x,3f8.3)
+ 1002 format(a6,6x,a4,a1,a3,1x,a1,i4,4x,3f8.3)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1002) hdr,nama,alocal,namr,achain,num,x,y,z
+      endif
       if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
@@ -107,8 +135,8 @@ c
       endif
 c
       if(lnames) then
-      read(lfntmp,1002,end=9999,err=9999) name1,name2
- 1002 format(2a6)
+      read(lfntmp,1003,end=9999,err=9999) name1,name2
+ 1003 format(2a6)
       endif
 c
       if(lsolut) then

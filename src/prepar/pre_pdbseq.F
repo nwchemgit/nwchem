@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.16 1998-11-23 20:31:00 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.17 1999-01-05 16:27:24 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -101,8 +101,11 @@ c
 c
 c     END and ENDMDL
 c
-      if(card(1:3).eq.'END') goto 9
-      if(card(1:6).eq.'ENDMDL') goto 9
+      if(card(1:6).eq.'ENDMDL') then
+      if(model.eq.mdl) goto 9
+      goto 1
+      endif
+      if(card(1:6).eq.'END   ') goto 9
 c
 c     HEADER
 c

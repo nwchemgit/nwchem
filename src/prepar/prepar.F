@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.22 1998-09-15 00:01:31 d3j191 Exp $
+c $Id: prepar.F,v 1.23 1999-01-05 16:27:25 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -49,7 +49,7 @@ c
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod
-      integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren
+      integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
       real*8 gdist,qscale
       logical lstate
 c
@@ -104,7 +104,7 @@ c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren))
+     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -212,7 +212,7 @@ c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale,altloc,chain,icyren))
+     + qscale,altloc,chain,icyren,model))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)
@@ -272,7 +272,7 @@ c     ---------------------
 c
       if(.not.pre_mkrst(irtdb,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
-     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain))
+     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue

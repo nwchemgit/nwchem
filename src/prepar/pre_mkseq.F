@@ -1,9 +1,9 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale,altloc,chain,icyren)
+     + qscale,altloc,chain,icyren,model)
 c
-c $Id: pre_mkseq.F,v 1.22 1998-09-23 16:17:39 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.23 1999-01-05 16:27:23 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -34,7 +34,7 @@ c
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
-      integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren
+      integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -60,7 +60,7 @@ c
       endif
 c
       if(source(1:3).eq.'pdb') then
-      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,model,
      + natm,nseq,nssb,nlnk,slvnam,numslv))
      + call errquit('pre_pdbsiz failed',9999)
       else
@@ -155,7 +155,7 @@ c     read the sequence and atom list from the pdb file
 c     -------------------------------------------------
 c
       if(source(1:3).eq.'pdb') then
-      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,0,slvnam,
+      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,model,slvnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,

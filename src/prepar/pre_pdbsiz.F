@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
-c $Id: pre_pdbsiz.F,v 1.9 1998-09-22 21:35:29 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.10 1999-01-05 16:27:24 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -70,7 +70,7 @@ c
       if(card(1:6).eq.'MODEL ') then
       read(card(7:14),1002) mdl
  1002 format(i8)
-      if(model.eq.mdl.and.util_print('where',print_debug)) then
+      if(model.eq.mdl.and.util_print('where',print_high)) then
       write(lfnout,2005) model
  2005 format(10x,'MODEL ',i8)
       endif
@@ -80,8 +80,12 @@ c
 c
 c     END and ENDMDL
 c
-      if(card(1:3).eq.'END') goto 9
-      if(card(1:6).eq.'ENDMDL') goto 9
+c
+      if(card(1:6).eq.'ENDMDL') then
+      if(model.eq.mdl) goto 9
+      goto 1
+      endif
+      if(card(1:6).eq.'END   ') goto 9
 c
 c     HEADER
 c

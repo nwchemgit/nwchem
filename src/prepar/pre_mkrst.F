@@ -1,9 +1,9 @@
       logical function pre_mkrst(irtdb,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
-     + chain)
+     + chain,model)
 c
-c $Id: pre_mkrst.F,v 1.25 1998-11-18 01:19:57 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.26 1999-01-05 16:27:23 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
       external util_nwchemrc_get
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
-      integer lfnslv
+      integer lfnslv,model
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
       character*10 slvmdl
       character*3 slvnam
@@ -208,7 +208,7 @@ c
  1005 format(' Geometry read from rtdb')
       endif
       else
-      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,model,
      + idum1,idum2,idum3,idum4,slvnam,nwmc))
      + call errquit('pre_pdbsiz failed',9999)
 c
@@ -246,7 +246,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain))
+     + chain,model))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
