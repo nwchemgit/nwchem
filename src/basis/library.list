@@ -378,16 +378,22 @@ ECP "Stuttgart RLC ECP" (number of atoms 57)
  Bk Cf Es Fm Md No Lr
 
 
-Basis Set "Stuttgart RSC ECP" (number of atoms 65)
+Basis Set "Stuttgart RSC ECP" (number of atoms 64)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
- Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db
+ Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
 
 
 ECP "Stuttgart RSC ECP" (number of atoms 64)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
- Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf
+ Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
+
+
+Basis Set "DZVP (DFT Orbital)" (number of atoms 54)
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
 
 
 Basis Set "DGauss A1 DFT Coulomb Fitting" (number of atoms 54)
@@ -459,9 +465,3 @@ ECP "CRENBS ECP" (number of atoms 50)
   Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
  Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
-
-
-Basis Set "DZVP (DFT Orbital)" (number of atoms 54)
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te I Xe
