@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.34 2003-02-05 03:20:17 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.35 2003-02-06 00:25:00 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -120,6 +120,7 @@ c#include "rtdb.fh"
          else
             stalled = .false.
          end if
+         !stalled = .false. !debug
         
          if ((taskid.eq.MASTER).and.(minimizer.ne.5)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
@@ -145,7 +146,6 @@ c#include "rtdb.fh"
            go to 3
          end if
 
-         stalled = .false. !debug
       if (icount.lt.it_out) go to 2
       if (taskid.eq.MASTER) 
      > write(luout,*) '*** arived at the Maximum iteration.  terminated'
