@@ -61,7 +61,7 @@ the DFT module are:
 
   CONVERGENCE [[energy <real energy default 1e-7>] \
                [density <real density default 1e-5>] \
-               [gradient <real gradient default 1e-4>] \
+               [gradient <real gradient default 5e-4>] \
                [dampon <real dampon default 0.0>] \
                [dampoff <real dampoff default 0.0>] \
                [diison <real diison default 0.0>] \
@@ -416,9 +416,9 @@ iterations is reached or convergence is met.
 \section{{\tt CONVERGENCE} --- SCF Convergence Control}
 
 \begin{verbatim}
-  CONVERGENCE [energy <real energy default 1e-7>] \
+  CONVERGENCE [energy <real energy default 1e-6>] \
               [density <real density default 1e-5>] \
-              [gradient <real gradient default 1e-4>] \
+              [gradient <real gradient default 5e-4>] \
               [hl_tol <real hl_tol default 0.1>]
               [dampon <real dampon default 0.0>] \
               [dampoff <real dampoff default 0.0>] \
@@ -438,10 +438,10 @@ Convergence is satisfied by meeting any or all of three criteria;
 \begin{itemize}
 \item convergence of the total energy; this is defined to be when the
   total DFT energy at iteration N and at iteration N-1 differ by a value less
-  than some value (the default is 1e-7).  This value can be modified
+  than some value (the default is 1e-6).  This value can be modified
   using the key word,
 \begin{verbatim}
-  CONVERGENCE energy <real energy default 1e-7>
+  CONVERGENCE energy <real energy default 1e-6>
 \end{verbatim}
 
 \item convergence of the total density; this is defined to be when the
@@ -454,9 +454,9 @@ Convergence is satisfied by meeting any or all of three criteria;
 
 \item convergence of the orbital gradient; this is defined to be when the
   DIIS error vector becomes less than some value (the default is
-  1e-4).  This value can be modified using the key word,
+  5e-4).  This value can be modified using the key word,
 \begin{verbatim}
-  CONVERGENCE gradient <real gradient default 1e-4>
+  CONVERGENCE gradient <real gradient default 5e-4>
 \end{verbatim}
 \end{itemize}
 
