@@ -1,17 +1,18 @@
-      Subroutine xc_hcth(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_hcth(tol_rho, xfac, lxfac, nlxfac,
+     ,                    cfac, lcfac, nlcfac,rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.12 1999-06-11 16:37:46 edo Exp $
+c$Id: xc_hcth.F,v 1.13 1999-06-25 01:59:35 edo Exp $
 c
       Implicit none
 c
 #include "dft2drv.fh"
 c
       logical ldew ! [input]
-      logical lfac, nlfac ! [input]
+      logical lcfac, nlcfac,  lxfac, nlxfac ! [input]
       double precision func(*) ![input/output]
-      double precision fac ![input]
+      double precision cfac, xfac ![input]
       character*4 funcname ! functional name [input]
 c
       integer ipol  ! no. of spin states [input]
@@ -38,10 +39,10 @@ c to hcth
       double precision za   
       double precision zb   
       double precision hE_x, hE_c 
-      double precision dfdra     
-      double precision dfdrb     
-      double precision dfdza     
-      double precision dfdzb     
+      double precision dfdrax, dfdrac
+      double precision dfdrbx, dfdrbc
+      double precision dfdzac,dfdzax,dfdza
+      double precision dfdzbc,dfdzbx,dfdzb
 c
       if(ipol.eq.1) then
         do n=1,nq
@@ -57,13 +58,15 @@ c
             if(gammaval.gt.tol_rho)  za=sqrt(gammaval)
             zb=za
             call hcth(ipol,funcname,
-     &           dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
+     *           dfdrax,dfdrac, dfdzax,dfdzac, 
+     *           dfdrbx,dfdrbc, dfdzbx,dfdzbc, 
+     .           rhoa, rhob, 
      &           za, zb, hE_x, hE_c, tol_rho)
-            if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
-            Ec=Ec+hE_c*qwght(n)*fac
-            Ex=Ex+hE_x*qwght(n)*fac
-            Amat(n,1) = Amat(n,1)+dfdra*fac
-            dfdza=dfdza*fac*0.5d0
+            if(ldew) func(n)=func(n)+hE_c*cfac+hE_x*xfac
+            Ec=Ec+hE_c*qwght(n)*cfac
+            Ex=Ex+hE_x*qwght(n)*xfac
+            Amat(n,1) = Amat(n,1)+dfdrac*cfac+dfdrax*xfac
+            dfdza=(dfdzac*cfac+dfdzax*xfac)*0.5d0 
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
 #if 0
             Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
@@ -88,15 +91,17 @@ c
      &           delrho(n,3,2)*delrho(n,3,2) 
             if(gammaval.gt.tol_rho) zb=sqrt(gammaval)
             call hcth(ipol,funcname,
-     &           dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
+     *           dfdrax,dfdrac, dfdzax,dfdzac, 
+     *           dfdrbx,dfdrbc, dfdzbx,dfdzbc, 
+     .           rhoa, rhob, 
      &           za, zb, hE_x, hE_c, tol_rho)
-            if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
-            Ec=Ec+hE_c*qwght(n)*fac
-            Ex=Ex+hE_x*qwght(n)*fac
-            Amat(n,1) = Amat(n,1)+dfdra*fac
-            Amat(n,2) = Amat(n,2)+dfdrb*fac
-            dfdza=dfdza*fac
-            dfdzb=dfdzb*fac
+            if(ldew) func(n)=func(n)+hE_c*cfac+hE_x*xfac 
+            Ec=Ec+hE_c*qwght(n)*cfac
+            Ex=Ex+hE_x*qwght(n)*xfac
+            Amat(n,1) = Amat(n,1)+dfdrac*cfac+dfdrax*xfac
+            Amat(n,2) = Amat(n,2)+dfdrbc*cfac+dfdrbx*xfac
+            dfdza=dfdzac*cfac+dfdzax*xfac
+            dfdzb=dfdzbc*cfac+dfdzbx*xfac
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza*0.5d0
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb*0.5d0
 #if 0
@@ -114,7 +119,8 @@ c
       end
 
       SUBROUTINE hcth(ipol,functional,
-     *     dfdra, dfdza, dfdrb, dfdzb, 
+     *     dfdrax,dfdrac, dfdzax,dfdzac, 
+     *     dfdrbx,dfdrbc, dfdzbx,dfdzbc, 
      1     rhoa, rhob, za, zb, hE_x, hE_c, 
      2     tol_rho)
 
@@ -161,10 +167,14 @@ C              mod(grad(rhobeta)), divided by zb !!!!!!!!!
       double precision hE_x ![output]
       double precision hE_c ![output]
       double precision tol_rho ![input]
-      double precision dfdra     ![output]
-      double precision dfdrb     ![output]
-      double precision dfdza     ![output]
-      double precision dfdzb     ![output]
+      double precision dfdrax    ![output]
+      double precision dfdrac    ![output]
+      double precision dfdrbx    ![output]
+      double precision dfdrbc    ![output]
+      double precision dfdzax    ![output]
+      double precision dfdzac    ![output]
+      double precision dfdzbx    ![output]
+      double precision dfdzbc    ![output]
       character*4 functional
       double precision pi
       PARAMETER (PI=3.1415926535898D0)
@@ -275,10 +285,14 @@ C     ,     +0.19430d+00,+0.210000d+00, 0.00000000d0, 0.00000000d0/
 
 C     Initialise
 
-      dfdra  = 0.D0
-      dfdrb  = 0.D0
-      dfdza  = 0.D0
-      dfdzb  = 0.D0
+      dfdrac = 0.D0
+      dfdrax = 0.D0
+      dfdrbc = 0.D0
+      dfdrbx = 0.D0
+      dfdzac = 0.D0
+      dfdzax = 0.D0
+      dfdzbc = 0.D0
+      dfdzbx = 0.D0
       hE_c = 0.D0
       hE_x = 0.D0
 
@@ -318,28 +332,42 @@ CFF,
      &     rhoa,rhob,za,zb,
      &     sol,tol_rho)
 
-      if(ipol.eq.2) then
-        DO n = 1, (max_pow_u+1)*3 
-          dfdra = dfdra + F(n,1) 
-          dfdrb = dfdrb + F(n,2) 
-          if(za.gt.tol_rho) dfdza = dfdza + F(n,3) / za
-          if(zb.gt.tol_rho) dfdzb = dfdzb + F(n,4) / zb  
-        ENDDO
-      else
-        DO n = 1, (max_pow_u+1)*3 
-          dfdra = dfdra + F(n,1) 
-        enddo
-        if(za.gt.tol_rho) then
-          DO n = 1, (max_pow_u+1)*3 
-            dfdza = dfdza + F(n,3) / za
-          enddo
-        endif
-      endif
+c     if(ipol.eq.2) then
+c       DO n = 1, (max_pow_u+1)*3 
+c         dfdra = dfdra + F(n,1) 
+c         dfdrb = dfdrb + F(n,2) 
+c         if(za.gt.tol_rho) dfdza = dfdza + F(n,3) / za
+c         if(zb.gt.tol_rho) dfdzb = dfdzb + F(n,4) / zb  
+c       ENDDO
+c     else
+c        DO n = 1, (max_pow_u+1)*3 
+c          dfdra = dfdra + F(n,1) 
+c        enddo
+c        if(za.gt.tol_rho) then
+c          DO n = 1, (max_pow_u+1)*3 
+c            dfdza = dfdza + F(n,3) / za
+c          enddo
+c        endif
+c     endif
 Cfah big thanks to NCH: cadpac requires df/(za * dza), NOT 
 Cfah                                    df/dza 
       DO n = 0, max_pow_u 
         hE_x = hE_x + F_xc (n*3 + 1) 
         hE_c = hE_c + F_xc (n*3 + 2) + F_xc (n*3 + 3)
+        dfdrax = dfdrax + F(n*3+1,1) 
+        dfdrac = dfdrac + F(n*3+2,1) + F(n*3+3,1) 
+        if(za.gt.tol_rho) then
+            dfdzax = dfdzax + F(n*3+1,3) / za
+            dfdzac = dfdzac + (F(n*3+2,3)+F(n*3+3,3)) / za
+        endif
+      if(ipol.eq.2) then
+        dfdrbx = dfdrbx + F(n*3+1,2) 
+        dfdrbc = dfdrbc + F(n*3+2,2) + F(n*3+3,2) 
+        if(zb.gt.tol_rho) then
+            dfdzbx = dfdzbx + F(n*3+1,4) / zb
+            dfdzbc = dfdzbc + (F(n*3+2,4)+F(n*3+3,4)) / zb
+        endif
+      endif
       ENDDO
       RETURN
       END

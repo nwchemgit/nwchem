@@ -59,7 +59,7 @@ c
 c
 c     Only these few arrays are initialized (not defaults).
 c
-      do iline = 1, 16
+      do iline = 1, numfunc
           xfac(iline)=0.d0
           cfac(iline)=0.d0
          lcfac(iline)=.false.
@@ -227,10 +227,14 @@ c
  1800  continue
 c
 c        assume total wanted
-c        
+c     
+       xccomb(6) = .true.
          lxfac(4) = .true.
          nlxfac(4) = .true.
          xfac(4) = 1.0d0
+         lcfac(13) = .true.
+         nlcfac(13) = .true.
+         cfac(13) = 1.0d0
 C       endif            
 c
       goto 10
@@ -619,6 +623,9 @@ c
         xfac(5) = 1.d0
        lxfac(5) = .true.
       nlxfac(5) = .true.
+        cfac(14) = 1.d0
+       lcfac(14) = .true.
+      nlcfac(14) = .true.
       goto 10
 c     
 c     
@@ -637,6 +644,9 @@ c
         xfac(6) = 1.d0
        lxfac(6) = .true.
       nlxfac(6) = .true.
+        cfac(15) = 1.d0
+       lcfac(15) = .true.
+      nlcfac(15) = .true.
 c
       goto 10
 c     
@@ -864,13 +874,14 @@ c
      &       /,' [vwn_4 local rval], ',
      &       /,' [vwn_5 local rval], ',
      &       /,' [vwn_1_rpa local rval]] ',
-     &       /,' [hcth] ',
      &       /,' [becke97] ',
      &       /,' [becke97-1] ',
      &       /,' [cpbe96 nonlocal rval]',
      &       /,' [xpbe96] ',
      &       /,' [gill96] ',
-     &       /,' [xperdew91] ')
+     &       /,' [xperdew91] ',
+     &       /,' [xhcth] ',
+     &       /,' [chcth] ')
       call util_flush(6)
       call errquit('xc_input: invalid format', 0)
 c     

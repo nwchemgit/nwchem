@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.11 1999-06-17 18:24:17 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.12 1999-06-25 01:59:35 edo Exp $
 c
       implicit none
 c
@@ -22,8 +22,11 @@ c
       double precision Ex, Ec
       double precision qwght(nq), func(nq)
       logical GRAD, ldew, do_2nd
+      logical dohcth,lxfach,nlxfach,lcfach,nlcfach
+      character*4 whichf
 c
-      double precision eps
+      double precision eps,xfach,cfach
+      integer nx,nc
       parameter (eps=1.e-8)
 c
 c     Initialize the XC potential and energy sampling matrices.
@@ -62,37 +65,31 @@ c
          endif
       endif
 C
-C     hcth both X and C functional
+C     hcth , becke97s functionals
 C
-      if (abs(xfac(4)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_hcth(tol_rho, xfac(4), lxfac(4), nlxfac(4), rho, 
-     &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
-     &           ldew, func,'hcth')
-         else
-            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
-         endif
+      dohcth=.false.
+      if (abs(xfac(4)).gt.eps.or.abs(cfac(13)).gt.eps)then
+         whichf='hcth'
+         dohcth=.true.
+         nx=4
+         nc=13
+      elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
+         whichf='b970'
+         dohcth=.true.
+         nx=5
+         nc=14
+      elseif (abs(xfac(6)).gt.eps.or.abs(cfac(15)).gt.eps)then
+         whichf='b971'
+         dohcth=.true.
+         nx=6
+         nc=15
       endif
-C
-C     becke97 both X and C functional
-C
-      if (abs(xfac(5)).gt.eps)then
+       if(dohcth) then  
          if (.not. do_2nd) then
-            call xc_hcth(tol_rho, xfac(5), lxfac(5), nlxfac(5), rho, 
+            call xc_hcth(tol_rho, xfac(nx), lxfac(nx), nlxfac(nx), 
+     ,           cfac(nc), lcfac(nc), nlxfac(nc), rho, 
      &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
-     &           ldew, func,'b970')
-         else
-            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
-         endif
-      endif
-C
-C     becke97-1 both X and C functional
-C
-      if (abs(xfac(6)).gt.eps)then
-         if (.not. do_2nd) then
-            call xc_hcth(tol_rho, xfac(6), lxfac(6), nlxfac(6), rho, 
-     &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
-     &           ldew, func,'b971')
+     &           ldew, func,whichf)
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
