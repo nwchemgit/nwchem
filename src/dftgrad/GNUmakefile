@@ -3,8 +3,8 @@
          grad_dft.o      quaddexc0.o     \
          get_coul_den.o  grad_e_xc.o \
          setACtrans.o    grad_e_xc_gca.o
-   OBJ_OPTIMIZE = grad_cdfit.o 
-   USES_BLAS = force_dft.F grad_e_xc.F quaddexc0.F grad_cdfit.F
+   OBJ_OPTIMIZE = grad_cdfit.o grad_xc.o
+   USES_BLAS = force_dft.F grad_e_xc.F quaddexc0.F grad_cdfit.F grad_xc.F
 
    LIBRARY = libdftgrad.a
 
