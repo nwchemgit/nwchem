@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.148 2001-08-28 00:54:34 edo Exp $
+# $Id: make_nwchem_config,v 1.149 2001-08-30 01:26:30 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 \
-        property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space \
+        property gapss nwpw fft rimp2_grad nbo python analyz nwmd cafe space \
         drdy vscf uccsdt qmmm qmd mcstep
 
 # These are the libraries for the high-level modules.  They should be
@@ -143,7 +143,7 @@ MODULES := $(patsubst uccsdt,uccsdt ddscf ccsd,$(MODULES) )
 MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
-MODULES := $(patsubst pspw,pspw fft,$(MODULES) )
+MODULES := $(patsubst nwpw,nwpw fft,$(MODULES) )
 
 MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
@@ -203,7 +203,7 @@ MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst pspw,-lpspw,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwpw,-lpspw,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcstep,-lmcstep,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
@@ -215,7 +215,7 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst python,task_python python_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst selci,selci selci_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mp2_grad,mp2_grad mp2_input semi_dir_mp2,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst NWints,int_input task_check_sum sym_bas_op,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst NWints,int_input task_check_sum sym_bas_op intgrl_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input rel_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dftgrad,dft_grad_top dft_energy_gradient sodft_energy_gradient grad_dft,$(STUBROUTINES) )
@@ -249,7 +249,7 @@ STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst pspw,pspw task_pspw pspw_input pspw_energy pspw_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwpw,nwpw task_pspw pspw_input pspw_energy pspw_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
