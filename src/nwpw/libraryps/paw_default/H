@@ -1,0 +1,31 @@
+Comment: 
+Comment: PAW basis set generation file for Hydrogen
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 1.0
+<orbitals>
+1 0  2
+1  0    1.0
+2  1    0.0 1.0
+3  2    0.0 1.0
+<paw_basis>
+2
+1  0 0.9
+2  1 0.9
+3  2 0.9
+<ref_potential_matching_radius> 0.6
+<ref_potential_at_zero> 0
+<compensation_charge_radius> 0.4
+<nodal_constraint> on
+<projector_method> blochl
+
+<scattering_test>
+3
+0  -5.5   0  0.6 300
+1  -5.5   0  0.6 300
+2  -5.5   0  0.6 300
+
+
+

@@ -1,0 +1,37 @@
+Comment: 
+Comment: PAW basis set generation file
+Comment: 
+
+[psp_type] 4
+
+<atom_charge> 6.0
+<orbitals>
+3   0   3
+1  0   2.0
+2  0   2.0
+2  1   2.0
+3  0   0.0  0.0
+3  1   0.0  0.0
+3  2   0.0  0.1
+<grid>
+35.0  3000  0.00003
+<atomic_sphere_radius>
+1.5
+<paw_basis>
+2
+2  0   2.0
+2  1   2.0
+3  2   2.0
+<ref_potential_matching_radius> 1.5
+<ref_potential_at_zero> 0
+<compensation_charge_radius> 1.2
+<nodal_constraint> on
+<projector_method> blochl
+
+<scattering_test>
+3
+0  -5.5   0  1.5 300
+1  -5.5   0  1.5 300
+2  -5.5   0  1.5 300
+
+
