@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.41 2000-05-25 20:39:58 d3j191 Exp $
+c $Id: prp_main.F,v 1.42 2000-05-25 21:01:35 d3j191 Exp $
 c
       implicit none
 c
@@ -259,7 +259,7 @@ c
       p(it)=timer_wall(2)
       endif
 c
-      if(nsm.gt.0) then
+c      if(nsm.gt.0) then
       nprop=0
       do 137 i=1,maxpro
       if(lp(i)) then
@@ -268,7 +268,7 @@ c
       endif
   137 continue
       maxp=it
-      endif
+c      endif
 c
       endif
 c

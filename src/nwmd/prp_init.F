@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,ddi,edi,iprf)
 c
-c $Id: prp_init.F,v 1.25 2000-05-25 20:39:58 d3j191 Exp $
+c $Id: prp_init.F,v 1.26 2000-05-25 21:01:35 d3j191 Exp $
 c
       implicit none
 c
@@ -308,6 +308,8 @@ c
       endif
 c
       if(iprof.eq.1) then
+      if(it+17.gt.maxpro)
+     + call errquit('Increase dimension maxpro',0)
       it=it+1
       pronam(it)='Prof: replicated data interactions               s'
       lp(it)=.true.
@@ -342,22 +344,22 @@ c
       pronam(it)='Prof: local force accumulation                   s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote coordinate retrieval                 s'
+      pronam(it)='Prof: remote coordinate retrieval                s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote force calculation                    s'
+      pronam(it)='Prof: remote force calculation                   s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote force accumulation                   s'
+      pronam(it)='Prof: remote force accumulation                  s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme wait                                    s'
+      pronam(it)='Prof: pme wait                                   s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme forces calculation                      s'
+      pronam(it)='Prof: pme forces calculation                     s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: synchronization                             s'
+      pronam(it)='Prof: synchronization                            s'
       lp(it)=.true.
       endif
 c
