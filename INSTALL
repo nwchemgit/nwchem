@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.25 2000-11-07 23:26:31 windus Exp $
+$Id: INSTALL,v 1.26 2000-11-08 04:53:22 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -106,6 +106,7 @@ environment variables described below to your shell script
     LINUX       IBM PC          ***      Slackware 4.0  double
                 IBM PC          ***      RedHat 5.2/6.0 double
                 PowerPC         ***      RedHat 6.0     double
+    LINUX64     Alpha            *       ReadHat 6.2    double
     -------------------------------------------------------------
    *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
           If you don't have it get it from IBM.  Also, the environment
@@ -132,7 +133,6 @@ environment variables described below to your shell script
                    604e chip       604
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
-                   Alpha           ALPHA 
     LINUX using the Portland Group Compiler, pgf77, is available.  Simply
           set your environment as above and use "make FC=pgf77" and the 
           makefile system will take care of changing options/flags etc.  
