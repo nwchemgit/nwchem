@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.26 1996-05-08 23:49:11 og845 Exp $
+C$Id: dft_scf.F,v 1.27 1996-05-20 22:55:57 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -254,7 +254,7 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
      &         MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
      &         call errquit('dftscf:push_get failed', 12)
           avail = MA_inquire_avail(mt_int)
-          if(avail.lt.n3c_dbl) then
+          if(avail.lt.n3c_int) then
             incore=.false.
             LResult = MA_Pop_Stack(l_3cERI)
           else
@@ -267,8 +267,8 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
           endif
         endif
         if(.not.incore.and.me.eq.0) then
-          write (0,*) ' CANNOT HOLD  INTS in core'
-          write(0,*) ' add ',n3c_dbl-avail,
+          write (LuOut,*) ' CANNOT HOLD  INTS in core'
+          write(LuOut,*) ' add ',n3c_dbl-avail,
      , ' doubles to keep ints in core '
         endif
 
@@ -1249,3 +1249,4 @@ c
  1111 format(15x,'Core Energy:              ',f20.10)
 c     
       end
+
