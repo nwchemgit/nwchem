@@ -1,3 +1,8 @@
+ OBJ = 		ccden_driver.o \
+		ccden_interm2.o \
+		ccden_1pdm.o \
+		geaxpy.o
+
  OBJ_OPTIMIZE = aoccsd2.o \
 		ccsd_itm.o \
 		ccsd_t2pm.o \
@@ -38,7 +43,10 @@
 	      ccsd_pdiis.F \
 	      ccsd_sortmo.F \
 	      ccsd_trpdrv.F \
-	      moints_trp.F
+	      moints_trp.F \
+	      ccden_interm2.F \
+	      ccden_1pdm.F \
+	      geaxpy.f
 
 
 

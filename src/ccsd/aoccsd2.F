@@ -1,7 +1,7 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nbf,nact,maxit,
      &                  convi,iprt,cmo,eorb,blen,g_objv,
      &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb, mxvec)
+     $   CC_Theory, rtdb, mxvec, geom)
       implicit none
 c
       integer basis,ncor,nocc,nvir,ndel,nbf,nact,mxov,maxit,convi,iprt,
@@ -9,7 +9,7 @@ c
       double precision cmo(nbf,nbf),eorb(nbf)
       Double Precision RefEner
       Character*(*) CC_Theory
-      Integer RTDB
+      Integer RTDB, geom
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -48,7 +48,23 @@ c triples
 C
       double precision zip
       integer ii,jj
-
+C
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C     Temporary stuff added to play density matrix games
+C
+      Integer A, I, Ad1, Ad2, J, B, LSab
+      Integer L_Sb, K_Sb, L_Sa, K_Sa
+      Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
+      Integer G_DenT2, G_DenZ2, G_1PDM
+      Logical Do_CCDen
+      Data Do_CCDen /.FALSE./
+      Integer GA_Create_Atom_Blocked
+      External GA_Create_Atom_Blocked
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * data must follow all delcarations 
 
       data oexch,ocoul/.true.,.true./
@@ -197,6 +213,97 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd energy', MT_Dbl, 1,
      $   RefEner+eccsd) ) 
      $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+C
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C     Temporarily a good place to mess around with some density
+C     matrix stuff
+C
+      If (Do_CCDen) then
+C
+C     Start by creating the data structures we need
+C
+         If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens T1',
+     $      H_DenT1, I_DenT1) ) Call ErrQuit(
+     $      'CCDen (prep): unable to allocate T1', NOcc*NVir)
+C
+         If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens Z1',
+     $      H_DenZ1, I_DenZ1) ) Call ErrQuit(
+     $      'CCDen (prep): unable to allocate Z1', NOcc*NVir)
+C
+         If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
+     $      'CCDen T2', NVir, NVir, G_DenT2) ) Call ErrQuit(
+     $      'CCDen (prep): unable to allocate T2', NVir*NOcc*NVir*NOcc)
+C
+         If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
+     $      'CCDen Z2', NVir, NVir, G_DenZ2) ) Call ErrQuit(
+     $      'CCDen (prep): unable to allocate Z2', NVir*NOcc*NVir*NOcc)
+C
+         G_1PDM = GA_Create_Atom_Blocked(Geom, Basis, 'CCDen 1-PDM')
+C
+C        Now rearrange the existing data into our new structures
+C
+C        First, T1 (and for now fill Z1 with T1 too)
+C        (T1 is replicated for density, so all nodes do this)
+C
+         LnObj = lnoov + lnooo
+         Call GA_Get(g_ObjV, LnObj+1, LnObj+Lnov, NVir+1, NVir+1,
+     &      Dbl_MB(I_DenT1), NOcc*NVir)
+         Call GA_Get(g_ObjV, LnObj+1, LnObj+Lnov, NVir+1, NVir+1,
+     &      Dbl_MB(I_DenZ1), NOcc*NVir)
+C
+C        Now T2 (then copy to Z2 for the time being)
+C        (T2 is a GA for density, so have node 0 do it for simplicity)
+C
+         If ( GA_NodeID() .eq. 0) then
+            lsab=max(lnoov,nbf*nbf)
+            If ( .NOT. ma_push_get(MT_DBL,lsab,'sa',l_sa, k_sa) )
+     $         Call ErrQuit('CCDen (prep): can''t allocate sa', lsab)
+            If (.NOT. ma_push_get(MT_DBL,lsab,'sb',l_sb, k_sb) )
+     $         Call ErrQuit('CCDen (prep): can''t allocate sb', lsab)
+            do a=1,nvir
+               call ga_get(g_ObjV,lnobj+1, lnobj+lnoov,a,a,
+     &            dbl_mb(k_sa),lnoov)
+               do i=1,nocc
+                  do j=1,nocc
+                     do b=1,nvir
+                        ad1=k_sa+(b-1)*lnoo+(i-1)*nocc+j-1
+                        ad2=k_sb+(j-1)*nvir+b-1
+                        dbl_mb(ad2)=dbl_mb(ad1)
+                     enddo
+                  enddo
+                  ad1=(i-1)*nvir+a
+                  call ga_put(g_DenT2,1,lnov,ad1,ad1,dbl_mb(k_sb),lnov)
+               enddo
+            enddo
+            If ( .NOT. MA_Pop_Stack(L_Sb)) Call ErrQuit(
+     $         'CCDen (prep): freeing sb', 0)
+            If ( .NOT. MA_Pop_Stack(L_Sa)) Call ErrQuit(
+     $         'CCDen (prep): freeing sa', 0)
+         EndIf
+         Call GA_Sync
+         Call GA_Copy(G_DenT2, G_DenZ2)
+C
+C        Now call the Density driver routine
+C
+         Call CCDen_Driver(NOcc, NVir, Dbl_MB(I_DenT1), NOcc, G_DenT2,
+     $      Dbl_MB(I_DenZ1), NOcc, G_DenZ2, G_1PDM)
+C
+         If ( .NOT. GA_Destroy(G_1PDM) ) Call ErrQuit(
+     $      'CCDen (prep): unable to free 1PDM', 0)
+         If ( .NOT. GA_Destroy(G_DenZ2) ) Call ErrQuit(
+     $      'CCDen (prep): unable to free Z2', 0)
+         If ( .NOT. GA_Destroy(G_DenT2) ) Call ErrQuit(
+     $      'CCDen (prep): unable to free T2', 0)
+         If ( .NOT. MA_Pop_Stack(H_DenZ1) ) Call ErrQuit(
+     $      'CCDen (prep): unable to free Z1', 0)
+         If ( .NOT. MA_Pop_Stack(H_DenT1) ) Call ErrQuit(
+     $      'CCDen (prep): unable to free T1', 0)
+      EndIf
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C
 C     Do we continue to the triples or not?
 C     Note: task_energy expects ccsd:energy as a marker of successful

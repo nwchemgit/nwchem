@@ -426,7 +426,7 @@ c
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, RefEner,
-     $   CC_Theory, RTDB, MaxVec)
+     $   CC_Theory, RTDB, MaxVec, Geom)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)
