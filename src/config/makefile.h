@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.222 1997-03-21 00:50:02 d3e129 Exp $
+# $Id: makefile.h,v 1.223 1997-03-21 23:51:40 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -517,7 +517,7 @@ ifeq ($(TARGET),SGITFP)
   MAKEFLAGS = --no-print-directory
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
-  COPTIONS = -fullwarn -mips4 
+  COPTIONS = -fullwarn -mips4 -64
 
 #optimization flags for R8000 (IP21)
  FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
