@@ -944,4 +944,40 @@ described below (Sections \ref{sec:geom}, \ref{sec:basis} and
 \ref{sec:scf} respectively) but their intent should be clear.  The
 \verb+TASK+ directive is described above (Section \ref{sec:task}).  
 
+\section{{\tt ECCE\_PRINT} --- Print information for Ecce}
+\label{sec:ecce}
+
+The \verb+ECCE_PRINT+ directive allows the user to print out a file,
+usually called ecce.out, that will allow the calculation and its
+results to be imported into \htmladdnormallink{Ecce}
+{http://www.emsl.pnl/gov/pub/docs/ecce}.
+
+\begin{verbatim}
+  ECCE_PRINT <string name>
+\end{verbatim}
+
+The entry for variable \verb+<name>+ is the name of the file
+that will contain the Ecce import information and should include
+the full path to the directory where you want that file.  For example
+
+\begin{verbatim}
+  ecce_print /home/user/job/ecce.out
+\end{verbatim}
+
+If the full path is not given and only the file name is given, the file
+will be located in whatever directory the job is started in.  For example,
+if the line
+
+\begin{verbatim}
+  ecce_print ecce.out
+\end{verbatim}
+
+is in the input file, the file could end up in the scratch directory if
+the user is using a batch script that copies the input file to a local
+scratch directory and then launches NWChem from there.  If the system
+then automatically removes files in the scratch space at the end of the
+job, the ecce.out file will be lost.  So, the best
+practice is to include the full path name for the file.
+
+
 
