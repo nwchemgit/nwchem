@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.15 1997-06-05 17:45:38 gg502 Exp $
+C     $Id: aoccsd2.F,v 2.16 1997-06-24 02:57:58 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -491,14 +491,16 @@ c
       mem_avail = ma_inquire_avail(MT_DBL)
       call ga_sync()
       call ga_igop(msg_cc_mem,mem_avail,1,'min')
-      mem_avail=nodes*mem_avail/2
-      noper=mem_avail/(nbf*nbf)
+*     This will overflow 32 bit integers ... avoid computing total
+*     and in any case the arrays are distrubuted in nbf*nbf chunks.
+*      mem_avail=nodes*mem_avail/2
+      noper=nodes*(mem_avail/(2*nbf*nbf))
       nvpass=min(nvir,noper/nocc)
       nvpass=max(nvpass,1)
       noper=nocc*nvpass
       npass=(nvir+nvpass-1)/nvpass
       if (iam.eq.0)write(*,845)mem_avail,nvir,nvpass,npass
-  845 format(' memory available                     ',i8,/,
+  845 format(' memory available/node                ',i8,/,
      &       ' total number of virtual orbitals     ',i5,/,
      &       ' number of virtuals per integral pass ',i5,/,
      &       ' number of integral evaluations       ',i5,/)
