@@ -1,0 +1,12 @@
+#
+# $Id: MakeFile,v 1.1 2003-02-07 17:25:34 edo Exp $
+#
+
+OBJ_OPTIMIZE = $(OBJDIR)\nwpw_library.obj \
+               $(OBJDIR)\nwpw_libfile.obj
+
+
+LIBRARY = nwpwlib.lib
+LIB_DEFINES =  -DNWPW_LIBRARY="'$(SRCDIR)/nwpw/libraryps/'"
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h
