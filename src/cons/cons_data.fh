@@ -1,5 +1,5 @@
 *
-* $Id: cons_data.fh,v 1.2 2004-03-29 08:04:07 marat Exp $
+* $Id: cons_data.fh,v 1.3 2004-04-01 02:35:49 marat Exp $
 *
 
       integer max_fixed_atoms
@@ -9,18 +9,15 @@
       integer max_harm_angles
       parameter (max_harm_angles=100)
     
-c      integer h_bond,i_bond,n_bond
-c      integer h_angle,i_angle,n_angle
+      logical cons_oprint_default
       integer i_c,h_c
       integer h_ijhb,h_khb,h_rhb
       integer i_ijhb,i_khb,i_rhb
       integer h_fpos,i_fpos
 
-c      common /cons_data/ h_bond,i_bond,n_bond,
-c     &                   h_angle,i_angle,n_angle,
 
-
-      common /cons_data1/h_ijhb,h_khb,h_rhb,
+      common /cons_data/ cons_oprint_default, 
+     &                   h_ijhb,h_khb,h_rhb,
      &                   i_ijhb,i_khb,i_rhb,
      &                   h_fpos,i_fpos,
      &                   h_c,i_c

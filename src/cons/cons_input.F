@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.4 2004-03-30 02:48:09 marat Exp $
+c $Id: cons_input.F,v 1.5 2004-04-01 02:35:49 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -135,8 +135,10 @@ c
 c
 101   continue
 c
-      call cons_info_springs(rtdb)
-      call cons_info_fixed_atoms(rtdb)
+
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_input_springs: unable to free h_tmp_id',
+     &    0, MA_ERR)
         
       return
       end

@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.4 2004-03-30 02:48:09 marat Exp $
+c $Id: cons_utils.F,v 1.5 2004-04-01 02:35:49 marat Exp $
       subroutine cons_add_spring(i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -259,6 +259,70 @@ c
 
       end
 
+      subroutine cons_get_active_atoms(nat,nactive,oactive,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons_data.fh"
+c     
+      integer nat
+      logical oactive(nat)
+      integer nactive
+      integer rtdb
+c
+      logical status
+      integer i
+      integer n
+      integer id
+      integer h_tmp_id,i_tmp_id 
+      
+      character tag_id*(*) 
+      parameter (tag_id = 'cons:fxd_at_id') 
+      character tag_n*(*) 
+      parameter (tag_n = 'cons:fxd_at_n') 
+
+      do i=1,nat
+        oactive(i)=.true. 
+      end do
+      nactive = nat
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) then
+         n = 0
+      end if
+      if (n .eq. 0 ) then
+         return
+      end if
+
+      if ( .not. ma_push_get( MT_INT, n, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_info_fixed_atoms: unable to allocate scratch space',
+     &      n, MA_ERR)
+
+       status = rtdb_get(rtdb,tag_id,
+     >     mt_int,n,int_mb(i_tmp_id)) 
+       if(.not.status) call errquit(
+     >     'cons_info_fixed_atoms: unable to get prior fixed atoms',
+     >      0, MA_ERR)
+       
+       do i=1,n
+         id=int_mb(i_tmp_id +i-1)
+         if(id .gt. nat) goto 1
+         oactive(id)=.false.
+         nactive = nactive - 1
+       end do
+
+1     continue
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_info_fixed_atoms: unable to free h_tmp_id',
+     &    0, MA_ERR)
+
+       write(*,*) "cons_get_active_atoms",nactive,(oactive(i),i=1,nat)
+
+      end
+
       subroutine cons_info_fixed_atoms(rtdb)
       implicit none
 #include "errquit.fh"
@@ -299,7 +363,7 @@ c
      >     'cons_info_fixed_atoms: unable to get prior fixed atoms',
      >      0, MA_ERR)
        
-       write(*,*) "fixed atoms",(int_mb(i_tmp_id +i-1),i=1,n)
+       write(*,*) "fixed atoms          ",(int_mb(i_tmp_id +i-1),i=1,n)
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_info_fixed_atoms: unable to free h_tmp_id',
@@ -318,6 +382,7 @@ c
 c
       integer rtdb
 c     
+      character*10 ifmt,jfmt
       logical status
       integer i
       integer nhb
@@ -359,14 +424,13 @@ c
      >      nhb, MA_ERR)
        end if
 
-      write(*,*) "sppprings"
       do i=1,nhb
-      write(*,*) int_mb(i_tmp_id+2*(i-1)),
+      write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
      >           int_mb(i_tmp_id+2*(i-1)+1),
      >           dbl_mb(i_tmp_k+i-1),
      >           dbl_mb(i_tmp_r+i-1)
       end do
-      
+200   FORMAT(" spring bond (i,j,k,r0)",T29,I6,2X,I6,2X,F6.3,2X,F6.3)
       if (.not. ma_pop_stack(h_tmp_r) ) call errquit(
      &    'cons_info_springs: unable to free h_tmp_r',
      &    0, MA_ERR)
@@ -410,3 +474,29 @@ c     local variables:
       return
       end
 
+      subroutine cons_print_header()
+      implicit none
+#include "util.fh"
+
+      call util_print_centered(6,
+     >     "NWChem Constraints Module",
+     >     36,.true.)
+
+      end
+
+      subroutine cons_print_gen_info(rtdb)
+      implicit none
+#include "util.fh"
+      integer rtdb
+
+      call cons_print_header()
+
+      call util_print_centered(6,
+     >     "General Information",
+     >     1,.true.)
+
+      call cons_info_fixed_atoms(rtdb)
+      call cons_info_springs(rtdb)
+
+      end
+   
