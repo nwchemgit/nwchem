@@ -2,7 +2,7 @@
      &     MXhist,nbf,geom,AO_bas_han,
      &     g_fock,g_dens,g_tmp,g_svecs,g_diis,isvals)
 
-C$Id: diis_driver.F,v 1.4 1996-05-01 23:52:23 og845 Exp $
+C$Id: diis_driver.F,v 1.5 1996-05-04 21:06:26 og845 Exp $
       implicit none
       
       integer ispin
@@ -31,7 +31,7 @@ C$Id: diis_driver.F,v 1.4 1996-05-01 23:52:23 og845 Exp $
 #endif
 c
       logical LResult
-      integer g_tmp2,g_tmp3,me,nproc,iw,lenp
+      integer g_fsm12,g_s12p,me,nproc,iw,lenp
       integer lfwght,ifwght,lrow,irow,lcol,icol
       double precision one,zero
       parameter (one = 1.d0,zero = 0.d0)
@@ -73,33 +73,45 @@ c
 c     Construct a temporary global array.
 c       
       call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp2',g_tmp2,'atom')
+     &     nbf,nbf,'ga temp2',g_fsm12,'atom')
 c
 C     Mat mult Fock * s-1/2
 c
       iw=2
-      call diis_builds12(isvals,g_svecs,g_tmp,g_tmp2,nbf,iw)
+      call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_fsm12,nbf,iw)
       call ga_dgemm('N','N',nbf,nbf,nbf,
-     *     one,g_fock,g_tmp,zero,g_tmp2)
+     *     one,g_fock,g_tmp,zero,g_fsm12)
+      call gacrea(geom,AO_bas_han,
+     &     nbf,nbf,'ga temp3',g_s12p,'atom')
+      iw=3
+      call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_s12p,nbf,iw)
+#if defined(DFT_TIMER)
+      call dft_second(tp2)
+      subsect(1)='  s12   '
+      call tcllct(t_sub(1,1),tp2,tp1)
+      call dft_second(tp1)
+#endif
 c
 C     Mat mult S+1/2*P (transp)
 c
-      call gacrea(geom,AO_bas_han,
-     &     nbf,nbf,'ga temp3',g_tmp3,'atom')
-      iw=3
-      call diis_builds12(isvals,g_svecs,g_tmp,g_tmp3,nbf,iw)
       call ga_dgemm('N','T',nbf,nbf,nbf,
-     *     one,g_tmp,g_dens,zero,g_tmp3)
+     *     one,g_tmp,g_dens,zero,g_s12p)
 c
 C     Mat mult (S+*P(transp))(transp)*(F*S-)
 c
       call ga_dgemm('N','N',nbf,nbf,nbf,
-     *     one,g_tmp3,g_tmp2,zero,g_tmp)
+     *     one,g_s12p,g_fsm12,zero,g_tmp)
+#if defined(DFT_TIMER)
+      call dft_second(tp2)
+      subsect(2)='  mxm   '
+      call tcllct(t_sub(1,2),tp2,tp1)
+      call dft_second(tp1)
+#endif
 c
 c     Destroy temp globals.
 c
-      call gadest(g_tmp2)
-      call gadest(g_tmp3)
+      call gadest(g_s12p)
+      call gadest(g_fsm12)
 
       LResult = MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow)
       LResult = MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol)
@@ -111,12 +123,6 @@ c
 
       call ga_sync
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(1)='  errvec   '
-      call tcllct(t_sub(1,1),tp2,tp1)
-      call dft_second(tp1)
-#endif
 c
 c     Compute Pulays B matrix.
 c
@@ -125,12 +131,6 @@ c
      &     g_diis,g_tmp)
       lenp = (mxhist+1)*(mxhist+2)/2
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(2)='  diis   '
-      call tcllct(t_sub(1,2),tp2,tp1)
-      call dft_second(tp1)
-#endif
 c
 c     Solve DIIS equation for Hamiltonian weights.
 c

@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.7 1996-05-01 23:52:19 og845 Exp $
+C$Id: dft_main0d.F,v 1.8 1996-05-04 21:06:25 og845 Exp $
       implicit none
       integer rtdb  ! rtdb handle [input]
       integer nconst
@@ -320,8 +320,8 @@ c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       iw=2
       g_tmp=g_s
-      call diis_builds12(
-     &     isvals,g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
+      call diis_bld12(
+     &     dbl_mb(isvals),g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
 
       if (ipol.gt.1) call ga_copy(g_evecs(1),g_evecs(2))
       if(icvgtyp.ne.2) call gadest(g_svecs)

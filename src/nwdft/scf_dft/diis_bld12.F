@@ -1,5 +1,5 @@
-      subroutine diis_builds12(
-     *     isvals,iga_svecs,iga_sout,iga_stmp,nbf,iwhich)
+      subroutine diis_bld12(
+     *     svals,iga_svecs,iga_sout,iga_stmp,nbf,iwhich)
 c***********************************************************************
 c     sbuild:  Build S, S**(-1/2) or S**(+1/2) from S eigenvalues and
 c     S eigenvectors.
@@ -7,9 +7,9 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.4 1996-05-01 23:52:22 og845 Exp $
+C$Id: diis_bld12.F,v 1.5 1996-05-04 21:06:25 og845 Exp $
       implicit none
-      integer isvals    ! MA dbl handle for S evals [input]
+      double precision svals(*) !  S evals [input]
       integer iga_svecs ! GA handle for S evecs [input]
       integer iga_sout  ! GA handle for S^(n) [ouput]
       integer iga_stmp  ! GA handle for scratch [input]
@@ -38,33 +38,30 @@ c
 c     
 c       Build S**(-1/2).
 c     
+        call ga_zero(iga_stmp)
         do i=me+1,nbf,nproc
-          aaz = Dbl_MB(isvals+i-1)
-          if (aaz.lt.toll)  then
-C            write(LuOut,*) ' singular eigenvalue in S matrix ',aaz
-            aaz=0.d0
-          else
+          aaz = svals(i)
+          if (aaz.ge.toll)  then
             aaz=1.d0/sqrt(aaz)
+            call get_col(iga_svecs,nbf,i,DBL_MB(itmpm))
+            call dscal(nbf,aaz,DBL_MB(itmpm),1)
+            call put_col(iga_stmp,nbf,i,DBL_MB(itmpm))
           endif
-          call get_col(iga_svecs,nbf,i,DBL_MB(itmpm))
-          call dscal(nbf,aaz,DBL_MB(itmpm),1)
-          call put_col(iga_stmp,nbf,i,DBL_MB(itmpm))
         enddo
 
       elseif(iwhich.eq.3)then
 c     
 c     Build S**(1/2).
 c     
+        call ga_zero(iga_stmp)
         do i=me+1,nbf,nproc
-          aaz = Dbl_MB(isvals+i-1)
-          if (aaz.lt.toll)  then
-            aaz=0.d0
-          else
+          aaz = svals(i)
+          if (aaz.ge.toll)  then
             aaz=dsqrt(aaz)
+            call get_col(iga_svecs,nbf,i,DBL_MB(itmpm))
+            call dscal(nbf,aaz,DBL_MB(itmpm),1)
+            call put_col(iga_stmp,nbf,i,DBL_MB(itmpm))
           endif
-          call get_col(iga_svecs,nbf,i,DBL_MB(itmpm))
-          call dscal(nbf,aaz,DBL_MB(itmpm),1)
-          call put_col(iga_stmp,nbf,i,DBL_MB(itmpm))
         enddo
 
       endif
