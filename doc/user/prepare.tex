@@ -369,8 +369,8 @@ commands are not stored on the run-time database and are, therefor,
 not persistent.
 
 \begin{verbatim}
-modify atom <string atomname> [set <integer mset> | initial | final] \\
-	( type <string atomtyp> |  charge <real atomcharge> |  \\
+modify atom <string atomname> [set <integer mset> | initial | final] \
+	( type <string atomtyp> |  charge <real atomcharge> |  \
 	  polar <real atompolar> | dummy | self | quantum )
 \end{verbatim}
 
@@ -394,7 +394,7 @@ With the following directives modifications can be made for entire
 segments.
 
 \begin{verbatim}
-modify segment <integer isgm> [set <integer mset> | initial | final] \\
+modify segment <integer isgm> [set <integer mset> | initial | final] \
 	( dummy | self | quantum )
 \end{verbatim}
 
@@ -402,12 +402,12 @@ Modifications to bonded interaction parameters can be made with the
 following modify commands.
 
 \begin{verbatim}
-modify ( bond <string atomtyp> <string atomtyp> |  \\
-	 angle <string atomtyp> <string atomtyp> <string atomtyp> |        \\ 
- 	 torsion <string atomtyp> <string atomtyp> <string atomtyp>        \\
-		 <string atomtyp> [ multiplicity <integer multip> ] |      \\
-	 plane <string atomtyp> <string atomtyp> <string atomtyp>          \\
-		 <string atomtyp> ) [set <integer mset> | initial | final] \\
+modify ( bond <string atomtyp> <string atomtyp> |  \
+	 angle <string atomtyp> <string atomtyp> <string atomtyp> |        \ 
+ 	 torsion <string atomtyp> <string atomtyp> <string atomtyp>        \
+		 <string atomtyp> [ multiplicity <integer multip> ] |      \
+	 plane <string atomtyp> <string atomtyp> <string atomtyp>          \
+		 <string atomtyp> ) [set <integer mset> | initial | final] \
 	 <real value> <real forcon>
 \end{verbatim}
 
@@ -437,7 +437,7 @@ ignore
 \section{Appending to an existing topology file}
 
 \begin{verbatim}
-noe <integer isgm1> <string atom1> <integer isgm2> <string atom3> \\
+noe <integer isgm1> <string atom1> <integer isgm2> <string atom3> \
   <real dist1> <real dist2> <real forc1> <real forc2> <real forc3>
 \end{verbatim}
 
@@ -452,11 +452,11 @@ definition of potential of mean force potentials.
 
 \begin{verbatim}
 pmf ( align | planar ) <integer isel> <real forcon1> <real forcon2>
-pmf distance <integer isel> <integer jsel> \\
+pmf distance <integer isel> <integer jsel> \
              <real dist1> <real dist2> <real forcon1> <real forcon2>
-pmf angle <integer isel> <integer jsel> <integer ksel> \\
+pmf angle <integer isel> <integer jsel> <integer ksel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
-pmf torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \\
+pmf torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
 \end{verbatim}
 
@@ -477,7 +477,7 @@ files, and are executed in the order in which they
 appear in the \prepare\ input deck.
 
 \begin{verbatim}
-solvent name <string*3 slvnam default ``HOH''> \\
+solvent name <string*3 slvnam default ``HOH''> \
         model <string slvmdl default ``spce''>
 \end{verbatim}
 
@@ -486,8 +486,9 @@ as expected on the PDB formatted file, and the name of the solvent model
 for which solvent coordinates will be used.
 
 \begin{verbatim}
-solvate ( [ cube <real edge> ] |  \\
-          [ box <real xedge> [ <real xedge> [ <real xedge> ]]] | \\
+solvate   [ < real rshell default 1.2 > ] \
+        ( [ cube <real edge> ] |  \
+          [ box <real xedge> [ <real xedge> [ <real xedge> ]]] | \
           [ sphere <real radius> ] |
           [ troct <real edge> ])
 \end{verbatim}
@@ -499,8 +500,9 @@ set periodic boundary conditions. Solvation in a sphere will only allow
 simulations without periodic boundary conditions. The size of the cubic
 and rectangular boxes will be expanded by a length specified by the
 expand variable. If no shape is specified, solvation will be done for
-a cubic box with an edge that leaves 1.0 nm between any solute atom and
-the wall after the solute has been centered. An explicit \verb+write+
+a cubic box with an edge that leaves rshell nm between any solute atom and
+a periodic image of any solute atom after the solute has been centered. 
+An explicit \verb+write+
 is not needed to write the restart file. The \verb+solvate+ will
 write out a file \verb+sys_calc+.rst.
 
