@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.32 1997-05-25 19:11:53 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.33 1997-06-24 23:28:47 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -126,7 +126,11 @@ c
 *     $     call errquit('mp2_grad:could not get availkb',1)
       iavail_file = util_scratch_dir_avail_for_me()
       avail_file=iavail_file*128.0d0
+c
+      call intd_init(rtdb,1,basis) ! int_init allocates some memory
       avail_ma = MA_inquire_avail(mt_dbl)
+      call int_terminate()
+c
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $     avail_ma = avail_ma - ga_memory_avail()
       if(ga_memory_limited())then

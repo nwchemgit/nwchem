@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.18 1997-05-09 18:37:09 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.19 1997-06-24 23:28:44 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -670,7 +670,7 @@ c
       integer udim, vdim, xdim, ydim, xlo, ylo
       double precision energy, g
       double precision scale, p
-      integer l_g, k_g, l_scr, k_scr
+      integer l_g, k_g
       integer duvxy, uvxy, vuoff, xvuoff, yvuoff
 c     
       double precision psum, q4
@@ -687,22 +687,21 @@ c
 c     
       call int_init(rtdb,1,basis)
       call int_mem_2e4c(leng, lenscr)
+      call int_terminate()
       call intd_init(rtdb,1,basis)
       call int_mem ( idum, lengd, idum2, lenscrd )
       lenscr = max(lenscr, leng)
-      lenscrd = max(lenscrd, lengd)
+      lenscrd = max(lenscrd, lengd, lenscr)
       status = bas_geom ( basis, geom )
       status = geom_ncent ( geom, nat )
 c
-      if (.not. ma_push_get(mt_dbl, lenscr, 'mp2:test1', l_scr, k_scr))
-     $     call errquit('mp2:test ma-1 ', lenscr)
       if (.not. ma_push_get(mt_dbl, leng, 'mp2:test2', l_g, k_g))
      $     call errquit('mp2:test ma-2', leng)
       if (.not. ma_push_get(mt_dbl, lenscrd, 'mp2:test3',l_scrd,k_scrd))
      $     call errquit('mp2:test ma-3', lenscrd)
       if (.not. ma_push_get(mt_dbl, lengd, 'mp2:test4', l_gd, k_gd))
      $     call errquit('mp2:test ma-4', lengd)
-c     
+c
       if (odebug) then
          write(6,*) ' Transposed occupied MOS in segment '
          call output(c_t, 1, ninseg, 1, nbf, ninseg, nbf, 1)
@@ -754,7 +753,7 @@ c
                   if (odebug) then
 c     first the energy just to validate the 2pdm
                      call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
-     $                    lenscr, dbl_mb(k_scr), leng, dbl_mb(k_g))
+     $                    lenscr, dbl_mb(k_scrd), leng, dbl_mb(k_g))
                   end if
 
 c     reuse the energy integral buffer for the 2PDM
@@ -830,8 +829,6 @@ c
       if (.not. ma_pop_stack(l_scrd))
      $     call errquit('mp2:test: ma pop failed', 0)
       if (.not. ma_pop_stack(l_g))
-     $     call errquit('mp2:test: ma pop failed', 0)
-      if (.not. ma_pop_stack(l_scr))
      $     call errquit('mp2:test: ma pop failed', 0)
 c
       call int_terminate()

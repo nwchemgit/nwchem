@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
 *
-* $Id: mp2_memory.F,v 1.12 1997-04-26 21:57:55 d3g681 Exp $
+* $Id: mp2_memory.F,v 1.13 1997-06-24 23:28:47 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -67,10 +67,9 @@ c
       if(task.eq.'energy')then
          max_ma=max_ma+2*nbf*nbf+max(noa*nva,nob*nvb)
       else
-         call int_init(rtdb,1,basis)
          call intd_init(rtdb,1,basis)
          call int_mem ( idum, lengd, idum2, lenscrd )
-         lenscrd = max(lenscrd,lengd)
+         lenscrd = max(lenscrd,lengd,lenscr)
          call int_terminate
 c
          max_ma=max_ma+max(
@@ -79,7 +78,7 @@ c
      $        (nshpair*2+nshpairlocal*2)/ma_sizeof(mt_dbl,1,mt_int)
      $        +nbf*nbf+2*max(nbf*nbf,nbf*shmax*shmax)
      $        +shmax*shmax*batch_size*nbf+shmax*shmax*nbf
-     $        +batch_size*nbf+lenscr+lenscrd+leng+lengd)
+     $        +batch_size*nbf+lenscrd+leng+lengd)
       endif
 c     
       max_ga = max_ga * 1.1d0    ! 10% for safety
