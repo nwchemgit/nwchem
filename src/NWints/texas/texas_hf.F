@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.7 1996-01-05 18:11:22 pg481 Exp $
+c $Id: texas_hf.F,v 1.8 1996-01-12 07:25:16 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -116,6 +116,7 @@ c
          go to 1000
       endif
 c----------------------------------------------------------------
+c     if(ncall_pnl+1.ge.2) stop 'test-stop'
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
 c----------------------------------------------------------------
@@ -146,7 +147,7 @@ c
       call txs_second(tim_2setup)
       time_setup=time_setup + (tim_2setup-tim_1setup)
 c----------------------------------------------------------------
-c if this pnl-request is too big (too many integrls at once) 
+c if this pnl-request is too big (too many integrals at once) 
 c
 c-->  if( isplit.gt.0 ) then
           write(8,*)'pnl-request no=',ncall_pnl,' size=,',nquart,
@@ -162,6 +163,7 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
 c calculate two-electron integrals :
 c
+c----------------------------------------------------------------
       if(.not.labels) then
          ispec=1
          integ_n0=0
@@ -376,6 +378,12 @@ c
 c       1 call to getmem
       endif
 c--------------------------------------------------------
+c find unique pairs in PNL request :
+c
+c     call uniq_pairs(bl,nbl2,bl(npard),
+c    *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
+c    *     bl(isblsize),bl(isblqrts) )
+c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
       call getmem(nsupblk+2,isbl_split)
@@ -530,12 +538,12 @@ c
       isbl_q(iquart)=iq
   50  continue
 c---------------------------------------------------------
-c For performacd estimation 
+c For performace estimation 
 c(how many times a given s-bl was called)
 c
-      do 60 isbl=1,nbl2*(nbl2+1)/2 
+      do 90 isbl=1,nbl2*(nbl2+1)/2 
       if(isbl_s(isbl).gt.0) isbl_c(isbl)=isbl_c(isbl)+1
-   60 continue
+   90 continue
 c---------------------------------------------------------
 c
       end
@@ -744,7 +752,7 @@ c--------------------------------------------------------
 c-----------------------------------
 c
          isplit=0
-         intrgrals=0
+         integrals=0
          ipoint=0
 ctest
 cccc      RETURN
