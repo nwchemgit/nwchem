@@ -12,7 +12,7 @@ c
      &                       qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpw91.F,v 1.7 2001-02-28 22:19:18 edo Exp $
+c$Id: xc_xpw91.F,v 1.8 2002-10-01 00:01:22 edo Exp $
 c
       implicit none
 c
@@ -117,27 +117,21 @@ c
             as = arcsinh(P77956*s)
             d1as = P77956*darcsinh(P77956*s)
 #ifdef SECOND_DERIV
-            d2as = P77956*P77956*d2arcsinh(P77956*s)
 #endif
             t = 1d0 + P19645*s*as
             d1t = P19645*(as+s*d1as)
-#ifdef SECOND_DERIV
-            d2t = P19645*(2d0*d1as+s*d2as)
-#endif
             expfac = -P1508*dexp(-P100*s2)
             d1expfac = expfac*(-2d0*P100*s)
-#ifdef SECOND_DERIV
-            d2expfac = expfac*(-2d0*P100+(2d0*P100*s)**2)
-#endif
             Fn = t + (P2743+expfac)*s2
             d1Fn = d1t + (P2743+expfac)*(2d0*s) + d1expfac*s2
-#ifdef SECOND_DERIV
-            d2Fn = d2t + (P2743+expfac)*2d0 + d1expfac*(4d0*s)
-     &                 + d2expfac*s2
-#endif
             Fd = t + P004*s2*s2
             d1Fd = d1t + 4d0*P004*s2*s
 #ifdef SECOND_DERIV
+            d2as = P77956*P77956*d2arcsinh(P77956*s)
+            d2t = P19645*(2d0*d1as+s*d2as)
+            d2expfac = expfac*(-2d0*P100+(2d0*P100*s)**2)
+            d2Fn = d2t + (P2743+expfac)*2d0 + d1expfac*(4d0*s)
+     &                 + d2expfac*s2
             d2Fd = d2t + 12d0*P004*s2
 #endif
             F = Fn/Fd
@@ -210,28 +204,20 @@ c
             s2 = s*s
             as = arcsinh(P77956*s)
             d1as = P77956*darcsinh(P77956*s)
-#ifdef SECOND_DERIV
-            d2as = P77956*P77956*d2arcsinh(P77956*s)
-#endif
             t = 1d0 + P19645*s*as
             d1t = P19645*(as+s*d1as)
-#ifdef SECOND_DERIV
-            d2t = P19645*(2d0*d1as+s*d2as)
-#endif
             expfac = -P1508*dexp(-P100*s2)
             d1expfac = expfac*(-2d0*P100*s)
-#ifdef SECOND_DERIV
-            d2expfac = expfac*(-2d0*P100+(2d0*P100*s)**2)
-#endif
             Fn = t + (P2743+expfac)*s2
             d1Fn = d1t + (P2743+expfac)*(2d0*s) + d1expfac*s2
-#ifdef SECOND_DERIV
-            d2Fn = d2t + (P2743+expfac)*2d0 + d1expfac*(4d0*s)
-     &                 + d2expfac*s2
-#endif
             Fd = t + P004*s2*s2
             d1Fd = d1t + 4d0*P004*s2*s
 #ifdef SECOND_DERIV
+            d2as = P77956*P77956*d2arcsinh(P77956*s)
+            d2t = P19645*(2d0*d1as+s*d2as)
+            d2expfac = expfac*(-2d0*P100+(2d0*P100*s)**2)
+            d2Fn = d2t + (P2743+expfac)*2d0 + d1expfac*(4d0*s)
+     &                 + d2expfac*s2
             d2Fd = d2t + 12d0*P004*s2
 #endif
             F = Fn/Fd

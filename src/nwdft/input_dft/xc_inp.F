@@ -39,7 +39,7 @@ c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
 cedo      parameter (num_dirs = 42,numfunc=30)
-      parameter (num_dirs = 40,numfunc=30)
+      parameter (num_dirs = 41,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -61,8 +61,8 @@ c
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
-     ,     'optx','optc','becke97-2'/
-cedo     ,     'optx','optc','becke97-2','lb94','casidaac'/
+     ,     'optx','optc','becke97-2','mpw91'/
+cedo     ,     'optx','optc','becke97-2','lb94','mpw91'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -91,7 +91,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
-     , 3000, 3100,3200,3300,3400,3500,3600,3700,
+     , 3000, 3100,3200,3300,3400,3500,3700,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -897,18 +897,36 @@ c
       goto 10
 c     
 c     
-c     Casida AC correction using LB94,
-c     using SVWN5 as LDA bit
+c     X mpw91
+c     by Adamo & Barone
 c             
- 3700 xccomb(16) = .true.
-        xfac(19) = 1.d0
-       lxfac(19) = .false.
-      nlxfac(19) = .true.
-      if (.not. inp_f(delta_ac)) then
-         call errquit(' xc_inp: delta_ac not  found',0)
-      endif            
-      if (.not. rtdb_put(rtdb, 'dft:delta_ac', mt_dbl, 1, delta_ac))
-     &      call errquit('xc_inp: rtdb_put failed', 1000)
+ 3700  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' mpw91 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(19) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(19) = .true.
+            nlxfac(19) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(19) = .true.
+         nlxfac(19) = .true.
+      endif
+      if (.not. inp_f(xfac(19))) then
+         xfac(19) = 1.0d0
+      endif
+       goto 10
 c
       goto 10
 c     

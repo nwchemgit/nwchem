@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.100 2002-08-16 00:31:31 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.101 2002-10-01 00:01:19 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -536,6 +536,7 @@ c
       xname(15)='           HCTHP1/4  Exchange Functional'
       xname(16)='            OPTX     Exchange Functional'
       xname(17)='       Becke 1997-2  Exchange Functional'
+      xname(19)='              mPW91  Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c

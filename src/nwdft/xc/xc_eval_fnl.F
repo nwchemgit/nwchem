@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.33 2002-08-16 00:31:35 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.34 2002-10-01 00:01:22 edo Exp $
 c
       implicit none
 c
@@ -340,13 +340,11 @@ c
       endif
       if (abs(xfac(19)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_casidaac(delta_ac,
-     .           tol_rho, 1d0, .true., .true.,
+            call xc_xmpw91(tol_rho,xfac(19),lxfac(19),nlxfac(19), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func,.false.,0d0,0)
+     &           Ex, qwght,ldew,func)
          else
-            call xc_casidaac_d2(delta_ac,
-     .           tol_rho,1d0,.true.,.true., 
+            call xc_xmpw91_d2(tol_rho,xfac(19),lxfac(19),nlxfac(19), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif
