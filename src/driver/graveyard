@@ -3529,3 +3529,34 @@ c
          dbl_mb(ind(i,i)) = 0d0
       enddo
 c     
+
+
+
+
+*
+*     h-bond in water
+*
+            if (((iza.eq.1 .and. izb.eq.8) .or.
+     $           (iza.eq.8 .and. izb.eq.1)) .and.
+     $           (rab .gt. 1.5)) then 
+               write(6,*) ' HBOND ', iz1, iz2, rab
+               hess2 = hess2 / 3d0
+            endif
+*
+*     h-oh angle (hbond) in water
+*
+            if ((izb*izc.eq.1 .and. iza.eq.8) .and.
+     $           (rab.gt.1.5 .and. rac.lt.1.1) .or.
+     $           (rac.gt.1.5 .and. rab.lt.1.1) )then
+               write(6,*) ' HBOND HOH angle', izb, iza, izc, rab, rac
+               hess2 = hess2 / 10d0
+            endif
+*
+*     o-ho angle (hbond) in water
+*
+            if ((izb.eq.8 .and. izc.eq.8 .and. iza.eq.1) .and.
+     $           (rab.gt.1.5 .and. rac.lt.1.1) .or.
+     $           (rac.gt.1.5 .and. rab.lt.1.1) )then
+               write(6,*) ' HBOND OHO angle', izb, iza, izc, rab, rac
+               hess2 = hess2 / 10d0
+            endif

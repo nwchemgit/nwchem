@@ -399,14 +399,18 @@ c     Used to use c here ... now use p
 c
       call geom_hnd_get_data('p',dbl_mb(k_c), nvar*nvar)
 c
-*      write(6,*) ' Initial Hessian before P'
-*      call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      if (odebug) then
+         write(6,*) ' Initial Hessian before P'
+         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      endif
       call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
      $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
       call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
      $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
-*      write(6,*) ' Initial Hessian after P'
-*      call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      if (odebug) then
+         write(6,*) ' Initial Hessian after P'
+         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      endif
 c
       if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
      $     hscale = 1d0
@@ -609,7 +613,7 @@ C
             CAC = RCOV(IZA) + RCOV(IZC)
             HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
      1           * EXP(-0.44*(RAB + RAC - CAB - CAC))
-C     
+c
 *
 *     rjh ... trial scaling based on observation that the
 *     diagonal seems too large for both angles and torsions
@@ -1055,7 +1059,7 @@ c
             if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
      $           call errquit('hnd_optx: varinfo?',0)
             write(6,*)
-            write(6,*) '  names of Z-matrix variables '
+            write(6,*) 'Names of Z-matrix variables '
             do i = 1, nzvar, 5
                write(6,5432) (j,zvarname(j),j=i,min(nzvar,i+4))
  5432          format(1x,5(i4,1x,a8,2x))
@@ -2456,6 +2460,10 @@ c
             tmp1 = abs(pg(idamax(nvar,pg,1))) / 5d0  ! was 10d0
             do i = 1, nvar
                saddir(i) = 0d0
+*
+*     Tried scaling gradient by 0.1 but it breaks things!!!
+*     A big step seems to be good.
+*
                if (abs(pg(i)) .gt. tmp1) saddir(i) = pg(i)
             enddo
             call dcopy(nvar, saddir, 1, ds, 1)
