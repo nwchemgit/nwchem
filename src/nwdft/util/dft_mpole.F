@@ -20,7 +20,7 @@ c
 c
       integer geom
       integer len_moments, lmax
-      parameter (lmax = 3)
+      parameter (lmax = 2)
       parameter (len_moments = (lmax+1)*(lmax+2)*(lmax+3)/6)
       double precision totalmoments(len_moments) 
       double precision alphamoments (len_moments)
