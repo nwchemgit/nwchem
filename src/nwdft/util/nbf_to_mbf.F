@@ -1,10 +1,10 @@
       Subroutine nbf_to_mbf(  geom_hand, basis_hand,
-     &     rq0,mbf,mcenters,
+     &     rq0,mbf,mcenters,iniz,ifin,
      &     zprim, nzprim)
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-
+      parameter(acc_gauss=15.)
       integer basis_hand, geom_hand
 
       Logical LResult
@@ -16,16 +16,20 @@ c--   > Distance Squared between Sampling Points and Centers
 
       Dimension rq0(mcenters)
 
+      Dimension iniz(mcenters),ifin(mcenters)
+
       Dimension zprim(nzprim)
 
       if( .not. bas_numcont(basis_hand,ncontrset) )
-     &          call errquit('Exiting in int_eval_gbsets.',5)
+     &          call errquit('Exiting in nbf_to_mbf.',1)
+      call ifill(mcenters,0,iniz,1)
+      call ifill(mcenters,0,ifin,1)
 
         n1 = 0
-        n2 = 0
         do 400 icset = 1,ncontrset
 
-          LResult = bas_cn2ce( basis_hand, icset, ictr )
+          if(.not.bas_cn2ce( basis_hand, icset, ictr))
+     &         call errquit('Exiting in int_eval_gbsets.',2)
 c         
 c         get info about current contraction set
 c         
@@ -69,14 +73,12 @@ c         Determine the minimum Gaussian exponent.
 c         Only include those basis functions that are "non-zero" for at least one 
 c         point in the sampling set.
 
-          if( zmin*rq0(ictr).gt.2.D+01 )then
+          if( zmin*rq0(ictr).gt.acc_gauss )then
 
-            n2 = n2 + nshbf
             go to 400
 
           else
-
-            n2 = n2 + nshbf
+            if(iniz(ictr).eq.0) iniz(ictr)=n1+1
 
           end if
 
@@ -105,6 +107,8 @@ c           =============>  General Case  <=============
             n1 = n1 + ncontr*nang
 
           end if
+
+          ifin(ictr)= n1
 
   400   continue
 
