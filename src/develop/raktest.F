@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.44 1996-01-22 21:51:06 d3e129 Exp $
+c $Id: raktest.F,v 1.45 1996-01-23 21:57:39 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -4917,15 +4917,19 @@ c
       integer mx1e, mxg, mxs1, mxs2, membuf, memscr
       integer h_buf, k_buf, h_scr, k_scr
       integer h_s_seg, k_s_seg, h_s_ns, k_s_ns
+      integer h_diff, k_diff
       integer nbf_seg, ncont_seg, nbf_ns, ncont_ns
       integer icount, niter
       double precision norm, tov_seg, tov_ns
+      double precision thresh_norm
       logical status
       logical FF, FT
       parameter (FF=.false.,FT=.true.)
 c
       logical int_normalize
       external int_normalize
+c
+      thresh_norm = 1.0d-06
 c
       write(luout,*)' ============================================ '
       write(luout,*)' ================            ================ '
@@ -5022,17 +5026,28 @@ c
       if(.not.ma_push_get(mt_dbl,(nbf_ns*nbf_ns),'overlap noseg',
      &      h_s_ns,k_s_ns))
      &      call errquit('raktest_gc: ma failed 4',911)
+      if(.not.ma_push_get(mt_dbl,(nbf_ns*nbf_ns),'difference matrix',
+     &      h_diff,k_diff))
+     &      call errquit('raktest_gc: ma failed 4',911)
+
 c
 c set niter number of iterations
 c
-      niter = 10
+      niter = 20
       write(6,'(/,a,i5)')
      &    'number of instances computed for each seg/noseg set:',niter
 c
 c zero ma segments
+
+      write(6,*)' dfill k_diff',k_diff
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
+      write(6,*)' dfill k_ns',k_s_ns
       call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
+      write(6,*)' dfill k_seg',k_s_seg
       call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
+      write(6,*)' dfill k_scr',k_scr
       call dfill(memscr,           0.0d00,dbl_mb(k_scr))
+      write(6,*)' dfill k_buf',k_buf
       call dfill(membuf,           0.0d00,dbl_mb(k_buf))
 c
 c overlap check
@@ -5056,9 +5071,17 @@ c overlap check
       enddo
       tov_ns = util_cpusec() - tov_ns
 c
+      call dcopy((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_diff),1)
       call daxpy((nbf_seg*nbf_seg),(-1.0d00),
-     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
-      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_diff),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_diff),1,dbl_mb(k_diff),1)
+      if (norm.gt.thresh_norm)
+     &    call print_diff_gc(nbf_ns,
+     &    dbl_mb(k_diff),
+     &    dbl_mb(k_s_seg),
+     &    dbl_mb(k_s_ns),
+     &    thresh_norm,
+     &    'overlap')
       write(luout,*)' '
       write(luout,*)' time for segmented overlap         :',tov_seg
       write(luout,*)' time for non-segmented overlap     :',tov_ns
@@ -5069,6 +5092,7 @@ c
       write(luout,*)' '
 c
 c zero ma segments
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
       call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
       call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
       call dfill(memscr,           0.0d00,dbl_mb(k_scr))
@@ -5094,9 +5118,17 @@ c kinetic energy check
       enddo
       tov_ns = util_cpusec() - tov_ns
 c
+      call dcopy((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_diff),1)
       call daxpy((nbf_seg*nbf_seg),(-1.0d00),
-     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
-      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_diff),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_diff),1,dbl_mb(k_diff),1)
+      if (norm.gt.thresh_norm)
+     &    call print_diff_gc(nbf_ns,
+     &    dbl_mb(k_diff),
+     &    dbl_mb(k_s_seg),
+     &    dbl_mb(k_s_ns),
+     &    thresh_norm,
+     &    'kinetic')
       write(luout,*)' '
       write(luout,*)' time for segmented kinetic         :',tov_seg
       write(luout,*)' time for non-segmented kinetic     :',tov_ns
@@ -5107,6 +5139,7 @@ c
       write(luout,*)' '
 c
 c zero ma segments
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
       call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
       call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
       call dfill(memscr,           0.0d00,dbl_mb(k_scr))
@@ -5132,9 +5165,17 @@ c potential check
       enddo
       tov_ns = util_cpusec() - tov_ns
 c
+      call dcopy((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_diff),1)
       call daxpy((nbf_seg*nbf_seg),(-1.0d00),
-     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
-      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_diff),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_diff),1,dbl_mb(k_diff),1)
+      if (norm.gt.thresh_norm)
+     &    call print_diff_gc(nbf_ns,
+     &    dbl_mb(k_diff),
+     &    dbl_mb(k_s_seg),
+     &    dbl_mb(k_s_ns),
+     &    thresh_norm,
+     &    'potential')
       write(luout,*)' '
       write(luout,*)' time for segmented potential         :',tov_seg
       write(luout,*)' time for non-segmented potential     :',tov_ns
@@ -5144,11 +5185,21 @@ c
       write(luout,*)'raktest_gc: potential difference norm :',norm
       write(luout,*)' '
 c
-      status =              ma_pop_stack(h_s_ns)
+      status =              ma_pop_stack(h_diff)
+      status = status .and. ma_pop_stack(h_s_ns)
       status = status .and. ma_pop_stack(h_s_seg)
       status = status .and. ma_pop_stack(h_scr)
       status = status .and. ma_pop_stack(h_buf)
       if (.not.status) call errquit('raktest_gc: pop error',911)
+c
+      if (.not.bas_destroy(basisseg)) call errquit
+     &    ('raktest_gc: bas_destroy failed ?',911)
+      if (.not.bas_destroy(basisns)) call errquit
+     &    ('raktest_gc: bas_destroy failed ?',911)
+      if (.not.geom_destroy(geom)) call errquit
+     &    ('raktest_gc: geom_destroy failed ?',911)
+c
+      call int_terminate()
 c
       end
       subroutine raktest_bs_gc(basis,nscr,scr,nbuf,buf,nbf,ncont,S,
@@ -5184,6 +5235,7 @@ c      check validity
         write(luout,*)' OV =',OV
         write(luout,*)' KE =',KE
         write(luout,*)' PE =',PE
+        stop 'error'
       endif
 c
       do ish = 1,ncont
@@ -5218,20 +5270,43 @@ c
               val = buf(nint)
               s(ibf,jbf) = val
               s(jbf,ibf) = val
-*              if (abs(val).gt.1.0d-07) then
-*                icount = icount + 1
+              if (abs(val).gt.1.0d-07) then
+                icount = icount + 1
 *                write(69,10000)ibf,jbf,val,msg,' ints ',icount
 *                write(luout,10000)ibf,jbf,val,msg,' ints ',icount
-*              endif
+              endif
             enddo
           enddo
         enddo
       enddo
 c
-*      write(luout,*)' raktest_gc overlap matrix ',msg
+*      write(luout,*)' raktest_gc matrix ',msg
 *      call output(S,1,nbf,1,nbf,nbf,nbf,1)
 c
 10000 format(i5,i5,1pd20.10,1x, a,a,i12)
 c
       end
-
+      subroutine print_diff_gc(nbf,diff,seg,ns,ths,msg)
+      implicit none
+#include "stdio.fh"
+      integer nbf
+      double precision diff(nbf,nbf)
+      double precision seg(nbf,nbf)
+      double precision ns(nbf,nbf)
+      double precision ths
+      character*(*) msg
+c
+      integer i,j
+c
+      write(luout,*)' differeces from ',msg
+c
+      do i=1,nbf
+        do j=1,nbf
+          if (abs(diff(i,j)).gt.ths) then
+            write(6,10000)i,j,diff(i,j),seg(i,j),ns(i,j),msg
+          endif
+        enddo
+      enddo
+10000 format('<',i3,'|',i3,'> <diff',1pd20.10,'>  <seg',1pd20.10,
+     &    '>  <noseg',1pd20.10,'>',1x,a)
+      end
