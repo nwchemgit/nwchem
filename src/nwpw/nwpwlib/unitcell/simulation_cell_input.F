@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.3 2001-11-29 22:59:02 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -49,15 +49,15 @@ c     **** intialize stuff ****
       ngrid(1) = 32
       ngrid(2) = 32
       ngrid(3) = 32
-      unita(1,1) = 20.0d0
-      unita(2,1) =  0.0d0
-      unita(3,1) =  0.0d0
-      unita(1,2) =  0.0d0
-      unita(2,2) = 20.0d0
-      unita(3,2) =  0.0d0
-      unita(1,3) =  0.0d0
-      unita(2,3) =  0.0d0
-      unita(3,3) = 20.0d0
+      unita(1,1) = 0.0d0
+      unita(2,1) = 0.0d0
+      unita(3,1) = 0.0d0
+      unita(1,2) = 0.0d0
+      unita(2,2) = 0.0d0
+      unita(3,2) = 0.0d0
+      unita(1,3) = 0.0d0
+      unita(2,3) = 0.0d0
+      unita(3,3) = 0.0d0
       boundry = 'periodic'
       name    = 'cell_default'
 c

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.2 2001-11-29 20:24:15 bylaska Exp $
+c $Id: nwpw_default.F,v 1.3 2001-11-29 22:59:01 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -7,6 +7,8 @@ c
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "geom.fh"
+
 c
 *     ***** local variables *****
       integer ind               
@@ -23,7 +25,7 @@ c
       character*30 rtdb_name
       character*25 boundry
       double precision unita(3,3)
-      integer ngrid(3)
+      integer ngrid(3),geom
 
        
 *     ***** initializations ****
@@ -51,15 +53,15 @@ c
       ngrid(1) = 32
       ngrid(2) = 32
       ngrid(3) = 32
-      unita(1,1) = 20.0d0
-      unita(2,1) =  0.0d0
-      unita(3,1) =  0.0d0
-      unita(1,2) =  0.0d0
-      unita(2,2) = 20.0d0
-      unita(3,2) =  0.0d0
-      unita(1,3) =  0.0d0
-      unita(2,3) =  0.0d0
-      unita(3,3) = 20.0d0
+      unita(1,1) = 0.0d0
+      unita(2,1) = 0.0d0
+      unita(3,1) = 0.0d0
+      unita(1,2) = 0.0d0
+      unita(2,2) = 0.0d0
+      unita(3,2) = 0.0d0
+      unita(1,3) = 0.0d0
+      unita(2,3) = 0.0d0
+      unita(3,3) = 0.0d0
       boundry = 'periodic'
 
 

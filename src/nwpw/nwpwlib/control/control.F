@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.6 2001-11-28 22:15:20 bylaska Exp $
+* $Id: control.F,v 1.7 2001-11-29 22:59:02 bylaska Exp $
 *
 
 *     ***********************************
@@ -316,11 +316,74 @@
       value = value.and.
      >        rtdb_cget(rtdb,rtdb_boundry,1,boundry)
 
+*     **** check unita for defaults ****
+      call check_unita_for_default(rtdb,unita)
 
       control_read = value
       return
       end
 
+*     ***********************************
+*     *									*
+*     *		check_unita_for_default		*
+*     *									*
+*     ***********************************
+      subroutine check_unita_for_default(rtdb,unita)
+      implicit none
+      integer rtdb
+      real*8 unita(3,3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+
+*     **** local variables ****
+      logical value
+      integer geom
+
+      value = (unita(1,1) .eq. 0.0d0).and.
+     >        (unita(2,1) .eq. 0.0d0).and.
+     >        (unita(3,1) .eq. 0.0d0).and.
+     >        (unita(1,2) .eq. 0.0d0).and.
+     >        (unita(2,2) .eq. 0.0d0).and.
+     >        (unita(3,2) .eq. 0.0d0).and.
+     >        (unita(1,3) .eq. 0.0d0).and.
+     >        (unita(2,3) .eq. 0.0d0).and.
+     >        (unita(3,3) .eq. 0.0d0)
+
+      if (value) then
+         value = geom_create(geom,'geometry')
+         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+         value = value.and.geom_amatrix_get(geom,unita)
+         if (.not. value) call errquit('cannot load geometry',0)
+
+         value = (unita(1,1) .eq. 1.0d0).and.
+     >           (unita(2,1) .eq. 0.0d0).and.
+     >           (unita(3,1) .eq. 0.0d0).and.
+     >           (unita(1,2) .eq. 0.0d0).and.
+     >           (unita(2,2) .eq. 1.0d0).and.
+     >           (unita(3,2) .eq. 0.0d0).and.
+     >           (unita(1,3) .eq. 0.0d0).and.
+     >           (unita(2,3) .eq. 0.0d0).and.
+     >           (unita(3,3) .eq. 1.0d0)
+         if (value) then
+           unita(1,1) = 20.0d0
+           unita(2,1) =  0.0d0
+           unita(3,1) =  0.0d0
+           unita(1,2) =  0.0d0
+           unita(2,2) = 20.0d0
+           unita(3,2) =  0.0d0
+           unita(1,3) =  0.0d0
+           unita(2,3) =  0.0d0
+           unita(3,3) = 20.0d0
+         end if
+         value = geom_destroy(geom)
+         if (.not. value) call errquit('cannot destroy geom',0)
+
+      end if
+
+      return
+      end 
 
 
 *     ***********************************
