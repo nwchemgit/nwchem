@@ -1,5 +1,5 @@
 C
-C $Id: nucdd_cont.F,v 1.2 1999-07-14 00:29:00 d3e129 Exp $
+C $Id: nucdd_cont.F,v 1.3 2000-05-30 14:47:30 windus Exp $
 C
       subroutine nucdd_cont(rtdb)
 c
@@ -20,4 +20,5 @@ c
       call nucdd_calc(coords(1,1,geom),charge(1,geom),ncenter(geom),
      1                dbl_mb(k_exy))
 c
+      return
       end

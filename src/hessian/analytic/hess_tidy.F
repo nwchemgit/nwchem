@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.2 2000-05-16 21:39:29 windus Exp $
+C $Id: hess_tidy.F,v 1.3 2000-05-30 14:47:29 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -8,6 +8,7 @@ c  other details that need to be taken care of.
 c
       implicit none
 c
+#include "dra.fh"
 #include "global.fh"
 #include "hess_info.fh"
 #include "mafdecls.fh"
@@ -54,4 +55,12 @@ c
      *    call errquit('hess_tidy: problem destroying g_rhs_xc',1)
       enddo
 c
+c  Get rid of temporary DRAs and terminate DRA interface
+c
+      if (dra_delete(sx_dra_handle).ne.0) call errquit
+     *   ('hess_tidy: unable to delete the sx DRA',555)
+      if (dra_terminate().ne.0) call errquit
+     *   ('hess_tidy: unable to terminate DRA interface',555)
+c
+      return
       end

@@ -3,6 +3,10 @@
      $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
      $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     d_ik5, d_jl5, d_il5, d_jk5,
+     $     d_ik6, d_jl6, d_il6, d_jk6,
+     $     d_ik7, d_jl7, d_il7, d_jk7,
+     $     d_ik8, d_jl8, d_il8, d_jk8,
      $     Hxy, g_dens, g_force, blen, geom, basis, 
      $     nproc, nat, lscr, scr, leri, eri, labels, 
      $     maxq, list, q4, tol2e,
@@ -10,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.1 2000-05-16 21:39:30 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.2 2000-05-30 14:47:30 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -32,6 +36,11 @@ C-----------------------parameters---------------------------------
      $     d_jl3(blen,blen), d_il3(blen,blen), d_jk3(blen,blen),
      $     d_ij4(blen,blen), d_kl4(blen,blen), d_ik4(blen,blen), 
      $     d_jl4(blen,blen), d_il4(blen,blen), d_jk4(blen,blen)
+      double precision    ! dummies needed for the so calls to grad_get_dens_all
+     $     d_ik5, d_jl5, d_il5, d_jk5,
+     $     d_ik6, d_jl6, d_il6, d_jk6,
+     $     d_ik7, d_jl7, d_il7, d_jk7,
+     $     d_ik8, d_jl8, d_il8, d_jk8
 c     
       integer nat               ! [input] no. of atoms
       double precision Hxy(3, nat, 3, nat) ! [input/output] hessian
@@ -98,9 +107,10 @@ C-------------------------local variables-----------------------------
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
       logical oij, okl, oikjl, ouhf, orohf, omcscf, omore
-      logical intbdd_init4c, intbdd_2e4c
+      logical intbdd_init4c, intbdd_2e4c, ogso
       external intbdd_init4c, intbdd_2e4c
 c     
+      write(6,*) 'inside twodd_coul_ex'
       smax  = schwarz_max()
       q4max = 8.0d0*(sym_number_ops(geom) + 1)*10000.0d0 ! 10000 for max(psum)
 c
@@ -119,10 +129,12 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       omcscf= (scftype .eq. 'MCSCF')
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
+      ogso = .false.
 
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
+      write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -168,16 +180,24 @@ c
 c     
 c     Get blocks of the one-particle densities
 c     
+                     write(6,*) 'before the grad_get_dens_all call'
+                     call flush(6)
                      call grad_get_dens_all(omp2,ouhf,orohf,
      $                    d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk,
      $                    d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $                    d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
      $                    d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $                    d_ik5, d_jl5, d_il5, d_jk5,
+     $                    d_ik6, d_jl6, d_il6, d_jk6,
+     $                    d_ik7, d_jl7, d_il7, d_jk7,
+     $                    d_ik8, d_jl8, d_il8, d_jk8,
      $                    blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, 
      $                    kbflo, kbfhi, lbflo, lbfhi, 
      $                    ibflo_prev, jbflo_prev, kbflo_prev,
-     $                    g_dens)
+     $                    g_dens, ogso)
+                     write(6,*) 'after the grad_get_dens_all call'
+                     call flush(6)
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
@@ -254,6 +274,8 @@ c     Make the twopdm just for the current shell block.  Note that
 c     pdm2d will have holes with junk in it for quartets we did not
 c     compute ... cannot zero this since it will be too expensive.
 c     
+       write(6,*) 'before the grad_make_twopdm call'
+       call flush(6)
                                  call grad_make_twopdm(
      $                                omp2,ouhf,orohf,omcscf,
      $                                d_ij,  d_kl,  d_ik,  
@@ -264,10 +286,16 @@ c
      $                                d_jl3, d_il3, d_jk3, 
      $                                d_ij4, d_kl4, d_ik4,
      $                                d_jl4, d_il4, d_jk4, 
+     $                                d_ik5, d_jl5, d_il5, d_jk5,
+     $                                d_ik6, d_jl6, d_il6, d_jk6,
+     $                                d_ik7, d_jl7, d_il7, d_jk7,
+     $                                d_ik8, d_jl8, d_il8, d_jk8,
      $                                blen, 
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
      $                                pdm2d, psum, jfac, kfac)
+       write(6,*) 'before the grad_make_twopdm call'
+       call flush(6)
 c     
 c     Final screening including magnitude of the density
 c     
@@ -289,6 +317,7 @@ c
 *                     numq = numq + nq
 
 c     
+                     write(6,*) 'nq is ',nq
                      if (.not. intbdd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -304,7 +333,7 @@ c
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
 c     
-*     write(6,*) ' nint ', nint, omore
+      write(6,*) ' nint ', nint, omore
 c     
                      if (nint .gt. 0) then
                         do integ = 1, nint
@@ -312,19 +341,19 @@ c
                            j = labels(integ,2)
                            k = labels(integ,3)
                            l = labels(integ,4)
-*     write(6,*) ' b ' ,i,j,k,l
+      write(6,*) ' b ' ,i,j,k,l
                            atoms(1) = bftoat(i)
                            atoms(2) = bftoat(j)
                            atoms(3) = bftoat(k)
                            atoms(4) = bftoat(l)
-*     write(6,*) ' a ' ,atoms
+      write(6,*) ' a ' ,atoms
                            i = rbfmap(i) - ibflo + 1
                            j = rbfmap(j) - jbflo + 1
                            k = rbfmap(k) - kbflo + 1
                            l = rbfmap(l) - lbflo + 1
-*     write(6,*) ' c ', i,j,k,l
+      write(6,*) ' c ', i,j,k,l
                            p = pdm2d(l,k,j,i)
-*     write(6,*) ' p ', p
+      write(6,*) ' p ', p
                            ibuf = 1
                            do iiat1 = 1, 4
                            iat1 = atoms(iiat1)
@@ -335,6 +364,8 @@ c
                               if (iat2.eq.iat1) itemp = icart1
                               do icart2 = itemp, 3
                               val = p*eri(ibuf)
+      write(6,*) 'val is ',val
+      call flush(6)
                               Hxy(icart1,iat1,icart2,iat2) =  
      $                             Hxy(icart1,iat1,icart2,iat2) + 
      $                             val
@@ -367,4 +398,5 @@ c
 c     
 *      write(6,*) ' numq ', numq
 c     
+      return
       end

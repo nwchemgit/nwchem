@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.5 2000-05-16 21:39:29 windus Exp $
+C $Id: hess_init.F,v 1.6 2000-05-30 14:47:29 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -12,6 +12,7 @@ c
 c
 #include "bas.fh"
 #include "bgj.fh"
+#include "dra.fh"
 #include "geom.fh"
 #include "global.fh"
 #include "hess_info.fh"
@@ -21,10 +22,11 @@ c
 c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
-      integer i, j, dftnoc(2), numfunc
+      integer i, j, dftnoc(2), numfunc, nbsize
       parameter(numfunc = 19) ! took this from gradient code, may need to be
                               ! changed in the future
       logical status
+      character*256 sx_name
       double precision zero, one, onem
       double precision xfac(numfunc)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
@@ -245,6 +247,19 @@ c      if (log_mb(i-1+k_act)) then
          endif
 c      endif
       enddo
+c
       nopen = nopen - 1
+c
+c  Initialize the Disk Resident Array (DRA) interface which will be needed
+c  to hold the overlap derivatives.
+c
+      call util_file_name('sxmatrices',.true.,.false.,sx_name)
+      nbsize = ma_sizeof(mt_dbl,ncent*3*nbf*nbf,mt_byte)
+      if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
+     &    ('hess_init: Failed to initialize DRA interface',555)
+      if (dra_create(mt_dbl,nbf*ncent*3,nbf,'Sx matrices',sx_name,
+     &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
+     &   ('hess_init: Failed to create sx DRA',555)
 
+      return
       end

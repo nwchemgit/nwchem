@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.4 2000-05-16 21:39:29 windus Exp $
+c $Id: oned_calc.F,v 1.5 2000-05-30 14:47:30 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -163,4 +163,5 @@ c     enddo
  90   continue
       next = nxtask(-nproc,task_size)
 c
+      return
       end

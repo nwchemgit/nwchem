@@ -1,5 +1,5 @@
 c
-c $Id: nucdd_calc.F,v 1.2 1999-12-30 22:56:43 windus Exp $
+c $Id: nucdd_calc.F,v 1.3 2000-05-30 14:47:30 windus Exp $
 c
       subroutine nucdd_calc(c,zan,nat,dde)
 c
@@ -90,6 +90,6 @@ c
   140 continue
 c
   200 continue
-      return
 c
+      return
       end

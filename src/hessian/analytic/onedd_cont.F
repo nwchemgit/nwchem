@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.6 2000-05-16 21:39:29 windus Exp $
+C $Id: onedd_cont.F,v 1.7 2000-05-30 14:47:30 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -47,6 +47,7 @@ c second derivative integrals.
 c
       g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
       nbf2 = nbf
+      if (scftype .eq. 'UHF') nbf2 = nbf + nbf
 C     eigenvalue diagonal matrix for forming energy weighted density
       nocc = nopen + nclosed                                                    
       if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 0, nocc,
@@ -160,7 +161,7 @@ c
 c
 c write out Sx terms to disk
 c
-
+      call sx_write(g_rhs,ncent*3,nbf,sx_dra_handle)
 c
 c Clear g_rhs again
 c
@@ -192,4 +193,5 @@ c
       if (.not. ma_pop_stack(l_buf)) 
      *  call errquit('onedd_cont: failed to pop l_buf',555)
 c
+      return
       end

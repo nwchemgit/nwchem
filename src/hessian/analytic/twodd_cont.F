@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.2 2000-05-16 21:39:30 windus Exp $
+C $Id: twodd_cont.F,v 1.3 2000-05-30 14:47:30 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -34,7 +34,11 @@ c
      $     ld_ij3, ld_kl3, ld_ik3,
      $     ld_jl3, ld_il3, ld_jk3,
      $     ld_ij4, ld_kl4, ld_ik4,
-     $     ld_jl4, ld_il4, ld_jk4
+     $     ld_jl4, ld_il4, ld_jk4,
+     $     ld_ik5, ld_jl5, ld_il5, ld_jk5,
+     $     ld_ik6, ld_jl6, ld_il6, ld_jk6,
+     $     ld_ik7, ld_jl7, ld_il7, ld_jk7,
+     $     ld_ik8, ld_jl8, ld_il8, ld_jk8
       integer max_at_bf, max_sh_bf, lsqa, nsh,
      $ max1e, max2e, mscratch_1e, mscratch_2e, lbuf, lscratch
       integer l_shmap, l_shglo, l_shghi, l_bfmap, l_rbfmap,
@@ -54,7 +58,7 @@ c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer k_pdm2, k_pdm2a, k_pdm2b, k_pdm2c, k_pdm2d ! MCSCF 2-pdm
       integer k_coeff  ! MCSCF local copy of Active space MOs
 c
-      logical omp2, oactive(ncent)  ! this last one should go into hess_info.fh
+      logical omp2
 c
       double precision tol2e
 c
@@ -91,6 +95,22 @@ c
       ld_jl4  = 1
       ld_il4  = 1
       ld_jk4  = 1
+      ld_ik5  = 1
+      ld_jl5  = 1
+      ld_il5  = 1
+      ld_jk5  = 1
+      ld_ik6  = 1
+      ld_jl6  = 1
+      ld_il6  = 1
+      ld_jk6  = 1
+      ld_ik7  = 1
+      ld_jl7  = 1
+      ld_il7  = 1
+      ld_jk7  = 1
+      ld_ik8  = 1
+      ld_jl8  = 1
+      ld_il8  = 1
+      ld_jk8  = 1
  
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
@@ -223,8 +243,15 @@ c
       if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
      $     call errquit('twodd_cont: could not allocate l_act',ncent) 
       do i = 1, ncent
-        oactive(i) = .true.
+        log_mb(k_act+i-1) = .true.
       end do
+c
+c Print out the hessian before adding anything else
+c
+      write(6,*) 'The Hessian before the twodd contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      call flush(6)
 c
 c  Actually do the deed
 c
@@ -237,6 +264,14 @@ c
      $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
      $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
      $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),                        
+     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),                        
+     $     dbl_mb(ld_jk5),
+     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),                        
+     $     dbl_mb(ld_jk6),
+     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),                        
+     $     dbl_mb(ld_jk7),
+     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),                        
+     $     dbl_mb(ld_jk8),
      $     dbl_mb(k_exy), g_dens, g_force, blen,
      $     geom, basis, nproc, ncent,
      $     lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf),
@@ -251,6 +286,18 @@ c
      $     int_mb(k_bfmap), int_mb(k_rbfmap),
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac) 
+c
+c Print out the hessian before adding anything else
+c
+      write(6,*) 'The Hessian after the twodd contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      call flush(6)
+c
+c  Need to get rid of extra memory
+c
+      if (.not. ma_chop_stack(lh_ij))
+     $  call errquit('twodd_cont: failed chopping MA stack',555)
 c
 c  IMPORTANT!  IMPORTANT!
 c  Need to add a reorder back to atomic so that Benny's code will work!!!
@@ -283,4 +330,5 @@ c
 
       call dcopy(n3xyz2,dbl_mb(k_hess_xc),1,dbl_mb(k_exy),1)
 c
+      return
       end
