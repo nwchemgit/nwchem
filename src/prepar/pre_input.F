@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.55 2000-06-01 05:24:24 d3j191 Exp $
+c $Id: pre_input.F,v 1.56 2000-06-01 20:20:08 d3j191 Exp $
 c
       implicit none
 c
@@ -318,6 +318,10 @@ c     completion
 c     ----------
 c
       if(inp_compare(.false.,'construct',item)) then
+      iconst=1
+      goto 2
+      endif
+      if(inp_compare(.false.,'hbuild',item)) then
       iconst=1
       goto 2
       endif
