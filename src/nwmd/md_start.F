@@ -9,7 +9,12 @@ c
 c     input
 c     -----
 c
-      call md_inp()
+      call md_rdinp()
+c
+c     print input information
+c     -----------------------
+c
+      call md_print()
 c
 c     start the spacial decomposition API
 c     -----------------------------------
@@ -19,6 +24,11 @@ c
      + npbtyp,nbxtyp,box,vlat,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps)
+c
+c     print decomposition information
+c     -------------------------------
+c
+      call sp_print(lfnout)
 c
 c     start the classical forces API
 c     ------------------------------
@@ -30,6 +40,11 @@ c
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype)
+c
+c     print topology information
+c     --------------------------
+c
+      call cf_print(lfnout)
 c
 c     start the property API
 c
@@ -118,7 +133,7 @@ c
 c
       return
       end
-      subroutine md_inp()
+      subroutine md_rdinp()
 c
       implicit none
 c
@@ -131,7 +146,8 @@ c
       character*7 restart
       character*20 theory,operat
       logical lstate,lstart,lrstrt,lcont
-      integer igt,igr,nbytes
+      integer igt,igr,nbytes,ibl,iun
+      integer niperw,nbperw
 c
 c     set process id and number of processes
 c     --------------------------------------
@@ -489,7 +505,7 @@ c
       nwarn=0
       nform=0
 c
-      urlow=ten27
+      urlow=tiny
 c
       ignore=0
       mdo=6
@@ -500,7 +516,7 @@ c
       hbang2=two*atan(one)
       verinp=zero
 c
-      iformt=iecce
+      iformt=1
 c
 c     parallel execution defaults
 c
@@ -518,17 +534,17 @@ c
 c
 c     input from rtdb
 c
-      if(.not.rtdb_get(irtdb,'md:nbx',mt_int,1,nbxi))
+      if(.not.rtdb_get(irtdb,'md:nbx',mt_int,1,nbx))
      + call errquit('md_rtdbin: rtdb_get failed',1)
-      if(.not.rtdb_get(irtdb,'md:nby',mt_int,1,nbyi))
+      if(.not.rtdb_get(irtdb,'md:nby',mt_int,1,nby))
      + call errquit('md_rtdbin: rtdb_get failed',2)
-      if(.not.rtdb_get(irtdb,'md:nbz',mt_int,1,nbzi))
+      if(.not.rtdb_get(irtdb,'md:nbz',mt_int,1,nbz))
      + call errquit('md_rtdbin: rtdb_get failed',3)
-      if(.not.rtdb_get(irtdb,'md:npx',mt_int,1,npxi))
+      if(.not.rtdb_get(irtdb,'md:npx',mt_int,1,npx))
      + call errquit('md_rtdbin: rtdb_get failed',4)
-      if(.not.rtdb_get(irtdb,'md:npy',mt_int,1,npyi))
+      if(.not.rtdb_get(irtdb,'md:npy',mt_int,1,npy))
      + call errquit('md_rtdbin: rtdb_get failed',5)
-      if(.not.rtdb_get(irtdb,'md:npz',mt_int,1,npzi))
+      if(.not.rtdb_get(irtdb,'md:npz',mt_int,1,npz))
      + call errquit('md_rtdbin: rtdb_get failed',6)
       if(.not.rtdb_get(irtdb,'md:mdalgo',mt_int,1,mdalgo))
      + call errquit('md_rtdbin: rtdb_get failed',7)
@@ -798,26 +814,25 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',135)
       if(.not.rtdb_get(irtdb,'md:drsscl',mt_dbl,1,drsscl))
      + call errquit('md_rtdbin: rtdb_get failed',136)
-      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,oqmmm))
-     + oqmmm=.false.
       if(.not.rtdb_get(irtdb,'md:pmetol',mt_dbl,1,pmetol))
      + pmetol=1.0d-05
-      if(rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm)) then
-      osepatset=.true.
-      else
-      osepatset=.false.
-      uqmatm=zero
-      endif
-      iqmmm=0
-      if(oqmmm) iqmmm=-1
 c
-      lcomgr=0
-      if(rtdb_get(irtdb,'md:lcomgr',mt_int,1,lcomgr)) then
-      endif
+c      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,oqmmm))
+c     + oqmmm=.false.
+c      if(rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm)) then
+c      osepatset=.true.
+c      else
+c      osepatset=.false.
+c      uqmatm=zero
+c      endif
+      iqmmm=0
+c      lqmmm=.false.
+c      if(oqmmm) iqmmm=-1
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)
-      if(theory.eq.'md'.or.theory.eq.'nwargos'.or.oqmmm) then
+c      if(theory.eq.'md'.or.theory.eq.'nwargos'.or.oqmmm) then
+      if(theory.eq.'md'.or.theory.eq.'nwargos') then
       iquant=0
       else
       iquant=1
@@ -954,18 +969,6 @@ c
       shift1(5)=ssshft
       shift1(6)=zero
 c
-c     check if long range cutoff radii are different from short range
-c     ---------------------------------------------------------------
-c
-      npww=1
-      npsw=1
-      npss=1
-      if(rlong.gt.rshort) then
-      npww=2
-      npsw=2
-      npss=2
-      endif
-c
 c     square SHAKE tolerances
 c
       tlwsha=tlwsha*tlwsha
@@ -1039,7 +1042,7 @@ c
 c     broadcast to all nodes
 c
       if(np.gt.1) then
-      nbytes=loc(izii)-loc(ptol)
+      nbytes=loc(inp_ptr)-loc(ptol)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       nbytes=8*nbytes
 #endif
@@ -1047,9 +1050,42 @@ c
       endif
 c
       ltwin=rlong.gt.rshort
-      nbx=nbxi
-      nby=nbyi
-      nbz=nbzi
+c
+      return
+      end
+      subroutine md_print()
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      character*22 ctype
+c
+      if(me.eq.0) then
+      if(lfnout.ne.6)
+     + open(unit=lfnout,file=filout(1:index(filout,' ')-1),
+     + form='formatted',status='unknown')
+c
+      if(ntype.eq.0) then
+      ctype='ENERGY EVALUATION     '
+      elseif(ntype.eq.1) then
+      ctype='ENERGY MINIMIZATION   '
+      elseif(ntype.eq.2) then
+      ctype='MOLECULAR DYNAMICS    '
+      elseif(ntype.eq.3) then
+      ctype='FREE ENERGY EVALUATION'
+      else
+      call errquit('Unknown calculation type',ntype)
+      endif
+c
+      call swatch(today,now)
+      write(lfnout,1000) ctype,today,now
+ 1000 format(/,1x,a22,t110,2a10)
+c
+      write(lfnout,1001) titinp(1),datinp,timinp,titinp(2),titinp(3)
+ 1001 format(/,' Title ',t10,a,t110,2a10,/,t10,a,/,t10,a)
+c
+      endif
 c
       return
       end

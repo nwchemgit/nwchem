@@ -226,6 +226,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      integer iequi
+c
 c     equilibration
 c
       do 1 iequi=kequi+1,mequi
@@ -370,7 +372,7 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 dmax
 c
-      integer i,j,lhandl,ibbl,iwfr,iwto,isfr,isto
+      integer i,j,lhandl,ibbl,iwfr,iwto,isfr,isto,nbbl
       logical lself
 c
       dmax=zero
@@ -477,6 +479,7 @@ c
       logical lself
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
+      integer nbbl
 c
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
