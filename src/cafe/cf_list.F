@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.10 2000-02-20 15:59:33 d3j191 Exp $
+c $Id: cf_list.F,v 1.11 2001-08-03 20:36:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -795,8 +795,8 @@ c
       integer lbonds(*)
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer isb,nbi,nbonds,nconst,ibloc,jbloc,isbloc,iq,jq
-      logical lself
+      integer isb,nbi,nbj,nbonds,nconst,ibloc,jbloc,isbloc,iq,jq
+      logical lself,lbi,lbj
 c
 #include "bitops.fh"
 c
@@ -817,23 +817,31 @@ c
     1 continue
       do 2 jsa=jsafr,jsato
       itemp(iga(jsa))=3
+      if(iand(idt(jsa),mdynam).ne.ldynam) itemp(iga(jsa))=-3
     2 continue
       do 3 isa=isafr,isato
       itemp(iga(isa))=1
+      if(iand(idt(isa),mdynam).ne.ldynam) itemp(iga(isa))=-1
     3 continue
 c
       do 4 isb=1,numb(2)
       if(idb(isb,3).ge.0) then
       nbi=itemp(idb(isb,1))
+      lbi=nbi.ge.0
+      nbi=iabs(nbi)
       if(nbi.gt.0) then
-      nbi=nbi+itemp(idb(isb,2))
+      nbj=itemp(idb(isb,2))
+      lbj=nbj.ge.0
+      nbi=nbi+iabs(nbj)
       if(nbi.gt.1) then
       if((lself.and.nbi.eq.2).or.(.not.lself.and.nbi.eq.4)) then
+      if(lbi.or.lbj) then
       nbonds=nbonds+1
       if(idb(isb,3).eq.1) nconst=nconst+1
       if(nbonds.gt.mbonds)
      + call errquit('Insufficient memory for bond list',0)
       lbonds(nbonds)=isb
+      endif
       endif
       endif
       endif
