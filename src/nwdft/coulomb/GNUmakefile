@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1997-02-17 20:52:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.24 1997-03-06 23:24:13 d3e129 Exp $
 ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
       OBJ =  dft_3cincor.o\
@@ -20,7 +20,7 @@ endif
 
 
 
-      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F
+      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F dft_3cincor.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
