@@ -5,6 +5,7 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "schwarz.fh"
 #include "context.fh"
 c
 c
@@ -89,11 +90,6 @@ c
 c
 c
 c
-       call int_init(1, basis)
-       call int_normalize(basis)
-c
-c
-c
        mo_indx_lo = 1
        mo_indx_hi = nocc
 C       mo_indx2_lo = nocc + 1
@@ -105,10 +101,17 @@ C       mo_indx2_hi = nbf
 c
 c
 c
+       call int_init(1, basis)
+       call int_normalize(basis)
+       call schwarz_init(geom,basis)
+c
+c
+c
        if (ga_nodeid().eq.0) then
          write(6,*)
+         write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
-     $                            40,.true.)
+     $                            30,.true.)
          write(6,966) nbf,nocc,mo_indx_lo,mo_indx_hi,
      $                mo_indx2_lo,mo_indx2_hi
  966     format(10x,'Number of basis functions:',10x,i5,/,
@@ -117,7 +120,6 @@ c
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3)
          call util_flush(6)
        endif
-
 c
 c
 c
@@ -143,6 +145,7 @@ C     $                      g_exch,emp2,dbl_mb(k_epair))
 c
 c
 c
+       call schwarz_tidy()
        status = ga_destroy(g_coul)
        status = ga_destroy(g_exch)
        status = ma_pop_stack(l_epair)

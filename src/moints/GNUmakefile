@@ -1,6 +1,5 @@
 
         OBJ = atwtest.o \
-              dbg_mark.o \
 	      ga_create_moblocked.o \
 	      ga_check_moblocked.o \
 	      mointdriver.o \
@@ -9,7 +8,7 @@
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = 
+  USES_BLAS = moints.F
 
 
 include ../config/makefile.h
