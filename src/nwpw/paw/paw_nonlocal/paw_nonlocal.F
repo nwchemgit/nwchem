@@ -1,8 +1,18 @@
 *
-* $Id: paw_nonlocal.F,v 1.14 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.15 2005-01-31 02:09:38 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2004/08/12 18:39:41  bylaska
+* A prototype of a Grassmann CG paw minimizer (i.e. nwpw:minimizer 1) has been added.
+* The code is similar to the CG minimizer in pspw, but differences exist
+* because the residual |R> = (1 - S|psi><psi|)|Hpsi> is not the same as the
+* tangent vector |T> = (1 - |psi><psi|S)|R>.
+*
+* Forces still need to be implemented.
+*
+* ...EJB
+*
 * Revision 1.13  2003/10/21 02:05:17  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -202,6 +212,7 @@
 #include "paw_geom.fh" 
 
       !*** local variables ***
+      integer taskid,np,tcount
       integer k
       integer ii,ia,n,nion,nbasis,nlm,nlm1
       integer i_nbasis,indx,indx1,indx_m
@@ -209,6 +220,8 @@
       integer hartree_ptr,mult_ptr,comp_ptr,xc_ptr
       real*8  scal1
 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
 
       !**** add up Gop ****
       call paw_hartree_pot_ptr(hartree_ptr)
@@ -255,6 +268,7 @@
       call dcopy(2*paw_nl_coeff(3),0.0d0,0,
      >           dcpl_mb(paw_nl_coeff(1)),1)
        
+      tcount = 0
       i_nbasis = 0
       indx_m = 0
       do ii=1,nion
@@ -263,6 +277,7 @@
 
          do nlm =1,nbasis
          do nlm1=1,nbasis
+         if (tcount.eq.taskid) then
 
            !*** up spin ***
            do n=1,ne_u
@@ -287,11 +302,15 @@
            end do
 
 
-           indx_m = indx_m + 1
+         end if
+         tcount = mod(tcount+1,np)
+         indx_m = indx_m + 1
          end do
          end do
          i_nbasis = i_nbasis + nbasis
       end do
+      if (np.gt.1) call D3dB_Vector_Sumall(2*paw_nl_coeff(3),
+     >                              dcpl_mb(paw_nl_coeff(1)))
 
       scal1 = -1.0d0
       call dscal(2*paw_nl_coeff(3),scal1,

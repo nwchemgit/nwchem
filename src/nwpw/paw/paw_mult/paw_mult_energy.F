@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult_energy.F,v 1.6 2004-07-29 15:55:37 bylaska Exp $
+* $Id: paw_mult_energy.F,v 1.7 2005-01-31 02:09:38 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.6  2004/07/29 15:55:37  bylaska
+* Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+*
+*  ...EJB
+*
 * Revision 1.5  2003/03/05 23:16:32  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -150,16 +155,21 @@
 #include "paw_basis.fh"
 
       !*** local variables ***
+      integer taskid,np,tcount
       integer ii,ia,li,mi,il,ill,mult_li
       integer jj,ja,lj,mj,jl,jll,mult_lj
       integer nion,indx,lmax,lmax2
       real*8 e_mult
 
       call nwpw_timing_start(14)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
       nion  = ion_nion()
       lmax  = paw_basis_max_mult_l()
       lmax2 = (lmax+1)**2
 
+      tcount = 0
       e_mult = 0.0d0
       do ii=1,nion
         ia     = ion_katm(ii)
@@ -170,6 +180,7 @@
         do mi=-li,li
 
           do jj=1,nion
+          if (tcount.eq.taskid) then
             ja     = ion_katm(jj)
             mult_lj = paw_basis_mult_l(ja)
             jl     = int_mb(i_v_mult(1)+jj-1)
@@ -193,6 +204,8 @@
               jll = jll+1
             end do !*mj*
             end do !*lj*
+          end if
+          tcount=mod(tcount+1,np)
           end do !*jj*
 
           il  = il +1
@@ -200,6 +213,7 @@
         end do !*mi*
         end do !*li*
       end do !*ii*
+      if (np.gt.1) call D3dB_SumAll(e_mult)
       call nwpw_timing_end(14)
 
       paw_mult_energy_atom_mult = e_mult

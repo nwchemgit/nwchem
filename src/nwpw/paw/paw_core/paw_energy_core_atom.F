@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.5 2003-10-21 02:05:16 marat Exp $
+* $Id: paw_energy_core_atom.F,v 1.6 2005-01-31 02:09:38 bylaska Exp $
 *
 
 
@@ -76,7 +76,7 @@
 #include "paw_params.fh"
 
       double precision  paw_energy_core_ion_atom
-      integer k
+      integer k,igg,np,istart
       integer in,ia
       integer i_w,i_mtr,i_mtr0
       integer i,j,li,lj,mi,mj
@@ -89,6 +89,7 @@
       double precision log_amesh
       double precision ecore
 
+      call Parallel_np(np)
       !*** temporary array for calculations ***
       max_ic = paw_basis_max_i_cut()
       ok = ma_push_get(mt_dbl,max_ic,"tmp_array_core",l_f1,i_f1)
@@ -101,22 +102,28 @@
       do in=1,ion_nion()
         ia = ion_katm(in)
         nb = paw_basis_nbasis(ia)
-        ic = paw_basis_i_cut(ia)
+c        ic = paw_basis_i_cut(ia)
+        ic = paw_basis_npoints(ia)
+        istart = paw_basis_i_start(ia)
         i_core_ae = paw_basis_i_core_density(ia)
         i_r = paw_basis_i_rgrid(ia)
         log_amesh = paw_basis_log_amesh(ia)
         do k=1,ic
-
+          igg=k+istart-1
 
           dbl_mb(i_f1+k-1)=-paw_basis_ion_charge(ia)*
-     >                      dbl_mb(i_core_ae+k-1)/
-     >                      dbl_mb(i_r+k-1)       
+     >                      dbl_mb(i_core_ae+igg-1)/
+     >                      dbl_mb(i_r+igg-1)       
 
         end do
-        ecore = ecore + def_integr(-1,dbl_mb(i_f1),2,dbl_mb(i_r),
-     >                       log_amesh,ic)
+c        ecore = ecore + def_integr(-1,dbl_mb(i_f1),2,dbl_mb(i_r),
+c     >                       log_amesh,ic)
+        ecore = ecore + def_integr1(-1,dbl_mb(i_f1),2,
+     >                       dbl_mb(i_r+istart-1),
+     >                       log_amesh,ic,istart)
 
       end do
+      if (np.gt.1) call D3dB_SumAll(ecore)
  
       ok = ma_pop_stack(l_f1)
       if (.not.ok)
@@ -147,7 +154,7 @@
 #include "paw_utils.fh"
 
       double precision  paw_energy_core_self_atom
-      integer k
+      integer k,igg,np
       integer in,ia
       integer i_w,i_mtr,i_mtr0
       integer i,j,li,lj,mi,mj

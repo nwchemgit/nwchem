@@ -1,7 +1,12 @@
 *
-* $Id: paw_mult_interaction.F,v 1.12 2004-07-29 15:55:37 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.13 2005-01-31 02:09:38 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2004/07/29 15:55:37  bylaska
+* Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+*
+*  ...EJB
+*
 * Revision 1.11  2003/03/24 20:31:08  bylaska
 * ....EJB
 *
@@ -356,6 +361,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 #include "paw_basis.fh"
 
       !*** local variables ***
+      integer taskid,np,tcount
       integer il,ilp
       integer lshell
       integer ii,ia,jj,ja
@@ -386,52 +392,14 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 
 
       call nwpw_timing_start(14)
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
       twopi = 8.0d0*datan(1.0d0)
 
       call dcopy(2*(nion*mult_l_max)**2,0.0d0,0,mult_energy_coeff,1)
 
-      do ii=1,nion
-       ia      = ion_katm(ii)
-       mult_l  = paw_basis_mult_l(ia)
-       sigma_a = paw_basis_sigma(ia)
-
-       sigma4 = dsqrt((sigma_smooth**2+sigma_a**2)/2)
-       sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
-       sigma1 = dsqrt((sigma_a**2+sigma_a**2)/2)
-
-
-        il = 1
-        do l1=0,mult_l
-          const = 4.0d0*dsqrt(twopi)
-     >           / dble((2*l1+1)*paw_double_factorial(2*l1+1))
-        
-          const4_l = const/(sigma4**(2*l1+1))
-          const2_l = const/(sigma2**(2*l1+1))
-          const1_l = const/(sigma1**(2*l1+1))
-          do m1=-l1,l1
-            f = (-1)**m1*(-2*const4_l+const2_l+const1_l)
-        
-            ilp = 1
-            do l2=0,mult_l
-            do m2=-l2,l2
-
-              if ((l1.eq.l2).and.(m1.eq.(-m2)) ) then
-                mult_energy_coeff(ii,il,ii,ilp) = f
-
-              end if
-
-              ilp = ilp+1
-            end do !*m2*
-            end do !*l2*
-
-            il = il+1
-          end do !*m1*
-        end do !*l1*
-
-      end do !*ii*
-
-
-
+      tcount = 0
       do ii=1,nion
         ia   = ion_katm(ii)
         ra(1)   = ion_rion(1,ii)
@@ -454,6 +422,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
      >              +(ra(3)-ra_prime(3))**2)
 
           if (R.lt.(4*sigma_smooth)) then
+          if (tcount.eq.taskid) then
             sigma4 = dsqrt((sigma_smooth**2+sigma_a_prime**2)/2.0d0)
             sigma3 = dsqrt((sigma_a**2+sigma_smooth**2)/2.0d0)
             sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2.0d0)
@@ -529,10 +498,60 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
             end do !*l1*
 
           end if
+          tcount = mod(tcount+1,np)
+          end if
 
         end do !*lshell*
         end do !*jj*
       end do !*ii*
+      if (np.gt.1) 
+     >call D3dB_Vector_SumAll(2*(nion*mult_l_max)**2,mult_energy_coeff)
+
+
+      do ii=1,nion
+       ia      = ion_katm(ii)
+       mult_l  = paw_basis_mult_l(ia)
+       sigma_a = paw_basis_sigma(ia)
+
+       sigma4 = dsqrt((sigma_smooth**2+sigma_a**2)/2)
+       sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
+       sigma1 = dsqrt((sigma_a**2+sigma_a**2)/2)
+
+
+        il = 1
+        do l1=0,mult_l
+
+          const = 4.0d0*dsqrt(twopi)
+     >           / dble((2*l1+1)*paw_double_factorial(2*l1+1))
+
+          const4_l = const/(sigma4**(2*l1+1))
+          const2_l = const/(sigma2**(2*l1+1))
+          const1_l = const/(sigma1**(2*l1+1))
+          do m1=-l1,l1
+            f = (-1)**m1*(-2*const4_l+const2_l+const1_l)
+
+            ilp = 1
+            do l2=0,mult_l
+            do m2=-l2,l2
+
+              if ((l1.eq.l2).and.(m1.eq.(-m2)) ) then
+                mult_energy_coeff(ii,il,ii,ilp) = 
+     >          mult_energy_coeff(ii,il,ii,ilp) + f
+
+              end if
+
+              ilp = ilp+1
+            end do !*m2*
+            end do !*l2*
+
+            il = il+1
+          end do !*m1*
+
+        end do !*l1*
+
+      end do !*ii*
+
+
 
 
       do ii=1,nion

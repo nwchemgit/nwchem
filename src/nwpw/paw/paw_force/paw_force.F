@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.13 2003-10-21 02:05:16 marat Exp $
+* $Id: paw_force.F,v 1.14 2005-01-31 02:09:38 bylaska Exp $
 *
 
 !**************************************************
@@ -98,6 +98,7 @@ cedo      integer ne(2)
 
       !*** local variables ***
       logical value
+      integer taskid,np,tcount
       integer ii,ia,nbasis,nlm,nlmii,npack1
       integer nion,prj,i1,i2,n
       integer indx_psi,indx_prj,indx_coeff
@@ -117,6 +118,8 @@ cedo      integer ne(2)
       integer  G_indx
       external G_indx
 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
 
 c     *** number of electrons ***      
       ne_u  = paw_ne_up()
@@ -252,6 +255,20 @@ c     *** calculate weights ***
         occup = 1.0d0
       end if
 
+      if (np.gt.1) then
+        tcount=2*paw_force_wx_u(3)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wx_u(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wy_u(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wz_u(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wx_d(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wy_d(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wz_d(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wx(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wy(1)),1)
+        call dcopy(tcount,0.0d0,0,dcpl_mb(paw_force_wz(1)),1)
+      end if
+
+      tcount = 0
       ii = 0
       i_nbasis = 0
       do in=1,ion_nion()
@@ -259,6 +276,7 @@ c     *** calculate weights ***
         nbasis = paw_proj_nbasis(ia)
         do nlm =1,nbasis
         do nlm1=1,nbasis
+        if (tcount.eq.taskid) then
 
            wx_tmp = dcmplx(0.0d0,0.0d0)
            wy_tmp = dcmplx(0.0d0,0.0d0)
@@ -330,11 +348,25 @@ c           !*** this loop is not computed when ispin=1 ***
            dcpl_mb(paw_force_wz(1)+ii) = dcpl_mb(paw_force_wz_u(1)+ii)
      >                                 + dcpl_mb(paw_force_wz_d(1)+ii)    
            
-           ii=ii +1
+        end if
+        tcount=mod(tcount+1,np)
+        ii=ii +1
         end do
         end do
         i_nbasis = i_nbasis + nbasis
       end do
+      if (np.gt.1) then
+        tcount=2*ii
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wx_u(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wy_u(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wz_u(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wx_d(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wy_d(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wz_d(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wx(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wy(1)))
+        call D3dB_Vector_SumAll(tcount,dcpl_mb(paw_force_wz(1)))
+      end if 
 
       call paw_force_atom(fion)
       call paw_force_mult(fion)
@@ -425,6 +457,8 @@ c           !*** this loop is not computed when ispin=1 ***
 #include "paw_proj.fh"
 
 
+      logical value
+      integer taskid,np,tcount,ft(2)
       integer i
       integer gop_u(4),gop_d(4)
       complex*16 tmp_fx,tmp_fy,tmp_fz
@@ -434,6 +468,15 @@ c           !*** this loop is not computed when ispin=1 ***
       integer nion
       integer i_paw_ovlp_w(4)
       
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+      nion = ion_nion()
+      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      if (.not.value) call errquit('paw_force_atom: push stack',0,0)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
+
+
       call paw_ovlp_i_w_ptr(i_paw_ovlp_w)
 
       call paw_nonloc_gop_u_ptr(gop_u)
@@ -447,8 +490,7 @@ c     > dcpl_mb(gop_d(1)+in-1),
 c     > dcpl_mb(paw_force_wx_u(1)+in-1)
 c      end do
 
-
-      nion = ion_nion()
+      tcount = 0
       do in=1,nion
         ia = ion_katm(in)
         nb2=paw_proj_nbasis(ia)**2
@@ -460,6 +502,7 @@ c      end do
         tmp_fy = dcmplx(0.0d0,0.0d0)
         tmp_fz = dcmplx(0.0d0,0.0d0)
         do ii=1,nb2
+        if (tcount.eq.taskid) then
            tmp_fx = tmp_fx + 
      >             dcpl_mb(gop_u(1)+i_w+ii-1)*
      >             dcpl_mb(paw_force_wx_u(1)+i_w+ii-1)     
@@ -478,21 +521,33 @@ c      end do
      >             +
      >             dcpl_mb(gop_d(1)+i_w+ii-1)*
      >             dcpl_mb(paw_force_wz_d(1)+i_w+ii-1)     
+        end if
+        tcount = mod(tcount+1,np)
         end do
 
         !dbl_mb(paw_force_fx_atom(1)+in-1)=-dble(tmp_fx)
         !dbl_mb(paw_force_fy_atom(1)+in-1)=-dble(tmp_fy)
         !dbl_mb(paw_force_fz_atom(1)+in-1)=-dble(tmp_fz)
 
-        fion(1,in) = fion(1,in) - dble(tmp_fx)
-        fion(2,in) = fion(2,in) - dble(tmp_fy)
-        fion(3,in) = fion(3,in) - dble(tmp_fz)
+c        fion(1,in) = fion(1,in) - dble(tmp_fx)
+c        fion(2,in) = fion(2,in) - dble(tmp_fy)
+c        fion(3,in) = fion(3,in) - dble(tmp_fz)
+        dbl_mb(ft(1)+3*(in-1))   = dbl_mb(ft(1)+3*(in-1))  -dble(tmp_fx)
+        dbl_mb(ft(1)+3*(in-1)+1) = dbl_mb(ft(1)+3*(in-1)+1)-dble(tmp_fy)
+        dbl_mb(ft(1)+3*(in-1)+2) = dbl_mb(ft(1)+3*(in-1)+2)-dble(tmp_fz)
+
 
 c       write(*,*) "  fatom",in,-dble(tmp_fx),
 c    >                          -dble(tmp_fy),
 c    >                          -dble(tmp_fz)
 
       end do
+
+      if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,fion,1)
+
+      value = MA_pop_stack(ft(2))
+      if (.not.value) call errquit('paw_force_atom: pop stack',0,1)
 
       return
       end
@@ -518,6 +573,8 @@ c    >                          -dble(tmp_fz)
 #include "paw_basis.fh"
 
       !**** local variables ****
+      logical value
+      integer taskid,np,tcount,ft(2)
       integer ii,ia,ms,n,m,a,b,ispin,n1(2),n2(2),nn,nion
       integer nbasis,basis_nbasis,i_nbasis
       integer la,ma,lb,mb,nlm1,nlm2,mlmbda,nlmbda
@@ -529,6 +586,16 @@ c    >                          -dble(tmp_fz)
       !**** local variables ****
       integer  paw_overlap_matrix_ptr
       external paw_overlap_matrix_ptr
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+
+      nion     = ion_nion()
+      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      if (.not.value) 
+     > call errquit('paw_force_constraint: push stack',0,0)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
 
 
       call paw_ovlp_c_ptr(coeff)
@@ -547,7 +614,7 @@ c     *** number of electrons ***
       occup = 1.0d0
       if (ispin.eq.1) occup = 2.0d0
 
-      nion     = ion_nion()
+      tcount = 0
       i_nbasis = 0
       do ii=1,nion
         ia           = ion_katm(ii)
@@ -568,6 +635,7 @@ c     *** number of electrons ***
             nlm2 = nlm2+1
          
             if ((mb.eq.ma).and.(la.eq.lb)) then
+            if (tcount.eq.taskid) then
 
             overlap_ptr = matrix_ptr + (b-1)*basis_nbasis + (a-1)
             wx_tmp = 0.0d0
@@ -639,9 +707,19 @@ c      write(*,*)
             end do !*n*
             end do !*ms*
  
-            fion(1,ii) = fion(1,ii) + occup*wx_tmp*dbl_mb(overlap_ptr)
-            fion(2,ii) = fion(2,ii) + occup*wy_tmp*dbl_mb(overlap_ptr)
-            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
+c            fion(1,ii) = fion(1,ii) + occup*wx_tmp*dbl_mb(overlap_ptr)
+c            fion(2,ii) = fion(2,ii) + occup*wy_tmp*dbl_mb(overlap_ptr)
+c            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
+
+            dbl_mb(ft(1)+3*(ii-1))   = dbl_mb(ft(1)+3*(ii-1)) 
+     >                               + occup*wx_tmp*dbl_mb(overlap_ptr)
+            dbl_mb(ft(1)+3*(ii-1)+1) = dbl_mb(ft(1)+3*(ii-1)+1) 
+     >                               + occup*wy_tmp*dbl_mb(overlap_ptr)
+            dbl_mb(ft(1)+3*(ii-1)+2) = dbl_mb(ft(1)+3*(ii-1)+2) 
+     >                               + occup*wz_tmp*dbl_mb(overlap_ptr)
+
+            end if
+            tcount = mod(tcount+1,np)
             end if !*ma.eq.mb.and.la.eq.lb*
 
            end do !*mb*
@@ -652,6 +730,12 @@ c      write(*,*)
 
         i_nbasis = i_nbasis + nbasis
       end do !*ii*
+
+      if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,fion,1)
+
+      value = MA_pop_stack(ft(2))
+      if (.not.value) call errquit('paw_force_contraint: pop stack',0,1)
 
       return
       end
@@ -684,6 +768,8 @@ c      write(*,*)
 #include "paw_comp_charge_data.fh"      
 
       !*** local variables ***
+      logical value
+      integer ft(2),taskid,np,tcount
       integer nion
       integer il,ilp
       integer i_lshell,lshell
@@ -700,7 +786,14 @@ c      write(*,*)
       complex*16 comp_charge_coeff
       complex*16 f_tmp(3)
 
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
       nion = ion_nion()
+      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      if (.not.value) call errquit('paw_force_mult: push stack',0,0)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
+
 
       !do in=1,nion
       !do k=1,3
@@ -708,6 +801,7 @@ c      write(*,*)
       !end do
       !end do
 
+      tcount=0
       do in=1,nion
       ra(1)   = ion_rion(1,in)
       ra(2)   = ion_rion(2,in)
@@ -738,6 +832,7 @@ c      write(*,*)
      >              +(ra(3)-ra_prime(3))**2)
 
          if (R.lt.(4*sigma_smooth)) then
+         if (tcount.eq.taskid) then
 
             il = 1
             do l1=0,mult_l
@@ -759,8 +854,11 @@ c      write(*,*)
      >                             f_tmp(3))
 
                 do k=1,3
-                 f_mult(k,in) = f_mult(k,in)-
-     >                          dble(comp_charge_coeff*f_tmp(k))
+c                 f_mult(k,in) = f_mult(k,in)-
+c     >                          dble(comp_charge_coeff*f_tmp(k))
+                 dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           = dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           - dble(comp_charge_coeff*f_tmp(k))
                 end do
 
                call paw_mult_force(l1,m1,sigma_smooth,
@@ -772,8 +870,11 @@ c      write(*,*)
      >                             f_tmp(3))
 
                 do k=1,3
-                 f_mult(k,in) = f_mult(k,in)-
-     >                          dble(comp_charge_coeff*f_tmp(k))
+c                 f_mult(k,in) = f_mult(k,in)-
+c     >                          dble(comp_charge_coeff*f_tmp(k))
+                 dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           = dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           - dble(comp_charge_coeff*f_tmp(k))
                 end do
 
 
@@ -786,8 +887,11 @@ c      write(*,*)
      >                             f_tmp(3))
 
                 do k=1,3
-                 f_mult(k,in) = f_mult(k,in)+
-     >                          dble(comp_charge_coeff*f_tmp(k))
+c                 f_mult(k,in) = f_mult(k,in)+
+c     >                          dble(comp_charge_coeff*f_tmp(k))
+                 dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           = dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           + dble(comp_charge_coeff*f_tmp(k))
                 end do
 
 
@@ -800,8 +904,11 @@ c      write(*,*)
      >                             f_tmp(3))
 
                 do k=1,3
-                 f_mult(k,in) = f_mult(k,in)+
-     >                          dble(comp_charge_coeff*f_tmp(k))
+c                 f_mult(k,in) = f_mult(k,in)+
+c     >                          dble(comp_charge_coeff*f_tmp(k))
+                 dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           = dbl_mb(ft(1)+k-1+(in-1)*3) 
+     >           + dble(comp_charge_coeff*f_tmp(k))
                 end do
 
 
@@ -816,13 +923,18 @@ c      write(*,*)
             end do !*l1*
 
           end if
+          tcount = mod(tcount+1,np)
+          end if
 
         end do !*lshell*
         end do !*jn*
         end do !*in*
 
+      if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,f_mult,1)
 
-
+      value = MA_pop_stack(ft(2))
+      if (.not.value) call errquit('paw_force_mult: pop stack',0,1)
 
       return
       end

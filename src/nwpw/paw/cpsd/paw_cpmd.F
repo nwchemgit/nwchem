@@ -1,6 +1,11 @@
 *
-* $Id: paw_cpmd.F,v 1.11 2004-09-04 17:56:21 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.12 2005-01-31 02:09:12 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2004/09/04 17:56:21  bylaska
+* Added local potential to the projector file (.jpp).
+* More updates to constraint force.
+* ...EJB
+*
 * Revision 1.10  2004/08/01 02:02:45  bylaska
 * updates...EJB
 *
@@ -230,6 +235,10 @@
       external control_SA_decay
       integer  control_mapping
       external control_mapping
+
+      logical  control_translation,control_rotation
+      external control_translation,control_rotation
+
 
 
 *                            |************|
@@ -615,6 +624,8 @@ c      call paw_vloc_init()
      >                 pack_nwave_all(1),pack_nwave(1)
          write(6,1260) paw_mult_rcut(),paw_mult_ncut()
          write(6,1270)
+         if (.not.control_translation()) write(6,1271)
+         if (.not.control_rotation())    write(6,1272)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_rte(),control_rti()
          write(6,1222) eke0,eki0,ekg
@@ -759,7 +770,8 @@ c      call paw_vloc_init()
              write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),
      >                     Te_new,Tr_new
            else
-             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4)
+             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4),
+     >                     ion_Temperature()
            end if
            call util_flush(6)
 
@@ -771,12 +783,12 @@ c      call paw_vloc_init()
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    eave,evar
+     >                    eave,evar,ion_Temperature()
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),
-     >                    eave,evar
+     >                    eave,evar,ion_Temperature()
            end if
            call util_flush(31)
 
@@ -1303,6 +1315,8 @@ c    .   ' (',F6.3,' smooth)')
      &       F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
+ 1271 FORMAT(5x, ' translation contrained')
+ 1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
@@ -1315,7 +1329,7 @@ c    .   ' (',F6.3,' smooth)')
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')
  1309 FORMAT(I8,2E19.10,2E14.5,2F9.1)
- 1310 FORMAT(I8,2E19.10,2E14.5)
+ 1310 FORMAT(I8,2E19.10,2E14.5,F14.2)
  1311 format(100e19.10)
  1312 format(e14.6,i3)
  1313 format(3i4)
