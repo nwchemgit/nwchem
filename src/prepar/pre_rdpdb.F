@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.19 2000-06-01 21:42:38 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.20 2001-05-01 23:39:09 d3j191 Exp $
 c
       implicit none
 c
@@ -193,6 +193,9 @@ c
       xw(1,i,nwm)=1.0d-01*x
       xw(2,i,nwm)=1.0d-01*y
       xw(3,i,nwm)=1.0d-01*z
+      vw(1,i,nwm)=0.0d0
+      vw(2,i,nwm)=0.0d0
+      vw(3,i,nwm)=0.0d0
       endif
     5 continue
       endif
