@@ -1,5 +1,5 @@
 !
-! $Id: paw_basis_data.F,v 1.3 2002-08-01 01:07:25 marat Exp $
+! $Id: paw_basis_data.F,v 1.4 2002-08-07 00:15:48 bylaska Exp $
 !
 
 !**************************************************
@@ -389,6 +389,7 @@
       return
       END 
 
+      
 !**************************************************
 !
 !	Name: get_ion_charge
@@ -408,10 +409,219 @@
       return
       END 
 
+      
+!**************************************************
+!
+!	Name: paw_basis_core_charge
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      real*8 function  paw_basis_core_charge(ia)
+      implicit none
+      integer ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** local variables ***
+      real*8 core,fourpi
+
+      !*** external functions ***
+      integer  get_i_core_density,get_i_rgrid
+      integer  get_i_log_amesh,get_i_ngrid
+      real*8   def_integr
+      external get_i_core_density,get_i_rgrid
+      external get_i_log_amesh,get_i_ngrid
+      external def_integr
+
+      fourpi = 16.0d0*datan(1.0d0)
+      core = fourpi*def_integr(0,
+     >                         dbl_mb(get_i_core_density(ia)),
+     >                         2,
+     >                         dbl_mb(get_i_rgrid(ia)),
+     >                         dbl_mb(get_i_log_amesh(ia)),
+     >                         int_mb(get_i_ngrid(ia)))
+                                                 
+
+      paw_basis_core_charge = core
+      return
+      end 
+
+**************************************************
+!
+!	Name: paw_basis_sphere_radius
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      real*8 function  paw_basis_sphere_radius(ia)
+      implicit none
+      integer ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+
+      !*** external functions ***
+      integer  get_i_rgrid,get_i_i_cut
+      external get_i_rgrid,get_i_i_cut                                                 
+
+      paw_basis_sphere_radius = dbl_mb(get_i_rgrid(ia)
+     >                                 +int_mb(get_i_i_cut(ia))-1)
+      return
+      end 
+
+
+**************************************************
+!
+!	Name: paw_basis_sigma
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      real*8 function  paw_basis_sigma(ia)
+      implicit none
+      integer ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_sigma
+      external get_i_sigma                                                 
+
+      paw_basis_sigma = dbl_mb(get_i_sigma(ia))
+      return
+      end
+
+**************************************************
+!
+!	Name: paw_basis_nbasis
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      integer function  paw_basis_nbasis(ia)
+      implicit none
+      integer ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_nbasis
+      external get_i_nbasis                                                
+
+      paw_basis_nbasis = int_mb(get_i_nbasis(ia))
+      return
+      end
+
+
+**************************************************
+!
+!	Name: paw_basis_n
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      integer function  paw_basis_n(ii,ia)
+      implicit none
+      integer ii,ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_pr_n
+      external get_i_pr_n                                                
+
+      paw_basis_n = int_mb(get_i_pr_n(ia)+ii-1)
+      return
+      end
+     
+**************************************************
+!
+!	Name: paw_basis_n_ps
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      integer function  paw_basis_n_ps(ii,ia)
+      implicit none
+      integer ii,ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_pr_n_ps
+      external get_i_pr_n_ps                                                
+
+      paw_basis_n_ps = int_mb(get_i_pr_n_ps(ia)+ii-1)
+      return
+      end
+     
+**************************************************
+!
+!	Name: paw_basis_orb_l
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      integer function  paw_basis_orb_l(ii,ia)
+      implicit none
+      integer ii,ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_orb_l
+      external get_i_orb_l                                
+
+      paw_basis_orb_l = int_mb(get_i_orb_l(ia)+ii-1)
+      return
+      end
+     
+   
+**************************************************
+!
+!	Name: paw_basis_eig
+!
+!	Purpose 
+!
+!	Created:	8/06/2002
+!**************************************************
+      real*8 function  paw_basis_eig(ii,ia)
+      implicit none
+      integer ii,ia
+    
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      !*** external functions ***
+      integer  get_i_eig
+      external get_i_eig                                                
+
+      paw_basis_eig = dbl_mb(get_i_eig(ia)+ii-1)
+      return
+      end
+     
+
+ 
+
 !**************************************************
 !
 !	Name: get_i_core_kin_energy
-!
+!y
 !	Purpose 
 !
 !	Created:	7/9/2002
@@ -452,7 +662,7 @@
 !
 !	Purpose 
 !
-!	Created:	7/9/2002
+!	Created:	7/9/200
 !**************************************************
       INTEGER FUNCTION  get_i_pr_n_ps(it)
       implicit none

@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.5 2002-08-06 18:07:26 bylaska Exp $
+* $Id: paw_sd.F,v 1.6 2002-08-07 00:16:18 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -83,15 +83,25 @@
 *     **** external functions ****
       real*8      ewald_rcut,ion_amass
       real*8      ewald_mandelung
+      real*8      get_ion_charge,paw_basis_core_charge,paw_basis_eig
+      real*8      paw_basis_sphere_radius,paw_basis_sigma
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d
+      integer     paw_basis_nbasis,paw_basis_n,paw_basis_n_ps
+      integer     paw_basis_orb_l
+      character   spdf_name
       character*2 ion_aname,ion_atom
       external    ewald_rcut,ion_amass
       external    ewald_mandelung
+      external    get_ion_charge,paw_basis_core_charge,paw_basis_eig
+      external    paw_basis_sphere_radius,paw_basis_sigma
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       external    ewald_ncut,ewald_nshl3d
+      external    paw_basis_nbasis,paw_basis_n,paw_basis_n_ps
+      external    paw_basis_orb_l
+      external    spdf_name
       external    ion_aname,ion_atom
 
 
@@ -102,11 +112,11 @@
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
  
-      integer  pack_nwave_all
+      integer  pack_nwave_all,paw_proj_nbasis
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
-      external pack_nwave_all
+      external pack_nwave_all,paw_proj_nbasis
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave
       external ion_nion,ion_natm,ion_katm,ion_nkatm
@@ -311,23 +321,30 @@
          END IF
 
          write(6,1140)
-!         do ia = 1,psp_npsp()
-!           write(6,1150) ia,psp_atom(ia),
-!     >                    psp_zv(ia),psp_lmax(ia)
-!           write(6,1152) psp_lmax(ia)
-!           write(6,1153) psp_locp(ia)
-!           write(6,1154) psp_lmmax(ia)
-!           if (control_version().eq.4) write(6,1156) psp_rlocal(ia)
-!           if (psp_semicore(ia)) 
-!     >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
-!           write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
-!         end do
+         do ia = 1,ion_nkatm()
+            write(6,1141) ia,ion_atom(ia),
+     >                    get_ion_charge(ia),
+     >                    paw_basis_core_charge(ia)
+            write(6,1143) paw_basis_sphere_radius(ia)
+            write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
+            write(6,1150) paw_proj_nbasis(ia)
+            write(6,1151)
+            do i=1,paw_basis_nbasis(ia)
+              write(6,1152) paw_basis_n_ps(i,ia),
+     >                      paw_basis_n(i,ia),
+     >                      spdf_name(paw_basis_orb_l(i,ia)),
+     >                      paw_basis_eig(i,ia),
+     >                      2*paw_basis_orb_l(i,ia)+1
+            end do
+         end do
 
-!         icharge = -(ne(1)+ne(ispin))
-!         do ia=1,ion_nkatm()
-!           icharge = icharge + ion_natm(ia)*psp_zv(ia)
-!         end do
-!         write(6,1159) icharge
+         icharge = -(ne(1)+ne(ispin))
+         do ia=1,ion_nkatm()
+           icharge = icharge + ion_natm(ia)*
+     >                        (get_ion_charge(ia)
+     >                        -paw_basis_core_charge(ia))
+         end do
+         write(6,1159) icharge
 
          write(6,1160)
          write(6,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
@@ -599,9 +616,16 @@
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
- 1151 FORMAT(5X,'        cutoff =',4F8.3)
- 1152 FORMAT(12X,' highest angular component      : ',i2)
+ 1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
+
+ 1143 FORMAT(12x,' augmentation sphere radius  :',F6.3)
+ 1144 FORMAT(12x,' compensation sigma          :',F6.3,' (',F6.3,' smooth)')
+
+ 1150 FORMAT(12x,' total number of projectors  :',I3)
+
+ 1151 FORMAT(12x,' n_ps (n) l          eig    #projector')
+ 1152 FORMAT(14X,I3,' (',I1,') ',A,F13.6,I14)
+
  1153 FORMAT(12X,' local potential used           : ',i2)
  1154 FORMAT(12X,' number of non-local projections: ',i2)
  1155 FORMAT(12X,' semicore corrections included  : ',
@@ -691,4 +715,23 @@
 
       paw_sd = value
       return
-      END
+      end
+
+      character function spdf_name(l)
+      implicit none
+      integer l
+      character name
+      name = '?'
+      if (l.eq.0) name = 's'
+      if (l.eq.1) name = 'p'
+      if (l.eq.2) name = 'd'
+      if (l.eq.3) name = 'f'
+      if (l.eq.4) name = 'g'
+      if (l.eq.5) name = 'h'
+      if (l.eq.6) name = 'i'
+      if (l.eq.7) name = 'j'
+      if (l.eq.8) name = 'k'
+      if (l.eq.9) name = 'l'
+      spdf_name = name
+      return
+      end
