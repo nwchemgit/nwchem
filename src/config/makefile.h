@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.302 1999-10-19 22:34:04 windus Exp $
+# $Id: makefile.h,v 1.303 1999-11-13 02:15:47 bjohnson Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -40,6 +40,7 @@ endif
 # NWCHEM_TARGET :  CONVEX-SPP
 #                  CRAY-T3D
 #                  CRAY-T3E
+#                  CYGNUS       (Windows under Cygwin tools)
 #                  DECOSF
 #                  DELTA
 #                  IBM
@@ -1158,10 +1159,10 @@ ifeq ($(TARGET),DECOSF)
             EXTRA_LIBS = -laio -lpthreads 
 endif
 
-ifeq ($(TARGET),LINUX)
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
 #
 #
-# Linux running on an x86 using g77
+# Linux or Cygwin under Windows running on an x86 using g77
 # f2c has not been tested in years and is not supported
 #
        NICE = nice -2
@@ -1169,7 +1170,7 @@ ifeq ($(TARGET),LINUX)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = ranlib
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
 ifeq ($(BUILDING_PYTHON),python)
@@ -1178,6 +1179,9 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 
   DEFINES = -DLINUX
+ifeq ($(TARGET),CYGNUS)
+    DEFINES += -DCYGNUS
+endif
 
 ifeq ($(FC),pgf77)
   DEFINES   += -DPGLINUX
@@ -1242,7 +1246,7 @@ endif
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
-
+# end of Linux, Cygnus
 endif
 
 ifeq ($(TARGET),FUJITSU_VPP)
