@@ -807,11 +807,14 @@ pair lists are regenerated.
 
 \item
 \begin{verbatim}
-update center <integer nfcntr> [fraction <integer idscb(1:5)>]
+update center <integer nfcntr> [zonly] [fraction <integer idscb(1:5)>]
 \end{verbatim}
 specifies the frequency \verb+<nfcntr>+ in molecular dynamics steps in 
 which the center of geometry of the solute(s) is translated to the
-center of the simulation volume. The solute fractions determining the
+center of the simulation volume. Optional keyword \verb+zonly+ can be
+used to specify that centering will take place in the z-direction
+only.
+The solute fractions determining the
 solutes that will be centered are specified by the keyword 
 {\tt fraction} and the vector \verb+<idscb>+, with a maximum of 5 entries.
 This translation is implemented such that it has no effect on any 
