@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.13 1996-08-27 23:03:00 d3g681 Exp $
+C     $Id: moints_full.F,v 1.14 1996-08-29 17:19:44 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -629,13 +629,16 @@ c
          do i = lo, hi
             call ga_get(g_mofock, 1, hi, i, i, buf, 1)
             do j = lo, i
-               if (abs(buf(j)) .gt. tol_out) then
-                  if (irs(i).ne.irs(j)) then
+               if (irs(i).ne.irs(j)) then
+                  if (abs(buf(j)) .gt. tol_out) then
                      write(6,*) i, j, irs(i), irs(j), buf(j)
                      call errquit('moints: integral zero by sym',0)
+                  else
+                     buf(j) = 0.0d0
                   endif
                endif
             enddo
+            call ga_put(g_mofock, 1, hi, i, i, buf, 1)
          enddo
       endif
 c
