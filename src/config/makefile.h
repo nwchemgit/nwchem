@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.148 1996-04-22 17:00:44 gg502 Exp $
+# $Id: makefile.h,v 1.149 1996-04-22 21:34:53 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -603,22 +603,24 @@ else
              CORE_LIBS += -lblas
 endif
 
-# IMPORTANT NOTE:
+# IMPORTANT:  These renames are necessary if you try to link against
+# a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
+# see INSTALL)
 # mpipriv is a common block used in MPICH's implementation of MPI.  It
 # is critical that this common block is renamed correctly because
 # the linker will not detect any problems (there will be separate
 # common blocks labeled mpipriv_ and mpipriv) but the program will not
 # operate correctly.
-ifdef USE_MPI
-   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
-		-brename:.mpi_initialized_,.mpi_initialized \
-		-brename:.mpi_init_,.mpi_init \
-		-brename:.mpi_comm_rank_,.mpi_comm_rank \
-		-brename:.mpi_comm_size_,.mpi_comm_size \
-		-brename:.mpi_finalize_,.mpi_finalize \
-		-brename:.mpi_send_,.mpi_send \
-		-brename:mpipriv_,mpipriv
-endif
+#ifdef USE_MPI
+#   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
+#		-brename:.mpi_initialized_,.mpi_initialized \
+#		-brename:.mpi_init_,.mpi_init \
+#		-brename:.mpi_comm_rank_,.mpi_comm_rank \
+#		-brename:.mpi_comm_size_,.mpi_comm_size \
+#		-brename:.mpi_finalize_,.mpi_finalize \
+#		-brename:.mpi_send_,.mpi_send \
+#		-brename:mpipriv_,mpipriv
+#endif
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
