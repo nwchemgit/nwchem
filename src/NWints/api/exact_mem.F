@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.8 1994-06-09 05:31:12 d3g681 Exp $
+c $Id: exact_mem.F,v 1.9 1994-06-11 00:41:10 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -11,7 +11,7 @@ c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
       integer ibas,jbas, kbas
-      integer hang, tang, hang2
+      integer nbfmax,nbftest
       integer lsz_3ov,lmem_3ov
 c
       mem_2e4c = 0
@@ -19,36 +19,35 @@ c
       mem_1e   = 0
       isz_1e   = 0
 c
-      hang = 0
+      nbfmax = 0
       do 00100 ibas = 1,nbas
         do 00200 jbas = 1,ibas
-c.... angular momentum for 2e3c and 2e4c
-          if(.not.bas_high_angular(bases(ibas),tang))
-     &           call errquit('exact_mem:ang error ',1)
-          hang = max(hang,tang)
-          if(.not.bas_high_angular(bases(jbas),tang))
-     &           call errquit('exact_mem:ang error ',2)
-          hang = max(hang,tang)
+c.... nbfmax for 2e3c and 2e4c
+           if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
+     &          call errquit('exact_mem:bas_nbf_cn_max error ',1)
+           nbfmax = max(nbfmax,nbftest)
+           if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
+     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
+           nbfmax = max(nbfmax,nbftest)
 c.... 2e 4 center
-          call emem_2e4c(bases(ibas), bases(jbas), lsz_2e4c, lmem_2e4c)
-          mem_2e4c = max(mem_2e4c, lmem_2e4c)
-          isz_2e4c = max(isz_2e4c, lsz_2e4c)
+           call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+           mem_2e4c = max(mem_2e4c, lmem_2e4c)
+           isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 1e
-          call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-          mem_1e = max(mem_1e, lmem_1e)
-          isz_1e = max(isz_1e, lsz_1e)
+           call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
+           mem_1e = max(mem_1e, lmem_1e)
+           isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
-c
+c     
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
       mem_1e_h1 = mem_1e + isz_1e
 c
 c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
 c
-      hang2 = (hang+1)*(hang+2)/2
-      isz_2e3c = hang2**3
-      isz_2e2c = hang2**2
+      isz_2e3c = nbfmax**3
+      isz_2e2c = nbfmax**2
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
 c
@@ -210,15 +209,15 @@ c
 00100 continue
 c
       if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
       if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
       max1e = max_nbf_bra*max_nbf_ket
 c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
 c
-*      write(6,'(a,i10)')'emem_1e: memsize =',memsize
-*      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+      write(6,'(a,i10)')'emem_1e: memsize =',memsize
+      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
 c
       end
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
@@ -294,25 +293,27 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &             .true.,exndcf,memdum)
           memsize = max(memsize,memdum)
 c
-          memdum = 9 000 000
+          if (brain.eq.ketin) then
+            memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
      &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
      &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
-          memsize = max(memsize,memdum)
+            memsize = max(memsize,memdum)
 c
-          memdum = 9 000 000
+            memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
-          memsize = max(memsize,memdum)
+            memsize = max(memsize,memdum)
+          endif
 00200   continue
 00100 continue
 c
@@ -325,8 +326,8 @@ c
       maxg = maxg*max_nbf_ket*max_nbf_ket
       
 c
-*      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
-*      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
+      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
       end
 

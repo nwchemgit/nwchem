@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1994-06-08 22:39:43 d3e129 Exp $
+# $Id: GNUmakefile,v 1.11 1994-06-11 00:41:16 d3e129 Exp $
 
 include ../../config/makefile.h
 API_OBJ = int_init.o exact_mem.o int_mem.o \
@@ -10,7 +10,8 @@ API_OBJ = int_init.o exact_mem.o int_mem.o \
           int_2e3c.o int_2e2c.o int_l2e3c.o \
           int_l2e2c.o int_1e3ov.o int_l1e3ov.o \
           int_hf1sp.o int_nint.o \
-          intd_1eov.o intd_1eh1.o intd_2e4c.o
+          intd_1eov.o intd_1eh1.o intd_2e4c.o \
+          intd_init.o exactd_mem.o
 
 apiobj:	$(API_OBJ)
 
