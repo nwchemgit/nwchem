@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.8 1994-08-19 01:22:28 d3g681 Exp $
+c $Id: int_2e4c.F,v 1.9 1994-08-27 20:00:30 d3g681 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -36,13 +36,13 @@ c:: local
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
 c
-      integer inline_chk_sh
+      logical inline_chk_sh
       integer WarnP
       data WarnP /0/
       save WarnP
 c
       inline_chk_sh(bra,ish) =
-     $     (ish.gt.0) .and. (ish.le.ncont_tot_gb(bra))
+     $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
 
 c
 c check initialization
