@@ -2,13 +2,14 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
 *
-* $Id: mp2_memory.F,v 1.14 1997-06-28 05:15:50 d3g681 Exp $
+* $Id: mp2_memory.F,v 1.15 1997-07-25 16:53:11 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"
+#include "util.fh"
       integer nbf,basis,rtdb,geom
       integer noa,nva
       double precision tol2e
@@ -59,7 +60,7 @@ c
       call schwarz_tidy()
       call int_terminate()
 c
-      k_file_size=dble(nnbf_sparse)*batch_size*nva_local
+      k_file_size=dble(nnbf_sparse)*batch_size*nva_local + nnbf + 2
       if (k_file_size .gt. 2.4d8) k_file_size = 1d100 
       if(task.eq.'energy')then
          max_file=k_file_size
@@ -77,8 +78,14 @@ c
          if (t_file_size .gt. 2.4d8) t_file_size = 1d100 
          if (p_file_size .gt. 2.4d8) p_file_size = 1d100 
          max_file=max(k_file_size+t_file_size,t_file_size+p_file_size)
+         if (ga_nodeid().eq.0 .and. 
+     $        util_print('mpass debug',print_debug)) then
+            write(6,*) ' files k, p, t ',
+     $           k_file_size,t_file_size,p_file_size
+            call util_flush(6)
+         endif
       endif
-c     
+c
       if(task.eq.'energy')then
          max_ga=2*nbf*nbf+noa*nva+nob*nvb
       else
@@ -106,8 +113,8 @@ c
      $        +batch_size*nbf+lenscrd+shmax**4+12*lengd)
       endif
 c     
-      max_ga = max_ga * 1.1d0    ! 10% for safety
-      max_ma = max_ma * 1.1d0
-      max_file = max_file * 1.1d0
+      max_ga = max_ga * 1.02d0    ! 2% for misc small stuff
+      max_ma = max_ma * 1.02d0
+      max_file = max_file * 1.02d0
 c     
       end
