@@ -129,18 +129,21 @@ void MAIN1()
   
   if ( me == 0 ) {
     k = 0;
-/*
-    sprintf(filename, "robert_tri");
+
+    /*
+      sprintf(filename, "robert_tri");
+      */
+    /*
+      sprintf(filename, "dave_tri");
+      */
     sprintf(filename, "edo_tri");
-    sprintf(filename, "dave_tri");
-*/
-    sprintf(filename, "robert_tri");
+    
     file = fopen(filename, "r");
     if ( file == NULL ) {
       fprintf(stderr, " failed to Open %s for input node %d  \n", filename, me);
       exit(-1);
-
-    fprintf(stderr, " Input file = %s \n", filename );
+      
+      fprintf(stderr, " Input file = %s \n", filename );
     }
     
 #ifndef STD_INT
@@ -155,8 +158,8 @@ void MAIN1()
     i = sizeof(Integer);
     bbcast00( (char *) &n, i, i, iscratch[0], nprocs, iscratch );
     /*
-    fprintf(stderr, " rcv read n = %ld \n", n);
-    */
+      fprintf(stderr, " rcv read n = %ld \n", n);
+      */
   }
   
   
@@ -164,12 +167,12 @@ void MAIN1()
     fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for dd %d \n", me, n  );
     exit(-1);
   }
-
+  
   if ((ee = (DoublePrecision *) malloc( n * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for ee %d \n", me, n  );
     exit(-1);
   }
-
+  
   if ( me == 0 ) {  
     i = 0;
     for ( indx = 0; indx < n; indx++ ){
@@ -190,20 +193,20 @@ void MAIN1()
     bbcast00( (char *) dd, i, 0, iscratch[0], nprocs, iscratch );
     bbcast00( (char *) ee, i, 0, iscratch[0], nprocs, iscratch );
   }
-
+  
   
   free(iscratch);
   iscratch = (Integer *) malloc ( (4*n + 100) * sizeof(Integer));
   
   /*
-     specify size for number of input entries
+    specify size for number of input entries
     */
   
   if ((mapA = (Integer *) malloc( n * sizeof(Integer))) == NULL ) {
     fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for mapA %d \n", me, n  );
     exit(-1);
   }
-
+  
   if ((mapZ = (Integer *) malloc( n * sizeof(Integer))) == NULL ) {
     fprintf(stderr, " ERROR in memory allocation, not enough memory for mapZ \n");
     exit(-1);
@@ -339,29 +342,30 @@ wilkinson's matrix
   /*
   fprintf(stderr, "me = %d: just before memreq \n", me);
   */
+  
   rsize = 0;
   isize = 0;
   ptr_size = 0;
   iscratch = ( Integer *) malloc( 6*n*sizeof(Integer));
   memreq_( &index, &n, mapA, mapB, mapZ, &isize, &rsize, &ptr_size, iscratch );
   /*
-  fprintf(stderr, "me = %d: just after memreq isize = %d rsize = %d ptr_size %d \n", me, isize, rsize, ptr_size);
-  */
+    fprintf(stderr, "me = %d: just after memreq isize = %d rsize = %d ptr_size %d \n", me, isize, rsize, ptr_size);
+    */
   
   free(iscratch);
   
-  if ( (iscratch = (Integer *) malloc( 2* isize * sizeof(Integer))) == NULL ) {
-    fprintf(stderr, " me = %d ERROR in memory allocation, not enough memory for integer scratch space \n", me);
+  if ( (iscratch = (Integer *) malloc(  isize * sizeof(Integer))) == NULL ) {
+    fprintf(stderr, " me = %d ERROR in memory allocation, not enough memory for integer scratch space iscratch \n", me);
     exit(-1);
   }
   
-  if ( (scratch = (DoublePrecision *) malloc( 2*rsize * sizeof(DoublePrecision))) == NULL ) {
+  if ( (scratch = (DoublePrecision *) malloc( rsize * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me %d  ERROR in memory allocation, not enough memory for DoublePrecision scratch space \n", me);
     exit(-1);
   }
   
   
-  if ( (iptr = (DoublePrecision **) malloc( 2*ptr_size * sizeof(DoublePrecision *))) == NULL ) {
+  if ( (iptr = (DoublePrecision **) malloc( ptr_size * sizeof(DoublePrecision *))) == NULL ) {
     fprintf(stderr, " me %d ERROR in memory allocation, not enough memory for pointer scratch space \n", me);
     exit(-1);
   }
@@ -371,71 +375,76 @@ wilkinson's matrix
     fprintf(stderr, " just before pdspgv %d \n", me);
 
   for ( ii = 0; ii < 1; ii++ ) {
+    
+    /* set data modified by pdspevx */
   
-     /* set data modified by pdspevx */
-  
-     zero_out( neleZ, matrixZ );
-     zero_out( neleA, matrixA );
-  
-     for ( k = 0;  k < n; k++ ) {
+    zero_out( neleZ, matrixZ );
+    zero_out( neleA, matrixA );
+    
+    for ( k = 0;  k < n; k++ ) {
        indx = ( k % nprocs);
        mapZ[k] = indx;
-     }
-  
-     k = 0;
-     for ( indx = 0; indx < n; indx++ ){
-       if ( me == mapA[indx] ) {
-         vecA[k][0] = dd[indx];
-         if ( indx != n-1 )
-   	   vecA[k][1] = ee[indx+1];
-         k++;
-       }
-     }
-
+    }
+    
+    k = 0;
+    for ( indx = 0; indx < n; indx++ ){
+      if ( me == mapA[indx] ) {
+	vecA[k][0] = dd[indx];
+	if ( indx != n-1 )
+	  vecA[k][1] = ee[indx+1];
+	k++;
+      }
+    }
+    
 #ifdef TIMING
-     time1 = mxclock_();
-
-     mxsync_();
-
-     time1 = mxclock_();
+    time1 = mxclock_();
+    
+    mxsync_();
+    
+    time1 = mxclock_();
 #endif
-
-     mxtime_( &IZERO, &t_com );
-  
-     pdspev( &n, vecA, mapA, vecZ, mapZ, eval, iscratch,
+    
+    mxtime_( &IZERO, &t_com );
+    
+    pdspev( &n, vecA, mapA, vecZ, mapZ, eval, iscratch,
 	    &isize, iptr, &ptr_size ,scratch, &rsize, &info);
-
-     mxsync_();
+    
+    mxsync_();
 #ifdef TIMING
-     timex = mxclock_();
-
-     mxtime_( &IONE, &t_com );
-  
-     if( ii == 0 )
-       time2 = timex - time1;
+    timex = mxclock_();
+    
+    mxtime_( &IONE, &t_com );
+    
+    if( ii == 0 )
+      time2 = timex - time1;
 #endif
-
-     tresid( &n, &n, dd, ee, vecZ, mapZ, eval, iscratch, scratch, &res, &info);
-
-     if( me == 0 )
-        fprintf(stderr, " iteration # %d : A Z - Z D residual = %g \n", ii, res);
-
-     ortho( &n, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
-
-     if( me == 0 )
-       fprintf(stderr, " iteration # %d : Z' Z - I residual = %g \n", ii, res);
+    
+    if ( !NO_EVEC){
+      
+      tresid( &n, &n, dd, ee, vecZ, mapZ, eval, iscratch, scratch, &res, &info);
+      
+      if( me == 0 )
+	fprintf(stderr, " iteration # %d : A Z - Z D residual = %g \n", ii, res);
+      
+      ortho( &n, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
+      
+      if( me == 0 )
+	fprintf(stderr, " iteration # %d : Z' Z - I residual = %g \n", ii, res);
+    }
   }
-
+  
 #ifdef TIMING
   
   test_timing.pdspevx = timex - time1;
-
-  ii = 0;
-  if ( info == 0 ) {
-    for ( k = 0; k < n; k++ ) {
-      if ( mapZ[k] == me )  {
-	*scratch = dasum_( &n , vecZ[ii], &IONE );
+  
+  if ( !NO_EVEC){
+    ii = 0;
+    if ( info == 0 ) {
+      for ( k = 0; k < n; k++ ) {
+	if ( mapZ[k] == me )  {
+	  *scratch = dasum_( &n , vecZ[ii], &IONE );
 	  ii++;
+	}
       }
     }
   }

@@ -116,13 +116,18 @@ void MAIN1()
   test_timing.pdspevx  = 0.0e0;
   test_timing.pdspgvx  = 0.0e0;
 #endif
-  
-  m = 500;
-  m = 250;
+
+  /*
+  while (1) {
+  */
+  {
+    m = 250;
 
   n = 2 * m + 1;
 
+  
   nprocs = mxnprc_();
+  printf(" n = %d nprocs = %d \n", n, nprocs);
   
   if ((dd = (DoublePrecision *) malloc( n * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me = %d: ERROR in memory allocation, not enough memory for dd %d \n", me, n  );
@@ -196,21 +201,25 @@ void MAIN1()
       dptr += ( n - indx);
     }
   }
-
-/*
-wilkinson's matrix
-*/
-
+  
+  /*
+    wilkinson's matrix
+    */
+  
   ee[0] = 0.e0;
   for ( indx = 1; indx < n; indx++)
+    ee[indx] = 1.0e0;
+  
+  /*
     ee[indx] = 1.e0;
-
+    */
+  
   i = 0;
   for ( indx = 0; indx < m; indx++){
-    dd[indx] = (DoublePrecision) m-indx;
+    dd[indx] = (DoublePrecision) ( m-indx );
     if ( mapA[indx] == me ){
-      vecA[i][0] = (DoublePrecision) m-indx;
-      vecA[i][1] = (DoublePrecision) 1;
+      vecA[i][0] = (DoublePrecision) ( m-indx );
+      vecA[i][1] = 1.;
       i++;
     }
   }
@@ -230,10 +239,9 @@ wilkinson's matrix
     }
   }
 
-  
   /*
-     use the utility routine count_list to determine the number of columns of Z that are stored
-     on this processor using the cve distribution
+    use the utility routine count_list to determine the number of columns of Z that are stored
+    on this processor using the cve distribution
     */
   
   ii = countlist ( me, mapZ, &n );
@@ -276,26 +284,25 @@ wilkinson's matrix
   
   free(iscratch);
   
-  if ( (iscratch = (Integer *) malloc( 2* isize * sizeof(Integer))) == NULL ) {
+  if ( (iscratch = (Integer *) malloc( 4* isize * sizeof(Integer))) == NULL ) {
     fprintf(stderr, " me = %d ERROR in memory allocation, not enough memory for integer scratch space \n", me);
     exit(-1);
   }
   
-  if ( (scratch = (DoublePrecision *) malloc( 2*rsize * sizeof(DoublePrecision))) == NULL ) {
+  if ( (scratch = (DoublePrecision *) malloc( 4*rsize * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me %d  ERROR in memory allocation, not enough memory for DoublePrecision scratch space \n", me);
     exit(-1);
   }
   
   
-  if ( (iptr = (DoublePrecision **) malloc( 2*ptr_size * sizeof(DoublePrecision *))) == NULL ) {
+  if ( (iptr = (DoublePrecision **) malloc( 4*ptr_size * sizeof(DoublePrecision *))) == NULL ) {
     fprintf(stderr, " me %d ERROR in memory allocation, not enough memory for pointer scratch space \n", me);
     exit(-1);
   }
   
-
   if( me == 0 )
     fprintf(stderr, " Wilkinson \n" );
-
+  
   for ( ii = 0; ii < 1; ii++ ) {
   
      /* set data modified by pdspevx */
@@ -327,10 +334,14 @@ wilkinson's matrix
 #endif
 
      mxtime_( &IZERO, &t_com );
-  
+
      pdspev( &n, vecA, mapA, vecZ, mapZ, eval, iscratch,
 	    &isize, iptr, &ptr_size ,scratch, &rsize, &info);
 
+     if ( me == 0 )
+       for ( k = 0; k < n; k++ )
+	 printf(" driver wilk k = %d eval %f \n", k, eval[k]);
+     
      mxsync_();
 #ifdef TIMING
      timex = mxclock_();
@@ -340,33 +351,38 @@ wilkinson's matrix
      if( ii == 0 )
        time2 = timex - time1;
 #endif
-
-     tresid( &n, &n, dd, ee, vecZ, mapZ, eval, iscratch, scratch, &res, &info);
-
-     if( me == 0 )
-       fprintf(stderr, " iteration # %d : A Z - Z D residual = %g \n", ii, res);
-
-     ortho( &n, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
-
-     if( me == 0 )
-       fprintf(stderr, " iteration # %d : Z' Z - I residual = %g \n", ii, res);
-
+     
+     if (!NO_EVEC){
+       
+       tresid( &n, &n, dd, ee, vecZ, mapZ, eval, iscratch, scratch, &res, &info);
+       
+       if( me == 0 )
+	 fprintf(stderr, " iteration # %d : A Z - Z D residual = %g \n", ii, res);
+       
+       ortho( &n, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
+       
+       if( me == 0 )
+	 fprintf(stderr, " iteration # %d : Z' Z - I residual = %g \n", ii, res);
+       
+     }
   }
-
+     
 #ifdef TIMING
   
   test_timing.pdspevx = timex - time1;
 
-  ii = 0;
-  if ( info == 0 ) {
-    for ( k = 0; k < n; k++ ) {
-      if ( mapZ[k] == me )  {
-	*scratch = dasum_( &n , vecZ[ii], &IONE );
+  if (!NO_EVEC){
+    ii = 0;
+    if ( info == 0 ) {
+      for ( k = 0; k < n; k++ ) {
+	if ( mapZ[k] == me )  {
+	  *scratch = dasum_( &n , vecZ[ii], &IONE );
 	  ii++;
+	}
       }
     }
   }
-  
+    
   if (me == 0 ){
     fprintf(stderr, " n = %d nprocs = %d \n", n, nprocs);
     fprintf(stderr, " time1   = %f \n", time2);
@@ -399,6 +415,7 @@ wilkinson's matrix
   free(matrixA);
   free(mapZ);
   free(mapA);
+}
   return;
   
   

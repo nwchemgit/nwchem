@@ -94,7 +94,7 @@ void MAIN1()
   extern TIMINGG test_timing;
 #endif
   
-  Integer countlist();
+  static Integer countlist();
   
   extern void geneig_res();
   extern void b_ortho();
@@ -366,6 +366,7 @@ void MAIN1()
 */
 
   memreq_( &index, &n, mapA, mapB, mapZ, &isize, &rsize, &ptr_size, iscratch );
+
 /*
  * fprintf(stderr, "me = %d: just after memreq isize = %d rsize = %d ptr_size %d \n", me, isize, rsize, ptr_size);
 */
@@ -378,7 +379,7 @@ void MAIN1()
   }
   
   rsize = 2 * rsize;
-  if ( (scratch = (DoublePrecision *) malloc( rsize * sizeof(DoublePrecision))) == NULL ) {
+  if ( (scratch = (DoublePrecision *) malloc( (rsize+n+n) * sizeof(DoublePrecision))) == NULL ) {
     fprintf(stderr, " me %d  ERROR in memory allocation, not enough memory for DoublePrecision scratch space \n", me);
     exit(-1);
   }
@@ -402,11 +403,11 @@ void MAIN1()
   indx = 1;  
   for ( iii = 0; iii < 1; iii++ ){
     mxtime_( &IZERO, &t_com );
-    fprintf(stderr, " in pdspgv %d \n", me);
+    printf(" in pdspgv node = %d \n", me);
     pdspgv ( &indx, &n, vecA, mapA, vecB, mapB, vecZ, mapZ, eval, iscratch,
 	    &isize, iptr, &ptr_size ,scratch, &rsize, &info);
   }
-
+  
   fflush(stdout);
   
 #ifdef TIMING
@@ -443,7 +444,9 @@ void MAIN1()
 
   /*  Compute and print commmunication time */
 
+  /*
   tim_com( test_timing.pdspgvx, t_com, iscratch, scratch );
+  */
 
 #endif
 
@@ -468,10 +471,12 @@ void MAIN1()
 
   mxsync_();
   
-  b_ortho( &n, vecB, mapB, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
-
+  
+  if ( ! NO_EVEC )
+    b_ortho( &n, vecB, mapB, &n, vecZ, mapZ, iptr, iscratch, scratch, &res, &info);
+  
   if( me == 0 )
-    fprintf(stderr, " (Z' B Z - I)/ulp residual = %g \n", res);
+    printf(" (Z' B Z - I)/ulp residual = %g \n", res);
   
   ii = 0;
   if ( n < 30 ){

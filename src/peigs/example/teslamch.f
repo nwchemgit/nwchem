@@ -39,12 +39,14 @@ c
       write(*,1000) ' depsilon ', dlamch('e')
       write(*,1000) ' dbase ', dlamch('b')
       write(*,1000) ' dsafeulp ', dlamch('s')
+      write(*,1000) ' dlamch(u)  ', dlamch('u')
 c
       write(*,*)
       write(*,*) ' Single Precision results'
       write(*,1000) ' depsilon ', slamch('e')
       write(*,1000) ' dbase ', slamch('b')
       write(*,1000) ' dsafeulp ', slamch('s')
+      write(*,1000) ' slamch(u)  ', slamch('u')
       write(*,*)
  1000 FORMAT( A12, 1X, 1P, E26.16 )
       stop
