@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.203 2001-12-07 17:36:48 edo Exp $
+c     $Id: dft_scf.F,v 1.204 2001-12-12 00:54:48 edo Exp $
 c     
       implicit none
 c
@@ -724,7 +724,8 @@ c
      &        call dft_tstamp(' calling diis driver ')
          if(n_rabuck.ne.0) then
             ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
-            if(iter.eq.n_rabuck.
+            if((iter.eq.n_rabuck.or.
+     .           rabuck_act.and.ssmear.le.1d-9).
      .           and.diising) then
 c     reset diis
                if(me.eq.0) write(LuOut,*) 
@@ -1220,7 +1221,7 @@ c
                if (dbl_mb(k_eval(ispin)+ilo-1) .ge. eval_pr_tol_lo) 
      &            goto 961
             enddo
- 961        do ihi = min(nclosed+nopen+10,nbf_ao), nbf_ao
+ 961        do ihi = min(nclosed+nopen+10,nmo(1)), nmo(1)
                if (dbl_mb(k_eval(ispin)+ihi-1) .ge. eval_pr_tol_hi) 
      &            goto 9611
             enddo
@@ -1228,7 +1229,7 @@ c
  9611       continue
             if (util_print('final vectors analysis', print_high)) then
                ilo = 1
-               ihi = nbf_ao
+               ihi = nmo(1)
             endif
             if (ipol.eq.1) then
                blob='DFT Final Molecular Orbital Analysis'
