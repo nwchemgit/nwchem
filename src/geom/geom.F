@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.117 2002-05-07 23:51:35 bylaska Exp $
+C$Id: geom.F,v 1.118 2002-05-10 02:14:53 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2379,6 +2379,10 @@ c
          recip_lat_vectors(i,geom) = 1d300
          recip_lat_angles(i,geom) = 1d300
       end do
+c
+c     HERE SHOULD RECOMPUTE AMATRIX WITH STANDARD ORIENTATION
+c     SINCE IF THE GEOMETRY IS STORED AND RELOADED THE 
+c     STANDARD ORIENTATION IS IMPOSED.
 c
 c     Update the amatrix inverse
 c      - Since amat=[a1,a2,a3]
@@ -5333,11 +5337,7 @@ c
       if (.not. geom_amatrix_get(geom, a))
      $     call errquit('geom_frac_to_cart: a', 0)
 c
-      write(6,*) ' The amatrix'
-      call output(a, 1, 3, 1, 3, 3, 3, 1)
-c 
       do iat = 1, nat
-         write(6,*) 'f2c before ', iat, (c(i,iat),i=1,3)
          do i = 1, 3
             t(i) = 0.0d0
             do j = 1, 3
@@ -5347,7 +5347,37 @@ c
          do i = 1, 3
             c(i,iat) = t(i)
          end do
-         write(6,*) 'f2c after  ', iat, (c(i,iat),i=1,3)
+      end do
+c
+      end
+      logical function geom_grad_cart_to_frac(geom, c)
+      implicit none
+      integer geom
+      double precision c(3,*)
+c
+      integer iat, nat, i, j
+      logical geom_check_handle, geom_amatrix_get, geom_ncent
+      external geom_check_handle, geom_amatrix_get
+      double precision a(3,3), t(3)
+c
+      geom_grad_cart_to_frac = 
+     $     geom_check_handle(geom, 'geom_grad_cart_to_frac')
+      if (.not. geom_grad_cart_to_frac) return
+      if (.not. geom_ncent(geom,nat)) 
+     $     call errquit('geom_grad_cart_to_frac: nat', 0)
+      if (.not. geom_amatrix_get(geom, a))
+     $     call errquit('geom_grad_cart_to_frac: a', 0)
+c
+      do iat = 1, nat
+         do i = 1, 3
+            t(i) = 0.0d0
+            do j = 1, 3
+               t(i) = t(i) + a(j,i)*c(j,iat)
+            end do
+         end do
+         do i = 1, 3
+            c(i,iat) = t(i)
+         end do
       end do
 c
       end
