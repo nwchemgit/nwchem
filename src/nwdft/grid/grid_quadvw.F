@@ -11,9 +11,9 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.8 2000-04-19 23:50:29 edo Exp $
+c$Id: grid_quadvw.F,v 1.9 2000-04-21 00:28:46 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -227,7 +227,7 @@ c
      &                       cntobfr, cetobfr, 
      ,                       ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,                       Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 
 c     
 c     now pack this aqbuf into the write buffer 
@@ -256,7 +256,7 @@ c
      &                 cntobfr, cetobfr, 
      ,                 ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1

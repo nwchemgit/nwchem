@@ -4,7 +4,7 @@
      &                  cntobfr, cetobfr, natoms,
      &                  g_movecs, noc, k_eval, totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.8 2000-04-04 17:18:22 jolguin Exp $
+C$Id: xc_sic.F,v 1.9 2000-04-21 00:28:48 edo Exp $
 c
       implicit none
 c      
@@ -240,8 +240,8 @@ c
               if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao,'i_gauxsig',
      &                            nbf_ao, nbf_ao,
      &                            int_mb(i_gauxsig + ik - 1)))
-     &             call errquit('xc_sic: error creating 
-     &                                           i_gauxsig',0)
+     &             call errquit(
+     '              ' xc_sic: error creating i_gauxsig',0)
               call ga_copy(g_vxc_orb(2), int_mb(i_gauxsig + ik - 1))
             end if
 

@@ -9,9 +9,9 @@
      &                       cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.10 2000-04-19 23:50:29 edo Exp $
+c$Id: grid_quadv0b.F,v 1.11 2000-04-21 00:28:46 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -33,6 +33,7 @@ c
       external grid_nbfm
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
+      double precision acc_xc_gauss
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -44,6 +45,7 @@ c     allocate arrays for exponents and contraction coefficients
 c     within int_eval_gbsets
 c     Evaluate the distances (squared) between each center and the points
 c     
+      if(xcfit) acc_xc_gauss=dble(ixcacc)
       mbf_ao=nbf_ao
       if(natoms.gt.1) then
          call ifill(mbf_ao, 0, ibf_ao, 1)
@@ -138,23 +140,28 @@ c
      ,     dbl_mb(idelrho_sig),dbl_mb(i_vect1))
       endif
 
-      
-      if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
-     &     'Dmat', lDmat,iDmat))
-     &     call errquit('grdi_quadv0_a: cannot allocate Dmat',0)
+      if(xcfit) then
+         call grid_xcfit(xc_bas_han,nbf_xc,tmat,grad,
+     ,     iniz,ifin,ibf_ao,ccoef,expo,nscr,iscr,hess,
+     ,     amat,cmat,rq,rchi_atom,nbf_xc_mxprim, ncoef_max,
+     ,     xyz,qxyz,nqpts,natoms,ipol,ictr_buf,rad,
+     ,     acc_xc_gauss)
+      else
+         if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     &        'Dmat', lDmat,iDmat))
+     &        call errquit('grdi_quadv0_a: cannot allocate Dmat',0)
 c     
-      call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &     Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &     Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &     nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &     AO_bas_han, 
-     &     natoms, iniz, ifin, g_vxc, ibf_ao,
-     &     rchi_atom, rdelchi_atom,
-     &     rdens_atom, cetobfr)
-      
-      
-      if (.not.ma_pop_stack(lDmat))
-     &     call errquit('grid_quadv0_a: cannot pop stack', 1)
+         call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     &        Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &        Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
+     &        nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
+     &        AO_bas_han, 
+     &        natoms, iniz, ifin, g_vxc, ibf_ao,
+     &        rchi_atom, rdelchi_atom,
+     &        rdens_atom, cetobfr)
+         if (.not.ma_pop_stack(lDmat))
+     &        call errquit('grid_quadv0_a: cannot pop stack', 1)
+      endif
  2010 continue
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))

@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.23 2000-03-08 23:38:08 edo Exp $
+C$Id: xc_lebedev.F,v 1.24 2000-04-21 00:28:47 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -4144,11 +4144,9 @@ c
      .     3890,4334,4802,5294,5810/
 c
       integer i
-c
-      if (nrad.eq.0) then
-         xc_leb_nrd2acc=0
-         return
-      endif
+c 
+      xc_leb_nrd2acc=0
+      if (nrad.eq.0) return
       do i=1,29
          if(nrad.eq.nridv(i)) then
             xc_leb_nrd2acc=i

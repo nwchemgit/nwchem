@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.13 2000-03-29 18:06:56 edo Exp $
+c$Id: grid_checks.F,v 1.14 2000-04-21 00:28:46 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -242,10 +242,9 @@ c
          if(me.eq.0) write(0,*) '@radial extension OK'
       else
 cedo         if(.not.limprove) then
-         if(.false.) then
-            range_a=range_a-delta_a
-            range_b=range_b-delta_b
-         endif
+cedo            range_a=range_a-delta_a
+cedo            range_b=range_b-delta_b
+cedo         endif
          reqacc=(s_err0+reqacc)*0.5d0
       endif
 c

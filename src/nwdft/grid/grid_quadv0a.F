@@ -8,9 +8,9 @@
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0a.F,v 1.19 2000-04-19 23:50:29 edo Exp $
+c$Id: grid_quadv0a.F,v 1.20 2000-04-21 00:28:46 edo Exp $
 c
       implicit none
 c
@@ -73,7 +73,7 @@ c
      &                       cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
             ntot_cube=ntot_cube+1
          endif
       enddo

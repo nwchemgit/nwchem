@@ -11,8 +11,8 @@
      &     cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
-C$Id: grid_quadvc.F,v 1.5 2000-04-19 23:50:29 edo Exp $
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+C$Id: grid_quadvc.F,v 1.6 2000-04-21 00:28:46 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"

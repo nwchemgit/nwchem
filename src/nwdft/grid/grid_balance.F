@@ -1,6 +1,6 @@
       logical function grid_file_balance()
 *
-* $Id: grid_balance.F,v 1.4 2000-04-11 10:08:38 hvd Exp $
+* $Id: grid_balance.F,v 1.5 2000-04-21 00:28:46 edo Exp $
 *  
       implicit none
 #include "cgridfile.fh"
@@ -36,6 +36,7 @@ c
       npass = 0                 ! Used for paranoid infinite loop avoidance
       me = ga_nodeid()          ! Not true on workstation clusters
       nproc = ga_nnodes()
+      grid_file_balance=.true.
       if (nproc.eq.1) return
 c
       call ga_sync()            ! So can use message passing

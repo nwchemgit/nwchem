@@ -1,18 +1,20 @@
-      Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
+      Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
+     ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.9 2000-04-19 23:50:29 edo Exp $
+C$Id: grid_quadv0.F,v 1.10 2000-04-21 00:28:46 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
       double precision rho_n
       double precision Exc(2)
+      double precision tmat(*)  ! XC fit
       call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,     1,1)
+     ,     1,1,tmat)
       return
       end
 c
       Subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,      nmat,  calc_type)
+     ,      nmat,  calc_type ,tmat)
       implicit none
 c
       integer rtdb
@@ -22,6 +24,7 @@ c
       double precision Exc(2)
       double precision rho_n
       integer nmat              ! [input] number of XC matrices to make;
+      double precision tmat(*)  ! XC fit
 c                               !         only used for lhs cpks
       integer calc_type         ! what to calculate [input]
 c                               !   1 = XC matrices for SCF
@@ -61,6 +64,7 @@ c
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
       logical do_scf, do_cpks_l, do_cpks_r
       integer max_elem_ang_scr, max_component
+      integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -144,11 +148,15 @@ c
       if (.not.MA_Push_get(MT_int,nctrs,'atom nbf',lfin,ifin))
      &   call errquit('grid_den: cannot allocate atom nbf',0)
       call ifill(nctrs, 0.0d0, int_mb(ifin), 1)
+      nexpo=nbf_ao_mxprim
+      if(xcfit)nexpo=max(nbf_ao_mxprim,nbf_xc_mxprim)
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_den: cannot allocate expo',0)
-      call dfill(nbf_ao_mxprim, 0.0d0, dbl_mb(iexpo), 1)
+      call dfill(nexpo, 0.0d0, dbl_mb(iexpo), 1)
 c
       ncoef_max = nbf_ao_mxnbf_cn * nbf_ao_mxprim
+      if(xcfit) ncoef_max=max(ncoef_max,
+     ,     nbf_xc_mxnbf_cn * nbf_xc_mxprim)
 c
       if (.not.MA_Push_Get(MT_Dbl,ncoef_max,'coef',lcoef,icoef))
      &   call errquit('grid_den: cannot allocate coef',0)
@@ -220,7 +228,9 @@ c
 c
 c     allocate scratch array for grid compression
 c
-      if (.not.MA_Push_Get(mt_int, nbf_ao, 'ibf_ao', libf_ao,
+      nibf=nbf_ao
+      if(xcfit) nibf=max(nibf,nbf_xc)
+      if (.not.MA_Push_Get(mt_int, nibf, 'ibf_ao', libf_ao,
      &     iibf_ao))
      &     call errquit('grid_quadv0a: cannot allocate ibf_ao',2)
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
@@ -263,6 +273,10 @@ c
       nscr = 3*n_per_rec*nbf_ao_mxcont + 
      &     max(3*n_per_rec*nbf_ao_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1
+      if (xcfit) nscr=max(nscr, 3*n_per_rec*nbf_xc_mxcont + 
+     &     max(3*n_per_rec*nbf_xc_mxprim,
+     &     n_per_rec*max_elem_ang_scr) + 1)
+     
       if (.not.MA_Push_Get(mt_dbl,nscr,'func scr',lscr,iscr))
      &     call errquit('grid_quadv0a: cannot allocate bp',4)
 
@@ -285,7 +299,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat)
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -323,7 +337,7 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)
       endif

@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.31 2000-04-20 01:47:37 edo Exp $
+C$Id: xc_getv.F,v 1.32 2000-04-21 00:28:47 edo Exp $
 c
       implicit none
 c      
@@ -73,7 +73,7 @@ c
       Exc(1)=0.d0
       Exc(2)=0.d0
       me=ga_nodeid()
-      nproc=ga_nnodes()
+c      nproc=ga_nnodes()
 c
       if (oprint_intermediate_xc)then
          write(*,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
@@ -166,123 +166,88 @@ c
          endif
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
-c
-c        Symmetrize Vxc?
-c
-c         if (oskel)then
-c            call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-c            if (ipol.gt.1)then
-c               call sym_symmetrize(geom, AO_bas_han, .false., 
-c     &              g_vxc(2))
-c            endif
-c         endif
-c       
-c        Compute the exact exchange energy.
-c       
       endif
 c
       tot=-xfac(1)
       do i=1,numfunc
         tot=tot+xfac(i)+cfac(i)
       enddo
-c
-      if (abs(tot).gt.1e-8) then
-         if (iVxc_opt.eq.0) then
-c         
-c           Option A:  Compute via direct numerical quadrature.
-c         
-c           compute the integrated density (numerical)
-c 
-            if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &         grid_on_file))then
-               grid_on_file = .false.
-            endif
-            if (grid_on_file)then
-               call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc)
-            else
-c
-!            if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
-            call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
-     &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
-     &                     cntobfr, cetobfr, natoms)
-!            if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
-            endif
-c      write(6,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
-c
-c           Symmetrize Vxc?
-c
-c            if (oskel)then
-c               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-c               if (ipol.gt.1)then
-c                  call sym_symmetrize(geom, AO_bas_han, .false., 
-c     &                 g_vxc(2))
-c               endif
-c            endif
-c
-         elseif (iVxc_opt.eq.1 )then
-c         
-c           Option B:  Compute via a LSQ fitting procedure.
-c         
-c           Define the dimensions of the "T" matrix.
-c         
-            if (.not. bas_numbf(XC_bas_han,nbf_xc) )then
-               call errquit('Exiting in getvxc.',1)
-            endif
-c
-            nTrows = nbf_xc
-            nTcols = ipol
-c         
-c           Allocate scratch space for the "T" matrix.
-c         
-            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
-     &         iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
-            call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
-c
-            if (oprint_time)call dft_tstamp('Before call to xc_quadv1.')
-            call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &                     rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
-     &                     natoms)
-            if (oprint_time)call dft_tstamp(' After call to xc_quadv1.')
-c
-c           symmetrize the "T" vector
-c
-            if (oskel)then
-               call sym_vec_symmetrize(geom, xc_bas_han, Dbl_MB(iTmat))
-               if (ipol.gt.1)then
-                  call sym_vec_symmetrize(geom, xc_bas_han, 
-     &                 Dbl_MB(iTmat+nbf_xc))
-               endif
-            endif
-
-c      
-            if (oprint_time)call dft_tstamp('Before call to xc_fitv.  ')
-            call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
-     &                   g_vxc, g_xcinv, IOLGC)
-            if (oprint_time)call dft_tstamp(' After call to xc_fitv.  ')
-c
-c           Symmetrize Vxc?
-c
-c            if (oskel)then
-c               call sym_symmetrize(geom, AO_bas_han, .false., g_vxc(1))
-c               if (ipol.gt.1)then
-c                  call sym_symmetrize(geom, AO_bas_han, .false., 
-c     &                 g_vxc(2))
-c               endif
-c            endif
-c
-            if (.not.ma_pop_stack(lTmat))
-     &         call errquit('xc_getv: cannot pop stack',0)
-c
-         endif
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &     grid_on_file))then
+         grid_on_file = .false.
       endif
 c
+      if (abs(tot).gt.1e-8) then
+         if(xcfit) then       
+            nTrows = nbf_xc
+            nTcols = ipol
+            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
+     &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
+            call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
+         endif
+         
+         if (grid_on_file)then
+            call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc,
+     ,           dbl_mb(itmat))
+         else
+            if(.not.xcfit) then
+c     
+c     Option A:  Compute via direct numerical quadrature.
+c     
+c     compute the integrated density (numerical)
+c     
+c     
+               call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,
+     /              g_xyz,g_nq, 
+     &              wght_GA, Exc, rho_n, rdens_atom, cntoce,
+     &              cntobfr, cetobfr, natoms)
+               
+            else
+c     
+c     Option B:  Compute via a LSQ fitting procedure.
+c     
+c     Define the dimensions of the "T" matrix.
+c     
+               if (.not. bas_numbf(XC_bas_han,nbf_xc) )then
+                  call errquit('Exiting in getvxc.',1)
+               endif
+c     
+c     
+               call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
+     &              rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
+     &              natoms)
+            endif
+         endif
+         if(xcfit) then
+c     
+c     symmetrize the "T" vector
+c     
+            if (oskel)then
+               call sym_vec_symmetrize(
+     .              geom,xc_bas_han,Dbl_MB(iTmat))
+               if (ipol.gt.1)then
+                  call sym_vec_symmetrize(geom, xc_bas_han, 
+     &                    Dbl_MB(iTmat+nbf_xc))
+               endif
+            endif
+            do i=1,nbf_xc
+               write(0,*) i ,dbl_mb(itmat+i-1)
+            enddo
+            call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
+     &           g_vxc, g_xcinv, IOLGC)
+            if (.not.ma_pop_stack(lTmat))
+     &           call errquit('xc_getv: cannot pop stack',0)
+c     
+         endif
+      endif
+c     
       if (oprint_intermediate_xc)then
          write(*,*)' Fock XC matrix leaving xc_getv: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
-c
-c
+c     
+c     
       return
       end
 
