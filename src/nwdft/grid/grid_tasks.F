@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.12 1999-08-11 18:57:32 edo Exp $
+c$Id: grid_tasks.F,v 1.13 1999-12-17 00:20:14 edo Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
       character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq,nproc,me
+      integer nq,nproc,me,g_buck,g_buckind
       logical lssw,trunc_neigh
       logical grid_file_open
       external grid_file_open
@@ -98,6 +98,9 @@ c
 c
       if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
      &   trunc_neigh))trunc_neigh=.true.
+
+      call grid_buckinit(g_buck,g_buckind)
+
       do 100 iqsh = 1+me, nqshells,nproc
 c
 
@@ -137,6 +140,7 @@ c
 
   100 continue
 
+      call grid_buckend(g_buck,g_buckind)
 
 c
 c     Write last buffer of grid pts and close file     

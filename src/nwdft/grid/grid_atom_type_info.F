@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.2 1999-06-14 22:39:19 d3h449 Exp $
+c$Id: grid_atom_type_info.F,v 1.3 1999-12-17 00:20:13 edo Exp $
 c
       implicit none
 c      
@@ -166,6 +166,8 @@ c
      &              
                endif
             endif
+c
+c
             if (i_atomic_number.eq.0)then
                bsrad_atom_type(itype) = EPS
             else
@@ -183,6 +185,8 @@ c
             endif
 c
             if (i_atomic_number.ne.0)then ! not ghost atom
+            ityp2ctr(itype)=ictr
+            write(0,*) ' itype ictr ',itype,ictr
 c
                bsrad_atom_type(itype) = BSrad(i_atomic_number)*ANGTOAU
                if (bsrad_atom_type(itype).lt.EPS)then ! no radius found for atom

@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.4 1999-08-10 22:58:31 edo Exp $
+c$Id: grid_setrad.F,v 1.5 1999-12-17 00:20:13 edo Exp $
 c
       implicit none
 c      
@@ -20,8 +20,9 @@ c
       logical tol_reset, mul_reset
 c
       character*10 radgrid
-      character*10 radgrids(5)
-      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv'/
+      character*10 radgrids(6)
+      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv',
+     ,'rlindh'/
       integer i, itype, ir, nr, irsh
       double precision r, r_max
 c
@@ -30,6 +31,7 @@ c
       integer n1,ninf,ndivide
       double precision braggmult
       double precision midpoint,range_max,range_mk
+      double precision lindh_acc
 c
 c     Set print options.
 c
@@ -42,6 +44,8 @@ c
      &   call errquit('grid_setrad: cannot allocate expo',0)
       if (.not.MA_Push_Get(MT_Dbl,nshells_ao,'nsh',lnsh,insh))
      &   call errquit('grid_setrad: cannot allocate nsh',0)
+      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
+     ,     1, lindh_acc)) lindh_acc=1d-10
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
          tol_reset = .false.
@@ -83,11 +87,22 @@ c
                else
                   range_mk=dble(rad_cutoff(1,itype))
                endif
-            call xc_murakn(iatype(itype), rpts(1,itype), 
-     &              rwghts(1,itype), nrad(itype),3d0,
-     ,              range_mk)
+            call xc_murakn(int(znuc_atom_type(itype)), rpts(1,itype), 
+     &              rwghts(1,itype), nrad(itype),3d0,range_mk,
+     .              tol_reset)
+            elseif(radgrid.eq.'rlindh') then
+               if(tol_reset) then
+                  range_mk=range_max
+               else
+                  range_mk=dble(rad_cutoff(1,itype))
+               endif
+            call grid_roland(
+     ,              rpts(1,itype),rwghts(1,itype),nrad(itype),
+     ,              ityp2ctr(itype),
+     ,              mxrad,rad_cutoff(1,itype),lindh_acc)
             elseif(radgrid.eq.'tarad') then
-            call xc_tarad(iatype(itype), rpts(1,itype), rwghts(1,itype), 
+            call xc_tarad(int(znuc_atom_type(itype)), 
+     ,              rpts(1,itype), rwghts(1,itype), 
      &                 nrad(itype),0d0,'chebyshe')
           elseif(radgrid.eq.'gausslag') then
            call grid_gausslag(nrad(itype), rpts(1,itype), 

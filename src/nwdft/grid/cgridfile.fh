@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.6 1999-08-11 18:57:31 edo Exp $
+* $Id: cgridfile.fh,v 1.7 1999-12-17 00:20:12 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -50,6 +50,7 @@ cedo      parameter (buffer_size = 8000)
 c      parameter (buffer_size = 32768)
 c      parameter (buffer_size = 100)
 #endif
+
 c
       common/cgridbuf/
      $     buf(4,buffer_size),
