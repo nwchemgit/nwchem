@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau)
 c      
-c     $Id: dftg_gridv0b.F,v 1.21 2003-02-18 18:45:45 pollack Exp $
+c     $Id: dftg_gridv0b.F,v 1.22 2003-05-27 22:23:15 pollack Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -51,7 +51,8 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-      double precision tau(n_per_rec,3,ipol)
+c      double precision tau(n_per_rec,3,ipol)
+      double precision tau(*)
 
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
@@ -192,7 +193,7 @@ c
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr,wmax, tau)
+     &              rdens_atom, cetobfr,wmax, tau, .false.)
 c
                if (do_hess .or. do_cpks_r) then
                   call oactive_to_curatoms(oactive, natoms,
