@@ -1,5 +1,5 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, grad_max)
-c     $Id: stpr_output.F,v 1.4 1995-04-04 04:52:45 d3e129 Exp $
+c     $Id: stpr_output.F,v 1.5 1995-05-30 17:39:37 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
       LOGICAL BCKSTP, oprint_info
@@ -26,7 +26,8 @@ c
          WRITE(6,*)'  Using Analytical 1st and 2nd derivatives. '
       ENDIF
       if (oprint_info) then
-         WRITE(6,1000)NWALK
+*... does not reproduce correct output for reset and walk         WRITE(6,1000)NWALK
+         WRITE(6,1000)iwctr
          WRITE(6,1006)EOLD
          WRITE(6,1007)ENERGY
          WRITE(6,1008)EDIFF
