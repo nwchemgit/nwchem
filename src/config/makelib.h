@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.24 1995-11-17 01:24:24 d3g681 Exp $
+# $Id: makelib.h,v 1.25 1995-11-20 23:28:16 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -190,7 +190,7 @@ ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
 	@echo Making depend in `pwd`
-	$(CNFDIR)/makedepend 
+	$(CNFDIR)/makedepend $(LIB_INCLUDES)
 
 
 ifdef HEADERS
