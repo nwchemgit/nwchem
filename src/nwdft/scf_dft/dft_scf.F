@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.159 2000-04-24 19:37:15 edo Exp $
+c     $Id: dft_scf.F,v 1.160 2000-04-25 09:24:35 jolguin Exp $
 c     
       implicit none
 c
@@ -571,12 +571,12 @@ c
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
-     ,     dbl_mb(k_eval(1)), dbl_mb(irdens_atom),
+     ,     k_eval, dbl_mb(irdens_atom),
      ,     dbl_mb(k_3ceri),int_mb(k_3cwhat),
      ,     int_mb(icetobfr),
-     ,     iter, ecore, ecoul,exc,noc,rho_n,
+     ,     iter, ecore, ecoul,exc,noc,rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
-     ,     g_rho_exact,g_tmp_exact, g_addit_exact,
+     ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     oprint_time)
 c     
 c     Calculate the total electronic energy.
