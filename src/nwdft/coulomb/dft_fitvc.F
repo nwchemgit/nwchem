@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C     $Id: dft_fitvc.F,v 1.10 1996-10-18 00:52:58 d3h449 Exp $
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
+C     $Id: dft_fitvc.F,v 1.11 1996-11-22 19:08:25 d3h449 Exp $
       implicit none
       
 c**** 
@@ -29,7 +29,7 @@ c
       
 #include "bas.fh"
 #include "rtdb.fh"
-
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -54,6 +54,7 @@ c
      ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est,schw1,schw2
+      integer iwhat_max, ishc_be, ishd_be, nlast
       integer nxtask
       logical dowork
       integer ndone,ipoint,ipoint2
@@ -104,17 +105,17 @@ c     each shell.
 c      
       CD_coef_max = 0.D0
       i1 = 1
-      do 205 ishp = 1,nshells_cd
+      do 5 ishp = 1,nshells_cd
         if( .not. bas_cn2bfr(CD_bas_han,ishp,ishbf,lshbf) )then
           call errquit('Exiting in fitvcoul.',4)
         end if
         shmax = 0.D0
-        do 200 i = ishbf,lshbf
+        do 2 i = ishbf,lshbf
           shmax = max(abs(CD_coef(i)), shmax)
-  200   continue
+    2   continue
         Dbl_MB((icd_shell-1)+ishp) = shmax
         CD_coef_max = max(shmax, CD_coef_max)
-  205 continue
+    5 continue
       if(IOLGC) then
         call gacrea(geom,CD_bas_han,
      &       nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
@@ -150,8 +151,25 @@ c
      &  call errquit('dft_fitvc: cannot allocate scr',0)
 
       call ga_zero(g_vc)
-      if(.not.incore) n1 = nxtask(nproc,icount)
-      n2 = 0
+c
+      if(.not.incore)then
+        iwhat_max = -1
+        goto 25
+      endif
+c      call ga_sync
+c      do n1 = 0, nproc
+c        if(me.eq.n1)then
+c          write(LuOut,*)' me, n_batch ', me, n_batch
+c          call util_flush(LuOut)
+c          call i_output(iwhat, 1, n_batch, 1, 1, n_batch, 1, 1)
+c          call util_flush(LuOut)
+c        endif
+c        call ga_sync
+c      enddo
+c      call ga_sync
+c
+c     Exhaust in-core 3c 2e- buffers first.
+c
       ndone=1
       ipoint=1
 c     
@@ -161,31 +179,25 @@ c
       call tcllct(t_sub(1,1),ts2,ts1)
       call dft_second(ts1)
 #endif
+      call ga_sync
 c     
-      do 240 ishc = 1,nshells_ao
-        if (.not. bas_cn2bfr( AO_bas_han,ishc,
-     &       ifirstc,ilastc))
+      do 24 ishc = 1, nshells_ao
+        if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc))
      &       call errquit('Exiting in fitvcoul.',3)
         nshbfc=ilastc-ifirstc+1
-        
-        do 230 ishd = 1,ishc
-          
-
-          if(incore) then
-            dowork=iwhat(ndone).eq.(ishc*(ishc-1)+ishd-1)
-            if(ndone.gt.n_batch) then
-              write(0,*) ' ndone nbatch ',ndone,n_batch
-              call errquit(' fitvc:ndone gt nbatch ',ndone)
-            endif
-          else
-            dowork=n1.eq.n2
-          endif
+c        
+        do 23 ishd = 1, ishc
+c          
+          dowork=iwhat(ndone).eq.((ishc*(ishc-1))/2 + ishd-1)
           if(dowork) then
-            
-            if (.not. bas_cn2bfr( AO_bas_han,ishd,
-     &           ifirstd,ilastd))
+c
+c            write(LuOut,*)
+c     &      'me,ishc,ishd,ndone,iwhat(ndone),ipoint', 
+c     &       me,ishc,ishd,ndone,iwhat(ndone),ipoint
+c            call util_flush(LuOut)
+c
+            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd))
      &           call errquit('Exiting in fitvcoul.',4)
-            
             nshbfd=ilastd-ifirstd+1
             Nao2 = nshbfc*nshbfd
 c           
@@ -198,69 +210,154 @@ c
               
               call dfill(Nao2,0.D0,dbl_mb(isvec),1)
               nfunz=0
-              if(incore) ipoint2=ipoint
-                  if(incore) then
+              ipoint2=ipoint
 c                 
-c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c             Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c                 
-                    call dgemv('N',Nao2,nbf_cd,1.D0,
-     &                   i3c_ERI(ipoint),Nao2,
-     &                   CD_coef,1,1.D0,Dbl_MB(isvec),1)
-                  else
-              do 220 ishp = 1,nshells_cd
-                
-                if (.not. bas_cn2bfr( CD_bas_han,ishp,
-     &               ifirstp,ilastp))
-     &               call errquit('Exiting in fitvcoul.',5)
-                nshbf_cd=ilastp-ifirstp+1
-                Nint=nshbf_cd*Nao2
-                Vcoul_est = Dbl_MB((icd_shell-1)+ishp)*ERI_est
-                if( Vcoul_est.gt.THRESHOLD )then
-                  
-                  ischw2 = ischw2 + 1
-                  
-c                   
-c                   Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-c                   
-                    call int_2e3c(CD_bas_han,ishp,AO_bas_han,
-     &                   ishc,ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(iERI))
-c                   
-c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
-c                   
-                    call dgemv('N',Nao2,nshbf_cd,1.D0,
-     &                   Dbl_MB(iERI),Nao2,
-     &                   CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
-                  endif
-
-
-                if(incore) ipoint2=ipoint2+Nint
-                nfunz=nfunz+nshbf_cd
-                
-  220         continue
-                endif
+              call dgemv('N',Nao2,nbf_cd,1.D0,
+     &             i3c_ERI(ipoint),Nao2,
+     &             CD_coef,1,1.D0,Dbl_MB(isvec),1)
 c           
 c             Scatter the computed values of Vcoul.
 c           
               call sca_lab_mat(AO_bas_han,ishc,ishd,
      &             nshbfc,nshbfd,g_vc,DBL_MB(isvec),dbl_mb(isvec2))
-
+c
             endif
-            
-            if(incore) then
-              ndone=ndone+1
-              if(ndone.gt.n_batch) goto 9999
-              ipoint=ipoint+Nao2*nbf_cd
+c            
+            ndone=ndone+1
+            if(ndone.gt.n_batch)then
+c
+c             Finished processing integrals incore start computing
+c             them.
+c
+              goto 25
             else
-              n1 = nxtask(nproc,icount)
+              ipoint=ipoint+Nao2*nbf_cd
             endif
-            
-            
+c
+c            write(LuOut,*)' Done with: ishc, ishd, n_batch, ndone: ',
+c     &                                 ishc, ishd, n_batch, ndone
+c            call util_flush(LuOut)
+c
           end if
+c
+   23   continue
+   24 continue
+   25 continue
+c
+c     Next, process any 3c 2e- integrals on disk (not implemented yet).
+c
+c
+c     Finally, process any 3c 2e- integrals still needed in direct mode.
+c
+c     Find last ishc and ishd; add 1 to iwhat_max since starting at 0.
+c
+      nlast = iwhat_max + 1
+c
+c     Determine total number of shell pairs.
+c
+      ntasks = (nshells_ao*(nshells_ao+1))/2
+c
+      if (nlast.eq.ntasks)goto 241
+c
+      do n1 = 1, nshells_ao
+        if ((n1*(n1-1))/2.gt.nlast)then
+          ishc_be = n1 - 1
+          goto 219
+        endif
+      enddo
+      ishc_be = nshells_ao
+  219 continue
+      ishd_be = nlast - (ishc_be*(ishc_be-1))/2
+c
+      ishd_be = ishd_be + 1
+      if(ishd_be.gt.ishc_be)then
+        ishc_be = ishc_be + 1
+        ishd_be = 1
+      endif
+c
+c      call ga_sync
+c
+      n1 = nxtask(nproc,icount)
+      n2 = 0
+c
+      do 240 ishc = ishc_be, nshells_ao
+        if( .not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
+     &    call errquit('Exiting in fitvcoul.',3)
+        nshbfc=ilastc-ifirstc+1
+c        
+        do 230 ishd = ishd_be, ishc
+          dowork=n1.eq.n2
+          if(dowork) then
+c
+c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
+c            call util_flush(LuOut)
+c
+            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd))
+     &         call errquit('Exiting in fitvcoul.',4)
+            nshbfd=ilastd-ifirstd+1
+            Nao2 = nshbfc*nshbfd
+c           
+c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
+c           
+            ERI_est=schwarz_shell(ishc,ishd)
+
+            if( CD_coef_max*ERI_est.gt.THRESHOLD )then
+              ischw1 = ischw1 + nshells_cd
+c              
+              call dfill(Nao2,0.D0,dbl_mb(isvec),1)
+              nfunz=0
+              do 220 ishp = 1,nshells_cd
+c                
+                if( .not.bas_cn2bfr(CD_bas_han, ishp, ifirstp, ilastp))
+     &            call errquit('Exiting in fitvcoul.',5)
+                nshbf_cd=ilastp-ifirstp+1
+                Nint=nshbf_cd*Nao2
+                Vcoul_est = Dbl_MB((icd_shell-1)+ishp)*ERI_est
+                if( Vcoul_est.gt.THRESHOLD )then
+c                  
+                  ischw2 = ischw2 + 1
+c                   
+c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
+c                   
+                  call int_2e3c(CD_bas_han,ishp,AO_bas_han,
+     &                 ishc,ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(iERI))
+c                   
+c                 Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c                   
+                  call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                 Dbl_MB(iERI),Nao2,
+     &                 CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                endif
+c
+                nfunz=nfunz+nshbf_cd
+c               
+  220         continue
+c
+c             Scatter the computed values of Vcoul.
+c           
+              call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &             nshbfc,nshbfd,g_vc,DBL_MB(isvec),dbl_mb(isvec2))
+            endif
+c            
+c            write(*,*)' Done with: ishc,ishd; n1,n2 ',
+c     &                             ishc,ishd, n1,n2
+c            call util_flush(LuOut)
+c
+            n1 = nxtask(nproc,icount)
+c
+          endif
+c          
           n2 = n2 + 1
-        
-  230 continue
+c
+  230   continue
+c
+c       Reset ishd_be to 1.
+c
+        ishd_be = 1
   240 continue
- 9999 continue
+  241 continue
       
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)

@@ -2,7 +2,7 @@
      &     CD_coef,  nbf_cd,
      &     g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &     Ecoul1,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
       
       implicit none
       
@@ -31,7 +31,6 @@ c****
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -51,6 +50,8 @@ c****
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
       logical oprint,dowork
+      integer iwhat_max, nlast
+      integer ishc_be, ishd_be
       integer ndone,ipoint
       character*(nw_max_path_len) cdfit
       double precision dabsmax
@@ -108,7 +109,7 @@ c     Allocate scratch space.
       
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec))
      &  call errquit('dft_fitcd: cannot allocate Tvec',0)
-      call ga_sync
+c      call ga_sync
       
 c     Initialize the T vector.
       
@@ -117,7 +118,7 @@ c
 c     Parallelize the loop over the products of AO shells.
 c      
       ischw1 = 0
-C      call ga_sync
+      call ga_sync
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
       icount = max(1,icount)
       
@@ -131,94 +132,214 @@ C      call ga_sync
       nscr =  mscratch_2e3c 
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0)
-      if(.not.incore) n1 = nxtask(nproc,icount)
-      n2 = 0
+c
+      if(.not.incore)then
+        iwhat_max = -1
+        goto 25
+      endif
+c      call ga_sync
+c      do n1 = 0, nproc
+c        if(me.eq.n1)then
+c          write(LuOut,*)' me, n_batch ', me, n_batch
+c          call util_flush(LuOut)
+c          call i_output(iwhat, 1, n_batch, 1, 1, n_batch, 1, 1)
+c          call util_flush(LuOut)
+c        endif
+c        call ga_sync
+c      enddo
+c      call ga_sync
+c
+c     Exhaust in-core 3c 2e- buffers first.
+c
       ndone=1
       ipoint=1
-      do 240 ishc = 1,nshells_ao
+      if(ndone.gt.n_batch)goto 25
+c
+      do 24 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
-     *       call errquit('Exiting in dft_fitcd',111)
+     &       call errquit('Exiting in dft_fitcd',111)
         nshbfc=ilastc-ifirstc+1
-
-        do 230 ishd = 1,ishc
-          dowork=.false.
-          if(incore) then
-            dowork=iwhat(ndone).eq.(ishc*(ishc-1)+ishd-1)
-            if(ndone.gt.n_batch) then
-              write(0,*) ' ndone nbatch ',ndone,n_batch
-              call errquit(' fitcd: ndone gt nbatch ',ndone)
-            endif
-          else
-            dowork=n1.eq.n2
-          endif
+c
+        do 23 ishd = 1,ishc
+          dowork=iwhat(ndone).eq.((ishc*(ishc-1))/2 + ishd-1)
           if(dowork) then
+c
+c            write(LuOut,*)
+c     &      'me,ishc,ishd,ndone,iwhat(ndone),ipoint', 
+c     &       me,ishc,ishd,ndone,iwhat(ndone),ipoint
+c            call util_flush(LuOut)
+c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
-     *         call errquit('Exiting in dft_fitcd',1111)
+     &         call errquit('Exiting in dft_fitcd',1111)
             nshbfd=ilastd-ifirstd+1
             Nao2=nshbfd*nshbfc
-C
+c
 c           Gather the needed density matrix elements.
 c
-            call ga_get(g_dens,
-     *           ifirstd,ilastd,
-     *           ifirstc,ilastc,
-     *           dbl_mb(igvec),nshbfd)
-            
-            
+            call ga_get(g_dens, ifirstd, ilastd, ifirstc, ilastc,
+     &           dbl_mb(igvec), nshbfd)
+c            
 c           Determine the maximum density matrix element for this product of AO shells.
+c
             Pmat_max = dabsmax(Nao2,DBL_MB(igvec))
-            
+c            
 c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-              ERI_est=schwarz_shell(ishc,ishd)
-            
+c
+            ERI_est=schwarz_shell(ishc,ishd)
+c            
             if( Pmat_max*ERI_est.gt.THRESHOLD )then
-              
+c              
               ischw1 = ischw1 + nshells_cd
-              
+c              
               istart=iERI
               fac=2.0d0
               if(ishc.eq.ishd) fac=1.d0
-              if(incore) then
-                call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
-     &               Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
-              else
-                do 220 ishp = 1,nshells_cd
-                  
-c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-                  
-                  if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
-     &                 call errquit('Exiting in fitcd.',5)
-                  nshbfp=ilastp-ifirstp+1
-                  
-                  Nint = nshbfp*Nao2
-                  nscr=mscratch_2e3c
-                  
-                  call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &                 ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
-                  istart=istart+Nint
-  220           continue
-c               
-c               Multiply the matrix of 3-ctr ERIs by the density matrix elements.
-c               
-                call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
-     &               Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
-              endif
-              
+              call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
+     &             Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
             end if
-            if(incore) then
-              ndone=ndone+1
-              if(ndone.gt.n_batch) goto 9999
-              ipoint=ipoint+Nao2*nbf_cd
+c
+            ndone=ndone+1
+            if(ndone.gt.n_batch)then
+c
+c             Finished processing integrals incore.
+c
+              goto 25
             else
-              n1 = nxtask(nproc,icount)
+              ipoint=ipoint+Nao2*nbf_cd
             endif
+c
+c            write(LuOut,*)' Done with: ishc, ishd, n_batch, ndone: ',
+c     &                                 ishc, ishd, n_batch, ndone
+c            call util_flush(LuOut)
+c
           end if
-          
+c
+   23   continue
+   24 continue
+   25 continue
+c
+c     Next, process any 3c 2e- integrals on disk (not implemented yet).
+c
+c
+c     Finally, process any 3c 2e- integrals still needed in direct mode.
+c
+c     Find last ishc and ishd; add 1 to iwhat_max since starting at 0.
+c
+      nlast = iwhat_max + 1
+c
+c     Determine total number of shell pairs.
+c
+      ntasks = (nshells_ao*(nshells_ao+1))/2
+c
+      if (nlast.eq.ntasks)goto 241
+c
+      do n1 = 1, nshells_ao
+        if ((n1*(n1-1))/2.gt.nlast)then
+          ishc_be = n1 - 1
+          goto 219
+        endif
+      enddo
+      ishc_be = nshells_ao
+  219 continue
+      ishd_be = nlast - (ishc_be*(ishc_be-1))/2
+c
+      ishd_be = ishd_be + 1
+      if(ishd_be.gt.ishc_be)then
+        ishc_be = ishc_be + 1
+        ishd_be = 1
+      endif
+c
+c      call ga_sync
+c      do n1 = 0, nproc
+c        call ga_sync
+c        if(me.eq.n1)then
+c          write(LuOut,*)' me, ishc_be, ishd_be ', me, ishc_be, ishd_be
+c          call util_flush(LuOut)
+c        endif
+c        call ga_sync
+c      enddo
+c      call ga_sync
+c
+      n1 = nxtask(nproc,icount)
+      n2 = 0
+c
+      do 240 ishc = ishc_be, nshells_ao
+        if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
+     &       call errquit('Exiting in dft_fitcd',111)
+        nshbfc=ilastc-ifirstc+1
+c
+        do 230 ishd = ishd_be, ishc
+          dowork=n1.eq.n2
+          if(dowork) then
+c
+c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
+c            call util_flush(LuOut)
+c
+            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
+     &         call errquit('Exiting in dft_fitcd',1111)
+            nshbfd=ilastd-ifirstd+1
+            Nao2=nshbfd*nshbfc
+c
+c           Gather the needed density matrix elements.
+c
+            call ga_get(g_dens, ifirstd, ilastd, ifirstc, ilastc,
+     &           dbl_mb(igvec), nshbfd)
+c            
+c           Determine the maximum density matrix element for this product of AO shells.
+c
+            Pmat_max = dabsmax(Nao2,DBL_MB(igvec))
+c            
+c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
+c
+            ERI_est=schwarz_shell(ishc,ishd)
+c            
+            if( Pmat_max*ERI_est.gt.THRESHOLD )then
+c              
+              ischw1 = ischw1 + nshells_cd
+c              
+              istart=iERI
+              fac=2.0d0
+              if(ishc.eq.ishd) fac=1.d0
+              do 220 ishp = 1,nshells_cd
+c                  
+c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
+c                  
+                if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
+     &               call errquit('Exiting in fitcd.',5)
+                nshbfp=ilastp-ifirstp+1
+c                  
+                Nint = nshbfp*Nao2
+                nscr=mscratch_2e3c
+c                  
+                call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
+     &               ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
+                istart=istart+Nint
+c
+  220         continue
+c               
+c             Multiply the matrix of 3-ctr ERIs by the density matrix elements.
+c               
+              call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
+     &             Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+            end if
+c
+c            write(LuOut,*)' Done with: ishc,ishd; n1,n2 ',
+c     &                                 ishc,ishd, n1,n2
+c            call util_flush(LuOut)
+c
+            n1 = nxtask(nproc,icount)
+c
+          end if
+c          
           n2 = n2 + 1
-          
+c          
   230   continue
+c
+c       Reset ishd_be to 1.
+c
+        ishd_be = 1
   240 continue
- 9999 continue
+  241 continue
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -268,13 +389,11 @@ c
         call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
      &              nshbf, Dbl_MB(icgtf+ifirst-1) )
       enddo 
-
 c
 c     Compute the orbital integrated electron density.
 c
       Q = Dble(nTotEl)
-
-      
+c      
 #if defined(DFT_TIMER)
       call ga_sync
       call dft_second(ts2)
@@ -369,9 +488,10 @@ c
       if(oprint.and.me.eq.0 )then
         write(LuOut,*)
         write(LuOut,'(a,f14.6,a,1pe13.6)')
-     &       '   CD fit] integrated density:',rho_int,
+     &       '   CD fit integrated density:',rho_int,
      &       '    Lagrange Mult.:  ',alpha
         write(LuOut,*)
+        call util_flush(LuOut)
       end if
       
 #if defined(DFT_TIMER)
@@ -411,5 +531,6 @@ c
  9998 format(2x,a,2f6.2)
       
 #endif
+c      call errquit(' temp stop semi-direct ',999)
       return
       end

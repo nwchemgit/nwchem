@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.45 1996-11-15 22:54:29 d3h449 Exp $
+C$Id: dft_scf.F,v 1.46 1996-11-22 19:08:38 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -40,6 +40,7 @@ c
       integer noc(2),nmo(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
       integer avail
+      integer iwhat_max
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
       integer dft_n3cdbl,dft_n3cint
       external dft_n3cdbl,dft_n3cint
@@ -60,6 +61,7 @@ c
       integer nexc
       integer iswitc
       integer itol_max,iaoacc_max
+      integer mxshbf_ao, nao2_max, batch_max
       integer idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
       double precision ecoul,ecore,aaz
@@ -192,46 +194,50 @@ c
 c     
       itol_max = itol2e
       iaoacc_max = iaoacc
-      if(CDFIT.and.incore) then
-C
-C       try in-core Coulomb calculation
-C
+      if(CDFIT) then
+c
+c       Determine how big a buffer can be allocated to 3-center
+c       2e- integrals.
+c
+c        - amount needed for all incore:
+c
         n3c_dbl=dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
         n3c_int=dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
-C        if(me.eq.0) then
-C          write(0,*) ' n3c_dbl ',n3c_dbl,ga_nodeid()
-C          write(0,*) ' n3c_int ',n3c_int,ga_nodeid()
-C        endif
-        avail = MA_inquire_avail(mt_dbl)
-C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
+c
+c        - (minimum) amount available on stack (all nodes):
+c        
+        avail = MA_inquire_stack(mt_dbl)
         call ga_igop(msg_int2e_file, avail, 1, 'min')
-        if(avail.lt.n3c_dbl) then
-          incore=.false.
-        else
-          if(.not.MA_Push_Get(
-     &         MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
-     &         call errquit('dft_scf: push_get failed', 12)
-          avail = MA_inquire_avail(mt_int)
-          if(avail.lt.n3c_int) then
-            incore=.false.
-            if(.not.ma_pop_stack(l_3cERI))
-     &        call errquit('dft_scf: cannot pop stack',0)
-          else
-            if(.not.MA_Push_Get(
-     &           MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
-     &           call errquit('dftscf:push_get failed', 13)
-            call dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
-     &           nbf_cd, itol_max,n_batch,n3c_int,
-     &           int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
-          endif
-        endif
-        if(.not.incore.and.me.eq.0) then
-          write (LuOut,*) ' CANNOT HOLD  INTS in core'
-          write(LuOut,*) ' add ',n3c_dbl-avail,
-     & ' doubles to keep ints in core '
-        elseif(incore.and.me.eq.0) then
-          write (LuOut,*) '         Coulomb component computed incore.'
-        endif
+c
+c        - subtract off a few bits for later use, e.g., quadrature
+c
+        avail = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 
+     &                  125000
+        n3c_dbl=min(avail,n3c_dbl)
+c
+        if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
+          call errquit('Exiting in dft_scf.',1)
+        end if
+        nao2_max = mxshbf_ao**2
+        batch_max = nao2_max*nbf_cd
+c
+        if(n3c_dbl.lt.batch_max)incore = .false.
+c
+        if( .not.MA_Push_Get(
+     &    MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
+     &    call errquit('dft_scf: push_get failed', 12)
+c
+        if( .not.MA_Push_Get(
+     &    MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
+     &    call errquit('dftscf:push_get failed', 13)
+c
+        if(me.eq.0)write(LuOut,3230)n3c_dbl*1.d-6
+ 3230   format(/,10x,f6.3,' MW buffer allocated for incore 3-center '
+     &       /,10x,'2e- integral storage on stack. ')
+        call dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
+     &    nbf_cd, itol_max,n_batch,n3c_int,
+     &    int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
+     &    iwhat_max)
       endif
 c
 c     set initial coulomb acc to 1e-5
@@ -245,8 +251,6 @@ c
         itol2e=min(itol_min,itol_max)
         iAOacc=min(iAOacc_min,iAOacc_max)
       endif
-c
-c     check if you want to cache ints to disk
 c
       tol2e=10.d0**(-itol_max)
 c
@@ -388,19 +392,6 @@ c
       icall(2) = 0
 c     
 c     Begin the SCF cycle.
-c     
-      if( me.eq.0 )then
-        nheap = MA_Inquire_Heap(MT_Dbl)
-        nstack = MA_Inquire_Stack(MT_Dbl)
-        write(LuOut,'(10x,a,f10.2,i20)')
-     &       ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
-        write(LuOut,'(10x,a,f10.2,i20)')
-     &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
-	call flush(LuOut)
-      end if
-c**** 
-c**** Top of infinite SCF iteration loop
-c**** 
 c**** 
 c**** allocate eigenvalue array, including second pointer to beta block
 c**** 
@@ -429,7 +420,19 @@ c
       if (movecs_out.eq.' ') then
             movecs_out = movecs_in
       endif
-
+c
+      if( me.eq.0 )then
+        nheap = MA_Inquire_Heap(MT_Dbl)
+        nstack = MA_Inquire_Stack(MT_Dbl)
+        write(LuOut,'(10x,a,f10.2,i20)')
+     &       ' Heap Space remaining (MW):  ',dble(nheap)*1.D-06,nheap
+        write(LuOut,'(10x,a,f10.2,i20)')
+     &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
+	call flush(LuOut)
+      end if
+c**** 
+c**** Top of infinite SCF iteration loop
+c**** 
  1000 continue
 
       Ecoul  = ZERO
@@ -441,9 +444,9 @@ C     Accumulate core hamiltonian into Fock matrix
 C     compute core energy
 C       
       call int_1e_ga(ao_bas_han,ao_bas_han,
-     &  g_fock,'kinetic',.false.)
+     &               g_fock,'kinetic',.false.)
       call int_1e_ga(ao_bas_han,ao_bas_han,
-     &  g_fock,'potential',.false.)
+     &               g_fock,'potential',.false.)
       Ecore = ga_ddot(g_dens(1),g_fock)
 c
 c     Perform SPM analysis
@@ -479,7 +482,8 @@ c
      &    g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &    Ecoul,incore,
      &    n_batch,n3c_int,
-     &    int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
+     &    int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
+     &    iwhat_max)
       endif
 c       
 #if defined(DFT_TIMER)
@@ -495,7 +499,8 @@ c
      &  Ecoul,nbf_cd,iVcoul_opt,
      &  g_2ceri,g_dens,IOLGC,itol2e,incore,
      &  n_batch,n3c_int,
-     &  int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
+     &  int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
+     &  iwhat_max)
 c       
 c     Add V coul to Fock Matrix
 c       
@@ -1233,7 +1238,7 @@ c****   eval deallocation moved here from inside iteration loop
 c****   
         if(.not.ma_pop_stack(l_eval))
      &    call errquit('dft_scf: cannot pop stack',0)
-        if(incore.and.CDFIT) then
+        if(CDFIT) then
           if(.not.ma_pop_stack(l_3cwhat))
      &      call errquit('dft_scf: cannot pop stack',0)
           if(.not.ma_pop_stack(l_3cERI))

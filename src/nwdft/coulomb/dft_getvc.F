@@ -2,9 +2,10 @@
      &                     CD_coef,g_vc,Ecoul,nbf_cd,
      &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,
      &     itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,
+     &     iwhat_max)
 
-C$Id: dft_getvc.F,v 1.7 1996-11-15 22:54:16 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.8 1996-11-22 19:08:26 d3h449 Exp $
       implicit none
       
 
@@ -23,7 +24,7 @@ c****
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
-      integer n3c_dbl
+      integer n3c_dbl, iwhat_max
       double precision i3c_ERI(n3c_dbl)
 c
 c     Charge Density Expansion Coefficients
@@ -66,7 +67,7 @@ c
 c       Compute the Coulomb potential via a LSQ fitting procedure.
         call dft_fitvc( rtdb, geom, AO_bas_han, CD_bas_han,
      &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
 c
 c       Compute the Coulomb energy.
 c
