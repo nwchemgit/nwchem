@@ -4,7 +4,7 @@ c     This has the same form as VWN functional V, only with a different
 c     form for the parameterized functionals of rs.  The VWN V code is
 c     reused.
 *
-* $Id: xc_pw91lda.F,v 1.11 2001-06-11 20:29:27 edo Exp $
+* $Id: xc_pw91lda.F,v 1.12 2002-04-05 21:36:18 sohirata Exp $
 *
 #ifndef SECOND_DERIV
       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
@@ -92,33 +92,31 @@ c        to the argument of the ln function.
          A(3) = -A(3)
       endif
 c
-      if (ipol.eq.1)then
+c     ======> BOTH SPIN-RESTRICTED AND UNRESTRICTED <======
 c
-c        ======> SPIN-RESTRICTED <======
+      do 200 n = 1, nq
+         if (rho(n,1).lt.tol_rho)goto 200
 c
-         do 100 n = 1, nq
-            if (rho(n,1).lt.tol_rho)goto 100
-c
-            rhoval = rho(n,1)
-            rs = p0*rhoval**(-onethird)
-            d1rs = -onethird*rs/rhoval
-            x = sqrt(rs)
-            d1x = 0.5d0/x
+         rhoval = rho(n,1)
+         rs = p0*rhoval**(-onethird)
+         d1rs = -onethird*rs/rhoval
+         x = sqrt(rs)
+         d1x = 0.5d0/x
 #ifdef SECOND_DERIV
-            d2rs = -fourthirds*d1rs/rhoval
-            d2x = -0.5d0*d1x/rs
+         d2rs = -fourthirds*d1rs/rhoval
+         d2x = -0.5d0*d1x/rs
 #endif
 c
-c           Compute the paramagnetic portion of the correlation energy density
-c           and potential.
+c        Evaluate the individual correlation energy formulas
 c
-c           Note that the Monte Carlo form (p = 1) is used for h2.
+c        Note that the Monte Carlo form (p = 1) is used for h2.
 c
-            h2 = x*(b(1,1) + x*(b(2,1) + x*(b(3,1) + x*b(4,1))))
-            d1h2 = b(1,1)
-     &           + x*(2d0*b(2,1) + x*(3d0*b(3,1) + 4d0*x*b(4,1)))
+         do i = 1, 3
+            h2 = x*(b(1,i) + x*(b(2,i) + x*(b(3,i) + x*b(4,i))))
+            d1h2 = b(1,i)
+     &           + x*(2d0*b(2,i) + x*(3d0*b(3,i) + 4d0*x*b(4,i)))
 #ifdef SECOND_DERIV
-            d2h2 = 2d0*b(2,1) + x*(6d0*b(3,1) + 12d0*x*b(4,1))
+            d2h2 = 2d0*b(2,i) + x*(6d0*b(3,i) + 12d0*x*b(4,i))
 #endif
 c
             h1 = DLOG(1d0+1d0/h2)
@@ -127,11 +125,11 @@ c
             d2h1 = d1h1*d1h1*(2d0*h2+1d0) - d2h2/(h2*(h2+1d0))
 #endif
 c
-            e(1) = A(1)*(1d0+alp(1)*rs)*h1
-            d1e(1) = A(1)*(2d0*alp(1)*x*h1+(1d0+alp(1)*rs)*d1h1)
+            e(i) = A(i)*(1d0+alp(i)*rs)*h1
+            d1e(i) = A(i)*(2d0*alp(i)*x*h1+(1d0+alp(i)*rs)*d1h1)
 #ifdef SECOND_DERIV
-            d2e(1) = A(1)*(2d0*alp(1)*h1+4d0*alp(1)*x*d1h1
-     &                   +(1d0+alp(1)*rs)*d2h1)
+            d2e(i) = A(i)*(2d0*alp(i)*h1+4d0*alp(i)*x*d1h1
+     &                      +(1d0+alp(i)*rs)*d2h1)
 #endif
 c
 c           Transform derivatives wrt x to derivatives wrt rs
@@ -139,188 +137,124 @@ c
 #ifdef SECOND_DERIV
 c           Do 2nd derivative first so the x first derivative in d1e
 c           is not lost
-            d2e(1) = d2e(1)*d1x*d1x + d1e(1)*d2x
+            d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
 #endif
-            d1e(1) = d1e(1)*d1x
+            d1e(i) = d1e(i)*d1x
+         enddo
 c
-            Ec = Ec + e(1)*rhoval*qwght(n)*fac
-            if (ldew) func(n) = func(n) + e(1)*rhoval*fac
+c        Compute the polarization function and its derivatives
 c
-            d1edrho(1) = d1e(1)*d1rs
-            Amat(n,1) = Amat(n,1) + (e(1)+rhoval*d1edrho(1))*fac
-#ifdef SECOND_DERIV
-            d2edrho(1) = d2e(1)*d1rs*d1rs + d1e(1)*d2rs
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-c     ab contribution is same as aa contribution for restricted
-c     since in that case this functional depends on total rho only -
-c     it's not that simple in general
-            Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
-     &           + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-#endif
-  100    continue
-c
-      else
-c
-c        ======> SPIN-UNRESTRICTED <======
-c
-         do 200 n = 1, nq
-            if (rho(n,1).lt.tol_rho)goto 200
-c
-            rhoval = rho(n,1)
-            rs = p0*rhoval**(-onethird)
-            d1rs = -onethird*rs/rhoval
-            x = sqrt(rs)
-            d1x = 0.5d0/x
-#ifdef SECOND_DERIV
-            d2rs = -fourthirds*d1rs/rhoval
-            d2x = -0.5d0*d1x/rs
-#endif
-c
-c           Evaluate the individual correlation energy formulas
-c
-c           Note that the Monte Carlo form (p = 1) is used for h2.
-c
-            do i = 1, 3
-               h2 = x*(b(1,i) + x*(b(2,i) + x*(b(3,i) + x*b(4,i))))
-               d1h2 = b(1,i)
-     &              + x*(2d0*b(2,i) + x*(3d0*b(3,i) + 4d0*x*b(4,i)))
-#ifdef SECOND_DERIV
-               d2h2 = 2d0*b(2,i) + x*(6d0*b(3,i) + 12d0*x*b(4,i))
-#endif
-c
-               h1 = DLOG(1d0+1d0/h2)
-               d1h1 = -d1h2/(h2*(h2+1d0))
-#ifdef SECOND_DERIV
-               d2h1 = d1h1*d1h1*(2d0*h2+1d0) - d2h2/(h2*(h2+1d0))
-#endif
-c
-               e(i) = A(i)*(1d0+alp(i)*rs)*h1
-               d1e(i) = A(i)*(2d0*alp(i)*x*h1+(1d0+alp(i)*rs)*d1h1)
-#ifdef SECOND_DERIV
-               d2e(i) = A(i)*(2d0*alp(i)*h1+4d0*alp(i)*x*d1h1
-     &                      +(1d0+alp(i)*rs)*d2h1)
-#endif
-c
-c              Transform derivatives wrt x to derivatives wrt rs
-c
-#ifdef SECOND_DERIV
-c              Do 2nd derivative first so the x first derivative in d1e
-c              is not lost
-               d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
-#endif
-               d1e(i) = d1e(i)*d1x
-            enddo
-c
-c           Compute the polarization function and its derivatives
-c
+         if (ipol.eq.1) then
+            zeta = 0.0d0
+         else
             zeta = (rho(n,2) - rho(n,3))/rhoval
-            if (zeta.gt.1.d0)then
-               zeta = 1.d0
-            elseif (zeta.lt.-1.d0)then
-               zeta =-1.d0
-            endif
-            fz = ((1.d0+zeta)**fourthirds + 
-     &            (1.d0-zeta)**fourthirds - 2.d0)*p1
-            d1fz = ((1.d0+zeta)**onethird - 
-     &              (1.d0-zeta)**onethird)*p2
-            d1zeta(1) = (1.d0-zeta)/rhoval
-            d1zeta(2) =-(1.d0+zeta)/rhoval
+         endif
+         if (zeta.gt.1.d0)then
+            zeta = 1.d0
+         elseif (zeta.lt.-1.d0)then
+            zeta =-1.d0
+         endif
+         fz = ((1.d0+zeta)**fourthirds + 
+     &         (1.d0-zeta)**fourthirds - 2.d0)*p1
+         d1fz = ((1.d0+zeta)**onethird - 
+     &           (1.d0-zeta)**onethird)*p2
+         d1zeta(1) = (1.d0-zeta)/rhoval
+         d1zeta(2) =-(1.d0+zeta)/rhoval
 #ifdef SECOND_DERIV
-            d2fz = ((1.d0+zeta)**(-twothirds) +
-     &              (1.d0-zeta)**(-twothirds))*p3
-            rrho2 = 2.d0/(rhoval*rhoval)
-c           1 = aa, 2 = ab, 3 = bb
-            d2zeta(1) =-rrho2*(1.d0-zeta)
-            d2zeta(2) = rrho2*zeta
-            d2zeta(3) = rrho2*(1.d0+zeta)
+         d2fz = ((1.d0+zeta)**(-twothirds) +
+     &           (1.d0-zeta)**(-twothirds))*p3
+         rrho2 = 2.d0/(rhoval*rhoval)
+c        1 = aa, 2 = ab, 3 = bb
+         d2zeta(1) =-rrho2*(1.d0-zeta)
+         d2zeta(2) = rrho2*zeta
+         d2zeta(3) = rrho2*(1.d0+zeta)
 #endif
 c
-            dec_rs1 = e(2)-e(1)
-            d1dec_rs1 = d1e(2)-d1e(1)
+         dec_rs1 = e(2)-e(1)
+         d1dec_rs1 = d1e(2)-d1e(1)
 #ifdef SECOND_DERIV
-            d2dec_rs1 = d2e(2)-d2e(1)
+         d2dec_rs1 = d2e(2)-d2e(1)
 #endif
 c
-            beta_rs1 = e(2)-e(1)
-            d1beta_rs1 = d1e(2)-d1e(1)
-            zeta2 = zeta*zeta
-            zeta3 = zeta2*zeta
-            zeta4 = zeta3*zeta
-            t_vwn = d2fz0*beta_rs1-e(3)
-            d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
-            devwn_rsz = fz/d2fz0*(e(3)+t_vwn*zeta4)
-            d1devwn_rsz(1) = fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
-            d1devwn_rsz(2) = d1fz/d2fz0*(e(3)+t_vwn*zeta4)
-     &           + fz/d2fz0*t_vwn*4.d0*zeta3
+         beta_rs1 = e(2)-e(1)
+         d1beta_rs1 = d1e(2)-d1e(1)
+         zeta2 = zeta*zeta
+         zeta3 = zeta2*zeta
+         zeta4 = zeta3*zeta
+         t_vwn = d2fz0*beta_rs1-e(3)
+         d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
+         devwn_rsz = fz/d2fz0*(e(3)+t_vwn*zeta4)
+         d1devwn_rsz(1) = fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+         d1devwn_rsz(2) = d1fz/d2fz0*(e(3)+t_vwn*zeta4)
+     &        + fz/d2fz0*t_vwn*4.d0*zeta3
 #ifdef SECOND_DERIV
-            d2beta_rs1 = d2e(2)-d2e(1)
-            d2t_vwn = d2fz0*d2beta_rs1-d2e(3)
-            d2devwn_rsz(1) = fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
-            d2devwn_rsz(2) = d1fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
-     &           + fz/d2fz0*d1t_vwn*4.d0*zeta3
-            d2devwn_rsz(3) = d2fz/d2fz0*(e(3)+t_vwn*zeta4)
-     &           + d1fz/d2fz0*t_vwn*8.d0*zeta3
-     &           + fz/d2fz0*t_vwn*12.d0*zeta2
+         d2beta_rs1 = d2e(2)-d2e(1)
+         d2t_vwn = d2fz0*d2beta_rs1-d2e(3)
+         d2devwn_rsz(1) = fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
+         d2devwn_rsz(2) = d1fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+     &        + fz/d2fz0*d1t_vwn*4.d0*zeta3
+         d2devwn_rsz(3) = d2fz/d2fz0*(e(3)+t_vwn*zeta4)
+     &        + d1fz/d2fz0*t_vwn*8.d0*zeta3
+     &        + fz/d2fz0*t_vwn*12.d0*zeta2
 #endif
 c
 c     Compute the function deltaEc(rs,zeta) function and its derivatives
 c     wrt rs and zeta for the spin-unrestricted case - the rest has the
 c     same form for all VWN functionals and is handled in the header files.
 c
-            dec_rsz = devwn_rsz
-            d1dec_rsz(1) = d1devwn_rsz(1)
-            d1dec_rsz(2) = d1devwn_rsz(2)
+         dec_rsz = devwn_rsz
+         d1dec_rsz(1) = d1devwn_rsz(1)
+         d1dec_rsz(2) = d1devwn_rsz(2)
 #ifdef SECOND_DERIV
-            d2dec_rsz(1) = d2devwn_rsz(1)
-            d2dec_rsz(2) = d2devwn_rsz(2)
-            d2dec_rsz(3) = d2devwn_rsz(3)
+         d2dec_rsz(1) = d2devwn_rsz(1)
+         d2dec_rsz(2) = d2devwn_rsz(2)
+         d2dec_rsz(3) = d2devwn_rsz(3)
 #endif
 c
 c     Finish off the unrestricted case:
 c     Assemble the entire functional and its derivatives given the
 c     parameterization-dependent part deltaEc(rs,zeta) and its derivatives
 c
-            eps = e(1) + dec_rsz
-            d1ersz(1) = d1e(1) + d1dec_rsz(1)
-            d1ersz(2) = d1dec_rsz(2)
-            d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
-            d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
-            Ec = Ec + eps*qwght(n)*rhoval*fac
-            if (ldew) func(n) = func(n) + eps*rhoval*fac
-            Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
-            Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
+         eps = e(1) + dec_rsz
+         d1ersz(1) = d1e(1) + d1dec_rsz(1)
+         d1ersz(2) = d1dec_rsz(2)
+         d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
+         d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
+         Ec = Ec + eps*qwght(n)*rhoval*fac
+         if (ldew) func(n) = func(n) + eps*rhoval*fac
+         Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
+         if (ipol.eq.2)
+     &   Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
 #ifdef SECOND_DERIV
-c           1 = rsrs, 2 = rsz, 3 = zz
-            d2ersz(1) = d2e(1) + d2dec_rsz(1)
-            d2ersz(2) = d2dec_rsz(2)
-            d2ersz(3) = d2dec_rsz(3)
-c           1 = aa, 2 = ab, 3 = bb
-            d2edrho(1) = d2ersz(1)*d1rs*d1rs
-     &                 + d2ersz(2)*d1rs*d1zeta(1)*2.d0
-     &                 + d2ersz(3)*d1zeta(1)*d1zeta(1)
-     &                 + d1ersz(1)*d2rs
-     &                 + d1ersz(2)*d2zeta(1)
-            d2edrho(2) = d2ersz(1)*d1rs*d1rs
-     &                 + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
-     &                 + d2ersz(3)*d1zeta(1)*d1zeta(2)
-     &                 + d1ersz(1)*d2rs
-     &                 + d1ersz(2)*d2zeta(2)
-            d2edrho(3) = d2ersz(1)*d1rs*d1rs
-     &                 + d2ersz(2)*d1rs*d1zeta(2)*2.d0
-     &                 + d2ersz(3)*d1zeta(2)*d1zeta(2)
-     &                 + d1ersz(1)*d2rs
-     &                 + d1ersz(2)*d2zeta(3)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-            Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
-     &           + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
+c        1 = rsrs, 2 = rsz, 3 = zz
+         d2ersz(1) = d2e(1) + d2dec_rsz(1)
+         d2ersz(2) = d2dec_rsz(2)
+         d2ersz(3) = d2dec_rsz(3)
+c        1 = aa, 2 = ab, 3 = bb
+         d2edrho(1) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*d1zeta(1)*2.d0
+     &              + d2ersz(3)*d1zeta(1)*d1zeta(1)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(1)
+         d2edrho(2) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
+     &              + d2ersz(3)*d1zeta(1)*d1zeta(2)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(2)
+         d2edrho(3) = d2ersz(1)*d1rs*d1rs
+     &              + d2ersz(2)*d1rs*d1zeta(2)*2.d0
+     &              + d2ersz(3)*d1zeta(2)*d1zeta(2)
+     &              + d1ersz(1)*d2rs
+     &              + d1ersz(2)*d2zeta(3)
+         Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &        + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
+         Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
+     &        + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
+         if (ipol.eq.2)
+     &   Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &        + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
 #endif
-  200    continue
-c
-      endif
+  200 continue
 c
       return
       end
