@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.18 2003-02-08 23:05:14 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.19 2003-02-09 01:05:58 marat Exp $
 *
 
 !**************************************************
@@ -36,6 +36,16 @@ c     !*** calculate total number of (n,l,m) projectors  ***
 c        !-- ion_natm(ia) is number of atoms of kind ia --
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
+      end do
+
+c     !*** calculate the size and indexing for weight coefficients  ***
+      value = my_alloc(mt_int,ion_nion(),"i_w",i_w)
+      if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
+      w_size = 0
+      do ia=1,ion_nkatm()
+         int_mb(i_w(1) + ia - 1) = w_size
+         w_size = w_size
+     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       end do
 
 
@@ -257,10 +267,10 @@ c     >                 dcpl_mb(toeff(1)+indx_coeff)
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
 
-      integer nlmii
-      integer i,nlm,ia,n
+      integer i_nbasis,ii
+      integer in,nlm,nlm1,ia,n
       integer neall,nbasis
-      integer indx_coeff
+      integer indx_coeff,indx_coeff1
       double complex w_tmp
       
 c     **** external functions ****
@@ -270,21 +280,32 @@ c     **** external functions ****
 c     !*** total number of electron states ***
       neall = (psi_ne(1) + psi_ne(2))
 
-      nlmii = 0
-      do i=1,ion_nion()
-        nbasis = paw_proj_nbasis(ia)
-        ia = ion_katm(i)
-        do nlm=1,nbasis
-           nlmii = nlmii + 1
-           w_tmp = cmplx(0.0,0.0)
-           do n=1,neall
-             indx_coeff = (nlmii-1)*neall + (n-1)
-             w_tmp = w_tmp + dcpl_mb(coeff(1)+indx_coeff)*
-     >        conjg(dcpl_mb(coeff(1)+indx_coeff)) 
-              write(*,*) "paw_ovlp:w",w_tmp
-           end do
-        end do
-      end do 
 
+      ii = 0
+      i_nbasis = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        nbasis = paw_proj_nbasis(ia)
+        do nlm =1,nbasis
+        do nlm1=1,nbasis
+           w_tmp = cmplx(0.0d0,0.0d0)
+           do n=1,neall
+             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
+             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
+             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
+     >        dcpl_mb(coeff(1)+indx_coeff1)
+           end do
+c           write(*,*) ia,nlm,nlm1
+c           write(*,*) in,paw_proj_l(nlm,ia),paw_proj_m(nlm,ia),
+c     >                       paw_proj_l(nlm1,ia),paw_proj_m(nlm1,ia)
+c           write(*,*) "paw_ovlp:w",w_tmp
+           dcpl_mb(w(1)+ii) = w_tmp
+           ii =ii +1
+        end do
+        end do
+        i_nbasis = i_nbasis + nbasis
+      end do
+
+      return
       end
      
