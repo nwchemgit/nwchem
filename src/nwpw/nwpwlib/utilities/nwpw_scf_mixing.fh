@@ -1,0 +1,13 @@
+c
+c     $Id: nwpw_scf_mixing.fh,v 1.1 2003-12-13 21:07:40 bylaska Exp $
+c
+      integer max_list
+      parameter (max_list=40)
+      real*8  c(max_list),d(max_list),B(max_list,max_list),alpha
+      real*8  A(max_list,max_list),w(max_list),w0
+      real*8  Binv(max_list,max_list)
+      integer npack1,neall,nsize,max_m,m,algorithm,ispin
+      common / nwpw_scf_mixing_block / A,B,Binv,c,d,w,w0,alpha,
+     >                             npack1,neall,
+     >                             nsize,max_m,m,algorithm,ispin
+

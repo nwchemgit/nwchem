@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_list.F,v 1.3 2003-10-24 18:48:03 marat Exp $ 
+*     $Id: nwpw_list.F,v 1.4 2003-12-13 21:07:40 bylaska Exp $ 
 *
       subroutine nwpw_list_start(size_list0,nsize0)
       implicit none
@@ -130,6 +130,34 @@
       
       return
       end
+
+*     ************************************
+*     *                                  *
+*     *        nwpw_list_shift_range     *
+*     *                                  *
+*     ************************************
+      subroutine nwpw_list_shift_range(istart,iend)
+      implicit none
+      integer istart,iend
+
+#include "nwpw_list_common.fh"
+
+*     **** local variables ****
+      integer i,tmp
+
+      
+      tmp = indx(istart)
+      do i=istart,iend-1
+         indx(i) = indx(i+1)
+      end do
+      indx(iend) = tmp
+      
+      return
+      end
+
+
+
+
 
 *     ************************************
 *     *                                  *

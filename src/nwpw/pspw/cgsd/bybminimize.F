@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.10 2003-12-02 19:17:09 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.11 2003-12-13 21:07:41 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -51,7 +51,7 @@ c
 
 
 *     **** external functions ****
-      integer  control_ispin
+      integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
@@ -65,7 +65,7 @@ c
       real*8   psi_1eorbit
       real*8   ddot
    
-      external control_ispin
+      external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
       external rho_error,psi_1energy,psi_error
@@ -173,7 +173,6 @@ c
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1)))
          call electron_get_vall(dbl_mb(vall_in(1))) 
-         !call psi_get_density(1,dbl_mb(rho_in(1)))
 
          call psi_1gen_hml()
          call psi_diagonalize_hml_assending()
@@ -185,10 +184,9 @@ c
          !call psi_get_density(1,dbl_mb(rho_in(1)))
       end if
   
-*     **** iniitialize DIIS ****    
-      !call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(rho_in(1)))
-      call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
-      !call nwpw_kain_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
+*     **** iniitialize SCF Mixing ****    
+      call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
+     >                5,ispin,n2ft3d,dbl_mb(vall_out(1)))
 
 
 *     ***** diis loop ****
@@ -196,10 +194,6 @@ c
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      !call psi_1gen_hml()
-      !call psi_diagonalize_hml()
-      !call psi_1rotate2()
-      !call psi_2to1()
       call psi_KS_update(1,precondition,ks_deltae)
 
       call rho_1to2()
@@ -208,51 +202,41 @@ c
 
       deltae = Enew-Eold
 
+      call electron_gen_vall()
+      call electron_get_vall(dbl_mb(vall_in(1)))
+
+*     **** compute deltaV ****
       call dcopy(ispin*n2ft3d,
      >           dbl_mb(vall_in(1)),1,
      >           dbl_mb(vall_junk(1)),1)
-      call electron_gen_vall()
-      call electron_get_vall(dbl_mb(vall_in(1)))
       call daxpy(ispin*n2ft3d,
      >              (-1.0d0),
-     >              dbl_mb(vall_in(1)),1,
+     >              dbl_mb(vall_out(1)),1,
      >              dbl_mb(vall_junk(1)),1)
       deltav = ddot(ispin*n2ft3d,
      >                 dbl_mb(vall_junk(1)),1,
      >                 dbl_mb(vall_junk(1)),1)
       call D3dB_SumAll(deltav)
       deltav = deltav*dV
+      
 
 
-*     **** update vall ****
+*     **** update vall using density mixing ****
       if ((it.le.0) .or.
-     >    ((dabs(deltae).lt.1.0d+1) .and.
-     >    (deltav       .lt.1.0d+1) .and.
+     >    ((dabs(deltae).lt.1.0d5) .and.
+     >    (deltav       .lt.1.0d5) .and.
      >    (.not.stalled          ))) then
-        !call electron_gen_vall()
-        !call electron_get_vall(dbl_mb(vall_in(1))) 
-        call nwpw_diis(dbl_mb(vall_in(1)),
-     >                 dbl_mb(vall_in(1)),
-     >                 dbl_mb(vall_out(1)),
-     >                 diis_error)
-        !call nwpw_kain(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
-        ! alpha = control_ks_alpha()
 
-      else if ((dabs(deltae).lt.1.0d+2) .and.
-     >         (deltav      .lt.1.0d+10) .and.
-     >         (.not.stalled          )) then
-         !call electron_gen_vall()
-         !call electron_get_vall(dbl_mb(vall_in(1))) 
-         call nwpw_diis_reset(dbl_mb(vall_in(1)))
-         call dscal(2*n2ft3d,(1.0d0-alpha),dbl_mb(vall_out(1)),1)
-         call daxpy(2*n2ft3d,alpha,dbl_mb(vall_in(1)),1,
-     >                             dbl_mb(vall_out(1)),1)
-         !if (deltae.gt.0.0d0) alpha = 0.703837d0*alpha
-        
+         call nwpw_scf_mixing(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)),
+     >                        diis_error)
+
+*     **** bad convergence - try fixed step steepest descent ****
       else
-         call sdminimize(sd_it)
-  30     Eold   = Enew
+
+  30     call sdminimize(sd_it)
+         Eold   = Enew
          Enew   = psi_1energy()
+         !if (dabs(Enew-Eold).gt.1.0d2) go to 30
 
          call dcopy(ispin*n2ft3d,
      >              dbl_mb(vall_out(1)),1,
@@ -260,10 +244,9 @@ c
 
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1))) 
-         !alpha = control_ks_alpha()
+         call nwpw_scf_mixing_reset(dbl_mb(vall_out(1)))
 
-         call nwpw_diis_reset(dbl_mb(vall_out(1)))
-         !deltav = 0.0d0
+
          call daxpy(ispin*n2ft3d,
      >              (-1.0d0),
      >              dbl_mb(vall_out(1)),1,
@@ -287,7 +270,8 @@ c
          stalled_count     = 0
 
       end if
-      call electron_set_vall(dbl_mb(vall_out(1))) !call psi_set_density(1,dbl_mb(vall_out(1)))      
+      call electron_set_vall(dbl_mb(vall_out(1))) 
+      
           
 *     **** tolerance checks ****
       deltae = Enew-Eold   
@@ -339,7 +323,7 @@ c
 
 
 *     **** free memory ****
-      call nwpw_list_end()
+      call nwpw_scf_mixing_end()
       value =           MA_pop_stack(rho_in(2))
       value = value.and.MA_pop_stack(vall_junk(2))
       value = value.and.MA_pop_stack(vall_out(2))

@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.48 2003-12-02 23:55:34 bylaska Exp $
+* $Id: psi.F,v 1.49 2003-12-13 21:07:41 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.48  2003/12/02 23:55:34  bylaska
+* density of state generation added...EJB
+*
 * Revision 1.47  2003/12/02 19:17:10  bylaska
 * HGH pseudpotential added.
 * TM, Hamman, HGH, pspw_default, and paw_default pseudopotential libraries have been added.
@@ -4070,8 +4073,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     ***************************
       real*8 function rho_error()
       implicit none
-#include "errquit.fh"
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
@@ -4114,7 +4117,6 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       if (.not. value) 
      > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
-     
 
       rho_error = error
       return

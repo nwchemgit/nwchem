@@ -1,11 +1,10 @@
 *
-* $Id: ke.F,v 1.9 2003-10-17 22:57:34 carlfahl Exp $
+* $Id: ke.F,v 1.10 2003-12-13 21:07:41 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
-#include "errquit.fh"
-
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer npack1,nfft3d,G(3)
@@ -34,10 +33,12 @@ c     real*8 tg(nfft3d)
 
       value = MA_alloc_get(mt_dbl,npack1,
      >                     'tg',tg_hndl,tg_indx)
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('ke_init:out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('ke_init:out of stack memory',0, MA_ERR)
 
 
       do i = 1,nfft3d
@@ -52,12 +53,17 @@ c     real*8 tg(nfft3d)
       
 
       value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     > call errquit('ke_init:popping stack memory',0, MA_ERR)
       return
       end
 
       subroutine ke_end()
       implicit none 
+
 #include "mafdecls.fh"
+#include "errquit.fh"
+
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
@@ -66,6 +72,8 @@ c     real*8 tg(nfft3d)
       logical value
 
       value = MA_free_heap(tg_hndl)
+      if (.not. value) 
+     >   call errquit('ke_end:error freeing heap',0, MA_ERR)
       return
       end
 
@@ -187,7 +195,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.9 2003-10-17 22:57:34 carlfahl Exp $
+* $Id: ke.F,v 1.10 2003-12-13 21:07:41 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"

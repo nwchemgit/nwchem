@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.43 2003-12-02 23:55:34 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.44 2003-12-13 21:07:41 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -328,7 +328,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
  1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
- 1309 FORMAT(10X,'=========== band by band diis iteration ============')
+ 1309 FORMAT(10X,'============= Kohn-Sham scf iteration ==============')
  1310 FORMAT(I8,E20.10,3E15.5)
  1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)

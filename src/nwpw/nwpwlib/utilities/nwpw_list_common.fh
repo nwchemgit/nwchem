@@ -1,8 +1,8 @@
 c
-c     $Id: nwpw_list_common.fh,v 1.1 2002-12-11 18:14:01 bylaska Exp $
+c     $Id: nwpw_list_common.fh,v 1.2 2003-12-13 21:07:40 bylaska Exp $
 c
       integer max_list
-      parameter (max_list=40)
+      parameter (max_list=80)
       logical ondisk
       integer grsm_mem(2,max_list)
       integer indx(max_list),nsize,size_list

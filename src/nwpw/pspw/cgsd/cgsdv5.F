@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.37 2003-12-08 21:56:50 bylaska Exp $
+* $Id: cgsdv5.F,v 1.38 2003-12-13 21:07:41 bylaska Exp $
 *
 
 ***********************************************************************
@@ -54,7 +54,7 @@
 *     **** local variables ****
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      integer i,k,ia,nion,icharge
+      integer i,k,ia,nion,icharge,minimizer
   
 
 
@@ -117,8 +117,10 @@
       external  psi_filefind
       logical   pspw_charge_found,ion_q_FixIon
       external  pspw_charge_found,ion_q_FixIon
-      integer  control_minimizer
-      external control_minimizer
+      integer  control_minimizer,control_scf_algorithm
+      external control_minimizer,control_scf_algorithm
+      real*8   control_ks_alpha
+      external control_ks_alpha
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -166,6 +168,7 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
+      minimizer = control_minimizer()
 
 
       ierr = 0 
@@ -231,7 +234,7 @@ c     value = psi_initialize()
 
 *     **** electron and geodesic data structures ****
       call electron_init()
-      if (control_minimizer().eq.4) then  !debug
+      if (minimizer.eq.4) then  !debug
         call geodesic2_init()
       else
          call geodesic_init()
@@ -347,6 +350,17 @@ c     value = psi_initialize()
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc()
+         if (minimizer.eq.5) then
+           write(6,1291)
+           write(6,1292)
+           if (control_scf_algorithm().eq.0) 
+     >       write(6,1293) "simple mixing"
+           if (control_scf_algorithm().eq.1) 
+     >       write(6,1293) "Anderson mixing"
+           if (control_scf_algorithm().eq.2) 
+     >       write(6,1293) "Johnson-Pulay mixing"
+           write(6,1294) control_ks_alpha()
+         end if
          write(6,1300)
          call util_flush(6)
       end if
@@ -458,7 +472,7 @@ c     end if
 
 *     **** deallocate heap memory ****
       call electron_finalize()
-      if (control_minimizer().eq.4) then
+      if (minimizer.eq.4) then
         call geodesic2_finalize()
       else
         call geodesic_finalize()
@@ -598,6 +612,10 @@ c     end if
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
+ 1291 FORMAT(/' Kohn-Sham scf parameters:')
+ 1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
+ 1293 FORMAT(5X, ' scf algorithm        = ',A)
+ 1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
