@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.17 2000-04-22 01:05:43 edo Exp $
+C$Id: dft_3cincor.F,v 1.18 2000-04-28 22:55:41 edo Exp $
 c
       implicit none
 c    
@@ -49,12 +49,12 @@ c
       double precision q1
 c      write(0,*) ' in 3CINCO',itol2e
 c
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 6'
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_high)
       oprint_3c2e = util_print('3c 2e integrals', print_high)
       me = ga_nodeid()
       call dzero(i3c_eri, n3c_dbl)
+      call int_mem_2e3c(maxg, mscratch_2e3c)
 c
 c     Check whether of not to enable semi-direct; check direct & noio
 c
@@ -83,7 +83,6 @@ c        need global space available check here
 c
          call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
 c
-c         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
          if (availkb .gt. (2*n3c_b + other_stuff)/1024)then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
      &        call errquit('dft_3cincor; eaf_open failed', 0)
@@ -103,7 +102,6 @@ c
 c      
 c     Parallelize the loop over the products of AO shells.
 c      
-c      icount = nshells_ao*(nshells_ao+1)/nproc/2
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
 c      
 c     check for zero ... must be at least 1
@@ -111,8 +109,6 @@ c
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
-c      nao2_max = nbf_ao_mxnbf_cn**2
-c      spherical_ao=bas_spherical(ao_bas_han)
       nao2_max=0
       do ishc=1,nshells_ao
          if(.not.bas_continfo(ao_bas_han,ishc,
@@ -121,8 +117,7 @@ c      spherical_ao=bas_spherical(ao_bas_han)
          nao2_max=max(nao2_max,
      ,        ((itype+1)*(itype+2))/2*nshbfc)
       enddo
-      call int_mem_2e3c(maxg, mscratch_2e3c)
-      batch_max = nao2_max*nbf_cd*icount*maxg
+      batch_max = nao2_max*nbf_cd*icount
 c
       nERI_max = Nao2_max*nbf_cd_mxnbf_cn
 c
@@ -134,12 +129,10 @@ c
      &  call errquit('dft_3cincor: cannot allocate scr',0)
 c
       call ga_sync
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       nxtbuf = batch_max
       nbufs = icount
       call nxtask_nleft (nproc, icount, n1, nbufs)
-c      n1 = nxtask(nproc,icount)
       n2 = 0
 c      
       ndone=1
@@ -152,7 +145,7 @@ c
 c 
         do 230 ishd = 1,ishc
 c            
-c         screen integral blocks using the schwarz inequality:  (p|cd) .le. (cd|cd)
+c         screen integral blocks using schwarz ineq:  (p|cd) .le. (cd|cd)
 c         
           eri_est=schwarz_shell(ishc,ishd)
 c
@@ -309,8 +302,6 @@ c
 c     Either all integrals have been computed and are incore or all
 c     local buffers are full. 
 c
-      if (.not.ma_verify_allocator_stuff()) call 
-     *     errquit(' ma ck 8',me)
       if (n_semi_bufs.gt.0)then
 c
 c        dump last buffer     
@@ -338,7 +329,6 @@ c     Determine last shell-pair computed.
 c
       iwhat_max = iwhat(n_batch)
       call ga_igop(msg_max_3c_incore, iwhat_max, 1, 'max')
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 9'
 c
 c     Determine total number of shell pairs.
 c
@@ -386,7 +376,6 @@ c
      &  call errquit('dft_3cincor: cannot pop stack',0)
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 10'
  3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',
      &       f6.2,/)
  3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
