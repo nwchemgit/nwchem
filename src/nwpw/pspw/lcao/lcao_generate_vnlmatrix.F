@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vnlmatrix.F,v 1.1 2001-11-30 23:52:04 bylaska Exp $
+* $Id: lcao_generate_vnlmatrix.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
 *
       subroutine lcao_generate_vnlmatrix(vnlmatrix,phi1,phi2)
       implicit none
@@ -39,7 +39,7 @@
 *           **** get phi1 ****
             call aorbs_aorb(i,phi1)
             call Pack_cc_dot(1,phi1,phi2,sum)
-
+            sum = -sum
             call ga_fill_patch(vnlmatrix,i,i,j,j,sum)
             call ga_fill_patch(vnlmatrix,j,j,i,i,sum)
          end do

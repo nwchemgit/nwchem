@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.3 2001-12-01 23:13:27 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.4 2001-12-02 19:38:14 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -36,6 +36,7 @@
       integer vlmatrix,vnlmatrix,vhxcmatrix(2)
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
+      real*8  rho_error
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
@@ -283,10 +284,12 @@
      >                       ispin,ne,n2ft3d,
      >                       dbl_mb(dn(1)),
      >                       psimatrix,
-     >                       dcpl_mb(phi2(1)))
+     >                       dcpl_mb(phi2(1)),
+     >                       rho_error)
 
+        write(*,*) "rho error:",it,rho_error
       end do
-      call lcao_write_psi(wavefunction_filename,
+ 50   call lcao_write_psi(wavefunction_filename,
      >                    version,
      >                    ngrid,
      >                    unita,

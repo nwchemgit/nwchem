@@ -1,8 +1,8 @@
 *
-* $Id: lcao_new_mix_dn.F,v 1.1 2001-12-01 23:13:27 bylaska Exp $
+* $Id: lcao_new_mix_dn.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
 *
       subroutine lcao_new_mix_dn(alpha,ispin,ne,n2ft3d,dn,
-     >                           psimatrix,phi)
+     >                           psimatrix,phi,rho_error)
       implicit none
       real*8  alpha
       integer ispin,ne(2)
@@ -10,6 +10,7 @@
       real*8 dn(n2ft3d,2)
       integer psimatrix(*)
       complex*16 phi(*)
+      real*8     rho_error
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,7 +19,7 @@
       logical value
       integer n,k,nbasis,ms
       integer nx,ny,nz
-      real*8  sum,scal1,scal2,dv
+      real*8  scal1,scal2,dv
       integer tmp(2),newdn(2),coef(2)
 
 
@@ -70,6 +71,20 @@
          end do
       end do
 
+*     **** calculate rho_error ****
+      rho_error = 0.0d0
+      do ms=1,ispin
+         call D3dB_r_Zero_Ends(1,dbl_mb(newdn(1)+(ms-1)*n2ft3d))
+         do k=1,n2ft3d
+            rho_error = rho_error
+     >                + dabs( dbl_mb(newdn(1)+(ms-1)*n2ft3d+k-1) 
+     >                      - dn(k,ms))
+         end do
+      end do
+      rho_error = rho_error*dv
+      call D3dB_SumAll(rho_error)
+
+
 *     **** Calculate New Density = combination of MO DEN and old DN *
       do ms=1,ispin
          do k=1,n2ft3d
@@ -80,10 +95,8 @@
 
 c*     **** normalize densities ***
 c      do ms=1,ispin
-c        call D3dB_r_Zero_Ends(1,dn(1,ms))
 c        call D3dB_r_dsum(1,dn(1,ms),sum)
 c        sum = sum*dv
-c        write(*,*) "DN:",ms,sum
 c        sum = dble(ne(ms))/sum
 c        call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
 c      end do

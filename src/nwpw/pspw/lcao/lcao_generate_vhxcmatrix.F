@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.1 2001-12-01 23:13:26 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
@@ -18,7 +18,7 @@
       integer ms,i,j,nbasis,npack1,nfft3d
       integer nx,ny,nz
       real*8  sum,scal1,scal2,dv
-      integer xcp(2),vc(2),dng(2),vpsi,vall
+      integer xcp(2),tmp1(2),tmp2(2),vpsi,vall,xvc,rho
 
 *     ***** external functions ****
       integer  aorbs_nbasis,control_version,control_gga
@@ -37,11 +37,13 @@
       call D3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dbl,(2*n2ft3d),'xcp',xcp(2),xcp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*n2ft3d),'vc',vc(2),vc(1))
+     >        MA_push_get(mt_dbl,(2*n2ft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*n2ft3d),'dng',dng(2),dng(1))
-      vpsi = dng(1)
-      vall = dng(1)+n2ft3d
+     >        MA_push_get(mt_dbl,(2*n2ft3d),'tmp2',tmp2(2),tmp2(1))
+      xvc  = tmp1(1)
+      rho  = tmp1(1)+n2ft3d
+      vpsi = tmp2(1)
+      vall = tmp2(1)+n2ft3d
       if (.not. value) 
      > call errquit('lcao_geneate_vhxcmatrix: out of stack memory',0)
 
@@ -52,29 +54,29 @@
       if (control_gga().eq.0) then
         call vxc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(vc(1)),
-     >                    dbl_mb(dng(1)))
+     >                    dbl_mb(tmp1(1)),
+     >                    dbl_mb(tmp2(1)))
       else
         call v_bwexc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(vc(1)))
+     >                    dbl_mb(tmp1(1)))
       end if
 
 
 *     ************************************
 *     **** generate coulomb potential ****
 *     ************************************
-      call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(vall))
+      call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho))
 
       if (control_version().eq.3) then
-         call D3dB_r_SMul(1,scal1,dbl_mb(vall),dbl_mb(dng(1)))
-         call D3dB_rc_fft3f(1,dbl_mb(dng(1)))
-         call Pack_c_pack(0,dbl_mb(dng(1)))
-         call coulomb_v(dbl_mb(dng(1)),dbl_mb(vc(1)))
-         call Pack_c_unpack(0,dbl_mb(vc(1)))
-         call D3dB_cr_fft3b(1,dbl_mb(vc(1)))
+         call D3dB_r_SMul(1,scal1,dbl_mb(rho),dbl_mb(rho))
+         call D3dB_rc_fft3f(1,dbl_mb(rho))
+         call Pack_c_pack(0,dbl_mb(rho))
+         call coulomb_v(dbl_mb(rho),dbl_mb(xvc))
+         call Pack_c_unpack(0,dbl_mb(xvc))
+         call D3dB_cr_fft3b(1,dbl_mb(xvc))
       else
-         call coulomb2_v(dbl_mb(vall),dbl_mb(vc(1)))
+         call coulomb2_v(dbl_mb(rho),dbl_mb(xvc))
       end if
 
 
@@ -95,20 +97,20 @@
          call D3dB_r_Zero_Ends(1,dbl_mb(vpsi))
 
          do ms=1,ispin
-            call D3dB_rr_Sum(1,dbl_mb(vc(1)),
+            call D3dB_rr_Sum(1,dbl_mb(xvc),
      >                         dbl_mb(xcp(1)+(ms-1)*n2ft3d),
      >                         dbl_mb(vall))
 
             call D3dB_rr_Mul(1,dbl_mb(vall),
      >                         dbl_mb(vpsi),
-     >                         dbl_mb(vpsi))
+     >                         dbl_mb(vall))
 
 *           *******************************
 *           **** get vpsi_r in k-space ****
 *           *******************************
-            call D3dB_rc_fft3f(1,dbl_mb(vpsi))
-            call Pack_c_pack(1,dbl_mb(vpsi))
-            call Pack_c_Copy(1,dbl_mb(vpsi),phi2)
+            call D3dB_rc_fft3f(1,dbl_mb(vall))
+            call Pack_c_pack(1,dbl_mb(vall))
+            call Pack_c_Copy(1,dbl_mb(vall),phi2)
 
             do i=1,j
 
@@ -123,8 +125,8 @@
          end do
       end do
 
-      value = MA_pop_stack(dng(2))
-      value = MA_pop_stack(vc(2))
+      value = MA_pop_stack(tmp2(2))
+      value = MA_pop_stack(tmp1(2))
       value = MA_pop_stack(xcp(2))
      
       return
