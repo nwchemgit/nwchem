@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.70 1996-05-15 02:28:39 d3g681 Exp $
+# $Id: GNUmakefile,v 1.71 1996-05-26 20:59:56 gg502 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -38,7 +38,8 @@
         uhf.o                   fock_2e_rep.o \
         print_integ.o \
 	riscf_square.o 		riscf_io.o \
-        rohf_lagr.o 		rohf_diis.o 
+        rohf_lagr.o 		rohf_diis.o \
+	rhf_fock.o
 
 
  OBJ_OPTIMIZE = \
