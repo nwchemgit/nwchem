@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.9 2000-04-26 01:22:30 edo Exp $
+c$Id: grid_sympts.F,v 1.10 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -151,8 +151,6 @@ cedo                  write(6,*) ' no equiv found ???',222
                   enddo
                   gridscr(4,k)=n_equiv*gridscr(4,k)
 
-!            write(6,'(2(A,I4),f20.12)') 
-!     ,           ' k ',k,' equiv = ',n_equiv,gridscr(4,k)
                endif
             enddo
          endif

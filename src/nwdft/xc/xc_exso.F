@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.3 2000-04-25 20:08:56 zzhang Exp $
+C$Id: xc_exso.F,v 1.4 2000-04-26 23:29:11 edo Exp $
 c
       implicit none
 c      
@@ -52,10 +52,10 @@ c      Exc(2)=0.d0
          write(*,*)' rtdb, Exc, nExc: ',rtdb, Exc, nExc
          write(*,*)' Fock XC matrix entering xc_getv: '
       endif
-      call ga_print(g_fockso(1))
-      call ga_print(g_fockso(2))
-      call ga_print(g_densso(1))
-      call ga_print(g_densso(2))
+!      call ga_print(g_fockso(1))
+!      call ga_print(g_fockso(2))
+!      call ga_print(g_densso(1))
+!      call ga_print(g_densso(2))
 c
       if (abs(xfac(1)).gt.1e-8)then
          call ga_inquire(g_densso(1),type,nao,nao)

@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.13 2000-04-07 16:34:26 edo Exp $
+c$Id: grid_sphere.F,v 1.14 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -302,7 +302,8 @@ c
          n=-int(l_cube)
          grid_lcube=-dble(rad+rad)/l_cube
       else
-         n=max(nint((rad+rad)/l_cube),2)
+         n=max(int((rad+rad)/l_cube),2)
+         if(mod(n,2).eq.0) n=n+1
          grid_lcube=dble(rad+rad)/dble(n)
       endif
       return

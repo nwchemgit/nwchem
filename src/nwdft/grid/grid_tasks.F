@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.29 2000-04-25 02:08:44 edo Exp $
+c$Id: grid_tasks.F,v 1.30 2000-04-26 23:29:10 edo Exp $
 c
       implicit none
 c
@@ -83,7 +83,7 @@ c
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
 c
-      owritefile= grid_test_mem (rtdb, geom, nq_tot)
+      owritefile= grid_test_mem (rtdb,  nq_tot)
 c
 c
 c     get partitioning function

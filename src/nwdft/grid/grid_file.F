@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.21 2000-04-18 00:33:12 edo Exp $
+* $Id: grid_file.F,v 1.22 2000-04-26 23:29:09 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -499,7 +499,7 @@ c
       n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
 c
       end
-      logical function grid_test_mem(rtdb, geom, nq_tot)
+      logical function grid_test_mem(rtdb,  nq_tot)
       implicit none
 #include "util.fh"
 #include "bas.fh"
@@ -512,7 +512,6 @@ c
 #include "stdio.fh"
 c
       integer rtdb              ! [input]
-      integer geom              ! [input]
       integer nq_tot  ! [input]
 c      integer basis             ! [input]
 c     
@@ -639,7 +638,8 @@ c
       grid_written=.true.
 c
       if (otrace) then
-         write(LuOut,*) ' grid_file write: nqpts,nctr,n_in_rec',
+         write(LuOut,'(A,A,4I6)') 
+     ,        ' grid_file write: nqpts,nctr,n_in_rec',
      &                  ',next_value', 
      &                                 nqpts,nctr,n_in_rec,next_value
          call util_flush(LuOut)
@@ -655,7 +655,7 @@ c
      &    (nctr. ne. cur_rec_ctr).or.
      .     ((n_in_rec+nqpts.gt.n_per_rec)
 c     to avoid excessive fragmentation of a single cube
-     .     .and.(n_in_rec.gt.n_per_rec*3/5)
+     .     .and.(n_in_rec.gt.n_per_rec*3/4)
      .     )
 !     .     .or.(cur_cub.ne.ncube.and.ncube.ne.-99)
      .     ) then

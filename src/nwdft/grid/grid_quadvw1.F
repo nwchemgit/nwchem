@@ -15,7 +15,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw1.F,v 1.2 2000-04-26 01:22:30 edo Exp $
+c$Id: grid_quadvw1.F,v 1.3 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -50,8 +50,6 @@ c
       integer nq_out,nwrbuf
       integer grid_nxyz,nq_in
       external grid_nxyz
-      integer grid_nsub4
-      external grid_nsub4
 c
       save nq_left
 c

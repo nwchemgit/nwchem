@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.18 2000-04-26 01:22:30 edo Exp $
+c$Id: grid_qpts.F,v 1.19 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
 c      
@@ -115,10 +115,6 @@ c
                aqbuf(3,nq) = xyz(3) + zor
 c             
                aqbuf(4,nq) = qwght_nq
-!            write(0,'(A,4F18.11)') 
-!     .           ' Qp ',aqbuf(1,nq),aqbuf(2,nq),aqbuf(3,nq),
-!     .              aqbuf(4,nq)
-               
             endif
 c
    10       continue

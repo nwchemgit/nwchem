@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.10 2000-04-25 02:08:43 edo Exp $
+c$Id: grid_quadvw.F,v 1.11 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -92,7 +92,7 @@ c
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
 c
-      owritefile= grid_test_mem (rtdb, geom, nq_list)
+      owritefile= grid_test_mem (rtdb, nq_list)
 c
 c     get partitioning function
 c
@@ -139,7 +139,10 @@ c
          iaia=iatype(i_a)
          rad=dble(rad_cutoff(1,iaia))
          nxyz=grid_nxyz(rad,lcube(iaia))
-         if(sub4) shft=grid_nsub4(nxyz)**3
+         if(sub4) then
+            nsub4=grid_nsub4(nxyz)
+            shft=nsub4**3
+         endif
 c
 c     loop over cubes centers on i_a
 c
@@ -181,6 +184,7 @@ c
  100           continue ! end loop over angular shells
                if(nq_cube.ne.0) then
                   cube_done=.true.
+                  ictr = qsh(2,iqsh)
                    call grid_quadvc(cube_done,nwrbuf,
      ,                 aqbuf,nq,nq_out,
      ,                 ntot_cube,ictr,qxyz, qwght, 

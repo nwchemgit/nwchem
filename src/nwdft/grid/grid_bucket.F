@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.13 2000-04-07 16:34:25 edo Exp $
+c$Id: grid_bucket.F,v 1.14 2000-04-26 23:29:09 edo Exp $
 c
       implicit none
 c     
@@ -30,7 +30,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:l_cube',
      $     mt_dbl, 1, l_cube)) l_cube = 5.5d0
       if (.not. rtdb_get(rtdb, 'dft:sub4',
-     $     mt_log, 1, sub4)) sub4=.false.
+     $     mt_log, 1, sub4)) sub4=.true.
       if(ga_nodeid().eq.0) write(LuOut,'(A,F8.2)') 
      .     ' l_cube input',l_cube
 c
@@ -39,12 +39,12 @@ c
       ncubesmx=1
       if(ga_nodeid().eq.0) write(LuOut,222) 
  222  format(/,
-     &     1x,' atom type   l_cube   no. cubes   segments   rad '/
-     &     1x,'----------- -------- ----------- ---------- -----')
+     &     1x,' atom type   l_cube   no. cubes   segmts   rad   sub'/
+     &     1x,'----------- -------- ----------- -------- ----- -----')
       do i=1,ntypes
          lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
-         shft=0
          nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
+         shft=0
          if(sub4) then
             nsub4=grid_nsub4(nxyz)
             shft=nsub4**3
@@ -52,14 +52,10 @@ c
          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
      ,        .false.,dum,lcube(i))
       if(ga_nodeid().eq.0) write(LuOut,22) i,lcube(i),ncubes_type(i),
-     ,     nxyz,rad_cutoff(1,i)
- 22   format(5x,i4,2x,f8.2,4x,i6,7x,i3,7x,i3)
+     ,     nxyz,rad_cutoff(1,i),shft
+ 22   format(5x,i4,2x,f8.2,4x,i6,7x,i3,5x,i3,2x,i4)
          ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
-      if(ga_nodeid().eq.0.and.sub4) write(LuOut,'(A,I4)') 
-     .     ' central subdivision by',shft
-cedo      if(ga_nodeid().eq.0) write(LuOut,'(/A,I4)') 
-cedo     ,     ' NCUBESMX ',ncubesmx
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)

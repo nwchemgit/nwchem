@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.7 2000-04-26 18:41:42 edo Exp $
+c     $Id: dft_scf_so.F,v 1.8 2000-04-26 23:29:10 edo Exp $
 c     
       implicit none
 c     
@@ -1751,8 +1751,8 @@ c
          call ga_copy(g_moso(1), g_damp_so(1))
          call ga_copy(g_moso(2), g_damp_so(2))
          ioff = nTotEl + 1  
-         call ga_print(g_moso(1))
-         call ga_print(g_moso(2))
+c         call ga_print(g_moso(1))
+c         call ga_print(g_moso(2))
          do i = 1, nel_fon
             joff = nTotEl + 1  
             do j= joff, nmo_fon 
@@ -1770,8 +1770,8 @@ c
             enddo
             ioff=ioff+1
          enddo
-         call ga_print(g_damp_so(1))
-         call ga_print(g_damp_so(2))
+c         call ga_print(g_damp_so(1))
+c         call ga_print(g_damp_so(2))
 c     
 c     form a new density matrix and calculate the corresponding energy 
 c
