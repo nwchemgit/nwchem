@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.81 1997-06-27 00:42:49 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.82 1997-07-10 16:35:12 d3h449 Exp $
 c     
       implicit none
 c
@@ -974,10 +974,10 @@ c
 c     Check for SCF convergence.
 c     
       call ga_sync
-      if (.not.last_time)call dft_scfcvg(rms, Etold, Etnew, Enuc, 
-     &                                   e_conv, d_conv, g_conv,
-     &                                   ipol, iter, iterations,
-     &                                   idone, converged, rtdb)
+      if (.not.last_time)call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
+     &                                   e_conv, d_conv, g_conv, ipol, 
+     &                                   iter, iterations, idone, rtdb,
+     &                                   converged, diising)
       if (delta.lt.1.d-4)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
@@ -1165,7 +1165,7 @@ c
 c     Store energy and convergence status ... must store before
 c     write movecs since date of insertion is used.
 c     
-      if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etold+Enuc)))
+      if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etnew+Enuc)))
      &   call errquit('dft_scf: failed to store energy in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
      &   call errquit('dft_scf: failed to store converged in rtdb', 0)

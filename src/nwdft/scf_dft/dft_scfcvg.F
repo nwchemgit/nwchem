@@ -1,92 +1,102 @@
-      subroutine dft_scfcvg(rms,etold,etnew,Enuc,e_conv,d_conv,
-     &   g_conv,ipol,iter,iterations,idone,converged,rtdb)
-C     $Id: dft_scfcvg.F,v 1.9 1997-02-27 02:52:50 gutowski Exp $
+      subroutine dft_scfcvg(rms, derr, etold, etnew, Enuc, e_conv, 
+     &                      d_conv, g_conv, ipol, iter, iterations, 
+     &                      idone, rtdb, converged, diising)
+c
+c     $Id: dft_scfcvg.F,v 1.10 1997-07-10 16:35:14 d3h449 Exp $
+c
       implicit none
-
+c
       double precision rms(2)   ! [input]
+      double precision derr(2)  ! [input]
       double precision etold    ! [input]
-      double precision etnew    ! [output]
-      double precision Enuc
-      double precision e_conv, d_conv, g_conv
-      integer ipol
-      integer iter
-      integer iterations
-      integer idone
-      integer rtdb
-      logical converged
-
-#include "stdio.fh"
+      double precision etnew    ! [input]
+      double precision Enuc     ! [input]
+      double precision e_conv   ! [input]
+      double precision d_conv   ! [input]
+      double precision g_conv   ! [input]
+      integer ipol              ! [input]
+      integer iter              ! [input]
+      integer iterations        ! [input]
+      integer idone             ! [output]
+      integer rtdb              ! [input]
+      logical converged         ! [output]
+      logical diising           ! [input]
+c
 #include "mafdecls.fh"
-#include "global.fh"
-#include "util.fh"
-#include "tcgmsg.fh"
-#include "msgids.fh"
 #include "rtdb.fh"
 c     
-      logical DENSITY,status,oprint_c,oprint_i
-      integer me,iswitch
-      double precision de,abde
-c     
-      idone=0
+      logical e_conv_logical, d_conv_logical, g_conv_logical
+      logical ENERGY, DENSITY, GRADIENT
+      double precision de, abde
+c
       converged = .false.
-      me=ga_nodeid()
-c     
-c--   >  Check to see if convergence on density is required.
-c     
-      oprint_c=util_print('convergence',print_default)
-      oprint_i=util_print('information',print_low)
+c
+      e_conv_logical = .false.
+      d_conv_logical = .false.
+      g_conv_logical = .false.
+c
+      ENERGY = e_conv.gt.0
       DENSITY = d_conv.gt.0
+      GRADIENT = g_conv.gt.0
+c
+      idone = 0
+c
+c     Evaluate change in energy.
 c     
-c--   >  Evaluate change in energy.
-c     
-      de = etnew-etold
+      de = etnew - etold
       abde = dabs(de)
 c     
-c--   >  Check to see if energy is converged.
-c     
-      if((abde.lt.e_conv).and.(.not.DENSITY))then
-        idone=1
-        converged = .true.
-        status = rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged)
-        return
-      elseif((abde.lt.e_conv).and.(DENSITY))then
-        idone=1
+c     Check to see if energy is converged.
+c
+      if (ENERGY)then     
+         if (abde.lt.e_conv)e_conv_logical = .true.
+      else
+         e_conv_logical = .true.
       endif
 c     
-c--   >  Check for density matrix convergence.
+c     Check for density matrix convergence.
 c     
-      if( DENSITY )then
-        iswitch=0
-        if(dsqrt(rms(1)).le.d_conv)iswitch=1
-        idone=idone*iswitch
-c        write(*,*)' iswitch, idone, rms(1): ',
-c     &              iswitch, idone, rms(1)
-        if(ipol.eq.2)then
-          iswitch=0
-          if(dsqrt(rms(2)).le.d_conv)iswitch=1
-          idone=idone*iswitch
-c          write(*,*)' iswitch, idone, rms(2): ',
-c     &                iswitch, idone, rms(2)
-        endif
-        if(idone.eq.1)then
-          converged = .true.
-          status = rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged)
-          return
-        endif
+      if (DENSITY)then
+         if (dsqrt(rms(1)).le.d_conv)d_conv_logical = .true.
+         if (ipol.eq.2)then
+           if (dsqrt(rms(2)).le.d_conv)
+     &        d_conv_logical = d_conv_logical.and..true.
+         endif
+      else
+         d_conv_logical = .true.
       endif
 c     
-c--   >  Check iteration value.
+c     Check for gradient convergence.
 c     
- 1000 if(iter.lt.1)then
-        return
-      elseif(iter.eq.iterations)then
-        idone=1
-        status = rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged)
-     &       
-        return
+      if (GRADIENT.and.diising)then
+         if (derr(1).le.g_conv)g_conv_logical = .true.
+         if (ipol.eq.2)then
+           if (derr(2).le.g_conv)
+     &        g_conv_logical = g_conv_logical.and..true.
+         endif
+      else
+         g_conv_logical = .true.
       endif
+c
+c     Check over-all convergence.
+c
+      converged = e_conv_logical.and.d_conv_logical.and.g_conv_logical
+      if (converged)idone = 1
 c     
+c     Check iteration value.
+c     
+      if (iter.lt.1)then
+         return
+      elseif (iter.eq.iterations)then
+         idone = 1
+      endif
+c
+c     If all convergence criterion met or number of iterations has been
+c     exceeded, write "converged" to RTDB.
+c
+      if (idone.eq.1)then
+         if (.not.rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
+     &      call errquit('dft_scfcvg: rtdb_put failed', 1)
+      endif
       return
-c     
-c     
       end

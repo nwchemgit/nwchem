@@ -1,126 +1,116 @@
-      Subroutine nbf_to_mbf(  geom_hand, basis_hand,
-     &     rq0,mbf,mcenters,iniz,ifin,
-     &     zprim, nzprim,acc_gauss)
-
-C$Id: nbf_to_mbf.F,v 1.8 1995-12-22 22:45:18 og845 Exp $
+      Subroutine nbf_to_mbf(geom_hand, basis_hand, rq0, mbf, mcenters, 
+     &                      iniz, ifin, zprim, nzprim,acc_gauss)
+c
+C$Id: nbf_to_mbf.F,v 1.9 1997-07-10 16:35:15 d3h449 Exp $
+c
       implicit none
-      
+c      
       integer basis_hand, geom_hand
       integer mcenters ! [input]
       integer nzprim ! [input]
       double precision acc_gauss ! [input]
       integer mbf  ! [input/output]
-
-      Logical LResult
-
-#include "bas.fh"
-
-c--   > Distance Squared between Sampling Points and Centers
-
-      double precision rq0(mcenters)
-
-      integer  iniz(mcenters),ifin(mcenters)
-
-      double precision zprim(nzprim)
 c
-      integer ncontrset,n1,icset,ictr,
-     ,        itype, nprimo, ncontr, isphere,
-     ,     ifirst,ilast,nshbf,l,nang,iprimo
+      Logical LResult
+c
+#include "bas.fh"
+c
+c     Distance Squared between Sampling Points and Centers
+c
+      double precision rq0(mcenters)
+      integer  iniz(mcenters),ifin(mcenters)
+      double precision zprim(nzprim)
+      integer ncontrset, n1, icset, ictr, itype, nprimo, ncontr, 
+     &        isphere, ifirst, ilast, nshbf, l, nang, iprimo
       double precision zmin
 c
-
-      if( .not. bas_numcont(basis_hand,ncontrset) )
-     &          call errquit('Exiting in nbf_to_mbf.',1)
+      if (.not.bas_numcont(basis_hand, ncontrset))
+     &   call errquit('Exiting in nbf_to_mbf.',1)
+c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
-
-        n1 = 0
-        do 400 icset = 1,ncontrset
-
-          if(.not.bas_cn2ce( basis_hand, icset, ictr))
-     &         call errquit('Exiting in int_eval_gbsets.',2)
+c
+      n1 = 0
+c
+      do 400 icset = 1,ncontrset
+         if (.not.bas_cn2ce(basis_hand, icset, ictr))
+     &      call errquit('Exiting in nbf_to_mbf.',2)
 c         
-c         get info about current contraction set
+c        get info about current contraction set
 c         
-          LResult = bas_continfo(basis_hand, icset,
-     &         itype, nprimo, ncontr, isphere)
-            if (.not. bas_cn2bfr( basis_hand,icset,
-     &                      ifirst,ilast))
-     &        call errquit('Exiting in int_eval_gbsets.',33)
-                nshbf=ilast-ifirst+1
+         if (.not.bas_continfo(basis_hand, icset,
+     &      itype, nprimo, ncontr, isphere))
+     &      call errquit('Exiting in nbf_to_mbf.',3)
+         if (.not. bas_cn2bfr(basis_hand, icset, ifirst, ilast))
+     &      call errquit('Exiting in nbf_to_mbf.',4)
+c
+         nshbf = ilast - ifirst + 1
 c         
-c         angular momentum
+c        angular momentum
 c         
-          if (itype .lt. 0) then
-            call errquit(
-     &           'int_eval_gbsets: sp-type orbital not coded', 1)
-          else 
+         if (itype .lt. 0)then
+            call errquit('nbf_to_mbf: sp-type orbital not coded', 5)
+         else 
             l = itype
-          endif 
+         endif 
 c         
-c         cartesian/spherical harmonic
+c        cartesian/spherical harmonic
 c         
-          if ( isphere .eq. 0 ) then !  cartesian set
+         if (isphere .eq. 0)then !  cartesian set
             nang = (l+1)*(l+2)/2
-          elseif ( isphere .eq. 1 ) then !  spherical harmonic
+         elseif (isphere .eq. 1)then !  spherical harmonic
             nang = 2*l+1
-          else 
-            call errquit( 'int_cgtf:  illegal isphere value', 1 )
-          endif 
+         else 
+            call errquit('nbf_to_mbf: illegal isphere value', 6)
+         endif 
 c         
-c         get exponents and contraction coefficients for this contraction set
+c        get exponents and contraction coefficients for this contraction set
 c         
-          LResult = bas_get_exponent( basis_hand, icset, zprim )
-
-c         Determine the minimum Gaussian exponent.
-
-          zmin = 1.D+06
-          do 300 iprimo = 1,nprimo
+         if (.not.bas_get_exponent(basis_hand, icset, zprim))
+     &      call errquit('Exiting in nbf_to_mbf.',7)
+c
+c        Determine the minimum Gaussian exponent.
+c
+         zmin = 1.D+06
+         do 300 iprimo = 1,nprimo
             zmin = min(zprim(iprimo),zmin)
-  300     continue
-
-c         Only include those basis functions that are "non-zero" for at least one 
-c         point in the sampling set.
-
-          if( zmin*rq0(ictr).gt.acc_gauss )then
-
+  300    continue
+c
+c        Only include those basis functions that are "non-zero" for at least one 
+c        point in the sampling set.
+c
+         if (zmin*rq0(ictr).gt.acc_gauss)then
             go to 400
-
-          else
-            if(iniz(ictr).eq.0) iniz(ictr)=n1+1
-
-          end if
-
-          if( l.eq.0 )then
-
+         else
+            if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+         endif
+         if (l.eq.0)then
+c
 c           =============>  S Contractions  <============= 
-
+c
             n1 = n1 + ncontr
-
-          else if( l.eq.1 )then
-
+         elseif (l.eq.1)then
+c
 c           =============>  P Contractions  <============= 
-
+c
             n1 = n1+ncontr*3
-
-          else if( l.eq.2 )then
-
+         elseif (l.eq.2)then
+c
 c           =============>  D Contractions  <============= 
-
+c
             n1 = n1 + ncontr*6
-
-          else
-
+         else
+c
 c           =============>  General Case  <============= 
-
+c
             n1 = n1 + ncontr*nang
-
-          end if
-
-          ifin(ictr)= n1
-
-  400   continue
-
-        mbf = n1
-        return
+         endif
+c
+         ifin(ictr)= n1
+c
+  400 continue
+c
+      mbf = n1
+c
+      return
       end

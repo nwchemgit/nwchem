@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.44 1997-06-27 00:42:34 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.45 1997-07-10 16:35:08 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -30,23 +30,22 @@ c
      &     lznuc,iznuc,lratom,iratom,lrot,irot
       integer iline, n
       integer three, six, fifteen
-      Parameter ( three=3, six=6, fifteen=15 )
+      Parameter (three=3, six=6, fifteen=15)
       character*40 blank_40c
       Logical lnewtype
       Logical int_normalize
       Logical int_norm_2c
+      Logical atom_tag_check
       integer num_gridtypes, ind 
       parameter (num_gridtypes = 6)
 
       External int_normalize
       External int_norm_2c
+      External atom_tag_check
 
       character*15 gridtypes(num_gridtypes)
       data gridtypes /'coarse', 'medium', 'fine', 'xfine', 
      &                'gausleg', 'lebedev'/
-c     
-c
-c******************************************************************************
 c     
       iproc  = ga_nodeid()
       do iline=1,15
@@ -58,15 +57,15 @@ c
         nlxfac(iline)=.false.
         xccomb(iline)=.false.
       enddo
-c****
-c**** recover charge from rtdb.
-c****
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge)) then
+c
+c     recover charge from rtdb.
+c
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge))then
         rcharge = 0.0d0
       endif 
       ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
 c     
-c>>>  Get parameters from rtdb. If not available, set
+c     Get parameters from rtdb. If not available, set
 c     default and put in the rtdb as well as loading in common.
 c     
       if (.not. rtdb_get(rtdb, 'dft:nodamping', mt_log, 1,
@@ -117,35 +116,35 @@ c
      &      call errquit('dft_input: rtdb_put failed', 4)
       endif
 c
-      if(.not.rtdb_get(rtdb,'dft:incore', mt_log, 1,
-     &   incore)) then
+      if (.not.rtdb_get(rtdb,'dft:incore', mt_log, 1,
+     &   incore))then
          incore=.true.
-         if(.not.rtdb_put(rtdb,'dft:incore',
+         if (.not.rtdb_put(rtdb,'dft:incore',
      &      mt_log, 1, incore)) 
      &      call errquit('dft_input: rtdb_put failed', 5)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,
-     &   lmaxov ))then
+      if (.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,
+     &   lmaxov))then
          lmaxov=.false.      
-         if(.not. rtdb_put(rtdb, 'dft:max_ovl',
-     &      mt_log, 1, lmaxov ))
+         if (.not. rtdb_put(rtdb, 'dft:max_ovl',
+     &      mt_log, 1, lmaxov))
      &      call errquit('dft_input: rtdb_put failed', 6)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:store_wght', mt_log, 1,
-     &   store_wght ))then
+      if (.not. rtdb_get(rtdb, 'dft:store_wght', mt_log, 1,
+     &   store_wght))then
          store_wght = .false.
-         if(.not. rtdb_put(rtdb, 'dft:store_wght',
-     &      mt_log, 1, store_wght ))
+         if (.not. rtdb_put(rtdb, 'dft:store_wght',
+     &      mt_log, 1, store_wght))
      &      call errquit('dft_input: rtdb_put failed', 7)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:delley', mt_log, 1,
-     &   ldelley ))then
+      if (.not. rtdb_get(rtdb, 'dft:delley', mt_log, 1,
+     &   ldelley))then
          ldelley = .false.
-         if(.not. rtdb_put(rtdb, 'dft:delley',
-     &      mt_log, 1, ldelley ))
+         if (.not. rtdb_put(rtdb, 'dft:delley',
+     &      mt_log, 1, ldelley))
      &      call errquit('dft_input: rtdb_put failed', 8)
       endif
 c     
@@ -379,7 +378,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1,
      &   ncysh))then
-         if(levelshift)then
+         if (levelshift)then
            ncysh = iterations
          else
            ncysh = 0
@@ -391,7 +390,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1,
      &   ncyds))then
-         if(diis)then
+         if (diis)then
            ncyds = iterations
          else
            ncyds = 0
@@ -434,7 +433,7 @@ c
          gridtype='medium'
       endif
       if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
-     &   ind)) then
+     &   ind))then
          write(6,*)' Unknown gridtype; defaulting to medium grid'
          gridtype='medium'
          ind = 2
@@ -485,11 +484,11 @@ c
       if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
          iangquad = 4
       else
-         if(iangquad.lt.1)then
+         if (iangquad.lt.1)then
            write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
            iangquad = 1
          endif
-         if(iangquad.gt.7)then
+         if (iangquad.gt.7)then
            write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
            iangquad = 7
          endif
@@ -525,38 +524,38 @@ c
      &      call errquit('dft_input: rtdb_put failed', 211)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, 15,
-     &   lcfac ))then
-         if(.not. rtdb_put(rtdb, 'dft:lcfac',
-     &      mt_log, 15, lcfac ))
+      if (.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, 15,
+     &   lcfac))then
+         if (.not. rtdb_put(rtdb, 'dft:lcfac',
+     &      mt_log, 15, lcfac))
      &      call errquit('dft_input: rtdb_put failed', 9)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, 15,
-     &   nlcfac ))then
-         if(.not. rtdb_put(rtdb, 'dft:nlcfac',
-     &      mt_log, 15, nlcfac ))
+      if (.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, 15,
+     &   nlcfac))then
+         if (.not. rtdb_put(rtdb, 'dft:nlcfac',
+     &      mt_log, 15, nlcfac))
      &      call errquit('dft_input: rtdb_put failed', 10)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, 15,
-     &   lxfac ))then
-         if(.not. rtdb_put(rtdb, 'dft:lxfac',
-     &      mt_log, 15, lxfac ))
+      if (.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, 15,
+     &   lxfac))then
+         if (.not. rtdb_put(rtdb, 'dft:lxfac',
+     &      mt_log, 15, lxfac))
      &      call errquit('dft_input: rtdb_put failed', 11)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, 15,
-     &   nlxfac ))then
-         if(.not. rtdb_put(rtdb, 'dft:nlxfac',
-     &      mt_log, 15, nlxfac ))
+      if (.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, 15,
+     &   nlxfac))then
+         if (.not. rtdb_put(rtdb, 'dft:nlxfac',
+     &      mt_log, 15, nlxfac))
      &      call errquit('dft_input: rtdb_put failed', 12)
       endif
 c
-      if(.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, 15,
-     &   xccomb ))then
-         if(.not. rtdb_put(rtdb, 'dft:xccomb',
-     &      mt_log, 15, xccomb ))
+      if (.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, 15,
+     &   xccomb))then
+         if (.not. rtdb_put(rtdb, 'dft:xccomb',
+     &      mt_log, 15, xccomb))
      &      call errquit('dft_input: rtdb_put failed', 13)
       endif
 c
@@ -595,7 +594,7 @@ c
       xcname(2)='               B3LYP Method XC Potential'
       xcname(3)=' Becke half-and-half Method XC Potential'
 c     
-c>>>  place character XC parameters in rtdb
+c     place character XC parameters in rtdb
 c     
       if (.not. rtdb_cput(rtdb, 'dft:cname', 
      &   15, cname))
@@ -613,38 +612,36 @@ c
      &     call errquit('rdinput: geom_create?',70)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72)
-      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
+      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))then
          oskel = sym_number_ops(geom) .gt. 0
       endif
-      if (.not.rtdb_get(rtdb, 'dft:adapt',MT_LOG, 1, oadapt)) then
+      if (.not.rtdb_get(rtdb, 'dft:adapt',MT_LOG, 1, oadapt))then
          oadapt = sym_number_ops(geom) .gt. 0
       endif
 c
-c****
-c**** allocate space for M and T (rotational invariance; 
-c***  see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 
-c***  species R_a - T and (R_a -T)(R_a - T)^T
-c****
-      if ( .not. Ma_Push_Get(MT_Dbl,fifteen,'rotation',lrot,
+c     allocate space for M and T (rotational invariance; 
+c     see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 
+c     species R_a - T and (R_a -T)(R_a - T)^T
+c
+      if (.not. Ma_Push_Get(MT_Dbl,fifteen,'rotation',lrot,
      &   irot))call errquit('dft_rdinput: failed to alloc rotation',0)
 c
       call dzero(Dbl_MB(irot),fifteen)
 c
-c****
-c**** get number of atomic centers from geometry object
-c****
+c     get number of atomic centers from geometry object
+c
       if (.not. geom_ncent(geom, ncenters))
      &     call errquit('rdinput: geom_ncent failed',73)      
-c****
-c**** allocate space for atomic coordinates and charges
-c****
-      if ( .not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
+c
+c     allocate space for atomic coordinates and charges
+c
+      if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit('dft_rdinput: failed to alloc 
      &   coordinates',0)
-      if ( .not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
+      if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit('dft_rdinput: failed to alloc 
      &   charges',0)
-      if ( .not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
+      if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit('dft_rdinput: failed to alloc 
      &   center tags',0)
 c     
@@ -678,7 +675,7 @@ c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit('rdinput: bas_create?',102)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
-      if(CDFIT) then
+      if (CDFIT)then
         if (.not. int_norm_2c(CD_bas_han))
      &     call errquit('rdinput: int_norm_2c failed', 208)
         if (.not. bas_numbf(CD_bas_han, nbf_cd))
@@ -695,7 +692,7 @@ c
       if (.not. bas_create(XC_bas_han, 'xc basis'))
      &   call errquit('rdinput: bas_create?',124)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
-      if(XCFIT) then
+      if (XCFIT)then
         if (.not. int_normalize(XC_bas_han))
      &     call errquit('rdinput: int_normalize failed', 208)
         if (.not. bas_numbf(XC_bas_han, nbf_xc))
@@ -706,13 +703,13 @@ c
         XC_bas_han=-99999
         nbf_xc=0
       endif
-c****   
-c**** Read/set/put the numerical quadrature input parameters.
-c****   
+c
+c     Read/set/put the numerical quadrature input parameters.
+c
       nrinc = 1
       nrmax = 0
       do n = 1,dft_ntags_bsmx
-        nrmax = max(nrmax,nrad(n))
+         nrmax = max(nrmax,nrad(n))
       enddo 
       if (.not. rtdb_put(rtdb, 'dft:nrinc',
      &   mt_int, 1, nrinc))
@@ -720,13 +717,13 @@ c****
       if (.not. rtdb_put(rtdb, 'dft:nrmax',
      &   mt_int, 1, nrmax))
      &   call errquit('dft_input: rtdb_put failed', 119)
-      if(nrmax.gt.MXrad)then
-        write(LuOut,*)'RDINPUT: Too many radial quadrature points.'
-        call errquit(' rdinput: raise MXrad',1)
+      if (nrmax.gt.MXrad)then
+         write(LuOut,*)'RDINPUT: Too many radial quadrature points.'
+         call errquit(' rdinput: raise MXrad',1)
       end if
-      if(nagrid.gt.MXagrid)then
-        write(LuOut,*)'RDINPUT: Too many angular quadrature grids.'
-        call errquit(' rdinput: raise MXagrid',3)
+      if (nagrid.gt.MXagrid)then
+         write(LuOut,*)'RDINPUT: Too many angular quadrature grids.'
+         call errquit(' rdinput: raise MXagrid',3)
       end if
 c
 c     Set the switch to rotate the quadrature points.
@@ -738,50 +735,56 @@ c
       if (.not. rtdb_put(rtdb, 'dft:iqrot',
      &   mt_int, 1, iqrot))
      &   call errquit('dft_input: rtdb_put failed', 117)
-c****   
-c****   generate number of atom types and atom type array iatype(icenter) 
-c****   
+c
+c       generate number of atom types and atom type array iatype(icenter) 
+c
       ntypes = 0
-      do icenter = 1,ncenters
-c****     
-c****     is this a new type of atom?
-c****     
-        lnewtype = .true.
-        do jcenter = 1,icenter-1
-          if ( Dbl_MB(icharge+icenter-1) .eq.
-     &      Dbl_MB(icharge+jcenter-1) ) then   ! same atom type
-            lnewtype = .false.
-            iatype(icenter)=iatype(jcenter)
-            goto 8
-          endif
-        enddo 
-    8   continue
-        if ( lnewtype ) then
-          ntypes = ntypes + 1
-          iatype(icenter)=ntypes
-        endif 
+      do icenter = 1, ncenters
+c
+c        is this a new type of atom?
+c
+         lnewtype = .true.
+         do jcenter = 1, icenter - 1
+            if (Dbl_MB(icharge + icenter - 1) .eq. 
+     &          Dbl_MB(icharge + jcenter - 1) .and.
+     &          atom_tag_check(Byte_MB(itags + (icenter - 1)*16), 
+     &                         Byte_MB(itags + (jcenter - 1)*16))
+     &         )then   ! same atom type
+               lnewtype = .false.
+               iatype(icenter) = iatype(jcenter)
+               goto 100
+            endif
+         enddo 
+  100    continue
+         if (lnewtype)then
+            ntypes = ntypes + 1
+            iatype(icenter) = ntypes
+         endif 
       enddo 
-      if( ntypes.gt.dft_ntags_bsmx )then
+      if (ntypes.gt.dft_ntags_bsmx)then
         write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
         call errquit(' rdinput: raise dft_ntags_bsmx',2)
       end if
-c****
-c**** set up type-indexed znuc array
-c****
-      if ( .not. Ma_Push_Get(MT_Dbl,ntypes,'nuc charge',lznuc,iznuc))
+c
+c     set up type-indexed znuc array
+c
+      if (.not. Ma_Push_Get(MT_Dbl,ntypes,'nuc charge',lznuc,iznuc))
      &   call errquit('dft_rdinput: failed to alloc nuc charge',0)
-c****
-c**** for each type, place the nuclear charge in znuc array
-c****
-      do itype = 1,ntypes
-        do icenter = 1,ncenters
-          if ( iatype(icenter) .eq. itype ) then
-c****       center icenter is of type itype; assign charge
-            Dbl_MB(iznuc+itype-1) = dble( Dbl_MB(icharge+icenter-1) )
-            goto 9 ! next type
-          endif 
-        enddo 
-    9   continue 
+c
+c     for each type, place the nuclear charge in znuc array
+c
+      do itype = 1, ntypes
+         do icenter = 1, ncenters
+            if (iatype(icenter) .eq. itype)then
+c
+c              center icenter is of type itype; assign charge
+c
+               Dbl_MB(iznuc + itype - 1) = 
+     &         dble(Dbl_MB(icharge + icenter - 1))
+               goto 110 ! next type
+            endif 
+         enddo 
+  110    continue 
       enddo 
 c
 c     Figure input/output MO vectors
@@ -790,9 +793,9 @@ c
      $     movecs_in = 'atomic'
       if (.not. rtdb_cget(rtdb, 'dft:output vectors', 1, movecs_out))
      $     movecs_out = ' '
-      if (movecs_out.eq.' ') then
+      if (movecs_out.eq.' ')then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment')then
             call util_file_name('movecs', .false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
@@ -803,7 +806,7 @@ c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
 c
       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment')then
          continue
       else
          call util_file_name_resolve(movecs_in, .false.)
@@ -812,7 +815,7 @@ c
 c
 c     Check/set quadrature
 c
-      if ( .not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
+      if (.not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
      &     call errquit('dft_rdinput: failed to alloc ratom',0)
       nqshells = MXqshells
 c
@@ -820,17 +823,17 @@ c
      &                dbl_mb(icharge),dbl_mb(irot),dbl_mb(irot+three),
      &                dbl_mb(irot+six))
 c
-      if ( .not. MA_Pop_Stack(lratom))
+      if (.not. MA_Pop_Stack(lratom))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if ( .not. MA_Pop_Stack(lznuc))
+      if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if ( .not. MA_Pop_Stack(ltags))
+      if (.not. MA_Pop_Stack(ltags))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if ( .not. MA_Pop_Stack(lcharge))
+      if (.not. MA_Pop_Stack(lcharge))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if ( .not. MA_Pop_Stack(lcoord))
+      if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if ( .not. MA_Pop_Stack(lrot))
+      if (.not. MA_Pop_Stack(lrot))
      &   call errquit('dft_rdinput: pop stack failed.',0)
 c
 c     Check the user supplied input for any inconsistencies.
@@ -839,10 +842,24 @@ c
 c
 c     inpana could have modified ipol
 c
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol ))
+      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
      $     call errquit('inpana: dft:ipol put failed', 0)
 c
       call ga_sync
 c
+      return
+      end
+      logical function atom_tag_check(atom_tag_i, atom_tag_j)
+c
+      implicit none
+c      
+      character*16 atom_tag_i, atom_tag_j
+c      write(*,*)' atom_tag_i = ', atom_tag_i
+c      write(*,*)' atom_tag_j = ', atom_tag_j
+      if (atom_tag_i .eq. atom_tag_j)then
+         atom_tag_check = .true.
+      else
+         atom_tag_check = .false.
+      endif      
       return
       end

@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.13 1997-03-13 01:07:17 d3h449 Exp $
+C$Id: cdft.fh,v 1.14 1997-07-10 16:34:49 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -87,6 +87,8 @@ c
       double precision 
      &     rpts, rwghts, aratio, costheta, sintheta, cosphi, sinphi,
      &     awghts, qrot, wa_leb, za_leb
+      logical 
+     &     iatype_pt_chg
       integer 
      &     iqshell, nqshells, nrad, ntheta, nphi, iatype, iqrot, ntypes
 c
@@ -110,6 +112,10 @@ c
      & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
      & sinphi(MXphi,MXagrid), awghts(MXtheta,MXagrid), qrot(3,3),
      & wa_leb(MXnang,IAC_MAX), za_leb(3,MXnang,IAC_MAX),
+c
+c     Logicals
+c
+     & iatype_pt_chg(dft_max_cent),
 c
 c     Integers
 c
