@@ -1,10 +1,10 @@
       Subroutine hf1d(
      &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
      &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
-     &       Cxyz,zan,ncenters,
+     &       Cxyz,zan,exinv,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.10 1998-05-05 21:49:45 d3e129 Exp $
+c $Id: hf1d.F,v 1.11 1999-10-26 22:31:43 mg201 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -17,9 +17,9 @@ c--> Cartesian Coordinates, Primitives & Contraction Coefficients
       Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
       Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
 
-c--> Nuclear Cartesian Coordinates & Charges
+c--> Nuclear Cartesian Coordinates, Charges & Inverse Exponents
 
-      Dimension Cxyz(3,ncenters),zan(ncenters)
+      Dimension Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
 
 c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 
@@ -277,7 +277,7 @@ c Assign scratch space.
        if (dryrun) then
          MaxMem = max(MaxMem, i_top)
        else
-         call hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
+         call hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
      &          W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
      &          W0(i_Rj),W0(i_R0),W0(i_R0C),W0(i_IJK),
      &          NPP,Lp,Lp3,.TRUE.)
@@ -330,7 +330,7 @@ c Compute the derivatives wrt to (P,R).
 c Compute the derivatives of the primitive integrals.
 
          Nder = 6
-         
+
          call hfdnai(W0(i_Ep),W0(i_R0),W0(i_IJK),W0(i_VP),
      &          NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
      &          MXD,inder2,Nder,canAB)
