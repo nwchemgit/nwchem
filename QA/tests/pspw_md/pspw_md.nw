@@ -211,3 +211,23 @@ PSPW
    END 
 END
 task pspw Car-Parrinello
+
+
+###########################################
+######## testing constraints ##############
+###########################################
+
+### fixed atom contraints ###
+set geometry:actlist 1 3
+task pspw Car-Parrinello
+
+set geometry:actlist 1:3  #release fixed atom constraint
+
+
+### shake contraints ###
+set nwpw:shake_constraint "1 2   L 2.60000"
+task pspw Car-Parrinello
+
+set nwpw:shake_constraint "1 2   L 3.00000"
+task pspw Car-Parrinello
+
