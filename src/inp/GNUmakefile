@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1995-11-07 09:19:35 apsmith Exp $
+# $Id: GNUmakefile,v 1.9 1995-11-07 20:20:37 apsmith Exp $
 
       LIBRARY = libutil.a
 #     LIBRARY = libinp.a
@@ -10,7 +10,7 @@
 #endif
      OBJ = inp.o inp_irange.o inp_ilist.o c_inp.o
   LIB_TARGETS = test.o test
-      HEADERS = inp.fh
+      HEADERS = inp.fh ../global/src/types.f2c.h
 
 
 include ../config/makefile.h
