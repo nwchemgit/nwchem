@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.4 2002-10-29 00:58:06 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.5 2002-10-30 21:49:14 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -38,8 +38,6 @@ c
       integer irange,jrange
       integer krange,lrange
       integer kloff
-      integer dummy
-      integer request
       integer nxtval
       external nxtval
       integer next,count,nprocs
@@ -84,9 +82,7 @@ c
       if (nodezero.and.util_print('mo1e',print_default))
      1  write(LuOut,9010) filename(1:20)
  9010 format(1x,'2-e (intermediate) file name = ',A)
-      dummy=sf_create(filename,dfloat(bytes*sf_size_pq*sf_size_kl),
-     1  dfloat(bytes*sf_size_pq*sf_size_kl),
-     2  dfloat(bytes*sf_size_pq),d_ao2e)
+      call createfile(filename,d_ao2e,sf_size_pq*sf_size_kl)
 c
 c     =======================
 c     Initialize integral API
@@ -187,12 +183,8 @@ c
                   call ma_print_compact(dbl_mb(k_pq_packed),
      1              sf_size_pq,1,'Half transformed MO 2e')
                 endif
-                call ga_lock(0)
-                dummy=sf_write(d_ao2e,
-     1            dfloat(bytes*(loff(l)+k-1)*sf_size_pq),
-     2            dfloat(bytes*sf_size_pq),dbl_mb(k_pq_packed),request)
-                dummy=sf_wait(request)
-                call ga_unlock(0)
+                call put_block(d_ao2e,dbl_mb(k_pq_packed),
+     1            sf_size_pq,(loff(l)+k-1)*sf_size_pq)
               enddo
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 

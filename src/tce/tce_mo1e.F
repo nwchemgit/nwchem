@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.3 2002-10-29 00:58:06 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -18,8 +18,7 @@ c
       integer l_mo1e,k_mo1e       ! MO Fock matrices
       integer l_work,k_work       ! Work space
       integer sf_size,sf_offset ! SF size and offset
-      integer dummy               ! Not referenced
-      integer d_mo1e,request      ! Used for SF
+      integer d_mo1e              ! File handle
       integer spin                ! Spin
       integer g1b,g2b             ! Block indexes
       integer range_g1,range_g2   ! Block ranges
@@ -87,11 +86,7 @@ c     ===========
 c     Write to SF
 c     ===========
 c
-      call ga_lock(0)
-      dummy = sf_write(d_mo1e,0.0d0,dfloat(bytes*sf_size),
-     1  dbl_mb(k_mo1e),request)
-      dummy = sf_wait(request)
-      call ga_unlock(0)
+      call put_block(d_mo1e,dbl_mb(k_mo1e),sf_size,0)
 c
 c     ===================
 c     Close SF and return

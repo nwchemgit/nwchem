@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.3 2002-10-29 00:58:06 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -38,8 +38,6 @@ c
       integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
-      integer dummy
-      integer request
       integer nxtval
       external nxtval
       integer next,count,nprocs
@@ -118,13 +116,9 @@ c
      1        'pqkl packed',l_pqkl_packed,k_pqkl_packed))
      2        call errquit('tce_mo2e: MA problem',2)
             do kl = 1,sf_size_kl
-              call ga_lock(0)
-              dummy=sf_read(d_ao2e,
-     1          dfloat(bytes*((kl-1)*pq_packed_off+int_mb(k_pqboff
-     2          +(pb-1)*Nb+qb-1))),dfloat(bytes*sf_size_pq),
-     3          dbl_mb(k_pqkl_packed+(kl-1)*sf_size_pq),request)
-              dummy=sf_wait(request)
-              call ga_unlock(0)
+              call get_block(d_ao2e,dbl_mb(k_pqkl_packed
+     1          +(kl-1)*sf_size_pq),sf_size_pq,(kl-1)*pq_packed_off
+     2          +int_mb(k_pqboff+(pb-1)*Nb+qb-1))
             enddo
             do rb = 1,Nb
               do sb = rb,Nb
@@ -174,13 +168,9 @@ c
                       call ma_print_compact(dbl_mb(k_pqrs),
      1                sf_size_pq*sf_size_rs,1,'MO 2e')
                     endif
-                    call ga_lock(0)
-                    dummy=sf_write(d_mo2e,dfloat(bytes*
-     1                int_mb(k_2e_offset+(((pb-1)*Nb+qb-1)*Nb
-     2                +rb-1)*Nb+sb-1)),dfloat(bytes*sf_size_pq
-     3                *sf_size_rs),dbl_mb(k_pqrs),request)
-                    dummy=sf_wait(request)
-                    call ga_unlock(0)
+                    call put_block(d_mo2e,dbl_mb(k_pqrs),
+     1                sf_size_pq*sf_size_rs,int_mb(k_2e_offset
+     2                +(((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
                     if (.not.ma_pop_stack(l_pqrs)) 
      1                call errquit('tcc_mo2e: MA problem',5)
                     if (.not.ma_pop_stack(l_sl)) 
@@ -213,11 +203,7 @@ c
 c     if (.not.ma_push_get(mt_dbl,sf_size_pqrs,
 c    1  'mo2e',l_debug,k_debug))
 c    2  call errquit('tce_mo2e: MA problem',-1)
-c     call ga_lock(0)
-c     dummy=sf_read(d_mo2e,0.0d0,dfloat(bytes*sf_size_pqrs),
-c    1  dbl_mb(k_debug),request)
-c     dummy=sf_wait(request)
-c     call ga_unlock(0)
+c     call get_block(d_mo2e,dbl_mb(k_debug),sf_size_pqrs,0)
 c     pqrs = 0
 c     do pb = 1,Nb
 c       do qb = pb,Nb
@@ -259,6 +245,6 @@ c     ======
 c
  9190 format(/,' p q blocks ',2i3,' has been assigned to node ',i3)
  9200 format(/,' p q r s blocks ',4i3)
-      dummy = sf_destroy(d_ao2e)
+      call deletefile(d_ao2e)
       return
       end

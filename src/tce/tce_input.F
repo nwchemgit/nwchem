@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.3 2002-10-25 17:31:20 sohirata Exp $
+c $Id: tce_input.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -13,6 +13,7 @@ c        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
+c        [IOALGORITHM (0||1) default 0]
 c     END
 c     
       implicit none
@@ -25,6 +26,7 @@ c
       integer maxiter
       character*10 model
       double precision thresh
+      integer ioalg
 c
 c ------------------
 c Set default values
@@ -50,6 +52,12 @@ c     MAXITER (the maximum number of Davidson iterations)
 c
       maxiter=100
       if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     IOALGORITHM (I/O method, 0 = Fortran Direct Access, 1 = SF Library)
+c
+      ioalg = 0
+      if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1  call errquit('tce_input: failed writing to rtdb',0)
 c
 c ----------
@@ -113,6 +121,17 @@ c
           maxiter=100
         endif
         if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     IOALGORITHM (I/O method)
+c
+      else if (inp_compare(.false.,test,'ioalgorithm')) then
+        if (.not.inp_i(ioalg)) then
+          write(LuOut,*) 'tce_input: ioalgorithm value not found; ',
+     1      'default value of 0 will be used'
+          ioalg=0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1    call errquit('tce_input: failed writing to rtdb',0)
 c
 c     PRINT

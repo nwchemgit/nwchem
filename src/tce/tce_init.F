@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.8 2002-10-25 21:46:26 sohirata Exp $
+c $Id: tce_init.F,v 1.9 2002-10-30 21:49:14 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -130,6 +130,8 @@ c
      1  call errquit('tce_init: failed to read thresh',0)
       if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter))
      1  call errquit('tce_init: failed to read maxiter',0)
+      if (.not.rtdb_get(rtdb,'tce:ioalg',mt_int,1,ioalg))
+     1  call errquit('tce_init: failed to read ioalg',0)
 c
 c     ----------------------
 c     2-e integral tolerance
@@ -153,18 +155,17 @@ c
       if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
      1  call errquit('tce_init: non-HF reference not implemented',0)
       if (model.eq.'ccd') then
-        ctype='Coupled-cluster doubles (CCD)'
+        ctype='Coupled-cluster doubles'
       else if (model.eq.'lccd') then
-        ctype='Linearized coupled-cluster doubles (LCCD)'
+        ctype='Linearized coupled-cluster doubles'
       else if (model.eq.'ccsd') then
-        ctype='Coupled-cluster singles & doubles (CCSD)'
+        ctype='Coupled-cluster singles & doubles'
       else if (model.eq.'lccsd') then
-        ctype='Linearized coupled-cluster singles & doubles (LCCSD)'
+        ctype='Linearized coupled-cluster singles & doubles'
       else if (model.eq.'ccsdt') then
-        ctype='Coupled-cluster singles, doubles, & triples (CCSDT)'
+        ctype='Coupled-cluster singles, doubles, & triples'
       else if (model.eq.'ccsdtq') then
-        ctype=
-     1'Coupled-cluster singles, doubles, triples, & quadruples (CCSDTQ)'
+        ctype='Coupled-cluster singles, doubles, triples, & quadruples'
       else
         call errquit('tce_init: specified CC model not implemented',0)
       endif
@@ -235,6 +236,12 @@ c     ----------------------
 c
       call int_init(rtdb,1,ao_bas_han)
       call schwarz_init(geom,ao_bas_han)
+c
+c     ----------------------
+c     Initialize file system
+c     ----------------------
+c
+      nfiles = 0
 c
 c     -------------
 c     Printing info
@@ -311,6 +318,13 @@ c
         write(LuOut,9000) ctype  
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
+        if (ioalg.eq.0) then
+          write(LuOut,9140) 'Fortran77 direct access'
+        else if (ioalg.eq.1) then
+          write(LuOut,9140) 'Shared file library of ParSoft'
+        else
+          call errquit('tce_init: unknown I/O scheme',ioalg)
+        endif
       endif
       call util_flush(LuOut)
  9000 format(3x,'       Calculation type : ',a)
@@ -334,6 +348,7 @@ c
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
  9130 format(3x,'         Max iterations :',2x,i7)
+ 9140 format(3x,'             I/O scheme : ',a)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
 c
