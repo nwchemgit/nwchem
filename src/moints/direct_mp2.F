@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.46 2000-02-04 20:04:27 mg201 Exp $
+C$Id: direct_mp2.F,v 1.47 2001-02-20 23:32:09 edo Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -407,7 +407,7 @@ c
       call ecce_print1('correlation energy', mt_dbl, emp2, 1)
 c
       emp2 = scf_energy + emp2
-      if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1, emp2))
+      if (.not. rtdb_put(rtdb, 'direct_mp2:energy', mt_dbl, 1, emp2))
      $     call errquit('direct_mp2: failed storing energy in rtdb', 0)
 c
       call ecce_print1('total energy', mt_dbl, emp2, 1)
