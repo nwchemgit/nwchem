@@ -53,7 +53,7 @@ other optional keywords described below.
 
 
 \section{{\tt FOCK/NOFOCK} --- method for calculating the two-electron contribution to the ET Hamiltonian}
-\label{sec:fock}
+\label{sec:etransfock}
 
  \begin{verbatim}
    <string (FOCK||NOFOCK) default FOCK>
@@ -67,6 +67,18 @@ it is the most efficient choice.
 The user can calculate the two-electron contribution to the ET Hamiltonian
 with another subroutine which may be more accurate for systems with a small
 number of basis functions, although it is slower.
+
+\section{{\tt SWITCH2E} --- overlap threshold which determines the method for calculating the two-electron contribution to the ET Hamiltonian}
+\label{sec:switch2e}
+
+ \begin{verbatim}
+   <SWITCH2E <real switch2e default 1.0d-12>
+ \end{verbatim}
+
+In cases when the ET reactants and products are {\em very} weakly interacting (small $S_{RP}$), the two-electron
+contribution to the electronic coupling should not be calculated with the NWChem Fock matrix routine (see \ref{sec:thresh}).
+When $S_{RP}$ is less than \verb+switch2e+ , the \verb+NOFOCK+ routine will be used for
+the two electron contribution to the coupling (see \ref{sec:etransfock}).  
 
 \section{{\tt TOL2E} --- integral screening threshold}
 \label{sec:etranstol2e}
