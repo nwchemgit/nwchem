@@ -1,5 +1,5 @@
       subroutine sym_print_all(geom, oinfo, ouniq, omap, oops, ochar)
-C$Id: sym_pr_all.F,v 1.1 1995-12-13 01:28:34 d3g681 Exp $
+C$Id: sym_pr_all.F,v 1.2 1996-08-19 17:55:27 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 #include "util.fh"
@@ -41,8 +41,8 @@ c
       if (ouniq) then
          call util_print_centered(6,'Symmetry unique atoms', 15,.false.)
          write(6,*)
-         do j = 1, ncenter_unique(geom), 19
-            centhi = min(j + 18,ncenter_unique(geom))
+         do j = 1, ncenter_unique(geom), 15
+            centhi = min(j + 14,ncenter_unique(geom))
             write(6,2) (unique_cent(cent,geom),cent=j,centhi)
  2          format(1x,15i5)
          enddo
