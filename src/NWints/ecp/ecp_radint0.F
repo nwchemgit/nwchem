@@ -1,4 +1,4 @@
-C $Id: ecp_radint0.F,v 1.3 1997-08-19 23:33:01 mg201 Exp $
+C $Id: ecp_radint0.F,v 1.4 1997-12-24 01:36:41 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint0 (p_min,p_max,n_prim_c,n_c,n_cont_c,
@@ -123,7 +123,7 @@ C      write (LuOut,*) (coeff_c(i_a,i_c),i_a=1,n_c)
         call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,coeff_a,
      &      n_prim_a,wrk,n_prim_a,zero,radint(1,1,i_c),n_cont_a)
         if (debug_arrays) call ecp_matpr (radint(1,1,i_c),1,n_cont_a,1,
-     &      n_cont_b,1,n_cont_b,1,n_cont_a,'ECP radial integrals','E',
+     &      n_cont_b,1,n_cont_a,1,n_cont_b,'ECP radial integrals','E',
      &      78,4)
       end do
       if (debug_gen) write (LuOut,*) 'Exiting ecp_radint0'
