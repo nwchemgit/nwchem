@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.36 1995-10-10 06:13:32 d3g681 Exp $
+C$Id: geom.F,v 1.37 1995-10-19 16:38:16 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1044,7 +1044,7 @@ c
       call util_print_centered(6,buf,40,.true.)
       write(6,*)
       write(6,2) user_units(geom)(1:inp_strlen(user_units(geom)))
- 2    format(' Units of output coordinates              ', a)
+ 2    format(' Units of output coordinates = ', a)
       if (include_bqbq(geom))
      $     write(6,*) ' Include Bq-Bq interactions'
       if (isystype(geom) .eq. 3) then
