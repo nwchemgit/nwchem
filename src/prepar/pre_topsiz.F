@@ -1,7 +1,7 @@
       logical function pre_topsiz(lfntop,filtop,lfnout,
      + nat,nsa,nwa,nsb,nqu)
 c
-c $Id: pre_topsiz.F,v 1.5 1998-11-06 21:18:09 d3j191 Exp $
+c $Id: pre_topsiz.F,v 1.6 1999-01-30 05:00:58 d3j191 Exp $
 c
       implicit none
 c
@@ -16,12 +16,13 @@ c
       open(unit=lfntop,file=filtop(1:len),form='formatted',
      + status='old',err=9999)
 c
-      do 1 i=1,4
+      do 1 i=1,5
       read(lfntop,1000) cdummy
  1000 format(a1)
     1 continue
-      read(lfntop,1001) nat,nqu
- 1001 format(i5,41x,i5)
+      read(lfntop,1001) nat
+      read(lfntop,1001) nqu
+ 1001 format(i5)
       do 2 i=1,nat
       read(lfntop,1000) cdummy
     2 continue

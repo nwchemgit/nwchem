@@ -2,7 +2,7 @@
      + num,amass,mat,cwa,qwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.11 1999-01-04 23:17:34 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.12 1999-01-30 05:00:57 d3j191 Exp $
 c
       implicit none
 c
@@ -24,12 +24,13 @@ c
 c
       nsm=0
 c
-      do 1 i=1,4
+      do 1 i=1,5
       read(lfntop,1000)
  1000 format(a1)
     1 continue
-      read(lfntop,1001) natl,nqu
- 1001 format(i5,41x,i5)
+      read(lfntop,1001) natl
+      read(lfntop,1001) nqu
+ 1001 format(i5)
       do 2 i=1,natl
       read(lfntop,1002) amass(i),num(i)
  1002 format(6x,f12.6,36x,i5)
