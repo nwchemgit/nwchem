@@ -1,11 +1,11 @@
       subroutine sym_ops_get(geom,numops,symops)
-C$Id: sym_ops_get.F,v 1.2 1995-02-02 23:23:26 d3g681 Exp $
+C$Id: sym_ops_get.F,v 1.3 1995-10-10 06:17:46 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.h"
 #include "geomP.fh"
 c
-      integer i,j,geom,numops,l,k
+      integer i,j,geom,numops
 c
       double precision symops(numops*3,4)
 c

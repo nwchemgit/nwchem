@@ -1,9 +1,10 @@
       logical sym_shell_pair, sym_atom_pair
+      logical sym_char_table
 C      logical sym_shell_quartet, sym_atom_quartet
-C$Id: sym.fh,v 1.3 1995-02-02 23:23:15 d3g681 Exp $
+C$Id: sym.fh,v 1.4 1995-10-10 06:17:37 d3g681 Exp $
       logical  sym_atom_quartet
       integer sym_center_map, sym_number_ops
       external sym_center_map, sym_number_ops
       external sym_shell_pair, sym_atom_pair
-      external  sym_atom_quartet
+      external  sym_atom_quartet, sym_char_table
 C      external sym_shell_quartet, sym_atom_quartet

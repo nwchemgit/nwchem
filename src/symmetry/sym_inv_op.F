@@ -1,4 +1,5 @@
       subroutine sym_inv_op(geom, op, opinv)
+C$Id: sym_inv_op.F,v 1.2 1995-10-10 06:17:41 d3g681 Exp $
       implicit none
 #include "sym.fh"
       integer geom, op, opinv

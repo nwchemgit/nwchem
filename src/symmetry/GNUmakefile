@@ -1,11 +1,12 @@
-#$Id: GNUmakefile,v 1.9 1995-04-10 22:42:28 d3g681 Exp $
+#$Id: GNUmakefile,v 1.10 1995-10-10 06:17:36 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
 USES_BLAS = sym_put_in_geom.F sym_print_all.F
 HEADERS = sym.fh
 
-OBJ_OPTIMIZE = sym_shell_pair.o 
+OBJ_OPTIMIZE = sym_shell_pair.o sym_symmetrize.o \
+               sym_movecs_apply_op.o
 OBJ =     dosymops.o \
           gensym.o \
           ludcmp.o \
@@ -17,16 +18,26 @@ OBJ =     dosymops.o \
           sym_nwc.o \
           sym_apply_op.o \
           sym_get_cart_op.o \
+          sym_group_name.o \
           sym_apply_cart_op.o \
           sym_center_map.o \
           sym_number_ops.o \
           sym_bas_op.o \
           sym_ops_get.o \
           sym_print_all.o \
-          sym_symmetrize.o \
           sym_geom_project.o \
-          sym_test.o \
+          cross_product.o \
+          sym_op_class_name.o \
+          sym_print_ops.o \
+          deter3.o \
+          sym_op_classify.o \
+          sym_trace_bas_op.o \
+          sym_bas_irreps.o \
+          sym_op_type.o \
+          sym_char_table.o \
+          sym_print_char_table.o \
           sym_inv_op.o \
+          sym_movecs_adapt.o \
           wrcell.o
 
 
