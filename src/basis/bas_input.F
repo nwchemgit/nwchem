@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.15 1995-03-01 19:53:55 d3g681 Exp $
+c $Id: bas_input.F,v 1.16 1995-03-31 01:32:43 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -8,10 +8,10 @@ c $Id: bas_input.F,v 1.15 1995-03-01 19:53:55 d3g681 Exp $
 #include "bas.fh"
 #include "inp.fh"
 c
-c     basis [<name>] [library <standard set>] [file <filename>] \
+c     basis [<name>] [library [<standard set>] [file <filename>] \
 c           [spherical|cartesian] [segment||nosegment] [print] [noprint]
 c
-c     tag library <standard set> [file <filename>]
+c     tag library [tag in library] <standard set> [file <filename>]
 c     tag <shell type>
 c       <exponent> <contraction coefficients>
 c       ...
@@ -112,7 +112,7 @@ c
 c
 c     Open a new basis set to receive the new data
 c
-      if (name .eq. ' ') name = 'mo basis'
+      if (name .eq. ' ') name = 'ao basis'
       if (.not. bas_create(basis, name))
      $     call errquit('bas_input: failed to create basis', 0)
 c
@@ -160,13 +160,13 @@ c     Read the body of a basis directive that describes the
 c     tags/exponents/contraction coefficients 
 c
 c
-c     tag library <standard set> [file <filename>]
+c     tag library [<tag in library>] <standard set> [file <filename>]
 c     tag <contraction type>
 c       <exponent> <contraction coefficients>
 c       ...
 c     end basis
 c     
-      character*16 tag
+      character*16 tag, tag_in_lib
       character*16 cont_type
       character*255 field, standard, filename
       integer nltypes           ! No. of known angular momentum types
@@ -222,6 +222,17 @@ c
 c     library
 c     
  24            if (.not. inp_a(standard)) goto 10000
+	       tag_in_lib = tag
+	       if (inp_a(field)) then
+                 if (inp_match(nopts, .false., field, opts, ind)) then
+		   call inp_prev_field
+                 else
+		   tag_in_lib = standard
+		   standard   = field
+		   write(6,*) ' tag_in_lib, standard ', 
+     $                tag_in_lib, standard
+                 endif
+               endif
                goto 22
 c     
 c     file
@@ -238,7 +249,7 @@ c     Line with tag on has been parsed ... either a standard set
 c     or explicit input
 c
       if (standard .ne. ' ') then
-         call bas_tag_lib(basis, osegment, tag, standard, filename)
+         call bas_tag_lib(basis,osegment,tag_in_lib,standard,filename)
          goto 10
       endif
 c

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.33 1995-02-07 00:48:02 d3e129 Exp $
+c $Id: basis.F,v 1.34 1995-03-31 01:32:46 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -617,15 +617,16 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.rtdb_status) then
-        if(ga_nodeid().eq.0) then
-        write(6,*)' bas_rtdb_load: ERROR '
-        write(6,*)' basis set is not there '
-        write(6,*)' name requested            <|',bs_name(basis),'|>'
-        write(6,*)' translated name requested <|',bs_trans(basis),'|>'
-        endif
-        bas_rtdb_load = .false.
-c..... add diagnostics later
-        return
+         if(ga_nodeid().eq.0) then
+            write(6,*)
+            write(6,*) ' bas_rtdb_load: basis not present "',
+     $           bs_name(basis)(1:inp_strlen(bs_name(basis))), '" -> "',
+     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))), '"'
+            write(6,*)
+         endif
+         bas_rtdb_load = .false.
+c.....add diagnostics later
+         return
       endif
 c
       status = geom_ncent(geom, nat)
