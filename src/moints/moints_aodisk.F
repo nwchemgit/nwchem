@@ -1,3 +1,4 @@
+
 c
 c  Set of routines to cache AO integrals for the 4-index
 c  module using exclusive-access local disk storage.
@@ -91,7 +92,8 @@ c
 #include "cmointsmoao.fh"
 c
       character*8 buidstr
-      integer recnum, ssbblen
+      integer recnum
+      integer ssbblen
       logical moints_iorec_next
       external moints_iorec_next
 c$$$      DOUBLE PRECISION DABSSUM
@@ -100,7 +102,17 @@ c$$$      EXTERNAL DABSSUM
       moints_gblk_fromdisk = .false.
       if (moao_ipass.lt.0) return
       if ((moao_fd.ge.0).and.(moao_ipass.gt.0)) then
-        call moints_uid( buidstr, ish, jsh, kshlo, lshlo )
+#ifdef NEW_AODISK
+        ssbblen = (ihi-ilo+1)*(jhi-jlo+1)*(kbhi-kblo+1)*(lbhi-lblo+1)
+        call dfill( ssbblen, 0.d0, ssbb, 1 )
+        call moints_aodisk_iorec2sprs_n( moao_fd, moao_fptr, 
+     $                            moao_tasknum,
+     $                            ilo, ihi, jlo, jhi,
+     $                            kblo, kbhi, lblo, lbhi,
+     $                            ssbb, moao_hdrp, moao_buflen,
+     $                            dbl_mb(moao_kbuf) )
+        moints_gblk_fromdisk = .true.
+#else
         recnum = 0
         ssbblen = (ihi-ilo+1)*(jhi-jlo+1)*(kbhi-kblo+1)*(lbhi-lblo+1)
         call dfill( ssbblen, 0.d0, ssbb, 1 )
@@ -117,6 +129,7 @@ c$$$      EXTERNAL DABSSUM
           endif
           recnum = recnum + 1
         enddo
+#endif
 C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
 c$$$       WRITE(6,771) ISH, JSH, KSHLO, LSHLO, MOAO_TASKNUM, GA_NODEID(),
 c$$$     $              BLKID, DABSSUM(SSBBLEN,SSBB)
@@ -162,12 +175,14 @@ c$$$      EXTERNAL DABSSUM
       if ((moao_fd.ge.0).and.(moao_ipass.eq.0)) then
         if (sparse) then
 
-c$$$          call moints_aodisk_sprs2iorec_N( moao_lun, moao_tasknum, 
-c$$$     $                           blkid, moao_buflen,
-c$$$     $                           ilo, ihi, jlo, jhi,
-c$$$     $                           kblo, kbhi, lblo, lbhi,
-c$$$     $                           ssbb, moao_buflen, dbl_mb(moao_kbuf) )
-
+#ifdef NEW_AODISK
+          call moints_aodisk_sprs2iorec_N( moao_fd, moao_fptr,
+     $                           moao_tasknum, blkid, 
+     $                           ilo, ihi, jlo, jhi,
+     $                           kblo, kbhi, lblo, lbhi,
+     $                           ssbb, moao_recptr, moao_buflen, 
+     $                           dbl_mb(moao_kbuf) )
+#else
           call moints_aodisk_sprs2iorec( moao_fd, moao_fptr,
      $                           moao_tasknum, blkid,
      $                           ilo, ihi, jlo, jhi,
@@ -176,6 +191,7 @@ c$$$     $                           ssbb, moao_buflen, dbl_mb(moao_kbuf) )
      $                           dbl_mb(moao_klabrec),
      $                           dbl_mb(moao_kvalrec),
      $                           moao_buflen, dbl_mb(moao_kbuf) )
+#endif
         else
           call errquit('moints_gblk_todisk: dense read not ready',0)
         endif
@@ -232,7 +248,7 @@ c
       if (moao_fname.eq.'') then
         call util_file_name( 'moao', .true., .true., moao_fname )
       endif
-      inquire(file=moao_fname, exist=fexist)
+      inquire(file=moao_fname, exist=fexist)                    ! No equivalent EAF functionality?
       if (oreuse) then
         stat = 0
         if (fexist) stat=1
@@ -247,8 +263,6 @@ c
 c  open AO integral disk cache
 c
       if (moao_fd.lt.0) then
-c$$$        open(unit=MOINTS_AOUNIT, file=moao_fname, status='unknown',
-c$$$     $       form='unformatted',iostat=stat)
         stat = eaf_open( moao_fname, EAF_RW, moao_fd )
         if (stat.ne.0) call errquit(
      $                'moints_aodisk_init: cannot open ao file',0)
@@ -302,6 +316,15 @@ c
         moao_kvalrec  = moao_kbuf + dhdrsize                                ! values after header
         moao_klabrec  = moao_kbuf + dhdrsize + moao_spreclen                ! labels after values
       endif
+#ifdef NEW_AODISK
+c
+c  Initialize first IO record 
+c
+      if (moao_ipass.eq.0) then
+        moao_recptr   = 2
+        call icopy(1,moao_recptr,1,dbl_mb(moao_kbuf),1)
+      endif
+#endif
 c
 c  rewind AO integral cache unit
 c
@@ -315,6 +338,19 @@ c
         stat =  eaf_read( moao_fd, moao_fptr, dbl_mb(moao_kbuf), 
      $                    bufbytes )
         moao_fptr = moao_fptr + bufbytes
+#ifdef NEW_AODISK
+        if (stat.eq.0) then
+          call icopy(MOINTS_NBLKINFO,dbl_mb(moao_kbuf+1),1,blkinfo,1)
+          moao_touch    = .false.
+          moao_tasknum  = blkinfo(4)
+          moao_blkid    = blkinfo(5)
+          moao_issparse = blkinfo(6)
+          moao_recptr   = 2
+          moao_hdrp     = 2
+        else
+          moao_ipass    = 0
+        endif
+#else          
         if (stat.eq.0) then
           call icopy(MOINTS_NBLKINFO, dbl_mb(moao_kbuf), 1, blkinfo, 1)
           moao_touch   = .false.
@@ -328,6 +364,7 @@ c$$$     $           '    Blkid=',I5)
         else
           moao_ipass = 0                ! this is peculiar but not an error, just reset
         endif
+#endif
       endif
       moints_aodisk_prep = .true.
       MOAO_CUMUL = 0.d0
@@ -351,6 +388,14 @@ c
 #include "cmointsmoao.fh"
 
       if (moao_ipass.lt.0) return
+#ifdef NEW_AODISK
+      if (moao_ipass.eq.0) then
+        call n_flush_iorec( moao_fd, moao_fptr,                    ! flush last record
+     $                      moao_buflen, dbl_mb(moao_kbuf) )     
+C        CALL MOINTS_CHECK_DISKREC( MOAO_FD, MOAO_BUFLEN,       ! verify file for debugging
+C     $                             DBL_MB(MOAO_KBUF) )
+      endif
+#endif
       if (moao_lbuf.ge.0) then
         if (.not.ma_free_heap(moao_lbuf)) call errquit(
      $    'moints_closeaodisk: cannot free io buffer',0)
@@ -420,6 +465,7 @@ c
 c ======================================================================
 c
 c
+#ifndef NEW_AODISK
 c
 c
 c  Pack the dense SSBB block into sparse form
@@ -647,7 +693,7 @@ c
       end
         
       
-      
+#endif      
                          
 
 
@@ -690,55 +736,121 @@ c
 
 
 
-#ifdef NOCOMPILE
+#ifdef NEW_AODISK
 c
 c  Alternate version of sparse packing
 c  Labels/indices require integer of storage, 2*NCOL + NNZ/2,
 c  cf. 2*NNZ for standard version.
 c
 c
-      subroutine moints_aodisk_sprs2iorec_N( tasknum, 
-     $                             blkid, iobuflen,
-     $                             ilo, ihi, jlo, jhi,
-     $                             kblo, kbhi, lblo, lbhi,
-     $                             ssbb, reclen, iorec )
+c  IO Record structure:
+c    The first integer of each IO record points to the 
+c    (double word) location of the first header. The space 
+c    between is assumed to the continuation of the 
+c    previous entry. ie.
+c
+c       __________________________
+c       |                        |
+c       |                        v
+c       --------------------------------------------
+c       |                        | header....
+c       --------------------------------------------
+c         |<-- continuation -->|
+c              prev record
+c
+c
+c  The header structure is:
+c
+c         hdr(1)    magic I    valid header
+c                   magic II   invalid header, read next record (rare)
+c
+c         hdr(2)    >0         location of next header
+c                   -1         last header for this IO record
+c
+c
+c
+
+      subroutine moints_aodisk_sprs2iorec_N( fd, fptr, tasknum, blkid,
+     $                                     ilo, ihi, jlo, jhi,
+     $                                     kblo, kbhi, lblo, lbhi,
+     $                                     ssbb, recptr, reclen, iorec )
       implicit none
 #include "mafdecls.fh"
 #include "mointsmoaodef.fh"
+      integer fd
+      double precision fptr
       integer tasknum
       integer blkid
-      integer iobuflen
       integer ilo, ihi, jlo, jhi
       integer kblo, kbhi, lblo, lbhi
       double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
+      integer recptr
       integer reclen
       double precision iorec(reclen)
 c
       integer i, j, ilen, jlen, llen, klen
-      integer swordlen, nir, hdrlen
-      integer nnz
-      integer rp, rleft, rlen
-      integer issparse, recnum
-      logical st
-      integer iirlen, drlen
+      integer swordlen, nir, nnz, dbilen, dijlen
+      integer rp, hdrp, ijp, rleft, bblen, nssbb
+      integer ijidx, issparse, iirlen, drlen
       integer l_iv, k_iv, k_irv
+      integer l_ij, k_ij
       integer l_dv, k_dv
+      integer blkinfo(MOINTS_NBLKINFO)
+      integer iminus, magic_cookie, magic_cookie2
+      logical iscont, ojustfit
+      data issparse/1/
+      data iminus/-1/
 c      
-      logical moints_sparse2d_pack
-      external moints_sparse2d_pack
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
+      integer onbitmask
+      external onbitmask
 c
-      issparse = 1
-      recnum = 0
+      blkinfo(1)  = -1
+      blkinfo(4)  = tasknum
+      blkinfo(5)  = blkid
+      blkinfo(6)  = issparse
+      blkinfo(7)  = ilo
+      blkinfo(8)  = ihi
+      blkinfo(9)  = jlo
+      blkinfo(10) = jhi
+      blkinfo(11) = kblo 
+      blkinfo(12) = kbhi
+      blkinfo(13) = lblo
+      blkinfo(14) = lbhi
+c
+C      WRITE(6,910) BLKINFO(4),  BLKINFO(5),  BLKINFO(7),  
+C     $             BLKINFO(8),  BLKINFO(9),  BLKINFO(10), 
+C     $             BLKINFO(11), BLKINFO(12), BLKINFO(13), 
+C     $             BLKINFO(14)
+ 910  FORMAT('Task#:',I5,5x,' ID =',I5,3x,4(i2,'-',i2,3x))
+c
       llen = lbhi - lblo + 1
       klen = kbhi - kblo + 1
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
-      swordlen = ma_sizeof(MT_DBL,1,MT_BYTE) + 2       ! num of bytes for double precision value + 2 byte label = 10
-
-      hdrlen = 3*ilen*jlen + MOINTS_NBLKINFO
-      hdrlen = hdrlen + mod(hdrlen,ma_sizeof(MT_DBL,1,MT_INT))
-      rp = hdrlen + mod(hdrlen,2)
-      rlen = reclen - hdrlen
+      swordlen = ma_sizeof(MT_DBL,1,MT_BYTE) + 2        !  double word + 2 byte label = 10
+      magic_cookie = onbitmask(17)
+      magic_cookie2 = onbitmask(21)
+c
+c  Minimium header length must be remaining on IO record
+c  Otherwise flush IO record
+c
+      dbilen = ma_sizeof(MT_INT,MOINTS_NBLKINFO,MT_DBL)
+      dijlen = ma_sizeof(MT_INT,(3*ilen*jlen),MT_DBL)
+      rleft = reclen - recptr + 1
+      if ((dbilen+dijlen).gt.rleft) then
+        call n_flush_iorec( fd, fptr, reclen, iorec )
+        recptr = 2
+        call icopy( 1, recptr, 1, iorec(1), 1)
+      endif
+c
+c  Header and record pointers 
+c
+      hdrp  = recptr
+      ijp   = hdrp + dbilen
+      rp    = hdrp + dbilen + dijlen
+      nssbb = 0
 c
 c  Allocate temp space
 c
@@ -749,31 +861,98 @@ c
       if (.not. ma_push_get(MT_DBL, drlen, 'd io pack ',l_dv, k_dv))
      $  call errquit('moints_aodisk_sprs2iorec: no memory',0)
       k_irv = k_iv + 2*klen
+      if (.not. ma_push_get(MT_INT, (ilen*jlen), 'ij ',l_ij, k_ij))
+     $  call errquit('moints_aodisk_sprs2iorec: no memory',0)
+      call ifill((ilen*jlen), 0, int_mb(k_ij), 1 )
 c
 c
 c
+      iscont = .false.
       do i=ilo,ihi
         do j=jlo,jhi
-
-C          CALL MOINTS_MATPRINTX( LLEN, KLEN, SSBB(LBLO, KBLO, J, I))
-
-          rleft = rlen - rp + 1
-
-          st = moints_sparse2d_pack( klen, llen, ssbb(lblo,kblo,j,i),
+          call moints_sparse2d_pack( llen, klen, ssbb(lblo,kblo,j,i),
      $                               int_mb(k_iv), nir, int_mb(k_irv), 
      $                               dbl_mb(k_dv), nnz )
-
+c
+c  If not enough space for sparse structure flush IO record
+c 
+          rleft = reclen - rp + 1
+          bblen = ma_sizeof(MT_INT,(2*klen+nir),MT_DBL) + nnz
+          if (bblen.gt.rleft) then
+            if (blkinfo(1).eq.-1) then
+              blkinfo(1) = magic_cookie
+              blkinfo(2) = -1                                             ! flag -- last entry in this record
+              call icopy( MOINTS_NBLKINFO, blkinfo, 1, iorec(hdrp), 1 )
+            endif
+            call icopy( (ilen*jlen), int_mb(k_ij), 1, iorec(ijp), 1 )
+            call n_flush_iorec( fd, fptr, reclen, iorec )
+C            call moints_aodisk_ijprint( ilen, jlen, int_mb(k_ij) )
+c
+c  Reset pointers and arrays
+c
+            call icopy( 1, iminus, 1, iorec(1), 1)
+            call ifill((ilen*jlen), 0, int_mb(k_ij), 1 )
+            ijp = 2
+            rp  = ijp + dijlen
+            nssbb = 0
+            iscont = .true.
+          endif
+c
+c  Copy sparse structure into IO record
+c    
+          ijidx = (i-ilo)*jlen + j - jlo
+          int_mb(k_ij+ijidx) = ior(lshift(rp,16),nnz)
+          nssbb = nssbb + 1
           call icopy( (2*klen+nir), int_mb(k_iv), 1, iorec(rp), 1 )
           rp = rp + ma_sizeof(MT_INT,(2*klen+nir),MT_DBL)
           call dcopy( nnz, dbl_mb(k_dv), 1, iorec(rp), 1 )
           rp = rp + nnz
-
-          call print_sparsemat( klen, llen, int_mb(k_iv),
-     $                          int_mb(k_irv), nnz, dbl_mb(k_dv) )
-
         enddo
       enddo
-c      
+      if (rp.gt.(reclen+1))
+     $  call errquit('moints_aodisk_sprs2iorec: internal error 1',0)
+C      CALL MOINTS_AODISK_IJPRINT( ILEN, JLEN, INT_MB(K_IJ) )
+c
+c  Copy header info & map  to IO record before returning
+c
+      ojustfit = (rp.eq.(reclen+1))                     ! special case
+      if (ojustfit) rp = 0
+      if (blkinfo(1).eq.-1) then
+        blkinfo(1) = magic_cookie
+        blkinfo(2) = rp
+        call icopy( MOINTS_NBLKINFO, blkinfo, 1, iorec(hdrp), 1 )
+      endif
+      call icopy( (ilen*jlen), int_mb(k_ij), 1, iorec(ijp), 1 )
+c
+c  Special case -- flush IO record
+c
+      if (ojustfit) then
+        call icopy( 1, rp, 1, iorec(1), 1 )
+        call n_flush_iorec( fd, fptr, reclen, iorec)
+        rp = 2
+        call icopy( 1, rp, 1, iorec(1), 1)
+      endif
+c
+c  Put magic cookie II at start of next header.
+c  Usually overwritten by magic cookie next time around 
+c  (unless we skip to next record)
+c
+      if (rp.le.reclen) then
+        call icopy(1, magic_cookie2, 1, iorec(rp), 1 )
+      endif
+c
+c  If SSBB block spans multiple records must encode offset
+c  of end of block
+c
+      if (iscont) then
+        call icopy( 1, rp, 1, iorec(1), 1 )
+      endif
+      recptr = rp
+c
+c  Clean up
+c
+      if (.not. ma_pop_stack(l_ij))
+     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_ij)
       if (.not. ma_pop_stack(l_dv))
      $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_dv)
       if (.not. ma_pop_stack(l_iv))
@@ -782,6 +961,316 @@ c
       end
 
 
+
+
+
+
+c
+c  Read and interpret AO file contents - one block
+c  at a time -- structure as above
+c
+c
+      subroutine moints_aodisk_iorec2sprs_n( fd, fptr, tasknum,
+     $                                   ilo, ihi, jlo, jhi,
+     $                                   kblo, kbhi, lblo, lbhi,
+     $                                   ssbb, hdrp, reclen, iorec)
+      implicit none
+#include "mafdecls.fh"
+#include "eaf.fh"
+#include "mointsmoaodef.fh"
+      integer fd
+      double precision fptr
+      integer tasknum
+      integer ilo, ihi, jlo, jhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
+      integer hdrp
+      integer reclen
+      double precision iorec(reclen)
+c
+      integer cookie, cookie2
+      integer dbilen, ilen, jlen, ijp
+      integer nexthdrp, stat, bufbytes, magic
+      integer l_ij, k_ij
+      integer blkinfo(MOINTS_NBLKINFO)
+      logical ocont
+      integer onbitmask
+      external onbitmask
+c
+c
+c
+      cookie  = onbitmask(17)
+      cookie2 = onbitmask(21)
+      bufbytes = ma_sizeof(MT_DBL,reclen,MT_BYTE)
+      ilen = ihi - ilo + 1
+      jlen = jhi - jlo + 1
+      dbilen = ma_sizeof(MT_INT,MOINTS_NBLKINFO,MT_DBL)
+      ijp = hdrp + dbilen
+      if (.not. ma_push_get(MT_INT, (ilen*jlen), 'ij ',l_ij, k_ij))
+     $  call errquit('moints_aodisk_iorec2sprs: no memory',0)
+c
+c  Sanity check on current pointer and IO record
+c
+      call icopy( MOINTS_NBLKINFO, iorec(hdrp), 1, blkinfo, 1)
+      if (blkinfo(1).ne.cookie) 
+     $  call errquit('moints_aodisk_iorec2sprs: AOfile corrupt I?',0)
+
+C      WRITE(6,910) BLKINFO(4),  BLKINFO(5),  BLKINFO(7),  
+C     $             BLKINFO(8),  BLKINFO(9),  BLKINFO(10), 
+C     $             BLKINFO(11), BLKINFO(12), BLKINFO(13), 
+C     $             BLKINFO(14)
+ 910  FORMAT('Task#:',I5,5x,' ID =',I5,3x,4(i2,'-',i2,3x))
+c
+c  Unpack data structure from IO record(s)
+c  -- possibly spanning multiple records
+c
+      ocont = .true.
+      nexthdrp = blkinfo(2)
+      do while (ocont)
+        call icopy( (ilen*jlen), iorec(ijp), 1, int_mb(k_ij), 1)
+C        call moints_aodisk_ijprint( ilen, jlen, int_mb(k_ij) )
+        call moints_aodisk_sprs2dense_a( ilo, ihi, jlo, jhi,
+     $                                   kblo, kbhi, lblo, lbhi,
+     $                                   int_mb(k_ij), iorec, ssbb )
+        ocont = nexthdrp.eq.-1
+        if (nexthdrp.le.0) then
+          stat = eaf_read(fd, fptr, iorec, bufbytes )
+          if (stat.ne.0) goto 150
+          fptr = fptr + bufbytes
+          call icopy( 1, iorec(1), 1, nexthdrp, 1 )
+          ijp  = 2
+        endif
+        if (nexthdrp.eq.0) then
+          write(6,223) 
+ 223      format('Special case')
+        endif
+      enddo
+c
+c  Check next block -- skip ahead if invalid
+c
+ 101  call icopy( 1, iorec(nexthdrp), 1, magic, 1)
+      if (magic.eq.cookie2) then
+        stat = eaf_read(fd, fptr, iorec, bufbytes )
+        if (stat.ne.0) goto 150
+        fptr = fptr + bufbytes
+        nexthdrp = 2
+        goto 101
+      endif
+      if (magic.ne.cookie) then
+        write(6,771) MAGIC, COOKIE
+ 771    FORMAT(' MAGIC:',I10,' <>   COOKIE:',I10)
+        call errquit('moints_aodisk_iorec2sprs: AOfile corruptII?',0)
+      endif
+c
+c  Prefetch tasknumber from header
+c
+      call icopy( 4, iorec(nexthdrp), 1, blkinfo, 1 )
+      tasknum = blkinfo(4)
+      hdrp = nexthdrp
+c
+c  Cleanup
+c
+ 150  continue
+      if (.not. ma_pop_stack(l_ij))
+     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_ij)
+      return
+      end
+
+
+
+
+
+
+
+
+
+
+      subroutine n_flush_iorec( fd, fptr, n, r )
+      implicit none
+#include "mafdecls.fh"
+#include "eaf.fh"
+      integer fd
+      double precision fptr
+      integer n
+      double precision r(n)
+      integer bufbytes
+      integer stat
+
+      bufbytes = ma_sizeof(MT_DBL,n,MT_BYTE)
+      stat = eaf_write(fd, fptr, r, bufbytes )
+      fptr = fptr + bufbytes
+      return
+      end
+
+
+
+
+      subroutine moints_aodisk_ijprint( ilen, jlen, ijmap )
+      implicit none
+      integer ilen
+      integer jlen
+      integer ijmap(jlen,ilen)
+      integer i, j, ij, bit16
+      integer ptr(1000)
+      integer nnz(1000)
+      integer onbitmask
+      external onbitmask
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
+
+      bit16 = onbitmask(16)
+      do i=1,ilen
+        do j=1,jlen
+          ij = (i-1)*jlen + j
+          ptr(ij) = iand(rshift(ijmap(j,i),16),bit16)
+          nnz(ij) = iand(ijmap(j,i),bit16)
+        enddo
+      enddo
+      do j=1,jlen
+        write(6,901) (ptr((i-1)*jlen+j),i=1,ilen)
+ 901    format(5x,10i5)
+      enddo
+      return
+      end
+
+      
+      
+      
+c
+c  Debugging code to check
+c  file consistency
+c
+      subroutine moints_check_diskrec( fd, reclen, iorec ) 
+      implicit none
+#include "mafdecls.fh"
+#include "eaf.fh"
+#include "mointsmoaodef.fh"
+      integer fd
+      integer reclen
+      double precision iorec(reclen)
+      integer stat, recbytes, rp, hdrp, ijp
+      integer ilen, jlen
+      integer dbilen
+      double precision fptr
+      integer blkinfo(MOINTS_NBLKINFO)
+      integer magic_cookie, magic_cookie2
+      integer ijmap(1000)
+      integer onbitmask
+      external onbitmask
+
+      magic_cookie  = onbitmask(17)
+      magic_cookie2 = onbitmask(21)
+      dbilen = ma_sizeof(MT_INT,MOINTS_NBLKINFO,MT_DBL)
+      stat     = 0
+      recbytes = ma_sizeof(MT_DBL,reclen,MT_BYTE)
+      fptr     = 1.d0
+      rp       = 1
+      hdrp     = 2
+      blkinfo(2) = 0
+ 100  stat = eaf_read(fd, fptr, iorec, recbytes )
+      if (stat.eq.0) then
+        fptr = fptr + recbytes
+        if ((blkinfo(2).eq.-1).and.(hdrp.ne.0)) then
+          call icopy((ilen*jlen), iorec(2), 1, ijmap, 1 )
+C          call moints_aodisk_ijprint( ilen, jlen, ijmap )
+        endif
+          
+        call icopy(1, iorec(1), 1, hdrp, 1 )
+        if (hdrp.le.0) goto 100
+ 101    call icopy(MOINTS_NBLKINFO, iorec(hdrp), 1, blkinfo, 1 )
+        ijp = hdrp + dbilen
+        if (blkinfo(1).eq.magic_cookie2) then
+          WRITE(6,912)
+ 912      FORMAT('Header invalid *')
+          goto 100
+        endif
+        if (blkinfo(1).ne.magic_cookie) stop 6669
+
+C        WRITE(6,910) BLKINFO(4),  BLKINFO(5),  BLKINFO(7),  
+C     $               BLKINFO(8),
+C     $               BLKINFO(9),  BLKINFO(10), BLKINFO(11),
+C     $               BLKINFO(12), BLKINFO(13), BLKINFO(14),
+C     $               BLKINFO(2)
+ 910    FORMAT('Task#:',I5,5x,' ID =',I5,3x,4(i2,'-',i2,3x),
+     $           5x,'NextHdr:',I5)
+
+        ilen = blkinfo(8) - blkinfo(7) + 1
+        jlen = blkinfo(10) - blkinfo(9) + 1
+        call icopy((ilen*jlen), iorec(ijp), 1, ijmap, 1 )
+C        call moints_aodisk_ijprint( ilen, jlen, ijmap )
+
+        if (blkinfo(2).gt.0) then
+          hdrp = blkinfo(2)
+          goto 101
+        endif
+        goto 100
+      endif
+
+      return
+      end
+
+
+
+      subroutine moints_aodisk_sprs2dense_a( ilo, ihi, jlo, jhi,
+     $                                      kblo, kbhi, lblo, lbhi,
+     $                                      ijmap, iorec, ssbb )
+      implicit none
+#include "mafdecls.fh"
+      integer ilo, ihi, jlo, jhi
+      integer kblo, kbhi, lblo, lbhi
+      integer ijmap(jlo:jhi,ilo:ihi)
+      double precision iorec(*)
+      double precision ssbb(lblo:lbhi,kblo:kbhi,jlo:jhi,ilo:ihi)
+c
+      integer i, j, ijp, nnz, bit16, klen, llen
+      integer iirlen, nir, dp
+      integer l_iv, k_iv, k_irv
+      integer npr
+      save npr
+      data npr/0/
+      integer onbitmask
+      external onbitmask
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
+      
+      klen = kbhi - kblo + 1
+      llen = lbhi - lblo + 1
+      bit16 = onbitmask(16)
+      iirlen = 2*klen + (klen*llen)/2 + 1
+      if (.not. ma_push_get(MT_INT, iirlen, 'i io pack ',l_iv, k_iv))
+     $  call errquit('moints_aodisk_sprs2iorec: no memory',0)
+      k_irv = k_iv + 2*klen
+      do i=ilo,ihi
+        do j=jlo,jhi
+          ijp = iand(rshift(ijmap(j,i),16),bit16)
+          nnz = iand(ijmap(j,i),bit16)
+          if (ijp.gt.0) then
+            nir = nnz/2 + mod(nnz,2)
+            dp  = ijp + ma_sizeof(MT_INT,(2*klen+nir),MT_DBL)
+            call icopy( (2*klen+nir), iorec(ijp), 1, int_mb(k_iv), 1)
+            NPR = NPR + 1
+c$$$            IF (NPR.LT.50) THEN
+c$$$              WRITE(6,*)
+c$$$              CALL PRINT_SPARSEMAT( KLEN, LLEN, INT_MB(K_IV),
+c$$$     $                             INT_MB(K_IRV), NNZ, IOREC(DP) )
+c$$$            ENDIF
+
+            call moints_sparse2d_unpack( llen, klen, int_mb(k_iv),
+     $                                   nnz, int_mb(k_irv), iorec(dp),
+     $                                   ssbb(lblo,kblo,j,i) )
+
+c$$$            IF (NPR.LT.50) THEN
+c$$$              CALL MOINTS_MATPRINTX(LLEN, KLEN, SSBB(LBLO,KBLO,J,I))
+c$$$            ENDIF
+
+          endif
+        enddo
+      enddo
+      if (.not. ma_pop_stack(l_iv))
+     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_iv)
+      
+      end
+      
 
 c
 c   This routine packs a dense 2d matrix (m x n)
@@ -802,11 +1291,11 @@ c
 #ifdef INTEGER64
 
 #else
-      logical function moints_sparse2d_pack( n, m, x, colp, nir, 
-     $                                       ir, v, nnz )
+      subroutine moints_sparse2d_pack( m, n, x, colp, nir, 
+     $                                ir, v, nnz )
       implicit none
-      integer n                              ! [input]  columns
       integer m                              ! [input]  rows
+      integer n                              ! [input]  columns
       double precision x(m,n)                ! [input]  dense 2D
       integer colp(2,n)                      ! [output] column ptr hi,lo
       integer nir                            ! [output] row index length
@@ -821,7 +1310,6 @@ c
 #include "bitops_funcs.fh"      
 
       ibit16 = 2**16 - 1
-      moints_sparse2d_pack = .false.
       nnz = 0
       nir = 0
       pack = 0
@@ -849,14 +1337,59 @@ c
         nir = nir + 1
         ir(nir) = pack
       endif
-      moints_sparse2d_pack = .true.
+      return
+      end
+
+
+
+
+
+
+
+
+
+      subroutine moints_sparse2d_unpack( m, n, colp, nnz, ir, v, x )
+      implicit none
+      integer m                              ! [input]  rows
+      integer n                              ! [input]  columns
+      integer colp(2,n)                      ! [input]  column ptr hi,lo
+      integer ir(*)                          ! [input]  row index 16-bit packed
+      integer nnz                            ! [input]  number non-zeroes
+      double precision v(nnz)                ! [input]  packed values
+      double precision x(m,n)                ! [output] dense 2D
+
+      integer s, t, rp, rrp, parity
+      integer bit16
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"      
+
+      bit16 = 2**16 - 1
+      do s=1,n
+        if (colp(1,s).gt.0) then
+          do rp=colp(1,s),colp(2,s)
+            parity = mod(rp,2)
+            rrp = rp/2 + parity
+            t = iand(rshift(ir(rrp),(16*parity)),bit16)
+c$$$            if ((t.le.0).or.(t.gt.m)) then
+c$$$              write(6,221) t,m
+c$$$ 221          format(' T =',I5,' Max = ',I5)
+c$$$              stop 6667
+c$$$            endif
+            x(t,s) = v(rp)
+          enddo
+        endif
+      enddo
       return
       end
 
 #endif
 
-#endif 
-c  NOCOMPILE
+#endif
+
+
+
+
+
 
 
 

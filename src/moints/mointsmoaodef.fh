@@ -1,8 +1,8 @@
 c
       integer MOINTS_IOBUFLEN
       integer MOINTS_NBLKINFO
-      parameter(MOINTS_IOBUFLEN=1024)
-      parameter(MOINTS_NBLKINFO=5)
+      parameter(MOINTS_IOBUFLEN=8192)
+      parameter(MOINTS_NBLKINFO=15)
 c
 
 

@@ -9,6 +9,8 @@ c
       integer moao_reclen                               ! length of current record read
       integer moao_issparse                             ! toggle sparse blocks
       integer moao_blkid                                ! ksh,lsh ID of this block
+      integer moao_recptr                               ! record pointer for buffering
+      integer moao_hdrp                                 ! pointer to next header
       integer moao_buflen                               ! buffer length in double words
       integer moao_spreclen                             ! length of sparse record (labels + value)
       integer moao_lbuf                                 ! buffer handle
@@ -32,6 +34,8 @@ c
      $                   moao_reclen,
      $                   moao_issparse,
      $                   moao_blkid,
+     $                   moao_recptr,
+     $                   moao_hdrp,
      $                   moao_buflen,
      $                   moao_spreclen,
      $                   moao_lbuf, 
