@@ -1,0 +1,9 @@
+FC=ifc
+F90FLAGS=-w95
+.SUFFIXES:
+
+.SUFFIXES: .o .f90
+
+.f90.o :
+	$(FC) $(F90FLAGS) $(LIB_INCLUDES) -c $<
+
