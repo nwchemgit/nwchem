@@ -1,4 +1,4 @@
-# $Id: dyall_relcdzfi_sf_fw,v 1.1 2003-04-01 01:08:27 mg201 Exp $
+# $Id: dyall_relcdzfi_sf_fw,v 1.2 2004-02-18 23:33:47 mg201 Exp $
 basis "Ga_dyall_relcdz(fi/sf/fw)" SPHERICAL
   Ga  s
   1.3690033E+00  1.00000000000E+00
@@ -142,6 +142,78 @@ basis "Xe_dyall_relcdz(fi/sf/fw)" SPHERICAL
   6.9347693E-01  1.00000000000E+00
   Xe  f
   2.9141271E+00  1.00000000000E+00
+end
+basis "Hf_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Hf  s
+  1.0677454E+00  1.00000000000E+00
+  Hf  p
+  4.0980111E-01  1.00000000000E+00
+  Hf  d
+  1.1649710E+00  1.00000000000E+00
+end
+basis "Ta_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Ta  s
+  1.1436875E+00  1.00000000000E+00
+  Ta  p
+  4.4623388E-01  1.00000000000E+00
+  Ta  d
+  1.1734593E+00  1.00000000000E+00
+end
+basis "W_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  W   s
+  1.2228791E+00  1.00000000000E+00
+  W   p
+  4.8298797E-01  1.00000000000E+00
+  W   d
+  1.2392813E+00  1.00000000000E+00
+end
+basis "Re_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Re  s
+  1.3054091E+00  1.00000000000E+00
+  Re  p
+  5.2039827E-01  1.00000000000E+00
+  Re  d
+  1.3216892E+00  1.00000000000E+00
+end
+basis "Os_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Os  s
+  1.3912146E+00  1.00000000000E+00
+  Os  p
+  5.5845512E-01  1.00000000000E+00
+  Os  d
+  1.4115187E+00  1.00000000000E+00
+end
+basis "Ir_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Ir  s
+  1.4803329E+00  1.00000000000E+00
+  Ir  p
+  5.9750705E-01  1.00000000000E+00
+  Ir  d
+  1.5055675E+00  1.00000000000E+00
+end
+basis "Pt_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Pt  s
+  1.5726304E+00  1.00000000000E+00
+  Pt  p
+  6.3724541E-01  1.00000000000E+00
+  Pt  d
+  1.6023488E+00  1.00000000000E+00
+end
+basis "Au_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Au  s
+  1.6681143E+00  1.00000000000E+00
+  Au  p
+  6.7766221E-01  1.00000000000E+00
+  Au  d
+  1.7010646E+00  1.00000000000E+00
+end
+basis "Hg_dyall_relcdz(fi/sf/fw)" SPHERICAL
+  Hg  s
+  1.7666705E+00  1.00000000000E+00
+  Hg  p
+  7.1850221E-01  1.00000000000E+00
+  Hg  d
+  1.8012011E+00  1.00000000000E+00
 end
 basis "Tl_dyall_relcdz(fi/sf/fw)" SPHERICAL
   Tl  s
