@@ -1,0 +1,1095 @@
+c
+c
+c   Generates vertex and arc tables for 
+c   a full CI wavefunction
+c
+c   Vertex table is the standard definition, i.e.
+c   number of pathways to the vertex from head. Zero
+c   value means vertex cannot be reached for that
+c   symmetry.
+c
+c   Arc weight table is non-negative for any allowed
+c   arc between vertices. The arc weight is just the
+c   diametrically-opposite vertex value. The strings
+c   computed will be relative within each symmetry.
+c   The absolute string index is obtained by adding
+c   on the offset stored in arctab(1,1,isym)
+c   
+c
+      subroutine detci_vatable( norb, nel, nsym, osym, mul,
+     $                        vtxtab, arctab )
+      implicit none
+#include "detciP.fh"
+      integer norb
+      integer nel
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer vtxtab(0:norb,0:nel,nsym)
+      integer arctab(norb,nel,nsym)
+c
+      integer iorb, ello, el, weight, offset, iel
+      integer isym, jsym, ksym
+c
+c
+c
+      call ifill((norb+1)*(nel+1)*nsym,0,vtxtab,1)
+      vtxtab(0,0,1) = 1
+      do iorb = 1, norb
+        ello = iorb + nel - norb
+        if (ello.le.0) ello = 0
+        do el=ello,nel
+          do isym=1,nsym
+            weight = vtxtab((iorb-1),el,isym)
+            jsym = mul(osym(iorb),isym)
+            if (el.gt.0) weight = weight + vtxtab((iorb-1),(el-1),jsym)
+            vtxtab(iorb,el,isym) = weight
+          enddo
+        enddo
+      enddo
+
+C$$$      WRITE(6,941)
+C$$$ 941  FORMAT(//,'VERTEX TABLES',/)
+C$$$      DO ISYM=1,NSYM
+C$$$        WRITE(6,911) ISYM
+C$$$        DO IORB=0,NORB
+C$$$          WRITE(6,901) (VTXTAB(IORB,EL,ISYM),EL=0,NEL)
+C$$$        ENDDO
+C$$$      ENDDO
+
+      offset = 0
+      call ifill((norb*nel*isym),-1,arctab,1)
+      do jsym=1,nsym
+        do iorb=1,norb
+          isym=osym(iorb)
+          do iel=1,nel
+            if (vtxtab(iorb,iel,jsym).ne.0) then
+              ksym = mul(jsym,isym)
+              if (vtxtab(iorb-1,iel-1,ksym).ne.0) then
+                arctab(iorb,iel,jsym) = vtxtab((iorb-1),iel,jsym)
+              endif
+            endif
+          enddo
+        enddo
+        arctab(1,1,jsym) = offset
+        offset = offset + vtxtab(norb,nel,jsym)
+      enddo
+
+C$$$      WRITE(6,944)
+C$$$ 944  FORMAT(//,'ARC WEIGHT TABLE',/)
+C$$$      DO ISYM=1,NSYM
+C$$$        WRITE(6,911) ISYM
+C$$$        DO IORB=1,NORB
+C$$$          WRITE(6,901) (ARCTAB(IORB,EL,ISYM),EL=1,NEL)
+C$$$        ENDDO
+C$$$      ENDDO
+
+ 911  format('Symmetry:',i5)
+ 901  format(16i5)
+      return
+      end
+
+
+
+
+
+
+c
+c
+c
+c  Compute string index from occupation vector
+c  Start at head (vaccuum) and tranverse down graph
+c  Each index in elv() gives the traverse, update symmetry and
+c  look up weight from arctab()
+c
+c  Note: symmtery offset is stored in arctab(1,1,isym)
+c
+c
+c
+      integer function detci_elv2str( norb, nel, nsym, osym, mul,
+     $                              arctab, elv )
+      implicit none
+      integer norb
+      integer nel
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer arctab(norb,nel,nsym)
+      integer elv(nel)
+      integer isym, iel, iorb, wght
+
+      detci_elv2str = 1
+      isym = 1
+      do iel=1,nel
+        iorb = elv(iel)
+        isym = mul(isym,osym(iorb))
+        wght = arctab(iorb,iel,isym)
+C        if (wght.eq.-1) stop 116
+        detci_elv2str = detci_elv2str + wght
+      enddo
+      detci_elv2str = detci_elv2str + arctab(1,1,isym)
+      
+      return
+      end
+
+
+
+
+c
+c  Compute index string from Boolean occupation
+c  vector.
+c
+      integer function detci_occ2str( norb, nel, nsym, osym, mul,
+     $                              arctab, occ )
+      implicit none
+      integer norb
+      integer nel
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer arctab(norb,nel,nsym)
+      integer occ(norb)
+      integer isym, iel, iorb, wght
+
+      detci_occ2str = 1
+      isym = 1
+      iel = 0
+      do iorb=1,norb
+        if (occ(iorb).eq.1) then
+          iel = iel + 1
+C          if (iel.gt.nel) stop 118
+          isym = mul(isym,osym(iorb))
+          wght = arctab(iorb,iel,isym)
+C          if (wght.eq.-1) stop 117
+          detci_occ2str = detci_occ2str + wght
+        endif
+      enddo
+      detci_occ2str = detci_occ2str + arctab(1,1,isym)
+
+      return
+      end
+
+
+
+
+
+
+
+c
+c  Return Boolean occupation from
+c  electron occupation
+c
+      subroutine detci_elv2occ( norb, nel, elv, occ )
+      implicit none
+      integer norb
+      integer nel
+      integer elv(nel)
+      integer occ(norb)
+      integer i, iel
+
+      iel = 1
+      do i=1,norb
+        if ((iel.le.nel).and.(i.eq.elv(iel))) then
+          occ(i) = 1
+          iel = iel + 1
+        else
+          occ(i) = 0
+        endif
+      enddo
+      return
+      end
+
+
+c
+c Return electron occupation vector from
+c Boolean occupation vector
+c
+
+      subroutine detci_occ2elv( norb, nel, occ, elv )
+      implicit none
+      integer norb
+      integer nel
+      integer elv(nel)
+      integer occ(norb)
+      integer i, iel
+
+      iel = 0
+      do i=1,norb
+        if (occ(i).eq.1) then
+          iel = iel + 1
+          elv(iel) = i
+        endif
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+c
+c  Return the hole complement of an
+c  electron occupation string
+c
+      subroutine detci_elv2holv( norb, nel, elv, holv )
+      implicit none
+      integer norb
+      integer nel
+      integer elv(nel)
+      integer holv(norb-nel)
+      integer i, iel, ihole
+
+      ihole = 0
+      iel = 1
+      do i=1,norb
+        if ((iel.le.nel).and.(i.eq.elv(iel))) then
+          iel = iel + 1
+        else
+          ihole = ihole + 1
+          holv(ihole) = i
+        endif
+      enddo
+          
+      return
+      end
+
+
+
+
+
+
+      integer function detci_elvsymm( norb, nel, nsym, osym, mul, elv )
+      implicit none
+      integer norb
+      integer nel
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer elv(nel)
+      integer i
+
+      detci_elvsymm = 1
+      do i=1,nel
+        detci_elvsymm = mul(detci_elvsymm,osym(elv(i)))
+      enddo
+
+      return
+      end
+
+
+
+      integer function detci_occsymm( norb, nel, nsym, osym, mul, occ )
+      implicit none
+      integer norb
+      integer nel
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer occ(norb)
+      integer i
+
+      detci_occsymm = 1
+      do i=1,norb
+        if (occ(i).eq.1) detci_occsymm = mul(detci_occsymm,osym(i))
+      enddo
+
+      return
+      end
+
+
+
+
+c
+c                                
+c  Compute binomial coefficient
+c                              
+c      n!
+c   ------ ,     m+k <= n         with minimal overflow 
+c   m!(n-m)!                   (so theorem says this is always integer div if (m+k) <= n)
+c
+c
+       integer function detci_binomial(n,m)
+       implicit none
+       integer n,m
+       integer m1,k1
+       integer i,ii,jj
+
+       m1 = max(max(m,(n-m)),1)
+       k1 = max(min(m,(n-m)),1)
+       jj = min(2,k1)
+       ii = 1
+       do i=n,m1+1,-1
+         ii = ii*i
+ 100     continue
+         if ((jj.ne.1).and.(mod(ii,jj).eq.0)) then
+           ii = ii/jj
+           jj = jj + 1
+           if (jj.gt.k1) jj = 1
+           goto 100
+         endif
+       enddo
+       detci_binomial = ii
+       return
+       end
+
+
+
+
+
+
+
+c
+c  Return next occupation string with respect to input string
+c  by "cascading" electrons into successive orbitals.
+c  True lexical ordering, *not* compatible with ordering 
+c  using arc-table and symmtery.
+c  Recursive and non-recursive versions.
+c
+c
+#ifdef FORTRAN_RECURSION
+      logical function detci_getnextelv( norb, nel, elv )
+      implicit none
+      integer norb
+      integer nel
+      integer elv(nel)
+      integer iel
+      logical status
+
+      iel = nel
+      status = .true.
+      call detci_nextelv_( norb, nel, iel, elv, status )
+      detci_getnextelv = status
+
+      return
+      end
+
+
+
+      subroutine detci_nextelv_( norb, nel, iel, elv, status )
+      implicit none
+      integer norb
+      integer nel
+      integer iel
+      integer elv(nel)
+      logical status
+
+      elv(iel) = elv(iel) + 1
+      if (elv(iel).le.(norb-nel+iel)) return
+      if (iel.eq.1) then
+        status = .false.
+        return
+      endif
+      iel = iel - 1
+      call detci_nextelv_( norb, nel, iel, elv, status )
+      iel = iel + 1
+      elv(iel) = elv(iel-1) + 1
+      return
+      end
+
+#else
+
+      logical function detci_getnextelv( norb, nel, elv )
+      implicit none
+      integer norb
+      integer nel
+      integer elv(nel)
+      integer iel, i
+
+      detci_getnextelv = .false.
+      if (nel.eq.0) return
+      iel = nel
+ 100  continue
+      elv(iel) = elv(iel) + 1
+      if (elv(iel).gt.(norb-nel+iel)) then
+        iel = iel - 1
+        if (iel.eq.0) then
+          detci_getnextelv = .false.
+          return
+        endif
+        goto 100
+      endif
+      do i=iel+1,nel
+        elv(i) = elv(i-1) + 1
+      enddo
+      detci_getnextelv = .true.
+      return
+      end
+
+#endif
+
+        
+
+
+
+
+
+
+
+c
+c  Generates excitation operator table
+c  Each entry for excitation, E_ji, and string, I, 
+c  is encoded as:
+c         ex(1,iex,istr) = jstr
+c         ex(2,iex,istr) = jsym
+c         ex(3,iex,istr) = ij
+c         ex(4,iex,istr) = phase
+c         ex(5,iex,istr) = j
+c         ex(6,iex,istr) = i
+c
+c
+      subroutine detci_excit( norb, nel, nsym, nstr, nex, osym,
+     $                        mul, ijmap, atab, ex )
+      implicit none
+#include "detciP.fh"
+#include "detci.fh"
+      integer norb
+      integer nel
+      integer nsym
+      integer nstr
+      integer nex
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer ijmap(norb,norb)
+      integer atab(norb,nel,nsym)
+      integer ex(6,nex,nstr)
+c
+      integer nhole
+      integer icreate
+      integer elv(detci_maxelec)
+      integer occv(detci_maxorb)
+      integer holv(detci_maxorb)
+      integer istr, jstr, isym, jsym
+      integer iel, ihole, iex, iexsym
+      integer phase1, phase2
+      integer i, j, n1
+
+c
+c
+c
+      if (nel.eq.0) return        ! infinite loop otherwise
+      n1 = norb + 1
+      nhole = norb - nel
+      do i=1,nel
+        elv(i) = i
+      enddo
+c
+c  Loop through all strings
+c
+ 100  continue
+      istr = detci_elv2str( norb, nel, nsym, osym, mul, atab, elv )
+      isym = detci_elvsymm( norb, nel, nsym, osym, mul, elv )
+      call detci_elv2occ( norb, nel, elv, occv )
+      call detci_elv2holv( norb, nel, elv, holv )
+c
+c  Outer symmetry loop to enforce symmtery
+c  ordering on excitations
+c      
+      iex = 0
+      do iexsym=1,nsym
+        do iel=1,nel
+          occv(elv(iel)) = 0
+          phase1 = (-1)**(1+mod(iel,2))
+          do ihole=0,nhole
+            if (ihole.eq.0) then
+              icreate = elv(iel)                       ! E_ii 
+            else
+              icreate = holv(ihole)                    ! E_ij
+            endif
+            occv(icreate) = 1
+            jsym = detci_occsymm( norb, nel, nsym, osym, mul, occv )
+            if (jsym.eq.iexsym) then
+              iex = iex + 1
+              phase2 = phase1
+              do j=1,icreate-1
+                if (occv(j).eq.1) phase2 = phase2*(-1)
+              enddo
+              jstr=detci_occ2str(norb, nel, nsym, osym, mul, atab, occv)
+              ex(1,iex,istr) = jstr
+              ex(2,iex,istr) = jsym
+              ex(3,iex,istr) = ijmap(elv(iel),icreate)
+              ex(4,iex,istr) = phase2
+              ex(5,iex,istr) = icreate
+              ex(6,iex,istr) = elv(iel)
+            endif
+            occv(icreate) = 0
+          enddo
+          occv(elv(iel)) = 1
+        enddo
+      enddo
+      if (detci_getnextelv( norb, nel, elv )) goto 100
+        
+      return
+      end
+
+
+
+c
+c Symmetry-blocked triangular sum (ij) mapping
+c
+      subroutine detci_ijmap( norb, nsym, osym, mul, nij, ijmap )
+      implicit none
+      integer norb
+      integer nsym
+      integer osym(norb)
+      integer mul(nsym,nsym)
+      integer nij
+      integer ijmap(norb,norb)
+      integer isym, i, j
+c
+      nij = 0
+      do isym=1,nsym
+        do i=1,norb
+          do j=1,i
+            if (mul(osym(i),osym(j)).eq.isym) then
+              nij = nij + 1
+              ijmap(i,j) = nij
+              ijmap(j,i) = nij
+            endif
+          enddo
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+
+c
+c Opaque routine!....
+c Given an ordered string pointer array,"ip", for 
+c (nel-1) positions, create electron vector "elv" with
+c orbital "k" inserted. Phase is also returned.
+c
+c This is "k" creation operation on (nel-1) string 
+c *except* using indirection
+c
+c
+      subroutine detci_ptr2elv(norb,nel,np,nlab,ip,lab,k,elv,iph)
+      implicit none
+      integer norb, nel
+      integer np
+      integer nlab
+      integer ip(np)
+      integer lab(nlab)
+      integer k
+      integer elv(nel)
+      integer iph
+      integer iel,i
+
+      iel = 0
+      do i=1,np
+        if (lab(ip(i)).lt.k) then
+          iel = iel + 1
+          elv(iel) = lab(ip(i))
+          iph = iph*(-1)
+        endif
+      enddo
+      iel = iel + 1
+      elv(iel) = k
+      do i=1,np
+        if (lab(ip(i)).gt.k) then
+          iel = iel + 1
+          elv(iel) = lab(ip(i))
+        endif
+      enddo
+      return
+      end
+
+      
+
+
+
+c
+c Column gather on CI matrix (with phase)
+c
+      subroutine detci_cigather(n,m,nv,g_x,iv,ph,y)
+      implicit none
+#include "global.fh"
+      integer n,m,nv
+      integer iv(nv),ph(nv)
+c      double precision x(n,m)
+      integer g_x
+      double precision y(n,*)
+      integer i,j,ii,iq
+
+      do i=1,nv
+        ii = iv(i)
+        iq = ph(i)
+        call ga_get(g_x,1,n,ii,ii,y(1,i),1)
+        do j=1,n
+          y(j,i) = iq*y(j,i)
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+
+c
+c Dot product
+c
+      subroutine detci_dotab(istr,n,nstr,f,c,s)
+      implicit none
+      integer istr, n, nstr
+      double precision f(nstr)
+      double precision c(nstr,n)
+      double precision s(nstr,n)
+      integer i
+      double precision ddot
+      external ddot
+
+      do i=1,n
+        s(istr,i) = s(istr,i) + ddot(nstr,f,1,c(1,i),1)
+      enddo
+      return
+      end
+
+
+
+c
+c
+c CI vector scatter accumulate
+c
+      subroutine detci_ciscatter(n,m,nv,x,iv,g_y)
+      implicit none
+#include "global.fh"
+      integer n,m,nv
+      double precision x(n,nv)
+c      double precision y(n,m)
+      integer g_y
+      integer iv(nv)
+      integer i,ii
+
+      do i=1,nv
+        ii = iv(i)
+        call ga_acc(g_y,1,n,ii,ii,x(1,i),n,1.d0)
+C        call daxpy(n,1.d0,x(1,i),1,y(1,ii),1)
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+c
+c
+c Return operator indices for
+c
+c               + + +
+c      |lhs> = a a a ... a a a ... |rhs>
+c               i j k     r s t
+c     
+c
+      integer function detci_elvop( nel, rhs, lhs, phase, a, c )
+      implicit none
+      integer nel
+      integer rhs(nel)
+      integer lhs(nel)
+      integer phase
+      integer a(nel)
+      integer c(nel)
+      integer i,j,nop1,nop2
+
+      do i=1,nel
+        a(i) = -1
+        c(i) = -1
+      enddo
+
+      nop1 = 0
+      phase = 1
+      do i=1,nel
+        do j=1,nel
+          if (lhs(j).eq.rhs(i)) goto 111
+        enddo
+        phase = phase * ((-1)**(i-1-nop1))
+        nop1 = nop1 + 1
+        a(nop1) = rhs(i)
+ 111    continue
+      enddo
+      
+      nop2 = 0
+      do i=1,nel
+        do j=1,nel
+          if (rhs(j).eq.lhs(i)) goto 112
+        enddo
+        phase = phase * ((-1)**(i-1))
+        nop2 = nop2 + 1
+        c(nop2) = lhs(i)
+ 112    continue
+      enddo
+      
+      if (nop1.ne.nop2) stop 1177
+      detci_elvop = nop1
+      return
+      end
+        
+
+
+
+c
+c Print out dominant CI vector elements
+c with corresponding configuration info
+c
+      subroutine detci_civec_print( norb, nsym, nela, nelb,
+     $                            nstra, nstrb, mul, osym,
+     $                            ataba, atabb, g_x, thresh )
+      implicit none
+#include "global.fh"
+#include "detciP.fh"
+#include "detci.fh"
+      integer norb
+      integer nsym
+      integer nela, nelb
+      integer nstra, nstrb
+      integer mul(nsym,nsym)
+      integer osym(norb)
+      integer ataba(norb,nela,nsym), atabb(norb,nelb,nsym)
+      integer g_x
+c$$$      double precision c(nstrb,nstra)
+      double precision thresh
+c
+c
+c
+      integer elva(detci_maxelec), elvb(detci_maxelec)
+      integer i, isym, jsym, istr, jstr, ici
+      double precision xx
+c
+c
+c Loop over pairs of alpha,beta strings = CI index
+c
+
+      if (ga_nodeid().eq.0) write(6,909)
+ 909  format(/3x,'Index',11x,'Coefficient',10x,'Config. Occupation')
+      do i=1,nela
+        elva(i) = i
+      enddo
+ 101  continue
+      isym = detci_elvsymm( norb, nela, nsym, osym, mul, elva )
+      istr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      do i=1,nelb
+        elvb(i) = i
+      enddo
+ 102  continue
+      jsym = detci_elvsymm( norb, nelb, nsym, osym, mul, elvb )
+      jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+      ici = (istr-1)*nstrb + jstr
+      call ga_get(g_x,jstr,jstr,istr,istr,xx,1)
+      if (abs(xx).ge.thresh) then
+        if (ga_nodeid().eq.0) write(6,901) ici,xx,(elva(i),i=1,nela),
+     $                                            (elvb(i),i=1,nelb)
+c$$$      if (abs(c(jstr,istr)).ge.thresh)
+c$$$     $   write(6,901) ici,c(jstr,istr),
+c$$$     $   (elva(i),i=1,nela),(elvb(i),i=1,nelb)
+ 901    format(i10,5x,f15.8,8x,20i3)
+      endif
+c
+      if (detci_getnextelv( norb, nelb, elvb )) goto 102
+      if (detci_getnextelv( norb, nela, elva )) goto 101
+      
+      return
+      end
+
+
+
+
+      double precision function detci_refenergy( norb, nela, nelb, eps )
+      implicit none
+#include "detciP.fh"
+      integer norb
+      integer nela
+      integer nelb
+      double precision eps(norb)
+c
+      integer i,j,jj,ii(detci_maxorb)
+      double precision xx
+c
+      detci_refenergy = -0.2d0
+      call ifill(norb,0,ii,1)
+      do i=1,nela
+        xx = 100.d0
+        do j=1,norb
+          if ((ii(j).eq.0).and.(eps(j).lt.xx)) then
+            xx = eps(j)
+            jj = j
+          endif
+        enddo
+        detci_refenergy = detci_refenergy + xx
+        ii(jj) = 1
+      enddo
+      call ifill(norb,0,ii,1)
+      do i=1,nelb
+        xx = 100.d0
+        do j=1,norb
+          if ((ii(j).eq.0).and.(eps(j).lt.xx)) then
+            xx = eps(j)
+            jj = j
+          endif
+        enddo
+        detci_refenergy = detci_refenergy + xx
+        ii(jj) = 1
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+
+
+
+
+      subroutine detci_strlist( norb, nsym, nel, nstr, mul, osym, atab )
+      implicit none
+#include "detciP.fh"
+#include "detci.fh"
+      integer norb
+      integer nsym
+      integer nel
+      integer nstr
+      integer mul(nsym,nsym)
+      integer osym(norb)
+      integer atab(norb,nel,nsym)
+c
+      integer elv(detci_maxelec)
+      integer i, isym, istr
+c
+c
+c
+      write(6,909)
+ 909  format(//3x,'Symm. Index',12x,'Occupation')
+      do i=1,nel
+        elv(i) = i
+      enddo
+ 101  continue
+      isym = detci_elvsymm( norb, nel, nsym, osym, mul, elv )
+      istr = detci_elv2str( norb, nel, nsym, osym, mul, atab, elv )
+      write(6,988) isym,istr,(elv(i),i=1,nel)
+ 988  format(i3,i6,5x,10i3)
+      if (detci_getnextelv( norb, nel, elv )) goto 101
+      
+      return
+      end
+
+
+
+
+
+
+
+c
+c  Generate some CI guess vector
+c  from a list of configurations and 
+c  associated coefficients
+c
+      subroutine detci_ciguess( norb, nsym, nela, nelb, nstra, nstrb,
+     $                        osym, mul, ataba, atabb,
+     $                        ngs, cfggs, cgs, g_civec )
+      implicit none
+#include "global.fh"
+#include "detciP.fh"
+#include "detci.fh"
+      integer norb                            ! [input] Orbitals
+      integer nsym                            ! [input] Irreps
+      integer nela                            ! [input] Alpha electrons
+      integer nelb                            ! [input] Beta electrons
+      integer nstra                           ! [input] Alpha strings
+      integer nstrb                           ! [input] Beta strings
+      integer osym(norb)                      ! [input] Orbital irreps     
+      integer mul(nsym,nsym)                  ! [input] Direct product table
+      integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
+      integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
+      integer ngs                             ! [input] Number of configurations
+      integer cfggs((nela+nelb),ngs)          ! [input] Configurations
+      double precision cgs(ngs)               ! [input] Coefficients
+      integer g_civec                         ! [output] GA CI-vector
+C      double precision civec(nstrb,nstra)     ! [output] GA CI-vector
+c
+c
+c
+      integer astr, bstr, i
+      integer elva(detci_maxelec), elvb(detci_maxelec)
+      double precision xx
+      double precision dnrm2
+      external dnrm2
+c
+c
+c
+c$$$      call dfill((nstrb*nstra),0.d0,civec,1)
+      call ga_zero(g_civec)
+      do i=1,ngs
+        call icopy(nela,cfggs(1,i),1,elva,1)
+        call icopy(nelb,cfggs(nela+1,i),1,elvb,1)
+        astr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+        bstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+        call ga_put(g_civec,bstr,bstr,astr,astr,cgs(i),1)
+c$$$        civec(bstr,astr) = cgs(i)
+      enddo
+c$$$      xx = dnrm2((nstrb*nstra),civec,1)
+c$$$      call dscal((nstrb*nstra),(1.d0/xx),civec,1)
+
+      xx = sqrt(ga_ddot(g_civec,g_civec))
+      if (xx.gt.0.0001d0) call ga_dscal(g_civec,(1.d0/xx))
+
+      return
+      end
+
+
+
+
+
+      subroutine detci_etrace( norb, ntij, ijmap,
+     $                         h, g, onepdm, twopdm )
+      implicit none
+      integer norb
+      integer ntij
+      integer ijmap(norb,norb)
+      double precision h(ntij)
+      double precision g(ntij,ntij)
+      double precision onepdm(norb,norb)
+      double precision twopdm(norb,norb,norb,norb)
+c
+      integer i,j,k,l
+      integer ij, kl
+      double precision xx, x1, x2
+
+      write(6,'(//,a)') 'Test Density matrices'
+      xx = 0.d0
+      do i=1,norb
+        xx = xx + onepdm(i,i)
+      enddo
+
+      x1 = 0.d0
+      x2 = 0.d0
+      do i=1,norb
+        do j=1,norb
+          ij = ijmap(i,j)
+          x1 = x1 + h(ij)*onepdm(i,j)
+          do k=1,norb
+            do l=1,norb
+              kl = ijmap(k,l)
+              x2 = x2 + g(ij,kl)*twopdm(i,j,k,l)
+            enddo
+          enddo
+        enddo
+      enddo
+      write(6,'(10x,a,16x,f15.6)') '1-pdm trace',xx
+      write(6,'(10x,a,10x,f20.10)') 'energy trace',(x1+x2)
+
+      return
+      end
+
+
+
+
+
+
+c
+c  Scale the CI vector with sum of orbital energies - ground-state sum
+c
+c
+c                  C
+c                   i
+c     C  = ------------------
+c      i   E    -  sum_(k) e
+c           ref             k
+c
+c
+      subroutine detci_diagscale( norb, nsym, nela, nelb, nstra, nstrb,
+     $                            osym, mul, ataba, atabb, eref, eps,
+     $                            g_civec )
+      implicit none
+#include "global.fh"
+#include "detciP.fh"
+#include "detci.fh"
+      integer norb                            ! [input] Orbitals
+      integer nsym                            ! [input] Irreps
+      integer nela                            ! [input] Alpha electrons
+      integer nelb                            ! [input] Beta electrons
+      integer nstra                           ! [input] Alpha strings
+      integer nstrb                           ! [input] Beta strings
+      integer osym(norb)                      ! [input] Orbital irreps     
+      integer mul(nsym,nsym)                  ! [input] Direct product table
+      integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
+      integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
+      double precision eref                   ! [input] Reference ground-state
+      double precision eps(norb)              ! [input] Orbital energies
+      integer g_civec                         ! [input] CI-vector
+c$$$      double precision civec(nstrb,nstra)     ! [input] CI-vector
+c
+      integer elva(detci_maxelec), elvb(detci_maxelec)
+      integer i, isym, jsym, istr, jstr
+      integer rlo, rhi, clo, chi, myid
+      double precision ea, eb, xx
+c
+c$$$      DOUBLE PRECISION XRANDOM
+c$$$      DOUBLE PRECISION DRAND
+c
+      myid = ga_nodeid()
+      call ga_distribution( g_civec, myid, rlo, rhi, clo, chi )
+c
+c Loop over pairs of alpha,beta strings = CI index
+c
+      do i=1,nela
+        elva(i) = i
+      enddo
+ 101  continue
+      isym = detci_elvsymm( norb, nela, nsym, osym, mul, elva )
+      istr = detci_elv2str( norb, nela, nsym, osym, mul, ataba, elva )
+      if ((istr.ge.clo).and.(istr.le.chi)) then
+        ea = 0.d0
+        do i=1,nela
+          ea = ea + eps(elva(i))
+        enddo
+        do i=1,nelb
+          elvb(i) = i
+        enddo
+ 102    continue
+        eb = 0.d0
+        do i=1,nelb
+          eb = eb + eps(elvb(i))
+        enddo
+        jsym = detci_elvsymm( norb, nelb, nsym, osym, mul, elvb )
+        jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
+c     
+c$$$      WRITE(6,911) (EA+EB),(EREF-EA-EB),
+c$$$     $             (ELVA(I),I=1,NELA),(ELVB(I),I=1,NELB)
+c$$$ 911  FORMAT(2F12.6,5X,12I3)
+c
+c
+        call ga_get(g_civec,jstr,jstr,istr,istr,xx,1)
+        xx = xx / (eref - ea - eb )
+        call ga_put(g_civec,jstr,jstr,istr,istr,xx,1)
+c
+c$$$      civec(jstr,istr) = civec(jstr,istr)/(eref - ea - eb)
+C
+C ******* TESTING ONLY ********
+C  Deliberately introduce spin 
+c  contamination to test spin-adaption
+C
+C      XRANDOM = ((0.5d0-DRAND(0))*0.001)*(EB+EA)
+C      CIVEC(JSTR,ISTR) = CIVEC(JSTR,ISTR)/(EREF - EA - EB + XRANDOM)
+C
+        if (detci_getnextelv( norb, nelb, elvb )) goto 102
+      endif
+      if (detci_getnextelv( norb, nela, elva )) goto 101
+      
+      return
+      end
+
+
+

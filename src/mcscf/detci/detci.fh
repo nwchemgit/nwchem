@@ -1,0 +1,33 @@
+c     
+c
+c
+      integer detci_elv2str
+      integer detci_occ2str
+      integer detci_elvsymm
+      integer detci_occsymm
+      logical detci_getnextelv
+      integer detci_elvop
+      integer detci_binomial
+      double precision detci_refenergy
+c
+c
+c
+      external detci_elv2str
+      external detci_occ2str
+      external detci_elvsymm
+      external detci_occsymm
+      external detci_getnextelv
+      external detci_elvop
+      external detci_binomial
+      external detci_refenergy
+c
+c
+c
+#ifndef DETCI_INTFACE
+      integer detci_memsiz
+      logical ga_civec_create
+      external detci_memsiz
+      external ga_civec_create
+#endif
+
+
