@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.12 1994-04-26 07:16:36 d3e129 Exp $
+# $Id: makefile.h,v 1.13 1994-04-26 15:05:53 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -47,18 +47,16 @@ endif
 
 #
 # Define SUBDIRS to be list of subdirectories of SRC to be made
+# SUBDIRS_EXTRA should have all of the stuff that varies between machines
 #
 # The include directory should be first so that the include
 # files are all present and correct before any compilation
 #
-# SUBDIRS_EXTRA are those machine specific libraries required 
-#
-    SUBDIRS_EXTRA = 
 ifeq ($(TARGET),SUN)
-    SUBDIRS_EXTRA = blas 
+    SUBDIRS_EXTRA = blas lapack
 endif
 
-    SUBDIRS = include develop global db NWints rtdb basis inp util \
+    SUBDIRS = include ddscf develop global db NWints rtdb basis inp util \
               geom input ma tcgmsg $(SUBDIRS_EXTRA)
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -113,9 +111,9 @@ ifeq ($(TARGET),SUN)
     ARFLAGS = rcv
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lnwints \
-              -linput -lgeom -lbasis -lutil -lglobal -lrtdb -ldb -linp \
-	      -lutil -lblas -lma -ltcgmsg
+              -ltest -lddscf -lnwints \
+<<<<<<< makefile.h
+>>>>>>> 1.12
 
   EXPLICITF = FALSE
 endif
