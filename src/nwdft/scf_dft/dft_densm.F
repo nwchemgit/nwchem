@@ -5,7 +5,7 @@ c
 c***********************************************************************
 c
       subroutine dft_densm(g_dens,g_vecs,nbf,ipol,noc)
-C$Id: dft_densm.F,v 1.2 1995-12-20 03:27:04 og845 Exp $
+C$Id: dft_densm.F,v 1.3 1996-07-03 21:47:29 d3h449 Exp $
       implicit none
 
       integer g_dens
@@ -18,7 +18,7 @@ c
       parameter (zero=0.d0)
 c
       fact=2.d0/ipol
-         call ga_dgemm('n', 't', nbf, nbf, noc, fact, g_vecs,
-     $        g_vecs, zero, g_dens)
+      call ga_dgemm('n', 't', nbf, nbf, noc, fact, g_vecs,
+     $  g_vecs, zero, g_dens)
       return
       end

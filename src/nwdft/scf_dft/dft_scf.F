@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.28 1996-06-20 00:23:35 d3h449 Exp $
+C$Id: dft_scf.F,v 1.29 1996-07-03 21:47:38 d3h449 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -252,11 +252,12 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
         else
           if(.not.MA_Push_Get(
      &         MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
-     &         call errquit('dftscf:push_get failed', 12)
+     &         call errquit('dft_scf: push_get failed', 12)
           avail = MA_inquire_avail(mt_int)
           if(avail.lt.n3c_int) then
             incore=.false.
-            LResult = MA_Pop_Stack(l_3cERI)
+            if(.not.ma_pop_stack(l_3cERI))
+     &        call errquit('dft_scf: cannot pop stack',0)
           else
             if(.not.MA_Push_Get(
      &           MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
@@ -358,7 +359,8 @@ c****
 c**** allocate eigenvalue array, including second pointer to beta block
 c**** 
       leneval = nbf_ao * ipol
-      LResult = MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1))
+      if(.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
+     &  call errquit('dft_scf: cannot allocate eval',0)
       if ( ipol .eq. 2) then  
         k_eval(2) = k_eval(1) + nbf_ao
       endif 
@@ -546,8 +548,8 @@ c         Fit the electron charge density.
 c         
           if(oprint_time) 
      &         call dft_tstamp(' Before call to FITCD.   ')
-          LResult = MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',
-     &         lcd_coef,icd_coef)
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,icd_coef))
+     &  call errquit('dft_scf: cannot allocate cd_coef',0)
           
           call dft_fitcd( rtdb,ao_bas_han, CD_bas_han,geom,
      &         Dbl_MB(icd_coef),  nbf_cd,
@@ -575,8 +577,10 @@ c
 C       Add V coul to Fock Matrix
 C       
         call ga_dadd(one,g_tmp,one,g_fock,g_fock)
-        if (CDFIT)
-     &       LResult = MA_Pop_Stack(lcd_coef)
+        if(CDFIT)then
+          if(.not.ma_pop_stack(lcd_coef))
+     &      call errquit('dft_scf: cannot pop stack',0)
+        endif
 c       
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -1235,12 +1239,16 @@ C
 c****   
 c****   eval deallocation moved here from inside iteration loop
 c****   
-        LResult = MA_Pop_Stack(l_eval)
+        if(.not.ma_pop_stack(l_eval))
+     &    call errquit('dft_scf: cannot pop stack',0)
         if(incore.and.CDFIT) then
-        LResult = MA_Pop_Stack(l_3cwhat)
-        LResult = MA_Pop_Stack(l_3cERI)
+          if(.not.ma_pop_stack(l_3cwhat))
+     &      call errquit('dft_scf: cannot pop stack',0)
+          if(.not.ma_pop_stack(l_3cERI))
+     &      call errquit('dft_scf: cannot pop stack',0)
         endif
-        LResult = MA_Pop_Stack(l_occ)
+        if(.not.ma_pop_stack(l_occ))
+     &    call errquit('dft_scf: cannot pop stack',0)
 c     
 c-----------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(geom,basis,g_A,g_cdinv,n)
 
-C$Id: dft_invdiag.F,v 1.3 1995-12-20 03:27:05 og845 Exp $
+C$Id: dft_invdiag.F,v 1.4 1996-07-03 21:47:31 d3h449 Exp $
       implicit none
       
       integer geom,basis
@@ -20,11 +20,12 @@ C
       me=ga_nodeid()
       nproc=ga_nnodes()
       call ga_sync
-      call gacrea(geom,basis,
-     &     n,n,'ga temp2',g_tmp2,'row')
-      LResult = MA_Push_Get(MT_Dbl,n,'evals',lev,iev)
-      LResult = MA_Push_Get(MT_Dbl,n,'itmp',ltmp,itmp)
-      
+      call gacrea(geom,basis,n,n,'ga temp2',g_tmp2,'row')
+
+      if(.not.MA_Push_Get(MT_Dbl,n,'evals',lev,iev))
+     &  call errquit('dft_invdiag: cannot allocate evals',0)
+      if(.not.MA_Push_Get(MT_Dbl,n,'itmp',ltmp,itmp))
+     &  call errquit('dft_invdiag: cannot allocate itmp',0)
       
 C     diag
       call ga_sync
@@ -49,24 +50,23 @@ C     check on eigenvalues
 C     (U * sigma^-1)
 
       do i=me+1,n,nproc
-        call ga_get(g_tmp2,
-     *       1,n,i,i,DBL_MB(itmp),1)
+        call ga_get(g_tmp2,1,n,i,i,DBL_MB(itmp),1)
         do j=0,n-1
           DBL_MB(itmp+j)=DBL_MB(itmp+j)*DBl_MB(iev+i-1)
         enddo
-        call ga_put(g_A,
-     *       1,n,i,i,DBL_MB(itmp),1)
+        call ga_put(g_A,1,n,i,i,DBL_MB(itmp),1)
       enddo
+
       call ga_sync
 
 C     (U * sigma^-1) * U(transp) 
       
-      call ga_dgemm('N','T',n,n,n,1.d0,
-     &     g_A,g_tmp2,0.d0,g_cdinv)
+      call ga_dgemm('N','T',n,n,n,1.d0,g_A,g_tmp2,0.d0,g_cdinv)
 
-
-      LResult = MA_Pop_Stack(ltmp)
-      LResult = MA_Pop_Stack(lev)
+      if(.not.ma_pop_stack(ltmp))
+     &  call errquit('dft_invdiag: cannot pop stack',0)
+      if(.not.ma_pop_stack(lev))
+     &  call errquit('dft_invdiag: cannot pop stack',0)
       call ga_SYNC
       call gadest(g_tmp2)
       return

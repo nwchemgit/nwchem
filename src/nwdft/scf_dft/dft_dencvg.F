@@ -1,5 +1,5 @@
       double precision function dft_dencvg(g_dens,g_denso,nbf)
-C$Id: dft_dencvg.F,v 1.3 1995-12-20 03:27:03 og845 Exp $
+C$Id: dft_dencvg.F,v 1.4 1996-07-03 21:47:26 d3h449 Exp $
       implicit none
 
       integer g_dens ! GA handle for Densit Matrix [input/output]
@@ -26,8 +26,10 @@ c--   >  Check for density matrix convergence.
 c     
 
       rms = 0.0d0
-      LResult = MA_Push_Get(MT_Dbl,nbf,'dmat',ldm,idm)
-      LResult = MA_Push_Get(MT_Dbl,nbf,'dmatold',ldmo,idmo)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'dmat',ldm,idm))
+     &  call errquit('dft_dencvg: cannot allocate dmat',0)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'dmatold',ldmo,idmo))
+     &  call errquit('dft_dencvg: cannot allocate dmatold',0)
       do i=1+me,nbf,nproc
         call get_col(g_dens,nbf,i,Dbl_MB(idm))
         call get_col(g_denso,nbf,i,Dbl_MB(idmo))
@@ -35,8 +37,10 @@ c
           rms=rms+(DBL_MB(idm+j)-DBL_MB(idmo+j))**2
         enddo
       enddo
-      LResult = MA_Pop_Stack(ldmo)
-      LResult = MA_Pop_Stack(ldm)
+      if(.not.ma_pop_stack(ldmo))
+     &  call errquit('dft_dencvg: cannot pop stack',0)
+      if(.not.ma_pop_stack(ldm))
+     &  call errquit('dft_dencvg: cannot pop stack',0)
       call ga_sync
       call ga_dgop(Msg_rms_dens,rms,1,'+')
       dft_dencvg = rms/dfloat(nbf*nbf)

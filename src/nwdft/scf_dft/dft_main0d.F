@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.8 1996-05-04 21:06:25 og845 Exp $
+C$Id: dft_main0d.F,v 1.9 1996-07-03 21:47:32 d3h449 Exp $
       implicit none
       integer rtdb  ! rtdb handle [input]
       integer nconst
@@ -65,7 +65,7 @@ c     Determine the characteristics of the AO Gaussian basis set.
 c     This uses the old NWdft data structures, rather than tthe rtdb
 c     
       if ( .not. bas_numbf(AO_bas_han,nbf_ao) ) then
-        call errquit('Exiting from scfdriver',1)
+        call errquit('Exiting from dft_main0d',1)
       endif 
 
 c     
@@ -106,7 +106,7 @@ c
         lmiss=1
         if(IOLGC)then
           call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
+     &      geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
           if(me.eq.0) then
             call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
           endif
@@ -118,11 +118,11 @@ c
 c Compute the matrix inverse of the 2-ctr OIs.
 c         
           if(.not.IOLGC)             
-     &         call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
+     &      call gacrea(
+     &        geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
 
           call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'g_oi',g_oi,'row')
+     &      geom,XC_bas_han,nbf_xc,nbf_xc,'g_oi',g_oi,'row')
           call ga_zero(g_oi)
           call xc_get2oi(XC_bas_han,g_oi)
 #if defined(PARALLEL_DIAG)         
@@ -207,7 +207,7 @@ c
 #if defined(PARALLEL_DIAG)         
             call ga_inverse(g_cdinv,g_tmpb)
             call ga_dgemm('T','N',nbf_cd,nbf_cd,nbf_cd,1.d0,
-     &           g_tmpb,g_tmpb,0.d0,g_cdinv)
+     &        g_tmpb,g_tmpb,0.d0,g_cdinv)
 #else
             call ga_copy(g_cdinv,g_tmpb)
             call ga_inv_seq(g_tmpb,g_cdinv)
@@ -242,13 +242,14 @@ c
 c     
 c     Compute the AO overlap matrix.
 c     
-      call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-      LResult = 
-     &MA_Push_Get(MT_Dbl,nbf_ao,'ovl eig vals',lsvals,isvals)
+      call gacrea(geom,AO_bas_han,nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+
+      if(.not.MA_Push_Get(MT_Dbl,nbf_ao,'ovl eig vals',lsvals,isvals))
+     &  call errquit('dft_main0d: cannot allocate ovl eig vals',0)
+
       call ga_zero(g_s)
-      call int_1e_ga(AO_bas_han,AO_bas_han,
-     &     g_s,'overlap',.false.)
+
+      call int_1e_ga(AO_bas_han,AO_bas_han,g_s,'overlap',.false.)
 
 c     
 #if defined(DFT_TIMER)
@@ -271,9 +272,9 @@ c
       call ga_diag_std_seq(g_s,g_svecs,Dbl_MB(isvals))
 #endif
         do i=me,nbf_ao-1,nproc
-          if (Dbl_MB(isvals+i).lt.toll_s)  
-     &         write(LuOut,*) ' singular eigenvalue in S matrix ',
-     &         Dbl_MB(isvals+i)
+          if(Dbl_MB(isvals+i).lt.toll_s)  
+     &      write(LuOut,*) ' singular eigenvalue in S matrix ',
+     &      Dbl_MB(isvals+i)
         enddo
 c     
 #if defined(DFT_TIMER)
@@ -321,7 +322,7 @@ c
       iw=2
       g_tmp=g_s
       call diis_bld12(
-     &     dbl_mb(isvals),g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
+     &  dbl_mb(isvals),g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
 
       if (ipol.gt.1) call ga_copy(g_evecs(1),g_evecs(2))
       if(icvgtyp.ne.2) call gadest(g_svecs)
@@ -337,7 +338,8 @@ c
 c     
 c     Clean up memory usage.
 c     
-      LResult = MA_Pop_Stack(lsvals)
+      if(.not.ma_pop_stack(lsvals))
+     &  call errquit('dft_main0d: cannot pop stack',0)
       if(.not.CDFIT)call gadest(g_s)
       if(me.eq.0) then
         if (CDFIT.and.IOLGC) then

@@ -1,6 +1,6 @@
       Subroutine dft_mxovl(basis, evals,g_evecs, g_oevecs,g_s,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.2 1995-12-18 03:22:45 og845 Exp $
+C$Id: dft_mxovl.F,v 1.3 1996-07-03 21:47:34 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -33,45 +33,42 @@ c*****************************************************************************
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
      &     call errquit(' exiting in max_ovl',1)
-      if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',
-     &     l_tmp, k_tmp))
-     &     call errquit('max_ovl: MA alloc failed ',12)
-      if(.not.MA_Push_Get(MT_Dbl,nbf,'scr',
-     &     l_scr, k_scr))
-     &     call errquit('max_ovl: MA alloc failed ',12)
-      if(.not.MA_Push_Get(MT_int,nbf,'ord',
-     &     l_ord, k_ord))
-     &     call errquit('max_ovl: MA alloc failed ',212)
-        call ifill(nbf, 0, int_mb(k_ord), 1)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',l_tmp, k_tmp))
+     &     call errquit('dft_mxovl: cannot allocate tmpm',0)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'scr',l_scr, k_scr))
+     &     call errquit('dft_mxovl: cannot allocate scr',0)
+      if(.not.MA_Push_Get(MT_int,nbf,'ord',l_ord, k_ord))
+     &     call errquit('dft_mxovl: cannot allocate ord',0)
+
+      call ifill(nbf, 0, int_mb(k_ord), 1)
 
 C
 C     compute matrix mult (V_old)T * S * V_new = S`
 C     
-      call ga_dgemm('T','N',nbf,nbf,nbf,1.d0,
-     &     g_oevecs,g_s,0.d0,g_tmp)
-      call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,
-     &     g_tmp,g_evecs,0.d0,g_s)
-      if(me.eq.0) then
-      do i=1,nbf
-        prodmax=-30.d0
-C
-C       get row of g_s 
-C
-        call ga_get(g_s,i,i,1,nbf,DBL_MB(k_tmp),1)
-        do j=1,nbf
-          if(abs(dbl_mb(k_tmp+j-1)).gt.prodmax) then
-            prodmax=abs(dbl_mb(k_tmp+j-1))
-            ix=j
-          endif
-        enddo
+      call ga_dgemm('T','N',nbf,nbf,nbf,1.d0,g_oevecs,g_s,0.d0,g_tmp)
+      call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_tmp,g_evecs,0.d0,g_s)
 
-        int_mb(k_ord+i-1) = ix
+      if(me.eq.0) then
+        do i=1,nbf
+          prodmax=-30.d0
 C
-C       invalidate column that you have taken
+C         get row of g_s 
 C
-        call dfill(nbf, 0.0d0, dbl_mb(k_tmp), 1)
-        call put_col(g_s,nbf,ix,DBL_MB(k_tmp))
-      enddo
+          call ga_get(g_s,i,i,1,nbf,DBL_MB(k_tmp),1)
+          do j=1,nbf
+            if(abs(dbl_mb(k_tmp+j-1)).gt.prodmax) then
+              prodmax=abs(dbl_mb(k_tmp+j-1))
+              ix=j
+            endif
+          enddo
+
+          int_mb(k_ord+i-1) = ix
+C
+C         invalidate column that you have taken
+C
+          call dfill(nbf, 0.0d0, dbl_mb(k_tmp), 1)
+          call put_col(g_s,nbf,ix,DBL_MB(k_tmp))
+        enddo
       endif
       call ga_igop(Msg_mxovl_1,int_mb(k_ord),nbf,'+')
 
@@ -86,11 +83,12 @@ C
       enddo
       
       if(.not.MA_Pop_Stack(l_ord))
-     & call errquit('max_vol: failed to dealloc',222)
+     & call errquit('dft_mxovl: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_scr))
-     & call errquit('max_vol: failed to dealloc',122)
+     & call errquit('dft_mxovl: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_tmp))
-     & call errquit('max_vol: failed to dealloc',122)
+     & call errquit('dft_mxovl: cannot pop stack',0)
+
       call ga_dgop(Msg_mxovl_2,evals,nbf,'+')
 
       return

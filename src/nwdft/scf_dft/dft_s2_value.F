@@ -1,6 +1,6 @@
       subroutine dft_s2_value(geom,basis,symmetry,na,nb,
      &     nbf,ga_densa,ga_densb)
-C     $Id: dft_s2_value.F,v 1.2 1995-10-17 08:54:55 d3g681 Exp $
+C     $Id: dft_s2_value.F,v 1.3 1996-07-03 21:47:36 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,24 +18,25 @@ c
 c     
 c     prod S*Pb*S*Pa
 c     
-      call gacrea(geom,basis,
-     &     nbf,nbf,'ovl ',iga_s,'atom')
-      call gacrea(geom,basis,
-     &     nbf,nbf,'ovl ',iga_tmp,'atom')
-      call gacrea(geom,basis,
-     &     nbf,nbf,'ovl ',iga_tmp2,'atom')
+      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_s,'atom')
+
+      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp,'atom')
+
+      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp2,'atom')
+
       call ga_zero(iga_s)
-      call int_1e_ga(basis,basis,
-     &     iga_s,'overlap',symmetry)
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,
-     &     iga_s,ga_densb,zero,iga_tmp)
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,
-     &     iga_tmp,iga_s,zero,iga_tmp2)
+      call int_1e_ga(basis,basis,iga_s,'overlap',symmetry)
+
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,iga_s,ga_densb,zero,iga_tmp)
+
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,iga_tmp,iga_s,zero,iga_tmp2)
+
       ana=dble(na)
       anb=dble(nb)
       s2_exact= 0.5d0*(ana-anb)*(.5d0*(ana-anb) + one)
       s2= 0.25d0*(ana-anb)**two+0.5d0*(ana+anb) - 
      &     ga_ddot(iga_tmp2,ga_densa)
+
       call gadest(iga_s)
       call gadest(iga_tmp)
       call gadest(iga_tmp2)
