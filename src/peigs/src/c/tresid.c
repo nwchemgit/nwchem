@@ -1,5 +1,5 @@
 /*
- $Id: tresid.c,v 1.8 1999-11-04 23:12:21 d3g270 Exp $
+ $Id: tresid.c,v 1.9 1999-11-05 06:47:05 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -187,7 +187,6 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   }
   
   gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
-
 
 /*
   printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
