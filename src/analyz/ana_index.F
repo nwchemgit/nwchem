@@ -43,7 +43,19 @@ c
 c
       i=index(card,':')-1
       if(i.le.1) call errquit('Error in atom name',0)
-      read(card(2:i),'(i)') ia
+      if(i.eq.2) then
+      read(card(2:i),'(i1)') ia
+      elseif(i.eq.3) then
+      read(card(2:i),'(i2)') ia
+      elseif(i.eq.4) then
+      read(card(2:i),'(i3)') ia
+      elseif(i.eq.5) then
+      read(card(2:i),'(i4)') ia
+      elseif(i.eq.6) then
+      read(card(2:i),'(i5)') ia
+      else
+      call errquit('Error in ana_index',me)
+      endif
       atom=card(i+2:80)
       j=index(atom,' ')-1
       if(atom(1:1).eq.'_') atom(1:1)=' '
