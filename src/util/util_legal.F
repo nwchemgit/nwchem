@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.19 2000-12-05 19:07:51 d3j191 Exp $
+* $Id: util_legal.F,v 1.20 2000-12-05 19:09:11 d3j191 Exp $
 *--------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,2000  *
 *         Pacific Northwest National Laboratory,         * 
@@ -181,7 +181,7 @@ c
      + 12x,'NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
-     &    'Version 4.0" (1999),',
+     &    'Version 4.0" (2000),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
