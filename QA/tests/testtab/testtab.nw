@@ -1,0 +1,13 @@
+
+start tabby
+geometry 
+symmetry c2v
+	o     0.00000000     0.00000000     0.08635745
+	h     0.00000000     0.78051767     0.65682127
+end
+basis
+o library 3-21g
+h library 3-21g
+end
+
+task scf gradient
