@@ -1,5 +1,5 @@
       subroutine xlm_norm(qn,e,D,Ld)
-* $Id: xlm_norm.F,v 1.2 1996-02-05 23:22:07 d3e129 Exp $
+* $Id: xlm_norm.F,v 1.3 1996-07-18 23:59:13 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 c
@@ -77,7 +77,7 @@ c... form qn values via recursion
 *...  multiply all coeffs by sqrt(8pi/(2l+1))
 *...  this gives a diagional spherical overlap matrix
       pi = 2.0d0*dacos(0.0d00)
-      do l = 2, Ld
+      do l = 0, Ld
         fact = 8.0d00*pi/(2.0d00*dble(l)+1.00d00)
         fact = sqrt(fact)    ! 
         do m = -l,l

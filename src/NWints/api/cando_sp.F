@@ -1,17 +1,20 @@
+c $Id: cando_sp.F,v 1.19 1996-07-18 23:57:25 d3e129 Exp $
+c
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{cando\_sp}
+c:tex-This routine returns ``.true.'' to the calling integral API 
+c:tex-routine if the two electron integrals over ISH and JSH can be 
+c:tex-computed using the sp-rotated axis code.
+***********************************************************************
+c:tex-\begin{verbatim}
       logical function cando_sp(basisin,ish,jsh)
+c:tex-\end{verbatim}
       implicit none
-c $Id: cando_sp.F,v 1.18 1996-06-27 22:33:26 d3g681 Exp $
 c
 c this routine does not check the shell and int_init
 c because it is only called by routines that do this.
 c 
-***********************************************************************
-c-tex-% part of API Internal Routines
-c-tex-\subsubsection{cando\_sp}
-c-tex-This routine returns ``.true.'' to the calling integral API 
-c-tex-routine the integrals over ISH and JSH can be computed using 
-c-tex-the sp-rotated axis code.
-***********************************************************************
 c
 #include "bas.fh"
 #include "basP.fh"
@@ -21,56 +24,71 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-c-tex-\begin{verbatim}
-c-tex-      logical function cando_sp(basisin,ish,jsh)
+c:tex-\begin{verbatim}
       integer basisin   ! [input] basis set handle for identified shells 
       integer ish, jsh  ! [input] lexical shell index for I and J
-c-tex-\end{verbatim}
-c-tex-A zero [i|j]sh means ignore this shell. this allows one function 
-c-tex-for all 2e permutations and multiple basis sets
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c:tex-for all 2e permutations and multiple basis sets.
 c::local
-      integer basis, mytype, mycont
-      integer ucont
+      integer basis
+      integer i_ucont
+      integer j_ucont
+*_old_code:      integer mytype, mycont
+*_old_code:      integer ucont
+c
+      logical cando_sp_u
+      external cando_sp_u
+c
 #include "bas_ibs_sfn.fh"
 c
-      if (user_cando_sp) then
-        cando_sp = def_cando_sp
-        return
-      endif
-c
-      cando_sp = .true.
-c
       basis = basisin + BASIS_HANDLE_OFFSET
+c.. get ish unique shell index
+      i_ucont = (sf_ibs_cn2ucn(ish,basis))
+c.. get jsh unique shell index
+      j_ucont = (sf_ibs_cn2ucn(jsh,basis))
 c
-c.... check ish
-      if (ish.gt.0) then
-        ucont = (sf_ibs_cn2ucn(ish,basis))
-        mytype = infbs_cont(CONT_TYPE, ucont,basis)
-        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
-        cando_sp = cando_sp .and.
-     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
-     $         (mycont.le.25)
-      endif
+      cando_sp = cando_sp_u(basisin, i_ucont, j_ucont)
 c
-c.... check jsh
-      if (jsh.gt.0) then
-        ucont = (sf_ibs_cn2ucn(jsh,basis))
-        mytype = infbs_cont(CONT_TYPE, ucont,basis)
-        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
-        cando_sp = cando_sp .and.
-     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
-     $         (mycont.le.25)
-      endif
-c
+      return
       end
+*_old_code:c
+*_old_code:c.... check ish
+*_old_code:      if (ish.gt.0) then
+*_old_code:        ucont = 
+*_old_code:        mytype = infbs_cont(CONT_TYPE, ucont,basis)
+*_old_code:        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
+*_old_code:        cando_sp = cando_sp .and.
+*_old_code:     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
+*_old_code:     $         (mycont.le.25)
+*_old_code:      endif
+*_old_code:c
+*_old_code:c.... check jsh
+*_old_code:      if (jsh.gt.0) then
+*_old_code:        ucont = (sf_ibs_cn2ucn(jsh,basis))
+*_old_code:        mytype = infbs_cont(CONT_TYPE, ucont,basis)
+*_old_code:        mycont = infbs_cont(CONT_NPRIM,ucont,basis)
+*_old_code:        cando_sp = cando_sp .and.
+*_old_code:     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
+*_old_code:     $         (mycont.le.25)
+*_old_code:      endif
+*_old_code:c
+*_old_code:      end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{cando\_nw}
+c:tex-This routine returns ``.true.'' to the calling integral API 
+c:tex-routine if the two electron integrals over ISH and JSH can be 
+c:tex-computed using the McMurchie-Davidson code.
+***********************************************************************
+c:tex-\begin{verbatim}
       logical function cando_nw(basisin,ish,jsh)
+c:tex-\end{verbatim}
       implicit none
-c
-c a zero [i|j]sh means ignore this shell
-c this allows one function for all 2e permutations
 c 
-c for two electron cases then there are two calls to cando_nw
-c that are required
+c:tex-For two electron cases then there are two calls to cando_nw
+c:tex-that are required with each shell pair and cooresponding 
+c:tex-basis set handle (bra or ket). 
 c
 c this routine does not check the shell and int_init
 c because it only called by routines that do this.
@@ -84,7 +102,12 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-      integer basisin,ish,jsh
+c:tex-\begin{verbatim}
+      integer basisin  ! [input] basis set handle for identified shells 
+      integer ish,jsh  ! [input] lexical shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c:tex-for all 2e permutations and multiple basis sets.
 c::local
       integer basis, mytype, mygen, ucont
 c
@@ -99,6 +122,11 @@ c
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
+c check shell range
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_nw: bad ish =', ish)
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_nw: bad jsh =', jsh)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
@@ -118,19 +146,20 @@ c.... check jsh
       endif
 c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{cando\_sp\_u}
+c:tex-This routine returns ``.true.'' to the calling integral API 
+c:tex-routine if the two electron integrals over unique shells ISH 
+c:tex-and JSH can be computed using the sp-rotated axis code.
+***********************************************************************
+c:tex-\begin{verbatim}
       logical function cando_sp_u(basisin,ish_u,jsh_u)
+c:tex-\end{verbatim}
       implicit none
-c
-c a zero [i|j]sh means ignore this shell/contraction
-c this allows one function for all 2e permutations
-c 
-c for two electron cases then there are two calls to cando_sp_u
-c that are required
 c
 c this routine does not check the shell and int_init
 c because it only called by routines that do this.
-c
-c this routine cando_sp_u works for unique shells only
 c
 #include "bas.fh"
 #include "basP.fh"
@@ -138,7 +167,13 @@ c
 #include "geobasmapP.fh"
 #include "candoP.fh"
 c::passed
-      integer basisin,ish_u,jsh_u
+c:tex-\begin{verbatim}
+      integer basisin     ! [input] basis set handle for identified shells 
+      integer ish_u,jsh_u ! [input] unique shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c:tex-for all 2e permutations and multiple basis sets.  This routine 
+c:tex-{\tt cando_sp_u} works for unique shells only.
 c::local
       integer basis, mytype, mycont
 c
@@ -151,6 +186,11 @@ c
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
+c check shell range
+      if (ish_u.lt.0 .or. ish_u.gt.infbs_head(Head_NCONT,basis))
+     $     call errquit('cando_sp_u: bad ish_u =', ish_u)
+      if (jsh_u.lt.0 .or. jsh_u.gt.infbs_head(Head_NCONT,basis))
+     $     call errquit('cando_sp_u: bad jsh_u =', jsh_u)
 c.... check ish_u
       if (ish_u.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ish_u,basis)
@@ -170,10 +210,24 @@ c.... check jsh_u
       endif
 c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{cando\_txs}
+c:tex-This routine returns ``.true.'' to the calling integral API 
+c:tex-routine if the two electron integrals over ISH and JSH can be 
+c:tex-computed using the texas integral code.
+***********************************************************************
+c:tex-\begin{verbatim}
       logical function cando_txs(basisin,ish,jsh)
+c:tex-\end{verbatim}
       implicit none
-      integer basisin
-      integer ish,jsh
+c:tex-\begin{verbatim}
+      integer basisin   ! [input] basis set handle for identified shells 
+      integer ish, jsh  ! [input] lexical shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. This allows one function 
+c:tex-for all 2e permutations.
+#define USE_TEXAS
 #if defined(USE_TEXAS)
       integer mytype, basis
 #endif
@@ -197,13 +251,19 @@ c
 c
 c
       cando_txs = .true.
-*old      if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
-crjh debug
+c
+c ish/jsh != 0 for texas right now.
+c   this will change once texas can do 2 and 3 center integrals
+c
+c once available change .le. to .lt.
+c
       if (ish.le.0 .or. ish.gt.ncont_tot_gb(basis))
      $     call errquit('cando_txs: ish bad', ish)
       if (jsh.le.0 .or. jsh.gt.ncont_tot_gb(basis))
      $     call errquit('cando_txs: jsh bad', jsh)
-crjh enddebug
+c
+c check for spherical false until spherical debuged in texas
+      cando_txs = cando_txs .and. (.not.bas_spherical(basis))
       if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,sf_ibs_cn2ucn(ish,basis),basis)
         cando_txs = cando_txs.and. (mytype.ge.-1)
@@ -216,45 +276,20 @@ crjh enddebug
       cando_txs = .false.
 #endif
       end
-      subroutine int_set_cando_txs(user_value)
-      implicit none
-c
-#include "candoP.fh"
-c
-      logical oldvalue_user, oldvalue_def
-      common /cndo_txs/ oldvalue_user, oldvalue_def
-      logical user_value
-      
-      oldvalue_user = user_cando_txs
-      oldvalue_def  = def_cando_txs
-      user_cando_txs = .true.
-      def_cando_txs  = user_value
-      if (def_cando_txs) call errquit
-     &('int_set_cando_txs: logic error with user cando_texas settings',
-     &    911)
-      end
-      subroutine int_unset_cando_txs()
-      implicit none
-c
-#include "candoP.fh"
-c
-      logical oldvalue_user, oldvalue_def
-      common /cndo_txs/ oldvalue_user, oldvalue_def
-c
-      user_cando_txs = oldvalue_user
-      def_cando_txs  = oldvalue_def
-c
-      end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{cando\_nw_\1e}
+c:tex-This routine returns ``.true.'' to the calling integral API 
+c:tex-routine if the one electron integrals over ISH and JSH can be 
+c:tex-computed using the McMurchie-Davidson code.
+***********************************************************************
+c:tex-\begin{verbatim}
       logical function cando_nw_1e(basisin,ish,jsh)
+c:tex-\end{verbatim}
       implicit none
-c
-c a zero [i|j]sh means ignore this shell
-c this allows one function for all 1e permutations
-c 
 c
 c this routine does not check the shell and int_init
 c because it only called by routines that do this.
-c
 c
 #include "bas.fh"
 #include "basP.fh"
@@ -264,7 +299,12 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-      integer basisin,ish,jsh
+c:tex-\begin{verbatim}
+      integer basisin  ! [input] basis set handle for identified shells 
+      integer ish,jsh  ! [input] lexical shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c:tex-for all 1e permutations and multiple basis sets.
 c::local
       integer basis, mytype, ucont
 c
@@ -274,6 +314,11 @@ c
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
+c check shell range
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_nw_1e: bad ish =', ish)
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_nw_1e: bad jsh =', jsh)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
@@ -289,3 +334,32 @@ c.... check jsh
       endif
 c
       end
+*_old_code:      subroutine int_set_cando_txs(user_value)
+*_old_code:      implicit none
+*_old_code:c
+*_old_code:#include "candoP.fh"
+*_old_code:c
+*_old_code:      logical oldvalue_user, oldvalue_def
+*_old_code:      common /cndo_txs/ oldvalue_user, oldvalue_def
+*_old_code:      logical user_value
+*_old_code:      
+*_old_code:      oldvalue_user = user_cando_txs
+*_old_code:      oldvalue_def  = def_cando_txs
+*_old_code:      user_cando_txs = .true.
+*_old_code:      def_cando_txs  = user_value
+*_old_code:      if (def_cando_txs) call errquit
+*_old_code:     &('int_set_cando_txs: logic error with user cando_texas settings',
+*_old_code:     &    911)
+*_old_code:      end
+*_old_code:      subroutine int_unset_cando_txs()
+*_old_code:      implicit none
+*_old_code:c
+*_old_code:#include "candoP.fh"
+*_old_code:c
+*_old_code:      logical oldvalue_user, oldvalue_def
+*_old_code:      common /cndo_txs/ oldvalue_user, oldvalue_def
+*_old_code:c
+*_old_code:      user_cando_txs = oldvalue_user
+*_old_code:      def_cando_txs  = oldvalue_def
+*_old_code:c
+*_old_code:      end

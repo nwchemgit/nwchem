@@ -1,6 +1,6 @@
       subroutine int_l1epe(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lpe, Pe, lscr, scr, numgen) 
-c $Id: int_l1epe.F,v 1.3 1996-01-22 21:46:30 d3e129 Exp $
+c $Id: int_l1epe.F,v 1.4 1996-07-18 23:58:08 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -30,6 +30,11 @@ c
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
      &       call errquit('int_l1epe: invalid contraction/shell',0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'int_l1epe')
+      call int_nospherical_check(j_basis,'int_l1epe')
 c      
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET

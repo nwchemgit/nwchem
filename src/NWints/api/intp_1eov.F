@@ -1,5 +1,5 @@
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.6 1996-01-23 21:56:58 d3e129 Exp $
+c $Id: intp_1eov.F,v 1.7 1996-07-18 23:58:53 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -52,6 +52,11 @@ c check initialization and shells
 c
       if (.not.int_chk_init('intp_1eov'))
      &       call errquit('intp_1eov: int_init was not called' ,0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'intp_1eov')
+      call int_nospherical_check(j_basis,'intp_1eov')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

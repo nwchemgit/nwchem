@@ -1,6 +1,6 @@
       subroutine int_projpole(i_basis, ish, centerl, lmax, 
      &    lscr, scr, lmpint, MP)
-c $Id: int_projpole.F,v 1.5 1996-07-13 00:10:29 d3e129 Exp $
+c $Id: int_projpole.F,v 1.6 1996-07-18 23:58:29 d3e129 Exp $
 c
 c routine to compute projected multipole integrals up to level lmax (0->lmax)
 c The general form is <pole|shell>
@@ -26,10 +26,10 @@ c
 c::functions
       logical int_chk_init
       logical cando_nw_1e, cando_nw
-      integer int_nint
+      integer int_nint_cart
       external int_chk_init
       external cando_nw_1e, cando_nw
-      external int_nint
+      external int_nint_cart
 c::passed
       integer i_basis             ! [input] basis set handle for ish
       integer ish                 ! [input] i shell/contraction
@@ -59,6 +59,10 @@ c
       if (.not.int_chk_init('int_projpole'))
      &       call errquit('int_projpole: int_init was not called' ,0)
 c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'int_projpole')
+c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
       shells_ok = inline_chk_sh(ibas,ish)
@@ -82,7 +86,7 @@ c
       num_int = 0
       do 00100 lval = 0,lmax
         l_int  = (lval+1)*(lval+2)/2
-        i_int  = int_nint(i_basis, ish, 0, 0, 0,0, 0,0)
+        i_int  = int_nint_cart(i_basis, ish, 0, 0, 0,0, 0,0)
         int_point = num_int + 1
         int_size  = lmpint - num_int
         num_int = num_int + l_int*i_int

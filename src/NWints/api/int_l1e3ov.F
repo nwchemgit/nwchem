@@ -3,7 +3,7 @@
 c
 c routine to calculate labels for 3 center overlap integrals 
 c
-C$Id: int_l1e3ov.F,v 1.7 1996-01-22 21:46:25 d3e129 Exp $
+C$Id: int_l1e3ov.F,v 1.8 1996-07-18 23:57:56 d3e129 Exp $
       implicit none 
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -51,6 +51,12 @@ c
       shells_ok = shells_ok .and. int_chk_sh(k_basis,ksh)
       if (.not.shells_ok)
      &       call errquit('int_l1e3ov: invalid contraction/shell',0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'int_l1e3ov')
+      call int_nospherical_check(j_basis,'int_l1e3ov')
+      call int_nospherical_check(k_basis,'int_l1e3ov')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

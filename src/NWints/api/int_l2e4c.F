@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.14 1996-02-09 22:35:55 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.15 1996-07-18 23:58:18 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -16,8 +16,10 @@ c errquit
 c::functions
       logical  cando_sp, cando_nw, cando_txs
       logical  int_chk_sh
+      integer int_nint_cart
       external int_chk_sh
       external cando_sp, cando_nw, cando_txs
+      external int_nint_cart
 c::passed
       integer brain, ish, jsh, ketin, ksh, lsh, leri, lscr
       double precision zerotol, eri(leri), scr(lscr)
@@ -165,17 +167,16 @@ c
 c
 c compute eri's (instead of copy) in front of scr()
 c
+c
+c  check if spherical
+c
+*        call int_nospherical_check(brain,'int_l2e4c')
+*        call int_nospherical_check(ketin,'int_l2e4c')
         bra = brain + BASIS_HANDLE_OFFSET
         ket = ketin + BASIS_HANDLE_OFFSET
         
-        numint =         (sf_ibs_cn2bfr(2,ish,bra))-
-     &        (sf_ibs_cn2bfr(1,ish,bra))+1
-        numint = numint*((sf_ibs_cn2bfr(2,jsh,bra))-
-     &        (sf_ibs_cn2bfr(1,jsh,bra))+1)
-        numint = numint*((sf_ibs_cn2bfr(2,ksh,ket))-
-     &        (sf_ibs_cn2bfr(1,ksh,ket))+1)
-        numint = numint*((sf_ibs_cn2bfr(2,lsh,ket))-
-     &        (sf_ibs_cn2bfr(1,lsh,ket))+1)
+        numint = int_nint_cart( brain, ish, brain, jsh,
+     &                          ketin, ksh, ketin, lsh)
         newlscr = lscr - numint
         call int_2e4c(brain,ish,jsh,ketin,ksh,lsh,
      &      newlscr,scr(numint+1),numint,scr)

@@ -1,61 +1,63 @@
+c $Id: exact_mem.F,v 1.22 1996-07-18 23:57:27 d3e129 Exp $
+c
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{exact\_mem}
+c:tex-This routine computes the memory required by the 
+c:tex-McMurchie-Davidson integral code developed at PNNL.  
+c:tex-This calls specific routines listed below for each 
+c:tex-integral type.  The data is stored in a common block 
+c:tex-for fast retrieval.
+c:tex-   
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.21 1996-01-22 21:46:08 d3e129 Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
 c
 c:: passed
-      integer nbas
-      integer bases(nbas)
+c:tex-\begin{verbatim}
+      integer nbas        ! [input] number of basis sets
+      integer bases(nbas) ! [input] basis set handles
+c:tex-\end{verbatim}
 c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
       integer lmem_2e3c, lsz_2e3c
       integer lmem_2e2c, lsz_2e2c
       integer ibas,jbas, kbas
-*      integer nbfmax,nbftest
       integer lsz_3ov,lmem_3ov
 c
 c
-c... ensure that mem_2e{432}c memory reqirements are nonzero
+c... ensure that mem_2e{432}c memory reqirements are zero
 c
-      mem_2e2c = 2
-      isz_2e2c = 2
-      mem_2e3c = 2
-      isz_2e3c = 2
-      mem_2e4c = 2
-      isz_2e4c = 2
-      mem_1e   = 2
-      isz_1e   = 2
+      call int_mem_zero()
 c
-*      nbfmax = 0
       do 00100 ibas = 1,nbas
         do 00200 jbas = 1,ibas
-*c.... nbfmax for 2e3c and 2e4c
-*           if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
-*     &          call errquit('exact_mem:bas_nbf_cn_max error ',1)
-*           nbfmax = max(nbfmax,nbftest)
-*           if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
-*     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
-*           nbfmax = max(nbfmax,nbftest)
 c.... 2e 4 center
-*debug:    call emem_2e4c_full
-*debug:&           (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-           call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-           mem_2e4c = max(mem_2e4c, lmem_2e4c)
-           isz_2e4c = max(isz_2e4c, lsz_2e4c)
+#if defined(API_DEBUG)
+          call emem_2e4c_full
+     &        (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+#else
+          call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+#endif
+          mem_2e4c = max(mem_2e4c, lmem_2e4c)
+          isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 2e 3 center
-           call emem_2e3c(bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
-           mem_2e3c = max(mem_2e3c, lmem_2e3c)
-           isz_2e3c = max(isz_2e3c, lsz_2e3c)
+          call emem_2e3c(bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
+          mem_2e3c = max(mem_2e3c, lmem_2e3c)
+          isz_2e3c = max(isz_2e3c, lsz_2e3c)
 c.... 2e 2 center
-           call emem_2e2c(bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
-           mem_2e2c = max(mem_2e2c, lmem_2e2c)
-           isz_2e2c = max(isz_2e2c, lsz_2e2c)
+          call emem_2e2c(bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
+          mem_2e2c = max(mem_2e2c, lmem_2e2c)
+          isz_2e2c = max(isz_2e2c, lsz_2e2c)
 c.... 1e
-           call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-           mem_1e = max(mem_1e, lmem_1e)
-           isz_1e = max(isz_1e, lsz_1e)
+          call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
+          mem_1e = max(mem_1e, lmem_1e)
+          isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
 c     
@@ -73,7 +75,7 @@ c
         do 00400 jbas = 1,ibas
           do 00500 kbas = 1,jbas
             call emem_3ov(bases(ibas),bases(jbas),bases(kbas),
-     &             lsz_3ov,lmem_3ov)
+     &          lsz_3ov,lmem_3ov)
             isz_3ov = max(isz_3ov,lsz_3ov)
             mem_3ov = max(mem_3ov,lmem_3ov)
 00500     continue
@@ -88,46 +90,56 @@ c
       mem_1e    = mem_1e          +       isz_1e
       mem_1e_h1 = mem_1e_h1       +       2*isz_1e
       mem_3ov   = mem_3ov         +       isz_3ov
-*obsolite due to new label routines:-start
-*..: c
-*..: c... sanity checks for lable routines       
-*..: c
-*..:       mem_2e4c  = max(mem_2e4c,  isz_2e4c)
-*..:       mem_2e3c  = max(mem_2e3c,  isz_2e3c)
-*..:       mem_2e2c  = max(mem_2e2c,  isz_2e2c)
-*..:       mem_1e    = max(mem_1e,    isz_1e)
-*..:       mem_1e_h1 = max(mem_1e_h1, (2*isz_1e))
-*..:       mem_3ov   = max(mem_3ov,   isz_3ov)
-*obsolite due to new label routines:-end
+c
+c for NWchem blocking interface
+c
+      iszb_2e4c = 4*isz_2e4c   ! for integrals
+      memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to me safe
+c
+#if defined(API_DEBUG)
 c.. debug write statements
-*rak:      write(6,*) ' mem_2e4c =',mem_2e4c 
-*rak:      write(6,*) ' mem_2e3c =',mem_2e3c 
-*rak:      write(6,*) ' mem_2e2c =',mem_2e2c 
-*rak:      write(6,*) ' mem_1e   =',mem_1e   
-*rak:      write(6,*) ' mem_1e_h1=',mem_1e_h1
-*rak:      write(6,*) ' mem_3ov  =',mem_3ov  
-*rak:      write(6,*)' '
-*rak:      write(6,*)' isz_2e4c =',isz_2e4c
-*rak:      write(6,*)' isz_2e3c =',isz_2e3c
-*rak:      write(6,*)' isz_2e2c =',isz_2e2c
-*rak:      write(6,*)' isz_1e   =',isz_1e
-*rak:      write(6,*)' isz_3ov  =',isz_3ov
-*rak:      write(6,*)' '
-*rak:      if(isz_2e2c.gt.0)stop 'tmp_stop'
+      write(luout,*) ' mem_2e4c =',mem_2e4c 
+      write(luout,*) ' mem_2e3c =',mem_2e3c 
+      write(luout,*) ' mem_2e2c =',mem_2e2c 
+      write(luout,*) ' mem_1e   =',mem_1e   
+      write(luout,*) ' mem_1e_h1=',mem_1e_h1
+      write(luout,*) ' mem_3ov  =',mem_3ov  
+      write(luout,*)' '
+      write(luout,*)' isz_2e4c =',isz_2e4c
+      write(luout,*)' isz_2e3c =',isz_2e3c
+      write(luout,*)' isz_2e2c =',isz_2e2c
+      write(luout,*)' isz_1e   =',isz_1e
+      write(luout,*)' isz_3ov  =',isz_3ov
+      write(luout,*)' '
+#endif
 c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_3ov}
+c:tex-This routine computes the memory for the 3-center overlap 
+c:tex-integrals based on the basis sets used.  
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_3ov(ibasin,jbasin,kbasin,lsz_buf,memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::function
-      integer nbf_from_ucont
-      external nbf_from_ucont
 c::passed
-      integer ibasin, jbasin, kbasin, lsz_buf, memsize
+c:tex-\begin{verbatim}
+      integer ibasin  ! [input] basis set handle for ``i'' contractions
+      integer jbasin  ! [input] basis set handle for ``j'' contractions
+      integer kbasin  ! [input] basis set handle for ``k'' contractions
+      integer lsz_buf ! [output] maximum size of integral buffer 
+      integer memsize ! [output] memory needed for scratch array
+c:tex-\end{verbatim}
 c::local
       integer ibas, jbas, kbas
       integer it_ucont, jt_ucont, kt_ucont
@@ -153,16 +165,16 @@ c
       kt_ucont = infbs_head(HEAD_NCONT,kbas)
 * error checkint
       if (it_ucont.eq.0 .or. jt_ucont.eq.0 .or. kt_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' i handle ',ibasin
-        write(6,*)' i name   ',bs_name(ibas)
-        write(6,*)' i contractions ',it_ucont
-        write(6,*)' j handle ',jbasin
-        write(6,*)' j name   ',bs_name(jbas)
-        write(6,*)' j contractions ',jt_ucont
-        write(6,*)' k handle ',kbasin
-        write(6,*)' k name   ',bs_name(kbas)
-        write(6,*)' k contractions ',kt_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' i handle ',ibasin
+        write(luout,*)' i name   ',bs_name(ibas)
+        write(luout,*)' i contractions ',it_ucont
+        write(luout,*)' j handle ',jbasin
+        write(luout,*)' j name   ',bs_name(jbas)
+        write(luout,*)' j contractions ',jt_ucont
+        write(luout,*)' k handle ',kbasin
+        write(luout,*)' k name   ',bs_name(kbas)
+        write(luout,*)' k contractions ',kt_ucont
         call errquit('emem_3ov: bad basis info ',911)
       endif
 c
@@ -194,12 +206,7 @@ c
 c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
             
             memdum  = 9 000 000
-*rak:            call hf3OIs(
-*rak:     &             exndcf,exndcf,exndcf,i_prim,i_type,
-*rak:     &             exndcf,exndcf,exndcf,j_prim,j_type,
-*rak:     &             exndcf,exndcf,exndcf,k_prim,k_type,
-*rak:     &             exndcf,1,.false.,
-*rak:     &             .true.,exndcf,memdum)
+c
             call hf3OIs(
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),i_prim,i_type,
@@ -214,26 +221,53 @@ c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(ibasin,nbfimax))
-     &       call errquit('emem_3ov:bas_nbf_cn_max error ibasin',2)
-      if (.not.bas_nbf_cn_max(jbasin,nbfjmax))
-     &       call errquit('emem_3ov:bas_nbf_cn_max error jbasin',2)
-      if (.not.bas_nbf_cn_max(kbasin,nbfkmax))
-     &       call errquit('emem_3ov:bas_nbf_cn_max error kbasin',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ibasin,nbfimax))
+*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error ibasin',2)
+*_old_code:      if (.not.bas_nbf_cn_max(jbasin,nbfjmax))
+*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error jbasin',2)
+*_old_code:      if (.not.bas_nbf_cn_max(kbasin,nbfkmax))
+*_old_code:     &       call errquit('emem_3ov:bas_nbf_cn_max error kbasin',2)
+      call int_nbf_max(ibasin,nbfimax)
+      if (ibasin.eq.jbasin) then
+        nbfjmax = nbfimax
+      else
+        call int_nbf_max(jbasin,nbfjmax)
+      endif
+      if (kbasin.eq.ibasin.or.kbasin.eq.jbasin) then
+        if(kbasin.eq.ibasin) then
+          nbfkmax = nbfimax
+        else
+          nbfkmax = nbfjmax
+        endif
+      else
+        call int_nbf_max(kbasin,nbfkmax)
+      endif
       lsz_buf = nbfimax*nbfjmax*nbfkmax
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_1e}
+c:tex-This routine computes the memory for any type of 1e 
+c:tex-integrals based on the basis sets used.  
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_1e(brain, ketin, max1e, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer max1e   ! [output] max size of 1e integrals buffer
       integer memsize ! [output] max size of scratch space for 1e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
@@ -253,13 +287,13 @@ c
       ket_ucont = infbs_head(HEAD_NCONT,ket)
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' bra handle ',brain
-        write(6,*)' bra name   ',bs_name(bra)
-        write(6,*)' bra contractions ',bra_ucont
-        write(6,*)' ket handle ',ketin
-        write(6,*)' ket name   ',bs_name(ket)
-        write(6,*)' ket contractions ',ket_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_1e: bad basis info ',911)
       endif
 c
@@ -288,11 +322,7 @@ c
           endif
 c
           memdum = 9 000 000
-*rak:          call hf1(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,1,
-*rak:     &             exndcf,exndcf,exndcf,1,.true.,.true.,.true.,.false.,
-*rak:     &             .true.,exndcf,memdum)
+*
           call hf1(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -305,35 +335,71 @@ c
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+*_old_code:     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+*_old_code:     &       call errquit('emem_1e:bas_nbf_cn_max error ',2)
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
       max1e = max_nbf_bra*max_nbf_ket
 c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
 c
-*     write(6,'(a,i10)')'emem_1e: memsize =',memsize
-*     write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+#if defined(API_DEBUG)
+      write(6,'(a,i10)')'emem_1e: memsize =',memsize
+      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+#endif
 c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_2e4c}
+c:tex-This routine computes the memory required by the McMurchie-Davidson 
+c:tex-algorithm for 4 center two electron integrals based on the 
+c:tex-basis sets used.  
+c:tex-
+c:tex-The exact algorithm is an N$^4$ and an N$^2$ approximate algorithm 
+c:tex-is used here.  Exact memory is computed for integrals over the 
+c:tex-following classes:
+c:tex-\begin{itemize}
+c:tex-\item Coulumb $(ii|jj)$
+c:tex-\item Exchange $(ij|ij)$
+c:tex-\item Triplet $(ii|ij)$
+c:tex-\item Triplet $(ij|jj)$
+c:tex-\end{itemize}
+c:tex-An additional 10\% is added to the maximum exact memory 
+c:tex-computation for each of these classes.  Additional classes that 
+c:tex-have been periodically problematic are:
+c:tex-\begin{itemize}
+c:tex-\item $(ij|jk)$
+c:tex-\item $(ij|kk)$
+c:tex-\end{itemize}
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_2e4c(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
-      integer nbf_from_ucont
-      external nbf_from_ucont
       logical cando_sp_u
       external cando_sp_u
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{itemize}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
@@ -357,13 +423,13 @@ c
 c
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' bra handle ',brain
-        write(6,*)' bra name   ',bs_name(bra)
-        write(6,*)' bra contractions ',bra_ucont
-        write(6,*)' ket handle ',ketin
-        write(6,*)' ket name   ',bs_name(ket)
-        write(6,*)' ket contractions ',ket_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e4c: bad basis info ',911)
       endif
 c
@@ -396,12 +462,6 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
           call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -412,17 +472,11 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
-*:debug   write(6,*)' coul ',ibc,ibc,ikc,ikc,memdum
+*:debug   write(luout,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
           call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -433,18 +487,12 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
-*:debug   write(6,*)' exch ',ibc,ikc,ibc,ikc,memdum
+*:debug   write(luout,*)' exch ',ibc,ikc,ibc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
             memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
-*rak:            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -455,17 +503,11 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum)
-*:debug     write(6,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
+*:debug     write(luout,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
             memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
-*rak:            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -476,19 +518,25 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum) 
-*:debug     write(6,*)' bkkk ',ibc,ikc,ikc,ikc,memdum
+*:debug     write(luout,*)' bkkk ',ibc,ikc,ikc,ikc,memdum
             memsize = max(memsize,memdum)
-*:debug     write(6,*)' full ',memsize
+*:debug     write(luout,*)' full ',memsize
           endif
 00201     continue
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+*_old_code:     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+*_old_code:     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
 c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket
 c
@@ -497,24 +545,32 @@ c... add 10% for abbc and abcc class shells not checked for
 *      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
-*      stop 'tmp stop'
-c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_2e3c}
+c:tex-This routine computes the memory required for the the two electron
+c:tex-three center integrals using the McMurchie-Davidson algorithm. 
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_2e3c(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
-      integer nbf_from_ucont
-      external nbf_from_ucont
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
@@ -534,13 +590,13 @@ c
       ket_ucont = infbs_head(HEAD_NCONT,ket)
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' bra handle ',brain
-        write(6,*)' bra name   ',bs_name(bra)
-        write(6,*)' bra contractions ',bra_ucont
-        write(6,*)' ket handle ',ketin
-        write(6,*)' ket name   ',bs_name(ket)
-        write(6,*)' ket contractions ',ket_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e3c: bad basis info ',911)
       endif
 c
@@ -570,12 +626,6 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-*rak:          call hf2(exndcf,exndcf,exndcf,1,1,0,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
           call hf2(dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          1, 1, 0, dbl_mb(mb_exndcf(1,1)),
@@ -594,11 +644,17 @@ c
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+*_old_code:     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+*_old_code:     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
 c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
       maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket
       maxg = max(maxg,(max_nbf_ket*max_nbf_ket*max_nbf_bra))
 c
@@ -607,24 +663,32 @@ c... add 10% for safety
 *      write(6,'(a,i10)')'emem_2e3c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e3c: maxg    =',maxg
 c
-*      stop 'tmp stop'
-c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_2e2c}
+c:tex-This routine computes the memory required for the the two electron
+c:tex-two center integrals using the McMurchie-Davidson algorithm. 
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_2e2c(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
-      integer nbf_from_ucont
-      external nbf_from_ucont
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
@@ -645,13 +709,13 @@ c
 c
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' bra handle ',brain
-        write(6,*)' bra name   ',bs_name(bra)
-        write(6,*)' bra contractions ',bra_ucont
-        write(6,*)' ket handle ',ketin
-        write(6,*)' ket name   ',bs_name(ket)
-        write(6,*)' ket contractions ',ket_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e2c: bad basis info ',911)
       endif
 c
@@ -681,12 +745,6 @@ c
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-*rak:          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-*rak:     &             exndcf,exndcf,exndcf,1,1,0,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-*rak:     &             exndcf,exndcf,exndcf,1,1,0,
-*rak:     &             exndcf,1,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
           call hf2(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
@@ -700,17 +758,23 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &          dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &          .false., .true., dbl_mb(mb_exndcf(1,1)),
      &          memdum)
-*          write(6,*)' emem_2e2c: memdum',memdum, memsize
+*          write(luout,*)' emem_2e2c: memdum',memdum, memsize
           memsize = max(memsize,memdum)
 c
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+*_old_code:     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+*_old_code:     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
 c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
       maxg = max_nbf_bra*max_nbf_ket
 c
 c... add 10% for safety
@@ -718,26 +782,38 @@ c... add 10% for safety
 *      write(6,'(a,i10)')'emem_2e2c: memsize =',memsize
 *      write(6,'(a,i10)')'emem_2e2c: maxg    =',maxg
 c
-*      stop 'tmp stop'
-c
       end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsubsection{emem\_2e4c\_full}
+c:tex-This routine computes the memory required by the McMurchie-Davidson 
+c:tex-algorithm for 4 center two electron integrals based on the 
+c:tex-basis sets used.  
+c:tex-
+c:tex-The exact algorithm is an N$^4$ and costly.  This routine is used
+c:tex-primarily as a debugging tool
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
       subroutine emem_2e4c_full(brain, ketin, maxg, memsize)
+c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
-      integer nbf_from_ucont
-      external nbf_from_ucont
       logical cando_sp_u
       external cando_sp_u
 c::passed
+c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, jbc, kbc, lbc
       integer memdum
@@ -762,13 +838,13 @@ c
 c
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
-        write(6,*)' the number of unique contractions is zero'
-        write(6,*)' bra handle ',brain
-        write(6,*)' bra name   ',bs_name(bra)
-        write(6,*)' bra contractions ',bra_ucont
-        write(6,*)' ket handle ',ketin
-        write(6,*)' ket name   ',bs_name(ket)
-        write(6,*)' ket contractions ',ket_ucont
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' bra handle ',brain
+        write(luout,*)' bra name   ',bs_name(bra)
+        write(luout,*)' bra contractions ',bra_ucont
+        write(luout,*)' ket handle ',ketin
+        write(luout,*)' ket name   ',bs_name(ket)
+        write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e4c_full: bad basis info ',911)
       endif
 c
@@ -812,13 +888,6 @@ c
 c
               memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-*rak:              call hf2(
-*rak:     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
-*rak:     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
-*rak:     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
-*rak:     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
-*rak:     &            exndcf,1,.false.,.false.,.false.,
-*rak:     &            .true.,exndcf,memdum)
               call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
@@ -831,18 +900,11 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false.,.true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
-              write(6,*)' coul ',ibc,jbc,kbc,lbc,memdum
+              write(luout,*)' coul ',ibc,jbc,kbc,lbc,memdum
               memsize = max(memsize,memdum)
 c
               memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-*rak:              call hf2(
-*rak:     &            exndcf,exndcf,exndcf,i_prim,i_gen,i_type,
-*rak:     &            exndcf,exndcf,exndcf,l_prim,l_gen,l_type,
-*rak:     &            exndcf,exndcf,exndcf,k_prim,k_gen,k_type,
-*rak:     &            exndcf,exndcf,exndcf,j_prim,j_gen,j_type,
-*rak:     &            exndcf,1,.false.,.false.,.false.,
-*rak:     &            .true.,exndcf,memdum)
               call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &              dbl_mb(mb_exndcf(1,1)), i_prim, i_gen, i_type,
@@ -855,27 +917,84 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &              dbl_mb(mb_exndcf(1,1)), 1, .false., .false.,
      &              .false., .true., dbl_mb(mb_exndcf(1,1)),
      &              memdum)
-              write(6,*)' exch ',ibc,jbc,kbc,lbc,memdum
+              write(luout,*)' exch ',ibc,jbc,kbc,lbc,memdum
               memsize = max(memsize,memdum)
-              memsize = max(memsize,memdum)
-              write(6,*)' full ',memsize
+              write(luout,*)' full ',memsize
 00201         continue
 00400       continue
 00300     continue
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+*_old_code:     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
+*_old_code:      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+*_old_code:     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
+*_old_code:c
+*_old_code:      maxg = max_nbf_bra*max_nbf_bra
+*_old_code:      maxg = maxg*max_nbf_ket*max_nbf_ket
 c
-      maxg = max_nbf_bra*max_nbf_bra
-      maxg = maxg*max_nbf_ket*max_nbf_ket
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
+      maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket*max_nbf_ket
 c
       write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
       write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
-*      stop 'tmp stop'
+      end
+***********************************************************************
+c:tex-\subsubsection{int\_nbf\_max}
+c:tex-This routine computes the maximum cartesian nbf for a given basis
+c:tex-set.  Used in many memory computing routines to deterine maximum
+c:tex-buffer sizes needed for integral computations.
+c:tex-
+***********************************************************************
+c:tex-\begin{verbatim}
+      subroutine int_nbf_max(basisin,nbf_max)
+c:tex-\end{verbatim}
+      implicit none
 c
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "stdio.fh"
+#include "int_nbf.fh"
+c::passed
+c:tex-\begin{verbatim}
+      integer basisin  ! [input] basis set handle
+      integer nbf_max  ! [output] maximum number of basis functions
+c:tex-\end{verbatim}
+c::local
+      integer nbf
+      integer basis
+      integer itype
+      integer igen
+      integer ucon
+      integer num_ucon
+c
+      basis    = basisin + BASIS_HANDLE_OFFSET
+      num_ucon = infbs_head(Head_NCONT,basis)
+c
+      if (num_ucon.eq.0) then
+        write(luout,*)' the number of unique contractions is zero'
+        write(luout,*)' basis handle ',basisin, basis
+        write(luout,*)' basis name   ',bs_name(basis)
+        write(luout,*)' basis contractions ',num_ucon
+        call errquit('int_nbf_max: bas basis info ',911)
+      endif
+c
+      nbf_max = 0
+      do ucon = 1,num_ucon
+        itype = infbs_cont(Cont_TYPE,ucon,basis)
+        igen  = infbs_cont(Cont_NGEN,ucon,basis)
+        if (itype.lt.0) then
+          nbf   = int_nbf_x(itype)
+        else
+          nbf   = int_nbf_x(itype)*igen
+        endif
+        nbf_max = max(nbf_max,nbf)
+      enddo
       end

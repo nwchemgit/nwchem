@@ -1,5 +1,5 @@
       subroutine int_1cg(i_basis,ish,lscr,scr,l1g,G1e)
-c $Id: int_1cg.F,v 1.4 1996-01-23 21:56:44 d3e129 Exp $
+c $Id: int_1cg.F,v 1.5 1996-07-18 23:57:32 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -43,6 +43,8 @@ c
       shells_ok = int_chk_sh(i_basis,ish)
       if (.not.shells_ok)
      &       call errquit('int_1cg: invalid contraction/shell',0)
+c
+      call int_nospherical_check(i_basis,'int_1cg')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c

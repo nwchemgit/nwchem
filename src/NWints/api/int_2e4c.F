@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.21 1996-07-11 22:21:14 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.22 1996-07-18 23:57:52 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -14,6 +14,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::external subroutines used
 c errquit
@@ -52,10 +53,16 @@ c.txs
       logical status_sp, status_nw, status_txs, status_gen
       integer texas_ang_limit
 c
+      logical any_spherical
+      integer a_nbf,   b_nbf,   c_nbf,   d_nbf
+      integer a_nbf_s, b_nbf_s, c_nbf_s, d_nbf_s
+c
 #if defined(PERF_NORMAL)
       logical shells_ok
       logical inline_chk_sh
 c
+*debug:      integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
+*debug:      integer aa,bb,cc,dd,abcd
       integer WarnP
       save WarnP
       data WarnP /0/
@@ -81,6 +88,8 @@ c
       if (.not. bas_check_handle(ketin,'int_2e4c:ket')) call errquit
      $     ('int_2e4c: invalid ket basis handle', ketin)
 #endif
+*      call int_nospherical_check(brain,'int_2e4c')
+*      call int_nospherical_check(ketin,'int_2e4c')
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
       ab_geom = ibs_geom(bra)
@@ -109,6 +118,9 @@ c
       c_cent  = (sf_ibs_cn2ce(ksh,ket))
       d_cent  = (sf_ibs_cn2ce(lsh,ket))
 c
+c
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
+c
 c... stat sp
       status_sp = cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)
 
@@ -136,6 +148,7 @@ c... stat texas
      &        (Lc.gt.texas_ang_limit).or.
      &        (Ld.gt.texas_ang_limit)  )
       endif
+      status_txs = status_txs .and. .not.any_spherical
 c... stat nw
       status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
       if (status_sp) then
@@ -215,6 +228,85 @@ c....................... canAB    canCD    canPQ
 c............ dryrun
      &         .false., scr, lscr)
 c
+c
+c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
+c
+        if (any_spherical)then
+*debug:          write(6,*)' for shells:',ish,jsh,ksh,lsh
+*debug:          if (.not.bas_cn2bfr(brain,ish,ilo,ihi))
+*debug:     &        stop 'cn2bfr error i'
+*debug:          if (.not.bas_cn2bfr(brain,jsh,jlo,jhi))
+*debug:     &        stop 'cn2bfr error j'
+*debug:          if (.not.bas_cn2bfr(ketin,ksh,klo,khi))
+*debug:     &        stop 'cn2bfr error k'
+*debug:          if (.not.bas_cn2bfr(ketin,lsh,llo,lhi))
+*debug:     &        stop 'cn2bfr error l'
+*debug:          write(6,*)' nbf low   :',ilo,jlo,klo,llo
+*debug:          write(6,*)' nbf hi    :',ihi,jhi,khi,lhi
+          a_nbf = int_nbf_x(La)
+          b_nbf = int_nbf_x(Lb)
+          c_nbf = int_nbf_x(Lc)
+          d_nbf = int_nbf_x(Ld)
+*debug:          write(6,*)'bra/ket-cartesian integrals'
+*debug:          abcd = 0
+*debug:          do aa = 1,a_nbf
+*debug:            do bb = 1,b_nbf
+*debug:              do cc = 1,c_nbf
+*debug:                do dd = 1,d_nbf
+*debug:                  abcd = abcd + 1
+*debug:                  write(6,*)aa,bb,cc,dd,eri(abcd)
+*debug:                  write(79,*)aa,bb,cc,dd,eri(abcd)
+*debug:                enddo
+*debug:              enddo
+*debug:            enddo
+*debug:          enddo
+          if(bas_spherical(bra)) then
+            a_nbf_s = int_nbf_s(La)
+            b_nbf_s = int_nbf_s(Lb)
+            call spcart_bra2etran(eri,scr,
+     &            b_nbf,a_nbf,b_nbf_s,a_nbf_s,
+     &            Lb, La, b_gen, a_gen,
+     &            (c_nbf*d_nbf),.false.)
+            a_nbf = a_nbf_s
+            b_nbf = b_nbf_s
+          endif
+*debug:          write(6,*)'bra-shperical/ket-cartesian integrals'
+*debug:          abcd = 0
+*debug:          do aa = 1,a_nbf
+*debug:            do bb = 1,b_nbf
+*debug:              do cc = 1,c_nbf
+*debug:                do dd = 1,d_nbf
+*debug:                  abcd = abcd + 1
+*debug:                  write(6,*)aa,bb,cc,dd,eri(abcd)
+*debug:                  write(80,*)aa,bb,cc,dd,eri(abcd)
+*debug:                enddo
+*debug:              enddo
+*debug:            enddo
+*debug:          enddo
+          if(bas_spherical(ket)) then
+            c_nbf_s = int_nbf_s(Lc)
+            d_nbf_s = int_nbf_s(Ld)
+            call spcart_ket2etran(eri,scr,
+     &            d_nbf,c_nbf,d_nbf_s,c_nbf_s,
+     &            Ld, Lc, d_gen, c_gen,
+     &            (a_nbf*b_nbf),.false.)
+            c_nbf = c_nbf_s
+            d_nbf = d_nbf_s
+          endif
+        endif
+*debug:        write(6,*)'bra-shperical/ket-spherical integrals'
+*debug:        abcd = 0
+*debug:        do aa = 1,a_nbf
+*debug:          do bb = 1,b_nbf
+*debug:            do cc = 1,c_nbf
+*debug:              do dd = 1,d_nbf
+*debug:                abcd = abcd + 1
+*debug:                write(6,*)aa,bb,cc,dd,eri(abcd)
+*debug:                write(80,*)aa,bb,cc,dd,eri(abcd)
+*debug:              enddo
+*debug:            enddo
+*debug:          enddo
+*debug:        enddo
       else
         write(6,*)'int_2e4c: could not do sp or nw integrals'
         write(6,*)' brain :',brain

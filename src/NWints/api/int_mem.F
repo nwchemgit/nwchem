@@ -1,5 +1,5 @@
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
-c $Id: int_mem.F,v 1.6 1996-07-10 10:10:55 d3e129 Exp $
+c $Id: int_mem.F,v 1.7 1996-07-18 23:58:22 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c::functions
@@ -113,6 +113,27 @@ c
         call errquit('int_mem_3ov: int_init was not called' ,0)
       endif
       end
+      subroutine int_mem_zero()
+      implicit none
+#include "stdio.fh"
+#include "apiP.fh"
+      mem_2e4c   = 0   ! scr memory size for 4 center integrals
+      isz_2e4c   = 0   ! max buffer size for 4 center integrals
+      mem_1e     = 0   ! scr memory size for 1 electron integrals
+      isz_1e     = 0   ! max buffer size for 1 electron integrals
+      mem_1e_h1  = 0   ! scr memory size for h1-1 electron integrals
+      isz_2e3c   = 0   ! max buffer size for 3 center integrals
+      mem_2e3c   = 0   ! scr memory size for 3 center integrals
+      isz_2e2c   = 0   ! max buffer size for 2 center integrals
+      mem_2e2c   = 0   ! scr memory size for 2 center integrals
+      isz_3ov    = 0   ! max buffer size for 3 center overlap integrals
+      mem_3ov    = 0   ! scr memory size for 3 center overlap integrals
+      iszb_2e4c  = 0   ! max buffer size for blocked 4 center integrals
+      memb_2e4c  = 0   ! scr memory size for blocked 4 center integrals
+      init_int   = 0   ! integral initialization flag
+      init_intd  = 0   ! derivative initialization flag
+c
+      end
       subroutine int_mem_print()
       implicit none
 #include "stdio.fh"
@@ -126,19 +147,19 @@ c
       if (init_intd.eq.1)
      &    write(luout,*)' intd_init was called '
 
-      write(luout,*)' mem_2e4c : ',mem_2e4c
-      write(luout,*)' mem_1e   : ',mem_1e
-      write(luout,*)' isz_2e4c : ',isz_2e4c
-      write(luout,*)' isz_1e   : ',isz_1e
-      write(luout,*)' mem_1e_h1: ',mem_1e_h1
-      write(luout,*)' isz_2e3c : ',isz_2e3c
-      write(luout,*)' isz_2e2c : ',isz_2e2c
-      write(luout,*)' mem_2e3c : ',mem_2e3c
-      write(luout,*)' mem_2e2c : ',mem_2e2c
-      write(luout,*)' isz_3ov  : ',isz_3ov
-      write(luout,*)' mem_3ov  : ',mem_3ov
-      write(luout,*)' iszb_2e4c: ',iszb_2e4c
-      write(luout,*)' memb_2e4c: ',memb_2e4c
+      write(luout,*)' mem_2e4c  : ',mem_2e4c
+      write(luout,*)' mem_1e    : ',mem_1e
+      write(luout,*)' isz_2e4c  : ',isz_2e4c
+      write(luout,*)' isz_1e    : ',isz_1e
+      write(luout,*)' mem_1e_h1 : ',mem_1e_h1
+      write(luout,*)' isz_2e3c  : ',isz_2e3c
+      write(luout,*)' isz_2e2c  : ',isz_2e2c
+      write(luout,*)' mem_2e3c  : ',mem_2e3c
+      write(luout,*)' mem_2e2c  : ',mem_2e2c
+      write(luout,*)' isz_3ov   : ',isz_3ov
+      write(luout,*)' mem_3ov   : ',mem_3ov
+      write(luout,*)' iszb_2e4c : ',iszb_2e4c
+      write(luout,*)' memb_2e4c : ',memb_2e4c
 10000 format(//)
       end
       subroutine intb_mem_2e4c(maxg, mscratch_2e)

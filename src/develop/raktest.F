@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.54 1996-07-11 22:21:33 d3e129 Exp $
+c $Id: raktest.F,v 1.55 1996-07-18 23:59:19 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,36 +13,43 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300,00400,00500,00600,00700,00800) raktask
+      goto (00010,00020,00030,00040,00050,00060,00070,00080,
+     &    00090, 00100) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
       call raktest_semi(rtdb)
       goto 00001
 c
-00100 write(6,*)' raktest task 1 stepper test'
+00010 write(6,*)' raktest task 1 stepper test'
       call raktest_stpr(rtdb)
       goto 00001
-00200 write(6,*)' raktest task 2 check int_init'
+00020 write(6,*)' raktest task 2 check int_init'
       call raktest_init(rtdb)
       goto 00001
-00300 write(6,*)' raktest task 3 check intd_init'
+00030 write(6,*)' raktest task 3 check intd_init'
       call raktest_initd(rtdb)
       goto 00001
-00400 write(6,*)' raktest check 3ctr nai'
+00040 write(6,*)' raktest check 3ctr nai'
       call raktest_3ctr(rtdb)
       goto 00001
-00500 write(6,*)' test of general contraction code '
+00050 write(6,*)' test of general contraction code '
       call raktest_gc(rtdb)
       goto 00001
-00600 write(6,*)' test of orbital printing code '
+00060 write(6,*)' test of orbital printing code '
       call raktest_printorb(rtdb)
       goto 00001
-00700 write(6,*)' test of writing geom objects out '
+00070 write(6,*)' test of writing geom objects out '
       call raktest_geomwrt(rtdb)
       goto 00001
-00800 write(6,*)' test of spcart stuff '
+00080 write(6,*)' test of spcart stuff '
       call raktest_spcart(rtdb)
+      goto 00001
+00090 write(6,*)' test of spcart stuff all in one'
+      call raktest_test9(rtdb)
+      goto 00001
+00100 write(6,*)' test of ecp stuff '
+      call raktest_ecp(rtdb)
       goto 00001
 c
 00001 continue
@@ -179,6 +186,7 @@ c
         xyz_tag(i:i) = ' '
       enddo
       end
+c...............................................................................
       subroutine raktest_spcart(rtdb)
       implicit none 
 #include "mafdecls.fh"
@@ -188,10 +196,18 @@ c
       integer rtdb ! [input] rtdb handle
 c
       integer geom, basis
+      integer sp_basis, nshell_sp
       integer nbf, nbfsq, nbf_sp, nbf_chk, nshell
       integer max1e, max2e, mscr1, mscr2, m_scr, m_buf
       integer h_cart_s, h_sph_s, h_scr, h_buf, h_2bfr
       integer k_cart_s, k_sph_s, k_scr, k_buf, k_2bfr
+      integer h_cart_s2, h_sph_s2
+      integer k_cart_s2, k_sph_s2
+      integer h_eri_1, h_eri_2, h_eri_sp_1, h_eri_sp_2
+      integer k_eri_1, k_eri_2, k_eri_sp_1, k_eri_sp_2
+      double precision norm_cart, norm_sph
+      double precision ddot
+      external ddot
       logical status
 c
       logical int_normalize, int_norm_2c
@@ -231,6 +247,12 @@ c
       if (.not.ma_push_get(mt_dbl,nbfsq,'square spher overlap',
      &      h_sph_s, k_sph_s)) call errquit
      &      (' sph overlap ma failed ',911)
+      if (.not.ma_push_get(mt_dbl,nbfsq,'square cart overlap 2',
+     &      h_cart_s2, k_cart_s2)) call errquit
+     &      (' cart2 overlap ma failed ',911)
+      if (.not.ma_push_get(mt_dbl,nbfsq,'square spher overlap 2',
+     &      h_sph_s2, k_sph_s2)) call errquit
+     &      (' sph2 overlap ma failed ',911)
 c
       if (.not.bas_numcont(basis,nshell)) call errquit
      &      ('numcont error',911)
@@ -252,7 +274,6 @@ c
       if (.not.ma_push_get(mt_int,2*nshell,'buf for sp cn2bfr',
      &      h_2bfr,k_2bfr))
      &      call errquit('ma buf failed',911)
-c
       call rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,int_mb(k_2bfr))
 c
       if (nbf_chk.ne.nbf) then
@@ -261,6 +282,19 @@ c
 c
       write(6,*)' nbf    ',nbf
       write(6,*)' nbf_sp ',nbf_sp
+c
+      if (.not.ma_push_get(mt_dbl,(nbf*nbf*nbf*nbf),'eri cart 1',
+     &      h_eri_1,k_eri_1)) call errquit('ma failed',911)
+      if (.not.ma_push_get(mt_dbl,(nbf_sp*nbf_sp*nbf_sp*nbf_sp),
+     &    'eri_sp 1',
+     &      h_eri_sp_1,k_eri_sp_1)) call errquit('ma failed',911)
+      if (.not.ma_push_get(mt_dbl,(nbf*nbf*nbf*nbf),
+     &      'eri cart 2',
+     &      h_eri_2,k_eri_2)) call errquit('ma failed',922)
+      if (.not.ma_push_get(mt_dbl,(nbf_sp*nbf_sp*nbf_sp*nbf_sp),
+     &      'eri_sp  2',
+     &      h_eri_sp_2,k_eri_sp_2)) call errquit('ma failed',922)
+c
 c
       call rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
      &      dbl_mb(k_scr),m_scr,
@@ -271,26 +305,200 @@ c
       call rak_2el_test_sp(basis,nbf,nbf_sp,nshell,
      &      dbl_mb(k_scr),m_scr,
      &      dbl_mb(k_buf),m_buf,
-     &      int_mb(k_2bfr))
+     &      int_mb(k_2bfr),
+     &      dbl_mb(k_eri_sp_1),dbl_mb(k_eri_1))
+c
+      call rak_ovlap(basis,nbf,nshell,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      dbl_mb(k_cart_s2),.false.,'cartcart')
+
+      call rak_2el(basis,nbf,nshell,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      dbl_mb(k_eri_2),
+     &      .false., ' cartcart ')
+      if (.not.bas_create(sp_basis,'ao sp_basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,sp_basis,'ao sp_basis'))
+     &      call errquit
+     &      ('bas_rtdb_load failed',911)
+c
+      write(6,*)' geom/sp_basis loaded'
+c
+      write(6,*)' raw sp_basis '
+      if (.not. bas_print(sp_basis))
+     $      call errquit(' sp_basis print failed', 0)
+      write(6,*)' first normalize'
+      if (.not.int_normalize(sp_basis)) stop ' norm error 1'
+      if (.not. bas_print(sp_basis))
+     $      call errquit(' sp_basis print failed', 0)
+      if (.not.bas_numbf(sp_basis,nbf_sp)) call errquit
+     &      ('numbf failed',911)
+      if (.not.bas_numcont(sp_basis,nshell_sp)) call errquit
+     &      ('numcont error',911)
+      write(6,*)' sp_basis b4 rak_ovlap'
+      if (.not. bas_print(sp_basis))
+     $      call errquit(' sp_basis print failed', 0)
+      call rak_core(sp_basis,nbf_sp,nshell_sp,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      dbl_mb(k_sph_s2),.true.,'spsp')
+      call rak_ovlap(sp_basis,nbf_sp,nshell_sp,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      dbl_mb(k_sph_s2),.false.,'spsp')
+      call rak_2el(sp_basis,nbf_sp,nshell_sp,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      dbl_mb(k_eri_sp_2),
+     &      .true.,' spsp ')
+c
+      call print_diff_vec((nbf*nbf),
+     &    dbl_mb(k_cart_s),
+     &    dbl_mb(k_cart_s2),
+     &    1.0d-05,' cart s ')
+      call print_diff_vec((nbf_sp*nbf_sp),
+     &    dbl_mb(k_sph_s),
+     &    dbl_mb(k_sph_s2),
+     &    1.0d-05,' spher s ')
+      call daxpy((nbf*nbf),-1.0d00,
+     &      dbl_mb(k_cart_s2),1,
+     &      dbl_mb(k_cart_s),1)
+      norm_cart = ddot((nbf*nbf),dbl_mb(k_cart_s),1,dbl_mb(k_cart_s),1)
+      call daxpy((nbf*nbf),-1.0d00,
+     &      dbl_mb(k_sph_s2),1,
+     &      dbl_mb(k_sph_s),1)
+      norm_sph = ddot((nbf*nbf),dbl_mb(k_sph_s),1,dbl_mb(k_sph_s),1)
+c
+      write(6,*)'1e diff norm_cart:',norm_cart
+      write(6,*)'1e diff norm_sph :',norm_sph
+c
+      call print_diff_vec((nbf*nbf*nbf*nbf),
+     &    dbl_mb(k_eri_1),
+     &    dbl_mb(k_eri_2),
+     &    1.0d-05,' eri cart ')
+      call print_diff_vec((nbf_sp*nbf_sp*nbf_sp*nbf_sp),
+     &    dbl_mb(k_eri_sp_1),
+     &    dbl_mb(k_eri_sp_2),
+     &    1.0d-05,' eri spherical ')
+      call daxpy((nbf*nbf*nbf*nbf),-1.0d00,
+     &      dbl_mb(k_eri_2),1,
+     &      dbl_mb(k_eri_1),1)
+      norm_cart = ddot((nbf*nbf*nbf*nbf),
+     &      dbl_mb(k_eri_1),1,dbl_mb(k_eri_1),1)
+      call daxpy((nbf_sp*nbf_sp*nbf_sp*nbf_sp),-1.0d00,
+     &      dbl_mb(k_eri_sp_2),1,
+     &      dbl_mb(k_eri_sp_1),1)
+      norm_sph = ddot((nbf_sp*nbf_sp*nbf_sp*nbf_sp),
+     &      dbl_mb(k_eri_sp_1),1,dbl_mb(k_eri_sp_1),1)
+c
+      write(6,*)'2e diff norm_cart:',norm_cart
+      write(6,*)'2e diff norm_sph :',norm_sph
+c
       call int_terminate()
+c
       status = .true.
+      status = status.and.ma_pop_stack(h_eri_sp_2)
+      status = status.and.ma_pop_stack(h_eri_2)
+      status = status.and.ma_pop_stack(h_eri_sp_1)
+      status = status.and.ma_pop_stack(h_eri_1)
       status = status.and.ma_pop_stack(h_2bfr)
       status = status.and.ma_pop_stack(h_buf)
       status = status.and.ma_pop_stack(h_scr)
+      status = status.and.ma_pop_stack(h_sph_s2)
+      status = status.and.ma_pop_stack(h_cart_s2)
       status = status.and.ma_pop_stack(h_sph_s)
       status = status.and.ma_pop_stack(h_cart_s)
 c
       if (.not.status) call errquit('ma pop fail',911)
 c
       if(.not.bas_destroy(basis)) call errquit
-     &      ('bas_destroy failed',911)
+     &      ('basis bas_destroy failed',911)
+      if(.not.bas_destroy(sp_basis)) call errquit
+     &      ('sp_basis bas_destroy failed',911)
       if(.not.geom_destroy(geom)) call errquit
      &      ('geom_destroy failed',911)
 c
       end
 *.......................................................................
+      subroutine rak_2el(basis,nbf,nshell,
+     &    scr,mscr,buf,mbuf,eri,print_int,msg)
+      implicit none
+#include "bas.fh"
+#include "stdio.fh"
+#include "util.fh"
+      integer basis,nbf,nshell,mscr,mbuf
+      double precision eri(*), scr(mscr), buf(mbuf)
+      logical print_int
+      character*(*) msg
+c
+      integer ish, jsh, ksh, lsh
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi
+      integer count, indx
+      logical stat_indx
+      integer ii,jj,kk,ll
+c
+      integer i,j,k,l,isym2,isym4
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+      isym4(i,j,k,l)=max(isym2(i,j),isym2(k,l))*
+     &               (max(isym2(i,j),isym2(k,l))-1)/2+
+     &               min(isym2(i,j),isym2(k,l))
+c
+      write(6,*)' 2el ',msg
+c
+      call dfill((nbf*nbf*nbf*nbf),0.0d00,eri,1)
+c
+      do ish = 1,nshell
+        if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
+     &      stop 'cn2bfr error i'
+        do jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi))
+     &        stop 'cn2bfr error j'
+          do ksh = 1,ish
+            if (.not.bas_cn2bfr(basis,ksh,klo,khi))
+     &          stop 'cn2bfr error k'
+            do lsh = 1,ksh
+              if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
+     &            stop 'cn2bfr error l'
+              call int_2e4c
+     &            (basis,ish,jsh,basis,ksh,lsh,mscr,scr,mbuf,buf)
+              count = 0
+              do i=ilo,ihi
+                do j=jlo,jhi
+                  do k=klo,khi
+                    do l=llo,lhi
+                      count = count + 1
+                      indx = isym4(i,j,k,l)
+                      stat_indx = .false.
+                      if (stat_indx) then
+                        write(6,*)'indx:elel:shells',msg,
+     &                      indx,ish,jsh,ksh,lsh
+                        write(6,*)'indx:elel:labels',msg,
+     &                      indx,i,j,k,l
+                      endif
+                      if (print_int.and.(abs(buf(count)).gt.0.0d00))
+     &                    then
+                        call int_canon(i,j,k,l,ii,jj,kk,ll)
+                        write(69,*)ii,jj,kk,ll,buf(count),' 2el ',msg
+                      endif
+                      eri(indx) = buf(count)
+                    enddo
+                  enddo
+                enddo
+              enddo
+c.... end of shell loops
+99999         continue
+            enddo
+          enddo
+        enddo
+      enddo
+
+      end
+*.......................................................................
       subroutine rak_2el_test_sp(basis,nbf, nbf_sp, nshell,
-     &    scr,mscr,buf,mbuf,cn2bfr_sp)
+     &    scr,mscr,buf,mbuf,cn2bfr_sp,eri_sp,eri)
       implicit none
 #include "bas.fh"
 #include "stdio.fh"
@@ -298,6 +506,7 @@ c
       integer nbf, nbf_sp, nshell, mscr, mbuf, basis
       integer cn2bfr_sp(2,nshell)
       double precision scr(mscr), buf(mbuf)
+      double precision eri_sp(*), eri(*)
 c
       integer ish, jsh, ksh, lsh
       integer ilo, jlo, klo, llo
@@ -307,19 +516,30 @@ c
       integer inbf, jnbf, knbf, lnbf
       integer inbf_sp, jnbf_sp, knbf_sp, lnbf_sp
       integer itype, jtype, ktype, ltype
+      integer igen, jgen, kgen, lgen
       integer iatom, jatom, katom, latom
-      integer i, j, k, l
-      integer count
-      integer junk1,junk2,junk3
+      integer count, indx, lshtop
+      logical stat_indx
+*      integer junk2
+      integer junk1,junk3
       double precision ttrans_w, ttrans_c
       double precision tcomp_w, tcomp_c
       double precision tadd_w, tadd_c
 c
-      logical spcart_init, spcart_terminate
-      external spcart_init, spcart_terminate
+*      logical spcart_init, spcart_terminate
+*      external spcart_init, spcart_terminate
 c
-      if (.not.spcart_init(5,.true.,.false.))
-     &    stop ' spcart_init failed'
+      integer i,j,k,l,isym2,isym4
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+      isym4(i,j,k,l)=max(isym2(i,j),isym2(k,l))*
+     &               (max(isym2(i,j),isym2(k,l))-1)/2+
+     &               min(isym2(i,j),isym2(k,l))
+c
+*      if (.not.spcart_init(5,.true.,.false.))
+*     &    stop ' spcart_init failed'
+c
+      call dfill((nbf_sp*nbf_sp*nbf_sp*nbf_sp),0.0d00,eri_sp,1)
+      call dfill((nbf*nbf*nbf*nbf),0.0d00,eri,1)
       ttrans_w = 0.0d00
       ttrans_c = 0.0d00
       tcomp_w  = 0.0d00
@@ -328,7 +548,7 @@ c
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
      &      stop 'cn2bfr error i'
         if (.not.bas_continfo
-     &      (basis,ish,itype,junk1,junk2,junk3))
+     &      (basis,ish,itype,junk1,igen,junk3))
      &      stop 'bas_continfo error i'
         if (.not.bas_cn2ce(basis,ish,iatom))
      &      stop 'bas_cn2ce error i'
@@ -340,7 +560,7 @@ c
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi))
      &        stop 'cn2bfr error j'
           if (.not.bas_continfo
-     &        (basis,jsh,jtype,junk1,junk2,junk3))
+     &        (basis,jsh,jtype,junk1,jgen,junk3))
      &        stop 'bas_continfo error j'
           if (.not.bas_cn2ce(basis,jsh,jatom))
      &        stop 'bas_cn2ce error j'
@@ -348,11 +568,11 @@ c
           jhisp = cn2bfr_sp(2,jsh)
           jnbf    = jhi-jlo + 1
           jnbf_sp = jhisp-jlosp + 1
-          do ksh = 1,jsh
+          do ksh = 1,ish
             if (.not.bas_cn2bfr(basis,ksh,klo,khi))
      &          stop 'cn2bfr error k'
             if (.not.bas_continfo
-     &          (basis,ksh,ktype,junk1,junk2,junk3))
+     &          (basis,ksh,ktype,junk1,kgen,junk3))
      &          stop 'bas_continfo error k'
             if (.not.bas_cn2ce(basis,ksh,katom))
      &          stop 'bas_cn2ce error k'
@@ -360,11 +580,13 @@ c
             khisp = cn2bfr_sp(2,ksh)
             knbf    = khi-klo + 1
             knbf_sp = khisp-klosp + 1
-            do lsh = 1,ksh
+            lshtop = ksh
+            if (ksh.eq.ish) lshtop = jsh
+            do lsh = 1,lshtop
               if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
      &            stop 'cn2bfr error l'
               if (.not.bas_continfo
-     &            (basis,lsh,ltype,junk1,junk2,junk3))
+     &            (basis,lsh,ltype,junk1,lgen,junk3))
      &            stop 'bas_continfo error l'
               if (.not.bas_cn2ce(basis,lsh,latom))
      &            stop 'bas_cn2ce error l'
@@ -374,28 +596,36 @@ c
               lnbf_sp = lhisp-llosp + 1
               tadd_c = util_cpusec()
               tadd_w = util_wallsec()
-*              if (ish.ne.4) goto 99999
-*              if (jsh.ne.4) goto 99999
-*              if (ksh.ne.4) goto 99999
-*              if (lsh.ne.4) goto 99999
               call int_2e4c
      &            (basis,ish,jsh,basis,ksh,lsh,mscr,scr,mbuf,buf)
+c
               tadd_c = util_cpusec() - tadd_c
               tadd_w = util_wallsec() - tadd_w
               if (tadd_c.gt.0.0d00) tcomp_c = tcomp_c + tadd_c
               if (tadd_w.gt.0.0d00) tcomp_w = tcomp_w + tadd_w
-              write(luout,10000)ish,jsh,ksh,lsh,
-     &            itype,jtype,ktype,ltype,
-     &            iatom,jatom,katom,latom
+*rak:              write(luout,10000)ish,jsh,ksh,lsh,
+*rak:     &            itype,jtype,ktype,ltype,
+*rak:     &            iatom,jatom,katom,latom
               count = 0
               do i=ilo,ihi
                 do j=jlo,jhi
                   do k=klo,khi
                     do l=llo,lhi
                       count = count + 1
-                      if (abs(buf(count)).gt.1.0d-07) then
-                        write(luout,10001)i,j,k,l,buf(count),count
+                      indx = isym4(i,j,k,l)
+                      stat_indx = indx.eq.5566
+                      stat_indx = stat_indx.or.
+     &                    (indx.ge.5772.and.indx.le.5784)
+                      stat_indx = stat_indx.or.
+     &                    (indx.ge.5887.and.indx.le.5901)
+                      stat_indx = .false.
+                      if (stat_indx) then
+                        write(6,*)'indx:cart:shells',
+     &                      indx,ish,jsh,ksh,lsh
+                        write(6,*)'indx:cart:labels',
+     &                      indx,i,j,k,l
                       endif
+                      eri(indx) = buf(count)
                     enddo
                   enddo
                 enddo
@@ -405,29 +635,54 @@ c
               tadd_w = util_wallsec()
               call spcart_bra2etran(buf,scr,
      &            jnbf,inbf,jnbf_sp,inbf_sp,
-     &            jtype,itype,(knbf*lnbf),
-     &            .false.)
+     &            jtype,itype,jgen,igen,
+     &            (knbf*lnbf),.false.)
               call spcart_ket2etran(buf,scr,
      &            lnbf,knbf,lnbf_sp,knbf_sp,
-     &            ltype,ktype,(inbf_sp*jnbf_sp),
-     &            .false.)
+     &            ltype,ktype,lgen,kgen,
+     &            (inbf_sp*jnbf_sp),.false.)
+c
               tadd_c = util_cpusec() - tadd_c
               tadd_w = util_wallsec() - tadd_w
               if (tadd_c.gt.0.0d00) ttrans_c = ttrans_c + tadd_c
               if (tadd_w.gt.0.0d00) ttrans_w = ttrans_w + tadd_w
 *
-              write(luout,10000)ish,jsh,ksh,lsh,
-     &            itype,jtype,ktype,ltype,
-     &            iatom,jatom,katom,latom
+*rak:              write(luout,10000)ish,jsh,ksh,lsh,
+*rak:     &            itype,jtype,ktype,ltype,
+*rak:     &            iatom,jatom,katom,latom
+*rak:              count = 0
+*rak:              do i=ilosp,ihisp
+*rak:                do j=jlosp,jhisp
+*rak:                  do k=klosp,khisp
+*rak:                    do l=llosp,lhisp
+*rak:                      count = count + 1
+*rak:                      if (abs(buf(count)).gt.1.0d-07) then
+*rak:                        write(luout,10002)i,j,k,l,buf(count),count
+*rak:                      endif
+*rak:                    enddo
+*rak:                  enddo
+*rak:                enddo
+*rak:              enddo
               count = 0
               do i=ilosp,ihisp
                 do j=jlosp,jhisp
                   do k=klosp,khisp
                     do l=llosp,lhisp
                       count = count + 1
-                      if (abs(buf(count)).gt.1.0d-07) then
-                        write(luout,10002)i,j,k,l,buf(count),count
+                      indx = isym4(i,j,k,l)
+                      stat_indx = indx.eq.5566
+                      stat_indx = stat_indx.or.
+     &                    (indx.ge.5772.and.indx.le.5784)
+                      stat_indx = stat_indx.or.
+     &                    (indx.ge.5887.and.indx.le.5901)
+                      stat_indx = .false.
+                      if (stat_indx) then
+                        write(6,*)'indx:sp:shells',
+     &                      indx,ish,jsh,ksh,lsh
+                        write(6,*)'indx:sp:labels',
+     &                      indx,i,j,k,l
                       endif
+                      eri_sp(indx) = buf(count)
                     enddo
                   enddo
                 enddo
@@ -439,15 +694,17 @@ c.... end of shell loops
         enddo
       enddo
 c
-      if (.not.spcart_terminate()) stop 'term error'
+*      if (.not.spcart_terminate()) stop 'term error'
       write(luout,*)' total compute time ( cpu): ',tcomp_c
       write(luout,*)' total compute time (wall): ',tcomp_w
       write(luout,*)' total tranfrm time ( cpu): ',ttrans_c
       write(luout,*)' total tranfrm time (wall): ',ttrans_w
-      write(luout,'(1x,a,f10.2)')
+      if (tcomp_c.gt.1.0d-30)
+     &    write(luout,'(1x,a,f10.2)')
      &    '      %    overhead ( cpu): ',
      &    (ttrans_c/tcomp_c*100.0d00)
-      write(luout,'(1x,a,f10.2)')
+      if (tcomp_w.gt.1.0d-30)
+     &    write(luout,'(1x,a,f10.2)')
      &    '      %    overhead (wall): ',
      &    (ttrans_w/tcomp_w*100.0d00)
 c
@@ -480,6 +737,117 @@ c
       enddo
 *10000 format('<ish:type><',i3,':',i3,'>  range ',i3,' to ',i3)
       end
+*-------------------------------------------------------------------------------
+      subroutine rak_ovlap(basis,nbf,nshell,
+     &      scr,mscr,buf,mbuf,s,print_int,msg)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "bas.fh"
+c
+      integer nbf, nshell, mscr, mbuf, basis
+      double precision scr(mscr), buf(mbuf)
+      double precision s(nbf,nbf)
+      logical print_int
+      character*(*) msg
+c
+      integer count
+      integer ibf, ish, ilow, ihi, nbfi
+      integer jbf, jsh, jlow, jhi, nbfj
+      double precision value
+      logical do_print
+c
+      call dfill((nbf*nbf),0.0d00,s,1)
+      call dfill(mscr,0.0d00,scr,1)
+      call dfill(mbuf,0.0d00,buf,1)
+c
+      do ish = 1,nshell
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        nbfi    = ihi    - ilow + 1
+        do jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          nbfj    = jhi    - jlow + 1
+c
+          call int_1eov(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
+c
+          count = 0
+          do ibf = ilow,ihi
+            do jbf = jlow, jhi
+              count = count + 1
+              value = buf(count)
+              s(ibf,jbf) = value
+              s(jbf,ibf) = value
+              do_print = print_int
+              do_print = do_print .and. (ibf.ge.jbf)
+              do_print = do_print .and. (abs(value).gt.0.0d00)
+              if (do_print) then
+                write(69,*)ibf, jbf, value, ' ovlap ',msg
+              endif
+            enddo
+          enddo
+
+c. close jsh/ish loops
+        enddo
+      enddo
+      write(6,*)' generic overlap matrix (nbf=',nbf,') <',msg,'>'
+      call output(s,1,nbf,1,nbf,nbf,nbf,1)
+      end
+*-------------------------------------------------------------------------------
+      subroutine rak_core(basis,nbf,nshell,
+     &      scr,mscr,buf,mbuf,s,print_int,msg)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "bas.fh"
+c
+      integer nbf, nshell, mscr, mbuf, basis
+      double precision scr(mscr), buf(mbuf)
+      double precision s(nbf,nbf)
+      logical print_int
+      character*(*) msg
+c
+      integer count
+      integer ibf, ish, ilow, ihi, nbfi
+      integer jbf, jsh, jlow, jhi, nbfj
+      double precision value
+      logical do_print
+c
+      call dfill((nbf*nbf),0.0d00,s,1)
+      call dfill(mscr,0.0d00,scr,1)
+      call dfill(mbuf,0.0d00,buf,1)
+c
+      do ish = 1,nshell
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        nbfi    = ihi    - ilow + 1
+        do jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          nbfj    = jhi    - jlow + 1
+c
+          call int_1eh1(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
+c
+          count = 0
+          do ibf = ilow,ihi
+            do jbf = jlow, jhi
+              count = count + 1
+              value = buf(count)
+              s(ibf,jbf) = value
+              s(jbf,ibf) = value
+              do_print = print_int
+              do_print = do_print .and. (ibf.ge.jbf)
+              do_print = do_print .and. (abs(value).gt.0.0d00)
+              if (do_print) then
+                write(69,*)ibf, jbf, value, ' h1 ',msg
+              endif
+            enddo
+          enddo
+
+c. close jsh/ish loops
+        enddo
+      enddo
+      write(6,*)' generic h1 matrix (nbf=',nbf,') <',msg,'>'
+      call output(s,1,nbf,1,nbf,nbf,nbf,1)
+      end
+*-------------------------------------------------------------------------------
       subroutine rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
      &      scr,mscr,buf,mbuf,s,s_sp,cn2bfr_sp)
       implicit none
@@ -494,31 +862,36 @@ c
 c
       integer ibf, ish, ilow, ihi, ilow_sp, ihi_sp, nbfi, nbfi_sp
       integer jbf, jsh, jlow, jhi, jlow_sp, jhi_sp, nbfj, nbfj_sp
-      integer typei, typej, nprim, ngen, spsp
+      integer typei, typej, nprim, igen, jgen, spsp
       integer nint, nint_sp, count, hi_ang, st_ang
       integer ii, jj
       double precision value
 *rak:      double precision pi, fact
 c
-      logical spcart_init, spcart_terminate
-      external spcart_init, spcart_terminate
+*      logical spcart_init, spcart_terminate
+*      external spcart_init, spcart_terminate
 c
 *      write(6,*)'inside rak_ovlap'
       if (.not.bas_high_angular(basis,hi_ang)) stop ' fuck ang'
       st_ang = hi_ang/2
-      if (.not.spcart_init(st_ang,.true.,.false.)) stop ' fuck sp'
-      if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' fuck sp'
+*      if (.not.spcart_init(st_ang,.true.,.false.)) stop ' fuck sp'
+*      if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' fuck sp'
 c
 *      write(6,*)' mscr = ',mscr
 *      write(6,*)' mbuf = ',mbuf
 c
+      call dfill((nbf_sp*nbf_sp),0.0d00,s_sp,1)
+      call dfill((nbf*nbf),0.0d00,s,1)
+      call dfill(mscr,0.0d00,scr,1)
+      call dfill(mbuf,0.0d00,buf,1)
+
       do ish = 1,nshell
         if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
         ilow_sp = cn2bfr_sp(1,ish)
         ihi_sp  = cn2bfr_sp(2,ish)
         nbfi    = ihi    - ilow + 1
         nbfi_sp = ihi_sp - ilow_sp + 1
-        if(.not.bas_continfo(basis,ish,typei,nprim,ngen,spsp))
+        if(.not.bas_continfo(basis,ish,typei,nprim,igen,spsp))
      &        call errquit(' continfo failed ',911)
         do jsh = 1,ish
           if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
@@ -526,7 +899,7 @@ c
           jhi_sp  = cn2bfr_sp(2,jsh)
           nbfj    = jhi    - jlow + 1
           nbfj_sp = jhi_sp - jlow_sp + 1
-          if(.not.bas_continfo(basis,jsh,typej,nprim,ngen,spsp))
+          if(.not.bas_continfo(basis,jsh,typej,nprim,jgen,spsp))
      &          call errquit(' continfo failed ',911)
 c
           nint    = nbfi*nbfj
@@ -555,24 +928,24 @@ c
               s(jbf,ibf) = value
             enddo
           enddo
-********************#define NEW_WAY
+#define NEW_WAY
 #if defined(NEW_WAY)
           call spcart_tran1e(buf,scr,
-     &        nbfj,nbfi,typej,
-     &        nbfj_sp,nbfi_sp,typei,.true.)
+     &        nbfj,nbfi,typej,jgen,
+     &        nbfj_sp,nbfi_sp,typei,igen,.false.)
 #else
 *rak:          write(6,*) ' ma fucked 2'
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
 c.... buf is now -- buf(nbfj,nbfi)
           write(6,*)' integral buffer cart,cart '
           call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
-          call spcart_a_s(buf,scr,nbfj,typei,.false.)
+          call spcart_a_s(buf,scr,nbfj,typei,.false.,.false.)
 c.... scr is now -- scr(nbfj,nbfi_sp)
           write(6,*)' integral buffer  cart,sph'
           call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
 *rak:          write(6,*) ' ma fucked 3'
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
-          call spcart_s_a(scr,buf,nbfi_sp,typej,.false.)
+          call spcart_s_a(scr,buf,nbfi_sp,typej,.false.,.false.)
 c.... buf is now -- buf(nbfj_sp,nbfi_sp)
           write(6,*)' integral buffer  sph,sph'
           call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
@@ -652,7 +1025,7 @@ c
 *rak:*rak:     &        (s_sp(ii,ii)/pi)
 *rak:        write(6,*)' '
 *rak:      enddo
-      if (.not.spcart_terminate()) stop ' fuck sp term'
+*      if (.not.spcart_terminate()) stop ' fuck sp term'
       end
       subroutine raktest_3ctr(rtdb)
       implicit none
@@ -2229,4 +2602,190 @@ c
       enddo
 10000 format('<',i3,'|',i3,'> <diff',1pd20.10,'>  <seg',1pd20.10,
      &    '>  <noseg',1pd20.10,'>',1x,a)
+      end
+      subroutine print_diff_vec(n,a,b,ths,msg)
+      implicit none
+      integer n
+      double precision a(n), b(n)
+      double precision ths
+      character*(*) msg
+c
+      integer i, count, nza, nzb
+      double precision diff
+c
+      write(6,*)' print_diff_vec <<',msg,'>>'
+      write(6,*)' print_diff_vec threshold:',ths
+c
+      nza = 0
+      nzb = 0
+      count = 0
+      do i = 1,n
+        if (a(i).ne.0.0d00) nza = nza + 1
+        if (b(i).ne.0.0d00) nzb = nzb + 1
+        diff = a(i) - b(i)
+        if (abs(diff).gt.ths) then
+          count = count + 1
+          write(6,'(1x,i8,a,d12.6,a,d12.6,a,d12.6)')
+     &        i,' th element delta:',diff,
+     &        ' a:',a(i),' b:',b(i)
+        endif
+      enddo
+      write(6,*)' print_diff_vec: number of different elements    :',
+     &    count
+      write(6,*)' print_diff_vec: number of nonzero elements in a :',
+     &    nza
+      write(6,*)' print_diff_vec: number of nonzero elements in b :',
+     &    nzb
+      end
+      subroutine raktest_test9(rtdb)
+c
+      implicit none
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+c      
+      integer rtdb
+c
+      integer basis, geom, count
+      integer i, j, k, l
+      integer ish, jsh, ksh, lsh
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi
+      integer k_buf, h_buf, k_scr, h_scr
+      integer max1e, max2e, mscr1, mscr2, m_buf, m_scr
+      integer inshell(4)
+      logical status
+      logical int_normalize
+      external int_normalize
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+c
+      if (.not.bas_create(basis,'ao sp_basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao sp_basis'))
+     &    call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+c
+      if (.not.geom_print(geom)) stop ' print error'
+      if (.not.bas_print(basis)) stop ' print error'
+c
+      call int_init(rtdb,1,basis)
+      call int_mem(max1e,max2e,mscr1,mscr2)
+      m_buf = max(max1e*2,max2e*2)
+      m_scr = max(mscr1*2,mscr2)
+      m_buf = m_buf + (m_buf*110)/100
+      m_scr = m_scr + (m_scr*110)/100
+c
+      if (.not.ma_push_get(mt_dbl,m_scr,'scr for 1e',h_scr,k_scr))
+     &      call errquit('ma scr failed',911)
+c
+      if (.not.ma_push_get(mt_dbl,m_buf,'buf for 1e',h_buf,k_buf))
+     &      call errquit('ma buf failed',911)
+c
+      ish = 1
+      jsh = 1
+      ksh = 1
+      lsh = 1
+      if (rtdb_get(rtdb,'rak9:shells',mt_int,4,inshell)) then
+        ish = inshell(1)
+        jsh = inshell(2)
+        ksh = inshell(3)
+        lsh = inshell(4)
+      else
+        write(6,*)'rak9:shells not set on rtdb'
+      endif
+c
+      write(6,*)' rak9 for shells ',ish,jsh,ksh,lsh
+c
+      call int_2e4c(basis,ish,jsh,basis,ksh,lsh,
+     &    m_scr,dbl_mb(k_scr),m_buf,dbl_mb(k_buf))
+c
+      if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
+     &    stop 'cn2bfr error i'
+      if (.not.bas_cn2bfr(basis,jsh,jlo,jhi))
+     &    stop 'cn2bfr error j'
+      if (.not.bas_cn2bfr(basis,ksh,klo,khi))
+     &    stop 'cn2bfr error k'
+      if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
+     &    stop 'cn2bfr error l'
+      count = 0
+      do i=ilo,ihi
+        do j=jlo,jhi
+          do k=klo,khi
+            do l=llo,lhi
+              write(6,*)i,j,k,l,dbl_mb(k_buf+count)
+              write(69,*)i,j,k,l,dbl_mb(k_buf+count)
+              count = count + 1
+            enddo
+          enddo
+        enddo
+      enddo
+c
+      status = .true.
+      status = status.and.ma_pop_stack(h_buf)
+      status = status.and.ma_pop_stack(h_scr)
+c
+      if (.not.status) call errquit('ma pop fail',911)
+      call int_terminate()
+c
+      if (.not.bas_destroy(basis)) call errquit
+     &    ('9: bas_destroy failed ?',911)
+      if (.not.geom_destroy(geom)) call errquit
+     &    ('9: geom_destroy failed ?',911)
+c
+      end
+      subroutine raktest_ecp(rtdb)
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+      integer rtdb
+*ecp:c
+*ecp:      integer geom, basis, ecpid
+*ecp:c
+*ecp:      logical int_normalize, int_ecp_init
+*ecp:      external int_normalize, int_ecp_init
+*ecp:c
+*ecp:*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
+*ecp:c
+*ecp:      if (.not.geom_create(geom,'geometry'))
+*ecp:     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+*ecp:      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+*ecp:     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+*ecp:      if (.not.geom_print(geom)) stop ' print error'
+*ecp:c
+*ecp:      if (.not.bas_create(basis,'ao basis')) call errquit
+*ecp:     &      ('bas_create failed',911)
+*ecp:      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+*ecp:     &    call errquit
+*ecp:     &      ('bas_rtdb_load failed',911)
+*ecp:      if (.not.bas_print(basis)) stop ' print error'
+*ecp:*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 2?'
+*ecp:c
+*ecp:      if (.not.bas_create(ecpid,'ecp basis')) call errquit
+*ecp:     &      ('bas_create failed',911)
+*ecp:      if (.not.bas_rtdb_load(rtdb,geom,ecpid,'ecp basis'))
+*ecp:     &    call errquit
+*ecp:     &      ('bas_rtdb_load failed',911)
+*ecp:      if (.not.bas_print(ecpid)) stop ' print error'
+*ecp:c
+*ecp:      if (.not.int_normalize(basis)) stop ' norm error 1'
+*ecp:      if (.not.bas_print(basis)) stop ' print error'
+*ecp:      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
+*ecp:      if (.not.bas_print(ecpid)) stop ' print error'
+*ecp:      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
+*ecp:c
+*ecp:      if (.not.int_ecp_init(ecpid)) stop ' error in int_ecp_init'
+*ecp:      call int_ecp_terminate()
+*ecp:c
+*ecp:      if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
+*ecp:      if (.not.bas_destroy(ecpid)) stop ' bas_dest error 2'
+*ecp:      if (.not.geom_destroy(geom)) stop ' geom_dest error 1'
+*ecp:      if (.not.bas_version()) stop ' bas_version error'
+*ecp:c
       end

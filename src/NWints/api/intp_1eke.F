@@ -1,5 +1,5 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.4 1996-01-23 21:56:57 d3e129 Exp $
+c $Id: intp_1eke.F,v 1.5 1996-07-18 23:58:51 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -52,6 +52,11 @@ c check initialization and shells
 c
       if (.not.int_chk_init('intp_1eke'))
      &       call errquit('intp_1eke: int_init was not called' ,0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'intp_1eke')
+      call int_nospherical_check(j_basis,'intp_1eke')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

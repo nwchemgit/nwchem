@@ -1,6 +1,6 @@
       subroutine int_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e3c.F,v 1.6 1996-02-09 22:35:53 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.7 1996-07-18 23:57:49 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two electron integrals
@@ -69,6 +69,11 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
      &       call errquit('int_2e3c: invalid contraction/shell',0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(brain,'int_2e3c')
+      call int_nospherical_check(ketin,'int_2e3c')
 c
 c set integral code status
 c

@@ -1,23 +1,44 @@
 c
-c $Id: apiP.fh,v 1.8 1996-07-10 10:10:53 d3e129 Exp $
+c $Id: apiP.fh,v 1.9 1996-07-18 23:57:20 d3e129 Exp $
 c
 c common block that holds memory information
 c
-      integer mem_2e4c, mem_1e, mem_1e_h1
-      integer isz_2e4c, isz_1e
-      integer iszb_2e4c, memb_2e4c
-      integer isz_2e3c, isz_2e2c, mem_2e3c, mem_2e2c
-      integer isz_3ov, mem_3ov
-      integer init_int, init_intd
+      integer mem_2e4c    ! scr memory size for 4 center integrals
+      integer isz_2e4c    ! max buffer size for 4 center integrals
+      integer mem_1e      ! scr memory size for 1 electron integrals
+      integer isz_1e      ! max buffer size for 1 electron integrals
+      integer mem_1e_h1   ! scr memory size for h1-1 electron integrals
+      integer isz_2e3c    ! max buffer size for 3 center integrals
+      integer mem_2e3c    ! scr memory size for 3 center integrals
+      integer isz_2e2c    ! max buffer size for 2 center integrals
+      integer mem_2e2c    ! scr memory size for 2 center integrals
+      integer isz_3ov     ! max buffer size for 3 center overlap integrals
+      integer mem_3ov     ! scr memory size for 3 center overlap integrals
+      integer iszb_2e4c   ! max buffer size for blocked 4 center integrals
+      integer memb_2e4c   ! scr memory size for blocked 4 center integrals
+      integer init_int    ! integral initialization flag
+      integer init_intd   ! derivative initialization flag
+*
       common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e,
      &       mem_1e_h1, isz_2e3c, isz_2e2c, mem_2e3c, mem_2e2c,
      &       isz_3ov, mem_3ov, iszb_2e4c, memb_2e4c, init_intd
+c
+c common block that holds dummy exponent and coeficient
+c
       double precision DCexp, DCcoeff
       common /capidc/ DCexp, DCcoeff
+c
+c API accuracy value
+c
       double precision val_int_acc
       common /comacc/ val_int_acc
+c
+c derivative storage and computation information
+c
       integer intd_memthresh
-      integer numd_tot, numd_okay, numd_red
+      integer numd_tot
+      integer numd_okay
+      integer numd_red
       common /chf2d/ intd_memthresh, numd_tot, numd_okay, numd_red
 c
       integer intd_memp

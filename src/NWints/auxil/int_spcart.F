@@ -1,5 +1,12 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.10 1996-03-20 00:53:50 d3e129 Exp $
+c $Id: int_spcart.F,v 1.11 1996-07-18 23:59:08 d3e129 Exp $
+*------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996,                *
+*         Pacific Northwest National Laboratory, *
+*         Battelle Memorial Institute.           *
+*------------------------------------------------*
+*------------> All Rights Reserved <-------------*
+*------------------------------------------------*
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -87,6 +94,15 @@ c
 * set up pointers and copy recursion array to compressed transformation arrays
       call xlm_ptrs(lmaxin,dbl_mb(k_sp2c),dbl_mb(k_sp2c),
      &    dbl_mb(k_sp2c_cmp),l_block_size,int_mb(k_sp2c_lindx))
+*      do lval=0,Lmaxin
+*        call spcart_print_dtrans(lval)
+*      enddo
+      call xlm_ptrs_fix_p(dbl_mb(int_mb((k_sp2c_lindx+1))),3,1)
+*rak:      do lval=0,Lmaxin
+*rak:        call xlm_ptrs_phase(dbl_mb(int_mb((k_sp2c_lindx+lval))),
+*rak:     &      (lval+1)*(lval+2)/2,lval)
+*rak:        call spcart_print_dtrans(lval)
+*rak:      enddo
 c
 * free up recursion copy of transformation matricies
       if (.not.ma_free_heap(h_sp2c)) call errquit
@@ -98,6 +114,10 @@ c
       sph_cart_init = Sph_Cart_Init_Value
       lmax_init = lmaxin
       spcart_init = .true.
+c
+#if defined(LINUX)
+      trust_dgemm = .true.
+#endif
 c
       end
 *.......................................................................
@@ -134,6 +154,7 @@ c
         if (.not.spcart_terminate) call errquit
      &      (' error freeing heap in spcart_terminate',911)
         sph_cart_init = 0
+        trust_dgemm = .false.
       else
         spcart_terminate = .false.
       endif
@@ -180,7 +201,65 @@ c
 00300     continue
 00200   continue
 00100 continue
-*     call spcart_print_both(D,ld)
+*      call spcart_print_both(D,ld)
+      end
+*.......................................................................
+      subroutine xlm_ptrs_phase(Dp,l2p,lp)
+      implicit none
+      integer l2p, lp
+      double precision Dp(l2p,-lp:lp)
+      integer lc, ls
+      logical scale_it
+      double precision dmaxval
+      integer dmaxindx
+c
+      do ls = -lp,lp
+        scale_it = .false.
+        dmaxval  = abs(Dp(1,ls))
+        dmaxindx = 1
+        do lc = 2,l2p
+          if (dmaxval.lt.abs(Dp(lc,ls))) then
+            dmaxval = abs(Dp(lc,ls))
+            dmaxindx = lc
+          endif
+        enddo
+        if (Dp(dmaxindx,ls).lt.0.0d00) scale_it = .true.
+c
+        if (scale_it) then
+          do lc = 1,l2p
+            Dp(lc,ls) = -1.0d00*Dp(lc,ls)
+          enddo
+        endif
+      enddo
+      end
+*.......................................................................
+      subroutine xlm_ptrs_fix_p(Dp,l2p,lp)
+      implicit none
+      integer l2p,lp
+      integer count_val, lc, ls
+      double precision Dp(l2p,-lp:lp)
+c
+      double precision dpdp(3)
+c
+      count_val = 0
+      do ls = -lp,lp
+        do lc = 1,l2p
+          if (Dp(lc,ls).ne.0.0d00) then
+            count_val = count_val + 1
+            if (count_val.gt.3) then
+              write(6,*)' count_val range is 1<3' 
+              write(6,*)' count_val out of range ',count_val
+              call errquit('fix p: error',911)
+            endif
+            dpdp(count_val) = Dp(lc,ls)
+          endif
+          Dp(lc,ls) = 0.0d00
+        enddo
+      enddo
+      Dp(1,-1) = dpdp(1)
+      Dp(2, 0) = dpdp(2)
+      Dp(3, 1) = dpdp(3)
+c
       end
 *.......................................................................
       subroutine spcart_print_both(D,ld)
@@ -201,11 +280,6 @@ c::statement function ----- start
      &           + iic - 1)
 c::statement function ----- end
 c
-      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
-     &    ('spcart_print_both: spcart not initialized properly',
-     &    sph_cart_init)
-c
-c
       do lval = 0,ld
         write(6,*)' d matrix '
         l2s = (lval+1)*(lval+2)/2
@@ -224,10 +298,10 @@ c
 #include "spcartP.fh"
       integer ld
 c
-      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
-     &    ('spcart_print_dtrans: spcart not initialized properly',
-     &    sph_cart_init)
-c
+*rak:      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+*rak:     &    ('spcart_print_dtrans: spcart not initialized properly',
+*rak:     &    sph_cart_init)
+*rak:c
       write(6,*)' trans matrix used for Lval =',ld
       call output(dbl_mb((int_mb(k_sp2c_lindx+ld))),1,
      &    ((ld+1)*(ld+2)/2),1,(2*ld+1),
@@ -273,13 +347,15 @@ c
       data active_sp2c       /.false./
       data active_sp2c_cmp   /.false./
       data active_sp2c_lindx /.false./
+      data trust_dgemm       /.false./
       end
 *.......................................................................
-      subroutine spcart_a_s(blockin, blockout, ndima, ls, in_place)
+      subroutine spcart_a_s(blockin, blockout, ndima, ls,
+     &      ngls, in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals with the Ls function is the slowest dimension
-c  e.g., blockin(ndima,L2s)
+c  e.g., blockin(ndima,L2s,ngls)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -287,14 +363,14 @@ c
 c: passed
       integer ndima  ! [input] leading dimension of block
       integer ls     ! [input] angular momentum of block
-      double precision blockin (ndima,((ls+1)*(ls+2)/2))  ! [input] matrix 
-      double precision blockout(ndima,-ls:ls)           ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,((ls+1)*(ls+2)/2),ngls)  ! [input] matrix 
+      double precision blockout(ndima,-ls:ls,ngls)             ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-#define SPECIAL
-#if defined(USE_LOOPS)
-      integer i,j,k
-#endif
+      double precision sumg
+      integer i,j,k,g
       integer L2s
 c::statement function ----- start
       integer iic,iis,iil
@@ -317,8 +393,10 @@ c
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
-        call dcopy((ndima*(2*ls+1)),blockin,1,blockout,1)
+        call dcopy((ndima*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
+      else
+        call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
       endif
 c
       if (in_place) then
@@ -327,44 +405,57 @@ c
 c
 *      call spcart_print_Dtrans(ls)
 c
-#if defined(SPECIAL)
       if (ls.eq.2) then
-        call spcart_a_sd(blockin,blockout,ndima,in_place)
+        call spcart_a_sd(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.3) then
-        call spcart_a_sf(blockin,blockout,ndima,in_place)
+        call spcart_a_sf(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.4) then
-        call spcart_a_sg(blockin,blockout,ndima,in_place)
+        call spcart_a_sg(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       endif
-#endif
-#if defined(USE_LOOPS)
 c
-c  blockout(ndima,2l+1) = blockin(ndima,l2s)*d_spcart(l2s,2l+1,lp=ls)
+c
+c:old<dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)>
+c dgemm call for blockin(ndima,l2s,ngls)*dtrans(l2s,2l+1) = blockout(ndima,2l+1,ngls)
+c
+      L2s = ((ls+1)*(ls+2)/2)
+      if (trust_dgemm) then
+        do  g=1,ngls
+          call dgemm('n','n',ndima,(2*ls+1),L2s,1.0d00,
+     &          blockin(1,1,g),ndima,
+     &          dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
+     &          0.0d00,blockout(1,1,g),ndima)
+        enddo
+        return
+      endif
+c
+c
+c  blockout(ndima,2l+1,ngls) = blockin(ndima,l2s,ngls)*d_spcart(l2s,2l+1,lp=ls)
 c      
+      call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
       L2s = ((ls+1)*(ls+2)/2)
-      do 00100 i=1,ndima
-        do 00200 j=(-ls),ls
-          blockout(i,j) = 0.0d00
-          do 00300 k = 1,L2s
-            blockout(i,j) = blockout(i,j) + blockin(i,k)*Dtrans(k,j,Ls)
-00300     continue
-00200   continue
-00100 continue
-#else
-c
-c
-c dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)
-c
-      L2s = ((ls+1)*(ls+2)/2)
-      call dgemm('n','n',ndima,(2*ls+1),L2s,1.0d00,blockin,ndima,
-     &    dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,0.0d00,blockout,ndima)
-c
-#endif
+      do g = 1,ngls
+        do j=(-ls),ls
+          do i=1,ndima
+            sumg = 0.0d00
+            do k = 1,L2s
+*              blockout(i,j,g) = blockout(i,j,g) +
+*     &              blockin(i,k,g)*Dtrans(k,j,Ls)
+              sumg = sumg + blockin(i,k,g)*Dtrans(k,j,Ls)
+            enddo
+            blockout(i,j,g) = sumg
+          enddo
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_s_a(blockin, blockout, ndima, ls, in_place)
+      subroutine spcart_s_a(blockin, blockout, ndima,
+     &      ls, ngls, in_place, print_info)
       implicit none
 c
 c  transforms a block of "integrals" with the ls function is the leading dimension
@@ -376,13 +467,13 @@ c
 c: passed
       integer ndima  ! [input] leading dimension of block
       integer ls     ! [input] angular momentum of block
-      double precision blockin (((ls+1)*(ls+2)/2),ndima)  ! [input] matrix 
-      double precision blockout(-ls:ls,ndima)           ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (((ls+1)*(ls+2)/2),ngls,ndima)  ! [input] matrix 
+      double precision blockout(-ls:ls,ngls,ndima)           ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-#if defined(USE_LOOPS)
-      integer i,j,k
-#endif
+      integer i,j,k,g
       integer L2s
 c::statement function ----- start
       integer iic,iis,iil
@@ -405,8 +496,10 @@ c
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
-        call dcopy((ndima*(2*ls+1)),blockin,1,blockout,1)
+        call dcopy((ndima*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
+      else
+        call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
       endif
 c
       if (in_place) then
@@ -415,45 +508,51 @@ c
 c
 *      call spcart_print_Dtrans(ls)
 c
-#if defined(SPECIAL)
       if (ls.eq.2) then
-        call spcart_sd_a(blockin,blockout,ndima,in_place)
+        call spcart_sd_a(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.3) then
-        call spcart_sf_a(blockin,blockout,ndima,in_place)
+        call spcart_sf_a(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.4) then
-        call spcart_sg_a(blockin,blockout,ndima,in_place)
+        call spcart_sg_a(blockin,blockout,ndima,ngls,
+     &      in_place,print_info)
         return
       endif
-#endif
-#if defined(USE_LOOPS)
+      if (ngls.eq.1 .and. trust_dgemm) then
 c
-c blockout(2l+1,ndima) = blockin(l2s,ndima)*d_spcart(l2s,2l+1,lp=ls)
-c      
-      L2s = ((ls+1)*(ls+2)/2)
-      call dfill(((2*ls+1)*ndima),0.0d00,blockout,1)
-      do 00100 i=(-ls),ls
-        do 00200 j=1,ndima
-          do 00300 k = 1,L2s
-            blockout(i,j) = blockout(i,j) + blockin(k,j)*Dtrans(k,i,Ls)
-00300     continue
-00200   continue
-00100 continue
-#else
-c
+c only works for ngls = 1 right now
 c dgemm call for:
 c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = blockout(2l+1,ndima)
 c
+        L2s = ((ls+1)*(ls+2)/2)
+        call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
+     &        dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
+     &        blockin,L2s,0.0d00,blockout,(2*ls+1))
+        return
+      endif
+c
+c blockout(2l+1,ngls,ndima) = blockin(l2s,ngls,ndima)*d_spcart(l2s,2l+1,lp=ls)
+c      
       L2s = ((ls+1)*(ls+2)/2)
-      call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
-     &      dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
-     &      blockin,L2s,0.0d00,blockout,(2*ls+1))
-#endif
+      call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
+      do j=1,ndima
+        do g=1,ngls
+          do i=(-ls),ls
+            do k = 1,L2s
+              blockout(i,g,j) = blockout(i,g,j) +
+     &              blockin(k,g,j)*Dtrans(k,i,Ls)
+            enddo
+          enddo
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_a_s_b(blockin, blockout, ndima, ndimb, ls,
-     &    in_place)
+      subroutine spcart_a_s_b(blockin, blockout, ndima, ndimb,
+     &      ls, ngls,
+     &      in_place,print_info)
       implicit none
 c
 c  transforms a block of "integrals" with the ls function is ordered between 
@@ -467,13 +566,13 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ndimb  ! [input] tailing dimension of block
       integer ls     ! [input] angular momentum of block
-      double precision blockin (ndima,((ls+1)*(ls+2)/2),ndimb) ! [input] matrix 
-      double precision blockout(ndima,-ls:ls,ndimb)            ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,((ls+1)*(ls+2)/2),ngls,ndimb) ! [input] matrix 
+      double precision blockout(ndima,-ls:ls,ngls,ndimb)            ! [output] matrix 
       logical in_place  ! [input] true if blockin and blockout are the same pointer
+      logical print_info ! [input] print info
 c: local
-#if defined(USE_LOOPS)
-      integer i,j,k
-#endif
+      integer i,j,k,g
       integer m
       integer L2s
 c::statement function ----- start
@@ -498,8 +597,10 @@ c
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
-        call dcopy((ndima*ndimb*(2*ls+1)),blockin,1,blockout,1)
+        call dcopy((ndima*ndimb*(2*ls+1)*ngls),blockin,1,blockout,1)
         return
+      else
+        call dfill((ndima*ndimb*(2*ls+1)*ngls),0.0d00,blockout,1)
       endif
 c
       if (in_place) then
@@ -508,46 +609,52 @@ c
 c
 *      call spcart_print_Dtrans(ls)
 c
-#if defined(SPECIAL)
       if (ls.eq.2) then
-        call spcart_a_sd_b(blockin,blockout,ndima,ndimb,in_place)
+        call spcart_a_sd_b(blockin,blockout,ndima,ndimb,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.3) then
-        call spcart_a_sf_b(blockin,blockout,ndima,ndimb,in_place)
+        call spcart_a_sf_b(blockin,blockout,ndima,ndimb,ngls,
+     &      in_place,print_info)
         return
       else if (ls.eq.4) then
-        call spcart_a_sg_b(blockin,blockout,ndima,ndimb,in_place)
+        call spcart_a_sg_b(blockin,blockout,ndima,ndimb,ngls,
+     &      in_place,print_info)
         return
       endif
-#endif
 c
-#if defined(USE_LOOPS)
-      L2s = ((ls+1)*(ls+2)/2)
-      do 00100 m = 1,ndimb
-        do 00200 i=1,ndima
-          do 00300 j=(-ls),ls
-            blockout(i,j,m) = 0.0d00
-            do 00400 k = 1,L2s
-              blockout(i,j,m) = blockout(i,j,m) +
-     &            blockin(i,k,m)*Dtrans(k,j,Ls)
-00400       continue
-00300     continue
-00200   continue
-00100 continue
-#else
-c dgemm for all ndimb
+      if (ngls.eq.1 .and. trust_dgemm) then
 c
+c dgemm for all ndimb only if ngls == 1
+c
+        L2s = ((ls+1)*(ls+2)/2)
+        do m = 1,ndimb
+          call dgemm('n','n',ndima,(2*ls+1),L2s,
+     &          1.0d00,blockin(1,1,1,m),ndima,
+     &          dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
+     &          0.0d00,blockout(1,1,1,m),ndima)
+        enddo
+        return
+      endif
+c
+      call dfill((ndima*ndimb*(2*ls+1)*ngls),0.0d00,blockout,1)
       L2s = ((ls+1)*(ls+2)/2)
-      do 00100 m = 1,ndimb
-        call dgemm('n','n',ndima,(2*ls+1),L2s,
-     &        1.0d00,blockin(1,1,m),ndima,
-     &        dbl_mb(int_mb(k_sp2c_lindx+Ls)),L2s,
-     &        0.0d00,blockout(1,1,m),ndima)
-00100 continue
-#endif        
+      do  m = 1,ndimb
+        do  g=1,ngls
+          do  j=(-ls),ls
+            do  k = 1,L2s
+              do  i=1,ndima
+                blockout(i,j,g,m) = blockout(i,j,g,m) +
+     &                blockin(i,k,g,m)*Dtrans(k,j,Ls)
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_a_sd(blockin, blockout, ndima, in_place)
+      subroutine spcart_a_sd(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the d function is the slowest dimension
@@ -558,14 +665,18 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (ndima,6)    ! [input] matrix 
-      double precision blockout(ndima,-2:2) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,6,ngls)    ! [input] matrix 
+      double precision blockout(ndima,-2:2,ngls) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
 *rak:      integer ls     ! [fixed at 2] angular momentum of block
       double precision dt2m2, dt5m1, dt10, dt40, dt60, dt31, dt12, dt42
       double precision bin1, bin2, bin3, bin4, bin5, bin6
+      double precision sinm2, sinm1, sin0, sinp1, sinp2
+      logical print_debug
 c::statement function ----- start
       integer iic,iis,iil
       double precision Dtrans
@@ -574,6 +685,14 @@ c::statement function ----- start
      &           ((iis+iil)*(iil+1)*(iil+2)/2)
      &           + iic - 1)
 c::statement function ----- end
+      print_debug = .true.
+c
+      if (print_info.and.print_debug) then
+        write(6,*)' insize spcart_a_sd'
+        write(6,*)' spcart_a_sd:ndima = ',ndima
+        write(6,*)' spcart_a_sd:ngls  = ',ngls
+      endif
+      if (print_info) call spcart_print_dtrans(2)
 c
 *rak:      ls=2
 *rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
@@ -602,25 +721,53 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt31  = dtrans(3, 1,2)
       dt12  = dtrans(1, 2,2)
       dt42  = dtrans(4, 2,2)
-      do 00100 i=1,ndima
-        bin1 = blockin(i,1)
-        bin2 = blockin(i,2)
-        bin3 = blockin(i,3)
-        bin4 = blockin(i,4)
-        bin5 = blockin(i,5)
-        bin6 = blockin(i,6)
-        blockout(i,-2) = bin2*dt2m2
-        blockout(i,-1) = bin5*dt5m1
-        blockout(i, 0) = bin1*dt10 +
-     &                   bin4*dt40 +
-     &                   bin6*dt60
-        blockout(i, 1) = bin3*dt31
-        blockout(i, 2) = bin1*dt12 +
-     &                   bin4*dt42
-00100 continue
+      do g=1,ngls
+        do i=1,ndima
+          if (print_info.and.print_debug)
+     &        write(6,*)' spcart_a_sd:g,i',g,i
+          bin1 = blockin(i,1,g)
+          bin2 = blockin(i,2,g)
+          bin3 = blockin(i,3,g)
+          bin4 = blockin(i,4,g)
+          bin5 = blockin(i,5,g)
+          bin6 = blockin(i,6,g)
+          if (print_info.and.print_debug) then   
+            write(6,11111)' spcart_a_sd:cart ints 1 xx',bin1,g,i
+            write(6,11111)' spcart_a_sd:cart ints 2 xy',bin2,g,i
+            write(6,11111)' spcart_a_sd:cart ints 3 xz',bin3,g,i
+            write(6,11111)' spcart_a_sd:cart ints 4 yy',bin4,g,i
+            write(6,11111)' spcart_a_sd:cart ints 5 yz',bin5,g,i
+            write(6,11111)' spcart_a_sd:cart ints 6 zz',bin6,g,i
+          endif
+          sinm2 = bin2*dt2m2
+          sinm1 = bin5*dt5m1
+          sin0  = bin1*dt10 +
+     &            bin4*dt40 +
+     &            bin6*dt60
+          sinp1 = bin3*dt31
+          sinp2 = bin1*dt12 +
+     &            bin4*dt42
+          blockout(i,-2,g) = sinm2
+          blockout(i,-1,g) = sinm1
+          blockout(i, 0,g) = sin0
+          blockout(i, 1,g) = sinp1
+          blockout(i, 2,g) = sinp2
+          if (print_info.and.print_debug) then   
+            write(6,11111)' spcart_a_sd:sph ints -2',sinm2,g,i
+            write(6,11111)' spcart_a_sd:sph ints -1',sinm1,g,i
+            write(6,11111)' spcart_a_sd:sph ints  0',sin0,g,i
+            write(6,11111)' spcart_a_sd:sph ints +1',sinp1,g,i
+            write(6,11111)' spcart_a_sd:sph ints +2',sinp2,g,i
+          endif
+        enddo
+      enddo
+      if (print_info.and.print_debug)
+     &    write(6,*)' exiting spcart_a_sd'
+11111 format(1x,a,1pd20.10,i5,i5)
       end
 *.......................................................................
-      subroutine spcart_sd_a(blockin, blockout, ndima, in_place)
+      subroutine spcart_sd_a(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the d function is the fastest dimension
@@ -631,14 +778,17 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (6,ndima)    ! [input] matrix 
-      double precision blockout(-2:2,ndima) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (6,ngls,ndima)    ! [input] matrix 
+      double precision blockout(-2:2,ngls,ndima) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
 *rak:      integer ls     ! [fixed at 2] angular momentum of block
       double precision dt2m2, dt5m1, dt10, dt40, dt60, dt31, dt12, dt42
       double precision bin1, bin2, bin3, bin4, bin5, bin6
+      double precision sinm2, sinm1, sin0, sinp1, sinp2
 c::statement function ----- start
       integer iic,iis,iil
       double precision Dtrans
@@ -647,6 +797,12 @@ c::statement function ----- start
      &           ((iis+iil)*(iil+1)*(iil+2)/2)
      &           + iic - 1)
 c::statement function ----- end
+      if (print_info) then
+        write(6,*)' insize spcart_sd_a'
+        write(6,*)' spcart_sd_a:ndima = ',ndima
+        write(6,*)' spcart_sd_a:ngls  = ',ngls
+        call spcart_print_dtrans(2)
+      endif
 c
 *rak:      ls=2
 *rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
@@ -675,26 +831,51 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt31  = dtrans(3, 1,2)
       dt12  = dtrans(1, 2,2)
       dt42  = dtrans(4, 2,2)
-      do 00100 i=1,ndima
-        bin1 = blockin(1,i)
-        bin2 = blockin(2,i)
-        bin3 = blockin(3,i)
-        bin4 = blockin(4,i)
-        bin5 = blockin(5,i)
-        bin6 = blockin(6,i)
-        blockout(-2,i) = bin2*dt2m2
-        blockout(-1,i) = bin5*dt5m1
-        blockout( 0,i) = bin1*dt10 +
-     &                   bin4*dt40 +
-     &                   bin6*dt60
-        blockout( 1,i) = bin3*dt31
-        blockout( 2,i) = bin1*dt12 +
-     &                   bin4*dt42
-00100 continue
+      do i=1,ndima
+        do g=1,ngls
+          bin1 = blockin(1,g,i)
+          bin2 = blockin(2,g,i)
+          bin3 = blockin(3,g,i)
+          bin4 = blockin(4,g,i)
+          bin5 = blockin(5,g,i)
+          bin6 = blockin(6,g,i)
+          if (print_info) then
+            write(6,11111)' spcart_sd_a:cart ints 1 xx',bin1,g,i
+            write(6,11111)' spcart_sd_a:cart ints 2 xy',bin2,g,i
+            write(6,11111)' spcart_sd_a:cart ints 3 xz',bin3,g,i
+            write(6,11111)' spcart_sd_a:cart ints 4 yy',bin4,g,i
+            write(6,11111)' spcart_sd_a:cart ints 5 yz',bin5,g,i
+            write(6,11111)' spcart_sd_a:cart ints 6 zz',bin6,g,i
+          endif
+          sinm2 = bin2*dt2m2
+          sinm1 = bin5*dt5m1
+          sin0  = bin1*dt10 +
+     &            bin4*dt40 +
+     &            bin6*dt60
+          sinp1 = bin3*dt31
+          sinp2 = bin1*dt12 +
+     &            bin4*dt42
+          blockout(-2,g,i) = sinm2
+          blockout(-1,g,i) = sinm1
+          blockout( 0,g,i) = sin0
+          blockout( 1,g,i) = sinp1
+          blockout( 2,g,i) = sinp2
+          if (print_info) then
+            write(6,11111)' spcart_sd_a:sph ints -2',sinm2,g,i
+            write(6,11111)' spcart_sd_a:sph ints -1',sinm1,g,i
+            write(6,11111)' spcart_sd_a:sph ints  0',sin0,g,i
+            write(6,11111)' spcart_sd_a:sph ints +1',sinp1,g,i
+            write(6,11111)' spcart_sd_a:sph ints +2',sinp2,g,i
+          endif
+        enddo
+      enddo
+      if (print_info)
+     &    write(6,*)' exiting spcart_sd_a'
+11111 format(1x,a,1pd20.10,i5,i5)
       end
 *.......................................................................
       subroutine spcart_a_sd_b(blockin, blockout,
-     &    ndima, ndimb, in_place)
+     &    ndima, ndimb, ngls, in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the d function is the middle dimension
@@ -706,14 +887,17 @@ c
 c: passed
       integer ndima  ! [input] leading dimension of block
       integer ndimb  ! [input] trailing dimension of block
-      double precision blockin (ndima, 6   ,ndimb) ! [input] matrix 
-      double precision blockout(ndima, -2:2,ndimb) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima, 6   ,ngls,ndimb) ! [input] matrix 
+      double precision blockout(ndima, -2:2,ngls,ndimb) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i,j
+      integer i,j,g
 *rak:      integer ls     ! [fixed at 2] angular momentum of block
       double precision dt2m2, dt5m1, dt10, dt40, dt60, dt31, dt12, dt42
       double precision bin1, bin2, bin3, bin4, bin5, bin6
+      double precision sinm2, sinm1, sin0, sinp1, sinp2
 c::statement function ----- start
       integer iic,iis,iil
       double precision Dtrans
@@ -722,6 +906,13 @@ c::statement function ----- start
      &           ((iis+iil)*(iil+1)*(iil+2)/2)
      &           + iic - 1)
 c::statement function ----- end
+      if (print_info) then
+        write(6,*)' insize spcart_a_sd_b'
+        write(6,*)' spcart_a_sd_b:ndima = ',ndima
+        write(6,*)' spcart_a_sd_b:ngls  = ',ngls
+        write(6,*)' spcart_a_sd_b:ndimb = ',ndimb
+        call spcart_print_dtrans(2)
+      endif
 c
 *rak:      ls=2
 *rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
@@ -750,27 +941,55 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt31  = dtrans(3, 1,2)
       dt12  = dtrans(1, 2,2)
       dt42  = dtrans(4, 2,2)
-      do 00100 j=1,ndimb
-        do 00200 i=1,ndima
-          bin1 = blockin(i,1,j)
-          bin2 = blockin(i,2,j)
-          bin3 = blockin(i,3,j)
-          bin4 = blockin(i,4,j)
-          bin5 = blockin(i,5,j)
-          bin6 = blockin(i,6,j)
-          blockout(i,-2,j) = bin2*dt2m2
-          blockout(i,-1,j) = bin5*dt5m1
-          blockout(i, 0,j) = bin1*dt10 +
-     &                       bin4*dt40 +
-     &                       bin6*dt60
-          blockout(i, 1,j) = bin3*dt31
-          blockout(i, 2,j) = bin1*dt12 +
-     &                       bin4*dt42
-00200   continue
-00100 continue
+      do j=1,ndimb
+        do g=1,ngls
+          do i=1,ndima
+            if (print_info)
+     &          write(6,*)' spcart_a_sd_b:j,g,i',j,g,i
+            bin1 = blockin(i,1,g,j)
+            bin2 = blockin(i,2,g,j)
+            bin3 = blockin(i,3,g,j)
+            bin4 = blockin(i,4,g,j)
+            bin5 = blockin(i,5,g,j)
+            bin6 = blockin(i,6,g,j)
+            if (print_info) then
+              write(6,11111)' spcart_a_sd_b:cart ints 1 xx',bin1,j,g,i
+              write(6,11111)' spcart_a_sd_b:cart ints 2 xy',bin2,j,g,i
+              write(6,11111)' spcart_a_sd_b:cart ints 3 xz',bin3,j,g,i
+              write(6,11111)' spcart_a_sd_b:cart ints 4 yy',bin4,j,g,i
+              write(6,11111)' spcart_a_sd_b:cart ints 5 yz',bin5,j,g,i
+              write(6,11111)' spcart_a_sd_b:cart ints 6 zz',bin6,j,g,i
+            endif
+            sinm2 = bin2*dt2m2
+            sinm1 = bin5*dt5m1
+            sin0  = bin1*dt10 +
+     &              bin4*dt40 +
+     &              bin6*dt60
+            sinp1 = bin3*dt31
+            sinp2 = bin1*dt12 +
+     &              bin4*dt42
+            blockout(i,-2,g,j) = sinm2
+            blockout(i,-1,g,j) = sinm1
+            blockout(i, 0,g,j) = sin0
+            blockout(i, 1,g,j) = sinp1
+            blockout(i, 2,g,j) = sinp2
+            if (print_info) then
+              write(6,11111)' spcart_a_sd_b:sph ints -2',sinm2,j,g,i
+              write(6,11111)' spcart_a_sd_b:sph ints -1',sinm1,j,g,i
+              write(6,11111)' spcart_a_sd_b:sph ints  0',sin0,j,g,i
+              write(6,11111)' spcart_a_sd_b:sph ints +1',sinp1,j,g,i
+              write(6,11111)' spcart_a_sd_b:sph ints +2',sinp2,j,g,i
+            endif
+          enddo
+        enddo
+      enddo
+      if (print_info)
+     &    write(6,*)' exiting spcart_a_sd_b'
+11111 format(1x,a,1pd20.10,i5,i5,i5)
       end
 *.......................................................................
-      subroutine spcart_a_sf(blockin, blockout, ndima, in_place)
+      subroutine spcart_a_sf(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the f function is the slowest dimension
@@ -781,11 +1000,13 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (ndima,10)    ! [input] matrix 
-      double precision blockout(ndima,-3:3)  ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,10,ngls)    ! [input] matrix 
+      double precision blockout(ndima,-3:3,ngls)  ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
 *rak:      integer ls     ! [fixed at 3] angular momentum of block
       double precision dt2_m3, dt7_m3, dt5_m2, dt2_m1, dt7_m1, dt9_m1
       double precision dt3_0, dt8_0, dt10_0, dt1_1, dt4_1, dt6_1
@@ -839,28 +1060,31 @@ c
       dt1_3  = dtrans(1,3,3)
       dt4_3  = dtrans(4,3,3)
 c
-      do 00100 i=1,ndima
-        bin1 = blockin(i,1)
-        bin2 = blockin(i,2)
-        bin3 = blockin(i,3)
-        bin4 = blockin(i,4)
-        bin5 = blockin(i,5)
-        bin6 = blockin(i,6)
-        bin7 = blockin(i,7)
-        bin8 = blockin(i,8)
-        bin9 = blockin(i,9)
-        bin10 = blockin(i,10)
-        blockout(i,-3) = bin2*dt2_m3 + bin7*dt7_m3
-        blockout(i,-2) = bin5*dt5_m2
-        blockout(i,-1) = bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
-        blockout(i, 0) = bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
-        blockout(i, 1) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
-        blockout(i, 2) = bin3*dt3_2 + bin8*dt8_2
-        blockout(i, 3) = bin1*dt1_3 + bin4*dt4_3
-00100 continue
+      do g=1,ngls
+        do i=1,ndima
+          bin1 = blockin(i,1,g)
+          bin2 = blockin(i,2,g)
+          bin3 = blockin(i,3,g)
+          bin4 = blockin(i,4,g)
+          bin5 = blockin(i,5,g)
+          bin6 = blockin(i,6,g)
+          bin7 = blockin(i,7,g)
+          bin8 = blockin(i,8,g)
+          bin9 = blockin(i,9,g)
+          bin10 = blockin(i,10,g)
+          blockout(i,-3,g) = bin2*dt2_m3 + bin7*dt7_m3
+          blockout(i,-2,g) = bin5*dt5_m2
+          blockout(i,-1,g) = bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
+          blockout(i, 0,g) = bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
+          blockout(i, 1,g) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
+          blockout(i, 2,g) = bin3*dt3_2 + bin8*dt8_2
+          blockout(i, 3,g) = bin1*dt1_3 + bin4*dt4_3
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_sf_a(blockin, blockout, ndima, in_place)
+      subroutine spcart_sf_a(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the f function is the fastest dimension
@@ -871,11 +1095,13 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (10,ndima)    ! [input] matrix 
-      double precision blockout(-3:3,ndima)  ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (10,ngls,ndima)    ! [input] matrix 
+      double precision blockout(-3:3,ngls,ndima)  ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
 *rak:      integer ls     ! [fixed at 3] angular momentum of block
       double precision dt2_m3, dt7_m3, dt5_m2, dt2_m1, dt7_m1, dt9_m1
       double precision dt3_0, dt8_0, dt10_0, dt1_1, dt4_1, dt6_1
@@ -929,29 +1155,31 @@ c
       dt1_3  = dtrans(1,3,3)
       dt4_3  = dtrans(4,3,3)
 c
-      do 00100 i=1,ndima
-        bin1  = blockin(1,i)
-        bin2  = blockin(2,i)
-        bin3  = blockin(3,i)
-        bin4  = blockin(4,i)
-        bin5  = blockin(5,i)
-        bin6  = blockin(6,i)
-        bin7  = blockin(7,i)
-        bin8  = blockin(8,i)
-        bin9  = blockin(9,i)
-        bin10 = blockin(10,i)
-        blockout(-3,i) = bin2*dt2_m3 + bin7*dt7_m3
-        blockout(-2,i) = bin5*dt5_m2
-        blockout(-1,i) = bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
-        blockout( 0,i) = bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
-        blockout( 1,i) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
-        blockout( 2,i) = bin3*dt3_2 + bin8*dt8_2
-        blockout( 3,i) = bin1*dt1_3 + bin4*dt4_3
-00100 continue
+      do i=1,ndima
+        do g=1,ngls
+          bin1  = blockin( 1,g,i)
+          bin2  = blockin( 2,g,i)
+          bin3  = blockin( 3,g,i)
+          bin4  = blockin( 4,g,i)
+          bin5  = blockin( 5,g,i)
+          bin6  = blockin( 6,g,i)
+          bin7  = blockin( 7,g,i)
+          bin8  = blockin( 8,g,i)
+          bin9  = blockin( 9,g,i)
+          bin10 = blockin(10,g,i)
+          blockout(-3,g,i) = bin2*dt2_m3 + bin7*dt7_m3
+          blockout(-2,g,i) = bin5*dt5_m2
+          blockout(-1,g,i) = bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
+          blockout( 0,g,i) = bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
+          blockout( 1,g,i) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
+          blockout( 2,g,i) = bin3*dt3_2 + bin8*dt8_2
+          blockout( 3,g,i) = bin1*dt1_3 + bin4*dt4_3
+        enddo
+      enddo
       end
 *.......................................................................
       subroutine spcart_a_sf_b(blockin, blockout,
-     &    ndima, ndimb, in_place)
+     &    ndima, ndimb, ngls, in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the f function is the middle dimension
@@ -963,11 +1191,13 @@ c
 c: passed
       integer ndima  ! [input] leading dimension of block
       integer ndimb  ! [input] trailing dimension of block
-      double precision blockin (ndima,10,ndimb)    ! [input] matrix 
-      double precision blockout(ndima,-3:3,ndimb)  ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,10,ngls,ndimb)    ! [input] matrix 
+      double precision blockout(ndima,-3:3,ngls,ndimb)  ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i,j
+      integer i,j,g
 *rak:      integer ls     ! [fixed at 3] angular momentum of block
       double precision dt2_m3, dt7_m3, dt5_m2, dt2_m1, dt7_m1, dt9_m1
       double precision dt3_0, dt8_0, dt10_0, dt1_1, dt4_1, dt6_1
@@ -1021,30 +1251,36 @@ c
       dt1_3  = dtrans(1,3,3)
       dt4_3  = dtrans(4,3,3)
 c
-      do 00100 j=1,ndimb
-        do 00200 i=1,ndima
-          bin1  = blockin(i,1,j)
-          bin2  = blockin(i,2,j)
-          bin3  = blockin(i,3,j)
-          bin4  = blockin(i,4,j)
-          bin5  = blockin(i,5,j)
-          bin6  = blockin(i,6,j)
-          bin7  = blockin(i,7,j)
-          bin8  = blockin(i,8,j)
-          bin9  = blockin(i,9,j)
-          bin10 = blockin(i,10,j)
-          blockout(i,-3,j) = bin2*dt2_m3 + bin7*dt7_m3
-          blockout(i,-2,j) = bin5*dt5_m2
-          blockout(i,-1,j) = bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
-          blockout(i, 0,j) = bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
-          blockout(i, 1,j) = bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
-          blockout(i, 2,j) = bin3*dt3_2 + bin8*dt8_2
-          blockout(i, 3,j) = bin1*dt1_3 + bin4*dt4_3
-00200   continue
-00100 continue
+      do j=1,ndimb
+        do g=1,ngls
+          do i=1,ndima
+            bin1  = blockin(i, 1,g,j)
+            bin2  = blockin(i, 2,g,j)
+            bin3  = blockin(i, 3,g,j)
+            bin4  = blockin(i, 4,g,j)
+            bin5  = blockin(i, 5,g,j)
+            bin6  = blockin(i, 6,g,j)
+            bin7  = blockin(i, 7,g,j)
+            bin8  = blockin(i, 8,g,j)
+            bin9  = blockin(i, 9,g,j)
+            bin10 = blockin(i,10,g,j)
+            blockout(i,-3,g,j) = bin2*dt2_m3 + bin7*dt7_m3
+            blockout(i,-2,g,j) = bin5*dt5_m2
+            blockout(i,-1,g,j) =
+     &                         bin2*dt2_m1 + bin7*dt7_m1 + bin9*dt9_m1
+            blockout(i, 0,g,j) =
+     &                         bin3*dt3_0 + bin8*dt8_0 + bin10*dt10_0
+            blockout(i, 1,g,j) =
+     &                         bin1*dt1_1 + bin4*dt4_1 + bin6*dt6_1
+            blockout(i, 2,g,j) = bin3*dt3_2 + bin8*dt8_2
+            blockout(i, 3,g,j) = bin1*dt1_3 + bin4*dt4_3
+          enddo
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_a_sg(blockin, blockout, ndima, in_place)
+      subroutine spcart_a_sg(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the g function is the slowest dimension
@@ -1055,11 +1291,13 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (ndima,15)   ! [input] matrix 
-      double precision blockout(ndima,-4:4) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,15,ngls)   ! [input] matrix 
+      double precision blockout(ndima,-4:4,ngls) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
       double precision dt2_m4, dt7_m4, dt5_m3, dt12_m3
       double precision dt2_m2, dt7_m2, dt9_m2, dt5_m1, dt12_m1, dt14_m1
       double precision dt1_0, dt4_0, dt6_0, dt11_0, dt13_0, dt15_0
@@ -1134,38 +1372,46 @@ c
       dt1_4   = dtrans(1,4,4)      
       dt4_4   = dtrans(4,4,4)      
       dt11_4  = dtrans(11,4,4)     
-      do 00100 i=1,ndima
-        bin1 = blockin(i,1)
-        bin2 = blockin(i,2)
-        bin3 = blockin(i,3)
-        bin4 = blockin(i,4)
-        bin5 = blockin(i,5)
-        bin6 = blockin(i,6)
-        bin7 = blockin(i,7)
-        bin8 = blockin(i,8)
-        bin9 = blockin(i,9)
-        bin10 = blockin(i,10)
-        bin11 = blockin(i,11)
-        bin12 = blockin(i,12)
-        bin13 = blockin(i,13)
-        bin14 = blockin(i,14)
-        bin15 = blockin(i,15)
+      do g=1,ngls
+        do i=1,ndima
+          bin1  = blockin(i, 1,g)
+          bin2  = blockin(i, 2,g)
+          bin3  = blockin(i, 3,g)
+          bin4  = blockin(i, 4,g)
+          bin5  = blockin(i, 5,g)
+          bin6  = blockin(i, 6,g)
+          bin7  = blockin(i, 7,g)
+          bin8  = blockin(i, 8,g)
+          bin9  = blockin(i, 9,g)
+          bin10 = blockin(i,10,g)
+          bin11 = blockin(i,11,g)
+          bin12 = blockin(i,12,g)
+          bin13 = blockin(i,13,g)
+          bin14 = blockin(i,14,g)
+          bin15 = blockin(i,15,g)
 c
-        blockout(i,-4) = bin2*dt2_m4  + bin7*dt7_m4  
-        blockout(i,-3) = bin5*dt5_m3  + bin12*dt12_m3 
-        blockout(i,-2) = bin2*dt2_m2  + bin7*dt7_m2   + bin9*dt9_m2
-        blockout(i,-1) = bin5*dt5_m1  + bin12*dt12_m1 + bin14*dt14_m1
-        blockout(i, 0) = bin1*dt1_0   + bin4*dt4_0    + bin6*dt6_0   +
-     &                   bin11*dt11_0 + bin13*dt13_0  + bin15*dt15_0
-        blockout(i, 1) = bin3*dt3_1   + bin8*dt8_1    + bin10*dt10_1
-        blockout(i, 2) = bin1*dt1_2   + bin6*dt6_2    + bin11*dt11_2 +
-     &                   bin13*dt13_2
-        blockout(i, 3) = bin3*dt3_3   + bin8*dt8_3
-        blockout(i, 4) = bin1*dt1_4   + bin4*dt4_4    + bin11*dt11_4
-00100 continue
+          blockout(i,-4,g) = bin2*dt2_m4  + bin7*dt7_m4  
+          blockout(i,-3,g) = bin5*dt5_m3  + bin12*dt12_m3 
+          blockout(i,-2,g) = bin2*dt2_m2  + bin7*dt7_m2   +
+     &                       bin9*dt9_m2
+          blockout(i,-1,g) = bin5*dt5_m1  + bin12*dt12_m1 +
+     &                       bin14*dt14_m1
+          blockout(i, 0,g) = bin1*dt1_0   + bin4*dt4_0    +
+     &                       bin6*dt6_0   + bin11*dt11_0  +
+     &                       bin13*dt13_0 + bin15*dt15_0
+          blockout(i, 1,g) = bin3*dt3_1   + bin8*dt8_1    +
+     &                       bin10*dt10_1
+          blockout(i, 2,g) = bin1*dt1_2   + bin6*dt6_2    +
+     &                       bin11*dt11_2 + bin13*dt13_2
+          blockout(i, 3,g) = bin3*dt3_3   + bin8*dt8_3
+          blockout(i, 4,g) = bin1*dt1_4   + bin4*dt4_4    +
+     &                       bin11*dt11_4
+        enddo
+      enddo
       end
 *.......................................................................
-      subroutine spcart_sg_a(blockin, blockout, ndima, in_place)
+      subroutine spcart_sg_a(blockin, blockout, ndima, ngls,
+     &    in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the g function is the fastest dimension
@@ -1176,11 +1422,13 @@ c
 c
 c: passed
       integer ndima  ! [input] leading dimension of block
-      double precision blockin (15,ndima)   ! [input] matrix 
-      double precision blockout(-4:4,ndima) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (15,ngls,ndima)   ! [input] matrix 
+      double precision blockout(-4:4,ngls,ndima) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i
+      integer i,g
       double precision dt2_m4, dt7_m4, dt5_m3, dt12_m3
       double precision dt2_m2, dt7_m2, dt9_m2, dt5_m1, dt12_m1, dt14_m1
       double precision dt1_0, dt4_0, dt6_0, dt11_0, dt13_0, dt15_0
@@ -1255,39 +1503,46 @@ c
       dt1_4   = dtrans(1,4,4)      
       dt4_4   = dtrans(4,4,4)      
       dt11_4  = dtrans(11,4,4)     
-      do 00100 i=1,ndima
-        bin1  = blockin( 1,i)
-        bin2  = blockin( 2,i)
-        bin3  = blockin( 3,i)
-        bin4  = blockin( 4,i)
-        bin5  = blockin( 5,i)
-        bin6  = blockin( 6,i)
-        bin7  = blockin( 7,i)
-        bin8  = blockin( 8,i)
-        bin9  = blockin( 9,i)
-        bin10 = blockin(10,i)
-        bin11 = blockin(11,i)
-        bin12 = blockin(12,i)
-        bin13 = blockin(13,i)
-        bin14 = blockin(14,i)
-        bin15 = blockin(15,i)
+      do i=1,ndima
+        do g=1,ngls
+          bin1  = blockin( 1,g,i)
+          bin2  = blockin( 2,g,i)
+          bin3  = blockin( 3,g,i)
+          bin4  = blockin( 4,g,i)
+          bin5  = blockin( 5,g,i)
+          bin6  = blockin( 6,g,i)
+          bin7  = blockin( 7,g,i)
+          bin8  = blockin( 8,g,i)
+          bin9  = blockin( 9,g,i)
+          bin10 = blockin(10,g,i)
+          bin11 = blockin(11,g,i)
+          bin12 = blockin(12,g,i)
+          bin13 = blockin(13,g,i)
+          bin14 = blockin(14,g,i)
+          bin15 = blockin(15,g,i)
 c
-        blockout(-4,i) = bin2*dt2_m4  + bin7*dt7_m4  
-        blockout(-3,i) = bin5*dt5_m3  + bin12*dt12_m3 
-        blockout(-2,i) = bin2*dt2_m2  + bin7*dt7_m2   + bin9*dt9_m2
-        blockout(-1,i) = bin5*dt5_m1  + bin12*dt12_m1 + bin14*dt14_m1
-        blockout( 0,i) = bin1*dt1_0   + bin4*dt4_0    + bin6*dt6_0   +
-     &                   bin11*dt11_0 + bin13*dt13_0  + bin15*dt15_0
-        blockout( 1,i) = bin3*dt3_1   + bin8*dt8_1    + bin10*dt10_1
-        blockout( 2,i) = bin1*dt1_2   + bin6*dt6_2    + bin11*dt11_2 +
-     &                   bin13*dt13_2
-        blockout( 3,i) = bin3*dt3_3   + bin8*dt8_3
-        blockout( 4,i) = bin1*dt1_4   + bin4*dt4_4    + bin11*dt11_4
-00100 continue
+          blockout(-4,g,i) = bin2*dt2_m4  + bin7*dt7_m4  
+          blockout(-3,g,i) = bin5*dt5_m3  + bin12*dt12_m3 
+          blockout(-2,g,i) = bin2*dt2_m2  + bin7*dt7_m2   +
+     &                       bin9*dt9_m2
+          blockout(-1,g,i) = bin5*dt5_m1  + bin12*dt12_m1 +
+     &                       bin14*dt14_m1
+          blockout( 0,g,i) = bin1*dt1_0   + bin4*dt4_0    +
+     &                       bin6*dt6_0   + bin11*dt11_0  +
+     &                       bin13*dt13_0 + bin15*dt15_0
+          blockout( 1,g,i) = bin3*dt3_1   + bin8*dt8_1    +
+     &                       bin10*dt10_1
+          blockout( 2,g,i) = bin1*dt1_2   + bin6*dt6_2    +
+     &                       bin11*dt11_2 + bin13*dt13_2
+          blockout( 3,g,i) = bin3*dt3_3   + bin8*dt8_3
+          blockout( 4,g,i) = bin1*dt1_4   + bin4*dt4_4    +
+     &                       bin11*dt11_4
+        enddo
+      enddo
       end
 *.......................................................................
       subroutine spcart_a_sg_b(blockin, blockout,
-     &    ndima, ndimb, in_place)
+     &    ndima, ndimb, ngls, in_place, print_info)
       implicit none
 c
 c  transforms a block of integrals where the g function is the middle dimension
@@ -1299,11 +1554,13 @@ c
 c: passed
       integer ndima  ! [input] leading dimension of block
       integer ndimb  ! [input] trailing dimension of block
-      double precision blockin (ndima,15,ndimb)   ! [input] matrix 
-      double precision blockout(ndima,-4:4,ndimb) ! [output] matrix 
+      integer ngls   ! [input] general contraction length of ls block
+      double precision blockin (ndima,15,ngls,ndimb)   ! [input] matrix 
+      double precision blockout(ndima,-4:4,ngls,ndimb) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical print_info ! [input] print info
 c: local
-      integer i,j
+      integer i,j,g
       double precision dt2_m4, dt7_m4, dt5_m3, dt12_m3
       double precision dt2_m2, dt7_m2, dt9_m2, dt5_m1, dt12_m1, dt14_m1
       double precision dt1_0, dt4_0, dt6_0, dt11_0, dt13_0, dt15_0
@@ -1378,51 +1635,55 @@ c
       dt1_4   = dtrans(1,4,4)      
       dt4_4   = dtrans(4,4,4)      
       dt11_4  = dtrans(11,4,4)     
-      do 00100 j=1,ndimb
-        do 00200 i=1,ndima
-          bin1  = blockin(i, 1,j)
-          bin2  = blockin(i, 2,j)
-          bin3  = blockin(i, 3,j)
-          bin4  = blockin(i, 4,j)
-          bin5  = blockin(i, 5,j)
-          bin6  = blockin(i, 6,j)
-          bin7  = blockin(i, 7,j)
-          bin8  = blockin(i, 8,j)
-          bin9  = blockin(i, 9,j)
-          bin10 = blockin(i,10,j)
-          bin11 = blockin(i,11,j)
-          bin12 = blockin(i,12,j)
-          bin13 = blockin(i,13,j)
-          bin14 = blockin(i,14,j)
-          bin15 = blockin(i,15,j)
+      do j=1,ndimb
+        do g=1,ngls
+          do i=1,ndima
+            bin1  = blockin(i, 1,g,j)
+            bin2  = blockin(i, 2,g,j)
+            bin3  = blockin(i, 3,g,j)
+            bin4  = blockin(i, 4,g,j)
+            bin5  = blockin(i, 5,g,j)
+            bin6  = blockin(i, 6,g,j)
+            bin7  = blockin(i, 7,g,j)
+            bin8  = blockin(i, 8,g,j)
+            bin9  = blockin(i, 9,g,j)
+            bin10 = blockin(i,10,g,j)
+            bin11 = blockin(i,11,g,j)
+            bin12 = blockin(i,12,g,j)
+            bin13 = blockin(i,13,g,j)
+            bin14 = blockin(i,14,g,j)
+            bin15 = blockin(i,15,g,j)
 c
-          blockout(i,-4,j) = bin2*dt2_m4  + bin7*dt7_m4  
-          blockout(i,-3,j) = bin5*dt5_m3  + bin12*dt12_m3 
-          blockout(i,-2,j) = bin2*dt2_m2  + bin7*dt7_m2   +
-     &                       bin9*dt9_m2
-          blockout(i,-1,j) = bin5*dt5_m1  + bin12*dt12_m1 +
-     &                       bin14*dt14_m1
-          blockout(i, 0,j) = bin1*dt1_0   + bin4*dt4_0    +
-     &                       bin6*dt6_0   + bin11*dt11_0  +
-     &                       bin13*dt13_0 + bin15*dt15_0
-          blockout(i, 1,j) = bin3*dt3_1   + bin8*dt8_1    +
-     &                       bin10*dt10_1
-          blockout(i, 2,j) = bin1*dt1_2   + bin6*dt6_2    +
-     &                       bin11*dt11_2 + bin13*dt13_2
-          blockout(i, 3,j) = bin3*dt3_3   + bin8*dt8_3
-          blockout(i, 4,j) = bin1*dt1_4   + bin4*dt4_4    +
-     &                       bin11*dt11_4
-00200   continue
-00100 continue
+            blockout(i,-4,g,j) = bin2*dt2_m4  + bin7*dt7_m4  
+            blockout(i,-3,g,j) = bin5*dt5_m3  + bin12*dt12_m3 
+            blockout(i,-2,g,j) = bin2*dt2_m2  + bin7*dt7_m2   +
+     &                           bin9*dt9_m2
+            blockout(i,-1,g,j) = bin5*dt5_m1  + bin12*dt12_m1 +
+     &                           bin14*dt14_m1
+            blockout(i, 0,g,j) = bin1*dt1_0   + bin4*dt4_0    +
+     &                           bin6*dt6_0   + bin11*dt11_0  +
+     &                           bin13*dt13_0 + bin15*dt15_0
+            blockout(i, 1,g,j) = bin3*dt3_1   + bin8*dt8_1    +
+     &                           bin10*dt10_1
+            blockout(i, 2,g,j) = bin1*dt1_2   + bin6*dt6_2    +
+     &                           bin11*dt11_2 + bin13*dt13_2
+            blockout(i, 3,g,j) = bin3*dt3_3   + bin8*dt8_3
+            blockout(i, 4,g,j) = bin1*dt1_4   + bin4*dt4_4    +
+     &                           bin11*dt11_4
+          enddo
+        enddo
+      enddo
       end
 *.......................................................................
       subroutine spcart_tran1e(
      &    buf, scr,
-     &    nbf_xr,nbf_xc,type_r,
-     &    nbf_sr,nbf_sc,type_c,
+     &    nbf_xr,nbf_xc,type_r,ngen_r,
+     &    nbf_sr,nbf_sc,type_c,ngen_c,
      &    print)
       implicit none
 #include "stdio.fh"
+c
+c
 c
 c routine that transforms a 1e cartesian block buf_cart(nbf_xr,nbf_xc) to 
 c    a spherical block buf_sph(nbf_sr,nbf_sc) 
@@ -1434,15 +1695,25 @@ c  c --> implies column
 c 
 c  remember that a Ov block for ish and jsh is 
 c      from the integral api Ov(jbf_lo:jbf_hi,ibf_lo,ibf_hi)
+c
+c
+c Can use a special call setting type_? to 0 for basis sets that 
+c are mixed   i_bas is spherical and j_bas is not dimensions 
+c are not based on type only actions.
+c
 c      
       integer nbf_xr, nbf_xc  ! [input] size of cartesian block
       integer nbf_sr, nbf_sc  ! [input] size of spherical block
+      integer ngen_r, ngen_c  ! [input] general contraction length for r and c
       integer type_r, type_c  ! [input] angular momentem for r and c
       double precision buf(*) ! [input/output] cartesian block on input
 *.............................!   and spherical block on output      
       double precision scr(*) ! [scratch] use to hold half transformed block
-      logical print           ! [input} print integrals at each stage of the
+      logical print           ! [input] print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
+c:: local
+      integer ngen_rc
+      ngen_rc = ngen_r*ngen_c
 c
       if (type_r.lt.2.and.type_c.lt.2) then
 c.................................. neither c or r need to be transformed 
@@ -1450,7 +1721,8 @@ c                                   (X,Y) X is s, p, or l and Y is s, p, or l
         if (print) then
           write(luout,*)
      &        ' cartesian matrix and spherical matrix the same '
-          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+          call output(buf,1,nbf_xr*ngen_r,1,nbf_xc*ngen_c,
+     &          nbf_xr*ngen_r,nbf_xc*ngen_c,1)
         endif
 c
       elseif (type_r.lt.2.and.type_c.ge.2) then
@@ -1459,17 +1731,20 @@ c.................................. c needs to be transformed
 * buf is buf(spherical,cartesian)
         if (print) then
           write(luout,*)' cartesian matrix '
-          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+          call output(buf,1,nbf_xr*ngen_r,1,nbf_xc*ngen_c,
+     &          nbf_xr*ngen_r,nbf_xc*ngen_c,1)
         endif
 * scr is buf(spherical,cartesian) ! copy it
-        call dcopy((nbf_xr*nbf_xc),buf,1,scr,1)
+        call dcopy((nbf_xr*nbf_xc*ngen_rc),buf,1,scr,1)
         if (nbf_xr.ne.nbf_sr) call errquit
      &      ('spcart_tran1e: nbf_xr.ne.nbf_sr  (xr-sr) =',
      &      (nbf_xr-nbf_sr))
-        call spcart_a_s(scr,buf,nbf_sr,type_c,.false.)
+        call spcart_a_s(scr,buf,nbf_sr,type_c,ngen_c,
+     &      .false.,print)
         if (print) then
           write(luout,*)' spherical matrix '
-          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+          call output(buf,1,ngen_r*nbf_sr,1,ngen_c*nbf_sc,
+     &          ngen_r*nbf_sr,ngen_c*nbf_sc,1)
         endif
       elseif (type_r.ge.2.and.type_c.lt.2) then
 c.................................. r needs to be transformed
@@ -1477,17 +1752,20 @@ c.................................. r needs to be transformed
 * buf is buf(cartesian,cartesian)
         if (print) then
           write(luout,*)' cartesian matrix '
-          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+          call output(buf,1,ngen_r*nbf_xr,1,ngen_c*nbf_xc,
+     &          ngen_r*nbf_xr,ngen_c*nbf_xc,1)
         endif
 * scr is buf(spherical,cartesian) ! copy it
-        call dcopy((nbf_xr*nbf_xc),buf,1,scr,1)
+        call dcopy((ngen_rc*nbf_xr*nbf_xc),buf,1,scr,1)
         if (nbf_xc.ne.nbf_sc) call errquit
      &      ('spcart_tran1e: nbf_xc.ne.nbf_sc  (xc-sc) =',
      &      (nbf_xc-nbf_sc))
-        call spcart_s_a(scr,buf,nbf_sc,type_r,.false.)
+        call spcart_s_a(scr,buf,nbf_sc,type_r,ngen_r,
+     &      .false.,print)
         if (print) then
           write(luout,*)' spherical matrix '
-          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+          call output(buf,1,ngen_r*nbf_sr,1,ngen_c*nbf_sc,
+     &          ngen_r*nbf_sr,ngen_c*nbf_sc,1)
         endif
       elseif (type_r.ge.2.and.type_c.ge.2) then
 c.................................. both r and c need to be transformed
@@ -1495,23 +1773,28 @@ c.................................. both r and c need to be transformed
 * buf is buf(cartesian,cartesian)
         if (print) then
           write(luout,*)' cartesian matrix '
-          call output(buf,1,nbf_xr,1,nbf_xc,nbf_xr,nbf_xc,1)
+          call output(buf,1,ngen_r*nbf_xr,1,ngen_c*nbf_xc,
+     &          ngen_r*nbf_xr,ngen_c*nbf_xc,1)
         endif
 *
 *... buf(xr,xc) -> scr(xr,sc) : scr is half transformed matrix
-        call spcart_a_s(buf,scr,nbf_xr,type_c,.false.)
+        call spcart_a_s(buf,scr,nbf_xr,type_c,ngen_c,
+     &      .false.,print)
 * print half transformed matrix
         if (print) then
           write(luout,*)' half cartesian half spherical matrix '
-          call output(scr,1,nbf_xr,1,nbf_sc,nbf_xr,nbf_sc,1)
+          call output(scr,1,ngen_r*nbf_xr,1,ngen_c*nbf_sc,
+     &          ngen_r*nbf_xr,ngen_c*nbf_sc,1)
         endif
 *
 *... scr(xr,sc) -> buf(sr,sc)
-        call spcart_s_a(scr,buf,nbf_sc,type_r,.false.)
+        call spcart_s_a(scr,buf,nbf_sc,type_r,ngen_r,
+     &      .false.,print)
 * print spherical block
         if (print) then
           write(luout,*)' half cartesian half spherical matrix '
-          call output(buf,1,nbf_sr,1,nbf_sc,nbf_sr,nbf_sc,1)
+          call output(buf,1,ngen_r*nbf_sr,1,ngen_c*nbf_sc,
+     &          ngen_r*nbf_sr,ngen_c*nbf_sc,1)
         endif
       else
         write(luout,*) ' case not possible '
@@ -1525,13 +1808,14 @@ c
      &    nbf_xj,nbf_xi,
      &    nbf_sj,nbf_si,
      &    type_j,type_i,
+     &    ngen_j,ngen_i,
      &    ndim_ket,
      &    print)
       implicit none
 #include "stdio.fh"
 c
-c routine that transforms a 2e cartesian block buf_cart(ndim_ket,nbf_xr,nbf_xc) to 
-c    a spherical block buf_sph(ndim_ket,nbf_sr,nbf_sc) 
+c routine that transforms a 2e cartesian block buf_cart(ndim_ket,nbf_xj,nbf_xi) to 
+c    a spherical block buf_sph(ndim_ket,nbf_sj,nbf_si) 
 c  
 c  x --> implies cartesian
 c  s --> implies spherical
@@ -1547,6 +1831,7 @@ c
       integer nbf_xj, nbf_xi  ! [input] size of cartesian block
       integer nbf_sj, nbf_si  ! [input] size of spherical block
       integer type_j, type_i  ! [input] angular momentem for j and i
+      integer ngen_j, ngen_i  ! [input] general contraction length for j and i
       integer ndim_ket
       double precision buf(*) ! [input/output] cartesian block on input
 *.............................!   and spherical block on output      
@@ -1554,7 +1839,20 @@ c
       logical print           ! [input} print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
 *::local
-      integer count, iket, jr, ir
+      integer ngen_ij, sxi, sxj, ssi, ssj
+c
+*rak:      write(6,*)' bra2etran '
+*rak:      write(6,*)'bra2: nbf_xj, nbf_xi :',nbf_xj, nbf_xi
+*rak:      write(6,*)'bra2: nbf_sj, nbf_si :',nbf_sj, nbf_si
+*rak:      write(6,*)'bra2: type_j, type_i :',type_j, type_i
+*rak:      write(6,*)'bra2: ngen_j, ngen_i :',ngen_j, ngen_i
+*rak:      write(6,*)'bra2: ndim_ket       :',ndim_ket
+c
+      ngen_ij = ngen_i*ngen_j
+      sxi = nbf_xi*ngen_i
+      sxj = nbf_xj*ngen_j
+      ssi = nbf_si*ngen_i
+      ssj = nbf_sj*ngen_j
 c
       if (type_j.lt.2.and.type_i.lt.2) then
 c.................................. neither i or j need to be transformed 
@@ -1562,69 +1860,31 @@ c                                   (X,Y) X is s, p, or l and Y is s, p, or l
         if (print) then
           write(luout,*)
      &        ' cartesian matrix and spherical matrix the same '
-          count = 1
-          do ir = 1,nbf_xi
-            do jr = 1,nbf_xj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_am_print(ndim_ket,sxj,sxi,buf,
+     &        ' (ket:j-cart/s:i-cart/s')
         endif
-*.......make this pretty later
-*rak:c  buf has integrals
-*rak:c  scr has slices of buf
-*rak:        if (print) then
-*rak:          write(luout,*)
-*rak:     &        ' cartesian matrix and spherical matrix the same '
-*rak:          do iket = 0,(ndim_ket-1)
-*rak:            scr_count = 0
-*rak:            do cc = 1,nbf_xi 
-*rak:              do rr = 1,nbf_xj
-*rak:                offset = ndim_ket*scr_count + 1
-*rak:                scr_count = scr_count + 1
-*rak:                scr(scr_count) = buf(offset)
-*rak:              enddo
-*rak:            enddo
-*rak:          enddo
-*rak:          call output(scr,1,nbf_xj,1,nbf_xi,nbf_xj,nbf_xi,1)
-*rak:        endif
       elseif (type_j.lt.2.and.type_i.ge.2) then
 *...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
 c.................................. i needs to be transformed
 * print cartesian matrix  
 * buf is buf(ndim_ket,j_spherical,i_cartesian)
         if (print) then
-          write(luout,*)' (ket:spherical:cartesian) matrix '
-          count = 1
-          do ir = 1,nbf_xi
-            do jr = 1,nbf_sj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-spherical:i-cartesian) matrix '
+          call slice_am_print(ndim_ket,ssj,sxi,buf,
+     &          ' (ket:j-spherical:i-cartesian) matrix ')
         endif
 * scr is buf(ndim_ket,j_spherical,i_cartesian) ! copy it
 *...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
-        call dcopy((ndim_ket*nbf_sj*nbf_xi),buf,1,scr,1)
+        call dcopy((ndim_ket*ssj*sxi),buf,1,scr,1)
         if (nbf_xj.ne.nbf_sj) call errquit
      &      ('spcart_bra2etran: nbf_xj.ne.nbf_sj  (xj-sj) =',
      &      (nbf_xj-nbf_sj))
-        call spcart_a_s(scr,buf,(ndim_ket*nbf_sj),type_i,.false.)
+        call spcart_a_s(scr,buf,(ndim_ket*ssj),
+     &        type_i,ngen_i,.false.,print)
         if (print) then
-          write(luout,*)' (ket:spherical:shperical) matrix '
-          count = 1
-          do ir = 1,nbf_si
-            do jr = 1,nbf_sj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-spherical:i-shperical) matrix '
+          call slice_am_print(ndim_ket,ssj,ssi,buf,
+     &          ' (ket:j-spherical:i-shperical) matrix ')
         endif
       elseif (type_j.ge.2.and.type_i.lt.2) then
 *...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
@@ -1632,35 +1892,22 @@ c.................................. j needs to be transformed
 * print cartesian matrix  
 * buf is buf(ndim_ket,j_cartesian,i_spherical)
         if (print) then
-          write(luout,*)' (ket:cartesian:spherical) matrix '
-          count = 1
-          do ir = 1,nbf_si
-            do jr = 1,nbf_xj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-cartesian:i-spherical) matrix '
+          call slice_am_print(ndim_ket,sxj,ssi,buf,
+     &          ' (ket:j-cartesian:i-spherical) matrix ')
         endif
 * buf is buf(ndim_ket,j_cartesian,i_spherical)
 * scr is buf(ndim_ket,j_cartesian,i_spherical) ! copy it
-        call dcopy((ndim_ket*nbf_xj*nbf_si),buf,1,scr,1)
+        call dcopy((ndim_ket*sxj*ssi),buf,1,scr,1)
         if (nbf_xi.ne.nbf_si) call errquit
      &      ('spcart_bra2etran: nbf_xc.ne.nbf_sc  (xi-si) =',
      &      (nbf_xi-nbf_si))
-        call spcart_a_s_b(scr,buf,ndim_ket,nbf_si,type_j,.false.)
+        call spcart_a_s_b(scr,buf,ndim_ket,ssi,
+     &        type_j,ngen_j,.false.,print)
         if (print) then
-          write(luout,*)' (ket:spherical:spherical) matrix '
-          count = 1
-          do ir = 1,nbf_si
-            do jr = 1,nbf_sj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-spherical:i-spherical) matrix '
+          call slice_am_print(ndim_ket,ssj,ssi,buf,
+     &          ' (ket:j-spherical:i-spherical) matrix ')
         endif
       elseif (type_j.ge.2.and.type_i.ge.2) then
 *...................ERI(ndim_ket,jbf_lo:jbf_hi,ibf_lo,ibf_hi)
@@ -1668,48 +1915,29 @@ c........................ both j and i need to be transformed
 * print cartesian matrix  
 * buf is buf(ndim_ket,j_cartesian,i_cartesian)
         if (print) then
-          write(luout,*)' (ket:cartesian:cartesian) matrix '
-          count = 1
-          do ir = 1,nbf_xi
-            do jr = 1,nbf_xj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-cartesian:i-cartesian) matrix '
+          call slice_am_print(ndim_ket,sxj,sxi,buf,
+     &          ' (ket:j-cartesian:i-cartesian) matrix ')
         endif
 *
 *... buf(ndim_ket,xj,xi) -> scr(xj,si) : scr is half transformed matrix
-        call spcart_a_s(buf,scr,(ndim_ket*nbf_xj),type_i,.false.)
+        call spcart_a_s(buf,scr,(ndim_ket*sxj),
+     &        type_i,ngen_i,.false.,print)
 * print half transformed matrix
         if (print) then
-          write(luout,*)' (ket:cartesian:spherical) matrix '
-          count = 1
-          do ir = 1,nbf_si
-            do jr = 1,nbf_xj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,scr(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-cartesian:i-spherical) matrix '
+          call slice_am_print(ndim_ket,sxj,ssi,scr,
+     &          ' (ket:j-cartesian:i-spherical) matrix ')
         endif
 *
 *... scr(xj,si) -> buf(sj,si)
-        call spcart_a_s_b(scr,buf,ndim_ket,nbf_si,type_j,.false.)
+        call spcart_a_s_b(scr,buf,ndim_ket,ssi,
+     &        type_j,ngen_j,.false.,print)
 * print spherical block
         if (print) then
-          write(luout,*)' (ket:spherical:spherical) matrix '
-          count = 1
-          do ir = 1,nbf_si
-            do jr = 1,nbf_sj
-              do iket = 1,ndim_ket
-                write(luout,10000)iket,jr,ir,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (ket:j-spherical:i-spherical) matrix '
+          call slice_am_print(ndim_ket,ssj,ssi,buf,
+     &          ' (ket:j-spherical:i-spherical) matrix ')
         endif
 c
       else
@@ -1717,8 +1945,6 @@ c
         call errquit('spcart_bra2etran: should never get here ?? ',911)
       endif
 c
-10000 format('<ket=',i7,'|j=',i6,'|i=',i6,':count=',i10,
-     &    '> =',1pd20.10)
       end
 *.......................................................................
       subroutine spcart_ket2etran(
@@ -1726,6 +1952,7 @@ c
      &    nbf_xl,nbf_xk,
      &    nbf_sl,nbf_sk,
      &    type_l,type_k,
+     &    ngen_l,ngen_k,
      &    ndim_bra,
      &    print)
       implicit none
@@ -1748,7 +1975,8 @@ c
 c
       integer nbf_xl, nbf_xk  ! [input] size of cartesian block
       integer nbf_sl, nbf_sk  ! [input] size of spherical block
-      integer type_l, type_k  ! [input] angular momentem for k and l
+      integer type_l, type_k  ! [input] angular momentem for l and k
+      integer ngen_l, ngen_k  ! [input] general contraction length for l and k
       integer ndim_bra
       double precision buf(*) ! [input/output] cartesian block on input
 *.............................!   and spherical block on output      
@@ -1756,7 +1984,20 @@ c
       logical print           ! [input} print integrals at each stage of the
 *.............................!   transformation (cart/half/spherical)
 *::local
-      integer count, ibra, lr, kr
+      integer ngen_kl, sxl, sxk, ssl, ssk
+c
+*rak:      write(6,*)' ket2etran '
+*rak:      write(6,*)'ket2: nbf_xl, nbf_xk :',nbf_xl, nbf_xk
+*rak:      write(6,*)'ket2: nbf_sl, nbf_sk :',nbf_sl, nbf_sk
+*rak:      write(6,*)'ket2: type_l, type_k :',type_l, type_k
+*rak:      write(6,*)'ket2: ngen_l, ngen_k :',ngen_l, ngen_k
+*rak:      write(6,*)'ket2: ndim_bra       :',ndim_bra
+c
+      ngen_kl = ngen_l * ngen_k
+      sxl = nbf_xl*ngen_l
+      sxk = nbf_xk*ngen_k
+      ssl = nbf_sl*ngen_l
+      ssk = nbf_sk*ngen_k
 c
       if (type_l.lt.2.and.type_k.lt.2) then
 c.................................. neither k or l need to be transformed 
@@ -1765,15 +2006,8 @@ c                                   (X,Y) X is s, p, or l and Y is s, p, or l
         if (print) then
           write(luout,*)
      &        ' cartesian matrix and spherical matrix the same '
-          count = 1
-          do lr = 1,nbf_xl
-            do kr = 1,nbf_xk
-              do ibra = 1,ndim_bra
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,sxl,sxk,buf,
+     &          ' cartesian matrix and spherical matrix the same ')
         endif
       elseif (type_l.lt.2.and.type_k.ge.2) then
 *...................ERI(lbf_lo:lbf_hi,kbf_lo,kbf_hi,ndim_bra)
@@ -1782,34 +2016,21 @@ c.................................. k needs to be transformed
 * buf is buf(spherical,cartesian,ndim_bra)
         if (print) then
           write(luout,*)' (spherical:cartesian:bra) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do kr = 1,nbf_xk
-              do lr = 1,nbf_sl
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,ssl,sxk,buf,
+     &          ' (l-spherical:k-cartesian:bra) matrix ')
         endif
 * scr is buf(l_spherical,k_cartesian,ndim_bra) ! copy it
 *...................ERI(lbf_lo:lbf_hi,kbf_lo,kbf_hi,ndim_bra)
-        call dcopy((ndim_bra*nbf_sl*nbf_xk),buf,1,scr,1)
+        call dcopy((ndim_bra*ssl*sxk),buf,1,scr,1)
         if (nbf_xl.ne.nbf_sl) call errquit
      &      ('spcart_ket2etran: nbf_xl.ne.nbf_sl  (xl-sl) =',
      &      (nbf_xl-nbf_sl))
-        call spcart_a_s_b(scr,buf,nbf_sl,ndim_bra,type_k,.false.)
+        call spcart_a_s_b(scr,buf,ssl,ndim_bra,
+     &        type_k,ngen_k,.false.,print)
         if (print) then
           write(luout,*)' (l-spherical:k-shperical:bra) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do kr = 1,nbf_sk
-              do lr = 1,nbf_sl
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,ssl,ssk,buf,
+     &          ' (l-spherical:k-shperical:bra) matrix ')
         endif
       elseif (type_l.ge.2.and.type_k.lt.2) then
 *...................ERI(lbf_lo:lbf_hi,kbf_lo,kbf_hi,ndim_bra)
@@ -1818,83 +2039,51 @@ c.................................. l needs to be transformed
 * buf is buf(l_cartesian,k_spherical,ndim_bra)
         if (print) then
           write(luout,*)' (l-cartesian:k-spherical:bra) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do lr = 1,nbf_xl
-              do kr = 1,nbf_sk
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,sxl,ssk,buf,
+     &          ' (l-cartesian:k-spherical:bra) matrix ')
         endif
 * buf is buf(l_cartesian,k_spherical,ndim_bra)
 * scr is buf(l_cartesian,k_spherical,ndim_bra)
-        call dcopy((ndim_bra*nbf_xl*nbf_sk),buf,1,scr,1)
+        call dcopy((ndim_bra*sxl*ssk),buf,1,scr,1)
         if (nbf_xk.ne.nbf_sk) call errquit
-     &      ('spcart_ket2etran: nbf_xc.ne.nbf_sc  (xi-si) =',
+     &      ('spcart_ket2etran: nbf_xk.ne.nbf_sk  (xk-sk) =',
      &      (nbf_xk-nbf_sk))
-        call spcart_s_a(scr,buf,(ndim_bra*nbf_sk),type_l,.false.)
+        call spcart_s_a(scr,buf,(ndim_bra*ssk),
+     &        type_l,ngen_l,.false.,print)
         if (print) then
           write(luout,*)' (l-spherical:k-spherical:bra) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do lr = 1,nbf_sl
-              do kr = 1,nbf_sk
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,ssl,ssk,buf,
+     &          ' (l-spherical:k-spherical:bra) matrix ')
         endif
       elseif (type_l.ge.2.and.type_k.ge.2) then
 *...................ERI(lbf_lo:lbf_hi,kbf_lo,kbf_hi,ndim_bra)
 c........................ both k and l need to be transformed
 * print cartesian matrix  
-* buf is buf(k_cartesian,l_cartesian,ndim_bra)
+* buf is buf(l_cartesian,k_cartesian,ndim_bra)
         if (print) then
           write(luout,*)' (l-cartesian:k-cartesian:bra) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do lr = 1,nbf_xl
-              do kr = 1,nbf_xk
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          call slice_ma_print(ndim_bra,sxl,sxk,buf,
+     &          ' (l-cartesian:k-cartesian:bra) matrix ')
         endif
 *
-*... buf(xl,xk) -> scr(xl,sk,ndim_bra,) : scr is half transformed matrix
-        call spcart_a_s_b(buf,scr,ndim_bra,nbf_xl,type_k,.false.)
+*... buf(xl,xk) -> scr(sl,xk,ndim_bra,) : scr is half transformed matrix
+        call spcart_s_a(buf,scr,(sxk*ndim_bra),
+     &        type_l,ngen_l,.false.,print)
 * print half transformed matrix
         if (print) then
-          write(luout,*)' (ket:cartesian:spherical) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do lr = 1,nbf_xl
-              do kr = 1,nbf_sk
-                write(luout,10000)ibra,lr,kr,count,scr(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (l-spherical:k-cartesian:bra) matrix '
+          call slice_ma_print(ndim_bra,sxl,ssk,scr,
+     &          ' (l-cartesian:k-spherical:bra) matrix ')
         endif
 *
-*... scr(xl,sk) -> buf(sl,sk)
-        call spcart_a_s_b(scr,buf,ndim_bra,nbf_sk,type_l,.false.)
+*... scr(sl,xk) -> buf(sl,sk)
+        call spcart_a_s_b(scr,buf,ssl,ndim_bra,
+     &        type_k,ngen_k,.false.,print)
 * print spherical block
         if (print) then
-          write(luout,*)' (ket:spherical:spherical) matrix '
-          count = 1
-          do ibra = 1,ndim_bra
-            do lr = 1,nbf_sl
-              do kr = 1,nbf_sk
-                write(luout,10000)ibra,lr,kr,count,buf(count)
-                count = count + 1
-              enddo
-            enddo
-          enddo
+          write(luout,*)' (l-spherical:k-spherical:bra) matrix '
+          call slice_ma_print(ndim_bra,ssl,ssk,buf,
+     &          ' (l-spherical:k-spherical:bra) matrix ')
         endif
 c
       else
@@ -1902,6 +2091,205 @@ c
         call errquit('spcart_ket2etran: should never get here ?? ',911)
       endif
 c
-10000 format('<bra=',i7,'|l=',i6,'|k=',i6,':count=',i10,
-     &    '> =',1pd20.10)
+      end
+      subroutine slice_am_print(na,ni,nj,M,msg)
+      implicit none
+*
+* routine to print 2d slices(i,j) of a matrix dimensioned
+*
+*  Matrix(na,ni,nj)
+*
+#include "stdio.fh"
+#include "mafdecls.fh"      
+      integer na, ni, nj           ! [input] matrix dimensions
+      double precision M(na,ni,nj) ! [input] matrix to print
+      character*(*) msg            ! [input] message for output
+c
+      integer h_slice, k_slice 
+      integer a,i,j,cnt
+c
+      if (.not.ma_push_get(mt_dbl,(ni*nj),
+     &      'slice_am_print scratch',h_slice,k_slice))
+     &      call errquit
+     &      ('slice_am_print: could not allocate (push) slice',911)
+c
+      write(luout,*)' sliced matrix output ',msg
+      write(luout,*)na,' slices to be printed ',msg
+      do a=1,na
+        call dfill((ni*nj),0.0d00,dbl_mb(k_slice),1)
+        cnt = k_slice
+        do i=1,ni
+          do j=1,nj
+            dbl_mb(cnt) = M(a,i,j)
+            cnt = cnt + 1
+          enddo
+        enddo
+        write(luout,*)' slice ',a,' ',msg
+        call output(dbl_mb(k_slice),1,ni,1,nj,ni,nj,1)
+      enddo
+c
+      if (.not.ma_pop_stack(h_slice))call errquit
+     &      ('slice_am_print: could not deallocate (pop) slice',911)
+c
+      end
+      subroutine slice_ma_print(na,ni,nj,M,msg)
+      implicit none
+*
+* routine to print 2d slices(i,j) of a matrix dimensioned
+*
+*  Matrix(ni,nj,na)
+*
+#include "stdio.fh"
+      integer na, ni, nj           ! [input] matrix dimensions
+      double precision M(ni,nj,na) ! [input] matrix to print
+      character*(*) msg            ! [input] message for output
+c
+      integer a
+      write(luout,*)' sliced matrix output ',msg
+      write(luout,*)na,' slices to be printed ',msg
+      do a=1,na
+        write(luout,*)' slice ',a,' ',msg
+        call output(M(1,1,a),1,ni,1,nj,ni,nj,1)
+      enddo
+      end
+      subroutine slice_amb_print(na,nb,ni,nj,M,msg)
+*
+* routine to print 2d slices(i,j) of a matrix dimensioned
+*
+*  Matrix(na,ni,nj,nb)
+*
+#include "stdio.fh"
+#include "mafdecls.fh"      
+      integer na, nb, ni, nj          ! [input] matrix dimensions
+      double precision M(na,ni,nj,nb) ! [input] matrix to print
+      character*(*) msg               ! [input] message for output
+c
+      integer h_slice, k_slice 
+      integer a,i,j,b,cnt
+c
+      if (.not.ma_push_get(mt_dbl,(ni*nj),
+     &      'slice_amb_print scratch',h_slice,k_slice))
+     &      call errquit
+     &      ('slice_amb_print: could not allocate (push) slice',911)
+c
+      write(luout,*)' sliced matrix output ',msg
+      write(luout,*)(na*nb),' slices to be printed ',msg
+      do a=1,na
+        do b=1,nb
+          call dfill((ni*nj),0.0d00,dbl_mb(k_slice),1)
+          cnt = k_slice
+          do i=1,ni
+            do j=1,nj
+              dbl_mb(cnt) = M(a,i,j,b)
+              cnt = cnt + 1
+            enddo
+          enddo
+          write(luout,*)' slice ',a,b,' ',msg
+          call output(dbl_mb(k_slice),1,ni,1,nj,ni,nj,1)
+        enddo
+      enddo
+c
+      if (.not.ma_pop_stack(h_slice))call errquit
+     &      ('slice_amb_print: could not deallocate (pop) slice',911)
+c
+      end
+*.......................................................................
+      subroutine spcart_all(blockin, blockout,li,lj,lk,ll,ni,nj,nk,nl)
+      implicit none
+c
+c  transforms a block of integrals with loop level crap 
+c
+#include "mafdecls.fh"
+#include "spcartP.fh"
+c
+c: passed
+      integer li, lj, lk, ll
+      integer di, dj, dk, dl
+      integer L2i, L2j, L2k, L2l
+      integer ni, nj, nk, nl
+      double precision blockin(
+     &    ((ll+1)*(ll+2)/2),nl,
+     &    ((lk+1)*(lk+2)/2),nk,
+     &    ((lj+1)*(lj+2)/2),nj,
+     &    ((li+1)*(li+2)/2),ni)
+      double precision blockout(
+     &    -ll:ll,nl,
+     &    -lk:lk,nk,
+     &    -lj:lj,nj,
+     &    -li:li,ni)
+      integer i,j,k,l,ig,jg,kg,lg,is,js,ks,ls
+      integer sizeblocks
+c
+      double precision sum, sumadd
+c
+c::statement function ----- start
+      integer iic,iis,iil
+      double precision Dtrans
+      Dtrans(iic,iis,iil) =
+     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+     &           + iic - 1)
+c::statement function ----- end
+*rak:      ls=4
+*rak:      write(6,*)'a_s,(ndima,l2s) ndima = ',ndima,'   ls = ',ls
+*rak:      write(6,*)' trans matrix used '
+*rak:      call output(dbl_mb((int_mb(k_sp2c_lindx+ls))),1,
+*rak:     &    ((ls+1)*(ls+2)/2),1,(2*ls+1),
+*rak:     &    ((ls+1)*(ls+2)/2),(2*ls+1),1)
+c
+      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
+     &    ('spcart_a_sg_b: spcart not initialized properly',
+     &    sph_cart_init)
+c
+c
+      write(6,*)' *** Li *** ',Li
+      call spcart_print_dtrans(Li)
+      write(6,*)' *** Lj *** ',Lj
+      call spcart_print_dtrans(Lj)
+      write(6,*)' *** Lk *** ',Lk
+      call spcart_print_dtrans(Lk)
+      write(6,*)' *** Ll *** ',Ll
+      call spcart_print_dtrans(Ll)
+      sizeblocks = ni*(2*li+1)
+      sizeblocks = sizeblocks*nj*(2*lj+1)
+      sizeblocks = sizeblocks*nk*(2*lk+1)
+      sizeblocks = sizeblocks*nl*(2*ll+1)
+      call dfill(sizeblocks,0.0d00,blockout,1)
+      l2i = (li+1)*(li+2)/2
+      l2j = (lj+1)*(lj+2)/2
+      l2k = (lk+1)*(lk+2)/2
+      l2l = (lj+1)*(lj+2)/2
+      do ig = 1,ni
+        do jg = 1,nj
+          do kg = 1,nk
+            do lg = 1,nk
+              do is = -li,li
+                do js = -lj,lj
+                  do ks = -lk,lk
+                    do ls = -ll,ll
+                      sum = 0.0d00
+                      do i = 1,l2i
+                        di = Dtrans(i,is,Li)
+                        do j = 1,l2j
+                          dj = Dtrans(j,js,Lj)
+                          do k = 1,l2k
+                            dk = Dtrans(k,ks,Lk)
+                            do l = 1,l2l
+                              dl = Dtrans(l,ls,Ll)
+                              sumadd = di*dj*dk*dl*
+     &                            blockin(l,lg,k,kg,j,jg,i,ig)
+                              sum = sum + sumadd
+                            enddo
+                          enddo
+                        enddo
+                      enddo
+                      blockout(ls,lg,ks,kg,js,jg,is,ig) = sum
+                    enddo
+                  enddo
+                enddo
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
       end

@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.8 1996-06-27 22:33:27 d3g681 Exp $
+* $Id: intb_2e4c.F,v 1.9 1996-07-18 23:58:34 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -46,8 +46,6 @@ c::local
 c
 #include "bas_ibs_sfn.fh"
 c
-*      call int_nospherical_check(brain,'intb_2e4c')
-*      call int_nospherical_check(ketin,'intb_2e4c')
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c

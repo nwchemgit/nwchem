@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.25 1996-07-12 18:27:39 pg481 Exp $
+c $Id: int_init.F,v 1.26 1996-07-18 23:57:54 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -10,13 +10,17 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "int_nbf.fh"
+c::functions
+      logical spcart_init
+      external spcart_init
 c::passed
       integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
       integer bases(nbas) ! basis set handles
 c::local
       integer txs_mem_min ! memory from texas
-      integer ibas, ang2use, angm
+      integer ibas, ang2use, angm, type
       logical status
       integer nqmax_texas  ! maximum number of quartets in texas blocking interface
       parameter (nqmax_texas = 10000)
@@ -28,21 +32,8 @@ c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
 c
 c     
-      mem_2e4c  = 0
-      init_int  = 0
-      mem_1e    = 0
-      isz_2e4c  = 0
-      isz_1e    = 0
-      mem_1e_h1 = 0
-      isz_2e3c  = 0
-      isz_2e2c  = 0
-      mem_2e3c  = 0
-      mem_2e2c  = 0
-      isz_3ov   = 0
-      mem_3ov   = 0
-      iszb_2e4c = 0
-      memb_2e4c = 0
-      init_intd = 0
+      call int_mem_zero()
+c
       DCexp     = 0.0D00
       DCcoeff   = 1.0D00
       val_int_acc = 0.0d00
@@ -57,6 +48,15 @@ c
         write(6,*)' int_init already called '
         call util_flush(6)
       endif
+c
+c initialize type-> nbf maps
+c
+      int_nbf_x(-1) = 4
+      int_nbf_s(-1) = 4
+      do type = 0,int_nbf_max_ang
+        int_nbf_x(type) = (type+1)*(type+2)/2
+        int_nbf_s(type) = 2*type+1
+      enddo
 c
 c initialize cando information from rtdb
 c
@@ -136,78 +136,90 @@ c
 00300 continue
       call defNxyz(ang2use)
 c
+c initialize spcart stuff 
+c
+      if (.not.(spcart_init(ang2use,.true.,.false.))) then
+        call errquit('int_init: spcart_init failed',911)
+      endif
+c
 c... generate memory requirements and store in structures in apiP.fh
 c
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
       call int_acc_std()
-      call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min)
+* def u=f d=f -> f.and.!f -> f -> e = t
+* no txs u=t d=f -> t.and.!f -> t -> e = f
+      if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
+        call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min)
+      endif
       init_int = 1
       end
       subroutine sp_init(nbas,bases)
       implicit none
-#include "apispP.fh"
-#include "bas.fh"
-#include "mafdecls.fh"
-c::passed
+*_not_used?:#include "apispP.fh"
+*_not_used?:#include "bas.fh"
+*_not_used?:#include "mafdecls.fh"
+*_not_used?:c::passed
       integer nbas
       integer bases(nbas)
-c::local
-      integer ncont,icont,ibas
-      integer mytype,nprim,ngen,sphorcart
-      integer myang, testang
-c
-      no_sp_conts = .true.
-      do 00100 ibas = 1,nbas
-        if (.not.bas_numcont(bases(ibas),ncont))
-     &         call errquit('sp_init: bas_numcont failed',911)
-        do 00200 icont = 1,ncont
-          if(.not.bas_continfo
-     &           (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
-     &           call errquit('sp_init: bas_continfo failed',911)
-
-          if (mytype.lt.0) then
-            no_sp_conts = .false.
-            goto 00201
-          endif
-00200   continue
-00100 continue
-00201 continue
-c
-      if (no_sp_conts) return
-c... arbitrary set max number of blocks to 2 for sp's if spd's set to 3
-      max_sp_blksz = 2
-c
-      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block A',
-     &       hszspa,kszspa))
-     &       call errquit('sp_init:ma_alloc_get A failed',911)
-      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block B',
-     &       hszspb,kszspb))
-     &       call errquit('sp_init:ma_alloc_get B failed',911)
-      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block C',
-     &       hszspc,kszspc))
-     &       call errquit('sp_init:ma_alloc_get C failed',911)
-      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block D',
-     &       hszspd,kszspd))
-     &       call errquit('sp_init:ma_alloc_get D failed',911)
-c
-      myang = -56565
-      do 00300 ibas = 1,nbas
-        if (.not.bas_high_angular(bases(ibas),testang))
-     &         call errquit('sp_init:bas_high_angular failed',911)
-        myang = max(myang,testang)
-00300 continue
-      myang = (myang+1)*(myang+2)/2
-* max of (sp,sp|sp,sp) and (sp,X,X,X) and permutations
-      sp_scat_sz = max((4*4*4*4),(4*4*4*myang))
-      sp_scat_sz = max(sp_scat_sz,(4*4*myang*myang))
-      sp_scat_sz = max(sp_scat_sz,(4*myang*myang*myang))
-      sp_scat_sz = max(sp_scat_sz,(myang*myang*myang*myang))
-c
-      if (.not.MA_alloc_get(mt_int,sp_scat_sz,'sp scatter array',
-     &       hspscat,kspscat))
-     &       call errquit('sp_init:ma_alloc_get scat failed',911)
+*_not_used?:c::local
+*_not_used?:      integer ncont,icont,ibas
+*_not_used?:      integer mytype,nprim,ngen,sphorcart
+*_not_used?:      integer myang, testang
+*_not_used?:c
+*_not_used?:      no_sp_conts = .true.
+*_not_used?:      do 00100 ibas = 1,nbas
+*_not_used?:        if (.not.bas_numcont(bases(ibas),ncont))
+*_not_used?:     &         call errquit('sp_init: bas_numcont failed',911)
+*_not_used?:        do 00200 icont = 1,ncont
+*_not_used?:          if(.not.bas_continfo
+*_not_used?:     &           (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
+*_not_used?:     &           call errquit('sp_init: bas_continfo failed',911)
+*_not_used?:
+*_not_used?:          if (mytype.lt.0) then
+*_not_used?:            no_sp_conts = .false.
+*_not_used?:            goto 00201
+*_not_used?:          endif
+*_not_used?:00200   continue
+*_not_used?:00100 continue
+*_not_used?:00201 continue
+*_not_used?:c
+*_not_used?:      if (no_sp_conts) return
+*_not_used?:c... arbitrary set max number of blocks to 2 for sp's if spd's set to 3
+*_not_used?:      max_sp_blksz = 2
+*_not_used?:c
+*_not_used?:      write(6,*)':::: allocating sp blocks of memory'
+*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block A',
+*_not_used?:     &       hszspa,kszspa))
+*_not_used?:     &       call errquit('sp_init:ma_alloc_get A failed',911)
+*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block B',
+*_not_used?:     &       hszspb,kszspb))
+*_not_used?:     &       call errquit('sp_init:ma_alloc_get B failed',911)
+*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block C',
+*_not_used?:     &       hszspc,kszspc))
+*_not_used?:     &       call errquit('sp_init:ma_alloc_get C failed',911)
+*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block D',
+*_not_used?:     &       hszspd,kszspd))
+*_not_used?:     &       call errquit('sp_init:ma_alloc_get D failed',911)
+*_not_used?:      write(6,*)':::done: allocating sp blocks of memory'
+*_not_used?:c
+*_not_used?:      myang = -56565
+*_not_used?:      do 00300 ibas = 1,nbas
+*_not_used?:        if (.not.bas_high_angular(bases(ibas),testang))
+*_not_used?:     &         call errquit('sp_init:bas_high_angular failed',911)
+*_not_used?:        myang = max(myang,testang)
+*_not_used?:00300 continue
+*_not_used?:      myang = (myang+1)*(myang+2)/2
+*_not_used?:* max of (sp,sp|sp,sp) and (sp,X,X,X) and permutations
+*_not_used?:      sp_scat_sz = max((4*4*4*4),(4*4*4*myang))
+*_not_used?:      sp_scat_sz = max(sp_scat_sz,(4*4*myang*myang))
+*_not_used?:      sp_scat_sz = max(sp_scat_sz,(4*myang*myang*myang))
+*_not_used?:      sp_scat_sz = max(sp_scat_sz,(myang*myang*myang*myang))
+*_not_used?:c
+*_not_used?:      if (.not.MA_alloc_get(mt_int,sp_scat_sz,'sp scatter array',
+*_not_used?:     &       hspscat,kspscat))
+*_not_used?:     &       call errquit('sp_init:ma_alloc_get scat failed',911)
+*_not_used?:      write(6,*)':::done: allocating sp blocks of memory'
       end
-
-
+      

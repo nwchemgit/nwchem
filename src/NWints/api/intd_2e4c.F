@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.8 1996-07-11 22:21:18 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.9 1996-07-18 23:58:45 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -17,8 +17,8 @@ c
 c::external subroutines used
 c errquit
 c::functions
-      integer int_nint
-      external int_nint
+      integer int_nint_cart
+      external int_nint_cart
 c::passed
       integer brain ! [input] basis set handle for bra basis
       integer ish   ! [input] lexical contraction index 
@@ -100,12 +100,17 @@ c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
-      nint = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+      nint = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint*3*4.gt.leri) then
         write(6,*) 'nint*3*4 = ',nint*3*4
         write(6,*) 'leri     = ',leri
         call errquit('intd_2e4c: nint>leri error',911)
       endif
+c
+c  check if spherical
+c
+      call int_nospherical_check(brain,'intd_2e4c')
+      call int_nospherical_check(ketin,'intd_2e4c')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

@@ -1,7 +1,7 @@
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.7 1996-01-22 21:46:31 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.8 1996-07-18 23:58:10 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -14,6 +14,8 @@ c
 c::external subroutines used
 c errquit
 c::functions
+      integer int_nint_cart
+      external int_nint_cart
       logical int_chk_sh
       external int_chk_sh
 c::passed
@@ -52,16 +54,18 @@ c
         call errquit('int_l2e2c: shells not in canonical order',0)
       endif
 c
+c  check if spherical
+c
+      call int_nospherical_check(brain,'int_l2e2c')
+      call int_nospherical_check(ketin,'int_l2e2c')
+c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
 c compute eris into scr instead of copying them
 c
 c 
-      numint =         (sf_ibs_cn2bfr(2,ish,bra))-
-     &      (sf_ibs_cn2bfr(1,ish,bra))+1
-      numint = numint*((sf_ibs_cn2bfr(2,jsh,ket))-
-     &      (sf_ibs_cn2bfr(1,jsh,ket))+1)
+      numint = int_nint_cart(brain,ish,ketin,jsh,0,0,0,0)
       newlscr = lscr - numint
       call int_2e2c(brain,ish,ketin,jsh,
      &    newlscr,scr(numint+1),numint,scr)

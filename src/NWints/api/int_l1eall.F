@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.11 1996-01-22 21:46:26 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.12 1996-07-18 23:57:59 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -30,6 +30,11 @@ c
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
      &       call errquit('int_l1eall: invalid contraction/shell',0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'int_l1eall')
+      call int_nospherical_check(j_basis,'int_l1eall')
 c
 c check canoncialization of shells
 c

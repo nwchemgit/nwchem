@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.6 1996-02-09 22:35:52 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.7 1996-07-18 23:57:47 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -69,6 +69,11 @@ c
       if (.not.shells_ok)
      &       call errquit('int_2e2c: invalid contraction/shell',0)
 c
+c  check if spherical
+c
+      call int_nospherical_check(brain,'int_2e2c')
+      call int_nospherical_check(ketin,'int_2e2c')
+c
 c set status variables
 c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
@@ -76,6 +81,7 @@ c
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
       status_txs = .false.
 #endif
+
 c
 c     define center information required 
 c

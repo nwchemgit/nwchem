@@ -1,7 +1,7 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
-c $Id: intp_mpole.F,v 1.5 1996-07-13 00:10:30 d3e129 Exp $
+c $Id: intp_mpole.F,v 1.6 1996-07-18 23:59:02 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
@@ -39,9 +39,9 @@ c
 c
 c::functions
       logical int_chk_init
-      integer int_nint
+      integer int_nint_cart
       external int_chk_init
-      external int_nint
+      external int_nint_cart
 c::passed
       integer i_basis             ! [input] basis set handle for ish
       integer ish                 ! [input] i shell/contraction
@@ -85,6 +85,11 @@ c check initialization
 c      
       if (.not.int_chk_init('intp_mpole'))
      &       call errquit('intp_mpole: int_init was not called' ,0)
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'intp_mpole')
+      call int_nospherical_check(j_basis,'intp_mpole')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -136,7 +141,7 @@ c
       num_int = 0
       do 00100 lval = 0,lmax
         l_int  = (lval+1)*(lval+2)/2
-        ij_int = int_nint(i_basis, ish, j_basis, jsh, 0,0, 0,0)
+        ij_int = int_nint_cart(i_basis, ish, j_basis, jsh, 0,0, 0,0)
         int_point = num_int + 1
         int_size  = lmpint - num_int
         num_int = num_int + l_int*ij_int

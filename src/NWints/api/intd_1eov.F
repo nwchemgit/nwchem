@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.3 1996-01-22 21:46:41 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.4 1996-07-18 23:58:38 d3e129 Exp $
       implicit none
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
@@ -15,8 +15,8 @@ c
 c::external subroutines used
 c... errquit
 c::functions
-      integer int_nint
-      external int_nint
+      integer int_nint_cart
+      external int_nint_cart
 c::passed
       integer i_basis   ! [input] ish basis set handle
       integer ish       ! [input] "i" contraction index
@@ -66,12 +66,17 @@ c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
-      nint = int_nint(i_basis,ish,j_basis,jsh,0,0,0,0)
+      nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lOva) then
         write(6,*) 'nint*3*2 = ',nint*3*2
         write(6,*) 'lOva     = ',lOva
         call errquit('intd_1eov: nint>lOva error',911)
       endif
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'intd_1eov')
+      call int_nospherical_check(j_basis,'intd_1eov')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

@@ -1,12 +1,12 @@
 *
-* $Id: candoP.fh,v 1.1 1995-06-23 06:40:13 d3e129 Exp $
+* $Id: candoP.fh,v 1.2 1996-07-18 23:57:22 d3e129 Exp $
 * 
-      logical user_cando_sp  ! did user set a value for sp
+      logical user_cando_sp  ! did user set a value for sp 
       logical user_cando_nw  ! did user set a value for nw 
       logical user_cando_txs ! did user set a value for txs
-      logical def_cando_sp  ! default user setable value for cando_sp
-      logical def_cando_nw  ! default user setable value for cando_nw
-      logical def_cando_txs ! default user setable value for cando_txs
+      logical def_cando_sp   ! default user setable value for cando_sp
+      logical def_cando_nw   ! default user setable value for cando_nw
+      logical def_cando_txs  ! default user setable value for cando_txs
 c
       common /clcando/ user_cando_sp, user_cando_nw, user_cando_txs,
      &    def_cando_sp, def_cando_nw, def_cando_txs

@@ -1,8 +1,9 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.9 1996-01-22 21:46:13 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.10 1996-07-18 23:57:30 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
+#include "stdio.fh"
 c
 c:: passed
       integer nbas
@@ -11,37 +12,34 @@ c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
       integer ibas,jbas
-      integer nbfmax,nbftest
+      integer nbfmax, nbf
 c
-      mem_2e4c = 0
-      isz_2e4c = 0
-      mem_1e   = 0
-      isz_1e   = 0
+      call int_mem_zero()
 c
       nbfmax = 0
       do 00100 ibas = 1,nbas
+        call int_nbf_max(bases(ibas),nbf)
+        nbfmax = max(nbfmax,nbf)
         do 00200 jbas = 1,ibas
 c.... nbfmax for 2e3c and 2e4c
-           if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
-     &          call errquit('exactd_mem:bas_nbf_cn_max error ',1)
-           nbfmax = max(nbfmax,nbftest)
-           if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
-     &          call errquit('exactd_mem:bas_nbf_cn_max error ',2)
-           nbfmax = max(nbfmax,nbftest)
+          if (bases(jbas).ne.bases(ibas)) then
+            call int_nbf_max(bases(ibas),nbf)
+            nbfmax = max(nbfmax,nbf)
+          endif
 c.... 2e 4 center
-           call emem_d2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
-           mem_2e4c = max(mem_2e4c, lmem_2e4c)
-           isz_2e4c = max(isz_2e4c, lsz_2e4c)
+          call emem_d2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
+          mem_2e4c = max(mem_2e4c, lmem_2e4c)
+          isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 1e
-           call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
-           mem_1e = max(mem_1e, lmem_1e)
-           isz_1e = max(isz_1e, lsz_1e)
-*rak:           write(6,*)' ibas|jbas ', ibas, '|', jbas
-*rak:           write(6,*)' mem_2e4c: ',mem_2e4c
-*rak:           write(6,*)' mem_1e  : ',mem_1e
+          call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
+          mem_1e = max(mem_1e, lmem_1e)
+          isz_1e = max(isz_1e, lsz_1e)
+*debug:          write(luout,*)' ibas|jbas ', ibas, '|', jbas
+*debug:          write(luout,*)' mem_2e4c: ',mem_2e4c
+*debug:          write(luout,*)' mem_1e  : ',mem_1e
 00200   continue
 00100 continue
-c     
+c
 c.. need extra memory for H1 call externalized by int_mem_h1 (Ta)
 c
       mem_1e_h1 = mem_1e + nbfmax*nbfmax*3*2
@@ -54,9 +52,9 @@ c
       mem_2e2c = mem_2e4c
 c
       if (numd_red.gt.numd_tot/33) then
-        write(6,*)' integral derivatives have > 33% split blocks'
-        write(6,*)' insert the following into your input deck'
-        write(6,*)' set "intd:approxmem" integer 9000000'
+        write(luout,*)' integral derivatives have > 33% split blocks'
+        write(luout,*)' insert the following into your input deck'
+        write(luout,*)' set "intd:approxmem" integer 9000000'
       endif
 c
       end
@@ -69,6 +67,7 @@ c
 #include "geomP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -98,7 +97,7 @@ c
       bra_geom  = ibs_geom(bra)
       ket_geom  = ibs_geom(ket)
       if (bra_geom.ne.ket_geom) then
-        write(6,*)'emem_d1e: two different geometries for',
+        write(luout,*)'emem_d1e: two different geometries for',
      &         ' derivatives?'
         call errquit('emem_d1e: geom error ',911)
       endif
@@ -131,12 +130,6 @@ c
 c
           memdum = 15 000 000
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
-*rak:          call hf1d(
-*rak:     &         exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-*rak:     &         exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-*rak:     &         exndcf,exndcf,nat,
-*rak:     &         exndcf,exndcf,exndcf,nint,.true.,.true.,.true.,.false.,
-*rak:     &         .true.,exndcf,memdum)
           call hf1d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
@@ -152,10 +145,13 @@ c
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_d1e:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_d1e:bas_nbf_cn_max error ',2)
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
+c
       max1e = max_nbf_bra*max_nbf_ket*nat*3
 c
 *     write(6,'(a,i10)')'emem_d1e: memsize =',memsize
@@ -171,6 +167,7 @@ c
 #include "geomP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -186,9 +183,9 @@ c::local
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
       integer bra_geom, ket_geom, nat
-*rak:-start-debug
-*rak:      integer fbra, fket, find
-*rak:-start-end
+*debug:-start-debug
+*debug:      integer fbra, fket, find
+*debug:-start-end
 c
 #include "bas_exndcf_sfn.fh"
 c
@@ -204,7 +201,7 @@ c
       bra_geom  = ibs_geom(bra)
       ket_geom  = ibs_geom(ket)
       if (bra_geom.ne.ket_geom) then
-        write(6,*)'emem_d2e4c: two different geometries for',
+        write(luout,*)'emem_d2e4c: two different geometries for',
      &         ' derivatives?'
         call errquit('emem_d2e4c: geom error ',911)
       endif
@@ -238,13 +235,6 @@ c
           memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
-*rak:          call hf2d(
-*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
-*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
-*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-*rak:     &           exndcf,nint,.false.,.false.,.false.,
-*rak:     &           .true.,exndcf,memdum)
           call hf2d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
@@ -258,31 +248,24 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &          ket_prim, ket_gen, ket_type, 4,
      &          dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
      &          .false.,.true.,dbl_mb(mb_exndcf(1,1)), memdum)
-*rak:-start-debug
-*rak:          write(6,*)
-*rak:          write(6,*)'===============================================',
-*rak:     &        '================================='
-*rak:          fbra = bra_prim*((bra_type+1)*(bra_type+2)/2)
-*rak:          fket = ket_prim*((ket_type+1)*(ket_type+2)/2)
-*rak:          find = fbra*fbra*fket*fket
-*rak:          write(6,10000)ibc,ibc,ikc,ikc,
-*rak:     &        bra_prim,bra_prim,ket_prim,ket_prim,
-*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
-*rak:10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,
-*rak:     &        ' memory =',i10,' find =',i10,' ratio = ',f10.3)
-*rak:-end-debug
+*debug:-start-debug
+*debug:          write(luout,*)
+*debug:          write(luout,*)'===============================================',
+*debug:     &        '================================='
+*debug:          fbra = bra_prim*((bra_type+1)*(bra_type+2)/2)
+*debug:          fket = ket_prim*((ket_type+1)*(ket_type+2)/2)
+*debug:          find = fbra*fbra*fket*fket
+*debug:          write(6,10000)ibc,ibc,ikc,ikc,
+*debug:     &        bra_prim,bra_prim,ket_prim,ket_prim,
+*debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*debug:10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,
+*debug:     &        ' memory =',i10,' find =',i10,' ratio = ',f10.3)
+*debug:-end-debug
           memsize = max(memsize,memdum)
 c
           memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
-*rak:          call hf2d(
-*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-*rak:     &           exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
-*rak:     &           exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-*rak:     &           exndcf,nint,.false.,.false.,.false.,
-*rak:     &           .true.,exndcf,memdum)
           call hf2d(dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen, bra_type,
      &          1, dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -293,25 +276,18 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          dbl_mb(mb_exndcf(1,1)), ket_prim, ket_gen, ket_type,
      &          4, dbl_mb(mb_exndcf(1,1)), nint,.false.,.false.,
      &          .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
-*rak:-start-debug
-*rak:          find = fbra*fbra*fket*fket
-*rak:          write(6,10000)ibc,ikc,ibc,ikc,
-*rak:     &        bra_prim,ket_prim,bra_prim,ket_prim,
-*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
-*rak:-end-debug
+*debug:-start-debug
+*debug:          find = fbra*fbra*fket*fket
+*debug:          write(6,10000)ibc,ikc,ibc,ikc,
+*debug:     &        bra_prim,ket_prim,bra_prim,ket_prim,
+*debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*debug:-end-debug
           memsize = max(memsize,memdum)
 c
           if (bra.eq.ket) then
             memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             nint = int_unint(brain,ibc,brain,ibc,brain,ibc,ketin,ikc)
-*rak:            call hf2d(
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,2,
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,3,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-*rak:     &             exndcf,nint,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
             call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
@@ -325,24 +301,17 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            ket_prim, ket_gen, ket_type, 4,
      &            dbl_mb(mb_exndcf(1,1)), nint, .false., .false.,
      &            .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
-*rak:-start-debug
-*rak:          find = fbra*fbra*fbra*fket
-*rak:          write(6,10000)ibc,ibc,ibc,ikc,
-*rak:     &        bra_prim,bra_prim,bra_prim,ket_prim,
-*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
-*rak:-end-debug
+*debug:-start-debug
+*debug:          find = fbra*fbra*fbra*fket
+*debug:          write(6,10000)ibc,ibc,ibc,ikc,
+*debug:     &        bra_prim,bra_prim,bra_prim,ket_prim,
+*debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*debug:-end-debug
             memsize = max(memsize,memdum)
 c
             memdum = 15 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             nint = int_unint(brain,ibc,ketin,ikc,ketin,ikc,ketin,ikc)
-*rak:            call hf2d(
-*rak:     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,1,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,2,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,3,
-*rak:     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,4,
-*rak:     &             exndcf,nint,.false.,.false.,.false.,
-*rak:     &             .true.,exndcf,memdum)
             call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)), bra_prim, bra_gen,
@@ -355,14 +324,14 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            ,dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type
      &            ,4,dbl_mb(mb_exndcf(1,1)),nint,.false.,.false.,
      &            .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum)
-*rak:-start-debug
-*rak:          find = fbra*fket*fket*fket
-*rak:          write(6,10000)ibc,ikc,ikc,ikc,
-*rak:     &        bra_prim,ket_prim,ket_prim,ket_prim,
-*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
-*rak:          write(6,*)'===============================================',
-*rak:     &        '================================='
-*rak:-end-debug
+*debug:-start-debug
+*debug:          find = fbra*fket*fket*fket
+*debug:          write(6,10000)ibc,ikc,ikc,ikc,
+*debug:     &        bra_prim,ket_prim,ket_prim,ket_prim,
+*debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*debug:          write(luout,*)'===============================================',
+*debug:     &        '================================='
+*debug:-end-debug
             memsize = max(memsize,memdum)
           endif
 00200   continue
@@ -378,8 +347,8 @@ c
       maxg = maxg*12
       
 c
-*rak:      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
-*rak:      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
+*debug:      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
+*debug:      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
 c
       end
 

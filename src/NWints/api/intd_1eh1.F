@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.4 1996-01-22 21:46:39 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.5 1996-07-18 23:58:36 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -52,8 +52,8 @@ c                                                      -------------- |
 c                                                    d[idatom(nat),z]/
 c      
 c::functions
-      integer int_nint
-      external int_nint
+      integer int_nint_cart
+      external int_nint_cart
 c::passed
       integer i_basis   ! [input] ish basis set handle
       integer ish       ! [input] "i" contraction index
@@ -70,7 +70,7 @@ c::local
 c
       nat = ncenter(ibs_geom((i_basis + BASIS_HANDLE_OFFSET)))
 c
-      nint = int_nint(i_basis,ish,j_basis,jsh,0,0,0,0)
+      nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*nat.gt.lH1a) then
         write(6,*) 'nint*3*nat = ',nint*3*nat
         write(6,*) 'lH1a       = ',lH1a
@@ -116,6 +116,11 @@ c::local
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+c
+c  check if spherical
+c
+      call int_nospherical_check(i_basis,'intd_1eh1P')
+      call int_nospherical_check(j_basis,'intd_1eh1P')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
