@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
 c
-c $Id: qmmm_main.F,v 1.6 2002-02-09 18:39:07 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.7 2002-02-11 21:47:08 d3j191 Exp $
 c
       implicit none
 c
@@ -77,7 +77,7 @@ c
      + call errquit('qmmm: Failed to allocate memory for t',me)
       if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
      + call errquit('qmmm: Failed to allocate memory for i',me)
-      if(.not.ma_push_get(mt_int,2*nqatomt+nzatomt,'j',l_j,i_j))
+      if(.not.ma_push_get(mt_int,2*(nqatomt+nzatomt),'j',l_j,i_j))
      + call errquit('qmmm: Failed to allocate memory for i',me)
 c
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
