@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
+C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -217,7 +217,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
+C     $Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -526,7 +526,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
+C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -622,7 +622,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-c     $Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
+c     $Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1157,7 +1157,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.65 2003-10-21 23:51:25 edo Exp $
+C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1208,7 +1208,11 @@ c
 c     
          if (oaufbau) then
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+            call ga_pdsyev(g_fock, g_u, dbl_mb(k_eval+ioff))
+#else
             call ga_diag_std(g_fock, g_u, dbl_mb(k_eval+ioff))
+#endif
 #else 
             call ga_diag_std_seq(g_fock, g_u, dbl_mb(k_eval+ioff))
 #endif

@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.13 2003-12-25 17:10:20 edo Exp $
+C     $Id: rhf_dens_mo.F,v 1.14 2004-11-24 23:03:18 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -123,7 +123,11 @@ c
 c     
       if (oscfps) call pstat_on(ps_diag)
 #ifdef PARALLEL_DIAG
+#ifdef SCALAPACK
+      call ga_pdsyev(g_mofock, g_u, evals )
+#else
       call ga_diag_std(g_mofock, g_u, evals )
+#endif
 #else
       call ga_diag_std_seq(g_mofock, g_u, evals )
 #endif

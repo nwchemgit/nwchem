@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.10 2004-01-11 18:01:23 edo Exp $
+C$Id: rohf_canon.F,v 1.11 2004-11-24 23:03:18 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -42,7 +42,11 @@ c
 c
       if (oaufbau) then
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+         call ga_pdsyev(g_fock, g_u, dbl_mb(k_eval))
+#else
          call ga_diag_std(g_fock, g_u, dbl_mb(k_eval))
+#endif
 #else 
          call ga_diag_std_seq(g_fock, g_u, dbl_mb(k_eval))
 #endif
@@ -206,7 +210,11 @@ c
             call ga_sync
 c
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call ga_pdsyev(g_tmp, g_v, tmp )
+#else
       call ga_diag_std(g_tmp, g_v, tmp)
+#endif
 #else 
       call ga_diag_std_seq(g_tmp, g_v, tmp)
 #endif

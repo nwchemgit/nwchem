@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.20 2003-10-21 23:51:25 edo Exp $
+C     $Id: rohf_diis.F,v 1.21 2004-11-24 23:03:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -199,7 +199,11 @@ c
 c   Diagonalize
 c
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+        call ga_pdsygv(g_fock,g_over, g_tmp, dbl_mb(k_eval))
+#else
         call ga_diag( g_fock, g_over, g_tmp, dbl_mb(k_eval))
+#endif
 #else 
         call ga_diag_seq( g_fock, g_over, g_tmp, dbl_mb(k_eval))
 #endif
@@ -423,7 +427,11 @@ c
      $     call errquit('rohf_ao_orthonorm: cannot allocate over',0,
      &       MA_ERR)
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+      call ga_pdsyev(g_over, g_xorth, dbl_mb(k_e))
+#else
       call ga_diag_std( g_over, g_xorth, dbl_mb(k_e))
+#endif
 #else 
       call ga_diag_std_seq( g_over, g_xorth, dbl_mb(k_e))
 #endif
