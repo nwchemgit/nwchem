@@ -1,6 +1,22 @@
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
+     &     acord, oprint, ilbl)
+C$Id: sym_map.F,v 1.5 1995-12-15 12:13:15 d3g681 Exp $
+      implicit none
+c
+      integer itype
+      integer nareal
+      character*16 tags(nareal)
+      integer nops
+      integer maxops
+      double precision tol
+      parameter(maxops=192,tol=1.0d-07)
+      double precision symops(maxops*3,4),xnew(nops,3),acord(3,nareal)
 c     
-c     sym_map 
+      integer map(nops,nareal)
+      integer ilbl(nareal)
+      logical oprint
+      integer i, j, k, ii, iop, iopnum, num
+      double precision sum, dx, dy, dz
 c     
 c     creates an equiv. table for mapping of atoms under sym ops
 c     stores the matrix representations of the group operators, number
@@ -21,22 +37,6 @@ c     therefore, searching down a col. will give you all the atoms equivalent
 c     to atom N under all operations of the group.
 c     
 c     ach 10/14/94
-c     
-c     
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
-     &     acord, oprint,ilbl)
-C$Id: sym_map.F,v 1.4 1995-02-02 23:23:23 d3g681 Exp $
-      implicit real*8 (a-h,o-z)
-c     
-      integer maxops
-      integer map(nops,nareal)
-      parameter(maxops=192,tol=1.0d-07)
-      dimension symops(maxops*3,4),xnew(nops,3),acord(3,nareal)
-      character*16 tags(nareal)
-      integer ilbl(nareal)
-      integer itype
-      logical oprint
 c     
 c     Initialize map to invalid center number so that can check
 c     all entries are set at the end

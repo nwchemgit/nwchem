@@ -1,5 +1,29 @@
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
+     $     group_name)
+C$Id: gensym.f,v 1.6 1995-12-15 12:13:01 d3g681 Exp $
+      implicit none
+      integer maxops
+      double precision tol
+      integer itype
+      integer numgrp, numset, nops
+      parameter(maxops=192,tol=1.0d-07)
+      character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
+      double precision capr(3,4),caps(3,4),symops(maxops*3,4)
+      integer indx(3)
+      double precision resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
+      character*(*) group_name
+      logical oprint
 c
+      integer ngen, numvec, igen, icnt1, icnt2, isquare, ipos, jpos, 
+     $     igpos, icnt, kcol
+      integer i, j, k, ij, irow, ichecks, isame, isym, ktop, nops1
+      integer kiki, ikik, itop, ibot, iold
+      double precision trace, det, sum
+      integer itrace
+      
+      data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
+*      character*1 let(5)
+*      data let/'+','-','x','y','z'/
 c
 c Program gensym:
 c
@@ -45,28 +69,11 @@ c    The matrix SYMOPS contains the matrix reps. of all group operators
 c   except the identity. The variable NOPS holds the number of operators
 c   in SYMOPS.
 c
-c   
-c
-c
 c                                        A.C. Hess 
 c                                        D.G. Clerc
 c                                        Solid State Theory Group
 c                                        MSRC/PNL
 c                                        9/13/93
-c***********************************************************************
-      subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
-     $     group_name)
-C$Id: gensym.f,v 1.5 1995-02-02 23:23:08 d3g681 Exp $
-      implicit real*8 (a-h,o-z) 
-      parameter(maxops=192,tol=1.0d-07)
-      character*1 let(5)
-      character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
-      dimension capr(3,4),caps(3,4),indx(3),symops(maxops*3,4)
-      dimension resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
-      character*(*) group_name
-      logical oprint
-      data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
-      data let/'+','-','x','y','z'/
 c
 c-->call spgen with correct system type flag to make generators
 c

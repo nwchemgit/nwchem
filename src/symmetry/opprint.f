@@ -1,13 +1,15 @@
+      subroutine opprint(symops,rotoop,maxops,nops,itype)
+C$Id: opprint.f,v 1.4 1995-12-15 12:13:04 d3g681 Exp $
+      implicit none
+      integer maxops, nops, itype
+      character*2 rotoop(maxops)
+      double precision symops(maxops*3,4)
+      integer i, j, k, indx
 c***********************************************************************
 c     
 c     print the matrix representations of the operators
 c     
 c***********************************************************************
-      subroutine opprint(symops,rotoop,maxops,nops,itype)
-C$Id: opprint.f,v 1.3 1995-02-02 23:23:12 d3g681 Exp $
-      implicit real*8 (a-h,o-z)
-      character*2 rotoop(maxops)
-      dimension symops(maxops*3,4)
         write(*,9)
         write(*,12)
         write(*,13) nops
