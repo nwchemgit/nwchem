@@ -51,7 +51,8 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dgeqrf.o   dlapy2.o   dlasr.o    dormbr.o   ilaenv.o \
                dgesvd.o   dlarf.o    dlassq.o   dorml2.o \
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
-               dgetf2.o
+               dgetf2.o \
+               dlagtf.o   dlagts.o   dlarnv.o   dlaruv.o
 else
 OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
@@ -63,7 +64,9 @@ OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o \
                sgeqr2.o   slansp.o   slaset.o   sorm2r.o   ssptrs.o \
                sgeqrf.o   slapy2.o   slasr.o    sormbr.o \
                sgesv.o    sgetrs.o   sgetrf.o   slaswp.o \
-               sgetf2.o
+               sgetf2.o \
+               slagtf.o   slagts.o   slarnv.o   slaruv.o
+
 endif
 
 
