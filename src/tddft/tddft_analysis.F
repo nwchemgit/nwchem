@@ -3,7 +3,7 @@
      2  apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      3  target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.6 2002-04-14 00:44:36 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.7 2002-04-15 01:01:50 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -80,6 +80,9 @@ c
       double precision na,nb,s2
       integer ja1,ja2,ka1,ka2,jb1,jb2,kb1,kb2,la1,la2,lb1,lb2,ja3,jb3
       double precision xa1,xa2,ya1,ya2,xb1,xb2,yb1,yb2,rc1,rc2
+      integer l_x(2),k_x(2)
+      integer l_y(2),k_y(2)
+      double precision corr(nbf_ao,nbf_ao)
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -129,6 +132,14 @@ c
      2      ('tddft_analysis: failed to create g_y',0) 
         endif
       enddo
+      do i=1,ipol
+        if (.not.ma_push_get(mt_dbl,nov(i),'X vector',
+     1    l_x(i),k_x(i))) call errquit
+     2    ('tddft_analysis: failed to allocate x',0)
+        if (.not.ma_push_get(mt_dbl,nov(i),'Y vector',
+     1    l_y(i),k_y(i))) call errquit
+     2    ('tddft_analysis: failed to allocate y',0)
+      enddo
 c
 c ----------------------------------
 c Get alpha-beta orbital correlation
@@ -157,6 +168,7 @@ c
      1    ('tddft_analysis: failed to destroy g_ovlp',0)
         if (nodezero.and.util_print('excited state',print_debug))
      1    call ga_print(g_corr)
+        call ga_get(g_corr,1,nmo(1),1,nmo(2),corr,nbf_ao)
       endif
 c
 c ------------
@@ -235,7 +247,7 @@ c ... frozen cores are irrelevant
         s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
         do j=1,nocc(1)
           do k=1,nocc(2)
-            call ga_get(g_corr,j,j,k,k,r,1)
+            r=corr(j,k)
             s2=s2-r**2
           enddo
         enddo
@@ -254,6 +266,11 @@ c m is a counter of excited states in a certain irrep
 c for the purpose of finding the target root
       m=0
       do n=1,nroots
+        do i=1,ipol
+          call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_x(i)),1)
+          if (.not.tda)
+     1      call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_y(i)),1)
+        enddo
 c
 c Identify symmetry of the excited state
 c
@@ -265,7 +282,7 @@ c
           do j=nfc(i)+1,nocc(i)
             do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
-              call ga_get(g_x(i),l,l,n,n,r,1)
+              r=dbl_mb(k_x(i)+l-1)
               if (dabs(r).gt.maxr) then
                 maxr=dabs(r)
                 pol=ipol
@@ -309,9 +326,9 @@ c
           do ja1=nfc(1)+1,nocc(1)
             do ka1=nocc(1)+1,nmo(1)-nfv(1)
               la1=la1+1
-              call ga_get(g_x(1),la1,la1,n,n,xa1,1)
+              xa1=dbl_mb(k_x(1)+la1-1)
               ya1=0.0d0
-              if (.not.tda) call ga_get(g_y(1),la1,la1,n,n,ya1,1)
+              if (.not.tda) ya1=dbl_mb(k_y(1)+la1-1)
               if (dabs(xa1+ya1).lt.1.0d-5) continue
 c a alpha and j beta exchange
               do jb1=nfc(2)+1,nocc(2)
@@ -321,12 +338,11 @@ c alpha excitation bra
                   do ka2=nocc(1)+1,nmo(1)-nfv(1)
                     la2=la2+1
                     if (ja1.eq.ja2) then
-                      call ga_get(g_x(1),la2,la2,n,n,xa2,1)
+                      xa2=dbl_mb(k_x(1)+la2-1)
                       ya2=0.0d0
-                      if (.not.tda) 
-     1                  call ga_get(g_y(1),la2,la2,n,n,ya2,1)
-                      call ga_get(g_corr,ka2,ka2,jb1,jb1,rc1,1)
-                      call ga_get(g_corr,ka1,ka1,jb1,jb1,rc2,1)
+                      if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
+                      rc1=corr(ka2,jb1)
+                      rc2=corr(ka1,jb1)
                       s2=s2-(xa2-ya2)*(xa1+ya1)*rc1*rc2
                     endif
                   enddo
@@ -337,12 +353,11 @@ c beta excitation bra
                   do kb2=nocc(2)+1,nmo(2)-nfv(2)
                     lb2=lb2+1
                     if (jb1.eq.jb2) then
-                      call ga_get(g_x(2),lb2,lb2,n,n,xb2,1)
+                      xb2=dbl_mb(k_x(2)+lb2-1)
                       yb2=0.0d0
-                      if (.not.tda)
-     1                  call ga_get(g_y(2),lb2,lb2,n,n,yb2,1)
-                      call ga_get(g_corr,ja1,ja1,jb2,jb2,rc1,1)
-                      call ga_get(g_corr,ka1,ka1,kb2,kb2,rc2,1)
+                      if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
+                      rc1=corr(ja1,jb2)
+                      rc2=corr(ka1,kb2)
                       s2=s2-(xb2-yb2)*(xa1+ya1)*rc1*rc2
                     endif
                   enddo
@@ -353,7 +368,7 @@ c i alpha and j beta exchange
                 if (ja3.ne.ja1) then
                   do jb1=nfc(2)+1,nocc(2)
 c same alpha excitation bra
-                    call ga_get(g_corr,ja3,ja3,jb1,jb1,rc1,1)
+                    rc1=corr(ja3,jb1)
                     s2=s2-(xa1-ya1)*(xa1+ya1)*rc1*rc1
                   enddo
                 endif
@@ -367,9 +382,9 @@ c
           do jb1=nfc(2)+1,nocc(2)
             do kb1=nocc(2)+1,nmo(2)-nfv(2)
               lb1=lb1+1
-              call ga_get(g_x(2),lb1,lb1,n,n,xb1,1)
+              xb1=dbl_mb(k_x(2)+lb1-1)
               yb1=0.0d0
-              if (.not.tda) call ga_get(g_y(2),lb1,lb1,n,n,yb1,1)
+              if (.not.tda) yb1=dbl_mb(k_y(2)+lb1-1)
               if (dabs(xb1+yb1).lt.1.0d-5) continue
 c i alpha and b beta exchange
               do ja1=nfc(1)+1,nocc(1)
@@ -379,12 +394,11 @@ c beta excitation bra
                   do kb2=nocc(2)+1,nmo(2)-nfv(2)
                     lb2=lb2+1
                     if (jb1.eq.jb2) then
-                      call ga_get(g_x(2),lb2,lb2,n,n,xb2,1)
+                      xb2=dbl_mb(k_x(2)+lb2-1)
                       yb2=0.0d0
-                      if (.not.tda)
-     1                  call ga_get(g_y(2),lb2,lb2,n,n,yb2,1)
-                      call ga_get(g_corr,ja1,ja1,kb1,kb1,rc1,1)
-                      call ga_get(g_corr,ja1,ja1,kb2,kb2,rc2,1)
+                      if (.not.tda) yb2=dbl_mb(k_y(2)+lb2-1)
+                      rc1=corr(ja1,kb1)
+                      rc2=corr(ja1,kb2)
                       s2=s2-(xb2-yb2)*(xb1+yb1)*rc1*rc2
                     endif
                   enddo
@@ -395,12 +409,11 @@ c alpha excitation bra
                   do ka2=nocc(1)+1,nmo(1)-nfv(1)
                     la2=la2+1
                     if (ja1.eq.ja2) then
-                      call ga_get(g_x(1),la2,la2,n,n,xa2,1)
+                      xa2=dbl_mb(k_x(1)+la2-1)
                       ya2=0.0d0
-                      if (.not.tda)
-     1                  call ga_get(g_y(1),la2,la2,n,n,ya2,1)
-                      call ga_get(g_corr,ja2,ja2,jb1,jb1,rc1,1)
-                      call ga_get(g_corr,ka2,ka2,kb1,kb1,rc2,1)
+                      if (.not.tda) ya2=dbl_mb(k_y(1)+la2-1)
+                      rc1=corr(ja2,jb1)
+                      rc2=corr(ka2,kb1)
                       s2=s2-(xa2-ya2)*(xb1+yb1)*rc1*rc2
                     endif
                   enddo
@@ -411,16 +424,18 @@ c i alpha and j beta exchange
                 if (jb3.ne.jb1) then
                   do ja1=nfc(1)+1,nocc(1)
 c same beta excitation bra
-                    call ga_get(g_corr,ja1,ja1,jb3,jb3,rc1,1)
+                    rc1=corr(ja1,jb3)
                     s2=s2-(xb1-yb1)*(xb1+yb1)*rc1*rc1
                   enddo
                 endif
               enddo
             enddo
           enddo
-          write(LuOut,9180) s2
+          if (nodezero.and.util_print('excited state',print_default))
+     1      write(LuOut,9180) s2
         endif
-        write(LuOut,9190)
+        if (nodezero.and.util_print('excited state',print_default))
+     1    write(LuOut,9190)
 c
 c Compute transition moments and oscillator strength
 c
@@ -470,7 +485,7 @@ c
             do k=nocc(1)+1,nmo(1)-nfv(1)
               l=l+1
               if (tda) then
-                call ga_get(g_x(1),l,l,n,n,r,1)
+                r=dbl_mb(k_x(1)+l-1)
                 call sym_irrepname
      1            (geom,int_mb(k_irs(1)+j-1),oname)
                 call sym_irrepname
@@ -479,7 +494,7 @@ c
      1            print_default).and.(dabs(r).gt.thresh))
      2            write(LuOut,9120) j,oname,k,vname,r
               else
-                call ga_get(g_x(1),l,l,n,n,r,1)
+                r=dbl_mb(k_x(1)+l-1)
                 call sym_irrepname
      1            (geom,int_mb(k_irs(1)+j-1),oname)
                 call sym_irrepname
@@ -487,7 +502,7 @@ c
                 if (nodezero.and.util_print('excited state',
      1            print_default).and.(dabs(r).gt.thresh))
      2            write(LuOut,9130) j,oname,k,vname,r
-                call ga_get(g_y(1),l,l,n,n,r,1)
+                r=dbl_mb(k_y(1)+l-1)
                 if (nodezero.and.util_print('excited state',
      1            print_default).and.(dabs(r).gt.thresh))
      2            write(LuOut,9140) j,oname,k,vname,r
@@ -501,7 +516,7 @@ c
               do k=nocc(i)+1,nmo(i)-nfv(i)
                 l=l+1
                 if (tda) then
-                  call ga_get(g_x(i),l,l,n,n,r,1)
+                  r=dbl_mb(k_x(i)+l-1)
                   call sym_irrepname
      1              (geom,int_mb(k_irs(i)+j-1),oname)
                   call sym_irrepname
@@ -511,7 +526,7 @@ c
      2              write(LuOut,9150) j,spin(i),oname,
      3              k,spin(i),vname,r
                 else
-                  call ga_get(g_x(i),l,l,n,n,r,1)
+                  r=dbl_mb(k_x(i)+l-1)
                   call sym_irrepname
      1              (geom,int_mb(k_irs(i)+j-1),oname)
                   call sym_irrepname
@@ -520,7 +535,7 @@ c
      1              print_default).and.(dabs(r).gt.thresh))
      2              write(LuOut,9160) j,spin(i),oname,
      3              k,spin(i),vname,r
-                  call ga_get(g_y(i),l,l,n,n,r,1)
+                  r=dbl_mb(k_y(i)+l-1)
                   if (nodezero.and.util_print('excited state',
      1              print_default).and.(dabs(r).gt.thresh))
      2              write(LuOut,9170) j,spin(i),oname,
@@ -589,6 +604,12 @@ c Return
 c ------
 c
       if (ipol.eq.2) then
+        do i=ipol,1,-1
+          if (.not.ma_pop_stack(l_y(i))) call errquit
+     1      ('tddft_analysis: failed to deallocate y',0)
+          if (.not.ma_pop_stack(l_x(i))) call errquit
+     1      ('tddft_analysis: failed to deallocate x',0)
+        enddo
         if (.not.ga_destroy(g_corr)) call errquit
      1    ('tddft_analysis: failed to destroy g_corr',0)
       endif
