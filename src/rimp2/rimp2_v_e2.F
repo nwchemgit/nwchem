@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.20 1995-06-28 17:39:54 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.21 1995-06-28 21:23:15 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -311,17 +311,31 @@ C
                      Return
                   EndIf
 C
-C                 Find the integrals (jb|s') for this J
-C
-                  Call PStat_On( PS_Rd_3ci)
-                  If ( .NOT. Get_3cInts(LUInt+JSpin-1, G_bigJ,
-     $               NVir(JSpin), JLo, JHi) ) then
-                     Write( LuErr, *) ' Unable to get integral block ',
-     $                  JLo, JSpin
-                     RIMP2_V_E2 = .FALSE.
-                     Return
+C                 Find the integrals (jb|s') for this J.  Try to use
+C                 the I patch if possible.  For simplicity, we
+C                 must get the _whole_ patch from I because Get_3cInts
+C                 doesn't understand GA patches.
+C                 
+                  If ( ISpin .eq. JSpin .AND. JLo .ge. ILo
+     $               .AND. JHi .le. IHi) then
+                     Call GA_Sync
+                     Call GA_Copy_Patch_DP('N',
+     $                  G_BigI, (JLo-ILo)*NVir(JSpin)+1,
+     $                          (JHi-ILo+1)*NVir(JSpin), 1, NFit,
+     $                  G_bigJ, 1, NJ*NVir(JSpin),       1, NFit )
+                     Call GA_Sync
+                  Else
+                     Call PStat_On( PS_Rd_3ci)
+                     If ( .NOT. Get_3cInts(LUInt+JSpin-1, G_bigJ,
+     $                  NVir(JSpin), JLo, JHi) ) then
+                        Write( LuErr, *)
+     $                     ' Unable to get integral block ',
+     $                     JLo, JSpin
+                        RIMP2_V_E2 = .FALSE.
+                        Return
+                     EndIf
+                     Call PStat_Off( PS_Rd_3ci)
                   EndIf
-                  Call PStat_Off( PS_Rd_3ci)
 C
 C                 ******************************************************
 C                 * Form a block of four-center two-electron integrals *
