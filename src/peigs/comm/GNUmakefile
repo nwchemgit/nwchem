@@ -1,10 +1,10 @@
 include ../DEFS
 
 MXOBJ	=	mxbrod.o \
-			mxcombv1.o \
-			mxsubs.o \
-			sum.o \
-			maxx.o
+		mxcombv1.o \
+		mxsubs.o \
+		sum.o \
+		maxx.o
 
 all:		$(MXOBJ)
 
@@ -17,7 +17,6 @@ clean:
 		-rm -f mxbrod.f
 		-rm -f mxcombv1.f
 		-rm -f mxsubs.f
-		-rm -f sum.f
 
 realclean:
 		clean
@@ -27,23 +26,21 @@ realclean:
 .c.o:;	$(peigs_CC) $(peigs_COPT) -c $<
 .f.o:;	$(peigs_FC) $(peigs_FOPT) -c $<
 
-#ifdef EXPLICITF
-.F.o:	
-	@echo Converting $*.F '->' $*.f
-	@$(peigs_FCONVERT)
-	$(FC) -c $(FFLAGS) $*.f
-	@$(RM) $*.f
 
-.F.f:
-	@echo Converting $*.F '->' $*.f
-	@$(peigs_FCONVERT)
+mxbrod.o:	mxbrod.cpp
+		-rm -f mxbrod.f
+		$(peigs_CPP) < mxbrod.cpp > mxbrod.f
+		$(peigs_FC) $(peigs_FOPT) -c mxbrod.f
 
-#else
-.F.o:;  $(peigs_FC) $(peigs_FOPT) -c $<
-#endif
+mxsubs.o:	mxsubs.cpp
+		-rm -f mxsubs.f
+		$(peigs_CPP) < mxsubs.cpp > mxsubs.f
+		$(peigs_FC) $(peigs_FOPT) -c mxsubs.f
 
-
-
+mxcombv1.o:	mxcombv1.cpp
+		-rm -f mxcombv1.f
+		$(peigs_CPP) < mxcombv1.cpp > mxcombv1.f
+		$(peigs_FC) $(peigs_FOPT) -c mxcombv1.f
 
 
 
