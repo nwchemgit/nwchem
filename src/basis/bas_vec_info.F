@@ -1,6 +1,6 @@
       logical function bas_vec_info(basis, info)
 *
-* $Id: bas_vec_info.F,v 1.4 1999-05-31 23:19:02 d3g681 Exp $
+* $Id: bas_vec_info.F,v 1.5 1999-06-01 20:08:51 d3e129 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -248,6 +248,8 @@ c$$$      end
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
+      logical  bas_vec_info
+      external bas_vec_info
       integer basis
 c
       integer i, j, k_bftags, l_bftags, nbf
@@ -257,7 +259,8 @@ c
       if (.not. ma_push_get(mt_byte,nbf*16,'bftags',
      $     l_bftags,k_bftags))
      $     call errquit('bas_print_labels: ma failed', nbf*16)
-      call bas_vec_info(basis, byte_mb(k_bftags))
+      if (.not.bas_vec_info(basis, byte_mb(k_bftags)))
+     &    call errquit('bas_print_labels: bas_vec_info failed',911)
       write(6,*)
       call util_print_centered(6, 'Basis function labels',
      $     13, .true.)
