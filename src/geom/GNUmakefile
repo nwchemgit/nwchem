@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.25 1996-11-14 22:54:04 mdupuis Exp $
+#$Id: GNUmakefile,v 1.26 1997-01-29 16:01:56 mdupuis Exp $
 
  LIBRARY = libutil.a
 
@@ -20,4 +20,4 @@ $(LIBRARY_PATH)(geom_2d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh
 $(LIBRARY_PATH)(geom_1d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
 $(LIBRARY_PATH)(geom_3d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
 $(LIBRARY_PATH)(geom_numcore.o):	./geomP.fh 
-$(LIBRARY_PATH)(geom.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh ./geomP.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(geom.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh ./geomP.fh ./geom.fh $(INCDIR)/context.fh 

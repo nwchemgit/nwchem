@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.41 1996-12-14 00:47:55 d3e129 Exp $
+C     $Id: geom_input.F,v 1.42 1997-01-29 16:01:44 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -188,7 +188,11 @@ c
         else if (inp_compare(.false.,'zcoord', field)) then
           call geom_autoz_input(rtdb)
           goto 20
-        else if (inp_compare(.false.,'zmt', field)) then
+        else if (inp_compare(.false.,'zmt', field).or.
+     $           inp_compare(.false.,'zmat', field).or.
+     $           inp_compare(.false.,'zmatr', field).or.
+     $           inp_compare(.false.,'zmatri', field).or.
+     $           inp_compare(.false.,'zmatrix', field)) then
           ozmatrix=.true.   
           call geom_zmt_input(geom,coords,tags,charge,mass,ncenter)
           goto 20
@@ -606,7 +610,8 @@ c
             endif
          endif
 c
-         if(inp_compare(.false.,'zend',field)) then
+         if(inp_compare(.false.,'zend',field).or.   
+     1      inp_compare(.false.,'end',field)     ) then
             go to 100
          else
    20       continue
@@ -6074,6 +6079,10 @@ C
       CHARACTER*8   WRDIZM
       CHARACTER*8   WRDOPT
       CHARACTER*8   WRDFRZ
+      CHARACTER*10  WR1VAR
+      CHARACTER*10  WR2VAR
+      CHARACTER*10  WR1CON
+      CHARACTER*10  WR2CON
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_FREERD/PRSWRD(40),NUMCHR(40),FLGWRD(40),NUMWRD
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
@@ -6121,6 +6130,10 @@ C
       DATA WRDIZM /' IZMAT ='/
       DATA WRDOPT /' $OPTZ  '/
       DATA WRDFRZ /' ICFRZ ='/
+      DATA WR1VAR /'VARIABLES:'/
+      DATA WR2VAR /'variables:'/
+      DATA WR1CON /'CONSTANTS:'/
+      DATA WR2CON /'constants:'/
       DATA DUMMY  /'   DUMMY'/
       DATA BLK    /80*' '/
       DATA BLNK8  /'        '/
@@ -6332,7 +6345,11 @@ C
          WRITE(IW,8886)
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
-      IF(NUMWRD.GT.0) THEN
+      IF((NUMWRD.GT.1).OR.
+     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1VAR(1:3)).OR.
+     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2VAR(1:3)).OR.
+     3   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
+     4   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
          DO I=1,NUMWRD
             PRSZMT(I,IAT)=PRSWRD(I)
             FLGZMT(I,IAT)=FLGWRD(I)
@@ -6366,7 +6383,9 @@ C
          WRITE(IW,8886)
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
-      IF(NUMWRD.GT.0) THEN
+      IF((NUMWRD.GT.1).OR.
+     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
+     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
          DO I=1,NUMWRD
             PRSVAR(I,IVAR)=PRSWRD(I)
             FLGVAR(I,IVAR)=FLGWRD(I)
