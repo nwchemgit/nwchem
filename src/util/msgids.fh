@@ -58,6 +58,35 @@ c
       integer msg_riscf_put_2
       integer msg_int2e_stat1
       integer msg_int2e_stat2
+      integer mrg_b00
+      integer mrg_b01
+      integer mrg_b02
+      integer mrg_b03
+      integer mrg_b04
+      integer mrg_b05
+      integer mrg_b06
+      integer mrg_b07
+      integer mrg_b08
+      integer mrg_b09
+      integer mrg_b10
+      integer mrg_b11
+      integer mrg_b12
+      integer mrg_b13
+      integer mrg_i01
+      integer mrg_d01
+      integer mrg_d11
+      integer mrg_d12
+      integer mrg_d13
+      integer mrg_d21
+      integer mrg_d22
+      integer mrg_d23
+      integer mrg_d24
+      integer mrg_d25
+      integer mrg_d26
+      integer mrg_d27
+      integer mrg_d28
+      integer mrg_d29
+      integer mrg_d31
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -198,5 +227,38 @@ c
       parameter (msg_int2e_stat1= msg_ftn_base - 98) ! ddscf: int2e_file.f
       parameter (msg_int2e_stat2= msg_ftn_base - 99) ! ddscf: int2e_file.f
 c
+      parameter (mrg_b00=msg_ftn_base-100) ! arg_memor1
+      parameter (mrg_b01=msg_ftn_base-101) ! arg_memor1
+      parameter (mrg_b02=msg_ftn_base-102) ! arg_memor1
+      parameter (mrg_b03=msg_ftn_base-103) ! arg_memor1
+      parameter (mrg_b04=msg_ftn_base-104) ! arg_memor1
+      parameter (mrg_b05=msg_ftn_base-105) ! arg_memor1
+      parameter (mrg_b06=msg_ftn_base-106) ! arg_memor1
+      parameter (mrg_b07=msg_ftn_base-107) ! arg_memor1
+      parameter (mrg_b08=msg_ftn_base-108) ! arg_memor1
+      parameter (mrg_b09=msg_ftn_base-109) ! arg_memor1
+      parameter (mrg_b10=msg_ftn_base-110) ! arg_memor1
+      parameter (mrg_b11=msg_ftn_base-111) ! arg_memor1
+      parameter (mrg_b12=msg_ftn_base-112) ! arg_memor1
+      parameter (mrg_b13=msg_ftn_base-113) ! arg_memor1
+      parameter (mrg_i01=msg_ftn_base-121) ! arg_wrtinp
+      parameter (mrg_d01=msg_ftn_base-131) ! arg_memor1
+      parameter (mrg_d11=msg_ftn_base-141) ! arg_sumloc
+      parameter (mrg_d12=msg_ftn_base-142) ! arg_sumloc
+      parameter (mrg_d13=msg_ftn_base-143) ! arg_sumloc
+      parameter (mrg_d21=msg_ftn_base-151) ! arg_collct
+      parameter (mrg_d22=msg_ftn_base-152) ! arg_collct
+      parameter (mrg_d23=msg_ftn_base-153) ! arg_collct
+      parameter (mrg_d24=msg_ftn_base-154) ! arg_collct
+      parameter (mrg_d25=msg_ftn_base-155) ! arg_collct
+      parameter (mrg_d26=msg_ftn_base-156) ! arg_collct
+      parameter (mrg_d27=msg_ftn_base-157) ! arg_collct
+      parameter (mrg_d28=msg_ftn_base-158) ! arg_collct
+      parameter (mrg_d29=msg_ftn_base-159) ! arg_collct
+      parameter (mrg_d31=msg_ftn_base-161) ! arg_record
+      parameter (mrg_d39=msg_ftn_base-169) ! arg_record
+c
+
+
 
 
