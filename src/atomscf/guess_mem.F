@@ -9,7 +9,7 @@ c
 c
 c..   calculate memory requirements for atomic guess routines
 c..
-      integer nb, no, ntr, nsq
+      integer ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc
