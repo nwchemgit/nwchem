@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.4 2000-05-25 17:20:19 bjohnson Exp $
+c     $Id: bgj.F,v 1.5 2000-08-09 21:52:26 windus Exp $
 c
 
 c
@@ -48,7 +48,7 @@ c
       end
 
 c
-c     Returns either 'HF', 'DFT' or 'HYB' in name
+c     Returns either 'hf', 'dft' or 'hyb' in name
 c
       function bgj_get_scf_method(name)
 c
@@ -69,11 +69,11 @@ c
          call errquit('bgj_get_scf_method: error reading rtdb',1)
       endif
       if (itype.eq.1) then
-         name = 'HF'
+         name = 'hf'
       else if (itype.eq.2) then
-         name = 'DFT'
+         name = 'dft'
       else if (itype.eq.3) then
-         name = 'HYB'
+         name = 'hyb'
       else
          call errquit('bgj_get_scf_method: illegal type in rtdb',1)
       endif
@@ -99,7 +99,7 @@ c
       if (.not.bgj_get_scf_method(name)) then
          call errquit('bgj_have_xc: error getting method name',1)
       endif
-      bgj_have_xc = name .eq. 'DFT' .or. name .eq. 'HYB'
+      bgj_have_xc = name .eq. 'dft' .or. name .eq. 'hyb'
 c      write(*,*)'*** bgj_have_xc called: ',name,' ',bgj_have_xc
 c
       return
