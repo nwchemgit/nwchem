@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.5 2005-04-03 07:38:48 marat Exp $
+c $Id: bq_data.F,v 1.6 2005-04-04 23:34:21 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.5 2005-04-03 07:38:48 marat Exp $
+C$Id: bq_data.F,v 1.6 2005-04-04 23:34:21 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -27,6 +27,30 @@ c      local variables
         if(bq_ncent(i).eq.0) then
           bq_create = .true.
           bq_name(i) = namespace
+          handle = i
+          return
+        end if
+       end do
+       
+       return
+       end
+
+      function bq_get_handle(namespace,handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       character*(*) namespace
+       logical bq_get_handle
+c      local variables
+       integer i
+       integer handle
+
+       bq_get_handle = .false.
+       do i=1,max_bq
+        if(bq_name(i).eq.namespace) then
+          bq_get_handle = .true.
           handle = i
           return
         end if

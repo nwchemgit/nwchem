@@ -49,3 +49,6 @@
        logical  bq_add_nuc_rep_energy
        external bq_add_nuc_rep_energy
 
+       logical  bq_get_handle
+       external bq_get_handle
+
