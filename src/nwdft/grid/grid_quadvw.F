@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
 c
-c$Id: grid_quadvw.F,v 1.23 2000-10-17 21:21:05 edo Exp $
+c$Id: grid_quadvw.F,v 1.24 2001-02-22 19:08:04 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -88,8 +88,8 @@ c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
 c
-      if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
-     $   call util_file_name('gridpts',.true.,.false.,gridfilename)
+Cedo      if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
+        call util_file_name('gridpts',.true.,.false.,gridfilename)
       if (.not. rtdb_cput(rtdb, 'grid:filename', 1, gridfilename)) 
      $   call errquit('grid_tasks: trouble putting gridfilename', 0)
 c
