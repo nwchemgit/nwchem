@@ -1,7 +1,7 @@
-      Subroutine dft_main0d( rtdb, geom, AO_bas_han, CD_bas_han,
-     &                      XC_bas_han, iconst, nconst )
+      Subroutine dft_main0d( rtdb,
+     &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.3 1995-10-17 08:54:53 d3g681 Exp $
+C$Id: dft_main0d.F,v 1.4 1995-10-25 20:34:27 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -10,7 +10,7 @@ C$Id: dft_main0d.F,v 1.3 1995-10-17 08:54:53 d3g681 Exp $
 c**** 
 c**** nwchem handles
 c**** 
-      integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
+      integer rtdb
 c**** 
 
 #include "bas.fh"
@@ -19,6 +19,7 @@ c****
 
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "cdft.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "schwarz.fh"
@@ -311,7 +312,7 @@ c
 
       if(CDFIT)call gadest(iga_s)
 
-      call dft_scf(rtdb,geom,AO_bas_han,CD_bas_han,XC_bas_han,
+      call dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
      &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
