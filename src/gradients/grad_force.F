@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.48 2000-08-14 19:57:12 windus Exp $
+c     $Id: grad_force.F,v 1.49 2000-08-23 17:52:01 mdupuis Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -147,6 +147,13 @@ c
      $   ld_ik6,ld_jl6,ld_il6,ld_jk6,
      $   ld_ik7,ld_jl7,ld_il7,ld_jk7,
      $   ld_ik8,ld_jl8,ld_il8,ld_jk8
+
+c
+c     cosmo flag
+c
+      logical odbug
+      logical ocosmo
+      logical osome
 
       parameter (numfunc = 20)
       logical oskel, omp2, odft, ocdfit, status,frac_occ
@@ -461,6 +468,42 @@ c
      $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
      $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
      $     rtdb, oskel)
+c
+c     ----- cosmo contribution -----
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(luout,*) '-cosmo- ... found in -gradients-',
+     $                     ocosmo,ga_nodeid()
+         endif
+         if(ocosmo) then
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            osome=osome.and.ga_nodeid().eq.0
+            if(odbug) then
+               write(luout,*) '-cosmo- ... found and .true. ',
+     $                        ocosmo,ga_nodeid()
+            endif
+c
+c     .....
+c
+         else
+            if(odbug) then
+               write(luout,*) '-cosmo- ... found but .false.',
+     $                        ocosmo,ga_nodeid()
+            endif
+         endif
+      else
+         if(odbug) then
+            write(luout,*) '-cosmo- not found in -gradients-'
+         endif
+      endif
+      call ga_sync()
 c
 c     Check if we have to deal with Douglas-Kroll type integrals. If so,
 c     we have to add the numerical derivative of the integral type

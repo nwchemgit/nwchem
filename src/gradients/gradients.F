@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.27 2000-08-23 17:19:34 mdupuis Exp $
+c$Id: gradients.F,v 1.28 2000-08-23 17:52:02 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -101,12 +101,6 @@ c
             if(odbug) then
                write(luout,*) '-cosmo- ... found and .true. ',
      $                        ocosmo,ga_nodeid()
-            endif
-            if(.not.odbug) then
-               write(luout,*) '-cosmo- ... found and .true. ',
-     $                         ocosmo,ga_nodeid()
-               call errquit('gradients: not available with cosmo',0)
-               call util_flush(luout)
             endif
          else
             if(odbug) then
