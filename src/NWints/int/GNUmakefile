@@ -1,5 +1,6 @@
-# $Id: GNUmakefile,v 1.14 1995-10-17 08:52:36 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1995-10-30 20:56:37 d3e129 Exp $
 
+    OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
                    hfmkr_6.o hfmkr_5.o hfmkr_4.o \
                    hfmkr_3.o hfmkr_2.o hfmkr_1.o \
@@ -23,6 +24,13 @@ write:
 
 showxyz:	showxyz.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ showxyz.o $(LIBS)
+
+doc:	3ctrpot.tex
+	latex 3ctrpot
+	latex 3ctrpot
+	dvips 3ctrpot -o
+	ghostview 3ctrpot.ps
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 defNxyz.o :	 sh_order.fh 
 getNxyz.o :	 sh_order.fh 
