@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.60 2001-02-22 18:36:10 d3j191 Exp $
+c $Id: ana_task.F,v 1.61 2001-02-22 18:42:13 d3j191 Exp $
 c
       implicit none
 c
@@ -508,11 +508,13 @@ c     center fraction
 c     ---------------
       if(card(1:6).eq.'center') then
       read(card(8:12),'(i5)') icent
+      if(icent.gt.0) then
 c
 c     center-fold the reference coordinates
 c
       call ana_center_ref(dbl_mb(i_xref))
 c
+      endif
       goto 1
       endif
 c
