@@ -51,7 +51,7 @@ c
 c
 c     XC functionals coefficients
 c     
-      double precision cfac(numfunc),xfac(numfunc)
+      double precision cfac(numfunc),xfac(numfunc),delta_ac
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 
@@ -902,6 +902,11 @@ c
         xfac(19) = 1.d0
        lxfac(19) = .false.
       nlxfac(19) = .true.
+      if (.not. inp_f(delta_ac)) then
+         call errquit(' xc_inp: delta_ac not  found',0)
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:delta_ac', mt_dbl, 1, delta_ac))
+     &      call errquit('xc_inp: rtdb_put failed', 1000)
 c
       goto 10
 c     
