@@ -1,4 +1,5 @@
       Subroutine hf2QStoCD(dQ,dS,dC,dD,alpha,ipair,ff,NPP,NPQ,Nint)
+c $Id: hf2QStoCD.f,v 1.2 1994-05-24 21:51:30 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

@@ -3,6 +3,7 @@
      &                Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
      &                Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &                bERI,Nint,canAB,canCD,canPQ,W0,maxW0)
+c $Id: hf2d.F,v 1.2 1994-05-24 21:51:31 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

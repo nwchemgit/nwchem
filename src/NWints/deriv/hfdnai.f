@@ -1,5 +1,6 @@
       Subroutine hfdnai(E,R0,IJK,Vab,NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
      &                  MXD,inder,Nder,canAB)
+c $Id: hfdnai.f,v 1.2 1994-05-24 21:51:37 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

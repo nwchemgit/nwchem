@@ -1,4 +1,5 @@
       Subroutine hf2PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,NPQ,Nint)
+c $Id: hf2PRtoAB.f,v 1.2 1994-05-24 21:51:29 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

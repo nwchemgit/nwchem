@@ -1,5 +1,6 @@
       Subroutine hfdkei(alpha,E,Tab,Ti,NPP,Nint,La,Lb,Li,
      &                  MXD,inder,Nder,canAB)
+c $Id: hfdkei.f,v 1.2 1994-05-24 21:51:35 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

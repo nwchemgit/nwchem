@@ -2,6 +2,7 @@
      &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &                Cxyz,zan,ncenters,ictrA,ictrB,
      &                bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,W0,maxW0)
+c $Id: hf1d.F,v 1.2 1994-05-24 21:51:28 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
