@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.16 1996-01-31 02:24:29 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.17 1996-03-04 23:18:27 vg038 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -72,6 +72,7 @@ c
 *         endif
 *         call ga_sync()
          call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+         if (oscfps) call pstat_off(ps_int_1e)
 	 return
       endif
 c     
