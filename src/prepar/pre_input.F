@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.57 2000-06-09 23:27:00 d3j191 Exp $
+c $Id: pre_input.F,v 1.58 2000-06-10 04:48:17 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       integer nfract,ifract(mfract)
 c
       integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset(2),nset
-      integer isgm,icyren,model,nxlnk,iconst,npmfr
+      integer isgm,icyren,model,nxlnk,iconst,npmfr,isarep
       real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
       character*11 cfix
@@ -780,8 +780,9 @@ c     --------------------------
 c
       if(inp_compare(.false.,'pmf_repeat',item)) then
       if(.not.inp_i(npmfr)) call errquit('pre_input: pmf_repeat',9999)
-      write(68,6846) npmfr
- 6846 format('rep_pmf',i5)
+      if(.not.inp_i(isarep)) call errquit('pre_input: pmf_repeat',9999)
+      write(68,6846) npmfr,isarep
+ 6846 format('rep_pmf',i5,i10)
       numcmd=numcmd+1
       goto 2
       endif
