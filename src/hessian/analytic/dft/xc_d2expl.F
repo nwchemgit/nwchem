@@ -1,13 +1,20 @@
+#if 1
+#define TERM_1A
+#define TERM_1B
+#define TERM_2B
+#define TERM_3B
+#else
+#endif
 c
 c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/97
 c
-c     $Id: xc_d2expl.F,v 1.1 1998-09-09 13:21:13 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.2 1998-09-15 18:29:49 bjohnson Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Bmat, Cmat, Cmat2,
-     &     Dmat, chi, delchi, heschi, curatoms, ncuratoms, ipol, nq,
-     &     nbf, max_at_bf, GRAD, basis, natoms, iniz, ifin, 
+     &     Dmat, F, Pmat, ff, chi, delchi, heschi, curatoms, ncuratoms,
+     &     ipol, nq, nbf, max_at_bf, GRAD, basis, natoms, iniz, ifin, 
      &     rho, delrho, g_dens, hess, ibf, rchi_atom, rdelchi_atom,
      &     rdens_atom, cetobfr)
 c
@@ -43,6 +50,10 @@ c
       double precision rdens_atom(natoms,natoms,ipol)
       integer cetobfr(2,natoms)
 c
+      double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
+      double precision F(max_at_bf*max_at_bf)    ! scratch vector
+      double precision ff(nq,3)   ! scratch array
+c
 c     Sampling Matrices for the XC Functional Derivatives
 c
       double precision Amat(nq,ipol), Cmat(nq,3,ipol),
@@ -64,16 +75,16 @@ c     local declarations
 c
       double precision A_MAX, C_MAX, AC_MAX, FUNC_MAXI,
      &                 B_MAX, D_MAX, BD_MAX, FUNC_MAXJ
+      double precision FUNC_MAX, DELFUNC_MAX, tol_rho_tmp
       integer iatcur, jatcur
-      integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast
-      integer jat, inizja, ifinja, nbfja, nnja, jfirst, jlast
-      integer ii, mu, mu1
+      integer iat, inizia, ifinia, nbfia, nnia, ifirst, ilast, idim
+      integer jat, inizja, ifinja, nbfja, nnja, jfirst, jlast, jdim
+      integer ii, mu, nu, icount
       integer ind2(2,2)
       integer n
-      double precision a21, a22
+      double precision a21, a22, aaa, fdchix, fdchiy, fdchiz
       double precision T(3,3)
       integer idir, jdir
-      double precision chi1
       double precision dabsmax
       external dabsmax
 c
@@ -99,6 +110,7 @@ c
       ind2(1,2) = D2_RA_RB
       ind2(2,2) = D2_RB_RB
 c
+#ifdef TERM_1A
       do 100 iat = 1, natoms
          iatcur = curatoms(iat)
 c     !!! are quadratic loops necessary?
@@ -175,8 +187,7 @@ c
 c
  200     continue
  100  continue
-#if 0
-      comment this out until done !!!
+#endif
 c
 c     Second step: terms involving functional first derivatives
 c                  and density second derivatives
@@ -194,89 +205,6 @@ c      call output(chi, 1, nq, 1, nbf, nq, nbf, 1)
 c      write(6,*) ' xc_d2expl: delchi '
 c      call output(delchi, 1, 3*nq, 1, nbf, 3*nq, nbf, 1)
 c
-      do 430 iat = 1, natoms
-         if (curatoms(iat).eq.0) goto 430
-c !!! Is this redundant with the above line?
-         inizia = iniz(iat)
-         if (inizia.eq.0)goto 430
-c
-         FUNC_MAXI = max(rchi_atom(iat),rdelchi_atom(iat))
-#if 0
-         if (((AC_MAX*FUNC_MAXI).lt.tol_rho)) goto 430
-c     !!! Should something be done with cutoffs here? !!!
-#endif
-         ifinia = ifin(iat)
-         ifirst = cetobfr(1,iat)
-         ilast = cetobfr(2,iat)
-         nnia = ifinia - inizia + 1
-         nbfia = ilast - ifirst + 1
-c !!! Can move up bottom of ipol loop
-         do 405 ii = 1, ipol
-            do mu = 1, nnia
-               mu1 = mu+inizia-1
-               if (GRAD) then
-                  call errquit('xc_d2expl: GC not ready yet',0)
-                  do n = 1, nq
-#if 0
-                     chi1 = chi(n,mu1)
-                     Bmat(n,mu) = Amat(n,ii)*chi1 +
-     &                            delchi(n,1,mu1)*Cmat(n,1,ii) +
-     &                            delchi(n,2,mu1)*Cmat(n,2,ii) +
-     &                            delchi(n,3,mu1)*Cmat(n,3,ii)
-                     Dmat(n,1,mu) = Cmat(n,1,ii)*chi1
-                     Dmat(n,2,mu) = Cmat(n,2,ii)*chi1
-                     Dmat(n,3,mu) = Cmat(n,3,ii)*chi1
-#endif
-                  enddo
-               else
-                  do n = 1, nq
-                     ???
-                     asdfdasfsdasd
-                     Bmat(n,mu) = chi(n,mu1)*Amat(n,ii)
-                  enddo
-               endif
-            enddo
-c
-c            write(6,*) ' xc_d2expl: BMAT '
-c            call output(bmat, 1, nq, 1, nnia, nq, max_at_bf, 1)
-c            write(6,*) ' xc_d2expl: DMAT '
-c            call output(dmat, 1, 3*nq, 1, nnia, 3*nq, max_at_bf, 1)
-c
-#if 0
-                                !!! cutoffs !!!
-            B_MAX = dabsmax(nnia*nq,Bmat)
-            D_MAX = dabsmax(nnia*nq*3,Dmat)
-            BD_MAX = max(B_MAX,D_MAX)
-#else
-            B_MAX = 0D0
-            D_MAX = 0D0
-            BD_MAX = 0D0
-#endif
-c
-            do 168 jat = 1, natoms
-               if (curatoms(jat).eq.0) goto 168
-c !!! Is this redundant with the followint lines?
-               inizja = iniz(jat)
-               if (inizja.eq.0)goto 168
-               FUNC_MAXJ = max(rchi_atom(jat),rdelchi_atom(jat))
-#if 0
-               if (BD_MAX*FUNC_MAXJ.lt.tol_rho) goto 168
-c     !!! Should do something with cutoffs here? !!!
-#endif
-               ifinja = ifin(jat)
-               jfirst = cetobfr(1,jat)
-               jlast = cetobfr(2,jat)
-               nbfja = jlast - jfirst + 1
-               nnja = ifinja - inizja + 1
-c
-c !!! What to do here?
-               if (GRAD) call errquit('xc_d2expl: GC not ready',0)
-               ???
-
-c--------------------------------------------------------------------------
-
-
-c
 c     Screening is accomplished by:  p(r) <= |Xi(r)|*|Xj(r)|*|Dij|
 c     Xi(r) is screened on desired accuracy/max(|Xj(r)|)*max(|Dij|)
 c     Dij is screened on desired accuracy/max(|Xi(r)|)*max(|Xj(r)|)
@@ -285,10 +213,9 @@ c
       DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
       do 230 iat = 1, natoms
-         if (curatoms(iat).eq.0) goto 230
-c !!! Reconcile with following lines
          inizia = iniz(iat)
          if (inizia.eq.0)goto 230
+         iatcur = curatoms(iat)
          ifinia = ifin(iat)
          ifirst = cetobfr(1,iat)
          ilast = cetobfr(2,iat)
@@ -311,10 +238,11 @@ c
 c     !!! Cutoff temporarily commented out !!!
 #endif
          do 220 jat = 1, iat
-            if (curatoms(jat).eq.0) goto 220
-c !!! Reconcile with following lines
             inizja = iniz(jat)
             if (inizja.eq.0)goto 220
+c !!! Reconcile with above lines
+            jatcur = curatoms(jat)
+            if (iatcur .eq. 0 .and. jatcur .eq. 0) goto 220
             ifinja = ifin(jat)
             jfirst = cetobfr(1,jat)
             jlast = cetobfr(2,jat)
@@ -352,43 +280,53 @@ c
                call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
 c
-c              Compute Xiat(r)*Xjat(r)*Diat,jat
+c     Three terms to compute
 c
-               icount = 0
-               do mu = inizja, ifinja
-                  call dfill(nq,0.d0,ff,1)
-                  do nu = inizia, ifinia
-                     icount = icount+1
-                     aaa = F(icount)
-                     if (abs(aaa).gt.tol_rho_tmp)then
-                        call daxpy(nq,aaa,chi(1,nu),1,ff,1)
-                     endif
-                  enddo
-                  if (iat.ne.jat) call dscal(nq,2.d0,ff,1)
-                  do n = 1, nq
-                     scr(n) = chi(n,mu)*ff(n)
-                  enddo
+c     First term: Xiat(r)*hessXjat(r)*Diat,jat -> hess(jat,jat)
 c
-                  ??? what to do here ???
-c !!!                  call daxpy(nq,1.d0,scr,1,rho(1,i0+ii),1)
-c
-c                 Compute delXjat(r)*Xiat(r)*Diat,jat
-c
-                  if (grad)then
-                     do n = 1, nq
-                        delrho(n,1,ii) = delrho(n,1,ii) + 
-     &                                   delchi(n,1,mu)*ff(n)
-                        delrho(n,2,ii) = delrho(n,2,ii) + 
-     &                                   delchi(n,2,mu)*ff(n)
-                        delrho(n,3,ii) = delrho(n,3,ii) + 
-     &                                   delchi(n,3,mu)*ff(n)
+#ifdef TERM_1B
+               if (jatcur .ne. 0) then
+                  call dfill(9,0.d0,T,1)
+                  icount = 0
+                  do mu = inizja, ifinja
+                     call dfill(nq,0.d0,ff,1)
+                     do nu = inizia, ifinia
+                        icount = icount+1
+                        aaa = F(icount)
+                        if (abs(aaa).gt.tol_rho_tmp)then
+                           call daxpy(nq,aaa,chi(1,nu),1,ff,1)
+                        endif
                      enddo
-                  endif
-               enddo
-               if (grad)then
+                     do n = 1, nq
+                        aaa = Amat(n,ii)*ff(n,1)
+                        T(1,1) = T(1,1) + heschi(n,1,mu)*aaa
+                        T(1,2) = T(1,2) + heschi(n,2,mu)*aaa
+                        T(1,3) = T(1,3) + heschi(n,3,mu)*aaa
+                        T(2,2) = T(2,2) + heschi(n,4,mu)*aaa
+                        T(2,3) = T(2,3) + heschi(n,5,mu)*aaa
+                        T(3,3) = T(3,3) + heschi(n,6,mu)*aaa
+                     enddo
+                  enddo
 c
-c                 Compute delXiat(r)*Xjat(r)*Diat,jat
-c                  
+                  if (iat.ne.jat) call dscal(9,2.d0,T,1)
+c
+                  T(2,1) = T(1,2)
+                  T(3,1) = T(1,3)
+                  T(3,2) = T(2,3)
+                  do jdir = 1,3
+                     do idir = 1,3
+                        hess(idir,jat,jdir,jat) =
+     &                  hess(idir,jat,jdir,jat) + T(idir,jdir)
+                     enddo
+                  enddo
+               endif
+#endif
+c
+c     Second term: hessXiat(r)*Xjat(r)*Diat,jat -> hess(iat,iat)
+c
+#ifdef TERM_2B
+               if (iatcur .ne. 0) then
+                  call dfill(9,0.d0,T,1)
                   do nu = inizia, ifinia
                      call dfill(nq,0.d0,ff,1)
                      icount = nu-inizia+1
@@ -399,47 +337,81 @@ c
                            call daxpy(nq,aaa,chi(1,mu),1,ff,1)
                         endif
                      enddo
-                     if (iat.ne.jat) call dscal(nq,2.d0,ff,1)
                      do n = 1, nq
-                        delrho(n,1,ii) = delrho(n,1,ii) + 
-     &                                   delchi(n,1,nu)*ff(n)
-                        delrho(n,2,ii) = delrho(n,2,ii) + 
-     &                                   delchi(n,2,nu)*ff(n)
-                        delrho(n,3,ii) = delrho(n,3,ii) + 
-     &                                   delchi(n,3,nu)*ff(n)
+                        aaa = Amat(n,ii)*ff(n,1)
+                        T(1,1) = T(1,1) + heschi(n,1,nu)*aaa
+                        T(1,2) = T(1,2) + heschi(n,2,nu)*aaa
+                        T(1,3) = T(1,3) + heschi(n,3,nu)*aaa
+                        T(2,2) = T(2,2) + heschi(n,4,nu)*aaa
+                        T(2,3) = T(2,3) + heschi(n,5,nu)*aaa
+                        T(3,3) = T(3,3) + heschi(n,6,nu)*aaa
+                     enddo
+                  enddo
+c
+                  if (iat.ne.jat) call dscal(9,2.d0,T,1)
+c
+                  T(2,1) = T(1,2)
+                  T(3,1) = T(1,3)
+                  T(3,2) = T(2,3)
+                  do jdir = 1,3
+                     do idir = 1,3
+                        hess(idir,iat,jdir,iat) =
+     &                  hess(idir,iat,jdir,iat) + T(idir,jdir)
                      enddo
                   enddo
                endif
+#endif
+c
+c     Third term: delXiat(r)*del(T)Xjat(r)*Diat,jat -> hess(iat,jat)
+c
+#ifdef TERM_3B
+               if (jatcur .ne. 0 .and. iatcur .ne. 0) then
+                  call dfill(9,0.d0,T,1)
+                  icount = 0
+                  do mu = inizja, ifinja
+                     call dfill(nq*3,0.d0,ff,1)
+                     do nu = inizia, ifinia
+                        icount = icount+1
+                        aaa = F(icount)
+                        if (abs(aaa).gt.tol_rho_tmp)then
+                           call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
+                        endif
+                     enddo
+                     do n = 1, nq
+                        fdchix = Amat(n,ii)*ff(n,1)
+                        fdchiy = Amat(n,ii)*ff(n,2)
+                        fdchiz = Amat(n,ii)*ff(n,3)
+                        T(1,1) = T(1,1) + fdchix*delchi(n,1,mu)
+                        T(1,2) = T(1,2) + fdchix*delchi(n,2,mu)
+                        T(1,3) = T(1,3) + fdchix*delchi(n,3,mu)
+                        T(2,1) = T(2,1) + fdchiy*delchi(n,1,mu)
+                        T(2,2) = T(2,2) + fdchiy*delchi(n,2,mu)
+                        T(2,3) = T(2,3) + fdchiy*delchi(n,3,mu)
+                        T(3,1) = T(3,1) + fdchiz*delchi(n,1,mu)
+                        T(3,2) = T(3,2) + fdchiz*delchi(n,2,mu)
+                        T(3,3) = T(3,3) + fdchiz*delchi(n,3,mu)
+                     enddo
+                  enddo
+c
+c     This term always comes with a factor of 2 in front
+c
+                  call dscal(9,2.d0,T,1)
+c
+                  do jdir = 1,3
+                     do idir = 1,3
+                        hess(idir,iat,jdir,jat) =
+     &                  hess(idir,iat,jdir,jat) + T(idir,jdir)
+                        if (iat.ne.jat) then
+                           hess(jdir,jat,idir,iat) =
+     &                     hess(jdir,jat,idir,iat) + T(idir,jdir)
+                        endif
+                     enddo
+                  enddo
+               endif
+#endif
   210       continue
   220    continue
-  225    continue
   230 continue
-
-
-c--------------------------------------------------------------------------
-
-c
-c!!!               if (ipol.eq.1) call dscal(9,2.d0,T,1)
-               if (ipol.eq.1) call dscal(9,0.5d0,T,1)
-c
-c              Update Hessian block(s)
-c
-               do jdir = 1,3
-                  do idir = 1,3
-                     hess(idir,iat,jdir,jat) = hess(idir,iat,jdir,jat)
-     &                                       + T(idir,jdir)
-                     if (iat.ne.jat) then
-                        hess(jdir,jat,idir,iat) =
-     &                  hess(jdir,jat,idir,iat) + T(idir,jdir)
-                     endif
-                  enddo
-               enddo
-c
-c     !!! Can move pol loop up !!!
-  168       continue
-  405    continue
-  430 continue
-#endif
 c      write(6,*) ' xc_d2expl: hess '
 c      call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
       return
