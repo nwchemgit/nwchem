@@ -1,0 +1,73 @@
+# $Id: dyall_nrcpdz,v 1.1 2003-04-01 01:08:27 mg201 Exp $
+basis "Ga_dyall_nrcpdz" SPHERICAL
+  Ga  f
+  7.4554914E-01  1.00000000000E+00
+end
+basis "Ge_dyall_nrcpdz" SPHERICAL
+  Ge  f
+  9.9410859E-01  1.00000000000E+00
+end
+basis "As_dyall_nrcpdz" SPHERICAL
+  As  f
+  1.2517508E+00  1.00000000000E+00
+end
+basis "Se_dyall_nrcpdz" SPHERICAL
+  Se  f
+  1.5341660E+00  1.00000000000E+00
+end
+basis "Br_dyall_nrcpdz" SPHERICAL
+  Br  f
+  1.8265007E+00  1.00000000000E+00
+end
+basis "Kr_dyall_nrcpdz" SPHERICAL
+  Kr  f
+  2.1313842E+00  1.00000000000E+00
+end
+basis "In_dyall_nrcpdz" SPHERICAL
+  In  f
+  6.0868955E-01  1.00000000000E+00
+end
+basis "Sn_dyall_nrcpdz" SPHERICAL
+  Sn  f
+  7.6513942E-01  1.00000000000E+00
+end
+basis "Sb_dyall_nrcpdz" SPHERICAL
+  Sb  f
+  9.2010167E-01  1.00000000000E+00
+end
+basis "Te_dyall_nrcpdz" SPHERICAL
+  Te  f
+  1.0834356E+00  1.00000000000E+00
+end
+basis "I_dyall_nrcpdz" SPHERICAL
+  I   f
+  1.2573951E+00  1.00000000000E+00
+end
+basis "Xe_dyall_nrcpdz" SPHERICAL
+  Xe  f
+  1.4306218E+00  1.00000000000E+00
+end
+basis "Tl_dyall_nrcpdz" SPHERICAL
+  Tl  f
+  5.1314040E-01  1.00000000000E+00
+end
+basis "Pb_dyall_nrcpdz" SPHERICAL
+  Pb  f
+  6.2539101E-01  1.00000000000E+00
+end
+basis "Bi_dyall_nrcpdz" SPHERICAL
+  Bi  f
+  7.3722141E-01  1.00000000000E+00
+end
+basis "Po_dyall_nrcpdz" SPHERICAL
+  Po  f
+  8.4884330E-01  1.00000000000E+00
+end
+basis "At_dyall_nrcpdz" SPHERICAL
+  At  f
+  9.5954606E-01  1.00000000000E+00
+end
+basis "Rn_dyall_nrcpdz" SPHERICAL
+  Rn  f
+  1.0675464E+00  1.00000000000E+00
+end

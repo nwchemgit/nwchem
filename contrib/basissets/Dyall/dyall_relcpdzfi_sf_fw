@@ -1,0 +1,73 @@
+# $Id: dyall_relcpdzfi_sf_fw,v 1.1 2003-04-01 01:08:27 mg201 Exp $
+basis "Ga_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Ga  f
+  7.2939434E-01  1.00000000000E+00
+end
+basis "Ge_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Ge  f
+  9.6665626E-01  1.00000000000E+00
+end
+basis "As_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  As  f
+  1.2285248E+00  1.00000000000E+00
+end
+basis "Se_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Se  f
+  1.5075295E+00  1.00000000000E+00
+end
+basis "Br_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Br  f
+  1.7971517E+00  1.00000000000E+00
+end
+basis "Kr_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Kr  f
+  2.0974412E+00  1.00000000000E+00
+end
+basis "In_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  In  f
+  5.8178958E-01  1.00000000000E+00
+end
+basis "Sn_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Sn  f
+  7.2704191E-01  1.00000000000E+00
+end
+basis "Sb_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Sb  f
+  8.8518077E-01  1.00000000000E+00
+end
+basis "Te_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Te  f
+  1.0494999E+00  1.00000000000E+00
+end
+basis "I_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  I   f
+  1.2169350E+00  1.00000000000E+00
+end
+basis "Xe_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Xe  f
+  1.3844668E+00  1.00000000000E+00
+end
+basis "Tl_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Tl  f
+  4.5262943E-01  1.00000000000E+00
+end
+basis "Pb_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Pb  f
+  5.6040871E-01  1.00000000000E+00
+end
+basis "Bi_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Bi  f
+  6.6730197E-01  1.00000000000E+00
+end
+basis "Po_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Po  f
+  7.7352607E-01  1.00000000000E+00
+end
+basis "At_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  At  f
+  8.7819427E-01  1.00000000000E+00
+end
+basis "Rn_dyall_relcpdz(fi/sf/fw)" SPHERICAL
+  Rn  f
+  9.7888964E-01  1.00000000000E+00
+end
