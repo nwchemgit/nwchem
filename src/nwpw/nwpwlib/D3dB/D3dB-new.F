@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.3 2002-01-08 23:06:36 bylaska Exp $
+* $Id: D3dB-new.F,v 1.4 2002-01-08 23:10:26 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1982,6 +1982,7 @@ c     integer i2_start(NFFT3+1)
       end if
 
 *     **** wait ****
+      call ga_sync()
 #ifdef MPI
       call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
 #endif
