@@ -1,0 +1,6 @@
+      double precision pi
+      double precision fourpi
+
+      parameter(pi = 3.14159265358979323846264338327950288419D0)
+                             
+      parameter(fourpi = pi*4.0D0)
