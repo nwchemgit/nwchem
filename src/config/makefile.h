@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.450 2004-04-20 17:19:37 edo Exp $
+# $Id: makefile.h,v 1.451 2004-04-22 04:31:42 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1200,6 +1200,7 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
+  _G77V33= $(shell g77 -v  2>&1|egrep spec|head -1|awk ' /3.3/  {print "Y"}')
 
 # FC  = g77
 
@@ -1244,12 +1245,18 @@ ifeq ($(LINUXCPU),x86)
   FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
   COPTIONS   += -Wall  -malign-double 
   COPTIMIZE  += -g -O2
-# FOPTIMIZE  +=  -m486
-# COPTIONS   = -Wall -m486 -malign-double 
     FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -Wunused  -fno-silent
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
-    FOPTIMIZE += -fforce-mem -fforce-addr 
+    FOPTIMIZE += -fforce-addr 
+# see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037
+#  for atomscf/orderd.f  (bug report by Kirill Smelkov)
+    ifeq ($(_G77V33),Y)
+      FOPTIONS += -fno-force-mem 
+      FOPTIMIZE += -fno-force-mem 
+    else
+      FOPTIMIZE += -fforce-mem 
+    endif
 
   ifeq ($(FC),pgf77)
     DEFINES   += -DPGLINUX
