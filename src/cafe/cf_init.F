@@ -6,7 +6,7 @@
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.85 2002-11-10 12:25:42 d3j191 Exp $
+c $Id: cf_init.F,v 1.86 2002-11-20 23:26:53 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -411,7 +411,7 @@ c
       if(m.eq.2) ith(18)=.true.
       if(m.eq.3) ith(20)=.true.
       if(ipmf(i,1).eq.3) ith(21)=.true.
-      if(ipmf(i,1).eq.3) ith(22)=.true.
+      if(ipmf(i,1).eq.4) ith(22)=.true.
       endif
       if(m.eq.0) call errquit('Error in pmf from top',m)
       do 3 j=1,m
