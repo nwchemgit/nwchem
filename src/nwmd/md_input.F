@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.29 2000-09-06 16:39:25 d3j191 Exp $
+c $Id: md_input.F,v 1.30 2000-09-16 07:26:34 d3j191 Exp $
 c
       implicit none
 c
@@ -658,17 +658,18 @@ c     fix [solvent] [solute]
 c
       if(inp_compare(.false.,'fix',item).or.
      + inp_compare(.false.,'free',item)) then
-      if(.not.inp_a(item)) call errquit('md_input : error fix',13)
 c
       ifix=1
       if(inp_compare(.false.,'free',item)) ifix=0
+c
+      if(.not.inp_a(item)) call errquit('md_input : error fix',13)
 c
       if(inp_compare(.false.,'solvent',item)) then
       if(.not.inp_i(ifirst)) then
       ifirst=0
       ilast=0
       else
-      if(.not.inp_i(ilast)) ilast=0
+      if(.not.inp_i(ilast)) ilast=ifirst
       endif
       write(lfncmd,1001) ifix,ifirst,ilast
  1001 format('fix w ',i2,2i10)
@@ -681,7 +682,7 @@ c
       ifirst=0
       ilast=0
       else
-      if(.not.inp_i(ilast)) ilast=0
+      if(.not.inp_i(ilast)) ilast=ifirst
       endif
       if(.not.inp_a(item)) then
       write(lfncmd,1002) ifix,ifirst,ilast
