@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.35 2000-10-24 02:38:51 d3j191 Exp $
+#$Id: GNUmakefile,v 1.36 2001-08-28 00:54:38 edo Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
-LIBRARY = libutil.a
+LIBRARY = libnwcutil.a
 
 USES_BLAS = sym_bs_irrep.F sym_g_sym.F    sym_geom_prj.F sym_mo_adapt.F sym_op_clsfy.F \
             sym_op_mtab.F  sym_put_geom.F dosymops.F

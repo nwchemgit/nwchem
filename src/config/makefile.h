@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.369 2001-08-22 23:18:55 edo Exp $
+# $Id: makefile.h,v 1.370 2001-08-28 00:54:34 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -245,7 +245,7 @@ ifndef PERM_DEF_DIR
  PERM_DEF_DIR   = "'.'"
 endif
 
-       CORE_LIBS =  -lutil -lpario -lglobal -lma -lpeigs 
+       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs 
 #
 # Machine specific stuff
 #
@@ -520,7 +520,7 @@ ifeq ($(TARGET),SGITFP)
 # TPS 95/12/12:
 # Increased fprop_limit to 1750
 # Removed -j 12 from MAKEFLAGS
-# Added -lutil to core libraries
+# Added -lnwcutil to core libraries
 #
 # TPS 96/01/14:
 # Increased const_copy_limit and global_limit to 18500
@@ -540,7 +540,7 @@ ifeq ($(TARGET),SGITFP)
 #     ... roundoff/ieee only modify pipelining which happens only at O3
 #
 # TPS 96/06/27:
-# Added -lutil to core libraries (again!)
+# Added -lnwcutil to core libraries (again!)
 #
 # TPS 96/07/26:
 # Fortran optimization limits: const_copy_limit=20000 
@@ -1159,10 +1159,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc/ { print "ppc"} ' )
 
 ifeq ($(BUILDING_PYTHON),python)
-   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
+#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
-#   EXTRA_LIBS += -lpthread
+   EXTRA_LIBS +=  -lreadline -lncurses -lutil  -lpthread -ldl
    INCPATH += -I/usr/include/python1.5
 endif
 
@@ -1254,19 +1254,15 @@ ifeq ($(_CPU),ppc)
 endif
 
 
+  LDOPTIONS = -g -Xlinker -export-dynamic 
+#  LDOPTIONS = --Xlinker -O -Xlinker -static
+      LINK.f = $(FC) $(LDFLAGS) 
 ifeq ($(FC),pgf77)
-  LDOPTIONS = -g
-     LINK.f = pgf77 -g $(LDFLAGS)
  EXTRA_LIBS += -lm
 else
 ifeq ($(FC),ifc)
-  LDOPTIONS = -g
-     LINK.f = ifc $(LDFLAGS)
-     EXTRA_LIBS = -ml -Vaxlib  
+     EXTRA_LIBS += -ml -Vaxlib  
 else
-  LDOPTIONS = -g -Xlinker -export-dynamic 
-#  LDOPTIONS = --Xlinker -O -Xlinker -static
-     LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 
 ifndef EGCS
@@ -1324,7 +1320,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-        FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz
+        FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz 
         DEFINES  +=   -DIFCLINUX
         FVECTORIZE = -O3 -hlo -pad
         FOPTIMIZE =  -O3 -hlo -unroll
@@ -1388,7 +1384,7 @@ ifeq ($(TARGET),FUJITSU_VPP)
  NW_CORE_SUBDIRS = include basis geom inp input  \
        pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
-        CORE_LIBS = -lutil -lpeigs \
+        CORE_LIBS = -lnwcutil -lpeigs \
                     -L$(GA_LIBDIR) -lglobal -lpario -lma \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
@@ -1423,7 +1419,7 @@ endif
 #-do not use#
 #-do not use#   LDOPTIONS = -g
 #-do not use#      LINK.f = pgf77 $(LDFLAGS)
-#-do not use#   CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+#-do not use#   CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -llapack -lblas
 #-do not use#  EXTRA_LIBS = 
 #-do not use#
 #-do not use#         CPP = gcc -E -nostdinc -undef -P

@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.42 2000-10-24 02:39:11 d3j191 Exp $
+#$Id: GNUmakefile,v 1.43 2001-08-28 00:54:37 edo Exp $
 include ../config/makefile.h
 
-       LIBRARY = libutil.a
+       LIBRARY = libnwcutil.a
        HEADERS = bas.fh basP.fh bas_staticP.fh basdeclsP.fh geobasmapP.fh  \
                  bas_exndcf.fh bas_exndcf_dec.fh bas_exndcf_sfn.fh \
                  bas_ibs.fh bas_ibs_dec.fh bas_ibs_sfn.fh ../NWints/rel/rel_nwc.fh

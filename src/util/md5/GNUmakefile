@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.5 1997-10-31 20:45:42 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 2001-08-28 00:54:38 edo Exp $
 #
 
 
            OBJ = md5wrap.o md5.o
-       LIBRARY = libutil.a
+       LIBRARY = libnwcutil.a
    LIB_TARGETS = ftest mddriver
        HEADERS = checksum.h
 

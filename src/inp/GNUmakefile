@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.22 1997-02-17 20:52:00 d3g681 Exp $
+# $Id: GNUmakefile,v 1.23 2001-08-28 00:54:37 edo Exp $
 
-      LIBRARY = libutil.a
+      LIBRARY = libnwcutil.a
  OBJ_OPTIMIZE = inp.o inp_irange.o
           OBJ = c_inp.o hnd_rdfree.o
 ifeq ($(TARGET),SGITFP)

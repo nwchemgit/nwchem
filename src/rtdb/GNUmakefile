@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.20 2000-08-02 01:33:36 bjohnson Exp $
+# $Id: GNUmakefile,v 1.21 2001-08-28 00:54:38 edo Exp $
 
 include ../config/makefile.h
 
-         LIBRARY = libutil.a
+         LIBRARY = libnwcutil.a
 
 
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
@@ -38,11 +38,11 @@ endif
 
 include ../config/makelib.h
 
-davetest:	davetest.o $(LIBRARY)
-	$(FC) $(FFLAGS) -o $@ davetest.o $(TEST_LIBS) 
+davetest:	davetest.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ davetest.o $(LIBS)
 
-cntx:	cntx.o $(LIBRARY) 
-	$(FC) $(FFLAGS) -o $@ cntx.o $(LIBS)
+cntx:	cntx.o  $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ cntx.o  $(LIBS)
 
 interact:	interact.o $(LIBRARY_PATH)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ interact.o $(LIBRARY_PATH) -lglobal -ltcgmsg -L/msrc/apps/f771.4/SC1.0 -lF77 -lV77 -lm
@@ -51,7 +51,7 @@ test:	test.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
 
 rtdbtest:	rtdbtest.o $(LIBRARY_PATH)
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ -lmalloc $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ -lm $(LIBS)
 
 rtdbpartest:	rtdb_par_test.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ rtdb_par_test.o $(TEST_LIBS)

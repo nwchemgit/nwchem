@@ -1,8 +1,7 @@
-# $Id: GNUmakefile,v 1.14 1997-02-17 20:52:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 2001-08-28 00:54:37 edo Exp $
 
 
-#LIBRARY = libpstat.a
-LIBRARY =      libutil.a
+LIBRARY =      libnwcutil.a
 
 OBJ =		pstat_init.o	pstat_term.o	pstat_alloc.o \
 		pstat_on.o	pstat_off.o		pstat_pr_all.o \

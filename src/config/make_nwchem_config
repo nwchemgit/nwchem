@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.147 2001-08-03 21:10:11 edo Exp $
+# $Id: make_nwchem_config,v 1.148 2001-08-28 00:54:34 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -28,7 +28,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
-                    -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
+                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
 		    -lprepar -lnwmd -lpspw -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep
 
@@ -184,7 +184,7 @@ MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2_grad,-lrimp2g,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst oimp2,-loimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst symmetry,-lutil,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst symmetry,-lnwcutil,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )

@@ -1,10 +1,10 @@
-#$Id: GNUmakefile,v 1.2 1999-06-01 20:48:37 d3h325 Exp $
+#$Id: GNUmakefile,v 1.3 2001-08-28 00:54:38 edo Exp $
 
 include ../../config/makefile.h
 
 # LIBRARY = libdb.a
 
-  LIBRARY = libutil.a
+  LIBRARY = libnwcutil.a
 
 
   LIB_TARGETS = rjhtest rjhtest.o

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.136 2001-08-23 17:54:26 edo Exp $
+# $Id: GNUmakefile,v 1.137 2001-08-28 00:54:38 edo Exp $
 
 include ../config/makefile.h
 
@@ -159,7 +159,7 @@ endif
 
 #nxtval_ga.o 
 
-    LIBRARY = libutil.a
+    LIBRARY = libnwcutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
               bgj.fh bgj_common.fh nwc_const.fh

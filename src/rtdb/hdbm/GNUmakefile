@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 1997-10-31 23:51:45 d3e129 Exp $
+# $Id: GNUmakefile,v 1.9 2001-08-28 00:54:38 edo Exp $
 #
 
 include ../../config/makefile.h
@@ -10,7 +10,7 @@ include ../../config/makefile.h
 
   HEADERS = hdbm.h
 
-  LIBRARY = libutil.a
+  LIBRARY = libnwcutil.a
 
 include ../../config/makelib.h
 
