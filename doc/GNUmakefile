@@ -49,5 +49,6 @@ realclean:	clean
 
 ####
 user.dvi:	fullpage.sty dft.tex
-prog.dvi:	fullpage.sty
+prog.dvi:	fullpage.sty integral_api.tex
+
 
