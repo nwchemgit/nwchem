@@ -1,0 +1,33 @@
+title "paw steepest descent test"
+
+start paw_test
+
+charge 0
+
+
+
+geometry units au nocenter noautoz noautosym
+O      0.00000    0.00000    0.01390
+H     -1.49490    0.00000   -1.18710
+H      1.49490    0.00000   -1.18710
+end
+
+
+
+nwpw
+   time_step 15.8   
+   ewald_rcut 1.50
+   tolerances 1.0d-8 1.0d-8 
+end
+set nwpw:lcao_iterations 1
+set nwpw:minimizer 2
+task pspw energy
+task paw steepest_descent
+
+nwpw
+   time_step 5.8
+   geometry_optimize
+   ewald_rcut 1.50
+   tolerances 1.0d-7 1.0d-7 1.0d-4
+end
+task paw steepest_descent
