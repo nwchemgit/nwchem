@@ -27,15 +27,14 @@ c
        integer noper, nvir
        integer g_coul, g_exch
        double precision emp2
+       data g_coul,g_exch/-1,-1/
 c
 c
 c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
-       logical ga_create_atom_blocked
-       external ga_create_atom_blocked
-       integer ga_create_moblocked
-       external ga_create_moblocked
+       integer ga_create_atom_blocked,ga_create_moblocked
+       external ga_create_atom_blocked,ga_create_moblocked
 c
 c
 c
@@ -144,7 +143,7 @@ c
 c
 c
        call schwarz_tidy()
-       status = ga_destroy(g_coul)
+C       status = ga_destroy(g_coul)
        status = ga_destroy(g_exch)
        status = ma_pop_stack(l_epair)
        status = ma_pop_stack(l_evals)

@@ -17,7 +17,7 @@ c
        double precision xx,denom
        logical status
        double precision moint_epair_eval
-       
+
        nnt = (nocc*(nocc+1))/2
        if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
      $      errquit('moints_mp2_eval: cannot allocate',0)
