@@ -345,7 +345,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       find the end of the block
       */
     
-
+    
     
     while (( iblock[end_of_block] == iblock[beg_of_block] ) && ( end_of_block < num_eig )) {
       end_of_block++;
@@ -382,11 +382,11 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	fil_dbl_lst ( msize, vecZ[ii], 0.0e0);
 	vecZ[ii][b1] = 1.0e0;
       }
-
+      
       icsplit[ num_all_cls ] = end_of_block;
       num_all_cls++;
       *nacluster = num_all_cls;
-
+      
     }
     
 #ifdef DEBUG1
@@ -450,10 +450,10 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    fprintf(stderr, " Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
 	    return(-5);
 	  }
-	pertol = eps1 * R_TEN;
+	  pertol = eps1 * R_TEN;
 	  sep = xj - xjm;
 	  if (sep < pertol*MAX(fabs(xj), fabs(xjm)))
-	      xj = xjm + pertol;
+	    xj = xjm + pertol;
 	}
 	eval[j] = xj;
 	
@@ -474,7 +474,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(fabs(xj), fabs(xjm)));
 	    */
 	  
-	  if (fabs(sep - sepfine*MAX(fabs(xj),fabs(xjm))) > DLAMCHE ) {
+	  if (fabs(sep) > fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;

@@ -112,6 +112,7 @@ void pdiff( n, data, proclist, nprocs, iwork, msg1, msg2, info )
   next_proc = proclist[next_proc];
     
   isize = *n;
+
   if ( ( (indx + 2) % 2) == 0 ) {
     mxwrit_( (Integer *)data,  &isize, &next_proc, &TYPE );
     mxread_( iwork, &isize, &last_proc, &TYPE );

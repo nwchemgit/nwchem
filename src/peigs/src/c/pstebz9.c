@@ -487,6 +487,10 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
    
    ncol = numeig / nn_procs;
    irem = (numeig % nn_procs);
+
+   printf("got here in pdspevx 9 ");
+
+   goto JUNK;
    
    if ( ifakeme < irem ) {
        il = ifakeme * (ncol + 1) + nlow;
@@ -707,8 +711,6 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
      */
     
     mxbrod_( info, proclist, &isize1, &nn_procs, proclist, &INT);
-
-
  
     itype = 19;
     isize = numeig * sizeof(Integer);
@@ -723,19 +725,21 @@ JUNK:
     order = 1;
     m = 0;
     il = 1;
-    iu = 1;
-    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	      &m, nsplit, &dummy, iblock, isplit, work,
+    iu = *n;
+    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, &e[1],
+	      &m, nsplit, eval, iblock, isplit, work,
 	      i_work, info);
     
-    leig = dummy; /* left most e-val */
+    sort_( n, &numeig, nsplit, isplit, iblock, i_work, eval, work );
+    
+    leig = eval[0]; /* left most e-val */
     psgn = 1.0;
     psigma = 0.;
     eps = DLAMCHE;
-
-
-/*
-    for ( indx = 0; indx < *n; indx++ )
+    
+    
+    /*
+      for ( indx = 0; indx < *n; indx++ )
       work[indx] = d[indx];
     
     for ( indx = 0; indx < *n; indx++ )
@@ -783,6 +787,7 @@ JUNK:
       printf(" me = %d iii  %d iblock = %d isplit %d \n", me, iii, iblock[iii], isplit[iii]);
     }
 #endif
+   printf(" exiting pstebz9.c \n");
    
    return;
 }

@@ -746,29 +746,29 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	      dd, ee, dplus, lplus,
 	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	      d_scrat, i_scrat, &linfo);
-
+      
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-
+      
 #endif
       
-/*
-      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
-		 dd, ee, dplus, lplus,
-		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
-		 d_scrat, i_scrat, &linfo);
-
-      syncco[0] = 0.0e0;
-      gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-*/
-	linfo = 1;
+      /*
+	pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
+	dd, ee, dplus, lplus,
+	mapZ, &neigval, &nsplit, eval, iblock, isplit,
+	d_scrat, i_scrat, &linfo);
+	
+	syncco[0] = 0.0e0;
+	gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+	*/
+      linfo = 1;
       
       
       if ( linfo != 0 ) {
-/*
-	printf(" error in peigs...pstebz10 using pstebz9 me = %d \n", me);
-	fflush(stdout);
-*/
+	/*
+	  printf(" error in peigs...pstebz10 using pstebz9 me = %d \n", me);
+	  fflush(stdout);
+	  */
 	linfo = 0;
 	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
 		  dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
@@ -788,6 +788,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	  dsterf_(&msize, d_scrat, &d_scrat[msize+1], &linfo);
 	  for ( iii = 0; iii < msize; iii++ )
 	    eval[iii] = d_scrat[iii];
+	  /*
+	    should perform LDL' factorization here
+	    at the moment nothing.
+	    */
+
 	  if ( linfo != 0 ) {
 	    printf(" error in peigs...dsterf me = %d \n", me);
 	    printf(" error in peigs...fails all eval solver me = %d \n", me);

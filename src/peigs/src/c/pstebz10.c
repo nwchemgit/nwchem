@@ -733,25 +733,23 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    /* The following assumes that the matrix does not split */
    
-   /*
-    *nsplit = 1;
-    isplit[0] = *n;
-    for(i = 0;i < *n;i++){
-    iblock[i] = 1;
-    }
-    */
+   *nsplit = 1;
+   isplit[0] = *n;
+   for(i = 0;i < *n;i++){
+     iblock[i] = 1;
+   }
    
    
 /*
-   if ( *info != 0 ) {
-     fprintf(stderr, " me = %d ifakeme=%d dlasq1 returned info = %d to pstebz \n",
-	     me, ifakeme, *info );
-     fprintf(stderr, " me = %d ifakeme=%d dlasq1 also returned neig= %d il=%d iu=%d \n",
-	     me, ifakeme, m, il, iu );
-     *info = 1;
-     exit(-30);
-   }
-*/
+  if ( *info != 0 ) {
+  fprintf(stderr, " me = %d ifakeme=%d dlasq1 returned info = %d to pstebz \n",
+  me, ifakeme, *info );
+  fprintf(stderr, " me = %d ifakeme=%d dlasq1 also returned neig= %d il=%d iu=%d \n",
+  me, ifakeme, m, il, iu );
+  *info = 1;
+  exit(-30);
+  }
+  */
    
    /*
      if ( iu >= il ) {

@@ -319,8 +319,11 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	num_cls++;
 	max_clustr_size = MAX( 2, max_clustr_size);
       }
-      else
-	if ( ffabs(w[j1] - w[jn])/max(fabs(w[j] < max(100.e0, (DoublePrecision) msize)*eps))) {
+    }
+/* blocksize > 2 */    /*
+    else 
+      if ( ffabs(w[j1] - w[jn])
+	     > max(fabs(w[j1]), fabs(w[jn])*max(100.e0, (DoublePrecision) msize)*eps)){
 	  *(c_ptr++) = j1;
 	  *(c_ptr++) = jn;
 	  *(c_ptr++) = b1;
@@ -341,8 +344,9 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	  num_cls++;
 	  max_clustr_size = MAX( 1, max_clustr_size);
 	}
-    }
-
+	*/
+  }
+    
     if ( blksiz > 2 ) {
       /*
        *  This is how one would compute ortol if the eigenvalues of block i
@@ -354,10 +358,10 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 	xj1 = w[j+1];
 	xj2 = w[j+2];
 	if ( 
-      }
-      /*
-	eval[j] = xj;
-	*/
+	    }
+	/*
+	  eval[j] = xj;
+	  */
 	
 #ifdef DEBUG1
 	fprintf(stderr, " got here 3 me = %d \n", me );
@@ -463,20 +467,22 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
      }
      */
   
-  c_ptr = clustr_info;
-  sprintf(filename, "junk%d", me);
-  file = fopen(filename, "w");
-  for ( ii = 0; ii < 4* num_all_cls; ii++ )
+  /*
+    c_ptr = clustr_info;
+    sprintf(filename, "junk%d", me);
+    file = fopen(filename, "w");
+    for ( ii = 0; ii < 4* num_all_cls; ii++ )
     fprintf(file, "me = %d clustrf4 clustr_info[%d] = %d \n", me, ii, *(c_ptr++));
-  
-  for ( ii = 0; ii < msize; ii++ )
+    
+    for ( ii = 0; ii < msize; ii++ )
     fprintf(file, "me = %d iblock %d = %d \n", me, ii, iblock[ii]);
-  
-  close(file);
-  fflush(file);
-  
+    
+    close(file);
+    fflush(file);
+    */
   
   
   return(max_clustr_size);
 }
+
 
