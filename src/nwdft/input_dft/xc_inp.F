@@ -37,7 +37,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 23)
       character*10 dirs(num_dirs)
       character*255 test
 c
@@ -55,7 +55,7 @@ c
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 'vwn_5',
      &           'vwn_1_rpa','hcth','becke97','becke97-1',
-     &           'cpbe96','xpbe96'/
+     &           'cpbe96','xpbe96','gill96'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -82,7 +82,7 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-     ,      2100,2200, 1999) ind
+     ,      2100,2200,2300, 1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
@@ -703,6 +703,36 @@ c
          xfac(7) = 1.0d0
       endif
        goto 10
+c     
+c     gill96; Gill '96 functional for exchange
+c     
+ 2300  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(6,*)' gill96 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(6,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(8) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(8) = .true.
+            nlxfac(8) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(8) = .true.
+         nlxfac(8) = .true.
+      endif
+      if (.not. inp_f(xfac(8))) then
+         xfac(8) = 1.0d0
+      endif
+       goto 10
  1999 continue
 c
 c     Check nonlocal functionals: perdew86 and perdew91 to
@@ -808,7 +838,8 @@ c
      &       /,' [becke97] ',
      &       /,' [becke97-1] ',
      &       /,' [cpbe96 nonlocal rval]',
-     &       /,' [xpbe96] ')
+     &       /,' [xpbe96] ',
+     &       /,' [gill96] ')
       call util_flush(6)
       call errquit('xc_input: invalid format', 0)
 c     
