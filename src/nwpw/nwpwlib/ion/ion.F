@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.18 2003-02-14 02:05:45 bylaska Exp $
+* $Id: ion.F,v 1.19 2003-03-15 01:40:52 bylaska Exp $
 *
 
 *     ***************************
@@ -860,6 +860,27 @@ c     call ion_shift()
       ion_rion = dbl_mb(r1(1)+(i-1) + (j-1)*3)
       return
       end
+
+*     ***************************
+*     *				*
+*     *		ion_rion2	*
+*     *				*
+*     ***************************
+
+      double precision function ion_rion2(i,j)
+      implicit none
+      integer i,j
+
+#include "mafdecls.fh"
+
+***** ion common block ****
+#include "ion.fh"
+
+
+      ion_rion2 = dbl_mb(r2(1)+(i-1) + (j-1)*3)
+      return
+      end
+
 
 *     ***************************
 *     *				*
