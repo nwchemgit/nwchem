@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.11 2004-09-09 00:10:45 marat Exp $
+c $Id: qmmm_geom.F,v 1.12 2004-09-09 23:05:57 edo Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -20,7 +20,7 @@ c     local variables
       integer i_ind
       integer i_num
       integer i_q
-      character(255) basis_string
+      character*255 basis_string
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
