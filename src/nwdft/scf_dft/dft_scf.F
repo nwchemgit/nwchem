@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.17 1995-12-13 03:08:56 og845 Exp $
+C$Id: dft_scf.F,v 1.18 1995-12-18 04:29:16 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -235,7 +235,7 @@ c
          if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
      $        call util_file_prefix('aoints',filename)
          if (.not. int2e_file_open(filename, memsize, filesize,
-     $        tol2e*0.01d0))
+     $        tol2e*0.01d0,.false.))
      $        call errquit('get_fock_param: opening aoints?', 0)
       endif
       mulliken=.false.
@@ -409,7 +409,7 @@ C
 C       call to atomscf for initial density matrix
 C
         call ga_zero(g_dens(1))
-        call guess_dens(geom,AO_bas_han,g_dens,ipol)
+        call guess_dens(geom,AO_bas_han,g_dens)
         if(ipol.eq.2) then
           call ga_copy(g_dens(1),g_dens(2))
           if((lfocka).or.(lfockb)) then
