@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.11 2000-04-06 01:25:44 edo Exp $
+c$Id: grid_sphere.F,v 1.12 2000-04-07 01:54:17 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -8,7 +8,8 @@ c
 c
       integer nx,ny,nz            
       double precision ndx,ndy,ndz,dista
-      integer nxyz,nxyz2
+      integer nxyz
+      double precision nxyz2,onx,ony,onz
       integer grid_nxyz
       double precision ll
       external grid_nxyz
@@ -36,21 +37,28 @@ c
          endif
          ll=l_rect*2d0/3d0
       else
-         nxyz2=nxyz/2
-         if(nx.le.nxyz2) then
-            ndx=nxyz2-nx
+         if(nxyz.eq.1) then
+            nxyz2=0d0
          else
-            ndx=dble(nx-nxyz2)-1d0
+            nxyz2=nxyz*0.5d0
          endif
-         if(ny.le.nxyz2) then
-            ndy=nxyz2-ny
+         onx=nx
+         ony=ny
+         onz=nz
+         if(onx.le.nxyz2) then
+            ndx=nxyz2-onx
          else
-            ndy=dble(ny-nxyz2)-1d0
+            ndx=dble(onx-nxyz2)-1d0
          endif
-         if(nz.le.nxyz2) then
-            ndz=nxyz2-nz
+         if(ony.le.nxyz2) then
+            ndy=nxyz2-ony
          else
-            ndz=dble(nz-nxyz2)-1d0
+            ndy=dble(ony-nxyz2)-1d0
+         endif
+         if(onz.le.nxyz2) then
+            ndz=nxyz2-onz
+         else
+            ndz=dble(onz-nxyz2)-1d0
          endif
          ll=l_rect
       endif
@@ -93,7 +101,7 @@ c     inside part of side L/2
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=ncount
-!               write(0,'("A0",2I4)') ninside,fnxyz(ninside)
+c               write(0,'("A0",4I4)') ninside,fnxyz(ninside),nx,ny,nz
                      call grid_n2nxyz(nxyz,fnxyz(ninside),onx,ony,onz)
                      if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
                         write(0,'(A,4I4)') ' IN  nx ny nz ',nx,ny,nz,
@@ -117,11 +125,13 @@ c     inside part of side L/2
 c     do nothing --- see above
                endif
                ffnxyz=nxyz2n(nx,ny,nz,nxyz,shft)
+!               write(0,'("A0",4I4)') ninside,nx,ny,nz
                if(grid_insidesp(ffnxyz,l_rect,rad)) then
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=ffnxyz
 c     write(0,'("A1",2I4)') ninside,fnxyz(ninside)
+!               write(0,'("A1",4I4)') ninside,fnxyz(ninside)
                      nchk=fnxyz(ninside)
                      call grid_n2nxyz(nxyz,nchk,onx,ony,onz)
                      if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
@@ -171,9 +181,9 @@ c
       double precision rmax ! [out]
       double precision rmin ! [out]
 c
-      double precision onx,ony,onz,nxyz2
+      double precision onx,ony,onz
       double precision onxyz2
-      integer nx,ny,nz      
+      integer nx,ny,nz,nxyz2
 c
 #include "grid_cube.fh"      
 c
@@ -210,9 +220,34 @@ c
       else
          nxyz2=nxyz/2
          onxyz2=nxyz*0.5d0
+         if(mod(nxyz,2).eq.0) then
          if(nx.le.nxyz2) then
             rmax=rmax+((onxyz2-onx)+1d0)**2
             rmin=rmin+(onxyz2-onx)**2
+         elseif(nx.gt.nxyz2) then
+            rmax=rmax+(onx-onxyz2)**2
+            rmin=rmin+(onx-nxyz2-1d0)**2
+         endif
+         if(ny.le.nxyz2) then
+            rmax=rmax+((onxyz2-ony)+1d0)**2
+            rmin=rmin+(onxyz2-ony)**2
+         elseif(ny.gt.nxyz2) then
+            rmax=rmax+(ony-onxyz2)**2
+            rmin=rmin+(ony-nxyz2-1d0)**2
+         endif
+         if(nz.le.nxyz2) then
+            rmax=rmax+((onxyz2-onz)+1d0)**2
+            rmin=rmin+(onxyz2-onz)**2
+         elseif(nz.gt.nxyz2) then
+            rmax=rmax+(onz-onxyz2)**2
+            rmin=rmin+(onz-nxyz2-1d0)**2
+         endif
+      else
+         if(nx.le.nxyz2) then
+            rmax=rmax+((onxyz2-onx)+1d0)**2
+            rmin=rmin+(onxyz2-onx)**2
+         elseif(nx.eq.nint(onxyz2)) then
+            rmax=rmax+.25d0
          elseif(nx.gt.nxyz2) then
             rmax=rmax+(onx-onxyz2)**2
             rmin=rmin+(onx-onxyz2-1d0)**2
@@ -220,6 +255,8 @@ c
          if(ny.le.nxyz2) then
             rmax=rmax+((onxyz2-ony)+1d0)**2
             rmin=rmin+(onxyz2-ony)**2
+         elseif(ny.eq.nint(onxyz2)) then
+            rmax=rmax+.25d0
          elseif(ny.gt.nxyz2) then
             rmax=rmax+(ony-onxyz2)**2
             rmin=rmin+(ony-onxyz2-1d0)**2
@@ -227,21 +264,24 @@ c
          if(nz.le.nxyz2) then
             rmax=rmax+((onxyz2-onz)+1d0)**2
             rmin=rmin+(onxyz2-onz)**2
+         elseif(nz.eq.nint(onxyz2)) then
+            rmax=rmax+.25d0
          elseif(nz.gt.nxyz2) then
             rmax=rmax+(onz-onxyz2)**2
             rmin=rmin+(onz-onxyz2-1d0)**2
          endif
+      endif
       rmax=sqrt(rmax)*l
       rmin=sqrt(rmin)*l
       endif
       return
       end
       logical function grid_incube(x,y,z,nx,ny,nz,fnxyz,nxyz2,ll)
-      double precision x,y,z ! [in] point coors
+      double precision x,y,z ! [in] point coords
       integer nx,ny,nz       ! [in] cube definition
       double precision ll ! [in]
       integer fnxyz ! [in]
-      integer nxyz2 ! [in]
+      double precision nxyz2 ! [in]
 c
 c     returns true if xyz is inside cube defined by nx,ny,nz
 c
@@ -261,9 +301,9 @@ c
             endif
          endif
       else
-         if(x.le.(nx-nxyz2)*ll.and.x.gt.(nx-nxyz2-1)*ll) then
-            if(y.le.(ny-nxyz2)*ll.and.y.gt.(ny-nxyz2-1)*ll) then
-               if(z.le.(nz-nxyz2)*ll.and.z.gt.(nz-nxyz2-1)*ll) then
+         if(x.le.(nx-nxyz2)*ll.and.x.gt.(nx-nxyz2-1d0)*ll) then
+            if(y.le.(ny-nxyz2)*ll.and.y.gt.(ny-nxyz2-1d0)*ll) then
+               if(z.le.(nz-nxyz2)*ll.and.z.gt.(nz-nxyz2-1d0)*ll) then
                   grid_incube=.true.
                endif
             endif
@@ -296,6 +336,6 @@ c
       integer function grid_nxyz(rad,l_rect)
       implicit none
       double precision rad,l_rect
-      grid_nxyz=nint(rad/l_rect)*2d0
+      grid_nxyz=nint((rad+rad)/l_rect)
       return
       end

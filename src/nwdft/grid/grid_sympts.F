@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.4 2000-04-05 01:41:23 edo Exp $
+c$Id: grid_sympts.F,v 1.5 2000-04-07 01:54:17 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -24,10 +24,10 @@ c
       else
          l_symops=-999
       endif
-      if (.not.MA_push_Get(MT_Dbl,mxang*4,'gridscr',
+      if (.not.MA_alloc_Get(MT_Dbl,mxang*4,'gridscr',
      ,     l_gridscr,k_gridscr)) call errquit(
      '     '     grid_sympt: malloc get failed',2)
-      if (.not.MA_push_Get(MT_int,mxang,'iscr',
+      if (.not.MA_alloc_Get(MT_int,mxang,'iscr',
      ,     l_iscr,k_iscr)) call errquit(
      '     '     grid_sympt: malloc get failed',3)
       return
@@ -39,9 +39,9 @@ c
       integer l_gridscr,l_iscr ! [in]  grid handle
 c      
 c     
-      if (.not.MA_pop_stack(l_iscr)) call errquit(
+      if (.not.MA_free_heap(l_iscr)) call errquit(
      '     '     grid_sympt: free stack failed',0)
-      if (.not.MA_pop_stack(l_gridscr)) call errquit(
+      if (.not.MA_free_heap(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
       if(l_symops.ne.-999) then
       if (.not.MA_pop_stack(l_symops)) call errquit(
@@ -74,7 +74,8 @@ c
       integer fnxyz      ! [in] cube def
       integer nx,ny,nz      !  cube def
       double precision r ! [in]
-      integer nxyz,nxyz2
+      integer nxyz
+      double precision nxyz2
       logical grid_incube
       external grid_incube
       integer iang_done ! [in/out] angular quadra analyzed
@@ -91,7 +92,7 @@ c
 c
 c
       call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-      nxyz2=nxyz/2
+      nxyz2=nxyz*0.5d0
       ia_ictr = iatype(ictr)
       if(iang_done.ne.iang) then
          nq_left = 0
@@ -187,7 +188,8 @@ c
 cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
             wsum=wsum/dacos(-1d0)*.25d0
             if(abs(wsum-1d0).gt.1d-6) call errquit(
-     '           'grid_sympts: lost weights normaliz ',111)
+     '           'grid_sympts: lost weights normaliz ',
+     ,           log10((abs(wsum-1d0))))
          endif
          iang_done=iang
       endif

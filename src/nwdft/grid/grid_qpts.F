@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.14 2000-04-05 01:41:23 edo Exp $
+c$Id: grid_qpts.F,v 1.15 2000-04-07 01:54:17 edo Exp $
 c
       implicit none
 c      
@@ -19,7 +19,8 @@ c
       integer fnxyz      ! [in] cube def
       integer nx,ny,nz      !cube def
       double precision r ! [in]
-      integer nxyz,nxyz2
+      integer nxyz
+      double precision nxyz2
       logical grid_incube
       external grid_incube
 c
@@ -35,7 +36,7 @@ c
       nq = 0
 c
       call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-      nxyz2=nxyz/2
+      nxyz2=nxyz*0.5d0
       ia_ictr = iatype(ictr)
 c
 c     debug writes
