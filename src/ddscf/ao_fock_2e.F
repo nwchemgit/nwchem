@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.3 1995-11-02 21:27:39 gg502 Exp $
+c$Id: ao_fock_2e.F,v 1.4 1995-11-06 22:38:28 gg502 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -126,9 +126,9 @@ C
      $        dbl_mb(k_atmp), vg_dens, vg_fock )
 C
 C        Print the integral screening statistics for this Fock build
+C        Schwarz_print must be called by all nodes.
 C
-         if (ga_nodeid().eq.0 .and. util_print('screening statistics',
-     $      print_debug)) then
+         if (util_print('screening statistics', print_debug)) then
             if ( .NOT. bas_numcont(basis, nshb) ) Call ErrQuit(
      $         'ao_fock_2e: problem with call to bas_numcont', basis)
             call schwarz_print(natoms, nshb)
