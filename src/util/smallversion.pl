@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: smallversion.pl,v 1.1 1998-05-15 01:00:59 d3e129 Exp $
+# $Id: smallversion.pl,v 1.2 1998-05-15 01:01:47 d3e129 Exp $
 # 
 # smallversion.pl is a perl script that breaks up a large util_version.F file
 # into several subroutines for compilers that run out of internal memory
@@ -9,11 +9,12 @@
 #
 # The goal is to preserve the order of the write statements. 
 #
+# Ricky Kendall, May 1998
 # 
 @INC = ("/dfs/apps/perl/lib","/usr/lib/perl5", "/usr/local/lib/perl", "/usr/local/perl/lib");
 use File::Copy;
 
-$debug = 1;
+$debug = 0;
 
 if (!(-e 'util_version.F')) {die "util_version.F does not exist";}
 
