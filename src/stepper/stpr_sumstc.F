@@ -1,5 +1,5 @@
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
-c $Id: stpr_sumstc.F,v 1.2 1994-10-26 23:16:09 d3e129 Exp $
+c $Id: stpr_sumstc.F,v 1.3 1995-01-27 02:20:41 og845 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL CNVGRD
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -31,6 +31,8 @@ C
       DO 30 I = 1,NATOM
         WRITE(6,1002)I,(COORD(J,I),J=1,3)
    30 CONTINUE
+      CALL DISTAN(NATOM,COORD)
+      CALL ANGLE(NATOM,COORD)
 C
 C     Calculate the vector of center of mass and the inertia
 C     tensor for the new geometry.

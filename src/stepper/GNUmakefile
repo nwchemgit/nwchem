@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1995-01-24 19:29:06 pg511 Exp $
+# $Id: GNUmakefile,v 1.6 1995-01-27 02:20:40 og845 Exp $
        HEADERS = 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
                  stpr_cneed.o      stpr_cross.o      stpr_driver.o  \
@@ -12,7 +12,8 @@
                  stpr_setmass.o    stpr_sjacobi.o    stpr_stepcor.o \
                  stpr_stepper.o    stpr_sumstc.o     stpr_tprntd.o  \
                  stpr_uprcase.o    stpr_wlkchk.o     stpr_wrtsq.o   \
-                 stpr_walk.o       scf_optimize.o    dft_optimize.o
+                 stpr_walk.o  \
+                 stpr_walk_dft.o distang.o scf_optimize.o  dft_optimize.o   
        LIBRARY = libstepper.a
    LIB_TARGETS = 
 
