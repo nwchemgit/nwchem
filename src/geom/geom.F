@@ -716,6 +716,7 @@ c
       logical function geom_print(geom)
       implicit none
 #include "geomP.fh"
+#include "util.fh"
 c
 c     Basic printing of cartesian geometry ... needs support for
 c     user defined units, internal coords, different formats, ...
@@ -750,16 +751,21 @@ c
       write(6,41) erep(geom)
  41   format(/' Effective nuclear repulsion energy (au) ', f18.10/)
 c
-      write(6,91)
- 91   format('             Nuclear Dipole moment (au) ')
-      write(6,101)
- 101  format('             --------------------------')
-      write(6,7)
- 7    format('        X                 Y               Z'/
-     $     ' ---------------- ---------------- ----------------')
-      write(6,8) (ndipole(i,geom), i=1,3)
- 8    format(3(1x,f16.10))
-      write(6,*)
+c     Nuclear dipole moment is usually zero ... only print it if it
+c     is not.
+c
+      if (ddot(3,ndipole(1,geom),1,ndipole(1,geom),1) .gt. 1.0d-10) then
+         write(6,91)
+ 91      format('             Nuclear Dipole moment (au) ')
+         write(6,101)
+ 101     format('             --------------------------')
+         write(6,7)
+ 7       format('        X                 Y               Z'/
+     $        ' ---------------- ---------------- ----------------')
+         write(6,8) (ndipole(i,geom), i=1,3)
+ 8       format(3(1x,f16.10))
+         write(6,*)
+      endif
 c
 c
       if (operiodic(geom)) then
