@@ -1,13 +1,10 @@
 \label{sec:install}
 
 This chapter contains guidance on how to obtain a copy of NWChem and
-install it on your system.  If you are very lucky you will be working
-at EMSL, and will have the assistance of friendly colleagues who have
-done this before, will know how to fix the process when it breaks,
-and will know what has changed since the last time the documentation
-was updated.
-If you are not so lucky and are located off-site, you will at least have
-access to a sympathetic EMSL-based collaborator and help from NWChem 
+install it on your system.   The best source for installation instructions
+is the INSTALL file in the NWChem source distribution, so those
+instructions will not be repeated here.  If you have problems with the
+installation, you can request help from NWChem 
 support via e-mail at {\tt nwchem-support@emsl.pnl.gov}.
 
 The following subsections discuss some of the important considerations
@@ -16,33 +13,26 @@ variables, libraries, and makefiles needed to run the code.
 
 \section{How to Obtain NWChem}
 
-The NWChem source code tree current release is version 4.0.1.  All code versions, alpha and
-beta, are available only to formal EMSL collaborators\footnote{For information on
-how to become an EMSL collaborator, visit the EMSL Homepage at 
-\verb+http://www.emsl.pnl.gov:2080/+.} with specific
-needs for the software.  (This generally means an interest in developing
-parallel computational chemistry software within or around NWChem, and
-access to appropriate parallel computing resources.)
-
-The NWChem source code tree (including source code or binaries only, at the
-users discretion) can be downloaded from the NWChem homepage 
+The NWChem source code tree current release is version 4.0.1.  To obtain NWChem
+a User's Agreement must be properly filled out and sent to us.  The User's
+Agreement may be found on the NWChem webpages at
 
 \begin{verbatim}
-     http:\\www.emsl.pnl.gov:2080/docs/nwchem
+     http://www.emsl.pnl.gov:2080/docs/nwchem
 \end{verbatim}
 
-This can be done by clicking on the hot link "Download the NWChem Software" and following the
-instructions as they appear.  This will work, however, only if you have
-a signed user agreement
-with EMSL, and have been issued a user name and password.  If you have any problems
+by clicking on the link "Download" and following the
+instructions as they appear.  If you already have an older version of NWChem,
+new download informaiton may be obtained at the location on the web.
+If you have any problems
 using the WWW pages or forms, or getting access to the code, send e-mail to
 {\tt nwchem-support@emsl.pnl.gov}.
 
 \section{Supported Platforms}
 \label{sec:platforms}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% NOTE: this section is adapted from the current (as of 10/15/98) version of
-% the script INSTALL for NWChem, in the in the CVS repository.  If INSTALL
+% NOTE: this section is adapted from the current (as of 3/28/01) version of
+% the script INSTALL for NWChem, in the CVS repository.  If INSTALL
 % has been updated since, this section should be updated, too.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NWChem is readily portable to essentially any sequential or parallel computer.  
@@ -51,32 +41,34 @@ on the following platforms.
 
 \begin{verbatim}
 
-    Symbolic
-      Name     Platform               OS/Version    Precision
-    ----------------------------------------------------------
-    SUN         Sun                    SunOS        double
-    SOLARIS     Sun                    Solaris 2.X  double
-    IBM         IBM RS/6000            AIX 3.x 4.s  double
-    DECOSF      DEC AXP                OSF/1        double
-    SGI         SGI 32 bit os          IRIX 5.x 6.x double
-    SGITFP      SGI 64 bit os          IRIX         double
-    SGI_N32     SGI 64 bit os          IRIX         double 
-                using 32 ints
-    CRAY-T3D    Cray T3D               UNICOS       single
-    CRAY-T3E    Cray T3E               UNICOS       single
-    PARAGON     Intel Paragon          OSF/1        double
-    DELTA       Intel Delta            NX           double
-    SP1         IBM SP1,SP2            AIX          double
-    ----------------------------------------------------------
+    NWCHEM_TARGET  Platform       Checked    OS/Version    Precision
+    -----------------------------------------------------------------
+    SOLARIS        Sun             ***      Solaris 2.X    double
+    IBM            IBM RS/6000     ***      AIX 4.X        double
+    DECOSF         DEC AXP         ***      Tru64 4.0-5.0  double
+    SGI_N32        SGI 64 bit os   ***      IRIX 6.5       double
+                   using 32 ints
+    SGITFP         SGI 64 bit os   ***      IRIX 6.5       double
+    CRAY-T3D       Cray T3D                 UNICOS         single
+    CRAY-T3E       Cray T3E        ***      UNICOS         single
+    LAPI           IBM SP          ***      AIX/LAPI       double
+    LINUX          Intel x86       ***      RedHat 5.2-6.2 double
+                   PowerPC         **       RedHat 6.0     double
+    LINUX64        Alpha           **       RedHat 6.2     double
+    HPUX           HP              **       HPUX 11.0      double
+    WIN32          Intel x86        *       Windows98/NT   double
+    -----------------------------------------------------------------
+   *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
+          If you don't have it get it from IBM. 
 
 \end{verbatim}
 The environment variable {\tt NWCHEM\_TARGET} must
 be set to the symbolic name
 that matches your target platform.  For example, if you are installing
-the code on an IBM SP1 or SP2, the command is
+the code on an IBM SP, the command is
 
 \begin{verbatim}
-       % setenv NWCHEM_TARGET SP1
+       % setenv NWCHEM_TARGET LAPI
 \end{verbatim}
 
 Refer to Section \ref{sec:envar} for additional discussion of environmental variables
@@ -122,13 +114,88 @@ quietly and pretends that everything went well.
 \end{itemize}
 
 
-NWChem can be compiled to use MPI instead of TCGMSG for message
-passing on many systems. Although this is still somewhat
-experimental and not particulary well tested, it can be done.
-Contact \verb+nwchem-support@emsl.pnl.gov+ for assistance with this
-procedure.  
-
 \section{Environmental Variables}
 \label{sec:envar}
 
-This section is a place-holder for the list of environmental variables.
+There are mandatory environmental variables, as well as optional ones,
+ that need to be set for the compilation of NWChem to work correctly.  
+The mandatory one are listed first:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{lcc}
+\verb+NWCHEM_TOP+                & the top directory of the NWChem tree, e.g.\\
+   \verb+ setenv NWCHEM_TOP /u/adrian/nwchem+\\
+\\
+\verb+NWCHEM_TARGET+             & the symbolic name that matches your target
+\\
+                              & platform, e.g.\\
+   \verb+ setenv NWCHEM_TARGET LAPI+\\
+\\
+\verb+NWCHEM_MODUELS+            & the modules you want included in the binary
+\\
+                              & that you build, e.g.\\
+   \verb+ setenv NWCHEM_MODULES "all gapss"+
+\end{tabular}
+\end{center}
+\end{table}
+
+The following environment variables which tell NWChem more about your
+system are optional.  If they are not set, NWChem will try to pick
+reasonable defaults:
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{lcc}
+   \verb+NWCHEM_TARGET_CPU+         & more information about a particular\\
+                              & architechture\\
+   \verb+ setenv NWCHEM_TARGET_CPU P2SC+\\
+\\
+   \verb+SCRATCH_DEF_DIR+           & default scratch directory for\\
+                              & temporary files, e.g.\\
+   \verb+ setenv SCRATCH_DEF_DIR "\'/scratch\'"+\\
+ \\
+   \verb+PERMANENT_DEF_DIR+         & default permanent directory for\\
+                              & files to keep, e.g.\\
+   \verb+ setenv PERMANENT_DEF_DIR "\'/home/user\'"+\\
+ \\
+   \verb+NWCHEM_BASIS_LIBRARY_PATH+ & location of the basis set library \\
+                              & (the builder is responsible to make \\
+                              & sure that the library gets to the \\
+                              & place), e.g.\\
+   \verb+ setenv NWCHEM_BASIS_LIBRARY_PATH "/bin/library"+\\
+ \\
+   \verb+LARGE_FILES+               & needed to circumvent the 2 GB limit\\
+                              & on IBM (note that your system \\
+                              & administrator must also enable \\
+                              & large files in the file system), e.g.\\
+   \verb+ setenv LARGE_FILES TRUE+\\
+ \\
+   \verb+JOBTIME_PATH+              & directory where jobtime and jobtime.pl\\
+                              & will be placed by the builder on \\
+                              & IBM SP, e.g.\\
+   \verb+ setenv JOBTIME_PATH /u/nwchem/bin+\\
+\\
+   \verb+LIB_DEFINES+               & additional defines for the C \\
+                              & preprocessor (for both Fortran \\
+                              & and C), e.g.\\
+   \verb+ setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216+\\
+       This sets the dynamic memory available for \\
+       NWChem to run, where the units are in doubles.\\
+       Check out the Section for MEMORY SCRIPT below.\\
+ \\
+   \verb+TCGRSH+                    & alternate path for rsh, it is intended \\
+                              & to allow usage of ssh in TCGMSG \\
+                              & (default communication protocol \\
+                              & for workstation builds).\\
+   \verb+ setenv TCGRSH /usr/local/bin/ssh+\\
+ \\
+    IMPORTANT: ssh should not ask for a password.  \\
+      In order to do that:\\
+      1) On the master node, run "ssh-keygen"\\
+      2) For each slave node, \verb+slave_node+,\\
+         \verb+ scp ~/.ssh/identity.pub \+ \\
+           \verb+  username@slave_node:.ssh/authorized_keys+
+\end{tabular}
+\end{center}
+\end{table}
