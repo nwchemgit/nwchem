@@ -1,5 +1,5 @@
 *
-* $Id: datasize.h,v 1.5 1997-11-04 10:07:35 d3e129 Exp $
+* $Id: datasize.h,v 1.6 2000-07-10 16:59:15 d3g270 Exp $
 *
 *======================================================================
 *
@@ -37,7 +37,7 @@
 
       INTEGER             NBYTEI, NBYTED
 
-#if defined(KSR) || defined(SGI) || defined(CRAY_T3E)
+#if defined(KSR) || defined(SGI) || defined(CRAY_T3E) || defined(DECOSF)
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 8 )
 #else
