@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.11 2002-03-06 20:57:27 windus Exp $
+C $Id: hess_tidy.F,v 1.12 2003-04-25 00:41:44 edo Exp $
 C
       subroutine hess_tidy()
 c
@@ -15,8 +15,6 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "bas.fh"
-c
-      integer j
 c
 c  get rid of geometry and basis set handles and associated memory
 c
@@ -44,6 +42,7 @@ c
      *   ('hess_tidy: unable to delete the sx DRA',555)
       if (dra_terminate().ne.0) call errquit
      *   ('hess_tidy: unable to terminate DRA interface',555)
+c
 c
       return
       end

@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.21 2003-02-20 02:06:04 bert Exp $
+C $Id: hess_anal.F,v 1.22 2003-04-25 00:41:44 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -138,7 +138,10 @@ c
         if (ohessprof) call pstat_off(ps_nucdd)
         call hess_restart(rtdb,1)
         
-        if (oprintsome) write(LuOut,11) util_wallsec()-t0
+        if (oprintsome) then
+           write(LuOut,11) util_wallsec()-t0
+           call util_flush(luout)
+        endif
  11     format(/' HESSIAN: the one electron ',
      $    'contributions are done in ',f9.1,'s'/)
       else 

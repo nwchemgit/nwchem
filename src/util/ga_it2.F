@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.6 2002-12-31 00:03:07 windus Exp $
+c $Id: ga_it2.F,v 1.7 2003-04-25 00:41:42 edo Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -231,6 +231,7 @@ c
          call ga_maxelt(g_r, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,2) iter, nsub+nvec, rmax, util_wallsec()
+            call util_flush(6)
  2          format(/
      $           '   iter   nsub   residual    time',/,
      $           '   ----  ------  --------  ---------',/,
