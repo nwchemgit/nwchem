@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.26 1999-12-14 17:31:10 d3j191 Exp $
+c $Id: prp_main.F,v 1.27 2000-01-21 17:31:56 d3j191 Exp $
 c
       implicit none
 c
@@ -456,7 +456,7 @@ c
       dfr(ida)=dfree
       nda=ida
 c
-      call error(.false.,.false.,1,dfr,ida,
+      call error(.false.,.false.,1000,dfr,ida,
      + aver,drift,stderr,corerr,ratio)
 c
       return

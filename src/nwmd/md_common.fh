@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.23 2000-01-12 06:07:38 d3j191 Exp $
+c $Id: md_common.fh,v 1.24 2000-01-21 17:31:56 d3j191 Exp $
 c
 c     parameters
 c
@@ -93,7 +93,7 @@ c
 c     md_nam : filenames
 c     -------------------
 c
-      character*80 filnam,fdarg,fdlog,fsum,server
+      character*80 filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
      + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,fildrs,
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
@@ -105,7 +105,7 @@ c
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
-     + fdarg,fdlog,fsum,server
+     + fdarg,fdlog,fsum,server,projct
 c
       character*80 tittop(3),titrst(3),titinp(3)
       character*10 dattop,datrst,datinp,timtop,timrst,timinp,today,now

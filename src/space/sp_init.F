@@ -4,10 +4,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg)
+     + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.52 2000-01-21 07:48:05 d3j191 Exp $
+c $Id: sp_init.F,v 1.53 2000-01-21 17:32:14 d3j191 Exp $
 c
       implicit none
 c
@@ -27,11 +27,14 @@ c
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi
       logical lpol,lfre,ignore,lpbc,lqd
+      character*80 prjct
 c
       integer i,j
 c
       me=ga_nodeid()
       np=ga_nnodes()
+c
+      project=prjct
 c
       idebug=idbg
       lfndbg=ldbg
@@ -224,10 +227,16 @@ c
      + status='old',form='formatted',err=9999)
       rewind(lfnrst)
 c
-      do 2 i=1,4
+      do 2 i=1,3
       read(lfnrst,1001) cdum
  1001 format(a1)
     2 continue
+      read(lfnrst,1006) nhist
+ 1006 format(32x,i5)
+      do 6 i=1,nhist
+      read(lfnrst,1007) hist(i)
+ 1007 format(a80)
+    6 continue
       read(lfnrst,1002) npbtyp,nbxtyp
  1002 format(2i5)
       read(lfnrst,1004) ((vlat(i,j),j=1,3),i=1,3)
@@ -473,7 +482,6 @@ c
 c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
       real*8 boxi(3)
-      character*10 hdate,htime
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       real*8 arg_nint
       external arg_nint
@@ -548,24 +556,24 @@ c
     1 continue
       read(lfnrst,1016) nhist
  1016 format(32x,i5)
+      print*,'nhist=',nhist
       if(nhist.gt.0) then
       do 21 i=1,nhist
-      read(lfnrst,1017) hist(1,i),hist(2,i),hist(3,i)
- 1017 format(3a10)
+      read(lfnrst,1017) hist(i)
+ 1017 format(a80)
+      print*,hist(i)
    21 continue
       endif
-      if(nhist.lt.20) then
+      if(nhist.lt.mxhist) then
       nhist=nhist+1
       else
       do 22 i=1,nhist-1
-      hist(1,i)=hist(1,i+1)
-      hist(2,i)=hist(2,i+1)
-      hist(3,i)=hist(3,i+1)
+      hist(i)=hist(i+1)
    22 continue
       endif
-      hist(1,nhist)=hdate
-      hist(2,nhist)=htime
-      hist(3,nhist)='          '
+      do 23 i=1,80
+      hist(nhist)(i:i)=' '
+   23 continue
       read(lfnrst,1002,end=9997,err=9998) npbtyp,nbxtyp
  1002 format(i5,i5)
       read(lfnrst,1003,end=9997,err=9998) ((vlat(i,j),j=1,3),i=1,3)
@@ -1628,6 +1636,7 @@ c
       real*8 pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3)
+      character*10 hdate,htime
 c
       integer lenscr
 c
@@ -1700,9 +1709,12 @@ c
  1000 format('Restart file',/,' ',/,' ')
       write(lfnrst,1001) 3.3,rdate,rtime,nhist
  1001 format(f12.6,2a10,i5)
+      hist(nhist)(1:10)=rdate
+      hist(nhist)(11:20)=rtime
+      hist(nhist)(21:80)=project(1:60)
       do 10 i=1,nhist
-      write(lfnrst,1009) hist(1,i),hist(2,i),hist(3,i)
- 1009 format(3a10)
+      write(lfnrst,1009) hist(i)
+ 1009 format(a80)
    10 continue
       write(lfnrst,1002) npbtyp,nbxtyp,((vlat(i,j),j=1,3),i=1,3)
  1002 format(2i5,/,(3f12.6))

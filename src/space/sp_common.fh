@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.17 2000-01-21 07:48:05 d3j191 Exp $
+c $Id: sp_common.fh,v 1.18 2000-01-21 17:32:14 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -96,5 +96,7 @@ c
      + misl,nbits,ipack,miwl,nbitw,ipackw,nhist,
      + lpbc0,lpbc9,ltwin,lpola,lfree,llong,lnode0,lqmd,lpipo
 c
-      character*10 hist(3,20)
-      common/sd_chr/hist
+      integer mxhist
+      parameter(mxhist=100)
+      character*80 project,hist(mxhist)
+      common/sd_chr/project,hist

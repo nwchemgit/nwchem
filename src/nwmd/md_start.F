@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.44 2000-01-06 21:20:14 d3j191 Exp $
+c $Id: md_start.F,v 1.45 2000-01-21 17:31:56 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide,lfndbg,idebug)
+     + iguide,lfndbg,idebug,projct)
       endif
 c
 c     start the analysis API
@@ -230,6 +230,7 @@ c
      + call errquit('md_rdname: error rtdb_cget project',0)
       endif
       endif
+      projct=filnam
 c
       ibl=index(filnam,' ')-1
       if(ibl.lt.1) then
