@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.25 1999-12-30 22:21:03 mg201 Exp $
+c $Id: intd_init.F,v 1.26 2000-01-04 00:52:22 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -44,6 +44,15 @@ c::local
       integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
 c
+c   Dyall-modified Dirac equation
+c
+      if (.not. rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir))
+     &    dyall_mod_dir = .false.
+      if (.not. rtdb_get(rtdb,'atomic_nesc',mt_log,1,atomic_nesc))
+     &    atomic_nesc = .false.
+      if (.not. rtdb_get(rtdb,'nesc_1e_approx',mt_log,1,nesc_1e_approx))
+     &    nesc_1e_approx = .false.
+c
 c     Setup array with basis sets from bases
 c
       if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
@@ -86,13 +95,6 @@ c
          call errquit('int_init: could not find ao basis',0)
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
-c
-c        Set possibily an alternative speed of light, otherwise take
-c        constant from Ken Dyall's list of constants.
-c
-         call rel_init_con
-         if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
-     $      dk_clight)) dk_clight = cau 
 c
 c        Add fitting basis set to list of loaded basis sets for int_init
 c
@@ -285,6 +287,7 @@ c
      &         call errquit('intd_init: angm error',angm)
         ang2use = max(ang2use,angm)
 00300 continue
+      if (dyall_mod_dir) ang2use = ang2use+1
 *
 * test for higher than h functions  0123456
       if (ang2use.ge.6) call errquit
