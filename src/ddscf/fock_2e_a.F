@@ -5,7 +5,7 @@ c
 #ifdef GENERIC_FOCK
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.3 1995-03-14 19:32:43 rg240 Exp $
+c$Id: fock_2e_a.F,v 1.4 1995-03-15 18:29:47 rg240 Exp $
 c
 #include "cfock.fh"
       data lchunksize/-1/
@@ -26,7 +26,7 @@ c see rhf_get_param
      $                      tmp, vg_dens, vg_fock )
       implicit none
 c
-c$Id: fock_2e_a.F,v 1.3 1995-03-14 19:32:43 rg240 Exp $
+c$Id: fock_2e_a.F,v 1.4 1995-03-15 18:29:47 rg240 Exp $
 c
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -66,6 +66,7 @@ c
       integer lat_list(1000), nkl                     ! list of lat interacting with kat
       double precision den_tol                        ! Density screen tolerance ( tol2e *  factor )
       double precision q4_atom                        ! Symmetry scaling factor
+      double precision dtol2e
       integer ntask
       logical otest, otestij
 c
@@ -228,7 +229,8 @@ c
 c
 c Construct these Fock atom-blocks
 c
-                    call fock_2e_b( basis, nfock, tol2e, q4_atom,
+                    dtol2e = den_tol/denmax
+                    call fock_2e_b( basis, nfock, dtol2e, q4_atom,
      $                              iat, jat, kat, lat, 
      $                              idim, jdim, kdim, ldim,
      $                              dij, dik, dli, djk, dlj, dlk,
