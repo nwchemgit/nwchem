@@ -148,7 +148,7 @@ configurations into all orbitals may be applied, enabling, for
 instance, the simple creation of single or single+double excitation 
 spaces from an MCSCF reference.
 
-\subsubsection{Specifying reference occupation}
+\subsubsection{Specifying the reference occupation}
 
 A single orbital configuration or occupation is specified by
 \begin{verbatim}
@@ -247,7 +247,7 @@ configurations is explicitly generated, as is the CI Hamiltonian
 matrix, you will run out of disk space if you attempt to use more than
 a few tens of thousands of configurations.
 
-\subsubsection{Number of roots}
+\subsection{Number of roots}
 
 By default, only one root is generated in the CI diagonalization or
 perturbation selection.  The following requests that 2 roots be
@@ -261,7 +261,7 @@ approximate diagonalization with several more roots than required,
 and then resetting this parameter once you are satisfied you have the
 desired states.
 
-\subsubsection{Accuracy of diagonalization}
+\subsection{Accuracy of diagonalization}
 
 By default, the CI wavefunctions are converged to a residual norm of
 $10^{-6}$ which provides similiar accuracy in the perturbation
@@ -273,7 +273,7 @@ eigenvalues.  This may be adjusted with
 the example setting much lower precision, appropriate for the
 approximate diagonalization discussed in the preceeding section.
 
-\subsubsection{Selection thresholds}
+\subsection{Selection thresholds}
 
 When running in the selected-CI mode the program will loop
 through a list of selection thresholds ($T$), performing the CI
@@ -289,7 +289,7 @@ specified as follows
 There is no default for this parameter.
 
 
-\subsubsection{Mode}
+\subsection{Mode}
 
 By default the program runs in \verb="ci+davids"= mode and just
 determines the CI eigenvectors/values in the current configuration
