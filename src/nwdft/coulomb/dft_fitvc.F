@@ -1,6 +1,6 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     iga_vc, Ecoul2, nbf_cd, iga_2ceri,IOLGC,itol2e)
-C$Id: dft_fitvc.F,v 1.2 1995-04-27 03:16:02 og845 Exp $
+C$Id: dft_fitvc.F,v 1.3 1995-06-19 18:24:15 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       
@@ -253,8 +253,8 @@ c
 c      
 #if defined(DFT_TIMER)
 c      
-      call ga_igop(11021,ischw1,1,'+')
-      call ga_igop(11031,ischw2,1,'+')
+      call ga_igop(Msg_schw2,ischw1,1,'+')
+      call ga_igop(Msg_schw2,ischw2,1,'+')
       nsh_blocks = nshells_cd*((nshells_ao*(nshells_ao+1))/2)
       schw1 = (dble(nsh_blocks - ischw1)/dble(nsh_blocks))*100
       schw2 = (dble(nsh_blocks - ischw2)/dble(nsh_blocks))*100

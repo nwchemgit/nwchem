@@ -11,6 +11,7 @@
 #include <bas.fh>
 #include <global.fh>
 #include <tcgmsg.fh>
+#include <msgids.fh>
 c****
 c**** handles
 c****
@@ -54,7 +55,7 @@ C
       rewind 79
       endif
 
-      call ga_brdcst(24100,CD_coef,mdtob(nbf_cd),0)
+      call ga_brdcst(Msg_dftg_cdf,CD_coef,mdtob(nbf_cd),0)
 
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
