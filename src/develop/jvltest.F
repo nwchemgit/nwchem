@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.6 1998-12-14 20:21:22 jhvan Exp $
+*     $Id: jvltest.F,v 1.7 1998-12-14 23:47:22 jhvan Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -350,7 +350,7 @@ c
       inquire(file='EVALS',exist=oexist)
       if (.not.oexist) call errquit(' no EVAL ',0)
       open(9,file='EVALS',form='formatted')
-      read(9,'(i5)') nbin
+      read(9,*) nbin
       if (nbin.ne.nbasis) call errquit('nbasis wrong',1)
       do i=1,nbasis
          read(9,'(5x,f20.10)') orb(i)
@@ -428,7 +428,7 @@ c
          return
       end if
       open(9,file='T1',form='formatted')
-      read(9,'(i5,i3)') ocin,vin
+      read(9,*) ocin,vin
       if (ocin.ne.occ.or.vin.ne.virt) call errquit(' occ,virt wrong',1)
 c
       call dfill(occ*virt,0.0d0,t1,1)
@@ -456,7 +456,7 @@ c
       inquire(file='ASOINTS',exist=oexist)
       if (.not.oexist) call errquit(' no INTS ',0)
       open(9,file='ASOINTS',form='formatted')
-      read(9,'(i5)') in
+      read(9,*) in
       if (in.ne.nbasis) call errquit(' nbasis on INTS wrong',0)
 c
       call dfill(nbasis**4,0.0d0,rint,1)
