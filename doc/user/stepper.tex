@@ -1,98 +1,201 @@
 \label{sec:stepper}
 
+The STEPPER module performs an energy minimization function on the molecule
+defined by input using the \verb+GEOMETRY+ directive (see Section 
+\ref{sec:geom}).  Optional input for this module is specified within
+the compound directive,
+
 \begin{verbatim}
   STEPPER
     ...
   END
 \end{verbatim}
-  No input is required for STEPPER.  If no input is present the
-default actions are to minimize the energy as a function of the
-geometry with a maximum of 20 stepper iterations.  The STEPPER input
-must follow the geometry specification (and later the symmetry
-specification) in the input deck because it requires the number of
-atoms that are used in the geometry optimization.  Currently only
-Cartesian coordinates are used.  STEPPER removes translational and
+
+Input specified for the STEPPER module must appear in the input file 
+{\em after} the \verb+GEOMETRY+ directive, since it must know the
+number of atoms that are to be used in the geometry optimization.
+In the current version of NWChem, STEPPER can be used  only with geometries
+that are defined in 
+Cartesian coordinates.  STEPPER removes translational and
 rotational components before determining the step direction (5
 components for linear systems and 6 for others).  The initial guess
 nuclear Hessian is the identity matrix and there is an ASCII interface
-file to input an Hessian from another code.  The automatic generation
-of finite difference Hessians will be available soon.  During the
-optimization if the step taken is too large e.g., the step causes the
-energy to go up, enough information is stored to allow the optimizer
-to ``backstep'' and correct the step based on information prior to the
-faulty step.
+file to input a Hessian from another code.  The automatic generation
+of finite difference Hessians will be available soon.
 
- The following optional sub-directives control the optimization
-performed.
+Execution of the STEPPER module calculation is invoked immediately after the 
+\verb+STEPPER+ directive has been processed.  This is a significantly
+different from the way the other modules are executed.  Modules such as
+the SCF, DFT, and RI\_MP2 are invoked with a \verb+TASK+ directive (see
+Section \ref{sec:task}).
 
-\subsection{MIN}
+The default in STEPPER is to minimize the energy as a function of the 
+geometry with a maximum of 20 stepper iterations.  When this is the
+desired calculation, no input is required for the STEPPER module, except
+the above directive to invoke it.  However, the user also has the option
+of defining different tasks for the STEPPER module, and can vary the
+number of iterations and the convergence criteria from the default values.  
+The input for these options
+is described in the following subsections.
+
+%  No input is required for STEPPER.  If no input is present the
+% default actions are to minimize the energy as a function of the
+% geometry with a maximum of 20 stepper iterations.  The STEPPER input
+% must follow the geometry specification (and later the symmetry
+% specification) in the input deck because it requires the number of
+% atoms that are used in the geometry optimization.  Currently only
+% Cartesian coordinates are used.  STEPPER removes translational and
+% rotational components before determining the step direction (5
+% components for linear systems and 6 for others).  The initial guess
+% nuclear Hessian is the identity matrix and there is an ASCII interface
+% file to input a Hessian from another code.  The automatic generation
+% of finite difference Hessians will be available soon.  During the
+%  optimization if the step taken is too large e.g., the step causes the
+% energy to go up, enough information is stored to allow the optimizer
+% to ``backstep'' and correct the step based on information prior to the
+% faulty step.
+
+
+% \subsection{MIN}
+
+% \begin{verbatim}
+%   MIN
+% \end{verbatim}
+
+% \verb+MIN+ instructs STEPPER to minimize the energy as a function of the
+% geometry of the system. This is the default action for STEPPER.
+
+
+\subsection{Calculations Performed by the STEPPER Module}
+
+The STEPPER module can be used to perform one of two(?) different calculations
+for a given system.  The default is for STEPPER to minimize the
+energy of the geometry of the system.  STEPPER can also be used to
+find the transition state by following the lowest eigenvector of the nuclear
+Hessian.  The input to define the action of STEPPER is as follows,
 
 \begin{verbatim}
-  MIN
+   <string action default min>
 \end{verbatim}
 
-\verb+MIN+ instructs STEPPER to minimize the energy as a function of the
-geometry of the system. This is the default action for STEPPER.
+The value \verb+min+ for the string \verb+action+ specifies the default
+energy minimization.  Finding the lowest transition state is specified
+by entering the value \verb+ts+ for the string \verb+action+.
 
-\subsection{MAXITER}
+\Large
+**NOTE: I just made the above input line up.  If STEPPER doesn't work this
+way, it really should be fixed.  But this is consistent with the input
+conventions described for NWChem.***
+\normalsize
 
-\begin{verbatim}
-  MAXITER <integer maxiter default 20>
-\end{verbatim}
-
-\verb+MAXITER+ is the maximum number of geometry optimization steps.  The
-geometry optimization will restart automatically.
-
-\subsection{TS}
-
-\begin{verbatim}
-  TS
-\end{verbatim}
-
-\verb+TS+ instructs stepper to find the transition state by following the
-lowest eigenvalue of the nuclear Hessian.
-
-\subsection{TRACK}
+When the action of STEPPER is to find the transition state, the user
+can also have the code track the eigenvector corresponding to a specific
+node during a transition state walk.  This is done by specifying the
+keyword \verb+TRACK+, using the following input line,
 
 \begin{verbatim}
   TRACK [nmode <integer nmode default 1>]
 \end{verbatim}
 
-\verb+TRACK+ allows stepper to track the eigenvector corresponding to
-\verb+nmode+ during a transition state walk.  This input is invalid
-for a minimization walk.  The step is constructed to go up in energy
+The keyword \verb+TRACK+ tells STEPPER to track the eigenvector 
+corresponding to the integer entered for \verb+nmode+ during a 
+transition state walk.  (Note: this input is invalid
+for a minimization walk.)  The step is constructed to go up in energy
 along the \verb+nmode+ eigenvector and down in all other degrees of
-freedom.  
+freedom.
 
-\subsection{TRUST}
+\subsection{Control of the STEPPER Calculation}
+
+% \subsection{MAXITER}
+
+In most applications, 20 stepper iterations will be sufficient to obtain
+the energy minimization.  If a step taken during the
+optimization is too large (e.g., the step causes the energy to go up), 
+the optimizer will automatically ``backstep'' and correct the step 
+based on information prior to the faulty step.  However, the user has 
+the option of specifying 
+the maximum number of iterations allowed, using the input line,
+
+\begin{verbatim}
+  MAXITER <integer maxiter default 20>
+\end{verbatim}
+
+The value specified for the integer \verb+maxiter+ defines the maximum 
+number of geometry optimization steps.  The
+geometry optimization will restart automatically.
+
+%  \subsection{TS}
+
+% \begin{verbatim}
+%   TS
+% \end{verbatim}
+
+% \verb+TS+ instructs stepper to find the transition state by following the
+% lowest eigenvalue of the nuclear Hessian.
+
+% \subsection{TRACK}
+
+% \begin{verbatim}
+%   TRACK [nmode <integer nmode default 1>]
+% \end{verbatim}
+
+% \verb+TRACK+ allows stepper to track the eigenvector corresponding to
+% \verb+nmode+ during a transition state walk.  This input is invalid
+% for a minimization walk.  The step is constructed to go up in energy
+% along the \verb+nmode+ eigenvector and down in all other degrees of
+% freedom.  
+
+% \subsection{TRUST}
+
+The size of steps that can be taken in STEPPER is governed by the degree
+to which the calculated values of the eigenvectors can be considered 
+reasonably good.  This is the 'trust radius', and has a default value of
+0.1, which means ****what?***.  The user has the option of overriding this
+default using the keyword \verb+TRUST+, with the following input line,
 
 \begin{verbatim}
   TRUST <real radius default 0.1>
 \end{verbatim}
 
-  This directive overrides the default trust-radius of 0.1.  A larger
-value enables larger steps to be taken. Experience shows that for
-larger systems 20+ atoms it should be set to 0.5 or greater.
+%  This directive overrides the default trust-radius of 0.1.  A larger
 
-\subsection{CONVGG}
+The larger the value specified for the variable \verb+radius+, the larger 
+the steps that can be taken by STEPPER. Experience has shown that for
+larger systems (i.e., those with 20 or more atoms), a value of 0.5 or
+greater should be entered for \verb+radius+.
+
+\subsection{Convergence Criteria for the STEPPER Calculations}
+
+Two convergence criteria can be specified explicitly for the 
+STEPPER calculations.  The keyword \verb+CONVGG+ allows the user to
+specify the the convergence tolerence for the gradient norm for
+all degrees of freedom.  The input line is of the following form,
+
+% \subsection{CONVGG}
 \begin{verbatim}
- CONVGG <real convgg default 1.0d-04>
+   CONVGG <real convgg default 1.0d-04>
 \end{verbatim}
 
-\verb+CONVGG+ sets the convergence tolerence for the gradient norm for
-all degrees of freedom.  This should be approximately the square root
-of the energy convergence tolerance.  
+The entry for the real variable \verb+convgg+ should be approximately 
+equal to the square root of the energy convergence tolerance.
 
-\subsection{CONVGE}
+The energy convergence tolerance is the convergence criterion for the 
+energy difference in the geometry optimization in STEPPER.  It can be
+specified by input using a line of the following form,
+
+% \subsection{CONVGE}
 \begin{verbatim}
- CONVGE <real convge default 1.0d-08>
+   CONVGE <real convge default 1.0d-08>
 \end{verbatim}
-
-\verb+CONVGE+ sets the convergence tolerence for the energy difference
-in the geometry optimization.  
 
 
 \subsection{Initial Guess for Nuclear Hessian}
 
 {\bf BROKEN BUT EASILY FIXED?}
+
+\Large
+**will it be fixed for the release?  If not, this subsection shuold
+be deleted.  What is this, anyway?  Another 'action' STEPPER can do?
+Or an option for any calculation?
+\normalsize
 
