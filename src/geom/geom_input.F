@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.25 1996-07-14 18:13:39 gutowski Exp $
+C     $Id: geom_input.F,v 1.26 1996-07-25 18:23:39 pg481 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -152,6 +152,8 @@ c
 c     
             is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
      $           element, atn)
+            if ((.not. is_atom) .and. symbol.ne.'bq') 
+     $        call errquit('geom_input:center is neither atom nor bq',0)
 c
 c.. set default mass
 c
