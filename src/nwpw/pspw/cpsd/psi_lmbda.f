@@ -4,7 +4,7 @@
      >                     lmbda,tmp,ierr)
 
 *
-* $Id: psi_lmbda.f,v 1.2 2002-01-11 17:55:32 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.3 2003-06-30 15:52:12 bylaska Exp $
 *
       implicit none
       integer ispin,ne(2),nemax,npack1
@@ -80,19 +80,36 @@ c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
 c     >                          psi1(1,n1(ms)),
 c     >                          psi1(1,n1(ms)),
 c     >                          tmp(s11))
-        call Grsm_ggm_dot2(npack1,n,ne(ms),
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi2(1,n1(ms)),
+c    >                          psi2(1,n1(ms)),
+c    >                          tmp(s22))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi2(1,n1(ms)),
+c    >                          psi1(1,n1(ms)),
+c    >                          tmp(s21))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi1(1,n1(ms)),
+c    >                          psi2(1,n1(ms)),
+c    >                          tmp(s12))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi1(1,n1(ms)),
+c    >                          psi1(1,n1(ms)),
+c    >                          tmp(s11))
+
+        call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi2(1,n1(ms)),
      >                          psi2(1,n1(ms)),
      >                          tmp(s22))
-        call Grsm_ggm_dot2(npack1,n,ne(ms),
+        call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi2(1,n1(ms)),
      >                          psi1(1,n1(ms)),
      >                          tmp(s21))
-        call Grsm_ggm_dot2(npack1,n,ne(ms),
+        call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi2(1,n1(ms)),
      >                          tmp(s12))
-        call Grsm_ggm_dot2(npack1,n,ne(ms),
+        call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi1(1,n1(ms)),
      >                          tmp(s11))
@@ -156,23 +173,29 @@ C       return
 
 *:::::::::::::::::  correction due to the constraint  :::::::::::::::::
       do ms=1,ispin
+       call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+     >              dte,
+     >              psi1(1,n1(ms)),2*npack1,
+     >              lmbda(sl(ms)),n,
+     >              (1.0d0),
+     >              psi2(1,n1(ms)),2*npack1)
+c        do ii=n1(ms),n2(ms)
+c           i=ii-n1(ms)+1
+c
+c           do jj=n1(ms),n2(ms)
+c              j=jj-n1(ms)+1
+c
+c              index = (i-1) + (j-1)*n
+c              alpha = dte*lmbda(sl(ms) + index)
+c
+cc             do k=1,nfft3d
+cc                psi2(k,ii) = psi2(k,ii)  + alpha*psi1(k,jj)
+cc             end do
+c              call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
+c           end do
+c        end do
 
-        do ii=n1(ms),n2(ms)
-           i=ii-n1(ms)+1
-
-           do jj=n1(ms),n2(ms)
-              j=jj-n1(ms)+1
-
-              index = (i-1) + (j-1)*n
-              alpha = dte*lmbda(sl(ms) + index)
-
-c             do k=1,nfft3d
-c                psi2(k,ii) = psi2(k,ii)  + alpha*psi1(k,jj)
-c             end do
-              call Pack_cc_daxpy(1,alpha,psi1(1,jj),psi2(1,ii))
-           end do
-        end do
-      end do
+       end do
 
       call nwpw_timing_end(3)
 
