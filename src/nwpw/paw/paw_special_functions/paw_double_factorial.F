@@ -1,7 +1,12 @@
 c
-c $Id: paw_double_factorial.F,v 1.1 2003-02-19 23:41:16 marat Exp $
+c $Id: paw_double_factorial.F,v 1.2 2003-02-20 18:19:26 edo Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.1  2003/02/19 23:41:16  marat
+c added double factorial, hypergeometric, and gamma function
+c
+c MV
+c
 c
 
 !**************************************************
@@ -44,4 +49,4 @@ c
       
       paw_double_factorial = ndf(n+2)
       return
-      end function 
+      end

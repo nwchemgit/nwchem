@@ -1,6 +1,11 @@
-!$Id: paw_xc.F,v 1.7 2003-02-19 01:10:46 marat Exp $
+!$Id: paw_xc.F,v 1.8 2003-02-20 18:19:26 edo Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.7  2003/02/19 01:10:46  marat
+!fixed vosko
+!
+!MV
+!
 !Revision 1.6  2003/02/19 01:02:04  marat
 !finished generation of exch-corr
 !tested only with l=0 with exchange only
@@ -211,7 +216,7 @@
       do in=1,nion
         ia = ion_katm(in)
         ic = paw_basis_i_cut(ia)
-        if(ic > paw_xc_work_size) then
+        if(ic.gt.paw_xc_work_size) then
            paw_xc_work_size = ic
         end if
       end do

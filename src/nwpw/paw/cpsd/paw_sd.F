@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.39 2003-02-20 00:18:42 marat Exp $
+* $Id: paw_sd.F,v 1.40 2003-02-20 18:19:24 edo Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -228,7 +228,7 @@
       call init_paw_basis()
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
-      call init_paw_vloc_matrix()
+Cedo      call init_paw_vloc_matrix()
       call init_paw_core_matrix()
       call init_paw_hartree_matrix()
       call init_paw_overlap_matrix()
@@ -700,7 +700,7 @@
       call paw_comp_charge_end()
       call paw_mult_end()
       call end_paw_kin_matrix()
-      call end_paw_vloc_matrix()
+Cedo      call end_paw_vloc_matrix()
       call end_paw_ion_matrix()
       call end_paw_overlap_matrix()
       call end_paw_hartree_matrix()
