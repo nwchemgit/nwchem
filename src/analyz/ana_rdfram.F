@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.8 2000-05-10 22:30:46 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.9 2000-05-11 00:04:06 d3j191 Exp $
 c
       implicit none
 c
@@ -63,6 +63,9 @@ c
       if(card(1:5).ne.'time:') goto 11
       read(lfntrj,2001) timp
  2001 format(f12.6)
+      if(timp.lt.timr) timoff=time
+      time=timp+timoff
+      timr=timp
    12 continue
       read(lfntrj,1000,err=9999,end=9999) card
       if(card(1:15).ne.'box_dimensions:') goto 12
