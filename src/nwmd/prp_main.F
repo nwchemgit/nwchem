@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.67 2002-02-07 00:13:38 d3j191 Exp $
+c $Id: prp_main.F,v 1.68 2002-02-07 20:09:36 d3j191 Exp $
 c
       implicit none
 c
@@ -497,8 +497,10 @@ c
  3001 format(a50)
       lfhdr=.true.
       endif
-      write(lfnprp,3002) (p(ixp(i)),i=1,nprop)
- 3002 format(4(1pe12.5))
+      write(lfnprp,3002)
+ 3002 format('frame')
+      write(lfnprp,3003) (p(ixp(i)),i=1,nprop)
+ 3003 format(4(1pe12.5))
 c
       return
       end
