@@ -1,4 +1,4 @@
-c $Id: int_projpole.F,v 1.11 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: int_projpole.F,v 1.12 1999-10-26 22:28:35 mg201 Exp $
 *
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
@@ -123,7 +123,8 @@ c
      &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &        dbl_mb(mb_exndcf(i_icfp,ibas)),
      &        i_prim, i_gen, Li, i_cent,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        coords(1,1,i_geom),charge(1,i_geom),
+     &        geom_invnucexp(1,i_geom),ncenter(i_geom),
      &        MP(int_point),scr,scr,int_size,
 c............. doS    doT     doV     canonical
      &        .true.,.false.,.false.,.false.,
