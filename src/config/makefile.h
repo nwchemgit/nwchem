@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.290 1999-07-06 17:22:45 d3g681 Exp $
+# $Id: makefile.h,v 1.291 1999-07-08 19:00:11 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -44,7 +44,7 @@ endif
 #                  DELTA
 #                  IBM
 #                  KSR
-#                  LINUX        USE_F2C to use f2c/gcc in stead of g77
+#                  LINUX        NWCHEM_TARGET_CPU (nothing for X86,ALPHA,POWERPC)
 #                  PARAGON
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
@@ -1135,15 +1135,14 @@ endif
 
 ifeq ($(TARGET),LINUX)
 #
-# Most distributions are using EGCS
+# Most Linux distributions are using EGCS
 #
   EGCS = YES
 #
 # Linux running on an x86 using g77
-# to use f2c/gcc, define environment variable USE_F2C
 # f2c has not been tested in years and is not supported
 #
-       NICE = nice
+       NICE = nice -2
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
@@ -1156,36 +1155,41 @@ ifeq ($(BUILDING_PYTHON),python)
    INCPATH += -I/usr/include/python1.5
 endif
 
-ifdef USE_F2C
-   FOPTIONS = -Nc40 -Nn2500 -Nx1000 -fno-globals -malign-double
-  EXPLICITF = TRUE
-else
-  FOPTIONS  = -fno-second-underscore
-         FC = g77
+# defaults are for X86 platforms
+         FC  = g77
+  FOPTIONS   = -fno-second-underscore 
+  FOPTIMIZE  = -g -O2 
+  COPTIONS   = -Wall -m486 -malign-double
+  COPTIMIZE  = -g -O2
 ifdef EGCS
-  FOPTIONS += -fno-globals
-endif
-endif
-
-
-   COPTIONS = -Wall -m486 -malign-double
-ifeq ($(NWCHEM_TARGET_CPU),604)
-   COPTIONS = -Wall
+  FOPTIONS  += -fno-globals -Wunused -fno-silent -m486 -malign-double
+  FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
+  FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
+  FOPTIMIZE += -fforce-mem -fforce-addr -ffloat-store
 endif
 
-  FOPTIMIZE = -g -O2
-  COPTIMIZE = -g -O2
+ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
+  FOPTIONS   = -fno-second-underscore
+  FOPTIMIZE  = -g -O2 
+  COPTIONS   = -Wall
+  COPTIMIZE  = -g -O2
+endif
+ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
+  FOPTIONS   = -fno-second-underscore
+  FOPTIMIZE  = -g -O2 
+  COPTIONS   = -Wall
+  COPTIMIZE  = -g -O2
+endif
 
     DEFINES = -DLINUX
 
   LDOPTIONS = -g
-ifdef EGCS
      LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
-else
-     LINK.f = gcc $(LDFLAGS)
- EXTRA_LIBS = -lf2c -lm
+ifndef EGCS
+ EXTRA_LIBS += -lf2c -lm
 endif
+
   CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 
         CPP = gcc -E -nostdinc -undef -P
@@ -1348,7 +1352,7 @@ ifndef FLINT
 
 ifdef EXPLICITF
 #
-# Needed on machines where FCC does not preprocess .F files
+# Needed on machines where FC does not preprocess .F files
 # with CPP to get .f files
 #
 # These rules apply to make-ing of files in specfic directories
