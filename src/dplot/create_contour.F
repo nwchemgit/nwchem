@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.25 2003-01-15 18:41:59 edo Exp $
+* $Id: create_contour.F,v 1.26 2003-02-18 18:47:36 pollack Exp $
 *
       Implicit None
 *
@@ -264,7 +264,10 @@ c
      &                  Int_mb(k_iniz),Int_mb(k_ifin),
      &                  Values(iOffg),0,
      &              dbl_mb(irchi_atom), 0,
-     &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
+     &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0,
+     &               0 )
+
+
 *------- Deallocate Scratch memory needed by xc_rhogen
       Else
 *------- Get the values of the orbital at the grid points
