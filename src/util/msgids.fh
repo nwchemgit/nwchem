@@ -121,6 +121,7 @@ c
       integer mrg_d60
       integer mrg_d61
       integer mrg_d62
+      integer mrg_d63
       integer mrg_d99
 c
       integer mrg_i01
@@ -153,6 +154,7 @@ c
       integer mrg_i28
       integer mrg_i29
       integer mrg_i30
+      integer mrg_i31
       integer mrg_i50
 c
       integer mre_000
@@ -587,6 +589,7 @@ c
       parameter(mrg_i28=msg_ftn_base-339) ! arg_rdstrt
       parameter(mrg_i29=msg_ftn_base-340) ! arg_rdstrt
       parameter(mrg_i30=msg_ftn_base-341) ! arg_param1
+      parameter(mrg_i31=msg_ftn_base-342) ! arg_knodes
       parameter(mrg_i50=msg_ftn_base-361) ! arg_wrstrt
 c
       parameter(mrg_d56=msg_ftn_base-362) ! arg_rdstrt
@@ -596,6 +599,7 @@ c
       parameter(mrg_d60=msg_ftn_base-366) ! arg_param1
       parameter(mrg_d61=msg_ftn_base-367) ! arg_ininoe
       parameter(mrg_d62=msg_ftn_base-368) ! arg_ininoe
+      parameter(mrg_d63=msg_ftn_base-369) ! arg_dldbal
       parameter(mrg_d99=msg_ftn_base-405) ! arg_rdstrt
 C
       parameter (Msg_NormF = msg_ftn_base -  406) ! GA_NormF
