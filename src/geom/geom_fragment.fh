@@ -1,0 +1,33 @@
+c $Id: geom_fragment.fh,v 1.1 2004-02-01 22:03:50 sohirata Exp $
+c
+c Include file for Geom_fragment
+c
+c Written by So Hirata (c) Battelle, PNNL (2004).
+c
+      integer max_atoms         ! A large number
+      parameter (max_atoms = 999)
+      integer f_map(max_atoms)  ! Mapping of atoms to fragments
+      integer nfrags            ! Number of fragments
+      character*16 tags(max_atoms)! Atom tags
+      double precision coords(3,max_atoms)  ! Cartesian coordiantes
+      double precision charges(max_atoms)   ! Nuclear charges
+      character*16 f_tags(max_atoms)! Atom tags
+      double precision f_coords(3,max_atoms)  ! Cartesian coordiantes
+      double precision f_charges(max_atoms)   ! Nuclear charges
+      double precision geom_thresh ! Criterion for bonding
+      parameter (geom_thresh = 3.0D0) ! Bohr
+c
+c     Integers
+c 
+      common /geom_fragint/
+     1  f_map, nfrags
+c
+c     Doubles
+c 
+      common /geom_fragdbl/
+     1  coords, charges, f_coords, f_charges
+c
+c     Complexes
+c 
+      common /geom_fragcpl/
+     1  tags, f_tags
