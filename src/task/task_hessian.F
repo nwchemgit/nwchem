@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.17 2002-01-30 01:13:22 windus Exp $
+* $Id: task_hessian.F,v 1.18 2002-01-31 00:55:15 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -58,9 +58,9 @@ c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:hessian: theory not specified',0)
       if (.not. rtdb_get(rtdb,'task:numerical',mt_log,1,numerical))
-     &    numerical = .true.
+     &    numerical = .false.
       if (.not. rtdb_get(rtdb,'task:analytic',mt_log,1,analytic))
-     &    analytic = .false.
+     &    analytic = .true.
 c
 c  for numerical hessian reset task:numerical so gradients are done analytically
 c
@@ -76,10 +76,14 @@ c
      $     call errquit('task_hessian: failed to invalidate status',0)
 
       prefix = theory ! Most common
-
-      if ((analytic.and.inp_compare(.false.,theory,'scf')).or.
-     $    (analytic.and.inp_compare(.false.,theory,'dft'))) then
-        numerical = .false.
+c
+c  Make sure that we don't do analytic for anything other than
+c  scf and dft.
+c
+      if ((.not.inp_compare(.false.,theory,'scf')).and.
+     $    (.not.inp_compare(.false.,theory,'dft'))) then
+        numerical = .true.
+        analytic  = .false.
       endif
 c
 c     Actually do the deed
@@ -99,7 +103,8 @@ c
 c define default delta value
 c
         default_delta = 0.001d00  ! should it be 0.0025 
-        if (inp_compare(.false.,theory,'dft')) default_delta = 0.01d00
+        if (inp_compare(.false.,theory,'dft')) 
+     &       default_delta = 0.01d00
         if (inp_compare(.false.,theory,'pspw')   .or.
      &      inp_compare(.false.,theory,'band'))
      &       default_delta = 0.01d00
