@@ -3,11 +3,13 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.8 1996-01-17 22:03:46 d3e129 Exp $
+c $Id: hf1.F,v 1.9 1996-05-20 07:16:36 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
       Logical O2I,KEI,NAI,canAB
+
+      logical status
 
       Logical GenCon,DryRun
 
@@ -27,6 +29,7 @@ c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 c--> Scratch Space.
 
       Dimension W0(maxW0)
+#include "mafdecls.fh"
 #if defined(INT_TIMING)
 #include "int_tim.fh"
 #include "pstat.fh"
@@ -42,27 +45,50 @@ c******************************************************************************
      &   call pstat_on(intt_arr(intt_hf1))
 #endif
 #if defined(INTDEBUG)
-      write(6,*)' inside hf1 '
-      write(6,*)' npa,nca,la = ',npa,nca,la
-      write(6,*)' npb,ncb,lb = ',npb,ncb,lb
-      write(6,*)' ncenters   = ',ncenters
-      write(6,*)' NINT       = ',nint
-      write(6,*)' maxW0      = ',maxw0
-      write(6,*)' <canAB:DryRun>-<',canab,':',dryrun,'>'
-      write(6,*)' <o2i:kei:nai>-<',o2i,':',kei,':',nai,'>'
-      write(6,'(a,3(2x,1pd20.10))')' Axyz =',Axyz
-      write(6,'(a,3(2x,1pd20.10))')' Bxyz =',Bxyz
-      write(6,'(a,100(3(2x,1pd20.10/)))')' Cxyz =',Cxyz
-      do iiii = 1,npa
-        write(6,'(a,i3,a,2(2x,1pd20.10))')
-     &         'Aprims:Acoeffs:(',iiii,') =',Aprims(iiii),
-     &         Acoefs(iiii,1)
-      enddo
-      do iiii = 1,npb
-        write(6,'(a,i3,a,2(2x,1pd20.10))')
-     &         'Bprims:Bcoeffs:(',iiii,') =',Bprims(iiii),
-     &         Bcoefs(iiii,1)
-      enddo
+      if (.not.dryrun) then
+        write(6,*)' inside hf1 '
+        write(6,*)' npa,nca,la = ',npa,nca,la
+        write(6,*)' npb,ncb,lb = ',npb,ncb,lb
+        write(6,*)' ncenters   = ',ncenters
+        write(6,*)' NINT       = ',nint
+        write(6,*)' maxW0      = ',maxw0
+        write(6,*)' <canAB:DryRun>-<',canab,':',dryrun,'>'
+        write(6,*)' <o2i:kei:nai>-<',o2i,':',kei,':',nai,'>'
+        write(6,'(a,3(2x,1pd20.10))')' Axyz =',Axyz
+        write(6,'(a,3(2x,1pd20.10))')' Bxyz =',Bxyz
+        write(6,'(a,100(3(2x,1pd20.10/)))')' Cxyz =',Cxyz
+        do jjjj = 1,nca
+        do iiii = 1,npa
+          write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &        'Aprims:Acoeffs:(',iiii,') =',Aprims(iiii),
+     &        Acoefs(iiii,jjjj)
+        enddo
+        enddo
+        do jjjj = 1,ncb
+        do iiii = 1,npb
+          write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &        'Bprims:Bcoeffs:(',iiii,') =',Bprims(iiii),
+     &        Bcoefs(iiii,jjjj)
+        enddo
+        enddo
+      endif
+      if (.not.dryrun) then
+        write(6,*)' Li/Lj',La,'/',Lb
+        write(6,*)' i_ngen ',nca
+        write(6,*)' j_ngen ',ncb
+        write(6,*)' int_hf1: lstv',Nint
+        write(6,*)' int_hf1: lscr',maxW0
+        call dfill(maxW0,0.0d00,W0,1)
+        if (O2I) call dfill(Nint,0.0d00,bO2I,1)
+        if (KEI) call dfill(Nint,0.0d00,bKEI,1)
+        if (NAI) call dfill(Nint,0.0d00,bNAI,1)
+        call MA_summarize_allocated_blocks()
+        write(6,*)' int_hf1: ma verify 1-b4'
+        status = ma_verify_allocator_stuff()
+        write(6,*)' verstat = ',status
+        write(6,*)' int_hf1: ma verify 1-af'
+        call util_flush(6)
+      endif
 #endif
 *      if (.not.dryrun) then
 *        call hf_print('hf1: a shell',axyz,aprims,acoefs,npa,nca,la)
@@ -147,9 +173,12 @@ c Assign pointers to scratch space.
 
       if (npp.eq.0) then
         if(gencon) then
-          if (O2I) call dfill(Nint*nca*ncb,0.0d00,bO2I,1)
-          if (KEI) call dfill(Nint*nca*ncb,0.0d00,bKEI,1)
-          if (NAI) call dfill(Nint*nca*ncb,0.0d00,bNAI,1)
+          write(6,*)' gencon zero '
+          nintlocal = (La+1)*(La+2)/2*nca
+          nintlocal = nintlocal*(Lb+1)*(Lb+2)/2*ncb
+          if (O2I) call dfill(nintlocal,0.0d00,bO2I,1)
+          if (KEI) call dfill(nintlocal,0.0d00,bKEI,1)
+          if (NAI) call dfill(nintlocal,0.0d00,bNAI,1)
         else
           if (O2I) call dfill(Nint,0.0d00,bO2I,1)
           if (KEI) call dfill(Nint,0.0d00,bKEI,1)
