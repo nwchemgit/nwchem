@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.7 2000-08-26 00:57:22 d3g681 Exp $
+#	$Id: NTmakefile.h,v 1.8 2000-08-26 19:51:01 d3g681 Exp $
 #
 
 #
@@ -56,13 +56,18 @@ AR = lib -nologo
 ARFLAGS = /out:$(LIBRARY_PATH)
 
 CC = cl -nologo
-COPT = -G5 -O2
-#COPT = -Z7
-CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
+FC = df -nolog
 
-FC = df -nologo
-FOPT = /fast /optimize:5
-#FOPT = /debug:full /nooptimize
+!IFDEF NWDEBUG
+COPT = -Z7
+FOPT = /debug:full /nooptimize
+!ELSE
+COPT = -G5 -O2
+FOPT = /fast /optimize:5 /noinline /nofltconsistency
+# Added /noinline since it breaks LAPACK dlamach routines
+!ENDIF
+
+CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
 FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES) /automatic /extend_source:132 /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
 
 .SUFFIXES:

@@ -1,9 +1,15 @@
-# $Id: nwchem_config_win32.h,v 1.6 2000-08-26 00:57:22 d3g681 Exp $
+# $Id: nwchem_config_win32.h,v 1.7 2000-08-26 19:51:01 d3g681 Exp $
+
+!IFDEF PYTHONHOME
+PYTHON_NWLIB = python.lib
+PYTHON_SYSLIB = /libpath:'$(PYTHONHOME)\libs'
+PYTHON_SUBDIR = python
+!ENDIF
 
 NW_CORE_SUBDIRS = basis geom inp input \
-	pstat rtdb task symmetry util peigs lapack
+	pstat rtdb task symmetry util peigs lapack blas
 
-NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 stepper driver dftgrad cphf ccsd vib mcscf prepar nwargos esp hessian selci dplot mp2_grad property fft analyz nwmd cafe space drdy
+NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 stepper driver dftgrad cphf ccsd vib mcscf prepar nwargos esp hessian selci dplot mp2_grad property fft analyz nwmd cafe space drdy $(PYTHON_SUBDIR)
 
 !IFNDEF LINK_F90
 LINK_F90 = smathd.lib smaths.lib
@@ -13,14 +19,12 @@ LINK_F90 = smathd.lib smaths.lib
 NWCHEM_EXTRA_LIBS = cvwmpi.lib
 !ENDIF
 
-!IFDEF PYTHONHOME
-PYTHON_NWLIB = python.lib
-PYTHON_SYSLIB = $(PYTHON_HOME)/libs/python.lib
-NW_MODULE_SUBDIRS += python
+!IFDEF USECXML
+CXMLLIB = cxml.lib
 !ENDIF
 
-UTIL_LIBS = util.lib $(PYTHON_NWLIB) pario.lib global.lib ma.lib peigs.lib linalg.lib \
-tcgmsg-mpi.lib armci.lib lapack.lib $(NWCHEM_EXTRA_LIBS) wsock32.lib \
+UTIL_LIBS = util.lib $(PYTHON_NWLIB) pario.lib global.lib ma.lib peigs.lib \
+tcgmsg-mpi.lib armci.lib $(CXMLLIB) lapack.lib blas.lib $(NWCHEM_EXTRA_LIBS) wsock32.lib \
 $(LINK_F90)
 
 LIBS = nwctask.lib ccsd.lib mcscf.lib selci.lib mp2.lib moints.lib stepper.lib driver.lib dftgrad.lib nwdft.lib gradients.lib cphf.lib esp.lib ddscf.lib guess.lib hessian.lib vib.lib util.lib rimp2.lib property.lib nwints.lib prepar.lib nwargos.lib nwmd.lib cafe.lib space.lib analyze.lib pfft.lib dplot.lib drdy.lib $(UTIL_LIBS)
