@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.54 2002-01-29 20:56:36 windus Exp $
+# $Id: GNUmakefile,v 1.55 2003-01-09 22:07:55 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -27,7 +27,6 @@
 	dft_main0d.o \
 	dft_scf.o \
 	dft_fockbld.o \
-	dft_diag.o \
 	dft_scfutil.o \
 	dft_symbr.o \
 	dft_cosmo.o \
