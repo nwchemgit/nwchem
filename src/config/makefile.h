@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.442 2004-01-15 19:03:58 edo Exp $
+# $Id: makefile.h,v 1.443 2004-01-28 20:17:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1420,6 +1420,9 @@ endif
 #EXTRA_LIBS +=-lefence # link against Electricfence
 ifeq ($(LINUXCPU),ppc)
   EXTRA_LIBS += -lm
+    ifeq ($(FC),xlf)
+      LINK.f   = xlf_r   $(LDFLAGS) 
+    endif
 endif
 
 
@@ -1568,25 +1571,27 @@ endif
       FC=xlf
       CC=/opt/cross/bin/powerpc64-linux-gcc
       ifeq ($(FC),xlf)
-        FOPTIONS  =  -q64 -qextname -qfixed -qnosave   -qalign=4k
+        FOPTIONS  =  -q64 -qextname -qfixed -qnosave  -qalign=natural
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
         ifdef  USE_GPROF
           FOPTIONS += -pg
           COPTIONS += -pg
         endif
-        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=rsqrt:fltint
-#        FVECTORIZE = -O5 -qhot -qfloat=fltint 
-        FDEBUG= -O0 -g
+        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto  -qcache=auto
+        FOPTIMIZE+=  -qfloat=rsqrt:fltint:nostrictnmaf 
+        FOPTIMIZE+=  -qipa=level=1
+        FVECTORIZE = -O5 -qhot -qfloat=fltint -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf 
+        FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-        DEFINES  +=   -DXLFLINUX
+        DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         CPP=/usr/bin/cpp  -P -C -traditional
 #    LDOPTIONS = -v #-F/home/eapra/nwchem/src/xlf.cfg:edo
 #ld with SLES 8 broken. Needed snapshot from binutils
      ifdef USE_GPROF
 LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib/gcrt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS) 
       else
-LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib/crt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2/../../../../powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS) 
+LINK.f = /home/eapra/bin/ld  -L/home/eapra/nwchem/src/tools/lib/LINUX64 /opt/cross/powerpc64-linux/lib/crt1.o -L/opt/ibmcmp/xlf/8.1/lib64 -L/opt/ibmcmp/xlsmp/1.3/lib64 -L/opt/ibmcmp/xlf/8.1/lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlf/8.1/../../lib64 -R/opt/ibmcmp/xlsmp/1.3/../../lib -L/opt/cross/powerpc64-linux/lib -L/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 -R/opt/cross/powerpc64-linux/lib -R/opt/cross/lib/gcc-lib/powerpc64-linux/3.2 $(LDFLAGS)  -lpthread
       endif
         ifdef USE_INTEGER4
           FOPTIONS += -qintsize=4
@@ -1598,7 +1603,7 @@ LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwc
         COPTIONS  +=  -q64 -qlanglvl=extended
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
+     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
 
 ifeq ($(BUILDING_PYTHON),python)

@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.106 2004-01-14 21:28:50 edo Exp $
+# $Id: DEFS,v 1.107 2004-01-28 20:17:50 edo Exp $
 #
 #======================================================================
 #
@@ -368,15 +368,15 @@ ifeq ($(peigs_TARGET),KSR8)
 # -xfpu3 generate suspect answers for choleski
 #
 # KSR/TCGMSG
-peigs_CC += -DSTD_DBL -DKSR8
-peigs_CODEOBJ = DBLE
-peigs_CPP += -P
-peigs_CPU =KSR
-peigs_COMM =TCGMSG
+	peigs_CC += -DSTD_DBL -DKSR8
+	peigs_CODEOBJ = DBLE
+	peigs_CPP += -P
+	peigs_CPU =KSR
+	peigs_COMM =TCGMSG
 #
 # peigs_BLASLIB         = -lksrblas
 # peigs_LAPACKLIB       = -lksrlapk
-endif
+	endif
 
 ifeq ($(peigs_TARGET),KSR)
 #
@@ -385,179 +385,192 @@ ifeq ($(peigs_TARGET),KSR)
 #
 # -xfpu3 generate suspect answers for choleski
 #
-peigs_CODEOBJ	= DBLE
-peigs_CC += -DSTD_DBL -O2
-peigs_COPT = -O2
+	peigs_CODEOBJ	= DBLE
+	peigs_CC += -DSTD_DBL -O2
+	peigs_COPT = -O2
 peigs_FC += -O2 -DSTD_DBL  -D$(peigs_COMM)
-peigs_CPP  += -P
-peigs_CPU  =KSR
-peigs_COMM =TCGMSG
+	peigs_CPP  += -P
+	peigs_CPU  =KSR
+	peigs_COMM =TCGMSG
 #
 #peigs_BLASLIB         = -lblas
 #peigs_LAPACKLIB       = -llapack
-endif
+	endif
 
-ifeq ($(peigs_TARGET),SP)
+	ifeq ($(peigs_TARGET),SP)
 ## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
-peigs_COMM =TCGMSG
-peigs_CPU = RS6000
-peigs_CODEOBJ=DBLE
-peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
--I$(HDIR) -qfloat=rsqrt:fltint 
+	peigs_COMM =TCGMSG
+	peigs_CPU = RS6000
+	peigs_CODEOBJ=DBLE
+	peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+	-I$(HDIR) -qfloat=rsqrt:fltint 
 
-peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
--WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
--qfloat=fltint -qinline -NQ40000 -NT80000
-ifdef RSQRT
-peigs_FC  += -qfloat=rsqrt:fltint
-endif
+	peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
+	-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
+	-qfloat=fltint -qinline -NQ40000 -NT80000
+	ifdef RSQRT
+	peigs_FC  += -qfloat=rsqrt:fltint
+	endif
 
-peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+	peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
-peigs_FC += -qarch=p2sc -qtune=p2sc
+	peigs_FC += -qarch=p2sc -qtune=p2sc
 
 # -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 # -qcache=type=i:level=1:size=32:line=128 \
 
 
-peigs_CC += -qarch=p2sc -qtune=p2sc
-endif
+	peigs_CC += -qarch=p2sc -qtune=p2sc
+	endif
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-peigs_FC += -qarch=604 -qtune=604
-peigs_CC += -qarch=ppc -qtune=604
-endif
-endif
+	peigs_FC += -qarch=604 -qtune=604
+	peigs_CC += -qarch=ppc -qtune=604
+	endif
+	endif
 
 
-ifeq ($(peigs_TARGET),LAPI)
+	ifeq ($(peigs_TARGET),LAPI)
 ## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
-peigs_COMM =TCGMSG
-peigs_CPU = RS6000
-peigs_CODEOBJ=DBLE
-peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
--I$(peigs_HDIR) -qfloat=fltint  -qinline
+	peigs_COMM =TCGMSG
+	peigs_CPU = RS6000
+	peigs_CODEOBJ=DBLE
+	peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+	-I$(peigs_HDIR) -qfloat=fltint  -qinline
 
-peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
--WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
--qfloat=fltint  -NQ40000 -NT80000 -qinline
-ifdef RSQRT
-peigs_FC  += -qfloat=rsqrt:fltint
-endif
+	peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
+	-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
+	-qfloat=fltint  -NQ40000 -NT80000 -qinline
+	ifdef RSQRT
+	peigs_FC  += -qfloat=rsqrt:fltint
+	endif
 
-peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-peigs_BLASLIB = -lesslp2_r
-peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
+	peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+	peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+	peigs_BLASLIB = -lesslp2_r
+	peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
 
-endif
+	endif
 ifeq ($(peigs_TARGET),LAPI64)
 #
 # IBM AIX
 #
-peigs_CODEOBJ = DBLE
-peigs_CPU = RS600064
-peigs_COMM =TCGMSG
-peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
--WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
--qfloat=rsqrt:fltint -qinline
-peigs_CPP +=   -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
-  ifdef USE_INTEGER4
-     peigs_CPP += -DSTD_INT
-     peigs_CC  += -DSTD_INT
-     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
-  else
-     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
-  endif
+	peigs_CODEOBJ = DBLE
+	peigs_CPU = RS600064
+	peigs_COMM =TCGMSG
+	peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
+	-WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
+	-qfloat=rsqrt:fltint -qinline
+	peigs_CPP +=   -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+	ifdef USE_INTEGER4
+	peigs_CPP += -DSTD_INT
+	peigs_CC  += -DSTD_INT
+peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+	else
+peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+	endif
 
-peigs_BLASLIB   = -lessl_r
-peigs_LAPACKLIB = -llapack -lessl_r
-endif
+	peigs_BLASLIB   = -lessl_r
+	peigs_LAPACKLIB = -llapack -lessl_r
+	endif
 
 ifeq ($(peigs_TARGET),DECOSF)
 #alpha with /tcgmsg
-peigs_CPU  = ALPHA
-peigs_COMM = TCGMSG
-peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
-peigs_CODEOBJ = DBLE
-peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
-peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
-  ifdef USE_INTEGER4
-     peigs_CPP += -DSTD_INT
-     peigs_CC  += -DSTD_INT
-     peigs_FC  += -DSTD_INT
-  endif
-endif
+	peigs_CPU  = ALPHA
+	peigs_COMM = TCGMSG
+	peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
+	peigs_CODEOBJ = DBLE
+	peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
+	peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
+	ifdef USE_INTEGER4
+	peigs_CPP += -DSTD_INT
+	peigs_CC  += -DSTD_INT
+	peigs_FC  += -DSTD_INT
+	endif
+	endif
 
 ifeq ($(peigs_TARGET),MACX)
 #MACOSX
-peigs_CPU  = RS6000
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -DSTD_INT
+	peigs_CPU  = RS6000
+	peigs_COMM = TCGMSG
+	peigs_CODEOBJ = DBLE
+	peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
-peigs_CPP += -DSTD_INT -DSTD_DBL -P
+	peigs_CPP += -DSTD_INT -DSTD_DBL -P
 #peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
--D${peigs_TARGET_definition}
-    ifeq ($(FC),xlf)
-      peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
-      -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
-    endif
-endif
+	peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
+	-D${peigs_TARGET_definition}
+ifeq ($(FC),xlf)
+	peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
+-WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+	endif
+	endif
 
 ifeq ($(peigs_TARGET),LINUX64)
 #alpha with /tcgmsg
-  _CPU = $(shell uname -m  )
-  peigs_COMM = TCGMSG
-  peigs_CODEOBJ = DBLE
-  peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
-  ifdef USE_INTEGER4
-     peigs_CPP += -DSTD_INT
-     peigs_CC  += -DSTD_INT
-     peigs_FC  += -DSTD_INT
-  endif
-  peigs_CC  += -DSTD_DBL 
-  peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
-  ifeq ($(_CPU),alpha)
-    peigs_CPU  = ALPHA
-    ifeq ($(CC),gcc)
-      peigs_CC  += -O3  -mcpu=ev56
-    else
-      peigs_CC  += -O2  -fast -tune host -arch host 
-    endif
-    peigs_FC +=  -O1 -DLINUX64 -DLINUX -tune host -arch host
-  endif
+_CPU = $(shell uname -m  )
+	peigs_COMM = TCGMSG
+	peigs_CODEOBJ = DBLE
+	peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
+	ifdef USE_INTEGER4
+	peigs_CPP += -DSTD_INT
+	peigs_CC  += -DSTD_INT
+	peigs_FC  += -DSTD_INT
+	endif
+	peigs_CC  += -DSTD_DBL 
+	peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
+ifeq ($(_CPU),alpha)
+	peigs_CPU  = ALPHA
+ifeq ($(CC),gcc)
+	peigs_CC  += -O3  -mcpu=ev56
+	else
+	peigs_CC  += -O2  -fast -tune host -arch host 
+	endif
+	peigs_FC +=  -O1 -DLINUX64 -DLINUX -tune host -arch host
+	endif
 
-  ifeq ($(_CPU),ia64)
+ifeq ($(_CPU),ia64)
 #ia64 with /tcgmsg
-    peigs_CPU  = PENTIUM
-    ifeq ($(FC),efc)
-      peigs_FC  +=  -O3  -tpp2 -ftz 
-    endif
-    ifeq ($(CC),ecc)
-      peigs_CC  +=  -O3  -mp1 -ftz -hlo -unroll
-    endif
-  endif
+	peigs_CPU  = PENTIUM
+ifeq ($(FC),efc)
+	peigs_FC  +=  -O3  -tpp2 -ftz 
+	endif
+ifeq ($(CC),ecc)
+	peigs_CC  +=  -O3  -mp1 -ftz -hlo -unroll
+	endif
+	endif
 
-  ifeq ($(_CPU),x86_64)
+ifeq ($(_CPU),x86_64)
 #ia64 with /tcgmsg
-    peigs_CPU  = PENTIUM
-    ifeq ($(FC),pgf90)
-      peigs_FC  +=  -Kieee
-    endif
-  endif
-  ifeq ($(_CPU),ppc64)
+	peigs_CPU  = PENTIUM
+ifeq ($(FC),pgf90)
+	peigs_FC  +=  -Kieee
+	endif
+	endif
+ifeq ($(_CPU),ppc64)
 #ppc64 with /tcgmsg
-    peigs_CPU = RS6000
-    ifeq ($(FC),xlf)
-       peigs_FC  = $(FC) -O3 -qextname -qstrict -q64 -qintsize=8  -I$(peigs_HDIR)  \
-       -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
-     ifdef USE_GPROF
-      peigs_FC += -pg
-     endif
-      peigs_CC  +=  -O3  
+	peigs_CPU = RS6000
+ifeq ($(FC),xlf)
+	peigs_FC  = xlf -O5 -qhot -qextname -q64 -I$(peigs_HDIR)
+	peigs_FC += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM)
+	peigs_FC += -qtune=auto -qarch=auto -qcache=auto -qalign=natural 
+	peigs_FC += -qnosave -qfloat=rsqrt:fltint:nostrictnmaf -qalias=std -qipa=level=2
+	ifdef USE_GPROF
+	  peigs_FC += -pg
+	endif
+	peigs_CC  = /opt/cross/bin/powerpc64-linux-gcc
+	peigs_CC += -DIBM -DSTD_DBL -I$(peigs_HDIR) -DRS6000 -D$(peigs_COMM)
+	peigs_CC += -O3 -ffast-math -funroll-loops
+	peigs_CC += -mtune=powerpc64 -mpowerpc64 -maltivec
+
+        ifdef USE_INTEGER4
+             peigs_CPP += -DSTD_INT
+             peigs_CC += -DSTD_INT
+             peigs_FC += -WF,-DSTD_INT -qintsize=4
+        else
+             peigs_FC += -qintsize=8
+        endif
     endif
   endif
 
