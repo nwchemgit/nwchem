@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.23 2002-01-05 01:14:54 edo Exp $
+c$Id: fock_2e.F,v 1.24 2002-01-10 02:32:57 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -34,12 +34,10 @@ c     !!! BGJ test !!!
       double precision lfac(maxfocks)
       integer ga_create_atom_blocked
       integer vg_fockc
-      integer dims(3), chunk(3)
-      integer k_buf,l_buf
+      integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
       external ga_create_atom_blocked
       logical xc_active, jfit
 c     !!! BGJ test !!!
-
 c
 c     Make local copy of J and K prefactors in case we need to manipulate them
 c
@@ -150,65 +148,49 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
      &     g_xc))
      &   call errquit('fock_2e: could not allocate g_xc',555)
       call ga_zero(g_xc)
-cedo      do ifock = 1, nfock
-cedo         g_xc(ifock) = ga_create_atom_blocked
-cedo     $        (geom1, ao_basis, 'fock_2e:BGJ XC test')
-cedo         call ga_zero(g_xc(ifock))
-cedo      enddo
 
       call fock_xc(geom1, nbf,ao_basis,
      ,     nfock, vg_dens, g_xc,scftype,.false.)
-chack
-      if(ga_nodeid().eq.0) then
-         if (.not.MA_Push_Get(MT_Dbl,nbf*nbf,'charge',l_buf,k_buf))
-     &        call errquit('fock_2e: hack allocate failed',0)
-      endif
-chack
       do ifock = 1, nfock
-!         if (xc_active.and.facj(ifock).ne.0d0) then
          if (xc_active) then
 c     Scale the XC matrices by the same scaling factor as J in this case
 c     since there is no explicit way to pass in an XC scaling factor, yet
 c     the 2nd derivative code uses a scale factor of 8 for the OO part of
 c     the CPSCF RHS that needs to be applied to XC also.
-            if (facj(ifock) .ne. 1d0 .and. facj(ifock) .ne. 8d0) then
-               write(*,*)'f2ecant Scale XC Mx',ifock,' by',facj(ifock)
-               ffac=fack(ifock)
-               write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
-!               call errquit('Unexpected XC scale factor in fock_2e',0)
-            else
-               ffac=facj(ifock)
-            endif
-!            call ga_add(facj(ifock), g_xc(ifock), 1.0d0, vg_fock(ifock),
-!     &           vg_fock(ifock))
-            if(ga_nodeid().eq.0) then
-               call dft_3dget(g_xc,dbl_mb(k_buf),ifock,nbf)
-               call dscal(nbf, ffac, dbl_mb(k_buf), 1)
-              call ga_acc(vg_fock(ifock), 1, nbf, 1, nbf, 
-     ,              dbl_mb(k_buf), nbf,1d0)
-            endif
+            ffac=facj(ifock)
+            if (bgj_print() .gt. 1)
+     .           write(*,*)'f2e: Scaling XC matrix',ifock,' by',ffac
+            alo(2) = 1
+            ahi(2) = nbf
+            alo(3) = 1
+            ahi(3) = nbf
+            blo(1) = 1
+            bhi(1) = nbf
+            blo(2) = 1
+            bhi(3) = nbf
+            blo(3) = 1
+            bhi(2) = nbf
+            alo(1) = ifock
+            ahi(1) = ifock
+            call nga_add_patch(ffac,g_xc,alo,ahi,
+     .           1d0,vg_fock(ifock),blo,bhi,
+     .           vg_fock(ifock),blo,bhi)
          endif
          if (bgj_print() .gt. 1) then
             write(*,*)'*** fock_2e: fock matrix',ifock
             call ga_print(vg_fock(ifock))
          endif
       enddo
-chack
-      if(ga_nodeid().eq.0) then
-         if (.not.MA_pop_stack(l_buf))
-     &        call errquit('fock_2e: hack popstack failed',0)
-      endif
-chack
       if (.not.ga_destroy(g_xc)) then
          call errquit('fock_2e: problem destroying test array',1)
       endif
-
+      
 c     !!! BGJ test !!!
 
       return
       end
       subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.23 2002-01-05 01:14:54 edo Exp $
+C$Id: fock_2e.F,v 1.24 2002-01-10 02:32:57 edo Exp $
       implicit none
       integer g_fock
       integer imat
