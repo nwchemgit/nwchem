@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.9 2003-10-17 22:57:38 carlfahl Exp $
+* $Id: psp.F,v 1.10 2003-10-22 19:45:26 bylaska Exp $
 *
 
 #define TCGMSG
@@ -984,8 +984,9 @@ c     integer    lmmax(nkatmx)
 
 
 *     *** local variables ***
-      integer nfft3d,G(3),npack1
+      integer nfft3d,G(3),npack1,nion
       integer i,ii,ia,l,n,nn
+      integer k,shift
       real*8  omega,scal
       complex*16 ctmp
       integer exi(2),vtmp(2),xtmp(2),sw1(2),sum(2)
@@ -1003,6 +1004,7 @@ c     integer    lmmax(nkatmx)
       call nwpw_timing_start(6) 
 
 *     **** allocate local memory ****
+      nion = ion_nion()
       nn = ne(1)+ne(2)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
@@ -1043,7 +1045,7 @@ c     integer    lmmax(nkatmx)
 
       omega = lattice_omega()
 
-      do ii=1,ion_nion()
+      do ii=1,nion
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
@@ -1054,25 +1056,38 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *       **** generate sw1's ****
         do l=1,int_mb(lmmax(1)+ia-1)
 
+           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*lmmax_max
+
 *          **** phase factor does not matter therefore ****
 *          **** (-i)^l is the same as (i)^l in the     ****
 *          **** Rayleigh scattering formula            ****
+
 
 *          *** current function is s or d ****
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-              call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
+c             call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+c    >                           +(ia-1)*npack1*lmmax_max),
+c    >                        dcpl_mb(exi(1)),
+c    >                        dcpl_mb(vtmp(1)))
+              do k=0,npack1-1
+               dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
+              end do
 
 *          *** current function is p or f ****
            else
-              call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
+c             call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+c    >                           +(ia-1)*npack1*lmmax_max),
+c    >                        dcpl_mb(exi(1)),
+c    >                        dcpl_mb(vtmp(1)))
+              do k=0,npack1-1
+               dcpl_mb(vtmp(1)+k) 
+     >                = dbl_mb(k+shift)
+     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
+     >                           dble(dcpl_mb(exi(1)+k)))
+              end do
+
            end if
            call Pack_cc_indot(1,nn,
      >                      psi1,
@@ -1088,6 +1103,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *       **** do Kleinman-Bylander Multiplication ****
         do l=1,int_mb(lmmax(1)+ia-1)
 
+           shift = vnl(1)+(l-1)*npack1+(ia-1)*npack1*lmmax_max
+
 *          **** phase factor does not matter therefore ****
 *          **** (-i)^l is the same as (i)^l in the     ****
 *          **** Rayleigh scattering formula            ****
@@ -1096,17 +1113,27 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            if (is_sORd(l,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-              call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
+c             call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+c    >                           +(ia-1)*npack1*lmmax_max),
+c    >                        dcpl_mb(exi(1)),
+c    >                        dcpl_mb(vtmp(1)))
+              do k=0,npack1-1
+               dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
+              end do
+
 
 *          *** current function is p or f ****
            else
-              call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
-     >                           +(ia-1)*npack1*lmmax_max),
-     >                        dcpl_mb(exi(1)),
-     >                        dcpl_mb(vtmp(1)))
+c             call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+c    >                           +(ia-1)*npack1*lmmax_max),
+c    >                        dcpl_mb(exi(1)),
+c    >                        dcpl_mb(vtmp(1)))
+              do k=0,npack1-1
+               dcpl_mb(vtmp(1)+k) 
+     >                = dbl_mb(k+shift)
+     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
+     >                           dble(dcpl_mb(exi(1)+k)))
+              end do
            end if
 
 *! restructured for // performance
@@ -1116,27 +1143,24 @@ c     >                      psi1,
 c     >                      dcpl_mb(vtmp(1)),
 c     >                      dbl_mb(sw1(1)))
 
-          do n=1,nn
-             dbl_mb(sw1(1)+n-1+(l-1)*nn) = dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
-     >                      /(omega*dbl_mb(vnlnrm(1)
-     >                         +(l-1)+(ia-1)*lmmax_max))
-c            call Pack_cc_daxpy(1,(-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
-c    >                          dcpl_mb(vtmp(1)),
-c    >                          psi2(1+(n-1)*npack1)) 
-             call daxpy((2*npack1),
-     >                  (-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
-     >                  dcpl_mb(vtmp(1)),1,
-     >                  psi2(1+(n-1)*npack1),1) 
-          end do
+c          do n=1,nn
+c             dbl_mb(sw1(1)+n-1+(l-1)*nn) = dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
+c     >                      /(omega*dbl_mb(vnlnrm(1)
+c     >                         +(l-1)+(ia-1)*lmmax_max))
+c             call daxpy((2*npack1),
+c     >                  (-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
+c     >                  dcpl_mb(vtmp(1)),1,
+c     >                  psi2(1+(n-1)*npack1),1) 
+c          end do
 
-c         scal = 1.0d0/(omega*dbl_mb(vnlnrm(1)+(l-1)+(ia-1)*lmmax_max))
-c         call dscal(nn,scal,dbl_mb(sw1(1)+(l-1)*nn),1)
-c         call DGEMM('N','T',(2*npack1),nn,1,
-c    >             (-1.0d0),
-c    >             dcpl_mb(vtmp(1)),(2*npack1),
-c    >             dbl_mb(sw1(1)+(l-1)*nn),nn,
-c    >             (1.0d0),
-c    >             psi2,(2*npack1))
+          scal = 1.0d0/(omega*dbl_mb(vnlnrm(1)+(l-1)+(ia-1)*lmmax_max))
+          call dscal(nn,scal,dbl_mb(sw1(1)+(l-1)*nn),1)
+          call DGER((2*npack1),nn,
+     >              (-1.0d0),
+     >              dcpl_mb(vtmp(1)),        1,
+     >              dbl_mb(sw1(1)+(l-1)*nn), 1,
+     >              psi2,                    (2*npack1))
+     >
 
 
 
