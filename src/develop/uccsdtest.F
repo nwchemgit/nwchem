@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.5 2000-03-31 00:23:20 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.6 2000-04-05 14:13:49 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -502,7 +502,7 @@ c
      $     dbl_mb(k_iaa), 
      $     dbl_mb(k_t1a), 
      $     dbl_mb(k_t2aa),
-     $     dbl_mb(k_aeval), 1)
+     $     dbl_mb(k_aeval), 1, nva, noa)
 c
       write(6,*) energyaaa
 c
@@ -510,7 +510,7 @@ c
      $     dbl_mb(k_ibb), 
      $     dbl_mb(k_t1b), 
      $     dbl_mb(k_t2bb),
-     $     dbl_mb(k_beval), 2)
+     $     dbl_mb(k_beval), 2, nvb, nob)
 c
       write(6,*) energybbb
 c
@@ -1924,13 +1924,14 @@ c
      $     iaa,
      $     t1a,
      $     t2aa,
-     $     evals, spin)
+     $     evals, spin, nv_dim, no_dim)
       implicit none
 #include "cuccsdtP.fh"
       integer spin
+      integer nv_dim, no_dim
       double precision iaa(nmo, nmo, nmo, nmo)
-      double precision t1a(nv(spin), no(spin))
-      double precision t2aa(nv(spin), nv(spin), no(spin), no(spin))
+      double precision t1a(nv_dim, no_dim)
+      double precision t2aa(nv_dim, nv_dim, no_dim, no_dim)
       double precision evals(nmo)
 c
       integer i, j, k, m, a, b, c, e
