@@ -1,6 +1,23 @@
-* $Id: rel_nwc.fh,v 1.1 1999-10-26 19:16:50 mg201 Exp $
+* $Id: rel_nwc.fh,v 1.2 1999-12-30 22:00:32 mg201 Exp $
       logical init_rel        ! relativistic integral initialization
-      character*32 small_cmpt_name,large_cmpt_name
 c
-      common /c_rel_nwc/ init_rel,small_cmpt_name,large_cmpt_name
-
+      character*32 small_cmpt_name,large_cmpt_name
+      character*32 auto_small_cmpt_name,auto_large_cmpt_name
+c
+      integer rel_dbg    ! debug flag for relativistic routines
+      integer rel_typ    ! type of relativistic integral: 1 for sf, 3 for so,
+c                        ! 4 for both, 9 for derivatives
+      integer ao_to_ls   ! pointer from ao basis to large/small basis
+      integer ls_to_ao   ! pointer from large/small basis to ao basis
+      integer level_SSSS ! level for calculation of SSSS integrals
+c                        ! 0 = none
+c                        ! 1 = one-centre
+c                        ! 2 = one- and two-centre
+c                        ! 4 = full
+c
+c  Note: this routine needs nwc_const.fh
+c
+      common /c_rel_nwc/ init_rel,small_cmpt_name,large_cmpt_name,
+     &    auto_small_cmpt_name,auto_large_cmpt_name
+      common /c_rel_ptr/ ao_to_ls(nw_max_shells),ls_to_ao(nw_max_shells)
+      common /c_rel_ctl/ level_SSSS, rel_typ, rel_dbg
