@@ -3,4 +3,4 @@
 runtests.unix procs 1 \
  $NWCHEM_TEST/esp/esp
 runtests.unix procs 1 \
- $NWCHEM_TEST/esp/esp_uhf
+ $NWCHEM_TEST/esp_uhf/esp_uhf
