@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.99 2001-10-11 18:55:39 d3j191 Exp $
+c $Id: md_start.F,v 1.100 2001-10-12 15:16:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1534,8 +1534,9 @@ c
  1005 format(i7,f12.6)
       read(lfn,1006) ipscal,prsext,prsrlx,compr
  1006 format(i5,e12.5,f12.6,e12.5)
-      read(lfn,1007) itscal,tmpext,tmprlx,tmsrlx
- 1007 format(i5,3f12.6)
+      read(lfn,1007) itscal,tmpext1,tmprlx,tmsrlx,tmpext2,
+     + tann1,tann2
+ 1007 format(i5,6f12.6)
       read(lfn,1008) nfgaus,ivropt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
       read(lfn,1009) nfoutp,nfstat,nfprop
@@ -1596,8 +1597,10 @@ c
  1005 format(i7,f12.6)
       write(lfn,1006) ipscal,prsext,prsrlx,compr
  1006 format(i5,e12.5,f12.6,e12.5)
-      write(lfn,1007) itscal,tmpext,tmprlx,tmsrlx
- 1007 format(i5,3f12.6)
+      write(lfn,1007) itscal,tmpext1,tmprlx,tmsrlx,tmpext2,
+     + tann1,tann2
+ 1007 format(i5,6f12.6)
+      tmpext=tmpext1
       write(lfn,1008) nfgaus,ivropt,tgauss,iseed
  1008 format(2i7,f12.6,i12)
       write(lfn,1009) nfoutp,nfstat,nfprop
