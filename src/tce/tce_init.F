@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.29 2003-10-19 00:52:07 sohirata Exp $
+c $Id: tce_init.F,v 1.30 2003-12-10 23:07:32 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -133,7 +133,7 @@ c
      1    call errquit('tce_init: failed to read nopen',0,RTDB_ERR)
         nocc(1) = nclosed + nopen
         nocc(2) = nclosed
-        mult = nopen
+        mult = nopen + 1
         if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
      1    call errquit('tce_init: failed to read scftype',0,RTDB_ERR)
         if (hftype.eq.'RHF') then
@@ -518,6 +518,9 @@ c
      1  (LuOut,'TCE is a product of Battelle and PNNL.',
      2  40,.false.)
         call util_print_centered
+     1  (LuOut,'Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).',
+     2  40,.false.)
+        call util_print_centered
      1  (LuOut,'======================================================',
      2  40,.false.)
         write(LuOut,*)
@@ -566,7 +569,7 @@ c
         else if (ipol.eq.2) then
           write(LuOut,9440) nfv(1),nfv(2)
         endif
-        write(LuOut,9420) multchar(mult+1)
+        write(LuOut,9420) multchar(mult)
         write(LuOut,9050) nbf
         write(LuOut,9060) nshells
         if (oskel) then
