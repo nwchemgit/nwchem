@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.70 1998-03-05 06:42:15 mdupuis Exp $
+C     $Id: geom_input.F,v 1.71 1998-03-06 08:05:14 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -6059,7 +6059,7 @@ C
 C
 C     ----- TORSIONS -----
 C
-      CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,
+      CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,C,
      1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLTO,NUMTOR)
 C
       IF(DBUG) THEN
@@ -6076,7 +6076,6 @@ C     ----- OUT-OF-PLANE BENDS -----
 C
          CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
      1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
-C
          IF(DBUG) THEN
             WRITE(IW,9998)
             WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
@@ -6091,7 +6090,6 @@ C
          CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
      1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
      2                   IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
-C
          IF(DBUG) THEN
             WRITE(IW,9998)
             WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
@@ -6099,9 +6097,13 @@ C
             WRITE(IW,9991) NZVAR
          ENDIF
          ZDONE=.FALSE.
+         RETURN
+      ENDIF
 C
 C     ----- DONE -----
 C
+      IF(NZVAR.LT.3*NAT-6) THEN
+         ZDONE=.FALSE.
       ELSE
          ZDONE=.TRUE.
       ENDIF
@@ -6359,13 +6361,15 @@ C
                   LINBND=.FALSE.
                ENDIF
             ENDIF
-             IZMAT(NIZMAT+1)=ITWO
-             IZMAT(NIZMAT+2)=IJKANG(1,IANG)
-             IZMAT(NIZMAT+3)=IJKANG(2,IANG)
-             IZMAT(NIZMAT+4)=IJKANG(3,IANG)
-            NIZMAT=NIZMAT+4
-            NZVAR =NZVAR +1
-            NUMANG=NUMANG+1
+            IF(.NOT.LINBND) THEN
+                IZMAT(NIZMAT+1)=ITWO
+                IZMAT(NIZMAT+2)=IJKANG(1,IANG)
+                IZMAT(NIZMAT+3)=IJKANG(2,IANG)
+                IZMAT(NIZMAT+4)=IJKANG(3,IANG)
+               NIZMAT=NIZMAT+4
+               NZVAR =NZVAR +1
+               NUMANG=NUMANG+1
+            ENDIF
          ENDIF
          GO TO 100
   110 CONTINUE
@@ -6404,7 +6408,7 @@ C
  9992 FORMAT(' NO BOND ANGLES FOUND ')
  9991 FORMAT(' COLLINEAR ATOMS FOUND. DO -LINEAR BENDS- ... ')
       END
-      SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,
+      SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,C,
      1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
      2                                       IJKLTO,NUMTOR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -6413,8 +6417,11 @@ C
       PARAMETER (MXBNDS= 8*MXATOM)
       PARAMETER (MXTORS= 8*MXATOM)
       LOGICAL     DBUG
+      LOGICAL     DOLINB
+      LOGICAL     LINIJK,LINJKL
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
+      DIMENSION C(3,*)
       DIMENSION IZMAT(*)   
       DIMENSION IJKLTO(4,*)      
       DIMENSION IJBOND(2,MXBNDS)
@@ -6425,6 +6432,10 @@ C
       DIMENSION NIBNDS(  *)
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP3-'/
+      DATA TOL    /1.0D-08/
+      DATA ZERO   /0.0D+00/
+      DATA ONE    /1.0D+00/
+      DATA TWO    /2.0D+00/
 C
       DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
      1                (C(2,IAT)-C(2,JAT))**2+
@@ -6561,13 +6572,57 @@ C
             ENDIF
             NTOR=NTOR-1
          ELSE
-             IZMAT(NIZMAT+1)=ITHREE
-             IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
-             IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
-             IZMAT(NIZMAT+4)=IJKLTO(3,ITOR)
-             IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
-            NIZMAT=NIZMAT+5
-            NZVAR =NZVAR +1
+            RIJSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(2,ITOR))
+            RIJ  =SQRT(RIJSQ)
+            RJKSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(3,ITOR))
+            RJK  =SQRT(RJKSQ)
+            RKLSQ=DISTSQ(IJKLTO(3,ITOR),IJKLTO(4,ITOR))
+            RKL  =SQRT(RKLSQ)
+            RIKSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(3,ITOR))
+            RJLSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(4,ITOR))
+            COSBJ=(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
+            COSBK=(RJKSQ+RKLSQ-RJLSQ)/(TWO*RJK*RKL)
+            DUM  =ABS(COSBJ)-ONE
+            IF(DUM.GT.ZERO) THEN
+               IF(DUM.LE.TOL) THEN
+                  LINIJK=.TRUE.
+               ELSE
+                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+                  CALL HND_HNDERR(3,ERRMSG)
+               ENDIF
+            ELSE
+               DUM=-DUM
+               IF(DUM.LE.TOL) THEN
+                   LINIJK=.TRUE.
+               ELSE
+                  LINIJK=.FALSE.
+               ENDIF
+            ENDIF
+            DUM  =ABS(COSBK)-ONE
+            IF(DUM.GT.ZERO) THEN
+               IF(DUM.LE.TOL) THEN
+                  LINJKL=.TRUE.
+               ELSE
+                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+                  CALL HND_HNDERR(3,ERRMSG)
+               ENDIF
+            ELSE
+               DUM=-DUM
+               IF(DUM.LE.TOL) THEN
+                   LINJKL=.TRUE.
+               ELSE
+                  LINJKL=.FALSE.
+               ENDIF
+            ENDIF
+            IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
+                IZMAT(NIZMAT+1)=ITHREE
+                IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
+                IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
+                IZMAT(NIZMAT+4)=IJKLTO(3,ITOR)
+                IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
+               NIZMAT=NIZMAT+5
+               NZVAR =NZVAR +1
+            ENDIF
          ENDIF
          GO TO 100
   110 CONTINUE
