@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.12 1995-01-09 02:03:29 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.13 1995-01-15 22:27:49 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -23,6 +23,8 @@ c
       integer i_klab, h_klab, i_llab, h_llab   ! handles and index for labels buffers
 c
       integer h_stats, i_stats
+c
+      logical print69
 c
       integer ncont
       integer plevel
@@ -99,6 +101,7 @@ c
 c
 c loop over shells and compute S sums
 c      
+      print69 = .true.
       idoit = (me-1)
       numtot = 0
       do 00100 i = 1,ncont
@@ -116,7 +119,7 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats))
+     &          dbl_mb(i_stats),print69,'overlap')
           endif
 00200   continue
 00100 continue
@@ -126,9 +129,11 @@ c
      &    call prt_stat_sum('overlap',dbl_mb(i_stats),numtot)
       call ga_sync()
 c
+c
 c loop over shells and compute T sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      print69 = .false.
       idoit = (me-1)
       numtot = 0
       do 00101 i = 1,ncont
@@ -146,7 +151,7 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats))
+     &          dbl_mb(i_stats),print69,'kinetic')
           endif
 00201   continue
 00101 continue
@@ -159,6 +164,7 @@ c
 c loop over shells and compute V sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      print69 = .false.
       idoit = (me-1)
       numtot = 0
       do 00102 i = 1,ncont
@@ -176,7 +182,7 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats))
+     &          dbl_mb(i_stats),print69,'potential')
           endif
 00202   continue
 00102 continue
@@ -190,6 +196,7 @@ c loop over shells and compute h1 sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       idoit = (me-1)
+      print69 = .false.
       numtot = 0
       do 00103 i = 1,ncont
         do 00203 j = 1,i
@@ -206,7 +213,7 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats))
+     &          dbl_mb(i_stats),print69,' H1 (T+V)')
           endif
 00203   continue
 00103 continue
@@ -392,7 +399,7 @@ c::local
 10001 format(90('-'))
 10002 format(5(1pd15.8,3x))
       end      
-      subroutine stsum1(num,numtot,Gen,ilab,jlab,stats)
+      subroutine stsum1(num,numtot,Gen,ilab,jlab,stats,print69,tag69)
       implicit none
 c::passed
       integer num                   ! number of 1e moieties
@@ -404,6 +411,8 @@ c
       integer ilab(num),jlab(num)   ! labels for moieties
       double precision Gen(num)     ! 1e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
+      logical print69
+      character*(*) tag69
 c::local 
       integer ii,i,j
       double precision x,x2,denom,s1,d1
@@ -416,7 +425,8 @@ c
         d1    = abs(i-j)
         x     = Gen(ii)
         x2    = x*x
-*        write(6,'(1x,i5,i5,d20.10)') i, j, x
+        if(print69)
+     &      write(69,'(1x,i5,i5,d20.10,3x,a)') i, j, x, tag69
         denom = 1.0d00 + x2
 c
         stats(1,1) = stats(1,1) + x
@@ -465,7 +475,7 @@ c
      &               (MAX(ISYM2(I,J),ISYM2(K,L))-1)/2+
      &               MIN(ISYM2(I,J),ISYM2(K,L))
 c
-      printjust = .false.
+      printjust = .true.
 c
       numtot = numtot + num
       do 00100 ii = 1,num
