@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.123 1995-11-03 20:56:00 d3j191 Exp $
+# $Id: makefile.h,v 1.124 1995-11-07 09:13:45 apsmith Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -74,14 +74,15 @@ NW_CORE_SUBDIRS = include basis geom global inp input \
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos
+	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
+	plane_wave
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
 # be too hard to come up with.  These should be platform-independent.
 
-KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lmoints -lrimp2 \
-                    -lstepper -ldftgrad -lnwdft -lgradients \
+KNOWN_MODULE_LIBS = -ltest -lmoints -lrimp2 \
+                    -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
                     -lvib -lutil -lnwints -lideaz -lnwargos
 
@@ -424,9 +425,15 @@ ifeq ($(TARGET),IBM)
   FOPTIMIZE = -O3 -NQ40000 -NT80000 -qstrict
   COPTIMIZE = -O
 
-    DEFINES = -DIBM -DEXTNAM 
+    DEFINES = -DIBM -DEXTNAM
+ifdef USE_ESSL
+   DEFINES += -DESSL
+endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
+ifdef MPI
+       LIBPATH += -L$(MPI_LOC)/rs6000/ch_p4
+endif
        CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
@@ -445,7 +452,12 @@ ifeq ($(TARGET),IBM)
 	      -brename:.lsame_,.lsame \
 	      -brename:.times_,.times \
 	      -brename:.xerbla_,.xerbla
-
+ifdef USE_ESSL
+       CORE_LIBS += -lessl
+endif
+ifdef MPI
+       CORE_LIBS += -lmpi
+endif
 
  EXPLICITF = TRUE
 #
@@ -470,8 +482,14 @@ ifeq ($(TARGET),SP1)
   COPTIMIZE = -O
 
     DEFINES = -DSP1 -DEXTNAM 
+ifdef USE_ESSL
+   DEFINES += -DESSL
+endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
+ifdef MPI
+       LIBPATH += -L$(MPI_LOC)/rs6000/ch_eui
+endif
        CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dgesv_,.dgesv \
@@ -487,6 +505,13 @@ ifeq ($(TARGET),SP1)
 	      -brename:.dpotri_,.dpotri \
 	      -brename:.times_,.times \
 	      -brename:.idamax_,.idamax 
+ifdef USE_ESSL
+       CORE_LIBS += -lessl
+endif
+ifdef MPI
+       CORE_LIBS += -lmpi
+endif
+
 
  EXPLICITF = TRUE
 #

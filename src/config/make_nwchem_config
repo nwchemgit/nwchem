@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.23 1995-11-03 19:15:03 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.24 1995-11-07 09:13:44 apsmith Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -27,9 +27,9 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmd argos
 
-EXP_all = $(filter-out nwargos ideaz scfaux cphf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out nwargos ideaz scfaux cphf plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 riscf \
-	stepper symmetry ccsd vib mcscf
+	stepper symmetry ccsd vib mcscf plane_wave
 EXP_argos = nwargos
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
@@ -60,6 +60,7 @@ endif
 # an order or the link command will have to contain repreated elements and
 # will be hard to generate automatically.
 
+MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
 MODULES := $(patsubst develop,develop rimp2,$(MODULES) )
 
 MODULES := $(patsubst vib,vib stepper gradients,$(MODULES) )
@@ -110,6 +111,7 @@ MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
@@ -135,6 +137,7 @@ STUBROUTINES := $(patsubst ideaz,mdmain md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
