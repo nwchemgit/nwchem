@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.25 2004-10-21 20:21:41 marat Exp $
+c $Id: mm_interface.F,v 1.26 2004-10-22 18:29:43 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -346,11 +346,13 @@ c     local variables
       integer nqa
       integer l_ioff,i_ioff
       integer nwm
+      integer mwa
       integer pwl
 
       call ifill(nt,0,ind,1)
 
       call mm_get_nwmloc(nwm)
+      call mm_get_mwa(mwa)
 
       call mm_get_pwl(pwl)
 
@@ -367,6 +369,9 @@ c     accumulate offsets
 c     ------------------
       me = ga_nodeid()
       call mm_get_nbqw(nqa)
+c     number of water molecules = 
+c     number of atoms/number of atoms per molecule 
+      nqa=nqa/mwa
       do i=me+1,np
         int_mb(i_ioff+i-1)=nqa
       end do    
@@ -401,8 +406,10 @@ c     -----------------------------
 #include "mm_utils.fh"
       integer nt
       integer ind(nt)
+c
 
       call mm_get_solvent_ind_gen(nt,mm_bqwzone,ind)
+    
       end
 
       subroutine mm_get_solute_geom_quant(nt,
@@ -748,6 +755,7 @@ c     mm local variables
       call mm_get_nwmloc(nwm)
       call mm_get_pxw(pxw)
       call mm_get_pwl(pwl)
+
  
       do i=1,nwm
         if(mm_bqwzone(i)) then
@@ -765,6 +773,7 @@ c     mm local variables
             end do
         end if
       end do
+
 
       call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
       call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
