@@ -35,7 +35,7 @@ c
       call md_newton()
 c
       call prp_step(mdstep,temp,pres,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess))
+     + dbl_mb(i_ess),epme)
 c
     1 continue
 c
@@ -55,8 +55,8 @@ c
 c     if(mod(mdstep,nfgaus).eq.0)
 c    + call cf_gauss(nwmloc,nsaloc,vw,vs,tgaus)
 c
-      llong=(mdstep.eq.1.or.mod(mdstep,nflong).eq.0).and.ltwin
       lpair=mdstep.eq.1.or.mod(mdstep,nfpair).eq.0
+      llong=(mdstep.eq.1.or.mod(mdstep,nflong).eq.0.or.lpair).and.ltwin
 c
       if(lpair) then
 c
@@ -219,11 +219,15 @@ c
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
 c
+      if(iewald.gt.0) then
+      call pme_chgrid(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),isl(1,lsct1),
+     + nsaloc,epme)
+      endif
+c
       call sp_nbbl(nbbl)
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
-     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
       lpbc=.true.
 c
@@ -246,5 +250,10 @@ c
 c
     1 continue
 c
+      if(iewald.gt.0) then
+      call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
+      endif
+c
       return
       end
+

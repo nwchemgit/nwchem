@@ -40,7 +40,7 @@ c
       return
       end
       subroutine cf_chgrid(lset,xw,nwmloc,xs,isq,nsaloc,grid,mgz,lgrid,
-     + knode,kfrom,lsldo,node,mxx,mnx,mxy,mny,mxz,mnz)
+     + knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
       implicit none
 c
@@ -54,11 +54,9 @@ c
       integer knode(*),kfrom(*)
       logical lsldo(*)
       real*8 grid(ngx,ngy,mgz)
-      integer mxx,mnx,mxy,mny,mxz,mnz
+      integer mnx,mxx,mny,mxy,mnz,mxz
 c
       integer i,j,k
-c
-      print*,'CAFE cf_chgrid'
 c
       if(lset.or..not.lscr) then
       if(.not.lscr) call cf_salloc
@@ -70,14 +68,14 @@ c
       call cf_grid(xw,dbl_mb(i_smr1),int_mb(i_iwq),nwmloc,
      + xs,dbl_mb(i_s3r1),isq,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
-     + grid,mgz,lgrid,knode,kfrom,lsldo,node,mxx,mnx,mxy,mny,mxz,mnz)
+     + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
       return
       end
       subroutine cf_grid(xw,yw,iwq,nwmloc,xs,ys,isq,nsaloc,chg,
      + theta,dtheta,
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,
-     + minxx,maxxx,minyy,maxyy,minzz,maxzz)
+     + minx,maxx,miny,maxy,minz,maxz)
 c
       implicit none
 c
@@ -92,7 +90,6 @@ c
       integer knode(np),kfrom(np)
       logical lsldo(np,*)
       real*8 grid(ngx,ngy,mgz)
-      integer minxx,maxxx,minyy,maxyy,minzz,maxzz
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,isa,iwm,iwa,indx
       integer minx,miny,minz,maxx,maxy,maxz
@@ -122,9 +119,9 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k).eq.node) then
+      if(knode(k)+1.eq.node) then
       lgrid=.true.
-      k=k-kfrom(node+1)+1
+      k=k-kfrom(node)+1
       j0=int(yw(iwm,2,iwa))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
@@ -156,9 +153,9 @@ c
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k).eq.node) then
+      if(knode(k)+1.eq.node) then
       lgrid=.true.
-      k=k-kfrom(node+1)+1
+      k=k-kfrom(node)+1
       j0=int(ys(isa,2))-morder
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
@@ -326,7 +323,7 @@ c
       return
       end
 #endif
-      subroutine cf_epme(knode,kfrom,kto,bmod,grid,mgz)
+      subroutine cf_epme(knode,kfrom,kto,bmod,grid,mgz,energy)
 c
       implicit none
 c
@@ -335,7 +332,7 @@ c
 c
       integer mgz
       integer knode(ngz),kfrom(np),kto(np)
-      real*8 bmod(ngmax,3),grid(2,ngx,ngy,mgz)
+      real*8 bmod(ngmax,3),grid(2,ngx,ngy,mgz),energy
 c
       real*8 fac,rh1,rh2,rh3,rsq,efac,vfac,ss
       integer i,j,k,kg,m1,m2,m3
@@ -350,6 +347,8 @@ c
       if(2*nfy.lt.ngy) nfy=nfy+1
       nfz=ngz/2
       if(2*nfz.lt.ngz) nfz=nfz+1
+c
+      epme=zero
 c
       if(kfrom(me+1).gt.0) then
       do 2 k=kfrom(me+1),kto(me+1)
@@ -390,6 +389,8 @@ c
     3 continue
     2 continue
       endif
+c
+      energy=epme
 c
       return
       end
@@ -447,8 +448,8 @@ c
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k).eq.node) then
-      k=k-kfrom(node+1)+1
+      if(knode(k)+1.eq.node) then
+      k=k-kfrom(node)+1
       j0=int(yw(iwm,2,iwa))-morder
       do 5 ith2=1,morder
       j0=j0+1
@@ -486,8 +487,8 @@ c
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
-      if(knode(k).eq.node) then
-      k=k-kfrom(node+1)+1
+      if(knode(k)+1.eq.node) then
+      k=k-kfrom(node)+1
       j0=int(ys(isa,2))-morder
       do 9 ith2=1,morder
       j0=j0+1
@@ -511,6 +512,56 @@ c
       fs(isa,2)=fs(isa,2)+recip(2,1)*fx+recip(2,2)*fy+recip(2,3)*fz
       fs(isa,3)=fs(isa,3)+recip(3,1)*fx+recip(3,2)*fy+recip(3,3)*fz
     7 continue
+c
+      return
+      end
+      subroutine cf_pmecor(xw,nwmloc,xs,isq,nsaloc,ecorr)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nwmloc,nsaloc
+      real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
+      integer isq(msa)
+c
+      call cf_pmec(xw,nwmloc,xs,isq,nsaloc,ecorr,int_mb(i_iwq),
+     + dbl_mb(i_chg))
+c
+      return
+      end
+      subroutine cf_pmec(xw,nwmloc,xs,isq,nsaloc,ecorr,iwq,chg)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nwmloc,nsaloc
+      real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
+      integer isq(msa),iwq(mwa)
+      real*8 chg(mqt,mqp,6)
+c
+      integer i
+c
+      ecorr=zero
+c
+      if(nwmloc.gt.0) then
+      do 1 i=1,nwa
+      ecorr=ecorr-chg(iwq(i),1,iset)*chg(iwq(i),1,iset)
+    1 continue
+      ecorr=ecorr*dble(nwmloc)
+      endif
+c
+      if(nsaloc.gt.0) then
+      do 2 i=1,nsaloc
+      ecorr=ecorr-chg(isq(i),1,iset)*chg(isq(i),1,iset)
+    2 continue
+      endif
+c
+      write(*,'(3e12.5)') ealpha,ecorr,pi
+      ecorr=ealpha*ecorr/sqrt(pi)
 c
       return
       end

@@ -71,7 +71,7 @@ c
       if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',l_rwrk,i_rwrk))
      + call errquit('Failed to allocate rwork',0)
       liwrk=2*np+100
-      if(.not.ma_push_get(mt_dbl,liwrk,'iwork',l_iwrk,i_iwrk))
+      if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
      + call errquit('Failed to allocate iwork',0)
 c
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,

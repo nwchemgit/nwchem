@@ -56,7 +56,8 @@ c
       call cf_start(lfntop,filtop,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
-     + iewald,morder,ngx,ngy,ngz,pmetol,tstep,tlwsha,mshitw,mshits,
+     + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
+     + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 1,temp,tempw,temps,compr)
 c

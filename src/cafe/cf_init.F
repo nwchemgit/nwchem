@@ -1,7 +1,7 @@
       subroutine cf_start(lfntop,filtop,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
-     + jpme,jorder,jgx,jgy,jgz,spmet,step,tols,mshw,mshs,
+     + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr)
 c
@@ -18,7 +18,7 @@ c
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
       real*8 rcs,rcl,rqm,compr
-      integer iitmps,iiprss,iislow
+      integer iitmps,iiprss,iislow,nodpme
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
 c
       integer i
@@ -141,6 +141,9 @@ c
 c
       call cf_rdtop(lfntop,filtop)
 c
+c     particle-mesh Ewald initialization
+c     ----------------------------------
+c
       ipme=jpme
       morder=jorder
       ngx=jgx
@@ -151,6 +154,7 @@ c
       if(ipme.gt.0) then
       if(morder.gt.25) call errquit('morder too large',0)
       call cf_alpha
+      call pme_start(alpha,morder,1,nodpme,ngx,ngy,ngz,mwm,mwa,msa)
       endif
 c
 c      nsmi=nsm
@@ -1007,6 +1011,8 @@ c
       if(.not.llst) call cf_lalloc()
 c
       ndxp=0
+c
+      if(ipme.gt.0) call pme_init()
 c
       return
       end

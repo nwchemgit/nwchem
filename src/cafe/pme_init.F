@@ -1,8 +1,9 @@
-      subroutine pme_start(imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
+      subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
 c
       implicit none
 c
-      integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa
+      integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
+      real*8 a
 c
       integer mem
 c
@@ -15,8 +16,12 @@ c
 c
       pi=four*atan(one)
       twopi=two*pi
+      alpha=a
+      morder=m
+      nodpme=nodpmi
 c
       imfft=imffti
+      lcorr=.false.
 c
       mwa=nwa
       mwm=nwm
@@ -58,10 +63,12 @@ c
       if(.not.ma_push_get(mt_int,np,'nodep',l_nodp,i_nodp))
      + call errquit('Failed to allocate nodep',0)
 c
-      if(.not.ma_push_get(mt_int,ngz,'knode',l_knod,i_knod))
+      write(*,'(2i10)') ngz,mgz
+c
+      if(.not.ma_push_get(mt_int,mgz,'knode',l_knod,i_knod))
      + call errquit('Failed to allocate knode',0)
 c
-      if(.not.ma_push_get(mt_log,ngz*np,'lsldo',l_lsld,i_lsld))
+      if(.not.ma_push_get(mt_log,mgz*np,'lsldo',l_lsld,i_lsld))
      + call errquit('Failed to allocate ldldo',0)
 c
 c     allocate memory for fft node maps
@@ -86,6 +93,7 @@ c     create the flag array
 c
       if(.not.ga_create(mt_int,np,1,'flg',1,1,ga_flg))
      + call errquit('Failed to allocate global array flg',0)
+      call pme_flag(0,me)
 c
 c     select the fft
 c
@@ -95,7 +103,7 @@ c     test the fft
 c
       call pme_fftest(dbl_mb(i_grd1),dbl_mb(i_grd2),int_mb(i_nodp))
 c
-      call pme_init(dbl_mb(i_bmod),dbl_mb(i_barr))
+      call pme_coeff(dbl_mb(i_bmod),dbl_mb(i_barr))
 c
       return
       end
@@ -292,11 +300,11 @@ c
 c
       return
       end
-      subroutine pme_init(bmod,barr)
+      subroutine pme_coeff(bmod,barr)
 c
       implicit none
 c
-#include "cf_common.fh"
+#include "pme_common.fh"
 c
       real*8 bmod(ngmax,3),barr(ngmax)
 c
@@ -325,7 +333,7 @@ c
 c      
       implicit none
 c
-#include "cf_common.fh"
+#include "pme_common.fh"
 c      
       real*8 arr(morder),darr(morder),w
 c      
@@ -381,6 +389,16 @@ c
       do 3 i=1,ng
       if(bmod(i).lt.small) bmod(i)=half*(bmod(i-1)+bmod(i+1))
     3 continue
+c
+      return
+      end
+      subroutine pme_init()
+c
+      implicit none
+c
+#include "pme_common.fh"
+c
+      call ga_zero_list(mgz,lslab)
 c
       return
       end

@@ -9,6 +9,8 @@ c
 c
 c     deallocate memory
 c
+      if(ipme.gt.0) call pme_finish()
+c
       call cf_free()
 c
       do 1 id=nbs,1,-1

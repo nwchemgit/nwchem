@@ -1,4 +1,4 @@
-      subroutine pme_chgrid(xw,nwmloc,xs,isq,nsaloc)
+      subroutine pme_chgrid(xw,nwmloc,xs,isq,nsaloc,epme)
 c
       implicit none
 c
@@ -6,8 +6,14 @@ c
 #include "mafdecls.fh"
 c
       integer nwmloc,nsaloc
-      real*8 xw(mwm,3,mwa),xs(msa,3)
+      real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
+c
+      if(.not.lcorr) then
+      call cf_pmecor(xw,nwmloc,xs,isq,nsaloc,ecorr)
+      lcorr=.true.
+      print*,'ecorr=',ecorr
+      endif
 c
       call pme_grid(xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
@@ -15,11 +21,13 @@ c
 c
       if(.not.lpnode) return
 c
-      call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd1),dbl_mb(i_grd2),
+      call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
-     + dbl_mb(i_bmod),dbl_mb(i_grd2),mgz)
+     + dbl_mb(i_bmod),dbl_mb(i_grd2),mgz,epme)
+c
+      epme=epme+ecorr
 c
       call pme_sync(nodpme,int_mb(i_nodp))
 c
@@ -53,34 +61,29 @@ c
 c
       lset=.true.
 c
-c      minxx=ngx
-c      minyy=ngy
-c      maxxx=1
-c      maxyy=1
-c
 c     loop over all nodes
 c
       do 1 inode=1,np
       node=me+inode
-      if(node.gt.np-1) node=node-np
+      if(node.gt.np) node=node-np
       lnode(node)=0
 c
-c     determine the number of planes on non-local node
+c     determine the number of planes on node
 c
       ngznon=0
-      if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
+      if(kto(node).gt.0) ngznon=kto(node)-kfrom(node)+1
       if(ngznon.eq.0) goto 1
 c
       call cf_chgrid(lset,xw,nwmloc,xs,isq,nsaloc,
      + gridr,ngznon,lgrid,knode,kfrom,lsldo,node,
-     + maxx,minx,maxy,miny,maxz,minz)
+     + minx,maxx,miny,maxy,minz,maxz)
 c
       if(lgrid) then
       lnode(node)=1
 c
       do 21 k=1,ngznon
       if(lsldo(node,k)) then
-      call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
+      call ga_distribution(lslab(k),node-1,ilsl,ihsl,jlsl,jhsl)
       call ga_acc(lslab(k),ilsl+minx-1,ilsl+maxx-1,jlsl+miny-1,
      + jlsl+maxy-1,gridr(minx,miny,k),mgx,one)
       endif
@@ -158,7 +161,7 @@ c
       integer k,ilsl,ihsl,jlsl,jhsl
 c
       do 1 k=1,nsl
-      call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
+      call ga_distribution(lslab(k),node-1,ilsl,ihsl,jlsl,jhsl)
       call ga_get(lslab(k),ilsl,ilsl+2*ngx-1,jlsl,jlsl+ngy-1,
      + grid(1,1,1,k),2*mgx)
     1 continue
@@ -197,7 +200,7 @@ c
 c
       do 1 inode=1,np
       node=me+inode
-      if(node.gt.np-1) node=node-np
+      if(node.gt.np) node=node-np
 c
 c     node can be skipped if it did not contribute to the charge grid
 c
@@ -206,7 +209,7 @@ c
 c     determine the number of planes on non-local node
 c
       ngznon=0
-      if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
+      if(kto(node).gt.0) ngznon=kto(node)-kfrom(node)+1
       if(ngznon.eq.0) goto 1
 c
       call pme_getgrd(node,ngznon,dbl_mb(i_grd1))

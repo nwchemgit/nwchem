@@ -14,7 +14,7 @@ c
 c
       return
       end
-      subroutine prp_step(mdstep,temp,pres,eww,esw,ess)
+      subroutine prp_step(mdstep,temp,pres,eww,esw,ess,epme)
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
 c
       integer mdstep
       real*8 temp,pres
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
 c
       integer i,j,k,me,np
 c
@@ -54,10 +54,12 @@ c
       call ga_dgop(mrg_d40,eww,mpe,'+')
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
+      call ga_dgop(mrg_d43,epme,1,'+')
       endif
       if(me.ne.0) return
 c
-      write(*,'(i5,e12.5,9f12.3)') mdstep,pres,temp,(eww(i,1),i=1,8)
+      write(*,'(i5,e12.5,11f12.3)') mdstep,pres,temp,(eww(i,1),i=1,8),
+     + epme,eww(5,1)+eww(6,1)+eww(8,1)+epme
       do 7 i=1,nsf
       write(*,'(24x,i5,8f12.3)') i,(esw(i,j,1),j=1,8)
     7 continue

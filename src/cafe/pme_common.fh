@@ -23,10 +23,10 @@ c
      + i_map1,l_map1,i_map2,l_map2,i_slab,l_slab,
      + ga_flg
 c
-      integer mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,ngmax
-      logical lpnode
+      integer mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,ngmax,morder
+      logical lpnode,lcorr
       common/pme_dim/mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,
-     + ngmax,lpnode
+     + ngmax,morder,lpnode,lcorr
 c
-      real*8 pi,twopi
-      common/pme_var/pi,twopi
+      real*8 pi,twopi,alpha,ecorr
+      common/pme_var/pi,twopi,alpha,ecorr
