@@ -117,3 +117,4 @@ Jan 14 1999	 Add zeros for nsp,npmf,npmfi
 Jan 29 1999	 Add MODEL option
 		 Add input LINK command
 		 Add CHAIN option
+		 Change in topology format

@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.19 1999-01-14 22:21:44 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.20 1999-01-30 04:54:13 d3j191 Exp $
 c
       implicit none
 c
@@ -89,8 +89,11 @@ c
      + 'GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE',//,
      + f12.6,3a10)
 c     
-      write(lfntop,1004) nats,q14fac,releps,0.0d0,0,nqu
- 1004 format(i5,3f12.6,2i5)
+      write(lfntop,1004) q14fac,releps,0.0d0,0
+ 1004 format(3f12.6,i5)
+      write(lfntop,1104) nats
+      write(lfntop,1104) nqu
+ 1104 format(i5)
       do 1 i=1,nats
       write(lfntop,1005) (catt(1,lats(j,i)),ratt(lats(j,i)),j=1,3),
      + (latt(1,lats(j,i)),j=1,3)
