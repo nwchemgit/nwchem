@@ -33,10 +33,11 @@ H library sto-3g
 O library sto-3g
 end
 
-dft
-xc HFexch 1.0
-convergence energy 1e-10
-tolerances acccoul 100
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
 end
 
 tce
