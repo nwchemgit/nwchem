@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.9 2004-12-17 02:21:49 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.10 2004-12-21 02:05:05 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -77,7 +77,7 @@ c
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
 
-      link = .not.qmmm_h_link()
+      link = .false.
 
       
       if (.not. rtdb_get(rtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm)) then
