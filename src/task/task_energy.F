@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.18 2000-04-17 22:32:48 zzhang Exp $
+* $Id: task_energy.F,v 1.19 2000-05-01 18:17:26 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,8 +30,8 @@ c     Also returns status through the function value
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, nwargos, rimp2g,nwmd
-      external semi_dir_mp2, nwargos, rimp2g,nwmd
+      logical semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
+      external semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
 c
       logical status
       double precision energy, cpu, wall, dipole(3)
@@ -93,6 +93,8 @@ c
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
      $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
+      else if (theory .eq. 'cg_pspw') then
+         status = pspw_energy(rtdb)
       else if (theory .eq. 'md') then
          status = nwmd(rtdb)
       else if (theory .eq. 'qmmm') then

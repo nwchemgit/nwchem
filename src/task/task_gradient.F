@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.21 2000-04-17 22:34:22 zzhang Exp $
+* $Id: task_gradient.F,v 1.22 2000-05-01 18:17:27 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -40,8 +40,8 @@ c     the numerical derivative routine.
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, rimp2g
-      external semi_dir_mp2, rimp2g
+      logical semi_dir_mp2, rimp2g, pspw_gradient
+      external semi_dir_mp2, rimp2g, pspw_gradient
 c
       logical scf_gradient, grad_dft, task_num_grad
       external scf_gradient, grad_dft, task_num_grad
@@ -94,7 +94,7 @@ c     cleanup any grid parameters
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
          prefix = 'mp2'
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
-     $        call errquit('task_energy: rtdb_put failed',0)
+     $        call errquit('task_gradient: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'mcscf') then
          status = scf_gradient(rtdb) ! Done thru SCF gradient module
@@ -116,6 +116,8 @@ c     cleanup any grid parameters
       else if (theory .eq. 'ccsd+t(ccsd)') then
          prefix = 'ccsd'
          status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'cg_pspw') then
+         status = pspw_gradient(rtdb)
       else if (theory .eq. 'qmmm') then
          if (ga_nodeid().eq.0) then
            write(6,*)'task_gradient: qmmm should never be the theory '
