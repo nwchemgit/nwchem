@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.54 2001-12-06 02:01:56 edo Exp $ 
+% $Id: dft.tex,v 1.55 2001-12-31 18:58:29 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -102,7 +102,7 @@ the DFT module are:
 
 
   DECOMP
-  DFT||ODFT
+  ODFT
   DIRECT
   INCORE
   ITERATIONS <integer iterations default 30>
@@ -1224,9 +1224,9 @@ are computed ``on-the-fly''.
 
 \fussy
 
-\section{DFT,  ODFT and  MULT --- Open shell systems}
+\section{ODFT and  MULT --- Open shell systems}
 \begin{verbatim}
-  DFT||ODFT
+  ODFT
   MULT <integer mult default 1>
 \end{verbatim}
 
@@ -1241,9 +1241,8 @@ When the keyword \verb+MULT+ is specified, the user can define the integer
 variable \verb+mult+, where \verb+mult+ is equal to the number of alpha 
 electrons minus beta electrons, plus 1.
 
-The keywords \verb+DFT||ODFT+ were originally intended to specify
-closed or open shell and are really unnecessary except in the context
-of forcing a closed-shell system to be computed as an open shell
+The keyword \verb+ODFT+ is unnecessary except in the context
+of forcing a singlet system to be computed as an open shell
 system (i.e., using a spin-unrestricted wavefunction).
 \section{SIC --- Self-Interaction Correction}
 
