@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.16 2002-05-08 23:50:25 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.17 2003-07-28 19:53:51 bylaska Exp $
 c
 
 *     ***************************************
@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 29)
+      parameter (num_dirs = 32)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -51,7 +51,7 @@ c
       integer lmax00,locp00
       real*8  rlocal00
 
-      character lmax
+      character lmax,locp
       integer h,i,j,k,debug
       data dirs / 'element:',
      >            'charge:',
@@ -81,6 +81,9 @@ c
      >            'vanderbilt_local',
      >            'vanderbilt_states',
      >            'semicore_radius',
+     >            'lmax',
+     >            'locp',
+     >            'aperiodic_cutoff',
      >            'end'/
 
 
@@ -103,7 +106,9 @@ c
       vstates    = -1
       max_rcut = 0
       lmax = '?'
+      locp = '?'
       r_semicore = -1.0d0
+      rlocal00  = 1.0d0
 
  10   if (.not. inp_read()) 
      >     call errquit(
@@ -120,6 +125,7 @@ c
      >       1000,1100,1200,1300,1400,
      >       100,  200, 300, 400, 500, 600, 700,800,900,
      >       1000,1100,1200,1300,1400,
+     >       700,710,1500,
      >      9999) ind
       call errquit(
      >      'psp_generator_input: unimplemented directive', ind)
@@ -194,6 +200,11 @@ c
            if (l_char.eq.'D') l_number(i) = 2
            if (l_char.eq.'F') l_number(i) = 3
            if (l_char.eq.'G') l_number(i) = 4
+           if (l_char.eq.'0') l_number(i) = 0
+           if (l_char.eq.'1') l_number(i) = 1
+           if (l_char.eq.'2') l_number(i) = 2
+           if (l_char.eq.'3') l_number(i) = 3
+           if (l_char.eq.'4') l_number(i) = 4
 
            if (.not. inp_f(filling(i)))
      >     call errquit(
@@ -228,6 +239,11 @@ c
            if (l_char.eq.'D') l_rcut(i) = 2
            if (l_char.eq.'F') l_rcut(i) = 3
            if (l_char.eq.'G') l_rcut(i) = 4
+           if (l_char.eq.'0') l_rcut(i) = 0
+           if (l_char.eq.'1') l_rcut(i) = 1
+           if (l_char.eq.'2') l_rcut(i) = 2
+           if (l_char.eq.'3') l_rcut(i) = 3
+           if (l_char.eq.'4') l_rcut(i) = 4
            if (.not. inp_f(rcut(i)))
      >     call errquit(
      >          'psp_generator_input: inp_f(rcut) failed', 0)
@@ -237,12 +253,21 @@ c
  
  
 c
-c  maximum_angular_momentum
+c  maximum_angular_momentum - lmax
 c 
  700  if (.not. inp_a(lmax))
      >     call errquit(
      >          'psp_generator_input: failed to read lmax', 0)
       goto 10
+
+c
+c  local potential - locp
+c 
+ 710  if (.not. inp_a(locp))
+     >     call errquit(
+     >          'psp_generator_input: failed to read locp', 0)
+      goto 10
+
  
 c
 c  pseudopotential_filename
@@ -319,6 +344,11 @@ c
            if (l_char.eq.'D') v_l(i) = 2
            if (l_char.eq.'F') v_l(i) = 3
            if (l_char.eq.'G') v_l(i) = 4
+           if (l_char.eq.'0') v_l(i) = 0
+           if (l_char.eq.'1') v_l(i) = 1
+           if (l_char.eq.'2') v_l(i) = 2
+           if (l_char.eq.'3') v_l(i) = 3
+           if (l_char.eq.'4') v_l(i) = 4
 
            if (.not. inp_f(v_eig(i)))
      >     call errquit(
@@ -338,6 +368,14 @@ c
      >     'psp_generator_input: failed to read semicore_radius',0)
       goto 10
  
+c
+c  aperiodic cutoff radius
+c 
+ 1500 if (.not. inp_f(rlocal00)) rlocal00 = 1.0d0
+      goto 10
+ 
+
+
 
 *     ***** generate temporary data file  and run pspsolve ****
  9999 continue
@@ -411,8 +449,30 @@ c
       if (lmax.eq.'D') lmax00 = 2
       if (lmax.eq.'F') lmax00 = 3
       if (lmax.eq.'G') lmax00 = 4
+      if (lmax.eq.'0') lmax00 = 0
+      if (lmax.eq.'1') lmax00 = 1
+      if (lmax.eq.'2') lmax00 = 2
+      if (lmax.eq.'3') lmax00 = 3
+      if (lmax.eq.'4') lmax00 = 4
+
       locp00   = -1
-      rlocal00 = 1.0d0
+      if (locp.eq.'s') locp00 = 0
+      if (locp.eq.'p') locp00 = 1
+      if (locp.eq.'d') locp00 = 2
+      if (locp.eq.'f') locp00 = 3
+      if (locp.eq.'g') locp00 = 4
+      if (locp.eq.'S') locp00 = 0
+      if (locp.eq.'P') locp00 = 1
+      if (locp.eq.'D') locp00 = 2
+      if (locp.eq.'F') locp00 = 3
+      if (locp.eq.'G') locp00 = 4
+      if (locp.eq.'0') locp00 = 0
+      if (locp.eq.'1') locp00 = 1
+      if (locp.eq.'2') locp00 = 2
+      if (locp.eq.'3') locp00 = 3
+      if (locp.eq.'4') locp00 = 4
+
+      !rlocal00 = 1.0d0 ! 
       call pspsolve(debug,
      >              lmax00,locp00,rlocal00,
      >              sdir_name(1:h),   h,
