@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.19 2002-09-20 21:41:07 bylaska Exp $
+* $Id: cpmdv5.F,v 1.20 2002-09-26 21:05:11 bylaska Exp $
 *
 
 ***********************************************************************
@@ -328,6 +328,8 @@
 
 *     **** Initialize thermostats ****
       SA=.false.
+      Te_init     = 0.0d0
+      Tr_init     = 0.0d0
       if (control_Nose()) then
          call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
          call Nose_Init(w)
