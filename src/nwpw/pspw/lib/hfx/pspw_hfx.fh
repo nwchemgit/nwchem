@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.fh,v 1.1 2004-11-05 23:15:01 bylaska Exp $
+* $Id: pspw_hfx.fh,v 1.2 2004-11-06 02:21:37 bylaska Exp $
 *
 
 *     **** PSPW_HFX common block ****
@@ -8,12 +8,12 @@
       real*8  ehfx
       real*8  hfx_parameter
       integer solver_type
-      integer norbs
-      integer orbital_list(2)
-      integer ehfx_orb(2)
+      integer norbs(2),ispin
+      integer orbital_list(2,2)
+      integer ehfx_orb(2,2)
       common / PSPW_HFX_Block / ehfx,rcut,pp,
      >                          hfx_parameter,
      >                          orbital_list,
      >                          ehfx_orb,
-     >                          norbs,solver_type,
+     >                          norbs,ispin,solver_type,
      >                          relaxed,orb_contribution,hfx_on

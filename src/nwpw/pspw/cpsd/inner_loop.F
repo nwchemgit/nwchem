@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.14 2004-03-08 22:51:26 bylaska Exp $
+* $Id: inner_loop.F,v 1.15 2004-11-06 02:21:37 bylaska Exp $
 *
 
 *  ************************************************************
@@ -48,10 +48,10 @@
       integer n2ft3d,np
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
-      integer index,indext
+      integer index,indext,gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
-      real*8  ehsic,phsic,exsic,pxsic
+      real*8  ehsic,phsic,exsic,pxsic,ehfx
       real*8  deltamm
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -81,11 +81,13 @@ c     real*8     fion(3,natmx)
 *     ***** external functions ****
       logical  control_move,psp_semicore
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
       external control_move,psp_semicore
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external ion_nion,control_gga
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,coulomb_e,ewald_e
@@ -119,6 +121,7 @@ c     real*8     fion(3,natmx)
 
       field_exist = pspw_charge_found().or.pspw_qmmm_found()
       sic        = pspw_SIC()
+      gga = control_gga()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -169,6 +172,8 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
       call nwpw_timing_end(12)
      
@@ -317,12 +322,12 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (control_gga().eq.0) then
+        if (gga.eq.0) then
           call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dcpl_mb(tmp1(1)))
-        else
+        else if (gga.eq.1) then
           call v_bwexc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
@@ -612,6 +617,13 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
             E(18) = phsic
             E(19) = pxsic
          end if
+      end if
+
+*     **** HFX corrections ****
+      if (pspw_HFX()) then
+         call pspw_energy_HFX(ispin,psi_r,ehfx)
+         E(1) = E(1) - ehfx
+         E(20) = ehfx
       end if
 
 

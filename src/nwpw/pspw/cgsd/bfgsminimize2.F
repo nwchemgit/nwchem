@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize2.F,v 1.2 2004-03-09 21:40:01 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.3 2004-11-06 02:21:36 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -115,8 +115,8 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition,pspw_SIC
-      external control_precondition,pspw_SIC
+      logical  control_precondition,pspw_SIC,pspw_HFX
+      external control_precondition,pspw_SIC,pspw_HFX
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -310,6 +310,10 @@ c     call dng_2to1()
          E(23) = exsic
          E(24) = phsic
          E(25) = pxsic
+      end if
+
+*     **** HFX corrections ****
+      if (pspw_HFX()) then
       end if
 
 

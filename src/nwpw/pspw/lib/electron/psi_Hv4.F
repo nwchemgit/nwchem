@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.12 2003-10-24 18:56:59 marat Exp $
+* $Id: psi_Hv4.F,v 1.13 2004-11-06 02:21:37 bylaska Exp $
 *
 
 *     *************************************
@@ -53,7 +53,7 @@
 #include "mafdecls.fh"
 
 *     **** local variables ****
-      logical dosic
+      logical dosic,dohfx
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
@@ -66,12 +66,15 @@
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed())
+      dohfx = (pspw_HFX().and.pspw_HFX_relaxed())
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -83,7 +86,7 @@
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (dosic) then
+      if ((dosic).or.(dohfx)) then
          value = value.and.
      >           MA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
@@ -118,6 +121,13 @@
 *     **********************************************
       if (dosic) then
          call pspw_potential_SIC(ispin,psi_r,dbl_mb(Hpsi_r(1)))
+      end if
+
+*     **********************************************
+*     **** HFX corrections- Hpsi_r = Vhfx*psi_r ****
+*     **********************************************
+      if (dohfx) then
+         call pspw_potential_HFX(ispin,psi_r,dbl_mb(Hpsi_r(1)))
       end if
 
 *     **********************************************************
@@ -156,7 +166,7 @@
 
 
 *           **** vpsi_r = vpsi_r + Hpsi_r ****
-            if (dosic)
+            if ((dosic).or.(dohfx))
      >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
      >                         dbl_mb(Hpsi_r(1)+(n-1)*n2ft3d),
      >                         dcpl_mb(vpsi(1)))
@@ -175,7 +185,7 @@
       call nwpw_timing_start(12)
 
       value = .true.
-      if (dosic)
+      if ((dosic).or.(dohfx))
      >  value = value.and.MA_pop_stack(Hpsi_r(2))
       value = value.and.MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
@@ -236,8 +246,10 @@
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 

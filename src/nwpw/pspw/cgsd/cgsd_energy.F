@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.48 2004-03-09 21:25:57 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.49 2004-11-06 02:21:36 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -37,7 +37,7 @@ c#include "rtdb.fh"
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      logical     control_out_of_time,pspw_SIC,control_DOS
+      logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
@@ -45,7 +45,7 @@ c#include "rtdb.fh"
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external control_out_of_time,pspw_SIC,control_DOS
+      external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -239,6 +239,9 @@ c#include "rtdb.fh"
            write(luout,1455) E(22),E(22)/neall
            write(luout,1456) E(23),E(23)/neall
          end if
+         if (pspw_HFX()) then
+           write(luout,1457) E(26),E(26)/neall
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
 
          write(luout,1480) E(6),E(6)/neall
@@ -254,6 +257,10 @@ c#include "rtdb.fh"
            write(luout,1499) E(24),E(24)/neall
            write(luout,1501) E(25),E(25)/neall
          end if
+         if (pspw_HFX())  then
+           write(luout,1502) E(26),E(26)/neall
+         end if
+
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
 
@@ -385,6 +392,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -397,6 +405,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
+     >        ' (',E15.5,'/electron)')
+ 1502 FORMAT( ' K.S. HF exchange energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))

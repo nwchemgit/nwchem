@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.12 2003-10-24 18:56:59 marat Exp $
+* $Id: psi_H.F,v 1.13 2004-11-06 02:21:37 bylaska Exp $
 *
 
 *     *************************************
@@ -31,7 +31,6 @@
      >                 vc,xcp,Hpsi_k,
      >                 move,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
@@ -45,9 +44,10 @@
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic
+      logical dosic,dohfx
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
@@ -62,12 +62,15 @@ c     complex*16 vpsi(nfft3d)
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
+      dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -115,6 +118,14 @@ c     complex*16 vpsi(nfft3d)
       if (dosic) then
          call pspw_potential_SIC(ispin,psi_r,dbl_mb(Hpsi_r(1)))
       end if
+
+*     *******************************************************
+*     **** HF exchange corrections- Hpsi_r = Vhfx*psi_r ****
+*     *******************************************************
+      if (dosic) then
+         call pspw_potential_HFX(ispin,psi_r,dbl_mb(Hpsi_r(1)))
+      end if
+
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
@@ -224,8 +235,10 @@ c     complex*16 vpsi(nfft3d)
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
+      external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
 

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.33 2004-08-01 02:02:45 bylaska Exp $
+* $Id: cpsdv5.F,v 1.34 2004-11-06 02:21:37 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -132,9 +132,11 @@
       external     control_boundry
 
       logical      pspw_SIC,pspw_SIC_relaxed
+      logical      pspw_HFX,pspw_HFX_relaxed
       logical      psp_semicore,control_Mulliken,pspw_qmmm_found
       real*8       psp_rcore,psp_ncore,psp_rlocal
       external     pspw_SIC,pspw_SIC_relaxed
+      external     pspw_HFX,pspw_HFX_relaxed
       external     psp_semicore,control_Mulliken,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
       logical      psi_filefind
@@ -349,8 +351,9 @@
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
-*     **** initialize SIC ****
+*     **** initialize SIC and HFX  ****
       call pspw_init_SIC(rtdb,ne)
+      call pspw_init_HFX(rtdb,ispin,ne)
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
@@ -378,8 +381,10 @@
          write(6,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(6,1130) 'restricted'
          if (ispin.eq.2) write(6,1130) 'unrestricted'
-         IF (control_gga().eq.0) THEN
-            write(6,1131) 'Vosko et al parameterization'
+         IF (control_gga().eq.-1) THEN
+            write(6,1131) 'off'
+         ELSE IF (control_gga().eq.0) THEN
+            write(6,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
@@ -389,6 +394,7 @@
          END IF
          if (fractional) write(6,1132)
          call pspw_print_SIC(6)
+         call pspw_print_HFX(6)
          write(6,1140)
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
@@ -698,6 +704,10 @@ c    >              dbl_mb(lmd(1)),ierr)
            write(6,1455) E(16),E(16)/n2(ispin)
            write(6,1456) E(17),E(17)/n2(ispin)
          end if
+         if (pspw_HFX()) then
+           write(6,1457) E(20),E(20)/n2(ispin)
+         end if
+
          write(6,1470) E(5),E(5)/ion_nion()
          write(6,1480) E(6),E(6)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
@@ -707,6 +717,9 @@ c    >              dbl_mb(lmd(1)),ierr)
          if (pspw_SIC().and.pspw_SIC_relaxed())  then
            write(6,1499) E(18),E(18)/n2(ispin)
            write(6,1501) E(19),E(19)/n2(ispin)
+         end if
+         if (pspw_HFX().and.pspw_HFX_relaxed())  then
+           write(6,1502) 2.0d0*E(20),2.0d0*E(20)/n2(ispin)
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
@@ -820,6 +833,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call psp_end()
       call ion_end_FixIon()
       call pspw_end_SIC()
+      call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_qmmm_end()
       call frac_occ_end()
@@ -965,6 +979,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -976,6 +991,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
+     >        ' (',E15.5,'/electron)')
+ 1502 FORMAT( ' K.S. HF exchange energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))

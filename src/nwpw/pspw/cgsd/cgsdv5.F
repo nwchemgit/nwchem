@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.50 2004-09-06 16:18:31 bylaska Exp $
+* $Id: cgsdv5.F,v 1.51 2004-11-06 02:21:36 bylaska Exp $
 *
 
 ***********************************************************************
@@ -256,6 +256,7 @@ c     value = psi_initialize()
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
       call pspw_init_SIC(rtdb,ne)
+      call pspw_init_HFX(rtdb,ne)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -293,6 +294,7 @@ c     value = psi_initialize()
          END IF
          if (fractional) write(6,1132)
          call pspw_print_SIC(6)
+         call pspw_print_HFX(6)
          write(6,1140)
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
@@ -526,6 +528,7 @@ c     end if
       call Pack_end()
       call G_end()
       call pspw_end_SIC()
+      call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.1 2004-11-05 23:15:01 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.2 2004-11-06 02:21:37 bylaska Exp $
 *
 
 *     *************************
@@ -7,9 +7,10 @@
 *     *     pspw_init_HFX     *
 *     *                       *
 *     *************************
-      subroutine pspw_init_HFX(rtdb,ne)
+      subroutine pspw_init_HFX(rtdb,ispin0,ne)
       implicit none
       integer rtdb
+      integer ispin0
       integer ne(2)
 
 #include "mafdecls.fh"
@@ -20,13 +21,15 @@
 *     **** local variables ****
       logical value
       integer ma_type
-      integer n1,n2,n3,mapping
+      integer n1,n2,n3,mapping,ms
 
 *     **** external functions ****
       integer  control_version,control_mapping
       external control_version,control_mapping
 
-      norbs = 0
+      ispin = ispin0
+      norbs(1) = 0
+      norbs(2) = 0
       ehfx = 0.0d0
       hfx_on = .false.
 
@@ -34,23 +37,39 @@
 *     **** get the number of HFX orbitals ****
       if (rtdb_get(rtdb,'pspw:HFX',mt_log,1,value)) then
          hfx_on = .true.
-         norbs = ne(1)+ne(2)
-         if(.not.MA_alloc_get(mt_int,norbs,
-     >       'orbital_list',orbital_list(2),orbital_list(1)))
+         do ms=1,ispin
+           norbs(ms) = ne(ms)
+           if(.not.MA_alloc_get(mt_int,norbs(ms),
+     >       'orbital_list',orbital_list(2,ms),orbital_list(1,ms)))
      >        call errquit('pspw_init_HFX:out of heap memory',0,MA_ERR)
           
-         do n1=1,norbs
-            int_mb(orbital_list(1)+n1-1) = n1
+            do n1=1,norbs(ms)
+               int_mb(orbital_list(1,ms)+n1-1) = n1 + (ms-1)*norbs(1)
+            end do
          end do
 
-      else if (rtdb_ma_get(rtdb, 'pspw:HFX_orbitals', ma_type,
-     >                norbs, orbital_list(2))) then
+      else 
 
-         if (.not.MA_get_index(orbital_list(2),orbital_list(1))) 
-     >      call errquit(
+         if (rtdb_ma_get(rtdb, 'pspw:HFX_up_orbitals', ma_type,
+     >                norbs(1), orbital_list(2,1))) then
+
+            if (.not.MA_get_index(orbital_list(2,1),orbital_list(1,1))) 
+     >        call errquit(
      >       'pspw_init_HFX: ma_get_index failed for actlist',911,
-     &       MA_ERR)
+     >        MA_ERR)
+         end if
+
+         if (rtdb_ma_get(rtdb, 'pspw:HFX_down_orbitals', ma_type,
+     >                norbs(2), orbital_list(2,2))) then
+
+           if (.not.MA_get_index(orbital_list(2,2),orbital_list(1,2))) 
+     >        call errquit(
+     >       'pspw_init_HFX: ma_get_index failed for actlist',911,
+     >         MA_ERR)
+         end if
+
          hfx_on = .true.
+
       end if
 
 
@@ -106,10 +125,12 @@
 
 *        **** initialize orb_contribution ****
          if (orb_contribution) then
+           do ms=1,ispin
            value = MA_alloc_get(mt_dbl,norbs,
-     >                'ehfx_orb',ehfx_orb(2),ehfx_orb(1))
+     >                'ehfx_orb',ehfx_orb(2,ms),ehfx_orb(1,ms))
            if (.not. value)   
      >       call errquit('pspw_init_HFX: out of heap memory',1, MA_ERR)
+           end do
          end if
 
       else
@@ -137,13 +158,13 @@
       integer MASTER,taskid
       parameter(MASTER=0)
       logical value
-      integer i
+      integer i,ms
 
 *     **** external functions ****
       integer  control_version
       external control_version
 
-      if (norbs.gt.0) then
+      if ((norbs(1)+norbs(2)).gt.0) then
 
 *       **** print out orbital contributions ****
         if (orb_contribution) then
@@ -151,24 +172,30 @@
            if (taskid.eq.MASTER) then
               write(6,487)
               write(6,488)
-              do i=1,norbs
+              do ms=1,ispin
+              do i=1,norbs(ms)
                 write(6,489) 
-     >            int_mb(orbital_list(1)+i-1),
-     >            dbl_mb(ehfx_orb(1)+i-1)
+     >            ms,
+     >            int_mb(orbital_list(1,ms)+i-1),
+     >            dbl_mb(ehfx_orb(1,ms)+i-1)
+              end do
               end do
            end if
   487   format(//,'== Orbital Contributions to HFX ==')
   488   format(/1x,'orbital',15x,
      >         'HF_Exchange') 	
-  489   format(1x,i7,2x,e18.6)
+  489   format(1x,i3,i7,2x,e18.6)
         end if
 
 
 *       **** deallocate memory ****
-        value =  MA_free_heap(orbital_list(2)) 
-        if (orb_contribution) then
-          value = value.and.MA_free_heap(ehfx_orb(2))
-        end if
+        value = .true.
+        do ms=1,ispin
+          value =  value.and.MA_free_heap(orbital_list(2,ms)) 
+          if (orb_contribution) then
+           value = value.and.MA_free_heap(ehfx_orb(2,ms))
+          end if
+        end do
         if (.not. value)
      >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
@@ -203,7 +230,7 @@
 #include "pspw_hfx.fh"
 
 *     **** local variables ****
-      integer i
+      integer i,ms
 
       if (hfx_on) then
         if (relaxed) then
@@ -211,7 +238,9 @@
         else
           write(unit,1002)
         end if
-        write(unit,1003) (int_mb(orbital_list(1)+i-1),i=1,norbs)
+        do ms=1,ispin
+        write(unit,1003) (int_mb(orbital_list(1,ms)+i-1),i=1,norbs(ms))
+        end do
 
         if (solver_type.eq.1) then
           write(unit,1004)
@@ -244,9 +273,9 @@
 *     *     pspw_potential_HFX   *
 *     *                          *
 *     ****************************
-      subroutine pspw_potential_HFX(ispin,psi_r,Hpsi_r)
+      subroutine pspw_potential_HFX(ispin0,psi_r,Hpsi_r)
       implicit none
-      integer    ispin
+      integer    ispin0
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
 
@@ -256,7 +285,7 @@
 
 *     **** local variables ****
       logical value
-      integer i,j,n2ft3d,n1,n2,n3
+      integer i,j,n2ft3d,n1,n2,n3,ms
       integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
       real*8  scal1,scal2,dv,eh
 
@@ -268,7 +297,7 @@
 
 
       ehfx = 0.0d0
-      if ((norbs.ne.0).and.relaxed) then
+      if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
@@ -286,13 +315,14 @@
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
-        do i=1,norbs
-        do j=1,i-1
-           index1 = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1)+j-1)-1)*n2ft3d + 1
+        do ms=1,ispin0
+        do i=1,norbs(ms)
+        do j=1,i
+           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
 
 *          **** generate dnij for Vij  ****
-           call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
+           call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),dbl_mb(dn(1)))
            call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
@@ -306,8 +336,8 @@
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = coulomb_screened_e(dbl_mb(dn(1)))
-             eh = 0.5d0*eh
+             eh = 0.5d0*coulomb_screened_e(dbl_mb(dn(1)))
+             if (ispin0.eq.1) eh = eh + eh
 
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
@@ -321,8 +351,8 @@
 
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
-
               eh = 0.5d0*eh*dv
+              if (ispin0.eq.1) eh = eh + eh
            end if
 
 *          **** apply the hfx_parameter ****
@@ -330,30 +360,39 @@
            call D3dB_r_SMul(1,hfx_parameter,
      >                      dbl_mb(vij(1)),
      >                      dbl_mb(vij(1)))
+           if (ispin.eq.1)
+     >      call D3dB_r_SMul(1,0.25d0,
+     >                      dbl_mb(vij(1)),
+     >                      dbl_mb(vij(1)))
 
            ehfx = ehfx - eh
 
 *          **** generate (Vij)*psi_r ***
            call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                        psi_r(index1),
+     >                        psi_r(index2),
      >                        dbl_mb(tmp1(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*          **** add -(Vij)*psi_r to Hpsi_r ***
+           call D3dB_rr_Sub(1,Hpsi_r(index1),
+     >                        dbl_mb(tmp1(1)),
+     >                        Hpsi_r(index1))
+
+*          **** generate (Vij)*psi_r ***
+           if (i.ne.j) then
            call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-     >                        psi_r(index2),
+     >                        psi_r(index1),
      >                        dbl_mb(tmp2(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
-
 *          **** add -(Vij)*psi_r to Hpsi_r ***
            call D3dB_rr_Sub(1,Hpsi_r(index2),
-     >                        dbl_mb(tmp1(1)),
-     >                        Hpsi_r(index2))
-
-           call D3dB_rr_Sub(1,Hpsi_r(index1),
      >                        dbl_mb(tmp2(1)),
-     >                        Hpsi_r(index1))
+     >                        Hpsi_r(index2))
+           end if
 
 
+        end do
         end do
         end do
 
@@ -374,9 +413,9 @@
 *     *     pspw_energy_HFX   *
 *     *                       *
 *     *************************
-      subroutine pspw_energy_HFX(ispin,psi_r,ehfx_out)
+      subroutine pspw_energy_HFX(ispin0,psi_r,ehfx_out)
       implicit none
-      integer ispin
+      integer ispin0
       real*8  psi_r(*)
       real*8 ehfx_out
 
@@ -386,7 +425,7 @@
 
 *     **** local variables ****
       logical value
-      integer i,j,n2ft3d,n1,n2,n3
+      integer i,j,n2ft3d,n1,n2,n3,ms
       integer dn(2),vij(2),tmp1(2),index1,index2
       real*8  scal1,scal2,dv,eh
 
@@ -396,7 +435,8 @@
       external control_gga
       external lattice_omega,coulomb_screened_e
 
-      if ((norbs.ne.0).and.(.not.relaxed)) then
+      ehfx_out = 0.0d0
+      if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
         ehfx = 0.0d0
 
         call D3dB_nx(1,n1)
@@ -411,14 +451,16 @@
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
-        do i=1,norbs
-        do j=1,i-1
 
-           index1 = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1)+j-1)-1)*n2ft3d + 1
+        do ms=1,ispin
+        do i=1,norbs(ms)
+        do j=1,i
+
+           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
 
 *          **** generate dnij ****
-           call D3dB_rr_MUL(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
+           call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
            call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
@@ -433,8 +475,8 @@
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = coulomb_screened_e(dbl_mb(dn(1)))
-             eh = 0.5d0*eh*hfx_parameter
+             eh = 0.5d0*hfx_parameter*coulomb_screened_e(dbl_mb(dn(1)))
+             if (ispin0.eq.1) eh = eh + eh
        
 
 *          ***** free-space coulomb solver ****
@@ -442,12 +484,13 @@
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
 
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
-              eh = eh*dv
-              eh = 0.5d0*eh*hfx_parameter
+              eh = 0.5d0*eh*dv*hfx_parameter
+              if (ispin0.eq.1) eh = eh + eh
            end if
 
            ehfx = ehfx - eh
 
+        end do
         end do
         end do
 
