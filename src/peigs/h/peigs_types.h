@@ -223,9 +223,6 @@ void pmmlsl2 (Integer *n, Integer *mapA, Integer *mapvecA, DoublePrecision **vec
 /* prev_column.c */
 Integer prev_column (Integer node, Integer *map, Integer indx);
 
-/* pstebz9.c */
-void pstebz_ (Integer *job, Integer *n, DoublePrecision *lb, DoublePrecision *ub, Integer *jjjlb, Integer *jjjub, DoublePrecision *abstol, DoublePrecision *d, DoublePrecision *e, Integer *mapZ, Integer *neigval, Integer *nsplit, DoublePrecision *eval, Integer *iblock, Integer *isplit, DoublePrecision *work, Integer *iwork, Integer *info);
-
 /* pstein.c */
 void pstein (Integer *n, DoublePrecision *dd, DoublePrecision *ee, Integer *meigval, DoublePrecision *eval, Integer *iblock, Integer *nsplit, Integer *isplit, Integer *mapZ, DoublePrecision **vecZ, DoublePrecision *ddwork, Integer *iiwork, Integer **ppiwork, Integer *info);
 
