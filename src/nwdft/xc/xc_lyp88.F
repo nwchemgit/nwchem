@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 c
-C$Id: xc_lyp88.F,v 1.11 2000-04-14 01:50:01 edo Exp $
+C$Id: xc_lyp88.F,v 1.12 2000-04-25 19:30:26 edo Exp $
 c
       implicit none 
 c
@@ -102,7 +102,11 @@ c
             xd = D/CD13
             Rx = xd/(1.D0 + xd)
             delta = xc + Rx
-            omega = P2*Rx*max(exp(-xc),EPS)/CD43
+            if(abs(xc).lt.eps) then
+               omega=0d0
+            else
+               omega = P2*Rx*exp(-xc)/CD43
+            endif
             Rab9 = P19*Rab
             Faa = Rab9*(1.D0 - 3.D0*delta - (delta - 11.D0)*Ra)
             Fbb = Faa
@@ -166,10 +170,15 @@ c
             Ra = CDa/CD
             Raa = Ra*Ra
             xc = C/CD13
-            xd = D/CD13
-            Rx = xd/(1.D0 + xd)
+!            xd = D/CD13
+!            Rx = xd/(1.D0 + xd)
+            rx=d/(d+cd13)
             delta = xc + Rx
-            omega = P2*Rx*max(exp(-xc),EPS)/CD43
+            if(abs(xc).lt.eps) then
+               omega=0d0
+            else
+               omega = P2*Rx*exp(-xc)/CD43
+            endif
             dElypdGaa = -omega*(Faa - Rbb)
             if(cdb.gt.eps) then
                CD13b = rho(n,3)**(1.d0/3.D0)
@@ -288,6 +297,5 @@ c
             if (ldew) func(n) =func(n) + (Elyp*fac)
    20    continue
       endif
-c
       return
       end
