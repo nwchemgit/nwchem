@@ -35,7 +35,7 @@ c
       integer noc(2),g_movecs(2)
       double precision evals(*),occ(*)
 c
-      if(me.eq.0) then
+      if(me.eq.0.and.oprint_eval) then
          if (util_print('intermediate evals', print_default))then
             call util_print_centered(LuOut,'alpha eigenvalues',
      &           20,.true.)
