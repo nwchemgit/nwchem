@@ -35,9 +35,9 @@ void ext_free(void *ptr) {
   free(ptr);
 }
 
-void FATR register_ext_memory_() {
+/* void FATR register_ext_memory_() {
   GA_Register_stack_memory(ext_malloc, ext_free);
-}
+}*/
 
 
 /*\ generate random range for a section of multidimensional array 
