@@ -2,7 +2,7 @@
      &    use_ma,use_ga,basis)
       implicit none
 *
-* $Id: int_spcart2.F,v 1.3 1999-06-18 01:03:53 d3e129 Exp $
+* $Id: int_spcart2.F,v 1.4 1999-06-18 20:34:22 d3e129 Exp $
 *
 *
 *::include files::
@@ -64,7 +64,7 @@
      &      '    normal or regular matrix '
         regular = .true.
       endif
-      o_debug   = .true. 
+      o_debug   = .false.
       do_spcart_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
 * initialize outputs      
       handle = 0
@@ -601,267 +601,267 @@ c
       enddo
       end
 ************************************************************************************ obsolete below
-      subroutine spcart_get_fullcs_ma(basis,ma_hp,ncart,nsph)
-      implicit none
-#include "mafdecls.fh"
-#include "bas.fh"
-#include "spcartP.fh"
-#include "global.fh"
-#include "stdio.fh"
-*:functions
-      logical spcart_init, spcart_terminate
-      external spcart_init, spcart_terminate
-*
-* generate a matrix in local "ma" memory (heap)
-* matrix(cartesian,spherical)
-*
-*:passed::
-      integer basis ! [input] basis set handle
-      integer ma_hp ! [output] ma handle of full matrix
-      integer ncart ! [output] cartesian dimension
-      integer nsph  ! [output] spherical dimension
-*:local::
-      integer ma_hk ! index into ma for array
-      logical o_loc_debug
-      integer highang
-      integer ishell
-      integer numcont
-      integer type
-      integer np, ng, sphcar
-      logical do_terminate
-c
-      o_loc_debug = .true.
-      ma_hp = 0
-      ncart = 0
-      nsph  = 0
-c
-      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
-c
-      if (.not.bas_check_handle(basis,'spcart_get_fullcs_ma'))
-     &      call errquit
-     &      ('spcart_get_fullcs_ma:invalid basis handle=>',basis)
-c
-      if (.not.bas_high_angular(basis,highang)) call errquit
-     &      ('spcart_get_fullcs_ma:spcart_init failed',911)
-      if (.not.spcart_init(highang,.true.,.false.))call errquit
-     &      ('spcart_get_fullcs_ma:spcart_init failed',911)
-c
-      if (.not.bas_numcont(basis,numcont)) call errquit
-     &      ('spcart_get_fullcs_ma:bas_numcont failed',911)
-      do ishell = 1,numcont
-        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
-     &        call errquit
-     &      ('spcart_get_fullcs_ma:bas_continfo failed on shell',
-     &        ishell)
-        if (type.ge.0) then
-          ncart = ncart + ng*((type+1)*(type+2)/2)
-          nsph  = nsph  + ng*(2*type + 1)
-        else if (type.eq.-1) then
-          ncart = ncart + 4
-          nsph  = nsph + 4
-        else
-          call errquit
-     &      ('spcart_get_fullcs_ma: unrecognized type',type)
-        endif
-      enddo
-c
-      if (o_loc_debug) then
-        write(luout,*)' number of shells    :1:',numcont
-        write(luout,*)' cartesian dimension :1:',ncart
-        write(luout,*)' spherical dimension :1:',nsph
-        call util_flush(luout)
-      endif
-c
-      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
-     &      'fullma cart,sph matrix',ma_hp,ma_hk))
-     &      call errquit
-     &      ('spcart_get_fullcs_ma:ma_alloc_get failed for size',
-     &      (ncart*nsph))
-c
-      call spcart_fill_fullcs_ma(numcont,ncart,nsph,dbl_mb(ma_hk),
-     &      basis,o_loc_debug)
-c
-      if (o_loc_debug) call output
-     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
-c
-      if (do_terminate) then
-        if (.not.spcart_terminate()) call errquit
-     &      ('spcart_get_fullcs_ma:spcart_terminate failed ',911)
-      endif
-      end
-      subroutine spcart_get_fullinvrscs_ma(basis,ma_hp,ncart,nsph)
-      implicit none
-#include "mafdecls.fh"
-#include "bas.fh"
-#include "spcartP.fh"
-#include "global.fh"
-#include "stdio.fh"
-*:functions
-      logical spcart_init, spcart_terminate
-      external spcart_init, spcart_terminate
-*
-* generate a matrix in local "ma" memory (heap)
-* matrix(spherical,cartesian)
-*
-*:passed::
-      integer basis ! [input] basis set handle
-      integer ma_hp ! [output] ma handle of full matrix
-      integer ncart ! [output] cartesian dimension
-      integer nsph  ! [output] spherical dimension
-*:local::
-      integer ma_hk ! index into ma for array
-      logical o_loc_debug
-      integer highang
-      integer ishell
-      integer numcont
-      integer type
-      integer np, ng, sphcar
-      logical do_terminate
-c
-      o_loc_debug = .true.
-      ma_hp = 0
-      ncart = 0
-      nsph  = 0
-c
-      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
-c
-      if (.not.bas_check_handle(basis,'spcart_get_fullinvrscs_ma'))
-     &      call errquit
-     &      ('spcart_get_fullinvrscs_ma:invalid basis handle=>',basis)
-c
-      if (.not.bas_high_angular(basis,highang)) call errquit
-     &      ('spcart_get_fullinvrscs_ma:spcart_init failed',911)
-      if (.not.spcart_init(highang,.true.,.false.))call errquit
-     &      ('spcart_get_fullinvrscs_ma:spcart_init failed',911)
-c
-      if (.not.bas_numcont(basis,numcont)) call errquit
-     &      ('spcart_get_fullinvrscs_ma:bas_numcont failed',911)
-      do ishell = 1,numcont
-        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
-     &        call errquit
-     &      ('spcart_get_fullinvrscs_ma:bas_continfo failed on shell',
-     &        ishell)
-        if (type.ge.0) then
-          ncart = ncart + ng*((type+1)*(type+2)/2)
-          nsph  = nsph  + ng*(2*type + 1)
-        else if (type.eq.-1) then
-          ncart = ncart + 4
-          nsph  = nsph + 4
-        else
-          call errquit
-     &      ('spcart_get_fullinvrscs_ma: unrecognized type',type)
-        endif
-      enddo
-c
-      if (o_loc_debug) then
-        write(luout,*)' number of shells    :1:',numcont
-        write(luout,*)' cartesian dimension :1:',ncart
-        write(luout,*)' spherical dimension :1:',nsph
-        call util_flush(luout)
-      endif
-c
-      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
-     &      'fullma cart,sph matrix',ma_hp,ma_hk))
-     &      call errquit
-     &      ('spcart_get_fullinvrscs_ma:ma_alloc_get failed for size',
-     &      (ncart*nsph))
-c
-      call spcart_fill_fullinvrscs_ma(numcont,ncart,nsph,
-     &      dbl_mb(ma_hk),basis,o_loc_debug)
-c
-      if (o_loc_debug) call output
-     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
-c
-      if (do_terminate) then
-        if (.not.spcart_terminate()) call errquit
-     &      ('spcart_get_fullinvrscs_ma:spcart_terminate failed ',911)
-      endif
-      end
-      subroutine spcart_get_fulltranscs_ma(basis,ma_hp,ncart,nsph)
-      implicit none
-#include "mafdecls.fh"
-#include "bas.fh"
-#include "spcartP.fh"
-#include "global.fh"
-#include "stdio.fh"
-*:functions
-      logical spcart_init, spcart_terminate
-      external spcart_init, spcart_terminate
-*
-* generate a matrix in local "ma" memory (heap)
-* matrix(spherical,cartesian)
-*
-*:passed::
-      integer basis ! [input] basis set handle
-      integer ma_hp ! [output] ma handle of full matrix
-      integer ncart ! [output] cartesian dimension
-      integer nsph  ! [output] spherical dimension
-*:local::
-      integer ma_hk ! index into ma for array
-      logical o_loc_debug
-      integer highang
-      integer ishell
-      integer numcont
-      integer type
-      integer np, ng, sphcar
-      logical do_terminate
-c
-      o_loc_debug = .true.
-      ma_hp = 0
-      ncart = 0
-      nsph  = 0
-c
-      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
-c
-      if (.not.bas_check_handle(basis,'spcart_get_fulltranscs_ma'))
-     &      call errquit
-     &      ('spcart_get_fulltranscs_ma:invalid basis handle=>',basis)
-c
-      if (.not.bas_high_angular(basis,highang)) call errquit
-     &      ('spcart_get_fulltranscs_ma:spcart_init failed',911)
-      if (.not.spcart_init(highang,.true.,.false.))call errquit
-     &      ('spcart_get_fulltranscs_ma:spcart_init failed',911)
-c
-      if (.not.bas_numcont(basis,numcont)) call errquit
-     &      ('spcart_get_fulltranscs_ma:bas_numcont failed',911)
-      do ishell = 1,numcont
-        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
-     &        call errquit
-     &      ('spcart_get_fulltranscs_ma:bas_continfo failed on shell',
-     &        ishell)
-        if (type.ge.0) then
-          ncart = ncart + ng*((type+1)*(type+2)/2)
-          nsph  = nsph  + ng*(2*type + 1)
-        else if (type.eq.-1) then
-          ncart = ncart + 4
-          nsph  = nsph + 4
-        else
-          call errquit
-     &      ('spcart_get_fulltranscs_ma: unrecognized type',type)
-        endif
-      enddo
-c
-      if (o_loc_debug) then
-        write(luout,*)' number of shells    :1:',numcont
-        write(luout,*)' cartesian dimension :1:',ncart
-        write(luout,*)' spherical dimension :1:',nsph
-        call util_flush(luout)
-      endif
-c
-      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
-     &      'fullma cart,sph matrix',ma_hp,ma_hk))
-     &      call errquit
-     &      ('spcart_get_fulltranscs_ma:ma_alloc_get failed for size',
-     &      (ncart*nsph))
-c
-      call spcart_fill_fulltranscs_ma(numcont,ncart,nsph,
-     &      dbl_mb(ma_hk),basis,o_loc_debug)
-c
-      if (o_loc_debug) call output
-     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
-c
-      if (do_terminate) then
-        if (.not.spcart_terminate()) call errquit
-     &      ('spcart_get_fulltranscs_ma:spcart_terminate failed ',911)
-      endif
-      end
+*obsolete:      subroutine spcart_get_fullcs_ma(basis,ma_hp,ncart,nsph)
+*obsolete:      implicit none
+*obsolete:#include "mafdecls.fh"
+*obsolete:#include "bas.fh"
+*obsolete:#include "spcartP.fh"
+*obsolete:#include "global.fh"
+*obsolete:#include "stdio.fh"
+*obsolete:*:functions
+*obsolete:      logical spcart_init, spcart_terminate
+*obsolete:      external spcart_init, spcart_terminate
+*obsolete:*
+*obsolete:* generate a matrix in local "ma" memory (heap)
+*obsolete:* matrix(cartesian,spherical)
+*obsolete:*
+*obsolete:*:passed::
+*obsolete:      integer basis ! [input] basis set handle
+*obsolete:      integer ma_hp ! [output] ma handle of full matrix
+*obsolete:      integer ncart ! [output] cartesian dimension
+*obsolete:      integer nsph  ! [output] spherical dimension
+*obsolete:*:local::
+*obsolete:      integer ma_hk ! index into ma for array
+*obsolete:      logical o_loc_debug
+*obsolete:      integer highang
+*obsolete:      integer ishell
+*obsolete:      integer numcont
+*obsolete:      integer type
+*obsolete:      integer np, ng, sphcar
+*obsolete:      logical do_terminate
+*obsolete:c
+*obsolete:      o_loc_debug = .false.
+*obsolete:      ma_hp = 0
+*obsolete:      ncart = 0
+*obsolete:      nsph  = 0
+*obsolete:c
+*obsolete:      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
+*obsolete:c
+*obsolete:      if (.not.bas_check_handle(basis,'spcart_get_fullcs_ma'))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:invalid basis handle=>',basis)
+*obsolete:c
+*obsolete:      if (.not.bas_high_angular(basis,highang)) call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:spcart_init failed',911)
+*obsolete:      if (.not.spcart_init(highang,.true.,.false.))call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:spcart_init failed',911)
+*obsolete:c
+*obsolete:      if (.not.bas_numcont(basis,numcont)) call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:bas_numcont failed',911)
+*obsolete:      do ishell = 1,numcont
+*obsolete:        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
+*obsolete:     &        call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:bas_continfo failed on shell',
+*obsolete:     &        ishell)
+*obsolete:        if (type.ge.0) then
+*obsolete:          ncart = ncart + ng*((type+1)*(type+2)/2)
+*obsolete:          nsph  = nsph  + ng*(2*type + 1)
+*obsolete:        else if (type.eq.-1) then
+*obsolete:          ncart = ncart + 4
+*obsolete:          nsph  = nsph + 4
+*obsolete:        else
+*obsolete:          call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma: unrecognized type',type)
+*obsolete:        endif
+*obsolete:      enddo
+*obsolete:c
+*obsolete:      if (o_loc_debug) then
+*obsolete:        write(luout,*)' number of shells    :1:',numcont
+*obsolete:        write(luout,*)' cartesian dimension :1:',ncart
+*obsolete:        write(luout,*)' spherical dimension :1:',nsph
+*obsolete:        call util_flush(luout)
+*obsolete:      endif
+*obsolete:c
+*obsolete:      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
+*obsolete:     &      'fullma cart,sph matrix',ma_hp,ma_hk))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:ma_alloc_get failed for size',
+*obsolete:     &      (ncart*nsph))
+*obsolete:c
+*obsolete:      call spcart_fill_fullcs_ma(numcont,ncart,nsph,dbl_mb(ma_hk),
+*obsolete:     &      basis,o_loc_debug)
+*obsolete:c
+*obsolete:      if (o_loc_debug) call output
+*obsolete:     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
+*obsolete:c
+*obsolete:      if (do_terminate) then
+*obsolete:        if (.not.spcart_terminate()) call errquit
+*obsolete:     &      ('spcart_get_fullcs_ma:spcart_terminate failed ',911)
+*obsolete:      endif
+*obsolete:      end
+*obsolete:      subroutine spcart_get_fullinvrscs_ma(basis,ma_hp,ncart,nsph)
+*obsolete:      implicit none
+*obsolete:#include "mafdecls.fh"
+*obsolete:#include "bas.fh"
+*obsolete:#include "spcartP.fh"
+*obsolete:#include "global.fh"
+*obsolete:#include "stdio.fh"
+*obsolete:*:functions
+*obsolete:      logical spcart_init, spcart_terminate
+*obsolete:      external spcart_init, spcart_terminate
+*obsolete:*
+*obsolete:* generate a matrix in local "ma" memory (heap)
+*obsolete:* matrix(spherical,cartesian)
+*obsolete:*
+*obsolete:*:passed::
+*obsolete:      integer basis ! [input] basis set handle
+*obsolete:      integer ma_hp ! [output] ma handle of full matrix
+*obsolete:      integer ncart ! [output] cartesian dimension
+*obsolete:      integer nsph  ! [output] spherical dimension
+*obsolete:*:local::
+*obsolete:      integer ma_hk ! index into ma for array
+*obsolete:      logical o_loc_debug
+*obsolete:      integer highang
+*obsolete:      integer ishell
+*obsolete:      integer numcont
+*obsolete:      integer type
+*obsolete:      integer np, ng, sphcar
+*obsolete:      logical do_terminate
+*obsolete:c
+*obsolete:      o_loc_debug = .false.
+*obsolete:      ma_hp = 0
+*obsolete:      ncart = 0
+*obsolete:      nsph  = 0
+*obsolete:c
+*obsolete:      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
+*obsolete:c
+*obsolete:      if (.not.bas_check_handle(basis,'spcart_get_fullinvrscs_ma'))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:invalid basis handle=>',basis)
+*obsolete:c
+*obsolete:      if (.not.bas_high_angular(basis,highang)) call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:spcart_init failed',911)
+*obsolete:      if (.not.spcart_init(highang,.true.,.false.))call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:spcart_init failed',911)
+*obsolete:c
+*obsolete:      if (.not.bas_numcont(basis,numcont)) call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:bas_numcont failed',911)
+*obsolete:      do ishell = 1,numcont
+*obsolete:        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
+*obsolete:     &        call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:bas_continfo failed on shell',
+*obsolete:     &        ishell)
+*obsolete:        if (type.ge.0) then
+*obsolete:          ncart = ncart + ng*((type+1)*(type+2)/2)
+*obsolete:          nsph  = nsph  + ng*(2*type + 1)
+*obsolete:        else if (type.eq.-1) then
+*obsolete:          ncart = ncart + 4
+*obsolete:          nsph  = nsph + 4
+*obsolete:        else
+*obsolete:          call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma: unrecognized type',type)
+*obsolete:        endif
+*obsolete:      enddo
+*obsolete:c
+*obsolete:      if (o_loc_debug) then
+*obsolete:        write(luout,*)' number of shells    :1:',numcont
+*obsolete:        write(luout,*)' cartesian dimension :1:',ncart
+*obsolete:        write(luout,*)' spherical dimension :1:',nsph
+*obsolete:        call util_flush(luout)
+*obsolete:      endif
+*obsolete:c
+*obsolete:      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
+*obsolete:     &      'fullma cart,sph matrix',ma_hp,ma_hk))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:ma_alloc_get failed for size',
+*obsolete:     &      (ncart*nsph))
+*obsolete:c
+*obsolete:      call spcart_fill_fullinvrscs_ma(numcont,ncart,nsph,
+*obsolete:     &      dbl_mb(ma_hk),basis,o_loc_debug)
+*obsolete:c
+*obsolete:      if (o_loc_debug) call output
+*obsolete:     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
+*obsolete:c
+*obsolete:      if (do_terminate) then
+*obsolete:        if (.not.spcart_terminate()) call errquit
+*obsolete:     &      ('spcart_get_fullinvrscs_ma:spcart_terminate failed ',911)
+*obsolete:      endif
+*obsolete:      end
+*obsolete:      subroutine spcart_get_fulltranscs_ma(basis,ma_hp,ncart,nsph)
+*obsolete:      implicit none
+*obsolete:#include "mafdecls.fh"
+*obsolete:#include "bas.fh"
+*obsolete:#include "spcartP.fh"
+*obsolete:#include "global.fh"
+*obsolete:#include "stdio.fh"
+*obsolete:*:functions
+*obsolete:      logical spcart_init, spcart_terminate
+*obsolete:      external spcart_init, spcart_terminate
+*obsolete:*
+*obsolete:* generate a matrix in local "ma" memory (heap)
+*obsolete:* matrix(spherical,cartesian)
+*obsolete:*
+*obsolete:*:passed::
+*obsolete:      integer basis ! [input] basis set handle
+*obsolete:      integer ma_hp ! [output] ma handle of full matrix
+*obsolete:      integer ncart ! [output] cartesian dimension
+*obsolete:      integer nsph  ! [output] spherical dimension
+*obsolete:*:local::
+*obsolete:      integer ma_hk ! index into ma for array
+*obsolete:      logical o_loc_debug
+*obsolete:      integer highang
+*obsolete:      integer ishell
+*obsolete:      integer numcont
+*obsolete:      integer type
+*obsolete:      integer np, ng, sphcar
+*obsolete:      logical do_terminate
+*obsolete:c
+*obsolete:      o_loc_debug = .false.
+*obsolete:      ma_hp = 0
+*obsolete:      ncart = 0
+*obsolete:      nsph  = 0
+*obsolete:c
+*obsolete:      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
+*obsolete:c
+*obsolete:      if (.not.bas_check_handle(basis,'spcart_get_fulltranscs_ma'))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:invalid basis handle=>',basis)
+*obsolete:c
+*obsolete:      if (.not.bas_high_angular(basis,highang)) call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:spcart_init failed',911)
+*obsolete:      if (.not.spcart_init(highang,.true.,.false.))call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:spcart_init failed',911)
+*obsolete:c
+*obsolete:      if (.not.bas_numcont(basis,numcont)) call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:bas_numcont failed',911)
+*obsolete:      do ishell = 1,numcont
+*obsolete:        if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
+*obsolete:     &        call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:bas_continfo failed on shell',
+*obsolete:     &        ishell)
+*obsolete:        if (type.ge.0) then
+*obsolete:          ncart = ncart + ng*((type+1)*(type+2)/2)
+*obsolete:          nsph  = nsph  + ng*(2*type + 1)
+*obsolete:        else if (type.eq.-1) then
+*obsolete:          ncart = ncart + 4
+*obsolete:          nsph  = nsph + 4
+*obsolete:        else
+*obsolete:          call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma: unrecognized type',type)
+*obsolete:        endif
+*obsolete:      enddo
+*obsolete:c
+*obsolete:      if (o_loc_debug) then
+*obsolete:        write(luout,*)' number of shells    :1:',numcont
+*obsolete:        write(luout,*)' cartesian dimension :1:',ncart
+*obsolete:        write(luout,*)' spherical dimension :1:',nsph
+*obsolete:        call util_flush(luout)
+*obsolete:      endif
+*obsolete:c
+*obsolete:      if (.not.ma_alloc_get(mt_dbl,(ncart*nsph),
+*obsolete:     &      'fullma cart,sph matrix',ma_hp,ma_hk))
+*obsolete:     &      call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:ma_alloc_get failed for size',
+*obsolete:     &      (ncart*nsph))
+*obsolete:c
+*obsolete:      call spcart_fill_fulltranscs_ma(numcont,ncart,nsph,
+*obsolete:     &      dbl_mb(ma_hk),basis,o_loc_debug)
+*obsolete:c
+*obsolete:      if (o_loc_debug) call output
+*obsolete:     &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
+*obsolete:c
+*obsolete:      if (do_terminate) then
+*obsolete:        if (.not.spcart_terminate()) call errquit
+*obsolete:     &      ('spcart_get_fulltranscs_ma:spcart_terminate failed ',911)
+*obsolete:      vendif
+*obsolete:      end

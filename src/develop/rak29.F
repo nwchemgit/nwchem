@@ -1,4 +1,7 @@
       logical function raktask_fullsc(rtdb)
+*
+* $Id: rak29.F,v 1.4 1999-06-18 20:33:38 d3e129 Exp $
+*
       implicit none
 #include "stdio.fh"
 #include "bas.fh"
