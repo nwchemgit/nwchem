@@ -1,5 +1,5 @@
 /*
- $Id: peigs_dlasq1.c,v 1.8 2000-10-24 18:25:52 d3g270 Exp $
+ $Id: peigs_dlasq1.c,v 1.9 2000-10-24 21:23:14 d3g270 Exp $
 */
 
 #include <stdio.h>
@@ -35,7 +35,7 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
     file = fopen(filename, "w");
     for ( iii = 0; iii < n; iii++)
       fprintf(file, " %d %20.16f %20.16f \n", iii, dplus[iii], lplus[iii]);
-    close(file);
+    fclose(file);
     fflush(file);
     fflush(stdout);
   }
