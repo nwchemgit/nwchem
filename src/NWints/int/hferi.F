@@ -1,7 +1,7 @@
       Subroutine hferi(Ep,Eq,R0,IJK,ERI,E3,sum,MPP,MPQ,
      &                 NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
      &                 canAB,canCD,canPQ)
-c $Id: hferi.F,v 1.1 2003-10-23 01:43:48 edo Exp $
+c $Id: hferi.F,v 1.2 2003-10-23 19:52:15 edo Exp $
 
       Implicit none
 #include "sh_order.fh"
@@ -163,7 +163,7 @@ c overlap distribution "P".
 c Include the factor of (-1)**(Iq+Jq+Kq).
                       Lq=Lq+1
 
-                      if(AND(Lq,1))then
+                      if(AND(Lq,1).eq.1)then
                         if(MPQ.eq.1) then
                            do mp = 1,MPP
                               sum(1,nq) = sum(1,nq)-E3(mp)*R0(1,mp,nr)
