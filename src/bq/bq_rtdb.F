@@ -1,4 +1,4 @@
-c $Id: bq_rtdb.F,v 1.1 2005-03-30 23:34:28 marat Exp $
+c $Id: bq_rtdb.F,v 1.2 2005-03-31 03:20:30 marat Exp $
 
       subroutine bq_tag_ncent(namespace,tag)
       implicit none
@@ -125,8 +125,8 @@ c      local variables
        logical bq_rtdb_load
 c      local variables
        integer ncent
-       integer h_c,i_c
-       integer h_q,i_q
+       integer h_c
+       integer h_q
        character(32) pname
        character(255) tag
        character(255) namespace

@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.2 2005-03-30 23:34:28 marat Exp $
+c $Id: bq_data.F,v 1.3 2005-03-31 03:20:30 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.2 2005-03-30 23:34:28 marat Exp $
+C$Id: bq_data.F,v 1.3 2005-03-31 03:20:30 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -31,6 +31,60 @@ c      local variables
           return
         end if
        end do
+       
+       return
+       end
+
+      function bq_activate(handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_activate
+c      local variables
+       integer i
+
+       bq_activate = .true.
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_activate = .false.
+         return
+       end if
+       if(bq_ncent(handle).eq.0) then
+         bq_activate = .false.
+         return
+       end if
+
+       do i=1,max_bq
+        bq_active(i)=.false.
+       end do
+        
+       bq_active(handle) = .true.
+       
+       return
+       end
+
+      function bq_get_active(handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_get_active
+c      local variables
+       integer i
+
+       do i=1,max_bq
+        if(bq_active(i)) then
+          bq_get_active = .true.
+          handle = i
+          return
+        end if
+       end do
+        
+       bq_get_active = .false.
        
        return
        end
@@ -323,6 +377,7 @@ c      local variables
        end if
 
        bq_name(handle)=" "
+       bq_active(handle)=.false.
        if(bq_ncent(handle).eq.0) return
         
        h_q = bq_charge(handle)

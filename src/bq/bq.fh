@@ -34,3 +34,9 @@
        logical  bq_destroy
        external bq_destroy
 
+       logical  bq_activate
+       external bq_activate
+
+       logical  bq_get_active
+       external bq_get_active
+
