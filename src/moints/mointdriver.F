@@ -26,8 +26,10 @@ c
        integer mo_indx2_lo, mo_indx2_hi, nmo2
        integer noper, nvir
        integer g_coul, g_exch
+       logical oexch,ocoul
        double precision emp2
        data g_coul,g_exch/-1,-1/
+       data oexch,ocoul/.true.,.true./
 c
 c
 c
@@ -123,7 +125,7 @@ c
 c
 c
 c
-C       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
+       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
        g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
 c
 c
@@ -131,21 +133,25 @@ c
        call moints_build_JK(rtdb,basis,
      $                      mo_indx_lo,mo_indx_hi,
      $                      mo_indx2_lo,mo_indx2_hi,
-     $                      g_vecs,g_coul,.false.,g_exch,.true.)
+     $                      g_vecs,g_coul,ocoul,g_exch,oexch)
+
+C       call moints_print_opermatrix(noper,nmo2,g_coul)
 c
 c
 c
-       status = ma_push_get(MT_DBL,(noper*(noper+1))/2,'pair e2',
-     $                      l_epair,k_epair)
-       call moints_mp2_eval(nocc,nvir,dbl_mb(k_evals),g_exch,
+       if (oexch) then
+         status = ma_push_get(MT_DBL,(noper*(noper+1))/2,'pair e2',
+     $                                l_epair,k_epair)
+         call moints_mp2_eval(nocc,nvir,dbl_mb(k_evals),g_exch,
      $                      emp2,dbl_mb(k_epair))
+         status = ma_pop_stack(l_epair)
+       endif
 c
 c
 c
        call schwarz_tidy()
-C       status = ga_destroy(g_coul)
+       status = ga_destroy(g_coul)
        status = ga_destroy(g_exch)
-       status = ma_pop_stack(l_epair)
        status = ma_pop_stack(l_evals)
        status = status.and.ma_pop_stack(l_occ)
        if (.not.status) call errquit('moints: cannot pop stack?',0)
