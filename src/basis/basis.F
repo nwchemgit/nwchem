@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.38 1996-01-25 01:26:11 d3e129 Exp $
+c $Id: basis.F,v 1.39 1996-02-05 23:19:36 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -27,7 +27,7 @@ c.. integer data in basis set object common
       idata = idata + ndbs_head*nbasis_bsmx
       idata = idata + ndbs_tags*ntags_bsmx*nbasis_bsmx
       idata = idata + ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx
-      idata = idata + nbasis_bsmx*5 + 1
+      idata = idata + nbasis_bsmx*6 + 1   ! assume logical and integer same size
       idata = idata + nbasis_rtdb_mx
       idata = 4*idata
 c
@@ -90,7 +90,7 @@ c
 c
       bas_version = .true.
       end
-c......................................................................
+*......................................................................
       logical function bas_create(basis,name)
 c
 c creates a handle and marks it active in the in-core data structure
@@ -153,6 +153,7 @@ c
       nprim_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
       ibs_geom(basis)     = 0
+      bas_norm_id(basis)  = BasNorm_UN
 c
 c Mark basis as active and return info
 c
@@ -161,7 +162,7 @@ c
       bas_create = .true.
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_destroy(basisin)
 c
 c destroys information about an active incore basis
@@ -196,7 +197,12 @@ c
         return
       endif
 
-      bsactive(basis) = .false.
+c
+      angular_bs(basis)    = -565
+      bas_norm_id(basis)   = -565
+      bsactive(basis)      = .false.
+      bas_spherical(basis) = .false.
+c
       if (exndcf(SZ_exndcf,basis).gt.0) then
         h_tmp = exndcf(H_exndcf,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
@@ -209,7 +215,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_check_handle(basisin,msg)
 c
 c Checks to see if a basis set handle is valid
@@ -234,7 +240,7 @@ c
       endif
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_321g_load(rtdb)
       implicit none
 c
@@ -402,7 +408,6 @@ c add p now
      &      a_tag, a_lval, a_ngen, a_nprim, a_exp, a_cof, a_nprim)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *rak:      bs_tags(1,usebas) = 'H'
 *rak:      bs_tags(2,usebas) = 'He'
 *rak:      bs_tags(3,usebas) = 'O'
@@ -555,7 +560,7 @@ c
       bas_321g_load = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_print(basisin)
 c
 c routine to print unique basis information that is in core
@@ -606,6 +611,8 @@ c
      $     bs_trans(basis)(1:inp_strlen(bs_trans(basis)))
  1    format('                      Basis "',a,'" -> "',a,'"'/
      $       '                      -----')
+      if (bas_spherical(basis)) write(6,2)
+2     format('         Basis is spherical, 5d, 7f, 9g ... ')
       mytags  = infbs_head(HEAD_NTAGS,basis)
       if (mytags.le.0) then
         write(6,*)' Empty basis set '
@@ -668,7 +675,7 @@ c  ... not done yet
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
 c
@@ -815,6 +822,7 @@ c
       dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
       infbs_head(HEAD_EXCFPTR,basis) = k_tmp
       end
+*......................................................................
       logical function bas_geobas_build(basisin)
       implicit none
 #include "rtdb.fh"
@@ -864,6 +872,13 @@ c
 c..... add diagnostics later
         return
       endif
+c.... set spherical flag
+      if (infbs_head(HEAD_SPH,basis).eq.1) then
+        bas_spherical(basis) = .true.
+      else
+        bas_spherical(basis) = .false.
+      endif
+c
 c... clear old ibs_ce2uce if it exists
       if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_ce2uce(H_ibs,basis)
@@ -1133,7 +1148,7 @@ c
       bas_geobas_build = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
 c
@@ -1172,7 +1187,7 @@ c
      $    infbs_head(HEAD_NPRIM,basis)+infbs_head(HEAD_NCOEF,basis))
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, head_array,
      &       tags_array, ucont_array, excfin, ntagsin, nucontin,
      &       nexcf)
@@ -1259,7 +1274,7 @@ c..... add diagnostics later
       endif
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
@@ -1302,7 +1317,7 @@ c
       bas_high_angular = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function gbs_map_clear(basisin)
       implicit none
 #include "basP.fh"
@@ -1387,12 +1402,10 @@ c
       nprim_tot_gb(basis) = 0
       nbf_tot_gb(basis)   = 0
 c
-      angular_bs(basis) = -565
-c
       gbs_map_clear = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function gbs_map_print(basisin)
       implicit none
 c
@@ -1502,7 +1515,7 @@ c
       gbs_map_print = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_out(rtdb)
 c     
 c     output to rtdb info about known basis sets
@@ -1525,7 +1538,7 @@ c
      &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
 c     
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_add(rtdb, name)
       implicit none
 c
@@ -1575,7 +1588,7 @@ c
       bas_rtdb_add = .true.
 c     
       end
-c......................................................................
+*......................................................................
       logical function bas_print_all()
 c
 c routine to print active all basis set(s) information
@@ -1598,7 +1611,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_rtdb_in(rtdb)
 c     
 c     load in info about known basis sets ... this is more
@@ -1629,7 +1642,7 @@ c
 c     
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_cn2ce(basisin,cont,center)
       implicit none
 c
@@ -1665,7 +1678,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
 c
 c returns the first basis function index of a mapped contraction 
@@ -1709,7 +1722,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
 c
 c  returns the basis function range for a given center
@@ -1737,7 +1750,7 @@ c
       bas_ce2bfr = status
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
 c
 c returns the mapped contraction range on a given center
@@ -1790,7 +1803,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_bf2ce(basisin,testbf,center)
 c
 c routine to return the center of a given basis function 
@@ -1839,7 +1852,7 @@ c
 00100 continue
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_bf2cn(basisin,testbf,cont)
 c
 c returns the mapped contraction index that contains the given 
@@ -1888,7 +1901,7 @@ c... linear search through contractions
 00100 continue
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_numbf(basisin,nbf)
 c
 c returns the total number of basis functions of the mapped basis set.
@@ -1914,7 +1927,7 @@ c
       bas_numbf = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_name(basisin,basis_name,trans_name)
 c
 c returns the name and translated name of the basis set
@@ -1947,7 +1960,7 @@ c
       trans_name = bs_trans(basis)
 c
       end
-c......................................................................
+*......................................................................
       logical function bas_get_exponent(basisin,icont,exp)
 c
 c  returns the exponents of a given mapped contraction 
@@ -1998,7 +2011,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_continfo(basisin,icont,
      &       type,nprimo,ngeno,sphcart)
 c
@@ -2046,15 +2059,19 @@ c
       endif
 c
       myucont = sf_ibs_cn2ucn(icont,basis)
-c... no spherical yet 3/94 only cart. 
-      sphcart = 0
+c... 
+      if (bas_spherical(basis)) then
+        sphcart = 1
+      else
+        sphcart = 0
+      endif
       type    = infbs_cont(CONT_TYPE, myucont,basis)
       nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
       ngeno   = infbs_cont(CONT_NGEN, myucont,basis)
       bas_continfo=.true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_numcont(basisin,numcont)
 c
 c returns the total number of mapped contractions/shells for the 
@@ -2084,7 +2101,7 @@ c
       bas_numcont = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_get_coeff(basisin,icont,coeff)
 c
 c returns the coefficients for the given mapped contraction
@@ -2138,7 +2155,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_set_exponent(basisin,icont,exp,nexp)
 c
 c sets the exponents to the input array for a given mapped contraction
@@ -2201,7 +2218,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
 c
 c sets the coefficients of the given mapped contraction
@@ -2266,7 +2283,7 @@ c
 c
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_nbf_cn_max(basisin,nbf_max)
       implicit none
 c
@@ -2312,7 +2329,7 @@ c
       bas_nbf_cn_max = .true.
       return
       end
-c......................................................................
+*......................................................................
       logical function bas_nbf_ce_max(basisin,nbf_max)
       implicit none
 c
@@ -2363,6 +2380,7 @@ c
 c
       return
       end
+*......................................................................
       logical function bas_geom(basisin,geom)	
       implicit none 
 #include "basP.fh"
@@ -2384,6 +2402,7 @@ c
       geom = ibs_geom(basis)
       bas_geom = .true.
       end
+*......................................................................
       logical function bas_ncoef_cn_max(basisin, ncoef_max)
       implicit none
 #include "basP.fh"
@@ -2406,6 +2425,7 @@ c
 00100 continue
       bas_ncoef_cn_max = .true.
       end
+*......................................................................
       logical function bas_nprim_cn_max(basisin, nprim_max)
       implicit none
 #include "basP.fh"
@@ -2426,4 +2446,68 @@ c
         nprim_max = max(nprim_max,my_prim)
 00100 continue
       bas_nprim_cn_max = .true.
+      end
+*......................................................................
+      logical function bas_norm_get(basisin,norm_id)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+c
+      integer basisin ! [input] basis set handle
+      integer norm_id ! [output] Normalization id type
+c
+      integer basis
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      norm_id = bas_norm_id(basis)
+      bas_norm_get = norm_id.ge.BasNorm_lo.and.norm_id.le.BasNorm_hi
+      end
+*......................................................................
+      logical function bas_norm_set(basisin,norm_id)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+c
+      integer basisin ! [input] basis set handle
+      integer norm_id ! [input] Normalization id type
+c
+      integer basis
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      if (norm_id.ge.BasNorm_lo.and.norm_id.le.BasNorm_hi) then
+        bas_norm_id(basis) = norm_id
+        bas_norm_set = .true.
+      else
+        bas_norm_set = .false.
+      endif
+      end
+*......................................................................
+      logical function bas_norm_print(basisin)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "stdio.fh"
+c
+      integer basisin ! [input] basis set handle
+c
+      integer basis, norm_id
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      norm_id = bas_norm_id(basis)
+      bas_norm_print = .true.
+      if      (norm_id.eq.BasNorm_UN)  then
+        write(luout,*)' basis is unnormalized'
+      else if (norm_id.eq.BasNorm_STD) then
+        write(luout,*)' basis has standard normalization via int_norm'
+      else if (norm_id.eq.BasNorm_2c)  then
+        write(luout,*)
+     &        ' basis has dft/fitting normalization via int_norm_2c'
+      else
+        write(luout,*)' basis handle: ',basisin
+        write(luout,*)' norm_id = ',norm_id
+        write(luout,*)' does not match a known normalization mode'
+        bas_norm_print = .false.
+      endif
+*......................................................................
       end

@@ -1,5 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
+c $Id: basisP.F,v 1.15 1996-02-05 23:19:38 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -11,6 +12,7 @@
      &       '         ', ' index  :',i10,/
      &       '         ', ' size   :',i10/)
       end
+c......................................................................
       logical function bas_add_ucnt_init(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -35,6 +37,7 @@ c
      &    ('bas_add_unct_init: error allocating input heap space',911)
       exndcf(SZ_exndcf,basis) = input_size
       end
+c......................................................................
       logical function bas_add_ucnt_tidy(basisin)
       implicit none
 #include "mafdecls.fh"
@@ -58,9 +61,9 @@ c
       exndcf(SZ_exndcf,basis) = 0
       bas_add_ucnt_tidy = .true.
       end
+c......................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.14 1996-01-22 21:50:01 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
@@ -538,8 +541,11 @@ c
       endif
 c
       myucont = icont
-c... no spherical yet 3/94 only cart. 
-      sphcart = 0
+      if (bas_spherical(basis)) then
+        sphcart = 1
+      else
+        sphcart = 0
+      endif
       itype   = infbs_cont(CONT_TYPE,myucont,basis)
       nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
       ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
@@ -582,9 +588,11 @@ c
 c     
       data nbasis_rtdb /0/
       data bsactive /nbasis_bsmx*.false./
+      data bas_spherical /nbasis_bsmx*.false./
       data angular_bs /nbasis_bsmx*-565/
+      data bas_norm_id /nbasis_bsmx*-565/
       data nbfmax_bs /nbasis_bsmx*-565/
-      data bsversion /3.00d00/
+      data bsversion /3.01d00/
 c     
       end
 c......................................................................
@@ -616,12 +624,64 @@ c
       type = infbs_cont(CONT_TYPE,ucont,basis)
       ngen = infbs_cont(CONT_NGEN,ucont,basis)
       if (type.ge.0) then 
-        nbf_from_ucont = ngen*(type+1)*(type+2)/2
+        if (bas_spherical(basis)) then
+          nbf_from_ucont = ngen*(2*type+1)
+        else
+          nbf_from_ucont = ngen*(type+1)*(type+2)/2
+        endif
       else if (type.eq.-1) then
         nbf_from_ucont = ngen*4/2
       else if (type.eq.-2) then
-        nbf_from_ucont = ngen*10/3
+        if (bas_spherical(basis)) then
+          nbf_from_ucont = ngen*9/3
+        else
+          nbf_from_ucont = ngen*10/3
+        endif
       else 
         call errquit('nbf_from_ucont: bad cont type',type)
       endif
+      end
+c......................................................................
+      logical function bas_set_spherical(basisin, ospherical)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+c
+      integer basisin    ! [input] basis set handle
+      logical ospherical ! [input] logical for spherical setting
+c
+      integer basis
+c
+      bas_set_spherical = .false.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      if (ospherical) then
+        infbs_head(HEAD_SPH,basis) = 1
+        bas_spherical(basis) = .true.
+      else
+        infbs_head(HEAD_SPH,basis) = 0
+        bas_spherical(basis) = .false.
+      endif
+      bas_set_spherical = .true.
+      end
+c......................................................................
+      logical function bas_get_spherical(basisin, is_spherical)
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+c
+      integer basisin      ! [input] basis get handle
+      logical is_spherical ! [output] logical for spherical getting
+c
+      integer basis
+c
+      bas_get_spherical = .false.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      if (infbs_head(head_sph,basis).eq.1) then 
+        is_spherical = .true.
+      else
+        is_spherical = .false.
+      endif
+      bas_get_spherical = .true.
       end

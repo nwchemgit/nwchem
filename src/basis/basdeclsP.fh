@@ -1,4 +1,7 @@
-c $Id: basdeclsP.fh,v 1.3 1996-01-22 21:49:57 d3e129 Exp $
+c $Id: basdeclsP.fh,v 1.4 1996-02-05 23:19:34 d3e129 Exp $
+c
+c compressed array pointer information variables.
+c
 c
 c former declarations for substitution by cpp for compressed 
 c array count meanings only for capitalized versions
@@ -10,7 +13,7 @@ c define HEAD_NCONT 2
 c define HEAD_NPRIM 3
 c define HEAD_NCOEF 4
 c define HEAD_EXCFPTR 5
-c define HEAD_ECP   6
+c define HEAD_SPH   6
 c define TAG_NCONT  1
 c define TAG_NPRIM  2
 c define TAG_NCOEF  3
@@ -23,7 +26,7 @@ c define CONT_IEXP  4
 c define CONT_ICFP  5
 c define CONT_TAG   6
       integer HEAD_NTAGS, HEAD_NCONT, HEAD_NPRIM, HEAD_NCOEF,
-     &        HEAD_EXCFPTR, HEAD_ECP
+     &        HEAD_EXCFPTR, HEAD_SPH
       integer TAG_NCONT, TAG_NPRIM, TAG_NCOEF, TAG_FCONT, TAG_LCONT
       integer CONT_TYPE, CONT_NPRIM, CONT_NGEN, CONT_IEXP, CONT_ICFP,
      &        CONT_TAG 
@@ -32,7 +35,7 @@ c define CONT_TAG   6
       parameter (HEAD_NPRIM   = 3)
       parameter (HEAD_NCOEF   = 4)
       parameter (HEAD_EXCFPTR = 5)
-      parameter (HEAD_ECP     = 6)
+      parameter (HEAD_SPH     = 6)
 c
       parameter (TAG_NCONT = 1)
       parameter (TAG_NPRIM = 2)
@@ -46,4 +49,23 @@ c
       parameter (CONT_IEXP  = 4)
       parameter (CONT_ICFP  = 5)
       parameter (CONT_TAG   = 6)
-
+c
+c bas_normialization specification values
+c
+      integer BasNorm_UN   ! value that indicates unnormalized
+      integer BasNorm_STD  ! value that indicates standard normalization via 
+c.                         !  int_norm   
+      integer BasNorm_2c   ! value that indicates normalization via int_norm_2c 
+c.                         !  where the functions are normalized to a two center 
+c.                         !  two electron integral. 
+      integer BasNorm_lo   !  lowest value of BasNorm_ids
+      integer BasNorm_hi   !  highest value of BasNorm_ids
+c...........................
+c New normalization values must be contiguous!!!!
+c
+      parameter(BasNorm_UN  = 0)
+      parameter(BasNorm_STD = BasNorm_UN + 1)
+      parameter(BasNorm_2c  = BasNorm_UN + 2)
+      parameter(BasNorm_lo  = BasNorm_UN)
+      parameter(BasNorm_hi  = BasNorm_2c)
+c

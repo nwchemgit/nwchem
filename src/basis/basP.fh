@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.5 1996-01-22 21:49:54 d3e129 Exp $
+c $Id: basP.fh,v 1.6 1996-02-05 23:19:31 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -160,7 +160,7 @@ c           ! 2 = num_cont_total       ! num of conts in basis
 c           ! 3 = num_prim_total       ! num of prims(ex) in basis
 c           ! 4 = num_coeff_total      ! num of coeffs in basis
 c           ! 5 = ex_off               ! next ptr in exndcf array
-c           ! 6 = ecp                  ! yes/no  1/o
+c           ! 6 = spherical            ! yes/no  1/0 overload for ecps is 20/10??
 c  Integer infbs_tags(5,num_tags,nbasis)      
 c           ! 1 = num_cont_tag         ! Num of conts on tag
 c           ! 2 = nprim_tag            ! Num of prim exponents on tag
@@ -214,8 +214,9 @@ c.. incore sturctures
       real*8 bsversion
       character*256 bs_trans,bs_names_rtdb
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
-      integer angular_bs, nbfmax_bs
+      integer angular_bs, nbfmax_bs,  bas_norm_id
       logical bsactive 
+      logical bas_spherical
 c
       common /cbsdatac/
      &       bs_name(nbasis_bsmx),
@@ -234,6 +235,8 @@ c......... above for each basis is stored ... below is in-core
      &       len_bs_trans(nbasis_bsmx),
      &       len_bs_rtdb(nbasis_rtdb_mx),
      &       bsactive(nbasis_bsmx),
+     &       bas_spherical(nbasis_bsmx),
+     &       bas_norm_id(nbasis_bsmx),
      &       angular_bs(nbasis_bsmx),
      &       nbfmax_bs(nbasis_bsmx),
      &       nbasis_rtdb

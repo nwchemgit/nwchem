@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.19 1996-01-22 21:49:56 d3e129 Exp $
+c $Id: bas_input.F,v 1.20 1996-02-05 23:19:33 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -26,8 +26,8 @@ c
       character*255 test, name, filename, standard
       logical status, ospherical, osegment, oprint
       integer ind, basis
-      logical bas_add_ucnt_init
-      external bas_add_ucnt_init
+      logical bas_add_ucnt_init, bas_set_spherical
+      external bas_add_ucnt_init, bas_set_spherical
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
      $     'library', 'file', 'print', 'noprint'/
 c
@@ -129,6 +129,11 @@ c
       if (.not.bas_add_ucnt_init(basis)) call errquit
      &    ('bas_input: failed to init add_ucnt ',911)
       call bas_input_body(basis, osegment)
+c
+      if (.not. bas_set_spherical(basis, ospherical))
+     &      call errquit
+     &      (' bas_set_spherical failed ',911)
+      
 c
 c     Now have processed the entire basis directive.  Print out
 c     info if desired, write it to the data base, tidy up and go home
