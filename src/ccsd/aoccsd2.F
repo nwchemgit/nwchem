@@ -59,7 +59,6 @@ C
       Integer H_DenZ1, I_DenZ1, H_DenT1, I_DenT1
       Integer G_DenT2, G_DenZ2, G_1PDM
       Logical Do_CCDen
-      Data Do_CCDen /.FALSE./
       Integer GA_Create_Atom_Blocked
       External GA_Create_Atom_Blocked
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,12 +70,33 @@ c gradient
       integer g_ct2,g_z2,g_hz2
       integer i,av,ilo,ihi,jlo,jhi,offt2,nvp1
       Logical Do_Z
-      Data Do_Z /.FALSE./
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* data must follow all delcarations 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
+* DATA MUST FOLLOW ALL DELCARATIONS 
 
+      Data Do_Z /.FALSE./
+      Data Do_CCDen /.FALSE./
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
       data zip/0.0d00/
