@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.67 2004-04-24 21:25:31 edo Exp $
+$Id: INSTALL,v 1.68 2004-04-28 01:49:15 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -139,7 +139,7 @@ BASIC BUILD INSTRUCTIONS:
                   ppc             YD2.1,SLES8     GNU,xlf         y
    LINUX64        Alpha           RedHat 6.2      Compaq          y
                   ia64            RedHat 7.2      Intel           y
-                  x86_64          Suse SLES8      PGI             y
+                  x86_64          Suse SLES8      PGI,PathScale   y
                   ppc64           Suse SLES8      xlf             y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
@@ -579,17 +579,14 @@ OPTIMIZATION TIPS:
    http://developer.apple.com/hardware/ve/vector_libraries.html
 
 
-POINT OF CONTACT USERS: 
+SUPPORT:
 ----------------------- 
-If you are the NWChem point-of-contact for a given site please build 
-and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
-java class files and images are already built and available at the
-binary down load site.  If you have access to the source code you also
-have access to the binary down load site.  You need java 1.1.1 or
-higher to use the tool.  This form formats information and allows the
-attachment of input and output files via a simple browsing mechanism.
-Use of this tool will greatly facilitate any support you may need for
-using NWChem.
+All distribution issues (such as how do I get the code
+or how do I get the latest version) should be directed to the
+ms3distribution@emsl.pnl.gov support queue. All other issues should go
+to the nwchem-users mailing list (nwchem-users@emsl.pnl.gov, a public
+mailing list archived at
+http://www.emsl.pnl.gov/docs/nwchem/nwchem-support/). 
 
 
 GA RELATED ISSUES:
@@ -747,7 +744,7 @@ TROUBLESHOOTING:
 Here are some tips for "common" problems when compiling NWChem.  If you have
 read through the installation guide and followed the directions carefully
 and you are still having problems, please send your make.log file to
-nwchem-support@emsl.pnl.gov along with information about your machine and
+nwchem-users@emsl.pnl.gov along with information about your machine and
 the environment variables that you have set.  If you have modified any of
 the files in the NWChem source tree, we need to know this, but do not
 expect that we will be able to help you.
