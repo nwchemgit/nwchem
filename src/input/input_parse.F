@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.65 2001-08-31 22:43:47 edo Exp $
+C     $Id: input_parse.F,v 1.66 2001-11-11 01:21:46 bylaska Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -133,7 +133,9 @@ c
             else if (inp_compare(.false.,test,'gapss')) then
                call gap_parse(rtdb)
             else if (inp_compare(.false.,test,'pspw')) then
-               call pspw_input(rtdb)
+               call nwpw_input(rtdb)
+            else if (inp_compare(.false.,test,'nwpw')) then
+               call nwpw_input(rtdb)
             else if (inp_compare(.false.,test,'pause')) then
 	       call util_sleep(60)
             else if (inp_compare(.false.,test,'qmmm')) then
