@@ -1,6 +1,6 @@
 c**********************************************************************
 c     sunbroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.16 1998-06-15 17:59:00 mdupuis Exp $
+c $Id: rhf_hessian.F,v 1.17 1998-08-04 18:40:01 mdupuis Exp $
 c**********************************************************************
       subroutine hnd_der_init(geom,basis)
       implicit double precision (a-h,o-z)
@@ -2730,7 +2730,6 @@ C
       PARAMETER (MXSHEL=512)
       CHARACTER*8 ERRMSG
       LOGICAL IANDJ
-      LOGICAL NORM,DOUBLE
       LOGICAL SOME,OUT
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -2756,8 +2755,6 @@ C
 C
       OUT =.FALSE.
       SOME=.FALSE.
-      NORM=NORMF.NE.1.OR.NORMP.NE.1
-      TOL =RLN10*ITOL
 C
 C     ----- CALCULATE -HELFEY- TERM -----
 C
@@ -3837,7 +3834,6 @@ C
       PARAMETER (MXSHEL=512)
       CHARACTER*8 ERRMSG
       LOGICAL IANDJ
-      LOGICAL NORM
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -3863,8 +3859,6 @@ C
       DATA TWO    /2.0D+00/
 C
       OUT =.FALSE.
-      NORM=NORMF.NE.1.OR.NORMP.NE.1
-      TOL =RLN10*ITOL
 C
 C     ----- CALCULATE DERIVATIVES OF -HLF- TERM -----
 C
@@ -18174,6 +18168,7 @@ c     ----- figure output input/output MO vectors -----
      $      movecs_in = 'atomic'
        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
      $      movecs_out = ' '
+       movecs = ' '
        if (movecs.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
             movecs_out = 'movecs'
@@ -18709,9 +18704,9 @@ c     ----- release memory pointer -----
 
 c
       if(out.and.ga_nodeid().eq.0) then
-         write(iw,9997) mxyz
+         write(iw,9997) nxyz
          call hnd_prsq(x(i10),nxyz,nrot,nrot)
-         write(iw,9996) mxyz
+         write(iw,9996) nxyz
          call hnd_prsq(x(i30),nxyz,nrot,nrot)
       endif
 
