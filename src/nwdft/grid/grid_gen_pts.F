@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.15 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_gen_pts.F,v 1.16 2000-04-07 23:43:16 edo Exp $
 c
       implicit none
 c      
@@ -94,10 +94,10 @@ cedo         endif
 cedo         call ga_sync()
 c
       endif
-      if(.not.grid_on_file.or.oldgrid) then
+!      if(.not.grid_on_file.or.oldgrid) then
       if (.not. MA_Pop_Stack(lqs))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
-      endif
+!      endif
       if (.not. MA_Pop_Stack(ltags))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lcharge))

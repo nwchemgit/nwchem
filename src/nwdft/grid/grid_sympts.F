@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.6 2000-04-07 16:34:26 edo Exp $
+c$Id: grid_sympts.F,v 1.7 2000-04-07 23:43:16 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -17,19 +17,19 @@ c
 c     
       nops = sym_number_ops(geom)
       if(nops.ne.0) then
-         if (.not.MA_alloc_Get(MT_Dbl,nops*3*4,'symops',
+         if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
      ,        l_symops,k_symops)) call errquit(
-     '        '     grid_sympt: malloc get failed',1)
+     '        '     grid_sympt: mpush get failed',1)
          call sym_ops_get(geom,nops,dbl_mb(k_symops))
       else
          l_symops=-999
       endif
-      if (.not.MA_alloc_Get(MT_Dbl,mxang*4,'gridscr',
+      if (.not.MA_push_Get(MT_Dbl,mxang*4,'gridscr',
      ,     l_gridscr,k_gridscr)) call errquit(
-     '     '     grid_sympt: malloc get failed',2)
-      if (.not.MA_alloc_Get(MT_int,mxang,'iscr',
+     '     '     grid_sympt: mpush get failed',2)
+      if (.not.MA_push_Get(MT_int,mxang,'iscr',
      ,     l_iscr,k_iscr)) call errquit(
-     '     '     grid_sympt: malloc get failed',3)
+     '     '     grid_sympt: mpush get failed',3)
       return
       end
       subroutine grid_sympts2(l_symops,l_gridscr,l_iscr)
@@ -39,12 +39,12 @@ c
       integer l_gridscr,l_iscr ! [in]  grid handle
 c      
 c     
-      if (.not.MA_free_heap(l_iscr)) call errquit(
-     '     '     grid_sympt: free stack failed',0)
-      if (.not.MA_free_heap(l_gridscr)) call errquit(
+!      if (.not.MA_pop_stack(l_iscr)) call errquit(
+!     '     '     grid_sympt: free stack failed',0)
+      if (.not.MA_chop_stack(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
       if(l_symops.ne.-999) then
-      if (.not.MA_free_heap(l_symops)) call errquit(
+      if (.not.MA_pop_stack(l_symops)) call errquit(
      '     '     grid_sympt: free stack failed',2)
       endif
       return

@@ -10,7 +10,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0b.F,v 1.7 2000-04-07 16:34:26 edo Exp $
+c$Id: grid_quadv0b.F,v 1.8 2000-04-07 23:43:16 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -72,14 +72,14 @@ c
          enddo
       endif
 c     
+      if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
+     &     lchi_ao, ichi_ao))
+     &     call errquit('grid_quadv0a: cannot allocate chi_ao',0)
       if(GRAD) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      .        'delchi_ao', ldelchi_ao, idelchi_ao))
      &        call errquit('grid_quadv0a: cant alloc delchi_ao',0)
       endif
-      if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
-     &     lchi_ao, ichi_ao))
-     &     call errquit('grid_quadv0a: cannot allocate chi_ao',0)
 c     
 c     
       nscr = 3*nqpts*nbf_ao_mxcont + 
