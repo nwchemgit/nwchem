@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.62 1999-07-29 23:09:23 d3g681 Exp $
+# $Id: DEFS,v 1.63 1999-11-04 23:16:03 d3g270 Exp $
 #
 #======================================================================
 #
@@ -352,10 +352,10 @@ ifeq ($(peigs_TARGET),LAPI)
 peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ=DBLE
-peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+peigs_CC  += -qarch=auto -qtune=auto -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
 -I$(peigs_HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
 
-peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
+peigs_FC  += -qarch=auto -qtune=auto -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl  -NQ40000 -NT80000 -qinline
 
@@ -363,21 +363,6 @@ peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HD
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_BLASLIB = -lesslp2_r
 peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
-
-ifeq ($(NWCHEM_TARGET_CPU),P2SC)
-peigs_FC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
--qcache=type=i:level=1:size=32:line=128 \
--qarch=pwr2 -qtune=pwr2
-
-peigs_CC += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
--qcache=type=i:level=1:size=32:line=128 \
--qarch=pwr2 -qtune=pwr2
-endif
-
-ifeq ($(NWCHEM_TARGET_CPU),604)
-peigs_FC += -qarch=604 -qtune=604
-peigs_CC += -qarch=ppc -qtune=604
-endif
 
 endif
 
