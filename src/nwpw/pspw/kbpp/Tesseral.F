@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral.F,v 1.1 2003-12-02 19:17:09 bylaska Exp $
+* $Id: Tesseral.F,v 1.2 2003-12-13 19:41:49 bylaska Exp $
 *
 
 
@@ -19,7 +19,7 @@
 
 *     *** local variables ****
       integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
+      integer k1,k2,k3,i
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3
       double precision gx,gy,gz,q
