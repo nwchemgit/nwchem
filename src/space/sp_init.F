@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.84 2001-08-15 22:07:14 d3j191 Exp $
+c $Id: sp_init.F,v 1.85 2001-08-23 15:13:36 d3j191 Exp $
 c
       implicit none
 c
@@ -679,7 +679,7 @@ c
      + ((bfw(i,j,k),j=1,3),k=1,nwa)
  1109 format(2x,6e13.6)
       read(lfnrst,1010,end=9997,err=9998) ibw(i,2),(brw(i,k),k=1,3)
- 1010 format(i2,3f13.8)
+ 1010 format(i1,1x,3f13.8)
    44 continue
       do 5 i=1,numw
       cgx=zero
@@ -804,7 +804,7 @@ c
       do 113 k=1,nums
       read(lfnrst,1011,end=9997,err=9998)
      + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3)
- 1011 format(i2,6f13.8)
+ 1011 format(i1,1x,6f13.8)
       if(lforces) read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
  1111 format(2x,6e13.6)
       read(lfntop,2009,end=9897,err=9898) (ibs(k,j),j=1,10)
@@ -1871,7 +1871,7 @@ c
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
-      integer idyn
+      integer idyn,idynp
       logical lforces
 c
       lforces=iguide.ne.0
@@ -1959,9 +1959,10 @@ c
  1006 format(2x,6f13.8)
       if(lforces) write(lfnrst,1106) ((bfw(i,j,k),j=1,3),k=1,nwa)
  1106 format(2x,6e13.6)
-      idyn=iand(ibw(i),15)
-      write(lfnrst,1007) idyn,(brw(i,k),k=1,3)
- 1007 format(i2,3f13.8)
+      idyn=iand(ibw(i),12)-3
+      idynp=iand(ibw(i),3)
+      write(lfnrst,1007) idyn,idynp,(brw(i,k),k=1,3)
+ 1007 format(2i1,3f13.8)
     5 continue
     1 continue
       endif
@@ -2008,13 +2009,14 @@ c
       endif
     7 continue
       do 9 i=1,nums
-      idyn=iand(ibs(i),15)
+      idyn=iand(ibs(i),12)-3
+      idynp=iand(ibs(i),3)
       if(lveloc) then
-      write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      write(lfnrst,1008) idyn,idynp,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
       else
-      write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(zero,j=1,3)
+      write(lfnrst,1008) idyn,idynp,(bxs(i,j),j=1,3),(zero,j=1,3)
       endif
- 1008 format(i2,6f13.8)
+ 1008 format(2i1,6f13.8)
       if(lforces) write(lfnrst,1108) (bfs(i,j),j=1,3)
  1108 format(2x,3e13.6)
     9 continue
