@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.94 1996-10-23 05:56:38 d3g681 Exp $
+c     $Id: nwchem.F,v 1.95 1996-11-02 02:59:00 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -266,6 +266,10 @@ c     Tidy up the parallel environment
 c
       call pend()
 c
+c     Close the ECCE' output file if there is one
+c
+      call ecce_print_file_close()
+c
 c     Done
 c
       end
@@ -304,7 +308,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $     'Northwest Computational Chemistry Package (NWChem) 2.0',
+     $     'Northwest Computational Chemistry Package (NWChem) 2.1',
      $     40, .true.)
       write(6,*)
       write(6,*)

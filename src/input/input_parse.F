@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.31 1996-10-18 19:39:49 mdupuis Exp $
+C     $Id: input_parse.F,v 1.32 1996-11-02 02:59:11 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -102,7 +102,7 @@ c
             else if (inp_compare(.false.,test,'pause')) then
 	       call util_sleep(60)
 c
-c     INSERT NEW ELSE IF CLAUSES HERE
+c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
             else if (inp_compare(.false.,test,'memory')) then
                continue         ! Already digested by input_mem_size
@@ -115,6 +115,8 @@ c
             else if (inp_compare(.false.,test,'scratch_dir')) then
                continue         ! Already digested by input_file_info
             else if (inp_compare(.false.,test,'permanent_dir')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'ecce_print')) then
                continue         ! Already digested by input_file_info
             else
                write(6,*) ' Skipping unknown directive '

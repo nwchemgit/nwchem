@@ -236,7 +236,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.5 1996-10-23 05:12:35 d3g681 Exp $
+C$Id: util_file_name.F,v 1.6 1996-11-02 02:59:24 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -248,12 +248,13 @@ C$Id: util_file_name.F,v 1.5 1996-10-23 05:12:35 d3g681 Exp $
       logical ostartup           ! [output]
       logical ocontinue          ! [output]
 c
+      character*255 ecce_file_name
       logical status, odirective, echo
       integer nkeys, istart, iend
-      parameter (nkeys = 6)
+      parameter (nkeys = 7)
       character*16 keys(nkeys), field
       data keys/'start','restart','continue',
-     &    'scratch_dir','permanent_dir',
+     &    'scratch_dir','permanent_dir', 'ecce_print',
      $     'echo'/
 c
 c     Scan the input for start/restart directives and attempt
@@ -317,6 +318,9 @@ c
             permanent_dir(istart:iend) = ' '
          else if (inp_compare(.false.,'echo',field)) then
             echo = .true.
+         else if (inp_compare(.false.,'ecce_print', field)) then
+            if (inp_a(ecce_file_name))
+     $           call ecce_print_file_open(ecce_file_name)
          else
             call errquit('input_start_opt: wierd error',0)
          endif
