@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.77 2000-11-07 01:06:13 d3j191 Exp $
+c $Id: sp_init.F,v 1.78 2000-11-07 18:15:49 d3j191 Exp $
 c
       implicit none
 c
@@ -64,6 +64,9 @@ c
       nbx=nbxi
       nby=nbyi
       nbz=nbzi
+      nbxin=nbxi
+      nbyin=nbyi
+      nbzin=nbzi
 c
       npx=npxi
       npy=npyi
@@ -98,7 +101,7 @@ c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
      + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
 c
-      if(ireset.ne.0) then
+      if(ireset.eq.0) then
       ignore=sp_rdrest(lfnrst,filrst,dbl_mb(i_boxs))
       endif
 c
@@ -275,7 +278,7 @@ c
  1005 format(6i10)
       close(unit=lfnrst,status='keep')
 c
-      bsize=max(rshort,half*rlong,rbox)
+      bsize=1.05d0*max(rshort,half*rlong,rbox)
 c
       if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
@@ -309,6 +312,22 @@ c
       if(mod(npz,nbz).gt.0) i=i+1
       bzmin=min(bsize,box(3)/dble(i))
       nbz=npz
+      endif
+c
+      if(nbxin.eq.0) then
+      if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
+      nbx=(nbx/npx)*npx
+      endif
+      endif
+      if(nbyin.eq.0) then
+      if(nby.gt.npy.and.mod(nby,npy).gt.0) then
+      nby=(nby/npy)*npy
+      endif
+      endif
+      if(nbzin.eq.0) then
+      if(nbz.gt.npz.and.mod(nbz,npz).gt.0) then
+      nbz=(nbz/npz)*npz
+      endif
       endif
 c
       endif
