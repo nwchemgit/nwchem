@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.21 1997-04-23 01:11:18 d3g681 Exp $
+C$Id: rohf.F,v 1.22 1997-04-23 16:48:56 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -117,15 +117,17 @@ c
      $           dbl_mb(k_eval), nmo)
             call util_flush(6)
          endif
+      endif
 c
-         if (util_print('final vectors analysis', print_default)) then
-            call movecs_print_anal(basis, max(1,nclosed-10),
-     $           nprint, 0.15d0, g_movecs, 
-     $           'ROHF Molecular Orbital Analysis', 
-     $           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
-     $           .true., dbl_mb(k_occ))
-         endif
+      if (util_print('final vectors analysis', print_default)) then
+         call movecs_print_anal(basis, max(1,nclosed-10),
+     $        nprint, 0.15d0, g_movecs, 
+     $        'ROHF Molecular Orbital Analysis', 
+     $        .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
+     $        .true., dbl_mb(k_occ))
+      endif
 c
+      if (ga_nodeid() .eq. 0) then
          if (util_print('final vectors', print_debug)) then
             write(6,*)
             call util_print_centered(6,'Final MO vectors',40,.true.)
@@ -134,9 +136,8 @@ c
          endif
       endif
 c
-      if (util_print('final vectors', print_debug)) then
-         call ga_print(g_movecs)
-      endif
+      if (util_print('final vectors', print_debug)) 
+     $     call ga_print(g_movecs)
 c
       call rohf_analyze(rtdb)
 c
