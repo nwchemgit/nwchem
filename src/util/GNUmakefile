@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.109 1999-08-10 15:33:54 d3j191 Exp $
+# $Id: GNUmakefile,v 1.110 2000-01-06 03:11:59 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -113,6 +113,7 @@ endif
               nw_inp_from_file.o \
               bgj.o movecs_ecce.o\
               get_density.o moeig_read.o\
+              util_debug.o \
               $(EXTRA_OBJ)
 
 ifeq ($(TARGET),SGITFP)
