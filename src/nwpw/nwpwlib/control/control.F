@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.32 2002-10-09 23:45:36 bylaska Exp $
+* $Id: control.F,v 1.33 2002-10-15 21:24:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -358,8 +358,44 @@ c     end do
 *     **** paw: stuff ****
       else if (code.eq.8) then
 
-*     **** unknown code type ****
 
+*     **** pspw_wannier ****
+      else if (code.eq.9) then
+
+         value = rtdb_cget(rtdb,'wannier:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename)
+         value = value.and.
+     >           rtdb_cget(rtdb,'wannier:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename)
+
+
+         call psi_get_header(i,ngrid,unita,ispin0,ne)
+         if (i.eq.3) boundry = 'periodic'
+         if (i.eq.4) boundry = 'aperiodic'
+
+*        **** dummy variables ****
+         move       = .false.
+         frac_coord = .false.
+         gga = 0
+         fake_mass = 400000.0d0
+         time_step = 5.8d0
+         loop(1) = 0
+         loop(2) = 0
+         tolerances(1) = 1.0d-9
+         tolerances(2) = 1.0d-9
+         tolerances(3) = 1.0d-4
+         ecut=9000.0d0
+         wcut=9000.0d0
+         rcut = 0.0d0
+         ncut = 0
+         npsp = 0
+
+         control_read = value
+         return
+
+
+*     **** unknown code type ****
+   
       else
          value = .false.
          write(*,*) "control_read: unknown code type:",code

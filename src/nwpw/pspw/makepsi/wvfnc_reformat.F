@@ -1,7 +1,8 @@
+*
+* $Id: wvfnc_reformat.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
+*
+
       logical function wvfnc_reformat(rtdb)
-*
-* $Id: wvfnc_reformat.F,v 1.2 2002-02-13 20:02:08 edo Exp $
-*
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"

@@ -1,14 +1,17 @@
+*
+* $Id: wvfnc_init_input.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
+*
+
+
       subroutine wvfnc_init_input(rtdb)
-c
-c $Id: wvfnc_init_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
-c
       implicit none
+      integer rtdb
+
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 c
-      integer rtdb
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.8 2002-07-03 19:00:38 bylaska Exp $
+c $Id: nwpw_input.F,v 1.9 2002-10-15 21:23:59 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -12,7 +12,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 50)
+      parameter (num_dirs = 51)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -64,6 +64,7 @@ c
      >            'ewald_rcut',
      >            'ewald_ncut',
      >            'exchange_correlation',
+     >            'wannier',
      >            'end'/
 
        logical      value
@@ -106,7 +107,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,
+     >       2900,3000,3700,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind)
 
@@ -474,8 +475,11 @@ c
 
       goto 10
 
-
-
+c
+c wannier
+c
+ 3700 call pspw_wannier_input(rtdb) 
+      goto 10
 ************************************************************************
 c
 c END/Finished

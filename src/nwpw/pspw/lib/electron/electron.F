@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.14 2002-08-25 00:13:46 bylaska Exp $
+* $Id: electron.F,v 1.15 2002-10-15 21:24:00 bylaska Exp $
 *
 
 
@@ -898,7 +898,7 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)),
-     >             move,
+     >             move,     
      >             fion)
 
       call Grsm_gg_dscale(npack1,(ne(1)+ne(2)),(-1.0d0),

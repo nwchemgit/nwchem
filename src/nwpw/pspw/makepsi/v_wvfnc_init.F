@@ -1,11 +1,14 @@
+*
+* $Id: v_wvfnc_init.F,v 1.3 2002-10-15 21:24:01 bylaska Exp $
+*
+
       logical function v_wvfnc_init(rtdb)
-*
-* $Id: v_wvfnc_init.F,v 1.2 2002-02-13 20:02:07 edo Exp $
-*
       implicit none
+      integer rtdb
+
 #include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb
+
       logical value
       integer version
  

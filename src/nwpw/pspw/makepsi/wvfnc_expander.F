@@ -1,7 +1,8 @@
+*
+* $Id: wvfnc_expander.F,v 1.3 2002-10-15 21:24:01 bylaska Exp $
+*
+
       logical function wvfnc_expander(rtdb)
-*
-* $Id: wvfnc_expander.F,v 1.2 2002-02-13 20:02:07 edo Exp $
-*
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"

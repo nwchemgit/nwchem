@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.6 2002-10-03 21:46:31 bylaska Exp $
+* $Id: task_pspw.F,v 1.7 2002-10-15 21:24:00 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -16,7 +16,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 13)
+      parameter (num_dirs = 14)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -31,15 +31,18 @@ c
      >            'cell_optimize',
      >            'pspw_dplot',
      >            'stress',
-     >            'noit_energy' /
+     >            'noit_energy',
+     > 		  'wannier'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
       logical  pspw_dplot,pspw_stress_numerical,pspw_noit_energy
+      logical  pspw_wannier
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
       external pspw_dplot,pspw_stress_numerical,pspw_noit_energy
+      external pspw_wannier
 c
 c
       value = .false.
@@ -52,7 +55,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100, 1200, 1300 ) ind
+     >       1000, 1100, 1200, 1300, 1400 ) ind
       call errquit('task pspw: unimplemented directive', ind)
 
 
@@ -221,6 +224,18 @@ c
       value = .true.
       value = rtdb_parallel(.true.)
       value = pspw_noit_energy(rtdb)
+      call ga_sync()
+      goto 9999
+
+c
+c  wannier
+c
+ 1400 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - Wannier <<<<"
+      end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = pspw_wannier(rtdb)
       call ga_sync()
       goto 9999
 

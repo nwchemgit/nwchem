@@ -1,13 +1,13 @@
 *
-* $Id: psi_get_header.F,v 1.2 2001-12-12 02:42:26 bylaska Exp $
+* $Id: psi_get_header.F,v 1.3 2002-10-15 21:24:00 bylaska Exp $
 *
 
 
 #define TCGMSG
 *     ***********************************
-*     *             					*
-*     *           psi_get_header		*
-*     *             					*
+*     *             			*
+*     *           psi_get_header	*
+*     *             			*
 *     ***********************************
 
       subroutine psi_get_header(version,nfft,unita,ispin,ne)

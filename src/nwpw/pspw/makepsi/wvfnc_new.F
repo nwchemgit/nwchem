@@ -1,13 +1,13 @@
 *
-* $Id: wvfnc_new.F,v 1.2 2001-12-01 23:13:28 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
 *
+
       subroutine wvfnc_new(wavefunction_filename,
      >             			version,
      >						ngrid,
      >						unita,
      >						ispin,
      >						ne)
-
       implicit none
       character*30 wavefunction_filename
       integer      version
