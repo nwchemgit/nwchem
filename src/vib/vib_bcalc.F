@@ -1,0 +1,50 @@
+       SUBROUTINE vib_BCALC(IZMAT,BMTRX,HINT,ZMAT,SCR,
+     &                 HESSIAN,EIGVEC,EIGVAL)
+C*MODULE VIB  *DECK BCALC
+* $Id: vib_bcalc.F,v 1.1 1995-07-29 23:19:14 d3e129 Exp $
+C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      LOGICAL LINEAR
+C
+      PARAMETER (MXATM=50)
+      COMMON /INFOA /  ZAN(MXATM),C(3,MXATM)
+      COMMON /ZMAT  / NZMAT,NZVAR,NVAR,LINEAR
+      COMMON /VBDCMP/ NROW,NDEG
+      COMMON /HESS/   NATOM,NAT3,NHESS,NHESST
+      DIMENSION IZMAT(NZMAT),BMTRX(NAT3,NAT3),HINT(NAT3,NAT3),
+     &          ZMAT(8*NAT3),SCR(1)
+      DIMENSION HESSIAN(NAT3,NAT3),EIGVEC(NAT3,NAT3),EIGVAL(NAT3)
+C
+C
+*      CALL GETARRAY(10,ZAN,INTOWP(NATOM),301,IDUM)
+*      CALL GETARRAY(10,C,INTOWP(3*NATOM),342,IDUM)
+C
+C     ----- CALCULATE THE B MATRIX -----
+C
+*      CALL vib_BMAT(BMTRX,NZVAR,NVAR,NAT3,NHESS,IZMAT,ZMAT,LINEAR)
+C
+*      CALL vib_TRANSP(BMTRX,NAT3,NAT3)
+*      CALL vib_CEBDAB(HINT,NAT3,HESSIAN,NAT3,BMTRX)
+      WRITE(6,9010)
+*      NR = NAT3 - NDEG
+*      NC = NAT3 - NDEG
+*      CALL vib_PRDATA(HINT,DUM,NAT3,NAT3,NR,NC,.FALSE.,NPRI)
+C
+C     ----- WRITE OUT NORMAL MODES AND FREQUENCIES IN TERMS
+C     ----- OF INTERNAL COORDINATES.
+C
+*      CALL vib_TRANSP(BMTRX,NAT3,NAT3)
+*      CALL MATMUL(BMTRX,EIGVEC,HINT,
+*     &            NAT3,NAT3,NAT3,NAT3,NAT3,NAT3)
+      WRITE(6,9020)
+C
+*      CALL PRDATA(HINT,EIGVAL,NAT3,NAT3,NR,NAT3,.TRUE.,NPRI)
+C
+ 9010 FORMAT(///,10X,'------------------------------------------',/
+     &           10X,'INTERNAL COORDINATE DESCRIPTION OF HESSIAN',/
+     &           10X,'------------------------------------------')
+ 9020 FORMAT(///,10X,'------------------------------------------------',
+     &         /,10X,'NORMAL MODE EIGENVECTORS IN INTERNAL COORDINATES',
+     &         /,10X,'------------------------------------------------',
+     &         /,10X,'      (Frequencies expressed in cm-1) ')
+      END

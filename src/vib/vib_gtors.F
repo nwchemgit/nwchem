@@ -1,0 +1,176 @@
+      SUBROUTINE vib_GTORS(EQVAL,NOINT,I1,I2,J,K,L1,L2,C,B,NDIM)
+C*MODULE VIB  *DECK GTORS
+* $Id: vib_gtors.F,v 1.1 1995-07-29 23:19:30 d3e129 Exp $
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C
+C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR A
+C          "GHOST ATOM" TORSION, SIMILAR TO THE TORSION DEF. BY WILSON.
+C          SEE PP. 60-61 OF "MOLECULAR VIBRATIONS" BY E.B. WILSON,
+C          J.C. DECIUS AND P.C. CROSS, MCGRAW-HILL, NY, 1955.
+C
+C     -----I1 AND I2 ARE THE END ATOMS OF THE I1-J-I2 PLANE.  I2 IS
+C          NEARER THE OBSERVER.  L1, L2 ARE THE END ATOMS OF THE L1-K-L2
+C          PLANE, L2 IS NEARER THE OBSERVER.  THE TORSION ANGLE IS THE
+C          ANGLE BETWEEN THE PLANE DEFINED BY THE MEDIAN OF THE I1-J-I2
+C          ANGLE AND THE J-K BOND, AND THE PLANE DEFINED BY THE MEDIAN
+C          OF THE L1-K-L2 ANGLE AND THE J-K BOND.
+C
+      LOGICAL I1EQI2,L1EQL2
+      PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, PT5=0.5D+00)
+      PARAMETER (TOLRD=1.0001D+00, TOL=1.0D-07)
+      DIMENSION C(3,1),B(NDIM,1)
+      DIMENSION RIJ(3),RJK(3),RKL(3),EIJ(3),EJK(3),EKL(3),CR1(3),
+     + CR2(3)
+      DIMENSION RI1J(3),RI2J(3),EI1J(3),EI2J(3),CR3(3),CR4(3),
+     +          RKL1(3),RKL2(3),EKL1(3),EKL2(3),CR5(3),CR6(3)
+C
+C
+C
+C
+      PI = ACOS(-ONE)
+      DIJSQ  = ZERO
+      DJKSQ  = ZERO
+      DKLSQ  = ZERO
+      DI1JSQ = ZERO
+      DI2JSQ = ZERO
+      DKL1SQ = ZERO
+      DKL2SQ = ZERO
+      I1EQI2 = I1 .EQ. I2
+      L1EQL2 = L1 .EQ. L2
+      DO 120 M = 1,3
+         RIJ(M)  = C(M,J) - PT5*(C(M,I1) + C(M,I2))
+         DIJSQ   =    DIJSQ + RIJ(M)*RIJ(M)
+         RJK(M)  = C(M,K) - C(M,J)
+         DJKSQ   =    DJKSQ + RJK(M)*RJK(M)
+         RKL(M)  = PT5*(C(M,L1) + C(M,L2)) - C(M,K)
+         DKLSQ   =    DKLSQ + RKL(M)*RKL(M)
+         RI1J(M) = C(M,J) - C(M,I1)
+         DI1JSQ  =    DI1JSQ + RI1J(M)*RI1J(M)
+         RI2J(M) = C(M,J) - C(M,I2)
+         DI2JSQ  =    DI2JSQ + RI2J(M)*RI2J(M)
+         RKL1(M) = C(M,L1) - C(M,K)
+         DKL1SQ  =    DKL1SQ + RKL1(M)*RKL1(M)
+         RKL2(M) = C(M,L2) - C(M,K)
+         DKL2SQ  =    DKL2SQ + RKL2(M)*RKL2(M)
+  120 CONTINUE
+      DIJ  = SQRT(DIJSQ)
+      DJK  = SQRT(DJKSQ)
+      DKL  = SQRT(DKLSQ)
+      DI1J = SQRT(DI1JSQ)
+      DI2J = SQRT(DI2JSQ)
+      DKL1 = SQRT(DKL1SQ)
+      DKL2 = SQRT(DKL2SQ)
+      DO 180 M = 1,3
+         EIJ(M)  = RIJ(M)/DIJ
+         EJK(M)  = RJK(M)/DJK
+         EKL(M)  = RKL(M)/DKL
+         EI1J(M) = RI1J(M)/DI1J
+         EI2J(M) = RI2J(M)/DI2J
+         EKL1(M) = RKL1(M)/DKL1
+         EKL2(M) = RKL2(M)/DKL2
+  180 CONTINUE
+C
+      CR1(1) = EIJ(2)*EJK(3)-EIJ(3)*EJK(2)
+      CR1(2) = EIJ(3)*EJK(1)-EIJ(1)*EJK(3)
+      CR1(3) = EIJ(1)*EJK(2)-EIJ(2)*EJK(1)
+C
+      CR2(1) = EJK(2)*EKL(3)-EJK(3)*EKL(2)
+      CR2(2) = EJK(3)*EKL(1)-EJK(1)*EKL(3)
+      CR2(3) = EJK(1)*EKL(2)-EJK(2)*EKL(1)
+C
+      CR3(1) = EI1J(2)*EJK(3)-EI1J(3)*EJK(2)
+      CR3(2) = EI1J(3)*EJK(1)-EI1J(1)*EJK(3)
+      CR3(3) = EI1J(1)*EJK(2)-EI1J(2)*EJK(1)
+C
+      CR4(1) = EI2J(2)*EJK(3)-EI2J(3)*EJK(2)
+      CR4(2) = EI2J(3)*EJK(1)-EI2J(1)*EJK(3)
+      CR4(3) = EI2J(1)*EJK(2)-EI2J(2)*EJK(1)
+C
+      CR5(1) = EJK(2)*EKL1(3)-EJK(3)*EKL1(2)
+      CR5(2) = EJK(3)*EKL1(1)-EJK(1)*EKL1(3)
+      CR5(3) = EJK(1)*EKL1(2)-EJK(2)*EKL1(1)
+C
+      CR6(1) = EJK(2)*EKL2(3)-EJK(3)*EKL2(2)
+      CR6(2) = EJK(3)*EKL2(1)-EJK(1)*EKL2(3)
+      CR6(3) = EJK(1)*EKL2(2)-EJK(2)*EKL2(1)
+C
+      DOTPJ  = ZERO
+      DOTPK  = ZERO
+      DOTI1J = ZERO
+      DOTI2J = ZERO
+      DOTKL1 = ZERO
+      DOTKL2 = ZERO
+      DO 220 M = 1,3
+         DOTPJ  = DOTPJ-EIJ(M)*EJK(M)
+         DOTPK  = DOTPK-EJK(M)*EKL(M)
+         DOTI1J = DOTI1J-EI1J(M)*EJK(M)
+         DOTI2J = DOTI2J-EI2J(M)*EJK(M)
+         DOTKL1 = DOTKL1-EKL1(M)*EJK(M)
+         DOTKL2 = DOTKL2-EKL2(M)*EJK(M)
+  220 CONTINUE
+      IF (ONE.LE.ABS(DOTPJ))  GO TO 320
+      IF (ONE.LE.ABS(DOTPK))  GO TO 320
+C
+      IF (ONE.LT.ABS(DOTI1J)) GO TO 320
+      IF (ONE.LT.ABS(DOTI2J)) GO TO 320
+      IF (ONE.LT.ABS(DOTKL1)) GO TO 320
+      IF (ONE.LT.ABS(DOTKL2)) GO TO 320
+C
+      SINPJ  = SQRT(ONE-DOTPJ*DOTPJ)
+      SINPK  = SQRT(ONE-DOTPK*DOTPK)
+      SINI1J = SQRT(ONE-DOTI1J*DOTI1J)
+      SINI2J = SQRT(ONE-DOTI2J*DOTI2J)
+      SINKL1 = SQRT(ONE-DOTKL1*DOTKL1)
+      SINKL2 = SQRT(ONE-DOTKL2*DOTKL2)
+C
+      DO 280 M = 1,3
+         SMI1 = -PT5*CR3(M)/(DI1J*SINI1J*SINI1J)
+         NOCOL1 = 3*(I1-1)+M
+         B(NOINT,NOCOL1) = SMI1
+C
+         SMI2 = -PT5*CR4(M)/(DI2J*SINI2J*SINI2J)
+         IF (I1EQI2) SMI2 = SMI2+SMI2
+         NOCOL1 = 3*(I2-1)+M
+         B(NOINT,NOCOL1) = SMI2
+C
+         F1 = - CR3(M)*DOTI1J/(DJK*SINI1J*SINI1J)
+     *        - CR4(M)*DOTI2J/(DJK*SINI2J*SINI2J)
+         F2 = - CR5(M)*DOTKL1/(DJK*SINKL1*SINKL1)
+     *        - CR6(M)*DOTKL2/(DJK*SINKL2*SINKL2)
+         F1 = PT5*F1
+         F2 = PT5*F2
+         SMJ = F1 + F2 - (SMI1 + SMI2)
+         IF (I1EQI2) SMJ = F1 + F2 - SMI2
+         NOCOL2 = 3*(J-1)+M
+         B(NOINT,NOCOL2) = SMJ
+C
+         SML1 = PT5*CR5(M)/(DKL1*SINKL1*SINKL1)
+         NOCOL3 = 3*(L1-1)+M
+         B(NOINT,NOCOL3) = SML1
+C
+         SML2 = PT5*CR6(M)/(DKL2*SINKL2*SINKL2)
+         NOCOL3 = 3*(L2-1)+M
+         IF (L1EQL2) SML2 = SML2+SML2
+         B(NOINT,NOCOL3) = SML2
+C
+         NOCOL4 = 3*(K-1)+M
+         SUMNEG = -(SMI1+SMI2+SMJ+SML1+SML2)
+         IF (I1EQI2) SUMNEG = SUMNEG+SMI1
+         IF (L1EQL2) SUMNEG = SUMNEG+SML1
+         B(NOINT,NOCOL4) = SUMNEG
+  280 CONTINUE
+      DOT = ZERO
+      DO 300 M = 1,3
+  300 DOT = DOT+(CR1(M)*CR2(M))/(SINPJ*SINPK)
+      IF (ABS(DOT) .GT. TOLRD) GO TO 320
+         IF (ABS(DOT) .GT. ONE) DOT = SIGN(ONE,DOT)
+         EQVAL =   ACOS(DOT)
+         IF(ABS(EQVAL).LT.TOL) EQVAL=ZERO
+         IF(ABS(EQVAL-PI).LT.TOL) EQVAL=PI
+         RETURN
+C
+  320 CONTINUE
+      WRITE (6,9008)
+      call errquit('gtors error',911)
+ 9008 FORMAT(31H ROUNDOFF ERROR IN GTORS - STOP )
+      END
