@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.16 2003-02-20 01:00:59 marat Exp $
+* $Id: paw_inner_loop.F,v 1.17 2003-02-21 02:30:15 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -42,7 +42,7 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
-      real*8  deltamm
+      real*8  deltamm,vzero
       double precision paw_ekin_atom
       double precision paw_evloc_atom
       double precision paw_eion_atom
@@ -235,6 +235,7 @@
      >                           dn_cmp_smooth)
 
         if (control_version().eq.3)  then
+           call paw_mult_vzero(vzero)
            call Pack_cc_Sum(0,
      >                      dn_cmp_smooth,
      >                      dcpl_mb(dng(1)),
@@ -244,8 +245,11 @@
      >                      dn_cmp_smooth,
      >                      dcpl_mb(tmp2(1))) !** tmp1 = dn_cmp - dn_cmp_smooth
 
-           call coulomb_v(dcpl_mb(dng(1)), dcpl_mb(vc(1)))   !*** vh   ***
-           call coulomb_v(dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1))) !*** vcmp ***
+           call coulomb_v(dcpl_mb(dng(1)), 
+     >                    dcpl_mb(vc(1)))   !*** vh   ***
+           call coulomb_v(dcpl_mb(tmp2(1)),
+     >                    dcpl_mb(tmp1(1))) !*** vcmp ***
+           call Pack_c_setzero(0,vzero,dcpl_mb(tmp1(1)))
            call paw_mult_coeff_set(dcpl_mb(vc(1)),dcpl_mb(tmp1(1)))
            call Pack_cc_Sum(0,
      >                      dcpl_mb(vc(1)),
