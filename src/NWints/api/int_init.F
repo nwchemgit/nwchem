@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.49 1999-12-09 01:30:50 bert Exp $
+c $Id: int_init.F,v 1.50 1999-12-09 18:31:59 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -12,6 +12,91 @@ c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_init(rtdb, nbas, bases)
 c:tex-\end{verbatim}
+      implicit none
+#include "bas.fh"
+#include "apiP.fh"
+#include "candoP.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "int_nbf.fh"
+#include "util.fh"
+c
+c This routine is a wrapper around the original int_init which is now
+c called int_init_org. The reason for this extension is related to the
+c basis set use in Douglas-Kroll. Douglas-Kroll uses a fitting basis
+c set, which could be larger (# of exponents but also higher angular 
+c momenta), which also needs to be included in the initialization
+c procedure. The wrapper sets the Douglas-Kroll stuff and adds the new
+c fitting basis set to the list of active basis sets and calls 
+c int_init_org.
+c
+c::passed
+c:tex-\begin{verbatim}
+      integer rtdb        ! [input] run time data base handle
+      integer nbas        ! [input] number of basis sets to be used
+      integer bases(nbas) ! [input] basis set handles
+c:tex-\end{verbatim}
+c::local
+      integer mybm_a, mybIm_a, ibas            ! Temporary variables
+      character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
+c
+c Initialize the Douglas-Kroll variables
+c
+c form_type: 1. Free-particle projection operators
+c            2. External potential projection operators without pxVp integrals
+c            3. Complete spin-free Douglas-Kroll (i.e. including pxVp)
+c
+      if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
+     $    doug_kroll = .false.
+      if (doug_kroll) then
+c
+c        Which form of Douglas-Kroll has to be done, default = 2
+c
+         if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
+     $      dk_form_type)) dk_form_type = 2
+c
+c        If one want one can specify an even tempered basis as fitting basis
+c
+         if (.not. rtdb_get(rtdb,'doug_kroll:eventemp',MT_LOG,1,
+     $      dk_even_bas)) dk_even_bas = .false.
+         if (.not. rtdb_get(rtdb,'doug_kroll:etratio',MT_DBL,1,
+     $      dk_ratio)) dk_ratio = 2.0d0
+c
+c        Generate the fitting basis set and add it to the list of 
+c        used basis sets
+c
+         print*,'int_init basis',(bases(ibas),ibas=1,nbas)
+         do 00400 ibas = 1, nbas
+            if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
+     $         call errquit('int_init: failed in bas_name',0)
+            if (dk_bas_name(1:8) .eq. 'ao basis') goto 00004
+00400    continue
+         call errquit('int_init: could not find ao basis',0)
+00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
+     $      dk_fitbas)
+         print*,'fitbas',dk_fitbas
+c
+c        Set possibily an alternative speed of light
+c
+         if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
+     $      dk_clight)) dk_clight = 137.0359895d0
+      endif
+      if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
+     $     call errquit('int_init: ma_push_get failed mybases',0)
+      do 00500 ibas = 1, nbas
+         int_mb(mybIm_a+ibas-1) = bases(ibas)
+00500 continue
+      int_mb(mybIm_a+nbas) = dk_fitbas
+      ibas = nbas + 1
+      call int_init_org(rtdb, ibas, int_mb(mybIm_a))
+      if (.not. ma_pop_stack(mybm_a))
+     $     call errquit('int_init: ma_pop_stack mybm_a',0)
+c
+      end
+c
+      subroutine int_init_org(rtdb, nbas, bases)
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -36,13 +121,10 @@ c::functions
       logical  texas_check_basis_ok
       external texas_check_basis_ok
 c::passed
-c:tex-\begin{verbatim}
       integer rtdb        ! [input] run time data base handle
       integer nbas        ! [input] number of basis sets to be used
       integer bases(nbas) ! [input] basis set handles
-c:tex-\end{verbatim}
 c::local
-      character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm, type
       logical status, oprint
@@ -216,46 +298,6 @@ c
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
       end if
-c
-c Initialize the Douglas-Kroll variables
-c
-c form_type: 1. Free-particle projection operators
-c            2. External potential projection operators without pxVp integrals
-c            3. Complete spin-free Douglas-Kroll (i.e. including pxVp)
-c
-      if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
-     $    doug_kroll = .false.
-      if (doug_kroll) then
-c
-c        Which form of Douglas-Kroll has to be done, default = 2
-c
-         if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
-     $      dk_form_type)) dk_form_type = 2
-c
-c        If one want one can specify an even tempered basis as fitting basis
-c
-         if (.not. rtdb_get(rtdb,'doug_kroll:eventemp',MT_LOG,1,
-     $      dk_even_bas)) dk_even_bas = .false.
-         if (.not. rtdb_get(rtdb,'doug_kroll:etratio',MT_DBL,1,
-     $      dk_ratio)) dk_ratio = 2.0d0
-c
-c        Generate the fitting basis set and add it to the list of 
-c        used basis sets
-c
-         do 00400 ibas = 1, nbas
-            if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
-     $         call errquit('int_init: failed in bas_name',0)
-            if (dk_bas_name(1:8) .eq. 'ao basis') goto 00004
-00400    continue
-         call errquit('int_init: could not find ao basis',0)
-00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
-     $      dk_fitbas)
-c
-c        Set possibily an alternative speed of light
-c
-         if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
-     $      dk_clight)) dk_clight = 137.0359895d0
-      endif
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
