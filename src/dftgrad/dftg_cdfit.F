@@ -11,6 +11,7 @@
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
+#include "util.fh"
 c****
 c**** handles
 c****
@@ -40,13 +41,16 @@ c****
 C
 C     local declarations
 C
-      logical doesit,isit
+      logical doesit
       integer nproc,me,icount,igran
       integer nshells_ao,nshells_cd,ishp,ishq
       integer ifirstq, ilastq, ifirstp, ilastp,nshbfq,nshbfp,Nao2
       integer mu,nu,Nint,ishd,ifirstd,ilastd,nshbfd
       integer iat,icount2,ifp,i,next,nxtask,icart,ist
       double precision PPP_max,dE,fac,schwarz_shell,ddot
+c
+      character*(nw_max_path_len) cdfit
+c
       external ddot,nxtask,schwarz_shell
 c--   >
 
@@ -56,18 +60,14 @@ C
 C     read CD_coeff vecor written by fitcd
 C
       if(me.eq.0) then
-      inquire(file='cdfit.dat',exist=doesit,opened=isit)
-      if(.not.isit)then
-        if(.not.doesit)then
-          open(unit=79,file='cdfit.dat',access='sequential',
-     &         form='unformatted',status='new')
-        else
-          open(unit=79,file='cdfit.dat',access='sequential',
-     &         form='unformatted',status='old')
-          endif
-        endif
-          read(79) (CD_coef(i),i=1,nbf_cd)
-      rewind 79
+         call util_file_name('cdfit', .true., .false., cdfit)
+         inquire(file=cdfit,exist=doesit)
+         if (.not. doesit) call errquit
+     $        ('dftg_cdfit: file cdfit does not exist',0)
+         open(unit=79,file=cdfit,access='sequential',
+     &        form='unformatted',status='old')
+         read(79) (CD_coef(i),i=1,nbf_cd)
+         close(79)
       endif
 
       call ga_brdcst(Msg_dftg_cdf,CD_coef,mdtob(nbf_cd),0)
