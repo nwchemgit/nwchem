@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.47 1995-03-11 23:35:12 d3g681 Exp $
+c     $Id: nwchem.F,v 1.48 1995-03-12 00:31:15 gg502 Exp $
 c
       character*255 input_filename
 c
@@ -120,6 +120,7 @@ c
 #include "mafdecls.h"
 #include "rtdb.fh"
 #include "inp.fh"
+#include "global.fh"
       integer rtdb              ! [output]
       character*255 rtdb_name
       character*255 file_prefix
