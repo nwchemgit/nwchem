@@ -2,10 +2,14 @@
      &     rq0,mbf,mcenters,iniz,ifin,
      &     zprim, nzprim,acc_gauss)
 
-C$Id: nbf_to_mbf.F,v 1.7 1995-10-17 08:55:22 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: nbf_to_mbf.F,v 1.8 1995-12-22 22:45:18 og845 Exp $
+      implicit none
+      
       integer basis_hand, geom_hand
+      integer mcenters ! [input]
+      integer nzprim ! [input]
+      double precision acc_gauss ! [input]
+      integer mbf  ! [input/output]
 
       Logical LResult
 
@@ -13,11 +17,17 @@ C$Id: nbf_to_mbf.F,v 1.7 1995-10-17 08:55:22 d3g681 Exp $
 
 c--   > Distance Squared between Sampling Points and Centers
 
-      Dimension rq0(mcenters)
+      double precision rq0(mcenters)
 
-      Dimension iniz(mcenters),ifin(mcenters)
+      integer  iniz(mcenters),ifin(mcenters)
 
-      Dimension zprim(nzprim)
+      double precision zprim(nzprim)
+c
+      integer ncontrset,n1,icset,ictr,
+     ,        itype, nprimo, ncontr, isphere,
+     ,     ifirst,ilast,nshbf,l,nang,iprimo
+      double precision zmin
+c
 
       if( .not. bas_numcont(basis_hand,ncontrset) )
      &          call errquit('Exiting in nbf_to_mbf.',1)

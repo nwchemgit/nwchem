@@ -1,11 +1,13 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.3 1995-10-17 08:55:12 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C     $Id: dft_invio.F,v 1.4 1995-12-22 22:45:16 og845 Exp $
+      implicit none
+      
       character*10 fname
       character*(*) name,ioop
       logical LResult, doesit, isit
+      integer iunit,j,nbf,iga_inv,istart,lmiss,i
+      integer iinv,linv
 #include "mafdecls.fh"
 #include "stdio.fh"
       
