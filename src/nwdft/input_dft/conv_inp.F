@@ -186,8 +186,8 @@ c     ncyds; use diis for this number of iterations
 c
  1100 if (.not. inp_i(ncyds)) then
          write(6,*)' conv_inp: ncyds value not found; defaulting',
-     &             ' to 30 iterations'
-         ncyds = 30
+     &             ' to 9999 iterations'
+         ncyds = 9999
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
      &   call errquit('conv_inp: rtdb_put failed', 1100)
@@ -198,8 +198,8 @@ c     ncysh; use levelshifting for this number of iterations
 c
  1200 if (.not. inp_i(ncysh)) then
          write(6,*)' conv_inp: ncysh value not found; defaulting',
-     &             ' to 30 iterations'
-         ncysh = 30
+     &             ' to 9999 iterations'
+         ncysh = 9999
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
      &   call errquit('conv_inp: rtdb_put failed', 1200)
