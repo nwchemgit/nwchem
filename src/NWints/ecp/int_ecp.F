@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.23 2002-01-17 05:24:39 edo Exp $
+* $Id: int_ecp.F,v 1.24 2002-04-04 22:00:40 bert Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -358,7 +358,7 @@ c
                         jnp = infbs_cont(cont_nprim,juc,bas_id)
                         jng = infbs_cont(cont_ngen,juc,bas_id)
                         jl  = infbs_cont(cont_type,juc,bas_id)
-                        nV  = int_nbf_x(il)*int_nbf_x(jl)
+                        nV  = int_nbf_x(il)*int_nbf_x(jl)*ing*jng
                         lecp_mem = 90000
                         if (indx_grad.eq.0) then
                            call int_ecp_hf1(
