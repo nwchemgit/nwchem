@@ -1,7 +1,7 @@
       logical function pre_center(lfnout,xw,mwm,mwa,nwm,nwa,
      + xwc,mwmc,nwmc,xs,msa,nsa,iopt)
 c
-c $Id: pre_center.F,v 1.13 2002-01-30 20:26:44 d3j191 Exp $
+c $Id: pre_center.F,v 1.14 2002-01-30 20:29:20 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
       integer i,j,k,imax,imin,kfr,kto
       real*8 s,smin,smax
 c
-      if(nsa.eq.0) return
+      if(nsa.gt.0) then
 c
       kfr=1
       kto=3
@@ -66,7 +66,8 @@ c
       endif
     1 continue
 c
+      endif
+c
       pre_center=.true.
       return
       end
-      
