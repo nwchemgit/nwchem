@@ -7,7 +7,8 @@ md
  equil 0 data 10 step 0.002
  isotherm
  isobar
- print step 10 stat 100
+ cutoff 1.0
+ print step 1 stat 10
  record rest 0
  test 10
 end

@@ -3,11 +3,12 @@ memory noverify heap 1 mb stack 128 mb global 24 mb
 start nak
 
 prepare
- system nak_md
+ system nak_prep
  new_top new_seq
  new_rst
- modify atom 1:Na set 3 type K
- expand 0.2
+ mcti
+ modify atom 1:Na final type K
+ envelope 0.2
  touch 0.28
  solvate cube 2.5
 end
