@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.5 1998-07-19 00:08:29 bernhold Exp $
+C     $Id: driver_e.F,v 1.6 1998-10-06 17:19:09 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
@@ -391,7 +391,7 @@ C                 t no longer needed.
 C
                   If ( DoGrad ) then
                      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $                    '       Beginning gradient terms')
+     $                    '       Beginning density/gradient terms')
                      Call RIMP2_G_IJ(TopSpin, ISpin .eq. JSpin,
      $                    NFrzO(ISpin), ILo, IHi, NVir(ISpin),
      $                    NFrzO(JSpin), JLo, JHi, NVir(JSpin),

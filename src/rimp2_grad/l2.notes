@@ -20,7 +20,7 @@ DRAs: possibly multiple passes (dep on memory) through some DRAs, totalling
 
 GAs: must rearrange first two indices of both GAs
 	NAct*(NCor+(NPass+1)*NAct+NVir)*NFit	elements moved
-	at least 3*NProc
+	at least 3*NProc			messages
 
 ddot: one array always local; assume other never local
 	NAct*(NCor+NAct+NVir)*NVit*NFit		flops

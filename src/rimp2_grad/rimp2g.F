@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.11 1998-07-20 00:32:03 bernhold Exp $
+C$Id: rimp2g.F,v 1.12 1998-10-06 17:19:30 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -32,7 +32,7 @@ C
 C
       Integer MxTBatch, MxEBatch(2)
 C
-      Logical DoGrad, BraKetSame
+      Logical DoDens, DoGrad, BraKetSame
 c$$$      Parameter (DoGrad = .TRUE., BraKetSame = .FALSE.)
 C
       Character*(*) Def_Int, Def_MOVec, Def_Gam3
@@ -110,11 +110,14 @@ C
       Call Util_Print_Push
       Call Util_Print_RTDB_Load(RTDB, My_Ctx)
 C
+      If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 density', MT_Log, 1,
+     $     DoDens) ) DoDens = .FALSE.
       If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 gradient', MT_Log, 1,
      $     DoGrad) ) DoGrad = .FALSE.
       If ( .NOT. RTDB_Get(RTDB, 'mp2:rimp2 braketsame', MT_Log, 1,
      $     BraKetSame) ) BraKetSame = .TRUE.
-      Write (LuOut, *) 'DoGrad, BraKetSame = ', DoGrad, BraKetSame
+      Write (LuOut, *) 'DoDens, DoGrad, BraKetSame = ',
+     $     DoDens, DoGrad, BraKetSame
 C
       If (.NOT. RTDB_CGet(RTDB, 'title', 1, JobTitle)) JobTitle = ' '
 C
@@ -169,14 +172,14 @@ C     *********************
 C     For the time being, we must keep frozen orbitals if we're doing
 C     gradients, but otherwise we don't _need_ them, so we drop them.
 C
-      KeepFrz = DoGrad
+      KeepFrz = DoDens .OR. DoGrad
       Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NMO,
      $     G_AOXF, MinChunk, MinChunk, MaxSpin, H_Occ, H_EVal,
      $     NFrzOcc, NFrzVir, KeepFrz)
 C
-      String1 = 'RIMP2G: gradients support frozen core only, '
+      String1 = 'RIMP2G: density & gradients support frozen core only, '
      $     // 'not frozen virtuals.'
-      If ( DoGrad .AND. (NFrzVir .ne. 0) ) Call ErrQuit(
+      If ( (DoDens .OR. DoGrad) .AND. (NFrzVir .ne. 0) ) Call ErrQuit(
      $     String1(:Inp_StrLen(String1)), NFrzVir)
 C
       If (RefNAO .ne. NAOBF) Call ErrQuit(
@@ -243,9 +246,10 @@ C     get used for quite some time.  However PrInfo will print
 C     largest and total, so the user has some idea what to expect.
 C
       Call RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
-     $     NFrzV, NFit, DoGrad, BraKetSame, NrDA, MaxDASiz, TotDASiz,
-     $     FNInt(:Inp_StrLen(FNInt)), FNGam3(:Inp_StrLen(FNGam3)),
-     $     FN_Int, FN_Gam, IntRange, GamRange)
+     $     NFrzV, NFit, DoDens .OR. DoGrad, BraKetSame, NrDA, MaxDASiz,
+     $     TotDASiz, FNInt(:Inp_StrLen(FNInt)),
+     $     FNGam3(:Inp_StrLen(FNGam3)), FN_Int, FN_Gam, IntRange,
+     $     GamRange)
 C
 C     **********************************************
 C     * Print out calculation information for user *
@@ -258,6 +262,8 @@ C
      $      .TRUE., .TRUE., .FALSE.)
          If ( DoGrad ) then
             Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
+         ElseIf ( DoDens .AND. .NOT. DoGrad ) then
+            Write (LuOut, 8505) 'Calculation Type:', 'Energy + Density'
          Else
             Write (LuOut, 8505) 'Calculation Type:', 'Energy only'
          EndIf
@@ -298,7 +304,7 @@ C
 C
 C        File information
 C
-         If ( DoGrad ) then
+         If ( DoDens .OR. DoGrad ) then
             Write (LuOut, 8505) 'Base file suffixes:', 
      $           FNInt(:Inp_StrLen(FNInt)), FNGam3(:Inp_StrLen(FNGam3))
          Else
@@ -370,13 +376,13 @@ C
       Status = Status .AND.
      $   RIMP2_Driver_XF( RTDB, Geom, AOBas, FitBas, TopSpin,
      $     MaxSpin, D_Int, NFrzO, NAct, NVir, NFrzV, KeepFrz,
-     $     ALo, AHi, ILo, IHi, MxTBatch,
-     $     Thresh, MinEVal, Approx, G_AOXF, FN_Int, BraKetSame, DoGrad,
+     $     ALo, AHi, ILo, IHi, MxTBatch, Thresh, MinEVal, Approx,
+     $     G_AOXF, FN_Int, BraKetSame, DoDens .OR. DoGrad,
      $     IntRange)
 C
 C     If we're not doing gradients, we can clean up some stuff now
 C
-      If ( .NOT. DoGrad ) then
+      If ( .NOT. (DoDens .OR. DoGrad) ) then
          Do I = TopSpin, 1, -1
             If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
      $           'RIMP2G: can''t destroy AO transformation matrix', I)
@@ -413,7 +419,8 @@ C
      $   RIMP2_Driver_E( MaxSpin, BraKetSame, FN_Int, D_Int, FN_Gam,
      $     D_Gam, TopSpin, NMO, NFrzO, NAct, NVir, NFit,
      $     FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), DoGrad, G_P2)
+     $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
+     $     DoDens .OR. DoGrad, G_P2)
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -456,6 +463,19 @@ C
 c$$$      Status = Status .AND.  MA_Free_Heap(H_Eval)
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2G: Unable to destroy local arrays', 0)
+C
+C     ***********
+C     * Density *
+C     ***********
+C
+      If ( DoDens .OR. DoGrad ) then
+         Call RIMP2_Driver_P(RTDB, Geom, AOBas, NAOBF,
+     $        MaxSpin, TopSpin, NMO, 
+     $        NFrzO, NAct, NVir,
+     $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
+     $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
+     $        JobTitle(:Inp_StrLen(JobTitle)) )
+      EndIf
 C
 C     ************
 C     * Gradient *

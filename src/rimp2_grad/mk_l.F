@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.5 1998-07-22 00:46:48 bernhold Exp $
+C     $Id: mk_l.F,v 1.6 1998-10-06 17:19:23 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -53,6 +53,7 @@ C LOCAL VARIABLES
       Integer Me, Beta
       Double Precision Scale
       Logical Status
+      Integer g_Tmp
 C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
@@ -69,21 +70,22 @@ C
 C     Allocate matrices for partial results
 C
       Do ISpin = 1, TopSpin
+         C = NFrzO(ISpin)
+         A = NAct(ISpin)
+         V = NVir(ISpin)
 C
 C        Create L1(p,i)
 C
          String1 = 'L1 spin ' // SpinItoA(ISpin)
-         If ( .NOT. GA_Create(MT_Dbl,
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-     $        NAct(ISpin), String1(:Inp_StrLen(String1)), MinChunk,
+         If ( .NOT. GA_Create(MT_Dbl, C+A+V, A,
+     $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L1(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Mk_L: can''t allocate L1', ISpin)
 C
 C        Create L2(a,p)
 C
          String1 = 'L2 spin ' // SpinItoA(ISpin)
-         If ( .NOT. GA_Create(MT_Dbl, NVir(ISpin),
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
+         If ( .NOT. GA_Create(MT_Dbl, V, C+A+V,
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L2(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Mk_L: can''t allocate L2', ISpin)
@@ -91,8 +93,7 @@ C
 C        Create L34(a,m)
 C
          String1 = 'L34 spin ' // SpinItoA(ISpin)
-         If ( .NOT. GA_Create(MT_Dbl,
-     $        NVir(ISpin), NFrzO(ISpin)+NAct(ISpin),
+         If ( .NOT. GA_Create(MT_Dbl, V, C+A,
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L34(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Mk_L: can''t allocate L34', ISpin)
@@ -103,12 +104,14 @@ C     * Evaluate L1(p,i) and L2(a,p) *
 C     ********************************
 C
       Do ISpin = 1, TopSpin
-         Call RIMP2_L1(NFrzO(ISpin), NAct(ISpin), NVir(ISpin), NFit,
-     $        D_Int_ai(ISpin), D_Gam(ISpin), g_L1(ISpin) )
+         C = NFrzO(ISpin)
+         A = NAct(ISpin)
+         V = NVir(ISpin)
+         Call RIMP2_L1(C, A, V, NFit, D_Int_ai(ISpin), D_Gam(ISpin),
+     $        g_L1(ISpin) )
 C
-         Call RIMP2_L2(NFrzO(ISpin), NAct(ISpin), NVir(ISpin), NFit,
-     $        D_Int_ai(ISpin), D_Int_ij(ISpin), D_Gam(ISpin),
-     $        g_L2(ISpin) )
+         Call RIMP2_L2(C, A, V, NFit, D_Int_ai(ISpin), D_Int_ij(ISpin),
+     $        D_Gam(ISpin), g_L2(ISpin) )
 C
 C        WARNING:  This is only being done at the moment in order to 
 C        match the exact MP2 code!
@@ -251,8 +254,7 @@ C           Total size ap       am       am
 C
             Call GA_Add_Patch( 1.0d0, g_L2(ISpin),  1, V, 1, C,
      $                         1.0d0, g_L34(ISpin), 1, V, 1, C,
-c$$$     $                         0.0d0, g_L34(ISpin), 1, V, 1, C,
-     $                                g_L(ISpin),  C+A+1, C+A+V, 1, C)
+     $                                 g_L(ISpin),  C+A+1, C+A+V, 1, C)
          EndIf                  ! C .gt. 0
 C
 C        L(ai) = L1(ai) + L2(ai) + L3(ai) + L4(ai)
@@ -287,58 +289,22 @@ C        NOTE: All L contributions to W2 come with a 1/2 factor attached.
 C        Also, all L contributions to the (C+A)x(C+A) region carry a minus
 C        sign. These will be handled at the end, after the matrix is 
 C        assembled.
-c$$$C
-c$$$C        W2(mi) <-- L1(mi) 
-c$$$C
-c$$$                           ! + on 0.5d0 is CHEATING!
-c$$$         Call GA_Add_Patch(0.5d0, g_L1(ISpin), 1, C+A, 1,   A,
-c$$$     $                     1.0d0, g_W2(ISpin), 1, C+A, C+1, C+A,
-c$$$     $                            g_W2(ISpin), 1, C+A, C+1, C+A)
 C
-C        W2(ap) <-- L2(ap)
+C        W2(mi) <-- L1(mi) 
+C
+                           ! + on 0.5d0 is CHEATING!
+         Call GA_Add_Patch(+0.5d0, g_L1(ISpin), 1, C+A, 1,   A,
+     $                      1.0d0, g_W2(ISpin), 1, C+A, C+1, C+A,
+     $                             g_W2(ISpin), 1, C+A, C+1, C+A)
+C
+C        W2(ap) <-- L2(ap) (also do transpose)
 C
                            ! - on 0.5d0 is CHEATING!
          Call GA_Add_Patch(-0.5d0, g_L2(ISpin), 1,     V,     1, C+A+V,
      $                      1.0d0, g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
      $                             g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V)
-c$$$C
-c$$$C        W2(mi) <-- L3(mi) (Note: L3(ij) = L3(ji))
-c$$$C
-c$$$         Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C+A, 1,   A,
-c$$$     $                     1.0d0, g_W2(ISpin),  1, C+A, C+1, C+A,
-c$$$     $                            g_W2(ISpin),  1, C+A, C+1, C+A)
-c$$$C
-c$$$C        W2(yz) <-- L3(yz)
-c$$$C
-c$$$         If ( C .gt. 0)
-c$$$     $        Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C, 1, C,
-c$$$     $                          1.0d0, g_W2(ISpin),  1, C, 1, C,
-c$$$     $                                 g_W2(ISpin),  1, C, 1, C)
-c$$$C
-c$$$C        W2(om) <-- L4(om)
-c$$$C
-c$$$         Call GA_Add_Patch(1.0d0, g_L34(ISpin), 1, C+A, 1, C+A,
-c$$$     $                     1.0d0, g_W2(ISpin),  1, C+A, 1, C+A,
-c$$$     $                            g_W2(ISpin),  1, C+A, 1, C+A)
-c$$$C
-c$$$C        Handle minus sign and 1/2 factor
-c$$$C
-c$$$         Call GA_Scale_Patch(g_W2(ISpin), 1, C+A, 1, C+A, -1.0d0)
-c$$4         Call GA_Scale(g_W2(ISpin), 0.5d0)
-c$$$C
-c$$$C        Now handle the two blocks which we know from symmetry arguments
-c$$$C        but are not currently correct in W2.
-c$$$C
-c$$$C        W2(ma) = W2(am)
-c$$$C
-c$$$         Call GA_Copy_Patch('T',g_W2(ISpin), C+A+1, C+A+V, 1,     C+A,
-c$$$     $                          g_W2(ISpin), 1,     C+A,   C+A+1, C+A+V)
-c$$$C
-c$$$C        W2(iy) = W2(yi)
-c$$$C
-c$$$         If ( C .gt. 0 ) Call GA_Copy_Patch('T',
-c$$$     $        g_W2(ISpin), 1,   C,   C+1, C+A,
-c$$$     $        g_W2(ISpin), C+1, C+A, 1,   C)
+         Call GA_Copy_Patch('T',   g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
+     $                             g_W2(ISpin), 1, C+A+V, C+A+1, C+A+V )
 C
 C
 C        Print results if requested

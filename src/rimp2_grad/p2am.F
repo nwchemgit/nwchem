@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.2 1998-07-22 00:46:49 bernhold Exp $
+C     $Id: p2am.F,v 1.3 1998-10-06 17:19:28 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
@@ -96,8 +96,6 @@ C
          A = NAct(ISpin)
          V = NVir(ISpin)
 C
-c$$$         Call GA_Copy_Patch('N', g_L(ISpin), C+A+1, C+A+V, 1, C+A,
-c$$$     $        g_RHS, 1+Length, (V*(C+A))+Length, 1, 1)
          Call GA_Copy_Patch('N', g_RHS, 1+Length, (V*(C+A))+Length,
      $        1, 1, g_P2(ISpin), C+A+1, C+A+V, 1, C+A)
          Call GA_Copy_Patch('T', g_P2(ISpin), C+A+1, C+A+V, 1, C+A, 

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.7 1998-07-22 00:46:47 bernhold Exp $
+C     $Id: driver_g.F,v 1.8 1998-10-06 17:19:11 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -85,120 +85,118 @@ C
          Write (LuOut, 9000) 
       EndIf
  9000 Format(/1X, 'Gradient evaluation')
-C
-C     **************
-C     * Open files *
-C     **************
-C     Open both bra and ket files if they are distinct, otherwise
-C     simply duplicate the bra handle.
-C
-      Do ISpin = 1, TopSpin
-C
-C        Integrals
-C
-         If ( DRA_Open(
-     $        FN_Int(ISpin, 1, 1)(:Inp_StrLen(FN_Int(ISpin, 1, 1))),
-     $        DRA_R, D_Int(ISpin, 1, 1) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
-     $        ISpin)
-         If ( BraKetSame ) then
-            D_Int(ISpin, 2, 1) = D_Int(ISpin, 1, 1)
-         Else
-            If ( DRA_Open(
-     $           FN_Int(ISpin, 2, 1)(:Inp_StrLen(FN_Int(ISpin, 2, 1))),
-     $           DRA_R, D_Int(ISpin, 2, 1) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
-     $        ISpin)
-         EndIf
-         If ( DRA_Open(
-     $        FN_Int(ISpin, 1, 2)(:Inp_StrLen(FN_Int(ISpin, 1, 2))),
-     $        DRA_R, D_Int(ISpin, 1, 2) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
-     $        ISpin)
-         If ( DRA_Open(FN_Gam(ISpin)(:Inp_StrLen(FN_Gam(ISpin))),
-     $        DRA_R, D_Gam(ISpin) ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_G:  can''t open gamma file for spin ',
-     $        ISpin)
-      EndDo                     ! ISpin
-C
-C     ****************************
-C     * Compute Lagrangian terms *
-C     ****************************
-C
-      Do ISpin = 1, TopSpin
-C
-C        Create L(a,m)
-C
-         String1 = 'L spin ' // SpinItoA(ISpin)
-         If ( .NOT. GA_Create(MT_Dbl,
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-     $        String1(:Inp_StrLen(String1)), MinChunk,
-     $        MinChunk, g_L(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t allocate L', ISpin)
-C
-C        Create W2(p,q) (initial contributions come from L)
-C
-         String1 = 'W2 spin ' // SpinItoA(ISpin)
-         If ( .NOT. GA_Create(MT_Dbl,
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
-     $        String1(:Inp_StrLen(String1)), MinChunk,
-     $        MinChunk, g_W2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t allocate W2', ISpin)
-      EndDo ! ISpin
-C
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $     '    Computing Lagrangian (incl. Fock build)')
-      Call RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct, NVir,
-     $     NFit, D_Int(1, 1, 1), D_Int(1, 1, 2), D_Gam, g_L, g_P2,
-     $     g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
-C
-C     ************************
-C     * Solve CPHF Equations *
-C     ************************
-C     Produce the relaxed part of the density
-C
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $     '    Computing P2(a,m) (CPHF equations)')
-C
-      Call RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
-C
-C     Now we can clean up the Lagrangian
-C
-      Do ISpin = 1, TopSpin
-         If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free L', ISpin)
-      EndDo
-C
-C     *************************
-C     * Save correlated 1-PDM *
-C     *************************
-C     Correlated one-particle density is now complete, so let's
-C     save it, and do some other things with it before going on
-C     to complete the gradient.
-C
-      If ( TopSpin .eq. 2) then
-         Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO, Max(NMO(1), NMO(2)),
-     $        NFrzO(1)+NAct(1), NFrzO(2)+NAct(2), g_P2(1), g_P2(2),
-     $        g_AOXF(1), g_AOXF(2) )
-C
-         Call MP2_Make_NOs(RTDB, AOBas, NAO, Max(NMO(1), NMO(2)),
-     $        NFrzO(1)+NAct(1), NFrzO(2)+NAct(2), g_P2(1), g_P2(2),
-     $        g_AOXF(1), g_AOXF(2), 'UHF', Max(NFrzO(1), NFrzO(2)),
-     $        JobTitle(:Inp_StrLen(JobTitle) ) )
-      ElseIf ( TopSpin .eq. 1) then
-         Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO, NMO(1),
-     $        NFrzO(1)+NAct(1), NFrzO(1)+NAct(1), g_P2(1), g_P2(1),
-     $        g_AOXF(1), g_AOXF(1) )
-C
-         Call MP2_Make_NOs(RTDB, AOBas, NAO, NMO(1),
-     $        NFrzO(1)+NAct(1), NFrzO(1)+NAct(1), g_P2(1), g_P2(1),
-     $        g_AOXF(1), g_AOXF(1), 'RHF', NFrzO(1),
-     $        JobTitle(:Inp_StrLen(JobTitle) ) )
-      Else
-         Call ErrQuit( 'RIMP2_Driver_G: TopSpin out of range', TopSpin)
-      EndIf
+c$$$C
+c$$$C     **************
+c$$$C     * Open files *
+c$$$C     **************
+c$$$C     Open both bra and ket files if they are distinct, otherwise
+c$$$C     simply duplicate the bra handle.
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$C
+c$$$C        Integrals
+c$$$C
+c$$$         If ( DRA_Open(
+c$$$     $        FN_Int(ISpin, 1, 1)(:Inp_StrLen(FN_Int(ISpin, 1, 1))),
+c$$$     $        DRA_R, D_Int(ISpin, 1, 1) ) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
+c$$$     $        ISpin)
+c$$$         If ( BraKetSame ) then
+c$$$            D_Int(ISpin, 2, 1) = D_Int(ISpin, 1, 1)
+c$$$         Else
+c$$$            If ( DRA_Open(
+c$$$     $           FN_Int(ISpin, 2, 1)(:Inp_StrLen(FN_Int(ISpin, 2, 1))),
+c$$$     $           DRA_R, D_Int(ISpin, 2, 1) ) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
+c$$$     $        ISpin)
+c$$$         EndIf
+c$$$         If ( DRA_Open(
+c$$$     $        FN_Int(ISpin, 1, 2)(:Inp_StrLen(FN_Int(ISpin, 1, 2))),
+c$$$     $        DRA_R, D_Int(ISpin, 1, 2) ) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G:  can''t open integral file for spin ',
+c$$$     $        ISpin)
+c$$$         If ( DRA_Open(FN_Gam(ISpin)(:Inp_StrLen(FN_Gam(ISpin))),
+c$$$     $        DRA_R, D_Gam(ISpin) ) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G:  can''t open gamma file for spin ',
+c$$$     $        ISpin)
+c$$$      EndDo                     ! ISpin
+c$$$C
+c$$$C     ****************************
+c$$$C     * Compute Lagrangian terms *
+c$$$C     ****************************
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$C
+c$$$C        Create L(a,m)
+c$$$C
+c$$$         String1 = 'L spin ' // SpinItoA(ISpin)
+c$$$         If ( .NOT. GA_Create(MT_Dbl,
+c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
+c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
+c$$$     $        String1(:Inp_StrLen(String1)), MinChunk,
+c$$$     $        MinChunk, g_L(ISpin) ) ) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G: can''t allocate L', ISpin)
+c$$$C
+c$$$C        Create W2(p,q) (initial contributions come from L)
+c$$$C
+c$$$         String1 = 'W2 spin ' // SpinItoA(ISpin)
+c$$$         If ( .NOT. GA_Create(MT_Dbl,
+c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
+c$$$     $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
+c$$$     $        String1(:Inp_StrLen(String1)), MinChunk,
+c$$$     $        MinChunk, g_W2(ISpin) ) ) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G: can''t allocate W2', ISpin)
+c$$$      EndDo ! ISpin
+c$$$C
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $     '    Computing Lagrangian (incl. Fock build)')
+c$$$C
+c$$$      Call RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct, NVir,
+c$$$     $     NFit, D_Int(1, 1, 1), D_Int(1, 1, 2), D_Gam, g_L, g_P2,
+c$$$     $     g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
+c$$$C
+c$$$C     ************************
+c$$$C     * Solve CPHF Equations *
+c$$$C     ************************
+c$$$C     Produce the relaxed part of the density
+c$$$C
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $     '    Computing P2(a,m) (CPHF equations)')
+c$$$C
+c$$$      Call RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
+c$$$C
+c$$$C     Now we can clean up the Lagrangian
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_G: can''t free L', ISpin)
+c$$$      EndDo
+c$$$C
+c$$$C     *************************
+c$$$C     * Save correlated 1-PDM *
+c$$$C     *************************
+c$$$C     Correlated one-particle density is now complete, so let's
+c$$$C     save it, and do some other things with it before going on
+c$$$C     to complete the gradient.
+c$$$C
+c$$$      If ( TopSpin .eq. 2) then
+c$$$         String1 = 'UHF'
+c$$$      ElseIf ( TopSpin .eq. 1) then
+c$$$         String1 = 'RHF'
+c$$$      Else
+c$$$         Call ErrQuit( 'RIMP2_Driver_G: TopSpin out of range', TopSpin)
+c$$$      EndIf
+c$$$C
+c$$$      Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO,
+c$$$     $     Max(NMO(1), NMO(TopSpin)), NFrzO(1)+NAct(1),
+c$$$     $     NFrzO(TopSpin)+NAct(TopSpin), g_P2(1), g_P2(TopSpin),
+c$$$     $     g_AOXF(1), g_AOXF(TopSpin) )
+c$$$C
+c$$$      Call MP2_Make_NOs(RTDB, AOBas, NAO, Max(NMO(1), NMO(TopSpin)),
+c$$$     $     NFrzO(1)+NAct(1), NFrzO(TopSpin)+NAct(TopSpin),
+c$$$     $     g_P2(1), g_P2(TopSpin), g_AOXF(1), g_AOXF(TopSpin),
+c$$$     $     String1, Max(NFrzO(1), NFrzO(TopSpin)),
+c$$$     $     JobTitle(:Inp_StrLen(JobTitle) ) )
 C
 C     ***************
 C     * Complete W2 *
@@ -206,7 +204,7 @@ C     ***************
 C
       If ( PrPrgRpt ) Call Progress_Report(LuOut,
      $     '    Completing energy-weighted density (incl. Fock build)')
-      Call RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
+      Call RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct, NVir,
      $     g_P2, g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
 C
 C     *******************
@@ -222,23 +220,23 @@ C
          If ( .NOT. GA_Destroy( G_P2(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Driver_G: can''t free P2', ISpin)
       EndDo
-C
-C     ************************
-C     * Close & delete files *
-C     ************************
-C
-      Do ISpin = 1, TopSpin
-         If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         If ( .NOT. BraKetSame ) then
-            If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) Call ErrQuit(
-     $           'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         EndIf
-         If ( DRA_Delete(D_Int(ISpin, 1, 2)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
-         If ( DRA_Delete(D_Gam(ISpin)) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Driver_E: can''t delete gamma file', ISpin)
-      EndDo    ! ISpin
+c$$$C
+c$$$C     ************************
+c$$$C     * Close & delete files *
+c$$$C     ************************
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
+c$$$         If ( .NOT. BraKetSame ) then
+c$$$            If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) Call ErrQuit(
+c$$$     $           'RIMP2_Driver_E: can''t delete integral file', ISpin)
+c$$$         EndIf
+c$$$         If ( DRA_Delete(D_Int(ISpin, 1, 2)) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_E: can''t delete integral file', ISpin)
+c$$$         If ( DRA_Delete(D_Gam(ISpin)) .ne. 0) Call ErrQuit(
+c$$$     $        'RIMP2_Driver_E: can''t delete gamma file', ISpin)
+c$$$      EndDo    ! ISpin
 C
       Return
       End
