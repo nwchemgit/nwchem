@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
-     + isl,xs,vs,gs,numsa,lpack)
+     + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.54 2000-10-26 19:02:13 d3j191 Exp $
+c $Id: sp_main.F,v 1.55 2001-03-23 00:31:40 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       integer node,numwm,numsa
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
-      real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 vw(mwm,3,mwa),vs(msa,3),xscr(msm,3)
       real*8 gw(mwm,3,mwa),gs(msa,3)
       logical lpack
 c
@@ -36,6 +36,26 @@ c
      + call errquit('Failed to deallocate memory for qlst',0)
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
+c
+      if(nsm.gt.0) call sp_getxscr(xscr,dbl_mb(i_xscr))
+c
+      return
+      end
+      subroutine sp_getxscr(xscr,xscrs)
+c
+      implicit none
+c
+#include "sp_common.fh"
+c
+      real*8 xscr(msm,3),xscrs(msm,3)
+c
+      integer i,j
+c
+      do 1 j=1,3
+      do 2 i=1,nsm
+      xscr(i,j)=xscrs(i,j)
+    2 continue
+    1 continue
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.88 2001-02-09 17:50:32 d3j191 Exp $
+c $Id: md_start.F,v 1.89 2001-03-23 00:31:52 d3j191 Exp $
 c
       implicit none
 c
@@ -152,8 +152,8 @@ c
       else
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc,
-     + lpack)
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_xscr),dbl_mb(i_vs),
+     + dbl_mb(i_gs),nsaloc,lpack)
       endif
 c
 c     fix or unfix

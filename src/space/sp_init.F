@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.82 2001-01-19 21:03:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.83 2001-03-23 00:31:40 d3j191 Exp $
 c
       implicit none
 c
@@ -104,6 +104,13 @@ c
       if(ireset.eq.0) then
       ignore=sp_rdrest(lfnrst,filrst,dbl_mb(i_boxs))
       endif
+
+      if(np.gt.1) then
+      call ga_brdcst(msp_02,nsm,ma_sizeof(mt_int,1,mt_byte),0)
+      endif
+      msm=max(1,nsm)
+      if(.not.ma_push_get(mt_dbl,msm*3,'xscr',l_xscr,i_xscr))
+     + call errquit('Failed to allocate xscr',0)
 c
       lenscr=3*max(mwm*mwa,msa)
       if(.not.ma_push_get(mt_dbl,lenscr,'x',l_x,i_x))
@@ -137,7 +144,7 @@ c
       call sp_rdrst(lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,int_mb(i_ipl),
      + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_r),int_mb(i_i),
-     + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),int_mb(i_i),
+     + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_xscr),int_mb(i_i),
      + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_bf),dbl_mb(i_br),
      + int_mb(i_bi),lenscr,
      + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_bf),int_mb(i_bi),
@@ -499,7 +506,7 @@ c
       return
       end
       subroutine sp_rdrst(lfnrst,filrst,lfntop,filtop,
-     + temp,tempw,temps,ipl,xw,vw,fw,xwcr,iwl,xs,vs,fs,isl,
+     + temp,tempw,temps,ipl,xw,vw,fw,xwcr,iwl,xs,vs,fs,xscr,isl,
      + bxw,bvw,bfw,brw,ibw,nw,bxs,bvs,bfs,ibs,ns,ndx,
      + ibownr,boxsiz)
 c
@@ -516,7 +523,7 @@ c
       integer ibownr(maxbox,3)
       integer ipl(mbox,mip2),iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
-      real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 vw(mwm,3,mwa),vs(msa,3),xscr(msm,3)
       real*8 fw(mwm,3,mwa),fs(msa,3)
       real*8 bxw(nw,3,mwa),bxs(ns,3),brw(nw,3)
       real*8 bvw(nw,3,mwa),bvs(ns,3)
@@ -928,6 +935,19 @@ c
       if(nsm.ne.nsmr)
      + call errquit('Error in number of solute molecules',nsm)
       endif
+c
+      if(nsm.gt.0) then
+      do 31 i=1,nsm
+      xscr(i,1)=zero
+      xscr(i,2)=zero
+      xscr(i,3)=zero
+   31 continue
+      do 32 i=1,nsm
+      read(lfnrst,1012,end=99,err=99) (xscr(i,j),j=1,3)
+ 1012 format(2x,3f13.8)
+   32 continue
+      endif
+   99 continue
 c
       close(unit=lfnrst,status='keep')
       close(unit=lfntop,status='keep')
@@ -1618,6 +1638,8 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 c
+      if(.not.ma_pop_stack(l_xscr))
+     + call errquit('Failed to deallocate xscr',0)
       if(.not.ma_pop_stack(l_bb))
      + call errquit('Failed to deallocate memory for bb',0)
 c
@@ -1765,7 +1787,7 @@ c
       return
       end
       subroutine sp_wrtrst(lfnrst,filrst,lveloc,
-     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs,prjct)
+     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs,xscr,prjct)
 c
       implicit none
 c
@@ -1779,7 +1801,7 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3),xscr(msm,3)
       character*80 prjct
 c
       integer lenscr
@@ -1804,7 +1826,7 @@ c
 c
       call sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
      + iwl,int_mb(i_packw),xw,vw,fw,xwcr,isl,int_mb(i_pack),xs,vs,fs,
-     + int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
+     + xscr,int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
      + dbl_mb(i_bf),dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),
      + dbl_mb(i_bv),dbl_mb(i_bf))
 c
@@ -1824,7 +1846,7 @@ c
       return
       end
       subroutine sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
-     + iwl,iwlp,xw,vw,fw,xwcr,isl,islp,xs,vs,fs,
+     + iwl,iwlp,xw,vw,fw,xwcr,isl,islp,xs,vs,fs,xscr,
      + ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
 c
       implicit none
@@ -1840,7 +1862,7 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       integer iwlp(mwm,npackw),islp(msa,npack)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3),xscr(msm,3)
       integer ipl(mbox,mip2),ibw(nb),ibs(nb)
       real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),bfw(nb,3,mwa),brw(nb,3)
       real*8 bxs(nb,3),bvs(nb,3),bfs(nb,3)
@@ -1997,6 +2019,13 @@ c
  1108 format(2x,3e13.6)
     9 continue
     6 continue
+      endif
+c
+      if(nsm.gt.0) then
+      do 21 i=1,nsm
+      write(lfnrst,1109) (xscr(i,j),j=1,3)
+ 1109 format(2x,3f13.8)
+   21 continue
       endif
 c
       endif
