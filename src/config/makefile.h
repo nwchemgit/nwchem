@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.53 1994-08-22 04:20:53 d3g681 Exp $
+# $Id: makefile.h,v 1.54 1994-08-25 08:20:35 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -93,7 +93,7 @@ ifeq ($(TARGET),SUN)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 2
-    INSTALL = @echo $@ is built
+    INSTALL = @echo nwchem is built
 
        FOPT = -g -Nl99
    FOPT_REN = $(FOPT)
@@ -129,7 +129,7 @@ ifeq ($(TARGET),KSR)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 20
-    INSTALL = @echo $@ is built
+    INSTALL = @echo nwchem is built
 
        FOPT = -g -r8
    FOPT_REN = $(FOPT)
@@ -165,7 +165,7 @@ ifeq ($(TARGET),PARAGON)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 4
-    INSTALL = @echo $@ is built
+    INSTALL = @echo nwchem is built
 
      FOPT = -g -Knoieee		# -Mquad is default
    FOPT_REN = $(FOPT) -Mrecursive -Mreentrant
@@ -210,7 +210,7 @@ ifeq ($(TARGET),DELTA)
         AR = ar860
     RANLIB = @echo
      SHELL = /bin/sh
-   INSTALL = rcp $@ delta1:
+   INSTALL = rcp nwchem delta1:
 #-Mrecursive -Mnosave to force all locals onto the stack to avoid BSS exploding
       FOPT = -O1 -Knoieee -Mquad -node -Minline=100
   FOPT_REN = -O1 -Knoieee -Mquad -Mreentrant -Mrecursive -Mnosave -node
@@ -225,7 +225,7 @@ ifeq ($(TARGET),DELTA)
    ARFLAGS = rcv
       LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -linput -lguess -lgeom -lbasis -lglobal -lutil \
+              -lguess -lglobal -lutil \
               -lglobal -lpeigs -ltcgmsg -llapack -lkmath
 # -llapack -lblas 
 
@@ -247,7 +247,7 @@ ifeq ($(TARGET),IBM)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 1
-    INSTALL = @echo $@ is built
+    INSTALL = @echo nwchem is built
         CPP = /usr/lib/cpp -P
 
        FOPT = -g
@@ -264,7 +264,7 @@ ifeq ($(TARGET),IBM)
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -linput -lguess -lgeom -lbasis -lglobal -lutil \
+              -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas
 
  EXPLICITF = TRUE
