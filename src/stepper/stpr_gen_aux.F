@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.5 1996-08-27 23:05:19 d3g681 Exp $
+* $Id: stpr_gen_aux.F,v 1.6 1997-04-22 20:01:45 d3e129 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -81,7 +81,8 @@ c
       close(unit=lu,status='keep')
 c
       end
-      logical function stpr_check_genat_restart(iatom_start,ixyz_start)
+      logical function stpr_check_genat_restart(
+     &    rtdb, iatom_start,ixyz_start)
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -89,6 +90,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "cstprfiles.fh"
+      integer rtdb
       integer iatom_start
       integer ixyz_start
 c
@@ -96,22 +98,39 @@ c
       integer rank, ijunk
       logical does_it_exist
 c
-      if (ga_nodeid().eq.0) then
-        does_it_exist = .false.
-        inquire(file=FILEATR,exist=does_it_exist)
-        if (does_it_exist) then
-          open(unit=69,file=FILEATR,
-     &        form='unformatted',
-     &        access='sequential',
-     &        status='old')
-          read(69)iatom_start,ixyz_start,rank, ijunk
-          close(unit=69,status='keep')
-          int_restart = 1
-        else
-          iatom_start = 1
-          ixyz_start  = 1
-          int_restart = 0
+      logical ostart, orestart, ocontinue
+c
+c assume not a restart
+      iatom_start = 1
+      ixyz_start  = 1
+      int_restart = 0
+      call util_get_rtdb_state(rtdb,ostart,ocontinue,orestart)
+      if (ostart) then
+        call util_file_unlink(FILEATR)
+      else if (ocontinue.or.orestart) then
+        if (ga_nodeid().eq.0) then
+          does_it_exist = .false.
+          inquire(file=FILEATR,exist=does_it_exist)
+          if (does_it_exist) then
+            open(unit=69,file=FILEATR,
+     &          form='unformatted',
+     &          access='sequential',
+     &          status='old')
+            read(69)iatom_start,ixyz_start,rank, ijunk
+            close(unit=69,status='keep')
+            int_restart = 1
+          else
+            write(luout,*)'*** Warning restart called for but no   ***'
+            write(luout,*)'*** fd restart file for nuclear hessian ***'
+            write(luout,*)'*** starting from scratch so to speak   ***'
+            iatom_start = 1
+            ixyz_start  = 1
+            int_restart = 0
+          endif
         endif
+      else
+        call errquit
+     &      ('stpr_check_genat_restart: error with rtdb state',911)
       endif
 c
       call ga_brdcst(Msg_gen_at_iatom  +MSGINT,iatom_start,mitob(1),0)
@@ -192,9 +211,6 @@ c
       endif
 c
       call util_file_unlink(fileatr)
-*      open(unit=69,file=FILEATR,
-*     &    status='unknown')
-*      close(unit=69,status='delete')
       if(iatom_in.eq.nat.and.ixyz_in.eq.3) return
       iatom_start = iatom_in
       ixyz_start  = ixyz_in + 1

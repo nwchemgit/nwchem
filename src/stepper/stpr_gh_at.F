@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.8 1996-11-01 00:02:14 vg038 Exp $
+*     $Id: stpr_gh_at.F,v 1.9 1997-04-22 20:01:46 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -107,7 +107,7 @@ c     set no xyz options
       endif
 c     all nodes work here 
       restart = .false.
-      restart = stpr_check_genat_restart(iatom_start,ixyz_start)
+      restart = stpr_check_genat_restart(rtdb,iatom_start,ixyz_start)
 c
       if (.not. restart) then
 c
@@ -206,7 +206,7 @@ c
             if (ixyz.eq.3 .and. no_z) goto 00199
             ignore_status = rtdb_parallel(.false.)
             if(whoiam.eq.master) then
-              if (util_print('directions', print_high)) then
+              if (util_print('directions', print_medium)) then
                 write(luout,*)' iatom = ',iatom, ' ixyz = ',
      $               ixyz,' plus '
                 call util_flush(luout)

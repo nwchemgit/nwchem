@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.6 1997-04-11 23:58:53 d3e129 Exp $
+* $Id: vib_vib.F,v 1.7 1997-04-22 20:01:44 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -208,7 +208,11 @@ C
       CALL vib_WRTFREQ(DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
 C
       CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-07) ! CLEAN eigenvectors
-      WRITE(6,9000)
+      if (first_pass) then
+        WRITE(6,9000)
+      else
+        WRITE(6,9001)
+      endif
       CALL vib_PRDATA(DBL_MB(IEGVEC),DBL_MB(IEGVAL),
      &    NAT3,NAT3,NAT3,NAT3,.TRUE.,NPRI,
      &    first_pass)     ! Write eigenvalues and eigenvectors
@@ -229,6 +233,10 @@ C
      &        ,/,10X,'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
      &        ,/,10X,'-------------------------------------------------'
      &        ,/,10X,'       (Freqencies expressed in cm-1)')
+ 9001 FORMAT(///,10X,'-------------------------------------------------'
+     &        ,/,10X,'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
+     &        ,/,10X,'-------------------------------------------------'
+     &        ,/,10X,'   (Projected Freqencies expressed in cm-1)')
       if (.not.ma_pop_stack(h_core)) call errquit
      &    ('vib_rdinp ma_pop failed',911)
       return

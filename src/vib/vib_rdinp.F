@@ -2,7 +2,7 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb,first_pass)
-* $Id: vib_rdinp.F,v 1.5 1997-04-11 09:26:45 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.6 1997-04-22 20:01:43 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -198,8 +198,10 @@ c
         coord(1,iii) = xyz(1)
         coord(2,iii) = xyz(2)
         coord(3,iii) = xyz(3)
-        if(.not.geom_tag_to_element(tag,symbol,element,ijunk))
-     &      call errquit('vib_rdinp: tag2elem fail',911)
+        if(.not.geom_tag_to_element(tag,symbol,element,ijunk)) then
+          if (symbol.ne.'bq')
+     &        call errquit('vib_rdinp: tag2elem fail',911)
+        endif
         byte_mb(il_cnt+i_lblb) = symbol(1:1)
         il_cnt = il_cnt+1
         byte_mb(il_cnt+i_lblb) = symbol(2:2)

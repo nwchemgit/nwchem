@@ -1,6 +1,9 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.3 1995-10-21 09:16:07 d3e129 Exp $
+* $Id: vib_eckart.F,v 1.4 1997-04-22 20:01:42 d3e129 Exp $
       IMPLICIT none ! REAL*8 (A-H,O-Z)
+c
+#include "util.fh"
+#include "stdio.fh"
 c
       double precision zero, one
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
@@ -15,6 +18,7 @@ c
       double precision VC(NAT3,6)
 c
       DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
+      double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
 C****
 C**** construct translation unit vectors;  these are stored in the
@@ -77,8 +81,10 @@ C****
             VC(K,I) = ZERO
   125     CONTINUE
           ITEMP = I-3
-          WRITE(6,*)'Dependent rotation vector no.',ITEMP
-          WRITE(6,*)' found in ECKART; assuming linear geometry'
+          WRITE(luout,*)
+     &        'Dependent rotation vector no.',ITEMP
+          WRITE(luout,*)
+     &        ' found in ECKART; assuming linear geometry'
         END IF
    70 CONTINUE
 C****
@@ -125,10 +131,14 @@ C****
 C****
 C**** output projected Hessian
 C****
-*      WRITE(6,*)'Hessian after projecting out external modes:'
-*      WRITE(6,*)HESS
-C      WRITE(6,*)'difference of Hessian with projected hessian:'
-C      WRITE(6,*)HESSP
+      if (util_print('eckart',print_debug)) then
+        WRITE(luout,*)
+     &      'Hessian after projecting out external modes:'
+        WRITE(luout,*)HESS
+        WRITE(luout,*)
+     &      'difference of Hessian with projected hessian:'
+        WRITE(luout,*)HESSP
+      endif
 C****
 C**** construct Hessian in trans-rot subspace (should be zeroes)
 C****
@@ -142,7 +152,18 @@ C****
   250     CONTINUE
   240   CONTINUE
   230 CONTINUE
-C      WRITE(6,*)'Hessian projected into trans-rot subspace:'
-C      WRITE(6,*)TEST
+      if (util_print('eckart',print_medium)) then
+        test_norm = ddot((6*6),test,1,test,1)
+        write(luout,'(a,1pd10.4)')
+     &      ' Projected Nuclear Hessian trans-rot subspace norm:',
+     &      test_norm
+        write(luout,*)
+     &      '                        (should be close to zero!) '
+      endif
+      if (util_print('eckart',print_debug)) then
+        WRITE(6,*)'Hessian projected into trans-rot subspace ',
+     &      '(should be zeros):'
+        WRITE(6,*)TEST
+      endif
       RETURN
       END

@@ -1,5 +1,5 @@
       SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
-* $Id: vib_hmass.F,v 1.3 1997-04-11 09:26:40 d3e129 Exp $
+* $Id: vib_hmass.F,v 1.4 1997-04-22 20:01:42 d3e129 Exp $
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the
@@ -15,6 +15,7 @@ c
 c
       double precision fact, scale
       integer ii, jj, jjend, iatii, iatjj, idum
+      double precision mass_ii, mass_jj
 C
 C      set up function for locating i,j elements packed canonically as ij
 C
@@ -22,16 +23,24 @@ C
       ISYM2(I,J)=MAX(I,J)*((MAX(I,J))-1)/2 + MIN(I,J)
       IATOM(I)  = (I+2)/3   ! function for coordinate I is on atom IATOM
 C
-      DO 00100 II = 1,NAT3  ! loop over coordinates
-         JJEND = II
-         IATII = IATOM(II)  ! coordinate II is for atom IATII
-         DO 00100 JJ = 1,JJEND   ! loop over coordinates
-            IDUM = ISYM2(II,JJ)  ! get canonical index
-            IATJJ = IATOM(JJ)   ! coordinate JJ is for atom IATJJ
-            FACT = SQRT(ATMASS(IATII))*SQRT(ATMASS(IATJJ)) ! mass weight
-            HESST(IDUM) = HESST(IDUM)/FACT  ! weight Hessian
+      DO 00100 II = 1,NAT3 ! loop over coordinates
+        JJEND = II
+        IATII = IATOM(II) ! coordinate II is for atom IATII
+        DO 00200 JJ = 1,JJEND ! loop over coordinates
+          IDUM = ISYM2(II,JJ) ! get canonical index
+          IATJJ = IATOM(JJ) ! coordinate JJ is for atom IATJJ
+          mass_ii = atmass(iatii)
+          mass_jj = atmass(iatjj)
+          if (abs(mass_ii).lt.1.0d-01) mass_ii  = 1.0d05
+          if (abs(mass_jj).lt.1.0d-01) mass_jj  = 1.0d05
+*           FACT = SQRT(ATMASS(IATII))*SQRT(ATMASS(IATJJ)) ! mass weight
+          FACT = SQRT(mass_ii)*SQRT(mass_jj) ! mass weight
+          HESST(IDUM) = HESST(IDUM)/FACT ! weight Hessian
+00200   CONTINUE
+*        idum = isym2(ii,ii) ! get canonical index for diagonal element
+*        if (abs(hesst(idum)).lt.1.0d-10) hesst(idum) = 1.0d04
 00100 CONTINUE
-      SCALE = 1.0D03                      ! Hessian scaling factor
+      SCALE = 1.0D03 ! Hessian scaling factor
 *dscal
       call dscal(nhesst,scale,hesst,1) ! Scale Hessian for diagonaization
       if (first_pass) then

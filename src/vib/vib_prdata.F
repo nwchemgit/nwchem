@@ -1,6 +1,6 @@
       SUBROUTINE vib_PRDATA(ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.3 1997-04-11 09:26:44 d3e129 Exp $
+* $Id: vib_prdata.F,v 1.4 1997-04-22 20:01:43 d3e129 Exp $
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE ! DOUBLE PRECISION(A-H,O-Z)
@@ -9,7 +9,7 @@ c
 c
       integer nr, nc, nrp, ncp, npri
       double precision ARRAY(NR,NC), VECT(NR)
-      CHARACTER*9 FREQ
+      CHARACTER*11 FREQ
       LOGICAL PVEC
       logical first_pass
       logical projected
@@ -19,6 +19,7 @@ c
 c
       FREQ = 'Frequency'
       projected = .not.first_pass
+      if (projected) FREQ = 'P.Frequency'
 C
 C
       NCL=1
@@ -28,11 +29,7 @@ C
         IF (NCU.GT.NCP)NCU=NCP
 C
         WRITE(luout,9110)(J,J=NCL,NCU)        
-        if (projected) then
-          write(luout,9111)
-        else
-          write(luout,9300)
-        endif
+        write(luout,9300)
         IF(PVEC) THEN
           WRITE(luout,9210)FREQ,(VECT(J),J=NCL,NCU)
         ENDIF
@@ -62,7 +59,7 @@ C
 C
  9110 FORMAT(/18X,6(I3,9X))
  9111 format(1x,'Projected')
- 9210 FORMAT(1X,A9,2X,6F12.2)
+ 9210 FORMAT(1X,A11,6F12.2)
  9300 FORMAT(' ')
  9402 FORMAT(9X,I3,6F12.5)
 C
