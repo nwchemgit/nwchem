@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.2 2002-02-16 21:33:33 bylaska Exp $
+* $Id: psp.F,v 1.3 2002-05-14 07:53:59 bylaska Exp $
 *
 
 #define TCGMSG
@@ -627,9 +627,9 @@ c             verf = (1.0d0 - 1.0d0/fterf**4)
 
 
 *     ***********************************
-*     *				                 	*
-*     *	 	   v_lr_local  				*
-*     *									*
+*     *				        *
+*     *	 	   v_lr_local  		*
+*     *					*
 *     ***********************************
 *
 *     This routine calculates the long-range part of the
@@ -930,6 +930,12 @@ c     integer    lmmax(nkatmx)
 *     *					*
 *     ***********************************
 
+*    This routine computes the Kleinman-Bylander non-local 
+* pseudopotential projection.
+*
+*  Note - This routine was restructured 5-13-2002 to improve
+*         parallel efficiency.
+*
       subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion)
       implicit none
       integer    ispin,ne(2)
@@ -988,29 +994,34 @@ c     integer    lmmax(nkatmx)
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,nn,'sw1',sw1(2),sw1(1))
-      value = value.and.
-     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-      if (.not. value) call errquit('out of stack memory',0)
-      G(1)  = G_indx(1)
-      G(2)  = G_indx(2)
-      G(3)  = G_indx(3)
+     >        MA_push_get(mt_dbl,nn*lmmax_max,'sw1',sw1(2),sw1(1))
+      if (.not.value) 
+     >  call errquit('v_nonlocal: out of stack',0)
 
-*     **** define Gx,Gy and Gz in packed space ****
-      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-      call Pack_t_pack(1,dbl_mb(Gx(1)))
-      call Pack_t_pack(1,dbl_mb(Gy(1)))
-      call Pack_t_pack(1,dbl_mb(Gz(1)))
+      if (move) then
+       value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+       value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+       value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+       value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+       value = value.and.
+     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+       if (.not. value) call errquit('v_nonlocal:out of stack memory',1)
+       G(1)  = G_indx(1)
+       G(2)  = G_indx(2)
+       G(3)  = G_indx(3)
+
+*      **** define Gx,Gy and Gz in packed space ****
+       call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+       call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+       call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+       call Pack_t_pack(1,dbl_mb(Gx(1)))
+       call Pack_t_pack(1,dbl_mb(Gy(1)))
+       call Pack_t_pack(1,dbl_mb(Gz(1)))
+      end if
 
       omega = lattice_omega()
 
@@ -1021,6 +1032,7 @@ c     integer    lmmax(nkatmx)
         call strfac(ii,dcpl_mb(exi(1)))
         call Pack_c_pack(1,dcpl_mb(exi(1)))
 
+*       **** generate sw1's ****
         do l=1,int_mb(lmmax(1)+ia-1)
 
 *          **** phase factor does not matter therefore ****
@@ -1042,38 +1054,62 @@ c     integer    lmmax(nkatmx)
      >                           +(ia-1)*npack1*lmmax_max),
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
-c             do i=1,npack1
-c                dcpl_mb(vtmp(1)+i-1) 
-c    >                     = dbl_mb(vnl(1) + (i-1)
-c    >                                     + (l-1)*npack1
-c    >                          + (ia-1)*npack1*lmmax_max)
-c    >                * dcmplx(-dimag(dcpl_mb(exi(1)+i-1)),
-c    >                          dble(dcpl_mb(exi(1)+i-1)))
-c             end do
            end if
-
-
-*         **** do kleinman-bylander multiplication ****
-          call Pack_cc_ndot(1,nn,
+           call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(vtmp(1)),
-     >                      dbl_mb(sw1(1)))
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
+
+        end do
+        call D3dB_Vector_Sumall((nn*int_mb(lmmax(1)+ia-1)),
+     >                          dbl_mb(sw1(1)))
+ 
+
+
+*       **** do Kleinman-Bylander Multiplication ****
+        do l=1,int_mb(lmmax(1)+ia-1)
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (is_sORd(l,int_mb(lmax(1)+ia-1),
+     >                   int_mb(locp(1)+ia-1))
+     >        ) then
+              call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(ia-1)*npack1*lmmax_max),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(vtmp(1)))
+
+*          *** current function is p or f ****
+           else
+              call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(ia-1)*npack1*lmmax_max),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(vtmp(1)))
+           end if
+
+*! restructured for // performance
+*         **** do kleinman-bylander multiplication ****
+c          call Pack_cc_ndot(1,nn,
+c     >                      psi1,
+c     >                      dcpl_mb(vtmp(1)),
+c     >                      dbl_mb(sw1(1)))
 
           do n=1,nn
-          
-             dbl_mb(sw1(1)+n-1) = dbl_mb(sw1(1)+n-1)
+             dbl_mb(sw1(1)+n-1+(l-1)*nn) = dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
      >                      /(omega*dbl_mb(vnlnrm(1)
      >                         +(l-1)+(ia-1)*lmmax_max))
-             call Pack_cc_daxpy(1,(-dbl_mb(sw1(1)+n-1)),
+             call Pack_cc_daxpy(1,(-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
      >                          dcpl_mb(vtmp(1)),
      >                          psi2(1+(n-1)*npack1)) 
-
           end do
 
           if (move) then
              do n=1,nn
                 if (ispin.eq.1) 
-     >            dbl_mb(sw1(1)+n-1)=2.0d0*dbl_mb(sw1(1)+n-1)
+     >            dbl_mb(sw1(1)+n-1)=2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
 
                 do i=1,npack1
                    ctmp = psi1(i+(n-1)*npack1)
@@ -1093,31 +1129,33 @@ c             end do
   
              do n=1,nn
                 fion(1,ii) = fion(1,ii) 
-     >                     + 2.0d0*dbl_mb(sw1(1)+n-1)
+     >                     + 2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
      >                            *dbl_mb(sum(1)+3*(n-1))
                 fion(2,ii) = fion(2,ii) 
-     >                     + 2.0d0*dbl_mb(sw1(1)+n-1)
+     >                     + 2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
      >                            *dbl_mb(sum(1)+1+3*(n-1))
                 fion(3,ii) = fion(3,ii) 
-     >                     + 2.0d0*dbl_mb(sw1(1)+n-1)
+     >                     + 2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
      >                            *dbl_mb(sum(1)+2+3*(n-1))
              end do
           end if
        
         
-        end do
+        end do !** l **
 
-      end do
-
-      value = MA_pop_stack(sum(2))
-      value = MA_pop_stack(sw1(2))
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
-      value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
-
+      end do !** ii **
+      value = .true.
+      if (move) then
+      value = value.and.MA_pop_stack(sum(2))
+      value = value.and.MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(xtmp(2))
+      end if
+      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('v_nonlocal: popping stack',3)
       call nwpw_timing_end(6)
       return 
       end
