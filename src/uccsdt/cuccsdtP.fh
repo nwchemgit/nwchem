@@ -82,6 +82,13 @@ c
       integer oblock_max, vblock_max ! Maximum size of any occ/virt block
       integer e_block_max, m_block_max ! largest no. of virt/occ in any irrep
 c
+c     Invert the orbital index to get a sub-block index
+c
+      integer ablock_inv(nw_max_nbf_small)
+      integer bblock_inv(nw_max_nbf_small)
+      integer cblock_inv(nw_max_nbf_small)
+      integer oblock_inv(nw_max_nbf_small,2)
+c
 c     Integral/amplitude lists for the triples
 c     1 = length of pointer array = #block triplets/quartets
 c     2 = MA index for pointer array
@@ -119,6 +126,7 @@ c
      $     asuper_spin, csuper_spin,
      $     nablock, nbblock, ncblock, noblock,
      $     ablock, bblock, cblock, oblock,
+     $     ablock_inv, bblock_inv, cblock_inv, oblock_inv,
      $     oblock_max, vblock_max, 
      $     e_block_max, m_block_max, 
      $     listinfo

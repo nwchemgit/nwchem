@@ -1659,6 +1659,7 @@ c
       integer ir, a1, a2, b1, b2, c1, c2, spin, list, i
       integer nblk              ! No. of blocks in a symmetry
       integer spini, spinj, spink, spinb
+      integer asub, bsub, csub, osub, a, b, c, o
 c
       ma_used = 0.0d0
       ga_used = 0.0d0
@@ -1706,6 +1707,11 @@ c
          end do
          nablock = nablock + nblk
       end do
+      do asub = 1, nablock
+         do a = ablock(1,asub),ablock(2,asub)
+            ablock_inv(a) = asub
+         end do
+      end do
 c
 c     Ditto for b
 c
@@ -1720,6 +1726,11 @@ c
          end do
          nbblock = nbblock + nblk
       end do
+      do bsub = 1, nbblock
+         do b = bblock(1,bsub),bblock(2,bsub)
+            bblock_inv(b) = bsub
+         end do
+      end do
 c
 c     Ditto for c
 c
@@ -1733,6 +1744,11 @@ c
             cblock(3,i) = ir
          end do
          ncblock = ncblock + nblk
+      end do
+      do csub = 1, ncblock
+         do c = cblock(1,csub),cblock(2,csub)
+            cblock_inv(c) = csub
+         end do
       end do
 c
 c     The blocking of the occupied never changes but just re-do it 
@@ -1750,6 +1766,11 @@ c
                oblock(3,i,spin) = ir
             end do
             noblock(spin) = noblock(spin) + nblk
+         end do
+         do osub = 1, noblock(spin)
+            do o = oblock(1,osub,spin),oblock(2,osub,spin)
+               oblock_inv(o,spin) = osub
+            end do
          end do
       end do
 c
