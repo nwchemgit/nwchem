@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.16 1997-06-24 18:35:34 mdupuis Exp $
+* $Id: prp.F,v 1.17 1997-06-24 19:58:00 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -65,6 +65,7 @@ C
       NEFC  =0
       IEFC  =IBLK
       RUNTYP=BLANK
+      WFNTYP=BLANK
       SCFTYP=RHF       
 C
       IF(NODHP.EQ.0.OR.NOD2HP.EQ.0) NODPL=0
@@ -187,14 +188,14 @@ C
       IF(NOLOC.EQ.0) CALL HND_MULKEN(RTDB,BASIS,GEOM)
 C
       RETURN
- 9999 FORMAT(/,' ----- PROPERTY SELECTION -----',/,
-     1 ' NODIP =',I2,' NOQDP =',I2,' NOOTP =',I2,
-     2 ' NOPOP =',I2,' NOSPIN=',I2,
-     3 ' NOLOC =',I2,' NODPL =',I2,' NODHP =',I2,' NOD2HP=',I2,/,
-     4 ' NOFPL =',I2,' NOFHP =',I2,' NOF2HP=',I2,' NOSOS =',I2,
-     5 ' NOELP =',I2,' NOELF =',I2,' NOELFG=',I2,' NODEN =',I2,
-     6 ' NONMR =',I2,' NOSTON=',I2)
- 9998 FORMAT(' RUNTYP = --',A8,'--',/,' SCFTYP = --',A8,'--')
+ 9999 FORMAT(/,' ----- property selection -----',/,
+     1 ' nodip =',I2,' noqdp =',I2,' nootp =',I2,
+     2 ' nopop =',I2,' nospin=',I2,
+     3 ' noloc =',I2,' nodpl =',I2,' nodhp =',I2,' nod2hp=',I2,/,
+     4 ' nofpl =',I2,' nofhp =',I2,' nof2hp=',I2,' nosos =',I2,
+     5 ' noelp =',I2,' noelf =',I2,' noelfg=',I2,' noden =',I2,
+     6 ' nonmr =',I2,' noston=',I2)
+ 9998 FORMAT(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       END
       SUBROUTINE HND_NMRX
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -6192,9 +6193,8 @@ C
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=500)
       PARAMETER (MXBFN=3072)
-      integer rtdb,geom,basis
-      integer g_dens(3)
-      logical status
+      integer  rtdb,geom,basis
+      logical  status
 c*    integer  g_vecs
 c*    character*255 movecs_in,movecs_out
 c*    character*255 movecs
@@ -6206,8 +6206,8 @@ c*    double precision  noc(mxbfn)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 RHF, UHF, MP2, GVB, SCF, PROP
-      LOGICAL SOME,OUT
-C     INTEGER SPIND
+      LOGICAL SOME,OUT,DBUG
+      INTEGER SPIND
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW,IP
@@ -6258,7 +6258,6 @@ C     INTEGER SPIND
       DATA ZVEC   /0.0D+00,0.0D+00,1.0D+00/
       DATA ORIGIN /0.0D+00,0.0D+00,0.0D+00/
       DATA IATOM  /0,0,0,0/
-c%%
 C
 *     NAMELIST /MAP/ IUNIT,XYZMAP,XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
 *    1               ORIGIN,IATOM,MO,MOA,MOB
@@ -6266,113 +6265,19 @@ C
 *     REWIND IR
 *     READ(IR,MAP,END=10,ERR=10)
 * 10  CONTINUE
-c
-c     get na and nb. note: move to a interface prog.
-c
-      if (.not. rtdb_get(rtdb, 'scf:nopen',   MT_INT, 1, nopen  ))
-     $     nopen = 0
-      if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('hnd_elddec: nopen > nelec ', nopen)
-
-       na = nclosed + nopen
-       nb = nopen
-c%%
 C
 C     ----- CALCULATE ELECTRON OR SPIN DENSITY -----
 C
       if (ga_nodeid().eq.0) WRITE(IW,9999)
       if (ga_nodeid().eq.0) WRITE(IW,9996)
+      DBUG=.FALSE.
+      OUT =.FALSE.       
+      OUT =OUT.OR.DBUG
       SOME=.TRUE.
-      OUT =NPRINT.EQ.6
-c%%
-      RUNTYP=PROP
-c%%
+      SOME=SOME.OR.OUT
       IF(RUNTYP.EQ.PROP) THEN
-      NCO=NA
+         NCO=NA
       ENDIF
-c%%
-C
-C     ----- SET BLOCKS FOR PARTITIONING OF MEMORY -----
-C
-      L1 = NUM
-      L2 = (L1*(L1+1))/2
-      L3 = L1*L1
-C
-      NPTMAX = NAT +1
-C
-      I00  =          1
-      I10  = I00    + NPTMAX*3
-      I20  = I10    + NPTMAX
-      I30  = I20    + (NUM*(NUM+1))/2
-      I40  = I30    + (NUM*(NUM+1))/2
-C     ----- MEMORY BLOCK FOR DA IN NWCHEM FORMAT -----
-      I50  = I40+L3
-C     ----- MOMORY BLOCK FOR DA IN HONDO  FORMAT-----
-      I60  = I50+L3
-      LAST = I60
-      NEED1= LAST   - 1
-C
-C     ----- SPECIAL CASE = ONE PARTICLE REDUCED DENSITY MATRIX -----
-C           IS DIAGONAL.
-C
-      I00  =          1
-      I10  = I00    + NPTMAX*3
-      I11  = I10    + NPTMAX
-      I12  = I11    + NPTMAX
-      I20  = I12    + NPTMAX
-      I30  = I20    + NUM*NUM
-      I40  = I30    + NUM*NUM
-C     ----- MEMORY BLOCK FOR C IN NWCHEM FORMAT -----
-      I50  = I40+L3
-C     ----- MOMORY BLOCK FOR E IN NECHEM FORMAT-----
-      I60  = I50+L1
-      LAST = I60 
-      NEED2=LAST-1
-      NEED =MAX(NEED1,NEED2)
-C
-C     ----- ALLOCATE MEMORY BLOCK -----
-C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
-
-      DO I=1,NEED
-         X(I+INIT-1)=ZERO
-      ENDDO
-C
-C     ----- SET POINTERS FOR PARTITIONING OF MEMORY -----
-C
-      I00 =          INIT
-      I10 = I00    + NPTMAX*3
-      I20 = I10    + NPTMAX
-      I30 = I20    + (NUM*(NUM+1))/2
-      I40 = I30    + (NUM*(NUM+1))/2
-C     ----- MEMORY BLOCK FOR DA IN NWCHEM FORMAT -----
-      I50 = I40+L3
-C     ----- MOMORY BLOCK FOR DA IN HONDO  FORMAT-----
-      I60 = I50+L3
-C
-C     ----- DENSITY MATRIX FOR X(I20)=DA,X(I30)=DB(0?) -----
-C
-
-c     ----- calculate density matrix -----
-
-      call hnd_prp_get_dens(rtdb,basis,geom,g_dens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i40),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i40),x(i50),num)
-
-c     ----- destroy g_dens(i) -----
-
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
-
-c%%
 C
 C     ----- DEFINE POINTS FOR CALCULATION -----
 C           1. GRID POINTS
@@ -6381,7 +6286,7 @@ C           3. NUCLEI
 C           4. CENTER OF MASS
 C
       NPTMAX=0
-c%%
+      NPTGRD=0
 *     CALL HND_GRDMAP(X(1+3*NPTMAX),NPTGRD,NXGRD,NYGRD,NZGRD,
 *    1            XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
 *    2            ORIGIN,IATOM,IUNIT)
@@ -6403,17 +6308,12 @@ C
       IF(XYZMAP(1,IPT).EQ.TEN12.OR.XYZMAP(2,IPT).EQ.TEN12.OR.
      1   XYZMAP(3,IPT).EQ.TEN12) GO TO 20
       NPT=NPT+1
-      X(INIT  +3*(NPT-1+NPTMAX))=XYZMAP(1,IPT)/FAC
-      X(INIT+1+3*(NPT-1+NPTMAX))=XYZMAP(2,IPT)/FAC
-      X(INIT+2+3*(NPT-1+NPTMAX))=XYZMAP(3,IPT)/FAC
+*     X(INIT  +3*(NPT-1+NPTMAX))=XYZMAP(1,IPT)/FAC
+*     X(INIT+1+3*(NPT-1+NPTMAX))=XYZMAP(2,IPT)/FAC
+*     X(INIT+2+3*(NPT-1+NPTMAX))=XYZMAP(3,IPT)/FAC
    20 CONTINUE
       NPTMAX=NPTMAX+NPT
 C
-      DO 30 IAT=1,NAT
-      X(INIT  +3*(IAT-1+NPTMAX))=C(1,IAT)
-      X(INIT+1+3*(IAT-1+NPTMAX))=C(2,IAT)
-      X(INIT+2+3*(IAT-1+NPTMAX))=C(3,IAT)
-   30 CONTINUE
       NPTMAX=NPTMAX+NAT
 C
       NCALL=1
@@ -6430,11 +6330,43 @@ C
       CM(1)=XCM/TCM
       CM(2)=YCM/TCM
       CM(3)=ZCM/TCM
+C
+      NPTMAX=NPTMAX+1
+C
+C     ----- we are going to use the general case -----
+C
+      L1= NUM
+      L2=(NUM*(NUM+1))/2
+      L3= NUM* NUM
+      NEED= L2 + L2 + L3 + L3 + 4*NPTMAX
+C
+C     ----- ALLOCATE MEMORY BLOCK -----
+C
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+     & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
+
+      DO I=1,NEED
+         X(I+INIT-1)=ZERO
+      ENDDO
+C
+      NPTMAX=0           
+      DO 30 IAT=1,NAT
+      X(INIT  +3*(IAT-1+NPTMAX))=C(1,IAT)
+      X(INIT+1+3*(IAT-1+NPTMAX))=C(2,IAT)
+      X(INIT+2+3*(IAT-1+NPTMAX))=C(3,IAT)
+   30 CONTINUE
+      NPTMAX=NPTMAX+NAT
       X(INIT  +3*(1-1+NPTMAX))=CM(1)
       X(INIT+1+3*(1-1+NPTMAX))=CM(2)
       X(INIT+2+3*(1-1+NPTMAX))=CM(3)
-
       NPTMAX=NPTMAX+1
+C
+      IF(DBUG) THEN
+         write(6,*) 'nptmax = ',nptmax
+         write(6,*) 'need   = ',need
+         write(6,*) 'wfntyp = ',wfntyp
+         write(6,*) 'scftyp = ',scftyp
+      ENDIF
 C
       IF(WFNTYP.EQ.SCF.AND.SCFTYP.NE.GVB) GO TO 200
 C
@@ -6445,21 +6377,31 @@ C           IS NOT DIAGONAL.
       CALL HND_HNDERR(3,ERRMSG)
       ENDIF
 C
+C     ----- SET POINTERS FOR PARTITIONING OF MEMORY -----
+C
+      L1= NUM
+      L2=(NUM*(NUM+1))/2
+      L3= NUM* NUM
+      I00 =          INIT
+      I10 = I00    + NPTMAX*3
+      I20 = I10    + NPTMAX
+      I30 = I20    + (NUM*(NUM+1))/2
+      I40 = I30    + (NUM*(NUM+1))/2
+C     ----- MEMORY BLOCK FOR DA IN NWCHEM FORMAT -----
+      I50 = I40    + L3
+C     ----- MOMORY BLOCK FOR DA IN HONDO  FORMAT-----
+      I60 = I50    + L3
+C
 C     ----- GET TOTAL DENSITY MATRIX -----
 C
 C     CALL HND_DAREAD(IDAF,IODA,X(I20),L2,16)
 
-c     ----- transform DA from square to triangular format -----
+c     ----- calculate density matrix -----
 
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i20 +ij-1) = x(i50 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i20),x(i30),x(i40),x(i50),
+     2                      scftyp)
 
-c%%% the uhf is not considered at the moment
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
          CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
@@ -6498,7 +6440,6 @@ C
 C
       GO TO 500
   200 CONTINUE
-
 C
 C     ----- SPECIAL CASE = ONE PARTICLE REDUCED DENSITY MATRIX -----
 C           IS DIAGONAL.
