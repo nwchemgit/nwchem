@@ -3,7 +3,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.3 1995-05-22 06:56:11 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.4 1995-10-10 06:11:03 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -182,6 +182,7 @@ c
 c     Cache integrals if desired
 c
                         if (owritefile) then
+                           if (oscfps) call pstat_on(ps_intio)
                            if (.not. int2e_file_write(neri,
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g)))
@@ -190,6 +191,7 @@ c
      $                          call print_integ_list(neri, 
      $                          int_mb(k_i), int_mb(k_j),
      $                          int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
+                           if (oscfps) call pstat_off(ps_intio)
                         end if
 c     
 c     Add shell-block ERI into Fock components

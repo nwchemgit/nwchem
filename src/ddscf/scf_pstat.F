@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.15 1995-06-28 21:46:34 vg038 Exp $
+C$Id: scf_pstat.F,v 1.16 1995-10-10 06:11:15 d3g681 Exp $
       data oscfps /.false./     ! So that other codes don't break
 c
       end
@@ -48,6 +48,9 @@ c
 c     
       if (.not. pstat_allocate('scf: vecio', pstat_qstat, 0, junk,
      $     ps_vecio)) call errquit('scf: scf_pstat_init', 0)
+c
+      if (.not. pstat_allocate('scf: intio', pstat_qstat, 0, junk,
+     $     ps_intio)) call errquit('scf: scf_pstat_init', 0)
 c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
      $     ps_total)) call errquit('scf: scf_pstat_init', 0)

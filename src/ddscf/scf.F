@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.31 1995-07-08 00:35:23 d3g681 Exp $
+C$Id: scf.F,v 1.32 1995-10-10 06:11:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -27,6 +27,7 @@ c
       logical oprint
       character*255 name, ri_trans
 c
+      integer nbf_per_ir(20)
       integer natoms, Nff
       logical rohf, uhf, riscf_init
       external rohf, uhf, riscf_init
@@ -82,7 +83,7 @@ c
      $        nclosed, nopen, nelec, nalpha, nbeta, charge,
      $        scftype,
      $        movecs_in(1:inp_strlen(movecs_in)),
-     $        movecs_out(1:inp_strlen(movecs_out)), oskel
+     $        movecs_out(1:inp_strlen(movecs_out)), oskel, oadapt
  12      format(
      $        '  atoms           = ', i5/
      $        '  closed shells   = ', i5/
@@ -94,7 +95,11 @@ c
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
-     $        '  use symmetry    = ', l1/)
+     $        '  use symmetry    = ', l1/
+     $        '  symmetry adapt  = ', l1/)
+         if (oadapt) then
+            call sym_bas_irreps(basis, .true., nbf_per_ir)
+         endif
          call util_flush(6)
       endif
 c
@@ -107,7 +112,8 @@ c
             write(6,*)
          endif
          if (util_print('symmetry', print_debug)) then
-            call sym_print_all(geom, .true., .true., .true., .true.)
+            call sym_print_all(geom, .true., .true., .true., 
+     $           .true., .true.)
             write(6,*)
          endif
          if (util_print('basis', print_high)) then

@@ -36,6 +36,7 @@ c     l/k_occ    = scf occupation (local ma handle)
 c     g_movecs   = eigen-vectors  (global ga handle) (2x array for UHF)
 c
 c     oskel      = if true use symmetry in fock building
+c     oadapt     = if true force symmetry on the MOs
 c
 c     These are determined by rohf_precond_select and control convergence.
 c
@@ -65,7 +66,7 @@ c
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
       double precision ls_tol, lshift, precond_tol, charge, eprec
       logical oconjugacy, ododiag, odisable_nr, odisable_conjugacy
-      logical oskel, oinitialized
+      logical oskel, oadapt, oinitialized
       integer pflg, pflg_prev, maxiter, iter, g_movecs
       character*255 movecs_in, movecs_out, title, trans
       character*4 scftype
@@ -82,7 +83,7 @@ c
 c     Logicals
 c
      $     oconjugacy, ododiag, odisable_nr, odisable_conjugacy,
-     $     oskel, oinitialized,
+     $     oskel, oadapt, oinitialized,
 c
 c     Integers
 c

@@ -1,5 +1,5 @@
 c
-c$Id: cfock.fh,v 1.9 1995-05-30 06:15:48 d3g681 Exp $
+c$Id: cfock.fh,v 1.10 1995-10-10 06:11:01 d3g681 Exp $
 c
       integer task_chunks     ! Task chunk parameter in fock_2e_a
       integer filesize        ! Max integral file size in doubles
@@ -7,6 +7,8 @@ c
       logical oreadfile       ! True if file/cache being read from
       logical owritefile      ! True if writing integrals to file
       logical rifock          ! in case of mixed method: ri or directfock build
+      integer first_atoms(4)    ! Atoms that semidirect code starts at
+      integer incomplete_atoms(4) ! Atom quartet that semidirect truncated
 c
       common/cfock/
      $     task_chunks,
@@ -14,5 +16,6 @@ c
      $     memsize,
      $     oreadfile,
      $     owritefile,
-     $     rifock
+     $     rifock,
+     $     first_atoms, incomplete_atoms
 c

@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.2 1995-04-05 19:51:41 d3g681 Exp $
+C$Id: rohf.F,v 1.3 1995-10-10 06:11:11 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -19,8 +19,9 @@ c
 c
 c     local variables
 c
-      logical oprint
+      logical oprint, oprint_sym
       logical converged
+      integer nprint
       double precision eone     ! One electron energy
       double precision etwo     ! Two electron energy
       double precision enrep    ! Effective nuclear repulsion energy
@@ -38,14 +39,14 @@ c
 c     Start timer
 c
       call ga_sync()
-      rohf_time = -tcgtime()
+      rohf_time = -util_cpusec()
 c
 c     Newton-Raphson based SCF
 c
       converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
 c
       call ga_sync()
-      rohf_time = rohf_time + tcgtime()
+      rohf_time = rohf_time + util_cpusec()
 c
 c     Print out results
 c
@@ -83,6 +84,17 @@ c
             call util_flush(6)
          endif
       endif
+c
+      if (oadapt) then
+         nprint = min(nclosed+nopen+10,nbf)
+         if (util_print('all vector symmetries', print_high))
+     $        nprint = nbf
+         oprint_sym = util_print('final vector symmetries',
+     $        print_default)
+         call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
+     $        nprint, '- final')
+      endif
+c
       if (util_print('final vectors', print_debug)) then
          call ga_print(g_movecs)
       endif

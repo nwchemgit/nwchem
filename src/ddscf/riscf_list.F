@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.1 1995-05-22 22:28:27 vg038 Exp $
+C$Id: riscf_list.F,v 1.2 1995-10-10 06:11:10 d3g681 Exp $
       implicit double precision (a-h,o-z)
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -154,7 +154,6 @@ C             < 0: delete all
 #include "riscf.fh"
 
       integer handle
-      logical status
 C     how often does it occur?
       ic = 0
 

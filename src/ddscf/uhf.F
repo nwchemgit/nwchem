@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
+C$Id: uhf.F,v 1.9 1995-10-10 06:11:17 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -19,8 +19,9 @@ c
 c
 c     local variables
 c
-      logical oprint
+      logical oprint, oprint_sym
       logical converged
+      integer nprint
       double precision eone     ! One electron energy
       double precision etwo     ! Two electron energy
       double precision enrep    ! Effective nuclear repulsion energy
@@ -39,14 +40,14 @@ c
 c     Start timer
 c
       call ga_sync()
-      uhf_time = -tcgtime()
+      uhf_time = -util_cpusec()
 c
 c     Newton-Raphson based SCF
 c
       converged = uhf_nr_solve(rtdb, energy,  eone, etwo, enrep)
 c
       call ga_sync()
-      uhf_time = uhf_time + tcgtime()
+      uhf_time = uhf_time + util_cpusec()
 c
 c     Print out results
 c
@@ -86,7 +87,7 @@ c
             call util_print_centered(6,'Final beta eigenvalues',
      $           20,.true.)
             call output(dbl_mb(k_eval+nbf),
-     $           1, min(nbeta+10,nbf),
+     $           1, min(nalpha+10,nbf),
      $           1, 1, nbf, 1, 1)
             call util_flush(6)
          end if
@@ -97,6 +98,17 @@ c
             call util_flush(6)
          end if
       end if
+      if (oadapt) then
+         nprint = min(nalpha+10,nbf)
+         if (util_print('all vector symmetries', print_high))
+     $        nprint = nbf
+         oprint_sym = util_print('final vector symmetries',
+     $        print_default)
+         call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
+     $        nprint, '- alpha')
+         call scf_movecs_sym_adapt(basis, g_movecs(2), oprint_sym,
+     $        nprint, '- beta')
+      endif
       if (util_print('final vectors', print_debug)) then
          call ga_print(g_movecs)
          call ga_print(g_movecs(2))
@@ -141,7 +153,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
+C     $Id: uhf.F,v 1.9 1995-10-10 06:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -402,7 +414,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
+C$Id: uhf.F,v 1.9 1995-10-10 06:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -454,6 +466,11 @@ c
      $           dbl_mb(k_tmp), 1)
          end do
 c
+c     Make near zeoes exactly zero so that sparsity tests in the
+c     matrix multiply work well
+c
+         call ga_screen(g_mocf_out(iset), 1d-12)
+c
 c     exponentiate the matrix
 c
          call matrix_exp(basis, g_mocf_out(iset))
@@ -471,7 +488,7 @@ c
          if (.not. ga_destroy(g_tmp))
      $        call errquit('uhf_k2cf: ga_destroy?', 0)
 c     
-         call ga_orthog_mos(basis, g_mocf_out(iset))
+*         call ga_orthog_mos(basis, g_mocf_out(iset))
       end do
 c
       if (.not. ma_pop_stack(l_tmp))
@@ -488,7 +505,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
+c     $Id: uhf.F,v 1.9 1995-10-10 06:11:17 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -849,7 +866,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.8 1995-06-28 22:39:04 d3g681 Exp $
+C$Id: uhf.F,v 1.9 1995-10-10 06:11:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -877,8 +894,6 @@ c        diagonalize separately the occ-occ, and virt-virt parts
 c
 c     Transform Fock matrices and MO coefficients into the new canonical basis
 c
-      if (oscfps) call pstat_on(ps_diag)
-c
       if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_canon: u',
      $     1, 1, g_u)) call errquit('uhf_canon: ga failed for u', 0)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_canon: fock',
@@ -892,6 +907,9 @@ c
 c
       ioff = 0
       do iset = 1, 2
+c
+         if (oscfps) call pstat_on(ps_diag)
+c
          call ga_zero(g_u)
          call ga_copy(g_f(iset), g_fock)
 c     

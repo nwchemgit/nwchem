@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.38 1995-05-27 20:29:48 gg502 Exp $
+# $Id: GNUmakefile,v 1.39 1995-10-10 06:11:07 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
-        comp4_insert.o            \
+        comp4_insert.o            scf_movecs_sym_adapt.o \
         rhf_fock_2e.o \
         ga_create_atom_blocked.o  scf.o \
         schwarz_init.o \

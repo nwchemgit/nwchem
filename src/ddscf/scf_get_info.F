@@ -38,6 +38,9 @@ c
       if (.not.rtdb_get(rtdb, 'scf:skeleton',MT_LOG, 1, oskel)) then
          oskel = sym_number_ops(geom) .gt. 0
       endif
+      if (.not.rtdb_get(rtdb, 'scf:adapt',MT_LOG, 1, oadapt)) then
+         oadapt = sym_number_ops(geom) .gt. 0
+      endif
 c     
 c     load the basis set and get info about it
 c
@@ -174,7 +177,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.10 1995-10-09 21:38:07 mg141 Exp $
+C$Id: scf_get_info.F,v 1.11 1995-10-10 06:11:14 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -187,11 +190,17 @@ c
       parameter (mone = -1.0d0)
 c     
       if (.not. rtdb_get(rtdb, 'scf:maxiter',
-     $     MT_INT, 1, maxiter)) maxiter = 8
+     $     MT_INT, 1, maxiter)) then
+         if (scftype .ne. 'UHF') then
+            maxiter = 8
+         else
+            maxiter = 20        ! UHF not yet QC
+         endif
+      endif
       if (.not. rtdb_get(rtdb, 'scf:tol2e',
      $     MT_DBL, 1, tol2e)) tol2e = 1.0d-7
       if (.not.rtdb_get(rtdb, 'scf:thresh',
-     $     MT_DBL, 1, gnorm_tol)) gnorm_tol = 1.d-5
+     $     MT_DBL, 1, gnorm_tol)) gnorm_tol = 1.d-4
       if (.not.rtdb_get(rtdb, 'scf:level shift info',
      $     MT_DBL, 6, shifts)) call dfill(6, mone, shifts, 1)
       if (.not.rtdb_get(rtdb, 'scf:full hessian switch',

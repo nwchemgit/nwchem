@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.1 1995-03-31 01:36:10 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.2 1995-10-10 06:11:11 d3g681 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -56,8 +56,13 @@ c
       endif
       if (.not. ma_pop_stack(l_tmp))
      $     call errquit('k2cf: pop failed', 0)
+c
+c     Make near zeoes exactly zero so that sparsity tests in the
+c     matrix multiply work well
+c
+      call ga_screen(g_temp, 1d-12)
 c     
-c     Get exp(K)
+c     Get a unitary 2nd order approximation to exp(K)
 c     
       call matrix_exp( basis, g_temp )
 c     
@@ -69,7 +74,7 @@ c
       if (.not.ga_destroy(g_temp))
      $     call errquit('rohf_k2cf: cannot destroy temp',0)
 c
-      call ga_orthog_mos(basis, g_result)
+*      call ga_orthog_mos(basis, g_result)
 c
       end
 

@@ -1,11 +1,11 @@
       subroutine matrix_exp(basis, g_k)
-C$Id: matrix_exp.F,v 1.6 1995-02-02 23:11:47 d3g681 Exp $
+C$Id: matrix_exp.F,v 1.7 1995-10-10 06:11:07 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "cscfps.fh"
 c     
-c     Replace the input matrix with a NON-unitary approximation
+c     Replace the input matrix with a unitary approximation
 c     to its exponential.  Current algorithm is
 c     
 c     a) Determine n (a power of two) such that exp(K/n) is
@@ -13,8 +13,12 @@ c     well approximated by a taylor series
 c     
 c     b) Use third order taylor series on K/n
 c     
-c     c) Compute (exp(K/n))**n
+c     c) If necessary make exp(-K/n) unitary
+c
+c     d) Compute (exp(K/n))**n
 c     
+c     e) If necessary make exp(-K) unitary
+c
       integer g_k, basis
 c     
       integer nbf, nmo, type, g_tmp1, g_tmp2, i
@@ -34,14 +38,17 @@ c
 c     
 c     Determine how to scale the matrix
 c     
-      knorm = dsqrt(ga_ddot(g_k, g_k)/(nbf*nbf))
+*      knorm = dsqrt(ga_ddot(g_k, g_k)/(nbf*nbf))
+      call ga_maxelt(g_k, knorm)
       power = 1
  10   if (knorm .gt. 0.01d0) then
          power = power * 2
          knorm = knorm * 0.5d0
          goto 10
       endif
-*      if (ga_nodeid() .eq. 0) write(6,*) ' power ',power,knorm*2**power
+c
+      knorm = knorm*(2.0d0**power)  ! recover original value
+*      if (ga_nodeid() .eq. 0) write(6,*) ' power ',power,knorm
       scale = 1.0d0/power
       call ga_dscal(g_k, scale)
 c     
@@ -83,9 +90,10 @@ c
 c     
 c     Now have in g_k an approximation to exp(K/scale)
 c     
-*c     Make this unitary and then scale as necessary
-*c     
-*      call ga_iter_orthog(basis, g_k, .false., .true.)
+c     Make this unitary and then scale if necessary
+c     
+      if (power.gt.1 .or. knorm.gt.1d-3)
+     $     call ga_iter_orthog(basis, g_k, .false., .true.)
 c     
       if (power .ne. 1) then
          if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
@@ -98,9 +106,10 @@ c
          if (.not. ga_destroy(g_tmp1))
      $        call errquit('mat_exp: ga_destroy failed', 0)
 c     
-*c     Make sure the final result is also unitary
-*c     
-*         call ga_iter_orthog(basis, g_k, .false., .true.)
+c     Make sure the final result is also unitary
+c     
+         if (knorm.gt.1)
+     $        call ga_iter_orthog(basis, g_k, .false., .true.)
       endif
 c     
       if (oscfps) call pstat_off(ps_matexp)

@@ -302,6 +302,7 @@ c
       external int2e_buf_write, int2e_file_write_big
 c
       integer ind
+#include "itri.fh"
 c
       int2e_file_write = .true.
 c
@@ -315,7 +316,7 @@ c
 c     This invalidates all data beyond this point to reflect the
 c     truncating effect of writing in the middle of a sequential file
 c
-c     THIS WILL ONLY WORK FOR TRUNCATION BETWEEN RANGES
+c     THIS WILL ONLY WORK FOR FILE TRUNCATION BETWEEN RANGES
 c
       n_in_rec      = next_value - 1
       n_rec_in_file = cur_rec - 1
@@ -323,7 +324,6 @@ c
 c     This copy can be made a lot more efficient
 c     
       do ind = 1, nints
-c
          if (abs(g(ind)) .ge. maxvalue) then
             int2e_file_write = int2e_file_write_big
      $           (g(ind), i(ind), j(ind), k(ind), l(ind))
@@ -413,6 +413,7 @@ c     Return true if success, false if no more integrals in the
 c     block (nints also returned as zero), hard fail for any other errors.
 c
       integer loop, ncopy, nfree
+      integer ibase, jbase, kbase, lbase
       logical int2e_buf_read
       external int2e_buf_read
 c
@@ -427,12 +428,16 @@ c
          if (next_value .gt. n_in_rec) call errquit('i2efr: uh?', 0)
          if (nleft_in_range .le. 0) goto 1000 ! end of range
 c
+	 ibase = range(1,1)
+	 jbase = range(2,1)
+	 kbase = range(3,1)
+	 lbase = range(4,1)
          ncopy = min(nfree,nleft_in_range)
          do loop = 1, ncopy
-            i(loop+nints) = labels(1,next_value+loop-1) + range(1,1)
-            j(loop+nints) = labels(2,next_value+loop-1) + range(2,1)
-            k(loop+nints) = labels(3,next_value+loop-1) + range(3,1)
-            l(loop+nints) = labels(4,next_value+loop-1) + range(4,1)
+            i(loop+nints) = labels(1,next_value+loop-1) + ibase
+            j(loop+nints) = labels(2,next_value+loop-1) + jbase
+            k(loop+nints) = labels(3,next_value+loop-1) + kbase
+            l(loop+nints) = labels(4,next_value+loop-1) + lbase
             g(loop+nints) = values(next_value+loop-1)
          enddo
          nints = nints + ncopy
