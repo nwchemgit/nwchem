@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1995-05-22 06:56:14 d3g681 Exp $
+# $Id: GNUmakefile,v 1.32 1995-05-22 07:18:31 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -14,9 +14,9 @@
 	ga_create_cont_blocked.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_project.o \
-	fock_2e.o                 fock_2e_label.o fock_eri_label_scale.o \
-	fock_2e_a.o               fock_2e_shell_to_labels.o \
-	fock_2e_b.o               int2e_file.o \
+	fock_2e.o                 \
+	fock_2e_a.o               \
+	fock_2e_b.o               \
 	fock_upd_atom_blk.o       fock_2e_cache_dens_fock.o \
 	fock_get_atom_blk.o      scf_vectors_guess.o \
         rohf.o                   rohf_nr_solve.o     \
@@ -38,11 +38,14 @@
 # rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP
 
  OBJ_OPTIMIZE =	\
+                fock_2e_shell_to_labels.o \
+                fock_2e_label.o fock_eri_label_scale.o \
 		fock_2e_c.o \
 		fock_eri_scale.o \
                 fock_density_screen.o \
 		schwarz_atom.o \
 		comp4_extract.o \
+                int2e_file.o
 		schwarz_shell.o
 
       LIBRARY =	libddscf.a
