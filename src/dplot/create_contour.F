@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.21 2003-01-11 02:57:06 edo Exp $
+* $Id: create_contour.F,v 1.22 2003-01-11 03:05:00 edo Exp $
 *
       Implicit None
 *
@@ -208,12 +208,12 @@ c     make it in pieces that use 60% of  MA
 c
       avail = MA_inquire_avail(mt_dbl)*60/100
       needed=ngrpp*(nbf+2*natom+nbf_ao_mxnbf_ce)
-      nstep=int(dble(needed)/dble(avail)+1d0)
+      nstep=int(dble(needed)/dble(avail))
       nstep=max(nstep,1)
 #ifdef DEBUG
 !      nstep=5
 #endif
-      ngrpp_s=ngrpp/nstep
+      ngrpp_s=nint(dble(ngrpp)/(nstep))
       lth1=ngrpp_s*nbf
       if(debug.and.iproc.eq.0) then
          write(luout,*) ' no. doubles avail ',avail,' nstep ',nstep
