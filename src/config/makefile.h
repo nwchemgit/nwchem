@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.460 2004-04-30 00:37:18 edo Exp $
+# $Id: makefile.h,v 1.461 2004-05-04 02:08:32 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1133,12 +1133,11 @@ endif
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
     FDEBUG= -O1 -g
-    FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals -malign-natural 
-    FOPTIMIZE  = -O3 -funroll-loops -fsched-interblock 
-    FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16 
-    FOPTIMIZE += -falign-jumps-max-skip=15 -falign-loops-max-skip=15 
-    FOPTIMIZE += -ffast-math -mdynamic-no-pic -mpowerpc-gpopt 
-    FOPTIMIZE += -maltivec   
+    FOPTIONS   = -fno-second-underscore -Wno-globals
+    FOPTIMIZE  = -O3 -funroll-loops
+    FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16
+    FOPTIMIZE += -ffast-math -mpowerpc-gpopt
+    FOPTIMIZE += -maltivec
     ifeq ($(_CPU),ppc970)
 #G5
       FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
