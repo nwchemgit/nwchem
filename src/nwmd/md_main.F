@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.79 2000-04-28 20:13:08 d3j191 Exp $
+c $Id: md_main.F,v 1.80 2000-05-02 18:50:03 d3j191 Exp $
 c
       implicit none
 c
@@ -1229,11 +1229,11 @@ c
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
-     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + .true.,.false.,.true.,.false.,stime-tstep,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
       call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
-     + stime,pres,temp,tempw,temps,
+     + stime-tstep,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
@@ -2025,7 +2025,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.79 2000-04-28 20:13:08 d3j191 Exp $
+c $Id: md_main.F,v 1.80 2000-05-02 18:50:03 d3j191 Exp $
 c
       implicit none
 c
