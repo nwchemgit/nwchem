@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.218 2002-01-15 22:29:36 d3k958 Exp $
+c     $Id: dft_scf.F,v 1.219 2002-01-18 05:59:42 edo Exp $
 c     
       implicit none
 c
@@ -373,6 +373,7 @@ c
      ,        call errquit('dft_scf: cannot allocate g_diis',0)
       endif
 
+      homo_lumo_gap = 200.0d0
       if (ncydp.ne.0)then
          damping = .true. 
          ndamp = ndamp_input
@@ -680,7 +681,6 @@ c
          endif
          goto 2000
       endif
-      homo_lumo_gap = 200.0d0
       if (ipol.gt.1) then
         call ga_copy(g_fock, g_fockt)
       endif
@@ -1335,8 +1335,8 @@ c
      &     ' Nuclear repulsion energy =', f20.12//
      &     ' Numeric. integr. density =', f20.12//
      &     '     Total iterative time =', f9.1,'s'//)
- 4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
+ 4224 format(10x,' HOMO = ',f7.3,' LUMO = ',f7.3,
+     &              ' RLSHIFT = ',f7.3,' HL_GAP = ',f7.3)
 c     
       end
 
