@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintd.F,v 1.3 1999-05-06 17:25:50 windus Exp $
+c $Id: hnd_stvintd.F,v 1.4 1999-12-29 23:30:24 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -39,9 +39,8 @@ c
       integer nder, mini, maxi, minj, maxj, minprim, maxprim
       integer i, index
       dimension minprim(5), maxprim(5)
-      double precision zero, negone
+      double precision zero
       data zero   /0.0d+00/
-      data negone /-1.0d+00/
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c
@@ -88,7 +87,6 @@ c
       endif
 c
 c     ----- perform transformation to NWChem order if necessary ----
-c  bring back after get everything else working
 c
       if ((Li.gt.1).or.(Lj.gt.1)) then
         mini = minprim(Li+1)

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.3 1999-12-21 23:54:04 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.4 1999-12-29 23:30:24 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -39,11 +39,16 @@ c
       integer nder, mini, maxi, minj, maxj, minprim, maxprim
       integer i, index
       dimension minprim(5), maxprim(5)
-      double precision zero
+      double precision zero, negone
       data zero   /0.0d+00/
+      data negone /-1.0d+00/
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c
+      write(6,*) 'lscr is ',lscr
+      write(6,*) 'i_cent and j_cent',i_cent,j_cent
+      write(6,*) 'nint is ',nint
+      call flush(6)
       doH1 = doT.and.doV.and..not.doS
       nder = 2
 c
@@ -63,6 +68,9 @@ c
         call dcopy(nint*3*3,sder(nint*3*3+1),1,sder(nint*3*3*2+1),1)
       endif
 c
+c     write(luout,*) 'before the call to doV'
+c     call flush(luout)
+c
       if (doV) then
         call dfill(nint*3*3*nat*3,zero,vder,1)
 c
@@ -70,15 +78,21 @@ c Do the Helman-Feynman part (i|d2/dxcdxcV|j)
 c The first nat*nint*3*3 holds these terms
 c
         do i=1,nat
+c         write(luout,*) 'number of calls to hnd_hlf_ij2 ',i
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,scr,
      2      vder((i-1)*3*3*nint+1),zan,xyz,nder,nint)
         enddo
+c       write(6,*) 'Hel-Fey part'
+c        do i=1,nat*3*3*3*nint
+c          write(6,*) vder(i)
+c        enddo
 c
 c Do the mixed part (di|d/dxcV|j) and (i|d/dxcV|dj)
 c These are held in the rest of vder
 c
          do i=1,nat
+c         write(luout,*) 'number of calls to hnd_hlfd_ij ',i
            call hnd_hlfd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,
      2       vder((i-1)*3*3*nint+nint*3*3*nat+1),
@@ -86,59 +100,62 @@ c
      4       zan,xyz,nder,nint)
          enddo
 c
+c        write(6,*) 'before the second doV, vder is'
+c        do i=1,nat*3*3*3*nint
+c          write(6,*) vder(i)
+c        enddo
       endif
 
+c     write(luout,*) 'before the doT call'
+c     call flush(luout)
       if (doT.or.doV) then
-        if (doT) call dfill(nint*3*3*3,zero,tder,1)
-c note that scr is where the didj vder ints are temporarily going
+        call dfill(nint*3*3*3,zero,tder,1)
+c note that scr is used as a dummy and tder also holds the vder terms
         if (doV) call dfill(nint*3*3,zero,scr,1)
         call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,scr,scr,tder,
      2    tder(nint*3*3+1),tder(nint*3*3*2+1),scr,scr,
-     3    vder(nint*3*3*(i_cent-1)+1),scr,
-     4    vder(nint*3*3*(j_cent-1)+1),nder,nint,
+     3    tder,tder(nint*3*3+1),
+     4    tder(nint*3*3*2+1),nder,nint,
      5    zan,nat,doT,doV,i_cent,j_cent)
-c
-c add in the scr vder ints
-c
-         call daxpy(nint*3*3,1.0d00,scr(1),1,
-     1     vder(nint*3*3*nat+nint*3*3*(j_cent-1)+1),1)
-         call daxpy(nint*3*3,1.0d00,scr(1),1,
-     1     vder(nint*3*3*nat*2+nint*3*3*(i_cent-1)+1),1)
+c        write(6,*) 'after the second doV, vder is'
+c        do i=1,nat*3*3*3*nint
+c          write(6,*) vder(i)
+c        enddo
       endif
 c
 c     ----- perform transformation to NWChem order if necessary ----
 c  bring back after get everything else working
 c
-c     if ((Li.gt.1).or.(Lj.gt.1)) then
-c       mini = minprim(Li+1)
-c       maxi = maxprim(Li+1)
-c       minj = minprim(Lj+1)
-c       maxj = maxprim(Lj+1)
-c       if (doS) then
-c         index = 1
-c         do i=1,6
-c           call hnd_to_nw_order(scr,sder(index),minj,mini,
-c    1                           maxj-minj+1,maxi-mini+1)
-c           call dcopy (nint,scr,1,sder(index),1)
-c           index = index + nint
-c         enddo
-c       endif
-c       if (doT) then
-c         index = 1
-c         do i=1,6
-c           call hnd_to_nw_order(scr,tder(index),minj,mini,
-c    1                           maxj-minj+1,maxi-mini+1)
-c           call dcopy (nint,scr,1,tder(index),1)
-c           index = index + nint
-c         enddo
-c       endif
-c       if (doV) then
-c         call hnd_to_nw_order(scr,vder,minj,mini,maxj-minj+1,
-c    1                         maxi-mini+1)
-c         call dcopy (nint,scr,1,vder,1)
-c       endif
-c     endif
+      if ((Li.gt.1).or.(Lj.gt.1)) then
+        mini = minprim(Li+1)
+        maxi = maxprim(Li+1)
+        minj = minprim(Lj+1)
+        maxj = maxprim(Lj+1)
+        if (doS) then
+          index = 1
+          do i=1,6
+            call hnd_to_nw_order(scr,sder(index),minj,mini,
+     1                           maxj-minj+1,maxi-mini+1)
+            call dcopy (nint,scr,1,sder(index),1)
+            index = index + nint
+          enddo
+        endif
+        if (doT) then
+          index = 1
+          do i=1,6
+            call hnd_to_nw_order(scr,tder(index),minj,mini,
+     1                           maxj-minj+1,maxi-mini+1)
+            call dcopy (nint,scr,1,tder(index),1)
+            index = index + nint
+          enddo
+        endif
+        if (doV) then
+          call hnd_to_nw_order(scr,vder,minj,mini,maxj-minj+1,
+     1                         maxi-mini+1)
+          call dcopy (nint,scr,1,vder,1)
+        endif
+      endif
 c
       if(some) write(luout,9998)
       return

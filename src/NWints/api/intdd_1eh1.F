@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.6 1999-12-21 23:54:04 windus Exp $
+C $Id: intdd_1eh1.F,v 1.7 1999-12-29 23:30:23 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -79,12 +79,10 @@ c
         call errquit('intd_1eh1: nint>lH1a error',911)
       endif
 c
-      offset = nint*3*3*3       ! scratch for Ta array in intd_1eh1P routine
-      scrsize = lscr - offset ! new scratch array size
-      offset = offset + 1     ! increment for passing to intd_1eh1P
+      offset = nint*3*3*nat*3 + 1  ! part of V is also held in T
 c
       call intdd_1eh1P(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,scr,nat)
+     &       scrsize,scr(offset),nint,H1a,H1a(offset),nat)
 c
       end
       subroutine intdd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
@@ -196,29 +194,6 @@ c............overlap, k-e,     pot-e,
       else
         call errquit('intdd_1eh1: could not do hnd integrals',
      &                0)
-      endif
-c
-c if needed add in Ta derivative integrals
-c
-      if (doT) then
-c     write(luout,*) 'K 1e- derivative integrals from hondo'
-c     do jtemp = 1,3
-c     do ktemp = 1,3
-c     do ltemp = 1,3
-c     do itemp = 1,nint
-c       write(luout,*) itemp,ltemp,ktemp,jtemp,
-c    &     Ta(itemp,ltemp,ktemp,jtemp)
-c     enddo
-c     enddo
-c     enddo
-c     enddo
-c     write(6,*) 'iatom and jatom are ',iatom,jatom
-        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,1),1,H1a(1,1,1,iatom),1)
-        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,2),1,
-     &     H1a(1,1,1,nat+jatom),1)
-        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,2),1,
-     &     H1a(1,1,1,2*nat+iatom),1)
-        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,3),1,H1a(1,1,1,jatom),1)
       endif
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)

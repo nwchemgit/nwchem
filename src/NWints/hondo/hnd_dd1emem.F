@@ -1,4 +1,4 @@
-c $Id: hnd_dd1emem.F,v 1.4 1999-12-21 23:54:04 windus Exp $
+c $Id: hnd_dd1emem.F,v 1.5 1999-12-29 23:30:24 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- derivative memory routine
@@ -24,12 +24,8 @@ c
 c
 c     set memory requirements for 1 e- 2nd derivative integrals
 c     The maxbuf size is the size of a shell of integrals
-c     The scrmem is the size of the scratch area needed.  This will
-c     need to be fixed when I get to passing in temporary space instead
-c     allocating everything by dimension (statically in executable)
+c     The scrmem is the size of the scratch area needed.
 c
-c     scrmem = 3*3*4*255
-c     maxbuf = scrmem*2
       scrmem = 0
       maxbuf = 0
       nbfmax = 0
@@ -50,11 +46,14 @@ c
         endif
 00100 continue
 c
-      maxbuf = nbfmax*nbfmax*3*3*3*nat
+c This is what I would like it to be, but for testing....
+c The extra 3 holds the T terms and the nonHelFey terms
+c     maxbuf = nbfmax*nbfmax*3*3*3*nat
+      maxbuf = nbfmax*nbfmax*3*3*(3*nat+3)
       isz_1e = max(isz_1e,maxbuf)
 c
-c scrmem is for the didjvij temporary space and for holding the T second
-c ders during the calculation of H1
+c scrmem should eventually either go away or be used for other
+c arrays that are now statically allocated
 c
       scrmem = nbfmax*nbfmax*3*3*4
       mem_1e = max(mem_1e,scrmem) 
