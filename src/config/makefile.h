@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.156 1996-06-27 21:50:24 d3j191 Exp $
+# $Id: makefile.h,v 1.157 1996-06-27 22:34:59 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -250,7 +250,8 @@ ifeq ($(TARGET),SOLARIS)
     DEFINES = -DSOLARIS
 
        CORE_LIBS = -lutil -lglobal -llapack -lblas
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb
+# First four needed for parallel stuff, last for linking with profiling
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 endif
 
 
@@ -520,7 +521,7 @@ ifeq ($(TARGET),IBM)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
-#-qarch=pwr (for peril) com (for any) , pwr2  or ppc
+# -qarch=pwr (for peril) com (for any) , pwr2  or ppc
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
 # -qstrict -qhot
   COPTIMIZE = -O
@@ -587,8 +588,9 @@ ifeq ($(TARGET),SP1)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
+  LDOPTIONS = 
    FOPTIONS = -qEXTNAME
-   COPTIONS =
+   COPTIONS = 
   FOPTIMIZE = -O
   COPTIMIZE = -O
 
@@ -599,6 +601,7 @@ ifeq ($(TARGET),SP1)
    LIBPATH += -L/sphome/harrison/peigs2.0
   CORE_LIBS = -lglobal -lutil -lpeigs -llapack
 
+   USE_ESSL = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
  CORE_LIBS += -lessl \
