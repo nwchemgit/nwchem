@@ -1,9 +1,18 @@
 *
-* $Id: psi.F,v 1.51 2004-02-06 01:57:22 bylaska Exp $
+* $Id: psi.F,v 1.52 2004-03-01 05:14:33 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2004/02/06 01:57:22  bylaska
+*
+* Option added to write out temporary psi for Kiril.
+* Tempory psi written if
+* set nwpw:psi_tmp .true.
+*
+*
+* ....EJB
+*
 * Revision 1.50  2004/01/28 00:08:47  bylaska
 * Bug fixes...EJB
 *
@@ -4715,7 +4724,7 @@ c     end if
       call pspw_Lubin_water_analysis(rtdb,ispin,ne,2*nfft3d,
      >                                 dbl_mb(rho1(1)))
 
-      call pspw_analysis(rtdb,ispin,ne,dcpl_mb(psi2(1)),
+      call pspw_analysis(0,rtdb,ispin,ne,dcpl_mb(psi2(1)),
      >                                   dbl_mb(eig(1)))
 
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
@@ -4723,6 +4732,26 @@ c     end if
 
       return
       end
+
+*     ***********************
+*     *                     *
+*     *    epsi_Mulliken    *
+*     *                     *
+*     ***********************
+
+      subroutine epsi_Mulliken(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call pspw_analysis(1,rtdb,ispin,ne_excited,
+     >                   dcpl_mb(psi1_excited(1)),
+     >                   dbl_mb(eig_excited(1)))
+      return
+      end
+
 
 
 
@@ -4739,17 +4768,25 @@ c     end if
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
       logical value
       integer npoints,ii
+      integer weight(2),nemax
       real*8 emin,emax,alpha
       character*255 filename
 
+      nemax = ne(1)
+      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      if (.not. value) 
+     >  call errquit('psi_dos:out of stack memory',0, MA_ERR)
+      call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
+
 
       if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
-        alpha = 0.1d0/27.2116d0
+        alpha = 0.05d0/27.2116d0
       end if
 
       if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
@@ -4772,17 +4809,29 @@ c     end if
          emax = emax + 0.1d0
       end if
 
-      filename = "DOS_alpha"
-      call densityofstates(filename,
-     >                     dbl_mb(eig(1)),ne(1),
-     >                     alpha,npoints,emin,emax)
+*     **** generate DENSITY OF STATES *****
+      if (ispin.eq.1) then
+        filename = "DOS_both"
+        call densityofstates(filename,
+     >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+      end if
 
       if (ispin.eq.2) then
+        filename = "DOS_alpha"
+        call densityofstates(filename,
+     >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
         filename = "DOS_beta"
         call densityofstates(filename,
-     >                       dbl_mb(eig(1)+ne(1)),ne(2),
-     >                       alpha,npoints,emin,emax)
+     >               dbl_mb(eig(1)+ne(1)),dbl_mb(weight(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
       end if
+
+ 
+      value = MA_pop_stack(weight(2))
+      if (.not. value)
+     >  call errquit('psi_dos: error freeing stack',0, MA_ERR)
 
       return
       end
@@ -4800,17 +4849,24 @@ c     end if
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
       logical value
-      integer npoints,ii
+      integer weight(2),npoints,ii
       real*8 emin,emax,alpha
       character*255 filename
 
+      value = MA_push_get(mt_dbl,(ne_excited(1)+ne_excited(2)),
+     >                    'weight',weight(2),weight(1))
+      if (.not. value)
+     >  call errquit('epsi_dos:out of stack memory',0, MA_ERR)
+      call dcopy((ne_excited(1)+ne_excited(2)),
+     >          1.0d0,0,dbl_mb(weight(1)),1)
 
       if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
-        alpha = 0.1d0/27.2116d0
+        alpha = 0.05d0/27.2116d0
       end if
 
       if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
@@ -4835,17 +4891,31 @@ c     end if
          emax = emax + 0.1d0
       end if
 
-      filename = "DOS_alpha_virtual"
-      call densityofstates(filename,
-     >                     dbl_mb(eig_excited(1)),ne_excited(1),
-     >                     alpha,npoints,emin,emax)
+*     **** generate DENSITY OF STATES *****
+      if (ispin.eq.1) then
+        filename = "VDOS_both"
+        call densityofstates(filename,
+     >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
+     >                     ne_excited(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+      end if
 
       if (ispin.eq.2) then
-        filename = "DOS_beta_virtual"
+        filename = "VDOS_alpha"
         call densityofstates(filename,
-     >           dbl_mb(eig_excited(1)+ne_excited(1)),ne_excited(2),
-     >           alpha,npoints,emin,emax)
+     >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
+     >                     ne_excited(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+        filename = "VDOS_beta"
+        call densityofstates(filename,
+     >           dbl_mb(eig_excited(1)+ne_excited(1)),dbl_mb(weight(1)),
+     >           ne_excited(2),
+     >           -1.0d0,alpha,npoints,emin,emax)
       end if
+
+      value = MA_pop_stack(weight(2))
+      if (.not. value)
+     >  call errquit('epsi_dos: error freeing stack',0, MA_ERR)
 
       return
       end

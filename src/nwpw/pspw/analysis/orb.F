@@ -7,7 +7,6 @@
 
       subroutine Orb_Init(rtdb,ispin_in,ne_in)
       implicit none
-#include "errquit.fh"
       integer rtdb
       integer ispin_in
       integer ne_in(2)
@@ -15,7 +14,7 @@
 #include "mafdecls.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"
-
+#include "errquit.fh"
 
 
 *     **** orb common block ****

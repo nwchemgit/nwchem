@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.15 2004-02-02 19:16:09 bylaska Exp $
+c $Id: nwpw_input.F,v 1.16 2004-03-01 05:14:27 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -74,7 +74,7 @@ c
      >            'zone_name',
      >            'end'/
 
-       logical      value,move
+       logical      value,move,mulliken_kawai
        character*30 cell_name,zone_name
        character*30 input_wavefunction_filename
        character*30 output_wavefunction_filename
@@ -454,11 +454,21 @@ c
 c
 c  Mulliken
 c 
- 3100 mulliken = .true.
+ 3100 if (.not.inp_a(zone_name)) zone_name = 'lcao'
+
+      mulliken       = .true.
+      mulliken_kawai = .false.
+      ind = index(zone_name,' ') - 1
+      if (inp_compare(.false.,zone_name,'kawai')) mulliken_kawai=.true.
+
       value = rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
      >                       mulliken)
      >   .and.rtdb_put(rtdb,'band:mulliken',mt_log,1,
      >                       mulliken)
+     >   .and.rtdb_put(rtdb,'nwpw:mulliken',mt_log,1,
+     >                       mulliken)
+     >   .and.rtdb_put(rtdb,'nwpw:mulliken_kawai',mt_log,1,
+     >                       mulliken_kawai)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3100, RTDB_ERR)
@@ -550,7 +560,7 @@ c
 c
 c  DOS - density of states input
 c
- 4000 if (.not.inp_f(alpha)) alpha = 0.1d0/27.2116d0
+ 4000 if (.not.inp_f(alpha)) alpha = 0.05d0/27.2116d0
       value = rtdb_put(rtdb,'dos:alpha',mt_dbl,1,alpha)
 
       if (inp_i(npoints))

@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.4 2003-12-02 23:55:34 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.5 2004-03-01 05:14:33 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -35,11 +35,11 @@ c#include "rtdb.fh"
       integer rtdb
 
 *     **** external functions ****
-      logical     control_DOS
+      logical     control_DOS,control_Mulliken
       logical     epsi_initialize,epsi_finalize,epsi_filefind
       integer     psi_ne_excited,control_excited_ne,control_rtdb
       real*8      psi_virtual
-      external    control_DOS
+      external    control_DOS,control_Mulliken
       external    epsi_initialize,epsi_finalize,epsi_filefind
       external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
@@ -86,8 +86,14 @@ c#include "rtdb.fh"
 
       end if
 
+*     **** calculate Density of States ***
       rtdb = control_rtdb()
       if (control_DOS()) call epsi_DOS(rtdb)
+
+*     **** calculate Mulliken Populations ***
+      if (control_Mulliken()) call epsi_Mulliken(rtdb)
+
+
 
 
 *     **** write out excited wavefunctions ***

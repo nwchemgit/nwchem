@@ -1,7 +1,7 @@
 *
-* $Id: lcao_wvfnc.F,v 1.15 2004-02-10 04:27:25 edo Exp $
+* $Id: lcao_wvfnc.F,v 1.16 2004-03-01 05:14:33 bylaska Exp $
 *
-      logical function lcao_wvfnc(oprint,it_max,
+      logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
      >             			version,
      >						ngrid,
@@ -11,7 +11,7 @@
 
       implicit none
 #include "errquit.fh"
-      logical oprint
+      logical oprint_in
       integer it_max
       character*30 wavefunction_filename
       integer      version
@@ -29,7 +29,7 @@
       real*8 ALPHA,talpha
       parameter (ALPHA=0.30d0)
 
-      logical value,value2
+      logical value,value2,oprint
       integer ms,i,ia,icharge,ne_excited(2)
       integer dn(2),phi1(2),phi2(2)
       integer ee(2),eigs(2)
@@ -77,6 +77,7 @@
       external     control_excited_ne
       external     control_input_epsi
 
+      oprint = oprint_in
       call Parallel_taskid(taskid)
       call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(1,npack1)

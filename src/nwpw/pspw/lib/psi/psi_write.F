@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.8 2004-02-06 01:57:22 bylaska Exp $
+* $Id: psi_write.F,v 1.9 2004-03-01 05:14:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -75,6 +75,9 @@ c        call util_file_name_noprefix(filename,.false.,
 c    >                                .false.,
 c    >                       full_filename)
          l = index(full_filename,' ') -1
+         write(*,1210) full_filename(1:l)
+ 1210    FORMAT(/' output psi filename:',A)
+
          call openfile(6,full_filename,l,'w',l)
          call iwrite(6,version,1)
          call iwrite(6,nfft,3)
@@ -175,6 +178,8 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          l = index(full_filename,' ') -1
+         write(*,1220) full_filename(1:l)
+ 1220    FORMAT(/' output epsi filename:',A)
          call openfile(6,full_filename,l,'w',l)
          call iwrite(6,version,1)
          call iwrite(6,nfft,3)

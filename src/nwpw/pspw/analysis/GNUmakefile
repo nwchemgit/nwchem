@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-10-15 21:24:00 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-03-01 05:14:32 bylaska Exp $
 #
      SUBDIRS = APC
 
@@ -9,6 +9,8 @@
 		analysis_expansion_coef.o \
 		analysis.o \
                 orb_pop.o \
+                orb_pop_kawai.o \
+                orb_pop_aorb.o \
                 orb.o \
                 pspw_Lubin_water_analysis.o 
 

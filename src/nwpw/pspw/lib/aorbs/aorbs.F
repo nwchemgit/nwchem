@@ -1,14 +1,14 @@
 
 *
-* $Id: aorbs.F,v 1.2 2003-10-17 22:57:25 carlfahl Exp $
+* $Id: aorbs.F,v 1.3 2004-03-01 05:14:33 bylaska Exp $
 *
 
 #define TCGMSG
 
 *     ***********************************
-*     *									*
-*     *	 	     aorbs_init				*
-*     *									*
+*     *					*
+*     *	 	     aorbs_init		*
+*     *					*
 *     ***********************************
       logical function aorbs_init()      
       implicit none
@@ -51,6 +51,9 @@
       value = value.and.
      >        MA_alloc_get(mt_int,(nion*norbs_max),
      >                    'iiaorb',iiaorb(2),iiaorb(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >                    'basisaorb',basisaorb(2),basisaorb(1))
 
       if (value) 
      >  call dcopy(norbs_max*nkatmx*npack1,0.0d0,0,dbl_mb(aorbs(1)),1)
@@ -60,37 +63,39 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	     aorbs_end				*
-*     *									*
+*     *					*
+*     *	 	     aorbs_end		*
+*     *					*
 *     ***********************************
       subroutine aorbs_end()      
       implicit none
 
 #include "mafdecls.fh"
-
-***** AORBS common block ****
+#include "errquit.fh"
 #include "aorbs.fh"
 
 *     **** local variables ****
       logical value
 
       value = MA_free_heap(aorbs(2))
-      value = MA_free_heap(lmmax(2))
-      value = MA_free_heap(lmax(2))
-      value = MA_free_heap(locp(2))
-      value = MA_free_heap(lmaorb(2))
-      value = MA_free_heap(iaaorb(2))
-      value = MA_free_heap(iiaorb(2))
+      value = value.and.MA_free_heap(lmmax(2))
+      value = value.and.MA_free_heap(lmax(2))
+      value = value.and.MA_free_heap(locp(2))
+      value = value.and.MA_free_heap(lmaorb(2))
+      value = value.and.MA_free_heap(iaaorb(2))
+      value = value.and.MA_free_heap(iiaorb(2))
+      value = value.and.MA_free_heap(basisaorb(2))
+      if (.not. value) call errquit('aorbs_end:freeing heap memory',0,
+     &       MA_ERR)
 
       return
       end
 
 
 *     ***********************************
-*     *									*
-*     *	 	     aorbs_norbs			*
-*     *									*
+*     *					*
+*     *	 	     aorbs_norbs	*
+*     *					*
 *     ***********************************
 
       integer function aorbs_norbs(ia)
@@ -108,9 +113,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	   aorbs_nbasis				*
-*     *									*
+*     *					*
+*     *	 	   aorbs_nbasis		*
+*     *					*
 *     ***********************************
       integer function aorbs_nbasis()
       implicit none
@@ -123,9 +128,94 @@
       end
 
 *     ***********************************
-*     *									*
-*     *	 	   aorbs_normalize  		*
-*     *									*
+*     *                                 *
+*     *              aorbs_lmax         *
+*     *                                 *
+*     ***********************************
+
+      integer function aorbs_lmax(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+      aorbs_lmax = int_mb(lmax(1)+ia-1)-1
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *              aorbs_l            *
+*     *                                 *
+*     ***********************************
+
+      integer function aorbs_l(ia,n)
+      implicit none
+      integer  ia
+      integer n          ! basis number
+
+#include "mafdecls.fh"
+
+***** AORBS common block ****
+#include "aorbs.fh"
+
+*     *** local variables ***
+      integer l,m,lm
+      
+      lm = int_mb(lmaorb(1)+n-1)
+      l = 0
+      if (lm.eq.1) l = 0 
+
+      if (lm.eq.2) l = 1
+      if (lm.eq.3) l = 1
+      if (lm.eq.4) l = 1
+
+      if (lm.eq.5) l = 2
+      if (lm.eq.6) l = 2
+      if (lm.eq.7) l = 2
+      if (lm.eq.8) l = 2
+      if (lm.eq.9) l = 2
+
+      if (lm.eq.10) l = 3
+      if (lm.eq.11) l = 3
+      if (lm.eq.12) l = 3
+      if (lm.eq.13) l = 3
+      if (lm.eq.14) l = 3
+      if (lm.eq.15) l = 3
+      if (lm.eq.16) l = 3
+
+      aorbs_l = l
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *     aorbs_get_basis_number      *
+*     *                                 *
+*     ***********************************
+
+      integer function aorbs_get_basis_number(ii,lm)
+      implicit none
+      integer ii,lm
+
+#include "mafdecls.fh"
+#include "aorbs.fh"
+
+      aorbs_get_basis_number=int_mb(basisaorb(1)+lm-1+(ii-1)*norbs_max)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	 	   aorbs_normalize  	*
+*     *					*
 *     ***********************************
       subroutine aorbs_normalize()
       implicit none
@@ -197,9 +287,9 @@
       end
 
 *     ***********************************
-*     *									*
-*     *	 	   aorbs_aorb  				*
-*     *									*
+*     *					*
+*     *	 	   aorbs_aorb  		*
+*     *					*
 *     ***********************************
 
       subroutine aorbs_aorb(n,aorb)
@@ -271,9 +361,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	   aorbs_read  				*
-*     *									*
+*     *					*
+*     *	 	   aorbs_read 		*
+*     *					*
 *     ***********************************
       subroutine aorbs_read(fname,
      >                      version,
@@ -370,9 +460,9 @@ c       close(11)
       end
 
 *     ***********************************
-*     *									*
-*     *	 	  aorbs_readall  				*
-*     *									*
+*     *					*
+*     *	 	  aorbs_readall		*
+*     *					*
 *     ***********************************
 
       logical function aorbs_readall()
@@ -502,6 +592,7 @@ c       close(11)
             int_mb(lmaorb(1)+icount-1)  = lm
             int_mb(iaaorb(1)+icount-1)  = ia
             int_mb(iiaorb(1)+icount-1)  = ii
+            int_mb(basisaorb(1)+lm-1+(ii-1)*norbs_max) = icount
          end do
       end do
       ibasis = icount

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.26 2004-02-22 18:56:38 bylaska Exp $
+* $Id: cpsdv5.F,v 1.27 2004-03-01 05:14:33 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -739,7 +739,7 @@ c    >              dbl_mb(lmd(1)),ierr)
      >                                 dbl_mb(dn(1)))
 
 *       **** Analysis ***
-        call pspw_analysis(rtdb,ispin,ne,dcpl_mb(psi2(1)),
+        call pspw_analysis(0,rtdb,ispin,ne,dcpl_mb(psi2(1)),
      >                                   dbl_mb(eig(1)))
 
 *       **** generate APC *****

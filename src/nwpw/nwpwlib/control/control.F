@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.50 2004-02-22 18:56:37 bylaska Exp $
+* $Id: control.F,v 1.51 2004-03-01 05:14:32 bylaska Exp $
 *
 
 *     ***********************************
@@ -2141,6 +2141,33 @@ c      end
       control_psi_tmp = psitmp
       return
       end
+
+*     *****************************
+*     *                           *
+*     *   control_mulliken_kawai  *
+*     *                           *
+*     *****************************
+      logical function control_mulliken_kawai()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.rtdb_get(rtdb,'nwpw:mulliken_kawai',mt_log,1,value))
+     >   value = .false.
+
+      control_mulliken_kawai = value
+      return
+      end
+
+
 
 
 

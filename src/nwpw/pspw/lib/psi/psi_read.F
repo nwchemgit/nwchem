@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.10 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: psi_read.F,v 1.11 2004-03-01 05:14:33 bylaska Exp $
 *
 
 #define TCGMSG
@@ -74,6 +74,9 @@ c    >                                .false.,
 c    >                        full_filename)
 
          l = index(full_filename,' ') -1
+         write(*,1210) full_filename(1:l)
+ 1210    FORMAT(/' input psi filename:',A)
+
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)
          call iread(5,nfft,3)
@@ -246,6 +249,9 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          l = index(full_filename,' ') -1
+         write(*,1220) full_filename(1:l)
+ 1220    FORMAT(/' input epsi filename:',A)
+
          call openfile(5,full_filename,l,'r',l)
          call iread(5,version,1)
          call iread(5,nfft,3)

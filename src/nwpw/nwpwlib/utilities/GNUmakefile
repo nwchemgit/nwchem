@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2003-12-13 21:07:40 bylaska Exp $
+# $Id: GNUmakefile,v 1.21 2004-03-01 05:14:32 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -18,7 +18,8 @@
 		getfilling.o \
 		CIF_write.o \
 		densityofstates.o \
-		MOTION_nframes.o
+		MOTION_nframes.o \
+		spdf_name.o 
 
 
 	  OBJ = 

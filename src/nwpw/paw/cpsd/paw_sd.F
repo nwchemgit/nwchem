@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.67 2004-02-23 16:37:32 bylaska Exp $
+* $Id: paw_sd.F,v 1.68 2004-03-01 05:14:32 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2004/02/23 16:37:32  bylaska
+* bug fixes...EJB
+*
 * Revision 1.66  2004/02/22 18:56:37  bylaska
 * Input and io changes for simulation_cell
 * Grsm_ggm2_sym_dot routine used in paw_overlap_matrix_gen
@@ -1128,21 +1131,22 @@ c    .   ' (',F6.3,' smooth)')
       return
       end
 
-      character function spdf_name(l)
-      implicit none
-      integer l
-      character name
-      name = '?'
-      if (l.eq.0) name = 's'
-      if (l.eq.1) name = 'p'
-      if (l.eq.2) name = 'd'
-      if (l.eq.3) name = 'f'
-      if (l.eq.4) name = 'g'
-      if (l.eq.5) name = 'h'
-      if (l.eq.6) name = 'i'
-      if (l.eq.7) name = 'j'
-      if (l.eq.8) name = 'k'
-      if (l.eq.9) name = 'l'
-      spdf_name = name
-      return
-      end
+**** moved to nwpwlib/utilities
+c      character function spdf_name(l)
+c      implicit none
+c      integer l
+c      character name
+c      name = '?'
+c      if (l.eq.0) name = 's'
+c      if (l.eq.1) name = 'p'
+c      if (l.eq.2) name = 'd'
+c      if (l.eq.3) name = 'f'
+c      if (l.eq.4) name = 'g'
+c      if (l.eq.5) name = 'h'
+c      if (l.eq.6) name = 'i'
+c      if (l.eq.7) name = 'j'
+c      if (l.eq.8) name = 'k'
+c      if (l.eq.9) name = 'l'
+c      spdf_name = name
+c      return
+c      end
