@@ -1,61 +1,19 @@
-.SUFFIXES:	
-.SUFFIXES:    .ps .dvi .aux .log .tex
 
-PSFLAGS	      = -D 300
+ SUBDIRS = prog user
 
-TEX	      = user.tex prog.tex md.tex
- 
-DVI           = user.dvi prog.dvi md.dvi
-
-PSFILE	      = user.ps prog.ps md.ps
+MAKESUBDIRS = @for dir in $(SUBDIRS); do \
+			echo Making $@ in $$dir; \
+			$(MAKE)	-C $$dir $@ || exit 1 ; done
 
 
-#
-#
-#
+all postscript:		
+	$(MAKESUBDIRS)
 
-
-all:		$(PSFILE)
-
-
-
-postscript:	$(PSFILE)
-
-
-
-print:		postscript
-	for file in $(PSFILE); do \
-		lpr $$file ; \
-	done
-
-viewall:	postscript
-	for file in $(PSFILE); do \
-		ghostview $$file ; \
-	done
-
-dvi:		$(DVI)
-
+html:
+	$(MAKESUBDIRS)
 
 clean:		
-		@rm -f $(DVI)  *.toc *.aux *.log *.bbl *.blg
+	$(MAKESUBDIRS)
 
-realclean:	clean
-		@rm -f $(PSFILE)
-
-
-.tex.dvi:
-		latex $*
-		latex $*
-		latex $*
-
-
-
-.dvi.ps:
-		dvips $(PSFLAGS) -o $@ $<
-
-
-####
-user.dvi:	fullpage.sty dft.tex user.tex selci.tex
-prog.dvi:	fullpage.sty integral_api.tex prog.tex
-md.dvi:		fullpage.sty md.tex
-
+realclean:	
+	$(MAKESUBDIRS)

@@ -1,0 +1,113 @@
+\label{sec:stepper}
+
+\begin{verbatim}
+  STEPPER
+    ...
+  END
+\end{verbatim}
+  No input is required for STEPPER.  If no input is present the
+default actions are to minimize the energy as a function of the
+geometry with a maximum of 20 stepper iterations.  The STEPPER input
+must follow the geometry specification (and later the symmetry
+specification) in the input deck because it requires the number of
+atoms that are used in the geometry optimization.  Currently only
+Cartesian coordinates are used.  STEPPER removes translational and
+rotational components before determining the step direction (5
+components for linear systems and 6 for others).  The initial guess
+nuclear Hessian is the identity matrix and there is an ASCII interface
+file to input an Hessian from another code.  The automatic generation
+of finite difference Hessians will be available soon.  During the
+optimization if the step taken is too large e.g., the step causes the
+energy to go up, enough information is stored to allow the optimizer
+to ``backstep'' and correct the step based on information prior to the
+faulty step.
+
+ The following optional sub-directives control the optimization
+performed.
+
+\subsection{MIN}
+
+\begin{verbatim}
+  MIN
+\end{verbatim}
+
+\verb+MIN+ instructs STEPPER to minimize the energy as a function of the
+geometry of the system. This is the default action for STEPPER.
+
+\subsection{MAXITER}
+
+\begin{verbatim}
+  MAXITER <integer maxiter default 20>
+\end{verbatim}
+
+\verb+MAXITER+ is the maximum number of geometry optimization steps.  The
+geometry optimization will restart automatically.
+
+\subsection{TS}
+
+\begin{verbatim}
+  TS
+\end{verbatim}
+
+\verb+TS+ instructs stepper to find the transition state by following the
+lowest eigenvalue of the nuclear Hessian.
+
+\subsection{TRACK}
+
+\begin{verbatim}
+  TRACK [nmode <integer nmode default 1>]
+\end{verbatim}
+
+\verb+TRACK+ allows stepper to track the eigenvector corresponding to
+\verb+nmode+ during a transition state walk.  This input is invalid
+for a minimization walk.  The step is constructed to go up in energy
+along the \verb+nmode+ eigenvector and down in all other degrees of
+freedom.  
+
+\subsection{TRUST}
+
+\begin{verbatim}
+  TRUST <real radius default 0.1>
+\end{verbatim}
+
+  This directive overrides the default trust-radius of 0.1.  A larger
+value enables larger steps to be taken. Experience shows that for
+larger systems 20+ atoms it should be set to 0.5 or greater.
+
+\subsection{CONVGG}
+\begin{verbatim}
+ CONVGG <real convgg default 1.0d-04>
+\end{verbatim}
+
+\verb+CONVGG+ sets the convergence tolerence for the gradient norm for
+all degrees of freedom.  This should be approximately the square root
+of the energy convergence tolerance.  
+
+\subsection{CONVGE}
+\begin{verbatim}
+ CONVGE <real convge default 1.0d-08>
+\end{verbatim}
+
+\verb+CONVGE+ sets the convergence tolerence for the energy difference
+in the geometry optimization.  
+
+
+\subsection{Initial Guess for Nuclear Hessian}
+
+{\bf BROKEN BUT EASILY FIXED?}
+
+\subsection{PRINT}
+
+In addition to the standard print levels the STEPPER module recognizes
+the following names
+\begin{tabbing}
+  Very\_long\_descriptive\_name \= Print level space \= \kill
+  Name                   \> Print Level \> Description \\
+                         \>        \> \\
+ 'ga summary' \>   default  \> GAs allocated at job end \\
+ 'ma summary' \>   default  \> MAs allocated at job end \\
+ 'ma stats'   \>   default  \> MA usage and calls \\
+ 'rtdb'       \>   high     \> names in database \\
+ 'rtdbvalues' \>   debug    \> names and values in database \\
+ 'version'    \>   debug    \> CVS version of most subroutines
+\end{tabbing}

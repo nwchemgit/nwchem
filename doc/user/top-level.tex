@@ -1,0 +1,513 @@
+
+\subsection{START and RESTART}
+\label{sec:start}
+
+This is a startup directive (\ref{sec:inputstructure}).
+
+A \verb+START+ or \verb+RESTART+ directive is optional but care must
+be taken if no directive is presented since the behaviour of the code
+will vary depending upon the existence of the database. 
+\begin{verbatim}
+  (RESTART || START) [<string file_prefix>] [rtdb <string rtdb_file_name>]
+\end{verbatim}
+\verb+START+ indicates a startup calculation in which the database is
+created and any existing database is destroyed.  \verb+RESTART+
+indicates that an existing database should be used and an error will
+result if it does not exist.  All files created by NWChem are by
+default prefixed with the string specified on the directive, which
+defaults to the basename of the input file (i.e., the input file name
+with the directory and any trailing \verb+.*+ stripped off).  Note
+that if you change the file prefix in a restart job, NWChem will be
+unable to locate most files automatically.  The \verb+RTDB+ keyword
+permits specification of the name of the database which otherwise
+defaults to \verb+<file_prefix>.db+ in the directory for permanent
+files.
+
+If no \verb+START+ or \verb+RESTART+ directive is presented then
+\begin{itemize}
+  \item the default file prefix is used,
+  \item the default database name is used,
+  \item if the default database exists, then the job is assumed to be
+    a restart, otherwise it is assumed to be a startup.
+\end{itemize}
+
+E.g., if running NWChem with the command \verb+nwchem water.nw+ and no
+start/restart directive is presented, then the file prefix will be
+\verb+water+ and the database name \verb+water.db+.  The same is
+accomplished by either of the following directives,
+\begin{verbatim}
+  start water
+
+  start water rtdb water.db
+\end{verbatim}
+
+\subsection{SCRATCH\_DIR and PERMANENT\_DIR}
+\label{sec:dirs}
+
+This is a startup directive (\ref{sec:inputstructure}).
+
+NWChem distinguishes between permanent (or persistent) and scratch (or
+temporary) files and can optionally put them in different locations.
+The default location of the scratch and permanent directories is
+installation specific, but most commonly both permanent and scratch
+files default to the current directory.
+
+On the IBM SP and workstation clusters, there is need to specify
+machine/process specific names for both local and shared file systems.
+On the KSR it is useful to specify scratch file directories with
+automated striping across processors with round-robin allocation.  SMP
+clusters have both requirements.  The anticipated usage of the EMSL
+IBM SP has NWChem executing in /verb+/scratch+ with all files
+being created there by default.  Files to be saved for restart {\em
+  must} be either explicitly redirected or copied.  This has the
+advantages of minimizing very expensive network traffic on shared-file
+systems and also reducing the amount of data stored in the limited
+shared-file space.  The manual copying fails if the job crashes or
+runs out of time so it is preferable to automatically directly store
+{\em small} restart files to a persistent file space.
+
+The directives \verb+SCRATCH_DIR+ and \verb+PERMANENT_DIR+, which have
+identical format and capability, enable user input of one or more
+directories.
+
+\begin{verbatim}
+   SCRATCH_DIR  [(<string host>|<integer process>):]<string directory> \ 
+                [...]
+\end{verbatim}
+
+Directories are extracted from the user input by excuting in order the
+following steps
+\begin{enumerate}
+\item Look for a directory qualified by the process number of the
+  invoking process.
+\item If there are a list of directories qualified by the name of the
+  host machine (as returned by \verb+util_hostname()+) then use
+  round-robin allocation from the list for processes executing on the
+  given host.
+\item If there are a list of directories unqualified by any hostname
+  or process ID then use round-robin allocation from this list.
+\end{enumerate}
+If there is no user input, or no match is found from the user input,
+then the same steps are repeated using the installation specific
+defaults.  Finally, there is a built in default of the current working
+directory (\verb+"."+).
+
+Some examples:
+\begin{itemize}
+\item  All processes put scratch files in the local scratch directory
+\begin{verbatim}
+      scratch_dir /localscratch
+\end{verbatim}
+\item Process 0 puts scratch files in \verb+/piofs/rjh+, all others put them
+  in \verb+/scratch+
+\begin{verbatim}
+      scratch_dir /scratch 0:/piofs/rjh
+\end{verbatim}
+\item All processes allocate files in a round-robin fashion from the
+given list of directories
+\begin{verbatim}
+      scratch_dir /scr1 /scr2 /scr3 /scr4 /scr5
+\end{verbatim}
+\item Processes distributed across two SGI multi-processor machines
+  (coho and bohr) allocate files in a round-robin fahion from
+  host-specific lists
+\begin{verbatim}
+      scratch_dir coho:/xfs1/rjh coho:/xfs2/rjh coho:/xfs3/rjh \
+                  bohr:/disk01/rjh bohr/rjh:/disk02/rjh bohr:/disk13/rjh
+\end{verbatim}
+\end{itemize}
+
+\subsection{MEMORY}
+
+\begin{verbatim}
+  MEMORY [[total] <integer total_size>] \
+         [stack <integer stack_size>] \
+         [heap <integer heap_size>] \
+         [global <integer global_size>] \
+         [units <string units default "real">] \
+         [(verify||noverify)] \
+         [(nohardfail||hardfail)] \
+\end{verbatim}
+
+This is a startup directive (\ref{sec:inputstructure}).
+
+This directive controls the memory available to the program.  Known
+memory units are \verb+real+, \verb+double+ (synonyms),
+\verb+integer+, \verb+byte+, \verb+kb+ (kilobytes), \verb+mb+
+(megabytes), \verb+mw+ (megawords, 64 bit word).  Installation
+dependent defaults should suffice for most calculations (for instance,
+the default on the Intel Delta is the maximum available).  The memory
+model used by the input is that there are three distinct regions of
+memory: stack, heap, and global.  Stack and heap are node-private,
+while the global region on all processors is used to provide
+globally-shared memory.  In the actual implementation, some of the
+distinctions between these categories of memory are blurred.  This is
+explained in more detail below.
+
+In most cases the user need only specify the total memory limit and
+the limits on each category will be determined from a default
+partitioning (currently 10\% for heap, 10\% for stack, and 80\% for
+global).  If the user sets only one of the stack, heap, or global
+limits specifically, the difference from the default partitioning of
+the total memory limit is distributed to or borrowed from the other
+categories in proportion to their weight in the default memory
+partitioning.  If two of the category limits are given, the third is
+obtained by subtracting the two given limits from the total limit,
+which may have been specified or may be a default value.  If all three
+category limits are specified, they determine the total memory (if the
+total memory is also specified, it must be larger than the sum of the
+three categories, but is otherwise not used).  In all cases, the code
+attempts to check for inconsistent memory specifications.
+
+The following specifications all provide eight megabytes (assuming 64
+bit floating point numbers) of total memory to the application, which
+will be distributed according to the default partitioning.
+\begin{verbatim}
+  memory 1000000
+  memory 1000000 real
+  memory 1 mw
+  memory 8 mb
+\end{verbatim}
+These memory directive also allocate 8 MB, but specify a complete
+partitioning as well.
+\begin{verbatim}
+  memory total 8 stack 2 heap 2 global 4 mb
+  memory stack 2 heap 2 global 4 mb
+\end{verbatim}
+The options \verb+VERIFY+ and \verb+NOVERIFY+ enable/disable automatic
+detection of corruption of allocated memory which is enabled by
+default. The small overhead incurred by this can be eliminated by
+specifying \verb+NOVERIFY+.  The \verb+HARDFAIL+ option causes the
+local memory management routines to generate an internal fatal error
+if any memory operation fails.  This is useful if applications are
+poorly coded and do not always check the return status of memory
+management routines.  The default is \verb+NOHARDFAIL+ which should
+result in a more meaningful error message from the application if a
+memory allocation fails.
+
+As mentioned above, the actual implementation of the code differs
+somewhat from the input model described above -- the software relaxes
+some of the distinctions between categories.  The memory allocator
+(MA) allocates both the heap and the stack from a single memory region
+of size {\em heap+stack} without enforcing the partition.  The heap
+vs. stack partition is only really meaningful to application
+developers and can be ignored by users.  Further complicating matters,
+the global array (GA) toolkit is allocated from within the MA space on
+distributed memory machines, while on shared-memory machines it is
+separate\footnote{This is because on true shared-memory machines there
+  is no choice but to allocate GAs from within a shared-memory segment
+  which is mangaged differently by the operating system}.  On
+distributed memory platforms, the MA region is actually the size of
+(stack+heap+global), and all three types of memory allocation compete
+for the same pool of memory with no limits except on the total
+available memory.  This relaxation usually benefits the user since it
+may allow allocation requests to succeed where a stricter memory model
+would fail.  These implementation details must be kept in mind when
+reading output from the program relating to memory usage, or when jobs
+fail due to memory limitations.
+
+Current standard defaults for various platforms are listed in Table
+\ref{tbl:default-memory-limits}.  On machines for which individual
+processors are commonly used in single user mode (e.g., IBM SP-X,
+Linux laptops, CRAY-T3D, Intel Paragon, KSR) then the defaults reflect
+the maximum memory available to applications with common hardware
+configurations.
+\begin{table}
+\caption{Default total memory limits according to hardware platform.}
+\label{tbl:default-memory-limits}
+\begin{tabular}{lr}
+\hline\hline
+Platform        & Total Memory Limit (MBytes) \\
+\hline
+CRAY-T3D        & 40 \\
+DECOSF          & 48 \\
+IBM RS/6000     & 56 \\
+IBM SP-X        & 90 \\
+Intel Paragon   & 16 \\
+KSR             & 20 \\
+Linux           & 16 \\
+SGI             & 48 \\
+Sun             & 48 \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+\subsection{ECHO}
+
+\begin{verbatim}
+  ECHO
+\end{verbatim}
+
+This is a startup directive (\ref{sec:inputstructure}).
+
+This directive causes the entire input file to be printed to Fortran
+unit six.
+
+\subsection{TITLE}
+
+\begin{verbatim}
+  TITLE 
+  <string title>
+\end{verbatim}
+
+  The title for the job is set to the entire contents of the {\em
+next} input line.  E.g.,
+\begin{verbatim}
+  title
+  My first NWChem job
+
+  title; This is the title
+\end{verbatim}
+The title is stored on the database and will be used in all subsequent
+tasks/jobs unless respecified in the input.  The default title is an
+empty character string.
+
+\subsection{PRINT and NOPRINT}
+\label{sec:printcontrol}
+
+\begin{verbatim}
+  PRINT [none | low | medium | high | debug] \
+        [<string list_of_names>]
+
+  NOPRINT [<string list_of_names>]
+\end{verbatim}
+
+The \verb+PRINT+ and \verb+NOPRINT+ directives are special in that
+{\em all} modules (will) recognize them and they  have a
+standard form.  Items that are under standard print control are
+assigned a print threshold which is one of none, low, medium, high and
+debug.  Each module can control both the print level and the printing
+of individual items.
+
+An example will help.  If the print level is medium (which is the
+default) all items with a print threshold less than or equal to medium
+(i.e., low or medium) will be printed.  In addition, the printing of
+items can be explicitly enabled or disabled by name.  Thus, to keep
+the NWChem driver routine as quiet as possible, but to force printing
+of the memory usage statistics and the entire contents of the database
+at the end of the job, use this directive
+\begin{verbatim}
+  print none 'ma stats' rtdb
+\end{verbatim}
+
+The top level of the code recognizes these names. 
+\begin{tabbing}
+  Very\_long\_descriptive\_name \= Print level space \= \kill
+  Name                   \> Print Level \> Description \\
+                         \>        \> \\
+ ``total time''        \> medium \> Prints cpu and wall time at job end\\
+ ``rtdb''              \> high    \> Print names of RTDB entries\\
+ ``rtdbvalues''        \> high    \> Print name and values of RTDB entries\\
+ ``ga summary''        \> medium \> Summarizes GA allocations at job end \\
+ ``ma summary''        \> medium \> Summarizes MA allocations at job end \\
+ ``ma stats''          \> high   \> Prints MA usage statistics at job end \\
+ ``version''           \> debug  \> Prints version of all compiled routines \\
+\end{tabbing}
+
+Look in the documentation of each module to learn about names specific
+to those modules.  Currently, the print level is local to each module
+and defaults to medium within each module.  It is also possible to
+change the implementation to make the default print level inherited
+from the calling layer --- email nwchem-support@emsl with your
+preferences.
+
+\subsection{SET}
+\label{sec:set}
+
+\begin{verbatim}
+  SET <name> [<string type default "string">] <$type$ list_of_values>
+\end{verbatim}
+
+This directive makes an entry in the database.  There are only two
+common circumstances where this directive is necessary.  The first is
+to provide indirection.  One example of this was encountered above
+(section \ref{sec:arch}).  Another example of indirection would be if
+you entered a couple of basis sets and wanted to change the one being
+used for the SCF calculation.  This input specifies two basis sets
+\begin{verbatim}
+  basis "trial basis"
+    o library sto-3g
+    h library sto-3g
+  end
+
+  basis "production basis"
+    o library cc-pvqz
+    h library cc-pvqz
+  end
+\end{verbatim}
+and the following specifies that the basis set used to represent the
+molecular orbitals (which must have name \verb+"ao basis"+) is the
+\verb+"trial basis"+
+\begin{verbatim}
+  set "ao basis" "trial basis"
+\end{verbatim}
+
+The other common circumstance in which \verb+SET+ is used is for
+modules under development.  \verb+SET+ can be used to provide a
+rudimentary input mechanism for options that do not yet have more
+friendly input routines, or for options that are very infrequently
+exercised.  For instance, some of the parameters that tune the
+integral evaluation routines may be adjusted in this fashion
+\begin{verbatim}
+  set int:cando_sp logical false
+\end{verbatim}
+
+Logical values may be entered as \verb+.true.+, \verb+true+, or
+\verb+t+, and \verb+.false.+, \verb+false+, or \verb+f+.
+
+\subsection{UNSET}
+\label{sec:unset}
+
+\begin{verbatim}
+  UNSET <string name>[*]
+\end{verbatim}
+
+This deletes simple entries from the database.  Note that complex
+objects such as geometries and basis sets cannot be deleted in this
+fashion.  For example, 
+\begin{verbatim}
+  unset int:cando_sp
+\end{verbatim}
+
+If a wildcard (*) is specified at the end of the name then {\em all}
+entries beginning with the name are deleted.  This is very useful for
+resetting modules to their default behaviour.  Modules typically store
+their information in the database with names that commence with
+\verb+module:+.
+
+\subsection{STOP}
+
+\begin{verbatim}
+  STOP
+\end{verbatim}
+
+As soon as this directive is encountered all processing ceases, and
+the calculation terminates with an error condition.  It is useful for
+verifying input.
+
+\subsection{TASK}
+\label{sec:task}
+
+As noted above (\ref{sec:inputstructure}), input is parsed
+sequentially until a \verb+TASK+ directive is encountered at which
+point the requesed task is performed.  Subsequent to successful
+completion of the task, additional input is read up to the next
+\verb+TASK+ directive which is then executed.  This repeats until all
+input is processed.  If the last line of the input is not a
+\verb+TASK+ directive, a warning message is printed.  Since the
+database is persistent multiple tasks within one job behave {\em
+  exactly} the same as multiple restart jobs with the same sequence of
+input.
+
+The \verb+TASK+ directive takes three forms.  The most common form,
+\begin{verbatim}
+  TASK <string theory> [<string operation = energy>]
+\end{verbatim}
+is used to perform most electronic structure calculations.  The
+\verb+theory+ is used to specify the level of theory to be used (SCF,
+DFT, MP2, \ldots) and the operation specifies the desired action,
+defaulting to energy evaluation.  Known values of theory and operation
+are:
+\begin{itemize}
+\item Theory \newline
+\begin{itemize}
+ \item SCF --- Hatree-Fock
+ \item DFT --- Density functional theory for molecules
+ \item RIMP2 --- MP2 using the RI approximation
+ \item OIMP2 --- Orbital invariant MP2
+ \item DIRECT\_MP2 --- MP2 direct from the AO integrals
+ \item SEMI\_DIR\_MP2 --- MP2 semi-direct from the AO integrals
+ \item CCSD --- Coupled-cluster single and double excitations
+ \item MCSCF --- multiconfiguration SCF
+ \item SELCI --- selected configuration interaction with perturbation
+   correction 
+\end{itemize}
+\item Operation \newline
+\begin{itemize}
+ \item ENERGY --- single point energy evaluation
+ \item GRADIENT --- evaluate the derivative of the energy w.r.t.\
+   nuclear coordinates
+ \item OPTIMIZE --- optimize the energy by variation of the molecular
+   structure.  This is presently driven by the Stepper module
+   (\ref{sec:stepper}). 
+ \item FREQUENCIES or FREQ --- compute second-derivatives and print
+   out an analysis of molecular vibrations.
+\end{itemize} 
+\end{itemize}
+Note that if an operation requires computation of derivatives of the
+energy and analytic derivatives are not available, then derivatives
+are computed numerically, which can be very expensive.
+
+For example, to perform a single point SCF calculation
+\begin{verbatim}
+  task scf
+\end{verbatim}
+or
+\begin{verbatim}
+  task scf energy
+\end{verbatim}
+To perform a DFT geometry optimization
+\begin{verbatim}
+  task dft optimize
+\end{verbatim}
+
+The second form of the \verb+TASK+ directive
+\begin{verbatim}
+  TASK <string task>
+\end{verbatim}
+is used in instances where either the task to be performed does not
+fit the model of the previous version (e.g., print the contents of the
+database) or if the operation has not yet been implemented in a
+fashion that applies to a wide range of theories (e.g., property
+evaluation).  The list of tasks supported in this fashion are
+\begin{itemize}
+  \item RTDBPRINT --- print the contents of the database
+  \item MD --- molecular dynamics using Ideaz
+  \item CPHF --- invoke the CPHF module
+  \item NWARGOS --- molecular dynamics using ARGOS
+  \item PROPERTY --- miscellaneous property calculations
+\end{itemize}
+
+The final form of the task directive
+\begin{verbatim}
+  TASK shell [(<integer-range processor = 0>|all)] <string command>
+\end{verbatim}
+is only supported on those machines that have a full UNIX-like
+operating system.  This directive causes selected processes to execute
+the given specified command using the Bourne shell.  The command must
+form a single string, and thus must be enclosed in double quotes
+\verb+"+ if it contains spaces.  Note that NWChem's quoting of
+special input characters is {\em very} limited when compared with that
+of the shell, so when trying to execute all but the simplest commands,
+put the shell script in a file and execute the file from within
+NWChem.  By default the command is executed only by process zero.  A
+range of processes may be specified using Fortran triplet notation,
+and all processes using the keyword all.
+
+For example, for process zero to copy the molecular orbitals file to a
+backup location
+\begin{verbatim}
+  task shell "cp *.movecs /pnnlfs/save"
+\end{verbatim}
+For all processes to list the contents of their \verb+/scratch+
+directory
+\begin{verbatim}
+  task shell all "ls -l /scratch"
+\end{verbatim}
+For processes 0 to 10 to remove the contents of the current directory
+\begin{verbatim}
+  task shell 0:10:1 "/bin/rm -f *"
+\end{verbatim}
+
+\subsection{CHARGE}
+\label{sec:charge}
+
+\begin{verbatim}
+  CHARGE <real charge default 0>
+\end{verbatim}
+
+Specifies the total charge of the system which defaults to zero.
+E.g., to run a doubly charged cation
+\begin{verbatim}
+  charge 2
+\end{verbatim}

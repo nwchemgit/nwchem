@@ -1,0 +1,41 @@
+\begin{verbatim}
+  GRADIENTS 
+    [CHKPT <integer minutes>]
+    [RESTART]
+    [PRINT]
+    [NOPRINT]
+  END
+\end{verbatim}
+
+  This input controls the Hartree-Fock (SCF, UHF and ROHF) gradients.  
+
+\subsection{CHKPT}
+
+  This keyword is used to specify a time interval after which a
+  checkpoint for later restart is created. After \verb+minutes+
+  minutes of walltime the forces are written to the runtime database.
+
+\subsection{RESTART}
+
+  This keyword tells the program that this is a restart of an aborted
+  gradient calculation. The partially calculated forces are taken from
+  the database of the previous run. If they are not present, the
+  keyword is ignored and a complete calculation of the gradients is started.
+
+  It also works within a geometry optimization. Subsequent gradient 
+  calculations are not treated as restarts.
+
+\subsection{PRINT, NOPRINT}
+
+  Currently only some print control is available.
+
+\begin{tabbing}
+  Very\_long\_descriptive\_name \= Print level space \= \kill
+  Name                   \> Print Level \> Description \\
+                         \>        \> \\
+        'information'   \>        low  \> calculation description\\
+        'geometry'    \>          high \> \\
+        'basis'        \>         high \> \\
+        'forces'   \>             low \> \\
+        'timing'   \>             default \> 
+\end{tabbing}

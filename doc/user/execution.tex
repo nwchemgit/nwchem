@@ -1,0 +1,182 @@
+
+The command required to invoke NWChem is machine dependent, whereas
+most of the NWChem input is machine independent\footnote{Machine
+dependence within the input arises from file names and machine
+specific resources.} .
+
+\subsection{Sequential execution}
+
+To run NWChem sequentially on nearly all UNIX-based platforms simply
+use the command \verb+nwchem+ and provide the name of the input file
+as an argument.  If no file name is specified the default input file 
+\verb+"nwchem.nw"+ is used.  An input file must be provided.
+
+Output is to standard output, standard error and Fortran unit 6.
+Files are created by default in the current directory.
+
+\subsection{Parallel execution on UNIX-based parallel machines
+including workstation clusters using TCGMSG}
+\label{sec:procgrp}
+
+ These platforms require the use of the TCGMSG\footnote{Where required
+TCGMSG is automatically built with NWChem} \verb+parallel+ command
+and thus also require the definition of a process-group (or procgroup)
+file.  The process-group file describes how many processes to start,
+what program to run, which machines to use, which directories to work
+in, and under which userid to run the processes.  By convention the
+process-group file has a \verb+.p+ suffix.
+
+The process-group file is read to EOF.  The character \verb+#+ (hash or
+pound sign) is used to indicate a comment which continues to the next
+new line character.  Each line describes a cluster of processes and
+consists of the following whitespace separated fields:
+
+\begin{verbatim}
+  userid hostname nslave executable workdir
+\end{verbatim}
+
+\begin{itemize}
+\item \verb+userid+ -- The user-name on the machine that will be executing the
+      process. 
+
+\item \verb+hostname+ --  The hostname of the machine to execute this process.
+             If it is the same machine on which parallel was invoked
+             the name must match the value returned by the command 
+             hostname. If a remote machine it must allow remote execution
+             from this machine (see man pages for rlogin, rsh).
+
+\item \verb+nslave+ --  The total number of copies of this process to be executing
+             on the specified machine. Only ``clusters'' of identical processes
+             specified in this fashion can use shared memory to communicate.
+             If no shared memory is supported on machine \verb+<hostname>+ then
+             only the value one (1) is valid (e.g. on the Cray).
+
+\item \verb+executable+ --  Full path name on the host \verb+<hostname>+ of the image to execute.
+             If \verb+<hostname>+ is the local machine then a local path will
+             suffice.
+
+\item \verb+workdir+ --  Full path name on the host \verb+<hostname>+ of the directory to
+             work in. Processes execute a chdir() to this directory before
+             returning from pbegin(). If specified as a ``.'' then remote
+             processes will use the login directory on that machine and local
+             processes (relative to where parallel was invoked) will use
+             the current directory of parallel.
+\end{itemize}
+
+  For example, if your file \verb+"nwchem.p"+ contained the following
+\begin{verbatim}
+ d3g681 pc 4 /msrc/apps/bin/nwchem /scr22/rjh
+\end{verbatim}
+then 4 processes running NWChem would be started on the machine 
+\verb+pc+ running as user \verb+d3g681+ in directory \verb+"/scr22/rjh"+.
+To actually run this simply type:
+\begin{verbatim}
+  parallel nwchem big_molecule.nw
+\end{verbatim}
+
+{\em N.B.} : The first process specified (process zero) is the only
+process that
+\begin{itemize}
+\item opens and reads the input file, and
+\item opens and reads/updates the database.
+\end{itemize}
+Thus, if your file systems are physically distributed (e.g., most
+workstation clusters) you must ensure that process zero can correctly
+resolve the paths for the input and database files.
+
+{\em N.B.} : There are currently problems executing on workstation
+clusters that are being resolved.
+
+\subsection{Parallel execution on MPPs}
+
+All of these machines require use of different commands in order to
+gain exclusive access to computational resources.
+
+\subsection{Kendall Square Research}
+
+\begin{verbatim}
+  allocate_cells <n> parallel nwchem <input_file>
+\end{verbatim}
+
+The KSR command \verb+allocate_cells+ is used to acquire exclusive use
+of a set of processors.  It takes the number of processors \verb+n+ and
+the command as arguments.  The TCGMSG parallel command is described
+above (section \ref{sec:procgrp}).  Note that when running the SCF
+code optimal performance is obtained by allocating one more processor
+to the processor set than required by your \verb+"nwchem.p"+
+file\footnote{This is because dynamic load balanced is supported by
+the process executing the command parallel which needs a dedicated
+processor to do this efficiently.}.  For instance, if your
+process-group file \verb+"nwchem32.p"+ read
+\begin{verbatim}
+  d3g681 circus 31 /usr/local/bin/nwchem /tmp/rjh
+\end{verbatim}
+then you might use the following command
+\begin{verbatim}
+  allocate_cells 32 parallel nwchem32 big_molecule.nw
+\end{verbatim}
+
+A useful tool for monitoring usage of the KSR is xringinfo.  See the
+manual page for details.
+
+
+\subsection{Intel Paragon}
+
+\begin{verbatim}
+  nwchem -sz <n> <input_file>
+\end{verbatim}
+
+or if pexec is used (e.g., at ORNL)
+
+\begin{verbatim}
+  pexec nwchem <input_file> -sz <n>
+\end{verbatim}
+
+where \verb+n+ is the number of processors and \verb+input_file+ is the
+name of your input file.
+
+
+\subsection{Intel Touchstone Delta}
+
+\begin{verbatim}
+  mexec -t"(<rows>,<cols>)" -f "nwchem <input_file>"
+\end{verbatim}
+
+where \verb+rows+ and \verb+cols+ specify the dimensions of the
+processor mesh and \verb+input_file+ is the name of your input file.
+For example, to run using all 512 nodes on the Delta
+\begin{verbatim}
+  mexec -t"(16,32)" -f "nwchem big_molecule.nw"
+\end{verbatim}
+
+\subsection{Cray T3D}
+
+\begin{verbatim}
+  nwchem  <input_file> -npes <n>
+\end{verbatim}
+
+where \verb+n+ is the number of processors and \verb+input_file+ is the
+name of your input file.
+
+When compiling NWChem on Cray T3D, you need to setup the
+environmental variable {\tt TARGET} for the correct cross-compilation
+of C routines by typing
+\begin{verbatim}
+  setenv TARGET CRAY-T3D
+\end{verbatim}
+
+\subsection{Tested Platforms and O/S versions}
+
+\begin{itemize}
+\item KSR-2 
+\item Intel Delta 
+\item Intel Paragon 
+\item IBM SP1 and SP2
+\item Cray T3D
+\item SGI R8000
+\item SGI R4000
+\item IBM RS6000, AIX 
+\item SUN workstations, SunOS 4.1.3 and Solaris 5.4
+works
+\end{itemize}
+

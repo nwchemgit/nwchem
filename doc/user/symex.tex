@@ -1,0 +1,116 @@
+\label{symexamples}
+
+  \subsection{\protect$C_{2v}$ water}
+
+\begin{verbatim}
+  geometry
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+
+    symmetry group c2v
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{2h}$ acetylene}
+
+Although acetylene has symmetry $D_{\infty h}$ the subgroup
+$D_{2h}$ includes all operations that interchange equivalent atoms
+which is what determines how much speedup you gain from using symmetry
+in building a Fock matrix.
+
+\begin{verbatim}
+  geometry
+    symmetry group d2h
+
+    C      0.000000000    0.000000000   -1.115108538
+    H      0.000000000    0.000000000   -3.106737425
+  end
+\end{verbatim}
+
+  \subsection{\protect$T_d$ methane}
+
+\begin{verbatim}
+  geometry
+    c   0.0000000      0.0000000      0.0000000
+    h   1.1828637      1.1828637      1.1828637
+
+    symmetry group Td
+  end
+\end{verbatim}
+
+  \subsection{\protect$I_h$ buckminsterfullerene}
+
+\begin{verbatim}
+  geometry units angstrom # Bonds = 1.4445, 1.3945
+    symmetry group Ih
+
+    c   -1.2287651   0.0   3.3143121
+  end
+\end{verbatim}
+
+  \subsection{\protect$S_4$ porphyrin}
+
+\begin{verbatim}
+  geometry units angstroms
+     symmetry group s4
+  
+     fe                0.000  0.000  0.000         
+     h                 2.242  6.496 -3.320   
+     h                 1.542  4.304 -2.811
+     c                 1.947  6.284 -2.433
+     c                 1.568  4.987 -2.084
+     h                 2.252  8.213 -1.695
+     c                 1.993  7.278 -1.458
+     h                 5.474 -1.041 -1.143
+     c                 1.234  4.676 -0.765
+     h                 7.738 -1.714 -0.606
+     c                 0.857  3.276 -0.417
+     h                 1.380 -4.889 -0.413
+     c                 1.875  2.341 -0.234
+     h                 3.629  3.659 -0.234
+     c                 0.493 -2.964 -0.229
+     c                 1.551 -3.933 -0.221
+     c                 5.678 -1.273 -0.198
+     c                 1.656  6.974 -0.144
+     c                 3.261  2.696 -0.100
+     n                 1.702  0.990 -0.035
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{3h}$ iron penta-carbonyl}
+
+\begin{verbatim}
+  geometry
+    symmetry group d3h
+
+    fe        0.0         0.0         0.0
+
+    c         0.0         0.0         3.414358
+    o         0.0         0.0         5.591323
+
+    c         2.4417087   2.4417087   0.0
+    o         3.9810552   3.9810552   0.0
+  end
+\end{verbatim}
+
+  \subsection{\protect$D_{3d}$ sodium crown ether}
+
+  Note that the oxygen atom is rotated in the x-y plane 15
+  degrees away from the y-axis so that it lies in a mirror
+  plane.  There is a total of six atoms generated from the
+  unique oxygen, in contrast to twelve from each of the carbon
+  and hydrogen atoms.
+
+\begin{verbatim}
+  geometry print
+    symmetry D3d
+
+   NA     .0000000000    .0000000000   .0000000000
+   O     1.3384771885   4.9952647969   .1544089284
+   H     6.7342048019  -0.6723850379  2.6581562148
+   C     6.7599180056  -0.4844977035   .6136583870
+   H     8.6497577017   0.0709194071   .0345361934
+
+  end
+\end{verbatim}
+

@@ -1,0 +1,226 @@
+% $Id: integral_api.tex,v 1.1 1996-08-16 17:01:58 d3g681 Exp $
+\section{Integral Application Programmer's Interface}
+The integral (INT) Application Programmer's Interface (API) is the
+interface to the base integral technology available in the NWChem
+application software.  The INT-API interfaces currently three integral
+codes, the sp rotated axis code (from GAMESS-UK), the
+McMurchie-Davidson code (PNL, Stave, Fr\"uchtl, and Kendall), and the
+Texas 93/95 Integral code (Wolinski and Pulay).  The API is currently
+limited to the requisite functionality of NWChem.  Further
+functionality will be added over time as requirements are determined,
+prioritized and implemented.  
+
+The integral code operates as a single threaded suite and all
+parallelization is achieved at the level of the routines that call the
+API or above.  The API requires a collective initialization phase to
+determine operating parameters for the particular run based on both
+user input and the basis set specification.  The API will select the
+appropriate base integral code for the requested integrals at the time
+of each request.  Once all integral computations have completed for
+the module the termination routines should be called.  Initialization
+and termination can be executed as many times as required.  
+
+\subsection{API Initialization and Termination Routines}
+int\_init, intd\_init, int\_terminate, int\_acc, int\_mem
+
+ 
+\subsection{API Internal Routines}
+int\_chk\_init, int\_chk\_sh, exact\_mem, exactd\_mem, cando\_sp, int\_canon,
+int\_hf1sp
+ 
+\subsection{API include files}
+apiP.fh, apispP.fh, int\_tim.fh, numb\_qP.fh
+
+\subsection{API Standard Integral Routines}
+int\_1cg, int\_1e3ov, int\_1eall, int\_1eh1, int\_1eke, int\_1eov, int\_1epe,
+int\_2e2c, int\_2e3c, int\_2e4c, int\_l1e3ov, int\_l1eall, int\_l1eh1,
+int\_l1eke, int\_l1eov, int\_l1epe, int\_l2e2c, int\_l2e3c, int\_l2e4c,
+int\_lgen1e, int\_mpole, int\_nint, int\_pgen1e, int\_projpole
+
+\subsection{API blocking routines}
+intb\_2e4c, intb\_init4c
+
+\subsection{API Integral Derivative Routines}
+intd\_1eh1, intd\_1eov, intd\_2e2c, intd\_2e3c, intd\_2e4c 
+
+\subsection{API Periodic Integral Routines}
+intp\_* routines include only the specific translations of centers
+required currently by the periodic DFT code.
+
+intp\_txyz 
+
+\subsubsection{intp\_mpole}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{home~cell}{~}X^{a}Y^{b}Z^{c}{~}{\nu}_{any~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1}){~}X^{a}Y^{b}Z^{c}{~}g_{\nu}(X-R,r_{1})dr_{1}
+\]
+
+\begin{center}
+$n$ = $a + b + c$ \hspace{10mm} $n$ = 0 to lmax \\ and all
+combinations ordered as basis functions with L = ``$n$''
+\end{center}
+
+\begin{verbatim}
+ subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
+&    lmax, centerl,
+&    lscr, scr, lmpint, MP, num_mpint)
+ integer i_basis             ! [input] basis set handle for ish
+ integer ish                 ! [input] i shell/contraction
+ integer j_basis             ! [input] basis set handle for jsh
+ integer jsh                 ! [input] j shell/contraction
+c...     translation vectors are in fractional coordinates 
+ double precision R(3)       ! [input] translation vec on j cont.
+ integer lmax                ! [input] maximum lvalue for 
+*..................................... multipole integrals 
+*..................................... in this batch
+ double precision centerl(3) ! [input] coordinates of multipole
+ integer lscr                ! [input] length of scratch array
+ double precision scr(lscr)  ! [input] scratch array
+ integer lmpint              ! [input] length of multipole 
+*..................................... integrals array
+ double precision MP(lmpint) ! [output] multipole integrals
+ integer num_mpint           ! [output] number of multipole integrals
+\end{verbatim}
+
+order of integrals is for each ``n'' block n = 0 to lmax: \\ MP(jlo:jhi, (n+1)*(n+2)/2, ilo:ihi)
+
+Integrals are returned in shell blocks of <ish|L|jsh> L=0 to lmax one
+block for each L value.  For ish = p and Lmax = 1 and jsh = p you
+would get: (3*1*3)+(3*3*3)=36 integrals. The order would be:
+\begin{verbatim}
+<x|x>, <x|y>, <x|z>, <y|x> ... <z|z> (first nine)
+<x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> ... <x|z|z> (2nd nine)
+<y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z> (3rd nine)
+<z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z> (4th nine)
+\end{verbatim}
+
+for ish = p and Lmax = 1 and jsh = d you would get: (3*1*6) + (3*3*6)
+= 18 + 54 = 72 integrals. The order would be:
+\begin{verbatim}
+<x|xx>, <x|xy>, <x|xz>, ... , <x|zz>, <y|xx>, ... <z|zz> (first 18)
+<x|x|xx>, <x|x|xy>, <x|x|xz>, ... , <x|x|zz>, <x|y|xx>, ... <x|z|zz> (second 18)
+<y|x|xx>, <y|x|xy>, <y|x|xz>, ... , <y|x|zz>, <y|y|xx>, ... <y|z|zz> (third 18)
+<z|x|xx>, <z|x|xy>, <z|x|xz>, ... , <z|x|zz>, <z|y|xx>, ... <z|z|zz> (fourth 18)
+\end{verbatim}
+
+\subsubsection{intp\_2e3c}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{any~cell}|{\nu}_{any~cell}\sigma_{home~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X-R_{i},r_{1})\frac{1}{r_{12}}g_{\nu}(X-R_{j},r_{2})g_{\sigma}(X,r_{2})dr_{1}dr_{2}
+\]
+
+\begin{verbatim}
+ subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
+&       lscr, scr, leri, eri)
+ integer brain  ! basis set handle for bra function
+ integer ketin  ! basis set handle for ket function
+ integer ish    ! lexical contraction/shell index
+ integer jsh    ! lexical contraction/shell index
+ integer ksh    ! lexical contraction/shell index
+ integer lscr   ! length of scratch array
+ integer leri   ! length of ERI array
+ double precision scr(lscr) ! scratch array 
+ double precision eri(leri) ! ERI array
+c translation vectors are in fractional coordinates !
+ double precision Ri(3)  ! translation vector for ish center 
+ double precision Rj(3)  ! translation vector for jsh center 
+\end{verbatim}
+
+Order of integrals coming out is eri(klo:khi, jlo:jhi, ilo,ihi)
+
+\subsubsection{intp\_2e2c}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{home~cell}|{\nu}_{any~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})\frac{1}{r_{12}}g_{\nu}(X-R,r_{2})dr_{1}dr_{2}
+\]
+
+\begin{verbatim}
+ subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
+&       lscr, scr, leri, eri)
+ integer brain  ! basis set handle for bra function
+ integer ketin  ! basis set handle for ket function
+ integer ish    ! lexical contraction/shell index
+ integer jsh    ! lexical contraction/shell index
+ integer lscr   ! length of scratch array
+ integer leri   ! length of ERI array
+ double precision scr(lscr) ! scratch array 
+ double precision eri(leri) ! ERI array
+ double precision Rj(3)  ! translation vector for jsh center 
+                         ! (fractional coordinates)
+\end{verbatim}
+
+Order of integrals coming out is eri(jlo:jhi, ilo,ihi)
+
+\subsubsection{intp\_1eov}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{home~cell}{\nu}_{any~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1})dr_{1}
+\]
+
+\begin{verbatim}
+ subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
+ integer i_basis ! basis set handle for ish functions
+ integer j_basis ! basis set handle for jsh functions
+ integer ish     ! lexical contraction/shell index
+ integer jsh     ! lexical contraction/shell index
+ integer lscr    ! length of the scratch array
+ integer lov     ! length of the overlap integral array
+ double precision Ov(lov)   ! overlap integral array
+ double precision scr(lscr) ! scratch array
+ double precision R(3)  ! translational vector fractional coordinates
+\end{verbatim}
+
+Order of integrals coming out is Ov(jlo:jhi, ilo,ihi)
+
+
+\subsubsection{intp\_1epe}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{any~cell}|\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}|{\nu}_{any~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X-R_{i},r_{1})\sum_{\alpha}\frac{-Z_{\alpha}}{|r_{1}-R_{\alpha}|}g_{\nu}(X-R_{j},r_{1})dr_{1}
+\]
+
+\begin{verbatim}
+ subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
+&    lscr,scr,lpe,Pe)
+ integer i_basis ! basis set handle for ish functions
+ integer j_basis ! basis set handle for jsh functions
+ integer ish     ! lexical contraction/shell index
+ integer jsh     ! lexical contraction/shell index
+ integer lscr    ! length of the scratch array
+ integer lpe     ! length of potential energy integral array
+ double precision Pe(lpe)   ! kinetic energy integral array
+ double precision scr(lscr) ! scratch array
+ double precision Ri(3)  ! translation vector for ish center (fractional coordinates)
+ double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
+\end{verbatim}
+
+Order of integrals coming out is Pe(jlo:jhi, ilo,ihi)
+
+\subsubsection{intp\_1eke}
+Routine that computes integrals of the form:
+
+\[
+({\mu}_{home~cell}|\frac{-1}{2}\nabla^{2}|{\nu}_{any~cell}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})\frac{-1}{2}\nabla^{2}(r_{1})g_{\nu}(X-R,r_{1})dr_{1}
+\]
+
+
+\begin{verbatim}
+ subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
+ integer i_basis ! basis set handle for ish functions
+ integer j_basis ! basis set handle for jsh functions
+ integer ish     ! lexical contraction/shell index
+ integer jsh     ! lexical contraction/shell index
+ integer lscr    ! length of the scratch array
+ integer lke     ! length of kinetic energy integral array
+ double precision Ke(lke)   ! kinetic energy integral array
+ double precision scr(lscr) ! scratch array
+ double precision R(3)      ! translational vector in fractional coordinates
+\end{verbatim}
+
+Order of integrals coming out is Ke(jlo:jhi, ilo,ihi)
+

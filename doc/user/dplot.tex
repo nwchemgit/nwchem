@@ -1,0 +1,113 @@
+\label{sec:dplot}
+\begin{verbatim}
+  DPLOT
+    ...
+  END
+\end{verbatim}
+
+This directive is used to obtain the plots of various types of electron
+densities (or orbitals) of the molecule. The electron density is calculated
+on a specified set of grid points using the molecular orbitals
+from SCF or DFT calculation. An input file to the {\em Insight}
+program is then generated. Different sub-directives are described below.
+
+\subsection{Title}
+
+\begin{verbatim}
+  TITLE
+  <string Title default Unknown Title>
+\end{verbatim}
+
+This sub-directive specifies a title line for the generated
+input to the {\em Insight} program. Only one line is allowed.
+
+
+
+\subsection{LimitXYZ}
+
+\begin{verbatim}
+  LIMITXYZ [units <string Units default angstrom>]
+  <real X_From> <real X_To> <integer No_Of_Spacings_X>
+  <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
+  <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>
+\end{verbatim}
+
+This sub-directive specifies the limits of the cell to be plotted.
+The grid is generated using \verb+No_Of_Spacings+~+~\verb+1+ points
+along each direction. The known names for \verb+Units+ are
+\verb+angstrom+, \verb+au+ and \verb+bohr+.
+
+
+
+\subsection{Spin}
+
+\begin{verbatim}
+  SPIN <string Spin default total>
+\end{verbatim}
+
+This sub-directive specifies, what kind of density is to be computed. The 
+known names for \verb+Spin+ are \verb+total+, \verb+alpha+, \verb+beta+
+and \verb+spindens+, the last being computed as the difference between
+$\alpha$ and $\beta$ electron densities.
+
+
+
+\subsection{Output}
+
+\begin{verbatim}
+  OUTPUT <string File_Name default dplot>
+\end{verbatim}
+
+This sub-directive specifies the name of the generated input to the
+{\em Insight} program. The name \verb+OUTPUT+ is reserved for the
+standard NWCHEM output (LuOut).
+
+
+
+\subsection{Vectors}
+
+\begin{verbatim}
+  VECTORS <string File_Name default movecs> [<string File_Name2>]
+\end{verbatim}
+
+This sub-directive specifies the name of the molecular orbital file.
+If the second file is optionally given the density is computed as the
+difference between the corresponding electron densities. The vector 
+files have to match.
+
+
+
+\subsection{Where}
+
+\begin{verbatim}
+  WHERE <string Where default grid>
+\end{verbatim}
+
+This sub-directive specifies where the density is to be computed.
+The known names for \verb+Where+ are \verb+grid+ (the calculation of
+the density is performed on the set of a grid points specified by the
+sub-directive \verb+LimitXYZ+ and the file specified by the sub-directive
+\verb+Output+ is generated), \verb+nuclei+ (the density is computed at
+the position of the nuclei and written to the NWChem output) and
+\verb+g++\verb+n+ (both).
+
+
+
+\subsection{Orbitals}
+
+\begin{verbatim}
+  ORBITALS [<string Option default density>]
+  <integer No_Of_Orbitals>
+  <integer Orb_No_1 Orb_No_2 ...>
+\end{verbatim}
+
+This sub-directive specifies the subset of the orbital space for the
+calculation of the electron density. The density is computed using the
+occupation numbers from the orbital file modified according to the
+\verb+Spin+ directive. If the contours of the orbitals are to be plotted
+\verb+Option+ should be set to \verb+view+. Note, that in this case
+\verb+No_Of_Orbitals+ should be set to \verb+1+ and sub-directive
+\verb+Where+ is automatically set to \verb+grid+. Also specification
+of two orbital files conflicts with the \verb+view+ option.
+$\alpha$ orbitals are always plotted unless \verb+Spin+ is set to
+\verb+beta+.

@@ -1,0 +1,78 @@
+\label{sec:sample}
+\subsection{Water SCF calculation and geometry optimization in a 6-31g basis}
+
+The input file in section \ref{sec:getstart} performs a geometry optimization
+in a single task.  Here we perform a single point SCF energy calculation and then
+restart it to perform the optimization.
+
+\subsection{Job 1.  Single point SCF energy}
+
+\begin{verbatim}
+  start h2o
+  title; Water in 6-31g basis set
+
+  geometry
+    O      0.00000000    0.00000000    0.00000000
+    H      0.00000000    1.43042809   -1.10715266
+    H      0.00000000   -1.43042809   -1.10715266
+  end
+  basis print
+    H library 6-31g
+    O library 6-31g
+  end
+  task scf
+\end{verbatim}
+
+The final energy should be -75.9839975707.
+
+\subsection{Job 2. Restarting and perform a geometry optimization}
+
+\begin{verbatim}
+  restart h2o
+  title; Water geometry optimization
+
+  task optscf
+\end{verbatim}
+
+There is no need to specify anything that has not changed from the
+previous input deck, though it will do no harm to repeat it.  Even the
+new title could be ommited.  The final energy and geometry should be
+$-75.9853591759$, O $(0,0,0.1563305320)$, and H $(0, \pm1.48372809,
+-0.853122128)$.
+
+\subsection{Compute the polarizability of Ne using finite field}
+
+\subsection{Job 1. Compute the atomic energy}
+
+\begin{verbatim}
+  start ne
+  title; Neon
+  geometry; ne 0 0 0; end
+  basis;  ne library aug-cc-pvdz; end
+  task scf
+\end{verbatim}
+
+The final energy should be (Cartesian d functions) -128.4971342283.
+
+\subsection{Job 2. Compute the energy with applied field}
+
+An external field may be simulated with point charges.  The charges
+here apply a field of magnitude 0.01\ atomic units to the atom at the
+origin.  Since the basis functions have not been reordered by the
+additional centers we can also restart from the previous vectors,
+which is the default for a restart job.
+
+\begin{verbatim}
+  restart ne
+  title; Neon in electric field
+  geometry
+    bq1 0 0 100 charge 50
+    ne  0 0 0
+    bq2 0 0 -100 charge -50
+  end
+  task scf
+\end{verbatim}
+
+The final energy should be -140.9972261908, which together with the
+previous field-free result yields an estimate for the polarizability
+of 1.84 atomic units.

@@ -1,0 +1,89 @@
+\documentstyle[fullpage,12pt]{article}
+\setlength{\parskip}{6pt}
+
+% Set the version and year of release globally
+\newcommand{\nwchemversion}{1.3}
+\newcommand{\nwchemyear}{1996}
+
+\begin{document}
+
+\title{\bf\Large NWChem User Documentation, Alpha Release \nwchemversion}
+\author{High Performance Computational Chemistry Group}
+\date{\today}
+\maketitle
+
+\section*{\center DISCLAIMER}
+\input{disclaimer}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+\section{Introduction}
+\input{intro.tex}
+
+\section{Top-level directives}
+\input{top-level}
+
+\section{Geometries}
+\input{geometry}
+
+\section{Basis sets}
+\input{basis}
+
+\section{Hartree-Fock or Self-consistent Field} 
+\input{scf}
+
+\section{Hartree-Fock or SCF gradients}
+\input{scfgrad}
+
+\section{RI-MP2}
+\input{mp2}
+
+\section{Four-Index Transformation} 
+\input{fourindex}
+
+\section{Geometry Optimization --- STEPPER}
+\input{stepper}
+
+\section{DFT}
+\input{dft.tex}
+
+\section{vibrational frequencies, VIB (fragile module)}
+\input{vib}
+
+\section{PLANE-WAVE}
+\input{plnwv.tex}
+
+\section{MCSCF}
+\input{mcscf.tex}
+
+\section{Selected CI}
+\input{selci.tex}
+
+\section{DPLOT}
+\input{dplot.tex}
+
+\section{PROPERTY}
+\input{property.tex}
+
+\section{Sample input files}
+\input{sample}
+
+\section{NWChem execution}  
+\input{execution}
+
+\section{Acknowledgments}
+\input{ack}
+
+\appendix
+
+\section{Standard Basis Sets}
+\input{knownbas}
+
+\section{Examples of geometries using symmetry}
+\input{symex}
+
+\end{document}

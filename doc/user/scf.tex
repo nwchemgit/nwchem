@@ -1,0 +1,505 @@
+label{SCF}
+
+\begin{verbatim}
+  SCF
+    ...
+  END
+\end{verbatim}
+
+This compound directive controls the SCF program.  Closed shell RHF,
+ROHF, and UHF are currently working.  The various optional
+sub-directives are described below.
+
+\subsection{Type of SCF wavefunction and specification of multiplicity
+and open shells}
+
+\begin{verbatim}
+  SINGLET 
+  DOUBLET 
+  TRIPLET 
+  QUARTET 
+  QUINTET 
+  NOPEN <integer nopen default 0>
+  RHF
+  ROHF
+  UHF
+\end{verbatim}
+
+By default, the SCF module assumes that a spin-restricted,
+closed-shell SCF (RHF) calculation is to be run, and an error results
+if the number of electrons (inferred from the nuclear-charges and
+total charge on the system) is inconsistent with this.  If any of the
+keywords specifying the multiplicity are given then a spin-restricted,
+high-spin, open-shell SCF (ROHF) calculation is run.  The open-shell
+orbitals must be the highest occupied orbitals, which, if necessary,
+may be arranged through the use of the \verb+SWAP+ keyword on the
+\verb+VECTORS+ directive (see section \ref{sec:vectors}). If there are
+more than four open shells then \verb+NOPEN+ may be used to specify
+directly the number of open shells.  If in addition it is desired to
+run a spin-unrestricted calculation (UHF) then the keyword \verb+UHF+
+must be present.  The keywords \verb+RHF+ and \verb+ROHF+ exist for
+convenience, but never need to be specified.  In UHF calculations it is
+assumed that the number of open shells corresponds to the difference
+between the number of alpha-spin and beta-spin orbitals.
+
+Examples:
+\begin{itemize}
+\item No input runs a spin-restricted closed-shell singlet.
+\item \verb+doublet+ runs a ROHF calculation with one open shell.
+\item \verb+triplet; uhf+ runs a UHF calculation with 2 more
+  alpha-spin orbitals than beta-spin.
+\end{itemize}
+
+Note that by default molecular orbitals are symmetry adapted.  This
+may not be desirable for UHF wavefunctions, in which case specify the
+\verb+NOADAPT+ keword (section \ref{sec:noadapt}).
+
+\subsection{NOSYM}
+\label{sec:nosym}
+
+\begin{verbatim}
+  NOSYM
+\end{verbatim}
+
+If present, this keyword disables use of symmetry to speedup Fock
+matrix construction (via the petite or skeleton algorithm) in the SCF
+even if symmetry was used in the specification of the geometry.
+Symmetry adaption of the molecular orbitals is still performed.
+
+\subsection{NOADAPT}
+\label{sec:noadapt}
+
+\begin{verbatim}
+ NOADAPT
+\end{verbatim}
+
+This keyword disables symmetry adaption of the molecular orbitals.
+This does not impact the speed of the calculation but the resulting
+orbitals may be symmetry contaminated, especially if starting a
+calculation from orbitals from a distorted geometry.
+
+\subsection{TOL2E}
+
+\begin{verbatim}
+  TOL2E <real tol2e default 1.0e-7>
+\end{verbatim}
+
+This is used in determining the integral screening threshold for the
+evaluation of the energy and related Fock-like matrices.  The Schwarz
+inequality is used to screen upon the product of integrals and density
+matrices in a manner that results in approximately an accuracy of
+\verb+TOL2E+ in the energy and Fock-matrices.  This differs from many
+codes where the error in the energy is typically much greater than
+this threshold.  The default threshold is suitable for most purposes.
+A value of $10^{-5}$ can speed up some low-accuracy exploratory
+calculations, where as a tighter threshold of $10^-9$ might be
+necessary to explore reliably very weak, micro-Hartree or below,
+interactions.
+
+\subsection{LAGRANG}
+
+\begin{verbatim}
+  LAGRANG
+\end{verbatim}
+
+This keyword generates and dumps the orbital Lagrangian to
+disk. Lagrangian is required by ROHF gradients.
+
+
+\subsection{CHUNK}
+
+\begin{verbatim}
+  CHUNK <integer chunk default -1>
+\end{verbatim}
+
+This directive controls the `chunk-size' or granularity of the
+parallel work decomposition.  It might be necessary to use a smaller
+or larger value to obtain a more efficient execution on a large
+parallel computer, or a computer with very high communication costs.
+Users unfamiliar with the internal function of the program should seek
+advice before changing this parameter.
+
+\subsection{VECTORS}
+\label{sec:vectors}
+
+\begin{verbatim}
+  VECTORS [[input] (<string input_movecs default atomic>) || \
+                   (project <string basisname> <string filename>)] \
+          [swap [alpha|beta] <integer vec1 vec2> ...] \
+          [output <string output_movecs default movecs>] \
+          [lock]
+\end{verbatim}
+
+The \verb+VECTORS+ directive controls the source and destination of
+the molecular orbital vectors.  In a startup calculation the default
+source for guess vectors is to diagonalize a Fock matrix constructed
+from a superposition of the atomic density matrices.  This is usually
+a very good guess.  Other possible sources for orbitals are from
+diagonalization of the bare-nucleus or one-electron Hamiltonian
+(\verb+HCORE+), projection from molecular orbitals in a smaller basis
+(\verb+PROJECT+), or from a named file that contains the results of a
+previous calculation.
+
+If the input vectors are read from a file then the output orbitals are
+by default sent to the same file.  If the \verb+ATOMIC+, \verb+HCORE+,
+or \verb+PROJECT+, guesses are used then the default destination for
+vectors is a file named \verb+"<file_prefix>.movecs"+.  When a
+calculation completes normally (i.e., is not interrupted or does not
+crash) then, independent of convergence, the database is automatically
+modified so that if the job is restarted the default source of vectors
+will be the results of the previous calculation.
+
+Once starting vectors have been produced from any of the possible
+options they may be reordered through use of the \verb+SWAP+ keyword
+which takes as its argument a list of pairs that will be swapped.
+For UHF calculations separate \verb+SWAP+ keywords must be provided
+for the alpha and beta orbitals as necessary.
+
+The \verb+LOCK+ directive locks the ordering orbitals to that of the
+initial vectors, as far as possible. The default is to order by
+ascending orbital energies within each orbital space. The \verb+LOCK+
+directive is useful, for example, to force the MCSCF to preserve the
+ROHF ordering despite flipping of orbital energies.
+
+To re-cap, the default options suffice to provide a good starting
+guess for most instances as well as to route vectors to a file
+(\verb+"movecs"+) from which they are automatically used for restart.
+Note that the SCF orbitals are {\em always} canonicalized on output.
+Examples follow.
+
+To use the default sources for vectors and route result vectors
+to a different file
+\begin{verbatim}
+  vectors output h2o.movecs
+\end{verbatim}
+
+To load the vectors from one file and route result vectors to a
+second file
+\begin{verbatim}
+  vectors input initial.movecs output final.movecs
+\end{verbatim}
+
+To restart from vectors in the file \verb+"small.movecs"+ which are in
+a basis named \verb+"small basis"+ (NB: the definition of this basis
+must be available in the current database and the basis must be
+smaller than the current one.  Also, the geometry used for the
+previous calculations must have the atoms in the same order and in the
+same orientation as the current geometry).  The keyword \verb+INPUT+
+is not necessary but is provided for clarity.  Output vectors are
+routed to the file \verb+"big.movecs"+.
+\begin{verbatim}
+  vectors input project "small basis" small.movecs
+\end{verbatim}
+
+To read orbitals from the file \verb+"try1.movecs"+, swap the orbitals
+within the pairs 173--175 and 174--176, and write final orbitals to
+the file \verb+"try2.movecs"+.
+\begin{verbatim}
+  vectors input try1.movecs swap 173 175 174 176 output try2.movecs
+\end{verbatim}
+
+In a UHF calculation, swap the 5--6 alpha orbital pair and the 4--5
+beta orbital pair.
+\begin{verbatim}
+  vectors swap beta 4 5 swap alpha 5 6
+\end{verbatim}
+
+
+\subsection{THRESH}
+
+\begin{verbatim}
+  THRESH  <real thresh default 1.0e-5>
+\end{verbatim}
+
+The convergence threshold is the norm of the orbital gradient which is
+also roughly the precision available in the wavefunction.  The energy
+should be converged to roughly the square of this number.  Of course,
+the precision in the energy is also limited by the integral selection
+thresholds, etc. 
+
+\subsection{MAXITER}
+
+\begin{verbatim}
+   MAXITER <integer maxiter default 8>
+\end{verbatim}
+
+The default maximum number of iterations is eight.  This is adequate for
+the quadratically convergent SCF algorithm to converge most molecules
+to the default threshold.
+
+\subsection{RI}
+
+\begin{verbatim}
+   RI <hessian | preconverge> <disk | memory>
+\end{verbatim}
+
+This directive requests the RI approximation being used for the Fock matrix.
+The RI-SCF method is especially suggested for small molecules with
+expensive basis sets.
+
+Without an additional keyword it is used for every Fock build. \verb+Hessian+
+means only the hessian is calculated with an approximated Fock matrix, and
+\verb+preconverge+ requests an ''exact'' direct SCF (with RI hessian, which
+shouldn't change the result) after convergence of the
+RI approximated calculation.
+
+\verb+Disk+ indicates storage of 3-center integrals on disk. This only
+works where the ''disk array'' library is implemented. Default is
+\verb+memory+, requesting in-core storage of the integrals. This
+significantly reduces the maximum problem size that can be handled.
+
+An expansion basis named ''riscf basis'' has to be present in the input deck.
+
+\subsection{PROFILE}
+
+\begin{verbatim}
+  PROFILE
+\end{verbatim}
+
+If present, this directive enables a detailed analysis of the
+performance of the SCF code.  This can introduce significant
+overhead on machines which have expensive timing routines
+(e.g., SUN).
+
+\subsection{DIIS}
+\begin{verbatim}
+  DIIS
+\end{verbatim}
+
+This directive toggles on the DIIS convergence as opposed to the
+second-order convergence. This is a fairly rudimentary implementation
+without level-shifting and damping and, currently, does not support
+open-shells. This is provided as a last resort option for cases where
+the second-order scheme fails. Use the \verb+MAXITER+ directive to
+increase the macroiteration count to approximately 20.
+
+\subsection{DIISBAS}
+\begin{verbatim}
+  DIISBAS <integer diisbas default 5>
+\end{verbatim}
+
+This controls the size of the subspace for DIIS extrapolation.
+The default should be adequate in most instances but it may be reduced
+to conserve memory for large systems or increased for problematic
+convergence.
+
+\subsection{Control of direct, semi-direct and disk-resident SCF}
+
+By default all two-electron integrals are recomputed each iteration.
+It is also possible to compute integrals once and store them either in
+memory or on disk by specifying the amount of memory and disk to be
+devoted to this purpose.  It is intended that the program store
+integrals until the available memory/disk is filled up, and
+recompute any additional integrals.  This work is in progress and
+currently the code can do either fully direct calculations or
+fully memory/file cached calculations.  To enable caching of integrals
+several variables must be set in the database using the following
+directives
+\begin{verbatim}
+  set int2e:memsize integer <integer memsize default 0>
+  set int2e:filesize integer <integer filesize default 0>
+  set int2e:filename integer \
+    <string filename default $file_prefix$.aoints>
+\end{verbatim}
+
+In this {\em interim} code state, it suffices to provide some
+examples.
+\begin{enumerate}
+\item To run a direct SCF with no caching of integrals either in
+  memory or on disk --- this is the default.
+\item To run a conventional SCF with all integrals stored on disk
+  specify any non-zero filesize, e.g.
+\begin{verbatim}
+  set int2e:filesize integer 1
+\end{verbatim}
+  Eventually, the filesize will be used by the semi-direct code to
+  specify the maximum number of integrals to be stored on disk, which
+  is the same as the maximum filesize in 64 bit words.
+\item To cache some integrals in memory with {\em all} additional
+  integrals stored on disk specify the amount of memory (in 64 bit
+  words) to be devoted to this purpose, e.g. to cache one million
+  integrals 
+\begin{verbatim}
+  set int2e:memsize integer 1000000
+\end{verbatim}
+\item If storing integrals on disk, each process will open a file which
+  by default is named by appending to the file prefix (see
+  \ref{sec:start}) the string \verb+".aoints."+ followed by the
+  process number (padded on the left with sufficient zeroes so that
+  all numbers are of the same width and the highest numbered process
+  has no leading zeroes).  For instance, the default names for an 11
+  process calcuation on water would be \verb+"h2o.aoints.00"+,
+  \verb+"h2o.aoints.01"+, \ldots, \verb+"h2o.aoints.10"+.  These names
+  can be changed.  For instance, the input
+\begin{verbatim}
+  set int2e:filename /tmp/fred/ints
+\end{verbatim}
+  would result in files named \verb+"/tmp/fred/ints.00"+, \ldots,
+  \verb+"/tmp/fred/ints.10"+.  This is particularly useful on the IBM
+  SP and workstation clusters which have large and fast local disks
+  with uniform names.  On machines with non-uniform file naming
+  conventions (e.g., the KSR) there are scripts which will generate
+  the necessary links to make things appear uniform.  Contact
+  \verb+nwchem-support@emsl.pnl.gov+ for more information.
+\end{enumerate}
+
+\subsection{Options controlling convergence}
+\label{sec:scfconv}
+
+{\em Please communicate to Robert Harrison all molecules for which you
+  find you have to modify the default convergence parameters --- if we
+  do not know about problems we cannot fix them.  Presently, there are
+  no molecules that do not converge, given sufficient iterations, with
+  the default options.}
+
+An understanding of the output of the SCF program and the options
+controlling convergence requires some knowledge of the convergence
+scheme.
+
+A preconditioned conjugate gradient (PCG) method is used which has
+guaranteed convergence.  Basically, the orbital gradient (the
+derivative of the energy w.r.t. orbital rotations) is multiplied by a
+level-shifted approximation to the inverse of the orbital Hessian to
+form a search direction.  In the initial iterations (see section
+\ref{sec:nrswitch}) an inexpensive one-electron approximation to the
+inverse orbital Hessian is used.  Closer to convergence, the full
+orbital Hessian is used, which should provide quadratic convergence.
+For both the full or one-electron orbital Hessians, the
+inverse-Hessian matrix-vector product is formed iteratively.
+Subsequently, an approximate line search is performed along the new
+search direction.  If the exact Hessian is being employed then the
+line search should require a single step (of unity).  Preconditioning
+with approximate Hessians may require additional steps, especially in
+the initial iterations.  It is the line search that provides the
+convergence guarantee.  The iterations required to solve the linear
+equations are referred to as micro-iterations.  A macro-iteration
+comprises both the iterative solution and a line search.
+
+  Level-shifting plays {\em exactly} the same role in this algorithm
+as it does in the conventional iterative solution of the SCF
+equations.  The approximate Hessian used for preconditioning should be
+positive definite.  If this is not the case, then level-shifting by a
+positive constant ($\Delta$) serves to make the preconditioning matrix
+positive definite by adding $\Delta$ onto all of its eigenvalues.  The
+level-shifts employed for the orbital Hessian should be approximately
+four times the value that one would employ in a conventional
+SCF\footnote{This can be seen by considering a one-electron
+approximation to the closed-shell RHF Hessian in canonical orbitals,
+$A_{ia,jb} = 4 \delta_{ij} \delta_{ab} (\epsilon_a - \epsilon_i)$.}.
+Level-shifting is automatically enabled in the early iterations and
+the default options suffice for most test cases.
+
+  So why do things go wrong and what can you do to fix convergence
+problems?  Most problems encountered so far arise from small or
+negative eigenvalues of the orbital Hessian which can occur even
+though you seem to be close to convergence (as measured by the
+gradient norm, or off diagonal Fock matrix elements).  Small
+eigenvalues will cause the iterative linear equation solver to
+converge slowly, causing an excessive number of micro-iterations.
+This makes the SCF expensive, and you may even exceed the maximum
+number of iterations without achieving the accuracy required for
+quadratic convergence which causes more macro-iterations to be
+performed.  A negative eigenvalue in the Hessian will usually also
+cause slow convergence of the micro-iterations (since negative
+eigenvalues are usually small) and also cause components of the
+line-search direction to point uphill, which again slows convergence
+of the macro-iterations and causes more steps to be taken in the line
+search.
+
+  Two solutions are relevant. If you suspect a negative eigenvalue,
+the first course is to disable the Newton-Raphson until closer to
+convergence (see section \ref{sec:nrswitch}), or even to disable it
+completely.  At some point close to convergence the Hessian will be
+positive definite.  If you disable the Newton-Raphson you should
+obtain approximately the same convergence rate as DIIS.  
+
+The second option is to apply also a small level-shift (see section
+\ref{sec:level}).  This should improve the convergence rate of the
+micro-iterations and stabilize the macro-iterations.  Note that
+level-shifting will destroy exact quadratic convergence and that the
+optimization process is automatically adjusted to reflect this by
+enforcing conjugacy and reducing the accuracy to which the linear
+equations are solved.  The net result of this is that you do more
+macro iterations, each of which should be cheaper.
+
+\subsection{NR}
+\label{sec:nrswitch}
+
+\begin{verbatim}
+    NR <real nr_switch default 0.1>
+\end{verbatim}
+
+The exact orbital Hessian is adopted as the preconditioner
+when the maximum element is below the value of \verb+nr_switch+.  The
+use of the exact Hessian can be disabled by setting this number to
+zero, e.g.,
+\begin{verbatim}
+  nr 0
+\end{verbatim}
+
+\subsection{LEVEL}
+\label{sec:level}
+
+\begin{verbatim}
+   LEVEL [pcg <real initial default 20.0> \
+           [<real tol default 0.5> <real final default 0.0>]] \
+         [nr <real initial default 0.0> \
+           [<rel tol default 0.0> <real final default 0.0>]]
+\end{verbatim}
+
+Section \ref{sec:scfconv} discussed the use of level shifts to control
+convergence.  Level shifts may be set independently for both the
+approximate (denoted here by PCG) and exact Hessians (denoted by
+NR).  You can also have the level shift automatically changed when a
+certain accuracy is attained.  The default options correspond to 
+shifting the approximate Hessian by 10 until the maximum element of
+the gradient falls below 0.5, at which point the shift is set to zero.
+The exact Hessian is usually not shifted.
+
+The default options correspond to
+\begin{verbatim}
+  level pcg 20 0.5 0 nr 0 0 0
+\end{verbatim}
+The following applies a shift of 0.2 to the exact Hessian
+for the duration of the calculation:
+\begin{verbatim}
+  level nr 0.2
+\end{verbatim}
+To reduce this shift to zero when the maximum element of the gradient
+falls below 0.005:
+\begin{verbatim}
+  level nr 0.2 0.005 0
+\end{verbatim}
+
+
+\subsection{PRINT}
+
+All output from the SCF module is under print control.  In addition to
+the standard print control keywords (section \ref{sec:printcontrol}) here
+is a list of the items currently under direct print control, along
+with their print levels.
+
+\begin{tabbing}
+  Very\_long\_descriptive\_name \= Print level space \= \kill
+  Name                   \> Print Level \> Description \\
+                         \>        \> \\
+  'atomic guess density' \> debug  \> guess density matrix \\
+  'atomic scf'           \> debug  \> details of atomic SCF \\
+  'mo guess'             \> default\> brief info from mo guess \\
+  'information'          \> low    \> results  \\
+  'initial vectors'      \> debug  \> \\
+  'intermediate vectors' \> debug  \> \\
+  'final vectors'        \> debug  \> \\
+  'intermediate evals'   \> debug  \> \\
+  'final evals'          \> default\> \\
+  'schwarz'              \> high   \> integral screening info \&
+  stats at completion\\
+  'screening statistics' \> debug  \> display stats after every Fock build \\
+ 'geometry'             \> high   \> \\
+  'symmetry'             \> debug  \> detailed symmetry info \\
+  'basis'                \> high   \> \\
+  'geombas'              \> debug  \> detailed basis map info \\
+  'vectors i/o'          \> default\> report vectors I/O \\
+  'parameters'           \> default\> convergence parameters \\
+  'convergence'          \> default\> info each iteration
+\end{tabbing}

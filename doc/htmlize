@@ -3,12 +3,20 @@
 # Script to automate updating of web pages for the
 # user and programmers manuals.
 
-set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
+if ($#argv != 1) then
+  echo usage: htmlize document 
+  echo        where document.tex is the main file
+  exit 1
+endif
 
-cd $NWCHEM_TOP/doc
+
+set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
 set TMP=tmp.$$
 
-foreach document (user prog)
+# works also with a list of files here but not currently
+# used in this fashion
+
+foreach document ($1)
 
   echo HTMLizing $document.tex
 
@@ -16,7 +24,7 @@ foreach document (user prog)
 
   echo "   Cleaning and making $document.ps"
 
-  make clean 
+  make clean >& /dev/null
   make $document.ps >& $document.latex.log
 
   if ($status != 0) then
@@ -79,7 +87,7 @@ foreach document (user prog)
 
   echo "   Munging backgrounds and http paths"
 
-  pushd $document
+  pushd $document > /dev/null
 
   foreach file (*.html)
     if ($document == "prog") then
@@ -98,7 +106,7 @@ foreach document (user prog)
     /bin/mv $TMP $file
   end
 
-  popd
+  popd > /dev/null
 
 # Copy the postscript and compressed postscript files down
 
@@ -122,6 +130,8 @@ foreach document (user prog)
   if (! -e $WWWDIR) then
     echo Making $WWWDIR
     /bin/mkdir -p $WWWDIR
+  else
+    /bin/rm -rf $WWWDIR/$document
   endif
 
   echo "   Copying $document into $WWWDIR"
@@ -137,8 +147,8 @@ foreach document (user prog)
 
   echo "   Done with $document"
  
-  /bin/rm -f $TMP
-  
+  /bin/rm -f $TMP $document
+
 end
 
 echo " "

@@ -1,0 +1,126 @@
+\begin{verbatim}
+  BASIS [<string name default "ao basis">] \
+        [spherical||cartesian] \
+        [segment||nosegment] \
+        [print]
+
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard set> [file <filename>]
+
+         or
+
+     <string tag> <string shell_type>
+        <real exponent> <real list_of_coefficients>
+        ...
+     
+  END
+\end{verbatim}    
+
+This directive describes a basis set of generally contracted Cartesian
+Gaussian functions.  By default basis sets are automatically segmented
+and cartesian\footnote{This will change when the derivative integral
+  code is extended to handle general contractions and sphericals. Only
+  the energy codes can presently handle these.} even if general
+contractions are input.  Basis functions are associated with centers
+in geometries through the tags or names of centers which must match
+exactly (including case) and are limited to sixteen (16) characters.
+Each center with the same tag will have the same basis set.  By
+default the input module prints each basis set encountered; use the
+\verb+NOPRINT+ option to disable printing.
+
+In the same fashion as for geometries, basis sets are named, with the
+default name being \verb+"ao basis"+.  It should be clear from the
+above discussion on geometries and database entries how indirection is
+supported.
+
+Basis functions may be either drawn from a standard set in the EMSL
+basis set library or specified explicitly.  See Appendix
+\ref{knownbasis} for the current list of standard basis sets. An
+installation default is provided for the path to the basis set
+library, which may be overridden in the input.  The case of names of
+standard basis sets is ignored.  By default the standard basis
+appropriate to the atom on which it is centered is used, however this
+may be overriden, for instance to place ghost functions on dummy
+centers in counterpoise calculations.  When explicitly specifying
+generally contracted basis sets, simply specify on each line the
+exponent followed by the contraction coefficients for each contraction
+of that exponent.  The following examples will make the use of this
+directive clear.
+
+This directive uses Thom Dunning's cc-pvdz basis for oxygen and
+hydrogen and augments it with a diffuse {\em s} on oxygen.
+The default name of \verb+"ao basis"+ is used and it will be printed.
+\begin{verbatim}
+  basis
+    oxygen library cc-pvdz
+    hydrogen library cc-pvdz
+    oxygen s
+      0.01 1.0
+  end
+\end{verbatim}
+
+The following directive specifies exactly the same basis set as the
+previous directive except that all basis functions are explicitly
+described (all input is free format --- the formatting here is just
+for readability).
+\begin{verbatim}
+  basis
+    oxygen s
+      11720.0000    0.000710  -0.000160
+       1759.0000    0.005470  -0.001263
+        400.8000    0.027837  -0.006267
+        113.7000    0.104800  -0.025716
+         37.0300    0.283062  -0.070924
+         13.2700    0.448719  -0.165411
+          5.0250    0.270952  -0.116955
+          1.0130    0.015458   0.557368
+          0.3023   -0.002585   0.572759
+    oxygen s                
+          0.3023    1.000000
+    oxygen p                
+         17.7000    0.043018
+          3.8540    0.228913
+          1.0460    0.508728
+          0.2753    0.460531
+    oxygen p                
+          0.2753    1.000000
+    oxygen d
+          1.1850    1.000000
+    hydrogen s
+         13.0100    0.019685
+          1.9620    0.137977
+          0.4446    0.478148
+          0.1220    0.501240
+    hydrogen s  
+          0.1220    1.000000
+    hydrogen p  
+          0.7270    1.000000
+    oxygen s
+          0.01      1.0
+  end
+\end{verbatim}
+Note that the correlation-consistent basis sets were designed using
+spherical harmonics and to use these the \verb+SPHERICAL+ keyword must
+be present on the \verb+BASIS+ directive.
+    
+This example uses a 3-21g basis set for centers \verb+o+ and \verb+si+
+and explicitly specifies the path to the basis set library (perhaps
+because you cannot find the copy installed with NWChem).
+\begin{verbatim}
+  basis
+    o  library 3-21g file /usr/d3g681/nwchem/library
+    si library 3-21g file /usr/d3g681/nwchem/library
+  end
+\end{verbatim}
+
+In order to perform counterpoise corrections in standard basis sets it
+is necessary to specify the atom type.  The following input specifies a
+cc-pvdz basis for a calculation on the water monomer in the dimer basis.
+\begin{verbatim}
+  basis
+    o   library cc-pvdz
+    h   library cc-pvdz
+    bqo library o cc-pvdz
+    bqh library h cc-pvdz
+  end
+\end{verbatim}

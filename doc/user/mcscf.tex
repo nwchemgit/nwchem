@@ -1,0 +1,162 @@
+\label{sec:mcscf}
+\begin{verbatim}
+  mcscf
+    ...
+  end
+\end{verbatim}
+
+This compound directive provides input for the MCSCF module.
+Currently, only Complete Active Space SCF (CASSCF) wavefunctions are
+supported. The MCSCF module should ideally be invoked from a previously
+converged RHF/ROHF SCF calculation using \verb+RESTART+
+directive. The following input options have the same meaning
+and syntax as with the SCF directive (\ref{SCF}); \verb+maxiter+,
+\verb+thresh+, \verb+tol2e+ and \verb+vectors+.  These options default to
+their corresponding SCF values if available, otherwise the SCF defaults
+listed in section \ref{SCF} are used. The converged MCSCF molecular
+orbitals and ``orbital energies'' are stored in ``canonical''
+representation with the \verb+vectors output+ option.
+
+The following three directives; \verb+active+, \verb+actelec+ and
+\verb+multiplicity+ are mandatory and together with the charge specify
+the CASSCF wavefunction. The inactive and secondary orbitals are
+determined by reconciling the number of electrons and basis
+functions. Currently, there is no facility to designate frozen core or
+virtual orbitals. Although symmetry is used in various components, the
+MCSCF solution is not symmetry blocked and symmetry-forbidden
+rotations are quietly screened.
+
+The CI submodule is determinant-based consequently L\"owdin spin
+projection is used for low-spin states. Moreover, the CI vector is
+not symmetry blocked but the correct state irreducible representation
+is maintained by symmetry projection.
+
+\subsection{Inactive}
+\begin{verbatim}
+  inactive <integer inactive>
+\end{verbatim}
+Specifies the lowest \verb+inactive+ orbitals as inactive.
+
+\subsection{Active}
+\begin{verbatim}
+  active <integer active>
+\end{verbatim}
+Designate the next \verb+active+ orbitals after the \verb+inactive+
+orbitals as active. 
+
+\subsection{Active Electrons}
+\begin{verbatim}
+  actelec <integer actelec>
+\end{verbatim}
+Sets the number of electrons, $N_{a}$, in the active space.
+
+\subsection{Multiplicity}
+\begin{verbatim}
+  multiplicity <integer multiplicity>
+\end{verbatim}
+Sets the spin multiplicity of the wavefunction, $(2S + 1)$. The number
+of active alpha and beta electrons is determined by using $M_{s} =
+(n_{\alpha} - n_{\beta})/2 = S$ and $N_{a} = n_{\alpha} + n_{\beta}$.
+
+\subsection{Symmetry}
+\begin{verbatim}
+  symmetry <integer state_irrep default 1>
+\end{verbatim}
+Sets the desired state symmetry.
+
+\subsection{Level Shift}
+\begin{verbatim}
+  level <real levelshift default 0.1>
+\end{verbatim}
+Specifies the initial level shift applied the orbital Hessian. Note
+this also defaults to the SCF level shift if present. The level shift
+remains constant at each macroiteration until the gradient norm is
+less than $10^{-2}$~au whereupon it is rapidly reduced to zero.
+
+\subsection{Profile}
+\begin{verbatim}
+  profile <string options>
+\end{verbatim}
+The directive by itself enables general profiling of MCSCF components
+including orbital solution, CI solution and transformation. Additional
+options; \verb+fock+ and \verb+ci+ enable more detailed profiling of
+these components
+
+\subsection{Hessian Type}
+\begin{verbatim}
+  hessian <string type default ``exact'' >
+\end{verbatim}
+This directive selects the type of orbital Hessian used in the
+Newton-Raphson orbital solution. Possible choices are \verb+onel+ and
+\verb+exact+. The \verb+onel+ option uses only Fock operators to
+approximate the Hessian with first-order convergence. The \verb+exact+
+option selects the exact Hessian which involves a Fock matrix
+construction each microiteration. 
+
+\begin{table}
+\caption{MCSCF variables}
+\label{MCSCF_variables}
+\vspace{.2in}
+\begin{tabular}{lrrl}
+\hline\hline
+Variable                        & Type     & Default          & Synopsis \\
+\hline
+\verb+mcscf:e2approx+           & logical  &  TRUE            & Use E2(T) extrapolation \\
+\verb+mcscf:microci+            & logical  &  TRUE            & CI relaxed within line search \\
+\verb+mcscf:conjugacy+          & logical  &  TRUE            & Conjugacy used \\
+\verb+mcscf:cgreset+            & integer  &  -1              & Interval between conjugacy resets \\
+\verb+mcscf:canonical+          & logical  &  TRUE            & Generate and save canonical orbitals \\
+\verb+mcscf:movecs lock+        & logical  &  FALSE           & Lock MO ordering to previously saved \\
+\verb+mcscf:citol+              & real     &  1.d-8           & CI convergence tolerance \\
+\verb+mcscf:line_search_tol+    & real     &  0.1             & Line search tolerance  \\
+\verb+mcscf:ciiterlo+           & integer  &  1               & Macro CI relax low end \\
+\verb+mcscf:ciiterhi+           & integer  &  \verb+maxiter+  & Macro CI relax high end \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+\subsection{Variables and Print Control}
+Greater control of the MCSCF module is provided by several variables
+listed in the table~(\ref{MCSCF_variables}). In most instances, the
+defaults should suffice. For some exceptional cases, these variables can
+be modified using the \verb+SET+ syntax (see \ref{sec:set}).
+
+The variables, \verb+ciiterlo+ and \verb+ciiterhi+, specify the
+macroiteration range where the CI wavefunction is optimized. By
+default, CI wavefunction optimization is performed at every
+macroiteration. Furthermore, unless \verb+ciiterlo+ is set to zero,
+the very first CI optimization is {\em always} performed in order to
+generate an initial density. While setting \verb+ciiterlo+ to zero
+forces an high-spin ROHF calculation. A possible convergence strategy
+is to set the \verb+ciiterlo+ to about 5 to ensure a tight
+optimization of the inactive orbitals.
+
+Output items can selectively enabled or disabled using the
+\verb+print+ control mechanism~(\ref{sec:printcontrol}) with the
+available print options listed in table(\ref{MCSCF_print_options}).
+
+
+
+\begin{table}
+\caption{MCSCF Print Options}
+\label{MCSCF_print_options}
+\vspace{.2in}
+\begin{tabular}{lrl}
+\hline\hline
+Option                          & Class    &  Synopsis \\
+\hline
+\verb+ci energy+                & default  &  CI energy eigenvalue \\
+\verb+fock energy+              & default  &  Energy derived from Fock matrices \\
+\verb+gradient norm+            & default  &  Gradient norm \\
+\verb+movecs+                   & default  &  Converged occupied MO vectors \\
+\verb+trace energy+             & high     &  Trace Energy \\
+\verb+converge info+            & high     &  Convergence data and monitoring \\
+\verb+precondition+             & high     &  Orbital preconditioner iterations \\
+\verb+microci+                  & high     &  CI iterations in line search \\
+\verb+canonical+                & high     &  Canonicalization infomation \\
+\verb+new movecs+               & debug    &  MO vectors at each macroiteration \\
+\verb+ci guess+                 & debug    &  Initial guess CI vector \\
+\verb+density matrix+           & debug    &  One- and Two-particle density matrices \\
+\hline\hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,330 @@
+
+NWChem is quantum chemistry package that is under development and is
+designed to run on high-performance parallel supercomputers as well as
+workstation clusters.  It aims to be scalable both in the ability to
+treat large problems efficiently, and in its usage of available
+parallel computing resources.  The suite utilizes parallel programming
+tools (TCGMSG and the Global Array library) developed by PNNL staff
+with funding from both the High Performance Computing and
+Communication Initiative (HPCCI) grand-challenge software program and
+the Environmental Molecular Sciences Laboratory (EMSL) Project, which
+has supplied the majority of the development costs.
+
+NWChem has been optimized to perform calculations on large molecules
+using large parallel computers and it is unique in this regard.  In
+contrast, NWChem's performance on small calculations running on
+small computers is unremarkable.
+
+\subsection{Citation}
+
+The EMSL Software Agreement stipulates that the use of NWChem be
+acknowledged in any publications which use results obtained with
+NWChem.  The acknowledgment should be of the form:
+\begin{quote}
+  NWChem Version \nwchemversion, as developed and distributed by
+  Pacific Northwest National Laboratory, P.~O.~Box 999, Richland,
+  Washington 99352 USA, and funded by the U.~S.~Department of Energy,
+  was used to obtain some of these results.
+\end{quote}
+and adding the words ``A modified version of'' at the start
+if appropriate.  {\em Note: Your EMSL Software Agreement contains the
+actual specification of the required acknowledgment.}
+
+If you wish to cite NWChem in the references section of a publication,
+please use the following citation:
+\begin{quote}
+  High Performance Computational Chemistry Group, {\em NWChem, A
+    Computational Chemistry Package for Parallel Computers, Version
+    \nwchemversion{}} (\nwchemyear), Pacific Northwest National
+  Laboratory, Richland, Washington 99352, USA.
+\end{quote}
+
+\subsection{In Case of Problems (or Compliments)}
+
+Although this software comes without warranty or guarantee of support,
+we do try to meet the needs of our user community.  Please send bug
+reports, requests for enhancement, or even compliments to {\tt
+nwchem-support@emsl.pnl.gov}.
+Please be sure to provide as much information as you can about the
+problem and provide inputs and outputs if possible.  It is also
+important to know what platform you are running on.
+
+There is also a mailing list for users of the code which provides a
+more general forum for users of the code to exchange information.
+To subscribe, send a mail message to {\tt majordomo@emsl.pnl.gov} with
+a body containing the line {\tt subscribe nwchem-users}.  If you need
+help in using the Majordomo list manager, send a message to the above
+address with {\tt help} in the body.  You may post to the list by
+sending mail to {\tt nwchem-users@emsl.pnl.gov}.
+
+Although the developers do monitor the nwchem-users list, we much
+prefer to receive bug reports at the {\tt nwchem-support} address,
+where our problem tracking system is based.
+
+\section{Functionality}
+
+Current functionality includes:
+\begin{itemize}
+\item Self Consistent Field or Hartree Fock energy and analytic
+  gradients (RHF, UHF, high-spin ROHF)
+\item Gaussian Density Functional Theory (DFT) energy and analytic
+  gradients with many local and
+      non-local exchange-correlation potentials
+\item MP2 energy using direct or semi-direct algorithms, or using the
+  resolution of the indentity integral approximation.  Analytic
+  gradients are under development.
+\item Geometry Optimization (Minimization and Transition State).
+\item Second-derivatives by numerical difference of gradients.
+\item Generation of the electron density file for the {\em Insight}
+      graphical program.
+\item Interface to the natural bond orbital package.
+\end{itemize}
+
+\section{Getting Started}
+\label{sec:getstart}
+
+  Here is the input to perform a SCF geometry optimization on the nitrogen
+molecule in a Dunning cc-pvdz basis set.
+\begin{verbatim}
+  title; Nitrogen cc-pvdz SCF geometry optimization
+  geometry 
+    n 0 0 0
+    n 0 0 2.1
+  end
+  basis
+    n library cc-pvdz
+  end
+  task scf optimize
+\end{verbatim}
+
+If this input is in the file \verb+"n2.nw"+, then to run the job on
+most UNIX workstations type
+\begin{verbatim}
+  nwchem n2
+\end{verbatim}
+Subsequent sections provide more detailed information about the input
+and running jobs on specific platforms.
+
+\subsection{NWChem Architecture}
+\label{sec:arch}
+
+The high-level design of NWChem is still evolving and will undergo
+substantial modification in the coming months.  The following features
+can, however, be expected to be present in subsequent versions.
+
+NWChem consists of independent modules (e.g., input, SCF, RIMP2) that
+communicate through a database (similar in spirit to the GAMESS
+dumpfile or the Gaussian checkpoint file).  The only way modules can
+share data is via the database, or via files whose names are stored in
+the database (which may have default values).  Everything stored
+directly in the database comprises a typed array described by
+\begin{enumerate}
+\item a name which is a simple string of ASCII characters (e.g., 
+      \verb+"reference energies"+),
+\item the type of the data (real, integer, logical, or character), 
+\item the number of data items, and
+\item the actual data (an array of items of the specified type).
+\end{enumerate}
+
+The input module provides the \verb+SET+ directive (section
+\ref{sec:set}) which stores data directly into the database.  For
+instance, the directive
+\begin{verbatim}
+  set "reference energies" real 0 1 -76.2
+\end{verbatim}
+stores a real (64 bit precision) array of three elements with the
+given values into the database.  The number of data items is
+inferred from the input line.
+
+Objects more complex than simple arrays (e.g., a description of a
+basis set, or the history of a geometry optimization) are built up by
+providing a set of routines that manage the data associated with named
+instances of these objects.  This is done by internally establishing
+some policy about how to name quantities associated with an object.
+Current examples of this include the basis and geometry objects.  In
+this fashion multiple instances of such objects can be stored with
+different names in the same database without confusion.  E.g., the
+input
+\begin{verbatim}
+  geometry "test water geometry"
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+    H     0.00000000   -1.43042809   -1.10715266
+  end
+\end{verbatim}
+stores the geometry of water into the database with the name 
+\verb+"test water geometry"+.  If the name \verb+"test water geometry"+
+was not specified then the default name of \verb+"geometry"+ would
+have been adopted.  What is actually stored in the database is a whole
+load of stuff.  For example, for a geometry with the default name
+\verb+"geometry"+:
+\begin{verbatim}
+ Contents of RTDB h2o.db
+ -----------------------
+
+ Entry                                   Type[nelem]
+ ---------------------------  ----------------------
+ geometry:geometry:efield              double[3]    
+ geometry:geometry:coords              double[9]    
+ geometry:names                          char[10]   
+ geometry:geometry:ncenter                int[1]    
+ geometry:ngeom                           int[1]    
+ geometry:geometry:charges             double[3]    
+ geometry:geometry:tags                  char[6]
+ ...
+\end{verbatim}
+There is no need to be aware of this level of detail (which is subject
+to change) unless you have some, hopefully, very unusual problems.
+
+\sloppy
+
+Most of the computational modules require a geometry with name
+\verb+"geometry"+.  The input
+\begin{verbatim}
+  set geometry "my water geometry"
+\end{verbatim}
+makes an entry in the database that associates the name
+\verb+"geometry"+ with the value \verb+"my water geometry"+.  The
+computer code for the geometry ``object'', when asked to load a geometry
+with name \verb+"geometry"+, will first attempt to translate the name
+before actually attempting to load the geometry.  The basis set object
+functions in an identical fashion and it is intended that all such
+objects will do so.  What will change in the future is the naming
+conventions and mechanisms of associating data with specific modules
+or tasks.
+
+\fussy
+
+The database is persistent and nearly all input is permanently stored.
+This makes the input for restart jobs very simple since very little
+data must be provided.  It also makes the behaviour of successive
+restart jobs {\em idential} to that of multiple tasks within one job.
+However, sometimes this persistence is undesirable and in order to
+return an NWChem module to its default (input-free) behaviour the
+\verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
+database entries associated with a given module.
+
+\subsection{Input format}
+
+The input is keyword or directive based.  It is free format and
+keywords or blocks of module-specific directives can, with certain
+small restrictions, appear in any order.  Case is ignored except
+for actual data (e.g., names/tags of centers, titles).
+
+Most details of the input format should be familiar from the UNIX
+shells and from other chemistry packages, most notably GAMESS-UK.  An
+input line is parsed into whitespace (blanks or tabs) separated tokens
+or fields.  Any token that contains whitespace (e.g., a descriptive
+name for a basis set, \verb+"modified Dunning DZ"+) should be enclosed
+in double quotes (\verb+"+).  A backslash (\verb+\+) concatenates one
+or more physical input lines. Note that a space is inserted at the
+physical line break so that it is not possible to split tokens between
+lines.  A semicolon marks the end of a logical input line, or
+statement, so that a physical input line may contain multiple logical
+input lines.  There is a limit of 1023 characters on the size of both
+logical and physical input lines.  All characters after a pound or
+hash symbol (\verb+#+) are treated as comments.  Data is read until
+end-of-file is detected, or until an \verb+EOF+ directive is
+encountered\footnote{The
+  free-format input library does not read past the string \verb+EOF+
+  (ignoring case) on a line by itself.  This is a convenience so that
+  unused input can be left in the same file.}
+
+Directives appear in two forms.  Simple directives comprise a single
+line of input with one or more fields.  E.g., 
+\begin{itemize}
+\item the \verb+ECHO+ directive takes no additional parameters 
+  and causes the input file to be echoed to standard output;
+\item the \verb+START+ directive takes several optional
+      parameters which specify the database name and a common prefix
+      for all files.
+\end{itemize}
+Compound directives are spread over multiple input lines and
+are terminated with an \verb+END+ directive --- the 
+\verb+GEOMETRY+ directives above serve as an example. 
+
+Some limited checking for self-consistency of the input is performed
+by the input module, but most defaults are actually imposed by the
+application modules at runtime. 
+
+\subsection{Syntax for directives}
+
+The following notation is used for definition of the directives:
+
+\begin{itemize}
+\item \verb+()+ is used to group items (the parentheses and other
+      special symbols do not appear in the input)
+\item \verb+||+ separate exclusive options/parameters/formats
+\item \verb+[]+ enclose optional entries with a default value
+\item \verb+<>+ enclose a type, a name of a value to be specified,
+      and a default value if any.
+\item a string/token/field is just a sequence of characters, enclosed in
+      quotes if there is white space
+\item \verb+\+ is used to concatenate lines in a description
+\item \verb+$variable$+ is used to indicate the substitution of the value of a
+      variable
+\item \verb+...+ is used to indicate indefinite continuation of a list
+\end{itemize}
+
+For example,
+\begin{verbatim}
+  VECTORS [[input] (<string input_movecs default atomic>) || \
+                   (project <string basisname> <string filename>)] \
+          [swap [(alpha|beta)] <integer vec1 vec2> ...] \
+          [output <string output_movecs default "$file_prefix$.movecs">]
+\end{verbatim}
+indicates that there are three optional keywords (\verb+input+,
+\verb+swap+, and \verb+output+).  The keyword \verb+input+ is optional
+(i.e., if no recognizable keyword is specified then input will be
+assumed).  The \verb+input+ keyword is followed by two exclusive
+options, which are to specify either a standard source of the vectors
+with a default of \verb+"atomic"+ (atomic guess) or the keyword
+\verb+project+ which takes two additional string arguments which
+indicate that vectors should be obtained by projecting from vectors in
+a smaller basis.  The \verb+swap+ keyword may be optinally applied to
+the alpha or beta spin orbtials and takes as an argument a list of
+pairs of integers. The \verb+output+ keyword requires a string
+argument, which takes a default value constructed from the value of
+the file prefix appended with \verb+".movecs"+.  For example
+\begin{verbatim}
+  vectors input project "small basis" "small_basis.movecs" \
+          output "large_basis.movecs"
+\end{verbatim}
+requests input vectors to be generated by projection from
+results in a smaller basis and output vectors to be stored in the file
+\verb+"large_basis.movecs"+.
+
+The order of keyed optional entries should not matter unless noted
+otherwise.
+
+\subsection{The structure of an input file}
+\label{sec:inputstructure}
+
+The structure of an input file reflects the internal structure of
+NWChem.  At the start of a calculation NWChem needs to know such
+things as how much memory to use, the name of the database, if it is a
+startup or restart job, where to put scratch/permanent files, etc..
+Rather than require all this information be at the top of the input
+file, NWChem scans through {\em all} of your input looking for these
+start-up directives (\ref{sec:startup}) and ignores everything else.
+Since only process zero can read the input, these data are manually
+broadcast to the other nodes.  Once the database has been opened
+process zero can insert data into the database which may be
+subsequently read by all processes.
+
+Next, the input file is rewound and read sequentially.  Input is
+processed either by the top-level parser (e.g., the directives
+\verb+TITLE+, \verb+SET+, \ldots) or by the computational modules
+(e.g., SCF, DFT, \ldots).  Anything that has already been processed
+(e.g., \verb+MEMORY+) is ignored.  Input is read until a \verb+TASK+
+directive (\ref{sec:task}) is encountered at which point the specified
+task is executed.  Processing of the input resumes upon the successful
+completion of the task.
+
+\subsection{The input file name and the {\tt .nw} suffix}
+
+The name of the input file is usally provided as an argument to
+NWChem.  If no input file name is provided, then the default name of
+\verb+"nwchem.nw+ is used.  If the file cannot be located, then
+\verb+".nw"+ is appended to the name.  If the file can sill not be
+located, then an error is reported.

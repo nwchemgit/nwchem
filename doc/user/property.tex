@@ -1,0 +1,18 @@
+\label{sec:property}
+\begin{verbatim}
+  PROPERTY
+    ...
+  END
+\end{verbatim}
+
+\subsection{nbofile}
+Following the successful completion of an electronic structure
+calculation, a Natural Bond Orbital (NBO) analysis may be carried out
+in the following way.  On restart specify the TASK as PROPERTY and
+supply the sub-directive NBOFILE to the PROPERTY directive.  NWchem
+will query the rtdb and construct an ascii file,
+\verb+<file_prefix>.gen+, that may be used as input to the stand alone
+version of the NBO program, gennbo.  \verb+<file_prefix>+ is equal to
+string following the RESTART directive.  The input deck may be edited
+to provide additional options to the NBO calculation, (see the NBO
+user's manual for details.)

@@ -1,0 +1,264 @@
+\label{sec:mp2}
+The RI-MP2 module can be invoked by specifying
+
+\begin{verbatim}
+  TASK RI-MP2
+\end{verbatim}
+on a \verb+RESTART+ job -- the MO vectors and database from the SCF
+calculation must be present.  At present, the RI-MP2 does not have its
+own input module, instead it can be controlled by \verb+SET+ing
+entries in the database.  Currently recognized entries are described
+below. {\em The names of these entries in the database will change in
+the very near future.}
+
+Alternatively, the fully-direct MP2 module using conventional
+four-index transformation (see also section \ref{sec:fourindex}) may be
+invoked by the input line
+\begin{verbatim}
+  TASK DIRECT_MP2
+\end{verbatim}
+In future releases, the two MP2 modules will be amalgamated into a
+single task where the choice of method will be an input parameter.  In
+cases where the MP2 is restarted using a \verb+RESTART+ directive --
+the MO vectors and database from the SCF calculation must be present.
+Currently, there is no specific MP2 input module, instead the
+behavior can be modified by using the \verb+SET+ command on the
+database entries. Currently recognized entries are described below,
+the first three entries apply to both the \verb+RI-MP2+ and
+\verb+DIRECT_MP2+ tasks while the remainder are specific to
+\verb+RI-MP2+.  {\em The names of these entries in the database are
+subject to change in the near future.}
+
+\subsection{Frozen Orbitals}
+
+\begin{verbatim}
+  set "mp2:freeze by atoms" integer <occupied> <virtual>
+  set "mp2:freeze orbitals" <integer array>
+\end{verbatim}
+
+Determines which orbitals from the SCF reference are to be frozen (not
+correlated) for the MP2 calculation.  The first entry instructs the
+code to guess how many occupied and virtual orbitals to drop based on
+the atoms present in the system.  The two integer elements expected in
+this entry control whether this guess is used to freeze parts of the
+occupied (first element) and/or virtual spaces (second element).  A
+value of 1 in the element requests the guess be used; any other value
+and it will not be used.  Table \ref{tbl:freeze-by-atoms} details how
+the ``guess'' is produced.
+
+\begin{table}
+\caption{Number of orbitals considered ``core'' in the ``freeze by
+atoms'' algorithm.}
+\label{tbl:freeze-by-atoms}
+\begin{tabular}{cclr}
+\hline\hline
+Period & Elements & Core Orbitals & Number of Core \\
+\hline
+0 & H -- He  & ---                                          &  0 \\
+1 & Li -- Ne & 1$s$                                         &  1 \\
+2 & Na -- Ar & 1$s$2$s$2$p$                                 &  5 \\
+3 & K -- Kr  & 1$s$2$s$2$p$3$s$3$p$                         &  9 \\
+4 & Rb -- Xe & 1$s$2$s$2$p$3$s$3$p$4$s$3$d$4$p$             & 18 \\
+5 & Cs -- Rn & 1$s$2$s$2$p$3$s$3$p$4$s$3$d$4$p$5$s$4$d$5$p$ & 27 \\
+6 & Fr -- Lr & 1$s$2$s$2$p$3$s$3$p$4$s$3$d$4$p$5$s$4$d$5$p$6$s$4$f$5$d$6$p$
+     & 43 \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+The second entry allows a more general, but less automatic,
+specification of which orbitals are to be frozen.  For convenience,
+non-positive entries are understood to refer to highest-lying virtual
+orbital (0), second highest (-1), and so on, down to the lowest-energy
+occupied orbital ($-N+1$, for $N$ basis functions).  Entries outside
+the range $[-N+1, N]$ constitute an error, which would be detected at
+the start of the MP2 calculation (the number of basis functions is not
+generally known when the input is read).
+
+Both entries may be present, and orbitals in the union of the two sets
+will be frozen.
+
+{\em Cautions:\/}  The rules for freezing orbitals ``by atoms'' are
+rather unsophisticated at the moment and may not do what you want.
+From limited experience, it seems that special attention should be
+paid to systems including third- and higher- period atoms, and perhaps
+to the use of spherical harmonic or Cartesian representation of
+higher-angular momentum shells.
+
+\subsection{Schwarz Integral Screening}
+
+\subsection{Fitting Basis}
+
+\begin{verbatim}
+  set "mp2:ri-mp2 basis" <string value>
+\end{verbatim}
+
+This {\em required} entry specifies the basis to be used as the
+``fitting'', or ``resolution of the identity'' basis.  It should name
+a basis set defined in a \verb+BASIS+ directive somewhere in the
+current or any previous input file.
+
+
+\subsection{Transformed Integral Filename}
+
+\begin{verbatim}
+  set "mp2:mo 3-center integral file" <string name default "$file_prefix$.mo3cint">
+\end{verbatim}
+
+Specifies the base for constructing the file names for the transformed
+three-center integrals.  The full name consists of this value followed
+by a letter indicating the spin case of the integrals and the node
+number padded to four digits.
+
+\subsection{Reference Spin Mapping}
+
+\begin{verbatim}
+  set "mp2:reference spin mapping" <integer array>
+\end{verbatim}
+
+Allows RI-MP2 calculations to be done with variations of the SCF
+reference wavefunction.  Each element is the SCF spin case to be used
+for the corresponding spin case of the correlated calculation.  The
+number of elements set determines the overall type of correlated
+calculation to be performed.  The default is to use the unadulterated
+SCF reference.  Some examples of settings and their meanings:
+\begin{enumerate}
+\item[``\verb+1 1+''] Performs a spin-unrestricted calculation (two
+elements) using the alpha spin orbitals (spin case 1) from the
+reference for both of the correlated reference spin cases. SCF
+reference may be RHF or UHF in this case.
+\item[``\verb+2 2+''] Similar to the previous instance, but uses the beta-spin
+SCF orbtials for both correlated spin cases.  The SCF reference
+obviously must be UHF in this case.
+\item[``\verb+2+''] Performs a spin-restricted calculation (one element)
+from the beta-spin SCF orbitals.
+\item[``\verb+2 1+''] Performs a spin-unrestricted calculation with the
+spins flipped from the original SCF reference.
+\end{enumerate}
+
+\subsection{Batch Sizes}
+
+\begin{verbatim}
+  set "mp2:transformation batch size" <integer size default -1>
+  set "mp2:energy batch size" <integer isize jsize default -1 -1>
+\end{verbatim}
+
+These entries control the size of each batch in the transformation and
+energy evaluation, and consequently, the memory requirements and
+number of passes required.  Values less than 1 for these batch sizes
+tell the code to determine the batch size based on the available
+memory, which is the default.  Should there be problems with the
+program-determined batch sizes, these variables allow the user to
+override them.  The program will always use the smaller of the user's
+value of these entries and the internally computed batch size.
+
+For the transformation, this is the number of occupied orbitals in the
+$({occ}\ {vir} | {fit})$ three-center integrals to
+be produced at a time.  If this entry is less than the number of occupied
+orbitals in the system, the transformation will require multiple
+passes through the two-electron integrals.  The memory requirements of
+this stage are {\em two} global arrays of dimension ${<batch
+size>}\times {vir} \times {fit}$ with the ``fit''
+dimension distributed across all processors (on shell-block
+boundaries).  The compromise here is memory space versus multiple
+integral evaluations.
+
+For the energy evaluation, this is the number of occupied orbitals in
+the the two sets of three-center integrals to be multiplied together
+to produce a matrix of approximate four-center integrals.  Two blocks
+of integrals of dimension $({<batch isize>}\times {vir})$ and
+$({<batch jsize>}\times {vir})$ by fit are read in from disk and
+multiplied together to produce $<batch isize> <batch jsize> {vir}^2$
+approximate integrals.  The compromise here is performance of the
+distributed matrix multiplication (which requires large matrices)
+versus memory space.
+
+\subsection{Energy Memory Allocation Mode}
+
+\begin{verbatim}
+  set "mp2:energy mem minimize" <string mem_opt default "I">
+\end{verbatim}
+
+Choose the strategy for the memory allocation for the energy
+evaluation phase.  Choices are to minimize the amount of I/O
+(``\verb+I+'') or the amount of computation (``\verb+C+'') done by the
+code.  In order to minimize I/O, the strategy is to make the
+\verb+ISIZE+ as large as possible so that the total number of passes
+through the integral files is as small as possible.  In order to
+minimize computation, the blocks are chosen as close to square as
+possible so that permutational symmetry in the energy evaluation can
+be used most effectively.
+
+\subsection{RI Approximation}
+
+\begin{verbatim}
+  set "mp2:ri approximation" <string approx default "V">
+\end{verbatim}
+
+Controls the type of RI approximation used in the calculation.  The
+strings \verb+"V"+ and \verb+"SVS"+ are recognized (case
+sensitive!), following the notation used in O.~Vahtras, J~Alml\"of,
+and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
+(1993).  The \verb+"S"+ approximation will also be supported eventually.
+
+\subsection{Local Memory Usage in Three-Center Transformation}
+
+\begin{verbatim}
+  set "xf3ci:AO 1 batch size" <integer max>
+  set "xf3ci:AO 2 batch size" <integer max>
+  set "xf3ci:fit batch size" <integer max>
+\end{verbatim}
+
+These entries control local memory usage in the first two steps of the
+transformation.  The size of the local arrays determines the sizes of
+the two matrix multiplications.  These entries set limits on the size
+of blocks to be used in each index.  The listing above indicates the
+order of importance of the parameters to performance, with
+\verb+xf3ci:AO 1 batch size+ being most important.
+
+Note that these entries are only upper bounds and that the program
+will size the blocks according to what it determines the best usage of
+the available local memory is.  The absolute maximum block sizes are
+the number of functions in the AO basis or the number of fitting basis
+functions on a node.  The absolute minimum block sizes are the largest
+shell in the appropriate basis.  Batch size entries outside of this
+range are silently reset to an appropriate value.
+
+It is unlikely that users will have any reason to use these entries
+unless they are doing very particular performance measurements.
+
+\subsection{Printing Control}
+
+Printable items which are recognized by the RI-MP2 module are listed
+in Table \ref{tbl:mp2-printable}.  At the moment, these items can be
+controlled by directly setting the
+\verb+mp2:print+ entry in the RTDB.
+
+\begin{table}
+\caption{Printable items in the RI-MP2 module and their default print levels.}
+\label{tbl:mp2-printable}
+\begin{tabular}{lll}
+\hline\hline
+Item                    & Print Level   & Description \\
+\hline
+'2/3 ints'              & debug         & Partially transformed 3-center integrals \\
+'3c ints'               & debug         & MO 3-center integrals in energy evaluation \\
+'4c ints b'             & debug         & ``B'' matrix derived from approx. 4c integrals \\
+'4c ints'               & debug         & Approximate 4-center integrals \\
+'amplitudes'            & debug         & ``B'' matrix with denominators (not really amplitudes, strictly) \\
+'basis'                 & high          & \\
+'fit xf'                & debug         & Transformation for fitting basis \\
+'geombas'               & debug         & Detailed basis map info\\
+'geometry'              & high          & \\
+'information'           & low           & General information about calc.\\
+'integral i/o'          & high          & File size information\\
+'mo ints'               & debug         & \\
+'pair energies'         & debug         & \\
+'partial pair energies' & debug         & Pair energy matrix each time it is updated \\
+'progress reports'      & default       & Report completion of time-consuming steps\\
+'reference'             & high          & Details about reference wavefunction\\
+'warnings'              & low           & Non-fatal warnings \\
+\hline\hline
+\end{tabular}
+\end{table}
+

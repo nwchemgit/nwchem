@@ -1,0 +1,87 @@
+
+\begin{verbatim}
+  GEOMETRY [<string name geometry>] \
+           [units <string units bohr>] \
+           [bqbq] \
+           [print [xyz] || noprint]
+    
+    [SYMMETRY GROUP <string group_name> [print]]
+
+    <string tag> <real x> <real y> <real z> [ecp] \
+        [charge <real charge>] [mass <real mass>]
+    ...
+  END
+\end{verbatim}
+
+Only Cartesian geometry specification is available, though support for
+Z-matrix-like format is proposed.  As mentioned above (section
+\ref{sec:arch}), multiple geometries may be stored in the database
+provided each is given an independent name.  The default name of
+\verb+"geometry"+ is used by most application modules to access the
+geometry at which to perform a calculation.  Associating a named
+geometry with the required name of \verb+"geometry"+ is described in
+section \ref{sec:arch}.  Known names for units are \verb+au+,
+\verb+bohr+, or \verb+angstrom+ (the conversion factor used to convert
+from Angstr\"{o}m to Bohr is $1.8897265$). By default, the input
+module prints any geometry it encounters.  Printing can be disabled
+with the \verb+PRINT+ option.  The \verb+XYZ+ qualifier to print
+causes the geometry to also be printed in the \verb+XYZ+ format of
+XMol.  
+
+Each line in the body of the directive specifies the name or tag, and
+the coordinates of one center or atom.  If an effective core potential
+is to be used then the \verb+ECP+ keyword should be specified.  The
+charge associated with the center is inferred from the atom type
+(taking into account defaults for ECPs).  The charge may be explicitly
+specified using the \verb+CHARGE+ keyword.  Default masses may be
+overriden by specifying the mass.
+
+The tag associated with each center is interpreted as follows:
+\begin{itemize}
+\item If it begins with \verb+BQ+ (ignoring case) then it is treated
+      as a dummy center with default zero charge. Dummy centers may 
+      optionally have basis functions or non-zero charge.
+\item If it begins with either the symbol or name of an element then
+      it is thought to be an atom.  Atoms {\em must} have basis
+      functions associated with them and the default charge is the
+      atomic number adjusted for the presence of ECPs.  The user
+      provided charges (of all centers, atomic and dummy) and the
+      total charge of the system are used to determine the number of
+      electrons
+\item The tag of a center is used in the \verb+BASIS+ directive to
+      associate functions with centers.  All centers with the same tag
+      will have the same basis functions.  Atomic centers may have
+      standard basis sets sited upon them.
+\item Similarly, the tag of a center is also used in the \verb+ECP+
+      directive to associate ECPs with centers.
+\item When automatic symmetry detection is functional only centers
+      with the same tag will be candidates for testing for symmetry
+      equivalence.
+\end{itemize}
+
+By default NWCHEM does not include the interaction between dummy
+centers.  The \verb+BQBQ+ qualifier to the \verb+GEOMETRY+ directive
+causes these interactions to be included.
+
+Rather than just a simple list of centers, the \verb+GEOMETRY+
+directive should be thought of as describing the external potential
+applied to the electrons in the Hamiltonian.  In this light, it is
+seen that the geometry ``object'' is central to the correct storage
+of information such as
+\begin{itemize}
+\item the total charge of the system,
+\item any external electric or magnetic fields, and
+\item the symmetry of the Hamiltonian.
+\end{itemize}
+It is not decided exactly how this information will be stored, or what
+the input will look like. However, the intent is to store without
+confusion (for the either the user or NWChem itself) the information
+and results of multiple calculations within one database.
+
+ The use of molecular symmetry in NWCHEM is not yet automated, thus,
+the user is responsible for detecting symmetry and specifying the
+coordinates of the symmetry unique atoms in a suitable orientation
+relative to the rotation axes and symmetry planes.  Since it seems
+that only the original authors of the symmetry package seem to
+understand the latter, we provide many examples in Appendix
+\ref{symexamples}.
