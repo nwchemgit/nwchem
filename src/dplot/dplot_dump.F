@@ -1,0 +1,100 @@
+      subroutine dplot_dump(lgaussian,out_unit,iproc,luout,
+     ,     where,what,title,
+     ,     natom,xyz,charge,volume,
+     ,     coofrom,cooto,no_of_spacings,ngrid,values)
+      implicit none
+      logical lgaussian
+      character *(*) title
+      character*8 where,what                ! [input]
+      integer out_unit ! [input]
+      double precision xyz(3,*),charge(*)
+      integer natom
+      integer no_of_spacings(3),ngrid
+      integer iproc,luout
+      double precision values(*),volume,coofrom(3),cooto(3)
+c
+      double precision spread(3),step(3),angle(3)
+      integer const_m(3),const_p(3)
+c
+      integer i,ii,ifast
+      double precision appch,sum
+c
+      call  dplot_defgrid(volume,angle,
+     ,     spread,step,const_m,const_p,
+     ,     cooto,coofrom,no_of_spacings)
+c
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
+         if(lgaussian) then
+            Write(Out_Unit,*)Title
+            Write(Out_Unit,*) ' SCF Total Density'
+         else
+         Write(Out_Unit,*)Title
+         Write(Out_Unit,115)
+ 115     format('(1F15.10)')
+      endif
+      End If
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
+         if(lgaussian) then
+ 9498       format(I5,3F12.6)
+            Write(Out_Unit,9498)
+     &           natom,(coofrom(i),i=1,3)
+            Write(Out_Unit,9498)
+     &           no_of_spacings(1)+1,step(1),0d0,0d0
+            Write(Out_Unit,9498)
+     &           no_of_spacings(2)+1,0d0,step(2),0d0
+            Write(Out_Unit,9498)
+     &           no_of_spacings(3)+1,0d0,0d0,step(3)
+            do i=1,natom
+            Write(Out_Unit,9499)
+     .            int(charge(i)),charge(i),xyz(1,i),xyz(2,i),xyz(3,i)
+ 9499       format(I5,4F12.6)
+c
+c     dump MOlist (if any)
+c
+         enddo
+         else
+            Write(Out_Unit,'(3(1x,f10.5),3(3x,f5.2))')
+     &           (Spread(i),i=1,3),(Angle(i),i=1,3)
+            Write(Out_Unit,'(3(2x,i4))')(no_of_spacings(i),i=1,3)
+            iFast = 1
+            Write(Out_Unit,'(5x,i1,6(2x,i4))')
+     &           iFast,(Const_M(i),Const_P(i),i=1,3)
+         endif
+      End If
+c
+c     dump grid values
+c
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
+         if(lgaussian) then
+c
+c     truncation
+c
+            Do i = 1, nGrid
+               if(abs(values(i)).lt.1d-10) 
+     .              values(i)=0d0
+            enddo
+            Do i = 1, nGrid,No_Of_Spacings(3)+1
+               Write(Out_Unit,99498)(values(i+ii),ii=0,
+     .              No_Of_Spacings(3))
+99498          format(6E13.5)
+            enddo
+            else
+            Sum = 0.d0
+            Do i = 1, nGrid
+               Sum = Sum + values(i)
+               Write(Out_Unit,'(f15.10)')values(i)
+            End Do
+            AppCh = Sum*Volume
+         endif
+         If (What.eq.'VIEW') Then
+            write(Out_unit,19498)
+19498       format(10I5)
+         endif
+c
+         If (What.eq.'DENSITY') Then
+            Write(LuOut,*)
+            Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',AppCh
+         End If
+      End If
+      return
+      end
