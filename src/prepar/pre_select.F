@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.13 2002-06-27 23:46:36 d3j191 Exp $
+c $Id: pre_select.F,v 1.14 2002-06-27 23:48:45 d3j191 Exp $
 c
       implicit none
 c
@@ -69,8 +69,7 @@ c
 c
       pre_select=.true.
 c
-      stop
-c      return
+      return
 c
  9999 continue
       pre_select=.false.
