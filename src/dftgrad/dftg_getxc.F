@@ -26,7 +26,7 @@ c****
       double precision zero,one,onem
       parameter(zero = 0.0d0,one = 1.0d0,onem = -1.0d0)
       logical status
-      double precision xfac(10),cfac(10)
+      double precision xfac(15),cfac(15)
 c
 c****
 c**** comments from getvxc:
@@ -65,9 +65,9 @@ c****
       double precision tol2e,tot
 c
       nproc=ga_nnodes()
-      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 15, cfac))
      $     call errquit('xc_getv: rtdb_put failed', 0)
-      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 15, xfac))
      $     call errquit('xc_getv:rtdb_put failed', 0)
       if( .not. bas_numbf(AO_bas_han,nbf_ao) )then
         call errquit('Exiting in getdexc.',1)
@@ -139,7 +139,7 @@ c
       endif
       call ga_sync
       tot=-xfac(1)
-      do i=1,10
+      do i=1,15
         tot=tot+xfac(i)+cfac(i)
       enddo
 
