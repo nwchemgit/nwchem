@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.197 2001-11-02 01:36:27 edo Exp $
+c     $Id: dft_scf.F,v 1.198 2001-11-02 17:59:24 edo Exp $
 c     
       implicit none
 c
@@ -157,8 +157,6 @@ c     slow switching of annealing
 c
       double precision s_rabuck,ss,smear_in
       integer nn,nss
-      s_rabuck(nn,ss,nss)=ss*exp((1d0/(nss-1d0))*
-     *     log(1d-10/ss)*(nn-1d0))
       integer n_rabuck
       logical rabuck_act
       external dft_cosmoe,dft_cosmoadde
@@ -167,6 +165,8 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
+      s_rabuck(nn,ss,nss)=ss*exp((1d0/(nss-1d0))*
+     *     log(1d-10/ss)*(nn-1d0))
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
