@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.410 2003-04-19 23:32:52 edo Exp $
+# $Id: makefile.h,v 1.411 2003-05-06 23:10:23 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -294,13 +294,14 @@ endif
      FOPTIONS = -Kdalign -w -fw -X9 
      FOPTIMIZE = -Kfast_GP=2 
      FDEBUG=
+     LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS) $(FOPTIMIZE)
    else
      FOPTIONS = -stackvar -dalign 
      FOPTIMIZE = -fast -O5 -fsimple=2 -depend -xvector=yes
      FDEBUG = -g -O1 -nodepend
+     LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
    endif
 
-  LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
   ifeq ($(FC),frt)
      CORE_LIBS +=  -SSL2
   else
@@ -366,9 +367,9 @@ endif
      DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
      FOPTIONS = -Kdalign -w -fw -X9  -KV9FMADD
      ifdef USE_INTEGER4
-       FOPTIONS += -CcdLL8 -CcdRR8
+       FOPTIONS += -CcdLL8
      else
-       FOPTIONS += -CcdLL8 -CcdII8 -CcdRR8
+       FOPTIONS += -CcdLL8 -CcdII8
      endif
      FOPTIMIZE = -Kfast_GP=2  -KV9FMADD
      FDEBUG=
@@ -1244,7 +1245,6 @@ ifeq ($(LINUXCPU),x86)
       FOPTIONS  += -tp piv  -Mcache_align  -Mvect=prefetch
     endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
-    MAKEFLAGS += FC=pgf77
   endif
   ifeq ($(FC),ifc)
     FOPTIONS   =  -align    -mp1 -w -g -vec_report3
