@@ -57,12 +57,14 @@ c     --------------------
             if (.not. ma_get_index(h_act, i_act))
      $           call errquit('cons_init: ma_get_index failed',h_act,
      &       MA_ERR)
-       call banner(6,"Warning!!!                               ","*" ,
+       if(cons_print()) then
+         call banner(6,"Warning!!!                               ","*" ,
      >             .true.,.false.,.true. )
-       call banner(6,"geometry:actlist is an obsolete option   ","*" ,
+         call banner(6,"geometry:actlist is an obsolete option   ","*" ,
      >             .false.,.false.,.true. )
-       call banner(6,"consider using fixed atoms constraints   ","*" ,
+         call banner(6,"consider using fixed atoms constraints   ","*" ,
      >             .false.,.true.,.true. )
+       end if
        old_style=.true.
       else
        old_style=.false.
@@ -84,6 +86,7 @@ c     --------------------
      &      'cons_init: unable to allocate scratch space',
      &      nat, MA_ERR)
         if(new_style) then
+         if(cons_print()) then
          call banner(6,"Warning!!!                            ","*" ,
      >           .true.,.false.,.true. )
          call banner(6,"mixing both geometry:actlist  and     ","*" ,
@@ -94,6 +97,7 @@ c     --------------------
      >             .false.,.false.,.true. )
          call banner(6,"for potential problems.               ","*" ,
      >             .false.,.true.,.true. )
+          end if
           call cons_unfix_atoms(nact,int_mb(i_act),rtdb)
         else
           do i=1,nat

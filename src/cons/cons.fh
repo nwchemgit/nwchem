@@ -31,3 +31,6 @@
        logical cons_activate
        external cons_activate
 
+       logical cons_print
+       external cons_print
+

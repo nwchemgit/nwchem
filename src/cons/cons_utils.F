@@ -1,4 +1,13 @@
-c $Id: cons_utils.F,v 1.8 2004-04-03 02:45:53 marat Exp $
+c $Id: cons_utils.F,v 1.9 2004-04-06 00:09:39 marat Exp $
+      function cons_print()
+      implicit none
+#include "global.fh"
+c     
+      logical cons_print
+      cons_print=(ga_nodeid().eq.0)
+      return
+      end
+
       function cons_inquire(namespace,rtdb)
       implicit none
 #include "errquit.fh"
@@ -578,8 +587,10 @@ c     local variables:
       subroutine cons_print_gen_info(rtdb)
       implicit none
 #include "util.fh"
+#include "global.fh"
       integer rtdb
 
+      if(ga_nodeid().eq.0) then
       call cons_print_header()
 
       call util_print_centered(6,
@@ -588,6 +599,7 @@ c     local variables:
 
       call cons_info_fixed_atoms(rtdb)
       call cons_info_springs(rtdb)
+      end if
 
       end
 c

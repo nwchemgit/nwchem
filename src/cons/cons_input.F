@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.8 2004-04-03 02:45:53 marat Exp $
+c $Id: cons_input.F,v 1.9 2004-04-06 00:09:39 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -27,8 +27,6 @@ c     enable constraints by default
       if(.not.status)
      &  call errquit('cons_input: cannot activate constraints',0,0) 
 c
-      namespace=cons_default
- 
       max_fp = min( max_fixed_atoms*4, ma_inquire_avail(MT_INT))
       if ( .not. ma_push_get( MT_INT, max_fp, 
      &      'cons scratch fixed atoms',
@@ -36,16 +34,19 @@ c
      &      'cons_input: failed cons scratch space for fixed atoms',
      &      max_fp, MA_ERR)
 
-      if(inp_n_field().eq.2) then
+c     set namespace for constraints
+c     ----------------------------
+      if(inp_n_field().eq.1) then
+       namespace=cons_default
+      else if(inp_n_field().eq.2) then
        call inp_set_field(1)
        if (.not. inp_a(test)) then
          call errquit('cons_input: inp_read failed',0,0)
        else
          namespace=test
-         write(*,*) "cons_input:namespace",namespace
-         call cons_create(namespace,rtdb)
        end if
       end if 
+      call cons_create(namespace,rtdb)
       
  100  if (.not. inp_read()) 
      >      call errquit('cons_input: inp_read failed',0,0)
