@@ -13,7 +13,7 @@ endif
 set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
 set TMP=tmp.$$
 
-set L2HOPT="-split 1 -bottom_navigation  -show_section_numbers"
+set L2HOPT="-split 2 -bottom_navigation  -show_section_numbers"
 
 # works also with a list of files here but not currently
 # used in this fashion
