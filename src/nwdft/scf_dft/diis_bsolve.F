@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
 
-C$Id: diis_bsolve.F,v 1.4 1996-08-02 18:00:25 d3h449 Exp $
+C$Id: diis_bsolve.F,v 1.5 1998-08-21 20:48:26 d3g681 Exp $
 
 c     
 c***********************************************************************
@@ -48,6 +48,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "util.fh"
 c     
       logical LResult
       integer ijcanon,i,j
@@ -88,7 +89,7 @@ c     Check for singularity.  If linear dependency occurs, decrease nhist
 c     and modify the Pulay matrix accordingly.
 c     
       if(info.ne.0)then
-        if( ga_nodeid().eq.0 ) 
+        if(ga_nodeid().eq.0 .and. util_print('warning',print_default))
      &        write(LuOut,*)' Singularity in Pulay matrix. ',
      &       'Error and Fock matrices removed. '
         do i = 3,nhist+1
