@@ -1,0 +1,58 @@
+      real*8 function ana_atrad(number)
+c
+c $Id: ana_atrad.F,v 1.1 2000-06-30 17:21:02 d3j191 Exp $
+c
+      implicit none
+      integer number
+c
+      real*8 radius(0:105)
+c
+      data radius / 99999.99,
+     + 0.35, 1.22, 1.23, 0.89, 0.88, 0.77, 0.70, 0.66, 0.58, 1.60,
+     + 1.40, 1.36, 1.25, 1.17, 1.10, 1.04, 0.99, 1.91, 2.03, 1.74,
+     + 1.44, 1.32, 1.22, 1.19, 1.17,1.165, 1.16, 1.15, 1.17, 1.25,
+     + 1.25, 1.22, 1.21, 1.17, 1.14, 1.98, 2.22, 1.92, 1.62, 1.45,
+     + 1.34, 1.29, 1.27, 1.24, 1.25, 1.28, 1.34, 1.41, 1.50, 1.40,
+     + 1.41, 1.37, 1.33, 2.09, 2.35, 1.98, 1.69, 1.65, 1.65, 1.64,
+     + 1.65, 1.66, 1.65, 1.61, 1.59, 1.59, 1.58, 1.57, 1.56, 1.56,
+     + 1.56, 1.44, 1.34, 1.30, 1.28, 1.26, 1.26, 1.29, 1.34, 1.44,
+     + 1.55, 1.54, 1.52, 1.53, 1.50, 2.20, 3.24, 2.68, 2.25, 2.16,
+     + 1.93, 1.66, 1.57, 1.81, 2.21, 1.43, 1.42, 1.40, 1.39, 1.38,
+     + 1.37, 1.36, 1.34, 1.30, 1.30 /
+c
+      ana_atrad=1.1d-01*radius(number)
+c
+      return
+      end
+      character*255 function ana_atcol(number)
+      implicit none
+      integer number
+c
+      integer indexc(0:105)
+c
+      data indexc / 1,
+     + 8, 1, 1, 1, 1, 5, 3, 2, 1, 1,
+     + 1, 1, 1, 1, 7, 6, 1, 1, 1, 9,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     + 1, 1, 1, 1, 1 /
+c
+      ana_atcol='white '
+      if(indexc(number).eq.1) ana_atcol='White '
+      if(indexc(number).eq.2) ana_atcol='Red '
+      if(indexc(number).eq.3) ana_atcol='Blue '
+      if(indexc(number).eq.4) ana_atcol='Green '
+      if(indexc(number).eq.5) ana_atcol='Gray '
+      if(indexc(number).eq.6) ana_atcol='Yellow '
+      if(indexc(number).eq.7) ana_atcol='Orange '
+      if(indexc(number).eq.8) ana_atcol='LightBlue '
+      if(indexc(number).eq.9) ana_atcol='Goldenrod '
+c
+      return
+      end
