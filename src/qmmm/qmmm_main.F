@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.18 2004-10-09 01:07:17 marat Exp $
+c $Id: qmmm_main.F,v 1.19 2004-10-15 00:58:41 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -26,6 +26,7 @@ c
       real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
 c
       character*32 interface
+      character*32 optimization
       character*255 theory
       logical qmmm_init
       character*32 pname
@@ -50,14 +51,21 @@ c
 
       if(.not.qmmm_init) return
 
-      if (.not. rtdb_get(inrtdb,'qmmm:fixqm',mt_log,1,fixqm))
-     $     call errquit('qmmm_forces: failed to get qmmm:fixqm',
+      if (.not. rtdb_cget(inrtdb,'qmmm:optimization',1,optimization))
+     $     call errquit('qmmm_forces: failed to get qmmm:optimization',
      &       0,RTDB_ERR)
 
-      if (.not.rtdb_cget(inrtdb,'qmmm:interface',1,interface))
-     + call errquit('qmmm_input: failed to get qmmm:interface',
-     &       0,RTDB_ERR)
-
+      if (optimization.eq.'all') then
+         fixqm = .false.
+         interface = "mm"
+      else if (optimization.eq.'mm') then
+         fixqm = .true.
+         interface = "mm"
+      else if (optimization.eq.'qm') then
+         fixqm = .false.
+         interface = "qm"
+      endif
+c
       if(interface.eq.'qm') then
         write(*,*) "interface qm"
         energy = 0

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.2 2004-10-14 23:24:04 marat Exp $
+c $Id: qmmm_output.F,v 1.3 2004-10-15 00:58:41 marat Exp $
 c
 c
       subroutine qmmm_print_header(irtdb)
@@ -13,13 +13,7 @@ c
 
       integer irtdb
 c
-      character*32 tag
       character*32 pname
-      character*32 optimize
-      character*32 interface
-      real*8 eatoms,qatoms
-      logical xyz,xyzq,fixlinks,fixqm
-      integer linkatm,bq_exclude
       character*48 string
 
       
@@ -53,7 +47,7 @@ c
 c
       character*32 tag
       character*32 pname
-      character*32 optimize
+      character*32 optimization
       character*32 interface
       real*8 eatoms,qatoms
       logical xyz,xyzq,fixlinks,fixqm
@@ -113,12 +107,12 @@ c
         call errquit(pname//'invalid link atom type',0,RTDB_ERR)
       end if
 
-      tag ="qmmm:optimize"
-      if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
+      tag ="qmmm:optimization"
+      if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
            call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
       end if
-      write(6,22) "optimization region",tag,optimize
+      write(6,22) "optimization region",tag,optimization
 
 20    FORMAT(A,T24,A,T46,F12.6)
 21    FORMAT(A,T24,A,T46,L3)

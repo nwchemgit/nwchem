@@ -14,7 +14,6 @@ c
       character*32 tag
       character*32 pname
       character*255 token
-      character*32 optimize
       character*32 interface
       real*8 eatoms
       logical xyz,xyzq,fixlinks,fixqm
@@ -31,7 +30,6 @@ c**** default values for parameters
       fixqm = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
-      optimize='qm'
       interface='qm'
 c
 c     start parsing input
@@ -129,7 +127,7 @@ c
       if(token.eq.'link_ecp') then
         if(.not.inp_a(token)) then
          write(*,*) "please provide an option for link-ecp"
-         call errquit('qmmm_input: optimize',0,
+         call errquit('qmmm_input: link-ecp',0,
      &         INPUT_ERR)
         end if
         tag="qmmm:link_ecp"
@@ -139,36 +137,23 @@ c
           goto 2
       endif
 c
-c
-      if(token.eq.'optimize') then
+      if(token.eq.'optimization') then
         if(.not.inp_a(token)) then
-         write(*,*) "please provide an option for optimize"
-         call errquit('qmmm_input: optimize',0,
+         write(*,*) "please provide an option for optimization"
+         call errquit('qmmm_input: optimization',0,
      &         INPUT_ERR)
         end if
-        if(token.eq.'qm') then
-          optimize='qm'
-          tag="qmmm:optimize"
-          if (.not.rtdb_cput(rtdb,tag,1,optimize)) 
+        tag="qmmm:optimization"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
           goto 2
-        elseif(token.eq.'mm') then
-          optimize='mm'
-          tag="qmmm:optimize"
-          if (.not.rtdb_cput(rtdb,tag,1,optimize)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
-          goto 2
-        else
-          call errquit('qmmm_input: invalid option',0, INPUT_ERR)
-        endif
       endif
-c
+cc
       if(token.eq.'interface') then
         if(.not.inp_a(token)) then
          write(*,*) "please provide an option for interface"
-         call errquit('qmmm_input: optimize',0,
+         call errquit('qmmm_input: interface',0,
      &         INPUT_ERR)
         end if
         if(token.eq.'qm') then
@@ -220,37 +205,6 @@ cc
       endif
 c
       if (token.eq.'end') then
-      if(optimize.eq."mm") interface="mm"
-       if (.not.rtdb_cput(rtdb,'qmmm:interface',1,interface))
-     + call errquit('qmmm_input: failed to store qmmm:interface',
-     &       0,RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-c     + call errquit('qmmm_input: failed to store qmmm:uqmatm',0,
-c     &       RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:eatoms',mt_dbl,1,eatoms))
-c     + call errquit('qmmm_input: failed to store qmmm:eatoms',0,
-c     &       RTDB_ERR)
-c       if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
-c     + call errquit('qmmm_input: failed to store qmmm:linkatm',linkatm,
-c     &       RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:xyz',mt_log,1,xyz))
-c     + call errquit('qmmm_input: failed to store qmmm:xyz',xyz,
-c     &       RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:xyzq',mt_log,1,xyzq))
-c     + call errquit('qmmm_input: failed to store qmmm:xyzq',xyzq,
-c     &       RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
-c     + call errquit('qmmm_input: failed to store qmmm:bq_exclude',
-c     &       bq_exclude,RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
-c     + call errquit('qmmm_input: failed to store qmmm:fixlinks',
-c     &       0,RTDB_ERR)
-c      if (.not.rtdb_put(rtdb,'qmmm:fixqm',mt_log,1,fixqm))
-c     + call errquit('qmmm_input: failed to store qmmm:fixqm',
-c     &       0,RTDB_ERR)
-c       if (.not.rtdb_cput(rtdb,'qmmm:optimize',1,optimize))
-c     + call errquit('qmmm_input: failed to store qmmm:optimize',
-c     &       0,RTDB_ERR)
         return
       endif
 c

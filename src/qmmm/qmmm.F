@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.26 2004-10-14 23:24:04 marat Exp $
+c $Id: qmmm.F,v 1.27 2004-10-15 00:58:41 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -14,7 +14,6 @@ c
 #include "qmmm.fh"
       integer irtdb
       logical qmmm_init
-      character*32 optimize
 c
       qmmm_init = .true.
 
@@ -69,13 +68,8 @@ c
 
       integer rtdb
       logical qmmm_end
-      character*32 optimize
       qmmm_end = .true.
 c
-      if (.not.rtdb_cget(rtdb,'qmmm:optimize',1,optimize))
-     + call errquit('qmmm_end: failed to get qmmm:optimize',
-     &       0,RTDB_ERR)
-
       call mm_end()
       call qmmm_data_release()
       call qmmm_bq_data_dealloc()

@@ -12,7 +12,7 @@ c
 c
       character*32 tag
       character*32 pname
-      character*32 optimize
+      character*32 optimization
       character*32 interface
       real*8 eatoms,qatoms
       logical xyz,xyzq,fixlinks,fixqm
@@ -27,8 +27,8 @@ c
       fixqm = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
-      optimize='qm'
       interface='qm'
+      optimization = "qm"
 c
 c     initialize rtdb parameters
       tag = "qmmm:uqmatm"
@@ -96,10 +96,16 @@ c     initialize rtdb parameters
 
        end if
 
-      tag ="qmmm:optimize"
-      if (.not.rtdb_cget(irtdb,tag,1,optimize)) then
-        if (.not.rtdb_cput(irtdb,tag,1,optimize)) 
+      tag ="qmmm:optimization"
+      if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
+        if (.not.rtdb_cput(irtdb,tag,1,optimization)) 
      >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+       else if (optimization .ne. "all" .and.
+     >          optimization .ne. "mm" .and.
+     >          optimization .ne. "qm" ) then
+            call errquit(pname//'unknown value'//tag,0,
      >       RTDB_ERR)
 
        end if
