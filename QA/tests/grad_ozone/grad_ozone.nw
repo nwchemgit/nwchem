@@ -61,14 +61,6 @@ title "case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry"
 scf; print none; end
 task scf gradient numerical
 
-title "cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry"
-mcscf; active 6; actelec 6; state 3B2; vectors output ozone.mc.movecs; end
-task mcscf gradient
-
-title "cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry"
-mcscf; print none; end
-task mcscf gradient numerical
-
 title "case s16: Ozone --- UHF triplet SCF energy without symmetry"
 scf; print low; uhf; sym off; adapt off; end
 task scf

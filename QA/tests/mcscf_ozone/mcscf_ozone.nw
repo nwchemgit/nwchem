@@ -1,0 +1,25 @@
+echo
+
+start mcscf_ozone
+
+geometry units au noprint  # 3-21g RHF singlet optimized geometry
+  symmetry c2v
+  O       0.000000   0.000000  -0.769844 
+  O       0.000000   1.961067   0.384922 
+end
+
+basis noprint
+  O library 6-31g*
+end
+
+title "case s8: Ozone --- ROHF triplet SCF energy with symmetry"
+scf; print low; triplet; end
+task scf
+
+title "cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry"
+mcscf; active 6; actelec 6; state 3B2 ; end
+task mcscf gradient
+
+title "cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry"
+mcscf; print none; end
+task mcscf gradient numerical

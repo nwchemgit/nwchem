@@ -1,0 +1,1001 @@
+ argument  1 = mcscf_ozone.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+start mcscf_ozone
+
+geometry units au noprint  # 3-21g RHF singlet optimized geometry
+  symmetry c2v
+  O       0.000000   0.000000  -0.769844
+  O       0.000000   1.961067   0.384922
+end
+
+basis noprint
+  O library 6-31g*
+end
+
+title "case s8: Ozone --- ROHF triplet SCF energy with symmetry"
+scf; print low; triplet; end
+task scf
+
+title "cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry"
+mcscf; active 6; actelec 6; state 3B2 ; end
+task mcscf gradient
+
+title "cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry"
+mcscf; print none; end
+task mcscf gradient numerical
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 4.6
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
+                         1999, 2000, 2001, 2002, 2003, 2004
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = twix
+    program       = /home/edo/nw46/nwchem-4.6/bin/LINUX/nwchem
+    date          = Sat May  8 16:41:25 2004
+
+    compiled      = Sat May  8 16:41:17 PDT 2004
+    source        = /home/edo/nwchem-4.6
+    nwchem branch = 4.6
+    input         = mcscf_ozone.nw
+    prefix        = mcscf_ozone.
+    data base     = ./mcscf_ozone.db
+    status        = startup
+    nproc         =    2
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   13107194 doubles =    100.0 Mbytes
+    stack     =   13107187 doubles =    100.0 Mbytes
+    global    =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total     =   52428781 doubles =    400.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+ 
+                                                                                                    case s8: Ozone --- ROHF triplet SCF energy with symmetry
+                                                                                                    --------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+             case s8: Ozone --- ROHF triplet SCF energy with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    11
+  open shells     =     2
+  charge          =   0.00
+  wavefunction    = ROHF
+  input vectors   = atomic
+  output vectors  = ./mcscf_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+ Forming initial guess at       0.1s
+
+
+ Starting SCF solution at       0.3s
+
+
+
+       Final ROHF results 
+       ------------------ 
+
+         Total SCF energy =   -224.209154766232
+      One-electron energy =   -452.176349937303
+      Two-electron energy =    155.405603924133
+ Nuclear repulsion energy =     72.561591246938
+
+        Time for solution =      0.7s
+
+
+
+ Task  times  cpu:        0.9s     wall:        1.4s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                                                                            cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+                                                                                            -------------------------------------------------------------------------
+ 
+ 
+                            NWChem Direct MCSCF Module
+                            --------------------------
+ 
+ 
+     cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+ 
+ 
+     -----------------------------------
+       Basis functions:             45
+       Inactive shells:              9
+       Active shells:                6
+       Active electrons:             6
+       Symmetry:                    b2      
+       Multiplicity:                 3
+       Orbital rotations:          504
+     -----------------------------------
+
+     -----------------------------------
+       E2 extrapolation:             F
+       Conjugacy:                    T
+       Micro CI relax:               T
+       Canonical orbitals:           T
+       Maximum iterations:          20
+       Converge threshold:    1.00E-04
+       Conjugacy resets:            20
+       Initial levelshift:        0.10
+     -----------------------------------
+
+ Loading old vectors from job with title :
+
+case s8: Ozone --- ROHF triplet SCF energy with symmetry
+
+
+   input molecular orbitals = ./mcscf_ozone.movecs
+  output molecular orbtials = ./mcscf_ozone.movecs
+
+       No. of determinants:           225
+
+
+  Starting Orbital Energies
+   -20.890496   -20.696403   -20.696323    -1.811259    -1.471695    -1.048048
+    -0.840106    -0.835005    -0.795799    -0.549373    -0.511000    -0.312899
+    -0.214784     0.402231     0.505802     0.806889     0.941143     0.959502
+     1.025259     1.057535     1.108605     1.165399     1.167154     1.189373
+     1.248372     1.477381     1.499862     1.660049     1.682459     1.700058
+     2.056511     2.067205     2.115139     2.143244     2.409227     2.696196
+     2.787218     2.921176     2.933293     2.975805     3.182138     3.307620
+     3.639364     3.848648     4.083817
+
+  Orbital Symmetry Irreps
+a1   b2   a1   a1   b2   a1   b1   a1   b2   a2   b2   a1   b1   a1   b2  
+a1   b2   a1   b1   a1   b2   a1   a2   b1   b2   b2   a1   a2   b1   a1  
+b2   a2   b1   a1   b2   a1   b1   a1   b2   a2   b2   a1   a1   b2   a1  
+
+ Integral file          = ./mcscf_ozone.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      4        Max. records in file   =  13554
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ #quartets = 8.917D+03 #integrals = 1.668D+05 #direct =  0.0% #cached =100.0%
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+
+
+          %%%%% MacroIteration   1 %%%%%
+
+
+           >>>| Valence CI:            -10.029324213673
+           >>>| MCSCF energy:         -224.240534245105
+           >>>| Gradient norm:          0.540080460D+00
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.24053425 -9.36D-02  0.00D+00  0.00D+00 0.0D+00      1.9
+       1.0000    -224.28684661  9.81D-03  5.37D-03  1.03D-01 1.0D-01      2.1
+       0.9051    -224.28718760 -2.53D-03 -2.58D-03  1.30D-01 2.7D-02      2.2
+     --- Orbitals canonicalized ---
+
+
+
+          %%%%% MacroIteration   2 %%%%%
+
+
+           >>>| Valence CI:            -10.136031112485
+           >>>| MCSCF energy:         -224.287187598767
+           >>>| Gradient norm:          0.478931123D-01
+     --- Warning:   39 Hessian diagonals < 0.05 ---
+     --- Warning: Precondition failed to converge:Residue: current= 0.3D-01 required= 0.3D-01---
+     --- Conjugacy reset ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.28718760 -9.36D-03  0.00D+00  0.00D+00 0.0D+00      3.5
+       1.0000    -224.30119711 -1.36D-02 -1.61D-02 -4.20D-03 1.4D+00      3.7
+                     Negative curvature: hessian=-4.20D-03
+       1.5010    -224.30562812 -3.14D-03 -3.63D-03  2.08D-02 3.4D-01      3.8
+       1.6518    -224.30580956  7.34D-04  7.32D-04  2.57D-02 7.8D-02      4.0
+
+
+
+          %%%%% MacroIteration   3 %%%%%
+
+
+           >>>| Valence CI:            -11.155387288182
+           >>>| MCSCF energy:         -224.305809561575
+           >>>| Gradient norm:          0.743092478D-01
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.30580956 -6.85D-03  0.00D+00  0.00D+00 0.0D+00      4.5
+       1.0000    -224.31107107 -3.38D-03 -3.53D-03  3.47D-03 4.9D-01      4.7
+       1.9739    -224.31222957  1.11D-03  1.05D-03  4.61D-03 1.6D-01      4.8
+       1.7340    -224.31235554 -5.12D-05 -5.29D-05  4.82D-03 7.5D-03      5.0
+
+
+
+          %%%%% MacroIteration   4 %%%%%
+
+
+           >>>| Valence CI:            -11.862367779234
+           >>>| MCSCF energy:         -224.312355542354
+           >>>| Gradient norm:          0.710204639D-01
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.31235554 -1.02D-02  0.00D+00  0.00D+00 0.0D+00      5.5
+       1.0000    -224.32391067 -1.40D-03 -7.15D-03  8.82D-03 1.4D-01      5.7
+       1.1589    -224.32357561  5.70D-03  5.66D-03  4.47D-02 5.6D-01      5.9
+       1.0314    -224.32393345 -4.60D-05 -6.78D-05  4.50D-02 4.5D-03      6.0
+
+
+
+          %%%%% MacroIteration   5 %%%%%
+
+
+           >>>| Valence CI:            -12.913206314061
+           >>>| MCSCF energy:         -224.323933454217
+           >>>| Gradient norm:          0.153910590D+00
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.32393345 -1.35D-02  0.00D+00  0.00D+00 0.0D+00      6.3
+       1.0000    -224.31589153  2.79D-02  2.88D-02  4.14D-02 2.1D+00      6.5
+                    Energy increase :             0.00804193 backtrack
+       0.6667    -224.32343409  1.63D-02  1.68D-02  3.49D-02 1.2D+00      6.7
+       0.2009    -224.32590262 -5.69D-03 -5.68D-03  4.71D-02 4.2D-01      6.9
+       0.3217    -224.32625789 -1.20D-04 -1.57D-04  4.61D-02 8.9D-03      7.0
+
+
+
+          %%%%% MacroIteration   6 %%%%%
+
+
+           >>>| Valence CI:            -13.113981352305
+           >>>| MCSCF energy:         -224.326257885969
+           >>>| Gradient norm:          0.122173495D+00
+     --- Warning:    5 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.32625789 -1.24D-02  0.00D+00  0.00D+00 0.0D+00      7.4
+       1.0000    -224.33565521 -5.94D-03 -6.18D-03  6.43D-03 4.8D-01      7.5
+       1.9244    -224.33759628  1.91D-03  1.83D-03  8.49D-03 1.5D-01      7.7
+       1.6996    -224.33780214 -7.66D-05 -7.77D-05  8.84D-03 6.2D-03      7.8
+
+
+
+          %%%%% MacroIteration   7 %%%%%
+
+
+           >>>| Valence CI:            -13.311915322484
+           >>>| MCSCF energy:         -224.337802141252
+           >>>| Gradient norm:          0.754487943D-01
+     --- Warning:    6 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33780214 -3.10D-03  0.00D+00  0.00D+00 0.0D+00      8.2
+       1.0000    -224.33967438 -6.02D-04 -6.23D-04  2.50D-03 1.9D-01      8.4
+       1.2409    -224.33974313  3.27D-05  3.19D-05  2.63D-03 1.1D-02      8.6
+
+
+
+          %%%%% MacroIteration   8 %%%%%
+
+
+           >>>| Valence CI:            -13.075095470389
+           >>>| MCSCF energy:         -224.339743127852
+           >>>| Gradient norm:          0.781582902D-02
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33974313 -1.75D-04  0.00D+00  0.00D+00 0.0D+00      8.9
+       1.0000    -224.33983275 -4.65D-06 -4.69D-06  1.70D-04 2.7D-02      9.1
+
+
+
+          %%%%% MacroIteration   9 %%%%%
+
+
+           >>>| Valence CI:            -13.038924958473
+           >>>| MCSCF energy:         -224.339832745748
+           >>>| Gradient norm:          0.152193328D-02
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983275 -9.56D-07  0.00D+00  0.00D+00 0.0D+00      9.4
+       1.0000    -224.33983326 -8.18D-08 -8.18D-08  8.74D-07 8.6D-02      9.6
+
+
+
+          %%%%% MacroIteration  10 %%%%%
+
+
+           >>>| Valence CI:            -13.042067011166
+           >>>| MCSCF energy:         -224.339833264677
+           >>>| Gradient norm:          0.298278337D-03
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983326 -1.34D-07  0.00D+00  0.00D+00 0.0D+00      9.9
+       1.0000    -224.33983334 -7.05D-09 -7.05D-09  1.27D-07 5.2D-02     10.1
+
+
+
+          %%%%% MacroIteration  11 %%%%%
+
+
+           >>>| Valence CI:            -13.041363742120
+           >>>| MCSCF energy:         -224.339833335397
+           >>>| Gradient norm:          0.148398515D-03
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983334 -8.22D-09  0.00D+00  0.00D+00 0.0D+00     10.3
+       1.0000    -224.33983334 -1.12D-09 -1.12D-09  7.10D-09 1.4D-01     10.5
+       1.1577    -224.33983334  2.61D-14 -6.71D-12  7.10D-09 3.2D-06     10.7
+     --- Orbitals canonicalized ---
+
+
+
+          %%%%% MacroIteration  12 %%%%%
+
+
+           >>>| Valence CI:            -13.041643677244
+           >>>| MCSCF energy:         -224.339833349856
+           >>>| Gradient norm:          0.408816066D-04
+
+
+
+
+     ==============================
+            MCSCF Converged
+     ==============================
+
+
+
+          Canonical Eigenvalues
+
+              1      
+    1  -20.7506
+    2  -20.6976
+    3  -20.6975
+    4   -1.4630
+    5   -1.2587
+    6   -1.0205
+    7   -0.7790
+    8   -0.6394
+    9   -0.5864
+   10   -1.0341
+   11   -0.9854
+   12   -0.3554
+   13   -0.2606
+   14   -0.0290
+   15   -0.0223
+   16    0.8025
+   17    0.8472
+   18    0.8794
+   19    1.0444
+   20    1.0500
+   21    1.1080
+   22    1.1583
+   23    1.1765
+   24    1.2139
+   25    1.2357
+   26    1.4330
+   27    1.4951
+   28    1.6821
+   29    1.6968
+   30    1.7047
+   31    2.0537
+   32    2.0540
+   33    2.1114
+   34    2.1350
+   35    2.3971
+   36    2.7285
+   37    2.7988
+   38    2.9185
+   39    2.9560
+   40    2.9971
+   41    3.1500
+   42    3.3249
+   43    3.6423
+   44    3.8356
+   45    4.1378
+ 
+
+          Converged CI vector
+
+   Index           Coefficient          Config. Occupation
+       196         -0.04601015          1  3  4  5  1  5
+       197          0.03963026          1  3  4  5  2  6
+       138          0.02067778          1  2  3  5  1  3
+        12          0.98748792          1  2  3  4  1  2
+        44         -0.06587425          1  3  4  6  1  6
+        43         -0.05524709          1  3  4  6  2  5
+        29         -0.05610091          2  3  4  5  1  6
+        28         -0.07701954          2  3  4  5  2  5
+       211          0.03948581          2  3  4  6  1  5
+       212         -0.02558410          2  3  4  6  2  6
+
+
+
+          Natural orbital occupation numbers
+
+              1      
+    1    2.0000
+    2    2.0000
+    3    2.0000
+    4    2.0000
+    5    2.0000
+    6    2.0000
+    7    2.0000
+    8    2.0000
+    9    2.0000
+   10    1.9761
+   11    1.9759
+   12    1.0004
+   13    0.9996
+   14    0.0272
+   15    0.0208
+ 
+
+
+       Final MCSCF results 
+       ------------------- 
+
+       Total MCSCF energy =   -224.339833340157
+            Gradient norm =      4.1D-05
+
+    CPU time for solution =     10.2s
+   Wall time for solution =     12.4s
+
+
+ 
+                        Analysis of MCSCF natural orbitals
+                        ----------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-2.075062D+01  Symmetry=a1
+              MO Center=  5.4D-21, -6.0D-16, -4.1D-01, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.994770  1 O  s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-2.069756D+01  Symmetry=b2
+              MO Center= -3.6D-21,  6.8D-10,  2.0D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.703393  2 O  s                 31     -0.703393  3 O  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-2.069754D+01  Symmetry=a1
+              MO Center= -2.8D-28, -6.8D-10,  2.0D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31     -0.703361  3 O  s                 16     -0.703361  2 O  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-1.462957D+00  Symmetry=a1
+              MO Center= -4.1D-18, -3.0D-15, -1.2D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.306826  1 O  s                 32      0.278223  3 O  s          
+    17      0.278223  2 O  s                 36      0.256080  3 O  s          
+    21      0.256080  2 O  s                  6      0.243692  1 O  s          
+     5     -0.165457  1 O  pz         
+ 
+ Vector    5  Occ=2.000000D+00  E=-1.258667D+00  Symmetry=b2
+              MO Center= -1.5D-19, -8.2D-15,  2.6D-01, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36     -0.387228  3 O  s                 21      0.387228  2 O  s          
+    32     -0.376188  3 O  s                 17      0.376188  2 O  s          
+    31      0.160668  3 O  s                 16     -0.160668  2 O  s          
+ 
+ Vector    6  Occ=2.000000D+00  E=-1.020452D+00  Symmetry=a1
+              MO Center=  2.9D-29,  1.1D-14, -2.0D-01, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -0.493798  1 O  s                  2     -0.367382  1 O  s          
+    21      0.310940  2 O  s                 36      0.310940  3 O  s          
+     5      0.274380  1 O  pz                17      0.246029  2 O  s          
+    32      0.246029  3 O  s                  1      0.152876  1 O  s          
+ 
+ Vector    7  Occ=2.000000D+00  E=-7.790443D-01  Symmetry=b1
+              MO Center=  4.6D-18,  3.0D-18, -2.7D-01, r^2= 7.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -0.594254  1 O  px                 7     -0.365970  1 O  px         
+    18     -0.179886  2 O  px                33     -0.179886  3 O  px         
+ 
+ Vector    8  Occ=2.000000D+00  E=-6.393636D-01  Symmetry=a1
+              MO Center=  5.1D-19,  5.5D-16,  1.2D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35     -0.411894  3 O  pz                20     -0.411894  2 O  pz         
+    24     -0.287538  2 O  pz                39     -0.287538  3 O  pz         
+     6     -0.237926  1 O  s                 19      0.209777  2 O  py         
+    34     -0.209777  3 O  py         
+ 
+ Vector    9  Occ=2.000000D+00  E=-5.864138D-01  Symmetry=b2
+              MO Center=  7.9D-18, -4.1D-16,  1.9D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      0.420229  3 O  pz                20     -0.420229  2 O  pz         
+    39      0.281065  3 O  pz                24     -0.281065  2 O  pz         
+    19      0.264550  2 O  py                34      0.264550  3 O  py         
+    23      0.189696  2 O  py                38      0.189696  3 O  py         
+ 
+ Vector   10  Occ=1.976096D+00  E=-1.034123D+00  Symmetry=a1
+              MO Center=  0.0D+00, -1.4D-18, -3.0D-02, r^2= 8.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.507544  1 O  pz                 9      0.298373  1 O  pz         
+    34      0.246124  3 O  py                19     -0.246124  2 O  py         
+    35     -0.192148  3 O  pz                20     -0.192148  2 O  pz         
+     2      0.183460  1 O  s          
+ 
+ Vector   11  Occ=1.975948D+00  E=-9.853863D-01  Symmetry=b2
+              MO Center= -4.5D-30,  1.8D-14, -8.7D-02, r^2= 9.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.477189  1 O  py                19     -0.323017  2 O  py         
+    34     -0.323017  3 O  py                 8      0.175101  1 O  py         
+    23     -0.169819  2 O  py                38     -0.169819  3 O  py         
+    20     -0.154913  2 O  pz                35      0.154913  3 O  pz         
+ 
+ Vector   12  Occ=1.000378D+00  E=-3.553531D-01  Symmetry=a2
+              MO Center=  5.9D-37, -1.4D-16,  1.9D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.507959  2 O  px                33     -0.507959  3 O  px         
+    22      0.305967  2 O  px                37     -0.305967  3 O  px         
+ 
+ Vector   13  Occ=9.996226D-01  E=-2.606132D-01  Symmetry=b1
+              MO Center=  2.2D-52, -4.4D-18,  8.8D-02, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18     -0.477180  2 O  px                33     -0.477180  3 O  px         
+     3      0.394127  1 O  px                 7      0.346673  1 O  px         
+    22     -0.336231  2 O  px                37     -0.336231  3 O  px         
+ 
+ Vector   14  Occ=2.718048D-02  E=-2.904668D-02  Symmetry=a1
+              MO Center= -1.2D-18, -9.5D-17,  2.4D-02, r^2= 7.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.684013  1 O  pz                 6      0.489264  1 O  s          
+     2      0.482238  1 O  s                 19      0.480813  2 O  py         
+    34     -0.480813  3 O  py                20      0.213308  2 O  pz         
+    35      0.213308  3 O  pz                38     -0.209820  3 O  py         
+    23      0.209820  2 O  py                36     -0.209508  3 O  s          
+ 
+ Vector   15  Occ=2.077388D-02  E=-2.225168D-02  Symmetry=b2
+              MO Center=  1.1D-32, -7.0D-17, -1.5D-01, r^2= 7.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.907125  1 O  py                34      0.425094  3 O  py         
+    19      0.425094  2 O  py                20      0.301457  2 O  pz         
+    35     -0.301457  3 O  pz                21     -0.298383  2 O  s          
+    36      0.298383  3 O  s                  8      0.274995  1 O  py         
+    14      0.207379  1 O  dyz               32      0.186545  3 O  s          
+ 
+ Vector   16  Occ=0.000000D+00  E= 8.025260D-01  Symmetry=a1
+              MO Center=  0.0D+00, -4.9D-16, -3.6D-01, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -1.797496  2 O  s                 36     -1.797496  3 O  s          
+     6      1.441173  1 O  s                  9      1.292219  1 O  pz         
+    23      1.060616  2 O  py                38     -1.060616  3 O  py         
+    17      0.518769  2 O  s                 32      0.518769  3 O  s          
+     2      0.480494  1 O  s                 13      0.392725  1 O  dyy        
+ 
+ Vector   17  Occ=0.000000D+00  E= 8.471710D-01  Symmetry=b2
+              MO Center= -7.1D-33, -1.7D-16,  9.3D-02, r^2= 3.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8     -2.229857  1 O  py                23     -1.037667  2 O  py         
+    38     -1.037667  3 O  py                24     -0.739144  2 O  pz         
+    39      0.739144  3 O  pz                21      0.617650  2 O  s          
+    36     -0.617650  3 O  s                 32     -0.444122  3 O  s          
+    17      0.444122  2 O  s                 14     -0.307398  1 O  dyz        
+ 
+ Vector   18  Occ=0.000000D+00  E= 8.793524D-01  Symmetry=a1
+              MO Center= -5.8D-19, -7.0D-16,  4.5D-01, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -2.131897  1 O  s                  9     -1.103161  1 O  pz         
+    38      0.918103  3 O  py                23     -0.918103  2 O  py         
+    32      0.586620  3 O  s                 17      0.586620  2 O  s          
+    39     -0.464907  3 O  pz                24     -0.464907  2 O  pz         
+    43      0.316504  3 O  dyy               28      0.316504  2 O  dyy        
+ 
+ Vector   19  Occ=0.000000D+00  E= 1.044387D+00  Symmetry=b1
+              MO Center=  2.2D-16,  1.5D-15, -1.3D-02, r^2= 1.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -0.573028  1 O  px                18     -0.522557  2 O  px         
+    33     -0.522557  3 O  px                22      0.496552  2 O  px         
+    37      0.496552  3 O  px                 7      0.452805  1 O  px         
+ 
+ Vector   20  Occ=0.000000D+00  E= 1.049962D+00  Symmetry=a1
+              MO Center= -2.0D-34,  3.7D-18,  1.4D-01, r^2= 2.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.568472  1 O  s                 23      0.755357  2 O  py         
+    38     -0.755357  3 O  py                 2     -0.437732  1 O  s          
+    34      0.435810  3 O  py                19     -0.435810  2 O  py         
+    35      0.423488  3 O  pz                20      0.423488  2 O  pz         
+    21     -0.362007  2 O  s                 36     -0.362007  3 O  s          
+ 
+ Vector   21  Occ=0.000000D+00  E= 1.107992D+00  Symmetry=b2
+              MO Center=  3.7D-31, -6.3D-16,  2.5D-02, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    39     -0.712716  3 O  pz                24      0.712716  2 O  pz         
+    35      0.534531  3 O  pz                20     -0.534531  2 O  pz         
+    23      0.425134  2 O  py                38      0.425134  3 O  py         
+    21     -0.309233  2 O  s                 36      0.309233  3 O  s          
+     4      0.293442  1 O  py                14      0.265556  1 O  dyz        
+ 
+ Vector   22  Occ=0.000000D+00  E= 1.158290D+00  Symmetry=a2
+              MO Center=  4.9D-21, -1.1D-15,  2.2D-01, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37     -0.838846  3 O  px                22      0.838846  2 O  px         
+    33      0.633776  3 O  px                18     -0.633776  2 O  px         
+    11     -0.173561  1 O  dxy        
+ 
+ Vector   23  Occ=0.000000D+00  E= 1.176505D+00  Symmetry=a1
+              MO Center= -4.3D-17,  2.1D-17, -1.5D-01, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9     -1.221047  1 O  pz                24      0.624327  2 O  pz         
+    39      0.624327  3 O  pz                 5      0.554440  1 O  pz         
+    35     -0.310170  3 O  pz                20     -0.310170  2 O  pz         
+    13      0.229317  1 O  dyy               19     -0.217372  2 O  py         
+    34      0.217372  3 O  py                 6     -0.205398  1 O  s          
+ 
+ Vector   24  Occ=0.000000D+00  E= 1.213939D+00  Symmetry=b1
+              MO Center= -5.6D-20, -1.3D-16, -2.2D-01, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -1.388292  1 O  px                22      0.808395  2 O  px         
+    37      0.808395  3 O  px                 3      0.705542  1 O  px         
+    18     -0.360742  2 O  px                33     -0.360742  3 O  px         
+ 
+ Vector   25  Occ=0.000000D+00  E= 1.235740D+00  Symmetry=b2
+              MO Center= -1.1D-31,  2.5D-15, -6.3D-02, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8     -1.765520  1 O  py                36     -1.123051  3 O  s          
+    21      1.123051  2 O  s                 24     -0.908201  2 O  pz         
+    39      0.908201  3 O  pz                19     -0.392754  2 O  py         
+    34     -0.392754  3 O  py                 4      0.300590  1 O  py         
+    20      0.291566  2 O  pz                35     -0.291566  3 O  pz         
+ 
+
+ Wrote Lagrangian and 1- and 2-particle density matrices to ./mcscf_ozone.mcpdm
+
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total        nuclear
+     -   - - -        -----        -------
+     0   0 0 0      0.000000     24.000000
+ 
+     1   1 0 0      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000
+     1   0 0 1     -0.001239      0.000000
+ 
+     2   2 0 0    -10.341401      0.000000
+     2   1 1 0      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000
+     2   0 2 0    -12.072030     61.532540
+     2   0 1 1      0.000000      0.000000
+     2   0 0 2    -11.928512      7.111917
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     7.95   2.00  0.94  2.91  0.79  1.17  0.15
+    2 O    8     8.02   2.00  0.98  2.74  0.91  1.31  0.08
+    3 O    8     8.02   2.00  0.98  2.74  0.91  1.31  0.08
+ 
+    Mulliken analysis of the active space density
+    ---------------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     2.30   0.00  0.13  1.61 -0.01  0.51  0.06
+    2 O    8     1.85   0.00  0.02  1.32 -0.05  0.52  0.04
+    3 O    8     1.85   0.00  0.02  1.32 -0.05  0.52  0.04
+
+ Parallel integral file used       5 records with       0 large values
+
+                              NWChem Gradients Module
+                              -----------------------
+ 
+ 
+     cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+ 
+  Using symmetry
+
+
+                         MCSCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.261190
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.156722  -0.130595
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.156722  -0.130595
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.00   |       0.60   |
+                 ----------------------------------------
+                 |  WALL  |       0.00   |       0.62   |
+                 ----------------------------------------
+
+ Task  times  cpu:       10.9s     wall:       13.2s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                                                                           cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry
+                                                                                           --------------------------------------------------------------------------
+ 
+                         NWChem Numerical Gradients Module
+                         ---------------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.33983335
+
+
+ Saving state for mcscf with suffix numg
+        ./mcscf_ozone.movecs
+        ./mcscf_ozone.civec
+ 
+ Finite difference step  1.00000D-02
+ Use five point formula F
+
+ step     1 energy        -224.34200927
+ step    -1 energy        -224.33757583
+            gradient        -0.221672
+ step     2 energy        -224.33658194
+ step    -2 energy        -224.34297998
+            gradient         0.319902
+
+
+                         MCSCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.261199
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.156745  -0.130599
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.156745  -0.130599
+ 
+ 
+
+ Deleting state for mcscf with suffix numg
+        ./mcscf_ozone.movecs
+        ./mcscf_ozone.civec
+ 
+
+ Task  times  cpu:       12.2s     wall:       18.1s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1.27e+04 1.27e+04 4.19e+05 1.62e+05 1.06e+06 1205        0        0     
+number of processes/call 1.02e+00 1.03e+00 1.00e+00 1.33e+00 0.00e+00
+bytes total:             1.43e+08 6.49e+07 2.30e+08 1.04e+06 0.00e+00 0.00e+00
+bytes remote:            3.52e+07 3.70e+06 9.27e+07 -5.52e+05 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 702432 bytes
+ 
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.6" (2004), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis, E. J. Bylaska,
+            W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler, L. Pollack,
+            R. J. Harrison, J. Nieplocha, V. Tipparaju, M. Krishnan, A. A. Auer,
+            E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+            R. Kendall, J. A. Nichols, K. Tsemekhman, M. Valiev,
+            K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
+            D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
+            E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+            G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.6" (2004),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:       24.0s     wall:       32.8s
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        20	        34
+	current total bytes		         0	         0
+	maximum total bytes		   2175876	  46208092
+	maximum total K-bytes		      2176	     46209
+	maximum total M-bytes		         3	        47
