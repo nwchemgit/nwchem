@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.68 2000-05-12 17:43:04 d3j191 Exp $
+c $Id: sp_init.F,v 1.69 2000-05-12 18:20:35 d3j191 Exp $
 c
       implicit none
 c
@@ -160,6 +160,21 @@ c
       if(.not.ma_pop_stack(l_x))
      + call errquit('Failed to deallocate x',0)
 c
+      if(np.gt.1) then
+      rtemp(1)=temp
+      rtemp(2)=tempw
+      rtemp(3)=temps
+      call ga_brdcst(msp_01,rtemp,ma_sizeof(mt_dbl,3,mt_byte),0)
+      temp=rtemp(1)
+      tempw=rtemp(2)
+      temps=rtemp(3)
+      itemp(1)=nsm
+      itemp(2)=nsf
+      call ga_brdcst(msp_02,itemp,ma_sizeof(mt_int,2,mt_byte),0)
+      nsm=itemp(1)
+      nsf=itemp(2)
+      endif
+c
       nwmi=nwm
       nwai=nwa
       nsmi=nsm
@@ -178,21 +193,6 @@ c
       vlatt(i,j)=vlat(i,j)
     2 continue
     1 continue
-c
-      if(np.gt.1) then
-      rtemp(1)=temp
-      rtemp(2)=tempw
-      rtemp(3)=temps
-      call ga_brdcst(msp_01,rtemp,ma_sizeof(mt_dbl,3,mt_byte),0)
-      temp=rtemp(1)
-      tempw=rtemp(2)
-      temps=rtemp(3)
-      itemp(1)=nsm
-      itemp(2)=nsf
-      call ga_brdcst(msp_02,itemp,ma_sizeof(mt_int,2,mt_byte),0)
-      nsm=itemp(1)
-      nsf=itemp(2)
-      endif
 c
       nsfi=nsf
       msfi=max(1,nsf)
