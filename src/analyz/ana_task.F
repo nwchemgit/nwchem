@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.26 2000-05-11 02:14:23 d3j191 Exp $
+c $Id: ana_task.F,v 1.27 2000-06-09 17:54:19 d3j191 Exp $
 c
       implicit none
 c
@@ -321,7 +321,7 @@ c
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
 c
-      if(nsel.eq.0) call errquit('No atoms selected',0)
+c      if(nsel.eq.0) call errquit('No atoms selected',0)
 c
 c     write header
 c
