@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.47 2003-02-04 16:56:45 bert Exp $
+# $Id: GNUmakefile,v 1.48 2003-02-19 18:19:22 fruechtl Exp $
  
 include ../../config/makefile.h
 
@@ -7,7 +7,11 @@ USE_TEXAS = YEP
 ifeq ($(USE_TEXAS),YEP)
 
 ifeq ($(TARGET),SOLARIS)
+ifeq ($(FC), frt)
+ FOPTIMIZE += -xamtfer,tfer_i
+else
  FOPTIMIZE += -inline=amtfer,tfer_i
+endif
 endif
 ifeq ($(TARGET),SP)
  FOPTIMIZE += -Q+amtfer:tfer_i

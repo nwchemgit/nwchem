@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.94 2003-02-19 15:49:00 fruechtl Exp $
+# $Id: DEFS,v 1.95 2003-02-19 18:19:23 fruechtl Exp $
 #
 #======================================================================
 #
@@ -184,7 +184,12 @@ peigs_CPU = SPARC
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -DSTD_INT -O
-peigs_FC += -DSTD_INT -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+ifeq ($(FC),frt)
+#Fujitsu
+ peigs_FC += -DSTD_INT -DSTD_DBL -D$(peigs_CPU) -Kfast  -D$(peigs_COMM)
+else
+ peigs_FC += -DSTD_INT -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+endif
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
@@ -204,7 +209,12 @@ peigs_CPU = SPARC64
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -O -D$(peigs_CPU)
-peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+ifeq ($(FC),frt)
+#Fujitsu
+ peigs_FC += -DSTD_DBL -D$(peigs_CPU) -Kfast -KV9 -D$(peigs_COMM)
+else
+ peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
+endif
 peigs_CPP +=  -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 ifdef USE_INTEGER4
@@ -568,16 +578,6 @@ endif
 ifeq ($(peigs_TARGET),FUJITSU_VPP)
 peigs_CODEOBJ = DBLE
 peigs_CPU = VPP
-endif
-
-ifeq ($(peigs_TARGET),FUJITSU_SOLARIS)
-peigs_CPU = SPARC_GP
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -O -D$(peigs_CPU)
-peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -D$(peigs_TARGET) -O4  -D$(peigs_COMM)
-peigs_CPP +=  -DSTD_DBL -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 endif
 
 export peigs_COMM

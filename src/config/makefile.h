@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.400 2003-02-19 15:49:00 fruechtl Exp $
+# $Id: makefile.h,v 1.401 2003-02-19 18:19:22 fruechtl Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -301,7 +301,7 @@ endif
 
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
   ifeq ($(FC),frt)
-     CORE_LIBS +=  -llapack -lblas
+     CORE_LIBS +=  -SSL2
   else
     LDOPTIONS = -xildoff
     CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec

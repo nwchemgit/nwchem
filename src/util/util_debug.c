@@ -51,7 +51,7 @@ void FATR util_debug_(Integer *rtdb)
   argv[3] = "-display";
   argv[4] = display;
   argv[5] = "-e";
-#ifdef SOLARIS
+#if defined(SOLARIS) && !defined(FUJITSU_SOLARIS)
   argv[6] = "dbx";
   argv[7] = path;
   argv[8] = pid;

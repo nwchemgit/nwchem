@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.22 2002-04-23 18:37:22 edo Exp $
+ $Id: blas_lapack.h,v 1.23 2003-02-19 18:19:23 fruechtl Exp $
   c defines */
 
 #define NO_EVEC 0
@@ -205,16 +205,6 @@
 #define DLAMCHS  2.2250738585072014e-308
 #define DLAMCHU  2.2250738585072014e-308
 
-
-#endif
-
-#ifdef FUJITSU_SOLARIS
- 
-#define DLAMCHE 2.2204460492503131e-16
-#define DLAMCHP 2.2204460492503131e-16
-#define DLAMCHB 2.0000000000000000e+00
-#define DLAMCHS 2.2250738585072014e-308
-#define DLAMCHU 2.2250738585072014e-308
 #endif
 
 #ifdef KSR
