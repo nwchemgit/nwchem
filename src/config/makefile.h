@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.113 1995-06-02 05:25:06 gg502 Exp $
+# $Id: makefile.h,v 1.114 1995-06-28 16:52:08 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -21,7 +21,7 @@ endif
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine you wish to build for
-# (one of SUN, DELTA, IBM, KSR, PARAGON, CRAY-T3D)
+# (one of SUN, DELTA, IBM, KSR, PARAGON, CRAY-T3D, DECOSF)
 #
 
 ifndef NWCHEM_TARGET
@@ -29,7 +29,7 @@ error2:
 	@echo You must define NWCHEM_TARGET in your environment to be the name
 	@echo of the machine you wish to build for ... for example
 	@echo     setenv NWCHEM_TARGET SUN
-	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM, CRAY-T3D
+	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM, CRAY-T3D, DECOSF
 	@exit 1
 endif
 
@@ -492,6 +492,34 @@ ifeq ($(TARGET),SP1)
 
  EXPLICITF = TRUE
 #
+endif
+
+
+ifeq ($(TARGET),DECOSF)
+#
+# DEC AXP OSF1
+#
+
+    CORE_SUBDIRS_EXTRA = blas lapack
+                  NICE = nice
+                SHELL := $(NICE) /bin/sh
+                    FC = f77
+                    CC = cc
+                    AR = ar
+                RANLIB = echo
+
+               INSTALL = @echo nwchem is built
+             MAKEFLAGS = -j 1
+
+              FOPTIONS = -i8
+              COPTIONS = 
+             FOPTIMIZE = -O
+             COPTIMIZE = -O
+
+               DEFINES = -DDECOSF -DLongInteger
+             CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
+
+            EXPLICITF = FALSE
 endif
 
 
