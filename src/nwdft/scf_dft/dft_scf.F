@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.120 1999-06-16 01:00:34 edo Exp $
+c     $Id: dft_scf.F,v 1.121 1999-06-22 01:21:19 edo Exp $
 c     
       implicit none
 c
@@ -121,7 +121,7 @@ c
       character*4 scftype
       character*7 vecs_or_dens
       character*255 basis_name, basis_trans
-      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp
+      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis
 c !!! BGJ
       logical cphf_poliz, do_poliz
       external cphf_poliz
@@ -162,6 +162,7 @@ c
 c     check if smearing is on
 c
       ssmear=0.d0
+      nstdis=1
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
         if(me.eq.0) write(0,*) ' SMEAR = ',ssmear
@@ -884,6 +885,7 @@ c
 c           DIIS step taken here.
 c     
             if (diising)then
+               nstdis=nstdis+1
                call diis_driver(toll_s, derr(ispin), ispin, ipol, 
      &                          icall, nfock, nbf_ao, geom, 
      &                          ao_bas_han, g_fock, g_dens(ispin), 
@@ -1092,6 +1094,7 @@ c
      &   call errquit('dft_scf: cannot pop stack',33)
             if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
             icall(1) = -1
+            nstdis=1
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
@@ -1261,24 +1264,26 @@ c
 c     
 c        Re-initialize DIIS
 c     
-         if (iswitc.eq.1.and.icall(1).gt.0.and.
-     .        ssmear.gt.1d-9)then
-c         if (icall(1).gt.0.and.iswitc.eq.1)then
-            if(me.eq.0) write(LuOut,*) ' resetting Diis'
-            icall(1) = -1
-            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-     &                       diising, nodiis)
-            icall(1) = 0
-            icall(2) = 0
-         endif
+c         if (iswitc.eq.1.and.icall(1).gt.0.and.
+c     .        ssmear.gt.1d-9)then
+cc         if (icall(1).gt.0.and.iswitc.eq.1)then
+c            if(me.eq.0) write(LuOut,*) ' resetting Diis'
+c            icall(1) = -1
+c            nstdis=1
+c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+c     &                       diising, nodiis)
+c            icall(1) = 0
+c            icall(2) = 0
+c         endif
       endif
 c     
       iter = iter + 1
-      if(ssmear.gt.1d-9.and.mod(iter,25).eq.0) then
-            if(me.eq.0) write(LuOut,*) ' resetting Diis'
+      if(ssmear.gt.1d-9.and.mod(nstdis,30).eq.0) then
+            if(me.eq.0) write(LuOut,*) ' resetting Diis',nstdis
             icall(1) = -1
+            nstdis=1
             call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 

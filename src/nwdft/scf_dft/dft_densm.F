@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult)
-C$Id: dft_densm.F,v 1.6 1999-06-16 01:00:34 edo Exp $
+C$Id: dft_densm.F,v 1.7 1999-06-22 01:21:19 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -102,11 +102,9 @@ c
                else
                   focc(i+ipoint)=0.d0
                endif
-c               if((i+ipoint).gt.(nbf+(isp-1)*nbf)) call
-c     *              errquit( ' densm out of bound ',i+ipoint)
             enddo
-C            do i=1+me,nbf,nproc
-            do i=1,nbf
+            do i=1+me,nbf,nproc
+c            do i=1,nbf
                if(focc(i+ipoint).gt.toll) then
                   call get_col(g_vecs(isp), nbf, i, DBL_MB(itmpm))
                   call dscal(nbf, focc(i+ipoint), DBL_MB(itmpm), 1)
