@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.99 2000-01-04 23:17:40 d3g681 Exp $
+C$Id: geom.F,v 1.100 2000-01-05 17:04:44 windus Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1280,6 +1280,71 @@ c
       coords(1,icent,geom) = c(1)
       coords(2,icent,geom) = c(2)
       coords(3,icent,geom) = c(3)
+      charge(icent,geom) = q
+c
+c     compute effective nuclear repulsion energy, dipole and
+c     interaction with external fields
+c
+      call geom_compute_values(geom)
+c
+      end
+      logical function geom_centv_get(geom, icent, t, c, v, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer icent             ! [input]
+      character*16 t            ! [output]
+      double precision c(3)     ! [output]
+      double precision v(3)     ! [output]
+      double precision q        ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+c
+      geom_centv_get = geom_check_handle(geom, 'geom_centv_get')
+      if (.not. geom_centv_get) return
+      geom_centv_get = geom_check_cent(geom, 'geom_centv_get', icent)
+      if (.not. geom_centv_get) return
+
+c
+      t = tags(icent,geom)
+      c(1) = coords(1,icent,geom)
+      c(2) = coords(2,icent,geom)
+      c(3) = coords(3,icent,geom)
+      v(1) = velocities(1,icent,geom)
+      v(2) = velocities(2,icent,geom)
+      v(3) = velocities(3,icent,geom)
+      q = charge(icent,geom)
+      geom_centv_get = .true.
+c
+      end
+      logical function geom_centv_set(geom, icent, t, c, v, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer icent             ! [input]
+      character*16 t            ! [input]
+      double precision c(3)     ! [input]
+      double precision v(3)     ! [input]
+      double precision q        ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+c
+      geom_centv_set = geom_check_handle(geom, 'geom_centv_set')
+      if (.not. geom_centv_set) return
+      geom_centv_set = geom_check_cent(geom, 'geom_centv_set', icent)
+      if (.not. geom_centv_set) return
+c
+      tags(icent,geom) = t
+      coords(1,icent,geom) = c(1)
+      coords(2,icent,geom) = c(2)
+      coords(3,icent,geom) = c(3)
+      velocities(1,icent,geom) = v(1)
+      velocities(2,icent,geom) = v(2)
+      velocities(3,icent,geom) = v(3)
       charge(icent,geom) = q
 c
 c     compute effective nuclear repulsion energy, dipole and
