@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.22 1997-07-25 18:00:06 d3g681 Exp $
+c$Id: gradients.F,v 1.23 1998-08-12 22:06:35 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -27,7 +27,7 @@ c
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
-      call util_print_rtdb_load(rtdb,'gradients')
+      call util_print_rtdb_load(rtdb,'scf')
       call ecce_print_module_entry ('scf')
 c
 c     Extract high level info from the data-base setting defaults
