@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.39 1999-09-20 20:15:17 d3j191 Exp $
+c $Id: md_main.F,v 1.40 1999-10-08 19:21:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1002,9 +1002,10 @@ c
 c     dynamic load balancing
 c
       if(itload.eq.0) then
-      call sp_balanc(stime,timer_wall(4),wallt)
+      call sp_balanc(stime,timer_wall(4),wallt,frequency(mdstep,nfsync))
       else
-      call sp_balanc(stime,timer_wall_average(4),wallt)
+      call sp_balanc(stime,timer_wall_average(4),wallt,
+     + frequency(mdstep,nfsync))
       endif
       call timer_reset(4)
 c
@@ -1451,10 +1452,7 @@ c
 c     copy current fields into local global array
 c     -------------------------------------------
 c
-c     call sp_putp(me,pw,nwmloc,ps,nsaloc)
-c     if(lpert2.or.lpert3) then
-c     call sp_putpp(me,pwp,nwmloc,psp,nsaloc)
-c     endif
+      call sp_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3)
 c
 c     synchronize to ensure induced fields are available
 c     --------------------------------------------------

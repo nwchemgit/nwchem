@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.20 1999-09-17 22:22:01 d3j191 Exp $
+c $Id: prp_main.F,v 1.21 1999-10-08 19:21:59 d3j191 Exp $
 c
       implicit none
 c
@@ -380,6 +380,8 @@ c
 c
       integer i
       character*10 pdate,ptime
+c
+      if(me.ne.0) return
 c
       if(.not.lfhdr) then
       call swatch(pdate,ptime)
