@@ -102,7 +102,12 @@ class Xrtdb:
   def edit(self):
     from SimpleDialog import *
 
-    name = self.selection_value()
+    try:
+      name = self.selection_value()
+    except:
+      self.set_text("Select an entry then edit")
+      return
+
     self.set_text("Editing %s" % name)
     try:
       values = rtdb_get(name)
@@ -122,7 +127,12 @@ class Xrtdb:
     self.process_tmpfile(name, ma_type, 0)
 
   def delete(self):
-    name = self.selection_value()
+    try:
+      name = self.selection_value()
+    except:
+      self.set_text("Select an entry then delete")
+      return
+
     try:
       rtdb_delete(name)
       self.set_text("Deleted %s" % name)
@@ -132,7 +142,15 @@ class Xrtdb:
     self.selection_clear()
 
   def help(self):
-    print "Help!"
+    from SimpleDialog import *
+    dialog = SimpleDialog(self.root,
+                          text="Quit \t- immediately exits.\n"
+                               "Delete \t- deletes selected entry.\n"
+                               "Edit \t- edits selected entry, optional save.\n"
+                               "New \t- makes new entry, prompts for type+name.\n"
+                               "Help \t- this is all that there is.",
+                          buttons=["Done"])
+    dialog.go()    
   
   def select(self,event):
     name = self.selection_value()
@@ -153,6 +171,7 @@ class Xrtdb:
 
   def selection_value(self):
     return self.listbox.get(self.selection_index())
+    
 
   def set_text(self,string):
     self.text.delete("0.0","end")
