@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.1 2004-08-01 02:02:44 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.2 2004-08-01 02:10:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -104,8 +104,8 @@
       external     control_Mulliken
       logical      psi_filefind
       external     psi_filefind
-      real*8       nwpw_timing,paw_psi_CheckOrtho
-      external     nwpw_timing,paw_psi_CheckOrtho
+      real*8       paw_psi_CheckOrtho
+      external     paw_psi_CheckOrtho
       integer      control_mapping
       external     control_mapping
 
