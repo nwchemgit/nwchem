@@ -1,5 +1,6 @@
       subroutine errquit(string, icode)
-C$Id: errquit.F,v 1.11 1997-04-28 22:17:28 d3g681 Exp $
+      implicit none
+C$Id: errquit.F,v 1.12 1998-10-29 23:26:00 d3e129 Exp $
 #include "global.fh"
 #include "util.fh"
 #include "mafdecls.fh"
