@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.4 1995-04-19 22:41:46 rg240 Exp $
+c  $Id: moints_6x.F,v 1.5 1995-06-02 05:24:08 gg502 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -694,7 +694,8 @@ c
             enddo
           enddo
           call ga_acc(g_exch,ijlo,ijhi,ab,ab,h1,nni,1.d0)
-#elif SCATTER_TRANSF
+#else
+#if SCATTER_TRANSF
           ij = 0
           do i=ilo,ihi
             ii = (i-1)*nbf
@@ -712,6 +713,7 @@ c
             ijhi = (i-1)*nbf + jhi
             call ga_acc(g_exch,ijlo,ijhi,ab,ab,h2(jlo,i),ilen,1.d0)
           enddo
+#endif
 #endif
 #endif
         enddo
@@ -740,7 +742,8 @@ c
             enddo
           enddo
           call ga_acc(g_exch,jilo,jihi,ab,ab,g1,nnj,1.d0)
-#elif SCATTER_TRANSF
+#else
+#if SCATTER_TRANSF
           ij = 0
           do j=jlo,jhi
             jj = (j-1)*nbf
@@ -763,6 +766,7 @@ c
             jihi = (j-1)*nbf + ihi
             call ga_acc(g_exch,jilo,jihi,ab,ab,g1(ilo,j),ilen,1.d0)
           enddo
+#endif
 #endif
 #endif
         enddo

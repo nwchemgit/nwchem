@@ -1,5 +1,5 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.9 1995-02-07 00:15:32 rg240 Exp $
+C$Id: util_flush.F,v 1.10 1995-06-02 05:24:53 gg502 Exp $
       implicit none
       integer unit
 c
@@ -9,8 +9,10 @@ c
     defined(SGI) || defined(SGITFP) || defined(IBM) || \
     defined(CRAY_T3D)
       call flush(unit)
-#elif defined(IPSC) || defined(DELTA)
+#else
+#if defined(IPSC) || defined(DELTA)
       call forflush(unit)
+#endif
 #endif
 c
       end

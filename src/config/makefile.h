@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.112 1995-06-02 04:53:37 gg502 Exp $
+# $Id: makefile.h,v 1.113 1995-06-02 05:25:06 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -222,7 +222,7 @@ ifeq ($(TARGET),CRAY-T3D)
 
                    FC = /mpp/bin/cf77 
                   CPP = /mpp/lib/cpp -P  -N
-             FOPTIONS = -Wf"-dp" -Ccray-t3d
+             FOPTIONS = -Wf"-dp" -Ccray-t3d -Wp"-F"
              COPTIONS = -Tcray-t3d
             FOPTIMIZE = -O scalar3
             COPTIMIZE = -O
@@ -249,7 +249,7 @@ ifeq ($(TARGET),CRAY-T3D)
 			-llapack \
 			-lblas
 
-            EXPLICITF = TRUE
+            EXPLICITF = FALSE
 endif
 
 
