@@ -1,0 +1,66 @@
+critical path
+--------------------------------------------------------------------------------
+. int_init(num_basis, basis_array)  : generate internal int structures
+. int_terminate()                   : throw away internal int structures
+. int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
+. int_mem_1e(max1e, mscratch_1e)
+. int_mem_2e4c(maxg, mscratch_2e)
+... two electron
+...   4 center 2e integrals
+... eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
+ int_2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, lscr, scr, eri)
+ lab_2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, zerotol,
+             canonicalize, eri, nints, ilab, jlab, klab, llab, scr, lscr)
+
+... one electron integrals 
+ int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, T)
+ int_1epe (i_basis, j_basis, ish, jsh, lscr, scr, V)
+ int_1eov (i_basis, j_basis, ish, jsh, lscr, scr, S)
+ int_1eh1 (i_basis, j_basis, ish, jsh, lscr, scr, H1)
+ int_1eall(i_basis, j_basis, ish, jsh, lscr, scr, S, T, V)
+ lab_1eke (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, T, numt) 
+ lab_1epe (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, V, numv) 
+ lab_1eov (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, nums) 
+ lab_1eh1 (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, H1, numh1) 
+ lab_1eall(i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, T, V, numstv) 
+
+next to be done
+--------------------------------------------------------------------------------
+ int_mem_2e3c(max3, mscratch_3_2e)
+ int_mem_2e2c(max2, mscratch_2_2e)
+ int_mem_3ov(max3ov, mscratch_3ov)
+
+
+.   3 center 2e integrals
+ eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh)>
+ int_2e3c (bra_basis, ish, jsh, ket_basis, ksh, lscr, scr, eri)
+ lab_2e3c (bra_basis, ish, jsh ket_basis, ksh, canonical_bra, canonical_both, zerotol, 
+              eri, nints, ilab, jlab, klab, scr, lscr)
+
+.   2 center 2e integrals 
+ eri = <bra_g(ish)|ket_g(jsh)>
+ int_2e2c (bra_basis, ish, ket_basis, jsh, lscr, scr, eri)
+ lab_2e2c (bra_basis, ish, ket_basis, jsh, canonical_both, zerotol, eri,
+              nints, ilab, jlab, scr, lscr)
+
+
+ one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
+ int_1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, lscr,
+                   scr, OV3)
+ lab_1e3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
+               OV3, ilab, jlab, klab, numov3)
+
+
+less critical
+--------------------------------------------------------------------------------
+   int_mpole(i_basis, j_basis, Lvalue, ish, jsh, lscr, scr, MPINTS)
+   lab_mpole(i_basis, j_basis, Lvalue, ish, jsh, MPINTS, ilab, jlab, zerotol)
+
+   int_set_eri_timing()
+   int_report_eri_timings()
+
+
+   derivative
+   2nd deriv
+   general contraction
+   

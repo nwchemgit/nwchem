@@ -1,0 +1,8 @@
+c
+c common block that holds memory information
+c
+      integer mem_2e4c, mem_1e
+      integer isz_2e4c, isz_1e
+      integer init_int
+      common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e
+c
