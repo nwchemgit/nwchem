@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.20 1998-03-18 18:51:04 d3e129 Exp $
+* $Id: task.F,v 1.21 1998-04-14 18:16:45 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical esp
+      logical esp,prepar
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle
       logical  task_qmmm
@@ -43,7 +43,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian
       external task_version
-      external esp
+      external esp,prepar
 c
       oprint_task_times = util_print('task time',print_default)
       if (oprint_task_times) then
@@ -120,6 +120,8 @@ c
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
           status=esp(rtdb)
+         elseif(inp_compare(.false.,'prepare',theory)) then
+          status=prepar(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
