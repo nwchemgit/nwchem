@@ -1,7 +1,7 @@
       Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
      , ncenters_scr)
 c
-C$Id: grid_beckew.F,v 1.3 1999-05-01 17:28:10 edo Exp $
+C$Id: grid_beckew.F,v 1.4 1999-05-12 22:01:45 edo Exp $
 c
       implicit none
 c
@@ -75,8 +75,8 @@ c
             endif
 c
             if (rrij.eq.-1.0d0)then
-               write(*,*)' i, j, iind, jind, ij, rrij ',
-     &                     i, j, iind, jind, ij, rrij
+               write(*,*)' i, j, iind, jind,  rrij ',
+     &                     i, j, iind, jind,  rrij
                call errquit('trouble in beckew; rij .eq. = -1',911)
             endif
 c          

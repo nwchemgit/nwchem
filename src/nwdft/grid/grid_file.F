@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.4 1999-05-05 00:38:47 edo Exp $
+* $Id: grid_file.F,v 1.5 1999-05-12 22:01:46 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -555,7 +555,7 @@ c     grid_pts, that there is no sparsity except for symmetry.
 c     Also, assume that the grid_pts will be evenly distributed
 c     apart from a 10% fluctuation
 c     
-         nq = 0.125d0 * dble(nbf+1)**4 
+c         nq = 0.125d0 * dble(nbf+1)**4 
 *      write(6,*) ' nq 1 ', nq
          if (nops .ne. 1) nq = (1.3 * nq) / nops ! 1.3 empircal from C6H6
 *      write(6,*) ' nq 1 ', nq

@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.1 1999-04-23 16:30:31 d3h449 Exp $
+c$Id: grid_gen_pts.F,v 1.2 1999-05-12 22:01:46 edo Exp $
 c
       implicit none
 c      
@@ -76,7 +76,7 @@ c
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
       call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
      &                dbl_mb(iwqbuf), write_quad_buf_size,
-     &                dbl_mb(iaqbuf), ang_quad_buf_size,)
+     &                dbl_mb(iaqbuf), ang_quad_buf_size)
 c
       if (.not. MA_Pop_Stack(laqbuf))
      &   call errquit('grid_gen_pts: pop stack failed.',0)

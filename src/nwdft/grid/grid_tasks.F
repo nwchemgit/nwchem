@@ -2,7 +2,7 @@
      &                      wqbuf, npts_per_task,
      &                      aqbuf, npts_per_ang)
 c
-c$Id: grid_tasks.F,v 1.4 1999-05-05 00:38:48 edo Exp $
+c$Id: grid_tasks.F,v 1.5 1999-05-12 22:01:46 edo Exp $
 c
       implicit none
 c
@@ -29,7 +29,8 @@ c
       character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq,n1,n2,nproc,lrchi,irchi,lrdelchi,irdelchi,
+      integer nq,n1,n2,nproc,
+Clrchi,irchi,lrdelchi,irdelchi,
      ,     lrchi_loc,irchi_loc,lrde_loc,irde_loc
       integer nest_tsk,nrchi_task
       integer nxtask
