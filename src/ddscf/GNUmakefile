@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-06-09 05:31:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.7 1994-06-20 18:22:49 gg502 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -28,7 +28,7 @@
 
   USES_BLAS = *.F
 
-
+HEADERS = schwarz.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
