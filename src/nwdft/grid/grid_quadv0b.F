@@ -18,7 +18,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.39 2004-01-24 02:07:22 edo Exp $
+c$Id: grid_quadv0b.F,v 1.40 2004-01-24 02:44:26 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -77,7 +77,7 @@ c
       if(xcfit) acc_xc_gauss=dble(ixcacc)
       mbf_ao=nbf_ao
       if(natoms.gt.1) then
-         call ifill(mbf_ao, 0, ibf_ao, 1)
+         call icopy(mbf_ao, 0,0, ibf_ao, 1)
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
      &        ictr_buf,rad,xyz,qxyz,nqpts,
      &        ibf_ao, docset, iniz, ifin, expo, 
@@ -114,10 +114,12 @@ c
       endif
 c     
 c     
+      if (odftps) call pstat_on(ps_ebf)
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
       call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
      &     dbl_mb(idelchi_ao), 0d0, 0d0, rq, qxyz, xyz, nqpts, natoms,
      &     iniz, docset, bas_cent_info, bas_cset_info)
+      if (odftps) call pstat_off(ps_ebf)
 c     
 c     
 c     get reduced Xi(r) and dXi(r) over atoms
@@ -213,10 +215,12 @@ c     add beta to 1 to get alpha+beta
          call daxpy(nqpts, 1.d0, rho(iscf_rho+2*nqpts), 1,
      &        rho(iscf_rho), 1)
       endif     
+      if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r, 
      &      tau, kske, Mmat)
+      if (odftps) call pstat_off(ps_excf)
 
       if (sic_orb_index.eq.1) then
          call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,

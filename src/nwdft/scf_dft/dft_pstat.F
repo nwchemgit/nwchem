@@ -26,6 +26,10 @@ c
      $     ps_xcrho)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:tabcd', pstat_qstat, 0, junk,
      $     ps_tabcd)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:ebf', pstat_qstat, 0, junk,
+     $     ps_ebf)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:excf', pstat_qstat, 0, junk,
+     $     ps_excf)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diag', pstat_qstat, 0, junk,
      $     ps_diag)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fitcd', pstat_qstat, 0, junk,
@@ -76,6 +80,10 @@ c
          if (.not. pstat_free(ps_scfdft))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_bld12))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_ssw))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_xcrho))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_tabcd))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_ebf))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_excf))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_dft))call errquit('dft_pstat?', 0,0)
 c
       endif
