@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.109 1999-03-03 03:17:06 edo Exp $
+c     $Id: msgids.fh,v 1.110 1999-05-05 16:04:50 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -249,6 +249,58 @@ c
       integer mcf_48
       integer mcf_49
       integer mcf_50
+c
+      integer msp_00
+      integer msp_01
+      integer msp_02
+      integer msp_03
+      integer msp_04
+      integer msp_05
+      integer msp_06
+      integer msp_07
+      integer msp_08
+      integer msp_09
+      integer msp_10
+      integer msp_11
+      integer msp_12
+      integer msp_13
+      integer msp_14
+      integer msp_15
+      integer msp_16
+      integer msp_17
+      integer msp_18
+      integer msp_19
+      integer msp_20
+      integer msp_21
+      integer msp_22
+      integer msp_23
+      integer msp_24
+      integer msp_25
+      integer msp_26
+      integer msp_27
+      integer msp_28
+      integer msp_29
+      integer msp_30
+      integer msp_31
+      integer msp_32
+      integer msp_33
+      integer msp_34
+      integer msp_35
+      integer msp_36
+      integer msp_37
+      integer msp_38
+      integer msp_39
+      integer msp_40
+      integer msp_41
+      integer msp_42
+      integer msp_43
+      integer msp_44
+      integer msp_45
+      integer msp_46
+      integer msp_47
+      integer msp_48
+      integer msp_49
+      integer msp_50
 c
       integer msg_hessmin
       integer msg_hessmax
@@ -782,6 +834,58 @@ c
       parameter(mcf_48=msg_ftn_base-598)
       parameter(mcf_49=msg_ftn_base-599)
       parameter(mcf_50=msg_ftn_base-600)
-
+c
       parameter(dft_mxmbf=msg_ftn_base-601)
       parameter(dft_mxmbfnq=msg_ftn_base-602)
+c
+      parameter(msp_00=msg_ftn_base-650)
+      parameter(msp_01=msg_ftn_base-651)
+      parameter(msp_02=msg_ftn_base-652)
+      parameter(msp_03=msg_ftn_base-653)
+      parameter(msp_04=msg_ftn_base-654)
+      parameter(msp_05=msg_ftn_base-655)
+      parameter(msp_06=msg_ftn_base-656)
+      parameter(msp_07=msg_ftn_base-657)
+      parameter(msp_08=msg_ftn_base-658)
+      parameter(msp_09=msg_ftn_base-659)
+      parameter(msp_10=msg_ftn_base-660)
+      parameter(msp_11=msg_ftn_base-661)
+      parameter(msp_12=msg_ftn_base-662)
+      parameter(msp_13=msg_ftn_base-663)
+      parameter(msp_14=msg_ftn_base-664)
+      parameter(msp_15=msg_ftn_base-665)
+      parameter(msp_16=msg_ftn_base-666)
+      parameter(msp_17=msg_ftn_base-667)
+      parameter(msp_18=msg_ftn_base-668)
+      parameter(msp_19=msg_ftn_base-669)
+      parameter(msp_20=msg_ftn_base-670)
+      parameter(msp_21=msg_ftn_base-671)
+      parameter(msp_22=msg_ftn_base-672)
+      parameter(msp_23=msg_ftn_base-673)
+      parameter(msp_24=msg_ftn_base-674)
+      parameter(msp_25=msg_ftn_base-675)
+      parameter(msp_26=msg_ftn_base-676)
+      parameter(msp_27=msg_ftn_base-677)
+      parameter(msp_28=msg_ftn_base-678)
+      parameter(msp_29=msg_ftn_base-679)
+      parameter(msp_30=msg_ftn_base-680)
+      parameter(msp_31=msg_ftn_base-681)
+      parameter(msp_32=msg_ftn_base-682)
+      parameter(msp_33=msg_ftn_base-683)
+      parameter(msp_34=msg_ftn_base-684)
+      parameter(msp_35=msg_ftn_base-685)
+      parameter(msp_36=msg_ftn_base-686)
+      parameter(msp_37=msg_ftn_base-687)
+      parameter(msp_38=msg_ftn_base-688)
+      parameter(msp_39=msg_ftn_base-689)
+      parameter(msp_40=msg_ftn_base-690)
+      parameter(msp_41=msg_ftn_base-691)
+      parameter(msp_42=msg_ftn_base-692)
+      parameter(msp_43=msg_ftn_base-693)
+      parameter(msp_44=msg_ftn_base-694)
+      parameter(msp_45=msg_ftn_base-695)
+      parameter(msp_46=msg_ftn_base-696)
+      parameter(msp_47=msg_ftn_base-697)
+      parameter(msp_48=msg_ftn_base-698)
+      parameter(msp_49=msg_ftn_base-699)
+      parameter(msp_50=msg_ftn_base-700)
