@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.17 1994-12-18 07:45:07 d3g681 Exp $
+# $Id: makelib.h,v 1.18 1995-06-29 23:09:51 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -142,6 +142,14 @@ subdirs:
 		$(MAKE)	 -C $$dir || exit 1 ;  \
         done
 endif
+
+
+depend:	
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	echo Making depend in `pwd`
+	$(CNFDIR)/simpledepend 
 
 
 ifdef HEADERS
