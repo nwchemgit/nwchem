@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.73 1997-11-07 12:47:15 d3e129 Exp $
+c $Id: basis.F,v 1.74 1997-11-07 23:16:26 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -133,7 +133,7 @@ c
       integer basis             ! [output] returned handle
       character*(*)name         ! [input] name of basis set.  
 c
-*:debug:      integer iiii
+*:debug:      integer iiii, jjjj
 c
       external basis_data  ! This for the T3D linker
 c
@@ -190,9 +190,11 @@ c
 c
 c debug print all basis sets that are active
 c
+*:debug:      write(6,*)' bas_create: active basis sets'
 *:debug:      do iiii = 1,nbasis_bsmx
 *:debug:        if (bsactive(iiii)) then
-*:debug:          write(6,*)'bas_create:',bs_name(iiii),' ',iiii
+*:debug:          jjjj = inp_strlen(bs_name(iiii))
+*:debug:          write(6,*)'bas_create:',bs_name(iiii)(1:jjjj),' ',iiii
 *:debug:        endif
 *:debug:      enddo
 c
@@ -975,6 +977,9 @@ c::local
       logical status_ecp_ph
       logical status_ecp
 c
+*:debug:      write(6,*)' bas_rtdb_load:rtdb,geom,basis ',
+*:debug:     &    rtdb,geom,basisin
+*:debug:      write(6,*)' bas_rtdb_load:name ',name
       bas_rtdb_load =
      &    bas_rtdb_do_load(rtdb, geom, basisin, name)
       if (.not.inp_compare(.false.,'ao basis',name(1:8)))
@@ -3400,4 +3405,63 @@ c
       bas_is_spherical = bas_spherical(basis)
       return 
 *      
+      end
+      subroutine bas_dump_info(msg)
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+      character*(*) msg
+c
+      integer llen
+      integer basis
+      integer ntags
+      llen = inp_strlen(msg)
+      write(luout,00001)
+      write(luout,*)'bas_dump_info: <',msg(1:llen),'>'
+      write(luout,*)'bas_dump_info: bsversion:', bsversion
+      do basis = 1, nbasis_bsmx
+        if (bsactive(basis)) then
+          write(luout,*)'bs_name          :',
+     &        bs_name(basis)(1:len_bs_name(basis))
+          write(luout,*)'bs_trans         :',
+     &        bs_trans(basis)(1:len_bs_trans(basis))
+          llen = inp_strlen(ecp_name_assoc(basis))
+          write(luout,*)'ecp_name_assoc   :',
+     &        ecp_name_assoc(basis)(1:llen)
+          ntags = infbs_head(Head_Ntags,basis)
+          write(luout,*)'head ntags       :',ntags
+          write(luout,*)'head ncont       :',
+     &        infbs_head(Head_Ncont,basis)
+          write(luout,*)'head nprim       :',
+     &        infbs_head(Head_Nprim,basis)
+          write(luout,*)'head ncoef       :',
+     &        infbs_head(Head_Ncoef,basis)
+          write(luout,*)'head excfptr     :',
+     &        infbs_head(Head_Excfptr,basis)
+          write(luout,*)'head sph         :',
+     &        infbs_head(Head_Sph,basis)
+          write(luout,*)'head ecp         :',
+     &        infbs_head(Head_Ecp,basis)
+          write(luout,*)'bas_spherical    :',
+     &        bas_spherical(basis)
+          write(luout,*)'bas_any_gc       :',
+     &        bas_any_gc(basis)
+          write(luout,*)'bas_any_sp_shell :',
+     &        bas_any_sp_shell(basis)
+          write(luout,*)'bas_norm_id      :',
+     &        bas_norm_id(basis)
+          write(luout,*)'angular_bs       :',
+     &        angular_bs(basis)
+          write(luout,*)'nbfmax_bs        :',
+     &        nbfmax_bs(basis)
+          write(luout,*)'ecp_handle_assoc :',
+     &        ecp_handle_assoc(basis)
+          write(luout,*)'ecp_parent_assoc :',
+     &        ecp_parent_assoc(basis)
+        endif
+      enddo
+      write(luout,00001)
+00001 format(1x,80('='))
       end
