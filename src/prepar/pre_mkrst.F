@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.67 2001-08-06 23:40:27 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.68 2001-08-20 17:17:46 bjohnson Exp $
 c
       implicit none
 c
@@ -674,7 +674,7 @@ c
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
-     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,slvnam))
+     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
