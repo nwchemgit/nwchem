@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.194 2004-09-13 15:19:06 d3j191 Exp $
+c $Id: md_main.F,v 1.195 2004-09-30 17:31:58 marat Exp $
 c
       implicit none
 c
@@ -2113,17 +2113,16 @@ c
       call timer_start(45)
       call sp_final(fw,fs,lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(45)
-c
-c      if(lqmmm) then
-c      call timer_start(46)
-c      call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
-c     + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
-c     + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
-c     + linkatm,nobq,lesp)
+
+      if(lqmmm) then
+      call timer_start(46)
+      call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
+     + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+     + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm)
 c      uqmmm=uqmmm-uqmatm
-c      call timer_stop(46)
-c      endif
-c
+      call timer_stop(46)
+      endif
+
       if(ltwin) then
       do 1 j=1,3
       do 2 k=1,nwa
@@ -2772,7 +2771,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.194 2004-09-13 15:19:06 d3j191 Exp $
+c $Id: md_main.F,v 1.195 2004-09-30 17:31:58 marat Exp $
 c
       implicit none
 c
