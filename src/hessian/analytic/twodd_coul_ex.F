@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.3 2000-07-18 15:06:11 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.4 2000-07-26 23:34:29 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -299,7 +299,7 @@ c
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
      $                                pdm2d, psum, jfac, kfac, ogso)
-       write(6,*) 'before the grad_make_twopdm call'
+       write(6,*) 'after the grad_make_twopdm call'
        call flush(6)
 c     
 c     Final screening including magnitude of the density
@@ -369,12 +369,12 @@ c
                            iat1 = atoms(iiat1)
                            do iiat2 = iiat1, 4
                               iat2 = atoms(iiat2)
-                           do icart1 = 1, 3
+                           do icart2 = 1, 3
                               itemp = 1
-                              if (iiat2.eq.iiat1) itemp = icart1
-                              do icart2 = itemp, 3
+                              if (iiat2.eq.iiat1) itemp = icart2
+                              do icart1 = itemp, 3
                               val = p*eri(ibuf)
-                              if (iat1.eq.iat2) val = val * fourth
+c                             if (iat1.eq.iat2) val = val * fourth
       write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(6,*) 'val is ',val
       write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
