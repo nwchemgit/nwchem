@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.37 2003-10-17 14:56:06 d3j191 Exp $
+# $Id: GNUmakefile,v 1.38 2004-05-06 21:11:52 edo Exp $
 #
 
 OBJ_OPTIMIZE=prepar.o\
@@ -38,7 +38,6 @@ OBJ_OPTIMIZE=prepar.o\
              pre_hnames.o\
              pre_hybrid.o\
              pre_imp.o\
-             pre_impctr.o\
              pre_input.o\
              pre_links.o\
              pre_master.o\
@@ -107,6 +106,11 @@ OBJ_OPTIMIZE=prepar.o\
              pre_wrtsgm.o\
              pre_wrttop.o\
              pre_wrtxyz.o
+ifeq ($(FC),frt)
+  OBJ = pre_impctr.o
+else
+  OBJ_OPTIMIZE += pre_impctr.o
+endif
 
 LIBRARY=libprepar.a
 

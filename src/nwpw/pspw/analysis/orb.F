@@ -84,6 +84,9 @@
              read(18,*,end=100) dum
            end do
   100      continue
+#ifdef FUJITSU_SOLARIS
+           backspace 18
+#endif
         else
           open(unit=33,file=full_filename,form='formatted',
      >         status='new')

@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.3 2001-11-30 23:52:03 bylaska Exp $
+* $Id: xyz.F,v 1.4 2004-05-06 21:11:52 edo Exp $
 *
       implicit none 
 
@@ -38,9 +38,12 @@
            open(unit=18,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(18,*,end=100) dum
+             read(18,*,end=100) dum
            end do
   100      continue
+#ifdef FUJITSU_SOLARIS
+           backspace 18
+#endif
          else
            open(unit=18,file=full_filename,form='formatted',
      >           status='new')
