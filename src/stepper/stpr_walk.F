@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.29 1997-12-03 10:18:17 d3e129 Exp $
+c     $Id: stpr_walk.F,v 1.30 1997-12-03 10:54:50 d3e129 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -248,7 +248,8 @@ c
 c     
       
       if (stpr_walk.lt.0) then
-        call ecce_print_module_exit ('stepper','failed : maxiter reached')
+        call ecce_print_module_exit
+     &      ('stepper','failed : maxiter reached')
       else
         call ecce_print_module_exit ('stepper','ok')
       endif
