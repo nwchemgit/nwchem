@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.52 1996-03-18 23:26:21 vg422 Exp $
+c $Id: raktest.F,v 1.53 1996-07-10 10:08:43 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -23,11 +23,11 @@ c
 00100 write(6,*)' raktest task 1 stepper test'
       call raktest_stpr(rtdb)
       goto 00001
-00200 write(6,*)' raktest task 2 check intd_init'
-      call raktest_initd(rtdb)
-      goto 00001
-00300 write(6,*)' raktest task 3 check int_init'
+00200 write(6,*)' raktest task 2 check int_init'
       call raktest_init(rtdb)
+      goto 00001
+00300 write(6,*)' raktest task 3 check intd_init'
+      call raktest_initd(rtdb)
       goto 00001
 00400 write(6,*)' raktest check 3ctr nai'
       call raktest_3ctr(rtdb)
@@ -1210,6 +1210,15 @@ c
 c
       call int_mem_print()
 c
+      do nbas = 1,nbasis_rtdb
+        if (.not.bas_destroy(bases(nbas))) call errquit
+     &        ('raktest_initd: bas_destroy failed',911)
+      enddo
+      if (.not.geom_destroy(geom)) call errquit
+     &      ('raktest_initd: _destroy failed',911)
+c
+      call int_terminate()
+c
       end
       subroutine raktest_init(rtdb)
 c raktest = 5
@@ -1258,6 +1267,15 @@ c
       write(6,*)' two electron scratch buffer size:',mxs2
 c
       call int_mem_print()
+c
+      do nbas = 1,nbasis_rtdb
+        if (.not.bas_destroy(bases(nbas))) call errquit
+     &        ('raktest_init: bas_destroy failed',911)
+      enddo
+      if (.not.geom_destroy(geom)) call errquit
+     &      ('raktest_init: _destroy failed',911)
+c
+      call int_terminate()
 c
       end
 
