@@ -1,6 +1,6 @@
       Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.5 2000-05-18 22:45:17 jolguin Exp $
+C$Id: localize_sic.F,v 1.6 2000-06-09 23:10:28 jolguin Exp $
 c
       implicit none
 c      
@@ -112,9 +112,11 @@ c             int_mb(iiloc + i - ncore - 1) = i
 c          end do
 c          nloc = nocc - ncore
 c
-           ik = noc(isp) -  Int_MB(i_degen) + 1
+c          ik = noc(isp) -  Int_MB(i_degen) + 1   ! If HOMO is not involved
+           ik = noc(isp) + 1
            ij = 0
-           do 100 i_level = 2,n_levels
+c          do 100 i_level = 2,n_levels            ! If HOMO is not involved
+           do 100 i_level = 1,n_levels
              n_orbitals = Int_MB(i_degen + i_level - 1)
              do 200 i_orb = 1,n_orbitals
                ik = ik - 1
