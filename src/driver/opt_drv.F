@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.65 1999-05-29 01:43:38 d3g681 Exp $
+C$Id: opt_drv.F,v 1.66 1999-05-30 21:50:28 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -78,7 +78,8 @@ c
       parameter (mxcoor=1500)
 c     mxcoor=max(mxcart,mxzmat)
 c     
-      logical geom_zmt_get_varinfo, geom_zmt_get_source
+      logical geom_zmt_get_varinfo, geom_zmt_get_source, 
+     $     geom_zmt_get_nzvar
       character*8 zvarname(mxcoor),test
       double precision zvarsign(mxcoor)
 
@@ -106,7 +107,10 @@ c
 c     
       hnd_optx = .false.
 c     
-c     Initialize with junk for paranoia
+c     Initialize HONDO common blocks with junk for paranoia
+c     since it was relying on (node 0 only for last geometry read!) 
+c     passing data from the input routines ... explains some modes 
+c     of failure that were hard to understand.
 c
       call dfill(6*mxcoor+7,1d300,x0,1)
       call ifill(4,-99999999,npts,1)
@@ -120,7 +124,6 @@ c
       call dfill(mxcart+mxatom,1d300,c,1)
       nat = 99999999
 c
-      
       dbug=.false.
       out =.false.
       out =out.or.dbug
@@ -142,61 +145,24 @@ c
 c     
 c     ----- parameters for optimization driver -----
 c     
-      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)) then
-         cvgopt=8.0d-04
-         if(dbug) then
-            write(iw,*) 'using default value of -cvgopt-',cvgopt
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt)) then
-         nptopt=20
-         if(dbug) then
-            write(iw,*) 'using default value of -nptopt-',nptopt
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess)) then
-         inhess=0
-         if(dbug) then
-            write(iw,*) 'using default value of -inhess-',inhess
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) then
-         linopt=10
-         if(dbug) then
-            write(iw,*) 'using default value of -linopt-',linopt
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
-         modupd=1
-         if(dbug) then
-            write(iw,*) 'using default value of -modupd-',modupd
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) then
-         moddir=1
-         if(dbug) then
-            write(iw,*) 'using default value of -moddir-',moddir
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) then
-         modsad=0
-         if(dbug) then
-            write(iw,*) 'using default value of -modsad-',modsad
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) then
-         sadstp=0.35d+00
-         if(dbug) then
-            write(iw,*) 'using default value of -sadstp-',sadstp
-         endif
-      endif
-      if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep)) then
-         oqstep = .true.
-         if(dbug) then
-            write(iw,*) 'using default value of -oqstep-',oqstep
-         endif
-      endif
-c     
+      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt))
+     $     cvgopt=8.0d-04
+      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
+     $     nptopt=20
+      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess))
+     $     inhess=0
+      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) 
+     $     linopt=10
+      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd))
+     $     modupd=1
+      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) 
+     $     moddir=1
+      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) 
+     $     modsad=0
+      if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) 
+     $     sadstp=0.35d+00
+      if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep))
+     $     oqstep = .true.
 c     
 c     ----- get going ... -----
 c     
@@ -207,13 +173,22 @@ c
       if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
      &     call errquit('hnd_opt: geom_get ', 911)
       nat = ncent
-      if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &     call errquit('geom_input: geom_zmt_get_nizmat failed',0)
-      zcoord  = nzmat.gt.0      ! zmatrix from either autoz or user
 c     
+c     Zmatrix info
+c
       if (.not.geom_zmt_get_source(geom,source))
      $     call errquit('hnd_optx: zmat source ',geom)
+      zcoord  = (source .ne. ' ')    ! Any kind of zmatrix
       zmatrix = (source .eq. 'user') ! zmatrix from user
+      if (zcoord) then
+         if(.not.geom_zmt_get_nizmat(geom,nzmat))
+     &        call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+         if(.not.geom_zmt_get_nzvar(geom,nzvar))
+     &        call errquit('geom_input: geom_zmt_get_nzvar failed',0)
+c     This next call fills in nvar, nizmat and other bits of HONDO common
+         call geom_zmt_icoord(rtdb,geom)
+      endif
+c
       if (.not. zmatrix) oqstep = .false.
       if (nzvar .ne. nvar) oqstep = .false.
 c     
@@ -321,7 +296,6 @@ c
       rstart=.false.
       excess=.false.
       if(zcoord) then
-         call geom_zmt_icoord(rtdb,geom)
          ncart =3*nat
          ncoord=nvar                  
          mcoord=max(ncart,nzvar)
@@ -1666,7 +1640,8 @@ C           IF THERE IS ONE, KEEP IT, DO NOT OVERWRITE IT
 C           NOTE :
 C     NCOOR = mcoord = max(3*nat,ncoord) with ncoord=nzvar
 C
-      call geom_hnd_put_data('drv.hess',hss,ncoor*ncoor)
+      if (.not. old_hessian)
+     $     call geom_hnd_put_data('drv.hess',hss,ncoor*ncoor)
 C
       RETURN
  9999 FORMAT(/,' IN  OPT_HSS-INIT_X , ', 
@@ -2016,7 +1991,7 @@ c
      1     .false.,.false.,filename)
 c
       if (ga_nodeid() .eq. 0) then
-         open(32,file=filename,status='old',err=10)
+         open(32,file=filename,form='unformatted',status='old',err=10)
          write(6,*) ' CHECK: OPENED OK',filename
          read(32,err=11) m
          write(6,*) ' CHECK: READ OK ',m,ncoor*ncoor
