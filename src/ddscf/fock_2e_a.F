@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.13 1995-10-21 19:39:15 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.14 1995-11-13 06:41:14 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/      ! Defines size of parallel tasks
@@ -19,7 +19,7 @@ c     see scf_init for input of task_chunks etc.
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.13 1995-10-21 19:39:15 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.14 1995-11-13 06:41:14 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -55,7 +55,6 @@ c
       double precision den_tol  ! Density screen tolerance ( tol2e *  factor )
       double precision q4_atom  ! Symmetry scaling factor
       double precision q4_junk  ! Scratch
-      integer ntask
       logical otest, otestij
 c     
       integer nxtask
@@ -71,27 +70,16 @@ c
 c     How many processors are there?
 c     
       nproc = ga_nnodes()
-c
-c     For load imbalance to be about 1% we need about 100 tasks per
-c     processor.  Many more than this is unecessary.
-c     Task_chunks controls parallelization of the nested ijk.  
-c     The available parallelism is of order natoms**3.
-c     The default values of -1 is used to check for user input
-c     
-      ntask = max(natoms**3 / nproc, 1)
-      if (task_chunks .eq. -1) then
-         task_chunks = max(ntask/100,1)
-      end if
-      if (ga_nodeid().eq.0 .and. util_print('ntask',print_high)) then
-         write(6,*) ' ntask, task_chunks, ',ntask, task_chunks
-         call util_flush(6)
-      end if
 c     
 c     Empirically observe that to compute the fock matrix/energy
 c     to an accuracy of t need to screen on density*integrals
 c     to a precision of about 10^-2*t
 c     
       den_tol = max(tol2e*0.01d0,1.0d-300) ! To avoid a hard zero
+c
+c     Determine appropriate task chunking
+c
+      call fock_2e_est_task(geom, oskel, tol2e)
 c     
       ijk_prev(1,1) = -1
       ijk_prev(2,1) = -1

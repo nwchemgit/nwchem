@@ -12,7 +12,6 @@ c     nr_gswitch = value of max. element of gradient at which to
 c                 enable NR
 c     tol2e      = 2-e integral selection threshold for energy/gradient
 c     maxiter    = maximum no. of iterations
-c     odisable_conjugacy = disable conjugacy forever
 c
 c     geom       = Geometry handle
 c     basis      = Basis handle
@@ -37,6 +36,7 @@ c     g_movecs   = eigen-vectors  (global ga handle) (2x array for UHF)
 c
 c     oskel      = if true use symmetry in fock building
 c     oadapt     = if true force symmetry on the MOs
+c     ouser_changed_conv  if true the user overrode default conv. parms.
 c
 c     These are determined by rohf_precond_select and control convergence.
 c
@@ -65,7 +65,7 @@ c
       integer nalpha, nbeta
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
       double precision ls_tol, lshift, precond_tol, charge, eprec
-      logical oconjugacy, ododiag, odisable_nr, odisable_conjugacy
+      logical oconjugacy, ododiag, odisable_nr, ouser_changed_conv
       logical oskel, oadapt, oinitialized, olagr
       integer pflg, pflg_prev, maxiter, iter, g_movecs
       character*255 movecs_in, movecs_out, title, trans
@@ -82,7 +82,7 @@ c
 c
 c     Logicals
 c
-     $     oconjugacy, ododiag, odisable_nr, odisable_conjugacy,
+     $     oconjugacy, ododiag, odisable_nr, ouser_changed_conv,
      $     oskel, oadapt, oinitialized, olagr,
 c
 c     Integers

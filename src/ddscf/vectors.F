@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.18 1995-11-03 18:52:31 rg240 Exp $
+C$Id: vectors.F,v 1.19 1995-11-13 06:41:22 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -349,7 +349,7 @@ c
 c
       movecs_write = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
-     $     util_print('vectors i/o', print_default)) then
+     $     util_print('vectors i/o', print_high)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Wrote molecular orbitals to ',a/)
          call util_flush(6)
@@ -481,13 +481,6 @@ c
       enddo
 c
       end
-
-
-
-
-
-
-
       logical function file_write_ga(fname, g_a)
       implicit none
 #include "global.fh"

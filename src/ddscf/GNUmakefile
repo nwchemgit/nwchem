@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.44 1995-11-03 20:41:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.45 1995-11-13 06:41:16 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -14,7 +14,7 @@
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_project.o \
         ao_fock_2e.o \
-	fock_2e.o                 \
+	fock_2e.o                 fock_2e_est_task.o \
 	fock_2e_a.o               \
 	fock_2e_b.o               \
 	fock_upd_atom_blk.o       fock_2e_cache_dens_fock.o \
@@ -85,6 +85,7 @@ fock_2e.o :	 cscf.fh cfock.fh
 fock_2e_a.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
 fock_2e_a.semi.save.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
 fock_2e_b.o :	 $(INCDIR)/util.fh schwarz.fh $(INCDIR)/mafdecls.fh cscfps.fh cfock.fh $(INCDIR)/bas.fh 
+fock_2e_est_task.o :	 $(INCDIR)/util.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
 fock_2e_from_file.o :	 $(INCDIR)/util.fh cscfps.fh 
 fock_2e_report.o :	 $(INCDIR)/global.fh cfock.fh 
 fock_2e_task.o :	 cfock.fh $(INCDIR)/bas.fh 
@@ -95,7 +96,6 @@ ga_create_cont_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/
 ga_orthog_mos.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
 int2e_file.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cint2efile.fh $(INCDIR)/bitops_decls.fh $(INCDIR)/bitops.fh 
 int_1e_ga.o :	 $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
-k2cf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 matrix_exp.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh 
 movecs_fix_phase.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 movecs_project.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 

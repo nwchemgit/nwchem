@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
+C$Id: uhf.F,v 1.13 1995-11-13 06:41:21 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -166,7 +166,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
+C     $Id: uhf.F,v 1.13 1995-11-13 06:41:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -205,6 +205,7 @@ c
       double precision gnorm    ! measures for convergence
       logical converged
       logical oprint_parm, oprint_conv, oprint_eval, oprint_vecs
+      logical oprint_ls
 c     
 c     Functions
 c     
@@ -226,24 +227,29 @@ c
 c     
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
+      oprint_ls   = util_print('line search', print_high)
       oprint_vecs = util_print('intermediate vectors', print_debug)
       oprint_eval = util_print('intermediate evals', print_debug)
 c     
       if (ga_nodeid().eq.0.and. oprint_parm) then
-         write(6,1) gnorm_tol, maxiter, tol2e, shifts, nr_gswitch
+         write(6,1) gnorm_tol, maxiter, tol2e
+         if (ouser_changed_conv) write(6,11) shifts, nr_gswitch
+         write(6,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
      $        1x,'    Not yet quadratically convergent UHF',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
-     $        1x,'Integral*density screening:',9x,1p,e10.3,0p,//,
+     $        1x,'Integral*density screening:',9x,1p,e10.3,0p)
+ 11      format(/,
      $        1x,'PCG initial level shift   :',9x,f10.3,/,
      $        1x,'PCG change shift at maxg  :',9x,f10.3,/,
      $        1x,'PCG final level shift     :',9x,f10.3,/,
      $        1x,'NR  initial level shift   :',9x,f10.3,/,
      $        1x,'NR  change shift at maxg  :',9x,f10.3,/,
      $        1x,'NR  final level shift     :',9x,f10.3,/,
-     $        1x,'NR  enabled at maxg       :',9x,f10.3,/,
+     $        1x,'NR  enabled at maxg       :',9x,f10.3)
+ 111     format(
      $        1x,'----------------------------------------------',/)
          call util_flush(6)
       end if
@@ -255,7 +261,7 @@ c
  10   if (.not. converged) then
          call ga_pcg_minim(cuhf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
-     $        oprint_conv, iwork, dwork, mode)
+     $        oprint_conv, oprint_ls, iwork, dwork, mode)
 c     
          if (mode .eq. 'energy+gradient') then
 c     
@@ -427,7 +433,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
+C$Id: uhf.F,v 1.13 1995-11-13 06:41:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -518,7 +524,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
+c     $Id: uhf.F,v 1.13 1995-11-13 06:41:21 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -879,7 +885,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
+C$Id: uhf.F,v 1.13 1995-11-13 06:41:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

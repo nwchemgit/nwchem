@@ -182,7 +182,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.12 1995-11-02 01:52:18 rg240 Exp $
+C$Id: scf_get_info.F,v 1.13 1995-11-13 06:41:20 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -194,8 +194,11 @@ c
       double precision mone
       parameter (mone = -1.0d0)
 c     
-      if (.not. rtdb_get(rtdb, 'scf:maxiter',
-     $     MT_INT, 1, maxiter)) then
+      ouser_changed_conv = .false.
+c
+      if (rtdb_get(rtdb, 'scf:maxiter', MT_INT, 1, maxiter)) then
+         ouser_changed_conv = .true.
+      else
          if (scftype .ne. 'UHF') then
             maxiter = 8
          else
@@ -206,12 +209,18 @@ c
      $     MT_DBL, 1, tol2e)) tol2e = 1.0d-7
       if (.not.rtdb_get(rtdb, 'scf:thresh',
      $     MT_DBL, 1, gnorm_tol)) gnorm_tol = 1.d-4
-      if (.not.rtdb_get(rtdb, 'scf:level shift info',
-     $     MT_DBL, 6, shifts)) call dfill(6, mone, shifts, 1)
-      if (.not.rtdb_get(rtdb, 'scf:full hessian switch',
-     $     MT_DBL, 1, nr_gswitch)) nr_gswitch = 0.1d0
-      if (.not.rtdb_get(rtdb, 'scf:disable conjugacy',
-     $     MT_LOG, 1, odisable_conjugacy)) odisable_conjugacy = .false.
+c
+      if (rtdb_get(rtdb, 'scf:level shift info', MT_DBL, 6,shifts))then
+         ouser_changed_conv = .true.
+      else
+         call dfill(6, mone, shifts, 1)
+      endif
+      if (rtdb_get(rtdb, 'scf:full hessian switch', MT_DBL, 1, 
+     $     nr_gswitch)) then
+         ouser_changed_conv = .true.
+      else 
+         nr_gswitch = 0.1d0
+      endif
 c
 c     Apply defaults
 c

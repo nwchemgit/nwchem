@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.33 1995-10-17 05:53:58 d3g681 Exp $
+C$Id: scf.F,v 1.34 1995-11-13 06:41:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -79,18 +79,22 @@ c
      $           '  ri basis        = "',a,'"'/
      $           '  ri functions    = ', i5)
          endif
-         write(6,12) natoms,
-     $        nclosed, nopen, nelec, nalpha, nbeta, charge,
-     $        scftype,
+         write(6,12) natoms
+ 12      format('  atoms           = ', i5)
+         if (scftype .eq. 'UHF') then
+            write(6,121) nalpha, nbeta
+ 121        format('  alpha electrons = ', i5/
+     $           '  beta  electrons = ', i5)
+         else
+            write(6,122) nclosed, nopen
+ 122        format('  closed shells   = ', i5/
+     $           '  open shells     = ', i5)
+         endif
+         write(6,123)
+     $        charge, scftype,
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out)), oskel, oadapt
- 12      format(
-     $        '  atoms           = ', i5/
-     $        '  closed shells   = ', i5/
-     $        '  open shells     = ', i5/
-     $        '  total electrons = ', i5/
-     $        '  alpha electrons = ', i5/
-     $        '  beta  electrons = ', i5/
+ 123     format(
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/
      $        '  input vectors   = ', a/

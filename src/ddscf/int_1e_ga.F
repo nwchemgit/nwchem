@@ -1,5 +1,5 @@
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.11 1995-02-02 23:11:43 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.12 1995-11-13 06:41:15 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -7,6 +7,7 @@ C$Id: int_1e_ga.F,v 1.11 1995-02-02 23:11:43 d3g681 Exp $
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "schwarz.fh"
 c     
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     and ADD them into the given global array.
@@ -33,6 +34,8 @@ c
       integer type
       logical odoit
       double precision q2
+      double precision tol
+      parameter (tol = 1.0d-10)
 c     
       call ga_sync()
       if (oscfps) call pstat_on(ps_int_1e)
@@ -83,7 +86,17 @@ c
       q2 = 1.0d0
       do jshell = 1, nshell_j
          do ishell = 1, nshell_i
-            if (mod(ijshell, nproc) .eq. iproc) then
+c
+c     Do not apply screening to the overlap integrals
+c     In part to ensure orthogonality but also because the overlap
+c     may be computed before the schwarz routines are initialized.
+c
+            if (type .eq. 3) then
+               odoit = .true.
+            else
+               odoit = schwarz_shell(ishell, jshell) .gt. tol
+            endif
+            if (odoit .and. mod(ijshell, nproc) .eq. iproc) then
                if (oskel) 
      $              odoit = sym_shell_pair(ibas, ishell, jshell, q2)
 c
@@ -114,8 +127,10 @@ c
                   call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                 idim, q2)
                end if
-            end if
-            ijshell = ijshell + 1
+               ijshell = ijshell + 1
+            else if (odoit) then
+               ijshell = ijshell + 1
+            endif
          end do
       end do
 c     
