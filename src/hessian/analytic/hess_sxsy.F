@@ -1,5 +1,5 @@
 C
-C $Id: hess_sxsy.F,v 1.1 2000-05-30 19:41:45 bjohnson Exp $
+C $Id: hess_sxsy.F,v 1.2 2000-08-10 18:51:12 bjohnson Exp $
 C
       subroutine hess_sxsy(hess, e, g_tx, oactive, ncent, nocc, restr)
 c
@@ -26,10 +26,9 @@ c
       integer icent, idir, ipert, jcent, jdir, jpert, iocc, jocc
       integer ioff, joff, l_scr, k_scr
       double precision deltah, fac
-c
-      if (ga_nnodes() .gt. 1) then
-         call errquit('Need to parallelize hess_sxsy - ask BGJ',0)
-      endif
+      integer nproc, icount, itask, mytask
+      integer nxtask
+      external nxtask
 c
 c     Prefactor of hessian contribution
 c
@@ -44,7 +43,12 @@ c
       ioff = k_scr - 1
       joff = ioff + nocc
 c
-c     Loop over derivative perturbations
+c     Parallelize over hessian elements
+c
+      nproc = ga_nnodes()
+      icount = 1
+      itask = 0
+      mytask = nxtask(nproc,icount)
 c
       do icent = 1, ncent
          if (.not. oactive(icent)) goto 10
@@ -58,6 +62,7 @@ c
                do jdir = 1, 3
                   jpert = jpert + 1
                   if (jpert .gt. ipert) goto 30
+                  if (itask .ne. mytask) goto 25
 c
 c     Compute increment to hess(ipert,jpert)
 c
@@ -72,7 +77,7 @@ c
      &                    dbl_mb(joff+1), nocc)
                      do iocc = 1, nocc
                         deltah = deltah + (e(iocc)+e(jocc))
-     &                       * dbl_mb(ioff+iocc) * dbl_mb(joff+jocc)
+     &                       * dbl_mb(ioff+iocc) * dbl_mb(joff+iocc)
                      enddo
                   enddo
 c
@@ -85,6 +90,10 @@ c
                      hess(jpert,ipert) = hess(jpert,ipert) + deltah
                   endif
 c
+                  mytask = nxtask(nproc,icount)
+ 25               continue
+                  itask = itask + 1
+c
  30               continue
                enddo
 c
@@ -95,7 +104,9 @@ c
  10      continue
       enddo
 c
-      if (.not. ma_pop_stack(l_scr)) 
+      mytask = nxtask(-nproc,icount)
+c
+      if (.not. ma_pop_stack(l_scr))
      &     call errquit('hess_sxsy: failed to pop l_scr',0)
 c
       return
