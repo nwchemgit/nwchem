@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.4 1995-02-02 23:18:38 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.5 1995-03-12 21:05:13 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -32,7 +32,7 @@ c
        integer i, j, ij, ii
        logical oprint,status
        double precision emp2, e2pair
-       double precision tpass, ttotal
+       double precision tpass, ttotal, scf_energy
        character*7 algo
 c
 c
@@ -79,8 +79,8 @@ c
      $      call errquit('direct_mp2: bas_create?', 0)
        if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
      $      call errquit('direct_mp2: no mo basis ', 0)
-       if (.not. context_rtdb_match(rtdb, 'input mo vector file',
-     $      movecs_in)) movecs_in = 'movecs'
+       if (.not. rtdb_cget(rtdb, 'input mo vector file', 1,
+     $      movecs_in)) call util_file_prefix('movecs',movecs_in)
        if (.not. geom_nuc_charge(geom, nuclear_charge))
      $      call errquit('direct_mp2: no nuclear charge?', 0)
        if (.not. bas_numbf(basis, nbf))
@@ -122,7 +122,7 @@ c
        if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
      $      then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        movecs_in = 'movecs'
+     $        call util_file_prefix('movecs',movecs_in)
        endif
 c
 c Read in MO coefficients
@@ -273,10 +273,15 @@ c$$$         write(6,997)
 c$$$ 997     format(//,15x,'MP2 Pair Energies',/)
 c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
 c$$$ 998     format(8f10.5)
-         write(6,999) emp2
- 999     format(//,15x,31('-'),
-     $          /,15x,'MP2 Correction:',f16.10,
-     $          /,15x,31('-'),/)
+c
+         if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
+     $        scf_energy = 0.0d0
+         write(6,999) scf_energy, emp2, scf_energy+emp2
+ 999     format(//,15x,43('-'),
+     $          /,15x,'SCF energy         ',f24.12,
+     $          /,15x,'Correlation energy ',f24.12,
+     $          /,15x,'Total MP2 energy   ',f24.12,
+     $          /,15x,43('-'),/)
          status = ma_pop_stack(l_epair)
        endif
        call ga_sync()
