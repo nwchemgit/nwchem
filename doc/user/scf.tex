@@ -162,7 +162,7 @@ which takes as its argument a list of pairs that will be swapped.
 For UHF calculations separate \verb+SWAP+ keywords must be provided
 for the alpha and beta orbitals as necessary.
 
-The \verb+LOCK+ directive locks the ordering orbitals to that of the
+The \verb+LOCK+ directive locks the ordering of orbitals to that of the
 initial vectors, as far as possible. The default is to order by
 ascending orbital energies within each orbital space. The \verb+LOCK+
 directive is useful, for example, to force the SCF to preserve the
@@ -248,10 +248,11 @@ This directive requests the RI approximation being used for the Fock matrix.
 The RI-SCF method is especially suggested for small molecules with
 expensive basis sets.
 
-Without an additional keyword it is used for every Fock build. \verb+Hessian+
-means only the hessian is calculated with an approximated Fock matrix, and
+Without an additional keyword it is used for all Fock builds, which is
+fastest but results in an approximate energy.. The \verb+Hessian+ keyword
+causes only means only the hessian is calculated with an approximated Fock matrix, and
 \verb+preconverge+ requests an ''exact'' direct SCF (with RI hessian, which
-shouldn't change the result) after convergence of the
+does not change the result) after convergence of the
 RI approximated calculation.
 
 \verb+Disk+ indicates storage of 3-center integrals on disk. This only
