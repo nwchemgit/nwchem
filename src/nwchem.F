@@ -104,9 +104,10 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status
-      parameter (ntasks = 4)
+      parameter (ntasks = 5)
       character*10 task_list(ntasks)
-      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf'/
+      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
+     $   'debtest'/
 c     
       if (.not. rtdb_par_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -116,7 +117,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40) ind
+         goto (10, 20, 30, 40, 50) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -142,6 +143,11 @@ c     scf ... eventually there will be no such task name
 c     
  40      call scf(rtdb)
          goto 1000
+C
+C     debtest ... I want my own task!
+C
+ 50      Call DEBTest(RTDB)
+         Goto 1000
 c
       else
 c
