@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.98 2000-10-26 19:01:41 d3j191 Exp $
+c $Id: md_main.F,v 1.99 2000-10-26 21:16:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1677,9 +1677,16 @@ c
       endif
 c
       call timer_start(itcom1)
+      if(ipolt.eq.0) then
       call sp_getxbl(ibbl,lhandl,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + lself,lpbcs)
+      else
+      call sp_getxpbl(ibbl,lhandl,
+     + iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),iwfr,iwto,jwfr,jwto,
+     + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp),isfr,isto,jsfr,jsto,
+     + lself,lpbcs)
+      endif
       call timer_stop(itcom1)
 c
       call timer_start(itforc)
@@ -1930,6 +1937,11 @@ c  333 continue
 c
       if(pmax.gt.ptol.and.npolit.le.mpolit) goto 11
 c
+c     copy current fields into local global array
+c     -------------------------------------------
+c
+      call sp_putp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3)
+c
       return
       end
       subroutine md_wrtrst(lfn,fil,lveloc)
@@ -2116,7 +2128,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.98 2000-10-26 19:01:41 d3j191 Exp $
+c $Id: md_main.F,v 1.99 2000-10-26 21:16:23 d3j191 Exp $
 c
       implicit none
 c
