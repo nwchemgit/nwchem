@@ -1,7 +1,10 @@
-#$Id: GNUmakefile,v 1.16 1996-07-14 18:17:35 gutowski Exp $
+#$Id: GNUmakefile,v 1.17 1996-07-17 16:30:17 d3g681 Exp $
 
  LIBRARY = libutil.a
-     OBJ = geom.o geom_input.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o
+
+     OBJ = geom.o geom_input.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
+           geom_checksum.o
+
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F geom_input.F
