@@ -37,7 +37,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 33,numfunc=19)
+      parameter (num_dirs = 34,numfunc=19)
       character*10 dirs(num_dirs)
       character*255 test
 c
@@ -58,7 +58,7 @@ c
      &           'cpbe96','xpbe96','gill96','xperdew91',
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
-     ,     'becke98'/
+     ,     'becke98','pbe0'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -86,7 +86,7 @@ c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
-     ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,
+     ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -288,6 +288,25 @@ c
          lcfac(18) = .true.
          nlcfac(18) = .true.
          cfac(18) = 1.0d0
+       goto 10
+c     
+c     PBE0 for exchange & correlation
+C     Adamo & Barone JCP 110, 6158 (1998)
+c     
+ 2900  continue
+c
+c        assume total wanted
+c     
+       xccomb(10) = .true.
+       xfac(1)=0.25d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+         lxfac(7) = .true.
+         nlxfac(7) = .true.
+         xfac(7) = .75d0
+         lcfac(12) = .true.
+         nlcfac(12) = .true.
+         cfac(12) = 1.0d0
        goto 10
 c     
 c     HCTH for exchange 

@@ -32,14 +32,15 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 13)
+      parameter (num_dirs = 15)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
       integer accqrad
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
-     &            'store_wght', 'nquad_task', 'rm'/
+     &            'store_wght', 'nquad_task', 'rm',
+     .     'lebmed','lebfine'/
 c     
       ngridin=0
       mlen = inp_strlen(module)
@@ -54,7 +55,7 @@ c
       endif
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
-     &      1200, 1300, 1999) ind
+     &      1200, 1300, 1400, 1500, 1999) ind
       call errquit('grid_inp: unimplemented directive', ind)
 c     
 c     delley; use delley spatial weights
@@ -216,6 +217,23 @@ c
 c
       goto 10
 c     
+c     
+c     medleb; use medium Lebedev grid definition
+c             
+ 1400 gridtype='lebmed'
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 1400) 
+      goto 10
+
+c     
+c     
+c     medleb; use medium Lebedev grid definition
+c             
+ 1500 gridtype='lebfine'
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 1500) 
+      goto 10
+
  1999 continue
 c
       if(ngridin.ne.0) then
