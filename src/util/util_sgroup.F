@@ -1,15 +1,20 @@
-C$Id: util_sgroup.F,v 1.1 2004-11-29 21:37:17 edo Exp $
+C$Id: util_sgroup.F,v 1.2 2004-11-29 22:30:20 edo Exp $
       logical function util_sgstart()
       implicit none
 #include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
+cedo#define GOSMP 1
       integer nprocs, nsize, midproc, proclist(1000)
       integer i
 c
 c    Create groups
 c   
       write(luout,*) 'Creating groups'
+#ifdef GOSMP
+      call util_sggosmp()
+      util_sgstart=.true.
+#else
       nprocs = ga_nnodes()
       midproc = nprocs/2
 c
@@ -44,7 +49,6 @@ c     active
 c
         util_sgstart=.true.
         mygroup=1
-        write(0,*) ga_nodeid(),' active'
       else
         call ga_pgroup_set_default(grouplist(2))
 c
@@ -52,9 +56,11 @@ c     inactive
 c        
         util_sgstart=.false.
         mygroup=2
-        write(0,*) ga_nodeid(),' inactive'
       endif
+#endif
       sgactive=util_sgstart
+      write(0,*) ga_nodeid(),' of group',mygroup,
+     *     'active = ',sgactive
       return
       end
       subroutine util_sgend(rtdb,rtdb_name)
@@ -92,6 +98,7 @@ c
       character*256 grtdbname
       integer ii
 c
+      ii=mygroup
       write(luout,*) 'util_sgrtdb start'
       call util_pname0(rtdbname,grtdbname,ii,ngroups)
 c     
@@ -102,5 +109,37 @@ c
       call ga_sync()
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      (     (' rtdb_open old failed ',0,0)
+      return
+      end
+      subroutine util_sggosmp()
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "util_sgroup.fh"
+      integer me,inode,nnodes
+      integer i,j,proclist(maxgroups)
+c
+      ngroups=ga_cluster_nnodes()
+
+      me=ga_nodeid()
+      inode = ga_cluster_nodeid()
+      nnodes = ga_cluster_nprocs(inode)
+      if(ga_cluster_nnodes().gt.maxgroups) call 
+     g     errquit('sggosmp: increase maxgroups',0,0) 
+      do i=0,ga_cluster_nnodes()-1
+         do j=0,ga_cluster_nprocs(i)-1
+            proclist(j+1)=ga_cluster_procid(i,j)
+         enddo
+         grouplist(i+1)=ga_pgroup_create(proclist,ga_cluster_nprocs(i))
+      enddo
+      call ga_sync()
+      do i = 0, ga_cluster_nnodes()-1
+         if (i.eq.inode) then
+                  mygroup=grouplist(inode+1)
+            write(0,'(I4,A,I4)') me,' joining group',
+     ,          grouplist(inode+1)
+            call ga_pgroup_set_default(mygroup)
+         endif
+      enddo
       return
       end
