@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.6 1996-01-25 22:51:28 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.7 1996-03-08 02:46:13 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -130,9 +130,9 @@ c
             do i = me+1, nvec, nproc
                call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), 1)
                call dfill(nbf, 0.0d0, dbl_mb(k_t), 1)
-               do op = 1, nop   ! Loop includes identity
-                  if (class .eq. op_class_index(op-1)) then
-                     call sym_movecs_apply_op(basis, op-1, dbl_mb(k_v), 
+               do op = 1, nop-1   
+                  if (class .eq. op_class_index(op)) then
+                     call sym_movecs_apply_op(basis, op, dbl_mb(k_v), 
      $                    dbl_mb(k_t))
                   endif
                enddo
