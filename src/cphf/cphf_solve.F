@@ -22,8 +22,8 @@
       integer precond_iter
       logical ga_iter_lsolve
       external ga_iter_lsolve
-      logical ga_it_ls_mrhs
-      external ga_it_ls_mrhs
+c$$$      logical ga_it_ls_mrhs
+c$$$      external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv
       external uhf_precond,uhf_hessv
       logical oprint,do_rohf
@@ -124,16 +124,16 @@ c$$$     $        call errquit('cphf did not converge',1)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
          oskel=.false.
          call ga_zero(g_work)
-c$$$         if(.not.ga_iter_lsolve(cuhf_vlen,max_iter,
-c$$$     $        max_sub,accuracy, 
-c$$$     $        uhf_precond,uhf_hessv,oprint, 
-c$$$     $        g_grad,g_work,precond_acc,precond_iter))
-c$$$     $        call errquit('cphf did not converge',1)
-         if(.not.ga_it_ls_mrhs(cuhf_vlen,1,max_iter,
+         if(.not.ga_iter_lsolve(cuhf_vlen,max_iter,
      $        max_sub,accuracy, 
      $        uhf_precond,uhf_hessv,oprint, 
      $        g_grad,g_work,precond_acc,precond_iter))
      $        call errquit('cphf did not converge',1)
+c$$$         if(.not.ga_it_ls_mrhs(cuhf_vlen,1,max_iter,
+c$$$     $        max_sub,accuracy, 
+c$$$     $        uhf_precond,uhf_hessv,oprint, 
+c$$$     $        g_grad,g_work,precond_acc,precond_iter))
+c$$$     $        call errquit('cphf did not converge',1)
          pol=ga_ddot(g_work,g_grad)
          if(ga_nodeid().eq.0)then
             write(6,911) pol
