@@ -48,6 +48,7 @@ PSPW string, and after that an $<$operation$>$ string is required.  The
 TASK PSPW directive for PSPW calculations is of the following form:
 \begin{verbatim}
 TASK PSPW [steepest_descent           ||
+           conjugate_gradient         ||
            Car-Parrinello             ||
            psp_formatter              ||
            wavefunction_initializer   ||
@@ -59,7 +60,9 @@ TASK PSPW [steepest_descent           ||
 Currently available tasks are listed.  Note that unlike most 
 NWChem modules, the PSPW module does not contain an energy operation.  
 This means that there is no default operation and hence an operation must 
-always be specified.
+always be specified. 
+
+
 
 PSPW tasks are of two types.  The first type of 
 task is used to setup or change needed data files for a 
@@ -69,6 +72,20 @@ wavefunction\_expander, and psp\_generator.  The second type
 of task is used to actually run a PSPW simulation.  Tasks 
 of this type are steepest\_descent, and Car-Parrinello.
 The following subsections describe the input to these tasks.
+
+The PSPW module is also interfaced to driver, stepper, and freqency task 
+operations through the cg\_pspw theory directive, see 
+section \ref{sec:first_task}. The PSPW conjugate\_gradient sub-module is used
+in this interface.  Specifically the following task operations 
+are interafaced using the cg\_pspw theory directive.
+\begin{verbatim}
+TASK cg_pspw energy           
+TASK cg_pspw gradient         
+TASK cg_pspw optimize         
+TASK cg_pspw saddle           
+TASK cg_pspw freqencies       
+\end{verbatim}
+
 
 \subsection{STEEPEST\_DESCENT} 
 
@@ -89,7 +106,6 @@ by a fixed step minimization procedure.
                            \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
                             + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
                         \right]_{t}
-\label{eq:sd2}
 \end{eqnarray}
 The ion positions can also be minimized using a fixed step minimization 
 procedure.
@@ -98,7 +114,6 @@ procedure.
                       \vec{R}_I^{t}
                     - \frac{(\Delta t)}{\sqrt{M_I}} 
                        \frac{\partial E}{\partial \vec{R}_I}
-\label{eq:sd3}
 \end{eqnarray}
 
 Input to the steepest\_descent simulation is contained
@@ -128,14 +143,17 @@ PSPW
       (FORMATTED_FILENAME: <string formatted_name>)+
       INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>
       OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>
-      FAKE_MASS: <real fake_mass>
-      TIME_STEP: <real time_step>
-      LOOP: <integer inner_iteration outer_iteration>
+      FAKE_MASS: <real fake_mass default 400000.0>
+      TIME_STEP: <real time_step default 5.8>
+      LOOP: <integer inner_iteration outer_iteration default 10 1>
       TOLERANCES: <real tole tolc tolr>
       [ENERGY_CUTOFF:       <real ecut>]
       [WAVEFUNCTION_CUTOFF: <real wcut>]
       [EWALD_NCUT: <integer ncut>]
       [EWALD_RCUT: <real rcut>]
+      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
+      [MULLIKEN]
+
    END
 ...
 
@@ -174,7 +192,122 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
+        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Erzherhoff GGA functional.
+        \item MULLIKEN - optional keyword which if specified
+                         causes a Mulliken anaysis to be performed at
+                         the end of the simulation
 \end{itemize}
+
+
+\subsection{CONJUGATE\_GRADIENT} 
+
+The steepest\_descent task is used to optimize the one-electron orbitals
+with respect to the total energy.  In addition it can also be used to optimize
+geometries.  
+
+In this method the LSDA energy functional is minimized with
+respect to the Kohn-Sham orbitals {$\psi_{i,\sigma}$} and subject to 
+orthonormality contraints ($\Lambda_{ji,\sigma}$ Lagrange Multipliers) 
+by a fixed step minimization procedure.
+\begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                     \psi_{i,\sigma}^{t} 
+                      - \frac{\Delta t}{\sqrt{\mu}} 
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\end{eqnarray}
+
+Input to the conjugate\_gradient simulation is contained
+within the conjugate\_gradient sub-block.
+\begin{verbatim}
+PSPW
+  ...
+  CONJUGATET_GRADIENT
+     ...
+  END
+  ...
+END
+\end{verbatim}
+and to run a steepest\_descent calculation the following directive is used:
+\begin{verbatim}
+TASK PSPW steepest_descent 
+\end{verbatim}
+The steepest\_descent sub-block contains a great deal
+of input, including pointers to RTDB data, pointers to data, as well as
+parameter input.  Listed below is the format of a CONJUGATE\_GRADIENT sub-block.
+\begin{verbatim}
+PSPW
+...
+   CONJUGATE_GRADIENT
+      CELL_NAME: <string cell_name>
+      (FORMATTED_FILENAME: <string formatted_name>)+
+      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions>
+      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions>
+      [FAKE_MASS: <real fake_mass default 400000.0>]
+      [TIME_STEP: <real time_step default 5.8>]
+      LOOP: <integer inner_iteration outer_iteration default 10 1>
+      TOLERANCES: <real tole tolc tolr default 1.0e-9 1.0e-9 1.0e-4>
+      [ENERGY_CUTOFF:       <real ecut>]
+      [WAVEFUNCTION_CUTOFF: <real wcut>]
+      [EWALD_NCUT: <integer ncut>]
+      [EWALD_RCUT: <real rcut>]
+      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
+      [MULLIKEN]
+
+   END
+...
+
+END
+\end{verbatim}
+The following list describes the input for the STEEPEST\_DESCENT
+sub-block.
+\begin{itemize}
+	\item $<$cell\_name$>$ - name that points to the
+              the simulation\_cell named $<$cell\_name$>$.
+	\item GEOMETRY\_OPTIMIZE - optional keyword which if specified
+	      turns on geometry optimization. 	
+	\item $<$formatted\_name$>$ - name that points
+              to a formatted\_pseudopotential file.  A file must
+              be specified for each kind of ion in the simulation.
+	\item $<$input\_wavefuncitons$>$ - name that points
+              to a file containing one-electron orbitals
+	\item $<$output\_wavefunctions$>$ - name that will
+              point to file containing the one-electron orbitals at the
+              end of the run. 
+	\item $<$fake\_mass$>$ - value for the electronic
+              fake mass ($\mu$). This parameter is not presently used in a 
+              conjugate gradient simulation
+	\item $<$time\_step$>$ - value for the time step ($\Delta t$).  This
+              parameter is not presently used in a conjugate gradient simulation.
+	\item $<$inner\_iteration$>$ - number of iterations between the 
+              printing out of energies and tolerances
+	\item $<$outer\_iteration$>$ - number of outer iterations
+ 	\item $<$tole$>$ - energy tolerance requested.
+	\item $<$tolc$>$ - one-electron orbital tolerance requested.
+	\item $<$tolr$>$ - ion position tolerance requested.
+	\item $<$ecut$>$ - value for the cutoff energy used
+                           to define the density.
+	\item $<$wcut$>$ - value for the cutoff energy used
+ 			   to define the one-electron orbitals.
+	\item $<$ncut$>$ - value for the number of unit cells
+ 			  to sum over (in each direction) for the real space
+			  part of the Ewald summation.
+	\item $<$rcut$>$ - value for the cutoff radius used
+			  in the Ewald summation.
+        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Erzherhoff GGA functional.
+        \item MULLIKEN - optional keyword which if specified
+                         causes a Mulliken anaysis to be performed at
+                         the end of the simulation
+\end{itemize}
+
+
 
 
 
@@ -187,10 +320,14 @@ theory.  At the heart of this method an auxillary energy functional is
 defined by adding a fictacious kinetic energy functional of the Kohn-Sham 
 orbitals
 \begin{eqnarray}
-\label{appendix:b1}
 KE(\{\psi_{i,\sigma}(\vec{r})\}) &=& \sum_{i,\sigma}^{occ} 
                                       \int d\vec{r}\ \mu \left| 
                                       \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
+\end{eqnarray}
+along with the ion kinetic energy
+\begin{eqnarray}
+\label{appendix:b2}
+KE(\vec{R_I}) &=& \sum_{I} \frac{1}{2} M_I \left| \dot{\vec{R_I}} \right|^2  
 \end{eqnarray}
 to the density functional total energy, $E$.  Integrating this auxillary 
 functional, subject to orthonormality constraints 
@@ -205,7 +342,6 @@ using the Verlet algorithm we get the following equations of motion:
                            \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
                             + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
                         \right]_{t}
-\label{eq:b6}
 \end{eqnarray}
 \begin{eqnarray}
 \vec{R}_I^{t+\Delta t} &\leftarrow& 
@@ -214,6 +350,20 @@ using the Verlet algorithm we get the following equations of motion:
                        \frac{\partial E}{\partial \vec{R}_I}
 \label{eq:b7}
 \end{eqnarray}
+
+Nose-Hoover Thermostats for the electrons and ions can also be added to the 
+Car-Parrinello simulation.  In this type of simulation thermostats variables $x_e$ and $x_R$ 
+are added to the simulation by adding the auxillary energy functionals to the total energy.
+\begin{eqnarray}
+ELECTRON_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0} 
+\end{eqnarray}
+\begin{eqnarray}
+ION_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0} 
+\end{eqnarray}
+A description of the parameters $Q_e$, $E_{e0}$, $Q_R$, and $E_{R0}$ is given in 
+section \ref{section:pspw_nose}.
+
+ 
   
 Input to the Car-Parrinello 
 simulation is contained within the Car-Parrinello sub-block.
@@ -238,7 +388,6 @@ PSPW
 ...
    Car-Parrinello
       CELL_NAME: <string cell_name>
-      [GEOMETRY_OPTIMIZE]
       (FORMATTED_FILENAME: <string formatted_name>)+
       INPUT_WAVEFUNCTION_FILENAME:    <string input_wavefunctions>
       OUTPUT_WAVEFUNCTION_FILENAME:   <string output_wavefunctions>
@@ -252,7 +401,16 @@ PSPW
       [WAVEFUNCTION_CUTOFF: <real wcut>]
       [EWALD_NCUT: <integer ncut>]
       [EWALD_RCUT: <real rcut>]
+      [EXCHANGE_CORRELATION: (Vosko || PBE96  default PBE96)]
+      [Nose-Hoover: <real Period_electron Temperature_electrion Period_ion Temperatur_ion 
+                          default 100.0 298.15 100.0 298.15>]
       [XYZ_FILENAME: <string xyz_filename default XYZ>]
+      [EMOTION_FILENAME: <string emotion_filename default EMOTION>]
+      [HMOTION_FILENAME: <string hmotion_filename default HMOTION>]
+      [OMOTION_FILENAME: <string omotion_filename default OMOTION>]
+      [EIGMOTION_FILENAME: <string eigmotion_filename default EIGMOTION>]
+      [ION_MOTION_FILENAME: <string ion_motion_filename default MOTION>]
+
    END
 ...
 
@@ -296,6 +454,20 @@ sub-block.
 			  part of the Ewald summation.
 	\item $<$rcut$>$ - value for the cutoff radius used
 			  in the Ewald summation.
+        \item (Vosko || PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Erzherhoff GGA functional.
+        \item Nose-Hoover: - optional subblock which if specified
+                         causes the simulation to perform Nose-Hoover dynamics.
+                         If this subblock is not specified causes the 
+                         simulation to perform constant energy dyanmics.
+                         See section \ref{sec:pspw_nose} for a description of the parameters.
+                         \begin{itemize}
+                             \item $<$Period\_electron$>$ - estimated period for electron motion
+                             \item $<$Temperature\_electron$>$ - temperature for electron motion
+                             \item $<$Period\_ion$>$ - estimated period for ion motion
+                             \item $<$Temperature\_ion$>$ - temperature for ion motion
+                         \end{itemize}
 	\item $<$xyz\_filename$>$ - name that points to the XYZ motion file
 				generated
 \end{itemize}
@@ -384,12 +556,16 @@ PSPW
      CELL_NAME: <string cell_name>
      WAVEFUNCTION_FILENAME: <string wavefunction_name>
      (RESTRICTED||UNRESTRICTED)
-     UP_FILLING: <integer up_filling>
+     if (RESTRICTED)   [RESTRICTED_ELECTRONS: <integer restricted electrons>]
+     if (UNRESTRICTED) [UP_ELECTRONS: <integer up_electrons>]
+                       [DOWN_ELECTRONS: <integer down_electrons>]
+     
+     [UP_FILLING: <integer up_filling>
         [0 0 0 0   0]
-        {<integer kx ky kz> (-2||-1||1||2)}
-     DOWN_FILLING: <integer down_filling>
+        {<integer kx ky kz> (-2||-1||1||2)}]
+     [DOWN_FILLING: <integer down_filling>
         [0 0 0 0   0]
-        {<integer kx ky kz> (-2||-1||1||2)}
+        {<integer kx ky kz> (-2||-1||1||2)}]
    END
 ...
 END
@@ -547,17 +723,18 @@ PSPW
       [CUTOFF: <integer lmax> \
          {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
       ]
-      [PSEUDOPOTENTIAL_TYPE: (troullier-martins||hamann)]
-      [SOLVER_TYPE: (pauli||schrodinger)]
-      [EXCHANGE_TYPE: dirac]
-      [CORRELATION_TYPE: vosko]
+      [PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS||HAMANN default HAMANN)]
+      [SOLVER_TYPE: (PAULI||SCRHODINGER default PAULI)]
+      [EXCHANGE_TYPE: (dirac || PBE96 default DIRAC)]
+      [CORRELATION_TYPE: (VOSKO || PBE96 default VOSKO)]
    end
 ... 
 END
 \end{verbatim}
 
 
-
+\section{PSPW Nose-Hoover Simulation Parameters}
+\label{section:pspw_nose}
 
 
 \section{PSPW RTDB Entries and DataFiles}
