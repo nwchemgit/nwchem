@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.8 2002-02-27 02:16:00 bylaska Exp $
+c $Id: pspw_Q.F,v 1.9 2002-02-28 00:41:09 bylaska Exp $
 c
 
 
@@ -222,18 +222,22 @@ c
       E = 0.0d0
       do i=1,nion
          call pspw_Q_param_MM(i,qi)
+         if (qi.gt.1.0d-10) then
          ri(1) = pspw_qmmm_rion(1,i)
          ri(2) = pspw_qmmm_rion(2,i)
          ri(3) = pspw_qmmm_rion(3,i)
          do j=i+1,nion
            if (pspw_qmmm_different_frag(i,j)) then
              call pspw_Q_param_MM(j,qj)
+             if (qj.gt.1.0d-10) then
              rj(1) = pspw_qmmm_rion(1,j)
              rj(2) = pspw_qmmm_rion(2,j)
              rj(3) = pspw_qmmm_rion(3,j)
              E = E + Q_Electrostatic(ri,qi,rj,qj)
+             end if
            end if
          end do
+         end if
       end do
 
 
@@ -268,16 +272,20 @@ c
       E = 0.0d0
       do i=1,nion_ion
          call pspw_Q_param_Ion(i,qi)
+         if (qi.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,nion_mm
             call pspw_Q_param_MM(j,qj)
+            if (qj.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             E = E + Q_Electrostatic(ri,qi,rj,qj)
+            end if
          end do
+         end if
       end do
 
 
@@ -324,36 +332,44 @@ c
 *     **** forces from MM ions ****
       do i=1,pspw_qmmm_nion()
          call pspw_Q_param_MM(i,qi)
+         if (qi.gt.1.0d-10) then
          ri(1) = pspw_qmmm_rion(1,i)
          ri(2) = pspw_qmmm_rion(2,i)
          ri(3) = pspw_qmmm_rion(3,i)
          do j=i+1,pspw_qmmm_nion()
            if (pspw_qmmm_different_frag(i,j)) then
              call pspw_Q_param_MM(j,qj)
+             if (qj.gt.1.0d-10) then
              rj(1) = pspw_qmmm_rion(1,j)
              rj(2) = pspw_qmmm_rion(2,j)
              rj(3) = pspw_qmmm_rion(3,j)
              call Q_Electrostatic_Force(ri,qi,f_mm(1,i),
      >                                  rj,qj,f_mm(1,j))
+             end if
            end if  
          end do
+         end if
       end do
 
 *     **** forces from QM ions ****
       call dcopy(3,0.0d0,0,fion,1)
       do i=1,ion_nion()
          call pspw_Q_param_Ion(i,qi)
+         if (qi.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,pspw_qmmm_nion()
             call pspw_Q_param_MM(j,qj)
+            if (qj.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             call Q_Electrostatic_Force(ri,qi,fion,
      >                                 rj,qj,f_mm(1,j))
+            end if
          end do
+         end if
       end do
 
       return
@@ -398,17 +414,21 @@ c
       call dcopy(3,0.0d0,0,f_mm,1)
       do i=1,nion_ion
          call pspw_Q_param_Ion(i,qi)
+         if (qi.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,nion_mm
             call pspw_Q_param_MM(j,qj)
+            if (qj.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             call Q_Electrostatic_Force(ri,qi,fion(1,i),
      >                                 rj,qj,f_mm)
+            end if
          end do
+         end if
       end do
 
       return
