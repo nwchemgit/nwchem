@@ -310,6 +310,7 @@ peigs
 #define dgetavec_               DGETAVEC
 #define dlas2_                  SLAS2
 #define dlascl_                 SLASCL
-
+#define dsterf_                 SSTERF
+#define ga_sync_                 GA_SYNC
 
 #endif
