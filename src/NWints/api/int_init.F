@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.54 1999-12-10 01:47:21 bert Exp $
+c $Id: int_init.F,v 1.55 1999-12-30 22:13:29 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -23,6 +23,7 @@ c:tex-\end{verbatim}
 #include "int_nbf.fh"
 #include "util.fh"
 #include "rel_consts.fh"
+#include "rel_nwc.fh"
 c
 c This routine is a wrapper around the original int_init which is now
 c called int_init_org. The reason for this extension is related to the
@@ -42,6 +43,15 @@ c:tex-\end{verbatim}
 c::local
       integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
+c
+c   Dyall-modified Dirac equation
+c
+      if (.not. rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir))
+     &    dyall_mod_dir = .false.
+      if (.not. rtdb_get(rtdb,'atomic_nesc',mt_log,1,atomic_nesc))
+     &    atomic_nesc = .false.
+      if (.not. rtdb_get(rtdb,'nesc_1e_approx',mt_log,1,nesc_1e_approx))
+     &    nesc_1e_approx = .false.
 c
 c     Setup array with basis sets from bases
 c
@@ -89,9 +99,7 @@ c
 c        Set possibily an alternative speed of light, otherwise take
 c        constant from Ken Dyall's list of constants.
 c
-         call rel_init_con
-         if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
-     $      dk_clight)) dk_clight = cau
+         dk_clight = cau
 c
 c        Add fitting basis set to list of loaded basis sets for int_init
 c
@@ -299,10 +307,9 @@ c
         call errquit('int_init: spcart_init failed',911)
       endif
 c
-c Initialize relativistic basis set stuff
+c Initialize DmD relativistic basis set stuff
 c
-      any_rel = bas_rel_exists(rtdb)
-      if (any_rel) then
+      if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
       end if
@@ -354,8 +361,8 @@ c See if any basis has an attached SO potential
       if (any_so.or.any_ecp) then
         if (.not.int_ecp_init(ecp_bsh,so_bsh,0)) call errquit
      &      ('int_init: int_ecp_init failed ',911)
-        if (any_rel) call errquit
-     &      ('int_init: ECPs with relativistic atoms illegal',911)
+        if (dyall_mod_dir .or. doug_kroll) call errquit('int_init: '//
+     &      'do not mix ECPs and all-electron relativistic methods',911)
       endif
       init_int = 1
       end
