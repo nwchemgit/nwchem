@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.2 1995-10-31 09:28:02 d3e129 Exp $
+c $Id: texas_hf.F,v 1.3 1995-11-29 02:14:37 d3e129 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       ra,rb,rc,rd,use_r,
@@ -16,8 +16,9 @@ c Integrals return in ERI(leri) without labels or with labels
 c in icf(leri),..,lcf(leri) .
 c--------------------------------------------------------
       implicit none
+#include "mafdecls.fh"
       logical use_r,labels, more_int
-c PNL scratch replacing our bl() and its size :
+c PNL scratch for calculations replacing our bl() and its size :
       integer l_blscr
       double precision blscr(l_blscr)
 c PNL requested set of contracted shell quartets :
@@ -28,6 +29,9 @@ c returning integral's indeces :
       integer leri
       double precision eri(leri)
       double precision ra(3),rb(3),rc(3),rd(3)
+c----------------------------------------------------------------------
+      integer ntxs_bl_scr
+      common /bl_txs_add/ ntxs_bl_scr 
 c----------------------------------------------------------------------
       integer basis_init
       common /c_basis_init/ basis_init
@@ -47,7 +51,8 @@ c--------------------------------------------------------
 c switch from txs bl() to pnl blscr()
 c
       if(.not.more_int) then
-         call switch_scr(blscr,l_blscr)
+ccccc    call switch_scr(blscr,l_blscr)
+         call switch_scr(dbl_mb(ntxs_bl_scr),blscr,l_blscr)
       endif
 c--------------------------------------------------------
        call mul_quart(ish,jsh,ksh,lsh,nquart,ra,rb,rc,rd,use_r,
@@ -145,9 +150,10 @@ c
 c----------------------------------------------------------------
 c if this pnl-request is too big (too many integrls at once) 
 c
-c     if( isplit.gt.0 ) then
+c-->  if( isplit.gt.0 ) then
           write(8,*)'pnl-request no=',ncall_pnl,' size=,',nquart,
      *              ' is split into ',isplit+1,' pieces'
+c-->  endif
       if( isplit.gt.0 ) then
           more_int=.true.
           nsplit=0
@@ -296,6 +302,9 @@ c==================================================================
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical labels
+c
+      common /bl_txs_add/ ntxs_bl_scr 
+c
       common /memor1/ iisd,jjsd,ijbld
 cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
       common /memor1a/ npard,ncost,nsupb, mxsize,nasize
@@ -362,7 +371,7 @@ c--------------------------------------------------------
 C@@@ *     bl(isupblk),bl(isblsize),bl(isblqrts),bl(nblock2),
      *     bl(isupblk),bl(isblsize),bl(isblqrts),dbl_mb(nblock2),
      *     bl(iqorder),bl(isblpoin), 
-     *     bl(isblcall) )
+     *     dbl_mb(ntxs_bl_scr-1+isblcall) )
       call retmem(1)
       call retmem(1)
 c  
@@ -836,7 +845,7 @@ c
    77 format('pnl_lab: ',4(i4,1x),1x,f30.20 )
       end
 c=====================================================================
-      subroutine switch_scr(blscr,l_blscr)
+      subroutine switch_scr(bltxs, blscr,l_blscr)
       implicit real*8 (a-h,o-z)
 c
 c copy  from local bl() as defined in texas_face3 :
@@ -861,7 +870,7 @@ c
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nXXX,nganz(35),lopt(30)
 c
-      common /big/ bl(1)
+      dimension  bltxs(*)
       dimension  blscr(l_blscr)
 c-------------------------------
 cccc  write(6,*)' in switch_scr ; l_blscr=',l_blscr
@@ -887,17 +896,17 @@ c
 c-------------------------------
 c copy data :
 c
-      call tfer_i( bl(iisd_R), blscr(iisd), iisd_S )
-      call tfer_i( bl(jjsd_R), blscr(jjsd), jjsd_S )
-      call tfer_i( bl(ijbld_R), blscr(ijbld), ijbld_S )
+      call tfer_i(bltxs(iisd_R), blscr(iisd), iisd_S )
+      call tfer_i(bltxs(jjsd_R), blscr(jjsd), jjsd_S )
+      call tfer_i(bltxs(ijbld_R), blscr(ijbld), ijbld_S )
 c
-      call tfer_i( bl(npard_R), blscr(npard), npard_S )
-      call tfer_i( bl(ncost_R), blscr(ncost), ncost_S )
-      call tfer_i( bl(nsupb_R), blscr(nsupb), nsupb_S )
-      call tfer_i( bl(mxsize_R), blscr(mxsize), mxsize_S )
-      call tfer_i( bl(nasize_R), blscr(nasize), nasize_S )
+      call tfer_i(bltxs(npard_R), blscr(npard), npard_S )
+      call tfer_i(bltxs(ncost_R), blscr(ncost), ncost_S )
+      call tfer_i(bltxs(nsupb_R), blscr(nsupb), nsupb_S )
+      call tfer_i(bltxs(mxsize_R),blscr(mxsize), mxsize_S )
+      call tfer_i(bltxs(nasize_R),blscr(nasize), nasize_S )
 c
-      call tfer_i( bl(ijshp_R), blscr(ijshp), ijshp_S )
+      call tfer_i(bltxs(ijshp_R), blscr(ijshp), ijshp_S )
 c
 c-------------------------------
 c     write(6,*) '  iisd_S,jjsd_S,ijbld_S '
@@ -907,7 +916,7 @@ c     write(6,*)   npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
 c     write(6,*) ' ijshp_S '
 c     write(6,*)   ijshp_S  
 c
-c     call printi( bl(mxsize_R), blscr(mxsize), mxsize_S )
+c     call printi(bltxs(mxsize_R),blscr(mxsize), mxsize_S )
 c-------------------------------
       end
 c==========

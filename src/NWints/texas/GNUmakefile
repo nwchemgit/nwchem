@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 1995-11-19 19:40:15 d3g681 Exp $
+# $Id: GNUmakefile,v 1.13 1995-11-29 02:13:44 d3e129 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -23,7 +23,8 @@ ifeq ($(USE_TEXAS),YEP)
                  time.o\
                  trobsa.o\
                  zeroint.o \
-		 missing.o
+		 missing.o \
+		 texas_stubs.o
 else
       OBJ = texas_stubs.o
       OBJ_OPTIMIZE = 
@@ -35,7 +36,11 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 txs:
+	@touch texas_stubs.F
 	$(MAKE) "USE_TEXAS=YEP"
+
+removeobj:
+	ar d  $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(precalc2.o):	 $(INCDIR)/mafdecls.fh 

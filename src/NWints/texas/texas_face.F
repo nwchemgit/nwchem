@@ -1,14 +1,33 @@
+      subroutine texas_set_accy(new_thresh1,new_thresh2)
+      implicit none
+c
+      double precision new_thresh1 ! [input] accy threshold 1 for texas
+      double precision new_thresh2 ! [input] accy threshold 2 for texas
+c
+c.... texas common block -- start
+      double precision title, etot, enuc, qx, qtot, time, tlast, par
+      common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
+c.... -- end
+c
+      par(2) = new_thresh2
+      par(1) = new_thresh1
+c
+      par(26) = new_thresh1
+c
+      end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.3 1995-10-31 09:28:00 d3e129 Exp $
+c $Id: texas_face.F,v 1.4 1995-11-29 02:14:24 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
       integer h_txs_mapp2 , k_txs_mapp2 
+      integer h_txs_prep2 , k_txs_prep2 
       common /txs_ma_stuff/ h_txs_basnuc, k_txs_basnuc,
      *                      h_txs_mapp1 , k_txs_mapp1,
-     *                      h_txs_mapp2 , k_txs_mapp2 
+     *                      h_txs_mapp2 , k_txs_mapp2,
+     *                      h_txs_prep2 , k_txs_prep2 
 c----------------------------------------------------------------
       common /timing2/ timprep2,timstor2,timreca2,timblok2,timblok4
 c------------------------------pnl time--------------------------
@@ -91,7 +110,7 @@ c
 c------------------------------pnl time--------------------------
 c------------------------------pnl performance ------------------
 c
-Change it call txs_for_pnl
+          call txs_for_pnl( dbl_mb(k_txs_prep2) )
 c
 c----------------------------------------------------------------
 c free up memory allocated by texas_init      
@@ -106,70 +125,73 @@ c
      &        call errquit('texas_terminate: failed ?', 911)
       if (.not.MA_free_heap(h_txs_mapp2 ))
      &        call errquit('texas_terminate: failed ?', 911)
+      if (.not.MA_free_heap(h_txs_prep2 ))
+     &        call errquit('texas_terminate: failed ?', 911)
 
 c
       h_txs_basnuc = -1
       h_txs_mapp1  = -1 
       h_txs_mapp2  = -1
+      h_txs_prep2  = -1
       k_txs_basnuc =  0
       k_txs_mapp1  =  0
       k_txs_mapp2  =  0
+      k_txs_prep2  =  0
+c
       end
 c
 c End of terminate 
 c================================================================
-c---------------
-c NOT CHANGED YET : do it 
-c
-      subroutine txs_for_pnl
+      subroutine txs_for_pnl(bl)
 c for performance estimation :
       implicit real*8 (a-h,o-z)
-      common /big/ bl(1)
       common /pnlRJH/ isblcall
-cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
-      common /memor1a/ npard,ncost,nsupb, mxsize,nasize
+c------
+      common /memor1a_R/ npard_R,ncost_R,nsupb_R, mxsize_R,nasize_R
+c------
       common /memor1b/ nbl2,nbloks
 c
-         call rob_harr(bl(npard),bl(isblcall),nbl2 )
+      dimension bl(*)
+c
+         call rob_harr(bl(nasize_R),bl(isblcall),nbl2 )
 c
       end
 c---------------
-      subroutine rob_harr(npar,isbl_call,nbl2)
-      dimension npar(nbl2), isbl_call(*)
+      subroutine rob_harr(nasize,isbl_call,nbl2)
+      dimension nasize(*),isbl_call(*)
 c
       write(8,*) '===================================================='
       write(8,*) ' super-block  texas_size  pnl_calls average_pnl_size'
       write(8,*) '----------------------------------------------------'
 c
+      nbl4=nbl2*(nbl2+1)/2
+c
       iaver_size_txs=0
       iaver_size_pnl=0
-      isbl=0
       nsbl_pnl=0
-      do 10 ibl=1,nbl2
-      ijpar=npar(ibl)
-         do 10 kbl=1,ibl
-         klpar=npar(kbl)
-         isbl=isbl+1
-         isbl_txs=ijpar*klpar
-         if(kbl.eq.ibl) isbl_txs=ijpar*(ijpar+1)/2
+      do 10 isbl=1,nbl4
          isbl_called=isbl_call(isbl)
-         isbl_pnl=isbl_txs/dble(isbl_called)
+         if(isbl_called.eq.0) go to 10
+c
+         isbl_txs=nasize(isbl)
+         isbl_pnl=isbl_txs/isbl_called
 c
          iaver_size_txs=iaver_size_txs+isbl_txs
          iaver_size_pnl=iaver_size_pnl+isbl_pnl
 c
          nsbl_pnl=nsbl_pnl+isbl_called
 c
-CCCCCC   write(8,66) isbl,isbl_txs,isbl_called, isbl_pnl
+         write(8,66) isbl,isbl_txs,isbl_called, isbl_pnl
    10 continue
 c
 c average values :
 c
 c  it is like for pnl we would have more super-blocks :
+c
          iaver_size_pn2=iaver_size_txs/nsbl_pnl 
 c
-         iaver_size_txs=iaver_size_txs/isbl
-         iaver_size_pnl=iaver_size_pnl/isbl     
+         iaver_size_txs=iaver_size_txs/nbl4
+         iaver_size_pnl=iaver_size_pnl/nbl4     
 c
    66 format(i7,5x,3(i7,5x))
 c
@@ -182,7 +204,13 @@ c
       write(8,*) '===================================================='
       end
 c=================================================================
-      subroutine texas_init(rtdb,nbas,bases)
+c.old.rak      subroutine texas_init(rtdb,nbas,bases)
+      subroutine texas_init(rtdb,nbas,bases,l_blsize)
+c---------------------------------------------------------------
+c l_blsize = size of the scratch array which will be used when
+c             texas_hf2_m is called
+c this is maximum size of the scratch needed to do one super-block
+c---------------------------------------------------------------
       implicit none
 c
 c..  this routine is the current interface to the texas code
@@ -194,11 +222,13 @@ c
 #include "geomP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
+#include "apiP.fh"
 c::functions
 c::passed
       integer rtdb ! rtdb handle
       integer nbas ! number of basis sets 
       integer bases(nbas) ! basis set handles
+      integer l_blsize
 c::local
       integer geom, basis 
       integer type, i, j, k, nprim, icoef, nshells, ishell, ngen
@@ -207,15 +237,17 @@ c::local
       integer center ! center for a given contr. shell
       integer npshells ! total number of primitive shells
       integer ipshell 
-c----------------------------------------------------------------------
+      integer size_from_ma
+      integer inuc,ibas
+c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
       integer h_txs_mapp2 , k_txs_mapp2 
+      integer h_txs_prep2 , k_txs_prep2 
       common /txs_ma_stuff/ h_txs_basnuc, k_txs_basnuc,
      *                      h_txs_mapp1 , k_txs_mapp1,
-     *                      h_txs_mapp2 , k_txs_mapp2 
-      integer size_from_ma
-      integer inuc,ibas
+     *                      h_txs_mapp2 , k_txs_mapp2,
+     *                      h_txs_prep2 , k_txs_prep2 
 c----------------------------------------------------------------------
       integer basis_init
       common /c_basis_init/ basis_init
@@ -282,7 +314,6 @@ c make bl and inx arrays
 c
 cOLD  call blinx(nat,nshells,npshells)
       call blinx(nat,nshells,npshells,inuc,ibas)
-CCCCCC    ,dbl_mb(inuc), dbl_mb(ibas))
 c------------------------------------
 c make datnuc array
 c
@@ -299,7 +330,18 @@ c Re-arrange a basis set according to
 c the Texas convention
 c 1) normalize and 2) re-order
 c
-      call txsarrag(dbl_mb)
+      call txsarrag(dbl_mb, l_blsize)
+c
+c... map texas memory to memory commons of the PNL/int API
+c
+      write(6,*)' mem_2e4c :',mem_2e4c
+      write(6,*)' mem_2e3c :',mem_2e3c
+      write(6,*)' mem_2e2c :',mem_2e2c
+      write(6,*)' l_blsize :',l_blsize
+      mem_2e4c = max(mem_2e4c,l_blsize)
+      mem_2e3c = max(mem_2e3c,l_blsize)
+      mem_2e2c = max(mem_2e2c,l_blsize)
+c
 c------------------------------------
 c ONLY for TESTS :
 c  calculate two-electron integrals  
@@ -317,11 +359,15 @@ c------------------------------------
 c=================================================================
       subroutine blinx(natom,ncshell,npshell,inucx,ibasx)
       implicit real*8 (a-h,o-z)
-c-----
-      parameter(lcx = 5 000 000)
+c------------------------------------
+c the common block /big/ bl(lcx) has been repleaced by pnl
+c allocated scratch 
+c
+ckw   parameter(lcx = 5 000 000)
+ckw   common /big/ bl(lcx)
+c------------------------------------
       parameter(mxsh= 2 000 000)
-c-----
-      common /big/ bl(lcx)
+c------------------------------------
       common /index/ maxsh,ifp,inx(mxsh)
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
@@ -333,10 +379,12 @@ c------------------------------------
       inuc=inucx 
       ibas=ibasx 
 c------------------------------------
-      lcore=lcx
+c???? lcore=lcx
+c------
       maxsh=mxsh
 c------------------------------------
-      call retall
+c???? call retall
+c
       call retinall
 c------------------------------------
 c reserve memory (in index) for inx
@@ -483,7 +531,7 @@ c
 c
       end
 c=================================================================
-      subroutine txsarrag(basnuc)
+      subroutine txsarrag(basnuc, l_blsize)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -491,19 +539,24 @@ c=================================================================
       character*4 where
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
-      integer h_txs_mapp1 , k_txs_mapp1
-      integer h_txs_mapp2 , k_txs_mapp2
+      integer h_txs_mapp1 , k_txs_mapp1 
+      integer h_txs_mapp2 , k_txs_mapp2 
+      integer h_txs_prep2 , k_txs_prep2 
       common /txs_ma_stuff/ h_txs_basnuc, k_txs_basnuc,
      *                      h_txs_mapp1 , k_txs_mapp1,
-     *                      h_txs_mapp2 , k_txs_mapp2 
+     *                      h_txs_mapp2 , k_txs_mapp2,
+     *                      h_txs_prep2 , k_txs_prep2 
 c----------------------------------------------------------------
 c------------------------------pnl time--------------------------
       common /pnl_time1/ time_pt,time_setup
       common /pnl_time2/ time_calc2,time_do2,time_do4,time_doqrt
       common /pnl_time3/ time_pr2sb,time_pr2sm
 c------------------------------pnl time--------------------------
+cccc  common /big/ bl(1)
+c repleaced by pnl dbl_mb(ntxs_bl_scr) .
 c
-      common /big/ bl(1)
+      common /bl_txs_add/ ntxs_bl_scr 
+c----------------------------------------
       common /index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
       common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
@@ -636,6 +689,37 @@ c
 c
       call texas_input
 c------------------------------------
+c estimate memory requested in texas-scratch bl() by prepint2
+c ( prepint2 calls BLOCKIN2 )
+c There are 10 mem. allocations :
+c 4 proportional to the NCS  : (3+nsymm)*ncs 
+c 6 proportional to the NBL2 (no of block-pairs)
+c on return size of bl() - ntxs_scr_size
+c
+      call txs_scratch_siz1(ncs,inx(inxx),nsym,ntxs_scr_size)
+c
+      lcore=ntxs_scr_size
+c
+      call retall
+c
+c------------------------------------
+c allocate memory repleacing txs bl():
+c
+c
+      if (.not. MA_alloc_get(MT_DBL,ntxs_scr_size, 'for txs scratch ',
+     &                       h_txs_prep2 , k_txs_prep2 ))
+     &    call errquit('texas_init: alloc for for txs scratch failed',
+     &    911)
+c
+      ntxs_bl_scr=k_txs_prep2 
+c
+c this is starting address in dbl_mb() which repleaces original
+c texas scratch bl(). Since hereafter texas-bl is eliminated.
+c and lcore is now equal to ntxs_scr_size .
+c
+      write(8,*)' Memory allocated to repleace txs BL :',ntxs_scr_size
+c
+c------------------------------------
 c make setup like in Twoint :
 c common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
 c common /runtype/ scftype,where
@@ -655,7 +739,13 @@ c Preparation for the two-electron integrals calculation
 c (blocking procedure)
 c
       scftype='    '
-      call prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
+cold-
+c     call prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
+c    *              maxprice,scftype)
+cold-
+c
+      call prepint2(dbl_mb(ntxs_bl_scr),
+     *              eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
      *              maxprice,scftype)
 c
 cccc  write(6,100) scftype
@@ -673,14 +763,38 @@ c------------------------------------
 c Construct an array showing to which pair-block
 c a given pair of shells belongs:
 c
-cold  call pair_in2(bl)
-cfinal call pair_in2(dbl_mb)
-c temprorarly :
-c
-       call pair_in2(bl,dbl_mb)
+       call pair_in2(dbl_mb(ntxs_bl_scr),dbl_mb)
 c
 c on return nblock2(ijcs)--> ibl 
 c placed in bl(nblock2)
+c------------------------------------
+c Check out maximum memory needed so far and reserved
+c in the TXS-BL() :
+c
+      call memstat(nreque_bl,nmark_bl,maxmem_bl,memtot_bl)
+c
+      write(8,*)'-----------------------------------------------'
+      write(8,*)' At the end of TXSARRAG in texas scratch BL() :'
+      write(8,*)'                                              :'
+      write(8,*)' number of allocations =',nreque_bl
+      write(8,*)' number of marks       =',nmark_bl
+      write(8,*)' maximum memory overall=',maxmem_bl
+      write(8,*)' total memory available=',memtot_bl
+      write(8,*)'-----------------------------------------------'
+c
+c------------------------------------
+c estimate memory requested in texas-scratch bl() by texas_hf2_m :
+c the size of the scratch bl_scr needed to call texas_hf2_m with :
+c
+      call txs_scratch_siz2(maxme1,maxme2)
+c
+      l_blsize=maxme1 + maxme2 + maxmem_bl
+c
+      write(8,*)' maximum size of bl_scr=',l_blsize  
+      write(8,*)'-----------------------------------------------'
+c
+c maxme1 known from prepint2 execution (common /memmax/ )
+c maxme2 estimated as needed in texas_setup
 c------------------------------------
       end
 c=================================================================
@@ -879,23 +993,24 @@ c
 c------------------------------------
 c integral's threshould
 c
-      thresh1 = 1.0d-10
-      if (rtdb_get(rtdb,'int:txs:thre1',MT_DBL,1,dbl_tmp))then
-        thresh1 = dbl_tmp
-        write(luout,*)' texas integral default override: thre1 =',
-     &      thresh1
-      endif
-      thresh2 = 1.0d-10
-      if (rtdb_get(rtdb,'int:txs:thre2',MT_DBL,1,dbl_tmp))then
-        thresh2 = dbl_tmp
-        write(luout,*)' texas integral default override: thre2 =',
-     &      thresh2
-      endif
-      
-      par(2)=thresh2
-      par(1)=thresh1
-c *** this value is transferred in par(26)
-      par(26)=thresh1
+c... now set by texas_set_accy
+*      thresh1 = 1.0d-10
+*      if (rtdb_get(rtdb,'int:txs:thre1',MT_DBL,1,dbl_tmp))then
+*        thresh1 = dbl_tmp
+*        write(luout,*)' texas integral default override: thre1 =',
+*     &      thresh1
+*      endif
+*      thresh2 = 1.0d-10
+*      if (rtdb_get(rtdb,'int:txs:thre2',MT_DBL,1,dbl_tmp))then
+*        thresh2 = dbl_tmp
+*        write(luout,*)' texas integral default override: thre2 =',
+*     &      thresh2
+*      endif
+*
+*      par(2)=thresh2
+*      par(1)=thresh1
+*c *** this value is transferred in par(26)
+*      par(26)=thresh1
 c------------------------------------
       icheck = 0
       if (rtdb_get(rtdb,'int:txs:icheck',MT_INT,1,int_tmp)) then
@@ -989,7 +1104,6 @@ c-----------------------------------------------------
 c
       end
 c======================================================================
-Ctemp subroutine pair_in2(bl)
       subroutine pair_in2(bl,bl_pnl)
       implicit real*8 (a-h,o-z)
       common /memor1/ iisd,jjsd,ijbld
@@ -1001,7 +1115,6 @@ cpnl: common /memor1a/ npard,ncost,nsupb, mxsize
       dimension bl(*)
       dimension bl_pnl(*)
 c
-ctemp call whatbl2(nbl2,bl(ijbld),bl(npard),bl(nblock2))
       call whatbl2(nbl2,bl(ijbld),bl(npard),bl_pnl(nblock2))
 c
 c-----
@@ -1028,3 +1141,111 @@ c
 c
       end
 c======================================================================
+      subroutine txs_scratch_siz1(ncs,inx,nsym,ntxs_scr_size)
+c
+c estimate memory requested in texas-scratch bl() by prepint2
+c
+      common /intlim/ limxmem,limblks,limpair
+      dimension inx(12,*)
+c
+      iexch=1
+      do 55 ics0=1,ncs-1
+      icst0=inx(12,ics0)
+      icsc0=inx(5,ics0)-inx(1,ics0)
+      icsg0=inx(4,ics0)
+      ics1=ics0+1
+      icst1=inx(12,ics1)
+      icsc1=inx(5,ics1)-inx(1,ics1)
+      icsg1=inx(4,ics1)
+      if(icst0.ne.icst1) then
+        iexch=iexch+1
+      else
+        if(icsc0.ne.icsc1) iexch=iexch+1 
+        if(icsg0.ne.icsg1) iexch=iexch+1 
+      endif
+   55 continue
+c
+c  number of different shells is : iexch 
+c-------------------------------------------------------
+c number of pairs :
+c
+      ncspair=ncs*(ncs+1)/2
+c
+c estimate number of pair-blocks :
+c
+      nbl2=iexch*(iexch+1)/2
+      nbl2_size=ncspair/nbl2
+c
+c if above size is greater than the limit then 
+c take 75% of the limpair as a size :
+c
+      if(nbl2_size.gt.limpair) nbl2=ncspair/(3*limpair/4)
+c
+c estimate number of quartet-blocks (super-blocks):
+c 
+      nbl4=nbl2*(nbl2+1)/2
+c-------------------------------------------------------
+c Memory estimation for prepint2 (blocin2) :
+c 10 memory allocations :
+c
+      mem1=ncspair
+      mem2=ncspair
+      mem3=ncspair*nsym
+      mem4=ncspair
+      mem5=nbl4
+c
+      mem6=nbl2
+      mem7=nbl2*limpair
+      mem8=nbl4 
+c
+      mem678=max(mem6,mem7,mem8)
+      if(mem678.lt.5001) then
+c       see blockin2 where 10K/intsize is used in preliminary res.
+        mem6=5 001
+        mem7=5 001
+        mem8=5 001
+      endif
+c
+      mem9=nbl4
+      mem0=nbl4
+c
+c-------------------------------------------------------
+      ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem6+mem7+mem8+mem9+mem0
+c
+c there is one more call to getmem to allocate isblcall
+c in PAIR_IN2 routine :
+c
+      ntxs_scr_size= ntxs_scr_size + nbl4
+c-------------------------------------------------------
+c test
+c
+c     write(8,*)' number of different shells is :',iexch
+c     write(8,*)' number of pair-blocks         :',nbl2 
+c     write(8,*)' number of quartet-blocks      :',nbl4 
+c     write(8,*)' maximum memory in txs-scratch :',ntxs_scr_size
+c-------------------------------------------------------
+      end
+c===============================================================
+      subroutine txs_scratch_siz2(maxme1,maxme2)
+c
+c estimate memory requested in texas-scratch bl() by texas_hf2_m
+c
+      common /memmax/ ispblx, maxmem1,iforwhat
+      common /memor1b/ nbl2,nbloks
+c------------------------------------------------
+c maxme1 - max. memory needed for one block - calculated in blocin2
+c
+c maxme2 - max. memory needed in texas_setup :
+c          5*nquartets_pnl + 2*nbl2 + 2 *nbl4
+c------------------------------------------------
+c assumptin : nquarts_pnl <= 250 000          
+c
+      data nquarts /250 000/
+c------------------------------------------------
+      nbl4=nbl2*(nbl2+1)/2
+c
+      maxme1=maxmem1
+      maxme2=5*nquarts + 2*nbl2 + 2*nbl4
+c
+c------------------------------------------------
+      end
