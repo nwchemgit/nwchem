@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.42 2000-02-10 22:55:06 d3j191 Exp $
+c $Id: sp_main.F,v 1.43 2000-02-16 17:10:08 d3j191 Exp $
 c
       implicit none
 c
@@ -1839,6 +1839,7 @@ c
       logical lself
 c
       integer ndx,i,ibox
+      character*255 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
      + call errquit('Index to lbbl out of range',ibbl)
@@ -1851,7 +1852,15 @@ c
       do 1 i=1,ipl(1,1)
       if(ipl(30+i,1).eq.ibox) ndx=30+i
     1 continue
-      if(ndx.eq.0) call errquit('Local node box not found',0)
+c
+      if(ndx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+ 1000 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1001) ibox,me
+ 1001 format('SP0001: Could not find box',i5,' on node',i5)
+      call errquit(string,0)
+      endif
+c
       iwfr=ipl(ndx,2)
       iwto=ipl(ndx,3)
       isfr=ipl(ndx,4)
@@ -1929,6 +1938,7 @@ c
       logical lself,local,lpp
 c
       integer i,j,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
+      character*255 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
      + call errquit('Index to lbbl out of range',ibbl)
@@ -1952,7 +1962,15 @@ c
       do 1 i=1,ipl(1,1)
       if(ipl(30+i,1).eq.ibox) ndx=30+i
     1 continue
-      if(ndx.eq.0) call errquit('Local node box not found',0)
+c
+      if(ndx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+ 1000 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1001) ibox,me
+ 1001 format('SP0001: Could not find box',i5,' on node',i5)
+      call errquit(string,me)
+      endif
+c
       icbox=ibox
       iwfr=ipl(ndx,2)
       iwto=ipl(ndx,3)
@@ -1967,7 +1985,13 @@ c
       do 2 i=1,ipl(1,1)
       if(ipl(30+i,1).eq.jbox) ndx=30+i
     2 continue
-      if(ndx.eq.0) call errquit('Local node box not found',0)
+c
+      if(ndx.eq.0) then
+      write(*,1000) me,(ipl(30+i,1),i=1,ipl(1,1))
+      write(string,1001) jbox,me
+      call errquit(string,me)
+      endif
+c
       jcbox=jbox
       jwfr=ipl(ndx,2)
       jwto=ipl(ndx,3)
@@ -1996,7 +2020,13 @@ c
  8001 format('Box list obtained from node',i5,' is',/,(20i5))
       call util_flush(lfndbg)
       endif
-      call errquit('Remote node box not found',0)
+c
+      write(*,1002) jnode,(jpl(30+i,1),i=1,jpl(1,1))
+ 1002 format(/,'Boxes on node',i5,':',t20,20i5,/,(t20,20i5))
+      write(string,1003) jbox,jnode
+ 1003 format('SP0002: Could not find box',i5,' on node',i5)
+      call errquit(string,me)
+c
       endif
       jcbox=jbox
       jwfr=jpl(ndx,2)
