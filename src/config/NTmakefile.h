@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.8 2000-08-26 19:51:01 d3g681 Exp $
+#	$Id: NTmakefile.h,v 1.9 2000-09-01 01:03:30 bjohnson Exp $
 #
 
 #
@@ -56,7 +56,7 @@ AR = lib -nologo
 ARFLAGS = /out:$(LIBRARY_PATH)
 
 CC = cl -nologo
-FC = df -nolog
+FC = f90 -nologo
 
 !IFDEF NWDEBUG
 COPT = -Z7
