@@ -1,10 +1,9 @@
-# $Id: GNUmakefile,v 1.5 1994-11-07 06:24:51 og845 Exp $
+# $Id: GNUmakefile,v 1.6 1994-11-22 23:42:07 og845 Exp $
 
    OBJ = nwdft.o
 
    LIBRARY = libnwdft.a
-#   SUBDIRS = input_dft symmetry scf_dft coulomb xc util
-   SUBDIRS = input_dft scf_dft coulomb xc util
+   SUBDIRS = input_dft scf_dft coulomb xc util 3d
 
    HEADERS = \
       include/atoms.fh  \
