@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.38 1999-11-30 02:59:19 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.39 1999-12-01 00:47:39 d3j191 Exp $
 c
       implicit none
 c
@@ -627,7 +627,7 @@ c
       if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
      + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
-     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa))
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
