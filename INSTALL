@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.50 2003-01-27 23:26:45 edo Exp $
+$Id: INSTALL,v 1.51 2003-01-29 02:34:29 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -402,12 +402,9 @@ BUILDING WITH MPI:
         setenv GM_LIB $GM_HOME/lib
         setenv ARMCI_NETWORK GM
         setenv GMPI_SHMEM_FILE /tmp/$USER.gm
-     QSW (SC Alpha series)
+     HP SC Alpha serie
         setenv LIBMPI "-lmpi -lelan"
         setenv ARMCI_NETWORK QUADRICS
-        setenv LIBELAN_ALLOC_SIZE 530579456 # 506 mb 
-        setenv LIBELAN_TPORT_BIGMSG 1024
-        setenv LIBELAN_WAITTYPE 200 
      HPUX
         setenv MPI_INCLUDE /opt/mpi/include
         setenv MPI_LIB /opt/mpi/lib/pa20_64/
@@ -426,6 +423,13 @@ BUILDING WITH MPI:
        set MPI_INCLUDE=c:\WMPI1.3\INCLUDE
        set MPI_LIB=c:\WMPI1.3\LIB\CONSOLE
        set NWCHEM_EXTRA_LIBS=%MPI_LIB%\cvwmpi.lib
+     IBM
+       setenv MPI_INCLUDE /usr/lpp/ppe.poe/include
+       setenv MPI_LIB /usr/lpp/ppe.poe/lib/
+       setenv LIBMPI "-binitfini:poe_remote_main -lmpi_r -lvtd_r \
+       -I/usr/lpp/ssp/css/include -llapi_r -lpthreads \
+       -L/usr/lpp/ppe.poe/lib/threads -L/usr/lpp/ppe.poe/lib \
+       -L/usr/lpp/ppe.poe/lib/ip "
 
    To run with MPI, "parallel" should not be used.  The way 
    we usually run nwchem under MPI are the following:
