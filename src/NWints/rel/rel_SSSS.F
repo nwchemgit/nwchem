@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.4 2000-01-25 19:39:59 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.5 2000-01-25 21:46:17 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -57,7 +57,7 @@ c:tex-\begin{verbatim}
       double precision zeta_D(NPD)     ! [input] exponents of shell D 
       double precision coef_D(NPD,NCD) ! [input] D coeffs
       double precision scr(lscr)       ! [scratch] scratch buffers
-      double precision rel_ints(n_ints,ntypAB*ntypCD)  ! [output] LLSS integrals
+      double precision rel_ints(n_ints,ntypAB*ntypCD)  ! [output] SSSS integrals
       logical canAB   ! [input] compute only canonical ints (false only)
       logical canCD   ! [input] compute only canonical ints (false only)
       logical canPQ   ! [input] compute only canonical ints (false only)
@@ -113,9 +113,9 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       max_mem = 0
 *
       if ((ntypAB .ne. 1) .and. (ntypAB .ne. 3) .and. (ntypAB .ne. 4))
-     &    call errquit('Invalid value of ntypAB in rel_SSLL',99)
+     &    call errquit('Invalid value of ntypAB in rel_SSSS',99)
       if ((ntypCD .ne. 1) .and. (ntypCD .ne. 3) .and. (ntypCD .ne. 4))
-     &    call errquit('Invalid value of ntypCD in rel_SSLL',99)
+     &    call errquit('Invalid value of ntypCD in rel_SSSS',99)
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
@@ -208,7 +208,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &    Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &    Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &    scr(i_pp),n_intpp,canAB,canCD,canPQ,
-     &    DryRun,scr(i_scr),memscr,ibug,ntypCD,.false.)
+     &    DryRun,scr(i_scr),memscr,ibug,ntypCD)
       if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
 *
 *         Calculate integrals for l_A-1, l_B+1
@@ -220,7 +220,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &      Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &      scr(i_pm),n_intpm,canAB,canCD,canPQ,
-     &      DryRun,scr(i_scr),memscr,ibug,ntypCD,.false.)
+     &      DryRun,scr(i_scr),memscr,ibug,ntypCD)
         if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
       end if
 *
@@ -233,7 +233,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &      Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &      scr(i_mp),n_intmp,canAB,canCD,canPQ,
-     &      DryRun,scr(i_scr),memscr,ibug,ntypCD,.false.)
+     &      DryRun,scr(i_scr),memscr,ibug,ntypCD)
         if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
 *
 *         Calculate integrals for l_A-1, l_B-1
@@ -245,7 +245,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &        Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &        Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &        scr(i_mm),n_intmm,canAB,canCD,canPQ,
-     &        DryRun,scr(i_scr),memscr,ibug,ntypCD,.false.)
+     &        DryRun,scr(i_scr),memscr,ibug,ntypCD)
           if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
         end if
       end if
