@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.76 1997-05-29 00:49:09 d3e129 Exp $
+# $Id: GNUmakefile,v 1.77 1997-10-22 16:43:18 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -74,7 +74,9 @@ endif
               util_rtdb_state.o ecce_print.o \
               util_random.o \
 	      dgewr.o atoi.o indint.o \
-              $(EXTRA_OBJ) 
+              $(EXTRA_OBJ)
+
+#nxtval_ga.o 
 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
