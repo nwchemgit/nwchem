@@ -1,11 +1,13 @@
-* $Id: vib_intense.F,v 1.5 1998-05-12 22:11:10 d3e129 Exp $
-      subroutine vib_intense(eigvec,eigval,nat,ddpolx,ddpolq,
+* $Id: vib_intense.F,v 1.6 2001-07-27 21:34:01 windus Exp $
+      subroutine vib_intense(rtdb,eigvec,eigval,nat,ddpolx,ddpolq,
      &    intensity,first_pass)
       implicit none
+#include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "util.fh"
       integer nat
+      integer rtdb
       double precision eigvec(3,nat,3,nat)  ! (cart,q)
       double precision eigval(3,nat)        ! (q)
       double precision ddpolx(3,3,nat)      ! (m,cart)
@@ -205,6 +207,10 @@ c
       if (first_pass) then
         call ecce_print1('intensities',
      &      mt_dbl,intensity(1,1,1),(3*nat))
+        if(.not. rtdb_put(rtdb,'vib:intensities',MT_DBL,3*nat,
+     &      intensity(1,1,1)))
+     &      call errquit('vib_intense:rtdb_put of intensities failed',
+     &      555)
         call ecce_print1('intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
         call ecce_print1('intensities (KM/mol)',
@@ -212,6 +218,11 @@ c
       else
         call ecce_print1('projected intensities',
      &      mt_dbl,intensity(1,1,1),(3*nat))
+        if(.not. rtdb_put(rtdb,'vib:projected intensities',
+     &      MT_DBL,3*nat,intensity(1,1,1)))
+     &      call errquit(
+     &      'vib_intense:rtdb_put of projected intensities failed',
+     &      555)
         call ecce_print1('projected intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
         call ecce_print1('projected intensities (KM/mol)',

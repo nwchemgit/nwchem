@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.14 1999-07-23 19:53:02 d3e129 Exp $
+* $Id: vib_vib.F,v 1.15 2001-07-27 21:34:01 windus Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -228,7 +228,7 @@ C
 * rak dfill
       call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
-      CALL vib_WRTFREQ(DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
+      CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
 C
       CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-27) ! CLEAN eigenvectors
       if (first_pass) then
@@ -236,11 +236,11 @@ C
       else
         WRITE(6,9001)
       endif
-      CALL vib_PRDATA(DBL_MB(IEGVEC),DBL_MB(IEGVAL),
+      CALL vib_PRDATA(rtdb,DBL_MB(IEGVEC),DBL_MB(IEGVAL),
      &    NAT3,NAT3,NAT3,NAT3,.TRUE.,NPRI,
      &    first_pass)     ! Write eigenvalues and eigenvectors
       if (dipole_file_exists) then
-        call vib_intense(dbl_mb(iegvec),dbl_mb(iegval),natom,
+        call vib_intense(rtdb,dbl_mb(iegvec),dbl_mb(iegval),natom,
      &      dbl_mb(iddpol),dbl_mb(iddpolq),dbl_mb(intense),
      &      first_pass)
       endif

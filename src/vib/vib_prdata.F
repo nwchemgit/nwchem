@@ -1,15 +1,16 @@
-      SUBROUTINE vib_PRDATA(ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
+      SUBROUTINE vib_PRDATA(rtdb,ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.7 2000-11-21 23:54:13 d3g681 Exp $
+* $Id: vib_prdata.F,v 1.8 2001-07-27 21:34:01 windus Exp $
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE
+#include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "eaf.fh"
 c
-      integer nr, nc, nrp, ncp, npri
+      integer rtdb, nr, nc, nrp, ncp, npri
       double precision ARRAY(NR,NC), VECT(NC)
       CHARACTER*11 FREQ
       character*255 filename
@@ -52,10 +53,19 @@ C
 *      
       if (first_pass) then
         call ecce_print1('frequencies',mt_dbl,vect,nc)
+        if(.not. rtdb_put(rtdb,'vib:frequencies',MT_DBL,nc,
+     &      vect))
+     &      call errquit('vib_prdata:rtdb_put of frequencies failed',
+     &      555)
         call ecce_print2('normal modes',mt_dbl,
      &      array,nr,nr,nc)
       else
         call ecce_print1('projected frequencies',mt_dbl,vect,nc)
+        if(.not. rtdb_put(rtdb,'vib:projected frequencies',
+     &      MT_DBL,nc,vect))
+     &      call errquit(
+     &      'vib_prdata:rtdb_put of projected frequencies failed',
+     &      555)
         call ecce_print2('projected normal modes',mt_dbl,
      &      array,nr,nr,nc)
       endif
