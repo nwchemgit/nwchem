@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.194 2004-11-11 23:06:05 bylaska Exp $
+# $Id: make_nwchem_config,v 1.195 2004-11-11 23:33:28 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -74,7 +74,7 @@ EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian cons \
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
-EXP_qandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian cons \
+EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian cons \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft
 EXP_argos = prepar analyz
 #EXP_md  = prepar nwmd qmmm qmd analyz gradients esp
