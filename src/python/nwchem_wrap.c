@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.12 2000-07-07 01:17:51 edo Exp $
+ $Id: nwchem_wrap.c,v 1.13 2000-08-02 19:22:44 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -15,7 +15,7 @@
 #include "rtdb.h"
 #include "macdecls.h"
 #include "global.h"
-
+#include "typesf2c.h"
 
 static PyObject *NwchemError;
 
@@ -32,6 +32,76 @@ extern int nw_inp_from_string(int, const char *);
 extern int task_energy_(const int *);
 extern int task_gradient_(const int *);
 extern int task_optimize_(const int *);
+
+static PyObject *nwwrap_integers(int n, Integer a[])
+{
+  PyObject *s;
+  int i;
+
+  if (n == 1)
+    return PyInt_FromLong(a[0]);
+
+  if (!(s=PyList_New(n))) return NULL;
+  for(i=0; i<n; i++) {
+    PyObject *o = PyInt_FromLong(a[i]);
+    if (!o) {
+      Py_DECREF(s);
+      return NULL;
+    }
+    if (PyList_SetItem(s,i,o)) {
+      Py_DECREF(s);
+      return NULL;
+    }
+  }
+  return s;
+}
+
+static PyObject *nwwrap_doubles(int n, double a[])
+{
+  PyObject *s;
+  int i;
+
+  if (n == 1)
+    return PyFloat_FromDouble(a[0]);
+
+  if (!(s=PyList_New(n))) return NULL;
+  for(i=0; i<n; i++) {
+    PyObject *o = PyFloat_FromDouble(a[i]);
+    if (!o) {
+      Py_DECREF(s);
+      return NULL;
+    }
+    if (PyList_SetItem(s,i,o)) {
+      Py_DECREF(s);
+      return NULL;
+    }
+  }
+  return s;
+}
+
+static PyObject *nwwrap_strings(int n, char *a[])
+{
+  PyObject *s;
+  int i;
+
+  if (n == 1)
+    return PyString_FromString(a[0]);
+
+  if (!(s=PyList_New(n))) return NULL;
+  for(i=0; i<n; i++) {
+    PyObject *o = PyString_FromString(a[i]);
+    if (!o) {
+      Py_DECREF(s);
+      return NULL;
+    }
+    if (PyList_SetItem(s,i,o)) {
+      Py_DECREF(s);
+      return NULL;
+    }
+  }
+  return s;
+}
+
 
 static PyObject *
 wrap_rtdb_open(PyObject *self, PyObject *args)
@@ -221,111 +291,82 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 
 PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
 {
-   int i;
-   int nelem, ma_type;
-   char *name;
+  int nelem, ma_type;
+  char *name;
 #define MAXPTRS 2048
-   char *ptrs[MAXPTRS];
-   char *format_str=0, format_char;
-   PyObject *returnObj = 0;
-   void *array=0;
-   int ma_handle, ind;
-
-   if (PyArg_Parse(args, "s", &name)) {
-       if (!rtdb_ma_get(rtdb_handle, name, &ma_type, &nelem, &ma_handle)) {
-	   PyErr_SetString(NwchemError, "rtdb_ma_get failed");
-	   return NULL;
-       }
-       if (!MA_get_pointer(ma_handle, &array)) {
-	   PyErr_SetString(NwchemError, "rtdb_ma_get failed");
-	   return NULL;
-       }
-       /*printf("name=%s ma_type=%d nelem=%d ptr=%x\n",name, ma_type, 
-	      nelem, array);*/
-
-       switch (ma_type) {
-       case MT_F_INT:
-       case MT_INT  : 
-       case MT_BASE + 11  : 
-	   format_char = 'i'; break;
-       case MT_F_DBL: 
-       case MT_DBL  : 
-	   format_char = 'd'; break;
-	   break;
-       case MT_CHAR : 
-	   format_char = 's'; break;
-       default:
-	   PyErr_SetString(NwchemError, "rtdb_get: ma type incorrect");
-	   (void) MA_free_heap(ma_handle);
-	   return NULL;
-	   break;
-       }
-       
-       if (!(format_str = malloc(nelem+3))) {
-	   PyErr_SetString(PyExc_MemoryError,
-			   "rtdb_get failed allocating format string");
-	   (void) MA_free_heap(ma_handle);
-	   return NULL;
-       }
-
-       /* For character string need to build an array of pointers */
-
-       if (ma_type == MT_CHAR) {
-	 char *ptr, *next;
-	 nelem = 0;
-	 next = ptr = array;
-         while (1) {		/* Replace strtok to handle consectutive separators */
-	   int eos = (*ptr == 0);
-	   if (*ptr == '\n') *ptr = 0;
-           if (*ptr == 0) {
-	     if (nelem >= MAXPTRS) {
-	       PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
-	       (void) MA_free_heap(ma_handle);
-	       return NULL;
-	     }
-	     ptrs[nelem] = next;
-	     nelem++;
-	     if (!eos) next = ptr+1;
-	   }
-	   if (eos) break;
-           ptr++;
-	 }
+  char *ptrs[MAXPTRS];
+  PyObject *returnObj = 0;
+  char format_char;
+  void *array=0;
+  int ma_handle;
+  
+  if (PyArg_Parse(args, "s", &name)) {
+    if (!rtdb_ma_get(rtdb_handle, name, &ma_type, &nelem, &ma_handle)) {
+      PyErr_SetString(NwchemError, "rtdb_ma_get failed");
+      return NULL;
+    }
+    if (!MA_get_pointer(ma_handle, &array)) {
+      PyErr_SetString(NwchemError, "rtdb_ma_get failed");
+      return NULL;
+    }
+    /*printf("name=%s ma_type=%d nelem=%d ptr=%x\n",name, ma_type, 
+      nelem, array);*/
+    
+    switch (ma_type) {
+    case MT_F_INT:
+    case MT_INT  : 
+    case MT_BASE + 11  : 
+      format_char = 'i'; break;
+    case MT_F_DBL: 
+    case MT_DBL  : 
+      format_char = 'd'; break;
+      break;
+    case MT_CHAR : 
+      format_char = 's'; break;
+    default:
+      PyErr_SetString(NwchemError, "rtdb_get: ma type incorrect");
+      (void) MA_free_heap(ma_handle);
+      return NULL;
+      break;
+    }
+    
+    /* For character string need to build an array of pointers */
+    
+    if (ma_type == MT_CHAR) {
+      char *ptr, *next;
+      nelem = 0;
+      next = ptr = array;
+      while (*ptr) {
+	if (*ptr == '\n') {
+	  *ptr = 0;
+	  if (nelem >= MAXPTRS) {
+	    PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
+	    (void) MA_free_heap(ma_handle);
+	    return NULL;
+	  }
+	  ptrs[nelem] = next;
+	  nelem++;
+	  next = ptr+1;
+	}
+	ptr++;
+      }
+    }
            
-	 /*
-	 for (next=strtok((char *)array, "\n");
-	      next;
-	      next=strtok((char *) 0, "\n")) {
-	   if (nelem >= MAXPTRS) {
-	     PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
-	     (void) MA_free_heap(ma_handle);
-	     return NULL;
-	   }
-	   ptrs[nelem] = next;
-	   nelem++;
-	 }
-	 */
-       }
-
-       ind = 0;
-       if (nelem > 1) format_str[ind++] = '[';
-       for (i = 0; i < nelem; i++, ind++)
-	   format_str[ind] = format_char;
-       if (nelem > 1) format_str[ind++] = ']';
-       format_str[ind] = 0;
-       
-       if (ma_type == MT_CHAR)
-	 returnObj = Py_VaBuildValue(format_str, ptrs);
-       else
-	 returnObj = Py_VaBuildValue(format_str, array);
-   }
-   else {
-       PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get(name)");
-       if (format_str) free(format_str);
-       return NULL;
-   }
-   (void) MA_free_heap(ma_handle);
-   if (format_str) free(format_str);
-   return returnObj;
+    switch (format_char) {
+    case 'i':
+      returnObj = nwwrap_integers(nelem, array); break;
+    case 'd':
+      returnObj = nwwrap_doubles(nelem, array); break;
+    case 's':
+      returnObj = nwwrap_strings(nelem, ptrs); break;
+    }
+    (void) MA_free_heap(ma_handle);
+  }
+  else {
+    PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get(name)");
+    return NULL;
+  }
+  return returnObj;
 }
 
 PyObject *wrap_rtdb_delete(PyObject *self, PyObject *args)
@@ -352,7 +393,6 @@ PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
 {
    int nelem, ma_type;
    char *name;
-   char *format_str="[iis]";
    PyObject *returnObj = 0;
    char date[26];
 
@@ -439,8 +479,7 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 {
     char *theory;
     double energy, *gradient;
-    int ma_type, nelem, ma_handle, ind, i;
-    char *format_str;
+    int ma_type, nelem, ma_handle;
     PyObject *returnObj, *eObj, *gradObj;
     
     if (PyArg_Parse(args, "s", &theory)) {
@@ -471,28 +510,12 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    if (!(format_str = malloc(nelem+3))) {
-	PyErr_SetString(PyExc_MemoryError,
-			"rtdb_get failed allocating format string");
-	(void) MA_free_heap(ma_handle);
-	return NULL;
-    }
-
-    ind = 0;
-    format_str[ind++] = '[';
-    for (i = 0; i < nelem; i++, ind++) {
-	format_str[ind] = 'd';
-    }
-    format_str[ind++] = ']';
-    format_str[ind] = 0;
-    
     eObj = Py_BuildValue("d",energy);
-    gradObj = Py_VaBuildValue(format_str, (void *) gradient);
+    gradObj = nwwrap_doubles(nelem, gradient);
     returnObj = Py_BuildValue("OO", eObj, gradObj);
     Py_DECREF(eObj);
     Py_DECREF(gradObj);
     (void) MA_free_heap(ma_handle);
-    (void) free(format_str);
 
     return returnObj;
 }
@@ -501,8 +524,7 @@ static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
 {
     char *theory;
     double energy, *gradient;
-    int ma_type, nelem, ma_handle, ind, i;
-    char *format_str;
+    int ma_type, nelem, ma_handle;
     PyObject *returnObj, *eObj, *gradObj;
     
     if (PyArg_Parse(args, "s", &theory)) {
@@ -533,28 +555,12 @@ static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
 	return NULL;
     }
     
-    if (!(format_str = malloc(nelem+3))) {
-	PyErr_SetString(PyExc_MemoryError,
-			"rtdb_get failed allocating format string");
-	(void) MA_free_heap(ma_handle);
-	return NULL;
-    }
-
-    ind = 0;
-    format_str[ind++] = '[';
-    for (i = 0; i < nelem; i++, ind++) {
-	format_str[ind] = 'd';
-    }
-    format_str[ind++] = ']';
-    format_str[ind] = 0;
-    
     eObj = Py_BuildValue("d",energy);
-    gradObj = Py_VaBuildValue(format_str, (void *) gradient);
+    gradObj = nwwrap_doubles(nelem, gradient);
     returnObj = Py_BuildValue("OO", eObj, gradObj);
     Py_DECREF(eObj);
     Py_DECREF(gradObj);
     (void) MA_free_heap(ma_handle);
-    (void) free(format_str);
 
     return returnObj;
 }
