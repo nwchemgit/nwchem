@@ -1,6 +1,6 @@
       logical function raktask_fullsc(rtdb)
 *
-* $Id: rak29.F,v 1.6 1999-06-21 09:29:52 d3e129 Exp $
+* $Id: rak29.F,v 1.7 1999-06-22 01:05:47 d3e129 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -228,6 +228,7 @@ c::-statement function
       integer h_n2hind, k_n2hind
       integer h_n2hcmp, k_n2hcmp
       integer coffset, ioffset, count
+      integer ii,jj,rank,square
 c
 c     ----- mapping of shell components from nwchem to hondo -----
 c
@@ -241,6 +242,8 @@ c
      4              21,    31,    35,    22,    23,
      5              27,    32,    30,    34,    24,
      6              26,    33,    25,    28,    29 /
+*
+      square(ii,jj,rank) = (ii-1)*rank + jj - 1 ! 0 to (rank*rank)-1)
 *
       do i = 1,35
         write(6,10000)i,map_hton(i)
@@ -389,64 +392,93 @@ c
      &      h_n2hind,k_n2hind)) stop 'error'
       if (.not.ma_alloc_get(mt_dbl,sized,'n2h:compressed',
      &      h_n2hcmp,k_n2hcmp)) stop ' error'
-      coffset = 0 
+      call ifill(sizei,0,int_mb(k_n2hind),1)
+      call dfill(sized,0.0d00,dbl_mb(k_n2hcmp),1)
+      coffset = 0
       ioffset = 0
       int_mb(k_n2hind+ioffset) = coffset
-      count = 0
-      do i = 1,4
-        do j = 1,4
-          if (i.eq.map_ntoh(j)) then
-            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
-          else
-            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
-          endif
-          count = count + 1
-        enddo
+*:sp
+      do i=1,4
+        write(6,*)' i = ',i,' square = ',square(i,map_ntoh(i),4),
+     &      ' map =',map_ntoh(i)
+        dbl_mb(k_n2hcmp+coffset+square(i,map_ntoh(i),4)) = 1.0d00
+*        n2h_sp(i,map_ntoh(i)) = 1.0d00
+*        h2n_sp(i,map_hton(i)) = 1.0d00
       enddo
-      coffset = coffset + count
+      coffset = coffset + 4*4
+      ioffset = ioffset + 1
+*:s
+      int_mb(k_n2hind+ioffset) = coffset
+      write(6,*)' coffset ',coffset
+      dbl_mb(k_n2hcmp+coffset+square(1,1,1)) = 2.0d00
+*      n2h_s(1,map_ntoh(1)) = 1.0d00
+*      h2n_s(1,map_hton(1)) = 1.0d00
+      coffset = coffset + 1
       ioffset = ioffset + 1
       int_mb(k_n2hind+ioffset) = coffset
-      count = 0
-      do i = 1,1
-        do j = 1,1
-          if (i.eq.map_ntoh(j)) then
-            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
-          else
-            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
-          endif
-          count = count + 1
-        enddo
+      write(6,*)' coffset ',coffset
+*:p
+      do i=1,3
+        write(6,*)' i = ',i,' square = ',square(i,map_ntoh(i),3),
+     &      ' map =',map_ntoh(i)
+        dbl_mb(k_n2hcmp+coffset+square(i,map_ntoh(i),3)) = 3.0d00        
+*        n2h_p(i,map_ntoh(i+1)-1)  = 1.0d00
+*        h2n_p(i,map_hton(i+1)-1)  = 1.0d00
       enddo
-      coffset = coffset + count
+      coffset = coffset + 3*3
       ioffset = ioffset + 1
       int_mb(k_n2hind+ioffset) = coffset
-      count = 0
-      do i = 1,3
-        do j = 1,3
-          if (i.eq.map_ntoh(j)) then
-            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
-          else
-            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
-          endif
-          count = count + 1
-        enddo
+      write(6,*)' coffset ',coffset
+*:d
+      do i=1,6
+        write(6,*)' i = ',i,' square = ',square(i,(map_ntoh(i+4)-4),6),
+     &      ' map =',(map_ntoh(i+4)-4)
+        dbl_mb(k_n2hcmp+coffset+square(i,(map_ntoh(i+4)-4),6)) = 4.0d00        
+*        n2h_d(i,map_ntoh(i+4)-4)  = 1.0d00
+*        h2n_d(i,map_hton(i+4)-4)  = 1.0d00
       enddo
-      coffset = coffset + count
+      coffset = coffset + 6*6
       ioffset = ioffset + 1
       int_mb(k_n2hind+ioffset) = coffset
-      count = 0
-      do i = 1,6
-        do j = 1,6
-          if (i.eq.map_ntoh(j)) then
-            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
-          else
-            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
-          endif
-          count = count + 1
-        enddo
+      write(6,*)' coffset ',coffset
+*:f
+      do i=1,10
+        write(6,*)' i = ',i,' square = ',
+     &      square(i,(map_ntoh(i+10)-10),10),
+     &      ' map =',(map_ntoh(i+10)-10)
+        dbl_mb(k_n2hcmp+coffset+square(i,(map_ntoh(i+10)-10),10)) =
+     &      5.0d00        
+*        n2h_f(i,map_ntoh(i+10)-10)  = 1.0d00
+*        h2n_f(i,map_hton(i+10)-10)  = 1.0d00
       enddo
-      write(6,*)' fixed array '
-      call output(dbl_mb(k_n2hcmp+coffset),1,6,1,6,6,6,1)
+      coffset = coffset + 10*10
+      ioffset = ioffset + 1
+      int_mb(k_n2hind+ioffset) = coffset
+      write(6,*)' coffset ',coffset
+*:g
+      do i=1,15
+        write(6,*)' i = ',i,' square = ',
+     &      square(i,(map_ntoh(i+20)-20),15),
+     &      ' map =',(map_ntoh(i+20)-20)
+        dbl_mb(k_n2hcmp+coffset+square(i,(map_ntoh(i+20)-20),15)) =
+     &      6.0d00        
+*        n2h_g(i,map_ntoh(i+20)-20)  = 1.0d00
+*        h2n_g(i,map_hton(i+20)-20)  = 1.0d00
+      enddo
+      
+
+      write(6,*)' fixed array sp ',int_mb(k_n2hind+0)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+0)),1,4,1,4,4,4,1)
+      write(6,*)' fixed array s  ',int_mb(k_n2hind+1)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+1)),1,1,1,1,1,1,1)
+      write(6,*)' fixed array p  ',int_mb(k_n2hind+2)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+2)),1,3,1,3,3,3,1)
+      write(6,*)' fixed array d  ',int_mb(k_n2hind+3)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+3)),1,6,1,6,6,6,1)
+      write(6,*)' fixed array f  ',int_mb(k_n2hind+4)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+4)),1,10,1,10,10,10,1)
+      write(6,*)' fixed array g  ',int_mb(k_n2hind+5)
+      call output(dbl_mb(k_n2hcmp+int_mb(k_n2hind+5)),1,15,1,15,15,15,1)
       if (.not.ma_free_heap(h_tmp)) stop 'h_tmp free failed'
       if (.not.ma_free_heap(h_n2hind)) stop 'h_tmp free failed'
       if (.not.ma_free_heap(h_n2hcmp)) stop 'h_tmp free failed'
