@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.5 1994-08-25 20:28:05 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.6 1994-08-27 21:15:58 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
@@ -17,7 +17,7 @@ C
 C
 C ARGUMENTS
 C     FNInt    File name for MO basis 3-center integrals [IN]
-C     TopSpin  Number of spins in reference (RHF=1, UHF=1) [IN]
+C     TopSpin  Number of spins in reference (RHF=1, UHF=2) [IN]
 C     NMO      Number of MOs [IN]
 C     NOcc     Number of occupied orbitals for each spin [IN]
 C     NVir     Number of virtual orbitals for each spin [IN]
@@ -73,6 +73,9 @@ C EXTERNAL ROUTINES
       Double Precision DSum
       External Open_3cI_File, Get_3cInts, Close_3cI_File, DSum,
      $  GA_Create_One_By_Shells
+C
+      external Sum_Pairs
+      Double Precision Sum_Pairs
 c$$$C
 c$$$      External GA_DASum_Patch, GA_DAMax_Patch
 c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
@@ -87,14 +90,15 @@ C
 C
 C LOCAL VARIBLES
       Integer I, J, ISpin, JSpin, G_J, JTop, JTop2
-      Integer A, B, Alo, Ahi, Blo, BHi, G_A, G_B, H_B, LDB, AB
+      Integer A, B, Alo, Ahi, Blo, BHi, H_B, LDB, AB
       Integer Proc
-      Double Precision DenIJ, Den, Fact, EPair
+      Double Precision DenIJ, Den, Fact, EPair, ESpin
       Logical Status, PermSym
       Integer Junk
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA, G_BigB
       Integer IALo, IAHi, JBLo, JBHi, MyILo, MyIHi, MyJLo, MyJHi
       Integer Offset, BBot, BTop, ABot, ATop
+      Integer HH_PairE, IH_PairE
 c$$$      Double precision ChkSum, MxElem
 C
       Call GA_Sync
@@ -149,18 +153,19 @@ c$$$C
 c$$$      Call DGEWr(NMO, TopSpin, Eig, NMO, 0, 0, LuOut,
 c$$$     $   'SCF eigenvalues', 80, 'E15.6', Junk)
 C
-C     Label the pair energies we'll print within the loops
+      Status = .TRUE.
+      Status = Status .AND. MA_Push_Get(MT_Int, 2*TopSpin-1,
+     $   'Pair energy handles', HH_PairE, IH_PairE)
 C
-      If ( Proc .eq. 0 ) then
-         If ( TopSpin .eq. 1) then
-            Call Banner(LuOut,
-     $         'Pair Correlation Energies (spin adapted)',
-     $         '-', .TRUE., .TRUE., .FALSE.)
-         Else
-            Call Banner(LuOut, 'Pair Correlation Energies',
-     $         '-', .TRUE., .TRUE., .FALSE.)
-         EndIf
-      EndIf
+      Do ISpin = 1, TopSpin
+         Do JSpin = ISpin, TopSpin
+            Status = Status .AND.
+     $         GA_Create( MT_Dbl, NOcc(ISpin), NOcc(JSpin),
+     $         'Pair Energies', 10, 10, !MinChunk, MinChunk,
+     $         Int_MB(IH_PairE + ISpin + JSpin - 2) )
+            Call GA_Zero( Int_MB(IH_PairE + ISpin + JSpin - 2 ) )
+         EndDo
+      EndDo
 C
 C     *****************************************************************
 C     * Loop over occupied orbitals of both spins for the first index *
@@ -320,20 +325,6 @@ C                 transpose. Make the necessary workspace and initialize
 C                 it with a copy of A.
 C
                   Call PStat_On( PS_Create)
-                  If ( .NOT. GA_Create( MT_Dbl, NVir(ISpin),
-     $               NVir(JSpin), 'Temporary matrix A', MinChunk,
-     $               MinChunk, G_A) ) then
-                     Write (LuErr, *) ' Unable to allocate A'
-                     RIMP2_V_E2 = .FALSE.
-                     Return
-                  EndIf
-                  If ( .NOT. GA_Create( MT_Dbl, NVir(ISpin),
-     $               NVir(JSpin), 'Temporary matrix B', MinChunk,
-     $               MinChunk, G_B) ) then
-                     Write (LuErr, *) ' Unable to allocate B'
-                     RIMP2_V_E2 = .FALSE.
-                     Return
-                  EndIf
                   If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
      $               NJ*NVir(JSpin), 'Temporary matrix big B', MinChunk,
      $               MinChunk, G_bigB) ) then
@@ -415,158 +406,27 @@ C                 ***************************
 C                 Each processor does this on the panel of B it owns.
 C
                   Call PStat_On( PS_denom)
-                  Call GA_Distribution( G_bigB, Proc, IAlo, IAhi,
-     $               JBlo, JBhi)
-C
-C                 GA_Access doesn't like it if we request a bogus
-C                 patch (as might be returned if this node has no data
-C                 on it).
-C
-                  If ( (IAhi-IAlo+1) * (JBHi-JBLo+1) .ne. 0) then
-C
-C                    Figure out what these correspond to in more 
-C                    basic terms
-C
-                     ALo = Mod( IALo, NVir(ISpin) )
-                     If ( ALo .eq. 0) ALo = NVir(ISpin)
-                     AHi = Mod( IAHi, NVir(ISpin) )
-                     If ( AHi .eq. 0) AHi = NVir(ISpin)
-C
-                     BLo = Mod( JBLo, NVir(JSpin) )
-                     If ( BLo .eq. 0) BLo = NVir(JSpin)
-                     BHi = Mod( JBHi, NVir(JSpin) )
-                     If ( BHi .eq. 0) BHi = NVir(JSpin)
-C
-                     MyILo = Int( (IALo-1) / NVir(ISpin) ) + 1
-                     MyIHi = Int( (IAHi-1) / NVir(ISpin) ) + 1
-C
-                     MyJLo = Int( (JBLo-1) / NVir(JSpin) ) + 1
-                     MyJHi = Int( (JBHi-1) / NVir(JSpin) ) + 1
-C
-                     Call GA_Access( G_bigB, IAlo, IAhi, JBlo, JBhi,
-     $                        H_B, LDB)
-C
-                     Offset = -1
-                     Do J = MyJLo, MyJHi
-C
-C                       First and last J might not cover the whole range
-C
-                        BBot = 1
-                        BTop = NVir(JSpin)
-                        If ( J .eq. MyJLo) then
-                           BBot = BLo
-                        ElseIf (J .eq. MyJHi) then
-                           BTop = BHi
-                        EndIf
-C
-                        Do B = BBot, BTop
-C
-                           Do I = MyILo, MyIHi
-C                          
-C                             Form half of the denominator
-C
-                              DenIJ = Eig(I+ILo-1, ISpin)
-     $                           + Eig(J+JLo-1, JSpin)
-C
-C                             As for B, A doesn't always cover the whole
-C                             range
-C
-                              ABot = 1
-                              ATop = NVir(ISpin)
-                              If ( I .eq. MyILo) then
-                                 ABot = ALo
-                              ElseIf (I .eq. MyIHi) then
-                                 ATop = AHi
-                              EndIf
-C
-                              Do A = ABot, ATop
-                                 Offset = Offset + 1
-C
-                                 Den = DenIJ
-     $                              - Eig( NOcc(ISpin) + A, ISpin)
-     $                              - Eig( NOcc(JSpin) + B, JSpin)
-C
-                                 Dbl_MB( H_B + Offset )
-     $                              =  Dbl_MB( H_B + Offset ) / Den
-C
-                              EndDo ! A
-                           EndDo ! I
-                           Offset = Offset + LDB - (IAhi - IAlo + 1)
-C
-                        EndDo ! B
-                     EndDo ! J
-C
-                     Call GA_Release_Update( G_bigB, IAlo, IAhi,
-     $                  JBlo, JBhi)
-                  EndIf
+                  Call RIMP2_Denom( G_bigB, ILo, JLo, NVir(ISpin),
+     $               NVir(JSpin), Eig(1, ISpin), Eig(1, JSpin),
+     $               Eig(1+NOcc(ISpin), ISpin),
+     $               Eig(1+NOcc(JSpin), JSpin) )
                   Call PStat_Off( PS_denom)
 C
 C                 ***********************
 C                 * Form IJ pair energy *
 C                 ***********************
-C                 Contract the integrals in A with the denominatorified 
-C                 integrals in B. Put it into the matrix of 
-C                 contributions by spin case because that breakdown is 
-C                 sometimes interesting to people. 
-C
-C                 NOTE: The dot products in this section are SIMD,
-C                 which limits the available parallelism.  It might
-C                 be necessary to write a special routine to do it.
+C                 Another data parallel routine.
 C
                   Call PStat_On(PS_PrEn)
-                  Do I = ILo, IHi
-C
-C                    Use permutational symmetry if possible
-C                       
-                     If ( ISpin .eq. JSpin .AND. ILo .eq. JLo
-     $                  .AND. IHi .eq. JHi) then
-                        JTop2 = I
-                     Else
-                        JTop2 = JHi
-                     EndIf
-C                    
-                     Do J = JLo, JTop2
-                           EPair = GA_DDot_Patch(
-     $                        G_bigA, 'N', (I-ILo)*NVir(ISpin)+1,
-     $                                     (I-ILo+1)*NVir(ISpin),
-     $                                     (J-JLo)*NVir(JSpin)+1,
-     $                                     (J-JLo+1)*NVir(JSpin),
-     $                        G_bigB, 'N', (I-ILo)*NVir(ISpin)+1,
-     $                                     (I-ILo+1)*NVir(ISpin),
-     $                                     (J-JLo)*NVir(JSpin)+1,
-     $                                     (J-JLo+1)*NVir(JSpin) )
-C
-                        If ( PermSym .AND. I .ne. J) then
-                           Contrib( ISpin, JSpin)
-     $                        = Contrib( ISpin, JSpin) + FP_Two * EPair
-                        Else
-                           Contrib( ISpin, JSpin)
-     $                        = Contrib( ISpin, JSpin) + EPair
-                        EndIf
-C
-                        If ( Proc .eq. 0 )
-     $                     Write (LuOut, 9000) I, J, ISpin, JSpin, EPair
- 9000                   Format( 1X, 'Pair (', I3, ',', I3, ') spin (',
-     $                     I2, ',', I2, ') ', F30.15)
-C                       
-                     EndDo      ! J
-                  EndDo         ! I
+                  Call RIMP2_Pair_Energy(G_bigA, G_BigB, ILo, JLo,
+     $               NVir(ISpin), NVir(JSpin),
+     $               Int_MB( IH_PairE + ISpin + JSpin - 2) )
                   Call PStat_Off(PS_PrEn)
 C
 C                 Free up these matrices -- the space can be reused for
 C                 the J integral matrix, and their sizes may change when
 C                 the spin cases change.
 C                 
-                  If ( .NOT. GA_Destroy( G_B) ) then
-                     Write (LuErr, *) ' Unable to free B'
-                     RIMP2_V_E2 = .FALSE.
-                     Return
-                  EndIf
-                  If ( .NOT. GA_Destroy( G_A) ) then
-                     Write (LuErr, *) ' Unable to free A'
-                     RIMP2_V_E2 = .FALSE.
-                     Return
-                  EndIf
                   If ( .NOT. GA_Destroy( G_bigB) ) then
                      Write (LuErr, *) ' Unable to free big B'
                      RIMP2_V_E2 = .FALSE.
@@ -592,6 +452,67 @@ C
 C        
       EndDo                     ! ISpin
 C
+C     ************************
+C     * Close & delete files *
+C     ************************
+C
+      Status = .TRUE.
+      Do ISpin = 1, TopSpin
+         Status = Status .AND. Close_3cI_File( LUInt+ISpin-1, 'DELETE')
+      EndDo
+C
+      If ( .NOT. Status ) then
+         Write (LuErr, *) 'RIMP2_V_E2:  Problems closing ',
+     $      'integral file(s)!'
+         RIMP2_V_E2 = .FALSE.
+         Return
+      EndIf
+c$$$C
+c$$$C     ***********************
+c$$$C     * Print pair energies *
+c$$$C     ***********************
+c$$$C
+c$$$      If ( Proc .eq. 0 ) then
+c$$$         If ( TopSpin .eq. 1) then
+c$$$            Call Banner(LuOut,
+c$$$     $         'Pair Correlation Energies (spin adapted)',
+c$$$     $         '-', .TRUE., .TRUE., .FALSE.)
+c$$$         Else
+c$$$            Call Banner(LuOut, 'Pair Correlation Energies',
+c$$$     $         '-', .TRUE., .TRUE., .FALSE.)
+c$$$         EndIf
+c$$$      EndIf
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         Do JSpin = ISpin, TopSpin
+c$$$            Call GA_Print( Int_MB(IH_PairE+ISpin+JSpin-2) )
+c$$$         EndDo
+c$$$      EndDo
+C
+C     ***********************************
+C     * Compute total energy from pairs *
+C     ***********************************
+C
+      Do ISpin = 1, TopSpin
+         Do JSpin = ISpin, TopSpin
+            Contrib(ISpin, JSpin) =
+     $         Sum_Pairs( Int_MB(IH_PairE+ISpin+JSpin-2) ,
+     $         ISpin .eq. JSpin)
+         EndDo
+      EndDo
+C
+C     ***************************
+C     * Finished with the pairs *
+C     ***************************
+C
+      Do ISpin = 1, TopSpin
+         Do JSpin = ISpin, TopSpin
+            Status = GA_Destroy( Int_MB(IH_PairE+ISpin+JSpin-2) )
+         EndDo
+      EndDo
+C
+      Status = Status .AND. MA_Pop_Stack(HH_PairE)
+C
 C     *****************************************************
 C     * For UHF case, pure spin components must be scaled *
 C     *****************************************************
@@ -611,22 +532,6 @@ C
             E2 = E2 + Contrib(ISpin, JSpin)
          EndDo
       EndDo
-C
-C     ************************
-C     * Close & delete files *
-C     ************************
-C
-      Status = .TRUE.
-      Do ISpin = 1, TopSpin
-         Status = Status .AND. Close_3cI_File( LUInt+ISpin-1, 'DELETE')
-      EndDo
-C
-      If ( .NOT. Status ) then
-         Write (LuErr, *) 'RIMP2_V_E2:  Problems closing ',
-     $      'integral file(s)!'
-         RIMP2_V_E2 = .FALSE.
-         Return
-      EndIf
 C
       Call GA_Sync
       Call PStat_Off(PS_Energy)
