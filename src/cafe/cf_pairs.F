@@ -136,7 +136,6 @@ c
      + int_mb(lptr+1+4*nsloc),
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + int_mb(i_itrd(2)),mtt(2),int_mb(i_ixcl(2)),mxt(2))
-      ntest=ntest+npairs
       endif
       int_mb(lptr)=npairs
       int_mb(lptrn+3)=lptr
