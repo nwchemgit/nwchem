@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(rtdb,okeep)
 c
-c$Id: grid_cleanup.F,v 1.5 2000-10-19 01:26:32 edo Exp $
+c$Id: grid_cleanup.F,v 1.6 2000-10-27 17:38:39 edo Exp $
 c
       implicit none
 c      
@@ -13,6 +13,12 @@ c
       integer rtdb
       logical grid_on_file,grid_file_close
       logical okeep
+      logical xc_gotxc
+      external xc_gotxc
+c
+c     case of pure HF X
+c
+      if(.not.xc_gotxc()) return
 c
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &   grid_on_file))then
@@ -20,6 +26,7 @@ c
       endif
       if (grid_on_file)then
 c
+         write(0,*) ' grinfo ',grinfo
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0)
          if(.not.okeep) then
