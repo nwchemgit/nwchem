@@ -1,11 +1,11 @@
 #if defined(SEMI)
       subroutine raktest_semi(rtdb)
-* $Id: raktest_semi.F,v 1.3 1996-03-20 00:51:42 d3e129 Exp $
+* $Id: raktest_semi.F,v 1.4 1996-03-20 23:49:36 vg422 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-***************8#include "se_defs.fh"
+#include "se_defs.fh"
 c
 c::passed
       integer rtdb ![input] rtdb handle
@@ -29,6 +29,7 @@ c in input deck put:
       write(luout,*)' mode is ',mode_name
 c--------------------------------------------
       if(mode_name.eq.'AM1')se_mode=SE_AM1
+      if(mode_name.eq.'MNDO') se_mode=SE_MNDO
       call se_init(rtdb,se_mode)
 c--------------------------------------------
 c
