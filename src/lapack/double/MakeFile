@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 2001-11-29 20:35:43 edo Exp $	
+#	$Id: MakeFile,v 1.4 2002-10-03 17:34:32 windus Exp $	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
@@ -85,6 +85,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\dlasq5.obj \
                $(OBJDIR)\dlasq6.obj \
                $(OBJDIR)\dposv.obj \
+               $(OBJDIR)\dtrtrs.obj \
                $(OBJDIR)\ilaenv.obj \
                $(OBJDIR)\lsamen.obj \
                $(OBJDIR)\zheev.obj \
