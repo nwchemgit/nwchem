@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.32 2003-02-16 21:41:26 marat Exp $
+* $Id: paw_ovlp.F,v 1.33 2003-02-16 22:13:30 marat Exp $
 *
 
 !**************************************************
@@ -300,14 +300,28 @@ c      write(*,*)
         nbasis = paw_proj_nbasis(ia)
         do nlm =1,nbasis
         do nlm1=1,nbasis
+
            w_tmp = cmplx(0.0d0,0.0d0)
-           do n=1,neall
+           do n=1,ne_u
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
              w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
      >        dcpl_mb(coeff(1)+indx_coeff1)
            end do
-           dcpl_mb(paw_ovlp_w(1)+ii) = w_tmp
+           dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp
+
+           w_tmp = cmplx(0.0d0,0.0d0)
+           do n=ne_u+1,ne_d
+             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
+             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
+             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
+     >        dcpl_mb(coeff(1)+indx_coeff1)
+           end do
+           dcpl_mb(paw_ovlp_w_d(1)+ii) = w_tmp
+
+           dcpl_mb(paw_ovlp_w(1)+ii) = dcpl_mb(paw_ovlp_w_u(1)+ii)+
+     >                                 dcpl_mb(paw_ovlp_w_d(1)+ii)      
+           
            ii =ii +1
         end do
         end do
@@ -337,8 +351,6 @@ c      write(*,*)
                   write(*,*)ii,i_w,i_w0,dcpl_mb(paw_ovlp_w(1)+ii),
      >                      dcpl_mb(paw_ovlp_w(1)+i_w)
                 
-c                  write(*,*) dcpl_mb(paw_ovlp_w(1)+ii),ii
-c                  write(*,*) dcpl_mb(paw_ovlp_w(1)+i_w),i_w,nilm,njlm
                   ii =ii +1
                 end do
                 njlm=njlm + 2*lj+1
