@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.30 1996-07-10 23:41:28 d3h449 Exp $
+C$Id: dft_scf.F,v 1.31 1996-08-06 06:03:12 d3g681 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -918,10 +918,10 @@ c
       end if
       if(oprint_syma) then
         call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
-     $       oprint_syma,nbf_ao, '- alpha')
+     $       oprint_syma,nbf_ao, '- alpha', .false., 1)
         if(ipol.eq.2) 
      $       call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
-     $       oprint_syma, nbf_ao, '- beta')
+     $       oprint_syma, nbf_ao, '- beta', .false., 1)
       endif
       
 c     
