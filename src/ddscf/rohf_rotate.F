@@ -14,7 +14,7 @@ c
 c
       if (step .ne. 0.0d0) then
          if (.not. ga_create(MT_DBL, nbf, nmo, 
-     $        'rohf_rotate_movecs: tmp', 1, 1, g_tmp)) call errquit
+     $        'rohf_rotate_movecs: tmp', 32, 32, g_tmp)) call errquit
      $        ('rohf_rotate_movecs: ga create failed', nbf)
          call ga_dscal(g_search, step)
          call rohf_k2cf(basis, nbf, nmo, nclosed,

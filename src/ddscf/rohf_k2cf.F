@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.10 1996-06-27 22:42:44 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.11 1997-04-16 16:52:26 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -20,7 +20,7 @@ c
       if (oscfps) call pstat_on(ps_k2cf)
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'k2cf: temp',
-     $     1, 1, g_temp)) call errquit('rohf_k2cf: GA temp',0)
+     $     32, 32, g_temp)) call errquit('rohf_k2cf: GA temp',0)
       call rohf_k2u( basis, nbf, nmo, nclosed, nopen,
      $               g_kvec, g_temp )
 c

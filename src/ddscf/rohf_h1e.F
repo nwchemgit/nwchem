@@ -1,7 +1,7 @@
       subroutine rohf_hessv_1e( basis, geom, nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_x, g_ax)
-C     $Id: rohf_h1e.F,v 1.4 1997-04-06 20:55:26 d3g681 Exp $
+C     $Id: rohf_h1e.F,v 1.5 1997-04-16 16:52:25 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -33,12 +33,12 @@ c       cv      cv  cv       cv  cv
 c     S   =  4.F  .x   -  4.x  .F
 c     
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_hv1e: tmp1',
-     $     1, 1, g_tmp1)) call errquit('rohf_hv1e: tmp1', 0)
+     $     32, 32, g_tmp1)) call errquit('rohf_hv1e: tmp1', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_hv1e: tmp2',
-     $     1, 1, g_tmp2)) call errquit('rohf_hv1e: tmp2', 0)
+     $     32, 32, g_tmp2)) call errquit('rohf_hv1e: tmp2', 0)
       if (nopen .gt. 0) then
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_hv1e: tmp3',
-     $        1, 1, g_tmp3)) call errquit('rohf_hv1e: tmp3', 0)
+     $        32, 32, g_tmp3)) call errquit('rohf_hv1e: tmp3', 0)
       endif
 c
       do ivec = 1, nvec

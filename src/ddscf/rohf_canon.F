@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.6 1997-03-31 05:38:42 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.7 1997-04-16 16:52:25 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -30,10 +30,10 @@ c
       if (oscfps) call pstat_on(ps_diag)
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: u',
-     $     1, 1, g_u)) call errquit('rohf_canon: ga failed for u', 0)
+     $     32, 32, g_u)) call errquit('rohf_canon: ga failed for u', 0)
       call ga_zero(g_u)         ! ESSENTIAL FOR SYMM BLOCKED SUBSPACE CANON
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: fock',
-     $     1, 1, g_fock)) call errquit
+     $     32, 32, g_fock)) call errquit
      $     ('rohf_canon: ga failed for fock', 0)
 c
       call rohf_get_fock(g_fock)
@@ -83,7 +83,7 @@ c
          if (.not. ga_destroy(g_tmp)) 
      $        call errquit('rohf_canon: ga_destroy?',0)
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: tmp',
-     $        1, 1, g_tmp)) call errquit
+     $        32, 32, g_tmp)) call errquit
      $        ('rohf_canon: ga failed for tmp', 0)
       endif
 c

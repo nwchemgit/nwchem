@@ -177,12 +177,12 @@ c     be reallocated later when the dependency analysis is done
 c
       if (scftype .eq. 'UHF') then
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: alpha MOs',
-     $        1, 1, g_movecs)) call errquit('scf_init: alpha MOs', 0)
+     $        32, 32, g_movecs)) call errquit('scf_init: alpha MOs', 0)
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: beta MOs',
-     $        1, 1, g_movecs(2))) call errquit('scf_init: beta MOs', 0)
+     $        32, 32, g_movecs(2))) call errquit('scf_init: beta MOs',0)
       else
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: MOs',
-     $        1, 1, g_movecs)) call errquit('scf_init: MOs', 0)
+     $        32, 32, g_movecs)) call errquit('scf_init: MOs', 0)
       endif
 c     
       len_occ = nmo
@@ -210,7 +210,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.38 1997-03-30 20:58:49 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.39 1997-04-16 16:52:28 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

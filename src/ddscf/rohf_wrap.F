@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -42,14 +42,14 @@ c     FCV = closed-partial fock matrix
 c     FPV = partial-virtual fock matrix
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCV',
-     $     1, 1, crohf_g_fcv)) call errquit('rohf_init: FCV', 0)
+     $     32, 32, crohf_g_fcv)) call errquit('rohf_init: FCV', 0)
 c     
       if (nopen .gt. 0) then
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FPV',
-     $        1, 1, crohf_g_fpv)) call errquit('rohf_init: FPV', 0)
+     $        32, 32, crohf_g_fpv)) call errquit('rohf_init: FPV', 0)
 c     
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCP',
-     $        1, 1, crohf_g_fcp)) call errquit('rohf_init: FCP', 0)
+     $        32, 32, crohf_g_fcp)) call errquit('rohf_init: FCP', 0)
       endif
 c     
       end
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -91,7 +91,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -128,7 +128,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -172,7 +172,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.11 1997-04-16 16:52:27 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.52 1997-04-10 02:03:28 d3g681 Exp $
+C$Id: scf.F,v 1.53 1997-04-16 16:52:27 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -195,11 +195,16 @@ c
 c
 c     Form intial guess vectors
 c
+      if (ga_nodeid().eq.0 .and. oprint) write(6,711) util_wallsec()
+ 711  format(/' Forming initial guess at ',f9.1,'s'/)
       call scf_vectors_guess(rtdb)
 c
 c     Here branch to the appropriate wavefunction type ... returns
 c     true if happily converged, false otherwise (e.g., if restart
 c     is needed or problems encountered).
+c
+      if (ga_nodeid().eq.0 .and. oprint) write(6,712) util_wallsec()
+ 712  format(/' Starting SCF solution at ',f9.1,'s'/)
 c
       if (scftype .eq. 'UHF') then
          converged = uhf(rtdb, energy)

@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.22 1997-03-25 19:10:03 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.23 1997-04-16 16:52:24 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -247,6 +247,7 @@ c
       integer ijkl(qdim, 4)     ! Indices for quartet
       integer tdim              ! Max no. of pair types (guess)
       integer pinfo(2,tdim)     ! Start and end of each pair type
+      integer ntp               ! No. of tasks per processor
 c     
       integer natom_unique
       integer nshpair, nsh
@@ -366,10 +367,11 @@ c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
 c     and allowing for the max no. of quartets to be processed per block
 c     
+      ntp = 10
       nshpair = nsh*(nsh+1)/2
       if (ga_nnodes() .gt. 1) then
          max_p = int(dble(nshpair)*dsqrt(dnops))
-         max_p = max_p/sqrt(100.0d0*ga_nnodes()) ! 100 tasks per processor
+         max_p = max_p/sqrt(dble(ntp)*ga_nnodes())
          max_p = min(nint(sqrt(dble(nops*qdim))),max_p)
          max_p = max(10,max_p)
       else
@@ -392,7 +394,7 @@ c     Figure out no. of tasks to do on each request to the
 c     shared counter.  Memory permitting we want this to be 
 c     close to 1.
 c
-      chunk = max(ntype*ntype/(100*ga_nnodes()),1)  ! 100 tasks per proc
+      chunk = max(ntype*ntype/(ntp*ga_nnodes()),1)  
       if (max_p .lt. nint(sqrt(dble(nops*qdim))) .and.
      $     chunk .ge. 4) then
          max_p = min(nint(sqrt(dble(nops*qdim))),2*max_p)

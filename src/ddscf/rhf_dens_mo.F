@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.7 1996-08-06 05:33:00 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.8 1997-04-16 16:52:24 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -99,15 +99,15 @@ c
 c     Transform the fock matrix to the orthonormal subspace and diagonalize
 c     
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rhf_d_m: tmp',
-     $     1, 1, g_tmp)) call errquit('rhf_d_m: tmp',0)
+     $     32, 32, g_tmp)) call errquit('rhf_d_m: tmp',0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: mof',
-     $     1, 1, g_mofock)) call errquit('rhf_d_m: mof',0)
+     $     32, 32, g_mofock)) call errquit('rhf_d_m: mof',0)
       call two_index_transf(g_fock, g_mocf, g_mocf, g_tmp, g_mofock )
       if (.not. ga_destroy(g_fock)) call errquit('rhf_d_m: ga?',0)
 c     
       call ga_copy(g_mocf, g_tmp) ! Save the orthonormal basis
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: u',
-     $     1, 1, g_u)) call errquit('rhf_d_m: u',0)
+     $     32, 32, g_u)) call errquit('rhf_d_m: u',0)
 *      write(6,*) ' g_mofock ', g_mofock
 *      write(6,*) ' g_u ', g_u
 *      call ga_summarize(0)

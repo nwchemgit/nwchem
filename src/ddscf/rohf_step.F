@@ -23,7 +23,7 @@ c
 c     Generate MOs * Exp(-step*K) in temporary array
 c     
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_s_e: MOs',
-     $     1, 1, g_tmp)) call errquit('rohf_s_e: MOs', 0)
+     $     32, 32, g_tmp)) call errquit('rohf_s_e: MOs', 0)
 c      
       if (step .ne. 0.0d0) then
          call ga_dscal(g_search, step)

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.37 1997-04-11 00:32:40 d3g681 Exp $
+C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -156,9 +156,9 @@ c
       if (cuhf_vlen .eq. 0) cuhf_vlen = 1
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Falpha',
-     $     1, 1, cuhf_g_falpha)) call errquit('uhf_init: Fa', 0)
+     $     32, 32, cuhf_g_falpha)) call errquit('uhf_init: Fa', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_init: Fbeta',
-     $     1, 1, cuhf_g_fbeta)) call errquit('uhf_init: Fb', 0)
+     $     32, 32, cuhf_g_fbeta)) call errquit('uhf_init: Fb', 0)
 c
       cuhf_init_flag = .true.
 c
@@ -179,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.37 1997-04-11 00:32:40 d3g681 Exp $
+C     $Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -392,9 +392,9 @@ c
 c     Apply rotation
 c
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: alpha MOs',
-     $     1, 1, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
+     $     32, 32, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: beta MOs',
-     $     1, 1, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
+     $     32, 32, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
 c
       call uhf_rotate(step, g_search, g_movecs, g_tmp)
 c
@@ -427,9 +427,9 @@ c
 c     Apply rotation
 c
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: alpha MOs',
-     $     1, 1, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
+     $     32, 32, g_tmp(1))) call errquit('uhf_s_e: MOs', 0)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_s_e: beta MOs',
-     $     1, 1, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
+     $     32, 32, g_tmp(2))) call errquit('uhf_s_e: MOs', 0)
 c
       call uhf_rotate(step, g_search, g_movecs, g_tmp)
       call ga_copy(g_tmp(1), g_movecs(1))
@@ -466,7 +466,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.37 1997-04-11 00:32:40 d3g681 Exp $
+C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -493,7 +493,7 @@ c
       if (.not. ma_push_get(mt_dbl,nmo,'temp k',l_tmp,k_tmp))
      $     call errquit('uhf_k2cf: ma failed on tmp',  nmo)
       if (.not. ga_create(mt_dbl, nmo, nmo, 'uhf_k2cf:kmat',
-     $     1, 1, g_kmat)) call errquit('uhf_k2cf:ga_create?', nmo)
+     $     32, 32, g_kmat)) call errquit('uhf_k2cf:ga_create?', nmo)
 c
       do iset = 1, 2            ! 1= alpha, 2= beta
 c
@@ -557,7 +557,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.37 1997-04-11 00:32:40 d3g681 Exp $
+c     $Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1043,7 +1043,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.37 1997-04-11 00:32:40 d3g681 Exp $
+C$Id: uhf.F,v 1.38 1997-04-16 16:52:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1072,9 +1072,9 @@ c
 c     Transform Fock matrices and MO coefficients into the new canonical basis
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: u',
-     $     1, 1, g_u)) call errquit('uhf_canon: ga failed for u', 0)
+     $     32, 32, g_u)) call errquit('uhf_canon: ga failed for u', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: fock',
-     $     1, 1, g_fock)) call errquit
+     $     32, 32, g_fock)) call errquit
      $     ('uhf_canon: ga failed for fock', 0)
 c
       g_f(1) = cuhf_g_falpha
@@ -1122,7 +1122,7 @@ c
 c     Apply rotation to orbitals and fock matrix
 c
          if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_canon: tmp',
-     $        1, 1, g_tmp)) call errquit
+     $        32, 32, g_tmp)) call errquit
      $        ('uhf_canon: ga failed for tmp', 0)
          call ga_copy(g_movecs(iset), g_tmp)
          call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_tmp, g_u,
@@ -1132,7 +1132,7 @@ c
             if (.not. ga_destroy(g_tmp))
      $           call errquit('uhf_canon: destroy', 0)
             if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_canon: tmp',
-     $           1, 1, g_tmp)) call errquit
+     $           32, 32, g_tmp)) call errquit
      $           ('uhf_canon: ga failed for tmp', 0)
          endif
 c
@@ -1186,11 +1186,11 @@ c     Form Sab
 c
       g_over = ga_create_atom_blocked(geom, basis, 'uhf_spin: over')
 *      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_spin: overlap',
-*     $     1, 1, g_over)) call errquit('uhf_spin: overlap', 0)
+*     $     32, 32, g_over)) call errquit('uhf_spin: overlap', 0)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_spin: work',
-     $     1, 1, g_work)) call errquit('uhf_spin: work', 0)
+     $     32, 32, g_work)) call errquit('uhf_spin: work', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_spin: overlap',
-     $     1, 1, g_smo)) call errquit('uhf_spin: overlap', 0)
+     $     32, 32, g_smo)) call errquit('uhf_spin: overlap', 0)
 c      
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)

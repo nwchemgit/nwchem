@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.11 1997-03-06 20:56:53 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.12 1997-04-16 16:52:28 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -46,7 +46,7 @@ c
       call scf_lindep(rtdb, geom, basis, g_movecs, nmo)
       if (nmo .ne. nbf) then
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs',
-     $        1, 1, g_tmp)) call errquit('scf_v_g: tmp MOs', 0)
+     $        32, 32, g_tmp)) call errquit('scf_v_g: tmp MOs', 0)
          call ga_copy_patch('n', 
      $        g_movecs, 1, nbf, 1, nmo, g_tmp, 1, nbf, 1, nmo)
          if (.not. ga_destroy(g_movecs)) 
@@ -55,12 +55,12 @@ c
             if (.not. ga_destroy(g_movecs(2))) 
      $           call errquit('scf_v_g: ga_destroy(2)?',0)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: alpha MOs',
-     $           1, 1, g_movecs)) call errquit('scf_v_g: alpha MOs', 0)
+     $           32, 32, g_movecs)) call errquit('scf_v_g: alpha MOs',0)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g beta MOs',
-     $           1, 1, g_movecs(2)))call errquit('scf_v_g: beta MOs',0)
+     $           32, 32, g_movecs(2)))call errquit('scf_v_g:beta MOs',0)
          else
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_g_g: MOs',
-     $           1, 1, g_movecs)) call errquit('scf_v_g: MOs', 0)
+     $           32,32, g_movecs)) call errquit('scf_v_g: MOs', 0)
          endif
          call ga_copy(g_tmp, g_movecs)
          if (.not. ga_destroy(g_tmp)) 
@@ -142,7 +142,7 @@ c     them into the linearly independent MO space of this geometry.
 c
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g:tmp',
-     $                 1, 1, g_tmp)) call errquit('scf_v_g: tmp', 0)
+     $                 32,32, g_tmp)) call errquit('scf_v_g: tmp', 0)
                   call ga_copy(g_movecs, g_tmp)
                endif
 *
@@ -150,7 +150,7 @@ c
 *
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nmo, nmo, 'scf_v_g:tmp2',
-     $                 1, 1, g_tmp2)) call errquit('scf_v_g: tmp2', 0)
+     $                 32,32, g_tmp2)) call errquit('scf_v_g: tmp2', 0)
                   call ga_dgemm('t', 'n', nmo, nmo, nbf, 1.0d0, 
      $                 g_tmp, g_movecs, 0.0d0, g_tmp2)
                   call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0,
