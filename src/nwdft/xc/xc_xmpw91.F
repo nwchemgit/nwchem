@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.5 2003-02-19 05:19:57 edo Exp $
+C$Id: xc_xmpw91.F,v 1.6 2003-02-25 00:46:44 edo Exp $
 c
       implicit none
 c
@@ -40,9 +40,7 @@ c
 c     Becke & Perdew  Parameters
 c
       double precision DPOW
-      double precision BETA, TOLL, tol_rho, 
-     &     ONE, TWO, FOURTHIRDS,CPW91
-      parameter (TOLL=1.E-20)
+      double precision BETA,  tol_rho, CPW91
 
 !      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4) ! pw91 paper
 !      Parameter (BETA = 0.0046D0, CPW91=1.6455D0,DPOW=3.73D0)!mpw91 paper
@@ -53,8 +51,6 @@ c     BETA is 0.00426 instead of 0.0046
 C     adamo@ext.jussieu.fr
 C
 
-      Parameter (ONE=1.D0, TWO=2.D0)
-      Parameter ( FOURTHIRDS=4.D0/3.D0)
 #ifdef SECOND_DERIV
 c
 c     Second Derivatives of the Exchange Energy Functional
@@ -162,7 +158,7 @@ c
      &     ldew)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.5 2003-02-19 05:19:57 edo Exp $
+C$Id: xc_xmpw91.F,v 1.6 2003-02-25 00:46:44 edo Exp $
 c
       implicit none
 c
@@ -186,14 +182,11 @@ c
 c     Becke & Perdew  Parameters
 c
       double precision DPOW
-      double precision BETA, TOLL, tol_rho, AX, pi,
-     &     ONE, TWO, FOURTHIRDS,CPW91,BETAPW91
-      parameter (TOLL=1.E-20)
+      double precision BETA, tol_rho, AX, pi,
+     &     CPW91,BETAPW91
 
       Parameter (CPW91=1.6455D0)
 
-      Parameter (ONE=1.D0, TWO=2.D0)
-      Parameter (FOURTHIRDS=4.D0/3.D0)
 #ifdef SECOND_DERIV
 c
 c     Second Derivatives of the Exchange Energy Functional
@@ -246,7 +239,7 @@ c
          denom = 1.d0/(1.d0 + 6d0*(beta*xa)*ha-ten6xd/ax)
          num = -BETA*x2a+bbx2*expo+ten6xd
          fx=num*denom
-         d1num=-2.d0*xa*(beta+bbx2*expo*(1d0/x2a-CPW91))+
+         d1num=-2.d0*xa*(beta-bbx2*expo*(1d0/x2a-CPW91))+
      +        ten6xd/xa*dpow
          d1den=6.d0*beta*(ha + xa*dsinhm1(xa)) -
      -        ten6xd/ax/xa*dpow
@@ -256,19 +249,25 @@ c
          Xa = 0.d0
          fx=0.d0
          fprimex=0.d0
+         denom=0d0
+         d1den=0d0
+         expo=0d0
+         ten6xd=0d0
+         x2a=0d0
+         bbx2=0d0
       endif
 c     
       if (lfac)then
          Ex = Ex + 2d0/ipol*rho43*AX*qwght*fac
-         if(ldew)func = func + 2d0/ipol*rho43*AX*fac
-         Amat(n,D0R) = Amat(n,D0R) + FOURTHIRDS*rho13*AX*fac
+         if(ldew)func = func + 2.d0/ipol*rho43*AX*fac
+         Amat(n,D0R) = Amat(n,D0R) + (4.d0/3.d0)*rho13*AX*fac
       endif
 c     
       if (nlfac)then
          Ex = Ex + 2d0/ipol*rho43*fx*qwght*fac
-         if(ldew)func = func + 2d0/ipol*rho43*fx*fac
+         if(ldew)func = func + 2.d0/ipol*rho43*fx*fac
          Amat(n,D0R) = Amat(n,D0R) +
-     +        FOURTHIRDS*rho13*(fx-xa*fprimex)*fac
+     +        (4.d0/3.d0)*rho13*(fx-xa*fprimex)*fac
          if (xa.gt.tol_rho)  then
             Cmat(n,D1G)=Cmat(n,D1G)+
      +           .5d0*fprimex/sqrt(gamma)*fac
@@ -282,12 +281,17 @@ c
      &        (4d0/9d0)*rhom23*Ax*fac
       endif
       if (nlfac)then
-         d2num=-2d0*(beta+(BETA-BETAPW91)*expo*
-     *        (1d0-2d0*CPW91*xa*(1d0+xa-CPW91*x2a)))+
+      if(gamma.gt.tol_rho**2)then
+         d2num=-2d0*beta +
+     +        2d0*bbx2*expo*
+     *        (1d0/x2a-5d0*CPW91+2d0*CPW91*CPW91*x2a)+
      +        ten6xd/x2a*dpow*(dpow-1d0)
          d2den=6.d0*beta*dsinhm1(xa)*(2d0-x2a/(1d0+x2a)) -
      -        ten6xd/ax/x2a*dpow*(dpow-1d0)
          f2x = denom*(d2num -fx*d2den - 2d0*d1den*fprimex)
+         else
+            f2x=0d0
+         endif	
          Amat2(n,D2RR) = Amat2(n,D2RR)
      &        + (4d0/9d0)*rhom23*(fx-xa*fprimex+4d0*x2a*f2x)*fac
          Cmat2(n,D2RG) = Cmat2(n,D2RG)
