@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.66 1996-02-13 19:22:20 pborowsk Exp $
+c     $Id: nwchem.F,v 1.67 1996-02-13 20:04:09 mg141 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -229,7 +229,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 24)
+      parameter (ntasks = 25)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
      $     'raktest',           ! 2
@@ -254,7 +254,8 @@ c
      $     'nwargos',           ! 21
      $     'fourindex',         ! 22
      $     'selci',             ! 23
-     $     'dplot'              ! 24
+     $     'dplot',             ! 24
+     $     'mp2_grad'           ! 25
      $     /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -267,7 +268,7 @@ c
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 
      $        110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
-     $        210, 220, 230, 240) ind
+     $        210, 220, 230, 240, 250) ind
 c     
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -397,7 +398,12 @@ c     Plot of the density matrix
 c     
  240     call DPlot(rtdb)
          goto 1000
+c
+c     semi-direct mp2 energy and gradient module
 c     
+ 250     call mp2_grad(rtdb)
+         goto 1000
+c
       else
 c     
          write(6,*) ' task_name = ', 
