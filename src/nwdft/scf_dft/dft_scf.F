@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.225 2002-10-23 22:50:55 sohirata Exp $
+c     $Id: dft_scf.F,v 1.226 2002-10-30 21:38:12 edo Exp $
 c     
       implicit none
 c
@@ -984,8 +984,8 @@ c
             call util_print_centered(LuOut,
      &           'Exiting due to time limitations.', 20, .true.)
             write(LuOut,*)
-            goto 2000
          endif
+         goto 2000
       endif
       if (idone.eq.0.or.(iswitc.lt.2.and.iter.lt.iterations).or.
      .     (iterations.eq.0))
