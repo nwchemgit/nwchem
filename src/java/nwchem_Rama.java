@@ -10,15 +10,13 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
     Font defaultFont;
     int setnumber=0;
     JFileChooser chooser;
-    ExtensionFilter rmsFilter;
+    ExtensionFilter ramFilter;
     JFrame dialogFrame;
   
     BufferedReader br;
     String card;
 
-    Graph rmsPlot = new Graph();
-    Graph rmsaPlot = new Graph();
-    Graph rmsrPlot = new Graph();
+    Graph ramPlot = new Graph();
 
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
@@ -38,8 +36,8 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
 	super.addWindowListener(this);
 	
 	chooser = new JFileChooser("./");
-	rmsFilter = new ExtensionFilter(".rms");
-	chooser.setFileFilter(rmsFilter);
+	ramFilter = new ExtensionFilter(".ram");
+	chooser.setFileFilter(ramFilter);
 	dialogFrame = new JFrame();
 	dialogFrame.setSize(300,400);
 	chooser.showOpenDialog(dialogFrame);
@@ -62,53 +60,31 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 
-	rmsPlot.setTitle("RMS Deviation vs Time");
-	rmsaPlot.setTitle("Atomic RMS Deviation");
-	rmsrPlot.setTitle("Segment RMS Deviation");
-	rmsrPlot.setBars(1.0,0.0);
-	rmsPlot.setSize(700,300);
-	rmsaPlot.setSize(350,300);
-	rmsrPlot.setSize(350,300);
-	addComponent(header,rmsPlot,0,1,20,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,rmsaPlot,0,11,10,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,rmsrPlot,11,11,10,10,10,10,
+	ramPlot.setTitle("Ramachandran");
+	ramPlot.setSize(700,700);
+	addComponent(header,ramPlot,0,1,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 	    String card;
-	    card=br.readLine();
-	    int numt=0;
+            int nump=0;
 	    boolean first=true;
-	    while(!card.startsWith("analysis")){
-		time=Double.valueOf(card.substring(1,12)).doubleValue();
-		rms1=Double.valueOf(card.substring(13,24)).doubleValue();
-		rms2=Double.valueOf(card.substring(25,36)).doubleValue();
-		rmsPlot.addData(0,time,rms1,!first,false);
-		rmsPlot.addData(1,time,rms2,!first,false); first=false;
-		card=br.readLine();
-	    };
-	    rmsPlot.fillPlot();
-	    card=br.readLine();
-	    int numa=0;
-	    first=true;
-	    while(!card.startsWith("analysis")){
-		rms1=Double.valueOf(card.substring(32,43)).doubleValue();
-		numa++;
-		rmsaPlot.addData(1,numa,rms1,!first,false); first=false;
-		card=br.readLine();
-	    };
-	    numa=0;
-            int n;
-	    first=true;
+	    double phi, psi;
+	    ramPlot.setMarksStyle("points");
 	    while((card=br.readLine()) != null){
-		rms1=Double.valueOf(card.substring(12,23)).doubleValue();
-		rmsrPlot.addData(0,numa,rms1,!first,false); numa++;
+		time=Double.valueOf(card.substring(1,12)).doubleValue();
+		card=br.readLine();
+                first=true;
+		while(!card.startsWith("      0")){
+		    phi=Double.valueOf(card.substring(11,22)).doubleValue();
+		    psi=Double.valueOf(card.substring(23,34)).doubleValue();
+		    ramPlot.addData(nump,phi,psi,false,false); first=false;
+		    card=br.readLine();
+                    first=false;
+		};
+	    ramPlot.fillPlot();
+	    nump++;
 	    };
-	    rmsaPlot.fillPlot();
-	    br.close();
-	    
 	} catch(Exception ee) {ee.printStackTrace();};
 
 	

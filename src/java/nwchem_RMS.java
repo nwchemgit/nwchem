@@ -29,7 +29,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
     
     public nwchem_RMS(){
 	
-	super("RMS Viewer");
+	super("RMS Viewer 2");
 	
 	defaultFont = new Font("Dialog", Font.BOLD,12);
 	
@@ -117,6 +117,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    while((card=br.readLine()) != null){
 		rms1=Double.valueOf(card.substring(12,23)).doubleValue();
 		rms2=Double.valueOf(card.substring(24,35)).doubleValue();
+                System.out.println(rms1+" "+rms2);
 		rmsrPlot.addData(0,numa,rms1,!first,false);
 		bfacrPlot.addData(0,numa,rms2,!first,false); numa++;
 	    };

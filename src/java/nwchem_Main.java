@@ -92,7 +92,7 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
 	rms_View.setVisible(true);
       }});
     view.add(rama = new JMenuItem("ramachandran"));
-    rms.addActionListener(new ActionListener(){
+    rama.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
 	System.out.println("Ramachandran Viewer");
 	nwchem_Rama rama_View = new nwchem_Rama();

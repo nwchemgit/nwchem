@@ -137,7 +137,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 
     appendData(chooser.getSelectedFile().toString());
 
-    pList.setVisibleRowCount(15);
+    pList.setVisibleRowCount(30);
 
   }	
 
