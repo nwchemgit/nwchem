@@ -1,6 +1,6 @@
 
 c
-c $Id: nwpw_library.F,v 1.5 2003-12-02 19:16:53 bylaska Exp $
+c $Id: nwpw_library.F,v 1.6 2003-12-03 21:56:53 bylaska Exp $
 c
 	subroutine nwpw_libgeninp(element,filename)
 	implicit none
@@ -102,7 +102,7 @@ c
 	lmax_read=-1
 	locp_read=-1
 	rlocal_read=1.d0
-        psp_type = 0
+        psp_type=0
  1	continue
 	read(u_library,'(A)',end=2001,err=2002) line
 	l_lgth=inp_strlen(line)

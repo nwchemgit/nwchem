@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.20 2003-12-02 19:17:09 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.21 2003-12-03 21:56:54 bylaska Exp $
 c
 
 *     ***************************************
@@ -525,6 +525,8 @@ c
 #include "inp.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "rtdb.fh"
 
       character*2 atom
       double precision rlocal
@@ -533,6 +535,7 @@ c
       integer MASTER,taskid,msglen
       parameter (MASTER=0)
 
+      logical value
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
       integer h,i,j,k,debug,psp_type
@@ -548,6 +551,7 @@ c
 c
       call Parallel_taskid(taskid)
 
+      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
 
       call util_directory_name(sdir_name,.true.,0)
@@ -570,12 +574,9 @@ c
       lmax=nwpw_libglmax(atom)
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
-
+      psp_type=nwpw_libgpsp_type(atom)
        
       write(*,*) "Generating 1d pseudopotential for ",atom
-
-      psp_type=nwpw_libgpsp_type(atom)
-
       write(*,*) "psp_type:",psp_type
 
       if (psp_type.eq.0) then
@@ -620,15 +621,15 @@ c        *** PBE96 ***
       close(unit=99,status='delete')
 
 
-
       end if !** taskid.eq.MASTER **
+      value = rtdb_parallel(.true.)
 
       call ga_sync()
 
       msglen = 1
       call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
       call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,rlocal,mitob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
 
       return
       end
