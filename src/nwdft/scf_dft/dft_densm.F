@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.31 2001-12-13 02:19:01 edo Exp $
+C$Id: dft_densm.F,v 1.32 2001-12-14 00:43:02 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -155,10 +155,10 @@ C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
          endif
          endif
-      endif
-      if(spinset) then
-         noc(1)=nint(ntot(1))
-         if(ipol.eq.2) noc(2)=nint(ntot(2))
+         if(spinset) then
+            noc(1)=nint(ntot(1))
+            if(ipol.eq.2) noc(2)=nint(ntot(2))
+         endif
       endif
       return
       end

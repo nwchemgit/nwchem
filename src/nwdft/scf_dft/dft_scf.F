@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.206 2001-12-13 02:19:01 edo Exp $
+c     $Id: dft_scf.F,v 1.207 2001-12-14 00:43:02 edo Exp $
 c     
       implicit none
 c
@@ -727,8 +727,7 @@ c
      &        call dft_tstamp(' calling diis driver ')
          if(n_rabuck.ne.0) then
             ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
-            if((iter.eq.n_rabuck.or.
-     .           rabuck_act.and.ssmear.le.1d-9).
+            if(rabuck_act.and.ssmear.le.1d-9.
      .           and.diising) then
 c     reset diis
                if(me.eq.0) write(LuOut,*) 
