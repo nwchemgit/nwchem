@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.23 2003-02-15 08:32:19 edo Exp $
+* $Id: xc_chkgrad.F,v 1.24 2003-02-18 18:40:57 pollack Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -24,6 +24,7 @@ c
       endif
       return
       end
+
       logical function xc_gotxc()
       implicit none
 #include "cdft.fh"
@@ -40,18 +41,24 @@ c
       xc_gotxc = tot.gt.1d-8
       return
       end
+
+
       integer function xc_getnqmx()
       implicit none
 #include "cdft.fh"
       xc_getnqmx=nqmax
       return
       end
+
+
       integer function xc_getipol()
       implicit none
 #include "cdft.fh"
       xc_getipol=ipol
       return
       end
+
+
       logical function xc_got2nd()
       implicit none
 #include "cdft.fh"

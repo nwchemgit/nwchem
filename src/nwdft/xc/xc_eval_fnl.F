@@ -7,9 +7,9 @@ c     BGJ (8/98)
 c
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
-     &                       do_2nd)
+     &                       do_2nd,tau)
 c
-c     $Id: xc_eval_fnl.F,v 1.39 2003-02-17 22:58:31 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.40 2003-02-18 18:40:57 pollack Exp $
 c
       implicit none
 c
@@ -18,6 +18,10 @@ c
 c
       integer nq
       double precision rho(*), delrho(*)
+
+      double precision tau(*)
+
+
       double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*)
       double precision Ex, Ec
       double precision qwght(nq), func(nq)
@@ -336,6 +340,7 @@ c
             call xc_xmpw91_d2()
          endif
       endif
+
       if (abs(xfac(25)).gt.eps.or.abs(cfac(24)).gt.eps)then
          if (.not. do_2nd) then
             call xc_ft97(tol_rho,xfac(25),lxfac(25),nlxfac(25), 
@@ -347,6 +352,21 @@ c
 !            call xc_ft97_d2()
          endif
       endif
+
+
+
+c     meta GGA
+      if (abs(xfac(18)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpkzb99(tol_rho, xfac(18), lxfac(18), nlxfac(18), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func,tau)
+         else
+            call xc_xpkzb99_d2()
+         endif
+      endif
+
+
 c     
 c     Combine with quadrature weights
 c
