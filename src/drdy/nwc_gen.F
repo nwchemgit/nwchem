@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.4 2001-02-06 22:30:42 bjohnson Exp $
+C $Id: nwc_gen.F,v 1.5 2001-02-16 21:36:00 windus Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -73,6 +73,7 @@ c
      &      threquiv,groupname)
         if (op.ne.DRDY_CODE_SPENERGY)
      &    write(luout,10) groupname
+        if (groupname(1:2).ne."C1") then
         if (geom_group_set(geom,groupname)) then
           if (.not.geom_cart_set(geom,ncenter,copy_labels,dx,
      &         copy_charge))
@@ -104,6 +105,7 @@ c
 c     Force exact symetry on the coordinates
 c
         call sym_geom_project(geom, threquiv)
+        endif
       endif
 c
 c store as default geometry
