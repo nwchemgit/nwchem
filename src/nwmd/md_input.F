@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.17 2000-04-28 20:13:08 d3j191 Exp $
+c $Id: md_input.F,v 1.18 2000-05-17 21:08:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1084,7 +1084,7 @@ c
       itload=0
       goto 700
       endif
-      if(inp_compare(.false.,'lowest',item)) then
+      if(inp_compare(.false.,'minimum',item)) then
       itload=1
       goto 700
       endif
