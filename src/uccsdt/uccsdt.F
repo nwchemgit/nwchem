@@ -62,13 +62,15 @@ c
                call uccsdt_triples_set_super_block
      $              (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc)
                call uccsdt_triples_moints(rtdb)
+               call uccsdt_triples_dummy_amplitudes()
                call uccsdt_triples_unset_super_block()
 c
             end do
          end do
       end do
 c
-      
+      if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
+      if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
 c
       call uccsdt_tidy(rtdb)
 c
@@ -458,7 +460,7 @@ c
       if (.not. ga_destroy(g_movecs(2))) 
      $     call errquit('uccsdt_tidy: ga_destroy?',2)
 c
-c      call ma_summarize_allocated_blocks()
+*      call ma_summarize_allocated_blocks()
 c
       if (.not. ma_pop_stack(l_movecs(2)))
      $     call errquit('uccsdt_tidy: ma_pop?',2)
@@ -469,5 +471,8 @@ c
      $     call errquit('uccsdt_tidy: basis?', 0)
       if (.not. geom_destroy(geom))
      $     call errquit('uccsdt_tidy: geom?', 0)
+c
+      call ma_summarize_allocated_blocks()
+      call ga_summarize(0)
 c
       end

@@ -228,6 +228,202 @@ c$$$         call errquit('uccsdt_triples_check_list: bad list', list)
 c$$$      end if
 c      
       end
+      subroutine uccsdt_triples_dummy_amplitudes()
+      implicit none
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+c
+c     Set the dummy t2 amplitudes to 
+c
+c     t(a,b,i,j) = <ab||ij> / (eps(i)+eps(j)-eps(a)-eps(b))
+c
+      integer spina, spinc, spini, spink, spine, spinm, list
+c
+      spina = asuper_spin
+      spinc = csuper_spin
+      spini = spina
+      spink = spini
+c
+      if (spina .ne. spinc) call errquit('dummy_amplitudes: no mixed',0)
+c
+c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
+c
+      list = 14
+      spine = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     v_sym(1,0,spine), eps(1,spine),
+     $     ncblock, cblock,  eps(1,spinc),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+c
+c     15.  t(e,a,i,j) spin(e)=spin(a) pure
+c
+      list = 15
+      spine = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     v_sym(1,0,spine), eps(1,spine),
+     $     nablock, ablock,  eps(1,spina),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
+c
+c     16.  t(e,b,i,j) spin(e)=spin(a) pure
+c
+      list = 16
+      spine = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     v_sym(1,0,spine), eps(1,spine),
+     $     nbblock, bblock,  eps(1,spina),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .true.)
+c
+c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
+c
+      list = 17
+      spine = spinc
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     v_sym(1,0,spine), eps(1,spine),
+     $     nablock, ablock,  eps(1,spina),
+     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+c
+c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
+c
+      list = 18
+      spine = spinc
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     v_sym(1,0,spine), eps(1,spine),
+     $     nbblock, bblock,  eps(1,spina),
+     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), -1d0, .false.)
+c
+c     19.  t(m,i,a,b) spin(m)=spin(a) pure
+c
+      list = 19
+      spinm = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     o_sym(1,0,spinm), eps(1,spinm),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     nablock, ablock,  eps(1,spina),
+     $     nbblock, bblock,  eps(1,spina),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .true.)
+c
+c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
+c
+      list = 20
+      spinm = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     o_sym(1,0,spinm), eps(1,spinm),
+     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+     $     nablock, ablock,  eps(1,spina),
+     $     ncblock, cblock,  eps(1,spinc),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+c
+c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
+c
+      list = 21
+      spinm = spina
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     o_sym(1,0,spinm), eps(1,spinm),
+     $     noblock(spink), oblock(1,1,spink),  eps(1,spink),
+     $     nbblock, bblock,  eps(1,spina),
+     $     ncblock, cblock,  eps(1,spinc),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+c
+c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
+c
+      list = 22
+      spinm = spinc
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     o_sym(1,0,spinm), eps(1,spinm),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     ncblock, cblock,  eps(1,spinc),
+     $     nablock, ablock,  eps(1,spina),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+c
+c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
+c
+      list = 23
+      spinm = spinc
+      call uccsdt_do_triples_dummy_amplitudes(
+     $     o_sym(1,0,spinm), eps(1,spinm),
+     $     noblock(spini), oblock(1,1,spini),  eps(1,spini),
+     $     ncblock, cblock,  eps(1,spinc),
+     $     nbblock, bblock,  eps(1,spina),
+     $     dbl_mb(k_moint), nbf,
+     $     int_mb(listinfo(2,list)), listinfo(5,list), 1d0, .false.)
+c
+      end
+      subroutine uccsdt_do_triples_dummy_amplitudes(
+     $     e_sym, eeps,
+     $     ncblock, cblock, ceps,
+     $     niblock, iblock, ieps,
+     $     nkblock, kblock, keps,
+     $     moints, nbf,
+     $     pointers, g_list, phase, oasym)
+      implicit none
+      integer e_sym(2,0:7)
+      integer ncblock, cblock(3,*)
+      integer niblock, iblock(3,*)
+      integer nkblock, kblock(3,*)
+      integer nbf
+      double precision eeps(*), ceps(*), ieps(*), keps(*)
+      double precision moints(nbf, nbf, nbf, nbf)
+      integer pointers(2,ncblock,niblock,nkblock)
+      integer g_list
+      double precision phase
+      logical oasym
+c
+      integer cblk, iblk, kblk, c, i, k, e, syme, ptr
+      double precision t
+c
+c     Fill in the dummy T's using the following template
+c
+c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
+c
+c     THIS IS CURRENTLY MOSTLY HARDWIRED TO CLOSED SHELL
+c
+      do kblk = 1, nkblock
+         do iblk = 1, niblock
+            do cblk = 1, ncblock
+               ptr = pointers(1,cblk,iblk,kblk)
+               syme = ieor(ieor(cblock(3,cblk),iblock(3,iblk)),
+     $              kblock(3,kblk))
+               do k = kblock(1,kblk),kblock(2,kblk)
+                  do i = iblock(1,iblk),iblock(2,iblk)
+                     do c = cblock(1,cblk),cblock(2,cblk)
+                        do e = e_sym(1,syme),e_sym(2,syme)
+                           t = moints(e,c,i,k)
+                           if (oasym) t = t - moints(e,c,k,i)
+                           t = t / (eeps(e)+ceps(c)-ieps(i)-keps(k))
+                           t = t * phase
+                           call ga_put(g_list,ptr,ptr,1,1,t,1)
+                           ptr = ptr + 1
+                        end do
+                     end do
+                  end do
+               end do
+               if (ptr .ne. (pointers(1,cblk,iblk,kblk)+
+     $              pointers(2,cblk,iblk,kblk))) call errquit
+     $              ('bad length for t record',ptr)
+            end do
+         end do
+      end do
+c
+      end
       subroutine uccsdt_do_check_list(
      $     buf,
      $     ilo, ihi,
