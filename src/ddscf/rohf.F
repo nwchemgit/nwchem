@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.34 2000-05-06 22:41:27 edo Exp $
+C$Id: rohf.F,v 1.35 2000-05-16 18:55:07 mdupuis Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -45,6 +45,7 @@ c
       logical odbug
       logical ocosmo
       logical osome
+      logical omode
 c
       oprint = util_print('information',print_low)
 c
@@ -54,10 +55,11 @@ c
 c
 c     ----- cosmo cavity -----
 c
-cedo      if(ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0) then
+         omode=rtdb_parallel(.false.)
          if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
             if(ocosmo) then
-               odbug=.false.
+               odbug=.true.
                if(odbug) then
                   osome=.true.
                else
@@ -66,11 +68,13 @@ cedo      if(ga_nodeid().eq.0) then
                call cosmo_initialize(rtdb,osome)
             endif
          endif
-cedo      endif
+         omode=rtdb_parallel(.true.)
+      endif
+c
+      call ga_sync()
 c
 c     Start timer
 c
-      call ga_sync()
       rohf_time = -util_cpusec()
 c
 c     Newton-Raphson based SCF
