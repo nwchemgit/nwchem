@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.12 2004-03-08 22:51:27 bylaska Exp $
+* $Id: ke.F,v 1.13 2004-11-05 23:15:02 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -203,7 +203,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.12 2004-03-08 22:51:27 bylaska Exp $
+* $Id: ke.F,v 1.13 2004-11-05 23:15:02 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"
@@ -327,12 +327,12 @@ c     real*8 G(nfft3d,3)
 
       subroutine ke_Precondition(npack,neall,psi,gradk)
       implicit none
-#include "errquit.fh"
       integer npack,neall
       complex*16   psi(npack,neall)
       complex*16 gradk(npack,neall)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
@@ -346,36 +346,36 @@ c     real*8 tg(nfft3d)
       real*8  x,cm,dm,Ep
       integer tmp1(2)
 
-      real*8   lattice_wggcut,control_Ep
-      external lattice_wggcut,control_Ep
+c      real*8   lattice_wggcut,control_Ep
+c      external lattice_wggcut,control_Ep
 
       integer ispin,ne(2)
-      integer  psi_ispin,psi_ne
-      external psi_ispin,psi_ne
+c      integer  psi_ispin,psi_ne
+c      external psi_ispin,psi_ne
 
 c      value = MA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) call errquit('out of stack memory',0)
 
-      sum = lattice_wggcut()
-      do n=1,neall
-         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
-         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
-         do k=1,npack
-           x = dbl_mb(tg_indx+k-1)
-           x = x*dconjg(psi(k,n))*psi(k,n)
-           x = x/sum
-
-           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-           dm = (cm + 16.0d0* x**4)
-           cm = cm/dm
-
-c          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
-c          cm = dexp(-0.15d0*x*x) 
-c          cm = dexp(-0.5d0*(x-0.5)**2) 
-
-           gradk(k,n) = gradk(k,n)*(cm)
-         end do
-      end do
+c      sum = lattice_wggcut()
+c      do n=1,neall
+c         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
+c         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
+c         do k=1,npack
+c           x = dbl_mb(tg_indx+k-1)
+c           x = x*dconjg(psi(k,n))*psi(k,n)
+c           x = x/sum
+c
+c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+c           dm = (cm + 16.0d0* x**4)
+c           cm = cm/dm
+c
+cc          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
+cc          cm = dexp(-0.15d0*x*x) 
+cc          cm = dexp(-0.5d0*(x-0.5)**2) 
+c
+c           gradk(k,n) = gradk(k,n)*(cm)
+c         end do
+c      end do
 
 
 c*     **** Preconditioner of Tassone, Mauri, and Car ****
@@ -415,24 +415,68 @@ c          end if
 c        end do
 c      end do
 
-c*     **** preconditioner #5 ****
-c      ispin = 2
-c      ne(1) = 1
-c      ne(2) = 0
-c      do n=1,neall
-c        call ke_ave(ispin,ne,gradk(1,n),Ep)
-c        Ep = 1.5d0*Ep
-c        do k=1,npack
-c           x = -dbl_mb(tg_indx+k-1)/Ep
-c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-c           dm = (cm + 16.0d0* x**4)
-c           cm = (cm/dm)*(2.0d0/Ep)
-c           gradk(k,n) = gradk(k,n)*cm
-c        end do
-c      end do
+*     **** preconditioner #5 ****
+      ispin = 2
+      ne(1) = 1
+      ne(2) = 0
+      do n=1,neall
+        call ke_ave(ispin,ne,gradk(1,n),Ep)
+        Ep = 1.5d0*Ep
+        do k=1,npack
+           x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = (cm/dm)*(2.0d0/Ep)
+           gradk(k,n) = gradk(k,n)*cm
+        end do
+      end do
 
 c      value = MA_pop_stack(tmp1(2))
 c      if (.not. value) call errquit('error popping stack memory',0)
+
+      return
+      end
+
+
+
+
+      subroutine ke_Precondition2(npack,neall,residual,Kresidual)
+      implicit none
+      integer npack,neall
+      complex*16 residual(npack,neall)
+      complex*16 Kresidual(npack,neall)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for ke.F ****
+c     real*8 tg(nfft3d)
+      integer tg_indx,tg_hndl
+      common / tg_block / tg_indx,tg_hndl
+
+*     **** local variables ****
+      logical value
+      integer k,n
+      real*8  sum
+      real*8  x,cm,dm,Ep
+      integer ispin,ne(2)
+
+
+*     **** preconditioner #5 ****
+      ispin = 2
+      ne(1) = 1
+      ne(2) = 0
+      do n=1,neall
+        call ke_ave(ispin,ne,residual(1,n),Ep)
+        Ep = 1.5d0*Ep
+        do k=1,npack
+           x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = (cm/dm)*(2.0d0/Ep)
+           Kresidual(k,n) = residual(k,n)*cm
+        end do
+      end do
 
       return
       end
