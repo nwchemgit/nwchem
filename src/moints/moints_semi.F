@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.57 2000-03-27 17:20:29 edo Exp $
+c  $Id: moints_semi.F,v 1.58 2003-07-12 20:50:38 edo Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -113,10 +113,10 @@ c
        gmem = ga_memory_avail() / 8 ! Want amount in doubles
        call ga_dgop(313, gmem, 1, 'min')
        if (oprint_mem) then
-          write(6,717) blen, gmem, lmemreq
+          write(6,717) blen, gmem, dble(lmemreq)
  717      format(/'   Block length           ', i8/
-     $            '   Local GA available     ', f10.1/
-     $            '   Local memory required  ', i8)
+     $            '   Local GA available     ',  1p, d10.2/
+     $            '   Local memory required  ', 1p, d10.2)
           call util_flush(6)
        endif
 c
@@ -124,7 +124,7 @@ c
 c
        if (oprint_mem) then
           write(6,718) gmem
- 718      format('   Adjusted GA available  ', f10.1)
+ 718      format('   Adjusted GA available  ', 1p, d10.2)
           call util_flush(6)
        endif
 c
@@ -767,6 +767,7 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "inp.fh"
 #include "eaf.fh"
       integer munit                       ! I/O unit
       integer oseglo, oseghi              ! Segment range
@@ -779,6 +780,8 @@ c
       double precision faddr
       integer o, vv, pv, nocc, npv, ooffset
       integer myid, rlo, rhi, clo, chi, k_local, ld
+      integer ierr
+      character*80 errmsg
 c
       nocc = oseghi - oseglo + 1
       npv = pvhi - pvlo + 1
@@ -793,9 +796,15 @@ c
      $            ma_sizeof(MT_DBL,((o-1)*npv+pv-pvlo)*nnbf,MT_BYTE)
           if ((vv.ge.clo).and.(vv.le.chi)) then
             call ga_access(g_buf, rlo, rhi, vv, vv, k_local, ld )
-            if (eaf_write(munit, faddr, dbl_mb(k_local+ooffset), 
-     $                    ma_sizeof(MT_DBL,rlen,MT_BYTE)).ne.0)
-     $        call errquit('moints_wrbuf: failed on write',0)
+            ierr=eaf_write(munit, faddr, dbl_mb(k_local+ooffset), 
+     $                    ma_sizeof(MT_DBL,rlen,MT_BYTE))
+            if(ierr.ne.0) then
+               call eaf_errmsg(ierr, errmsg)
+               write(6,*) ' IO offset ', faddr
+               write(6,*) ' IO error message ',
+     ,              errmsg(1:inp_strlen(errmsg))
+               call errquit('moints_wrbuf: failed on write',0)
+            endif
             call ga_release(g_buf, rlo, rhi, vv, vv )
           else
             call errquit('moints_semi: wrong distrib for GA buffer',0)
