@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.10 1996-12-30 21:54:55 d3h449 Exp $
+c     $Id: dft_input.F,v 1.11 1997-02-06 21:22:14 gutowski Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -978,7 +978,7 @@ c     &            ' dft_input: slater local descriptor found.'
                 elseif ( inp_compare(.false.,'nonlocal', test) ) then
 c                  write(6,*)
 c     &            ' dft_input: slater nonlocal descriptor found.'
-                  nlxfac(2) = .true.
+                  nlxfac(2) = .false.
                   write(6,*)' slater is a local functional;',
      &                      ' "nonlocal" descriptor is ignored. '                   
                 else
