@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.15 1999-07-09 22:42:10 edo Exp $
+C$Id: xc_lebedev.F,v 1.16 1999-07-27 19:31:16 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -696,8 +696,11 @@ C			write(0,*) ' wtest ', wtest/fourpi
       integer nridv(10)
       data nridv/38, 50, 110, 194,  302, 434, 590, 770, 
      &     974, 1202/
-c
+c     
+      if(acc.lt.1.or.acc.gt.10) 
+     . call errquit('xclebacc2: invalid acc',acc)
       xc_leb_acc2nrd=nridv(acc)
+
       return
       end
       integer function xc_leb_nrd2acc(nrad)
@@ -709,6 +712,10 @@ c
 c
       integer i
 c
+      if (nrad.eq.0) then
+         xc_leb_nrd2acc=0
+         return
+      endif
       do i=1,10
          if(nrad.eq.nridv(i)) then
             xc_leb_nrd2acc=i
