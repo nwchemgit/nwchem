@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.2 1995-12-21 23:28:49 pg481 Exp $
+c $Id: precalc2.F,v 1.3 1995-12-30 01:26:43 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -514,9 +514,9 @@ c
         ics=iis(ijcs)
         jcs=jjs(ijcs)
         fact1=one
-c       if(ics.eq.jcs) then
-c          if(ngctot.eq.0) fact1=fact1*half
-c       endif
+        if(ics.eq.jcs) then
+           if(ngctot.eq.0) fact1=fact1*half
+        endif
 c
 c      starting contr
         ia=inx(1,ics)+1
@@ -1015,9 +1015,9 @@ c
               endif
 c
             const(ijkl1)=coef12*sqrpold
-c pnl       if(ndiag.eq.0.and.ijpar.eq.klpar) then
-c pnl          const(ijkl1)=const(ijkl1)*0.5d0
-c pnl       endif
+            if(ndiag.eq.0.and.ijpar.eq.klpar) then
+               const(ijkl1)=const(ijkl1)*0.5d0
+            endif
             if(nsym.gt.0) const(ijkl1)=const(ijkl1)*symfac
          endif
  100  continue
@@ -1138,9 +1138,9 @@ c
               endif
 c
             const(ijkl1)=coef12*sqrpold
-c pnl       if(ndiag.eq.0.and.ijpar.eq.klpar) then
-c pnl          const(ijkl1)=const(ijkl1)*0.5d0
-c pnl       endif
+            if(ndiag.eq.0.and.ijpar.eq.klpar) then
+               const(ijkl1)=const(ijkl1)*0.5d0
+            endif
             if(nsym.gt.0) const(ijkl1)=const(ijkl1)*symfac
 c
          endif
