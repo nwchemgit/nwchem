@@ -5,7 +5,7 @@
      $                             g_int1t,
      $                             blen )
 *
-* $Id: moints_ccsd.F,v 1.12 2003-10-17 22:55:26 carlfahl Exp $
+* $Id: moints_ccsd.F,v 1.13 2004-09-07 06:11:41 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -55,8 +55,8 @@ c
 c
 c
 c
-      integer moints_numgr, gr_len
-      external moints_numgr, gr_len
+      integer moints_numgr, gr_len, nxtask
+      external moints_numgr, gr_len, nxtask
 c
 c
 c These are options that should be set
@@ -140,7 +140,7 @@ c
       if (oexch) call ga_zero(g_int1t)
       if (ocoul) call ga_zero(g_coul)
       ploop = 0
-      next = nxtval(num_nodes)
+      next = nxtask(num_nodes, 1)
 c
 c  4-fold shell loop
 c
@@ -206,13 +206,13 @@ c
      $                             dbl_mb(k_ssbb), dbl_mb(k_mo),
      $                             g_coul )
               endif
-              next = nxtval(num_nodes)
+              next = nxtask(num_nodes, 1)
             endif
             ploop = ploop + 1
           endif
         enddo
       enddo
-      next = nxtval(-num_nodes)
+      next = nxtask(-num_nodes, 1)
       call ga_sync
 c
 c Clean-up

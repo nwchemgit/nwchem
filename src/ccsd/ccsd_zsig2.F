@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_qitm,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.8 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_zsig2.F,v 2.9 2004-09-07 06:11:18 windus Exp $
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
@@ -26,8 +26,8 @@ c
      &        g_jlo,g_jhi,g_ilo,g_ihi,
      &        i,j,k,l,ij,a,b,c,d,ad1,ad2,ad3,ad4,ad5,ad6,lnoo,lnov,lnvv
       integer inode,next
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c
       Integer Nodes, IAm
       Nodes = GA_NNodes()
@@ -253,9 +253,9 @@ c
 c
       inode=-1
       call ga_sync
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
       call ga_sync
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
       do a=1,nvir
         do i=1,nocc
           ad1=(i-1)*nvir+a
@@ -265,7 +265,7 @@ c
             call dgemm('n','t',nvir,nocc,nocc,1.0d00,scre,
      &                 nvir,giu,nocc,0.0d00,scrf,nvir)
             call ga_acc(g_nhz2,1,lnov,ad1,ad1,scrf,lnov,1.0d00)
-            next=nxtval(nodes)
+            next=nxtask(nodes, 1)
           endif
         enddo
       enddo

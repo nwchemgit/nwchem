@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.30 2003-10-17 22:55:34 carlfahl Exp $
+C$Id: dft_3cincor.F,v 1.31 2004-09-07 06:11:45 windus Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -394,8 +394,8 @@ c
 c
       integer nproc, ichunk     ! [input]
 c
-      integer icount, nleft, nxtval, junk, nxtask_n, nstill
-      external nxtval
+      integer icount, nleft, nxtask, junk, nxtask_n, nstill
+      external nxtask
       save icount, nleft
       data nleft, icount /0, 0/
 c     
@@ -404,7 +404,7 @@ c     copy of nleft as argument.
 c     
       if(nproc.gt.0) then
          if(nleft.eq.0) then
-            icount = nxtval(nproc) * ichunk
+            icount = nxtask(nproc, 1) * ichunk
             nleft = ichunk
          endif
          nxtask_n = icount
@@ -413,7 +413,7 @@ c
       else
          nleft = 0
          nxtask_n = -1
-         junk = nxtval(nproc)
+         junk = nxtask(nproc, 1)
       endif
       nstill = nleft
       return

@@ -5,7 +5,7 @@
      &     oseg_lo,oseg_hi,
      $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      $     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
-C     $Id: ccsd_trpdrv.F,v 2.8 1997-10-27 18:04:54 d3g681 Exp $
+C     $Id: ccsd_trpdrv.F,v 2.9 2004-09-07 06:11:18 windus Exp $
       implicit none
 c
 #include "global.fh"
@@ -24,8 +24,8 @@ c
 c     
       double precision eaijk,eccsdt
       integer a,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
-     &     next,nxtval
-      external nxtval
+     &     next,nxtask
+      external nxtask
 C     
       Integer Nodes, IAm
 c     
@@ -57,7 +57,7 @@ C
       call ga_sync()
       call qenter('trpdrv',0)
       inode=-1
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
 c     
       do klo = 1, nocc, kchunk
          akold=0
@@ -267,13 +267,13 @@ c
                      write(6,1234)iam,a,j,emp4,emp5
  1234                format(' iam aijk',3i5,2e15.5)
                   end if
-                  next=nxtval(nodes)
+                  next=nxtask(nodes, 1)
                end if
             end do
          end do
       end do
 c     
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
       call ga_sync
       call qexit('trpdrv',0)
 c     

@@ -2,7 +2,7 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: riscf_trans.F,v 1.9 2004-09-07 06:11:22 windus Exp $
       implicit none
 #include "errquit.fh"
 
@@ -38,6 +38,9 @@ C$Id: riscf_trans.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
 
       logical status, IeqJ
 
+      integer nxtask
+      external nxtask
+
       nproc = ga_nnodes()
 
       if ( odisk ) then
@@ -52,7 +55,7 @@ C       first collect them in a temporary global array
       icount = -1
       mycount = 0
       ndone = 0
-      next = nxtval(nproc)
+      next = nxtask(nproc, 1)
       do i=1, nsh
         do j=1, i
           call ga_get (g_indx, i, i, j, j, indx, 1)
@@ -109,7 +112,7 @@ C                 first finish previous write
                 call ga_put (g_three, indx, indx+nij-1,  1, Nff, scr, 
      $               nij)
               endif
-              next = nxtval(nproc)
+              next = nxtask(nproc, 1)
             endif ! next
           endif ! sparsity
         enddo   ! j
@@ -129,7 +132,7 @@ C       finish last write
       endif
 #endif
 
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
 
       if ( util_print('3c-ints', print_never) ) then
 #ifdef RISCF_USE_DRA

@@ -102,6 +102,9 @@ c
       integer lists(0:7,14)
       integer nush_block, ush_block(2,nw_max_shells_small)
       integer nwsh_block, wsh_block(2,nw_max_shells_small)
+
+      integer nxtask
+      external nxtask
 c
 c     Someone has already made the addressing lists needed 
 c     here for the results, and in the C-term and B-term
@@ -258,7 +261,7 @@ c     Next four loops run in parallel.
 c
             vsh_blk_size = 2
             count = 0
-            next = nxtval(nproc)
+            next = nxtask(nproc, 1)
             do ush = ush_blk_lo, ush_blk_hi
                do wsh = wsh_blk_lo, wsh_blk_hi
                   do vsh_blk_lo = 1, sh_n_uq, vsh_blk_size
@@ -274,7 +277,7 @@ c
      $                          info about <vw|iu>,
      $                          addressing arrays, 
      $                          )
-                           next = nxtval(nproc)
+                           next = nxtask(nproc, 1)
                         end if
                         count = count + 1
                      end do
@@ -284,7 +287,7 @@ c
 c
 c     Barrier
 c
-            next = nxtval(-nproc)
+            next = nxtask(-nproc, 1)
             call ga_sync()
 c
 c     Data parallel transformation of v or w

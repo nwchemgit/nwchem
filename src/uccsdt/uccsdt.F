@@ -606,8 +606,8 @@ c
      $                  l_ibuf_acik, k_ibuf_acik
 c  
       logical oprint
-      integer nxtval, next, count, me, nproc
-      external nxtval
+      integer nxtask, next, count, me, nproc
+      external nxtask
 c     
       integer spin, spinck, k_t1(2), k_t, k_t_ck
       integer sym3, sym4, i, j, k, l, int_sym, t1_sym
@@ -682,7 +682,7 @@ c note t1 is still dummy memory
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
-      next = nxtval(nproc)
+      next = nxtask(nproc, 1)
       count = 0
 c     
       if (oprint) write(6,*)'TSB:spin, spinck: ', spin, spinck
@@ -1331,7 +1331,7 @@ c
      $                             spin, spinck, 
      $                             nw_max_nbf_small)
 c     
-                              next = nxtval(nproc)
+                              next = nxtask(nproc, 1)
                            endif
                            count = count + 1
                         end if
@@ -1346,7 +1346,7 @@ c
       if (.not. ma_chop_stack(l_tbuf)) call errquit('ma tbuf chop?',0,
      &       MA_ERR)
 c
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
       call ga_sync()
 c     
       call ga_dgop(1, energy, 1, '+')

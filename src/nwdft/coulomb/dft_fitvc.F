@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.39 2004-01-20 19:08:42 edo Exp $
+c     $Id: dft_fitvc.F,v 1.40 2004-09-07 06:11:45 windus Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -467,17 +467,17 @@ c     !!! Should modify this so that nothing is done if nmat > 1
 c     !!! Looks like g_2ceri not needed in that case
 c
       Ecoul2=0.D0
-      next=nxtval(nproc)+1
+      next=nxtask(nproc, 1)+1
       do i=1,nbf_cd
         if(i.eq.next) then
-          next=nxtval(nproc)+1
+          next=nxtask(nproc, 1)+1
           call get_col(g_2ceri,nbf_cd,i,DBL_MB(iscr))
           Ecoul2 = Ecoul2+ddot(
      *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i,1)
         endif
       enddo
 c     
-      next=nxtval(-nproc)
+      next=nxtask(-nproc, 1)
 c     
 
       Ecoul2=Ecoul2*0.5D0

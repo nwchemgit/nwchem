@@ -266,8 +266,8 @@ c
       integer shlist(2,nw_max_shells_small), nshblock, need
       double precision ga_need, ma_need
       logical ok
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       double precision q2, tol
       logical odoit, oskel
       parameter (tol = 1d-12, oskel = .true.)
@@ -370,7 +370,7 @@ c
 c     Next two loops in parallel with dynamic load balancing
 c
          count = 0
-         next = nxtval(nproc)
+         next = nxtask(nproc, 1)
          do ush = ushlo, ushhi
             do vsh = 1, ush     ! NOTE RESTRICTION VSH <= USH
                odoit = schwarz_shell(ush,vsh)*schwarz_max().gt.tol
@@ -465,7 +465,7 @@ c
                      if (.not. ma_pop_stack(l_wivu)) call errquit
      $                    ('moints_triples:popping wivu?', 0, MA_ERR)
 c     
-                     next = nxtval(nproc)
+                     next = nxtask(nproc, 1)
                   end if
                   count = count + 1
                end if
@@ -474,7 +474,7 @@ c
 c
 c     Barrier
 c
-         next = nxtval(-nproc)
+         next = nxtask(-nproc, 1)
          call ga_sync()
 c
 c     For all v, and u/a/b/c in their respective blocks we have

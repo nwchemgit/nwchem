@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.8 2003-10-17 22:58:25 carlfahl Exp $
+C$Id: sym_sym.F,v 1.9 2004-09-07 06:11:52 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -36,6 +36,8 @@ c
       logical status
 c
       integer next, ijcent, nproc
+      integer nxtask
+      external nxtask
 c
 *: ang_max used below
       if (.not. bas_high_angular(basis, ang_max))
@@ -108,7 +110,7 @@ c
 c
       nproc  = ga_nnodes()
       ijcent = 0
-      next   = nxtval(nproc)
+      next   = nxtask(nproc, 1)
       do icent = 1, ncent
          do jcent = 1, ncent
             if (next .eq. ijcent) then
@@ -123,13 +125,13 @@ c
      $              odensity, int_mb(k_ce_cnr), int_mb(k_ce_bfr),
      $              int_mb(k_cn_info), int_mb(k_cn_bfr))
 c
-               next = nxtval(nproc)
+               next = nxtask(nproc, 1)
             end if
             ijcent = ijcent + 1
          end do
       end do
 c
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
 c
       status = status .and. ma_pop_stack(l_r)
       status = status .and. ma_pop_stack(l_tmp)

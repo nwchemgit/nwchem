@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.8 2004-07-28 15:40:59 bert Exp $
+C     $Id: ccsd_input.F,v 2.9 2004-09-07 06:11:18 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -34,6 +34,7 @@ c     Remove previous entries so empty directive forces freeze nothing.
 c     To be consistent with the rest of the code, a new ccsd block
 c     should reset no the default of no freezing
 c
+      call nxtask_init(rtdb)
       key = ' '
       write(key,'(a,'':'',a)') 'ccsd','frozen core'
       call rtdb_clean(rtdb,key)

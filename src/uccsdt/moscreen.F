@@ -28,6 +28,8 @@ c
       integer nproc, count, next
       integer ga_type
       double precision tol
+      integer nxtask
+      external nxtask
       parameter (tol=1e-16)     ! Needs to be the square of required acc.
 c     
 c     Need high precision integrals since will take sqrt() of the result
@@ -75,7 +77,7 @@ c
       call moints_shell_block(basis, maxshblock, shlist, nshblock)
 c     
       nproc = ga_nnodes()
-      next = nxtval(nproc)
+      next = nxtask(nproc, 1)
       count = 0
       do ish = 1, nsh
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
@@ -137,13 +139,13 @@ c
                      end do
                   end do
                endif
-               next = nxtval(nproc)
+               next = nxtask(nproc, 1)
             end if
             count = count + 1
          end do
       end do
 c     
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
       call ga_sync()
 c     
       call ga_dgop(1, dbl_mb(k_tmp3), nmo*nmo, '+')

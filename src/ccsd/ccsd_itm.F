@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.11 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_itm.F,v 2.12 2004-09-07 06:11:18 windus Exp $
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
@@ -28,8 +28,8 @@ c
       integer inode,next
       Integer Nodes, IAm
 c
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
@@ -390,7 +390,7 @@ c
 c
       inode=-1
       call ga_sync
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
       do a=1,nvir
           do i=1,nocc
             ad1=(i-1)*nvir+a
@@ -400,12 +400,12 @@ c
             call dgemm('n','n',nvir,nocc,nocc,-1.0d00,scre,
      &                 nvir,giu,nocc,0.0d00,scrf,nvir)
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d00)
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
           endif
         enddo
       enddo
       call ga_sync
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
       call ga_sync
 c
       if (.not.ga_destroy(g_tmt2))
@@ -706,7 +706,7 @@ c
 c
       inode=-1
       call ga_sync
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
       do a=1,nvir
        do b=1,nvir
 c
@@ -716,14 +716,14 @@ c -- parallel task --
 c
          call ccsd_fsig1(a,b,nocc,nvir,nact,iprt,
      $                   t1,ht1,habe)
-         next=nxtval(nodes)
+         next=nxtask(nodes, 1)
         endif
 c -- end parallel task --
 c
        enddo
       enddo
       call ga_sync
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
       call ga_sync
 c
 c -- add some trivial terms to ht1 (nothing to ht2)

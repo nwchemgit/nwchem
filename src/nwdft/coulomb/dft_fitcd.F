@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.40 2004-01-20 19:08:42 edo Exp $
+* $Id: dft_fitcd.F,v 1.41 2004-09-07 06:11:45 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -496,17 +496,17 @@ c     Compute the Lagrange Multiplier, alpha.
 c     
       F(1) = 0.D0
       F(2) = 0.D0
-      next = nxtval(nproc)+1
+      next = nxtask(nproc, 1)+1
       do j = 1,nbf_cd
         if (j.eq.next) then
-          next = nxtval(nproc)+1
+          next = nxtask(nproc, 1)+1
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
           AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           F(1) = F(1)+AZ*DBL_MB(iTvec+j-1)
           F(2) = F(2)+AZ*DBL_MB(icgtf+j-1)
         endif
       enddo
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
 cedo      call ga_sync
       call ga_dgop(Msg_Lagrange,F,2,'+')
 cedo      call ga_sync
@@ -520,16 +520,16 @@ c     Initialize the CD_coef vector.
       
       call dfill(nbf_cd,0.D0,CD_coef,1)
 c
-      next = nxtval(nproc)+1
+      next = nxtask(nproc, 1)+1
       do j = 1,nbf_cd
         if (j.eq.next) then
-          next = nxtval(nproc) + 1
+          next = nxtask(nproc, 1) + 1
           AZ = DBL_MB(iTvec+j-1) + alpha*DBL_MB(icgtf+j-1)
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
           call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
         endif
       enddo
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
 cedo      call ga_sync
 #else
@@ -547,10 +547,10 @@ c
      &     call errquit('dft_fitcd: cannot allocate Tcgtf',0, MA_ERR)
       call dfill(nbf_cd,0.D0,dbl_mb(iTcgtf),1)
 c
-      next = nxtval(nproc)+1
+      next = nxtask(nproc, 1)+1
       do j = 1,nbf_cd
         if (j.eq.next) then
-          next = nxtval(nproc)+1
+          next = nxtask(nproc, 1)+1
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
           AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           dbl_mb(iTcgtf+j-1) = dbl_mb(iTcgtf+j-1) + AZ
@@ -561,7 +561,7 @@ c
           enddo
         endif
       enddo
-      next = nxtval(-nproc)
+      next = nxtask(-nproc, 1)
 cedo      call ga_sync
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
 c!!! What Msg should be here? !!!

@@ -1,7 +1,7 @@
       subroutine riscf_square (ao_basis, g_three, g_sthree, three, 
      $     sthree, g_indx, indx, t, nt, nbf, nsh, mxbf, nproc, odisk)
 
-C$Id: riscf_square.F,v 1.3 1996-02-07 00:41:30 vg038 Exp $
+C$Id: riscf_square.F,v 1.4 2004-09-07 06:11:22 windus Exp $
 
 C     get integrals from compressed array g_three and blow up to square matrix
 C     g_sthree (both GAs)
@@ -29,9 +29,12 @@ C     read operation, else all of them
 
       logical status
 
+      integer nxtask
+      external nxtask
+
       parameter (zero=0.0D0)
 
-      next = nxtval(nproc)
+      next = nxtask(nproc,1)
       ic = 0
 
       do in = 1, nt
@@ -113,12 +116,12 @@ C             use three for transpose of sthree
      $             1, jlast, three, ni)
             endif 
 
-            next = nxtval(nproc)
+            next = nxtask(nproc,1)
           endif ! next
           ic = ic + 1
         enddo   ! nsh
       enddo     ! nt
-      next = nxtval(-nproc)
+      next = nxtask(-nproc,1)
 
       return
       end

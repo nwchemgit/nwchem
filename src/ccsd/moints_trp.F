@@ -33,7 +33,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.16 2003-10-17 22:54:25 carlfahl Exp $
+c  $Id: moints_trp.F,v 2.17 2004-09-07 06:11:18 windus Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -107,8 +107,8 @@ c
 *       double precision d1, d2
        logical status, osym, odoit, oblk, st
 c
-       integer moints_numgr, gr_len, nxtval
-       external moints_numgr, gr_len, nxtval
+       integer moints_numgr, gr_len, nxtask
+       external moints_numgr, gr_len, nxtask
 c
        double precision half
        data half/0.5d00/
@@ -222,7 +222,7 @@ c
 
        ploop = 0
        call ga_sync
-       next = nxtval(num_nodes)
+       next = nxtask(num_nodes, 1)
 c
 c  4-fold shell loop
 c
@@ -388,14 +388,14 @@ c
                if (.not. ma_pop_stack(l_hlp))
      $              call errquit('moints: failed to pop', l_hlp,
      &       MA_ERR)
-               next = nxtval(num_nodes)
+               next = nxtask(num_nodes, 1)
              endif
              ploop = ploop + 1
            endif
          enddo
        enddo
        call ga_sync
-       next = nxtval(-num_nodes)
+       next = nxtask(-num_nodes, 1)
        call ga_sync
 
 *       d1 = ga_ddot(g_coul,g_coul)

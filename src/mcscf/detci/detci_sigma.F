@@ -10,7 +10,7 @@ c
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
 *
-* $Id: detci_sigma.F,v 1.18 2003-10-17 22:55:23 carlfahl Exp $
+* $Id: detci_sigma.F,v 1.19 2004-09-07 06:11:38 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -263,8 +263,8 @@ c
 *      double precision tsync, tx
       integer k_ci, l_ci, k_sig, l_sig
       logical oreplicated
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c
 c  If enuf memory is available simply replicate the CI vector
 c  and accumulate into local sigmas, ending with global sum.
@@ -313,7 +313,7 @@ c            t
 c      E  = a a
 c       kl   k l
 c
-      next = nxtval(numnodes)
+      next = nxtask(numnodes, 1)
       do ak=1,norb
         do al=1,norb
           shi = 0
@@ -424,13 +424,13 @@ c
 c
 c End parallel task
 c
-              next = nxtval(numnodes)
+              next = nxtask(numnodes, 1)
             endif
           enddo
         enddo
       enddo
 *      tx = util_cpusec()
-      next = nxtval(-numnodes)
+      next = nxtask(-numnodes, 1)
 *      tsync = util_cpusec() - tx
 c
       if (oreplicated) then

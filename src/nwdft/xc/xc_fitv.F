@@ -1,7 +1,7 @@
       Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
      $                    g_oep,IOLGC)                          ! Qin
 c
-C$Id: xc_fitv.F,v 1.19 2004-01-20 19:08:43 edo Exp $
+C$Id: xc_fitv.F,v 1.20 2004-09-07 06:11:49 windus Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -62,8 +62,8 @@ c           nTcols = ipol + nExc
 c
 c
 c Qin
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
+      integer  ga_create_atom_blocked, nxtask
+      external ga_create_atom_blocked, nxtask
       integer  g_oep(nbf_xc)             ! Qin
       integer ngoep       ! Qin
       integer me, nproc, MXnshbf_ao, MXnshbf_XC
@@ -125,13 +125,13 @@ c
       endif
       call ga_sync
 c
-      next=nxtval(nproc)+1
+      next=nxtask(nproc, 1)+1
 c
       if(ioep.eq.1) goto 111  ! Qin
 c
       do k=1,nbf_xc
          if (k.eq.next) then
-            next=nxtval(nproc)+1
+            next=nxtask(nproc, 1)+1
 c            call ga_get(g_xcinv, 1, nbf_xc, k, k, Dbl_MB(iscr), 1)
             call get_col(g_xcinv,nbf_xc,k,Dbl_MB(iscr))
             istart=ixc_coef
@@ -148,7 +148,7 @@ c
       if (.not.ma_pop_stack(lscr))
      &   call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
-      next=nxtval(-nproc)
+      next=nxtask(-nproc, 1)
 c
       call ga_dgop(Msg_XC_Coef, DBL_MB(ixc_coef), ndbl, '+')
 c
@@ -199,7 +199,7 @@ c     Compute 3-ctr OIs between a given pair of AO shells and a set of XC shells
 c     
       call ga_sync
 c
-      n1 = nxtval(nproc)
+      n1 = nxtask(nproc, 1)
       n2 = 0
 c
       do 240 ishb = 1, nshells_ao
@@ -302,7 +302,7 @@ c
      &                 dbl_mb(ivec2),'acc')
   220          continue
 c              
-               n1 = nxtval(nproc)
+               n1 = nxtask(nproc, 1)
 c              
             endif
 c            
@@ -327,7 +327,7 @@ c
       if(.not.ma_pop_stack(lxc_coef))
      &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
-      n1 = nxtval(-nproc)
+      n1 = nxtask(-nproc, 1)
 c
       return
       end

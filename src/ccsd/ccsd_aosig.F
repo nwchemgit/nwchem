@@ -4,7 +4,7 @@
      &                      g_tz2)
       implicit none
 #include "errquit.fh"
-C     $Id: ccsd_aosig.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_aosig.F,v 2.8 2004-09-07 06:11:18 windus Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
@@ -16,8 +16,8 @@ C     $Id: ccsd_aosig.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       double precision tol2e,eri1(max2e),scre(mem2),schwarz1,
      &                 eri2(max2e),schwarz2
       integer g_nt2,g_nz2,g_nhz2,g_tz1,g_tz2,g_tmp,g_tmp2,g_tmp3,g_tmp4
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -157,7 +157,7 @@ c
       call ga_zero(g_tmp4)
       nodes=ga_nnodes()
       call ga_sync()
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
       icnt=-1
       call dfill(nbf*nbf,0.0d00,hzao,1)
       do ish=1,nsh
@@ -200,13 +200,13 @@ c // parallel task here
      &                       g_tmp,g_tmp2,g_tmp3,g_tmp4)
               enddo
             enddo
-          next=nxtval(nodes)
+          next=nxtask(nodes, 1)
           endif
         enddo
       enddo
 c
       call ga_sync()
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
       call ga_sync
       call ga_dgop(910,hzao,nbf*nbf, '+')
 c

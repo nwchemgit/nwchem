@@ -1,5 +1,5 @@
 *
-* $Id: moints_aodisk.F,v 1.22 2003-10-17 22:55:26 carlfahl Exp $
+* $Id: moints_aodisk.F,v 1.23 2004-09-07 06:11:41 windus Exp $
 *
 c
 c  Set of routines to cache AO integrals for the 4-index
@@ -23,7 +23,7 @@ c  Since exclusive-access files are used, the same subset of
 c  AO integrals that was initially generated on a processor 
 c  will be retrieved in subsequent passes. Thus, the task scheduling 
 c  from the initial run must be emulated.
-c  Use a wrapper around nxtval() and record the task number on
+c  Use a wrapper around nxtask() and record the task number on
 c  each disk record.
 c
 c
@@ -46,7 +46,7 @@ c
 
 
 c
-c  Wrapper around nxtval so we can save task numbers
+c  Wrapper around nxtask so we can save task numbers
 c  with the IO records and emulate task scheduling
 c  when retrieved
 c
@@ -56,12 +56,14 @@ c
 #include "global.fh"
 #include "cmointsmoao.fh"
       integer numnodes
+      integer nxtask
+      external nxtask
       
       if (moao_ipass.gt.0) then
         moints_nxttask = moao_tasknum
         if (numnodes.lt.0) call ga_sync()
       else
-        moints_nxttask = nxtval( numnodes )
+        moints_nxttask = nxtask( numnodes, 1 )
         if (moao_ipass.eq.0) then
           moao_tasknum = moints_nxttask
         endif

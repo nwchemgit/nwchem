@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.60 2004-05-20 02:22:53 edo Exp $
+c  $Id: moints_semi.F,v 1.61 2004-09-07 06:11:41 windus Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -385,8 +385,8 @@ c$$$       integer l_ssbbt, k_ssbbt
 c
 #include "moints_stats.fh"
 c       
-       integer gr_len
-       external gr_len
+       integer gr_len, nxtask
+       external gr_len, nxtask
 c
        call ga_zero(g_kbuf)
        num_nodes = ga_nnodes()
@@ -446,7 +446,7 @@ c
        iiofl = 1
        jopass = 1
        iocnt = ma_sizeof(MT_INT,10+nnbf,MT_BYTE)
-       next = nxtval(num_nodes)
+       next = nxtask(num_nodes, 1)
        nwrbytes = 0.d0
        tpass = util_cpusec()
 c
@@ -615,7 +615,7 @@ c
                mi_maxtask = max(mi_maxtask,ttask)
                mi_aggtask = mi_aggtask + ttask
 c
-               next = nxtval(num_nodes)
+               next = nxtask(num_nodes, 1)
 c
 c  End parallel task
 c  -----------------
@@ -646,7 +646,7 @@ c
        enddo
        t0 = util_cpusec()
        call ga_sync
-       next = nxtval(-num_nodes)
+       next = nxtask(-num_nodes, 1)
        t1 = util_cpusec() - t0
        mi_nsynchs = mi_nsynchs + 1
        call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)

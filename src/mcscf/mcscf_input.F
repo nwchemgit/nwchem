@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.10 2003-10-17 22:55:21 carlfahl Exp $
+c $Id: mcscf_input.F,v 1.11 2004-09-07 06:11:34 windus Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -40,6 +40,7 @@ c
 c
 c     Any input causes convergence flag to be deleted
 c
+      call nxtask_init(rtdb)
       status = rtdb_delete(rtdb, 'mcscf:converged')
 c
 c

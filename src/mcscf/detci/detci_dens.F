@@ -2,7 +2,7 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F,v 1.12 2003-10-17 22:55:23 carlfahl Exp $
+* $Id: detci_dens.F,v 1.13 2004-09-07 06:11:38 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -423,8 +423,8 @@ c
       integer ploop, numnodes, next, myid, nn
       double precision phase, xx, dummy(1)
       double precision tx
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c      
 c
 c   Initialize parallel stuff
@@ -441,7 +441,7 @@ c
       ploop = -1
       numnodes = ga_nnodes()
       myid = ga_nodeid()
-      next = nxtval(numnodes)
+      next = nxtask(numnodes, 1)
 c
 c   Parallel loop over all alpha excitation operators
 c
@@ -540,11 +540,11 @@ c
 c
 c   End parallel task
 c
-            next = nxtval(numnodes)
+            next = nxtask(numnodes, 1)
           endif
         enddo
       enddo
-      next = nxtval(-numnodes)
+      next = nxtask(-numnodes, 1)
 c
 c   Cleanup
 c

@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.16 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_t2pm.F,v 2.17 2004-09-07 06:11:18 windus Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -17,8 +17,8 @@ c
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
      &        x,y,xy,ymax,nfi,nfj,ipp,imm,ii,jj,iijj,
      &        jjii,i,j,k,l,ad1,ad2,ad3,iam,lnoo,a,b
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
 c
       call qenter('ht2pm',0)
 c
@@ -301,6 +301,8 @@ c
       integer ad1,ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,next,
      &        icnt,nfi,nfk,lnijkl,offjl,offlj,lnoo,nfj,nfl,nodes,iam
       double precision schwarz1,schwarz2
+      integer nxtask
+      external nxtask
 c
       call qenter('sxy',0)
 c
@@ -347,7 +349,7 @@ c
       call ga_zero(g_sht2)
       call ga_zero(g_c)
       call ga_sync
-      next=nxtval(nodes)
+      next=nxtask(nodes, 1)
       do icnt=0,nsh*(nsh+1)/2-1
 c // parallel task here
           if (icnt.eq.next)then
@@ -409,12 +411,12 @@ c
             call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
      &                     offjl,offlj,g_x,g_c)
-            next=nxtval(nodes)
+            next=nxtask(nodes, 1)
           endif
 c // end parallel task
 c
       enddo
-      next=nxtval(-nodes)
+      next=nxtask(-nodes, 1)
 c sync before 3 and 4 index transformation
       call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
      &                g_x,g_c)
