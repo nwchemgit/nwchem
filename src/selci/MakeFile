@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.8 2003-04-08 00:05:28 windus Exp $	
+#	$Id: MakeFile,v 1.9 2003-04-08 00:10:03 windus Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -79,7 +79,7 @@ CIOBJ =        $(OBJDIR)\conf.obj \
                $(OBJDIR)\ointer.obj \
                $(OBJDIR)\oeq.obj
 
-SELOBJ =       $(OBJDIR)\select.obj \
+SELOBJ =       $(OBJDIR)\selci_select.obj \
                $(OBJDIR)\selci.obj \
                $(OBJDIR)\ptidy.obj \
                $(OBJDIR)\anal.obj \

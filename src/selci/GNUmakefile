@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.27 2003-04-08 00:05:28 windus Exp $
+# $Id: GNUmakefile,v 1.28 2003-04-08 00:10:03 windus Exp $
 #
 
 
@@ -32,7 +32,7 @@ gtijkl.o	eijkj.o		makhdb.o	eijil.o         mknsneed.o \
 eijkl.o		putinb.o	inicij.o	ointer.o	oeq.o 
 
 SELOBJ = \
-select.o        selci.o         ptidy.o         anal.o          mkindx.o \
+selci_select.o        selci.o         ptidy.o         anal.o          mkindx.o \
 slect.o         tester.o        mkdele.o        mkvc.o          e0mp2.o \
 mpdele.o	stool.o 	restk.o		restin.o        orbanal.o \
 selci_hpp.o
