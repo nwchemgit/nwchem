@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.1 1994-06-08 22:39:41 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.2 1994-08-05 19:39:13 d3e129 Exp $
       implicit none
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
@@ -99,7 +99,7 @@ c
 c
       if (igeom.ne.jgeom) then
         write(6,*)'intd_1eov.F: two different geometries for',
-     &         ' derivatives??'
+     &         ' derivatives?'
         call errquit('intd_1eov: geom error ',911)
       endif
 c

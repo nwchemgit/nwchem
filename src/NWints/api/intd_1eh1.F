@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.2 1994-06-09 09:08:42 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.3 1994-08-05 19:39:12 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -134,7 +134,7 @@ c
 c
       if (igeom.ne.jgeom) then
         write(6,*)'intd_1eh1P.F: two different geometries for',
-     &         ' derivatives??'
+     &         ' derivatives?'
         call errquit('intd_1eh1P: geom error ',911)
       endif
 c

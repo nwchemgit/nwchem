@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.10 1994-06-23 00:17:17 vg038 Exp $
+c $Id: exact_mem.F,v 1.11 1994-08-05 19:39:11 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -53,7 +53,7 @@ c
 c
 c... now do loops for 3 center overlap integrals
 c
-c... add control mechanism for 3ov??
+c... add control mechanism for 3ov?
 c
       isz_3ov = 0
       mem_3ov = 0

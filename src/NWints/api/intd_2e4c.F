@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.2 1994-06-09 09:08:44 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.3 1994-08-05 19:39:14 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -108,7 +108,7 @@ c
       cd_geom = ibs_geom(ket)
       if (ab_geom.ne.cd_geom) then
         write(6,*)'intd_2e4c.F: two different geometries for',
-     &         ' derivatives??'
+     &         ' derivatives?'
         call errquit('intd_1eov: geom error ',911)
       endif
       
