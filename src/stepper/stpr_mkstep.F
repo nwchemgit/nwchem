@@ -1,9 +1,9 @@
       SUBROUTINE stpr_mkstep(
      &       HIEIGS,GISR,VC,STEP,SELECT,SCRVEC,ATMASS,
-     &       ENERGY, CONVGE, CONVGG,
+     &       ENERGY, CONVGE, CONVGG, CONVGGM, GRAD_MAX,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD,rtdb)
-c $Id: stpr_mkstep.F,v 1.6 1998-03-13 01:28:16 d3g681 Exp $
+c $Id: stpr_mkstep.F,v 1.7 1998-04-21 06:57:28 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
@@ -52,6 +52,10 @@ C
    10 CONTINUE
       GLNGTH = SQRT(GLNGTH)
 C
+C     gradient maximum
+C
+      GMXMUM = GRAD_MAX
+C
 C     Count the number of negative eigenvalues.
 C
       NNEG = 0
@@ -64,10 +68,11 @@ C
 C     Check whether convergence has been reached.
 C     Also set any TRUST info.
 C
-      CALL stpr_cheker(ENERGY,EOLD,E2OLD,EDIFF,GLNGTH,ERATIO,
-     &            CONVGE, CONVGG,
-     &            TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
-     &            BCKSTP,CNVGRD)
+      CALL stpr_cheker(ENERGY,EOLD,E2OLD,EDIFF,
+     &                 GMXMUM,GLNGTH,ERATIO,
+     &                 CONVGE, CONVGG, CONVGGM,
+     &                 TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
+     &                 BCKSTP,CNVGRD)
 C
 C     Make the steepest descent step if appropriate
 C
@@ -394,7 +399,7 @@ c
 C
 C     Put step parameters to save common and write them to tape 41.
 C
-      CALL stpr_putp(GLNGTH,SLNGTH,EOLD,ENERGY,
+      CALL stpr_putp(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &           E2NEW,NWALK,NNEG)
       RETURN

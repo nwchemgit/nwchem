@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.32 1998-01-09 15:25:38 d3e129 Exp $
+c     $Id: stpr_walk.F,v 1.33 1998-04-21 06:57:32 mdupuis Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -37,7 +37,7 @@ c
       logical o_timewalk, okeepgeom
       logical status
       logical lstpr_walk
-      double precision convgg, convge
+      double precision convggm, convgg, convge
 #include "cstprfiles.fh"
       integer first_call, step_number, astep_number
       data first_call /0/
@@ -139,14 +139,15 @@ c.....get coordinates
 c     
 c...  take a step
 c     
-         convgg = 1.0d-04
-         convge = 1.0d-07
+         convggm= 8.0d-04
+         convgg = 1.0d-02
+         convge = 1.0d-04
          call stpr_stepper(
      &        dbl_mb(k_core),
      &        needed,
      &        dbl_mb(k_grad),
      &        dbl_mb(k_coord),
-     &        energy,nat,convge,convgg,lstpr_walk,
+     &        energy,nat,convge,convgg,convggm,lstpr_walk,
      &        rtdb,step_number)
 c.....set coordinates
          if (.not. geom_cart_set(geom,nat,

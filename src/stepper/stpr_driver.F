@@ -4,9 +4,9 @@
      &       CHARGE, SELECT, SCRSYM, SCRSQ,
      &       VECSQ, ATMASS, P, HMP,
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
-     &       CONVGE, CONVGG,
+     &       CONVGE, CONVGG, CONVGGM,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
-c $Id: stpr_driver.F,v 1.10 1998-03-13 01:28:15 d3g681 Exp $
+c $Id: stpr_driver.F,v 1.11 1998-04-21 06:57:26 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -66,7 +66,7 @@ C
      $     HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
      &            SCRSQ, VECSQ, STEP, SELECT, P, HMP,
      &            ATMASS, CMASS, TENIN, ENERGY,
-     &            CONVGE, CONVGG,
+     &            CONVGE, CONVGG, CONVGGM,
      &            NINTER, NMODE, RPATH, TRACK, BCKSTP)
 *      write(6,*)' step after partit '
 *      do jjjj = 1,nat3
@@ -74,7 +74,7 @@ C
 *      enddo
       IF(NINTER.NE.0)THEN
         CALL stpr_mkstep(HIEIGS,GISR,VC,STEP,SELECT,SCRSQ,ATMASS,ENERGY,
-     &              CONVGE, CONVGG,
+     &              CONVGE, CONVGG, CONVGGM, GRAD_MAX,
      &              E2NEW,NINTER,NAT3,NMODE,TRUST,BCKSTP,CNVGRD,
      &              rtdb)
 *      write(6,*)' step after mkstep '
@@ -86,7 +86,8 @@ C
        WRITE(6,*)'  ENERGY = ',ENERGY
       ENDIF
       IF (.NOT.CNVGRD) THEN
-        CALL stpr_output(STEP,COORD,BCKSTP, grad_max)
+        CALL stpr_output(STEP,COORD,BCKSTP, grad_max,
+     &                   CONVGGM, CONVGG, CONVGE )
       ELSE
 c
 c     Write out useful hessian info:

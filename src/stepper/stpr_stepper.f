@@ -1,6 +1,7 @@
-      SUBROUTINE stpr_stepper(A,ILEFT,G,C,ETOT,NATD,CONVGE,CONVGG,
+      SUBROUTINE stpr_stepper(A,ILEFT,G,C,ETOT,NATD,
+     &    CONVGE,CONVGG,CONVGGM,
      &    converged, rtdb, step_number)
-c $Id: stpr_stepper.f,v 1.4 1995-03-31 01:45:42 d3g681 Exp $
+c $Id: stpr_stepper.f,v 1.5 1998-04-21 06:57:31 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb
       integer step_number
@@ -20,8 +21,8 @@ C
      *         ' MORE WORDS!'
         stop
       ELSE
-        CALL stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,converged,
-     &      rtdb, step_number)
+        CALL stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,CONVGGM,
+     &      converged,rtdb, step_number)
       ENDIF
       RETURN
       END

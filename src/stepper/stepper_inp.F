@@ -1,5 +1,5 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.3 1997-02-25 23:24:22 d3e129 Exp $
+C $Id: stepper_inp.F,v 1.4 1998-04-21 06:57:24 mdupuis Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -33,8 +33,9 @@ c  [rconvg real] convergence for reaction path
 c  [setmass 
 c   int,real (number of atoms [maximum]) 
 c   endsetmass]  atomic number and atomic mass
-c  [convgg real] gradient convergence tolerance
-c  [convge real] energy convergence tolerance
+c  [convggm real] maximum gradient convergence tolerance
+c  [convgg  real] gradient norme convergence tolerance
+c  [convge  real] energy convergence tolerance
 c  [maxiter int] maximun number of geometry steps
 c  [fdat]  generate finite difference hessian at current 
 c          geometry using fd basis
@@ -54,7 +55,7 @@ c::local
       integer hsel, ksel, hm, km, him, kim
       integer nmode, nat, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
-      double precision convgg, convge
+      double precision convggm, convgg, convge
       character*255 stpr_token
 c
       if (nodeid() .ne. 0) return
@@ -78,7 +79,7 @@ c set defaults
 c
       call stpr_set_defaults(omin,ts,std,trot,trtr,mwc,seco,swfir,
      &    swsec,rstd,trustc,trustm,trust,nmode,track,rpath,rconvg,
-     &    setm,convgg,convge, maxiter)
+     &    setm,convggm,convgg,convge, maxiter)
 c
  1    continue
       if( inp_cur_field() .lt. inp_n_field() ) then
@@ -199,6 +200,10 @@ c
         if(.not.MA_Pop_Stack(him))
      &      call errquit
      &      ('stepper_input: error freeing int setmass',911)
+      else if(inp_compare(FF,'convggm',stpr_token)) then
+        if(.not.inp_f(convggm))
+     &      call errquit
+     &      ('stepper_input: error parsing value of convggm',911)
       else if(inp_compare(FF,'convgg',stpr_token)) then
         if(.not.inp_f(convgg))
      &      call errquit
@@ -217,7 +222,7 @@ c
 c
       call stpr_store_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
-     &    trustc, trustm, trust, convgg, convge,maxiter)
+     &    trustc, trustm, trust, convggm, convgg, convge,maxiter)
 c
       return
       end

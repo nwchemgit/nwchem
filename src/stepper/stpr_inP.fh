@@ -1,7 +1,7 @@
 c
       integer ns_log, ns_int, ns_dbl
-C$Id: stpr_inP.fh,v 1.3 1995-02-02 23:23:03 d3g681 Exp $
+C$Id: stpr_inP.fh,v 1.4 1998-04-21 06:57:28 mdupuis Exp $
       parameter (ns_log  = 14)
       parameter (ns_int  = 2)
-      parameter (ns_dbl  = 7)
+      parameter (ns_dbl  = 8)
 c

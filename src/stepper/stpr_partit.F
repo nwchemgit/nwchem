@@ -2,9 +2,9 @@
      &       HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
      &       SCRSQ, VECSQ, STEP, SELECT, P, HMP,
      &       ATMASS, CMASS, TENIN, ENERGY,
-     &       CONVGE, CONVGG,
+     &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.7 1998-03-13 01:28:16 d3g681 Exp $
+c $Id: stpr_partit.F,v 1.8 1998-04-21 06:57:29 mdupuis Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -423,8 +423,10 @@ C
 C     Form the internal gradient in the spectral representation.
 C
       GLNGTH = 0.0D0
+      GMXMUM = 0.0D0
       DO 320 I = 1,NINTER
         GLNGTH = GLNGTH + GRAD(I)**2
+        IF(ABS(GRAD(I)).GT.GMXMUM) GMXMUM=ABS(GRAD(I))
         GISR(I) = 0.0D0
         DO 310 J = 1,NINTER
           GISR(I) = GISR(I) + SCRSQ(J,I)*GRAD(J)

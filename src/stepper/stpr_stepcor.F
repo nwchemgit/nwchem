@@ -1,11 +1,13 @@
-      SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,
+      SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,
+     &    CONVGE,CONVGG,CONVGGM,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.5 1996-07-17 16:36:49 d3g681 Exp $
+c $Id: stpr_stepcor.F,v 1.6 1998-04-21 06:57:31 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "cstprfiles.fh"
       integer rtdb
       integer step_number
+      logical dbug
       LOGICAL TRACK,RPATH,BCKSTP,CNVGRD
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -20,6 +22,8 @@ c $Id: stpr_stepcor.F,v 1.5 1996-07-17 16:36:49 d3g681 Exp $
       DIMENSION C(3,NATD)
       DIMENSION A(INEED)
       DIMENSION IPT(25)
+C
+      dbug=.false.
 C
 C     Open input/output files.
 C
@@ -79,13 +83,19 @@ C     Get user input: TRUST,NMODE,TRACK,
 C     SELECT, RPATH, STD, etc, and equivalence data coming
 C     in from NWCHEM to data locations required by STEPPER.
 C
-*      grad_max = dabsmax(natd*3,g)
-*      write(6,*)' grad max in stepcor ',grad_max
+      if(dbug) then
+         grad_max = dabsmax(natd*3,g)
+         write(6,*)' grad max in stepcor ',grad_max
+      endif
       CALL stpr_face
      &       ( A(IPT( 1)), A(IPT( 2)), A(IPT( 5)), A(IPT( 9)),
      &       A(IPT(11)), A(IPT(15)), A(IPT(16)),
-     &       G, C, ETOT, TRUST, ENERGY, CONVGE, CONVGG,
+     &       G, C, ETOT, TRUST, ENERGY, CONVGE, CONVGG, CONVGGM,
      &       NATD, NMODE, TRACK, BCKSTP, RPATH , rtdb, step_number)
+      if(dbug) then
+         grad_max = dabsmax(natd*3,g)
+         write(6,*)' grad max in stepcor ',grad_max
+      endif
 C
 C     If analytical hessian is unavailable form update hessian.
 C
@@ -103,7 +113,7 @@ C
      &       A(IPT( 9)), A(IPT(10)), A(IPT(11)), A(IPT(12)),
      &       A(IPT(13)), A(IPT(14)), A(IPT(16)), A(IPT(17)),
      &       A(IPT(18)), A(IPT(19)), ENERGY, E2NEW, TRUST,
-     &       CONVGE, CONVGG,
+     &       CONVGE, CONVGG, CONVGGM,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
 C
 C     Switch between first and second derivatives.

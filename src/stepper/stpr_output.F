@@ -1,5 +1,6 @@
-      SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad)
-c     $Id: stpr_output.F,v 1.9 1998-01-09 15:25:37 d3e129 Exp $
+      SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad,
+     &                       convggm, convgg, convge )
+c     $Id: stpr_output.F,v 1.10 1998-04-21 06:57:29 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "mafdecls.fh"
@@ -9,12 +10,13 @@ c     $Id: stpr_output.F,v 1.9 1998-01-09 15:25:37 d3e129 Exp $
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / SWITCH / SECO, SWSEC, SWFIR
       double precision mxgrad, grad_max, grad_norm, stepmax, stepnorm
+      double precision convggm, convgg, convge
       DIMENSION STEP(NAT3),
      &     COORD(3,NATOM)
 c
       oprint_info = util_print('information',print_default)
 c
-      CALL stpr_getp(GLNGTH,SLNGTH,EOLD,ENERGY,
+      CALL stpr_getp(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &     EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &     E2NEW,NWALK,NNEG)
 c
@@ -44,7 +46,7 @@ C       initial geometry
          WRITE(6,1000)iwctr
          WRITE(6,1006)EOLD
          WRITE(6,1007)ENERGY
-         WRITE(6,1008)EDIFF
+         WRITE(6,1008)EDIFF,CONVGE 
          WRITE(6,1009)E2OLD
          WRITE(6,1010)ERATIO
          IF(BCKSTP)THEN
@@ -53,8 +55,8 @@ C       initial geometry
             WRITE(6,1011)TRUSTO
          ENDIF
          WRITE(6,1001)NNEG
-         write(6,1032)mxgrad
-         WRITE(6,1002)GLNGTH
+         write(6,1032)mxgrad,convggm
+         WRITE(6,1002)GLNGTH,convgg
       endif
       GLNGTH = GLNGTH/SQRT(DBLE(NATOM))
       if (oprint_info) then
@@ -87,15 +89,18 @@ C
       RETURN
  1000 FORMAT('         Walk statistics for step: ',I3)
  1001 FORMAT('   Number of negative eigenvalues: ',I3)
- 1002 FORMAT('                    Gradient norm: ',D20.12)
+ 1002 FORMAT('                    Gradient norm: ',D20.12,
+     &       ' threshold: ',d20.6)
  1022 FORMAT('                RMS Gradient norm: ',D20.12)
- 1032 FORMAT('   Max absolute value of Gradient: ',D20.12)
+ 1032 FORMAT('   Max absolute value of Gradient: ',D20.12,
+     &       ' threshold: ',d20.6)
  1003 FORMAT('                  Value of lambda: ',D20.12)
  1004 FORMAT('          Value of scale factor A: ',D20.12)
  1005 FORMAT('  Largest component of step v-tor: ',D20.12)
  1006 FORMAT('     Previous actual total energy: ',D20.12)
  1007 FORMAT('      Current actual total energy: ',D20.12)
- 1008 FORMAT('         Actual energy difference: ',D20.12)
+ 1008 FORMAT('         Actual energy difference: ',D20.12,
+     &       ' threshold: ',d20.6)
  1009 FORMAT('    Second order energy predicted: ',D20.12)
  1010 FORMAT('             Ratio of differences: ',D20.12)
  1011 FORMAT('               Fixed trust radius: ',D20.12)

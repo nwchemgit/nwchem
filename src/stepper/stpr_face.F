@@ -13,11 +13,12 @@ c
       end
       SUBROUTINE stpr_face (
      &     HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
-     &     AMS, G, C, ETOT, TRUST, ENERGY, CONVGE,
-     &     CONVGG, NATD, NMODE,
+     &     AMS, G, C, ETOT, TRUST, 
+     &     ENERGY, CONVGE, CONVGG, CONVGGM, 
+     &     NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.13 1997-05-14 01:16:06 d3g681 Exp $
+c     $Id: stpr_face.F,v 1.14 1998-04-21 06:57:27 mdupuis Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
@@ -69,17 +70,18 @@ C
       osetmass = .false.
       call stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,SWFIR,
      &     SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,RCONVG,
-     &     SETM,convgg,convge,maxiter)
+     &     SETM,convggm,convgg,convge,maxiter)
       call stpr_load_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco, swfir,
      &     swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg,rstd,
-     &     trustc, trustm, trust, convgg, convge, maxiter)
+     &     trustc, trustm, trust, convggm, convgg, convge, maxiter)
 c     
       if (oselect) then
          call stpr_select_grtdb(natom,rtdb,select)
       endif
 c     
-      if(convgg.eq.0.0d0)CONVGG=1.0D-4
-      if(convge.eq.0.0d0)CONVGE=1.0D-8
+      if(convggm.eq.0.0d0) CONVGGM=8.0D-4
+      if(convgg .eq.0.0d0) CONVGG =1.0D-2
+      if(convge .eq.0.0d0) CONVGE =1.0D-4
       AMUAU = (1.6605656D0/9.109534D0)*1.0D+04
       if (osetmass) then
          write(6,*)'  atomic number and masses read '
@@ -383,14 +385,14 @@ C
       END
       subroutine stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,
      &    SWFIR,SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,
-     &    RCONVG,SETM,CONVGG,CONVGE,maxiter)
+     &    RCONVG,SETM,CONVGGM,CONVGG,CONVGE,maxiter)
 c
       implicit none
       logical omin, ts, std, trot, trtr, mwc, seco, swfir, swsec
       logical track, rpath, setm
       integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
-      double precision convgg, convge
+      double precision convggm, convgg, convge
 c
       OMIN = .TRUE.
       TS = .FALSE.
@@ -413,6 +415,7 @@ c
       TRUSTC = 0.1D+00
       TRUSTM = 5.0D+00
       TRUST  = 0.0D+00
+      convggm= 0.0d+00
       convgg = 0.0d+00
       convge = 0.0d+00
 c
@@ -475,7 +478,7 @@ c
       subroutine stpr_store_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,
      &    swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
-     &    trustc, trustm, trust, convgg, convge, maxiter)
+     &    trustc, trustm, trust, convggm, convgg, convge, maxiter)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -487,7 +490,7 @@ c::passed
       logical rpath, setm, oselect, osetmass
       integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
-      double precision convgg, convge
+      double precision convggm, convgg, convge
 c::local
       integer hlog,klog,    hdbl,kdbl,  hint, kint
 c
@@ -529,6 +532,7 @@ c
       dbl_mb((kdbl +  4)) = trust
       dbl_mb((kdbl +  5)) = convgg
       dbl_mb((kdbl +  6)) = convge
+      dbl_mb((kdbl +  7)) = convggm
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
@@ -575,7 +579,7 @@ c
       subroutine stpr_load_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,
      &    swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
-     &    trustc, trustm, trust, convgg, convge, maxiter)
+     &    trustc, trustm, trust, convggm, convgg, convge, maxiter)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -587,7 +591,7 @@ c::passed
       logical rpath, setm, oselect, osetmass
       integer nmode, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
-      double precision convgg, convge
+      double precision convggm, convgg, convge
 c::local
       logical status
       integer hlog,klog,    hdbl,kdbl
@@ -670,6 +674,7 @@ c
       trust  = dbl_mb((kdbl +  4)) 
       convgg = dbl_mb((kdbl +  5)) 
       convge = dbl_mb((kdbl +  6)) 
+      convggm= dbl_mb((kdbl +  7)) 
 c
 c.... free heap memory
         if(.not.MA_free_heap(hdbl))

@@ -1,14 +1,16 @@
       SUBROUTINE stpr_cheker(
-     &       ENERGY,EOLD,E2OLD,EDIFF,GLNGTH,ERATIO,
-     &       CONVGE, CONVGG,
+     &       ENERGY,EOLD,E2OLD,EDIFF,
+     &       GMXMUM,GLNGTH,ERATIO,
+     &       CONVGE, CONVGG, CONVGGM,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.6 1996-10-22 23:05:20 d3h449 Exp $
+c $Id: stpr_cheker.F,v 1.7 1998-04-21 06:57:26 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
+C
       IF (MWC) THEN
         CONVGG=1.0D-08
       ENDIF
@@ -55,8 +57,14 @@ C       1. Structure of HESS (proper number of negative eigenvalues),
 C       2. Energy convergence, and
 C       3. Gradient convergence.
 C
+      write(6,9875)
+      write(6,9876) ediff,glngth,gmxmum
+      write(6,9876) convge,convgg,convggm
+ 9875 format('       e-diff       ','  g-norm  ','  g-max   ')
+ 9876 format(f20.10,f10.6,f10.6)
       IF((NNEG.EQ.0.AND..NOT.TS).OR.(NNEG.EQ.1.AND.TS))THEN
-        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
+        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG
+     &                         .AND.GMXMUM.LT.CONVGGM)THEN
           WRITE(6,*)'  ENERGY = ',ENERGY
           WRITE(6,*)'  The hessian exhibits the "proper" '
           WRITE(6,*)'  structure, and the gradient and energy '
@@ -70,7 +78,8 @@ C
           CNVGRD = .FALSE.
         ENDIF
       ELSE
-        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
+        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG
+     &                         .AND.GMXMUM.LT.CONVGGM)THEN
           WRITE(6,*)'  ENERGY = ',ENERGY
           WRITE(6,*)'  The gradient and energy convergence '
           WRITE(6,*)'  criterion has been met, BUT the hessian '
@@ -113,7 +122,8 @@ C
 C     Special Case: If on initial iteration there are no
 C     significant forces then stop.
 C
-      IF(NWALK.EQ.1.AND.GLNGTH.LT.CONVGG)THEN
+      IF(NWALK.EQ.1.AND.GLNGTH.LT.CONVGG
+     &             .AND.GMXMUM.LT.CONVGGM)THEN
         WRITE(6,*)'  >>> W A R N I N G     W A R N I N G <<< '
         WRITE(6,*)'  >>> Negligible gradient on first',
      &            ' iteration. <<< '

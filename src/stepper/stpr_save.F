@@ -1,5 +1,5 @@
       SUBROUTINE stpr_SAVE(HESS,GRAD,COORD,ENERGY,IERR)
-c $Id: stpr_save.F,v 1.4 1997-03-04 06:07:53 d3e129 Exp $
+c $Id: stpr_save.F,v 1.5 1998-04-21 06:57:30 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -115,7 +115,7 @@ C
       IERR = 1
       RETURN
       end
-      subroutine stpr_PUTP(GLNGTH,SLNGTH,EOLD,ENERGY,
+      subroutine stpr_PUTP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &           E2NEW,NWALK,NNEG)
 *      ENTRY stpr_PUTP(GLNGTH,SLNGTH,EOLD,ENERGY,
@@ -127,15 +127,16 @@ C
       COMMON / PARAM / PSTEPP(20)
 #include "cstprfiles.fh"
 C
-C     PSTEPP(2) and PSTEPP(3) currently not used.
+C     PSTEPP(3) currently not used.
 C
-      PSTEPP(1) = GLNGTH
-      PSTEPP(4) = SLNGTH
-      PSTEPP(5) = EOLD
-      PSTEPP(6) = ENERGY
-      PSTEPP(7) = EDIFF
-      PSTEPP(8) = E2OLD
-      PSTEPP(9) = ERATIO
+      PSTEPP(1)  = GLNGTH
+      PSTEPP(2)  = GMXMUM
+      PSTEPP(4)  = SLNGTH
+      PSTEPP(5)  = EOLD
+      PSTEPP(6)  = ENERGY
+      PSTEPP(7)  = EDIFF
+      PSTEPP(8)  = E2OLD
+      PSTEPP(9)  = ERATIO
       PSTEPP(10) = TRUSTO
       PSTEPP(11) = TRUST
       PSTEPP(12) = TRUSTN
@@ -161,10 +162,10 @@ C
 #endif
       RETURN
       end
-      subroutine stpr_GETP(GLNGTH,SLNGTH,EOLD,ENERGY,
+      subroutine stpr_GETP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
      &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
      &           E2NEW,NWALK,NNEG)
-*      ENTRY stpr_GETP(GLNGTH,SLNGTH,EOLD,ENERGY,
+*      ENTRY stpr_GETP(GMXMUM,GLNGTH,SLNGTH,EOLD,ENERGY,
 *     &           EDIFF,E2OLD,ERATIO,TRUSTO,TRUST,TRUSTN,
 *     &           E2NEW,NWALK,NNEG)
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
@@ -189,22 +190,23 @@ C
 #endif
       ENDIF
 C
-C     PSTEPP(2) and PSTEPP(3) currently not used.
+C     PSTEPP(3) currently not used.
 C
       GLNGTH = PSTEPP(1)
+      GMXMUM = PSTEPP(2)
       SLNGTH = PSTEPP(4)
-      EOLD = PSTEPP(5)
+      EOLD   = PSTEPP(5)
       ENERGY = PSTEPP(6)
-      EDIFF = PSTEPP(7)
-      E2OLD = PSTEPP(8)
+      EDIFF  = PSTEPP(7)
+      E2OLD  = PSTEPP(8)
       ERATIO = PSTEPP(9)
       TRUSTO = PSTEPP(10)
-      TRUST = PSTEPP(11)
+      TRUST  = PSTEPP(11)
       TRUSTN = PSTEPP(12)
-      E2NEW = PSTEPP(13)
+      E2NEW  = PSTEPP(13)
 #if defined(CRAY) || defined(KSR)
-      NWALK = NINT(PSTEPP(14))
-      NNEG  = NINT(PSTEPP(15))
+      NWALK  = NINT(PSTEPP(14))
+      NNEG   = NINT(PSTEPP(15))
 #else
       NWALK = IDNINT(PSTEPP(14))
       NNEG  = IDNINT(PSTEPP(15))
