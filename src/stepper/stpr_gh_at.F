@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.25 2004-02-09 23:20:41 marat Exp $
+*     $Id: stpr_gh_at.F,v 1.26 2005-01-25 21:22:34 edo Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -344,6 +344,16 @@ c
 c
 c     Read gradient and dipole at the central point
 c
+      call ga_brdcst(Msg_gen_at_nat+MSGINT, rank_hess, mitob(1), 0)
+c
+c     me.ne.0 need gradient
+c
+      if(ga_nodeid().ne.0) then
+         if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &        'minus delta nuclear gradient vector',
+     &        h_gradm,k_gradm)) call errquit
+     &        ('stpr_gen_hess_at: ma_push_get failed?',13, MA_ERR)
+      endif
             if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      &          rank_hess,dbl_mb(k_gradm)))
      &          call errquit('stpr_gen_hess_at: rtdb_get failed',38)
@@ -845,6 +855,11 @@ c
      &       MA_ERR)
         if(.not.ma_pop_stack(h_gradm)) call errquit
      &      ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45,
+     &       MA_ERR)
+      endif
+      if (numerical_single.and.whoiam.ne.0) then
+        if(.not.ma_pop_stack(h_gradm)) call errquit
+     &      ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',145,
      &       MA_ERR)
       endif
       ignore_status = rtdb_parallel(.true.)
