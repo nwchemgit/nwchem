@@ -31,3 +31,15 @@ nwpw
    tolerances 1.0d-7 1.0d-7 1.0d-4
 end
 task paw steepest_descent
+
+
+##### Car-Parrinello testing ####
+nwpw
+   car-parrinello
+      time_step 5.0
+      fake_mass 1100.0
+      loop 10 10
+      ewald_rcut 1.50
+   end
+end
+task paw Car-Parrinello
