@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.26 2000-10-23 15:51:34 windus Exp $
+* $Id: cphf_solve.F,v 1.27 2001-06-11 19:45:22 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -24,11 +24,14 @@ c!!! BGJ
       integer precond_iter
       logical ga_iter_lsolve
       external ga_iter_lsolve
+      logical ga_iter_diag
+      external ga_iter_diag
       logical oprint_solve
 c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv
       external uhf_precond,uhf_hessv
+      external tddft_precond
       logical oprint, oprint_conv
 c     
       character*(nw_max_path_len) cphf_rhs
@@ -46,6 +49,9 @@ c
       external int_normalize
 c
       logical hf_job
+      integer nroot, leval, ieval
+      logical cphf_tddft
+      cphf_tddft = .false. 
 c
       hf_job = .not. bgj_have_xc()      
 c
@@ -173,7 +179,11 @@ c !!! BGJ
 c !!! BGJ
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
+         if(.not. rtdb_put(rtdb,'cphf_solve:cphf_uhf',MT_LOG,1,.true.))
+     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
+         if(.not.rtdb_delete(rtdb,'cphf_solve:cphf_uhf'))
+     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0)
       else
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
@@ -205,15 +215,30 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
      $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+      if(.not. rtdb_put(rtdb,'cphf_solve:cphf_tddft',
+     &     MT_log,1,cphf_tddft))
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
       if (scftype .eq. 'UHF') then
-         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
-     $        max_precond_sub, precond_tol, 
-     $        uhf_precond, uhf_hessv, .false., oprint_solve, 
-     $        g_grad, g_work, precond_acc, precond_iter))
-     $        call errquit('cphf did not converge',precond_iter)
+         if(cphf_tddft)then
+            call tddft_guess(g_grad, g_work)
+            nroot = 1
+            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
+     &           call errquit('cphf_solve: cannot allocate Eval',0)
+            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
+     $           max_precond_sub, precond_tol, 
+     $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
+     $           g_work, dbl_mb(ieval), precond_acc, precond_iter))
+     $           call errquit('cphf did not converge',precond_iter)
+         else
+            if(.not.ga_iter_lsolve(vlen, max_precond_iter,
+     $           max_precond_sub, precond_tol, 
+     $           uhf_precond, uhf_hessv, .false., oprint_solve, 
+     $           g_grad, g_work, precond_acc, precond_iter))
+     $           call errquit('cphf did not converge',precond_iter)
+         endif
       else 
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $        max_precond_sub, precond_tol, 
@@ -221,7 +246,7 @@ c !!! BGJ
      $        g_grad, g_work, precond_acc,precond_iter))
      $        call errquit('cphf did not converge', precond_iter)
       endif
-c !!! BGJ
+c     !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
      $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
@@ -273,3 +298,137 @@ c     if (.not. cphf_poliz(rtdb))     ! Never executed.
 c    $     call errquit(' cphf: not possible!',0)
 c
       end
+
+      subroutine tddft_guess(g_grad, g_work)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "cscf.fh"
+      integer g_grad, g_work
+      integer vlen, i, j, ioff, nvira, l_init, k_init
+      double precision ea, ei, eia
+c
+      call ga_zero(g_grad)
+      call ga_zero(g_work)
+c
+c     initial guess of g_soln
+c
+      vlen = nalpha*(nmo-nalpha)+nbeta*(nmo-nbeta)
+      if(.not.ma_push_get(mt_dbl,vlen,'initial guess',l_init,
+     &     k_init))
+     &     call errquit('cannot alloctate l_init',0)      
+      call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
+      nvira=nmo-nalpha
+      ioff = nvira*(nalpha-1)
+      dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo 
+c
+c     scale the initial guess by epsilon(i,a)=epsilon(i) - epsilon(a)
+c      
+c      if(scftype .eq. 'RHF')then 
+      do i = 1, nalpha
+         ei = dbl_mb(k_eval+(i-1))
+         do j = 1, nbf-nalpha
+            ea = dbl_mb(k_eval+(nalpha+j-1))
+            eia = ea - ei 
+            dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1))=
+     &           dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) /
+     &           sqrt(eia)
+            write(*,*)dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)),
+     &           ea, ei 
+         enddo
+      enddo
+      ioff = nalpha*(nmo-nalpha)
+      do i = 1, nbeta
+         ei = dbl_mb(k_eval+nbf+(i-1))
+         do j = 1, nbf-nbeta
+            ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
+            eia = ea - ei 
+            dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1))=
+     &           dbl_mb(k_init + ioff + ((i-1)*(nbf-nalpha)+j-1)) / 
+     &           sqrt(eia)
+            write(*,*)dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1)),
+     &           ea, ei 
+         enddo
+      enddo
+c     endif
+      call ga_put(g_work,1,vlen,1,1,dbl_mb(k_init),1)
+      call ga_print(g_work)
+
+      return 
+      end
+
+      subroutine tddft_scale(g_x, g_grad, flag)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "cscf.fh"
+      integer g_grad, g_x, g_a, g_tmp, g_tmp2
+      integer vlen, i, j, ioff, nvira, l_init, k_init
+      double precision ea, ei, eia
+      logical flag              ! flag = .false. : scale by sqrt(ea-ei) only
+                                ! flag = .true.  : add the orbital energy and scale
+      write(*,*)"before scale by eigenvalue"
+      call ga_print(g_x)
+      call ga_print(g_grad)
+      vlen = nalpha*(nmo-nalpha)+nbeta*(nmo-nbeta)
+      if(.not.ma_push_get(mt_dbl,vlen,'tmp_vec',l_init,
+     &     k_init))
+     &     call errquit('cannot alloctate l_init',0)      
+      call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
+      nvira=nmo-nalpha
+      ioff = nvira*(nalpha-1)
+c
+c     scale g_grad by sqrt of epsilon(i,a)=epsilon(a) - epsilon(i)
+c      
+      do i = 1, nalpha
+         ei = dbl_mb(k_eval+(i-1))
+         do j = 1, nbf-nalpha
+            ea = dbl_mb(k_eval+(nalpha+j-1))
+            eia = ea - ei 
+            dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) = sqrt(eia)
+         enddo
+      enddo
+      ioff = nalpha*(nmo-nalpha)
+      do i = 1, nbeta
+         ei = dbl_mb(k_eval+nbf+(i-1))
+         do j = 1, nbf-nbeta
+            ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
+            eia = ea - ei 
+            dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1)) = sqrt(eia)
+         enddo
+      enddo
+c     
+      if (.not. ga_create(MT_DBL, vlen, vlen, 'tddft_precond: diag',
+     $     1, 0, g_a)) call errquit('diag', 0)
+      if (.not. ga_create(MT_DBL, vlen, 1, 'tddft_precond: tmp',
+     $     1, 0, g_tmp)) call errquit('diag', 0)
+      if (.not. ga_create(MT_DBL, vlen, vlen, 'tddft_precond: tmp',
+     $     1, 0, g_tmp2)) call errquit('diag', 0)
+      call ga_zero(g_a)
+      call ga_zero(g_tmp)
+c     
+      call ga_copy_todiag(g_a,dbl_mb(k_init))
+      if(flag)then
+c
+c     form the diagonal eia matrix g_tmp = g_a*g_a and then add the
+c     matrix vector product g_tmp * g_x to g_grad.
+c     
+         call ga_dgemm('n', 'n', vlen, vlen, vlen, 1.0d0, g_a, g_a, 
+     &        0.0d0, g_tmp2)
+         call ga_dgemm('n', 'n', vlen, 1, vlen, 1.0d0, g_tmp2, g_x, 
+     &        1.0d0, g_grad)
+      endif
+      call ga_copy(g_grad, g_tmp)
+      call ga_dgemm('n', 'n', vlen, 1, vlen, 1.0d0, g_a, g_tmp, 
+     &     0.0d0, g_grad) 
+      write(*,*)"after scaling by eigenvalue"
+      call ga_print(g_grad)
+      if(.not.ga_destroy(g_a))
+     &     call errquit("tddft_scale: destroy g_a?" ,0)
+      if(.not.ga_destroy(g_tmp))
+     &     call errquit("tddft_scale: destroy g_tmp?" ,0)
+      if(.not.ga_destroy(g_tmp2))
+     &     call errquit("tddft_scale: destroy g_tmp2?" ,0)
+      return 
+      end
+
