@@ -188,7 +188,8 @@ c
       if (.not.ma_push_get( MT_DBL,(ntij*ntij),'detci: eri',
      $   l_detci_g, k_detci_g))
      $   call errquit('detci: cannot allocate',0)
-      call detci_moint_copy( norb, ntij, cdetci_ixmap, ijmap, h, g,
+      call detci_moint_copy( norb, ntij, cdetci_ixmap, ijmap,
+     $                       cdetci_osym, h, g,
      $                       dbl_mb(k_detci_h), dbl_mb(k_detci_g) )
 c
 c  Memory for scratch space should be allocated HERE!
@@ -971,13 +972,15 @@ c
 
 
 
-      subroutine detci_moint_copy( norb, ntij, irmap, ijmap, h, g,
-     $                             h1, g1 )
+      subroutine detci_moint_copy( norb, ntij, irmap, ijmap, orbsym,
+     $                             h, g, h1, g1 )
       implicit none
+#include "global.fh"
       integer norb
       integer ntij
       integer irmap(norb)
       integer ijmap(norb,norb)
+      integer orbsym(norb)
       double precision h(ntij)
       double precision g(ntij,ntij)
       double precision h1(ntij)
@@ -985,21 +988,38 @@ c
 c      
       integer i, j, k, l
       integer ij, rij, kl, rkl
+      integer ijsym, ijklsym, nmixed
+      double precision TOL
+      data TOL/1.d-12/
+#include "symmdef.fh"
+#include "symmmul.fh"
 c      
+      nmixed = 0
       do i=1,norb
         do j=1,i
           ij = ijmap(i,j)
           rij = ijmap(irmap(i),irmap(j))
           h1(ij) = h(rij)
+          ijsym = MULX(orbsym(i),orbsym(j))
+          if ((ijsym.ne.1).and.(abs(h1(ij)).gt.TOL))
+     $      nmixed = nmixed + 1
           do k=1,norb
             do l=1,k
               kl = ijmap(k,l)
               rkl = ijmap(irmap(k),irmap(l))
               g1(ij,kl) = g(rij,rkl)
+              ijklsym = MULX(ijsym,MULX(orbsym(k),orbsym(l)))
+              if ((ijklsym.ne.1).and.(abs(g1(ij,kl)).gt.TOL))
+     $          nmixed = nmixed + 1
             enddo
           enddo
         enddo
       enddo
+      if ((nmixed.gt.0).and.(ga_nodeid().eq.0)) then
+        write(6,771)
+ 771    format(/,' *** DETCI: MO ints symmetry contaminated ***')
+      endif
+
       return
       end
 
