@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.69 2000-07-14 23:15:35 d3j191 Exp $
+c $Id: cf_main.F,v 1.70 2000-08-07 18:54:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2072,7 +2072,24 @@ c
 c
       return
       end
-      subroutine cf_fix(ifix,iunfix,iwdt,numw,isgan,isatt,isdt,nums)
+      subroutine cf_fix(lfn,numfix,iwgmn,iwdt,numw,
+     + isgan,isatt,isdt,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfn,numfix,numw,nums
+      integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
+c
+      call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
+     + isgan,isatt,isdt,nums,byte_mb(i_snam))
+c
+      return
+      end
+      subroutine cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
+     + isgan,isatt,isdt,nums,snam)
 c
       implicit none
 c
@@ -2085,69 +2102,174 @@ c
       integer cf_atonum,cf_numcon
       external cf_atonum,cf_numcon
 c
-      integer ifix,iunfix,numw,nums
-      integer iwdt(mwm),isgan(msa),isatt(msa),isdt(msa)
+      integer lfn,numfix,numw,nums
+      integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
+      character*16 snam(nsatot)
 c
-      integer i,ndof(3)
+      integer i,ndof(3),ifix,ifr,ito,l
       real*8 fact(3)
+      character*80 string,target
 c
-      if(numw.gt.0) then
-      if(iand(ifix,1).eq.1) then
-      do 1 i=1,numw
-      iwdt(i)=ior(iwdt(i),lfixed)
-    1 continue
+      if(me.eq.0) then
+      write(*,1000) numfix
+ 1000 format('Number of fix directives is ',i5)
       endif
-      if(iand(iunfix,1).eq.1) then
+c
+      do 1 l=1,numfix
+c
+      if(me.eq.0) then
+      read(lfn,2000) string
+ 2000 format(a80)
+      write(*,2000) string
+      endif
+      call util_char_ga_brdcst(mrg_d47,string,0)
+c
+      if(string(1:3).eq.'fix') then
+c
+      read(string(6:28),'(i3,2i10)') ifix,ifr,ito
+      target=string(29:80)
+      write(*,'(i3,2i10)') ifix,ifr,ito
+c
+c     solvent
+c
+      if(string(5:5).eq.'w') then
+      if(numw.gt.0) then
+      if(ifr.eq.0.or.ito.eq.0) then
+      if(ifix.eq.0) then
       do 2 i=1,numw
       iwdt(i)=iand(iwdt(i),not(lfixed))
     2 continue
       endif
-      if(iand(ifix,2).eq.2) then
+      if(ifix.eq.1) then
       do 3 i=1,numw
       iwdt(i)=ior(iwdt(i),lfixed)
     3 continue
       endif
-      if(iand(iunfix,2).eq.2) then
+      else
       do 4 i=1,numw
-      iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(iwgmn(i).ge.ifr.and.iwgmn(i).le.ito) then
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
+      endif
     4 continue
       endif
       endif
+      endif
 c
+c     solute
+c
+      if(string(5:5).eq.'s') then
       if(nums.gt.0) then
-      if(iand(ifix,1).eq.1) then
+      if(ifr.eq.0.or.ito.eq.0) then
+      if(ifix.eq.0) then
       do 5 i=1,nums
-      isdt(i)=ior(isdt(i),lfixed)
+      isdt(i)=iand(isdt(i),not(lfixed))
     5 continue
       endif
-      if(iand(iunfix,1).eq.1) then
+      if(ifix.eq.1) then
       do 6 i=1,nums
-      isdt(i)=iand(isdt(i),not(lfixed))
+      isdt(i)=ior(isdt(i),lfixed)
     6 continue
       endif
-      if(iand(ifix,4).eq.4) then
+      else
       do 7 i=1,nums
-      isdt(i)=ior(isdt(i),lfixed)
+c      isdt(i)=ior(isdt(i),lfixed)
     7 continue
       endif
-      if(iand(iunfix,4).eq.4) then
+      endif
+      endif
+c
+c     heavy solute atoms only
+c
+      if(string(5:5).eq.'x') then
+      if(nums.gt.0) then
+      if(ifr.eq.0.or.ito.eq.0) then
+      if(ifix.eq.0) then
       do 8 i=1,nums
-      isdt(i)=iand(isdt(i),not(lfixed))
+      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+     + isdt(i)=iand(isdt(i),not(lfixed))
     8 continue
       endif
-      if(iand(ifix,8).eq.8) then
+      if(ifix.eq.1) then
       do 9 i=1,nums
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=ior(isdt(i),lfixed)
     9 continue
       endif
-      if(iand(iunfix,8).eq.8) then
+      else
       do 10 i=1,nums
-      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
-     + isdt(i)=iand(isdt(i),not(lfixed))
+c      isdt(i)=ior(isdt(i),lfixed)
    10 continue
-      endif      
       endif
+      endif
+      endif
+c
+c     make permanent
+c
+      if(string(5:5).eq.'p') then
+      endif
+c
+      endif
+c
+    1 continue
+c
+c      if(numw.gt.0) then
+c      if(iand(ifix,1).eq.1) then
+c      do 1 i=1,numw
+c      iwdt(i)=ior(iwdt(i),lfixed)
+c    1 continue
+c      endif
+c      if(iand(iunfix,1).eq.1) then
+c      do 2 i=1,numw
+c      iwdt(i)=iand(iwdt(i),not(lfixed))
+c    2 continue
+c      endif
+c      if(iand(ifix,2).eq.2) then
+c      do 3 i=1,numw
+c      iwdt(i)=ior(iwdt(i),lfixed)
+c    3 continue
+c      endif
+c      if(iand(iunfix,2).eq.2) then
+c      do 4 i=1,numw
+c      iwdt(i)=iand(iwdt(i),not(lfixed))
+c    4 continue
+c      endif
+c      endif
+c
+c      if(nums.gt.0) then
+c      if(iand(ifix,1).eq.1) then
+c      do 5 i=1,nums
+c      isdt(i)=ior(isdt(i),lfixed)
+c    5 continue
+c      endif
+c      if(iand(iunfix,1).eq.1) then
+c      do 6 i=1,nums
+c      isdt(i)=iand(isdt(i),not(lfixed))
+c    6 continue
+c      endif
+c      if(iand(ifix,4).eq.4) then
+c      do 7 i=1,nums
+c      isdt(i)=ior(isdt(i),lfixed)
+c    7 continue
+c      endif
+c      if(iand(iunfix,4).eq.4) then
+c      do 8 i=1,nums
+c      isdt(i)=iand(isdt(i),not(lfixed))
+c    8 continue
+c      endif
+c      if(iand(ifix,8).eq.8) then
+c      do 9 i=1,nums
+c      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+c     + isdt(i)=ior(isdt(i),lfixed)
+c    9 continue
+c      endif
+c      if(iand(iunfix,8).eq.8) then
+c      do 10 i=1,nums
+c      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
+c     + isdt(i)=iand(isdt(i),not(lfixed))
+c   10 continue
+c      endif      
+c      endif
 c
       ndof(1)=0
       ndof(2)=0
