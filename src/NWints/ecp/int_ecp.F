@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.14 1998-11-04 08:52:29 d3e129 Exp $
+* $Id: int_ecp.F,v 1.15 1999-03-09 19:26:10 mg201 Exp $
       implicit none
 *::cr::7
 *------------------------------------------------*
@@ -301,7 +301,7 @@ c l_ecp currently has Lmax for ecp basis
       if (.not.bas_high_angular(basis_handle,l_bas)) call errquit
      &      ('int_ecp_init: bas_high_angular failed for ao handle',
      &      911)
-      lmax_both = l_ecp + l_bas + 2 
+      lmax_both = max(l_ecp,l_bas) + l_bas + 2 
       call ecp_init_c2s(lmax_both,dpdum,dpdum,idum,1,1,.true.,mem_c2s)
       if (.not.ma_alloc_get(mt_dbl,
      &      mem_c2s,
