@@ -2,7 +2,7 @@
       logical function sym_char_table(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab.F,v 1.3 1999-03-20 02:12:47 d3g681 Exp $
+C$Id: sym_char_tab.F,v 1.4 1999-06-02 01:13:18 d3g681 Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
@@ -624,7 +624,8 @@ c
       data ic7/7,7,1,1,1,1,1,1,1
      +     ,1,2,3,4,5,6,7/
       data yrc7/'a','e1+','e1-','e2+','e2-','e3+','e3-'/
-      data yc7/'e','c7','c7','c7','c7^3','c7^3','c7^5'/
+*     data yc7/'e','c7','c7','c7','c7^3','c7^3','c7^5'/
+      data yc7/'e','c7','c7^2','c7^3','c7^4','c7^5','c7^6'/
       data chc7/
      +     1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,
      +     1.000, 0.623,-0.223,-0.901,-0.901,-0.223, 0.623,
@@ -2015,6 +2016,9 @@ c
                angle = dble(k)*twopi/dble(n)
                do multiple = 1, 2
                   dval = multiple*sin(angle)
+                  dval = sign(abs(dval),chars(i))
+                  if (abs(chars(i)-dval).lt.0.0006) goto 20
+                  dval = multiple*cos(angle)
                   dval = sign(abs(dval),chars(i))
                   if (abs(chars(i)-dval).lt.0.0006) goto 20
                enddo
