@@ -1,77 +1,116 @@
 *     ***********************************
-*     *                 				*
-*     *           Balance_Init 		    *
-*     *                 				*
+*     *               			*
+*     *           Balance_Init 	        *
+*     *                 		*
 *     ***********************************
 
-      subroutine Balance_Init(nida,nidb,nidb_out)
+      subroutine Balance_Init(maxsize0,nida,nidb,nidb_out)
       implicit none
-      integer nida(0:1),nidb(0:1)
-      integer nidb_out(0:1)
+      integer maxsize0
+      integer nida(0:maxsize0-1),nidb(0:maxsize0-1)
+      integer nidb_out(0:maxsize0-1)
 
 #include "mafdecls.fh"
-
-
-*     **** Balance Common Block ****
-      integer packet_size(2,0:1),indx_start(2,0:1)
-      integer proc_to(2,0:1),proc_from(2,0:1)
-      integer npacket(0:1)
-      logical receiver(0:1),sender(0:1)
-      common /Balance_Block/ packet_size,indx_start,
-     >                       proc_to,proc_from,npacket,receiver,sender
+#include "balance_common.fh"
 
 *     **** local variables ****
       logical value
       integer nb,np,taskid
       integer nwave,nwave_out
+      integer dum(2)
 
+      maxsize = maxsize0
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
 *     **** allocate balance memory ****
-      value =  MA_alloc_get(mt_int,np,
-     >                   'psizea',packet_size(2,0),packet_size(1,0))
+      value =  MA_alloc_get(mt_int,2*maxsize,
+     >                      'psizea_list',
+     >                      packet_size_list(2),
+     >                      packet_size_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,np,
-     >                   'psizeb',packet_size(2,1),packet_size(1,1))
+     >       MA_alloc_get(mt_int,2*maxsize,
+     >                    'indxsa_list',
+     >                    indx_start_list(2),
+     >                    indx_start_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,np,
-     >                   'indxsa',indx_start(2,0),indx_start(1,0))
+     >       MA_alloc_get(mt_int,2*maxsize,
+     >                    'prctoa_list',
+     >                    proc_to_list(2),
+     >                    proc_to_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,np,
-     >                   'indxsb',indx_start(2,1),indx_start(1,1))
+     >       MA_alloc_get(mt_int,2*maxsize,
+     >                   'prcfra_list',
+     >                    proc_from_list(2),
+     >                    proc_from_list(1))
+
       value = value.and.
-     >       MA_alloc_get(mt_int,np,
-     >                   'prctoa',proc_to(2,0),proc_to(1,0))
+     >       MA_alloc_get(mt_int,maxsize,
+     >                   'npacket_list',
+     >                    npacket_list(2),
+     >                    npacket_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,np,
-     >                   'prctob',proc_to(2,1),proc_to(1,1))
+     >       MA_alloc_get(mt_log,maxsize,
+     >                   'receiver_list',
+     >                    receiver_list(2),
+     >                    receiver_list(1))
       value = value.and.
+     >       MA_alloc_get(mt_log,maxsize,
+     >                   'sender_list',
+     >                    sender_list(2),
+     >                    sender_list(1))
+
+      do nb=0,maxsize-1
+
+*        **** allocate balance memory ****
+         value =  value.and.
+     >          MA_alloc_get(mt_int,np,
+     >                   'psizea',dum(2),dum(1))
+         int_mb(packet_size_list(1)+2*nb  ) = dum(1)
+         int_mb(packet_size_list(1)+2*nb+1) = dum(2)
+
+         value = value.and.
      >       MA_alloc_get(mt_int,np,
-     >                   'prcfra',proc_from(2,0),proc_from(1,0))
-      value = value.and.
+     >                   'indxsa',dum(2),dum(1))
+         int_mb(indx_start_list(1)+2*nb  ) = dum(1)
+         int_mb(indx_start_list(1)+2*nb+1) = dum(2)
+
+         value = value.and.
      >       MA_alloc_get(mt_int,np,
-     >                   'prcfrb',proc_from(2,1),proc_from(1,1))
+     >                   'prctoa',dum(2),dum(1))
+         int_mb(proc_to_list(1)+2*nb  ) = dum(1)
+         int_mb(proc_to_list(1)+2*nb+1) = dum(2)
+
+         value = value.and.
+     >       MA_alloc_get(mt_int,np,
+     >                   'prcfra',dum(2),dum(1))
+         int_mb(proc_from_list(1)+2*nb  ) = dum(1)
+         int_mb(proc_from_list(1)+2*nb+1) = dum(2)
+
+      end do
+
       if (.not. value) 
      >   call errquit('Balance_init: out of heap memory',0)
 
 
 
-      do nb=0,1
+      do nb=0,maxsize-1
          nwave = nida(nb)+nidb(nb)
          call Balance_Init_a(nwave,np,taskid,nwave_out,
-     >      npacket(nb),
-     >      receiver(nb),sender(nb),
-     >      int_mb(proc_to(1,nb)),     int_mb(proc_from(1,nb)),
-     >      int_mb(packet_size(1,nb)), int_mb(indx_start(1,nb)))
+     >      int_mb(npacket_list(1) +nb),
+     >      log_mb(receiver_list(1)+nb),
+     >      log_mb(sender_list(1)  +nb),
+     >      int_mb(int_mb(proc_to_list(1)    +2*nb)),     
+     >      int_mb(int_mb(proc_from_list(1)  +2*nb)),
+     >      int_mb(int_mb(packet_size_list(1)+2*nb)), 
+     >      int_mb(int_mb(indx_start_list(1) +2*nb)))
 
          nidb_out(nb) = nidb(nb) + (nwave_out-nwave)
 
       end do
 
       return
-      end
-
+      end 
 
 
 *     ***********************************
@@ -84,27 +123,40 @@
       implicit none
 
 #include "mafdecls.fh"
+#include "balance_common.fh"
 
 
-*     **** Balance Common Block ****
-      integer packet_size(2,0:1),indx_start(2,0:1)
-      integer proc_to(2,0:1),proc_from(2,0:1)
-      integer npacket(0:1)
-      logical receiver(0:1),sender(0:1)
-      common /Balance_Block/ packet_size,indx_start,
-     >                       proc_to,proc_from,npacket,receiver,sender
-
+*     **** local variables ****
       logical value
+      integer nb,dum2
 
-      value =           MA_free_heap(packet_size(2,0))
-      value = value.and.MA_free_heap(packet_size(2,1))
-      value = value.and.MA_free_heap(indx_start(2,0))
-      value = value.and.MA_free_heap(indx_start(2,1))
-      value = value.and.MA_free_heap(proc_to(2,0))
-      value = value.and.MA_free_heap(proc_to(2,1))
-      value = value.and.MA_free_heap(proc_from(2,0))
-      value = value.and.MA_free_heap(proc_from(2,1))
-      if (.not. value) call errquit('error freeing heap memory',0)
+      value = .true.
+      do nb=0,maxsize-1
+
+         dum2 = int_mb(packet_size_list(1)+2*nb+1)
+         value = value.and.MA_free_heap(dum2)
+
+         dum2 = int_mb(indx_start_list(1)+2*nb+1) 
+         value = value.and.MA_free_heap(dum2)
+
+         dum2 = int_mb(proc_to_list(1)+2*nb+1)
+         value = value.and.MA_free_heap(dum2)
+
+         dum2 = int_mb(proc_from_list(1)+2*nb+1)
+         value = value.and.MA_free_heap(dum2)
+
+      end do
+
+      value = value.and.MA_free_heap(packet_size_list(2))
+      value = value.and.MA_free_heap(indx_start_list(2))
+      value = value.and.MA_free_heap(proc_to_list(2))
+      value = value.and.MA_free_heap(proc_from_list(2))
+
+      value = value.and.MA_free_heap(npacket_list(2))
+      value = value.and.MA_free_heap(receiver_list(2))
+      value = value.and.MA_free_heap(sender_list(2))
+      if (.not. value) 
+     >  call errquit('Balance_end: error freeing heap memory',0)
 
       return
       end
@@ -149,7 +201,8 @@ c      integer indx(0:(np-1))
       value = value.and.
      >        MA_push_get(mt_int,(np),
      >                     'indx',indx(2),indx(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) 
+     >  call errquit('Balance_init_a:out of stack memory',0)
    
 *     **** define nwave2 ****
       do i=0,np-1
@@ -288,7 +341,8 @@ c        ave = ave + nwave2(i)
 
       value =           MA_pop_stack(indx(2))
       value = value.and.MA_pop_stack(nwave2(2))
-      if (.not. value) call errquit('error freeing stack memory',0)
+      if (.not. value) 
+     > call errquit('Balance_init_a:error freeing stack memory',0)
   
 
       return
@@ -324,27 +378,20 @@ c        ave = ave + nwave2(i)
 
 #include "mafdecls.fh"
 
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
       integer  rcv_len,rcv_proc
-
-*     **** Balance Common Block ****
-      integer packet_size(2,0:1),indx_start(2,0:1)
-      integer proc_to(2,0:1),proc_from(2,0:1)
-      integer npacket(0:1)
-      logical receiver(0:1),sender(0:1)
-      common /Balance_Block/ packet_size,indx_start,
-     >                       proc_to,proc_from,npacket,receiver,sender
-
       integer j
       integer pto,pfrom,msglen,indx
 
-      if (sender(nb)) then
-         do j=1,npacket(nb)
-            pto  = int_mb(proc_to(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            send data....
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
@@ -356,11 +403,11 @@ c            send data....
          end do
       end if
 
-      if (receiver(nb)) then
-         do j=1,npacket(nb)
-            pfrom = int_mb(proc_from(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            recieve data....
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
@@ -384,29 +431,21 @@ c            recieve data....
       real*8 A(*)
 
 #include "mafdecls.fh"
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
       integer  rcv_len,rcv_proc
-
-
-*     **** Balance Common Block ****
-      integer packet_size(2,0:1),indx_start(2,0:1)
-      integer proc_to(2,0:1),proc_from(2,0:1)
-      integer npacket(0:1)
-      logical receiver(0:1),sender(0:1)
-      common /Balance_Block/ packet_size,indx_start,
-     >                       proc_to,proc_from,npacket,receiver,sender
-
       integer j
       integer pto,pfrom,msglen,indx
 
 
-      if (sender(nb)) then
-         do j=1,npacket(nb)
-            pto  = int_mb(proc_to(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            send data....
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
@@ -418,11 +457,11 @@ c            send data....
          end do
       end if
 
-      if (receiver(nb)) then
-         do j=1,npacket(nb)
-            pfrom = int_mb(proc_from(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            recieve data....
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
@@ -447,30 +486,21 @@ c            recieve data....
       complex*16 A(*)
 
 #include "mafdecls.fh"
-
-
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
       integer  rcv_len,rcv_proc
-
-
-*     **** Balance Common Block ****
-      integer packet_size(2,0:1),indx_start(2,0:1)
-      integer proc_to(2,0:1),proc_from(2,0:1)
-      integer npacket(0:1)
-      logical receiver(0:1),sender(0:1)
-      common /Balance_Block/ packet_size,indx_start,
-     >                       proc_to,proc_from,npacket,receiver,sender
-
       integer j
       integer pto,pfrom,msglen,indx
 
 
-      if (sender(nb)) then
-         do j=1,npacket(nb)
-            pfrom  = int_mb(proc_to(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            recieve data....
             if (msglen.gt.0) then
                call RCV(9+MSGDBL,
@@ -482,11 +512,11 @@ c            recieve data....
          end do
       end if
 
-      if (receiver(nb)) then
-         do j=1,npacket(nb)
-            pto    = int_mb(proc_from(1,nb)+j-1)    
-            msglen = int_mb(packet_size(1,nb)+j-1)
-            indx   = int_mb(indx_start(1,nb)+j-1)
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
 c            send data....
             if (msglen.gt.0) then
                call SND(9+MSGDBL,

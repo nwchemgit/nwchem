@@ -138,7 +138,7 @@
 
       end do
 
-      call Balance_Init(nida,nidb,nidb2)
+      call Balance_Init(2,nida,nidb,nidb2)
 
       nwave_all(0) = nida(0) + nidb(0)
       nwave_all(1) = nida(1) + nidb(1)

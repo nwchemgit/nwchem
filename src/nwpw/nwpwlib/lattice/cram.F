@@ -1,29 +1,82 @@
 *
-* $Id: cram.F,v 1.1 2001-12-08 01:06:38 bylaska Exp $
+* $Id: cram.F,v 1.2 2001-12-11 19:02:40 bylaska Exp $
 *
 
 *     ***********************************
-*     *									*
-*     *	          Cram_Init				*	
-*     *									*
+*     *					*
+*     *	          Cram_Init		*	
+*     *					*
 *     ***********************************
 
-      subroutine Cram_Init(maxsize)
+      subroutine Cram_Init(maxsize0)
       implicit none
-
+      integer maxsize0
 
 #include "mafdecls.fh"
+#include "cram_common.fh"
 
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb2(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb2
-      integer nidb(0:1)
-      common / pack2_blk / nidb
+*     **** local variables ****
+      logical value
+      
+      maxsize = maxsize0
 
-      integer nwave_all(0:1)
-      common / pack_blk3x / nwave_all
+
+      value = MA_alloc_get(mt_int,maxsize,
+     >                     'nida_list',
+     >                     nida_list(2),
+     >                     nida_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nidb_list',
+     >                     nidb_list(2),
+     >                     nidb_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nidb_list',
+     >                     nidb_list(2),
+     >                     nidb_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nidb2_list',
+     >                     nidb2_list(2),
+     >                     nidb2_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'nwaveall_list',
+     >                     nwaveall_list(2),
+     >                     nwaveall_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'pack_list',
+     >                     pack_list(2),
+     >                     pack_list(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,maxsize,
+     >                     'pack_tag',
+     >                     pack_tag(2),
+     >                     pack_tag(1))
+      if (.not. value) call errquit('Cram_init: out of heap memory',0)
+
+      call cloak_init()
+       
+      return 
+      end
+
+*     ***********************************
+*     *					*
+*     *	          Cram_start		*	
+*     *					*
+*     ***********************************
+
+      subroutine Cram_start(nb,kvector,ecut)
+      implicit none
+      integer nb
+      real*8  kvector(3)
+      real*8  ecut
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
 
 
 *     **** local variables ****
@@ -35,141 +88,47 @@
       integer nb
       integer nx,ny,nz,nq
       integer nxh,nyh,nzh      
-
-
+      integer pack(2)
 
 *     **** allocate pack memory ****
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
 
       value = MA_alloc_get(mt_int,nfft3d,
-     >                     'pack',pack(2,0),pack(1,0))
-      value = value.and.
-     >        MA_alloc_get(mt_int,nfft3d,
-     >                     'pack',pack(2,1),pack(1,1))
-      if (.not. value) call errquit('Pack_init: out of heap memory',0)
+     >                     'pack',pack(2),pack(1))
+      if (.not. value) call errquit('Cram_start: out of heap memory',0)
+
+      int_mb(pack_list(1) + nb) = pack(1)
+      int_mb(pack_tag(1)  + nb) = pack(2)
+
+      call cloak_set(kvector,ecut)
 
 
-      call Parallel_taskid(taskid)
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
-      call D3dB_nq(1,nq)
-      nxh = nx/2
-      nyh = ny/2
-      nzh = nz/2
-      
-      do nb=0,1
-         nida(nb) = 0
-         nidb(nb) = 0
 
-*        **** k=(0,0,0)  ****
-         k1=0
-         k2=0
-         k3=0
-         call D3dB_ktoqp(1,k3+1,q,p)
-         if (p.eq.taskid) then
-            indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
-            if (.not.log_mb(masker(1,nb)+indx-1)) then
-               nida(nb) = nida(nb) + 1
-               int_mb(pack(1,nb)+nida(nb)-1) = indx
-            end if
-         end if
-         
-*        **** k=(0,0,k3) **** - neglect (0,0,-k3) points
-         do k=1,(nzh-1)
-            k1=0
-            k2=0
-            k3=k
-            call D3dB_ktoqp(1,k3+1,q,p)
-            if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
-               if (.not.log_mb(masker(1,nb)+indx-1)) then
-                  nidb(nb) = nidb(nb) + 1
-                  int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
-               end if
-            end if
-         end do
-   
-*        **** k=(0,k2,k3) **** - neglect (0,-k2, -k3) points
-         do k=(-nzh+1),(nzh-1)
-         do j=1,(nyh-1)
-            k1=0
-            k2=j
-            k3=k
-            if (k3.lt.0) k3 = k3 + nz
-
-            call D3dB_ktoqp(1,k3+1,q,p)
-            if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
-               if (.not.log_mb(masker(1,nb)+indx-1)) then
-                  nidb(nb) = nidb(nb) + 1
-                  int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
-               end if
-            end if
-         end do
-         end do
-
-
-*        **** k=(k1,k2,k3) **** 
-         do k=(-nzh+1),(nzh-1)
-         do j=(-nyh+1),(nyh-1)
-         do i=1,(nxh-1)
-            k1=i
-            k2=j
-            k3=k
-            if (k2.lt.0) k2 = k2 + ny
-            if (k3.lt.0) k3 = k3 + nz
-
-            call D3dB_ktoqp(1,k3+1,q,p)
-            if (p.eq.taskid) then
-               indx = (q-1)*(nxh+1)*ny + k2*(nxh+1) + k1 + 1
-               if (.not.log_mb(masker(1,nb)+indx-1)) then
-                  nidb(nb) = nidb(nb) + 1
-                  int_mb(pack(1,nb)+nida(nb)+nidb(nb)-1) = indx
-               end if
-            end if
-         end do
-         end do
-         end do
-
-         
-
-      end do
-
-      call Balance_Init(nida,nidb,nidb2)
-
-      nwave_all(0) = nida(0) + nidb(0)
-      nwave_all(1) = nida(1) + nidb(1)
-      call D3dB_ISumAll(nwave_all(0))
-      call D3dB_ISumAll(nwave_all(1)) 
-
-       
-      return 
+      return
       end
 
 *     ***********************************
 *     *					*
-*     *	          Pack_end		*	
+*     *	          Cram_end		*	
 *     *					*
 *     ***********************************
 
-      subroutine Pack_end()
+      subroutine Cram_end()
       implicit none
 
 #include "mafdecls.fh"
+#include "cram_block.fh"
 
-*     **** common block for pack ****
-      integer nida(0:1),nidb(0:1)
-      integer pack(2,0:1)
-      common / pack_blk / pack,nida,nidb
-
+*     **** local variables ****
       logical value
+      integer 
 
       value = MA_free_heap(pack(2,0))
       value = value.and.
      >        MA_free_heap(pack(2,1))
       if (.not. value) call errquit('error freeing heap memory',0)
       call Balance_End()
+      call cloak_end()
       return
       end
 

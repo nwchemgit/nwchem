@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.7 2001-11-29 02:00:40 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.8 2001-12-11 19:02:40 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -398,11 +398,18 @@ c
 *     ***************************************
       subroutine psp_generator_auto(atom,lmax,locp,rlocal)
       implicit none
+
 #include "inp.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
       character*2 atom
       double precision rlocal
       integer	    locp,lmax
 c
+      integer MASTER,taskid,msglen
+      parameter (MASTER=0)
+
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
       integer h,i,j,k,debug
@@ -410,8 +417,13 @@ c
       double precision nwpw_libgrlocal
       external nwpw_libglmax,nwpw_libglocp,nwpw_libgrlocal
 c
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+
       call util_directory_name(sdir_name,.true.,0)
       call util_directory_name(dir_name,.false.,0)
+      
 
       psp_in = "junk.inp "
       k = index(atom,' ') - 1
@@ -422,8 +434,8 @@ c
       j = index(psp_in,' ')  - 1
       k = index(psp_out,' ') - 1
 
-      write(*,*) "need to generate 1d psp for ",atom
       call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
+      write(*,*) "need to generate 1d psp for ",atom
       debug = 0
       call pspsolve(debug,sdir_name(1:h),h,
      >     dir_name(1:i),i,
@@ -439,7 +451,13 @@ c     **** routines needed by psp_formatter_auto ****
       rlocal=nwpw_libgrlocal(atom)
 c  or
 c     call nwpw_library_get_parameter(atom,1,mt_type,value)
+      end if
+      call ga_sync()
 
+      msglen = 1
+      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,rlocal,mitob(msglen),MASTER)
 
       return
       end
