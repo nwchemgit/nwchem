@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.172 2004-05-11 23:39:02 edo Exp $
+C     $Id: geom_input.F,v 1.173 2004-07-16 14:03:42 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -5917,13 +5917,14 @@ c
       double precision theta, c2(3,nat)
       double precision pi, rr, dd, dz
       double precision threquiv
-      COMPLEX*16  QDUMI, QDUMJ
+      COMPLEX*16  QDUMI, QDUMJ,ctheta
 c
+#ifdef DEBUG
       some = .false.
       dbug = .false.
+#endif
 c
-      PI=4.d+0*ATAN(1.d+0)
-      THETA=PI
+      theta=4.d0*ATAN(1d0)
 c
       do iaxis = 1, 2
         PROPER(IAXIS)=.TRUE.
@@ -5936,33 +5937,40 @@ c
           j = 1
           k = 2
         endif
+       ctheta=CMPLX(COS(THETA),SIN(THETA))
         DO IAT=1,NAT
            PRPAXS=.FALSE.
-           DO JAT=1,NAT
-              IF(atmlab(JAT).EQ.atmlab(IAT).AND..NOT.PRPAXS) THEN
-                 QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
-                 RR=ABS(QDUMI)
-                 QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
+           DO JAT=IAT,NAT
+              IF(atmlab(JAT).EQ.atmlab(IAT)) THEN
+                 QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))*ctheta
                  QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
-                 DD=ABS(QDUMI-QDUMJ)
-                 DZ=C2(K,IAT)-C2(K,JAT)
-                 PRPAXS=(ABS(DD).LT.THREQUIV).AND.
-     1                  (ABS(DZ).LT.THREQUIV)
+                 iF((ABS(QDUMI-QDUMJ).LT.THREQUIV).AND.
+     1                  (ABS(C2(K,IAT)-C2(K,JAT)).LT.THREQUIV)) then
+                    prpaxs=.true.
+                    goto 1688
+                 endif
+#ifdef DEBUG
                  IF(DBUG) THEN
+                 RR=ABS(QDUMI)
                     WRITE(LuOut,*) ' IAT,JAT,PRPAXS = ',
      1                            IAT,JAT,PRPAXS,RR,DD,DZ
                  ENDIF
+#endif
               ENDIF
            ENDDO
-           PROPER(IAXIS)=PROPER(IAXIS).AND.PRPAXS
+ 1688      PROPER(IAXIS)=PROPER(IAXIS).AND.PRPAXS
+#ifdef DEBUG
            IF(DBUG) THEN
               WRITE(LuOut,*) ' IAT,PRPAXS,PROPER(IAXIS) = ',
      1                      IAT,PRPAXS,PROPER(IAXIS)
            ENDIF
+#endif
         ENDDO
+#ifdef DEBUG
         IF(SOME) THEN
            WRITE(LuOut,9982) IAXIS,PROPER(IAXIS)
         ENDIF
+#endif
       enddo
 c
       symc2x = proper(1)
