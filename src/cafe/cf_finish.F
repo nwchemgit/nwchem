@@ -9,7 +9,14 @@ c
 c
 c     deallocate memory
 c
+      call cf_free()
+c
       do 1 id=nbs,1,-1
+c
+      if(id.eq.2.and.msa.gt.0) then
+      if(.not.ma_pop_stack(l_wsm))
+     + call errquit('Failed to deallocate wsm',id)
+      endif
 c
       if(id.eq.1.and.mwa.gt.0) then
       if(.not.ma_pop_stack(l_iwq))

@@ -5,15 +5,17 @@ OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_induce.o\
              cf_init.o\
              cf_list.o\
+             cf_main.o\
              cf_pairs.o\
              cf_pbc.o\
+             cf_shake.o\
              cf_grid.o\
              cf_rdtop.o\
              pme_init.o\
              pme_fft.o\
              pme_grid.o
 
-LIBRARY=libnwargos.a
+LIBRARY=libcafe.a
 
 HEADER=
 

@@ -47,9 +47,8 @@ c
       integer lstptr
       logical lself,lpbc
 c
-      integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
+      integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
-      integer nconst,i
 c
       if(lself) then
       jwfr=iwfr

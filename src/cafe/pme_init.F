@@ -82,6 +82,11 @@ c     create the global arrays for the slabs
 c
       call ga_create_list(2*np*mgx,mgy,'sl',2*mgx,mgy,mgz,lslab)
 c
+c     create the flag array
+c
+      if(.not.ga_create(mt_int,np,1,'flg',1,1,ga_flg))
+     + call errquit('Failed to allocate global array flg',0)
+c
 c     select the fft
 c
       call pme_select(zero)
@@ -100,8 +105,12 @@ c
 c
 #include "pme_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 c
-      call ga_create_list(mgz,lslab)
+      if(.not.ga_destroy(ga_flg))
+     + call errquit('Failed to deallocate flg',0)
+c
+      call ga_destroy_list(mgz,lslab)
 c
       if(.not.ma_pop_stack(l_slab))
      + call errquit('Failed to deallocate slab',0)

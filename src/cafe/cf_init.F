@@ -1,7 +1,9 @@
       subroutine cf_start(lfntop,filtop,
-     + nwm,nwa,nsa,nwmt,nsat,npbt,nbxt,msfi,rcs,rcl,rqm,
-     + jpme,jorder,jgx,jgy,jgz,spmet,
-     + iiqmmm,iipolt)
+     + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
+     + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
+     + jpme,jorder,jgx,jgy,jgz,spmet,step,tols,mshw,mshs,
+     + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
+     + iislow,tempi,tempwi,tempsi,compr)
 c
       implicit none
 c
@@ -11,10 +13,15 @@ c
 c
       integer lfntop
       character*(*) filtop
-      integer jpme,jorder,jgx,jgy,jgz
-      real*8 spmet
-      integer nwm,nwa,nsa,nwmt,nsat,npbt,nbxt,iiqmmm,msfi,iipolt
-      real*8 rcs,rcl,rqm
+      integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
+      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs
+      real*8 spmet,step,tols,bx(3)
+      integer mdalg,npbt,nbxt,iiqmmm,iipolt
+      real*8 rcs,rcl,rqm,compr
+      integer iitmps,iiprss,iislow
+      real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
+c
+      integer i
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -23,6 +30,16 @@ c
  1000 format('CAFE Classical Atomic Forces and Energies')
 c
 c     dimensions initially set to zero indicating non-allocated
+c
+      itscal=iitmps
+      ipscal=iiprss
+      tmpext=rtmpx
+      prsext=rprsx
+      tmwrlx=rtmpw
+      tmsrlx=rtmps
+      prsrlx=rpres
+c
+      mdalgo=mdalg
 c
       nbs=0
       mscr=0
@@ -33,13 +50,19 @@ c
       ndxp=0
       maxl=0
 c
-      mwm=nwm
-      mwa=nwa
-      msa=nsa
-      mscr=max(mwm+1,msa+1)
-      nwmtot=nwmt
-      nsatot=nsat
+      mwm=mwmi
+      mwa=mwai
       msf=msfi
+      msm=msmi
+      msa=msai
+      nwm=nwmi
+      nwa=nwai
+      nsf=nsfi
+      nsm=nsmi
+      nsa=nsai
+      mscr=max(mwm+1,msa+1)
+      nwmtot=nwm
+      nsatot=nsa
 c
       rshrt=rcs
       rlong=rcl
@@ -47,12 +70,19 @@ c
       rshrt2=rshrt*rshrt
       rlong2=rlong*rlong
       rqmmm2=rqmmm*rqmmm
+      ltwin=rlong.gt.rshrt
 c
       nbxtyp=nbxt
       npbtyp=npbt
 c
+      do 1 i=1,3
+      box(i)=bx(i)
+      boxh(i)=half*bx(i)
+    1 continue
+c
       iqmmm=iiqmmm
       ipolt=iipolt
+      islow=iislow
 c
       lstype=1
 c
@@ -91,10 +121,23 @@ c
       rffsw=0.0d0
       rffss=0.0d0
 c
+      tstep=step
+      tstepi=one/tstep
+      tolsha=tols
+      mshitw=mshw
+      mshits=mshs
+c
+      temp=tempi
+      tempw=tempwi
+      temps=tempsi
+c
       q14fac=0.833333d0
+      facpsc=compr*tstep/prsrlx
 c
       pi=four*atan(one)
       twopi=two*pi
+c
+      wbox=zero
 c
       call cf_rdtop(lfntop,filtop)
 c
@@ -109,6 +152,14 @@ c
       if(morder.gt.25) call errquit('morder too large',0)
       call cf_alpha
       endif
+c
+c      nsmi=nsm
+c      nsfi=nsf
+c
+c      msm=max(1,nsm)
+c      msf=max(1,nsf)
+c
+      print*,'CAFE start completed'
 c
       return
       end
@@ -359,7 +410,6 @@ c
       numt(id)=ntt
       numx(id)=nxt
 c
-      if(id.eq.1) mwa=na
       mbt(id)=max(1,nbt)
       mbp(id)=max(1,nbp)
       mht(id)=max(1,nht)
@@ -442,6 +492,11 @@ c
      + call errquit('Allocation failed for iwq',0)
       endif
 c
+      if(id.eq.2.and.msm.gt.0) then
+      if(.not.ma_push_get(mt_dbl,msa,'wsm',l_wsm,i_wsm))
+     + call errquit('Allocation failed forwsm',0)
+      endif
+c
       return
       end
       subroutine cf_parwiq(id,ia,iq)
@@ -478,7 +533,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer i,id,idp,ip(4),j
+      integer id,idp,ip(4)
       real*8 p(*)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error in parbnd',0)
@@ -496,7 +551,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer i,id,idp,ip(5),j
+      integer id,idp,ip(5)
       real*8 p(*)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parang',0)
@@ -514,7 +569,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer i,id,idp,ip(6),j
+      integer id,idp,ip(6)
       real*8 p(*)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in pardih',0)
@@ -532,7 +587,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer i,id,idp,ip(6),j
+      integer id,idp,ip(6)
       real*8 p(*)
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parimp',0)
@@ -661,26 +716,6 @@ c
       do 1 i=1,np
       j=iabs(ip(i,1))
       if(j.gt.0) ip(j,1)=i
-    1 continue
-c
-      return
-      end
-      subroutine cf_final(ewpo,ewwlo,ewwqo,zwo)
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      real*8 ewpo,ewwlo(2),ewwqo(2),zwo(3,2)
-      integer i,j
-c
-      ewpo=ewpo+ewp
-      do 1 i=1,2
-      ewwlo(i)=ewwl(i)
-      ewwqo(i)=ewwq(i)
-      do 2 j=1,3
-      zwo(j,i)=zwo(j,i)+zw(j,i)
-    2 continue
     1 continue
 c
       return
@@ -865,7 +900,7 @@ c
 c
       if(llst) call errquit('Error 1 in cf_lalloc',0)
 c
-      maxl=MA_inquire_avail(mt_int)
+      maxl=ma_inquire_avail(mt_int)/2
       if(.not.ma_alloc_get(mt_int,maxl,'list',l_list,i_list))
      + call errquit('Failed to allocate list',0)
 c
@@ -900,7 +935,8 @@ c
 c
       return
       end
-      subroutine cf_initf(bx,vl,vli,lp)
+      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess)
+c     + vw,vwt,vs,vst,zwi,zs,eww,esw,ess)
 c
 c     in r*8 : bx(3) : box dimensions
 c     in log : lp    : flag to force pairlist recalculation
@@ -909,10 +945,18 @@ c
 c
 #include "cf_common.fh"
 c
-      real*8 bx(3),vl(3,3),vli(3,3)
-      logical lp
+c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
+      real*8 bx(3),vl(3,3),vli(3,3),zwi(3,2),zs(msf,3,2)
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
+      logical lp,llng
 c
-      integer i,j
+      integer i,j,k,l,m
+c
+      lpair=lp
+      llong=llng
+c
+      m=1
+      if(llong) m=2
 c
       do 1 i=1,3
       box(i)=bx(i)
@@ -924,7 +968,34 @@ c
     1 continue
       volume=box(1)*box(2)*box(3)
 c
-      lpair=lp
+      do 8 l=1,m
+      do 3 i=1,mpe
+      eww(i,l)=zero
+      do 4 j=1,msf
+      esw(j,i,l)=zero
+      do 5 k=1,msf
+      ess(k,j,i,l)=zero
+    5 continue
+    4 continue
+    3 continue
+      do 6 i=1,3
+      zw(i,l)=zero
+      zwi(i,l)=zero
+      do 7 j=1,msf
+      zs(j,i,l)=zero
+    7 continue
+    6 continue
+    8 continue
+c
+      lpww=1
+      lpsw=1
+      lpss=1
+      if(llong) then
+      lpww=2
+      lpsw=2
+      lpss=2
+      endif
+c
       if(.not.llist) lpair=.true.
 c
 c     allocate memory for the scratch arrays
@@ -937,21 +1008,10 @@ c
 c
       ndxp=0
 c
-      ewb=0.0d0
-      ewh=0.0d0
-      ewd=0.0d0
-      ewo=0.0d0
-      ewl=0.0d0
-      ewq=0.0d0
-      ewp=0.0d0
-c
-      do 3 i=1,2
-      ewwl(i)=0.0d0
-      ewwq(i)=0.0d0
-      do 4 j=1,3
-      zw(j,i)=0.0d0
-    4 continue
-    3 continue
-c
       return
       end
+      
+
+
+
+

@@ -35,8 +35,8 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2)
-      real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3)
+      real*8 xs(msa,3),xsm(msm,3)
       integer iwdt(mwm),iwz(mwm),isz(msa)
       integer isga(msa),isat(msa),isdt(msa),isgr(msa),ismf(msa)
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
@@ -45,8 +45,10 @@ c
       logical lself,lpbc
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
-      integer lptr
-      integer nconst,i
+      integer lptr,lptrn
+      integer nconst
+c
+c      print*,'CAFE pairs with lpbc=',lpbc
 c
       if(lself) then
       jwfr=iwfr
@@ -56,7 +58,8 @@ c
       endif
 c
       lstptr=ndxp
-      lptr=i_list+ndxp
+      lptrn=i_list+ndxp
+      lptr=i_list+ndxp+24
 c
       nwloc=iwto-iwfr+1
       if(iwfr.eq.0.or.iwto.lt.iwfr) nwloc=0
@@ -66,20 +69,6 @@ c
       if(isfr.eq.0.or.isto.lt.isfr) nsloc=0
       nsnon=jsto-jsfr+1
       if(jsfr.eq.0.or.jsto.lt.jsfr) nsnon=0
-c
-c     list [ list(1)=int_mb(lptr) ] with offset ndxp
-c
-c     list( 1) : index to pairlist for solvent-solvent
-c     list( 2) : index to pairlist for solute-solvent
-c     list( 3) : index to pairlist for solvent-solute
-c     list( 4) : index to pairlist for solute-solute
-c     list( 5) : index to pairlist for solute bonds
-c     list( 6) : index to pairlist for solute angles
-c     list( 7) : index to pairlist for solute dihedrals
-c     list( 8) : index to pairlist for solute impropers
-c     list( 9) : index to pairlist for solute third neighbors
-c     list(10) : index to pairlist for solute excluded pairs
-c
 c
 c     pairlists
 c     ---------
@@ -95,6 +84,7 @@ c
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn)=lptr
       if(npairs.gt.0) then
       lptr=lptr+4*nwloc+1+npairs
       else
@@ -112,6 +102,7 @@ c
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+1)=lptr
       if(npairs.gt.0) then
       lptr=lptr+4*nsloc+1+npairs
       else
@@ -129,6 +120,7 @@ c
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+2)=lptr
       if(npairs.gt.0) then
       lptr=lptr+4*nsnon+1+npairs
       else
@@ -148,6 +140,7 @@ c
      + int_mb(i_itrd(2)),mtt(2),int_mb(i_ixcl(2)),mxt(2))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+3)=lptr
       if(npairs.gt.0) then
       lptr=lptr+4*nsloc+1+npairs
       else
@@ -164,6 +157,7 @@ c
      + int_mb(lptr+1),int_mb(i_s2i1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+4)=lptr
       if(npairs.gt.0) then
       lptr=lptr+1+npairs
       else
@@ -180,6 +174,7 @@ c
      + int_mb(lptr+1),int_mb(i_s2i1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+5)=lptr
       if(npairs.gt.0) then
       lptr=lptr+1+npairs
       else
@@ -196,6 +191,7 @@ c
      + int_mb(lptr+1),int_mb(i_s2i1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+6)=lptr
       if(npairs.gt.0) then
       lptr=lptr+1+npairs
       else
@@ -212,6 +208,7 @@ c
      + int_mb(lptr+1),int_mb(i_s2i1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+7)=lptr
       if(npairs.gt.0) then
       lptr=lptr+1+npairs
       else
@@ -228,6 +225,7 @@ c
      + int_mb(lptr+1),int_mb(i_s2i1))
       endif
       int_mb(lptr)=npairs
+      int_mb(lptrn+8)=lptr
       if(npairs.gt.0) then
       lptr=lptr+1+npairs
       else

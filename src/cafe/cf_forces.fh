@@ -1,15 +1,13 @@
 #if defined(CAFE_POLARIZATION)
-      subroutine forcep(lself,xw,xwm,fw,pw,pwp,rtos,iwdt,iwz,
+      subroutine forcep(lself,xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,eswl,eswq,essl,essq,essr,esp,
-     + esb,esh,esd,eso,lupden)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
 #elif defined(CAFE_FORCES)
-      subroutine forces(lself,xw,xwm,fw,rtos,iwdt,iwz,
+      subroutine forces(lself,xw,xwm,fw,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,eswl,eswq,essl,essq,essr,esp,
-     + esb,esh,esd,eso,lupden)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
 #else
 c     error
 #endif
@@ -40,9 +38,16 @@ c     in     int : isq3(msa)       : solute charge type 3
 c     out    int : isz(msa)        : solute boundary type 
 c     in     int : isfr,isto       : first and last solute atom i
 c     in     int : jsfr,jsto       : first and last solute atom j
-c     in     log : lpbc            : flag to consider periodic boundary conditions
+c     in     log : lpbc            : flag for periodic boundary conditions
 c     in/out int : lstptr          : list pointer
-c     in/out r*8 : eswl(msf,2)     : solute-solvent van der Waals energy
+c     in/out r*8 : eww(mpe,2)      : mpe=1 solvent bond energy
+c                                        2 solvent angle energy
+c                                        3 solvent torsion energy
+c                                        4 solvent improper energy
+c                                        5 solvent van der Waals energy
+c                                        6 solvent electrostatic energy
+c                                        7 solvent potential energy
+c                  eswl(msf,2)     : solute-solvent van der Waals energy
 c     in/out r*8 : eswq(msf,2)     : solute-solvent electrostatic energy
 c     in/out r*8 : essl(msf,msf,2) : solute-solute van der Waals energy
 c     in/out r*8 : essq(msf,msf,2) : solute-solute electrostatic energy
@@ -61,7 +66,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),zwi(3,2)
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
 #if defined(CAFE_POLARIZATION)
       real*8 pw(mwm,3,mwa,2),pwp(mwm,3,mwa,2,2)
@@ -73,13 +78,20 @@ c
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
       logical lself,lpbc,lupden
-      real*8 eswq(*),eswl(*),rtos(*),zs(*),esp(*)
-      real*8 esb(*),esh(*),esd(*),eso(*)
-      real*8 essl,essq,essr
+      real*8 rtos(mwm),zs(msf,2)
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
 c
-      integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
+      integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
-      integer nconst,i
+      integer i,j
+c
+c      print*,'CAFE forces'
+c
+      do 1 j=1,2
+      do 2 i=1,3
+      zw(i,j)=zwi(i,j)
+    2 continue
+    1 continue
 c
       if(lself) then
       jwfr=iwfr
@@ -123,11 +135,11 @@ c     forces
 c     ------
 c
       ndxp=lstptr
-      lptr=i_list+ndxp      
+      lptr=i_list+ndxp+24
 c
       if(lself.and.nwloc.gt.0) then
       call cf_fw(iwfr,iwto,xw,fw,iwdt,int_mb(i_iwa),int_mb(i_iwq),
-     + lpbc,dbl_mb(i_vdw),dbl_mb(i_chg),mbt(1),numb(1),mbp(1),
+     + lpbc,eww,dbl_mb(i_vdw),dbl_mb(i_chg),mbt(1),numb(1),mbp(1),
      + int_mb(i_ibnd(1)),dbl_mb(i_bnd(1)),dbl_mb(i_rbnd(1)),
      + mht(1),numh(1),mhp(1),
      + int_mb(i_iang(1)),dbl_mb(i_ang(1)),dbl_mb(i_rang(1)),
@@ -137,16 +149,15 @@ c
      + int_mb(i_iimp(1)),dbl_mb(i_imp(1)),dbl_mb(i_rimp(1)),
      + mtt(1),numt(1),int_mb(i_itrd(1)),
      + mxt(1),numx(1),int_mb(i_ixcl(1)))
-      endif
 c
-      lptr=i_list+ndxp
+      endif
 c
 c     solvent-solvent forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
 #if defined(CAFE_POLARIZATION)
-      call cf_fpww(xw,xwm,fw,pw,pwp,iwdt,iwfr,nwloc,lpbc,
+      call cf_fpww(xw,xwm,fw,pw,pwp,iwdt,iwfr,nwloc,lpbc,eww,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nwloc),int_mb(lptr+1+4*nwloc),
@@ -155,7 +166,7 @@ c
      + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),
      + dbl_mb(i_smr5),dbl_mb(i_smr6))    
 #elif defined(CAFE_FORCES)
-      call cf_fww(xw,xwm,fw,iwdt,iwfr,nwloc,lpbc,
+      call cf_fww(xw,xwm,fw,iwdt,iwfr,nwloc,lpbc,eww,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nwloc),int_mb(lptr+1+4*nwloc),
@@ -176,7 +187,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
-     + xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
+     + xw,xwm,fw,rtos,iwdt,lpbc,esw,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -198,7 +209,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
-     + xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
+     + xw,xwm,fw,rtos,iwdt,lpbc,esw,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
@@ -219,7 +230,7 @@ c
 #if defined(CAFE_POLARIZATION)   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-     + isq1,isq2,isq3,isfr,nsloc,essl,essq,essr,lpbc,
+     + isq1,isq2,isq3,isfr,nsloc,lpbc,ess,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -241,7 +252,7 @@ c
       call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,esb,esp,lpbc)
+     + xs,fs,ess,lpbc)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -254,7 +265,7 @@ c
       call cf_fsh(npairs,int_mb(lptr+1),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,esh,esp,lpbc,lupden)
+     + xs,fs,ess,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -267,7 +278,7 @@ c
       call cf_fsd(npairs,int_mb(lptr+1),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,esd,esp,lpbc,lupden)
+     + xs,fs,ess,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -280,7 +291,7 @@ c
       call cf_fso(npairs,int_mb(lptr+1),mdt(2),mdp(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,eso,esp,lpbc,lupden)
+     + xs,fs,ess,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -293,13 +304,19 @@ c
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + max(isto,jsto),msa,isat,isga,isml,isdt,isq2,
-     + xs,fs,esp,essl,essq,essr,lpbc)
+     + xs,fs,ess,lpbc)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
       endif
 c
       ndxp=lptr-i_list
+c
+      do 3 j=1,2
+      do 4 i=1,3
+      zwi(i,j)=zw(i,j)
+    4 continue
+    3 continue
 c
       return
       end

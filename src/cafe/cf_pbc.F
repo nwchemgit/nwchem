@@ -1,6 +1,6 @@
       subroutine cf_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: cf_pbc.F,v 1.2 1999-02-17 03:33:27 d3j191 Exp $
+c $Id: cf_pbc.F,v 1.3 1999-03-15 21:20:01 d3j191 Exp $
 c
       implicit none
 c
@@ -10,18 +10,6 @@ c
       real*8 xd(ndd,3),xc(ndc,3),xt(3),xts
       integer i,ix,jx,ndim
       real*8 rin(3),pbcor
-c
-c     periodic boundary conditions
-c
-c     iopt=0 : xd unchanged, correction vector returned in xc
-c         =1 : xd corrected, xc unused
-c
-c     xd(ndim,3) : initial vector
-c     xc(ndim,3) : correction vector
-c
-c     initialize correction vector
-c
-c     vacuo : nothing to be done
 c
       if(npbtyp.eq.0) return
 c

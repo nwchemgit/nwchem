@@ -11,7 +11,7 @@ c
 c
       call pme_grid(xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
-     + int_mb(i_lnod),int_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
+     + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       if(.not.lpnode) return
 c
@@ -21,7 +21,7 @@ c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd2),mgz)
 c
-      call arg_sync(nodpme,int_mb(i_nodp))
+      call pme_sync(nodpme,int_mb(i_nodp))
 c
       call pme_fft(ngx,ngy,ngz,1,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
@@ -30,7 +30,7 @@ c
 c
       return
       end
-      subroutine pme_grid(xw,nwmloc,xs,nsaloc,
+      subroutine pme_grid(xw,nwmloc,xs,isq,nsaloc,
      + nodep,knode,kfrom,kto,lnode,lsldo,gridr,gridc)
 c
       implicit none
@@ -41,7 +41,8 @@ c
 c
       integer nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      integer isq(msa),lsldo(np,mgz)
+      integer isq(msa)
+      logical lsldo(np,mgz)
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),lnode(np)
       real*8 gridr(mgx,mgy,mgz),gridc(2,mgx,mgy,mgz)
 c
@@ -97,20 +98,15 @@ c
 c     accumulate flag on first pme node to indicate grid contributions
 c     of this node have been completed
 c
-      call arg_flag(-1,nodep(1))
+      call pme_flag(-1,nodep(1))
 c
 c     pmenodes should wait until all nodes have finished contributions to the grid
 c
       if(me.eq.nodep(1)) then
-      call arg_wait(np)
-      call arg_flag(0,me)
+      call pme_wait(np)
+      call pme_flag(0,me)
       endif
-      call arg_sync(nodpme,nodep)
-c
-      call arg_timer(203,1)
-      call arg_timer(204,-1)
-c
-      call arg_timer(131,1)
+      call pme_sync(nodpme,nodep)
 c
 c     retrieve local slab from global array space
 c
@@ -216,9 +212,98 @@ c
       call pme_getgrd(node,ngznon,dbl_mb(i_grd1))
 c
       call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd1),mgz,
-     + int_mb(i_knod),int_mb(i_kfr),int_mb(i_lsld),node)
+     + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue
 c
       return
       end
+      subroutine pme_sync(number,nodes)
+c
+      implicit none
+c
+      integer number
+      integer nodes(number)
+c
+      external mxcombv1,pme_synop
+      integer mxcombv1,pme_synop
+c
+      integer node,ires
+      real*8 datum,buffer
+c
+      datum=0.0d0
+      ires=mxcombv1(datum,pme_synop,8,1,number,nodes,123,buffer)
+c
+      return
+      end
+      integer function pme_synop(idat,jdat,iteml,nitems)
+c
+      integer idat,jdat,iteml,nitems
+c
+      idat=0
+      jdat=0
+      pme_synop=0
+c
+      return
+      end
+      subroutine pme_flag(icolor,inode)
+c
+      implicit none
+c
+#include "pme_common.fh"
+c
+      integer icolor,inode
+      integer il,ih,jl,jh,node,icolr
+c
+c     set flag on node:
+c
+c     icolor>=0 set flag to icolor
+c     icolor<0  accumulate iabs(icolor) to flag
+c
+c     inode>=0  set/accumulate flag on node inode
+c     inode<0   set/accumulate flag on all nodes
+c
+      icolr=iabs(icolor)
+c
+      if(inode.lt.0) then
+      do 1 node=0,np-1
+      call ga_distribution(ga_flg,node,il,ih,jl,jh)
+      if(icolor.ge.0) then
+      call ga_put(ga_flg,il,ih,jl,jh,icolr,1)
+      else
+      call ga_acc(ga_flg,il,ih,jl,jh,icolr,1,1)
+      endif
+    1 continue
+      else
+c
+c     set flag on single node
+c
+      call ga_distribution(ga_flg,inode,il,ih,jl,jh)
+      if(icolor.ge.0) then
+      call ga_put(ga_flg,il,ih,jl,jh,icolr,1)
+      else
+      call ga_acc(ga_flg,il,ih,jl,jh,icolr,1,1)
+      endif
+      endif
+c
+      return
+      end
+      subroutine pme_wait(icolor)
+c
+      implicit none
+c
+#include "pme_common.fh"
+c
+      integer icolor
+      integer il,ih,jl,jh,icolr
+c
+c     wait until flag color on this node is icolor
+c
+      call ga_distribution(ga_flg,me,il,ih,jl,jh)
+    1 continue
+      call ga_get(ga_flg,il,ih,jl,jh,icolr,1)
+      if(icolr.ne.icolor) goto 1
+c
+      return
+      end
+

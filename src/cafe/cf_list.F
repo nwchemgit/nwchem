@@ -33,7 +33,6 @@ c
       jwmto=jwto
       endif
 c
-c      maxlst=mavail*niperw
       npairs=0
       do 1 iwm=iwmfr,iwmto
       if(lself) jwmfr=iwm+1
@@ -77,23 +76,17 @@ c
     9 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist+4*nlocw.gt.maxlst) then
-c      messg='listww : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 5 ilist=1,nlist
       lwwj(npairs+ilist)=list(ilist,1)
     5 continue
       lwwjpt(iwm-iwmfr+1,1)=npairs+1
-c      nwwl=nwwl+nlist
       npairs=npairs+nlist
       lwwin(iwm-iwmfr+1,1)=nlist
 c
 c     long range pairs
 c
-      if(npww.eq.2) then
       nlist=0
+      if(npww.eq.2) then
       do 12 jwm=jwmfr,jwmto
       if(list(jwm,2).eq.1) then
       nlist=nlist+1
@@ -102,17 +95,10 @@ c
    12 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist+4*nlocw.gt.maxlst) then
-c      messg='listww : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 13 ilist=1,nlist
       lwwj(npairs+ilist)=list(ilist,2)
    13 continue
       lwwjpt(iwm-iwmfr+1,2)=npairs+1
-c      nwwl=nwwl+nlist
-c      nwwls=nwwls+nlist
       npairs=npairs+nlist
       lwwin(iwm-iwmfr+1,2)=nlist
       endif
@@ -122,8 +108,6 @@ c
       end
       subroutine cf_lsw(lpbc,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,
      + iwfr,iwto,ndim,mpairs,npairs,lswjpt,lswin,lswj,list,rwx,rw)
-c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -137,10 +121,10 @@ c
       integer list(mwm,2),iwdt(mwm),isdt(msa),isgr(msa)
       integer iwz(mwm)
 c
-      integer iwmfr,iwfr,iwmto,iwto,isafr,isfr,isato,isto,maxlst
-      integer mpairs,npairs,isa,iwm,nlist,ilist,isa0,iisa,inswl,i
+      integer iwmfr,iwfr,iwmto,iwto,isafr,isfr,isato,isto
+      integer mpairs,npairs,isa,iwm,nlist,ilist,isa0,iisa
 c
-      integer nswl,nswi1,nswi2
+      integer nswi1,nswi2
       logical lpbc
 c
 c     this subroutine evaluates the solute-solvent pairlist
@@ -197,16 +181,10 @@ c
   402 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listsw : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 5 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,1)
     5 continue
       lswjpt(isa-isafr+1,1)=npairs+1
-c      nswl=nswl+nlist
       npairs=npairs+nlist
       lswin(isa-isafr+1,1)=nlist
 c
@@ -222,18 +200,11 @@ c
  8402 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listsw : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 8005 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,2)
  8005 continue
       lswjpt(isa-isafr+1,2)=npairs+1
-c      nswl=nswl+nlist
       npairs=npairs+nlist
-c      nswls=nswls+nlist
       lswin(isa-isafr+1,2)=nlist
       endif
     1 continue
@@ -331,16 +302,10 @@ c
    18 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listsw : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 19 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,1)
    19 continue
       npairs=npairs+nlist
-c      nswl=nswl+nlist
 c
 c     long range pairlist
 c
@@ -358,16 +323,10 @@ c
  8018 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listsw : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 8019 ilist=1,nlist
       lswj(npairs+ilist)=list(ilist,2)
  8019 continue
       npairs=npairs+nlist
-c      nswl=nswl+nlist
       endif
 c
       isa=isa+1
@@ -386,10 +345,6 @@ c
       subroutine cf_lss(lself,lpbc,xs,iga,idt,igr,isz,isfr,isto,
      + jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,rwx,rw,
      + ndxt,nt,ndxx,nx)
-c     + lsxndx,lstndx,jdst,jdsx)
-c     +nlocs,isfr,isto,jsfr,jsto,npairs,
-c     + lssjpt,lssin,lssj,list,rwx,rw,xs,lsxndx,lstndx,jdst,jdsx,isl,
-c     + istemp)
 c
       implicit none
 c
@@ -401,26 +356,17 @@ c
       integer nlocs,nt,nx
       integer ndxt(0:nt,2),ndxx(0:nx,2)
 c
-c     lsxndx(i) = ndxx(i,1)
-c     jdsx(i)   = ndxx(i,2)
-c
-c      integer lsxndx(0:nsa),lstndx(0:nsa)
-c      integer jdst(mst),jdsx(msx)
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
-c      integer list(msa,3),isl(msa,mis2),isz(msa)
       integer list(msa,3),iga(msa),igr(msa),idt(msa),isz(msa)
       logical lself,lpbc
 c
-      integer maxlst,isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
+      integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
       integer mpairs,npairs,isa,jsa,nlist1,nlist2
       integer ifrsx,itosx,ifrst,itost,jfrsx,jtosx,jfrst,jtost
       integer iskip1,iskip2,istsum,ist,jst,isxsum,isx,jsx,ilist
       integer nlist0,isa0,iisa,isglob,ipss,jsglob,nlist,leq,nssl0
-      integer inssl,i
 c
 c     this subroutine evaluates the solute-solute pairlist
-c
-c      maxlst=2*mavail
 c
       isafr=isfr
       isato=isto
@@ -451,10 +397,6 @@ c
       nlist1=0
       nlist2=0
       isglob=iga(isa)
-c      ifrsx=lsxndx(isglob-1)+1
-c      itosx=lsxndx(isglob)
-c      ifrst=lstndx(isglob-1)+1
-c      itost=lstndx(isglob)
       ifrsx=ndxx(isglob-1,1)+1
       itosx=ndxx(isglob,1)
       ifrst=ndxt(isglob-1,1)+1
@@ -474,21 +416,15 @@ c      itost=lstndx(isglob)
       istsum=0
       if(iskip1.eq.0.or.iskip2.eq.0) then
       jsglob=iga(jsa)
-c      jfrsx=lsxndx(jsglob-1)+1
-c      jtosx=lsxndx(jsglob)
-c      jfrst=lstndx(jsglob-1)+1
-c      jtost=lstndx(jsglob)
       jfrsx=ndxx(jsglob-1,1)+1
       jtosx=ndxx(jsglob,1)
       jfrst=ndxt(jsglob-1,1)+1
       jtost=ndxt(jsglob,1)
       istsum=1
       do 5 ist=ifrst,itost
-c      if(jsglob.eq.jdst(ist)) goto 7
       if(jsglob.eq.ndxt(ist,2)) goto 7
     5 continue
       do 6 jst=jfrst,jtost
-c      if(isglob.eq.jdst(jst)) goto 7
       if(isglob.eq.ndxt(jst,2)) goto 7
     6 continue
       istsum=0
@@ -498,11 +434,9 @@ c      if(isglob.eq.jdst(jst)) goto 7
       if((iskip1.eq.0.or.iskip2.eq.0).and.istsum.eq.0) then
       isxsum=1
       do 8 isx=ifrsx,itosx
-c      if(jsglob.eq.jdsx(isx)) goto 10
       if(jsglob.eq.ndxx(isx,2)) goto 10
     8 continue
       do 9 jsx=jfrsx,jtosx
-c      if(isglob.eq.jdsx(jsx)) goto 10
       if(isglob.eq.ndxx(jsx,2)) goto 10
     9 continue
       isxsum=0
@@ -522,17 +456,11 @@ c      if(isglob.eq.jdsx(jsx)) goto 10
     4 continue
       if(npairs+nlist1+nlist2.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist1+nlist2.gt.maxlst) then
-c      messg='listss : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist1-nlist2
       do 11 ilist=1,nlist1
       lssj(npairs+ilist)=list(ilist,1)
    11 continue
       lssjpt(isa-isafr+1,1)=npairs+1
       npairs=npairs+nlist1
-c      nssl=nssl+nlist1
       lssin(isa-isafr+1,1)=nlist1
       if(npss.eq.2) then
       do 12 ilist=1,nlist2
@@ -540,8 +468,6 @@ c      nssl=nssl+nlist1
    12 continue
       lssjpt(isa-isafr+1,2)=npairs+1
       npairs=npairs+nlist2
-c      nssl=nssl+nlist2
-c      nssls=nssls+nlist2
       lssin(isa-isafr+1,2)=nlist2
       endif
     1 continue
@@ -756,13 +682,9 @@ c
       if(iga(iisa).eq.iga(jsa)) list(jsa,3)=0
       if(lself.and.jsa.lt.iisa) list(jsa,3)=0
    50 continue
-c
-c      ifrst=lstndx(isglob-1)+1
-c      itost=lstndx(isglob)
       ifrst=ndxt(isglob-1,1)+1
       itost=ndxt(isglob,1)
       do 51 ist=ifrst,itost
-c      jsglob=jdst(ist)
       jsglob=ndxt(ist,2)
       do 52 jsa=jsafr,jsato
       if(iga(jsa).eq.jsglob) list(jsa,3)=0
@@ -771,23 +693,16 @@ c      jsglob=jdst(ist)
       do 53 jsa=jsafr,jsato
       if(list(jsa,3).eq.1) then
       jsglob=iga(jsa)
-c      jfrst=lstndx(jsglob-1)+1
-c      jtost=lstndx(jsglob)
       jfrst=ndxt(jsglob-1,1)+1
       jtost=ndxt(jsglob,1)
       do 54 jst=jfrst,jtost
-c      if(isglob.eq.jdst(jst)) list(jsa,3)=0
       if(isglob.eq.ndxt(jst,2)) list(jsa,3)=0
    54 continue
       endif
    53 continue
-c
-c      ifrsx=lsxndx(isglob-1)+1
-c      itosx=lsxndx(isglob)
       ifrsx=ndxx(isglob-1,1)+1
       itosx=ndxx(isglob,1)
       do 55 isx=ifrsx,itosx
-c      jsglob=jdsx(isx)
       jsglob=ndxx(isx,2)
       do 56 jsa=jsafr,jsato
       if(iga(jsa).eq.jsglob) list(jsa,3)=0
@@ -796,12 +711,9 @@ c      jsglob=jdsx(isx)
       do 57 jsa=jsafr,jsato
       if(list(jsa,3).eq.1) then
       jsglob=iga(jsa)
-c      jfrsx=lsxndx(jsglob-1)+1
-c      jtosx=lsxndx(jsglob)
       jfrsx=ndxx(jsglob-1,1)+1
       jtosx=ndxx(jsglob,1)
       do 58 jsx=jfrsx,jtosx
-c      if(isglob.eq.jdsx(jsx)) list(jsa,3)=0
       if(isglob.eq.ndxx(jsx,2)) list(jsa,3)=0
    58 continue
       endif
@@ -818,10 +730,6 @@ c
    59 continue
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listss : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       leq=0
 c
 c     check if this pairlist section was generated before
@@ -836,18 +744,11 @@ c
       if(leq.eq.0) then
       if(npairs+nlist.gt.mpairs)
      + call errquit('Insufficient memory for pairlist',0)
-c      if(npairs+nlist.gt.maxlst) then
-c      messg='listss : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
-c      maxlst=maxlst-nlist
       do 61 ilist=1,nlist
       lssj(npairs+ilist)=list(ilist,3)
    61 continue
       lssjpt(iisa-isfr+1,ipss)=npairs+1
-c      nssl=nssl+nlist
       npairs=npairs+nlist
-c      if(ipss.eq.2) nssls=nssls+nlist
       else
       lssjpt(iisa-isfr+1,ipss)=lssjpt(iisa-isfr,ipss)
       endif
@@ -870,8 +771,6 @@ c
       subroutine cf_lsb(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idb,nsb,nbonds,mbonds,nconst,lbonds,itemp)
 c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
-c
       implicit none
 c
 #include "cf_common.fh"
@@ -879,15 +778,15 @@ c
       integer iga(msa),idt(msa)
       integer nsb,mbonds
       integer idb(nsb,4)
-c      integer idsb(msb),jdsb(msb),isbs(msb)
       integer lbonds(*)
-c      integer isl(msa,mis2),itemp(nsa),istemp(msa)
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer isb,nbi,nbonds,nconst,maxbnd,ibloc,jbloc,isbloc,iq,jq
+      integer isb,nbi,nbonds,nconst,ibloc,jbloc,isbloc,iq,jq
       logical lself
 c
 #include "bitops.fh"
+c
+      if(numb(2).eq.0) return
 c
 c     This subroutine evaluates the solute bonds list
 c
@@ -898,7 +797,6 @@ c
 c
       nbonds=0
       nconst=0
-c      maxbnd=mavail*niperw
 c
       do 1 isa=1,nsatot
       itemp(isa)=0
@@ -910,7 +808,7 @@ c
       itemp(iga(isa))=1
     3 continue
 c
-      do 4 isb=1,nsb
+      do 4 isb=1,numb(2)
       nbi=itemp(idb(isb,1))
       if(nbi.gt.0) then
       nbi=nbi+itemp(idb(isb,2))
@@ -920,10 +818,6 @@ c
       if(idb(isb,3).eq.1) nconst=nconst+1
       if(nbonds.gt.mbonds)
      + call errquit('Insufficient memory for bond list',0)
-c      if(nbonds.gt.maxbnd) then
-c      messg='listsb : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       lbonds(nbonds)=isb
       endif
       endif
@@ -956,8 +850,6 @@ c
       subroutine cf_lsh(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idh,nsh,nangls,mangls,nconst,langls,itemp)
 c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
-c
       implicit none
 c
 #include "cf_common.fh"
@@ -965,16 +857,16 @@ c
       integer nsh,mangls
       integer idh(nsh,5)
       integer iga(msa),idt(msa)
-c      integer idsh(msh),jdsh(msh),kdsh(msh),ishs(msh)
       integer langls(1)
       integer itemp(nsatot),istemp(msa)
-c      integer isl(msa,mis2),itemp(nsa),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer ish,nhi,nangls,nconst,maxang
+      integer ish,nhi,nangls,nconst
       integer ishloc,ihloc,jhloc,khloc,iq,jq,kq
       logical lself
 c
 #include "bitops.fh"
+c
+      if(numh(2).eq.0) return
 c
 c     This subroutine evaluates the solute angles list
 c
@@ -985,7 +877,6 @@ c
 c
       nangls=0
       nconst=0
-c      maxang=mavail*niperw
 c
       do 1 isa=1,nsatot
       itemp(isa)=0
@@ -997,7 +888,7 @@ c
       itemp(iga(isa))=1
     3 continue
 c
-      do 4 ish=1,nsh
+      do 4 ish=1,numh(2)
 c
 c     skip angles with negative ishs
 c
@@ -1015,10 +906,6 @@ c
       if(idh(ish,4).eq.1) nconst=nconst+1
       if(nangls.gt.mangls)
      + call errquit('Insufficient memory for angle list',0)
-c      if(nangls.gt.maxang) then
-c      messg='listsh : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       langls(nangls)=ish
       endif
       endif
@@ -1058,8 +945,6 @@ c
       subroutine cf_lsd(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idd,nsd,ndihes,mdihes,nconst,ldihes,itemp)
 c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
-c
       implicit none
 c
 #include "cf_common.fh"
@@ -1067,9 +952,7 @@ c
       integer nsd,mdihes
       integer idd(nsd,6)
       integer iga(msa),idt(msa)
-c      integer idsd(msd),jdsd(msd),kdsd(msd),ldsd(msd),isds(msd)
       integer ldihes(1)
-c      integer isl(msa,mis2),itemp(nsa),istemp(msa)
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
       integer isd,ndi,ndihes,nconst,maxdih
@@ -1077,6 +960,8 @@ c      integer isl(msa,mis2),itemp(nsa),istemp(msa)
       logical lself
 c
 #include "bitops.fh"
+c
+      if(numd(2).eq.0) return
 c
 c     This subroutine evaluates the solute dihedrals list
 c
@@ -1087,7 +972,6 @@ c
 c
       ndihes=0
       nconst=0
-c      maxdih=mavail*niperw
 c
       do 1 isa=1,nsatot
       itemp(isa)=0
@@ -1099,7 +983,7 @@ c
       itemp(iga(isa))=1
     3 continue
 c
-      do 4 isd=1,nsd
+      do 4 isd=1,numd(2)
 c
 c     skip dihedrals with negative isds
 c
@@ -1119,10 +1003,6 @@ c
       if(idd(isd,5).eq.1) nconst=nconst+1
       if(ndihes.gt.mdihes)
      + call errquit('Insufficient memory for torsion list',0)
-c      if(ndihes.gt.maxdih) then
-c      messg='listsd : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       ldihes(ndihes)=isd
       endif
       endif
@@ -1167,8 +1047,6 @@ c
       subroutine cf_lso(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + ido,nso,nimprs,mimprs,nconst,limprs,itemp)
 c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
-c
       implicit none
 c
 #include "cf_common.fh"
@@ -1176,16 +1054,16 @@ c
       integer nso,mimprs
       integer ido(nso,6)
       integer iga(msa),idt(msa)
-c      integer idso(mso),jdso(mso),kdso(mso),ldso(mso),isos(mso)
       integer limprs(1)
-c      integer isl(msa,mis2),itemp(nsa),istemp(msa)
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer iso,noi,nimprs,nconst,maximp
+      integer iso,noi,nimprs,nconst
       integer isoloc,ioloc,joloc,koloc,loloc,iq,jq,kq,lq
       logical lself
 c
 #include "bitops.fh"
+c
+      if(numi(2).eq.0) return
 c
 c     This subroutine evaluates the solute impropers list
 c
@@ -1196,7 +1074,6 @@ c
 c
       nimprs=0
       nconst=0
-c      maximp=mavail*niperw
 c
       do 1 isa=1,nsatot
       itemp(isa)=0
@@ -1208,7 +1085,7 @@ c
       itemp(iga(isa))=1
     3 continue
 c
-      do 4 iso=1,nso
+      do 4 iso=1,numi(2)
 c
 c     skip dihedrals with negative isos
 c
@@ -1228,10 +1105,6 @@ c
       if(ido(iso,5).eq.1) nconst=nconst+1
       if(nimprs.gt.mimprs)
      + call errquit('Insufficient memory for improper list',0)
-c      if(nimprs.gt.maximp) then
-c      messg='listso : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       limprs(nimprs)=iso
       endif
       endif
@@ -1276,8 +1149,6 @@ c
       subroutine cf_lst(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idtn,nst,nthird,mthird,lthird,itemp)
 c
-c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
-c
       implicit none
 c
 #include "cf_common.fh"
@@ -1289,9 +1160,11 @@ c      integer idst(mst),jdst(mst)
       integer lthird(1)
 c      integer isl(msa,mis2)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer ist,nti,nthird,maxthi,itloc,jtloc,istloc,iq,jq
+      integer ist,nti,nthird,itloc,jtloc,istloc,iq,jq
       integer itemp(nsatot),istemp(msa)
       logical lself
+c
+      if(numt(2).eq.0) return
 c
 c     This subroutine evaluates the solute third neighbor list
 c
@@ -1302,8 +1175,6 @@ c
 c
       nthird=0
 c
-c      maxthi=mavail*niperw
-c
       do 1 isa=1,nsatot
       itemp(isa)=0
     1 continue
@@ -1313,26 +1184,6 @@ c
       do 3 isa=isafr,isato
       itemp(iga(isa))=1
     3 continue
-c
-c      do 4 ist=1,nst
-c      nti=itemp(idtn(ist,1))
-c      if(nti.gt.0) then
-c      nti=nti+itemp(idtn(ist,2))
-c      if(nti.gt.1) then
-c      if((lself.and.nti.eq.2).or.(.not.lself.and.nti.eq.4)) then
-c      nthird=nthird+1
-c      if(nthird.gt.mthird)
-c     + call errquit('Insufficient memory for third neighbor list',0)
-cc      if(nthird.gt.maxthi) then
-cc      messg='listst : Abort: Enlarge memory'
-cc      call cf_logend
-cc      endif
-c      lthird(nthird)=ist
-c      write(*,'(3i5)') ist,idtn(ist,1),idtn(ist,2)
-c      endif
-c      endif
-c      endif
-c    4 continue
 c
       do 4 isa=1,nsatot
       if(idtn(isa,1).gt.idtn(isa-1,1)) then
@@ -1345,10 +1196,6 @@ c
       nthird=nthird+1
       if(nthird.gt.mthird)
      + call errquit('Insufficient memory for third neighbor list',0)
-c      if(nthird.gt.maxthi) then
-c      messg='listst : Abort: Enlarge memory'
-c      call cf_logend
-c      endif
       lthird(nthird)=ist
       endif
       endif
@@ -1374,7 +1221,6 @@ c
       if(idtn(isa-1,1).lt.ist.and.idtn(isa,1).ge.ist) goto 11
    10 continue
    11 continue
-c      itloc=itemp(idst(ist))
       jtloc=itemp(idtn(ist,2))
       iq=iand(idt(itloc),lquant)
       jq=iand(idt(jtloc),lquant)

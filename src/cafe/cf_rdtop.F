@@ -18,7 +18,7 @@ c
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
       character*6 cdata(3)
-      integer i,ia,iq,j,k,itemp(3),i_i,i_j,l_i,l_j
+      integer i,ia,iq,j,k,itemp(4),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbi,numbd
@@ -28,12 +28,17 @@ c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
 c
+c      nsm=0
+c      nsf=0
+      nwc=0
+      nsc=0
+c
  1000 format(a)
       read(lfntop,1001,end=9997,err=9998) title
  1001 format(a80)
       read(lfntop,1002,end=9997,err=9998) topdat,toptim,ffield
- 1002 format(12x,2a10,a)
-      read(lfntop,1002,end=9997,err=9998) q14fac,releps
+ 1002 format(12x,3a10)
+      read(lfntop,1003,end=9997,err=9998) q14fac,releps
  1003 format(2f12.6)
       if(q14fac.lt.small) q14fac=one
       if(releps.lt.small) releps=one
@@ -78,6 +83,7 @@ c
      + (idata(j),j=1,3),(rdata(j),j=1,6)
  1011 format(3i7,/,3(f12.6,e12.5))
       call cf_parbnd(1,i,idata,rdata)
+      if(idata(3).gt.0) nwc=nwc+1
     6 continue
       idata(5)=0
       do 7 i=1,nhw
@@ -123,51 +129,55 @@ c
       endif
       read(lfntop,1000,end=9997,err=9998) cdummy
       do 10 i=1,nas
-      read(lfntop,1000,end=9997,err=9998) cdummy
+      read(lfntop,1017,end=9997,err=9998) j,k
+ 1017 format(16x,2i5)
+c      if(i.gt.nsf) nsf=i
+c      if(j.gt.nsm) nsm=j
    10 continue
       idata(4)=0
       do 11 i=1,nbt
-      read(lfntop,1017,end=9997,err=9998) (idata(j),j=1,3),
+      read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3),
      + (rdata(j),j=1,6)
- 1017 format(3i7,/,3(f12.6,e12.5))
+ 1018 format(3i7,/,3(f12.6,e12.5))
       call cf_parbnd(2,i,idata,rdata)
+      if(idata(3).gt.0) nsc=nsc+1
    11 continue
       idata(5)=0
       do 12 i=1,nhs
-      read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,4),
+      read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,4),
      + (rdata(j),j=1,6)
- 1018 format(4i7,/,3(f10.6,e12.5))
+ 1019 format(4i7,/,3(f10.6,e12.5))
       call cf_parang(2,i,idata,rdata)
    12 continue
       idata(6)=0
       do 13 i=1,nds
-      read(lfntop,1019,end=9997,err=9998) (idata(j),j=1,5),
+      read(lfntop,1020,end=9997,err=9998) (idata(j),j=1,5),
      + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
- 1019 format(5i7,/,3(i3,f10.6,e12.5))
+ 1020 format(5i7,/,3(i3,f10.6,e12.5))
       rdata(1)=dble(itemp(1))
       rdata(4)=dble(itemp(2))
       rdata(7)=dble(itemp(3))
       call cf_pardih(2,i,idata,rdata)
    13 continue
       do 14 i=1,nos
-      read(lfntop,1020,end=9997,err=9998) (idata(j),j=1,4),
+      read(lfntop,1021,end=9997,err=9998) (idata(j),j=1,4),
      + (itemp(j),rdata(3*j-1),rdata(3*j),j=1,3)
- 1020 format(5i7,/,3(i3,f10.6,e12.5))
+ 1021 format(5i7,/,3(i3,f10.6,e12.5))
       rdata(1)=dble(itemp(1))
       rdata(4)=dble(itemp(2))
       rdata(7)=dble(itemp(3))
       call cf_parimp(2,i,idata,rdata)
    14 continue
       if(nts.gt.0) then
-      read(lfntop,1021,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nts)
- 1021 format(11i7)
-      read(lfntop,1021,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nts)
+      read(lfntop,1022,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nts)
+ 1022 format(11i7)
+      read(lfntop,1022,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nts)
       call cf_ndxtrd(2,int_mb(i_i),int_mb(i_j),nts)
       endif
       if(nxs.gt.0) then
-      read(lfntop,1022,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nxs)
- 1022 format(11i7)
-      read(lfntop,1022,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nxs)
+      read(lfntop,1023,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nxs)
+ 1023 format(11i7)
+      read(lfntop,1023,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nxs)
       call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
       endif
       if(.not.ma_pop_stack(l_j)) call errquit('Dealloc failed',0)
@@ -255,8 +265,25 @@ c
       call ga_brdcst(mcf_26,int_mb(i_itrd(2)),2*(mtt(2)+1)*numbi,0)
       call ga_brdcst(mcf_27,int_mb(i_ixcl(1)),2*(mxt(1)+1)*numbi,0)
       call ga_brdcst(mcf_28,int_mb(i_ixcl(2)),2*(mxt(2)+1)*numbi,0)
+c      call ga_brdcst(mcf_29,q14fac,numbd,0)
 c
       endif
+c
+      if(np.gt.1) then
+      itemp(1)=nsf
+      itemp(2)=nsm
+      itemp(3)=nwc
+      itemp(4)=nsc
+      call ga_brdcst(mcf_29,itemp,4*ma_sizeof(mt_int,1,mt_byte),0)
+c      nsf=itemp(1)
+c      nsm=itemp(2)
+      nwc=itemp(3)
+      nsc=itemp(4)
+      endif
+c
+      factmw=two/(rgas*dble(nwm*(3*nwa-nwc)-3*islow))
+      factms=two/(rgas*dble(3*nsa-nsc-3*islow))
+      factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow))
 c
       return
 c
