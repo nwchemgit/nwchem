@@ -1,5 +1,5 @@
       subroutine sym_bas_op(geom, op, r, maxf, ang_max)
-C$Id: sym_bas_op.F,v 1.4 1995-02-02 23:23:19 d3g681 Exp $
+C$Id: sym_bas_op.F,v 1.5 1995-11-17 01:25:29 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -99,7 +99,7 @@ c
 *     1       format(/' Symmetry operator ', i3)
       call dfill(maxf*maxf*(ang_max+1), 0.0d0, R, 1)
 c     
-c     Loop thru angular momentua
+c     Loop thru angular momenta
 c     
       do LL = 0, ang_max
          nLL = ((LL+1)*(LL+2))/2
@@ -112,7 +112,7 @@ c
          else if (LL .eq. 1) then
 c     
 c     P functions transform using the same matrix that
-c     transform coordinates without the translational
+c     transforms coordinates without the translational
 c     components ... except of course that the matrix
 c     is applied from the other side.
 c     
@@ -120,7 +120,6 @@ c
             do i = 1, 3
                do j = 1, 3
                   R(j,i,1) = matrix(i,j)
-*                  R(j,i,1) = matrix(j,i)
                enddo
             enddo
 c     
@@ -135,7 +134,6 @@ c     and determine the powers of x, y, z
 c     
             do II = 1, nLL
                call getNxyz(LL, II, ijk)
-*     *                  write(6,*) ' ijk ', ijk
 c     
 c     Express this function as a product of functions in (LL-1)*(1) and
 c     determine the indices of these functions (IIMM and MM)
@@ -143,10 +141,7 @@ c
                do MM = 1, 3
                   if (ijk(MM) .gt. 0) then
                      ijk(MM) = ijk(MM)-1
-*     *                        write(6,*) ' MM ', MM
-*     *                        write(6,*) ' reduced ijk ', ijk
                      call matchNxyz(LL-1, IIMM, ijk)
-*     *                        write(6,*) ' IIMM ', IIMM
                      goto 10
                   endif
                enddo
@@ -157,7 +152,6 @@ c     Loop thru LL-1 functions in the result index
 c     
                do JJKK = 1, nLLm1
                   call getNxyz(LL-1, JJKK, pqr)
-*     *                     write(6,*) ' pqr ', pqr
 c     
 c     Loop thru P functions and add onto the LL-1 functions
 c     to get a new LL function
@@ -167,10 +161,7 @@ c
                      lmn(2) = pqr(2)
                      lmn(3) = pqr(3)
                      lmn(KK) = lmn(KK) + 1
-*     *                        write(6,*) ' KK ', KK
-*     *                        write(6,*) ' lnm ', lmn
                      call matchNxyz(LL, JJ, lmn)
-*     *                        write(6,*) ' JJ ', JJ
 c     
                      R(JJ,II,LL) = R(JJ,II,LL) + 
      $                    R(JJKK, IIMM, LL-1) * R(KK, MM, 1)
