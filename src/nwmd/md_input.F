@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.10 1999-12-10 23:52:56 d3j191 Exp $
+c $Id: md_input.F,v 1.11 1999-12-16 16:55:09 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       integer ngx,ngy,ngz,ifix,iunfix,noshak,nfslow,nfefld,nfsfld
       integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,nfem,imfft
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
-      integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf
+      integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
@@ -154,6 +154,7 @@ c
       maxpro=0
       iport=0
       iguide=0
+      nopack=0
 c
       server=' '
 c
@@ -1094,6 +1095,14 @@ c
       if(.not.inp_i(itest)) call errquit('md_input: error test',15)
       goto 2
       endif
+      if(inp_compare(.false.,'nopack',item)) then
+      nopack=1
+      goto 2
+      endif
+      if(inp_compare(.false.,'pack',item)) then
+      nopack=0
+      goto 2
+      endif
 c
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,9999) item
@@ -1321,6 +1330,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:maxpro',mt_int,1,maxpro))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nopack',mt_int,1,nopack))
      + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

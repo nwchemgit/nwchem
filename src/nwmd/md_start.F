@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.41 1999-11-26 20:12:48 d3j191 Exp $
+c $Id: md_start.F,v 1.42 1999-12-16 16:55:09 d3j191 Exp $
 c
       implicit none
 c
@@ -139,7 +139,8 @@ c     ------------------------------------------
 c
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc)
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc,
+     + lpack)
 c
 c     fix or unfix
 c     ------------
@@ -564,6 +565,7 @@ c
 c
       nwarn=0
       nform=0
+      nopack=0
 c
       urlow=tiny
 c
@@ -810,6 +812,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:maxpro',mt_int,1,maxpro))
      + call errquit('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
+     + call errquit('md_rtdbin: rtdb_get failed',99)
+      if(.not.rtdb_get(irtdb,'md:nopack',mt_int,1,nopack))
      + call errquit('md_rtdbin: rtdb_get failed',99)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))
@@ -1108,6 +1112,8 @@ c
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
 c
       ltwin=rlong.gt.rshort
+c
+      lpack=nopack.eq.0
 c
       msa=msareq
       mwm=mwmreq
