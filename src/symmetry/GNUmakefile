@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.38 2003-01-30 19:34:53 edo Exp $
+#$Id: GNUmakefile,v 1.39 2003-01-30 19:35:46 edo Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libnwcutil.a
@@ -44,7 +44,7 @@ OBJ =     dosymops.o \
           sym_g_sym.o \
           wrcell.o \
           dctr.o \
-          sym_irrepname..o \
+          sym_irrepname.o \
           sym_abelian.o
 
 
