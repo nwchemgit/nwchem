@@ -151,8 +151,7 @@ c
 c
       integer iwdt(mwm),isdt(msa)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
-      real*8 pw(mwm,3,mwa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
       real*8 ww(mwa),ws(msa)
 c
       integer i,j
@@ -323,8 +322,7 @@ c
 c
       integer iwdt(mwm),isdt(msa)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
-      real*8 pw(mwm,3,mwa)
-      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
       real*8 pcgw(mwm,3,mwa),pcgs(msa,3),ww(mwa),ws(msa)
 c
       integer iwa,iwm,isa,ix,inner
