@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.59 1996-10-07 21:04:12 d3e129 Exp $
+c $Id: raktest.F,v 1.60 1996-10-11 10:06:53 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -2800,59 +2800,273 @@ c
       end
       subroutine raktest_bug(rtdb)
       implicit none
+#include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"      
+#include "geomP.fh"
+#include "geobasmapP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 c
       logical int_normalize
       external int_normalize
 c
       integer rtdb
 c
-      integer basseg, basnoseg
+      integer basao, basecp
+      integer indao, indecp
       integer geom
+      integer maxg, maxs, maxg1, maxs1, maxg2, maxs2
+      integer hao, kao, hscr, kscr, h3p, k3p
       logical ignore
-      integer bases(2)
+c
+      integer icont, ucont
+      integer atype, aprim, ie_a, ic_a, a_cent
+      integer btype, bprim, ie_b, ic_b, b_cent
+      integer ctype, cprim, ie_c, ic_c, c_cent
+      integer ac_prim, bc_prim
+      integer ir_c
+      integer i,ir,icnt,j
+      integer l2a, l2b, nint
+      logical FF, FT
+      double precision xyza(3),xyzb(3),xyzc(3),xyzall(3,3)
+      double precision zan(3)
+c
+      integer maxprim
+      parameter (maxprim=100)
+      integer rc(maxprim)
+      double precision ea(maxprim),ca(maxprim)
+      double precision eb(maxprim),cb(maxprim)
+      double precision ec(maxprim),cc(maxprim)
+      double precision eac(maxprim),cac(maxprim)
+      double precision ebc(maxprim),cbc(maxprim)
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       ignore = geom_create(geom,'geometry')
       ignore = ignore.and.geom_rtdb_load(rtdb,geom,'geometry')
-      ignore = ignore.and.bas_create(basseg,'basseg')
-      ignore = ignore.and.bas_rtdb_load(rtdb,geom,basseg,'basseg')
-      ignore = ignore.and.bas_create(basnoseg,'basnoseg')
-      ignore = ignore.and.bas_rtdb_load(rtdb,geom,basnoseg,'basnoseg')
-      ignore = ignore.and.int_normalize(basseg)
-      ignore = ignore.and.int_normalize(basnoseg)
+      ignore = ignore.and.bas_create(basao,'ao basis')
+      ignore = ignore.and.bas_rtdb_load(rtdb,geom,basao,'ao basis')
+      ignore = ignore.and.int_normalize(basao)
       ignore = ignore.and.geom_print(geom)
-      ignore = ignore.and.bas_print(basseg)
-      ignore = ignore.and.gbs_map_print(basseg)
-      ignore = ignore.and.bas_print(basnoseg)
-      ignore = ignore.and.gbs_map_print(basnoseg)
+      ignore = ignore.and.bas_print(basao)
+      ignore = ignore.and.gbs_map_print(basao)
+      ignore = ignore.and.bas_get_ecp_handle(basao,basecp)
+      ignore = ignore.and.ecp_print(basecp)
       if (.not.ignore) stop ' something failed'
 c
-*rak:      bases(1) = basseg
-*rak:      bases(2) = basnoseg
-*rak:      call int_init(rtdb,2,bases)
-*rak:      call int_mem_2e4c(maxg,maxs)
-*rak:c
-*rak:c
-*rak:      ignore =
-*rak:     &    ma_push_get(mt_dbl,maxg,'segbuf',hseg,kseg)
-*rak:      ignore=ignore.and.
-*rak:     &    ma_push_get(mt_dbl,maxg,'nosegbuf',hnoseg,knoseg)
-*rak:      ignore=ignore.and.
-*rak:     &    ma_push_get(mt_dbl,maxs,'scr',hscr,kscr)
-*rak:
-*rak:      call int_acc_get(cur_acc)
-*rak:*      do iacc = 1,20
-*rak:        write(6,*) 'current accuracy ',cur_acc
-*rak:        call int_2e4c(
-*rak:     &      basnoseg,13,5,
-*rak:     &      basnoseg,13,5,
-*rak:     &      maxs,dbl_mb(kscr),
-*rak:     &      maxg,dbl_mb(knoseg))
-*rak:*      enddo
-*rak:c
-*rak:      ignore = ma_pop_stack(hscr)  
-*rak:      ignore = ma_pop_stack(hnoseg)  
-*rak:      ignore = ma_pop_stack(hseg)  
+      call int_init(rtdb,1,basao)
+      call int_mem_1e(maxg1,maxs1)
+      call int_mem_2e4c(maxg2,maxs2)
+      maxg = max(maxg1,maxg2)
+      maxs = max(maxs1,maxs2)
 c
+      ignore =
+     &    ma_push_get(mt_dbl,maxg,'aobuf',hao,kao)
+      ignore =
+     &    ma_push_get(mt_dbl,maxg,'3pbuf',h3p,k3p)
+      ignore=ignore.and.
+     &    ma_push_get(mt_dbl,maxs,'scr',hscr,kscr)
+
+      indao  = basao  + basis_handle_offset
+      indecp = basecp + basis_handle_offset
+c
+      call dfill(maxprim,0.0d00,ea,1)
+      call dfill(maxprim,0.0d00,ca,1)
+      call dfill(maxprim,0.0d00,eb,1)
+      call dfill(maxprim,0.0d00,cb,1)
+      call dfill(maxprim,0.0d00,ec,1)
+      call dfill(maxprim,0.0d00,cc,1)
+      call dfill(maxprim,0.0d00,eac,1)
+      call dfill(maxprim,0.0d00,cac,1)
+      call dfill(maxprim,0.0d00,ebc,1)
+      call dfill(maxprim,0.0d00,cbc,1)
+      call ifill(maxprim,0,rc,1)
+      call dfill(3,0.0d00,xyza,1)
+      call dfill(3,0.0d00,xyzb,1)
+      call dfill(3,0.0d00,xyzc,1)
+      call dfill(3*3,0.0d00,xyzall,1)
+      call dfill(3,-1.0d00,zan,1)
+c
+c   for cont1|ecp|cont1 it fails
+c      
+c fill a 
+      icont = 1
+      ucont = (sf_ibs_cn2ucn(icont,indao))
+      atype = infbs_cont(Cont_Type,ucont,indao)
+      aprim = infbs_cont(Cont_Nprim,ucont,indao)
+      if (infbs_cont(Cont_Ngen,ucont,indao).ne.1)
+     &    stop ' a ngen wrong '
+      ie_a  = infbs_cont(Cont_Iexp,ucont,indao)
+      ic_a  = infbs_cont(Cont_Icfp,ucont,indao)
+      a_cent = sf_ibs_cn2ce(icont,indao)
+      call dcopy(3,coords(1,a_cent,geom),1,xyza,1)
+      if (aprim.le.maxprim) then
+        call dcopy(aprim,dbl_mb(mb_exndcf(ie_a,indao)),1,ea,1)
+        call dcopy(aprim,dbl_mb(mb_exndcf(ic_a,indao)),1,ca,1)
+        write(6,*)' ea '
+        call output(ea,1,aprim,1,1,aprim,1,1)
+        write(6,*)' ca '
+        call output(ca,1,aprim,1,1,aprim,1,1)
+      else
+        stop ' aprim error '
+      endif
+c fill b
+      icont = 1
+      ucont = (sf_ibs_cn2ucn(icont,indao))
+      btype = infbs_cont(Cont_Type,ucont,indao)
+      bprim = infbs_cont(Cont_Nprim,ucont,indao)
+      if (infbs_cont(Cont_Ngen,ucont,indao).ne.1)
+     &    stop ' b ngen wrong '
+      ie_b  = infbs_cont(Cont_Iexp,ucont,indao)
+      ic_b  = infbs_cont(Cont_Icfp,ucont,indao)
+      b_cent = sf_ibs_cn2ce(icont,indao)
+      call dcopy(3,coords(1,b_cent,geom),1,xyzb,1)
+      if (bprim.le.maxprim) then
+        call dcopy(bprim,dbl_mb(mb_exndcf(ie_b,indao)),1,eb,1)
+        call dcopy(bprim,dbl_mb(mb_exndcf(ic_b,indao)),1,cb,1)
+        write(6,*)' eb '
+        call output(eb,1,bprim,1,1,bprim,1,1)
+        write(6,*)' cb '
+        call output(cb,1,bprim,1,1,bprim,1,1)
+      else
+        stop ' bprim error '
+      endif
+c fill c
+      icont = 1
+      ucont = sf_ibs_cn2ucn(icont,indecp)
+      ctype = infbs_cont(Cont_Type,ucont,indecp)
+      cprim = infbs_cont(Cont_Nprim,ucont,indecp)
+      if (infbs_cont(Cont_Ngen,ucont,indecp).ne.1)
+     &    stop 'c ngen wrong'
+      ie_c =  infbs_cont(Cont_iexp, ucont,indecp)
+      ic_c =  infbs_cont(Cont_icfp, ucont,indecp)
+      ir_c =  infbs_cont(Cont_irexp,ucont,indecp)
+      c_cent = sf_ibs_cn2ce(icont,indecp)
+      call dcopy(3,coords(1,c_cent,geom),1,xyzc,1)
+c
+      icnt = 0
+      do i = 1,cprim
+        ir = int(sf_exndcf((ir_c-1+i),indecp) + 0.00001d0)
+        if (ir.eq.1) then
+          if ((icnt+1).le.maxprim) then
+            icnt = icnt + 1
+            ec(icnt) = sf_exndcf((ie_c-1+i),indecp)
+            cc(icnt) = sf_exndcf((ic_c-1+i),indecp)
+            rc(icnt) = ir
+          else
+            stop 'cprim > maxprim'
+          endif
+        endif
+      enddo
+      cprim = icnt
+      write(6,*)' ec '
+      call output(ec,1,cprim,1,1,cprim,1,1)
+      write(6,*)' cc '
+      call output(cc,1,cprim,1,1,cprim,1,1)
+      write(6,*)' rc '
+      do i = 1,cprim
+        write(6,*)i,rc(i)
+      enddo
+c
+c copy all coords
+      call dcopy(3,xyza,1,xyzall(1,1),1)
+      call dcopy(3,xyzb,1,xyzall(1,2),1)
+      call dcopy(3,xyzc,1,xyzall(1,3),1)
+c print coords
+      write(6,*)' xyza ',xyza
+      write(6,*)' xyzb ',xyzb
+      write(6,*)' xyzc ',xyzc
+      write(6,*)' xyz all'
+      call output(xyzall,1,3,1,3,3,3,1)
+c
+c
+      if (a_cent.eq.b_cent.and.a_cent.eq.c_cent) then
+        write(6,*)' one center case'
+      else
+        stop ' not one center case'
+      endif
+c
+c form ac exponents
+      icnt = 0
+      do i = 1,aprim
+        do j = 1,cprim
+          icnt = icnt + 1
+          eac(icnt) = ea(i)+ec(j)
+          cac(icnt) = ca(i)*cc(j)
+        enddo
+      enddo
+      ac_prim = icnt
+      write(6,*)' eac'
+      call output(eac,1,ac_prim,1,1,ac_prim,1,1)
+      write(6,*)' cac'
+      call output(cac,1,ac_prim,1,1,ac_prim,1,1)
+c form bc exponents
+      icnt = 0
+      do i = 1,bprim
+        do j = 1,cprim
+          icnt = icnt + 1
+          ebc(icnt) = eb(i)+ec(j)
+          cbc(icnt) = cb(i)*cc(j)
+        enddo
+      enddo
+      bc_prim = icnt
+      write(6,*)' ebc'
+      call output(ebc,1,bc_prim,1,1,bc_prim,1,1)
+      write(6,*)' cbc'
+      call output(cbc,1,bc_prim,1,1,bc_prim,1,1)
+c
+      FF = .false.
+      FT = .true.
+      call dfill(maxg,0.0d00,dbl_mb(kao),1)
+      call dfill(maxs,0.0d00,dbl_mb(kscr),1)
+      call hf1(
+     &    xyza,eac,cac,ac_prim,1,atype,
+     &    xyzb,eb,cb,bprim,1,btype,
+     &    xyza,zan,1,
+     &    dbl_mb(kao),dbl_mb(kao),dbl_mb(kao),maxg,FF,FF,FT,FF,
+     &    FF,dbl_mb(kscr),maxs)
+c
+      call dfill(maxg,0.0d00,dbl_mb(k3p),1)
+      call dfill(maxs,0.0d00,dbl_mb(kscr),1)
+      call hf3pot(
+     &    xyza,ea,ca,aprim,1,atype,
+     &    xyzb,eb,cb,bprim,1,btype,
+     &    xyzc,ec,cc,cprim,1,0,
+     &    dbl_mb(k3p),maxg,nint,
+     &    FF,dbl_mb(kscr),maxs)
+c
+      l2a = (atype+1)*(atype+2)/2
+      l2b = (btype+1)*(btype+2)/2
+      write(6,*)'from hf1'
+      call intintp(dbl_mb(kao),l2a,l2b)
+      write(6,*)'from hf3pot'
+      call intintp(dbl_mb(k3p),l2a,l2b)
+c      
+      call int_terminate()
+      ignore = bas_destroy(basao)
+c
+      ignore = ma_pop_stack(hscr)  
+      ignore = ma_pop_stack(h3p)  
+      ignore = ma_pop_stack(hao)  
+c
+      end
+      subroutine intintp(z,r,c,msg)
+      implicit none
+      integer r,c
+      double precision z(r,c)
+      character*(*) msg
+c
+      integer ir, ic
+      do ir = 1,r
+        do ic = 1,c
+          if (abs(z(ir,ic)).gt.1.0d-10) then
+            write(6,10000)ir,ic,z(ir,ic),msg
+          endif
+        enddo
+      enddo
+10000 format(1x,'(',i5,',',i5,')',1x,1pd20.10,a)
       end
