@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.9 2000-08-02 01:26:00 bjohnson Exp $
+C     $Id: get_inp_file.F,v 1.10 2000-10-20 20:07:01 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -16,6 +16,9 @@ c
       integer arg,nargs
 #if defined(CRAY)
       integer ilen,ierror
+#endif
+#if defined(FUJITSU_VPP)
+      logical file_exists
 #endif
 #if defined(EXT_INT) && !defined(HPUX64)
       integer*4 iargc
@@ -49,8 +52,13 @@ c
       call fix_windows_path(input_filename)
 #endif
 c
+#ifdef FUJITSU_VPP
+      inquire (file=input_filename, exist=file_exists)
+       if (.not. file_exists) goto 10
+#else
       open(LuIn,file=input_filename,status='old',err=10)
       close(LuIn)
+#endif
       return
 c
  10   l = inp_strlen(input_filename)
