@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.4 2000-05-31 21:49:34 edo Exp $
+C $Id: hess_anal.F,v 1.5 2000-07-26 23:39:24 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -74,9 +74,9 @@ c
 c
 c  Get the two-electron second derivative contributions
 c
-c     call twodd_cont(rtdb)
-c     write(6,*) 'after the twodd_cont call'
-c     call flush(6)
+      call twodd_cont(rtdb)
+      write(6,*) 'after the twodd_cont call'
+      call flush(6)
 c
 c  solve the CPSCF problem
 c
