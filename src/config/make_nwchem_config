@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.108 1999-07-08 00:41:53 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.109 1999-08-16 22:51:47 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,8 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad oimp2 \
-        property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space
+        property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space \
+        drdy
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -29,7 +30,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
 		    -lprepar -lnwargos -lnwmd -lpspw -lcafe -lspace -lanalyze\
-                    -lpfft -ldplot -loimp2 -lnbo -lpython
+                    -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -137,6 +138,7 @@ MODULES := $(patsubst esp,esp NWints dplot,$(MODULES) )
 MODULES := $(patsubst nwmd,nwmd cafe space fft ddscf,$(MODULES) )
 
 MODULES := $(patsubst develop,develop ddscf,$(MODULES) )
+MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 MODULES := $(patsubst pspw,pspw fft,$(MODULES) )
@@ -167,6 +169,7 @@ MOD_LIBS := $(patsubst atomscf,-lguess,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dftgrad,-ldftgrad,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst develop,-ltest,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst drdy,-ldrdy,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gradients,-lgradients,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst hessian,-lhessian,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ccsd,-lccsd,$(MOD_LIBS) )
@@ -211,6 +214,7 @@ STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,grad_force scf_gradient gradients_input grad_active_atoms,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst hessian, scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
