@@ -1,7 +1,7 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
      $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
      $     charge_new, mass_new, invnucexp_new)
-C$Id: sym_put_geom.F,v 1.5 2000-10-27 00:12:41 bert Exp $
+C$Id: sym_put_geom.F,v 1.6 2000-11-04 03:28:23 d3g681 Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -40,6 +40,10 @@ c
         unique_cent(i,geom)=uniq_cent(i)
       enddo
 c
+      if (sym_center_map_handle(geom) .ne. -1) then
+         if (.not. ma_free_heap(sym_center_map_handle(geom)))
+     $        call errquit('sym_nwc: free of old atom map', 0)
+      endif
       sym_center_map_handle(geom) = l_map
       sym_center_map_index(geom)  = k_map
       sym_num_ops(geom) = nops
