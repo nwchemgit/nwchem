@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.62 2004-10-09 00:20:05 marat Exp $
+* $Id: task.F,v 1.63 2004-10-29 21:01:28 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -40,7 +40,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
-      logical task_qmmm, task_python, task_nbo,task_thermo
+      logical task_qmmm, task_python, task_thermo
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band
@@ -60,7 +60,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics
-      external task_version, task_python, task_nbo, task_thermo
+      external task_version, task_python, task_thermo
       external kgdtest, task_vscf
       external task_paw 
       external task_pspw,task_band
@@ -143,10 +143,6 @@ c
      &            inp_compare(.false.,'dirdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then
             status = task_drdy(rtdb)
-         else if (inp_compare(.false.,'nbo', theory)) then
-            status = task_nbo(rtdb)
-         else if (inp_compare(.false.,'gapss', theory)) then
-            status = gapss(rtdb) ! This could/should be in task_energy
          else if (inp_compare(.false.,'shell', theory)) then
             status = task_shell(rtdb)
          else if (inp_compare(.false.,'moints', theory)) then
