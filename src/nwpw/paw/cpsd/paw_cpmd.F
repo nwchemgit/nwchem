@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.8 2004-05-16 05:38:07 edo Exp $
+* $Id: paw_cpmd.F,v 1.9 2004-07-29 15:55:31 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2004/05/16 05:38:07  edo
+* *** empty log message ***
+*
 * Revision 1.7  2004/05/05 19:33:50  bylaska
 * hilbert mapping added....EJB
 *
@@ -89,9 +92,9 @@
 
 *     **** electronic variables ****
       logical first_iteration,psi_nogrid
-      integer ispin,icharge
+      integer ispin
       integer ne(2),n1(2),n2(2),nemax
-      real*8  r_charge
+      real*8  r_charge,icharge
       real*8  dipole(3)
 
       integer psi0(2),psi1(2),psi2(2)
@@ -297,6 +300,9 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)      
+
+*     **** initialize Gaunt array ****
+      call paw_gaunt_init()
 
  
 *     **** read ions ****
@@ -1145,6 +1151,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call paw_density_end()
       call paw_xc_end()
       if (control_move()) call paw_force_end()
+      call paw_gaunt_end()
 
       value =           MA_free_heap(psir(2))
       value = value.and.MA_free_heap(Hpsi(2))
@@ -1261,7 +1268,7 @@ c    .   ' (',F6.3,' smooth)')
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
- 1159 FORMAT(/' total charge:',I2)
+ 1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')

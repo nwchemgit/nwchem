@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.48 2003-10-28 01:52:29 edo Exp $
+* $Id: paw_ovlp.F,v 1.49 2004-07-29 15:55:37 bylaska Exp $
 *
 
 !**************************************************
@@ -179,6 +179,7 @@ c           !-- set sign coeff as (-1)**m --
       integer ni,i,li,mi
 
 
+      call nwpw_timing_start(6)
 
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
@@ -235,6 +236,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',0,1)
       
+      call nwpw_timing_end(6)
 
       return
       end
@@ -268,6 +270,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       double complex w_tmp
       
       
+      call nwpw_timing_start(6)
       !*** check for restricted calculation ****
       occup = 1.0d0
       if (ispin.eq.1) then
@@ -343,6 +346,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
 !           nilm = nilm + 2*li+1
 !         end do
 !      end do
+      call nwpw_timing_end(6)
     
       return
       end
@@ -415,6 +419,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       integer exi(2),tmp(2)
 
 
+      call nwpw_timing_start(6)
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
@@ -456,6 +461,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       if (.not.value)  call errquit(
      > 'paw_ovlp_coeff_set: error freeing stack memory',0,1)
 
+      call nwpw_timing_end(6)
       return
       end
 
@@ -486,6 +492,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       integer nbasis,nion,i2
       real*8 isgn
 
+      call nwpw_timing_start(6)
       nion = ion_nion()
       nlmii = 0
       do ii=1,nion
@@ -509,6 +516,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
          end do
       end do
 
+      call nwpw_timing_end(6)
       return
       end
 

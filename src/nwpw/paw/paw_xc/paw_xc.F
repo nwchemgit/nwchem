@@ -1,6 +1,9 @@
-!$Id: paw_xc.F,v 1.17 2003-10-28 01:52:30 edo Exp $
+!$Id: paw_xc.F,v 1.18 2004-07-29 15:55:37 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.17  2003/10/28 01:52:30  edo
+!errquizzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+!
 !Revision 1.16  2003/10/21 02:05:18  marat
 !switched to new errquit by running global replace operation
 !see the script below (note it will not work on multiline errquit calls)
@@ -120,6 +123,7 @@
       double precision angle_phi
       integer paw_vxc_size
 
+      call nwpw_timing_start(4)
       ok = .true.
 
       nion = ion_nion()
@@ -292,6 +296,8 @@
       if (.not.ok)
      > call errquit("init_paw_vxc: error allocating work arrays",0,0)
       
+      call nwpw_timing_end(4)
+      return
       end 
 
 **********************************
@@ -302,8 +308,7 @@
 *
 **********************************
       subroutine paw_xc_solve()
-        
-        implicit none
+      implicit none
 
 #include "paw_geom.fh"
 #include "paw_basis.fh"
@@ -341,6 +346,7 @@
       complex*16 tmp
       complex*16 ylm
 
+      call nwpw_timing_start(4)
       nion = ion_nion() 
 
 *     *** zero out vxc arrays ***
@@ -388,7 +394,7 @@
          dbl_mb(exc_ps(1)+ig-1) = 0.0d0
         end do
        
-*       *** find densities on spher grid ***          
+*       *** find densities on spherical grid ***          
         nlmi = 0
         do l=0,paw_xc_lmax
         do m=-l,l
@@ -449,7 +455,7 @@ c        write(*,*) "paw_exc: rho_do_ps(1)",dbl_mb(rho_ps(1)+n_s)
 
 c        write(*,*) "paw_exc: rho_up_ae(1)+core",dbl_mb(rho_ae(1))
        
-*       *** find exchange-correlation on spher grid ***
+*       *** find exchange-correlation on spherical grid ***
 c        call paw_dirac_x(n_s,ic,paw_xc_ispin,
         call paw_vosko(n_s,ic,paw_xc_ispin,
      >                 dbl_mb(rho_ae(1)),        
@@ -717,6 +723,8 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
  
       end do !in
 
+      call nwpw_timing_end(4)
+      return
       end 
 
 !**********************************
@@ -829,6 +837,7 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
 
       logical ok
       
+      call nwpw_timing_start(4)
       ok = .true.
 
       ok = ok .and. my_dealloc(exc_ps)
@@ -884,6 +893,8 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
      > call errquit("paw_vxc_end: error freeing heap",0,0)
 
 
+      call nwpw_timing_end(4)
+      return
       end 
 
 
@@ -910,6 +921,7 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
      >                      dbl_mb(paw_xc_e(1)+in-1)  
       end do
 
+      return
       end
 
 

@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult_energy.F,v 1.5 2003-03-05 23:16:32 bylaska Exp $
+* $Id: paw_mult_energy.F,v 1.6 2004-07-29 15:55:37 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.5  2003/03/05 23:16:32  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.4  2003/02/26 20:34:06  marat
 * fixed bug related to calculation of
 * comp_coeff, the i and j loop were incorrectly switched
@@ -150,6 +155,7 @@
       integer nion,indx,lmax,lmax2
       real*8 e_mult
 
+      call nwpw_timing_start(14)
       nion  = ion_nion()
       lmax  = paw_basis_max_mult_l()
       lmax2 = (lmax+1)**2
@@ -194,6 +200,7 @@
         end do !*mi*
         end do !*li*
       end do !*ii*
+      call nwpw_timing_end(14)
 
       paw_mult_energy_atom_mult = e_mult
       return

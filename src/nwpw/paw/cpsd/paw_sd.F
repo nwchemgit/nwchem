@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.70 2004-05-05 19:33:50 bylaska Exp $
+* $Id: paw_sd.F,v 1.71 2004-07-29 15:55:36 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2004/05/05 19:33:50  bylaska
+* hilbert mapping added....EJB
+*
 * Revision 1.69  2004/03/15 15:17:41  bylaska
 * Restructuring for 2d Hilbert mapping.
 *
@@ -162,10 +165,11 @@
 
 *     **** electronic variables ****
       logical first_iteration,psi_nogrid
-      integer ispin,icharge
+      integer ispin
       integer ne(2),n1(2),n2(2),nemax
       real*8  r_charge
       real*8  dipole(3)
+      real*8  icharge
 
 *     complex*16 psi1(nfft3d,nemax)
 *     complex*16 psi2(nfft3d,nemax)
@@ -353,6 +357,9 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)      
+
+*     **** initialize Gaunt array ****
+      call paw_gaunt_init()
 
  
 *     **** read ions ****
@@ -953,6 +960,7 @@ c         write(6,1498) virial
       call paw_density_end()
       call paw_xc_end()
       if (control_move()) call paw_force_end()
+      call paw_gaunt_end()
 
       value =           MA_free_heap(psir(2))
       value = value.and.MA_free_heap(Hpsi(2))
@@ -997,7 +1005,7 @@ c         write(6,1498) virial
          write(6,*) '  orthonormalization         : ', nwpw_timing(3)
          write(6,*) '  exchange correlation       : ', nwpw_timing(4)
          write(6,*) '  local pseudopotentials     : ', nwpw_timing(5)
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6)
+         write(6,*) '  non-local projectors       : ', nwpw_timing(6)
          write(6,*) '  hartree potentials         : ', nwpw_timing(7)
          write(6,*) '  structure factors          : ', nwpw_timing(8)
          write(6,*) '  masking and packing        : ', nwpw_timing(9)
@@ -1005,6 +1013,8 @@ c         write(6,1498) virial
          write(6,*) '  density                    : ',nwpw_timing(11)
          write(6,*) '  allocate and deallocate    : ',nwpw_timing(12)
          write(6,*) '  Hpsi and update            : ',nwpw_timing(13)
+         write(6,*) '  multipole calculation      : ',nwpw_timing(14)
+         write(6,*) '  gaunt coefficients         : ',nwpw_timing(15)
          write(6,*)
          CALL nwpw_MESSAGE(4)
       end if 
@@ -1068,7 +1078,7 @@ c    .   ' (',F6.3,' smooth)')
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
- 1159 FORMAT(/' total charge:',I2)
+ 1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')

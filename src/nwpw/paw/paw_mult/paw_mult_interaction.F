@@ -1,7 +1,10 @@
 *
-* $Id: paw_mult_interaction.F,v 1.11 2003-03-24 20:31:08 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.12 2004-07-29 15:55:37 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2003/03/24 20:31:08  bylaska
+* ....EJB
+*
 * Revision 1.10  2003/03/22 01:03:46  bylaska
 * bug in z-component of multipole force fixed....EJB
 *
@@ -63,6 +66,7 @@
         double precision  r_over_s
         double precision  phase_factor
 
+        call nwpw_timing_start(14)
         sigma = dsqrt((sigma1**2+sigma2**2)/2)
 c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         R = dsqrt( (R1(1)-R2(1))**2 +
@@ -118,6 +122,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         END DO
 
         END IF
+        call nwpw_timing_end(14)
 
         paw_mult_interaction = f
 
@@ -170,6 +175,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         external         paw_hypergeom1F1
         external         find_Y_lm
 
+        call nwpw_timing_start(14)
 
         sigma = dsqrt((sigma1**2+sigma2**2)/2)
 c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
@@ -258,6 +264,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
            phase_factor = -phase_factor
 
         END DO
+        call nwpw_timing_end(14)
 
         return
         end 
@@ -378,6 +385,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       external   find_Y_lm
 
 
+      call nwpw_timing_start(14)
       twopi = 8.0d0*datan(1.0d0)
 
       call dcopy(2*(nion*mult_l_max)**2,0.0d0,0,mult_energy_coeff,1)
@@ -538,6 +546,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       end do
       end do
 
+      call nwpw_timing_end(14)
       return
       end
 
