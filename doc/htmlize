@@ -99,12 +99,12 @@ foreach document ($1)
     endif
     mv $TMP $file
     if ($document == "prog") then
-      sed -e 's,<BODY>,<BODY BACKGROUND="../../backgrounds/rainier1_1.jpg" BGCOLOR="FAEBD7">,' \
+      sed -e 's,<BODY>,<BODY BACKGROUND="../../backgrounds/prog.gif" BGCOLOR="FAEBD7">,' \
           -e 's,http://www.emsl.pnl.gov/,/,g' \
           -e 's,http://www.emsl.pnl.gov:2080/,/,g' \
           -e 's,latex2html//,latex2html/,g'  < $file > $TMP
     else if ($document == "user") then
-      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/mt_st_helens_4.jpg" BGCOLOR="FAEBD7">/' \
+      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/user.gif" BGCOLOR="FAEBD7">/' \
           -e 's,http://www.emsl.pnl.gov/,/,g' \
           -e 's,http://www.emsl.pnl.gov:2080/,/,g' \
           -e 's,latex2html//,latex2html/,g'  < $file > $TMP

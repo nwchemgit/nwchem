@@ -6,7 +6,9 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.1 1998-03-19 14:20:13 d3e129 Exp $
+# $Id: write_frames.pl,v 1.2 1998-03-24 00:36:27 d3e129 Exp $
+#
+# remove nwchem banner stuff 3/23/98
 #
 @INC = ("/dfs/apps/perl/lib","/usr/lib/perl5");
 use File::Copy;
@@ -32,10 +34,10 @@ if ($okay != 3) {
     exit(1);
 }
 if ($document eq "user") {
-    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/mt_st_helens_4.jpg\" BGCOLOR=\"FAEBD7\">\n";
+    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/user.gif\" BGCOLOR=\"FAEBD7\">\n";
 }
 elsif ($document eq "prog") {
-    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/rainier1_1.jpg\" BGCOLOR=\"FAEBD7\">\n";
+    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/prog.gif\" BGCOLOR=\"FAEBD7\">\n";
 }
 else{
     $bodystring = "<BODY>\n";
@@ -50,23 +52,25 @@ print FINDEX "    <FRAMESET ROWS=\"3*,5*\">\n";
 print FINDEX "        <FRAME SRC=\"$document.search.html\">\n";
 print FINDEX "        <FRAME SRC=\"contents.html\">\n";
 print FINDEX "    </FRAMESET>\n";
-print FINDEX "    <FRAMESET ROWS=\"2*,10*\">\n";
-print FINDEX "        <FRAME SRC=\"banner.html\">\n";
+#-noban#print FINDEX "    <FRAMESET ROWS=\"2*,10*\">\n";
+#-noban#print FINDEX "        <FRAME SRC=\"banner.html\">\n";
+print FINDEX "    <FRAMESET>\n";
 print FINDEX "        <FRAME SRC=\"$document.html\" NAME=\"main\">\n";
 print FINDEX "    </FRAMESET>\n";
 print FINDEX "</FRAMESET>\n";
 print FINDEX "</HTML>\n";
 close(FINDEX);
-# write banner.html
-if (!(open(FBAN,">$document/banner.html"))){
-    die "write_frames.pl: could not open banner.html for writing\n";
-}
-print FBAN "<HTML>\n<HEAD>\n<TITLE> NWChem logo </TITLE>\n</HEAD>\n";
-print FBAN "<BODY BGCOLOR=\"aqua\">\n<CENTER>\n<P>\n";
-print FBAN "<IMG SRC=\"/docs/nwchem/nwchem_logo.gif\" ";
-print FBAN " ALT=\"NWChem - computational chemistry on parallel computers\"> \n";
-print FBAN "</P>\n<HR>\n</CENTER>\n</BODY>\n</HTML>\n";
-close(FBAN);
+#-noban## write banner.html
+#-noban#if (!(open(FBAN,">$document/banner.html"))){
+#-noban#    die "write_frames.pl: could not open banner.html for writing\n";
+#-noban#}
+#-noban#print FBAN "<HTML>\n<HEAD>\n<TITLE> NWChem logo </TITLE>\n</HEAD>\n";
+#-noban#print FBAN "<BODY BGCOLOR=\"aqua\">\n<CENTER>\n<P>\n";
+#-noban#print FBAN "<IMG SRC=\"/docs/nwchem/nwchem_logo.gif\" ";
+#-noban#print FBAN " ALT=\"NWChem - computational chemistry on parallel computers\"> \n";
+#-noban#print FBAN "</P>\n<HR>\n</CENTER>\n</BODY>\n</HTML>\n";
+#-noban#close(FBAN);
+#
 # write $document_search.html
 if (!(open(FHTMLSEARCH,">$document/$document.search.html"))){
     die "write_frames.pl: could not open $document/$document.search.html for writing\n";
@@ -75,7 +79,6 @@ if (!(open(FSEARCH,"$document.search"))){
     die "write_frames.pl: could not open $document.search for reading\n";
 }
 print FHTMLSEARCH "<HTML>\n<HEAD>\n<TITLE> $title Search Window</TITLE>\n";
-#print FHTMLSEARCH "<BASE TARGET=\"main\">\n";
 print FHTMLSEARCH "</HEAD>\n";
 print FHTMLSEARCH "$bodystring";
 while (<FSEARCH>){
