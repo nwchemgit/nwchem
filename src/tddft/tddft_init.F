@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.10 2003-04-10 17:50:47 sohirata Exp $
+c $Id: tddft_init.F,v 1.11 2003-04-14 20:54:39 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -460,10 +460,16 @@ c -------------
           endif
         enddo
         if (cs00) then
+          if (shift.gt.1.0d90) then
+          write(LuOut,*)
+          write(LuOut,9330)
+     1    '  CS with a Zhan-Nichols-Dixon shift        '
+          else
           write(LuOut,*)
           write(LuOut,9320)
      1    '  Casida-Salahub correction with a shift    ',
-     1    shift,'au'
+     2    shift,'au'
+          endif
         else if (lb94) then
           write(LuOut,*)
           write(LuOut,9330)
