@@ -31,7 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_induce.F,v 1.6 2000-04-11 15:19:12 d3j191 Exp $
+c $Id: cf_induce.F,v 1.7 2000-05-01 19:16:54 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -128,16 +128,12 @@ c     solute-solvent polarization
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-c     + isq1,isfr,nsloc,
-c     + xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
-c     + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
-c     + int_mb(i_ias),int_mb(i_s2i1),
-c     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
-c     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
-c     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
-c     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-c     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3))
+      call cf_dsw(xs,xsm,ps,psp,isdt,ismf,isml,isq1,isfr,nsloc,
+     + xw,xwm,pw,pwp,int_mb(i_iwq),lpbc,dbl_mb(i_chg),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
+     + dbl_mb(i_s3r1),dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r2),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_smr5),dbl_mb(i_smr6),
+     + int_mb(i_s1i1))
       lptr=lptr+4*nsloc+1+npairs
       else
       lptr=lptr+1
@@ -147,16 +143,12 @@ c     solvent-solute forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-c     + isq1,jsfr,nsnon,
-c     + xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
-c     + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
-c     + int_mb(i_ias),int_mb(i_s2i1),
-c     + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
-c     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
-c     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
-c     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-c     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3))
+      call cf_dsw(xs,xsm,ps,psp,isdt,ismf,isml,isq1,jsfr,nsnon,
+     + xw,xwm,pw,pwp,int_mb(i_iwq),lpbc,dbl_mb(i_chg),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
+     + dbl_mb(i_s3r1),dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r2),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_smr5),dbl_mb(i_smr6),
+     + int_mb(i_s1i1))
       lptr=lptr+4*nsnon+1+npairs
       else
       lptr=lptr+1
@@ -166,16 +158,14 @@ c     solute-solute forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-c     + isq2,isq3,isfr,nsloc,essl,essq,essr,lpbc,
-c     + dbl_mb(i_vdw),dbl_mb(i_chg),
-c     + int_mb(i_ias),int_mb(i_s2i1),
-c     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
-c     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
-c     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
-c     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
-c     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
-c     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6))
+      call cf_dss(xs,xsm,ps,psp,ismf,isml,isq2,isq3,isfr,nsloc,
+     + lpbc,,dbl_mb(i_chg),int_mb(i_s2i1),
+     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
+     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
+     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r6),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),
+     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
+     + dbl_mb(i_smr3),dbl_mb(i_smr4))
       lptr=lptr+4*nsloc+1+npairs
       else
       lptr=lptr+1
