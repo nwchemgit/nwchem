@@ -492,7 +492,7 @@ c
      $                    ndens,numi)
                      numi_cart = (itype+1)*(itype+2)/2
                      numj_cart = (jtype+1)*(jtype+2)/2
-                     call dens_sph_to_cart(itype, jtype, d, lmax2, 
+                     call dens_sph_to_cart(itype, jtype, 
      $                    ndens, numi, dens, work, numi_cart, numj_cart)
                      dmax = 0.0d0
                      do i = 1, numi_cart*numj_cart

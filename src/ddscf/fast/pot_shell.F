@@ -104,8 +104,8 @@ c
       if (iosph .and. josph) then
          numi = ((itype+1)*(itype+2))/2
          numj = ((jtype+1)*(jtype+2))/2
-         call dens_sph_to_cart(itype, jtype, d, lmaxd,
-     $        den, ld, dens, work, numi, numj)
+         call dens_sph_to_cart(itype, jtype, den, ld, dens, 
+     $        work, numi, numj)
       else if (.not. (iosph .and. josph)) then
          ind = 1
          do j = 1, numj
@@ -218,22 +218,24 @@ c
       enddo
 c
       end
-      subroutine dens_sph_to_cart(itype, jtype, d, lmaxd, den, ld, dens,
+      subroutine dens_sph_to_cart(itype, jtype, dens, ld, denc,
      $     work, numi, numj)
 #include "mafdecls.fh"
 #include "spcartP.fh"
       implicit none
-      integer itype, jtype, lmaxd, ld, numi, numj
-      double precision d(((lmaxd+1)*(lmaxd+2))/2,-lmaxd:lmaxd,0:lmaxd)
-      double precision den(ld,*)
+      integer itype, jtype, ld, numi, numj
+      double precision dens(ld,*)
       double precision work(numi,*)
-      double precision dens(numi,numj)
+      double precision denc(numi,numj)
 c
 c     Given a density block over a pair of spherical shells 
 c     transform it to cartesians
 c
 c     numi and numj should be input as the dimension of the cartesian 
 c     shells.
+c
+c     The integral routines MUST be initialized so that the
+c     common block in spcartP is setup.
 c
       integer i, j, numj_sph, icart, jcart
 c
@@ -249,30 +251,28 @@ c
       numj_sph = jtype+jtype+1
 c
       if (itype .le. 1) then
-         call dcopy(numi*numj_sph, den, 1, work, 1)
+         call dcopy(numi*numj_sph, dens, 1, work, 1)
       else
          call dfill(numi*numj_sph, 0.0d0, work, 1)
          do j = 1, numj_sph
             do i = 1, itype+itype+1
                do icart = 1, numi
                   work(icart,j) = work(icart,j) + 
-     $                 Dtrans(icart,i-itype-1,itype)*den(i,j)
-*     $                 d(icart,i-itype-1,itype)*den(i,j)
+     $                 Dtrans(icart,i-itype-1,itype)*dens(i,j)
                enddo
             enddo
          enddo
       endif
 c
       if (jtype .le. 1) then
-         call dcopy(numi*numj, work, 1, dens, 1)
+         call dcopy(numi*numj, work, 1, denc, 1)
       else
-         call dfill(numi*numj, 0.0d0, dens, 1)
+         call dfill(numi*numj, 0.0d0, denc, 1)
          do j = 1, jtype+jtype+1
             do jcart = 1, numj
                do icart = 1, numi
-                  dens(icart,jcart) = dens(icart,jcart) + 
+                  denc(icart,jcart) = denc(icart,jcart) + 
      $                 work(icart,j)*Dtrans(jcart,j-jtype-1,jtype)
-*     $                 work(icart,j)*d(jcart,j-jtype-1,jtype)
                enddo
             enddo
          enddo
