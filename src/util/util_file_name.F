@@ -236,7 +236,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup)
-C$Id: util_file_name.F,v 1.2 1996-07-17 18:32:58 d3g681 Exp $
+C$Id: util_file_name.F,v 1.3 1996-07-26 16:43:42 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -247,11 +247,12 @@ C$Id: util_file_name.F,v 1.2 1996-07-17 18:32:58 d3g681 Exp $
       character*(*) rtdb_name   ! [output]
       logical ostartup           ! [output]
 c
-      logical status, odirective
+      logical status, odirective, echo
       integer nkeys, istart, iend
-      parameter (nkeys = 4)
+      parameter (nkeys = 5)
       character*16 keys(nkeys), field
-      data keys/'start','restart','scratch_dir','permanent_dir'/
+      data keys/'start','restart','scratch_dir','permanent_dir',
+     $     'echo'/
 c
 c     Scan the input for start/restart directives and attempt
 c     to figure out the name of the desired data base, if the
@@ -278,6 +279,7 @@ c     you get a restart.  Overriden by presenting start/restart.
 c
       odirective = .false.      ! True if find a start/restart
       ostartup   = .true.
+      echo       = .false.
       rtdb_name  = ' '
       call input_default_file_prefix(input_filename,file_prefix)
 c
@@ -303,6 +305,8 @@ c
             istart = 0
             status = inp_strtok(permanent_dir,' ',istart, iend)
             permanent_dir(istart:iend) = ' '
+         else if (inp_compare(.false.,'echo',field)) then
+            echo = .true.
          else
             call errquit('input_start_opt: wierd error',0)
          endif
@@ -310,6 +314,8 @@ c
       endif
       rewind 5
       call inp_init(5,6)
+c
+      if (echo) call input_echo(5,6)
 c
       if (rtdb_name .eq. ' ')
      $     call util_file_name('db',.false.,.false.,rtdb_name)

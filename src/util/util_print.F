@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.9 1996-04-16 21:08:11 d3g681 Exp $
+C$Id: util_print.F,v 1.10 1996-07-26 16:43:44 d3g681 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -162,6 +162,9 @@ c
       do i = 1, maxnames1
          buf(i) = ' '
       enddo
+c
+      n_print(depth) = 0
+      n_no_print(depth) = 0
 c     
       if (rtdb_cget(rtdb,printentry,maxnames1,buf)) then
          do i = 1, maxnames1
