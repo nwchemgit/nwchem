@@ -82,7 +82,7 @@ c     alignment pmf
 c
       if(ipmf(i,1).eq.5) then
       do 7 k=1,lgroup(ipmf(i,2))
-      write(lfntop,1001) 5,(rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
+      write(lfntop,1001) 6,(rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
       write(lfntop,1002) igroup(ipmf(i,2),k)
