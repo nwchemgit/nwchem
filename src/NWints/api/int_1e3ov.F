@@ -34,8 +34,8 @@ c::local
       integer Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
 c
       integer WarnP
-      data WarnP /0/
       save WarnP
+      data WarnP /0/
 c
 c check initialization and shells
 c
@@ -80,7 +80,7 @@ c
       k_geom  = ibs_geom(kbas)
 c
       if ((i_geom.ne.j_geom.or.j_geom.ne.k_geom).and.WarnP.eq.0) then
-        write(6,*)'int_1eall: WARNING: possible geometry inconsistency'
+        write(6,*)'int_1e3ov: WARNING: possible geometry inconsistency'
         write(6,*)'i_basis geometry handle:',i_geom
         write(6,*)'j_basis geometry handle:',j_geom
         write(6,*)'k_basis geometry handle:',k_geom

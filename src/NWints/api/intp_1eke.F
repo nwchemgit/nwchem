@@ -1,5 +1,5 @@
-      subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.3 1995-01-09 08:48:41 d3e129 Exp $
+      subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
+c $Id: intp_1eke.F,v 1.1 1995-01-09 08:48:40 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -17,8 +17,8 @@ c::functions
       external cando_sp
       external cando_nw
 c::passed
-      integer i_basis, j_basis, ish, jsh, lscr, lov
-      double precision scr(lscr), Ov(lov)
+      integer i_basis, j_basis, ish, jsh, lscr, lke
+      double precision scr(lscr), Ke(lke)
       double precision R(3)  ! translational vector for periodic
 c::local
       logical shells_ok
@@ -38,8 +38,8 @@ c... statement function for int_chk_sh
 c
 c check initialization and shells
 c
-      if (.not.int_chk_init('intp_1eov'))
-     &       call errquit('intp_1eov: int_init was not called' ,0)
+      if (.not.int_chk_init('intp_1eke'))
+     &       call errquit('intp_1eke: int_init was not called' ,0)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -47,7 +47,7 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not.shells_ok)
-     &       call errquit('intp_1eov: invalid contraction/shell',0)
+     &       call errquit('intp_1eke: invalid contraction/shell',0)
 c
       ucont   = ibs_cn2ucn(ish,ibas)
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
@@ -68,7 +68,7 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'intp_1eov: WARNING: possible geometry inconsistency'
+        write(6,*)'intp_1eke: WARNING: possible geometry inconsistency'
         write(6,*)'i_basis geometry handle:',i_geom
         write(6,*)'j_basis geometry handle:',j_geom
         WarnP = 1
@@ -76,30 +76,33 @@ c
 c
 c.. translate coordinates based on R
       call intp_txyz(j_cent,j_geom,R,xyz_new)
+*rak:c 
 *rak:c.. zero local arrays
 *rak:      call dfill(3,0.0d00,xyz_new,1)
 *rak:      call dfill(3,0.0d00,xyz_frac,1)
-*rak:c
 *rak:c... compute j center fractional coordinates
-*rak:c....    xyz_frac = amatrix_inv*coords(jsh)
-*rak:c
+*rak:c...    xyz_frac = amatrix_inv*coords(jsh)
 *rak:      call dgemv('n',3,3,1.0d00,amatrix_inv(1,1,j_geom),3,
 *rak:     &    coords(1,j_cent,j_geom),1,
 *rak:     &    0.0d00,xyz_frac,1)
-*rak:c
+*rak:      write(6,*)'intp_1eke: debug original   coords:xyz: ',
+*rak:     &    (coords(jjj,j_cent,j_geom),jjj=1,3)
+*rak:      write(6,*)'intp_1eke: debug j fractional coords:xyz: ',
+*rak:     &    (xyz_frac(jjj),jjj=1,3)
 *rak:c... compute j translated fractional coordinates
 *rak:c.........  xyz_frac = xyz_frac + R
-*rak:c
 *rak:      do 00100 jjj=1,3
 *rak:        xyz_frac(jjj) = xyz_frac(jjj) + R(jjj)
 *rak:00100 continue
-*rak:c
+*rak:      write(6,*)'intp_1eke: debug j fractional coords tranlated:xyz: ',
+*rak:     &    (xyz_frac(jjj),jjj=1,3)
 *rak:c... computer j translated cart. coordinates.
 *rak:c........ xyz_new = amatrix*xyz_frac
-*rak:c
 *rak:      call dgemv('n',3,3,1.0d00,amatrix(1,1,j_geom),3,
 *rak:     &    xyz_frac,1,
 *rak:     &    0.0d00,xyz_new,1)
+*rak:      write(6,*)'intp_1eke: debug j cart. coords tranlated:xyz: ',
+*rak:     &    (xyz_new(jjj),jjj=1,3)
 c
       if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
         call int_hf1sp(
@@ -109,9 +112,9 @@ c
      &         exndcf(j_icfp,jbas), j_prim, j_gen, Lj,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
-     &         Ov,scr,scr,lov,.true.,.false.,.false.,.false.,
+     &         scr,Ke,scr,lke,.false.,.true.,.false.,.false.,
 c.............. dryrun
-     &         .false.,scr,lscr,'intp_1eov')
+     &         .false.,scr,lscr,'intp_1eke')
       elseif (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)) then
         call hf1(
      &         coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
@@ -120,11 +123,11 @@ c.............. dryrun
      &         exndcf(j_icfp,jbas), j_prim, j_gen, Lj,
      &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
-     &         Ov,scr,scr,lov,.true.,.false.,.false.,.false.,
+     &         scr,Ke,scr,lke,.false.,.true.,.false.,.false.,
 c.............. dryrun
      &         .false.,scr,lscr)
       else
-        call errquit('intp_1eov: could not do sp or nw integrals',0)
+        call errquit('intp_1eke: could not do sp or nw integrals',0)
       endif
 c
       end

@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.2 1994-06-29 05:50:14 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.3 1995-01-09 08:48:33 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -34,8 +34,8 @@ c:: local
       integer Lq, q_prim, q_gen, q_iexp, q_icfp, q_cent
 c
       integer WarnP
-      data WarnP /0/
       save WarnP
+      data WarnP /0/
 c
 c check initialization
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1994-11-23 17:40:49 d3e129 Exp $
+# $Id: GNUmakefile,v 1.20 1995-01-09 08:48:46 d3e129 Exp $
 
     OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
@@ -12,14 +12,17 @@
           intd_1eov.o intd_1eh1.o intd_2e4c.o \
           intd_init.o exactd_mem.o int_acc.o \
           int_1cg.o intd_2e2c.o intd_2e3c.o \
-          intp_1eov.o
+          int_mpole.o \
+          intp_1eov.o intp_1eke.o intp_txyz.o \
+          intp_1epe.o
 
    LIBRARY = libnwints.a
 
  USES_BLAS = int_hf1sp.F   int_l1e3ov.F   int_l1eall.F \
              int_l2e2c.F   int_l2e3c.F    int_l2e4c.F \
              int_lgen1e.F  int_pgen1e.F   intd_1eh1.F \
-             intd_2e4c.F   intp_1eov.F
+             intd_2e4c.F   intp_txyz.F    intd_2e2c.F
+             intp_1eke.F   intp_1eov.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

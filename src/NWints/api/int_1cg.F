@@ -1,5 +1,5 @@
       subroutine int_1cg(i_basis,ish,lscr,scr,l1g,G1e)
-c $Id: int_1cg.F,v 1.1 1994-09-27 17:08:48 d3e129 Exp $
+c $Id: int_1cg.F,v 1.2 1995-01-09 08:48:22 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -26,8 +26,8 @@ c::local
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
 c
       integer WarnP
-      data WarnP /0/
       save WarnP
+      data WarnP /0/
 c
 c check initialization and shells
 c
