@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.61 2000-05-10 17:41:37 edo Exp $
+c $Id: texas_face.F,v 1.62 2000-05-11 19:32:36 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1128,7 +1128,7 @@ c------------------------------------
       common /tape/ inp,inp2,iout,ipun,ix,icond,itest,nentry,ltab,ntap,n
      1pl(9),nbl(9),nen(9),lentry(9),nam(200),num(200),irec(200),icode(20
      20),inpf,ioutf
-      common /unit/ ang,debye,cbm,ajoule,evolt,ckalmo,dkel,cmm1,hertz
+      common /tx_unit/ ang,debye,cbm,ajoule,evolt,ckalmo,dkel,cmm1,hertz
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
       common /ganz/ lcore,iov,last,nganz(67)
