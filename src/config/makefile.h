@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.446 2004-02-11 02:27:35 edo Exp $
+# $Id: makefile.h,v 1.447 2004-02-11 02:39:54 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1679,6 +1679,7 @@ ifeq ($(TARGET),cray-sv2)
   MAKEFLAGS = 
     INSTALL = @echo $@ is built
     DEFINES =  -DEXT_INT  -DUSE_POSIXF  -DUSE_FFIO
+    USE_FFIO = y
      CORE_SUBDIRS_EXTRA = blas lapack
 
    FOPTIONS =  -F -s integer64
