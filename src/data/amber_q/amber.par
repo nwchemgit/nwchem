@@ -37,6 +37,11 @@ CB   -CY      0.15010 2.48530E+05
 HC   -CY      0.10900 2.84512E+05
 CX   -CY      0.13400 4.76976E+05
 HC   -CX      0.10900 2.84512E+05
+AC   -H2      0.10900 2.84512E+05             tps990729 copy CT-H2
+EC   -H2      0.10900 2.84512E+05             tps990729 copy CT-H2
+C    -OS      0.14100 2.67776E+05             tps990729 copy CT-OS
+C    -AC      0.15220 2.65266E+05             tps990729 copy C-CT
+S    -O2      0.14900 1.69566E+05             tps991219 for SO4-- taken from Smith
 Angles
 C    -CT   -OH      1.91114 4.18400E+02
 CB   -CB   -CC      1.86750 5.85760E+02
@@ -73,6 +78,35 @@ N2   -CA   -CT      2.09440 5.85760E+02 rdl000731 taken from N2-CA-N2
 CM   -C    -O2      2.04204 5.85760E+02 tps020326 taken from CT-C-O2 
 CB   -CT   -S       2.00189 4.18400E+02 tps020326 taken from CT-CT-S
 CB   -CT   -H1      1.91114 4.18400E+02 tps020326 taken from CM-CT-H1
+H2   -AC   -OS      1.91114 4.18400E+02 tps990729 copy H2-CT-OS
+H2   -AC   -OG      1.91114 4.18400E+02 tps990729 copy H2-CT-OS
+H2   -EC   -OG      1.91114 4.18400E+02 tps000315 copy H2-CT-OS
+H2   -EC   -OS      1.91114 4.18400E+02 tps980817
+OS   -AC   -OS      1.91114 4.18400E+02 tps990729 copy CT-CT-OS
+OS   -EC   -OS      1.91114 4.18400E+02 tps990729 copy CT-CT-H2
+CT   -AC   -H2      1.91114 4.18400E+02 tps980817
+CT   -EC   -H2      1.91114 4.18400E+02 tps980817
+AC   -CT   -H1      1.91114 4.18400E+02 tps990729 copy CT-CT-H1
+EC   -CT   -H1      1.91114 4.18400E+02 tps980817
+AC   -CT   -N       1.91114 4.18400E+02 tps990729 copy CT-CT-N*
+EC   -CT   -N       1.91114 4.18400E+02 tps980817
+CT   -OS   -C       1.91114 5.02080E+02 tps990729 copy CT-OS-CT
+H1   -CT   -OG      1.91114 4.18400E+02 tps990729 copy H1-CT-OS
+CT   -OG   -CT      1.91114 5.02080E+02 tps990729 copy CT-OS-CT
+AC   -OS   -P       2.10312 8.36800E+02 tps980817 copy CT-OS-P
+EC   -OS   -P       2.10312 8.36800E+02 tps980817
+OS   -C    -O       2.19911 6.69440E+02 tps980817
+CT   -C    -OS      2.04204 5.85760E+02 tps980817
+AC   -C    -O       2.10138 6.69440E+02 tps990729 copy CT-C-O
+AC   -C    -OH      2.04204 5.85760E+02 tps990729 copy CT-C-OH
+C    -AC   -OG      1.91114 4.18400E+02 tps990729 copy CT-CT-OS
+C    -AC   -OS      1.91114 4.18400E+02 tps990729 copy CT-CT-OS
+C    -AC   -CT      1.93906 5.27184E+02 tps990729 copy C-CT-CT
+OG   -CT   -C       1.91114 4.18400E+02 tps990729 copy OS-CT-CT
+OS   -CT   -C       1.91114 4.18400E+02 tps990729 copy OS-CT-CT
+OG   -CT   -OS      1.91114 4.18400E+02 tps990729 copy N*-CT-OS
+AC   -C    -O2      2.04204 5.85760E+02 tps990729 copy CT-C-O2
+OS   -C    -O2      2.19911 6.69440E+02 tps990729 copy O2-C-O2
 Proper dihedrals
      -NB   -FE   -        0.00000 0.00000E+02    2
      -NO   -FE   -        3.14159 0.00000E+02    2
@@ -84,6 +118,14 @@ Proper dihedrals
      -CC   -NO   -        3.14159 5.96220E+00    2
      -CC   -NP   -        3.14159 5.96220E+00    2
      -CX   -CY   -        3.14159 3.13800E+01    2
+     -C    -OS   -        3.14159 6.06680E+00    2 tps990729 copy -C-N*-
+     -AC   -OG   -        0.00000 1.60387E+00    3 tps990729 copy -CT-OS-
+     -EC   -OG   -        0.00000 1.60387E+00    3 tps000315 copy -CT-OS-
+C    -AC   -OG   -CT      0.52360 1.58992E+00   -3 tps990729 copy CT-CT-OS-CT
+C    -AC   -OG   -CT      3.14159 4.18400E-01    2 tps990729 copy CT-CT-OS-CT
+     -C    -AC   -        0.00000 0.00000E+00    2 tps990729 copy -C-CT-
+CT   -EC   -N    -H       0.00000 0.00000E+00    1
+CT   -EC   -OH   -HO      0.00000 6.97333E-01    3
 Improper dihedrals
      -     -CC   -CC      3.14159 4.18400E+00    2
      -     -CC   -CB      3.14159 4.18400E+00    2
@@ -128,3 +170,50 @@ Cl       17  0    0    0  0      0  0      0      0      0
 O2        8  0    0    0  1     15  4    808   1808    800
                                  0  0      0      0      0
                                  0  0      0      0      0
+#
+O2        8  0    0    0  1     15  4      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
+#
+N         7  0    0    0  3      1  0      0      0      0
+                                15  4      0      0      0
+                                15  4      0      0      0
+#
+N3        7  0    0    0  3      6  4      0      0      0
+                                 6  4      0      0      0
+                                 6  4      0      0      0
+O2        8  0    0    0  1     16  0      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
+S        16  0    0    0  4      8  0      0      0      0
+                                 8  0      0      0      0
+                                 8  0      0      0      0
+NB        7  0    0    0  3      1  0      0      0      0
+                                 6  3      7      1      0
+                                 6  3      6      6      0
+#
+CB        6  0    0   66  3      0  0      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
+#
+N3        7  0    0    0  4      6  0      0      0      0
+                                 6  0      0      0      0
+                                 6  0      0      0      0
+N         7  0    0    0  3      6  4      6      6      1
+                                 6  4      6      6      1
+                                 1  1      0      0      0
+#
+# cation definitions
+#
+#
+CL       17  0    0    0  1      0  0      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
+#
+#OG        8  0    0    0  2      6  4      0      0      0
+#                                 6  4      0      0      0
+#                                 0  0      0      0      0
+
+#
+
+
