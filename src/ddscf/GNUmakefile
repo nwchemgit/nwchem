@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1995-03-14 01:52:12 rg240 Exp $
+# $Id: GNUmakefile,v 1.25 1995-03-14 02:00:02 rg240 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -41,6 +41,7 @@
       LIBRARY =	libddscf.a
 
     USES_BLAS =	\
+		fock_2e.F \
 		ga_conform.F \
 		ga_mxv.F \
 		k2cf.F \
