@@ -1,4 +1,5 @@
-#!/msrc/apps/bin/perl
+#!/usr/bin/perl
+#########!/msrc/apps/bin/perl
 #
 # New frames code to eat latex2html output and write a frames document
 #
@@ -6,11 +7,11 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.6 2003-04-17 23:00:43 mhackler Exp $
+# $Id: write_frames.pl,v 1.7 2004-04-17 02:40:00 edo Exp $
 #
 # remove nwchem banner stuff 3/23/98
 #
-@INC = ("/msrc/apps/perl-5.005/lib/5.00502","/usr/lib/perl5");
+###@INC = ("/msrc/apps/perl-5.005/lib/5.00502","/usr/lib/perl5");
 require File::Copy;
 
 if (($ARGV[0] eq "") || ($ARGV[1] eq "")) {
