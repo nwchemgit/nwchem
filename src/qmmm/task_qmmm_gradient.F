@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.17 2005-02-17 01:57:07 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.18 2005-03-04 01:16:25 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_params.fh"
+#include "qmmm.fh"
 c
       integer rtdb
       logical  task_qmmm_gradient
@@ -21,8 +22,7 @@ c     local variables
       character*32 interface
       double precision energy
 
-      if (.not. rtdb_cget(rtdb, 'qmmm:interface', 1, interface))
-     $     call errquit('qmmm_interface: failed ',0,0)
+      interface = qmmm_get_interface()
 c
       
       task_qmmm_gradient = .true.

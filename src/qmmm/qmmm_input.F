@@ -14,10 +14,9 @@ c
       character*32 tag
       character*32 pname
       character*255 token
-      character*32 interface
       double precision  eatoms
       double precision bqzone
-      logical fixlinks,fixqm
+      logical fixlinks
       logical bq_dynamical
       integer linkatm,bq_exclude
       logical status
@@ -101,6 +100,19 @@ c
          call errquit('unknown option for link_ecps',0,INPUT_ERR)
         end if
         tag="qmmm:link_ecp"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      endif
+c
+      if(inp_compare(.false.,'geom',token)) then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for geom"
+         call errquit('qmmm_input: geom',0,
+     &         INPUT_ERR)
+        end if
+        tag="qmmm:geom"
         if (.not.rtdb_cput(rtdb,tag,1,token)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
@@ -195,5 +207,7 @@ c
 c
       write(luout,*)' unrecognized token in qmmm input:',
      + token(1:inp_strlen(token))
+       call errquit(pname//'failed ',0,
+     >        RTDB_ERR)
       return
       end

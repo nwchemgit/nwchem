@@ -14,7 +14,6 @@ c
       character*32 tag
       character*32 pname
       character*32 optimization
-      character*32 interface
       character*32 link_ecp
       real*8 eatoms,qatoms
       logical fixqm
@@ -82,12 +81,13 @@ c
       character*32 tag
       character*32 pname
       character*32 optimization
-      character*32 interface
+c      character*32 interface
       character*32 link_ecp
       double precision  eatoms,qatoms
       logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
+      logical ignore
       logical flag
 
       pname = "qmmm_data_init: "
@@ -218,7 +218,7 @@ c
      >  write(6,22) "ecp on link atoms",tag,link_ecp
 
       fixqm = .false.
-      interface='qm'
+      qmmm_interface='qm'
 
       tag='task:operation'
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
@@ -229,35 +229,35 @@ c
       if (inp_compare(.false., 'energy', operation)) then
         if (optimization.eq.'all') then
            fixqm = .false.
-           interface = "mm"
+           qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'mm') then
            fixqm = .true.
-           interface = "mm"
+           qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'qm') then
            fixqm = .false.
-           interface = "qm"
+           qmmm_interface = "qm"
         endif
       else if (inp_compare(.false., 'optimize', operation)) then
         if (optimization.eq.'all') then
            fixqm = .false.
-           interface = "mm"
+           qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'mm') then
            fixqm = .true.
-           interface = "mm"
+           qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'qm') then
            fixqm = .false.
-           interface = "qm"
+           qmmm_interface = "qm"
            bq_dynamical=.false.
         endif
       else if (inp_compare(.false., 'saddle', operation)) then
         fixqm = .false.
-        interface = "qm"
+        qmmm_interface = "qm"
       else if (inp_compare(.false.,'dynamics',operation)) then
-        interface = "mm"
+        qmmm_interface = "mm"
       end if
 
       tag ="qmmm:fixqm" 
@@ -269,13 +269,14 @@ c
 
 
       tag ="qmmm:interface"
-      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
-         if (.not.rtdb_cput(irtdb,tag,1,interface)) 
-     >        call errquit(pname//'failed to store'//tag,0,
-     >         RTDB_ERR)
-      end if
+      ignore = rtdb_cget(irtdb,tag,1,qmmm_interface)
+c      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
+c         if (.not.rtdb_cput(irtdb,tag,1,interface)) 
+c     >        call errquit(pname//'failed to store'//tag,0,
+c     >         RTDB_ERR)
+c      end if
       if (master) 
-     >  write(6,22) "interface api",tag,interface
+     >  write(6,22) "interface api",tag,qmmm_interface
 
       tag = "qmmm:bq_dynamical"
       if (.not.rtdb_get(irtdb,tag,mt_log,1,bq_dynamical)) then
@@ -672,6 +673,15 @@ c
       double precision qmmm_get_bqzone
 
       qmmm_get_bqzone = bqzone
+
+      end 
+
+      function qmmm_get_interface()
+      implicit none
+#include "qmmm_data.fh"
+      character*(*) qmmm_get_interface
+
+      qmmm_get_interface = qmmm_interface      
 
       end 
 

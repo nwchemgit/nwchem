@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.51 2005-02-17 01:57:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.52 2005-03-04 01:16:25 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -30,6 +30,7 @@ c     local variables
       character*255 basis_string,namespace
       character*255 basis_name
       character*255 link_ecp
+      character*255 geom
       integer qmmm_geom_heavy_neighbor
       external qmmm_geom_heavy_neighbor
       integer tmp(2)
@@ -167,7 +168,13 @@ c     ------------------------------------
         end do
       end if
 
-      call  qmmm_create_qm_geom(irtdb)
+      if (.not.rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+        call  qmmm_create_qm_geom(irtdb)
+      else 
+        call  qmmm_load_qm_geom(geom,irtdb)
+        call  qmmm_get_qm_coord_qm(irtdb)
+        call  qmmm_push_qm_coord_mm(irtdb)
+      end if
       
 c
 c     set link atoms ecp if any
@@ -320,6 +327,41 @@ c     ------------------------
       if(.not.ma_pop_stack(h_c_all))
      & call errquit('qmmm: Failed to deallocate stack c_all',nact,
      &       MA_ERR)
+
+      if(qmmm_print_debug())
+     > write(*,*) "out "//pname
+ 
+      end
+
+      subroutine qmmm_load_qm_geom(geom,irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+      character*(*) geom
+      integer irtdb
+c
+      integer igeom
+      character*32 pname
+
+      pname = "qmmm_load_qm_geom"
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,geom))
+     + call errquit('qmmm: Failed to load geom to rtdb',0, RTDB_ERR)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
       if(qmmm_print_debug())
      > write(*,*) "out "//pname
@@ -1073,6 +1115,7 @@ c      call qmmm_bq_data_load()
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "qmmm_params.fh"
       integer irtdb
 c     local variables
       integer nqm

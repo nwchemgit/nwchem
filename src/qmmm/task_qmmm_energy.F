@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.2 2004-12-17 02:21:49 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.3 2005-03-04 01:16:25 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_params.fh"
+#include "qmmm.fh"
 c
       integer rtdb
       logical task_qmmm_energy
@@ -22,16 +23,11 @@ c     local variables
       logical ignore
       character*32 interface
       double precision energy
-
-      if (.not. rtdb_cget(rtdb, 'qmmm:interface', 1, interface))
-     $     call errquit('qmmm_interface: failed ',0,0)
+c
+      interface = qmmm_get_interface()
 c
       task_qmmm_energy = .true.
-      
-c      write(*,*) "WARNING, hack in task_qmmm_energy"
-c      interface = 'mm'
-c      write(*,*) "WARNING, hack in task_qmmm_energy"
-
+c      
       if (interface.eq.'mm') then
          call qmmm_get_qm_coord_qm(rtdb)
          call qmmm_push_qm_coord_mm(rtdb)

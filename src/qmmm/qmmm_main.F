@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.34 2005-02-17 01:57:07 marat Exp $
+c $Id: qmmm_main.F,v 1.35 2005-03-04 01:16:25 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -62,10 +62,7 @@ c
 c     nothing should be calculated if
 c     qm module (e.g. driver is in charge)
 c     -----------------------------------
-      tag ="qmmm:interface"
-      if (.not.rtdb_cget(inrtdb,tag,1,interface)) 
-     >      call errquit(pname//'failed to get'//tag,0,
-     >       RTDB_ERR)
+      interface = qmmm_get_interface()
       if(interface.eq.'qm') then
       if(qmmm_print_debug())
      > write(*,*) "exiting out of qmmm_forces since interface is set qm"
@@ -147,7 +144,6 @@ c     calculate qm contributions to gradients and energy
 c     --------------------------------------------------
       if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-      write(*,*) "debug 0 ",nqm-nlink+1,ntot
       if(optimization.eq."mm") 
      > call qmmm_set_actlist(nqm-nlink+1,ntot,inrtdb)
       if(ignore_qm) then
