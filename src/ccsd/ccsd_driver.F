@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.40 2003-11-15 00:31:26 bert Exp $
+C     $Id: ccsd_driver.F,v 2.41 2003-11-20 01:46:47 nwchem Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -55,7 +55,7 @@ c
        external ga_create_atom_blocked
        integer ga_create_JKblocked
        external ga_create_JKblocked
-       integer ccsd_memory_fit
+       logical ccsd_memory_fit
        external ccsd_memory_fit
        integer moints_occrange
        external moints_occrange
