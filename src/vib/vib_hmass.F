@@ -1,5 +1,5 @@
       SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
-* $Id: vib_hmass.F,v 1.4 1997-04-22 20:01:42 d3e129 Exp $
+* $Id: vib_hmass.F,v 1.5 2003-03-14 01:56:09 edo Exp $
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the
@@ -50,7 +50,7 @@ C
 
  9000 FORMAT(/,10X,'-----------------------------------------------',
      &                                                       '-----',
-     &  /,10X,'MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kg)',
+     &  /,10X,'MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kamu)',
      &  /,10X,'----------------------------------------------------',
      &       //)
       RETURN
