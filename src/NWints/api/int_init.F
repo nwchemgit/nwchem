@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.55 1999-12-30 22:13:29 mg201 Exp $
+c $Id: int_init.F,v 1.56 1999-12-30 23:05:32 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -22,7 +22,6 @@ c:tex-\end{verbatim}
 #include "nwc_const.fh"
 #include "int_nbf.fh"
 #include "util.fh"
-#include "rel_consts.fh"
 #include "rel_nwc.fh"
 c
 c This routine is a wrapper around the original int_init which is now
@@ -95,11 +94,6 @@ c
          call errquit('int_init: could not find ao basis',0)
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
-c
-c        Set possibily an alternative speed of light, otherwise take
-c        constant from Ken Dyall's list of constants.
-c
-         dk_clight = cau
 c
 c        Add fitting basis set to list of loaded basis sets for int_init
 c
