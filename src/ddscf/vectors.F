@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.26 1997-02-13 01:14:21 d3g681 Exp $
+C$Id: vectors.F,v 1.27 1997-03-05 23:14:42 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -62,8 +62,8 @@ c
       movecs_read_header = ok .eq. 1
       if (.not. movecs_read_header) return
 c
-      call util_char_ga_brdcst(Msg_Vec_Ttl, title)
-      call util_char_ga_brdcst(Msg_Vec_Nam, basis_name)
+      call util_char_ga_brdcst(Msg_Vec_Ttl, title, 0)
+      call util_char_ga_brdcst(Msg_Vec_Nam, basis_name, 0)
       call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
       call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
       call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)
@@ -160,8 +160,9 @@ c
          read(unitno, err=1001, end=1001) (occ(j),j=1,nbf)
          read(unitno, err=1001, end=1001) (evals(j),j=1,nbf)
          do i = 1, nmo(iset)
-            read(unitno, err=1001, end=1001)
-     $           (dbl_mb(k_vecs+j), j=0,nbf-1)
+*            read(unitno, err=1001, end=1001)
+*     $           (dbl_mb(k_vecs+j), j=0,nbf-1)
+            call sread(unitno, dbl_mb(k_vecs), nbf)
             call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
          enddo
  9       close(unitno,err=1002)
@@ -388,7 +389,8 @@ c
             write(unitno, err=1001) (evals(j,iset),j=1,nbf)
             do i = 1, nmo(iset)
                call ga_get(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_vecs),1)
-               write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)
+               call swrite(unitno, dbl_mb(k_vecs), nbf)
+*               write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)
             enddo
          enddo
          if (.not. ma_pop_stack(l_vecs))
@@ -561,6 +563,8 @@ c
       integer len1, nrow, ncol, type
       integer ok, i, j
 c
+      call ga_sync
+c
       ok = 0
       call ga_inquire(g_a, type, nrow, ncol)
       call ga_inquire_name(g_a, gtitle)
@@ -575,7 +579,8 @@ c
      $    call errquit('matrix_fwrite: ma failed', nrow)
         do i=1,ncol
           call ga_get(g_a, 1, nrow, i, i, dbl_mb(k_tmp), 1)
-          write(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
+          call swrite(unitno, dbl_mb(k_tmp), nrow)
+****          write(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
      $    call errquit('file_write_ga: ma pop failed', l_tmp)
@@ -583,7 +588,8 @@ c
         ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+ 10   call ga_sync
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
 c
       file_write_ga = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
@@ -638,6 +644,8 @@ c
       integer grow, gcol
       integer ok, i, j
 c
+      call ga_sync()
+c
       ok = 0
       call ga_inquire(g_a, type, grow, gcol)
       if (ga_nodeid() .eq. 0) then
@@ -650,7 +658,8 @@ c
         if (.not. ma_push_get(mt_dbl,nrow,'movecs_write',l_tmp,k_tmp))
      $    call errquit('matrix_fwrite: ma failed', nrow)
         do i=1,ncol
-          read(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
+          call sread(unitno, dbl_mb(k_tmp), nrow)
+***          read(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
           call ga_put(g_a, 1, nrow, i, i, dbl_mb(k_tmp), 1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
@@ -659,7 +668,8 @@ c
         ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+ 10   call ga_sync()
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
 c
       file_read_ga = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.

@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.2 1996-10-04 21:48:23 d3g681 Exp $
+C     $Id: vectors_inp.F,v 1.3 1997-03-05 23:14:43 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -100,12 +100,16 @@ c
          if (mod(nswap,2).ne.0 .or. nswap.le.0) call errquit
      $        ('vectors_input: invalid no. of orbitals to swap', nswap)
          if (swapname .eq. ' ') then
-            swapname = 'scf:swap'
+            swapname = ' '
+            write(swapname,511) module(1:mlen), 'swap'
          else if (swapname .eq. 'alpha') then
-            swapname = 'scf:swap alpha'
+            swapname = ' '
+            write(swapname,511) module(1:mlen), 'swap alpha'
          else
-            swapname = 'scf:swap beta'
+            swapname = ' '
+            write(swapname,511) module(1:mlen), 'swap beta'
          endif
+ 511     format(a,':',a)
          if (.not. rtdb_put(rtdb, swapname, mt_int, nswap,swap))
      $        call errquit('vectors_input: put of swap?', nswap)
          goto 10
