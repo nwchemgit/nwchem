@@ -2,9 +2,9 @@
      &                  g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                  wght_GA, rho_n, rdens_atom, cntoce,
      &                  cntobfr, cetobfr, natoms,
-     &                  g_movecs, noc, k_eval, totsic)
+     &                  g_movecs, noc, k_eval, totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.3 1999-08-12 20:29:40 jolguin Exp $
+C$Id: xc_sic.F,v 1.4 1999-10-07 15:41:16 jolguin Exp $
 c
       implicit none
 c      
@@ -15,8 +15,8 @@ c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_matm, g_vectu, k_eval(2), g_coul_orb, g_vxc_sig(2),
      &        g_aux_sig(10), l_vec_aux, i_vec_aux, j, tot_homo,
-     &        l_vec_u, i_vec_u, l_consti, i_consti, i_degen, l_degen,
-     &        aux_ij, aux_ik
+     &        l_vec_u, i_vec_u, l_consti, i_consti, l_degen,
+     &        aux_ij, aux_ik, i_degen(2)
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 u_array, res_int,const_ci, start,
      &                 homo, totsic
@@ -67,7 +67,7 @@ c
         tot=tot+xfac(i)+cfac(i)
       enddo
 c
-      if (abs(tot).gt.1e-8) then
+c     if (abs(tot).gt.1e-8) then
         if (iVxc_opt.eq.0) then
 c         
 c           Option A:  Compute via direct numerical quadrature.
@@ -110,24 +110,29 @@ c
           do 300 isp = 1,ipol
 c
             n_states = noc(isp)
-            if (.not.MA_Push_Get(MT_Int, n_states, 'degen_homo',
-     &                 l_degen, i_degen))
-     &         call errquit('xc_sic: cannot allocate degen homo',0)
+c           if (.not.MA_Push_Get(MT_Int, n_states, 'degen_homo',
+c    &                 l_degen, i_degen))
+c    &         call errquit('xc_sic: cannot allocate degen homo',0)
 c
             size_mat = 0
-            tot_homo = 0
+c           tot_homo = 0
 c
             if (noc(isp).ne.0) then
-              homo = Dbl_MB(k_eval(isp)+noc(isp)-1)
+c             homo = Dbl_MB(k_eval(isp)+noc(isp)-1)
               do j = 1,noc(isp)
-                start = Dbl_MB(k_eval(isp)+j-1)
-                if (dabs(start-homo).le.1.0d-04) then
-                  Int_MB(i_degen + j - 1) = 1
-                  tot_homo = tot_homo + 1
-                else
-                  size_mat = size_mat + 1
-                  Int_MB(i_degen + j -1) = 0
-                end if
+c               start = Dbl_MB(k_eval(isp)+j-1)
+c               if (dabs(start-homo).le.1.0d-04) then
+c                 Int_MB(i_degen + j - 1) = 1
+c                 tot_homo = tot_homo + 1
+c               else
+c                 size_mat = size_mat + 1
+c                 Int_MB(i_degen + j -1) = 0
+c               end if
+              l_degen = Int_MB(i_degen(isp) + j - 1)
+              write(6,*) l_degen
+              if (l_degen.eq.0) then
+                size_mat = size_mat + 1
+              end if
               end do
             end if
 c
@@ -157,7 +162,7 @@ c   Start loop of total states by spin
 c
             do 100 ik = 1,n_states
               if (me.eq.0.and.oprint_sic) write(LuOut,*) ' State ',ik
-              aux_ik = Int_MB(i_degen + ik - 1)
+              aux_ik = Int_MB(i_degen(isp) + ik - 1)
               call ga_zero(g_sic_dens(1))
               call ga_zero(g_sic_dens(2))
               call ga_zero(g_orb)
@@ -235,7 +240,7 @@ c
      &                           cetobfr, natoms)
               sic_orb_index = 0
               do ij=1,noc(isp)
-                aux_ij=Int_MB(i_degen + ij - 1)
+                aux_ij=Int_MB(i_degen(isp) + ij - 1)
                 if (aux_ij.ne.1.and.aux_ik.ne.1) then
                   call ga_zero(g_orb)
                   call ga_zero(g_sic_dens(2))
@@ -270,7 +275,7 @@ c
   100       continue
 c
             do ik=1,noc(isp)
-              aux_ik = Int_MB(i_degen + ik - 1)
+              aux_ik = Int_MB(i_degen(isp) + ik - 1)
               if (aux_ik.ne.1) then
                 call ga_zero(g_orb)
                 call ga_zero(g_sic_dens(2))
@@ -301,7 +306,7 @@ c
      &                    size_mat)
               call ga_zero(g_orb)
               do ik=1,noc(isp)
-                aux_ik = Int_MB(i_degen + ik - 1)
+                aux_ik = Int_MB(i_degen(isp) + ik - 1)
                 if (aux_ik.ne.1) then
                   const_ci= Dbl_MB(i_consti + ik - 1)
                   call ga_add(1.0d0, g_orb, const_ci, g_aux_sig(ik),
@@ -329,8 +334,8 @@ c
      &         ('xc_getv: could not destroy g_aux_sig(ij)', 0)
               end do
             end if     
-            if (.not.ma_pop_stack(l_degen))
-     &            call errquit('xc_sic: cannot pop stack',0)
+c           if (.not.ma_pop_stack(l_degen))
+c    &            call errquit('xc_sic: cannot pop stack',0)
   300     continue
 
           totsic = tot_sic_xc + tot_sic_coul
@@ -361,7 +366,7 @@ c
            call errquit
      &      ('xc_sic_pert: SIC + XC fitting not implemented', 0)
          endif
-      endif
+c     endif
 c
       if (oprint_intermediate_xc)then
          write(*,*)' Fock XC matrix leaving xc_sic: '
