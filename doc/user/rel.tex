@@ -1,7 +1,4 @@
 \label{sec:rel}
-
-
-
 All methods which include treatment of relativistic effects are ultimately
 based on the Dirac equation, which has a four component wave function. The
 solutions to the Dirac equation describe both positrons (the ``negative
@@ -31,7 +28,7 @@ J.~Chem.~Phys.~{\bf 111}, 10000 (1999).}.
 
 Since these approximations only modify the integrals, they can in principle
 be used at all levels of theory. At present the Douglas-Kroll implementation
-can be used at all levels of theory whereas Dyall's approach s currently
+can be used at all levels of theory whereas Dyall's approach is currently
 available at the Hartree-Fock level. 
 The derivatives have been implemented, allowing both methods to be used in 
 geometry optimizations and frequency calculations.
@@ -39,18 +36,27 @@ geometry optimizations and frequency calculations.
 The \verb+RELATIVISTIC+ directive provides input for the implemented relativistic 
 approximations and is a compound directive that encloses additional directives 
 specific to the approximations:
-
 \begin{verbatim}
   RELATIVISTIC
-    ...
+   [DOUGLAS-KROLL [<string (ON||OFF) default ON> \
+                 <string (FPP||DKH||DKFULL) default DKH>]  ||
+    DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
+                  [ (NESC1E || NESC2E) default NESC1E ] ]
+   [CLIGHT <real clight default 137.0359895>]
   END
 \end{verbatim}
 
-There is one general option, the definition of the speed of light in atomic units:
+Only one of the methods may be chosen at a time.  If both methods are found
+to be on in the input block, NWChem will stop and print an error message.
+There is one general option for both methods, the definition of the speed 
+of light in atomic units:
 
 \begin{verbatim}
   CLIGHT <real clight default 137.0359895>
 \end{verbatim}
+
+The following sections describe the optional sub-directives that
+can be specified within the \verb+RELATIVISTIC+ block.
 
 \section{Douglas-Kroll approximation}
 \label{sec:douglas-kroll}
@@ -63,8 +69,16 @@ approximation can be invoked by specifying:
 \begin{verbatim}
   DOUGLAS-KROLL [<string (ON||OFF) default ON> \
                  <string (FPP||DKH||DKFULL) default DKH>]
-
 \end{verbatim}
+
+The \verb+ON|OFF+ string is used to turn on or off the
+Douglas-Kroll approximation.  By default, if the \verb+DOUGLAS-KROLL+
+keyword is found, the approximation will be used in the calculation.
+If the user wishes to calculate a non-relativistic quantity after turning
+on Douglas-Kroll, the user will need to define a new \verb+RELATIVISTIC+
+block and turn the approximation \verb+OFF+.  The user could also simply
+put a blank \verb+RELATIVISTIC+ block in the input file and all options 
+will be turned off.
 
 The \verb+FPP+ is the approximation based on free-particle projection 
 operators\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 32}, 756 (1985)} whereas the 
@@ -93,7 +107,7 @@ above for details). The current code will create this fitting basis set
 based on the given {\tt "ao basis"} by simply uncontracting that basis. This
 again is what is commonly implemented in quantum chemistry codes that
 include the Douglas-Kroll method.  Additional flexibility is available to
-the user having by explicitly specifying a Douglas-Kroll fitting basis
+the user by explicitly specifying a Douglas-Kroll fitting basis
 set. This basis set must be named {\tt "D-K basis"} (see Chapter
 \ref{sec:basis}).
 
@@ -131,24 +145,34 @@ This is the equivalent of the Douglas-Kroll(-Hess) approximation as it is
 usually applied.
 
 The use of these approximations can be invoked with the use of the
-\verb+dyall-mod-dirac+ directive in the \verb+relativistic+ directive block.
+\verb+DYALL-MOD-DIRAC+ directive in the \verb+RELATIVISTIC+ directive block.
 The syntax is as follows.
 
 \begin{verbatim}
   DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
                   [ (NESC1E || NESC2E) default NESC1E ]
-
 \end{verbatim}
 
-Both one- and two-electron approximations are available, and both have
+The \verb+ON|OFF+ string is used to turn on or off the
+Dyall's modified Dirac approximation.  By default, if the \verb+DYALL-MOD-DIRAC+
+keyword is found, the approximation will be used in the calculation.
+If the user wishes to calculate a non-relativistic quantity after turning
+on Dyall's modified Dirac, the user will need to define a new 
+\verb+RELATIVISTIC+
+block and turn the approximation \verb+OFF+.  The user could also simply
+put a blank \verb+RELATIVISTIC+ block in the input file and all options 
+will be turned off.
+
+Both one- and two-electron approximations are available
+\verb+NESC1E || NESC2E+, and both have
 analytic gradients. The one-electron approximation is the default.
 The two-electron approximation specified by \verb+NESC2E+ has some sub
-options, with the following syntax:
+options which are placed on the same logical line as the
+\verb+DYALL-MOD-DIRAC+ directive, with the following syntax:
 
 \begin{verbatim}
   NESC2E [ (SS1CENT [ (ON || OFF) default ON ] || SSALL) default SSALL ]
          [ (SSSS [ (ON || OFF) default ON ] || NOSSSS) default SSSS ]
-
 \end{verbatim}
 
 The first sub-option gives the capability to limit the two-electron
@@ -165,8 +189,8 @@ directive block, it is necessary to supply basis sets in addition to the
 \verb+ao basis+. For the one-electron approximation, three basis sets are
 needed: the atomic FW basis set, the large component basis set and the small
 component basis set. The atomic FW basis set should be included in the
-\verb+ao basis+, either directly or by indirection, using \verb+SET+
-directives.  The large and small components should similarly be incorporated
+\verb+ao basis+.
+The large and small components should similarly be incorporated
 in basis sets named \verb+large component+ and \verb+small component+,
 respectively. For the two-electron approximation, only two basis sets are
 needed. These are the large component and the small component. The large component
@@ -178,7 +202,8 @@ ensure that the basis sets are correctly specified.
 
 There is one further requirement in the specification of the basis sets. In
 the \verb+ao basis+, it is necessary to add the \verb+rel+ keyword either to the
-tag line, or on the \verb+basis+ directive. The former marks the basis
+\verb+basis+ directive or the library tag line (See below for examples). 
+The former marks the basis
 functions specified by the tag as relativistic, the latter marks the whole
 basis as relativistic. The marking is actually done at the unique shell
 level, so that it is possible not only to have relativistic and
@@ -200,12 +225,26 @@ calculations on water with the one-electron approximation and the
 two-electron approximation, using the library basis sets.
 
 \begin{verbatim}
+  start h2o-dmd
+
+  geometry units bohr
+  symmetry c2v
+    O       0.000000000    0.000000000   -0.009000000
+    H       1.515260000    0.000000000   -1.058900000
+    H      -1.515260000    0.000000000   -1.058900000
+  end
+
   basis "fw" rel
     oxygen library cc-pvdz_pt_sf_fw
     hydrogen library cc-pvdz_pt_sf_fw
   end
 
   basis "large"
+    oxygen library cc-pvdz_pt_sf_lc
+    hydrogen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "large2" rel
     oxygen library cc-pvdz_pt_sf_lc
     hydrogen library cc-pvdz_pt_sf_lc
   end
@@ -225,7 +264,7 @@ two-electron approximation, using the library basis sets.
 
   task scf
 
-  set "ao basis" large
+  set "ao basis" large2
   unset "large component"
   set "small component" small
 
@@ -234,12 +273,20 @@ two-electron approximation, using the library basis sets.
   end
 
   task scf
-
 \end{verbatim}
 
 The second example has oxygen as a relativistic atom and hydrogen nonrelativistic.
 
 \begin{verbatim}
+  start h2o-dmd2
+
+  geometry units bohr
+  symmetry c2v
+    O       0.000000000    0.000000000   -0.009000000
+    H       1.515260000    0.000000000   -1.058900000
+    H      -1.515260000    0.000000000   -1.058900000
+  end
+
   basis "ao basis"
     oxygen library cc-pvdz_pt_sf_fw rel
     hydrogen library cc-pvdz
@@ -256,4 +303,6 @@ The second example has oxygen as a relativistic atom and hydrogen nonrelativisti
   relativistic
     dyall-mod-dirac
   end
+
+  task scf
 \end{verbatim}

@@ -24,7 +24,8 @@ and complicated when presented in its general form, as follows:
            [tol <real tol default 1d-2>]]
 
     <string tag> <real x y z> [vx vy vz] [charge <real charge>] \
-           [mass <real mass>] [finite]
+           [mass <real mass>] \
+           [(nuc || nucl || nucleus) <string nucmodel>]
     ... ]
 
     [ZMATRIX || ZMT || ZMAT
@@ -184,7 +185,8 @@ list describes  all options and their defaults.
   $r_{\rm RMS} = 0.836*A^{1/3}+0.57$ fm.
 \end{itemize}
 NOTE: If you specify a finite nuclear size, you should ensure that the basis
-set you use is contracted for a finite nuclear size.
+set you use is contracted for a finite nuclear size.  See the Section
+\ref{sec:basis} for more information.
 
 \end{itemize}
 
@@ -277,7 +279,8 @@ appeared above (e.g, Section \ref{sec:realsample}). Each center
 \begin{verbatim}
 
     <string tag> <real x y z> [vx vy vz] \
-        [charge <real charge>] [mass <real mass>] [nucleus <string nucmodel>]
+        [charge <real charge>] [mass <real mass>] \
+        [(nuc || nucl || nucleus) <string nucmodel>]
 
 \end{verbatim}
 
@@ -294,7 +297,7 @@ and is interpreted as follows:
   example, the tags \verb+oxygen+, \verb+O+, \verb+o34+,
   \verb+olonepair+, and \verb+Oxygen-ether+, will all be interpreted
   as oxygen atoms.).
-\item If the entry for \verb+< tag>+ begins with the characters
+\item If the entry for \verb+<tag>+ begins with the characters
   \verb+bq+ or \verb+x+ (regardless of case), then the center is
   treated as a dummy center with a default zero charge (Note: a tag
   beginning with the characters \verb+xe+ will be interpreted as a
