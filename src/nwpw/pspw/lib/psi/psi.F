@@ -1,7 +1,484 @@
 *
-* $Id: psi.F,v 1.35 2003-07-12 02:13:52 bylaska Exp $
+* $Id: psi.F,v 1.36 2003-07-19 20:46:51 bylaska Exp $
 *
 
+
+************************ f_orb orbitals Part ************************
+
+*     ***********************************
+*     *				        *
+*     *	     psi_minimize_f_orb         *
+*     *				        *
+*     ***********************************
+      subroutine psi_minimize_f_orb()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      !*** local variables ***
+      integer maxit_orb
+      integer i,ii,jj,ms,shift,shifte,l
+      real*8  sum,maxerror,error_out,e0
+
+      !*** external functions ***
+      real*8   control_tole
+      external control_tole
+
+      call psi_gen_density_potentials(1)
+      maxit_orb=120
+      maxerror = control_tole()
+
+      do ii=1,(ne(1)+ne(2))
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_f_orb1(
+     >           ii,
+     >           dcpl_mb(psi1(1)+(ii-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_c_SMul(1,sum,
+     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
+
+         !*** minimize orbital ****
+          l = 0
+ 2        call psi_KS_update_f_orb(maxit_orb,
+     >                               maxerror,
+     >                               0.001d0,ii,error_out,e0)
+          write(*,*) "e0:",ii,l,e0,error_out
+          l = l+1
+          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+
+          dbl_mb(eig(1)+ii-1) = e0
+
+      end do
+      call psi_sort_f_orb()
+      
+     
+      return
+      end
+
+      subroutine psi_sort_f_orb()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      logical value
+      integer i,j,ii,jj,ms
+      integer r1(2)
+      real*8  ei,ej
+
+      value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      if (.not. value) call errquit(
+     >     'psi_sort_f_orb: out of stack memory',0)
+
+      do ms=1,ispin
+
+        !*** Bubble sort ***
+        do ii=1,ne(ms)
+         do jj=ii+1,ne(ms)
+           i = ii + (ms-1)*ne(1)
+           j = jj + (ms-1)*ne(1)
+           ei = dbl_mb(eig(1)+i-1)
+           ej = dbl_mb(eig(1)+j-1)
+
+           !*** swap ***
+           if (ej.lt.ei) then
+             dbl_mb(eig(1)+i-1) = ej
+             dbl_mb(eig(1)+j-1) = ei
+             call Pack_c_Copy(1,dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                          dcpl_mb(r1(1)))
+             call Pack_c_Copy(1,dcpl_mb(psi1(1)+(j-1)*npack1),
+     >                          dcpl_mb(psi1(1)+(i-1)*npack1))
+             call Pack_c_Copy(1,dcpl_mb(r1(1)),
+     >                          dcpl_mb(psi1(1)+(j-1)*npack1))
+           end if
+
+         end do
+        end do
+
+      end do
+
+      value = MA_pop_stack(r1(2))
+      if (.not. value) call errquit(
+     >     'psi_sort_f_orb: popping stack memory',1)
+      return
+      end
+
+*     ***********************************
+*     *				        *
+*     *	     psi_KS_update_f_orb      *
+*     *				        *
+*     ***********************************
+
+*    This routine performs a KS update on orbital ii
+*
+      subroutine psi_KS_update_f_orb(maxiteration,
+     >                             maxerror,perror,ii,
+     >                             error_out,e0)
+      implicit none
+      integer maxiteration
+      real*8  maxerror,perror 
+      integer ii
+      real*8 error_out
+      real*8 e0
+      
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,done,oneloop
+      integer it
+      real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta
+      integer r1(2),t0(2),t(2),g(2)
+      integer psi_ptr
+
+      psi_ptr=psi1(1)
+
+      call Parallel_taskid(taskid)
+
+      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_f_orb: out of stack memory',0)
+
+      done = .false.
+      error0 = 0.0d0 
+      e0 = 0.0d0
+      theta = -3.14159d0/600.0d0
+      it = 0
+ 2    continue
+
+         it = it + 1
+         eold = e0
+
+*        *** calculate residual (steepest descent) direction for a single band ***
+         call psi_get_gradient_f_orb(ii,dcpl_mb(g(1)))
+         call Pack_cc_dot(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(g(1)),
+     >                    e0)
+   
+         e0 = -e0
+         
+           percent_error = dabs(e0-eold)/error0
+
+         done = ((it.gt.maxiteration) 
+     >           .or.
+     >           (dabs(e0-eold).lt.maxerror))
+
+         if (done) go to 4
+
+
+         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+         call Pack_cc_daxpy(1,(e0),
+     >                 dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                 dcpl_mb(r1(1)))
+
+
+         !*** determine conjuagate direction ***
+         call Pack_cc_dot(1,dcpl_mb(r1(1)),
+     >                   dcpl_mb(r1(1)),
+     >                   lmbda_r1)
+         call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
+
+         if (it.gt.1) then
+         call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
+     >                   dcpl_mb(t0(1)),
+     >                   dcpl_mb(t(1)))
+         end if
+         lmbda_r0 = lmbda_r1
+         oneloop = .true.
+ 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+
+
+*        *** normalize search direction, t ****
+         call psi_project_out_f_orb(ii,dcpl_mb(t(1)))
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                   dcpl_mb(t(1)),
+     >                   de0)
+         de0 = 1.0d0/dsqrt(de0)
+         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                   dcpl_mb(g(1)),
+     >                   de0)
+
+*        *** bad direction ***
+         if ((de0.lt.0.0d0).and.oneloop) then
+           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+           oneloop = .false.
+           go to 3
+         end if
+
+         de0 = -2.0d0*de0
+         call psi_linesearch_f_orb(ii,
+     >                               theta,e0,de0,dcpl_mb(t(1)))
+
+      go to 2
+
+
+*     **** release stack memory ****
+ 4    value =           MA_pop_stack(t(2)) 
+      value = value.and.MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(r1(2))
+      value = value.and.MA_pop_stack(t0(2))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_f_orb: popping stack memory',1)
+
+      error_out = dabs(e0-eold)
+      e0        = -e0
+      return
+      end
+
+*     ***********************************
+*     *				        *
+*     *	     psi_linesearch_f_orb
+*     *				        *
+*     ***********************************
+
+*    This routine performs a linesearch on orbital ii, in the direction t.  
+* This routine is needed for a KS minimizer.
+*  e0 = <orb|g>
+*  de0 = 2*<t|g>
+*
+      subroutine psi_linesearch_f_orb(ii,theta,e0,de0,t)
+      implicit none
+      integer ii
+      real*8  theta
+      real*8  e0,de0
+      complex*16 t(*) !search direction
+      
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+*     **** local variables ****
+      logical value
+      integer orb(2),g(2),psi_ptr
+      real*8 x,y,pi,dtheta_min,e1
+
+      psi_ptr=psi1(1)
+
+      pi = 4.0d0*datan(1.0d0)
+      !dtheta = pi/300.0d0
+      dtheta_min = 0.01*theta
+
+*     **** allocate stack memory ****
+      value = MA_push_get(mt_dcpl,npack1,'orb',
+     >                       orb(2),orb(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'g',
+     >                       g(2),g(1))
+      if (.not. value) call errquit(
+     >     'psi_linesearch_f_orb: out of stack memory',0)
+ 
+
+      call Pack_c_Copy(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(orb(1)))
+
+*     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
+  10  x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+*     *** determine theta ***
+      call psi_get_gradient_f_orb(ii,dcpl_mb(g(1)))
+      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(g(1)),
+     >                   e1)
+      e1 = -e1
+
+     
+
+      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+     >    /(1.0d0-cos(2*theta))
+      theta = 0.5d0*datan(0.5d0*de0/x) 
+    
+   
+
+*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+      x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+
+*     **** release stack memory ****
+      value =           MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(orb(2))      
+      if (.not. value) call errquit(
+     >     'psi_linesearch_f_orb: popping stack memory',1)
+
+      return
+      end
+
+
+*     ***********************************
+*     *				        *
+*     *	     psi_get_gradient_f_orb	*
+*     *				        *
+*     ***********************************
+
+*    This routine returns the Hpsi(i).  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_get_gradient_f_orb(ii,Horb)
+      implicit none
+      integer psi_number
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer psi_ptr,ms
+
+      psi_ptr=psi1(1)+(ii-1)*npack1
+
+      if (ii.le.ne(1)) then
+         ms = 1
+      else
+         ms = 2
+      end if
+
+      call electron_get_gradient_virtual(ms,dcpl_mb(psi_ptr),Horb)
+      
+      return
+      end
+
+*     *******************************************
+*     *				                *
+*     *	         psi_project_out_f_orb1        *
+*     *				                *
+*     *******************************************
+*
+*    This routine projects out non-orthogonal components of Horb.  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_project_out_f_orb1(ii,Horb)
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,i,jj,kk,shift,shifte
+      real*8  sum
+
+*     **** spin up orbital ****
+      if (ii.le.ne(1)) then
+
+         shift  = 0
+         shifte = 0
+         ms     = 1
+         kk     = ii
+*     **** spin down orbital ****
+      else
+         shift  = ne(1)*npack1
+         shifte = ne(1)*npack1
+         ms     = 2
+         kk     = ii-ne(1)
+      end if 
+
+
+      !**** project out orbitals ****
+      do jj=1,(kk-1)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(jj-1)*npack1+shifte),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(jj-1)*npack1+shifte),
+     >            Horb)
+      end do
+
+
+      return
+      end
+
+
+
+
+*     *******************************************
+*     *				                *
+*     *	         psi_project_out_f_orb          *
+*     *				                *
+*     *******************************************
+*
+*    This routine projects out non-orthogonal components of Horb.  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_project_out_f_orb(ii,Horb)
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,i,jj,kk,shift,shifte
+      real*8  sum
+
+*     **** spin up orbital ****
+      if (ii.le.ne(1)) then
+
+         shift  = 0
+         shifte = 0
+         ms     = 1
+         kk     = ii
+*     **** spin down orbital ****
+      else
+         shift  = ne(1)*npack1
+         shifte = ne(1)*npack1
+         ms     = 2
+         kk     = ii-ne(1)
+      end if 
+
+
+      !**** project out  orbitals ****
+      do jj=1,(kk)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(jj-1)*npack1+shifte),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(jj-1)*npack1+shifte),
+     >            Horb)
+      end do
+
+
+      return
+      end
+
+
+
+
+************************ virtural orbital Part ************************
 *     ***********************************
 *     *				        *
 *     *	     psi_minimize_virtual       *
@@ -506,6 +983,7 @@
 
 
 
+************************ KS orbital Part ************************
 
 *     ***********************************
 *     *				        *
@@ -1244,6 +1722,7 @@ c    >                        Horb)
       end
 
 
+************************ Grasmman orbitals Part ************************
 
 *     ***************************
 *     *				*
@@ -1375,6 +1854,22 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+*     ***********************************
+*     *					*
+*     *		psi_1add_oep_to_vall	*
+*     *					*
+*     ***********************************
+      subroutine psi_1add_oep_to_vall()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+ 
+      call electron_add_oep_to_vall(dbl_mb(rho1(1)))
+
+      return
+      end
 
 
 *     ***********************************
@@ -2826,6 +3321,23 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *					*
+*     *		psi_2gen_hml      	*
+*     *					*
+*     ***********************************
+      subroutine psi_2gen_hml()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+
+      call electron_gen_hml(dcpl_mb(psi2(1)),dbl_mb(hml(1)))
+
+      return
+      end
+
+*     ***********************************
+*     *					*
 *     *		psi_eigenvalue    	*
 *     *					*
 *     ***********************************
@@ -2983,6 +3495,36 @@ c        end do
       return
       end
 
+*     ***********************************
+*     *					*
+*     *		psi_2rotate1       	*
+*     *					*
+*     ***********************************
+      subroutine psi_2rotate1()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** local variables *****
+      integer ms,index,i,j,shift1,shift2
+
+      do ms=1,ispin
+         shift1 = (ms-1)*ne(1)
+         shift2 = (ms-1)*ne(1)*ne(1)
+
+         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+     >              (1.0d0),
+     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(hml(1)+shift2),ne(ms),
+     >              (0.0d0),
+     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1)
+
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -3034,6 +3576,53 @@ c    >              dbl_mb(tmp1(1)),ierr)
       if (.not. value) 
      > call errquit('error popping stack in psi_diagonalize_hml',0)
 
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	  psi_diagonalize_hml_assending *
+*     *					*
+*     ***********************************
+      subroutine psi_diagonalize_hml_assending()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+
+*     ***** local variables ****
+      logical value
+      integer ms,shift1,shift2,ierr
+      integer tmp1(2)
+
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit(
+     >    'out of stack memory in psi_diagonalize_hml_assending',0)
+
+
+*     ***** diagonalize the hamiltonian matrix *****
+      call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
+      do ms=1,ispin
+         shift1 = (ms-1)*ne(1)
+         shift2 = (ms-1)*ne(1)*ne(1)
+
+         call DSYEV('V','U',ne(ms),
+     >              dbl_mb(hml(1)+shift2),ne(ms), 
+     >              dbl_mb(eig(1)+shift1),
+     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
+     >              ierr)
+
+      end do
+
+      
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
+     > call errquit(
+     >   'error popping stack in psi_diagonalize_hml_assending',0)
 
       return
       end
@@ -3479,8 +4068,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     *				*
 *     ***************************
 
-      logical function epsi_finalize()
+      logical function epsi_finalize(writepsi)
       implicit none 
+      logical writepsi
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -3489,7 +4079,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       logical value
 
 *     ***** write psi1 wavefunctions ****
-      call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
+      if (writepsi)
+     >  call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
     
       value = MA_free_heap(eig_excited(2))
       value = value.and.MA_free_heap(psi2_excited(2))
