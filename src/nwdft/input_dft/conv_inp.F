@@ -60,7 +60,7 @@ c     energy; threshold for energy convergence
 c
   100 if (.not. inp_f(e_conv)) then
          write(6,*)' conv_inp: energy convergence value not found;',
-     &             ' defaulting to 1d-7 Hartree'
+     &             ' defaulting to 1d-6 Hartree.'
          e_conv = 1.d-6
       endif
       if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
@@ -72,7 +72,7 @@ c     density; threshold for density convergence
 c
   200 if (.not. inp_f(d_conv)) then
          write(6,*)' conv_inp: energy convergence value not found;',
-     &             ' defaulting to 0.d0 Hartree'
+     &             ' defaulting to 1d-5.'
          d_conv = 1.d-5
       endif 
       if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
@@ -84,7 +84,7 @@ c     gradient; threshold for gradient convergence
 c
   300 if (.not. inp_f(g_conv)) then
          write(6,*)' conv_inp: gradient convergence value not found;',
-     &             ' defaulting to 0.d0 Hartree'
+     &             ' defaulting to 5d-4.'
          g_conv = 5.d-4
       endif 
       if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
