@@ -1,4 +1,4 @@
-C$Id: ecp_t2_p0pow.F,v 1.3 1997-05-28 22:52:04 mg201 Exp $
+C$Id: ecp_t2_p0pow.F,v 1.4 2001-06-28 00:17:51 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p0pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -31,6 +31,8 @@ C$Id: ecp_t2_p0pow.F,v 1.3 1997-05-28 22:52:04 mg201 Exp $
       integer i,idamax,j1,j2,j3,k,k_abs,m,n
       double precision alpha(n),beta(n),gamma(n),term(n),test(n),Q(n),
      &    temp(n,9),tol,fac0,fac1,fac2,fac3,fac4,fac5,fac0i,fac1i,fac2i
+      double precision vbig
+      parameter (vbig=1d30)
 *
 *   Set up factors for recursion
 *
@@ -80,12 +82,13 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
         fac1i = one/fac1
         fac2i = one/fac2
         do i = 1,n
-          if (test(i) .gt. tol) then
+          if (test(i) .gt. tol.and.abs(temp(i,j2)).lt.vbig) then
+!             write(0,*) i,j2,temp(i,j2),term(i),Q(i)
             Q(i) = Q(i)+temp(i,j2)*term(i)
             temp(i,j3) = ((fac5+temp(i,5))*temp(i,j2)
      &                 - fac3*fac4*fac0i*temp(i,j1))*fac2i
             term(i) = term(i)*temp(i,4)*fac1i
-            test(i) = term(i)*temp(i,j3)/Q(i)
+            test(i) = (term(i)*temp(i,j3))/Q(i)
           end if
         end do
         fac3 = fac3+one

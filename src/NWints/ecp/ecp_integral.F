@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.16 2000-06-08 23:59:46 mg201 Exp $
+C $Id: ecp_integral.F,v 1.17 2001-06-28 00:17:50 edo Exp $
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.
@@ -117,7 +117,7 @@ c:tex-\end{verbatim}
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
      &    tol
       double precision csco(lcsco)
-      data tol/1.0d-16/
+      data tol/1.0d-14/
 *
       if ((n_blk .ne. 1) .and. (n_blk .ne. 3) .and. (n_blk .ne. 4))
      &    call errquit('Illegal value of n_blk in ecp_integral',99)

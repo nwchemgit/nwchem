@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.7 1999-03-09 21:29:51 mg201 Exp $
+C $Id: ecp_hessian.F,v 1.8 2001-06-28 00:17:50 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -108,7 +108,8 @@ C $Id: ecp_hessian.F,v 1.7 1999-03-09 21:29:51 mg201 Exp $
       double precision csco(lcsco)
       character*4 dbyd(3)
       character*16 printhead
-      data tol/1.0d-16/
+      data tol/1.0d-14/
+!      data tol/1.0d-16/
       data dbyd/'d/dx','d/dy','d/dz'/
       data printhead/'          U_ab  '/
 *
