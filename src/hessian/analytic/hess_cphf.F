@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.19 2000-09-19 21:59:52 bjohnson Exp $
+C $Id: hess_cphf.F,v 1.20 2001-03-27 00:48:16 edo Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -332,7 +332,8 @@ c     Activate XC contribution to OO derivative Fock matrix
         call fock_2e_tidy(rtdb)
         call int_terminate()
         call schwarz_tidy()
-
+        if(skelsym) call 
+     .       sym_symmetrize(geom,basis,.false.,g_rhs(ind))
        write(6,*) 'fock matrix after fock_2e'
        call flush(6)
        call ga_print(g_rhs(ind))
