@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.51 1999-12-09 18:37:15 bert Exp $
+c $Id: int_init.F,v 1.52 1999-12-09 23:47:36 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -42,6 +42,14 @@ c::local
       integer mybm_a, mybIm_a, ibas            ! Temporary variables
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
 c
+c     Setup array with basis sets from bases
+c
+      if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
+     $     call errquit('int_init: ma_push_get failed mybases',0)
+      do 00500 ibas = 1, nbas
+         int_mb(mybIm_a+ibas-1) = bases(ibas)
+00500 continue
+c
 c Initialize the Douglas-Kroll variables
 c
 c form_type: 1. Free-particle projection operators
@@ -80,14 +88,12 @@ c        Set possibily an alternative speed of light
 c
          if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
      $      dk_clight)) dk_clight = 137.0359895d0
+c
+c        Add fitting basis set to list of loaded basis sets for int_init
+c
+         int_mb(mybIm_a+nbas) = dk_fitbas
+         ibas = nbas + 1
       endif
-      if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
-     $     call errquit('int_init: ma_push_get failed mybases',0)
-      do 00500 ibas = 1, nbas
-         int_mb(mybIm_a+ibas-1) = bases(ibas)
-00500 continue
-      int_mb(mybIm_a+nbas) = dk_fitbas
-      ibas = nbas + 1
       call int_init_org(rtdb, ibas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
      $     call errquit('int_init: ma_pop_stack mybm_a',0)
