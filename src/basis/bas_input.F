@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.24 1996-07-26 16:21:29 d3g681 Exp $
+c $Id: bas_input.F,v 1.25 1996-08-13 16:57:59 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -426,7 +426,7 @@ c
 c
       character*2 symbol
       character*16 element
-      character*30 string
+      character*255 string
       character*4 cont_type
       integer atn, lenn
       integer nltypes           ! No. of known angular momentum types
@@ -460,6 +460,13 @@ c
       string(lenn+1:lenn+1) = '_'
       string(lenn+2:) = standard
       call inp_lcase(string)
+c
+c     replace all non-trailing spaces with underscore
+c
+      lenn = inp_strlen(string)
+      do ind = 1, lenn
+         if (string(ind:ind).eq.' ') string(ind:ind) = '_'
+      enddo
 c
 c     Open the library file and try to locate the basis
 c

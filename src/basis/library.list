@@ -1,151 +1,286 @@
-sto-2g
+"STO-2G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca
+"STO-3G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
 
-sto-3g
+"STO-6G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+"STO-3G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-sto-6g
+"3-21G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe Cs
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+"3-21++G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-3-21g
+"3-21G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca, 
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+"3-21++G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-3-21++g
+"4-31G"
+ H He Li Be B C N O F Ne P S Cl
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+"6-31G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-4-31g
+"6-31++G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, P, S, Cl
+"6-31G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-6-31g
+"6-31G**"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-31+G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-6-31++g
+"6-31++G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-31++G**"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-6-31g(3df,3pd)
+"6-31G(3df,3pd)"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-311G"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
-6-311g
+"6-311G*"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-311G**"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
-6-311++g(2d,2p)
+"6-311++G**"
+ H He Li Be B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-311++G(2d,2p)"
+ H He Li Be B C N O F Ne
 
-6-311g(2df,2pd)
+"6-311G(2df,2pd)"
+ H He Li Be B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"6-311++G(3df,3pd)"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-6-311++g(3df,3pd)
+"MINI (Huzinaga)"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+"MINI (Scaled)"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
 
-cc-pvdz
+"MIDI (Huzinaga)"
+ H He Li Be B C N O F Ne Na
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"MIDI!"
+ H C N O F P S Cl
 
-cc-pvtz
+"SV (Dunning-Hay)"
+ H Li Be B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"SVP (Dunning-Hay)"
+ H Li Be B C N O F Ne
 
-cc-pvqz
+"SVP + Diffuse (Dunning-Hay)"
+ H Li Be B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"TZ (Dunning)"
+ H Li B C N O F Ne
 
-cc-pv5z
+"Chipman DZP + Diffuse"
+ H B C N O F
 
-H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
+"DZ (Dunning)"
+ H B C N O F Ne Al Si P S Cl
 
-aug-cc-pvdz
+"DZP (Dunning)"
+ H B C N O F Ne Al Si P S Cl
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"DZP + Diffuse (Dunning)"
+ H B C N O F Ne
 
+"cc-pVDZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-aug-cc-pvtz
+"cc-pVTZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"cc-pVQZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-aug-cc-pvqz
+"cc-pV5Z"
+ H He Li B C N O F Ne Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+"cc-pCVDZ"
+ H He B C N O F Ne
 
-aug-cc-pv5z
+"cc-pCVTZ"
+ H He B C N O F Ne
 
-H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
+"cc-pCVQZ"
+ H He B C N O F Ne
 
-cd-demon
+"cc-pCV5Z"
+ H He B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
-Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+"aug-cc-pVDZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-xc-demon
+"aug-cc-pVTZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
-Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+"aug-cc-pVQZ"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-dzvp-dgauss-dft-cartesian
+"aug-cc-pV5Z"
+ H He B C N O F Ne Al Si P S Cl Ar
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
-Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+"aug-cc-pCVDZ"
+ H He B C N O F
 
-dzvp2-dgauss-dft-cartesian
+"aug-cc-pCVTZ"
+ H He B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+"aug-cc-pCVQZ"
+ H He B C N O F Ne
 
-tzvp-dgauss-dft-cartesian
+"aug-cc-pCV5Z"
+ H He B C N O F
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+"GAMESS VTZ"
+ H Be B C N O F Ne
 
-xc-dgauss-a1-dft
+"GAMESS PVTZ"
+ H Be B C N O F Ne
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
-Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+"Partridge Uncontr. 1"
+ Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu
+ Zn Ga Ge As Se Br Kr
 
-cd-dgauss-a1-dft
+"Partridge Uncontr. 2"
+ Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu
+ Zn Ga Ge As Se Br Kr
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
-Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+"Partridge Uncontr. 3"
+ Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu
+ Zn
 
-cd-dgauss-a2-dft
+"Ahlrichs VDZ"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+"Ahlrichs pVDZ"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
 
-xc-dgauss-a2-dft
+"Ahlrichs VTZ"
+ H He Li Be B C N O F Ne Na Mg Al
 
-H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
-Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+"Binning/Curtiss SV"
+ Ga Ge As Se Br Kr
 
-6-31g*
+"Binning/Curtiss VTZ"
+ Ga Ge As Se Br Kr
 
-Al, Ar, B, Be, C, Cl, F, H, He, Li, Mg, N, Na, Ne, O, P, S, Si
+"Binning/Curtiss SVP"
+ Ga Ge As Se Br Kr
 
-6-31+g*
+"Binning/Curtiss VTZP"
+ Ga Ge As Se Br Kr
 
-Al, Ar, B, Be, C, Cl, F, H, He, Li, Mg, N, Na, Ne, O, P, S, Si
+"McLean/Chandler VTZ"
+ Na Mg Al Si P S Cl Ar
 
-ahlrichs_vdz
+"SV + Rydberg (Dunning-Hay)"
+ H Li Be B C N O F Ne
 
-Al, Ar, As, B, Be, Br, C, Ca, Cl, Co, Cr, Cu, F, Fe, Ga, Ge, H, He, K, Kr, 
-Li, Mg, Mn, N, Na, Ne, Ni, O, P, S, Sc, Se, Si, Ti, V, Zn
+"SVP + Rydberg (Dunning-Hay)"
+ H Li Be B C N O F Ne
+
+"SVP + Diffuse + Rydberg"
+ H Li Be B C N O F Ne
+
+"DZ + Rydberg (Dunning)"
+ H B C N O F Ne Al Si P S Cl
+
+"DZP + Rydberg (Dunning)"
+ H B C N O F Ne Al Si P S Cl
+
+"DZ + Double Rydberg (Dunning-Hay)"
+ H B C N O F Ne Al Si P S Cl
+
+"SV + Double Rydberg (Dunning-Hay)"
+ H Li Be B C N O F Ne
+
+"Wachters+f"
+ Sc Ti V Cr Mn Fe Co Ni Cu
+
+"Bauschlicher ANO"
+ Sc Ti V Cr Mn Fe Co Ni Cu
+
+"DZVP (DFT Orbital)"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DGauss A1 DFT Coulomb Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DGauss A1 DFT Exchange Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DZVP2 (DFT Orbital)"
+ H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+"DGauss A2 DFT Coulomb Fitting"
+ H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+"DGauss A2 DFT Exchange Fitting"
+ H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+"TZVP (DFT Orbital)"
+ H C N O F Al Si P S Cl Ar
+
+"DGauss A2 DFT Coulomb Fitting"
+ H C N O F Al Si P S Cl Ar
+
+"DGauss A2 DFT Exchange Fitting"
+ H C N O F Al Si P S Cl Ar
+
+"DeMon Coulomb Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DGauss A1 DFT Coulomb Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DGauss A1 DFT Exchange Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe
+
+"DGauss A2 DFT Coulomb Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu
+ Zn
+
+"DGauss A2 DFT Exchange Fitting"
+ H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu
+ Zn
