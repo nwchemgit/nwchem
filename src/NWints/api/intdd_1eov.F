@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.3 1999-09-21 21:34:53 windus Exp $
+c $Id: intdd_1eov.F,v 1.4 2000-08-17 18:56:43 windus Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -131,7 +131,7 @@ c::local
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
       integer nint_x, nint_s
-      integer zatom, zyx
+      integer zatom, zyx1, zyx2
 c
 c  Temporary variable that needs to be taken out after testing!
 c
@@ -216,12 +216,84 @@ c     enddo
      $        0)
       endif
 c
-*     Ova now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,3,2)
+*     Ova now has the cartesian integral block  
 *      
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
       if (.not.any_spherical) return
-      call errquit(
+c
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+c
+      if (itype.eq.-1) igen = 1
+      if (jtype.eq.-1) jgen = 1
+c
+      if (bas_spherical(ibas).and.bas_spherical(jbas)) then
+*... transform both i and j integrals
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+c
+        do zatom = 1,4
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(Ova(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = j_nbf_x
+        do zatom = 1,4
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(Ova(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,0,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else if (bas_spherical(jbas)) then
+*.. transform on j component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = i_nbf_x
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+        do zatom = 1,4
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(Ova(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,0,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else
+        call errquit(
      &        'intdd_1eovP: cant do sphericals',
      &        911)
+      endif
+c
+c now shuffle transformed buffers to contiguous space
+c
+      nint_x = i_nbf_x*j_nbf_x
+      nint_s = i_nbf_s*j_nbf_s
+      if (nint_s.gt.nint_x) then
+        call errquit
+     &      ('intdd_1eov: nint_s >.nint_x diff=',(nint_s-nint_x))
+      elseif (nint_s.eq.nint_x) then
+        return
+      else
+        call int_c2s_mv
+     &      (Ova,nint_x,nint_s,(36),scr,lscr,'intdd_1eov')
+      endif
 c
       end
