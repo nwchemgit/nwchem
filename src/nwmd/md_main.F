@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.77 2000-04-25 17:20:16 d3j191 Exp $
+c $Id: md_main.F,v 1.78 2000-04-25 21:47:51 d3j191 Exp $
 c
       implicit none
 c
@@ -1072,6 +1072,8 @@ c
 c
       call md_newton()
 c
+      call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_vs),nsaloc)
+c
       done=prp_mcti_step(idacq)
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
@@ -2020,7 +2022,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.77 2000-04-25 17:20:16 d3j191 Exp $
+c $Id: md_main.F,v 1.78 2000-04-25 21:47:51 d3j191 Exp $
 c
       implicit none
 c
