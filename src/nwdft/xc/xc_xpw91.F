@@ -1,7 +1,7 @@
       Subroutine xc_xpw91(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)     
 c
-C$Id: xc_xpw91.F,v 1.1 1999-01-05 00:44:02 edo Exp $
+C$Id: xc_xpw91.F,v 1.2 1999-01-05 22:06:34 edo Exp $
 c
       implicit none
 c      
@@ -32,16 +32,11 @@ c
 c     Becke & Perdew  Parameters
 c
       integer DPOW
-      double precision BETA, TOLL, tol_rho, AX, 
-     &     ONE, TWO, SIX, ONEHALF, FOURTHIRDS,TEN6,CPW91,BETAPW91
+      double precision BETA, TOLL, tol_rho, AX, pi,
+     &     ONE, TWO, SIX, ONEHALF, FOURTHIRDS,CPW91,BETAPW91
       parameter (TOLL=1.E-20)
 
-      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4,
-     ,     TEN6=1.d-6)
-c
-c     AX = -(3/4)*(6/PI)**(1/3)
-c
-      Parameter (AX = -0.9305257363490993D+00)
+      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4)
 
       Parameter (ONE=1.D0, TWO=2.D0, SIX=6.D0)
       Parameter (ONEHALF=0.5D0, FOURTHIRDS=4.D0/3.D0)
@@ -53,12 +48,14 @@ c***************************************************************************
 
       integer n
       double precision x, sinhm1
-      double precision CD13a, CD43a, Gna, Xa, Sa, Ha, denom, Ca,  
-     &                 Ga, Pa, GNb, Xb, Sb, Hb, Tb, Cb, Gb, Pb, CD13b, 
-     &                 CD43b, gaa, g, gbb, gamma
+      double precision rho13a, rho43a, Gna, Xa, Sa, Ha, denom, num,  
+     &                  fprimex, GNb, Xb, Sb, Hb, Tb, Numb, Gb, Pb, 
+     &     rho13b, rho43b, gaa, g, gbb, gamma,fx,x2a,ten6xd,expo,bbx2
 c
       sinhm1(x)=log(x+dsqrt(1+x*x))
-      BETAPW91=(acos(-1.d0)*36.d0)**(-5.d0/3.d0)*5.d0
+      pi=acos(-1.d0)
+      BETAPW91=(pi*36.d0)**(-5.d0/3.d0)*5.d0
+      AX=-(0.75d0/pi)**(1.d0/3.d0)*1.5d0
       if (ipol.eq.1 )then
 c
 c        ======> SPIN-RESTRICTED <======
@@ -68,46 +65,50 @@ c
 c
 c           Spin alpha:
 c
-            CD13a = (0.5d0*rho(n,1))**(1.d0/3.d0)
-            CD43a = CD13a**4 
+            rho13a = (0.5d0*rho(n,1))**(1.d0/3.d0)
+            rho43a = rho13a**4 
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1)
             if (dsqrt(gamma).gt.tol_rho)then
                GNa = dsqrt( 0.25D0*gamma )
-               Xa = GNa/CD43a
+               xa = GNa/rho43a
+               x2a=xa*xa
+               ten6xd=Xa**DPOW*1.d-6
+               expo=exp(-CPW91*x2a)
+               bbx2=(BETA-BETAPW91)*x2a
             else
                GNa = 0.d0
                Xa = 0.d0
+               x2a=0.d0
+               ten6xd=0.d0
+               expo=1.d0
+               bbx2=0.d0
             endif
-            Sa = sqrt(Xa*Xa + ONE)
             Ha = sinhm1(Xa)
-            denom = 1.d0/(ONE + SIX*(BETA*Xa)*Ha-Xa**DPOW*TEN6/AX)
-            Ca = -(BETA*Xa)*Xa*denom
-            Ga = AX + Ca
-            Pa = ((SIX*(BETA*Xa)**2)*(Xa/Sa-Ha)-TWO*(BETA*Xa))*
-     *           denom**2
+            denom = 1.d0/(1.d0 + 6d0*(beta*xa)*ha-ten6xd/ax)
+            num = BETA*x2a-bbx2*expo-ten6xd
+            fx=num*denom
+            fprimex = ((2.d0*beta*xa-2.d0*bbx2/xa*expo+
+     +           2.d0*bbx2*xa*expo*CPW91-ten6xd/xa*dpow) -
+     -           (6.d0*beta*ha +6.d0*beta*xa/sqrt(1.d0+x2a) -
+     -           ten6xd/ax/xa*dpow)*fx)*denom
 c
             if (lfac)then
-               Amat(n,1) = Amat(n,1) + FOURTHIRDS*CD13a*AX*fac
+               Ex = Ex + TWO*rho43a*AX*qwght(n)*fac
+               if(ldew)func(n) = func(n) + TWO*rho43a*AX*fac
+               Amat(n,1) = Amat(n,1) + FOURTHIRDS*rho13a*AX*fac
             endif
 c
             if (nlfac)then
-               Amat(n,1) = Amat(n,1) + FOURTHIRDS*CD13a*(Ca - Xa*Pa)*fac
-            endif
-c
-            if (lfac)then
-               Ex = Ex + TWO*CD43a*AX*qwght(n)*fac
-               if(ldew)func(n) = func(n) + TWO*CD43a*AX*fac
-            endif
-c
-            if (nlfac)then
-               Ex = Ex + TWO*CD43a*Ca*qwght(n)*fac
-               if(ldew)func(n) = func(n) + TWO*CD43a*Ca*fac
+               Ex = Ex - TWO*rho43a*fx*qwght(n)*fac
+               if(ldew)func(n) = func(n) - TWO*rho43a*fx*fac
+               Amat(n,1) = Amat(n,1) - 
+     -              FOURTHIRDS*rho13a*(fx - xa*fprimex)*fac
             endif
 c
             if (Gna.gt.tol_rho)  then
-               g = .5d0*Pa/Gna*fac
+               g = -.5d0*fprimex/Gna*fac
                Cmat(n,1,1) = Cmat(n,1,1) + g*delrho(n,1,1)
                Cmat(n,2,1) = Cmat(n,2,1) + g*delrho(n,2,1)
                Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
@@ -124,67 +125,68 @@ c
 c
 c           Spin alpha:
 c
-            CD13a = rho(n,2)**(1.d0/3.d0)
-            CD43a = CD13a**4 
+            rho13a = rho(n,2)**(1.d0/3.d0)
+            rho43a = rho13a**4 
             GNa = sqrt(   delrho(n,1,1)*delrho(n,1,1) +
      &                    delrho(n,2,1)*delrho(n,2,1) +
      &                    delrho(n,3,1)*delrho(n,3,1)   )
             if (GNa.gt.tol_rho)then
-               Xa = GNa/CD43a
+               Xa = GNa/rho43a
             else
                Xa = 0.d0
             endif
             Sa = sqrt(Xa*Xa + ONE)
             Ha = log(Xa + Sa)
             denom = 1/(ONE + SIX*(BETA*Xa)*Ha)
-            Ca = -(BETA*Xa)*Xa*denom
-            Ga = AX + Ca
-            Pa = ((SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa))*
+            num = -(BETA*Xa)*Xa*denom
+            fprimex = ((SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa))*
      *           denom**2
 c
 c           Spin beta:
 c
-            CD13b = rho(n,3)**(1.d0/3.d0)
-            CD43b = CD13b**4 
+            rho13b = rho(n,3)**(1.d0/3.d0)
+            rho43b = rho13b**4 
 c
             GNb = sqrt(   delrho(n,1,2)*delrho(n,1,2) +
      &                    delrho(n,2,2)*delrho(n,2,2) +
      &                    delrho(n,3,2)*delrho(n,3,2)   )
             if (GNb.gt.tol_rho)then
-               Xb = GNb/CD43b
+               Xb = GNb/rho43b
             else
                Xb = 0.d0
             endif
             Sb = sqrt(Xb*Xb + ONE)
             Hb = log(Xb + Sb)
             Tb = 1/(ONE + SIX*(BETA*Xb)*Hb)
-            Cb = -(BETA*Xb)*Xb*Tb
-            Gb = AX + Cb
+            Numb = -(BETA*Xb)*Xb*Tb
+            Gb = AX + Numb
             Pb = ((SIX*(BETA*Xb)**2)*(Xb/Sb - Hb) - TWO*(BETA*Xb))*Tb**2
 c
             if (lfac)then
-               Amat(n,1) = Amat(n,1) + FOURTHIRDS*CD13a*AX*fac
-               Amat(n,2) = Amat(n,2) + FOURTHIRDS*CD13b*AX*fac
+               Amat(n,1) = Amat(n,1) + FOURTHIRDS*rho13a*AX*fac
+               Amat(n,2) = Amat(n,2) + FOURTHIRDS*rho13b*AX*fac
             endif
 c
             if (nlfac)then
-               Amat(n,1) = Amat(n,1) + FOURTHIRDS*CD13a*(Ca - Xa*Pa)*fac
-               Amat(n,2) = Amat(n,2) + FOURTHIRDS*CD13b*(Cb - Xb*Pb)*fac
+               Amat(n,1) = Amat(n,1) + 
+     +             FOURTHIRDS*rho13a*(num - Xa*fprimex)*fac
+               Amat(n,2) = Amat(n,2) + 
+     +              FOURTHIRDS*rho13b*(Numb - Xb*Pb)*fac
             endif
 c
             if (lfac)then
-               Ex = Ex + AX*(CD43a + CD43b)*qwght(n)*fac
+               Ex = Ex + AX*(rho43a + rho43b)*qwght(n)*fac
                if (ldew)func(n) = func(n) +  
-     *              AX*(CD43a + CD43b)*fac
+     *              AX*(rho43a + rho43b)*fac
             endif
 c
             if (nlfac)then
-               Ex = Ex + (CD43a*Ca + CD43b*Cb)*qwght(n)*fac
+               Ex = Ex + (rho43a*num + rho43b*Numb)*qwght(n)*fac
                if (ldew)func(n) = func(n) +  
-     *              (CD43a*Ca + CD43b*Cb)*fac
+     *              (rho43a*num + rho43b*Numb)*fac
             endif
             if (GNa.gt.tol_rho)then
-               gaa = Pa/GNa*fac
+               gaa = fprimex/GNa*fac
                Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1) 
                Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1) 
                Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1) 
