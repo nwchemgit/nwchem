@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.17 1994-11-06 12:54:27 d3e129 Exp $
+c $Id: exact_mem.F,v 1.18 1995-06-07 18:11:21 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -58,6 +58,10 @@ c.... 1e
            isz_1e = max(isz_1e, lsz_1e)
 00200   continue
 00100 continue
+c
+c new label routines require additional isz_1e
+c
+      mem_1e = mem_1e + isz_1e
 c     
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
@@ -80,14 +84,25 @@ c
 00400   continue
 00300 continue
 c
-c... sanity checks for lable routines       
+c new label routines require additional integral block size
 c
-      mem_2e4c  = max(mem_2e4c,  isz_2e4c)
-      mem_2e3c  = max(mem_2e3c,  isz_2e3c)
-      mem_2e2c  = max(mem_2e2c,  isz_2e2c)
-      mem_1e    = max(mem_1e,    isz_1e)
-      mem_1e_h1 = max(mem_1e_h1, (2*isz_1e))
-      mem_3ov   = max(mem_3ov,   isz_3ov)
+      mem_2e4c  = mem_2e4c        +       isz_2e4c
+      mem_2e3c  = mem_2e3c        +       isz_2e3c
+      mem_2e2c  = mem_2e2c        +       isz_2e2c
+      mem_1e    = mem_1e          +       isz_1e
+      mem_1e_h1 = mem_1e_h1       +       2*isz_1e
+      mem_3ov   = mem_3ov         +       isz_3ov
+*obsolite due to new label routines:-start
+*..: c
+*..: c... sanity checks for lable routines       
+*..: c
+*..:       mem_2e4c  = max(mem_2e4c,  isz_2e4c)
+*..:       mem_2e3c  = max(mem_2e3c,  isz_2e3c)
+*..:       mem_2e2c  = max(mem_2e2c,  isz_2e2c)
+*..:       mem_1e    = max(mem_1e,    isz_1e)
+*..:       mem_1e_h1 = max(mem_1e_h1, (2*isz_1e))
+*..:       mem_3ov   = max(mem_3ov,   isz_3ov)
+*obsolite due to new label routines:-end
 c.. debug write statements
 *rak:      write(6,*) ' mem_2e4c =',mem_2e4c 
 *rak:      write(6,*) ' mem_2e3c =',mem_2e3c 
@@ -240,7 +255,6 @@ c
      &             exndcf,exndcf,1,
      &             exndcf,exndcf,exndcf,1,.true.,.true.,.true.,.false.,
      &             .true.,exndcf,memdum)
-          memsize = max(memsize,memdum)
 00200   continue
 00100 continue
 c
