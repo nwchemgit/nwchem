@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.4 1999-07-09 22:41:58 edo Exp $
+C$Id: grid_utils.F,v 1.5 1999-07-10 01:06:09 edo Exp $
 c
       implicit none
 c      
@@ -167,7 +167,6 @@ c     determine node id
 c
       me = ga_nodeid()
       nproc=ga_nnodes()
-c      write(0,* ) ' ME ',me
 c
 c
 c     Loop over all the radial shells.
@@ -587,14 +586,24 @@ c
 c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
-      double precision value, erfc
+      double precision value
+#if defined(SGI) || defined(DECOSF)
+      double precision derfc
+#else
+      double precision erfc
+#endif
 c
       ilo = mod(k,2)
 c
       if (ilo .eq. 0) then
+#if defined(SGI) || defined(DECOSF)
+         value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
+     $        derfc(sqrt(alpha)*r)
+#else
          value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $        erfc(sqrt(alpha)*r)
       else
+#endif
          value = exp(-alpha*r*r)/(2.0d0*alpha)
       endif
 c
@@ -608,7 +617,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.4 1999-07-09 22:41:58 edo Exp $
+C$Id: grid_utils.F,v 1.5 1999-07-10 01:06:09 edo Exp $
 c
       implicit none
 c

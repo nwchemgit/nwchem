@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.1 1999-05-01 17:28:11 edo Exp $
+C$Id: grid_ssw.F,v 1.2 1999-07-10 01:06:09 edo Exp $
 c
       implicit none
 #include "xc_erftab.fh"
@@ -37,7 +37,7 @@ c
 c
 c     SSF original 0.64d0 value for polynomial function
 c
-#if defined(SGI)
+#if defined(SGI) || defined(DECOSF)
       double precision derfc
 #else
       double precision erfc
@@ -147,7 +147,7 @@ c
                   sk= (table(1,ipoint) + nu*(table(2,ipoint) + 
      $                 nu*table(3,ipoint)))
                   if(mu.lt.0d0) sk=1d0-sk
-#if defined(SGI)
+#if defined(SGI) || defined(DECOSF)
                 elseif(iw.eq.1) then
                   mu=mu/(1d0-mu*mu)
                   mu=mu/(0.34d0)

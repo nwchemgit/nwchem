@@ -100,6 +100,8 @@ c     lebedev; use Lebedev angular quadrature
 c     
   400 gridtype='lebedev'
       leb=.true.
+      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 400) 
@@ -213,7 +215,19 @@ c
       goto 10
 c     
  1999 continue
-c     
+c
+      if(ngridin.ne.0) then
+         if (.not. rtdb_put(rtdb, 'dft:ngridin', mt_int, 1, ngridin))
+     &      call errquit('grid_inp: rtdb_put failed', 1000)
+         if (.not. rtdb_put(rtdb,'dft:znucin',mt_int,ngridin,znucin))
+     &      call errquit('grid_inp: rtdb_put failed', 1000)
+         if(.not.rtdb_put(rtdb,'dft:nradin',mt_int,ngridin,nradin))
+     &      call errquit('grid_inp: rtdb_put failed', 1000)
+         if(.not.rtdb_put(rtdb,'dft:nangin',mt_int,ngridin,nangin))
+     &      call errquit('grid_inp: rtdb_put failed', 1000)
+         if(.not.rtdb_put(rtdb,'dft:accqrin',mt_int,ngridin,accqrin))
+     &      call errquit('grid_inp: rtdb_put failed', 1000)
+      endif
       return
 c     
 10000 continue

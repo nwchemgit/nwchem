@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.2 1999-07-09 22:41:58 edo Exp $
+c$Id: grid_setang.F,v 1.3 1999-07-10 01:06:08 edo Exp $
 c
       implicit none
 c      
@@ -11,7 +11,7 @@ c
 #include "cdft.fh"
 c
       integer rtdb
-      logical leb, oprint
+      logical oprint
       integer l_ang, iang, n, mxnang
       double precision phi_inc, wphi, phi
       double precision pi
@@ -26,6 +26,7 @@ c
 c
 c     Define the Lebedev or Gauss-Legendre angular quadrature points and weights.
 c
+
       if (leb) then ! lebedev
          if (ga_nodeid().ne.0) oprint = .false.
          call xc_lebedev(l_ang, oprint)

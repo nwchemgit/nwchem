@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.3 1999-07-09 22:41:56 edo Exp $
+c$Id: grid_acc_def.F,v 1.4 1999-07-10 01:06:08 edo Exp $
 c
       implicit none
 c      
@@ -181,6 +181,19 @@ c        set default grid to  'MEDIUM'
 c     
          gridtype='medium'
       endif
+      if (.not. rtdb_get(rtdb, 'dft:ngridin', mt_int, 1, ngridin))
+     .     then
+         ngridin=0
+      else
+         if (.not. rtdb_get(rtdb,'dft:znucin',mt_int,ngridin,znucin))
+     &        call errquit('grid_inp: rtdb_put failed', 1000)
+         if(.not.rtdb_get(rtdb,'dft:nradin',mt_int,ngridin,nradin))
+     &        call errquit('grid_inp: rtdb_get failed', 1000)
+         if(.not.rtdb_get(rtdb,'dft:nangin',mt_int,ngridin,nangin))
+     &        call errquit('grid_inp: rtdb_get failed', 1000)
+         if(.not.rtdb_get(rtdb,'dft:accqrin',mt_int,ngridin,accqrin))
+     &        call errquit('grid_inp: rtdb_get failed', 1000)
+      endif
       if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
      &   grid_acc_index))then
          write(6,*)' Unknown gridtype; defaulting to medium grid'
@@ -206,6 +219,7 @@ c
 c
 c     lebedev grid;
 c
+      leb=.true.
       if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
          iangquad = 4
       else
