@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.29 2000-07-06 17:32:49 d3j191 Exp $
+c $Id: ana_task.F,v 1.30 2000-07-19 18:26:38 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       character*80 card
       integer nsai,msai,ifrsk,it
       integer nframe,nread,nwrit,ifr,ito,num,i,j,k,ivec
-      real*8 rms0,rms1,val,value
+      real*8 rms0,rms1,val,value,range
       character*3 fmt
       logical active
 c
@@ -171,6 +171,7 @@ c
       endif
 c
       call ana_all(int_mb(i_isel),1,dbl_mb(i_wt))
+      call ana_wall(int_mb(i_wsel),1)
       lsel=.false.
 c
       if(me.eq.0) then
@@ -204,6 +205,46 @@ c
       write(*,3003) nsel,nsa
  3003 format(' Selected',i5,' out of',i5,' atoms')
       endif
+      goto 1
+      endif
+c
+c     solvent selection
+c     -----------------
+c
+      if(card(1:6).eq.'wselct') then
+      read(card(8:19),'(f12.6)') range
+c
+      call ana_wall(int_mb(i_wsel),0)
+c
+      if(nsel.eq.0) call errquit('No solute atoms selected',0)
+c
+      call ana_rdhdr(byte_mb(i_snam))
+      nread=0
+      nwrit=0
+      nframe=0
+   20 continue
+      if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+      nread=nread+1
+      if(nread.lt.ifrfr) goto 20
+      if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx.and.lxw) then
+c
+      call ana_wselect(int_mb(i_isel),dbl_mb(i_xdat),
+     + int_mb(i_wsel),dbl_mb(i_wdat),range)
+c
+      endif
+      nframe=nframe+1
+      if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 20
+      endif
+      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt))
+      if(me.eq.0) then
+      close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
+c
+      call ana_wcount(int_mb(i_wsel))
+      write(*,3303) nwsel,nwm
+ 3303 format(/,' Selected',i5,' out of',i5,' solvent molecules')
+      endif
+c
       goto 1
       endif
 c
@@ -350,7 +391,7 @@ c
       if(nread.lt.ifrfr) goto 2
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -397,7 +438,7 @@ c
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -731,7 +772,7 @@ c
 c
       lxw=.false.
       call ana_wtfram(lfnprj,fmt,dbl_mb(i_xp),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel))
 c
       nave=nave+1
 c

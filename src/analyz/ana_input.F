@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.23 2000-07-06 17:32:48 d3j191 Exp $
+c $Id: ana_input.F,v 1.24 2000-07-19 18:26:37 d3j191 Exp $
 c
       implicit none
 c
@@ -239,6 +239,13 @@ c
       endif
       endif
       if(.not.inp_a(atom)) atom=' '
+      if(atom(1:7).eq.'solvent') then
+      if(.not.inp_f(rsel)) call errquit('No range specified',0)
+      write(lfncmd,1206) rsel
+ 1206 format('wselct ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
     4 continue
       write(lfncmd,1006) isel,jsel,rsel,atom(1:index(atom,' ')-1)
  1006 format('select ',2i7,f12.6,a)

@@ -1,6 +1,6 @@
-      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag)
+      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel)
 c
-c $Id: ana_wtfram.F,v 1.19 2000-07-06 20:38:49 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.20 2000-07-19 18:26:38 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
 #include "mafdecls.fh"
 c
       real*8 x(msa,3),w(mwm,mwa,3)
-      integer isel(msa)
+      integer isel(msa),iwsel(mwm)
       character*24 tag(msa,2)
       integer iunit
       character*3 fmt
@@ -63,14 +63,16 @@ c
 c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
       write(iunit,1002) box
  1002 format(f12.6,/,12x,f12.6,/,24x,f12.6)
-      write(iunit,1003) lxw,.false.,lsx,.false.,0,0,nsel
- 1003 format(4l1,3i10)
+      write(iunit,1003) lxw,.false.,lsx,.false.,0,0,nsel,nwsel
+ 1003 format(4l1,4i10)
       if(lxw.and..not.lsonly) then
       do 1 i=1,nwm
+      if(iwsel(i).ne.0) then
       do 2 j=1,nwa
       write(iunit,1004) (w(i,j,k),k=1,3)
  1004 format(3f8.3)
     2 continue
+      endif
     1 continue
       endif
       if(lsx) then
@@ -108,6 +110,7 @@ c
       endif
       if(lxw.and..not.lsonly) then
       do 44 i=1,nwm
+      if(iwsel(i).ne.0) then
       write(string,'(i7)') i+nss
       if(string(1:1).eq.' ') string=string(2:7)//' '
       if(string(1:1).eq.' ') string=string(2:7)//' '
@@ -128,6 +131,7 @@ c
       endif
    45 continue
       write(iunit,2002)
+      endif
    44 continue
       endif
       write(iunit,2002)

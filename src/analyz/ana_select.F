@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.5 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_select.F,v 1.6 2000-07-19 18:26:38 d3j191 Exp $
 c
       implicit none
 c
@@ -82,11 +82,86 @@ c
     1 continue
 c
       nsel=0
+      if(ival.ne.0) nsel=nsa
       do 2 i=1,nsa
       wt(i)=1.0d0
       if(isel(i).eq.0) wt(i)=0.0d0
-      nsel=nsel+isel(i)
     2 continue
 c
       return
       end
+      subroutine ana_wall(iwsel,ival)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "rtdb.fh"
+c
+      integer iwsel(nwm)
+      integer i,ival
+c
+      nwsel=0
+      if(ival.ne.0) nwsel=nwm
+      do 1 i=1,nwm
+      iwsel(i)=ival
+    1 continue
+c
+      return
+      end
+      subroutine ana_wselect(isel,xs,iwsel,xw,range)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer isel(msa),iwsel(mwm)
+      real*8 xs(msa,3),xw(mwm,mwa,3)
+c
+      integer i,j,k
+      real*8 range,range2
+c
+      range2=range*range
+c
+      if(me.eq.0) then
+      do 1 i=1,nwm
+      if(iwsel(i).eq.0) then
+      do 2 j=1,nsa
+      if(isel(j).ne.0) then
+      do 3 k=1,nwa
+      if((xw(i,k,1)-xs(j,1))**2+(xw(i,k,2)-xs(j,2))**2+
+     + (xw(i,k,3)-xs(j,3))**2.lt.range2) then
+      iwsel(i)=1
+      goto 1
+      endif
+    3 continue
+      endif
+    2 continue
+      endif
+    1 continue
+      endif
+c
+      return
+      end
+      subroutine ana_wcount(iwsel)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer iwsel(mwm),i
+c
+      nwsel=0
+      do 1 i=1,nwm
+      if(iwsel(i).gt.0) nwsel=nwsel+1
+    1 continue
+c
+      return
+      end
+
