@@ -1,6 +1,11 @@
-!$Id: paw_xc.F,v 1.14 2003-03-05 23:16:32 bylaska Exp $
+!$Id: paw_xc.F,v 1.15 2003-03-07 20:51:10 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.14  2003/03/05 23:16:32  bylaska
+!Commented out write statements and other minor fixes.....
+!self-consistent loop looks like it is working.....
+!....EJB
+!
 !Revision 1.13  2003/03/04 00:04:04  marat
 !added printouts for atomic potenitials
 !for debug purposes
@@ -319,15 +324,15 @@
 
 *     *** zero out vxc arrays ***
       do i=1,paw_vxc_u_ae(3)
-       dcpl_mb(paw_vxc_u_ae(1)+i-1)=dcmplx(0.0,0.0)  
-       dcpl_mb(paw_vxc_d_ae(1)+i-1)=dcmplx(0.0,0.0)
-       dcpl_mb(paw_vxc_u_ps(1)+i-1)=dcmplx(0.0,0.0) 
-       dcpl_mb(paw_vxc_d_ps(1)+i-1)=dcmplx(0.0,0.0)
+       dcpl_mb(paw_vxc_u_ae(1)+i-1)=dcmplx(0.0d0,0.0d0)  
+       dcpl_mb(paw_vxc_d_ae(1)+i-1)=dcmplx(0.0d0,0.0d0)
+       dcpl_mb(paw_vxc_u_ps(1)+i-1)=dcmplx(0.0d0,0.0d0) 
+       dcpl_mb(paw_vxc_d_ps(1)+i-1)=dcmplx(0.0d0,0.0d0)
       end do
 
       do i=1,paw_xc_pot_u(3)
-       dcpl_mb(paw_xc_pot_u(1)+i-1)=dcmplx(0.0,0.0)  
-       dcpl_mb(paw_xc_pot_d(1)+i-1)=dcmplx(0.0,0.0)  
+       dcpl_mb(paw_xc_pot_u(1)+i-1)=dcmplx(0.0d0,0.0d0)  
+       dcpl_mb(paw_xc_pot_d(1)+i-1)=dcmplx(0.0d0,0.0d0)  
       end do
 
 
@@ -354,12 +359,12 @@
       
 *     *** zero out temp arrays ***
         do ig=1,paw_xc_work_size*2
-         dbl_mb(rho_ae(1)+ig-1) = 0.d0
-         dbl_mb(rho_ps(1)+ig-1) = 0.d0
-         dbl_mb(vxc_ae(1)+ig-1) = 0.d0
-         dbl_mb(vxc_ps(1)+ig-1) = 0.d0
-         dbl_mb(exc_ae(1)+ig-1) = 0.d0
-         dbl_mb(exc_ps(1)+ig-1) = 0.d0
+         dbl_mb(rho_ae(1)+ig-1) = 0.0d0
+         dbl_mb(rho_ps(1)+ig-1) = 0.0d0
+         dbl_mb(vxc_ae(1)+ig-1) = 0.0d0
+         dbl_mb(vxc_ps(1)+ig-1) = 0.0d0
+         dbl_mb(exc_ae(1)+ig-1) = 0.0d0
+         dbl_mb(exc_ps(1)+ig-1) = 0.0d0
         end do
        
 *       *** find densities on spher grid ***          
@@ -661,33 +666,33 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
         nlmi=nlmi+2*l+1
         end do !l
         
-*       *** print out exc potenetial ***
-        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
-        nilm = 0
-        do i=1,nb
-        li = paw_basis_orb_l(i,ia)
-        njlm = 0
-        do j=1,nb
-        lj = paw_basis_orb_l(j,ia)
-          do mi=-li,li
-          do mj=-lj,lj
-            i_pot = i_pot0-1+(njlm+lj+mj+1)+
-     >                (nilm+li+mi)*paw_proj_nbasis(ia)
-
-
-
-c            write(*,*) "i,mi,j,mj,na",i,mi,j,mj,in
-c            write(*,*) "paw_xc_pot_up",dcpl_mb(paw_xc_pot_u(1)+i_pot)
-c            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
-             
-            
-
-            end do !mi
-          end do !mj
-        njlm = njlm + 2*lj+1
-        end do !j
-        nilm = nilm + 2*li+1
-        end do !i  
+!*       *** print out exc potenetial ***
+!        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
+!        nilm = 0
+!        do i=1,nb
+!        li = paw_basis_orb_l(i,ia)
+!        njlm = 0
+!        do j=1,nb
+!        lj = paw_basis_orb_l(j,ia)
+!          do mi=-li,li
+!          do mj=-lj,lj
+!            i_pot = i_pot0-1+(njlm+lj+mj+1)+
+!     >                (nilm+li+mi)*paw_proj_nbasis(ia)
+!
+!
+!!
+!c            write(*,*) "i,mi,j,mj,na",i,mi,j,mj,in
+!c            write(*,*) "paw_xc_pot_up",dcpl_mb(paw_xc_pot_u(1)+i_pot)
+!c            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
+!             
+!            
+!
+!            end do !mi
+!          end do !mj
+!        njlm = njlm + 2*lj+1
+!        end do !j
+!        nilm = nilm + 2*li+1
+!        end do !i  
  
       end do !in
 

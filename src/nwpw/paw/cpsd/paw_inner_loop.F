@@ -1,8 +1,12 @@
 *
-* $Id: paw_inner_loop.F,v 1.28 2003-03-06 01:46:39 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.29 2003-03-07 20:51:10 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.28  2003/03/06 01:46:39  bylaska
+* bug fix in paw_energy_core_atom...and ma_chop_stack changed to ma_pop_stack
+* ...EJB
+*
 * Revision 1.27  2003/03/05 23:16:31  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -79,7 +83,7 @@
 
 
 *     **** MA local variables ****
-      logical value
+      logical value,gram_schmidt
       integer tmp_L(2)
       integer tmp1(2),tmp2(2)
       integer vl(2),vh(2),vc(2),vcomp(2),dng(2)
@@ -90,11 +94,11 @@
       integer npack0
 
 *     ***** external functions ****
-      logical  control_move
+      logical  control_move,control_gram_schmidt
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
-      external control_move
+      external control_move,control_gram_schmidt
       external ion_nion,control_gga
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,coulomb_e,ewald_e
@@ -114,7 +118,6 @@
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
-
 
 
       call nwpw_timing_start(12)
@@ -168,6 +171,7 @@
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+
       if (.not. value) call errquit('out of stack memory',0)
 
       call nwpw_timing_end(12)
@@ -175,8 +179,8 @@
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-      move = control_move()
-      
+      move         = control_move()
+      gram_schmidt = control_gram_schmidt()
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -357,10 +361,58 @@
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
-        do n=1,n2(ispin)
-          call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
-        end do
+*   
+*       **** if gram-schmidt make Hpsi a tangent vecotor ****
+        if (gram_schmidt) then
+
+          do ms=1,ispin
+            call paw_overlap_matrix_gen(ne(ms),ne(ms),
+     >                                psi1(1,n1(ms)),
+     >                                Hpsi(1,n1(ms)),
+     >                                dbl_mb(tmp_L(1)))
+            call dscal(ne(ms)*ne(ms),(-1.0d0),dbl_mb(tmp_L(1)),1)
+            call Grsm_gg_Copy(npack1,ne(ms),
+     >                        Hpsi(1,n1(ms)),
+     >                        psi2(1,n1(ms)))    ! psi2 = Hpsi
+            call Grsm_gmg_daxpy(npack1,ne(ms),
+     >                          psi1(1,n1(ms)),
+     >                          dbl_mb(tmp_L(1)),
+     >                          psi2(1,n1(ms)))  ! psi2 = (Hpsi - psi1*<psi1|S|Hpsi>)
+
+         !***** DEBUG ****
+           write(24,*)
+           write(23,*)
+           write(24,*) "DEBUG: iteration=",it
+            call paw_overlap_matrix_gen(ne(ms),ne(ms),
+     >                                psi1(1,n1(ms)),
+     >                                psi2(1,n1(ms)),
+     >                                dbl_mb(tmp_L(1)))
+           write(24,*) "<psi|Tangent> Overlap matrix, spin:",ms
+           do i=1,ne(ms) 
+             write(24,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+     >                   j=1,ne(ms))
+           end do
+         !***** DEBUG ****
+
+            call Grsm_gg_dscale(npack1,ne(ms),dte,
+     >                         psi2(1,n1(ms)),
+     >                         psi2(1,n1(ms)))
+
+            call Grsm_ggg_Sum(npack1,ne(ms),
+     >                        psi2(1,n1(ms)), 
+     >                        psi1(1,n1(ms)),
+     >                        psi2(1,n1(ms)))
+          end do
+       
+*       **** else don't change Hpsi ***
+        else 
+
+          do n=1,n2(ispin)
+            call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
+            call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+          end do
+        end if
+
         call nwpw_timing_end(13)
 
 *       *******************************************
@@ -387,27 +439,33 @@
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-        call paw_ovlp_S(n2(ispin),psi1,psi_r)
-        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
+        if (gram_schmidt) then
+          do ms=1,ispin
+            call paw_psi_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+          end do
+        else
+          call paw_ovlp_S(n2(ispin),psi1,psi_r)
+          call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        end if
 
-!*        ***** debug ***
-!         do ms=1,ispin
-!           write(23,*)
-!           write(23,*)
-!           write(23,*) "DEBUG: iteration=",it
-!           write(23,*) "DEBUG: overlap matrix"
-!           call paw_overlap_matrix_gen(ne(ms),ne(ms),
-!     >                                 psi1(1,n1(ms)),
-!     >                                 psi1(1,n1(ms)),
-!     >                                 dbl_mb(tmp_L(1)))
-!           write(23,*) "Overlap matrix, spin:",ms
-!           do i=1,ne(ms) 
-!             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
-!     >                   j=1,ne(ms))
-!           end do
-!
-!         end do
+*        ***** debug ***
+         do ms=1,ispin
+           write(23,*)
+           write(23,*)
+           write(23,*) "DEBUG: iteration=",it
+           write(23,*) "DEBUG: overlap matrix"
+           call paw_overlap_matrix_gen(ne(ms),ne(ms),
+     >                                 psi1(1,n1(ms)),
+     >                                 psi1(1,n1(ms)),
+     >                                 dbl_mb(tmp_L(1)))
+           write(23,*) "Overlap matrix, spin:",ms
+           do i=1,ne(ms) 
+             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+     >                   j=1,ne(ms))
+           end do
+
+         end do
 !!*        ***** debug2 ***
 !         do ms=1,ispin
 !           write(23,*)

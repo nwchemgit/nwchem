@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.49 2003-03-06 00:34:40 bylaska Exp $
+* $Id: paw_sd.F,v 1.50 2003-03-07 20:51:10 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.49  2003/03/06 00:34:40  bylaska
+* tolerance check fixed...EJB
+*
 * Revision 1.48  2003/03/05 23:16:31  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -468,6 +471,8 @@
    1  continue
          icount = icount + 1
          
+         call psi_marat_write("marat2.elc",ispin,ne,dcpl_mb(psi2(1)))
+
          call paw_inner_loop(ispin,ne,
      >             npack1,nfft3d,nemax,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
@@ -688,11 +693,11 @@ c         write(6,1498) virial
 !
 !*     ***** write psi2 wavefunctions ****
        call psi_write(ispin,ne,dcpl_mb(psi2(1)))
-       call psi_marat_write("marat2.elc",ispin,ne,dcpl_mb(psi2(1)))
+       call psi_marat_write("marat3.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 !*     **** write geometry to rtdb ****
-!      call ion_write(rtdb)
+       call ion_write(rtdb)
 
 
 *     **** deallocate heap memory ****
