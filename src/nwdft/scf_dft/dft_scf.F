@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.14 1995-11-28 01:17:01 hltaylor Exp $
+C$Id: dft_scf.F,v 1.15 1995-11-28 23:56:36 hltaylor Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -17,6 +17,7 @@ C$Id: dft_scf.F,v 1.14 1995-11-28 01:17:01 hltaylor Exp $
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri
       
+**  #define SC95
 
 #include "bas.fh"
 #include "geom.fh"
@@ -80,15 +81,18 @@ C$Id: dft_scf.F,v 1.14 1995-11-28 01:17:01 hltaylor Exp $
       logical converged,XCFIT,wght_GA
       logical lfrac,lfocka,lfockb
       integer itol_min,iAOacc_min,iscfcon
-      integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
-      double precision scfcon, homo_lumo_gap
+      double precision scfcon
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
       double precision dft_dencvg,dabssum
       external dft_dencvg,dabssum
+
+#ifdef SC95
+      double precision homo_lumo_gap
       logical movecs_to_logfile
-      
+      integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
+#endif      
 c-----------------------------------------------------------------------
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -920,11 +924,11 @@ c****
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
+#ifdef SC95
             homo_lumo_gap = min( dbl_mb( ISbn2(1)+noc(1)),
      &                           dbl_mb( ISbn2(2)+noc(2) ) )
      &           - max( dbl_mb( ISbn2(1)+noc(1)-1),
      &           dbl_mb( ISbn2(2)+noc(2)-1 ) )
-
             write (LuOut,*) 
             write (LuOut,'(a,e14.4)')
      &           'HOMO/LUMO Gap (Hartrees): ', homo_lumo_gap
@@ -947,11 +951,22 @@ c****
      &             (dbl_mb(ISbn2(2)+ii),ii=noc(2),nbf_ao-1)
               write (LuOut,*) 
             endif 
+#else
+            write (LuOut,*) 'Alpha Eigenvalues: '
+            write (LuOut,'(5x,4(e14.4))')
+     &           (dbl_mb(ISbn2(1)+ii),ii=0,nbf_ao-1)
+            write (LuOut,*) 
+            if ( ipol.eq.2 ) then
+              write (LuOut,*) 'Beta Eigenvalues: '
+              write (LuOut,'(5x,4(e14.4))')
+     &             (dbl_mb(ISbn2(2)+ii),ii=0,nbf_ao-1)
+              write (LuOut,*) 
+            endif 
+#endif
           endif
 
         endif 
 c-----------------------------------------------------------------------
-#define SC95
 #ifdef SC95
           if (.not.
      &         movecs_to_logfile( rtdb, 
