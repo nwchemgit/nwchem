@@ -77,7 +77,7 @@ c
 c
 c--> Flush ouput buffer.
 c
-      call flush(lwr)
+      if(iproc.eq.0) call flush(lwr)
 
       nwdft = .true.
       close(7)
