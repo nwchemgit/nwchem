@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.27 1999-11-13 02:21:05 bjohnson Exp $
+c $Id: rhf_hessian.F,v 1.28 1999-12-01 19:56:32 mdupuis Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -439,9 +439,8 @@ c
       do j=1,ndim
         do i=1,ndim
            dnwc(ihnd_to_nw(i),ihnd_to_nw(j))=
-     &     dhnd(i,j)*(
-     &     1.0d+00/(fac_nwthnd(ihnd_to_nw(i))*
-     &     fac_nwthnd(ihnd_to_nw(j) )) )
+     &     dhnd(i,j)*(fac_nwthnd(ihnd_to_nw(i))*
+     &                fac_nwthnd(ihnd_to_nw(j)) ) 
         enddo
       enddo
 c
