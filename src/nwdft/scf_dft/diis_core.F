@@ -1,6 +1,7 @@
       subroutine diis_core(derr,pulay,
-     &     mxhist,nhist,icall,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.11 2000-11-14 19:06:53 edo Exp $
+     &     mxhist,nhist,icall,ispin,ipol, g_diis,g_err,
+     &     os_constr)
+C$Id: diis_core.F,v 1.12 2003-03-12 02:54:36 edo Exp $
       implicit none
 c
       integer mxhist
@@ -8,8 +9,9 @@ c
       integer ipol
       integer g_diis(mxhist)
       integer g_err
-      double precision pulay((mxhist+1)*(mxhist+2)/2)
-      Integer nhist(2), icall(2)
+      double precision pulay((mxhist+1)*(mxhist+2)/2,*)
+      Integer nhist, icall(2)
+      logical os_constr
 c***********************************************************************
 c
 c     subroutine diis
@@ -55,6 +57,7 @@ c
       integer me,nproc,i1,ii,ijm1,ijlast,jj,ij
       double precision derr
       logical oprint
+      integer iptr
 c
 c
       irow(j) = mod(j-1,mxhist)+1
@@ -63,26 +66,27 @@ c
       me=ga_nodeid()
       nproc=ga_nnodes()
 c
-      if(icall(ispin).eq.1) then
-         if(ispin.eq.1) then
+      iptr=1
+      if(os_constr) iptr=ispin
+c
+      if(icall(iptr).eq.1) then
+         if(ispin.eq.1.or.os_constr) then
 c
 c       Initialize the Pulay matrix.  Store -1 on the 1st row and column.
 c       (1,1) element = 0.
 c
-c        if(me.eq.0)write(LUout,*)' Initializing DIIS; ispin = ',ispin
 
-         call dfill((mxhist+1)*(mxhist+2)/2,0d0,pulay,1)
-!        pulay(1) = 0.0d0
+         call dfill((mxhist+1)*(mxhist+2)/2,0d0,pulay(1,iptr),1)
 c
         do i = 2,mxhist+1
           i1=ijcanon(i,1)
-          pulay(i1) = -1.0d0
+          pulay(i1,iptr) = -1.0d0
         enddo 
       endif
 c
-        nhist(ispin)=0
+        nhist=0
       endif 
-      ii=(ipol+ispin-1)*mxhist + irow(icall(1))
+      ii=(ipol+ispin-1)*mxhist + irow(icall(iptr))
 c
 C     Store new errvec
 c
@@ -91,14 +95,14 @@ c
 c     If more than mxhist histories are stored, shift the
 c     rows of the Pulays B matrix.
 c     
-      if(nhist(1).eq.mxhist.and.ispin.eq.1)then
+      if(nhist.eq.mxhist.and.(ispin.eq.1.or.os_constr))then
 c
-        do i = 3,nhist(1)+1
+        do i = 3,nhist+1
           do j = 3,i
 c
             ij = ijcanon(i,j)
             ijm1 = ijcanon(i-1,j-1)
-            pulay(ijm1)=pulay(ij)
+            pulay(ijm1,iptr)=pulay(ij,iptr)
           enddo 
         enddo 
 c       
@@ -106,22 +110,23 @@ c
 c
 c     Determine the size of the iterative subspace history.
 c
-      nhist(ispin) = min(nhist(ispin)+1,mxhist)
+      nhist = min(nhist+1,mxhist)
 c
 c     Construct the last row of the B matrix.
 c
 
       derr=ga_ddot(g_err,g_err)
-      if(ispin.eq.1) then
-         do jj = 1,nhist(1)
-            ijlast = ijcanon(nhist(1)+1,nhist(1)+2-jj)
-            pulay(ijlast)=0d0
+      if(ispin.eq.1.or.os_constr) then
+         do jj = 1,nhist
+            ijlast = ijcanon(nhist+1,nhist+2-jj)
+            pulay(ijlast,iptr)=0d0
          enddo
       endif
-      do jj = 1,nhist(1)
-        ii=(ipol+ispin-1)*mxhist+irow(icall(1)-jj+1)
-        ijlast = ijcanon(nhist(1)+1,nhist(1)+2-jj)
-        pulay(ijlast)=pulay(ijlast)+ga_ddot(g_diis(ii),g_err)
+      do jj = 1,nhist
+        ii=(ipol+ispin-1)*mxhist+irow(icall(iptr)-jj+1)
+        ijlast = ijcanon(nhist+1,nhist+2-jj)
+        pulay(ijlast,iptr)=pulay(ijlast,iptr)+
+     +       ga_ddot(g_diis(ii),g_err)
       enddo
       return
 C 1111 format(/,15x,'Diis error vector norm:   ',f20.10,/)

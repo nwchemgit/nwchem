@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.228 2003-01-30 01:15:02 bert Exp $
+c     $Id: dft_scf.F,v 1.229 2003-03-12 02:54:36 edo Exp $
 c     
       implicit none
 c
@@ -116,7 +116,7 @@ c
 
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,
      .     l_gdiis,k_gdiis,ipolmod
-      logical dft_mem3c
+      logical dft_mem3c,os_constr
       external dft_mem3c
 c !!! BGJ
       logical cphf_poliz, do_poliz
@@ -215,6 +215,8 @@ c
       else
          fon=.false.
       endif
+      if (.not.rtdb_get(rtdb, 'dft:os_constr', mt_log, 1,
+     &   os_constr))os_constr=.false.
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
      &   reorth))reorth=.false.
 c
@@ -712,7 +714,7 @@ c
      &           ao_bas_han, g_focks, g_dens, 
      &           g_tmp, g_svecs, svals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
-     .           g_s12m,g_s12p,.false.)
+     .           g_s12m,g_s12p,.false.,os_constr)
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
@@ -827,7 +829,7 @@ c
      &                       nbf_ao, geom, ao_bas_han, g_focks, 
      &                       g_dens, g_tmp, g_svecs, svals, 
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p,.true.)
+     ,           lkeeps,g_s12m,g_s12p,.true.,os_constr)
             endif
       endif
          etnew=etnew+tdots
@@ -1068,7 +1070,7 @@ c
      &                       nbf_ao, geom, ao_bas_han, g_focks,
      &                       g_dens, g_tmp, g_svecs, svals,
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p,.true.)
+     ,           lkeeps,g_s12m,g_s12p,.true.,os_constr)
          endif
          damping=.true.
          if(damping) then
