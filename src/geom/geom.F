@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.76 1998-08-12 16:35:59 d3g681 Exp $
+C$Id: geom.F,v 1.77 1999-01-19 00:53:52 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -4000,7 +4000,10 @@ C      EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
 C      AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
 C data for 87-103 RA Kendall 
 * Guess = 1.2*atomic: Fr<87>, Ra<88>, Ac<89>, Th<90>, Pa<91>, 
-*                      U<92>, Np<93>, Pu<94>, Am<95>
+* 
+* Guess = U<92> 3.000
+*
+* Guess = 1.2*atomic:  Np<93>, Pu<94>, Am<95>
 *
 * Guess = 1.3*largest cation radii: Cm<96>, Bk<97>, Cf<98>, Es<99>, 
 *                                   Fm<100>, Md<101>, No<102>, Lr<103>
@@ -4036,7 +4039,7 @@ C data for 87-103 RA Kendall
      &     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
       data (def_rcov(i),i=87,103) /
      &     3.24d00, 2.68d00,  2.25d00, 2.16d00, 1.93d00,
-     &     1.66d00, 1.57d00, 1.81d00, 2.21d00, 1.43d00,
+     &     3.00d00, 1.57d00, 1.81d00, 2.21d00, 1.43d00,
      &     1.42d00, 1.40d00, 1.39d00, 1.38d00, 1.37d00,
      &     1.36d00, 1.34d00/
       geom_get_def_rcov = .false.
