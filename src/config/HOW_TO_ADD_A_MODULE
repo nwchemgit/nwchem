@@ -68,6 +68,7 @@ atomscf||-lguess|
 ddscf|atomscf|-lddscf|scf scf_input vectors_input
 develop|rimp2|-ltest|rjhtest raktest debtest
 gradients|ddscf|-lgradients|scf_gradients
+selci|moints|-lselci|selci selci_input
 moints|NWints|-lmoints|atwtest
 nwdft|ddscf NWints|-lnwdft|nwdft dft_input
 rimp2|ddscf NWints|-lrimp2|rimp2

@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.25 1996-01-30 22:38:50 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.26 1996-02-08 08:48:36 d3g681 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -68,7 +68,7 @@ MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
-
+MODULES := $(patsubst selci,selci moints,$(MODULES) )
 MODULES := $(patsubst ccsd,ccsd moints ddscf,$(MODULES) )
 MODULES := $(patsubst mcscf,mcscf moints ddscf,$(MODULES) )
 MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
@@ -93,6 +93,7 @@ EXCLUDED_SUBDIRS = $(filter-out $(MODULES),$(KNOWN_MODULE_SUBDIRS))
 # Now map module names into libraries
 MOD_LIBS = $(MODULES)
 
+MOD_LIBS := $(patsubst selci,-lselci,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst NWints,-lnwints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst atomscf,-lguess,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
@@ -119,6 +120,7 @@ MOD_LIBS := $(strip $(MOD_LIBS))
 # Finally, map excluded modules into routines which must be stubbed
 STUBROUTINES = $(EXCLUDED_SUBDIRS)
 
+STUBROUTINES := $(patsubst selci,selci selci_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
