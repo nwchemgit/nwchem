@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.119 1999-07-14 19:05:42 d3g681 Exp $
+c     $Id: nwchem.F,v 1.120 1999-07-14 19:53:57 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -78,7 +78,6 @@ c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
       logical ostartup, ocontinue, orestart
-      integer limit_global
       logical  input_parse
       external input_parse
 c
@@ -141,14 +140,11 @@ C
       if ( ga_uses_ma() ) then
         if (.not.ma_init(mt_dbl, stack, heap+global))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911)
-        limit_global = stack+heap+global
       else
         if (.not.ma_init(mt_dbl,stack,heap))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911)
-        limit_global = global
+        call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
-      limit_global = ma_sizeof(mt_dbl,limit_global,mt_byte)
-      call ga_set_memory_limit(limit_global)
 *old:------------------------------------------------------- START ---------
 *old:C     GA allocations come out of MA space, so lump them together
 *old:C     and let MA impose the limits on GA sizes instead of actually
