@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.9 1994-08-27 13:32:29 d3g681 Exp $
+# $Id: GNUmakefile,v 1.10 1994-08-27 19:59:52 d3g681 Exp $
 
 include config/makefile.h
 
@@ -12,20 +12,20 @@ include config/makefile.h
 
 nwchem:	libraries
 	$(MAKE) nwchem.o
-	$(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
 #
 
 nwchem_link:    nwchem.o
-	$(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) -o nwchem nwchem.o $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o nwchem nwchem.o $(LIBS)
 	$(INSTALL)
 #
 # This for linking test version
 #
 nwchem_test:	
-	$(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
@@ -37,18 +37,18 @@ libraries:
 	done
 
 clean:
-	/bin/rm -f nwchem core *.o *.a *.trace ../lib/*.a
+	-/bin/rm -f nwchem core *.o *.a *.trace ../lib/*.a
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
 realclean:	clean
-	/bin/rm -f *~ \#*\#
+	-/bin/rm -f *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
-	/bin/rm -f $(LIBDIR)/*.a $(BINDIR)/*
-	/bin/rm -f *.db movecs 
+	-/bin/rm -f $(LIBDIR)/*.a $(BINDIR)/*
+	-/bin/rm -f *.db movecs 
 
 sngl_to_dbl dbl_to_sngl:
 	for dir in $(SUBDIRS); do \
