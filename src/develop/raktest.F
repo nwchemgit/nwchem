@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.69 1997-06-17 19:26:05 d3e129 Exp $
+c $Id: raktest.F,v 1.70 1997-06-18 06:31:07 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,8 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110, 00120, 00130, 00140, 00150) raktask
+     &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
+     &    00160) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -65,6 +66,9 @@ c
       goto 00001
 00150 write(6,*)' test blocking 2e derivative integral interface'
       call raktest_bd2e(rtdb)
+      goto 00001
+00160 write(6,*)' raktest: disk test code '
+      call raktest_diskspeed(rtdb)
       goto 00001
 c
 00001 continue
@@ -4315,4 +4319,283 @@ c
       enddo
 c
       end
-      
+      subroutine raktest_diskspeed(rtdb)
+      implicit none
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+      integer rtdb
+c
+      integer default_size
+      parameter (default_size = 512)
+      integer default_count
+      parameter (default_count = 10)
+      integer default_iterations
+      parameter (default_iterations = 10)
+      integer size, count, iters
+      integer h_io, k_io
+      character*255 filename
+c
+      if (.not.rtdb_get(rtdb,'rak:disksize',mt_int,1,size))
+     &    size = default_size
+      if (.not.rtdb_get(rtdb,'rak:diskcount',mt_int,1,count))
+     &    count = default_count
+      if (.not.rtdb_get(rtdb,'rak:diskiters',mt_int,1,iters))
+     &    iters = default_iterations
+c
+      if (ga_nodeid().eq.0) then
+        write(luout,*)
+     &      ' size of buffer is            : ',size, ' doubles'
+        write(luout,*)
+     &      '                              : ',(size*8), ' bytes'
+        write(luout,*)
+     &      ' number of buffers put out is :',count
+        write(luout,*)
+     &      ' number of iterations is      :',iters
+        write(luout,*)
+     &      ' output and reading of        :',
+     &      8*size*count*iters,' bytes'
+      endif
+c
+      if (.not.ma_push_get(mt_dbl,size,'io buffer',h_io,k_io))
+     &    stop ' ma_get of io buffer failed'
+c
+      call raktest_diskspeed_fill(size,dbl_mb(k_io))
+      call util_file_name('rakdisk',.false.,.true.,filename)
+      call raktest_diskspeed_write(dbl_mb(k_io),size,
+     &    count,iters,filename,.true.)
+      call raktest_diskspeed_read(dbl_mb(k_io),size,
+     &    count,iters,filename,.false.)
+c
+      if (.not.ma_pop_stack(h_io)) stop ' ma pop error '
+c
+      end
+      subroutine raktest_diskspeed_read(buf,size,
+     &    count,iters,filename,save_file)
+      implicit none
+#include "stdio.fh"
+#include "eaf.fh"
+#include "util.fh"
+#include "global.fh"
+#include "pstat.fh"
+      integer size
+      integer count
+      integer iters
+      double precision buf(size)
+      character*(*)filename
+      logical save_file
+c
+      integer i, it
+      integer fd
+      integer eaf_rv
+      double precision offset, bytes_tot
+      double precision timec, timew, ratec, ratew
+      integer inode
+      double precision timew_min, timew_max, timew_ave
+      double precision ratew_min, ratew_max, ratew_ave
+c
+      call ga_sync()
+      eaf_rv = eaf_open(filename,EAF_R,fd)
+      if (eaf_rv.ne.0) then
+        call eaf_errmsg(eaf_rv)
+        stop 'eaf open error'
+      endif
+c
+      timec = util_cpusec()
+      timew = util_wallsec()
+      do it = 1,iters
+        offset = 0.0d00
+        do i = 1,count
+          eaf_rv = eaf_read(fd,offset,buf,8*size)
+          if (eaf_rv.ne.0) then
+            call eaf_errmsg(eaf_rv)
+            stop ' eaf read error'
+          endif
+          offset = offset + dble(8*size)
+        enddo
+      enddo
+      timec = util_cpusec() - timec
+      timew = util_wallsec() - timew
+      do inode = 0,((ga_nnodes())-1)
+        call ga_sync()
+        if (inode.eq.ga_nodeid()) then
+          call eaf_print_stats(fd)
+          call util_flush(luout)
+        endif
+        call ga_sync()
+      enddo
+      eaf_rv = eaf_close(fd)
+      if (eaf_rv.ne.0) then
+        call eaf_errmsg(eaf_rv)
+        stop 'eaf close error'
+      endif
+c
+      if (.not.save_file) call util_file_unlink(filename)
+c      
+      bytes_tot = dble(count)*dble(8)*dble(size)
+      bytes_tot = bytes_tot*dble(iters)
+      bytes_tot = bytes_tot*1.0d-6
+      ratec = bytes_tot/timec
+      ratew = bytes_tot/timew
+      do inode = 0,((ga_nnodes())-1)
+        call ga_sync()
+        call ga_sync()
+        if (inode.eq.ga_nodeid()) then
+          write(luout,*)    ' read  statistics for node :',inode
+          write(luout,10000)' read  total Mbytes        :',bytes_tot
+          write(luout,10000)' read  cpu  time (s)       :',timec
+          write(luout,10000)' read  cpu  rate (mb/s)    :',ratec
+          write(luout,10000)' read  wall time (s)       :',timew
+          write(luout,10000)' read  wall rate (mb/s)    :',ratew
+          write(luout,*)' '
+          call util_flush(luout)
+        endif
+        call ga_sync()
+        call ga_sync()
+      enddo
+      timew_min = timew
+      call ga_dgop(5651,timew_min,1,'min')
+      timew_max = timew
+      call ga_dgop(5652,timew_max,1,'max')
+      timew_ave = timew
+      call ga_dgop(5653,timew_ave,1,'+')
+      timew_ave = timew_ave/dble(ga_nnodes())
+      ratew_min = ratew
+      call ga_dgop(5654,ratew_min,1,'min')
+      ratew_max = ratew
+      call ga_dgop(5655,ratew_max,1,'max')
+      ratew_ave = ratew
+      call ga_dgop(5656,ratew_ave,1,'+')
+      ratew_ave = ratew_ave/dble(ga_nnodes())
+      if (ga_nodeid().eq.0) then
+        write(luout,10000)' read  minimum wall time   :',timew_min
+        write(luout,10000)' read  maximum wall time   :',timew_max
+        write(luout,10000)' read  average wall time   :',timew_ave
+        write(luout,10000)' read  minimum wall rate   :',ratew_min
+        write(luout,10000)' read  maximum wall rate   :',ratew_max
+        write(luout,10000)' read  average wall rate   :',ratew_ave
+      endif
+c
+10000 format(1x,a,f10.5)
+      end
+      subroutine raktest_diskspeed_write(buf,size,
+     &    count,iters,filename,save_file)
+      implicit none
+#include "stdio.fh"
+#include "eaf.fh"
+#include "util.fh"
+#include "global.fh"
+#include "pstat.fh"
+      integer size
+      integer count
+      integer iters
+      double precision buf(size)
+      character*(*)filename
+      logical save_file
+c
+      integer i, it
+      integer fd
+      integer eaf_rv
+      double precision offset, bytes_tot
+      double precision timec, timew, ratec, ratew
+      integer inode
+      double precision timew_min, timew_max, timew_ave
+      double precision ratew_min, ratew_max, ratew_ave
+c
+      call ga_sync()
+      eaf_rv = eaf_open(filename,EAF_RW,fd)
+      if (eaf_rv.ne.0) then
+        call eaf_errmsg(eaf_rv)
+        stop 'eaf open error'
+      endif
+c
+      timec = util_cpusec()
+      timew = util_wallsec()
+      do it = 1,iters
+        offset = 0.0d00
+        do i = 1,count
+          eaf_rv = eaf_write(fd,offset,buf,8*size)
+          if (eaf_rv.ne.0) then
+            call eaf_errmsg(eaf_rv)
+            stop ' eaf write error'
+          endif
+          offset = offset + dble(8*size)
+        enddo
+      enddo
+      timec = util_cpusec() - timec
+      timew = util_wallsec() - timew
+      do inode = 0,((ga_nnodes())-1)
+        call ga_sync()
+        if (inode.eq.ga_nodeid()) then
+          call eaf_print_stats(fd)
+          call util_flush(luout)
+        endif
+        call ga_sync()
+      enddo
+      eaf_rv = eaf_close(fd)
+      if (eaf_rv.ne.0) then
+        call eaf_errmsg(eaf_rv)
+        stop 'eaf close error'
+      endif
+c
+      if (.not.save_file) call util_file_unlink(filename)
+c      
+      bytes_tot = dble(count)*dble(8)*dble(size)
+      bytes_tot = bytes_tot*dble(iters)
+      bytes_tot = bytes_tot*1.0d-6
+      ratec = bytes_tot/timec
+      ratew = bytes_tot/timew
+      do inode = 0,((ga_nnodes())-1)
+        call ga_sync()
+        call ga_sync()
+        if (inode.eq.ga_nodeid()) then
+          write(luout,*)    ' write statistics for node :',inode
+          write(luout,10000)' write total Mbytes        :',bytes_tot
+          write(luout,10000)' write cpu  time (s)       :',timec
+          write(luout,10000)' write cpu  rate (mb/s)    :',ratec
+          write(luout,10000)' write wall time (s)       :',timew
+          write(luout,10000)' write wall rate (mb/s)    :',ratew
+          write(luout,*)' '
+          call util_flush(luout)
+        endif
+        call ga_sync()
+        call ga_sync()
+      enddo
+      timew_min = timew
+      call ga_dgop(5651,timew_min,1,'min')
+      timew_max = timew
+      call ga_dgop(5652,timew_max,1,'max')
+      timew_ave = timew
+      call ga_dgop(5653,timew_ave,1,'+')
+      timew_ave = timew_ave/dble(ga_nnodes())
+      ratew_min = ratew
+      call ga_dgop(5654,ratew_min,1,'min')
+      ratew_max = ratew
+      call ga_dgop(5655,ratew_max,1,'max')
+      ratew_ave = ratew
+      call ga_dgop(5656,ratew_ave,1,'+')
+      ratew_ave = ratew_ave/dble(ga_nnodes())
+      if (ga_nodeid().eq.0) then
+        write(luout,10000)' write minimum wall time   :',timew_min
+        write(luout,10000)' write maximum wall time   :',timew_max
+        write(luout,10000)' write average wall time   :',timew_ave
+        write(luout,10000)' write minimum wall rate   :',ratew_min
+        write(luout,10000)' write maximum wall rate   :',ratew_max
+        write(luout,10000)' write average wall rate   :',ratew_ave
+      endif
+c
+10000 format(1x,a,f10.5)
+      end
+      subroutine raktest_diskspeed_fill(size,buf)
+      implicit none
+      integer size
+      double precision buf(size)
+c
+      integer i
+c
+      do i = 1,size
+        buf(size) = sqrt(dble(i))
+      enddo
+      end
