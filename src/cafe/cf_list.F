@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.27 2003-09-23 18:36:09 d3j191 Exp $
+c $Id: cf_list.F,v 1.28 2003-09-23 19:04:25 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -585,17 +585,7 @@ c
       if(lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
 ctmp
 c
-      if(me.eq.0) then
-      if(util_print('qhop',print_high)) write(lfnhop,'(a,i5)')
-     + ' Number of possible backhops to skip is ',nhops
-      endif
       do 226 i=1,nhops
-      if(util_print('qhop',print_high)) then
-      if(me.eq.0) then
-      write(lfnhop,'(a,5i5)') ' Skipping ',isgm(idon),isgm(iacc),
-     + lsthop(1,i),lsthop(2,i),i
-      endif
-      endif
       if(lsthop(1,i).eq.isgm(iacc).and.lsthop(2,i).eq.isgm(idon)) then
       goto 227
       endif

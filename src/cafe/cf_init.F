@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi)
-c $Id: cf_init.F,v 1.97 2003-09-23 18:36:09 d3j191 Exp $
+c $Id: cf_init.F,v 1.98 2003-09-23 19:04:25 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1655,7 +1655,7 @@ c
       lsthop(2,nhops)=lsthop(2,i)
       timhop(nhops)=timhop(i)
       if(me.eq.0) then
-      if(util_print('qhop',print_high)) then
+      if(util_print('qhop',print_debug)) then
       write(lfnhop,'(a,3i5,f12.6)')
      + ' Possible backhop ',nhops,lsthop(1,i),lsthop(2,i),
      + stime-timhop(i)

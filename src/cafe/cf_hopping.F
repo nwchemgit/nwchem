@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.11 2003-09-23 14:17:12 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.12 2003-09-23 19:04:25 d3j191 Exp $
 c
       implicit none
 c
@@ -165,7 +165,7 @@ c
       real*8 timhop(*)
 c
       integer i,j,k,ndxrel
-      real*8 dprob,drand
+      real*8 dprob,drand,e12
 c
       call ga_dgop(mcf_79,uda,4*nldat,'+')
 c
@@ -177,7 +177,7 @@ c
      + '     pre-hop energies        post-hop energies  ',/,
      + ' numb atom  res prot atom  res prot',
      + '    donor      acceptor     donor      acceptor ',
-     + '    distance     angle   probability',/)
+     + '     e12        distance     angle   probability',/)
       endif
       do 1 i=1,nldat
 c      write(*,'(i5,5f12.6)') i,(rda(j,i),j=1,5)
@@ -187,10 +187,11 @@ c      write(*,'(i5,5f12.6)') i,(rda(j,i),j=1,5)
 c      pda(i)=0.0d0
 c
       if(util_print('qhop',print_high)) then
+      e12=uda(3,i)+uda(4,i)-uda(1,i)-uda(2,i)
       write(lfnhop,111) i,lda(1,i),lda(3,i),lseq(lda(3,i)),
      + lda(6,i),lda(8,i),lseq(lda(8,i)),
-     + (uda(j,i),j=1,4),rda(4,i),rda(5,i),pda(i)
-  111 format(7i5,6f12.6,f12.9)
+     + (uda(j,i),j=1,4),e12,rda(4,i),rda(5,i),pda(i)
+  111 format(7i5,7f12.6,f12.9)
       endif
 c
     1 continue
