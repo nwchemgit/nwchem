@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.109 2003-09-02 18:54:14 d3j191 Exp $
+c $Id: pre_input.F,v 1.110 2003-09-02 22:53:06 d3j191 Exp $
 c
       implicit none
 c
@@ -1248,6 +1248,7 @@ c
       elseif(inp_compare(.false.,'segment',item)) then
       if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
       if(.not.inp_i(jrot)) jrot=irot
+      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
@@ -1257,6 +1258,7 @@ c
       elseif(inp_compare(.false.,'atom',item)) then
       if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
       if(.not.inp_i(jrot)) jrot=irot
+      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
       if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)

@@ -1,6 +1,6 @@
       logical function pre_rot(irot,jrot,arot,xrot,is,xs,msa,nsa)
 c
-c $Id: pre_rot.F,v 1.4 2003-08-07 21:47:55 d3j191 Exp $
+c $Id: pre_rot.F,v 1.5 2003-09-02 22:53:06 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,9 @@ c      xr(3)=xrot(3)+cog(3)
 c
 c     rotate
 c
+      cog(1)=0.0d0
+      cog(2)=0.0d0
+      cog(3)=0.0d0
       do 3 i=1,nsa
       if(is(i).ge.irot.and.is(i).le.jrot) then
       x(1)=xs(1,i)
