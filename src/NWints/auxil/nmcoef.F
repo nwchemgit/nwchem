@@ -1,9 +1,9 @@
       Subroutine nmcoef(z,cc,l,np,norm)
-c $Id: nmcoef.F,v 1.2 2002-03-26 18:39:49 edo Exp $
+c $Id: nmcoef.F,v 1.3 2004-09-20 23:21:55 edo Exp $
 
       Implicit none
 c passed
-      Integer l,np,norm
+      Integer l,np,norm,l12
       Double precision z(np),cc(np)
 c local
       Integer l_lim,n,n1,n2
@@ -12,7 +12,6 @@ c local
       Double precision S,sum  !  overlap
       Double precision PI     !  pi
       double precision pi32
-!      Parameter (PI=3.1415926535898D0)
 #include "basdeclsP.fh"
 c
 c Generally, the normalization (norm=1) of the Gaussian primitives and 
@@ -52,10 +51,16 @@ c square is unity as detailed above.
         do n = l_lim,2,-2
           f = f*dble(n)
         end do
+        if(l.eq.0) then
+          do n = 1,np
+            cc(n) = cc(n)*((2.D0*z(n)/PI)**0.75D0)/sqrt(f)
+          end do
+        else
         do n = 1,np
           cc(n) = cc(n)*((2.D0*z(n)/PI)**0.75D0)*(4.D0*z(n))**(0.5D0*l)
           cc(n) = cc(n) / sqrt(f)
         end do
+        endif
 
 c Normalize the contractions.
 
@@ -63,9 +68,7 @@ c Normalize the contractions.
           sum = 0.D0
           do 20 n1 = 1,np
             do 21 n2 = 1,np
-               S =pi32/(z(n1)+z(n2))**(1.5d0+l)/2d0**dble(l)
-!              S = ( (PI/(z(n1) + z(n2)))**1.5D0 )/
-!     &            ( (2.D0*(z(n1) + z(n2)))**l )
+               S =pi32/(z(n1)+z(n2))**(1.5d0+l)/2d0**l
               sum = sum + cc(n1)*cc(n2)*S
    21       continue
    20     continue
