@@ -633,14 +633,14 @@ database is persistent, multiple tasks within one job behave {\em
   exactly} the same as multiple restart jobs with the same sequence of
 input.
 
-There are three main forms of the the \verb+TASK+ directive.  One form
+There are four main forms of the the \verb+TASK+ directive.  One form
 is used to tell the code when to execute most of the electronic
 structure and molecular dynamics calculations.  The second form is
 used to specify tasks such as printing the contents of the database,
 or simple property evaluations.  The third form is used to execute
-UNIX commands on machines having a Bourne shell.  Additional forms
-will be added in the near future to accommodate mixed quantum-mechanics
-and molecular-mechanics (QM/MM) calculations.
+UNIX commands on machines having a Bourne shell.  The fourth form is
+specific to combined quantum-mechanics and molecular-mechanics (QM/MM)
+calculations. 
 
 By default, the program terminates when a task does not complete
 successfully.  The keyword \verb+ignore+ can be used to prevent this,
@@ -650,10 +650,11 @@ results in only a warning message being printed, and code execution
 continues with the next task.
 
 The input options, keywords, and defaults for each of
-these three forms for the \verb+TASK+ directive are discussed in the
+these four forms for the \verb+TASK+ directive are discussed in the
 following sections.
 
 \subsection{{\tt TASK} Directive for Electronic Structure Calculations}
+\label{sec:first_task}
 
 This is the most commonly used version of the \verb+TASK+ directive, and
 it has the following form;
@@ -663,7 +664,7 @@ it has the following form;
 \end{verbatim}
 
 The string \verb+<theory>+ specifies the level of theory to be used in the
-calculations for this task.  NWChem currently supports eleven different
+calculations for this task.  NWChem currently supports ten different
 options.  These are listed below, with the corresponding entry for 
 the variable {\tt <theory>};
 \begin{itemize}
@@ -814,6 +815,56 @@ Note that NWChem's ability to quote special input characters is {\em
 executing all but the simplest commands, it is usually much easier to
 put the shell script in a file and execute the file from within
 NWChem.
+
+\subsection{{\tt TASK} Directive for QM/MM simulations}
+
+This is very similar to the most commonly used version of the
+\verb+TASK+ directive described in Section \ref{sec:first_task}, and
+it has the following form;
+
+\begin{verbatim}
+  TASK QMMM <string theory> [<string operation default energy>] [ignore]
+\end{verbatim}
+
+The string \verb+<theory>+ specifies the QM theory to be used in the
+QMMM simulation\footnote{If theory is \verb+md+ this is not a QM/MM
+  simulation and will result in an appropriate error}.  The level of
+theory may be any QM method that can compute gradients but those
+algorithms in NWChem that do not support analytic gradients should be
+avoided (c.f., Section \ref{sec:functionality}).  
+
+The string \verb+<operation>+ is used to specify the calculation that will
+be performed in the QM/MM task.  The default operation is a single point energy
+evaluation.  The following list gives the selection of operations currently
+available in the NWChem QM/MM module;
+\begin{itemize}
+\item \verb+energy+ --- single point energy evaluation
+\item \verb+optimize+ --- minimize the energy by variation of the molecular
+   structure.  
+\item \verb+dynamics+ --- molecular dynamics using NWArgos
+\end{itemize}
+
+Here are some examples of the \verb+TASK+ directive for QM/MM
+simulations.  To perform a single point energy of a QM/MM system using
+any QM level of theory, the directive is very simple. As with the
+general task directive, the QM/MM energy evaluation is the
+default. For a DFT energy calculation the task directive input is,
+\begin{verbatim}
+  task qmmm dft
+\end{verbatim}
+or completely as
+\begin{verbatim}
+  task qmmm dft energy
+\end{verbatim}
+
+To do a molecular dynamics simulation of a QM/MM system using the SCF
+level of theory the task directive input would be
+\begin{verbatim}
+  task qmmm scf dynamics
+\end{verbatim}
+
+The optional keyword \verb+ignore+ can be used to allow execution to
+continue even if the task fails, as discussed above.
 
 \section{{\tt CHARGE} --- Total system charge}
 \label{sec:charge}
