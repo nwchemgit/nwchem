@@ -1,7 +1,7 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,g_a,vec,vec2)
 
-C$Id: sca_lab_mat.F,v 1.9 1996-10-18 21:50:15 d3h449 Exp $
+C$Id: sca_lab_mat.F,v 1.10 2000-08-02 00:23:36 edo Exp $
       implicit none
       
       integer basis_hand
@@ -27,20 +27,20 @@ c******************************************************************************
         call errquit('Exiting in sca_lab_mat',2)
       endif 
 
-       call ga_acc(g_a,
+       call ga_put(g_a,
      *     ifirstb,ilastb,
      *     ifirsta,ilasta,
-     *     vec,nshbfb,1.d0)
+     *     vec,nshbfb)
       if(isha.ne.ishb) then
          do jj=1,nshbfb
             do ii=1,nshbfa
                vec2(ii,jj)=vec(jj,ii)
             enddo
          enddo
-         call ga_acc(g_a,
+         call ga_put(g_a,
      *        ifirsta,ilasta,
      *        ifirstb,ilastb,
-     *        vec2,nshbfa,1.d0)
+     *        vec2,nshbfa)
 
       endif
 
