@@ -855,8 +855,8 @@ c
          call hv_writev(88,nn,tmp)
        enddo
        close(88)
-       call ga_destroy(g_coul)
-       call ga_destroy(g_exch)
+       if (.not. ga_destroy(g_coul)) call errquit('mcscf: ga?',0)
+       if (.not. ga_destroy(g_exch)) call errquit('mcscf: ga?',0)
        return
        end
 
