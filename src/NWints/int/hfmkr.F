@@ -1,5 +1,5 @@
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
-c $Id: hfmkr.F,v 1.3 1994-09-25 08:04:37 d3e129 Exp $
+c $Id: hfmkr.F,v 1.4 1994-12-21 08:15:38 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -31,34 +31,34 @@ c******************************************************************************
       if(o_int_time.and.(int_time_level.ge.3))
      &   call pstat_on(intt_arr(intt_hfmkr))
 #endif
-      if (Lp.le.1) then
-        call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.2) then
-        call hfmkr_2(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.3) then
-        call hfmkr_3(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.4) then
-        call hfmkr_4(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.5) then
-        call hfmkr_5(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.6) then
-        call hfmkr_6(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.7) then
-        call hfmkr_7(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif(Lp.eq.8) then
-        call hfmkr_8(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      elseif (Lp.eq.9) then
-        call hfmkr_9(R,PQ,IJK,NAB,Lp,Lp3)
-        goto 00099
-      endif
+*rak:      if (Lp.le.1) then
+*rak:        call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.2) then
+*rak:        call hfmkr_2(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.3) then
+*rak:        call hfmkr_3(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.4) then
+*rak:        call hfmkr_4(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.5) then
+*rak:        call hfmkr_5(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.6) then
+*rak:        call hfmkr_6(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.7) then
+*rak:        call hfmkr_7(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif(Lp.eq.8) then
+*rak:        call hfmkr_8(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      elseif (Lp.eq.9) then
+*rak:        call hfmkr_9(R,PQ,IJK,NAB,Lp,Lp3)
+*rak:        goto 00099
+*rak:      endif
 
       n0 = 1
 
