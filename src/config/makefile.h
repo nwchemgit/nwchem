@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.405 2003-02-20 17:34:10 edo Exp $
+# $Id: makefile.h,v 1.406 2003-02-20 18:12:38 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1237,7 +1237,7 @@ ifeq ($(LINUXCPU),x86)
       FOPTIONS  += -tp p6 -Mvect=prefetch
     endif
     ifeq ($(_CPU),i786)
-      FOPTIONS  += -tp piv -Mvect=sse -Mcache_align  -Mvect=prefetch
+      FOPTIONS  += -tp piv  -Mcache_align  -Mvect=prefetch
     endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
     COPTIONS   = -Wall -m486 -malign-double
@@ -1291,6 +1291,7 @@ endif
       LINK.f = $(FC) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
+   LDOPTIONS=-g
    EXTRA_LIBS += -lm
   else
     ifeq ($(FC),ifc)
