@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.84 1998-02-27 06:31:02 d3e129 Exp $
+# $Id: GNUmakefile,v 1.85 1998-03-17 00:14:46 bernhold Exp $
 
 include ../config/makefile.h
 
@@ -94,7 +94,7 @@ endif
               util_rtdb_state.o ecce_print.o \
               util_random.o util_job.o util_getenv.o\
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
-		ga_normf.o \
+		ga_normf.o corr_mk_ref.o \
               $(EXTRA_OBJ)
 
 ifeq ($(TARGET),SGITFP)
@@ -107,7 +107,7 @@ endif
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH

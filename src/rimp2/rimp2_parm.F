@@ -1,9 +1,8 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
-     $   MxEBatch, Approx, MinEVal, TopSpin, SpinMap, MaxSpin)
-C$Id: rimp2_parm.F,v 1.2 1997-02-17 22:17:31 gg502 Exp $
+     $   MxEBatch, Approx, MinEVal)
+C$Id: rimp2_parm.F,v 1.3 1998-03-17 00:14:36 bernhold Exp $
       Implicit NONE
-      Integer RTDB, MxTBatch, MxEBatch(2), TopSpin, MaxSpin,
-     $   SpinMap(MaxSpin)
+      Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
       Character*(*) Approx
       Character*(*) Mem_Opt
@@ -48,30 +47,6 @@ C
      $   1, Approx) ) Approx = 'V'
       If ( .NOT. RTDB_Get( RTDB, 'mp2:fit min eval',
      $   MT_Dbl, 1, MinEVal) ) MinEVal = 1.0d-8
-C
-C     *******************
-C     * Reference games *
-C     *******************
-C     This allows the user to mess around with the current calculation
-C     relative to the reference wavefunction provided.
-C
-      If ( RTDB_Get_Info( RTDB, 'mp2:reference spin mapping',
-     $   Type, TopSpin, Date) ) then 
-C
-         If ( TopSpin .gt. MaxSpin) Call ErrQuit(
-     $      'RIMP2_Get_Param: Too many elements in spin mapping',
-     $      TopSpin)
-C
-         If ( .NOT. RTDB_Get( RTDB, 'mp2:reference spin mapping',
-     $      MT_Int, TopSpin, SpinMap) ) Call ErrQuit(
-     $      'RIMP2_Get_Param: Unexpected trouble with spin mapping', 0)
-C
-      Else                         ! NO RTDB ENTRY -- defaults
-         TopSpin = -1              ! Determined by eigenvectors
-         Do I = 1, MaxSpin
-            SpinMap(i) = i         ! 1-1 mapping
-         EndDo
-      EndIf
 C
       Return
       End
