@@ -1,12 +1,11 @@
       double precision function dft_dencvg(g_dens,g_denso,nbf)
-C$Id: dft_dencvg.F,v 1.4 1996-07-03 21:47:26 d3h449 Exp $
+C$Id: dft_dencvg.F,v 1.5 1996-10-18 21:50:04 d3h449 Exp $
       implicit none
-
+c
       integer g_dens ! GA handle for Densit Matrix [input/output]
       integer g_denso ! GA handle for old DM [input]
       integer nbf
-
-      logical LResult
+c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"

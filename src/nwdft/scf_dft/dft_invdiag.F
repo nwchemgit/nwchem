@@ -1,22 +1,22 @@
       Subroutine dft_invdiag(geom,basis,g_A,g_cdinv,n)
 
-C$Id: dft_invdiag.F,v 1.4 1996-07-03 21:47:31 d3h449 Exp $
+C$Id: dft_invdiag.F,v 1.5 1996-10-18 21:50:06 d3h449 Exp $
       implicit none
-      
+c      
       integer geom,basis
       integer g_a   ! [input]
       integer g_cdinv ! [output]
       integer n
+c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-C
-      logical LResult
+c
       integer me,nproc,i,j,g_tmp2
       integer lev,iev,ltmp,itmp
       double precision toll,THRESHOLD
       parameter (toll=1.d-6,THRESHOLD=1.D-12)
-C
+c
       me=ga_nodeid()
       nproc=ga_nnodes()
       call ga_sync

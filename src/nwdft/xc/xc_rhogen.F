@@ -7,7 +7,7 @@
      &     rho,delrho,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.7 1996-05-04 21:08:39 og845 Exp $
+c$Id: xc_rhogen.F,v 1.8 1996-10-18 21:50:20 d3h449 Exp $
 c
       implicit none
 #include "bas.fh"
@@ -41,13 +41,13 @@ C
 C     local declarations
 C
       double precision rho_tol0,rho_tol1
-      integer i0,ii,mu,nu,mu1,n
+      integer i0,ii,mu,nu,n
       integer iat,inizia,ifirst,ilast,nbfia,nnia,idim
       integer ifinia,icount
       integer jat,inizja,jfirst,jlast,nbfja,nnja,jdim
       double precision FUNC_MAX,FUNC_MAXI,FUNC_MAX2,P_MAX
       double precision aaa
-      double precision ta
+c      double precision ta
       double precision dabsmax
       external dabsmax
 

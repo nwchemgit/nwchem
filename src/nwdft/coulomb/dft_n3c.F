@@ -1,32 +1,25 @@
       integer function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.1 1996-05-01 23:37:05 og845 Exp $
+C$Id: dft_n3c.F,v 1.2 1996-10-18 21:50:00 d3h449 Exp $
       implicit none
-            
 c****
 c**** nwchem handles
 c****
-      integer  geom, AO_bas_han, CD_bas_han
+      integer  AO_bas_han, CD_bas_han
       integer itol2e ! bi-el int tolerance [input]
 c**** 
-
-      Logical LResult
-      
 #include "bas.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
-
 #include "schwarz.fh"
-
 c     
 c     compute no. of 3-ctr integrals non null 
 c     according to Schwarz screening
 c
       integer nshells_ao
-      integer me,nproc,ishp,ishbf,lshbf,lmiss,ischw1,
-     ,     i,
+      integer me,nproc,ischw1,
      ,     ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,Nint,nsh_blocks,
+     ,     nshbfd,
      ,     nbf_cd,nbf_ao,n3,MXshbf
       double precision THRESHOLD,fudge,
      ,     ERI_est
@@ -108,7 +101,7 @@ c
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.1 1996-05-01 23:37:05 og845 Exp $
+C$Id: dft_n3c.F,v 1.2 1996-10-18 21:50:00 d3h449 Exp $
       implicit none
             
 c****
@@ -117,17 +110,13 @@ c****
       integer AO_bas_han, CD_bas_han
       integer itol2e ! bi-el int tolerance [input]
 c**** 
-
-      Logical LResult
-      
 #include "bas.fh"
 #include "rtdb.fh"
-
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
-
+c
       integer nshells_ao
       integer nproc
 

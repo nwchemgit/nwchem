@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole,coord)
-C$Id: dft_genspm.F,v 1.6 1996-07-03 20:58:58 d3h449 Exp $
+C$Id: dft_genspm.F,v 1.7 1996-10-18 21:49:59 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -26,10 +26,9 @@ C$Id: dft_genspm.F,v 1.6 1996-07-03 20:58:58 d3h449 Exp $
 
       integer ifirst,ilast,iat,idim,ish,ifirst_sh,ilast_sh,nbf_i,jfunc
       integer jfirst,jlast,jat,jdim,jsh,jfirst_sh,jlast_sh,nbf_j
-      logical status
       integer nshells,max_scratch,maxg
       integer num_int,lval,ij_int
-      integer istart,ipmat,Pmat_point,Pmat_point0,istartd
+      integer istart,Pmat_point,Pmat_point0,istartd
       integer n1,n2,icount,nproc
       double precision centerl(3)
 

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.27 1996-10-07 20:03:54 d3e129 Exp $
+C$Id: nwdft.F,v 1.28 1996-10-18 21:49:47 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -32,7 +32,7 @@ c
 #ifdef DFT_TIMER
       character*(nw_max_path_len) timings
 #endif
-      integer iproc,itype,ncent,ickcon,lckcon
+      integer iproc,itype
       logical LResult,oprint
 c>>>  
 c     

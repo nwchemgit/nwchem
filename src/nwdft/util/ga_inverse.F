@@ -1,5 +1,5 @@
       subroutine ga_inverse(g_a, g_s)
-C$Id: ga_inverse.F,v 1.5 1996-07-09 00:04:26 d3h449 Exp $
+C$Id: ga_inverse.F,v 1.6 1996-10-18 21:50:14 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -23,7 +23,6 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c
       integer iproc, pan, istart, iend, k, n, npan, proc, myproc
       integer mypanel, myelem, mycol, elems, ipan, ik, info
-      logical status
 c
       integer hma, adrma        !mapa
 c

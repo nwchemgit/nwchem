@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.16 1996-10-15 01:21:40 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.17 1996-10-18 21:50:03 d3h449 Exp $
       implicit none
 c      
       integer rtdb                               ! [input] database handle
@@ -18,11 +18,11 @@ c
 c
       integer bases(3)
       integer iproc,ichg,itype,
-     &     icenter,jcenter,iEx,iEc,i3
+     &     icenter,jcenter,i3
       integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom
-      Logical LResult, lnewtype, oskel
+      Logical lnewtype
       Logical int_normalize
       Logical int_norm_2c
 c     

@@ -2,7 +2,7 @@
      &     MXhist,nbf,geom,AO_bas_han,
      &     g_fock,g_dens,g_tmp,g_svecs,isvals)
 
-C$Id: diis_driver.F,v 1.6 1996-10-01 21:31:06 d3h449 Exp $
+C$Id: diis_driver.F,v 1.7 1996-10-18 21:50:08 d3h449 Exp $
       implicit none
       
       integer ispin
@@ -30,7 +30,6 @@ C$Id: diis_driver.F,v 1.6 1996-10-01 21:31:06 d3h449 Exp $
 #include "timer.fh"
 #endif
 c
-      logical LResult
       integer g_fsm12,g_s12p,me,nproc,iw,lenp
       integer lfwght,ifwght,lrow,irow,lcol,icol
       double precision one,zero

@@ -1,5 +1,5 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.8 1996-07-09 00:04:25 d3h449 Exp $
+C$Id: ga_chol_seq.F,v 1.9 1996-10-18 21:50:13 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,8 +26,6 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c     
       integer n,  proc, myproc
       integer info
-      logical status
-c     
 c     
       logical oactive ! true iff this process participates
       integer dimA1, dimA2, typeA

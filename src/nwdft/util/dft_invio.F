@@ -1,12 +1,11 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.6 1996-08-19 15:20:05 d3g681 Exp $
+C     $Id: dft_invio.F,v 1.7 1996-10-18 21:50:12 d3h449 Exp $
       implicit none
       
       character*(*) name        ! [input] name of file
       character*(*) ioop        ! [input] operation READ/WRITE/KILL
       integer lmiss             ! [output] 0=success, 1=failure
-      logical LResult, doesit, isit
       integer iunit,j,nbf,iga_inv,istart,i
       integer iinv,linv
 #include "mafdecls.fh"

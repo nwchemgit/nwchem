@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,cfac,lcfac,nlcfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.16 1996-10-18 00:53:29 d3h449 Exp $
+C     $Id: xc_perdew91.F,v 1.17 1996-10-18 21:50:19 d3h449 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -39,7 +39,7 @@ c
 
       integer ipol,nq
 
-      logical grad_corr
+c      logical grad_corr
 c
 c     logical grad_corr true if only GCA part needed
 c
@@ -82,7 +82,7 @@ C
       double precision egas,degasda,degasdb
       double precision g,g2,g3
       double precision gzeta,gzprime,gzprime_1,gzprime_m1,x
-      double precision dgzetadag,dgzetadbg,gggr,ggg
+      double precision dgzetadag,dgzetadbg,gggr
       double precision akf,aks,dksdrho,dkfdrho
       double precision t,t2,t3,t4,dtdrhoa,dtdrhob
       double precision A,A1p2At2,aden1,alognd,dAdrhoa,dAdrhob

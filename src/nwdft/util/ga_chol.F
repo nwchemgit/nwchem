@@ -1,5 +1,5 @@
       subroutine ga_chol(g_a, g_s,info)
-C$Id: ga_chol.F,v 1.7 1996-07-09 00:04:25 d3h449 Exp $
+C$Id: ga_chol.F,v 1.8 1996-10-18 21:50:12 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,7 +26,6 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c
       integer iproc, pan, istart, iend, k, n, npan, proc, myproc
       integer mypanel, myelem, mycol, elems, ipan, ik, info
-      logical status
 c
       integer hma, adrma        !mapa
 c

@@ -1,17 +1,15 @@
       Subroutine dft_get2eri(CD_bas_han,g_2ceri,geom)
 
-C$Id: dft_get2eri.F,v 1.4 1996-07-03 20:58:59 d3h449 Exp $
+C$Id: dft_get2eri.F,v 1.5 1996-10-18 21:49:59 d3h449 Exp $
       implicit none
       integer CD_bas_han, geom
       integer g_2ceri
 c**** 
 #include "bas.fh"
-
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
-      
-      Logical LResult
+c      
       integer nshells_cd,MXnshbf_cd,me,nproc,icount,MXint,
      ,     maxg,mscratch_2e2c,n1,n2,Nint,
      ,     ishp,ifirstp,ilastp,nshp,

@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.39 1996-10-18 19:07:02 d3h449 Exp $
+C$Id: dft_scf.F,v 1.40 1996-10-18 21:50:07 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -43,7 +43,7 @@ c
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
       integer dft_n3cdbl,dft_n3cint
       external dft_n3cdbl,dft_n3cint
-      Integer l_eval,Type
+      Integer l_eval
       integer k_eval(2)
       Character*(nw_max_path_len) movecs_out,movecs_in
       Character*255 name, trans 
@@ -52,25 +52,21 @@ c
       integer finest ! CMM
       integer natoms,nTotEl
       integer l_occ,k_occ
-      integer i,ii,j, iw
-      integer n_ashift,n_bshift
+      integer i, j, iw
       integer me,nproc
       integer g_tmp,g_fockt,g_s,g_wght,g_xyz
       integer nheap,nsets,nstack
       integer ispin,nxang,idone
-      integer ielem
       integer nexc
-      integer l_afshift,n_afshift,i_afshift
-      integer l_bfshift,n_bfshift,i_bfshift
       integer iswitc
       integer itol_max,iaoacc_max
       integer idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
-      double precision ecoul,rb,ecore,anps,aaz
+      double precision ecoul,ecore,aaz
       double precision pp,delta
       double precision anucl_charg,anel
       double precision anoca,anocb,onempp
-      double precision etnew,tol2e,fock_el
+      double precision etnew,tol2e
 c convergence declarations
       double precision rlshift_input,rlshift_def
       integer ndamp_input,ndamp_def

@@ -1,6 +1,6 @@
       Subroutine dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
      &      nbf_cd, itol2e,n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C$Id: dft_3cincor.F,v 1.2 1996-07-03 20:58:56 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.3 1996-10-18 21:49:57 d3h449 Exp $
       implicit none
             
 c****
@@ -15,30 +15,24 @@ c****
       integer n3c_dbl ! max no. ints [in]
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c**** 
-
-      Logical LResult
-      
 #include "bas.fh"
 #include "rtdb.fh"
-
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "schwarz.fh"
-
 c     
 c     compute the 3-centres integrals and store the in-core
 c
       integer MXshbf_ao,nshells_ao,nshells_cd,MXshbf_cd
-      integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,
-     ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
+      integer me,nproc,ishp,
+     ,     icount,Nao2,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,nfunz,ifirstp,ilastp,nint,niter,nsh_blocks,
-     ,     ntasks,nshbf_cd,ndone,nb_done
+     ,     nshbfd,ifirstp,ilastp,nint,
+     ,     nshbf_cd,ndone
       integer lscr,iscr
-      double precision THRESHOLD,shmax,
-     ,     Vcoul_est,ERI_est,schw1,schw2
+      double precision THRESHOLD, ERI_est
       integer nxtask
       double precision fudge
       parameter (fudge=100.d0)

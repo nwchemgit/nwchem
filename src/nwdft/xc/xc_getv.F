@@ -3,13 +3,13 @@
      &     iVxc_opt,g_xcinv,
      &     g_dens,g_vxc,IOLGC,
      &     g_wght,g_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.7 1996-10-15 01:21:44 d3h449 Exp $
+C$Id: xc_getv.F,v 1.8 1996-10-18 21:50:18 d3h449 Exp $
       implicit none
       
       integer nExc
       integer iVxc_opt
       integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
-      Logical LResult,IOLGC,wght_GA
+      Logical IOLGC,wght_GA
       integer rtdb
 c**** 
 c

@@ -1,13 +1,13 @@
       Subroutine xc_becke88(fac,lfac,nlfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ex,qwght)
 
-C$Id: xc_becke88.F,v 1.5 1996-10-18 00:53:25 d3h449 Exp $
+C$Id: xc_becke88.F,v 1.6 1996-10-18 21:50:17 d3h449 Exp $
       implicit none
       
       double precision fac,Ex
       integer nq,ipol
-
-      logical grad_corr, lfac, nlfac
+c      logical grad_corr
+      logical lfac, nlfac
 c
 c     logical grad_corr true if only GCA part needed
 c

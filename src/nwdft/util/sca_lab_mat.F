@@ -1,7 +1,7 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,g_a,vec,vec2)
 
-C$Id: sca_lab_mat.F,v 1.8 1995-12-20 03:44:32 og845 Exp $
+C$Id: sca_lab_mat.F,v 1.9 1996-10-18 21:50:15 d3h449 Exp $
       implicit none
       
       integer basis_hand
@@ -13,7 +13,6 @@ c****
 
 #include "bas.fh"
 c 
-      logical status
       integer ifirsta, ilasta, ifirstb, ilastb,jj,ii
 c     
 c     Given a handle to a Gaussian basis set and two shell indices, return the 

@@ -26,7 +26,7 @@ c-->  Charge Density Expansion Coefficients
       
       double precision CD_coef(nbf_cd)
 c**** 
-      Logical LResult,IOLGC, doesit, isit
+      Logical IOLGC
       
 #include "bas.fh"
 #include "mafdecls.fh"

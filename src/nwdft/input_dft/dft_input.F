@@ -1,5 +1,5 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.6 1996-10-18 00:53:09 d3h449 Exp $
+c     $Id: dft_input.F,v 1.7 1996-10-18 21:50:02 d3h449 Exp $
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -21,7 +21,7 @@ c
      &     nopt_system
       parameter (nopt=57,  nopt_quad=2, nopt_munit=6,
      &     nopt_grid=5, nopt_system=4)
-      character*255 test, test2
+      character*255 test
       character*10 gridtype
 
 c     
