@@ -14,7 +14,7 @@ c     Determine the appropriate task chunk size for the gradients.
 c     [The fock build now use blocking]
 c     For load imbalance to be about 1% we need about 100 tasks per
 c     processor.  Many more than this is unecessary and may bottleneck
-c     the shared counter.
+c     the shared counter.  Cut back to 20 tasks for experiment.
 c
 c     task_size controls parallelization of the nested ijk.  
 c     The available parallelism is thus of order natoms**3.
@@ -44,7 +44,7 @@ c
       if (.not. oskel) npair_sym = npair
       ntask = npair*npair_sym / (2*ga_nnodes())
 c
-      task_size = max(ntask/100,1)
+      if (ga_nnodes() .gt. 1) task_size = max(ntask/20,1)
       if (ga_nodeid().eq.0 .and.
      $     util_print('task_size',print_high)) then
          write(6,*) ' ntask, task_size ', ntask, task_size
@@ -93,6 +93,7 @@ c     a block is not larger than 128 so that we do not use
 c     too much memory and so that a given block does not 
 c     exceed 256.
 c
+      task_bf = min(task_bf,128)
       if (task_bf.eq.-1 .or. task_bf.gt.nbf) then
          call fock_2e_est_task(geom, oskel, tol2e, task_size)
          task_bf = max(1,nint(nbf*sqrt(sqrt(dble(task_size)))/nat))

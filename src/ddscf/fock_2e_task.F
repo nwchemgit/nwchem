@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.11 1996-01-04 21:28:59 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.12 1996-01-06 20:26:33 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -190,8 +190,8 @@ c
      $     fjk(nfock,*), flj(nfock,*), flk(nfock,*)
       double precision tmp(*)
       double precision tol2e, den_tol
-      double precision smax
-      logical oij, okl, oikjl
+      double precision smax, sij
+      logical oij, okl, oikjl, otest
       integer iat, jat, kat, lat, nsh
 c
       integer max_sh_t, max_sh
@@ -224,7 +224,10 @@ c
 c
       logical fock_shell_logic, odoit
       external fock_shell_logic
-      double precision qq4
+      double precision qq4, q2
+c
+      logical int2e_file_write
+      external int2e_file_write
 c
 c     Form q4 factors over atoms and mapping from shells to atoms
 c     ... very crude now for debug purposes
@@ -236,9 +239,9 @@ c
                   odoit = sym_atom_quartet(geom, iat, jat, kat, lat,
      $                 q4_at(iat-iatlo+1,jat-jatlo+1,
      $                 kat-katlo+1,lat-latlo+1))
-                  write(6,*) iat,jat,kat,lat,
-     $                 q4_at(iat-iatlo+1,jat-jatlo+1,
-     $                 kat-katlo+1,lat-latlo+1)
+**                  write(6,*) iat,jat,kat,lat,
+**     $                 q4_at(iat-iatlo+1,jat-jatlo+1,
+**     $                 kat-katlo+1,lat-latlo+1)
                enddo
             enddo
          enddo
@@ -249,7 +252,7 @@ c
          if (.not. bas_cn2ce(basis, i, cn_to_ce(i)))
      $        call errquit('bas?',0)
       enddo
-      write(6,*) ' Center map ', (cn_to_ce(i),i=1,nsh)
+**      write(6,*) ' Center map ', (cn_to_ce(i),i=1,nsh)
 c
 c
 c     Form list of shells in each atom block, sorted by shell type. 
@@ -277,19 +280,32 @@ c
                      do j = j_sh_r(1,jt),j_sh_r(2,jt)
                         jsh = j_sh(j)
                         jat = cn_to_ce(jsh)-jatlo+1
-                        if ((.not. oij) .or. (ish.ge.jsh)) then
+                        otest = (.not. oij) .or. (ish.ge.jsh)
+                        sij = schwarz_shell(ish,jsh)
+                        otest = otest .and. (sij*smax .gt. tol2e)
+*                        if (otest .and. oskel) then
+*                           otest = sym_atom_pair(geom,
+*     $                          cn_to_ce(ish),cn_to_ce(jsh),q2)
+*                        endif
+                        if (otest) then
                            do k = k_sh_r(1,kt),k_sh_r(2,kt)
                               ksh = k_sh(k)
                               kat = cn_to_ce(ksh)-katlo+1
                               do l = l_sh_r(1,lt),l_sh_r(2,lt)
                                  lsh = l_sh(l)
                                  lat = cn_to_ce(lsh)-latlo+1
-                                 odoit = fock_shell_logic(
-     $                                oij, okl, oikjl,
-     $                                ish, jsh, ksh, lsh, qq4)
+                                 odoit = sij*schwarz_shell(ksh,lsh)
+     $                                .gt. tol2e
+                                 if (odoit) then
+                                    odoit = fock_shell_logic(
+     $                                   oij, okl, oikjl,
+     $                                   ish, jsh, ksh, lsh, qq4)
+                                 endif
+                                 if (odoit .and. oskel) then
 c     Temp. discard factors of 2/4/8
-                                 qq4 = qq4*q4_at(iat,jat,kat,lat)
-                                 odoit = odoit .and. (qq4.gt.0.0d0)
+                                    qq4 = qq4*q4_at(iat,jat,kat,lat)
+                                    odoit = qq4.gt.0.0d0
+                                 endif
                                  if (odoit) then
                                     nq = nq + 1
                                     ijkl(nq,1) = ish
@@ -303,33 +319,6 @@ c     Temp. discard factors of 2/4/8
                         endif
                      enddo
                   enddo
-c     This will be a REALLY wierd canonical shell order
-c$$$                  nq = 0
-c$$$                  do i = i_sh_r(1,it),i_sh_r(2,it)
-c$$$                     ish = i_sh(i)
-c$$$                     jtop = j_sh_r(2,jt)
-c$$$                     if (oij) jtop = i
-c$$$                     do j = j_sh_r(1,jt),jtop
-c$$$                        jsh = j_sh(j)
-c$$$                        ktop = k_sh_r(2,kt)
-c$$$                        if (oikjl) ktop = i
-c$$$                        do k = k_sh_r(1,kt),ktop
-c$$$                           ksh = k_sh(k)
-c$$$                           ltop = l_sh_r(2,lt)
-c$$$                           if (okl) ltop = k
-c$$$                           if (oikjl .and. k.eq.i) ltop = j
-c$$$                           do l = l_sh_r(1,lt),ltop
-c$$$                              lsh = l_sh(l)
-c$$$                              nq = nq + 1
-c$$$                              ijkl(nq,1) = ish
-c$$$                              ijkl(nq,2) = jsh
-c$$$                              ijkl(nq,3) = ksh
-c$$$                              ijkl(nq,4) = lsh
-c$$$                              q4(nq)     = 1.0d0
-c$$$                           enddo
-c$$$                        enddo
-c$$$                     enddo
-c$$$                  enddo
 c
                   if (nq .gt. 0) then
                      write(6,11)  it, jt, kt, lt, nq 
@@ -359,6 +348,16 @@ c
 *                     call fock_eri_label_scale(neri, 1.0d0,
 *     $                    labels(1,1), labels(1,2),
 *     $                    labels(1,3), labels(1,4), eri)
+c
+c
+c     Cache integrals if desired
+c
+                     if (owritefile) then
+                        if (.not. int2e_file_write(neri,
+     $                    labels(1,1), labels(1,2),
+     $                    labels(1,3), labels(1,4),
+     $                    eri)) call errquit('Arrgggghh',0)
+                     end if
 c
                      call fock_2e_label(nfock, tol2e, neri,
      $                    labels(1,1), labels(1,2),
