@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.106 2004-04-22 20:10:37 edo Exp $
+* $Id: opt_drv.F,v 1.107 2004-08-27 20:00:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -2176,6 +2176,7 @@ c
       integer i, j, k, l_pmat, k_pmat, i3, ma_type, nelem
       character*26 date
       integer ind
+      logical task_qmmm
       logical opt_geom_cart_coords_get
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
 c     
@@ -2251,14 +2252,19 @@ c
       call geom_hnd_put_data('b^-1', dbl_mb(k_pmat), ncart**2)
       call geom_hnd_put_data('c', dbl_mb(k_pmat), ncart**2)
 c     
+      if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &    task_qmmm = .false.
+
       if ( rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
      $     nelem, date) .or.
      $     rtdb_get_info(rtdb, 'geometry:inactlist', ma_type, 
      $     nelem, date) .or.
-     $     isystype .ne. 0) then
+     $     isystype .ne. 0 .or.
+     $     task_qmmm) then
 c     
 c     Some atoms are frozen or we have a periodic system so don't have
 c     invariance ...  also store unit matrix for P.
+c     or we have QMMM calculation here
 c     
          call geom_hnd_put_data('p', dbl_mb(k_pmat), ncart**2)
 c     
