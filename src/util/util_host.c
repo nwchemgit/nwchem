@@ -1,12 +1,12 @@
-/*$Id: util_host.c,v 1.4 1999-11-16 20:51:03 edo Exp $*/
+/*$Id: util_host.c,v 1.5 1999-11-17 18:39:30 bjohnson Exp $*/
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
 #define FATR
 #endif
 #ifdef WIN32
-#include <winsock2.h>
 #include "typesf2c.h"
+extern int FATR gethostname(char *, int);
 #else
 extern int gethostname(char *, int);
 #endif

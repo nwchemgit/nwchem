@@ -1,18 +1,24 @@
-NW_CORE_SUBDIRS = tools include basis geom inp input \
-	pstat rtdb task symmetry util peigs lapack
+#
+#	$Id: MakeFile,v 1.2 1999-11-17 18:31:30 bjohnson Exp $
+#
 
-NW_MODULE_SUBDIRS = NWints atomscf ddscf gradients moints nwdft rimp2 \
-	stepper driver dftgrad cphf ccsd vib mcscf esp hessian selci dplot \
-	mp2_grad property
+!INCLUDE config\nwchem_config_win32.h
+!INCLUDE config\NTmakefile.h
 
 SUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 
-all: $(SUBDIRS)
-	-!cd $** & nmake -nologo
+all: config\file_exists.exe
+	@nmake -nologo TARGET_DIR=tools subdir_target
+	@nmake -nologo SUBDIR_TARGET=WIN32.stamp foreach_subdir
+	@nmake -nologo foreach_subdir
 	nmake -nologo link
 
+config\file_exists.exe: config\file_exists.cpp
+	cl -nologo /GX /Fe"config\file_exists.exe" config\file_exists.cpp
+	@erase file_exists.obj
+
 OBJ =          $(OBJDIR)\nwchem.obj \
-               $(OBJDIR)\stubs.obj
+               $(OBJDIR)\stubs_win32.obj
 
 COMPILATION_DATE = (unknown)
 CODE_BRANCH = (unknown)
@@ -20,22 +26,10 @@ LIB_DEFINES = -DCOMPILATION_DATE="'$(COMPILATION_DATE)'" \
               -DCOMPILATION_DIR="'$(TOPDIR)'" \
               -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 
-!INCLUDE config\NTmakefile.h
-
-clean: $(SUBDIRS)
-	if exist "$(OBJDIR)\*" erase /q "$(OBJDIR)\*"
-	if exist "$(OBJDIR)" rmdir "$(OBJDIR)"
-	-!cd $** & nmake -nologo clean
+realclean: clean
+	@nmake -nologo SUBDIR_TARGET=realclean foreach_subdir
 
 !INCLUDE config\NTmakelib.h
-
-UTIL_LIBS = util.lib chemio.lib global.lib ma.lib peigs.lib linalg.lib \
-	tcgmsg-mpi.lib armci.lib cvwmpi.lib wsock32.lib lapack.lib smaths.lib
-
-LIBS = nwctask.lib ccsd.lib mcscf.lib selci.lib mp2.lib moints.lib \
-	stepper.lib driver.lib dftgrad.lib nwdft.lib gradients.lib cphf.lib \
-	esp.lib ddscf.lib guess.lib hessian.lib vib.lib util.lib rimp2.lib \
-	property.lib nwints.lib dplot.lib $(UTIL_LIBS)
 
 link: $(OBJDIR) $(OBJ)
 	$(FC) /Fenw32.exe $(OBJ) /link /debug:full /debugtype:cv /pdb:none /libpath:"..\lib\win32" \
@@ -43,7 +37,7 @@ link: $(OBJDIR) $(OBJ)
 	@echo nw32.exe is built
 
 !IF 0
-	@if exist $(STAMP) erase $(STAMP)
+	@if exist WIN32.stamp erase WIN32.stamp
 	@if exist "*.i" erase "*.i"
 #	@if exist "*.exe" erase "*.exe"
 #	@if exist "*.ilk" erase "*.ilk"

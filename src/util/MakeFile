@@ -1,10 +1,15 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:54:21 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 1999-11-17 18:38:34 bjohnson Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
 
 SUBDIRS = md5
+
+#
+# This will take care of util_version until it is handled properly on WIN32
+#
+EXTRA_OBJ =    $(OBJDIR)\util_v_stub.obj
 
 BLAS =         $(OBJDIR)\dfill.obj \
                $(OBJDIR)\ifill.obj \
@@ -52,7 +57,7 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\swrite.obj \
                $(OBJDIR)\banner.obj \
                $(OBJDIR)\util_print.obj \
-               $(OBJDIR)\util_version.obj \
+#               $(OBJDIR)\util_version.obj \
                $(OBJDIR)\mk_fit_xf.obj \
                $(OBJDIR)\int_2c_ga.obj \
                $(OBJDIR)\ga_local_mdot.obj \

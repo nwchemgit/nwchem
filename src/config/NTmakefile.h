@@ -5,15 +5,23 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.1 1999-11-13 03:43:38 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.2 1999-11-17 18:36:48 bjohnson Exp $
 #
 
+#
+# If NWCHEM_TOP_WIN32 is set, take it.  Otherwise, if NWCHEM_TOP is set,
+# use that.  One of the two must be set, however.
+#
 !IFNDEF NWCHEM_TOP_WIN32
-!MESSAGE You must define NWCHEM_TOP_WIN32 in your environment to be the path
-!MESSAGE of the top level nwchem directory ... something like
-!MESSAGE     NWCHEM_TOP_WIN32="D:\PNNL\nwchem"
+!IFDEF NWCHEM_TOP
+NWCHEM_TOP_WIN32 = $(NWCHEM_TOP)
+!ELSE
+!MESSAGE You must define NWCHEM_TOP in your environment to be the path
+!MESSAGE of the top level nwchem directory in DOS format ... e.g.
+!MESSAGE     NWCHEM_TOP="D:\PNNL\nwchem"
 !MESSAGE
-!ERROR NWCHEM_TOP_WIN32 not set.
+!ERROR NWCHEM_TOP not set.
+!ENDIF
 !ENDIF
 
 TOPDIR = $(NWCHEM_TOP_WIN32)

@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.2 1999-11-14 02:59:23 d3g681 Exp $	
+#	$Id: MakeFile,v 1.3 1999-11-17 18:32:35 bjohnson Exp $	
 #
 
 OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \
@@ -19,7 +19,8 @@ OBJ = $(OBJ_ENERGY)
 OBJ_OPTIMIZE = $(OBJ_ENERGY)
 !ENDIF
 
-HEADERS =      rel_consts.fh
+HEADERS =      rel_consts.fh \
+               rel_nwc.fh
 
 LIBRARY = nwints.lib
 
