@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
+C $Id: ecp_int2.F,v 1.9 1998-04-03 20:49:40 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -380,7 +380,7 @@ C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
           if (n_x .ne. 3) call dscal (n_ang_a,two,tmp(i_ang_a+l_c),
      &          n_l_c)
 *
-*       Sum over m for scalar integrals [factor 2\pi(2l+1)]
+*       Sum over m for scalar integrals
 *
           fac = n_l_c*2
           fac = fac*pi
@@ -400,8 +400,6 @@ C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
 *       Sum over m for spin-orbit integrals [factor 4\pi]
 *
           if (n_x .ge. 3) then
-            fac = pi+pi
-            fac = fac+fac
             i_a = i_ang_a+(n_x-3)*n_ang_a*n_l_c
             i_b = i_ang+(n_x-3)*n_ang_a*n_ang_b
             do i = 1,3
@@ -433,7 +431,6 @@ C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
           if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
           n_row = ncab*n_int_a
-          i_z = i_cont_c-1
           do i_x = 1,n_x
             i_b = i_cb
             i_d = i_Q_int
@@ -487,7 +484,7 @@ C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
      &                      tmp(i_wb),n_na)
                         i_ang_a = i_ang_a+n_lam_a
                         call ecp_angrad (n_na,n_cont_a,n_nb,n_cont_b,
-     &                      tmp(i_wb),tmp(i_int_a),ecp_ints(1,i_x+i_z))
+     &                      tmp(i_wb),tmp(i_int_a),ecp_ints(1,i_x))
                         if (debug_arrays) then
                           call ecp_matpr (tmp(i_wb),1,n_na,1,n_nb,
      &                        1,n_na,1,n_nb,
