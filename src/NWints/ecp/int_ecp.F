@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.21 2001-12-28 02:34:45 edo Exp $
+* $Id: int_ecp.F,v 1.22 2001-12-28 20:28:50 edo Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -24,6 +24,7 @@
 #include "ecp_nwc.fh"
 #include "int_nbf.fh"
 #include "stdio.fh"
+#include "sym.fh"
 *::passed
       integer ecpidin   ! [input] ecp basis handle
       integer soidin    ! [input] so potential handle
@@ -56,7 +57,10 @@ c
 *      integer h_tlist, k_tlist
       integer nV
       logical o_both, o_ecp, o_so
-      double precision dpdum(2)
+      double precision dpdum(2),qfact
+      logical oskel
+      integer ictr,ic1,ic2
+      integer jctr,jc1,jc2
 *
       external ecp_init_bd
 *
@@ -329,66 +333,74 @@ c
 *      if (.not.gbs_map_print(basis_handle)) stop ' error '
 *      if (.not.bas_print(ecpidin)) stop 'error'
 *      if (.not.gbs_map_print(ecpidin)) stop ' error'
-      do i_cont = 1,basis_ncont
-        ic  = sf_ibs_cn2ce(i_cont,bas_id)
-        iuc = sf_ibs_cn2ucn(i_cont,bas_id)
-        ie  = infbs_cont(cont_iexp,iuc,bas_id)
-        icf = infbs_cont(cont_icfp,iuc,bas_id)
-        inp = infbs_cont(cont_nprim,iuc,bas_id)
-        ing = infbs_cont(cont_ngen,iuc,bas_id)
-        il  = infbs_cont(cont_type,iuc,bas_id) 
-        do j_cont = i_cont,basis_ncont
-*          if (.not.bas_print(basis_handle)) stop ' error'
-*          if (.not.gbs_map_print(basis_handle)) stop ' error '
-          jc = sf_ibs_cn2ce(j_cont,bas_id)
-          juc = sf_ibs_cn2ucn(j_cont,bas_id)
-          je  = infbs_cont(cont_iexp,juc,bas_id)
-          jcf = infbs_cont(cont_icfp,juc,bas_id)
-          jnp = infbs_cont(cont_nprim,juc,bas_id)
-          jng = infbs_cont(cont_ngen,juc,bas_id)
-          jl  = infbs_cont(cont_type,juc,bas_id)
-          nV  = int_nbf_x(il)*int_nbf_x(jl)
-          lecp_mem = 90000
-          if (indx_grad.eq.0) then
-            call int_ecp_hf1(
-     &          coords(1,ic,ig),
-     &        dbl_mb(mb_exndcf(ie,bas_id)),
-     &        dbl_mb(mb_exndcf(icf,bas_id)),
-     &        inp,ing,il,ic,
-     &        coords(1,jc,jg),
-     &        dbl_mb(mb_exndcf(je,bas_id)),
-     &        dbl_mb(mb_exndcf(jcf,bas_id)),
-     &        jnp,jng,jl,jc,
-     &        dpdum,nV,dpdum,lecp_mem,.true.)
-          elseif (indx_grad.eq.1) then
-            call intd_ecp_hf1(
-     &          coords(1,ic,ig),
-     &        dbl_mb(mb_exndcf(ie,bas_id)),
-     &        dbl_mb(mb_exndcf(icf,bas_id)),
-     &        inp,ing,il,ic,
-     &        coords(1,jc,jg),
-     &        dbl_mb(mb_exndcf(je,bas_id)),
-     &        dbl_mb(mb_exndcf(jcf,bas_id)),
-     &        jnp,jng,jl,jc,
-     &        dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
-          else
-            call errquit('int_ecp_init: unknown initializaton',911)
-          endif
-
-          lecp_mem = lecp_mem + nV  ! nint block used in api routine int_hf1sp
-          mem_ecp = max(mem_ecp,lecp_mem)
-*          write(6,*)' i_cont ',i_cont
-*          write(6,*)' j_cont ',j_cont
-*          write(6,*)' lecp_mem from int_ecp_init is ',
-*     &        lecp_mem,mem_ecp
-        enddo
+      oskel=.true.
+      do ictr=1,n_eCp
+         if (sym_atom(ig, ictr, qfact))  then
+            if(.not.(bas_ce2cnr(basis_handle,ictr,ic1,ic2)))
+     .           call errquit('intecp:basce2cnr failed',0)
+            do i_cont = ic1,ic2
+               ic  = sf_ibs_cn2ce(i_cont,bas_id)
+               iuc = sf_ibs_cn2ucn(i_cont,bas_id)
+               ie  = infbs_cont(cont_iexp,iuc,bas_id)
+               icf = infbs_cont(cont_icfp,iuc,bas_id)
+               inp = infbs_cont(cont_nprim,iuc,bas_id)
+               ing = infbs_cont(cont_ngen,iuc,bas_id)
+               il  = infbs_cont(cont_type,iuc,bas_id) 
+               do jctr=ictr,n_eCp
+                  if (sym_atom(ig, jctr, qfact))  then
+                     if(.not.(bas_ce2cnr(basis_handle,jctr,jc1,jc2)))
+     .                    call errquit('intecp:basce2cnr failed',0)
+                     do j_cont = jc1,jc2
+                        jc = sf_ibs_cn2ce(j_cont,bas_id)
+                        juc = sf_ibs_cn2ucn(j_cont,bas_id)
+                        je  = infbs_cont(cont_iexp,juc,bas_id)
+                        jcf = infbs_cont(cont_icfp,juc,bas_id)
+                        jnp = infbs_cont(cont_nprim,juc,bas_id)
+                        jng = infbs_cont(cont_ngen,juc,bas_id)
+                        jl  = infbs_cont(cont_type,juc,bas_id)
+                        nV  = int_nbf_x(il)*int_nbf_x(jl)
+                        lecp_mem = 90000
+                        if (indx_grad.eq.0) then
+                           call int_ecp_hf1(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,dpdum,lecp_mem,.true.)
+                        elseif (indx_grad.eq.1) then
+                           call intd_ecp_hf1(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+                        else
+                           call errquit(
+     .                          'int_ecp_init:unknown initializ',911)
+                        endif
+c     ! nint block used in api routine int_hf1sp                  
+                        lecp_mem = lecp_mem + nV 
+                        mem_ecp = max(mem_ecp,lecp_mem)
+                     enddo
+                  endif
+               enddo
+            enddo
+         endif
       enddo
-*      write(6,*)' scr 1e memory without ecp',mem_1e
+*     write(6,*)' scr 1e memory without ecp',mem_1e
       mem_1e = max(mem_1e,mem_ecp)
-*      write(6,*)' scr 1e memory with    ecp',mem_1e
-*
+*     write(6,*)' scr 1e memory with    ecp',mem_1e
+*     
       int_ecp_init = .true.
-*
+*     
       end
       subroutine int_ecp_terminate()
       implicit none
