@@ -6,7 +6,7 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.15 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_atype.F,v 1.16 2002-02-13 22:07:24 d3j191 Exp $
 c
       implicit none
 c
@@ -170,6 +170,7 @@ c     N sp2     : 3
 c     O in =O   : 2
 c
       do 6 i=jlo,jhi
+      ltyp(1,i)=0
       if(latm(2,i).eq.6.and.ltyp(5,i).eq.3) then
       ltyp(1,i)=3
       do 7 j=1,ltyp(5,i)
@@ -446,16 +447,58 @@ c     determine the atom types
 c     ------------------------
 c
       if(util_print('atomtypes',print_debug)) then
+      write(lfnout,3000) (i,i=1,7)
+ 3000 format(///,' ATOM LIST ',//,
+     + ' 1: Atom number',/,
+     + ' 2: Atom name',/,
+     + ' 3: Atomic number',/,
+     + ' 4: Aliphatic ring',/,
+     + ' 5: Aromatic ring',/,
+     + ' 6: Number of neighboring hydrogen atoms',/,
+     + ' 7: Number of neighboring atoms',//,i5,i4,5i5,//) 
       write(lfnout,'(i5,a4,5i5)')
      +  (i,catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
       endif
 c
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,3001)
+ 3001 format(//,' ATOM TYPING',//,
+     + ' 1: Atom name',/,
+     + ' 2: Atomic number',/,
+     + ' 3: Saturation',/,
+     + ' 4: Aliphatic ring',/,
+     + ' 5: Aromatic ring',/,
+     + ' 6: Number of neighboring hydrogen atoms',/,
+     + ' 7: Number of neighboring atoms',//) 
+      endif
+c
       do 38 i=ilo,ihi
       if(util_print('atomtypes',print_debug)) then
-      write(lfnout,'(a,a4,6i5)') 'Atom ',catm(2,i),latm(2,i),
-     + (ltyp(j,i),j=1,5)
+      write(lfnout,3002) (j,j=1,7),
+     + 'Atom ',catm(2,i),latm(2,i),(ltyp(j,i),j=1,5)
+ 3002 format(/,5x,i4,6i5,//,a,a4,6i5,/)
       endif
       if(latm(2,i).gt.0) then
+c
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,3003) (j,j=1,7),'ABCDEF'
+ 3003 format(//,' ATOM TYPES',//,
+     + ' 1: Atom type',/,
+     + ' 2: Atomic number',/,
+     + ' 3: Saturation',/,
+     + ' 4: Aliphatic ring',/,
+     + ' 5: Aromatic ring',/,
+     + ' 6: Number of neighboring hydrogen atoms',/,
+     + ' 7: Number of neighboring atoms',/,
+     + ' A: Matching atomic number',/,
+     + ' B: Matching explicit saturation',/,
+     + ' C: Matching aliphatic ring',/,
+     + ' D: Matching aromatic ring',/,
+     + ' E: Matching number of neighboring hydrogen atoms',/,
+     + ' F: Matching number of neighboring atoms',//,
+     + 5x,i2,2x,6i5,1x,a,//) 
+      endif
+c
       do 19 j=1,ntype
       iatnum=itype(1,j)
       irng=0
