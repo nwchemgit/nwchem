@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.133 1999-09-02 17:31:18 edo Exp $
+c     $Id: dft_scf.F,v 1.134 1999-09-02 17:39:02 edo Exp $
 c     
       implicit none
 c
@@ -120,7 +120,7 @@ c
       double precision ssmear
       integer l_ir, k_ir
       logical last_time_energy
-      logical check_shift, lmaxov_sv,check_deg
+      logical check_shift, lmaxov_sv,check_deg, reorth
       character*7 name
       character*4 scftype
       character*7 vecs_or_dens
@@ -196,6 +196,8 @@ c
       endif
       if (.not.rtdb_get(rtdb, 'dft:check_deg', mt_log, 1,
      &   check_deg))check_deg=.false.
+      if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
+     &   reorth))reorth=.true.
 c
 c     see if levelshifting monitoring is desired
 c
@@ -1140,7 +1142,7 @@ c        away any accumulated noise) the mo vectors.
 c
          iter_by_5 = iter/5
          iter_ck = iter - 5*iter_by_5
-         if (iter_ck.eq.0)
+         if (iter_ck.eq.0.and.reorth)
      &      call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
 
       enddo                     ! end big loop over ispin
