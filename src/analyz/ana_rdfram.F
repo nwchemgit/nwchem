@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.13 2000-05-25 23:02:47 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.14 2000-05-26 19:15:39 d3j191 Exp $
 c
       implicit none
 c
@@ -37,7 +37,7 @@ c
       time=timp+timoff
       timr=timp
       read(lfntrj,1000) card
-      if(card(42:42).eq.'.') then
+      if(card(54:54).eq.'.') then
       read(card,1012) box
  1012 format(f12.6,36x,f12.6,36x,f12.6)
       else
