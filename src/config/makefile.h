@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.61 1994-09-14 15:23:42 d3g681 Exp $
+# $Id: makefile.h,v 1.62 1994-09-14 16:32:16 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -236,7 +236,8 @@ ifeq ($(TARGET),PARAGON)
               -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
-	      -lpeigs_paragon -ltcgmsg -llapack -lkmath -nx
+	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
+              -lkmath -nx
 
   EXPLICITF = FALSE
 endif
