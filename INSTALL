@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.31 2000-12-01 02:24:30 edo Exp $
+$Id: INSTALL,v 1.32 2000-12-01 03:35:03 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -127,6 +127,8 @@ BASIC BUILD INSTRUCTIONS:
                    PowerPC         ***      RedHat 6.0     double
     LINUX64        Alpha            *       RedHat 6.2     double
     HPUX           HP               *       HPUX 11.0      double
+    CYGNUS         Intel x86        *       Windows98/NT   double
+    WIN32          Intel x86        *       Windows98/NT   double
     -----------------------------------------------------------------
    *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
           If you don't have it get it from IBM.  Also, the environment
@@ -374,6 +376,14 @@ BUILDING WITH MPI:
         setenv LIBMPI -lmpi
      SGI_N32
         setenv LIBMPI -lmpi
+     WIN32/NT-MPICH
+        set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
+        set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
+        set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
+     WIN32/WMPI1.3
+       set MPI_INCLUDE=c:\WMPI1.3\INCLUDE
+       set MPI_LIB=c:\WMPI1.3\LIB\CONSOLE
+       set NWCHEM_EXTRA_LIBS=%MPI_LIB%\cvwmpi.lib
 
    To run with MPI, "parallel" should not be used.  The way 
    we usually run nwchem under MPI are the following:

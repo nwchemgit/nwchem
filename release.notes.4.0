@@ -223,8 +223,10 @@ The current tested platforms and O/S versions are:
     Group Compiler can now be used.
   o Linux with Alpha cpus has been tested with RedHat 6.1 and 6.2.
     Usage of the Compaq Fortran and C compilers is necessary for compiling.
-  o HP 9000/800 workstions with  HPUX B.11.00. f90 must be used for
+  o HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
     compilation.
+  o Intel x86 with Windows 98 and NT has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
 
 A general FAQ is available at 
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
