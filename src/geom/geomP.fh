@@ -28,9 +28,52 @@ c     quadrupole ... not yet
 c     pseudopotential ... not yet
 c     efield(1:3,1:max_geom) = external electric field applied to this system
 c     oefield = true if efield is on
-c     latvec(1:3,1:3,1:max_geom) = vectors specifing periodicity
-c                                  (null vector gives no periodicity)
-c     operiodic = true if a lattice vector is non-null
+c
+c--> symmetry information
+c
+c     ncenter_unique(1:max_geom) = no. of symmetry unique centers
+c     unique_cent(1:max_cent,1:max_geom) = list of symmetry unique centers
+c     group_number(max_geom) = Tony's magic group number
+c     setting_number(max_geom) = Where the symmetry origin is
+c     max_sym_ops                   = max. no. of operations in group
+c     sym_ops(max_sym_op*3,4) = matrix representation of symmetry operators
+c                                     molecules -> transformation of cartesians
+c                                     periodic  -> ask tony!
+c     sym_num_ops(max_geom)         = order of group minus one
+c                                   = no. of operations in the group
+c     sym_center_map_handle(max_geom) = MA handle of integer array
+c                                    sym_center_map(center,op)->op*center
+c     sym_center_map_index(max_geom)  = MA index of integer array
+c                                    sym_center_map(center,op)->op*center
+c
+c--> solid state specific information
+c
+c     isystype(1:max_geom) = 0 (molecular), 1 (polymer), 2 (surface)
+c                            3 (crystal)
+c     lattice_vectors(1:3,1:max_geom) = lengths of unit cell axes
+c     lattice_angles(1:3,1:max_geom)  = angles between unit cell axes
+c
+c     amatrix(1:3,1:3,1:max_geom) = matrix that transforms atomic fractional
+c                                   coords. to a Cartesian system (also converts
+c                                   units from angstroms to bohr). See routine
+c                                   for defn. of axis conventions. This matrix
+c                                   is the unit matrix for molecular systems.
+c
+c     amatrix_inv(1:3,1:3,1:max_geom) = used to transform from atomic Cartesian
+c                                 coords. to fractional coordinates (also converts
+c                                 bohr to angstrom in the case of a periodic calc.
+c                                 & can be used to resolve the scalar lattice vectors
+c                                 into their Cartesian components). This matrix is
+c                                 the unit matrix for molecular systems.
+c
+c     volume_direct(1:max_geom) = direct space unit cell volume units=Ang^3
+c     metric_matrix(1:3,1:3,1:max_geom) = metric matrix for Bravais lattice
+c     recip_lat_vectors(1:3,1:max_geom) = reciprocal lattice vectors (angstroms)
+c     recip_lat_angles(1:3,1:max_geom)  = reciprocal lattice angles  (degrees)
+c     
+c     operiodic = obsolete
+c     latvec(1:3,1:3,1:max_geom) = obsolete
+c
 c     erep(1:max_geom) = interaction energy of centers with each other
 c                        and external fields.  At its simplest this is
 c                        just the nuclear repulsion energy
@@ -47,14 +90,22 @@ c     lenr(1:max_geom) = length of names_rtdb(geom) ...
 c     symbols(1:nelements) = symbols for elements
 c     elements(1:nelements) = names of elements
 c     
-      integer max_geom, max_cent, max_geom_rtdb, nelements
+      integer max_geom, max_cent, max_geom_rtdb, nelements,
+     $     max_sym_ops
+      parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
-      parameter (max_cent=1000)
+      parameter (max_cent=500)
       parameter (nelements = 103)
 c
       logical active, operiodic, oefield
-      integer ngeom_rtdb, ncenter, lenn, lent, lenr
-      double precision coords, charge, efield, latvec, ndipole, erep
+      integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
+     $     ncenter_unique, isystype, setting_number, unique_cent,
+     $     sym_num_ops,sym_center_map_handle,
+     $     sym_center_map_index
+      double precision coords, charge, efield, latvec, ndipole, erep,
+     $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
+     $     volume_direct, metric_matrix, recip_lat_vectors, 
+     $     recip_lat_angles, sym_ops
       common/cgeometry/
      $     coords(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
@@ -62,6 +113,15 @@ c
      $     latvec(3,3, max_geom),
      $     erep(max_geom),
      $     ndipole(3,max_geom),
+     $     lattice_vectors(1:3,1:max_geom),
+     $     lattice_angles(1:3,1:max_geom),
+     $     recip_lat_vectors(1:3,1:max_geom),
+     $     recip_lat_angles(1:3,1:max_geom),
+     $     amatrix(3,3,max_geom),
+     $     amatrix_inv(3,3,max_geom),
+     $     sym_ops(max_sym_ops*3,4,max_geom),
+     $     metric_matrix(3,3,max_geom),
+     $     volume_direct(max_geom),
      $     ncenter(max_geom),
      $     active(max_geom),
      $     lenn(max_geom),
@@ -69,6 +129,14 @@ c
      $     lenr(max_geom),
      $     operiodic(max_geom),
      $     oefield(max_geom),
+     $     isystype(1:max_geom),
+     $     ncenter_unique(1:max_geom),
+     $     unique_cent(1:max_cent,1:max_geom),
+     $     group_number(max_geom),
+     $     setting_number(max_geom),
+     $     sym_num_ops(max_geom),
+     $     sym_center_map_handle(max_geom),
+     $     sym_center_map_index(max_geom),
      $     ngeom_rtdb
 c
       character*256 names, names_rtdb, trans

@@ -217,7 +217,7 @@ c
       character*(*) name        ! [input]
 c     
       character*256 tmp
-      integer k
+      integer k, nelem
       logical status
       logical geom_check_handle, geom_rtdb_in
       external geom_check_handle, geom_rtdb_in
@@ -253,12 +253,60 @@ c
       tmp(k:) = ':efield'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
-      tmp(k:) = ':latvec'
+      tmp(k:) = ':lattice vectors'
       status = status .and. 
-     $     rtdb_get(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
+     $     rtdb_get(rtdb, tmp, mt_dbl, 3, lattice_vectors(1,geom))
+      tmp(k:) = ':lattice angles'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      tmp(k:) = ':system type'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, isystype(geom))
+      tmp(k:) = ':no. unique centers'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      tmp(k:) = ':group number'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ':setting number'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
+      tmp(k:) = ':recip vectors'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, 3, recip_lat_vectors(1,geom))
+      tmp(k:) = ':recip angles'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, 3, recip_lat_angles(1,geom))
+      tmp(k:) = ':direct volume'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      tmp(k:) = ':unique centers'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, ncenter_unique(geom), 
+     $     unique_cent(1,geom))
       tmp(k:) = ':tags'
       status = status .and. 
      $     rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
+c
+c--> get symmetry operators, number of operators and operator/atom
+c    map from rtdb
+c
+      tmp(k:) = ':num_operators'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
+      tmp(k:) = ':operators'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
+     $     sym_ops(1,1,geom))
+      tmp(k:) = ':map_atoms'
+      status = status .and. 
+     $     rtdb_ma_get(rtdb, tmp, mt_int, nelem,
+     $     sym_center_map_handle(geom))
+      if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
+     $     ('geom_rtdb_load: invalid no. of element in sym map', nelem)
+      if (.not. ma_get_index(sym_center_map_handle(geom),
+     $     sym_center_map_index(geom)))call errquit
+     $     ('geom_rtdb_load: bad ma handle', 0)
 c     
       if (.not. status) then
          write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
@@ -269,12 +317,10 @@ c
          return
       endif
 c     
-c     Determine if system is periodic or if external fields are applied
+c     Determine if external fields are applied
 c     
       oefield(geom) = 
      $     ddot(3, efield(1,geom), 1, efield(1,geom), 1) .gt. 0.0d0
-      operiodic(geom) = 
-     $     ddot(9, latvec(1,1,geom), 1, latvec(1,1,geom), 1) .gt. 0.0d0
 c
 c     compute effective nuclear repulsion energy, dipole and
 c     interaction with external fields
@@ -383,12 +429,55 @@ c
       tmp(k:) = ':efield'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
-      tmp(k:) = ':latvec'
+      tmp(k:) = ':lattice vectors'
       status = status .and. 
-     $     rtdb_put(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
+     $     rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_vectors(1,geom))
+      tmp(k:) = ':lattice angles'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      tmp(k:) = ':system type'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, isystype(geom))
+      tmp(k:) = ':no. unique centers'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      tmp(k:) = ':group number'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ':setting number'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
+      tmp(k:) = ':recip vectors'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, 3, recip_lat_vectors(1,geom))
+      tmp(k:) = ':recip angles'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, 3, recip_lat_angles(1,geom))
+      tmp(k:) = ':direct volume'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      tmp(k:) = ':unique centers'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, ncenter_unique(geom), 
+     $     unique_cent(1,geom))
       tmp(k:) = ':tags'
       status = status .and. 
      $     rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
+c
+c--> put symmetry operators, number of operators and operator/atom
+c    map out to rtdb
+c
+      tmp(k:) = ':num_operators'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
+      tmp(k:) = ':operators'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
+     $     sym_ops(1,1,geom))
+      tmp(k:) = ':map_atoms'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_int, ncenter(geom)*sym_num_ops(geom),
+     $     int_mb(sym_center_map_index(geom)))
 c
 c     insert translated name into list of known geometries
 c
@@ -481,6 +570,8 @@ c
       integer geom              ! [output]
       character*(*) name        ! [input]
 c
+      integer i,j
+c
 c     Assign the next free slot for a geometry
 c
       do geom = 1, max_geom
@@ -503,21 +594,42 @@ c
       geom_create = .true.
       oefield(geom) = .false.
       operiodic(geom) = .false.
+      ncenter_unique(geom) = 0
+      isystype(geom) = 0
+      group_number(geom) = 1
+      setting_number(geom) = 0
+      sym_center_map_handle(geom) = -1
+c
+      do i = 1, 3
+        lattice_vectors(i,geom) = 0
+        lattice_angles(i,geom) = 0
+        do j = 1, 3
+           amatrix(j,i,geom) = 0.0d0
+           amatrix_inv(j,i,geom) = 0.0d0
+        enddo
+        amatrix(i,i,geom) = 1.0d0
+        amatrix_inv(i,i,geom) = 1.0d0
+      enddo
 c
       end
       logical function geom_destroy(geom)
       implicit none
 #include "geomP.fh"
+#include "mafdecls.fh"
 c
       integer geom              ! [input]
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c     
-      geom_destroy = geom_check_handle(geom, 'geom_destory')
+      geom_destroy = geom_check_handle(geom, 'geom_destroy')
       if (.not. geom_destroy) return
 c
       active(geom) = .false.
       geom_destroy = .true.
+      if (sym_center_map_handle(geom) .ne. -1) then
+         if (.not. ma_free_heap(sym_center_map_handle(geom)))
+     $        call errquit('geom_destroy: free of atom map', 0)
+      endif
 c
       end
       logical function geom_cart_set(geom, ncent, t, c, q)
@@ -543,12 +655,14 @@ c
       endif
 c
       ncenter(geom) = ncent
+      ncenter_unique(geom) = ncent
       do i = 1, ncent
          tags(i,geom) = t(i)
          charge(i,geom) = q(i)
          coords(1,i,geom) = c(1,i)
          coords(2,i,geom) = c(2,i)
          coords(3,i,geom) = c(3,i)
+         unique_cent(i,geom) = i
       enddo
 c
 c
@@ -682,16 +796,6 @@ c
       call errquit('geom_latvec_set: not yet!', 0)
       geom_latvec_set = .false.
       end
-      logical function geom_latvec_get(geom, vectors)
-      implicit none
-#include "geomP.fh"
-c     
-      integer geom              ! [input]
-      double precision vectors(3,3) ! [output]
-c
-      call errquit('geom_latvec_get: not yet!', 0)
-      geom_latvec_get = .false.
-      end
       logical function geom_efield_set(geom, ef)
       implicit none
 #include "geomP.fh"
@@ -725,7 +829,7 @@ c
       integer icent
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
-      integer ivec, i
+      integer i
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.
@@ -767,19 +871,6 @@ c
          write(6,*)
       endif
 c
-c
-      if (operiodic(geom)) then
-         write(6,5)
- 5       format('         Periodic lattice vectors (au) ')
-         write(6,6)
- 6       format('         -----------------------------')
-         write(6,7)
-         do ivec = 1, 3
-            write(6,8) (latvec(i,ivec,geom), i=1,3)
-         enddo
-         write(6,*)
-      endif
-c
       if (oefield(geom)) then
          write(6,9)
  9       format('         Electric Field (au) ')
@@ -789,6 +880,8 @@ c
          write(6,8) (efield(i,geom), i=1,3)
          write(6,*)
       endif
+c
+***      call sym_print_all(geom)
 c
       geom_print = .true.
 c
@@ -1001,3 +1094,149 @@ c
       write(6,*)' ************ WARNING ******************' 
       write(6,*)' at least two atoms are at the same physical location'
       end
+c
+c
+c---> new functions added on incorporation on symmetry and solid state codes
+c
+c
+      logical function geom_systype_get(geom, itype)
+#include "geomP.fh"
+      integer geom              ! [input]
+      integer itype
+      logical geom_check_handle
+      external geom_check_handle
+
+      geom_systype_get = geom_check_handle(geom, 'geom_systype_get')
+      if (.not. geom_systype_get) return
+c
+c--> make the assignment
+c
+      itype=isystype(geom)
+c
+      geom_systype_get = .true.
+      end
+      logical function geom_latvec_get(geom,vectors)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i              ! [input]
+      double precision vectors(3) ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_latvec_get = geom_check_handle(geom, 'geom_latvec_get')
+      if (.not. geom_latvec_get) return
+
+      do i=1,3
+        vectors(i)=lattice_vectors(i,geom)
+      enddo
+      geom_latvec_get = .true.
+      end
+      logical function geom_latang_get(geom,angles)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i              ! [input]
+      double precision angles(3) ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+
+      geom_latang_get = geom_check_handle(geom, 'geom_latang_get')
+      if (.not. geom_latang_get) return
+c
+      do i=1,3
+        angles(i)=lattice_angles(i,geom)
+      enddo
+      geom_latang_get = .true. 
+      end
+      logical function geom_recipvec_get(geom,rvectors)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i               ! [input]
+      double precision rvectors(3) ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_recipvec_get = geom_check_handle(geom, 'geom_recipvec_get')
+      if (.not. geom_recipvec_get) return
+
+      do i=1,3
+        rvectors(i)=recip_lat_vectors(i,geom)
+      enddo
+      write(*,*) 'in geom printing rcectors'
+      write(*,*) (rvectors(i),i=1,3)
+      geom_recipvec_get = .true.
+      end
+      logical function geom_recipang_get(geom,rangles)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i               ! [input]
+      double precision rangles(3) ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_recipang_get = geom_check_handle(geom, 'geom_recipang_get')
+      if (.not. geom_recipang_get) return
+
+      do i=1,3
+        rangles(i)=recip_lat_angles(i,geom)
+      enddo
+      geom_recipang_get = .true.
+      end
+      logical function geom_volume_get(geom,volume)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      double precision volume   ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_volume_get = geom_check_handle(geom, 'geom_volume_get')
+      if (.not. geom_volume_get) return
+
+      volume=volume_direct(geom)
+
+      end
+      logical function geom_amatrix_get(geom,amat)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i,j               ! [input]
+      double precision amat(3,3)     ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+
+      geom_amatrix_get = geom_check_handle(geom, 'geom_amatrix_get')
+      if (.not. geom_amatrix_get) return
+c
+      do i=1,3
+        do j=1,3
+          amat(i,j)=amatrix(i,j,geom)
+        enddo
+      enddo
+      end
+      logical function geom_amatinv_get(geom,amatinv)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i,j               ! [input]
+      double precision amatinv(3,3)  ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+
+      geom_amatinv_get = geom_check_handle(geom, 'geom_amatinv_get')
+      if (.not. geom_amatinv_get) return
+c
+      do i=1,3
+        do j=1,3
+          amatinv(i,j)=amatrix_inv(i,j,geom)
+        enddo
+      enddo
+      end
+
+
+
+
