@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
+C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -167,7 +167,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
+C     $Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -435,7 +435,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
+C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -520,7 +520,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
+c     $Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -894,7 +894,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.18 1996-01-19 07:29:31 d3g681 Exp $
+C$Id: uhf.F,v 1.19 1996-01-27 19:46:56 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1023,6 +1023,8 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
       double precision sz, s2
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
 c     Return the expection values of Sz and S^2
 c
@@ -1032,8 +1034,9 @@ c
 c     
 c     Form Sab
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_spin: overlap',
-     $     1, 1, g_over)) call errquit('uhf_spin: overlap', 0)
+      g_over = ga_create_atom_blocked(geom, basis, 'uhf_spin: over')
+*      if (.not. ga_create(MT_DBL, nbf, nbf, 'uhf_spin: overlap',
+*     $     1, 1, g_over)) call errquit('uhf_spin: overlap', 0)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'uhf_spin: work',
      $     1, 1, g_work)) call errquit('uhf_spin: work', 0)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'uhf_spin: overlap',
