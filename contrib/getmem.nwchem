@@ -1,6 +1,6 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.2 2000-12-01 19:06:15 edo Exp $
+# $Id: getmem.nwchem,v 1.3 2000-12-04 22:59:36 windus Exp $
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
 #
@@ -79,9 +79,13 @@ echo "Executing " 'make LIB_DEFINES+="'$copt'"'
 # this is need for PGI
 #make  FC=pgf77 LIB_DEFINES+="$copt "
 make   LIB_DEFINES+="$copt "
+cd $NWCHEM_TOP/src
+make link
 else
 echo "Executing "  'gmake LIB_DEFINES+="'$copt'"'
 gmake LIB_DEFINES+="copt " 
+cd $NWCHEM_TOP/src
+gmake link
 endif 
 else
 echo " "
