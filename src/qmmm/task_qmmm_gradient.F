@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.3 2004-11-29 19:59:58 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.4 2004-12-01 18:31:01 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -109,7 +109,8 @@ c     h_qmm will hold mm contribution to forces on quantum atoms
  
 
 c     create full geometry object with Bq's
-      call qmmm_create_bq_geom(rtdb)
+      call qmmm_create_full_geom(rtdb)
+      call qmmm_print_current_geom(rtdb)
 
       nbq  = qmmm_get_nbq()
       ntot = nqm+nbq
@@ -133,6 +134,7 @@ c     push final gradients onto qm module
       call qmmm_push_qm_grad_qm(rtdb,3*nqm,dbl_mb(i_g))
 
 c     take care of the energies
+      mm_energy = 0.0d0
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
 
@@ -159,7 +161,8 @@ c     take care of the energies
  
       qmmm_gradient=status
 
-      call qmmm_geom_finish(rtdb)
+c
+      call qmmm_restore_qm_geom
 
       call util_print_pop()
       call mm_write_restart()

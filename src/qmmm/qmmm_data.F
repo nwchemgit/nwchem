@@ -88,7 +88,7 @@ c
       bqzone = 6.0
       eatoms = 0.0d0
       linkatm=qmmm_halogen
-      bq_exclude=qmmm_hydrogen
+      bq_exclude=qmmm_no_atoms
       optimization = "qm"
       link_ecp = "auto"
 c
@@ -140,9 +140,11 @@ c     initialize rtdb parameters
 
        end if
       if(master) then
-        if(bq_exclude.eq.qmmm_hydrogen) then
+        if(bq_exclude.eq.qmmm_linkbond_H) then
           write(6,22) "excluded bq's",tag,
      >                 "hydrogens bonded to link atoms"
+        else if(bq_exclude.eq.qmmm_linkbond) then
+          write(6,22) "excluded bq's",tag,"all atoms bonded to links"
         else if(bq_exclude.eq.qmmm_all_atoms) then
           write(6,22) "excluded bq's",tag,"all"
         else if(bq_exclude.eq.qmmm_no_atoms) then
@@ -373,6 +375,16 @@ c     -------------------
       if(.not.ma_free_heap(h_ai))
      & call errquit('qmmm ai: Failed to deallocate heap',nqm,
      &       MA_ERR)
+
+      if(.not.ma_free_heap(h_act))
+     & call errquit('qmmm ai: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+
+      if(nlink.ne.0) then
+        if(.not.ma_free_heap(h_lai))
+     &   call errquit('qmmm ai: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+      end if
 
        return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_params.fh,v 1.3 2004-08-14 02:30:57 marat Exp $
+c $Id: qmmm_params.fh,v 1.4 2004-12-01 18:31:01 marat Exp $
 c
 c
 c     atom type parameters
@@ -15,10 +15,17 @@ c     -------------------
       integer qmmm_halogen
       integer qmmm_all_atoms
       integer qmmm_no_atoms
-      parameter(qmmm_hydrogen=1)
-      parameter(qmmm_halogen=7)
-      parameter(qmmm_all_atoms=100)
+      integer qmmm_linkbond_H
+      integer qmmm_linkbond
+      integer qmmm_linkres
       parameter(qmmm_no_atoms=0)
+      parameter(qmmm_hydrogen=1)
+      parameter(qmmm_halogen=2)
+      parameter(qmmm_all_atoms=3)
+      parameter(qmmm_linkbond_H=10)
+      parameter(qmmm_linkbond=11)
+      parameter(qmmm_linkres=12)
+
 c
 c     conversion parameters
 c     -------------------

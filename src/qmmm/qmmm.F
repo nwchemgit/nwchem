@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.35 2004-11-24 22:57:50 marat Exp $
+c $Id: qmmm.F,v 1.36 2004-12-01 18:31:00 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -127,21 +127,31 @@ c     external functions
 
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+      call qmmm_print_current_geom(rtdb)
 
+c
+c     get qm coords out of geometry object into qmmm module
+c     ----------------------------------------------------
       call qmmm_get_qm_coord_qm(rtdb)
+c
+c     push coords into mm module
+c     --------------------------
       call qmmm_push_qm_coord_mm(rtdb)
       call mm_task_sp()
-
-      call qmmm_create_bq_geom(rtdb)
+c
+c     create full geometry
+c     -------------------
+      call qmmm_create_full_geom(rtdb)
 
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,qm_energy)
 c
-      call qmmm_geom_finish(rtdb)
+      call qmmm_restore_qm_geom(rtdb)
 
 c     combine QM and MM energies
 c     -------------------------
+      mm_energy=0.0d0
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
       mm_energy = mm_energy/cau2kj
@@ -165,5 +175,6 @@ c     -------------------------
       call mm_write_restart()
 
       end
+
 
 

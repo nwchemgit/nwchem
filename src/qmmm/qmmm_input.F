@@ -125,8 +125,12 @@ c
         tag="qmmm:bq_exclude"
         if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
      &       INPUT_ERR)
-        if(token.eq.'hydrogen') then
-          bq_exclude=qmmm_hydrogen
+        if(token.eq.'linkbond_H') then
+          bq_exclude=qmmm_linkbond_H
+        else if(token.eq.'linkbond') then
+          bq_exclude=qmmm_linkbond
+        else if(token.eq.'linkres') then
+          bq_exclude=qmmm_linkres
         else if(token.eq.'all') then
           bq_exclude=qmmm_all_atoms
         else if(token.eq.'none') then

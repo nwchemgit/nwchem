@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.7 2004-10-19 20:01:49 marat Exp $
+c $Id: qmmm_output.F,v 1.8 2004-12-01 18:31:01 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -13,9 +13,6 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 
-      integer irtdb
-c
-      character*32 pname
       character*48 string
 
       if(ga_nodeid().eq.0) then
@@ -55,8 +52,7 @@ c
       character*32 tag
       character*32 pname
       character*32 optimization
-      character*32 interface
-      real*8 eatoms,qatoms
+      real*8 eatoms
       logical fixqm
       integer linkatm,bq_exclude
 

@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.22 2004-11-24 22:57:51 marat Exp $
+c $Id: qmmm_main.F,v 1.23 2004-12-01 18:31:01 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -75,7 +75,7 @@ c
       call qmmm_get_qm_coord_mm(inrtdb)
       call qmmm_push_qm_coord_qm(inrtdb)
  
-      call qmmm_create_bq_geom(inrtdb)
+      call qmmm_create_full_geom(inrtdb)
  
       nqm   = qmmm_get_nqm()
       nbq   = qmmm_get_nbq ()

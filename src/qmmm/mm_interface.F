@@ -1,16 +1,30 @@
 c
-c $Id: mm_interface.F,v 1.31 2004-11-12 20:14:22 marat Exp $
+c $Id: mm_interface.F,v 1.32 2004-12-01 18:31:00 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
 c
       integer irtdb0
 c
+      integer includ
       call timer_init()
       call mm_set_irtdb(irtdb0)
+c
+c     include fixed atoms
+c     otherwise prrroblems
+c     -------------------
+      includ=1
+      if(.not.rtdb_put(irtdb0,'md:includ',mt_int,1,includ))
+     + call errquit('mm_init: Failed to set includ',0,
+     &       RTDB_ERR)
+c
       call md_rdinp()
       call md_start()
-c
+  
+
 c     this call is very important
       call mm_task_sp()
 c
@@ -198,16 +212,33 @@ c
       call mm_get_nsaloc(nsaloc)
 
       bq_exclude = qmmm_get_bq_exclude()
-      do i=1,nsaloc
-         if(mm_lqsoft(i)) then
-           if((bq_exclude.eq.qmmm_hydrogen).and.(mm_element(i).eq.1))
-     >     call mm_clear_bqzone(i)
-           if(bq_exclude.eq.qmmm_all_atoms) then
-             write(*,*) "clearing bq flag",i
-             call mm_clear_bqzone(i)
-           end if
-         endif
-      end do
+
+      if(bq_exclude.eq.qmmm_all_atoms) then
+        do i=1,nsaloc
+          call mm_clear_bqzone(i)
+        end do
+      else if(bq_exclude.eq.qmmm_linkbond) then
+        do i=1,nsaloc
+          if(mm_lqsoft(i)) 
+     >      call mm_clear_bqzone(i)
+        end do
+      else if(bq_exclude.eq.qmmm_linkbond_H) then
+        do i=1,nsaloc
+          if(mm_lqsoft(i).and.(mm_element(i).eq.1)) 
+     >      call mm_clear_bqzone(i)
+        end do
+      end if
+
+c      do i=1,nsaloc
+c         if(mm_lqsoft(i)) then
+c           if((bq_exclude.eq.qmmm_hydrogen).and.(mm_element(i).eq.1))
+c     >     call mm_clear_bqzone(i)
+c           if(bq_exclude.eq.qmmm_all_atoms) then
+c             write(*,*) "clearing bq flag",i
+c             call mm_clear_bqzone(i)
+c           end if
+c         endif
+c      end do
 
       end
 
@@ -647,6 +678,108 @@ c     mm local variables
          call cf_num2tag(inum(i),t(i))
       end do
 
+
+      end
+
+      subroutine mm_get_solute_cons_quant(nt,
+     >                       ai,
+     >                       act)
+      implicit none
+
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      logical act(nt)
+      
+      call mm_get_solute_cons_gen(nt,
+     >                       mm_quant,
+     >                       ai,
+     >                       act)
+
+
+      end
+
+      subroutine mm_get_solute_cons_quant_link(nt,
+     >                       ai,
+     >                       act)
+      implicit none
+
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      logical act(nt)
+      
+      call mm_get_solute_cons_gen(nt,
+     >                       mm_quant_link,
+     >                       ai,
+     >                       act)
+
+
+      end
+
+      subroutine mm_get_solute_cons_gen(nt,
+     >                       mm_type,
+     >                       ai,
+     >                       act)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      logical act(nt)
+      logical mm_type
+      external mm_type
+
+      integer i,j,k
+      integer i_act,l_act
+
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer pxs
+
+      if(.not.ma_push_get(mt_int,nt,'i_act',l_act,i_act))
+     + call errquit('qmmm: Failed to allocate memory for i_act',nt,
+     &       MA_ERR)
+      call ifill(nt,1,int_mb(i_act),1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_pxs(pxs)
+
+
+      do i=1,nsa
+        if(mm_type(i)) then
+            do j=1,nt
+              if(int_mb(psl+i-1).eq.ai(j)) then
+                 if(mm_fixed(i)) int_mb(i_act+j-1)=0
+              end if
+            end do
+        end if
+      end do
+
+      call ga_igop(msg_qmmm_act,int_mb(i_act),nt,'+')
+
+      do i=1,nt
+         if(int_mb(i_act+i-1).eq.0) act(i)=.false.
+      end do
+
+      if(.not.ma_pop_stack(l_act))
+     + call errquit('qmmm: Failed to deallocate memory for act',nt,
+     &       MA_ERR)
 
       end
 

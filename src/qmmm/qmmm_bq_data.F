@@ -115,20 +115,21 @@ c
 
       if(nbq.eq.0) return
 
-        if(.not.ma_free_heap(h_ibq))
-     +   call errquit('qmmm:memory deallocation for ibq',nbq,
-     &         MA_ERR)
+      if(.not.ma_free_heap(h_ibq))
+     + call errquit('qmmm:memory deallocation for ibq',nbq,
+     &       MA_ERR)
       
-        if(.not.ma_free_heap(h_qbq))
-     +   call errquit('qmmm:memory deallocation for qbq',nbq,
-     &         MA_ERR)
+      if(.not.ma_free_heap(h_qbq))
+     + call errquit('qmmm:memory deallocation for qbq',nbq,
+     &       MA_ERR)
 
-        if(.not.ma_free_heap(h_cbq))
-     +   call errquit('qmmm: memory deallocation for cbq',3*nbq,
-     +         MA_ERR)
+      if(.not.ma_free_heap(h_cbq))
+     + call errquit('qmmm: memory deallocation for cbq',3*nbq,
+     +       MA_ERR)
 
-        nbqs=0
-        nbqw=0
+       nbqs=0
+       nbqw=0
+       nbq=0
 
       end
 

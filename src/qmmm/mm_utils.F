@@ -298,6 +298,21 @@ c        local variables
          
        end
 
+      function mm_fixed(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_fixed
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+
+         mm_fixed = iand(int_mb(psdt+i-1),mfixed).eq.lfixed
+         
+       end
+
       function mm_link_bqzone(i)
          implicit none
 #include "mafdecls.fh"
