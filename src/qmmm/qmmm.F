@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.1 2004-02-10 01:07:32 marat Exp $
+c $Id: qmmm.F,v 1.2 2004-02-12 23:14:33 marat Exp $
 c
       logical function qmmm(rtdb)
       implicit none
@@ -48,7 +48,6 @@ c
       integer rtdb
 c
       character*(nw_max_path_len) filename
-      integer i
       integer i_m,l_m
       integer i_c,l_c
       integer i_q,l_q

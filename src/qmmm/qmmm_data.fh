@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_data.fh,v 1.1 2004-02-10 01:07:32 marat Exp $
+c $Id: qmmm_data.fh,v 1.2 2004-02-12 23:14:33 marat Exp $
 c
       integer lquant,lqlink,lqsoft,lqhigh,lqzone
       parameter(lquant=16)
@@ -13,4 +13,8 @@ c
 
       integer tot_nqm
       integer i_ai,h_ai
+
+
       common/qmmm_data/tot_nqm,i_ai,h_ai
+
+
