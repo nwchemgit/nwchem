@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.19 1997-06-24 22:21:34 mdupuis Exp $
+* $Id: prp.F,v 1.20 1997-07-02 17:06:45 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -65,7 +65,7 @@ C
       NEFC  =0
       IEFC  =IBLK
       RUNTYP=BLANK
-      WFNTYP=BLANK
+      WFNTYP=SCF  
       SCFTYP=RHF       
 C
       IF(NODHP.EQ.0.OR.NOD2HP.EQ.0) NODPL=0
@@ -329,6 +329,12 @@ C
       CALL HND_DAWRIT(IDAF,IODA,X(I10),L2,33,NAV)
       CALL HND_DAWRIT(IDAF,IODA,X(I20),L2,34,NAV)
       CALL HND_DAWRIT(IDAF,IODA,X(I30),L2,35,NAV)
+c
+      if(out) then
+         call hnd_prtr(x(i10),l1)
+         call hnd_prtr(x(i20),l1)
+         call hnd_prtr(x(i30),l1)
+      endif
 C
       IF(RUNTYP.EQ.PROP) GO TO 110
 C
@@ -342,6 +348,11 @@ c     ----- calculate density matrix -----
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i40),x(i50),x(i60),x(i70),
      2                      scftyp)
+c
+      if(out) then
+         call hnd_prtr(x(i40),l1)
+         call hnd_prtr(x(i50),l1)
+      endif
 C
       DMX=-hnd_prpDOT(X(I40),X(I10),L1)
       DMY=-hnd_prpDOT(X(I40),X(I20),L1)
@@ -11167,7 +11178,7 @@ c
       double precision da(*),db(*),d1nw(*),d2nw(*)
 c
       logical dbug
-      dbug=.false.
+      dbug=.false. 
 c
 c     get information about basis set
 c
@@ -11348,6 +11359,7 @@ c     calculate the density matrices from the movecs
 C     local variables
       integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2
       integer i, j, ij
+      integer iopen
       logical status
       logical dbug
       dbug=.false.
@@ -11374,15 +11386,21 @@ C  get MO vectors from file
       if (scftype .eq. 'RHF') then
 c       density matrix
 
-        call ga_matmul_patch('n', 't', 2.0D0, 0.0d0  ,
-     $       g_vecs,    1, nbf,            1, nclosed,
-     $       g_vecs,    1, nclosed,        1, nbf    ,
-     $       g_dens(1), 1, nbf,            1, nbf    )
+        if(nclosed.eq.0) then
+           call ga_zero(g_dens(1))
+        else
+           call ga_matmul_patch('n', 't', 2.0D0, 0.0d0  ,
+     $          g_vecs,    1, nbf,            1, nclosed,
+     $          g_vecs,    1, nclosed,        1, nbf    ,
+     $          g_dens(1), 1, nbf,            1, nbf    )
+        endif
         if (nopen .gt. 0) then
-             call ga_matmul_patch('n', 't', 1.0D0, 1.0d0  ,
-     $       g_vecs,1, nbf, nclosed+1, nclosed+nopen,
-     $       g_vecs,nclosed+1, nclosed+nopen,1,nbf  ,
+           do iopen=1,nopen
+             call ga_matmul_patch('n', 't', occ(iopen), 1.0d0,
+     $       g_vecs,1, nbf, nclosed+iopen, nclosed+iopen,
+     $       g_vecs,nclosed+iopen, nclosed+iopen,1,nbf  ,
      $       g_dens(1), 1, nbf,              1,nbf  )
+           enddo
         endif
         call ga_symmetrize(g_dens(1))
 
@@ -11408,14 +11426,26 @@ c       square to triangular format
       else  ! UHF
 c       density matrix  D_up and D_down
 
-        call ga_matmul_patch('n', 't', 1.0d0     , 0.0d0,
-     $    g_vecs,    1, nbf,             1, nopen +nclosed ,
-     $    g_vecs,    1, nopen +nclosed , 1, nbf,
-     $    g_dens(1), 1, nbf,             1, nbf)
-        call ga_matmul_patch('n', 't', 1.0d0     , 0.0d0,
-     $    g_vecs2,   1, nbf,             1, nopenu+nclosedu,
-     $    g_vecs2,   1, nopenu+nclosedu, 1, nbf,
-     $    g_dens(2), 1, nbf,             1, nbf)
+        call ga_zero(g_dens(1))
+        call ga_zero(g_dens(2))
+        if(nopen .gt.0) then
+           do iopen=1,nopen
+              write(6,*) 'iopen occ = ',iopen,occ(iopen)
+              call ga_matmul_patch('n', 't', occ(iopen), 1.0d0,
+     $           g_vecs,    1, nbf,        iopen , iopen          ,
+     $           g_vecs,iopen, iopen          , 1, nbf,
+     $           g_dens(1), 1, nbf,             1, nbf)
+           enddo
+        endif
+        if(nopenu.gt.0) then
+           do iopen=1,nopenu
+              write(6,*) 'iopen occ = ',iopen,occ(iopen+nbf)
+              call ga_matmul_patch('n', 't', occ(nbf+iopen), 1.0d0,
+     $           g_vecs2,    1, nbf,       iopen , iopen          ,
+     $           g_vecs2,iopen,iopen          , 1, nbf,
+     $           g_dens(2),  1, nbf,            1, nbf)
+           enddo
+        endif
 
 C       density total
 
@@ -11457,7 +11487,7 @@ c       square to triangular format
            enddo
         enddo
         if(dbug) then
-           call hnd_prtr(da,nbf)
+           call hnd_prtr(db,nbf)
         endif
 
 c       
