@@ -156,6 +156,8 @@ c
       logical oprin
       integer iwrite
       character*16 tag, element
+c
+      logical logical_dummy
 c     
       integer ic(4,nb),iiloc(nb,4)
 c     
@@ -164,7 +166,7 @@ c
       data iwrite/6/
 c     
       call atscf_bas_gather(geom, basis, iat, ic, iiloc,
-     $     isymax, hatom, znps, element, tag)
+     $     isymax, hatom, znps, element, tag, logical_dummy)
 c     
       call atomd(oprin,iwrite,znps,ic,isymax,hatom,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
