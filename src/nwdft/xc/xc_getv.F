@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.15 1997-11-14 01:14:33 d3h449 Exp $
+C$Id: xc_getv.F,v 1.16 1997-11-19 05:55:24 d3j191 Exp $
 c
       implicit none
 c      
@@ -13,9 +13,6 @@ c
       integer natoms
       logical IOLGC, wght_GA
       integer rtdb
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
-      double precision rho_n, rdens_atom(ipol*natoms*natoms)
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -26,6 +23,9 @@ c
 #include "util.fh"
 #include "sym.fh"
 c
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
       integer d(4),f(4)
 c     

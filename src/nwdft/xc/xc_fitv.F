@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.10 1997-04-21 23:43:13 d3h449 Exp $
+C$Id: xc_fitv.F,v 1.11 1997-11-19 05:55:23 d3j191 Exp $
 c
       implicit none
 c
@@ -60,8 +60,7 @@ c
 c           nTcols = ipol + nExc
 c
 c
-      integer me, nproc, nshells_ao, MXnshbf_ao,
-     &        nshells_XC, MXnshbf_XC
+      integer me, nproc, MXnshbf_ao, MXnshbf_XC
       integer ndbl
       integer lxc_coef, ixc_coef, lscr, iscr, lmiss
       integer ia, ii, j, k, next, istart, n3OI, l3OI, i3OI, lvvxc, 
