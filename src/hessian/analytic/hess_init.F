@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.40 2002-03-24 17:21:39 edo Exp $
+C $Id: hess_init.F,v 1.41 2002-03-26 06:59:53 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -352,14 +352,14 @@ c  be calculated without symmetry and with reasonable thresholds so
 c  the rest of the Hessian calculation will work properly.  Note that
 c  these values should be reset after the calculation is done.
 c
-       integer rtdb
-       integer geomnew, filesize, memsize
-       double precision ithresh,tol_rho,tol_rho_rd,e_conv
-       logical whatever,grid_file_close,xc_got2nd      
-       external xc_got2nd
-       character*15 gridtype
-       external grid_file_close
-c
+      integer rtdb
+      integer geomnew, filesize, memsize
+      double precision ithresh,tol_rho,tol_rho_rd,e_conv,
+     .     job_grid_acc
+      logical xc_got2nd      
+      external xc_got2nd
+      character*15 gridtype
+c     
 c  Get theory type
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -395,6 +395,7 @@ c
         else
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
+           ithresh=min(ithresh,1d-8)
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
         endif
@@ -407,6 +408,7 @@ c
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
         if (theory.eq.'scf') then
         else
+        ithresh = 1.0d-8
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
@@ -426,8 +428,26 @@ c
          else
             gridtype='fine'
          endif
+ 
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      $        call errquit('hessinit:rtdbcput failed',0)
+c
+c     set grid_acc consistent with fine (at least), ie 1d-7
+c
+      if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
+     &   job_grid_acc)) then
+          job_grid_acc = 1d-7
+      else
+         job_grid_acc = min(job_grid_acc,1d-7)
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
+     &   job_grid_acc))call errquit('hessint:rtdbput failed',1)
+c
+c     weight derivatives bit turned off
+c
+      if (.not. rtdb_put(rtdb, 'dft:weight derivatives', mt_log, 1, 
+     & .false.))call errquit('hessint:rtdbput failed',2)
+      
 c
 c     set tol_rho to at least 1d-11 (it is 1d-10 otherwise)
 c
@@ -442,7 +462,7 @@ c
          if (.not. rtdb_put(rtdb, 'dft:gridsym',
      $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0)
-         whatever=grid_file_close(.false.)
+         call grid_cleanup(rtdb,.false.)
 c
 c     set deltaE at least to 1d-7 
 c
