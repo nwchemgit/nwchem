@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.48 1997-12-08 19:44:11 d3g681 Exp $
+* $Id: int2e_file.F,v 1.49 1998-12-03 01:42:02 d3g681 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -96,9 +96,11 @@ c
       else
          max_cache_rec = 0
       end if
-      if (filesize .gt. 0) then
-         max_file_rec = filesize/rec_len_in_dbl
-      else if (filesize .eq. 0) then
+      if (filesize .ge. 0) then
+c
+c     Filesize=0 means use default. 
+c     Filesize>0 means user has specified value but need to use
+c     min of this value and actual available space.
 c
 c     If the file is in the scratch directory then use the piece
 c     of it available for this process, otherwise use all that
@@ -118,7 +120,13 @@ c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $        (8.0d0*rec_len_in_dbl))
          max_file_rec = max(0,max_file_rec)
+c
+         if (filesize.gt.0)
+     $        max_file_rec = min(max_file_rec,filesize/rec_len_in_dbl)
       else 
+c
+c     Filesize < 0 means user forced no filespace at all.
+c
          max_file_rec = 0
       end if
       if (max_file_rec .gt. 0) then ! For the semidirect logic
