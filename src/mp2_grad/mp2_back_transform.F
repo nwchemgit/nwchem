@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.25 1998-07-08 21:58:00 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.26 2000-11-02 20:22:45 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -54,7 +54,7 @@ c
       integer l_act, k_act, l_actsh, k_actsh
       integer twopdmunit
       integer junk, ninseg, ierr, i, j, ish, ishlo, ishhi, shmax, tdim
-      integer nsh, natoms, nactive
+      integer nsh, natoms, nactive, nblock
 c
       integer k_scr, l_scr, k_lab, l_lab, k_eri, l_eri, leneri, lenscr
       integer k_bftosh, l_bftosh, k_bftoce, l_bftoce, k_pdm, l_pdm
@@ -119,8 +119,17 @@ c     Right now we have an N**3 array in GA.  This is easily
 c     replaced with an N*B array with B=P*S*S (P procs, S=max shell size)
 c     by blocking the transformation.
 c
+c     For small problems some nodes may not have data in which case
+c     map(proc) will be set to zero ... discard these before creating
+c     the array.
+c
+      nblock = 0
+      do i = 1, ga_nnodes()
+         if (int_mb(k_map+i-1) .ne. 0) nblock = nblock + 1
+      end do
+c
       if (.not. ga_create_irreg(mt_dbl, nva, nbfpair,
-     $     'mp2: backt', 1, 1, int_mb(k_map), ga_nnodes(), g_buf))
+     $     'mp2: backt', 1, 1, int_mb(k_map), nblock, g_buf))
      $     call errquit('mp2: backt: ga_create failed', nva*nbfpair)
 c     
       call util_file_name('2pdm', .true., .true., fname)
