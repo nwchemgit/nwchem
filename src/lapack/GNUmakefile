@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.33 2000-04-18 00:21:44 edo Exp $
+#$Id: GNUmakefile,v 1.34 2000-04-27 01:11:33 edo Exp $
 
 include ../config/makefile.h
 
@@ -100,7 +100,7 @@ ifeq ($(TARGET),CRAY-T3E)
 OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
                slaev2.o slasr.o slanst.o slascl.o slasrt.o \
-               ssygv.o ssygst.o ssygs2.o slas2.o
+               ssygv.o ssygst.o ssygs2.o slas2.o clanhe.o clascl.o
 endif
 
 
