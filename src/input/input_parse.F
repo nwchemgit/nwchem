@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.59 2001-02-02 00:24:41 windus Exp $
+C     $Id: input_parse.F,v 1.60 2001-02-16 18:44:42 windus Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -76,7 +76,7 @@ c
             else if (inp_compare(.false.,test,'set')) then
                call input_set(rtdb)
             else if (inp_compare(.false.,test,'drdy').or.
-     &               inp_compare(.false.,test,'drdyvtst').or.
+     &               inp_compare(.false.,test,'dirdyvtst').or.
      &               inp_compare(.false.,test,'drdy_nwchem')) then
                call drdy_input(rtdb)
             else if (inp_compare(.false.,test,'stop')) then
