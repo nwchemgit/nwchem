@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.7 1997-04-01 03:43:42 gg502 Exp $
+C     $Id: ga_matpow.F,v 1.8 1998-02-02 16:00:45 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -210,7 +210,8 @@ c$$$               GA_MatPow = .FALSE.
 c$$$               Return
 c$$$            EndIf
 C
-            If ( Pow .lt. FP_Zero .AND. Elem .lt. MinEval ) then
+            If ( Pow .lt. FP_Zero .AND. Elem .lt. MinEval
+     $           .OR. Elem .lt. FP_Zero) then
                Write (LuErr, *)
      $            'Dropping small eigenvalue ', D, Elem
                Elem = FP_Zero
