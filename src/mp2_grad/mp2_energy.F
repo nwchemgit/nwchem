@@ -189,24 +189,20 @@ c
          enddo
       endif
 c     
-c...  now make the t's for the UHF case
-c     
-c...  first time through, form <aa||aa> and <ab||ab>
-c...  second time form <bb||bb> and <ba||ba>
       tol2e=1d-12
 c     
       e2=0.0d0
       if(scftype.eq.'RHF')
-     $     call mp2_grad_doit(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
+     $     call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $     int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $     num_oa_sym,num_va_sym,
-     $     g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
-     $     int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
-     $     num_oa_sym,num_va_sym,
-     $     dbl_mb(k_eval_a),dbl_mb(k_eval_a),
-     $     basis,geom,tol2e,e2,nbf,scftype)
+c...  now make the t's for the UHF case
+c     
+c...  first time through, form <aa||aa> and <ab||ab>
+c...  second time form <bb||bb> and <ba||ba>
+     $     dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,scftype)
       if(scftype.eq.'UHF')then
-         call mp2_grad_doit(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
+         call mp2_grad_uhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $        num_oa_sym,num_va_sym,
      $        g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
@@ -214,7 +210,7 @@ c
      $        num_ob_sym,num_vb_sym,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
      $        basis,geom,tol2e,e2,nbf,scftype)
-         call mp2_grad_doit(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
+         call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        num_ob_sym,num_vb_sym,
      $        g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
