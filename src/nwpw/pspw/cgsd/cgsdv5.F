@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.55 2004-12-06 20:03:25 bylaska Exp $
+* $Id: cgsdv5.F,v 1.56 2004-12-18 20:01:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -130,8 +130,8 @@
       external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-      logical  control_print
-      external control_print
+      logical  control_print,control_qmmm
+      external control_print,control_qmmm
       integer  control_mapping
       external control_mapping
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -288,6 +288,7 @@ c     value = psi_initialize()
          write(6,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(6,1130) "restricted"
          if (psi_ispin().eq.2) write(6,1130) "unrestricted"
+         if (control_qmmm()) write(6,1122)
          IF (control_gga().eq.-1) THEN
             write(6,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
@@ -639,6 +640,7 @@ c     end if
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
+ 1122 FORMAT(5X,' qmmm simulation')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')

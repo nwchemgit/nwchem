@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.51 2004-11-29 16:05:20 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.52 2004-12-18 20:01:52 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -463,12 +463,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       integer     ion_katm,ion_nion,control_version
       integer     pspw_qmmm_nion,pspw_charge_nion
       real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      real*8      pspw_charge_charge
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external control_allow_translation,ion_q_FixIon,control_print
       external ion_aname,pspw_qmmm_aname,pspw_charge_aname
       external ion_katm,ion_nion,control_version
       external pspw_qmmm_nion,pspw_charge_nion
       external ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      external pspw_charge_charge
 
 
       allow_translation = control_allow_translation()
@@ -548,11 +550,13 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
           do i=1,pspw_charge_nion()
             i1 = ion_nion() + i
             if (ion_q_FixIon(i1)) then
-            write(luout,1191) i1,pspw_charge_aname(i),
-     >                    (pspw_charge_rion(K,i),K=1,3)
+            write(luout,1193) i1,pspw_charge_aname(i),
+     >                    (pspw_charge_rion(K,i),K=1,3),
+     >                    pspw_charge_charge(i)
             else
-            write(luout,1190) i1,pspw_charge_aname(i),
-     >                    (pspw_charge_rion(K,i),K=1,3)
+            write(luout,1192) i1,pspw_charge_aname(i),
+     >                    (pspw_charge_rion(K,i),K=1,3),
+     >                    pspw_charge_charge(i)
             end if
           end do
         end if
@@ -606,6 +610,8 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       return
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
  1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
+ 1192 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) q=',F8.3)
+ 1193 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) q=',F8.3,' - fixed')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(//'== Gradient Calculation ==')

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.63 2004-12-06 20:03:24 bylaska Exp $
+* $Id: control.F,v 1.64 2004-12-18 20:01:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -1779,9 +1779,11 @@ c      end
 #include "inp.fh"
 #include "util.fh"
 
-      logical value
+      logical value,task_qmmm
       character*30 operation
 
+      logical  control_qmmm
+      external control_qmmm
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -1799,9 +1801,42 @@ c      end
       if (inp_compare(.false.,'freq',operation)) value = .true.
       if (inp_compare(.false.,'hessian',operation)) value = .true.
 
+*     *** allow translation for QMMM ***
+      if (control_qmmm()) value = .true.
+
+
       control_allow_translation = value
       return
       end
+
+
+
+
+*     *****************************
+*     *                           *
+*     *        control_qmmm       *
+*     *                           *
+*     *****************************
+      logical function control_qmmm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+
+      logical task_qmmm
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     >  task_qmmm = .false.
+
+      control_qmmm = task_qmmm
+      return
+      end
+
 
 *     ****************************
 *     *                	 	 *

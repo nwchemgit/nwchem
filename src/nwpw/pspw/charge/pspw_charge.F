@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.11 2003-10-17 22:57:12 carlfahl Exp $
+c $Id: pspw_charge.F,v 1.12 2004-12-18 20:01:53 bylaska Exp $
 c
   
 ***********************************************************
@@ -38,8 +38,8 @@ c
       character*16 t
 
 *     **** external functions ****
-      logical     ion_chargeexist
-      external    ion_chargeexist
+      logical     ion_chargeexist,control_qmmm
+      external    ion_chargeexist,control_qmmm
 
 
 *     *************************
@@ -85,8 +85,10 @@ c
 
 *       **** set charge_type ****
         if (.not.rtdb_get(rtdb,
-     >         'nwpw:charge_type',mt_int,1,charge_type))
-     >    charge_type = 1
+     >         'nwpw:charge_type',mt_int,1,charge_type)) then
+          charge_type = 1
+          if (control_qmmm()) charge_type = 3 ! set charge type 3 for qmmm
+        end if
  
         if (charge_type.eq.2) then
            if (.not.rtdb_get(rtdb,
@@ -101,6 +103,12 @@ c
      >         'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >       s_sigma = 0.8d0/0.529177d0
 
+        end if
+        if (charge_type.eq.3) then
+           if (.not.rtdb_get(rtdb,'nwpw:charge_rcut',mt_dbl,1,s_sigma))
+     >       s_sigma = (0.37d0/0.3d0)/0.529177d0  ! should give covalent radii for spc water
+           if (.not.rtdb_get(rtdb,'nwpw:charge_ncut',mt_int,1,n_sigma))
+     >       n_sigma = 4
         end if
       
 
@@ -423,10 +431,13 @@ c
 #include "pspw_charge.fh"
 
 *     ***** local variables ****
-      integer ii,k
-      real*8 x1,y1,z1,q1,r,epsilon
+      integer ii,ia,k,p1,p2,po2
+      real*8 x1,y1,z1,q1,r,r2,rc,epsilon,ttt,sss
+      real*8 rc1,rc2,rr1,rr1p
 
 *     **** external functions ****
+      integer  ion_katm
+      external ion_katm
       real*8   util_erf
       external util_erf
 
@@ -474,7 +485,37 @@ c
                 Vqm(k) = Vqm(k) - epsilon*q1*util_erf(r/s_sigma)/r
               end do
            end do   
+
+*        **** short-range repulsion ****
+         else if (charge_type.eq.3) then
+           p1  = n_sigma
+           po2 = n_sigma/2
+           p2  = n_sigma+1
+           do ii=1,nion
+              x1 = dbl_mb(r1(1)+3*(ii-1))
+              y1 = dbl_mb(r1(1)+3*(ii-1)+1)
+              z1 = dbl_mb(r1(1)+3*(ii-1)+2)
+              q1 = -dbl_mb(charge(1)+ii-1)
+              rc = abs(q1)*s_sigma
+              if (rc.gt.1.5d0) rc=1.5d0 !stupid check
+              rc1 = abs(q1)*rc**p1
+              rc2 = rc**p2
+              do k=1,n2ft3d
+                 r2 = (rgrid(1,k)-x1)**2
+     >              + (rgrid(2,k)-y1)**2
+     >              + (rgrid(3,k)-z1)**2
+                 r = dsqrt(r2)
+                 rr1  = r2**po2
+                 rr1p = r*rr1
+                 ttt = rc1 + q1*rr1
+                 sss = rc2 +    rr1p
+                 ttt = ttt/sss
+                 Vqm(k) = Vqm(k) + ttt
+              end do
+           end do   
+
          end if
+
 
       end if
 
@@ -484,7 +525,7 @@ c
 
 *     **********************************
 *     *	                               *
-*     *     pspw_charge_rho_Fcharge        *
+*     *     pspw_charge_rho_Fcharge    *
 *     *                                *
 *     **********************************
 
@@ -503,7 +544,8 @@ c
       integer i,j
       real*8 rx,ry,rz,c
       real*8 fx,fy,fz,verf,yerf,v
-      real*8 x,y,z,q,r,epsilon,depsilon,sqrt_pi
+      real*8 x,y,z,q,r,r2,rc,epsilon,depsilon,sqrt_pi
+      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc1p,p1,po2,p2
 
 *     **** external functions ****
       real*8   util_erf
@@ -549,7 +591,7 @@ c
 
 
 *     **** switching charge potential **** 
-      else
+      else if (charge_type.eq.2) then
       do j=1,nion
          x = dbl_mb(r1(1)+3*(j-1))
          y = dbl_mb(r1(1)+3*(j-1)+1)
@@ -600,6 +642,53 @@ c
          fcharge(2,j) = fcharge(2,j) - fy*dv
          fcharge(3,j) = fcharge(3,j) - fz*dv
       end do
+
+*     **** short-range repulsion ****
+      else if (charge_type.eq.3) then
+      p1  = n_sigma
+      p2  = n_sigma+1
+      po2 = n_sigma/2
+      do j=1,nion
+         x = dbl_mb(r1(1)+3*(j-1))
+         y = dbl_mb(r1(1)+3*(j-1)+1)
+         z = dbl_mb(r1(1)+3*(j-1)+2)
+         q = -dbl_mb(charge(1)+j-1)
+         rc = abs(q)*s_sigma
+         if (rc.gt.1.5d0) rc=1.5d0  ! stupid check
+         rc1  = rc**p1
+         rc1p = rc**p2
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,n2ft3d
+            rx = x - rgrid(1,i)
+            ry = y - rgrid(2,i)
+            rz = z - rgrid(3,i)
+            r2 = (rx**2 + ry**2 + rz**2)
+            r  = dsqrt(r2)
+
+            rr1m = r*r2**(po2-1)
+            rr1  = r*rr1m
+            rr1p = r2*rr1m
+            ttt = abs(q)*rc1  + q*rr1
+            sss =        rc1p + rr1p
+
+            v = q*p1*rr1m - p2*rr1*ttt/sss
+            v = v/(r*sss)
+
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
+         end do
+
+         call D3dB_SumAll(fx)
+         call D3dB_SumAll(fy)
+         call D3dB_SumAll(fz)
+         fcharge(1,j) = fcharge(1,j) - fx*dv
+         fcharge(2,j) = fcharge(2,j) - fy*dv
+         fcharge(3,j) = fcharge(3,j) - fz*dv
+      end do
+
       end if
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.33 2004-11-29 16:05:18 bylaska Exp $
+* $Id: ion.F,v 1.34 2004-12-18 20:01:52 bylaska Exp $
 *
 
 *     ***************************
@@ -341,17 +341,17 @@ c         eki1=0.5d0*eki1
       end
 
 *     ***************************
-*     *							*
-*     *	     ion_amass			*
-*     *							*
+*     *				*
+*     *	     ion_amass		*
+*     *				*
 *     ***************************
       real*8 function ion_amass(i)
       implicit none
-#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 
       integer geom
@@ -366,6 +366,70 @@ c         eki1=0.5d0*eki1
       ion_amass = mass*1822.89d0
       return
       end
+
+*     ***************************
+*     *				*
+*     *	     ion_rcovalent	*
+*     *				*
+*     ***************************
+*
+*  returns the covalent radius in bohr
+*
+      real*8 function ion_rcovalent(i)
+      implicit none
+      integer i
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ion.fh"
+
+      character*2 aname
+      real*8 radius
+
+      call pspw_copy_atom(1,byte_mb(atom(1)+2*(i-1)),aname)
+
+      radius = 1.2d0/0.529177d0
+      if (inp_compare(.false.,aname,'h'))  radius = 0.37d0/0.529177d0
+      if (inp_compare(.false.,aname,'li')) radius = 1.23d0/0.529177d0
+      if (inp_compare(.false.,aname,'be')) radius = 0.89d0/0.529177d0
+      if (inp_compare(.false.,aname,'b'))  radius = 0.88d0/0.529177d0
+      if (inp_compare(.false.,aname,'c'))  radius = 0.77d0/0.529177d0
+      if (inp_compare(.false.,aname,'n'))  radius = 0.70d0/0.529177d0
+      if (inp_compare(.false.,aname,'o'))  radius = 0.66d0/0.529177d0
+      if (inp_compare(.false.,aname,'f'))  radius = 0.64d0/0.529177d0
+      if (inp_compare(.false.,aname,'na')) radius = 1.57d0/0.529177d0
+      if (inp_compare(.false.,aname,'mg')) radius = 1.36d0/0.529177d0
+      if (inp_compare(.false.,aname,'al')) radius = 1.25d0/0.529177d0
+      if (inp_compare(.false.,aname,'si')) radius = 1.17d0/0.529177d0
+      if (inp_compare(.false.,aname,'p'))  radius = 1.10d0/0.529177d0
+      if (inp_compare(.false.,aname,'s'))  radius = 1.04d0/0.529177d0
+      if (inp_compare(.false.,aname,'cl')) radius = 0.99d0/0.529177d0
+      if (inp_compare(.false.,aname,'k'))  radius = 2.03d0/0.529177d0
+      if (inp_compare(.false.,aname,'ca')) radius = 1.74d0/0.529177d0
+      if (inp_compare(.false.,aname,'ga')) radius = 1.25d0/0.529177d0
+      if (inp_compare(.false.,aname,'ge')) radius = 1.22d0/0.529177d0
+      if (inp_compare(.false.,aname,'as')) radius = 1.21d0/0.529177d0
+      if (inp_compare(.false.,aname,'se')) radius = 1.17d0/0.529177d0
+      if (inp_compare(.false.,aname,'br')) radius = 1.14d0/0.529177d0
+      if (inp_compare(.false.,aname,'rb')) radius = 2.16d0/0.529177d0
+      if (inp_compare(.false.,aname,'sr')) radius = 1.92d0/0.529177d0
+      if (inp_compare(.false.,aname,'in')) radius = 1.50d0/0.529177d0
+      if (inp_compare(.false.,aname,'sn')) radius = 1.40d0/0.529177d0
+      if (inp_compare(.false.,aname,'sb')) radius = 1.41d0/0.529177d0
+      if (inp_compare(.false.,aname,'te')) radius = 1.37d0/0.529177d0
+      if (inp_compare(.false.,aname,'i'))  radius = 1.33d0/0.529177d0
+      if (inp_compare(.false.,aname,'cs')) radius = 2.35d0/0.529177d0
+      if (inp_compare(.false.,aname,'ba')) radius = 1.98d0/0.529177d0
+      if (inp_compare(.false.,aname,'tl')) radius = 1.55d0/0.529177d0
+      if (inp_compare(.false.,aname,'pb')) radius = 1.54d0/0.529177d0
+      if (inp_compare(.false.,aname,'bi')) radius = 1.52d0/0.529177d0
+      if (inp_compare(.false.,aname,'po')) radius = 1.53d0/0.529177d0
+
+      ion_rcovalent = radius
+      return
+      end
+
 
 *     ***********************
 *     *						*
