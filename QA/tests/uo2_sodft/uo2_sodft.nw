@@ -125,6 +125,7 @@ dft
   convergence gradient 1E-05
   iterations 100  
   mulliken
+  convergence lshift 0
 end
 task sodft 
 
