@@ -1,6 +1,6 @@
       subroutine grid_buckinit(g_buck,g_buckind)
 c
-c$Id: grid_bucket.F,v 1.6 2000-03-18 02:14:58 edo Exp $
+c$Id: grid_bucket.F,v 1.7 2000-03-18 07:14:21 edo Exp $
 c
       implicit none
       integer g_buck,g_buckind
@@ -14,7 +14,8 @@ c
 c
       integer i,nctrs,dum
       integer grid_ncubes,ipts
-      external grid_ncubes
+      double precision grid_lcube
+      external grid_ncubes,grid_lcube
 c
       if(.not.geom_ncent(geom, nctrs))
      . call errquit(' gridb_buck: geom cent failed',0)
@@ -23,8 +24,9 @@ c     get ncubes
 c
       ncubesmx=1
       do i=1,ntypes
+         lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
-     ,        .false.,dum)
+     ,        .false.,dum,lcube(i))
          ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
       write(6,*) ' NCUBES ',ncubesmx
@@ -33,7 +35,8 @@ c
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)
       do i=1,ntypes
          ipts=k_nxyz+(i-1)*ncubesmx
-         dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts))
+         dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts),
+     ,        lcube(i))
       enddo
       return
       end

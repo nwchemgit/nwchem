@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.9 2000-03-18 02:14:58 edo Exp $
+* $Id: cgridfile.fh,v 1.10 2000-03-18 07:14:21 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -47,7 +47,7 @@ c     save on memory since have only physical memory
       parameter (buffer_size = 8192/4)
 #else
 cedo      parameter (buffer_size = 8000)
-      parameter (buffer_size = 8192/4)
+      parameter (buffer_size = 8192/32)
 !      parameter (buffer_size = 32768)
 c      parameter (buffer_size = 100)
 #endif

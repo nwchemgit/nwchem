@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.13 2000-03-17 22:44:43 edo Exp $
+* $Id: grid_file.F,v 1.14 2000-03-18 07:14:22 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -569,11 +569,15 @@ c
 c
       write(6,*) ' needed', int(nq)
       write(6,*) ' avail ', avail
-      if (int(nq) .lt. avail) then
-         localmemsize = max(8*buffer_size,int(nq))
-      else
-         localmemsize = 0
-      endif
+!      if (int(nq) .lt. avail) then
+!         localmemsize = max(8*buffer_size,int(nq))
+!      else
+!         localmemsize = 0
+!      endif
+c
+c     let's grab 1/4 memory
+c
+      localmemsize=avail/4
       write(6,*)' localme ', localmemsize
 c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 

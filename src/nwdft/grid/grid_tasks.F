@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.18 2000-03-18 02:14:59 edo Exp $
+c$Id: grid_tasks.F,v 1.19 2000-03-18 07:14:22 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,nproc,me,g_buck,g_buckind,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
-     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube,ncubenz
+     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
 
       logical trunc_neigh
       logical grid_file_open
@@ -121,18 +121,20 @@ c
 c
 c     get no of segment
 c
-         rad=dble(rad_cutoff(1,iatype(i_a)))
-         nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
+         iaia=iatype(i_a)
+         rad=dble(rad_cutoff(1,iaia))
+c         nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
+         nxyz=nint((rad*2d0-lcube(iaia))/(lcube(iaia)*2d0))
 c
 c     loop over cubes centers on i_a
 c
          do ncu=1,ncubes_type(iatype(i_a))
             fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
 cedo            write(0,*) ' ncu ',ncu,nxyz
-            call n2nxyz(nxyz,fnxyz,nx,ny,nz)
+            call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
             
 !            write(0,*) ' nxyz ',fnxyz,nx,ny,nz
-            call grid_rmaxmin(nx,ny,nz,rmax,rmin,l_rect)
+            call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia))
             call dfill(4*npts_per_ang, 0.0d0, aqbuf, 1)
             rad_write=rmax
             nq_cube=0

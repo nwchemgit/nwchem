@@ -1,6 +1,6 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.4 2000-03-17 22:44:43 edo Exp $
+c$Id: grid_sphere.F,v 1.5 2000-03-18 07:14:22 edo Exp $
 c
       implicit none
       integer nx,ny,nz            ! [in]
@@ -30,10 +30,11 @@ c
       if(dista.gt.rad) grid_insidesp=.false.
       return
       end
-      integer function grid_ncubes(rad,ynxyz,fnxyz)
+      integer function grid_ncubes(rad,ynxyz,fnxyz,l_rect)
       implicit none
       integer nx,ny,nz,nxyz
       integer ninside
+      double precision l_rect ! [in]
       double precision rad ! [in]
       integer fnxyz(*)     ! [out]
       logical ynxyz        ! [in] get points
@@ -54,7 +55,8 @@ c
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=nxyz2n(nx,ny,nz,nxyz)
-                     call n2nxyz(nxyz,fnxyz(ninside),onx,ony,onz)
+                     call grid_n2nxyz(
+     .                    nxyz,fnxyz(ninside),onx,ony,onz)
                      if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
                         write(0,*) ' IN nx ny nz ',nx,ny,nz,
      ,                    fnxyz(ninside)
@@ -70,7 +72,7 @@ c
       grid_ncubes=ninside
       return
       end
-      subroutine n2nxyz(nxyz,npoint,nx,ny,nz)
+      subroutine grid_n2nxyz(nxyz,npoint,nx,ny,nz)
       implicit none
       integer nx,ny,nz    ! [out]
       integer nxyz,npoint ! [in]
@@ -113,8 +115,9 @@ c
       rmin=sqrt(rr)*l
       return
       end
-      logical function grid_incube(x,y,z,nx,ny,nz)
+      logical function grid_incube(x,y,z,nx,ny,nz,l_rect)
       double precision x,y,z ! [in] point coors
+      double precision l_rect ! [in] cube size
       integer nx,ny,nz       ! [in] cube definition
 c
 c     returns true if xyz is inside cube defined by nx,ny,nz
@@ -135,5 +138,16 @@ c
             endif
          endif
       endif
+      return
+      end
+      double precision function grid_lcube(rad)
+      double precision rad
+c
+      double precision l_cube
+      parameter(l_cube=4d0)
+      integer n
+c
+      n=(rad+rad)/l_cube
+      grid_lcube=dble(rad+rad)/dble(n)
       return
       end

@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     nx,ny,nz)
 c
-c$Id: grid_qpts.F,v 1.8 2000-03-17 22:44:43 edo Exp $
+c$Id: grid_qpts.F,v 1.9 2000-03-18 07:14:22 edo Exp $
 c
       implicit none
 c      
@@ -63,7 +63,8 @@ c
 c
 c           Define the quadrature point and weight.
 c            
-            if(grid_incube(xor,yor,zor,nx,ny,nz)) then
+            if(grid_incube(xor,yor,zor,nx,ny,nz,
+     ,           lcube(ia_ictr))) then
                nq = nq + 1
                aqbuf(1,nq) = xyz(1) + xor
                aqbuf(2,nq) = xyz(2) + yor
@@ -99,7 +100,8 @@ c
 c
 c              Define the quadrature point and weight.
 c             
-            if(grid_incube(xor,yor,zor,nx,ny,nz)) then
+            if(grid_incube(xor,yor,zor,nx,ny,nz,
+     ,              lcube(ia_ictr))) then
                nq = nq + 1
                aqbuf(1,nq) = xyz(1) + xor
                aqbuf(2,nq) = xyz(2) + yor

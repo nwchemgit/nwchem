@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.8 2000-03-18 02:14:58 edo Exp $
+c$Id: grid_quadv0a.F,v 1.9 2000-03-18 07:14:22 edo Exp $
 c
       implicit none
 c
@@ -43,7 +43,6 @@ c
       integer nbf_ao_mxnbf_ce2, 
      &        mbf_ao, 
      &        npol, iqsh, nscr, me
-      integer  istep, istepm1
       integer ibp, lbp, iibf_ao, libf_ao, lchi_ao, ichi_ao, 
      &        ldelchi_ao, idelchi_ao, iscr, lscr, 
      &        lrscr, irscr
@@ -51,9 +50,10 @@ c
      &        lrdelchi_atom, irdelchi_atom
       integer nat_tot,nat_scr
       integer nqpts_per_buf, nqpts, ictr_buf
-      integer lrqbuf, irqbuf,ldmat,idmat,i,iii
+      integer lrqbuf, irqbuf,ldmat,idmat,i,iii,k_rq,l_rq,
+     .     grid_nbfm
       logical grid_file_rewind
-      external grid_file_rewind
+      external grid_file_rewind,grid_nbfm
       Logical GRAD, oprint
       logical xc_chkgrad,trunc_neigh
       external xc_chkgrad
@@ -97,6 +97,15 @@ c
      ,     'rho scr',lrscr,irscr))
      &     call errquit('grid_den_2: cannot allocate rho scr',5)
 
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'rchi_atom',
+     &     lrchi_atom,irchi_atom))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
+     &     lrdelchi_atom,irdelchi_atom))call errquit
+     &        ('dft_scf: cannot allocate rdelchi_atom',0)
+      if (.not.MA_Push_get(MT_dbl, buffer_size, 
+     &                     'quad pts buffer', l_rq, k_rq))
+     &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
 C
       do 200 iqsh = 1, n_tot_tasks
 c
@@ -104,6 +113,8 @@ c     Define the current range of radial shells and integration center.
 c     
          call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf))
+         if(nqpts.gt.buffer_size) call
+     '        errquit(' buffersize exceed by qpts ',nqpts)
 cedo         write(0,*) ' nq ',nqpts
         if(nqpts.eq.0) goto 200
 
@@ -128,10 +139,11 @@ c
          mbf_ao=nbf_ao
          if(natoms.gt.1) then
          call ifill(mbf_ao, 0, int_mb(iibf_ao), 1)
-         call nbf_to_mbf(AO_bas_han,  mbf_ao, natoms, 
-     &        ictr_buf,rad,xyz,
+         mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
+     &        ictr_buf,xyz,qxyz,nqpts,dbl_mb(k_rq),
      &        int_mb(iibf_ao),  iniz, ifin, expo, 
      &        acc_ao_gauss)
+c         write(0,*) ' mbf ',mbf_ao,' out of ',nbf_ao
          if (mbf_ao.eq.0) goto 200
          else
             iniz(1)=1
@@ -169,22 +181,15 @@ c
      &        max(3*nqpts*nbf_ao_mxprim,
      &        nqpts*max_elem_ang_scr) + 1
 c     
-c     write(6,*)' nscr, nq, nbf_ao_mxcont, nbf_ao_mxprim ',
-c     &                  nscr, nq, nbf_ao_mxcont, nbf_ao_mxprim
-c     write(6,*)' nbf_ao_mxang, max_component, max_elem_ang_scr ',
-c     &                  nbf_ao_mxang, max_component, max_elem_ang_scr
-c     
          if (.not.MA_Push_Get(mt_dbl,nscr,'scrCD',lscr,iscr))
      &        call errquit('grid_den_2: cannot allocate scrCD',12)
          call dfill(nscr, 0.0d0, dbl_mb(iscr), 1)
 c     
-         istep = 1
-         istepm1 = istep - 1
          call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
          call new_eval_gbsets(ao_bas_han, grad, .false., 
      &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
-     &        hess, int_mb(iibf_ao), istepm1, rq0, 
-     &        rq, qxyz(1,istep), xyz, nqpts, nqpts, 
+     &        hess, int_mb(iibf_ao), 0, rq0, 
+     &        rq, qxyz, xyz, nqpts, nqpts, 
      &        mbf_ao, natoms, dbl_mb(iscr), nscr, 
      &        expo, nbf_ao_mxprim, ccoef, ncoef_max, 
      &        iniz,ifin)
@@ -195,14 +200,8 @@ c
 c     
 c        get reduced Xi(r) and dXi(r) over atoms
 c     
-         if (.not.MA_Push_Get(MT_Dbl,natoms,'rchi_atom',
-     &        lrchi_atom,irchi_atom))
-     &        call errquit('dft_scf: cannot allocate rchi_atom',0)
          call dfill(natoms, 0.0d0, dbl_mb(irchi_atom), 1)
 c     
-         if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
-     &        lrdelchi_atom,irdelchi_atom))call errquit
-     &        ('dft_scf: cannot allocate rdelchi_atom',0)
          call dfill(natoms, 0.0d0, dbl_mb(irdelchi_atom), 1)
 c
          call grid_getrchi(iqsh,grad,
@@ -228,12 +227,12 @@ c
          nqtot = nqtot + nqpts
 c
          rho_int = rho_int + 
-     &        ddot(nqpts, qwght(istep), 1, rho, 1)
-c      write(6,*)' iqsh, istep, nq, rho_int: ',
-c     &                  iqsh, istep, nqpts, rho_int
+     &        ddot(nqpts, qwght, 1, rho, 1)
+c      write(6,*)' iqsh,  nq, rho_int: ',
+c     &                  iqsh,  nqpts, rho_int
 c
             call xc_eval_fnl(rho, delrho, Amat,
-!     &           Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght(istep),
+!     &           Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &           dummy, Cmat, dummy, nqpts, Ex, Ec, qwght,
      &           GRAD, .false., dummy, .false.)
 
@@ -255,16 +254,18 @@ c
 
                if (.not.ma_pop_stack(lDmat))
      &         call errquit('xc_quadv0_a: cannot pop stack', 0)
-         if (.not.ma_pop_stack(lrdelchi_atom))
-     &        call errquit('grid_den_2: cannot pop stack',0)
-         if (.not.ma_pop_stack(lrchi_atom))
-     &        call errquit('grid_den_2: cannot pop stack',0)
          if (.not.ma_pop_stack(ldelchi_ao))
      &        call errquit('grid_den_2: cannot pop stack', 0)
          if (.not.ma_pop_stack(lchi_ao))
      &        call errquit('grid_den_2: cannot pop stack', 0)
 c      write(6,*)' task completed: ',iqsh
   200 continue
+      if (.not.ma_pop_stack(l_rq))
+     &     call errquit('grid_den_2: cannot pop stack',-1)
+      if (.not.ma_pop_stack(lrdelchi_atom))
+     &     call errquit('grid_den_2: cannot pop stack',0)
+      if (.not.ma_pop_stack(lrchi_atom))
+     &     call errquit('grid_den_2: cannot pop stack',0)
       if (.not.ma_pop_stack(lrscr))
      &     call errquit('grid_den_2: cannot pop stack',5)
       if (.not.ma_pop_stack(lbp))
