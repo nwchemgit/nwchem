@@ -1,5 +1,5 @@
       logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.3 1996-02-05 23:22:03 d3e129 Exp $
+c $Id: int_norm_2c.F,v 1.4 1996-03-12 01:42:58 d3h449 Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -26,6 +26,8 @@ c
 
 c
 c check and set basis normalization
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
 c
       norm_ok = bas_norm_id(basis).eq.BasNorm_2c
       if (norm_ok) return ! basis has been normalized properly
