@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.15 2001-03-08 19:27:45 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.16 2001-03-24 01:31:48 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -102,7 +102,7 @@ c
       Ec = 0.d0
       Ex = 0.d0
       if (.not. rtdb_get(bgj_get_rtdb_handle(), 'bgj:new_bf', mt_log,
-     &     1, donewbf)) donewbf = .false.
+     &     1, donewbf)) donewbf = .true.
       if (bgj_print() .gt. 0)
      &    write(*,*)'*** dftg_gridv0a: logicals ',
      &    do_force,do_hess,do_cpks_r
