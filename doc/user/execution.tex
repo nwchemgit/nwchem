@@ -151,8 +151,11 @@ running NWChem (or setting them using POE command line options).
   down global array accesses).
 \end{itemize}
 
-The very simplest job to run NWChem in batch using Load Leveller is
-something like this
+For batch execution, we recommend use of the \verb+llnw+ command which
+is installed in \verb+/usr/local/bin+ on the EMSL/PNNL IBM SP.
+Interactive help may be obtained with the command \verb+llnw -help+.
+Otherwise, the very simplest job to run NWChem in batch using Load
+Leveller is something like this
 \begin{verbatim}
 #!/bin/csh -x
 # @ job_type         =    parallel

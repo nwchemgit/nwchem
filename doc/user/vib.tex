@@ -1,11 +1,11 @@
-% $Id: vib.tex,v 1.7 1997-06-27 08:58:41 d3e129 Exp $
+% $Id: vib.tex,v 1.8 1998-03-10 23:25:37 d3g681 Exp $
 
 The nuclear hessian which is used to compute the vibrational
 frequencies can be computed by finite difference for any ab initio
 wavefunction that has analytic gradients.  An analytic nuclear hessian
-is available only for SCF.  The appropriate nuclear hessian generation
-algorithm is chosen based on the user input when \verb+TASK <theory>
-frequencies+ is the task directive.
+is available only for small, closed-shell SCF.  The appropriate
+nuclear hessian generation algorithm is chosen based on the user input
+when \verb+TASK <theory> frequencies+ is the task directive.
 
 The vibrational package was integrated from the Utah Messkit and can
 use any nuclear hessian generated from the driver routines.  There is
@@ -23,7 +23,7 @@ The default mass of each atom is used unless an alternative mass is
 provided via the geometry input, (c.f., \ref{sec:geom}).  The default
 mass is the mass of the most abundant isotope of each
 element.\footnote{c.f., "The Elements" by John Emsley, Oxford
-  University Press, (C) 1989, ISBN 0-19-855237-8.} When the abundance
+  University Press, (C) 1989, ISBN 0-19-855237-8.} If the abundance
 was roughly equal the mass of the isotope with the longest half life
 was used.
 
