@@ -22,6 +22,6 @@
 #   define DGEWR2	SGEWR2
 #   define DSYWR	SSYWR
 #   define DSPWR        SSPWR
-#endif SNGLPR
+#endif
 
-#endif !_OUTPUT_
+#endif
