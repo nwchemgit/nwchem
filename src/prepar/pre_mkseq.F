@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale,altloc,chain,icyren)
 c
-c $Id: pre_mkseq.F,v 1.21 1998-09-18 22:59:43 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.22 1998-09-23 16:17:39 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -179,7 +179,7 @@ c
 c     comply with iupac atom names
 c     ----------------------------
 c
-      if(.not.pre_namiup(lfnout,
+      if(.not.pre_namiup(lfnout,ffield,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
      + call errquit('pre_namiup failed',9999)

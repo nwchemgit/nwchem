@@ -1,6 +1,6 @@
       integer function pre_atnum(element)
 c
-c $Id: pre_atnum.F,v 1.2 1998-04-28 23:10:45 d3j191 Exp $
+c $Id: pre_atnum.F,v 1.3 1998-09-23 16:17:38 d3j191 Exp $
 c
       implicit none
       character*2 element
@@ -29,8 +29,8 @@ c
      + 'PM','SM','EU','GD','TB','DY','HO','ER','TM','YB',
      + 'LU','HF','TA',' W','RE','OS','IR','PT','AU','HG',
      + 'TL','PB','BI','PO','AT','RN','FR','RA','AC','TH',
-     + 'PA',' U','NP','PU','AM','CM','BK','CF','ES','FM',
-     + 'MD','NO','LR','RF','HA' /
+     + 'PA',' U','Np','PU','AM','CM','BK','CF','ES','FM',
+     + 'MD','No','LR','RF','HA' /
 c
       integer i
 c

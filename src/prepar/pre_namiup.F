@@ -1,7 +1,7 @@
-      logical function pre_namiup(lfnout,
+      logical function pre_namiup(lfnout,ffield,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: pre_namiup.F,v 1.6 1998-06-08 23:29:35 d3j191 Exp $
+c $Id: pre_namiup.F,v 1.7 1998-09-23 16:17:39 d3j191 Exp $
 c
 c     function to comply with IUPAC atom naming
 c
@@ -20,15 +20,17 @@ c
 c
 #include "util.fh"
 c
-      integer pre_atnum
-      external pre_atnum
+      integer pre_atnum,pre_protein
+      external pre_atnum,pre_protein
 c
       integer lfnout
+      character*80 ffield
       integer mseq,matm
       integer nseq,natm
       integer lseq(4,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
+      character*2 elemnt
 c
       integer i
       logical flag1
@@ -40,7 +42,9 @@ c
 c
       flag1=.false.
       do 1 i=1,natm
+      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
       if(catm(1,i)(1:2).eq.'1H') flag1=.true.
+      endif
       catm(2,i)=catm(1,i)
     1 continue
 c
@@ -48,9 +52,11 @@ c     IUPAC hydrogen naming
 c
       if(flag1) then
       do 2 i=1,natm
+      if(pre_protein(ffield,cseq(1,latm(1,i)))) then
       if(catm(2,i)(1:2).eq.'3H') catm(2,i)(1:2)='4H'
       if(catm(2,i)(1:2).eq.'2H') catm(2,i)(1:2)='3H'
       if(catm(2,i)(1:2).eq.'1H') catm(2,i)(1:2)='2H'
+      endif
     2 continue
       endif
 c
@@ -65,6 +71,11 @@ c
 c
       do 4 i=1,natm
       latm(2,i)=pre_atnum(catm(2,i)(1:2))
+      if(latm(2,i).eq.0) then
+      elemnt(1:1)=' '
+      elemnt(2:2)=catm(2,i)(2:2)     
+      latm(2,i)=pre_atnum(elemnt)
+      endif
     4 continue
 c
       pre_namiup=.true.
