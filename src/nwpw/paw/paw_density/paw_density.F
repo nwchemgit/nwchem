@@ -1,6 +1,10 @@
-!$Id: paw_density.F,v 1.3 2003-02-17 05:53:40 marat Exp $
+!$Id: paw_density.F,v 1.4 2003-02-17 05:58:08 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.3  2003/02/17 05:53:40  marat
+!fixed bug in deallocation
+!MV
+!
 !Revision 1.2  2003/02/17 00:52:31  marat
 !generated multipole expansion of the atomic densities
 !freed the memory
@@ -18,9 +22,10 @@
 *
 *
 **********************************
-      subroutine init_paw_density()
+      subroutine init_paw_density(lmax)
       implicit none
 
+      integer lmax
 #include "paw_density_data.fh"
 #include "paw_basis.fh"
 #include "mafdecls.fh"      
@@ -34,7 +39,7 @@
 
       nion = ion_nion()
 *     *** lmax for multipole expansion of the density***      
-      paw_rho_lmax = 0
+      paw_rho_lmax = lmax
       
 *     *** size for multipole density arrays ***
       ok = my_alloc(mt_int,nion,"i_paw_rho",
