@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.23 1999-12-30 23:06:35 bert Exp $
+c $Id: int_1edk_ga.F,v 1.24 2000-02-04 00:58:13 mg201 Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -84,10 +84,6 @@ c     At this point we set oskel to false. We cannot use oskel because of the
 c     transformations we have to do with the full integral matrices.
 c
       oskel = .false.
-c
-c     Normalize the uncontracted fitting basis 
-c
-      call int_normalize(dk_fitbas)
 c
 c     Define the dimensions of the arrays
 c
