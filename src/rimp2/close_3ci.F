@@ -1,5 +1,5 @@
       Logical function Close_3ci_file( LU, Stat)
-C$Id: close_3ci.F,v 1.1 1995-12-13 01:36:42 d3g681 Exp $
+C$Id: close_3ci.F,v 1.2 1996-09-22 18:40:38 d3g681 Exp $
       Implicit NONE
       Integer LU
       Character*1 Stat
@@ -9,7 +9,7 @@ C
 C
 #include "stdio.fh"
 #ifdef RIMP2_USE_DA
-#include "da.fh"
+#include "dra.fh"
 #endif
 C
       Logical Keep

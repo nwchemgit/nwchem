@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.7 1996-02-08 01:43:13 vg038 Exp $
+C$Id: riscf_init.F,v 1.8 1996-09-22 18:40:53 d3g681 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -22,7 +22,7 @@ C
 #include "cscfps.fh"
 #include "stdio.fh"
 #ifdef RISCF_USE_DA
-#include "da.fh"
+#include "dra.fh"
 #endif
 
       integer rtdb, geom, ao_basis, ri_basis, g_Vsqrt, g_indx,

@@ -1,11 +1,11 @@
       subroutine riscf_tidy ( geom, basis, riscf_basis )
-C$Id: riscf_tidy.F,v 1.3 1996-02-07 00:41:31 vg038 Exp $
+C$Id: riscf_tidy.F,v 1.4 1996-09-22 18:40:54 d3g681 Exp $
       implicit none
 
 #include "geom.fh"
 #include "bas.fh"
 #ifdef RISCF_USE_DA
-#include "da.fh"
+#include "dra.fh"
 #endif
 c
 c     this is just a wrapper for del_3c_ints, to free ALL arrays of 3c 

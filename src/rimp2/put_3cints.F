@@ -1,11 +1,11 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.8 1995-11-03 20:43:33 d3g681 Exp $
+C$Id: put_3cints.F,v 1.9 1996-09-22 18:40:41 d3g681 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
 #ifdef RIMP2_USE_DA
 C
-#include "da.fh"
+#include "dra.fh"
 #include "global.fh"
 C
 C LOCAL VARIABLES

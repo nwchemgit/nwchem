@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.2 1996-08-19 15:25:47 d3g681 Exp $
+C$Id: open_3ci.F,v 1.3 1996-09-22 18:40:40 d3g681 Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -13,7 +13,7 @@ C
 C
 C
 #ifdef RIMP2_USE_DA
-#include "da.fh"
+#include "dra.fh"
 C
       Integer LNBlnk
       External LNBlnk

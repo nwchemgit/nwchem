@@ -4,7 +4,7 @@
 C$
       implicit none
 
-#include "da.fh"
+#include "dra.fh"
 #include "msgids.fh"
 
       integer da_three, indx, nij, Nff, npair, ndone, g_three
@@ -45,7 +45,7 @@ C     only for debugging purposes, needs global array of full size
       implicit none
 
 #include "global.fh"
-#include "da.fh"
+#include "dra.fh"
 
       integer da, istat
 

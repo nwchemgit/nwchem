@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.7 1996-08-22 22:58:31 vg038 Exp $
+C$Id: riscf_list.F,v 1.8 1996-09-22 18:40:54 d3g681 Exp $
       implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -109,7 +109,7 @@ C             < 0: delete all
 
 #include "riscf.fh"
 #ifdef RISCF_USE_DA
-#include "da.fh"
+#include "dra.fh"
 #endif
 
       integer handle, i

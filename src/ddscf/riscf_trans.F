@@ -2,7 +2,7 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.3 1996-02-07 00:41:32 vg038 Exp $
+C$Id: riscf_trans.F,v 1.4 1996-09-22 18:40:55 d3g681 Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -10,7 +10,7 @@ C$Id: riscf_trans.F,v 1.3 1996-02-07 00:41:32 vg038 Exp $
 #include "bas.fh"
 #include "tcgmsg.fh"
 #ifdef RISCF_USE_DA
-#include "da.fh"
+#include "dra.fh"
 #endif
 
       integer g_three, ao_basis, ri_basis, g_Vsqrt, g_indx, s, sfirst, 
