@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.32 2003-01-09 23:16:51 edo Exp $
+C$Id: grid_quadv0.F,v 1.33 2003-02-18 18:31:13 pollack Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -54,7 +54,8 @@ c
      &        lniz, iniz, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat, 
      &        lhess, ihess, lrq, irq, 
-     &        lfin, ifin, ltags, itags
+     &        lfin, ifin, ltags, itags,
+     &        ltau, itau
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
@@ -65,6 +66,7 @@ c
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2
+      integer len_tau
       logical do_scf, do_cpks_l, do_cpks_r
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
@@ -101,6 +103,8 @@ c
       if (do_scf) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
+         len_tau = 3*ipol*n_per_rec
+
          len_Amat2 = 1
          len_Cmat2 = 1
       elseif (do_cpks_l) then
@@ -169,6 +173,11 @@ c
      &   call errquit('grid_den: cannot allocate rho',0)
       if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,
      &   idelrho))call errquit('grid_den: cannot allocate delrho',0)
+
+      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau,
+     &   itau))call errquit('grid_den: cannot allocate tau',0)
+
+
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*n_per_rec,'Bmat',
      &   lBmat,iBmat))call errquit('grid_den: cannot allocate Bmat',0)
       if (.not.MA_Push_Get(MT_dbl,1,'hesdum',lhess,ihess))
@@ -288,7 +297,8 @@ c
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,
-     ,        l3d,triplet)
+     ,        l3d,triplet,
+     ,        dbl_mb(itau) )
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -325,7 +335,8 @@ c
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,           l3d,triplet)
+     ,           l3d,triplet,
+     ,         dbl_mb(itau))
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)
       endif

@@ -16,9 +16,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet,
-     .     bas_cent_xinfo,bas_cset_xinfo,docsetx)
+     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau)
 c
-c$Id: grid_quadv0b.F,v 1.34 2003-01-09 23:16:51 edo Exp $
+c$Id: grid_quadv0b.F,v 1.35 2003-02-18 18:31:14 pollack Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -54,6 +54,8 @@ c !!! temp !!! ***
       double precision acc_xc_gauss
       logical l3d
       logical triplet
+
+      double precision tau(*)
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -134,7 +136,7 @@ c
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,wmax)
+     &           rdens_atom, cetobfr,wmax, tau)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,           rho,delrho,grad,ibf_ao, iniz, ifin,
@@ -142,7 +144,8 @@ c
      ,           rchi_atom, rdelchi_atom,
      ,           rdens_atom,
      ,           Fmat, Pmat, Bmat,
-     ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig))
+     ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig),
+     &           tau)
          endif
       else  if (do_cpks_l) then
 #ifdef QUADV0_REVERT
@@ -152,7 +155,7 @@ c
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,1d0)
+     &           rdens_atom, cetobfr,1d0,tau)
 #else
             call xc_rhogen_pert(tol_rho, AO_bas_han, g_dens,
      &           nbf_ao_mxnbf_ce, natoms, nmat+1,ipol, nqpts, 
@@ -204,7 +207,7 @@ c     add beta to 1 to get alpha+beta
       endif     
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r)
+     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r, tau)
 
       if (sic_orb_index.eq.1) then
          call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,

@@ -14,9 +14,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet)
+     ,     l3d,triplet, tau)
 c
-c$Id: grid_quadvw1.F,v 1.13 2003-01-09 23:16:51 edo Exp $
+c$Id: grid_quadvw1.F,v 1.14 2003-02-18 18:31:14 pollack Exp $
 c
       implicit none
 #define USE_BP
@@ -53,6 +53,9 @@ c
       external grid_nxyz
       logical l3d
       logical triplet
+
+      double precision tau(*)
+
 c
       save nq_left
 c
@@ -108,7 +111,8 @@ c
      ,        ibf_ao,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        l3d,triplet)
+     ,        l3d,triplet,
+     &         tau)
          
 c     
 c     now pack this aqbuf into the write buffer 

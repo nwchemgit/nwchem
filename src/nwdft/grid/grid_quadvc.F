@@ -11,8 +11,8 @@
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet)
-C$Id: grid_quadvc.F,v 1.18 2003-01-09 23:16:51 edo Exp $
+     ,     l3d,triplet, tau)
+C$Id: grid_quadvc.F,v 1.19 2003-02-18 18:31:14 pollack Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -41,6 +41,8 @@ c
       logical buffwrite
       logical l3d
       logical triplet
+
+      double precision tau(*)
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -110,7 +112,8 @@ c
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
-     .        log_mb(idocsetx))
+     .        log_mb(idocsetx),
+     &        tau )
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1
