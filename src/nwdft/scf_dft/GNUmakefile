@@ -1,18 +1,18 @@
-# $Id: GNUmakefile,v 1.24 1996-10-01 21:09:49 d3e129 Exp $
+# $Id: GNUmakefile,v 1.25 1996-10-01 21:38:02 d3h449 Exp $
 
       OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
       OBJ_OPTIMIZE = \
 	diis_driver.o	diis_bsolve.o	\
 	diis_core.o	diis_bld12.o diis_hamwgt.o diis_refvec.o	\
 	dft_dencvg.o dft_scfcvg.o	dft_densm.o	\
-	dft_invdiag.o	\
+	dft_invdiag.o	dft_init_guess.o \
 	dft_mxovl.o
 
      LIBRARY = libnwdft.a
  LIB_DEFINES = -DDFT_TIMER
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = diis_bld12.F diis_bsolve.F dft_mxovl.F
+   USES_BLAS = diis_bld12.F diis_bsolve.F dft_mxovl.F dft_init_guess.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
