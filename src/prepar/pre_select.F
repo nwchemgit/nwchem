@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.12 2002-06-27 23:32:36 d3j191 Exp $
+c $Id: pre_select.F,v 1.13 2002-06-27 23:46:36 d3j191 Exp $
 c
       implicit none
 c
@@ -48,6 +48,9 @@ c
       iatom=0
       do 1 i=1,nsa
       if(int_mb(i_list-1+i).eq.1) then
+      do 2 j=1,lgroup(igrp)
+      if(igroup(igrp,j).eq.i) goto 1
+ 2    continue
       iatom=iatom+1
       lgroup(igrp)=lgroup(igrp)+1
       if(iatom.eq.1) mgroup(igrp)=ismol(i)
