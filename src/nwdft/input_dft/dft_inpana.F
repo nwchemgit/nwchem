@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.54 2001-04-04 00:22:29 edo Exp $
+c     $Id: dft_inpana.F,v 1.55 2001-08-19 21:31:02 bjohnson Exp $
 c
 c*********************************************************************
 c     
@@ -20,6 +20,9 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 #include "util.fh"
+#ifdef BETTIS
+#include "screened_op.fh"
+#endif
 c
       double precision AUTOANG, ANGTOAU
       Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
@@ -383,6 +386,15 @@ c
                   write(LuOut,9224) cname(n), cfac(n), nonlocal_c
                endif
             enddo
+#ifdef BETTIS
+c
+c           Print message for screened exchange
+c
+            if (screened_exchange()) then
+               write(LuOut,9225)'Screened exchange is on, Ks =',
+     &              screened_operator_Ks()
+            endif
+#endif
 c     
 c           Check XC coefficients to make sure appropriate components
 c           sum to 1.0
@@ -625,6 +637,7 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &        1x,'---------')
  9223 format(10x,a40)
  9224 format(10x,a40,1x,f6.2,1x,a9)
+ 9225 format(10x,a40,1x,f8.4)
  8150 format(10x,'No. of atoms     :',2x,i4)
  8200 format(10x,'No. of electrons :',2x,i4,/,
      &       10x,' Alpha electrons :',2x,i4,/,
