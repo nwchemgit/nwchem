@@ -4,7 +4,7 @@
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      4  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.7 2002-04-14 00:44:36 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.8 2002-04-16 01:40:55 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -107,6 +107,7 @@ c
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer nroots           ! Number of roots sought
+      integer nresiduals       ! Number of residual vectors
       integer maxvecs          ! Maximum number of trial vectors
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for A+B product vectors
@@ -178,6 +179,8 @@ c
         nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
+c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
+      nresiduals=nroots
       do i=1,ipol
         g_td(i)=ga_create_atom_blocked
      1    (geom,ao_bas_han,'Trial density')
@@ -186,13 +189,13 @@ c
         if (.not.tda) 
      1    g_qd(i)=ga_create_atom_blocked
      2      (geom,ao_bas_han,'B product density')
-        if (.not.ga_create(mt_dbl,nov(i),nroots,
-     1    'residual vectors 1',-1,nroots,g_residuals_1(i)))
+        if (.not.ga_create(mt_dbl,nov(i),nresiduals,
+     1    'residual vectors 1',-1,nresiduals,g_residuals_1(i)))
      2    call errquit
      3    ('tddft_davidson: failed to create g_residuals_1',0)
         if (.not.tda) then
-          if (.not.ga_create(mt_dbl,nov(i),nroots,
-     1      'residual vectors 2',-1,nroots,g_residuals_2(i)))
+          if (.not.ga_create(mt_dbl,nov(i),nresiduals,
+     1      'residual vectors 2',-1,nresiduals,g_residuals_2(i)))
      2      call errquit
      3      ('tddft_davidson: failed to create g_residuals_2',0)
         endif
@@ -203,11 +206,11 @@ c
       do i=1,nroots
         dbl_mb(k_valsav+i-1)=1.0d99
       enddo
-      if (.not.ma_push_get(mt_dbl,nroots,'residuals',
+      if (.not.ma_push_get(mt_dbl,nresiduals,'residuals',
      1  l_residual_1,k_residual_1)) call errquit
      2  ('tddft_davidson: failed to allocate residual_1',0)
       if (.not.tda) then
-        if (.not.ma_push_get(mt_dbl,nroots,'residuals',
+        if (.not.ma_push_get(mt_dbl,nresiduals,'residuals',
      1    l_residual_2,k_residual_2)) call errquit
      2    ('tddft_davidson: failed to allocate residual_2',0)
       endif
@@ -561,7 +564,7 @@ c
      2    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
      3    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      4    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
-     5    evl,nconverged,nnewtrials)
+     5    evl,nconverged,nnewtrials,nresiduals)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
