@@ -5,7 +5,7 @@
      $     g_fock, g_svecs, isvals, 
      $     g_cdinv, g_xcinv, g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.68 1997-03-29 01:16:01 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.69 1997-03-31 23:46:54 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -1274,6 +1274,17 @@ c
       write(*,*)' store_wght = ', store_wght
       write(*,*)' XCFIT = ', XCFIT
       write(*,*)' CDFIT = ', CDFIT
+      write(*,*)' levelshift = ', levelshift
+      write(*,*)' damp = ', damp
+      write(*,*)' diis = ', diis
+      write(*,*)' direct = ', direct
+      write(*,*)' oskel = ', oskel
+      write(*,*)' oadapt = ', oadapt
+      write(*,*)' lcfac(i) = ', (lcfac(i),i=1,15)
+      write(*,*)' nlcfac(i) = ', (nlcfac(i),i=1,15)
+      write(*,*)' lxfac(i) = ', (lxfac(i),i=1,15)
+      write(*,*)' nlxfac(i) = ', (nlxfac(i),i=1,15)
+      write(*,*)' xccomb(i) = ', (xccomb(i),i=1,15)
 c
 c     Integers
 c
@@ -1339,6 +1350,10 @@ c
       write(*,*)' rscale = ', rscale
       write(*,*)' cfac = ', (cfac(i),i=1,15)
       write(*,*)' xfac =', (xfac(i),i=1,15)
+      write(*,*)' hl_tol = ', hl_tol
+      write(*,*)' e_conv = ', e_conv
+      write(*,*)' d_conv = ', d_conv
+      write(*,*)' g_conv = ', g_conv
 c
 c     Characters
 c

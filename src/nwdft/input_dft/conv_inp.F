@@ -228,6 +228,9 @@ c
       if (.not. rtdb_put(rtdb, 'dft:nodamping', mt_log, 1, nodamping))
      &   call errquit('conv_inp: rtdb_put failed', 1400)
 c
+      damp = .false.
+      if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
+     &   call errquit('dft_input: rtdb_put failed', 1400)
       goto 10
 c     
 c     diis/nfock; use diis procedure with nfock Fock matrices 
@@ -251,6 +254,9 @@ c
  1600 nodiis = .true.
       if (.not. rtdb_put(rtdb, 'dft:nodiis', mt_log, 1, nodiis))
      &   call errquit('conv_inp: rtdb_put failed', 1600)
+      diis = .false.
+      if (.not. rtdb_put(rtdb, 'dft:diis', mt_log, 1, diis))
+     &   call errquit('conv_inp: rtdb_put failed', 160)
 c
       goto 10
 c     
@@ -278,6 +284,9 @@ c
       if (.not. rtdb_put(rtdb, 'dft:nolevelshifting', mt_log, 1, 
      &   nolevelshifting))
      &   call errquit('conv_inp: rtdb_put failed', 1800)
+      levelshift = .false.
+      if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
+     &   call errquit('conv_inp: rtdb_put failed', 1800)
 c
       goto 10
 c     
@@ -288,7 +297,7 @@ c
  1900 if (.not. inp_f(hl_tol)) then
          write(6,*)' conv_inp: hl_tol value not found; defaulting',
      &             ' to 0.1 Hartree'
-         hl_tol = 0.1d0
+         hl_tol = 0.2d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
      &   call errquit('conv_inp: rtdb_put failed', 1900)

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.39 1997-03-29 01:15:58 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.40 1997-03-31 23:46:44 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -216,15 +216,14 @@ c
      &      call errquit('dft_input: rtdb_put failed', 112)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1,
-     &   ndamp))then
+      if (.not. rtdb_get(rtdb, 'dft:damp', mt_log, 1, damp))then
          damp = .true.
-         if (.not. rtdb_put(rtdb, 'dft:damp',
-     &      mt_log, 1, damp))
+         if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
      &      call errquit('dft_input: rtdb_put failed', 2)
-         ndamp=70
-         if (.not. rtdb_put(rtdb, 'dft:ndamp',
-     &      mt_int, 1, ndamp))
+      endif
+      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))then
+         ndamp = 70
+         if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
      &      call errquit('dft_input: rtdb_put failed', 113)
       endif
 c
@@ -294,7 +293,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:hl_tol', mt_dbl, 1,
      &   hl_tol))then
-         hl_tol = 2.d-1
+         hl_tol = 0.2d0
          if (.not. rtdb_put(rtdb, 'dft:hl_tol',
      &      mt_dbl, 1, hl_tol))
      &      call errquit('dft_input: rtdb_put failed', 201)
@@ -356,12 +355,15 @@ c
      &      call errquit('dft_input: rtdb_put failed', 207)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:rlshift', mt_dbl, 1,
-     &   rlshift))then
+      if (.not. rtdb_get(rtdb, 'dft:levelshift',
+     &   mt_log, 1, levelshift))then
          levelshift = .true.
          if (.not. rtdb_put(rtdb, 'dft:levelshift',
      &      mt_log, 1, levelshift))
-     &      call errquit('dft_input: rtdb_put failed', 2)
+     &      call errquit('dft_input: rtdb_put failed', 212)
+      endif
+      if (.not. rtdb_get(rtdb, 'dft:rlshift',
+     &   mt_dbl, 1,rlshift))then
          rlshift=0.5d0
          if (.not. rtdb_put(rtdb, 'dft:rlshift',
      &      mt_dbl, 1,rlshift))

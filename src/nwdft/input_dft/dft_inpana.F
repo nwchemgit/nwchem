@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.24 1997-03-29 01:15:57 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.25 1997-03-31 23:46:43 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -166,31 +166,69 @@ c     rlshift = 0.5
 c     ncyds = iterations        
 c     
       if(nodamping)then
+         damp = .false.
          ncydp = 0
          ndamp = 0
       endif
       if(nolevelshifting)then
+         levelshift = .false.
          ncysh = 0
          rlshift = 0.0
       endif
       if(nodiis)then
+         diis = .false.
          ncyds = 0
+      endif
+      if (damp)then
+c
+c        check to make sure either number of damping iterations or
+c        energy criterion has been specified.
+c
+         if (ncydp.eq.0.and.dampon.eq.0.0d0)then
+            ncydp = iterations
+         endif
+      endif
+      if (levelshift)then
+c
+c        check to make sure either number of levelshifting iterations or
+c        energy criterion has been specified.
+c
+         if (ncysh.eq.0.and.levlon.eq.0.0d0)then
+            ncysh = iterations
+         endif
+      endif
+      if (diis)then
+c
+c        check to make sure either number of diis iterations or
+c        energy criterion has been specified.
+c
+         if (ncyds.eq.0.and.diison.eq.0.0d0)then
+            ncyds = iterations
+         endif
       endif
 c     
 c     If convergence input based upon #cycles then turn off energy constraints.
 c     
-      if(ncydp.ne.0)then
+      if (ncydp.ne.0)then
          dampon  = -999.9
          dampoff = -999.9
       endif
-      if(ncysh.ne.0)then
+      if (ncysh.ne.0)then
          levlon  = -999.9
          levloff = -999.9
       endif
-      if(ncyds.ne.0)then
+      if (ncyds.ne.0)then
          diison  = -999.9
          diisoff = -999.9
       endif
+c
+c     check special case with damping - change
+c     default of 2 to "iterations" if no other
+c     convergence control specified
+c
+      if (ncysh.eq.0 .and. ncyds.eq.0 .and. ncydp.eq.2) 
+     &   ncydp = iterations
+c
       if (me.eq.0) then
 c     
 c        Write to output.
@@ -235,6 +273,9 @@ c
             write(LuOut,9035)e_conv
             if (d_conv.gt.0)then
                write(LuOut,9040)d_conv
+            endif
+            if (g_conv.gt.0)then
+               write(LuOut,9045)g_conv
             endif
          endif
          if (oprint_xc)then     
@@ -342,7 +383,7 @@ c
             write(LuOut,*)
             call util_print_centered
      &         (LuOut,'Convergence Information',20,.true.)
-            write(LuOut,3231)
+            write(LuOut,3231)hl_tol, nfock
             write(LuOut,3232)ndamp, rlshift
             asap_10c  = '  ASAP    '
             start_10c = '  start   '
@@ -394,7 +435,11 @@ c
       endif
       return
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
-     &       10x,'total energy or number of iterations. ',/)
+     &       10x,'total energy or number of iterations. ',/,
+     &       10x,'Levelshifting, if invoked, occurs when the ',/,
+     &       10x,'HOMO/LUMO gap drops below (HL_TOL): ',d8.2,/,
+     &       10x,'DIIS, if invoked, will attempt to extrapolate ',/,
+     &       10x,'using up to (NFOCK): ',i2,' stored Fock matrices.',/)
  3232 format(10x,
      &       10x,'Damping(',i2,'%)  Levelshifting(',f3.1,
      &           ')       DIIS',/,
@@ -412,6 +457,7 @@ c
  9030 format(10x,'Maximum number of iterations: ',I3)
  9035 format(10x,'Convergence on energy requested: ',d8.2)
  9040 format(10x,'Convergence on density requested: ',d8.2)
+ 9045 format(10x,'Convergence on gradient requested: ',d8.2)
  9050 format(10x,'Wavefunction type:  closed shell.')
  9055 format(10x,'Wavefunction type:  spin polarized.')
  9056 format(10x,'Use of symmetry is: ',a3,
