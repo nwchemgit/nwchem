@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.10 2003-01-03 22:44:16 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.11 2003-02-18 18:45:45 pollack Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.10 2003-01-03 22:44:16 edo Exp $
+c $Id: dftg_gridv0.F,v 1.11 2003-02-18 18:45:45 pollack Exp $
 c     
       implicit none      
 c
@@ -84,7 +84,8 @@ c
      &        lfin, ifin, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat, lDmat, iDmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
-     &        ltags, itags
+     &        ltags, itags,
+     &        itau, ltau
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
       integer lzzz,  izzz, lff, iff, lppp, ippp
@@ -246,6 +247,13 @@ c
 c 
       if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+
+
+      if (.not.MA_Push_Get(MT_Dbl,nelem,'tau',ltau,itau))
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+
+
+
 c
 c     Note: hessian and cpks rhs need a larger version of Bmat
 c     See xc_quadv0.F
@@ -420,7 +428,8 @@ c
      .     dbl_mb(iscr),nscr,
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
-     &                   rdens_atom,  cetobfr)
+     &                   rdens_atom,  cetobfr,
+     &                    dbl_mb(itau) )
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1)
       if (do_hess .or. do_cpks_r) then

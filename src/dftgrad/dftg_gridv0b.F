@@ -13,9 +13,9 @@
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr)
+     &                         cetobfr, tau)
 c      
-c     $Id: dftg_gridv0b.F,v 1.20 2003-01-09 23:35:03 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.21 2003-02-18 18:45:45 pollack Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -50,6 +50,10 @@ c
       double precision hh(3,n_per_rec)
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
+
+      double precision tau(n_per_rec,3,ipol)
+
+
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
       double precision Amat2(n_per_rec,NCOL_AMAT2)
@@ -188,7 +192,7 @@ c
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr,wmax)
+     &              rdens_atom, cetobfr,wmax, tau)
 c
                if (do_hess .or. do_cpks_r) then
                   call oactive_to_curatoms(oactive, natoms,
@@ -222,7 +226,7 @@ c
 
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
-     &              do_hess .or. do_cpks_r)
+     &              do_hess .or. do_cpks_r, tau)
 c     
 c              exchange-correlation contribution, with or without gradient
 c              terms
