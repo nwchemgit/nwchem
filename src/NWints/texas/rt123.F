@@ -1,4 +1,4 @@
-c $Id: rt123.F,v 1.1 1996-05-14 17:53:32 d3g681 Exp $
+c $Id: rt123.F,v 1.2 1996-06-27 22:33:39 d3g681 Exp $
 C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 C   IN DNODE
 C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1422,7 +1422,8 @@ C   PP  1.0D-14 WAS TOO SMALL
       WRITE(6,15) M,K
    15 FORMAT(/' ROOT NUMBER',I3,' WAS NOT FOUND FOR POLYNOMIAL OF ORDER'
      1 ,I3,/)
-      stop 'dnode error'
+*      stop 'dnode error'
+      call errquit('texas:dnode',0)
    20 R5=R1
       P5=P1
       R6=R2

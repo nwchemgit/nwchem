@@ -1,8 +1,9 @@
-      subroutine reorder(ncs,inx,iny,ncshell,ncfunct)
-c $Id: lab_reorder.f,v 1.5 1996-05-14 17:53:26 d3g681 Exp $
+      subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc)
+c $Id: lab_reorder.f,v 1.6 1996-06-27 22:33:31 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
+      dimension datnuc(5,*)
 c------------------------------------
 c iny - keeps the original basis set 
 c------------------------------------
@@ -37,30 +38,45 @@ c------------------------------------
         ict1=inx(12,ics1)
         ina0=inx(2,ics0)
         ina1=inx(2,ics1)
+charge:
+        nzi0=datnuc(1,ina0)
+        nzi1=datnuc(1,ina1)
+c
         iclen0=inx(5,ics0)-inx(1,ics0)-1
         iclen1=inx(5,ics1)-inx(1,ics1)-1
-        if (ict1.lt.ict0) then
-          iexch=1
-          do 410 k=1,12
-             itemp=inx(k,ics0)
-             inx(k,ics0)=inx(k,ics1)
-             inx(k,ics1)=itemp
- 410      continue
-        else if (ict1.eq.ict0.and.iclen0.lt.iclen1) then
-          iexch=1
-          do 420 k=1,12
-             itemp=inx(k,ics0)
-             inx(k,ics0)=inx(k,ics1)
-             inx(k,ics1)=itemp
- 420      continue
-        else if(ict1.eq.ict0.and.iclen0.eq.iclen1.and.ina0.gt.ina1) then
-          iexch=1
-          do 430 k=1,12
-             itemp=inx(k,ics0)
-             inx(k,ics0)=inx(k,ics1)
-             inx(k,ics1)=itemp
- 430      continue
-        end if
+cccccc  if (nzi0.lt.nzi1) then
+c         iexch=1
+c         do 405 k=1,12
+c            itemp=inx(k,ics0)
+c            inx(k,ics0)=inx(k,ics1)
+c            inx(k,ics1)=itemp
+c405      continue
+c       else
+          if (ict1.lt.ict0) then
+            iexch=1
+            do 410 k=1,12
+               itemp=inx(k,ics0)
+               inx(k,ics0)=inx(k,ics1)
+               inx(k,ics1)=itemp
+ 410        continue
+          else if (ict1.eq.ict0.and.iclen0.lt.iclen1) then
+            iexch=1
+            do 420 k=1,12
+               itemp=inx(k,ics0)
+               inx(k,ics0)=inx(k,ics1)
+               inx(k,ics1)=itemp
+ 420        continue
+          else if(ict1.eq.ict0.and.iclen0.eq.iclen1
+c??? *                            .and.ina0.gt.ina1) then
+     *                            .and.nzi0.gt.nzi1) then
+            iexch=1
+            do 430 k=1,12
+               itemp=inx(k,ics0)
+               inx(k,ics0)=inx(k,ics1)
+               inx(k,ics1)=itemp
+ 430        continue
+          end if
+cccccc  endif
  500  continue
 c     now we have to re-generate the beginning-ending contraction
 c     arrays (inx(11,i) and inx(10,i))

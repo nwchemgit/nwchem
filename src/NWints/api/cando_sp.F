@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.17 1996-03-20 00:54:18 d3e129 Exp $
+c $Id: cando_sp.F,v 1.18 1996-06-27 22:33:26 d3g681 Exp $
 c
 c this routine does not check the shell and int_init
 c because it is only called by routines that do this.
@@ -198,6 +198,12 @@ c
 c
       cando_txs = .true.
 *old      if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
+crjh debug
+      if (ish.le.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_txs: ish bad', ish)
+      if (jsh.le.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_txs: jsh bad', jsh)
+crjh enddebug
       if (ish.gt.0) then
         mytype = infbs_cont(CONT_TYPE,sf_ibs_cn2ucn(ish,basis),basis)
         cando_txs = cando_txs.and. (mytype.ge.-1)

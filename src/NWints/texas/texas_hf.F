@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.11 1996-05-14 17:53:51 d3g681 Exp $
+c $Id: texas_hf.F,v 1.12 1996-06-27 22:33:49 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -98,10 +98,6 @@ c returning integrals and indeces :
       dimension icf(*),jcf(*),kcf(*),lcf(*)
 c
 c----------------------------------------------------------------
-c test only
-c     data integ_upto_sum /0/
-c     save integ_upto_sum
-c----------------------------------------------------------------
              call txs_second(tim_beg)
 c----------------------------------------------------------------
 c memory checking ;
@@ -120,8 +116,6 @@ c
 c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
-ctest
-c     if(ncall_pnl.eq.2) stop 'stopped by kw'
 c----------------------------------------------------------------
 c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
@@ -145,8 +139,8 @@ c
      *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels,
      *               more_int)
 c
-c  9 calls to getmem 
-c 10 calls to getmem
+c 11 calls to getmem 
+c 12 calls to getmem
 c if(.not.labels) +1 call to getmem
 c
       call txs_second(tim_2setup)
@@ -223,11 +217,9 @@ c
 c
       if(.not.more_int) then
          if(.not.labels) then
-            call retmem(12)
-            call retint(1)
+            call retmem(13)
          else
-            call retmem(11)
-            call retint(1)
+            call retmem(12)
          endif
 c-------------------------
 c if use_r is true return original coordinates 
@@ -237,6 +229,11 @@ c        if (use_r) then
 c         call replacer(bl(inuc+1),ra,rb,rc,rd,inx,nquart,
 c    *                  icspnl,jcspnl,kcspnl,lcspnl,'back')
 c        endif
+c-------------------------
+c check and update memory status in pnl_scratch 
+c after each pnl request is done; 
+c
+         call memstat_pnl
 c-------------------------
       endif
 c----------------------------------------------------------------
@@ -430,7 +427,7 @@ c
       call uniq_pairs(bl,nbl2,bl(npard),
      *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
      *     bl(isblsize),bl(isblqrts) )
-c       1 call to getmem
+c       2 call to getmem
 c---------------------------------------------------------
 c check current sizes of super-blocks against maximum sizes
 c and available size of integral's buffer (leri):
@@ -964,25 +961,6 @@ c
             endif
    10    continue
 c---------------------------------------------------------
-c
-c split each super-block in parts if its current pnl-size is greater
-c than maximum-size allowed :
-c
-c        isupb=0
-c        do 60 ibl=1,nbl2
-c        do 60 kbl=1,ibl
-c        isupb=isupb+1 
-c        isbl_size=isbl_s(isupb)
-c        maxm_size=maxsize(isupb)
-c        isbl_part(isupb)=1
-c        if(isbl_size.gt.maxm_size) then
-c           nparts=isbl_size/maxm_size
-c           nrem=mod(isbl_size,maxm_size)
-c           if(nrem.gt.0) nparts=nparts+1
-c           isbl_part(isupb)=nparts
-c        endif
-c  60    continue
-c---------------------------------------------------------
       end
 c=====================================================================
       subroutine request_split(leri,inx,iis,jjs,nbl2,ijpres2,klpres2,
@@ -1057,8 +1035,8 @@ c
          isbl_split(isplit+1)=isblast+1
 c
 c---------------------------------------------------------
-c     if( isplit.gt.0 ) then
-c      if(ncall_pnl.eq.3) then
+ccc   if( isplit.gt.0 ) then
+ccc    if(ncall_pnl.eq.3) then
 c         write(6,*)'FROM REQUEST_SPLIT : isplit=',isplit+1
 c         write(6,*)'pnl-request no=',ncall_pnl,' size=',nqrtpnl,
 c    *              ' split into ',itotal+1,' pieces'
@@ -1072,10 +1050,10 @@ c        maxm_size=maxsize(isupb)
 c        isbl_size=isbl_s(isupb)
 c        nparts=isbl_part(isupb)
 c        write(6,77)isupb,maxm_size,isbl_size,nparts
-c 77     format('block=',i3,' maxsize=',i5,' pnlsize=',i5,' parts=',i5)   
+c 77     format('block=',i3,' maxsize=',i5,' pnlsize=',i5,' parts=',i5)
 c        enddo
-c      endif
-c     endif
+ccc    endif
+ccc   endif
 c---------------------------------------------------------
       end
 c=====================================================================
@@ -1091,6 +1069,17 @@ c
          ipoint=ipoint+isbl_size(isbl-1)
          isbl_point(isbl)=ipoint
    10    continue
+c
+      end
+c=====================================================================
+      subroutine memstat_pnl
+      common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
+c
+      call memstat(nalloc_bl,nmark_bl,maxmem_bl,memtot_bl)
+c
+      if(nalloc_bl.gt.nall_peak) nall_peak=nalloc_bl
+      if(nmark_bl .gt.mark_peak) mark_peak=nmark_bl 
+      if(maxmem_bl.gt. mem_peak) mem_peak=maxmem_bl
 c
       end
 c=====================================================================

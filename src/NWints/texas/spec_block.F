@@ -61,14 +61,15 @@ c--------
          write(6,*) ' requested=',memneed,' ; available=',lcore  
          write(6,*) ' check in TXSARRAG : ntxs_scr_size too small '
          write(6,*) ' nbl2=',nbl2,' last1=',last1,' last2=',last2
-         if(icheck.eq.0)  stop 'Memory problem in Blockin2'
+         if(icheck.eq.0)  call errquit(
+     $        'texas:Memory problem in Blockin2', 0)
+*stop 'Memory problem in Blockin2'
       endif
 c--------
 c------------------------------------------------
       call getmem(nbl2*(nbl2+1)/2, ncost)
       call price(inx,bl(iisd),bl(jjsd),bl(ijbld),bl(npard),
-     *               bl(nsupb),
-     *           nbl2,bl(ncost),nprint)
+     *           bl(nsupb),nbl2,bl(ncost),nprint)
 c------------------------------------------------
 c save sizes:
 c 
@@ -105,6 +106,8 @@ c===============================================================
      *                   ijbld,mxsize,nasize,lcore,nsym,
      *                   datnuc,datbas,natoms)
       implicit real*8 (a-h,o-z)
+c May96 :to be used in txs_scratch_siz2 routine to estimate memory :
+      common /max_pairs/ maxpar    
 c save sizes :
       common /memor1_S/ iisd_S,jjsd_S,ijbld_S
       common /memor1a_S/ npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S
@@ -538,23 +541,25 @@ c checking :
          write(6,*)'number of pair-blocks :'
          write(6,*)'  from blockpNr =',nbl2
          write(6,*)'  from blockpAr =',ibl 
-         stop 'pair conflict'
+         call errquit('texas: pair conflict', 0)
+*         stop 'pair conflict'
       endif
 c---------------------------------------------------------------
-c>>d     do 2500 ibl=1,nbl2
-c>>d     ijcs1=ijbl(ibl,1)
-c>>d     ics1=iis(ijcs1)
-c>>d     jcs1=jjs(ijcs1)
-c>>d     it1=inx(12,ics1)
-c>>d     jt1=inx(12,jcs1)
-c>>d     ic1=inx(5,ics1)-inx(1,ics1)
-c>>d     jc1=inx(5,jcs1)-inx(1,jcs1)
-c>>d     ijpar=npar(ibl)
-c>>d     write(8,502) ibl,ijpar,it1,jt1,ic1,jc1
-c>>d2500 continue
-c>>d 502 format(/'Block no=',i3,2x,'  contains ',i3,' pairs of contracted s
-c>>d    *hells'/
-c>>d    *'   Itype=',i2,' Jtype=',i2,'   Icontr=',i2,' Jcontr=',i2/)
+cMay15 
+c     do 2500 ibl=1,nbl2
+c     ijcs1=ijbl(ibl,1)
+c     ics1=iis(ijcs1)
+c     jcs1=jjs(ijcs1)
+c     it1=inx(12,ics1)
+c     jt1=inx(12,jcs1)
+c     ic1=inx(5,ics1)-inx(1,ics1)
+c     jc1=inx(5,jcs1)-inx(1,jcs1)
+c     ijpar=npar(ibl)
+c     write(8,502) ibl,ijpar,it1,jt1,ic1,jc1
+c2500 continue
+c 502 format(/'Block=',i3,2x,'contains ',i3,' pairs of csh.',
+c    *' Itype=',i2,' Jtype=',i2,' Icon=',i2,' Jcon=',i2/)
+cMay15 
 c---------------------------------------------------------------
       end
 c===============================================================
@@ -720,7 +725,6 @@ c
           klsize=klpar
 c----------------------------------------------
 c put the upper limit on the maxmem :
-c
 c-->  mqrt1=memor2ij+memor2kl+memor4
 c memory for ONE quartet but all pairs :
 c
@@ -729,9 +733,10 @@ c
         write(6,*)'A block with only one quartet needs more memory than'
         write(6,*)'the upper limit for a whole block given in the input'
         write(6,*)'input data =',limxmem,' request for 1 quart.=',mqrt1
-        write(6,*)'     Change the first value in the LIMI card '
+        write(6,*)'     Change the value of LIMXMEM '
         write(6,*)'program stoped in the Blksizer routine'
-        stop 'blksizer'
+        call errquit('texas:blksizer', 0)
+*        stop 'blksizer'
       endif
 c----------------------------------------------
 c for PNL calculate what SHOULD be maximum size of a block due to the
@@ -748,19 +753,11 @@ c        write(6,*)' max.size changed from ',mxsize(nbl12),' to',mxqrts
          mxsize(nbl12)=mxqrts
       endif
 c----------------------------------------------
-      memory=ijpar*memor2ij+klpar*memor2kl+ mxsize(nbl12)*memor4
-c----------------------------------------------
-      if(memory.gt.maxmem) then
-         ijpax=ijpar
-         klpax=klpar
-ccccc    nblsx=nquart
-         nblsx=mxsize(nbl12)
-         maxmem=memory
-      endif
-cccc  if(nquart.gt.maxqrt) maxqrt=nquart
       if(mxsize(nbl12).gt.maxqrt) maxqrt=mxsize(nbl12)
 c----------------------------------------------
-c maxmem is the memory needed for pairs and quartets in a block
+      memory=ijpar*memor2ij+klpar*memor2kl+ mxsize(nbl12)*memor4
+c----------------------------------------------
+c MEMORY is the memory needed for pairs and quartets in a block
 c it is also necessary to take into account a memory reserved
 c already for prec2ij and prec2kl as well as memory in Blockin4:
 c
@@ -769,10 +766,17 @@ c
       else
         memin4=7*ikbl+3*maxqrt
       endif
-      maxmem=maxmem+memor2 + memin4
-c--------------
-c select a super-block with the maximum 
-c memory requirement for ONE block :
+c----------------------------------------------
+      memory=memory+memor2 + memin4
+c----------------------------------------------
+      if(memory.gt.maxmem) then
+         ijpax=ijpar
+         klpax=klpar
+         nblsx=mxsize(nbl12)
+         maxmem=memory
+      endif
+c----------------------------------------------
+c select a super-block with maximum memory requirement for ONE block
 c
       nsupb(nbl12)=ikbl
       nbloks=nbloks+ikbl
@@ -1034,29 +1038,27 @@ c
       endif
 c
 c----------------------------------------------------------------------
+      nfumax=nfu(mmax)
+      if(nsij.ge.nskl) then
+         nfha=nfumax*klpar*lckl
+      else
+         nfha=nfumax*ijpar*lcij
+      endif
+c----------------------------------------------------------------------
+c as allocated in memo5c_1 :
+c
+      memory2=memory2 + 3*nfha 
+c----------------------------------------------------------------------
+c Memory for the ONE pair ij,kl and ONE quartet in a Super-block is :
+c
       ijpar1=1
       klpar1=1
       nbls1=1
-c-
-      nfumax=nfu(mmax)
-      if(nsij.ge.nskl) then
-         nfha=nfumax*klpar1*lckl
-      else
-         nfha=nfumax*ijpar1*lcij
-      endif
-c----------------------------------------------------------------------
-c Memory for the ONE pair ij,kl and ONE quartet in a Super-block is :
 c------
 c pair-precalculations:
 c
       call in5a(ijpar1,mmax1, memprij)
       call in5b(klpar1,mmax1, memprkl)
-c
-Cold    if(nsij.ge.nskl) then
-Cold       memprkl=memprkl + nfha*3   
-Cold    else
-Cold       memprij=memprij + nfha*3
-Cold    endif
 c------------------------
       memor2ij=memprij
       memor2kl=memprkl
@@ -1070,7 +1072,6 @@ c------------------------
 c quartet-calculations:
 c
       call in5c(nbls1,mmax1,nfumax,mempre4)
-c
 c------------------------
 c quartet-trobsa,assemble:
 c
@@ -1082,7 +1083,8 @@ c
 c------------------------
 c
       memasse=memasse+3   ! convert in assemble
-      memamsh=memamsh+3   ! convert in amshift 
+cMay96memamsh=memamsh+3   ! convert in amshift 
+      memamsh=memamsh+6   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
          memasse=memasse+memgenc
@@ -1098,9 +1100,6 @@ c-----
 c
 c------------------------
       memory4 =max(mem1,mem2)
-c
-Cnew 96:
-      memory4 = memory4 + nfha*3 
 c------------------------
       end
 c===============================================================
@@ -1216,8 +1215,8 @@ c----------------------------------------------------------------------
 c pair-precalculations (as reserved in memo5a,b):
 c
 c proportional to the number of pairs :
-      memprij=3+13*lcij
-      memprkl=3+13*lckl
+      memprij=3+14*lcij
+      memprkl=3+14*lckl
 c
 c constat part (not proportional to pairs):
 c
@@ -1266,7 +1265,8 @@ c
       call in4b(nbls1,memamsh,where)
 c------------------------
 c
-      memamsh=memamsh+3   ! convert in amshift 
+cMay96memamsh=memamsh+3   ! convert in amshift 
+      memamsh=memamsh+6   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
          memasse=memasse+memgenc
@@ -1328,7 +1328,10 @@ c       ----------------------------
 c       ----------------------------
       endif
 c
-      if(mmax.le.2) return
+      if(mmax.le.2) then
+         memasse=memasse+2*nbls
+         return
+      endif
 c
         IF(LSHELLT.GT.0) THEN
           if(where.eq.'shif' .or. where.eq.'forc') then
@@ -1550,7 +1553,8 @@ c     ---------------------------------
 c     ---------------------             
       memory=memory+3*ndij3
 c     ---------------------                  
-      memory=memory+2*ndij
+CMay96 memory=memory+2*ndij
+      memory=memory+3*ndij
 c     ---------------------             
       memory=memory+ndij3
 c     ---------------------             
@@ -1593,7 +1597,8 @@ c     ---------------------------------
 c     ---------------------------------
       memory=memory+3*ndkl3
 c     ---------------------------------
-      memory=memory+2*ndkl
+CMay96 memory=memory+2*ndkl
+      memory=memory+3*ndkl
 c     ---------------------------------
       memory=memory+ndkl3
 c     ---------------------------------
@@ -1650,7 +1655,7 @@ c     ------------------------
       ngcl1=ngcl+1
       ngcd=ngci1*ngcj1*ngck1*ngcl1
 c     ------------------------
-c-->  memor4=memor4 + 4*ngcd
+cccc  memor4=memor4 + 4*ngcd
 c     ------------------------
       if(ngcd.gt.1) then
 c       ----------------------

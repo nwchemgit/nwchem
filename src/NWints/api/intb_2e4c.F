@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.7 1996-06-19 23:19:14 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.8 1996-06-27 22:33:27 d3g681 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -55,7 +55,7 @@ c
 *.... using texas
       status = .true.
       status = (bra .eq. ket) .and. status
-      do i_q = num_q_start,(min((num_q_start+10),(num_q_start+num_q)))
+      do i_q = num_q_start,min((num_q_start+10),num_q)
         status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
         status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
         if (.not.status) goto 00001

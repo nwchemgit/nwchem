@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.9 1996-05-14 17:53:29 d3g681 Exp $
+c $Id: precalc2.F,v 1.10 1996-06-27 22:33:35 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -230,6 +230,7 @@ c---------------------------------------------------------------
 ctest
 c     write(6,*)' from ab_prim : ibl=',ibl,' nij_uniqe=',nij_uniqe
 c     call prt_uniqe(ij_uniqe,nij_uniqe)
+c     call prt_uniqe(ibl,ij_uniqe,nij_uniqe,1111     )
 c     write(6,*)' from ab_prim : ij1=',ij1,' ij2=',ij2   
 ctest
 c
