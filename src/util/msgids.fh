@@ -170,6 +170,9 @@ c
       integer mre_010
       integer mre_050
 c
+      integer pre_i00
+      integer pre_i99
+c
       integer msg_hessmin
       integer msg_hessmax
       integer msg_moints_stats_1
@@ -605,3 +608,6 @@ C
       parameter (Msg_NormF = msg_ftn_base -  406) ! GA_NormF
 C
       parameter (msg_rimp2g_mem = msg_ftn_base - 407) ! rimp2g memory usage igops
+c
+      parameter(pre_i00=msg_ftn_base-408) !
+      parameter(pre_i99=msg_ftn_base-450) !
