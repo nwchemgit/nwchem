@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
-     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
+     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.17 2000-09-11 17:21:51 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.18 2000-09-22 17:55:32 d3j191 Exp $
 c
       implicit none
 c
@@ -18,6 +18,7 @@ c
       integer nsa,nwa,noe
       integer mat,msa,mwa,mnoe,msm,nsm,msb,nsb
       integer nnoe,nqu
+      character*3 slvnam
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sgm,i_sgm,l_sml,i_sml,l_qsa,i_qsa
@@ -128,7 +129,7 @@ c
      + int_mb(i_wat),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
-     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu))
+     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu,slvnam))
      + call errquit('pre_toprd failed',9999)
       if(util_print('coordinates',print_default)) then
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.39 2000-09-21 15:40:41 d3j191 Exp $
+c $Id: prepar.F,v 1.40 2000-09-22 17:55:33 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -256,7 +256,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore))
+     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,slvnam))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
@@ -312,7 +312,7 @@ c     handle other commands
 c     ---------------------
 c
       if(.not.pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
-     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf))
+     + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam))
      + call errquit('re_mknoe failed',9999)
 c
 c     remove temporary files if they exist

@@ -3,9 +3,9 @@
      + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
-     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
+     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.31 2000-05-05 23:55:31 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.32 2000-09-22 17:55:33 d3j191 Exp $
 c
       implicit none
 c
@@ -46,6 +46,7 @@ c
       integer lnon(2,mnon)
       integer natmt,nbndt,nangt,ndiht,nimpt,n3rdt
       real*8 wcorr(3)
+      character*3 slvnam
 c
       integer i,j,k,l,length,nd,ifrac,imol,iq,isgm
       character*10 topdat,toptim
@@ -261,8 +262,8 @@ c
  1121 format(11i7)
       endif
 c
-      write(lfntop,1122) cseq(nseq+1),wcorr
- 1122 format(a10,3f12.6)
+      write(lfntop,1122) cseq(nseq+1),wcorr,slvnam
+ 1122 format(a10,3f12.6,a3)
       endif
 c
       ifrac=1

@@ -1,8 +1,9 @@
       logical function pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore)
+     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,
+     + slvnam)
 c
-c $Id: pre_mktop.F,v 1.23 2000-09-15 22:21:54 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.24 2000-09-22 17:55:32 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -32,6 +33,7 @@ c
       character*80 ffield
       character*255 filseq,filtop,filpar,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
+      character*3 slvnam
 c
       integer mseq,nseq
       integer l_lseq,i_lseq,l_cseq,i_cseq
@@ -503,7 +505,7 @@ c
      + dbl_mb(i_rdih),mdih,ndih,
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_l3rd),
      + m3rd,n3rd,int_mb(i_lexc),mexc,nexc,int_mb(i_lnon),mnon,nnon,
-     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr))
+     + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam))
      + call errquit('pre_wrttop failed',9999)
 c
       if(util_print('where',print_debug)) then

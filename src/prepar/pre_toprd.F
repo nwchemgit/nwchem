@@ -1,9 +1,9 @@
       logical function pre_toprd(lfntop,filtop,lfnout,
      + num,amass,mat,cwa,qwa,mwa,nwa,iwat,isat,isgm,isml,isfr,
      + csa,qsa,msa,nsa,nsm,
-     + idsb,cdsb,msb,nsb,qu,nqu)
+     + idsb,cdsb,msb,nsb,qu,nqu,slvnam)
 c
-c $Id: pre_toprd.F,v 1.18 2000-09-11 17:21:51 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.19 2000-09-22 17:55:33 d3j191 Exp $
 c
       implicit none
 c
@@ -13,12 +13,14 @@ c
       integer iwat(mwa),isfr(msa)
       real*8 amass(mat),qsa(msa),cdsb(msb),qwa(mwa)
       character*255 filtop
-      character*10 slvnam
+      character*10 slvmdl
+      character*3 slvnam
       character*1 cdummy
 c
       integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsh,nsd,nso,nst,nsx
       integer i,j,idummy,len,m,mf,nqu
       real*8 qu(nqu)
+      character*3 string
 c
       len=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:len),form='formatted',
@@ -84,8 +86,9 @@ c 1010 format(f12.6)
       read(lfntop,1005) (idummy,i=1,nwn)
       read(lfntop,1005) (idummy,i=1,nwn)
       endif
-      if(nwa.gt.0) read(lfntop,1006) slvnam
- 1006 format(a10)
+      if(nwa.gt.0) read(lfntop,1006) slvmdl,string
+ 1006 format(a10,36x,a3)
+      if(string.ne.'   ') slvnam=string
       do 10 i=1,nsa
       read(lfntop,1339) csa(i),mf,m,isgm(i),isat(i),idummy
  1339 format(a16,3i5,10x,2i5)
