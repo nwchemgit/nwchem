@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.163 2003-10-17 22:55:06 carlfahl Exp $
+C     $Id: geom_input.F,v 1.164 2003-10-21 22:44:31 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -464,11 +464,12 @@ c
             if(usesymmol) then
                if (.not. ma_push_get(mt_dbl,3*ncenter,'coords',
      $              l_coordsym,k_coordsym))
-     $              call errquit('geominput: ma', 0)
+     $              call errquit('geominput: ma',0, MA_ERR)
                usesymmol=geom_symmol(geom,tags,dbl_mb(k_coordsym),
      $              groupname,nops,threquiv)
                call dcopy(3*ncenter,dbl_mb(k_coordsym),1,coords,1)
-               if(.not.ma_pop_stack(l_coordsym)) call errquit(' o',0)
+               if(.not.ma_pop_stack(l_coordsym)) call 
+     $           errquit(' o',0,GEOM_ERR)
             endif
             if(.not.usesymmol) then
                call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,

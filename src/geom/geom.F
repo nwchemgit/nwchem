@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.122 2003-10-17 22:55:06 carlfahl Exp $
+C$Id: geom.F,v 1.123 2003-10-21 22:44:31 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5362,8 +5362,8 @@ c
 c
 c     print moment of inertia
 c
-      if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
-     $     'rohf: problem with call to geom_ncent', geom)
+      if ( .NOT. geom_ncent(geom, natoms) ) call errquit(
+     $     'rohf: problem with call to geom_ncent', geom , GEOM_ERR)
       if (.not. ma_push_get(mt_dbl,3*natoms,'tcoords',l_coord,k_coord))
      $     call errquit('uhf_analyze: ma failed on tmp',  natoms,
      &       MA_ERR)
