@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.117 1999-05-10 22:45:26 edo Exp $
+c     $Id: dft_scf.F,v 1.118 1999-06-14 23:07:34 d3h449 Exp $
 c     
       implicit none
 c
@@ -506,6 +506,10 @@ c
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
       endif
+c
+c     compute the integrated density (numerical)
+c
+c      call grid_den(rtdb, g_dens, rho_n)
 c
 c     Tidy up SCF
 c
