@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.45 2003-10-17 22:55:29 carlfahl Exp $
+* $Id: mp2_grad_doit.F,v 1.46 2003-10-27 02:35:27 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -386,7 +386,7 @@ c
      $           ('mp2_grad: could not alloc lai1_a',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,(nob+nob_frozen)*nvb,'lai1_b',
      $           l_lai1_b,k_lai1_b)) call errquit(
-     $           'could not alloc lai1_b',1)
+     $           'could not alloc lai1_b',1,0)
 c
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
      $           call errquit('mp2_grad: could not alloc jb_ia',1, 
