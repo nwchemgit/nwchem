@@ -47,7 +47,6 @@ void FATR util_debug_(Integer *rtdb)
     strcpy(display, disp);
   }
 
-  argv[0] = "xterm";
   argv[1] = "-T";
   argv[2] = title;
   argv[3] = "-display";
@@ -86,6 +85,7 @@ void FATR util_debug_(Integer *rtdb)
   ga_error("Don't know how to debug on this machine", 0);
 #endif
 
+  argv[0] = xterm;
   if (ga_nodeid_() == 0) {
     int i;
     printf("\n Starting xterms with debugger using command\n\n    ");
