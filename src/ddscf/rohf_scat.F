@@ -122,12 +122,12 @@ c
      &   call errquit('rohf_scat: basis set error:', 86)
       nscat = nbf_all - nbf
       if(.not.bas_print(all_bas_han))
-     &     call errquit("can't print basis, rohf_sct", 1)
+     &     call errquit('can't print basis, rohf_sct', 1)
       if (.not. int_normalize(rtdb,all_bas_han))
      &     call errquit('rohf_scat: int_normalize failed', 86)
       call int_init(rtdb,1,all_bas_han)
       if(.not.bas_print(all_bas_han))
-     &     call errquit("can't print basis, rohf_sct", 1)
+     &     call errquit('can't print basis, rohf_sct', 1)
       call schwarz_init(geom, all_bas_han)
 c     
 c     Read the converged scf movecs
@@ -152,25 +152,25 @@ c     Project the mo's to the whole orbital space
 c
       if(.not.ga_create(MT_DBL, nbf_all, nbf_all, 'Total MO',
      &     nbf_all, 0, g_all))
-     &     call errquit("rohf_scat: can't create g_all", nbf_all)
+     &     call errquit('rohf_scat: can't create g_all', nbf_all)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'rohf:tran',
      &     nbf_all,0,g_tran))
-     &     call errquit("can not create transformation matrix",0)
+     &     call errquit('can not create transformation matrix',0)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'rohf:tmp',
      &     nbf_all,0,g_tmp))
-     &     call errquit("can not create tmp matrix",0)
+     &     call errquit('can not create tmp matrix',0)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:tmp scat',
      &     nscat,0,g_tmpscat))
-     &     call errquit("can not create scat tmp matrix",0)
+     &     call errquit('can not create scat tmp matrix',0)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:scat',
      &     nscat,0,g_scat))
-     &     call errquit("can not create scat matrix",0)
+     &     call errquit('can not create scat matrix',0)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'cckohn:scatmo',
      &     nbf_all,0,g_scatmo))
-     &     call errquit("can not create scatmo matrix",0)
+     &     call errquit('can not create scatmo matrix',0)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:over',
      &     nscat,0,g_over))
-     &     call errquit("can not create overlap matrix",0)
+     &     call errquit('can not create overlap matrix',0)
       call ga_zero(g_all)
       call ga_zero(g_tran)
       call ga_zero(g_tmp)
@@ -185,16 +185,16 @@ c
       nsc_orb(1)=9
       if(.not.ga_create(MT_DBL,nbf_all,nclosed+nsc_orb(1),
      &     'rohf:g_borb',nbf_all,0,g_borb))
-     &     call errquit("can not create bound orbital matrix",0)
+     &     call errquit('can not create bound orbital matrix',0)
       if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
      &     'rohf:g_tmpfock',nbf_all,0,g_tmpfock))
-     &     call errquit("can not create tmp fock matrix",0)
+     &     call errquit('can not create tmp fock matrix',0)
       if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
      &     'rohf:g_tr',nbf_all,0,g_tr))
-     &     call errquit("can not create transformation matrix",0)
+     &     call errquit('can not create transformation matrix',0)
       if(.not.ga_create(MT_DBL,nsc_orb(1),nsc_orb(1),
      &     'rohf:g_tr',nsc_orb(1),0,g_bvb))
-     &     call errquit("can not create transformation matrix",0)
+     &     call errquit('can not create transformation matrix',0)
       call ga_zero(g_borb)
       call ga_zero(g_tmpfock)
       call ga_zero(g_tr)
@@ -385,7 +385,7 @@ c
          call ga_print(g_all)
       endif
       if (.not. ma_push_get(mt_int, nbf_all, 'irreps',
-     $     l_irs, k_irs)) call errquit
+     $     l_irs, k_irs)) call errquit('crap',0)
       if(oskel)         
      &     call scf_movecs_sym_adapt(all_bas_han, g_all, .true.,
      &     nbf_all, '- final', .true., int_mb(k_irs))
