@@ -1,0 +1,7 @@
+c
+c $Id: esp_params.fh,v 1.1 1997-10-06 23:00:36 d3j191 Exp $
+c
+      real*8 cau2nm
+      parameter(cau2nm=5.29177249d-02)
+      real*8 cnm2au
+      parameter(cnm2au=1.88972598786d+01)

@@ -1,0 +1,8 @@
+Changes to ESP since NWCHem release 3.0 (TPS)
+
+Oct 06	Initial Electrostatic Potential (ESP) module
+	Current Features of the FIT:
+		a) Fit on grid points (cf CHELPG)
+		b) Constraints on total charge of atom groups
+		c) Restraints (cf RESP)
+
