@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.23 2001-08-10 21:16:17 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.24 2001-08-10 21:16:56 d3j191 Exp $
 c
       implicit none
 c
@@ -211,7 +211,6 @@ c
       if(card(5:7).eq.'lin') ipmf(numpmf,1)=5
       if(card(5:7).eq.'pla') ipmf(numpmf,1)=6
       if(card(5:7).eq.'bas') ipmf(numpmf,1)=7
-      print*,card
       read(card(8:80),'(5i5,2f12.6,2e12.5)')
      + iopt(numpmf),(ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
