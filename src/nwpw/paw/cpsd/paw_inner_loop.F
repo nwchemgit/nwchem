@@ -1,10 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.12 2003-02-15 00:29:21 marat Exp $
+* $Id: paw_inner_loop.F,v 1.13 2003-02-17 21:18:59 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
      >                      npack1,nfft3d,nemax,
      >                      psi1,psi2,dn,
+     >                      dn_cmp_smooth,
      >                      it_in,E,deltae,deltac,deltar,
      >                      hml,lmd,
      >                      psi_r,Hpsi)
@@ -14,6 +15,7 @@
       complex*16 psi1(npack1,nemax)
       complex*16 psi2(npack1,nemax)
       real*8     dn(2*nfft3d,2)
+      real*8     dn_cmp_smooth(2*nfft3d)
       integer    it_in
       real*8     E(*)
       real*8     deltae,deltac,deltar
@@ -179,7 +181,16 @@
 *       ***************************
 *       ****generate comp charge***
 *       ***************************
-*        call paw_comp_charge_update()
+        call paw_ovlp_coeff_set(psi1)
+        call paw_ovlp_weights_set()
+        call paw_comp_charge_update()
+        call paw_mult_dn_cmp_get(dn_cmp_smooth,
+     >                           dcpl_mb(tmp1(1)))
+        call Pack_c_unpack(0,dn_cmp_smooth)
+        call D3dB_cr_fft3b(1,dn_cmp_smooth)
+        call D3dB_r_SMul(1,scal2,dn_cmp_smooth,dn_cmp_smooth)
+        call D3dB_r_Zero_Ends(1,dn_cmp_smooth)
+
 
 *       **********************************
 *       ***generate atomic potentials*****
@@ -521,6 +532,7 @@ c     get paw atom energies
       value = MA_pop_stack(tmp_L(2))
 
       call nwpw_timing_end(12)
+
 
 
       return

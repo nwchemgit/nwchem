@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.33 2003-02-17 05:59:05 marat Exp $
+* $Id: paw_sd.F,v 1.34 2003-02-17 21:18:59 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -49,7 +49,7 @@
 *     complex*16 Hpsi(nfft3d,nemax)
 *     complex*16 psir(nfft3d,nemax)
       integer psi1(2),psi2(2)
-      integer dn(2)
+      integer dn(2),dn_cmp_smooth(2)
       integer Hpsi(2),psir(2)
     
 
@@ -272,12 +272,14 @@
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nfft3d),
+     >             'dn_cmp_smooth',dn_cmp_smooth(2),dn_cmp_smooth(1))
+      value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
-
       if (.not. value) call errquit('paw_sd: out of heap memory',1)
 
       !**** intialize overlap coefficient data structure ***
@@ -439,13 +441,11 @@
          
          call paw_inner_loop(ispin,ne,
      >             npack1,nfft3d,nemax,
-     >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
+     >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
+     >             dbl_mb(dn(1)),dbl_mb(dn_cmp_smooth(1)),
      >             it_in,E,deltae,deltac,deltar,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
-         deltae = 0.0d0
-         deltac = 0.0d0
-         deltar = 0.0d0
        
          if (taskid.eq.MASTER) then 
            write(6,1310) icount*it_in,E(1),deltae,deltac,deltar
@@ -473,6 +473,111 @@
    2  continue
       if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
       if (taskid.eq.MASTER) call current_second(cpu3)
+
+
+
+
+*         |****************************************|
+*********** produce CHECK file and diagonalize hml *****************
+*         |****************************************|
+
+*     **** produce CHECK FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name('CHECK',.true.,
+     >                               .false.,
+     >                        full_filename)
+         open(unit=17,file=full_filename,form='formatted')
+      end if
+
+*     **** check total number of electrons ****
+      do ms =1,ispin
+         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
+         en(ms) = sumall*lattice_omega()
+     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
+      end do
+      call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sumall)
+      write(*,*) "sumall       :",sumall
+      write(*,*) "dn_cmp_smooth:",sumall*lattice_omega()
+     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
+
+      if (taskid.eq.MASTER) then
+         write(17,1320) (en(ms),ms=1,ispin)
+      end if
+
+*     **** comparison between hamiltonian an lambda matrix ****
+      n = ne(1)
+      nn = n*n
+      if (taskid.eq.MASTER) then
+         write(17,1330)
+         do ms=1,ispin
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               do j=n1(ms),n2(ms)
+                  jj = j-n1(ms)
+                  index = (ii+1) + jj*n +(ms-1)*nn
+                  write(17,1340) ms,ii+1,jj+1,
+     >                           dbl_mb(hml(1)+index-1),
+     >                           dbl_mb(lmd(1)+index-1),
+     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
+               end do
+            end do
+         end do
+      end if
+
+
+
+*     **** check orthonormality ****
+      if (taskid.eq.MASTER) then
+         write(17,1350)
+      end if
+
+      do ms=1,ispin
+         do i=n1(ms),n2(ms)
+            ii = i-n1(ms)+1
+            do j=i,n2(ms)
+               jj = j-n1(ms)+1
+               call paw_overlap_matrix_gen(1,1,
+     >                          dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                          dcpl_mb(psi1(1)+(j-1)*npack1),
+     >                          w)
+               if (taskid.eq.MASTER) then
+                  write(17,1360) ms,ii,jj,w
+               end if
+            end do
+         end do
+      end do
+
+*     **** close check file ****
+      if (taskid.eq.MASTER) then
+         close(17)
+      end if
+
+
+*     ***** diagonalize the hamiltonian matrix ****
+      n = ne(1)
+      nn = n*n
+      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
+      do ms=1,ispin
+         call eigen(n,ne(ms),
+     >              dbl_mb(hml(1)+(ms-1)*nn),
+     >              dbl_mb(eig(1)+(ms-1)*n),
+     >              dbl_mb(lmd(1)),ierr)
+      end do
+
+      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
+      do ms=1,ispin
+         do j=n1(ms),n2(ms)
+            jj = j-n1(ms)
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               index = (ii+1) + jj*n + (ms-1)*nn
+
+               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
+     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                            dcpl_mb(psi2(1)+(j-1)*npack1))
+            end do
+         end do
+      end do
 
 
 
@@ -585,15 +690,17 @@
       call paw_density_end()
       call paw_xc_end()
 
+      value =           MA_free_heap(psir(2))
+      value = value.and.MA_free_heap(Hpsi(2))
+      value = value.and.MA_free_heap(dn(2))
+      value = value.and.MA_free_heap(dn_cmp_smooth(2))
+      value = value.and.MA_free_heap(eig(2))
+      value = value.and.MA_free_heap(hml(2))
+      value = value.and.MA_free_heap(lmd(2))
+      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.MA_free_heap(psi2(2))
+      if (.not. value) call errquit('paw_sd:error freeing heap',2)
 
-      value = MA_free_heap(psir(2))
-      value = MA_free_heap(Hpsi(2))
-      value = MA_free_heap(dn(2))
-      value = MA_free_heap(eig(2))
-      value = MA_free_heap(hml(2))
-      value = MA_free_heap(lmd(2))
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(psi2(2))
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
