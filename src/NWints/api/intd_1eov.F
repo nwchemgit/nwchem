@@ -1,6 +1,7 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.5 1997-04-25 00:41:02 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.6 1997-04-25 05:21:35 pg481 Exp $
+      implicit none
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -44,6 +45,8 @@ c                            -------------- |
 c                            d[idatom(2),z]/
       double precision scr(lscr)
       double precision Ova(lOva)
+*
+      integer nint
 *
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lOva) then
@@ -113,7 +116,7 @@ c
       double precision scr(lscr)     ! [input] scratch array
       double precision Ova(nint,3,2) ! [output] derivative integrals
 c::local
-      integer nint, ucont
+      integer ucont
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
       logical any_spherical
