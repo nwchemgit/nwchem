@@ -19,9 +19,12 @@ and complicated when presented in its general form, as follows:
            [autoz || noautoz] \
            [adjust] \
            [(nuc || nucl || nucleus) <string nucmodel>]
+           
     
     [SYMMETRY [group] <string group_name> [print] \
            [tol <real tol default 1d-2>]]
+
+
 
     <string tag> <real x y z> [vx vy vz] [charge <real charge>] \
            [mass <real mass>] \
@@ -51,7 +54,15 @@ and complicated when presented in its general form, as follows:
               TORSION <integer i> <integer j> <integer k> <integer l> \
                       [<real value>] [<string name>] [constant]
           END]
+          
+          [SYSTEM surface  <molecule polymer surface crystal default molecule>
+               lat_a <real lat_a> lat_b <real lat_b> lat_c <real lat_c>
+               alpha <real alpha> beta <real beta> gamma <real gamma>
+          END]
+ 
    END
+
+
 \end{verbatim}
 
 The three main parts of the \verb+GEOMETRY+ directive
@@ -63,6 +74,7 @@ input as the geometry name, input units, and print level for the output)
 \item symmetry information
 \item Cartesian coordinates or Z-matrix input to specify the locations 
 of the atoms and centers
+\item lattice parameters (needed only for periodic systems)
 \end{itemize}
 
 The following sections present the input for this compound directive in
@@ -70,7 +82,7 @@ detail, describing the options available and the usages of the various
 keywords in each of the three main parts.
 
 
-\section{Keywords on the {\tt GEOMETRY} directive}
+\section{Keywords on the GEOMETRY directive}
 \label{sec:geomkeys}
 
 This section presents the options that can be specified using the keywords 
@@ -213,9 +225,7 @@ bond length of 0.732556\ \AA):
 
 The \verb+SYMMETRY+ directive is used (optionally) within the compound
 \verb+GEOMETRY+ directive to specify the point group for the molecular
-geometry. (Note: space group information for 1-, 2-, and 3-dimensional
-periodic systems is not yet documented.)
-
+geometry. 
 The general form of the directive, as described above within the general
 form of the \verb+GEOMETRY+ directive, is as follows:
 \begin{verbatim}
@@ -774,6 +784,33 @@ of the \verb+UNSET+ directive is as follows:
   unset geometry:actlist
 \end{verbatim}
 
+\section{SYSTEM --- Lattice parameters for periodic systems}
+\label{sec:latticeparam}
+
+This keyword is needed only for for 1-, 2-, and 3-dimensional
+periodic systems.
+
+The {\tt system} keyword can assume the following values
+
+\begin{itemize}
+\item {\tt polymer} --- system with 1-d translational symmetry.
+\item {\tt surface} --- system with 2-d translational symmetry.
+\item {\tt crystal} --- system with 3-d translational symmetry. 
+\item {\tt molecule} --- no translational symmetry (this is the default)
+\end{itemize}   
+
+When the system possess translational symmetry, fractional coordinates
+are used in the directions where translational symmetry exists. 
+This means that for crystals $x$, $y$ and $z$ are fractional, for
+surfaces $x$ and $y$  are fractional, whereas for polymers only $z$ is
+fractional.
 
 
 
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "user"
+%%% End: 

@@ -106,19 +106,18 @@ file now just needs to refer to processes running NWChem.
 including workstation clusters using MPI}
 
 To run with MPI, \verb+parallel+ should not be used.  The way
-we usually run nwchem under MPI are the following (again assuming that
-nwchem is in your path):
+we usually run nwchem under MPI are the following
 
 \begin{itemize}
 \item using mpirun:
 \begin{verbatim}
-     mpirun -np 8 nwchem input.nw
+     mpirun -np 8 $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem input.nw
 \end{verbatim}
 \item If you have all nodes connected via shared memory
      and you have installed the ch\_shmem version of MPICH,
      you can do
 \begin{verbatim}
-     nwchem -np 8 h2o.nw
+     $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem -np 8 h2o.nw
 \end{verbatim}
 \end{itemize}
 
@@ -219,11 +218,12 @@ files larger than a few MB.
 \section{Cray T3E}
 
 \begin{verbatim}
-  mpprun -n n nwchem <input_file>
+  mpprun -n <npes> $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem <input_file>
 \end{verbatim}
 
-where \verb+n+ is the number of processors and \verb+input_file+ is the
+where \verb+npes+ is the number of processors and \verb+input_file+ is the
 name of your input file.
+
 
 \section{Linux}
 
@@ -232,6 +232,32 @@ applying this patch to your kernel to boost the performance of TCP/IP
 \begin{itemize}
 \item \htmladdnormallink{http://www.icase.edu/coral/LinuxTCP.html}{http://www.icase.edu/coral/LinuxTCP.html}
 \end{itemize}
+
+\section{Alpha systems with Quadrics switch}
+
+\begin{verbatim}
+  prun -n <npes> $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem <input_file>
+\end{verbatim}
+
+where \verb+npes+ is the number of processors and \verb+input_file+ is the
+name of your input file.
+
+\section{Windows 98 and NT}
+
+\begin{verbatim}
+   $NWCHEM_TOP/bin/win32/nw32 <input_file>
+\end{verbatim}
+
+where  and \verb+input_file+ is the
+name of your input file. 
+If you use WMPI, uou must have a file named {\bf \tt nw32.pg} in the
+\verb+ $NWCHEM_TOP/bin/win32+ directory; the file must only contains the 
+following single line
+\begin{verbatim}
+   local 0
+\end{verbatim}
+
+
 
 \section{Tested Platforms and O/S versions}
 
@@ -259,10 +285,24 @@ the Power PC Macintosh, and Black Lab 1.2 or Yellow Dog 1.2 Linux for
 Power PC Macintosh.  These all use the EGCS compilers at different
 levels.  Those distributed from Slackware are somewhat different than
 those distributed from RedHat but the code is configured to run on all
-of them.  The Linux Alpha version 5.2 from Red Hat fails to compile
-the code as well as the beta release of the Digital Fortran compiler
-for Linux based Alpha systems.  
+of them.
+\item Linux on Alpha cpus has been tested with RedHat 6.1 and 6.2.
+    Usage of the Compaq Fortran and C compilers is necessary for compiling.
+\item HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
+    compilation.
+%  The Linux Alpha version 5.2 from Red Hat fails to compile
+%.the code as well as the beta release of the Digital Fortran compiler
+%or Linux based Alpha systems.  
 \item FreeBSD.  Just use the Linux target and NWChem will build for FreeBSD
 version 4.0 and the pre-release 5.0 versions of the Operating System.
+\item  Intel x86 with Windows 98 and NT has been tested with Compaq Visual
+Fortran 6.0 and 6.1 with WMPI 1.3 or NT-MPICH. NT-MPICH is available from
+\htmladdnormallink{http://www-unix.mcs.anl.gov/\~\space ashton/mpich.nt/}{http://www-unix.mcs.anl.gov/~ashton/mpich.nt/}
+
 
 \end{itemize}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "user"
+%%% End: 
