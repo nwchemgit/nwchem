@@ -56,7 +56,9 @@
       iProc = ga_nodeid()
       nProc = ga_nnodes()
 *
-      Call dcopy(nGrid,0.0d0,0,Values,1)
+***      Call dcopy(nGrid,0.0d0,0,Values,1)
+      call dfill(ngrid, 0.0d0, values, 1)
+
 *---- Share the grid points among processes
       lthPP = nGrid/nProc
       If (lthPP*nProc.ne.nGrid) Then
@@ -140,8 +142,8 @@
       LResult = MA_Push_Get(MT_Dbl,nCoef_Max,'Coef',l_Coef,k_Coef)
       Call ErrMem(LResult,'C_C: Failed to allocate Coef',0)
 *
-      Call dcopy(nXPrim,0.0d0,0,Dbl_mb(k_Expo),1)
-      Call dcopy(nCoef_Max,0.0d0,0,Dbl_mb(k_Coef),1)
+      Call dfill(nXPrim,0.0d0,Dbl_mb(k_Expo),1)
+      Call dfill(nCoef_Max,0.0d0,Dbl_mb(k_Coef),1)
       Acc_AO_Gauss = 20.d0
       If (What.eq.'VIEW') Acc_AO_Gauss = 1.d20
       mBF = nBF

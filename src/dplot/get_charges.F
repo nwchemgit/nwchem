@@ -129,8 +129,8 @@
 *---- Sequential part
       If (iProc.eq.0) Then
          Call GA_Get(g_Vls,1,nGrid,1,1,Values,nGrid)
-         Call dcopy((nAtom+1)**2,0.d0,0,AMt,1)
-         Call dcopy(nAtom+1,     0.d0,0,BMt,1)
+         Call dfill((nAtom+1)**2,0.d0,AMt,1)
+         Call dfill(nAtom+1,     0.d0,BMt,1)
 *------- Set up the A-matrix and B-vector
          Do iAtom = 1, nAtom
             SumB = 0.d0
