@@ -2,11 +2,24 @@ c==========================================================
 c  This stupid section is to try an localize the
 c  interface differences between CRAY and the rest
 c  on word-addressable I/O.
+c
+c  JN: the current version uses WAIO on top of EAF
 c==========================================================
 c  Put at the beginning for possible inlining
 c
 c
       subroutine waopen( unit, fname, nblk, istat, ierr )
+      implicit none
+#include "eaf.fh"
+#include "tcgmsg.fh"
+      integer unit, nblk, istat, ierr
+      character*(*) fname
+      ierr = EAF_Open(fname,EAF_RW, unit)
+      if(ierr.ne.0)call errquit('waopen: failed to open file ',ierr)
+      end
+
+
+      subroutine waopen0( unit, fname, nblk, istat, ierr )
       implicit none
 #include "global.fh"
       integer unit, nblk, istat, ierr
@@ -51,6 +64,16 @@ c
 
       subroutine waclose( unit, ierr )
       implicit none
+#include "eaf.fh"
+#include "tcgmsg.fh"
+      integer ierr,unit
+      ierr = EAF_Close(unit)
+      if(ierr.ne.0)call errquit('waclose: failed to close file ',ierr)
+      end
+
+
+      subroutine waclose0( unit, ierr )
+      implicit none
       integer unit, ierr
 #ifndef CRAY_T3D
       call wclose(unit,ierr)
@@ -78,8 +101,21 @@ c
       end
 
 
-
+c     WAIO on top of EAF
       subroutine waput( unit, v, addr, len, ierr )
+      implicit none
+#include "eaf.fh"
+#include "tcgmsg.fh"
+      integer unit, addr, len, ierr
+      double precision v(*)
+      ierr = EAF_Write(unit, dble(mdtob(addr-1)), v,  mdtob(len))
+      if(ierr.ne.0)call errquit('waput failed',ierr)
+      return
+      end
+
+
+
+      subroutine waput0( unit, v, addr, len, ierr )
       implicit none
       integer unit, addr, len, ierr
       double precision v(*)
@@ -112,9 +148,22 @@ c
       end
 
 
-
-
+c     WAIO on top of EAF
       subroutine waget( unit, v, addr, len, ierr )
+      implicit none
+#include "eaf.fh"
+#include "tcgmsg.fh"
+      integer unit, addr, len, ierr
+      double precision v(*)
+      ierr = EAF_Read(unit, dble(mdtob(addr-1)), v, mdtob(len))
+      if(ierr.ne.0)call errquit('waget failed',ierr)
+      return
+      end
+
+
+
+
+      subroutine waget0( unit, v, addr, len, ierr )
       implicit none
       integer unit, addr, len, ierr
       double precision v(*)
@@ -148,7 +197,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.32 1996-11-06 18:07:01 rg240 Exp $
+c  $Id: moints_semi.F,v 1.33 1997-04-11 23:08:34 d3h325 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -215,7 +264,7 @@ c
        logical osym
        character*256 fnameK, fnameJ
        integer junit, kunit
-       parameter (junit=10,kunit=11)
+*      parameter (junit=10,kunit=11)
 c
        integer moints_numgr
        integer moints_lmem
@@ -936,7 +985,7 @@ c
       logical status
       character*256 fname
       integer junit
-      parameter(junit=10)
+*     parameter(junit=10)
 
       call util_file_name('jh', .true.,.true.,fname)
       call waopen(junit, fname, 10, 0, itmp )
@@ -1016,7 +1065,7 @@ c
       double precision tmp2
       character*256 fname
       integer kunit
-      parameter (kunit=11)
+*     parameter (kunit=11)
       double precision xx, denom, e2
       logical status
       double precision moints_epair_eval
