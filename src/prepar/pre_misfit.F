@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.29 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.30 2001-10-16 14:42:28 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
 c
       integer isg,ioff,jz,kz,lz
       real*8 dz,az,tz
-      logical lmat
+      logical lmat,fndone
 c
 c     process z-matrices for missing atoms
 c     ------------------------------------
@@ -41,6 +41,8 @@ c
       ioff=0
       isg=0
       lmat=.false.
+   32 continue
+      fndone=.false.
       do 30 i=1,nsa
       if(isgm(i).ne.isg) then
       isg=isgm(i)
@@ -64,6 +66,7 @@ c
       isfnd(i)=1
       write(*,'(a,i7,a,a,3f10.5)') ' Generated from z-matrix: ',
      + isg,':',csa(i),(xs(k,i),k=1,3)
+      fndone=.true.
       endif
       else
       goto 31
@@ -71,6 +74,7 @@ c
       endif
    30 continue
       if(lmat) close(unit=lfnmat)
+      if(fndone) goto 32
 c
 c     generate missing coordinates based on simple rules
 c     --------------------------------------------------
