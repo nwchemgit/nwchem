@@ -1,5 +1,5 @@
       subroutine sp0111(gout)
-c $Id: sp0111.F,v 1.3 1995-12-15 21:52:54 d3g681 Exp $
+c $Id: sp0111.F,v 1.4 1997-03-04 06:06:14 d3e129 Exp $
 c        *****  special fast routine for -p- loop for 0111 *****
       implicit none
       double precision gout(*)
@@ -136,7 +136,7 @@ c        *****  begin -p- loop                   *****
       gggy = gabcd*ggy
       qq = p*12.5d0
       n =  idint(qq)
-      theta = qq- dfloat(n)
+      theta = qq- dble(n)
       theta2 = theta*(theta-1.d0)
       theta3 = theta2*(theta-2.d0)
       theta4 = theta2*(theta+1.d0)

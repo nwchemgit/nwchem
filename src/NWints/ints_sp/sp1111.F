@@ -1,5 +1,5 @@
       subroutine sp1111(gout)
-c $Id: sp1111.F,v 1.4 1995-12-15 21:52:59 d3g681 Exp $
+c $Id: sp1111.F,v 1.5 1997-03-04 06:06:15 d3e129 Exp $
       implicit none
       double precision g(256),h(256)
       double precision dzero, done
@@ -216,7 +216,7 @@ c ***
       gggy = gabcd*ggy
       qq = p*12.5d0
       n =  idint(qq)
-      theta = qq- dfloat(n)
+      theta = qq- dble(n)
       theta2 = theta*(theta-1.d0)
       theta3 = theta2*(theta-2.d0)
       theta4 = theta2*(theta+1.d0)

@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.8 1996-10-22 16:15:39 d3g681 Exp $
+c $Id: prepint.f,v 1.9 1997-03-04 06:06:24 d3e129 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,nsym,maxprice,scftype,iret_limit)
 c---------------------------------------------------------------
@@ -94,7 +94,7 @@ c
       ncsx =ncs
 c
       nsymx=nsym
-      rnsym=one/(one+float(nsym))
+      rnsym=one/(one+dble(nsym))
 c***************************
 c
        call fprep
