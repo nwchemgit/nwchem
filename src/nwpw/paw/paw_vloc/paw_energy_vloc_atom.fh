@@ -1,0 +1,6 @@
+!$Id: paw_energy_vloc_atom.fh,v 1.1 2003-02-11 20:46:11 marat Exp $
+!
+!
+!
+      double precision paw_energy_vloc_atom
+      external paw_energy_vloc_atom

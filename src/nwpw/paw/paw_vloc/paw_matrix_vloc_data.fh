@@ -1,0 +1,7 @@
+*
+* $Id: paw_matrix_vloc_data.fh,v 1.1 2003-02-11 20:46:11 marat Exp $
+*
+      integer paw_vloc_matrix(4)
+      integer i_paw_vloc_matrix(4)
+
+      common /paw_vloc_matrix/ paw_vloc_matrix,i_paw_vloc_matrix
