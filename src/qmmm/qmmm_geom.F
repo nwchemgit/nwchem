@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.17 2004-09-21 22:57:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.18 2004-09-28 18:21:15 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -112,7 +112,7 @@ c     --------------------------
 
       end
 
-      subroutine qmmm_sync_qm_geom(irtdb)
+      subroutine qmmm_get_qm_coord_qm(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -146,7 +146,7 @@ c    --------------------------------------
 
       end
 
-      subroutine qmmm_sync_geom(irtdb)
+      subroutine qmmm_get_all_coord_qm(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -243,6 +243,10 @@ c     local variables
       integer i_m_all,h_m_all
       logical nobq
       double precision charge
+      character*32 pname
+
+      pname = "qmmm_create_bq_geom"
+      write(*,*) " in "//pname
 
       if (.not. rtdb_get(irtdb,'qmmm:remove_bq',mt_log,1,nobq)) then
         nobq=.false.
@@ -276,28 +280,32 @@ c     -----------------------
 
       i_cbq = qmmm_get_i_cbq()
       i_qbq = qmmm_get_i_qbq()
+     
 
 
 c    --------------------------------------
 c    get qm coordinates out of geometry
 c    --------------------------------------
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+     + call errquit(pname//' Failed to create geometry',0, GEOM_ERR)
 
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry')) then
+          if(.not.geom_print(igeom,irtdb))
+     +    call errquit('Failed to print geometry',0, GEOM_ERR)
+      call errquit(pname//'Failed to load geometry',0, GEOM_ERR)
+      end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+     + call errquit(pname//'Failed to store geometry',0, GEOM_ERR)
 
       if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c))) 
-     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+     >    call errquit(pname//"geom_cart_coords_get",0,0)
 
        if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+     + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 
       if(.not.geom_rtdb_delete(irtdb,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+     + call errquit(pname//'Failed to delete geometry',0, GEOM_ERR)
 
 c    --------------------------------------
 c    create combined qm bq geometry
@@ -670,7 +678,7 @@ c     ---------------
       integer irtdb
 #include "qmmm.fh"
 
-      call qmmm_sync_qm_geom(irtdb)
+      call qmmm_get_qm_coord_qm(irtdb)
       call qmmm_create_bq_geom(irtdb)
 
 
