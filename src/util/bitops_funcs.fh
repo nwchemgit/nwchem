@@ -10,3 +10,7 @@ c
       ior(iiibit,jjjbit) = or(iiibit,jjjbit)
       ieor(iiibit,jjjbit)=xor(iiibit,jjjbit)
 #endif
+#ifdef CRAY
+      lshift(arg1,arg2)=shiftl(arg1,arg2)
+      rshift(arg1,arg2)=shiftr(arg1,arg2)
+#endif
