@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.36 2000-12-18 21:13:54 windus Exp $
+$Id: INSTALL,v 1.37 2001-02-01 23:36:31 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -655,12 +655,12 @@ expect that we will be able to help you.
       A) Perform multiple make commands at the $NWCHEM_TOP/src level.
 
       B) If you know which directories need to be compiled, just type 
-         "make" in those directories.  The type "make link" in the
+         "make" in those directories.  Then type "make link" in the
          $NWCHEM_TOP/src directory.
 
       C) Another solution is to edit the $NWCHEM_TOP/src/config/makefile.h 
          file, find the section relating to your $NWCHEM_TARGET, and edit 
-         the MAKEFILES line so that the number after -j is a "1".
+         the MAKEFLAGS line so that the number after -j is a "1".
 
          i.e. MAKEFLAGS = -j 1 --no-print-directory
 
@@ -679,7 +679,7 @@ expect that we will be able to help you.
       directory.  Then start at step 4 in the Basic Build Instructions,
       setting the environment variables with the values that you want.
 
-   6) I am getting a "Word too long" errors when compiling.
+   6) I am getting "Word too long" errors when compiling.
 
       This sometimes happens when the system shell being used is ksh.
       The solution is to
