@@ -126,7 +126,7 @@ c
      $        ('task_freq:geom_ncent failed?',3)
          if (.not. geom_destroy(geom)) call errquit
      $        ('task_freq:geom_destroy failed?',911)
-         if (hess_analy.eq..true.) then
+         if (hess_analy.eqv..true.) then
             call vib_vib(rtdb,filehess,.true.,
      $           0,.false.,0,.false.,nat)
          else 
