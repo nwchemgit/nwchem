@@ -15,7 +15,7 @@
 		detci_sigma.F \
 		detci_spin.F
 
-  LIB_DEFINES = -DNEW_SIGMA_BB -DNEW_DOTAB -DNEW_AAFF
+  LIB_DEFINES = 
 
 
 include ../../config/makefile.h

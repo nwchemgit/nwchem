@@ -61,7 +61,7 @@ c
       detci_abdotab_etime = 0.d0
       detci_abscat_etime = 0.d0
       detci_absync_etime = 0.d0
-      cdetci_profprint = .true.
+      cdetci_profprint = .false.
 c
 c  Copy CI parameters
 c
@@ -103,7 +103,7 @@ c
       civlen = nstra*nstrb
       mseg = (10*ga_nnodes())/min(nexa,nexb)
       mseg = min(mseg, 20)
-      MSEG = 5
+      MSEG = 1                                       ! Delete for better parallel effeciency
 c
 c  Default reference energy is Aufbau ordering
 c  ...although maybe reset by CI-guess routine!
@@ -560,11 +560,13 @@ c
       neklb = detci_binomial( (cdetci_norb-1), (cdetci_nelb-1) )
       mseg = (10*ga_nnodes())/min(nexa,nexb)
       mseg = min(mseg, 20)
-      MSEG = 5
+      MSEG = 1                                 ! Delete for better parallel effeciency
+c                                              ! mseg = number of simultaneous F string contructed
 c
 c  Sigma components
 c
-#ifdef NEW_SIGMA_BB
+c   beta-beta using transpose vectors
+c
       tx = util_cpusec()
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp CI',
      $                    nstra, 1, g_ct ))
@@ -591,9 +593,8 @@ c
       if (.not.ga_destroy(g_st))
      $  call errquit('detci_sigma: cannot destroy transp sig',0)
       detci_sbb_etime = detci_sbb_etime + util_cpusec() - tx
-#endif
 c
-c
+c   alpha-alpha
 c
       tx = util_cpusec()
       call detci_sigmaaa( cdetci_norb, cdetci_nsym, cdetci_nela,
@@ -607,23 +608,7 @@ c
      $                    g_civec, g_sigma )
       detci_saa_etime = detci_saa_etime + util_cpusec() - tx
 c
-c
-c
-#ifndef NEW_SIGMA_BB
-      tx = util_cpusec()
-      call detci_sigmabb( cdetci_norb, cdetci_nsym, cdetci_nela,
-     $                    cdetci_nelb, nstra, nstrb, nexa, nexb,
-     $                    nekla, neklb, cdetci_osym, 
-     $                    ijmap, int_mb(k_detci_exa),
-     $                    int_mb(k_detci_exb),
-     $                    cdetci_ataba, cdetci_atabb, ntij,
-     $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
-     $                    dbl_mb(k_detci_fscr),
-     $                    g_civec, g_sigma )
-      detci_sbb_etime = detci_sbb_etime + util_cpusec() - tx
-#endif
-c
-c
+c   alpha-beta
 c
       tx = util_cpusec()
       call detci_sigmaab( cdetci_norb, cdetci_nsym, cdetci_nela,
@@ -979,6 +964,7 @@ c
 
       return
       end
+
 
 
 
