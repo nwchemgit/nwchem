@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.28 2002-05-02 19:39:31 d3j191 Exp $
+c $Id: prp_common.fh,v 1.29 2002-05-08 18:09:58 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -14,11 +14,11 @@ c
       integer maxpro
       parameter(maxpro=27500)
 c
-      integer me,np,lfnout,lfnprp,lfngib
+      integer me,np,npfft,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
       integer mda,nda,nwm,msm,nsm,nsa
 c
-      common/prp_dim/me,np,lfnout,lfnprp,lfngib,
+      common/prp_dim/me,np,npfft,lfnout,lfnprp,lfngib,
      + nsf,msf,mpe,nfoutp,nfstat,
      + nfprop,maxp,mda,nda,mrun,nwm,msm,nsm,nsa
 c

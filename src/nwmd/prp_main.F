@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.76 2002-05-02 20:10:20 d3j191 Exp $
+c $Id: prp_main.F,v 1.77 2002-05-08 18:09:58 d3j191 Exp $
 c
       implicit none
 c
@@ -506,8 +506,8 @@ c
 c
       if(.not.lfhdr) then
       call swatch(pdate,ptime)
-      write(lfnprp,3000) nprop,pdate,ptime
- 3000 format(i7,1x,2a10)
+      write(lfnprp,3000) nprop,pdate,ptime,np,npfft
+ 3000 format(i7,1x,2a10,2i5)
       write(lfnprp,3001) (pronam(ixp(i)),i=1,nprop)
  3001 format(a50)
       lfhdr=.true.
