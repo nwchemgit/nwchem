@@ -71,7 +71,7 @@ Current functionality includes:
   gradients with many local and
       non-local exchange-correlation potentials
 \item MP2 energy using direct or semi-direct algorithms, or using the
-  resolution of the indentity integral approximation.  Analytic
+  resolution of the identity integral approximation.  Analytic
   gradients are under development.
 \item Geometry Optimization (Minimization and Transition State).
 \item Second-derivatives by numerical difference of gradients.
@@ -105,21 +105,22 @@ most UNIX workstations type
 
 Let's have a closer look at he above input (the structure will be
 described in more detail in the following section). It contains only a
-neccessary amount of information, as NWChem will use default values
+necessary amount of information, as NWChem will use default values
 for most input parameters.
 
 The title is only used to give the user a means to identify
 outputs from different jobs quickly.
 
 The input geometry is generally given in cartesian coordinates (for
-Z-matrix inputs, see section \ref{Z-matrix}), and, if no further
+Z-matrix inputs see section \ref{Z-matrix}), and, if no further
 information is given, in atomic units (Bohr). 
 
 The basis input block is structured like the geometry block (keyword,
-..., end) and contains basis set information for every atom type in
+\ldots, end) and contains basis set information for every atom type in
 the geometry. In this case a default basis set from the library is
-chosen (see sections appendix A and section \ref{sec:basis} for a list of
-available basis sets or how to define your own).
+chosen (see sections appendix \ref{knownbasis} and section
+\ref{sec:basis} for a list of available basis sets or how to define
+your own).
 
 The last line ({\tt task scf optimize})
 tells the program what to calculate with the information given so
@@ -203,8 +204,8 @@ options, which are to specify either a standard source of the vectors
 with a default of \verb+"atomic"+ (atomic guess) or the keyword
 \verb+project+ which takes two additional string arguments which
 indicate that vectors should be obtained by projecting from vectors in
-a smaller basis.  The \verb+swap+ keyword may be optinally applied to
-the alpha or beta spin orbtials and takes as an argument a list of
+a smaller basis.  The \verb+swap+ keyword may be optionally applied to
+the alpha or beta spin orbitals and takes as an argument a list of
 pairs of integers. The \verb+output+ keyword requires a string
 argument, which takes a default value constructed from the value of
 the file prefix appended with \verb+".movecs"+.  For example
@@ -246,11 +247,163 @@ completion of the task.
 \subsection{The input file name and the {\tt .nw} suffix}
 \label{sec:inputfilename}
 
-The name of the input file is usally provided as an argument to
+The name of the input file is usually provided as an argument to
 NWChem.  If no input file name is provided, then the default name of
 \verb+"nwchem.nw+ is used.  If the file cannot be located, then
 \verb+".nw"+ is appended to the name.  If the file can sill not be
 located, then an error is reported.
+
+\subsection{Another example}
+
+Now we can have a look at a more realistic example: The following
+input starts with a very crude approximation of the geometry of a
+positively charged water molecule. After a preliminary optimization
+with SCF and a relatively cheap basis set (sto-3g), the optimization
+is finished with second-order M{\o}ller-Plesset perturbation theory and
+a basis set with polarization functions. At the final geometry the
+vibrational frequencies are calculated.
+
+\begin{verbatim}
+start h2o_freq
+
+title; H2O+ frequencies with MP2 and 6-31g**
+
+geometry units angstrom
+  O       0.0  0.0  0.0
+  H       0.0  0.0  1.0
+  H       0.0  1.0  0.0
+end
+
+charge 1
+
+basis "starting basis"
+  H library sto-3g
+  O library sto-3g
+end
+
+basis "property basis" print
+  H library 6-31g**
+  O library 6-31g**
+end
+
+scf
+  uhf
+  doublet
+  maxiter 100
+  print low
+end
+
+stepper
+  convge 1.0d-6
+end
+
+set "ao basis" "starting basis"
+
+task scf optimize
+
+set "ao basis" "property basis"
+
+scf
+  vectors input atomic
+  print none
+end
+
+set "mp2_grad:print" low
+
+stepper
+  convge 1.0d-10
+end
+
+task mp2 optimize
+
+set "mp2_grad:print" none
+
+task mp2 freq
+
+eof
+\end{verbatim}
+
+Let's have a closer look at this input deck. The {\tt start} directive
+tells NWChem that this run is to be started from the
+beginning. Existing database or vector files are ignored or
+overwritten. The second entry on the start line gives an internal name
+for the job, and the database as well as all temporary or permanent
+files associated with it will contain this string. This implies that
+different jobs running in the same directory or sharing the same
+scratch directory (see section \ref{sec:dirs}) have to differ in this
+name.
+
+The geometry is again given in cartesian coordinates, this time in
+{\AA}ngstr{\o}m instead of the default atomic units.
+
+The {\tt charge} directive defines the total charge of the system, so
+this calculation is done on an ion with charge +1. It is a top-level
+directive, independent of other input blocks.
+
+Next, two basis sets are defined and given (hopefully) intuitive names
+by which they can be referenced later in the input, the second one is
+also printed to the output file.
+
+The {\tt scf \ldots end} block contains details about the scf
+calculation to be performed. Unrestricted Hartree-Fock is chosen
+rather than the default high-spin ROHF. For the subsequent MP2
+calculation this is necessary, because only UMP2 is available for
+open-shell systems at the moment. For open-shell systems the spin
+multiplicity has to be given (it defaults to singlet). The maximum
+number of iterations is set to a high value to allow convergence in
+difficult cases. The print level is set to {\tt low} to reduce the
+output from the scf module to a minimum.
+
+The energy convergence threshold for the geometry optimization module
+{\tt stepper} is set to a higher value than the default $1.9d-8$
+because the initial optimization with scf is not intended to find the
+exact minimum.
+
+Finally the ``{\tt ao basis}'', which is the default basis for all ab
+initio calculations, is set to the name of the first basis given
+above.
+
+All input up to here only affects settings in the run-time database,
+from where the program takes its information. This means that the
+sequence is irrelevant, and an exchange of different blocks or
+directives would not affect the result. This is different for the 
+{\tt task} directive. It invokes the program and does a calculation
+using the parameters set before. In this case it is an SCF calculation
+with geometry optimization (for a list of available tasks and
+operations see section \ref{sec:task}).
+
+After this optimization is done, settings in the database are reused
+for further tasks unless they are overridden by new input directives.
+In this example the ``{\tt ao basis}'' is set to the better basis for
+the final calculations, scf output is completely discarded ({\tt print
+  none} means no output unless an error occurs that would make the
+result useless), and the starting guess is to be an SCF calculation on
+the atoms. The latter is necessary because the default would be to use
+existing MO vectors, but the basis has changed, and the difference is
+too big to make a projection of the old vectors on the new basis
+reasonable (for details on the different possible starting guesses see
+section \ref{sec:vectors}).
+
+As there is currently no input block for the MP2 gradients, parameters
+for this module have to be set in the database via the {\tt set}
+directive. Currently only print options are recognized, and here the
+amount of output is again reduced to the reasonable minimum. The
+convergence criterion for the geometry optimization program is set to
+a lower value, requesting a more exact minimum search.
+
+{\tt task mp2 optimize} calls for an optimization with MP2, starting
+with the geometry resulting from the previous task.
+
+At the final geometry a frequency calculation is performed. The second
+derivatives of the energy are calculated as numerical derivatives of
+analytical gradients. The gradients as such are not of interest, so
+the output from the {\tt mp2\_grad} program is completely discarded.
+
+The {\tt eof} directive marks the end of the input to be read. At the
+end of the file it is not necessary, but it allows further file
+contents (e.g.\ a description of the purpose of the calculation, or
+any other comments that are more than a few lines) that are ignored by
+the program.
 
 \subsection{NWChem Architecture}
 \label{sec:arch}
@@ -344,10 +497,10 @@ or tasks.
 
 The database is persistent and nearly all input is permanently stored.
 This makes the input for restart jobs very simple since very little
-data must be provided.  It also makes the behaviour of successive
+data must be provided.  It also makes the behavior of successive
 restart jobs {\em identical} to that of multiple tasks within one job.
 However, sometimes this persistence is undesirable and in order to
-return an NWChem module to its default (input-free) behaviour the
+return an NWChem module to its default (input-free) behavior the
 \verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
 database entries associated with a given module.
 
