@@ -323,6 +323,10 @@ c
 c
 c...  calculate various constants
 c
+      do i = 1, 2*orb
+         fac(i) = 1.0d0
+      end do
+c
       return
       end
       
@@ -773,7 +777,7 @@ c
 c
 c...  weigth mata (with sqrt(fac) if symmetric)
 c
-       call cct_weigth(g_MATA,bkb,bke,sbk,spinb,spink,symmetric)
+****       call cct_weigth(g_MATA,bkb,bke,sbk,spinb,spink,symmetric)
 c   
        call ga_dgemm('T','N',lea,lcf,lbk,1.0d0,g_MATA,g_MATB,
      1               1.0d0,g_RESULT)
@@ -853,7 +857,7 @@ c
       integer g_R,g_T,na,nc,ne,nf
       integer a,c,f
       integer ihi_R,ilo_R,jlh_R,ilh_T,jlo_T,jhi_T
-      integer l_R,k_R,l_T,k_T,ga_node_id,ga_nnodes
+      integer l_R,k_R,l_T,k_T,ga_nodeid,ga_nnodes
       integer type_cct_sum
       data type_cct_sum/42/
       double precision sum,ddot
@@ -870,7 +874,7 @@ c
       sum = 0.0d0
       do a=1,na
        do c=1,nc
-        do f=ga_node_id()+1,nf,ga_nnodes()
+        do f=ga_nodeid()+1,nf,ga_nnodes()
 c...     get all e's
          ilo_R = (a-1)*ne+1
          ihi_R = ilo_R+ne-1
@@ -1289,7 +1293,7 @@ c
 c
 c...  weigth mata (with sqrt(fac) if symmetric)
 c
-       call cct_weigth(g_MATA,bkb,bke,sbk,spinb,spink,symmetric)
+******       call cct_weigth(g_MATA,bkb,bke,sbk,spinb,spink,symmetric)
 c   
        call ga_dgemm('T','N',lea,lcf,lbk,1.0d0,g_MATA,g_MATB,
      1               1.0d0,g_RESULT)
