@@ -29,7 +29,8 @@
 		mcscf_fock.F \
 		mcscf_ohvmo.F \
 		mcscf_orb.F \
-		mcscf_prcnd.F
+		mcscf_prcnd.F \
+		hmat.F
 
 
   LIB_INCLUDES = -I../ddscf -I./detci
