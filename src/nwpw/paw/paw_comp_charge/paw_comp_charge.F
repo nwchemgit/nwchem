@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.2 2003-01-23 21:25:12 marat Exp $
+* $Id: paw_comp_charge.F,v 1.3 2003-01-24 19:35:43 marat Exp $
 *
 
 
@@ -18,20 +18,38 @@
 #include "paw_comp_charge_data.fh"
 #include "paw_proj.fh"
 #include "paw_utils.fh"
+#include "paw_basis.fh"
 
-        integer  ion_nion,ion_natm,ion_nkatm,ion_katm
-        external ion_nion,ion_natm,ion_nkatm,ion_katm
+      integer  ion_nion,ion_natm,ion_nkatm,ion_katm
+      external ion_nion,ion_natm,ion_nkatm,ion_katm
 
-        integer nion
-        integer nkatm
+      logical ok
+      integer nion
+      integer nkatm
+      integer qlm_size
+      integer ia
         
-        !*** get total number of ions in the system ***
-        nion = ion_nion()
+      !*** get total number of ions in the system ***
+      nion = ion_nion()
         
-        !*** get tital number of diff kinds of atoms ***
-        nkatm = ion_nkatm()
+      !*** get total number of diff kinds of atoms ***
+      nkatm = ion_nkatm()
 
-        write(*,*) "compensation charge total number of basis functions", paw_proj_nbasis(1)
-        write(*,*) "compensation charge total number of ions", nion, nkatm
+      !*** calculate size of comp. charge array ***
+      qlm_size = 0
+      do ia=1,nkatm
+         qlm_size = qlm_size
+     >             + paw_proj_nbasis(ia)*ion_natm(ia)
+      end do
+      write(*,*) "comp charge size", qlm_size
 
+      !*** allocate comp. charge arrays ***
+      ok = .TRUE.
+      ok = ok .AND. my_alloc(MT_DCPL,qlm_size,"qlm",qlm)
+      ok = ok .AND. my_alloc(MT_DBL,nkatm,"q00",q00)
+
+      !*** set q00 array ***
+      do ia=1,nkatm
+	q00(ia) = get_ion_charge(ia) + get_core_charge(ia)     
+      end do
       end subroutine

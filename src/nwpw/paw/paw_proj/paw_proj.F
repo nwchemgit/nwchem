@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.14 2003-01-23 01:28:18 marat Exp $
+* $Id: paw_proj.F,v 1.15 2003-01-24 19:35:43 marat Exp $
 *
 
 
@@ -71,6 +71,7 @@
 
       end do
       call Pack_npack(1,npack1)
+      write(*,*) "paw_proj:ntotal",ntotal
       value = MA_alloc_get(mt_dcpl,(ntotal*npack1),
      >                     'prj',prj(2),prj(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',1)
@@ -685,8 +686,8 @@ c           pause
            end if
            call Pack_c_unpack(1,dcpl_mb(prj(1)))
            call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)))
-        end do
-      end do
+        end do ! m loop
+      end do ! basis_nbasis loop
       if (taskid.eq.MASTER) then 
          call closefile(6)
          write(6,*)

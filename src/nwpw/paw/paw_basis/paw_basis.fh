@@ -13,6 +13,8 @@
       external         get_tot_ngridbasis
       double precision get_ion_charge
       external         get_ion_charge
+      double precision get_core_charge
+      external         get_core_charge
       integer          get_nbasis
       external         get_nbasis
       integer          get_mult_l

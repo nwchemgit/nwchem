@@ -1,7 +1,8 @@
 !
-! $Id: paw_comp_charge_data.fh,v 1.1 2003-01-23 19:52:40 marat Exp $
+! $Id: paw_comp_charge_data.fh,v 1.2 2003-01-24 19:35:43 marat Exp $
 !
 
+      integer    q00(2)     ! compensation charge
       integer    qlm(2)     ! compensation charge
-      common / paw_comp_charge / qlm
+      common / paw_comp_charge / qlm, q00
 

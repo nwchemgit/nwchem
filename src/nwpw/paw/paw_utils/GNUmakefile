@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-09-12 01:01:45 marat Exp $
+# $Id: GNUmakefile,v 1.5 2003-01-24 19:35:44 marat Exp $
 #
 
-          OBJ = paw_utils.o \
-                integrate.o io_utils.o error.o double_factorial.o bessel_transform.o
+
+          OBJ = paw_utils.o integrate.o io_utils.o error.o double_factorial.o bessel_transform.o
 
           HEADERS = bessel_transform.fh integrate.fh myma.fh paw_utils.fh paw_params.fh
 
@@ -12,7 +12,7 @@
 
    USES_BLAS = 
 
-  LIB_INCLUDES = -I../include
+  LIB_INCLUDES = -I../include/
 
   LIB_DEFINES = 
 
@@ -22,6 +22,8 @@
 include ../../../config/makefile.h
 include ../../../config/makelib.h
 include ../makefile.h
+
+
 
 
 

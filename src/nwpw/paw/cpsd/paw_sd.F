@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.15 2003-01-23 01:22:47 marat Exp $
+* $Id: paw_sd.F,v 1.16 2003-01-24 19:35:43 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -83,7 +83,7 @@
 *     **** external functions ****
       real*8      ewald_rcut,ion_amass
       real*8      ewald_mandelung
-      real*8      get_ion_charge,paw_basis_core_charge,paw_basis_eig
+      real*8      get_ion_charge,paw_basis_eig
       real*8      paw_basis_sphere_radius,paw_basis_sigma
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
@@ -94,7 +94,7 @@
       character*2 ion_aname,ion_atom
       external    ewald_rcut,ion_amass
       external    ewald_mandelung
-      external    get_ion_charge,paw_basis_core_charge,paw_basis_eig
+      external    get_ion_charge,paw_basis_eig
       external    paw_basis_sphere_radius,paw_basis_sigma
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
@@ -113,6 +113,7 @@
       external control_read,control_move,ion_init,ion_q_FixIon
 
 #include "paw_proj.fh"
+#include "paw_basis.fh"
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave
@@ -226,6 +227,7 @@
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
       call paw_proj_init()
+      call paw_comp_charge_init()
       !call dealloc_paw_basis_data()
       !call paw_proj_end()
 
@@ -333,7 +335,7 @@
          do ia = 1,ion_nkatm()
             write(6,1141) ia,ion_atom(ia),
      >                    get_ion_charge(ia),
-     >                    paw_basis_core_charge(ia)
+     >                    get_core_charge(ia)
             write(6,1143) paw_basis_sphere_radius(ia)
             write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
             write(6,1150) paw_proj_nbasis(ia)
@@ -351,7 +353,7 @@
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*
      >                        (get_ion_charge(ia)
-     >                        -paw_basis_core_charge(ia))
+     >                        -get_core_charge(ia))
          end do
          write(6,1159) icharge
 

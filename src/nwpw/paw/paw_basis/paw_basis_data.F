@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.6 2002-09-12 01:01:44 marat Exp $
+! $Id: paw_basis_data.F,v 1.7 2003-01-24 19:35:43 marat Exp $
 
 !**************************************************
 !
@@ -49,6 +49,7 @@
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"log_amesh",log_amesh)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"sigma",sigma)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"ion_charge",ion_charge) 
+      ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"core_charge",ion_charge) 
       ok = ok .AND. 
      >     my_alloc(MT_DBL,tot_ntype,"core_kin_energy",core_kin_energy)
 
@@ -411,6 +412,84 @@
 
 !**************************************************
 !
+!       Name: paw_basis_core_charge
+!
+!       Purpose
+!
+!       Created:        8/06/2002
+!**************************************************
+      subroutine  calc_paw_basis_core_charge(ia,q)
+      implicit none
+      integer ia
+      double precision q
+
+#include "myma.fh"
+#include "paw_basis_data.fh"
+#include "integrate.fh"
+#include "paw_basis.fh"
+
+      !*** local variables ***
+      real*8 core,fourpi
+
+c      !*** external functions ***
+c      integer  get_i_core_density,get_i_rgrid
+c      integer  get_i_log_amesh,get_i_ngrid
+c      external get_i_core_density,get_i_rgrid
+c      external get_i_log_amesh,get_i_ngrid
+
+      fourpi = 16.0d0*datan(1.0d0)
+      q = fourpi*def_integr(0,
+     >                         dbl_mb(get_i_core_density(ia)),
+     >                         2,
+     >                         dbl_mb(get_i_rgrid(ia)),
+     >                         dbl_mb(get_i_log_amesh(ia)),
+     >                         int_mb(get_i_ngrid(ia)))
+
+
+      return
+      end
+
+!**************************************************
+!
+!       Name: get_i_core_charge
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      INTEGER FUNCTION  get_i_core_charge(it)
+      implicit none
+      integer it
+
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      get_i_core_charge = core_charge(1) +  it-1
+      return
+      END
+
+!**************************************************
+!
+!       Name: get_core_charge
+!
+!       Purpose
+!
+!       Created:        7/9/2002
+!**************************************************
+      DOUBLE PRECISION FUNCTION  get_core_charge(it)
+      implicit none
+      integer it
+
+#include "myma.fh"
+#include "paw_basis_data.fh"
+
+      get_core_charge = dbl_mb(core_charge(1) +  it-1)
+      return
+      END
+
+
+!**************************************************
+!
 !	Name: get_i_ion_charge
 !
 !	Purpose 
@@ -449,44 +528,6 @@
       END 
 
       
-!**************************************************
-!
-!	Name: paw_basis_core_charge
-!
-!	Purpose 
-!
-!	Created:	8/06/2002
-!**************************************************
-      real*8 function  paw_basis_core_charge(ia)
-      implicit none
-      integer ia
-    
-#include "myma.fh"
-#include "paw_basis_data.fh"
-#include "integrate.fh"
-
-      !*** local variables ***
-      real*8 core,fourpi
-
-      !*** external functions ***
-      integer  get_i_core_density,get_i_rgrid
-      integer  get_i_log_amesh,get_i_ngrid
-      external get_i_core_density,get_i_rgrid
-      external get_i_log_amesh,get_i_ngrid
-
-      fourpi = 16.0d0*datan(1.0d0)
-      core = fourpi*def_integr(0,
-     >                         dbl_mb(get_i_core_density(ia)),
-     >                         2,
-     >                         dbl_mb(get_i_rgrid(ia)),
-     >                         dbl_mb(get_i_log_amesh(ia)),
-     >                         int_mb(get_i_ngrid(ia)))
-                                                 
-
-      paw_basis_core_charge = core
-      return
-      end 
-
 **************************************************
 !
 !	Name: paw_basis_sphere_radius

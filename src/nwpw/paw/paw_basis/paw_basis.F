@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.6 2002-08-07 18:40:44 bylaska Exp $
+* $Id: paw_basis.F,v 1.7 2003-01-24 19:35:43 marat Exp $
 *
 
 !**************************************************
@@ -21,8 +21,8 @@
       integer  nb,ng
       integer l_nb,l_ng
       integer i_nb,i_ng
-	integer i_lo,i_hi
-	integer  max_mult_l
+      integer i_lo,i_hi
+      integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
       character*20 fname
@@ -84,20 +84,27 @@
          end do
          
          i_lo =  get_i_orb_l(it)
-	   i_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
-	   int_mb(get_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
+	 i_hi =  get_i_orb_l(it) +  int_mb(get_i_nbasis(it)) - 1
+	 int_mb(get_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
            
       end do
 
       ok = MA_chop_stack(l_nb)
 
-!*****determine max orbital moment     
+c     !*****determine max orbital moment     
       i_lo =  get_i_orb_l(1)
       i_hi =  get_i_orb_l(1) +  get_tot_nbasis() - 1
       max_mult_l = maxval(int_mb(i_lo:i_hi))
-!*****enter max orbital moment into paw_basis_data structure
+
+
+c     !*****enter max orbital moment into paw_basis_data structure
       call set_max_mult_l(max_mult_l)
-      
+
+c     !*** set core charges ***
+            
+      do it = 1,nt 
+        call calc_paw_basis_core_charge(it,dbl_mb(get_i_ion_charge(it)))
+      end do
 
       return
       end 
