@@ -367,6 +367,8 @@ capr       if (ocoul) status = ga_destroy(g_coul)
 capr       if (oexch) status = ga_destroy(g_exch)
       status = ma_pop_stack(l_evals)
 c
+c Cleanup
+c
       call schwarz_tidy()
       status = status.and.ma_pop_stack(l_occ)
       if (.not.status) call errquit('moints: cannot pop stack?',0)
@@ -374,8 +376,8 @@ c
       if (ga_nodeid().eq.0) then
         call MA_summarize_allocated_blocks()
       endif
+      call int_terminate()
       call ga_sync()
 c
-c
-       return
-       end
+      return
+      end

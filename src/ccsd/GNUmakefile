@@ -27,7 +27,20 @@
 
     LIBRARY = libccsd.a
 
-  USES_BLAS = 
+  USES_BLAS = \
+	      ccsd_directbf.F \
+	      ccsd_fsig1.f \
+	      ccsd_fsig1ao.F \
+	      ccsd_fsig2.f \
+	      ccsd_intmeda.f \
+	      ccsd_intmedb.f \
+	      ccsd_iterdrv.f \
+	      ccsd_pampt.F \
+	      ccsd_pdiis.f \
+	      ccsd_sortmo.F \
+	      ccsd_trpdrv.f \
+	      moints_trp.F
+
 
 
 LIB_DEFINES = 
