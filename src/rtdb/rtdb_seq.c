@@ -974,12 +974,8 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   ma_handle= returns MA handle to data
 */
 {
-  DBT key, value;
-  int status;
-  DB *db;
   char date[26];
   void *ma_data;
-  int nelem_actual;
   Integer ma_handle_buf;
   Integer ma_type_buf;
   Integer nelem_buf;
