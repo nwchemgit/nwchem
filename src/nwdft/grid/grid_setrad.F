@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.6 1999-12-17 19:46:09 edo Exp $
+c$Id: grid_setrad.F,v 1.7 1999-12-29 21:43:09 edo Exp $
 c
       implicit none
 c      
@@ -96,10 +96,15 @@ c
                else
                   range_mk=dble(rad_cutoff(1,itype))
                endif
+               if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',
+     .              lexpo,iexpo))
+     &              call errquit('grid_setrad: cant alloc expo',0)
             call grid_roland(
      ,              rpts(1,itype),rwghts(1,itype),nrad(itype),
-     ,              ityp2ctr(itype),
+     ,              ityp2ctr(itype),dbl_mb(iexpo),
      ,              mxrad,rad_cutoff(1,itype),lindh_acc)
+            if (.not.ma_pop_stack(lexpo))
+     &           call errquit('grid_setrad: cannot pop stack',0)
             elseif(radgrid.eq.'tarad') then
             call xc_tarad(int(znuc_atom_type(itype)), 
      ,              rpts(1,itype), rwghts(1,itype), 
