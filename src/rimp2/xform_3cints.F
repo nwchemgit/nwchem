@@ -3,17 +3,17 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.1 1994-06-14 21:54:39 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.2 1994-06-16 06:10:45 gg502 Exp $
 C
 C SYNOPSIS
-      Logical Function XForm_3cInts(Type3ci, AOBas, FitBas, G_Int,
+      Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
      $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
      $   Dest, G_Out, IntFil)
       Implicit NONE
       Integer AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
-      Integer G_Int, G_Out, G_C, G_V
+      Integer G_Int, G_Out, G_C, G_V, Geom
       Character*1 Type3ci, XFFit, Dest
 C
 C ARGUMENTS
@@ -251,7 +251,7 @@ C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
 C
          Status = XF3cI_Step12( Type3ci, ALo, AHi,
-     $      JLo, JHi, AOBas, G_C, FitBas, G_Int)
+     $      JLo, JHi, AOBas, G_C, FitBas, G_Int, Geom)
          If ( .NOT. Status ) then
             Write (LuErr, 9020) JLo, JHi, Ilo, Ihi
             XForm_3cInts = .FALSE.

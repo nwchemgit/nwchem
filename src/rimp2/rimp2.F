@@ -142,7 +142,7 @@ C     *************************************
 C
 c$$$      Write (LuOut, *) 'About to call transformation'
       Status = Status .AND.
-     $   RIMP2_XF_Driver( AOBas, FitBas, Dbl_MB(EVal_Idx), NAOBF,
+     $   RIMP2_XF_Driver( Geom, AOBas, FitBas, Dbl_MB(EVal_Idx), NAOBF,
      $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit)
 C
 C     Shift ranges of virtual and occupieds into the _number_ of each
