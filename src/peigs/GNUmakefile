@@ -17,8 +17,10 @@ include_stamp:	./h/blas_lapack.h
 
 .EXPORT_ALL_VARIABLES:
 
-.PHONY :        clean
+.PHONY :        clean	cleanF	realclean
 
+cleanF:
+	@echo " not done here"
 clean:
 	(cd ./src/c; make clean)
 	(cd ./src/f77; make clean)
