@@ -48,12 +48,11 @@ c
 c     
 c     load the basis set and get info about it
 c
-      if (.not. bas_create(basis, 'mo basis'))
+      if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('scf_init: bas_create?', 0)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) then
-         if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
-     $        call errquit('scf_init: no mo or ao basis set', 0)
-      end if
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
+     $        call errquit('scf_init: no ao basis set', 0)
+      
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf_init: bas_name?', 0)
 c
@@ -209,7 +208,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.36 1997-02-17 17:53:54 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.37 1997-03-11 01:42:51 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
