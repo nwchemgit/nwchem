@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.2 1994-04-26 19:40:50 d3g681 Exp $
+# $Id: makelib.h,v 1.3 1994-08-20 00:19:26 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -50,6 +50,9 @@ ifdef HEADERS
 include_stamp:	$(HEADERS)
 	cp -p $(HEADERS) $(INCDIR)
 	touch include_stamp
+
+$(OBJ):	$(HEADERS)
+
 else
 include_stamp:
 	touch include_stamp

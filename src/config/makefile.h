@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.48 1994-08-19 17:03:26 d3e129 Exp $
+# $Id: makefile.h,v 1.49 1994-08-20 00:19:24 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -122,7 +122,6 @@ ifeq ($(TARGET),KSR)
 # KSR running OSF
 #
     SUBDIRS_EXTRA = 
-#blas lapack
 
          FC = f77
          CC = cc
@@ -134,7 +133,6 @@ ifeq ($(TARGET),KSR)
     INSTALL = echo $@ is built
 
        FOPT = -g -r8
-# -u
    FOPT_REN = $(FOPT)
        COPT = -g
      FLDOPT = $(FOPT)
@@ -149,7 +147,7 @@ ifeq ($(TARGET),KSR)
        LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -linput -lguess -lgeom -lbasis -lutil \
-              -lglobal /home2/d3g270/lib/libpeigs.a \
+              -lglobal -lpeigs \
 	      -lksrlapk -lksrblas -llapack2 -lblas2 \
               -lrtdb -ldb -linp -lpstat \
 	      -lutil -lma -ltcgmsg -para -lrpc
