@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.18 2000-04-28 22:55:41 edo Exp $
+C$Id: dft_3cincor.F,v 1.19 2000-05-02 18:42:48 edo Exp $
 c
       implicit none
 c    
@@ -44,7 +44,7 @@ c
       logical oprint_3c2e
       double precision offset
 c
-      integer itype,nprimo,isphere
+      integer itype,nprimo,isphere,nbf_cd_cart
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
 c      write(0,*) ' in 3CINCO',itol2e
@@ -117,7 +117,14 @@ c
          nao2_max=max(nao2_max,
      ,        ((itype+1)*(itype+2))/2*nshbfc)
       enddo
-      batch_max = nao2_max*nbf_cd*icount
+      do ishc=1,nshells_cd
+         if(.not.bas_continfo(cd_bas_han,ishc,
+     &        itype,nprimo,nshbfc,isphere))
+     &        call errquit('Exiting in fitcd.',44)
+         nbf_cd_cart=nbf_cd_cart+
+     ,        (itype+1)*(itype+2)/2*nshbfc
+      enddo
+      batch_max = nao2_max*nbf_cd_cart*icount
 c
       nERI_max = Nao2_max*nbf_cd_mxnbf_cn
 c
@@ -180,6 +187,7 @@ c                n_chk = ndone+nintegrals-1
                   write(LuOut,*) ' ishc ishd ishp ',ishc,ishd,Ishp
                   write(LuOut,*) ' nshao nshcd ',
      ,                 nshells_ao,nshells_cd
+                  write(LuOut,*) ' Nintegrals ',nintegrals
                   write(Luout,*) ' batchmx maxg',batch_max,maxg
                   write(LuOut,*) ' nlast n3cdbl ',n_chk, n3c_dbl
                   call errquit('dft_3cincor: blew out buf of dbles',999)
