@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.53 2001-11-30 15:19:39 d3j191 Exp $
+c $Id: ana_common.fh,v 1.54 2002-06-25 18:13:14 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -95,7 +95,7 @@ c
       common/ana_val/wval
 c
       integer ndef,ldef(mxdef),idef(mxdef,mxnum),
-     + ngroups,igroups(maxgrp,4),ngroup,igroup(maxgrp,4)
+     + ngroups,igroups(maxgrp,6),ngroup,igroup(maxgrp,4)
       real*8 rgroups(maxgrp,2),rgroup(maxgrp,2)
       integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
       integer nord,idord(mord,4),iord(mord,2)

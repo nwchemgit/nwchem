@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.77 2002-06-12 17:35:48 d3j191 Exp $
+c $Id: ana_task.F,v 1.78 2002-06-25 18:13:14 d3j191 Exp $
 c
       implicit none
 c
@@ -421,7 +421,7 @@ c
 c     atom groups directives
 c     ----------------------
 c
-      if(card(1:6).eq.'groups') then
+      if(card(1:6).eq.'groups'.or.card(1:6).eq.'Groups') then
       call ana_groups(card,byte_mb(i_snam),int_mb(i_imol),
      + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref))
       goto 1
@@ -850,7 +850,7 @@ c
       write(lfngrp,4001) ngroups
  4001 format(i5)
       do 4002 i=1,ngroups
-      write(lfngrp,4003) igroups(i,3),
+      write(lfngrp,4003) igroups(i,5),
      + ldef(igroups(i,1)),ldef(igroups(i,2))
  4003 format(3i5)
  4002 continue
@@ -890,7 +890,7 @@ c     evaluate bond lenghts
 c
       do 11 i=1,nbnds
       rbnds(i)=ana_bond(dbl_mb(i_xdat),msa,dbl_mb(i_wdat),mwm,mwa,
-     + ibnds(i,1,1),ibnds(i,1,2),ibnds(i,2,1),ibnds(i,2,2))
+     + ibnds(i,1,1),ibnds(i,1,2),ibnds(i,2,1),ibnds(i,2,2),box)
    11 continue
 c
 c     evaluate angles
@@ -955,11 +955,14 @@ c
       if(me.eq.0) write(lfngrp,4004) time
  4004 format('frame',/,f12.6)
       do 3301 i=1,ngroups
-      if(igroups(i,3).eq.1)
+      if(igroups(i,5).eq.1)
      + call ana_grpcogdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
      + dbl_mb(i_wt),dbl_mb(i_xdat),i)
-      if(igroups(i,3).eq.2)
+      if(igroups(i,5).eq.2)
      + call ana_grpdis(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
+     + dbl_mb(i_wt),dbl_mb(i_xdat),i)
+      if(igroups(i,5).eq.4)
+     + call ana_grpcogang(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
      + dbl_mb(i_wt),dbl_mb(i_xdat),i)
  3301 continue
       endif

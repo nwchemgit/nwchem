@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.56 2002-05-24 15:05:04 d3j191 Exp $
+c $Id: ana_input.F,v 1.57 2002-06-25 18:13:14 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,8 @@ c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
-      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,ivctr,iorder
+      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
+      integer iopt,ivctr,iorder
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       integer irota
@@ -404,23 +405,34 @@ c     ------------------------------
 c
       if(inp_compare(.false.,'groups',item)) then
       if(.not.inp_i(isel)) call errquit('No igroup specified',0)
-      if(.not.inp_i(jsel)) call errquit('No jgroup specified',0)
+      if(.not.inp_i(jsel)) jsel=-1
+      if(.not.inp_i(ksel)) ksel=-1
+      if(.not.inp_i(lsel)) lsel=-1
       if(.not.inp_a(item)) call errquit('No group function',0)
       ipbc=0
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(ipbc)) ipbc=3
       if(.not.inp_a(item)) call errquit('No group function',0)
       endif
-      ksel=0
-      if(inp_compare(.false.,'distance',item)) ksel=1
-      if(inp_compare(.false.,'distances',item)) ksel=2
-      if(inp_compare(.false.,'zcoordinate',item)) ksel=3
+      iopt=0
+      if(inp_compare(.false.,'distance',item)) iopt=1
+      if(inp_compare(.false.,'distances',item)) iopt=2
+      if(inp_compare(.false.,'zcoordinate',item)) iopt=3
+      if(inp_compare(.false.,'angle',item)) iopt=4
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '
-      write(lfncmd,1022) isel,jsel,ksel,ipbc,rsel,rval,
+      if(iopt.eq.1.and.jsel.le.0)
+     + call errquit('Error in groups definition',4)
+      if(iopt.eq.2.and.jsel.le.0)
+     + call errquit('Error in groups definition',4)
+      if(iopt.eq.4.and.(jsel.le.0.or.ksel.le.0))
+     + call errquit('Error in groups definition',4)
+      if(iopt.eq.5.and.(jsel.le.0.or.ksel.le.0.or.lsel.le.0))
+     + call errquit('Error in groups definition',4)
+      write(lfncmd,1022) isel,jsel,ksel,lsel,iopt,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
- 1022 format('groups ',2i7,i5,i3,2f12.6,a)
+ 1022 format('Groups ',4i7,i5,i3,2f12.6,a)
       numcmd=numcmd+1
       goto 2
       endif
