@@ -364,9 +364,9 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
    */
    
 
-/*
-   printf(" peigs_shift %g peigs_scale %g \n", peigs_shift, peigs_scale );
-   */
+   /*
+     printf(" peigs_shift %g peigs_scale %g \n", peigs_shift, peigs_scale );
+     */
    
    dummy = 1.0e0/peigs_scale;   
    for ( il=0; il < msize; il++ ){

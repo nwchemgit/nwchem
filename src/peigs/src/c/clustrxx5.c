@@ -121,10 +121,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
   
-#ifndef RIOS
-  DoublePrecision sqrt();
-#endif
-  
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
   extern DoublePrecision dasum_(), dnrm2_(), ddot_(), dlarnd_();
@@ -148,26 +144,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   dscrat = scratch;
 
-#ifdef DEBUG5
-
-  if( me == mapZ[0] ){
-    fprintf(stderr, " nacluster = %d \n", *nacluster );
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " eval[%d] = %g \n", j, eval[j]);
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
-  }
-  mxsync_();
-  exit(-1);
-#endif
 #ifdef DEBUG1
   fprintf(stderr, " in clustrxx me = %d \n", me );
 
@@ -329,6 +305,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       j = iscratch[j];
     }
 
+
     ime = -1;
     for (i= c1;  i <= cn; i++) {
       ime ++;
@@ -346,7 +323,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     }
 
     if( send_num == 0 ) {
-      itype = 999999;
+      itype = 99;
 
       c1     = schedule[4*recv_cl];
       csiz   = schedule[4*recv_cl+1] - c1 + 1;
@@ -360,19 +337,19 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       first_buf = dscrat;
       dscrat += nvecs * blksiz;
 
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Just before mxread isize = %d nvecs = %d \n", me, isize, nvecs );
+#ifdef DEBUG11
+      printf(" me = %d 555 Just before mxread  recv_from %d \n", me, recv_from);
+      fflush(stdout);
 #endif
+
   
       ival = mxread_( first_buf, &isize, &recv_from, &itype );
 
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Just after mxread \n", me );
-  for( j = 0; j < nvecs*blksiz; j++)
-       fprintf(stderr, " me = %d first_buf[%d] = %g \n",
-                     me, j, first_buf[j]);
+#ifdef DEBUG11
+      printf(" me = %d 555 mxread from recv_from %d \n", me, recv_from);
+      fflush(stdout);
 #endif
-  
+
     }
   }
 
@@ -528,7 +505,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     
       itype = 99;
 
-      if( recv_num > 0  &&  (( ime % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 
@@ -540,11 +517,14 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
         first_buf = dscrat;
         dscrat += nvecs * xblksiz;
 
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Just before mxread 2 isize = %d nvecs = %d \n", me, isize, nvecs );
+#ifdef DEBUG11
+  printf(" me = %d clustrxx5 Just before mxread from %d  isize = %d nvecs = %d \n", me, recv_from , isize, nvecs );
 #endif
   
         ival = mxread_( first_buf, &isize, &recv_from, &itype );
+#ifdef DEBUG11
+	printf(" me = %d read from %d \n", me, recv_from);
+#endif
       }
       
       nvecs = 0;
@@ -566,7 +546,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
 
-      if( recv_num > 0  &&  (( ime % 2 ) != 0 ) ) {
+      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) {
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
@@ -590,8 +570,8 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   }
   
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Exiting clustrinv_ \n", me );
+#ifdef DEBUG11
+  printf(" me = %d Exiting clustrxx5 \n", me );
 #endif
   
   return(ibad);

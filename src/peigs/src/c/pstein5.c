@@ -453,7 +453,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     i_scrat[ii] = 0;
   i_scrat[ me ] = isize;
   
-  gsum01( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, d_scrat );
+  gsum01( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, &d_scrat[nproc + nn_proc] );
   
   max_sz = 0;
   for ( ii = 0; ii < nproc; ii++ )
@@ -482,7 +482,8 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   ibad = 0;
   if ( nvecsZ != 0 ) 
-    ibad = clustrinv5_( &msize, dd, ee, dplus, lplus, ld, lld, ptbeval, clustr_info,
+    ibad = clustrinv5_( &msize, dd, ee, dplus, lplus,
+			ld, lld, ptbeval, clustr_info,
 			&numclstr, mapZ,
 			mapvZ, vecZ, &imin, &nacluster, icsplit, i_scrat, d_scrat);
   
@@ -505,13 +506,13 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   dbad = (DoublePrecision) ibad;
 
   gmax00( (char *) &dbad, 1, 1, 1, proclist[0], nn_proc, proclist, dwork );
-
+  
   ibad = (Integer) dbad;
   ibad = -ibad;
-
+  
   if( ibad == msize+10 )
-     ibad = 0;
-
+    ibad = 0;
+  
   /*
    * Check residual of tridiagonal eigenproblem.
    */
@@ -519,15 +520,16 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    
    *info = ibad;
 
-#ifdef DEBUG
-  printf(" in pstein4 me = %d \n", me);
-#endif
 
   for ( ii = 0; ii < nproc ; ii++ )
     i_scrat[ii] = 0;
   i_scrat[ me ] = isize;
   
-  gsum01( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, d_scrat );
+  gsum01( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, &d_scrat[nproc + nn_proc] );
   
   return;
 }
+
+
+
+

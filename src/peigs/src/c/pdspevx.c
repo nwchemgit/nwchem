@@ -270,10 +270,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     char            msg[ 35 ];
     char            msg2[ 30]; 
 
-    Integer         **iptr, num_procs, *proclist;
+    Integer         **iptr, num_procs, *proclist, *iimem;
     
     DoublePrecision vec[2], fnormA, fnormT, ulp;
-    DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1,
+    DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1, *ddmem,
       *dd,                    /* diagonal of tridiagonal */
       *ee,                    /* lower diagonal of tridiagonal */
       *matrixQ,
@@ -614,9 +614,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     isplit = i_scrat;
     i_scrat += msize;
+    iimem = i_scrat;
 
     matrixQ = d_scrat;
     d_scrat += nvecsQ * msize;
+    ddmem = d_scrat;
 
     dd = d_scrat;
     d_scrat += msize;
@@ -637,7 +639,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     d_scrat += msize;
     lld = d_scrat;
     d_scrat += msize;
-    
 
     iptr = (Integer **) buff_ptr;
     
@@ -687,7 +688,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    
    
 #ifdef TIMING
-   mxsync_();
+   mxsync_(); /* timiung */
    t2 = mxclock_();
    test_timing.householder = t2 - t1;
 #endif
@@ -817,7 +818,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     nvecsZ2 = count_list( me, mapZ, meigval );
     
 #ifdef TIMING
-    mxsync_();
+    mxsync_(); /* timing */
     t1 = mxclock_();
 #endif
     
@@ -845,26 +846,19 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
       
-#ifdef DEBUG7
-      printf(" me = %d just after pstein5 %d \n", me, *info );
-#endif
       
       /*
 	 mgs loose cluster
 	 */
-
-#ifdef DEBUG7
-      printf(" me = %d just before pstein4 %d \n", me, *info );
-#endif
+      
+      iptr = (Integer **) buff_ptr;
+      i_scrat = iimem;
+      d_scrat = ddmem;
       
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
-#ifdef DEBUG7
-      printf(" me = %d just after pstein4 %d \n", me, *info );
-      fflush(stderr);
-#endif
-      
+
       
       if( *info != 0 ) {
         fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
@@ -874,20 +868,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     }
       
 #ifdef TIMING
-      mxsync_();
+      mxsync_(); /* timing */
       t2 = mxclock_();
       test_timing.pstein = t2 - t1;
 #endif
     
-    
-    /*
-       fprintf(stderr, " me = %d neigval %d \n",  me, neigval );
-       */
-    
-    /*
-       for ( iii = 0; iii < neigval; iii++)
-       eval[iii] += psgn*psigma;
-       */
     
     /*
      * Send info, mapZ to any processors in 
@@ -897,13 +882,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     
     nZ2 = *n - neigval;
     mdiff2_( n, mapA, &nZ2, &mapZ[neigval], meigval, mapZ, i_scrat, &num_procs ); 
-    
-    if( num_procs > 0 ){
-      i_scrat[num_procs] = mapZ_0;
-      num_procs++;
-      bbcast00( (char *) info, sizeof(Integer),       2, mapZ_0, num_procs, i_scrat );
-      bbcast00( (char *) mapZ, msize*sizeof(Integer), 3, mapZ_0, num_procs, i_scrat);
-    }
     
     for ( indx = neigval; indx < msize; indx++ )
       mapZ[indx] = -1;
@@ -925,12 +903,14 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #ifdef TIMING
       t1 = mxclock_();
 #endif
+      iptr = (Integer **) buff_ptr;
+      i_scrat = iimem;
+      d_scrat = ddmem;
     
-      if (nvecsQ + nvecsZ > 0) {
-	mxm25 ( &msize, &msize, vecQ, mapQ, &neigval, vecZ, mapZ, vecZ, i_scrat, d_scrat);
-    }
+      mxm25 ( &msize, &msize, vecQ, mapQ, &neigval, vecZ, mapZ, vecZ, i_scrat, d_scrat);
+      
 #ifdef TIMING
-      mxsync_();
+      mxsync_(); /* timing */
     t2 = mxclock_();
     test_timing.mxm25 = t2 - t1;
 #endif
@@ -954,10 +934,6 @@ END:
       eval[iii] = peigs_shift + eval[iii]*dummy;
 #endif
     
-    
-#ifdef DEBUG7
-    fprintf(stderr, "me = %d Exiting pdspevx \n", me );
-#endif
     
 #ifdef TIMING
     t2 = mxclock_();
