@@ -32,6 +32,7 @@ c
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
+      double precision residual
       logical movecs_read_header, cphf_poliz
       external movecs_read_header, cphf_poliz
       logical int_normalize
@@ -136,9 +137,16 @@ c
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
       endif
 c
-      if (sqrt(ga_ddot(g_work, g_work)) .gt. 1d-4) 
-     $     call errquit('cphf_solve:the available MOs do not satisfy'//
-     $     ' the SCF equations',0)
+      residual = sqrt(ga_ddot(g_work, g_work))
+      if (residual .gt. 1d-4) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*) ' SCF residual = ', residual
+            call util_flush(6)
+         endif
+         call ga_sync()
+         call errquit('cphf_solve:the available MOs do not satisfy'//
+     $        ' the SCF equations',0)
+      endif
 c
       call ga_zero(g_work)      ! Essential to get default initial guess
 c
