@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.16 2001-12-03 18:15:16 edo Exp $	
+#	$Id: MakeFile,v 1.17 2003-01-24 20:17:07 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -13,7 +13,6 @@ EXTRA_OBJ =    $(OBJDIR)\util_v_stub.obj
 
 BLAS =         $(OBJDIR)\dfill.obj \
                $(OBJDIR)\ifill.obj \
-               $(OBJDIR)\rsg.obj \
                $(OBJDIR)\mabyte_fill.obj
 
 OBJ_OPTIMIZE = $(OBJDIR)\ga_matpow.obj \
