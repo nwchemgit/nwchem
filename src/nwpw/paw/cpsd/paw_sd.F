@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.50 2003-03-07 20:51:10 bylaska Exp $
+* $Id: paw_sd.F,v 1.51 2003-03-11 17:57:10 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.50  2003/03/07 20:51:10  bylaska
+* Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
+* Tangent vector now used for SD with Gram-schmidt.
+* ....EJB
+*
 * Revision 1.49  2003/03/06 00:34:40  bylaska
 * tolerance check fixed...EJB
 *
@@ -471,7 +476,7 @@
    1  continue
          icount = icount + 1
          
-         call psi_marat_write("marat2.elc",ispin,ne,dcpl_mb(psi2(1)))
+         !call psi_marat_write("marat2.elc",ispin,ne,dcpl_mb(psi2(1)))
 
          call paw_inner_loop(ispin,ne,
      >             npack1,nfft3d,nemax,
@@ -908,7 +913,7 @@ c         write(6,1498) virial
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1600 FORMAT(/' Total PSPW energy   :',E19.10)
+ 1600 FORMAT(/' Total PAW energy   :',E19.10)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')

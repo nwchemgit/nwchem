@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop.F,v 1.29 2003-03-07 20:51:10 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.30 2003-03-11 17:57:10 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.29  2003/03/07 20:51:10  bylaska
+* Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
+* Tangent vector now used for SD with Gram-schmidt.
+* ....EJB
+*
 * Revision 1.28  2003/03/06 01:46:39  bylaska
 * bug fix in paw_energy_core_atom...and ma_chop_stack changed to ma_pop_stack
 * ...EJB
@@ -203,8 +208,8 @@
 *     ******************************************
       do it=1,it_in
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+
         if (move) call ion_shift()
-      
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -365,34 +370,21 @@
 *       **** if gram-schmidt make Hpsi a tangent vecotor ****
         if (gram_schmidt) then
 
+          call paw_ovlp_S(n2(ispin),psi1,psi2)   ! psi2 = S*psi1
           do ms=1,ispin
-            call paw_overlap_matrix_gen(ne(ms),ne(ms),
-     >                                psi1(1,n1(ms)),
-     >                                Hpsi(1,n1(ms)),
-     >                                dbl_mb(tmp_L(1)))
+            call Grsm_ggm_sym_dot(npack1,ne(ms),
+     >                            psi1(1,n1(ms)),
+     >                            Hpsi(1,n1(ms)),
+     >                            dbl_mb(tmp_L(1)))
             call dscal(ne(ms)*ne(ms),(-1.0d0),dbl_mb(tmp_L(1)),1)
-            call Grsm_gg_Copy(npack1,ne(ms),
-     >                        Hpsi(1,n1(ms)),
-     >                        psi2(1,n1(ms)))    ! psi2 = Hpsi
-            call Grsm_gmg_daxpy(npack1,ne(ms),
-     >                          psi1(1,n1(ms)),
+            call Grsm_gmg_Mul(npack1,ne(ms),
+     >                          psi2(1,n1(ms)),
      >                          dbl_mb(tmp_L(1)),
-     >                          psi2(1,n1(ms)))  ! psi2 = (Hpsi - psi1*<psi1|S|Hpsi>)
-
-         !***** DEBUG ****
-           write(24,*)
-           write(23,*)
-           write(24,*) "DEBUG: iteration=",it
-            call paw_overlap_matrix_gen(ne(ms),ne(ms),
-     >                                psi1(1,n1(ms)),
-     >                                psi2(1,n1(ms)),
-     >                                dbl_mb(tmp_L(1)))
-           write(24,*) "<psi|Tangent> Overlap matrix, spin:",ms
-           do i=1,ne(ms) 
-             write(24,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
-     >                   j=1,ne(ms))
-           end do
-         !***** DEBUG ****
+     >                          psi_r)            ! psi_r =  -S*psi1*<psi1|Hpsi2>
+            call Grsm_ggg_Sum(npack1,ne(ms),
+     >                        Hpsi(1,n1(ms)),
+     >                        psi_r,
+     >                        psi2(1,n1(ms)))    ! psi2 = Hpsi - S*psi1*<psi1|Hpsi1>
 
             call Grsm_gg_dscale(npack1,ne(ms),dte,
      >                         psi2(1,n1(ms)),
@@ -402,7 +394,7 @@
      >                        psi2(1,n1(ms)), 
      >                        psi1(1,n1(ms)),
      >                        psi2(1,n1(ms)))
-          end do
+          end do !*ms*
        
 *       **** else don't change Hpsi ***
         else 
@@ -449,33 +441,17 @@
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
 
-*        ***** debug ***
-         do ms=1,ispin
-           write(23,*)
-           write(23,*)
-           write(23,*) "DEBUG: iteration=",it
-           write(23,*) "DEBUG: overlap matrix"
-           call paw_overlap_matrix_gen(ne(ms),ne(ms),
-     >                                 psi1(1,n1(ms)),
-     >                                 psi1(1,n1(ms)),
-     >                                 dbl_mb(tmp_L(1)))
-           write(23,*) "Overlap matrix, spin:",ms
-           do i=1,ne(ms) 
-             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
-     >                   j=1,ne(ms))
-           end do
-
-         end do
-!!*        ***** debug2 ***
+!*        ***** debug ***
 !         do ms=1,ispin
 !           write(23,*)
-!           write(23,*) "Testing paw_ovlp_S...."
-!           write(23,*) "DEBUG2: overlap matrix2"
-!           call paw_ovlp_S(ne(ms),psi1(1,n1(ms)),psi_r(1,n1(ms))) 
-!           call Grsm_ggm_dot(npack1,ne,
-!     >                  psi1(1,n1(ms)),psi_r(1,n1(ms)),
-!     >                  dbl_mb(tmp_L(1)))
-!           write(23,*) "Overlap matrix2, spin:",ms
+!           write(23,*)
+!           write(23,*) "DEBUG: iteration=",it
+!           write(23,*) "DEBUG: overlap matrix"
+!           call paw_overlap_matrix_gen(ne(ms),ne(ms),
+!     >                                 psi1(1,n1(ms)),
+!     >                                 psi1(1,n1(ms)),
+!     >                                 dbl_mb(tmp_L(1)))
+!           write(23,*) "Overlap matrix, spin:",ms
 !           do i=1,ne(ms) 
 !             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
 !     >                   j=1,ne(ms))
