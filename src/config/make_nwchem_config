@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.172 2003-09-01 17:29:47 edo Exp $
+# $Id: make_nwchem_config,v 1.173 2003-09-11 23:02:07 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -73,6 +73,8 @@ EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
+EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft hessian \
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft
 EXP_argos = prepar analyz
 #EXP_md  = prepar nwmd qmmm qmd analyz gradients esp
 EXP_md  = prepar nwmd analyz
@@ -91,6 +93,7 @@ MODULES := $(patsubst argos,$(EXP_argos),$(MODULES))
 MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 MODULES := $(patsubst pnnldev,$(EXP_pnnldev),$(MODULES) )
 MODULES := $(patsubst venus,$(EXP_venus),$(MODULES) )
+MODULES := $(patsubst qmandpw,$(EXP_qmandpw),$(MODULES) )
 
 # Make sure everything on the list is cool
 UNKNOWN_MODULES := $(filter-out $(KNOWN_MODULE_SUBDIRS),$(MODULES))
