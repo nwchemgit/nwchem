@@ -22,7 +22,7 @@ c
 c     Print a summary of the MO vectors in the specified range.
 c
       integer l_vecs, k_vecs, i, j, k_tags, l_tags, k_list, l_list
-      integer n, i, j, k, m, klo, khi, nbf, ibuf
+      integer n, k, m, klo, khi, nbf, ibuf
       character buf*80
 c  
       integer maxop, maxireps, geom
@@ -92,15 +92,15 @@ c
             ibuf = 1
             buf = ' '
             if (oocc) then
-               write(buf(ibuf:),'(''Occ='',1p,d12.6)'), occ(i)
+               write(buf(ibuf:),'(''Occ='',1p,d12.6)') occ(i)
                ibuf = ibuf + 18
             endif
             if (oevals) then
-               write(buf(ibuf:),'(''E='',1p,d13.6)'), evals(i)
+               write(buf(ibuf:),'(''E='',1p,d13.6)') evals(i)
                ibuf = ibuf + 17
             endif
             if (oirs) then
-               write(buf(ibuf:),'(''Symmetry='',a4)'), zir(irs(i))
+               write(buf(ibuf:),'(''Symmetry='',a4)') zir(irs(i))
                ibuf = ibuf + 18
             endif
             write(6,1) i, buf(1:max(inp_strlen(buf),1))
