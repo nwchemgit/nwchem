@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.45 2000-02-24 22:26:42 windus Exp $
+#$Id: GNUmakefile,v 1.46 2000-05-10 22:11:13 edo Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -31,10 +31,3 @@ endif
 
 
 include ../config/makelib.h
-
-ifeq ($(TARGET),SGITFP)
-$(LIBRARY_PATH)(get_inp_file.o):	get_inp_file.F
-	f77 -g -d8 -mips4 -64 $(INCLUDES) $(DEFINES)  -c get_inp_file.F
-endif
-
-
