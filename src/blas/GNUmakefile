@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.18 1996-06-29 00:54:23 gutowski Exp $
+#$Id: GNUmakefile,v 1.19 1996-10-19 18:41:50 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -63,7 +63,7 @@ endif
 ifeq ($(PRECISION),double)
 OBJ_OPTIMIZE =  ddot.o    dnrm2.o    dspr.o    idamax.o \
                 dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
-                daxpy.o   dgemv.o    dscal.o   dtrmm.o    xerbla.o \
+                daxpy.o   dgemv.o    dscal.o   dtrmm.o \
                 dcopy.o   dger.o     dspmv.o   dtrmv.o    dtrsm.o \
                 dsyrk.o   dsyr2k.o   dsymm.o   dtrsv.o    dsyr2.o \
 		dsymv.o \

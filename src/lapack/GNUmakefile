@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.24 1996-07-13 00:21:06 gutowski Exp $
+#$Id: GNUmakefile,v 1.25 1996-10-19 18:41:57 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -83,7 +83,7 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                zlarf.o    zlarfb.o   zlarfg.o   zlarft.o   zlascl.o \
                zlaset.o   zlasr.o    zlassq.o   zlatrd.o   zpotf2.o \
                zpotrf.o   zsteqr.o   zung2l.o   zung2r.o   zungql.o \
-               zungqr.o   zungtr.o
+               zungqr.o   zungtr.o   xerbla.o
 else
 OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
