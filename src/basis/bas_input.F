@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.20 1996-02-05 23:19:33 d3e129 Exp $
+c $Id: bas_input.F,v 1.21 1996-04-11 17:08:52 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -108,9 +108,6 @@ c
       endif
 c
 c     Now check reality against input
-c
-      if (ospherical) call errquit
-     $     ('bas_input: spherical harmonics not yet', 0)
 c
 c     Open a new basis set to receive the new data
 c
