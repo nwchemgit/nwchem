@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.45 1999-12-10 17:37:35 windus Exp $
+* $Id: prp.F,v 1.46 1999-12-10 20:41:37 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -257,10 +257,10 @@ c
 #include "mafdecls.fh"
       integer rtdb, geom, nat, iat, i, center
       double precision cm(3), am(nat), c(3,nat), sum
-      double precision zero, tol
+      double precision zero, tol, scale
 c
-      logical geom_check_handle
-      external geom_check_handle
+      logical geom_get_user_scale, geom_check_handle
+      external geom_get_user_scale, geom_check_handle
 c
       DATA ZERO    /0.0D+00/
       DATA TOL     /1.0D-06/
@@ -271,6 +271,15 @@ c
       if (center.eq.4) then   ! arbitrary point of expansion
         if (.not. rtdb_get(rtdb, 'prop:center_val',mt_dbl,3,cm))
      $  call errquit('prp_cent: rtdb_get center_val failed',555)
+c
+c get scale factor based on geometry UNITS keyword
+c
+        if (.not. geom_get_user_scale(geom,scale))
+     $    call errquit('prp_cent: trouble getting units scale',555)
+c
+        do i = 1, 3             ! scale according to geometry units
+          cm(i) = cm(i)*scale
+        end do
         if(ga_nodeid().eq.0)
      &   write(6,9994) cm(1),cm(2),cm(3)
 c
@@ -322,13 +331,13 @@ c
       endif
 c
       return
- 9994 FORMAT(/,' Center of expansion is the arbitrary point',
+ 9994 FORMAT(/,' Center of expansion (in au) is the arbitrary point',
      1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
- 9995 FORMAT(/,' Center of expansion is the origin',
+ 9995 FORMAT(/,' Center of expansion (in au) is the origin',
      1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
- 9996 FORMAT(/,' Center of mass is the expansion point',
+ 9996 FORMAT(/,' Center of mass (in au) is the expansion point',
      1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
- 9997 FORMAT(/,' Center of charge is the expansion point',
+ 9997 FORMAT(/,' Center of charge (in au) is the expansion point',
      1 /,8X,' X = ',F15.7,' Y = ',F15.7,' Z = ',F15.7)
       end
 c
