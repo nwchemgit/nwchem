@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.8 2001-11-28 21:09:18 bylaska Exp $
+* $Id: cgsdv5.F,v 1.9 2001-11-30 00:56:03 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -214,6 +214,14 @@ c     value = psi_initialize()
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
+      if (psp_semicore(0)) call semicore_check()
+
+*     **** initialize G,mask,ke,coulomb,and ewald data structures ****
+      call ke_init()
+      if (control_version().eq.3) call coulomb_init()
+      if (control_version().eq.4) call coulomb2_init()
+      call strfac_init()
+      if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
@@ -224,15 +232,10 @@ c     value = psi_initialize()
       end if
       value = psi_initialize()
 
-*     **** initialize G,mask,ke,and coulomb data structures ****
-      call ke_init()
-      if (control_version().eq.3) call coulomb_init()
-      if (control_version().eq.4) call coulomb2_init()
-      call strfac_init()
-      if (control_version().eq.3) call ewald_init()
+
+*     **** electron and geodesic data structures ****
       call electron_init()
       call geodesic_init()
-      if (psp_semicore(0)) call semicore_check()
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)

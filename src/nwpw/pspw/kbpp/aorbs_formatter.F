@@ -1,5 +1,5 @@
 c
-c $Id: aorbs_formatter.F,v 1.1 2001-11-29 22:59:02 bylaska Exp $
+c $Id: aorbs_formatter.F,v 1.2 2001-11-30 00:56:03 bylaska Exp $
 c
 
 *     ***************************************
@@ -27,11 +27,11 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3, pspw_filefind
+      logical      kbpp_orb, pspw_filefind
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3, pspw_filefind
+      external     kbpp_orb, pspw_filefind
 
       value  = .true.
 
@@ -64,7 +64,7 @@ c
       value = value.and.
      >     kbpp_orb(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
-     >            locp,lmax,rlocal)
+     >            locp,lmax)
 *     *** exit if error found ***
       if(.not. value) call errquit('aorb_formatter_auto: error',0)
 

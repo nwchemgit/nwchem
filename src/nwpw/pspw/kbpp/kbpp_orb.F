@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.1 2001-11-29 22:59:02 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.2 2001-11-30 00:56:04 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -9,7 +9,7 @@
 
       logical function kbpp_orb(oprint,version,
      >                  psp_filename,formatted_filename,
-     >                  ngrid,unita,locp,lmax,rlocal)
+     >                  ngrid,unita,locp,lmax)
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -21,7 +21,6 @@
       integer          ngrid(3)
       double precision unita(3,3)
       integer locp,lmax
-      real*8  rlocal
       character*255 full_filename
 
       logical value
@@ -32,26 +31,26 @@
 *     **** 1d pseudopotential data ****
       character*2 atom
       double precision zv,amass
-      integer lmax0,lmmax
+      integer lmax0,lmmax,k
       double precision rc(0:9)
       integer nrho
       double precision drho
-      integer rho_indx,vp_indx,wp_indx,sc_r_indx,sc_k_indx
-      integer rho_hndl,vp_hndl,wp_hndl,sc_r_hndl,sc_k_hndl
+      integer rho_indx,vp_indx,wp_indx,sc_r_indx
+      integer rho_hndl,vp_hndl,wp_hndl,sc_r_hndl
 
       integer          isemicore
       logical          semicore
-      double precision rcore,core_charge
+      double precision rcore
 
       integer f_indx,cs_indx,sn_indx
       integer f_hndl,cs_hndl,sn_hndl
 
 *     ***** ngrid data *****
-      integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
-      integer vl_hndl,vnl_hndl,vnlnrm_hndl,G_hndl
+      integer aorbs_indx,G_indx
+      integer aorbs_hndl,G_hndl
 
 *     **** other variables ****
-      double precision unitg(3,3)
+      double precision unitg(3,3),omega
       integer nsize,i,l,ierr
       integer nfft1,nfft2,nfft3
 
@@ -94,19 +93,17 @@
       if (lmax.lt.0)     lmax = lmax0
 
 *     **** set the local potential ****
-      if (locp.gt.lmax) locp = lmax
-      if (locp.lt.0)    locp = lmax
-
+      locp = lmax
       
 
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
 
       if (taskid.eq.MASTER) then
@@ -135,26 +132,21 @@
 
 
 *    **** more temporary space ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = value.and.MA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
 
-*     **** allocate vl,vnl,vnlnrm G ****
+*     **** allocate aorbs and  G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
-      value = MA_alloc_get(mt_dbl,nsize,
-     >                        'vl',vl_hndl,vl_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(lmmax),
-     >                        'vnl',vnl_hndl, vnl_indx)
-      value = MA_alloc_get(mt_dbl,lmmax,
-     >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
-      value = MA_alloc_get(mt_dbl,nsize*(3),
+
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
+     >                        'aorbs',aorbs_hndl, aorbs_indx)
+      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = MA_alloc_get(mt_dbl,4*nsize,
-     >                        'sc_k',sc_k_hndl,sc_k_indx)
 
 
 *     **** preparation of constants ****
@@ -164,9 +156,8 @@
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
 
 
-      call integrate_kbppv3(version,rlocal,
-     >                      nrho,drho,lmax,locp,zv,
-     >                                dbl_mb(vp_indx),
+      call integrate_kbpp_orb(version,
+     >                      nrho,drho,lmax,locp,
      >                                dbl_mb(wp_indx),
      >                                dbl_mb(rho_indx),
      >                                dbl_mb(f_indx),
@@ -174,12 +165,7 @@
      >                                dbl_mb(sn_indx),
      >                      nfft1,nfft2,nfft3,lmmax,
      >                                dbl_mb(G_indx),
-     >                                dbl_mb(vl_indx),
-     >                                dbl_mb(vnl_indx),
-     >                                dbl_mb(vnlnrm_indx),
-     >                                semicore,
-     >                                dbl_mb(sc_r_indx),
-     >                                dbl_mb(sc_k_indx),
+     >                                dbl_mb(aorbs_indx),
      >                      ierr)
 
 
@@ -187,7 +173,7 @@
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
-      write(*,*) "     *     KBPPV3 - Pseudopotential Formatter   *"
+      write(*,*) "     *     KBPP_ORB - Atomic Orbital Formatter  *"
       write(*,*) "     *                                          *"
       write(*,*) "     *      version last updated 4/15/99        *"
       write(*,*) "     *                                          *"
@@ -206,32 +192,7 @@
       write(*,*) "  highest angular component      :",lmax0
       write(*,*) "  highest angular component used :",lmax
       write(*,*) "  local potential used           :",locp
-      if (version.eq.4) 
-     >   write(*,*) "  aperiodic cutoff radius        :",rlocal
-      write(*,111) "  cutoffs: ",(rc(i), i=0,lmax)
-      if (semicore) then
-        write(*,*)
-        write(*,115) "  semi-core charge included, rcore:",rcore
-        do i=1,nrho
-           dbl_mb(f_indx+i-1) = dbl_mb(sc_r_indx+i-1)
-     >                        * dbl_mb(rho_indx+i-1)**2
-        end do
-        core_charge=16.0d0*datan(1.0d0)*SIMP(nrho,dbl_mb(f_indx),drho)
-        write(*,115) "  semi-core charge                :",core_charge,
-     >                dbl_mb(sc_k_indx)
-         do i=1,nrho
-           dbl_mb(f_indx+i-1) = dbl_mb(sc_r_indx+i-1+nrho)
-     >                        * dbl_mb(rho_indx+i-1)**2
-         end do
-         core_charge=16.0d0*datan(1.0d0)*SIMP(nrho,dbl_mb(f_indx),drho)
-         write(*,115) "  Semi-core charge gradient       :",
-     >                core_charge
 
-
-
-
-
-      end if
       write(*,*)
       write(*,*) "Simulation Cell"
       write(*,*) "---------------"
@@ -249,6 +210,15 @@
   115 format(a,2E14.6)
       end if
 
+*     **** normalize atomic orbitals ****
+      omega = unita(1,1)*unitg(1,1)
+     >      + unita(2,1)*unitg(2,1)
+     >      + unita(3,1)*unitg(3,1)
+
+
+      do k=1,nsize*lmmax
+       dbl_mb(aorbs_indx+k-1) = dbl_mb(aorbs_indx+k-1)/dsqrt(omega)
+      end do
 
 
       if (taskid.eq.MASTER) then
@@ -258,114 +228,40 @@
      >                    full_filename)
       l = index(full_filename,' ') - 1
       write(*,*)
-      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
+      write(*,*) "Generated formatted atomic orbitals, filename: ",
+     >            full_filename(1:l)
       write(*,*)
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
          call dwrite(2,unita,9)
          call cwrite(2,atom,2)
-         call dwrite(2,amass,1)
-         call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
          call iwrite(2,locp,1)
-         call dwrite(2,rc,lmax+1)
-         call dwrite(2,dbl_mb(vnlnrm_indx),lmmax)
-         if (version.eq.4) call dwrite(2,rlocal,1)
-         call dwrite(2,rcore,1)
-
-         call dwrite(2,dbl_mb(vl_indx),nsize)
-         call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
-         if (semicore) then
-           call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
-         end if
+         call dwrite(2,dbl_mb(aorbs_indx),nsize*lmmax)
       call closefile(2)
       end if
      
 
 *     **** free heap space ****
-      value = MA_free_heap(rho_hndl)
-      value = MA_free_heap(vp_hndl)
-      value = MA_free_heap(wp_hndl)
-      value = MA_free_heap(sc_r_hndl)
-      value = MA_free_heap(sc_k_hndl)
-      value = MA_free_heap(f_hndl)
-      value = MA_free_heap(cs_hndl)
-      value = MA_free_heap(sn_hndl)
+      value = value.and.MA_free_heap(rho_hndl)
+      value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(wp_hndl)
+      value = value.and.MA_free_heap(sc_r_hndl)
+      value = value.and.MA_free_heap(f_hndl)
+      value = value.and.MA_free_heap(cs_hndl)
+      value = value.and.MA_free_heap(sn_hndl)
 
-      value = MA_free_heap(vl_hndl)
-      value = MA_free_heap(vnl_hndl)
-      value = MA_free_heap(vnlnrm_hndl)
-      value = MA_free_heap(G_hndl)
+      value = value.and.MA_free_heap(aorbs_hndl)
+      value = value.and.MA_free_heap(G_hndl)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call message(4)
-      kbppv3 = value
+      kbpp_orb = value
       return
 
  9999 call errquit('Error reading psp_filename',0)
 
       END
-
-      subroutine read_vpwp(unit,nrho,lmax,rho,vp,wp)
-      implicit none
-      integer unit
-      integer nrho,lmax
-      double precision rho(nrho)
-      double precision vp(nrho,0:lmax)
-      double precision wp(nrho,0:lmax)
-      integer i,j
-
-
-      do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
-      end do
-      do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rho(i),(wp(i,j),j=0,lmax)
-      end do
-
-c     read(unit,*,ERR=9999,END=9999)(rho(i),(vp(i,j),j=0,lmax),i=1,nrho)
-c     read(unit,*,ERR=9999,END=9999)(rho(i),(wp(i,j),j=0,lmax),i=1,nrho)
-
-c     read(11,*,ERR=9116,END=9117)(RHO(I),(VP(I,J),J=0,LMAX),I=1,NRHO)
-c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
-
-      
-      return
-
- 9999 call errquit('Error reading psp_filename',0)
-      end
-
-      subroutine read_semicore(unit,isemicore,rcore,nrho,rho_sc)
-      implicit none
-      integer unit
-      integer isemicore
-      double precision rcore
-      integer nrho
-      double precision rho_sc(nrho,2),rr
-      integer i
-
-
-      read(unit,*,ERR=8887,END=8887) rcore
-
-*     **** read density ****
-      do i=1,nrho
-        read(unit,*,ERR=8889,END=8889) rr,rho_sc(i,1)
-      end do
-
-*     **** read density gradient ****
-      do i=1,nrho
-        read(unit,*,ERR=8889,END=8889) rr,rho_sc(i,2)
-      end do
-
-      isemicore = 1
-      return
-
- 8887 isemicore = 0
-      rcore = 0.0d0
-      return
-
- 8889 call errquit('Error reading psp_filename, in semicore',0)
-      end
 
 

@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.7 2001-11-28 22:15:21 bylaska Exp $
+* $Id: cpmdv5.F,v 1.8 2001-11-30 00:56:03 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -241,6 +241,7 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)
+
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne(ispin,ne)
       value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
@@ -297,6 +298,7 @@
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
+      if (psp_semicore(0)) call semicore_check()
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
@@ -304,9 +306,8 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-
       if (control_version().eq.3) call ewald_init()
-      if (psp_semicore(0)) call semicore_check()
+
 
 *     ******************************
 *     **** scaling psi velocity ****

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.9 2001-11-28 22:15:21 bylaska Exp $
+* $Id: cpsdv5.F,v 1.10 2001-11-30 00:56:03 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -232,6 +232,15 @@
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
+      if (psp_semicore(0)) call semicore_check()
+
+*     **** initialize G,mask,ke,and coulomb data structures ****
+      call ke_init()
+      if (control_version().eq.3) call coulomb_init()
+      if (control_version().eq.4) call coulomb2_init()
+      call strfac_init()
+      if (control_version().eq.3) call ewald_init()
+
 
 *     **** generate initial wavefunction if it does not exist ****
       if (.not.psi_filefind()) then
@@ -293,15 +302,6 @@
 
       if (.not. value) call errquit('out of heap memory',0)
 
-
-*     **** initialize G,mask,ke,and coulomb data structures ****
-      call ke_init()
-      if (control_version().eq.3) call coulomb_init()
-      if (control_version().eq.4) call coulomb2_init()
-      call strfac_init()
-
-      if (control_version().eq.3) call ewald_init()
-      if (psp_semicore(0)) call semicore_check()
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
