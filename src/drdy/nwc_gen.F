@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.9 2003-10-17 22:54:46 carlfahl Exp $
+C $Id: nwc_gen.F,v 1.10 2003-10-29 00:14:47 edo Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -102,7 +102,8 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c
         nata = ncenter
-        call sym_nwc(geom,my_rtdb,nata,.false.,1.0d00,threquiv)
+        call sym_nwc(geom,my_rtdb,nata,.false.,1.0d00,threquiv,
+     %       .false.)
 c
 c     Check that if we used autosym that we ended up with the
 c     same no. of atoms ... if we don't then autosym and nwchemsym
