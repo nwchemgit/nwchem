@@ -3,7 +3,7 @@ c     General implementation of VWN functionals
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_a.fh,v 1.5 2001-06-11 20:29:27 edo Exp $
+* $Id: xc_vwn_a.fh,v 1.6 2002-01-17 23:27:47 edo Exp $
 *
 c     Meanings of macros used in constructing different VWN parameterizations
 c     The determining macro FNL_VWN_xxx is set in the .F file
@@ -123,6 +123,7 @@ c
      &     rchi, d1chi, t1, t2, t3, d1t1, d1t2, d1t3, s, d1s,
      &     d1zeta(2), d1ersz(2), d1edrho(2), zeta, fz, d1fz, eps,
      &     dec_rs1, dec_rsz, d1dec_rs1, d1dec_rsz(2)
+      double precision d2fz0
 #ifdef NEED_RPA_RS1
       double precision derpa_rs1, d1derpa_rs1
 #ifdef SECOND_DERIV
@@ -131,7 +132,7 @@ c
 #endif
 #ifdef USE_VWN_DEC
       double precision devwn_rsz, d1devwn_rsz(2), zeta2, zeta3, zeta4,
-     &     d2fz0, beta_rs1, d1beta_rs1, t_vwn, d1t_vwn
+     &     beta_rs1, d1beta_rs1, t_vwn, d1t_vwn
 #ifdef SECOND_DERIV
       double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
 #endif
@@ -153,9 +154,7 @@ c
       p1 = 0.5D0/(2.d0**onethird - 1.d0)
       p2 = fourthirds*p1
       p3 = onethird*p2
-#ifdef USE_VWN_DEC
       d2fz0 = 2.d0*p3
-#endif
       if (initial.eq.1)then
          initial = 0
 c
@@ -345,8 +344,12 @@ c
             d1zeta(1) = (1.d0-zeta)/rhoval
             d1zeta(2) =-(1.d0+zeta)/rhoval
 #ifdef SECOND_DERIV
-            d2fz = ((1.d0+zeta)**(-twothirds) +
+            if(abs(zeta).lt.tol_rho) then
+               d2fz = d2fz0 
+            else
+               d2fz = ((1.d0+zeta)**(-twothirds) +
      &              (1.d0-zeta)**(-twothirds))*p3
+            endif
             rrho2 = 2.d0/(rhoval*rhoval)
 c           1 = aa, 2 = ab, 3 = bb
             d2zeta(1) =-rrho2*(1.d0-zeta)
