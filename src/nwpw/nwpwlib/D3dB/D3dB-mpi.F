@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.8 2005-02-02 07:54:11 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.9 2005-02-02 09:10:39 bylaska Exp $
 *
 
 #ifdef MPI
@@ -660,7 +660,6 @@ c     implicit none
 
 #include "mpif.h"
 
-
       integer MASTER
       parameter (MASTER=0)
       integer msglen,mpierr
@@ -669,12 +668,12 @@ c     implicit none
 c     msglen = 8
       msglen = 1
 
-      sumt = sum
+c      sumt = sum
 
-      call MPI_REDUCE(sumt,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(sumall,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
+c      call MPI_BCAST(sumall,msglen,MPI_DOUBLE_PRECISION,
+c     >               MASTER,MPI_COMM_WORLD,mpierr)
 
       sum = sumall
       return
@@ -718,12 +717,12 @@ c     implicit none
       msglen = n
 
 
-      call MPI_REDUCE(sumt,dbl_mb(sumall(1)),msglen,
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
      >                MPI_DOUBLE_PRECISION,
-     >                MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
-      call MPI_BCAST(dbl_mb(sumall(1)),msglen,
-     >               MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
+c      call MPI_BCAST(dbl_mb(sumall(1)),msglen,
+c     >               MPI_DOUBLE_PRECISION,
+c     >               MASTER,MPI_COMM_WORLD,mpierr)
 
 
 
