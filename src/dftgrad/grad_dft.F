@@ -3,12 +3,16 @@
 #include "rtdb.fh"
       integer rtdb
 c
-      logical nwdft, grad_dft
-      external nwdft, grad_dft
+      logical nwdft, grad_dft, xc_chktau
+      external nwdft, grad_dft, xc_chktau
       logical status
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
       status = nwdft(rtdb)
+      if(xc_chktau()) then
+         dft_energy_gradient=.false.
+         return
+      endif
       if (status) status = grad_dft(rtdb)
       dft_energy_gradient = status
       call grid_cleanup(.true.)
@@ -32,7 +36,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.33 2004-03-31 00:25:28 edo Exp $
+* $Id: grad_dft.F,v 1.34 2004-12-20 21:25:19 edo Exp $
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.45 2004-10-19 21:53:11 marat Exp $
+* $Id: task_gradient.F,v 1.46 2004-12-20 21:25:16 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -142,7 +142,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.45 2004-10-19 21:53:11 marat Exp $
+* $Id: task_gradient.F,v 1.46 2004-12-20 21:25:16 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -199,7 +199,8 @@ c
       logical geom_rtdb_ncent
 c
       integer nelem, ncent
-      logical status, numerical, ocosmo
+      logical status, numerical, ocosmo, xc_chktau
+      external xc_chktau
       double precision dipole(3)
       character*80 key, prefix
 c
@@ -242,6 +243,10 @@ c
          status = scf_gradient(rtdb)
       else if (theory .eq. 'dft') then
          status = dft_energy_gradient(rtdb)
+         if(.not.status.and.xc_chktau()) then
+            numerical = .true.
+            status=task_num_grad(rtdb)
+         endif
       else if (theory .eq. 'sodft') then
          status = sodft_energy_gradient(rtdb)
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
