@@ -1,5 +1,5 @@
       subroutine hf_print(msg,xyz,prims,coefs,npa,nca,la)
-c $Id: hf_print.f,v 1.1 1994-05-24 21:56:01 d3e129 Exp $
+c $Id: hf_print.f,v 1.2 1998-05-05 21:49:05 d3e129 Exp $
       implicit none
 c
       character*(*) msg    ! info to print 
@@ -47,3 +47,6 @@ c
 c
       hfprintit = value
       end
+
+
+

@@ -1,5 +1,5 @@
       Subroutine hf2oi(E,Sab,Nint,NPP,La,Lb,Li,canAB)
-c $Id: hf2oi.f,v 1.4 1996-10-14 23:09:41 d3e129 Exp $
+c $Id: hf2oi.f,v 1.5 1998-05-05 21:49:04 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -211,11 +211,11 @@ c take primitives and half transformed multiplied by A general contraction matri
 00200   continue
 00100 continue
 
-c* fucked ica/iii/icb norm=16 sp
-c* fucked ica/icb/iii norm=16 sp
-c* fucked iii/ica/icb norm=12 sp
-c* fucked iii/icb/ica norm=13.4349
-c* fucked icb/iii/ica norm=17.5349
+c* broke ica/iii/icb norm=16 sp
+c* broke ica/icb/iii norm=16 sp
+c* broke iii/ica/icb norm=12 sp
+c* broke iii/icb/ica norm=13.4349
+c* broke icb/iii/ica norm=17.5349
 c* try icb/ica/iii
       nn = 0
 *      iwiw = 1

@@ -5,7 +5,7 @@
      &    b3nai,b3nai_sz,nint,
      &    DryRun,Scr,lscr)
 c
-c $Id: hf3pot.F,v 1.2 1996-10-11 10:13:01 d3e129 Exp $
+c $Id: hf3pot.F,v 1.3 1998-05-05 21:49:05 d3e129 Exp $
 c
       implicit none
 c:: includes
@@ -58,7 +58,7 @@ c:: scratch pointers
       Integer i_r     ! the auxillary hermite integrals required for recursion
       Integer i_ff    ! prefactor array for forming recusion set of R's 
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)' hf3pot debug'
       if (.not.dryrun) then
         write(luout,*)'b3nai_sz',b3nai_sz
@@ -81,7 +81,7 @@ c
       i_alpha = 1
       i_top   = i_alpha + (NPA*NPB*NPC)*4 - 1
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)'i_alpha :',i_alpha
       write(luout,*)'i_top   :',i_top
       write(luout,*)npa,npb,npc,(NPA*NPB*NPC),(NPA*NPB*NPC)*4
@@ -104,7 +104,7 @@ c.. determine actual product pairs to be kept.
      &      Cxyz,Cprims,Ccoef,NPC,
      &      scr(i_alpha),Nabc)
       endif
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)
       write(luout,*)' nabc = ',nabc
       write(luout,*)
@@ -121,7 +121,7 @@ c
       i_save = i_G1  ! i_alpha and I_E saved
       i_top  = i_G1  + Nabc*3 - 1
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)
       write(luout,*)'i_alpha :',i_alpha
       write(luout,*)'i_E     :',i_E
@@ -154,7 +154,7 @@ c
       i_ABC2I = i_Gt    + Nabc*3
       i_top   = i_ABC2I + Nabc*3 - 1
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)
       write(luout,*)'i_save  :',i_save
       write(luout,*)'i_alpha :',i_alpha
@@ -189,7 +189,7 @@ c
 c
       Lg3   = ((Lg+1)*(Lg+2)*(Lg+3))/6
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)
       write(luout,*)'lg,lg3',lg,lg3
       write(luout,*)
@@ -204,7 +204,7 @@ c
       i_R   = i_ff   + 2*Nabc  
       i_top = i_R    + Nabc*(Lg+1)*Lg3 - 1
 
-#if defined(INT_DEBUG)
+#if defined(INTDEBUG)
       write(luout,*)
       write(luout,*)'i_save  :',i_save
       write(luout,*)'i_alpha :',i_alpha
