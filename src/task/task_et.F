@@ -68,7 +68,7 @@ c      logical function task_et_doit(rtdb,theory,Vab)
 c
 c     This function actually calculates Vab
 *
-* $Id: task_et.F,v 1.5 2001-12-14 23:03:03 d3k958 Exp $
+* $Id: task_et.F,v 1.6 2001-12-17 23:16:52 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -97,11 +97,11 @@ c
       integer rtdb
       integer i, j, k
       integer l_evals,k_evals
-      integer g_vecsa,g_vecsb
+c      integer g_vecsa,g_vecsb
       integer g_tmp,g_s,g_ahandle(2),g_bhandle(2),g_d,g_temp
       integer nocc(2)
       integer g_u,g_vt,g_phandle(2)
-      integer g_av,g_bu,g_t,g_pa,g_pb,g_h1
+      integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
 c      integer k_val,l_val,g_av,g_bu
 c
@@ -114,13 +114,12 @@ c
       logical status
 c
       character*2 pname(2)
-      double precision scr(mem_1e),h1(nbf,nbf)
-c      double precision c_alpha(nbf,nbf),c_beta(nbf,nbf)
       double precision occ_alpha(nbf),occ_beta(nbf)
       double precision evals_alpha(nbf),evals_beta(nbf)
       double precision Vab,values(nbf*nbf)
       double precision t(nbf,nbf),prod(2)
-      double precision sba
+      double precision sba,pa_val,pb_val,omega1,h1_val
+      double precision detu(2),detv(2),detprod
 c
       task_et_doit = .false.
 c
@@ -162,33 +161,29 @@ c     -------------------
 c
       call int_normalize(rtdb,basis)
 c
-c     calculate the overlap integrals and store in s(nbf,nbf)
-c     ------------------------------------------------------
+c     calculate the overlap integrals
+c     -------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'s',0,0,g_s))
      $        call errquit('task_et ga_create failed', 0)
        call int_1e_ga(basis, basis, g_s, 'overlap', .false.)  
        call ga_print(g_s)
 c
-c     calculate hamiltonian integrals and store in h1(nbf,nbf)
-c     ------------------------------------------------------
+c     calculate hamiltonian integrals 
+c     -------------------------------
       if(.not.ga_create(mt_dbl,nbf,nbf,'h1',0,0,g_h1))
      $        call errquit('task_et ga_create failed', g_h1)
 c
-       do i = 1,nbf
-       do j = 1,nbf
-         call int_1eh1(basis,i,basis,j,mem_1e,scr,isz_1e,h1(i,j))
-         call ga_put(g_h1, i, i, j, j, h1(i,j), 1)
-       enddo
-c         write(6,1112) i,(h1(i,j),j=1,nbf)
-       enddo
-       call ga_print(g_h1)
+c     accumulate kinetic and potential 1e integrals into h1
+c
+      call ga_zero(g_h1)
+      call int_1e_ga(basis, basis, g_h1, 'kinetic', .false.)  
+      call int_1e_ga(basis, basis, g_h1, 'potential', .false.)  
+      call ga_print(g_h1)
 c
 c      terminate API
 c      -------------
 c       call int_terminate
-c
-c 1112 FORMAT (i2,6x,4(F8.5,5x))
 c
 c======================================================================= 
 c     Read MO vectors from files.
@@ -214,34 +209,35 @@ c
       if (.not.ma_push_get(mt_dbl,nbf,'evals_beta',l_evals,k_evals))
      $        call errquit('ma_push_get failed for evals_beta',k_evals)
 c
-c     allocate arrays for MO coefficients, c_alpha and c_beta
+c     allocate arrays for MO coefficients, for state A
 c     -------------------------------------------------------
-      if (.not.ga_create(mt_dbl,nbf,nbf,'c_alpha',0,0,g_vecsa))
-     $         call errquit('ga_create failed for c_alpha',g_vecsa)
+      if (.not.ga_create(mt_dbl,nbf,nbf,'A alpha',0,0,g_avecsa))
+     $         call errquit('ga_create failed for A alpha',g_avecsa)
 
-      if (.not.ga_create(mt_dbl,nbf,nbf,'c_beta',0,0,g_vecsb))
-     $         call errquit('ga_create failed for c_beta',g_vecsb)
+      if (.not.ga_create(mt_dbl,nbf,nbf,'A beta',0,0,g_avecsb))
+     $         call errquit('ga_create failed for A beta',g_avecsb)
 
 c     read occ, evals, mo coefficients from movecsa.mo
 c     ------------------------------------------------
-      if(.not.movecs_read('movecsa.mo',1,occ_alpha,evals_alpha,g_vecsa))
+      if(.not.movecs_read('movecsa.mo',1,occ_alpha,evals_alpha
+     $    ,g_avecsa))
      $   call errquit('movecs_read failed for alpha mos',0)
 c
-      if(.not.movecs_read('movecsa.mo',2,occ_beta,evals_beta,g_vecsb))
+      if(.not.movecs_read('movecsa.mo',2,occ_beta,evals_beta,g_avecsb))
      $         call errquit('movecs_read failed for beta mos',0)
 c
 c     copy mo coefficients to arrays for state A
 c     ------------------------------------------
 c
-      if (.not.ga_duplicate(g_vecsa,g_avecsa,'A alpha'))
-     $         call errquit('ga_duplicate failed',g_avecsa)
-      if (.not.ga_copy(g_vecsa,g_avecsa))
-     $         call errquit('ga_copy failed',g_avecsa)
-c
-      if (.not.ga_duplicate(g_vecsb,g_avecsb,'A beta'))
-     $         call errquit('ga_duplicate failed',g_avecsb)
-      if (.not.ga_copy(g_vecsb,g_avecsb))
-     $         call errquit('ga_copy failed',g_avecsb)
+c      if (.not.ga_duplicate(g_vecsa,g_avecsa,'A alpha'))
+c     $         call errquit('ga_duplicate failed',g_avecsa)
+c      if (.not.ga_copy(g_vecsa,g_avecsa))
+c     $         call errquit('ga_copy failed',g_avecsa)
+cc
+c      if (.not.ga_duplicate(g_vecsb,g_avecsb,'A beta'))
+c     $         call errquit('ga_duplicate failed',g_avecsb)
+c      if (.not.ga_copy(g_vecsb,g_avecsb))
+c     $         call errquit('ga_copy failed',g_avecsb)
 c
       call ga_print(g_avecsa)
       call ga_print(g_avecsb)
@@ -254,27 +250,37 @@ c      write(6,*) 'evals alpha',(evals_alpha(i),i=1,nbf)
 c      write(6,*) 'evals beta ',(evals_beta(i),i=1,nbf)
 c      write(6,*) 
 c
+c     allocate arrays for MO coefficients, for state B
+c     -------------------------------------------------------
+      if (.not.ga_create(mt_dbl,nbf,nbf,'B alpha',0,0,g_bvecsa))
+     $         call errquit('ga_create failed for B alpha',g_bvecsa)
+
+      if (.not.ga_create(mt_dbl,nbf,nbf,'B beta',0,0,g_bvecsb))
+     $         call errquit('ga_create failed for B beta',g_bvecsb)
+
+c
 c     read occ, evals, mo coefficients from movecsb.mo
 c     ------------------------------------------------
-      if(.not.movecs_read('movecsb.mo',1,occ_alpha,evals_alpha,g_vecsa))
+      if(.not.movecs_read('movecsb.mo',1,occ_alpha,evals_alpha
+     $   ,g_bvecsa))
      $   call errquit('movecs_read failed for alpha mos',0)
 c
-      if(.not.movecs_read('movecsb.mo',2,occ_beta,evals_beta,g_vecsb))
+      if(.not.movecs_read('movecsb.mo',2,occ_beta,evals_beta,g_bvecsb))
      $         call errquit('movecs_read failed for beta mos',0)
 c
 c     copy mo coefficients to arrays for state B
 c     ------------------------------------------
 c
-      if (.not.ga_duplicate(g_vecsa,g_bvecsa,'B alpha'))
-     $          call errquit('ga_duplicate failed',g_bvecsa) 
-      if (.not.ga_copy(g_vecsa,g_bvecsa))
-     $         call errquit('ga_copy failed',g_bvecsa)
-
+c      if (.not.ga_duplicate(g_vecsa,g_bvecsa,'B alpha'))
+c     $          call errquit('ga_duplicate failed',g_bvecsa) 
+c      if (.not.ga_copy(g_vecsa,g_bvecsa))
+c     $         call errquit('ga_copy failed',g_bvecsa)
 c
-      if (.not.ga_duplicate(g_vecsb,g_bvecsb,'B beta'))
-     $          call errquit('ga_duplicate failed',g_bvecsb)
-      if (.not.ga_copy(g_vecsb,g_bvecsb))
-     $         call errquit('ga_copy failed',g_bvecsb)
+cc
+c      if (.not.ga_duplicate(g_vecsb,g_bvecsb,'B beta'))
+c     $          call errquit('ga_duplicate failed',g_bvecsb)
+c      if (.not.ga_copy(g_vecsb,g_bvecsb))
+c     $         call errquit('ga_copy failed',g_bvecsb)
 c
       call ga_print(g_bvecsa)
       call ga_print(g_bvecsb)
@@ -304,26 +310,26 @@ c
 c get nocc(1 and 2): # of occupied alpha and beta mo's
 c
       nocc(1)=0
-      do i = 1,nbf
-       nocc(1) = nocc(1) + occ_alpha(i)
-      enddo
-c
       nocc(2)=0
       do i = 1,nbf
+       nocc(1) = nocc(1) + occ_alpha(i)
        nocc(2) = nocc(2) + occ_beta(i)
       enddo
 c
-      write(6,*)
-      write(6,*)'# occupied alpha and beta orbitals ',nocc(1),nocc(2)
-      write(6,*)
+c      write(6,*)
+c      write(6,*)'# occupied alpha and beta orbitals ',nocc(1),nocc(2)
+c      write(6,*)
+c
+c     detprod is the product of det(U)*det(V) for alpha and beta electrons,
+c     and is used later.
+c
+      detprod=1.0d0
 c
 c  for generalized density matrices:
 c  Pa is for alpha electrons, Pb is for beta electrons.
 c
       pname(1)='pa'
       pname(2)='pb'
-      g_phandle(1)=g_pa
-      g_phandle(2)=g_pb
 c
 c j is the alpha/beta loop:
 c
@@ -364,30 +370,39 @@ c
       call ga_print(g_u)
       call ga_print(g_vt)
 c
-      write(6,*)
-      write(6,*)'diagonal values',(values(i),i=1,nocc(j))
-      write(6,*)
+c      ===========================
+c      calculate det(U) and det(V)
+c      ===========================
+c
+       call et_det('N',g_u,nocc(j),detu(j))
+       call et_det('T',g_vt,nocc(j),detv(j))
+       detprod = detprod*detu(j)*detv(j)
+c
+c      write(6,*)
+c      write(6,*)'diagonal values',(values(i),i=1,nocc(j))
+c      write(6,*)
+c
 c
 c calculate UU',U'U,VV',V'V to check unitarity.
 c
-      if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'temp',0,0,g_temp))
-     $        call errquit('task_et ga_create failed', g_temp)
-c
-      call ga_dgemm('N','T',nocc(j),nocc(j),nocc(j),1.d0,g_u,g_u
-     &         ,0.d0,g_temp)
-      call ga_print (g_temp)
-c
-      call ga_dgemm('T','N',nocc(j),nocc(j),nocc(j),1.d0,g_u,g_u
-     &         ,0.d0,g_temp)
-      call ga_print (g_temp)
-c
-      call ga_dgemm('T','N',nocc(j),nocc(j),nocc(j),1.d0,g_vt,g_vt
-     &         ,0.d0,g_temp)
-      call ga_print (g_temp)
-c
-      call ga_dgemm('N','T',nocc(j),nocc(j),nocc(j),1.d0,g_vt,g_vt
-     &         ,0.d0,g_temp)
-      call ga_print (g_temp)
+c      if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'temp',0,0,g_temp))
+c     $        call errquit('task_et ga_create failed', g_temp)
+cc
+c      call ga_dgemm('N','T',nocc(j),nocc(j),nocc(j),1.d0,g_u,g_u
+c     &         ,0.d0,g_temp)
+c      call ga_print (g_temp)
+cc
+c      call ga_dgemm('T','N',nocc(j),nocc(j),nocc(j),1.d0,g_u,g_u
+c     &         ,0.d0,g_temp)
+c      call ga_print (g_temp)
+cc
+c      call ga_dgemm('T','N',nocc(j),nocc(j),nocc(j),1.d0,g_vt,g_vt
+c     &         ,0.d0,g_temp)
+c      call ga_print (g_temp)
+cc
+c      call ga_dgemm('N','T',nocc(j),nocc(j),nocc(j),1.d0,g_vt,g_vt
+c     &         ,0.d0,g_temp)
+c      call ga_print (g_temp)
 c
 c=============================================================
 c                                               ^       ^
@@ -423,6 +438,12 @@ c
 c
       prod(j)=1.0d0
 c
+      do i = 1,nocc(j)
+      do k = 1,nocc(j)
+       t(i,k) = 0.0d0
+      enddo
+      enddo
+c
       if(nocc(j).gt.1) then
       do i = 1,nocc(j)
        t(i,i) = 1.0d0
@@ -436,9 +457,9 @@ c
        prod(j) = values(1)
       endif
 c
-      write(6,*)
-      write(6,*)'prod',prod(j)
-      write(6,*)
+c      write(6,*)
+c      write(6,*)'prod',prod(j)
+c      write(6,*)
 c
       call ga_put(g_t, 1, nocc(j), 1, nocc(j),t, nocc(j)*nocc(j))
       call ga_print(g_t) 
@@ -465,7 +486,6 @@ c
       call ga_print(g_phandle(j))
 c
 c
-c
 c end alpha/beta loop:
       enddo    
 c
@@ -482,14 +502,44 @@ c
        call ga_dscal(g_phandle(2),prod(1))
        call ga_print(g_phandle(2))
 c
-c =============
-c calcualte SBA
-c =============
+c      =============
+c      calculate SBA
+c      =============
 c
-       sba = prod(1)*prod(2)
+       sba = prod(1)*prod(2)*detprod
+c
+c      ============================================
+c      calculate the 1e contribution to Vab, omega1
+c      ============================================
+c
+       omega1 = 0.0d0
+       do i = 1,nbf
+       do j = 1,nbf
+         call ga_get(g_phandle(1), i, i, j, j, pa_val, 1)
+         call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
+         call ga_get(g_h1, i, i, j, j, h1_val, 1)
+         omega1 = omega1 + (pa_val+pb_val)*h1_val
+c         write(6,*) i,j,pa_val+pb_val,h1_val
+       enddo
+       enddo
+       omega1 = omega1*detprod
+c
+c      =============
+c      Print results
+c      =============
+c
+ 1111 FORMAT(1x,a10,F15.10)
        write(6,*) 
-       write(6,*) 'SBA',sba
+       write(6,*) '-------------------------------------'
+       write(6,*) 'Summary of Electron Transport Results'
+       write(6,*) '-------------------------------------'
        write(6,*) 
+       write(6,1111)  '       SBA',sba
+       write(6,*) 
+       write (6,1111) '<B|H(1)|A>',omega1
+       write (6,*) 
+c
+c
 c
 c      calculate Vab
 c      -------------
@@ -501,6 +551,47 @@ c
       status=.true.
       task_et_doit = status
 c
+      return
+      end
+
+c==================================================================
+      subroutine et_det(op,handle,n,detval)
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+#include "apiP.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "cscf.fh"
+c
+c returns the determinant of the square matrix with file handle 'handle'.
+c n is the dimension of the array, detval is the returned value of the
+c determinant. If op='N', a=a. If op='T', a=a'.
+c
+      character*1 op
+      integer handle
+      integer n,i,j,ipvt(n),info
+      double precision detval,a(n,n),work(n)
+c
+c
+c
+      do i = 1,n
+      do j = 1,n
+       if(op.eq.'N') call ga_get(handle, i, i, j, j, a(i,j), 1)  
+       if(op.eq.'T') call ga_get(handle, j, j, i, i, a(i,j), 1)  
+      enddo
+      enddo
+c
+      call dgefa(a,n,n,ipvt,info)
+      call dgedi (a,n,n,ipvt,detval,work,10)
+c
+      return
       end
 
 
+
+
+
+ 
