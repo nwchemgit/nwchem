@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.26 1998-09-25 18:32:08 mg201 Exp $
+* $Id: task.F,v 1.27 1998-10-27 20:34:51 jhvan Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical  esp, prepar, kgdtest
+      logical  esp, prepar, kgdtest, jvltest
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle, task_lst
       logical  task_qmmm, task_python, task_nbo
@@ -89,6 +89,8 @@ c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
             status = rjhtest(rtdb)
+         else if (inp_compare(.false.,'jvltest', theory)) then
+            status = jvltest(rtdb)
          else if (inp_compare(.false.,'python', theory)) then
             status = task_python(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
