@@ -16,5 +16,5 @@ include_stamp:
 	echo Nothing to be done
 
 realclean clean:
-	echo Header files not removed
+	/bin/rm -f *.h *.fh
 	/bin/rm -f *~ \#*\#
