@@ -11,8 +11,8 @@
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet, tau, kske)
-C$Id: grid_quadvc.F,v 1.20 2003-05-27 22:25:51 pollack Exp $
+     ,     l3d,triplet, tau, kske,Mmat)
+C$Id: grid_quadvc.F,v 1.21 2003-10-13 21:15:51 pollack Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -43,7 +43,7 @@ c
       logical triplet
 
       logical kske
-      double precision tau(*)
+      double precision tau(*), Mmat(*)
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -114,7 +114,7 @@ c
      ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx),
-     &        tau, kske )
+     &        tau, kske,Mmat )
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

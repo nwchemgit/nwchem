@@ -16,9 +16,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet,
-     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske)
+     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.36 2003-05-27 22:25:51 pollack Exp $
+c$Id: grid_quadv0b.F,v 1.37 2003-10-13 21:15:51 pollack Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -55,7 +55,7 @@ c !!! temp !!! ***
       logical l3d
       logical triplet, kske
 
-      double precision tau(*)
+      double precision tau(*), Mmat(*)
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -207,7 +207,8 @@ c     add beta to 1 to get alpha+beta
       endif     
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r, tau)
+     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r, 
+     &      tau, kske, Mmat)
 
       if (sic_orb_index.eq.1) then
          call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,
@@ -234,7 +235,7 @@ c
      &           AO_bas_han, 
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr)
+     &           rdens_atom, cetobfr,kske,Mmat)
          else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
             call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
@@ -244,7 +245,7 @@ c
      &           AO_bas_han, 
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr)
+     &           rdens_atom, cetobfr,kske,Mmat)
 #else
 c
 c     Combine derivs of functional with deriv densities to get coeffs

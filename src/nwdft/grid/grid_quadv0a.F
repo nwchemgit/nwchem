@@ -8,9 +8,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet,tau)
+     ,     l3d,triplet,tau,Mmat)
 c
-c$Id: grid_quadv0a.F,v 1.36 2003-05-27 22:25:51 pollack Exp $
+c$Id: grid_quadv0a.F,v 1.37 2003-10-13 21:15:51 pollack Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
       logical l3d
       logical triplet
 
-      double precision tau(*)
+      double precision tau(*), Mmat(*)
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -128,7 +128,7 @@ c
      ,           l3d,triplet,
      .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .           log_mb(idocsetx),
-     &            tau, kske )
+     &            tau, kske, Mmat )
             ntot_cube=ntot_cube+1
          endif
       enddo

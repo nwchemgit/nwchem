@@ -11,9 +11,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     .     l3d,triplet, tau)
+     .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.35 2003-05-27 22:25:51 pollack Exp $
+c$Id: grid_quadvw.F,v 1.36 2003-10-13 21:15:51 pollack Exp $
 c
       implicit none
 #define USE_BP
@@ -68,7 +68,7 @@ c
       logical l3d
       logical triplet
 
-      double precision tau(*)
+      double precision tau(*), Mmat(*)
 C      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -189,7 +189,7 @@ c
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,                    l3d,triplet,
-     &                    tau, kske)
+     &                    tau, kske,Mmat)
 
                   endif
  100           continue ! end loop over angular shells
@@ -210,7 +210,7 @@ c
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,l3d,
      ,     triplet,
-     &      tau, kske )
+     &      tau, kske,Mmat )
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1
