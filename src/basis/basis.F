@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.109 2002-01-11 18:34:47 bert Exp $
+c $Id: basis.F,v 1.110 2002-01-17 15:55:24 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1276,6 +1276,11 @@ c
       tmp(lentmp:) = ':bs_nr_tags'
       rtdb_status = rtdb_status .and. 
      &              rtdb_get(rtdb,tmp,mt_int,1,ntag_read)
+      if(.not.rtdb_status) then
+c     basis absent .. I guess
+         bas_rtdb_do_load = .false.
+         return
+      endif
       if (ntag_read .gt. 0) then
          tmp(lentmp:) = ' ' 
          tmp(lentmp:) = ':bs_tags'
