@@ -357,7 +357,7 @@ subsequently defined using the \verb+VARIABLES+ or \verb+CONSTANTS+
 directives. The numerical values of the symbolic strings labeled
 \verb+VARIABLES+ may be the subject to changes during a geometry
 optimization say, while the numerical values of the symbolic strings
-labeled |verb+CONSTANTS+ will saty frozen to the value given in the
+labeled |verb+CONSTANTS+ will stay frozen to the value given in the
 input.  The same symbolic string can be used more than once, and
 any mixture of numeric data and symbols is acceptable. Bond angles
 ($\alpha$) must be in the range $0 < \alpha < 180$.
@@ -455,12 +455,24 @@ which has the general form:
 
 \begin{verbatim}
   VARIABLES
-    <string symbol>  <real value>
+    <string symbol>  <real value> <read value>
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
 Optionally, an equals sign (\verb+=+) can be included between the
 symbol and its value, for clarity in reading the input file.
+
+If a second value follows the first value, a second structure gets
+created, built from all the second valued internal coordinates and
+the lone valued internal coordinates for those which are attributed
+only a single vale.  the program will define
+a Linear Synchronous Transit (LST) path between the first structure
+and the second structure ( the initial and final structures respectively).
+A number of structures (11 in total) get created in equal increments
+of the internal coordinates. The set of coordinates get written
+to the file ./xxxx.lst.coord. In an 'LST' task , specified by
+'task <theory> lst', the program calculates the energy of the
+system for all these structures in sequence.
 
 Following the \verb+VARIABLES+ directive, the \verb+CONSTANTS+
 directive may be used to define any Z-matrix symbolic variables that remain
