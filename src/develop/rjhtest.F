@@ -30,6 +30,7 @@
       integer ga_create_atom_blocked
       external int_normalize
       external ga_create_atom_blocked
+      Double precision result
 c
 *      call ieeetrap
 c
@@ -106,11 +107,14 @@ c
      &       1.0d-09,.true.,.false.)
 c$$$      write(6,*)' real coulomb matrix'
 c$$$      call ga_print(g_j_real)
+      Call GA_Sync
       call ga_dadd(1.0d00,g_j,-1.0d00,g_j_real, g_j_real)
+      Result = ga_ddot(g_j_real,g_j_real)
       If ( GA_NodeID() .eq. 0 )
-     $   write(6,*)'ddot of diff',ga_ddot(g_j_real,g_j_real)
+     $   write(6,*)'ddot of diff', result
 c$$$      write(6,*)' difference!!!! '
 c$$$      call ga_print(g_j_real)
+      Call GA_Sync
       return
       write(6,2) geom_name(1:inp_strlen(geom_name)),
      $     basis_name(1:inp_strlen(basis_name))
