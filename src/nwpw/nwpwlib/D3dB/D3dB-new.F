@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.24 2004-04-09 22:41:12 bylaska Exp $
+* $Id: D3dB-new.F,v 1.25 2004-04-20 17:52:51 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -70,35 +70,35 @@ ccccccccccc  #define TCGMSG
       integer nb
      
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
-
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
 
       integer k,q,p
 *     integer kn
       integer taskid,np
       logical value
       
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+
+*     **************************
+*     ****** Slab mapping ******
+*     **************************
 
 *     **** allocate q_map,p_map,k_map
       value = MA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
      >                                       q_map(1,nb))
-      value = MA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
+      value = value.and.MA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
      >                                       p_map(1,nb))
-      value = MA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
+      value = value.and.MA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
      >                                       k_map(1,nb))
+      if (.not. value)
+     > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
 
 
-*     ****************************
-*     ****** cyclic mapping ******
-*     ****************************
+*     ****** cyclic ******
       p = 0
       q = 1
       do k=1,nz(nb)
@@ -113,10 +113,7 @@ c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
          end if
       end do
 
-*     **************************
-*     ***** block mapping ******
-*     **************************
-*
+*     ***** block  ******
 *     **** make sure nz(nb) is a multiple of np ****
 *     kn = mod(nz(nb),np)
 *     if (kn.ne.0) then
@@ -139,13 +136,69 @@ c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
 *        end if
 *     end do
 
-
+      !*** not used anymore!! ****
       do k=1,nz(nb)
          if (int_mb(p_map(1,nb)+k-1) .eq. taskid) then
 c           k_map(q_map(k)) = k
             int_mb(k_map(1,nb)+int_mb(q_map(1,nb)+k-1)-1) = k
          end if
       end do
+
+
+*     ******************************
+*     ****** Hilbert mappings ******
+*     ******************************
+
+*     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
+      value =           MA_alloc_get(mt_int,ny(nb)*nz(nb),
+     >                              'q_map1',
+     >                               q_map1(2,nb),
+     >                               q_map1(1,nb))
+      value = value.and.MA_alloc_get(mt_int,ny(nb)*nz(nb),
+     >                              'p_map1',
+     >                               p_map1(2,nb),
+     >                               p_map1(1,nb))
+
+      value = value.and.MA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
+     >                              'q_map2',
+     >                               q_map2(2,nb),
+     >                               q_map2(1,nb))
+      value = value.and.MA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
+     >                              'p_map2',
+     >                               p_map2(2,nb),
+     >                               p_map2(1,nb))
+
+      value = value.and.MA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
+     >                              'q_map3',
+     >                               q_map3(2,nb),
+     >                               q_map3(1,nb))
+      value = value.and.MA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
+     >                              'p_map3',
+     >                               p_map3(2,nb),
+     >                               p_map3(1,nb))
+      if (.not. value)
+     > call errquit('Mapping_init:out of heap memory',1, MA_ERR)
+
+      call hilbert2d_map(ny(nb),nz(nb),      int_mb(p_map1(1,nb)))
+      call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
+      call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
+
+      call generate_map_indexes(taskid,np,
+     >                          ny(nb),nz(nb),
+     >                          int_mb(p_map1(1,nb)),
+     >                          int_mb(q_map1(1,nb)),nq1(nb))
+      write(*,*) taskid,"nq1=",nq1(nb)
+      call generate_map_indexes(taskid,np,
+     >                          nz(nb),nx(nb)/2+1,
+     >                          int_mb(p_map2(1,nb)),
+     >                          int_mb(q_map2(1,nb)),nq2(nb))
+      write(*,*) taskid,"nq2=",nq2(nb)
+      call generate_map_indexes(taskid,np,
+     >                          nx(nb)/2+1,ny(nb),
+     >                          int_mb(p_map3(1,nb)),
+     >                          int_mb(q_map3(1,nb)),nq3(nb))
+      write(*,*) taskid,"nq3=",nq3(nb)
+
  
       return
       end
@@ -160,10 +213,10 @@ c           k_map(q_map(k)) = k
       integer nb
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
 
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
+
 
 c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
 c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)
@@ -185,15 +238,30 @@ c     integer i2_start(NFFT3+1)
       call D3dB_timereverse_end(nb)
       call D3dB_fft_end(nb)
 
-      value = MA_free_heap(q_map(2,nb))
-      value = MA_free_heap(p_map(2,nb))
-      value = MA_free_heap(k_map(2,nb))
-      value = MA_free_heap(i1_start(2,nb))
-      value = MA_free_heap(i2_start(2,nb))
-      value = MA_free_heap(iq_to_i1(2,nb))
-      value = MA_free_heap(iq_to_i2(2,nb))
-      value = MA_free_heap(channel_proc(2,nb))
-      value = MA_free_heap(channel_type(2,nb))
+      value=.true.
+      !**** slab mapping ****
+      value = value.and.MA_free_heap(q_map(2,nb))
+      value = value.and.MA_free_heap(p_map(2,nb))
+      value = value.and.MA_free_heap(k_map(2,nb))
+
+      !**** hilbert mappings ****
+      value = value.and.MA_free_heap(q_map1(2,nb))
+      value = value.and.MA_free_heap(p_map1(2,nb))
+      value = value.and.MA_free_heap(q_map2(2,nb))
+      value = value.and.MA_free_heap(p_map2(2,nb))
+      value = value.and.MA_free_heap(q_map3(2,nb))
+      value = value.and.MA_free_heap(p_map3(2,nb))
+
+
+      !**** transpose mappings ****
+      value = value.and.MA_free_heap(i1_start(2,nb))
+      value = value.and.MA_free_heap(i2_start(2,nb))
+      value = value.and.MA_free_heap(iq_to_i1(2,nb))
+      value = value.and.MA_free_heap(iq_to_i2(2,nb))
+      value = value.and.MA_free_heap(channel_proc(2,nb))
+      value = value.and.MA_free_heap(channel_type(2,nb))
+      if (.not. value)
+     > call errquit('D3dB_end:freeing heap memory',0, MA_ERR)
 
       return
       end
@@ -210,10 +278,9 @@ c     integer i2_start(NFFT3+1)
       integer q,k
 
 #include "mafdecls.fh"
+#include "D3dB.fh"
+
       
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
       
 c     k = k_map(q)
       k = int_mb(k_map(1,nb)+q-1)
@@ -233,10 +300,9 @@ c     k = k_map(q)
       integer k,q,p
 
 #include "mafdecls.fh"
+#include "D3dB.fh"
+
       
-c     integer q_map(NFFT3),p_map(NFFT3),k_map(NFFT3)
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
       
 c     q = q_map(k)
 c     p = p_map(k)
@@ -260,12 +326,7 @@ c     p = p_map(k)
       integer indx,p
 
 #include "mafdecls.fh"
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
-
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
+#include "D3dB.fh"
 
       integer q
 
@@ -290,12 +351,8 @@ c     p = p_map(k)
       integer indx,p
 
 #include "mafdecls.fh"
+#include "D3dB.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common    / D3dB / nq,nx,ny,nz
-
-      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
 
       integer q
 
@@ -321,8 +378,8 @@ c     p = p_map(k)
       integer nb
       integer nfft3d
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       nfft3d = (nx(nb)/2+1)*ny(nb)*nq(nb)
       return
@@ -339,8 +396,8 @@ c     p = p_map(k)
       integer nb
       integer n2ft3d
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       n2ft3d = (nx(nb)+2)*ny(nb)*nq(nb)
       return
@@ -358,8 +415,8 @@ c     p = p_map(k)
       integer nb
       integer nqtmp
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       nqtmp = nq(nb)
 
@@ -376,10 +433,10 @@ c     p = p_map(k)
       implicit none
       integer nb
       integer nxtmp
-      
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
 
+#include "D3dB.fh"
+
+      
       nxtmp = nx(nb)
       return
       end
@@ -395,8 +452,8 @@ c     p = p_map(k)
       integer nb
       integer nytmp
       
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       nytmp = ny(nb)
       return
@@ -412,10 +469,10 @@ c     p = p_map(k)
       implicit none
       integer nb
       integer nztmp
-      
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
 
+#include "D3dB.fh"
+
+      
       nztmp = nz(nb)
       return
       end
@@ -433,10 +490,8 @@ c     p = p_map(k)
       integer nx_in,ny_in,nz_in
       integer map_in
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
-     
 
 *     ***** initialize D3dB common block *****
       nx(nb)     = nx_in
@@ -447,6 +502,7 @@ c     p = p_map(k)
 *     **** do other initializations ****
       call Mapping_Init(nb)
       call D3dB_c_transpose_jk_init(nb)
+      call D3dB_channel_init(nb)
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
 
@@ -535,8 +591,8 @@ c     msglen = 8
       integer nb
       complex*16 A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       call dcopy((nx(nb)+2)*ny(nb)*nq(nb),0.0d0,0,A,1)
       return
@@ -548,8 +604,7 @@ c     msglen = 8
       integer nb
       real*8  A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       call dcopy((nx(nb)+2)*ny(nb)*nq(nb),0.0d0,0,A,1)
       return
@@ -569,8 +624,7 @@ c     msglen = 8
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       call dcopy((nx(nb)+2)*ny(nb)*nq(nb),A,1,B,1)
       return
@@ -582,8 +636,7 @@ c     msglen = 8
       real*8 A(*)
       real*8 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       call dcopy((nx(nb)+2)*ny(nb)*nq(nb),A,1,B,1)
       return
@@ -595,8 +648,7 @@ c     msglen = 8
       real*8 A(*)
       real*8 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       call dcopy((nx(nb)/2+1)*ny(nb)*nq(nb),A,1,B,1)
       return
@@ -617,8 +669,8 @@ c     msglen = 8
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common	/ D3dB_fft / tmpx,tmpy,tmpz
@@ -670,8 +722,8 @@ c     msglen = 8
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common    / D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
@@ -783,9 +835,7 @@ c     msglen = 8
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
@@ -1028,9 +1078,8 @@ c      end do
 #include "mafdecls.fh"
 #include "errquit.fh"
 
+#include "D3dB.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
@@ -1233,8 +1282,7 @@ c    >                          dbl_mb(tmp3(1,nb)))
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
@@ -1463,8 +1511,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
@@ -1660,8 +1707,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       complex*16 tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -1729,8 +1775,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8  A(*)
       real*8  tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -1811,8 +1856,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8  A(*)
       real*8  tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 
@@ -1892,8 +1936,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -1911,8 +1954,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -1930,8 +1972,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -1948,8 +1989,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       integer i
 
@@ -1975,8 +2016,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       real*8     C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -1998,8 +2038,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
       integer i
 
@@ -2021,8 +2061,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -2045,8 +2084,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -2066,13 +2104,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       subroutine D3dB_c_transpose_jk_init(nb)
       implicit none
-#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
 
 c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
 c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)
@@ -2111,13 +2148,15 @@ c     integer i2_start(NFFT3+1)
 *     **** allocate trans_blk common block ****
       value = MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
+      value=value.and.MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
+      value = value.and.MA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
+      value = value.and.MA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
+      if (.not. value) 
+     > call errquit('D3dB_transpose_jk_init:out of heap',0,MA_ERR)
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -2169,16 +2208,60 @@ c     i2_start(np+1) = index2
       int_mb(i2_start(1,nb)+np) = index2
 
 
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      D3dB_channel_init          *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_channel_init(nb)
+      implicit none
+      integer nb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+      integer pair1(2),pair2(2)
+      integer pair_step(2)
+      integer step,Nstep,icount
+
+*     **** local variables ****
+      integer proc_to,proc_from
+      integer pto,qto,np,taskid
+      integer pfrom,qfrom
+      integer phere,qhere
+      integer index1,index2,itmp
+      integer i,j,k,it
+      logical value
+
+*     **** external functions ****
+      logical  full_ps
+      external full_ps
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 *
 *     **** Define Channels - which are used to avoid ****
 *     **** asynchronous communications               ****
-      
+
       value = MA_alloc_get(mt_int,(2*np),
      >        'channel_proc',channel_proc(2,nb),channel_proc(1,nb))
       value = value.and.
      >        MA_alloc_get(mt_int,(2*np),
      >        'channel_type',channel_type(2,nb),channel_type(1,nb))
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_channel_init:out of heap memory',0, MA_ERR)
 
 
 
@@ -2190,7 +2273,8 @@ c     i2_start(np+1) = index2
       value = value.and.
      >        MA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     >  call errquit('D3dB_channel_init:out of stack memory',0, MA_ERR)
 
 *     *** define pair1,pair2 ****
       icount = 0
@@ -2230,6 +2314,7 @@ c     i2_start(np+1) = index2
       end do
       Nstep=step
 
+
 *     **** define channels ***
       Nchannels(nb)=0
       do step=1,Nstep
@@ -2238,11 +2323,11 @@ c     i2_start(np+1) = index2
 *              **** send then recv ****
                if (int_mb(pair1(1)+i-1).eq.taskid) then
                   Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
+                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
      >             = int_mb(pair2(1)+i-1)
                   int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
                   Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
+                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
      >            = int_mb(pair2(1)+i-1)
                   int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
                end if
@@ -2250,11 +2335,11 @@ c     i2_start(np+1) = index2
 *              **** recv then send ****
                if (int_mb(pair2(1)+i-1).eq.taskid) then
                   Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
+                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
      >            = int_mb(pair1(1)+i-1)
                   int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 1
                   Nchannels(nb)=Nchannels(nb)+1
-                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1) 
+                  int_mb(channel_proc(1,nb)+Nchannels(nb)-1)
      >            = int_mb(pair1(1)+i-1)
                   int_mb(channel_type(1,nb)+Nchannels(nb)-1) = 0
                end if
@@ -2263,12 +2348,15 @@ c     i2_start(np+1) = index2
       end do
 
 
+      value=          MA_pop_stack(pair_step(2))
+      value=value.and.MA_pop_stack(pair2(2))
+      value=value.and.MA_pop_stack(pair1(2))
+      if (.not. value) 
+     >  call errquit('D3dB_channel_init:popping stack',0, MA_ERR)
 
-      value=MA_pop_stack(pair_step(2))
-      value=MA_pop_stack(pair2(2))
-      value=MA_pop_stack(pair1(2))
       return
       end
+
 
       
       logical function full_ps(ps,np)
@@ -2304,8 +2392,7 @@ c     i2_start(np+1) = index2
       complex*16 A(*)
       complex*16 tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -2388,8 +2475,8 @@ c     i2_start(np+1) = index2
       real*8     A(*)
       real*8     tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
+
 
 
 #include "tcgmsg.fh"
@@ -2473,8 +2560,7 @@ c     i2_start(np+1) = index2
       real*8 A(*)
       real*8 tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -2564,8 +2650,7 @@ c     i2_start(np+1) = index2
       real*8     A(*)
       real*8     tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -2658,8 +2743,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       real*8     A(*)
       real*8     tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -2746,8 +2830,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       real*8     A(*)
       real*8     tmp(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 #include "tcgmsg.fh"
@@ -2838,8 +2921,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8     sumall
 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np
       real*8  sum
@@ -2901,8 +2983,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8     sumall
 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np
       real*8  sum
@@ -2960,8 +3041,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 B(*)
       real*8 sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np,nxh
       real*8  sum
@@ -3017,8 +3097,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 sumall
 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np,nxh
       real*8  sum
@@ -3079,8 +3158,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  B(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,np
       real*8  sum
@@ -3115,8 +3193,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  B(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,np
       real*8  sum
@@ -3153,8 +3230,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3177,8 +3253,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       logical    masker(*)
       complex*16 A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3200,8 +3275,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       logical   masker(*)
       real*8    A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3225,8 +3299,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3250,8 +3323,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 B(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3277,8 +3349,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3303,8 +3374,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3328,8 +3398,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3354,8 +3423,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3382,8 +3450,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3409,8 +3476,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       complex*16 A(*)
       complex*16 B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3434,8 +3500,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  A(*)
       real*8  B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3459,8 +3524,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 B(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       real*8 eta
       parameter (eta=1.0d-9)
@@ -3497,8 +3561,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 A(*)
       real*8 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common    / D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
       integer i,j,q,index
@@ -3526,8 +3589,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       integer nb
       real*8 A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common    / D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3550,8 +3612,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  B(*)
       real*8  C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -3575,8 +3636,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       integer nb
       real*8 A(*) 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer j,q,index
       do q=1,nq(nb)
@@ -3604,8 +3664,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  A(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,np
       real*8 sum
@@ -3640,8 +3699,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  A(*)
       real*8  sumall
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,np,nxh,index
       real*8 sum
@@ -3697,8 +3755,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8     sumall(nn,nn)
 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np
       integer index1,index2
@@ -3778,8 +3835,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8     sumall(ne)
 
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index,np
       integer index1,index2
@@ -3979,8 +4035,7 @@ c      end
       complex*16 B(*)
       complex*16 C(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i
 
@@ -4004,8 +4059,7 @@ c      end
       integer nb2
       real*8  B(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index1,index2
 
@@ -4036,8 +4090,7 @@ c      end
       integer nb1
       real*8  A(*)
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
       integer i,j,q,index1,index2
 
@@ -4069,8 +4122,7 @@ c      end
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 c     integer iq_to_i1(2*NFFT2*NSLABS)
 c     integer iq_to_i2(2*NFFT2*NSLABS)
@@ -4242,8 +4294,7 @@ c     i2_start(np+1) = index2
 
 #include "mafdecls.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 *     **** indexing variables ****

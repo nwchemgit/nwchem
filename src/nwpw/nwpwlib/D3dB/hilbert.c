@@ -1,0 +1,221 @@
+/* hilbert.c -
+   Author - Eric Bylaska
+
+   This file contains 2d hilbert mapping routines
+
+*/
+
+#include "typesf2c.h"
+#include "olist.h"
+
+
+
+#define bottom_left     0
+#define bottom_right    1
+#define top_left        2
+#define top_right       3
+
+#define right   0
+#define left    1
+#define up      2
+#define down    3
+
+
+
+
+#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#define pspsolve_ PSPSOLVE
+#endif
+
+void FATR hilbert2d_map_(sizex_ptr,sizey_ptr,map)
+Integer     *sizex_ptr,*sizey_ptr;
+Integer     map[];
+{
+
+    int i,j,size,sizex,sizey;
+    int level,count;
+    OList_Type olist;
+
+   sizex = *sizex_ptr;
+   sizey = *sizey_ptr;
+
+   size = sizex;
+   if (sizey>size) size = sizey;
+
+   /* get the level of map */
+   count = 1;
+   level = 0;
+   while (count < size)
+   {
+      ++level;
+      count = count*2;
+   }
+
+   printf("Hilbert Level = %d, nx = %d,ny = %d\n",level,sizex,sizey);
+
+   create_olist(&olist,size*size);
+   for (j=0; j<sizey; ++j)
+   for (i=0; i<sizex; ++i)
+   {
+      map[i+j*sizex] = hilbert2d(i,j,level);
+      insert_olist(&olist,map[i+j*sizex]);
+   }
+   for (j=0; j<sizey; ++j)
+   for (i=0; i<sizex; ++i)
+      map[i+j*sizex] = index_olist(&olist,map[i+j*sizex]);
+
+   destroy_olist(&olist);
+
+}
+
+
+int     hilbert2d(i,j,level)
+int     i,j;
+int     level;
+{
+   int  start,direction;
+
+   direction = hilbert_dir(i,j,level,level,&start);
+
+   return start;
+}
+
+
+int     parent(i)
+int     i;
+{
+   return(i/2);
+}
+
+int     corner(i,j)
+int     i,j;
+{
+   return(2*(j%2) + (i%2));
+}
+
+int     hilbert_dir(i,j,level,high,start)
+int     i,j;
+int     level,high;
+int     *start;
+{
+   int  direction,parent_direction,
+        iparent,jparent,
+        crnr,length,
+        count;
+
+   length = 1;
+   for (count=0; count<(high-level); ++count)
+      length = length*4;
+
+   if (level == 0)
+   {
+      direction = right;
+      *start    = 0;
+   }
+   else
+   {
+      parent_direction = hilbert_dir(parent(i),parent(j),
+                                     level-1,high,
+                                     start);
+      crnr = corner(i,j);
+
+
+      if (parent_direction == right)
+      {
+         if (crnr == bottom_left)
+         {
+            direction = up;
+            *start    = *start + 0*length;
+         }
+         if (crnr == bottom_right)
+         {
+            direction = down;
+            *start    = *start + 3*length;
+         }
+         if (crnr == top_left)
+         {
+            direction = right;
+            *start    = *start + 1*length;
+         }
+         if (crnr == top_right)
+         {
+            direction = right;
+            *start    = *start + 2*length;
+         }
+      }
+
+      if (parent_direction == left)
+      {
+         if (crnr == bottom_left)
+         {
+            direction = left;
+            *start    = *start + 2*length;
+         }
+         if (crnr == bottom_right)
+         {
+            direction = left;
+            *start    = *start + 1*length;
+         }
+         if (crnr == top_left)
+         {
+            direction = up;
+            *start    = *start + 3*length;
+         }
+         if (crnr == top_right)
+         {
+            direction = down;
+            *start    = *start + 0*length;
+         }
+      }
+
+      if (parent_direction == up)
+      {
+         if (crnr == bottom_left)
+         {
+            direction = right;
+            *start    = *start + 0*length;
+         }
+         if (crnr == bottom_right)
+         {
+            direction = up;
+            *start    = *start + 1*length;
+         }
+         if (crnr == top_left)
+         {
+            direction = left;
+            *start    = *start + 3*length;
+         }
+         if (crnr == top_right)
+         {
+            direction = up;
+            *start    = *start + 2*length;
+         }
+      }
+
+      if (parent_direction == down)
+      {
+         if (crnr == bottom_left)
+         {
+            direction = down;
+            *start    = *start + 2*length;
+         }
+         if (crnr == bottom_right)
+         {
+            direction = right;
+            *start    = *start + 3*length;
+         }
+         if (crnr == top_left)
+         {
+            direction = down;
+            *start    = *start + 1*length;
+         }
+         if (crnr == top_right)
+         {
+            direction = left;
+            *start    = *start + 0*length;
+         }
+      }
+   }
+
+   return direction;
+}

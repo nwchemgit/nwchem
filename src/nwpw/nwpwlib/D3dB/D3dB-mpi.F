@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.1 2004-04-09 22:41:12 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.2 2004-04-20 17:52:51 bylaska Exp $
 *
 
 #ifdef MPI
@@ -31,8 +31,7 @@
 
 #include "mafdecls.fh"
 
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
+#include "D3dB.fh"
 
 
 *     **** indexing variables ****

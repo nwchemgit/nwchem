@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.6 2004-04-09 22:41:12 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2004-04-20 17:52:52 bylaska Exp $
 #
 
- OBJ_OPTIMIZE = D3dB-new.o
+ OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o
  OBJ = 
 
 ifeq ($(USE_MPI),y)
