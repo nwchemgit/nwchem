@@ -46,7 +46,7 @@ c
         write(*,*) "cons_init:no constraints found "//namespace
         write(*,*) "cons_init: constraints will be deactivated"
         call errquit("cons_init:no constraints found "//namespace,
-     >               ,0,RTDB_ERR) 
+     >               0,RTDB_ERR) 
         return
       end if
 c
