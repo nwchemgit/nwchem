@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.49 2000-05-02 18:50:48 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.50 2000-05-02 21:17:30 d3j191 Exp $
 c
       implicit none
 c
@@ -20,8 +20,8 @@ c
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
-      logical pre_align,pre_repeat,pre_transl
-      external pre_align,pre_repeat,pre_transl
+      logical pre_align,pre_repeat,pre_transl,pre_removw
+      external pre_align,pre_repeat,pre_transl,pre_removw
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       integer lfnslv,model,mdold,lfnxyz,lfnqqq
@@ -48,8 +48,9 @@ c
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
-      integer nxrep,nyrep,nzrep,itran,jtran
+      integer nxrep,nyrep,nzrep,itran,jtran,i,j
       real*8 xtran(3)
+      real*8 xr(3,2)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -802,6 +803,16 @@ c
       if(.not.pre_transl(itran,jtran,xtran,
      + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_transl failed',9999)
+      endif
+c
+c     remove solvent
+c     --------------
+c
+      if(card(1:6).eq.'removw') then
+      read(card(8:79),'(6f12.6)') ((xr(i,j),j=1,2),i=1,3)
+      if(.not.pre_removw(xr,dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
+     + call errquit('Error in pre_removw',0)
       endif
 c
 c     solvate solute

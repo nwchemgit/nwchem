@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.47 2000-04-26 20:32:20 d3j191 Exp $
+c $Id: pre_input.F,v 1.48 2000-05-02 21:17:30 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c
       real*8 rrep,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
+      real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -857,6 +858,39 @@ c
       call errquit('pre_input: translate',9999)
       endif
       goto 2
+      endif
+c
+c     remove solvent
+c     --------------
+c
+      if(inp_compare(.false.,'remove',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: translate',9999)
+      if(inp_compare(.false.,'solvent',item)) then
+      xrmin=0.0d0
+      xrmax=0.0d0
+      yrmin=0.0d0
+      yrmax=0.0d0
+      zrmin=0.0d0
+      zrmax=0.0d0
+      do 6855 i=1,3
+      if(inp_a(item)) then
+      if(inp_compare(.false.,'x',item)) then
+      if(.not.inp_f(xrmin)) call errquit('pre_input remove',0)
+      if(.not.inp_f(xrmax)) call errquit('pre_input remove',0)
+      endif
+      if(inp_compare(.false.,'y',item)) then
+      if(.not.inp_f(yrmin)) call errquit('pre_input remove',0)
+      if(.not.inp_f(yrmax)) call errquit('pre_input remove',0)
+      endif
+      if(inp_compare(.false.,'z',item)) then
+      if(.not.inp_f(zrmin)) call errquit('pre_input remove',0)
+      if(.not.inp_f(zrmax)) call errquit('pre_input remove',0)
+      endif
+      endif
+ 6855 continue
+      write(68,6856) xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
+ 6856 format('removw ',6f12.6)
+      endif
       endif
 c
 c     expand with
