@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.40 2003-01-08 20:07:47 d3j191 Exp $
+c $Id: cf_common.fh,v 1.41 2003-01-14 16:31:15 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -23,9 +23,6 @@ c
       parameter(mbs=2)
       parameter(mpe=10)
 c
-      integer npmax
-      parameter(npmax=2400)
-c
       integer mdynam,ldynam,mrestr,lrestr,lquant,mfixed,mfixcm
       integer lfixed,lfixcm
       parameter(mdynam=12)
@@ -41,15 +38,7 @@ c
       integer icnstr
       parameter(icnstr=1)
 c
-c     me     : global processor number
-c     np     : global number of processors
-c     npart  : number of partitions
-c     mypart : current processor's partition
-c     methis : partition processor number
-c     npthis : number of partition processors
-c     ipthis : global processor numbers in this partition
-c
-      integer irtdb,me,np,npart,mypart,methis,npthis,ipthis(npmax),
+      integer me,np,irtdb,
      + nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
      + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
      + mbt(mbs),mbp(mbs),mht(mbs),mhp(mbs),mdt(mbs),mdp(mbs),
@@ -57,8 +46,7 @@ c
      + mscr,ndxp,maxl,mgl,mgc,mgr,numb(mbs),numh(mbs),numd(mbs),
      + numi(mbs),numt(mbs),numx(mbs),mmult,nmul,nmult(4),mmuli
       logical lscr,llst,lqmd,lpress
-      common/cf_dim/irtdb,me,np,npart,mypart,methis,npthis,ipthis,
-     + nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
+      common/cf_dim/me,np,irtdb,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
      + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
      + numb,numh,numd,numi,numt,numx,mmult,nmul,nmult,mmuli,
      + mbt,mbp,mht,mhp,mdt,mdp,mit,mip,mtt,mtp,mxt,mxp,
@@ -86,8 +74,7 @@ c
      + i_pmew,l_pmew,i_pmes,l_pmes,
      + i_theta,l_theta,i_dtheta,l_dtheta,
      + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
-     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf,
-     + i_order,l_order
+     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf
       common/cf_ptr/i_vdw,l_vdw,i_mas,l_mas,i_nam,l_nam,i_num,l_num,
      + i_chg,l_chg,i_iwa,l_iwa,i_iwq,l_iwq,i_ias,l_ias,i_typ,l_typ,
      + i_ibnd,l_ibnd,i_bnd,l_bnd,i_rbnd,l_rbnd,
@@ -108,8 +95,7 @@ c
      + i_pmew,l_pmew,i_pmes,l_pmes,
      + i_theta,l_theta,i_dtheta,l_dtheta,
      + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
-     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf,
-     + i_order,l_order
+     + i_ypmf,l_ypmf,i_wpmf,l_wpmf,i_upmf,l_upmf
 c
       integer ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
@@ -117,7 +103,7 @@ c
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
       integer ipolt,niterw,niters,mshitw,mshits,noshak,nbias,mropt
       integer itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi
-      integer npgdec,norder,ngrx,ngry,ngrz
+      integer npgdec,ngrx,ngry,ngrz
       real*8 box(3),boxh(3),vlat(3,3),vlati(3,3),rshrt,rlong,rrest,
      + rqmmm,rshrt2,rlong2,rrest2,rqmmm2,deriv(24,2),ep2(3),ep3(3),
      + dfrdf,ewwl(2),zw(3,3,2),rffww,ewwr(2),drdf,ealpha,ewwq(2),rdfvol,
@@ -145,7 +131,7 @@ c
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,nbias,mropt,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,ipopt,islow,mdalgo,ntest,numpmf,npmfa,npmfi,npgdec,
-     + norder,ngrx,ngry,ngrz,
+     + ngrx,ngry,ngrz,
      + llww,lsww,llsw,lssw,llss,lsss,includ,
      + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lpmfcc,lanal,
      + ithint,ith,ipert2,ipert3,ip2,ip3

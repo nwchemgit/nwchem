@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.31 2003-01-08 19:45:17 d3j191 Exp $
+c $Id: md_finish.F,v 1.32 2003-01-14 16:31:09 d3j191 Exp $
 c
       implicit none
 c
@@ -86,10 +86,6 @@ c      call ma_summarize_allocated_blocks()
      + call errquit('Failed to deallocate memory for is',0)
       if(.not.ma_pop_stack(l_iw))
      + call errquit('Failed to deallocate memory for iw',0)
-      if(norder.gt.0) then
-      if(.not.ma_pop_stack(l_order))
-     + call errquit('Failed to deallocate memory for order',0)
-      endif
 c
       call prp_finish()
 c

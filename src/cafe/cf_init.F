@@ -1,34 +1,3 @@
-      subroutine cf_partition(nparti,myparti,npthisi,methisi,ipthisi)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "global.fh"
-c
-      integer nparti,myparti,npthisi,methisi
-      integer ipthisi(npthisi)
-c
-      integer i
-c
-c     me : global processor number
-c     np : total number of global processors
-c
-      me=ga_nodeid()
-      np=ga_nnodes()
-c
-      if(npthisi.gt.npmax)
-     +  call errquit('Dimension npmax too small',npthisi)
-c
-      npart=nparti
-      mypart=myparti
-      npthis=npthisi
-      methis=methisi
-      do 1 i=1,npthis
-      ipthis(i)=ipthisi(i)
-    1 continue
-c
-      return
-      end
       subroutine cf_start(irtdbi,logqmd,lfntop,filtop,ndistr,npmf,nipmf,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
@@ -36,81 +5,8 @@ c
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
-     + nbiasi,mropti,incl,ltwn,nordr)
-c $Id: cf_init.F,v 1.87 2003-01-08 20:07:47 d3j191 Exp $
-c
-c     in : irtdbi  : run-time database handle, integer
-c          logqmd  : quantum molecular dynamics, logical
-c          lfntop  : topology file logical file number, integer
-c          filtop  : topology file name, character
-c          ndistr  :
-c          npmf    :
-c          nipmf   :
-c          nwmi    :
-c          mwmi    :
-c          nwai    :
-c          mwai    :
-c          nsfi    :
-c          msfi    :
-c          nsmi    :
-c          msmi    :
-c          nsai    :
-c          msai    :
-c          mdalg   :
-c          npbt    :
-c          nbxt    :
-c          rcs     :
-c          rcl     :
-c          rqm     :
-c          bx      :
-c          jpme    :
-c          jorder  :
-c          jgx     :
-c          jgy     :
-c          jgz     :
-c          nodpme  :
-c          spmet   :
-c          step    :
-c          tols    :
-c          mshw    :
-c          mshs    :
-c          nosh    :
-c          iiqmmm  :
-c          iipolt  :
-c          iitmps  :
-c          iiprs   :
-c          iipopt  :
-c          rtmpx   :
-c          rprsx   :
-c          rtmpw   :
-c          rtmps   :
-c          rpres   :
-c          sclq    :
-c          fpmf    :
-c          iislow  :
-c          tempi   :
-c          tempwi  :
-c          tempsi  :
-c          compr   :
-c          ntyp    :
-c          idset   :
-c          ipset1  :
-c          ipset2  :
-c          issscl  :
-c          delta   :
-c          nfanal  :
-c          lpbc    :
-c          npgi    :
-c          fldi    :
-c          fvec    :
-c          ffrq    :
-c          npenrg  :
-c          ictrl   :
-c          nbiasi  :
-c          mropti  :
-c          incl    :
-c          ltw     :
-c
+     + nbiasi,mropti,incl,ltwn)
+c $Id: cf_init.F,v 1.88 2003-01-14 16:31:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -127,12 +23,15 @@ c
       real*8 rcs,rcl,rqm,compr,delta,fpmf
       integer iitmps,iiprss,iislow,iipopt
       integer nodpme,ntyp,idset,ipset1,ipset2
-      integer issscl,npenrg,nbiasi,mropti,nordr
+      integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc,ltwn
 c
       integer i,itemp(2)
       character*3 string
+c
+      me=ga_nodeid()
+      np=ga_nnodes()
 c
 c     dimensions initially set to zero indicating non-allocated
 c
@@ -196,10 +95,10 @@ c
       nbxtyp=nbxt
       npbtyp=npbt
 c
-      do 2 i=1,3
+      do 1 i=1,3
       box(i)=bx(i)
       boxh(i)=half*bx(i)
-    2 continue
+    1 continue
 c
       iqmmm=iiqmmm
       ipolt=iipolt
@@ -284,11 +183,11 @@ c
       ithint=ntype.eq.3
       ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
       ipert3=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
-      do 3 i=1,24
+      do 2 i=1,24
       ith(i)=.false.
       ip2(i)=.false.
       ip3(i)=.false.
-    3 continue
+    2 continue
 c
       if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
      + call errquit('Failed to allocate snam',me)
@@ -316,10 +215,10 @@ c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
       rewind(lfntop)
-    4 continue
+    5 continue
       read(lfntop,100,end=9999,err=9999) string
   100 format(a3)
-      if(string.ne.'noe') goto 4
+      if(string.ne.'noe') goto 5
       read(lfntop,1000) ndrs
  1000 format(i5)
       endif
@@ -346,9 +245,9 @@ c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
       rewind(lfntop)
-    5 continue
+    6 continue
       read(lfntop,100,end=9999,err=9999) string
-      if(string.ne.'pmf') goto 5
+      if(string.ne.'pmf') goto 6
       read(lfntop,2000) itemp
  2000 format(2i5)
       endif
@@ -378,40 +277,11 @@ c
       endif
       endif
 c
-c     atom order
-c
-      norder=0
-      if(me.eq.0) then
-      open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
-     + form='formatted',status='old',err=9999)
-      rewind(lfntop)
-   35 continue
-      read(lfntop,100,end=36,err=36) string
-      if(string.ne.'ord') goto 35
-      read(lfntop,3000) norder
- 3000 format(i5)
-      endif
-   36 continue
-      call ga_brdcst(mcf_76,norder,ma_sizeof(mt_int,1,mt_byte),0)
-      if(norder.gt.0) then
-      if(.not.ma_push_get(mt_int,norder,'order',l_order,i_order))
-     + call errquit('Failed to allocate order',0)
-      if(me.eq.0) then
-      read(lfntop,3001) (int_mb(i_order+i-1),i=1,norder)
- 3001 format(10i7)
-      endif
-      call ga_brdcst(mcf_77,int_mb(i_order),
-     + norder*ma_sizeof(mt_int,1,mt_byte),0)
-      endif
-      if(me.eq.0) then
-      close(unit=lfntop)
-      endif
-c
       if(ithint) then
-      do 6 i=1,24
+      do 3 i=1,24
       ip2(i)=ith(i)
       ip3(i)=ith(i)
-    6 continue
+    3 continue
       endif
 c
 c     particle-mesh Ewald initialization
@@ -451,30 +321,11 @@ c
       nbiasi=nbias
       mropt=mropti
       nipmf=npmfi
-      nordr=norder
 c
       return
 
  9999 continue
       call errquit('Distance restraints file not found',0)
-c
-      return
-      end
-      subroutine cf_copy_order(ndim,iarr)
-c
-      implicit none
-c
-#include "cf_common.fh"
-#include "mafdecls.fh"
-c
-      integer ndim
-      integer iarr(ndim)
-c
-      integer i
-c
-      do 1 i=1,ndim
-      iarr(i)=int_mb(i_order+i-1)
-    1 continue
 c
       return
       end
@@ -717,7 +568,6 @@ c
       ityp(ia,i)=0
       if(nam(ia,i)(6:6).eq.'Q') ityp(ia,i)=1
       if(nam(ia,i)(6:6).eq.'H') ityp(ia,i)=2
-      if(nam(ia,i)(6:6).eq.'L') ityp(ia,i)=3
     1 continue
       wgt(ia,4)=wgti(3)-wgti(2)
       wgt(ia,5)=wgti(2)

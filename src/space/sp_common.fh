@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.39 2003-01-08 20:01:32 d3j191 Exp $
+c $Id: sp_common.fh,v 1.40 2003-01-14 16:31:17 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -60,19 +60,14 @@ c
       parameter(lqsoft=64)
       parameter(lqhigh=128)
 c
-      integer npmax
-      parameter(npmax=2400)
-c
       integer madbox
       parameter(madbox=6)
 c
-      integer me,np,npart,mypart,methis,npthis,ipthis(npmax),
-     + mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
+      integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,msm,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,
      + nbxin,nbyin,nbzin,nred(3),nable,icntrl
-      common/sd_dim/me,np,npart,mypart,methis,npthis,ipthis,
-     + mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
+      common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
      + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode,mbxloc,mbblp,nserie,msm,
      + nbxin,nbyin,nbzin,nred,nable,icntrl

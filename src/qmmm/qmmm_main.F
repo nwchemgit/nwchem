@@ -1,8 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
-     + msa,nsa,isat,isgan,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp,
-     + norder,lorder)
+     + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.9 2003-01-08 20:04:18 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.10 2003-01-14 16:31:19 d3j191 Exp $
 c
       implicit none
 c
@@ -21,14 +20,13 @@ c
 c
       integer inrtdb
       integer mwm,nwm,mwa,nwa,msa,nsa,lnkatm,nbq
-      integer iwz(mwm),isat(msa),isgan(msa),isdt(msa),isq(msa),isz(msa)
+      integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
       real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
 c
       integer i,np,me,ioffq,ioffz,igeom
       integer i_ioff,l_ioff,i_c,l_c,i_q,l_q,i_t,l_t
       integer i_i,l_i,i_j,l_j,i_m,l_m
-      integer nzatom,nqatom,nzatomt,nqatomt,norder
-      integer lorder(norder)
+      integer nzatom,nqatom,nzatomt,nqatomt
       logical lesp
 c
       np=ga_nnodes()
@@ -85,8 +83,7 @@ c
 c
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
      + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
-     + mwm,nwm,mwa,msa,nsa,iwz,isat,isgan,isdt,isq,isz,xw,xs,
-     + norder,lorder)
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
 c
       if(.not.ma_pop_stack(l_j))
      + call errquit('qmmm: Failed to deallocate memory for j',me)
@@ -152,8 +149,7 @@ c
      + call errquit('qmmm: Failed to allocate memory for i',me)
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
      + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
-     + mwm,nwm,mwa,msa,nsa,iwz,isat,isgan,isdt,isq,isz,xw,xs,norder,
-     + lorder)
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
       if(.not.ma_pop_stack(l_j))
      + call errquit('qmmm: Failed to deallocate memory for j',me)
       if(.not.ma_pop_stack(l_i))
@@ -220,8 +216,7 @@ c
       return
       end
       subroutine qmmm_geometry(ndim,c,q,m,t,inum,ndx,ioffq,ioffz,
-     + mwm,nwm,mwa,msa,nsa,iwz,isat,isgan,isdt,isq,isz,xw,xs,norder,
-     + lorder)
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
 c
       implicit none
 c
@@ -241,10 +236,8 @@ c
       real*8 c(3,ndim),q(ndim),m(ndim)
       character*16 t(ndim)
       integer inum(ndim),ndx(ndim,2)
-      integer iwz(mwm),isat(msa),isgan(msa),isdt(msa),isq(msa),isz(msa)
+      integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      integer norder
-      integer lorder(norder)
 c
       integer i,j,ioq,ioz
       real*8 atc,bqc

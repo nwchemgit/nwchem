@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.157 2003-01-08 19:45:17 d3j191 Exp $
+c $Id: md_main.F,v 1.158 2003-01-14 16:31:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1998,10 +1998,9 @@ c
       call timer_start(55)
       if(lqmmm) then
       call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
-     + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+     + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
-     + linkatm,nobq,lesp,norder,int_mb(i_order))
+     + linkatm,nobq,lesp)
       uqmmm=uqmmm-uqmatm
       endif
       call timer_stop(55)
@@ -2099,7 +2098,7 @@ c
       logical lself,local,lpbcs
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
-      integer nbbl,i,j
+      integer nbbl
       integer itcom1,itforc,itcom2
 c
       local=.true.
@@ -2164,11 +2163,6 @@ c
       if(lpme.and.llong) then
       call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),isl(1,lsct1),nsaloc)
       endif
-c
-c      do 111 i=1,nwmloc
-c      if(iwl(i,lwgmn).eq.1) write(*,'(6f12.3)')
-c     + (fw(i,j,1,1),j=1,3),(fw(i,j,1,2),j=1,3)
-c  111 continue
 c
       return
       end
@@ -2544,7 +2538,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.157 2003-01-08 19:45:17 d3j191 Exp $
+c $Id: md_main.F,v 1.158 2003-01-14 16:31:09 d3j191 Exp $
 c
       implicit none
 c

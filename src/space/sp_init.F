@@ -1,34 +1,3 @@
-      subroutine sp_partition(nparti,myparti,npthisi,methisi,ipthisi)
-c
-      implicit none
-c
-#include "sp_common.fh"
-#include "global.fh"
-c
-      integer nparti,myparti,npthisi,methisi
-      integer ipthisi(npthisi)
-c
-      integer i
-c
-c     me : global processor number
-c     np : total number of global processors
-c
-      me=ga_nodeid()
-      np=ga_nnodes()
-c
-      if(npthisi.gt.npmax)
-     +  call errquit('Dimension npmax too small',npthisi)
-c
-      npart=nparti
-      mypart=myparti
-      npthis=npthisi
-      methis=methisi
-      do 1 i=1,npthis
-      ipthis(i)=ipthisi(i)
-    1 continue
-c
-      return
-      end
       subroutine sp_start(lfntop,filtop,lfnrst,filrst,
      + lsyn,filsyn,nsyn,
      + rsht,rlng,rinp,rsgmi,
@@ -39,7 +8,7 @@ c
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.114 2003-01-08 20:01:32 d3j191 Exp $
+c $Id: sp_init.F,v 1.115 2003-01-14 16:31:17 d3j191 Exp $
 c
       implicit none
 c
@@ -63,6 +32,9 @@ c
       character*80 prjct
 c
       integer i,j,l_f,i_f
+c
+      me=ga_nodeid()
+      np=ga_nnodes()
 c
       project=prjct
 c
@@ -284,7 +256,7 @@ c
 c
       mbbl=0
 c
-      if(methis.eq.0) then
+      if(me.eq.0) then
 c
       open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
      + status='old',form='formatted',err=9999)
@@ -320,7 +292,7 @@ c
 c
       bsize=max(rshort+half*rsgm,half*(rlong+half*rsgm),rbox)
 c
-      if(nbx*nby*nbz.lt.npthis) then
+      if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
       nby=int(box(2)/bsize)
       nbz=int(box(3)/bsize)
@@ -358,7 +330,7 @@ c
 c
       endif
 c
-      if(npthis.gt.1) then
+      if(np.gt.1) then
       itemp(1)=nwm
       itemp(2)=nwa
       itemp(3)=nsm
@@ -1186,16 +1158,16 @@ c     npz : number of processes in z direction
 c
 c     determine node dimensions
 c
-      if(npx*npy*npz.ne.npthis) then
+      if(npx*npy*npz.ne.np) then
       if(npx+npy+npz.gt.0) 
-     + call errquit('Specified npx*npy*npz ne npthis',0)
+     + call errquit('Specified npx*npy*npz ne np',0)
 c
       npt=0
-      do 1 i=1,npthis
-      do 2 j=i,npthis
-      do 3 k=j,npthis
+      do 1 i=1,np
+      do 2 j=i,np
+      do 3 k=j,np
       l=i*j*k
-      if(l.eq.npthis) then
+      if(l.eq.np) then
       if(l.eq.npt) then
       if(k.gt.npz) goto 3
       if(i+j+k.lt.npx+npy+npz) then
@@ -1205,7 +1177,7 @@ c
       endif
       goto 3
       else
-      npt=npthis
+      npt=np
       npx=i
       npy=j
       npz=k
@@ -1215,15 +1187,15 @@ c
     2 continue
     1 continue
 c
-      if(npx*npy*npz.ne.npthis) call errquit('nrnode: code error',0)
+      if(npx*npy*npz.ne.np) call errquit('nrnode: code error',0)
       endif
 c
-c     determine processor location of methis
+c     determine processor location of me
 c
       do 4 ix=1,npx
       do 5 iy=1,npy
       do 6 iz=1,npz
-      if(methis.eq.((iz-1)*npy+(iy-1))*npx+(ix-1)) then
+      if(me.eq.((iz-1)*npy+(iy-1))*npx+(ix-1)) then
       mex=ix-1
       mey=iy-1
       mez=iz-1
