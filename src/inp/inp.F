@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.20 1995-12-01 16:58:23 d3g681 Exp $
+C$Id: inp.F,v 1.21 1996-02-08 08:45:00 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -678,7 +678,7 @@ c
       implicit none
       character*(*) z
       logical ocase
-      character*256 tmp
+      character*1024 tmp
       integer length
       integer inp_strlen
       logical inp_read, inp_a, inp_compare

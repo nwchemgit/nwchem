@@ -42,7 +42,7 @@
      physical input line that begins with either asterisk (*), period
      (.) or EOF (ignoring case), and has only trailing white space.
 
-     There is a maximum input line width of 256 characters.
+     There is a maximum input line width of 1024 characters.
 
 
   logical function inp_i(integer i)
