@@ -1,0 +1,6 @@
+!$Id: paw_energy_ion_atom.fh,v 1.1 2003-02-11 21:11:30 marat Exp $
+!
+!
+!
+      double precision paw_energy_ion_atom
+      external paw_energy_ion_atom

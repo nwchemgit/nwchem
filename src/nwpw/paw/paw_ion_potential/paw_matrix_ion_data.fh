@@ -1,0 +1,9 @@
+*
+* $Id: paw_matrix_ion_data.fh,v 1.1 2003-02-11 21:11:30 marat Exp $
+*
+
+      integer paw_ion_matrix(4)
+      integer i_paw_ion_matrix(4)
+
+      common /paw_ion_matrix/ paw_ion_matrix,i_paw_ion_matrix
+
