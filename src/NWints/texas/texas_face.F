@@ -1,23 +1,12 @@
-      subroutine texas_set_accy(new_thresh1,new_thresh2)
+      subroutine texas_set_accy(pnl_thresh1)
       implicit none
 c
-      double precision new_thresh1 ! [input] accy threshold 1 for texas
-      double precision new_thresh2 ! [input] accy threshold 2 for texas
+      double precision pnl_thresh1 ! [input] accy threshold 1 for texas
 c
-c.... texas common block -- start
-      double precision title, etot, enuc, qx, qtot, time, tlast, par
-      common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
-c.... -- end
-c
-*.... Krys will remove this dependency
-      par(1) = new_thresh1
-      par(2) = new_thresh2
-      par(26) = new_thresh1
-c
-      call setup_thresh(new_thresh1)
+      call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.5 1995-12-20 22:45:32 d3e129 Exp $
+c $Id: texas_face.F,v 1.6 1995-12-20 23:53:48 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
