@@ -1,0 +1,21 @@
+# $Id: c60_ecp.nw,v 1.1 2003-04-11 01:19:11 edo Exp $
+echo
+
+title "c60 with ECPs"
+
+start c60
+
+geometry 
+  symmetry Ih
+  C -1.2287651 0.0 3.3143121   # bonds = 1.4445 and 1.3945 Angstrom
+end
+
+basis 
+  C library SBKJC_VDZ_ECP
+end
+
+ecp
+  C library SBKJC_VDZ_ECP
+end
+
+task scf
