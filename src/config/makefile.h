@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.277 1999-05-20 00:24:22 d3e129 Exp $
+# $Id: makefile.h,v 1.278 1999-05-25 17:06:06 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -123,12 +123,14 @@ endif
 
 
 include $(CNFDIR)/nwchem_config.h
+#
 
 # Finally, we can set the full list of interesting directories, which
 # is what most makefile will care about.
 
 NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 
+BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 ##########################################################
 #                                                        #
 # Should NOT need to modify below here unless porting to #
@@ -304,13 +306,20 @@ ifeq ($(TARGET),SOLARIS)
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
 # needed if python was compiled with gcc
+ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
 # needed here if using a python version with tk/tcl extensions 
 #     EXTRA_LIBS += -ltk8.0 -ltcl8.0 -lX11
+endif
 
-ifdef PURECOV
+#end of solaris
+endif
+
+ifeq ($(TARGET),PURESOLARIS)
 #
-# Sun running Solaris 2.4 or later
+# NOT TESTED RECENTLY
+#
+# Sun running Solaris 2.4 or later and if you want to use purecoverage tool you must
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
@@ -341,11 +350,7 @@ ifdef PURECOV
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
-#end of purecov
-endif
-
-
-#end of solaris
+#end of puresolaris
 endif
 
 
@@ -425,6 +430,15 @@ ifeq ($(TARGET),CRAY-T3E)
                LINK.f = f90 $(LDOPTIONS)
 
             CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+#
+# 
+ifeq ($(BUILDING_PYTHON),python)
+#** on the NERSC CRAY-T3E you need to:
+#**** % module load python
+#**** % module load tcltk
+      EXTRA_LIBS += -ltk -ltcl -lX11
+endif
+#
 
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
       EXPLICITF     = TRUE
@@ -1138,6 +1152,11 @@ endif
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
+
+ifeq ($(BUILDING_PYTHON),python)
+   INCPATH += -I/usr/include/python1.5
+endif
+
 endif
 
 ifeq ($(TARGET),FUJITSU_VPP)
@@ -1208,23 +1227,38 @@ ifeq ($(TARGET),PGLINUX)
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 endif
+
+
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
-
-ifdef PYTHONHOME
-ifdef PYTHONVERSION
-CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
-else
-errorpython:
+ifeq ($(BUILDING_PYTHON),python)
+ifndef PYTHONHOME
+errorpython1:
 	@echo "For python you must define both PYTHONHOME and PYTHONVERSION"
-	@echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1
+	@echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1"
 	@echo "      setenv PYTHONVERSION 1.5"
+	@echo " building_python <$(BUILDING_PYTHON)>"
+	@echo " subdirs <$(NWSUBDIRS)>"
 	@exit 1
 endif
+ifndef PYTHONVERSION
+errorpython2:
+	@echo "For python you must define both PYTHONHOME and PYTHONVERSION"
+	@echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1"
+	@echo "      setenv PYTHONVERSION 1.5"
+	@echo " building_python <$(BUILDING_PYTHON)>"
+	@echo " subdirs <$(NWSUBDIRS)>"
+	@exit 1
+endif
+CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
 endif
 
+###################################################################
+#  All machine dependent sections should be above here, otherwise #
+#  some of the definitions below will be 'lost'                   #
+###################################################################
 # MPI version requires tcgmsg-mpi library
 ifdef USE_MPI
    ifdef MPI_LIB
@@ -1234,6 +1268,8 @@ ifdef USE_MPI
 else
     CORE_LIBS += -ltcgmsg
 endif
+
+EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
 
 
@@ -1337,6 +1373,5 @@ else
 endif
 
 endif
-
 
 
