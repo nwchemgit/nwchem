@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.46 2002-03-28 22:05:16 windus Exp $
+$Id: INSTALL,v 1.47 2002-04-02 16:06:21 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -223,7 +223,7 @@ BASIC BUILD INSTRUCTIONS:
         rimp2       RI-MP2
         ccsd        CCSD & CCSD(T)
         property    Properties analysis
-        pspw        Build the plane wave pseudo-potential code
+        nwpw        Build the plane wave pseudo-potential code
         python      Build python interface to NWChem
         gapss       Build the periodic DFT code
         ---------------------------------------------------------
