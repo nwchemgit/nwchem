@@ -77,6 +77,7 @@ c
       integer mrg_d11
       integer mrg_d12
       integer mrg_d13
+      integer mrg_d15
       integer mrg_d21
       integer mrg_d22
       integer mrg_d23
@@ -251,6 +252,7 @@ c
       parameter (mrg_d11=msg_ftn_base-141) ! arg_sumloc
       parameter (mrg_d12=msg_ftn_base-142) ! arg_sumloc
       parameter (mrg_d13=msg_ftn_base-143) ! arg_sumloc
+      parameter (mrg_d15=msg_ftn_base-145) ! arg_cenmas
       parameter (mrg_d21=msg_ftn_base-151) ! arg_collct
       parameter (mrg_d22=msg_ftn_base-152) ! arg_collct
       parameter (mrg_d23=msg_ftn_base-153) ! arg_collct
