@@ -1,0 +1,91 @@
+#include "nwc_const.fh"
+#include "cbassym.fh"
+c
+c     Internal common/parameters for UCCSDT
+c
+c     Alpha=1, Beta=2
+c     Irreps numbered 0..7 so that ijsym=ieor(isym,jsym)
+c
+      integer basis
+      integer geom
+      integer g_movecs(2)       ! GAs holding the MO vectors
+      integer k_movecs(2)       ! MA offsets for the local MO vectors
+      integer l_movecs(2)       ! MA handles for the local MO vectors
+c
+      integer nsh               ! Total no. of AO shells
+      integer nbf               ! Total no. of AO basis functions
+      integer nmo               ! Total no. of MOs (core + occupied + virtual)
+      integer nact              ! Total no. of active MOS (occupied + virtual)
+      integer nir               ! No. of irreducible representations
+      integer nc(1:2)           ! No. of frozen orbitals (same for each spin)
+      integer no(1:2)           ! No. of active occupied for each spin.
+      integer nv(1:2)           ! Ditto for virtuals (no frozen virtuals)
+c
+c     Orbitals are numbered core+occupied+virtual sub-blocked by symmetry.
+c
+      integer nc_sym(0:7,1:2)   ! No. of core orbitals of each symmetry & spin
+      integer no_sym(0:7,1:2)   ! Ditto for active occupied
+      integer nv_sym(0:7,1:2)   ! Ditto for virtuals
+c
+      integer c_sym(1:2,0:7,1:2) ! First/last core orbital for given irrep/spin
+      integer o_sym(1:2,0:7,1:2) ! Ditto for active occupied
+      integer v_sym(1:2,0:7,1:2) ! Ditto for virtuals 
+c
+      integer map(nw_max_nbf,1:2) ! Map from semi-canonical to symmetry blocked
+c
+c     Super-blocking info for the triples
+c
+      integer asuper(2), bsuper(2), csuper(2) ! First/list orbital in super-block
+      integer asuper_spin, bsuper_spin, csuper_spin ! Spin of orbital blocks
+c
+c     Sub-blocking info for the triples
+c     1=first orbital, 2=last orbital, 3=symmetry of all orbitals in sub-block
+c
+      integer nablock, ablock(1:3,nw_max_nbf)
+      integer nbblock, bblock(1:3,nw_max_nbf)
+      integer ncblock, cblock(1:3,nw_max_nbf)
+      integer noblock(1:2), oblock(1:3,nw_max_nbf,1:2)
+      integer nvblock(1:2), vblock(1:3,nw_max_nbf,1:2) ! Ditto for virtuals
+      integer oblock_max, vblock_max ! Maximum size of any occ/virt block
+c
+c     1 = length of pointer array = #block triplets/quartets
+c     2 = MA index for pointer array
+c     3 = MA handle
+c     4 = length of actual global array
+c     5 = GA handle for actual array
+c     6,7,8,9 = dimensions of the pointer array
+c     .   (note that 1st dimension is unity except for lists 11, 12, 13)
+      integer listinfo(1:9,23)
+      character*10 listname(23)
+c
+      double precision eps(nw_max_nbf,1:2) ! Eigenvalues for each spin
+c
+      common /cuccsdt/ 
+c
+c     doubles
+c
+     $     eps,
+c
+c     integers
+c
+     $     basis, geom, g_movecs, k_movecs, l_movecs,
+     $     nsh, nbf, nmo, nact, nir, nc, no, nv, nc_sym, no_sym, nv_sym, 
+     $     c_sym, o_sym, v_sym, map, 
+c
+     $     asuper, bsuper, csuper, 
+     $     asuper_spin, bsuper_spin, csuper_spin,
+     $     nablock, nbblock, ncblock, noblock, nvblock,
+     $     ablock, bblock, cblock, oblock, vblock,
+     $     oblock_max, vblock_max, 
+     $     listinfo
+c
+c     characters
+c
+      common /ccuccsdt/ listname
+c
+c     This just temporary stuff for development
+c
+      integer k_moint, l_moint, k_most, l_most
+      common /cuccsdtfudge/ 
+     $     k_moint, l_moint, k_most, l_most
+c
