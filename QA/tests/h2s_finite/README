@@ -1,0 +1,10 @@
+
+This tests the finite nucleus integrals, which have been checked against
+results from DREAMS. There are four SCF tasks. The basis set is the cc-pVDZ
+set recontracted for a finite nucleus. The first task explicitly sets all
+nuclei to be finite. The second simply uses the default point nucleus
+model. The third sets finite by default. The fourth sets finite by default
+and overrides the default for the H atoms with a point nucleus. The first
+and third energies should be the same; the fourth is very close to the
+first and third; the second differs in the fourth decimal.
+
