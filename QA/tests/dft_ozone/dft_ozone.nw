@@ -18,6 +18,8 @@ basis noprint
   O library 6-31g*
 end
 
+dft; grid fine; convergence density 1d-6; end
+
 title; Ozone --- case t1: in-core DFT energy (LDA/LSD) 
 task dft energy
 title; Ozone --- case t2: in-core DFT analytic gradient (LDA/LSD) 
