@@ -534,11 +534,11 @@ c.      write (*,*) me,' in mxsync returned from sync0'
       call alogfg (ipid, AE_SYNC, 0, sdata, 0)
 #endif
 #ifdef TCGMSG
-	ijunk = 1000*mxnprc() + 1
-	call synch(ijunk)
-        mxsync = 0
+      ijunk = 25401
+      call synch(ijunk)
+      mxsync = 0
 #endif
-	mxsync = 0
+      mxsync = 0
       return
       end
 
@@ -688,11 +688,11 @@ c	external clock
       ENDIF
 #endif
 #ifdef PICL
-	call close0(1)
+      call close0(1)
 #endif
 #ifdef TCGMSG
-	call pend()
+      call pend()
 #endif
-	return
-	end	
+      return
+      end	
 
