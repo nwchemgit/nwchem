@@ -133,33 +133,34 @@ c$$$      call ga_zero(g_w_tot_b)
 
       subroutine mp2_w_hack(g_w, g_p, e, no, nv)
       implicit none
+#include "global.fh"
       integer g_w, g_p, no, nv
       double precision e(*)
 c
       integer i, j, a, b
       double precision p
 c
-      do i = 1, no
+      do i = 1+ga_nodeid(), no,ga_nnodes()
          do j = 1, no
             call ga_get(g_p, i, i, j, j, p, 1)
             call ga_acc(g_w, i, i, j, j, -p*e(i), 1, 1.0d0)
          enddo
       enddo
 c
-      do a = no+1, no+nv
+      do a = no+1+ga_nodeid(), no+nv,ga_nnodes()
          do i = 1, no
             call ga_get(g_p, a, a, i, i, p, 1)
             call ga_acc(g_w, a, a, i, i, -p*e(i), 1, 1.0d0)
          enddo
       enddo
-      do a = no+1, no+nv
+      do a = no+1+ga_nodeid(), no+nv,ga_nnodes()
          do i = 1, no
             call ga_get(g_p, i, i, a, a, p, 1)
             call ga_acc(g_w, i, i, a, a, -p*e(i), 1, 1.0d0)
          enddo
       enddo
 c$$$c
-      do a = no+1, no+nv
+      do a = no+1+ga_nodeid(), no+nv,ga_nnodes()
          do b = no+1, no+nv
             call ga_get(g_p, a, a, b, b, p, 1)
             call ga_acc(g_w, a, a, b, b, -p*e(a), 1, 1.0d0)
