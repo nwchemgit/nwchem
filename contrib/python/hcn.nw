@@ -1,0 +1,89 @@
+start
+
+# To run this you need the numeric and gnuplot
+# modules ... http://www.python.org
+
+
+# Use GNUplot to display the HCN <-> CNH reaction path
+# as it is computed.
+
+basis
+  c library 3-21g
+  n library 3-21g
+  h library 3-21g
+end
+
+print none
+
+scf; print none; end
+driver; print low; end
+
+python
+  import Gnuplot, time, signal, os
+  from math import *
+  from nwgeom import *
+
+  geometry = '''
+    geometry noprint
+      zmatrix
+        c 
+        n 1 cn
+        x 1 1. 2 90.
+        h 1 ch 3 90. 2 hcn
+      variables
+        cn  %f     # hcn=1.137 cnh=1.160
+        ch  %f     # hcn=1.050 cnh=2.143
+      constants
+        hcn %f     # hcn=180.  cnh=0.
+      end
+    end
+  '''
+
+  signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+  g = Gnuplot.Gnuplot()
+  g.xlabel('HCN angle')
+  g.ylabel('Energy')
+  g.title('HCN --- CNH isomerization barrier - Energy vs. HCN angle')
+  g('set data style linespoints')
+  g('set xrange [0:360]')
+  b = Gnuplot.Gnuplot()
+  b.xlabel('HCN angle')
+  b.ylabel('Bond')
+  b.title('HCN --- CNH isomerization barrier - Bond-lengths vs. HCN angle')
+  b('set data style linespoints')
+  b('set xrange [0:360]')
+
+  cn = 1.137
+  ch = 1.050
+  edata = []
+  cndata = []
+  chdata = []
+  nhdata = []
+  for i in range(-10,11):
+    try:
+      os.remove('/tmp/hcn.drv.hess')
+    except:
+      pass
+    angle = 18.0*i
+    input_parse(geometry % (cn, ch, angle))
+    (energy, gradient) = task_optimize('scf')
+    cn = bond_length(1,2)
+    nh = bond_length(2,4)
+    ch = bond_length(1,4)
+    print ' angle=%6.1f => cn=%5.3f ch=%5.3f nh=%5.3f energy=%10.6f ' % \
+                (angle,cn,ch,nh,energy)
+    angle = angle + 180
+    edata = edata + [[angle,energy]]
+    cndata = cndata + [[angle,cn]]
+    chdata = chdata + [[angle,ch]]
+    nhdata = nhdata + [[angle,nh]]
+    g.plot(edata)
+    b.plot(Gnuplot.Data(cndata,title='CN'),\
+           Gnuplot.Data(chdata,title='CH'),\
+           Gnuplot.Data(nhdata,title='NH'))
+  time.sleep(90)
+end
+
+task python
+
+  

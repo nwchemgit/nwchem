@@ -5,7 +5,6 @@ nwgeom.py - look in the file for (a little) more documentation
    Defines the procedures
 
    - coords = geom_get_coords(name)
-
    - geom_set_coords(name,coords)
      Get/set cartesian coordinates for named geometry
 
@@ -22,6 +21,31 @@ nwgeom.py - look in the file for (a little) more documentation
      the NWChem input string and calling the specified
      task(theory), returning results from each step in results.
 
+ts_search.nw
+     Example use of minimize1d from nwgeom.py
+
+scanexp.nw
+     Example use of scan_input from nwgeom.py
+
+hcn.nw
+     Scans the HCN -> CNH reaction path displaying bond lengths
+     and the energy as function of angle using Gnuplot.  You
+     need Python and the GNUplot and Numeric extensions
+     (www.python.org)
+
+nh3.nw
+     Scans the NH3 inversion path displaying bond lengths
+     and the energy as function of angle using Gnuplot.  You
+     need Python and the GNUplot and Numeric extensions
+     (www.python.org)
+     
+isdoesmic.nw
+     Uses python to compute a reaction energy as a function
+     of basis set.
+
+
+
+          
    
 
   

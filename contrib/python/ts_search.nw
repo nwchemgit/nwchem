@@ -1,0 +1,75 @@
+start
+
+title; Hydroxylamine <-> Ammonia-n-oxide transition state
+
+# Search for the hydroxylamine <-> ammonia-n-oxide
+# transition state.  Have already done the optimization for
+# the two products and know that the major coordinate is
+# 
+#               hydroxylamine     ammonia-n-oxide
+# hon = 3-2-1       103.3              26.96
+# oh  = 2-3           0.967             2.109
+#
+# The python program does a crude 1d search for the
+# saddle point and starts the transition state
+# search from that point.
+
+
+print none
+
+geometry autosym  # Hydroxylamine minimum
+  n  -0.239    -0.678     0.0
+  o   0.237     0.710     0.0
+  h  -0.579     1.226     0.0
+  h   0.179    -1.084     0.822
+  h   0.179    -1.084    -0.822
+end
+
+basis
+  n library 3-21g
+  h library 3-21g
+  o library 3-21g
+end
+
+scf; thresh 1e-6; end
+
+python
+  from nwgeom import *
+
+  def geometry(alpha):
+     hon = 103.3*(1.0-alpha) + 26.96*alpha
+     oh  = 0.967*(1.0-alpha) + 2.109*alpha
+     input_parse('''
+       geometry noprint adjust
+         zcoord
+           bond  1 3 nh
+           bond  1 2 no
+           bond  3 2   %f oh
+           angle 3 2 1 %f hon constant
+         end
+       end
+     ''' % (oh, hon))
+
+  def energy(alpha):
+     geometry(alpha)
+     (energy,gradient) = task_optimize('scf')
+     return -energy    # -ve sign since we seek the maximum
+
+  (alpha, e) = minimize1d(energy, 0.5, 0.8, 0.02, 10)
+
+end
+
+task python
+
+print low
+
+geometry adjust  # Remove constraints but use same coord system
+  zcoord
+    bond  1 3 nh
+    bond  1 2 no
+    bond  3 2 oh
+    angle 3 2 1 hon
+  end
+end
+
+task scf saddle

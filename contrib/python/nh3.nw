@@ -1,0 +1,105 @@
+start
+
+basis
+  n library 3-21g
+  h library 3-21g
+end
+
+driver
+  cvgopt 0.0001
+end
+
+print none
+
+python
+  import Gnuplot, time, signal
+  from math import *
+
+  geometry = '''
+    geometry noprint
+      zmatrix
+        x
+        n 1 1.
+        h 2 r 1 a
+        h 2 r 1 a 3  120.
+        h 2 r 1 a 3 -120.
+        variables
+          r  1.0
+        constants
+          a %f
+      end
+    end
+  '''
+
+  def geom_get_coords(name):
+    try:
+      actualname = rtdb_get(name)
+    except NWChemError:
+      actualname = name
+    coords = rtdb_get('geometry:' + actualname + ':coords')
+    units = rtdb_get('geometry:'+actualname+':user units')
+    if (units == 'a.u.'):
+      factor = 1.0
+    elif (units == 'angstroms'):
+      factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    else:
+      raise NWChemError,'unknown units'
+    i = 0
+    while (i < len(coords)):
+      coords[i] = coords[i] / factor
+      i = i + 1
+    return coords
+
+  def get_bond_length():
+    coords = geom_get_coords('geometry')
+    x = coords[6]-coords[3]
+    y = coords[7]-coords[4]
+    z = coords[8]-coords[5]
+    return sqrt(x*x + y*y + z*z)
+
+  signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+  g = Gnuplot.Gnuplot()
+  g.xlabel('Out-of-plane angle')
+  g.ylabel('Energy')
+  g.title('Inversion of NH3 - Energy vs. angle')
+  g('set data style linespoints')
+  g('set xrange [-25:25]')
+
+  gr = Gnuplot.Gnuplot()
+  gr.xlabel('Out-of-plane angle')
+  gr.ylabel('Bond')
+  gr.title('Inversion of NH3 - Bond-length vs. angle')
+  gr('set data style linespoints')
+  gr('set xrange [-25:25]')
+
+  # Generate points in a visually interesting order
+  points = range(-24,30,6) + range(21,-27,-6)
+  for angle in range(-23,25,3):
+    points = points + [angle+0.5]
+  for angle in range(22,-26,-3):
+    points = points + [angle+1.25]
+    points = points + [angle-0.25]
+
+  energies = []
+  bonds = []
+  for angle in points:
+    input_parse(geometry % (angle+90))
+    (energy,gradient) = task_optimize('scf')
+    r = get_bond_length()
+    print ' angle=%6.2f  bond=%6.3f energy=%10.6f ' % (angle,r,energy)
+    energies = energies + [[angle,energy]]
+    bonds = bonds + [[angle,r]]
+    energies.sort()
+    bonds.sort()
+    if (len(energies)> 1 and ga_nodeid() == 0): 
+      g.plot(energies)
+      gr.plot(bonds)
+
+  print ' Done!'
+
+  time.sleep(90)  # time to look at the plot
+end
+
+task python
+
+

@@ -1,0 +1,23 @@
+start scanexp
+
+# Scan the d exponent on oxygen through a range
+
+geometry units au noprint
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+print none
+
+python
+  from nwgeom import *
+  basis = 'basis noprint; H library 3-21g; O library 3-21g; O d; %f 1.0; end'
+
+  results = scan_input(basis, [0.5], [0.6], 20, 'scf', task_energy)
+
+  for (p,e) in results:
+     print ' Exponent = %7.4f  Energy = %10.6f ' % (p[0], e)
+end
+
+task python
