@@ -6029,7 +6029,6 @@ c
       integer ind, imin, jmin, nnew
       double precision toangs, r, dist, rmin
       parameter (toangs=0.52917724924d+00)
-      double precision dist
       ind(i,j) = k_m + (i-1) + (j-1)*nat
       dist(i,j)=sqrt((c(1,i)-c(1,j))**2+
      1     (c(2,i)-c(2,j))**2+
@@ -6102,18 +6101,18 @@ c
             nclus = nclus + 1
             ninclus = 0
             if (oprint) write(6,2) nclus
- 2          format(' cluster ',i3,':'$)
+ 2          format(' cluster ',i3,':',$)
             do i = j, nat
                if (int_mb(k_clus+i-1) .eq. 0) then
                   if (int_mb(ind(i,j)).ne.-1) then
                      ninclus = ninclus + 1
                      int_mb(k_clus+i-1) = nclus
                      if (oprint) write(6,3) i
- 3                   format(i5$)
+ 3                   format(i5,$)
                      if (ninclus .gt. 10) then
                         if (oprint) write(6,*)
                         if (oprint) write(6,22)
- 22                     format('             '$)
+ 22                     format('             ',$)
                         ninclus = 0
                      endif
                   endif
