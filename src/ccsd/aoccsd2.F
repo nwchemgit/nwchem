@@ -68,7 +68,7 @@ c gradient
       integer l_z1
       integer k_z1
       integer g_ct2,g_z2,g_hz2
-      integer i,av,ilo,ihi,jlo,jhi,offt2,nvp1
+      integer av,ilo,ihi,jlo,jhi,offt2,nvp1
       Logical Do_Z
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
