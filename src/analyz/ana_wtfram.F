@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.44 2001-11-30 15:19:39 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.45 2002-02-12 15:06:50 d3j191 Exp $
 c
       implicit none
 c
@@ -370,6 +370,13 @@ c
       ry(2)=x(jb,2)
       ry(3)=x(jb,3)
       call rotate(rv,rw,rotang,ry,rxj)
+      else
+      rxi(1)=x(ib,1)
+      rxi(2)=x(ib,2)
+      rxi(3)=x(ib,3)
+      rxj(1)=x(jb,1)
+      rxj(2)=x(jb,2)
+      rxj(3)=x(jb,3)
       endif
       xh(1)=0.5d0*(rxi(1)+rxj(1))
       xh(2)=0.5d0*(rxi(2)+rxj(2))
