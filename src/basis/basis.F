@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.54 1997-03-24 22:53:08 d3e129 Exp $
+c $Id: basis.F,v 1.55 1997-03-25 01:42:26 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3268,10 +3268,12 @@ c::local
       integer basis           ! lexical basis index
       integer nbtgs           ! number of basis set tags
       character*16 gstring    ! geometry or basis tags can only be *16
+      character*16 bsmatch    ! the matched basis set tag
       integer lgstring        ! length of gstring
-      integer ndigits         ! number of digits
+      integer lnotalpha
       integer i               ! loop counter
-      logical digits_found    ! did geometry tag have any digits
+      integer ind             ! dummy counter
+*rak:      logical digits_found    ! did geometry tag have any digits
       logical status          ! dummy storage
       character*2 g_sym       ! geometry tag -> symbol name
       character*16 g_elem     ! geometry tag -> element name
@@ -3279,12 +3281,22 @@ c::local
       character*2 b_sym       ! basis set tag -> symbol name
       character*16 b_elem     ! basis set tag -> element name
       integer b_atn           ! basis set tag -> atomic number
+      logical debug           ! true for extra output
 c
-      parameter (ndigits=10)  ! set number of digits
-      character*1 digits(ndigits)  ! array of character digits
+      integer na2z
+      parameter (na2z = 26)
+      character*1 a2z(na2z)
+      data a2z /'a','b','c','d','e','f','g','h','i','j',
+     &          'k','l','m','n','o','p','q','r','s','t',
+     &          'u','v','w','x','y','z'/
+*rak:      integer ndigits         ! number of digits
+*rak:      parameter (ndigits=10)  ! set number of digits
+*rak:      character*1 digits(ndigits)  ! array of character digits
+*rak:c      
+*rak:      data digits /'0','1','2','3','4','5','6','7','8','9'/
 c      
-      data digits /'0','1','2','3','4','5','6','7','8','9'/
-c      
+      debug = .true.
+c
       bas_match_tags = .false.
 c
       basis = basisin+basis_handle_offset
@@ -3299,59 +3311,100 @@ c          did the user specifically assign a tag ??
         if (gstring.eq.bs_tags(i,basis)) then
           bas_match_tags = .true.
           btag = i
-          return
+          bsmatch = bs_tags(i,basis)
+          goto 00009
         endif
       enddo
 c
-c... remove any digits from the geometry tag
-      digits_found = .false.
+c... Now check to see if the tag has non alpha chracters. 
+c...  the substring prior to the first non-alpha character is the users idea
+c...  of the "name" of the tag.  
+c
+      lnotalpha = lgstring+1
+      do i = 1,lgstring
+        if (.not.(inp_match(na2z,.false.,
+     &      gstring(lgstring:lgstring),a2z,ind))) then ! compare character to alpha (case-less test)
+          lnotalpha = ind
+          goto 00001
+        endif
+      enddo
 00001 continue
-      lgstring = inp_strlen(gstring)   !  get the length of the geometry tag
-      if (lgstring.eq.0) return        !  if empty string or string of digits return false
-      if (inp_match(ndigits,.false.,
-     &    gstring(lgstring:lgstring),digits,i)) then   ! compare last character to a digit
-        gstring(lgstring:lgstring) = ' '             ! if a digit remove it
-        digits_found = .true.
-        goto 00001
-      endif
+      do i = lnotalpha,lgstring
+        gstring(i:i) = ' '
+      enddo
+*rak:
+*rak:      digits_found = .false.
+*rak:00001 continue
+*rak:      lgstring = inp_strlen(gstring)   !  get the length of the geometry tag
+*rak:      if (lgstring.eq.0) return        !  if empty string or string of digits return false
+*rak:      if (inp_match(ndigits,.false.,
+*rak:     &    gstring(lgstring:lgstring),digits,i)) then   ! compare last character to a digit
+*rak:        gstring(lgstring:lgstring) = ' '             ! if a digit remove it
+*rak:        digits_found = .true.
+*rak:        goto 00001
+*rak:      endif
+*rak:c
+*rak:c if no digits then enforce case matching between say "H" and "h" by a false return      
+*rak:c
+*rak:      if (.not.digits_found) return
+*rak:c
+*rak:c... first match numberless geometry tag to full basis tag list
 c
-c if no digits then enforce case matching between say "H" and "h" by a false return      
-c
-      if (.not.digits_found) return
-c
-c... first match numberless geometry tag to full basis tag list
+c... match user substring to basis set tags
       do i = 1, nbtgs
         if (gstring.eq.bs_tags(i,basis)) then
           bas_match_tags = .true.
           btag = i
-          return
+          bsmatch = bs_tags(i,basis)
+          goto 00009
         endif
       enddo
-c... now get symbol names for each tag and match those
+c
+c... now get symbol and element names for each tag and match those
+c    geometry tag is based on users substring
+c    basis set tag is based on user input to the basis object
+c
       status = geom_tag_to_element(gstring,g_sym,g_elem,g_atn)
       if (.not.status)then
         if (.not.(g_sym.eq.'bq')) then
           write(luout,*)'geometry tag',gstring,
-     &          ' could not be matched to an element symbol'
+     &        ' could not be matched to an element symbol'
           call errquit('bas_match_tags: fatal error ',911)
         endif
       endif
       do i = 1, nbtgs
         status =
      &      geom_tag_to_element(bs_tags(i,basis),b_sym,b_elem,b_atn)
-        if (.not.status)then
+        if (.not.status) then
           if (.not.(b_sym.eq.'bq')) then
-            write(luout,*)'basis tag',gstring,
+            write(luout,*)'basis tag',bs_tags(i,basis),
      &          ' could not be matched to an element symbol'
             call errquit('bas_match_tags: fatal error ',911)
           endif
         endif
-        if (g_sym.eq.b_sym) then
+        if (g_elem.eq.b_elem) then
           bas_match_tags = .true.
           btag = i
-          return
+          bsmatch = bs_tags(i,basis)
+          goto 00009
+        else if (g_sym.eq.b_sym) then
+          bas_match_tags = .true.
+          btag = i
+          bsmatch = bs_tags(i,basis)
+          goto 00009
         endif
       enddo
+      write(luout,*)'bas_match_tags:debug: no match for tag <',
+     &    tag_from_geom,'>'
+      return  ! no match
+c
+00009 continue
+      if (debug) then
+        write(luout,10000)tag_from_geom,bsmatch
+      endif
+      return
+10000 format('bas_match_tags:debug: geometry tag ',a16,
+     &    ' matched basis set tag ',a16)
       end
       logical function bas_cando_mpoles(basis)
       implicit none
