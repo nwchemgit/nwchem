@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.37 1999-12-22 20:55:55 d3j191 Exp $
+c $Id: sp_main.F,v 1.38 1999-12-22 21:34:13 d3j191 Exp $
 c
       implicit none
 c
@@ -138,7 +138,7 @@ c
       miwl(j)=max(miwl(j),iwl(i,j))
    10 continue
     9 continue
-      miwl(lwbox)=mbox
+      miwl(lwbox)=nbtot
       miwl(lwnod)=np
 c
       call ga_dgop(msp_25,miwl,miw2,'max')
