@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.158 2003-02-14 23:04:17 edo Exp $
+# $Id: GNUmakefile,v 1.159 2003-02-19 20:22:49 edo Exp $
 
 include ../config/makefile.h
 
@@ -162,7 +162,7 @@ endif
               util_erf.o  \
               ga_it2.o \
               bead_list.o \
-              ma_print.o freeze_input.o \
+              ma_print.o freeze_input.o ga_extra.o \
               $(EXTRA_OBJ)
 
 #nxtval_ga.o 

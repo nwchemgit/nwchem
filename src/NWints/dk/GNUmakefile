@@ -1,7 +1,7 @@
 
-# $Id: GNUmakefile,v 1.13 2002-04-26 22:15:43 bert Exp $
+# $Id: GNUmakefile,v 1.14 2003-02-19 20:23:05 edo Exp $
 
-     OBJ_OPTIMIZE = bas_create_uncont.o ga_extra.o int_1edk_ga.o \
+     OBJ_OPTIMIZE = bas_create_uncont.o int_1edk_ga.o \
                     dk_input.o dkdiv_energy.o int_pxvp_ga.o \
                     rel_input.o int_1edkso_ga.o
 
