@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.18 2000-03-24 17:44:02 d3j191 Exp $
+c $Id: ana_task.F,v 1.19 2000-03-24 17:53:07 d3j191 Exp $
 c
       implicit none
 c
@@ -70,9 +70,6 @@ c
       ndata=0
       time=0.0d0
       timr=0.0d0
-c
-      valmin=1.0d0
-      valmax=-1.0d0
 c
       ifr=1
 c
@@ -633,6 +630,10 @@ c
       nave=0
       nread=0
       nframe=0
+c
+      valmin=1.0d0
+      valmax=-1.0d0
+c
     6 continue
       if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
       nread=nread+1
