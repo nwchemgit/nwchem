@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.16 2002-11-14 02:05:52 sohirata Exp $
+c $Id: tce_init.F,v 1.17 2002-11-16 06:27:52 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -28,21 +28,26 @@ c
       character*255 scftype    ! Type of SCF
       double precision xfac(numfunc)    ! Prefactors for X functionals
       double precision cfac(numfunc)    ! Prefactors for C functionals
-c
+      character*4 hftype
       character*3 onoff1,onoff2
-      integer i,n
+      integer i,j,n
+      integer nclosed, nopen
       double precision a
       character*60 ctype
       integer itol2e
       logical nodezero
       logical dummy
-c
+      logical rohf
       logical int_normalize
       external int_normalize
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      character*8 multchar(8)
+      data multchar/'singlet ','doublet ','triplet ','quartet ',
+     1              'quintet ','sextet  ','septet  ','octet   '/
+c
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -91,28 +96,63 @@ c     ----------
 c     MO vectors
 c     ----------
 c
-      if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
-     1  call errquit('tce_init: no final MO found',0)
+      if (reference.eq.0) then
+        if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
+     1    call errquit('tce_init: no final MO found',0)
+      else if (reference.eq.1) then
+        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
+     1    call errquit('tce_init: no final MO found',0)
+      endif
 c
 c     ------------------------------------------------------
 c     Number of electrons and orbitals and spin multiplicity
 c     ------------------------------------------------------
 c
-      if (.not.rtdb_get(rtdb,'dft:ipol',mt_int,1,ipol))
-     1  call errquit('tce_init: failed to read ipol',0)
-      if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
-     1  call errquit('tce_init: failed to read nocc',0)
-      if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
-     1  call errquit('tce_init: failed to read mult',0)
+      if (reference.eq.0) then
+        rohf = .false.
+        if (.not.rtdb_get(rtdb,'dft:ipol',mt_int,1,ipol))
+     1    call errquit('tce_init: failed to read ipol',0)
+        if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
+     1    call errquit('tce_init: failed to read nocc',0)
+        if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
+     1    call errquit('tce_init: failed to read mult',0)
+      else if (reference.eq.1) then
+        if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
+     1    call errquit('tce_init: failed to read nclosed',0)
+        if (.not.rtdb_get(rtdb,'scf:nopen',mt_int,1,nopen))
+     1    call errquit('tce_init: failed to read nopen',0)
+        nocc(1) = nclosed + nopen
+        nocc(2) = nclosed
+        mult = nopen
+        if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
+     1    call errquit('tce_init: failed to read scftype',0)
+        if (hftype.eq.'RHF') then
+          rohf = .false.
+          ipol = 1
+        else if (hftype.eq.'UHF') then
+          rohf = .false.
+          ipol = 2
+        else if(hftype.eq.'ROHF')then
+          rohf = .true.
+          ipol = 2
+        endif
+      endif
 c
 c     --------------
 c     XC functionals
 c     --------------
 c
-      if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
-     1  call errquit('tce_init: failed to read xfac',0)
-      if (.not.rtdb_get(rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
-     1  call errquit('tce_init: failed to read cfac',0)
+      if (reference.eq.0) then
+        if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
+     1    call errquit('tce_init: failed to read xfac',0)
+        if (.not.rtdb_get(rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
+     1    call errquit('tce_init: failed to read cfac',0)
+      else if (reference.eq.1) then
+        do i = 1,numfunc
+          xfac(i) = 0.0d0
+          cfac(i) = 0.0d0
+        enddo
+      endif
 c
 c     ---------
 c     TCE input
@@ -145,23 +185,30 @@ c     ----------------------
 c     2-e integral tolerance
 c     ----------------------
 c
-      if (.not.rtdb_get(rtdb,'dft:itol2e',mt_int,1,itol2e))
-     1  call errquit('tce_init: failed to read itol2e',0)
-      tol2e=10.0d0**(-itol2e)
+      if (reference.eq.0) then
+        if (.not.rtdb_get(rtdb,'dft:itol2e',mt_int,1,itol2e))
+     1    call errquit('tce_init: failed to read itol2e',0)
+        tol2e=10.0d0**(-itol2e)
+      else if (reference.eq.1) then
+        if (.not.rtdb_get(rtdb,'scf:tol2e',mt_dbl,1,tol2e))
+     1    tol2e = 1.0d-10
+      endif
 c
 c     --------------------------
 c     Determine calculation type
 c     --------------------------
 c
-      a=0.0d0
-      do n=2,numfunc
-        a=a+dabs(xfac(n))
-      enddo
-      do n=1,numfunc
-        a=a+dabs(cfac(n))
-      enddo
-      if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
-     1  call errquit('tce_init: non-HF reference not implemented',0)
+      if (reference.eq.0) then
+        a=0.0d0
+        do n=2,numfunc
+          a=a+dabs(xfac(n))
+        enddo
+        do n=1,numfunc
+          a=a+dabs(cfac(n))
+        enddo
+        if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
+     1    write(LuOut,9500)
+      endif
       if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
       else if (model.eq.'lccd') then
@@ -175,19 +222,19 @@ c
       else if (model.eq.'ccsdtq') then
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
       else if (model.eq.'qcisd') then
-        ctype='Quadratic CI singles & doubles'
+        ctype='Quadratic configuration interaction singles & doubles'
       else if (model.eq.'cisd') then
-        ctype='CI singles & doubles'
+        ctype='Configuration interaction singles & doubles'
       else if (model.eq.'cisdt') then
-        ctype='CI singles, doubles, & triples'
+        ctype='Configuration interaction singles, doubles, & triples'
       else if (model.eq.'cisdtq') then
-        ctype='CI singles, double, triples, & quadruples'
+        ctype='Configuration interaction singles through quadruples'
       else if (model.eq.'mbpt2') then
-        ctype='Second-order many-body perturbation theory'
+        ctype='Second-order tensor many-body perturbation theory'
       else if (model.eq.'mbpt3') then
-        ctype='Third-order many-body perturbation theory'
+        ctype='Third-order tensor many-body perturbation theory'
       else if (model.eq.'mbpt4') then
-        ctype='Fourth-order many-body perturbation theory'
+        ctype='Fourth-order tensor many-body perturbation theory'
       else
         call errquit('tce_init: unknown theory',0)
       endif
@@ -212,15 +259,21 @@ c
      2  ('tce_init: failed to read MO file header',0)
       if (nbf.ne.nbf_verify) call errquit
      1  ('tce_init: corrupted MO vectors',0)
-      if (ipol.ne.ipol_verify) call errquit
-     1  ('tce_init: corrupted MO vectors',0)
+      if (rohf) nmo(2) = nmo(1)
       do i=1,ipol
         g_movecs(i)=ga_create_atom_blocked
      1    (geom,ao_bas_han,'MO eigenvectors')
-        if (.not.movecs_read(movecs_out,i,
-     1    dbl_mb(k_occ(i)),
-     2    dbl_mb(k_evl(i)),g_movecs(i))) call errquit
-     3    ('tce_init: failed to read MO vectors',0)
+        if (rohf.and.(i.eq.2)) then
+          call ga_copy(g_movecs(1),g_movecs(2))
+          do j = 1,nbf
+            dbl_mb(k_evl(2)+j-1) = dbl_mb(k_evl(1)+j-1)
+            dbl_mb(k_occ(2)+j-1) = dbl_mb(k_occ(1)+j-1)
+          enddo
+        else
+          if (.not.movecs_read(movecs_out,i,
+     1      dbl_mb(k_occ(i)),dbl_mb(k_evl(i)),g_movecs(i)))
+     2      call errquit('tce_init: failed to read MO vectors',0)
+        endif
         if (util_print('MO vectors',print_debug)) then
           if (nodezero) call ma_print(dbl_mb(k_evl(i)),
      1      nbf,1,'Eigenvalues')
@@ -229,9 +282,15 @@ c
           call ga_print(g_movecs(i))
         endif
       enddo
-      if (.not.rtdb_get(rtdb,'dft:alpha irreps',mt_int,
-     1  nbf,int_mb(k_irs(1))))
-     2  call errquit('tce_init: no alpha irreps found',0)
+      if (reference.eq.0) then
+        if (.not.rtdb_get(rtdb,'dft:alpha irreps',mt_int,
+     1    nbf,int_mb(k_irs(1))))
+     2    call errquit('tce_init: no alpha irreps found',0)
+      else if (reference.eq.1) then
+        if (.not.rtdb_get(rtdb,'scf:alpha irreps',mt_int,
+     1    nbf,int_mb(k_irs(1))))
+     2    call errquit('tce_init: no alpha irreps found',1)
+      endif
       do i=1,nbf
         if (oadapt) then
           int_mb(k_irs(1)+i-1) = int_mb(k_irs(1)+i-1) - 1
@@ -240,9 +299,21 @@ c
         endif
       enddo
       if (ipol.eq.2) then
-        if (.not.rtdb_get(rtdb,'dft:beta irreps',mt_int,
-     1    nbf,int_mb(k_irs(2))))
-     2    call errquit('tce_init: no beta irreps found',0)
+        if (reference.eq.0) then
+          if (.not.rtdb_get(rtdb,'dft:beta irreps',mt_int,
+     1      nbf,int_mb(k_irs(2))))
+     2      call errquit('tce_init: no beta irreps found',0)
+        else if (reference.eq.1) then
+          if (rohf) then
+            do j = 1,nbf
+              int_mb(k_irs(2)+j-1) = int_mb(k_irs(1)+j-1) + 1
+            enddo
+          else
+            if (.not.rtdb_get(rtdb,'scf:beta irreps',mt_int,
+     1        nbf,int_mb(k_irs(2))))
+     2        call errquit('tce_init: no beta irreps found',1)
+          endif
+        endif
         do i=1,nbf
           if (oadapt) then
             int_mb(k_irs(2)+i-1) = int_mb(k_irs(2)+i-1) - 1
@@ -290,10 +361,22 @@ c
      1    (LuOut,'General Information',20,.true.)
         write(LuOut,9200) ga_nnodes()
         if (ipol.eq.1) then
-          write(LuOut,9010)
+          if (reference.eq.0) then
+            write(LuOut,9010) 'Restricted Kohn-Sham'
+          else if (reference.eq.1) then
+            write(LuOut,9010) 'Restricted Hartree-Fock'
+          endif
           write(LuOut,9030) nocc(1)*2,nocc(1),nocc(1)
         else if (ipol.eq.2) then
-          write(LuOut,9020)
+          if (reference.eq.0) then
+            write(LuOut,9010) 'Unrestricted Kohn-Sham'
+          else if (reference.eq.1) then
+            if (rohf) then
+              write(LuOut,9010) 'Restricted open-shell Hartree-Fock'
+            else
+              write(LuOut,9010) 'Unrestricted Hartree-Fock'
+            endif
+          endif
           write(LuOut,9030) nocc(1)+nocc(2),nocc(1),nocc(2)
         endif
         if (ipol.eq.1) then
@@ -311,7 +394,7 @@ c
         else if (ipol.eq.2) then
           write(LuOut,9440) nfv(1),nfv(2)
         endif
-        write(LuOut,9420) mult
+        write(LuOut,9420) multchar(mult+1)
         write(LuOut,9050) nbf
         write(LuOut,9060) nshells
         if (oskel) then
@@ -358,8 +441,7 @@ c
       call util_flush(LuOut)
  9200 format(3x,'        Number of nodes :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
- 9010 format(3x,'      Wavefunction type : Restricted')
- 9020 format(3x,'      Wavefunction type : Unrestricted')
+ 9010 format(3x,'      Wavefunction type : ',a)
  9030 format(3x,'       No. of electrons :',2x,i4,/,
      1       3x,'        Alpha electrons :',2x,i4,/,
      2       3x,'         Beta electrons :',2x,i4)
@@ -370,7 +452,7 @@ c
      1       3x,'      Beta frozen cores :',2x,i4)
  9440 format(3x,'  Alpha frozen virtuals :',2x,i4,/,
      1       3x,'   Beta frozen virtuals :',2x,i4)
- 9420 format(3x,'      Spin multiplicity :',2x,i4)
+ 9420 format(3x,'      Spin multiplicity : ',a)
  9040 format(3x,'     Use of symmetry is : ',a3,/,
      1       3x,'   Symmetry adaption is : ',a3)
  9050 format(3x,' Number of AO functions :',2x,i4)
@@ -381,6 +463,8 @@ c
  9140 format(3x,'             I/O scheme : ',a)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
+ 9500 format(/,2x,
+     1  '!! WARNING !! A non-HF reference wave function')
 c
 c     ------
 c     Return

@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.9 2002-11-07 19:02:21 sohirata Exp $
+c $Id: tce_tile.F,v 1.10 2002-11-16 06:27:52 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -165,15 +165,15 @@ c
       if (.not.ma_push_get(mt_int,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted spins",
      2  l_spin_sorted,k_spin_sorted))
-     3  call errquit("tce_tile: MA problem",0)
+     3  call errquit("tce_tile: MA problem",1)
       if (.not.ma_push_get(mt_int,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted irs",
      2  l_irs_sorted,k_irs_sorted))
-     3  call errquit("tce_tile: MA problem",0)
+     3  call errquit("tce_tile: MA problem",2)
       if (.not.ma_push_get(mt_dbl,nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol),"sorted evl",
      2  l_evl_sorted,k_evl_sorted))
-     3  call errquit("tce_tile: MA problem",0)
+     3  call errquit("tce_tile: MA problem",3)
       nirreps = sym_number_ops(geom) + 1
       if (nodezero.and.util_print('tile',print_debug)) then
         write(LuOut,*) "Number of irreps = ",nirreps
@@ -318,13 +318,13 @@ c
 c     Allocate tiling related arrays
 c
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Spin of blocks",
-     1  l_spin,k_spin)) call errquit("tce_tile: MA problem",0)
+     1  l_spin,k_spin)) call errquit("tce_tile: MA problem",4)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Symmetry of blocks",
-     1  l_sym,k_sym)) call errquit("tce_tile: MA problem",1)
+     1  l_sym,k_sym)) call errquit("tce_tile: MA problem",5)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Range of blocks",
-     1  l_range,k_range)) call errquit("tce_tile: MA problem",2)
+     1  l_range,k_range)) call errquit("tce_tile: MA problem",6)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Offset of blocks",
-     1  l_offset,k_offset)) call errquit("tce_tile: MA problem",3)
+     1  l_offset,k_offset)) call errquit("tce_tile: MA problem",7)
       j = 0
       do i = 1,noa+nob+nva+nvb
         int_mb(k_spin+i-1)=spin_tmp(i)

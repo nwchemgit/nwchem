@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.5 2002-11-16 06:27:52 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -50,8 +50,8 @@ c     Transformation
 c     ==============
 c
       sf_offset=0
-      do g1b = 1,noa+nob+nva+nvb
-        do g2b = 1,noa+nob+nva+nvb
+      do g2b = 1,noa+nob+nva+nvb
+        do g1b = 1,noa+nob+nva+nvb
           if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
             if (ieor(int_mb(k_sym+g1b-1),int_mb(k_sym+g2b-1))
      1        .eq. 0) then
@@ -74,6 +74,9 @@ c
      1          dbl_mb(k_work),range_g1,
      2          dbl_mb(k_movecs_sorted+offset_g2),nbf,
      3          0.0d0,dbl_mb(k_mo1e+sf_offset),range_g1)
+              if (nodezero.and.util_print('mo1e',print_debug))
+     1          call ma_print(dbl_mb(k_mo1e+sf_offset),
+     2          range_g1,range_g2,'Spin symmetry block of Fock')
               if (.not.ma_pop_stack(l_work))
      1          call errquit('tce_mo1e: MA problem',5)
               sf_offset = sf_offset + range_g1 * range_g2
