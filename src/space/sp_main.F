@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.86 2004-01-31 00:38:31 d3j191 Exp $
+c $Id: sp_main.F,v 1.87 2004-01-31 16:08:14 d3j191 Exp $
 c
       implicit none
 c
@@ -2721,7 +2721,7 @@ c
  8001 format('Box list obtained from node',i5,' is',/,(20i5))
       call util_flush(lfndbg)
       endif
-      call md_abort('Remote node box not found',0)
+      call md_abort('Remote processor cell not found (0) ',0)
       endif
       jwfr=jpl(ndx,2)
       jwto=jpl(ndx,3)
@@ -2830,7 +2830,8 @@ c
       do 3 i=1,jpl(1,1)
       if(jpl(30+i,1).eq.jbox) ndx=30+i
     3 continue
-      if(ndx.eq.0) call md_abort('Remote node box not found',0)
+      if(ndx.eq.0)
+     + call md_abort('Remote processor cell not found (2) ',0)
       jwfr=jpl(ndx,2)
       jwto=jpl(ndx,3)
       jsfr=jpl(ndx,4)
@@ -2943,7 +2944,8 @@ c
       do 3 i=1,jpl(1,1)
       if(jpl(30+i,1).eq.jbox) ndx=30+i
     3 continue
-      if(ndx.eq.0) call md_abort('Remote node box not found',0)
+      if(ndx.eq.0)
+     + call md_abort('Remote processor cell not found (3) ',0)
 c
       jwfr=lbbl(ibbl,11)
       jwto=lbbl(ibbl,12)
