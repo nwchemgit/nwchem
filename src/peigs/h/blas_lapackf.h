@@ -291,8 +291,7 @@ peigs
 #define resid_                  RESID
 #define xstop_                  XSTOP
 #define dgetavec_               DGETAVEC
-#define dlasq1_                 SLASQ1
-#define DLASQ1			SLASQ1
+#define dlasq1_                 DLASQ1
 #define dshellsort2_            DSHELLSORT2
 #define dshellsort_             DSHELLSORT
 #define maxd_                   MAXD
