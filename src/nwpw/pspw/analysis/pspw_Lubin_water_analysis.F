@@ -84,7 +84,7 @@
       real*8 cdx2,cdy2,cdz2
       real*8 cdx3,cdy3,cdz3
       real*8 tmass,tcharge,ncharge
-      real*8 x
+      real*8 x,dist
       real*8 dv
       real*8 amass(3),zv(3),dipole(3)
 
@@ -218,6 +218,9 @@
          WRITE(*,135)
          WRITE(*,140) cdx3,cdy3,cdz3
          WRITE(*,145) qGx, qGy, qGz
+         dist = (cdx3-qGx)**2 + (cdy3-qGy)**2 + (cdz3-qGz)**2
+         dist = dsqrt(dist)
+         write(*,146) dist
 
 
 *        ***** calculate dipole relative to CM ****
@@ -268,6 +271,7 @@ c        ncharge   = 8
   135 format(/'Center of charge:')
   140 format('water density','  (',F10.4,',',F10.4,',',F10.4,' )')
   145 format('water ions   ','  (',F10.4,',',F10.4,',',F10.4,' )')
+  146 format('charge distance:',F10.4)
 
  1230 FORMAT(/'Water Dipole:')
  1231 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
