@@ -78,3 +78,4 @@ Aug 18 1998	 Repair memory leak in pre_charge
 Aug 24 1998	 Add OH charge separation
 		 Resolve varying number arguments
 		 Single quote strings
+Aug 26 1998	 Bug fix in pre_rdrst.F

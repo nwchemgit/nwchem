@@ -3,7 +3,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.3 1998-07-15 21:18:11 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.4 1998-08-26 23:20:30 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
       integer iwmr(mwm),iwmrc(mwmc),isar(msa),inoe(2,mnoe)
 c
-      integer i,j,k,length,kinsep,nprev,idummy
+      integer i,j,k,length,kinsep,nprev,nbxp,nbyp,nbzp
       character*10 rstdat,rsttim
       real*8 rdummy
 c
@@ -77,11 +77,12 @@ c
       endif
 c
       if(nprev.gt.0) then
-      read(lfnrst,1016) idummy
- 1016 format(i5)
-      read(lfnrst,1015) rdummy
-      read(lfnrst,1015) rdummy
-      read(lfnrst,1015) rdummy  
+      read(lfnrst,1016) nbxp,nbyp,nbzp
+ 1016 format(3i5)
+      read(lfnrst,1017) (rdummy,i=1,nbxp)
+      read(lfnrst,1017) (rdummy,i=1,nbyp)
+      read(lfnrst,1017) (rdummy,i=1,nbzp)
+ 1017 format(4e20.12)  
       endif
 c
 c     read coordinates
