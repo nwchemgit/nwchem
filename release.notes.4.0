@@ -69,6 +69,7 @@ Top level directives:
   o BUG FIX: Task shell is now working under Linux.
   o BUG FIX: The words start and restart in the TITLE directive no longer cause
     problems.
+  o BUG FIX: Linux versions no longer give negative time information.
 
 Initial orbital Guess: 
 
@@ -112,7 +113,8 @@ DFT:
 
 SCF: 
 
-  o 
+  o CHANGE: New line search for optimizing the wavefunction.  Does not
+    abort when the number of steps is exhausted.
 
 Driver: 
 
@@ -139,7 +141,7 @@ MP2:
 
 Hessian and Frequencies: 
 
-  o 
+  o New VIB input group to allow for hessian reuse.
 
 ESP: 
 
@@ -151,7 +153,7 @@ Prepare module:
 
 MD: 
 
-  o 
+  o BUG FIX: The .nwchemrc file now allows for extraneous white spaces.
 
 PSPW:
 
