@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.99 2003-10-17 22:54:49 carlfahl Exp $
+* $Id: opt_drv.F,v 1.100 2003-10-22 00:26:25 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -2984,7 +2984,7 @@ c
 c
       if (ostress) then
          if (.not. geom_amatrix_get(geom, coords(3*nat_real+1)))
-     $        call errquit('driver: failed to get amatrix',0)
+     $        call errquit('driver: failed to get amatrix',0,0)
       endif
 c
       opt_geom_cart_coords_get = .true.
