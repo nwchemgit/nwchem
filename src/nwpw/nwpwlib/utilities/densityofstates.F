@@ -1,5 +1,5 @@
 c
-c     $Id: densityofstates.F,v 1.1 2003-12-02 23:55:34 bylaska Exp $
+c     $Id: densityofstates.F,v 1.2 2003-12-03 00:11:41 bylaska Exp $
 c
 
 *     *********************************
@@ -40,7 +40,7 @@ c
       open(unit=19,file=full_filename,form='formatted')
 
        
-      sf = alpha/(4.0d0*datan(1.0d0))/dble(neigs)
+      sf = alpha/(4.0d0*datan(1.0d0))
       de = (emax-emin)/dble(npoints-1)
       do j=1,npoints
         e = emin + (j-1)*de
