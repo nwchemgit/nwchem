@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.31 2003-03-05 22:14:39 bylaska Exp $
+* $Id: util_legal.F,v 1.32 2003-04-10 20:58:20 d3k958 Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003                                *
@@ -174,7 +174,7 @@ c
      &    /,/,
      + 12x,'E. Apra, E. J. Bylaska,  W. de Jong, M. T. Hackler,',
      + ' S. Hirata,'/,
-     + 12x,'L. Pollack, D. Smith, T. P. Straatsma, T. L. Windus,',
+     + 12x,'L. Pollack, D. M. A. Smith, T. P. Straatsma, T. L. Windus,',
      + ' R. J. Harrison,',/, 
      + 12x,'J. Nieplocha, V. Tipparaju, M. Kumar,',/,
      + 12x,'E. Brown, G. Cisneros, M. Dupuis, G. I. Fann,', 
