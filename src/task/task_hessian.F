@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.6 1998-05-08 19:03:29 d3e129 Exp $
+* $Id: task_hessian.F,v 1.7 1998-12-28 22:12:04 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -62,11 +62,12 @@ c
 c
 c  for numerical hessian reset task:numerical so gradients are done analytically
 c
-      if (numerical) then
-        if (.not.rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
-     &      call errquit('task_hessian: failed to reset numerical',911)
-      endif
+*      if (numerical) then
+*        if (.not.rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
+*     &      call errquit('task_hessian: failed to reset numerical',911)
+*      endif
 
+      ignore = rtdb_delete(rtdb, 'task:numerical')
       ignore = rtdb_delete(rtdb, 'task:hessian file name')
       ignore = rtdb_delete(rtdb,'task:hessian')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
