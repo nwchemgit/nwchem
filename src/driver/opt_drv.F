@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.4 1996-10-10 22:15:58 mdupuis Exp $
+C$Id: opt_drv.F,v 1.5 1996-10-18 19:41:10 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -46,7 +46,7 @@ c                mxcoor=max(mxcart,mxzmat)
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
-      common/hnd_optfrz/icfrz(mxcoor)
+      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -64,17 +64,9 @@ c
       if(some) then
          write(iw,9999)
       endif
+      write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd
 c
-c     ----- control parameters -----
-c
-      cvgopt=8.0d-04
-      nptopt=20
-      linopt=10
-      inhess=0
-      modupd=1
-      do i=1,mxcoor
-         icfrz(i)=0
-      enddo
+c     ----- get going ... -----
 c
       rstart=.false.
       excess=.false.
@@ -182,6 +174,7 @@ c
       endif
       call hnd_opt_search_lin(rtdb,geom,rstart,excess)
       if(excess) then
+         write(iw,9995)
          return
       endif
       do i=1,ncoord
@@ -238,6 +231,138 @@ c
      1       /,10x,'Optimization converged',
      2       /,10x,22(1h-))
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
+ 9996 format(' cvgopt = ',f10.6,/,' nptopt = ',i4,/,' linopt = ',i4,
+     1                          /,' inhess = ',i4,/,' modupd = ',i4,/)
+ 9995 format(' too many points in geometry optimization. stop')
+      end
+      subroutine optdrv_input(rtdb)
+      implicit none
+      integer  rtdb
+      call hnd_opt_input
+      return
+      end
+      subroutine hnd_opt_input
+      implicit double precision (a-h,o-z)
+#include "inp.fh"
+c
+      parameter (mxatom=500)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=1500)
+      parameter (mxcoor=1500)
+c                mxcoor=max(mxcart,mxzmat)
+      character*255 field
+      logical       status
+      logical       ready
+      logical       dbug
+      common/hnd_iofile/ir,iw
+      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
+      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
+c
+      dbug=.false.
+c
+c     ----- default parameters for optimization driver -----
+c
+      cvgopt=8.0d-04
+      nptopt=20
+      linopt=10
+      inhess=0
+      modupd=1
+      do i=1,mxcoor
+         icfrz(i)=0
+      enddo
+      do i=1,mxatom
+         iatfrz(i)=0
+      enddo
+c
+c     ----- read values from input -----
+c
+      ifield=inp_cur_field()
+      if(dbug) then
+         write(iw,*) 'in hnd_opt_input, ifield = ',ifield
+      endif
+      ready=.false.
+c
+   10 continue
+      if(.not.inp_a(field)) then
+c
+         if(.not.inp_read()) then
+            write(iw,*)  'unexpected eof while reading ',
+     1                   'hnd_opt_input data'
+            call errquit('hnd_opt_input: unexpected eof',911)
+         else
+            if(dbug) then
+               write(iw,*) 'new line read in hnd_opt_input'
+            endif
+            go to 10
+         endif
+c
+      else       
+         if(dbug) then
+            write(iw,*) 'in hnd_opt_input, field = ',field
+         endif
+         if(.not.ready) then
+            if(inp_compare(.false.,'opt',field)) then
+               ready=.true.
+               go to 10
+            else
+               write(iw,*) 'un-expected value of field'
+               call errquit('hnd_opt_input: misposition',911)
+            endif
+         endif
+c
+         if(inp_compare(.false.,'end',field)) then
+            go to 100
+         else
+            if(inp_compare(.false.,'cvgopt',field)) then
+               if(inp_f(dum)) then
+                  cvgopt=dum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: cvgopt',911)
+               endif
+            elseif(inp_compare(.false.,'nptopt',field)) then
+               if(inp_i(idum)) then
+                  nptopt=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: nptopt',911)
+               endif
+            elseif(inp_compare(.false.,'linopt',field)) then
+               if(inp_i(idum)) then
+                  linopt=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: linopt',911)
+               endif
+            elseif(inp_compare(.false.,'inhess',field)) then
+               if(inp_i(idum)) then
+                  inhess=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: inhess',911)
+               endif
+            elseif(inp_compare(.false.,'modupd',field)) then
+               if(inp_i(idum)) then
+                  modupd=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: modupd',911)
+               endif
+            endif
+         endif
+c
+      endif
+c
+  100 continue
+      if(dbug) then
+         write(iw,*) 'cvgopt',cvgopt
+         write(iw,*) 'nptopt',nptopt
+         write(iw,*) 'linopt',linopt
+         write(iw,*) 'inhess',inhess
+         write(iw,*) 'modupd',modupd
+      endif
+c
+      return
       end
       subroutine hnd_opt_gmax(rtdb)
       implicit double precision (a-h,o-z)
@@ -251,7 +376,7 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir
-      common/hnd_optfrz/icfrz(mxcoor)
+      common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optvar/zcoord,ncoord,mcoord
       common/hnd_zmtpar/nzmat,nzvar,nvar
       data zero /0.0d+00/
@@ -1429,7 +1554,7 @@ C
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR)
+      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
       DATA ZERO   /0.0D+00/
@@ -1533,7 +1658,7 @@ C
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR)
+      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESVEC(NDIM,*),HESST(*),HESEIG(*)
       DIMENSION HESEDM(*),T(*),IA(*)
       DATA ZERO   /0.0D+00/
@@ -1724,7 +1849,7 @@ C
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR)
+      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
 C
 C     ----- PRINT OPTIMIZATION SUMMARY -----
@@ -1989,7 +2114,7 @@ C
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED 
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR)
+      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       COMMON/HND_OPTFUN/E,EG(MXCART)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       DIMENSION ALP(5),FUNL(5)
@@ -2043,7 +2168,7 @@ C
          C(I) = X(I)
       ENDDO
       NPTS=NPTS+1
-      IF(NPTS.EQ.NPTOPT) THEN
+      IF(NPTS.GT.NPTOPT) THEN
          EXCESS=.TRUE.
          RETURN
       ENDIF
@@ -2463,7 +2588,7 @@ c
      2                  FUNC,FUNC0,GMAX,GMAX0,CURV,ALPHA,GNORM
       COMMON/HND_OPTRUN/NPTS,NSERCH,NUPDAT,CVGED
       COMMON/HND_OPTOPT/CVGOPT,NPTOPT,INHESS,LINOPT,MODUPD,MODDIR
-      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR)
+      COMMON/HND_OPTFRZ/ICFRZ(MXCOOR),IATFRZ(MXATOM)
       DIMENSION HESS(NDIM,*),HESSDX(*)
       DATA ZERO /0.0D+00/
       DATA TOL  /1.0D-08/
