@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.1 1998-09-22 16:14:51 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.2 1998-09-25 18:58:54 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -165,7 +165,7 @@ c
 c
 c... new logic
       if (iatom.eq.jatom.and.jatom.eq.katom.and.katom.eq.latom) then
-        call dfill((nint*3*4),0.0d00,eri,1)
+        call dfill((nint*78),0.0d00,eri,1)
         call ifill(4,-1,idatom,1)
         return
       endif
