@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.2 2001-03-24 01:11:09 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.3 2001-06-02 00:42:22 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -309,54 +309,37 @@ c
       end
 c
       subroutine eval_radial(crad, r2, nq, maxd, zprim, ccoef,
-     &     nprimo, ncontr)
+     *     nprimo, ncontr)
       implicit none
       integer nq, maxd, nprimo, ncontr
+      integer nd
       double precision crad(0:maxd,nq), r2(nq),
-     &     zprim(nprimo), ccoef(nprimo,ncontr)
+     *     zprim(nprimo), ccoef(nprimo,ncontr)
 c
       integer n, iprimo
       double precision zeta, t(0:3), tmp
 c
+*      write(6,*)' eval_radial new used '
       if (ncontr .ne. 1) then
          call errquit('Implement ncontr .ne. 1 in eval_radial', ncontr)
       endif
 c
 c     Store results for first primitive directly and then sum the rest
 c
+      if (maxd .gt. 3) then
+        call errquit('Unexpected in eval_radial', maxd)
+      endif
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
       do n = 1, maxd
          t(n) = 2d0*zeta*t(n-1)
       enddo
-      if (maxd .eq. 0) then
-         do n = 1, nq
-            crad(0,n) = t(0)*exp(zeta*r2(n))
-         enddo
-      elseif (maxd .eq. 1) then
-         do n = 1, nq
-            tmp = exp(zeta*r2(n))
-            crad(0,n) = t(0)*tmp
-            crad(1,n) = t(1)*tmp
-         enddo
-      elseif (maxd .eq. 2) then
-         do n = 1, nq
-            tmp = exp(zeta*r2(n))
-            crad(0,n) = t(0)*tmp
-            crad(1,n) = t(1)*tmp
-            crad(2,n) = t(2)*tmp
-         enddo
-      elseif (maxd .eq. 3) then
-         do n = 1, nq
-            tmp = exp(zeta*r2(n))
-            crad(0,n) = t(0)*tmp
-            crad(1,n) = t(1)*tmp
-            crad(2,n) = t(2)*tmp
-            crad(3,n) = t(3)*tmp
-         enddo
-      else
-         call errquit('Unexpected in eval_radial', maxd)
-      endif
+      do n = 1,nq
+        tmp = exp(zeta*r2(n))
+        do nd = 0,maxd
+          crad(nd,n) = t(nd)*tmp
+        enddo
+      enddo
 c
       do iprimo = 2, nprimo
          zeta = -zprim(iprimo)
@@ -364,32 +347,12 @@ c
          do n = 1, maxd
             t(n) = 2d0*zeta*t(n-1)
          enddo
-         if (maxd .eq. 0) then
-            do n = 1, nq
-               crad(0,n) = crad(0,n) + t(0)*exp(zeta*r2(n))
-            enddo
-         elseif (maxd .eq. 1) then
-            do n = 1, nq
-               tmp = exp(zeta*r2(n))
-               crad(0,n) = crad(0,n) + t(0)*tmp
-               crad(1,n) = crad(1,n) + t(1)*tmp
-            enddo
-         elseif (maxd .eq. 2) then
-            do n = 1, nq
-               tmp = exp(zeta*r2(n))
-               crad(0,n) = crad(0,n) + t(0)*tmp
-               crad(1,n) = crad(1,n) + t(1)*tmp
-               crad(2,n) = crad(2,n) + t(2)*tmp
-            enddo
-         elseif (maxd .eq. 3) then
-            do n = 1, nq
-               tmp = exp(zeta*r2(n))
-               crad(0,n) = crad(0,n) + t(0)*tmp
-               crad(1,n) = crad(1,n) + t(1)*tmp
-               crad(2,n) = crad(2,n) + t(2)*tmp
-               crad(3,n) = crad(3,n) + t(3)*tmp
-            enddo
-         endif
+         do n = 1,nq
+           tmp = exp(zeta*r2(n))
+           do nd = 0,maxd
+             crad(nd,n) = crad(nd,n) + t(nd)*tmp
+           enddo
+         enddo
       enddo
 c
       return
