@@ -7,7 +7,7 @@ things such as variables, conditional branches and loops, and is also
 readily extended.  Example applications include scanning potential
 energy surfaces, computing properties in a variety of basis sets,
 optimizing the energy w.r.t. parameters in the basis set, computing
-polarizabilities, and simple molecular dynamics.
+polarizabilities with finite field, and simple molecular dynamics.
 
 Visit the Python web-site \verb+http://www.python.org+ for a full manual
 and lots of useful code and resources.  
@@ -99,8 +99,7 @@ Python has been extended with a module named \verb+"nwchem"+ which is
 automatically imported and contains the following NWChem-specific
 commands.  They all handle NWChem-related errors by raising the
 exception \verb+"NWChemError"+, which may be handled in the standard
-Python manner (see Section \ref{sec:pyerr}).  The first four commands
-will be of the widest interest.
+Python manner (see Section \ref{sec:pyerr}). 
 \begin{itemize}
 \item \verb+input_parse(string)+ --- invokes the standard NWChem input
 parser with the data in \verb+string+ as input.  Note that the usual
@@ -114,6 +113,12 @@ with the NWChem directive \verb+TASK ENERGY <THEORY>+.
 \item \verb+task_gradient(theory)+ --- returns a tuple
 \verb+(energy,gradient)+ as if computed with the NWChem
 directive \verb+TASK GRADIENT <THEORY>+.
+
+\item \verb+task_optimize(theory)+ --- returns a tuple
+\verb+(energy,gradient)+ as if computed with the NWChem
+directive \verb+TASK OPTIMIZE <THEORY>+.  The energy and gradient
+will be those at the last point in the optimization and consistent
+with the current geometry in the database.
 
 \item \verb+ga_nodeid()+ --- returns the number of the parallel
 process.
@@ -132,6 +137,10 @@ using the last argument as one of \verb+INT+, \verb+DBL+,
 \item \verb+rtdb_get(name) + --- returns the data from the database
 associated with the given name.
 \end{itemize}
+
+An example below (Section \ref{sec:pygeom}) explains, in lieu of a
+Python wrapper for the geometry object, how to obtain the Cartesian
+molecular coordinates directly from the database.
 
 \section{Examples}
 
@@ -440,6 +449,7 @@ the reaction energies are put into the associative array
 This example illustrates how to access the database from Python.
 
 \subsection{Handling exceptions from NWChem}
+\label{sec:pyerr}
 
 \begin{verbatim}
   geometry; he 0 0 0; he 0 0 2; end
@@ -470,6 +480,79 @@ well since the exception has been handled.
 If your Python program detects an error, raise an unhandled
 exception.  Do not call \verb+exit(1)+ since this may circumvent
 necessary clean-up of the NWChem execution environment.
+
+\subsection{Accessing geometry information --- a temporary hack}
+\label{sec:pygeom}
+
+In an ideal world the geometry and basis set objects would have full
+Python wrappers, but until then a back-door solution will have to
+suffice.  We've already seen how to use \verb+input_parse()+ to put
+geometry (and basis) data into NWChem, so it only remains to get the
+geometry data back after it has been updated by a geometry optimzation
+or some other operation.  
+
+The following Python procedure retrieves the coordinates in the
+same units as initially input for a geometry of a given name.
+\begin{verbatim}
+  def geom_get_coords(name):
+    try:
+      actualname = rtdb_get(name)
+    except NWChemError:
+      actualname = name
+    coords = rtdb_get('geometry:' + actualname + ':coords')
+    units  = rtdb_get('geometry:' + actualname + ':user units')
+    if (units == 'a.u.'):
+      factor = 1.0
+    elif (units == 'angstroms'):
+      factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    else:
+      raise NWChemError,'unknown units'
+    i = 0
+    while (i < len(coords)):
+      coords[i] = coords[i] / factor
+      i = i + 1
+    return coords
+\end{verbatim}
+
+A geometry (see Section \ref{sec:geom}) with name \verb+NAME+ has its
+coordinates (in atomic units) stored in the database entry
+\verb+geometry:NAME:coords+.  A minor wrinkle here is that 
+indirection is possible (and used by the optimizers) so that we must
+first check if \verb+NAME+ actually points to another name.  In the
+program this is done in the first \verb+try...except+ sequence.  With
+the actual name of the geometry, we can get the coordinates.  Any
+exceptions are passed up to the caller.  The rest of the code is just
+to convert back into the initial input units --- only atomic units 
+or \angstroms\ are handled in this simple example.  Returned 
+is a list of the atomic coordinates in the same units as your
+initial input.
+
+The routine is used as follows
+\begin{verbatim}
+    coords = geom_get_coords('geometry')
+\end{verbatim}
+or, if you want better error handling 
+\begin{verbatim}
+    try:
+      coords = geom_get_coords('geometry')
+    except NWChemError,message:
+      print 'Coordinates for geometry not found ', message
+    else:
+      print coords    
+\end{verbatim}
+
+This is very dirty and definitely not supported from one release to
+another, but, browsing the output of \verb+rtdb_print()+ at the end of
+a calculation is a good way to find stuff.  To be on safer ground,
+look in the programmers manual since some of the high-level routines
+do pass data via the database in a well-defined and supported manner.
+{\em Be warned} --- you must be very careful if you try to modify data
+in the database. The input parser does many important things that are
+not immediately apparent (e.g., ensure the geometry is consistent with
+the point group, mark the SCF as not converged if the SCF options are
+changed, \ldots).  Where at all possible your Python program should
+generate standard NWChem input and pass it to \verb+input_parse()+
+rather than setting parameters directly in the database.
 
 \subsection{Scaning a basis exponent yet again --- plotting and 
 handling child processes}
