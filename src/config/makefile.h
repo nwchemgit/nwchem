@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.72 1994-10-28 04:58:23 d3e129 Exp $
+# $Id: makefile.h,v 1.73 1994-10-29 16:42:36 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -52,7 +52,7 @@ endif
 
     NWSUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
                 moints atomscf geom input ma tcgmsg gradients rimp2 riscf \
-                stepper pstat $(SUBDIRS_EXTRA)
+                stepper pstat symmetry $(SUBDIRS_EXTRA)
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -166,7 +166,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       LIBS = -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+       LIBS = -ltest -lddscf -lriscf -lrimp2 -lgradients -lutil -lnwints \
               -lstepper -lmoints \
               -lguess -lglobal -lutil -lglobal \
 	      -ltcgmsg -llapack -lblas
