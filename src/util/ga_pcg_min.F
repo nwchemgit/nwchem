@@ -1,7 +1,7 @@
       subroutine ga_pcg_minim(n, iter, e, g_grad, g_work, g_s, step,
      $     ls_tol, ls_max, eacc, conjugacy, oprint, oprint_ls,
      $     iwork, dwork, mode)
-C$Id: ga_pcg_min.F,v 1.2 1996-10-04 21:50:23 d3g681 Exp $
+C$Id: ga_pcg_min.F,v 1.3 1997-12-04 22:55:08 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -104,10 +104,10 @@ c
             endif
          endif
          if (beta .lt. 0.0d0) then
-            if (ga_nodeid() .eq. 0) then
-               write(6,*) ' pcg: negative beta = ', beta
-               call util_flush(6)
-            endif
+*            if (ga_nodeid() .eq. 0) then
+*               write(6,*) ' pcg: negative beta = ', beta
+*               call util_flush(6)
+*            endif
             beta = 0.0d0
          endif
          call ga_dadd(mone, g_work, beta, g_s, g_s)
