@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.24 2004-02-09 23:08:50 yuri Exp $
+*     $Id: stpr_gh_at.F,v 1.25 2004-02-09 23:20:41 marat Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -239,6 +239,7 @@ c
         if (.not. task_energy(rtdb)) call errquit
      &      ('stpr_gen_hess_at: reference point energy failed',7,
      &       CALC_ERR)
+      end if
         if (.not. task_save_state(rtdb,'hess')) call errquit
      &      ('stpr_gen_hess_at: failed to save central point',8,
      &       RTDB_ERR)
