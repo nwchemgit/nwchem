@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.393 2003-01-09 03:12:03 edo Exp $
+# $Id: makefile.h,v 1.394 2003-02-06 02:13:19 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -837,10 +837,14 @@ ifeq ($(TARGET),IBM)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
   COPTIMIZE = -O -qarch=auto -qtune=auto
 
     DEFINES = -DIBM -DAIX -DEXTNAME
+   CORE_LIBS +=  $(BLASOPT) 
 ifdef USE_ESSL
    DEFINES += -DESSL
    CORE_LIBS += -lessl
@@ -848,7 +852,7 @@ endif
 
        LIBPATH += -L/usr/lib 
 
-  LDOPTIONS += -bmaxstack:0x20000000 -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi_map
        CORE_LIBS +=  -llapack $(BLASOPT) -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
@@ -929,8 +933,12 @@ ifeq ($(TARGET),IBM64)
 
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64
    COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
-  FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
+  FVECTORIZE = -O5 -qhot -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto 
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+    FVECTORIZE  += -qfloat=rsqrt:fltint
+  endif
    COPTIMIZE = -O -qmaxmem=8192
 
     DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
@@ -945,7 +953,7 @@ else
    FOPTIONS += -qintsize=8 
    DEFINES  += -DEXT_INT 
 endif
-  LDOPTIONS += -bmaxstack:0x40000000 -bmaxdata:0x40000000 -bloadmap:nwchem.ibm64map
+  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.ibm64map
    CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
@@ -958,7 +966,10 @@ endif
 ifeq ($(TARGET),LAPI)
 #
     CORE_SUBDIRS_EXTRA = lapack blas
-         FC = mpxlf_r -qnohpf
+         FC = mpxlf_r 
+ifdef OLDXLF
+         FC += -qnohpf
+endif
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc_r
     ARFLAGS = urs
@@ -970,16 +981,19 @@ ifeq ($(TARGET),LAPI)
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000  -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
   COPTIMIZE = -O
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
 # These from George from Kent Winchell
@@ -1066,14 +1080,17 @@ ifeq ($(TARGET),LAPI64)
      MPILIB = 
 LARGE_FILES = YES
 
-#  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
+#  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
    LINK.f   = mpcc_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k 
        AR   = ar -X 64
    COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
   FOPTIMIZE += -qarch=auto -qtune=auto
   COPTIMIZE = -O
 
