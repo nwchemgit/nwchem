@@ -102,9 +102,6 @@ topology file. The dynamic information includes coordinates and
 velocities for all atoms in the molecular system, and is kept in a
 so-called restart file.
 
-The \nwchem\ molecular dynamics module is the parallel implementation
-of the vectorized code \argos\ developed at the University of Houston.
-
 \subsection{Topology}
 \label{sec:nwatopology}
 The static information about a molecular system that is needed for
@@ -161,14 +158,11 @@ and are pre-determined.
 \begin{table}[htbp]
 \begin{center}
 \begin{tabular}{ll}
-{\bf acf} & free energy correlation data file\\
-{\bf cnv} & free energy convergence file\\
-{\bf coo} & coordinate trajectory file\\
-{\bf day} & dayfile\\
+%{\bf acf} & free energy correlation data file\\
+%{\bf cnv} & free energy convergence file\\
 {\bf dbg} & debug file\\
-{\bf dre} & distance restraints file\\
-{\bf emt} & minimization trajectory file\\
-{\bf fet} & free energy step contribution file\\
+%{\bf dre} & distance restraints file\\
+%{\bf fet} & free energy step contribution file\\
 {\bf frg} & fragment file\\
 {\bf gib} & free energy data file\\
 {\bf mri} & free energy multiple run input file\\
@@ -179,19 +173,16 @@ and are pre-determined.
 {\bf pdb} & PDB formatted coordinate file\\
 {\bf prp} & property file\\
 {\bf qrs} & quenched restart file, resulting from an energy minimization\\
-{\bf rdf} & radial distribution function output file\\
-{\bf rdi} & radial distribution function input file\\
+%{\bf rdf} & radial distribution function output file\\
+%{\bf rdi} & radial distribution function input file\\
 {\bf rst} & restart file, used to start or restart a simulation \\
 {\bf seq} & sequence file, describing the system in segments\\
-{\bf sco} & solute coordinate trajectory file\\
 {\bf sgm} & segment file, describing segments\\
-{\bf slv} & solvent coordinate file\\
-{\bf svl} & solute velocity trajectory file\\
 {\bf syn} & synchronization time file\\
 {\bf tst} & test file\\
 {\bf tim} & timing analysis file\\
 {\bf top} & topology file, contains the static description of a system\\
-{\bf vel} & velocity trajectory file\\
+{\bf trj} & trajectory file\\
 \end{tabular}
 \end{center}
 \caption{List of file extensions for nwchem chemical system files.}
@@ -626,7 +617,7 @@ including solvation.
 The type of molecular dynamics simulation is specified by the
 \nwchem\ task directive.
 \begin{verbatim}
-task md [ energy || optimize || dynamics || thermodynamics ]
+task md [ energy | optimize | dynamics | thermodynamics ]
 \end{verbatim}
 where the theory keyword {\tt md} specifies use of the molecular
 dynamics module, and the operation keyword is one of
@@ -724,7 +715,7 @@ with multiple step thermodynamic perturbations.
 
 \item
 \begin{verbatim}
-(forward || reverse) [[<integer mrun> of] <integer maxlam>]
+(forward | reverse) [[<integer mrun> of] <integer maxlam>]
 \end{verbatim}
 specifies the direction and number of integration steps in free
 energy evaluations, with {\tt forward} being the default direction.
@@ -782,7 +773,7 @@ the interaction potentials.
 
 \item
 \begin{verbatim}
-new || renew || extend
+new | renew | extend
 \end{verbatim}
 specifies the initial conditions for thermodynamic calculations.
 {\tt new} indicates that this is an initial mcti calculation, which
@@ -799,7 +790,7 @@ Following directives control the integration of the equations of motion.
 
 \item
 \begin{verbatim}
-leapfrog || vverlet
+leapfrog | vverlet
 \end{verbatim}
 specifies the integration algorithm,
 where {\tt leapfrog} specifies the default leap frog integration, and
@@ -905,7 +896,7 @@ been implemented.
 \begin{description}
 \item
 \begin{verbatim}
-polar (first || scf [[<integer mpolit>] <real ptol>])
+polar (first | scf [[<integer mpolit>] <real ptol>])
 \end{verbatim}
 specifies the use of polarization potentials,
 where the keyword {\tt first} specifies the first order polarization
@@ -949,7 +940,7 @@ is 0.001~nm for both.
 
 \item
 \begin{verbatim}
-noshake (solvent || solute)
+noshake (solvent | solute)
 \end{verbatim}
 disables SHAKE and treats the bonded interaction according to the force 
 field.
@@ -992,13 +983,13 @@ respectively.
 \begin{description}
 \item
 \begin{verbatim}
-fix (all || solvent || solute || non-H)
+fix (all | solvent | solute | non-H)
 \end{verbatim}
 fixes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
 respectively.
 \item
 \begin{verbatim}
-unfix (all || solvent || solute || non-H)
+unfix (all | solvent | solute | non-H)
 \end{verbatim}
 makes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
 respectively, dynamic.
@@ -1158,7 +1149,7 @@ Record directives may be combined to a single directive.
 %\item
 %The file format of selected recording files is specified with
 %\begin{verbatim}
-%record (binary || ascii [ecce || argos])
+%record (binary | ascii [ecce | argos])
 %\end{verbatim}
 %with the default of ascii in ecce readable format.
 
@@ -1239,13 +1230,6 @@ steps in $\lambda$. The default is not to record.
 
 \item
 \begin{verbatim}
-record mind <integer nfem>
-\end{verbatim}
-specifies the frequency \verb+<nfem>+ in energy minimization steps of
-writing the minimization trajectory to file, with extension \verb+emt+.
-
-\item
-\begin{verbatim}
 record free <integer nffree>
 \end{verbatim}
 specifies the frequency \verb+<nffree>+ in multi-configuration
@@ -1297,7 +1281,7 @@ with the frequency of pair-list updates \verb+<nfpair>+.
 \begin{description}
 \item
 \begin{verbatim}
-load [reset] ( none || size [<real factld>] || pairs ||
+load [reset] ( none | size [<real factld>] | pairs |
      (pairs [<integer ldpair>] size [<real factld>]) )
 \end{verbatim}
 determines the type of dynamic load balancing performed,
