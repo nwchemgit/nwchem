@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg)
+     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr)
 c
-c $Id: prp_init.F,v 1.34 2000-09-05 16:28:28 d3j191 Exp $
+c $Id: prp_init.F,v 1.35 2001-02-09 17:50:32 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntyp,lfn,iout,iprp,igib,iprf
+      integer nserie,ntyp,lfn,iout,iprp,igib,iprf,ndistr
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
@@ -61,6 +61,7 @@ c
       lauto=.false.
       lappr=.false.
       lpmf=npmf.gt.0
+      lnoe=ndistr.gt.0
 c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
@@ -182,7 +183,8 @@ c
       pronam( 71)='Dipole moment solvent permanent            e30 C m'
       pronam( 72)='Dipole moment solvent induced              e30 C m'
       pronam( 73)='Dipole moment solvent                      e30 C m'
-      pronam( 74)='Energy bias potentials                      kJ/mol'
+      pronam( 74)='Energy restraint potentials                 kJ/mol'
+      lp(74)=lnoe
       pronam( 75)='Energy umbrella potentials                  kJ/mol'
       lp(75)=lpmf
       pronam( 76)='Particle mesh Ewald reciprocal energy       kJ/mol'

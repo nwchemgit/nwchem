@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.103 2001-01-22 19:45:37 d3j191 Exp $
+c $Id: md_main.F,v 1.104 2001-02-09 17:50:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1169,6 +1169,8 @@ c
 c
       external timer_wall,timer_wall_average,timer_wall_minimum
       real*8 timer_wall,timer_wall_average,timer_wall_minimum
+      external timer_wall_total
+      real*8 timer_wall_total
 c
       real*8 dxmax,wallt,syntim
 c
@@ -1259,6 +1261,9 @@ c
       call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
       corrio=costio
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
 c
@@ -1284,8 +1289,6 @@ c
 c
 c     atomic forces and potential energies
 c
-      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -2139,7 +2142,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.103 2001-01-22 19:45:37 d3j191 Exp $
+c $Id: md_main.F,v 1.104 2001-02-09 17:50:31 d3j191 Exp $
 c
       implicit none
 c
