@@ -1,0 +1,371 @@
+<HTML>
+  
+<HEAD>
+<TITLE>Notes on running NWChem on the ANL IBM SP1</TITLE>
+  </HEAD>
+  
+<BODY BGCOLOR="FAEBD7">
+<P><IMG SRC="/msrc/home/d3g681/html/nwchem/nwchem_logo.gif" ALT="NWChem - computational chemistry on parallel computers"> 
+ </P>
+	<HR>
+	  
+<H1>Notes on running NWChem on the ANL IBM SP1</H1>
+
+ <P>Much of the information below has been exracted from information
+available through the web at ANL or IBM SP man pages by Robert Harrison
+(<EM>rj_harrison@pnl.gov</EM>).
+
+ <P>For NWChem support mail <EM>nwchem-support@emsl.pnl.gov</EM> or
+visit the <A
+HREF="http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html"> NWChem
+homepage</A>.
+ <P>
+
+ <P>For support on SP specific issues contact spsupport@mcs.anl.gov.
+
+<HR>
+
+<H2>General SP information</H2>
+  
+ <P>  ANL use their own environment (EASY) for scheduling interactive and
+batch use of the machine.  You need to know about just a few facts and
+commands to get going.
+
+ <P> You will log into either <TT>bonnie</TT> or
+<TT>clyde.mcs.anl.gov</TT> which are not really part of the SP2 - they
+are 'front-ends'.  Information on the SP, examples etc. can be found
+on the <A HREF="http://www.mcs.anl.gov/Projects/sp/index.html">MCS SP
+Web pages</A>.
+
+ <P>The command <TT>sphelp</TT> gives a useful summary of SP specific
+commands and is a good starting point ... here is the sp command
+summary
+<DL>
+<DT> <TT>cacReport</TT>
+<DD> Prints report on current state of CAC's allocation.
+
+<DT> <TT>spfree</TT>
+<DD> Prints the number of nodes that are currently free.
+
+<DT> <TT>spq</TT>
+<DD> Prints out who's running what on the machine and the queue,
+             how much time they requested or when they'll finish.
+
+<DT> <TT>sprelease</TT>
+<DD> Is used to remove jobs, from either the queue, or the
+             machine, if the job has already started.  This returns 
+             node(s) back to the system, and stops the charging against
+             the Charge Allocation Category (CAC) on the ANL system.
+
+<DT> <TT>spsubmit</TT>
+<DD> Used to submit jobs to the queue.
+
+<DT> <TT>spstatus</TT>
+<DD> Prints out the current status of the SP2.
+
+<DT> <TT>spusage</TT>
+<DD>Shows who is using what nodes.  The format is: 
+<PRE>
+  node# 0|1 username JID JobTerminationTime (MMDDhhmm)
+  0 = node is available, 1 = in use.
+</PRE>
+
+<DT> <TT>xspusage</TT>
+<DD> Same as above except for x windows.
+
+</DL>
+
+ <P> To run either interactively or with batch you have to schedule
+the resources using spsubmit.  By mail you'll be told when the
+resources become available.  If running interactively, you can then
+login into the nodes you've been assigned (details below) or if
+running in batch you provided spsubmit a script to run (provided for
+NWChem).  From prior experiences, you may experience a significant
+delay in receiving mail that you have the nodes.  The use of <TT>xspusage</TT>
+is best (see below).  If you don't have X, use <TT>spq</TT>.
+
+ <P>  If a node is not currently assigned to you then you will not be able
+to log into it.
+
+ <P> Each node of the SP is a Power 1 cpu with 128 MB of physical
+memory and a local scratch disk named <TT>/tmp</TT> of about 0.25 to
+0.4 GB.  The O/S and I/O buffers consume about 10 MB (estimate), and
+the NWChem executable is 5 MB, leaving about 113 MB to be allocated.
+The local scratch disk is wiped clean at the end of each job.  Thus,
+in order for useful files to be saved by default and to make sure that
+scratch files with high bandwidth requirements are in <TT>/tmp</TT>,
+you should always
+<UL>
+<LI> specify full path names for files, and
+
+<LI> ensure that any directory names are accessible from all nodes
+     (i.e., either just <TT>/tmp</TT> for the local disk on each node, or a
+     subdirectory of your home directory).
+</UL>
+
+
+<H2>Running NWChem in batch</H2>
+
+ <P>Do this first - it's a lot less confusing than running interactively.
+
+ <P>In the directory  <TT>/sphome/harrison/hpcci</TT> are several files
+<DL>
+<DT> <TT>ibm_sp@anl.html</TT>
+<DD> this file
+
+<DT> <TT>nwchem</TT>
+<DD> the SP executable
+
+<DT> <TT>library</TT>
+<DD> the basis set library
+
+<DT> <TT>job</TT>
+<DD> a script for running spsubmit
+
+<DT> <TT>runnwchem</TT>
+<DD> a script for running nwchem in batch
+
+<DT> <TT>interactive</TT>
+<DD> a script for running nwchem interactively
+
+<DT> <TT>examples</TT>
+<DD> a directory with example inputs and outputs for NWChem
+
+<DT> <TT>user.ps.Z</TT>
+<DD> NWChem documentation (compressed postscript)
+</DL>
+
+ <P> Copy one of the example input files into your login directory
+(e.g., <TT>/sphome/harrison/hpcci/examples/scf_h2o.nw</TT> - input for a
+conventional SCF calculation on water) into your login directory.
+(This input file is also commented and tailored to the SP).
+
+ <P> To run the calculation in batch you must use <TT>spsubmit</TT> to
+<UL>
+<LI> allocate the nodes
+<LI> specify the script to run
+<LI> provide the arguments (work directory, to the script.
+</UL> 
+The standard script <TT>/sphome/harrison/hpcci/runnwchem</TT> takes 3
+arguments
+<OL>
+<LI> the work directory (made if necessary)
+<LI> the full pathname of input file
+<LI> the full pathname of output file which defaults
+               to the name of input file with .nw replaced by .out
+</OL>
+e.g.
+<PRE>
+     runnwchem /tmp /sphome/harrison/test.nw 
+</PRE>
+or
+<PRE>
+     runnwchem /tmp /sphome/harrison/test.nw /sphome/harrison/test.out
+</PRE>
+
+ <P><TT>Spsubmit</TT> prompts for the parameters it wants ... here is
+a sample dialog that runs a five minute nwchem job on eight nodes in
+batch (when you run this use your own username instead of harrison).
+<PRE>
+    /sphome/harrison % spsubmit
+    *********************************************************************
+    112 nodes are available
+    16 nodes are allocated for I-Way use
+
+    Please report any problems to spsupport@mcs.anl.gov
+    *********************************************************************
+    Charge Allocation Category: [default harrison] 
+    Maximum Wall-clock Run-Time (minutes): (1-???) 5
+    Number of Nodes Required: (1 - 128) 8
+    CAC:  "harrison"  *now* has 4397 RUs available, after committing.
+    (I)nteractive (B)atch: B
+    Job Classification (M)PL, (T)ask Farm, (P)4: M
+    IP over the switch [y/n]: Y
+    Full path to Shell Script/Program: /sphome/harrison/hpcci/runnwchem
+    Command Line arguments for your job: /sphome/harrison \
+                                         /sphome/harrison/scf_h2o.nw
+    (C)ommit or (A)bort: C
+</PRE>
+
+ <P>In order to be crystal clear, I typed (comments in parentheses)
+<PRE>     
+    spsubmit (the command)
+    carriage return (to accept charging to the default account)
+    5 (for a 5 minute job)
+    8 (for 8 processors)
+    B (for batch)
+    M (for MPL)
+    Y (to let IP also run over the switch)
+    /sphome/harrison/hpcci/runnwchem (name of script)
+    /sphome/harrison /sphome/harrison/scf_h2o.nw (runnwchem arguments)
+    C (to commit)
+</PRE>
+
+ <P>The script <TT>/sphome/harrison/hpcci/job</TT> runs
+<TT>spsubmit</TT> from input in a file - take a copy and edit it to
+automate use of <TT>spsubmit</TT>.
+
+ <P>The command line arguments given to the <TT>runnwchem</TT> script
+specify the work directory (<TT>/sphome/harrison</TT>) and the full
+path to the input file (<TT>/sphome/harrison/scf_h2o.nw</TT>). 
+  <TT>Runnwchem</TT> will leave the output in
+<TT>/sphome/harrison/scf_h2o.out</TT>.
+
+ <P>Since it can take a large elapsed time to get a job started five
+minutes is the practical lower limit that should be used for the job
+time.
+
+ <P>The command <TT>spq</TT> will indicate the position of the job in
+the queue and its status.  When the job is started you'll receive mail
+indicating the nodes actually allocated.  At the end of the job you'll
+receive another mail message providing the output of the shell script.
+Only the NWChem output goes into the output file.  The advantage of
+doing this is that you can examine the output while the job is
+executing.  The unix command '<TT>tail -f filename</TT>' is useful to
+watch a job run.
+
+ <P><EM>Note that only one node</EM> (the master) executes the script
+and that only the commands run with POE are actually executed in
+parallel. This causes seemingly simple things to fail.  For instance,
+if you request to run in a subdirectory of <TT>/tmp</TT> (e.g.,
+<TT>/tmp/rjh</TT>) then <TT>runnwchem</TT> will make this directory
+and <TT>cd</TT> into it.  Subsequent POE commands will fail since this
+directory will not be present except on the master node.
+
+ <P>If you want to run multiple NWChem calculations in the same job
+you'll have to modify the <TT>runnwchem</TT> script.  Basically, this
+just requires replicating the line running <TT>poe</TT> and specifying
+the correct input and output file on each line.  Make sure that you
+leave the <TT>sprelease</TT> at the end of the file since it ensures
+that you won't be charged for more time than you use.
+
+
+<H2>Running NWChem interactively</H2>
+
+ <P>Again, you use <TT>spsubmit</TT> to reserve nodes for your use,
+but this time specifying interactive access.  In this instance it will
+not prompt you for a script or arguments.  Mail will notify you when
+your nodes are available.  Alternatively, you can keep looking with
+<TT>spq</TT> to see when your job starts.  There is also a graphical
+program (<TT>xspusage</TT>) that names nodes according to who 'owns' them.
+
+ <P>The mail message, or the file <TT>SPnodes.$JOBID</TT> in your login
+directory (you can get the jobid from the output of spsubmit), or
+<TT>xspusage</TT> tell you which nodes you have access to.  Simply
+telnet to one of these and login with your usual id and password, or
+with <TT>xspusage</TT> you just click on a node you own to open an
+xterm on that node.
+
+ <P>Now that you're logged into the partition you can run NWChem using
+the <TT>/sphome/harrison/hpcci/interactive</TT> shell script.  This
+differs from the <TT>runnwchem</TT> script only in that output comes
+to the terminal and the <TT>sprelease</TT> has been removed.  Thus,
+you can run multiple calculations in one interactive session.
+
+ <P><EM>Don't forget</EM> to do an <TT>sprelease</TT> with the correct
+jobid after completing the calculations otherwise you will be charged
+for all the time that you booked, rather than just the time that you
+used.  Once <TT>sprelease</TT> is issued you no longer own the nodes
+and you will be unable to log into them.
+
+ <P>E.g.,
+<PRE>
+  (... log into spnode ...)
+  interactive /tmp/ /sphome/harrison/hpcci/examples/scf_h2o.nw
+  interactive /tmp/ /sphome/harrison/hpcci/examples/mp2_h2o.nw
+  interactive /tmp/ /sphome/harrison/hpcci/examples/dft_h2o.nw
+  sprelease 070714025108
+  exit
+</PRE>
+
+ <P><TT>Xspusage</TT> is the easiest way to run interactively.  Before
+using <TT>xspusage</TT> make sure that your <TT>DISPLAY</TT>
+environment variable is correctly set (<TT>hostname:0.0</TT>) and that
+your local X server permits remote window creation (use the command
+'<TT>xhost +</TT>' in a local shell).
+
+
+<H2>Troubleshooting</H2>
+
+ <P>Keep the email with the <TT>runnwchem</TT> shell script output
+since this can be used to identify nodes with problems.
+
+<H4>Job dies with a strange error code and an unknown error message</H4>
+
+ <P> I've had this happen when I've specified a work directory that is
+not accessible to all processes (e.g., a subdirectory of
+<TT>/tmp</TT>).  This often works for a single process, but fails for
+multiple processes since only the master process has access to this
+directory.  Rerun the job specifying either just <TT>/tmp</TT> or a
+subdirectory of your login directory.
+
+<H4>Job dies complaining of undefined symbols</H4>
+
+ <P> This was a problem with incomplete instalation of a system
+Fortran upgrade.  It should be fixed, but if the problem appears
+contact <TT>spsupport@mcs.anl.gov</TT> sending them the shell script
+output and the output in your logfile.  They may ask you to rerun it
+with the <TT>MP_INFO</TT> variable increased to 3 or 4 in order to
+generate debug information.  To do this take a copy of the <TT>runnwchem</TT>
+script and edit it.
+
+<H4>Timeout error messages</H4>
+
+ <P>I haven't seen this problem but apparently it can arise from
+excessive load from others on the Ethernet.  Just resubmit the job.
+
+<H4>Running out of disk space</H4>
+
+ <P>Some of the lower numbered nodes apparently have some system junk
+sitting in the <TT>/tmp</TT> filesystem that is not automatically
+deleted.  You can rely on only about 0.25 GB per node, though some
+will have up to 0.4 GB.
+
+<H4>Accounting</H4>
+
+ <P>Development accounts have just 125 node hours per quarter - I blew
+this in two days.  The command '<TT>cacReport -u userid</TT>' reports
+the time available to you.  The accounting is not rigorously enforced
+and a request to <TT>spsupport</TT> to increase your time will usually be
+granted.  
+
+<H4>Expansion of ~ (tilde) on SP nodes</H4>
+
+ <P> Only the user that currently has allocated an SP node can log
+into it.  This is done by restricting entries in the node's
+<TT>/etc/passwd</TT> file.  A side effect of this is that an SP node has no
+knowledge of other users.  Hence, the usual shell expansion mechanism
+for specifying a login directory by prefacing a user name with a tilde
+will not work, unless you are referring to yourself.  <EM>The rule of
+thumb is always to use fully qualified filenames</EM>.
+
+<H2>NWChem support</H2>
+
+ <P>  Report NWChem problems, suggestions, feedback, etc., to
+<TT>nwchem-support@emsl.pnl.gov</TT> or via the <A
+HREF="http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html">NWChem
+home page</A>.
+
+ <P> There is a mailing list for NWChem users that can be used for
+announcements and discussion amoung users.  To subscribe send email to
+<EM>majordomo@emsl.pnl.gov</EM> with the body '<TT>subscribe
+nwchem-users</TT>'.  You can do this with the following command
+<PRE>
+     echo subscribe nwchem-users | mail majordomo@emsl.pnl.gov
+</PRE>
+
+ <P>  To post a message to the mailing list send it to
+<EM>nwchem-users@emsl.pnl.gov</EM>.
+
+
+<H2>Acknowledgements</H2>
+
+ <P> Thanks to Dave Bernholdt and Mike Minkoff for useful input to
+this document and to Jeff Tilson for an initial version of the
+execution scripts.
+
+<HR>
+
+<ADDRESS>Prepared by RJ Harrison: Email: nwchem-support@emsl.pnl.gov.</ADDRESS>
+
+</BODY></HTML>
