@@ -167,6 +167,12 @@ c
 #include "mafdecls.fh"
       integer rtdb
       double precision charge
+      character*255 test
+c
+      if (.not. inp_a(test)) call errquit
+     &    ('input_charge: failed to read ascii string',911)
+      if (test.ne.'charge') call errquit
+     &    ('input_charge: failed to read "charge"',911)
 c
       if (.not. inp_f(charge)) call errquit
      $     ('input_charge: failed to read real number', 0)
