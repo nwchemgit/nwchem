@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.103 2001-11-09 17:12:22 d3j191 Exp $
+c $Id: md_start.F,v 1.104 2001-11-14 04:11:30 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,ipopt,tmpext,prsext,
-     + tmprlx,tmsrlx,prsrlx,
+     + tmprlx,tmsrlx,prsrlx,scaleq,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl)
@@ -961,6 +961,8 @@ c
      + pmetol=1.0d-05
       if(.not.rtdb_get(irtdb,'md:fcoll',mt_dbl,1,fcoll))
      + fcoll=1.0d+01
+      if(.not.rtdb_get(irtdb,'md:scaleq',mt_dbl,1,scaleq))
+     + scaleq=-1.0d+00
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)
@@ -1405,6 +1407,11 @@ c
       write(lfnout,1040)
  1040 format(/,' Leap-frog integration (Brown-Clarke)')
       endif
+      endif
+c
+      if(scaleq.ge.zero) then
+      write(lfnout,1041) scaleq
+ 1041 format(/,' Solute charges scaled by factor ',f8.5)
       endif
 c
       if(ntype.eq.1) then

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.45 2001-11-06 15:49:50 d3j191 Exp $
+c $Id: md_input.F,v 1.46 2001-11-14 04:11:29 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
-      real*8 tmpext2,tann1,tann2
+      real*8 tmpext2,tann1,tann2,scaleq
       character*12 afix
 c
       integer i,mtimes,len
@@ -216,6 +216,7 @@ c
       eqm=0.0d0
       tguide=0.0d0
       fguide=0.0d0
+      scaleq=-1.0d0
 c      do 4 i=1,msf
 c      lsffix(i)=1
 c    4 continue
@@ -1327,6 +1328,10 @@ c
       if(.not.inp_i(icntrl)) call errquit('md_input: error control',15)
       goto 2
       endif
+      if(inp_compare(.false.,'scale',item)) then
+      if(.not.inp_f(scaleq)) call errquit('md_input: error scale',15)
+      goto 2
+      endif
 c
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,9999) item
@@ -1674,6 +1679,8 @@ c
       if(.not.rtdb_put(irtdb,'md:uqmatm',mt_dbl,1,eqm))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:fcoll',mt_dbl,1,fcoll))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:scaleq',mt_dbl,1,scaleq))
      + call errquit('md_input: rtdb_put failed',0)
 c
       close(unit=lfncmd)

@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.28 2001-11-06 15:40:15 d3j191 Exp $
+c $Id: cf_common.fh,v 1.29 2001-11-14 04:10:59 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -113,7 +113,7 @@ c
       real*8 factmp,factmw,factms,scalew,scales,ewk,ek
       real*8 ewkc(3,3),eskc(3,3),ekc(3,3),z(3,3),prx(3,3)
       real*8 edrs,field,fvect(3),ffreq,totchg
-      real*8 virial
+      real*8 virial,scaleq
       integer llww,lsww,llsw,lssw,llss,lsss
       logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
@@ -124,7 +124,7 @@ c
      + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
      + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,totchg,
-     + prx,z,ekc,
+     + prx,z,ekc,scaleq,
      + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
@@ -136,3 +136,6 @@ c
       character*10 ffield
       character*16 wnam(100)
       common/cf_chr/ffield,wnam
+
+
+

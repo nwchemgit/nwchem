@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.23 2001-07-14 05:11:24 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.24 2001-11-14 04:10:59 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -18,10 +18,10 @@ c
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
       character*6 cdata(3)
-      integer i,ia,iq,j,k,l,m,itemp(4),i_i,i_j,l_i,l_j
+      integer i,ia,iq,j,k,l,m,m2,m3,itemp(4),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
-      integer numbl,numbi,numbd
+      integer numbl,numbi,numbd,iqfr,iqto
 c
       real*8 cf_charge
       external cf_charge
@@ -142,14 +142,22 @@ c
       read(lfntop,1024,end=9997,err=9998) ewc
  1024 format(10x,3f12.6)
       do 10 i=1,nas
-      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m
- 1017 format(a16,3i5,15x,i5)
+      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m,m2,m3
+ 1017 format(a16,3i5,15x,3i5)
+      if(i.eq.1) then
+      iqfr=min(m,m2,m3)
+      iqto=max(m,m2,m3)
+      else
+      iqfr=min(iqfr,m,m2,m3)
+      iqto=max(iqto,m,m2,m3)
+      endif
       write(snam(i),'(a5,a5,i6)') stemp(1:5),stemp(11:15),l
 c      snam(i)=stemp
       if(j.gt.nsf) nsf=j
 c      if(j.gt.nsm) nsm=j
       totchg=totchg+cf_charge(m)
    10 continue
+      if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto,scaleq)
       idata(4)=0
       do 11 i=1,nbt
       read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3),

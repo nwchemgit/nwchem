@@ -3,9 +3,9 @@
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
-     + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
+     + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.64 2001-11-06 15:43:29 d3j191 Exp $
+c $Id: cf_init.F,v 1.65 2001-11-14 04:10:59 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -17,7 +17,7 @@ c
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
-      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq
+      real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,iipopt
@@ -46,6 +46,7 @@ c
       tmwrlx=rtmpw
       tmsrlx=rtmps
       prsrlx=rpres
+      scaleq=sclq
 c
       ntype=ntyp
       mdalgo=mdalg
@@ -618,6 +619,39 @@ c
       chg(ia,i,5)=chg(ia,i,2)
       chg(ia,i,6)=chg(ia,i,3)
     2 continue
+c
+      return
+      end
+      subroutine cf_scaleq(iqfr,iqto)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer iqfr,iqto
+c
+      call cf_sclq(iqfr,iqto,dbl_mb(i_chg))
+c
+      return
+      end
+      subroutine cf_sclq(iqfr,iqto,chg)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer iqfr,iqto
+      real*8 chg(mqt,mqp,6)
+c
+      integer i,j
+c
+      do 1 i=iqfr,iqto
+      do 2 j=1,6
+      chg(i,1,j)=scaleq*chg(i,1,j)
+    2 continue
+    1 continue
 c
       return
       end
