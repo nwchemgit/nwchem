@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.12 2001-10-25 00:01:53 edo Exp $
+c$Id: grid_sympts.F,v 1.13 2001-10-25 02:57:36 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -126,17 +126,15 @@ c
                      y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z-xyz(2)
                      z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z-xyz(3)
                      do k1=k+1,nq_left
-                        if(k.ne.k1) then
-                           ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
-     +                         (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
-     +                         (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
-                           if(ddd.lt.1d-10) then
-                              if(gridscr(4,k1).ne.0d0) then
-                                 gridscr(4,k1)=0d0
-                                 n_equiv=n_equiv+1
-                              endif
-                              goto 111
+                        ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
+     +                       (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
+     +                       (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
+                        if(ddd.lt.1d-10) then
+                           if(gridscr(4,k1).ne.0d0) then
+                              gridscr(4,k1)=0d0
+                              n_equiv=n_equiv+1
                            endif
+                           goto 111
                         endif
                      enddo
 cedo                  write(6,*) ' no equiv found ???',222
