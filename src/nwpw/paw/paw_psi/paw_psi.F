@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.5 2003-03-23 22:21:53 bylaska Exp $
+* $Id: paw_psi.F,v 1.6 2003-10-23 01:35:35 bylaska Exp $
 *
 
 
@@ -140,7 +140,9 @@
       
 
       do ms=1,ispin
+
         IF(ne(ms).le.0) go to 640
+
 
 *       ***** compute the overlap matrices ****
         call paw_overlap_matrix_gen(n,ne(ms),

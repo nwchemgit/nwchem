@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.10 2003-10-21 02:05:17 marat Exp $
+c $Id: paw_overlap_matrix.F,v 1.11 2003-10-23 01:35:30 bylaska Exp $
 c
 
 !**************************************************
@@ -228,9 +228,9 @@ c
       !*** calculate overlap1 ****
 
       call Pack_npack(1,npack1)
-      call Grsm_ggm_dot(npack1,ne,
+      call Grsm_ggm2_dot(npack1,ne,
      >                  psi1,psi2,
-     >                  Sij)
+     >                  Sij,n)
 
       !*** allocate space from stack ****
       ok = MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
