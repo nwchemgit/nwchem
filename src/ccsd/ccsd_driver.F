@@ -43,7 +43,7 @@ c
        Integer ALo, AHi, IJLo, IJHi, LD, Off
        Integer MaxVec
 C
-       Logical OUseSym, OBlk
+       Logical OUseSym, OBlk, ODisk
        Integer MaxBfSh
        Character*80 CC_Theory
        character*20 scftype_vecs
@@ -174,6 +174,10 @@ c
        if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
      $    1,oblk)) oblk = .false.
 c
+c Disk caching disabled
+c
+       ODisk = .false.
+c     
 c Initialise integrals and screening
 c
        call int_normalize(basis)
@@ -292,12 +296,12 @@ c
          call moints_build_6x(basis,  OUseSym, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen, OBlk )
+     $                        blen, OBlk, ODisk )
        else
          call moints_build_2x(basis,  ohalf, OUseSym,
      $       occ_lo, oseg_lo, oseg_hi, nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen, OBlk )
+     $                        blen, OBlk, ODisk )
        endif
 c
 c
