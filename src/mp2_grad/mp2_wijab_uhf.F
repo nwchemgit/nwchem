@@ -43,7 +43,6 @@
       parameter(msg_w_ab_a_sum=9994)
       parameter(msg_w_ab_b_sum=9993)
       integer wijacnt,wijbcnt,wabacnt,wabbcnt
-      double precision dsum
 c     
       integer k_w_ij_a,k_w_ij_b
       integer l_w_ij_a,l_w_ij_b
@@ -179,14 +178,6 @@ c
       if (.not. ma_chop_stack(l_w_ij_a)) call errquit
      $     ('mp2_wijab_uhf: chop stack failed',0)
 c     
-      end
-
-      double precision function dsum(n,x,ix)
-      double precision x(ix,n)
-      dsum=0.0d0
-      do i=1,n
-         dsum=dsum+x(1,i)
-      enddo
       end
 
       subroutine util_inplace_transpose(n, a)

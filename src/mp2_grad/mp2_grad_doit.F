@@ -3,7 +3,7 @@
      $     num_oa,num_va,g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     num_ob,num_vb,eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
-     $     task,passab,oblk,
+     $     task,passab,oblk,oskel,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
@@ -28,6 +28,7 @@
       integer basis
       integer geom
       integer nbf,nmo
+      logical oskel
       character*(*) scftype
       integer num_i_perseg,npass,npasses,ierr
       integer k_amos,k_bmos,l_amos,l_bmos
@@ -137,7 +138,7 @@ c
 c     
       do npasses = 1, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
-         call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
+         call mp2_memory(basis,rtdb,tol2e,oskel,nbf,noa,nva,nob,nvb,
      $        num_i_perseg,max_ma,max_ga,max_file,task)
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
@@ -352,7 +353,7 @@ c
             call util_file_unlink(fnamek)
 c     
             call mp2_nonsep_uhf( rtdb, geom,
-     $           basis,
+     $           basis, oskel,
      $           nbf, 
      $           nir, 
      $           noa, nva, nva_lo, nva_hi, num_va, num_oa, 

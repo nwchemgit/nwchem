@@ -1,4 +1,5 @@
-      subroutine mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
+      subroutine mp2_memory(basis,rtdb,tol2e,oskel,
+     $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
       implicit none
 #include "mafdecls.fh"
@@ -6,6 +7,7 @@
       integer nbf,basis,rtdb
       integer noa,nva
       double precision tol2e
+      logical oskel
       integer nob,nvb
       integer max_ma
       integer max_ga
@@ -19,7 +21,8 @@
       integer nshpairlocal,nshpair,batch_size,shmax
       integer nbfpairlocal,nbfpair
 c     
-      call mp2_backt_info(basis,tol2e,.false.,nshpair,nshpairlocal,
+      call mp2_backt_info(basis,tol2e,oskel,
+     $     .false.,nshpair,nshpairlocal,
      $     nbfpair,nbfpairlocal,shmax,
      $     shdim,shlo,shpairs,shpairslocal,map)
 c     

@@ -1,5 +1,5 @@
       subroutine mp2_nonsep_uhf( rtdb, geom,
-     $     basis,
+     $     basis, oskel,
      $     nbf, 
      $     nir, 
      $     noa, nva, nva_lo, nva_hi, num_va, num_oa, 
@@ -19,6 +19,7 @@
 #include "eaf.fh"
 #include "cmp2ps.fh"
       integer basis, rtdb, geom
+      logical oskel
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
       integer noa, nob          ! No. of occupied orbitals
@@ -52,8 +53,8 @@ c
 c
       double precision tol2e
 c
-
       tol2e = 1d-9
+c
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('mp2: backt bad basis handle ', basis)
       ninseg = oseg_hi - oseg_lo + 1
@@ -64,7 +65,8 @@ c
       call schwarz_init(geom,basis)
       call int_terminate()
 c
-      call mp2_backt_info(basis, tol2e, .false., nshpair, nshpairlocal,
+      call mp2_backt_info(basis, tol2e, oskel,
+     $     .false., nshpair, nshpairlocal,
      $     nbfpair, nbfpairlocal, shmax, junk, junk, junk, junk, junk)
       if (.not. ma_push_get(mt_int, nshpair*2, 'mp2: shpairs',
      $     l_shpairs, k_shpairs)) call errquit
@@ -81,7 +83,8 @@ c
       if (.not. ma_push_get(mt_int, nsh, 'mp2:shdim',
      $     l_shdim, k_shdim)) call errquit
      $     ('mp2: insufficient memory : shdim ', nsh)
-      call mp2_backt_info(basis, tol2e, .true., nshpair, nshpairlocal,
+      call mp2_backt_info(basis, tol2e, oskel,
+     $     .true., nshpair, nshpairlocal,
      $     nbfpair, nbfpairlocal, shmax,
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     int_mb(k_shpairs), int_mb(k_shpairslocal), int_mb(k_map))
@@ -165,7 +168,7 @@ c
      $     nshpairlocal, int_mb(k_shpairslocal),
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_tmp), grad,
-     $     tol2e)
+     $     tol2e, oskel)
       call pstat_off(ps_nonsep)
 c
       call schwarz_tidy()
@@ -376,7 +379,7 @@ c
       end
       subroutine mp2_backt_info(
      $     basis,
-     $     tol2e,
+     $     tol2e, oskel,
      $     omakearrays,
      $     nshpair, nshpairlocal, 
      $     nbfpair, nbfpairlocal, shmax,
@@ -386,8 +389,10 @@ c
 #include "schwarz.fh"
 #include "global.fh"
 #include "util.fh"
+#include "sym.fh"
       integer basis             ! [input] basis set handle
       double precision tol2e    ! [input] screening threshold
+      logical oskel             ! [input] if true use skeleton symm
       logical omakearrays       ! [input] if true then make the arrays
       integer nshpair           ! [output] no. of non-zero shell pairs
       integer nshpairlocal      ! [output] no. of local shell pairs
@@ -413,10 +418,10 @@ c     end if
 c
 c     The Schwarz package must be initialized before entry
 c
-c     Symmetry needs to be added.
-c     
       integer u, v, nbf, nsh, lo, hi, udim, vdim, me, nproc, owner
       integer count, tmp, ishpair, first, last, iproc
+      logical odoit
+      double precision q2
 c
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('mp2_backt_info: bad basis handle', 0)
@@ -435,7 +440,9 @@ c
          call ifill(nproc, 0, map, 1)
          do u = 1, nsh
             do v = 1, u
-               if (schwarz_shell(u,v)*schwarz_max().gt.tol2e) then
+               odoit = schwarz_shell(u,v)*schwarz_max().gt.tol2e
+               if (odoit .and. oskel) odoit=sym_shell_pair(basis,u,v,q2)
+               if (odoit) then
                   owner = mod(nshpair,nproc)
                   map(owner) = map(owner) + 1
                   nshpair = nshpair + 1
@@ -470,7 +477,9 @@ c
             if (.not. bas_cn2bfr(basis, v, lo, hi))
      $           call errquit('mp2_backt_info: bas range failed', v)
             vdim = hi - lo + 1
-            if (schwarz_shell(u,v)*schwarz_max().gt.tol2e) then
+            odoit = schwarz_shell(u,v)*schwarz_max().gt.tol2e
+            if (odoit .and. oskel) odoit = sym_shell_pair(basis,u,v,q2)
+            if (odoit) then
                owner = mod(nshpair,nproc)
                if (owner.eq.me) then
                   nshpairlocal = nshpairlocal + 1
@@ -536,7 +545,7 @@ c
      $     nsh, nbf, ninseg,
      $     nshpairlocal, shpairslocal, shdim, shlo,
      $     t, tbuf, grad,
-     $     tol2e)
+     $     tol2e, oskel)
       implicit none
 #include "schwarz.fh"
 #include "mafdecls.fh"
@@ -545,6 +554,8 @@ c
 #include "geom.fh"
 #include "global.fh"
 #include "eaf.fh"
+#include "rtdb.fh"
+#include "sym.fh"
 c     
       integer rtdb
       integer basis
@@ -554,7 +565,8 @@ c
       integer nshpairlocal, shpairslocal(2,*), shdim(nsh), shlo(nsh)
       double precision t(*)     ! ninseg*nbf*S*S
       double precision tbuf(*)  ! nbf*S*S
-      double precision tol2e, p
+      double precision tol2e
+      logical oskel
 
       double precision grad(3,*)
 c     
@@ -564,17 +576,18 @@ c
       integer ush, vsh, xsh, ysh, u, v, x, y
       integer udim, vdim, xdim, ydim, xlo, ylo
       double precision energy, g
-      double precision scale
+      double precision scale, p
       integer l_g, k_g, l_scr, k_scr
       integer duvxy, uvxy, vuoff, xvuoff, yvuoff
 c     
-      double precision psum
+      double precision psum, q4
 c     
       integer nat, idatom, lengd, lenscrd, l_gd, k_gd, iat, icart, 
      $     k_scrd, l_scrd, idum, geom, idum2
       dimension idatom(4)
-      logical status, odebug
-c     
+      logical status, odebug, odoit, sym_shell_quartet
+      external sym_shell_quartet
+c
       odebug = util_print('mp2_backt', print_debug)
 c
       energy = 0.0d0
@@ -587,6 +600,7 @@ c
       lenscrd = max(lenscrd, lengd)
       status = bas_geom ( basis, geom )
       status = geom_ncent ( geom, nat )
+c
       if (.not. ma_push_get(mt_dbl, lenscr, 'mp2:test', l_scr, k_scr))
      $     call errquit('mp2:test ma', lenscr)
       if (.not. ma_push_get(mt_dbl, leng, 'mp2:test', l_g, k_g))
@@ -624,10 +638,18 @@ c
 c
          do xsh = 1, nsh
             do ysh = 1, xsh
-               if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
-     $              .gt. tol2e) then
-                  scale = 1.0d0
-                  if (xsh .eq. ysh) scale = 0.5d0
+               odoit = schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
+     $              .gt. tol2e
+               q4 = 1.0d0
+               if (odoit .and. oskel) odoit = 
+     $              sym_shell_quartet(basis, ush, vsh, xsh, ysh, q4)
+*               if (odebug) 
+*     $              write(6,*) ush, vsh, xsh, ysh, q4, odoit
+c
+               if (odoit) then
+c
+                  scale = q4
+                  if (xsh .eq. ysh) scale = scale*0.5d0
                   xdim = shdim(xsh)
                   ydim = shdim(ysh)
                   xlo  = shlo(xsh)
@@ -671,7 +693,7 @@ c
                         end do
                      end do
                   end do
-                  psum = sqrt(psum) 
+                  psum = sqrt(psum)
 
 c     use density to screen evaluation of gradient integrals
 
@@ -687,7 +709,7 @@ c     use density to screen evaluation of gradient integrals
                         if ( idatom(iat) .gt. 0 ) then
                            do icart = 1, 3
                               grad(icart,idatom(iat)) = 
-     $                             grad(icart,idatom(iat)) + 
+     $                             grad(icart,idatom(iat)) +
      $                             ddot(udim*vdim*xdim*ydim,
      $                             dbl_mb(k_g), 1, dbl_mb(duvxy), 1)
                               duvxy = duvxy + udim*vdim*xdim*ydim

@@ -39,7 +39,7 @@
       integer noa,nob,nva,nvb
       double precision tol2e,escf,e2,e_total,norm
       integer ga_create_atom_blocked
-      logical otrace, omatrix
+      logical otrace, omatrix, oskel
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
@@ -67,6 +67,9 @@ c
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad
 c     
+      if (.not.rtdb_get(rtdb, 'mp2:skeleton',MT_LOG, 1, oskel))
+     $     oskel = sym_number_ops(geom) .gt. 0
+c
       otrace = util_print('matrix trace',print_debug)
       omatrix = util_print('matrix debug', print_debug)
 c     
@@ -121,7 +124,7 @@ c
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,g_vecs_b))
      $     call errquit('mp2_energy: ga_create failed',0)
 c     
-      if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
+      if(.not.ma_push_get(mt_dbl,nbf*2,'occ alpha',
      $     l_occ_a,k_occ_a))      
      $     call errquit('mp2_energy ma problem with alpha occ',1)
       k_occ_b = k_occ_a + nbf   ! So that are contiguous for swap. Ugh.
@@ -239,6 +242,10 @@ c
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
       tol2e=1d-10
+c
+c     RJH DEBUG
+c
+*      call testtwopdm(rtdb, g_vecs_a, noa, nmo, nbf)
 c     
       e2=0.0d0
 c     
@@ -305,7 +312,7 @@ c
      $     nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
      $     sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
      $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,nmo,task,
-     $     pass,oblk,
+     $     pass,oblk,oskel,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
@@ -319,7 +326,7 @@ c
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
      $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,nmo,task,
-     $        pass,oblk,
+     $        pass,oblk,oskel,
      $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
