@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.8 1999-12-30 20:41:54 edo Exp $
+c$Id: grid_setrad.F,v 1.9 1999-12-30 21:02:09 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,8 @@ c
 c
       integer lexpo, iexpo, insh, lnsh
 c
-      integer n1,ninf,ndivide,mxnrad,zz
+      integer n1,ninf,ndivide,mxnrad
+      double precision zz
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
