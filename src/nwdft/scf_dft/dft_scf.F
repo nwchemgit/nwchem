@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.80 1997-06-11 18:16:52 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.81 1997-06-27 00:42:49 d3h449 Exp $
 c     
       implicit none
 c
@@ -416,7 +416,7 @@ c      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
 c
 c     allocate array for irreps
 c
-      if (.not.MA_Push_Get(mt_dbl, nbf_ao,'dft:irreps', l_ir, k_ir))
+      if (.not.MA_Push_Get(mt_int, nbf_ao,'dft:irreps', l_ir, k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
@@ -621,13 +621,17 @@ c
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       call xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &             g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
+      if (oprint_time)call dft_tstamp(' After  call to GETVXC.  ')
       call ga_sync
+      if (oprint_time)call dft_tstamp(' After call to ga_sync.  ')
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
+      if (oprint_time)call dft_tstamp(' After call to ga_dadd.  ')
       if (ipol.gt.1)then
 c     
 c     Put (-alpha+beta) in g_vxc(2)
 c     
          call ga_dadd(-1.d0, g_vxc(1), 1.d0, g_vxc(2), g_vxc(2))
+         if (oprint_time)call dft_tstamp(' After call to ga_dadd.  ')
       endif
 c     
       if (oprint_time)

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.43 1997-06-11 18:16:48 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.44 1997-06-27 00:42:34 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -798,6 +798,17 @@ c
             movecs_out = movecs_in
          endif
       endif
+c
+c     Resolve names of MO files to full paths defaulting to the
+c     permanent directory
+c
+      if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
+     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+         continue
+      else
+         call util_file_name_resolve(movecs_in, .false.)
+      endif
+      call util_file_name_resolve(movecs_out, .false.)
 c
 c     Check/set quadrature
 c
