@@ -58,6 +58,11 @@ c
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call int2e_buf_clear()
       call dfill(buffer_size, 0.0d0, values, 1)
+#ifdef NOAIO
+      oasyncio = .false.
+#else
+      oasyncio = .true.
+#endif
 c
 c     work out dynamic ranges and scaling for integral compression
 c
@@ -191,10 +196,12 @@ c
 #include "msgids.fh"
 #include "cint2esave.fh"
 #include "eaf.fh"
+#include "util.fh"
       logical okeep  ! [input] If true keep, otherwise delete
 c
       if (file_opened) then
-         if (oinfo) call eaf_print_stats(fd)
+         if (oinfo .or. util_print('iostats',print_never)) 
+     $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('int2e_file_close: eaf_close failed',0)
          if (.not. okeep) then
@@ -870,16 +877,55 @@ c
 c
       int2e_packed_buf_read = .true.
       if (cur_rec .le. max_cache_rec) then
+c
+c     Record is cached in memory
+c
          call dcopy(rec_len_in_dbl, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
      $        buf, 1)
       else
+c
+c     Record is on disk
+c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
-         ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
-         if (ierr.ne.0) then
-           call eaf_errmsg(ierr,errmsg)
-           write(6,*) ga_nodeid(),errmsg
-           call errquit('int2e_buf_read:premature end of file',cur_rec)
+c
+         if ((.not. oasyncio) .or. (.not. oiopending)) then
+c
+c     Either synchronous IO, or the record has not been read already
+c
+            ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
+            if (ierr.ne.0) then
+               call eaf_errmsg(ierr,errmsg)
+               write(6,*) ga_nodeid(),errmsg
+               call errquit('int2e_buf_read:premature end of file',
+     $              cur_rec)
+            endif
+         else
+c
+c     The record has been read asynchronously ... copy it over
+c
+            ierr = eaf_wait(fd, aioreq)
+            if (ierr .ne. 0) then
+               call eaf_errmsg(ierr,errmsg)
+               write(6,*) ga_nodeid(),errmsg
+               call errquit('int2e_buf_read:eaf_wait failed',cur_rec)
+            endif
+            oiopending = .false.
+            call dcopy(rec_len_in_dbl, buf2, 1, buf, 1)
+         endif
+c         
+         if (oasyncio .and. ((cur_rec+1).le.n_rec_in_file)) then
+c
+c     Post a read for the next record
+c
+            offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec)
+            ierr = eaf_aread(fd, offset, buf2, 8*rec_len_in_dbl, aioreq)
+            oiopending = .true.
+            if (ierr.ne.0) then
+               call eaf_errmsg(ierr,errmsg)
+               write(6,*) ga_nodeid(),errmsg
+               call errquit('int2e_buf_read:asynch IO failed',cur_rec+1)
+            endif
          endif
       end if
 c

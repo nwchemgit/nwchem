@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.54 1997-05-20 00:16:03 d3g681 Exp $
+C$Id: scf.F,v 1.55 1997-05-21 22:04:34 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -246,7 +246,7 @@ c
 c
 c     With some better data compression in the ECCE output
 c     we can now output all occupied plus the top 20 virtuals.
-c     Also, ECCE will current be confused if molo != 1
+c     Also, ECCE may currently be confused if molo != 1
 c
       molo = 1
       mohi = min(nmo,nalpha+20)

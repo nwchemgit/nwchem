@@ -25,6 +25,10 @@ c
       integer laboff            ! Integer offset of packed labels in ibuf
       integer nint_per_dbl      ! No. of integers per double precision
 c
+      logical oasyncio          ! If true use asynchronous IO
+      logical oiopending        ! If true asynchronous IO is pending
+      integer aioreq            ! EAF handle to AIO request
+c
       integer range(4,2)        ! Current bf range (i/j/k/l,lo/hi)
       integer nleft_in_range    ! No. of ints to be processed in range
       integer cntr_ptr          ! Pointer to counter of integs in range
@@ -42,8 +46,12 @@ c
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
+      double precision buf2     ! Compressed buffer for IO only - ASYNC
+      integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
+      integer pad2              ! Padding for 32 bit machines   - ASYNC
+c
 *      parameter (buffer_size = 16) ! About the minimum
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#ifdef CRAY_T3D
 c     save on memory since have only physical memory
       parameter (buffer_size = 8192)
 #else
@@ -54,6 +62,10 @@ c
      $     buf(buffer_size),
      $     n_in_buf, pad
       equivalence(ibuf(1),buf(1))
+c
+      common/cint2ebuf2/
+     $     buf2(buffer_size),
+     $     n_in_buf2, pad2
 c
       common/cint2efile/
      $     values(buffer_size),
@@ -82,6 +94,9 @@ c
      $     laboff,
      $     nint_per_dbl,
      $     fd,
+     $     oasyncio,
+     $     oiopending,
+     $     aioreq,
      $     posinfo(16)
 c
       common/ccintinfo/
