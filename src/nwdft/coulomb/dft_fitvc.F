@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.15 1997-03-06 06:51:14 d3h449 Exp $
+c     $Id: dft_fitvc.F,v 1.16 1997-03-06 20:01:32 d3h449 Exp $
       implicit none
 c      
       double precision CD_coef(nbf_cd)
@@ -375,6 +375,12 @@ c
      &                  ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
      &                  Dbl_MB(iERI))
                         call dscal(Nintegrals, q1, Dbl_MB(iERI), 1)
+c                   
+c                       Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c
+                        call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                       Dbl_MB(iERI),Nao2,
+     &                       CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
                      else
                         call dzero(Dbl_MB(iERI),Nintegrals)
                      endif
@@ -382,15 +388,13 @@ c
                      call int_2e3c(CD_bas_han,ishp,AO_bas_han,
      &               ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
      &               Dbl_MB(iERI))
-                  endif
 c                   
-c                 Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c                    Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c
-c                 Should check to see if this dgemv can be skipped if not unique shell
-c                   
-                  call dgemv('N',Nao2,nshbf_cd,1.D0,
-     &                 Dbl_MB(iERI),Nao2,
-     &                 CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                     call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                    Dbl_MB(iERI),Nao2,
+     &                    CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                  endif
                 endif
 c
                 nfunz=nfunz+nshbf_cd

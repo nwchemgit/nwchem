@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.64 1997-03-06 06:51:21 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.65 1997-03-06 20:01:38 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -116,10 +116,6 @@ c-----------------------------------------------------------------------
       oprint_intermediate_fock = util_print('intermediate fock matrix',
      $     print_high)
       oprint_final_vecs = util_print('final vectors',print_high)
-C     
-C     oadapt true to get symm analysis
-C     
-      oadapt=.true.
       me=ga_nodeid()
       nproc=ga_nnodes()
 c     
@@ -875,7 +871,18 @@ c
  22   format(1x,'d=',i2,',ls=',f3.1,6x,i5,f18.10,
      $     1p,2d10.2,10x,0p,f8.1)
  23   format(51x,1p,1d10.2)
+c
       call ga_sync
+c
+c     symmetry adapt vectors?
+c
+      if(oadapt)then
+         call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
+     $        oprint_syma,nbf_ao, '- alpha', .false., 1)
+         if(ipol.eq.2) 
+     $        call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
+     $        oprint_syma, nbf_ao, '- beta', .false., 1)
+      endif      
 c     
 c     save eigenvectors to movecs file
 c     
@@ -917,14 +924,6 @@ c
          call ga_print(g_movecs)
          if(ipol.eq.2) call ga_print(g_movecs(2))
       end if
-      if(oprint_syma) then
-         call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
-     $        oprint_syma,nbf_ao, '- alpha', .false., 1)
-         if(ipol.eq.2) 
-     $        call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
-     $        oprint_syma, nbf_ao, '- beta', .false., 1)
-      endif
-      
 c     
 c     Form the total density matrix.
 c     
@@ -1041,7 +1040,7 @@ c
          diising = .false.
          levelshifting = .false.
          damping = .false.
-         go to 1000             ! build final orbitals/energies
+         go to 1000             ! build final total energies
       endif
 c     
  2000 continue
@@ -1078,6 +1077,16 @@ c
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(LuOut)
       endif
+c
+c     symmetry adapt vectors last time print symmetries, etc.
+c
+      if(oadapt)then
+         call scf_movecs_sym_adapt(ao_bas_han, g_movecs,
+     $        oprint, nbf_ao, '- alpha', .false., 1)
+         if(ipol.eq.2) 
+     $        call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), 
+     $        oprint, nbf_ao, '- beta', .false., 1)
+      endif      
 c     
 c     call to Mulliken Pop Ananlysis
 c     

@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.8 1997-03-06 06:51:26 d3h449 Exp $
+C$Id: xc_fitv.F,v 1.9 1997-03-06 20:01:40 d3h449 Exp $
 c
       implicit none
 c
@@ -216,6 +216,21 @@ c
      &                       ishb, AO_bas_han, ishc, nscr2, 
      &                       Dbl_MB(iscr2), Nintegrals, Dbl_MB(i3OI))
                         call dscal(Nintegrals, q1, Dbl_MB(i3OI), 1)
+c      
+c                       Multiply the matrix of 3-ctr OIs by the XC 
+c                       expansion coefficients.
+c
+                        do ii = 0, nTcols-1
+                           nxc=ixc_coef+ii*nbf_xc+iixc
+                           npint=i3OI
+                           istart=ivvxc+ii*Nao2
+                           do ia = 0, nshbfa-1
+                              fact=DBL_MB(nxc+ia)
+                              call daxpy(Nao2, fact, DBL_MB(npint), 1, 
+     &                             DBL_MB(istart), 1)
+                              npint=npint+Nao2
+                           enddo
+                        enddo
                      else
                         call dzero(Dbl_MB(i3OI), Nintegrals)
                      endif
@@ -223,25 +238,22 @@ c
                      call int_1e3ov(XC_bas_han, isha, AO_bas_han, ishb,
      &                    AO_bas_han, ishc, nscr2, Dbl_MB(iscr2),
      &                    Nintegrals, Dbl_MB(i3OI))
-                  endif
 c      
-c                 Multiply the matrix of 3-ctr OIs by the XC 
-c                 expansion coefficients.
+c                    Multiply the matrix of 3-ctr OIs by the XC 
+c                    expansion coefficients.
 c
-c
-c                 I think this loop should be skipped if not unique shell (check this)
-c      
-                  do ii = 0, nTcols-1
-                     nxc=ixc_coef+ii*nbf_xc+iixc
-                     npint=i3OI
-                     istart=ivvxc+ii*Nao2
-                     do ia = 0, nshbfa-1
-                        fact=DBL_MB(nxc+ia)
-                        call daxpy(Nao2, fact, DBL_MB(npint), 1, 
-     &                             DBL_MB(istart), 1)
-                        npint=npint+Nao2
+                     do ii = 0, nTcols-1
+                        nxc=ixc_coef+ii*nbf_xc+iixc
+                        npint=i3OI
+                        istart=ivvxc+ii*Nao2
+                        do ia = 0, nshbfa-1
+                           fact=DBL_MB(nxc+ia)
+                           call daxpy(Nao2, fact, DBL_MB(npint), 1, 
+     &                          DBL_MB(istart), 1)
+                           npint=npint+Nao2
+                        enddo
                      enddo
-                  enddo
+                  endif
                   iixc=iixc+nshbfa
   210          continue
 c      
