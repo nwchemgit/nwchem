@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.17 1995-10-21 19:39:37 d3g681 Exp $
+C$Id: vectors.F,v 1.18 1995-11-03 18:52:31 rg240 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -479,5 +479,182 @@ c
          if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
  1000    continue
       enddo
+c
+      end
+
+
+
+
+
+
+
+      logical function file_write_ga(fname, g_a)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+c     Generic routine for sequential write 
+c     of global array to file
+c
+      character*(*) fname            ! [input] Name of file to write to
+      integer g_a                    ! [input] Array to write
+c
+      integer unitno                 ! Unit no. for writing
+      parameter (unitno = 86)
+      character*255 gtitle
+      integer l_tmp, k_tmp
+      integer len1, nrow, ncol, type
+      integer ok, i, j
+c
+      ok = 0
+      call ga_inquire(g_a, type, nrow, ncol)
+      call ga_inquire_name(g_a, gtitle)
+      if (ga_nodeid() .eq. 0) then
+        open(unitno, status='unknown', form='unformatted',
+     $       file=fname, err=1000)
+        len1 = inp_strlen(gtitle)
+        write(unitno, err=1001) len1
+        write(unitno, err=1001) gtitle(1:len1)
+        write(unitno, err=1001) nrow, ncol
+        if (.not. ma_push_get(mt_dbl,nrow,'movecs_write',l_tmp,k_tmp))
+     $    call errquit('matrix_fwrite: ma failed', nrow)
+        do i=1,ncol
+          call ga_get(g_a, 1, nrow, i, i, dbl_mb(k_tmp), 1)
+          write(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
+        enddo
+        if (.not. ma_pop_stack(l_tmp))
+     $    call errquit('file_write_ga: ma pop failed', l_tmp)
+        close(unitno,err=1002)
+        ok = 1
+      endif
+c
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+c
+      file_write_ga = ok .eq. 1
+      if (ga_nodeid() .eq. 0 .and.
+     $     util_print('vectors i/o', print_default)) then
+         write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
+ 22      format(/' Wrote ',a,' to ',a/)
+         call util_flush(6)
+      endif
+      return
+c
+ 1000 write(6,*) ' file_write_ga: failed to open ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      goto 10
+c
+ 1001 write(6,*) ' file_write_ga: failing writing to ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+c
+ 1002 write(6,*) ' file_write_ga: failed to close',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      goto 10
+c
+      end
+
+
+
+
+
+
+
+
+
+
+
+      logical function file_read_ga(fname, g_a)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+c     Generic routine for sequential read 
+c     of file to global array
+c
+      character*(*) fname            ! [input] Name of file to read from
+      integer g_a                    ! [output] Array
+c
+      integer unitno                 ! Unit no. for writing
+      parameter (unitno = 86)
+      character*255 gtitle
+      integer l_tmp, k_tmp
+      integer len1, nrow, ncol, type
+      integer grow, gcol
+      integer ok, i, j
+c
+      ok = 0
+      call ga_inquire(g_a, type, grow, gcol)
+      if (ga_nodeid() .eq. 0) then
+        open(unitno, status='old', form='unformatted',
+     $       file=fname, err=1000)
+        read(unitno, err=1001) len1
+        read(unitno, err=1001) gtitle(1:len1)
+        read(unitno, err=1001) nrow, ncol
+        if ((nrow.ne.grow).and.(ncol.ne.gcol)) goto 2000
+        if (.not. ma_push_get(mt_dbl,nrow,'movecs_write',l_tmp,k_tmp))
+     $    call errquit('matrix_fwrite: ma failed', nrow)
+        do i=1,ncol
+          read(unitno, err=1001) (dbl_mb(k_tmp+j), j=0,nrow-1)
+          call ga_put(g_a, 1, nrow, i, i, dbl_mb(k_tmp), 1)
+        enddo
+        if (.not. ma_pop_stack(l_tmp))
+     $    call errquit('file_read_ga: ma pop failed', l_tmp)
+        close(unitno,err=1002)
+        ok = 1
+      endif
+c
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+c
+      file_read_ga = ok .eq. 1
+      if (ga_nodeid() .eq. 0 .and.
+     $     util_print('vectors i/o', print_default)) then
+         write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
+ 22      format(/' Read ',a,' from ',a/)
+         call util_flush(6)
+      endif
+      return
+c
+ 1000 write(6,*) ' file_read_ga: failed to open ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      goto 10
+c
+ 1001 write(6,*) ' file_read_ga: failing writing to ',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+c
+ 1002 write(6,*) ' file_read_ga: failed to close',
+     $     fname(1:inp_strlen(fname))
+      call util_flush(6)
+      ok = 0
+      goto 10
+c
+ 2000 write(6,*) ' file_read_ga: GA and file ',
+     $           'contents mismatch dimensions',
+     $           nrow, ncol, grow, gcol
+      call util_flush(6)
+      ok = 0
+      goto 10
 c
       end

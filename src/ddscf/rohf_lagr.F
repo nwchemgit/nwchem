@@ -3,7 +3,7 @@ c  Create and save ROHF Lagrangian
 c  for gradient module
 c
       subroutine rohf_lagr
-C$Id: rohf_lagr.F,v 1.3 1995-11-02 22:59:17 rg240 Exp $
+C$Id: rohf_lagr.F,v 1.4 1995-11-03 18:52:30 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -14,32 +14,31 @@ c
       integer g_lagr
       character*255 lagr_out
       integer nset
+      integer nocc
       logical movecs_write
       external movecs_write
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_lagr: lagr', 1, 1,
+      nocc = nclosed + nopen
+      if (.not. ga_create(MT_DBL, nocc, nocc, 'rohf_lagr: lagr', 1, 1,
      $     g_lagr)) call errquit('rohf_lagr: ga_create failed', 0)
       call ga_zero(g_lagr)
-      call ga_copy_patch('n', crohf_g_fcv, 1, nclosed, 1, nbf,
-     $                        g_lagr, 1, nclosed, 1, nbf )
+      call ga_copy_patch('n', crohf_g_fcv, 1, nclosed, 1, nocc,
+     $                        g_lagr, 1, nclosed, 1, nocc )
       if (nopen.gt.0) then
         call ga_copy_patch('n',
-     $           crohf_g_fpv, nclosed+1, nclosed+nopen, 1, nbf,
-     $           g_lagr, nclosed+1, nclosed+nopen, 1, nbf )
+     $           crohf_g_fpv, nclosed+1, nclosed+nopen, 1, nocc,
+     $           g_lagr, nclosed+1, nclosed+nopen, 1, nocc )
         call ga_dscal_patch( g_lagr, nclosed+1, nclosed+nopen,
-     $                       1, nbf, 0.5d0)
+     $                       1, nocc, 0.5d0)
       endif
+c$$$      CALL GA_PRINT(G_LAGR)
       call ga_screen(g_lagr,1.0d-13)
 c
-c  Prepare to dump out
+c  Dump out to disk
 c
       nset = 1
       call util_file_prefix('lagr', lagr_out)
-      if (.not. movecs_write(lagr_out, title, trans,
-     $                       nbf, nset, nbf,
-     $                       dbl_mb(k_occ), nbf, dbl_mb(k_eval),
-     $                       nbf, g_lagr))
-     $     call errquit('rohf_lagr: movecs_write failed', 0)
+      call file_write_ga( lagr_out, g_lagr )
       if (.not. ga_destroy(g_lagr))
      $     call errquit('rohf_lagr: destroy', 0)
       return
