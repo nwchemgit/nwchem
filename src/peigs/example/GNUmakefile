@@ -1,6 +1,6 @@
 include ../DEFS
 
-LIBS 	=	$(PEIGSLIB) $(LAPACKLIB) $(BLASLIB) $(MATHLIB) $(COMMLIB)
+peigs_LIBS 	=	$(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB)
 #
 # Do not use -lkmath on delta, it occasionally causes 
 # erroneous results (e.g. with tri_test.c with robert_tri as input
@@ -10,22 +10,22 @@ LIBS 	=	$(PEIGSLIB) $(LAPACKLIB) $(BLASLIB) $(MATHLIB) $(COMMLIB)
 all:		geneig tritest wilk
 
 teslamch:	teslamch.o slamch.o dlamch.o lsame.o
-		$(LINK) $(OPT) -o teslamch teslamch.o slamch.o dlamch.o lsame.o
+		$(peigs_LINK) $(peigs_FOPT) -o teslamch teslamch.o slamch.o dlamch.o lsame.o
 
 geneig_la:	gendrv.o geneig_la.o tim_com.o
-		$(LINK) $(OPT) -o geneig_la gendrv.o geneig_la.o tim_com.o $(LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o geneig_la gendrv.o geneig_la.o tim_com.o $(peigs_LIBS)
 
 tsterr:		gendrv.o tsterr.o
-		$(LINK) $(OPT) -o tsterr gendrv.o tsterr.o $(LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o tsterr gendrv.o tsterr.o $(peigs_LIBS)
 
 geneig:		gendrv.o geneig2.o tim_com.o
-		$(LINK) $(OPT) -o geneig gendrv.o geneig2.o tim_com.o $(LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o geneig2.o tim_com.o $(peigs_LIBS)
 
 wilk:		gendrv.o wilk2.o tim_com.o
-		$(LINK) $(OPT) -o wilk gendrv.o wilk2.o tim_com.o $(LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o tim_com.o $(peigs_LIBS)
 
 tritest:	gendrv.o tri_test.o tim_com.o
-		$(LINK) $(OPT) -o tritest gendrv.o tri_test.o tim_com.o $(LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o tri_test.o tim_com.o $(peigs_LIBS)
 
 .EXPORT_ALL_VARIABLES:
 
@@ -41,13 +41,13 @@ realclean:
 
 
 eig.o:		eig.f
-		$(FC) -c eig.f
+		$(peigs_FC) -c eig.f
 
 gendrv.o:	gendrv.F
-		$(CPP) < gendrv.F > gendrv.f
-		$(FC) $(OPT) -c $(FCNFLAGS) gendrv.f
+		$(peigs_CPP) < gendrv.F > gendrv.f
+		$(peigs_FC) $(peigs_FOPT) -c gendrv.f
 		rm gendrv.f
 
 
-.f.o: ;	 $(FC) $(OPT) -c $(FCNFLAGS) $<
-.c.o: ;  $(CC) $(OPTC)  -c $(CFLAGS) -I$(HDIR) $<
+.f.o: ;	 $(peigs_FC) $(peigs_FOPT) -c $<
+.c.o: ;  $(peigs_CC) $(peigs_COPT)  -c $<
