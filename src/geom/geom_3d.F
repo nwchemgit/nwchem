@@ -16,34 +16,36 @@ c
 c     The lattice constants are input and stored in Angstroms and Degrees
 c***********************************************************************
       subroutine geom_3d(geom)
-C$Id: geom_3d.F,v 1.3 1995-02-02 23:12:44 d3g681 Exp $
+C$Id: geom_3d.F,v 1.4 1996-07-12 23:47:05 gutowski Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
-
+c
       integer geom,i,j,iang,indx(3)
-      real*8 cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol,
-     &       c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),
-     &       rang(3)
+      double precision cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol
+      double precision c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),rang(3)
+      double precision bmat(3,3),scale,pi
+c
       parameter(rad=57.295779513082343d0)
+c
+      pi=acos(0.0d0)*2.0d0
 c
 c--> get direct space lattice vectors
 c
       do 100 i=1,3
-        cdist(i)=lattice_vectors(i,geom)
-        cang(i) =lattice_angles(i,geom)
+        cdist(i)=lattice_vectors(i,geom)*angstrom_to_au
+        cang(i) =lattice_angles(i,geom)/rad
   100 continue
 c
 c--> convert angles to radians
 c
-      do 110 i=1,3
-        cang(i)=cang(i)/rad
-  110 continue
+c      do 110 i=1,3
+c        cang(i)=cang(i)/rad
+c  110 continue
 c     
-c--------> build the metrical matrix
+c--------> build the metrical matrix (atomic units)
 c     
-      
       do 200 i=1,3
         gmat(i,i)=cdist(i)**2
   200 continue
@@ -62,7 +64,7 @@ c
   240   continue
   230 continue
 c     
-c----------> compute the volume
+c----------> compute the volume (atomic units)
 c     
       call ludcmp(gmat,3,3,indx,dperm)
       do 245 i=1,3
@@ -80,21 +82,25 @@ c    b-axis is along j (unit rectilinear vector), ab-plane contains i (rect),
 c    i.e., j along b, i in  ab-plane
 c     
 c  Note this matrix is implicitly built to convert the input coordinates
-c  from angstroms to bohr.
+c  from angstroms to bohr; i.e., amat is in atomic units.
+c
+c  the Jth column of this matrix contains the jth lattice vector
+c aij is the ith Cartesian component of the jth lattice vector.
+c
 c
       c1=dcos(cang(1))
       c2=dcos(cang(2))
       c3=dcos(cang(3))
       s3=dsin(cang(3))
-      amat(1,1) = cdist(1)*s3*angstrom_to_au
+      amat(1,1) = cdist(1)*s3
       amat(1,2) = 0.0d+00
-      amat(1,3) = (cdist(3)*(c2-c1*c3)/s3)*angstrom_to_au
-      amat(2,1) = cdist(1)*c3*angstrom_to_au
-      amat(2,2) = cdist(2)*angstrom_to_au
-      amat(2,3) = cdist(3)*c1*angstrom_to_au
+      amat(1,3) = (cdist(3)*(c2-c1*c3)/s3)
+      amat(2,1) = cdist(1)*c3
+      amat(2,2) = cdist(2)
+      amat(2,3) = cdist(3)*c1
       amat(3,1) = 0.0d+00
       amat(3,2) = 0.0d+00
-      amat(3,3) = (vol/(cdist(1)*cdist(2)*s3))*angstrom_to_au
+      amat(3,3) = (vol/(cdist(1)*cdist(2)*s3))
 c     
 c     load it into common
 c
@@ -104,22 +110,29 @@ c
   260   continue
   250 continue
 c
-c--> build amatrix_inv for 3-d systems
+c compute direct space volume in atomic bohr**3
+c
+c      vol = abs(amat(1,1)*(amat(2,2)*amat(3,3)-amat(3,2)*amat(2,3)) +
+c     $     amat(1,2)*(amat(2,3)*amat(3,1)-amat(3,3)*amat(2,1)) +
+c     $     amat(1,3)*(amat(2,1)*amat(3,2)-amat(3,1)*amat(2,2)))
+c      volume_direct(geom)=vol
+c
+c--> build amatrix_inv for 3-d systems (units=inverse a.u.)
 c
       c1=dcos(cang(1))
       c2=dcos(cang(2))
       c3=dcos(cang(3))
       s3=dsin(cang(3))
-
-      ainv(1,1) = (1.0d+00/(cdist(1)*s3))/angstrom_to_au
+c
+      ainv(1,1) = (1.0d+00/(cdist(1)*s3))
       ainv(1,2) = 0.0d+00
-      ainv(1,3) = (cdist(2)*cdist(3)*(c1*c3-c2)/(vol*s3))/angstrom_to_au
-      ainv(2,1) = (-c3/(cdist(2)*s3))/angstrom_to_au
-      ainv(2,2) = (1.0d+00/cdist(2))/angstrom_to_au
-      ainv(2,3) = (cdist(1)*cdist(3)*(c2*c3-c1)/(vol*s3))/angstrom_to_au
+      ainv(1,3) = (cdist(2)*cdist(3)*(c1*c3-c2)/(vol*s3))
+      ainv(2,1) = (-c3/(cdist(2)*s3))
+      ainv(2,2) = (1.0d+00/cdist(2))
+      ainv(2,3) = (cdist(1)*cdist(3)*(c2*c3-c1)/(vol*s3))
       ainv(3,1) = 0.0d+00
       ainv(3,2) = 0.0d+00
-      ainv(3,3) = (cdist(1)*cdist(2)*s3/vol)/angstrom_to_au
+      ainv(3,3) = (cdist(1)*cdist(2)*s3/vol)
 c     
 c     load it into common
 c
@@ -153,7 +166,28 @@ c
         recip_lat_vectors(i,geom)=rdist(i)
         recip_lat_angles(i,geom)=rang(i)*rad
  2000 continue
-
+c
+c  Cartesian components of reciprocal lattice vectors in a.u.
+c
+      scale=(2.0d0*pi/vol)
+c
+      bmat(1,1)=scale*(amat(2,2)*amat(3,3)-amat(3,2)*amat(2,3))
+      bmat(1,2)=scale*(amat(2,3)*amat(3,1)-amat(3,3)*amat(2,1))
+      bmat(1,3)=scale*(amat(2,1)*amat(3,2)-amat(3,1)*amat(2,2))
+      bmat(2,1)=scale*(amat(3,2)*amat(1,3)-amat(1,2)*amat(3,3))
+      bmat(2,2)=scale*(amat(3,3)*amat(1,1)-amat(1,3)*amat(3,1))
+      bmat(2,3)=scale*(amat(3,1)*amat(1,2)-amat(1,1)*amat(3,2))
+      bmat(3,1)=scale*(amat(1,2)*amat(2,3)-amat(2,2)*amat(1,3))
+      bmat(3,2)=scale*(amat(1,3)*amat(2,1)-amat(2,3)*amat(1,1))
+      bmat(3,3)=scale*(amat(1,1)*amat(2,2)-amat(2,1)*amat(1,2))
+c
+c  load bmatrix into common
+c
+      do 290 i=1,3
+         do 300 j=1,3
+            bmatrix(i,j,geom)=bmat(i,j)
+ 300     continue
+ 290  continue
 c
 c***angles in radians
 c
