@@ -841,6 +841,15 @@ current release. For development only:
 Keywords that control print to the output file, with extension {\bf out}.
 \begin{itemize}
 \item
+Printing topology information
+\begin{verbatim}
+[print topol [nonbond] [solvent] [solute]]
+\end{verbatim}
+where {\bf nonbond} refers to the non-bonded interaction parameters,
+{\bf solvent} to the solvent bonded parameters and {\bf solute} to the
+solute bonded parameters. If only {\bf topol} is specified, all
+topology information will be printed to the output file.
+\item
 Printing time step information
 \begin{verbatim}
 [print [step <i nfoutp>] [extra] [energy]]
