@@ -504,8 +504,10 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      printf(" on entrance to pstebz10 i = %d d %g e %g \n", m, d[m], e[m]);
 #endif
 
-   for (i = 0; i < msize; i++ )
+   shift = 0.0;
+   for (i = 0; i < msize; i++ ){
      work[i] = d[i];
+   }
    
    for (i = 0; i < msize; i++ )
      work[msize + i] = e[i];
@@ -514,16 +516,19 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    dsterf_( &msize, &work[0], &work[msize+1], info);
    if ( *info != 0 ){
      if ( me == 0 )
-       printf(" error from dlasq2a %d \n", *info );
-     xstop_(info);
+       printf(" error from dsterf %d \n", *info );
    }
    
    leig = work[0];
-   for (i = 0; i < msize; i++ )
+   dummy = 0.;
+   for (i = 0; i < msize; i++ ){
      eval[i] = work[i];
-   
+   }
+
    if ( *info != 0 ) {
      fil_int_lst(*n, (Integer *) isplit, 0);
+	if ( me == 0 )
+	printf(" using dstebz ... dsterf failed \n");
      
      il = 1;
      iu = msize;
@@ -676,10 +681,24 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 
    psgn = 1.0e0;
    psigma = 0.e0;
+
    leig = eval[0]; 
-   if ( leig <= 0. ){
+   if ( leig <= DLAMCHS ){
+
+   shift = d[0] - fabs(e[1]);
+   for ( i = 1; i < msize - 1 ; i++ ){
+	dummy = d[i] - fabs(e[i]) - fabs(e[i+1]);
+	shift = min(shift, dummy);
+	}
+	dummy = d[msize-1] - fabs(e[msize-1]);
+   shift = min(shift, dummy);
+
+/*   if ( me == 0 )
+   printf(" shift %g leig  %g \n", shift, leig );
+*/
+
      psgn = 1.;
-     psigma = -(ffabs(leig)+1.0e3*sqrt(DLAMCHE));
+     psigma = -(shift);
      
      for ( i = 0; i < msize; i++ )
        eval[i] = eval[i] - psgn*psigma; 
@@ -742,14 +761,14 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    /*
      for ( m = 0; m < *n; m++ )
      printf(" before split m = %d d %g e %g \n", m, d[m], e[m]);
-     */
-
+   */
+   
    *nsplit = 1;
    isplit[0] = *n;
    for(i = 0;i < *n;i++){
      iblock[i] = 1;
    }
-
+   
    for (i = 0; i < *n; i++ )
      work[i] = d[i] - psgn*psigma;
    
@@ -759,9 +778,10 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      blksz = jsplit-i1split;
      dptr = &dplus[i1split];
      lptr = &lplus[i1split];
+     
      /*
        LDL' factorization of tridiagonal
-       */
+     */
      
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
      

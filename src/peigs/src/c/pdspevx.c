@@ -700,6 +700,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
+/*
    if ( me == 0 ) {
      file = fopen(filename, "a+");
      fprintf(file, "info = %d \n", linfo);
@@ -711,6 +712,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    }
    
 
+*/
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
@@ -759,6 +761,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
 #endif
       
+      psgn = 1.0;
+      psigma = 0.0;
       
       pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
 		 dd, ee, dplus, lplus,
@@ -1020,9 +1024,9 @@ END:
     for ( iii = 0; iii < neigval; iii++){
       eval[iii] += psgn*psigma;
     }
-
+    
     /*
-    for ( iii = 0; iii < msize; iii++)
+      for ( iii = 0; iii < msize; iii++)
       printf(" me = %d iii %d realeig %f \n", me, iii, eval[iii]);
       */
     
@@ -1031,20 +1035,19 @@ END:
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 117, mapA[0], nn_proc, proclist, d_scrat);
 
-   /*
- k = 0;
-    for ( iii = 0; iii < msize; iii++){
+    /*
+      k = 0;
+      for ( iii = 0; iii < msize; iii++){
       if ( mapZ[iii] == me ) {
-	dummy = dnrm2_( &msize, vecZ[k], IONE);
-	printf(" %d nrm2 %f ********** \n", iii, dummy);
-	dummy = 1.0/dummy;
-	dscal_( &msize, &dummy, vecZ[k], IONE);
-	k++;
+      dummy = dnrm2_( &msize, vecZ[k], IONE);
+      printf(" %d nrm2 %f ********** \n", iii, dummy);
+      dummy = 1.0/dummy;
+      dscal_( &msize, &dummy, vecZ[k], IONE);
+      k++;
       }
-    }
-*/
-    
-    
+      }
+      */
+
 #ifdef PSCALE
     dummy = peigs_scale;
     for ( iii=0; iii < neigval; iii++ )
@@ -1075,6 +1078,24 @@ END:
       fprintf(stderr, " pstebz = %f \n", test_timing.pstebz);
     }
 #endif
+
+/*
+   if ( msize == neigval ) {
+      dummy = 0.;
+      for ( iii=0; iii < msize; iii++ )
+	dummy += dd[iii];
+      
+      peigs_shift = 0.;
+      for ( iii=0; iii < msize; iii++ )
+	peigs_shift += eval[iii];
+
+      if ( me == 0)
+      printf(" (dummy - peigs_shift)/peigs_shift %f \n", fabs(dummy-peigs_shift)/fabs(peigs_shift));
+      
+    }
+*/
+    
+
     return;
   }
 
