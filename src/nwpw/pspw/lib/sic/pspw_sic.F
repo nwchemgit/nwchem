@@ -14,6 +14,11 @@
 
 *     **** local variables ****
       integer ma_type
+      integer n1,n2,n3
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
 
       norbs = 0
       e_sic = 0.0d0
@@ -37,11 +42,29 @@
      >                      mt_log,1,relaxed)) 
      >       relaxed = .false.
 
+         if (.not. rtdb_get(rtdb,
+     >                      'pspw:SIC_solver_type',
+     >                      mt_int,1,solver_type)) 
+     >       solver_type = 1
+
 *        **** initialize coulomb_screened ****
-         if (rcut.lt.0.0d0) then
-            call coulomb_screened_init(99999.0d9)
+         if (solver_type.eq.1) then
+           if (rcut.lt.0.0d0) then
+              call coulomb_screened_init(99999.0d9)
+           else
+              call coulomb_screened_init(rcut)
+           end if
+
+*        **** initialize free-space coulomb if necessary ****
          else
-            call coulomb_screened_init(rcut)
+            if (control_version().eq.3) then
+               call D3dB_nx(1,n1)
+               call D3dB_ny(1,n2)
+               call D3dB_nz(1,n3)
+               call D3dB_Init(2,2*n1,2*n2,2*n3)
+               call coulomb2_init()
+            end if
+
          end if
       else
          norbs = 0
@@ -66,12 +89,27 @@
 *     **** local variables ****
       logical value
 
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
       if (norbs.gt.0) then
         value =  MA_free_heap(orbital_list(2)) 
         if (.not. value)
      >  call errquit('pspw_end_SIC:error freeing heap memory',0)
 
-        call coulomb_screened_end()
+*        **** end coulomb_screened ****
+        if (solver_type.eq.1) then
+          call coulomb_screened_end()
+
+*        **** end free-space coulomb if necessary ****
+        else
+           if (control_version().eq.3) then
+              call coulomb2_end()
+              call D3dB_end(2)
+           end if
+        end if
+
       end if
 
 
@@ -101,8 +139,14 @@
         end if
         write(unit,*) "      - SIC orbitals:     ",
      >      (int_mb(orbital_list(1)+i-1),i=1,norbs)
-        if (rcut.ge.0.0d0)
-     >  write(unit,'(A,E8.3)') "       - SIC screening radius: ",rcut
+
+        if (solver_type.eq.1) then
+          write(unit,*) "      - SIC screened coulomb solver"
+           if (rcut.ge.0.0d0)
+     >     write(unit,'(A,E8.3)') "       - SIC screening radius: ",rcut
+        else
+          write(unit,*) "      - SIC free-space coulomb solver"
+        end if
         write(unit,*)
       end if
 
@@ -247,11 +291,12 @@
 *     *     pspw_energy_SIC   *
 *     *                       *
 *     *************************
-      subroutine pspw_energy_SIC(ispin,psi_r,esic,psic)
+      subroutine pspw_energy_SIC(ispin,psi_r,ehsic,phsic,exsic,pxsic)
       implicit none
       integer ispin
       real*8  psi_r(*)
-      real*8 esic,psic
+      real*8 ehsic,phsic
+      real*8 exsic,pxsic
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
@@ -270,8 +315,11 @@
 
 
       if ((norbs.ne.0).and.(.not.relaxed)) then
-        e_sic = 0.0d0
-        p_sic = 0.0d0
+        ehsic = 0.0d0
+        phsic = 0.0d0
+        exsic = 0.0d0
+        pxsic = 0.0d0
+
         call Pack_npack(1,npack)
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -321,25 +369,35 @@
            exc = exc*dv
            pxc = pxc*dv
 
-           e_sic = e_sic - exc
-           p_sic = p_sic - pxc
+           exsic = exsic - exc
+           pxsic = pxsic - pxc
 
 
-*          **** generate dng ****
-           if (ispin.eq.1)
-     >       call D3dB_rr_Sum(1,dbl_mb(dn(1)),
-     >                        dbl_mb(dn(1)),
-     >                        dbl_mb(dn(1)))
-           call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-     >                              dbl_mb(dn(1)))
-           call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-           call Pack_c_pack(0,dbl_mb(dn(1)))
+*          ***** screened coulomb solver ****
+           if (solver_type.eq.1) then
 
-*          **** get Ecoul energy ****
-           eh = coulomb_screened_e(dbl_mb(dn(1)))
-           ph = 2.0d0*eh
-           e_sic = e_sic + eh
-           p_sic = p_sic + ph
+*            **** generate dng ****
+             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                dbl_mb(dn(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*            **** get Ecoul energy ****
+             eh = coulomb_screened_e(dbl_mb(dn(1)))
+             if (ispin.eq.1) eh = eh + eh
+             ph = 2.0d0*eh
+
+*          ***** free-space coulomb solver ****
+           else
+              call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
+              eh = 0.5d0*eh*dv
+              if (ispin.eq.1) eh = eh + eh
+              ph = 2.0d0*eh
+           end if
+
+           ehsic = ehsic - eh
+           phsic = phsic - ph
 
           end do
 
@@ -351,8 +409,6 @@
 
       end if
 
-      esic = e_sic
-      psic = p_sic
 
       return
       end
