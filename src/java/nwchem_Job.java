@@ -32,6 +32,7 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
   IntegerField stackfield;
   IntegerField globalfield;
   JRadioButton verifybutton;
+  JButton runJobButton;
 
   JTextArea taskarea;
 
@@ -164,9 +165,10 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
       public void actionPerformed(ActionEvent e){ 
 	writeJob(); 
       }});
-    JButton runJobButton = new JButton("Run Job");
+    runJobButton = new JButton("Run Job");
     addComponent(panel,runJobButton,5,2,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+    runJobButton.addActionListener(this);
 
     addComponent(panel,taskPane,0,3,4,5,20,20,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
@@ -250,7 +252,11 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 	   container.add(component,gbc);
 	 }
   }
-  public void actionPerformed(ActionEvent e){}
+  public void actionPerformed(ActionEvent e){
+    if(e.getSource()==runJobButton){
+      nwchem_NWChem nn = new nwchem_NWChem();
+    };
+  }
 
   public void stateChanged(ChangeEvent e) {}
 
