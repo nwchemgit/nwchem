@@ -1,197 +1,202 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C NAME
+C     NAME
 C     msgids.fh -- Definitions of all message IDs used in Fortran routines
-C
-C DESCRIPTION
+C     
+C     DESCRIPTION
 C     All message IDs used in Fortran code should be defined here as
 C     parameters to avoid collisions.  The routine which uses a given
 C     ID should also be identified.
-C
+C     
 C     GA is presently using things counting backwards from 32760.
 C     RTDB counts up from 30000
-C
+C     
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.25 1996-02-07 00:37:11 vg038 Exp $
-      Parameter (MSG_Ftn_Base = 25000)
-C
-      Integer Msg_PrSum
-      Integer Msg_MxElt
-      Integer Msg_IChkI, Msg_IChkD
-      Integer Msg_AtSCF
-      Integer Msg_DFit, MSg_DFitB
-      Integer Msg_SchAt, Msg_SchSh, Msg_SchMx, Msg_SchPr
-      Integer Msg_ChkMO, Msg_MOSch, Msg_BcstVec
-      Integer Msg_Vec_Stat, Msg_Vec_TTL, Msg_Vec_Nam, Msg_Vec_NBF,
-     $   Msg_Vec_Set, Msg_Vec_NMO, Msg_Vec_EVal, Msg_Vec_Occ
-      Integer Msg_HeapMem, Msg_StkMem, Msg_StartUp
-      Integer Msg_PStat_Min, Msg_PStat_Avg, Msg_PStat_Max
-      Integer Msg_Stpr_Walk, Msg_RI_dens
-      Integer Msg_ChkJK
-      Integer Msg_RAK
-      Integer Msg_SeqOut_Ctrl, Msg_SeqOut_Text
-      Integer Msg_Fock_Ex,Msg_XC_Ex,Msg_CD_Ex,Msg_ga_chol
-      Integer Msg_iconst,Msg_gop_Tvec,Msg_Lagrange,Msg_CD_coef
-      Integer Msg_schw1,Msg_XC_coef,Msg_tmat,Msg_Excrho
-      Integer Msg_rms_dens,Msg_Ecoul2
-      Integer Msg_tot_max,Msg_nqtot
-      Integer Msg_t_min,Msg_t_max
+      integer msg_ftn_base
+c     $id: msgids.fh,v 1.25 1996/02/07 00:37:11 vg038 exp $
+      parameter (msg_ftn_base = 25000)
+c     
+      integer msg_prsum
+      integer msg_mxelt
+      integer msg_ichki, msg_ichkd
+      integer msg_atscf
+      integer msg_dfit, msg_dfitb
+      integer msg_schat, msg_schsh, msg_schmx, msg_schpr
+      integer msg_chkmo, msg_mosch, msg_bcstvec
+      integer msg_vec_stat, msg_vec_ttl, msg_vec_nam, msg_vec_nbf,
+     $     msg_vec_set, msg_vec_nmo, msg_vec_eval, msg_vec_occ
+      integer msg_heapmem, msg_stkmem, msg_startup
+      integer msg_pstat_min, msg_pstat_avg, msg_pstat_max
+      integer msg_stpr_walk, msg_ri_dens
+      integer msg_chkjk
+      integer msg_rak
+      integer msg_seqout_ctrl, msg_seqout_text
+      integer msg_fock_ex,msg_xc_ex,msg_cd_ex,msg_ga_chol
+      integer msg_iconst,msg_gop_tvec,msg_lagrange,msg_cd_coef
+      integer msg_schw1,msg_xc_coef,msg_tmat,msg_excrho
+      integer msg_rms_dens,msg_ecoul2
+      integer msg_tot_max,msg_nqtot
+      integer msg_t_min,msg_t_max
       integer msg_orthog_1, msg_orthog_2
-      Integer Msg_3c_index
-      Integer Msg_GblMem
-      Integer Msg_RIMP2_Mem
-      Integer Msg_UHF
-      Integer Msg_gen_at_nat, Msg_gen_at_restart
-      Integer Msg_gen_at_iatom, Msg_gen_at_ixyz
-      Integer Msg_dftg_cdf,Msg_schw2,Msg_schw3
-      Integer Msg_Mull1,Msg_Mull2
-      Integer Msg_Act_Energy
-      Integer Msg_Trace_Diag
-      Integer Msg_grad_nquad
-      Integer Msg_grad_finished
-      integer Msg_mxovl_1,Msg_mxovl_2
+      integer msg_3c_index
+      integer msg_gblmem
+      integer msg_rimp2_mem
+      integer msg_uhf
+      integer msg_gen_at_nat, msg_gen_at_restart
+      integer msg_gen_at_iatom, msg_gen_at_ixyz
+      integer msg_dftg_cdf,msg_schw2,msg_schw3
+      integer msg_mull1,msg_mull2
+      integer msg_act_energy
+      integer msg_trace_diag
+      integer msg_grad_nquad
+      integer msg_grad_finished
+      integer msg_mxovl_1,msg_mxovl_2
       integer msg_sym_1, msg_sym_2
       integer msg_int2e_file
       integer msg_riscf_mem
       integer msg_riscf_put_1
       integer msg_riscf_put_2
-C-----------------------------------------------------------------------
-      Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
-C
-      Parameter (Msg_MxElt = MSG_Ftn_Base -  2) ! GA_MaxElt
-C
-      Parameter (Msg_IChkI = MSG_Ftn_Base -  3) ! Int_Chk_Sum
-      Parameter (Msg_IChkD = MSG_Ftn_Base -  4) ! Int_Chk_Sum
-C
-      Parameter (Msg_AtSCF = MSG_Ftn_Base -  5) ! DAtoms
-C
-      Parameter (Msg_DFit  = MSG_Ftn_Base -  6) ! RI_V_Fit_CD
-      Parameter (Msg_DFitB = MSG_Ftn_Base -  7) ! RI_V_Fit_CD
-C
-      Parameter (Msg_SchAt = MSG_Ftn_Base -  8) ! Schwarz_Init
-      Parameter (Msg_SchSh = MSG_Ftn_Base -  9) ! Schwarz_Init
-      Parameter (Msg_SchMx = MSG_Ftn_Base - 10) ! Schwarz_Init
-      Parameter (Msg_SchPr = MSG_Ftn_Base - 11) ! Schwarz_Print
-C
-      Parameter (Msg_ChkMO = MSG_Ftn_Base - 12) ! GA_Check_MOBlocked
-      Parameter (Msg_MOSch = MSG_Ftn_Base - 13) ! MOInts_Build
-      Parameter (Msg_BcstVec = MSG_Ftn_Base - 14) ! Brdcst_Vec
+      integer msg_int2e_stat1
+      integer msg_int2e_stat2
+c-----------------------------------------------------------------------
+      parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
+c     
+      parameter (msg_mxelt = msg_ftn_base -  2) ! ga_maxelt
+c     
+      parameter (msg_ichki = msg_ftn_base -  3) ! int_chk_sum
+      parameter (msg_ichkd = msg_ftn_base -  4) ! int_chk_sum
+c     
+      parameter (msg_atscf = msg_ftn_base -  5) ! datoms
+c     
+      parameter (msg_dfit  = msg_ftn_base -  6) ! ri_v_fit_cd
+      parameter (msg_dfitb = msg_ftn_base -  7) ! ri_v_fit_cd
+c     
+      parameter (msg_schat = msg_ftn_base -  8) ! schwarz_init
+      parameter (msg_schsh = msg_ftn_base -  9) ! schwarz_init
+      parameter (msg_schmx = msg_ftn_base - 10) ! schwarz_init
+      parameter (msg_schpr = msg_ftn_base - 11) ! schwarz_print
+c     
+      parameter (msg_chkmo = msg_ftn_base - 12) ! ga_check_moblocked
+      parameter (msg_mosch = msg_ftn_base - 13) ! moints_build
+      parameter (msg_bcstvec = msg_ftn_base - 14) ! brdcst_vec
+c     
+      parameter (msg_vec_ttl  = msg_ftn_base - 15) ! movecs_read_header
+      parameter (msg_vec_nam  = msg_ftn_base - 16) ! movecs_read_header
+      parameter (msg_vec_nbf  = msg_ftn_base - 17) ! movecs_read_header
+      parameter (msg_vec_set  = msg_ftn_base - 18) ! movecs_read_header
+      parameter (msg_vec_nmo  = msg_ftn_base - 19) ! movecs_read_header
+      parameter (msg_vec_eval = msg_ftn_base - 20) ! movecs_read
+      parameter (msg_vec_occ  = msg_ftn_base - 21) ! movecs_read
+      parameter (msg_vec_stat = msg_ftn_base - 22) ! movecs_*
+c     
+      parameter (msg_heapmem  = msg_ftn_base - 23) ! input_mem_size
+      parameter (msg_stkmem   = msg_ftn_base - 24) ! input_mem_size
+c     
+      parameter (msg_startup  = msg_ftn_base - 25) ! input_start_opt
+c     
+      parameter (msg_pstat_min = msg_ftn_base - 26) ! pstat_print_all
+      parameter (msg_pstat_avg = msg_ftn_base - 27) ! pstat_print_all
+      parameter (msg_pstat_max = msg_ftn_base - 28) ! pstat_print_all
+c     
+      parameter (msg_stpr_walk = msg_ftn_base - 29) ! stpr_walk
+c     
+      parameter (msg_ri_dens   = msg_ftn_base - 30) ! rhf_ri_two
+c     
+      parameter (msg_chkjk = msg_ftn_base - 31) ! ga_check_jkblocked
+c     
+      parameter (msg_rak  = msg_ftn_base - 32) ! reserved for raktest
+c     
+      parameter (msg_seqout_ctrl = msg_ftn_base - 33) ! sequential output
+      parameter (msg_seqout_text = msg_ftn_base - 34) 
+c     
+      parameter (msg_fock_ex  = msg_ftn_base - 35) ! dft: flag for fock i/o
+c     
+      parameter (msg_xc_ex    = msg_ftn_base - 36) ! dft: flag for xcinv i/o
+c     
+      parameter (msg_cd_ex    = msg_ftn_base - 37) ! dft: flag for cdinv i/o
+c     
+      parameter (msg_ga_chol  = msg_ftn_base - 38) ! dft: ga_chol brdcst
+c     
+      parameter (msg_iconst   = msg_ftn_base - 39) ! dft: iconst() brdcst
+c     
+      parameter (msg_gop_tvec = msg_ftn_base - 40) ! dft: tvec dgop
+c     
+      parameter (msg_lagrange = msg_ftn_base - 41) ! dft: lagr mult dgop
+c     
+      parameter (msg_cd_coef  = msg_ftn_base - 42) ! dft: cd coeff dgop
+c     
+      parameter (msg_schw1    = msg_ftn_base - 43) ! dft: % schwarz fitcd
+c     
+      parameter (msg_xc_coef  = msg_ftn_base - 44) ! dft: dgop on xc coeff
+c     
+      parameter (msg_nqtot    = msg_ftn_base - 45) ! dft: igop on nqtot
+c     
+      parameter (msg_tmat     = msg_ftn_base - 46) ! dft: dgop on tmat
+c     
+      parameter (msg_excrho   = msg_ftn_base - 47) ! dft: dgop on ex,ec,rho_int
+c     
+      parameter (msg_rms_dens = msg_ftn_base - 48) ! dft: dgop on delta dm
+c     
+      parameter (msg_ecoul2   = msg_ftn_base - 49) ! dft: dgop on e coul
+c     
+c     ten positions needed for msg_t_min
+c     
+      parameter (msg_t_min    = msg_ftn_base - 59) ! dft: dgop partial min times
+c     
+c     ten positions needed for msg_t_max
+c     
+      parameter (msg_t_max    = msg_ftn_base - 69) ! dft: dgop partial max times
+c     
+      parameter (msg_tot_max  = msg_ftn_base - 70) ! dft: dgop total max times
+c     
+      parameter (msg_orthog_1  = msg_ftn_base - 71) ! util: ga_orthog 1st dgop
+c     
+      parameter (msg_orthog_2  = msg_ftn_base - 72) ! util: ga_orthog 2nd dgop
+c     
+      parameter (msg_3c_index = msg_ftn_base - 73) ! ri-scf make_index brdcst
+c     
+      parameter (msg_gblmem = msg_ftn_base - 74) ! input_mem_size
+c     
+      parameter (msg_rimp2_mem = msg_ftn_base - 75) ! rimp2 memory usage igops
+c     
+      parameter (msg_uhf = msg_ftn_base - 76) ! for uhf_spin gop
+c     
+*     . . . . . . . . . . . . . . . . . . . . . . ! for stpr_gen_apphess_at 
+      parameter (msg_gen_at_nat     = msg_ftn_base - 77)  
+      parameter (msg_gen_at_restart = msg_ftn_base - 78)
+      parameter (msg_gen_at_iatom   = msg_ftn_base - 79)
+      parameter (msg_gen_at_ixyz    = msg_ftn_base - 80)
+c     
+      parameter (msg_dftg_cdf       = msg_ftn_base - 81)
+c     
+      parameter (msg_schw2    = msg_ftn_base - 82) ! dft: no. of  schwarz blocks
+      parameter (msg_schw3    = msg_ftn_base - 83) ! dft: no. of  schwarz blocks
 
-C
-      Parameter (Msg_Vec_Ttl  = MSG_Ftn_Base - 15) ! MOVecs_Read_Header
-      Parameter (Msg_Vec_Nam  = MSG_Ftn_Base - 16) ! MOVecs_Read_Header
-      Parameter (Msg_Vec_NBF  = MSG_Ftn_Base - 17) ! MOVecs_Read_Header
-      Parameter (Msg_Vec_Set  = MSG_Ftn_Base - 18) ! MOVecs_Read_Header
-      Parameter (Msg_Vec_NMO  = MSG_Ftn_Base - 19) ! MOVecs_Read_Header
-      Parameter (Msg_Vec_EVal = MSG_Ftn_Base - 20) ! MOVecs_Read
-      Parameter (Msg_Vec_Occ  = MSG_Ftn_Base - 21) ! MOVecs_Read
-      Parameter (Msg_Vec_Stat = MSG_Ftn_Base - 22) ! MOVecs_*
-C
-      Parameter (Msg_HeapMem  = MSG_Ftn_Base - 23) ! Input_Mem_Size
-      Parameter (Msg_StkMem   = MSG_Ftn_Base - 24) ! Input_Mem_Size
-C
-      Parameter (Msg_StartUp  = MSG_Ftn_Base - 25) ! Input_Start_Opt
-C
-      Parameter (Msg_PStat_Min = MSG_Ftn_Base - 26) ! PStat_Print_All
-      Parameter (Msg_PStat_Avg = MSG_Ftn_Base - 27) ! PStat_Print_All
-      Parameter (Msg_PStat_Max = MSG_Ftn_Base - 28) ! PStat_Print_All
-C
-      Parameter (Msg_Stpr_Walk = MSG_Ftn_Base - 29) ! stpr_walk
-C
-      Parameter (Msg_RI_dens   = MSG_Ftn_Base - 30) ! rhf_ri_two
-C
-      Parameter (Msg_ChkJK = MSG_Ftn_Base - 31)     ! GA_Check_JKBlocked
-C
-      Parameter (Msg_RAK  = MSG_Ftn_Base - 32)     ! reserved for raktest
-C
-      Parameter (Msg_SeqOut_Ctrl = MSG_Ftn_Base - 33) ! Sequential output
-      Parameter (Msg_SeqOut_Text = MSG_Ftn_Base - 34) 
-C
-      Parameter (Msg_Fock_Ex  = MSG_Ftn_Base - 35)  ! DFT: flag for Fock I/O
-C
-      Parameter (Msg_XC_Ex    = MSG_Ftn_Base - 36)  ! DFT: flag for XCinv I/O
-C
-      Parameter (Msg_CD_Ex    = MSG_Ftn_Base - 37)  ! DFT: flag for CDinv I/O
-C
-      Parameter (Msg_ga_chol  = MSG_Ftn_Base - 38)  ! DFT: ga_chol brdcst
-C
-      Parameter (Msg_iconst   = MSG_Ftn_Base - 39)  ! DFT: iconst() brdcst
-C
-      Parameter (Msg_gop_Tvec = MSG_Ftn_Base - 40)  ! DFT: Tvec dgop
-C
-      Parameter (Msg_Lagrange = MSG_Ftn_Base - 41)  ! DFT: Lagr Mult dgop
-C
-      Parameter (Msg_CD_coef  = MSG_Ftn_Base - 42)  ! DFT: CD coeff dgop
-C
-      Parameter (Msg_schw1    = MSG_Ftn_Base - 43)  ! DFT: % schwarz fitcd
-C
-      Parameter (Msg_XC_coef  = MSG_Ftn_Base - 44)  ! DFT: dgop on XC coeff
-C
-      Parameter (Msg_nqtot    = MSG_Ftn_Base - 45)  ! DFT: igop on nqtot
-C
-      Parameter (Msg_Tmat     = MSG_Ftn_Base - 46)  ! DFT: dgop on tmat
-C
-      Parameter (Msg_Excrho   = MSG_Ftn_Base - 47)  ! DFT: dgop on Ex,Ec,rho_int
-C
-      Parameter (Msg_rms_dens = MSG_Ftn_Base - 48)  ! DFT: dgop on Delta DM
-C
-      Parameter (Msg_Ecoul2   = MSG_Ftn_Base - 49)  ! DFT: dgop on E coul
-C
-C	ten positions needed for Msg_t_min
-C
-      Parameter (Msg_t_min    = MSG_Ftn_Base - 59)  ! DFT: dgop partial min times
-C
-C	ten positions needed for Msg_t_max
-C
-      Parameter (Msg_t_max    = MSG_Ftn_Base - 69)  ! DFT: dgop partial max times
-C
-      Parameter (Msg_tot_max  = MSG_Ftn_Base - 70)  ! DFT: dgop total max times
-C
-      parameter (msg_orthog_1  = msg_ftn_base - 71)  ! util: ga_orthog 1st dgop
-C
-      parameter (msg_orthog_2  = msg_ftn_base - 72)  ! util: ga_orthog 2nd dgop
-C
-      Parameter (Msg_3c_index = MSG_Ftn_Base - 73)  ! RI-SCF make_index brdcst
-C
-      Parameter (Msg_GblMem = MSG_Ftn_Base - 74)  ! input_mem_size
-C
-      Parameter (Msg_RIMP2_Mem = MSG_Ftn_Base - 75)  ! RIMP2 memory usage igops
-C
-      Parameter (Msg_UHF = MSG_Ftn_Base - 76)  ! For uhf_spin gop
-C
-*. . . . . . . . . . . . . . . . . . . . . . ! For stpr_gen_apphess_at 
-      Parameter (Msg_gen_at_nat     = MSG_Ftn_Base - 77)  
-      Parameter (Msg_gen_at_restart = MSG_Ftn_Base - 78)
-      Parameter (Msg_gen_at_iatom   = MSG_Ftn_Base - 79)
-      Parameter (Msg_gen_at_ixyz    = MSG_Ftn_Base - 80)
-C
-      Parameter (Msg_dftg_cdf       = MSG_Ftn_Base - 81)
-C
-      Parameter (Msg_schw2    = MSG_Ftn_Base - 82)  ! DFT: no. of  schwarz blocks
-      Parameter (Msg_schw3    = MSG_Ftn_Base - 83)  ! DFT: no. of  schwarz blocks
-
-      Parameter (Msg_Mull1    = MSG_Ftn_Base - 84)  ! DFT: Mulliken pop
-      Parameter (Msg_Mull2    = MSG_Ftn_Base - 85)  ! DFT: MUlliken pop
+      parameter (msg_mull1    = msg_ftn_base - 84) ! dft: mulliken pop
+      parameter (msg_mull2    = msg_ftn_base - 85) ! dft: mulliken pop
+c     
+c     
+      parameter (msg_act_energy     = msg_ftn_base - 86) ! mcscf: active energy sum
+c     
+      parameter (msg_trace_diag     = msg_ftn_base - 87) ! util: trace of ga
+c     
+      parameter (msg_grad_nquad = msg_ftn_base - 88) ! gradients: grad_store
+      parameter (msg_grad_finished = msg_ftn_base - 89) ! gradients: grad_finished
+c     
+      parameter (msg_mxovl_1 = msg_ftn_base - 90) ! dft: max_ovl
+      parameter (msg_mxovl_2 = msg_ftn_base - 91) ! dft: max_ovl
+c     
+      parameter (msg_sym_1 = msg_ftn_base - 92) ! sym: sym_mo_adapt
+      parameter (msg_sym_2 = msg_ftn_base - 93) ! sym: sym_mo_adapt
+c     
+      parameter (msg_int2e_file = msg_ftn_base - 94) ! ddscf: int2e_file.f
+c     
+      parameter (msg_riscf_mem = msg_ftn_base - 95) ! ddscf: riscf_fock.f
+      parameter (msg_riscf_put_1 = msg_ftn_base - 96) ! ddscf: riscf_io.f
+      parameter (msg_riscf_put_2 = msg_ftn_base - 97) ! ddscf: riscf_io.f
+c     
+      parameter (msg_int2e_stat1= msg_ftn_base - 98) ! ddscf: int2e_file.f
+      parameter (msg_int2e_stat2= msg_ftn_base - 99) ! ddscf: int2e_file.f
 c
-c
-      Parameter (Msg_Act_Energy     = MSG_Ftn_Base - 86)  ! MCSCF: Active energy sum
-C
-      Parameter (Msg_Trace_Diag     = MSG_Ftn_Base - 87)  ! UTIL: Trace of GA
-C
-      Parameter (Msg_grad_nquad = MSG_Ftn_Base - 88)     ! GRADIENTS: grad_store
-      Parameter (Msg_grad_finished = MSG_Ftn_Base - 89)  ! GRADIENTS: grad_finished
-c
-      Parameter (Msg_mxovl_1 = MSG_Ftn_Base - 90)     ! DFT: max_ovl
-      Parameter (Msg_mxovl_2 = MSG_Ftn_Base - 91)  ! DFT: max_ovl
-c
-      parameter (msg_sym_1 = msg_ftn_base - 92)  ! sym: sym_mo_adapt
-      parameter (msg_sym_2 = msg_ftn_base - 93)  ! sym: sym_mo_adapt
-c
-      parameter (msg_int2e_file = msg_ftn_base - 94)  ! ddscf: int2e_file.F
-c
-      parameter (msg_riscf_mem = msg_ftn_base - 95)  ! ddscf: riscf_fock.F
-      parameter (msg_riscf_put_1 = msg_ftn_base - 96)! ddscf: riscf_io.F
-      parameter (msg_riscf_put_2 = msg_ftn_base - 97)! ddscf: riscf_io.F
 
 
