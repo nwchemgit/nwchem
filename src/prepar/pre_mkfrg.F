@@ -1,4 +1,4 @@
-      logical function pre_mkfrg(source,iunit,lfnpar,filpar,
+      logical function pre_mkfrg(irtdb,source,iunit,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
@@ -27,6 +27,7 @@ c
       logical pre_hnames
       external pre_hnames
 c
+      integer irtdb
       character*80 source
       integer mring
       parameter (mring=100)
@@ -192,7 +193,8 @@ c
 c     guestimate partial charges
 c     --------------------------
 c
-      if(.not.pre_charge(latm,qatm,matm,natm,lbnd,mbnd,nbnd))
+      if(.not.pre_charge(irtdb,source,latm,qatm,matm,natm,
+     + lbnd,mbnd,nbnd))
      + call errquit('pre_charge failed',9999)
 c
 c     write the fragment file

@@ -13,3 +13,5 @@ Apr 20 1998	 Consolidate par and typ files
 Apr 21 1998	 Coordinates in nm
 		 List missing parameters only once
 		 Read coordinates from rtdb
+		 Add pre_hnames
+		 Call to scf and esp to get charges in pre_charge

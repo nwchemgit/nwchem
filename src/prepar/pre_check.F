@@ -17,13 +17,19 @@ c
 c     check the atom types
 c     --------------------
 c
+ 1000 format(/,'Undetermined force field parameters',/)
+c
       do 1 i=1,natt
       if(latt(1,i).le.0) then
       do 11 j=1,i-1
       if(latt(1,j).le.0.and.catt(1,i).eq.catt(1,j)) goto 1
    11 continue
-      if(lprint.ge.1) write(lfnout,1000) catt(1,i)
- 1000 format('PARAMETERS COULD NOT BE FOUND FOR ATOM TYPE ',a6)
+      if(lprint.ge.1) then
+      if(pre_check) write(lfnout,1000)
+      write(lfnout,1001) catt(1,i)
+ 1001 format('Parameters could not be found for atom type     ',
+     + a6)
+      endif
       pre_check=.false.
       endif
     1 continue
@@ -50,9 +56,13 @@ c
    13 continue
       endif
    12 continue
-      if(lprint.ge.1) write(lfnout,1001)
+      if(lprint.ge.1) then
+      if(pre_check) write(lfnout,1000)
+      write(lfnout,1002)
      + catm(1+j,lbnd(1,i)),catm(1+j,lbnd(2,i))
- 1001 format('PARAMETERS COULD NOT BE FOUND FOR BOND TYPE ',a6,'-',a6)
+ 1002 format('Parameters could not be found for bond type     ',
+     + a6,'-',a6)
+      endif
       pre_check=.false. 
     3 continue
       endif
@@ -81,10 +91,13 @@ c
    15 continue
       endif
    14 continue
-      if(lprint.ge.1) write(lfnout,1002)
+      if(lprint.ge.1) then
+      if(pre_check) write(lfnout,1000)
+      write(lfnout,1003)
      + catm(1+j,lang(1,i)),catm(1+j,lang(2,i)),catm(1+j,lang(3,i))
- 1002 format('PARAMETERS COULD NOT BE FOUND FOR ANGLE TYPE ',
+ 1003 format('Parameters could not be found for angle type    ',
      + a6,'-',a6,'-',a6)
+      endif
       pre_check=.false. 
     5 continue
       endif
@@ -116,10 +129,13 @@ c
    17 continue
       endif
    16 continue
-      if(lprint.ge.1) write(lfnout,1003) catm(1+j,ldih(1,i)),
+      if(lprint.ge.1) then
+      if(pre_check) write(lfnout,1000)
+      write(lfnout,1004) catm(1+j,ldih(1,i)),
      + catm(1+j,ldih(2,i)),catm(1+j,ldih(3,i)),catm(1+j,ldih(4,i))
- 1003 format('PARAMETERS COULD NOT BE FOUND FOR DIHEDRAL TYPE ',
+ 1004 format('Parameters could not be found for dihedral type ',
      + a6,'-',a6,'-',a6,'-',a6)
+      endif
       pre_check=.false. 
     7 continue
       endif
@@ -162,10 +178,13 @@ c
    19 continue
       endif
    18 continue
-      if(lprint.ge.1) write(lfnout,1004) catm(1+j,limp(1,i)),
+      if(lprint.ge.1) then
+      if(pre_check) write(lfnout,1000)
+      write(lfnout,1005) catm(1+j,limp(1,i)),
      + catm(1+j,limp(2,i)),catm(1+j,limp(3,i)),catm(1+j,limp(4,i))
- 1004 format('PARAMETERS COULD NOT BE FOUND FOR IMPROPER TYPE ',
+ 1005 format('PARAMETERS COULD NOT BE FOUND FOR IMPROPER TYPE ',
      + a6,'-',a6,'-',a6,'-',a6)
+      endif
       pre_check=.false.
     9 continue 
       endif

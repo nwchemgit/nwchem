@@ -1,6 +1,15 @@
-      logical function pre_charge(latm,qatm,matm,natm,lbnd,mbnd,nbnd)
+      logical function pre_charge(irtdb,source,latm,qatm,matm,natm,
+     + lbnd,mbnd,nbnd)
 c
       implicit none
+c
+#include "msgids.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+c
+      logical pre_task1
+      externall pre_task1
 c
 c     in  : latm(2,matm)      = atomic number
 c           matm              = dimension atom list
@@ -10,17 +19,44 @@ c           nbnd              = length bond list
 c
 c     out : qatm(matm)        = guestimated atomic partial charges
 c
+      character*80 source
+      integer irtdb
       integer matm,natm
       integer latm(5,matm)
       real*8 qatm(matm)
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
 c
-      integer i,j,ia,ja,it,jt,itmp,iab(20),nb,nox,nhx
+      integer i,j,ia,ja,it,jt,itmp,iab(20),nb,nox,nhx,itask
+      integer igeom2
+      character*16 tag
+      real*8 coord(3),charge
 c
       do 1 i=1,matm
       qatm(i)=0.0d0
     1 continue
+c
+      if(source(1:8).eq.'geometry') then
+      itask=1
+      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
+      if(itask.eq.1) then
+      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
+     + call errquit('pre_charge: rtdb_cput failed',9999)
+      if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
+      if(.not.geom_create(igeom2,'resp:geometry'))
+     + call errquit('pre_charge: geom_create failed',0)
+      if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))
+     + call errquit('pre_charge: geom_rtdb_load failed',0)
+      do 9 i=1,natm
+      if(.not.geom_cent_get(igeom2,i,tag,coord,charge))
+     + call errquit('pre_charge: geom_cent_get failed',i)
+      qatm(i)=charge
+    9 continue
+      if(.not.geom_destroy(igeom2))
+     + call errquit('pre_charge: geom_destroy failed',9999)
+      endif
+      return
+      endif
 c
       do 2 i=1,nbnd
       ia=lbnd(1,i)

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.9 1998-04-21 15:18:21 d3j191 Exp $
+c $Id: prepar.F,v 1.10 1998-04-21 21:07:22 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -31,11 +31,12 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "msgids.fh"
 c
-      logical pre_rtdbin,pre_mkseq,pre_mktop
-      external pre_rtdbin,pre_mkseq,pre_mktop
+      logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task1
+      external pre_rtdbin,pre_mkseq,pre_mktop,pre_task1
 c
-      integer irtdb0,irtdb
+      integer irtdb0,irtdb,itask
 c
       character*255 filpdb,filseq,filtop,filpar
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -57,7 +58,15 @@ c     node 0 only please
 c     ------------------
 c
       prepar=.true.
-      if(ga_nodeid().ne.0) return
+      if(ga_nodeid().ne.0) then
+  100 continue
+      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
+      if(itask.eq.0) return
+      if(itask.eq.1) then
+      if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
+      endif
+      goto 100
+      endif
 c
 c     header
 c     ------
@@ -169,6 +178,9 @@ c
 c
 c
       call util_print_pop
+c
+      itask=0
+      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
 c
       prepar=.true.
       return
