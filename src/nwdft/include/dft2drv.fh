@@ -1,0 +1,20 @@
+#ifndef _FH_DFT2DRV
+#define _FH_DFT2DRV
+c
+c     Useful macros for DFT 2nd derivatives
+c
+c     BGJ - 8/97
+c
+c     $Id: dft2drv.fh,v 1.1 1998-09-09 13:26:07 bjohnson Exp $
+c
+c     Array columns for XC functional 2nd partial derivatives
+c
+#define NCOL_AMAT2  3
+c
+#define D2_RA_RA    1
+#define D2_RA_RB    2
+#define D2_RB_RB    3
+c
+#define NCOL_CMAT2 12
+c
+#endif
