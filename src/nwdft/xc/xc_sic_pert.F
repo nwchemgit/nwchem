@@ -4,7 +4,7 @@
      &                       cntobfr, cetobfr, natoms,
      &                       g_movecs, noc, k_eval, totsic)
 c
-C$Id: xc_sic_pert.F,v 1.2 1999-08-11 01:21:04 d3j191 Exp $
+C$Id: xc_sic_pert.F,v 1.3 1999-08-11 18:30:03 jolguin Exp $
 c
       implicit none
 c      
@@ -12,7 +12,7 @@ c
      &        g_vxc(4), g_wght, g_xyz, g_nq, ik, noc(2), isp,
      &        n_states, naux_ipol, g_dens_orb(2), g_orb,
      &        g_vxc_orb(4), g_movecs(2), k_eval(2), g_coul_orb,
-     &        i_temp_vec, l_temp_vec, fac_oc
+     &        i_temp_vec, l_temp_vec
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 totsic
       logical IOLGC, wght_GA, oprint_sic
@@ -72,10 +72,10 @@ c
            tot_sic_coul=0.d0
            if (ipol.eq.2) then
              naux_ipol=2
-             fac_oc=1
+             sic_orb_occ=1
            else
              naux_ipol=1
-             fac_oc=2
+             sic_orb_occ=2
            end if
 c
            if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'temp vec',
@@ -112,7 +112,8 @@ cccc g_dens_orb(1) is the orbital density of orb(ik) states
      &                        tol2e, oskel, g_dens_orb(1), g_vxc_orb(1))
                  ecoul_orb = 0.0d0
                  ecoul_orb = 0.5d0*ga_ddot(g_dens_orb(1), g_vxc_orb(1))
-                 tot_sic_coul = tot_sic_coul - dble(fac_oc)*ecoul_orb
+                 tot_sic_coul = tot_sic_coul - 
+     &              dble(sic_orb_occ)*ecoul_orb
 cccc ecoul_orb is the orbital coulomb energy 
                  call ga_copy(g_vxc_orb(1), g_coul_orb)
                end if
@@ -123,13 +124,12 @@ cccc ecoul_orb is the orbital coulomb energy
                if (oprint_time)call dft_tstamp(
      &                                   ' Before call to xc_quadv0.')
                sic_orb_spin = isp
-               sic_orb_occ = 0
                sic_orb_index = 0
                call xc_quadv0(rtdb, nExc, g_vxc_orb, g_dens_orb,
      &                            g_wght, g_xyz, g_nq, wght_GA,
      &                            Exc_orb, rho_n, rdens_atom, cntoce,
      &                            cntobfr, cetobfr, natoms)
-               tot_sic_xc = tot_sic_xc - dble(fac_oc)*Exc_orb(1)
+               tot_sic_xc = tot_sic_xc - dble(sic_orb_occ)*Exc_orb(1)
 cccc Exc_orb(1) is the orbital exchange-correlation energy
                if (naux_ipol.eq.1) ipol = 1
                if (oprint_time)call dft_tstamp(

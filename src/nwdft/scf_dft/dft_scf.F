@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.128 1999-08-10 21:49:13 jolguin Exp $
+c     $Id: dft_scf.F,v 1.129 1999-08-11 18:29:58 jolguin Exp $
 c     
       implicit none
 c
@@ -14,7 +14,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
      &        g_xcinv,g_scr
-      double precision rho_n, toll_s
+      double precision rho_n, rho_n_sic, toll_s
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -1473,7 +1473,7 @@ c
          call localize_sic(g_movecs, noc)
          call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
      &                    g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq,
-     &                    wght_GA, rho_n,
+     &                    wght_GA, rho_n_sic,
      &                    dbl_mb(irdens_atom), int_mb(icntoce),
      &                    int_mb(icntobfr), int_mb(icetobfr), natoms,
      &                    g_movecs, noc, k_eval, totsic)
