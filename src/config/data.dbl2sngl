@@ -1,5 +1,5 @@
 #
-# $Id: data.dbl2sngl,v 1.1 1997-03-17 20:34:23 d3e129 Exp $
+# $Id: data.dbl2sngl,v 1.2 1997-04-08 18:28:32 d3e129 Exp $
 #
 #
 # this file contains the transliterations for both the 
@@ -141,9 +141,10 @@ dsygv     ssygv
 dsytd2    ssytd2    
 dsytrd    ssytrd    
 dtrtri    strtri    
-ilaenv    ilaenv    
-lsamen    lsamen    
-xerbla    xerbla
+# ilaenv    ilaenv    identical to conversion needed
+# lsamen    lsamen    identical to conversion needed
+# xerbla    xerbla    identical to conversion needed
+# lsame     lsame     identical to conversion needed
 zheev     cheev
 zhegs2    chegs2   
 zhegst    chegst   
