@@ -1,0 +1,316 @@
+      subroutine conv_input(rtdb, module)
+C     $Id: 
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      character*(*) module
+c     
+c     Parse the convergence directive which specifies how to control
+c     the iterative SCF process.  Insert options into the database 
+c     prefixed with module:...
+c     
+c     Possible variables are:
+c     
+c     energy
+c     density
+c     gradient
+c     dampon/dampoff
+c     diison/diisoff
+c     levlon/levloff
+c     ncydp
+c     ncyds
+c     ncysh
+c     damp/nodamping
+c     diis/nodiis/nfock
+c     lshift/nolevelshifting
+c     hl_tol
+c     
+      integer num_dirs, ind, mlen, iline
+      parameter (num_dirs = 19)
+      character*15 dirs(num_dirs)
+      character*255 test
+      double precision e_conv, d_conv, g_conv, dampon, dampoff, diison,
+     &                 diisoff, levlon, levloff, rlshift, hl_tol
+      integer ncydp, ncyds, ncysh, ndamp, nfock
+      logical damp, nodamping, levelshift, nolevelshifting, diis, nodiis
+      data dirs /'energy', 'density', 'gradient', 'dampon', 'dampoff',
+     &           'diison', 'diisoff', 'levlon', 'levloff', 'ncydp',
+     &           'ncyds', 'ncysh', 'damp', 'nodamping', 'diis',
+     &           'nodiis', 'lshift', 'nolevelshifting', 'hl_tol'/
+c     
+      mlen = inp_strlen(module)
+c     
+ 10   if (.not. inp_a(test)) goto 1999
+c     
+      if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
+c     
+c        Does not match a keyword ... 
+c     
+         goto 10
+      endif
+c
+      write(6,*)' test = ',test     
+      write(6,*)' ind = ',ind     
+      goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
+     &      1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
+     &      1999) ind
+      call errquit('conv_inp: unimplemented directive', ind)
+c     
+c     energy; threshold for energy convergence
+c
+  100 if (.not. inp_f(e_conv)) then
+         write(6,*)' conv_inp: energy convergence value not found;',
+     &             ' defaulting to 1d-7 Hartree'
+         e_conv = 1.d-7
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
+     &   call errquit('conv_inp: rtdb_put failed', 100)
+c
+      goto 10
+c     
+c     density; threshold for density convergence
+c
+  200 if (.not. inp_f(d_conv)) then
+         write(6,*)' conv_inp: energy convergence value not found;',
+     &             ' defaulting to 0.d0 Hartree'
+         d_conv = 1.d-5
+      endif 
+      if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
+     &   call errquit('conv_inp: rtdb_put failed', 200)
+c
+      goto 10
+c     
+c     gradient; threshold for gradient convergence
+c
+  300 if (.not. inp_f(g_conv)) then
+         write(6,*)' conv_inp: gradient convergence value not found;',
+     &             ' defaulting to 0.d0 Hartree'
+         g_conv = 1.d-4
+      endif 
+      if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
+     &   call errquit('conv_inp: rtdb_put failed', 300)
+c
+      goto 10
+c     
+c     dampon; turn damping on when change in energy 
+c             per iteration is less than this value
+c
+  400 if (.not. inp_f(dampon)) then
+         write(6,*)' conv_inp: dampon value not found; defaulting',
+     &             ' to 0.d0 Hartree'
+         dampon = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
+     &   call errquit('conv_inp: rtdb_put failed', 400)
+c
+      goto 10
+c     
+c     dampoff; turn damping off when change in energy 
+c              per iteration is less than this value
+c
+  500 if (.not. inp_f(dampoff)) then
+         write(6,*)' conv_inp: dampoff value not found; defaulting',
+     &             ' to 0.0d0 Hartree'
+         dampoff = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
+     &   call errquit('conv_inp: rtdb_put failed', 500)
+c
+      goto 10
+c     
+c     diison; turn diis on when change in energy 
+c             per iteration is less than this value
+c
+  600 if (.not. inp_f(diison)) then
+         write(6,*)' conv_inp: diison value not found; defaulting',
+     &             ' to 0.d0 Hartree'
+         diison = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
+     &   call errquit('conv_inp: rtdb_put failed', 600)
+c
+      goto 10
+c     
+c     diisoff; turn diis off when change in energy 
+c              per iteration is less than this value
+c
+  700 if (.not. inp_f(diisoff)) then
+         write(6,*)' conv_inp: diisoff value not found; defaulting',
+     &             ' to 0.0d0 Hartree'
+         diisoff = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
+     &   call errquit('conv_inp: rtdb_put failed', 700)
+c
+      goto 10
+c     
+c     levlon; turn levelshifting on when change in energy 
+c             per iteration is less than this value
+c
+  800 if (.not. inp_f(levlon)) then
+         write(6,*)' conv_inp: levlon value not found; defaulting',
+     &             ' to 0.d0 Hartree'
+         levlon = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
+     &   call errquit('conv_inp: rtdb_put failed', 800)
+c
+      goto 10
+c     
+c     levloff; turn levelshifting off when change in energy 
+c              per iteration is less than this value
+c
+  900 if (.not. inp_f(levloff)) then
+         write(6,*)' conv_inp: levloff value not found; defaulting',
+     &             ' to 0.0d0 Hartree'
+         levloff = 0.0d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
+     &   call errquit('conv_inp: rtdb_put failed', 900)
+c
+      goto 10
+c     
+c     ncydp; use damping for this number of iterations
+c
+ 1000 if (.not. inp_i(ncydp)) then
+         write(6,*)' conv_inp: ncydp value not found; defaulting',
+     &             ' to 2 iterations'
+         ncydp = 2
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
+     &   call errquit('conv_inp: rtdb_put failed', 1000)
+c
+      goto 10
+c     
+c     ncyds; use diis for this number of iterations
+c
+ 1100 if (.not. inp_i(ncyds)) then
+         write(6,*)' conv_inp: ncyds value not found; defaulting',
+     &             ' to 30 iterations'
+         ncyds = 30
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
+     &   call errquit('conv_inp: rtdb_put failed', 1100)
+c
+      goto 10
+c     
+c     ncysh; use levelshifting for this number of iterations
+c
+ 1200 if (.not. inp_i(ncysh)) then
+         write(6,*)' conv_inp: ncysh value not found; defaulting',
+     &             ' to 30 iterations'
+         ncysh = 30
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
+     &   call errquit('conv_inp: rtdb_put failed', 1200)
+c
+      goto 10
+c     
+c     damp/ndamp; use damping with the new density = ndamp% 
+c                 of old density + (1-ndamp)% of new density 
+c
+ 1300 damp = .true.             
+      if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
+     &   call errquit('conv_inp: rtdb_put failed', 1300)
+      if (.not. inp_i(ndamp)) then
+         write(6,*)' conv_inp: ndamp value not found; defaulting',
+     &             ' to 70%.'
+         ndamp = 70
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
+     &   call errquit('conv_inp: rtdb_put failed', 1300)
+c
+      goto 10
+c     
+c     nodamping; set no damping to be used for the entire calculation
+c
+ 1400 nodamping = .true.
+      if (.not. rtdb_put(rtdb, 'dft:nodamping', mt_log, 1, nodamping))
+     &   call errquit('conv_inp: rtdb_put failed', 1400)
+c
+      goto 10
+c     
+c     diis/nfock; use diis procedure with nfock Fock matrices 
+c                 saved and used in the extrapolation
+c
+ 1500 diis = .true.
+      if (.not. rtdb_put(rtdb, 'dft:diis', mt_log, 1, diis))
+     &   call errquit('conv_inp: rtdb_put failed', 1500)
+      if (.not. inp_i(nfock)) then
+         write(6,*) ' conv_inp: nfock value not found; defaulting',
+     &             ' to 10.'
+         nfock = 10
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
+     &   call errquit('conv_inp: rtdb_put failed', 1500)
+c
+      goto 10
+c     
+c     nodiis; set no diis to be used for the entire calculation
+c
+ 1600 nodiis = .true.
+      if (.not. rtdb_put(rtdb, 'dft:nodiis', mt_log, 1, nodiis))
+     &   call errquit('conv_inp: rtdb_put failed', 1600)
+c
+      goto 10
+c     
+c     lshift/rlshift; use levelshifting with a shift of rlshift applied
+c                     to the diagonal elements of the unoccupied block
+c                     of the Fock matrix.
+c
+ 1700 levelshift = .true.
+      if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
+     &   call errquit('conv_inp: rtdb_put failed', 1700)
+      if (.not. inp_f(rlshift)) then
+         write(6,*)' conv_inp: lshift value not found; defaulting',
+     &             ' to  0.5 Hartree'
+         rlshift = 0.5d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
+     &   call errquit('conv_inp: rtdb_put failed', 1700)
+c
+      goto 10
+c     
+c     nolevelshifting; set no levelshifting to be used for the 
+c                      entire calculation
+c
+ 1800 nolevelshifting = .true.
+      if (.not. rtdb_put(rtdb, 'dft:nolevelshifting', mt_log, 1, 
+     &   nolevelshifting))
+     &   call errquit('conv_inp: rtdb_put failed', 1800)
+c
+      goto 10
+c     
+c     hl_tol; a Homo - Lumo gap tolerance used to invoke "automatic"
+c             levelshifting and also monitoring of misuse of maximum
+c             orbital overlaps
+c
+ 1900 if (.not. inp_f(hl_tol)) then
+         write(6,*)' conv_inp: hl_tol value not found; defaulting',
+     &             ' to 0.1 Hartree'
+         hl_tol = 0.1d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
+     &   call errquit('conv_inp: rtdb_put failed', 1900)
+c
+      goto 10
+c     
+ 1999 continue
+c     
+      return
+c     
+10000 write(6,10001)
+
+10001 format(/,' convergence [[energy rval], [density rval], ',
+     &       /,' [gradient rval], [dampon rval], [dampoff rval], ',
+     &       /,' [diison rval], [diisoff rval], [levlon rval], ',
+     &       /,' [levloff rval], [ncydp ival], [ncyds ival], ',
+     &       /,' [ncysh ival], [damp ival], [nodamping], ',
+     &       /,' [diis nfock ival], [nodiis], [lshift rval], ',
+     &       /,' [nolevelshifting], [hl_tol rval]] ')
+      call util_flush(6)
+      call errquit('conv_input: invalid format', 0)
+c     
+      end

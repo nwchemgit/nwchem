@@ -1,0 +1,145 @@
+      subroutine tol_input(rtdb, module)
+C     $Id: 
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      character*(*) module
+c     
+c     Parse the tolerance directive which customizes the screening
+c     parameters for the DFT procedure.  Insert options into the 
+c     database prefixed with module:...
+c     
+c     Possible variables are:
+c
+c     tight
+c     tol_rho
+c     accAOfunc
+c     accCoul
+c     accQrad
+c     accXCfunc
+c     radius
+c     
+      integer num_dirs, ind, mlen
+      parameter (num_dirs = 7)
+      character*9 dirs(num_dirs)
+      character*255 test
+      logical ltight
+      integer iAOacc, itol2e, irqmax, iXCacc
+      double precision tol_rho, radius
+      data dirs /'tight', 'tol_rho', 'accAOfunc', 'accCoul', 'accQrad',
+     $     'accXCfunc', 'radius'/
+c     
+      mlen = inp_strlen(module)
+c     
+ 10   if (.not. inp_a(test)) goto 999
+c     
+      if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
+c     
+c     Does not match a keyword ... 
+c     
+         goto 10
+      endif
+c     
+      goto (100, 200, 300, 400, 500, 600, 700, 999) ind
+      call errquit('tol_inp: unimplemented directive', ind)
+c     
+c     tight; set screening threshholds tight
+c             
+  100 ltight = .true.
+      if (.not. rtdb_put(rtdb, 'dft:ltight', mt_log, 1, ltight))
+     &   call errquit('tol_inp: rtdb_put failed', 100)
+c
+      goto 10
+c     
+c     tol_rho; a density screening parameter used to avoid computation 
+c              of xc functional on a grid point and than be subsequently 
+c              multiplied by a density element less than tol_rho.
+c     
+  200 if (.not. inp_f(tol_rho)) then
+         write(6,*)' tol_inp: tol_rho value not found; defaulting ',
+     &             ' to 1.d-15 '
+         tol_rho=1.D-15
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
+     &   call errquit('tol_inp: rtdb_put failed', 200)
+c
+      goto 10
+c     
+c     accAOfunc; for use in int_eval_gbsets (called by quadvxcs),
+c                accuracy for evaluating AO gaussians
+c             
+  300 if (.not. inp_i(iAOacc)) then
+         write(6,*)' tol_inp: accAOfunc value not found; defaulting ',
+     &             ' to 20.'
+         iAOacc = 20
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
+     &   call errquit('tol_inp: rtdb_put failed', 300)
+c
+      goto 10
+c     
+c     accCoul; for use in fitcd & fitvcoul for schwarz screening 
+c             
+  400 if (.not. inp_i(itol2e)) then
+         write(6,*)' tol_inp: accCoul value not found; defaulting ',
+     &             ' to 15.'
+         itol2e = 15
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
+     &   call errquit('tol_inp: rtdb_put failed', 400)
+c
+      goto 10
+c     
+c     accQrad; for use in setquad - r_max for quadrature points (distance in bohr)
+c             
+  500 if (.not. inp_i(irqmax)) then
+         write(6,*)' tol_inp: accQrad value not found; defaulting ',
+     &             ' to 40.'
+         irqmax = 40
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
+     &   call errquit('tol_inp: rtdb_put failed', 500)
+c
+      goto 10
+c     
+c     accXCfunc; for use in int_eval_gbsets (called by quadvxc1),
+c                accuracy for evaluating XC gaussians
+c             
+  600 if (.not. inp_i(iXCacc)) then
+         write(6,*)' tol_inp: accXCfunc value not found; defaulting ',
+     &             ' to 20.'
+         iXCacc = 20
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
+     &   call errquit('tol_inp: rtdb_put failed', 600)
+c
+      goto 10
+c     
+c     radius; screening radius used in computation of spatial weights.
+c     
+  700 if (.not. inp_f(radius)) then
+         write(6,*)' tol_inp: radius value not found; defaulting ',
+     &             ' to 16.d0.'
+         radius=16.d0
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1, radius))
+     &   call errquit('tol_inp: rtdb_put failed', 700)
+c
+      goto 10
+c     
+ 999  continue
+c     
+      return
+c     
+10000 write(6,10001)
+10001 format(/,' tolerances [[tight], [tol_rho dtol], ',
+     &       /,' [accAOfunc itol], [accCoul itol], ',
+     &       /,' [accQrad itol], [accXCfunc itol], ',
+     &       /,' [radius dtol] ')
+      call util_flush(6)
+      call errquit('tol_input: invalid format', 0)
+c     
+      end
+
