@@ -35,34 +35,34 @@ realclean:
 		clean
 
 dstebz1.o:	dstebz1.f
-		$(FC) -c $(FCNFLAGS) dstebz1.f  -o dstebz1.o
+		$(FC) -c $(FCNFLAGS) dstebz1.f  
 
 pairup.o:	pairup.f
-		$(FC) -c $(FCNFLAGS) pairup.f  -o pairup.o
+		$(FC) -c $(FCNFLAGS) pairup.f  
 
 neblw1.o:	neblw1.f
-		$(FC) -c $(FCNFLAGS) neblw1.f  -o neblw1.o
+		$(FC) -c $(FCNFLAGS) neblw1.f  
 
 dlaebz1.o:	dlaebz1.f
-		$(FC) -c $(FCNFLAGS) dlaebz1.f  -o dlaebz1.o
+		$(FC) -c $(FCNFLAGS) dlaebz1.f  
 
 ilaenv1.o:	ilaenv1.f
-		$(FC) -c ilaenv1.f  -o ilaenv1.o
+		$(FC) -c ilaenv1.f  
 
 heapsort.o:	heapsort.f
-		$(FC) -c heapsort.f  -o heapsort.o
+		$(FC) -c heapsort.f  
 
 menode.o:	menode.f
-		$(FC) -c menode.f  -o menode.o
+		$(FC) -c menode.f  
 
 xerbl2.o:	xerbl2.f
-		$(FC) -c $(FCNFLAGS) xerbl2.f  -o xerbl2.o
+		$(FC) -c $(FCNFLAGS) xerbl2.f  
 
 unif.o:		unif.f
-		$(FC) -c $(FCNFLAGS) unif.f  -o unif.o
+		$(FC) -c $(FCNFLAGS) unif.f  
 
 
 .c.o:;	$(CC) $(OPTC) -c $<
 
-.f.o:;	$(FC) $(OPT) -c $<
+.f.o:;	$(FC) $(FOPT) -c $<
 
