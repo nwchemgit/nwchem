@@ -5,7 +5,8 @@ c      ==========================================
 c      CHECK
 c      c/a symmetry
 c      triangular symmetries (ij/ab in summation)
-c      can be sorted by the factors in the occ's
+c      are sorted in  cct_uhf_t2  ......
+c      can be (but are not)sorted by the factors in the occ's
 c      ==========================================
 c
 c...    SYMMETRY of integrals requires careful CONSIDERATION
@@ -24,7 +25,7 @@ c...   (refers to matrix after possible transpose)
 c...   ld : leading dimensions
 c
 *
-* $Id: cct_UHF.F,v 1.9 1999-07-28 00:42:13 d3e129 Exp $
+* $Id: cct_UHF.F,v 1.10 1999-09-06 13:36:37 jhvan Exp $
 *
       implicit none
 c
@@ -141,18 +142,19 @@ c                     k m i n  a b  j c
      1               '<ij||an>(iajn)','<ij||an>(iajn)'/
 c======================================================================
       data a3a/'A3A'/
-c...  this one already corrected for compensating ij symm (cases 1,2)
 c...  cases contains the spin cases and the factor to multiply by
 c...  occ contains the occupations (1=occ,2=virt) and the divide factor
-c...  and (to be save) the inices to be weighted in the intermediate)
+c...  and (to be save) the indices to be weighted in the intermediate)
 c...  type contains types for intgrals/t's in first and second mult
 c                     1 2 3 4  5 6  7 8
 c                     a e c f  b k  i j, fac 
-      data cases_a3a/ 1,1,1,1, 0,0, 1,1,  2,
-     2                2,2,2,2, 0,0, 2,2,  2,
+      data cases_a3a/ 1,1,1,1, 0,0, 1,1,  1,
+     2                2,2,2,2, 0,0, 2,2,  1,
      3                1,2,1,2, 2,1, 1,2,  2,
      4                2,1,2,1, 1,2, 1,2,  2,
-     5                1,1,2,2, 0,0, 1,2,  4/
+     5                1,1,2,2, 0,0, 1,2, -4/
+c..    above since we seem to get abab while specifying abba
+c    5                1,1,2,2, 0,0, 1,2,  4/
       data occ_a3a  / 2,2,2,2, 2,1, 1,1,  2,   1,3/
       data type_a3a /'<ba||ek>(bkea)','<ba||ek>(bkea)',
      1               'T(ij,ce)(ijec)','T(ij,ce)(ijec)'/
@@ -272,22 +274,34 @@ c     r_a2b = cct_uhf_T2(a2b,occ_a2b,cases_a2b,ncase_a2b,type_a2b,
 c    1                   r_a1b)
 c     r_b2b = cct_uhf_T2(b2b,occ_b2b,cases_b2b,ncase_b2b,type_b2b,
 c    1                   r_b1b)
+c     print *,' a2a ',r_a2a
+c     print *,' a2b ',r_a2b
+c     print *,' b2b ',r_b2b
+c     print *,' total term2 ',r_a2a+r_a2b+r_b2b
 c
       print *,' diagram ',A3A,ncase_a3a
       r_a3a = cct_uhf_T2(a3a,occ_a3a,cases_a3a,ncase_a3a,type_a3a,
      1                   flop)
-      print *,'  r_a3a ', r_a3a
 c     r_a3b = cct_uhf_T2(a3b,occ_a3b,cases_a3b,ncase_a3b,type_a3b,
 c    1                   flop)
 c     r_b3b = cct_uhf_T2(b3b,occ_b3b,cases_b3b,ncase_b3b,type_b3b,
 c    1                   flop)
+      print *,' a3a ',r_a3a
+c     print *,' a3b ',r_a3b
+c     print *,' b3b ',r_b3b
+c     print *,' total term3 ',r_a3a+r_a3b+r_b3b
+         stop
 c
-c     r_a4a = cct_uhf_T2(a4a,occ_a4a,cases_a4a,ncase_a4a,type_a4a,
-c    1                   flop)
-c     r_a4b = cct_uhf_T2(a4b,occ_a4b,cases_a4b,ncase_a4b,type_a4b,
-c    1                   flop)
-c     r_b4b = cct_uhf_T2(b4b,occ_b4b,cases_b4b,ncase_b4b,type_b4b,
-c    1                   flop)
+      r_a4a = cct_uhf_T2(a4a,occ_a4a,cases_a4a,ncase_a4a,type_a4a,
+     1                   flop)
+      r_a4b = cct_uhf_T2(a4b,occ_a4b,cases_a4b,ncase_a4b,type_a4b,
+     1                   flop)
+      r_b4b = cct_uhf_T2(b4b,occ_b4b,cases_b4b,ncase_b4b,type_b4b,
+     1                   flop)
+      print *,' a4a ',r_a4a
+      print *,' a4b ',r_a4b
+      print *,' b4b ',r_b4b
+      print *,' total term4 ',r_a4a+r_a4b+r_b4b
 c
       CCT_UHF = .true.
 c
@@ -461,14 +475,15 @@ c     character*20 type(2,2)
 c...  cases contains the spin cases and the factor to multiply by
 c...  occ contains the occupations (1=occ,2=virt) and the divide factor
 c...  type contains types for intgrals/t's in first and second mult
+c     (ij)t(ij,ce)*t(ij,af)  *  (bk) <ba||ek><bc||fk>
 c                 1 2 3 4  5 6  7 8
 c                 a e c f  b k  i j  fac 
 c     data cases/ 1,1,1,1, 0,0, 1,1,  1,
 c    1            2,2,2,2, 0,0, 2,2,  1,
 c    2            1,2,1,2, 2,1, 1,2,  2,
 c    3            2,1,2,1, 1,2, 1,2,  2,
-c    4            2,1,1,2, 0,0, 1,2,  4/
-c     data occupation  / 2,2,2,2, 1,2, 1,1,  2/
+c    4            1,1,2,2, 0,0, 1,2,  4/
+c     data occupation  / 2,2,2,2, 2,1, 1,1,  2/
 c     data type /'<ba||ek>(bkea)','<ba||ek>(bkea)',
 c    1           'T(ij,ce)(ijec)','T(ij,ce)(ijec)'/
 c
@@ -503,6 +518,7 @@ c
       integer case,nbatch,nbcha,nbchc,size,size_1
       logical symmetry,a2a,a1a
       double precision factor,cct_sum,sum,cct_sum_a1a
+      double precision deb1,deb2,deb3,deb4
 c
       sum = 0.0d0
       a2a = diagram.eq.'A2A'.or.diagram.eq.'A2B'.or.diagram.eq.'B2B'
@@ -543,6 +559,11 @@ c
        spinj = cases(8,case)
 c
        factor = cases(9,case)/(occupation(9)*1.0D0)
+c
+c...   handle triangular factors 
+c
+       if (i.eq.j.and.spini.eq.spinj) factor = factor*2
+       if (b.eq.k.and.spinb.eq.spink) factor = factor*2
 c
        eb = s_occ_virt(1,spine,e)
        fb = s_occ_virt(1,spinf,f)
@@ -644,7 +665,10 @@ c
 c
             call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
 c           
-            sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
+c           sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
+            deb1 = cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
+            print *,' case ',case,' intermediate ',deb1
+            sum = sum + deb1
 c
             if (a1a.and.ab.eq.cb) then
              value_X1X = value_X1X +  
@@ -749,8 +773,8 @@ c...  figure occupations (1=occ,2-virt)
       occb = iocc(bb)
       occk = iocc(kb)
 c
-      symmetric = (ab.eq.ae.and.cb.eq.ce.and.typeA.eq.typeB.and.
-     1             spine.eq.spinf.and.spine.eq.spinf)
+      symmetric = (ab.eq.cb.and.ae.eq.ce.and.typeA.eq.typeB.and.
+     1             spine.eq.spinf)
       size = avail_ga
       if (.not.symmetric) size = size/2
 c
@@ -782,7 +806,9 @@ c
      1   call errquit('unable to crate global arrray matA',0)
       if (.not.symmetric) then
        if (.not.ga_create(MT_DBL,len,lcf,'matA(c,f)',0,0,g_MATB))
-     1     call errquit('unable to crate global arrray matB',0)
+     1     call errquit('unable to create global arrray matB',0)
+      else
+       g_MATB = g_MATA
       end if
 c
       bke = 0
@@ -798,16 +824,12 @@ c
 c
 c...  note ;, the integrals are weighted for the summation indices
 c   
-*        print *,' mata '
-*       call ga_print(g_MATA)
-*        print *,' matb '
-*       call ga_print(g_MATB)
        call ga_dgemm('T','N',lea,lcf,lbk,1.0d0,g_MATA,g_MATB,
      1               1.0d0,g_RESULT)
 c
       end do
 c
-      if (symmetric) then
+      if (.not.symmetric) then
        if (.not.ga_destroy(g_MATB)) call errquit('cant destroy MATB',0)
       end if
       if (.not.ga_destroy(g_MATA)) call errquit('cant destroy MATA',0)

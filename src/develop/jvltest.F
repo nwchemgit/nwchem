@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.8 1999-07-08 19:10:52 d3e129 Exp $
+*     $Id: jvltest.F,v 1.9 1999-09-06 13:36:42 jhvan Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -76,34 +76,35 @@ c
       call get_T2(dbl_mb(k_t2),occ,virt)
       call get_EVALS(dbl_mb(k_orb),nbasis,occ,virt)
 c
-      call calc_robert(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orb),nbasis,occ,virt)
+*     call calc_robert(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orb),nbasis,occ,virt)
 c
-      call calc_pople(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orb),nbasis,occ,virt)
+*     call calc_pople(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orb),nbasis,occ,virt)
 c
 c...  now make modified (homo-lumo) orbital energies and 
 c...  call all + cullen
 c
-      if (.not. ma_push_get(mt_dbl, nbasis,'orbn',l_orbn, k_orbn))
-     $    call errquit('orbn',0)
-      call mod_EVALS(dbl_mb(k_orb),dbl_mb(k_orbn),nbasis,occ,virt)
+*     if (.not. ma_push_get(mt_dbl, nbasis,'orbn',l_orbn, k_orbn))
+*    $    call errquit('orbn',0)
+*     call mod_EVALS(dbl_mb(k_orb),dbl_mb(k_orbn),nbasis,occ,virt)
 c
-      print *,' ORBITAL ENERGIES TO HOMO-LUMO '
-      delta = dbl_mb(k_orb+occ-1) - dbl_mb(k_orb+occ)
-      print *,' delta e used ',delta
-      delta = delta * 3.0d0
+*     print *,' ORBITAL ENERGIES TO HOMO-LUMO '
+*     delta = dbl_mb(k_orb+occ-1) - dbl_mb(k_orb+occ)
+*     print *,' delta e used ',delta
+*     delta = delta * 3.0d0
 c
-      call calc_robert(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orbn),nbasis,occ,virt)
+*     call calc_robert(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orbn),nbasis,occ,virt)
 c
-      call calc_pople(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orbn),nbasis,occ,virt)
+*     call calc_pople(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orbn),nbasis,occ,virt)
 c
 c...  set orbital energies to 1 to get almlof to do cullen
 c...  delta contains de delta e (*3)
 c
       call dfill(nbasis,1.0d0,dbl_mb(k_orbn),1)
+      delta = 1.0d0
       call calc_almlof(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
      1                 delta,dbl_mb(k_orbn),
      2                 nbasis,occ,virt,energy,.true.)
@@ -114,37 +115,37 @@ c     call mod_EVALS(dbl_mb(k_orb),dbl_mb(k_orbn),nbasis,occ,virt)
 c     call dcopy(nbasis,dbl_mb(k_orbn),1,dbl_mb(k_orb),1)
 c     print *,' cw keep ORBITAL ENERGIES as HOMO-LUMO '
 c
-      if (.not.rtdb_get_info(rtdb,'cct_almlof',i,n_almlof,date))
-     1 then
-        n_almlof = 1
-        np_almlof(1) = 5
-      else
-       if (.not.rtdb_get(rtdb,'cct_almlof',MT_INT,nn_almlof,np_almlof))
-     1 call errquit(' cct_almlof ',0)
-      end if
+*     if (.not.rtdb_get_info(rtdb,'cct_almlof',i,n_almlof,date))
+*    1 then
+*       n_almlof = 1
+*       np_almlof(1) = 5
+*     else
+*      if (.not.rtdb_get(rtdb,'cct_almlof',MT_INT,nn_almlof,np_almlof))
+*    1 call errquit(' cct_almlof ',0)
+*     end if
 c
-      do i=1,n_almlof
-      call int_almlof(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orb),dbl_mb(k_orbn),   
-     2                nbasis,occ,virt,energy,np_almlof(i))
-      print *,np_almlof(i),' point almlof integrated energy ',energy
-      end do
+*     do i=1,n_almlof
+*     call int_almlof(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orb),dbl_mb(k_orbn),   
+*    2                nbasis,occ,virt,energy,np_almlof(i))
+*     print *,np_almlof(i),' point almlof integrated energy ',energy
+*     end do
 c
-      if (.not.rtdb_get_info(rtdb,'cct_laguer',i,n_laguer,date))
-     1 then
-        n_laguer = 1
-        np_laguer(1) = 5
-      else
-       if (.not.rtdb_get(rtdb,'cct_laguer',MT_INT,nn_laguer,np_laguer))
-     1 call errquit(' cct_laguer ',0)
-      end if
+*     if (.not.rtdb_get_info(rtdb,'cct_laguer',i,n_laguer,date))
+*    1 then
+*       n_laguer = 1
+*       np_laguer(1) = 5
+*     else
+*      if (.not.rtdb_get(rtdb,'cct_laguer',MT_INT,nn_laguer,np_laguer))
+*    1 call errquit(' cct_laguer ',0)
+*     end if
 c
-      do i=1,n_laguer
-      call int_laguer(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
-     1                dbl_mb(k_orb),dbl_mb(k_orbn),   
-     2                nbasis,occ,virt,energy,np_laguer(i),rtdb)
-      print *,np_laguer(i),' point laguer integrated energy ',energy
-      end do
+*     do i=1,n_laguer
+*     call int_laguer(dbl_mb(k_rint),dbl_mb(k_t1),dbl_mb(k_t2),
+*    1                dbl_mb(k_orb),dbl_mb(k_orbn),   
+*    2                nbasis,occ,virt,energy,np_laguer(i),rtdb)
+*     print *,np_laguer(i),' point laguer integrated energy ',energy
+*     end do
 c
 c...  free all core beyond rint
 c
@@ -784,6 +785,9 @@ c
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijab))
       if (.not.ma_pop_stack(l_w)) call errquit('pop b3b',0)
 c
+      print *,' term_a3a *.5 ',term_a3a*0.5d0
+      print *,' term_a3b *1, ',term_a3b 
+      print *,' term_b3b *.5 ',term_b3b*0.5d0 
       term3 = term_a3a + 2.0d0*term_a3b + term_b3b
 c
       if (opr) then
