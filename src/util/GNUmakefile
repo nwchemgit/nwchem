@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.147 2002-07-27 18:27:49 edo Exp $
+# $Id: GNUmakefile,v 1.148 2002-07-30 05:07:30 edo Exp $
 
 include ../config/makefile.h
 
@@ -70,6 +70,9 @@ endif
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  ifeq ($(FC),ifc)
+    EXTRA_OBJ += erfc.o
+  endif
 #
 # If you want to turn traps on for LINUX uncomment this line. That is it.
 #  EXTRA_OBJ += linux_gnu_trap.o
