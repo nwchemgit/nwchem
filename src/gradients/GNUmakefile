@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.9 1995-11-07 20:00:07 vg038 Exp $
+# $Id: GNUmakefile,v 1.10 1995-11-07 20:06:45 vg038 Exp $
 
             OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
 			grad_dens.o grad2.o
-#  OBJ_OPTIMIZE = grad2.o
+   OBJ_OPTIMIZE = grad2.o
 
    USES_BLAS = grad_force.F
 
