@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlf_ij.F,v 1.1 1999-04-10 00:15:15 windus Exp $
+c $Id: hnd_hlf_ij.F,v 1.2 1999-05-06 17:25:50 windus Exp $
 c
 c Taken from HONDO
 c
@@ -34,7 +34,7 @@ c
 c     double precision dvij(3,nint) ! [output] 1rst. der integrals
       double precision dvij(nint,3) ! [output] 1rst. der integrals
       double precision ddvij(nint,3,3) ! [output] 2nd der integrals
-      double precision zan(3)   ! [input] nuclear charges
+      double precision zan(*)   ! [input] nuclear charges
 c
       character*8 errmsg
       common/hnd_xyzder/xint,yint,zint,tx,x0,y0,z0,xi,yi,zi,xj,yj,zj,
@@ -145,7 +145,7 @@ c
       elseif(lit.eq.5) then
         cgi=coefi(ig,i_ngen)
       else
-        call errquit('hnd_stv_int: illegal -lit- ', lit)
+        call errquit('hnd_hlf_ij2: illegal -lit- ', lit)
       endif
 c
 c     ----- j primitive -----
@@ -323,24 +323,21 @@ c
         dvij(ij,2)=dvij(ij,2)+dumy
         dvij(ij,3)=dvij(ij,3)+dumz
       elseif (nder.eq.2) then
-      dumxx=dumxx*(pi212*aa1*pij(ij))
-      dumyy=dumyy*(pi212*aa1*pij(ij))
-      dumzz=dumzz*(pi212*aa1*pij(ij))
-      dumxy=dumxy*(pi212*aa1*pij(ij))
-      dumxz=dumxz*(pi212*aa1*pij(ij))
-      dumyz=dumyz*(pi212*aa1*pij(ij))
-c     ddvij(1,1,ij)=ddvij(1,1,ij)+dumxx    
-c     ddvij(2,1,ij)=ddvij(2,1,ij)+dumxy
-c     ddvij(2,2,ij)=ddvij(2,2,ij)+dumyy
-c     ddvij(3,1,ij)=ddvij(3,1,ij)+dumxz
-c     ddvij(3,2,ij)=ddvij(3,2,ij)+dumyz
-c     ddvij(3,3,ij)=ddvij(3,3,ij)+dumzz
-      ddvij(ij,1,1)=ddvij(ij,1,1)+dumxx    
-      ddvij(ij,2,1)=ddvij(ij,2,1)+dumxy
-      ddvij(ij,2,2)=ddvij(ij,2,2)+dumyy
-      ddvij(ij,3,1)=ddvij(ij,3,1)+dumxz
-      ddvij(ij,3,2)=ddvij(ij,3,2)+dumyz
-      ddvij(ij,3,3)=ddvij(ij,3,3)+dumzz
+        dumxx=dumxx*(pi212*aa1*pij(ij))
+        dumyy=dumyy*(pi212*aa1*pij(ij))
+        dumzz=dumzz*(pi212*aa1*pij(ij))
+        dumxy=dumxy*(pi212*aa1*pij(ij))
+        dumxz=dumxz*(pi212*aa1*pij(ij))
+        dumyz=dumyz*(pi212*aa1*pij(ij))
+        ddvij(ij,1,1)=ddvij(ij,1,1)+dumxx    
+        ddvij(ij,1,2)=ddvij(ij,1,2)+dumxy
+        ddvij(ij,1,3)=ddvij(ij,1,3)+dumxz
+        ddvij(ij,2,1)=ddvij(ij,2,1)+dumxy
+        ddvij(ij,2,2)=ddvij(ij,2,2)+dumyy
+        ddvij(ij,2,3)=ddvij(ij,2,3)+dumyz
+        ddvij(ij,3,1)=ddvij(ij,3,1)+dumxz
+        ddvij(ij,3,2)=ddvij(ij,3,2)+dumyz
+        ddvij(ij,3,3)=ddvij(ij,3,3)+dumzz
       endif
       dum=(pi212*aa1)*pij(ij)
 c

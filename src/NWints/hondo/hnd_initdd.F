@@ -1,4 +1,4 @@
-c $Id: hnd_initdd.F,v 1.1 1999-04-28 22:48:08 windus Exp $
+c $Id: hnd_initdd.F,v 1.2 1999-05-06 17:25:50 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : initialization routine
@@ -21,7 +21,11 @@ c
 c
 c     set up memory requirements
 c
+      write(6,*) 'before the call to hnd_dd1emem'
+      call flush(6)
       call hnd_dd1emem(bases,nbas)
+      write(6,*) 'after the call to hnd_dd1emem'
+      call flush(6)
 c
       return
       end

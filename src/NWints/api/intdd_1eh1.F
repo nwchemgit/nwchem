@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.2 1999-04-29 21:37:42 windus Exp $
+C $Id: intdd_1eh1.F,v 1.3 1999-05-06 17:25:48 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "basP.fh"
@@ -72,13 +72,13 @@ c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
-      if (nint*3*3*nat.gt.lH1a) then
-        write(luout,*) 'nint*3*3*nat = ',nint*3*3*nat
+      if (nint*3*3*nat*3.gt.lH1a) then
+        write(luout,*) 'nint*3*3*nat*3 = ',nint*3*3*nat*3
         write(luout,*) 'lH1a       = ',lH1a
         call errquit('intd_1eh1: nint>lH1a error',911)
       endif
 c
-      offset = nint*3*3*2       ! scratch for Ta array in intd_1eh1P routine
+      offset = nint*3*3*3       ! scratch for Ta array in intd_1eh1P routine
       scrsize = lscr - offset ! new scratch array size
       offset = offset + 1     ! increment for passing to intd_1eh1P
 c

@@ -1,4 +1,4 @@
-c $Id: hnd_dd1emem.F,v 1.1 1999-04-28 22:48:07 windus Exp $
+c $Id: hnd_dd1emem.F,v 1.2 1999-05-06 17:25:49 windus Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- derivative memory routine
@@ -36,21 +36,44 @@ c
 c get the number of atoms, note that this does not do any checking
 c to see if the different basis sets are on different geometries
 c
-      basis = bases(ibas) + BASIS_HANDLE_OFFSET
+      write(6,*) 'before the setup stuff'
+      call flush(6)
+      basis = bases(1) + BASIS_HANDLE_OFFSET
+      write(6,*) 'after the basis definition'
+      call flush(6)
       geom = ibs_geom(basis)
+      write(6,*) 'after the geom definition'
+      call flush(6)
       nat = ncenter(geom)
+      write(6,*) 'after the nat definition'
+      call flush(6)
 c
 c figure out the maximum number of basis functions for any shell
 c
+      write(6,*) 'number of basis sets ',nbas
+      call flush(6)
       do 00100 ibas = 1,nbas
         if (api_is_atomic_basis(bases(ibas))) then
+          write(6,*) 'before the call to int_nbf_max'
+          call flush(6)
           call int_nbf_max(bases(ibas),nbf)
+          write(6,*) 'after the call to int_nbf_max'
+          call flush(6)
           nbfmax = max(nbfmax,nbf)
+          write(6,*) 'nbfmax ',nbfmax
+          call flush(6)
         endif
 00100 continue
 c
-      maxbuf = nbfmax*nbfmax*4*nat
+c The 4 should be changed to a 3 when I have everything worked out
+c
+      maxbuf = nbfmax*nbfmax*3*3*4*nat
       isz_1e = max(isz_1e,maxbuf)
+c
+c scrmem is for the didjvij temporary space and for holding the T second
+c ders during the calculation of H1
+c
+      scrmem = nbfmax*nbfmax*3*3*nat + nbfmax*nbfmax*3*3*3
       mem_1e = max(mem_1e,scrmem) 
 c
       return

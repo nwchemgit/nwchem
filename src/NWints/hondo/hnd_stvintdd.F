@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.1 1999-04-28 22:48:09 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.2 1999-05-06 17:25:50 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -66,78 +66,57 @@ c
 c to get the djdi term which is equal to the didj term which is calculated
 c
         call dcopy(nint*3*3,sder(nint*3*3+1),1,sder(nint*3*3*2+1),1)
-c       call dscal(nint*3*3,negone,sder(nint*3*3+1),1)
       endif
 c
-c     write(luout,*) 'before the call to doV'
-c     call flush(luout)
+      write(luout,*) 'before the call to doV'
+      call flush(luout)
+c
       if (doV) then
-        call dfill(nint*3*3*nat,zero,vder,1)
+        call dfill(nint*3*3*nat*3,zero,vder,1)
+c
+c Do the Helman-Feynman part (i|d2/dxcdxcV|j)
+c The first nat*nint*3*3 holds these terms
+c
         do i=1,nat
           write(luout,*) 'number of calls to hnd_hlf_ij2 ',i
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,scr,
      2      vder((i-1)*3*3*nint+1),zan,xyz,nder,nint)
         enddo
+c
+c Do the mixed part (di|d/dxcV|j) and (i|d/dxcV|dj)
+c These are held in the rest of vder
+c
+         do i=1,nat
+           call hnd_hlfd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+     2       vder((i-1)*3*3*nint+nint*3*3*nat+1),
+     3       vder((i-1)*3*3*nint+nint*3*3*nat*2+1),
+     4       i,xyz,nder,nint)
+         enddo
+c
 c        write(6,*) 'before the second doV, vder is'
 c        do i=1,nat*3*nint
 c          write(6,*) vder(i)
 c        enddo
-c     endif
+      endif
 
       write(luout,*) 'before the doT call'
       call flush(luout)
       if (doT.or.doV) then
-        if (doT) call dfill(nint*3*3*2,zero,tder,1)
-c note that scr is where the vder ints are temporarily going
-        if (doV) call dfill(nint*3*3*4,zero,scr,1)
-c       call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
-c    1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,scr,tder,
-c    2    tder(nint*3*3+1),scr,scr,scr(nint*3*3+1),nder,nint,
-c    3    zan,nat,doT,doV,i_cent,j_cent)
-         write(6,*) 'after the first tvd_ij call, scr is'
-         do i=1,3*nint
-           write(6,*) scr(i)
-         enddo
-c note that the first scr is where the vder ints are going
-c       call hnd_tvd_ij2(xyzj,expj,coefj,j_nprim,j_ngen,Lj,
-c    1    xyzi,expi,coefi,i_nprim,i_ngen,Li,xyz,tder,scr,scr,
-c    2    scr,scr(nint*3*3*2+1),scr(nint*3*3*3+1),nder,nint,
-c    3    zan,nat,.false.,doV,j_cent,i_cent)
-c        write(6,*) 'after the second tvd_ij call, scr is'
-c        do i=3*nint+1,6*nint
+        if (doT) call dfill(nint*3*3*3,zero,tder,1)
+c note that scr is where the didj vder ints are temporarily going
+        if (doV) call dfill(nint*3*3,zero,scr,1)
+        call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,scr,scr,tder,
+     2    tder(nint*3*3+1),tder(nint*3*3*2+1),scr,scr,
+     3    vder(nint*3*3*(i_cent-1)+1),scr,
+     4    vder(nint*3*3*(j_cent-1)+1),nder,nint,
+     5    zan,nat,doT,doV,i_cent,j_cent)
+c        write(6,*) 'after the first tvd_ij call, scr is'
+c        do i=1,3*nint
 c          write(6,*) scr(i)
 c        enddo
-c        write(6,*) 'after the second doV, vder is'
-c        do i=1,nat*3*nint
-c          write(6,*) vder(i)
-c        enddo
-        if (doT) then
-          call dcopy(nint*3*3,tder,1,tder(nint*3*3+1),1)
-          call dscal(nint*3*3,negone,tder(nint*3*3+1),1)
-        endif
-c       if (doV) then
-c         if (i_cent.eq.j_cent) then
-c           write(6,*) 'i equals j'
-c         if (i_cent.eq.j_cent) write(6,*) 'i equals j'
-c           call daxpy(nint*3,1.D0,scr,1,vder((i_cent-1)*3*nint+1),1)
-c           write(6,*) 'after the first daxpy, vder is'
-c           do i=1,nat*3*nint
-c             write(6,*) vder(i)
-c           enddo
-c           call daxpy(nint*3,1.D0,scr(nint*3+1),1,
-c    1                 vder((j_cent-1)*3*nint+1),1)
-c           write(6,*) 'after the second daxpy, vder is'
-c           do i=1,nat*3*nint
-c             write(6,*) vder(i)
-c           enddo
-c         else
-c           write(6,*) 'i not equal j'
-c           call daxpy(nint*3,1.D0,scr,1,vder((i_cent-1)*3*nint+1),1)
-c           call daxpy(nint*3,1.D0,scr(nint*3+1),1,
-c    1                 vder((j_cent-1)*3*nint+1),1)
-c         endif
-        endif
       endif
 c
 c     ----- perform transformation to NWChem order if necessary ----

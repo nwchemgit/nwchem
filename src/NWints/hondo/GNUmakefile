@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1999-04-28 22:48:10 windus Exp $
+# $Id: GNUmakefile,v 1.9 1999-05-06 17:25:50 windus Exp $
 
 include ../../config/makefile.h
 
@@ -27,6 +27,7 @@ include ../../config/makefile.h
                  hnd_stvintdd.o \
                  hnd_hlfd_ij.o \
                  hnd_ddvxyz.o \
+                 hnd_deriaj.o \
                  hnd_to_nw_order.o \
                  hnd_terminate.o 
 

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintd.F,v 1.2 1999-04-28 22:48:09 windus Exp $
+c $Id: hnd_stvintd.F,v 1.3 1999-05-06 17:25:50 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -75,8 +75,8 @@ c note that scr is where the vder ints are temporarily going
         if (doV) call dfill(nint*3*2,zero,scr,1)
         call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,tder,tder(nint*3+1),
-     2    scr,scr,scr,scr((nint*3)+1),scr,scr,nder,nint,zan,nat,doT,
-     3    doV,i_cent,j_cent)
+     2    scr,scr,scr,scr,scr((nint*3)+1),scr,scr,scr,nder,nint,zan,
+     3    nat,doT,doV,i_cent,j_cent)
 c
 c Combine the orbital and operator derivative parts
 c
