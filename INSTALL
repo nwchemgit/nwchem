@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.68 2004-04-28 01:49:15 edo Exp $
+$Id: INSTALL,v 1.69 2004-04-30 02:10:50 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -131,6 +131,7 @@ BASIC BUILD INSTRUCTIONS:
    				 		   
    CRAY-T3D       Cray T3D        UNICOS         
    CRAY-T3E       Cray T3E        UNICOS         
+   cray-sv2       Cray X1         UNICOS/mp    Cray               y
    				 		   
    LAPI           IBM SP          AIX/LAPI                        y
    LAPI64         IBM SP          AIX/LAPI                        y
