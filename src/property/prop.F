@@ -5,7 +5,7 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.7 1997-06-24 16:56:32 mdupuis Exp $
+* $Id: prop.F,v 1.8 1997-07-10 22:31:12 mdupuis Exp $
 *
       implicit none
       integer rtdb              ! [input]
@@ -21,6 +21,8 @@ c
 c
 c     Push context down to prop.
 c
+      call ga_sync()
+
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       if(ga_nodeid().eq.0)
      $     call util_print_centered(LUout,'Properties',40,.true.)

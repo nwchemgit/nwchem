@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.21 1997-07-02 20:20:59 mdupuis Exp $
+* $Id: prp.F,v 1.22 1997-07-10 22:31:13 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -6080,14 +6080,6 @@ C
       PARAMETER (MXBFN=3072)
       integer  rtdb,geom,basis
       logical  status
-c*    integer  g_vecs
-c*    character*255 movecs_in,movecs_out
-c*    character*255 movecs
-c*    logical  movecs_read
-c*    external movecs_read
-c*    integer  ga_create_atom_blocked
-c*    external ga_create_atom_blocked
-c*    double precision  noc(mxbfn)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 RHF, UHF, MP2, GVB, SCF, PROP
@@ -6247,19 +6239,23 @@ C
       NPTMAX=NPTMAX+1
 C
       IF(DBUG) THEN
-         write(6,*) 'nptmax = ',nptmax
          write(6,*) 'need   = ',need
+         write(6,*) 'runtyp = ',runtyp
          write(6,*) 'wfntyp = ',wfntyp
          write(6,*) 'scftyp = ',scftyp
       ENDIF
 C
-      IF(WFNTYP.EQ.SCF.AND.SCFTYP.NE.GVB) GO TO 200
+C--   IF(WFNTYP.EQ.SCF.AND.SCFTYP.NE.GVB) GO TO 200
 C
 C     ----- GENERAL CASE = ONE PARTICLE REDUCED DENSITY MATRIX -----
 C           IS NOT DIAGONAL.
+C
       IF(RUNTYP.EQ.PROP) THEN
-      if (ga_nodeid().eq.0) WRITE(IW,9983)
-      CALL HND_HNDERR(3,ERRMSG)
+         if (ga_nodeid().eq.0) WRITE(IW,9983)
+         CALL HND_HNDERR(3,ERRMSG)
+      ENDIF
+      IF(DBUG) THEN
+         write(6,*) 'general case ...'
       ENDIF
 C
 C     ----- SET POINTERS FOR PARTITIONING OF MEMORY -----
@@ -6291,7 +6287,10 @@ c     ----- calculate density matrix -----
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
          CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
          DO 120 I=1,L2
-            X(I+I20-1)=X(I+I20-1)+X(I+I30-1)
+            DUMA      =X(I+I20-1)
+            DUMB      =X(I+I30-1)
+            X(I+I20-1)=DUMA+DUMB             
+            X(I+I30-1)=DUMA-DUMB             
   120    CONTINUE
       ENDIF
 C
@@ -6323,6 +6322,24 @@ c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0)
 c--  &     WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
 c--   if (ga_nodeid().eq.0) WRITE(IP,9988)
 C
+C     ----- SPIN DENSITY NOW -----
+C
+      IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
+     1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
+         CALL HND_ELDENC(NPTMAX,X(I00),X(I10),X(I30))
+         if (ga_nodeid().eq.0) then
+            WRITE(IW,9992)
+            WRITE(IW,9997)
+         endif
+         DO 140  IPT=1,NPTMAX
+            XP = X(1+3*(IPT-1)+I00-1)
+            YP = X(2+3*(IPT-1)+I00-1)
+            ZP = X(3+3*(IPT-1)+I00-1)
+            ELDENE = X(IPT+I10-1)
+            IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
+     &         WRITE(IW,9995) IPT,XP,YP,ZP,ELDENE
+  140    CONTINUE
+      ENDIF
       GO TO 500
   200 CONTINUE
 C
@@ -11181,7 +11198,7 @@ c
       double precision da(*),db(*),d1nw(*),d2nw(*)
 c
       logical dbug
-      dbug=.false. 
+      dbug=.false.
 c
 c     get information about basis set
 c
@@ -11364,6 +11381,7 @@ C     local variables
       integer i, j, ij
       integer iopen
       logical status
+c
       logical dbug
       dbug=.false.
 
@@ -11399,7 +11417,7 @@ c       density matrix
         endif
         if (nopen .gt. 0) then
            do iopen=1,nopen
-             call ga_matmul_patch('n', 't', occ(iopen), 1.0d0,
+             call ga_matmul_patch('n', 't', occ(nclosed+iopen), 1.0d0,
      $       g_vecs,1, nbf, nclosed+iopen, nclosed+iopen,
      $       g_vecs,nclosed+iopen, nclosed+iopen,1,nbf  ,
      $       g_dens(1), 1, nbf,              1,nbf  )
@@ -11547,6 +11565,7 @@ c
       common/hnd_iofile/ir,iw,ip
       common/hnd_baspar/normf,normp,itol
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_molnuc/nuc(mxatom)
       common/hnd_basnum/num
       common/hnd_ijpair/ia(mxnbf)
       common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
@@ -11703,6 +11722,9 @@ c
       status=geom_cart_get(geom,nat,atom_tags,c,zan)
       if(.not.status) call errquit
      $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911)
+      do iat=1,nat
+         nuc(iat)=nint(zan(iat))
+      enddo
       if(dbug) then
          do iat=1,nat
             write(iw,*) ' ... i,Z,c = ',iat,zan(iat),c(1,iat),c(2,iat),
