@@ -98,15 +98,20 @@ c
       integer occa(detci_maxorb),occb(detci_maxorb)
       integer elva(detci_maxelec), elvb(detci_maxelec)
       integer ict
+      integer next, node, numnodes
       double precision fac, s, k, xxci, xx
 c
 c
 c
+      numnodes = ga_nnodes()
+      node = ga_nodeid()
+      next = 0
+c
       s = 0.5d0*s2
       k = 0.5d0*k2
       ict = 0
-c$$$      call dfill((nstra*nstrb),0.d0,pvec,1)
       call ga_zero(g_pvec)
+c
 c
 c  Lowdin projection operator:
 c
@@ -148,24 +153,27 @@ c
       enddo
  102  continue
       istrb = detci_elv2str( norb, nelb, nsym, osym, atabb, elvb )
-      call detci_elv2occ( norb, nelb, elvb, occb )
-      call ga_get(g_civec,istrb,istrb,istra,istra,xxci,1)
+      next = next + 1
+      if (mod(next,numnodes).eq.node) then
+        call detci_elv2occ( norb, nelb, elvb, occb )
+        call ga_get(g_civec,istrb,istrb,istra,istra,xxci,1)
 c
 c
 c
-      do iex=1,nexb
-        iib = exb(5,iex,istrb)
-        jjb = exb(6,iex,istrb)
-        if (eij(iib,jjb).ne.0) then
-          jstrb = exb(1,iex,istrb)
-          jstra = eij(iib,jjb)
-          xx = -xxci*pij(iib,jjb)*exb(4,iex,istrb)
-          call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
-        endif
-      enddo
+        do iex=1,nexb
+          iib = exb(5,iex,istrb)
+          jjb = exb(6,iex,istrb)
+          if (eij(iib,jjb).ne.0) then
+            jstrb = exb(1,iex,istrb)
+            jstra = eij(iib,jjb)
+            xx = -xxci*pij(iib,jjb)*exb(4,iex,istrb)
+            call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
+          endif
+        enddo
 c
 c
 c
+      endif
       if (detci_getnextelv( norb, nelb, elvb )) goto 102
       if (detci_getnextelv( norb, nela, elva )) goto 101
 c
