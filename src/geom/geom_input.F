@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.158 2003-02-12 17:29:40 edo Exp $
+C     $Id: geom_input.F,v 1.159 2003-04-24 17:56:51 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2986,14 +2986,16 @@ C     ----- SYMMETRIZE CARTESIAN COORDINATES -----
 C
 c$$$      CALL HND_SYMATM
 c
-      do i = 1, nat
-         c(1,i) = c3(1,i)
-         c(2,i) = c3(2,i)
-         c(3,i) = c3(3,i)
-         v(1,i) = v3(1,i)
-         v(2,i) = v3(2,i)
-         v(3,i) = v3(3,i)
-      enddo
+      if(odone) then
+         do i = 1, nat
+            c(1,i) = c3(1,i)
+            c(2,i) = c3(2,i)
+            c(3,i) = c3(3,i)
+            v(1,i) = v3(1,i)
+            v(2,i) = v3(2,i)
+            v(3,i) = v3(3,i)
+         enddo
+      endif
 C
       RETURN
  9999 FORMAT(/,1X,'PRINCIPAL AXES OF INERTIA',/,1X,25(1H-))
@@ -3136,13 +3138,15 @@ C
          WRITE(IW,9978) (I,EIG(I),I=1,3)
          CALL HND_PRSQ(AXS,3,3,3)
       ENDIF
+      odone=.true.
 C
 C     ----- WE ARE INTERESTED IN RELATIVE ERROR -----
+cedo rel. error breaks for large inertia moment of non cubic groups
 C
-      DUM=(EIG(1)+EIG(2)+EIG(3))/THREE
-      EIG(1)=EIG(1)/DUM
-      EIG(2)=EIG(2)/DUM
-      EIG(3)=EIG(3)/DUM
+cedo      DUM=(EIG(1)+EIG(2)+EIG(3))/THREE
+cedo      EIG(1)=EIG(1)/DUM
+cedo      EIG(2)=EIG(2)/DUM
+cedo      EIG(3)=EIG(3)/DUM
 C
 C     ----- CHECK FOR ATOM OR LINEAR MOLECULE -----
 C
@@ -3334,11 +3338,11 @@ C
                            JJC2 =0
                            DO JJAT=1,NAT
                               IF(.NOT.C2ROT) THEN
-                                 D1=C2(IAXIS,IIAT)-C2(IAXIS,JJAT)                  
-                                 D2=C2(JAXIS,IIAT)+C2(JAXIS,JJAT)                  
-                                 D3=C2(KAXIS,IIAT)+C2(KAXIS,JJAT)                  
+                                 D1=C2(IAXIS,IIAT)-C2(IAXIS,JJAT)
+                                 D2=C2(JAXIS,IIAT)+C2(JAXIS,JJAT)
+                                 D3=C2(KAXIS,IIAT)+C2(KAXIS,JJAT)  
                                  C2ROT=(ABS(D1).LT.THREQUIV).AND.
-     1                                 (ABS(D2).LT.THREQUIV).AND.
+     1                                (ABS(D2).LT.THREQUIV).AND.
      2                                 (ABS(D3).LT.THREQUIV)
                                  IF(C2ROT) JJC2=JJAT
                               ENDIF
@@ -3491,6 +3495,7 @@ C
          if(deter3(AXS).le.0.99d0.or.deter3(AXS).gt.1.1d0) then
             groupname='C1'
             write(IW,*) ' WARNING: autosym failed! '
+            odone=.false.
             return
          endif
         IF(SOME) THEN
