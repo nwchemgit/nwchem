@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.10 2000-02-29 02:43:42 edo Exp $
+* $Id: create_contour.F,v 1.11 2000-04-05 20:43:16 edo Exp $
 *
       Implicit None
 *
@@ -317,7 +317,7 @@ c
      &                  Values(iOffG),Dbl_mb(k_DelRho),
      &                  Dbl_mb(k_bp),dbl_mb(irscr), 
      &              dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
-     &              dbl_mb(k_rdat), int_mb(k_cetobfr))
+     &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0)
 *------- Deallocate Scratch memory needed by xc_rhogen
          if(.not.MA_Pop_Stack(lrscr))
      .        call Errquit('C_C: Failed to deallocate rdelc',110)
@@ -447,7 +447,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.10 2000-02-29 02:43:42 edo Exp $
+C$Id: create_contour.F,v 1.11 2000-04-05 20:43:16 edo Exp $
 c
       implicit none
 c      
