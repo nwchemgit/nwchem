@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO,qV)
 c
-c$Id: eterm.F,v 1.6 2002-10-08 23:29:23 bert Exp $
+c$Id: eterm.F,v 1.7 2002-10-10 01:09:39 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -228,19 +228,136 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "geom.fh"
 #include "global.fh"
 #include "cuccsdtP.fh"
 c
       integer fO_handles(2,0:7), fV_handles(2,0:7)
-C
-C     MAKE FOCK MATRIX ALPHA AND BETA IN AO BASIS AND TRANSFORM WITH
-C     G_PART(LEFT SIDE) AND G_HOLE(RIGHT SIDE) TO FOCK MATRIX IN MO BASIS
-C     ADD FINAL FOCK MATRIX PIECES TO CORRECT FO AND FV HANDLES
-C     FO CONTAINS VIRTUALS AND FV CONTAINS OCCUPIED ORBITALS
-C     ALL PER SYMMETRY AND SPIN-BLOCK
-C
+      integer d(4),f(4),nalpha,nbeta,spini,symf
+      integer g_a_coul,g_a_exch,g_a_dens
+      integer g_b_coul,g_b_exch,g_b_dens
+      integer g_Fa,g_Fb,g_F_MO(2),dim_Fa,dim_Fb
+      integer o_lo,o_hi,v_lo,v_hi,o_len,v_len
+      double precision jfac(4),kfac(4),tol2e
+      logical oskel
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
-c     fij = hij + <ik||jk> = hij + <ik||jk>(same spin) + <ik|jk>(diff spin)
+      data jfac / 1.0d0, 0.0d0, 1.0d0, 0.0d0/
+      data kfac / 0.0d0, 1.0d0, 0.0d0, 1.0d0/
+c
+c     Create Particle/Hole transformed MO Fock matrix:
+c       1. Generate AO Fock matrix for alpha and beta
+c       2. Transform to MO basis: g_part * F * g_hole
+c       3. Place Fock matrix pieces into fO and fV handles
+c          fO contains virtuals and fV contains occupied orbitals
+c          all per symmetry and spin-block
+c
+c     Create Coulomb, Exchange and Density matrix for alpha and beta 
+c
+      g_a_coul = ga_create_atom_blocked(geom,basis,'eterm:a coul')
+      g_b_coul = ga_create_atom_blocked(geom,basis,'eterm:b coul')
+      g_a_exch = ga_create_atom_blocked(geom,basis,'eterm:a exch')
+      g_b_exch = ga_create_atom_blocked(geom,basis,'eterm:b exch')
+      g_a_dens = ga_create_atom_blocked(geom,basis,'eterm:a dens')
+      g_b_dens = ga_create_atom_blocked(geom,basis,'eterm:b dens')
+c
+c     Create Density matrices from vectors in g_movecs(2)
+c
+      oskel = .false.
+      tol2e = 1.0d-15
+c
+      nalpha = nc(1) + no(1)
+      nbeta = nc(2) + no(2)
+      call ga_zero(g_a_dens)
+      call ga_zero(g_b_dens)
+      call ga_dgemm('n','t',nbf,nbf,nalpha,1.0d0,g_movecs(1),
+     &     g_movecs(1),0.0d0,g_a_dens)
+      call ga_dgemm('n','t',nbf,nbf,nbeta,1.0d0,g_movecs(2),
+     &     g_movecs(2),0.0d0,g_b_dens)
+      if (oskel) then
+         call sym_symmetrize(geom, basis, .true., g_a_dens)
+         call sym_symmetrize(geom, basis, .true., g_b_dens)
+      endif
+c
+c     Get Coulomb and Exchange matrices
+c
+      d(1) = g_a_dens
+      d(2) = g_a_dens
+      d(3) = g_b_dens
+      d(4) = g_b_dens
+      f(1) = g_a_coul
+      f(2) = g_a_exch
+      f(3) = g_b_coul
+      f(4) = g_b_exch
+      call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
+     &     oskel, d, f, .false.)
+c
+c     Assemble alpha and beta Fock matrices:
+c     Fa = h + Ja + Jb - Ka
+c     Fb = h + Ja + Jb - Kb
+c
+      call ga_zero(g_Fa)
+      call int_1e_ga(basis, basis, g_Fa, 'kinetic', oskel)
+      call int_1e_ga(basis, basis, g_Fa, 'potential', oskel)
+      if (oskel) then
+         call sym_symmetrize(geom, basis, .false., g_Fa)
+      endif
+      call ga_dadd(1.0d0,g_a_coul,1.0d0,g_Fa,g_Fa)
+      call ga_dadd(1.0d0,g_b_coul,1.0d0,g_Fa,g_Fa)
+      call ga_copy(g_Fa, g_Fb)
+      call ga_dadd(1.0d0,g_Fa,-1.0d0,g_a_exch,g_Fa)
+      call ga_dadd(1.0d0,g_Fb,-1.0d0,g_b_exch,g_Fb)
+c
+c     Clean up dead GA's
+c
+      if (.not. ga_destroy(g_a_dens)) call errquit('eterm: destroy',1)
+      if (.not. ga_destroy(g_b_dens)) call errquit('eterm: destroy',2)
+      if (.not. ga_destroy(g_a_exch)) call errquit('eterm: destroy',3)
+      if (.not. ga_destroy(g_b_exch)) call errquit('eterm: destroy',4)
+      if (.not. ga_destroy(g_a_coul)) call errquit('eterm: destroy',5)
+      if (.not. ga_destroy(g_b_coul)) call errquit('eterm: destroy',6)
+c
+c     Transform AO Fock matrices to MO Fock matrices 
+c
+      dim_Fa = no(1) + nv(1)
+      dim_Fb = no(2) + nv(2)
+      if (.not. ga_create(MT_DBL,dim_Fa,dim_Fa,'g_F_MO 1',0,0,
+     &    g_F_MO(1))) call errquit('eterm: g_F_MO 1 alloc failed',0)
+      if (.not. ga_create(MT_DBL,dim_Fb,dim_Fb,'g_F_MO 2',0,0,
+     &    g_F_MO(2))) call errquit('eterm: g_F_MO 2 alloc failed',0)
+      call two_index_transf(g_Fa,g_part(1),g_hole(1),g_a_dens,g_F_MO(1))
+      call two_index_transf(g_Fb,g_part(2),g_hole(2),g_a_dens,g_F_MO(2))
+      if (.not. ga_destroy(g_Fa)) call errquit('eterm: destroy Fa',0)
+      if (.not. ga_destroy(g_Fb)) call errquit('eterm: destroy Fb',0)
+c
+c     Store the pieces in the right places in fO and fV
+c
+      do spini = 1, 2
+         do symf = 0, nir-1
+            o_lo = o_sym(1,symf,spini)
+            o_hi = o_sym(2,symf,spini)
+            v_lo = v_sym(1,symf,spini)
+            v_hi = v_sym(2,symf,spini)
+            o_len = o_hi - o_lo + 1
+            v_len = v_hi - v_lo + 1
+            if (.not. ga_create(MT_DBL,o_len,o_len,'fV',0,0,
+     &          fV_handles(spini,symf))) call 
+     &          errquit('eterm: fV alloc failed',symf)
+            call ga_copy_patch('n',g_F_MO(spini),o_lo,o_hi,o_lo,o_hi,
+     &                         fV_handles(spini,symf),1,o_len,1,o_len)
+            if (.not. ga_create(MT_DBL,v_len,v_len,'fO',0,0,
+     &          fO_handles(spini,symf))) call 
+     &          errquit('eterm: fO alloc failed',symf)
+            call ga_copy_patch('n',g_F_MO(spini),v_lo,v_hi,v_lo,v_hi,
+     &                         fO_handles(spini,symf),1,v_len,1,v_len)
+         end do
+      end do
+c
+c     Do some final cleanup
+c
+      if (.not. ga_destroy(g_F_MO(1))) call errquit('eterm: Mdestroy',1)
+      if (.not. ga_destroy(g_F_MO(2))) call errquit('eterm: Mdestroy',2)
 c
       return
 c

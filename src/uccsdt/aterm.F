@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.4 2002-10-05 01:22:26 bert Exp $
+c$Id: aterm.F,v 1.5 2002-10-10 01:09:40 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -37,18 +37,25 @@ c
             list_offset = nspin + (mspin-1)*2
             if (nspin .eq. mspin) then
                prefactor = 0.5d0
+               g_r = g_rbb
+               if (nspin .eq. 1) g_r = g_raa
             else
                prefactor = 1.0d0
-            do symnj = 0, nir-1 
-               symnv = symnj
-               symmi = symnj 
+               g_r = g_rab
+            do symnf = 0, nir-1 
+               symme = symnf
+               symmi = symnf 
                symmu = symmi
                ispin = mspin
+               espin = mspin
                jspin = nspin
-               dimmi = ov_len(symmi,mspin,ispin)
-               dimnj = ov_len(symnj,nspin,jspin)
+               fspin = nspin
+               dimmi = OO_len(symmi,mspin,ispin) !!! DOES NOT EXIST
+               dimni = OO_len(symmi,mspin,ispin) !!! DOES NOT EXIST
+               dimme = ov_len(symme,mspin,espin)
+               dimnf = ov_len(symnf,nspin,fspin)
                if (.not. ga_create(MT_DBL,dimmi,dimnj,'X_temp',0,0,
-     &             g_x) call errquit()
+     &             g_x) call errquit('aterm: g_x alloc failed',0)
 c
 c     Generate X1, X2 and X3 from classes 1,2,4 -> probbaly cannot be done as those 
 c     classes are <uv||ij> and we need <ij||uv> !!!!!
@@ -59,6 +66,9 @@ c     So has already made the X-terms in his B-term routines. Maybe I should do 
 c     A term here while so does the other part coming from the X-term, read them in from 
 c     GA or disk
 c
+               call uccsdt_ampfile_read_t2(SO_GX,mspin,ispin,nspin,
+     &                                     jspin,symnj,jlo_a,jhi_a,
+     &                                     g_x,.true.,'block')
                call ga_scale(g_x,prefactor)
 c
 c     Add <ij|mn> integrals from classes 5,6,8
@@ -71,10 +81,10 @@ c     here use list_offset+4
                   do symi = 0, nir-1
                      symu = symi
                      symm = ieor (symmi, symi)
-                     dimi = nv_sym(symi,ispin)
-                     dimj = nv_sym(symj,jspin)
-                     dimm = nv_sym(symm,mspin)
-                     dimn = nv_sym(symn,nspin)
+                     dimi = no_sym(symi,ispin)
+                     dimj = no_sym(symj,jspin)
+                     dimm = no_sym(symm,mspin)
+                     dimn = no_sym(symn,nspin)
                      ulo = urange(1,symu)
                      uhi = urange(2,symu)
                      vlo = vrange(1,symv)
@@ -86,27 +96,31 @@ c     here use list_offset+4
                         m = (mnpairs / (no_sym(symn,nspin)+1)) + 1
                         n = mnpairs - (no_sym(symm,mspin) * (m-1))
                         if (.not. ma_push_get(mt_dbl,dimv*dimu,
-     &                      'vu list',l_vulist,k_vulist))
+     &                      'vu list',l_vulist,k_vulist)) call
+     &                      errquit('aterm: k_vulist alloc failed',0)
                         dim_mx = max(dimi,dimj)
                         if (.not. ma_push_get(mt_dbl,dim_mx*dim_mx,
-     &                              'ij list',l_ijlist, k_ijlist))
-                        n_address = 1+n-v_sym(1,symn,spinn)
-     &                              +oso_off(v,symnv,spinn)
-                        m_address = 1+m-v_sym(1,symm,spinm)
-     &                              +oso_off(u,symmu,spinm)
+     &                      'ij list',l_ijlist, k_ijlist)) call
+     &                      errquit('aterm: k_ijlist alloc failed',0)
+                        n_address = o_sym(1,symn,nspin)+n-1
+     &                              +oso_v_off(v,symnv,nspin)
+                        m_address = o_sym(1,symm,mspin)+m-1
+     &                              +oso_u_off(u,symmu,mspin)
                         call ga_get(list(symmu,list_nr),
-     &                              n_address,dimv,nv_sym(symn,1),
-     &                              m_address,dimu,nv_sym(symm,1),
+     &                              n_address,dimv,no_sym(symn,1),
+     &                              m_address,dimu,no_sym(symm,1),
      &                              dbl_mb(k_vulist),dimv)
                         if (.not. ma_push_get(mt_dbl,dimu*dimi,
-     &                      'c part ui',l_upart,k_upart))
+     &                      'c part ui',l_upart,k_upart)) call
+     &                      errquit('aterm: k_upart alloc failed',0)
                         if (.not. ma_push_get(mt_dbl,dimv*dimj,
-     &                      'c part vj',l_vpart,k_vpart))
+     &                      'c part vj',l_vpart,k_vpart)) call
+     &                      errquit('aterm: k_vpart alloc failed',0)
                         call ga_get(g_part(ispin),ulo,uhi,
-     &                      v_sym(1,symi,ispin),v_sym(2,symi,espin),
+     &                      o_sym(1,symi,ispin),o_sym(2,symi,espin),
      &                      k_upart,ld)
                         call ga_get(g_part(jspin),vlo,vhi,
-     &                      v_sym(1,symj,jspin),v_sym(2,symj,fspin),
+     &                      o_sym(1,symj,jspin),o_sym(2,symj,fspin),
      &                      k_vpart,ld)
                         call dgemm('n','n',dimv,dimi,dimu,1.0d0,
      &                      dbl_mb(k_vulist),dimv,dbl_mb(k_upart),dimu,
@@ -115,21 +129,30 @@ c     here use list_offset+4
      &                      dbl_mb(k_ijlist),dimv,dbl_mb(K_vpart),dimv,
      &                      0.0d0,dbl_mb(k_ijlist),dimi)
                         if (.not. ma_pop_stack(l_upart)) call 
-     &                      errquit()
+     &                      errquit('aterm: k_upart dealloc failed',0)
                         if (.not. ma_pop_stack(l_vpart)) call 
-     &                      errquit()
+     &                      errquit('aterm: k_vpart dealloc failed',0)
                         call ga_put(g_x,n_address,dimi,dimm,
      &                      m_address,dimj,dimn,dbl(k_ijlist),dimi,
      &                      1.0d0)
                         if (.not. ma_pop_stack(l_vulist)) call 
-     &                      errquit()
+     &                      errquit('aterm: k_vulist dealloc failed',0)
                         if (.not. ma_pop_stack(l_ijlist)) call 
-     &                      errquit()
+     &                      errquit('aterm: k_ijlist dealloc failed',0)
+C23456789012345678901234567890123456789012345678901234567890123456789012
                      end do
                   end do
                end do
-               call get_T(g_t2_iejf,symnj,ispin,espin,jspin,fspin)
 c              prefactor*t(ie,jf)*x(ij,mn) -> r(me,nf)
+               call uccsdt_ampfile_read_t2(D_AMP,ispin,espin,jspin,
+     &                                     fspin,symnj,flo_a,fhi_a,
+     &                                     g_t2_iejf,.true.,'block')
+               call ga_dgemm('n','n',dimnj,dimnj,dimnj,prefactor,
+     &                       g_t2_iejf,g_x,1.0d0,g_r)
+               if (.not. ga_destroy(g_t2_iejf)) call
+     &             errquit('aterm: g_t2_iejf dealloc failed',0)
+               if (.not. ga_destroy(g_x))) call
+     &             errquit('aterm: g_x dealloc failed',0)
             end do
          end do
       enddo
