@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.30 2004-03-08 22:51:25 bylaska Exp $
+* $Id: ion.F,v 1.31 2004-06-19 19:51:20 bylaska Exp $
 *
 
 *     ***************************
@@ -1416,9 +1416,10 @@ c     **** ouput xyz format ****
 *
 *   Exit -
 *
-      subroutine ion_Print_CIF(unit)
+      subroutine ion_Print_CIF(unit,shift_cell)
       implicit none
       integer unit
+      logical shift_cell
 
 *     **** local variables ****
       integer i,j,ii,taskid,MASTER
@@ -1482,6 +1483,7 @@ c     **** ouput xyz format ****
       gmma = dacos(gmma)*180.0d0/pi
 
 
+      if (shift_cell) then
       if (taskid.eq.MASTER) then
  
         call util_date(dd)
@@ -1519,6 +1521,51 @@ c     **** ouput xyz format ****
 
         end do
       end if
+
+
+      else
+
+
+      if (taskid.eq.MASTER) then
+
+        call util_date(dd)
+        write(unit,1200)
+        write(unit,1210) dd(1:24)
+        write(unit,1211)
+
+        write(unit,1220) aa * 0.529177d0
+        write(unit,1221) bb * 0.529177d0
+        write(unit,1222) cc * 0.529177d0
+        write(unit,1223) alpha
+        write(unit,1224) beta
+        write(unit,1225) gmma
+
+        write(unit,1230)
+
+        write(unit,1240)
+        write(unit,1241)
+        write(unit,1242)   ! causing problems with mercury??
+        write(unit,1243)
+        write(unit,1244)
+        write(unit,1245)
+
+        do ii=1,ion_nion()
+           frac(1) = b(1,1)*ion_rion(1,ii)
+     >             + b(2,1)*ion_rion(2,ii)
+     >             + b(3,1)*ion_rion(3,ii) 
+           frac(2) = b(1,2)*ion_rion(1,ii)
+     >             + b(2,2)*ion_rion(2,ii)
+     >             + b(3,2)*ion_rion(3,ii) 
+           frac(3) = b(1,3)*ion_rion(1,ii)
+     >             + b(2,3)*ion_rion(2,ii)
+     >             + b(3,3)*ion_rion(3,ii) 
+           WRITE(unit,1250) ion_aname(ii),ii,frac
+
+        end do
+      end if
+
+      end if
+
       return
 
  1200 FORMAT('data_nwchem_pspw')
