@@ -1,5 +1,14 @@
+c $Id: int_1edk_ga.F,v 1.21 1999-12-14 22:37:32 bert Exp $
+c:tex-\subsection{int\_1edk\_ga}
+c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
+c:tex-a given basis set and stores them in a global array. 
+c:tex-
+c:tex-\noindent Author: W. A. de Jong
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.20 1999-12-10 20:08:42 bert Exp $
+c:tex-\end{verbatim}
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -40,10 +49,13 @@ c     H. Transform DKg_a from uncontracted basis to contracted basis
 c     
 c     arguments
 c     
+c:tex-{\it Argument list:}
+c:tex-\begin{verbatim}
       integer basis_in          ! [input] basis sets for which integrals are computed
       integer g_in              ! [output] GA handle to array of final integrals
       integer type              ! [input] type of int, 1=kinetic, 2=potential, 3=both
-      logical oskel,kskel       ! [input] Skeleton integrals, yes or no?
+      logical kskel             ! [input] Skeleton integrals, yes or no?
+c:tex-\end{verbatim}
 c     
 c     local variables
 c     
@@ -63,8 +75,8 @@ c
       integer Km_a, KIm_a       ! MA handle and index K vector
       integer tempm_a, tempIm_a ! Temporary m_a vector handle and index
       integer iloop             
-c
-      double precision c2    ! Speed of light c (in au) squared 
+      logical oskel            
+      double precision c2       ! Speed of light c (in au) squared 
 c
 c     dk_clight = 137.0360000d0         ! Speed of light by Bernd Hess
 c
