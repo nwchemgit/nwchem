@@ -50,3 +50,25 @@
       return
       end
 
+
+
+
+
+
+      subroutine moints_matprintx(n,m,x)
+      implicit none
+      integer n,m
+      double precision x(n,m)
+      integer i, j, mxrow
+
+      mxrow = min(m,6)
+      do i=1,min(n,20)
+        write(6,901) (x(i,j),j=1,mxrow)
+ 901    format(6f20.14)
+      enddo
+      write(6,*)
+      return
+      end
+
+
+
