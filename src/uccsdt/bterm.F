@@ -1,5 +1,5 @@
       subroutine uccsdt_bxgterms(d_t,d_b,d_x,d_g)
-c $Id: bterm.F,v 1.2 2002-08-27 21:08:11 sohirata Exp $
+c $Id: bterm.F,v 1.3 2002-09-11 01:01:55 sohirata Exp $
 c
 c     Compute B, X, and G terms defined as follows:
 c
@@ -58,8 +58,8 @@ c
 c
 c     Spin loop
 c
-      if (.not. uccsdt_ampfile_zero(d_g)) 
-     $ call errquit('uccsdt_bxgterms: ampfile_zero?',999)
+csh   if (.not. uccsdt_ampfile_zero(d_g)) 
+csh  $ call errquit('uccsdt_bxgterms: ampfile_zero?',999)
       do spini = 0,1
        do spinj = spini,1
 c
@@ -109,13 +109,14 @@ c
       integer k_p2,l_p2    ! Temporary MA for tranformation
       integer k_m1,l_m1    ! Temporary MA for tranformation
       integer k_m2,l_m2    ! Temporary MA for tranformation
+      integer k_c,l_c      ! Temporary MA for MO coeffs
       integer lenij,lenub,lenuv
       integer lena,lenb,leni,lenu,lenv,lenia,leniu
       integer maxlenuv
       integer symij,symj,symi
       integer symub,symb,symu,symv,symuv
       integer symjb,symia,syma
-      integer i,j,a,b,u,v,ia,iu,jb,ij
+      integer i,j,b,u,v,ia,iu,jb,ij
       integer joff(nw_max_nbf_small,0:7)
       integer boff(nw_max_nbf_small,0:7)
       integer symvoff(0:7,0:7)
@@ -164,6 +165,14 @@ c
        end do
        if (lenuv .gt. maxlenuv) maxlenuv = lenuv
       end do
+c
+c     Transformed MO coefficients
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'c',
+     $ l_c, k_c)) 
+     $ call errquit('ma? nbf*nmo',nbf*nmo)
+      call ga_get(g_part(spina),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
 c
 c     Allocate g_uv_p and g_uv_m for t(u,b,i,j) and t[+/-](u,v,i,j)
 c
@@ -232,10 +241,9 @@ c
              call ga_get(g_t2,ia+1,ia+lenia,jb,jb,
      $        dbl_mb(k_buf),leni)
              call dgemm('n','t',lenu,leni,lena,
-     $        1.0d0,c(ulo,alo,spina),nbf,
+     $        1.0d0,dbl_mb(k_c),nbf,
      $        dbl_mb(k_buf),leni,
      $        0.0d0,dbl_mb(k_tmp),lenu)
-c     For c(), see cctrans3
              ij = joff(j,symij)
              do i = ilo,ihi
               ij = ij + 1
@@ -260,6 +268,8 @@ c
 c     Now have t(u,b,i,j) ... data parallel transform b in place 
 c     (g_uv_m was allocated big enough to do this).
 c
+      call ga_get(g_part(spinb),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
       call ga_distribution(g_uv_m, ga_nodeid(), ijlo, ijhi)
       ij = 0
       do symij = 0,7
@@ -294,9 +304,8 @@ c
      $        dbl_mb(k_buf),lenu)
              call dgemm('n','t',lenu,lenv,lenb,
      $        1.0d0,dbl_mb(k_buf),lenu,
-     $        c(vlo,blo,spinb),nbf,
+     $        dbl_mb(k_c),nbf,
      $        0.0d0,dbl_mb(k_tmp),lenu)
-c     For c(), see cctrans3
              call ga_put(g_uv_m,
      $        symvoff(symv,symuv)+1,symvoff(symv,symuv)+lenuv,
      $        ij,ij,dbl_mb(k_tmp),lenu)
@@ -311,6 +320,8 @@ c     For c(), see cctrans3
         end do
        end do
       end do
+      if (.not. ma_pop_stack(l_c))
+     $ call errquit('ma_pop?',l_c)
 c
 c     Symmetrize if spini .ne. spinj
 c
@@ -462,6 +473,7 @@ c
       integer symwuoff(0:7)
       integer wlo,whi,llo,lhi
       integer u,v,w,l,uvwl
+      integer nproc
       integer nxtask
       external nxtask
 c
@@ -744,7 +756,7 @@ c
 c
 c     Barrier
 c
-      next = nxtval(-nproc)
+      next = nxtask(-nproc,task_size)
       call ga_sync()
       if (spini .ne. spinj) call ga_scale(g_omega,0.5d0)
 c
@@ -768,6 +780,7 @@ c
       integer g_b          ! Temporary GA b(a,b,i,j)
       integer k_buf,l_buf  ! Temporary MA for tranformation
       integer k_tmp,l_tmp  ! Temporary MA for tranformation
+      integer k_c,l_c      ! Temporary MA for MO coeffs
       integer lenij,lenub,lenuv,lenu,leniu
       integer lenv,lenb,lenia,lenjb,leni,lena
       integer maxlenuv
@@ -834,6 +847,14 @@ c
        if (lenuv .gt. maxlenuv) maxlenuv = lenuv
       end do
 c
+c     Transformed MO coefficients
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'c',
+     $ l_c, k_c)) 
+     $ call errquit('ma? nbf*nmo',nbf*nmo)
+      call ga_get(g_part(spinb),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
+c
 c     Allocate temporary GA
 c
       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'tmp', 
@@ -877,9 +898,8 @@ c
      $        dbl_mb(k_buf),lenu)
              call dgemm('n','n',lenu,lenb,lenv,
      $        1.0d0,dbl_mb(k_buf),lenu,
-     $        c(vlo,blo,spinb),nbf,
+     $        dbl_mb(k_c),nbf,
      $        0.0d0,dbl_mb(k_tmp),lenu)
-c     For c(), see cctrans3
              call ga_put(g_tmp,
      $        symboff(symb,symub)+1,symboff(symb,symub)+lenub,
      $        ij,ij,dbl_mb(k_tmp),lenu)
@@ -898,6 +918,8 @@ c
 c     Perform quarter transformation from tmp(u,b,i,j) to t(a,b,i,j)
 c     t(i,a,syma,j,b,symb,symjb)
 c
+      call ga_get(g_part(spina),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
       do symjb = 0,7
        symia = symjb
        do symb = 0,7
@@ -961,10 +983,9 @@ c
      $         ij,ij,dbl_mb(k_buf+lenu*(i-ilo)),lenu)
              end do
              call dgemm('t','t',lena,leni,lenu,
-     $        1.0d0,c(ulo,alo,spina),nbf,
+     $        1.0d0,dbl_mb(k_c),nbf,
      $        dbl_mb(k_tmp),leni,
      $        0.0d0,dbl_mb(k_buf),lenu)
-c     For c(), see cctrans3
              call ga_put(g_b,ia+1,ia+lenia,jb,jb,
      $        dbl_mb(k_buf),leni)
              ia = ia + lenia
@@ -988,6 +1009,8 @@ c
        end do
       end do
       if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0)
+      if (.not. ma_pop_stack(l_c))
+     $ call errquit('ma_pop?',l_c)
 c
       return
       end
@@ -1009,7 +1032,9 @@ c
       integer g_x          ! Temporary GA x(k,l,i,j)
       integer k_buf,l_buf  ! Temporary MA for tranformation
       integer k_tmp,l_tmp  ! Temporary MA for tranformation
-      integer lenij,lenul,lenuv,lenu,lenv,lenl,lenik,lenjl,leni,lenk
+      integer k_c,l_c      ! Temporary MA for MO coeffs
+      integer lenij,lenul,lenuv,lenu,lenv,lenl
+      integer lenik,lenjl,leni,lenk,leniu
       integer maxlenuv
       integer symij,symj,symi,symul,syml
       integer symuv,symu,symv,symjl,symik,symk
@@ -1074,6 +1099,14 @@ c
        if (lenuv .gt. maxlenuv) maxlenuv = lenuv
       end do
 c
+c     Transformed MO coefficients
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'c',
+     $ l_c, k_c)) 
+     $ call errquit('ma? nbf*nmo',nbf*nmo)
+      call ga_get(g_hole(spinl),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
+c
 c     Allocate temporary GA
 c
       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair', 
@@ -1117,9 +1150,8 @@ c
      $        dbl_mb(k_buf),lenu)
              call dgemm('n','n',lenu,lenl,lenv,
      $        1.0d0,dbl_mb(k_buf),lenu,
-     $        c(vlo,llo,spinl),nbf,
+     $        dbl_mb(k_c),nbf,
      $        0.0d0,dbl_mb(k_tmp),lenu)
-c     For c(), see cctrans3
              call ga_put(g_tmp,
      $        symloff(syml,symul)+1,symloff(syml,symul)+lenul,
      $        ij,ij,dbl_mb(k_tmp),lenu)
@@ -1138,6 +1170,8 @@ c
 c     Perform quarter transformation from tmp(u,l,i,j) to t(k,l,i,j)
 c     t(i,k,symk,j,l,syml,symjl)
 c
+      call ga_get(g_hole(spink),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
       do symjl = 0,7
        symik = symjl
        do syml = 0,7
@@ -1201,11 +1235,10 @@ c
      $         ij,ij,dbl_mb(k_buf+lenu*(i-ilo)),lenu)
              end do
              call dgemm('t','t',lenk,leni,lenu,
-     $        1.0d0,c(ulo,klo,spink),nbf,
+     $        1.0d0,dbl_mb(k_c),nbf,
      $        dbl_mb(k_tmp),leni,
      $        0.0d0,dbl_mb(k_buf),lenu)
-c     For c(), see cctrans3
-             call ga_put(g_t2,ik+1,ik+lenik,jl,jl,
+             call ga_put(g_x,ik+1,ik+lenik,jl,jl,
      $        dbl_mb(k_buf),leni)
              ik = ik + lenik
              if (.not. ma_pop_stack(l_tmp))
@@ -1220,7 +1253,7 @@ c     For c(), see cctrans3
 c
 c     Write one symmetry block of X to disk
 c
-        if (.not. uccsdt_ampfile_write_t2(d_b, 
+        if (.not. uccsdt_ampfile_write_t2(d_x, 
      $   spini, spink, spinj, spinl, symik, 
      $   llo, lhi, g_x))
      $   call errquit('write_t2 failed',0)
@@ -1228,6 +1261,8 @@ c
        end do
       end do
       if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0)
+      if (.not. ma_pop_stack(l_c))
+     $ call errquit('ma_pop?',l_c)
 c
       return
       end
@@ -1248,8 +1283,9 @@ c
       integer g_g          ! Temporary GA for g(u,i) and g(a,i)
       integer k_buf,l_buf  ! Temporary MA for tranformation
       integer k_tmp,l_tmp  ! Temporary MA for tranformation
+      integer k_c,l_c      ! Temporary MA for MO coeffs
       integer lenui,lenu,lenv,lenuv,lena,leni,lenai
-      integer symui,symi,symu,symij,symuv,symj,symuj,syma
+      integer symui,symi,symu,symij,symuv,symj,symuj,syma,symv
       integer ioff(nw_max_nbf_small,0:7)
       integer ij,ijlo,ijhi
       integer vlo,alo
@@ -1271,6 +1307,14 @@ c
      $ -1,1,g_g)) call errquit
      $ ('uccsdt_makeg: room for g?',lenui)
       call ga_zero(g_g)
+c
+c     Transformed MO coefficients
+c
+      if (.not. ma_push_get(mt_dbl, nbf*nmo, 'c',
+     $ l_c, k_c)) 
+     $ call errquit('ma? nbf*nmo',nbf*nmo)
+      call ga_get(g_hole(spini),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
 c
 c     Data parallel transform 
 c     Pure spin:  Omega(u,v,i,j)C(v,i) = tmp(u,j)
@@ -1308,19 +1352,19 @@ c
              if (spini .eq. spinj) then
               call dgemm('n','n',lenu,1,lenv,
      $         1.0d0,dbl_mb(k_buf),lenu,
-     $         c(vlo,i,spini),nbf,
+     $         dbl_mb(k_c),nbf,
      $         0.0d0,dbl_mb(k_tmp),lenu)
               call ga_acc(g_g,
      $         ioff(j,symuj)+1,ioff(j,symuj)+lenu,
-     $         1,1,dbl_mb(k_tmp),lenu)
+     $         1,1,dbl_mb(k_tmp),lenu,1.0d0)
              else
               call dgemm('n','n',lenu,1,lenv,
      $         1.0d0,dbl_mb(k_buf),lenu,
-     $         c(vlo,j,spinj),nbf,
+     $         dbl_mb(k_c),nbf,
      $         0.0d0,dbl_mb(k_tmp),lenu)
               call ga_acc(g_g,
      $         ioff(i,symui)+1,ioff(i,symui)+lenu,
-     $         1,1,dbl_mb(k_tmp),lenu)
+     $         1,1,dbl_mb(k_tmp),lenu,1.0d0)
              end if
              if (.not. ma_pop_stack(l_tmp))
      $        call errquit('ma_pop?',l_tmp)
@@ -1336,6 +1380,8 @@ c
 c
 c     Sequential transform (ui) -> (ai)
 c
+      call ga_get(g_part(spini),1,nbf,1,nmo,
+     $ dbl_mb(k_c),nbf)
       do symui = 0,7
        do symi = 0,7
         symu = ieor(symui,symi)
@@ -1357,7 +1403,7 @@ c
      $   ioff(i,symui)+1,ioff(i,symui)+lenui,
      $   1,1,dbl_mb(k_tmp),lenu)
         call dgemm('t','n',lena,leni,lenu,
-     $   1.0d0,c(vlo,alo,spini),nbf,
+     $   1.0d0,dbl_mb(k_c),nbf,
      $   dbl_mb(k_tmp),lenu,
      $   0.0d0,dbl_mb(k_buf),lena)
         call ga_put(g_g,
@@ -1365,11 +1411,13 @@ c
      $   1,1,dbl_mb(k_buf),lena)
        end do
       end do
+      if (.not. ma_pop_stack(l_c))
+     $ call errquit('ma_pop?',l_c)
 c
 c     Write one symmetry block of G to disk
 c
-      if (.not. uccsdt_ampfile_add_t1(d_g, spini, g_g))
-     $ call errquit('write_t1 failed',0)
+csh   if (.not. uccsdt_ampfile_add_t1(d_g, spini, g_g))
+csh  $ call errquit('write_t1 failed',0)
       if (.not. ga_destroy(g_g)) call errquit('GA 999',0)
 c
       return
