@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.92 2004-09-01 22:30:47 edo Exp $
+# $Id: GNUmakefile,v 1.93 2005-03-07 19:03:46 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -45,7 +45,7 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-   USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_ssw.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
+   USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
 xc_eval_basis.F xc_fd.F  ../include/xc_rhogen.fh ../include/xc_tabcd.fh xc_optc.F xc_atomblock.F
 
 include ../../config/makefile.h
