@@ -1,4 +1,4 @@
-C $Id: ecp_t2_p1pow.F,v 1.5 2003-01-29 20:54:37 bert Exp $ 
+C $Id: ecp_t2_p1pow.F,v 1.6 2003-01-29 22:48:37 bert Exp $  
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p1pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -30,9 +30,8 @@ C $Id: ecp_t2_p1pow.F,v 1.5 2003-01-29 20:54:37 bert Exp $
       integer i,idamax,j1,j2,j3,k,k_abs,m,n
       double precision alpha(n),beta(n),gamma(n),term(n),test(n),Q(n),
      &    temp(n,9),tol,fac0,fac1,fac2,fac3,fac4,fac5,fac0i,fac1i,fac2i
-      double precision vbig
-      parameter (vbig=1d30)
-      integer renorm
+      double precision vbig,renorm
+      parameter (vbig=30.0)
 *
 *   Set up factors for recursion
 *
@@ -82,23 +81,27 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
         fac2i = one/fac2
         do i = 1,n
           if (test(i) .gt. tol) then
-c       write(6,*) i,j1,j2,j3
-c       write(6,*) temp(i,1),temp(i,2),temp(i,3),temp(i,4),temp(i,5)
-c       write(6,*) term(i),Q(i)
-             if (max(abs(temp(i,1)),abs(temp(i,2)),abs(temp(i,2)))
-     &           .gt.vbig) then
-                renorm = log10(max(abs(temp(i,1)),abs(temp(i,2)),
-     &                             abs(temp(i,3)))) - 29
-                temp(i,1) = temp(i,1) / 10.0**(renorm)
-                temp(i,2) = temp(i,2) / 10.0**(renorm)
-                temp(i,3) = temp(i,3) / 10.0**(renorm)
-                term(i) = term(i) * 10.0**(renorm)
-             endif
+c      write(6,*) 'B',temp(i,1),temp(i,2),temp(i,3),term(i)
+            renorm = max(log10(abs(temp(i,1))),log10(abs(temp(i,2))),
+     &                   log10(abs(temp(i,3))),abs(log10(abs(term(i)))))
+            if (renorm.gt.vbig) then
+               temp(i,1) = temp(i,1) / 10.0**(int(renorm))
+               temp(i,2) = temp(i,2) / 10.0**(int(renorm))
+               temp(i,3) = temp(i,3) / 10.0**(int(renorm))
+               term(i) = term(i) * 10.0**(int(renorm))
+            endif
+c       write(6,*) 'B',temp(i,1),temp(i,2),temp(i,3),temp(i,4),temp(i,5)
+c       write(6,*) 'B',(fac5+temp(i,5))*temp(i,j2),
+c    &              fac3*fac4*fac0i*temp(i,j1)
+c       write(6,*) 'B',fac3,fac4,fac0i,temp(i,j1)
+c       write(6,*) 'B',fac1i,term(i),temp(i,4)
             Q(i) = Q(i)+temp(i,j2)*term(i)
             temp(i,j3) = ((fac5+temp(i,5))*temp(i,j2)
      &                 - fac3*fac4*fac0i*temp(i,j1))*fac2i
             term(i) = term(i)*temp(i,4)*fac1i
-            test(i) = term(i)*temp(i,j3)/Q(i)
+c       write(6,*) 'B',term(i),temp(i,j3),Q(i)
+c       write(6,*)
+            test(i) = (term(i)*temp(i,j3))/Q(i)
           end if
         end do
         fac3 = fac3+one
