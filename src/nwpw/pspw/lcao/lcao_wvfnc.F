@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.2 2001-11-30 23:52:05 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.3 2001-12-01 23:13:27 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -25,12 +25,16 @@
       integer MASTER,taskid
       parameter (MASTER=0)
 
+      real*8 ALPHA,talpha
+      parameter (ALPHA=0.30d0)
+
       logical value,value2
-      integer i,ia,icharge
+      integer ms,i,ia,icharge
       integer dn(2),phi1(2),phi2(2)
+      integer ee(2),eigs(2)
       integer smatrix,kematrix
-      integer vlmatrix,vnlmatrix,vhxcmatrix
-      integer psimatrix,hmatrix
+      integer vlmatrix,vnlmatrix,vhxcmatrix(2)
+      integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
 
 *     **** external functions ****
@@ -57,10 +61,10 @@
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       integer  pack_nwave_all
-      integer  control_it_in,control_it_out,control_gga
+      integer  control_gga
       integer  control_ngrid,pack_nwave
       external pack_nwave_all
-      external control_it_in,control_it_out,control_gga
+      external control_gga
       external control_ngrid,pack_nwave
       character*12 control_boundry
       external     control_boundry
@@ -84,6 +88,10 @@
      >        MA_alloc_get(mt_dcpl,(npack1),'phi1',phi1(2),phi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(npack1),'phi2',phi2(2),phi2(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nbasis),'ee',ee(2),ee(1))
+      eigs(1) = ee(1)
+      eigs(2) = ee(1) + nbasis
 
 *     ***** allocate matrices using GA ****
       value = value.and.
@@ -99,14 +107,23 @@
      >        ga_create(mt_dbl,nbasis,nbasis,'vnlmatrix',
      >                  1,1,vnlmatrix)
       value = value.and.
-     >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix',
-     >                  1,1,vhxcmatrix)
+     >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix1',
+     >                  1,1,vhxcmatrix(1))
       value = value.and.
-     >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix',
-     >                  1,1,hmatrix)
+     >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix1',
+     >                  1,1,hmatrix(1))
       value = value.and.
-     >        ga_create(mt_dbl,nbasis,nbasis,'psimatrix',
-     >                  1,1,psimatrix)
+     >        ga_create(mt_dbl,nbasis,nbasis,'psimatrix1',
+     >                  1,1,psimatrix(1))
+      value = value.and.
+     >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix2',
+     >                  1,1,vhxcmatrix(2))
+      value = value.and.
+     >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix2',
+     >                  1,1,hmatrix(2))
+      value = value.and.
+     >        ga_create(mt_dbl,nbasis,nbasis,'psimatrix2',
+     >                  1,1,psimatrix(2))
       if (.not. value) then
         go to 100 
       end if
@@ -212,91 +229,90 @@
       call lcao_generate_smatrix(smatrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
-      write(*,*)
-      write(*,*) "SMATRIX"
-      call lcao_write_matrix(6,smatrix)
-
       call lcao_generate_kematrix(kematrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
-      write(*,*)
-      write(*,*) "KEMATRIX"
-      call lcao_write_matrix(6,kematrix)
-
       call lcao_generate_vlmatrix(vlmatrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
-      write(*,*)
-      write(*,*) "VLMATRIX"
-      call lcao_write_matrix(6,vlmatrix)
-
       call lcao_generate_vnlmatrix(vnlmatrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
-      write(*,*)
-      write(*,*) "VNLMATRIX"
-      call lcao_write_matrix(6,vnlmatrix)
-
       call lcao_init_dn(ispin,ne,n2ft3d,
      >                  dbl_mb(dn(1)),
      >                  dcpl_mb(phi2(1)))
 
+      do it=0,it_max-1
+         call lcao_generate_vhxcmatrix(ispin,n2ft3d,
+     >                           dbl_mb(dn(1)),
+     >                           vhxcmatrix,
+     >                           dcpl_mb(phi1(1)),
+     >                           dcpl_mb(phi2(1)))
+         do ms=1,ispin
 
-      do it=1,2
-c        call lcao_generate_vhxcmatrix(ispin,n2ft3d,
-c    >                           dbl_mb(dn(1)),
-c    >                           vhxcmatrix,
-c    >                           dcpl_mb(phi1(1)),
-c    >                           dcpl_mb(phi2(1)))
-c
-c         call lcao_generate_hmatrix(ispin,
-c     >                              dbl_mb(vhxcmatrix(1)),
-c     >                              dbl_mb(kematrix(1)),
-c     >                              dbl_mb(vlmatrix(1)),
-c     >                              dbl_mb(vnlmatrix(1)),
-c     >                              dbl_mb(hmatrix(1)))
-c
-c          call lcao_solve(ispin,
-c     >                    dbl_mb(hmatrix(1)),
-c     >                    dbl_mb(smatrix(1)),
-c     >                    dbl_mb(psimatrix(1)),
-c     >                    ierr)
-c          if (ierr.ne.0) then
-c             value = .false.
-c             go to 100
-c          end if
-c          call D3dB_r_copy(1,dbl_mb(rho(1)),dbl_mb(rho_old(1)))
-c          call lcao_new_dn(ispin,
-c     >                    dbl_mb(psimatrix(1)),
-c     >                    dbl_mb(rho(1)))
-c          call lcao_mix_dn(ispin,
-c     >                    dbl_mb(rho_old(1)),
-c     >                    dbl_mb(rho(1)))
-c        end do
+*          **** generate spin hamiltonian ****
+           call ga_add(1.0d0,kematrix,
+     >                 1.0d0,vlmatrix,
+     >                 hmatrix(ms))
+           call ga_add(1.0d0,vnlmatrix,
+     >                 1.0d0,hmatrix(ms),
+     >                 hmatrix(ms))
+           call ga_add(1.0d0,vhxcmatrix(ms),
+     >                 1.0d0,hmatrix(ms),
+     >                 hmatrix(ms))
+   
+*          **** diagonalize spin hamiltonian ****
+           call ga_diag_reuse(it,
+     >                  hmatrix(ms),
+     >                  smatrix,
+     >                  psimatrix(ms),
+     >                  dbl_mb(eigs(ms)))
+
+           write(*,*)
+           write(*,*) "Eigenvalues:",it
+           do i=1,nbasis
+             write(*,*) "eigs:",ms,dbl_mb(eigs(ms)+i-1)
+           end do
+
+         end do
+
+*        **** calculate new density ****
+         talpha = ALPHA
+         if (it.eq.0) talpha=1.00d0
+         call lcao_new_mix_dn(talpha,
+     >                       ispin,ne,n2ft3d,
+     >                       dbl_mb(dn(1)),
+     >                       psimatrix,
+     >                       dcpl_mb(phi2(1)))
+
       end do
-c
-c      call lcao_write_psi(dbl_mb(psimatrix(1)),
-c     >                    wavefunction_filename,
-c                          version,
-c                          ngrid(3),
-c                          unita(3,3),
-c                          ispin,ne(2))
+      call lcao_write_psi(wavefunction_filename,
+     >                    version,
+     >                    ngrid,
+     >                    unita,
+     >                    ispin,ne,
+     >                    psimatrix,dcpl_mb(phi2(1)))
+
 
 *     ***** free heap memory ****
   100 continue
       value2 = MA_free_heap(dn(2))
       value2 = MA_free_heap(phi1(2))
       value2 = MA_free_heap(phi2(2))
+      value2 = MA_free_heap(ee(2))
       value2 = ga_destroy(smatrix)
       value2 = ga_destroy(kematrix)
       value2 = ga_destroy(vlmatrix)
       value2 = ga_destroy(vnlmatrix)
-      value2 = ga_destroy(vhxcmatrix)
-      value2 = ga_destroy(hmatrix)
-      value2 = ga_destroy(psimatrix)
+      value2 = ga_destroy(vhxcmatrix(1))
+      value2 = ga_destroy(hmatrix(1))
+      value2 = ga_destroy(psimatrix(1))
+      value2 = ga_destroy(vhxcmatrix(2))
+      value2 = ga_destroy(hmatrix(2))
+      value2 = ga_destroy(psimatrix(2))
       call aorbs_end()
 
-      value = .false.
+c     value = .false.
       lcao_wvfnc = value
       return
  1000 FORMAT(10X,'****************************************************')
@@ -376,10 +392,6 @@ c                          ispin,ne(2))
  1500 FORMAT(/' ORBITAL ENERGIES:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
-
-
-
-
 
       end
 

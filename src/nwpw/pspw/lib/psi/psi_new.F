@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.2 2001-11-30 23:52:05 bylaska Exp $
+* $Id: psi_new.F,v 1.3 2001-12-01 23:13:28 bylaska Exp $
 *
 
 *     ***********************************
@@ -73,7 +73,7 @@
          ne(2) = (t-x)/2
       end if
 
-      success =  lcao_wvfnc(.true.,2,
+      success =  lcao_wvfnc(.true.,4,
      >                      filename,
      >                      version,
      >                      ngrid,

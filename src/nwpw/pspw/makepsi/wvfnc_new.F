@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.1 2001-11-28 21:13:17 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.2 2001-12-01 23:13:28 bylaska Exp $
 *
       subroutine wvfnc_new(wavefunction_filename,
      >             			version,
@@ -41,8 +41,9 @@
      >					unita,
      >					ispin,
      >					ne)
-        write(*,*) "Generated initial psi:",wavefunction_filename
-        write(*,*) "-   spin,nalpha,nbeta:",ispin,ne
+        write(*,*) "random planewave guess, initial psi:",
+     >             wavefunction_filename
+        write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
         value = MA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0)
       end if

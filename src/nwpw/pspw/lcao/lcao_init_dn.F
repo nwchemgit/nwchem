@@ -1,12 +1,12 @@
 *
-* $Id: lcao_init_dn.F,v 1.1 2001-11-30 23:52:04 bylaska Exp $
+* $Id: lcao_init_dn.F,v 1.2 2001-12-01 23:13:26 bylaska Exp $
 *
       subroutine lcao_init_dn(ispin,ne,n2ft3d,dn,phi)
       implicit none
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,2)
-      complex*16 phi
+      complex*16 phi(*)
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -75,14 +75,8 @@
         call D3dB_r_Zero_Ends(1,dn(1,ms))
         call D3dB_r_dsum(1,dn(1,ms),sum)
         sum = sum*dv
-        write(*,*) "SUM a:",ms,sum
         sum = dble(ne(ms))/sum
         call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
-
-*       **** debug ***
-        call D3dB_r_dsum(1,dn(1,ms),sum)
-        sum = sum*dv
-        write(*,*) "SUM b:",ms,sum
       end do
 
       value = MA_pop_stack(tmp(2))

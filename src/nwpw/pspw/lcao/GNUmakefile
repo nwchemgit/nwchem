@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-11-30 23:52:04 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2001-12-01 23:13:24 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 lcao_wvfnc.o \
@@ -8,7 +8,11 @@
 				lcao_generate_kematrix.o \
 				lcao_generate_vlmatrix.o \
 				lcao_generate_vnlmatrix.o \
-				lcao_init_dn.o 
+				lcao_generate_vhxcmatrix.o \
+				lcao_init_dn.o \
+				lcao_new_mix_dn.o \
+				lcao_make_psi.o \
+				lcao_write_psi.o 
 
 
 	  OBJ = 

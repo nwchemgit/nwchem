@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vlmatrix.F,v 1.1 2001-11-30 23:52:04 bylaska Exp $
+* $Id: lcao_generate_vlmatrix.F,v 1.2 2001-12-01 23:13:26 bylaska Exp $
 *
       subroutine lcao_generate_vlmatrix(vlmatrix,phi1,phi2)
       implicit none
@@ -40,7 +40,8 @@
       if (control_version().eq.4)
      >  value = value.and.
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) 
+     > call errquit('lcao_generate_vlmatrix: out of stack memory',0)
 
 
 *     *****************************************
