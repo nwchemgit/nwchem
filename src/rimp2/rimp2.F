@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.29 1996-07-17 16:36:06 d3g681 Exp $
+C$Id: rimp2.F,v 1.30 1996-08-19 15:25:48 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -8,7 +8,6 @@ C
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "global.fh"
 #include "pstat.fh"
 #include "rimp2_timers.fh"
@@ -95,7 +94,6 @@ C
 C     Initialize this module
 C
       Status = .TRUE.
-      Status = Status .AND. Context_Push(My_Ctx)
 C
       Call RIMP2_PStat_Init
       Call PStat_On( PS_Overall)
@@ -535,10 +533,10 @@ C
 C
 C     Write our energy out to the database
 C
-      Status = Status .AND. Context_Prefix('correlation energy', String)
-      Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, CorEner)
-      Status = Status .AND. Context_Prefix('total energy', String)
-      Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, TotEner)
+      Status = Status .AND. RTDB_Put( RTDB, 'rimp2:correlation energy',
+     $     MT_Dbl, 1, CorEner)
+      Status = Status .AND. RTDB_Put( RTDB, 'rimp2:energy', MT_Dbl, 1,
+     $     TotEner)
 C
 #ifdef RIMP2_USE_DA
 C
@@ -567,9 +565,6 @@ C
       Call RIMP2_PStat_Print
       Call RIMP2_PStat_Term
 C
-      Status = Status .AND. Context_Pop(My_Ctx)
-      If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2: Failed to pop context', 0)
 c$$$C
 c$$$C     Make sure the user gets everything we've written before going on
 c$$$C

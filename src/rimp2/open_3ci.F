@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.1 1995-12-13 01:36:52 d3g681 Exp $
+C$Id: open_3ci.F,v 1.2 1996-08-19 15:25:47 d3g681 Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -21,7 +21,7 @@ C
       Integer Type, AILen, FitLen
       Double Precision FileL, FileLMB
       Character*1 Sp
-      Character*256 FilNam
+      Character*256 FilNam, tmpname
 C
 C     Use the global array to figure out how large the fitting basis is
 C
@@ -69,7 +69,7 @@ C
       Integer RecL, Code, IALo, IAHi, SLo, SHi, NS, Proc, RecLB
       Character*4 PID
       Character*1 Sp
-      Character*256 FilNam, String
+      Character*256 FilNam, String, tmpname
 C
 C     Use the global array to figure out how much of the s (fitting basis)
 C     space we have on this node.
@@ -124,30 +124,12 @@ C
 C
 C     Setup filename
 C
-C     Unfortunately, we cant force leading zeros on output with the
-C     BZ format spec, so we have to account for each case.
-C
-      Proc = GA_NodeID()
-      If ( Proc .le. 9) then
-         Write(PID, '(''000'',I1)') Proc
-      ElseIf ( Proc .le. 99) then
-         Write(PID, '(''00'',I2)') Proc
-      ElseIf ( Proc .le. 999) then
-         Write(PID, '(''0'', I3)') Proc
-      ElseIf ( Proc .le. 9999) then
-         Write(PID, '(I4)') Proc
-      Else
-         Call ErrQuit('Open_3cI_File: Can''t create file name for node',
-     $      Proc)
-      EndIf
-C
-C     This depends on ASCII character set, but is that a real limitation
-C     these days?
-C
       Sp = Char( Spin + IChar('a') - 1 )
 C
-      FilNam = Name(:LNBlnk(Name))
-      FilNam(LNBlnk(FilNam)+1:) = Sp//PID
+* rjh
+      tmpname = name
+      tmpname(lnblnk(tmpname)+1:) = sp
+      call util_file_name(tmpname, .true., .true., filnam)
 C
       If ( RecL .gt. 0)
      $   Open(UNIT=LU, FILE=FilNam(:LNBlnk(FilNam)),

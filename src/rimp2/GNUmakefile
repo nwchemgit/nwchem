@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1996-07-26 16:36:09 d3g681 Exp $
+# $Id: GNUmakefile,v 1.32 1996-08-19 15:25:47 d3g681 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -40,7 +40,7 @@ include ../config/makelib.h
 #DEFINES += -DRIMP2_USE_DA
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(rimp2.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ./rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(rimp2.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ./rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(prog_report.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xform_3cints.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh ./rimp2_timers.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xf3ci_step3.o):	$(INCDIR)/stdio.fh ./rimp2_timers.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
