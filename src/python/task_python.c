@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.9 2000-08-26 01:19:58 d3g681 Exp $
+ $Id: task_python.c,v 1.10 2002-04-19 21:04:07 windus Exp $
 */
 #include "macdecls.h"
 #include "global.h"
@@ -42,8 +42,6 @@ int FATR task_python_(Integer *rtdb_ptr)
 
    ret = 0;
    sprintf(pbuf, "INT     = %d", MT_F_INT);      
-   ret += PyRun_SimpleString(pbuf);
-   sprintf(pbuf, "FLOAT   = %d", MT_FLOAT);     
    ret += PyRun_SimpleString(pbuf);
    sprintf(pbuf, "DBL     = %d", MT_F_DBL);       
    ret += PyRun_SimpleString(pbuf);
