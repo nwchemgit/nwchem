@@ -77,6 +77,9 @@ your program may deadlock (i.e., cease to make progress).
 
 \item When writing to the database (\verb+rtdb_put()+) it is the data
 from node zero that is written.
+
+\item NWChem overrides certain default signal handlers so care
+must be taken when creating processes (see Section \ref{sec:sigchld}).
 \end{itemize}
 
 \section{NWChem extensions}
@@ -149,23 +152,18 @@ This input prints the traditional greeting from each parallel process.
 
 \subsection{Scanning a basis exponent}
 \begin{verbatim}
-  geometry units au noprint
-   O 0   0       0
-   H 0   1.430  -1.107
-   H 0  -1.430  -1.107
+  geometry units au
+    O 0 0 0; H 0 1.430 -1.107; H 0 -1.430 -1.107
   end
 
-  python noprint
+  python
     exponent = 0.1
     while (exponent <= 2.01):
        input_parse('''
           basis noprint
-            H library 3-21g
-            O library 3-21g
-            O d; %f 1.0
+             H library 3-21g; O library 3-21g; O d; %f 1.0
           end
        ''' % (exponent))
-
        print ' exponent = ', exponent, ' energy = ', task_energy('scf')
        exponent = exponent + 0.1
   end
@@ -192,12 +190,11 @@ Note that execution in parallel may produce unwanted output since
 all process execute the print statement inside the Python program.
 
 \subsection{Scanning a basis exponent revisited.}
+\label{sec:scan2}
 
 \begin{verbatim}
   geometry units au
-   O 0       0        0
-   H 0       1.430   -1.107
-   H 0      -1.430   -1.107
+    O 0 0 0; H 0 1.430 -1.107; H 0 -1.430 -1.107
   end
 
   print none
@@ -208,12 +205,9 @@ all process execute the print statement inside the Python program.
     def energy_at_exponent(exponent):
        input_parse('''
           basis noprint
-             H library 3-21g
-             O library 3-21g
-             O d; %f 1.0
+             H library 3-21g; O library 3-21g; O d; %f 1.0
           end
        ''' % (exponent))
-
        return task_energy('scf')
 
     exponent = 0.1
@@ -246,10 +240,8 @@ file.  When the loop is finished the additional output file is closed.
 \begin{verbatim}
   python
     geometry = '''
-      geometry noprint
-         symmetry d2h
-         C 0  0  %f
-         H 0  0.916 1.224
+      geometry noprint; symmetry d2h
+         C 0 0 %f; H 0  0.916 1.224
       end
     '''
     x = 0.6
@@ -260,10 +252,7 @@ file.  When the loop is finished the additional output file is closed.
       x = x + 0.01
   end
 
-  basis
-    C library 6-31g*
-    H library 6-31g*
-  end
+  basis; C library 6-31g*; H library 6-31g*; end
 
   print none
 
@@ -272,15 +261,15 @@ file.  When the loop is finished the additional output file is closed.
 
 This scans the bond length in ethene from 1.2 to 1.44 in steps 
 of 0.2 computing the energy at each geometry.  Since it is using 
-$D_{2h}$ symmetry the program actually uses a variable (verb+x+) that is
+$D_{2h}$ symmetry the program actually uses a variable (\verb+x+) that is
 half the bond length.
 
 \subsection{Scan using the BSSE counterpoise corrected energy}
 
 \begin{verbatim}
-  basis spherical noprint
-      Ne library cc-pvdz;       He library cc-pvdz
-    BqNe library Ne cc-pvdz;  BqHe library He cc-pvdz
+  basis spherical
+    Ne library cc-pvdz; BqNe library Ne cc-pvdz
+    He library cc-pvdz; BqHe library He cc-pvdz
   end
 
   mp2; tight; freeze core atomic; end
@@ -288,38 +277,23 @@ half the bond length.
   print none
 
   python noprint
-    supermolecule = '''
-      geometry noprint
-        Ne   0       0        0
-        He   0       0       %f 
-      end
-    '''
-    fragment1 = '''
-      geometry noprint
-        Ne   0       0         0
-        BqHe 0       0        %f
-      end
-    '''
-    fragment2 = '''
-      geometry noprint
-        BqNe 0       0        0
-        He   0       0        %f
-      end
-    '''
-    def geom_energy(geometry):
-      input_parse(geometry)
-      input_parse('scf; vectors atomic; end\n')
+    supermolecule = 'geometry noprint;   Ne 0 0 0;   He 0 0 %f; end\n'
+    fragment1     = 'geometry noprint;   Ne 0 0 0; BqHe 0 0 %f; end\n'
+    fragment2     = 'geometry noprint; BqNe 0 0 0;   He 0 0 %f; end\n'
+
+    def energy(geometry):
+      input_parse(geometry + 'scf; vectors atomic; end\n')
       return task_energy('mp2')
 
     def bsse_energy(z):
-      return geom_energy(supermolecule % z) - \
-             geom_energy(fragment1 % z) - \
-             geom_energy(fragment2 % z)
+      return energy(supermolecule % z) - \
+             energy(fragment1 % z) - \
+             energy(fragment2 % z)
     z = 3.3
     while (z < 4.301):
-      energy = bsse_energy(z)
+      e = bsse_energy(z)
       if (ga_nodeid() == 0):
-        print ' z = %5.2f   energy = %10.7f ' % (z, energy)
+        print ' z = %5.2f   energy = %10.7f ' % (z, e)
       z = z + 0.1
   end
 
@@ -356,7 +330,6 @@ package.
     print '   y     z     energy                gradient'
     print ' ----- ----- ---------- ------------------------------------'
     y = 1.2
-    elo = 0.0
     while y <= 1.61:
        z = 1.0
        while z <= 1.21:
@@ -370,10 +343,6 @@ package.
 
           (energy,gradient) = task_gradient('scf')
 
-          if (energy < elo):
-             elo = energy
-             ylo = y
-             zlo = z
           print ' %5.2f %5.2f %9.6f' % (y, z, energy),
           i = 0
           while (i < len(gradient)):
@@ -382,9 +351,6 @@ package.
           print ''
           z = z + 0.1
        y = y + 0.1
-    print ''
-    print ' Lowest energy =',elo,' at y=',ylo,', z =',zlo
-    print ' '
   end
 
   print none
@@ -396,7 +362,7 @@ This program illustrates evaluating the energy and gradient
 by calling \verb+task_gradient()+.  A water molecule is scanned
 through several $C_{2v}$ geometries by varying the y and z coordinates
 of the two hydrogen atoms.  At each geometry the coordinates, energy 
-and gradient are printed.  The lowest energy geometry is recorded.
+and gradient are printed.
 
 The basis set (sto-3g) is input as usual.  The two while loops vary
 the y and z coordinates.  These are then substituted into a geometry
@@ -416,26 +382,11 @@ end-of-line.
 
   python
     energies = {}
-    c2h4 = '''
-      geometry noprint
-        symmetry d2h
-        C 0 0     0.672
-        H 0 0.935 1.238
-      end
-    '''
-    ch4 = '''
-      geometry noprint
-        symmetry td 
-        C 0     0     0
-        H 0.634 0.634 0.634
-      end
-    '''
-    h2 = '''
-      geometry noprint
-        H 0 0  0.378
-        H 0 0 -0.378
-      end
-    '''
+    c2h4 = 'geometry noprint; symmetry d2h; \
+            C 0 0 0.672; H 0 0.935 1.238; end\n'
+    ch4  = 'geometry noprint; symmetry td; \
+            C 0 0 0; H 0.634 0.634 0.634; end\n'
+    h2   = 'geometry noprint; H 0 0 0.378; H 0 0 -0.378; end\n'
 
     def energy(basis, geometry):
       input_parse('''
@@ -447,9 +398,8 @@ end-of-line.
       return task_energy('mp2')
 
     for basis in ('sto-3g', '6-31g', '6-31g*', 'cc-pvdz', 'cc-pvtz'):
-       energies[basis] = 2*energy(basis, ch4) - \
-                         2*energy(basis, h2)  - \
-                           energy(basis, c2h4)
+       energies[basis] =   2*energy(basis, ch4) \
+                         - 2*energy(basis, h2) - energy(basis, c2h4)
        if (ga_nodeid() == 0): print basis, ' %8.6f' % energies[basis]
   end 
 
@@ -520,6 +470,66 @@ well since the exception has been handled.
 If your Python program detects an error, raise an unhandled
 exception.  Do not call \verb+exit(1)+ since this may circumvent
 necessary clean-up of the NWChem execution environment.
+
+\subsection{Scaning a basis exponent yet again --- plotting and 
+handling child processes}
+\label{sec:sigchld}
+
+\begin{verbatim}
+  geometry units au
+    O 0 0 0; H 0 1.430 -1.107; H 0 -1.430 -1.107
+  end
+
+  print none
+
+  python
+    import Gnuplot, time, signal
+
+    def energy_at_exponent(exponent):
+       input_parse('''
+          basis noprint
+             H library 3-21g; O library 3-21g; O d; %f 1.0
+          end
+       ''' % (exponent))
+       return task_energy('scf')
+
+    data = []
+    exponent = 0.5
+    while exponent <= 0.6:
+       energy = energy_at_exponent(exponent)
+       print ' exponent = ', exponent, ' energy = ', energy
+       data = data + [[exponent,energy]]
+       exponent = exponent + 0.02
+
+    if (ga_nodeid() == 0):
+       signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+       g = Gnuplot.Gnuplot()
+       g('set data style linespoints')
+       g.plot(data)
+       time.sleep(30)  # 30s to look at the plot
+
+  end
+
+  task python
+\end{verbatim}
+
+This illustrates how to handle signals from terminating child
+processes and how to generate simple plots on UNIX systems.  The
+example from Section \ref{sec:scan2} is modified so that instead of
+writing the data to a file for subsequent visualization, it is saved
+for subsequent visualization with Gnuplot (you'll need both Gnuplot
+and the corresponding package for Python in your \verb+PYTHONPATH+.
+Look at http://monsoon.harvard.edu/~mhagger/download).
+
+The issue is that NWChem traps various signals from the O/S that
+usually indicate bad news in order to provide better error handling
+and reliable clean-up of shared, parallel resources.  One of these
+signals is \verb+SIGCHLD+ which is generated whenever a child process
+terminates.  If you want to create child processes within Python, then
+the NWChem handler for \verb+SIGCHLD+ must be replaced with the
+default handler.  There seems to be no easy way to restore the
+NWChem handler after the child has completed, but this should have
+no serious side effect.
 
 \section{Troubleshooting}
 
