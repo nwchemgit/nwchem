@@ -2,7 +2,7 @@
       logical function sym_char_table(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab.F,v 1.1 1995-12-13 01:28:10 d3g681 Exp $
+C$Id: sym_char_tab.F,v 1.2 1998-06-15 22:15:49 d3g681 Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
@@ -1065,7 +1065,7 @@ c
       data ith/8,24,1,4,4,3,1,4,4,3
      +     ,0,0,0,0,0,0,0,0/
       data yrth/'ag','eg+','eg-','tg','au','eu+','eu-','tu'/
-      data yth/'e','c3','c3^2','c2','i','s6^5','s6','si.h'/
+      data yth/'e','c3','c3^2','c2','i','s6^5','s6','si.d'/
       data chth/
      +     1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000,
      +     1.000,-0.500,-0.500, 1.000, 1.000,-0.500,-0.500, 1.000,
