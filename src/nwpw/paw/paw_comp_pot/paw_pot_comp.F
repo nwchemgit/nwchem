@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.1 2003-02-15 00:24:29 marat Exp $
+c $Id: paw_pot_comp.F,v 1.2 2003-02-15 00:42:33 marat Exp $
 c
 
 !**************************************************
@@ -186,4 +186,4 @@ c     !*** calculate the size and indexing ***
       end do
        
       return
-      end subroutine
+      end 
