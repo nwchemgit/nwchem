@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.31 1996-03-21 08:39:55 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.32 1996-04-24 19:04:59 d3j191 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -30,7 +30,7 @@ EXPANSIONS = all qm md qmmd argos
 EXP_all = $(filter-out nwargos ideaz scfaux cphf plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints mp2_grad nwdft rimp2 \
 	stepper symmetry ccsd vib mcscf plane_wave
-EXP_argos = nwargos
+EXP_argos = nwargos nwaprep
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
 
@@ -115,7 +115,7 @@ MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwargos,-lnwargos -lnwaprep,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
