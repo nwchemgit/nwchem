@@ -54,7 +54,7 @@ PSPW
          17.0  17.0   0.0 
          17.0   0.0  17.0
           0.0  17.0  17.0 
-      ngrid: 32 32 32
+      ngrid: 24 24 24
    END
    SIMULATION_CELL
       cell_name: charge
@@ -63,7 +63,7 @@ PSPW
          17.0  17.0   0.0 
          17.0   0.0  17.0
           0.0  17.0  17.0 
-      ngrid: 32 32 32
+      ngrid: 24 24 24
    END
 END
 
@@ -125,7 +125,7 @@ PSPW
       output_wavefunction_filename: Si2.elc00
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 10 100
+      loop: 10 10
       Mulliken
    END 
 END
@@ -150,7 +150,7 @@ PSPW
    WAVEFUNCTION_EXPANDER
       old_wavefunction_filename: Si2.elc00
       new_wavefunction_filename: Si2.elc01
-      new_ngrid: 32 32 32
+      new_ngrid: 24 24 24
    END
 END
 task pspw wavefunction_expander
