@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.144 2002-07-17 22:32:52 d3j191 Exp $
+c $Id: md_main.F,v 1.145 2002-07-29 17:39:10 d3j191 Exp $
 c
       implicit none
 c
@@ -1235,6 +1235,7 @@ c
 c
       do 1 irun=krun+1,mrun
 c
+      if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       write(filrun,'(a,a,i5.5,a)') filtrj(1:index(filtrj,'.trj')-1),'-',
      + irun,'.trj '
@@ -1247,6 +1248,7 @@ c
      + irun,'.prp '
       open(unit=lfnprp,file=filrun(1:index(filrun,' ')-1),
      + form='formatted',status='unknown')
+      endif
       endif
 c
       if(irun.eq.1.and.iand(ivopt,2).eq.2) nfgaus=ivreas
@@ -2495,7 +2497,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.144 2002-07-17 22:32:52 d3j191 Exp $
+c $Id: md_main.F,v 1.145 2002-07-29 17:39:10 d3j191 Exp $
 c
       implicit none
 c
