@@ -1260,7 +1260,6 @@ c
 #if defined(SUN) || defined(SOLARIS) || defined(SGI) 
 #define HAVE_FORTRAN_INTEGER2
 #endif
-#undef HAVE_FORTRAN_INTEGER2
 
 
       
