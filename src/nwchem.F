@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.87 1996-08-06 05:23:50 d3g681 Exp $
+c     $Id: nwchem.F,v 1.88 1996-08-27 22:40:16 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -214,6 +214,10 @@ c
       if (ga_nodeid() .eq. 0) then
          if (util_print('ga summary', print_default))
      $        call ga_summarize(0)
+         if (util_print('ga stats', print_default)) then
+            call ga_print_stats()
+            write(6,*)
+         endif
          if (util_print('ma summary', print_default))
      $        call ma_summarize_allocated_blocks()
          if (util_print('ma stats', print_high))
