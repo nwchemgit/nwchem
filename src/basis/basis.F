@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.111 2002-01-17 18:45:47 edo Exp $
+c $Id: basis.F,v 1.112 2002-01-24 21:57:17 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1321,11 +1321,13 @@ c
         exndcf(SZ_exndcf,basis) = (nexcf+ecXtra)
       endif
 c
-      tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':exps and coeffs'
-      rtdb_status = rtdb_status .and.
-     &       rtdb_get(
-     &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
+      if (nexcf .gt. 0) then
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':exps and coeffs'
+         rtdb_status = rtdb_status .and.
+        &       rtdb_get(
+        &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
+      endif
 c
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':header'
@@ -2195,9 +2197,11 @@ c
       tmp(lentmp:) = ':number of exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_int,1,nexcf)
 
-      tmp(lentmp:) = ' ' 
-      tmp(lentmp:) = ':exps and coeffs'
-      status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
+      if (nexcf .gt. 0) then
+         tmp(lentmp:) = ' ' 
+         tmp(lentmp:) = ':exps and coeffs'
+         status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
+      endif
 
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':header'
