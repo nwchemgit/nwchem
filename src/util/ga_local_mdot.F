@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.6 2003-07-29 15:18:42 edo Exp $
+* $Id: ga_local_mdot.F,v 1.7 2003-10-09 22:10:16 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -19,11 +19,17 @@ c
       integer bilo, bihi, bjlo, bjhi, bind, bld
       integer i, j, ij
       double precision work(2500)
+      integer dim1,dim2,type
 #ifdef  BAD_GACCESS 
       integer g_c
       if(.not.ga_duplicate(g_b, g_c, ' g_b clone')) call
      $     errquit('galocalmdot: gaduplicate  failed ',0)
-      call ga_dgemm('t','n',nva,nvb,n,1d0,g_a,g_b,0d0,g_c)
+      call ga_inquire(g_a, type, dim1, dim2)
+      call ga_inquire(g_b, type, dim1, dim2)
+      call ga_matmul_patch('t','n',1d0,0d0,
+     1     g_a,1,nva,1,dim1,
+     2     g_b,1,dim1,1,nvb,
+     3     g_c,1,nva ,1,nvb )
       call ga_get(g_c,1,nva,1,nvb,c,ldc)
       if(.not.ga_destroy(g_c)) call
      $     errquit('galocalmdot: gadestroy  failed ',0)

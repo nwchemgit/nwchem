@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.167 2003-09-04 15:18:10 edo Exp $
+# $Id: GNUmakefile,v 1.168 2003-10-09 22:10:16 edo Exp $
 
 include ../config/makefile.h
 
@@ -100,7 +100,7 @@ ifeq ($(_CPU),ia64)
   EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
 endif
 ifeq ($(_CPU),x86_64)
-  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o  linux_setfpucw.o
 endif
 endif                                                                           
 
