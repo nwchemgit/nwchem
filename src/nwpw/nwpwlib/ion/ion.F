@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.17 2002-08-07 19:00:35 bylaska Exp $
+* $Id: ion.F,v 1.18 2003-02-14 02:05:45 bylaska Exp $
 *
 
 *     ***************************
@@ -1337,7 +1337,7 @@ c     **** ouput xyz format ****
 
         write(unit,1240) 
         write(unit,1241) 
-        write(unit,1242) 
+        write(unit,1242)   ! causing problems with mercury??
         write(unit,1243) 
         write(unit,1244) 
         write(unit,1245) 
@@ -1345,14 +1345,14 @@ c     **** ouput xyz format ****
         do ii=1,ion_nion()
            frac(1) = b(1,1)*ion_rion(1,ii)
      >             + b(2,1)*ion_rion(2,ii)
-     >             + b(3,1)*ion_rion(3,ii)
+     >             + b(3,1)*ion_rion(3,ii) + 0.5
            frac(2) = b(1,2)*ion_rion(1,ii)
      >             + b(2,2)*ion_rion(2,ii)
-     >             + b(3,2)*ion_rion(3,ii)
+     >             + b(3,2)*ion_rion(3,ii) + 0.5
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
-     >             + b(3,3)*ion_rion(3,ii)
-           WRITE(unit,1250) ion_aname(ii),frac
+     >             + b(3,3)*ion_rion(3,ii) + 0.5
+           WRITE(unit,1250) ion_aname(ii),ii,frac
 
         end do
       end if
@@ -1370,7 +1370,7 @@ c     **** ouput xyz format ****
  1224 FORMAT(  '_cell_angle_beta ', F16.4)
  1225 FORMAT(  '_cell_angle_gamma', F16.4)
 
- 1230 FORMAT(/'_symmetry_space_group_name_H-M     P 1  ')
+ 1230 FORMAT(/'_symmetry_space_group_name_H-M     P1  ')
 
  1240 FORMAT(/'loop_')
  1241 FORMAT('_atom_site_type_symbol')
@@ -1379,5 +1379,5 @@ c     **** ouput xyz format ****
  1244 FORMAT('_atom_site_fract_y')
  1245 FORMAT('_atom_site_fract_z')
  
- 1250 FORMAT(A2,6X,3F14.6)
+ 1250 FORMAT(A2,6X,I4,3x,3F14.6)
       end
