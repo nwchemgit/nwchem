@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.270 1998-11-23 10:09:08 d3e129 Exp $
+# $Id: makefile.h,v 1.271 1999-01-26 18:27:46 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -730,7 +730,6 @@ ifeq ($(TARGET),CONVEX-SPP)
   FOPTIMIZE = -O1
   COPTIMIZE = -O
 
-
     DEFINES = -DCONVEX -DHPUX -DEXTNAME
 
 # &%@~* Convex compiler will preprocess only *.f and *.FORT files !
@@ -747,14 +746,15 @@ ifeq ($(TARGET),IBM)
 
     CORE_SUBDIRS_EXTRA = lapack
 #blas
-         FC = xlf
+         FC = xlf -g
+         CC = xlc -g
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 6 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
+   FOPTIONS = -qEXTNAME -qnosave # -qalign=4k 
 # -qinitauto=FF
    COPTIONS = 
 # -qstrict required with -O3 (according to Edo)
@@ -798,32 +798,37 @@ endif
               -brename:.dspmv_,.dspmv \
               -brename:.dspr_,.dspr \
               -brename:.dsyrk_,.dsyrk \
-              -brename:.dsymm_,.dsymm \
               -brename:.dsyr2k_,.dsyr2k \
-              -brename:.dsyr2_,.dsyr2 \
-              -brename:.dtrsv_,.dtrsv \
               -brename:.dsymv_,.dsymv \
-              -brename:.dznrm2_,.dznrm2 \
               -brename:.lsame_,.lsame \
-              -brename:.zaxpy_,.zaxpy \
-              -brename:.zcopy_,.zcopy \
-              -brename:.zdotc_,.zdotc \
-              -brename:.zdscal_,.zdscal \
-              -brename:.zgemm_,.zgemm \
-              -brename:.zgemv_,.zgemv \
-              -brename:.zgerc_,.zgerc \
-              -brename:.zhemm_,.zhemm \
-              -brename:.zhemv_,.zhemv \
-              -brename:.zher2_,.zher2 \
-              -brename:.zher2k_,.zher2k \
-              -brename:.zherk_,.zherk \
-              -brename:.zscal_,.zscal \
-              -brename:.zswap_,.zswap \
-              -brename:.ztrmm_,.ztrmm \
-              -brename:.ztrmv_,.ztrmv \
-              -brename:.ztrsm_,.ztrsm \
               -brename:.xerbla_,.xerbla \
-              -brename:.ztrsv_,.ztrsv 
+              -brename:.zgemm_,.zgemm \
+              -brename:.dsyr2_,.dsyr2
+
+#              -brename:.dtrsv_,.dtrsv \
+#              -brename:.ztrsv_,.ztrsv 
+#              -brename:.dsymm_,.dsymm \
+
+#              -brename:.dznrm2_,.dznrm2 \
+#              -brename:.zaxpy_,.zaxpy \
+#              -brename:.zcopy_,.zcopy \
+#              -brename:.zdotc_,.zdotc \
+#              -brename:.zdscal_,.zdscal \
+
+#              -brename:.zgemv_,.zgemv \
+#              -brename:.zgerc_,.zgerc \
+#              -brename:.zhemm_,.zhemm \
+#              -brename:.zhemv_,.zhemv \
+#              -brename:.zher2_,.zher2 \
+#              -brename:.zher2k_,.zher2k \
+#              -brename:.zherk_,.zherk \
+#              -brename:.zscal_,.zscal \
+#              -brename:.zswap_,.zswap \
+#              -brename:.ztrmm_,.ztrmm \
+#              -brename:.ztrmv_,.ztrmv \
+#              -brename:.ztrsm_,.ztrsm \
+#
+
 ##comment out from dtrmm_ inclusive
 #ifdef USE_ESSL
 #       CORE_LIBS += -lessl
