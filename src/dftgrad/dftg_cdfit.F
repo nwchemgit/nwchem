@@ -15,6 +15,7 @@ c****
 c**** handles
 c****
       Integer rtdb,geom,AO_bas_han,CD_bas_han
+      integer nbf_ao,nbf_cd,nat,max_sh_bf
       Integer iga_dens,lbuf,lscr
 C
 C     scratch arrays for calls to integrals package
@@ -35,7 +36,6 @@ c**** force vector
 c**** 
       double precision force(3,nat)
 
-      integer nbf_ao,nbf_cd,nat,max_sh_bf
       double precision tol2e
 C
 C     local declarations
