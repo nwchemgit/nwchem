@@ -1,5 +1,5 @@
 *
-* $Id: bessel_transform.F,v 1.3 2003-02-21 19:47:59 windus Exp $
+* $Id: bessel_transform.F,v 1.4 2003-10-21 02:05:18 marat Exp $
 *
 
 !*************************************************
@@ -46,7 +46,7 @@
      >                              'tmp_r',tmp_r(2),tmp_r(1))
       value = value.and.MA_push_get(mt_dbl,ngrid,'J',J(2),J(1))
       if (.not.value) 
-     >   call errquit('spher_bessel_transform: push stack',0)
+     >   call errquit('spher_bessel_transform: push stack',0,0)
 
       do i=1,ngrid
         dbl_mb(tmp_r(1)+i-1)  = r(i)*G
@@ -74,7 +74,7 @@
       value = value.and.MA_pop_stack(tmp_r(2))
       value = value.and.MA_pop_stack(my_cos(2))
       value = value.and.MA_pop_stack(my_sin(2)) 
-      if (.not.value) call errquit('spher_bessel_transform',1)
+      if (.not.value) call errquit('spher_bessel_transform',0,1)
 
       spher_bessel_transform = phi_G
       return
@@ -141,7 +141,7 @@
       integer k
 
       go to (100,200,300,400,500,600,700), order+1
-      call errquit('find_spher_J_v: bad order',order)
+      call errquit('find_spher_J_v: bad order',0,order)
 
 *     *** l=0, s projectors ***
  100  do k=1,ngrid

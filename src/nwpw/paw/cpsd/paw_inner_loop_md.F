@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.2 2003-09-26 16:37:32 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.3 2003-10-21 02:05:15 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2003/09/26 16:37:32  bylaska
+* bug fix...EJB
+*
 * Revision 1.1  2003/09/25 23:46:24  bylaska
 * PAW Car-Parrinello added...EJB
 *
@@ -187,7 +190,7 @@
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
 
       if (.not. value) 
-     > call errquit('paw_inner_loop_md:out of stack memory',0)
+     > call errquit('paw_inner_loop_md:out of stack memory',0,0)
 
       call nwpw_timing_end(12)
      

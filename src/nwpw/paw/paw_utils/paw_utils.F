@@ -1,5 +1,5 @@
 c
-c $Id: paw_utils.F,v 1.3 2003-02-15 00:22:34 marat Exp $
+c $Id: paw_utils.F,v 1.4 2003-10-21 02:05:18 marat Exp $
 c
 
       function find_multipole_energy(l,nrange,g_r,
@@ -33,13 +33,13 @@ c      double precision  f_tmp(nrange)
 
       ok = MA_push_get(mt_dbl,nrange,
      >                    'q1_l',q1_l(2),q1_l(1))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
       ok = MA_push_get(mt_dbl,nrange,
      >                    'q2_l',q2_l(2),q2_l(1))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
       ok = MA_push_get(mt_dbl,nrange,
      >                    'f_tmp',f_tmp(2),f_tmp(1))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
 
 
       call indef_integr(power_q1,q1,l,g_r,log_amesh,
@@ -60,11 +60,11 @@ c      double precision  f_tmp(nrange)
       find_multipole_energy = w
 
       ok = MA_pop_stack(f_tmp(2))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
       ok = MA_pop_stack(q2_l(2))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
       ok = MA_pop_stack(q1_l(2))
-      if (.not.ok) call errquit('find_multipole_energy: push stack',0)
+      if (.not.ok) call errquit('find_multipole_energy: push stack',0,0)
 
       return
       end 

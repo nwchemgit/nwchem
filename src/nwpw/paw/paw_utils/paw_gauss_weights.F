@@ -1,6 +1,9 @@
-c $Id: paw_gauss_weights.F,v 1.2 2003-02-06 06:15:44 marat Exp $
+c $Id: paw_gauss_weights.F,v 1.3 2003-10-21 02:05:18 marat Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.2  2003/02/06 06:15:44  marat
+c ...
+c
 c
 
 !*************************************************
@@ -40,7 +43,7 @@ c
     
          niter = niter + 1
          if (niter .ge. 1000000)
-     >     call errquit('cannot converge in gauss_weights',1)
+     >     call errquit('cannot converge in gauss_weights',0,1)
      
          p1 = 1.0
          p2 = 0.0

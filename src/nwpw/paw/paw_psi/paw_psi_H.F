@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_H.F,v 1.2 2003-02-27 02:19:26 bylaska Exp $
+* $Id: paw_psi_H.F,v 1.3 2003-10-21 02:05:17 marat Exp $
 *
 
 *     *************************************
@@ -70,7 +70,7 @@ c     complex*16 vpsi(nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
       call nwpw_timing_end(12)
       
 
@@ -214,7 +214,7 @@ c     complex*16 vpsi(nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
       call nwpw_timing_end(12)
 
 

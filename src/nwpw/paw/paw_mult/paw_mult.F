@@ -1,8 +1,12 @@
 *
-* $Id: paw_mult.F,v 1.23 2003-03-21 23:41:13 bylaska Exp $
+* $Id: paw_mult.F,v 1.24 2003-10-21 02:05:17 marat Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2003/03/21 23:41:13  bylaska
+*
+* paw updates ...EJB
+*
 * Revision 1.22  2003/03/11 17:56:03  bylaska
 * rcut algorithm has been reinstated....EJB
 *
@@ -115,7 +119,7 @@
       !*** allocate paw mult arrays ***
       ok = ok.and.my_alloc(mt_int,nion,"i_v_mult",i_v_mult) !** same as i_paw_qlm **
       if (.not.ok) 
-     > call errquit("paw_mult_init: out of heap memory",0)
+     > call errquit("paw_mult_init: out of heap memory",0,0)
 
       v_mult_size = 0
       do ii=1,nion
@@ -129,7 +133,7 @@
       ok = ok.and.
      >     my_alloc(mt_dcpl,v_mult_size,"comp_coeff",comp_coeff)
       if (.not.ok) 
-     > call errquit("paw_mult_init: out of heap memory",1)
+     > call errquit("paw_mult_init: out of heap memory",0,1)
 
 
       !*** allocate self_energy_coeff and mult_energy_coeff arrays ***
@@ -141,13 +145,13 @@
      >     my_alloc(mt_dcpl,nion*lm_size*nion*lm_size,
      >              'mult_energy_coeff',mult_energy_coeff)
       if (.not.ok) 
-     > call errquit("paw_mult_init: out of heap memory",2)
+     > call errquit("paw_mult_init: out of heap memory",0,2)
 
       !*** allocate multiple potential nonlocal matrix ***
       ok = my_alloc(mt_int,nion,"i_paw_pot_mult",
      >                                     i_paw_pot_mult)
       if (.not.ok)
-     > call errquit('init_paw_pot_mult:out of heap memory',3)
+     > call errquit('init_paw_pot_mult:out of heap memory',0,3)
 
       paw_pot_mult_size = 0
       do ii=1,nion
@@ -159,7 +163,7 @@
       ok = my_alloc(mt_dcpl,paw_pot_mult_size,
      >               "paw_pot_mult",paw_pot_mult)
       if (.not.ok)
-     > call errquit("paw_mult_init:out of heap memory",4)
+     > call errquit("paw_mult_init:out of heap memory",0,4)
 
 
 
@@ -204,7 +208,7 @@
       ok = ok.and.
      >     MA_push_get(mt_dcpl,npack0,'Ylm',Ylm(2),Ylm(1))
       if (.not.ok) 
-     > call errquit("paw_mult_init: out of stack memory",2)
+     > call errquit("paw_mult_init: out of stack memory",0,2)
 
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
       call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
@@ -267,14 +271,14 @@
       ok = ok.and.MA_pop_stack(Gy(2))
       ok = ok.and.MA_pop_stack(Gx(2))
       if (.not.ok) 
-     > call errquit('paw_mult_init:error popping stack',2)
+     > call errquit('paw_mult_init:error popping stack',0,2)
 
 
 
 *     **** allocate rcell memory ****
       nshl3d=(2*ncut+1)**3
       ok = my_alloc(mt_dbl,(3*nshl3d),'rcell',rcell)
-      if (.not. ok) call errquit('out of heap memory',0)
+      if (.not. ok) call errquit('out of heap memory',0,0)
 
 *     **** get lattice vectors in real space ****
       l=0
@@ -338,7 +342,7 @@
       ok = ok.and.my_dealloc(paw_pot_mult)
       ok = ok.and.my_dealloc(i_paw_pot_mult)
       if (.not.ok)
-     > call errquit("paw_mult_end: error freeing heap",0)
+     > call errquit("paw_mult_end: error freeing heap",0,0)
 
       return
       end 
@@ -445,7 +449,7 @@
       ok =        MA_pop_stack(QYlm(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
-     >  call errquit('paw_mult_dn_cmp_get: error popping stack',1)
+     >  call errquit('paw_mult_dn_cmp_get: error popping stack',0,1)
 
       return
       end
@@ -589,7 +593,7 @@
       ok = ok.and.MA_pop_stack(QYlm(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
-     >  call errquit('paw_mult_pw_force: error popping stack',1)
+     >  call errquit('paw_mult_pw_force: error popping stack',0,1)
 
       return
       end
@@ -871,7 +875,7 @@
       ok = ok.and.MA_pop_stack(tmp1(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
-     >  call errquit('paw_mult_coeff_set: error popping stack',1)
+     >  call errquit('paw_mult_coeff_set: error popping stack',0,1)
 
       return
       end

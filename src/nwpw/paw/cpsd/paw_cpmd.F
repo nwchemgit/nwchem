@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.3 2003-09-26 16:31:16 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.4 2003-10-21 02:05:15 marat Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.3  2003/09/26 16:31:16  bylaska
+* bug fix....EJB
+*
 * Revision 1.2  2003/09/26 01:16:48  bylaska
 * io bug fix...EJB
 *
@@ -313,7 +316,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi0',psi0(2),psi0(1))
-      if (.not. value) call errquit('paw_cpmd:out of heap memory',0)
+      if (.not. value) call errquit('paw_cpmd:out of heap memory',0,0)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -366,7 +369,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
-      if (.not. value) call errquit('paw_cpmd: out of heap memory',1)
+      if (.not. value) call errquit('paw_cpmd: out of heap memory',0,1)
 
 *     *** intialize overlap coefficient data structure ***
       call phafac()
@@ -483,7 +486,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0,0)
          END IF
 
          write(6,1140)
@@ -1112,7 +1115,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       value = value.and.MA_free_heap(psi0(2))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
-      if (.not. value) call errquit('paw_cpmd:error freeing heap',2)
+      if (.not. value) call errquit('paw_cpmd:error freeing heap',0,2)
 
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)

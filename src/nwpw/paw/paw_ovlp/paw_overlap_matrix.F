@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.9 2003-03-21 23:41:13 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.10 2003-10-21 02:05:17 marat Exp $
 c
 
 !**************************************************
@@ -32,7 +32,7 @@ c
      >     my_alloc(mt_int,tot_ntype,"s_overlap_matrix",
      >              s_overlap_matrix)
       if (.not.ok)
-     > call errquit("init_paw_overlap_matrix: error getting heap",0)
+     > call errquit("init_paw_overlap_matrix: error getting heap",0,0)
 
   
       !*** determine matrix size ***
@@ -55,7 +55,7 @@ c
 
       ok = my_alloc(mt_dbl,matr_size,"overlap_matrix",overlap_matrix)
       if (.not.ok)
-     > call errquit("init_paw_overlap_matrix: error getting heap",1)
+     > call errquit("init_paw_overlap_matrix: error getting heap",0,1)
   
       do it=1,tot_ntype
     
@@ -101,7 +101,7 @@ c
       ok = ok.and.my_dealloc(s_overlap_matrix)
       ok = ok.and.my_dealloc(overlap_matrix)
       if (.not.ok)
-     > call errquit("end_paw_overlap_matrix: error freeing heap",0)
+     > call errquit("end_paw_overlap_matrix: error freeing heap",0,0)
 
 
 
@@ -157,7 +157,7 @@ c
        !*** temporary array for calculatoverlaps ***
        ok = ma_push_get(mt_dbl,ic, "tmp_array", l_f,i_f)
        if (.not.ok)
-     >  call errquit("find_overlap_matrix: out of stack memory",0)
+     >  call errquit("find_overlap_matrix: out of stack memory",0,0)
 
        do i=1,nbasis
          l = orb_l(i)
@@ -186,7 +186,7 @@ c
 
        ok = ma_pop_stack(l_f)
        if (.not.ok)
-     >  call errquit("find_overlap_matrix: error popping stack",1)
+     >  call errquit("find_overlap_matrix: error popping stack",0,1)
 
 
       end !subroutine find_overlap_matrix
@@ -239,7 +239,7 @@ c
       ok = ok.and.
      >     MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
       if (.not.ok)
-     > call errquit('paw_overlap_matrix_gen: out of stack memory',0)
+     > call errquit('paw_overlap_matrix_gen: out of stack memory',0,0)
 
       !*** calculate overlap2 ****
 
@@ -277,7 +277,7 @@ c
       ok = ok.and.MA_pop_stack(c2(2))
       ok = ok.and.MA_pop_stack(c1(2))
       if (.not.ok)
-     > call errquit('paw_overlap_matrix_gen: error popping stack',0)
+     > call errquit('paw_overlap_matrix_gen: error popping stack',0,0)
       return
       end
 

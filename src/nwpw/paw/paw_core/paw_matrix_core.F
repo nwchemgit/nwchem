@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_core.F,v 1.4 2003-03-06 01:46:39 bylaska Exp $
+* $Id: paw_matrix_core.F,v 1.5 2003-10-21 02:05:16 marat Exp $
 *
 
 !**************************************************
@@ -29,7 +29,7 @@
       ok = my_alloc(mt_int,tot_ntype,"i_paw_core_matrix",
      >                   i_paw_core_matrix)
       if (.not.ok) 
-     > call errquit("init_paw_core_matrix: out of memory",0)
+     > call errquit("init_paw_core_matrix: out of memory",0,0)
   
       !*** determine matrix size ***
       matr_size = 0
@@ -47,7 +47,7 @@
 
       ok = my_alloc(mt_dbl,matr_size,"paw_core_matrix",paw_core_matrix)
       if (.not.ok) 
-     > call errquit("init_paw_core_matrix: out of memory",1)
+     > call errquit("init_paw_core_matrix: out of memory",0,1)
   
       do it=1,tot_ntype
     
@@ -83,7 +83,7 @@
       ok =        my_dealloc(i_paw_core_matrix)
       ok = ok.and.my_dealloc(paw_core_matrix)
       if (.not.ok) 
-     > call errquit("end_paw_core_matrix: error freeing heap",0)
+     > call errquit("end_paw_core_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_core_matrix
@@ -147,7 +147,7 @@
       ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array3",l_f3,i_f3)
       ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array4",l_f4,i_f4)
       if (.not.ok)
-     > call errquit('find_core_matrix: out of stack memory',0)
+     > call errquit('find_core_matrix: out of stack memory',0,0)
 
 
       do ii=1,ic
@@ -189,7 +189,7 @@
       ok = ok.and.ma_pop_stack(l_f2)
       ok = ok.and.ma_pop_stack(l_f1)
       if (.not.ok)
-     > call errquit('find_core_matrix:error popping stack',1)
+     > call errquit('find_core_matrix:error popping stack',0,1)
 
       return
       end

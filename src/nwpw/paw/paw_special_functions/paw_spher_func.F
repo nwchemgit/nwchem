@@ -1,7 +1,10 @@
 c
-c $Id: paw_spher_func.F,v 1.6 2003-03-25 22:22:20 edo Exp $
+c $Id: paw_spher_func.F,v 1.7 2003-10-21 02:05:17 marat Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.6  2003/03/25 22:22:20  edo
+c bug fix in paw_spher_func.F (uninitialized variable)
+c
 c Revision 1.2.2.2  2003/03/25 22:21:03  edo
 c bug fix in paw_spher_func.F (uninitialized variable)
 c
@@ -151,7 +154,7 @@ c
  
       MOD_M = ABS(M)
       IF (ABS(X) .GT. 1) CALL errquit(
-     1   'parameter ot of range in legendre_lm',0)
+     1   'parameter ot of range in legendre_lm',0,0)
  
       IF (MOD_M .GT. L) THEN
          LEGENDRE_LM = 0d0
@@ -249,7 +252,7 @@ c
       real*8  fact,pll,pmm,pmmp1,somx2,Plm
 
       if ((m.lt.0).or.(m.gt.l).or.(dabs(x).gt.1.0d0))
-     >  call errquit('legendre_lm: bad argments',0)
+     >  call errquit('legendre_lm: bad argments',0,0)
 
       pmm = 1.0d0
       if (m.gt.0) then
@@ -314,7 +317,7 @@ c
 
       if (m .gt. l) 
      > call errquit(
-     >      'parameter out of order in function theta_lm',0)
+     >      'parameter out of order in function theta_lm',0,0)
 
       mod_m = abs(m)
 
@@ -448,7 +451,7 @@ c
       fourpi = 16.0d0*datan(1.0d0)
 
       IF( m .gt.l ) THEN
-      CALL errquit("parameter out of order in function theta_lm",1)
+      CALL errquit("parameter out of order in function theta_lm",0,1)
       END IF
 
       mod_m = ABS(m)
@@ -512,7 +515,7 @@ c
 
       !*** check the arguments ***
       if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
-        call errquit("parameter ot of range in dlegendre_lm",0)
+        call errquit("parameter ot of range in dlegendre_lm",0,0)
       end if
 
       if (m.eq.l) then
@@ -560,7 +563,7 @@ c
 
       if ( m.gt.l) then
         call errquit(
-     >   'parameter out of order in function theta_lm_div',0)
+     >   'parameter out of order in function theta_lm_div',0,0)
       end if
 
       mod_m = abs(m)
@@ -619,7 +622,7 @@ c
      >    (dabs(x).gt.1.0d0) .or.
      >    (m.eq.0) ) then
         call errquit(
-     >        'parameter ot of range in legendre_lm_div',0)
+     >        'parameter ot of range in legendre_lm_div',0,0)
       end if
 
       !*** P(1,1,x)/sqrt(1-x**2) ***

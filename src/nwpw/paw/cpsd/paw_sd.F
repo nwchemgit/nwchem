@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.63 2003-10-17 22:56:56 carlfahl Exp $
+* $Id: paw_sd.F,v 1.64 2003-10-21 02:05:15 marat Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2003/10/17 22:56:56  carlfahl
+* Change errquit to 3 arguments, with last one an error code
+*
 * Revision 1.62  2003/09/25 17:15:39  bylaska
 * bug fix...EJB
 *
@@ -397,16 +400,16 @@
           if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed', 0,0)
 
           if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'wvfnc_expander_input: rtdb_cput failed',0, 0)
 
           if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0)
+     >     'wvfnc_expander_input: rtdb_put failed',0, 0)
 
           write(*,*)
           write(*,*) "Grid is being converted:"

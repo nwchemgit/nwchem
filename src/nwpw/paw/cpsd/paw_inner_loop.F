@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.36 2003-03-25 19:43:31 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.37 2003-10-21 02:05:15 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.36  2003/03/25 19:43:31  bylaska
+* bug fix...EJB
+*
 * Revision 1.35  2003/03/22 02:30:01  bylaska
 * paw cpsd program finished....
 * The nwpw directory structure is ready to be checked into 4.5 release tree.
@@ -205,7 +208,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
 
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,0)
 
       call nwpw_timing_end(12)
      

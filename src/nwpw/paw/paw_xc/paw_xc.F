@@ -1,6 +1,11 @@
-!$Id: paw_xc.F,v 1.15 2003-03-07 20:51:10 bylaska Exp $
+!$Id: paw_xc.F,v 1.16 2003-10-21 02:05:18 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.15  2003/03/07 20:51:10  bylaska
+!Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
+!Tangent vector now used for SD with Gram-schmidt.
+!....EJB
+!
 !Revision 1.14  2003/03/05 23:16:32  bylaska
 !Commented out write statements and other minor fixes.....
 !self-consistent loop looks like it is working.....
@@ -118,7 +123,7 @@
       ok = ok .and. my_alloc(mt_int,nion,"i_paw_xc_matr",
      >                                i_paw_xc_matr)
       if (.not.ok)
-     > call errquit("init_paw_vxc: error allocating i_paw_xc_matr",0)
+     > call errquit("init_paw_vxc: error allocating i_paw_xc_matr",0,0)
 
       mtr_size = 0
       do in=1,nion
@@ -141,7 +146,7 @@
       ok = ok .and. my_alloc(mt_int,nion,"i_paw_xc_pot",
      >                                i_paw_xc_pot)
       if (.not.ok)
-     > call errquit("init_paw_vxc: error allocating i_paw_xc_pot",0)
+     > call errquit("init_paw_vxc: error allocating i_paw_xc_pot",0,0)
 
       mtr_size = 0
       do in=1,nion
@@ -163,7 +168,7 @@
       ok = ok .and. my_alloc(mt_int,nion,"i_paw_vxc",
      >                                i_paw_vxc)
       if (.not.ok)
-     > call errquit("init_paw_vxc: error allocating i_paw_vxc",0)
+     > call errquit("init_paw_vxc: error allocating i_paw_vxc",0,0)
 
       paw_vxc_size = 0     
       do in=1,nion
@@ -269,7 +274,7 @@
      >                                "paw_tmp_x_cmplx1",
      >                               xc_c_temp1)
       if (.not.ok)
-     > call errquit("init_paw_vxc: error allocating work arrays",0)
+     > call errquit("init_paw_vxc: error allocating work arrays",0,0)
       
       end 
 
@@ -832,35 +837,35 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
 
       ok = ok. and. my_dealloc(paw_xc_ylm) 
       if (.not.ok)
-     > call errquit("paw_vxc_end1: error freeing heap",0)
+     > call errquit("paw_vxc_end1: error freeing heap",0,0)
       ok = ok. and. my_dealloc(paw_xc_w_theta) 
       if (.not.ok)
-     > call errquit("paw_vxc_end2: error freeing heap",0)
+     > call errquit("paw_vxc_end2: error freeing heap",0,0)
       ok = ok. and. my_dealloc(paw_xc_w_phi) 
       if (.not.ok)
-     > call errquit("paw_vxc_end3: error freeing heap",0)
+     > call errquit("paw_vxc_end3: error freeing heap",0,0)
       ok = ok. and. my_dealloc(paw_xc_cos_theta) 
       if (.not.ok)
-     > call errquit("paw_vxc_end4: error freeing heap",0)
+     > call errquit("paw_vxc_end4: error freeing heap",0,0)
       ok = ok. and. my_dealloc(paw_xc_angle_phi) 
       if (.not.ok)
-     > call errquit("paw_vxc_end5: error freeing heap",0)
+     > call errquit("paw_vxc_end5: error freeing heap",0,0)
       ok = ok. and. my_dealloc(paw_vxc_d_ps) 
       if (.not.ok)
-     > call errquit("paw_vxc_end6: error freeing heap",0)
+     > call errquit("paw_vxc_end6: error freeing heap",0,0)
       ok = ok .and. my_dealloc(paw_vxc_u_ps) 
       if (.not.ok)
-     > call errquit("paw_vxc_end7: error freeing heap",0)
+     > call errquit("paw_vxc_end7: error freeing heap",0,0)
       ok = ok .and. my_dealloc(paw_vxc_d_ae) 
       if (.not.ok)
-     > call errquit("paw_vxc_end8: error freeing heap",0)
+     > call errquit("paw_vxc_end8: error freeing heap",0,0)
       ok = ok .and. my_dealloc(paw_vxc_u_ae) 
       if (.not.ok)
-     > call errquit("paw_vxc_end9: error freeing heap",0)
+     > call errquit("paw_vxc_end9: error freeing heap",0,0)
       ok = ok .and. my_dealloc(i_paw_vxc)
 
       if (.not.ok)
-     > call errquit("paw_vxc_end: error freeing heap",0)
+     > call errquit("paw_vxc_end: error freeing heap",0,0)
 
 
       end 

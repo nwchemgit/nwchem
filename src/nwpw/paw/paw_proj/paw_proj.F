@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.27 2003-03-22 04:04:59 edo Exp $
+* $Id: paw_proj.F,v 1.28 2003-10-21 02:05:17 marat Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2003/03/22 04:04:59  edo
+* removed extra arg to rayleigh_itol_...
+*
 * Revision 1.26  2003/03/05 23:16:32  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -61,7 +64,7 @@
       value = value.and.
      >        MA_alloc_get(mt_int,(2*prj_nkatm),
      >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
-      if (.not.value) call errquit('paw_proj_init: alloc heap',0)
+      if (.not.value) call errquit('paw_proj_init: alloc heap',0,0)
 
 
 *     *** generate formatted projector file if needed ***
@@ -95,7 +98,7 @@ c     *** allocate kspace arrays***
       call Pack_npack(1,npack1)
       value = MA_alloc_get(mt_dcpl,(prj_ntot*npack1),
      >                     'prj',prj(2),prj(1))
-      if (.not.value) call errquit('paw_proj_init: alloc heap',1)
+      if (.not.value) call errquit('paw_proj_init: alloc heap',0,1)
 
 *     *** set prj_indx ***
       int_mb(prj_indx(1)) = 0
@@ -465,7 +468,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not.value) call errquit('paw_proj_read: push stack',0)
+      if (.not.value) call errquit('paw_proj_read: push stack',0,0)
 
       do ii=1,nbasis
          if (taskid.eq.MASTER) then
@@ -480,7 +483,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       end do
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('paw_proj_read: pop stack',1)
+      if (.not.value) call errquit('paw_proj_read: pop stack',0,1)
 
       if (taskid.eq.MASTER) then
         call closefile(5)
@@ -803,7 +806,7 @@ c           pause
       value = value.and.MA_free_heap(prj_indx(2))
       value = value.and.MA_free_heap(prj_nbasis(2))
       value = value.and.MA_free_heap(prj(2))
-      if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
+      if (.not.value) call errquit('paw_proj_end: dealloc heap',0,0)
       return
       end
 

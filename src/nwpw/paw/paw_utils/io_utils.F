@@ -1,5 +1,5 @@
 c
-c $Id: io_utils.F,v 1.4 2003-02-21 19:47:59 windus Exp $
+c $Id: io_utils.F,v 1.5 2003-10-21 02:05:18 marat Exp $
 c
 
 !*******************************************************
@@ -35,7 +35,7 @@ c
 
       end do
 
-      call errquit("cannot get free file unit",0)
+      call errquit("cannot get free file unit",0,0)
 
       return
       end 
@@ -96,7 +96,7 @@ c
           position = "APPEND"
       else
           junk = "unknown parameter in open_file, "//mode(1:l)
-          call errquit(junk,0)
+          call errquit(junk,0,0)
       end if
 
       call get_io_unit(fp)
@@ -109,7 +109,7 @@ c
 
       if (ierr.ne.0)  then
           junk = " opening "//FileName
-          call errquit(junk,0)
+          call errquit(junk,0,0)
       end if
 
       return

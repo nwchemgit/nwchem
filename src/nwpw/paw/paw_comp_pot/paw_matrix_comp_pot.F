@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_comp_pot.F,v 1.3 2003-02-25 02:34:13 bylaska Exp $
+* $Id: paw_matrix_comp_pot.F,v 1.4 2003-10-21 02:05:16 marat Exp $
 *
 
 !**************************************************
@@ -35,7 +35,7 @@
      >              s_paw_comp_pot_matrix)
       if (.not.ok)
      > call errquit(
-     > "init_paw_paw_comp_pot_matrix: out of heap memory",1)
+     > "init_paw_paw_comp_pot_matrix: out of heap memory",0,1)
   
 
       !*** determine matrix size ***
@@ -59,7 +59,7 @@
      >                paw_comp_pot_matrix)
       if (.not.ok)
      > call errquit(
-     > "init_paw_comp_pot_matrix: out of heap memory",1)
+     > "init_paw_comp_pot_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
     
@@ -99,7 +99,7 @@
       ok = ok.and.my_dealloc(paw_comp_pot_matrix)
       if (.not.ok)
      > call errquit(
-     > "end_paw_comp_pot_matrix: error freeing heap",0)
+     > "end_paw_comp_pot_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_comp_pot_matrix

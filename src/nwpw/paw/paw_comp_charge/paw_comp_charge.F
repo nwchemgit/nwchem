@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.22 2003-02-27 01:35:19 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.23 2003-10-21 02:05:15 marat Exp $
 *
 
 
@@ -42,7 +42,7 @@
       !*** calculate size of comp. charge array ***
       ok = my_alloc(mt_int,nion,"i_paw_qlm",i_paw_qlm)
       if (.not.ok)
-     > call errquit("paw_comp_charge_init:out of heap memory",0)
+     > call errquit("paw_comp_charge_init:out of heap memory",0,0)
 
       qlm_size = 0
       do in=1,nion
@@ -58,7 +58,7 @@
       ok = ok.and.my_alloc(MT_INT,qlm_size,"paw_qlm_m",paw_qlm_m)
       ok = ok.and.my_alloc(MT_DBL,nkatm,"paw_q00",paw_q00)
       if (.not.ok)
-     > call errquit("paw_comp_charge_init:out of heap memory",1)
+     > call errquit("paw_comp_charge_init:out of heap memory",0,1)
 
       i = 0
       do in=1,nion
@@ -207,7 +207,7 @@ c        end do
       ok = ok.and.my_dealloc(paw_qlm_m)
       ok = ok.and.my_dealloc(paw_q00)
       if (.not.ok)
-     > call errquit("paw_comp_charge_end: error freeing heap",0)
+     > call errquit("paw_comp_charge_end: error freeing heap",0,0)
 
       return
       end !subroutine

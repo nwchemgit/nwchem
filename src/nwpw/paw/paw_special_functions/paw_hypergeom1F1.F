@@ -76,7 +76,7 @@
  
          END DO
  
-      CALL errquit("paw:cannot converge in 1f1",1)
+      CALL errquit("paw:cannot converge in 1f1",0,1)
  
          RETURN 
  

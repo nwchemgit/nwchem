@@ -1,6 +1,10 @@
-!$Id: paw_density.F,v 1.5 2003-02-18 01:58:33 marat Exp $
+!$Id: paw_density.F,v 1.6 2003-10-21 02:05:16 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.5  2003/02/18 01:58:33  marat
+!removed write statement
+!MV
+!
 !Revision 1.4  2003/02/17 05:58:08  marat
 !added lmax as an argument to init_paw_density
 !MV
@@ -237,7 +241,7 @@ c      end do!in
       ok = ok .and. my_dealloc(i_paw_rho)
 
       if (.not.ok)
-     > call errquit("paw_density_end: error freeing heap",0)
+     > call errquit("paw_density_end: error freeing heap",0,0)
 
 
       end 

@@ -1,7 +1,10 @@
 c
-c $Id: paw_gaunt.F,v 1.3 2003-02-11 01:41:23 edo Exp $
+c $Id: paw_gaunt.F,v 1.4 2003-10-21 02:05:16 marat Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.3  2003/02/11 01:41:23  edo
+c eliminated f90-isms
+c
 c Revision 1.2  2003/02/10 02:36:26  marat
 c ...
 c
@@ -34,9 +37,9 @@ c     work arrays for integration
       double precision x(100),w(100)
 
       if (l1.lt.0 .or. l2.lt.0 .or. l3.lt.0) call errquit(
-     1   'Invalid parameter in gen_gaunt_coeff, negative l',1)
+     1   'Invalid parameter in gen_gaunt_coeff, negative l',0,1)
       If (l1.lt.abs(m1) .or. l3.lt.abs(m3) .or. l2.lt.abs(m2)) call 
-     1   errquit('Invalid parameter in gen_gaunt_coeff, m > l',1)
+     1   errquit('Invalid parameter in gen_gaunt_coeff, m > l',0,1)
 !    Do integration over angle phi
       if ((-m1) + m2 - m3 .ne. 0) then
          gen_gaunt_coeff = 0.0

@@ -1,8 +1,11 @@
 *
-* $Id: paw_nonlocal.F,v 1.12 2003-03-25 01:11:30 edo Exp $
+* $Id: paw_nonlocal.F,v 1.13 2003-10-21 02:05:17 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2003/03/25 01:11:30  edo
+* uninitialized variable
+*
 * Revision 1.11  2003/03/14 01:20:10  marat
 * added routines for fetching pointers
 * to nonlocal matrices
@@ -62,7 +65,7 @@
 
       !*** calculate the size and indexing for Gop  - Yet Again ***
       value = my_alloc(mt_int,nion,"i_paw_Gop",i_paw_Gop)
-      if (.not.value) call errquit('paw_nonlocal_init: alloc heap',1)
+      if (.not.value) call errquit('paw_nonlocal_init: alloc heap',0,1)
 
       paw_Gop_size = 0
       do ii=1,nion
@@ -89,7 +92,7 @@
      >                           "paw_Gop_d",paw_Gop_d)
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
      >                           "paw_Gop_static",paw_Gop_static)
-      if (.not.value) call errquit('paw_nonlocal_init: alloc heap',1)
+      if (.not.value) call errquit('paw_nonlocal_init: alloc heap',0,1)
 
       do ii=1,paw_Gop_static(3)
          dcpl_mb(paw_Gop_static(1)+ii-1)=dcmplx(0.0,0.0)
@@ -160,7 +163,7 @@
       value = value.and.my_dealloc(paw_Gop_d)
       value = value.and.my_dealloc(paw_Gop_static)
       value = value.and.my_dealloc(paw_nl_coeff)
-      if (.not.value) call errquit('paw_nonlocal_end: dealloc heap',0)
+      if (.not.value) call errquit('paw_nonlocal_end: dealloc heap',0,0)
       return
       end
 
@@ -319,7 +322,7 @@
       ok = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       ok = ok.and.
      >     MA_push_get(mt_dcpl,npack1,'p',p(2),p(1))
-      if (.not. ok) call errquit('paw_nonlocal:out of stack memory',0)
+      if (.not. ok) call errquit('paw_nonlocal:out of stack memory',0,0)
 
       nlmii = 0
       do ii=1,nion
@@ -355,7 +358,7 @@
       ok =        MA_pop_stack(p(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not. ok) 
-     > call errquit('paw_nonlocal:error popping stack ',2)
+     > call errquit('paw_nonlocal:error popping stack ',0,2)
 
       return
       end

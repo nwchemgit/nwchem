@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.12 2003-03-25 16:43:31 edo Exp $
+* $Id: paw_force.F,v 1.13 2003-10-21 02:05:16 marat Exp $
 *
 
 !**************************************************
@@ -71,7 +71,7 @@ cedo      integer ne(2)
       value = value.and.my_alloc(mt_dcpl,paw_force_w_size,
      >                           "paw_force_wz_d",paw_force_wz_d)
 
-      if (.not.value) call errquit('paw_force_init: alloc heap',1)
+      if (.not.value) call errquit('paw_force_init: alloc heap',0,1)
 
       return
       end
@@ -148,7 +148,7 @@ c     *** allocate temporary space ***
       value = value.and. MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and. MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and. MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0,0)
 
 c    *** get reciprocal lattice arrays ***
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
@@ -242,7 +242,7 @@ c     *** compute force overlap coefficients ***
       value = value.and.MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(tmp0(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',0,1)
 
       
 c     *** calculate weights ***      
@@ -864,7 +864,7 @@ c      write(*,*)
       value = value.and.my_dealloc(paw_force_wz_d)
 
 c
-      if (.not.value) call errquit('paw_force_end: dealloc heap',0)
+      if (.not.value) call errquit('paw_force_end: dealloc heap',0,0)
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.5 2003-03-06 01:46:40 bylaska Exp $
+* $Id: paw_matrix_ion.F,v 1.6 2003-10-21 02:05:16 marat Exp $
 *
 
 !**************************************************
@@ -27,7 +27,7 @@
       ok = my_alloc(mt_int,tot_ntype,"i_paw_ion_matrix",
      >                                 i_paw_ion_matrix)
       if (.not.ok)
-     > call errquit("init_paw_ion_matrix: out of heap memory",0)
+     > call errquit("init_paw_ion_matrix: out of heap memory",0,0)
   
       !*** determine matrix size ***
       matr_size = 0
@@ -45,7 +45,7 @@
 
       ok = my_alloc(mt_dbl,matr_size,"paw_ion_matrix",paw_ion_matrix)
       if (.not.ok)
-     > call errquit("init_paw_ion_matrix: out of heap memory",1)
+     > call errquit("init_paw_ion_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
     
@@ -78,7 +78,7 @@
       ok =        my_dealloc(i_paw_ion_matrix)
       ok = ok.and.my_dealloc(paw_ion_matrix)
       if (.not.ok)
-     > call errquit("end_paw_ion_matrix: error freeing heap",0)
+     > call errquit("end_paw_ion_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_ion_matrix
@@ -130,7 +130,7 @@
       !*** temporary array for calculations ***
       ok = ma_push_get(mt_dbl,ic, "tmp_array",l_f,i_f)
       if (.not.ok)
-     > call errquit('find_ion_matrix: out of stack memory',0)
+     > call errquit('find_ion_matrix: out of stack memory',0,0)
 
 
       do i=1,nbasis
@@ -157,7 +157,7 @@
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)
-     > call errquit('find_ion_matrix:error popping',1)
+     > call errquit('find_ion_matrix:error popping',0,1)
 
 !  write(*,*) "ion matrix"
 !  write(*,*) matrix

@@ -1,5 +1,5 @@
 c
-c $Id: paw_matrix_kin.F,v 1.4 2003-03-06 01:46:40 bylaska Exp $
+c $Id: paw_matrix_kin.F,v 1.5 2003-10-21 02:05:16 marat Exp $
 c
 
 !**************************************************
@@ -27,7 +27,7 @@ c
       ok = my_alloc(mt_int,tot_ntype,"i_paw_kin_matrix",
      >                                 i_paw_kin_matrix)
       if (.not.ok)
-     > call errquit("init_paw_kin_matrix: error allocating heap",0)
+     > call errquit("init_paw_kin_matrix: error allocating heap",0,0)
   
       !*** determine matrix size ***
       matr_size = 0
@@ -46,7 +46,7 @@ c
 
       ok = my_alloc(mt_dbl,matr_size,"paw_kin_matrix",paw_kin_matrix)
       if (.not.ok)
-     > call errquit("init_paw_kin_matrix: error allocating heap",1)
+     > call errquit("init_paw_kin_matrix: error allocating heap",0,1)
   
       do it=1,tot_ntype
     
@@ -83,7 +83,7 @@ c
       ok =        my_dealloc(i_paw_kin_matrix)
       ok = ok.and.my_dealloc(paw_kin_matrix)
       if (.not.ok)
-     > call errquit("end_paw_kin_matrix: error freeing heap",0)
+     > call errquit("end_paw_kin_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_kin_matrix
@@ -143,7 +143,7 @@ c
       !*** temporary array for calculations ***
       ok = ma_push_get(mt_dbl,ic, "tmp_array", l_f,i_f)
       if (.not.ok)
-     > call errquit('find_kinetic_matrix: out of stack memory',0)
+     > call errquit('find_kinetic_matrix: out of stack memory',0,0)
 
       do i=1,nbasis
         l = orb_l(i)
@@ -173,7 +173,7 @@ c
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)
-     > call errquit('find_kinetic_matrix:error popping stack',1)
+     > call errquit('find_kinetic_matrix:error popping stack',0,1)
 
 
       return

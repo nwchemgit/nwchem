@@ -1,5 +1,5 @@
 *
-* $Id: paw_vloc.F,v 1.2 2003-02-25 00:18:08 bylaska Exp $
+* $Id: paw_vloc.F,v 1.3 2003-10-21 02:05:18 marat Exp $
 *
 
 
@@ -43,7 +43,7 @@
       call D3dB_nfft3d(1,nfft3d)
       ok = my_alloc(mt_dbl,(nkatm*npack0),'vl',vl)
       if (.not.ok) 
-     > call errquit('paw_vloc_init:out of heap memory',1)
+     > call errquit('paw_vloc_init:out of heap memory',0,1)
 
       !*** allocate temporary space ***
       ok = MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
@@ -52,7 +52,7 @@
       ok = ok.and.
      >        MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.ok)
-     > call errquit('paw_vloc_init: out of stack memory',0)
+     > call errquit('paw_vloc_init: out of stack memory',0,0)
 
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
       call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
@@ -71,7 +71,7 @@
 
         ok = MA_push_get(mt_dbl,nr,'f',f(2),f(1))
         if (.not.ok)
-     >  call errquit('paw_vloc_init: out of stack memory',1)
+     >  call errquit('paw_vloc_init: out of stack memory',0,1)
         do i=1,nr
           dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
      >                      *dbl_mb(ps_ptr+i-1)
@@ -102,7 +102,7 @@
        
         ok = MA_pop_stack(f(2))
         if (.not.ok)
-     >  call errquit('paw_vloc_init: error popping stack',2)
+     >  call errquit('paw_vloc_init: error popping stack',0,2)
 
       end do !*ia*
 
@@ -111,7 +111,7 @@
       ok = ok.and.MA_pop_stack(Gy(2))
       ok = ok.and.MA_pop_stack(Gx(2))
       if (.not.ok)
-     >  call errquit('paw_vloc_init: error popping stack',3)
+     >  call errquit('paw_vloc_init: error popping stack',0,3)
 
       return
       end
@@ -138,7 +138,7 @@
       !*** deallocate storage for local pseudopotential ***
       ok = my_dealloc(vl)
       if (.not.ok) 
-     > call errquit('paw_vloc_end:out of heap memory',1)
+     > call errquit('paw_vloc_end:out of heap memory',0,1)
 
       return
       end
@@ -181,7 +181,7 @@
       ok = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       ok = ok.and.
      >     MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
-      if (.not. ok) call errquit('paw_vloc:out of stack memory',0)
+      if (.not. ok) call errquit('paw_vloc:out of stack memory',0,0)
       if (move) then
         ok = ok.and.
      >       MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
@@ -191,7 +191,7 @@
      >       MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         ok = ok.and.
      >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-        if (.not. ok) call errquit('paw_vloc:out of stack memory',1)
+        if (.not. ok) call errquit('paw_vloc:out of stack memory',0,1)
         G(1)  = G_indx(1)
         G(2)  = G_indx(2)
         G(3)  = G_indx(3)
@@ -245,7 +245,7 @@
       ok = ok.and.MA_pop_stack(vtmp(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not. ok) 
-     > call errquit('paw_vloc:error popping stack ',2)
+     > call errquit('paw_vloc:error popping stack ',0,2)
 
       call nwpw_timing_end(5)
 

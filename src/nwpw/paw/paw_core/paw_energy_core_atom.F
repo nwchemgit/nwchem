@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.4 2003-03-06 01:46:39 bylaska Exp $
+* $Id: paw_energy_core_atom.F,v 1.5 2003-10-21 02:05:16 marat Exp $
 *
 
 
@@ -94,7 +94,7 @@
       ok = ma_push_get(mt_dbl,max_ic,"tmp_array_core",l_f1,i_f1)
       if (.not.ok)
      > call errquit(
-     >  'paw_energy_core_ion_atom: out of stack memory',0)
+     >  'paw_energy_core_ion_atom: out of stack memory',0,0)
 
       ecore = 0.D0
       i_w = 0
@@ -121,7 +121,7 @@
       ok = ma_pop_stack(l_f1)
       if (.not.ok)
      > call errquit(
-     >  'paw_energy_core_ion_atom:error popping stack memory',1)
+     >  'paw_energy_core_ion_atom:error popping stack memory',0,1)
       paw_energy_core_ion_atom = ecore*fourpi
  
       end
@@ -165,7 +165,7 @@
       ok = ma_push_get(mt_dbl,max_ic,"tmp_array",l_f1,i_f1)
       if (.not.ok)
      > call errquit(
-     >  'paw_energy_core_self_atom: out of stack memory',0)
+     >  'paw_energy_core_self_atom: out of stack memory',0,0)
 
       ecore = 0.0d0
       i_w = 0
@@ -192,7 +192,7 @@
       ok = ma_pop_stack(l_f1)
       if (.not.ok)
      > call errquit(
-     >  'paw_energy_core_self_atom: error popping stack',1)
+     >  'paw_energy_core_self_atom: error popping stack',0,1)
 
       paw_energy_core_self_atom = 0.5d0*ecore*fourpi
  

@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.6 2003-02-18 01:10:53 bylaska Exp $
+* $Id: psi_marat_write.F,v 1.7 2003-10-21 02:05:15 marat Exp $
 *
 
 *     ***********************************
@@ -53,7 +53,7 @@ c     complex*16 tmp(*)
       value = value.and.
      >        MA_push_get(mt_int,(ne(1)+ne(2)),
      >                    'psi_spin',psi_spin(2),psi_spin(1))
-      if (.not. value) call errquit('psi_marat_write: push stack',0)
+      if (.not. value) call errquit('psi_marat_write: push stack',0,0)
 
       version = control_version()
       nfft(1) = control_ngrid(1)

@@ -170,7 +170,7 @@
       GLN = PAW_LN_GAMMA(A)
  
       IF (X .LE. 0.0D0) THEN
-      IF(X.lt.0.0d0) CALL errquit("x < 0 in PAW_GSER",1)
+      IF(X.lt.0.0d0) CALL errquit("x < 0 in PAW_GSER",0,1)
          GAMSER = 0.0D0
          RETURN 
       ENDIF
@@ -187,7 +187,7 @@
       END DO
  
       CALL errquit
-     >     ("a too large,ITMAX too small in PAW_GSER",1)
+     >     ("a too large,ITMAX too small in PAW_GSER",0,1)
  
     1 CONTINUE
       GAMSER = SUM*DEXP((-X) + A*DLOG(X) - GLN)

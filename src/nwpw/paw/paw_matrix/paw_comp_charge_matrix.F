@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.7 2003-03-06 01:46:40 bylaska Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.8 2003-10-21 02:05:17 marat Exp $
 *
 !**************************************************
 !
@@ -34,7 +34,7 @@
      >              s_comp_charge_matrix)
       if (.not.ok)
      > call errquit(
-     >  "init_paw_comp_charge_matrix: out of heap memory",0)
+     >  "init_paw_comp_charge_matrix: out of heap memory",0,0)
 
   
       !*** determine matrix size ***
@@ -58,7 +58,7 @@
      >              comp_charge_matrix)
       if (.not.ok)
      > call errquit(
-     >  "init_paw_comp_charge_matrix: out of heap memory",1)
+     >  "init_paw_comp_charge_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
     
@@ -96,7 +96,7 @@
       ok = ok.and.my_dealloc(comp_charge_matrix)
       if (.not.ok)
      > call errquit(
-     >  "end_paw_comp_charge_matrix: error freeing heap",0)
+     >  "end_paw_comp_charge_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_comp_charge_matrix
@@ -152,7 +152,7 @@
       !*** temporary array for calculatcomp_charges ***
       ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f,i_f)
       if (.not.ok)
-     > call errquit('find_comp_charge_matrix:out of stack memory',0)
+     > call errquit('find_comp_charge_matrix:out of stack memory',0,0)
 
 
       do i=1,nbasis
@@ -178,7 +178,7 @@
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)
-     > call errquit('find_comp_charge_matrix:error popping stack',0)
+     > call errquit('find_comp_charge_matrix:error popping stack',0,0)
 
       return
       end !subroutine find_comp_charge_matrix

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_hartree.F,v 1.3 2003-03-06 01:46:39 bylaska Exp $
+* $Id: paw_matrix_hartree.F,v 1.4 2003-10-21 02:05:16 marat Exp $
 *
 
 !*************************************************
@@ -64,7 +64,7 @@
       ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array3",l_f3,i_f3)
       ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array4",l_f4,i_f4)
       if (.not.ok)
-     > call errquit('find_paw_hartree_matrix:out of stack memory',1)
+     > call errquit('find_paw_hartree_matrix:out of stack memory',0,1)
   
       do i=1,nbasis
       do j=1,i
@@ -120,7 +120,7 @@
       ok = ok.and.ma_pop_stack(l_f2)
       ok = ok.and.ma_pop_stack(l_f1)
       if (.not.ok)
-     > call errquit('find_paw_hartree_matrix:error popping stack',2)
+     > call errquit('find_paw_hartree_matrix:error popping stack',0,2)
 
 !  write(*,*) "hartree matrix"
 !  write(*,*) matrix
@@ -161,7 +161,7 @@
      >     my_alloc(mt_int,tot_ntype,"s_paw_hartree_matrix",
      >              s_paw_hartree_matrix)
       if (.not.ok)
-     > call errquit("init_paw_paw_hartree_matrix: out of heap memory",0)
+     > call errquit("init_paw_paw_hartree_matrix: out of heap memory",0,0)
   
       !*** determine matrix size ***
       matr_size = 0
@@ -185,7 +185,7 @@
       ok = my_alloc(mt_dbl,matr_size,"paw_hartree_matrix",
      >     paw_hartree_matrix)
       if (.not.ok)
-     > call errquit("init_paw_hartree_matrix: out of heap memory",1)
+     > call errquit("init_paw_hartree_matrix: out of heap memory",0,1)
   
       do it=1,tot_ntype
     
@@ -222,7 +222,7 @@
       ok = ok.and.my_dealloc(s_paw_hartree_matrix)
       ok = ok.and.my_dealloc(paw_hartree_matrix)
       if (.not.ok)
-     > call errquit("end_paw_hartree_matrix: error freeing heap",0)
+     > call errquit("end_paw_hartree_matrix: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_hartree_matrix

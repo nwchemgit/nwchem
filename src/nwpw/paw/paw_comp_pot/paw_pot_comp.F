@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.11 2003-03-05 23:16:31 bylaska Exp $
+c $Id: paw_pot_comp.F,v 1.12 2003-10-21 02:05:16 marat Exp $
 c
 
 !**************************************************
@@ -30,7 +30,7 @@ c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_int,ion_nion(),"i_paw_pot_comp",
      >                                     i_paw_pot_comp)
       if (.not.ok) 
-     > call errquit('init_paw_pot_comp:out of heap memory',0)
+     > call errquit('init_paw_pot_comp:out of heap memory',0,0)
       paw_pot_comp_size = 0
       do in=1,ion_nion()
          int_mb(i_paw_pot_comp(1) + in - 1) = paw_pot_comp_size
@@ -43,7 +43,7 @@ c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_dcpl,paw_pot_comp_size,
      >               "paw_pot_comp",paw_pot_comp)
       if (.not.ok)
-     > call errquit("init_paw_pot_comp:out of heap memoryh",1)
+     > call errquit("init_paw_pot_comp:out of heap memoryh",0,1)
   
       !write(*,*) "initialized paw_comp_pot"
       end !subroutine init_paw_pot_comp
@@ -70,7 +70,7 @@ c     !*** calculate the size and indexing ***
       ok =        my_dealloc(i_paw_pot_comp)
       ok = ok.and.my_dealloc(paw_pot_comp)
       if (.not.ok)
-     > call errquit("end_paw_pot_comp: error freeing heap",0)
+     > call errquit("end_paw_pot_comp: error freeing heap",0,0)
 
       return
       end !subroutine end_paw_pot_comp

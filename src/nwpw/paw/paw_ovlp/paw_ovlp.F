@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.45 2003-03-13 23:41:22 marat Exp $
+* $Id: paw_ovlp.F,v 1.46 2003-10-21 02:05:17 marat Exp $
 *
 
 !**************************************************
@@ -42,7 +42,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 c     !*** calculate the size and indexing for weight coefficients  ***
       value = my_alloc(mt_int,ion_nion(),"i_paw_ovlp_w",i_paw_ovlp_w)
-      if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
+      if (.not.value) call errquit('paw_ovlp_init: alloc heap',0,1)
 
       paw_ovlp_w_size = 0
       do in=1,nion
@@ -80,7 +80,7 @@ c     !-- total number of electron states
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
      >                           "paw_ovlp_w_d",paw_ovlp_w_d)
 
-      if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
+      if (.not.value) call errquit('paw_ovlp_init: alloc heap',0,1)
 
 
 c    !    atom=1                        atom=2
@@ -147,7 +147,7 @@ c           !-- set sign coeff as (-1)**m --
       value = value.and.MA_free_heap(paw_ovlp_w_d(2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
 
-      if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
+      if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0,0)
       return
       end
 
@@ -184,7 +184,7 @@ c           !-- set sign coeff as (-1)**m --
       call Pack_npack(1,npack1)
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
-      if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0,0)
 
 
 
@@ -233,7 +233,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
 
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
+      if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',0,1)
       
 
       return
@@ -370,7 +370,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       !*** allocate space from stack ****
       ok = MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
       if (.not.ok)
-     > call errquit('paw_ovlp_calc_coeffn: out of stack memory',0)
+     > call errquit('paw_ovlp_calc_coeffn: out of stack memory',0,0)
 
 
       call paw_ovlp_calc_scramble_coef(ne,psi,dcpl_mb(ct(1)))
@@ -420,7 +420,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       if (.not.value) 
-     > call errquit('paw_ovlp_coeff_set: out of stack memory',0)
+     > call errquit('paw_ovlp_coeff_set: out of stack memory',0,0)
 
 
 c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
@@ -454,7 +454,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) 
-     > call errquit('paw_ovlp_coeff_set: error freeing stack memory',1)
+     > call errquit('paw_ovlp_coeff_set: error freeing stack memory',0,1)
 
       return
       end
@@ -549,7 +549,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       ok = ok.and.
      >     MA_push_get(mt_dcpl,ne*total_nbasis,'pv',pv(2),pv(1))
       if (.not.ok)
-     > call errquit('paw_ovlp_S: out of stack memory',0)
+     > call errquit('paw_ovlp_S: out of stack memory',0,0)
 
 
       !**** calculate pv ****
@@ -592,7 +592,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       ok = ok.and.MA_pop_stack(tmp(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok) 
-     > call errquit('paw_ovlp_S: error freeing stack memory',1)
+     > call errquit('paw_ovlp_S: error freeing stack memory',0,1)
 
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_vloc.F,v 1.4 2003-03-06 01:46:40 bylaska Exp $
+* $Id: paw_matrix_vloc.F,v 1.5 2003-10-21 02:05:18 marat Exp $
 *
 
 !**************************************************
@@ -28,7 +28,7 @@
       ok = my_alloc(mt_int,tot_ntype,"i_paw_vloc_matrix",
      >                                  i_paw_vloc_matrix)
       if (.not.ok) 
-     > call errquit("init_paw_vloc_matrix: error allocating heap",0)
+     > call errquit("init_paw_vloc_matrix: error allocating heap",0,0)
   
       !*** determine matrix size ***
       matr_size = 0
@@ -46,7 +46,7 @@
 
       ok = my_alloc(mt_dbl,matr_size,"paw_vloc_matrix",paw_vloc_matrix)
       if (.not.ok) 
-     > call errquit("init_paw_vloc_matrix: error allocating heap",1)
+     > call errquit("init_paw_vloc_matrix: error allocating heap",0,1)
   
       do it=1,tot_ntype
     
@@ -82,7 +82,7 @@
       ok =        my_dealloc(i_paw_vloc_matrix)
       ok = ok.and.my_dealloc(paw_vloc_matrix)
       if (.not.ok) 
-     > call errquit("end_paw_vloc_matrix: error freeing heap",0)
+     > call errquit("end_paw_vloc_matrix: error freeing heap",0,0)
 
 
       return
@@ -134,7 +134,7 @@
       !*** temporary array for calculations ***
       ok = ma_push_get(mt_dbl,ic, "tmp_array",l_f,i_f)
       if (.not.ok)
-     > call errquit('find_paw_vloc_matrix: out of stack memory',0)
+     > call errquit('find_paw_vloc_matrix: out of stack memory',0,0)
 
 
       do i=1,nbasis
@@ -163,7 +163,7 @@
 
       ok = ma_pop_stack(l_f)
       if (.not.ok)
-     > call errquit('find_paw_vloc_matrix:error popping stack',0)
+     > call errquit('find_paw_vloc_matrix:error popping stack',0,0)
 
       return
       end !subroutine find_paw_vloc_matrix
