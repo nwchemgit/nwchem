@@ -148,7 +148,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.30 1996-10-23 20:37:56 rg240 Exp $
+c  $Id: moints_semi.F,v 1.31 1996-10-24 00:26:50 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -185,7 +185,6 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "bas.fh"
-#include "util.fh"
 c
        integer basis                          ! [input]  Basis handle
        double precision tol2e                 ! [input]  Integral tolerance
