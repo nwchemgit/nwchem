@@ -24,6 +24,7 @@ OBJ =     dosymops.o \
           sym_print_all.o \
           sym_symmetrize.o \
           sym_geom_project.o \
+          sym_test.o \
           wrcell.o
 
 
