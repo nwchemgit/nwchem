@@ -1,6 +1,32 @@
+      logical function nw_inp_from_character(rtdb, string)
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+      integer rtdb
+      character*(*) string
+c
+      logical nw_inp_from_file
+      external nw_inp_from_file
+      character*8 filename
+      data filename/'temp.nw'/
+      
+c
+      if (ga_nodeid() .eq. 0) then
+         open(1,file=filename,form='formatted',status='unknown',err=100)
+         write(1,*,err=101) string
+         close(1,err=102)
+      endif
+      nw_inp_from_character = nw_inp_from_file(rtdb,filename)
+      return
+c
+ 100  call errquit('nw_inp_from_char: error opening file',0)
+ 101  call errquit('nw_inp_from_char: error writing file',0)
+ 102  call errquit('nw_inp_from_char: error closing file',0)
+c
+      end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.6 2000-04-10 12:05:34 hvd Exp $
+* $Id: nw_inp_from_file.F,v 1.7 2000-11-08 22:07:09 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
