@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.70 2002-04-17 23:42:26 d3j191 Exp $
+c $Id: prp_main.F,v 1.71 2002-04-30 23:52:16 d3j191 Exp $
 c
       implicit none
 c
@@ -84,8 +84,8 @@ c
       el=el+esw(j,5,1)
       eq=eq+esw(j,6,1)
       do 13 k=1,msf
-      el=el+ess(k,j,5,1)
-      eq=eq+ess(k,j,6,1)
+      el=el+ess(k,j,5,1)+ess(k,j,7,1)
+      eq=eq+ess(k,j,6,1)+ess(k,j,8,1)
       epmec=epmec+ess(k,j,9,1)
    13 continue
    12 continue
@@ -222,7 +222,7 @@ c
 c
       if(nsf.gt.0) then
       do 33 i=1,nsf
-      it=isprop+(i-1)*27
+      it=isprop+(i-1)*29
       p(it+2)=ess(i,i,6,1)
       p(it+3)=ess(i,i,5,1)
       p(it+5)=esw(i,6,1)
@@ -231,17 +231,22 @@ c
       p(it+8)=ess(i,i,2,1)
       p(it+9)=ess(i,i,3,1)
       p(it+10)=ess(i,i,4,1)
+      p(it+13)=ess(i,i,7,1)
+      p(it+14)=ess(i,i,8,1)
+      p(it+15)=ess(i,i,5,1)
+      p(it+16)=ess(i,i,6,1)
       if(me.eq.0) then
-      p(it+16)=esk(i)
+      p(it+18)=esk(i)
       endif
-      p(it+17)=ess(i,i,6,1)+ess(i,i,5,1)+ess(i,i,1,1)+ess(i,i,2,1)+
+      p(it+19)=ess(i,i,5,1)+ess(i,i,6,1)+ess(i,i,7,1)+ess(i,i,8,1)+
+     + ess(i,i,1,1)+ess(i,i,2,1)+
      + ess(i,i,3,1)+ess(i,i,4,1)+half*(esw(i,6,1)+esw(i,5,1))
       do 34 j=i+1,nsf
-      p(it+17)=p(it+17)+half*(ess(i,j,6,1)+ess(j,i,6,1)+
+      p(it+19)=p(it+17)+half*(ess(i,j,6,1)+ess(j,i,6,1)+
      + ess(i,j,5,1)+ess(j,i,5,1))
    34 continue
    33 continue
-      it=it+27
+      it=it+29
       if(nsf.gt.1) then
       do 35 i=1,nsf-1
       do 36 j=i+1,nsf

@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.48 2002-04-17 23:42:26 d3j191 Exp $
+c $Id: prp_init.F,v 1.49 2002-04-30 23:52:16 d3j191 Exp $
 c
       implicit none
 c
@@ -294,36 +294,42 @@ c
       lp(it+10)=.true.
       pronam(it+11)='Energy solute     external field            kJ/mol'
       pronam(it+12)='Energy solute     reaction field            kJ/mol'
-      pronam(it+13)='Energy solute     electrostatic             kJ/mol'
-      pronam(it+14)='Energy solute     van der Waals             kJ/mol'
-      pronam(it+15)='Energy solute     kinetic translations      kJ/mol'
-      pronam(it+16)='Energy solute     kinetic                   kJ/mol'
+      pronam(it+13)='Energy solute     electrostatic 3rd         kJ/mol'
+      lp(it+13)=.true.
+      pronam(it+14)='Energy solute     van der Waals 3rd         kJ/mol'
+      lp(it+14)=.true.
+      pronam(it+15)='Energy solute     electrostatic nb          kJ/mol'
+      lp(it+15)=.true.
+      pronam(it+16)='Energy solute     van der Waals nb          kJ/mol'
       lp(it+16)=.true.
-      pronam(it+17)='Energy solute     potential                 kJ/mol'
-      lp(it+17)=.true.
-      pronam(it+18)='Energy solute     total                     kJ/mol'
-      pronam(it+19)='Virial solute                               kJ/mol'
-      pronam(it+20)='Mean square displacement solute              nm**2'
-      pronam(it+21)='Diffusion coefficient solute                m**2/s'
-      pronam(it+22)='Dipole moment solute     permanent         e30 C m'
-      pronam(it+23)='Dipole moment solute     induced           e30 C m'
-      pronam(it+24)='Dipole moment solute                       e30 C m'
-      pronam(it+25)='Moment of inertia solute                          '
-      pronam(it+26)='Reaction field energy solute    -solvent    kJ/mol'
-      pronam(it+27)='Reaction field energy solute                kJ/mol'
-      do 4 j=1,19
+      pronam(it+17)='Energy solute     kinetic translations      kJ/mol'
+      pronam(it+18)='Energy solute     kinetic                   kJ/mol'
+      lp(it+18)=.true.
+      pronam(it+19)='Energy solute     potential                 kJ/mol'
+      lp(it+19)=.true.
+      pronam(it+20)='Energy solute     total                     kJ/mol'
+      pronam(it+21)='Virial solute                               kJ/mol'
+      pronam(it+22)='Mean square displacement solute              nm**2'
+      pronam(it+23)='Diffusion coefficient solute                m**2/s'
+      pronam(it+24)='Dipole moment solute     permanent         e30 C m'
+      pronam(it+25)='Dipole moment solute     induced           e30 C m'
+      pronam(it+26)='Dipole moment solute                       e30 C m'
+      pronam(it+27)='Moment of inertia solute                          '
+      pronam(it+28)='Reaction field energy solute    -solvent    kJ/mol'
+      pronam(it+29)='Reaction field energy solute                kJ/mol'
+      do 4 j=1,21
       write(pronam(it+j)(15:17),'(i3)') i
     4 continue
-      write(pronam(it+20)(33:35),'(i3)') i
-      write(pronam(it+21)(30:32),'(i3)') i
-      write(pronam(it+22)(22:24),'(i3)') i
-      write(pronam(it+23)(22:24),'(i3)') i
+      write(pronam(it+22)(33:35),'(i3)') i
+      write(pronam(it+23)(30:32),'(i3)') i
       write(pronam(it+24)(22:24),'(i3)') i
-      write(pronam(it+25)(26:28),'(i3)') i
-      write(pronam(it+26)(30:32),'(i3)') i
-      write(pronam(it+27)(30:32),'(i3)') i
+      write(pronam(it+25)(22:24),'(i3)') i
+      write(pronam(it+26)(22:24),'(i3)') i
+      write(pronam(it+27)(26:28),'(i3)') i
+      write(pronam(it+28)(30:32),'(i3)') i
+      write(pronam(it+29)(30:32),'(i3)') i
     3 continue
-      it=it+27
+      it=it+29
 c
       if(nsf.gt.1) then
       if(it+nsf*(nsf-1)*2.gt.maxpro)

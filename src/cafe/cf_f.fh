@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
       implicit none
 c
@@ -758,7 +758,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1875,7 +1875,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
       implicit none
 c
@@ -2962,7 +2962,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3241,7 +3241,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3507,7 +3507,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3840,7 +3840,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4157,7 +4157,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4326,7 +4326,7 @@ c
 c     calculate the Lennard-Jones energies
 c
       eterml=factu*dfsu
-      ess(isf,jsf,5,1)=ess(isf,jsf,5,1)+eterml
+      ess(isf,jsf,7,1)=ess(isf,jsf,7,1)+eterml
       if(ipme.eq.0.or.isolvo.ne.0) then
 c
 c     calculate the electrostatic energies
@@ -4334,7 +4334,7 @@ c
 c      q=q14fac*qs(isa,iset)*qs(jsa,iset)
       q=q14fac*chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)
       etermq=factu*q*r1i
-      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+etermq
+      ess(isf,jsf,8,1)=ess(isf,jsf,8,1)+etermq
       if(npener.gt.0) then
       esa(igan(isa))=esa(igan(isa))+half*(eterml+etermq)
       esa(igan(jsa))=esa(igan(jsa))+half*(eterml+etermq)
@@ -4353,8 +4353,8 @@ c
       qij=(one-q14fac)*q
       q=q14fac*q
       epmecs=epmecs-(one-ferfc)*qij*r1i*factu
-      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*(one-ferfc)*qij*r1i*factu
-      ess(isf,jsf,6,1)=ess(jsf,jsf,6,1)-half*(one-ferfc)*qij*r1i*factu
+      ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*(one-ferfc)*qij*r1i*factu
+      ess(isf,jsf,8,1)=ess(jsf,jsf,8,1)-half*(one-ferfc)*qij*r1i*factu
       if(npener.gt.0) then
       esa(igan(isa))=esa(igan(isa))+half*(one-ferfc)*qij*r1i*factu
       esa(igan(jsa))=esa(igan(jsa))+half*(one-ferfc)*qij*r1i*factu
@@ -4369,7 +4369,7 @@ c
 c     reaction field contributions
 c
       if(ireact.ne.0) then
-      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+factu*q*rffss/r2i
+      ess(isf,jsf,8,1)=ess(isf,jsf,8,1)+factu*q*rffss/r2i
       if(npener.gt.0) then
       esa(igan(isa))=esa(igan(isa))+half*factu*q*rffss/r2i
       esa(igan(jsa))=esa(igan(jsa))+half*factu*q*rffss/r2i
@@ -4503,7 +4503,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.42 2002-02-21 03:42:05 d3j191 Exp $
+c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
 c
       implicit none
 c
