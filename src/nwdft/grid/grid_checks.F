@@ -10,16 +10,17 @@
 c
       double precision pi
       integer nptstot,mxangpp,mxnangpp
-      parameter (mxnangpp=10,mxangpp=1202)
-      parameter (nptstot=mxrad*mxangpp)
-      integer itype,L,jtype
+      parameter (mxnangpp=11,mxangpp=5810)
+      parameter (nptstot=mxangpp)
+c      parameter (nptstot=mxrad*mxangpp)
+      integer itype,jtype
       double precision s_err,s_err0
       double precision rij
       double precision range_a,range_b,delta_a,delta_b,
      .     range_a0,range_b0, value,value_ex
       integer maxrad,nrada,nradb,nanga,nangb,nanga0,nangb0,
-     ,     deltara,deltarb,dum,niter,mxiter
-      parameter(maxrad=191d0,mxiter=3)
+     ,     deltara,deltarb,dum,niter,mxiter,nrada0,nradb0
+      parameter(maxrad=131d0,mxiter=2)
       logical grid_nangl,grid_nradl,grid_incang,grid_incrad
       external grid_nangl,grid_nradl,grid_incang,grid_incrad
       logical lsafe,limprove,lnotacc,lsafea,lsafeb
@@ -60,11 +61,15 @@ c     radial
 c
       lsafe=grid_nradl(itype,mxrad,nrada)
       lsafe=grid_nradl(jtype,mxrad,nradb)
+      nrada0=nrada
+      nradb0=nradb
 c
 c     ang
 c
       lsafe=grid_nangl(itype,mxangpp,nanga)
       lsafe=grid_nangl(jtype,mxangpp,nangb)
+      nanga0=nanga
+      nangb0=nangb
 c
 c     range
 c
@@ -72,8 +77,17 @@ c
       range_b=dble(rad_cutoff(1,jtype))
       range_a0=range_a
       range_b0=range_b
-      delta_a=0.25*range_a
-      delta_b=0.25*range_b
+      if(iat.eq.ibt) then
+         deltara=1
+         deltarb=1
+         delta_a=1d0
+         delta_b=1d0
+      else
+         deltara=nrada/6
+         deltarb=nradb/6
+         delta_a=range_a/6d0
+         delta_b=range_b/6d0
+      endif
       reqacc=acc_in
       write(0,*) ' required accuracy ',reqacc
       write(0,*) ' alpha ',alphaa,alphab
@@ -97,58 +111,54 @@ c
       s_err0=1d99
       s_err=0d0
  12   niter=niter+1
+      reqacc=acc_in*mxiter/niter
+      range_a=range_a0
+      range_b=range_b0
  1688 continue
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
-     ,     mxrad,mxrad,mxangpp,mxangpp,range_a,range_b,
-cedo ,     nrada,nradb,nanga,nangb,range_a,range_b,
+     ,     nrada,nradb,mxangpp,mxangpp,range_a,range_b,
      ,     iat.eq.ibt,
      ,     value,value_ex,
      ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
      ,     int_mb(k_iscr),dbl_mb(k_rq))
       s_err = value - value_ex
       lnotacc=abs(s_err).gt.reqacc
+c      lnotacc=abs(s_err).gt.reqacc*0.05d0
       lsafe=range_a.gt.maxrad.and.range_b.gt.maxrad
       limprove=abs(s_err0-s_err).gt.reqacc*0.1d0
       s_err0=s_err
+c      write(0,*) ' rr err ',range_a,range_b,s_err
       if(lnotacc.and.(.not.lsafe).
      .     and.limprove) then
-         if(iat.eq.ibt) then
-            range_b0=range_b
-            range_b=range_b+delta_b
-           range_a0=range_a
-            range_a=range_a+delta_a
-         elseif(range_a.gt.range_b) then
-            range_b0=range_b
-            range_b=range_b+delta_b
-         else
-            range_a0=range_a
-            range_a=range_a+delta_a
-         endif
+         range_b=range_b+delta_b
+         range_a=range_a+delta_a
          goto 1688
       endif
-cedo      range_a=range_a0
-cedo      range_b=range_b0
+      range_a=min(maxrad,range_a)
+      range_b=min(maxrad,range_b)
       rad_cutoff(1,itype)=range_a
       if(iat.ne.ibt) rad_cutoff(1,jtype)=range_b
       write(0,*) ' f-ranges ',range_a,range_b
       if(.not.lnotacc) then
          write(0,*) '@radial extension OK'
       else
-         write(0,*) ' cant go beyond acc ',s_err
-         reqacc=abs(s_err)
+         write(0,*) ' cant go beyond acc ',s_err, ' ?? '
+         reqacc=(abs(s_err)+abs(reqacc))*0.5d0
+         write(0,*) ' new acc ',reqacc
       endif
 c
 c     test nrad
 c
-      deltara=nrada/4
-      deltarb=nradb/4
+c .99997 for UO2      deltara=nrada/4
+c      deltarb=nradb/4
       write(0,*) ' 0-nrad ',nrada,nradb
       s_err0=1d99
       s_err=0d0
+      nrada=nrada0
+      nradb=nradb0
  2688 continue
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
-     ,     nrada,nradb,mxangpp,mxangpp,range_a,range_b,
-!     ,     nrada,nradb,nanga,nangb,range_a,range_b,
+     ,     nrada,nradb,nanga,nangb,range_a,range_b,
      ,     iat.eq.ibt,
      ,     value,value_ex,
      ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
@@ -157,10 +167,9 @@ c
       lsafe=nrada.gt.mxrad.and.nradb.gt.mxrad
       lnotacc=abs(s_err).gt.reqacc
       s_err0=s_err
-c      limprove=(s_err0-s_err).gt.reqacc*0.1d0
-      if(lnotacc.and.(.not.lsafe)) then
-         nangb0=nangb
-         nanga0=nanga
+      limprove=(s_err0-s_err).gt.reqacc*0.025d0
+      write(0,*) ' nr acc ',nrada,nradb,abs(s_err)
+      if(lnotacc.and.(.not.lsafe).and.limprove) then
          lsafea=grid_incrad(mxrad,nrada,deltara)
          lsafeb=grid_incrad(mxrad,nradb,deltarb)
          if(lsafea.and.lsafeb) goto 2689
@@ -170,10 +179,13 @@ c      limprove=(s_err0-s_err).gt.reqacc*0.1d0
       nrad(jtype)=nradb
       write(0,*) ' f-nrada nradb',nrada,nradb
       if(.not.lnotacc) write(0,*) '@ nrad  OK '
+      if(iat.eq.ibt) goto 2000
 c
 c     test nang
 c
       write(0,*) ' 0-nang ',nanga,nangb
+      nanga=nanga0
+      nangb=nangb0
       s_err0=1d99
       s_err=0d0
  3688 continue
@@ -188,31 +200,30 @@ c
       lnotacc=abs(s_err).gt.reqacc
       s_err0=s_err
       if(lnotacc.and.(.not.lsafe)) then
-         nangb0=nangb
-         nanga0=nanga
-         lsafea=grid_incang(mxangpp,nangb)
-         lsafeb=grid_incang(mxangpp,nanga)
+         lsafea=grid_incang(mxnangpp,nangb)
+         lsafeb=grid_incang(mxnangpp,nanga)
          if(lsafea.and.lsafeb) goto 3689
          goto 3688
       endif
  3689 nang(itype)=nanga
       nang(jtype)=nangb
       write(0,*) ' f-nang ',nanga,nangb
-      if(.not.lnotacc) then
-         write(0,*) '@ nang OK '
-         goto 2001
-      else
+      if(.not.lnotacc)  write(0,*) '@ nang OK '
+ 2000 reqacc=acc_in
+      lnotacc=abs(s_err).gt.reqacc
+      if(lnotacc.and.(niter.le.mxiter)) then
+         write(0,*) '#iter',niter,' acc= ',s_err
          s_err0=1d99
          s_err=0d0
-          if(niter.le.mxiter) goto 12
+         goto 12
       endif
  2001 write(0,*) ' **********'
       write(0,*) ' #iter:',niter,
      ,     ' reached accuracy ? ',abs(s_err).lt.acc_in
-      write(0,1) alphaa,alphab,l,
+      write(0,1) alphaa,alphab,lla,llb,
      ,     '  err_rel',s_err/value_ex, ' err_abs',s_err
       write(0,*) ' **********'
- 1    format(' exps',2d10.2,' l ',i2,A,d10.2,A,d12.4)
+ 1    format(' exps',2d10.2,' l ',2i4,A,d10.2,A,d12.4)
       if (.not. ma_chop_stack(l_pts)) call errquit
      $     ('grchks: ma pop?', 0)                 
       return
@@ -313,8 +324,9 @@ c     &             wghts, n0, 2d0)
       xyz(2,2)=0d0
       xyz(3,2)=0d0
       acc_leb=xc_leb_nrd2acc(nangtst)  
-      nq=0
+      grid_s2int0=0d0
       do j=1,n0
+         nq=0
          rrad=pts(j)
          do k = 1, ntheta(acc_leb)
             tx=za_leb(1,k,acc_leb)
@@ -326,10 +338,11 @@ c     &             wghts, n0, 2d0)
             xyzw(3,nq) =rrad*tz
             xyzw(4,nq) = wa_leb(k,acc_leb)*wghts(j)
          enddo
+         call grid_ssw(xyzw, xyz, Rdum, rq, p, 1, 
+     &        2,nq,iscr, 'erf1')
+      grid_s2int0=grid_s2int0 +
+     +        grid_s2int(nq,xyzw,alphaa,lla,alphab,llb,rij)
       enddo
-      call grid_ssw(xyzw, xyz, Rdum, rq, p, 1, 
-     &     2,nq,iscr, 'erf1')
-      grid_s2int0=grid_s2int(nq,xyzw,alphaa,lla,alphab,llb,rij)
       return
       end
                 
@@ -470,17 +483,17 @@ c     return false if we exceeded mxang
       grid_nangl=.true.
       nang_out=nang(itype)
       if(nang_out.gt.mxangpp) then
-         write(0,*) ' testing angular grid up to ',mxangpp,' pts'
+cedo         write(0,*) ' testing angular grid up to ',mxangpp,' pts'
          grid_nangl=.false.
          nang_out=mxangpp
       endif
       return
       end
-      logical function grid_incang(mxangpp,nang_out)
+      logical function grid_incang(mxnangpp,nang_out)
       implicit none
 #include "cdft.fh"     
       integer nang_out,nang_in
-      integer mxangpp,acc
+      integer mxnangpp,acc
       integer xc_leb_nrd2acc,xc_leb_acc2nrd
       external  xc_leb_nrd2acc,xc_leb_acc2nrd
 c     return false if we exceeded mxang
@@ -488,12 +501,13 @@ c     return false if we exceeded mxang
       nang_in=nang_out
       acc=xc_leb_nrd2acc(nang_out)
       acc=acc+1
-      nang_out=xc_leb_acc2nrd(acc)
-      if(nang_out.gt.mxangpp) then
-         write(0,*) ' testing angular grid up to level ',mxangpp
+      if(acc.gt.mxnangpp) then
+cedo         write(0,*) ' testing angular grid up to level ',mxangpp
          grid_incang=.true.
          nang_out=nang_in
+         return
       endif
+      nang_out=xc_leb_acc2nrd(acc)
       return
       end
       logical function grid_incrad(mxrad,nrad_out,deltar)
@@ -505,7 +519,7 @@ c     return false if we exceeded mxrad
       nrad_in=nrad_out
       nrad_out=nrad_out+deltar
       if(nrad_out.gt.mxrad) then
-         write(0,*) ' testing radial grid up to ',mxrad, ' pts'
+cedo         write(0,*) ' testing radial grid up to ',mxrad, ' pts'
          grid_incrad=.true.
          nrad_out=mxrad
       endif
@@ -520,7 +534,7 @@ c     return false if we exceeded mxang
       grid_nradl=.true.
       nrad_out=nrad(itype)
       if(nrad_out.gt.mxradpp) then
-         write(0,*) ' testing radial grid up to ',mxradpp
+cedo         write(0,*) ' testing radial grid up to ',mxradpp
          grid_nradl=.false.
          nrad_out=mxradpp
       endif
