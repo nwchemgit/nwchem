@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
+C$Id: uhf.F,v 1.4 1995-04-09 23:05:34 og845 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -137,11 +137,11 @@ c
      $     ('cuhf_tidy: failed to destroy fock matrix',0)
       if (.not. ga_destroy(cuhf_g_fbeta)) call errquit
      $     ('cuhf_tidy: failed to destroy fock matrix',0)
-      cuhf_initialized = .false.
+      cuhf_init_flag = .false.
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
+C     $Id: uhf.F,v 1.4 1995-04-09 23:05:34 og845 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -403,7 +403,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
+C$Id: uhf.F,v 1.4 1995-04-09 23:05:34 og845 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -489,7 +489,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
+c     $Id: uhf.F,v 1.4 1995-04-09 23:05:34 og845 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -516,7 +516,7 @@ c
 c     Check
 c     
       odebug = util_print('uhf_debug', print_debug)
-      if (cuhf_init_flag.ne.1)
+      if (.not.cuhf_init_flag)
      $     call errquit('uhf_energy: UHF internal block invalid',0)
       call ga_inquire(g_grad, gtype, grow, gcol)
       if ((grow.ne.cuhf_vlen).or.(gcol.ne.1))
@@ -773,7 +773,7 @@ c
       integer nvir, nocc(2), iset
       integer i, j, ioff, ibase
       integer l_diag, k_diag, l_x, k_x
-      integer l_x, k_x, g_f(2)
+      integer g_f(2)
       double precision diag, denominator, shift
       diag(i) = dbl_mb(k_diag + i - 1)
 c     
@@ -848,7 +848,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.3 1995-04-06 20:55:16 d3g681 Exp $
+C$Id: uhf.F,v 1.4 1995-04-09 23:05:34 og845 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
