@@ -1,5 +1,5 @@
 *
-* $Id: dstebz3.F,v 1.6 2000-03-31 21:37:04 d3g270 Exp $
+* $Id: dstebz3.F,v 1.7 2000-03-31 22:58:44 d3g270 Exp $
 *
       SUBROUTINE DSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E,
@@ -181,11 +181,7 @@
       PARAMETER          ( ZERO = 0.0D0, ONE = 1.0D0, TWO = 2.0D0,
      $                   HALF = 1.0D0 / TWO )
       DOUBLE PRECISION   FUDGE, RELFAC
-#ifdef LINUX
-      PARAMETER          ( FUDGE = 5.0D0, RELFAC = 2.0D0 )
-#else
       PARAMETER          ( FUDGE = 2.0D0, RELFAC = 2.0D0 )
-#endif
 *     ..
 *     .. Local Scalars ..
       LOGICAL            NCNVRG, TOOFEW
