@@ -26,9 +26,6 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
 c
-c      if(me.eq.0) write(*,1000)
-c 1000 format('CAFE Classical Atomic Forces and Energies')
-c
 c     dimensions initially set to zero indicating non-allocated
 c
       itscal=iitmps
@@ -338,8 +335,8 @@ c
       integer i
 c
       do 1 i=1,3
-      chg(ia,1,i)=qfac*chgi(i)
-      chg(ia,2,i)=chgi(i+3)
+      chg(ia,1,i)=qfac*chgi(2*i-1)
+      chg(ia,2,i)=chgi(2*i)
     1 continue
 c
       do 2 i=1,2
@@ -1197,5 +1194,97 @@ c
       real*8 bnds(msb,npb,6),angs(msh,nph,6)
       real*8 dihs(msd,npd,6),oops(mso,npo,6)
 c
+      return
+      end
+      subroutine cf_print(lfnout)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnout
+c
+      if(me.eq.0) then
+      write(lfnout,1000)
+ 1000 format(/,' TOPOLOGY')
+c
+      call cf_print_atypes(lfnout,byte_mb(i_nam),int_mb(i_num),
+     + dbl_mb(i_mas),dbl_mb(i_vdw))
+      call cf_print_ctypes(lfnout,dbl_mb(i_chg))
+c      call cf_print_solvent(lfnout)
+c      call cf_print_solute(lfnout)
+      endif
+c
+      return
+      end
+      subroutine cf_print_atypes(lfnout,nam,num,wgt,vdw)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout
+      character*6 nam(mat,3)
+      integer num(mat,3)
+      real*8 wgt(mat,6),vdw(mat,mat,map,6)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' ATOM TYPES',//,t8,'Type',t27,'Atomic number',
+     + t44,'Mass',/)
+c
+      do 1 i=1,mat
+      write(lfnout,1001) i,(nam(i,j)(1:5),j=1,3),(num(i,j),j=1,3),
+     + (wgt(i,j),j=1,3)
+ 1001 format(i5,1x,3(1x,a5),3i5,3f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_print_ctypes(lfnout,chg)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout
+      real*8 chg(mqt,mqp,6)
+c
+      integer i,j
+c
+      write(lfnout,1000)
+ 1000 format(/,' CHARGE TYPES',//,t10,'Charge',t49,'Polarization',/)
+c
+      do 1 i=1,mqt
+      write(lfnout,1001) i,(chg(i,1,j)/qfac,j=1,3),(chg(i,2,j),j=1,3)
+ 1001 format(i5,3f12.6,3x,3f12.6)
+    1 continue
+c
+      return
+      end
+      subroutine cf_print_solvent(lfnout)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout
+c
+      write(lfnout,1000)
+ 1000 format(/,' SOLVENT',//)
+      return
+      end
+      subroutine cf_print_solute(lfnout)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer lfnout
+c
+      write(lfnout,1000)
+ 1000 format(/,' SOLUTE',//)
       return
       end

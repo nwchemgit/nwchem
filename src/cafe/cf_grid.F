@@ -32,11 +32,6 @@ c
     2 continue
       ealpha=a
 c
-      if(me.eq.0) then
-      write(*,3) ealpha,pmetol
-    3 format('CAFE alpha ',f12.6,' for tolerance of',e12.5)
-      endif
-c
       return
       end
       subroutine cf_chgrid(lset,xw,nwmloc,xs,isq,nsaloc,grid,mgz,lgrid,

@@ -1617,3 +1617,18 @@ c
       call errquit('Failed to open restart file',me)
       return
       end
+      subroutine sp_print(lfnout)
+c
+      implicit none
+c
+#include "sp_common.fh"
+c
+      integer lfnout
+c
+      if(me.eq.0) then
+      write(lfnout,1000)
+ 1000 format(/,' SPACIAL DECOMPOSITION')
+      endif
+c
+      return
+      end
