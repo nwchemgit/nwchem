@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.42 1997-06-24 21:57:52 pg481 Exp $
+c $Id: texas_face.F,v 1.43 1997-06-26 18:13:59 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -377,10 +377,10 @@ c
 c     call print_inx_nuc_bas(nbas,dbl_mb(inuc),dbl_mb(ibas))
 c
 c----------------------------------------------------------------------
-c Add one uncontracted s-shell with zero exponent.
-c Needed for 2- and 3-center integrals :
+c Add one uncontracted s-shell with zero exponent for 2- and 3-center 
+c integrals . Do so if there is more than ONE basis set specified :
 c
-      call add_s_zero( dbl_mb(ibas))
+      if(nbas.gt.1) call add_s_zero( dbl_mb(ibas))
 c
 c----------------------------------------------------------------------
 c Re-arrange a basis set according to the Texas convention
@@ -1636,51 +1636,46 @@ c-------------------------------------------------------
       if(iprint.eq.0) RETURN
 c-------------------------------------------------------
       write(8,*)' -------------------------------------------'
-      write(8,*)'    The following basis sets can be used : '
-      write(8,*)' '
+      write(8,*)' The following basis sets can be used : '
+      write(8,*)
 c-------------------------------------------------------
+      write(8,*)' ...........................................'
+      write(8,*)' Basis  number of   primitive    contracted'
+      write(8,*)'  Set    centers     shells     func. shells'
+      write(8,*)' ...........................................'
+
       do ibasis=1,nbas
         if(ibasis.eq.1) then
-           write(8,*)
-           write(8,*)' PNL Basis Set no = 1 :'
-           write(8,*)
-           write(8,*)' nat=',nat_bas_1,' nsh=',nps_bas_1,
-     *               ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
+           write(8,80) ibasis,nat_bas_1,
+     *                        nps_bas_1,
+     *                        ncf_bas_1,
+     *                        ncs_bas_1
         endif
         if(ibasis.eq.2) then
-           write(8,*)
-           write(8,*)' PNL Basis Set no = 2 :'
-           write(8,*)
-           write(8,*)' nat=',nat_bas_2 - nat_bas_1,
-     *               ' nsh=',nps_bas_2 - nps_bas_1,
-     *               ' ncf=',ncf_bas_2 - ncf_bas_1,
-     *               ' ncs=',ncs_bas_2 - ncs_bas_1
+           write(8,80) ibasis,nat_bas_2 - nat_bas_1,
+     *                        nps_bas_2 - nps_bas_1,
+     *                        ncf_bas_2 - ncf_bas_1,
+     *                        ncs_bas_2 - ncs_bas_1
         endif
         if(ibasis.eq.3) then
-           write(8,*)
-           write(8,*)' PNL Basis Set no = 3 :'
-           write(8,*)
-           write(8,*)' nat=',nat_bas_3 - nat_bas_2,
-     *               ' nsh=',nps_bas_3 - nps_bas_2,
-     *               ' ncf=',ncf_bas_3 - ncf_bas_2,
-     *               ' ncs=',ncs_bas_3 - ncs_bas_2
+           write(8,80) ibasis,nat_bas_3 - nat_bas_2,
+     *                        nps_bas_3 - nps_bas_2,
+     *                        ncf_bas_3 - ncf_bas_2,
+     *                        ncs_bas_3 - ncs_bas_2
         endif
       enddo
+   80 format('   no=',i1,3x,i4,9x,i4,5x,i5,3x,i4)
+      write(8,*)' ...........................................'
 c-------------------------------------------------------
-      write(8,*)
-      write(8,*)'              plus             '
-      write(8,*)
-      write(8,*)' one S-function with zero exponent : '
-      write(8,*)
-      write(8,*)' COMBINED TEXAS BASIS SET  '
-      write(8,*)
-           write(8,*) ' nat=',na,
-ccc  *                ' nbf=',nbf,
-     *                ' nsh=',nsh,
-     *                ' ncf=',ncf,
-     *                ' ncs=',ncs
+      if(nbas.gt.1) then
+         write(8,*)'                  plus             '
+         write(8,*)'     one S-function with zero exponent : '
+         write(8,*)'         COMBINED TEXAS BASIS SET  '
+         write(8,*)
+         write(8,80) nbas+1,na,nsh,ncf,ncs
+         write(8,*)' ...........................................'
+      endif
 c-------------------------------------------------------
-      write(8,*)'                                      '
       write(8,*)' -------------------------------------------'
 c-------------------------------------------------------
       end
