@@ -268,6 +268,9 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      external timer_wall
+      real*8 timer_wall
+c
       real*8 dxmax
 c
       mdstep=mdstep+1
@@ -293,6 +296,10 @@ c     periodic boundary conditions
 c
       call md_fold(int_mb(i_iw),int_mb(i_is),
      + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     dynamic load balancing
+c
+      call sp_balanc(timer_wall(2))
 c
 c     atom redistribution
 c
@@ -434,7 +441,9 @@ c
 c
       call md_fclass(iwl,isl,xw,xwm,xs,fw,fs)
 c
+      call timer_start(2)
       call ga_sync()
+      call timer_stop(2)
 c
       call sp_final(fw,fs)
 c
