@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.205 1997-02-18 06:37:42 d3h449 Exp $
+# $Id: makefile.h,v 1.206 1997-02-19 19:52:19 mdupuis Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -502,7 +502,7 @@ ifeq ($(TARGET),SGITFP)
 # JN 96/10/02:
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 
-  CORE_SUBDIRS_EXTRA = blas lapack peigs fft
+  CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
 
@@ -517,7 +517,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT
-  CORE_LIBS = -lutil -lpfft -lpeigs -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lpeigs -lchemio -lglobal -llapack -lblas
 endif
 
 
@@ -627,7 +627,7 @@ ifeq ($(TARGET),IBM)
 # IBM AIX
 #
 
-    CORE_SUBDIRS_EXTRA = lapack fft peigs
+    CORE_SUBDIRS_EXTRA = lapack
 #blas
          FC = xlf
     ARFLAGS = urs
@@ -654,7 +654,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas -lpfft -lpeigs\
+       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -718,7 +718,7 @@ endif
 
 ifeq ($(TARGET),SP1)
 #
-    CORE_SUBDIRS_EXTRA = peigs fft lapack
+    CORE_SUBDIRS_EXTRA = peigs lapack
          FC = mpxlf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc
@@ -740,7 +740,7 @@ ifeq ($(TARGET),SP1)
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -lpfft -llapack
+  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack
 
 ifndef NOPIOFS
 # see inside chemio/elio
@@ -882,7 +882,7 @@ ifeq ($(TARGET),LINUX)
 
   LDOPTIONS = -g -L$(LIBDIR)
      LINK.f = gcc $(LDFLAGS)
-  CORE_LIBS = -lutil -lpfft -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
 endif
 
