@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.22 2003-03-24 21:48:53 bylaska Exp $
+* $Id: paw_basis.F,v 1.23 2003-03-25 00:44:45 edo Exp $
 *
 
 !**************************************************
@@ -44,7 +44,6 @@ c      !*** external functions ***
       if (.not.ok) 
      > call errquit('init_paw_basis: out of stack memory',0)
   
-
       do it = 1, nt
        call ion_atom_plus_suffix(it,'_basis',fname)
        call util_file_name_resolve(fname, .false.)
@@ -153,6 +152,9 @@ c     !*** set core charges ***
       subroutine read_paw_basis_dims(nb,ng,filename)
       implicit none
 #include "stdio.fh"
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
       integer          ng
       integer          nb
       character*(*)     filename
@@ -161,10 +163,17 @@ c     !*** set core charges ***
       integer     fp
       double precision dummy_r1
       double precision dummy_rmax
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      integer msglen
 
 *     !*** external functions ****
       logical  assert_file
       external assert_file
+
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
 
       if( .not. assert_file(filename)) then
          write(luout,*)  ' cannot find ',filename
@@ -174,6 +183,10 @@ c     !*** set core charges ***
       call open_file(filename,"r",fp)
         READ(fp,*) dummy_r1,dummy_rmax,ng,nb
       close(fp)
+      endif
+      msglen = 1
+      call BRDCST(9+MSGDBL,ng,             mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,nb,           mdtob(msglen),MASTER)
       return
       end
 
