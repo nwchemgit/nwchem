@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.130 1995-11-27 05:29:23 d3g681 Exp $
+# $Id: makefile.h,v 1.131 1995-11-27 21:20:22 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -228,7 +228,7 @@ ifeq ($(TARGET),CRAY-T3D)
 
                    FC = /mpp/bin/cf77 
                   CPP = /mpp/lib/cpp -P  -N
-             FOPTIONS = -Wf"-dp" -Ccray-t3d -Wp"-F"
+             FOPTIONS = -Wf"-dp" -Ccray-t3d 
              COPTIONS = -Tcray-t3d
             FOPTIMIZE = -O scalar3
             COPTIMIZE = -O
@@ -255,8 +255,8 @@ ifeq ($(TARGET),CRAY-T3D)
 			-llapack \
 			-lblas
 
-# FCONVERT unused since new compiler does .F -> .f 
-             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^#/D'  > $*.f
+     EXPLICITF = TRUE
+             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
 endif
 
 
@@ -448,9 +448,7 @@ endif
 	      -brename:.dscal_,.dscal \
 	      -brename:.dspsvx_,.dspsvx \
 	      -brename:.idamax_,.idamax \
-	      -brename:.lsame_,.lsame \
-	      -brename:.times_,.times \
-	      -brename:.xerbla_,.xerbla
+	      -brename:.times_,.times 
 ifdef USE_ESSL
        CORE_LIBS += -lessl
 endif
