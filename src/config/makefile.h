@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.404 2003-02-20 17:26:31 edo Exp $
+# $Id: makefile.h,v 1.405 2003-02-20 17:34:10 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -274,6 +274,7 @@ endif
 #   - put "-nodpend -xvector=no" on FOPTIONS after -fast
 #   - remove "-fsimple=2 -depend -xvector=yes" from FOPTIMIZE.
 #   - remove -lmvec from CORELIBS
+# to get link with sunperf, type BLASOPT="-xlic_lib=sunperf"
 #
 # These options are set for WS5
 
@@ -389,7 +390,11 @@ endif
     CORE_LIBS +=  -llapack -lblas
   else
     LDOPTIONS = -xs -xildoff
-    CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
+ifdef BLASOPT
+    CORE_LIBS +=   $(BLASOPT)   -lmvec
+else
+    CORE_LIBS +=  -llapack -lblas  -lmvec
+endif
     CORE_LIBS += -lsocket -lrpcsvc -lnsl
     EXTRA_LIBS =  -ldl -lfsu
   endif

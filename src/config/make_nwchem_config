@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.167 2003-01-30 23:40:15 edo Exp $
+# $Id: make_nwchem_config,v 1.168 2003-02-20 17:34:10 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -230,7 +230,7 @@ STUBROUTINES := $(patsubst dftgrad,dft_grad_top dft_energy_gradient sodft_energy
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,grad_force scf_gradient mcscf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst hessian, hess_anal hess_tidy hess_input scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert dft_3dacc,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst hessian, hess_anal hess_tidy hess_input scf_hessian xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert dft_3dacc hess_check,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
