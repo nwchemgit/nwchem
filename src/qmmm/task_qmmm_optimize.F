@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.4 2004-10-22 19:02:19 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.5 2005-01-14 00:47:47 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -42,6 +42,8 @@ c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
      &       RTDB_ERR)
+
+      status = .true.
 
       if (optimization.eq.'all') then
          call md_em()
