@@ -3,7 +3,7 @@
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
 *
-* $Id: dft_fitcd.F,v 1.25 1998-12-19 01:01:58 edo Exp $
+* $Id: dft_fitcd.F,v 1.26 1998-12-22 02:08:26 edo Exp $
 *
       implicit none
 c
@@ -422,19 +422,17 @@ c     necessary for spherical when calling int_1cg
 c
       max1e=nbf_cd
       if(spherical) then
-        if (.not. bas_cn2bfr( CD_bas_han,nshells_cd,
-     &       ifirst,ilast))
-     &      call errquit('Exiting in fitcd.',44)
         if(.not.bas_continfo(CD_bas_han,nshells_cd,
      &       itype,nprimo,nshbf,isphere))
      &       call errquit('Exiting in fitcd.',44)
-          nshbf=((itype+1)*(itype+2))/2+2
-          max1e=nbf_cd+nshbf
-        endif
-        if(.not.MA_Push_Get(MT_Dbl,max1e,'cgtf',lcgtf,icgtf))
-     &  call errquit('dft_fitcd: cannot allocate cgtf',0)
+        nshbf=((itype+1)*(itype+2))/2
+        max1e=nbf_cd+nshbf
+      endif
+      if(.not.MA_Push_Get(MT_Dbl,max1e,'cgtf',lcgtf,icgtf))
+     &     call errquit('dft_fitcd: cannot allocate cgtf',0)
       nscr = max(nscr1e, nbf_cd)
 c
+
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0)
 c      
@@ -450,7 +448,12 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
           if(.not.bas_continfo(CD_bas_han,ish,
      &         itype,nprimo,nshbf,isphere))
      &      call errquit('Exiting in fitcd.',44)
-          nshbf=((itype+1)*(itype+2))/2+2
+          if(spherical) then
+            nshbf=((itype+1)*(itype+2))/2
+          else
+            nshbf=ilast-ifirst+1
+          endif
+              
         call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
      &              nshbf, Dbl_MB(icgtf+ifirst-1) )
       enddo 
@@ -590,11 +593,11 @@ c
       if (.not.ma_pop_stack(lqshell_lab))
      &   call errquit('dft_fitcd: cannot pop stack',0)
       if (.not.ma_pop_stack(lqshtyp_cd))
-     &   call errquit('dft_fitcd: cannot pop stack',0)
+     &   call errquit('dft_fitcd: cannot pop stack',1)
       if (.not.ma_pop_stack(lqshell_cd))
-     &   call errquit('dft_fitcd: cannot pop stack',0)
+     &   call errquit('dft_fitcd: cannot pop stack',2)
       if (.not.ma_pop_stack(lqatom))
-     &   call errquit('dft_fitcd: cannot pop stack',0)
+     &   call errquit('dft_fitcd: cannot pop stack',3)
 c
       call ga_sync
 c      call dft_tstamp(' in dft_cdfit after  mull')
@@ -619,11 +622,11 @@ c         write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c         write(*,*)' CD_coef = ',(CD_coef(i),i=1,nbf_cd)
       endif
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',4)
       if(.not.ma_pop_stack(lcgtf))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',5)
       if(.not.ma_pop_stack(lTvec))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',6)
       
 #if defined(DFT_TIMER)
       call dft_second(ts2)
