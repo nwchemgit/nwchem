@@ -1,5 +1,5 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.2 1996-01-19 07:32:48 d3g681 Exp $
+C$Id: ga_it_orth.F,v 1.3 1996-09-03 01:22:44 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -9,7 +9,8 @@ C$Id: ga_it_orth.F,v 1.2 1996-01-19 07:32:48 d3g681 Exp $
       logical ometric
       logical osym
 c     
-c     Iteratively orthogonalize the vectors in g_c
+c     Iteratively orthogonalize the vectors in g_c using quadratically
+c     convergent algorithms
 c
 c     if (ometric) then
 c       use the overlap integrals from basis as a metric
@@ -38,6 +39,7 @@ c
       integer g_s, g_tmp, g_ms
       integer l_buf, k_buf      ! MA handles for workspace
       integer iter, maxiter, nbf, nmo, type, i
+      integer ilo, ihi, jlo, jhi
       double precision tol, zero, one, mone, mhalf, sii, err
       parameter (tol = 1.0d-15, maxiter = 9)
       parameter (zero=0.0d0, one=1.0d0, mhalf=-0.5d0, mone=-1.0d0)
@@ -55,6 +57,14 @@ c
      $        32, 32, g_ms)) call errquit('iter_orthog:ga_create?',nbf)
       else
          g_ms = g_s             ! Save space usually
+      endif
+c
+c     Determine range of local diagonals for shifting g_ms
+c
+      call ga_distribution(g_ms, ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. jlo.gt.0) then
+         ilo = max(ilo,jlo)
+         ihi = min(ihi,jhi)
       endif
 c     
       do iter = 1, maxiter
@@ -75,47 +85,29 @@ c
 c     
 c     Form S - I and determine the error norm
 c     
-         call ga_sync()
-         do i = ga_nodeid()+1, nmo, ga_nnodes()
-            call ga_get(g_ms, i, i, i, i, sii, 1)
-            sii = sii - one
-            call ga_put(g_ms, i, i, i, i, sii, 1)
+         do i = ilo, ihi
+            call ga_acc(g_ms, i, i, i, i, -1.0d0, 1, 1.0d0)
          enddo
-         call ga_sync()
 	 call ga_maxelt(g_ms, err)
 *         if ((ga_nodeid().eq.0))
 *     $        write(6,*) ' iter_orthog: err = ', err
 c     
-c     Form and apply the correction ... SHOULD USE LOCALITY
+c     Form and apply the correction using locality
 c     
          if (osym) then
             call ga_dscal(g_ms, mhalf)
-            do i = ga_nodeid()+1, nmo, ga_nnodes()
+            do i = ilo, ihi
+               call ga_acc(g_ms, i, i, i, i, 1.0d0, 1, 1.0d0)
+            enddo
+         else
+            call ga_dscal(g_ms, mone)
+            do i = ilo, ihi
                call ga_get(g_ms, i, i, i, i, sii, 1)
-               sii = sii + one
+               sii = 0.5d0*sii + one
                call ga_put(g_ms, i, i, i, i, sii, 1)
             enddo
-            call ga_sync()
-         else
-            call ga_zero(g_tmp)
-            call ga_dscal(g_ms, mone)
-            if (.not. ma_push_get(MT_DBL, nbf, 'ga_iter_orthog',
-     $           l_buf, k_buf)) call errquit
-     $           ('ga_iter_orthog: insufficient memory', nbf)
-            do i = ga_nodeid()+1, nmo, ga_nnodes()
-               call ga_get(g_ms, 1, i, i, i, dbl_mb(k_buf), 1)
-               sii = dbl_mb(k_buf+i-1)
-               sii = 0.5d0*sii + one
-               dbl_mb(k_buf+i-1) = sii
-               call ga_put(g_tmp, 1, i, i, i, dbl_mb(k_buf), 1)
-            enddo
-            if (.not. ma_pop_stack(l_buf)) call errquit
-     $           ('ga_iter_orthog: pop stack?', nbf)
-            call ga_sync()
-            call ga_copy(g_tmp, g_ms)
          endif
 c            
-         call ga_zero(g_tmp)
          call ga_dgemm('n','n',nbf,nmo,nmo,one,g_c,g_ms,zero,g_tmp)
          call ga_copy(g_tmp, g_c)
 c     
