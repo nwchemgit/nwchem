@@ -1,6 +1,7 @@
-      subroutine xc_hessian(g_dens, oactive, nactive, hess)
+      subroutine xc_hessian(geom,rtdb, nbf,basis,
+     ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.7 2000-08-09 21:57:42 windus Exp $
+c     $Id: xc_nucder_gen.F,v 1.8 2000-08-25 20:10:15 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -8,19 +9,28 @@ c     BGJ - 8/98
 c
       implicit none
 c
+      integer geom,rtdb,nbf,basis         ! [in]
+      character *4 scftype    ! [in]
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
       double precision hess(*)  ! [output] XC hessian matrix
 c
-      call xc_deriv_gen(g_dens, oactive, nactive, hess, 0, 2)
+      integer ipol
+c
+      ipol=1
+      if(scftype.eq.'UHF') ipol=2
+c
+      call xc_deriv_gen(geom,rtdb,ipol,nbf,basis,
+     ,     g_dens, nactive, oactive, hess, 0, 2)
 c
       return
       end
 c
-      subroutine xc_cpks_rhs(g_dens, oactive, nactive, g_rhs)
+      subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
+     ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.7 2000-08-09 21:57:42 windus Exp $
+c     $Id: xc_nucder_gen.F,v 1.8 2000-08-25 20:10:15 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -28,20 +38,29 @@ c     BGJ - 8/98
 c
       implicit none
 c
+      integer geom,rtdb,nbf,basis
+      character *(*) scftype    ! [in]
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
       integer g_rhs(*)          ! [output] XC CPKS RHS matrices
 c
-      call xc_deriv_gen(g_dens, oactive, nactive, 0d0, g_rhs, 3)
+      integer ipol
+c
+      ipol=1
+      if(scftype.eq.'UHF') ipol=2
+c
+      call xc_deriv_gen(geom,rtdb,ipol,nbf,basis,
+     ,     g_dens,  nactive, oactive, 0d0, g_rhs, 3)
 c
       return
       end
 c
-      subroutine xc_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
+      subroutine xc_deriv_gen(geom,rtdb,ipol,nbf,basis,
+     ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.7 2000-08-09 21:57:42 windus Exp $
+c     $Id: xc_nucder_gen.F,v 1.8 2000-08-25 20:10:15 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -52,12 +71,14 @@ c
 c
 #include "geom.fh"
 #include "mafdecls.fh"
-#include "../nwdft/include/cdft.fh"
+#include "rtdb.fh"
 c!!! BGJ
 #include "bgj.fh"
 #include "global.fh"
 c!!! BGJ
 c
+      integer geom,rtdb,nbf,basis
+      integer ipol              ! [in]
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
@@ -70,14 +91,18 @@ c
 c
 c     Local declarations
 c
-      logical do_hess, do_cpks_r
-      integer rtdb
+      logical do_hess, do_cpks_r,grid_on_file
       integer natoms
       integer l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom, i, j, i1
 c !!! BGJ test
+c
       integer l_ti_hess, k_ti_hess, g_ti(6)
 c
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &     grid_on_file))then
+         grid_on_file = .false.
+      endif
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered xc_deriv_gen-------------'
       do_hess = calc_type .eq. 2
@@ -86,7 +111,6 @@ c
      &     call errquit('xc_deriv_gen: illegal calculation type',0)
       if (bgj_print() .gt. 0)
      &     write(*,*)'logicals ', do_hess, do_cpks_r
-      rtdb = bgj_get_rtdb_handle()
       if (bgj_print() .gt. 0)
      &     write(*,*)'rtdb geom ipol',rtdb,geom,ipol
       if (.not. geom_ncent(geom, natoms))
@@ -120,13 +144,22 @@ c
 c
 c     Set up indexing arrays needed by dftgh_quadv0
 c
-      call xc_init_index(g_dens, l_cntoce, k_cntoce, l_cntobfr,
+      call xc_init_index(geom,ipol,nbf,basis,
+     ,     g_dens, l_cntoce, k_cntoce, l_cntobfr,
      &                   k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
-      call dftgh_quadv0(rtdb, g_dens, 0d0, hess, g_rhs, calc_type,
-     &                  natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-     &                  int_mb(k_cetobfr))
+      if(grid_on_file) then
+         call dftgh_gridv0(rtdb,geom,basis, ipol,nbf,
+     .        g_dens, 0d0, hess, g_rhs, calc_type,
+     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
+     &        int_mb(k_cetobfr))
+      else
+         call dftgh_quadv0(rtdb,geom,basis, ipol,
+     .        g_dens, 0d0, hess, g_rhs, calc_type,
+     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
+     &        int_mb(k_cetobfr))
+      endif
 c
 c     Clean up indexing arrays
 c

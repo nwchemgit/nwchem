@@ -1,8 +1,9 @@
-      subroutine xc_init_index(g_dens, l_cntoce, k_cntoce, l_cntobfr,
+      subroutine xc_init_index(geom,ipol,nbf_ao,ao_bas_han,
+     .     g_dens, l_cntoce, k_cntoce, l_cntobfr,
      &                         k_cntobfr, l_cetobfr, k_cetobfr,
      &                         l_rdens_atom, k_rdens_atom)
 c
-c     $Id: xc_init_index.F,v 1.1 1998-09-09 13:21:14 bjohnson Exp $
+c     $Id: xc_init_index.F,v 1.2 2000-08-25 20:10:15 edo Exp $
 c
 c     Sets up indexing and reduced density arrays used by several
 c     XC routines
@@ -10,17 +11,25 @@ c
 c     BGJ - 8/98
 c
       implicit none
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "bas.fh"
+      integer geom ,ipol ! [in]
+      integer nbf_ao,ao_bas_han     ! [in]
       integer g_dens(*)         ! [input] GA handles for density matrices
       integer l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom
+      integer nbf_ao_mxnbf_ce,nshells_ao
 c
-#include "mafdecls.fh"
-#include "geom.fh"
-#include "../nwdft/include/cdft.fh"
 c
 c     Local variables
 c
       integer natoms, nscr, l_scr, k_scr
+c
+      if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
+     .     call errquit('xcinitindx: cemax failed ',0)
+      if (.not. bas_numcont(AO_bas_han,nshells_ao))
+     .     call errquit('xcinitindx: numcont failed ',1)
 c
 c     The following code was taken from dft_scf.F
 c

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.12 2000-08-25 17:04:49 windus Exp $
+C $Id: twodd_cont.F,v 1.13 2000-08-25 20:10:15 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -400,26 +400,27 @@ c
       if (theory.eq.'dft') then
         if (bgj_print() .gt. 0)
      *    write(6,*)'*** In twodd_cont: calling xc_hessian'
-        call xc_hessian(g_dens, log_mb(k_act), nactive, 
-     *     dbl_mb(k_hess_xc))
+        call xc_hessian(geom,rtdb,nbf,basis,
+     ,       g_dens, nactive, log_mb(k_act), 
+     *     dbl_mb(k_hess_xc),scftype)
       write(6,*) 'The Hessian dft contribution'
       call hnd_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
       call flush(6)
         if (bgj_print() .gt. 0)
      *     write(6,*)'*** In twodd_cont: calling xc_cpks_rhs'
-        call xc_cpks_rhs(g_dens, log_mb(k_act), nactive, g_rhs_xc)
+        call xc_cpks_rhs(geom,rtdb,nbf,basis,
+     ,       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
       write(6,*) 'The g_rhs dft contribution'
-      call flush(6)
-      do i = 1, ndens*n3xyz
-        call ga_print(g_rhs_xc(i))
+      do i = 1, n3xyz
+      call ga_print(g_rhs_xc(i))
       enddo
 c
 c  The next statements are only temporarily in until we are confident the
 c  dft code is giving the correct contributions.
 c
-        do i = 1,ndens*n3xyz
+      do i = 1,n3xyz
           call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
         enddo
         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
@@ -434,8 +435,8 @@ c
       call flush(6)
       write(6,*) 'The g_rhs after the dft contribution'
       call flush(6)
-      do i = 1, ndens*n3xyz
-        call ga_print(g_rhs(i))
+      do i = 1, n3xyz
+      call ga_print(g_rhs(i))
       enddo
 
 c
