@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.175 1996-10-02 00:48:16 d3g681 Exp $
+# $Id: makefile.h,v 1.176 1996-10-03 14:16:06 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -357,6 +357,9 @@ ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
 #
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+
     CORE_SUBDIRS_EXTRA = blas
      RANLIB = echo
   MAKEFLAGS = -j 10 --no-print-directory
@@ -367,7 +370,7 @@ ifeq ($(TARGET),KSR)
   FOPTIMIZE = -xfpu3 -O1
   COPTIMIZE = -xfpu3 -O1
 
-    DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
+    DEFINES = -DKSR -DPARALLEL_DIAG -DEXT_INT
 
 #       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
         LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
@@ -488,6 +491,9 @@ ifeq ($(TARGET),SGITFP)
 #                              global_limit=20000
 #                              fprop_limit=2000
 #
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
@@ -502,7 +508,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
  COPTIMIZE = -O
 
-    DEFINES = -DSGI -DSGITFP -DLongInteger
+    DEFINES = -DSGI -DSGITFP -DEXT_INT
   CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 endif
 
@@ -731,6 +737,8 @@ ifeq ($(TARGET),DECOSF)
 #
 # DEC AXP OSF1
 #
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 
     CORE_SUBDIRS_EXTRA = blas lapack
                   NICE = nice
@@ -750,7 +758,7 @@ ifeq ($(TARGET),DECOSF)
              FOPTIMIZE = -O 
              COPTIMIZE = -O
 
-               DEFINES = -DDECOSF -DLongInteger
+               DEFINES = -DDECOSF -DEXT_INT
              CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
             EXTRA_LIBS = -laio -lpthreads 
 endif
