@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.51 1997-04-04 21:01:52 d3g681 Exp $
+C$Id: scf.F,v 1.52 1997-04-10 02:03:28 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,7 +25,7 @@ c
       character*255 name, ri_trans
 c
       integer nbf_per_ir(20)
-      integer natoms, Nff
+      integer natoms, Nff, molo, mohi
       logical rohf, uhf, riscf_init, movecs_converged
       external rohf, uhf, riscf_init, movecs_converged
       logical int_normalize
@@ -190,7 +190,8 @@ c
      $     call print_aoints(basis)
 c
       call schwarz_init(geom, basis)
-      call int_1e_cache_ga(basis, oskel)
+      if ((nbf*nbf*3*8)/ga_nnodes() .lt. 2000000) ! Cache 1e if < 2MB/node
+     $     call int_1e_cache_ga(basis, oskel)
 c
 c     Form intial guess vectors
 c
@@ -238,15 +239,22 @@ c     that the two correspond.
 c
       call scf_movecs_write(rtdb)
 c
+      if (nbf .lt. 200) then
+         molo = 1
+         mohi = nmo
+      else
+         molo = max(1,nbeta-10)
+         mohi = min(nmo,nalpha+10)
+      endif
       if (scftype .eq. 'UHF') then
-         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval),
+         call movecs_ecce(nbf, nmo, molo, mohi, dbl_mb(k_eval),
      $        dbl_mb(k_occ), int_mb(k_irs), 
      $        g_movecs(1), scftype, 'alpha')
-         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval+nbf),
+         call movecs_ecce(nbf, nmo, molo, mohi, dbl_mb(k_eval+nbf),
      $        dbl_mb(k_occ+nbf), int_mb(k_irs+nmo),
      $        g_movecs(2), scftype, 'beta')
       else
-         call movecs_ecce(nbf, nmo, 1, nmo, dbl_mb(k_eval),
+         call movecs_ecce(nbf, nmo, molo, mohi, dbl_mb(k_eval),
      $        dbl_mb(k_occ), int_mb(k_irs),
      $        g_movecs(1), scftype, ' ')
       endif

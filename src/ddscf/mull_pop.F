@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.6 1997-04-06 20:55:25 d3g681 Exp $
+C$Id: mull_pop.F,v 1.7 1997-04-10 02:03:27 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -88,7 +88,7 @@ c
 #include "tcgmsg.fh"
 #include "stdio.fh"
 #include "msgids.fh"
-
+#include "mafdecls.fh"
 c     
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -132,6 +132,9 @@ c
           endif
         enddo
       endif
+c
+      call ecce_print1('mulliken atomic charges', mt_dbl, qatom, natoms)
+      call ecce_print1('mulliken shell charges', mt_dbl, qshell,nshells)
       call ga_sync
 
       return

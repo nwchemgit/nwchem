@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
+C$Id: uhf.F,v 1.36 1997-04-10 02:03:29 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -179,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
+C     $Id: uhf.F,v 1.36 1997-04-10 02:03:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -286,6 +286,8 @@ c
             call uhf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
+            call ecce_print1('total energy', mt_dbl, energy, 1)
+            call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
             goto 10
 c     
          else if (mode .eq. 'precondition') then
@@ -458,7 +460,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
+C$Id: uhf.F,v 1.36 1997-04-10 02:03:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -549,7 +551,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
+c     $Id: uhf.F,v 1.36 1997-04-10 02:03:29 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1035,7 +1037,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
+C$Id: uhf.F,v 1.36 1997-04-10 02:03:29 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1245,10 +1247,10 @@ c
 c     
 c     First analyze the total density
 c     
-      g_dens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
-      g_adens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
-      g_bdens = ga_create_atom_blocked(geom, basis, 'rohf_mull:dens')
-      g_over  = ga_create_atom_blocked(geom, basis, 'rohf_mull:over')
+      g_dens = ga_create_atom_blocked(geom, basis, 'uhf_mull:dens')
+      g_adens = ga_create_atom_blocked(geom, basis, 'uhf_mull:dens')
+      g_bdens = ga_create_atom_blocked(geom, basis, 'uhf_mull:dens')
+      g_over  = ga_create_atom_blocked(geom, basis, 'uhf_mull:over')
       call ga_zero(g_dens)
       call ga_zero(g_adens)
       call ga_zero(g_bdens)
@@ -1334,15 +1336,28 @@ c
          enddo
       endif
 c
+      call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)
+      call ecce_print1('alpha electronic dipole', mt_dbl, 
+     $     alphamoments(2), 3)
+      call ecce_print1('beta electronic dipole', mt_dbl, 
+     $     betamoments(2), 3)
+      call ecce_print1('nuclear dipole', mt_dbl, nuclmoments(2), 3)
+      call ecce_print1('total quadrupole', mt_dbl, totalmoments(5), 6)
+      call ecce_print1('alpha electronic quadrupole',mt_dbl,
+     $     alphamoments(5),6)
+      call ecce_print1('beta electronic quadrupole',mt_dbl,
+     $     betamoments(5),6)
+      call ecce_print1('nuclear quadrupole', mt_dbl, nuclmoments(5), 6)
+c
 c     Store the dipole moment
 c
       if (.not. rtdb_put(rtdb, 'scf:dipole', mt_dbl, 
      $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
 c     
- 100  if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0)
-      if (.not. ga_destroy(g_adens)) call errquit('rohf_mull: ga?',0)
-      if (.not. ga_destroy(g_bdens)) call errquit('rohf_mull: ga?',0)
-      if (.not. ga_destroy(g_dens)) call errquit('rohf_mull: ga?',0)
+ 100  if (.not. ga_destroy(g_over)) call errquit('uhf_mull: ga?',0)
+      if (.not. ga_destroy(g_adens)) call errquit('uhf_mull: ga?',0)
+      if (.not. ga_destroy(g_bdens)) call errquit('uhf_mull: ga?',0)
+      if (.not. ga_destroy(g_dens)) call errquit('uhf_mull: ga?',0)
 c     
       end
 

@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.19 1997-04-01 18:00:38 d3g681 Exp $
+C$Id: rohf.F,v 1.20 1997-04-10 02:03:28 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -213,18 +213,15 @@ c
       call dfill(len_moments, 0.0d0, totalmoments, 1)
       call dfill(len_moments, 0.0d0, nuclmoments, 1)
       call dfill(len_moments, 0.0d0, openmoments, 1)
-      call dfill(len_moments, 0.0d0, totalmoments, 1)
-      call dfill(len_moments, 0.0d0, nuclmoments, 1)
-      call dfill(len_moments, 0.0d0, openmoments, 1)
       call geom_nuc_mpole(geom, center, lmax, nuclmoments, len_moments)
       call multipole_density(basis, center, lmax, g_cdens, 
      $     totalmoments, len_moments)
-      do k = 1, len_moments
-         totalmoments(k) = totalmoments(k) + nuclmoments(k)
-      enddo
       if (nopen .gt. 0) 
      $     call multipole_density(basis, center, lmax, g_odens, 
      $     openmoments, len_moments)
+      do k = 1, len_moments
+         totalmoments(k) = totalmoments(k) + nuclmoments(k)
+      enddo
 c     
       if (oprintmultipole .and. ga_nodeid().eq.0) then
          write(6,*)
@@ -249,6 +246,12 @@ c
             write(6,*)
          enddo
       endif
+      call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)
+      call ecce_print1('open shell dipole', mt_dbl, openmoments(2), 3)
+      call ecce_print1('nuclear dipole', mt_dbl, nuclmoments(2), 3)
+      call ecce_print1('total quadrupole', mt_dbl, totalmoments(5), 6)
+      call ecce_print1('open shell quadrupole',mt_dbl,openmoments(5),6)
+      call ecce_print1('nuclear quadrupole', mt_dbl, nuclmoments(5), 6)
 c
 c     Store the dipole moment
 c
