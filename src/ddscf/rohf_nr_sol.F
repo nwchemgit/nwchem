@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.22 1999-06-16 00:10:14 d3e129 Exp $
+c     $Id: rohf_nr_sol.F,v 1.23 1999-07-20 01:22:14 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -75,9 +75,10 @@ c
 c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
 c     
+      write(6,*) ' crohf vle ',crohf_vlen
 *ga:1:0
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: grad',
-     $     0, 0, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
+     $     0, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
 *ga:1:0
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: serch',
      $     0, 0, g_search)) call errquit('rohf_nr_solve: ga_cre grad',0)
