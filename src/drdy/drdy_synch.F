@@ -59,6 +59,7 @@
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)
       call ga_brdcst(msg_DRDY_OPCODE, opcode, mitob(1), master)
+      call ga_sync()
 *      write(6,*)' AF msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)

@@ -23,6 +23,7 @@ C
       Integer i,j,jj
       double precision threquiv
       character*16 groupname
+      character*255 dummy_file
       Integer ncenter_B4_autosym, ncenter, nata
       Integer current_print_level
       logical copy_sym, copy_c1
@@ -33,6 +34,12 @@ C Transform to cartesian coordinates
 *
       call util_print_get_level(current_print_level)
       call util_print_set_level(print_none)
+*
+* ... delete finite difference files that may exist.
+      call util_file_name('hess',  .false., .false.,dummy_file)
+      call util_file_unlink(dummy_file)
+      call util_file_name('fd_ddipole',  .false., .false.,dummy_file)
+      call util_file_unlink(dummy_file)
 *
       if (.not.geom_create(geom,'geometry'))
      &      call errquit('nwc_s2: geom_create failed',911)
