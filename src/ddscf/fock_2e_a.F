@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.8 1995-04-18 05:33:20 d3e129 Exp $
+c$Id: fock_2e_a.F,v 1.9 1995-04-18 05:35:17 d3e129 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -15,7 +15,7 @@ c     see scf_init for input of task_chunks
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.8 1995-04-18 05:33:20 d3e129 Exp $
+c     $Id: fock_2e_a.F,v 1.9 1995-04-18 05:35:17 d3e129 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -129,7 +129,7 @@ c
 #if defined(REPORT_LOOP)        
 #if defined(KSR) || defined(SUN)
          if(ga_nodeid().eq.0) then
-            reportit = mod(kat,5).eq.0
+            reportit = mod(kat,10).eq.0
             reportit = reportit.or.(kat.eq.1)
             reportit = reportit.or.(kat.eq.natoms)
             if (reportit) then
