@@ -18,23 +18,33 @@ has not been optimized for high performance on single processor desktop systems.
 \section{Molecular electronic structure}
 
 The following quantum mechanical methods are available to calculate
-energies and analytic first derivatives with respect to atomic
-coordinates.  Second derivatives are computed by finite difference of
-the first derivatives.
+energies, analytic first derivatives and second derivatives with respect to atomic
+coordinates.  
 
 \begin{itemize}
-\item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
-  ROHF).  
+\item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF).
 \item Gaussian Density Functional Theory (DFT), using many local,
   non-local (gradient-corrected), and hybrid (local, non-local, and HF)
 exchange-correlation potentials 
-(spin-restricted or unrestricted)
+(spin-restricted)
+with formal $N^3$ and $N^4$ scaling.
+\end{itemize}
+
+The following methods are available to calculate energies and analytic
+first derivatives with respect to atomic coordinates.  Second derivatives 
+are computed by finite difference of the first derivatives.
+
+\begin{itemize}
+\item Self Consistent Field (SCF) or Hartree Fock (ROHF).  
+\item Gaussian Density Functional Theory (DFT), using many local,
+  non-local (gradient-corrected), and hybrid (local, non-local, and HF)
+exchange-correlation potentials 
+(spin-unrestricted)
 with formal $N^3$ and $N^4$ scaling.
 \item Spin-orbit DFT (SODFT), using many local and non-local (gradient-corrected)
 exchange-correlation potentials (spin-unrestricted).
 \item MP2 including semi-direct using frozen core and RHF and UHF reference.
 \item Complete active space SCF (CASSCF).
-
 \end{itemize}
 
 The following methods are available to compute energies only.  First

@@ -1,9 +1,10 @@
-% $Id: vib.tex,v 1.12 2002-02-06 19:38:53 sohirata Exp $
+% $Id: vib.tex,v 1.13 2002-02-13 18:17:12 windus Exp $
 \label{sec:vib}
 
 The nuclear hessian which is used to compute the vibrational
 frequencies can be computed by finite difference for any ab initio
-wave-function that has analytic gradients.  The appropriate
+wave-function that has analytic gradients or by analytic methods
+for SCF and DFT (see Section \ref{sec:hess} for details).  The appropriate
 nuclear hessian generation algorithm is chosen based on the user input
 when \verb+TASK <theory> frequencies+ is the task directive.
 

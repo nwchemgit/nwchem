@@ -1,0 +1,72 @@
+% $Id: hess.tex,v 1.1 2002-02-13 18:17:11 windus Exp $
+\label{sec:hess}
+
+This section relates to the computation of analytic hessians which
+are available for open and closed shell SCF and for closed shell
+DFT.  Analytic hessians are not currently available for SCF or DFT
+calculations with ECPs or for charge fitting with DFT.  The current
+algorithm is fully in-core and does not use symmetry.  This will be
+changed in the next release.
+
+There is no required input for the Hessian module.  This module only
+impacts the hessian calculation.  For options for calculating the
+frequencies, please see Section \ref{sec:vib}, the Vibrational module.
+
+\section{Hessian Module Input}
+
+All input for the Hessian Module is optional since the default
+definitions are usually correct for most purposes.  
+The generic module input begins with \verb+hessian+
+and has the form:
+\begin{verbatim}
+  hessian
+    thresh <real tol default 1d-6>
+    print ...
+    profile
+  end
+\end{verbatim}
+
+\subsection{Defining the wavefunction threshold}
+You may modify the default threshold for the wavefunction.  This keyword
+is identical to THRESH in the SCF, Section \ref{sec:thresh}, and the
+CONVERGENCE gradient in the DFT, Section \ref{sec:dftconv}.  The usual
+defaults for the convergence of the wavefunction for single point and
+gradient calculations is generally not tight enough for analytic hessians.
+Therefore, the hessian, by default, tightens these up to 1d-6 and runs
+an additional energy point if needed.  If,
+during an analytic hessian calculation, you encounter an error:
+\begin{verbatim}
+cphf_solve:the available MOs do not satisfy the SCF equations
+\end{verbatim}
+the convergence criteria of the wavefunction generally needs to be
+tightened.
+
+\subsection{Profile}
+The PROFILE keyword provides additional information concerning the 
+computation times of
+different sections of the hessian code.  Summary information is
+given about the maximum, minimum and average times that a particular
+section of the code took to complete.  This is normally only useful
+for developers.
+
+\subsection{Print Control} 
+Known controllable print options are:
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{lcc}
+  {\bf Name}          & {\bf Print Level} & {\bf Description} \\
+ ``hess\_follow''               & high        & more information about where the calculation is \\
+ ``cphf\_cont''                 & debug       & detailed CPHF information \\
+ ``nucdd\_cont''                & debug       & detailed nuclear contribution information \\
+ ``onedd\_cont''                & debug       & detailed one electron contribution information \\
+ ``twodd\_cont''                & debug       & detailed two electron contribution information \\
+ ``fock\_xc''                   & debug       & detailed XC information during the fock builds \\
+\end{tabular}
+\end{center}
+\caption{Hessian Print Control Specifications}
+\end{table}
+
+
+
+
