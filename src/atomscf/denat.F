@@ -26,7 +26,7 @@ c
       integer iwrite
       logical oprint_dens, oprint_scf
       integer l2
-      integer no, ntr, nsq
+      integer ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
