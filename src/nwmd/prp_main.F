@@ -35,8 +35,6 @@ c
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
       integer i,j,k,it
-      character*10 pdate,ptime
-      real*8 facs,fact,tfacs,tfact
 c
       if(ltwin) then
       do 1 i=1,mpe
@@ -208,11 +206,9 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
-      real*8 eq,el,ep,ek,et,ewp
-      real*8 tempw,temps,stime,esk(msf),ewk
-      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
+      real*8 stime,esk(msf)
 c
-      integer i,j,k,it
+      integer i,j
       character*10 pdate,ptime
       real*8 facs,fact,tfacs,tfact
 c
@@ -306,8 +302,6 @@ c
       real*8 fdata(26)
       real*8 aver,drift,stderr,corerr,ratio
 c
-      integer i
-c
       call cf_mcti(fdata)
 c
       call ga_dgop(mrg_d44,fdata,26,'+')
@@ -331,7 +325,6 @@ c
       real*8 aver,drift,stderr,corerr,ratio
 c
       integer i
-      real*8 dfree
 c
       dfree=zero
       do 1 i=1,24
