@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.22 2004-09-30 17:21:28 marat Exp $
+c $Id: qmmm_geom.F,v 1.23 2004-10-07 06:51:49 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -299,6 +299,11 @@ c    --------------------------------------
      >                    nbq,
      >                    dbl_mb(i_cbq),
      >                    dbl_mb(i_qbq))
+
+       call qmmm_print_pdb(ntot,"test",
+     >                    dbl_mb(i_c_all),
+     >                    dbl_mb(i_q_all),
+     >                    byte_mb(i_t_all))
 
 
       if(.not.geom_create(igeom,'geometry'))
@@ -844,6 +849,10 @@ c    --------------------------------------
 
       if(.not. geom_cart_coords_set(igeom,dbl_mb(i_c))) 
      >    call errquit("qmmm:geom_cart_coords_get",0,0)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+     + call errquit('Failed to store geometry',0, GEOM_ERR)
+
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
