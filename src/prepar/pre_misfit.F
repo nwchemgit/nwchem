@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.37 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.38 2003-11-11 20:28:50 d3j191 Exp $
 c
       implicit none
 c
@@ -406,6 +406,43 @@ c
       grid(1,ngrid)=xmin(1)+dble(ix-1)*dx(1)
       grid(2,ngrid)=xmin(2)+dble(iy-1)*dx(2)
       grid(3,ngrid)=xmin(3)+dble(iz-1)*dx(3)
+      if(nrgrid.gt.0) then
+      do 217 k=1,nrgrid
+      if(iogrid(k).eq.1) then
+      if(grid(1,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(1,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.2) then
+      if(grid(1,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.3) then
+      if(grid(2,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(2,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.4) then
+      if(grid(2,ngrid).gt.rogrid(1,k).and.grid(2,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.5) then
+      if(grid(3,ngrid).lt.rogrid(1,k)) goto 16
+      if(grid(3,ngrid).gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.6) then
+      if(grid(3,ngrid).gt.rogrid(1,k).and.grid(3,ngrid).lt.rogrid(2,k))
+     + goto 16
+      elseif(iogrid(k).eq.7) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
+      if(dgrid.lt.rogrid(1,k)) goto 16
+      if(dgrid.gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.8) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
+      if(dgrid.gt.rogrid(1,k).and.dgrid.lt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.9) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2+grid(3,ngrid)**2)
+      if(dgrid.lt.rogrid(1,k)) goto 16
+      if(dgrid.gt.rogrid(2,k)) goto 16
+      elseif(iogrid(k).eq.10) then
+      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2+grid(2,ngrid)**2)
+      if(dgrid.gt.rogrid(1,k).and.dgrid.lt.rogrid(2,k)) goto 16
+      endif
+  217 continue
+      endif
       do 17 k=1,nsa
       if(isfnd(k).eq.1) then
       if(npbtyp.eq.0) then
@@ -461,36 +498,6 @@ c
   118 continue
       endif
   117 continue
-      endif
-      if(nrgrid.gt.0) then
-      do 217 k=1,nrgrid
-      if(iogrid(k).eq.1) then
-      if(grid(1,ngrid).lt.rogrid(1,k)) goto 16
-      if(grid(1,ngrid).gt.rogrid(2,k)) goto 16
-      elseif(iogrid(k).eq.2) then
-      if(grid(1,ngrid).gt.rogrid(1,k).and.grid(1,ngrid).lt.rogrid(2,k))
-     + goto 16
-      elseif(iogrid(k).eq.3) then
-      if(grid(2,ngrid).lt.rogrid(1,k)) goto 16
-      if(grid(2,ngrid).gt.rogrid(2,k)) goto 16
-      elseif(iogrid(k).eq.4) then
-      if(grid(2,ngrid).gt.rogrid(1,k).and.grid(2,ngrid).lt.rogrid(2,k))
-     + goto 16
-      elseif(iogrid(k).eq.5) then
-      if(grid(3,ngrid).lt.rogrid(1,k)) goto 16
-      if(grid(3,ngrid).gt.rogrid(2,k)) goto 16
-      elseif(iogrid(k).eq.6) then
-      if(grid(3,ngrid).gt.rogrid(1,k).and.grid(3,ngrid).lt.rogrid(2,k))
-     + goto 16
-      elseif(iogrid(k).eq.7) then
-      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
-      if(dgrid.lt.rogrid(1,k)) goto 16
-      if(dgrid.gt.rogrid(2,k)) goto 16
-      elseif(iogrid(k).eq.8) then
-      dgrid=sqrt(grid(1,ngrid)**2+grid(2,ngrid)**2)
-      if(dgrid.gt.rogrid(1,k).and.dgrid.lt.rogrid(2,k)) goto 16
-      endif
-  217 continue
       endif
       ngrid=ngrid+1
    16 continue
