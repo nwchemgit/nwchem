@@ -1923,7 +1923,7 @@ c iorder 3412 means that
 c 3( 7  8  9) goes to position 1 i.e. lder(1)=7, lder(2)=8, lder(3)=9
 c 4(10 11 12) goes to position 2 i.e. lder(4)=10 lder(5)=11 lder(6)=12
 c 1( 1  2  3) goes to position 3 i.e. lder(7)=1  lder(8)=2  lder(9)=3
-c 2( 4  5  6) goes to position 4 i.e. lder(10=1  lder(11=2  lder(12=3
+c 2( 4  5  6) goes to position 4 i.e. lder(10=4  lder(11=5  lder(12=6
 c---------|-------------------------------------------
 c lder(i) |                   iorder
 c---------|-------------------------------------------
