@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.12 2001-12-27 18:31:22 edo Exp $
+C$Id: tol_inp.F,v 1.13 2001-12-27 23:04:29 edo Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -29,7 +29,6 @@ c
       integer num_dirs, ind, mlen
       parameter (num_dirs = 8)
       character*9 dirs(num_dirs)
-      character*32 theory 
       character*255 test
       logical ltight
       integer iAOacc, iCDacc, itol2e, irqmax, iXCacc
@@ -37,8 +36,6 @@ c
       data dirs /'tight', 'tol_rho', 'accAOfunc', 'accCDfunc', 
      $           'accCoul', 'accQrad', 'accXCfunc', 'radius'/
 c     
-      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $     call errquit('tol_inp: failed getting theory',0)
       mlen = inp_strlen(module)
 c     
  10   if (.not. inp_a(test)) goto 999
@@ -104,13 +101,7 @@ c
 c     accCoul; for use in fitcd & fitvcoul for schwarz screening 
 c             
   500 if (.not. inp_i(itol2e)) then
-         write(LuOut,*)' tol_inp: accCoul value not found; defaulting ',
-     &             ' to 8.'
-         if(theory.eq.'sodft') then
-            itol2e = 10
-         else
-            itol2e = 8
-         endif
+      call errquit(' cannot found value for acccoul ',0)
       endif
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
      &   call errquit('tol_inp: rtdb_put failed', 500)
