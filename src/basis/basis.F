@@ -1,32 +1,5 @@
-      logical function bas_cando_mpoles(basis)
-      implicit none
-      integer basis             ! [input]
-c
-c     Return true if it's possible to compute multipoles for this basis
-c
-c     The multipole code cannot handle sphericals, general contractions
-c     or SP shells.
-c
-      integer nshell, ishell, type, nprim, ngen, sphcart
-      logical bas_numcont, bas_continfo
-      external bas_numcont, bas_continfo
-c
-      bas_cando_mpoles = .false.
-c
-      if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('multipole: basis bad?',0)
-      do ishell = 1, nshell
-         if (.not. bas_continfo(basis, ishell, type, 
-     $        nprim, ngen, sphcart)) call errquit
-     $        ('multipole: basis bad?',0)
-         if (type.lt.0 .or. ngen.gt.1 .or. sphcart.ne.0) return
-      enddo
-c
-      bas_cando_mpoles = .true.
-c
-      end
       logical function bas_version()
-c $Id: basis.F,v 1.53 1997-03-11 01:41:58 d3e129 Exp $
+c $Id: basis.F,v 1.54 1997-03-24 22:53:08 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1058,6 +1031,8 @@ c::functions
       external nbf_from_ucont
       logical ecp_get_num_elec
       external ecp_get_num_elec
+      logical bas_match_tags
+      external bas_match_tags
 c
 #include "bas_ibs_sfn.fh"
 #include "ecp_sfnP.fh"
@@ -1126,13 +1101,18 @@ c
       endif
       do 00100 i=1,nat
         foundit = .false.
-        do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-          if(tags(i,geom) .eq. bs_tags(j,basis)) then
-            int_mb(mb_ibs_ce2uce(i,basis)) = j
-            foundit = .true.
-            goto 00102
-          endif
-00101   continue
+*before match_tags:        do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
+*before match_tags:          if(bas_match_tags(tags(i,geom),bs_tags(j,basis))) then
+*before match_tags:            int_mb(mb_ibs_ce2uce(i,basis)) = j
+*before match_tags:            foundit = .true.
+*before match_tags:            goto 00102
+*before match_tags:          endif
+*before match_tags:00101   continue
+        if (bas_match_tags(tags(i,geom),basisin,j)) then
+          int_mb(mb_ibs_ce2uce(i,basis)) = j
+          foundit = .true.
+          goto 00102
+        endif
         if (.not. foundit .and. .not. Is_ECP(basis)) then
           if (geom_tag_to_element(tags(i,geom), symbol, element,
      $        atn)) then
@@ -3261,4 +3241,142 @@ c
         endif
         call util_flush(luout)
       enddo
+      end
+      logical function bas_match_tags(tag_from_geom,basisin,btag)
+      implicit none
+*
+* This routine matches geometry tags to basis set tags in such a way
+*     that "H34" matches "H" or "hydrogen" or "h" if "H34" does not 
+*     exist in the basis set specification.  
+*     "H" will however not match "h" i.e., case sensitivity is 
+*     preserved.
+*
+c::includes
+#include "stdio.fh"
+#include "inp.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      logical geom_tag_to_element
+      external geom_tag_to_element
+c::passed
+      character*(*) tag_from_geom ! [input] geometry tag
+      integer basisin             ! [input] basis set handle
+      integer btag                ! [output] lexical basis set tag
+*     bas_match_tags              ! [output] true if they match
+c::local
+      integer basis           ! lexical basis index
+      integer nbtgs           ! number of basis set tags
+      character*16 gstring    ! geometry or basis tags can only be *16
+      integer lgstring        ! length of gstring
+      integer ndigits         ! number of digits
+      integer i               ! loop counter
+      logical digits_found    ! did geometry tag have any digits
+      logical status          ! dummy storage
+      character*2 g_sym       ! geometry tag -> symbol name
+      character*16 g_elem     ! geometry tag -> element name
+      integer g_atn           ! geometry tag -> atomic number
+      character*2 b_sym       ! basis set tag -> symbol name
+      character*16 b_elem     ! basis set tag -> element name
+      integer b_atn           ! basis set tag -> atomic number
+c
+      parameter (ndigits=10)  ! set number of digits
+      character*1 digits(ndigits)  ! array of character digits
+c      
+      data digits /'0','1','2','3','4','5','6','7','8','9'/
+c      
+      bas_match_tags = .false.
+c
+      basis = basisin+basis_handle_offset
+c
+      gstring = tag_from_geom               !  copy tag to work on it
+c
+c... first match full geometry tag to full basis tag list 
+c          did the user specifically assign a tag ??
+
+      nbtgs = infbs_head(HEAD_NTAGS,basis)
+      do i = 1, nbtgs
+        if (gstring.eq.bs_tags(i,basis)) then
+          bas_match_tags = .true.
+          btag = i
+          return
+        endif
+      enddo
+c
+c... remove any digits from the geometry tag
+      digits_found = .false.
+00001 continue
+      lgstring = inp_strlen(gstring)   !  get the length of the geometry tag
+      if (lgstring.eq.0) return        !  if empty string or string of digits return false
+      if (inp_match(ndigits,.false.,
+     &    gstring(lgstring:lgstring),digits,i)) then   ! compare last character to a digit
+        gstring(lgstring:lgstring) = ' '             ! if a digit remove it
+        digits_found = .true.
+        goto 00001
+      endif
+c
+c if no digits then enforce case matching between say "H" and "h" by a false return      
+c
+      if (.not.digits_found) return
+c
+c... first match numberless geometry tag to full basis tag list
+      do i = 1, nbtgs
+        if (gstring.eq.bs_tags(i,basis)) then
+          bas_match_tags = .true.
+          btag = i
+          return
+        endif
+      enddo
+c... now get symbol names for each tag and match those
+      status = geom_tag_to_element(gstring,g_sym,g_elem,g_atn)
+      if (.not.status)then
+        if (.not.(g_sym.eq.'bq')) then
+          write(luout,*)'geometry tag',gstring,
+     &          ' could not be matched to an element symbol'
+          call errquit('bas_match_tags: fatal error ',911)
+        endif
+      endif
+      do i = 1, nbtgs
+        status =
+     &      geom_tag_to_element(bs_tags(i,basis),b_sym,b_elem,b_atn)
+        if (.not.status)then
+          if (.not.(b_sym.eq.'bq')) then
+            write(luout,*)'basis tag',gstring,
+     &          ' could not be matched to an element symbol'
+            call errquit('bas_match_tags: fatal error ',911)
+          endif
+        endif
+        if (g_sym.eq.b_sym) then
+          bas_match_tags = .true.
+          btag = i
+          return
+        endif
+      enddo
+      end
+      logical function bas_cando_mpoles(basis)
+      implicit none
+      integer basis             ! [input]
+c
+c     Return true if it's possible to compute multipoles for this basis
+c
+c     The multipole code cannot handle sphericals, general contractions
+c     or SP shells.
+c
+      integer nshell, ishell, type, nprim, ngen, sphcart
+      logical bas_numcont, bas_continfo
+      external bas_numcont, bas_continfo
+c
+      bas_cando_mpoles = .false.
+c
+      if (.not. bas_numcont(basis, nshell)) call errquit
+     $     ('multipole: basis bad?',0)
+      do ishell = 1, nshell
+         if (.not. bas_continfo(basis, ishell, type, 
+     $        nprim, ngen, sphcart)) call errquit
+     $        ('multipole: basis bad?',0)
+         if (type.lt.0 .or. ngen.gt.1 .or. sphcart.ne.0) return
+      enddo
+c
+      bas_cando_mpoles = .true.
+c
       end
