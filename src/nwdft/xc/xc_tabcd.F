@@ -4,7 +4,7 @@
      &                    g_vxc, ibf, rchi_atom, rdelchi_atom, 
      &                    rdens_atom, cetobfr)
 c
-C$Id: xc_tabcd.F,v 1.8 1997-12-08 23:48:54 d3h449 Exp $
+C$Id: xc_tabcd.F,v 1.9 1998-04-23 00:10:54 d3h449 Exp $
 c
       implicit none
 c
@@ -56,6 +56,18 @@ c
       A_MAX = dabsmax(nq*ipol,Amat)
       C_MAX = dabsmax(nq*3*ipol,Cmat)
       AC_MAX = max(A_MAX,C_MAX)
+c      write(6,*) ' xc_tabcd: AMAT '
+c      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
+c      write(6,*) ' xc_tabcd: CMAT '
+c      call output(cmat, 1, 3*nq, 1, ipol, 3*nq, ipol, 1)
+c      write(6,*) ' xc_tabcd: chi '
+c      call output(chi, 1, nq, 1, nbf, nq, nbf, 1)
+c      write(6,*) ' xc_tabcd: delchi '
+c      call output(delchi, 1, 3*nq, 1, nbf, 3*nq, nbf, 1)
+c      write(6,*)' g_vxc(1) from xc_tabcd '
+c      call ga_print(g_vxc(1))
+c      write(6,*)' g_vxc(2) from xc_tabcd '
+c      call ga_print(g_vxc(2))
       do 430 iat = 1, natoms
          inizia = iniz(iat)
          if (inizia.eq.0)goto 430
@@ -87,6 +99,11 @@ c
                endif
             enddo
 c
+c            write(6,*) ' xc_tabcd: BMAT '
+c            call output(bmat, 1, nq, 1, nnia, nq, max_at_bf, 1)
+c            write(6,*) ' xc_tabcd: DMAT '
+c            call output(dmat, 1, 3*nq, 1, nnia, 3*nq, max_at_bf, 1)
+c
             B_MAX = dabsmax(nnia*nq,Bmat)
             D_MAX = dabsmax(nnia*nq*3,Dmat)
             BD_MAX = max(B_MAX,D_MAX)
@@ -106,6 +123,7 @@ c
                if (GRAD) call dgemm('t', 'n', nnia, nnja, 3*nq, 1.d0,
      &                              Dmat, 3*nq, delchi(1,1,inizja), 
      &                              3*nq, 1.d0, Tmat, nnia)
+               call dfill(max_at_bf2, 0.d0, TTmat, 1)
                call scat_mat(TTmat, Tmat, nbfia, nbfja, nnia, nnja,
      &                       ifirst, jfirst, ibf(inizia), ibf(inizja))
                call upd_atom_block(g_vxc(ii), basis, iat, jat, TTmat)
@@ -120,6 +138,10 @@ c
   168       continue
   405    continue
   430 continue
+c      write(6,*)' g_vxc(1) from xc_tabcd '
+c      call ga_print(g_vxc(1))
+c      write(6,*)' g_vxc(2) from xc_tabcd '
+c      call ga_print(g_vxc(2))
       return
       end
 

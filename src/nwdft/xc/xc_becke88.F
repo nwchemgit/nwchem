@@ -1,7 +1,7 @@
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght)     
 c
-C$Id: xc_becke88.F,v 1.9 1997-12-08 23:48:50 d3h449 Exp $
+C$Id: xc_becke88.F,v 1.10 1998-04-23 00:10:53 d3h449 Exp $
 c
       implicit none
 c      
@@ -124,8 +124,11 @@ c
             GNa = sqrt(   delrho(n,1,1)*delrho(n,1,1) +
      &                    delrho(n,2,1)*delrho(n,2,1) +
      &                    delrho(n,3,1)*delrho(n,3,1)   )
-c
-            Xa = GNa/CD43a
+            if (GNa.gt.tol_rho)then
+               Xa = GNa/CD43a
+            else
+               Xa = 0.d0
+            endif
             Sa = sqrt(Xa*Xa + ONE)
             Ha = log(Xa + Sa)
             Ta = 1/(ONE + SIX*(BETA*Xa)*Ha)
@@ -142,14 +145,23 @@ c
             GNb = sqrt(   delrho(n,1,2)*delrho(n,1,2) +
      &                    delrho(n,2,2)*delrho(n,2,2) +
      &                    delrho(n,3,2)*delrho(n,3,2)   )
-
-            Xb = GNb/CD43b
+            if (GNb.gt.tol_rho)then
+               Xb = GNb/CD43b
+            else
+               Xb = 0.d0
+            endif
             Sb = sqrt(Xb*Xb + ONE)
             Hb = log(Xb + Sb)
             Tb = 1/(ONE + SIX*(BETA*Xb)*Hb)
             Cb = -(BETA*Xb)*Xb*Tb
             Gb = P2LDA + Cb
             Pb = ((SIX*(BETA*Xb)**2)*(Xb/Sb - Hb) - TWO*(BETA*Xb))*Tb**2
+c            write(6,*)' cd13a, cd43a, gna, xa, cd13b, cd43b, gnb, xb ',
+c     &                  cd13a, cd43a, gna, xa, cd13b, cd43b, gnb, xb
+c            write(6,*)' BETA, Xa, Sa, Ha, Ta ', BETA, Xa, Sa, Ha, Ta
+c            write(6,*)' BETA, Xb, Sb, Hb, Tb ', BETA, Xb, Sb, Hb, Tb
+c            write(6,*)' cd13a, cd43a, cd13b, cd43b, gna, gnb, pa, pb: ',
+c     &                  cd13a, cd43a, cd13b, cd43b, gna, gnb, pa, pb
 c
             if (lfac)then
                Amat(n,1) = Amat(n,1) + FOURTHIRDS*CD13a*P2LDA*fac

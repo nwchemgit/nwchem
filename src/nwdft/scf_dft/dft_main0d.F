@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.20 1997-11-20 00:17:58 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.21 1998-04-23 00:10:46 d3h449 Exp $
 c     
       implicit none
 c
@@ -92,6 +92,7 @@ c
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                          nbf_xc, 1, g_xcinv)) 
      &         call errquit('dft_main0d: error creating g_xcinv',0)
+            call ga_zero(g_xcinv)
             if (me.eq.0) then
 c
 c              try to read old XC matrix on disk; use if appropriate
@@ -113,6 +114,7 @@ c
                if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                             nbf_xc, 1, g_xcinv)) 
      &            call errquit('dft_main0d: error creating g_xcinv',0)
+               call ga_zero(g_xcinv)
             endif
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'g_oi', 
      &                          nbf_xc, 1, g_oi)) 
@@ -340,6 +342,7 @@ c
       call ga_sync
       g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                    'alpha evecs')
+      call ga_zero(g_evecs(1))
       g_dens(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                   'alpha density')
       call ga_zero(g_dens(1))
@@ -349,10 +352,13 @@ c
          call ga_zero(g_dens(2))
          g_evecs(2) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                       'beta evecs')
+         call ga_zero(g_evecs(2))
          g_Vxc(2) = ga_create_atom_blocked(geom, AO_bas_han, 'Vxcs')
+         call ga_zero(g_Vxc(2))
       endif 
       nVxc = ipol
       g_fock = ga_create_atom_blocked(geom, AO_bas_han, 'fock matrix')
+      call ga_zero(g_fock)
       g_vxc(1) = g_fock
 c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
