@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "macdecls.h"
-#include "global.h"
+#if defined(CRAY) || defined(WIN32)
 
 #include "typesf2c.h"
 
@@ -15,9 +11,22 @@
 #endif
 
 void FATR util_debug_(Integer *rtdb)
-#if defined(CRAY) || defined(WIN32)
-{}
+{
+  ga_error("Don't know how to debug on this machine", 0);
+}
+
 #else
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "macdecls.h"
+#include "global.h"
+#include "rtdb.h"
+
+#include "typesf2c.h"
+
+void FATR util_debug_(Integer *rtdb)
 {
   int i;
   pid_t child;
@@ -59,19 +68,33 @@ void FATR util_debug_(Integer *rtdb)
   argv[10] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
-#else
+#elif defined(LINUX)
   argv[6] = "gdb";
   argv[7] = path;
   argv[8] = pid;
   argv[9] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/X11R6/bin/xterm");
+#elif defined(SGI_N32) || defined(SGI) || defined(SGIFP)
+  argv[6] = "dbx";
+  argv[7] = "-p";
+  argv[8] = pid;
+  argv[9] = 0;
+  if (!xterm[0])
+    strcpy(xterm, "/usr/bin/X11/xterm");
+#else
+  ga_error("Don't know how to debug on this machine", 0);
 #endif
 
-  for (i=0; argv[i]; i++)
-    printf("%s ", argv[i]);
-  printf("\n");
-  fflush(stdout);
+  if (ga_nodeid_() == 0) {
+    int i;
+    printf("\n Starting xterms with debugger using command\n\n    ");
+    for (i=0; argv[i]; i++)
+      printf("'%s' ", argv[i]);
+    printf("\n\n");
+    fflush(stdout);
+  }
+  ga_sync_();
 
   child = fork();
 
@@ -79,7 +102,7 @@ void FATR util_debug_(Integer *rtdb)
     ga_error("util_debug: fork failed?", 0);
   }
   else if (child > 0) {
-    sleep(5);			/* In parent ... release cpu */
+    sleep(5);			/* Release cpu while debugger starts*/
   }
   else {
     execv(xterm, argv);
