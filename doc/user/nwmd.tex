@@ -1,0 +1,1384 @@
+\label{sec:nwARGOS}
+%\newcommand{\mc}[3]{\multicolumn{#1}{#2}{#3}}
+\newcommand{\mc}[3]{\mbox{\bf #3}}
+\newcommand{\vb}[1]{\mbox{\verb.#1.}}
+\newcommand{\none}{\multicolumn{2}{|c|}{ }}
+%%%%%%%\renewcommand{\thetable}{\Roman{table}}
+\newcommand{\mcc}[1]{\multicolumn{2}{c}{#1}}
+\def\bmu{\mbox{\boldmath $\mu$}}
+\def\bE{\mbox{\bf E}}
+\def\br{\mbox{\bf r}}
+\def\tT{\tilde{T}}
+\def\t{\tilde{1}}
+\def\ip{i\prime}
+\def\jp{j\prime}
+\def\ipp{i\prime\prime}
+\def\jpp{j\prime\prime}
+\def\etal{{\sl et al.}}
+\def\nwchem{{\bf NWChem}}
+\def\nwargos{{\bf nwargos}}
+\def\prepare{{\bf prepare}}
+\def\nwtop{{\bf nwtop}}
+\def\nwrst{{\bf nwrst}}
+\def\nwsgm{{\bf nwsgm}}
+\def\argos{{\bf ARGOS}}
+
+\section{Introduction}
+
+\subsection{Spacial decomposition}
+The molecular dynamics module of \nwchem\ uses a distribution of data
+based on a spacial decomposition of the molecular system, offering
+an efficient parallel implementation in terms of both memory 
+requirements and communication costs, especially for simulations of 
+large molecular systems.
+
+Inter-processor communication using the global array tools and the
+design of a data structure allowing distribution based on spacial
+decomposition are the key elements in taking advantage of
+the distribution of memory requirements and computational work with
+minimal communication.
+
+In the spacial decomposition approach, the physical simulation
+volume is divided into rectangular boxes, each of which is
+assigned to a processor. Depending on the conditions of the 
+calculation and the number of available processors, each processor 
+contains one or more of these spacially grouped boxes.
+The most important aspects of this decomposition are the dependence 
+of the box sizes and communication cost on the number of processors 
+and the shape of the boxes, the frequent reassignment of atoms to 
+boxes leading to a fluctuating number of atoms per box, and the 
+locality of communication which is the main reason for the efficiency 
+of this approach for very large molecular systems.
+
+To improve efficiency, molecular systems are broken up into separately
+treated solvent and solute parts. Solvent molecules are assigned to
+the domains according to their center of geometry and are always owned
+by a one node. This avoids solvent--solvent bonded interactions
+crossing node boundaries.  Solute molecules are broken up into
+segments, with each segment assigned to a processor based on its
+center of geometry.  This limits the number of solute bonded
+interactions that cross node boundaries.  The processor to which a
+particular box is assigned is responsible for the calculation of all
+interactions between atoms within that box.  For the calculation of
+forces and energies in which atoms in boxes assigned to different
+processors are involved, data are exchanged between processors. The
+number of neighboring boxes is determined by the size and shape of the
+boxes and the range of interaction. The data exchange that takes place
+every simulation time step represents the main communication
+requirements.  Consequently, one of the main efforts is to design
+algorithms and data structures to minimize the cost of this
+communication. However, for very large molecular systems, memory
+requirements also need to be taken into account.
+
+To compromise between these requirements exchange of data is performed
+in successive point to point communications rather than using the
+shift algorithm which reduces the number of communication calls
+for the same amount of communicated data.
+
+For inhomogeneous systems, the computational load of evaluating 
+atomic interactions will generally differ between box pairs. 
+This will lead to load imbalance between processors.
+Two algorithms have been implemented that allow for dynamically 
+balancing the workload of each processor.
+One method is the dynamic resizing of boxes such that boxes gradually
+become smaller on the busiest node, thereby reducing the computational
+load of that node. Disadvantages of this method are that the 
+efficiency depends on the solute distribution in the simulation volume
+and the redistribution of work depends on the number of nodes which
+could lead to results that depend on the number of nodes used.
+The second method is based on the dynamic redistribution of intra-node
+box-box interactions. This method represents a more coarse load
+balancing scheme, but does not have the disadvantages of the box
+resizing algorithm. For most molecular systems the box pair
+redistribution is the more efficient and preferred  method.
+
+The description of a molecular system consists of static and dynamic
+information. The static information does not change during a
+simulation and includes items such as connectivity, excluded and third
+neighbor lists, equilibrium values and force constants for all
+bonded and non-bonded interactions. The static information is called
+the topology of the molecular system, and is kept on a separate
+topology file. The dynamic information includes coordinates and
+velocities for all atoms in the molecular system, and is kept in a
+so-called restart file.
+
+The \nwchem\ molecular dynamics module is the parallel implementation
+of the vectorized code \argos\ developed at the University of Houston.
+
+\subsection{Topology}
+\label{sec:nwatopology}
+The static information about a molecular system that is needed for
+a molecular simulation is provided to the simulation module in a
+topology file. 
+Items in this file include, among many other things, 
+a list of atoms, their non-bonded parameters for van der Waals and
+electrostatic interactions, and the complete connectivity in terms
+of bonds, angles and dihedrals.
+
+In molecular systems, a distinction is made between 
+{\it solvent} and {\it solute}, which are treated separately.
+A solvent molecule is defined only once in the topology file,
+even though many solvent molecules usually are included in the
+actual molecular system. In the current implementation only one 
+solvent can be defined. Everything that is not solvent in the 
+molecular system is solute. Each solute atom in the system must 
+be explicitly defined in the topology. 
+
+Molecules are defined in terms of one or more {\it segment}s. 
+Typically, repetitive parts of a molecule are each defined as a single
+segment, such as the amino acid residues in a protein. 
+Segments  can be quite complicated to define and are, therefore, 
+collected in a set of database files. 
+The definition of a molecular system in terms of segments is a
+{\it sequence}.
+
+Topology files are created using the \prepare\ module.
+
+\subsection{Files}
+\label{sec:nwafilenames}
+
+File names used have the form \verb+$system$_$calc$.$ext$+, with
+exception of the topology file (Section \ref{sec:nwatopology}), which is named 
+\verb+$system$.top+.
+Anything that refers to the definition of the chemical system can be used
+for \verb+$system$+, as long as no periods or underlines are used.
+The identifier \verb+$calc$+ can be anything that refers to the type of 
+calculation to be performed for the system with the topology defined.
+This file naming convention allows for the creation of a single
+topology file \verb+$system$.top+ that can be used for a number of 
+different calculations, each identified with a different \verb+$calc$+.
+For example, if {\tt crown.top} is the name of the topology file for
+a crown ether, {\tt crown\_em}, {\tt crown\_md}, {\tt crown\_ti} could
+be used with appropriate extensions for the filenames for energy
+minimization, molecular dynamics simulation and multi-configuration
+thermodynamic integration, respectively. All of these calculations
+would use the same topology file {\tt crown.top}.
+
+\label{sec:nwaextensions}
+
+The extensions \verb+<ext>+ identify the kind of information on a file,
+and are pre-determined. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ll}
+{\bf acf} & free energy correlation data file\\
+{\bf cnv} & free energy convergence file\\
+{\bf coo} & coordinate trajectory file\\
+{\bf day} & dayfile\\
+{\bf dbg} & debug file\\
+{\bf dre} & distance restraints file\\
+{\bf emt} & minimization trajectory file\\
+{\bf fet} & free energy step contribution file\\
+{\bf frg} & fragment file\\
+{\bf gib} & free energy data file\\
+{\bf mri} & free energy multiple run input file\\
+{\bf mro} & free energy multiple run output file\\
+{\bf nw}  & \nwchem\ input file\\
+{\bf nwout}  & \nwchem\ output file\\
+{\bf out} & molecular dynamics output file\\
+{\bf pdb} & PDB formatted coordinate file\\
+{\bf prp} & property file\\
+{\bf qrs} & quenched restart file, resulting from an energy minimization\\
+{\bf rdf} & radial distribution function output file\\
+{\bf rdi} & radial distribution function input file\\
+{\bf rst} & restart file, used to start or restart a simulation \\
+{\bf seq} & sequence file, describing the system in segments\\
+{\bf sco} & solute coordinate trajectory file\\
+{\bf sgm} & segment file, describing segments\\
+{\bf slv} & solvent coordinate file\\
+{\bf svl} & solute velocity trajectory file\\
+{\bf syn} & synchronization time file\\
+{\bf tst} & test file\\
+{\bf tim} & timing analysis file\\
+{\bf top} & topology file, contains the static description of a system\\
+{\bf vel} & velocity trajectory file\\
+\end{tabular}
+\end{center}
+\caption{List of file extensions for nwchem chemical system files.}
+\end{table}
+
+
+\subsection{Databases}
+Database file used by the \prepare\ module are found in directories 
+with name \verb+$ffield$_$level$+, \\
+where \verb+$ffield$+ is any of the
+supported force fields (Section \ref{sec:nwaforcefields}). 
+The source of the data is identified by \verb+$level$+, and can be 
+\begin{center}
+\begin{tabular}{lll}
+\hline
+level   & Description                 & Availability \\
+{\bf s} & original published data     & public       \\
+{\bf x} & additional published data   & public       \\
+{\bf u} & user preferred data         & private      \\
+{\bf t} & user defined temporary data & private    \\
+\hline
+\end{tabular}
+\end{center}
+
+Typically, only the level {\bf s} and {\bf x} databases are publicly 
+available. 
+The user is responsible for the private level {\bf u} and {\bf t}
+database files. When the \prepare\ module scans the databases, the priority
+is {\bf t}$>${\bf u}$>${\bf x}$>${\bf s}$>$.
+
+The extension \verb+<ext>+ defines the type of database file within each
+database directory. 
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{ll}
+{\bf frg} & fragments\\
+{\bf par} & parameters\\
+{\bf seq} & sequences\\
+{\bf sgm} & segments\\
+\end{tabular}
+\end{center}
+\caption{List of database file extensions.}
+\end{table}
+
+
+The paths of the different database directories should be defined in a file 
+{\tt .nwchemrc} in a user's home directory, and provides the user the
+option to select which database files are scanned.
+
+\subsection{Force fields}
+\label{sec:nwaforcefields}
+Force fields recognized are
+\begin{center}
+\begin{tabular}{ll}
+\hline
+Keyword      & Force field   \\
+{\tt amber}  & AMBER95       \\
+{\tt charmm} & CHARMM        \\
+%{\tt cvff}   & CVFF          \\
+%{\tt gromos} & GROMOS87      \\
+%{\tt oplsa}  & OPLS/AMBER3.0 \\
+%{\tt oplsg}  & OPLS/GROMOS87 \\
+\hline
+\end{tabular}
+\end{center}  
+
+\section{Format of fragment files}
+Fragment files contain the basic information needed to specify all
+interactions that need to be considered in a molecular simulation.
+The format of the fragment files is described in Table \ref{tbl:nwafrag}.
+Normally these files are created by the \prepare\ module. Manual
+editing is needed when, for example, the \prepare\ module could not
+complete atom typing, or when modified charges are required. 
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{p{15mm}p{12mm}l}
+\hline\hline
+Card & Format & Description \\ \hline
+I-1-1  & a1     & \$ to identify the start of a fragment \\ % $ for emacs
+I-1-2  & a10    & name of the fragment, the tenth character\\
+       &        & N: identifies beginning of a chain\\
+       &        & C: identifies end of a chain\\
+       &        & blank: identifies chain fragment\\
+       &        & M: identifies an integral molecule\\
+\hline
+I-2-1  & i5     & number of atoms in the fragment\\ 
+\hline
+\mc{3}{l}{For each atom one deck II} \\
+\hline
+II-1-1  & i5     & atom sequence number \\
+II-1-2  & a6     & atom name \\
+II-1-3  & a5     & atom type \\
+II-1-4  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-5  & i5     & link number\\
+        &        & 0: no link\\
+        &        & 1: first atom in chain\\
+        &        & 2: second atom in chain\\
+        &        & 3 and up: other links\\
+II-1-6  & i5     & environment type\\
+        &        & 0: no special identifier\\
+        &        & 1: planar, using improper torsion\\
+        &        & 2: tetrahedral, using improper torsion\\
+        &        & 3: tetrahedral, using improper torsion\\
+        &        & 4: atom in aromatic ring\\
+II-1-7  & i5     & charge group\\
+II-1-8  & i5     & polarization group\\
+II-1-9  & f12.6  & atomic partial charge\\
+II-1-10 & f12.6  & atomic polarizability\\
+\hline
+\mc{3}{l}{Any number of cards in deck III to specify complete 
+connectivity} \\
+\hline
+III-1-1  & 16i5   & connectivity, duplication allowed\\ 
+\hline\hline
+\end{tabular}
+\caption{The format of fragment files.\label{tbl:nwafrag}}
+\end{center}
+\end{table}
+
+\section{Creating segment files}
+\label{sec:nwanwsgm}
+The \prepare\ module is used to generate segment files 
+from corresponding fragment files. A segment file contains all
+information for the calculation of bonded and non-bonded interactions
+for a given chemical system using a specific force field.
+
+Which atoms form a fragment is specified in the coordinate file,
+currently only in PDB format.
+the restriction is that bonded interactions may only involve atoms on at
+most two segments does no longer exist as of \nwchem\ release 3.2.1. 
+The segment entries define three sets of parameters
+for each interaction. 
+
+Free energy perturbations can be performed using set 1 for the 
+generation of the ensemble while using sets 2 and/or 3
+as perturbations. Free energy multiconfiguration thermodynamic
+integration and multistep thermodynamic perturbation calculations are
+performed by gradually changing the interactions in the system from
+parameter set 2 to parameter set 3. These modifications can be 
+edited into the segment files manually, or introduced directly into
+the topology file using the \verb+modify+ commands in the input for
+the \prepare\ module.
+
+The format of a segment is
+described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck  & Format & Description \\ \hline
+I-1-1 & a1     & \$ to identify the start of a segment \\ %$ for emacs
+I-1-2 & a10    & name of the segment, the tenth character\\
+      &        & N: identifies beginning of a chain\\
+      &        & C: identifies end of a chain\\
+      &        & blank: identifies chain fragment\\
+      &        & M: identifies an integral molecule\\
+I-2-1 & i5     & number of atoms in the segment\\
+I-2-2 & i5     & number of bonds in the segment\\
+I-2-3 & i5     & number of angles in the segment\\
+I-2-4 & i5     & number of proper dihedrals in the segment\\
+I-2-5 & i5     & number of improper dihedrals in the segment\\
+\hline
+\end{tabular*}
+\caption{Segment file format, table 1 of 6.\label{tbl:nwaseg1}}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck & Format & Description \\ \hline
+\mc{3}{l}{For each atom one deck II} \\
+II-1-1  & i5     & atom sequence number \\
+II-1-2  & a6     & atom name \\
+II-1-3  & a5     & atom type, generic set 1 \\
+II-1-4  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-4  & a5     & atom type, generic set 2 \\
+II-1-5  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-6  & a5     & atom type, generic set 3 \\
+II-1-7  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-8  & i5     & charge group\\
+II-1-9  & i5     & polarization group\\
+II-1-10 & i5     & link number\\
+II-1-11 & i5     & environment type\\
+        &        & 0: no special identifier\\
+        &        & 1: planar, using improper torsion\\
+        &        & 2: tetrahedral, using improper torsion\\
+        &        & 3: tetrahedral, using improper torsion\\
+        &        & 4: atom in aromatic ring\\
+II-2-1  & f12.6  & atomic partial charge in e, set 1\\
+II-2-2  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 1\\
+II-2-3  & f12.6  & atomic partial charge in e, set 2\\
+II-2-4  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 2\\
+II-2-5  & f12.6  & atomic partial charge in e, set 3\\
+II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
+\hline
+\end{tabular*}
+\caption{Segment file format, table 2 of 6.\label{tbl:nwaseg2}}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck & Format & Description \\ \hline
+\mc{3}{l}{For each bond a deck III} \\
+III-1-1 & i5     & bond sequence number \\
+III-1-2 & i5     & bond atom i \\
+III-1-3 & i5     & bond atom j \\
+III-1-4 & i5     & bond type \\
+        &        & 0: harmonic\\
+        &        & 1: constrained bond\\
+III-1-5 & i5     & bond parameter origin\\
+        &        & 0: from database, next card ignored \\
+        &        & 1: from next card\\
+III-2-1 & f12.6  & bond length in nm, set 1\\
+III-2-2 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 1 \\
+III-2-3 & f12.6  & bond length in nm, set 2\\
+III-2-4 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 2 \\
+III-2-5 & f12.6  & bond length in nm, set 3\\
+III-2-6 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}
+\caption{Segment file format, table 3 of 6.\label{tbl:nwaseg3}}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck & Format & Description \\ \hline
+\mc{3}{l}{For each angle a deck IV} \\
+IV-1-1 & i5     & angle sequence number \\
+IV-1-2 & i5     & angle atom i \\
+IV-1-3 & i5     & angle atom j \\
+IV-1-4 & i5     & angle atom k \\
+IV-1-5 & i5     & angle type \\
+       &        & 0: harmonic\\
+IV-1-6 & i5     & angle parameter origin\\
+       &        & 0: from database, next card ignored \\
+       &        & 1: from next card\\
+IV-2-1 & f12.6  & angle in radians, set 1\\
+IV-2-2 & e12.5  & angle force constant in kJ mol$^{-1}$, set 1 \\
+IV-2-3 & f12.6  & angle in radians, set 2\\
+IV-2-4 & e12.5  & angle force constant in kJ mol$^{-1}$, set 2 \\
+IV-2-5 & f12.6  & angle in radians, set 3\\
+IV-2-6 & e12.5  & angle force constant in kJ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}
+\caption{Segment file format, table 4 of 6.\label{tbl:nwaseg4}}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck & Format & Description \\ \hline
+\mc{3}{l}{For each proper dihedral a deck V} \\
+V-1-1 & i5     & proper dihedral sequence number \\
+V-1-2 & i5     & proper dihedral atom i \\
+V-1-3 & i5     & proper dihedral atom j \\
+V-1-4 & i5     & proper dihedral atom k \\
+V-1-5 & i5     & proper dihedral atom l \\
+V-1-6 & i5     & proper dihedral type \\
+      &        & 0: $C\cos(m\phi-\delta)$\\
+V-1-7 & i5     & proper dihedral parameter origin\\
+      &        & 0: from database, next card ignored \\
+      &        & 1: from next card\\
+V-2-1 & i5     & multiplicity, set 1\\
+V-2-2 & f12.6  & proper dihedral in radians, set 1\\
+V-2-3 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 1 \\
+V-2-4 & i5     & multiplicity, set 2\\
+V-2-5 & f12.6  & proper dihedral in radians, set 2\\
+V-2-6 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 2 \\
+V-2-7 & i5     & multiplicity, set 3\\
+V-2-8 & f12.6  & proper dihedral in radians, set 3\\
+V-2-9 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}
+\caption{Segment file format, table 5 of 6.\label{tbl:nwaseg5}}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Deck & Format & Description \\ \hline
+\mc{3}{l}{For each improper dihedral a deck VI} \\
+VI-1-1 & i5     & improper dihedral sequence number \\
+VI-1-2 & i5     & improper dihedral atom i \\
+VI-1-3 & i5     & improper dihedral atom j \\
+VI-1-4 & i5     & improper dihedral atom k \\
+VI-1-5 & i5     & improper dihedral atom l \\
+VI-1-6 & i5     & improper dihedral type \\
+       &        & 0: harmonic\\
+VI-1-7 & i5     & improper dihedral parameter origin\\
+       &        & 0: from database, next card ignored \\
+       &        & 1: from next card\\
+VI-2-1 & f12.6  & improper dihedral in radians, set 1\\
+VI-2-2 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 1 \\
+VI-2-3 & f12.6  & improper dihedral in radians, set 2\\
+VI-2-4 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 2 \\
+VI-2-5 & f12.6  & improper dihedral in radians, set 3\\
+VI-2-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
+\hline\hline
+\end{tabular*}
+\caption{Segment file format, table 6 of 6.\label{tbl:nwaseg6}}
+\end{center}
+\end{table}
+
+
+\section{Creating sequence files}
+A sequence file describes a molecular system in terms of segments. This
+file is generated by the \prepare\ module for the molecular system
+provided on a PDB-formatted coordinate file.
+The file format is given in Table \ref{tbl:nwaseq}
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hline
+Card & Format & Description \\ \hline
+I-1-1  & a1     & \$ to identify the start of a sequence \\ %$ for emacs
+I-1-2  & a10    & name of the sequence\\
+\mc{3}{l}{Any number of cards 1 and 2 in deck II to specify the system} \\
+II-1-1 & i5     & segment number\\
+II-1-2 & a10    & segment name, last character will be determined from chain\\
+II-1-3 & i5     & link segment 1, if blank previous segment in chain\\
+II-1-4 & i3     & link atom, if blank link atom 2\\
+II-1-5 & i5     & link segment 2, if blank next segment in chain\\
+II-1-6 & i3     & link atom, if blank link atom 1\\
+II-1-7 & i5     & link segment 3\\
+II-1-8 & i3     & link atom in link segment 3\\
+II-1-9 & i5     & link segment 4\\
+II-1-0 & i3     & link atom in link segment 4\\
+II-1-1 & i5     & link segment 5\\
+II-1-2 & i3     & link atom in link segment 5\\
+II-1-3 & i5     & link segment 6\\
+II-1-4 & i3     & link atom in link segment 6\\
+II-1-5 & i5     & link segment 7\\
+II-1-6 & i3     & link atom in link segment 7\\
+II-1-7 & i5     & link segment 8\\
+II-1-8 & i3     & link atom in link segment 8\\
+II-1-9 & i5     & link segment 9\\
+II-1-0 & i3     & link atom in link segment 9\\
+II-1-1 & i5     & link segment 10\\
+II-1-2 & i3     & link atom in link segment 10\\
+II-2-1 & a      & \verb+break+ to identify a break in the molecule chain\\
+II-2-1 & a      & \verb+molecule+ to identify the end of a solute molecule\\
+II-2-1 & a      & \verb+fraction+ to identify the end of a solute fraction\\
+II-2-1 & a5     & \verb+link + to specify a link\\
+II-2-2 & i5     & segment number of first link atom\\
+II-2-3 & a4     & name of first link atom \\
+II-2-4 & i5     & segment number of second link atom\\
+II-2-5 & a4     & name of second link atom \\
+II-2-1 & a      & \verb+solvent+ to identify solvent definition on next card\\
+II-2-1 & a      & \verb+stop+ to identify the end of the sequence\\
+II-2-1 & a6     & \verb+repeat+ to repeat next $ncard$ cards $ncount$
+times\\
+II-2-2 & i5     & number of cards to repeat ($ncards$)\\
+II-2-3 & i5     & number of times to repeat cards ($ncount$)\\
+\mc{3}{l}{Any number of cards in deck II to specify the system} \\
+\hline\hline
+\end{tabular*}
+\caption{Sequence file format.\label{tbl:nwaseq}}
+\end{center}
+\end{table}
+
+\section{Creating topology files}
+\label{sec:nwanwtop}
+
+The topology (Section \ref{sec:nwatopology}) describes all static information
+that describes a molecular system. This includes the connectivity in
+terms of bond-stretching, angle-bending and torsional interactions, as well as
+the non-bonded van der Waals and Coulombic interactions.
+
+The topology of a molecular system is generated by the \prepare\ module
+from the sequence in terms of segments as specified on the PDB file.
+For each unique segment specified in this file the 
+segment database directories are searched for the segment definition. 
+For segments not found in one of the database directories a segment definition
+is generated in the temporary directory if a fragment file was found.
+If a fragment file could not be found, it is generated by the \prepare\ module
+base on what is found on the PDB file.
+
+When all segments are found or created, the parameter substitutions are 
+performed, using force field parameters taken from the parameter 
+databases. After all lists have been generated the
+topology is written to a local topology file \verb+$system$.top+.
+
+\section{Creating restart files}
+\label{sec:nwanwrst}
+
+Restart files contain all dynamical information about a molecular
+system and are created by the \prepare\ module if a topology file
+is available. The \prepare\ module will automatically generate
+coordinates for hydrogen atoms and monatomic counter ions
+not found on the PDB formatted coordinate file, if no fragment or
+segment files were generated using that PDB file.
+
+The \prepare\ module has a number of other optional input command,
+including solvation.
+
+\section{Molecular simulations}
+The type of molecular dynamics simulation is specified by the
+\nwchem\ task directive.
+\begin{verbatim}
+task md [ energy || optimize || dynamics || thermodynamics ]
+\end{verbatim}
+where the theory keyword {\tt md} specifies use of the molecular
+dynamics module, and the operation keyword is one of
+\begin{description}
+\item
+{\tt energy} for single configuration energy evaluation
+\item
+{\tt optimize} for energy minimization
+\item
+{\tt dynamics} for molecular dynamics simulations and single step
+thermodynamic perturbation free energy molecular dynamics simulations
+\item
+{\tt thermodynamics} for combined multi-configuration thermodynamic
+integration and multiple step thermodynamic perturbation free
+energy molecular dynamics simulations.
+\end{description}
+
+\section{System specification}
+The chemical system for a calculation is specified in the topology
+and restart files. These files should be created using the utilities
+\nwtop\ and \nwrst\ before a simulation can be performed.
+The names of these files are determined from the \nwchem\ \verb+start+ 
+directive.
+There is no default. If the \verb+rtdb+ name is given as {\tt system\_calc},
+the topology file used is {\tt system.top}, while all other files
+are named {\tt system\_calc.ext}.
+
+\section{Parameter set}
+\begin{description}
+
+\item
+\begin{verbatim}
+set <integer iset>
+\end{verbatim}
+specifies the use of parameter set \verb+<iset>+ for the 
+molecular dynamics simulation. 
+The topology file contains three separate parameters sets that can 
+be used. The default for \verb+<iset>+ is 1.
+
+\item
+\begin{verbatim}
+pset <integer isetp1> [<integer isetp2>]
+\end{verbatim}
+specifies the parameter sets to be used as perturbation potentials
+in single step thermodynamic perturbation free energy evaluations,
+where \verb+<isetp1>+ specifies the first perturbation parameter set and
+\verb+<isetp2>+ specifies the second perturbation parameter set. Legal
+values for \verb+<isetp1>+ are 2 and 3. Legal value for \verb+<isetp2>+ is
+3, in which case \verb+<isetp1>+ can only be 2. If specified, \verb+<iset>+
+is automatically set to 1.
+\end{description}
+
+\section{Energy minimization algorithms}
+The energy minimization of the system as found in the restart file 
+is performed with the following directives. If both are specified,
+steepest descent energy minimization precedes conjugate gradient 
+minimization.
+
+%\begin{description}
+\begin{description}
+\item
+\begin{verbatim}
+sd <integer msdit> [init <real dx0sd>] [min <real dxsdmx>] \
+                   [max <real dxmsd>] 
+\end{verbatim}
+specifies the variables for steepest descent energy minimizations,
+where \verb+<msdit>+ is the maximum number of steepest descent steps taken,
+for which the default is 100, \verb+<dx0sd>+ is the initial step size in nm
+for which the default is 0.001, \verb+<dxsdmx>+ is the threshold for the
+step size in nm for which the default is 0.0001, and \verb+<dxmsd>+ is the
+maximum allowed step size in nm for which the default is 0.05.
+\item
+\begin{verbatim}
+cg <integer mcgit> [init <real dx0cg>] [min <real dxcgmx>] \
+                   [cy <integer ncgcy>]
+\end{verbatim}
+specifies the variables for conjugate gradient energy minimizations,
+where \verb+<mcgit>+ is the maximum number of conjugate gradient steps 
+taken, for which the default is 100, \verb+<dx0cg>+ is the initial search
+interval size in nm for which the default is 0.001, \verb+<dxcgmx>+ is the 
+threshold for the step size in nm for which the default is 0.0001, and 
+\verb+<ncgcy>+ is the number of conjugate gradient steps after which the 
+gradient history is discarded for which the default is 10. If conjugate
+gradient energy minimization is preceded by steepest descent energy 
+minimization, the search interval is set to twice the final step of the
+steepest descent energy minimization.
+\end{description}
+%\end{description}
+
+\section{Multi-configuration thermodynamic integration}
+The following keywords control free energy difference simulations.
+Multi-configuration thermodynamic integrations are always combined
+with multiple step thermodynamic perturbations.
+\begin{description}
+
+\item
+\begin{verbatim}
+(forward || reverse) [[<integer mrun> of] <integer maxlam>]
+\end{verbatim}
+specifies the direction and number of integration steps in free
+energy evaluations, with {\tt forward} being the default direction.
+\verb+<mrun>+ is the number of ensembles that will be generated in
+this calculation, and \verb+<maxlam>+ is the total number of ensembles
+to complete the thermodynamic integration. The default value for 
+\verb+<maxlam>+ is 21. The default value of \verb+<mrun>+ is the 
+value of \verb+<maxlam>+.
+
+\item
+\begin{verbatim}
+error <real edacq>
+\end{verbatim}
+specifies the maximum allowed statistical error in each generated
+ensemble, where \verb+<edacq>+ is the maximum error allowed in the 
+ensemble average derivative of the Hamiltonian with respect to 
+$\lambda$ with a default of 5.0 kJ~mol$^{-1}$.
+
+\item
+\begin{verbatim}
+drift <real ddacq>
+\end{verbatim}
+specifies the maximum allowed drift in the free energy result,
+where \verb+<ddacq>+ is the maximum drift allowed in the
+ensemble average derivative of the Hamiltonian with respect to 
+$\lambda$with a default of 5.0 kJ~mol$^{-1}$ps$^{-1}$.
+
+\item
+\begin{verbatim}
+factor <real fdacq>
+\end{verbatim}
+specifies the maximum allowed change in ensemble size
+where \verb+<fdacq>+ is the minimum size of an ensemble relative to the
+previous ensemble in the calculation with a default value of 0.75.
+
+\item
+\begin{verbatim}
+decomp
+\end{verbatim}
+specifies that a free energy decomposition is to be carried out.
+Since free energy contributions are path dependent, results from a
+decomposition analysis can not be unambiguously interpreted, and
+the default is not to perform this decomposition.
+
+\item
+\begin{verbatim}
+sss [delta <real delta>]
+\end{verbatim}
+specifies that atomic non-bonded interactions describe a dummy atom
+in either the initial or final state of the thermodynamic calculation
+will be calculated using separation-shifted scaling, where \verb+<delta>+ 
+is the separation-shifted scaling factor with a default of 0.075 nm$^2$.
+This scaling method prevents problems associated with singularities in
+the interaction potentials.
+
+\item
+\begin{verbatim}
+new || renew || extend
+\end{verbatim}
+specifies the initial conditions for thermodynamic calculations.
+{\tt new} indicates that this is an initial mcti calculation, which
+is the default. {\tt renew} instructs to obtain the initial
+conditions for each $\lambda$ from the {\bf mro}-file from a previous 
+mcti calculation, which has to be renamed to an {\bf mri}-file. The
+keyword {\tt extend} will extend a previous mcti calculation from the
+data read from an {\bf mri}-file.
+\end{description}
+
+\section{Time and integration algorithm directives}
+Following directives control the integration of the equations of motion.
+\begin{description}
+
+\item
+\begin{verbatim}
+leapfrog || vverlet
+\end{verbatim}
+specifies the integration algorithm,
+where {\tt leapfrog} specifies the default leap frog integration, and
+{\tt vverlet} specifies the velocity Verlet integrator.
+
+\item
+\begin{verbatim}
+equil <integer mequi>
+\end{verbatim}
+specifies the number of equilibration steps \verb+<mequi>+, with a default
+of 100.
+
+\item
+\begin{verbatim}
+data <integer mdacq> [over <integer ldacq>]]
+\end{verbatim}
+specifies the number of data gathering steps \verb+<mdacq>+ with a
+default of 500. In multi-configuration thermodynamic integrations
+\verb+<mequi>+ and \verb+<mdacq>+ are for each of the ensembles, and
+variable \verb+<ldacq>+ specifies the minimum number of data gathering steps 
+in each ensemble. In regular molecular dynamics simulations \verb+<ldacq>+
+is not used. The default value for \verb+<ldacq>+ is the value of \verb+<mdacq>+.
+
+\item
+\begin{verbatim}
+time <real stime>
+\end{verbatim}
+specifies the initial time \verb+<stime>+ of a molecular simulation in ps,
+with a default of 0.0.
+
+\item
+\begin{verbatim}
+step <real tstep>
+\end{verbatim}
+specifies the time step \verb+<tstep>+ in ps, with 0.001 as the default value.
+\end{description}
+
+\section{Ensemble selection}
+Following directives control the ensemble type.
+
+\begin{description}
+
+\item
+\begin{verbatim}
+isotherm [<real tmpext>] [trelax <real tmprlx> [<real tmsrlx>]]
+\end{verbatim}
+specifies a constant temperature ensemble using Berendsen's thermostat,
+where \verb+<tmpext>+ is the external temperature with a default of 298.15~K,
+and \verb+<tmprlx>+ and \verb+<tmsrlx>+ are temperature relaxation times in ps 
+with a default of 0.1. If only \verb+<tmprlx>+ is given the complete system
+is coupled to the heat bath with relaxation time \verb+<tmprlx>+. If both
+relaxation times are supplied, solvent and solute are independently coupled
+to the heat bath with relaxation times \verb+<tmprlx>+ and \verb+<tmsrlx>+,
+respectively.
+
+\item
+\begin{verbatim}
+isobar [<real prsext>] [trelax <real prsrlx> ] \
+       [compress <real compr>]
+\end{verbatim}
+specifies a constant pressure ensemble using Berendsen's piston,
+where \verb+<prsext>+ is the external pressure with a default of 1.025~10$^5$ Pa,
+\verb+<prsrlx>+ is the pressure relaxation time in ps with a default of 0.5, and
+\verb+<compr>+ is the system compressibility in m$^2$N$^{-1}$ with a
+default of 4.53E-10.
+\end{description}
+
+\section{Velocity reassignments}
+Velocities can be periodically reassigned to reflect a certain temperature.
+\begin{description}
+\item
+\begin{verbatim}
+vreass <integer nfgaus> <real tgauss>
+\end{verbatim}
+specifies that velocities will be reassigned every \verb+<nfgaus>+ molecular
+dynamics steps, reflecting a temperature of \verb+<tgauss>+~K. The default
+is not to reassign velocities, i.e.\ \verb+<nfgaus>+ is 0.
+\end{description}
+
+\section{Cutoff radii}
+Cutoff radii can be specified for short range and long range interactions.
+\begin{description}
+\item
+\begin{verbatim}
+cutoff [short] <real rshort> [long <real rlong>] \
+       [qmmm <real rqmmm>]
+\end{verbatim}
+specifies the short range cutoff radius \verb+<rshort>+, and the long range
+cutoff radius \verb+<rlong>+ in nm. If the long range cutoff radius
+is larger than the short range cutoff radius the twin range method will
+be used, in which short range forces and energies are evaluated every
+molecular dynamics step, and long range forces and energies with a
+frequency of \verb+<nflong>+ molecular dynamics steps. Keyword
+\verb+qmmm+ specifies the radius of the zone around quantum atoms
+defining the QM/MM bare charges.
+The default value for \verb+<rshort>+, \verb+<rlong>+ and \verb+<rqmmm>+ 
+is 0.9~nm.
+\end{description}
+
+\section{Polarization}
+First order and self consistent electronic polarization models have
+been implemented.
+\begin{description}
+\item
+\begin{verbatim}
+polar (first || scf [[<integer mpolit>] <real ptol>])
+\end{verbatim}
+specifies the use of polarization potentials,
+where the keyword {\tt first} specifies the first order polarization
+model, and {\tt scf} specifies the self consistent polarization field
+model, iteratively determined with a maximum of \verb+<mpolit>+
+iterations to within a tolerance of \verb+<ptol>+ D in the generated
+induced dipoles. The default is not to use polarization models.
+\end{description}
+
+\section{External electrostatic field}
+\begin{description}
+
+\item
+\begin{verbatim}
+field <real xfield> [freq <real xffreq>] [vector <real xfvect(1:3)>]
+\end{verbatim}
+specifies an external electrostatic field,
+where \verb+<xfield>+ is the field strength, \verb+<xffreq>+ is the
+frequency in MHz and \verb+<xfvect>+ is the external field vector.
+\end{description}
+
+\section{Constraints}
+Constraints are satisfied using the SHAKE 
+coordinate resetting procedure.
+\begin{description}
+
+\item
+\begin{verbatim}
+shake [<integer mshitw> [<integer mshits>]]  \
+      [<real tlwsha> [<real tlssha>]]
+\end{verbatim}
+specifies the use of SHAKE constraints,
+where \verb+<mshitw>+ is the maximum number of solvent SHAKE iterations,
+and \verb+<mshits>+ is the maximum number of solute SHAKE iterations. If
+only \verb+<mshitw>+ is specified, the value will also be used for \verb+<mshits>+.
+The default maximum number of iterations is 100 for both.
+\verb+<tlwsha>+ is the solvent SHAKE tolerance in nm, and \verb+<tlssha>+ is
+the solute SHAKE tolerance in nm. If only \verb+<tlwsha>+ is specified, the
+value given will also be used for \verb+<tlssha>+. The default tolerance
+is 0.001~nm for both.
+
+\item
+\begin{verbatim}
+noshake (solvent || solute)
+\end{verbatim}
+disables SHAKE and treats the bonded interaction according to the force 
+field.
+
+\end{description}
+
+\section{Long range interaction corrections}
+Long range electrostatic interactions are implemented using the
+smooth particle mesh Ewald technique, for neutral periodic cubic systems in
+the constant volume ensemble, using pair interaction potentials. Particle-mesh
+Ewald long range interactions can only be used in molecular dynamics simulations
+using effective pair potentials, and not in free energy simulations, QMD or
+QM/MM simulations.
+
+\begin{description}
+\item
+\begin{verbatim}
+pme [grid <integer ng>] [alpha <real ealpha>] \
+    [order <integer morder>] [fft <integer imfft>] 
+\end{verbatim}
+specifies the use of smooth particle-mesh Ewald long range
+interaction treatment,
+where \verb+ng+ is the number of grid points per dimension, 
+\verb+ealpha+ is the Ewald coefficient in nm$^{-1}$, with a default
+that leads to a tolerance of $10^{-4}$ at the short range cutoff radius, 
+and \verb+morder+ is order of the Cardinal B-spline
+interpolation which must be an even number and at least 4 (default
+value). A platform specific 3D fast Fourier transform is used, if
+available, when \verb+imfft+ is set to 2.
+\end{description}
+
+\section{Fixing coordinates}
+The solvent or solute part of a system may be fixed or unfixed using
+the following keywords. Fixing part of the system will not propagate to
+simulations using restart files written. In the commands \verb+fix+
+and \verb+unfix+, the keywords \verb+all+, \verb+solvent+,
+\verb+solute+ and \verb+non-H+ specify the entire molecular system,
+the solvent, the solute and the solute atoms other than hydrogen,
+respectively.
+\begin{description}
+\item
+\begin{verbatim}
+fix (all || solvent || solute || non-H)
+\end{verbatim}
+fixes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
+respectively.
+\item
+\begin{verbatim}
+unfix (all || solvent || solute || non-H)
+\end{verbatim}
+makes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
+respectively, dynamic.
+\end{description}
+
+\section{Autocorrelation function}
+For the evaluation of the statistical error of multi-configuration
+thermodynamic integration free energy results a correlated data 
+analysis is carried out, involving the calculation of the
+autocorrelation function of the derivative of the Hamiltonian with
+respect to the control variable $\lambda$.
+\begin{description}
+
+\item 
+\begin{verbatim}
+auto <integer lacf> [fit <integer nfit>] [weight <real weight>]
+\end{verbatim}
+controls the calculation of the autocorrelation,
+where \verb+<lacf>+ is the length of the autocorrelation function, with
+a default of 1000, \verb+<nfit>+ is the number of functions used in the
+fit of the autocorrelation function, with a default of 15, and
+\verb+<weight>+ is the weight factor for the autocorrelation function,
+with a default value of 0.0.
+\end{description}
+
+\section{Print options}
+Keywords that control print to the output file, with extension {\bf out}.
+Print directives may be combined to a single directive.
+
+\begin{description}
+
+\item
+\begin{verbatim}
+print topol [nonbond] [solvent] [solute]
+\end{verbatim}
+specifies printing the topology information,
+where {\tt nonbond} refers to the non-bonded interaction parameters,
+{\tt solvent} to the solvent bonded parameters, and {\tt solute} to the
+solute bonded parameters. If only {\tt topol} is specified, all
+topology information will be printed to the output file.
+
+\item
+\begin{verbatim}
+print step <integer nfoutp> [extra] [energy]
+\end{verbatim}
+specifies the frequency \verb+nfoutp+ of printing molecular dynamics step
+information to the output file. If the keyword {\tt extra} is specified
+additional energetic data are printed for solvent and solute separately.
+If the keyword {\tt energy} is specified, information is printed for
+all bonded solute interactions.
+The default for \verb+nfoutp+ is 0. For molecular dynamics simulations
+this frequency is in time steps, and for multi-configuration thermodynamic
+integration in $\lambda$-steps.
+
+\item
+\begin{verbatim}
+print stat <integer nfstat>
+\end{verbatim}
+specifies the frequency \verb+<nfstat>+ of printing statistical information
+of properties that are calculated during the simulation. 
+For molecular dynamics simulation
+this frequency is in time steps, for multi-configuration thermodynamic
+integration in $\lambda$-steps.
+\end{description}
+
+\section{Periodic updates}
+Following keywords control periodic events during a molecular
+dynamics or thermodynamic integration simulation.
+Update directives may be combined to a single directive.
+
+\begin{description}
+\item
+\begin{verbatim}
+update pairs <integer nfpair>
+\end{verbatim}
+specifies the frequency \verb+<nfpair>+ in molecular dynamics steps of 
+updating the pair lists. The default for the frequency is 1.
+In addition, pair lists are also updated after each step in which
+recording of the restart or trajectory files is performed. Updating
+the pair lists includes the redistribution of atoms that changed
+domain and load balancing, if specified.
+
+\item
+\begin{verbatim}
+update long <integer nflong>
+\end{verbatim}
+specifies the frequency \verb+<nflong>+ in molecular dynamics steps 
+of updating the long range forces. The default frequency is 1.
+The distinction of short range and long range forces is only
+made if the long range cutoff radius was specified to be larger
+than the short range cutoff radius. Updating the long range forces
+is also done in every molecular dynamics step in which the
+pair lists are regenerated.
+
+\item
+\begin{verbatim}
+update center <integer nfcntr> [fraction <integer idscb(1:5)>]
+\end{verbatim}
+specifies the frequency \verb+<nfcntr>+ in molecular dynamics steps in 
+which the center of geometry of the solute(s) is translated to the
+center of the simulation volume. The solute fractions determining the
+solutes that will be centered are specified by the keyword 
+{\tt fraction} and the vector \verb+<idscb>+, with a maximum of 5 entries.
+This translation is implemented such that it has no effect on any 
+aspect of the simulation. The default is not to center, i.e. nfcntr is
+0. The default fraction used to center solute is 1.
+
+\item
+\begin{verbatim}
+update motion <integer nfslow>
+\end{verbatim}
+specifies the frequency \verb+<nfslow>+ in molecular dynamics steps of
+removing the center of mass motion.
+
+\item
+\begin{verbatim}
+update analysis <integer nfanal>
+\end{verbatim}
+specifies the frequency \verb+<nfanal>+ in molecular dynamics steps of
+invoking the analysis module.
+
+\item
+\begin{verbatim}
+update rdf <integer nfrdf> [range <real rrdf>] [bins <integer ngl>]
+\end{verbatim}
+specifies the frequency \verb+<nfrdf>+ in molecular dynamics steps of
+calculating contributions to the radial distribution functions.
+The default is 0. The range of the radial distribution
+functions is given by \verb+<rrdf>+ in nm, with a default of the short
+range cutoff radius. Note that radial distribution functions are not
+evaluated beyond the short range cutoff radius. The number of
+bins in each radial distribution function is given by \verb+<ngl>+, with
+a default of 1000.
+If radial distribution function are to be
+calculated, a {\bf rdi} files needs to be available in which the
+contributions are specified as follows.
+\begin{center}
+\begin{tabular}{lll}
+\hline\hline
+Card & Format & Description \\ \hline
+I-1  & i & Type, 1=solvent-solvent, 2=solvent-solute,
+3-solute-solute\\
+I-2  & i & Number of the rdf for this contribution\\
+I-3  & i & First atom number \\
+I-4  & i & Second atom number \\ 
+\hline
+\end{tabular}
+\end{center}
+\end{description}
+
+\section{Recording}
+The following keywords control recording data to file.
+Record directives may be combined to a single directive.
+
+\begin{description}
+
+%\item
+%The file format of selected recording files is specified with
+%\begin{verbatim}
+%record (binary || ascii [ecce || argos])
+%\end{verbatim}
+%with the default of ascii in ecce readable format.
+
+\item
+\begin{verbatim}
+record rest <integer nfrest> [keep]
+\end{verbatim}
+specifies the frequency \verb+<nfrest>+ in molecular dynamics steps
+of rewriting the restart file, with extension \verb+rst+. 
+For multi-configuration
+thermodynamic integration simulations the frequency is in
+steps in $\lambda$. The default is not to record. The restart
+file is used to start or restart simulations. The keyword {\tt keep}
+causes all restart files written to be kept on disk, rather than
+to be overwritten.
+
+\item
+\begin{verbatim}
+record coord <integer nfcoor>
+\end{verbatim}
+specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
+of writing solvent coordinates to the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record scoor <integer nfscoo>
+\end{verbatim}
+specifies the frequency \verb+<nfscoo>+ in molecular dynamics steps
+of writing solute coordinates to the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record veloc <integer nfvelo>
+\end{verbatim}
+specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
+of writing solvent velocitiesto the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record svelo <integer nfsvel>
+\end{verbatim}
+specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
+of writing solute velocities to the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record prop <integer nfprop>
+\end{verbatim}
+specifies the frequency \verb+<nfprop>+ in molecular dynamics steps
+of writing information to the property file, with extension
+\verb+prp+. For multi-configuration
+thermodynamic integration simulations the frequency is in
+steps in $\lambda$. The default is not to record.
+
+\item
+\begin{verbatim}
+record mind <integer nfem>
+\end{verbatim}
+specifies the frequency \verb+<nfem>+ in energy minimization steps of
+writing the minimization trajectory to file, with extension \verb+emt+.
+
+\item
+\begin{verbatim}
+record free <integer nffree>
+\end{verbatim}
+specifies the frequency \verb+<nffree>+ in multi-configuration
+thermodynamic integration steps to record data to the
+free energy data file, with extension \verb+gib+.
+The default is 1, i.e.\ to record at every $\lambda$.
+
+\item
+\begin{verbatim}
+record cnv
+\end{verbatim}
+specifies that free energy convergence data will be written to the
+free energy convergence file, with extension \verb+cnv+.
+
+\item
+\begin{verbatim}
+record acf
+\end{verbatim}
+specifies that free energy derivative autocorrelation data will be
+written to the free energy autocorrelation file, with extension
+\verb+acf+.
+
+\item
+\begin{verbatim}
+record fet
+\end{verbatim}
+that free energy vs.\ time data will be recorded to the free energy
+data file, with extension \verb+fet+.
+
+\item
+\begin{verbatim}
+record sync <integer nfsync>
+\end{verbatim}
+specifies the frequency  \verb+<nfsync>+ in molecular dynamics steps
+of writing information to the synchronization file, with extension
+\verb+syn+. 
+The default is not to record.
+The information written is the simulation time, the wall clock time
+of the previous MD step, the wall clock time of the previous force
+evaluation, the total synchronization time, the largest
+synchronization time and the node on which the largest synchronization
+time was found. The recording of synchronization times is part of the
+load balancing algorithm. Since load balancing is only performed when
+pair-lists are updated, the frequency \verb+<nfsync>+ is correlated
+with the frequency of pair-list updates \verb+<nfpair>+.
+\end{description}
+
+\section{Program control options}
+\begin{description}
+\item
+\begin{verbatim}
+load [reset] ( none || size [<real factld>] || pairs ||
+     (pairs [<integer ldpair>] size [<real factld>]) )
+\end{verbatim}
+determines the type of dynamic load balancing performed,
+where the default is {\tt none}. Load balancing option {\tt size}
+is resizing boxes on a node, and {\tt pairs} redistributes the
+box-box interactions over nodes. Keyword \verb+reset+ will reset the
+load balancing read from the restart file. The level of box resizing
+can be influenced with $factld$. The boxes on the busiest node are
+resized with a factor
+\begin{equation}
+\left( 1 - factld * { {T_{sync} \over n_p} - t^{min}_{sync} \over t_{wall}}
+\right)^{1\over 3}
+\end{equation}
+where $T_{sync}$ is the accumulated synchronization time of all nodes,
+$n_p$ is the total number of nodes, $t^{min}_{sync}$ is the synchronization
+time of the busiest node, and $t_{wall}$ is the wall clock time of the
+molecular dynamics step.\\
+For the combined load balancing, \verb+ldpair+ is the number of successive pair 
+redistribution load balancing steps in which the accumulated synchronization
+time increases, before a resizing load balancing step will be attempted.\\
+Load balancing is only performed in molecular dynamics steps in which the
+pair-list is updated.
+
+\item
+\begin{verbatim}
+nodes <integer npx> <integer npy> <integer npz>
+\end{verbatim}
+specifies the distribution of the available nodes over the three 
+Cartesian dimensions. The default distribution is chosen such that, 
+\verb+<npx>+$*$\verb+<npy>+$*$\verb+<npz>+=\verb+<np>+
+and \verb+<npx>+ $<=$ \verb+<npy>+ $<=$ \verb+<npz>+, 
+where \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are the nodes in the
+x, y and z dimension respectively, and \verb+<np>+ is the number of nodes
+allocated for the calculation. Where more than one combination
+of \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are possible, the 
+combination is chosen with the minimum value of 
+\verb+<npx>+$+$\verb+<npy>+$+$\verb+<npz>+. To change the default setting
+the following optional input option is provided.
+
+\item
+\begin{verbatim}
+boxes <integer nbx> <integer nby> <integer nbz>
+\end{verbatim}
+specifies the distribution of boxes,
+where \verb+<nbx>+, \verb+<nby>+ and \verb+<nbz>+ are the number of
+boxes in x, y and z direction, respectively.
+The molecular system is decomposed into boxes that form the smallest
+unit for communication of atomic data between nodes. The size of the
+boxes is per default set to the short-range cutoff radius. If
+long-range cutoff radii  are used the box size is set to half the
+long-range cutoff radius if it is larger than the short-range cutoff.
+If the number of boxes in a dimension is less than the number of
+processors in that dimension, the number of boxes is set to the number
+of processors.
+
+\item
+\begin{verbatim}
+extra <integer madbox>
+\end{verbatim}
+sets the number of additional boxes for which memory is allocated.
+In rare events the amount of memory set aside per node is insufficient
+to hold all atomic coordinates assigned to that node. This leads to 
+execution which aborts with the message that {\tt mwm} or {\tt msa} is too
+small. Jobs may be restarted with additional space allocated by
+where \verb+<madbox>+ is the number of additional boxes that are allocated
+on each node. The default for \verb+<madbox>+ is 6. 
+In some cases \verb+<madbox>+ can be reduced to 4 if memory usage is a
+concern. Values of 2 or less will almost certainly result in memory 
+shortage.
+
+\item
+\begin{verbatim}
+mwm <integer mwmreq>
+\end{verbatim}
+sets the maximum number of solvent molecules \verb+<mwmreq>+ per node,
+allowing increased memory to be allocated for solvent molecules. This
+option can be used if execution aborted because \verb+mwm+ was too
+small.
+
+\item
+\begin{verbatim}
+msa <integer msareq>
+\end{verbatim}
+sets the maximum number of solute atoms \verb+<msareq>+ per node,
+allowing increased memory to be allocated for solute atoms. This
+option can be used if execution aborted because \verb+msa+ was too
+small.
+
+\item
+\begin{verbatim}
+memory <integer memlim>
+\end{verbatim}
+sets a limit \verb+<memlim>+ in kB on the allocated amount of memory used by 
+the molecular dynamics module.
+Per default all available memory is allocated. Use of this command
+is required for QM/MM simulations only.
+%\item
+%For development purposes debug information can be written to the debug
+%file with extension {\bf dbg} with
+%\begin{verbatim}
+%debug <i idebug>
+%\end{verbatim}
+%where $idebug$ specifies the type of debug information being written.
+\end{description}
