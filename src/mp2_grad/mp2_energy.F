@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.46 1998-07-17 15:48:56 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.47 1998-08-29 00:39:40 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -51,7 +51,7 @@ c
       integer k_occ_a,k_occ_b,l_occ_a
       integer pass
       integer noa,nob,nva,nvb
-      double precision tol2e,tol2e_fock,escf,e2,e_total,norm
+      double precision tol2e,tol2e_fock,backtol,escf,e2,e_total,norm
       integer ga_create_atom_blocked
       logical otrace, omatrix, oskel, osym
       external ga_create_atom_blocked
@@ -299,15 +299,16 @@ c
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
-     $     tol2e = 1d-9  ! For screening integrals
+     $     tol2e = 1d-9  ! For screening energy integrals
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e fock', mt_dbl, 1, 
-     $     tol2e_fock))
-     $     tol2e_fock = 1d-9 ! For overall accuracy of Fock builds
+     $     tol2e_fock)) tol2e_fock = 1d-9 ! For overall accuracy of Fock builds
+      if (.not. rtdb_get(rtdb, 'mp2:backtol', mt_dbl, 1, backtol))
+     $     backtol = 1d-9  ! For screening derivative integrals
 c
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
          write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
      $        noa_active, nob_active, nva_active, nvb_active,
-     $        osym, oskel
+     $        osym, oskel, tol2e, tol2e_fock, backtol
  123     format(
      $        '  Basis functions       = ', i6/
      $        '  Molecular orbitals    = ', i6/
@@ -318,7 +319,8 @@ c
      $        '  Active alpha virtual  = ', i6/
      $        '  Active beta virtual   = ', i6/
      $        '  Use MO symmetry       = ', l1/
-     $        '  Use skeleton AO sym   = ', l1/)
+     $        '  Use skeleton AO sym   = ', l1//
+     $        '  AO/Fock/Back tols     = ', 1p,3d9.1)
          call util_flush(6)
       endif
 c

@@ -1,6 +1,6 @@
       subroutine mp2_input(rtdb)
 *
-* $Id: mp2_input.F,v 1.5 1998-08-21 00:41:29 d3g681 Exp $
+* $Id: mp2_input.F,v 1.6 1998-08-29 00:39:40 d3g681 Exp $
 *
       implicit none
 #include "inp.fh"
@@ -12,7 +12,7 @@ c     MP2
 c     .  [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
 c     .          [virtual <integer nfzv default 0>]]
 c     .  [AOTOL2E <real aotol2e default 1d-9>]
-c     .  [MOTOL2E <real motol2e default 1d-9>]
+c     .  [MOTOL2E <real motol2e default 1d-9>] ... DEFUNCT
 c     .  [TIGHT]
 c     .  [PRINT]
 c     .  [NOPRINT]
@@ -40,7 +40,8 @@ c
          backtol = 1e-11
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e', mt_dbl, 1, aotol2e))
      $        call errquit('mp2_input: failed writing to rtdb',0)
-         if (.not. rtdb_put(rtdb, 'mp2:motol2e', mt_dbl, 1, motol2e))
+         if (.not. rtdb_put(rtdb, 'mp2:aotol2e fock', mt_dbl, 1, 
+     $        motol2e))
      $        call errquit('mp2_input: failed writing to rtdb',0)
          if (.not. rtdb_put(rtdb, 'mp2:backtol', mt_dbl, 1, backtol))
      $        call errquit('mp2_input: failed writing to rtdb',0)
@@ -64,11 +65,11 @@ c
      $        ('mp2_input: failed reading aotol2e',0)
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e', mt_dbl, 1, aotol2e))
      $        call errquit('mp2_input: failed writing to rtdb',0)
-      else if (inp_compare(.false.,test,'motol2e')) then
-         if (.not. inp_f(aotol2e)) call errquit
-     $        ('mp2_input: failed reading motol2e',0)
-         if (.not. rtdb_put(rtdb, 'mp2:motol2e', mt_dbl, 1, motol2e))
+         if (.not. rtdb_put(rtdb, 'mp2:aotol2e fock',mt_dbl,1,aotol2e))
      $        call errquit('mp2_input: failed writing to rtdb',0)
+      else if (inp_compare(.false.,test,'motol2e')) then
+         write(6,*) ' mp2_input: "MOTOL2E" is no longer used.',
+     $        ' Use "TIGHT" instead.'
       else if (inp_compare(.false.,test,'print') .or.
      $        inp_compare(.false.,test,'noprint')) then
          call util_print_input(rtdb,'mp2')
