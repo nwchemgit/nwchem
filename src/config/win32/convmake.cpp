@@ -1,7 +1,7 @@
-// $Id: convmake.cpp,v 1.2 2000-08-02 01:19:45 bjohnson Exp $
+// $Id: convmake.cpp,v 1.3 2000-08-08 23:27:55 bjohnson Exp $
 
 /*
- * Program for converting an NWChem GNUmakefile to a WIN32 nmake MakeFile
+ * Program for converting an NWChem GNUmakefile to an NMAKE file and Visual Studio project files
  *
  * BGJ (7/00)
  */
@@ -32,8 +32,15 @@ void PrintSection(ostream& os, const string& Sec, bool SetNewline = false);
 void PrintSectionSpecial(ostream& os, const string& Sec, const string& SecName,
                          bool SetNewline = false);
 string ConvertToken(const string& T);
+string GetSourceFile(const string& Obj);
+bool FileExists(const string& Filename);
 string DotDots(const string& GNUmakefile);
 void ReplaceAll(string& S, const string& S1, const string& S2);
+string MakeSourceSection(const vector<string>& Files);
+string MakeDefinesSectionF(const vector<string>& Defs);
+string MakeDefinesSectionC(const vector<string>& Defs);
+string MakeIncludesSectionF(const vector<string>& Incs);
+string MakeIncludesSectionC(const vector<string>& Incs);
 
 bool DoNewline = false;
 void ProcessNewline(ostream& os)
@@ -77,25 +84,12 @@ int main(int argc, char* argv[])
       string OutFilename = DirName + ".dsp";
       if (CanAutoGenerate(OutFilename)) {
         cout << "Can generate project file " << OutFilename << endl;
-//        ofstream os(OutFilename.c_str());
-        ofstream os("temp.dsp");
+        ofstream os(OutFilename.c_str());
         ASSERT(os);
         os << AutoGenerateProjectFile(GNUmakefile, Template, DirName);
       }
     }
   }
-
-#if 0
-  // Dump input file contents into comment section so we can edit if necessary
-
-  os << endl << "!IF 0\n" << endl;
-  ifstream is(InFilename);
-  ASSERT(is);
-  char c;
-  while (is.get(c))
-    os << c;
-  os << "\n!ENDIF" << endl;
-#endif
 
   return 0;
 }
@@ -154,12 +148,49 @@ string AutoGenerateProjectFile(const string& GNUmakefile, const string& Template
   ReplaceAll(Proj, "DOTDOTS", Dots);
 
   // Put the source files in the project
+  vector<string> v;
   TokenList TL(GetSection(GNUmakefile,"OBJ_OPTIMIZE")," =\\\n");
-  vector<string> Sources(TL.begin()+1,TL.end());
-  TL.assign(GetSection(GNUmakefile,"OBJ_OPTIMIZE")," =\\\n");
-  copy(TL.begin()+1, TL.end(), back_inserter(Sources));
-  for (vector<string>::iterator i = Sources.begin(); i != Sources.end(); ++i)
-    cout << *i << endl;
+  if (TL.size() > 1)
+    copy(TL.begin()+1, TL.end(), back_inserter(v));
+  TL.assign(GetSection(GNUmakefile,"OBJ")," =\\\n");
+  if (TL.size() > 1)
+    copy(TL.begin()+1, TL.end(), back_inserter(v));
+  sort(v.begin(), v.end());
+  for (vector<string>::iterator i = v.begin(); i != v.end(); ++i)
+    *i = GetSourceFile(*i);
+  Proj.insert(Proj.find("# End Group"), MakeSourceSection(v));
+
+  // Put the header files in the project
+  TL.assign(GetSection(GNUmakefile,"HEADERS")," =\\\n");
+  if (TL.size() > 1) {
+    v.clear();
+    copy(TL.begin()+1, TL.end(), back_inserter(v));
+    Proj.insert(Proj.rfind("# End Group"), MakeSourceSection(v));
+  }
+
+  // Put extra defines into the project
+  TL.assign(GetSection(GNUmakefile,"LIB_DEFINES")," \\\n");
+  v.clear();
+  if (TL.size() > 1) {
+    TokenList::const_iterator iTL = TL.begin();
+    bool Stop;
+    do {
+      Stop = *(iTL->rbegin()) == '=';
+      ++iTL;
+    } while (!Stop && iTL != TL.end());
+    if (iTL != TL.end())
+      copy(iTL, TL.end(), back_inserter(v));
+  }
+  ReplaceAll(Proj, "EXTRA_DEFINES_F", MakeDefinesSectionF(v));
+  ReplaceAll(Proj, "EXTRA_DEFINES_C", MakeDefinesSectionC(v));
+
+  // Put extra include dirs into the project
+  TL.assign(GetSection(GNUmakefile,"LIB_INCLUDES")," =\\\n");
+  v.clear();
+  if (TL.size() > 1)
+    copy(TL.begin()+1, TL.end(), back_inserter(v));
+  ReplaceAll(Proj, "EXTRA_INCLUDES_F", MakeIncludesSectionF(v));
+  ReplaceAll(Proj, "EXTRA_INCLUDES_C", MakeIncludesSectionC(v));
 
   return Proj;
 }
@@ -321,4 +352,72 @@ void ReplaceAll(string& S, const string& S1, const string& S2)
   int pos;
   while ((pos = S.find(S1)) != string::npos)
     S.replace(pos, S1.length(), S2);
+}
+
+string GetSourceFile(const string& Obj)
+{
+  string Base = Obj.substr(0,Obj.rfind('.')+1);
+  vector<string> Suff;
+  Suff.push_back("F");
+  Suff.push_back("f");
+  Suff.push_back("c");
+  for (vector<string>::const_iterator i = Suff.begin(); i != Suff.end(); ++i)
+    if (FileExists(Base+*i))
+      return Base+*i;
+  cout << "Could not find source file for " << Obj << endl;
+  return "";
+}
+
+bool FileExists(const string& Filename)
+{
+  ifstream is(Filename.c_str());
+  return is.good();
+}
+
+string MakeSourceSection(const vector<string>& Files)
+{
+  string Section;
+  for (vector<string>::const_iterator i = Files.begin(); i != Files.end(); ++i)
+    Section += "# Begin Source File\n\nSOURCE=.\\" + *i + "\n# End Source File\n";
+  return Section;
+}
+
+string MakeDefinesSectionF(const vector<string>& Defs)
+{
+  string Section;
+  for (vector<string>::const_iterator i = Defs.begin(); i != Defs.end(); ++i) {
+    if (i != Defs.begin()) Section += " ";
+    Section += "/define:\"" + string(i->begin()+2,i->end()) + "\"";
+  }
+  return Section;
+}
+
+string MakeDefinesSectionC(const vector<string>& Defs)
+{
+  string Section;
+  for (vector<string>::const_iterator i = Defs.begin(); i != Defs.end(); ++i) {
+    if (i != Defs.begin()) Section += " ";
+    Section += "/D \"" + string(i->begin()+2,i->end()) + "\"";
+  }
+  return Section;
+}
+
+string MakeIncludesSectionF(const vector<string>& Incs)
+{
+  string Section;
+  for (vector<string>::const_iterator i = Incs.begin(); i != Incs.end(); ++i) {
+    if (i != Incs.begin()) Section += " ";
+    Section += "/include:\"" + string(i->begin()+2,i->end()) + "\"";
+  }
+  return Section;
+}
+
+string MakeIncludesSectionC(const vector<string>& Incs)
+{
+  string Section;
+  for (vector<string>::const_iterator i = Incs.begin(); i != Incs.end(); ++i) {
+    if (i != Incs.begin()) Section += " ";
+    Section += "/I \"" + string(i->begin()+2,i->end()) + "\"";
+  }
+  return Section;
 }
