@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.34 1998-07-17 08:00:20 d3e129 Exp $
+C$Id: vectors.F,v 1.35 2000-05-02 22:01:47 bert Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -64,6 +64,7 @@ c
 c
       call util_char_ga_brdcst(Msg_Vec_Ttl, title, 0)
       call util_char_ga_brdcst(Msg_Vec_Nam, basis_name, 0)
+      call util_char_ga_brdcst(Msg_Vec_Type, scftype, 0)
       call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
       call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
       call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)
