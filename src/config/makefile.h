@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.161 1996-07-26 19:57:49 d3j191 Exp $
+# $Id: makefile.h,v 1.162 1996-07-29 18:49:19 mg141 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -692,7 +692,7 @@ ifeq ($(TARGET),DECOSF)
                INSTALL = @echo nwchem is built
              MAKEFLAGS = -j 1 --no-print-directory
 
-              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast
+              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2
               COPTIONS = 
              FOPTIMIZE = -O 
              COPTIMIZE = -O
