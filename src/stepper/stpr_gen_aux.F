@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.4 1996-07-26 16:39:30 d3g681 Exp $
+* $Id: stpr_gen_aux.F,v 1.5 1996-08-27 23:05:19 d3g681 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -191,9 +191,10 @@ c
         call errquit('stpr_put_genat_restart: error ',911)
       endif
 c
-      open(unit=69,file=FILEATR,
-     &    status='unknown')
-      close(unit=69,status='delete')
+      call util_file_unlink(fileatr)
+*      open(unit=69,file=FILEATR,
+*     &    status='unknown')
+*      close(unit=69,status='delete')
       if(iatom_in.eq.nat.and.ixyz_in.eq.3) return
       iatom_start = iatom_in
       ixyz_start  = ixyz_in + 1

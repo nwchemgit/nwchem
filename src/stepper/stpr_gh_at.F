@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.5 1996-07-26 16:39:31 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.6 1996-08-27 23:05:20 d3g681 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -50,7 +50,9 @@ c
       whoiam = ga_nodeid()
       master = 0
       ignore_status = rtdb_parallel(.false.)
-      call util_file_name('hess',.false.,.false.,FILEHESS)
+c
+      call stpr_filenames       ! Initialize common with all stepper filename
+c
       if (whoiam.eq.master) then
 c     
 c     create/load reference geometry

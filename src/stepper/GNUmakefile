@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.27 1996-07-26 16:39:25 d3g681 Exp $
+# $Id: GNUmakefile,v 1.28 1996-08-27 23:05:18 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -38,10 +38,10 @@ $(LIBRARY_PATH)(stpr_save.o):	./cstprfiles.fh
 $(LIBRARY_PATH)(stpr_place.o):	./cstprfiles.fh 
 $(LIBRARY_PATH)(stpr_partit.o):	$(INCDIR)/util.fh ./chow.fh 
 $(LIBRARY_PATH)(stpr_output.o):	$(INCDIR)/util.fh 
-$(LIBRARY_PATH)(stpr_walk.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh ./cstprfiles.fh 
 $(LIBRARY_PATH)(stpr_mkstep.o):	$(INCDIR)/util.fh ./stpr_clean.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh ./chow.fh 
 $(LIBRARY_PATH)(stpr_inihes.o):	$(INCDIR)/util.fh ./stpr_clean.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh ./chow.fh 
 $(LIBRARY_PATH)(stpr_hesupd.o):	./chow.fh 
+$(LIBRARY_PATH)(stpr_walk.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh ./cstprfiles.fh 
 $(LIBRARY_PATH)(stpr_gen_aux.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cstprfiles.fh 
 $(LIBRARY_PATH)(stepper_inp.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(stpr_fndmde.o):	./cstprfiles.fh 
