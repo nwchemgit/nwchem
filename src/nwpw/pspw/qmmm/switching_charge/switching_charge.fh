@@ -1,11 +1,11 @@
 c
-c $Id: switching_charge.fh,v 1.3 2002-03-03 17:48:47 bylaska Exp $
+c $Id: switching_charge.fh,v 1.4 2002-03-03 21:17:00 bylaska Exp $
 c
 
 *     ***** switching_charge common block ******************************
-      real*8  s_d,s_rho,s_sigma
+      real*8  s_sigma
       common / switching_charge_block /
-     >                s_d,s_rho,s_sigma  ! parameters for switching charge model
+     >                s_sigma  ! parameters for switching charge model
 
 *     ******************************************************************
 

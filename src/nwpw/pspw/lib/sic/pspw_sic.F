@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.7 2002-02-16 21:41:35 bylaska Exp $
+* $Id: pspw_sic.F,v 1.8 2002-03-03 21:16:59 bylaska Exp $
 *
 
 *     *************************
@@ -149,6 +149,9 @@
           write(unit,*) "      - SIC screened coulomb solver"
            if (rcut.ge.0.0d0)
      >     write(unit,'(A,E8.3)') "       - SIC screening radius: ",rcut
+           if (rcut.ge.0.0d0)
+     >     write(unit,'(A,E8.3)') "       - SIC screening power:  ",pp
+           
         else
           write(unit,*) "      - SIC free-space coulomb solver"
         end if

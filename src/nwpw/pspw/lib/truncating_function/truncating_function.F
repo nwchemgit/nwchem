@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.1 2002-03-03 17:42:41 bylaska Exp $
+c $Id: truncating_function.F,v 1.2 2002-03-03 21:17:00 bylaska Exp $
 c
 
 ***********************************************************
@@ -40,8 +40,10 @@ c
       integer tmp1(2)
 
 *     **** external functions ****
+      character*2 ion_atom
       integer  G_indx,ion_nkatm,ion_atn
       real*8   Truncating_Function_transform
+      external ion_atom
       external G_indx,ion_nkatm,ion_atn
       external Truncating_Function_transform
 
@@ -100,6 +102,10 @@ c
       do ia=1,nt
         ii = ion_atn(ia)
         rr = (vander(ii)/0.529177d0)*rcut
+        if (taskid.eq.MASTER) then
+          write(*,1163) ion_atom(ia),rr,(vander(ii)/0.529177d0)
+        end if
+ 1163   FORMAT(5X,A2,' radii = ',E11.3,' (', E11.3,' van der Waal)')
 
         do i = 1,nfft3d
           gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
@@ -195,10 +201,82 @@ c
 *     *   grad_Truncating_Function   *
 *     *                              *
 *     ********************************
-      subroutine grad_Truncating_Function(dng,V_mm,fion)
+      subroutine grad_Truncating_Function(Amm,fion)
       implicit none
-      complex*16 dng(*),V_mm(*)
+      complex*16 Amm(*)
       real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "truncating_function.fh"
+
+*     *** local variables ***
+      integer nfft3d,npack0
+      integer i,ii,ia
+      integer exi(2),xtmp(2),G(3)
+      integer Gx(2),Gy(2),Gz(2)
+      logical value
+
+*     **** external functions ****
+      integer  G_indx,ion_nion,ion_katm
+      external G_indx,ion_nion,ion_katm
+
+      
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
+      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nfft3d,'xtmp',xtmp(2),xtmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+      if (.not. value) 
+     >  call errquit('grad_Truncating_Function: pushing stack',0)
+      G(1)  = G_indx(1)
+      G(2)  = G_indx(2)
+      G(3)  = G_indx(3)
+
+*     **** define Gx,Gy and Gz in packed space ****
+      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+      call Pack_t_pack(0,dbl_mb(Gx(1)))
+      call Pack_t_pack(0,dbl_mb(Gy(1)))
+      call Pack_t_pack(0,dbl_mb(Gz(1)))
+
+
+      do ii=1,ion_nion()
+        ia=ion_katm(ii)
+
+*       **** structure factor and local pseudopotential ****
+        call strfac(ii,dcpl_mb(exi(1)))
+        call Pack_c_pack(0,dcpl_mb(exi(1)))
+
+*       **** add to local psp ****
+        call Pack_tc_Mul(0,dbl_mb(Trnc(1)+npack0*(ia-1)),
+     >                   dcpl_mb(exi(1)),
+     >                   dcpl_mb(exi(1)))
+
+         do i=1,npack0
+           dbl_mb(xtmp(1)+i-1)
+     >        = dimag(Amm(i))* dble(dcpl_mb(exi(1)+i-1))
+     >         - dble(Amm(i))*dimag(dcpl_mb(exi(1)+i-1))
+        end do
+
+        call Pack_tt_dot(0,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),fion(1,ii))
+        call Pack_tt_dot(0,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),fion(2,ii))
+        call Pack_tt_dot(0,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),fion(3,ii))
+
+      end do
+      value = MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('grad_Truncating_Function: popping stack',1)
 
       return
       end 
@@ -253,7 +331,7 @@ c
      >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
          end do
          r = drho*(nrho-1)
-         sum = sum + r*sin(q*r)
+         sum = sum + 0.5d0*r*sin(q*r)
      >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
          transform = (fourpi/q)*sum*drho
 
@@ -266,7 +344,7 @@ c
      >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
          end do
          r = drho*(nrho-1)
-         sum = sum + r*r*
+         sum = sum + 0.5d0*r*r*
      >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
          transform = (fourpi)*sum*drho
       end if
