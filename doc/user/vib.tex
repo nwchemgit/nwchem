@@ -1,4 +1,4 @@
-% $Id: vib.tex,v 1.10 2000-08-22 18:59:14 d3e129 Exp $
+% $Id: vib.tex,v 1.11 2000-11-21 01:09:53 windus Exp $
 \label{sec:vib}
 
 The nuclear hessian which is used to compute the vibrational
@@ -16,8 +16,8 @@ derivatives are available; these are computed by default for most
 methods that use the finite difference driver routines} for the
 computed nuclear hessian and the ``projected'' nuclear hessian.  The
 VIB module projects out the translations and rotations of the nuclear
-hessian using the standard Eckart projection algorithm.  The VIB
-module also computes the zero point energy for the molecular system
+hessian using the standard Eckart projection algorithm.  
+It also computes the zero point energy for the molecular system
 based on the frequencies obtained from the projected hessian.
 
 The default mass of each atom is used unless an alternative mass is
@@ -25,7 +25,7 @@ provided via the geometry input, (c.f., \ref{sec:geom}) or redefined
 using the vibrational module input.  The default mass is the mass of
 the most abundant isotope of each element.\footnote{c.f., "The
 Elements" by John Emsley, Oxford University Press, (C) 1989, ISBN
-0-19-855237-8.} If the abundance was roughly equal the mass of the
+0-19-855237-8.} If the abundance was roughly equal, the mass of the
 isotope with the longest half life was used.
 
 \section{Vibrational Module Input}
@@ -48,10 +48,10 @@ and has the form:
 
 \subsection{Hessian File Reuse}
 By default the \verb+task <theory> frequencies+ directive will
-recompute the hessian to reuse the previously computed hessian you
+recompute the hessian.  To reuse the previously computed hessian you
 need only specify \verb+reuse+ in the module input block.  If you
 have stored the hessian in an alternate place you may redirect the 
-reuse to that file by specifying the path to that file.
+reuse directive to that file by specifying the path to that file.
 \begin{verbatim}
   reuse /path_to_hessian_file
 \end{verbatim}
@@ -78,7 +78,7 @@ mechanism:
 \end{verbatim}
 
 The mass redefinitions always start with the default masses and
-change the masses in the order input.  Care must be taken to change
+change the masses in the order given in the input.  Care must be taken to change
 the masses properly.  For example, if you want all hydrogens to have
 the mass of Deuterium and the third hydrogen (which is the 6th atomic
 center) to have the mass of Tritium you must set the Deuterium masses
@@ -102,7 +102,7 @@ end
 task scf frequencies
 \end{verbatim}
 will use the new mass for all hydrogens in the first frequency
-analysis.  The mass of oxygen atoms will be redefined in the second
+analysis.  The mass of the oxygen atoms will be redefined in the second
 frequency analysis but the hydrogen atoms will use the default mass.
 To get a modified oxygen and hydrogen analysis you would have to use:
 \begin{verbatim}
@@ -121,8 +121,8 @@ task scf frequencies
 
 \subsection{Animation} 
 The ``VIB'' module also can generate mode animation input files in the
-form standard xyz format files for graphics packages like
-RasMol or XMol\footnote{There are scripts to automate this for RasMol in
+standard xyz file format for graphics packages like
+RasMol or XMol {There are scripts to automate this for RasMol in
 .../nwchem/contrib/rasmolmovie}.  Each mode will have 20 xyz
 files generated that cycle from the equilibrium geometry to 5 steps in
 the positive direction of the mode vector, back to 5 steps in the
@@ -135,7 +135,7 @@ To activate this mechanism simply use the following input directive
 anywhere in the frequency/vib input block.
 \subsubsection{Controlling the Step Size Along the Mode Vector}
 By default, the step size used is 0.15 a.u. which will give reliable
-animation for most systems.  This can be changed via the input system
+animations for most systems.  This can be changed via the input directive
 \begin{verbatim}
   animate real <step_size>
 \end{verbatim}
