@@ -21,7 +21,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: output.f,v 1.5 1995-10-10 06:19:44 d3g681 Exp $
+C$Id: output.f,v 1.6 1995-10-19 16:38:40 d3g681 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
@@ -69,6 +69,6 @@ C$Id: output.f,v 1.5 1995-10-10 06:19:44 d3g681 Exp $
 * 1000 format (/1h ,11x,7(a3,i3,3x),(a3,i3))
 * 2000 format (a1,'row',i4,1x,8f9.4)
 c
- 1000 format (/1h ,8x,7('   ',i3,3x),(a3,i3))
+ 1000 format (/1h ,8x,7('   ',i3,3x),('   ',i3))
  2000 format (a1,i4,1x,8f9.4)
       end
