@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.18 2003-10-17 22:56:48 carlfahl Exp $
+c $Id: psp_generator_input.F,v 1.19 2003-10-28 01:55:47 edo Exp $
 c
 
 *     ***************************************
@@ -282,7 +282,7 @@ c  local potential - locp
 c 
  710  if (.not. inp_a(locp))
      >     call errquit(
-     >          'psp_generator_input: failed to read locp', 0)
+     >          'psp_generator_input: failed to read locp',0,0)
       goto 10
 
  
