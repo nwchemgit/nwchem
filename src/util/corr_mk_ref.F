@@ -3,18 +3,20 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.3 1998-07-19 20:41:20 bernhold Exp $
+C     $Id: corr_mk_ref.F,v 1.4 1998-11-09 17:45:19 bernhold Exp $
 C
 C SYNOPSIS
-      Subroutine Corr_Mk_Ref(RTDB, Mod, Geom, NAO, RefSpin, RefNMO,
-     $     G_RefVec, RChunk, CChunk, MxSpin, H_RefOcc, H_RefEval,
-     $     NFrzOcc, NFrzVir, KeepFrz)
+      Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
+     $     NAO, RefSpin, RefNMO, G_RefVec, RChunk, CChunk, MxSpin,
+     $     H_RefOcc, H_RefEval, NFrzOcc, NFrzVir, KeepFrz)
 C
 C ARGUMENTS
       Implicit NONE
       Integer RTDB              ! [in]  Database handle
       Character*(*) Mod         ! [in]  Module name
       Integer Geom              ! [in]  Geometry handle
+      Integer Basis             ! [in]  Basis handle
+      Logical DoSCF             ! [in]  Invoke SCF if needed
       Integer NAO               ! [out] Number of AO basis functions
       Integer RefSpin           ! [out] Number of spin cases
       Integer MxSpin            ! [in]  Maximum number of spin cases expected
@@ -50,6 +52,18 @@ C
 C     NFrzOcc and NFrzVir always return the number of orbitals
 C     which were frozen regardless of the value of KeepFrz.
 C
+C     If DoSCF is .TRUE. the SCF module will be invoked under these
+C     conditions:
+C     1) SCF reference does not exist
+C     2) SCF reference exists, but is not converged to SCFThresh
+C     If DoSCF is .FALSE. the SCF module will not be invoked, even if
+C     the reference is not converged to SCFThresh.
+C
+C NOTES
+C     The DoSCF/SCFThresh mechanism is somewhat of a kludge and can be
+C     fooled.  In particular, it assumes that the last SCF calculation
+C     for which information appears in the RTDB is the one used to
+C
 C PRINT CONTROLS
 C 'reference info' (low)
 C     Print basic information about the reference: filename, title
@@ -66,20 +80,25 @@ C INCLUDE FILES
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "tcgmsg.fh"
 #include "geom.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "msgids.fh"
 C
 C EXTERNAL ROUTINES
-      Logical  MOVecs_Read_Header, MOVecs_Read
-      External MOVecs_Read_Header, MOVecs_Read
+      Logical  MOVecs_Read_Header, MOVecs_Read, MOVecs_Converged, SCF
+      External MOVecs_Read_Header, MOVecs_Read, MOVecs_Converged, SCF
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
       Character*(*) VecDef
       Parameter( VecDef = 'movecs')
 C
+      Character*(*) Routine
+      Parameter ( Routine = 'Corr_Mk_Ref: ')
+C
       Integer MyMxSpin
-      Parameter (MyMxSpin = 2) 
+      Parameter (MyMxSpin = 2)
 C 
 C LOCAL VARIABLES
 C
@@ -89,7 +108,7 @@ C
       Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
      $     MxRefNMO
       Integer SpinMap(MyMxSpin)
-      Double Precision TotOcc(MyMxSpin)
+      Double Precision TotOcc(MyMxSpin), RealThresh
       Integer H_Occ, I_Occ, H_EVal, I_EVal
 c$$$      Integer H_Occ0, I_Occ0, H_EVal0, I_EVal0
       Integer I_RefOcc, I_RefEVal
@@ -100,14 +119,17 @@ C STATEMENT FUNCTIONS
       SpinItoA(I) = Char( I + IChar('a') - 1 )
 C
       MLen = Inp_StrLen(Mod)
-      PrInfo = Util_Print('reference info', Print_Low)
       Me = GA_NodeID()
+      PrInfo = Util_Print('reference info', Print_Low) .AND. Me .eq. 0
 C
 C     Simple sanity checks
 C
       If ( MxSpin .gt. MyMxSpin) Call ErrQuit(
      $     'corr_mk_ref: caller expects too many spin cases', MxSpin)
 C
+C     ****************************
+C     * Figure out input vectors *
+C     ****************************
 C     Precedence for source of vectors:
 C     1) VECTORS INPUT for this module
 C     2) VECTORS OUTPUT for SCF module
@@ -119,6 +141,31 @@ C
       Else
          Call Util_File_Name(VecDef, .False., .False., VecFil)
       EndIf
+C
+C     ***************************************
+C     * Try to insure vectors are converged *
+C     ***************************************
+C
+      If (Me .eq. 0) Inquire( File=VecFil, Exist=Status)
+      Call GA_Brdcst(Msg_CMR_File, Status, MIToB(1), 0)
+C
+      If ( Status )
+     $     Status = MOVecs_Converged( RTDB, Basis, 'scf', VecFil)
+C
+      If ( PrInfo ) Write (LUOut, 8910) Routine,
+     $     VecFil(1:Inp_StrLen(VecFil) )
+ 8910 Format(1X, A, 'MO vectors ''', A, ''' don''t exist or aren''t ',
+     $     'converged.')
+C
+      If ( DoSCF .AND. .NOT. Status ) then
+         If ( PrInfo ) Write (LuOut, 8920) Routine
+         If ( .NOT. SCF( RTDB ) ) Then
+            Corr_Mk_Ref = .FALSE.
+            Call Util_Flush(LuOut)
+            Return
+         EndIf
+      EndIf
+ 8920 Format(1X, A, 'Invoking SCF to produce converged vectors.')
 C
 C     Get basic dimension info from VecFil
 C
@@ -186,7 +233,7 @@ c$$$      Call DCopy(NAO*VecSpin, Dbl_MB(I_EVal), 1, Dbl_MB(I_EVal0), 1)
 C
       Call GA_Sync
       Call Inp_UCase(VecType)   ! Presumptive, but reasonable treatment
-      If (PrInfo .AND. Me .eq. 0) then
+      If (PrInfo ) then
          Write (LuOut, '(1X, A, 1X, A)')
      $        VecType(1:Inp_StrLen(VecType)), 'Reference Information:'
          Write (LuOut, 9000) 'File:', VecFil(1:Inp_StrLen(VecFil))
@@ -411,5 +458,7 @@ C
          EndDo
       EndIf
 C
+      Corr_Mk_Ref = .TRUE.
+      Call Util_Flush(LuOut)
       Return
       End
