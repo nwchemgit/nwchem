@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.116 1999-06-28 15:50:58 d3g681 Exp $
+C     $Id: geom_input.F,v 1.117 1999-06-29 01:41:16 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -791,7 +791,7 @@ c
      $        ('hnd_autoz_input: reading ijbond',1)
          if(.not. inp_i(ijbond(2,nbond))) call errquit
      $        ('hnd_autoz_input: reading ijbond',2)
-         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+         call geom_autoz_input_varinfo
      $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
      $        nuser,fff)
          if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond),
@@ -808,7 +808,7 @@ c
      $        ('hnd_autoz_input: reading ijkang',2)
          if(.not. inp_i(ijkang(3,nangl))) call errquit
      $        ('hnd_autoz_input: reading ijkang',3)
-         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+         call geom_autoz_input_varinfo
      $        (ijkang_val(nangl), ijkang_nam(nangl), ijkang_frz(nangl),
      $        nuser,fff)
          if (oprint) write(6,3) ijkang(1,nangl), ijkang(2,nangl), 
@@ -828,7 +828,7 @@ c
      $        ('hnd_autoz_input: reading ijklto',3)
          if(.not. inp_i(ijklto(4,ntors))) call errquit
      $        ('hnd_autoz_input: reading ijklto',4)
-         if (inp_n_field().gt.3) call geom_autoz_input_varinfo
+         call geom_autoz_input_varinfo
      $        (ijklto_val(ntors), ijklto_nam(ntors), ijklto_frz(ntors),
      $        nuser,fff)
          if (oprint) write(6,4) ijklto(1,ntors), ijklto(2,ntors), 
