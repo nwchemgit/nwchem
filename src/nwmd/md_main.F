@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.97 2000-10-10 16:04:10 d3j191 Exp $
+c $Id: md_main.F,v 1.98 2000-10-26 19:01:41 d3j191 Exp $
 c
       implicit none
 c
@@ -1866,6 +1866,50 @@ c
 c
    22 continue
 c
+      if(np.gt.0) call ga_sync()
+c
+      if(nwmloc.gt.0) then
+      do 26 k=1,nwa
+      do 27 j=1,3
+      do 28 i=1,nwmloc
+      pw(i,j,k,2)=pw(i,j,k,1)
+      pw(i,j,k,1)=zero
+   28 continue
+   27 continue
+   26 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 29 j=1,3
+      do 30 i=1,nsaloc
+      ps(i,j,2)=ps(i,j,1)
+      ps(i,j,1)=zero
+   30 continue
+   29 continue
+      endif
+c
+      call sp_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3,1)
+c
+      if(nwmloc.gt.0) then
+      do 31 k=1,nwa
+      do 32 j=1,3
+      do 33 i=1,nwmloc
+      pw(i,j,k,1)=pw(i,j,k,1)+pw(i,j,k,2)
+      pw(i,j,k,2)=zero
+   33 continue
+   32 continue
+   31 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 34 j=1,3
+      do 35 i=1,nsaloc
+      ps(i,j,1)=ps(i,j,1)+ps(i,j,2)
+      ps(i,j,2)=zero
+   35 continue
+   34 continue
+      endif
+c
+      call sp_getp(me,pw,pwp,nwmloc,ps,psp,nsaloc,lpert2.or.lpert3,2)
+c
       pmax=0.0d0
       do 23 k=1,nwa
       do 24 j=1,3
@@ -1875,16 +1919,16 @@ c
    24 continue
    23 continue
 c
-      if(np.gt.0) call ga_dgop(mrg_d06,pmax,1,'max')
+      if(np.gt.1) call ga_dgop(mrg_d06,pmax,1,'max')
 c
-      do 333 i=1,nwmloc
-      if(iwl(i,1).eq.1) then
-      write(*,'(f12.6,2i5,6f12.6)') pmax,iwl(i,1),npolit,
-     + (pw(i,j,1,1),j=1,3),(pw(i,j,1,2),j=1,3)
-      endif
-  333 continue
+c      do 333 i=1,nwmloc
+c      if(iwl(i,1).eq.1) then
+c      write(*,'(f12.6,2i5,6f12.6)') pmax,iwl(i,1),npolit,
+c     + (pw(i,j,1,1),j=1,3),(pw(i,j,1,2),j=1,3)
+c      endif
+c  333 continue
 c
-      if(pmax.gt.ptol) goto 11
+      if(pmax.gt.ptol.and.npolit.le.mpolit) goto 11
 c
       return
       end
@@ -2072,7 +2116,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.97 2000-10-10 16:04:10 d3j191 Exp $
+c $Id: md_main.F,v 1.98 2000-10-26 19:01:41 d3j191 Exp $
 c
       implicit none
 c
