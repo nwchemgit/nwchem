@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.207 2001-12-14 00:43:02 edo Exp $
+c     $Id: dft_scf.F,v 1.208 2001-12-15 01:05:23 edo Exp $
 c     
       implicit none
 c
@@ -165,6 +165,8 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
+      double precision gotsmear
+      gotsmear(ss)=abs(ss).gt.1d-9
       s_rabuck(nn,ss,nss,delta)=min(ss*exp((1d0/(nss-1d0))*
      *     log(1d-10/ss)*(nn-1d0)),delta*5d-4)
 c
@@ -526,7 +528,7 @@ c     transformed Fock matrix will be diagonally dominant, or
 c     alternatively shift the piss out of it.
 c     
       if (movecs_guess.eq.'restart'.or.ncanorg.eq.1)then
-         levelshifting = .true.
+         levelshifting = gotsmear(ssmear)
       else
          levelshifting = .false.
       endif
@@ -727,20 +729,8 @@ c
      &        call dft_tstamp(' calling diis driver ')
          if(n_rabuck.ne.0) then
             ssmear=s_rabuck(iter,smear_in,n_rabuck,delta)
-            if(rabuck_act.and.ssmear.le.1d-9.
-     .           and.diising) then
-c     reset diis
-               if(me.eq.0) write(LuOut,*) 
-     .              ' smear off - resetting Diis'
-               call diis_driver(toll_s, derr,  ipol, icall, nfock, 
-     &              nbf_ao, geom, ao_bas_han, g_focks, 
-     &              g_dens, g_tmp, g_svecs, svals, 
-     &              diising, nodiis,int_mb(k_gdiis),
-     ,              lkeeps,g_s12m,g_s12p,.true.)
-               rabuck_act=.false.
-            endif
             
-            rabuck_act=ssmear.gt.1d-9
+            rabuck_act=gotsmear(ssmear)
          endif
             call diis_driver(toll_s, derr,  ipol, 
      &           icall, nfock, nbf_ao, geom, 
@@ -837,7 +827,7 @@ c
      &     call dft_tstamp(' called densm ')
       
       if((.not.rabuck_act).and.
-     .ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
+     .gotsmear(ssmear).and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
 c     swap alpha and beta
 c
@@ -1009,7 +999,7 @@ c
 c     
       if ((delta.lt.levlon.and.delta.gt.levloff).or.
      &    (iter.le.ncysh))then
-         if (homo_lumo_gap.lt.hl_tol.and.ssmear.lt.1d-9)then
+         if (homo_lumo_gap.lt.hl_tol.and.gotsmear(ssmear))then
             levelshifting = .true.
             rlshift = rlshift_input
             if (check_shift)then
@@ -1328,7 +1318,7 @@ c
 c
 c     write to rtdb that fractional occupancy exists
 c
-      if(fon.or.ssmear.gt.1d-9) then
+      if(fon.or.gotsmear(ssmear)) then
       if (.not.rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
      &   .true.))call errquit('dftscf: cannot write rtdb',1)
       endif

@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.32 2001-12-14 00:43:02 edo Exp $
+C$Id: dft_densm.F,v 1.33 2001-12-15 01:05:23 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -85,7 +85,7 @@ c
            call ga_zero(g_tmp)
          if(search0)then
            call dfill(nbf*ipol, 0.d0, focc, 1)
-           if(spinset) then
+           if(spinset.and.ipol.eq.2) then
               nmo(2)=0
               call dft_zero(2,nbf,nmo,noc(1),efermi(1),evals,
      ,             ssmear,toll)
@@ -155,7 +155,7 @@ C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
          endif
          endif
-         if(spinset) then
+         if(spinset.and.ipol.eq.2) then
             noc(1)=nint(ntot(1))
             if(ipol.eq.2) noc(2)=nint(ntot(2))
          endif
