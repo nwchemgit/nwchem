@@ -1,11 +1,14 @@
-      subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.13 1995-01-15 22:27:49 d3e129 Exp $
+      subroutine int_chk_sum(rtdb,basisin,print_ints)
+c $Id: int_chk_sum.F,v 1.14 1995-01-18 00:27:20 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
+#include "rtdb.fh"
+#include "context.fh"
 c::passed
+      integer rtdb       ! [input] rtdb handle
       integer basisin    ! [input] basis set handle 
       logical print_ints ! [input] also print integral and label values 
 c::local
@@ -25,6 +28,7 @@ c
       integer h_stats, i_stats
 c
       logical print69
+      logical dumm69
 c
       integer ncont
       integer plevel
@@ -101,7 +105,10 @@ c
 c
 c loop over shells and compute S sums
 c      
-      print69 = .true.
+      print69 = .false.
+      if (rtdb_get(rtdb,'int:ov69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       do 00100 i = 1,ncont
@@ -119,7 +126,8 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats),print69,'overlap')
+     &          dbl_mb(i_stats),(print69.and.(me.eq.0)),
+     &          'overlap')
           endif
 00200   continue
 00100 continue
@@ -134,6 +142,9 @@ c loop over shells and compute T sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       print69 = .false.
+      if (rtdb_get(rtdb,'int:ke69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       do 00101 i = 1,ncont
@@ -151,7 +162,8 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats),print69,'kinetic')
+     &          dbl_mb(i_stats),(print69.and.(me.eq.0)),
+     &          'kinetic')
           endif
 00201   continue
 00101 continue
@@ -165,6 +177,9 @@ c loop over shells and compute V sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       print69 = .false.
+      if (rtdb_get(rtdb,'int:pe69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       do 00102 i = 1,ncont
@@ -182,7 +197,8 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats),print69,'potential')
+     &          dbl_mb(i_stats),(print69.and.(me.eq.0))
+     &          ,'potential')
           endif
 00202   continue
 00102 continue
@@ -197,6 +213,9 @@ c
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       idoit = (me-1)
       print69 = .false.
+      if (rtdb_get(rtdb,'int:h169',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       numtot = 0
       do 00103 i = 1,ncont
         do 00203 j = 1,i
@@ -213,7 +232,8 @@ c
      &          dbl_mb(imemb),plevel)
             call stsum1(numleft,numtot,
      &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats),print69,' H1 (T+V)')
+     &          dbl_mb(i_stats),(print69.and.(me.eq.0)),
+     &          ' H1 (T+V)')
           endif
 00203   continue
 00103 continue
@@ -225,6 +245,10 @@ c
 c
 c do canonical shell list for 2e integrals (4 center)
 c
+      print69 = .false.
+      if (rtdb_get(rtdb,'int:4c69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
@@ -252,7 +276,7 @@ c
      &              int_mb(i_ilab),int_mb(i_jlab),
      &              int_mb(i_klab),int_mb(i_llab),
      &              dbl_mb(i_stats),
-     &              (print_ints.and.me.eq.0))
+     &              (print_ints.and.me.eq.0),(print69.and.me.eq.0))
               endif
 04000       continue
 03000     continue
@@ -266,6 +290,10 @@ c
 c
 c do canonical shell list for 2e integrals (3 center)
 c
+      print69 = .false.
+      if (rtdb_get(rtdb,'int:3c69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
@@ -289,7 +317,8 @@ c
      &            dbl_mb(imemb),
      &            int_mb(i_ilab),int_mb(i_jlab),
      &            int_mb(i_klab),
-     &            dbl_mb(i_stats),(print_ints.and.me.eq.0))
+     &            dbl_mb(i_stats),(print_ints.and.me.eq.0),
+     &            (print69.and.(me.eq.0)))
             endif
 03001     continue
 02001   continue
@@ -303,6 +332,10 @@ c
 c
 c do canonical shell list for 2e integrals (2 center)
 c
+      print69 = .false.
+      if (rtdb_get(rtdb,'int:2c69',MT_LOG,1,dumm69)) then
+        print69 = dumm69
+      endif
       idoit = (me-1)
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
@@ -326,7 +359,8 @@ c
             call stsum2_2c(numleft,numtot,
      &          dbl_mb(imemb),
      &          int_mb(i_ilab),int_mb(i_jlab),
-     &          dbl_mb(i_stats),(print_ints.and.me.eq.0))
+     &          dbl_mb(i_stats),(print_ints.and.me.eq.0),
+     &            (print69.and.(me.eq.0)))
           endif
 02002   continue
 01002 continue
@@ -450,7 +484,7 @@ c
 00100 continue
       end
       subroutine stsum2(num,numtot,Eri,ilab,jlab,klab,llab,
-     &       stats,printem)
+     &       stats,printem,print69)
       implicit none
 c::passed
       integer num                   ! number of 2e moieties
@@ -464,8 +498,8 @@ c
       double precision Eri(num)     ! 2e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
       logical printem               ! print values as you go??
+      logical print69               ! print values to unit 69??
 c::local 
-      logical printjust
       integer ii,i,j,k,l,l4
       double precision x,x2,denom,s1,d1
 c
@@ -474,8 +508,6 @@ c
       ISYM4(I,J,K,L)=MAX(ISYM2(I,J),ISYM2(K,L))*
      &               (MAX(ISYM2(I,J),ISYM2(K,L))-1)/2+
      &               MIN(ISYM2(I,J),ISYM2(K,L))
-c
-      printjust = .true.
 c
       numtot = numtot + num
       do 00100 ii = 1,num
@@ -491,10 +523,10 @@ c
           write(6,10001)l4,i,j,k,l,x
 10001     format(i8,4(i4,1x),5x,'eri = ',1pd20.10)
         endif
-        if (printjust) then
+        if (print69) then
           l4 = isym4(i,j,k,l)
-          write(69,10002)l4,i,j,k,l,x
-10002     format(i8,4(i4,1x),1x,f30.20)
+          write(69,10002)l4,i,j,k,l,x,'4 center eri'
+10002     format(i8,4(i4,1x),1x,f30.20,1x,a)
         endif
         x2    = x*x
         denom = 1.0d00 + x2
@@ -520,7 +552,7 @@ c
 00100 continue
       end
       subroutine stsum2_3c(num,numtot,Eri,ilab,jlab,klab,
-     &       stats,printem)
+     &       stats,printem,print69)
       implicit none
 c::passed
       integer num                   ! number of 2e moieties
@@ -534,6 +566,7 @@ c
       double precision Eri(num)     ! 2e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
       logical printem               ! print values as you go??
+      logical print69
 c::local 
       integer ii,i,j,k
       double precision x,x2,denom,s1,d1
@@ -548,8 +581,12 @@ c
         x     = Eri(ii)
         if (printem) then
           write(6,10001)i,j,k,x
-10001    format(1x,3(i4,1x),5x,'eri(3c) = ',1pd20.10)
-       endif
+10001     format(1x,3(i4,1x),5x,'eri(3c) = ',1pd20.10)
+        endif
+        if (print69) then
+          write(69,10002)i,j,k,x,'3 center eri'
+10002     format(3(i4,1x),1x,f30.20,1x,a)
+        endif
         x2    = x*x
         denom = 1.0d00 + x2
 c
@@ -574,7 +611,7 @@ c
 00100 continue
       end
       subroutine stsum2_2c(num,numtot,Eri,ilab,jlab,
-     &       stats,printem)
+     &       stats,printem,print69)
       implicit none
 c::passed
       integer num                   ! number of 2e moieties
@@ -587,6 +624,7 @@ c
       double precision Eri(num)     ! 2e moieties
       double precision stats(5,3)   ! stats array (zeroed elsewhere)
       logical printem               ! print values as you go??
+      logical print69
 c::local 
       integer ii,i,j
       double precision x,x2,denom,s1,d1
@@ -602,6 +640,10 @@ c
           write(6,10001)i,j,x
 10001    format(1x,2(i4,1x),5x,'eri(2c) = ',1pd20.10)
        endif
+        if (print69) then
+          write(69,10002)i,j,x,'2 center eri'
+10002     format(2(i4,1x),1x,f30.20,1x,a)
+        endif
         x2    = x*x
         denom = 1.0d00 + x2
 c
