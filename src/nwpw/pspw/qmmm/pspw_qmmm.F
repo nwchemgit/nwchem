@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.15 2002-02-28 00:56:26 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.16 2002-03-03 21:47:18 bylaska Exp $
 c
 
 ***********************************************************
@@ -931,7 +931,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
      > call errquit('pspw_qmmm_Update:error push stack',0)
 
 *     **** Get Forces ****
-      call pspw_qmmm_Fion(fion)
+      call pspw_qmmm_Fion(n2ft3d,rgrid,rho,dv,fion)
       call pspw_qmmm_Fmm(n2ft3d,rgrid,rho,dv,dbl_mb(fmm(1)))
       deltar = 0.0d0
 
@@ -1134,8 +1134,12 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *
 *     Author - Eric Bylaska
 
-      subroutine pspw_qmmm_Fion(fion)
+      subroutine pspw_qmmm_Fion(n2ft3d,rgrid,rho,dv,fion)
       implicit none
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 dv
       real*8 fion(3,*)
 
 ****** pspw_qmmm common block ****

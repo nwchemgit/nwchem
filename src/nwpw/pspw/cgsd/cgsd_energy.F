@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.17 2002-02-27 22:39:26 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.18 2002-03-03 21:47:17 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -335,9 +335,8 @@ c        call pspw_charge_Print(6)
       end if
 
       if (pspw_qmmm_found()) then
-         call pspw_qmmm_Fion(G1)
          nion1 = ion_nion() + pspw_charge_nion()
-         call rho_1Fmm(G1(1,nion1+1))
+         call rho_1_Fion_Fmm(G1,G1(1,nion1+1))
       end if
 
 *     **** remove ion forces using ion_FixIon ****

@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.15 2002-02-25 02:11:34 bylaska Exp $
+* $Id: psi.F,v 1.16 2002-03-03 21:47:18 bylaska Exp $
 *
 
 *     ***************************
@@ -457,12 +457,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *									*
-*     *		rho_1Fmm					*
+*     *		rho_1_Fion_Fmm				*
 *     *									*
 *     ***********************************
-      subroutine rho_1Fmm(F_mm)
+      subroutine rho_1_Fion_Fmm(fion,fmm)
       implicit none
-      real*8 F_mm(*)
+      real*8 fion(*)
+      real*8 fmm(*)
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -503,7 +504,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
-     >     'rho_1Fmm: out of stack memory',0)
+     >     'rho_1_Fion_Fmm: out of stack memory',0)
 
 
 *     **** Get r_grid and rho ****
@@ -512,16 +513,21 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                   dbl_mb(rho1(1)+(ispin-1)*n2ft3d),
      >                   dbl_mb(rho(1)))
 
-*     **** Now calculate F_mm ****
+*     **** Now calculate fion ****
+      call pspw_qmmm_Fion(n2ft3d,dbl_mb(r_grid(1)),
+     >                            dbl_mb(rho(1)),
+     >                            dv,fion)
+
+*     **** Now calculate fmm ****
       call pspw_qmmm_Fmm(n2ft3d,dbl_mb(r_grid(1)),
      >                            dbl_mb(rho(1)),
-     >                            dv,F_mm)
+     >                            dv,fmm)
 
 *     **** Pop memory ****
       value =           MA_pop_stack(rho(2))
       value = value.and.MA_pop_stack(r_grid(2))
       if (.not. value) call errquit(
-     >     'rho_1Fmm: error popping stack memory',0)
+     >     'rho_1_Fion_Fmm: error popping stack memory',0)
 
       return
       end
