@@ -384,7 +384,7 @@ c
 c     
          if(.not.bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
      $        call errquit('dftg_force: basnbfcdmax broken?',0)
-         lenvec=max(3*max_sh_bf,max_sh_bf*max_sh_bf)
+         lenvec=max(3*max_sh_bfcd,max_sh_bf*max_sh_bf)
          if (.not. MA_Push_get(MT_DBL, lenvec, 'svec',
      $        lsvec, isvec))
      $        call errquit('dftg_force: could not alloc svec',0)
