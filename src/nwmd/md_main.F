@@ -330,7 +330,7 @@ c
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
       real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif,espt
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
-      real*8 dxmax,dxfi,ecg0,ecg1,ecg2,eqrs
+      real*8 dxmax,dxfi,ecg0,ecg1,ecg2
       character*1 cqrs
 c
       if(me.eq.0) write(lfnout,1000)
