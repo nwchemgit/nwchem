@@ -1,10 +1,11 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.32 2004-10-02 22:53:17 edo Exp $
+C$Id: dft_3cincor.F,v 1.33 2004-10-20 20:30:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
+#define NXTLEFT 1
 c    
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches [in]
@@ -127,16 +128,17 @@ c     Determine/allocate scratch memory for 3 center 2e- integrals.
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
       nscr    = mscratch_2e3c
-!modedo
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_3cincor: cannot allocate scr',0, MA_ERR)
-c
-cedo      call ga_sync
-c
       nxtbuf = batch_max
       nbufs = icount
-cedo      call nxtask_nleft (nproc, icount, n1, nbufs)
+#ifdef NXTLEFT
+      call ga_sync
+      call nxtask_nleft (nproc, icount, n1, nbufs)
+cedo      write(0,*) ' using nleft'
+#else
       n1 = nxtask(nproc,icount)
+#endif
       n2 = 0
 c      
       ndone=1
@@ -227,8 +229,11 @@ c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i5)
 c              call util_flush(LuOut)
 c
               if( nxtbuf.lt.n3c_dbl) then
-cedo                call nxtask_nleft (nproc, icount, n1, nbufs)
+#ifdef NXTLEFT
+                call nxtask_nleft (nproc, icount, n1, nbufs)
+#else
                 n1 = nxtask(nproc,icount)
+#endif
               else
 c
 c               The most simplest of semi-direct implementations.
@@ -284,8 +289,11 @@ c                  get next task
 c
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' asking task '
-cedo                   call nxtask_nleft (nproc, icount, n1, nbufs)
-                n1 = nxtask(nproc,icount)
+#ifdef NXTLEFT
+                   call nxtask_nleft (nproc, icount, n1, nbufs)
+#else                   
+                   n1 = nxtask(nproc,icount)
+#endif
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' got task ',n1
                 else
@@ -383,8 +391,11 @@ c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_3cincor: cannot pop stack',0, MA_ERR)
 c
-                n1 = nxtask(-nproc,icount)
-cedo      call nxtask_nleft (-nproc, icount, n1, nbufs)
+#ifdef NXTLEFT
+      call nxtask_nleft (-nproc, icount, n1, nbufs)
+#else
+      n1 = nxtask(-nproc,icount)
+#endif
  3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',
      &       f6.2,/)
  3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
