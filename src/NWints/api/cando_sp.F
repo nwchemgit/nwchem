@@ -1,15 +1,17 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.16 1996-02-09 22:35:50 d3e129 Exp $
-c
-c a zero [i|j]sh means ignore this shell
-c this allows one function for all 2e permutations
-c 
-c for two electron cases then there are two calls to cando_sp
-c that are required
+c $Id: cando_sp.F,v 1.17 1996-03-20 00:54:18 d3e129 Exp $
 c
 c this routine does not check the shell and int_init
-c because it only called by routines that do this.
+c because it is only called by routines that do this.
+c 
+***********************************************************************
+c-tex-% part of API Internal Routines
+c-tex-\subsubsection{cando\_sp}
+c-tex-This routine returns ``.true.'' to the calling integral API 
+c-tex-routine the integrals over ISH and JSH can be computed using 
+c-tex-the sp-rotated axis code.
+***********************************************************************
 c
 #include "bas.fh"
 #include "basP.fh"
@@ -19,7 +21,13 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-      integer basisin,ish,jsh
+c-tex-\begin{verbatim}
+c-tex-      logical function cando_sp(basisin,ish,jsh)
+      integer basisin   ! [input] basis set handle for identified shells 
+      integer ish, jsh  ! [input] lexical shell index for I and J
+c-tex-\end{verbatim}
+c-tex-A zero [i|j]sh means ignore this shell. this allows one function 
+c-tex-for all 2e permutations and multiple basis sets
 c::local
       integer basis, mytype, mycont
       integer ucont
