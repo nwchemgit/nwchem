@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.151 2001-08-31 22:44:15 edo Exp $
+# $Id: make_nwchem_config,v 1.152 2001-11-11 01:23:15 bylaska Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -29,7 +29,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
-		    -lprepar -lnwmd -lpspw -lnwpwlib -lcafe -lspace -lanalyze\
+		    -lprepar -lnwmd -lnwpw -lpspw -lnwpwlib -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -202,7 +202,7 @@ MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst nwpw,-lpspw -lnwpwlib,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwpw,-lnwpw -lpspw -lnwpwlib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcstep,-lmcstep,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
