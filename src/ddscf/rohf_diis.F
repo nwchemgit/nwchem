@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.1 1996-01-25 01:13:52 rg240 Exp $
+C     $Id: rohf_diis.F,v 1.2 1996-07-02 19:25:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -36,9 +36,9 @@ c
 c     Local variables
 c     
       double precision gnorm                   ! measures for convergence
-      double precision xx, diis_emax
+      double precision diis_emax
       logical converged, odo_diis
-      integer vlen, ndiis, i
+      integer vlen, ndiis
       integer voff, aoff, aend
       logical oprint_parm
       integer mxdiisbas
@@ -213,11 +213,10 @@ c
       integer g_bas
       logical odo_diis
 c
-      integer mxbas, nbas, vlen, itype, ipos
+      integer mxbas, nbas, vlen, itype
       integer i, j, ij, ji
       integer info
       double precision xx(500), yy(100), tmp(100), zz
-      DOUBLE PRECISION CRAP(1000)
 c
 c  Copy new error vector to basis
 c

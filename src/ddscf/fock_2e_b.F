@@ -6,7 +6,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.10 1996-06-27 22:42:31 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.11 1996-07-02 19:25:00 d3g681 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -38,7 +38,7 @@ c
 c     
 c
       double precision ncomputed
-      common/crap/ncomputed
+      common/ctemp/ncomputed
 c
       logical oij, okl, oikjl, status
       integer ish, jsh, ksh, lsh, mem2, max2e

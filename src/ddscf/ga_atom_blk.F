@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.1 1995-12-13 01:25:15 d3g681 Exp $
+C$Id: ga_atom_blk.F,v 1.2 1996-07-02 19:25:03 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -85,8 +85,14 @@ c
 c
       status =  ga_create_irreg(MT_DBL, nbf, nbf, name,
      $     map1, nblock1, map2, nblock2, g_a)
-      if (.not. status)
-     $     call errquit('ga_create_atom_blocked: ga_create_irreg ', 0)
+      if (.not. status) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*) ' ga_create_atom_blocked: ', name
+            call util_flush(6)
+         endif
+         call ga_sync()
+         call errquit('ga_create_atom_blocked: ga_create_irreg ', 0)
+      endif
 c
       ga_create_atom_blocked = g_a
 c

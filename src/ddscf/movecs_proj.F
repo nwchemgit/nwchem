@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.2 1996-01-31 02:24:30 d3g681 Exp $
+C$Id: movecs_proj.F,v 1.3 1996-07-02 19:25:05 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -35,7 +35,7 @@ c
       integer l_ran, k_ran
       integer old_basis
       integer nbf, i, j
-      double precision crap
+      double precision temp
       character*80 old_basis_name, old_filename, old_title
       character*80 project(2), basis_name_from_file
       logical oprint, oprint_info
@@ -203,7 +203,7 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'ran #',
      $     l_ran, k_ran)) call errquit
      $     ('movecs_project: ma ran #', nbf)
-      crap = drand(ga_nodeid()*314159+1)
+      temp = drand(ga_nodeid()*314159+1)
       do i = old_nbf+1+ga_nodeid(), nbf, ga_nnodes()
 *         write(6,*) ' Randomizing ', i
 *         call util_flush(6)

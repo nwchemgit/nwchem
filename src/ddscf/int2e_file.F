@@ -661,15 +661,19 @@ c
 #include "inp.fh"
 #include "cint2esave.fh"
 c
+      integer nbitv             ! For pretty output
+c
 c     Opening of file, allocation of buffer and writing of
 c     info message are all now deferred until the first
 c     write operation
 c
       if (cur_rec .eq. 1) then
          if (oinfo) then
+            nbitv = 64
+            if (ocompress) nbitv = 32
             write(6,20) actualname(1:inp_strlen(actualname)),
      $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec,
-     $           lab_pack_len, ocompress
+     $           lab_pack_len, nbitv
  20         format(/
      $           ' Integral file          = ', a/
      $           ' Record size in doubles = ', i6,7x,
@@ -677,7 +681,7 @@ c
      $           ' Max. records in memory = ', i6,7x,
      $           ' Max. records in file   = ', i6/
      $           ' No. of bits per label  = ', i6,7x,
-     $           ' Compression            = ', l1/)
+     $           ' No. of bits per value  = ', i6/)
             call util_flush(6)
          end if
       end if

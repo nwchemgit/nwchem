@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.19 1996-06-27 22:42:33 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.20 1996-07-02 19:25:02 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -394,7 +394,7 @@ c
 #include "util.fh"
 c
       double precision ncomputed
-      common /crap/ ncomputed
+      common /ctemp/ ncomputed
 c
       integer basis
       integer nfock
