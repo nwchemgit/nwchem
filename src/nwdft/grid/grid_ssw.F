@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.13 2002-07-30 02:23:30 edo Exp $
+C$Id: grid_ssw.F,v 1.14 2002-07-30 21:11:18 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -31,7 +31,7 @@ c
       double precision  toll_scr,rag 
       logical inotA,jnota
 c
-      integer iw,n
+      integer iw,n,n1,n2
       double precision ass,distnc,distnn,wsum
       parameter (toll_scr=1d-13)
 #include "xc_erftab.fh"
@@ -92,16 +92,29 @@ c      toll=max((tol_rho*1d-5),1d-33)
 c
 c       check if grid point is within sphere where w=1
 c
-        if(rq(n,AA).lt.radwgh+eps) goto 30
+        if(rq(n,AA).ge.radwgh+eps) then
+          n1=n
+          goto 31
+        endif
+      enddo
+c     all inside
+      return
+31    continue  
 c
 c       compute mu_AN
 c
-        mu=(rq(n,AA)-rq(n,nn))/sqrt(distnn)
-        if (mu.gt.ass-eps) then
-          xyzw(4,n)=0
-          goto 30
-        endif
-
+      distnn=(ass-eps)*sqrt(distnn)
+      do n=nq,1,-1
+         if ((rq(n,AA)-rq(n,nn)).gt.distnn) then
+            xyzw(4,n)=0
+         else
+            n2=n
+            goto 32
+         endif
+      enddo
+32     continue
+c
+        do n=n1,n2
         call dfill(nctrs_pruned,1.d0,p,1)
         do  i = 2, nctrs_pruned
           inota=i.ne.AA
@@ -109,29 +122,34 @@ c
           rag=rq(n,i)
 
           do  j = 1, i-1
-
-
-c           
-              ij=ij+1
-              mu = (rag - rq(n,j))*Rij(ij)
-              if (mu.ge.(ass-eps)) then
+             ij=ij+1
+             mu = (rag - rq(n,j))*Rij(ij)
+             if (mu.gt.(ass-eps)) then
                 p(i)=0.d0
-
-              elseif (mu.le.-(ass-eps)) then
+             elseif (mu.lt.-(ass-eps)) then
                 p(j)=0.d0
-
-              else
-                 if(inota.and. j.ne.AA) then
-c                 
-c                 use interpolation for erfs
+             else
+#if !defined(IFCLINUX)
+                if(inota.and. j.ne.AA) then
+c     
+c     use interpolation for erfs
 c
                    sk=erf1c(mu)
-                   if(mu.lt.0d0) sk=1d0-sk
+                   if(mu.lt.0d0) then
+                      p(j) = p(j)*sk
+                      p(i) = p(i)*(1d0 - sk)
+                   else
+                      p(i) = p(i)*sk
+                      p(j) = p(j)*(1d0 - sk)
+                   endif
                 else
+#endif
                    sk=erf1(mu)
+                   p(i) = p(i)*sk
+                   p(j) = p(j)*(1d0 - sk)
+#if !defined(IFCLINUX)
                 endif
-                p(i) = p(i)*sk
-                p(j) = p(j)*(1d0 - sk)
+#endif
               endif
             enddo ! end loop over j
           enddo   ! end loop over i
