@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.44 2003-02-20 02:06:04 bert Exp $
+C $Id: hess_init.F,v 1.45 2003-02-24 20:11:25 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -546,11 +546,13 @@ c
 c  Check for UHF in DFT
 c
       if (theory.eq.'dft') then
-        if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     $    nopen = 1
+        if (.not. rtdb_get(rtdb, 'dft:nopen', MT_INT, 1, nopen))
+     $    nopen = 0
+        if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1, mult))
+     $    mult = 1
         if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol))
      $    ipol = 1
-        if (ipol.gt.1) then
+        if (ipol.gt.1.or.nopen.gt.0.or.mult.gt.1) then
           write(LuOut,*) 'Open shell DFT detected'
           return
         endif
