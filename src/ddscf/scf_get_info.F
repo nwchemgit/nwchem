@@ -114,7 +114,8 @@ c
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment'
+     $          .or.movecs_in.eq.'rotate') then
             call util_file_name('movecs', .false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
@@ -125,7 +126,8 @@ c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
 c
       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
-     $     movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment'
+     $          .or.movecs_in.eq.'rotate') then
          continue
       else
          call util_file_name_resolve(movecs_in, .false.)
@@ -298,7 +300,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.52 2001-06-26 19:42:20 zzhang Exp $
+C$Id: scf_get_info.F,v 1.53 2002-12-03 17:16:48 d3k958 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

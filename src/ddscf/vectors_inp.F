@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.7 2002-09-26 18:28:28 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.8 2002-12-03 17:16:48 d3k958 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -26,7 +26,7 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind
-      parameter (num_dirs = 9)
+      parameter (num_dirs = 10)
       character*8 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 50)
@@ -36,11 +36,11 @@ c
       parameter (maxfrag = 60)
       character*255 fragments(maxfrag)
       integer nfrag
-      character*80 project(2)
+      character*80 project(2), rotate(2)
       character*20 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'reorder', 'project', 'lock', 'fragment'/
+     $     'reorder', 'project', 'rotate', 'lock', 'fragment'/
 c     
       nfrag = 0  
       vectors_in = ' '
@@ -60,7 +60,7 @@ c
          goto 10
       endif
 c     
-      goto (100, 200, 300, 400, 500, 550, 600, 700, 800, 999) ind
+      goto (100, 200, 300, 400, 500, 550, 600, 650, 700, 800, 999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
 c     input ... quietly ignore this
@@ -162,8 +162,19 @@ c
      $     call errquit('vectors_input: failed to store project',0)
       goto 10
 c     
-c     Force MO locking so output matches ordering of input
+c     rotate geomname filename
 c     
+ 650  if (.not. inp_a(rotate(1))) goto 10000
+      if (.not. inp_a(rotate(2))) goto 10000
+      vectors_in = 'rotate'
+      print *,rotate(1), rotate(2)
+      if (.not. rtdb_cput(rtdb, 'vectors:rotate', 2, rotate))
+     $     call errquit('vectors_input: failed to store rotate',0)
+      goto 10
+c 
+c    
+c     Force MO locking so output matches ordering of input
+c
  700  olock = .true.
       goto 10
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.113 2002-01-19 04:23:13 zzhang Exp $
+# $Id: GNUmakefile,v 1.114 2002-12-03 17:16:45 d3k958 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -15,6 +15,7 @@
 	ga_cont_blk.o           mull_pop.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_proj.o \
+        movecs_rotate.o \
         ao_fock_2e.o              movecs_lock.o \
 	fock_2e.o                 fock_2e_et.o \
 	fock_2e_a.o               print_aoints.o \
