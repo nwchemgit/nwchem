@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.62 2002-03-29 23:06:08 edo Exp $ 
+% $Id: dft.tex,v 1.63 2002-05-10 18:24:20 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -1255,21 +1255,25 @@ The Perdew and Zunger (see J. P. Perdew and A. Zunger, Phys. Rev. B 23,
 5048 (1981)) method to remove the self-interaction contained in many
 exchange-correlation functionals has been implemented with the
 Optimized Effective Potential method 
-(see R. T. Sharp and G. K. Horton, Phys. Rev. 90, 317 (1953),
-J. D. Talman and W. F. Shadwick, Phys. Rev. A 14, 36 (1976)). 
+(see R. T. Sharp and G. K. Horton, Phys. Rev. {\bf 90}, 317 (1953),
+J. D. Talman and W. F. Shadwick, Phys. Rev. A {\bf 14}, 36 (1976))
+within the Krieger-Li-Iafrate approximation (J. B. Krieger, Y.  Li, 
+and G. J. Iafrate, Phys. Rev. A {\bf 45}, 101 (1992); {\bf 46}, 5453 (1992); 
+47, 165 (1993))
 Three variants of these methods are included in NWChem:
 \begin{itemize}
-\item{\bf sic perturbative} This is the default option for the sic
+\item{\tt  sic perturbative} This is the default option for the sic
 directive. After a self-consistent calculation, the Kohn-Sham
 orbitals are localized with the Foster-Boys algorithm (see section
 \ref{orbloc}) and the self-interaction energy is added to the total energy. 
 All exchange-correlation functionals implemented in the NWChem can be
 used with this option.
-\item{\bf sic oep} With this option the optimized effective potential is
+\item{\tt  sic oep} With this option the optimized effective potential is
 built in each step of the self-consistent process. Because the electrostatic
 potential generated for each orbital involves a numerical
 integration, this method can be expensive.
-\item{\bf sic oep-loc} This option is similar to the oep option with the
+\item{\tt  sic oep-loc} 
+This option is similar to the oep option with the
 addition of localization of the Kohn-Sham orbitals in each step of the 
 self-consistent process.
 \end{itemize}
