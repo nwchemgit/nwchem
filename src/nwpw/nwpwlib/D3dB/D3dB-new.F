@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.25 2004-04-20 17:52:51 bylaska Exp $
+* $Id: D3dB-new.F,v 1.26 2004-04-21 15:09:53 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -143,6 +143,9 @@ c           k_map(q_map(k)) = k
             int_mb(k_map(1,nb)+int_mb(q_map(1,nb)+k-1)-1) = k
          end if
       end do
+
+      nfft3d(nb) = (nx(nb)/2+1)*ny(nb)*nq(nb)
+      n2ft3d(nb) = 2*nfft3d(nb)
 
 
 *     ******************************
@@ -330,10 +333,21 @@ c     p = p_map(k)
 
       integer q
 
+      !**** slab mapping ***
+      if (mapping.eq.1) then
       q = int_mb(q_map(1,nb)+k-1)
       p = int_mb(p_map(1,nb)+k-1)
 
       indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+
+      !**** hilbert mapping ****
+      else
+      q = int_mb(q_map3(1,nb)+(i-1)+(j-1)*(nx(nb)/2+1))
+      p = int_mb(p_map3(1,nb)+(i-1)+(j-1)*(nx(nb)/2+1))
+       
+      indx = k + (q-1)*nz(nb)
+      end if
+
       return
       end
 
@@ -356,10 +370,21 @@ c     p = p_map(k)
 
       integer q
 
+      !**** slab mapping ****
+      if (mapping.eq.1) then
       q = int_mb(q_map(1,nb)+j-1)
       p = int_mb(p_map(1,nb)+j-1)
 
       indx = i + (k-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+
+      !**** hilbert mapping ****
+      else
+      q = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+      p = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+      indx = i + (q-1)*(nx(nb)+2)
+      end if
+
       return
       end
 
@@ -373,15 +398,15 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_nfft3d(nb,nfft3d)
+      subroutine D3dB_nfft3d(nb,nfft3d_out)
       implicit none
       integer nb
-      integer nfft3d
+      integer nfft3d_out
 
 #include "D3dB.fh"
 
 
-      nfft3d = (nx(nb)/2+1)*ny(nb)*nq(nb)
+      nfft3d_out = nfft3d(nb)
       return
       end
 
@@ -391,15 +416,15 @@ c     p = p_map(k)
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_n2ft3d(nb,n2ft3d)
+      subroutine D3dB_n2ft3d(nb,n2ft3d_out)
       implicit none
       integer nb
-      integer n2ft3d
+      integer n2ft3d_out
 
 #include "D3dB.fh"
 
 
-      n2ft3d = (nx(nb)+2)*ny(nb)*nq(nb)
+      n2ft3d_out = n2ft3d(nb)
       return
       end
 
@@ -497,6 +522,7 @@ c     p = p_map(k)
       nx(nb)     = nx_in
       ny(nb)     = ny_in
       nz(nb)     = nz_in
+      mapping    = map_in
 
 
 *     **** do other initializations ****
@@ -594,7 +620,7 @@ c     msglen = 8
 #include "D3dB.fh"
 
 
-      call dcopy((nx(nb)+2)*ny(nb)*nq(nb),0.0d0,0,A,1)
+      call dcopy(n2ft3d(nb),0.0d0,0,A,1)
       return
       end
 
@@ -606,7 +632,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy((nx(nb)+2)*ny(nb)*nq(nb),0.0d0,0,A,1)
+      call dcopy(n2ft3d(nb),0.0d0,0,A,1)
       return
       end
 
@@ -638,7 +664,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy((nx(nb)+2)*ny(nb)*nq(nb),A,1,B,1)
+      call dcopy(n2ft3d(nb),A,1,B,1)
       return
       end
 
@@ -650,7 +676,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy((nx(nb)/2+1)*ny(nb)*nq(nb),A,1,B,1)
+      call dcopy(nfft3d(nb),A,1,B,1)
       return
       end
 
@@ -676,17 +702,18 @@ c     msglen = 8
       common	/ D3dB_fft / tmpx,tmpy,tmpz
 
       logical value
-      integer nfft3d,ierr
+      integer ierr
 
 
-      call D3dB_nfft3d(nb,nfft3d)
-      value = MA_alloc_get(mt_dcpl,(nfft3d),
+      !call D3dB_nfft3d(nb,nfft3d)
+
+      value = MA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d),
+     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d),
+     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dB_fft_init:out of heap memory',0, MA_ERR)
@@ -843,10 +870,7 @@ c     msglen = 8
 *     *** local variables ***
       integer i,j,k,q,indx,ierr
 
-c     complex*16  tmp1(*)
-c     complex*16  tmp2(*)
-c     real*8      tmp3(*)
-      integer nfft3d
+      
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
       logical value
@@ -855,14 +879,11 @@ c     real*8      tmp3(*)
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
-      call D3dB_nfft3d(nb,nfft3d)
-c     value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
-c     value = value.and.
-c    >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
-
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+      !call D3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'ffttmp2',
+     >                    tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'ffttmp3',tmp3(2),tmp3(1))
+     >      MA_push_get(mt_dbl,(n2ft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     ********************************************
@@ -1093,7 +1114,6 @@ c      end do
 c     complex*16  tmp1(*)
 c     complex*16  tmp2(*)
 c     real*8      tmp3(*)
-      integer nfft3d
       !integer tmp1(2),tmp2(2),tmp3(2)
       logical value
 
@@ -1101,7 +1121,7 @@ c     real*8      tmp3(*)
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
-      call D3dB_nfft3d(nb,nfft3d)
+      !call D3dB_nfft3d(nb,nfft3d)
 
 
 *     ********************************************
@@ -1120,14 +1140,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1,nb)))
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1,nb)+k-1) = A(indx)
          end do
          call z1dfft(dcpl_mb(tmp2(1,nb)),nz(nb),
      >               dcpl_mb(tmpz(1,nb)),-2,ierr)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1,nb)+k-1)
          end do
       end do
@@ -1140,13 +1160,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1,nb)))
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1,nb)+k-1) = A(indx)
          end do
          call dcfftb(nz(nb),dcpl_mb(tmp2(1,nb)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1,nb)+k-1)
          end do
       end do
@@ -1159,7 +1179,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1,nb)))
 *     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
 *     ********************************************
       do n=1,ne
-        indx = 1 + (n-1)*nfft3d
+        indx = 1 + (n-1)*nfft3d(nb)
         call D3dB_c_transpose_jk(nb,A(indx),
      >                           dcpl_mb(tmp2(1,nb)),
      >                           dbl_mb(tmp3(1,nb)))
@@ -1178,14 +1198,14 @@ c    >                          dbl_mb(tmp3(1,nb)))
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1,nb)+j-1) = A(indx)
          end do
          call z1dfft(dcpl_mb(tmp2(1,nb)),ny(nb),
      >               dcpl_mb(tmpy(1,nb)),-2,ierr)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1,nb)+j-1)
          end do
       end do
@@ -1198,13 +1218,13 @@ c    >                          dbl_mb(tmp3(1,nb)))
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1,nb)+j-1) = A(indx)
          end do
          call dcfftb(ny(nb),dcpl_mb(tmp2(1,nb)),dcpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1,nb)+j-1)
          end do
       end do
@@ -1221,7 +1241,7 @@ c    >                          dbl_mb(tmp3(1,nb)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >            + (n-1)*nfft3d
+     >            + (n-1)*nfft3d(nb)
          call drc1ft(A(indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
       end do
       end do
@@ -1234,7 +1254,7 @@ c    >                          dbl_mb(tmp3(1,nb)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >            + (n-1)*nfft3d
+     >            + (n-1)*nfft3d(nb)
          call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
       end do
       end do
@@ -1290,7 +1310,6 @@ c    >                          dbl_mb(tmp3(1,nb)))
 *     *** local variables ***
       integer i,j,k,q,indx,ierr
 
-      integer nfft3d
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
       logical value
@@ -1300,13 +1319,10 @@ c    >                          dbl_mb(tmp3(1,nb)))
 
 
 *     ***** allocate temporary space ****
-      call D3dB_nfft3d(nb,nfft3d)
-c     value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
-c     value = value.and.
-c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      !call D3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'tmp3',tmp3(2),tmp3(1))
+     >        MA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -1519,7 +1535,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *** local variables ***
       integer i,j,k,q,n,indx,ierr
 
-      integer nfft3d
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
       logical value
@@ -1529,13 +1544,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     ***** allocate temporary space ****
-      call D3dB_nfft3d(nb,nfft3d)
-c     value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
-c     value = value.and.
-c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      !call D3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'tmp3',tmp3(2),tmp3(1))
+     >        MA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -1553,7 +1565,7 @@ c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >        + (n-1)*nfft3d
+     >        + (n-1)*nfft3d(nb)
 
 
          call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
@@ -1576,7 +1588,7 @@ c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
          end do
          !indx = i + (q-1)*(nx(nb)/2+1)*ny(nb)
@@ -1584,7 +1596,7 @@ c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
          call z1dfft(dcpl_mb(tmp2(1)),ny(nb),dcpl_mb(tmpy(1,nb)),1,ierr)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1)+j-1)
          end do
          !call zcopy(ny(nb),dcpl_mb(tmp2(1)),1,A(indx),(nx(nb)/2+1))
@@ -1604,13 +1616,13 @@ c      end do
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
          end do
          call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1)+j-1)
          end do
       end do
@@ -1624,7 +1636,7 @@ c      end do
 *     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
 *     ********************************************
       do n=1,ne
-        indx = 1 + (n-1)*nfft3d
+        indx = 1 + (n-1)*nfft3d(nb)
         call D3dB_c_transpose_jk(nb,A(indx),
      >                           dcpl_mb(tmp2(1)),
      >                           dbl_mb(tmp3(1)))
@@ -1642,13 +1654,13 @@ c      end do
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
          end do
          call z1dfft(dcpl_mb(tmp2(1)),nz(nb),dcpl_mb(tmpz(1,nb)),1,ierr)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1)+k-1)
          end do
       end do
@@ -1661,13 +1673,13 @@ c      end do
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
          end do
          call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-     >               + (n-1)*nfft3d
+     >               + (n-1)*nfft3d(nb)
             A(indx) = dcpl_mb(tmp2(1)+k-1)
          end do
       end do
@@ -1940,7 +1952,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -1958,7 +1970,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -1976,7 +1988,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -1994,7 +2006,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -2020,7 +2032,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
       return
@@ -2043,7 +2055,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = A(i)**2
       end do
       return
@@ -2065,7 +2077,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = dsqrt(A(i))
       end do
       return
@@ -2088,7 +2100,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = A(i)**2
       end do
       return
@@ -2923,7 +2935,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np
+      integer i,j,k,q,index,np,taskid,p
       real*8  sum
 
 
@@ -2934,6 +2946,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     **** sum up dot product on this node ****
       sum = 0.0d0
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     ***** kx!=0 plane, so double count *****
       do q=1,nq(nb)
          do j=1,ny(nb)
@@ -2956,6 +2972,32 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
      >                + dimag(A(index)) * dimag(B(index))
          end do
       end do
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     ***** kx!=0 plane, so double count *****
+      do index=1,nfft3d(nb)
+            sum = sum + dble(A(index))  * dble(B(index))
+     >                + dimag(A(index)) * dimag(B(index))
+      end do
+      sum = sum*2.0d0
+
+*     ***** kx==0 plane, so single count *****
+      do k=1,nz(nb)
+      do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         sum = sum - dble(A(index))  * dble(B(index))
+     >             - dimag(A(index)) * dimag(B(index))
+         end if
+      end do
+      end do
+
+      end if
       
 
 *     **** add up sums from other nodes ****
@@ -2985,7 +3027,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np
+      integer i,j,k,q,index,np,taskid,p
       real*8  sum
 
 
@@ -2996,6 +3038,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     **** sum up dot product on this node ****
       sum = 0.0d0
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     ***** kx!=0 plane, so double count *****
       do q=1,nq(nb)
          do j=1,ny(nb)
@@ -3020,6 +3066,33 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       end do
       
 
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     ***** kx!=0 plane, so double count *****
+      do index=1,nfft3d(nb)
+            sum = sum + dble(A(index))  * dble(B(index))
+     >                + dimag(A(index)) * dimag(B(index))
+      end do
+      sum = sum*2.0d0
+
+*     ***** kx==0 plane, so single count *****
+      do k=1,nz(nb)
+      do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         sum = sum - dble(A(index))  * dble(B(index))
+     >             - dimag(A(index)) * dimag(B(index))
+         end if
+      end do
+      end do
+
+      end if
+
+
 *     **** do not add up sums from other nodes ****
        
       call nwpw_timing_end(2)
@@ -3043,7 +3116,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np,nxh
+      integer i,j,k,q,index,np,nxh,taskid,p
       real*8  sum
 
       nxh=nx(nb)/2
@@ -3052,6 +3125,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     **** sum up dot product on this node ****
       sum = 0.0d0
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     ***** k!=0 plane, so double count *****
       do q=1,nq(nb)
          do j=1,ny(nb)
@@ -3071,6 +3148,31 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
             sum = sum + A(index)*B(index)
          end do
       end do
+
+      
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     ***** kx!=0 plane, so double count *****
+      do index=1,nfft3d(nb)
+            sum = sum + A(index)*B(index)
+      end do
+      sum = sum*2.0d0
+
+*     ***** kx==0 plane, so single count *****
+      do k=1,nz(nb)
+      do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         sum = sum - A(index)*B(index)
+         end if
+      end do
+      end do
+
+      end if
       
 
 *     **** add up sums from other nodes ****
@@ -3099,7 +3201,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np,nxh
+      integer i,j,k,q,index,np,nxh,taskid,p
       real*8  sum
 
 
@@ -3111,6 +3213,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     **** sum up dot product on this node ****
       sum = 0.0d0
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     ***** k!=0 plane, so double count *****
       do q=1,nq(nb)
          do j=1,ny(nb)
@@ -3131,6 +3237,33 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
          end do
       end do
       
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     ***** kx!=0 plane, so double count *****
+      do index=1,nfft3d(nb)
+            sum = sum + A(index)*B(index)
+      end do
+      sum = sum*2.0d0
+
+*     ***** kx==0 plane, so single count *****
+      do k=1,nz(nb)
+      do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         sum = sum - A(index)*B(index)
+         end if
+      end do
+      end do
+
+      end if
+
+
 
 *     **** !!!! do not add up sums from other nodes ****
 
@@ -3167,7 +3300,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          sum = sum + A(i)*B(i)
       end do
 
@@ -3202,7 +3335,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          sum = sum + A(i)*B(i)
       end do
 
@@ -3234,7 +3367,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
             C(i) = dconjg(A(i)) * B(i)
          end do
 
@@ -3257,7 +3390,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          if (masker(i)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
       return
@@ -3279,7 +3412,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          if (masker(i)) A(i) = 0.0d0
       end do
       return
@@ -3303,7 +3436,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
             C(i) = A(i) * B(i)
       end do
 
@@ -3327,7 +3460,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
             C(i) = A(i) * B(i)
          end do
 
@@ -3353,7 +3486,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -3378,7 +3511,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -3402,7 +3535,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -3411,9 +3544,9 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 
 *     ***********************************
-*     *									*
-*     *	         D3dB_rr_Sub  	 		*	
-*     *									*
+*     *					*
+*     *	         D3dB_rr_Sub   		*	
+*     *					*
 *     ***********************************
 
       subroutine D3dB_rr_Sub(nb,A,B,C)     
@@ -3427,7 +3560,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -3480,7 +3613,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
          B(i) = B(i) + alpha*A(i)
       end do
 
@@ -3504,7 +3637,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          B(i) = B(i) + alpha* B(i)
       end do
 
@@ -3531,18 +3664,20 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i,j,q,index
 
-      do q=1,nq(nb)
-      do j=1,ny(nb)
-      do i=1,nx(nb)
-         index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+      !do q=1,nq(nb)
+      !do j=1,ny(nb)
+      !do i=1,nx(nb)
+      do index = 1,n2ft3d(nb)
+         !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(B(index)) .le. eta) then
            C(index) = 0.0d0
          else
            C(index) = A(index) / B(index)
          end if
       end do
-      end do
-      end do
+      !end do
+      !end do
+      !end do
 
       return
       end
@@ -3566,14 +3701,16 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i,j,q,index
 
-      do q=1,nq(nb)
-      do j=1,ny(nb)
-      do i=1,nx(nb)
-         index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+      !do q=1,nq(nb)
+      !do j=1,ny(nb)
+      !do i=1,nx(nb)
+      do index=1,n2ft3d(nb)
+         !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          C(index) = dabs(A(index))
       end do
-      end do
-      end do
+      !end do
+      !end do
+      !end do
 
       return
       end
@@ -3593,7 +3730,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)+nq(nb)
+      do i=1,n2ft3d(nb)
          if (A(i).lt.0.0d0) A(i) = 0.0d0
       end do
 
@@ -3616,7 +3753,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -3638,7 +3775,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer j,q,index
+      integer j,k,q,index,taskid,p
+
+      !**** slab mapping ****
+      if (mapping.eq.1) then
       do q=1,nq(nb)
          do j=1,ny(nb)
             index = (nx(nb)+1) + (j-1)*(nx(nb)+2) 
@@ -3647,6 +3787,23 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
             A(index+1) = 0.0d0
          end do
       end do
+
+
+      !**** hilbert mapping ****
+      else
+        call Parallel_taskid(taskid)
+        do k=1,nz(nb)
+        do j=1,ny(nb)
+
+         call D3dB_ijktoindex2p(nx(nb)+1,j,k,index,p)
+         if (p.eq.taskid) A(index) = 0.0d0
+
+         call D3dB_ijktoindex2p(nx(nb)+2,j,k,index,p)
+         if (p.eq.taskid) A(index) = 0.0d0
+
+        end do
+        end do
+      end if
 
       return
       end
@@ -3673,7 +3830,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,(nx(nb)+2)*ny(nb)*nq(nb)
+      do i=1,n2ft3d(nb)
          sum = sum + A(i)
       end do
 
@@ -3701,7 +3858,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,np,nxh,index
+      integer i,j,k,q,np,nxh,index,taskid,p
       real*8 sum
 
       nxh = nx(nb)/2
@@ -3710,6 +3867,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     **** sum up dot product on this node ****
       sum = 0.0d0
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     ***** k!=0 plane so double count *****
       do q=1,nq(nb)
       do j=1,ny(nb)
@@ -3729,6 +3890,34 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       end do
       end do
 
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     ***** kx!=0 plane, so double count *****
+      do index=1,nfft3d(nb)
+            sum = sum + A(index)
+      end do
+      sum = sum*2.0d0
+
+*     ***** kx==0 plane, so single count *****
+      do k=1,nz(nb)
+      do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         sum = sum - A(index)
+         end if
+      end do
+      end do
+
+      end if
+
+
+
+
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
         call D3dB_SumAll(sum)
@@ -3746,10 +3935,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_cc_Vector_dot(nb,nfft3d,nn,ne,A,B,sumall)     
+      subroutine D3dB_cc_Vector_dot(nb,nnfft3d,nn,ne,A,B,sumall)     
       implicit none 
       integer    nb
-      integer    nfft3d,nn,ne
+      integer    nnfft3d,nn,ne
       complex*16 A(*)
       complex*16 B(*)
       real*8     sumall(nn,nn)
@@ -3757,7 +3946,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np
+      integer i,j,k,q,index,np,taskid,p
       integer index1,index2
       integer n,m,shift1,shift2
       real*8  sum
@@ -3767,13 +3956,18 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call Parallel_np(np)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** sum up dot product on this node ****
       do n=1,ne
       do m=n,ne
 
-        shift1 = (n-1)*nfft3d
-        shift2 = (m-1)*nfft3d
+        shift1 = (n-1)*nnfft3d
+        shift2 = (m-1)*nnfft3d
         sum    = 0.0d0
+
 *       ***** kx!=0 plane, so double count *****
         do q=1,nq(nb)
            do j=1,ny(nb)
@@ -3802,10 +3996,55 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
            end do
         end do
 
-         sumall(n,m) = sum
-         sumall(m,n) = sum
+        sumall(n,m) = sum
+        sumall(m,n) = sum
       end do
       end do
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     **** sum up dot product on this node ****
+      do n=1,ne
+      do m=n,ne
+
+        shift1 = (n-1)*nnfft3d
+        shift2 = (m-1)*nnfft3d
+        sum    = 0.0d0
+
+*       ***** kx!=0 plane, so double count *****
+        do index=1,nfft3d(nb)
+            index1 = index+shift1
+            index2 = index+shift2
+            sum = sum + dble(A(index1))  * dble(B(index2))
+     >                + dimag(A(index1)) * dimag(B(index2))
+        end do
+        sum = sum*2.0d0
+
+*       ***** kx==0 plane, so single count *****
+        do k=1,nz(nb)
+        do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         index1 = index+shift1
+         index2 = index+shift2
+         sum = sum - dble(A(index1))  * dble(B(index2))
+     >             - dimag(A(index1)) * dimag(B(index2))
+         end if
+        end do
+        end do
+
+
+        sumall(n,m) = sum
+        sumall(m,n) = sum
+      end do
+      end do
+
+      end if
 
 
 *     **** add up sums from other nodes ****
@@ -3826,10 +4065,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_cc_Vector_ndot(nb,nfft3d,ne,A,B,sumall)     
+      subroutine D3dB_cc_Vector_ndot(nb,nnfft3d,ne,A,B,sumall)     
       implicit none 
       integer    nb
-      integer    nfft3d,ne
+      integer    nnfft3d,ne
       complex*16 A(*)
       complex*16 B(*)
       real*8     sumall(ne)
@@ -3837,7 +4076,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 #include "D3dB.fh"
 
-      integer i,j,q,index,np
+      integer i,j,k,q,index,np,taskid,p
       integer index1,index2
       integer n,shift1,shift2
       real*8  sum
@@ -3847,10 +4086,14 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call Parallel_np(np)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** sum up dot product on this node ****
       do n=1,ne
 
-        shift1 = (n-1)*nfft3d
+        shift1 = (n-1)*nnfft3d
         shift2 = 0
         sum    = 0.0d0
 *       ***** kx!=0 plane, so double count *****
@@ -3883,6 +4126,47 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
          sumall(n) = sum
       end do
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call Parallel_taskid(taskid)
+*     **** sum up dot product on this node ****
+      do n=1,ne
+
+        shift1 = (n-1)*nnfft3d
+        shift2 = 0
+        sum    = 0.0d0
+
+*       ***** kx!=0 plane, so double count *****
+        do index=1,nfft3d(nb)
+            index1 = index+shift1
+            index2 = index+shift2
+            sum = sum + dble(A(index1))  * dble(B(index2))
+     >                + dimag(A(index1)) * dimag(B(index2))
+        end do
+        sum = sum*2.0d0
+
+*       ***** kx==0 plane, so single count *****
+        do k=1,nz(nb)
+        do j=1,ny(nb)
+         i=1
+         call D3dB_ijktoindexp(1,i,j,k,index,p)
+         if (p.eq.taskid) then
+         index1 = index+shift1
+         index2 = index+shift2
+         sum = sum - dble(A(index1))  * dble(B(index2))
+     >             - dimag(A(index1)) * dimag(B(index2))
+         end if
+        end do
+        end do
+
+        sumall(n) = sum
+      end do
+
+      end if
 
 
 *     **** add up sums from other nodes ****
@@ -4039,7 +4323,7 @@ c      end
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d(nb)
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
 
@@ -4269,124 +4553,124 @@ c     i2_start(np+1) = index2
 
 
              
-*     ***********************************
-*     *					*
-*     *	   D3dB_c_timereverse 		*
-*     *					*
-*     ***********************************
-
-      subroutine D3dB_c_timereverse(nb,A,tmp1,tmp2)
-
-*****************************************************
-*                                                   *
-*      This routine performs the operation          *
-*            A(i,j,k) <- conjugate(A(i,-j,-k))      * 
-*                                                   *
-*      np = the number of worker nodes              *
-*      proc#=0...(np-1)                             *
-*                                                   *
-*****************************************************
-      implicit none
-      integer     nb
-      complex*16  A(*)
-      complex*16  tmp1(*)
-      complex*16  tmp2(*)
-
-#include "mafdecls.fh"
-
-#include "D3dB.fh"
-
-
-*     **** indexing variables ****
-c     integer iq_to_i1(2**NFFT2*NSLABS)
-c     integer iq_to_i2(2**NFFT2*NSLABS)
+c*     ***********************************
+c*     *					*
+c*     *	   D3dB_c_timereverse 		*
+c*     *					*
+c*     ***********************************
+c
+c      subroutine D3dB_c_timereverse(nb,A,tmp1,tmp2)
+c
+c*****************************************************
+c*                                                   *
+c*      This routine performs the operation          *
+c*            A(i,j,k) <- conjugate(A(i,-j,-k))      * 
+c*                                                   *
+c*      np = the number of worker nodes              *
+c*      proc#=0...(np-1)                             *
+c*                                                   *
+c*****************************************************
+c      implicit none
+c      integer     nb
+c      complex*16  A(*)
+c      complex*16  tmp1(*)
+c      complex*16  tmp2(*)
+c
+c#include "mafdecls.fh"
+c
+c#include "D3dB.fh"
+c
+c
+c*     **** indexing variables ****
+cc     integer iq_to_i1(2**NFFT2*NSLABS)
+cc     integer iq_to_i2(2**NFFT2*NSLABS)
 c     integer i1_start(NFFT3+1)
-c     integer i2_start(NFFT3+1)
-      integer iq_to_i1(2,NBLOCKS)
-      integer iq_to_i2(2,NBLOCKS)
-      integer i1_start(2,NBLOCKS)
-      integer i2_start(2,NBLOCKS)
-      common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
-
-*     **** Used to avoid asynchronous communications ****
-      integer Nchannels(NBLOCKS)
-      integer channel_proc(2,NBLOCKS)
-      integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-      integer  rcv_len,rcv_proc
-
-*     **** local variables ***
-      integer i,c
-      integer it
-      integer source
-      integer msglen
-      integer pfrom,pto
-      integer taskid,np
-      integer index1,index2      
- 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
-
-*     **** pack A(i) array ****
-      do index1=int_mb(i1_start(1,nb)+1-1),
-     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
-         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
-      end do
-
-*     **** it = 0, transpose data on same thread ****  
-      msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
-      do i=1,msglen
-         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
-     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
-      end do
-         
-
-      do c=1,Nchannels(nb)
-*        **** receive packed array data ****
-         if (int_mb(channel_type(1,nb)+c-1) .eq. 1) then
-            pfrom=int_mb(channel_proc(1,nb)+c-1)
-            it = mod((taskid+np-pfrom),np)
-
-            source=pfrom
-            msglen = (int_mb(i2_start(1,nb)+it+2-1) 
-     >             -  int_mb(i2_start(1,nb)+it+1-1))
-         
-            if (msglen.gt.0) then
-               call RCV(9+MSGDBL,
-     >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
-            end if
-         end if
-
-*        **** send packed array to other processors ****
-         if (int_mb(channel_type(1,nb)+c-1) .eq. 0) then
-            pto=int_mb(channel_proc(1,nb)+c-1)
-            it = mod((pto-taskid+np),np)
-
-            msglen    = (int_mb(i1_start(1,nb)+it+2-1)
-     >                - int_mb(i1_start(1,nb)+it+1-1))
-      
-            if (msglen.gt.0) then
-               call SND(9+MSGDBL,
-     >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
-            end if
-         end if
-
-      end do
-
-*     **** unpack A(i) array ****
-      do index2=int_mb(i2_start(1,nb)+1-1),
-     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
-        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
-      end do
-      
-      return
-      end
+cc     integer i2_start(NFFT3+1)
+c      integer iq_to_i1(2,NBLOCKS)
+c      integer iq_to_i2(2,NBLOCKS)
+c      integer i1_start(2,NBLOCKS)
+c      integer i2_start(2,NBLOCKS)
+c      common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+c
+c*     **** Used to avoid asynchronous communications ****
+c      integer Nchannels(NBLOCKS)
+c      integer channel_proc(2,NBLOCKS)
+c      integer channel_type(2,NBLOCKS)
+c      common / channel_blk / channel_proc,channel_type,Nchannels
+c
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
+c      integer  rcv_len,rcv_proc
+c
+c*     **** local variables ***
+c      integer i,c
+c      integer it
+c      integer source
+c      integer msglen
+c      integer pfrom,pto
+c      integer taskid,np
+c      integer index1,index2      
+c 
+c      call Parallel_taskid(taskid)
+c      call Parallel_np(np)
+c
+c*     **** pack A(i) array ****
+c      do index1=int_mb(i1_start(1,nb)+1-1),
+c     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
+c         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
+c      end do
+c
+c*     **** it = 0, transpose data on same thread ****  
+c      msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
+c      do i=1,msglen
+c         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
+c     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
+c      end do
+c         
+c
+c      do c=1,Nchannels(nb)
+c*        **** receive packed array data ****
+c         if (int_mb(channel_type(1,nb)+c-1) .eq. 1) then
+c            pfrom=int_mb(channel_proc(1,nb)+c-1)
+c            it = mod((taskid+np-pfrom),np)
+c
+c            source=pfrom
+c            msglen = (int_mb(i2_start(1,nb)+it+2-1) 
+c     >             -  int_mb(i2_start(1,nb)+it+1-1))
+c         
+c            if (msglen.gt.0) then
+c               call RCV(9+MSGDBL,
+c     >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
+c     >                  mdtob(2*msglen),rcv_len,
+c     >                  source,rcv_proc,1)
+c            end if
+c         end if
+c
+c*        **** send packed array to other processors ****
+c         if (int_mb(channel_type(1,nb)+c-1) .eq. 0) then
+c            pto=int_mb(channel_proc(1,nb)+c-1)
+c            it = mod((pto-taskid+np),np)
+c
+c            msglen    = (int_mb(i1_start(1,nb)+it+2-1)
+c     >                - int_mb(i1_start(1,nb)+it+1-1))
+c      
+c            if (msglen.gt.0) then
+c               call SND(9+MSGDBL,
+c     >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
+c     >                  mdtob(2*msglen),pto,1)
+c            end if
+c         end if
+c
+c      end do
+c
+c*     **** unpack A(i) array ****
+c      do index2=int_mb(i2_start(1,nb)+1-1),
+c     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
+c        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
+c      end do
+c      
+c      return
+c      end
 
 *     ***********************************
 *     *					*

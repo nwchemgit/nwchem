@@ -1,10 +1,14 @@
 *
-* $Id: D3dB.fh,v 1.1 2004-04-20 17:52:51 bylaska Exp $
+* $Id: D3dB.fh,v 1.2 2004-04-21 15:09:53 bylaska Exp $
 *
 
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common    / D3dB / nq,nx,ny,nz
+
+
+      integer nfft3d(NBLOCKS),n2ft3d(NBLOCKS),mapping
+      common    / D3dB_kdfj / nfft3d,n2ft3d,mapping
 
 
       !**** slab mapping ****
