@@ -1,0 +1,7 @@
+c
+C$Id: dftpara.fh,v 1.1 2002-05-15 16:09:44 edo Exp $
+c
+      logical xcreplicated
+      integer k_repxc(2),l_repxc(2)
+      integer nbf_ld
+      common /xcpara/ xcreplicated,k_repxc,l_repxc,nbf_ld
