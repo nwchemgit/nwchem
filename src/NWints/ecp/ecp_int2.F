@@ -1,11 +1,11 @@
-C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
+C $Id: ecp_int2.F,v 1.3 1996-10-16 22:44:37 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
      &    R_AC,X_AC,Y_AC,Z_AC,l_a,n_prim_a,n_cont_a,coef_a,zeta_a,
      &    R_BC,X_BC,Y_BC,Z_BC,l_b,n_prim_b,n_cont_b,coef_b,zeta_b,
      &    l_ecp_max,n_prim_c,n_coef_c,ind_C,n_c_tot,coef_c,zeta_c,
-     &    p_min,p_max,tol,sphcart,tmp,l_tmp,
+     &    p_min,p_max,tol,sphcart,tmp,ltmp,
      &    csco,lcsco,
      &    ecp_ints,n_ints,ibug)
 *                                                                      *
@@ -22,8 +22,8 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
 *   l_a (inp) - (maximum) angular momentum of functions on centre A    *
 *   n_prim_a (inp) - number of primitive functions on centre A         *
 *   n_cont_a (inp) - number of contracted functions on centre A        *
-*   coef_a - contraction coefficients of basis functions on centre A   *
-*   zeta_a - exponents of primitive basis functions on centre A        *
+*   coef_a (inp) - contraction coefficients of centre A basis functions*
+*   zeta_a (inp) - exponents of centre A primitive basis functions     *
 *   R_BC (inp) - distance between centres B and C                      *
 *   X_BC,Y_BC,Z_BC (inp) - cartesian coordinates of centre C relative  *
 *                          to centre B, X_BC = X_C - X_B, etc.         *
@@ -45,7 +45,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
 *   tol (inp) - maximum relative error in bessel functions             *
 *   sphcart (inp) - 1 for spherical basis, 0 for cartesian basis.      *
 *   tmp (scr) - work array                                             *
-*   l_tmp - number of elements in tmp                                  *
+*   ltmp - number of elements in tmp                                  *
 *   c_to_s, s_to_c, ldt, lstart (inp) - required for ecp_cstrans       *
 *   ecp_ints (out) - integrals over ECP                                *
 *   n_ints (inp) - number of ecp radial integrals                      *
@@ -74,7 +74,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
      &    la_min,lb_min,m_count,mt_max,mt_min,mem_max,
      &    n_na,n_all_a,n_nsa,n_ta,n_nb,n_all_b,n_nsb,n_tb,n_c,
      &    n_ab,n_abc,nc_ab,ncab,n_Q,n_row,n_ang_a,n_ang_b,
-     &    n_l,n_l_c,n_lam_a,n_lam_b,l_tmp,n_ints,n_c_tot,
+     &    n_l,n_l_c,n_lam_a,n_lam_b,ltmp,n_ints,n_c_tot,
      &    n_prim_a,n_prim_b,n_cont_a,n_cont_b,n_int_a,n_int_b,nu_a,nu_b,
      &    p_max,p_min,sphcart
       integer n_coef_c(-1:l_ecp_max),ind_C(-1:l_ecp_max),
@@ -84,7 +84,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
       double precision coef_c(n_c_tot),zeta_c(n_c_tot),
      &    coef_a(n_prim_a,n_cont_a),coef_b(n_prim_b,n_cont_b),
      &    zeta_a(n_prim_a),zeta_b(n_prim_b),
-     &    tmp(l_tmp),ecp_ints(n_ints),
+     &    tmp(ltmp),ecp_ints(n_ints),
      &    R_AC,X_AC,Y_AC,Z_AC,R_BC,X_BC,Y_BC,Z_BC,
      &    tol,fac,log_prefactor
       double precision csco(lcsco)
@@ -97,6 +97,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
         write (LuOut,'(//A,/)') 'Entering ecp_int2 ...'
         write (LuOut,*) 'l_a,l_b',l_a,l_b
       end if
+      if (DryRun) mem_max = 0
 *
 *   Allocate memory for ecp-independent quantities
 *
@@ -130,9 +131,9 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
         write (LuOut,*) 'i_ca,i_cb,i_Ga,i_Gb',i_ca,i_cb,i_Ga,i_Gb
       end if
       if (DryRun) then
-        mem_max = max(mem_max,i_free-1)
+        mem_max = max(mem_max,i-1)
       else
-        if (i_free-1 .gt. l_tmp) call errquit(
+        if (i-1 .gt. ltmp) call errquit(
      &      ' Insufficient memory in ecp_int2',99)
 *
 *   Expand cartesian basis about ECP centre in spherical harmonics
@@ -239,7 +240,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
         else
-          if (i_free-1 .gt. l_tmp) call errquit(
+          if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
 *
 *   Set up argument values etc
@@ -307,7 +308,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
           mem_max = max(mem_max,i_free-1)
           if (debug_gen) write (LuOut,*) ' This is a dry run'
         else
-          if (i_free-1 .gt. l_tmp) call errquit(
+          if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
 *
 *       Set up angular coefficients and contract over components of
@@ -357,7 +358,7 @@ C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
         else
-          if (i_free-1 .gt. l_tmp) call errquit(
+          if (i_free-1 .gt. ltmp) call errquit(
      &        ' Insufficient memory in ecp_int2',99)
           n_row = ncab*n_int_a
           i_b = i_cb
