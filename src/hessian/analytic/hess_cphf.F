@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.37 2001-12-28 18:45:36 windus Exp $
+C $Id: hess_cphf.F,v 1.38 2001-12-28 20:49:09 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -24,8 +24,8 @@ c
       integer g_vecs(2), g_modx
       integer g_wax
       integer g_aa
-      integer g_tmp, g_tmp2, g_sol
-c temp variables
+      integer g_tmp, g_sol
+c
       integer alo(3), ahi(3), blo(2), bhi(2)
       integer dims(3), chunk(3)
 c
@@ -313,9 +313,9 @@ c
 c
 c The next line obviously won't work for UHF!
 c
-       if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_tmp',
-     $    0,0,g_tmp))
-     $    call errquit('hess_cphf: could not create g_tmp',555)
+       if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_sol',
+     $    0,0,g_sol))
+     $    call errquit('hess_cphf: could not create g_sol',555)
 c
 c Put the CPHF matrices into one GA in the correct format
 c
@@ -333,75 +333,59 @@ c
           blo(2) = index
           bhi(2) = index
           call nga_copy_patch('T',g_wax,alo,ahi,
-     $      g_tmp,blo,bhi)   ! put into format for current cphf
+     $      g_sol,blo,bhi)   ! put into format for current cphf
           index = index + 1
         enddo
       enddo
+      if (.not.ga_destroy(g_wax)) call errquit
+     $  ('cannot destroy g_wax ',555)
+c
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
-        call ga_print(g_tmp)
+        call ga_print(g_sol)
       endif
 c
-      if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
+      if(.not.file_write_ga(cphf_rhs,g_sol)) call errquit
      $  ('hess_cphf:could not write cphf_rhs',ind)
+      if (.not.ga_destroy(g_sol)) call errquit
+     $  ('cannot destroy g_sol ',555)
 c
 c Actually run the CPHF on all rhs
 c
       if (.not.cphf2(rtdb)) call errquit
-     $  ('hess_cphf: failure in cphf for index ',ind)
-      if(.not.file_read_ga(cphf_sol,g_tmp)) call errquit
-     $  ('hess_cphf:could not read cphf_rhs',ind)
+     $  ('hess_cphf: failure in cphf ',555)
 c
-c Get the solution off of disk, put it into appropriate shape and then 
-c combine it with the wax matrices to get final contribution to hessian.
+c Get the RHS and solution off of disk.
 c
-      write(6,*) 'going into the g_tmp2 create'
-      call flush(6)
-      if(.not.ga_create(MT_DBL,nvirt(1),nocc(1),'g_tmp2',
-     $   0,0,g_tmp2))
-     $   call errquit('hess_cphf:could not alloc tmp2 array',555) 
-      write(6,*) 'going into the g_sol create'
-      call flush(6)
-      if(.not.ga_create(MT_DBL,nocc(1),nvirt(1),'g_sol',
+      if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_rhs',
+     $   0,0,g_wax))
+     $   call errquit('hess_cphf: could not create g_wax',555)
+      if(.not.file_read_ga(cphf_rhs,g_wax)) call errquit
+     $  ('hess_cphf:could not read cphf_wax',555)
+      if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_sol',
      $   0,0,g_sol))
-     $   call errquit('hess_cphf:could not alloc sol array',555) 
-      index = 1
-      do ndns = 1, ndens
-      do ind = 1, nc
-c       if (ocphfprint) then
-c         if(ga_nodeid().eq.0)write(LuOut,*)
-c         if(ga_nodeid().eq.0)
-c    $         write(LuOut,*) 'before the sol copy_patch ',ind
-c         call ga_print(g_tmp)
-c       endif
-        call ga_copy_patch('N',g_tmp,1,nvirt(ndns)*nocc(ndns),index,
-     $    index,g_tmp2,1,nvirt(ndns),1,nocc(ndns))
-        if (ocphfprint) then
-          if(ga_nodeid().eq.0)write(LuOut,*)
-          if(ga_nodeid().eq.0)write(LuOut,*) 'g_tmp2 ',ind
-          call ga_print(g_tmp2)
-        endif
-        call ga_transpose(g_tmp2,g_sol)
-        if (ocphfprint) then
-          if(ga_nodeid().eq.0)write(LuOut,*)
-          if(ga_nodeid().eq.0)
-     $         write(LuOut,*) 'g_sol after CPHF for ind ',ind
-          call ga_print(g_sol)
-        endif
-        call hess_pxfy2(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),
-     $    ncent,
-     $    ind, hf_job, nocc(ndns),nvirt(ndns),ndns)
-        index = index + 1
-      enddo
-      enddo
-      if (.not.ga_destroy(g_tmp)) call errquit
-     $  ('cannot destroy g_tmp ',555)
-      if (.not.ga_destroy(g_tmp2)) call errquit
-     $  ('cannot destroy g_tmp2 ',555)
-      if (.not.ga_destroy(g_wax)) call errquit
-     $  ('cannot destroy g_wax ',555)
+     $   call errquit('hess_cphf: could not create g_sol',555)
+      if(.not.file_read_ga(cphf_sol,g_sol)) call errquit
+     $  ('hess_cphf:could not read cphf_rhs',555)
+c
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0)write(LuOut,*) 'g_wax after disk'
+        call ga_print(g_wax)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'g_sol after disk'
+        call ga_print(g_sol)
+      endif
+c
+c Combine the RHS and CPHF solution to get final contribution to hessian.
+c
+      call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),
+     $  ncent, hf_job, nocc, nvirt, ndens)
+c
+c Get rid of temp memory
+c
       if (.not.ga_destroy(g_sol)) call errquit
      $  ('cannot destroy g_sol ',555)
+      if (.not.ga_destroy(g_wax)) call errquit
+     $  ('cannot destroy g_wax ',555)
 c
 c Print intermediate result
 c
