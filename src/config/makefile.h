@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.143 1996-03-12 21:54:50 d3g681 Exp $
+# $Id: makefile.h,v 1.144 1996-03-15 00:58:36 d3h449 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -491,9 +491,21 @@ endif
 	      -brename:.dswap_,.dswap \
 	      -brename:.dger_,.dger \
 	      -brename:.dtrsm_,.dtrsm \
-	      -brename:.dnrm2_,.dnrm2
-
-#	      -brename:.times_,.times 
+              -brename:.dnrm2_,.dnrm2
+# to make all - 
+#              -brename:.dtrmm_,.dtrmm \
+#              -brename:.drot_,.drot \
+#              -brename:.dasum_,.dasum \
+#              -brename:.dtrmv_,.dtrmv \
+#              -brename:.dspmv_,.dspmv \
+#              -brename:.dspr_,.dspr \
+#              -brename:.dsyrk_,.dsyrk \
+#              -brename:.dsymm_,.dsymm \
+#              -brename:.dsyr2k_,.dsyr2k \
+#              -brename:.dsyr2_,.dsyr2 \
+#              -brename:.dtrsv_,.dtrsv \
+#              -brename:.dsymv_,.dsymv \
+#              -brename:.times_,.times
 ifdef USE_ESSL
        CORE_LIBS += -lessl
 endif
