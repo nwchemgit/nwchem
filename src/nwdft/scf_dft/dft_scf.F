@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.53 1997-01-27 23:27:36 d3h449 Exp $
+C$Id: dft_scf.F,v 1.54 1997-01-30 01:42:11 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -1129,6 +1129,13 @@ c
      &       g_fock,g_dens(1),g_tmp,
      &       g_svecs,isvals,diising,nodiis)
       end if
+c
+c     If open shell compute overlap of alpha orbitals with beta orbitals.
+c
+      if(ipol.gt.1)then
+        call dft_mxspin_ovlp(ao_bas_han, g_movecs(1), g_movecs(2), 
+     &                       g_tmp)
+      endif
 c
       if(ipol.gt.1) then
         call gadest(g_fockt)
