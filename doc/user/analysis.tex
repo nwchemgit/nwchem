@@ -94,7 +94,7 @@ To specify the file to be analyzed when the analysis module is
 invoked through a task directive
 
 \begin{verbatim}
-file [<integer firstfile> <integer lastfile>] <string filename>
+file <string filename> [<integer firstfile> <integer lastfile>] 
 \end{verbatim}
 
 where {\rm filename} is an existing {\rm coo} or {\rm sco} trajectory file.
@@ -105,7 +105,7 @@ and the analysis will be performed on the series of files.
 For example,
 
 \begin{verbatim}
-file 3 6 tr_md?.sco
+file tr_md?.sco 3 6
 \end{verbatim}
 
 will instruct the analysis to be performed on files {\it tr\_md003.sco},
