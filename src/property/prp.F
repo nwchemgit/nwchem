@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.46 1999-12-10 20:41:37 windus Exp $
+* $Id: prp.F,v 1.47 2000-02-25 00:37:54 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -369,7 +369,7 @@ c
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION AM(MXATOM),CM(3),AXS(3,3)
-      DIMENSION ERRMSG(3)
+      DIMENSION ERRMSG(3), dmtemp(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-DIPOLE-'/
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA MP2     /'MP2     '/
@@ -493,6 +493,15 @@ C
       IF(SOME.and.ga_nodeid().eq.0)
      &   WRITE(IW,9995) DIPOL,DMX,DMXEFC,DMY,DMYEFC,DMZ,DMZEFC,
      1 DIPEFC,DIPTOT
+c
+c  write out dipole to the rtdb
+c
+      dmtemp(1) = dmx
+      dmtemp(2) = dmy
+      dmtemp(3) = dmz
+      if (.not. rtdb_put(rtdb,'prop:dipval',mt_dbl,3,dmtemp))
+     &  call errquit('hnd_dipole: rtdb failed for dipval',555)
+c
       DMX=DMX*DEBYE
       DMY=DMY*DEBYE
       DMZ=DMZ*DEBYE
