@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.19 2003-10-31 22:16:38 bylaska Exp $
+* $Id: D3dB-new.F,v 1.20 2003-10-31 22:34:36 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -607,7 +607,7 @@ c     call mp_combine(sumt,sumall,msglen,d_vadd,allgrp)
 
 #else
       call drffti(nx(nb),dcpl_mb(tmpx(1,nb)))
-      call dcffti(nx(nb),dcpl_mb(tmpy(1,nb)))
+      call dcffti(ny(nb),dcpl_mb(tmpy(1,nb)))
       call dcffti(nz(nb),dcpl_mb(tmpz(1,nb)))
 #endif
 
