@@ -1,7 +1,8 @@
-# $Id: GNUmakefile,v 1.19 2000-02-02 02:37:29 edo Exp $
+# $Id: GNUmakefile,v 1.20 2000-03-07 02:02:31 edo Exp $
 
       OBJ = \
 	grid_checks.o \
+	grid_daul.o \
 	grid_rtrunc.o \
 	grid_atom_type_info.o \
 	grid_setquad.o \

@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.4 1999-08-10 22:58:30 edo Exp $
+c$Id: grid_setang.F,v 1.5 2000-03-07 02:02:32 edo Exp $
 c
       implicit none
 c      
@@ -27,9 +27,12 @@ c
 c     Define the Lebedev or Gauss-Legendre angular quadrature points and weights.
 c
 
+      if (ga_nodeid().ne.0) oprint = .false.
       if (leb) then ! lebedev
-         if (ga_nodeid().ne.0) oprint = .false.
          call xc_lebedev(l_ang, oprint)
+         nang_leb_pts = l_ang
+      elseif (daul) then
+         call grid_daul(l_ang, oprint)
          nang_leb_pts = l_ang
       else ! gauss-legendre
 c

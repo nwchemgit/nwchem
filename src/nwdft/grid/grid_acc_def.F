@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.18 2000-02-23 23:12:38 edo Exp $
+c$Id: grid_acc_def.F,v 1.19 2000-03-07 02:02:31 edo Exp $
 c
       implicit none
 c      
@@ -15,7 +15,7 @@ c
 c
       integer rtdb
       integer num_gridtypes, grid_acc_index,jj,igridin
-      parameter (num_gridtypes = 10)
+      parameter (num_gridtypes = 11)
       logical oprint, oprint_grid,lgridin
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
@@ -27,11 +27,13 @@ c
       parameter (eps = 1.d-20)
       data gridtypes /'xcoarse', 'coarse', 'medium', 'fine', 'xfine', 
      &                'lebmed','lebfine','lebxfine',
-     .                'gausleg','lebedev'/
-      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-5,1d-7,1d-8,1d-8,1d-4/
+     .                'gausleg','lebedev','daul'/
+      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-5,1d-7,1d-8,1d-8,
+     .     1d-4,1d-4/
 c
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
+      logical daul
 c
       integer mxnrad, mxnang
 c
@@ -52,6 +54,8 @@ c
       dimension grc(8,2,25)
       integer xc_leb_acc2nrd
       external xc_leb_acc2nrd
+      integer xc_dau_acc2nrd
+      external xc_dau_acc2nrd
       equivalence(grid_params(1,1,1), gra(1,1,1))
       equivalence(grid_params(1,1,41), grb(1,1,1))
       equivalence(grid_params(1,1,81), grc(1,1,1))
@@ -315,7 +319,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:lebedev', mt_log, 1, leb))
      &   leb=.false.
 
-      goto (8, 8, 8, 8, 8, 8, 8, 8, 6, 7) grid_acc_index
+      goto (8, 8, 8, 8, 8, 8, 8, 8, 6, 7,77) grid_acc_index
       call errquit('grid_acc_def: unknown gridtype', grid_acc_index)
     6 continue
 c
@@ -347,6 +351,29 @@ c
            write(6,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
            iangquad = 4
+         endif
+      endif
+      if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts)) then
+         gridtype='medium'
+         grid_acc_index = 3
+      endif      
+ 77   continue
+c
+c     Daul grid;
+c
+      daul=.true.
+      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
+         iangquad = 3
+      else
+         if (iangquad.lt.1)then
+           write(6,*)' IANGQUAD must be in the range: 1-',3,
+     *     '; resetting. '
+           iangquad = 3
+         endif
+         if (iangquad.gt.3)then
+           write(6,*)' IANGQUAD must be in the range: 1-',3,
+     *     '; resetting. '
+           iangquad =3
          endif
       endif
       if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts)) then
@@ -464,11 +491,16 @@ c
                if(leb) then
                   iangquad=max(iangquad,nangin(igridin))
                   nang(itype) = xc_leb_acc2nrd(nangin(igridin))
+               elseif(daul) then
+                  iangquad=max(iangquad,nangin(igridin))
+                  nang(itype) = xc_dau_acc2nrd(iangquad)
                endif
                elseif (grid_acc_index.gt.8)then
                   nrad(itype) = nradpts
                   if(leb) then
                      nang(itype) = xc_leb_acc2nrd(iangquad)
+                  elseif(daul) then
+                     nang(itype) = xc_dau_acc2nrd(iangquad)
                   else
                      nang(itype) = nagrid
                   endif
@@ -503,7 +535,7 @@ c
          write(luout,*)'grid_acc_def: Too many radial shells.'
          call errquit(' grid_acc_def: raise MXrad',1)
       end if
-      if (.not.leb.and.mxnang.gt.MXagrid)then
+      if(((.not.leb).and.(.not.daul)).and.mxnang.gt.MXagrid)then
          write(LuOut,*)'grid_acc_def: Too many angular grids.'
          call errquit(' grid_acc_def: raise MXagrid',3)
       end if

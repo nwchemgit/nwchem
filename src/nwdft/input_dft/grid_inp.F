@@ -35,7 +35,7 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 23)
+      parameter (num_dirs = 24)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
@@ -45,7 +45,7 @@ c
      .            'euler','mura','treutler','lindh',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
-     .     'lebmed','lebfine','lebxfine'/
+     .     'lebmed','lebfine','lebxfine','daul'/
 c     
       ngridin=0
       mlen = inp_strlen(module)
@@ -61,7 +61,7 @@ c
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
-     &      1200, 1300, 1400, 1500, 1600,  1999) ind
+     &      1200, 1300, 1400, 1500, 1600,  2700,1999) ind
       call errquit('grid_inp: unimplemented directive', ind)
 c     
 c     delley; use delley spatial weights
@@ -144,6 +144,30 @@ c
   400 gridtype='lebedev'
       leb=.true.
       if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
+c
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 400) 
+c
+      if (.not. inp_i(nradpts)) then
+cedo         write(6,*)' grid_inp: nradpts value not found. '
+         goto 1400
+      else
+         if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
+     &      call errquit('grid_inp: rtdb_put failed', 400)
+      endif
+c
+      if (.not. inp_i(iangquad)) then
+         write(6,*)' grid_inp: iangquad value not found. '
+      else
+         if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
+     &      call errquit('grid_inp: rtdb_put failed', 400)
+      endif
+c
+      goto 10
+ 2700 gridtype='daul'
+      daul=.true.
+      if (.not. rtdb_put(rtdb, 'dft:daul', mt_log, 1, daul))
      &   call errquit('grid_inp: rtdb_put failed', 590)
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))

@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.13 2000-02-24 22:45:40 edo Exp $
+C$Id: dft_densm.F,v 1.14 2000-03-07 02:02:39 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -401,11 +401,9 @@ c     up
      .              nlevdeg=nlevdeg+1
             enddo
          endif
-         if(ga_nodeid().eq.0) then
-         write(0,*) ' ehomo ',ehomo
-          write(0,*) '      neldeg,nlevdeg ',neldeg,nlevdeg
-          write(0,*) ' nup ndown nnint ',ndown,nup,nnintg
-       endif
+
+         neldeg=ndown+1
+         nlevdeg=nup+ndown+1
                do i=1,nnintg
                   focc(i+nbf*(isp-1))=rhfuhf
                enddo

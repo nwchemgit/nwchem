@@ -1,6 +1,6 @@
       Subroutine xc_murakn(r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.10 2000-02-16 22:59:56 edo Exp $
+C$Id: xc_murakn.F,v 1.11 2000-03-07 02:02:39 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -14,16 +14,16 @@ c
       double precision range ! max extent of basis f
 c
       logical lreset
-      double precision alphad(36)
-      data alphad/ 5d0, 5d0,
-c Li-N
-     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
-C Na-Ar
-     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
-C K-Kr
-     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,
-C Cu-Kr
-     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0/
+cedo      double precision alphad(36)
+cedo      data alphad/ 5d0, 5d0,
+cedoc Li-N
+cedo     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
+cedoC Na-Ar
+cedo     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
+cedoC K-Kr
+cedo     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,
+cedoC Cu-Kr
+cedo     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0/
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
 c for radial integrals.
