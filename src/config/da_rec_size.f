@@ -4,7 +4,7 @@ c     each.  Simply run this program and check the size resulting file
 c     'da_rec_size.test' (in bytes) using 'ls' and divide by 1024 units.
 C
       Program da_rec_size
-C$Id: da_rec_size.f,v 1.2 1995-02-02 23:10:44 d3g681 Exp $
+C$Id: da_rec_size.f,v 1.3 1995-07-17 01:03:33 gg502 Exp $
       Integer RecLen
       Parameter (RecLen = 512)
       Integer A(1)
@@ -12,5 +12,10 @@ C$Id: da_rec_size.f,v 1.2 1995-02-02 23:10:44 d3g681 Exp $
       Do I = 1, 2
          Write (1, REC=I) A
       EndDo
+      Write (6, *) 'This program has written two 512-unit records in'
+      Write (6, *) 'the file da_rec_size.test.  To determine the size'
+      Write (6, *) 'of the record length unit, divide the length of'
+      Write (6, *) 'the file in bytes by 1024.  The most common sizes'
+      Write (6, *) 'for record size units are bytes and integer words.'
       Stop
       End
