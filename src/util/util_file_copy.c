@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.6 1999-11-16 20:51:02 edo Exp $
+ $Id: util_file_copy.c,v 1.7 2000-09-19 21:49:36 bjohnson Exp $
  */
 
 #include <stdio.h>
@@ -22,8 +22,8 @@ void util_file_copy(const char *input, const char *output)
   Any error is fatal.
   */
 {
-    FILE *fin  = fopen(input, "r");
-    FILE *fout = fopen(output, "w+");
+    FILE *fin  = fopen(input, "rb");
+    FILE *fout = fopen(output, "w+b");
     char buf[8192];
     int nread;
 
@@ -63,18 +63,18 @@ void util_file_parallel_copy(const char *input, const char *output)
     int differ = strcmp(input,output);
 
     if (ga_nodeid_() == 0) {
-      if (!(fin = fopen(input, "r"))) {
+      if (!(fin = fopen(input, "rb"))) {
 	fprintf(stderr,"util_file_copy: unable to open input %s\n", input);
 	ga_error("util_file_parallel_copy",0);
       }
       if (differ) {
-	if (!(fout = fopen(output, "w+"))) {
+	if (!(fout = fopen(output, "w+b"))) {
 	  fprintf(stderr,"util_file_copy: unable to open output %s\n", input);
 	  ga_error("util_file_parallel_copy",0);
 	}
       }
     }
-    else if (!(fout = fopen(output, "w+"))) {
+    else if (!(fout = fopen(output, "w+b"))) {
       fprintf(stderr,"util_file_copy: unable to open output %s\n", input);
       ga_error("util_file_parallel_copy",0);
     }
