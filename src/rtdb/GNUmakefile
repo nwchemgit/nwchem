@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1994-10-06 00:23:52 d3g681 Exp $
+# $Id: GNUmakefile,v 1.6 1994-11-10 18:02:39 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -27,7 +27,7 @@ cntx:	cntx.o $(LIBRARY)
 	$(FC) $(FFLAGS) -o $@ cntx.o $(LIBS)
 
 interact:	interact.o $(LIBRARY_PATH)
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) -lm
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ interact.o $(LIBRARY_PATH) -lglobal -ltcgmsg -L/msrc/apps/f771.4/SC1.0 -lF77 -lV77 -lm
 
 test:	test.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 

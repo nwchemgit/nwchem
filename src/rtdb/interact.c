@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
        fflush(stdout);
        if (scanf("%s",mode) != 1) 
 	 exit(1);
-       if (!rtdb_open(filename, mode, &rtdb))
+       if (!rtdb_seq_open(filename, mode, &rtdb))
 	 printf("\nOpen of %s with mode %s failed\n", filename, mode);
        break;
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	 printf("Enter mode (keep, delete) -> "); fflush(stdout);
 	 if (scanf("%s",mode) != 1) 
 	   exit(1);
-	 if (!rtdb_close(rtdb, mode))
+	 if (!rtdb_seq_close(rtdb, mode))
 	   printf("Close of %s with mode %s failed\n", filename, mode);
 	 else
 	   rtdb = -1;
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   	 if (!read_string(name, sizeof name))
 	   exit(1);
 
-	 if (!rtdb_get_info(rtdb, name, &ma_type, &nelem, date))
+	 if (!rtdb_seq_get_info(rtdb, name, &ma_type, &nelem, date))
 	   printf("Get info on \"%s\" failed\n", name);
 	 else
 	   printf("%s -> type=%s, nelem=%d, date=%s\n", 
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	   printf("invalid type\n");
 	   break;
 	 }
-	 if(!rtdb_put(rtdb, name, ma_type, nelem, data))
+	 if(!rtdb_seq_put(rtdb, name, ma_type, nelem, data))
 	   printf("put %s, nelem=%d, type=%s failed", name, 
 		  nelem, ma_typename(ma_type)); fflush(stdout);
        }
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
        else {
 	 int ma_handle;
 
-	 if(rtdb_ma_get(rtdb, name, &ma_type, &nelem, &ma_handle)) {
+	 if(rtdb_seq_ma_get(rtdb, name, &ma_type, &nelem, &ma_handle)) {
 	   ma_print(stdout, ma_type, nelem, MA_get_pointer(ma_handle, &data));
 	   MA_free_heap(ma_handle);
 	 }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 	 printf("Print values (0=no, 1=yes) -> "); fflush(stdout);
 	 if (scanf("%d", &values) != 1)
 	   exit(1);
-	 rtdb_print(rtdb, values);
+	 rtdb_seq_print(rtdb, values);
        }
        break;
        
