@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.34 2004-11-29 16:05:17 bylaska Exp $
+* $Id: band_minimizer.F,v 1.35 2004-11-29 16:22:59 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -106,8 +106,8 @@
       external c_cgsd_energy,c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
-      integer  cpsp_nprj,cpsp_psp_type
-      external cpsp_nprj,cpsp_psp_type
+c      integer  cpsp_nprj,cpsp_psp_type
+c      external cpsp_nprj,cpsp_psp_type
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       character*2 cpsp_atom
@@ -123,8 +123,8 @@
       real*8   control_ks_alpha
       external control_ks_alpha
 
-      character*255 cpsp_comment,comment
-      external      cpsp_comment
+c      character*255 cpsp_comment,comment
+c      external      cpsp_comment
 
     
 
@@ -292,13 +292,14 @@
          do ia = 1,cpsp_npsp()
            write(luout,1150) ia,cpsp_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
-           comment = cpsp_comment(ia)
-           i = inp_strlen(comment)
-           write(6,1157) comment(1:i)
-           write(6,1158) cpsp_psp_type(ia)
+c           comment = cpsp_comment(ia)
+c           i = inp_strlen(comment)
+c           write(6,1157) comment(1:i)
+c           write(6,1158) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
-           write(luout,1154) cpsp_nprj(ia)
+           write(luout,1154) cpsp_lmmax(ia)
+c           write(luout,1154) cpsp_nprj(ia)
            if (cpsp_semicore(ia))
      >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
