@@ -1,1 +1,1 @@
-d3g270 goppa.emsl.pnl.gov 4 ./tritest ./
+d3g270 peigs 4 ./tritest ./

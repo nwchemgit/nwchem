@@ -1,11 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.9 1999-07-28 00:39:11 d3e129 Exp $
+# $Id: GNUmakefile,v 1.10 1999-11-04 22:43:38 d3g270 Exp $
 #
 
 include ../../config/makefile.h
 include ../DEFS
 
-peigs_LIBS = $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB) -lblas
+peigs_LIBS = -lpeigs -llapack $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB) -lblas
 #
 # Do not use -lkmath on delta, it occasionally causes 
 # erroneous results (e.g. with tri_test.c with robert_tri as input

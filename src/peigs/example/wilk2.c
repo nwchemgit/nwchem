@@ -1,5 +1,5 @@
 /*
- $Id: wilk2.c,v 1.4 1999-07-28 00:39:15 d3e129 Exp $
+ $Id: wilk2.c,v 1.5 1999-11-04 22:43:39 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -84,7 +84,7 @@ static Integer IZERO = (Integer) 0;
   extern TIMINGG test_timing;
 #endif
   
-  Integer countlist();
+  static Integer countlist();
   
   extern void tim_com();
   extern void mxend_();
@@ -422,7 +422,7 @@ static Integer IZERO = (Integer) 0;
   return;
 }
 
-  static Integer countlist ( me, list, size )
+static Integer countlist ( me, list, size )
      Integer me, *list, *size;
 {
   /*

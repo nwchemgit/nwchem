@@ -1,5 +1,5 @@
 /*
- $Id: tri_test.c,v 1.5 1999-07-28 00:39:15 d3e129 Exp $
+ $Id: tri_test.c,v 1.6 1999-11-04 22:43:38 d3g270 Exp $
  *=====================================================================
  *
  * DISCLAIMER
@@ -125,7 +125,7 @@ void MAIN1()
   
   nprocs = mxnprc_();
   iscratch = (Integer *) malloc ( nprocs * sizeof(Integer));
-  
+
   for ( i = 0; i < nprocs; i++ )
     iscratch[i] = i;
   
@@ -138,9 +138,11 @@ void MAIN1()
     /*
       sprintf(filename, "dave_tri");
       sprintf(filename,"pdspevx.0");
-      */
-    sprintf(filename, "edo_tri");
-    
+*/
+      sprintf(filename, "edo_tri");
+/*
+    sprintf(filename, "hard.matrix");
+*/
     
     file = fopen(filename, "r");
     if ( file == NULL ) {
@@ -163,7 +165,7 @@ void MAIN1()
     bbcast00( (char *) &n, i, i, iscratch[0], nprocs, iscratch );
     /*
       fprintf(stderr, " rcv read n = %ld \n", n);
-      */
+    */
   }
   
   
@@ -423,8 +425,7 @@ wilkinson's matrix
       time2 = timex - time1;
 #endif
     
-    if ( !NO_EVEC){
-      
+    if (!NO_EVEC){
       tresid( &n, &n, dd, ee, vecZ, mapZ, eval, iscratch, scratch, &res, &info);
       
       if( me == 0 )
