@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.2 1996-12-14 01:28:49 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.3 1997-03-01 06:30:58 gutowski Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -33,6 +33,15 @@ c::-local
       integer i,j   ! dummy index
       integer sz_hatom ! size of hatom array
       integer ecpis    ! ecp basis handle
+c
+cMG_start   pseudopotentials do not work for periodic systems yet
+c
+      integer isys
+c
+      if (.not. geom_systype_get(geom, isys)) call errquit
+     $     ('atscf_ecp: systype?', 0)
+      if (isys.gt.0) return
+cMG_end  
 c
       gtag = ' '
       btag = ' '
