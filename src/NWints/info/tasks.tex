@@ -1,0 +1,281 @@
+\documentstyle[12pt]{article}
+
+
+\marginparwidth 0pt
+\oddsidemargin  0pt
+\evensidemargin  0pt
+\marginparsep 0pt
+
+\parskip 5pt
+
+\topmargin   0pt
+
+\textwidth   6.5in
+\textheight  8.5 in
+\parindent 0cm
+
+\begin{document}
+
+{\bf\LARGE NWChem Integral tasks:}
+
+\section{Texas Tasks for Krys and Ricky}
+\begin{enumerate}
+\item make a logical ``more\_integrals'' as an argument of texas\_hf2\_m (R,K)
+\item restructure checksum routines (R)
+\item remove normalization constraints in texas (K)
+\item memory management (R,K)
+\begin{itemize}
+\item remove BL structure (R,K)
+\item make texas use all buffers passed (K)
+\item API routine to change integral threshold on the fly not just at init time (R,K)
+\item memory model based on basis set to return:	
+\begin{enumerate}
+\item maximum memory for all quartets
+\item maximum memory for any super-block-pair
+\item maximum memory for a given block pair
+\item minimum memory to do anything
+\end{enumerate}
+\end{itemize}
+\item rework api/hf code to do general contractions (R)
+\item determine 5d, 7f, 9g 11h contractions for texas93 and nwchem use (R,K)
+\item play basketball
+\item first derivatives
+\item play more basketball
+\item second derivatives
+\end{enumerate}
+
+\newpage
+
+\section{Blocking API development}
+Task: Develop and implement Blocking API for NWChem
+
+Description: The blocking API will work with the texas integral code
+and possibly later the McMurchie-Davidson (MDint).  The blocking
+mechanism(s) must be layered with an initialization phase that allows
+the user to determine the specific blocking desired.  The integral API
+will then return block identifiers and memory requirements based on
+the particular blocking mechanism.  The new API routines will then
+based on the block identifiers return integrals and labels in the PNL
+index order.  The application will be required to use labels.  All
+routines should allow for multiple basis sets.  This could be layered
+orthogonal to or internal to current integral API. 
+
+routines to be developed include:
+\begin{enumerate}
+\item init\_block: this routine will initialize information required by
+blocking and tell the API to use the texas integral code where
+possible.  It will also provide access to determine the particular
+blocking mechanism. 
+
+\item int\_block: will return block identifier and listing of shells
+and atoms in block that will be computed.  Access to the shells will
+be required to determine screening.  The application reserves the
+right to trim (but not add to) the list of shells to be computed to
+only those integrals it is interested in.  The block identifier is
+invisioned as a way to uniquely identify a block of shells and thus
+can be used as arbitration during parallel execution.  This might be a
+series of routines:
+\begin{itemize}
+\item int\_block: give me block identifier.
+\item int\_block\_shells:  give me the shell quartet list of the block
+\item int\_block\_unq\_shell: give me a unique list of shells in all
+quartets.
+\item int\_block\_atoms: give me a unique list of all atoms in the block
+\end{itemize}
+
+\item int\_b2e[4,3,2]c: based on shell list returns 2
+electron [4,3,2] center ERIs with labels.  This should work whether
+the texas integral code is used or not.  
+
+\item memory routines to query blocking system with respect to:
+\begin{enumerate}
+\item maximum amount of scratch space used with basis sets for computation.
+\item maximum integral count for any block.
+\end{enumerate}
+
+\item term\_block: terminate blocking mechanism.  The rest of the
+integral API still in tact.  
+
+\end{enumerate}
+
+Time: 2-3 weeks
+
+Who:  KW  RAK RJH JAN
+
+\section{Changes to current integral API}
+Task: Modify current label routines to include computation of integrals
+
+Description:  Layer call to raw API routines inside label routines.  
+
+Time: 1 day
+
+Who: RAK
+
+\section{SP integral code for 2 and 3 center integrals}
+Task: Modify interface to SP integral code to a lower level similar to
+that of hf2.  
+
+Description:  The current SP integral code interface is at the shell
+block level.  This needs to be changed to take instead of shell blocks
+raw coordinates, angular momentum types, and basis set specifications.
+
+Time: 1 week
+
+Who: RJH RAK
+
+
+\section{Derivative Integrals for SP shells/contractions}
+
+Task: Modify API derivative routines to allow for SP contractions
+similar to what has been done for the one electron integrals.  
+
+Description:  A layer to detect and compute both one and two electron
+integral derivative that include SP shells by computing the s and p
+components separately and reordering the integral derivative blocks to
+account for the sp shell.  
+
+Time: 2 weeks
+
+Who: RAK RJH
+
+
+\section{GIAO integral evaluations}
+Task: Define and implement requisite GIAO API.
+
+Description:  Define the API based on the experience of the Pulay
+group's utilization of GIAO integrals.  Implement this similar to the
+integral derivative API.  All GIAO integrals based on shell quartet
+input are returned.  
+
+{\bf Is there a need for two and three center GIAO integrals??}
+
+Time: 2 weeks
+
+Who: KW JAN RAK
+
+
+\section{General Contractions}
+Task: Determine bug in current integral API with respect to general
+contractions. 
+
+Description:  The utilization of general contractions in the current
+API bombs when using texas integrals.  The bug needs to be located and
+squashed with extreme prejudice.  First determine if it is based on
+reordering of integrals or simply general contractions missing from
+one electron integral code.  The latter is the most likely candidate.  
+
+Time: unknown
+
+Who: KW RAK
+
+
+\section{2 and 3 center integrals from texas}
+
+Task: Give access to 2 and 3 center integrals from texas to
+application codes. 
+
+Description:  The translation of the basis set information to texas
+basis set information needs to include the definition of a zero
+exponent s function on an arbitrary center with a contraction
+coefficient of 1.0. 
+
+Time: 2 days
+
+Who: KW
+
+
+\section{Integration of Texas layers into NWints API}
+
+Task: Complete integration of texas integrals into NWints API
+
+Description: Each routine that returns two electron integrals (4,3,2
+center) must be expanded to include access to texas integrals.  This
+will require a ``cando\_txs'' routine for arbitration in each of these
+routines.
+
+Time: 2 weeks
+
+Who: RAK KW
+
+
+\section{first derivative integrals from texas}
+
+Task: Implement first derivative integrals.
+
+Description:  Develop code and driver routines in texas that
+interoperate with texas9x and NWchem.  The NWChem requirement is at
+the base level similar to that of hf2d (like hf2 for integrals).  This
+will require integration into current integral derivative API routines.
+
+Time: 2 months
+
+Who: KW RAK
+
+
+\section{second derivative integrals from texas}
+
+Task: Implement second derivative integrals.
+
+Description: Develop code and driver routines in texas that
+interoperate with texas9x and NWchem.  The NWChem requirement is at
+the base level similar to that of hf2d or hf2 for integral derivatives
+and integrals respectively.  This will require integration into
+current integral derivative API routines.  This will also require CPHF
+development in NWChem that is not a part of this task.  
+
+Time:  4 months
+
+Who: KW RAK
+
+
+\section{ECP and Relativistic ECP (RECP) functionality}
+
+Task: Develop and implement API and base integral code to compute ECP
+and RECP one electron integrals.
+
+Description: The base integral code will require integrals over basis
+functions with the ECP.  The basis set object or geometry object will
+need to know about the ECP specification.  Should we have an ECP
+object?? There is a modified charge that must be used to compute the
+normal one electron integrals.  The base ECP integral code needs to
+take as input the coordinates of the shells or general contractions,
+specification of shells (exponents and coefficients) specification of
+the ECP.  The API must be expanded to detect the existence of ECPs and
+return them seprately or summed to the PE one electron integrals.  
+
+
+Time: unknown
+
+Who: KD RAK
+
+
+\section{ECP and RECP derivative integrals}
+
+Task: Develop and implement first and second derivative ECP
+functionality. 
+
+Description:  The integral derivative functionality of ECPs must be
+implemented using translational invariance to allow for any functional
+form of ECPs.  This can be done (ala Morikuma) for both first and
+second derivatives.  The driver routines for the base ECP integral
+code need to be developed as well as the extension to the API to
+directly sum these derivative integrals into the one electron
+component.  
+
+Time: unknown
+
+Who:  RAK? KD?
+
+
+\section{Property Integrals}
+
+Task:  Determine which property integrals are required and when.  
+
+Description:  We need to decide as a group what property integrals are
+required and what time-line we should develop the functionality on.  
+
+Time: 1 week to determine time-line and priority.  
+
+Who: PNL and interested parties.
+
+\end{document}
