@@ -1,439 +1,439 @@
 
 
-Basis Set [STO-2G] (number of atoms 20)
+Basis Set "STO-2G" (number of atoms 20)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
 
 
-Basis Set [STO-3G] (number of atoms 52)
+Basis Set "STO-3G" (number of atoms 52)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te
 
 
-Basis Set [STO-6G] (number of atoms 36)
+Basis Set "STO-6G" (number of atoms 36)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [STO-3G*] (number of atoms 18)
+Basis Set "STO-3G*" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [3-21G] (number of atoms 55)
+Basis Set "3-21G" (number of atoms 55)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe Cs
 
 
-Basis Set [3-21++G] (number of atoms 18)
+Basis Set "3-21++G" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [3-21G*] (number of atoms 17)
+Basis Set "3-21G*" (number of atoms 17)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl
 
 
-Basis Set [3-21++G*] (number of atoms 18)
+Basis Set "3-21++G*" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [3-21GSP] (number of atoms 18)
+Basis Set "3-21GSP" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [4-22GSP] (number of atoms 18)
+Basis Set "4-22GSP" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [4-31G] (number of atoms 13)
+Basis Set "4-31G" (number of atoms 13)
   H He Li Be B C N O F Ne P S Cl
 
 
-Basis Set [6-31G] (number of atoms 30)
+Basis Set "6-31G" (number of atoms 30)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-Basis Set [6-31++G] (number of atoms 18)
+Basis Set "6-31++G" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [6-31G*] (number of atoms 30)
+Basis Set "6-31G*" (number of atoms 30)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-Basis Set [6-31G**] (number of atoms 30)
+Basis Set "6-31G**" (number of atoms 30)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn
 
 
-Basis Set [6-31+G*] (number of atoms 18)
+Basis Set "6-31+G*" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [6-31++G*] (number of atoms 18)
+Basis Set "6-31++G*" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [6-31++G**] (number of atoms 18)
+Basis Set "6-31++G**" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [6-31G(3df,3pd)] (number of atoms 18)
+Basis Set "6-31G(3df,3pd)" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [6-311G] (number of atoms 24)
+Basis Set "6-311G" (number of atoms 24)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-Basis Set [6-311G*] (number of atoms 24)
+Basis Set "6-311G*" (number of atoms 24)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-Basis Set [6-311G**] (number of atoms 24)
+Basis Set "6-311G**" (number of atoms 24)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
 
 
-Basis Set [6-311++G**] (number of atoms 10)
+Basis Set "6-311++G**" (number of atoms 10)
   H He Li Be B C N O F Ne
 
 
-Basis Set [6-311++G(2d,2p)] (number of atoms 10)
+Basis Set "6-311++G(2d,2p)" (number of atoms 10)
   H He Li Be B C N O F Ne
 
 
-Basis Set [6-311G(2df,2pd)] (number of atoms 10)
+Basis Set "6-311G(2df,2pd)" (number of atoms 10)
   H He Li Be B C N O F Ne
 
 
-Basis Set [6-311+G*] (number of atoms 2)
+Basis Set "6-311+G*" (number of atoms 2)
   H He
 
 
-Basis Set [MINI (Huzinaga)] (number of atoms 18)
+Basis Set "MINI (Huzinaga)" (number of atoms 18)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
 
 
-Basis Set [MINI (Scaled)] (number of atoms 20)
+Basis Set "MINI (Scaled)" (number of atoms 20)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
 
 
-Basis Set [MIDI (Huzinaga)] (number of atoms 18)
+Basis Set "MIDI (Huzinaga)" (number of atoms 18)
   H He Li Be B C N O F Ne Na Al Si P S Cl Ar K
 
 
-Basis Set [MIDI!] (number of atoms 11)
+Basis Set "MIDI!" (number of atoms 11)
   H C N O F Si P S Cl Br I
 
 
-Basis Set [SV (Dunning-Hay)] (number of atoms 9)
+Basis Set "SV (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [SVP (Dunning-Hay)] (number of atoms 9)
+Basis Set "SVP (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [SVP + Diffuse (Dunning-Hay)] (number of atoms 9)
+Basis Set "SVP + Diffuse (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [TZ (Dunning)] (number of atoms 8)
+Basis Set "TZ (Dunning)" (number of atoms 8)
   H Li B C N O F Ne
 
 
-Basis Set [Chipman DZP + Diffuse] (number of atoms 6)
+Basis Set "Chipman DZP + Diffuse" (number of atoms 6)
   H B C N O F
 
 
-Basis Set [DZ (Dunning)] (number of atoms 12)
+Basis Set "DZ (Dunning)" (number of atoms 12)
   H B C N O F Ne Al Si P S Cl
 
 
-Basis Set [DZP (Dunning)] (number of atoms 12)
+Basis Set "DZP (Dunning)" (number of atoms 12)
   H B C N O F Ne Al Si P S Cl
 
 
-Basis Set [DZP + Diffuse (Dunning)] (number of atoms 7)
+Basis Set "DZP + Diffuse (Dunning)" (number of atoms 7)
   H B C N O F Ne
 
 
-Basis Set [cc-pVDZ] (number of atoms 14)
+Basis Set "cc-pVDZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [cc-pVTZ] (number of atoms 14)
+Basis Set "cc-pVTZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [cc-pVQZ] (number of atoms 14)
+Basis Set "cc-pVQZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [cc-pV5Z] (number of atoms 15)
+Basis Set "cc-pV5Z" (number of atoms 15)
   H He Li B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [cc-pV6Z] (number of atoms 4)
+Basis Set "cc-pV6Z" (number of atoms 4)
   H C N O
 
 
-Basis Set [pV6Z] (number of atoms 4)
+Basis Set "pV6Z" (number of atoms 4)
   H C N O
 
 
-Basis Set [cc-pCVDZ] (number of atoms 6)
+Basis Set "cc-pCVDZ" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [cc-pCVTZ] (number of atoms 6)
+Basis Set "cc-pCVTZ" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [cc-pCVQZ] (number of atoms 6)
+Basis Set "cc-pCVQZ" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [cc-pCV5Z] (number of atoms 6)
+Basis Set "cc-pCV5Z" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [aug-cc-pVDZ] (number of atoms 14)
+Basis Set "aug-cc-pVDZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [aug-cc-pVTZ] (number of atoms 14)
+Basis Set "aug-cc-pVTZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [aug-cc-pVQZ] (number of atoms 14)
+Basis Set "aug-cc-pVQZ" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [aug-cc-pV5Z] (number of atoms 14)
+Basis Set "aug-cc-pV5Z" (number of atoms 14)
   H He B C N O F Ne Al Si P S Cl Ar
 
 
-Basis Set [aug-cc-pCVDZ] (number of atoms 5)
+Basis Set "aug-cc-pCVDZ" (number of atoms 5)
   B C N O F
 
 
-Basis Set [aug-cc-pCVTZ] (number of atoms 6)
+Basis Set "aug-cc-pCVTZ" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [aug-cc-pCVQZ] (number of atoms 6)
+Basis Set "aug-cc-pCVQZ" (number of atoms 6)
   B C N O F Ne
 
 
-Basis Set [aug-cc-pCV5Z] (number of atoms 5)
+Basis Set "aug-cc-pCV5Z" (number of atoms 5)
   B C N O F
 
 
-Basis Set [GAMESS VTZ] (number of atoms 8)
+Basis Set "GAMESS VTZ" (number of atoms 8)
   H Be B C N O F Ne
 
 
-Basis Set [GAMESS PVTZ] (number of atoms 8)
+Basis Set "GAMESS PVTZ" (number of atoms 8)
   H Be B C N O F Ne
 
 
-Basis Set [Partridge Uncontr. 1] (number of atoms 34)
+Basis Set "Partridge Uncontr. 1" (number of atoms 34)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [Partridge Uncontr. 2] (number of atoms 34)
+Basis Set "Partridge Uncontr. 2" (number of atoms 34)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [Partridge Uncontr. 3] (number of atoms 28)
+Basis Set "Partridge Uncontr. 3" (number of atoms 28)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn
 
 
-Basis Set [Ahlrichs VDZ] (number of atoms 36)
+Basis Set "Ahlrichs VDZ" (number of atoms 36)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [Ahlrichs pVDZ] (number of atoms 36)
+Basis Set "Ahlrichs pVDZ" (number of atoms 36)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [Ahlrichs VTZ] (number of atoms 36)
+Basis Set "Ahlrichs VTZ" (number of atoms 36)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr
 
 
-Basis Set [Binning/Curtiss SV] (number of atoms 6)
+Basis Set "Binning/Curtiss SV" (number of atoms 6)
   Ga Ge As Se Br Kr
 
 
-Basis Set [Binning/Curtiss VTZ] (number of atoms 6)
+Basis Set "Binning/Curtiss VTZ" (number of atoms 6)
   Ga Ge As Se Br Kr
 
 
-Basis Set [Binning/Curtiss SVP] (number of atoms 6)
+Basis Set "Binning/Curtiss SVP" (number of atoms 6)
   Ga Ge As Se Br Kr
 
 
-Basis Set [Binning/Curtiss VTZP] (number of atoms 6)
+Basis Set "Binning/Curtiss VTZP" (number of atoms 6)
   Ga Ge As Se Br Kr
 
 
-Basis Set [McLean/Chandler VTZ] (number of atoms 8)
+Basis Set "McLean/Chandler VTZ" (number of atoms 8)
   Na Mg Al Si P S Cl Ar
 
 
-Basis Set [SV + Rydberg (Dunning-Hay)] (number of atoms 9)
+Basis Set "SV + Rydberg (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [SVP + Rydberg (Dunning-Hay)] (number of atoms 9)
+Basis Set "SVP + Rydberg (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [SVP + Diffuse + Rydberg] (number of atoms 9)
+Basis Set "SVP + Diffuse + Rydberg" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [DZ + Rydberg (Dunning)] (number of atoms 12)
+Basis Set "DZ + Rydberg (Dunning)" (number of atoms 12)
   H B C N O F Ne Al Si P S Cl
 
 
-Basis Set [DZP + Rydberg (Dunning)] (number of atoms 12)
+Basis Set "DZP + Rydberg (Dunning)" (number of atoms 12)
   H B C N O F Ne Al Si P S Cl
 
 
-Basis Set [DZ + Double Rydberg (Dunning-Hay)] (number of atoms 12)
+Basis Set "DZ + Double Rydberg (Dunning-Hay)" (number of atoms 12)
   H B C N O F Ne Al Si P S Cl
 
 
-Basis Set [SV + Double Rydberg (Dunning-Hay)] (number of atoms 9)
+Basis Set "SV + Double Rydberg (Dunning-Hay)" (number of atoms 9)
   H Li Be B C N O F Ne
 
 
-Basis Set [Wachters+f] (number of atoms 9)
+Basis Set "Wachters+f" (number of atoms 9)
   Sc Ti V Cr Mn Fe Co Ni Cu
 
 
-Basis Set [Bauschlicher ANO] (number of atoms 9)
+Basis Set "Bauschlicher ANO" (number of atoms 9)
   Sc Ti V Cr Mn Fe Co Ni Cu
 
 
-Basis Set [Hay-Wadt MB (n+1) ECP] (number of atoms 24)
+Basis Set "Hay-Wadt MB (n+1) ECP" (number of atoms 24)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
 
 
-ECP [Hay-Wadt MB (n+1) ECP] (number of atoms 24)
+ECP "Hay-Wadt MB (n+1) ECP" (number of atoms 24)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
 
 
-Basis Set [Hay-Wadt VDZ (n+1) ECP] (number of atoms 24)
+Basis Set "Hay-Wadt VDZ (n+1) ECP" (number of atoms 24)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
 
 
-ECP [Hay-Wadt VDZ (n+1) ECP] (number of atoms 24)
+ECP "Hay-Wadt VDZ (n+1) ECP" (number of atoms 24)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
 
 
-Basis Set [LANL2DZ ECP] (number of atoms 67)
+Basis Set "LANL2DZ ECP" (number of atoms 67)
   H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
  Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
  Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au U Np Pu
 
 
-ECP [LANL2DZ ECP] (number of atoms 57)
+ECP "LANL2DZ ECP" (number of atoms 57)
   Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br
  Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W
  Re Os Ir Pt Au U Np
 
 
-Basis Set [SBKJC VDZ ECP] (number of atoms 73)
+Basis Set "SBKJC VDZ ECP" (number of atoms 73)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
 
 
-ECP [SBKJC VDZ ECP] (number of atoms 71)
+ECP "SBKJC VDZ ECP" (number of atoms 71)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
  I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
 
 
-Basis Set [Stuttgart RLC ECP] (number of atoms 57)
+Basis Set "Stuttgart RLC ECP" (number of atoms 57)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
  Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
  Bk Cf Es Fm Md No Lr
 
 
-ECP [Stuttgart RLC ECP] (number of atoms 57)
+ECP "Stuttgart RLC ECP" (number of atoms 57)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
  Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
  Bk Cf Es Fm Md No Lr
 
 
-Basis Set [Stuttgart RSC ECP] (number of atoms 65)
+Basis Set "Stuttgart RSC ECP" (number of atoms 65)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
  Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db
 
 
-ECP [Stuttgart RSC ECP] (number of atoms 64)
+ECP "Stuttgart RSC ECP" (number of atoms 64)
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
  Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf
 
 
-Basis Set [DGauss A1 DFT Coulomb Fitting] (number of atoms 54)
+Basis Set "DGauss A1 DFT Coulomb Fitting" (number of atoms 54)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
 
-Basis Set [DGauss A1 DFT Exchange Fitting] (number of atoms 54)
+Basis Set "DGauss A1 DFT Exchange Fitting" (number of atoms 54)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
 
-Basis Set [DZVP2 (DFT Orbital)] (number of atoms 25)
+Basis Set "DZVP2 (DFT Orbital)" (number of atoms 25)
   H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
 
 
 
-Basis Set [DGauss A2 DFT Coulomb Fitting] (number of atoms 25)
+Basis Set "DGauss A2 DFT Coulomb Fitting" (number of atoms 25)
   H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
 
 
 
-Basis Set [DGauss A2 DFT Exchange Fitting] (number of atoms 25)
+Basis Set "DGauss A2 DFT Exchange Fitting" (number of atoms 25)
   H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
 
 
 
-Basis Set [TZVP (DFT Orbital)] (number of atoms 11)
+Basis Set "TZVP (DFT Orbital)" (number of atoms 11)
   H C N O F Al Si P S Cl Ar
 
 
-Basis Set [Ahlrichs Coulomb Fitting] (number of atoms 50)
+Basis Set "Ahlrichs Coulomb Fitting" (number of atoms 50)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
 
 
 
-Basis Set [DeMon Coulomb Fitting] (number of atoms 54)
+Basis Set "DeMon Coulomb Fitting" (number of atoms 54)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe
 
 
-Basis Set [CRENBL ECP] (number of atoms 116)
+Basis Set "CRENBL ECP" (number of atoms 116)
   H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
  Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
  Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os
@@ -441,7 +441,7 @@ Basis Set [CRENBL ECP] (number of atoms 116)
  Lr Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
 
-ECP [CRENBL ECP] (number of atoms 115)
+ECP "CRENBL ECP" (number of atoms 115)
   Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
  Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
  I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
@@ -449,19 +449,19 @@ ECP [CRENBL ECP] (number of atoms 115)
  Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
 
-Basis Set [CRENBS ECP] (number of atoms 50)
+Basis Set "CRENBS ECP" (number of atoms 50)
   Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
  Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
 
 
-ECP [CRENBS ECP] (number of atoms 50)
+ECP "CRENBS ECP" (number of atoms 50)
   Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
  Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
 
 
 
-Basis Set [DZVP (DFT Orbital)] (number of atoms 54)
+Basis Set "DZVP (DFT Orbital)" (number of atoms 54)
   H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
  Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
  Sb Te I Xe

@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: gen_liblist.pl,v 1.1 1998-08-10 09:49:46 d3e129 Exp $
+# $Id: gen_liblist.pl,v 1.2 1998-08-11 20:20:27 d3e129 Exp $
 #
 # get the basis family names and atom list from an nwchem formatted library
 #
@@ -87,7 +87,7 @@ foreach $libraryfile (@ARGV) {
 	@tokens = split(/:/,$line);
 	$num = @tokens;
 	if ($debug) {print "tokens:$num: @tokens\n";}
-	$family = @tokens[0] . " " . "[". @tokens[1] . "]";
+	$family = @tokens[0] . " " . "\"". @tokens[1] . "\"";
 	$atom = @tokens [2];
 #	if ($count_lines>1){
 	    $fams = @families;
