@@ -63,8 +63,8 @@ c
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
-       integer ga_create_Jblocked,ga_create_Kblocked
-       external ga_create_Jblocked,ga_create_Kblocked
+       integer ga_create_JKblocked
+       external ga_create_JKblocked
        integer moints_numoper
        external moints_numoper
        integer moints_occrange
@@ -203,12 +203,15 @@ c
 c Allocate operator matrices
 c
        if (ocoul)
-     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
+     $      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
+*rak     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
        if (oexch) then
          if ((algo.eq.'twofold').and.(.not.(ohalf))) then
-           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
+           g_exch = ga_create_JKblocked(noper,nbf,nmo2,'X oper')
+*rak           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
          else
-           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
+           g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
+*rak           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
            if (.not.ga_create(MT_DBL,lnoov+lnooo,nbf+1,'int1t',
      &         lnoov+lnooo,1,g_int1t))
      &         call errquit('ga_create g_int1t failed',0)
