@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.71 2000-05-10 22:25:42 edo Exp $
+# $Id: DEFS,v 1.72 2000-05-11 15:37:54 edo Exp $
 #
 #======================================================================
 #
@@ -277,8 +277,8 @@ ifeq ($(peigs_TARGET),HPUX)
 peigs_CODEOBJ = DBLE
 peigs_COMM = TCGMSG
 peigs_CPU = HPPA
-peigs_CC += -DSTD_DBL -DSTD_INT
-peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM)
+peigs_CC += -DSTD_DBL -DSTD_INT -D$(peigs_CPU)
+peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM) -D$(peigs_CPU)
 endif
 
 ifeq ($(peigs_TARGET),IBM)
