@@ -5,6 +5,7 @@
      &    Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
+C $Id: hf2d_2b.F,v 1.2 1995-02-08 21:27:22 d3e129 Exp $
       Implicit None
       Logical canAB,canCD,canPQ,dryrun
       
