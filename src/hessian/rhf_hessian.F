@@ -3,45 +3,13 @@ c     sunbroutines interfaced with and adapted from HONDO
 c**********************************************************************
       subroutine hnd_der_init(geom,basis)
       implicit double precision (a-h,o-z)
-c
-c     ----- routine initializes HONDO common blocks -----
-c
+c 
       parameter (zero=0.0d+00)
       parameter (mxatom=500)
       parameter (mxprim=2048)
       parameter (mxshel=512)
       parameter (mxnbf =2048)
       parameter (mxtype=5)
-      common/inp_file/iread,iwrite
-      common/hnd_iofile/ir,iw,ip
-      common/hnd_baspar/normf,normp,itol
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_basnum/num
-      common/hnd_ijpair/ia(mxnbf)
-      common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
-     1                 cd(mxprim),cf(mxprim),cg(mxprim),
-     2                 kstart(mxshel),katom(mxshel),ktype(mxshel),
-     3                 kng(mxshel),kloc(mxshel),kmin(mxshel),
-     4                 kmax(mxshel),nshell
-      common/hnd_shlord/modshl(mxshel),invshl(mxshel)
-      common/hnd_lcapid/nap,iap
-      common/hnd_symtry/invt(48),nt,ntmax,ntwd,nosym
-      common/hnd_symshl/mapshl(mxshel,48),mapctr(mxatom,48)
-      character*16 atom_tags
-      dimension atom_tags(mxatom)
-      dimension mini(mxtype),maxi(mxtype)
-      data mini / 1, 2, 5,11,21/
-      data maxi / 1, 4,10,20,35/
-c
-#include "global.fh"
-#include "basdeclsP.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "mafdecls.fh"
-#include "bas_exndcf_dec.fh"
-#include "bas_ibs_dec.fh"
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
       logical  status
       integer  geom 
       integer  basis
@@ -62,9 +30,43 @@ c
       external bas_ce2cnr
       logical  bas_cn2bfr
       external bas_cn2bfr
+      character*16 atom_tags
 c
       logical dbug
-      logical out 
+      logical out
+      dimension atom_tags(mxatom)
+      dimension mini(mxtype),maxi(mxtype)
+      data mini / 1, 2, 5,11,21/
+      data maxi / 1, 4,10,20,35/
+c
+c     ----- routine initializes HONDO common blocks -----
+c
+      common/inp_file/iread,iwrite
+      common/hnd_iofile/ir,iw,ip
+      common/hnd_baspar/normf,normp,itol
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_basnum/num
+      common/hnd_ijpair/ia(mxnbf)
+      common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
+     1                 cd(mxprim),cf(mxprim),cg(mxprim),
+     2                 kstart(mxshel),katom(mxshel),ktype(mxshel),
+     3                 kng(mxshel),kloc(mxshel),kmin(mxshel),
+     4                 kmax(mxshel),nshell
+      common/hnd_shlord/modshl(mxshel),invshl(mxshel)
+      common/hnd_lcapid/nap,iap
+      common/hnd_symtry/invt(48),nt,ntmax,ntwd,nosym
+      common/hnd_symshl/mapshl(mxshel,48),mapctr(mxatom,48)
+c
+#include "global.fh"
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
       dbug=.false.
       out =.false.
       ir=iread
@@ -314,7 +316,7 @@ c
       common/hnd_nwtohnd/inw_to_hnd(mxnbf)
       common/hnd_hndtonw/ihnd_to_nw(mxnbf)
       common/hnd_facntoh/fac_nwthnd(mxnbf)
-      integer map_ntoh(35),map_hton(35)
+      integer map_ntoh(35)
       double precision fac_ntoh(35)
 c
 c     ----- mapping of shell components from nwchem to hondo -----
@@ -1979,15 +1981,12 @@ c
 c
 #include "mafdecls.fh"
 #include "global.fh"
-      integer g_dens, g_wdens 
       integer rtdb
 c 
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_dder1_mem/i_init,init
       common/hnd_basnum/num
       dimension x(1)
-c
-      dimension g_dens(3) ! max # of density matrices
 c
       equivalence (x(1),dbl_mb(1))
       data zero    /0.0d+00/
@@ -2054,7 +2053,6 @@ c
       logical converged
       logical status
       character*255 title
-      double precision charge
 c
       character*255 movecs_in, movecs_out
 c
@@ -2149,21 +2147,14 @@ c
      $     g_eigen_diag   ! eigenvalue diagonal matrix or lagrangian
   
       integer nat, nbf, max_sh_bf, max_at_bf, nopen, nclosed, 
-     $     ndens, nbf2, nocc, 
-     $     lbuf, lscratch, lsqa, i, j
+     $     ndens, nbf2, nocc, i
 c
-      integer lforce, l_force, k_force, l_evals, k_evals, l_occ, k_occ,
-     $     l_sch, k_sch, l_act, k_act, nactive, l_actlist, k_actlist,
-     $     l_buf, k_buf, l_scr, k_scr, l_dens, k_dens, l_wdens, k_wdens
+      integer l_evals, k_evals, l_occ, k_occ
 
-      double precision crd,  ! atomic coordinates
-     $                 charge, charge_nuc, tol2e, q
+      dimension g_dens(3) ! max # of density matrices
 
-      dimension crd(3), g_dens(3) ! max # of density matrices
-
-      character*16 tag
       character*4 scftype
-      logical oskel, status
+      logical status
 
 C     get information about basis set
       status = geom_ncent(geom,nat)
@@ -2421,9 +2412,10 @@ C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       LOGICAL OUT
-      LOGICAL SOME
+C     LOGICAL SOME
       CHARACTER*4 KEYEFC
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DDER1_MEM/I_INIT,INIT
@@ -2575,7 +2567,8 @@ C
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
       COMMON/HND_GRAD12/DE(3,MXATOM)
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       DIMENSION DNAM(3)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
@@ -2712,7 +2705,8 @@ C
       LOGICAL IANDJ
       LOGICAL NORM,DOUBLE
       LOGICAL SOME,OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -3169,7 +3163,8 @@ C
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION ERRMSG(3)
@@ -3246,7 +3241,8 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -3653,7 +3649,8 @@ C
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
@@ -3794,7 +3791,8 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -4410,7 +4408,8 @@ C
 C     COMMON/HND_IJPAIR/IA(1)
       COMMON/HND_DDER1_MEM/I_INIT,INIT
       COMMON/HND_GRAD12/DE(3,MXATOM)
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION ERRMSG(3)
@@ -4495,7 +4494,6 @@ C
  9100 MIN=MAX+1
       MAX=MAX+8
       IF(MAX.GT.NAT) MAX=NAT
-      print*,'GA_NODEID=',GA_NODEID()
       IF (GA_NODEID().EQ.0) THEN
          WRITE(IW,9989)
          WRITE(IW,9996)
@@ -4546,7 +4544,8 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -4959,7 +4958,8 @@ C
       CHARACTER*4 CLAB
       PARAMETER (NUMMX=3072)
       PARAMETER (MXATOM=500)
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
 C     COMMON/HND_MOLLAB/ANAM(128),BNAM(128),BFLAB(NUMMX)
       DIMENSION FC(NC,1),CLAB(3)
@@ -5043,25 +5043,6 @@ C
  20      CONTINUE
  10      CONTINUE
       RETURN
-      END
-C
-C
-C     ------ FROM HONDO ------
-C
-      SUBROUTINE HND_HNDERR(LERR,ERRMSG)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      CHARACTER*8  ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION    ERRMSG(LERR)
-C
-      WRITE(IW,9999)
-      WRITE(IW,9998) ERRMSG
-      WRITE(IW,9997)
-C
-      CALL ERRQUIT(' CALLS IT QUIT FROM HND_HNDERR ',0)
- 9999 FORMAT(/,1X,72(1H-),/,31X,11HJOB STOPPED)
- 9998 FORMAT(/,1X,9A8)
- 9997 FORMAT(/,1X,72(1H-))
       END
 C
 C
@@ -5332,106 +5313,6 @@ C
       END
 C
 C
-C     ------TAKEN FROM HONDO ------
-C
-      SUBROUTINE HND_PRTR(D,N)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- PRINT OUT A TRIANGULAR MATRIX -----
-C
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LISTNG/LIST
-      DIMENSION D(1),DD(10)
-C
-      LIST=1
-      IF(LIST.EQ.0) MAX=10
-      IF(LIST.EQ.1) MAX=7
-      IF(LIST.EQ.2) MAX=7
-C
-      IMAX = 0
-  100 IMIN = IMAX+1
-      IMAX = IMAX+MAX
-      IF (IMAX .GT. N) IMAX = N
-      WRITE (IW,9008)
-      IF(LIST.EQ.0) WRITE (IW,9028) (I,I = IMIN,IMAX)
-      IF(LIST.EQ.1) WRITE (IW,9128) (I,I = IMIN,IMAX)
-      IF(LIST.EQ.2) WRITE (IW,9228) (I,I = IMIN,IMAX)
-      WRITE (IW,9008)
-      DO 160 J = 1,N
-      K = 0
-      DO 140 I = IMIN,IMAX
-      K = K+1
-      II = MAX0( I, J)
-      JJ = MIN0( I, J)
-      IJ = (II*(II-1))/2 + JJ
-  140 DD(K) = D(IJ)
-      IF(LIST.EQ.0) WRITE (IW,9048) J,(DD(I),I = 1,K)
-      IF(LIST.EQ.1) WRITE (IW,9148) J,(DD(I),I = 1,K)
-      IF(LIST.EQ.2) WRITE (IW,9248) J,(DD(I),I = 1,K)
-  160 CONTINUE
-      IF (IMAX .LT. N) GO TO 100
-      RETURN
- 9008 FORMAT(/)
- 9028 FORMAT(6X,10(4X,I3,4X))
- 9048 FORMAT(I5,1X,10F11.5)
- 9128 FORMAT(6X,7(6X,I3,6X))
- 9148 FORMAT(I5,1X,7F15.10)
- 9228 FORMAT(6X,7(6X,I3,6X))
- 9248 FORMAT(I5,1X,7E15.8)
-      END
-C
-C
-C     ------ TAKEN FROM CTL.F in HONDO ------
-C
-      SUBROUTINE HND_PRTRL(D,N)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- PRINT OUT A TRIANGULAR MATRIX WITH LABELS
-C
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXBFN=3072)
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LISTNG/LIST
-C     COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
-      DIMENSION D(1),DD(10)
-      IF(LIST.EQ.0) MAX=10
-      IF(LIST.EQ.1) MAX=7
-      IF(LIST.EQ.2) MAX=7
-      IMAX = 0
-  100 IMIN = IMAX+1
-      IMAX = IMAX+MAX
-      IF (IMAX .GT. N) IMAX = N
-      WRITE (IW,9008)
-c%%
-C     IF(LIST.EQ.0) WRITE (IW,9028) (BFLAB(I),I = IMIN,IMAX)
-C     IF(LIST.EQ.1) WRITE (IW,9128) (BFLAB(I),I = IMIN,IMAX)
-C     IF(LIST.EQ.2) WRITE (IW,9228) (BFLAB(I),I = IMIN,IMAX)
-c%%
-      WRITE (IW,9008)
-      DO 160 J = 1,N
-      K = 0
-      DO 140 I = IMIN,IMAX
-      K = K+1
-      II = MAX0( I, J)
-      JJ = MIN0( I, J)
-      IJ = (II*(II-1))/2 + JJ
-  140 DD(K) = D(IJ)
-c%%
-C     IF(LIST.EQ.0) WRITE (IW,9048) J,BFLAB(J),(DD(I),I = 1,K)
-C     IF(LIST.EQ.1) WRITE (IW,9148) J,BFLAB(J),(DD(I),I = 1,K)
-C     IF(LIST.EQ.2) WRITE (IW,9248) J,BFLAB(J),(DD(I),I = 1,K)
-c%%
-  160 CONTINUE
-      IF (IMAX .LT. N) GO TO 100
-      RETURN
- 9008 FORMAT(/)
- 9028 FORMAT(15X,10(2X,A8,1X))
- 9048 FORMAT(I5,2X,A8,10F11.5)
- 9128 FORMAT(15X,7(4X,A8,3X))
- 9148 FORMAT(I5,2X,A8,7F15.10)
- 9228 FORMAT(15X,7(4X,A8,3X))
- 9248 FORMAT(I5,2X,A8,7E15.8)
-      END
 C-----------------------------------------------------------------
 C
 C     ------ SUBROUTINES TAKEN FROM HSS.F IN HONDO ------
@@ -5467,7 +5348,7 @@ C
       parameter (mxatom=500)
 #include "mafdecls.fh"
 #include "global.fh"
-      logical status
+c     logical status
       integer rtdb 
       integer g_dens, g_wdens
 c 
@@ -5507,14 +5388,15 @@ c
 
 c     ----- memory blocks -----
 
+      need = 0
       needa = num*num + num*num
       need  = needm + needa
    
 c     ----- memory block to store 1-e results fc + df -----
 
       needc = nc*nc +nc*l2
-      need  = need + needb + needc
-
+      need  = need + needc
+c
       if(.not.ma_push_get(mt_dbl,need , 'mem init2',i_init2,init2))
      & call errquit('hnd_dder2_init, malloc of init2  failed',911)
 c
@@ -5640,7 +5522,8 @@ c
       COMMON/HND_DEROPT/DERTYP
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DAFILE/IDAF,NAV,IODA(255)
       COMMON/HND_INTTYP/NPOPLE,NHONDO
       COMMON/HND_INTFIL/NINTMX
@@ -5654,7 +5537,8 @@ c
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
       COMMON/HND_SCFPAR/NOCORE,NOOPEN,NOPAIR,SUHF,ROHF,RGVB,ROGVB,
-     1 MC,CI,MCCI
+     1 MC,CI,MCCI,MP2,MP4
+C    1 MC,CI,MCCI
       COMMON/HND_SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
      1 NO(10),NCO,NSETO,NPAIR
       COMMON/ HND_MCPAR/NFZC,NCORBS,NCI
@@ -5960,7 +5844,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
 C     COMMON/HND_DSHPRT/OUT
       DIMENSION FC(NC,NC),DF(LDF,NC)
       DATA NFT17 /17/
@@ -6015,7 +5900,8 @@ C
       PARAMETER (MXSHEL=512)
       LOGICAL SOME
       LOGICAL SPSKIP
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_JKDTIM/DG80,DHND
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
       COMMON/HND_INTHND/SPSKIP
@@ -8334,7 +8220,8 @@ C
       PARAMETER (MXNBF =2048)
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_DERINV/INVTYP
@@ -8601,7 +8488,8 @@ C
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DERSKP/IIAT,JJAT,KKAT,LLAT,SKIPI,SKIPJ,SKIPK,SKIPL
       COMMON/HND_DERPAR/IDER,JDER,KDER,LDER,NDER
       COMMON/HND_SHLPAR/LIT,LJT,LKT,LLT,LOCI,LOCJ,LOCK,LOCL,
@@ -9000,7 +8888,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
 C     COMMON/HND_DSHPRT/OUT
       DIMENSION FC(NC,NC),DF(LDF,NC)
       DATA NFT17 /17/
@@ -9124,7 +9013,7 @@ C
 C
       IF(OUT) THEN
          WRITE(IW,9998)
-         CALL PRTRL(D,NUM)
+         CALL HND_PRTRL(D,NUM)
       ENDIF
       RETURN
 C
@@ -9146,9 +9035,9 @@ C
       IF(WFNTYP.EQ.WFNMC) NORB=NCORBS+NCI
       IF(OUT) THEN
          WRITE(IW,9997)
-         CALL PRSQL(V,NORB,NUM,NDIM)
+         CALL HND_PRSQL(V,NORB,NUM,NDIM)
          WRITE(IW,9996)
-         CALL PRSQ(EIJ,NORB,NQMT,NDIM)
+         CALL HND_PRSQ(EIJ,NORB,NQMT,NDIM)
       ENDIF
 C
 C     ----- CALCULATE - C * E * C(T) - -----
@@ -9334,7 +9223,8 @@ C
       LOGICAL VECTOR
       PARAMETER (LENVEC=255)
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MACHNV/VECTOR
       COMMON/HND_MEMORY/MAXCOR,MAXSCM
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
@@ -9680,7 +9570,8 @@ C
      2KLOC(MXSHEL),KMIN(MXSHEL),
      2KMAX(MXSHEL),NSHELL
       COMMON/HND_SCFPAR/NOCORE,NOOPEN,NOPAIR,SUHF,ROHF,RGVB,ROGVB,
-     1 MC,CI,MCCI
+     1 MC,CI,MCCI,MP2,MP4
+C    1 MC,CI,MCCI
       COMMON/HND_SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
      1 NO(10),NCO,NSETO,NPAIR
       DIMENSION DA(1),DB(1),DC(1),IA(1),V(NDIM,1),NCONF(1)
@@ -9931,7 +9822,8 @@ C
       COMMON/HND_BASNUM/NUM
       COMMON/HND_SYMTRY/INVT(48),NT,NTMAX,NTWD,NOSYM
       COMMON/HND_SYMSHL/MAPSHL(MXSHEL,48),MAPCTR(MXATOM,48)
-      COMMON/HND_SYMSPD/PTR(3,144)
+      COMMON/HND_SYMSPD/PTR(3,144),DTR(6,288),FTR(10,480),GTR(15,720)
+C     COMMON/HND_SYMSPD/PTR(3,144)
       COMMON/HND_ISOPAC/INDIN(48),INDOUT(24)
       DIMENSION DE(3,1)
       DIMENSION ISOC(MXATOM,24)
@@ -10008,7 +9900,8 @@ C
       PARAMETER (MXSHEL=512)
       COMMON/HND_RESTAR/NREST
       COMMON/HND_DSHINT/IST,JST,KST,LST
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -10145,7 +10038,8 @@ C
       LOGICAL IEQJ0,KEQL0,SAME0,FIRST
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_LCAPID/NAP,IAP
       COMMON/HND_JKSTAT/LVEC,NVEC
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
@@ -10711,7 +10605,8 @@ C
       CHARACTER*8 ERRMSG
       PARAMETER (MXIODA=255)
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MACHIN/ISINGL,NBITS
       COMMON/HND_DAFNAV/IXDDAF(2048),NAV10,NAV20
       COMMON/HND_DAFREC/LENDAR(MXIODA)
@@ -10928,7 +10823,8 @@ C
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
       LOGICAL IANDJ,IANDK,IANDL,JANDK,JANDL,KANDL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -11333,7 +11229,8 @@ C
       LOGICAL UHFTYP
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -11442,7 +11339,8 @@ C
       LOGICAL NOCORE,NOOPEN
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -11580,7 +11478,8 @@ C
       LOGICAL NOCORE,NOOPEN,NOPAIR
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -11716,7 +11615,8 @@ C
       PARAMETER (MXSHEL=512)
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -11884,7 +11784,8 @@ C
       PARAMETER (MXSHEL=512)
       INTEGER SHIFTR
       LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_INTFIL/NINTMX
       COMMON/NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
@@ -15010,7 +14911,8 @@ C
       PARAMETER (MXATOM=500)
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_DERINV/INVTYP
@@ -15020,7 +14922,8 @@ C
       COMMON/HND_SHLNUM/NUMI,NUMJ,NUMK,NUML,IJ,KL,IJKL
       DIMENSION FIJKL(3,4,1),SIJKL(78,1),IJKLG(4,1)
       DIMENSION FC(NC,1),DF(LDF,1),DEN(1)
-      DIMENSION KAT(4),KC(4)
+C     DIMENSION KAT(4),KC(4)
+      DIMENSION KAT(4)
       DIMENSION DD(12,12),DS(3,4,3,4)
       EQUIVALENCE (DD(1,1),DS(1,1,1,1))
       EQUIVALENCE (KAT(1),IIAT)
@@ -15111,7 +15014,8 @@ C
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
       LOGICAL OUT
       LOGICAL BUG1,BUG2,BUG
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DERPAR/IDER,JDER,KDER,LDER,NDER
       COMMON/HND_DERSHL/FD(12),SD(78)
       COMMON/HND_SHLPAR/LIT,LJT,LKT,LLT,LOCI,LOCJ,LOCK,LOCL,
@@ -15405,17 +15309,17 @@ C     DIAL(5) = DELCPU
 C     DIAL(6) = DELTOT
 C
       DIMENSION DIAL(6)
-      REAL*4 CPUTIM,ETIME_
-      TYPE TB_TYPE
-         SEQUENCE
-         REAL*4 USRTIM
-         REAL*4 SYSTIM
-      END TYPE
+*     REAL*4 CPUTIM,ETIME_
+*     TYPE TB_TYPE
+*        SEQUENCE
+*        REAL*4 USRTIM
+*        REAL*4 SYSTIM
+*     END TYPE
 c     TYPE (TB_TYPE) ETIME_STRUCT
 c     CPUTIM =ETIME_(ETIME_STRUCT)
 c     DIAL(3)=CPUTIM
-      TOTTIM =TIMEF()/TEN3    
-      DIAL(4)=TOTTIM          
+*     TOTTIM =TIMEF()/TEN3    
+*     DIAL(4)=TOTTIM          
       RETURN
       END
 C
@@ -15548,7 +15452,8 @@ C
       COMMON/HND_INTTYP/NPOPLE,NHONDO
       COMMON/HND_RESTAR/NREST
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -15733,7 +15638,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.1 1997-01-28 21:32:04 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.2 1997-02-01 22:21:18 bmeng Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -16130,7 +16035,7 @@ c     ----- cphf integrated with nwchem -----
 c
       return
       end
-C
+c
       subroutine hnd_cphf(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
@@ -16149,7 +16054,7 @@ c#include "pstat.fh"
       integer  g_dsta(3*mxatom), g_tmpta(3*mxatom)
       integer  g_modfwa(3*mxatom)
 c*    integer  g_vecs,g_eval
-      integer  g_eval
+c*    integer  g_eval
       integer  g_newaods,g_tmpaods
       integer  g_mafock(1),g_mmfock(1),g_tmpfock(1)
       double precision occ(mxnbf)
@@ -16179,7 +16084,8 @@ c
       character*8 errmsg
       logical out
       logical out_grad
-      common/hnd_iofile/ir,iw
+      common/hnd_iofile/ir,iw,ip
+C     common/hnd_iofile/ir,iw
       common/hnd_dafile/idaf,nav,ioda(255)
       common/hnd_grad12/de(3,mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -16966,7 +16872,8 @@ C
 #include "global.fh"
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*4 DNAM
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       DIMENSION DNAM(3),FC(9),FCM(1)
       DATA DNAM /'d/dx','d/dy','d/dz'/
 C
@@ -17016,7 +16923,8 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
       CHARACTER*4 DNAM
-      COMMON/HND_IOFILE/IR,IW
+      common/hnd_iofile/ir,iw,ip
+C     COMMON/HND_IOFILE/IR,IW
       DIMENSION DNAM(3),GRD(3,1)
       DATA DNAM /'d/dx','d/dy','d/dz'/
 C
@@ -17041,4 +16949,56 @@ C
  9997 FORMAT(/)
  9996 FORMAT(5X,'atom',9(6X,I2,4X))
  9995 FORMAT(5X,A4,9F12.7)
+      END
+C
+C     ------ TAKEN FROM CTL.F in HONDO ------
+C
+      SUBROUTINE HND_PRTRL(D,N)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+C
+C     ----- PRINT OUT A TRIANGULAR MATRIX WITH LABELS
+C
+      PARAMETER (MXATOM=500)
+      PARAMETER (MXBFN=3072)
+      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_LISTNG/LIST
+C     COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
+      DIMENSION D(1),DD(10)
+      IF(LIST.EQ.0) MAX=10
+      IF(LIST.EQ.1) MAX=7
+      IF(LIST.EQ.2) MAX=7
+      IMAX = 0
+  100 IMIN = IMAX+1
+      IMAX = IMAX+MAX
+      IF (IMAX .GT. N) IMAX = N
+      WRITE (IW,9008)
+c%%
+C     IF(LIST.EQ.0) WRITE (IW,9028) (BFLAB(I),I = IMIN,IMAX)
+C     IF(LIST.EQ.1) WRITE (IW,9128) (BFLAB(I),I = IMIN,IMAX)
+C     IF(LIST.EQ.2) WRITE (IW,9228) (BFLAB(I),I = IMIN,IMAX)
+c%%
+      WRITE (IW,9008)
+      DO 160 J = 1,N
+      K = 0
+      DO 140 I = IMIN,IMAX
+      K = K+1
+      II = MAX0( I, J)
+      JJ = MIN0( I, J)
+      IJ = (II*(II-1))/2 + JJ
+  140 DD(K) = D(IJ)
+c%%
+C     IF(LIST.EQ.0) WRITE (IW,9048) J,BFLAB(J),(DD(I),I = 1,K)
+C     IF(LIST.EQ.1) WRITE (IW,9148) J,BFLAB(J),(DD(I),I = 1,K)
+C     IF(LIST.EQ.2) WRITE (IW,9248) J,BFLAB(J),(DD(I),I = 1,K)
+c%%
+  160 CONTINUE
+      IF (IMAX .LT. N) GO TO 100
+      RETURN
+ 9008 FORMAT(/)
+ 9028 FORMAT(15X,10(2X,A8,1X))
+ 9048 FORMAT(I5,2X,A8,10F11.5)
+ 9128 FORMAT(15X,7(4X,A8,3X))
+ 9148 FORMAT(I5,2X,A8,7F15.10)
+ 9228 FORMAT(15X,7(4X,A8,3X))
+ 9248 FORMAT(I5,2X,A8,7E15.8)
       END
