@@ -1,5 +1,5 @@
 *
-* $Id: blas_lapack.data,v 1.9 2000-05-12 18:49:20 nwchem Exp $
+* $Id: blas_lapack.data,v 1.10 2000-05-15 18:27:34 edo Exp $
 *
 #ifdef DECOSF
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
@@ -47,8 +47,8 @@
       data DLAMCHE/1.1102230246251565D-16/
       data DLAMCHP/1.1102230246251565D-16/
       data DLAMCHB/2.D0/
-      data DLAMCHS/2.2250738585072014D-308/
-      data DLAMCHU/2.22507385850720138D-308/
+      data DLAMCHS/2.2250738585072013D-308/
+      data DLAMCHU/2.2250738585072013D-308/
 #endif
 
 #ifdef PENTIUM
