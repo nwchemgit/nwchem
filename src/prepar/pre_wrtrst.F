@@ -3,7 +3,7 @@
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.11 2000-01-21 07:45:11 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
 c
       implicit none
 c
@@ -35,9 +35,9 @@ c
       if(box(3).lt.1.0e-6) box(3)=max(box(1),box(2),box(3))
       endif
 c
-      write(lfnrst,1001) 4.0,rstdat,rsttim,0
+      write(lfnrst,1001) 4.0,rstdat,rsttim,0,.false.
  1001 format('This is an automatically generated restart file',/,
-     + ' ',/,' ',/,f12.6,2a10,i5)
+     + ' ',/,' ',/,f12.6,2a10,i5,4x,l1)
       write(lfnrst,1002) npbtyp,nbxtyp,box(1),0.0d0,0.0d0,0.0d0,
      + box(2),0.0d0,0.0d0,0.0d0,box(3)
  1002 format(2i5,/,(3f12.6))

@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.11 2000-01-21 07:45:03 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
 c
       implicit none
 c
@@ -179,7 +179,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.11 2000-01-21 07:45:03 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.12 2000-01-26 16:51:17 d3j191 Exp $
 c
       implicit none
 c
@@ -195,6 +195,7 @@ c
       character*10 rstdat,rsttim
       real*8 rdummy
       character*1 cdummy
+      logical lforces
 c
 #include "util.fh"
 c
@@ -208,8 +209,8 @@ c
 c
       call swatch(rstdat,rsttim)
 c
-      read(lfnrst,1001) rdummy,rstdat,rsttim,nhist
- 1001 format(///,f12.6,2a10,i5)
+      read(lfnrst,1001) rdummy,rstdat,rsttim,nhist,lforces
+ 1001 format(///,f12.6,2a10,i5,4x,l1)
       if(nhist.gt.0) then
       do 1 i=1,nhist
       read(lfnrst,1000) cdummy
@@ -261,12 +262,15 @@ c
       do 2 i=1,nwmc
       read(lfnrst,1006) ((xwc(k,j,i),k=1,3),(vwc(k,j,i),k=1,3),j=1,nwa)
  1006 format(2x,6f13.8)
+      if(lforces) read(lfnrst,1109) ((rdummy,j=1,3),k=1,nwa)
+ 1109 format(2x,6e13.6)
       read(lfnrst,1007) iwmrc(i),(rdummy,k=1,3)
  1007 format(i1,1x,3f13.8)
     2 continue
       endif
       do 3 i=1,nwm-nwmc
       read(lfnrst,1006) ((xw(k,j,i),k=1,3),(vw(k,j,i),k=1,3),j=1,nwa)
+      if(lforces) read(lfnrst,1109) ((rdummy,j=1,3),k=1,nwa)
       read(lfnrst,1007) iwmr(i),(rdummy,k=1,3)
     3 continue
       endif
@@ -274,6 +278,8 @@ c
       read(lfnrst,1008)
      + (isar(i),(xs(k,i),k=1,3),(vs(k,i),k=1,3),i=1,nsa)
  1008 format(i1,1x,6f13.8)
+      if(lforces) read(lfnrst,1111) (rdummy,j=1,3)
+ 1111 format(2x,6e13.6)
       endif
 c
 c      print*,nsm
