@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.258 1998-07-09 02:58:59 d3g270 Exp $
+# $Id: makefile.h,v 1.259 1998-07-09 03:10:16 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -842,7 +842,7 @@ ifeq ($(TARGET),SP1)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 4 --no-print-directory
+  MAKEFLAGS = -j 7 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -942,7 +942,7 @@ ifeq ($(TARGET),LAPI)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 7 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
