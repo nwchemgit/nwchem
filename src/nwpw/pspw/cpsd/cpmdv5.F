@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.44 2004-11-10 23:05:32 bylaska Exp $
+* $Id: cpmdv5.F,v 1.45 2005-02-01 02:49:22 bylaska Exp $
 *
 
 ***********************************************************************
@@ -165,6 +165,9 @@
       external control_SA_decay
       integer  control_mapping
       external control_mapping
+
+      logical  control_translation,control_rotation
+      external control_translation,control_rotation
      
 
 
@@ -509,6 +512,8 @@
          write(6,1261) ewald_mandelung()
          end if
          write(6,1270)
+         if (.not.control_translation()) write(6,1271)
+         if (.not.control_rotation())    write(6,1272)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_rte(),control_rti()
          write(6,1222) eke0,eki0,ekg
@@ -1223,6 +1228,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
+ 1271 FORMAT(5x, ' translation contrained')
+ 1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')

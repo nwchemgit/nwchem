@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.36 2004-11-08 23:37:41 bylaska Exp $
+* $Id: cpsdv5.F,v 1.37 2005-02-01 02:49:22 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -145,6 +145,10 @@
       external     nwpw_timing
       integer      control_mapping
       external     control_mapping
+
+      logical  control_translation,control_rotation
+      external control_translation,control_rotation
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -485,6 +489,8 @@
          write(6,1261) ewald_mandelung()
          end if
          write(6,1270)
+         if (.not.control_translation()) write(6,1271)
+         if (.not.control_rotation())    write(6,1272)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc(),control_tolr()
          write(6,1300)
@@ -957,6 +963,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
+ 1271 FORMAT(5x, ' translation contrained')
+ 1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
