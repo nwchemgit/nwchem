@@ -13,6 +13,8 @@ c
 c
       double precision gs0, gs1, e0, e1, step0, step1, ediff, ls_ratio
       double precision ls_hessian, ls_grad, ls_step, ls_step_max
+      double precision e_low, step_low
+      integer i
       double precision tcgtime
       external tcgtime
 c
@@ -47,6 +49,17 @@ c
          return
       endif
 c
+c     determine current lowest energy and step
+c
+      e_low = energies(1)
+      step_low = steps(1)
+      do i = 2, nstep
+         if (energies(i).lt.e_low) then
+            e_low = energies(i)
+            step_low = steps(i)
+         endif
+      enddo
+c
 c     numerical estimates of hessian and gradient
 c
       gs1 = gradients(nstep)
@@ -70,20 +83,22 @@ c
 c
 c     Test for convergence of the line search
 c
-      if (ls_ratio.lt.tol .and. ediff.lt.eacc) then
+      if ( (ls_ratio .lt. tol) .and.
+     $     (ediff .lt. eacc) .and.
+     $     (e1-e_low) .lt. eacc) then
          line_search = .true.
          return
       endif
 c
 c     Now determine where we are going next
 c
-      if (ediff.gt.eacc .and. abs(step1-step0).gt.0.1d0) then
+      if (((e1-e_low).gt.eacc) .and. abs(step1-step_low).gt.0.1d0) then
 c
 c     Have gone up-hill ... backtrack optimistically
 c
-         ls_step = (step0 - step1) * 0.5d0
+         ls_step = (step_low - step1) * 0.5d0
          if (oprint) then
-            write(6, 4) ediff
+            write(6, 4) e1 - e_low
             call util_flush(6)
  4          format(20x,'Energy increase :',f23.8,' backtrack')
          endif
