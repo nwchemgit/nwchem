@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.5 2001-02-16 21:36:00 windus Exp $
+C $Id: nwc_gen.F,v 1.6 2001-04-25 16:42:08 windus Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -50,6 +50,8 @@ C
      &      call errquit('nwc_gen: geom_set_user_units failed',911)
       if (.not.geom_cart_set(geom,natom,atomic_labels,x,atomic_charge))
      &      call errquit('nwc_gen: geom_cart_set failed',911)
+      if (.not.geom_masses_set(geom,natom,nwcmass))
+     &      call errquit('nwc_gen:geom_masses_set failed',911)
 *      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
 *     &      call errquit('nwc_gen: geom_rtdb_store failed',911)
 c

@@ -1,4 +1,4 @@
-* $Id: nwc_drdyP.fh,v 1.4 2001-04-04 00:07:04 windus Exp $
+* $Id: nwc_drdyP.fh,v 1.5 2001-04-25 16:42:08 windus Exp $
       Integer me_drdy, my_rtdb
       Common /c_drdy_nwchem/ me_drdy, my_rtdb
       Integer DRDY_CODE_SPENERGY
@@ -17,6 +17,8 @@
       Integer natomz
       Parameter (natomz = 15) ! same as in drdyP.fh
       Double Precision atomic_charge, copy_charge
+      Double Precision nwcmass
       Character*16     atomic_labels, copy_labels
       Common /c_nwc_chrg/atomic_charge(natomz), copy_charge(natomz)
       Common /c_nwc_labs/atomic_labels(natomz), copy_labels(natomz)
+      Common /c_nwc_mass/nwcmass(natomz)

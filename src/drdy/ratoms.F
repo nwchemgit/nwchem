@@ -1,4 +1,4 @@
-C $Id: ratoms.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id: ratoms.F,v 1.4 2001-04-25 16:42:08 windus Exp $
       subroutine drdy_ratoms(string,istrt)
       implicit none ! double precision (a-h,o-z)
 #include "drdyP.fh"
@@ -105,9 +105,11 @@ c
          call drdy_rword(string,istrt,ierr)
          if (ierr.eq.1) then
              xmass(iatm) = ams(label(iatm))
+             nwcmass(iatm) = xmass(iatm)
          else
              dummy = drdy_cfloat(string(istrt:80))
              xmass(iatm) = dummy
+             nwcmass(iatm) = xmass(iatm)
          end if
          chat(iatm) = drdy_atsym(label(iatm))
 C Capitalize first letter in atomic label
