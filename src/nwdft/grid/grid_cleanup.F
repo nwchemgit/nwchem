@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(rtdb,okeep)
 c
-c$Id: grid_cleanup.F,v 1.6 2000-10-27 17:38:39 edo Exp $
+c$Id: grid_cleanup.F,v 1.7 2000-10-30 20:38:42 edo Exp $
 c
       implicit none
 c      
@@ -26,7 +26,7 @@ c
       endif
       if (grid_on_file)then
 c
-         write(0,*) ' grinfo ',grinfo
+cedo         write(0,*) ' grinfo ',grinfo
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0)
          if(.not.okeep) then
