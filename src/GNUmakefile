@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.22 1995-02-07 20:26:32 d3e129 Exp $
+# $Id: GNUmakefile,v 1.23 1995-02-07 20:50:45 d3e129 Exp $
 
 include config/makefile.h
 
@@ -33,7 +33,7 @@ link nwchem_link:    nwchem.o stubs.o
 # This for linking test version
 #
 test nwchem_test:	nwchem.o stubs.o
-	$(LINK.f) -o mwchem_test nwchem.o stubs.o $(LIBS)
+	$(LINK.f) -o nwchem_test nwchem.o stubs.o $(LIBS)
 	/bin/rm -f nwchem.o
 	$(INSTALL)
 
