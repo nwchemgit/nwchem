@@ -239,7 +239,7 @@ peigs_CPU = MIPS
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CC += -DSTD_DBL -64 
-peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2 -DSTD_DBL  -D$(peigs_COMM)
+peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
 peigs_CPP += -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
