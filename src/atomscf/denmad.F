@@ -1,10 +1,5 @@
-
-
-
-
-
       subroutine denmad(d,c,ns,nb,occ,nrow)
-C$Id: denmad.F,v 1.2 1995-02-02 23:08:55 d3g681 Exp $
+C$Id: denmad.F,v 1.3 1996-03-29 04:53:14 d3e129 Exp $
       implicit none
 c.......................................................................
 c     make actual density matrices.
@@ -27,7 +22,7 @@ c
             enddo
             sum = sum*occ
             if (i.ne.j) sum = sum + sum
-            d(icount) = sum
+            d(icount) = d(icount) + sum
          enddo
       enddo
       return

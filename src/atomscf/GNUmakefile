@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1995-11-27 02:11:49 d3g681 Exp $
+# $Id: GNUmakefile,v 1.11 1996-03-29 04:53:18 d3e129 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -16,6 +16,7 @@
 		tracd.o \
 		cmergd.o \
 		densid.o \
+		densid_z.o \
 		oeigd.o \
 		shalfd.o \
 		trafsd.o \

@@ -1,12 +1,10 @@
-
-
       subroutine densid(dt,dold,dos,nsym,nosh,ncsh,nccup,c,damp,nconv,
      x                 nbas,nitscf,tlarge)
 c.......................................................................
 c
 c     driver routine for density matrix processing
 c.......................................................................
-C$Id: densid.F,v 1.2 1995-02-02 23:08:56 d3g681 Exp $
+C$Id: densid.F,v 1.3 1996-03-29 04:53:16 d3e129 Exp $
       implicit none
 c
       real *8 dt(*), dold(*), dos(*), c(*)

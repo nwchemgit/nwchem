@@ -1,5 +1,5 @@
-      subroutine guess_dens(geom, basis, g_dens)
-C$Id: denat.F,v 1.8 1995-10-10 06:06:31 d3g681 Exp $
+      subroutine guess_dens(rtdb, geom, basis, g_dens)
+C$Id: denat.F,v 1.9 1996-03-29 04:53:13 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -7,6 +7,9 @@ C$Id: denat.F,v 1.8 1995-10-10 06:06:31 d3g681 Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "rtdb.fh"
+#include "atomz.fh"
+      integer rtdb              ! Run Time Data Base Handle
       integer geom, basis       ! Handles
       integer g_dens            ! GA returns superposition of atomic densities
 c
@@ -84,6 +87,19 @@ c
       last = icc + nsq
       if ((last - i10) .gt. memq) call errquit
      $     ('guess_dens: memory?', memq)
+c..
+c.. parse data from rtdb about atoms
+c..
+      if (.not.rtdb_get(rtdb,'atomscf:num_z',mt_int,1,num_z))
+     &    num_z = 0
+      if (num_z .gt. max_num_z)
+     &    call errquit('rick/bob fixit',911)
+      if (num_z .gt. 0) then
+        if (.not.rtdb_get(rtdb,'atomscf:z',mt_dbl,num_z,z))
+     &      call errquit('denat: read of atomscf:z failed ',911)
+        if (.not.rtdb_cget(rtdb,'atomscf:tags_z',num_z,tags_z))
+     &      call errquit('denat: read of atomscf:tag_z failed',911)
+      endif
 c..
 c..   now loop over the atoms / do atomic scf and gather d-matrix
 c..

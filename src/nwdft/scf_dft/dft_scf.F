@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.23 1996-01-29 19:45:12 hltaylor Exp $
+C$Id: dft_scf.F,v 1.24 1996-03-29 04:53:24 d3e129 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -408,7 +408,7 @@ C
 C       call to atomscf for initial density matrix
 C
         call ga_zero(g_dens(1))
-        call guess_dens(geom,ao_bas_han,g_dens)
+        call guess_dens(rtdb,geom,ao_bas_han,g_dens)
         if(ipol.eq.2) then
           call ga_copy(g_dens(1),g_dens(2))
           if((lfocka).or.(lfockb)) then

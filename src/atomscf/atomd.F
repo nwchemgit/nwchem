@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.6 1995-02-02 23:08:47 d3g681 Exp $
+C$Id: atomd.F,v 1.7 1996-03-29 04:53:10 d3e129 Exp $
       implicit none
 #include "inp.fh"
 c
@@ -255,8 +255,10 @@ c.......................................................................
          else
             call outpud(copn,cc,0,iwr)
          end if
-         call densid(dt,dold,dos,nsym,nosh,ncsh,nccup,cc,damp,nconv,nbc,
-     +               nitscf,tlarge)
+         call densid_z(dt,dold,dos,nsym,nosh,ncsh,nccup,cc,damp,nconv,
+     &       nbc,nitscf,tlarge,tag,eps)
+*         call densid(dt,dold,dos,nsym,nosh,ncsh,nccup,cc,damp,nconv,nbc,
+*     +               nitscf,tlarge)
          lm = 0
          do i = 1 , nsym
             noff = lm

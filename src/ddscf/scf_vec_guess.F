@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.3 1996-03-13 22:23:11 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.4 1996-03-29 04:53:20 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -71,7 +71,7 @@ c
          g_aodens = ga_create_atom_blocked(geom, basis, 'Guess density')
          call ga_zero(g_aodens)
          if (movecs_in .eq. 'atomic') then
-            call guess_dens(geom, basis, g_aodens)
+            call guess_dens(rtdb, geom, basis, g_aodens)
          endif
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
      $        nbf, nmo, tol2e,
