@@ -9970,100 +9970,101 @@ C
  9348 FORMAT(5(I5,1X,A8,F11.5))
       END
       SUBROUTINE HND_JACOBI(A,V,D,N,NP,NROT,B,Z)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA PT2    /0.2D+00/
-      DATA PT5    /0.5D+00/
-      DATA HUNDRD /1.0D+02/
-C
-      DO 12 IP=1,N
-         DO 11 IQ=1,N
-            V(IQ,IP)=ZERO
-   11    CONTINUE
-         V(IP,IP)=ONE
-   12 CONTINUE
-      DO 13 IP=1,N
-         B(IP)=A(IP,IP)
-         D(IP)=B(IP)
-         Z(IP)=ZERO
-   13 CONTINUE
-      NROT=0
-      IF(N.EQ.1) RETURN
-      DO 24 I=1,50
-         SM=ZERO
-         DO 15 IP=1,N-1
-            DO 14 IQ=IP+1,N
-               SM=SM+ABS(A(IP,IQ))
-   14       CONTINUE
-   15    CONTINUE
-         IF(SM.EQ.ZERO) RETURN
-         IF(I.LT.4) THEN
-            THRES=PT2*SM/N**2
-         ELSE
-            THRES=ZERO
-         ENDIF
-         DO 22 IP=1,N-1
-            DO 21 IQ=IP+1,N
-               G=HUNDRD*ABS(A(IP,IQ))
-               IF((I.GT.4).AND.(ABS(D(IP))+G.EQ.ABS(D(IP))).AND.
-     1                         (ABS(D(IQ))+G.EQ.ABS(D(IQ)))) THEN
-                  A(IP,IQ)=ZERO
-               ELSE IF(ABS(A(IP,IQ)).GT.THRES) THEN
-                  H=D(IQ)-D(IP)
-                  IF(ABS(H)+G.EQ.ABS(H)) THEN
-                     T=A(IP,IQ)/H
-                  ELSE
-                     THETA=PT5*H/A(IP,IQ)
-                     T=ONE/(ABS(THETA)+SQRT(ONE+THETA**2))
-                     IF(THETA.LT.ZERO) T=-T
-                  ENDIF
-                  C=ONE/SQRT(ONE+T**2)
-                  S=T*C
-                  TAU=S/(ONE+C)
-                  H=T*A(IP,IQ)
-                  Z(IP)=Z(IP)-H
-                  Z(IQ)=Z(IQ)+H
-                  D(IP)=D(IP)-H
-                  D(IQ)=D(IQ)+H
-                  A(IP,IQ)=ZERO
-                  DO 16 J=1,IP-1
-                     G=A(J,IP)
-                     H=A(J,IQ)
-                     A(J,IP)=G-S*(H+G*TAU)
-                     A(J,IQ)=H+S*(G-H*TAU)
-   16             CONTINUE
-                  DO 17 J=IP+1,IQ-1
-                     G=A(IP,J)
-                     H=A(J,IQ)
-                     A(IP,J)=G-S*(H+G*TAU)
-                     A(J,IQ)=H+S*(G-H*TAU)
-   17             CONTINUE
-                  DO 18 J=IQ+1,N
-                     G=A(IP,J)
-                     H=A(IQ,J)
-                     A(IP,J)=G-S*(H+G*TAU)
-                     A(IQ,J)=H+S*(G-H*TAU)
-   18             CONTINUE
-                  DO 19 J=1,N
-                     G=V(J,IP)
-                     H=V(J,IQ)
-                     V(J,IP)=G-S*(H+G*TAU)
-                     V(J,IQ)=H+S*(G-H*TAU)
-   19             CONTINUE
-                  NROT=NROT+1
-               ENDIF
-   21       CONTINUE
-   22    CONTINUE
-         DO 23 IP=1,N
-            B(IP)=B(IP)+Z(IP)
-            D(IP)=B(IP)
-            Z(IP)=ZERO
-   23    CONTINUE
-   24 CONTINUE
-      PAUSE '50 ITERATIONS SHOULD NEVER HAPPEN'
-      RETURN
+      call errquit('hnd_jacobi: this routine must be replaced',0)
+c$$$      IMPLICIT REAL*8 (A-H,O-Z)
+c$$$      DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
+c$$$      DATA ZERO   /0.0D+00/
+c$$$      DATA ONE    /1.0D+00/
+c$$$      DATA PT2    /0.2D+00/
+c$$$      DATA PT5    /0.5D+00/
+c$$$      DATA HUNDRD /1.0D+02/
+c$$$C
+c$$$      DO 12 IP=1,N
+c$$$         DO 11 IQ=1,N
+c$$$            V(IQ,IP)=ZERO
+c$$$   11    CONTINUE
+c$$$         V(IP,IP)=ONE
+c$$$   12 CONTINUE
+c$$$      DO 13 IP=1,N
+c$$$         B(IP)=A(IP,IP)
+c$$$         D(IP)=B(IP)
+c$$$         Z(IP)=ZERO
+c$$$   13 CONTINUE
+c$$$      NROT=0
+c$$$      IF(N.EQ.1) RETURN
+c$$$      DO 24 I=1,50
+c$$$         SM=ZERO
+c$$$         DO 15 IP=1,N-1
+c$$$            DO 14 IQ=IP+1,N
+c$$$               SM=SM+ABS(A(IP,IQ))
+c$$$   14       CONTINUE
+c$$$   15    CONTINUE
+c$$$         IF(SM.EQ.ZERO) RETURN
+c$$$         IF(I.LT.4) THEN
+c$$$            THRES=PT2*SM/N**2
+c$$$         ELSE
+c$$$            THRES=ZERO
+c$$$         ENDIF
+c$$$         DO 22 IP=1,N-1
+c$$$            DO 21 IQ=IP+1,N
+c$$$               G=HUNDRD*ABS(A(IP,IQ))
+c$$$               IF((I.GT.4).AND.(ABS(D(IP))+G.EQ.ABS(D(IP))).AND.
+c$$$     1                         (ABS(D(IQ))+G.EQ.ABS(D(IQ)))) THEN
+c$$$                  A(IP,IQ)=ZERO
+c$$$               ELSE IF(ABS(A(IP,IQ)).GT.THRES) THEN
+c$$$                  H=D(IQ)-D(IP)
+c$$$                  IF(ABS(H)+G.EQ.ABS(H)) THEN
+c$$$                     T=A(IP,IQ)/H
+c$$$                  ELSE
+c$$$                     THETA=PT5*H/A(IP,IQ)
+c$$$                     T=ONE/(ABS(THETA)+SQRT(ONE+THETA**2))
+c$$$                     IF(THETA.LT.ZERO) T=-T
+c$$$                  ENDIF
+c$$$                  C=ONE/SQRT(ONE+T**2)
+c$$$                  S=T*C
+c$$$                  TAU=S/(ONE+C)
+c$$$                  H=T*A(IP,IQ)
+c$$$                  Z(IP)=Z(IP)-H
+c$$$                  Z(IQ)=Z(IQ)+H
+c$$$                  D(IP)=D(IP)-H
+c$$$                  D(IQ)=D(IQ)+H
+c$$$                  A(IP,IQ)=ZERO
+c$$$                  DO 16 J=1,IP-1
+c$$$                     G=A(J,IP)
+c$$$                     H=A(J,IQ)
+c$$$                     A(J,IP)=G-S*(H+G*TAU)
+c$$$                     A(J,IQ)=H+S*(G-H*TAU)
+c$$$   16             CONTINUE
+c$$$                  DO 17 J=IP+1,IQ-1
+c$$$                     G=A(IP,J)
+c$$$                     H=A(J,IQ)
+c$$$                     A(IP,J)=G-S*(H+G*TAU)
+c$$$                     A(J,IQ)=H+S*(G-H*TAU)
+c$$$   17             CONTINUE
+c$$$                  DO 18 J=IQ+1,N
+c$$$                     G=A(IP,J)
+c$$$                     H=A(IQ,J)
+c$$$                     A(IP,J)=G-S*(H+G*TAU)
+c$$$                     A(IQ,J)=H+S*(G-H*TAU)
+c$$$   18             CONTINUE
+c$$$                  DO 19 J=1,N
+c$$$                     G=V(J,IP)
+c$$$                     H=V(J,IQ)
+c$$$                     V(J,IP)=G-S*(H+G*TAU)
+c$$$                     V(J,IQ)=H+S*(G-H*TAU)
+c$$$   19             CONTINUE
+c$$$                  NROT=NROT+1
+c$$$               ENDIF
+c$$$   21       CONTINUE
+c$$$   22    CONTINUE
+c$$$         DO 23 IP=1,N
+c$$$            B(IP)=B(IP)+Z(IP)
+c$$$            D(IP)=B(IP)
+c$$$            Z(IP)=ZERO
+c$$$   23    CONTINUE
+c$$$   24 CONTINUE
+c$$$      PAUSE '50 ITERATIONS SHOULD NEVER HAPPEN'
+c$$$      RETURN
       END
       SUBROUTINE HND_JACSRT(V,D,N,NP)
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -10092,7 +10093,7 @@ C
       END
       SUBROUTINE HND_SPHSET
       IMPLICIT REAL*8 (A-H,O-Z)
-      LOGICAL DBUG
+vvv      LOGICAL DBUG
 C
 C     -----  THIS ROUTINE DEFINES THE SPHERICAL HARMONICS -----
 C     -----  AND THE INVERSE TRANSFORMATION               -----
@@ -10131,7 +10132,7 @@ C
      2   0,  0,  0,  0,  1,  0, -1,  0,  0,  0,
      3  -1,  0,  0,  0,  0, -1,  0,  4,  0,  0,
      4   0,  0,  2,  0, -3,  0, -3,  0,  0,  0,
-     5   0, -1,  0, -1,  0,  0,  0,  0,  4,  0,
+v     5   0, -1,  0, -1,  0,  0,  0,  0,  4,  0,
      6   0,  0,  0,  0,  0,  0,  0,  0,  0,  1,
      7   0, -1,  0,  3,  0,  0,  0,  0,  0,  0,
      8   1,  0,  0,  0,  0,  1,  0,  1,  0,  0,
@@ -11033,106 +11034,109 @@ C
  9348 FORMAT(5(I5,F11.5))
       END
       SUBROUTINE HND_LUDCMP(A,LDA,N,IB,VV,D,IERR)
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      CHARACTER*8 ERRMSG
-      DIMENSION A(LDA,1),IB(N),VV(N)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG   /'PROGRAM ','STOP IN ','-LUDCMP-'/
-      DATA TINY     /1.0D-20/
-      DATA ZERO,ONE /0.0D+00,1.0D+00/
-C
-      IERR=0
-      D=ONE
-      DO 12 I=1,N
-         AAMAX=ZERO
-         DO 11 J=1,N
-            IF( ABS(A(I,J)).GT.AAMAX) AAMAX= ABS(A(I,J))
-   11    CONTINUE
-         IF(AAMAX.EQ.ZERO) THEN
-            IERR=1
-            RETURN
-         ENDIF
-         VV(I)=ONE/AAMAX
-   12 CONTINUE
-      DO 19 J=1,N
-         IF(J.GT.1) THEN
-            DO 14 I=1,J-1
-               SUM=A(I,J)
-               IF(I.GT.1) THEN
-                  DO 13 K=1,I-1
-                     SUM=SUM-A(I,K)*A(K,J)
-   13             CONTINUE
-                  A(I,J)=SUM
-               ENDIF
-   14       CONTINUE
-         ENDIF
-         AAMAX=ZERO
-         DO 16 I=J,N
-            SUM=A(I,J)
-            IF(J.GT.1) THEN
-               DO 15 K=1,J-1
-                  SUM=SUM-A(I,K)*A(K,J)
-   15          CONTINUE
-               A(I,J)=SUM
-            ENDIF
-            DUM=VV(I)* ABS(SUM)
-            IF(DUM.GE.AAMAX) THEN
-               IMAX=I
-               AAMAX=DUM
-            ENDIF
-   16    CONTINUE
-         IF(J.NE.IMAX) THEN
-            DO 17 K=1,N
-               DUM=A(IMAX,K)
-               A(IMAX,K)=A(J,K)
-               A(J,K)=DUM
-   17       CONTINUE
-            D=-D
-            VV(IMAX)=VV(J)
-         ENDIF
-         IB(J)=IMAX
-         IF(J.NE.N) THEN
-            IF(A(J,J).EQ.ZERO) A(J,J)=TINY
-            DUM=ONE/A(J,J)
-            DO 18 I=J+1,N
-               A(I,J)=A(I,J)*DUM
-   18       CONTINUE
-         ENDIF
-   19 CONTINUE
-      IF(A(N,N).EQ.ZERO) A(N,N)=TINY
-      RETURN
+c
+      call errquit('hnd_ludcmp: this routine must be replaced',0)
+c$$$      IMPLICIT REAL*8 (A-H,O-Z)
+c$$$C
+c$$$      CHARACTER*8 ERRMSG
+c$$$      DIMENSION A(LDA,1),IB(N),VV(N)
+c$$$      DIMENSION ERRMSG(3)
+c$$$      DATA ERRMSG   /'PROGRAM ','STOP IN ','-LUDCMP-'/
+c$$$      DATA TINY     /1.0D-20/
+c$$$      DATA ZERO,ONE /0.0D+00,1.0D+00/
+c$$$C
+c$$$      IERR=0
+c$$$      D=ONE
+c$$$      DO 12 I=1,N
+c$$$         AAMAX=ZERO
+c$$$         DO 11 J=1,N
+c$$$            IF( ABS(A(I,J)).GT.AAMAX) AAMAX= ABS(A(I,J))
+c$$$   11    CONTINUE
+c$$$         IF(AAMAX.EQ.ZERO) THEN
+c$$$            IERR=1
+c$$$            RETURN
+c$$$         ENDIF
+c$$$         VV(I)=ONE/AAMAX
+c$$$   12 CONTINUE
+c$$$      DO 19 J=1,N
+c$$$         IF(J.GT.1) THEN
+c$$$            DO 14 I=1,J-1
+c$$$               SUM=A(I,J)
+c$$$               IF(I.GT.1) THEN
+c$$$                  DO 13 K=1,I-1
+c$$$                     SUM=SUM-A(I,K)*A(K,J)
+c$$$   13             CONTINUE
+c$$$                  A(I,J)=SUM
+c$$$               ENDIF
+c$$$   14       CONTINUE
+c$$$         ENDIF
+c$$$         AAMAX=ZERO
+c$$$         DO 16 I=J,N
+c$$$            SUM=A(I,J)
+c$$$            IF(J.GT.1) THEN
+c$$$               DO 15 K=1,J-1
+c$$$                  SUM=SUM-A(I,K)*A(K,J)
+c$$$   15          CONTINUE
+c$$$               A(I,J)=SUM
+c$$$            ENDIF
+c$$$            DUM=VV(I)* ABS(SUM)
+c$$$            IF(DUM.GE.AAMAX) THEN
+c$$$               IMAX=I
+c$$$               AAMAX=DUM
+c$$$            ENDIF
+c$$$   16    CONTINUE
+c$$$         IF(J.NE.IMAX) THEN
+c$$$            DO 17 K=1,N
+c$$$               DUM=A(IMAX,K)
+c$$$               A(IMAX,K)=A(J,K)
+c$$$               A(J,K)=DUM
+c$$$   17       CONTINUE
+c$$$            D=-D
+c$$$            VV(IMAX)=VV(J)
+c$$$         ENDIF
+c$$$         IB(J)=IMAX
+c$$$         IF(J.NE.N) THEN
+c$$$            IF(A(J,J).EQ.ZERO) A(J,J)=TINY
+c$$$            DUM=ONE/A(J,J)
+c$$$            DO 18 I=J+1,N
+c$$$               A(I,J)=A(I,J)*DUM
+c$$$   18       CONTINUE
+c$$$         ENDIF
+c$$$   19 CONTINUE
+c$$$      IF(A(N,N).EQ.ZERO) A(N,N)=TINY
+c$$$      RETURN
       END
       SUBROUTINE HND_LUBKSB(A,LDA,N,IB,B)
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      DIMENSION A(LDA,1),IB(N),B(N)
-      DATA ZERO /0.0D+00/
-C
-      II=0
-      DO 12 I=1,N
-         LL=IB(I)
-         SUM=B(LL)
-         B(LL)=B(I)
-         IF(II.NE.0) THEN
-            DO 11 J=II,I-1
-               SUM=SUM-A(I,J)*B(J)
-   11       CONTINUE
-         ELSE IF (SUM.NE.ZERO) THEN
-            II=I
-         ENDIF
-         B(I)=SUM
-   12 CONTINUE
-      DO 14 I=N,1,-1
-         SUM=B(I)
-         IF(I.LT.N) THEN
-            DO 13 J=I+1,N
-               SUM=SUM-A(I,J)*B(J)
-   13       CONTINUE
-         ENDIF
-         B(I)=SUM/A(I,I)
-   14 CONTINUE
-      RETURN
+      call errquit('hnd_lubksb: this routine must be replaced',0)
+c$$$      IMPLICIT REAL*8 (A-H,O-Z)
+c$$$C
+c$$$      DIMENSION A(LDA,1),IB(N),B(N)
+c$$$      DATA ZERO /0.0D+00/
+c$$$C
+c$$$      II=0
+c$$$      DO 12 I=1,N
+c$$$         LL=IB(I)
+c$$$         SUM=B(LL)
+c$$$         B(LL)=B(I)
+c$$$         IF(II.NE.0) THEN
+c$$$            DO 11 J=II,I-1
+c$$$               SUM=SUM-A(I,J)*B(J)
+c$$$   11       CONTINUE
+c$$$         ELSE IF (SUM.NE.ZERO) THEN
+c$$$            II=I
+c$$$         ENDIF
+c$$$         B(I)=SUM
+c$$$   12 CONTINUE
+c$$$      DO 14 I=N,1,-1
+c$$$         SUM=B(I)
+c$$$         IF(I.LT.N) THEN
+c$$$            DO 13 J=I+1,N
+c$$$               SUM=SUM-A(I,J)*B(J)
+c$$$   13       CONTINUE
+c$$$         ENDIF
+c$$$         B(I)=SUM/A(I,I)
+c$$$   14 CONTINUE
+c$$$      RETURN
       END
 C
       SUBROUTINE HND_ATLABL(rtdb,geom,basis)
