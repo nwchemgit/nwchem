@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.1 2001-12-13 03:53:31 bylaska Exp $
+* $Id: cpsp.F,v 1.2 2001-12-14 20:02:43 bylaska Exp $
 *
 
 #define TCGMSG
@@ -27,7 +27,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
       integer nfft3d,npack0,nbrillioun
@@ -102,7 +102,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
       logical value
@@ -156,7 +156,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -193,7 +193,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -230,7 +230,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -265,7 +265,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
       cpsp_atom = atom(ia)
@@ -301,7 +301,7 @@ c     integer    lmmax(nkatmx),lmax(2),locp(2)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -337,7 +337,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
       cpsp_lmax = int_mb(lmax(1)+ia-1)
@@ -372,7 +372,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
       cpsp_locp = int_mb(locp(1)+ia-1)
@@ -405,7 +405,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -445,7 +445,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 *     ***** timing variables *****
@@ -574,7 +574,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 *     ***** timing variables *****
@@ -696,7 +696,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -764,9 +764,6 @@ c     integer    lmmax(nkatmx)
       call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
       call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
       call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-c     call Cram_r_pack(1,dbl_mb(Gx(1)))
-c     call Cram_r_pack(1,dbl_mb(Gy(1)))
-c     call Cram_r_pack(1,dbl_mb(Gz(1)))
 
       omega = lattice_omega()
 
@@ -810,7 +807,7 @@ c     call Cram_r_pack(1,dbl_mb(Gz(1)))
 
 
 *         **** do kleinman-bylander multiplication ****
-          call Cram_cc_ndot(1,nn,
+          call Cram_cc_nzdot(1,nn,
      >                      psi1,
      >                      dcpl_mb(vtmp(1)),
      >                      dcpl_mb(zsw1(1)))
@@ -839,21 +836,19 @@ c     call Cram_r_pack(1,dbl_mb(Gz(1)))
                    dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
                 end do
 
-                call C3dB_r_Copy(1,dbl_mb(Gx(1)),dcpl_mb(exi(1)))
-                call Cram_r_pack(1,dcpl_mb(exi(1)))
-                call Cram_rr_idot(1,dcpl_mb(exi(1)),dbl_mb(xtmp(1)),
+*               **** define Gx,Gy and Gz in packed space ****
+                call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+                call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+                call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+                call Cram_r_pack(nb,dbl_mb(Gx(1)))
+                call Cram_r_pack(nb,dbl_mb(Gy(1)))
+                call Cram_r_pack(nb,dbl_mb(Gz(1)))
+                call Cram_rr_idot(nb,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),
      >                            dbl_mb(sum(1)+3*(n-1)))
-
-                call C3dB_r_Copy(1,dbl_mb(Gy(1)),dcpl_mb(exi(1)))
-                call Cram_r_pack(1,dcpl_mb(exi(1)))
-                call Cram_rr_idot(1,dcpl_mb(exi(1)),dbl_mb(xtmp(1)),
+                call Cram_rr_idot(nb,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),
      >                            dbl_mb(sum(1)+1+3*(n-1)))
-
-                call C3dB_r_Copy(1,dbl_mb(Gz(1)),dcpl_mb(exi(1)))
-                call Cram_r_pack(1,dcpl_mb(exi(1)))
-                call Cram_rr_idot(1,dcpl_mb(exi(1)),dbl_mb(xtmp(1)),
+                call Cram_rr_idot(nb,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),
      >                            dbl_mb(sum(1)+2+3*(n-1)))
-
              end do
 
              call C3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
@@ -925,7 +920,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 
@@ -1032,7 +1027,7 @@ c     integer    lmmax(nkatmx)
            end if
 
 *         **** do kleinman-bylander multiplication ****
-          call Cram_cc_ndot(1,nn,
+          call Cram_cc_nzdot(1,nn,
      >                      psi1,
      >                      dcpl_mb(vtmp(1)),
      >                      dbl_mb(sw1(1)))
@@ -1313,7 +1308,7 @@ c     integer    lmmax(nkatmx)
       integer nkatmx,lmmax_max,lmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16)
       character*2 atom(nkatmx)
-      common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
+      common / psp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
 
 

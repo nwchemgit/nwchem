@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.4 2001-12-12 02:42:25 bylaska Exp $
+* $Id: C3dB-new.F,v 1.5 2001-12-14 20:02:45 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1836,6 +1836,32 @@ c     integer i2_start(NFFT3+1)
       implicit none 
       integer    nb
       complex*16 A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ C3dB / nq,nx,ny,nz
+
+      integer i
+
+      do i=1,nx(nb)*ny(nb)*nq(nb)
+         C(i) = A(i) + B(i)
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	         C3dB_rc_Sum  	 	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_rc_Sum(nb,A,B,C)     
+      implicit none 
+      integer    nb
+      real*8     A(*)
       complex*16 B(*)
       complex*16 C(*)
 

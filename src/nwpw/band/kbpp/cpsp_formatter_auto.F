@@ -72,7 +72,7 @@
 
 
       value = value.and.
-     >     kbpp_band(.true.,
+     >     kbpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2001-12-13 03:49:54 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2001-12-14 20:02:46 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -8,6 +8,9 @@
             auto_corr.o \
             dsum.o matrix.o simp.o \
 			is_sORd.o \
+			psi_filefind.o \
+			v_psi_filefind.o \
+			getfilling.o \
  			CIF_write.o
 
 

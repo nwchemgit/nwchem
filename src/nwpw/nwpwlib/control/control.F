@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.10 2001-12-13 03:49:52 bylaska Exp $
+* $Id: control.F,v 1.11 2001-12-14 20:02:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -292,7 +292,10 @@
      >        rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut)     
       value = value.and.
      >        rtdb_get(rtdb,'band:ncut',mt_int,1,ncut)
-
+      value = value.and.
+     >        rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity)
+      value = value.and.
+     >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
 
 
 *     **** unknown code type ****

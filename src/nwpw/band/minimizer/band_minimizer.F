@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.4 2001-12-13 03:49:52 bylaska Exp $
+* $Id: band_minimizer.F,v 1.5 2001-12-14 20:02:45 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -63,6 +63,7 @@
       integer ierr
 
 *     **** local variables ****
+      logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion
@@ -106,8 +107,8 @@
       real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       external c_ewald_ncut
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
-      logical  cpsp_semicore
-      external cpsp_semicore
+      logical  cpsp_semicore,psi_filefind
+      external cpsp_semicore,psi_filefind
 
 
 
@@ -188,11 +189,31 @@
       call cpsp_readall()
       if (cpsp_semicore(0)) call c_semicore_check()
 
+
 *     **** initialize ke,and coulomb data structures ****
       call cstrfac_init()
       call cke_init()
-c     call c_coulomb_init()
+      call c_coulomb_init()
       call c_ewald_init()
+
+*     **** set up phase factors at the current geometry  ****
+      call cphafac()
+      call cphafac_k()
+
+*     **** read in wavefunctions and initialize psi ****
+      if (.not.psi_filefind()) then
+        call cpsi_new()
+        newpsi = .true.
+      else
+        newpsi = .false.
+      end if
+*     value = cpsi_initialize()
+
+
+*     **** electron and geodesic data structures ****
+*     call electron_init()
+*     call geodesic_init()
+      call linesearch_init()
 
 
 
@@ -280,12 +301,13 @@ c     call c_coulomb_init()
 *                |***************************|
       if (taskid.eq.MASTER) call current_second(cpu2)
 
-
 *     **** calculate energy ****
-      EV= 0.0d0
+*     EV= cgsd_energy(newpsi)
+      EV = 0.0d0
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(6,1600) EV
+
 
 *     **** calculate the spin contamination ****
       
@@ -334,7 +356,6 @@ c     call c_coulomb_init()
 *                |***************************|
 
       
-      call cphafac()
       E(5) = c_ewald_e()
       if (taskid.eq.MASTER) then
       write(6,1470) E(5),E(5)/ion_nion()
@@ -346,14 +367,14 @@ c     call c_coulomb_init()
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
-c      call c_psi_finalize()
+c      call cpsi_finalize()
 
 *     **** deallocate heap memory ****
 c     call c_electron_finalize()
 c     call c_geodesic_finalize()
       call c_ewald_end()
       call cstrfac_end()
-c     call c_coulomb_end()
+      call c_coulomb_end()
       call cke_end()
       call cpsp_end()
       call Cram_end()
@@ -419,7 +440,7 @@ c    >                     linesearch_count(),' line searches)'
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundry conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
@@ -447,7 +468,7 @@ c    >                     linesearch_count(),' line searches)'
  1245 FORMAT(5x,'          b2=<',3f8.3,' >')
  1246 FORMAT(5x,'          b3=<',3f8.3,' >')
 
- 1249 FORMAT(/' computation grids:')
+ 1249 FORMAT(/' computational grids:')
  1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
@@ -462,7 +483,7 @@ c    >                     linesearch_count(),' line searches)'
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)',E12.3,' (ion)')
  1300 FORMAT(//)

@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.3 2001-11-26 21:51:23 bylaska Exp $
+c $Id: band_input.F,v 1.4 2001-12-14 20:02:42 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 20)
  
       character*30 dirs(num_dirs)
       character*255 test
@@ -32,6 +32,11 @@ c
      >            'mulliken',
      >            'allow_translation',
      >            'zone_name',
+     >            'mult',
+     >            'dft',
+     >            'odft',
+     >            'restricted',
+     >            'unrestricted',
      >            'end'/
 
        character*30 cell_name,zone_name
@@ -42,6 +47,7 @@ c
        integer loop(2),ncut
        double precision tolerances(3),ecut,wcut,fe
        logical mulliken,allow_translation
+       integer ispin,multiplicity
        
 
 *     *****************************************
@@ -81,6 +87,8 @@ c
       wcut=9000.0d0
       rcut = 0.0d0
       ncut = 0
+      ispin = 1
+      multiplicity = 1
 
  10   if (.not. inp_read()) 
      >     call errquit(
@@ -95,6 +103,7 @@ c
 
       goto ( 100, 200, 300, 400, 500, 600, 700, 800,
      >       900,1000,1100,1200,1300,1400,
+     >       1500,1600,1700,1600,1700,
      >      9999) ind
       call errquit(
      >      'band_input: unimplemented directive', ind)
@@ -212,6 +221,31 @@ c
      >     call errquit(
      >          'band_input: failed to read zone_name', 0)
       goto 10
+c
+c  multiplicity
+c
+ 1500 if (.not. inp_i(multiplicity))
+     >     call errquit(
+     >          'band_input: failed to read mult', 0)
+      if (multiplicity.lt.1) then
+         multiplicity = 1
+         ispin        = 1
+      else if (multiplicity.gt.1) then
+         ispin        = 2
+      end if
+      goto 10
+c
+c  dft/restricted
+c
+ 1600 ispin = 1
+      goto 10
+c
+c  odft/unrestricted
+c
+ 1700 ispin = 2
+      goto 10
+
+
 
 *     ***** add wavefunction to rtdb ****
  9999 continue
@@ -238,6 +272,10 @@ c
       value = rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
       value = rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
       value = rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
+
+      value = rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
+      value = rtdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
+
       ind = index(exchange_correlation,' ') - 1
       value = rtdb_cput(rtdb,'band:exchange_correlation',
      >                    1,exchange_correlation(1:ind))

@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-13 03:49:51 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-12-14 20:02:42 bylaska Exp $
 #
- SUBDIRS = brillioun cpsp ewald ke
+ SUBDIRS = brillioun cpsp ewald ke coulomb psi
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h

@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.4 2001-12-13 03:49:53 bylaska Exp $
+* $Id: cram.F,v 1.5 2001-12-14 20:02:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -446,11 +446,11 @@
 
 *     ***********************************
 *     *									*
-*     *	         Cram_cc_ndot			*	
+*     *	         Cram_cc_nzdot			*	
 *     *									*
 *     ***********************************
 
-      subroutine Cram_cc_ndot(nb,ne,A,B,sum)
+      subroutine Cram_cc_nzdot(nb,ne,A,B,sum)
       implicit none
       integer    nb
       integer    ne
@@ -484,8 +484,6 @@
       common / timing / times
 
       call current_second(tim1)
-
-
       call Parallel_np(np)
       npack=  int_mb(nidb2_list(1)+nb)
 
@@ -499,6 +497,109 @@
 
       if (np.gt.1) call C3dB_Vector_SumAll(2*ne,sum)
 
+      call current_second(tim2)
+      times(2) = times(2) + (tim2-tim1)
+
+      return
+      end 
+
+
+*     ***********************************
+*     *					*
+*     *	         Cram_cc_izdot		*	
+*     *					*
+*     ***********************************
+
+      subroutine Cram_cc_izdot(nb,A,B,sum)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 sum
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+
+*     **** local variables ****
+      integer np
+
+*     **** external functions ****
+      real*8   zdotc
+      external zdotc
+
+*     ***** timing variables *****
+*     1 - fft_time
+*     2 - dot_time
+*     3 - ABC_time
+*     4 - vxc_time
+*     5 - vlocal_time
+*     6 - vnl_time
+*     7 - vh_time
+*     8 - strfac_time
+*     9 - maskC_time
+      real*8 tim1,tim2
+      real*8 times(50)
+      common / timing / times
+
+      call current_second(tim1)
+
+
+      call Parallel_np(np)
+
+      sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+
+      call current_second(tim2)
+      times(2) = times(2) + (tim2-tim1)
+
+      return
+      end 
+
+*     *******************************
+*     *								*
+*     *	         Cram_cc_zdot		*	
+*     *								*
+*     *******************************
+
+      subroutine Cram_cc_zdot(nb,A,B,sum)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 sum
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+
+*     **** local variables ****
+      integer np
+
+*     **** external functions ****
+      real*8   zdotc
+      external zdotc
+
+*     ***** timing variables *****
+*     1 - fft_time
+*     2 - dot_time
+*     3 - ABC_time
+*     4 - vxc_time
+*     5 - vlocal_time
+*     6 - vnl_time
+*     7 - vh_time
+*     8 - strfac_time
+*     9 - maskC_time
+      real*8 tim1,tim2
+      real*8 times(50)
+      common / timing / times
+
+      call current_second(tim1)
+
+      call Parallel_np(np)
+
+      sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
+
+      if (np.gt.1) call C3dB_Vector_SumAll(2,sum)
 
       call current_second(tim2)
       times(2) = times(2) + (tim2-tim1)
