@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.27 2003-02-13 20:26:42 marat Exp $
+* $Id: paw_sd.F,v 1.28 2003-02-13 21:43:20 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -279,41 +279,41 @@
 
       !**** intialize overlap coefficient data structure ***
       call phafac()
-      call paw_ovlp_init()
+      call paw_ovlp_init(ne)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
       call paw_pot_hartree_solve()
 
       call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
-c      !**** Ortho Check ****
-c      do ms=1,ispin
-c        deltae=paw_psi_CheckOrtho(npack1,ne(ms),
-c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-c
-c        if (deltae.gt.1.0d-10) then
-c          call paw_psi_MakeOrtho(npack1,ne(ms),
-c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-c          deltac=paw_psi_CheckOrtho(npack1,ne(ms),
-c     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
-c          if (taskid.eq.MASTER) then
-c            if (ms.eq.1) then
-c              write(*,*) "Warning: ",
-c     >                   "Gram-Schmidt performed on up spin of psi2 "
-c              write(*,*) "       : (old error=",deltae,
-c     >                   " new error=",deltac,")"
-c            end if
-c            if (ms.eq.2) then
-c              write(*,*) "Warning: ",
-c     >                   "Gram-Schmidt performed on down spin of psi2 "
-c              write(*,*) "       : (old error=",deltae,
-c     >                   " new error=",deltac,")"
-c            end if
-c
-c          end if
-c        end if
-c     
-c      end do
-c
+      !**** Ortho Check ****
+      do ms=1,ispin
+        deltae=paw_psi_CheckOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+
+        if (deltae.gt.1.0d-10) then
+          call paw_psi_MakeOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+          deltac=paw_psi_CheckOrtho(npack1,ne(ms),
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+          if (taskid.eq.MASTER) then
+            if (ms.eq.1) then
+              write(*,*) "Warning: ",
+     >                   "Gram-Schmidt performed on up spin of psi2 "
+              write(*,*) "       : (old error=",deltae,
+     >                   " new error=",deltac,")"
+            end if
+            if (ms.eq.2) then
+              write(*,*) "Warning: ",
+     >                   "Gram-Schmidt performed on down spin of psi2 "
+              write(*,*) "       : (old error=",deltae,
+     >                   " new error=",deltac,")"
+            end if
+
+          end if
+        end if
+     
+      end do
+
 *                |**************************|
 ******************   summary of input data  **********************
 *                |**************************|
