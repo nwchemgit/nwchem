@@ -1,0 +1,145 @@
+#This is the AMBER99 standard parameter file for NWChem 4.0
+#
+# Specific Parameters 
+#
+# Automatically generated file /home/d3j191/ions.par
+Electrostatic 1-4 scaling factor     0.833333
+Relative dielectric constant     1.000000
+Parameters epsilon R*
+#
+Atoms
+U     238.03000 8.78640E-01 1.66120E-01                            1 1111111111 
+             92 4.39320E-01 1.66120E-01
+OU     16.00000 8.78640E-01 1.66120E-01                            1 1111111111 
+              8 4.39320E-01 1.66120E-01
+M11    22.98977 1.00000E-04 1.00000E-01                            1 1111111111
+             11 1.00000E-04 1.00000E-01                              
+M21    22.98977 1.00000E-01 1.00000E-01                            1 1111111111
+             11 1.00000E-01 1.00000E-01                              
+M12    22.98977 1.00000E-04 1.50000E-01                            1 1111111111
+             11 1.00000E-04 1.50000E-01                              
+M22    22.98977 1.00000E-01 1.50000E-01                            1 1111111111
+             11 1.00000E-01 1.50000E-01                              
+M13    22.98977 1.00000E-04 2.00000E-01                            1 1111111111
+             11 1.00000E-04 2.00000E-01                              
+M23    22.98977 1.00000E-01 2.00000E-01                            1 1111111111
+             11 1.00000E-01 2.00000E-01                              
+M14    22.98977 1.00000E-04 2.50000E-01                            1 1111111111
+             11 1.00000E-04 2.50000E-01                              
+M24    22.98977 1.00000E-01 2.50000E-01                            1 1111111111
+             11 1.00000E-01 2.50000E-01                              
+M15    22.98977 1.00000E-04 3.00000E-01                            1 1111111111
+             11 1.00000E-04 3.00000E-01                              
+M25    22.98977 1.00000E-01 3.00000E-01                            1 1111111111
+             11 1.00000E-01 3.00000E-01                              
+M16    22.98977 1.00000E-04 3.50000E-01                            1 1111111111
+             11 1.00000E-04 3.50000E-01                              
+M26    22.98977 1.00000E-01 3.50000E-01                            1 1111111111
+             11 1.00000E-01 3.50000E-01                              
+M17    22.98977 1.00000E-04 4.00000E-01                            1 1111111111
+             11 1.00000E-04 4.00000E-01                              
+M27    22.98977 1.00000E-01 4.00000E-01                            1 1111111111
+             11 1.00000E-01 4.00000E-01                              
+M18    22.98977 1.00000E-04 4.50000E-01                            1 1111111111
+             11 1.00000E-04 4.50000E-01                              
+M28    22.98977 1.00000E-01 4.50000E-01                            1 1111111111
+             11 1.00000E-01 4.50000E-01                              
+M19    22.98977 1.00000E-04 5.00000E-01                            1 1111111111
+             11 1.00000E-04 5.00000E-01                              
+M29    22.98977 1.00000E-01 5.00000E-01                            1 1111111111
+             11 1.00000E-01 5.00000E-01                              
+Cross
+Bonds
+U    -OU      0.14100 2.67776E+05    0.000000
+Angles
+OU   -U    -OU      2.09440 4.18400E+02
+Proper dihedrals
+Improper dihedrals
+Atom types
+#
+# Definition of the atom types
+#
+# This file contains the definition of AMBER atom types in terms of number and
+# type of neighbor atoms.
+#
+# Note that the order in which the definitions are given is important.
+# For each atom the last applicable entry in this file will be used, i.e.
+# atom type definitions are given in increasing specificity.
+#
+# Atomic number increased by 200 means singly protonated
+#                            400       doubly
+#                            600       triply
+#                            800       un-protonated
+#                           1000       one non-hydrogen
+#                           2000       two non-hydrogens
+#                           3000       three non-hydrogens
+#                           4000       four non-hydrogens
+#
+# Atom number 3500 would signify any unprotonated atom with three non-hydrogens
+#
+#
+# Each entry contains:
+#
+#  1 a4 atom type name
+#
+#  2 i7 atomic number
+#
+#  3 i3 atom saturation :      0 = undetermined, always applies
+#                              1 = aliphatic;
+#                              2 = double bond;
+#                              3 = aromatic;
+#
+#  4 i5 aliphatic ring :      -1 = not in aliphatic ring
+#                              0 = any
+#                              1 = in at least one aliphatic ring
+#                              3 = in 3-membered aliphatic ring
+#                              4 = in 4-membered aliphatic ring
+#                              5 = in 5-membered aliphatic ring
+#                              6 = in 6-membered aliphatic ring
+#                             56 = junction 5 & 6 membered aliphatic rings
+#                             66 = junction two 6 membered aliphatic rings
+#
+#  5 i5 aromatic ring :       -1 = not in aromatic ring
+#                              0 = any
+#                              1 = in at least one aromatic ring
+#                              5 = in 5-membered aromatic ring
+#                              6 = in 6-membered aromatic ring
+#                             56 = junction 5 & 6 membered aromatic rings
+#                             66 = junction two 6 membered aromatic rings
+#                            666 = junction three 6 membered aromatic rings
+#
+#  6 i3 number of neighbors : -1 = no neighbors
+#                              0 = any number of neighbors
+#
+#  7 i7 atom num neighbor 1
+#
+#  8 i3 num n1 neighbors       0 = any number of neighbors
+#
+#  9 i7 atom num neighb n11
+#
+# 10 i7 atom num neighb n12
+#
+# 11 i7 atom num neighb n13
+#
+# 12 i7 atom num neighbor 2
+#
+# 13 i3 num n2 neighbors       0 = any number of neighbors
+#
+# 14 i7 atom num neighb n21
+#
+# 15 i7 atom num neighb n22
+#
+# 16 i7 atom num neighb n23
+#
+# 17 i7 atom num neighbor 3
+#
+# 18 i3 num n3 neighbors       0 = any number of neighbors
+#
+# 19 i7 atom num neighb n31
+#
+# 20 i7 atom num neighb n32
+#
+# 21 i7 atom num neighb n33
+#
+#
+End
