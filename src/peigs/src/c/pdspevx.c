@@ -713,20 +713,24 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
    anrm = 0.0;
    k = 0;
+   /*
    for ( iii = 0; iii < msize; iii++){
      if ( mapA[iii] == me ) {
        for ( ii = 0; ii < msize-iii; ii++)
 	 anrm = max(fabs(vecA[k][ii]), anrm);
        k++;
-     }
-   }
-
+       }
+       }
    
    syncco[0] = anrm;
    gmax00( (char *) &syncco[0], 1, 5, 10, proclist[0], nn_proc, proclist, d_scrat);
    anrm = syncco[0];
-   
+
+   */
+
    iscale = 0;
+
+   /*
    sigma = 0.;
    if (( anrm > 0.0 ) && ( anrm < rmin)) {
      iscale = 1;
@@ -737,6 +741,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
        iscale = 1;
        sigma = rmax/anrm;
      }
+   */
 
    /*
    printf("********* after me = %d iscale %d sigma %g anrm %g rmax %g  \n", me, iscale, sigma, anrm, rmax);
