@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.13 2000-04-26 23:01:06 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.14 2000-05-01 18:43:16 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -274,12 +274,12 @@ c
       do 7 j=i+1,ndih
       if((ldih(1,i).eq.ldih(1,j).and.ldih(4,i).eq.ldih(4,j)).or.
      + (ldih(1,i).eq.ldih(4,j).and.ldih(4,i).eq.ldih(1,j))) then
-      if(lato(3,ldih(2,i)).ne.3) goto 3
-      if(lato(3,ldih(3,i)).ne.3) goto 3
+      if(lato(3,ldih(2,i)).ne.3) goto 7
+      if(lato(3,ldih(3,i)).ne.3) goto 7
       lato(4,ldih(2,i))=lato(4,ldih(2,i))+2
       lato(4,ldih(3,i))=lato(4,ldih(3,i))+2
       do 8 k=1,4
-      if(lato(3,ldih(k,j)).ne.3) goto 3
+      if(lato(3,ldih(k,j)).ne.3) goto 7
       lato(4,ldih(k,j))=lato(4,ldih(k,j))+2
     8 continue
       endif
