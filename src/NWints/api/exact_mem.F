@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.40 1999-12-30 22:17:24 mg201 Exp $
+c $Id: exact_mem.F,v 1.41 2000-01-25 20:16:11 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -458,6 +458,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "rel_nwc.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -481,9 +482,6 @@ c
 c     relativistic integral options. rel_typ selects scalar (1),
 c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
 c     integrals are needed, or included in a common block.
-c
-      rel_dbg = 0
-      rel_typ = 1
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
@@ -530,16 +528,16 @@ c
 *
           call rel_onel(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
-     &        bra_prim,bra_gen,bra_type,1,
+     &        bra_prim,bra_gen,bra_type,
      &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
-     &        ket_prim,ket_gen,ket_type,1,
+     &        ket_prim,ket_gen,ket_type,
      &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)),1,
      &        dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)),1,.true.,.true.,.true.,.false.,
-     &        .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum,
-     &        'emem_1e_rel',rel_dbg,rel_typ)
+     &        .true.,.false.,.false.,.true.,dbl_mb(mb_exndcf(1,1)),
+     &        memdum,rel_dbg,rel_typ)
           memsize = max(memsize,memdum)
 00200   continue
 00100 continue
@@ -596,9 +594,12 @@ c:tex-\end{verbatim}
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "apiP.fh"
 c::functions
       logical cando_sp_u
       external cando_sp_u
@@ -613,13 +614,15 @@ c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
       integer bra_prim, ket_prim, ket_lim
-      integer bra_gen, ket_gen
+      integer bra_gen, ket_gen, bra_cent, ket_cent
       integer max_nbf_bra, max_nbf_ket
 c
-      logical bra_cando_sp
-      logical ket_cando_sp
+      logical bra_cando_sp, bra_rel
+      logical ket_cando_sp, ket_rel
+      logical status_rel
 c
 #include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       memsize = 0
       maxg = 0
@@ -641,11 +644,19 @@ c
         write(luout,*)' ket contractions ',ket_ucont
         call errquit('emem_2e4c: bad basis info ',911)
       endif
+c 
+c relativistic?
+c
+      status_rel = dyall_mod_dir .and. (.not.nesc_1e_approx)
+     &    .and. (bra .eq. ket) .and. (brain .eq. ao_bsh)
 c
       do 00100 ibc = 1, bra_ucont
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        bra_rel = infbs_cont(CONT_RELLS ,ibc,bra) .ne. 0
+        bra_cent  = (sf_ibs_cn2ce(ibc,bra))
+c
         if (bra_type.lt.0) then
           bra_type = abs(bra_type)
           bra_gen  = 1
@@ -662,6 +673,9 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          ket_rel = infbs_cont(CONT_RELLS ,ikc,ket) .ne. 0
+          ket_cent  = (sf_ibs_cn2ce(ikc,ket))
+c
           if (ket_type.lt.0) then
             ket_type = abs(ket_type)
             ket_gen  = 1
@@ -670,8 +684,28 @@ c
           if (bra_cando_sp.and.ket_cando_sp) goto 00201
 c
           memdum = 14 000 000
-c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
-          call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulomb
+          if (status_rel .and. (bra_rel .or. ket_rel)) then
+            call rel_2e4c_sf (
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim,bra_gen,bra_type,bra_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim,bra_gen,bra_type,bra_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim,ket_gen,ket_type,ket_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim,ket_gen,ket_type,ket_cent,
+c ...........                             canAB   canCD   canPQ
+     &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+c ...........   DryRun
+     &          .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &          bra_rel,ket_rel,ss_one_cent,0)
+          else
+            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -681,12 +715,31 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
+          end if
 *:debug   write(luout,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-          call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+          if (status_rel .and. bra_rel .and. ket_rel) then
+            call rel_2e4c_sf (
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim,bra_gen,bra_type,bra_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim,ket_gen,ket_type,ket_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          bra_prim,bra_gen,bra_type,bra_cent,
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &          ket_prim,ket_gen,ket_type,ket_cent,
+     &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &          .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &          bra_rel,ket_rel,ss_one_cent,0)
+          else
+            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &          dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
@@ -696,13 +749,32 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &          dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &          .true.,dbl_mb(mb_exndcf(1,1)),memdum)
+          end if
 *:debug   write(luout,*)' exch ',ibc,ikc,ibc,ikc,memdum
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
             memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
-            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+            if (status_rel .and. (bra_rel .or. ket_rel)) then
+              call rel_2e4c_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel,bra_rel.and.ket_rel,ss_one_cent,0)
+            else
+              call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -712,12 +784,31 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum)
+            end if
 *:debug     write(luout,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
             memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
-            call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+            if (status_rel .and. (bra_rel .or. ket_rel)) then
+              call rel_2e4c_sf (
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            bra_prim,bra_gen,bra_type,bra_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
+     &            ket_prim,ket_gen,ket_type,ket_cent,
+     &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
+     &            .true.,dbl_mb(mb_exndcf(1,1)),memdum,
+     &            bra_rel.and.ket_rel,ket_rel,ss_one_cent,0)
+            else
+              call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
@@ -727,6 +818,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            dbl_mb(mb_exndcf(1,1)),ket_prim,ket_gen,ket_type,
      &            dbl_mb(mb_exndcf(1,1)),1,.false.,.false.,.false.,
      &            .true.,dbl_mb(mb_exndcf(1,1)),memdum) 
+            end if
 *:debug     write(luout,*)' bkkk ',ibc,ikc,ikc,ikc,memdum
             memsize = max(memsize,memdum)
 *:debug     write(luout,*)' full ',memsize
