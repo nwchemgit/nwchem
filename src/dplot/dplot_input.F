@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.10 2003-10-17 22:54:43 carlfahl Exp $
+* $Id: dplot_input.F,v 1.11 2003-10-25 00:56:20 marat Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -219,7 +219,7 @@ c
 *---- Write limits to the rtdb
       Call Inp_UCase(Units)
       if (.not. rtdb_put(rtdb, 'dplot:lgaussian', mt_log, 1,
-     &   lgaussian)) call errquit('dpinput:rtdbwr failed',11)
+     &   lgaussian)) call errquit('dpinput:rtdbwr failed',11,0)
       If (.not.rtdb_cput(rtdb,'dplot:Units',1,Units))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - Units',0,
      &       RTDB_ERR)

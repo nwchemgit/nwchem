@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.100 2003-10-22 00:26:25 edo Exp $
+* $Id: opt_drv.F,v 1.101 2003-10-25 00:54:23 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3007,17 +3007,17 @@ c
 c
       if (ostress) then
          if (.not. geom_amatrix_set(geom, coords(3*nat_real+1)))
-     $        call errquit('driver: failed to set amatrix',0)
+     $        call errquit('driver: failed to set amatrix',0,0)
       endif
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_frac_to_cart(geom, coords))
-     $           call errquit('driver: frac_to_cart?',0)
+     $           call errquit('driver: frac_to_cart?',0,0)
       endif
       if (.not. geom_cart_coords_set(geom, coords))
-     $     call errquit('driver: geom cart?',0)
+     $     call errquit('driver: geom cart?',0,0)
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_cart_to_frac(geom, coords))
-     $        call errquit('driver: frac_to_cart?',0)
+     $        call errquit('driver: frac_to_cart?',0,0)
       endif
 c
       opt_geom_cart_coords_set = .true.
@@ -3044,10 +3044,10 @@ c
       logical geom_grad_cart_to_frac
 c
       if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, ncart,
-     $     gx)) call errquit('driver: could not get gradient',0)
+     $     gx)) call errquit('driver: could not get gradient',0,0)
       if (isystype .ne. 0) then
          if (.not. geom_grad_cart_to_frac(geom, gx))
-     $        call errquit('driver: frac_to_cart?',0)
+     $        call errquit('driver: frac_to_cart?',0,0)
       end if
       if (ostress) then
          if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
@@ -3084,46 +3084,46 @@ c
       end if
 c
       if (.not. geom_rtdb_store(rtdb,geom,'checkgrad')) 
-     $     call errquit('driver: failed saving geom for checkgrad',0)
+     $     call errquit('driver: failed saving geom for checkgrad',0,0)
 c
 c     Check if fract_cart is OK
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. opt_geom_cart_coords_get(geom,sp))
-     $        call errquit('driver: failed get coords for checkgrad',0)
+     $      call errquit('driver: failed get coords for checkgrad',0,0)
          write(6,*) ' These are the fractional coords'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
          if (.not. geom_frac_to_cart(geom, sp))
-     $           call errquit('driver: frac_to_cart?',0)
+     $       call errquit('driver: frac_to_cart?',0,0)
          write(6,*) ' These are the cartesian coords'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
          if (.not. geom_cart_to_frac(geom, sp))
-     $           call errquit('driver: frac_to_cart?',0)
+     $           call errquit('driver: frac_to_cart?',0,0)
          write(6,*) ' These are the fractional coords regenerated'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
 c
          if (.not. opt_geom_cart_coords_set(geom,sp))
-     $        call errquit('driver: failed set coords for checkgrad',0)
+     $      call errquit('driver: failed set coords for checkgrad',0,0)
          if (.not. opt_geom_cart_coords_get(geom,sp))
-     $        call errquit('driver: failed get coords for checkgrad',0)
+     $      call errquit('driver: failed get coords for checkgrad',0,0)
          write(6,*) ' These are the fractional coords after set'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
 c
          if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &        call errquit('hnd_opt: failed storing geometry',0)
+     &      call errquit('hnd_opt: failed storing geometry',0,0)
          if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &        call errquit('hnd_opt: no geometry ', 911)
+     &      call errquit('hnd_opt: no geometry ', 911,0)
          if (.not. opt_geom_cart_coords_get(geom,sp))
-     $        call errquit('driver: failed get coords for checkgrad',0)
+     $      call errquit('driver: failed get coords for checkgrad',0,0)
          write(6,*) ' These are the fractional coords after st/lo'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
       end if
 c
       if (.not. task_gradient(rtdb))
-     $     call errquit('driver: task_gradient failed',0)
+     $     call errquit('driver: task_gradient failed',0,0)
       call opt_get_grad(rtdb,geom) ! Into gx
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, e0))
-     $     call errquit('driver: could not get energy',0)
+     $     call errquit('driver: could not get energy',0,0)
 c
       do i = 1, ncart
 c
@@ -3131,18 +3131,18 @@ c
 c
  10      continue
          if (.not. geom_rtdb_load(rtdb,geom,'checkgrad')) 
-     $        call errquit('driver: failed load geom for checkgrad',0)
+     $        call errquit('driver: failed load geom for checkgrad',0,0)
          if (.not. opt_geom_cart_coords_get(geom,sp))
-     $        call errquit('driver: failed get coords for checkgrad',0)
+     $    call errquit('driver: failed get coords for checkgrad',0,0)
          sp(i) = sp(i) + step
          if (.not. opt_geom_cart_coords_set(geom,sp))
-     $        call errquit('driver: failed set coords for checkgrad',0)
+     $    call errquit('driver: failed set coords for checkgrad',0,0)
          if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &        call errquit('hnd_opt: failed storing geometry',0)
+     &    call errquit('hnd_opt: failed storing geometry',0,0)
          if (.not. task_energy(rtdb)) call errquit
      $        ('driver_energy_step: energy failed',0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, ep))
-     $        call errquit('driver: could not get energy',0)
+     $     call errquit('driver: could not get energy',0,0)
          if (abs(ep-e0) .lt. 1e-4) then
             write(6,*) ' Increasing the step ', ep-e0, step
             step = step*10.0d0
@@ -3154,18 +3154,18 @@ c
          end if
 c
          if (.not. geom_rtdb_load(rtdb,geom,'checkgrad')) 
-     $        call errquit('driver: failed load geom for checkgrad',0)
+     $        call errquit('driver: failed load geom for checkgrad',0,0)
          if (.not. opt_geom_cart_coords_get(geom,sp))
-     $        call errquit('driver: failed get coords for checkgrad',0)
+     $     call errquit('driver: failed get coords for checkgrad',0,0)
          sp(i) = sp(i) - step
          if (.not. opt_geom_cart_coords_set(geom,sp))
-     $        call errquit('driver: failed set coords for checkgrad',0)
+     $     call errquit('driver: failed set coords for checkgrad',0,0)
          if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &        call errquit('hnd_opt: failed storing geometry',0)
+     &        call errquit('hnd_opt: failed storing geometry',0,0)
          if (.not. task_energy(rtdb)) call errquit
      $        ('driver_energy_step: energy failed',0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, em))
-     $        call errquit('driver: could not get energy',0)
+     $        call errquit('driver: could not get energy',0,0)
 c
          grad = (ep - em) / (2.d0*step)
          hess = (ep+em-2.0d0*e0) / (2.d0*step*step)
@@ -3175,9 +3175,9 @@ c
       enddo
 c
       if (.not. geom_rtdb_load(rtdb,geom,'checkgrad')) 
-     $     call errquit('driver: failed load geom for checkgrad',0)
+     $     call errquit('driver: failed load geom for checkgrad',0,0)
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &     call errquit('hnd_opt: failed storing geometry',0)
+     &     call errquit('hnd_opt: failed storing geometry',0,0)
 c
       end
 

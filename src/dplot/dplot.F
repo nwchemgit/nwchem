@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.26 2003-10-17 22:54:43 carlfahl Exp $
+* $Id: dplot.F,v 1.27 2003-10-25 00:56:20 marat Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -399,7 +399,7 @@ c         Call GADest(g_Dns2(1))
 c
 c     
 c
-     &   call errquit('dplot: error creating g_Vls',0)
+     &   call errquit('dplot: error creating g_Vls',0,0)
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),

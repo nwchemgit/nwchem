@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.28 2003-10-17 22:54:43 carlfahl Exp $
+* $Id: create_contour.F,v 1.29 2003-10-25 00:56:20 marat Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -116,7 +116,7 @@ c
       If (.not.Bas_nBF_CN_Max(AO_Bas_Han,nBF_Max))
      &   Call ErrQuit('C_C: Bas_nBF_CN_Max failed',0)
       if(.not.bas_numcont(ao_bas_han,nshells_ao))
-     .     call errquit(' stop in basnuc',11)
+     .     call errquit(' stop in basnuc',11,0)
       If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nbf_ao_mxprim     = ',nbf_ao_mxprim
          Write(LuOut,*)' nBF_Max    = ',nBF_Max
@@ -141,10 +141,10 @@ c
 
       if (.not.MA_Push_Get(mt_int, 3*natom, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+     &   call errquit('grid_quadv0a: cannot allocate bas_cent_info',0,0)
       if (.not.MA_Push_Get(mt_int, 6*nshells_ao, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+     &   call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natom)
 
@@ -153,20 +153,20 @@ c
       Call ErrMem(LResult,'C_C: Failed to allocate cetof',0)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     &   call errquit('cre_cont:push_get failed', 13)
+     &   call errquit('cre_cont:push_get failed', 13,0)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     &   call errquit('cre_cont:push_get failed', 13)
+     &   call errquit('cre_cont:push_get failed', 13,0)
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &     int_mb(k_cetobfr), natom, nshells_ao)
 
       If (What.eq.'DENSITY') Then
          if(.not.MA_Push_Get(MT_dbl,natom*natom,'cet',l_rdat,
-     .        k_rdat)) call errquit('cc: cant alloc rdat',0)
+     .        k_rdat)) call errquit('cc: cant alloc rdat',0,0)
          call dfill(natom*natom, 0.0d0, dbl_mb(k_rdat), 1)
          nscr = nbf_ao_mxnbf_ce2
          if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &        call errquit('cre_cont: cannot allocate scr',0)
+     &        call errquit('cre_cont: cannot allocate scr',0,0)
          call util_ga_mat_reduce(nbf, natom, int_mb(k_cetobfr), g_dns, 
      &        1, dbl_mb(k_rdat), 'rms', 
      &        dbl_mb(iscr), nbf_ao_mxnbf_ce)
@@ -182,10 +182,10 @@ c
          Call ErrMem(LResult,'C_C: Failed to allocate DENS',0)
          if (.not.MA_Push_Get(MT_Dbl,natom,'rchi_atom',
      &        lrchi_atom,irchi_atom))
-     &        call errquit('cre_cont: cannot allocate rchi_atom',0)
+     &        call errquit('cre_cont: cannot allocate rchi_atom',0,0)
          else
             if(.not.MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec))
-     M           call errquit('C_C: Failed to allocate MOVec',0)
+     M           call errquit('C_C: Failed to allocate MOVec',0,0)
          endif
       LResult = MA_Push_Get(MT_Dbl,      nAtom,'rq0',l_rq0,k_rq0)
       Call ErrMem(LResult,'C_C: Failed to allocate rq0',0)
@@ -292,7 +292,7 @@ c
  9999 Continue
       if(.not.ma_free_heap(l_tags)) then
          call Ma_summarize_allocated_blocks()
-         call errquit(' cc: heap',0)
+         call errquit(' cc: heap',0,0)
       endif
 *
       Return
