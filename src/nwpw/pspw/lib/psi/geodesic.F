@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.9 2002-05-18 16:08:33 bylaska Exp $
+* $Id: geodesic.F,v 1.10 2002-07-19 01:41:17 bylaska Exp $
 *
 
 *     ***********************************
@@ -648,11 +648,13 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
         call Grsm_ggm_dot(npack1,n,
      >             dcpl_mb(U(1)+shift1*npack1),
      >             tG(1+shift1*npack1),
-     >             dbl_mb(tmp1(1)))
-        call Grsm_ggm_dot(npack1,n,
-     >            dcpl_mb(U(1)+shift1*npack1),
-     >            tG(1+shift1*npack1),
-     >            dbl_mb(tmp3(1)))
+     >             dbl_mb(tmp1(1)+shift2))
+c       call Grsm_ggm_dot(npack1,n,
+c    >            dcpl_mb(U(1)+shift1*npack1),
+c    >            tG(1+shift1*npack1),
+c    >            dbl_mb(tmp3(1)+shift2))
+        call dcopy(n*n,dbl_mb(tmp1(1)+shift2),1,
+     >                 dbl_mb(tmp3(1)+shift2),1)
 
         do j=1,n
           scal1 =       dsin(dbl_mb(S(1)+j-1+shift1)*t)
