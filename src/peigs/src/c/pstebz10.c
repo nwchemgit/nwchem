@@ -524,7 +524,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    leig = work[0];
    for (i = 0; i < msize; i++ )
      eval[i] = work[i];
-
    
    if ( *info != 0 ) {
    fil_int_lst(*n, (Integer *) isplit, 0);
@@ -537,10 +536,9 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    *info = 0;
  
    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	  &m, nsplit, eval, iblock, isplit, work,
+	     &m, nsplit, eval, iblock, isplit, work,
 	     i_work, info);
    }
-   
    
    if ( *info != 0 ) {
      printf(" error in dstebz3 %d info %d leig %g  \n", me, *info, leig);
