@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
      &                    XC_bas_han, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.3 1995-05-19 00:21:21 og845 Exp $
+C$Id: dft_rdinput.F,v 1.4 1995-06-29 04:17:03 pg511 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -19,7 +19,7 @@ c     new stuff
       integer ncenters
 c     end new stuff
 
-      Logical LResult, lnewtype,XCFIT,CDFIT
+      Logical LResult, lnewtype, XCFIT, CDFIT, oskel
 c     
 c     nwchem includes
 c     
@@ -39,6 +39,25 @@ c
 c******************************************************************************
 
       iproc  = ga_nodeid()
+c****
+c**** recover logical parameters from rtdb
+c****
+      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
+        write (6,*) "dft_rdinput: did not find dft:skeleton"
+        oskel = sym_number_ops(geom) .gt. 0
+        if (.not.rtdb_put(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))
+     &       call errquit('rdinput: rtdb_put failed',88) 
+      else 
+        write (6,*) "dft_rdinput: found dft:skeleton"
+        write (6,*) "oskel: ",oskel
+      endif 
+c****
+c**** recover charge from rtdb
+c****
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge)) then
+        rcharge = 0.0d0
+      endif 
+      ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
 c     
 c     recover rdcalc integer parameters from rtdb
 c     
@@ -48,8 +67,10 @@ c
      &     call errquit('rdinput: rtdb_get failed',4) 
       if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
      &     call errquit('rdinput: rtdb_get failed',6) 
-      if (.not. rtdb_get(rtdb, 'dft:ichg', mt_int, 1, ichg))
-     &     call errquit('rdinput: rtdb_get failed',8)
+
+c**** if (.not. rtdb_get(rtdb, 'dft:ichg', mt_int, 1, ichg))
+c**** &     call errquit('rdinput: rtdb_get failed',8)
+
       if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
      &     call errquit('rdinput: rtdb_get failed',10)
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
