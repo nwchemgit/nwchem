@@ -1,7 +1,7 @@
       Subroutine xc_becke88(fac,
-     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ex,qwght)
+     *     rho,delrho,Amat,Cmat,nq,ipol,Ex,qwght)
 
-C$Id: xc_becke88.F,v 1.3 1995-12-19 20:21:24 og845 Exp $
+C$Id: xc_becke88.F,v 1.4 1996-05-04 21:08:34 og845 Exp $
       implicit none
       
       double precision fac,Ex
@@ -18,10 +18,6 @@ c--> Charge Density & Its Cube Root
 c--> Charge Density Gradient
 
       double precision delrho(ipol,3,nq)
-
-c--> Charge Density Gradient Dot Products
-
-      double precision gamma(ipol*(ipol+1)/2,nq)
 
 c--> Quadrature Weights
 
@@ -59,7 +55,7 @@ c***************************************************************************
       double precision x,sinhm1
       double precision CD13a,CD43a,Gna,Xa,Sa,Ha,Ta,Ca,P2LDA,Ga,Pa,
      ,     GNb,Xb,Sb,Hb,Tb,Cb,Gb,Pb,CD13b,CD43b,
-     ,     gaa,g,gbb
+     ,     gaa,g,gbb,gamma
 c
 
       sinhm1(x)=log(x+dsqrt(1+x*x))
@@ -74,8 +70,11 @@ c                      ======> SPIN-RESTRICTED <======
 c Spin alpha:
         CD13a = (0.5d0*rho(1,n))**(1.d0/3.d0)
         CD43a = CD13a**4 
-        if(dsqrt(gamma(1,n)).gt.TOLL) then
-          GNa = dsqrt( 0.25D0*gamma(1,n) )
+        gamma=delrho(1,1,n)*delrho(1,1,n)+
+     +       delrho(1,2,n)*delrho(1,2,n)+
+     +       delrho(1,3,n)*delrho(1,3,n)
+        if(dsqrt(gamma).gt.TOLL) then
+          GNa = dsqrt( 0.25D0*gamma )
           Xa = GNa/CD43a
         else
           GNa=0.d0
@@ -115,7 +114,10 @@ c Spin alpha:
 
         CD13a = rho(2,n)**(1.d0/3.d0)
         CD43a = CD13a**4 
-        GNa = sqrt( gamma(1,n) )
+        GNa = sqrt(
+     (  delrho(1,1,n)*delrho(1,1,n)+
+     +       delrho(1,2,n)*delrho(1,2,n)+
+     +       delrho(1,3,n)*delrho(1,3,n))
 
         Xa = GNa/CD43a
         Sa = sqrt(Xa*Xa + ONE)
@@ -132,7 +134,10 @@ c Spin beta:
         CD13b = rho(3,n)**(1.d0/3.d0)
         CD43b = CD13b**4 
 
-        GNb = sqrt( gamma(2,n) )
+        GNb = sqrt(
+     (  delrho(2,1,n)*delrho(2,1,n)+
+     +       delrho(2,2,n)*delrho(2,2,n)+
+     +       delrho(2,3,n)*delrho(2,3,n))
 
         Xb = GNb/CD43b
         Sb = sqrt(Xb*Xb + ONE)

@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(fac,
-     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
+     *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C$Id: xc_lyp88.F,v 1.3 1995-12-19 20:20:07 og845 Exp $
+C$Id: xc_lyp88.F,v 1.4 1996-05-04 21:08:35 og845 Exp $
       implicit none 
 
       double precision fac ! [input]
@@ -15,10 +15,6 @@ c--> Charge Density & Its Cube Root
 c--> Charge Density Gradient
 
       double precision delrho(ipol,3,nq)
-
-c--> Charge Density Gradient Dot Products
-
-      double precision gamma(ipol*(ipol+1)/2,nq)
 
 c--> Quadrature Weights
 
@@ -89,7 +85,9 @@ c                      ======> SPIN-RESTRICTED <======
         CD13a = (0.5D0**P13)*CD13
         CD13b = CD13a
 
-        Gaa = 0.25D0*gamma(1,n)
+        Gaa = 0.25D0*(delrho(1,1,n)*delrho(1,1,n)+
+     +       delrho(1,2,n)*delrho(1,2,n)+
+     +       delrho(1,3,n)*delrho(1,3,n))
         Gbb = Gaa
         Gab = Gaa
 
@@ -181,9 +179,15 @@ c                      ======> SPIN-UNRESTRICTED <======
         CD13a = rho(2,n)**(1.d0/3.D0)
         CD13b = rho(3,n)**(1.d0/3.D0)
 
-        Gaa = gamma(1,n)
-        Gbb = gamma(2,n)
-        Gab = gamma(3,n)
+        Gaa = delrho(1,1,n)*delrho(1,1,n)+
+     +       delrho(1,2,n)*delrho(1,2,n)+
+     +       delrho(1,3,n)*delrho(1,3,n)
+        Gbb = delrho(2,1,n)*delrho(2,1,n)+
+     +       delrho(2,2,n)*delrho(2,2,n)+
+     +       delrho(2,3,n)*delrho(2,3,n)
+        Gab = delrho(1,1,n)*delrho(2,1,n)+
+     +       delrho(1,2,n)*delrho(2,2,n)+
+     +       delrho(1,3,n)*delrho(2,3,n)
 
         CD43  =  (CD13 **2)**2
         CD83a = ((CD13a**2)**2)**2

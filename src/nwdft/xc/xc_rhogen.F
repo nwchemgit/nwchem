@@ -2,12 +2,12 @@
      &     basis,g_dens,
      &     max_at_bf,natoms,ipol,nq,nbf,mbf,
      &     ldelley,GRAD,
-     &     F,Pmat,ff,zz,
+     &     F,Pmat,ff,
      &     chi,delchi,ibf,iniz,ifin,
-     &     rho,delrho,gamma,
+     &     rho,delrho,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.6 1995-11-03 00:08:05 og845 Exp $
+c$Id: xc_rhogen.F,v 1.7 1996-05-04 21:08:39 og845 Exp $
 c
       implicit none
 #include "bas.fh"
@@ -31,23 +31,23 @@ c
 
       double precision rhoat(nq,natoms) ! atomic density values [output]
       double precision delrho(ipol,3,nq) ! density gradients [output]
-      double precision gamma(ipol*(ipol+1)/2,nq) ! gradients square moduli [output]
 
       double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
-      double precision zz(3,nq,max_at_bf) ! scratch array
-      double precision ff(nq,max_at_bf)   ! scratch array
+      double precision ff(nq)   ! scratch array
 
       double precision rho(ipol*(ipol+1)/2,nq) ! density values [output]
 C
 C     local declarations
 C
       double precision rho_tol0,rho_tol1
-      integer i0,ii,mu,mu1,n
+      integer i0,ii,mu,nu,mu1,n
       integer iat,inizia,ifirst,ilast,nbfia,nnia,idim
+      integer ifinia,icount
       integer jat,inizja,jfirst,jlast,nbfja,nnja,jdim
       double precision FUNC_MAX,FUNC_MAXI,FUNC_MAX2,P_MAX
       double precision aaa
+      double precision ta
       double precision dabsmax
       external dabsmax
 
@@ -69,11 +69,12 @@ c     Loop over products of AO basis functions to define the matrix bands.
 
       do 230 iat = 1,natoms
         inizia=iniz(iat)
+        ifinia=ifin(iat)
         if(inizia.ne.0) then
           if (.not.bas_ce2bfr(basis,iat,ifirst,ilast))
      &         call errquit('Exiting in rho_gen',13)
           nbfia=ilast-ifirst+1
-          nnia=ifin(iat)-inizia+1
+          nnia=ifinia-inizia+1
 
           FUNC_MAXI=dabsmax(nnia*nq,chi(1,inizia))
           FUNC_MAX2=FUNC_MAXI*FUNC_MAX
@@ -97,70 +98,83 @@ c     Loop over products of AO basis functions to define the matrix bands.
                 call gat_mat(F,Pmat,nbfia,nbfja,nnia,nnja,
      &               ifirst,jfirst,ibf(inizia),ibf(inizja))
 
-                call dgemm('n','n',nq,nnja,nnia,1.d0,chi(1,inizia),nq,
-     &               F,nnia,0.d0,ff,nq)
-
                  if(iat.ne.jat) 
-     &               call dscal(nq*nnja,2.d0,ff,1)
-                 if(ldelley) then
-                   if(iat.ne.jat) then
-                     do mu=inizja,ifin(jat)
-                       mu1=mu-inizja+1
+     &               call dscal(nq,2.d0,ff,1)
+
+                 icount=0
+                 do mu=inizja,ifin(jat)
+                   call dfill(nq,0.d0,ff,1)
+                   do nu=inizia,ifinia
+                     icount=icount+1
+                     aaa=F(icount)
+                     if(abs(aaa).gt.rho_tol0) then
+                       call daxpy(nq,aaa,chi(1,nu),1,ff,1)
+                     endif
+                   enddo
+                   if(iat.ne.jat) call dscal(nq,2.d0,ff,1)
+c                  dir$ UNROLL 3
+                   do n=1,nq
+                     rho(i0+ii,n) = rho(i0+ii,n) + 
+     +                    chi(n,mu)*ff(n)
+                   enddo
+                   if (ldelley) then
+                     if(iat.ne.jat) then
                        do n=1,nq
-                         aaa= chi(n,mu)*ff(n,mu1)
-                         rho(i0+ii,n) = rho(i0+ii,n) + aaa
+                         aaa=chi(n,mu)*ff(n)
                          rhoat(n,iat)=rhoat(n,iat)+ aaa
                          rhoat(n,jat)=rhoat(n,jat)+ aaa
                        enddo
-                     enddo
-                   else
-                     do mu=inizja,ifin(jat)
-                       mu1=mu-inizja+1
+                     else
                        do n=1,nq
-                         aaa= chi(n,mu)*ff(n,mu1)
-                         rho(i0+ii,n) = rho(i0+ii,n) + aaa
+                         aaa=chi(n,mu)*ff(n)
                          rhoat(n,iat)=rhoat(n,iat)+ aaa
                        enddo
+                     endif
+                   endif
+                   if(grad) then
+                     do n=1,nq
+                       delrho(ii,1,n) = delrho(ii,1,n) + 
+     +                      delchi(1,n,mu)*ff(n)
+                       delrho(ii,2,n) = delrho(ii,2,n) + 
+     +                      delchi(2,n,mu)*ff(n)
+                       delrho(ii,3,n) = delrho(ii,3,n) + 
+     +                      delchi(3,n,mu)*ff(n)
                      enddo
                    endif
-                 else
-                   do mu=inizja,ifin(jat)
-                     mu1=mu-inizja+1
-cdir$ UNROLL 3
+                 enddo
+                 if(grad) then
+C                  
+C                  with GRAD 2nd contrib [P(AB)X(B)]DX(A)
+C                  
+                   do nu=inizia,ifinia
+                     call dfill(nq,0.d0,ff,1)
+                     icount=nu-inizia+1
+                     do mu=inizja,ifin(jat)
+                       aaa=F(icount)
+                       icount=icount+nnia
+                       if(abs(aaa).gt.rho_tol0) then
+                         call daxpy(nq,aaa,chi(1,mu),1,ff,1)
+                       endif
+                     enddo
+                     if(iat.ne.jat) call dscal(nq,2.d0,ff,1)
+c                    dir$ UNROLL 3
                      do n=1,nq
-                       rho(i0+ii,n) = rho(i0+ii,n) + 
-     +                      chi(n,mu)*ff(n,mu1)
+                       delrho(ii,1,n) = delrho(ii,1,n) + 
+     +                      delchi(1,n,nu)*ff(n)
+                       delrho(ii,2,n) = delrho(ii,2,n) + 
+     +                      delchi(2,n,nu)*ff(n)
+                       delrho(ii,3,n) = delrho(ii,3,n) + 
+     +                      delchi(3,n,nu)*ff(n)
                      enddo
                    enddo
                  endif
 
-                 if(grad)then
-                   call dgemm('n','n',3*nq,nnja,nnia,1.d0,
-     &                  delchi(1,1,inizia),3*nq,
-     &                  F,nnia,0.d0,zz,3*nq)
-                 if(iat.ne.jat) 
-     &               call dscal(3*nq*nnja,2.d0,zz,1)
-                 do mu=inizja,ifin(jat)
-                   mu1=mu-inizja+1
-                   do n=1,nq
-                     delrho(ii,1,n) = delrho(ii,1,n) + 
-     +                    delchi(1,n,mu)*ff(n,mu1) +
-     +                     chi(n,mu)*zz(1,n,mu1)
-                     delrho(ii,2,n) = delrho(ii,2,n) + 
-     +                    delchi(2,n,mu)*ff(n,mu1) +
-     +                     chi(n,mu)*zz(2,n,mu1)
-                     delrho(ii,3,n) = delrho(ii,3,n) + 
-     +                    delchi(3,n,mu)*ff(n,mu1) +
-     +                     chi(n,mu)*zz(3,n,mu1)
-                   enddo
-                 enddo
-               endif
-                
-  215         continue
-            endif
-          enddo
+                 
+  215          continue
+             endif
+           enddo
 
-        endif
+         endif
 
   230 continue
       if(ipol.eq.2) then
@@ -171,37 +185,8 @@ cdir$ UNROLL 3
           rho(1,n) = rho(2,n) + rho(3,n)
 
   240   continue
-        if(GRAD) then
-          do 250 n = 1,nq
-            
-            gamma(1,n) = delrho(1,1,n)*delrho(1,1,n) +
-     &           delrho(1,2,n)*delrho(1,2,n) +
-     &           delrho(1,3,n)*delrho(1,3,n)
-            
-            gamma(2,n) = delrho(2,1,n)*delrho(2,1,n) +
-     &           delrho(2,2,n)*delrho(2,2,n) +
-     &           delrho(2,3,n)*delrho(2,3,n)
-            
-            gamma(3,n) = delrho(1,1,n)*delrho(2,1,n) +
-     &           delrho(1,2,n)*delrho(2,2,n) +
-     &           delrho(1,3,n)*delrho(2,3,n)
-            
-  250     continue
-        endif
       else
         call cut_tol(nq,rho,1,rho_tol0)
-        if(GRAD) then
-
-          do  n = 1,nq
-            gamma(1,n) = delrho(1,1,n)*delrho(1,1,n)
-          enddo
-          do  n = 1,nq
-            gamma(1,n) = gamma(1,n)+delrho(1,2,n)*delrho(1,2,n)
-          enddo
-          do  n = 1,nq
-            gamma(1,n) = gamma(1,n)+delrho(1,3,n)*delrho(1,3,n)
-          enddo
-        endif
       endif
       if(ldelley) 
      &     call cut_tol(nq*natoms,rhoat,1,rho_tol0)

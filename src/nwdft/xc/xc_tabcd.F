@@ -3,7 +3,7 @@
      &     ipol,nq,nbf,max_at_bf,max_at_bf2,GRAD,basis,
      &     natoms,iniz,ifin,g_vxc,ibf)
 
-C$Id: xc_tabcd.F,v 1.4 1995-12-19 20:18:35 og845 Exp $
+C$Id: xc_tabcd.F,v 1.5 1996-05-04 21:08:39 og845 Exp $
       implicit none
 #include "bas.fh"
       Logical GRAD
@@ -109,7 +109,6 @@ cdir$ UNROLL 3
      &               chi(1,inizja),nq,0.d0,Tmat,nnia)
                 if (GRAD) call dgemm(
      &               't','n',nnia,nnja,3*nq,1.d0,Dmat,3*nq,
-
      &               delchi(1,1,inizja),3*nq,1.d0,Tmat,nnia)
                 call scat_mat(TTmat,Tmat,nbfia,nbfja,nnia,nnja,
      &               ifirst,jfirst,ibf(inizia),ibf(inizja))

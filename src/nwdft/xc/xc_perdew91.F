@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
-     *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
+     *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.9 1995-11-27 06:19:10 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.10 1996-05-04 21:08:36 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -46,10 +46,6 @@ c--   > Charge Density
 c--   > Charge Density Gradient
 
       double precision delrho(ipol,3,nq)
-
-c--   > Charge Density Gradient Dot Products
-
-      double precision gamma(ipol*(ipol+1)/2,nq)
 
 c--   > Quadrature Weights
 
@@ -113,7 +109,9 @@ c       ======> SPIN-RESTRICTED <======
           rs2=rs*rs
           rs3=rs2*rs
           drsdrho = -ONE3*rs*arho
-          gammaval=gamma(1,n)
+          gammaval=delrho(1,1,n)*delrho(1,1,n)+
+     +         delrho(1,2,n)*delrho(1,2,n)+
+     +         delrho(1,3,n)*delrho(1,3,n)
           dsqgamma=dsqrt(gammaval)
 C         
 C         C(n)
@@ -237,7 +235,15 @@ c       ======> SPIN-UNRESTRICTED <======
           rs2=rs*rs
           rs3=rs2*rs
           drsdrho = -ONE3*rs*arho
-          gammaval=gamma(1,n)+gamma(2,n)+2.d0*gamma(3,n)
+          gammaval=delrho(1,1,n)*delrho(1,1,n)+
+     +         delrho(2,1,n)*delrho(2,1,n)+
+     +         delrho(1,2,n)*delrho(1,2,n)+
+     +         delrho(2,2,n)*delrho(2,2,n)+
+     +         delrho(1,3,n)*delrho(1,3,n)+
+     +         delrho(2,3,n)*delrho(2,3,n)+
+     x         delrho(1,1,n)*delrho(2,1,n)+
+     +         delrho(1,2,n)*delrho(2,2,n)+
+     +         delrho(1,3,n)*delrho(2,3,n)
           dsqgamma=max(dsqrt(gammaval),tol_rho)
           drho=rho(2,n)-rho(3,n)
           zeta=drho*arho
