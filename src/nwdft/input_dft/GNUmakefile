@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 2000-03-17 18:40:24 edo Exp $
+# $Id: GNUmakefile,v 1.30 2003-06-12 22:41:44 edo Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -7,6 +7,7 @@
         tol_inp.o \
         grid_inp.o \
         xc_inp.o \
+	oep_inp.o \
         conv_inp.o 
 
      LIBRARY = libnwdft.a

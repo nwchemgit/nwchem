@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.34 2003-04-14 20:54:03 sohirata Exp $
+c     $Id: dft_input.F,v 1.35 2003-06-12 22:41:44 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -21,13 +21,13 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 26)
+      parameter (num_dirs = 27)
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
-     &        idirect, imull
+     &        idirect, imull, ioep  !! Qin /add ioep
       integer nopen
-      logical pseudo, direct, lmaxov, incore
+      logical pseudo, direct, lmaxov, incore, loep  !! Qin /add loep
       logical lb94, cs00
       double precision smear_sigma
       double precision shift
@@ -36,7 +36,7 @@ c
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     $           'smear','fon','lb94','cs00',
+     $           'smear','fon','lb94','cs00','oep',
      &           'end'/
 c
 c     Any DFT input causes calculation to be marked as not converged
@@ -61,7 +61,7 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 9999) ind
+     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2401, 9999) ind
       call errquit('dft_input: unimplemented directive', ind)
 c
 c     convergence;
@@ -268,6 +268,17 @@ c
      & .true.)) call errquit('dft_inp: rtdb_put failed', 2300)
       goto 10
 c
+cQin
+ 2401 ioep = 0
+      if (.not. rtdb_put(rtdb,'dft:oep', mt_int, 1, ioep))
+     &   call errquit('dft_input: rtdb_put failed', 2200)
+      loep = .true.
+      if (.not. rtdb_put(rtdb,'dft:loep', mt_log, 1, loep))
+     &   call errquit('dft_input: rtdb_put failed', 2200)
+      call oep_input(rtdb,'dft')
+      goto 10
+c
+c Qin /end
 c     lb94; adds van-Leeuwen-Baerends correction to potential
 c             
  2400 lb94 = .true.

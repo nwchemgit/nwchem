@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.109 2003-05-27 22:36:53 pollack Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.110 2003-06-12 22:41:44 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -16,6 +16,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "cdft.fh"
+#include "oep.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "sym.fh"
@@ -258,6 +259,78 @@ c
      &      mt_int, 1, idecomp))
      &      call errquit('dft_rdinput: rtdb_put failed', 114)
       endif
+c
+cQin begin
+c
+      if (.not. rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep)) then
+         ioep = 0
+         if (.not. rtdb_put(rtdb, 'dft:oep', mt_int, 1, ioep))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:coep', mt_int, 1, coep)) then
+         coep = 2
+         if (.not. rtdb_put(rtdb, 'dft:coep', mt_int, 1, coep))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep)) then
+         loep = .false.
+         if (.not. rtdb_put(rtdb, 'dft:loep', mt_log, 1, loep))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qe_conv', mt_dbl, 1, qe_conv))then
+         qe_conv=1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:qe_conv', mt_dbl, 1, qe_conv))
+     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qx_conv', mt_dbl, 1, qx_conv))then
+         qx_conv=1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:qx_conv', mt_dbl, 1, qx_conv))
+     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))then
+         qg_conv=5.d-4
+         if (.not. rtdb_put(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))
+     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qdamp', mt_dbl, 1, qdamp))then
+         qdamp=0.5d0
+         if (.not. rtdb_put(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))
+     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qthres', mt_dbl, 1, qthres))then
+         qthres=1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:qthres', mt_dbl, 1, qthres))
+     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qiterations', mt_int, 1,
+     $       qiterations)) then
+         qiterations = 30
+         if (.not. rtdb_put(rtdb, 'dft:qiterations', mt_int, 1,
+     $                      qiterations))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis)) then
+         qdodiis = .true.
+         if (.not. rtdb_put(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:lsvd', mt_log, 1, lsvd)) then
+         lsvd = .false.
+         if (.not. rtdb_put(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis))
+     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+      endif
+c
+cQin end
 c
       if (.not. rtdb_get(rtdb, 'dft:nquad_task', mt_int, 1,
      &   nquad_task))then
