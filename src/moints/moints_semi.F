@@ -8,6 +8,7 @@ c
 c
       subroutine waopen( unit, fname, nblk, istat, ierr )
       implicit none
+#include "global.fh"
       integer unit, nblk, istat, ierr
       character*(*) fname
       integer inp_strlen
@@ -17,22 +18,31 @@ c
       flen = inp_strlen(fname)
       call wopen( unit, fname, flen, nblk, istat, ierr )
 #else
-      integer ii, i
+#ifdef __F90__
+      integer(kind=8) fdummy
+      character*8 dunits
+#else
       double precision fdummy
+      double precision dunits
+#endif
+      integer ii, i, iput,iget
       character*8 aunit
       equivalence (fdummy,aunit)
-
-      double precision dunits
-      common/crayunits/dunits(100)
+      common/crayunits/dunits(100),iput,iget
 
       flen = inp_strlen(fname)
       do i=8,1,-1
         ii = flen - 8 + i
         aunit(i:i) = fname(ii:ii)
       enddo
-
       call wopen( fdummy, nblk, istat, ierr )
+#ifdef __F90__
+      dunits(unit) = aunit
+      iput = 0
+      iget = 0
+#else
       dunits(unit) = fdummy
+#endif
 #endif
       if(ierr.ne.0)call errquit('waopen failed',unit)
       return
@@ -45,12 +55,24 @@ c
 #ifndef CRAY_T3D
       call wclose(unit,ierr)
 #else
+#ifdef __F90__
+      character*8 dunits
+      integer (kind=8) xu
+      integer iput, iget
+      character*8 fname
+      equivalence (fname,xu)
+      common/crayunits/dunits(100),iput, iget
+
+      fname = dunits(unit)
+      call wclose(xu,ierr)
+#else
       double precision dunits
-      common/crayunits/dunits(100)
       double precision xu
+      common/crayunits/dunits(100)
 
       xu = dunits(unit)
       call wclose(xu,ierr)
+#endif
 #endif
       return
       end
@@ -65,12 +87,25 @@ c
 #ifndef CRAY_T3D
       call putwa( unit, v, addr, len, ierr )
 #else
+#ifdef __F90__
+      character*8 dunits
+      integer iput, iget
+      integer (kind=8) xu
+      character*8 fname
+      equivalence (fname,xu)
+      common/crayunits/dunits(100),iput, iget
+      
+      iput = iput + 1
+      fname = dunits(unit)
+      call putwa( xu, v, addr, len, ierr )
+#else
       double precision dunits
-      common/crayunits/dunits(100)
       double precision xu
+      common/crayunits/dunits(100)
 
       xu = dunits(unit)
       call putwa( xu, v, addr, len, ierr )
+#endif
 #endif
       if(ierr.ne.0)call errquit('waput failed',unit)
       return
@@ -87,20 +122,33 @@ c
 #ifndef CRAY_T3D
       call getwa( unit, v, addr, len, ierr )
 #else
+#ifdef __F90__
+      integer iput, iget
+      character*8 dunits
+      integer (kind=8) xu
+      character*8 fname
+      equivalence (fname,xu)
+      common/crayunits/dunits(100),iput,iget
+
+      iget = iget + 1
+      fname = dunits(unit)
+      call getwa( xu, v, addr, len, ierr )
+#else
       double precision dunits
-      common/crayunits/dunits(100)
       double precision xu
+      common/crayunits/dunits(100)
 
       xu = dunits(unit)
       call getwa( xu, v, addr, len, ierr )
 #endif
-      if(ierr.ne.0)call errquit('waget failed',unit)
+#endif
+      if (ierr.ne.0) call errquit('waget failed',unit)
       return
       end
 
 
 c
-c  $Id: moints_semi.F,v 1.29 1996-10-22 08:42:33 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.30 1996-10-23 20:37:56 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -132,9 +180,9 @@ c
      $                         oseglo, oseghi, olo, ohi,
      $                         vlo, vhi, g_movecs, oblk )
        implicit none
-#include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 #include "sym.fh"
 #include "bas.fh"
 #include "util.fh"
@@ -320,24 +368,24 @@ c
 *       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         call util_file_name('khlf', .true.,.true., fnamek)
+         call util_file_name('kh', .true.,.true., fnamek)
          call waopen( kunit, fnamek, 10, 0, ierr )
          vtmp(3) = pvlo
          vtmp(4) = pvhi
-         call putwa( kunit, vtmp, 1,
+         call waput( kunit, vtmp, 1,
      $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-         call putwa( kunit, int_mb(k_rloc),
+         call waput( kunit, int_mb(k_rloc),
      $               ma_sizeof(MT_INT, 12, MT_DBL),
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         call util_file_name('jhlf', .true., .true.,fnamej)
-         call waopen(junit, fnameJ, 10, 0, ierr )
+         call util_file_name('jh', .true., .true.,fnamej)
+         call waopen(junit, fnamej, 10, 0, ierr )
          vtmp(3) = polo
          vtmp(4) = pohi
-         call putwa( junit, vtmp, 1,
+         call waput( junit, vtmp, 1,
      $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-         call putwa( junit, int_mb(k_rloc),
+         call waput( junit, int_mb(k_rloc),
      $               ma_sizeof(MT_INT, 12, MT_DBL),
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
@@ -422,6 +470,9 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 c
+       integer MSG_SEMI_IO_RATE
+       parameter(MSG_SEMI_IO_RATE=18421)
+c
 c   Arguments
 c
        integer basis                          ! [input] Basis handle
@@ -469,7 +520,7 @@ c
        integer mem2, max2e, jopass, iocnt
        integer num_nodes, ploop, next
        double precision scale, schw_ij
-       double precision tpass
+       double precision tpass, tio, ttmp, nwrbytes, iorate
        logical status
 c
        integer gr_len
@@ -523,7 +574,9 @@ c       write(6,*) ' old iocnt', iocnt
      $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
 c       write(6,*) ' new iocnt', iocnt
        next = nxtval(num_nodes)
-       tpass = tcgtime()
+       tio = 0.d0
+       nwrbytes = 0.d0
+       tpass = util_cpusec()
 c
 c  4-fold shell loop
 c
@@ -549,19 +602,23 @@ c  Checkpoint for I/O
 c
                if (iopass(next).gt.jopass) then
                  call ga_sync()
+                 ttmp = util_cpusec()
                  if (ocoul) then
+                   nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
 	           call moints_wrbuf( junit, oseglo, oseghi,
      $                                olo, polo, pohi, nnbf, iocnt,
      $                                rlen(jopass), g_jbuf )
                    call ga_zero(g_jbuf)
                  endif
                  if (oexch) then
+                   nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
                    call moints_wrbuf( kunit, oseglo, oseghi,
      $                                vlo, pvlo,  pvhi, nnbf, iocnt,
      $                                rlen(jopass), g_kbuf )
                    call ga_zero(g_kbuf)
                  endif
-                 tpass = tcgtime() - tpass
+                 tio = tio + util_cpusec() - ttmp
+                 tpass = util_cpusec() - tpass
 c$$$                 WRITE(6,901) GA_NODEID(), NEXT, IOPASS(NEXT), JOPASS,
 c$$$     $                        RLEN(JOPASS), TPASS
 c$$$ 901             FORMAT('Me:',i5,2x,'Next:',i5,2x,'IOPass:',i5,2x,
@@ -569,7 +626,7 @@ c$$$     $                  'Pass:',i5,2x,'Length:',i6,2x,'Time:',f10.3)
 c$$$                 CALL UTIL_FLUSH(6)
                  iocnt = iocnt + rlen(jopass)
                  jopass = jopass + 1
-                 tpass = tcgtime()
+                 tpass = util_cpusec()
                endif
 c
 c  Half-tranformed Integral generation
@@ -632,15 +689,19 @@ c
          enddo
        enddo
        call ga_sync()
+       ttmp = util_cpusec()
        if (ocoul) then
+         nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
          call moints_wrbuf( junit, oseglo, oseghi, olo, polo, pohi,
      $                      nnbf, iocnt, rlen(jopass), g_jbuf )
        endif
        if (oexch) then
+         nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
          call moints_wrbuf( kunit, oseglo, oseghi, vlo, pvlo, pvhi,
      $                      nnbf, iocnt, rlen(jopass), g_kbuf )
        endif
-       tpass = tcgtime() - tpass
+       tio = tio + util_cpusec() - ttmp
+       tpass = util_cpusec() - tpass
 c$$$       WRITE(6,901) GA_NODEID(), NEXT, IOPASS(NEXT), JOPASS,
 c$$$     $              RLEN(JOPASS), TPASS
 c$$$       CALL GA_SYNC()
@@ -648,6 +709,19 @@ c$$$       CALL UTIL_FLUSH(6)
 c$$$       PRINT*,'ME:',GA_NODEID(),' End AO integral loop and final write'
 c$$$       CALL UTIL_FLUSH(6)
        next = nxtval(-num_nodes)
+c
+c I/O stats
+c
+       nwrbytes = nwrbytes*8.e-6
+       iorate = nwrbytes/tio
+       call ga_dgop(MSG_SEMI_IO_RATE,iorate,1,'+')
+       if ((ga_nodeid().eq.0).and.
+     $     (util_print('io_stats',print_default))) then
+         write(6,886) nwrbytes, tio, iorate
+ 886     format('Node 0 wrote ',f8.1,' Mb in ',f8.1,' s',5x,
+     $          'Agg I/O rate:', f8.1, ' Mb/s')
+         call util_flush(6)
+       endif
 c
 c Clean-up
 c
@@ -826,7 +900,7 @@ c
           faddr = ((o-oseglo)*np + p - plo)*nnbf +  iocnt
           if ((po.ge.clo).and.(po.le.chi)) then
             call ga_access(g_buf, rlo, rhi, po, po, k_local, ld )
-            call putwa( munit, dbl_mb(k_local), faddr, rlen, ierr )
+            call waput( munit, dbl_mb(k_local), faddr, rlen, ierr )
             call ga_release(g_buf, rlo, rhi, po, po )
 c$$$            WRITE(6,901) O,P,FADDR
 c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
@@ -867,7 +941,7 @@ c
       integer junit
       parameter(junit=10)
 
-      call util_file_name('jhlf', .true.,.true.,fname)
+      call util_file_name('jh', .true.,.true.,fname)
       call waopen(junit, fname, 10, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, polo, pohi, nnbf, ioff )
@@ -926,8 +1000,8 @@ c
      $                            vlo, vhi, c, orbe, g_epair )
       implicit none
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
+#include "util.fh"
       integer MSG_SEMIMP2_SUM
       parameter(MSG_SEMIMP2_SUM=10241)
       integer nbf, oseglo, oseghi, olo, ohi, vlo, vhi
@@ -940,6 +1014,7 @@ c
       integer l_v, k_v, l_t, k_t, l_x, k_x
       integer j, oj, jj, vvlo, vvhi, k_local, ld, myid
       integer rlo, rhi, clo, chi
+      integer gtype, dim1, oomax
       integer g_exch
       double precision tmp2
       character*256 fname
@@ -949,8 +1024,9 @@ c
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
-      tmp2 = tcgtime()
-      call util_file_name('khlf',.true.,.true.,fname)
+
+      tmp2 = util_cpusec()
+      call util_file_name('kh',.true.,.true.,fname)
       call waopen(kunit, fname, 10, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
@@ -967,6 +1043,7 @@ c$$$       enddo
      $                    (nvir*nvir), 1, g_exch))
      $    call errquit('moints_semimp2: cannot allocate exch',0)
       call ga_distribution(g_exch, myid, rlo, rhi, clo, chi )
+      call ga_inquire(g_epair,gtype,dim1,oomax)
 c
 c
 c$$$      WRITE(6,934) GA_NODEID(),PVLO,PVHI,CLO,CHI
@@ -978,6 +1055,7 @@ c
       itmp = max(nnbf,(nbf*nocc))
       status = ma_push_get(MT_DBL,itmp,'read buff',l_t,k_t)
       status = ma_push_get(MT_DBL,(nbf*nbf),'U half',l_x,k_x)
+
       do o=oseglo,oseghi
         oo = o - oseglo + 1
         call ga_zero(g_exch)
@@ -1012,12 +1090,12 @@ c$$$ 920        FORMAT(/,' Operator: [',i4,',',i4,']')
 c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
 c$$$            CALL UTIL_FLUSH(6)
 c$$$
-            xx = moints_epair_eval( nvir, 0, nocc, nvir,
-     $                              dbl_mb(k_local), orbe, denom )
+            xx = moints_epair_eval( nvir, 0, nvir, dbl_mb(k_local),
+     $                              orbe(ohi+1), denom )
             call ga_release(g_exch, rlo, rhi, jj, jj )
             if (o.eq.j) xx = xx*0.5d0
             e2 = e2 + xx
-            oj = ((o-olo+1)*(o-olo))/2 + j
+            oj = ((o-olo+1)*(o-olo))/2 + jj
             call ga_put(g_epair,1,1,oj,oj,xx,1)
 	    
 c$$$            WRITE(6,922) GA_NODEID(),O,J,XX
@@ -1064,121 +1142,6 @@ c
 
 
 
-c
-c
-c =========================================================================
-c =========================================================================
-c
-c  Driver routine to illustrate how to read back
-c  half-transformed integrals from local node file.
-c
-c =========================================================================
-c =========================================================================
-c
-c
-#ifdef UNUSED
-      subroutine moints_readintK2( nbf, oseglo, oseghi, vlo, vhi, c, orbe )
-      implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-      integer nbf, oseglo, oseghi, vlo, vhi
-      double precision c(nbf,nbf)
-      double precision orbe(nbf)
-c
-      integer kunit
-      parameter(kunit=11)
-c
-      integer nocc, nvir, nnbf, ioff, v, o, pvlo, pvhi, itmp
-      integer l_v, k_v, l_t, k_t, l_x, k_x
-      integer j, jj, vv, vvlo, vvhi, k_local, ld, myid, nnvo
-      integer rlo, rhi, clo, chi
-      integer g_exch
-      character*256 fname
-      double precision xx, denom, e2, sp1fact, sp2fact
-      logical status
-      double precision moints_epair_eval
-      external moints_epair_eval
-      data sp1fact,sp2fact/4.d0,-2.d0/
-      
-      call util_file_name('khlf', .true.,.true.,fname)
-      call waopen(kunit, fname, 10, 0, itmp )
-      e2 = 0.d0
-      nocc = oseghi - oseglo + 1
-      nvir = vhi - vlo + 1
-      nnvo = nocc*nvir
-      call moints_vrange( kunit, pvlo, pvhi, nnbf, ioff )
-      status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
-      call moints_getscattv( kunit, nnbf, int_mb(k_v) )
-      if (.not.ga_create( MT_DBL, (nvir*nocc), nvir, 'exch',
-     $                    (nvir*nocc), 1, g_exch))
-     $    call errquit('moints_semimp2: cannot allocate exch',0)
-      call ga_distribution(g_exch, myid, rlo, rhi, clo, chi )
-c
-c  Loop over occupied/virtual pairs
-c
-      itmp = max(nnbf,(nbf*nocc))
-      status = ma_push_get(MT_DBL,itmp,'read buff',l_t,k_t)
-      status = ma_push_get(MT_DBL,(nbf*nbf),'U half',l_x,k_x)
-      do o=oseglo,oseghi
-        call ga_zero(g_exch)
-        do v=pvlo,pvhi
-          call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
-          call moints_rdhfint( kunit, pvlo, pvhi, o, v, nnbf,
-     $                         ioff, dbl_mb(k_t))
-          call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
-          call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
-
-          call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x), nbf,
-     $                c(1,oseglo), nbf, 0.d0, dbl_mb(k_t), nbf )
-          call dgemm( 't', 'n', nocc, nvir, nbf, 1.d0, dbl_mb(k_t), nbf,
-     $                c(1,vlo), nbf, 0.d0, dbl_mb(k_x), nocc )
-
-          vv = v - vlo + 1
-          call ga_acc(g_exch,1,nnvo,vv,vv,dbl_mb(k_x),nnvo,sp1fact)
-          rlo = (vv-1)*nocc + 1
-          rhi = vv*nocc
-          call ga_acc(g_exch,rlo,rhi,1,nvir,dbl_mb(k_x),nocc,sp2fact)
-
-c$$$          WRITE(6,900) O,V
-c$$$ 900      FORMAT(5X,' READ [O,V]:',2I5)
-c$$$          CALL MOINTS_MATPRINT(NVIR,NOCC,DBL_MB(K_X))
-
-        enddo
-        call ga_sync()
-        call ga_print(g_exch)
-c$$$        do j=1,o
-c$$$          if ((j.ge.clo).and.(j.le.chi)) then
-c$$$            denom = orbe(o) + orbe(j+oseglo-1)
-c$$$            call ga_access(g_exch, rlo, rhi, j, j, k_local, ld )
-c$$$            xx = moints_epair_eval( nvir, 0, nocc, nvir,
-c$$$     $                              dbl_mb(k_local), orbe, denom )
-c$$$c$$$       PRINT*,'I,J: ',O,J,'   DENOM: ',denom,'    XX: ',XX,'  LD:',ld
-c$$$c$$$       CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
-c$$$            if (o.eq.j) xx = xx*0.5d0
-c$$$            e2 = e2 + xx
-c$$$          endif
-c$$$        enddo
-      enddo
-c$$$      PRINT*,' MP2 correction:',e2
-c
-c  Clean up
-c
-      if (.not.ga_destroy(g_exch))
-     $  call errquit('moints_semimp2: failed to destroy',g_exch)
-      if (.not. ma_pop_stack(l_x))
-     $  call errquit('moints_readint: failed to pop', l_x)
-      if (.not. ma_pop_stack(l_t))
-     $  call errquit('moints_readint: failed to pop', l_t)
-      if (.not. ma_pop_stack(l_v))
-     $  call errquit('moints_readint: failed to pop', l_v)
-c
-      call waclose(kunit, itmp )
-      return
-      end
-#endif      
-
-
-
 
 c
 c  Read half-integrals from local file
@@ -1193,7 +1156,7 @@ c
 
       np = phi - plo + 1
       faddr = ((o-1)*np + p - plo)*nnbf + ioff
-      call getwa( munit, t, faddr, nnbf, ierr )
+      call waget( munit, t, faddr, nnbf, ierr )
       
       return
       end
@@ -1216,7 +1179,7 @@ c
       integer vtmp(10), ierr
 C      INTEGER I
 
-      call getwa( munit, vtmp, 1,
+      call waget( munit, vtmp, 1,
      $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
       ioff = vtmp(1)
       nnbf = vtmp(2)
@@ -1252,11 +1215,11 @@ c
 C      INTEGER I
       
       itmp = nnbf+mod(nnbf,2)
-      call getwa( munit, v,
+      call waget( munit, v,
      $            ma_sizeof(MT_INT, 12, MT_DBL),
      $            ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
 
-c$$$      call getwa(munit, v, 6, itmp, ierr )
+c$$$      call waget(munit, v, 6, itmp, ierr )
 c$$$      PRINT*,'READ BACK SCATTER ARRAY'
 c$$$      WRITE(6,771) (V(I),I=1,NNBF)
 c$$$ 771  FORMAT(16I4)
@@ -1310,3 +1273,7 @@ c
        moints_lmem = (memd + ma_sizeof(MT_INT, memi, MT_DBL))*1.1
 c
        end
+
+
+
+
