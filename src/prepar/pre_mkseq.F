@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.28 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.29 1999-12-16 23:55:45 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -36,6 +36,7 @@ c
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk,mato,nato
       integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
+      integer mfrb,nfrb,i_frb,l_frb
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -282,6 +283,7 @@ c
       mang=2*max(matm,mato)
       mdih=3*max(matm,mato)
       mimp=max(matm,mato)
+      mfrb=2*mato
 c
 c     allocate memory for segment atom lists
 c     --------------------------------------
@@ -297,6 +299,9 @@ c
 c
       if(.not.ma_push_get(mt_dbl,mato,'qato',l_qato,i_qato))
      + call errquit('Memory allocation failed for qato',9999)
+c
+      if(.not.ma_push_get(mt_int,2*mfrb,'frb',l_frb,i_frb))
+     + call errquit('mkseq: Memory allocation failed for frb',9999)
 c
 c     allocate memory for the bonded lists
 c     ------------------------------------
@@ -329,7 +334,7 @@ c
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_lato),byte_mb(i_cato),dbl_mb(i_xato),dbl_mb(i_qato),
-     + mato,nato,
+     + mato,nato,int_mb(i_frb),mfrb,
      + int_mb(i_bnd),mbnd,int_mb(i_ang),mang,int_mb(i_dih),mdih,
      + int_mb(i_imp),mimp,maxscf,qscale))
      + call errquit('pre_mkfrg failed',9999)
@@ -345,6 +350,8 @@ c
      + call errquit('mkseq: Memory deallocation failed for ang',9999)
       if(.not.ma_pop_stack(l_bnd))
      + call errquit('mkseq: Memory deallocation failed for bnd',9999)
+      if(.not.ma_pop_stack(l_frb))
+     + call errquit('Memory deallocation failed for frb',9999)
       if(.not.ma_pop_stack(l_qato))
      + call errquit('Memory deallocation failed for qato',9999)
       if(.not.ma_pop_stack(l_xato))

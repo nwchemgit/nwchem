@@ -1,9 +1,10 @@
       logical function pre_atype(lfnout,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
-     + nring3,nring4,nring5,nring6)
+     + nring3,nring4,nring5,nring6,
+     + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.12 1999-06-28 16:46:19 d3j191 Exp $
+c $Id: pre_atype.F,v 1.13 1999-12-16 23:55:44 d3j191 Exp $
 c
       implicit none
 c
@@ -39,33 +40,35 @@ c
       character*255 filpar
       character*255 dir_s,dir_x,dir_u,dir_t
       character*255 filnam
-      integer matm,mtyp
-      integer latm(5,matm)
+      integer matm,matmt,mtyp,natmt
+      integer latm(5,matm),latmt(5,matmt)
       character*6 catm(3,matm)
-      integer mbnd,nbnd
-      integer lbnd(2,mbnd)
+      integer mbnd,nbnd,mbndt,nbndt
+      integer lbnd(2,mbnd),lbndt(2,mbndt)
       integer jlo,ilo,ihi,jhi
       integer ltyp(15,jlo:jlo+mtyp-1)
       integer mring,nring3,nring4,nring5,nring6
       integer lring(6,mring)
       logical aring(mring)
 c
-      integer i,j,k,kk,l,ll,m,ntype,lt,ld
+      integer i,j,k,kk,l,ll,m,ntype,lt,ld,nadd
       character*4 atype(maty)
       integer itype(20,maty)
       character*100 card
-      integer iatnum,nhydr,nonh,irng
+      integer iatnum,nhydr,nonh,irng,ifr,ito
       logical skipa(5),skipt(5),skipaa(5),skiptt(5)
 c
 c     setup typ array with latm data
 c     ------------------------------
 c
+      do 101 i=1,mtyp
+      do 102 j=1,5
+      ltyp(j,i)=0
+  102 continue
+  101 continue
+c
       do 1 i=jlo,jhi
       ltyp(1,i)=latm(2,i)
-      ltyp(2,i)=0
-      ltyp(3,i)=0
-      ltyp(4,i)=0
-      ltyp(5,i)=0
     1 continue
 c
 c     find index for each neighbor
@@ -83,6 +86,62 @@ c
       if(latm(2,lbnd(1,i)).eq.1) ltyp(4,lbnd(2,i))=ltyp(4,lbnd(2,i))+1
       endif
     2 continue
+c
+      ntype=jhi
+      ifr=jlo
+      ito=jhi
+c 
+      do 103 i=ifr,ito
+      if(latm(1,i).gt.0) then
+      ntype=ntype+1
+      ltyp(5,i)=ltyp(5,i)+1
+      ltyp(5+ltyp(5,i),i)=ntype
+      ltyp(1,ntype)=latmt(2,latm(1,i))
+      latm(2,ntype)=latmt(2,latm(1,i))
+      nadd=0
+      do 104 j=1,nbndt
+      if(lbndt(1,j).eq.latm(1,i)) then
+      nadd=nadd+1
+      ltyp(5,ntype)=ltyp(5,ntype)+1
+      ltyp(5+ltyp(5,ntype),ntype)=ntype+nadd
+      ltyp(1,ntype+nadd)=latmt(2,lbndt(2,j))
+      latm(2,ntype+nadd)=latmt(2,lbndt(2,j))
+      if(latmt(2,lbndt(2,j)).eq.1) ltyp(4,ntype)=ltyp(4,ntype)+1
+      elseif(lbndt(2,j).eq.latm(1,i)) then
+      nadd=nadd+1
+      ltyp(5,ntype)=ltyp(5,ntype)+1
+      ltyp(5+ltyp(5,ntype),ntype)=ntype+nadd
+      ltyp(1,ntype+nadd)=latmt(2,lbndt(1,j))
+      latm(2,ntype+nadd)=latmt(2,lbndt(1,j))
+      if(latmt(2,lbndt(1,j)).eq.1) ltyp(4,ntype)=ltyp(4,ntype)+1
+      endif
+  104 continue
+      ntype=ntype+nadd
+      if(ltyp(1,i).eq.6.and.ltyp(5,i).eq.3.and.latm(4,i).eq.0) then
+      latm(4,i)=1
+      if(latm(5,i).eq.4) then
+      do 107 j=1,3
+      do 108 k=1,3
+      if(ltyp(1,ltyp(5+j,i)).eq.7.and.ltyp(1,ltyp(5+k,i)).eq.8)
+     + latm(5,i)=2
+  108 continue
+  107 continue
+      endif
+      endif
+      if(ltyp(1,i).eq.7.and.ltyp(5,i).eq.3.and.latm(4,i).eq.0) then
+      do 105 j=1,3
+      if(ltyp(1,ltyp(5+j,i)).eq.6.and.ltyp(5,ltyp(5+j,i)).eq.3) then
+      do 106 k=1,3
+      if(ltyp(1,ltyp(5+k,ltyp(5+j,i))).eq.8) then
+      latm(4,i)=1
+      if(latm(5,i).eq.3) latm(5,i)=1
+      endif
+  106 continue
+      endif
+  105 continue
+      endif
+      endif
+  103 continue
 c
 c     order each neighbor list
 c     ------------------------

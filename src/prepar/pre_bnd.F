@@ -1,7 +1,7 @@
       logical function pre_bnd(xatm,latm,catm,matm,natm,ilo,ihi,
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf)
 c
-c $Id: pre_bnd.F,v 1.5 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.6 1999-12-16 23:55:44 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -28,13 +28,14 @@ c
       integer latm(5,matm),lato(5,mato),lbnd(2,mbnd)
       character*6 catm(3,matm),cato(3,mato)
       integer ilo,ihi
-      integer i,j,k,nn,nl(10),nadd,ndx
+      integer i,j,k,nn,nl(10),nadd,ndx,ng,neigh
       real*8 dist
 c
       pre_bnd=.false.
 c
       nato=0
       do 1 i=ilo,ihi
+      neigh=0
       if(latm(2,i).gt.0) then
       nn=0
       do 2 j=1,natm
@@ -52,6 +53,9 @@ c
       lbnd(1,nbnd)=-(i-ilo+1)
       lbnd(2,nbnd)=-(j-ilo+1)
       endif
+      if(j.lt.ilo.or.j.gt.ihi) then
+      neigh=j
+      endif
       endif
       endif
     2 continue
@@ -59,6 +63,7 @@ c
       do 3 j=1,5
       lato(j,nato)=latm(j,i)
     3 continue
+      lato(3,nato)=neigh
       do 4 j=1,3
       cato(j,nato)=catm(j,i)
       xato(j,nato)=xatm(j,i)
@@ -79,6 +84,16 @@ c
       if(latm(3,i).eq.3) nadd=1
       elseif(nn.eq.3) then
       if(latm(3,i).eq.4) nadd=1
+      endif
+      endif
+c
+      if(latm(2,i).eq.7) then
+      if(nn.eq.0) then
+      nadd=4
+      elseif(nn.eq.1) then
+      nadd=3
+      elseif(nn.eq.2) then
+      nadd=1
       endif
       endif
 c
@@ -182,4 +197,3 @@ c
       pre_bnd=.true.
       return
       end
-

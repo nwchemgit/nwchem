@@ -2,11 +2,11 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
-     + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lang,mang,ldih,mdih,
-     + limp,mimp,
+     + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lbndt,mbndt,
+     + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.22 1999-12-16 00:46:17 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.23 1999-12-16 23:55:45 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -39,9 +39,9 @@ c
       logical aring(mring)
 c
       integer pre_atnum
-      logical pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr
+      logical pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr,pre_bonds
       external pre_atnum
-      external pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr
+      external pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr,pre_bonds
       logical pre_atype,pre_charge
       external pre_atype,pre_charge
 c
@@ -49,11 +49,13 @@ c
       integer mseq,msgm,matm,mato
       integer nseq,nsgm,natm,nato
       integer mbnd,mang,mdih,mimp
+      integer mbndt,nbndt
       integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm),lato(5,mato)
       character*5 cseq(2,mseq),csgm(msgm)
       character*6 catm(3,matm),cato(3,mato)
       real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
+      integer lbndt(2,mbndt)
       character*255 filpar,filnam
       character*255 dir_s,dir_x,dir_u,dir_t
 c
@@ -76,12 +78,17 @@ c
       len_t=index(dir_t,' ')-1
       ilist=0
 c
+      nbndt=0
+      if(.not.pre_bonds(xatm,latm,matm,1,natm,lbndt,mbndt,nbndt))
+     + call errquit('Error in pre_bonds',0)
+c
       if(.not.pre_hybrid(xatm,latm,matm,natm))
      + call errquit('Error in pre_hybrid',0)
 c 
 c
       do 1 i=1,nsgm
       if(lsgm(2,i).eq.0) then
+      ilist=0
 c
       if(util_print('where',print_debug)) then
       write(lfnout,2005) csgm(i)
@@ -167,6 +174,7 @@ c     count number of bonds for each atom
 c     -----------------------------------
 c
       do 13 j=1,nato
+      lato(1,j)=lato(3,j)
       lato(3,j)=0
    13 continue
       do 14 ibnd=1,nbnd
@@ -188,8 +196,7 @@ c
 c     memory allocation for work array ltyp
 c     -------------------------------------
 c
-c      mtyp=jhi-jlo+1
-      mtyp=nato
+      mtyp=nato+10
       if(.not.ma_push_get(mt_int,15*mtyp,'ltyp',l_ltyp,i_ltyp))
      + call errquit('Memory allocation failed for ltyp',9999)
 c
@@ -199,7 +206,8 @@ c
       if(.not.pre_atype(lfnout,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,lato,cato,mato,lbnd,mbnd,nbnd,
      + 1,1,nato,nato,int_mb(i_ltyp),mtyp,lring,aring,mring,
-     + nring3,nring4,nring5,nring6)) then
+     + nring3,nring4,nring5,nring6,
+     + latm,matm,natm,lbndt,mbndt,nbndt)) then
       call errquit('pre_atype failed',9999)
       endif
 c
@@ -231,28 +239,6 @@ c
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
      + call errquit('pre_charge failed',9999)
       endif
-c
-c      if(.not.found) then
-c      length=index(csgm(i),' ')-1
-c      if(length.le.0) length=5
-c      write(lfnout,3002) csgm(i)(1:length)
-c      do 17 j=ilo,ihi
-c      if(latm(2,j).gt.0) then
-c      write(lfnout,2003) j+1-ilo,catm(2,j),catm(3,j),
-c     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
-c      endif
-c   17 continue
-c      do 117 ibnd=1,nbnd
-c      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
-c     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi) then
-c      write(lfnout,3104) lbnd(1,ibnd)-ilo+1,lbnd(2,ibnd)-ilo+1
-c 3104 format(i5,'-',i5)
-c      endif
-c  117 continue
-c      write(lfnout,3009) csgm(i)(1:length)
-c 3009 format(/,a,': Unable to determine atom types')
-cc      call errquit('Unable to determine atom types',0)
-c      endif
 c
 c     write the fragment file
 c     -----------------------
