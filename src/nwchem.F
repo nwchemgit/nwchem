@@ -1,5 +1,6 @@
       program nwchem
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -20,10 +21,9 @@
 #endif
 #ifdef PARALLEL_DIAG
       integer junk(4)
-#include "errquit.fh"
 #endif
 c
-c     $Id: nwchem.F,v 1.142 2003-10-17 22:53:32 carlfahl Exp $
+c     $Id: nwchem.F,v 1.143 2003-10-21 00:51:55 marat Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003                            *
