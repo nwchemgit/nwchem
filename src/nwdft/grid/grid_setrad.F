@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.10 1999-12-30 21:19:27 edo Exp $
+c$Id: grid_setrad.F,v 1.11 2000-01-06 00:43:02 edo Exp $
 c
       implicit none
 c      
@@ -19,17 +19,12 @@ c
       logical oprint, oprint_grid
       logical tol_reset, mul_reset
 c
-      character*10 radgrid
-      character*10 radgrids(6)
-      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv',
-     ,'rlindh'/
       integer i, itype, ir, nr, irsh
       double precision r, r_max
 c
       integer lexpo, iexpo, insh, lnsh
 c
       integer n1,ninf,ndivide,mxnrad,znint
-      double precision zz
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
@@ -45,8 +40,6 @@ c
      &   call errquit('grid_setrad: cannot allocate expo',0)
       if (.not.MA_Push_Get(MT_Dbl,nshells_ao,'nsh',lnsh,insh))
      &   call errquit('grid_setrad: cannot allocate nsh',0)
-      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
-     ,     1, lindh_acc)) lindh_acc=1d-10
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
          tol_reset = .false.
@@ -61,6 +54,9 @@ c
      &   call errquit('grid_setrad: cannot pop stack',0)
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_setrad: cannot pop stack',0)
+
+      if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
+     ,     1, lindh_acc)) lindh_acc=1d-10
 c
 c     Define the Euler-Maclaurin radial quadrature points and weights.
 c
@@ -70,6 +66,28 @@ c
      *     radgrid='eumac'
       if (.not. rtdb_get(rtdb,'dft:ndivide', mt_int, 1, ndivide)) 
      *     ndivide=11
+c
+c     define radial grid type
+c
+      if(radgrid.eq.'eumac') then
+         wradgrid=1
+      elseif(radgrid.eq.'murakn') then
+         wradgrid=2         
+      elseif(radgrid.eq.'tarad') then
+         wradgrid=3
+      elseif(radgrid.eq.'gaussleg') then
+         wradgrid=4
+      elseif(radgrid.eq.'gcinterv') then
+         wradgrid=5
+      elseif(radgrid.eq.'rlindh') then
+         tol_reset=.true.
+         wradgrid=6
+      else
+         write(0,*) ' radgrid eq ',radgrid
+         call errquit('grid_setrad: unknown radial grid type', 0)
+      endif
+         
+
       do 100 itype = 1, ntypes
 c
 c        debug writes
@@ -79,10 +97,11 @@ c
      &                  itype, bsrad_atom_type(itype), nrad(itype)
          endif
          if (bsrad_atom_type(itype).gt.EPS)then
-           if(radgrid.eq.'eumac') then
-            call eumac(bsrad_atom_type(itype), rpts(1,itype), 
-     &            rwghts(1,itype), nrad(itype), rm)
-         elseif(radgrid.eq.'rlindh') then
+           if(wradgrid.eq.1) then
+              call eumac(bsrad_atom_type(itype), rpts(1,itype), 
+     &             rwghts(1,itype), nrad(itype), rm)
+
+           elseif(wradgrid.eq.6) then
                if(tol_reset) then
                   range_mk=range_max
                else
@@ -97,14 +116,16 @@ c
      ,              mxrad,rad_cutoff(1,itype),lindh_acc)
             if (.not.ma_pop_stack(lexpo))
      &           call errquit('grid_setrad: cannot pop stack',0)
-            elseif(radgrid.eq.'tarad') then
+
+            elseif(wradgrid.eq.3) then
             call xc_tarad(int(znuc_atom_type(itype)), 
      ,              rpts(1,itype), rwghts(1,itype), 
      &                 nrad(itype),0d0,'chebyshe')
+            
           elseif(radgrid.eq.'gausslag') then
            call grid_gausslag(nrad(itype), rpts(1,itype), 
      &            rwghts(1,itype),0d0)
-          elseif(radgrid.eq.'gcinterv') then
+          elseif(wradgrid.eq.5) then
 c gcgc
             n1=nrad(itype)*ndivide/16
 c            n1=nrad(itype)*11/8
@@ -145,7 +166,8 @@ c     ,          midpoint)
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
-          elseif(radgrid.eq.'murakn') then
+
+          elseif(wradgrid.eq.2) then
              if(tol_reset) then
                 range_mk=range_max
              else
@@ -166,9 +188,6 @@ c     ,          midpoint)
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'legendre')
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
-         else
-           write(0,*) ' radgrid eq ',radgrid
-              call errquit('grid_setrad: unknown radial grid type', 0)
          endif
             if (ga_nodeid().eq.0.and.oprint)then
                write(LuOut,*)' Center: ',itype,' Radial Pts. & Wghts. '

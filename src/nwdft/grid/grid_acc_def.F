@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.10 1999-11-06 01:41:35 edo Exp $
+c$Id: grid_acc_def.F,v 1.11 2000-01-06 00:43:01 edo Exp $
 c
       implicit none
 c      
@@ -29,11 +29,8 @@ c
      &                'lebmed','lebfine','gausleg', 'lebedev'/
       data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-6,1d-7,1d-8,1d-4/
 c
-      character*10 radgrids(5)
-      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv'/
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
-      double precision R_MAX
 c
       integer mxnrad, mxnang
 c

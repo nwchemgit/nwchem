@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.13 1999-12-17 00:20:14 edo Exp $
+c$Id: grid_tasks.F,v 1.14 2000-01-06 00:43:02 edo Exp $
 c
       implicit none
 c
@@ -78,7 +78,7 @@ c
       if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichf))then
         lssw=.false.
       endif
-      if(lssw) call xc_interp(whichf)
+      if(lssw) do_interp = xc_interp(whichf)
 c
 c     Allocate some scratch space for construction of the spatial weights
 c

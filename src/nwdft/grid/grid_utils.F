@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.9 1999-12-30 20:41:54 edo Exp $
+C$Id: grid_utils.F,v 1.10 2000-01-06 00:43:02 edo Exp $
 c
       implicit none
 c      
@@ -394,27 +394,47 @@ C$Id:
 c
       implicit none
 c      
-#include "rtdb.fh"
-#include "mafdecls.fh"
 #include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
 #include "msgids.fh"
-#include "stdio.fh"
-#include "cdft.fh"
 #include "bas.fh"
+#include "cdft.fh"
 c
-      integer rtdb, me
+      integer rtdb, me,ncenters,nproc
       logical tol_reset, mul_reset
       double precision job_grid_acc, my_acc
       double precision range, range_max
       double precision r_neglected
       double precision zprim(nbf_ao_mxprim), shell_chg(nshells_ao)
-      integer ncontrset, icset, ictr, itype, nprimo, ncontr, 
-     &        isphere, iprimo, l
-      double precision zmin,min_exp
+      integer ncontrset, icset,  nprimo, ncontr, 
+     &        isphere, iprimo, l,g_s
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,ic1,ic2,jat,
+     .     dimi,dimj,lpmat,ipmat,l_iat,l_jat,l_ics,k_ics
+      double precision min_exp,dabsmax,ov_trunc,s_max,
+     ,     exp_iat,exp_jat
+      parameter(ov_trunc=1d-5)
+      external dabsmax
 c
 c     determine node id
 c
       me = ga_nodeid()
+      nproc = ga_nnodes()
+
+      if (.not.MA_Push_Get(MT_dbl, ncenters, 'minexp',
+     &     l_minexp, k_minexp))
+     &         call errquit('rdatru: cannot allocate degen minexp',0)
+      if (.not.MA_Push_Get(MT_int, ncenters, 'diffuse l',
+     &     l_ldiff, k_ldiff))
+     &         call errquit('rdatru: cannot allocate degen minexp',0)
+      if (.not.MA_Push_Get(MT_int, ncenters, 'diffuse ic',
+     &     l_ics, k_ics))
+     &         call errquit('rdatru: cannot allocate degen minexp',0)
+      if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce,
+     ,     'matrix patch',lPmat,iPmat))
+     &   call errquit('xc_quadv0: cannot allocate DENS',0)
 c
 c     get desired grid accuracy
 c
@@ -422,83 +442,117 @@ c
      &   job_grid_acc))
      &   call errquit('rad_trunc: rtdb_get failed', 911)
 c
+c     get overlap matrix
+c
+      call int_init(rtdb, 1, AO_bas_han) 
+      g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+      call int_terminate
+      call ifill(2*ntypes, 0, rad_cutoff, 1)
+c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in rad_trunc',1)
-      range_max = 0.0d0
+c
+c     loop over atoms to get min exp for each atom
+c
+      do iat=1,ncenters
 c
 c     get minimum exponent of all basis functions
 c
-      min_exp=1d20
-      do icset = 1,ncontrset
-         if (.not.bas_continfo(AO_bas_han, icset,
-     &        itype, nprimo, ncontr, isphere))
-     &        call errquit('Exiting in rad_trunc.',3)
-         if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
-     &        call errquit('Exiting in rad_trunc.',7)
-         do  iprimo = 1,nprimo
-            min_exp = min(zprim(iprimo),min_exp)
+         if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
+     &        call errquit('Exiting in radtur.',11)
+         min_exp=1d20
+         range_max=0d0
+         do icset = ic1,ic2
+            if (.not.bas_continfo(AO_bas_han, icset,
+     &           l, nprimo, ncontr, isphere))
+     &           call errquit('Exiting in rad_trunc.',3)
+            if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
+     &           call errquit('Exiting in rad_trunc.',7)
+            do  iprimo = 1,nprimo
+               min_exp = min(zprim(iprimo),min_exp)
+            enddo
+            range = r_neglected(2*l, 2d0*min_exp, job_grid_acc)
+            if(range.gt.range_max) then
+               range_max =  range
+               int_mb(k_ics+iat-1)=icset
+               dbl_mb(k_minexp+iat-1)=min_exp
+               int_mb(k_ldiff+iat-1)=l
+            endif
          enddo
       enddo
       
-      if (me.eq.0)write(6,*)' job_grid_acc = ',job_grid_acc
-      do 6 icset = 1,ncontrset
-        if (.not.bas_cn2ce(AO_bas_han, icset, ictr))
-     &       call errquit('Exiting in rad_trunc.',2)
-c         
-c       get info about current contraction set
-c         
-        if (.not.bas_continfo(AO_bas_han, icset,
-     &       itype, nprimo, ncontr, isphere))
-     &       call errquit('Exiting in rad_trunc.',3)
-c         
-c       angular momentum
-c         
-        if (itype .lt. 0)then
-          call errquit('rad_trunc: sp-type orbital not coded', 5)
-        else 
-          l = itype
-        endif 
-        if (me.eq.0)write(6,*)' icset = ',icset,' ictr = ',ictr,
-     &                        ' l = ',l
-c         
-c       get exponents and contraction coefficients for this contraction set
-c         
-        call dfill(nbf_ao_mxprim,0.d0,zprim,1)
-        if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
-     &       call errquit('Exiting in rad_trunc.',7)
-c   
-c       Determine the minimum Gaussian exponent.
-c   
-        zmin = 1.D+06
-        do 5 iprimo = 1,nprimo
-          zmin = min(zprim(iprimo),zmin)
-    5   continue
 c
-        if(mul_reset)then
-          my_acc = job_grid_acc/shell_chg(icset)
-        else
-          my_acc = job_grid_acc
-        endif
-        range = r_neglected(2*l, 2*zmin, my_acc)
-        range_max = max(range_max, range)
-        if (me.eq.0)write(6,*)' zmin = ',zmin,' range = ',range
+c     loop over atoms again
 c
-        if (tol_reset)then
-           if (nint(range).gt.rad_cutoff(1,iatype(ictr)))then
-              rad_cutoff(1,iatype(ictr)) = nint(range) + 1
-              rad_cutoff(2,iatype(ictr)) = icset
-              if (me.eq.0)then
-                 write(6,*)' rad_cutoff(1-2,iatype(ictr)): ',
-     &           rad_cutoff(1,iatype(ictr)),rad_cutoff(2,iatype(ictr))
-              endif
-           endif
-        endif
-    6 continue
+c      do iat=me+1,ncenters,nproc
+      do iat=1,ncenters
+         write(me,*) 
+         write(me,*) ' me ',me,' atom ',iat
+         exp_iat=dbl_mb(k_minexp+iat-1)
+         l_iat=int_mb(k_ldiff+iat-1)
+         range_max=0d0
+         do jat=1,ncenters
+            s_max=10d0
+            if(iat.ne.jat) then
+               call get_atom_block(g_s,ao_bas_han,
+     $              iat, jat, dbl_mb(ipmat), dimi, dimj)
+               s_max=dabsmax(dimi*dimj,dbl_mb(ipmat))
+            endif
+            if(abs(s_max).gt.ov_trunc) then
+               write(me,*) '  - neighbor ',jat,s_max
+               exp_jat=dbl_mb(k_minexp+jat-1)
+               l_jat=int_mb(k_ldiff+jat-1)
+
+c
+               if(mul_reset)then
+                  my_acc = job_grid_acc/
+     /                 shell_chg(int_mb(k_ics+iat-1))
+               else
+                  my_acc = job_grid_acc
+               endif
+               range=r_neglected(l_iat+l_jat,exp_iat+exp_jat,my_acc)
+               range_max = max(range_max, range)
+               write(me,1234)' zmin = ',exp_iat*exp_jat,
+     ,              ' lprod = ',l_iat*l_jat,
+     ,              ' range = ',range, ' acc ',my_acc
+ 1234          format(A,f15.9,A,I3,A,f12.2,A,d10.2)
+c     
+            endif
+         enddo
+         if (tol_reset)then
+            if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
+               rad_cutoff(1,iatype(iat)) = nint(range_max) 
+               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
+            endif
+            write(me,*)' rad_cutoff(1-2,iatype(ictr)): ',
+     .           iatype(iat),rad_cutoff(1,iatype(iat)),
+     .           rad_cutoff(2,iatype(iat))
+         endif
+      enddo
 cedo      call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
 c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
 c
+      if (.not. ga_destroy(g_s)) call errquit
+     &     ('radtrun: could not destroy g_s', 0)
+      if (.not.ma_pop_stack(lpmat))
+     &   call errquit('radtru: cannot pop stack',0)
+      if (.not.ma_pop_stack(l_ics))
+     &   call errquit('radtru: cannot pop stack',0)
+      if (.not.ma_pop_stack(l_ldiff))
+     &   call errquit('radtru: cannot pop stack',1)
+      if (.not.ma_pop_stack(l_minexp))
+     &   call errquit('radtru: cannot pop stack',2)
+      write(me,*) ' me ',me, ' in dgop '
+      call setdbg(1)
+      call flush(me)
+      write(me,*) ' me ',me,msg_igop_tru,2*ntypes
+      call ga_igop(msg_igop_tru,2*ntypes,
+     ,     rad_cutoff,'absmax') 
+      call setdbg(0)
+      write(me,*) ' me ',me, ' off dgop '
       if (tol_reset)then
          radius = range_max + 3.0d0        
          if (.not. rtdb_put(rtdb, 'dft:radius',
@@ -621,7 +675,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.9 1999-12-30 20:41:54 edo Exp $
+C$Id: grid_utils.F,v 1.10 2000-01-06 00:43:02 edo Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.14 1999-12-17 00:39:44 edo Exp $
+# $Id: GNUmakefile,v 1.15 2000-01-06 00:43:01 edo Exp $
 
-      OBJ_OPTIMIZE = \
+      OBJ = \
 	grid_atom_type_info.o \
 	grid_setquad.o \
 	grid_setrad.o \

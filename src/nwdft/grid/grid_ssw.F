@@ -2,10 +2,11 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.3 1999-12-30 20:41:54 edo Exp $
+C$Id: grid_ssw.F,v 1.4 2000-01-06 00:43:02 edo Exp $
 c
       implicit none
 #include "xc_erftab.fh"
+#include "cdft.fh"
 
 c
 c      
@@ -138,7 +139,7 @@ c
                   sk=0.5d0-(7.d0*(5.d0+3.d0*mu)-
      -                 5.d0*nu*nu*(7.d0+mu))*nu/32.d0
                   
-                elseif(inota.and.jnota) then
+                elseif(inota.and.jnota.and.do_interp) then
 c                 
 c                 use interpolation for erfs
 c
