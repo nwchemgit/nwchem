@@ -706,7 +706,6 @@ c
 c
 c     Barrier
 c
-         call ga_sync()
          next = nxtval(-nproc)
          call ga_sync()
 c
