@@ -708,7 +708,7 @@ PSPW
       ATOMIC_FILLING: <integer ncore nvalence>
        {n=(1||2||...) l=(s||p||d||f) <real filling[n,l]> i=1,(ncore+nvalence)}
       
-      [CUTOFF: <integer lmax> \
+      [CUTOFF: <integer lmax> 
          {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
       ]
       PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS || HAMANN default HAMANN)
@@ -731,9 +731,96 @@ sub-block.
         \item $<$mass$>$ - mass number for the atom
         \item $<$ncore$>$ - number of core states
         \item $<$nvalence$>$ - number of valence states.
-        \item .....
-	\item $<$rcore$>$ - value for the semicore radius. 
+        \item ATOMIC\_FILLING:.....(see below)
+        \item CUTOFF:....(see below) 
+	\item $<$rcore$>$ - value for the semicore radius (see below) 
 \end{itemize}
+
+
+\subsection{ATOMIC\_FILLING Block}
+This required block is used to define the reference atom which is used
+to define the pseudopotential. After the ATOMIC\_FILLING: $<$ncore$>$ $<$nvalence$>$ line
+The core states are listed (one per line), and then the valence states are listed (one per line).  
+Each state contains two integer and a value.  The first integer specifies the radial quantum number, $n$,
+The second integer specifies the angular momentum quantum number, $l$, and the third value
+specifies the occupation of the state.
+
+For example to define a pseudopotential
+for the Neon atom in the $1s^2 2s^2 2p^6$ state
+could have the block
+\begin{verbatim}
+ATOMIC_FILLING: 1 2
+        1  s  2.0   #core state    - 1s^2 
+        2  s  2.0   #valence state - 2s^2
+        2  p  6.0   #valence state - 2p^6
+\end{verbatim}
+for a pseudopotential with a $2s$ and $2p$ valence electrons
+or the block
+\begin{verbatim}
+ATOMIC_FILLING: 3 0
+        1  s  2.0    #core state
+        2  s  2.0    #core state
+        2  p  6.0    #core state
+\end{verbatim}
+could be used for a pseudopotential with no valence electrons.
+
+
+\subsection{CUTOFF Block}
+This optional block specifies the cutoff distances used
+to match the all-electron atom to the pseudopotential atom.  For
+Hamann pseudopotentials $r_{cut}(l)$ defines the distance
+where the all-electron potential is matched to the pseudopotential, and
+for Troullier-Martins pseudopotentials $r_{cut}(l)$ defines the distance
+where the all-electron orbital is matched to the pseudowavefunctions. 
+Thus the definition of the radii depends on the type of pseudopotential.  
+The cutoff radii used in Hamann pseudopotentials will be smaller than
+the cufoff raddi used in Troullier-Martins pseudopotentials.  
+
+For example to define a softened Hamann pseudopotential for
+Carbon would be
+\begin{verbatim}
+ATOMIC_FILLING: 1 2
+  1  s  2.0
+  2  s  2.0
+  2  p  2.0
+CUTOFF: 2
+  s  0.8
+  p  0.85
+  d  0.85
+\end{verbatim}
+while a similarly softened Troullier-Marting pseudopotential
+for Carbon would be
+\begin{verbatim}
+ATOMIC_FILLING: 1 2
+  1  s  2.0
+  2  s  2.0
+  2  p  2.0
+CUTOFF: 2
+  s  1.200
+  p  1.275
+  d  1.275
+\end{verbatim}
+
+
+\subsection{SEMICORE\_RADIUS Option}
+Specifying the SEMICORE\_RADIUS option turns on the semicore correction approximation proposed
+by Louie et al (S.G. Louie, S. Froyen, and M.L. Cohen, Phys. Rev. B, \textbf{26}, 1738, (1982)).  
+This approximation is known to dramatically improve results for systems containing 
+alkali and transition metal atoms.  
+
+The implmentation in the PSPW module defines the semi-core denisty, $\rho_{semicore}$ in terms of 
+the core density, $\rho_{core}$, by using the sixth-order polynomial
+\begin{eqnarray}
+\rho_{semicore}(r) = \left\{ \begin{array}{ll}
+                              \rho_{core} & \mbox{if $r \geq r_{semicore}$} \\
+                              c_0 + c_3 r^3 + c_4 r^4 + c_5 r^5 + c_6 r^6 &  \mbox{if $r < r_{semicore}$}
+                            \end{array}
+                     \right.
+\end{eqnarray}
+This expansion was suggested by Fuchs and Scheffler 
+(M. Fuchs, and M. Scheffler, Comp. Phys. Comm.,\textbf{119},67 (1999)), 
+and is better behaved for taking derivatives (i.e. calculating ionic forces) than the expansion suggested 
+by Louie et al.
 
 
 \section{PSPW RTDB Entries and DataFiles}
@@ -853,6 +940,8 @@ The data stored in the one-dimensional pseudopotential file is
    real        r(nr)         :: one-dimensional radial grid
    real        Vpsp(nr,lmax) :: one-dimensional pseudopotentials
    real        psi(nr,lmax)  :: one-dimensional pseudowavefunctions
+   real        r_semicore        :: semicore radius
+   real        rho_semicore(nr)  :: semicore density
 \end{verbatim}
 and the format of it is:
 \begin{verbatim}
@@ -866,6 +955,12 @@ and the format of it is:
 [line nr+5:  ] r(1)  (psi(1,l), l=1,lmax) 
 [line nr+6:  ] ....
 [line 2*nr+4:] r(nr) (psi(nr,l), l=1,lmax)
+[line 2*nr+5:] r_semicore
+if (r_semicore read) then
+[line 2*nr+6:] r(1)  rho_semicore(1)
+[line 2*nr+7:] ....
+[line 3*nr+5:] r(nr) rho_semicore(nr)
+end if
 \end{verbatim}
 
 
