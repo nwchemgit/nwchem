@@ -583,7 +583,7 @@ ccc           write(6,69) iix(1),iix(2),iix(3),iix(4),
               write(6,69) icf,jcf,kcf,lcf, czdx,czdy,czdz
   69  format('d2/dCidDj: ijkl=',4i2,1x,3(f12.4,2x))
            endif
-d blodk DD:
+c blodk DD:
                     d_min=min( dxdx,dxdy,dxdz, dydy,dydz,dzdz )
                     d_max=max( dxdx,dxdy,dxdz, dydy,dydz,dzdz )
                     absmax=max( abs(d_min),abs(d_max) )
@@ -1101,12 +1101,12 @@ c------>                   xint0=buf(integ)
                            zintc=buf(9,ijklp,integ,iqu)
                            zintd=-(zinta+zintb+zintc) ! trans. inv.
 c
-                           xyz_max=max(xinta,xintb,xintc,xind,
-     *                                 yinta,yintb,yintc,yind,
-     *                                 zinta,zintb,zintc,zind)
-                           xyz_min=min(xinta,xintb,xintc,xind,
-     *                                 yinta,yintb,yintc,yind,
-     *                                 zinta,zintb,zintc,zind)
+                           xyz_max=max(xinta,xintb,xintc,xintd,
+     *                                 yinta,yintb,yintc,yintd,
+     *                                 zinta,zintb,zintc,zintd)
+                           xyz_min=min(xinta,xintb,xintc,xintd,
+     *                                 yinta,yintb,yintc,yintd,
+     *                                 zinta,zintb,zintc,zintd)
                            absmax=max( abs(xyz_max),abs(xyz_min) )
 c
 c----------------------->  absxa=abs(xinta)

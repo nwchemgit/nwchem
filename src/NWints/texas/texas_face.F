@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.36 1997-06-06 22:08:37 d3g681 Exp $
+c $Id: texas_face.F,v 1.37 1997-06-09 22:36:16 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1248,8 +1248,11 @@ c
 c                   ! option name is LIMI (3 numbers)
 c...
       limxmem=2 000 000 ! limit for memory/block
-      limblks=    5 000 ! limit for quartet-block-size
-      limpair=      500 ! limit for pair-block-size
+*      limblks=    5 000 ! limit for quartet-block-size
+*      limpair=      500 ! limit for pair-block-size
+*     interim values until pair limits are properly fixed
+      limblks=    1 000 ! limit for quartet-block-size
+      limpair=    1 000 ! limit for pair-block-size
 c
       if (rtdb_get(rtdb,'int:txs:limi',MT_INT,3,rtdblim)) then
         if (rtdblim(1).gt.0) then
