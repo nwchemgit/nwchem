@@ -1609,7 +1609,7 @@ c
       do 11 k=1,np
       if(nlst(k).eq.nod(j)) goto 10
    11 continue
-      do 12 k=1,26
+      do 12 k=1,mbbl
       if(nod(j)+1.eq.nen(nod(i)+1,k)) then
       nlst(i)=nod(j)
       goto 9
