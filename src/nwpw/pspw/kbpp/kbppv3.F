@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.10 2004-01-28 00:08:46 bylaska Exp $
+* $Id: kbppv3.F,v 1.11 2004-02-24 21:22:08 bylaska Exp $
 *
 
 *     **************************************
@@ -8,7 +8,7 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbppv3(oprint,version,
+      logical function kbppv3(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
@@ -18,7 +18,7 @@
 #include "msgtypesf.h"
 #include "util.fh"
 
-      logical          oprint
+      logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -27,7 +27,7 @@
       real*8  rlocal
       character*255 full_filename
 
-      logical value,mprint,hprint
+      logical value,mprint,hprint,oprint
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -73,7 +73,7 @@
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
-      oprint = oprint.or.hprint
+      oprint = (oprint_in.or.hprint)
 
       value = .false.
   
