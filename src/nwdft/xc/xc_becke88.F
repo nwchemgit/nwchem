@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_becke88.F,v 1.20 2001-05-11 01:53:56 edo Exp $
+C$Id: xc_becke88.F,v 1.21 2002-01-08 23:42:18 edo Exp $
 c
       implicit none
 c      
@@ -113,7 +113,7 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
-            g = g + C           ! Add local contribution back to g
+            if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / (0.5d0*rho(n,1))
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
@@ -179,7 +179,7 @@ c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
-            g = g + C           ! Add local contribution back to g
+            if (lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,2)
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
@@ -239,7 +239,7 @@ c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
             endif
 c
 #ifdef SECOND_DERIV
-            g = g + C           ! Add local contribution back to g
+            if(lfac) g = g + C           ! Add local contribution back to g
             rhom23 = rho13 / rho(n,3)
             d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
             d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
