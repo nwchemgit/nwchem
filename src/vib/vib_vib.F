@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.16 2002-03-26 07:01:13 edo Exp $
+* $Id: vib_vib.F,v 1.17 2003-10-07 00:42:37 edo Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -295,11 +295,11 @@ C
  9000 FORMAT(///,10X,'-------------------------------------------------'
      &        ,/,10X,'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
      &        ,/,10X,'-------------------------------------------------'
-     &        ,/,10X,'       (Freqencies expressed in cm-1)')
+     &        ,/,10X,'       (Frequencies expressed in cm-1)')
  9001 FORMAT(///,10X,'-------------------------------------------------'
      &        ,/,10X,'NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES'
      &        ,/,10X,'-------------------------------------------------'
-     &        ,/,10X,'   (Projected Freqencies expressed in cm-1)')
+     &        ,/,10X,'   (Projected Frequencies expressed in cm-1)')
       if (.not.ma_pop_stack(h_core)) call errquit
      &    ('vib_rdinp ma_pop failed',911)
       return
