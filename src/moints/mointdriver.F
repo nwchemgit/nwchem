@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.60 1997-06-24 23:26:35 d3g681 Exp $
+C$Id: mointdriver.F,v 1.61 1997-08-13 16:56:54 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -390,15 +390,13 @@ c ---------------------------
 c
        tmp2 = tcgtime()
        call ga_zero(g_epair)
-       ocoul = .false.
-       oexch = .true.
        oseg_hi = occ_lo - 1
        nvir = vir_hi - vir_lo + 1
        ipass = 0
 c
 c  Memory arithmetic to determine occ segment length
 c
-       lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blen)
+       lmemreq = moints_lmem(basis, nocc, nvir, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
      $   call errquit('cannot determine memory limit',0)
        gmem = (ga_memory_avail() - lmemreq)*ga_nnodes()
@@ -429,18 +427,13 @@ c
        oseg_lo = oseg_hi + 1
        oseg_hi = min((oseg_lo + seg_incr - 1),occ_hi)
 c
-       call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
+       call moints_semi( basis, tol2e, oseg_lo, oseg_hi,
      $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )
        status = ma_push_get(MT_DBL, (nbf*nmo), 'mos', l_x, k_x )
        call ga_get(g_vecs,1,nbf,1,nmo,dbl_mb(k_x),nbf)
-       if (oexch)
-     $    call moints_readintK( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
-     $                          vir_lo, vir_hi, dbl_mb(k_x),
-     $                          dbl_mb(k_evals), g_epair )
-       if (ocoul)
-     $    call moints_readintJ( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
-     $                          vir_lo, vir_hi, dbl_mb(k_x),
-     $                          dbl_mb(k_evals) )
+       call moints_readintK( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
+     $                       vir_lo, vir_hi, dbl_mb(k_x),
+     $                       dbl_mb(k_evals), g_epair )
        status = ma_pop_stack(l_x)
        tpass = tcgtime() - tpass
        if (ga_nodeid().eq.0) then
