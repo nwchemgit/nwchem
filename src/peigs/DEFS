@@ -264,6 +264,7 @@ ifeq ($(peigs_TARGET),IBM)
 # IBM AIX
 #
 #blas	
+peigs_CODEOBJ = DBLE
 peigs_CPU = RS6000
 peigs_CC += -DSTD_INT -DSTD_DBL -DIBM -O
 peigs_FC += -O2 -qfloat=rsqrt:fltint 
