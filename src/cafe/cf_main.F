@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.32 2000-03-09 00:34:36 d3j191 Exp $
+c $Id: cf_main.F,v 1.33 2000-03-15 00:17:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -668,7 +668,7 @@ c
       integer numw,nums
 c
       integer i,j,k
-      real*8 z,prssc3,rdata(4),xwcd,xscd,eskin,ekc,rtemp(2)
+      real*8 z(3,3),prssc3,rdata(4),xwcd,xscd,eskin,ekc(3),ekinc
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
@@ -691,24 +691,37 @@ c
       endif
       endif
 c
-      z=zw(1,1)+zw(2,1)+zw(3,1)
+      z(1,1)=zw(1,1)
+      z(1,2)=zero
+      z(1,3)=zero
+      z(2,2)=zero
+      z(2,2)=zw(2,1)
+      z(2,3)=zero
+      z(3,1)=zero
+      z(3,2)=zero
+      z(3,3)=zw(3,1)
       do 5 i=1,nsf
-      z=z+zs(i,1,1)+zs(i,2,1)+zs(i,3,1)
+      z(1,1)=z(1,1)+zs(i,1,1)
+      z(2,2)=z(2,2)+zs(i,2,1)
+      z(3,3)=z(3,3)+zs(i,3,1)
     5 continue
 c
-      rtemp(1)=z
-      rtemp(2)=ewkc+eskc
-      call ga_dgop(mcf_38,rtemp,2,'+')
-      z=rtemp(1)
-      ekc=rtemp(2)
+      ekc(1)=ewkc(1)+eskc(1)
+      ekc(2)=ewkc(2)+eskc(2)
+      ekc(3)=ewkc(3)+eskc(3)
+      call ga_dgop(mcf_38,z,9,'+')
+      call ga_dgop(mcf_38,ekc,3,'+')
 c
       volume=box(1)*box(2)*box(3)
 c
-      z=z+5.0d-1*(vpme(1)+vpme(4)+vpme(6))
-      virial=z
+      z(1,1)=z(1,1)+half*vpme(1)
+      z(2,2)=z(2,2)+half*vpme(4)
+      z(3,3)=z(3,3)+half*vpme(6)
+      virial=z(1,1)+z(2,2)+z(3,3)
+      ekinc=ekc(1)+ekc(2)+ekc(3)
 c
       pres=0.0d0
-      if(lpress) pres=(two*ekc-z)/(three*volume*avoga)
+      if(lpress) pres=(two*ekinc-virial)/(three*volume*avoga)
 c
       pscale=one
       if(ipscal.gt.0) then
@@ -843,7 +856,9 @@ c
       ewk=half*ewk
       endif
 c
-      ewkc=zero
+      ewkc(1)=zero
+      ewkc(2)=zero
+      ewkc(3)=zero
       if(numw.gt.0) then
       ww=zero
       do 6 i=1,mwa
@@ -856,7 +871,7 @@ c
       do 9 k=1,mwa
       vvsum=vvsum+wgt(iwat(k),iset)*vwt(i,j,k)
     9 continue
-      ewkc=ewkc+vvsum*vvsum
+      ewkc(j)=ewkc(j)+vvsum*vvsum
     8 continue
     7 continue
       else
@@ -866,11 +881,13 @@ c
       do 12 k=1,mwa
       vvsum=vvsum+wgt(iwat(k),iset)*vw(i,j,k)
    12 continue
-      ewkc=ewkc+vvsum*vvsum
+      ewkc(j)=ewkc(j)+vvsum*vvsum
    11 continue
    10 continue
       endif
-      ewkc=half*ewkc/ww
+      ewkc(1)=half*ewkc(1)/ww
+      ewkc(2)=half*ewkc(2)/ww
+      ewkc(3)=half*ewkc(3)/ww
       endif
 c
       return
@@ -913,7 +930,9 @@ c
     1 continue
       endif
 c
-      eskc=zero
+      eskc(1)=zero
+      eskc(2)=zero
+      eskc(3)=zero
       do 4 k=1,nsm
       vv(1)=zero
       vv(2)=zero
@@ -937,7 +956,9 @@ c
       endif
       if(np.gt.1) call ga_dgop(mcf_43,vv,4,'+')
       if(me.eq.0) then
-      eskc=eskc+half*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))/vv(4)
+      eskc(1)=eskc(1)+half*vv(1)*vv(1)/vv(4)
+      eskc(2)=eskc(2)+half*vv(2)*vv(2)/vv(4)
+      eskc(3)=eskc(3)+half*vv(3)*vv(3)/vv(4)
       endif
     4 continue
 c

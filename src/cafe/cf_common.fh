@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.17 2000-02-01 00:56:16 d3j191 Exp $
+c $Id: cf_common.fh,v 1.18 2000-03-15 00:17:57 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -110,7 +110,8 @@ c
       real*8 rffsw,rffss,shift0(6),shift1(6),epmecs,epmecw,vpmeb(6)
       real*8 q14fac,pi,twopi,qfac,alpha,pmetol,temp,tempw,temps,pres
       real*8 tstep,tstepi,wbox,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,epmf
-      real*8 factmp,factmw,factms,scalew,scales,ewk,ek,ewkc,eskc,edrs
+      real*8 factmp,factmw,factms,scalew,scales,ewk,ek,ewkc(3),eskc(3)
+      real*8 edrs
       real*8 virial
       integer llww,lsww,llsw,lssw,llss,lsss
       logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal

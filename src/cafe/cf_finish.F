@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.6 1999-09-20 20:14:53 d3j191 Exp $
+c $Id: cf_finish.F,v 1.7 2000-03-15 00:17:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -34,6 +34,17 @@ c
       if(ipme.gt.0) call pme_finish()
 c
       call cf_free()
+c
+      if(mmult.gt.0) then
+      if(.not.ma_pop_stack(l_fmul))
+     + call errquit('Failed to deallocate fmul',0)
+      if(.not.ma_pop_stack(l_xmul))
+     + call errquit('Failed to deallocate xmul',0)
+      if(.not.ma_pop_stack(l_imul))
+     + call errquit('Failed to deallocate imul',0)
+      if(.not.ma_pop_stack(l_ixmul))
+     + call errquit('Failed to deallocate ixmul',0)
+      endif
 c
       do 1 id=nbs,1,-1
 c

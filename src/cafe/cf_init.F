@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.36 2000-03-06 20:17:45 d3j191 Exp $
+c $Id: cf_init.F,v 1.37 2000-03-15 00:17:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1323,6 +1323,8 @@ c
     4 continue
       k=k+1
       imul(k,1)=ibnd(i,2)
+c      if(me.eq.0) write(*,1000) ibnd(i,1),ibnd(i,2)
+c 1000 format(' Multinode bond ',2i5)
       endif
     1 continue
       endif
@@ -1349,6 +1351,8 @@ c
    10 continue
       k=k+1
       imul(k,1)=iang(i,3)
+c      if(me.eq.0) write(*,1001) iang(i,1),iang(i,2),iang(i,3)
+c 1001 format(' Multinode angle ',3i5)
       endif
     5 continue
       endif
@@ -1381,6 +1385,8 @@ c
    18 continue
       k=k+1
       imul(k,1)=idih(i,4)
+c      if(me.eq.0) write(*,1002) idih(i,1),idih(i,2),idih(i,3),idih(i,4)
+c 1002 format(' Multinode torsion ',4i5)
       endif
    11 continue
       endif
@@ -1413,6 +1419,8 @@ c
    26 continue
       k=k+1
       imul(k,1)=iimp(i,4)
+c      if(me.eq.0) write(*,1003) iimp(i,1),iimp(i,2),iimp(i,3),iimp(i,4)
+c 1003 format(' Multinode improper ',4i5)
       endif
    19 continue
       endif
