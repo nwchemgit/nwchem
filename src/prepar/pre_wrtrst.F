@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.7 1999-03-15 21:25:31 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.8 1999-03-29 23:56:06 d3j191 Exp $
 c
       implicit none
 c
@@ -30,11 +30,12 @@ c
 c
       call swatch(rstdat,rsttim)
 c
-      write(lfnrst,1001) 3.4,rstdat,rsttim
+      write(lfnrst,1001) 3.3,rstdat,rsttim
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10)
-      write(lfnrst,1002) npbtyp,box,nbxtyp
- 1002 format(i5,3f12.6,7x,i5)
+      write(lfnrst,1002) npbtyp,nbxtyp,box(1),0.0d0,0.0d0,0.0d0,
+     + box(2),0.0d0,0.0d0,0.0d0,box(3)
+ 1002 format(2i5,/,(3f12.6))
       write(lfnrst,1003) 0.0d0
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0
