@@ -1,5 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
+c $Id: basisP.F,v 1.3 1994-04-04 20:20:25 d3e129 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -419,23 +420,40 @@ c
 c
       return
       end
-      integer function nbf_from_type(type)
+      integer function nbf_from_ucont(ucont,basisin)
 c
-c function that returns the number of basis functions in a shell (not contraction)
-c based on the type.  
+c function that returns the number of basis functions in a contraction
+c 
 c  types 0->S, 1->P, 2->D, 3->F etc. -1->SP -2->SPD
 c
       implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+c:: function
+      logical bas_check_handle
+      external bas_check_handle
 c:: passed
+      integer ucont   ! [input] unique contraction 
+      integer basisin ! [input] basis set handle
+c:: local
       integer type
-c:
+      integer basis
+      integer ngen
+c
+      if(.not.bas_check_handle(basisin,'nbf_from_ucont'))
+     &  call errquit('nbf_from_ucont: bad basis handle',basisin)     
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+      type = infbs_cont(CONT_TYPE,ucont,basis)
+      ngen = infbs_cont(CONT_NGEN,ucont,basis)
       if (type.ge.0) then 
-        nbf_from_type = (type+1)*(type+2)/2
+        nbf_from_ucont = ngen*(type+1)*(type+2)/2
       else if (type.eq.-1) then
-        nbf_from_type = 4
+        nbf_from_ucont = ngen*4/2
       else if (type.eq.-2) then
-        nbf_from_type = 10
+        nbf_from_ucont = ngen*10/3
       else 
-        call errquit('basP func:nbf_from_type: bad cont type',type)
+        call errquit('nbf_from_ucont: bad cont type',type)
       endif
       end

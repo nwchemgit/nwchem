@@ -1,4 +1,5 @@
       program testbasis
+c $Id: testbasis.F,v 1.3 1994-04-04 20:20:28 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"

@@ -1,3 +1,4 @@
+c $Id: bas_staticP.fh,v 1.2 1994-04-04 20:20:21 d3e129 Exp $
 c:bas_staticP.fh
 c
 c Maximum parameter definitions for static "in-core" data structure

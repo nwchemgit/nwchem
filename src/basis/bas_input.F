@@ -1,4 +1,5 @@
       subroutine bas_input(rtdb)
+c $Id: bas_input.F,v 1.5 1994-04-04 20:20:19 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"

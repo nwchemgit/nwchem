@@ -1,3 +1,4 @@
+c $Id: basdeclsP.fh,v 1.2 1994-04-04 20:20:22 d3e129 Exp $
 #ifndef BASDECLSP_FH
 c
 c declarations for substitution by cpp for compressed array count meanings

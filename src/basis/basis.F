@@ -1,4 +1,5 @@
       block data basis_data
+c $Id: basis.F,v 1.6 1994-04-04 20:20:24 d3e129 Exp $
 c
 c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
@@ -559,9 +560,9 @@ c function declarations
 c
 c::function
 c:bas
-      integer nbf_from_type
+      integer nbf_from_ucont
       logical bas_check_handle
-      external nbf_from_type
+      external nbf_from_ucont
       external bas_check_handle
 c
 c
@@ -697,15 +698,12 @@ c
 c
 c build total # of contractions and center -> contraction range map 
 c      
-      idum_cont     = infbs_tags(TAG_NCONT,ibs_ce2uce(1,basis),basis)
-      ncont_tot_gb(basis)  = idum_cont
-      ibs_ce2cnr(1,1,basis) = 1
-      ibs_ce2cnr(2,1,basis) = idum_cont
-      do 00200 i=2,nat
+      ncont_tot_gb(basis)  = 0
+      do 00200 i=1,nat
         idum_cont    = infbs_tags(TAG_NCONT,ibs_ce2uce(i,basis),basis)
-        ncont_tot_gb(basis) = idum_cont + ncont_tot_gb(basis)
-        ibs_ce2cnr(1,i,basis) = ibs_ce2cnr(2,(i-1),basis) + 1
-        ibs_ce2cnr(2,i,basis) = ibs_ce2cnr(1,i,basis) + idum_cont - 1
+        ibs_ce2cnr(1,i,basis) = ncont_tot_gb(basis) + 1
+        ibs_ce2cnr(2,i,basis) = ncont_tot_gb(basis) + idum_cont
+        ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
 00200 continue
 c      
 c build contraction -> center map
@@ -752,25 +750,15 @@ c
 c build nprim_tot_gb, nbf_tot_gb, and 
 c contraction -> basis function range map 
 c
-      iu_cont = ibs_cn2ucn(1,basis)
-      nbf     = infbs_cont(CONT_TYPE,iu_cont,basis)
-      nbf     = nbf_from_type(nbf)
-      nbf     = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
-
-      ibs_cn2bfr(1,1,basis) = 1
-      ibs_cn2bfr(2,1,basis) = nbf
-
-      nbf_tot_gb(basis)   = nbf
-      nprim_tot_gb(basis) = infbs_cont(CONT_NPRIM,iu_cont,basis)
-      do 00700 i = 2,ncont_tot_gb(basis)
+      nbf_tot_gb(basis)   = 0
+      nprim_tot_gb(basis) = 0
+      do 00700 i = 1,ncont_tot_gb(basis)
         iu_cont = ibs_cn2ucn(i,basis)
 c
-        nbf = infbs_cont(CONT_TYPE,iu_cont,basis)
-        nbf = nbf_from_type(nbf)
-        nbf = nbf*infbs_cont(CONT_NGEN,iu_cont,basis)
+        nbf = nbf_from_ucont(iu_cont,basisin)
 c
-        ibs_cn2bfr(1,i,basis) = ibs_cn2bfr(2,(i-1),basis) + 1
-        ibs_cn2bfr(2,i,basis) = ibs_cn2bfr(1,i,basis) + nbf - 1
+        ibs_cn2bfr(1,i,basis) = nbf_tot_gb(basis) + 1
+        ibs_cn2bfr(2,i,basis) = nbf_tot_gb(basis) + nbf
 
         nbf_tot_gb(basis) = nbf_tot_gb(basis) + nbf
         nprim_tot_gb(basis) = nprim_tot_gb(basis) +
