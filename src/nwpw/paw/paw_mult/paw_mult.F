@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.12 2003-02-23 20:53:08 bylaska Exp $
+* $Id: paw_mult.F,v 1.13 2003-02-23 21:37:07 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.12  2003/02/23 20:53:08  bylaska
+* bug fix in find_comp_coeff ....EJB
+*
 * Revision 1.11  2003/02/22 03:10:44  bylaska
 * debugging multipole coefficients...There is currently a bug in
 * find_comp_coeff...EJB
@@ -726,7 +729,7 @@
 
 
       !*** local variables **
-      integer i,j,ii,ia,jj,il,jl
+      integer i,j,ii,ia,jj
       integer l,m,li,mi,lj,mj,mult_l
       integer indx,indx_2,mtrx_ptr,mtrx_ptr2
       integer nion,nbasis,basis_nbasis
