@@ -1032,10 +1032,14 @@ c
 c     Finally, we can allocate the arrays for the lists themselves
 c
       do list = 1, 23
-         if (.not. ga_create(mt_dbl, listinfo(4,list), 1, 
-     $        listname(list), 0, 0, listinfo(5,list))) call errquit
-     $        ('uccsdt_triples_set_super_block: ga_create', list)
-         call ga_zero(listinfo(5,list))
+         if (listinfo(4,list) .gt. 0) then
+            if (.not. ga_create(mt_dbl, listinfo(4,list), 1, 
+     $           listname(list), 0, 0, listinfo(5,list))) call errquit
+     $           ('uccsdt_triples_set_super_block: ga_create', list)
+            call ga_zero(listinfo(5,list))
+         else
+            listinfo(5,list) = 99999999 ! invalid handle for empty array
+         endif
       end do
 c
       end
@@ -1165,8 +1169,10 @@ c
       do list = 23, 1, -1
          if (.not. ma_pop_stack(listinfo(3,list))) call errquit
      $        ('uccsdt_triples_unset_super_block: ma overwrite?',list)
-         if (.not. ga_destroy(listinfo(5,list))) call errquit
-     $        ('uccsdt_triples_unset_super_block: ga destroy?', list)
+         if (listinfo(5,list) .ne. 99999999) then
+            if (.not. ga_destroy(listinfo(5,list))) call errquit
+     $           ('uccsdt_triples_unset_super_block: ga destroy?', list)
+         end if
       end do
 c
       end

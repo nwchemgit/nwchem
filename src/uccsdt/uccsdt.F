@@ -14,6 +14,7 @@ c
       double precision dummy(5000)
       double precision uccsdt_triples_sub_blocked
       double precision energy(2,2), total
+      logical oprint_super
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -30,6 +31,7 @@ c
       end if
 c
       call uccsdt_init(rtdb)
+      oprint_super = util_print('superblock', print_debug)
 c
 c     For debug purposes generate the full list of Dirac integrals
 c     in a common block
@@ -49,9 +51,9 @@ c
 c
 c     Crude loop over super blocks for debugging
 c
-      ablocksize = 200
-      bblocksize = 200
-      cblocksize = 300
+      ablocksize = 2
+      bblocksize = 2
+      cblocksize = 3
       total = 0.0d0
       do spina = 1, 2
         spinb = spina
@@ -69,7 +71,7 @@ c
 c               
                 call uccsdt_triples_set_super_block
      $               (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc,
-     $               .false.)
+     $               oprint_super)
                 call uccsdt_triples_moints(rtdb)
                 call uccsdt_triples_dummy_amplitudes()
                 call dfill(5000, 0.0d0, dummy, 1)
@@ -85,6 +87,7 @@ c
               end do
             end do
           end do
+          write(6,*) ' ENERGY ', spina, spinc, energy(spina,spinc)
         end do
       end do
 c
@@ -970,8 +973,7 @@ c
      &                         spin, spinck)
                         end if
 c
-                        int_sym = sym4(syma, symb, symi,
-     $                       symj)
+                        int_sym = sym4(syma, symb, symi, symj)
                         t1_sym = ieor(symc, symk)
                         if ( int_sym.eq.0 .and. t1_sym.eq.0 ) then
                           call uccsdt_triples_get_list(11, 
@@ -981,7 +983,7 @@ c
                           call dfill(lenibuf, 0.0d0, int_abij, 1)
                         end if
                         if (spin .eq. spinck) then
-                          int_sym = sym4(ablk, bblk, jblk, kblk)
+                          int_sym = sym4(syma, symb, symj, symk)
                           t1_sym = ieor(symc, symi)
                           if (int_sym.eq.0 .and. t1_sym.eq.0) then
                             call uccsdt_triples_get_list(11,
@@ -990,7 +992,7 @@ c
                           else
                             call dfill(lenibuf, 0d0, int_abjk, 1)
                           endif
-                          int_sym = sym4(ablk, bblk, iblk, kblk)
+                          int_sym = sym4(syma, symb, symi, symk)
                           t1_sym = ieor(symc, symj)
                           if (int_sym.eq.0 .and. t1_sym.eq.0) then
                             call uccsdt_triples_get_list(11,
@@ -999,7 +1001,7 @@ c
                           else
                             call dfill(lenibuf, 0d0, int_abik, 1)
                           endif
-                          int_sym = sym4(bblk, cblk, iblk, jblk)
+                          int_sym = sym4(symb, symc, symi, symj)
                           t1_sym = ieor(syma, symk)
                           if (int_sym.eq.0 .and. t1_sym.eq.0) then
                             call uccsdt_triples_get_list(13,
@@ -1008,7 +1010,7 @@ c
                           else
                             call dfill(lenibuf, 0d0, int_bcij, 1)
                           endif
-                          int_sym = sym4(ablk, cblk, iblk, jblk)
+                          int_sym = sym4(syma, symc, symi, symj)
                           t1_sym = ieor(symb, symk)
                           if (int_sym.eq.0 .and. t1_sym.eq.0) then
                             call uccsdt_triples_get_list(12,
@@ -1018,7 +1020,7 @@ c
                             call dfill(lenibuf, 0d0, int_acij, 1)
                           endif
                         end if
-                        int_sym = sym4(bblk, cblk, jblk, kblk)
+                        int_sym = sym4(symb, symc, symj, symk)
                         t1_sym = ieor(syma, symi)
                         if (int_sym.eq.0 .and. t1_sym.eq.0) then
                           call uccsdt_triples_get_list(13,
@@ -1028,7 +1030,7 @@ c
                           call dfill(lenibuf, 0d0, int_bcjk, 1)
                         end if
 c
-                        int_sym = sym4(ablk, cblk, jblk, kblk)
+                        int_sym = sym4(syma, symc, symj, symk)
                         t1_sym = ieor(symb, symi)
                         if (int_sym.eq.0 .and. t1_sym.eq.0) then
                           call uccsdt_triples_get_list(12,
@@ -1037,7 +1039,7 @@ c
                         else
                           call dfill(lenibuf, 0d0, int_acjk, 1)
                         endif
-                        int_sym = sym4(bblk, cblk, iblk, kblk)
+                        int_sym = sym4(symb, symc, symi, symk)
                         t1_sym = ieor(syma, symj)
                         if (int_sym.eq.0 .and. t1_sym.eq.0) then
                           call uccsdt_triples_get_list(13,
@@ -1046,7 +1048,7 @@ c
                         else
                           call dfill(lenibuf, 0d0, int_bcik, 1)
                         endif
-                        int_sym = sym4(ablk, cblk, iblk, kblk)
+                        int_sym = sym4(syma, symc, symi, symk)
                         t1_sym = ieor(symb, symj)
                         if (int_sym.eq.0 .and. t1_sym.eq.0) then
                           call uccsdt_triples_get_list(12,
