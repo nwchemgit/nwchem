@@ -1,0 +1,6 @@
+c
+c $Id: chow.fh,v 1.1 1994-06-24 20:42:11 d3e129 Exp $
+c
+      LOGICAL        OMIN, TS, STD, TROT, TRTR, MWC
+      COMMON / HOW / OMIN, TS, STD, TROT, TRTR, MWC
+c

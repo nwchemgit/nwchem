@@ -1,0 +1,41 @@
+      SUBROUTINE stpr_cneed(INEED, NATD)
+c $Id: stpr_cneed.f,v 1.1 1994-06-24 20:42:17 d3e129 Exp $
+      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
+     &                  ITAP44, ITAP45
+      COMMON / CFACE / IWCTR,NATOM,ICALC
+      COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
+      COMMON / MASS / TOTM, NUMAS
+      NATOM = NATD
+      NUMAS = 36
+      ITAP05=5
+      ITAP06=6
+      ITAP41=41
+      ITAP44=44
+      ITAP45=45
+      NAT3 = NATOM*3
+      NAT3SQ = NAT3*NAT3
+      NAT3TR = (NAT3*(NAT3+1))/2
+      INEED = 1
+      INEED = INEED + NAT3SQ
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3SQ
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3
+      INEED = INEED + NATOM
+      INEED = INEED + NAT3
+      INEED = INEED + NAT3TR
+      INEED = INEED + NAT3SQ
+      INEED = INEED + NAT3SQ
+      INEED = INEED + NATOM
+      INEED = INEED + NUMAS
+      INEED = INEED + NAT3TR
+      INEED = INEED + NAT3TR
+      INEED = INEED + 3
+      INEED = INEED + 9
+      INEED = INEED + 1024
+      RETURN
+      END

@@ -1,0 +1,126 @@
+      SUBROUTINE stpr_cheker(
+     &       ENERGY,EOLD,E2OLD,EDIFF,GLNGTH,ERATIO,
+     &       CONVGE, CONVGG,
+     &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
+     &       BCKSTP,CNVGRD)
+c $Id: stpr_cheker.F,v 1.1 1994-06-24 20:42:14 d3e129 Exp $
+      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+      LOGICAL BCKSTP,CNVGRD
+#include "chow.fh"
+      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
+     &                  ITAP44, ITAP45
+      COMMON / CFACE / IWCTR,NATOM,ICALC
+      COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
+      IF (MWC) THEN
+        CONVGG=1.0D-08
+      ENDIF
+C
+C     Set energy ratio backstep criterion.
+C
+      IF(ICALC.EQ.2)THEN
+        ERATM = 0.5D0
+      ELSEIF(ICALC.EQ.1)THEN
+        ERATM = 0.0D0
+      ELSE
+        WRITE(6,*)' STEPPER| Unknown calculation type. Program aborts. '
+        call errquit('stepper:cheker fatal error',911)
+      ENDIF
+C
+C     Retrieve previous step parameters (if not first step).
+C
+      IF(IWCTR.GT.1)THEN
+        IF(BCKSTP)THEN
+          CALL stpr_gtnpo(EOLD,E2OLD,TRUST,SOLD,NWALK)
+        ELSE
+          CALL stpr_getnp(EOLD,E2OLD,TRUST,SOLD,NWALK)
+        ENDIF
+      ENDIF
+C
+C     Initialize current step parameters.
+C
+      NWALK = NWALK + 1
+C
+C     Calculate actual energy difference ... EDIFF.
+C
+      EDIFF = ENERGY - EOLD
+C
+C     Calculate actual to predicted energy ratio.
+C
+      ERATIO = MIN(ABS(EDIFF),ABS(E2OLD))/
+     &         MAX(ABS(EDIFF),ABS(E2OLD))
+C
+C     Check for convergence ... look at:
+C       1. Structure of HESS (proper number of negative eigenvalues),
+C       2. Energy convergence, and
+C       3. Gradient convergence.
+C
+      IF((NNEG.EQ.0.AND..NOT.TS).OR.(NNEG.EQ.1.AND.TS))THEN
+        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
+          WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
+          WRITE(6,*)' STEPPER| The hessian exhibits the "proper" '
+          WRITE(6,*)' STEPPER| structure, and the gradient and energy '
+          WRITE(6,*)' STEPPER| convergence criterion has been met.  '
+          WRITE(6,*)' STEPPER| This geometry walk is HISTORY.'
+          CNVGRD = .TRUE.
+          TRUST = TRUSTI
+          TRUSTO = TRUSTI
+          RETURN
+        ELSE
+          CNVGRD = .FALSE.
+        ENDIF
+      ELSE
+        IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
+          WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
+          WRITE(6,*)' STEPPER| The gradient and energy convergence '
+          WRITE(6,*)' STEPPER| criterion has been met, BUT the hessian '
+          WRITE(6,*)' STEPPER| does not exhibit proper structure. '
+          WRITE(6,*)' STEPPER| There are: ',NNEG,' negative hessian '
+          WRITE(6,*)' STEPPER| eigenvalues. '
+          CNVGRD = .TRUE.
+          TRUST = TRUSTI
+          TRUSTO = TRUSTI
+          RETURN
+        ELSE
+          CNVGRD = .FALSE.
+        ENDIF
+      ENDIF
+C
+C     Set TRUST radius and check for backstepping.  Use algorithm
+C     suitable for analytical versus update hessian.
+C
+      IF (ICALC.GT.0) THEN
+        IF(NWALK.EQ.1)THEN
+          TRUST = TRUSTI
+          TRUSTO = TRUSTI
+        ELSE
+          IF(BCKSTP)THEN
+            WRITE(6,*)' STEPPER| Backstep in progress; trust radius '
+            WRITE(6,*)' STEPPER| set to half of previous step length.'
+            TRUSTO = TRUST
+            TRUST = SOLD/2.0D0
+            write(6,*)' STEPPER| trust = ',trust
+          ELSE
+            TRUST = TRUSTI
+            TRUSTO = TRUSTI
+            write(6,*)' STEPPER| trust = ',trust
+          ENDIF
+        ENDIF
+      ELSE
+        WRITE(6,*)' STEPPER| Unknown calculation type. Program aborts. '
+        call errquit('stepper:cheker fatal error',911)
+      ENDIF
+C
+C     Special Case: If on initial iteration there are no
+C     significant forces then stop.
+C
+      IF(NWALK.EQ.1.AND.GLNGTH.LT.CONVGG)THEN
+        WRITE(6,*)' STEPPER| >>> W A R N I N G     W A R N I N G <<< '
+        WRITE(6,*)' STEPPER| >>> Negligible gradient on first',
+     &            ' iteration. <<< '
+        WRITE(6,*)' STEPPER| >>> Arbitrary step could be taken. <<< '
+        WRITE(6,*)' STEPPER| >>> Nudge coordinates away from',
+     &            ' minimum and restart. <<< '
+        call errquit('stepper:cheker fatal error',911)
+      ENDIF
+      RETURN
+      END
