@@ -40,7 +40,13 @@ c
       double precision cpu, wall
       logical stpr_gen_hess_at
       external stpr_gen_hess_at
-c     
+c 
+      character*4  scftype
+      character*80 theory
+      logical      scf_hessian
+      external     scf_hessian
+      logical      hess_analy
+c    
       call ecce_print_module_exit('task frequencies', 'ok')
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -57,8 +63,40 @@ c
       else
          delta_pass = 0.01d00
       endif
-c     
-      if (ga_nodeid().eq.0 .and. 
+c
+c     Analytic rhf_hessian or finite difference hessian
+c  
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:frequency: theory not specified',0)
+
+      if (theory.eq.'scf') then
+       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
+     $     call errquit('scf:scftype not defined',0)
+       call inp_ucase(scftype)
+      endif
+c
+
+      if (theory.eq.'scf'.and.scftype.eq.'RHF') then 
+         hess_analy = .true.
+
+        if (ga_nodeid().eq.0 .and.
+     $     util_print('task_freq', print_low)) then
+         write(6,*)
+         write(6,*)
+         call util_print_centered(6,
+     $        'NWChem Analytic Hessian and Frequency Analysis',
+     $        40,.true.)
+         write(6,*)
+        endif
+c
+        if (.not.scf_hessian(rtdb))
+     $     call errquit
+     $     ('task_freq: scf_hessian failed ',911)
+
+         write(6,*)
+
+      else           
+        if (ga_nodeid().eq.0 .and. 
      $     util_print('task_freq', print_low)) then
          write(6,*)
          write(6,*)
@@ -67,11 +105,12 @@ c
      $        40,.true.)
          write(6,*)
          write(6,*)
-      endif
+        endif
 c
-      if (.not.stpr_gen_hess_at(rtdb,delta_pass))
+        if (.not.stpr_gen_hess_at(rtdb,delta_pass))
      $     call errquit
      $     ('task_freq: stpr_gen_hess_at failed ',911)
+      endif
 c     
       if ((ga_nodeid()).eq.0) then
          status = rtdb_parallel(.false.)
@@ -87,8 +126,13 @@ c
      $        ('task_freq:geom_ncent failed?',3)
          if (.not. geom_destroy(geom)) call errquit
      $        ('task_freq:geom_destroy failed?',911)
-         call vib_vib(rtdb,filehess,.true.,
-     $        0,.false.,0,.false.,nat)
+         if (hess_analy.eq..true.) then
+            call vib_vib(rtdb,filehess,.true.,
+     $           0,.false.,0,.false.,nat)
+         else 
+            call vib_vib(rtdb,filehess,.true.,
+     $           0,.false.,0,.false.,nat)
+         endif
          status = rtdb_parallel(.true.)
       endif
       call ga_sync()
