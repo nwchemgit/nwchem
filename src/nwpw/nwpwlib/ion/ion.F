@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.23 2003-07-30 20:04:32 bylaska Exp $
+* $Id: ion.F,v 1.24 2003-08-03 18:21:24 bylaska Exp $
 *
 
 *     ***************************
@@ -191,10 +191,8 @@
       
       logical          control_frac_coord
       double precision control_time_step,ion_amass
-      double precision control_rti
       external         control_frac_coord
       external         control_time_step,ion_amass
-      external         control_rti
 
       call Parallel_taskid(taskid)
 
@@ -268,38 +266,35 @@ c     call ion_shift()
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
 
-*        ***** scale initial velocities and       ****
-*        ***** determine initial kinetic energies ****
-         call center_v_mass(vgx,vgy,vgz)
-         mass=0.0d0
-         do i=1,nion
-            mass=mass + ion_amass(i)
-         end do
-         ekg = 0.5d0*mass*(vgx**2+vgy**2+vgz**2)
-
-         eki0 = 0.0d0
-         do i=1,nion
-            dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
-            dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
-            dbl_mb(r0(1)+(i-1)+2) = dbl_mb(r0(1)+(i-1)+2)-vgz
-            eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
-         end do
-         eki0=0.5d0*eki0
-
-*        **** scale velocities then find kinetic energy ***
-         call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
-         eki1 = 0.0d0
-         do i=1,nion
-            eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
-     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
-         end do
-         eki1=0.5d0*eki1
-
-
-
+c*        ***** scale initial velocities and       ****
+c*        ***** determine initial kinetic energies ****
+c         call center_v_mass(vgx,vgy,vgz)
+c         mass=0.0d0
+c         do i=1,nion
+c            mass=mass + ion_amass(i)
+c         end do
+c         ekg = 0.5d0*mass*(vgx**2+vgy**2+vgz**2)
+c
+c         eki0 = 0.0d0
+c         do i=1,nion
+c            dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
+c            dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
+c            dbl_mb(r0(1)+(i-1)+2) = dbl_mb(r0(1)+(i-1)+2)-vgz
+c            eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+c     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+c     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+c         end do
+c         eki0=0.5d0*eki0
+c
+c*        **** scale velocities then find kinetic energy ***
+c         call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
+c         eki1 = 0.0d0
+c         do i=1,nion
+c            eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+c     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+c     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+c         end do
+c         eki1=0.5d0*eki1
 
       end if
 
@@ -309,6 +304,7 @@ c     call ion_shift()
       end
 
 
+    
 
 
 *     ***************************
@@ -618,11 +614,75 @@ c     call ion_shift()
       double precision eki1_out
 
 
+#include "mafdecls.fh"
+
+***** ion common block ****
+#include "ion.fh"
+
       integer          ke_count
       double precision ekg,eki0,eki1
       double precision ke_total,kg_total,mass
       common / ION3/ ekg,eki0,eki1,mass,
      >               ke_total,kg_total,ke_count
+
+*     **** local variables ****
+      integer i
+      real*8  vgx,vgy,vgz
+
+*     **** external functions ****
+      logical  control_COM_shift
+      real*8   control_rti,ion_amass
+      external control_COM_shift
+      external control_rti,ion_amass
+
+
+*     **** remove ion velocities using ion_FixIon ****
+      call ion_FixIon(dbl_mb(r0(1)))
+
+
+*     ***** scale initial velocities and       ****
+*     ***** determine initial kinetic energies ****
+      call center_v_mass(vgx,vgy,vgz)
+      mass=0.0d0
+      do i=1,nion
+            mass=mass + ion_amass(i)
+      end do
+      ekg = 0.5d0*mass*(vgx**2+vgy**2+vgz**2)
+
+ 
+*     **** shift by velocity COM ****
+      if (control_COM_shift().eq. .true.) then
+      do i=1,nion
+         dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
+         dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
+         dbl_mb(r0(1)+(i-1)+2) = dbl_mb(r0(1)+(i-1)+2)-vgz
+      end do
+      end if
+
+*     **** remove ion velocities using ion_FixIon ****
+      call ion_FixIon(dbl_mb(r0(1)))
+
+*     **** calculate initial kinetic energy ****
+      eki0 = 0.0d0
+      do i=1,nion
+         eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+      end do
+      eki0=0.5d0*eki0
+
+
+*     **** scale velocities then find kinetic energy ***
+      call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
+      eki1 = 0.0d0
+      do i=1,nion
+         eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+      end do
+
+
+      eki1=0.5d0*eki1
 
       ekg_out  = ekg
       eki0_out = eki0
@@ -630,6 +690,8 @@ c     call ion_shift()
 
       return
       end
+
+
 *     ***************************
 *     *							*
 *     *		ion_mmexist			*
@@ -1054,6 +1116,7 @@ c     call ion_shift()
      >                               - dbl_mb(r0(1)+(i-1)*3+2))
       end do
 
+
 *     **** determine current kinetic energy and add to running average ****
       eki1 = 0.0d0
       do i=1,nion
@@ -1212,6 +1275,7 @@ c     call ion_shift()
          dbl_mb(r0(1)+(i-1)*3+2) = h*( dbl_mb(r2(1)+(i-1)*3+2)
      >                               - dbl_mb(r0(1)+(i-1)*3+2))
       end do
+
 
 *     **** determine current kinetic energy and add to running average ****
       eki1 = 0.0d0
