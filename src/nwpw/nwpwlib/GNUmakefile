@@ -1,7 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.8 2001-11-11 01:29:05 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2001-11-14 16:11:19 windus Exp $
 #
-      SUBDIRS = Parallel D3dB control lattice io ion psp pseudopotential utilities unitcell fractional miscellaneous
+      SUBDIRS = Parallel D3dB control lattice io ion psp pseudopotential utilities unitcell fractional 
+#  miscellaneous
                 
 
           OBJ = 
