@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.9 1995-03-31 01:43:45 d3g681 Exp $*/
+/*$Id: rtdb_seq.c,v 1.10 1995-04-20 22:49:52 og845 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -355,11 +355,7 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
 
 #if USE_DB  
   openinfo.bsize = 1024*4;
-#if defined(CRAY)
-  openinfo.cachesize = 4*128*1024;
-#else
   openinfo.cachesize = 128*1024;
-#endif
   openinfo.ffactor = 16;
   openinfo.hash = 0;
   openinfo.lorder = 0;
