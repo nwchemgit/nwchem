@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.25 2002-01-21 21:32:57 bjohnson Exp $
+c     $Id: dft_scf_so.F,v 1.26 2002-02-12 06:26:57 edo Exp $
 c     
       implicit none
 c     
@@ -26,7 +26,7 @@ c     so
       integer lwork, iwork      ! complex*16 work(3) 
       integer lrwork, irwork    ! double precision rwork
       integer info 
-      integer lbuff, ibuff, lso,iso
+      integer lbuff, ibuff
       integer nbf_mo 
 c      logical numerical 
       integer g_s
@@ -685,8 +685,6 @@ cso   ma for complex diagonalizer
      &     call errquit('dft_scf: cannot allocate w.s',0)
       if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
      &     call errquit('dft_scf:push_get failed', 13)      
-      if(.not.ma_push_get(mt_dbl,nbf_ao,'so',lso,iso))
-     &     call errquit('dft_scf:push_get failed', 13)
 cso     
 c     
 c     Top of infinite SCF iteration loop
@@ -1829,10 +1827,12 @@ c
       endif
 c      call MA_SUMMARIZE_ALLOCATED_BLOCKS 
 
-      if (.not.ma_pop_stack(lso))
-     &   call errquit('dft_scf: cannot pop stack:lbuff',0)
-      if (.not.ma_pop_stack(lbuff))
-     &   call errquit('dft_scf: cannot pop stack:lbuff',0)
+      if (.not.ma_pop_stack(lbuff)) then
+        call ma_summarize_allocated_blocks()
+        call util_flush(6)
+        call util_flush(0)
+        call errquit('dft_scf: cannot pop stack:lbuff',lbuff)
+      endif
       if (.not.ma_pop_stack(lrwork))
      &   call errquit('dft_scf: cannot pop stacklrwork',0)
       if (.not.ma_pop_stack(lwork))

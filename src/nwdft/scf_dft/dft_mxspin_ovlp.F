@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.16 2002-02-07 20:06:38 bert Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.17 2002-02-12 06:26:56 edo Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -103,8 +103,8 @@ c -------------------------------------------------------------
 c Print some useful information
 c about the un-paired alpha orbitals.
 c
-      if(.not.util_print('alpha partner info', print_high)) return
-      if(noc(2).eq.0) return
+      if(.not.util_print('alpha partner info', print_high)) goto 2001
+      if(noc(2).eq.0) goto 2001
 c
 c Find alpha orbital which best overlaps with each beta
 c orbital, then the remaining alpha orbitals are the un-partnered
@@ -391,14 +391,11 @@ c
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
 c---------------------------------------------------------------
+2001  continue
       if (.not. ga_destroy(g_s)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_s', 0)
 c
-      if(.not.MA_Pop_Stack(l_tmpi1))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-      if(.not.MA_Pop_Stack(l_tmpr2))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-      if(.not.MA_Pop_Stack(l_tmpr1))
+      if(.not.MA_chop_Stack(l_tmpr1))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
       return
