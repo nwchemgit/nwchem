@@ -1,0 +1,17 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     rimp2_timers.fh -- common block which holds timer handles for RIMP2
+C     module
+C
+C REVISION
+C     $Id: rimp2_timers.fh,v 1.1 1994-07-14 21:39:05 gg502 Exp $
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Integer PS_Overall, PS_XForm, PS_Energy, PS_Int_Gen, PS_Step12,
+     $   PS_Step3, PS_Wr_3ci, PS_Rd_3ci, PS_V_Gen, PS_VmHalf,
+     $   PS_Schwarz_4c, PS_Schwarz_2c,
+     $   PS_Create, PS_Form_4ci, PS_Form_AB, PS_Denom, PS_PrEn
+C
+      Common /RIMP2_Timers_CB/ PS_Overall, PS_XForm, PS_Energy,
+     $   PS_Int_Gen, PS_Step12, PS_Step3, PS_Wr_3ci, PS_Rd_3ci,
+     $   PS_V_Gen, PS_VmHalf, PS_Schwarz_4c, PS_Schwarz_2c,
+     $   PS_Create, PS_Form_4ci, PS_Form_AB, PS_Denom, PS_PrEn

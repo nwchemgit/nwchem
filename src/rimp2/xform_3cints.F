@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.4 1994-06-20 18:25:41 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.5 1994-07-14 21:39:10 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
@@ -44,6 +44,16 @@ C
 C     The global arrays G_Int, G_Out, G_C, G_V must be created and filled
 C     as appropriate before entry.
 C
+C NOTES
+C     Since the Schwarz routines aren't really general enough to
+c     accomodate 3 center integrals yet, the NEGLECT threshold passed in
+c     may have been manipulated to account for the size of the (s|s)
+c     integrals that form the second term of the limit.  Neglect may in
+c     fact be different on each node, since that's the obvious way to
+c     get the best possible screening in the current circumstances.  But
+c     only node 0 reports Neglect to the user, so it may be a little
+c     misleading.
+C
 C LIMITATIONS
 C     Currently DEST must be 'D'isk.
 C     G_Int and G_Out must be the same size
@@ -57,6 +67,7 @@ C INCLUDE FILES
 #include "stdio.fh"
 #include "bas.fh"
 #include "global.fh"
+#include "rimp2_timers.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame     ! From BLAS-[23]
@@ -71,6 +82,12 @@ C LOCAL VARIABLES
       Integer Dim1, Dim2, GAType, NFit
       Integer IBlkSiz, OutBlkSiz, NA, NI, NJ, NK, JLo, JHi, KLo, KHi
       Character*256 String1, String2
+C
+C     Since we'll synchronize pretty soon on the GA creations,
+C     let's do it here to make the timings look right
+C
+      Call GA_Sync
+      Call PStat_On( PS_XForm)
 C
 C     ***********************
 C     * Sanity check inputs *
@@ -215,6 +232,8 @@ C
          Write( LuOut, '(1X, A, 1X, A)')
      $      'Ket basis:', String1(:LNBlnk(String1))
 C
+         Write (LuOut, 9120) Neglect
+C
          Call GA_Inquire_Name( G_C, String1)
          Write( LuOut, '(1X, A, 1X, A)')
      $      'Bra transformation:', String1(:LNBlnk(String1))
@@ -238,6 +257,7 @@ C
  9100 Format(1X, 'Generating three-center ', A,
      $   ' (', I5, ':', I5, ',', I5, ':', I5, A, I5, ':', I5, ')')
  9110 Format(1X, 'in ', I5, ' passes through the integrals.')
+ 9120 Format(1X, 'Integrals < ', E10.3, ' will be neglected.')
 C
 C     ****************************************************
 C     * Cover the requested range of I in several passes *
@@ -304,12 +324,14 @@ C              Now we're back to actual indices of the occupied
 C              and virtual orbitals.
 C
                If ( Disk ) then
+                  Call PStat_On( PS_Wr_3ci)
                   Status = Put_3cInts(IntFil, G_Out, NA, KLo, KHi)
                   If ( .NOT. Status ) then
                      Write (LuErr, 9030) KLo, KHi, JLo, JHi, ILo, IHi
                      XForm_3cInts = .FALSE.
                      Return
                   EndIf
+                  Call PStat_Off( PS_Wr_3ci)
                EndIf
             EndDo               ! KLo
 C
@@ -318,12 +340,14 @@ C           can just write directly from G_Int in one go.
 C
          Else
             If ( Disk ) then
+               Call PStat_On( PS_Wr_3ci)
                Status = Put_3cInts(IntFil, G_Int, NA, JLo, JHi)
                If ( .NOT. Status ) then
                   Write (LuErr, 9030) JLo, JHi, JLo, JHi, ILo, IHi
                   XForm_3cInts = .FALSE.
                   Return
                EndIf
+               Call PStat_Off( PS_Wr_3ci)
             EndIf
 C
          EndIf
@@ -336,6 +360,8 @@ C
       Call GA_Sync
 C
       XForm_3cInts = .TRUE.
+C
+      Call PStat_Off( PS_XForm)
 C
       Return
       End

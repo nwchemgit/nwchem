@@ -9,6 +9,8 @@ C
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"
+#include "pstat.fh"
+#include "rimp2_timers.fh"
 C
       Logical MOVecs_Read_Header, Int_Normalize
       External MOVecs_Read_Header, Int_Normalize
@@ -29,7 +31,7 @@ C
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
       Character*(*) Geom_Name, AOBasName, FitBasName
       Parameter (Geom_Name = 'geometry', AOBasName = 'mo basis',
-     $   FitBasName = 'rimp2 basis')
+     $   FitBasName = 'ri-mp2 basis')
 C
       Character*(*) My_Ctx
       Parameter (My_Ctx = 'mp2')
@@ -39,19 +41,23 @@ C
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
       Integer NMO(MaxSpin), I, Me
       Integer H_Eval, Eval_Idx, H_Contrib, Contrib_Idx
-      Double precision E2
-      Character*(80) Title, SCFBasNam, FNVec, FNInt
+      Double precision Thresh, CorEner, RefEner, TotEner
+      Character*(80) Title, SCFBasNam, FNVec, FNInt, String
       Logical Status
 C
       Status = .TRUE.
       Status = Status .AND. Context_Push(My_Ctx)
+C
+      Status = Status .AND. PStat_Init(10, 1, String)
+      Call RIMP2_Timers
+      Call PStat_On( PS_Overall)
 C
       Me = GA_NodeID()
 C
 C     Print a headline
 C
       If ( Me .eq. 0)
-     $   Call Util_Print_Centered(LuOut, 'NWCHEM RI-MBPT(2) Energy', 40,
+     $   Call Util_Print_Centered(LuOut, 'NWCHEM RI-MP2 Energy', 40,
      $   .TRUE.)
 C
 C     Load the geometry and basis sets
@@ -136,6 +142,10 @@ C
       Status = Status .AND. MA_Push_Get( MT_Dbl, NAOBF*TopSpin,
      $   'SCF eigenvalues', H_EVal, EVal_Idx)
 C
+C     Get other controls -- threshold for neglect of integrals, etc.
+C
+      Call RIMP2_Get_Param( RTDB, Thresh)
+C
 C     *************************************
 C     * Integral transformation (to disk) *
 C     *************************************
@@ -143,7 +153,7 @@ C
 c$$$      Write (LuOut, *) 'About to call transformation'
       Status = Status .AND.
      $   RIMP2_XF_Driver( Geom, AOBas, FitBas, Dbl_MB(EVal_Idx), NAOBF,
-     $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit)
+     $   TopSpin, FNVec, FNInt, ALo, AHi, ILo, IHi, NILimit, Thresh)
 C
 C     Shift ranges of virtual and occupieds into the _number_ of each
 C
@@ -166,13 +176,32 @@ C
 c$$$      Write (LuOut, *) 'About to compute energy'
       Status = Status .AND.
      $   RIMP2_V_E2( FNInt, TopSpin, NAOBF, IHi, AHi, NFit, FitBas,
-     $   Dbl_MB(EVal_Idx), Dbl_MB(Contrib_Idx), E2)
+     $   Dbl_MB(EVal_Idx), Dbl_MB(Contrib_Idx), CorEner, NILimit,
+     $   NILimit)
+C
+C     Also get the SCF energy so we can report the total energy
+C
+      Status = Status .AND. RTDB_Get(RTDB, 'scf:energy', MT_Dbl, 1,
+     $   RefEner)
+      TotEner = RefEner + CorEner
 C
       If ( Me .eq. 0) then
-         Call Banner(LuOut, 'RI-MBPT(2) coerrelation energy', '-',
+         Call Banner(LuOut, 'RI-MP2 energy', '-',
      $      .TRUE., .TRUE., .FALSE.)
-         Write (LuOut, '(A, F30.15)') 'RIMP2 energy = ', E2
+         Write (LuOut, '(1X, A, F30.15)') 'Reference energy:    ',
+     $      RefEner
+         Write (LuOut, '(1X, A, F30.15)') 'Correlation energy:  ',
+     $      CorEner
+         Write (LuOut, '(1X, A, F30.15)') 'Total RI-MP2 energy: ',
+     $      TotEner
       EndIf
+C
+C     Write our energy out to the database
+C
+      Status = Status .AND. Context_Prefix('correlation energy', String)
+      Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, CorEner)
+      Status = Status .AND. Context_Prefix('total energy', String)
+      Status = Status .AND. RTDB_Put( RTDB, String, MT_Dbl, 1, TotEner)
 C
 C     ***********
 C     * Cleanup *
@@ -187,6 +216,10 @@ C
       Status = Status .AND. Geom_Destroy( Geom)
       Status = Status .AND. Bas_Destroy( FitBas)
       Status = Status .AND. Bas_Destroy( AOBas)
+C
+      Call PStat_Off( PS_Overall)
+      Call PStat_Print_All
+      Status = Status .AND. PStat_Terminate()
 C
       Status = Status .AND. Context_Pop(My_Ctx)
 C

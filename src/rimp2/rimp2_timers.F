@@ -1,0 +1,53 @@
+      Subroutine RIMP2_Timers
+      Implicit NONE
+C
+#include "pstat.fh"
+#include "rimp2_timers.fh"
+C
+      Logical Status
+      Integer NAcc, Accum(1)
+      Character*1 Names(1)
+C
+      Status = .TRUE.
+      Status = Status .AND. PStat_Allocate('Overall',
+     $   PStat_QStat, 0, Accum, PS_Overall)
+      Status = Status .AND. PStat_Allocate('3c integral xform.',
+     $   PStat_QStat, 0, Accum, PS_xform)
+      Status = Status .AND. PStat_Allocate('Energy',
+     $   PStat_QStat, 0, Accum, PS_Energy)
+      Status = Status .AND. PStat_Allocate('3c integral generation',
+     $   PStat_QStat, 0, Accum, PS_int_gen)
+      Status = Status .AND. PStat_Allocate('First 2/3 xform.',
+     $   PStat_QStat, 0, Accum, PS_step12)
+      Status = Status .AND. PStat_Allocate('Final 1/3 xform.',
+     $   PStat_QStat, 0, Accum, PS_step3)
+      Status = Status .AND. PStat_Allocate('Write 3c integrals',
+     $   PStat_QStat, 0, Accum, PS_wr_3ci)
+      Status = Status .AND. PStat_Allocate('Read 3c integrals',
+     $   PStat_QStat, 0, Accum, PS_rd_3ci)
+      Status = Status .AND. PStat_Allocate('2c integral generation',
+     $   PStat_QStat, 0, Accum, PS_v_gen)
+      Status = Status .AND. PStat_Allocate('V^{-1/2}',
+     $   PStat_QStat, 0, Accum, PS_VmHalf)
+      Status = Status .AND. PStat_Allocate('Schwarz 4c',
+     $   PStat_QStat, 0, Accum, PS_Schwarz_4c)
+      Status = Status .AND. PStat_Allocate('Schwarz 2c',
+     $   PStat_QStat, 0, Accum, PS_Schwarz_2c)
+C
+      Status = Status .AND. PStat_Allocate('GA Create',
+     $   PStat_QStat, 0, Accum, PS_Create)
+      Status = Status .AND. PStat_Allocate('Form 4ci',
+     $   PStat_QStat, 0, Accum, PS_Form_4ci)
+      Status = Status .AND. PStat_Allocate('Form A & B',
+     $   PStat_QStat, 0, Accum, PS_Form_ab)
+      Status = Status .AND. PStat_Allocate('Denominators',
+     $   PStat_QStat, 0, Accum, PS_Denom)
+      Status = Status .AND. PStat_Allocate('Pair Energies',
+     $   PStat_QStat, 0, Accum, PS_PrEn)
+
+C
+      If (.NOT. Status)
+     $   Call ErrQuit('rimp2_timers: Unable to allocate timers', 0)
+C
+      Return
+      End

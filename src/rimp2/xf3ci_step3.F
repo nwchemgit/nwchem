@@ -4,7 +4,7 @@ C     XF3cI_Step3 -- Do the last step of the three-center integral
 C     transformation
 C
 C REVISION
-C     $Id: xf3ci_step3.F,v 1.1 1994-06-14 21:54:38 gg502 Exp $
+C     $Id: xf3ci_step3.F,v 1.2 1994-07-14 21:39:09 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step3(G_In, NAIn, NIIn,
@@ -64,12 +64,20 @@ C INCLUDE FILES
 #include "global.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
+#include "rimp2_timers.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer NAXF, NIXF, NSXFIn, NSXFOut, Dim1In, Dim1Out, Type,
      $  NCRow, NCCol, NSIn, NSOut
       Logical Status
       Character*80 Name
+C
+C     This routine is essentially synchronous anyway because GA_DGEMM
+C     is SIMD, so to be fair, we should include only the time after
+C     everyone meets up here.
+C
+      Call GA_Sync
+      Call PStat_On(PS_Step3)
 C
 C     For convenience, determine the size of the region to be transformed
 C
@@ -169,6 +177,8 @@ c$$$      Call GA_Release_Update( G_Out, 1, NAXF*NIXF, 1, NSOut)
 C
       Call GA_DGEMM('N', 'N', NAXF*NIXF, NSOut, NSIn, FP_One, G_In, G_C,
      $   FP_Zero, G_Out)
+C
+      Call PStat_Off(PS_Step3)
 C
       XF3cI_Step3 = .TRUE.
 C
