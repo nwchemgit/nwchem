@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: pre_pdbsiz.F,v 1.14 2002-07-02 22:53:40 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.15 2002-08-13 21:54:04 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -108,8 +108,8 @@ c
 c     SEQRES
 c
       if(card(1:6).eq.'SEQRES') then
-      read(card(11:17),1001) nseq
- 1001 format(6x,i4)
+      read(card(14:17),1001) nseq
+ 1001 format(i4)
       goto 1
       endif
 c
