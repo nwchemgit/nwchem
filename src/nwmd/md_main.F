@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.48 1999-11-17 00:53:16 d3j191 Exp $
+c $Id: md_main.F,v 1.49 1999-11-22 23:11:38 d3j191 Exp $
 c
       implicit none
 c
@@ -918,7 +918,7 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr))
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
