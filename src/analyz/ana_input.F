@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.11 2000-01-24 23:16:27 d3j191 Exp $
+c $Id: ana_input.F,v 1.12 2000-02-01 21:51:00 d3j191 Exp $
 c
       implicit none
 c
@@ -122,7 +122,7 @@ c
       if(.not.inp_i(ifrsk)) ifrsk=1
       endif
       write(lfncmd,1003) ifrfr,ifrto,ifrsk
- 1003 format('frame  ',3i5)
+ 1003 format('frame  ',3i10)
       numcmd=numcmd+1
       goto 2
       endif

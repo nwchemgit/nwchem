@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.9 2000-01-26 16:29:35 d3j191 Exp $
+c $Id: ana_task.F,v 1.10 2000-02-01 21:51:01 d3j191 Exp $
 c
       implicit none
 c
@@ -175,9 +175,9 @@ c     select which frames to read
 c     ---------------------------
 c
       if(card(1:6).eq.'frame ') then
-      read(card(8:22),'(3i5)') ifrfr,ifrto,ifrsk
+      read(card(8:37),'(3i10)') ifrfr,ifrto,ifrsk
       if(me.eq.0) then
-      write(*,'(/,3(a,i5))') ' Selected frames ',ifrfr,' to ',ifrto,
+      write(*,'(/,3(a,i10))') ' Selected frames ',ifrfr,' to ',ifrto,
      + ' by',ifrsk
       endif
       goto 1
