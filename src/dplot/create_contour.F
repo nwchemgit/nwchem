@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.26 2003-02-18 18:47:36 pollack Exp $
+* $Id: create_contour.F,v 1.27 2003-05-27 22:19:14 pollack Exp $
 *
       Implicit None
 *
@@ -265,7 +265,7 @@ c
      &                  Values(iOffg),0,
      &              dbl_mb(irchi_atom), 0,
      &              dbl_mb(k_rdat), int_mb(k_cetobfr),1d0,
-     &               0 )
+     &               0, .false. )
 
 
 *------- Deallocate Scratch memory needed by xc_rhogen
