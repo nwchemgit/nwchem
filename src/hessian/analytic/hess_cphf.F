@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.3 2000-05-30 14:47:29 windus Exp $
+C $Id: hess_cphf.F,v 1.4 2000-05-30 20:56:43 d3e129 Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -12,14 +12,19 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "nwc_const.fh"
 c
       integer rtdb 
       integer i, ij, jnd
       integer nocc, nc, nxyz, num, num2, norb, nrot, nc3 
       integer num3, norb2, nocc2, nbf2, ind, ndns, in, nfock
       integer l_evals, k_evals, l_occ, k_occ
-      integer g_vecs(2), g_modx, g_wax(ncent*3) 
-      integer g_aa(ncent*3), g_tmp, g_sol
+      integer g_vecs(2), g_modx
+*not passed cannot be dynamic      integer g_wax(ncent*3) 
+*not passed cannot be dynamic      integer g_aa(ncent*3)
+      integer g_wax(nw_max_atom*3)
+      integer g_aa(nw_max_atom*3)
+      integer g_tmp, g_sol
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
       logical hf_job, dbug, out
