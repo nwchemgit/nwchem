@@ -1,6 +1,6 @@
       Logical Function ccsd(rtdb)
        implicit none
-C     $Id: ccsd.F,v 2.5 1997-04-14 06:34:52 gg502 Exp $
+C     $Id: ccsd.F,v 2.6 1997-05-14 20:08:06 d3g681 Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -15,14 +15,34 @@ c
        logical status
        character*255 title
        character*255 movecs_in, movecs
-       external moint_driver
-       logical moint_driver
+       double precision threshscf
+       logical moint_driver, scf
+       external moint_driver, scf
 c
        Call Util_Print_Push
        Call Util_Print_RTDB_Load(RTDB, 'ccsd')
        call ecce_print_module_entry('ccsd')
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+c
+c
+c     Make sure the SCF is being converged accurately enough
+c
+      if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $     threshscf = 1.0d-4
+      if (threshscf .gt. 1.0d-6) then
+         threshscf = 1.0d-6
+         if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $        call errquit('mp2_grad: failed setting scf:thresh',0)
+         status = rtdb_delete(rtdb,'scf:converged')
+      endif
+c
+      if (.not. scf(rtdb)) then
+         ccsd = .false.
+         call ecce_print_module_exit('ccsd', 'failed')
+         Call Util_Print_pop
+         return
+      endif
 c
 c     Extract high level info from the data-base setting defaults
 c
@@ -51,6 +71,7 @@ c
 c
        ccsd = .TRUE.
        call ecce_print_module_exit('ccsd', 'ok')
+       Call Util_Print_pop
        Return
        end
 
