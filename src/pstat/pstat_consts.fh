@@ -1,0 +1,14 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     pstat_consts.fh -- constants for pstat routines
+C
+C REVISION
+C     $Id: pstat_consts.fh,v 1.1 1994-07-14 21:33:29 gg502 Exp $
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Integer PStat_Nr_Stats
+      Parameter (PStat_Nr_Stats = 1 )
+C
+      Integer PStat_NoStat, PStat_QStat
+      Parameter (
+     $   Pstat_NoStat = 0,
+     $   PStat_QStat = 1  )

@@ -1,0 +1,34 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     pstatP.fh -- Private include file for performance statistics routines
+C
+C REVISION
+C     $Id: pstatP.fh,v 1.1 1994-07-14 21:33:27 gg502 Exp $
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#include "pstat_consts.fh"
+C
+      Integer PStat_Max_Items, PStat_Name_Len
+      Parameter (PStat_Max_Items = 100, PStat_Name_Len = 20)
+C
+      Character*(PStat_Name_Len) PStat_Name(PStat_Max_Items)
+C
+      Integer PStat_Nr_Calls(PStat_Max_Items),
+     $        PStat_Unmatched_Starts(PStat_Max_Items)
+C
+      Integer PStat_CPU_Time, PStat_Wall_Time
+      Parameter (PStat_CPU_Time = 1, PStat_Wall_Time = 2)
+C
+      Double precision PStat_Times(PStat_Max_Items, 2),
+     $                 PStat_Start_Times(PStat_Max_Items, 2)
+C
+      Logical PStat_Functions(PStat_Max_Items, PStat_Nr_Stats)
+C
+      Integer PStat_Assigned
+C
+      Common /PStatCommon/
+     $   PStat_Times, PStat_Start_Times,
+     $   PStat_Functions,
+     $   PStat_Nr_Calls, PStat_Unmatched_Starts,
+     $   PStat_Assigned
+C
+      Common/PStatCharCom/ PStat_Name

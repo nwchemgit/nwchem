@@ -1,0 +1,10 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     pstat.fh -- functions and constants for pstat routines
+C
+C REVISION
+C     $Id: pstat.fh,v 1.1 1994-07-14 21:33:26 gg502 Exp $
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Logical PStat_Init, PStat_Terminate, PStat_Allocate, PStat_Free
+      External PStat_Init, PStat_Terminate, PStat_Allocate, PStat_Free
+#include "pstat_consts.fh"
