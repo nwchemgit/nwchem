@@ -1,5 +1,5 @@
       subroutine ana_rmsdev(x,ix,nx,xref,wt,xrms)
-c $Id: ana_rmsdev.F,v 1.4 1999-07-29 01:07:23 d3e129 Exp $
+c $Id: ana_rmsdev.F,v 1.5 2000-03-18 04:29:48 d3j191 Exp $
       implicit none
 c
 #include "ana_params.fh"
@@ -16,7 +16,7 @@ c
       call super(x,ix,nx,msa,xref,wt,xrms,nsa,nsa,.false.,rms0,rms1)
 c
       if(me.eq.0) then
-      write(lfnana,1000) time,rms0,rms1
+      write(lfnrms,1000) time,rms0,rms1
  1000 format(3f12.6)
       endif
 c

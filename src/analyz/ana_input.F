@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.13 2000-03-16 20:27:41 d3j191 Exp $
+c $Id: ana_input.F,v 1.14 2000-03-18 04:29:48 d3j191 Exp $
 c
       implicit none
 c
@@ -160,9 +160,6 @@ c     -----------------------------
 c
       if(inp_compare(.false.,'scan',item)) then
       if(.not.inp_a(filcop)) call errquit('Error in scan',0)
-      if(index(filcop,'.').le.0)
-     + filcop=filcop(1:index(filcop,' ')-1)//'.scn '
-      if(filcop.eq.filtrj) call errquit('File name conflict',0)
       write(lfncmd,1016) filcop(1:index(filcop,' ')-1)
  1016 format('scan   ',a)
       numcmd=numcmd+1

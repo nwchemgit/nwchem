@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.13 2000-03-16 21:14:02 d3j191 Exp $
+c $Id: ana_task.F,v 1.14 2000-03-18 04:29:48 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
       logical ignore
 c
       integer lfncmd,lfn
-      character*255 filcmd,fil
+      character*255 filcmd,fil,string
 c
       character*80 card
       integer nsai,msai,ifrsk,it
@@ -21,7 +21,6 @@ c
       real*8 rms0,rms1,val
       character*3 fmt
       logical active
-      logical rmsdev
 c
       logical ana_rdfram
       integer ana_index
@@ -43,7 +42,9 @@ c
       lfnchg=80
       lfnplt=81
       lfnxyz=82
-      lfn=83
+      lfnana=83
+      lfnrms=84
+      lfn=85
 c
       ifrfr=1
       ifrto=1
@@ -58,7 +59,8 @@ c
 c
       lsel=.false.
       active=.false.
-      rmsdev=.false.
+      lrms=.false.
+      lana=.false.
 c
       nave=0
       ndata=0
@@ -160,7 +162,7 @@ c     root mean square deviation
 c     --------------------------
 c
       if(card(1:6).eq.'rmsdev') then
-      rmsdev=.true.
+      lrms=.true.
       ndata=0
       goto 1
       endif
@@ -339,22 +341,31 @@ c     scan frames
 c     -----------
 c
       if(card(1:6).eq.'scan  ') then
-      read(card(8:80),'(a)') filcop
-      i=index(filcop,'.')
-      fmt=filcop(i+1:i+3)
+      read(card(8:80),'(a)') string
+      filrms=string(1:index(string,' ')-1)//'.rms'
+      filana=string(1:index(string,' ')-1)//'.ana'
+      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
       time=0.0d0
 c
 c     read file header
 c
       call ana_rdhdr(byte_mb(i_snam))
 c
+      lana=nbnds+nangs+ntors+nimps.gt.0
+c
       if(me.eq.0) then
-      open(unit=lfncop,file=filcop(1:index(filcop,' ')-1),
+      if(lana) then
+      open(unit=lfnana,file=filana(1:index(filana,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      write(*,3333) filcop(1:index(filcop,' ')-1)
+      write(*,3333) filana(1:index(filana,' ')-1)
  3333 format(/,' Opening scn file ',a)
-      write(lfncop,2324) nbnds,nangs,ntors,nimps
+      write(lfnana,2324) nbnds,nangs,ntors,nimps
  2324 format(4i10)
+      endif
+      if(lrms) then
+      open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
+     + form='formatted',status='unknown')
+      endif
       endif
 c
       nread=0
@@ -389,14 +400,16 @@ c
 c
 c     write bonded interaction values to file
 c
-      write(lfncop,2323) time,(rbnds(i),i=1,nbnds),(rangs(i),i=1,nangs),
+      if(me.eq.0.and.lana) then
+      write(lfnana,2323) time,(rbnds(i),i=1,nbnds),(rangs(i),i=1,nangs),
      + (rtors(i),i=1,ntors)
  2323 format(5f12.6)
       nwrit=nwrit+1
+      endif
 c
 c     root mean square deviation
 c
-      if(rmsdev) then
+      if(lrms) then
       if(np.gt.1) then
       call ana_rmsdev(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
@@ -415,17 +428,18 @@ c
       write(*,'(a)') ' Closing trj file '
 c
       if(me.eq.0) then
-      close(unit=lfncop)
+      close(unit=lfnana)
       write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
-     + filcop(1:index(filcop,' ')-1)
+     + filcop(1:index(filana,' ')-1)
       endif
 c
       nbnds=0
       nangs=0
       ntors=0
       nimps=0
-      rmsdev=.false.
+      lrms=.false.
+      lana=.false.
 c
       goto 1
       endif

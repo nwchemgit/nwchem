@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.11 2000-03-16 20:45:37 d3j191 Exp $
+c $Id: ana_common.fh,v 1.12 2000-03-18 04:29:47 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -8,9 +8,9 @@ c
       parameter(mximps=100)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
-     + lfnchg,lfnplt,lfnxyz
+     + lfnchg,lfnplt,lfnxyz,lfnrms
       common/ana_rtdb/irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
-     + lfnchg,lfnplt,lfnxyz
+     + lfnchg,lfnplt,lfnxyz,lfnrms
 c
       real*8 time,timr,timoff,box(3),spac,rcut,xmax(3),xmin(3)
       real*8 temp,pres
@@ -33,10 +33,10 @@ c
      + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
 c
       character*255 filnam,filana,filref,filtrj,filcop,filsup,
-     + filchg,filplt,filxyz
+     + filchg,filplt,filxyz,filrms
       character*3 fmtcop,fmtsup
       common/ana_txt/filnam,filana,filref,filtrj,filcop,filsup,
-     + filchg,filplt,filxyz,fmtcop,fmtsup
+     + filchg,filplt,filxyz,fmtcop,fmtsup,filrms
 c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
      + i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
@@ -50,5 +50,5 @@ c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
 c
-      logical lxw,lvw,lsx,lsv,lsel
-      common/ana_log/lxw,lvw,lsx,lsv,lsel
+      logical lxw,lvw,lsx,lsv,lsel,lana
+      common/ana_log/lxw,lvw,lsx,lsv,lsel,lana

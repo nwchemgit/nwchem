@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.8 2000-03-16 20:45:37 d3j191 Exp $
+c $Id: ana_finish.F,v 1.9 2000-03-18 04:29:48 d3j191 Exp $
 c
       implicit none
 c
@@ -74,18 +74,20 @@ c
 c
 c     report results
 c
-      if(me.eq.0) write(lfnana,1000)
+      if(me.eq.0) then
+      write(lfnrms,1000)
  1000 format('Analysis')
+      endif
       if(np.gt.1) then
       call ga_dgop(mag_d12,xrms,nsa,'+')
       endif
       if(me.eq.0) then
-      write(lfnana,1001) (sgmnam(i),i,isel(i),
+      write(lfnrms,1001) (sgmnam(i),i,isel(i),
      + sqrt(xrms(i)/dble(ndata)),i=1,nsa)
  1001 format(a16,2i5,f12.6)
       arms=0.0d0
       n=0
-      if(me.eq.0) write(lfnana,1000)
+      if(me.eq.0) write(lfnrms,1000)
       do 1 i=1,nsa
       arms=arms+xrms(i)
       n=n+1
@@ -93,13 +95,13 @@ c
       if(sgmnam(i)(11:16).ne.sgmnam(i+1)(11:16)) goto 2
       goto 1
     2 continue
-      write(lfnana,1002) sgmnam(i)(1:5),sgmnam(i)(11:16),
+      write(lfnrms,1002) sgmnam(i)(1:5),sgmnam(i)(11:16),
      + sqrt(arms/dble(ndata*n))
  1002 format(a5,a6,f12.6)
       arms=0.0d0
       n=0
     1 continue
-      close(unit=lfnana)
+      close(unit=lfnrms)
       endif
       return
       end
