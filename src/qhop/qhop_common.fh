@@ -1,0 +1,17 @@
+c $Id: qhop_common.fh,v 1.1 2003-07-17 19:36:51 d3j191 Exp $
+c
+      integer maxseq,mxseq,maxhv,maxpar,mxar
+      parameter(maxseq=5000)
+      parameter(mxseq=30)
+      parameter(maxhv=4) 
+      parameter(maxpar=10000)
+      parameter(mxar=mxseq*30)
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
+      integer shbit(5)
+      common/qh_params/tunnel,defe12,zpef,tdsgl,tstval,e12fxy,
+     + deq,aneq,shbit,ptseq,ptpar,arat,ptarat
+c
