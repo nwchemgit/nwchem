@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.25 2003-07-29 19:22:43 bylaska Exp $
+* $Id: cpmdv5.F,v 1.26 2003-07-29 20:56:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -153,8 +153,8 @@
       real*8   nwpw_timing
       external nwpw_timing
 
-      logical  control_out_of_time
-      external control_out_of_time
+      logical  control_out_of_time,control_new_vpsi
+      external control_out_of_time,control_new_vpsi
 
       logical  control_SA,control_Fei
       real*8   control_SA_decay
@@ -253,6 +253,12 @@
 
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
+
+
+*     **** move  wavefunction velocities ****
+      if (control_new_vpsi()) then
+        call v_psi_delete()
+      end if
 
 *     **** generate initial wavefunction velocities if it does not exist ****
       if (.not.v_psi_filefind()) then
