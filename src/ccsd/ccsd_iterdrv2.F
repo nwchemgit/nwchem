@@ -28,12 +28,16 @@ c
       double precision zip,one,half,two,ten
       data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
       integer ii,jj
+      Integer Nodes, IAm
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
-#include "para1.fh"
+#include "global.fh"
 c
 c
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
+C
       call ga_sync()
       call qenter('iterdrv',0)
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)

@@ -21,7 +21,6 @@ c
 #include "stdio.fh"
 #include "msgids.fh"
 #include "util.fh"
-#include "para1.fh"
 c
 c ccsd
       logical stat
@@ -45,6 +44,7 @@ c triples
       integer ga_create_jkblocked
       logical oexch,ocoul,ohalf
       double precision eccsdt,escf,eccsd,empt(2),tx(3),rx(2)
+      Integer Nodes, IAm
 C
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
