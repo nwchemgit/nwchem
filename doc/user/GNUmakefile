@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.8 1997-02-24 19:42:05 d3e129 Exp $
+# $Id: GNUmakefile,v 1.9 1997-06-01 20:36:05 gutowski Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
-          dft.tex  geometry.tex mp2.tex  scfgrad.tex user.tex \
+          dft.tex gapss.tex geometry.tex mp2.tex  scfgrad.tex user.tex \
           disclaimer.tex intro.tex plnwv.tex selci.tex vib.tex \
           dplot.tex knownbas.tex property.tex stepper.tex nwargos.tex \
           ecp.tex functionality.tex ccsd.tex qmmm.tex
