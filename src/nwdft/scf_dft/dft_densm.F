@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.22 2000-06-09 01:53:44 edo Exp $
+C$Id: dft_densm.F,v 1.23 2001-01-13 02:36:59 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -52,22 +52,14 @@ c
       if(ipol.eq.2) rhfuhf=1d0
 c      me=0
 c      nproc=1
+      if (check_deg) then
+         ssmear=1d-4
+      endif
       if(ssmear.lt.toll.or.iter.lt.-1) then
 c
 c     check degener
 c
 cedo         if (check_deg.and.ipol.eq.2) then
-         if (check_deg) then
-            if(dft_checkdg(
-     .           evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
-               do isp=1,ipol
-                  call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
-     ,                 AO_bas_han,nbf,
-     *                 g_vecs(isp),g_dens(isp),toll)
-               enddo
-               return
-            endif
-         endif
          do isp=1,ipol
             call ga_dgemm('n', 't', nbf, nbf, 
      $           noc(isp), 2d0/dble(ipol), g_vecs(isp),
@@ -106,7 +98,6 @@ c
                endif
             enddo
             do i=1+me,nbf,nproc
-c            do i=1,nbf
                if(focc(i+ipoint).gt.toll) then
                   call get_col(g_vecs(isp), nbf, i, DBL_MB(itmpm))
                   call dscal(nbf, focc(i+ipoint), DBL_MB(itmpm), 1)
@@ -127,6 +118,7 @@ c            do i=1,nbf
 c     
 c     compute entropy correction to total e
 c     
+         if(.not.check_deg) then
          cksum=0.d0
          do i=1,nbf
             x=(evals(i)-efermi)/ssmear
@@ -143,6 +135,7 @@ c
      ,           2(' nel(',i1,') = ',f9.5)/) 
 C            write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C 1723       format(' Foccs ',(
+         endif
          endif
       endif
       return
@@ -210,12 +203,14 @@ c
  1    continue
       attempts=attempts+1
       if(attempts.gt.mx_attem) then
+#ifdef DEBUG
          if(ga_nodeid().eq.0) then
          write(LuOut,*) ' efermi emax emin ',
      ,        efermi,emax,emin
          write(LuOut,*) ' fmed fmax fmin ',fmed,fmax,fmin
          write(LuOut,*) 'ZERO could no reach required accuracy'
          endif
+#endif
 C         call errquit('dft_zero: too many attempts',mx_attem)     
          goto 1999
        endif
@@ -247,8 +242,11 @@ C         endif
       fmed=fzero(
      *     ipol,efermi,evals,nbf,ntotel,ssmear)
       if(abs(fmed).gt.toll.and.abs(emin-emax).gt.toll*0.1d0) goto 1
-1999  if(ga_nodeid().eq.0) write(LuOut,*) ' fmed emin-emax ',abs(fmed),
+1999  continue
+#ifdef DEBUG
+      if(ga_nodeid().eq.0) write(LuOut,*) ' fmed emin-emax ',abs(fmed),
      *abs(emin-emax)
+#endif
 
       return
       end
