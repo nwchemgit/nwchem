@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.9 2003-10-17 22:55:55 carlfahl Exp $
+c $Id: nwpw_default.F,v 1.10 2004-01-31 01:46:30 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -28,7 +28,7 @@ c
       character*30 rtdb_name
       character*25 boundry
       double precision unita(3,3)
-      integer ngrid(3)
+      integer ngrid(3),nx,ny,nz
 
        
 *     **** don't set defaults if they already exist ****
@@ -221,6 +221,14 @@ c
       rtdb_name = cell_name(1:ind)//':ngrid'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
+
+
+*     **** unit brillouin_zone stuff ***
+      nx = 1
+      ny = 1
+      nz = 1
+      call monkhorst_pack_set(rtdb,zone_name,nx,ny,nz)
+
       
 
 *     ***** Error writing to RTDB *****

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.13 2003-12-02 23:55:34 bylaska Exp $
+c $Id: nwpw_input.F,v 1.14 2004-01-31 01:46:30 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 55)
+      parameter (num_dirs = 57)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -70,10 +70,12 @@ c
      >            'pseudopotential_libraries',
      >            'pseudopotentials',
      >            'dos',
+     >            'monkhorst-pack',
+     >            'zone_name',
      >            'end'/
 
        logical      value,move
-       character*30 cell_name
+       character*30 cell_name,zone_name
        character*30 input_wavefunction_filename
        character*30 output_wavefunction_filename
        character*30 exchange_correlation
@@ -84,6 +86,7 @@ c
        integer npoints
        logical mulliken,allow_translation
        integer ispin,multiplicity
+       integer nx,ny,nz
        
 
 *     ***** initializations ****
@@ -116,7 +119,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,3700,3800,3900,3900,4000,
+     >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -236,6 +239,37 @@ c brillouin_zone
 c
  1800 call brillouin_zone_input(rtdb) 
       goto 10
+
+
+c
+c Monkhorst-Pack
+c
+ 1805 if (.not. inp_i(nx)) nx = 1
+      if (.not. inp_i(ny)) ny = 1
+      if (.not. inp_i(nz)) nz = 1
+      if (.not. inp_a(zone_name)) zone_name    = 'zone_default'
+      
+      call monkhorst_pack_set(rtdb,zone_name,nx,ny,nz) 
+      goto 10
+
+
+c
+c  zone_name
+c
+ 1806 if (.not. inp_a(zone_name))
+     >     call errquit(
+     >          'nwpw_input: failed to read zone_name', 0, INPUT_ERR)
+
+      ind = index(zone_name,' ') - 1
+      value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1806, RTDB_ERR)
+
+      goto 10
+
+
+
 
 **************************************************
 ****************** cgsd/band input ***************

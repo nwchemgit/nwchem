@@ -1,6 +1,12 @@
 c
-c $Id: brillouin_zone_input.F,v 1.4 2003-10-17 22:56:31 carlfahl Exp $
+c $Id: brillouin_zone_input.F,v 1.5 2004-01-31 01:46:30 bylaska Exp $
 c
+
+*     *************************************************
+*     *                                               *
+*     *             brillouin_zone_input              *
+*     *                                               *
+*     *************************************************
       subroutine brillouin_zone_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -134,3 +140,84 @@ c
       return
       end
 
+
+*     *************************************************
+*     *                                               *
+*     *             monkhost_pack_set                  *
+*     *                                               *
+*     *************************************************
+
+      subroutine monkhorst_pack_set(rtdb,zone_name,nx,ny,nz)
+      implicit none
+      integer rtdb
+      character*(*) zone_name
+      integer nx,ny,nz
+
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+      !**** local variables ****
+      character*30 rtdb_name
+      integer i1,i2,i3,k,l,nx,ny,nz,num_kvectors
+      integer kvs(2)
+      real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz
+
+
+      num_kvectors = nx*ny*nz
+
+      if(.not.MA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+     >     call errquit(
+     >          'monkhorst_pack_set: heap failed 1', 0,
+     >       MA_ERR)
+
+      xxx = 1.0d0/(2.0d0*nx)
+      yyy = 1.0d0/(2.0d0*ny)
+      zzz = 1.0d0/(2.0d0*nz)
+      k = 0
+      do i3=0,(nz-1)
+      do i2=0,(ny-1)
+      do i1=0,(nx-1)
+         xx = 1.0 + 2*i1 - nx
+         yy = 1.0 + 2*i2 - ny
+         zz = 1.0 + 2*i3 - nz
+ 
+         kx = xx*xxx
+         ky = yy*yyy
+         kz = zz*zzz
+ 
+         dbl_mb(kvs(1) + 4*(k))   = kx
+         dbl_mb(kvs(1) + 4*(k)+1) = ky
+         dbl_mb(kvs(1) + 4*(k)+2) = kz
+         dbl_mb(kvs(1) + 4*(k)+3) = -1.0d0
+
+         k = k + 1
+      end do
+      end do
+      end do
+
+
+*     ***** add brillouin_zone to rtdb ****
+      l = index(zone_name,' ') -1
+
+      rtdb_name = zone_name(1:l)//':number_kvectors'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,num_kvectors))
+     >  call errquit(
+     >  'monkhorst_pack_set: rtdb_put(number_kvectors) failed', 0,
+     &       RTDB_ERR)
+
+      rtdb_name = zone_name(1:l)//':kvectors'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                   (4*num_kvectors),
+     >                    dbl_mb(kvs(1))))
+     >  call errquit(
+     >  'monkhorst_pack_set: rtdb_put(number_kvectors) failed', 0,
+     &       RTDB_ERR)
+
+
+      if (.not.MA_free_heap(kvs(2)))
+     >  call errquit(
+     >       'monkhorst_pack_set: heap failed 3', 0, MA_ERR)
+
+      return 
+      end
