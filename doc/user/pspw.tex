@@ -77,8 +77,6 @@ NWChem modules, the PSPW module does not contain an energy operation.
 This means that there is no default operation and hence an operation must 
 always be specified. 
 
-
-
 PSPW tasks are of two types.  The first type of 
 task is used to setup or change needed data files for a 
 PSPW simulation.  Tasks of this type are psp\_formatter, 
@@ -714,8 +712,8 @@ PSPW
       [CUTOFF: <integer lmax> \
          {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
       ]
-      PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS||HAMANN default HAMANN)
-      SOLVER_TYPE: (PAULI||SCRHODINGER default PAULI)
+      PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS || HAMANN default HAMANN)
+      SOLVER_TYPE: (PAULI || SCRHODINGER default PAULI)
       EXCHANGE_TYPE: (dirac || PBE96 default DIRAC)
       CORRELATION_TYPE: (VOSKO || PBE96 default VOSKO)
       [SEMICORE_RADIUS: <real rcore>]
