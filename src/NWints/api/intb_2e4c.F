@@ -2,7 +2,7 @@
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.15 1997-02-20 09:08:52 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.16 1997-02-20 09:13:36 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -99,7 +99,7 @@ c
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
      $     l_erilab, nint, lscr, scr)
-*     $Id: intb_2e4c.F,v 1.15 1997-02-20 09:08:52 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.16 1997-02-20 09:13:36 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -194,11 +194,9 @@ c
             write(6,*)' numintk  ',numintk
             write(6,*)' numintl  ',numintl
             write(6,*)' i_q_done = ',i_q_done,
-#endif
      &          '   shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q),
      &          '   numint ',numint,' nint_for_q ',nint_for_q
-
-
+#endif
             ip_int = ip_int + nint_for_q
             leri_left = leri_left - nint_for_q
             nint = nint + nint_for_q
