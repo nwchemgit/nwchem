@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.2 1999-06-22 18:22:58 d3e129 Exp $
+* $Id: vib_istep.F,v 1.3 1999-07-12 17:23:24 d3e129 Exp $
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
 * only called during projected frequency analysis.
@@ -130,6 +130,7 @@ c
       enddo
 99999 continue
 c
+      call dcopy(nat3,master,1,coords,1) ! restore master coordinates
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_istep: geom_destroy failed',911)
 c
