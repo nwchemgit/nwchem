@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.174 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: md_main.F,v 1.175 2003-10-20 22:18:06 d3j191 Exp $
 c
       implicit none
 c
@@ -2127,6 +2127,7 @@ c
 c
       logical sp_local,cf_hopping
       external sp_local,cf_hopping
+      external cf_init2
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -2631,7 +2632,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.174 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: md_main.F,v 1.175 2003-10-20 22:18:06 d3j191 Exp $
 c
       implicit none
 c
