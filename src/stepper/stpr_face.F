@@ -1,10 +1,22 @@
+      subroutine stpr_select_grtdb(nat,rtdb,selbuf)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c::passed
+      integer rtdb, nat
+      integer selbuf(3,nat)
+c
+      if (.not.rtdb_get(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
+     &    call errquit
+     &    ('stpr_select_grtdb: rtdb_get failed',911)
+      end
       SUBROUTINE stpr_face (
      &     HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
      &     AMS, G, C, ETOT, TRUST, ENERGY, CONVGE,
      &     CONVGG, NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.9 1995-04-06 08:29:07 d3e129 Exp $
+c     $Id: stpr_face.F,v 1.10 1995-11-03 20:43:42 d3g681 Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
@@ -23,6 +35,7 @@ c     CHARACTER LINE*7
       COMMON / MASS / TOTM, NUMAS
 #include "mafdecls.fh"
 #include "chow.fh"
+      integer select
       logical oprint_info
       DIMENSION HESS(NAT3,NAT3), GRAD(NAT3), COORD(3,NATOM),
      &     CHARGE(NATOM), SELECT(NAT3), C(3,NATOM),
@@ -39,7 +52,7 @@ C     If they are false the STD step will be scaled down to RSTD
 C     (if the step is too long) but it can not be scaled up
 C     (if the step is shorter than RSTD)
 C     TROT will allow scaling up in the region of a negative
-C     NMODE's eigenvalue
+C     NMODE eigenvalue
 C     TRTR will allow scaling up along the whole walk
 C     Using TRTR is dangerous since you can miss the minimum
 C     
@@ -414,18 +427,6 @@ c
       if (.not.rtdb_put(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
      &    call errquit
      &    ('stpr_select_srtdb: rtdb_put failed',911)
-      end
-      subroutine stpr_select_grtdb(nat,rtdb,selbuf)
-      implicit none
-#include "mafdecls.fh"
-#include "rtdb.fh"
-c::passed
-      integer rtdb, nat
-      integer selbuf(3,nat)
-c
-      if (.not.rtdb_get(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
-     &    call errquit
-     &    ('stpr_select_grtdb: rtdb_get failed',911)
       end
       subroutine stpr_setmass_srtdb(nat,rtdb,imass,xmass)
       implicit none

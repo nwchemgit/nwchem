@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.27 1995-10-30 22:01:48 gg502 Exp $
+C$Id: rimp2.F,v 1.28 1995-11-03 20:43:34 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -15,7 +15,7 @@ C
 #include "numerical_constants.fh"
 #include "util.fh"
 #ifdef RIMP2_USE_DA
-#include "DA.fh"
+#include "da.fh"
 #endif
 C
       Logical MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,

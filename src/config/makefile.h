@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.121 1995-11-03 19:15:08 d3j191 Exp $
+# $Id: makefile.h,v 1.122 1995-11-03 20:41:43 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -6,8 +6,7 @@
 
 
 #
-# TOPDIR points to your top-level directory that contains
-# src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
+# TOPDIR points to your top-level directory that contains # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 # Do a setenv for NWCHEM_TOP to be the top level directory
 #
 
@@ -521,6 +520,34 @@ ifeq ($(TARGET),DECOSF)
 endif
 
 
+ifeq ($(TARGET),LINUX)
+#
+# Linux running on an x86 using f77 on f2c
+#
+
+       NICE = nice
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = gcc
+        CPP = gcc -E -nostdinc -undef -P
+     RANLIB = ranlib
+  MAKEFLAGS = -j1
+    INSTALL = @echo $@ is built
+
+   FOPTIONS = 
+   COPTIONS = -Wall -m486
+  FOPTIMIZE = -g -O2
+  COPTIMIZE = -g -O2
+
+    DEFINES = -DLINUX
+
+  LDOPTIONS = -g
+     LINK.f = gcc $(LDFLAGS)
+  CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lf2c -lm
+
+  EXPLICITF = TRUE
+endif
+
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
 #  some of the definitions below will be 'lost'                   #
@@ -564,17 +591,26 @@ ifeq ($(EXPLICITF),TRUE)
 	$(RM) $*.f
 
 .F.f:
-ifeq ($(TARGET),UNKNOWN)
-	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
-endif
 ifeq ($(TARGET),IBM)
 	$(CPP) $(CPPFLAGS) $*.F > $*.f
+EXFDEF = YES
 endif
 ifeq ($(TARGET),SP1)
 	$(CPP) $(CPPFLAGS) $*.F > $*.f
+EXFDEF = YES
 endif
 ifeq ($(TARGET),CRAY-T3D)
 	$(CPP) $(CPPFLAGS)   $*.F | sed '/^#/D'  > $*.f
+EXFDEF = YES
+endif
+ifeq ($(TARGET),LINUX)
+	(/bin/cp $*.F /tmp/$$$$.c; \
+		$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+			/bin/rm -f /tmp/$$$$.c) || exit 1
+EXFDEF = YES
+endif
+ifndef EXFDEF
+	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
 endif
 
 

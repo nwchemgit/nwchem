@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.19 1995-10-17 08:52:51 d3g681 Exp $
+# $Id: makelib.h,v 1.20 1995-11-03 20:41:45 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -203,10 +203,25 @@ endif
 	-$(RM) *.o *.a core include_stamp $(LIB_TARGETS)
 
 
+.PHONY:	cleanF
+cleanF:
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	for file in *F; do \
+		body=`basename $$file .F` ; \
+		if [ -f $$body.f ] ; then \
+		  echo $$file and $$body.f both exist ... deleting $$body.f; \
+		  /bin/rm -f $$body.f ; \
+		fi ; \
+        done
+	
+
+
 .PHONY:	realclean
 realclean:	clean
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	-$(RM) *~ \#*\#
+	-$(RM) *~ \#*\# makefile.bak
 

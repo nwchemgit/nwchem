@@ -1,11 +1,11 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: get_3cints.F,v 1.6 1995-10-30 22:01:44 gg502 Exp $
+C$Id: get_3cints.F,v 1.7 1995-11-03 20:43:29 d3g681 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
 #ifdef RIMP2_USE_DA
 C
-#include "DA.fh"
+#include "da.fh"
 #include "global.fh"
 C
 C LOCAL VARIABLES

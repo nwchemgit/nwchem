@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.27 1995-11-03 19:21:23 d3j191 Exp $
+# $Id: GNUmakefile,v 1.28 1995-11-03 20:40:54 d3g681 Exp $
 
 include config/makefile.h
 
@@ -55,13 +55,26 @@ clean:
 	done
 
 realclean:
-	-$(RM) nwchem core *.o *.a *.trace
+	-$(RM) nwchem core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
+
+.PHONY:	cleanF
+cleanF:
+	for dir in $(SUBDIRS) ../tests; do \
+		$(MAKE)	-C $$dir cleanF || exit 1 ;  \
+	done
+	for file in *F; do \
+		body=`basename $$file .F` ; \
+		if [ -f $$body.f ] ; then \
+		  echo $$file and $$body.f both exist ... deleting $$body.f; \
+		  /bin/rm -f $$body.f ; \
+		fi ; \
+        done
 
 sngl_to_dbl dbl_to_sngl:
 	for dir in $(SUBDIRS); do \
@@ -117,5 +130,7 @@ depend:
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 	config/makedepend
+
+
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 nwchem.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 

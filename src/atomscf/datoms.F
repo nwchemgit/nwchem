@@ -1,7 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C$Id: datoms.F,v 1.11 1995-02-02 23:08:52 d3g681 Exp $
+C$Id: datoms.F,v 1.12 1995-11-03 20:41:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -58,12 +58,13 @@ c..    we need xy for d and xyz for f in gathering h-ints
 c..    so set proper offsets in ioffhp (see do 140)
 c
       integer ioffhp(4)
-      data ioffhp/0,0,3,9/
-      data iwrite/6/
-c
       integer maxtyp
       parameter (maxtyp = 6)
       integer minf(maxtyp),maxf(maxtyp)
+c
+      data ioffhp/0,0,3,9/
+      data iwrite/6/
+c
       data minf  / 1, 2,  5, 11, 21, 1 /
       data maxf  / 1, 4, 10, 20, 35, 4 /
       data pi32/5.56832799683170d0/
@@ -123,7 +124,7 @@ c
                nbc(i) = 0
             enddo
 c
-c     nbc  # shell's / symmetry
+c     nbc  # shells / symmetry
 c     iisch  contains index of shell
 c     iiloc  contains position of starting ao of shell in "real" world
 c     translate to 1 (s)
@@ -200,7 +201,7 @@ c..   gather the primitives
                      kkzc = kkzc + 1
                      zeta(kkzc) = expnt(k)
                      cont(kkzc) = coeff(k + nprim*(igen-1))
-c...  get contraction coeff's as we are used to
+c...  get contraction coeffs as we are used to
                      ee = 2*zeta(kkzc)
                      fac = pi32/(ee*sqrt(ee))
                      if (ispdf.eq.2) then
@@ -213,7 +214,7 @@ c...  get contraction coeff's as we are used to
                      cont(kkzc) = cont(kkzc)*sqrt(fac)
                   enddo
 c...  in the pseudopotential case, we would be involved in
-c...  gathering  the h integrals for the contracted ao's
+c...  gathering  the h integrals for the contracted aos
 c...  so that they are added in at the right time (in atomd)
 c...  use proper offset to use pure d or f functions (ioffhp)
 c...  only the comments remain ...
@@ -274,7 +275,7 @@ c
             enddo
          endif
 c
- 1010    continue               ! Jump here if not this node's task
+ 1010    continue               ! Jump here if not this node task
       enddo
 c
       call ga_sync()

@@ -1,5 +1,5 @@
       subroutine tabgen
-c $Id: tabgen.f,v 1.1 1994-04-06 23:52:13 d3e129 Exp $
+c $Id: tabgen.f,v 1.2 1995-11-03 20:41:22 d3g681 Exp $
 c
 c        *****  computes and tabulates f0(x) to f5(x)           *****
 c        *****  in range x = -0.24 to x = 26.4                  *****
@@ -11,14 +11,13 @@ c
       double precision c, ppp(350)
       common/tabint/ c(1000,6)
       double precision pt184, pt5, six, tenm7, four, two, done, pt886
+      integer mm, l, i, m, j, notrms
+      double precision q, qqq, a, term, ptlsum, b, temp1, temp2
+      double precision approx, fimult, fiprop
       data pt184,pt5/ 0.184d0,0.50d0/
       data six,tenm7/6.0d0,1.0d-20 /
       data four,two,done/4.0d0,2.0d0,1.0d0/
       data pt886/0.8862269254527d0/
-c
-      integer mm, l, i, m, j, notrms
-      double precision q, qqq, a, term, ptlsum, b, temp1, temp2
-      double precision approx, fimult, fiprop
 c
       q=-done
       do 30 mm=1,6

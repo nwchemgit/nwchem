@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.12 1995-10-17 08:56:20 d3g681 Exp $
+#$Id: GNUmakefile,v 1.13 1995-11-03 20:43:46 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -52,6 +52,7 @@ sym_apply_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh
 sym_bas_irreps.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 sym_bas_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 sym_center_map.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
+sym_char_table.o :	 $(INCDIR)/util.fh 
 sym_geom_project.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
 sym_get_cart_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
 sym_grad_symmetrize.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
@@ -62,7 +63,7 @@ sym_movecs_apply_op.o :	 sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR
 sym_number_ops.o :	 $(INCDIR)/geomP.fh 
 sym_nwc.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
 sym_op_class_name.o :	 $(INCDIR)/inp.fh 
-sym_op_classify.o :	 sym.fh $(INCDIR)/inp.fh 
+sym_op_classify.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/inp.fh 
 sym_ops_get.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
 sym_print_all.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geomP.fh 
 sym_print_char_table.o :	 sym.fh 

@@ -1,5 +1,5 @@
 c
-c  $Id: moints_semi.F,v 1.2 1995-10-18 22:28:41 rg240 Exp $
+c  $Id: moints_semi.F,v 1.3 1995-11-03 20:43:17 d3g681 Exp $
 c
 c  This routine writes or returns
 c  half-transformed integrals
@@ -40,6 +40,11 @@ c
        logical status
        logical osym
        double precision tsemi
+       integer moints_numgr
+       integer moints_lmem
+       external moints_numgr
+       external moints_lmem
+c
        character*256 fname
 #ifdef CRAY-T3D
        double precision kunit, junit
@@ -49,11 +54,6 @@ c
 #endif
        data blksiz/16/                              ! Affects performance only
        data osym/.false./
-c
-       integer moints_numgr
-       integer moints_lmem
-       external moints_numgr
-       external moints_lmem
 c
 c  General info
 c
@@ -90,8 +90,8 @@ c
        if (ocoul) then
          itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nocc
          if (.not.(ga_create( MT_DBL, mxrlen, nocc*nocc, 'transp Jbuf',
-     $                        mxrlen, nocc, g_jbuf )))
-     $           call errquit('moints_semi: cannot allocate J buffer')
+     $        mxrlen, nocc, g_jbuf )))
+     $        call errquit('moints_semi: cannot allocate J buffer',0)
          call ga_distribution(g_jbuf, myid, rlo, rhi, clo, chi )
          if ((clo.eq.0).and.(chi.eq.-1)) then
            bilo = 0
@@ -110,7 +110,7 @@ c
          itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nocc
          if (.not.(ga_create( MT_DBL, mxrlen, nocc*nvir, 'transp Kbuf',
      $                        mxrlen, itmp, g_kbuf )))
-     $           call errquit('moints_semi: cannot allocate K buffer')
+     $           call errquit('moints_semi: cannot allocate K buffer',0)
          call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
          if ((clo.eq.0).and.(chi.eq.-1)) then
            balo = 0
@@ -768,16 +768,16 @@ c
       double precision tmp2
       INTEGER G_PAIR, IJ, NNOCC
       character*256 fname
+      double precision xx, denom, e2
+      logical status
+      double precision moints_epair_eval
+      external moints_epair_eval
 #ifdef CRAY-T3D
       double precision kunit
 #else      
       integer kunit
       data kunit/11/
 #endif
-      double precision xx, denom, e2
-      logical status
-      double precision moints_epair_eval
-      external moints_epair_eval
 
       tmp2 = tcgtime()
       call moints_localfname( 'KHalf', fname, len, kunit )
@@ -1054,7 +1054,7 @@ c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-#ifdef CRAY_T3D
+#ifdef CRAY-T3D
       double precision munit
 #else
       integer munit
@@ -1196,7 +1196,7 @@ c
        character*(*) prefix
        character*(*) fname
        integer len
-       double precision unit
+       integer unit
 
        integer plen, i, ii, jj
        integer inp_strlen

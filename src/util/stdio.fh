@@ -3,7 +3,7 @@ C NAME
 C     stdio -- define logical units for standard I/O
 C
 C REVISION
-C     $Id: stdio.fh,v 1.7 1995-06-02 04:46:21 gg502 Exp $
+C     $Id: stdio.fh,v 1.8 1995-11-03 20:44:12 d3g681 Exp $
 C
 C NOTES
 C     Common block must be initialized with stdio_init.fh in the main
@@ -13,7 +13,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer LUIn, LUOut, LUErr
 c$$$      Common /StdIO_Units/ LuIn, LuOut, LuErr
 C
-C     This way we don't have to worry about the initialization/termination
+C     This way we do not have to worry about the initialization/termination
 C
       Parameter (LuIn = 5, LuOut = 6, LuErr = 0)
 C

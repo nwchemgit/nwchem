@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1995-10-30 22:01:45 gg502 Exp $
+# $Id: GNUmakefile,v 1.25 1995-11-03 20:43:30 d3g681 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -42,20 +42,20 @@ include ../config/makelib.h
 #DEFINES += -DRIMP2_USE_DA
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-close_3ci_file.o :	 $(INCDIR)/stdio.fh 
+close_3ci_file.o :	 $(INCDIR)/stdio.fh $(INCDIR)/da.fh 
 dgewr.o :	 output.h 
 eval_3ci_block.o :	 $(INCDIR)/schwarz.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/bas.fh 
 ga_create_one_by_shells.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-get_3cints.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+get_3cints.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh 
 max_v_diagonal.o :	 $(INCDIR)/stdio.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 mk_1d_shell_dist.o :	 $(INCDIR)/stdio.fh $(INCDIR)/bas.fh 
 mk_correl_map.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
 mk_v.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 occ_ranges.o :	 $(INCDIR)/numerical_constants.fh 
-open_3ci_file.o :	 $(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ftnio.fh 
+open_3ci_file.o :	 $(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ftnio.fh $(INCDIR)/da.fh 
 progress_report.o :	 $(INCDIR)/global.fh 
-put_3cints.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-rimp2.o :	 $(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+put_3cints.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh 
+rimp2.o :	 $(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/da.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 rimp2_denom.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 rimp2_e_mem.o :	 $(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 rimp2_get_param.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh 

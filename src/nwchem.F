@@ -6,6 +6,7 @@
 #include "tcgmsg.fh"
 #include "pstat.fh"
 #include "util.fh"
+#include "inp.fh"
       integer rtdb
       integer stack
       integer heap
@@ -16,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.58 1995-11-03 19:23:19 d3j191 Exp $
+c     $Id: nwchem.F,v 1.59 1995-11-03 20:40:59 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -58,9 +59,9 @@ c     Look for memory directive in the input ... must eventually
 c     open the rtdb first so that can get memory directive out of that
 c     if it is not in the input
 c
-C     The user's input model has well-defined categories of memory,
+C     The user input model has well-defined categories of memory,
 C     each of which has a specific size.  How we use these limits
-C     depends on the platform we're running on.
+C     depends on the platform we are running on.
 C
       call input_mem_size(stack, heap, global, overify)
 c
@@ -70,19 +71,19 @@ C     GA allocations come out of MA space, so lump them together
 C     and let MA impose the limits on GA sizes instead of actually
 C     using the global limit.
 C
-      If ( GA_Uses_MA() ) then
+      if ( ga_uses_ma() ) then
          if (.not. ma_init(mt_dbl, stack, heap+global))
      $      call errquit('nwchem: ma_init failed', -1)
-         Call GA_Initialize
+         call ga_initialize
 C
 C     GA allocations are separate from MA, so the separate limit
 C     must be enforced.  Note GA only understands bytes.
 C
-      Else
+      else
          if (.not. ma_init(mt_dbl, stack, heap))
      $      call errquit('nwchem: ma_init failed', -1)
-         Call GA_Initialize_Ltd(MA_SizeOf(MT_Dbl, Global, MT_Byte) )
-      EndIf
+         call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
+      endif
 C
       status = ma_set_auto_verify(overify)
       status = ma_set_hard_fail(.true.)
@@ -178,7 +179,7 @@ c
 c
 c     Actually open the database and insert the file_prefix
 c
-c     Note that only process 0 has the database name ... that's OK.
+c     Note that only process 0 has the database name ... that is OK.
 c
       if (startup) then
          if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
@@ -351,7 +352,7 @@ c
          goto 1000
 
 c
-c     Miles' test 
+c     Miles test 
 c
   170    call mjdtest(rtdb)
          goto 1000
@@ -496,8 +497,8 @@ C
       heap  = ma_inquire_heap(MT_Dbl)
       stack = ma_inquire_stack(MT_Dbl)
 C
-C     If GA can't determine a limit on the available memory, it
-C     will return a negative number, which MA_SizeOf doesn't
+C     If GA cannot determine a limit on the available memory, it
+C     will return a negative number, which MA_SizeOf does not
 C     appreciate.  This should not happen in NWChem, but we might
 C     as well play it safe.
 C

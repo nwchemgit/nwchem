@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.2 1995-10-10 06:11:10 d3g681 Exp $
+C$Id: riscf_list.F,v 1.3 1995-11-03 20:41:59 d3g681 Exp $
       implicit double precision (a-h,o-z)
 #include "riscf.fh"
       data riscf_info / dim*0 /
@@ -44,7 +44,7 @@ C           nothing to do
         endif
       enddo
 
-C     looks like we didn't find a free slot
+C     looks like we did not find a free slot
       write (6,*)'put_3c_ints: too many basis sets'
       riscf_put_3c_ints = .FALSE.
       return
@@ -118,7 +118,7 @@ C       search entry
             return
           endif
         enddo
-C       we didn't find it
+C       we did not find it
         write(6,*)'riscf_del_3c_int: handle not in list'
         riscf_del_3c_ints = .FALSE.
       else
@@ -163,7 +163,7 @@ C     how often does it occur?
         endif
       enddo
 
-C     delete if it's only once
+C     delete if it is only once
       riscf_del_index = .true.
       if ( ic.eq.1 )
      $     riscf_del_index = ga_destroy (handle)

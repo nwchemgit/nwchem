@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.36 1995-10-27 23:25:07 rg240 Exp $
+C$Id: mointdriver.F,v 1.37 1995-11-03 20:43:12 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -41,16 +41,6 @@ c
        double precision tol2e
        character*7 algo
 c
-c
-c
-       data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
-       data ohalf/.true./
-       data charge/0.d0/
-       data tol2e/1.d-12/
-c
-c
-c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
@@ -62,8 +52,11 @@ c
        integer moints_occrange
        external moints_occrange
 c
-c
-c
+       data g_coul,g_exch/-1,-1/
+       data oexch,ocoul/.true.,.true./
+       data ohalf/.true./
+       data charge/0.d0/
+       data tol2e/1.d-12/
 c
 c Print settings
 c

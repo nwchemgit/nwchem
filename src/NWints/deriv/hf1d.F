@@ -4,7 +4,7 @@
      &       Cxyz,zan,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.7 1994-09-25 08:04:33 d3e129 Exp $
+c $Id: hf1d.F,v 1.8 1995-11-03 20:41:11 d3g681 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -285,7 +285,7 @@ c Assign scratch space.
      &          NPP,Lp,Lp3,.TRUE.)
 
 c Compute the derivative wrt to each of the nuclear attraction centers.
-c This accounts for the operator's dependence on the the nuclear coordinates.
+c This accounts for the operator dependence on the the nuclear coordinates.
 
          call hfefi(W0(i_Ep),W0(i_R0C),W0(i_IJK),bNAI,
      &          NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,

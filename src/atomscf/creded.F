@@ -1,5 +1,5 @@
       subroutine creded(g_dens, dt, iiloc, nbb)
-C$Id: creded.F,v 1.5 1995-02-02 23:08:51 d3g681 Exp $
+C$Id: creded.F,v 1.6 1995-11-03 20:41:29 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "cguess.fh"
@@ -28,6 +28,12 @@ c      d functions (next 4 lines)
 c      f functions (last lines)
 c      -0.670820393 = -0.3*sqrt(5) (used for f)
 c
+c
+      integer k, l, m
+      integer lm, nbci, kdim, kmone, kpoint
+      integer ll,mm
+      real *8 factor
+
       data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
 
      $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
@@ -72,11 +78,6 @@ c              nsym       - highest l-quantum no. used in atomic calc.
 c              dt         - atomic density matrix
 c              d          - area for final molecular density matrix.
 c.......................................................................
-c
-      integer k, l, m
-      integer lm, nbci, kdim, kmone, kpoint
-      integer ll,mm
-      real *8 factor
 c..
       lm = 0
       do k = 1 , nsym

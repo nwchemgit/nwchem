@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1995-10-17 08:55:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.8 1995-11-03 20:43:23 d3g681 Exp $
 
 
 #LIBRARY = libpstat.a
@@ -16,7 +16,7 @@ include ../config/makelib.h
 
 $(OBJ): pstatP.fh pstat_consts.fh pstat.fh
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-pstat_allocate.o :	 pstatP.fh 
+pstat_allocate.o :	 pstatP.fh $(INCDIR)/bitops.fh 
 pstat_free.o :	 pstatP.fh 
 pstat_init.o :	 pstatP.fh 
 pstat_off.o :	 $(INCDIR)/util.fh pstatP.fh 

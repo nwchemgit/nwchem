@@ -10,10 +10,10 @@ C
 C     GA is presently using things counting backwards from 32760.
 C     RTDB counts up from 30000
 C
-C     We'll go from 25000 down -- that should leave plenty of room.
+C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.18 1995-10-24 19:25:15 rg240 Exp $
+C$Id: msgids.fh,v 1.19 1995-11-03 20:44:09 d3g681 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum

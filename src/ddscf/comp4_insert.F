@@ -1,5 +1,5 @@
       subroutine comp4_insert(m, i, s, nb_per_i)
-C$Id: comp4_insert.F,v 1.5 1995-03-31 01:35:01 d3g681 Exp $
+C$Id: comp4_insert.F,v 1.6 1995-11-03 20:41:53 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
@@ -12,6 +12,7 @@ c
 #ifdef CRAY
       integer vv
 #endif
+#include "bitops.fh"      
 c
 c     Map value to log10 with range 4,...,-11 and values outside
 c     of this range mapped to nearest limit

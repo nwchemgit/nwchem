@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.9 1995-11-01 18:13:19 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.10 1995-11-03 20:43:15 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -342,8 +342,7 @@ c
       integer symij
       integer symijp
       integer p, q
-      integer ieor
-      intrinsic ieor
+#include "bitops.fh"
 c
 C$$$      WRITE(6,*) (SYMS(P),P=1,NBF)
 C$$$      WRITE(6,*) ' MOINTS_SYM_ZERO ', I, J

@@ -1,5 +1,5 @@
       subroutine sp1111(gout)
-c $Id: sp1111.F,v 1.2 1994-04-28 21:41:09 d3e129 Exp $
+c $Id: sp1111.F,v 1.3 1995-11-03 20:41:20 d3g681 Exp $
       implicit none
       double precision g(256),h(256)
       double precision dzero, done
@@ -32,16 +32,8 @@ c
       integer n
 c
       double precision gout(*)
-      data done/1.0d0/
-      data kq1off/1,17,49,65,81,113,161,193,209,241/
-      data kq2off/33,97,129,145,177,225/
-      data kq3off/1,49,81,161,193,241/
-      data kq4off/17,65,113,209/
-      data kq5off/33,97,129,145,177,225/
 c
       double precision sixty, tenm12
-      data sixty,tenm12/60.0d0,1.0d-12/
-c
       integer k, l, i
       integer ind, i1, i2, i3, kq1, loopkl
       integer kkq1, kkkq1, jq1, jkl, loopij, ijk
@@ -73,6 +65,14 @@ c
       double precision f4pqab, t14, f4, apbp, eab2, bpdp01, edp01
       double precision bqz, hecd2, hqecd, hqecd2, q3ecd, q3ecd2
       double precision temp, hxxyy, dq01x, dq10x, dq00x
+c
+      data done/1.0d0/
+      data kq1off/1,17,49,65,81,113,161,193,209,241/
+      data kq2off/33,97,129,145,177,225/
+      data kq3off/1,49,81,161,193,241/
+      data kq4off/17,65,113,209/
+      data kq5off/33,97,129,145,177,225/
+      data sixty,tenm12/60.0d0,1.0d-12/
 c
 c ***
 c *** this is the fps version of sp1111.

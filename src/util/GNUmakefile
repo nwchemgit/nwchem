@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.45 1995-10-24 19:25:14 rg240 Exp $
+# $Id: GNUmakefile,v 1.46 1995-11-03 20:44:06 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -8,6 +8,10 @@ endif
 
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
+endif
+
+ifeq ($(TARGET),LINUX)
+  EXTRA_OBJ = linux_cputime.o
 endif
 
 ifeq ($(TARGET),KSR)
@@ -43,7 +47,7 @@ endif
 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
-              printlevels.fh
+              printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh
 
     USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F
@@ -83,6 +87,7 @@ ga_orthog_vec.o :	 $(INCDIR)/global.fh
 ga_pcg_minimize.o :	 util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 ga_ran_fill.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 ga_screen.o :	 msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_trace_diag.o :	 msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 int_2c_ga.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 line_search.o :	 util.fh 
 mk_fit_xf.o :	 stdio.fh numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
@@ -91,6 +96,6 @@ sequential_output.o :	 $(INCDIR)/tcgmsg.fh msgids.fh $(INCDIR)/mafdecls.fh $(INC
 testsolve.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 two_index_transf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 util_char_ga_brdcst.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-util_pack.o :	 $(INCDIR)/mafdecls.fh 
+util_pack.o :	 $(INCDIR)/mafdecls.fh bitops.fh 
 util_pname.o :	 $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 util_print.o :	 $(INCDIR)/rtdb.fh printlevels.fh printcommon.fh $(INCDIR)/inp.fh 

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
+C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -129,7 +129,7 @@ C
 c
 c     Clean up common blocks and allocated data and return
 c
-      call uhf_tidy
+      call uhf_tidy(rtdb)
 c
       uhf = converged
 c
@@ -166,7 +166,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
+C     $Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -309,7 +309,7 @@ c     End SCF minimisation
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
 c     
-c     *ALWAYS* return canonical MOs ... don't do aufbau
+c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     
       call uhf_canon(.false., oprint_eval)
       call movecs_fix_phase(g_movecs)
@@ -427,7 +427,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
+C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -518,7 +518,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
+c     $Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -879,7 +879,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
+C$Id: uhf.F,v 1.12 1995-11-03 20:42:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

@@ -33,14 +33,12 @@ c
       parameter (two=2.0d0, one=1.0d0, zero=0.0d0, mone=-1.0d0)
       double precision jfactor(nset),kfactor(nset)
       integer iv_dens(nset),iv_fock(nset)
-**     data jfactor,kfactor/2.d0,2.d0,0.d0,-0.5d0,0.d0,-0.5d0/
-*      data jfactor / 2.0d0, 2.0d0, 0.0d0/
-*      data kfactor /-1.0d0, 0.0d0,-1.0d0/
-      data jfactor / 1.0d0, 1.0d0, 0.0d0/
-      data kfactor /-0.5d0, 0.0d0,-0.5d0/
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+c
+      data jfactor / 1.0d0, 1.0d0, 0.0d0/
+      data kfactor /-0.5d0, 0.0d0,-0.5d0/
 c     
 c     Initialise
 c     

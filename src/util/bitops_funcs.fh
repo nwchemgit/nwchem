@@ -1,0 +1,12 @@
+c
+c     Machine dependent defintion of the standard
+c     iand/ior/ieor/rshift/lshift bit operations
+c
+c     Since statement functions are defined this
+c     file must be included appropriately
+c
+#ifdef LINUX
+      iand(iiibit,jjjbit)=and(iiibit,jjjbit)
+      ior(iiibit,jjjbit) = or(iiibit,jjjbit)
+      ieor(iiibit,jjjbit)=xor(iiibit,jjjbit)
+#endif

@@ -1,0 +1,10 @@
+c
+c     Machine dependent defintion of the standard
+c     iand/ior/ieor/rshift/lshift bit operations
+c
+#ifdef LINUX
+      integer iand, ior, ieor
+      integer and, or, xor, rshift, lshift
+      intrinsic and, or, xor, rshift, lshift
+      integer iiibit, jjjbit
+#endif

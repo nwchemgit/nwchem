@@ -1,9 +1,9 @@
       subroutine distan(nat,coord)
-C$Id: distang.F,v 1.3 1995-03-31 01:45:16 d3g681 Exp $
+C$Id: distang.F,v 1.4 1995-11-03 20:43:40 d3g681 Exp $
       implicit none
       integer nat,i,j
-      external dist
       double precision dist
+      external dist
       double precision coord(3,*),rij
       write(6,1000)                                                    
       do 20 i=1,nat-1                                                   
@@ -27,6 +27,9 @@ C$Id: distang.F,v 1.3 1995-03-31 01:45:16 d3g681 Exp $
       double precision coord(3,nat)
       double precision dij,rij,dik,djk,rjk
       double precision acosarg,thet
+      double precision dist
+      external dist
+c
       write(6,1000)                                                    
       do 10 i=1,nat-1                                                   
         write(6,1100)                                                  

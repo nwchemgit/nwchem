@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.3 1995-10-17 08:56:34 d3g681 Exp $
+C     $Id: mk_fit_xf.F,v 1.4 1995-11-03 20:44:08 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
@@ -99,8 +99,8 @@ C        * Produce S^{-1}VS^{-1} or (S^{-1}VS^{-1})^{1/2} *
 C        **************************************************
 C        This is the matrix that will eventually be returned to the caller.
 C
-C        Don't worry about shell or atom-based blocking at the moment,
-C        since this shouldn't be a time-consuming routine.
+C        Do not worry about shell or atom-based blocking at the moment,
+C        since this should not be a time-consuming routine.
 C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'S integral matrix',
      $      -MinChunk, -MinChunk, G_S) )
@@ -160,8 +160,8 @@ C        * Produce S^{-1} or S^{-1/2} *
 C        ******************************
 C        This is the matrix that will eventually be returned to the caller.
 C
-C        Don't worry about shell or atom-based blocking at the moment,
-C        since this shouldn't be a time-consuming routine.
+C        Do not worry about shell or atom-based blocking at the moment,
+C        since this should not be a time-consuming routine.
 C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'S integral matrix',
      $      -MinChunk, -MinChunk, G_V) ) 
@@ -182,8 +182,8 @@ C        * Produce V^{-1} or V^{-1/2} *
 C        ******************************
 C        This is the matrix that will eventually be returned to the caller.
 C
-C        Don't worry about shell or atom-based blocking at the moment,
-C        since this shouldn't be a time-consuming routine.
+C        Do not worry about shell or atom-based blocking at the moment,
+C        since this should not be a time-consuming routine.
 C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'V integral matrix',
      $      -MinChunk, -MinChunk, G_V) )

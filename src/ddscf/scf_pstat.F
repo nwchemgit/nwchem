@@ -1,7 +1,7 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.16 1995-10-10 06:11:15 d3g681 Exp $
-      data oscfps /.false./     ! So that other codes don't break
+C$Id: scf_pstat.F,v 1.17 1995-11-03 20:42:04 d3g681 Exp $
+      data oscfps /.false./     ! So that other codes do not break
 c
       end
       subroutine scf_pstat_init(rtdb)

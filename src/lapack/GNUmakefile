@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.18 1995-10-25 01:15:32 rg240 Exp $
+#$Id: GNUmakefile,v 1.19 1995-11-03 20:42:56 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -46,7 +46,9 @@ endif
 ifeq ($(TARGET),DECOSF)
        PRECISION = double
 endif
-
+ifeq ($(TARGET),LINUX)
+	PRECISION = double
+endif
 
 ifndef PRECISION
 error:

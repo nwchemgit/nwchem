@@ -11,7 +11,7 @@ c
 c     [The only thing that cannot be dynamically allocated are the
 c      character variables for the tags ... I was lazy and just statically
 c      dimensioned everything ... just drudge work to dynamically 
-c      allocate though if necessary ... which it hopefully won't be
+c      allocate though if necessary ... which it hopefully will not be
 c      ... since only geom.F (and maybe the basis routines) include
 c      this header file only these need to be recompiled if the parameters
 c      are changed]
@@ -37,7 +37,7 @@ c     sym_sgpnames(1:230) = list of known space groups ... must match spgen
 c     sym_mgpnames(1:46)  = list of known molecular groups ... ditto
 c     ncenter_unique(1:max_geom) = no. of symmetry unique centers
 c     unique_cent(1:max_cent,1:max_geom) = list of symmetry unique centers
-c     group_number(max_geom) = Tony's magic group number
+c     group_number(max_geom) = Tony magic group number
 c     setting_number(max_geom) = Where the symmetry origin is
 c     max_sym_ops                   = max. no. of operations in group
 c     sym_ops(max_sym_op*3,4) = matrix representation of symmetry operators
@@ -96,7 +96,7 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
-C$Id: geomP.fh,v 1.8 1995-02-07 00:10:46 d3g681 Exp $
+C$Id: geomP.fh,v 1.9 1995-11-03 20:42:16 d3g681 Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)

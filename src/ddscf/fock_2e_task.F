@@ -12,7 +12,7 @@
 #include "bas.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_task.F,v 1.4 1995-10-21 19:39:23 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.5 1995-11-03 20:41:55 d3g681 Exp $
 c
 c     Given an atomic quartet, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -67,7 +67,7 @@ c
      $     denmax, tmp)
 c
 c     Apply screening on the density and schwarz inequality
-c     (don't use density screening if writing integrals to file)
+c     (do not use density screening if writing integrals to file)
 c
       if (owritefile) then
          otest  = sijkl .gt. den_tol

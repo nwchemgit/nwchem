@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1995-10-30 20:56:37 d3e129 Exp $
+# $Id: GNUmakefile,v 1.16 1995-11-03 20:41:15 d3g681 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
@@ -36,6 +36,7 @@ defNxyz.o :	 sh_order.fh
 getNxyz.o :	 sh_order.fh 
 hf1.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
 hf1set3.o :	 $(INCDIR)/apiP.fh 
+hf3pot.o :	 $(INCDIR)/stdio.fh 
 hfmke.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
 hfmkr.o :	 $(INCDIR)/pstat.fh $(INCDIR)/int_tim.fh 
 hfset.o :	 $(INCDIR)/apiP.fh 

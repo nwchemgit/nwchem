@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.15 1995-10-27 23:25:05 rg240 Exp $
+C$Id: direct_mp2.F,v 1.16 1995-11-03 20:43:08 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -40,10 +40,6 @@ c
 c
 c
 c
-       data g_coul,g_exch/-1,-1/
-       data charge/0.d0/
-       data ohalf/.false./
-c
 c
 c
        logical movecs_read_header, movecs_read, movecs_write
@@ -56,6 +52,10 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
+c
+       data g_coul,g_exch/-1,-1/
+       data charge/0.d0/
+       data ohalf/.false./
 c
 c
 c

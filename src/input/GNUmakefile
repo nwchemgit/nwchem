@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.17 1995-10-24 19:56:27 rg240 Exp $
+#$Id: GNUmakefile,v 1.18 1995-11-03 20:42:52 d3g681 Exp $
  LIBRARY = libutil.a
 #LIBRARY = libinput.a
 
@@ -26,6 +26,7 @@ input_parse.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCD
 input_set.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 input_start_opt.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 input_title.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
+mcscf_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 md_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
 memory_defaults.o :	 $(INCDIR)/inp.fh 
 memory_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 

@@ -1,5 +1,5 @@
       subroutine sp0000(gout)
-c $Id: sp0000.F,v 1.2 1994-04-28 21:41:03 d3e129 Exp $
+c $Id: sp0000.F,v 1.3 1995-11-03 20:41:19 d3g681 Exp $
 c     *****  special fast routine for -p- loop for 0000 ****
       implicit none
 c     
@@ -17,10 +17,7 @@ c
 #include "maxc.fh"
 c     
       double precision gout(*)
-c     
       double precision sixty
-      data sixty/60.0d0/
-c     
       double precision qq, theta
       integer n
       double precision cq
@@ -28,6 +25,7 @@ c
       double precision g0000, csck, gcrcds, ecd
       double precision p, pp, ppp, qqtest, h0000, gdecd, f0
       double precision theta2, theta3, theta4, aqx, aqz,qperp2
+      data sixty/60.0d0/
 c     
       g0000 = 0.d0
       do 220 k = 1,ngc

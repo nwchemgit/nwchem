@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1995-11-01 17:34:48 d3e129 Exp $
+# $Id: GNUmakefile,v 1.10 1995-11-03 20:41:26 d3g681 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -36,3 +36,7 @@ include ../../config/makelib.h
 
 txs:
 	$(MAKE) "USE_TEXAS=YEP"
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+precalc2.o :	 $(INCDIR)/mafdecls.fh 
+texas_face.o :	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
+texas_hf.o :	 $(INCDIR)/mafdecls.fh 

@@ -71,7 +71,7 @@ C
       enddo
 C
 C     Finished the loop over the character in this field.  See if
-C     we're missing anything (like ending with a : at the front).
+C     we are missing anything (like ending with a : at the front).
 C
       If ( Expect_Dig ) Goto 120
 C
@@ -86,7 +86,7 @@ C
          JLast  = JTmp(1)
          JStride = 1
       ElseIf (Term .eq. 2) then   ! Start and end, stride defaults to 1
-         If ( JTmp(2) .gt. JTmp(1) ) Goto 125 ! Stride 1 won't work here
+         If ( JTmp(2) .gt. JTmp(1) ) Goto 125 ! Stride 1 will not work here
          JFirst = JTmp(2)
          JLast  = JTmp(1)
          JStride = 1

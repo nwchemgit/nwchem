@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.37 1995-10-19 16:38:16 d3g681 Exp $
+C$Id: geom.F,v 1.38 1995-11-03 20:42:15 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -101,13 +101,15 @@ c
       integer geom              ! [input]
       character*(*) msg         ! [input]
       integer icent             ! [input]
+      logical status, geom_print
+      external geom_print
 c     
       geom_check_cent = icent.gt.0 .and. icent.le.ncenter(geom)
       if (.not. geom_check_cent) then
          write(6,*) msg,': icent invalid ', icent,
      $        names(geom)(1:lenn(geom))
          call geom_err_info(msg)
-         call geom_print(geom)
+         status = geom_print(geom)
       end if
 c     
       end
@@ -1139,6 +1141,18 @@ c
 #include "geomP.fh"
       character*2 symbols(nelements)
       character*16 elements(nelements)
+      character*(*) tag         ! [input]
+      character*(*) symbol      ! [output]
+      character*(*) element     ! [output]
+      integer atn               ! [output]
+c
+c     attempt to figure out which element a tag refers to
+c     and return the symbol, name and atomic no.
+c
+      integer lbuf, ind
+      character*16 buf
+      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
+      integer atn1(14)
       data symbols/
      $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
      $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
@@ -1174,19 +1188,6 @@ c
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
      $     'Nobelium', 'Lawrencium'/
-      character*(*) tag         ! [input]
-      character*(*) symbol      ! [output]
-      character*(*) element     ! [output]
-      integer atn               ! [output]
-c
-c     
-c     attempt to figure out which element a tag refers to
-c     and return the symbol, name and atomic no.
-c
-      integer lbuf, ind
-      character*16 buf
-      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-      integer atn1(14)
       data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
       data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 

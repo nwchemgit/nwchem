@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.20 1995-10-16 18:28:12 d3g681 Exp $
+C$Id: geom_input.F,v 1.21 1995-11-03 20:42:18 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -254,10 +254,10 @@ c
       logical status
       parameter (nopt_system=4, ntokens=7)
       character*10 opt(nopt_system), tokens(ntokens)
+      character*10 test
       data opt /'molecule', 'polymer', 'surface', 'crystal'/
       data tokens /'lat_a', 'lat_b', 'lat_c', 
      &     'alpha', 'beta', 'gamma', 'end'/
-      character*10 test
 c
       if (.not. geom_check_handle(geom,'system_input'))
      $     call errquit('system_input: geom handle invalid', 0)

@@ -7,21 +7,22 @@ c
       integer nunpacked, packed(*), unpacked(*)
       integer npacked_per_int
       integer i, ij, kl, ijkl, ind
+#include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
 c
       if (npacked_per_int .eq. 2) then
          ind = 1
          do i = 1, nunpacked, 2
-            packed(ind) = ior(ishft(unpacked(i),16),unpacked(i+1))
+            packed(ind) = ior(lshift(unpacked(i),16),unpacked(i+1))
             ind = ind + 1
          enddo
       else if (npacked_per_int .eq. 4) then
          ind = 1
          do i = 1, nunpacked, 4
-            ij = ior(ishft(unpacked(i  ),16),unpacked(i+1))
-            kl = ior(ishft(unpacked(i+2),16),unpacked(i+3))
-            ijkl = ior(ishft(ij,32),kl)
+            ij = ior(lshift(unpacked(i  ),16),unpacked(i+1))
+            kl = ior(lshift(unpacked(i+2),16),unpacked(i+3))
+            ijkl = ior(lshift(ij,32),kl)
             packed(ind) = ijkl
             ind = ind + 1
          enddo
@@ -41,6 +42,7 @@ c
 c
       integer npacked_per_int
       integer i, ij, ijkl, ind
+#include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte) / 2
 c
@@ -48,7 +50,7 @@ c
          ind = 1
          do i = 1, nunpacked/2
             ij = packed(i)
-            unpacked(ind)   = iand(ishft(ij,-16),65535)
+            unpacked(ind)   = iand(rshift(ij,16),65535)
             unpacked(ind+1) = iand(ij,65535)
             ind = ind + 2
          enddo
@@ -56,9 +58,9 @@ c
          ind = 1
          do i = 1, nunpacked/4
             ijkl = packed(i)
-            unpacked(ind  ) = iand(ishft(ijkl,-48),65535)
-            unpacked(ind+1) = iand(ishft(ijkl,-32),65535)
-            unpacked(ind+2) = iand(ishft(ijkl,-16),65535)
+            unpacked(ind  ) = iand(rshift(ijkl,48),65535)
+            unpacked(ind+1) = iand(rshift(ijkl,32),65535)
+            unpacked(ind+2) = iand(rshift(ijkl,16),65535)
             unpacked(ind+3) = iand(ijkl,65535)
             ind = ind + 4
          enddo
@@ -77,28 +79,29 @@ c
       integer nunpacked, packed(*), unpacked(*)
       integer npacked_per_int
       integer i, ij, kl, ijkl, ind, mn, pq, mnpq
+#include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte)
 c
       if (npacked_per_int .eq. 4) then
          ind = 1
          do i = 1, nunpacked, 4
-            ij = ior(ishft(unpacked(i  ),8),unpacked(i+1))
-            kl = ior(ishft(unpacked(i+2),8),unpacked(i+3))
-            ijkl = ior(ishft(ij,16),kl)
+            ij = ior(lshift(unpacked(i  ),8),unpacked(i+1))
+            kl = ior(lshift(unpacked(i+2),8),unpacked(i+3))
+            ijkl = ior(lshift(ij,16),kl)
             packed(ind) = ijkl
             ind = ind + 1
          enddo
       else if (npacked_per_int .eq. 8) then
          ind = 1
          do i = 1, nunpacked, 8
-            ij = ior(ishft(unpacked(i  ),8),unpacked(i+1))
-            kl = ior(ishft(unpacked(i+2),8),unpacked(i+3))
-            mn = ior(ishft(unpacked(i+4),8),unpacked(i+5))
-            pq = ior(ishft(unpacked(i+6),8),unpacked(i+7))
-            ijkl = ior(ishft(ij,16),kl)
-            mnpq = ior(ishft(mn,16),pq)
-            packed(ind) = ior(ishft(ijkl,32),mnpq)
+            ij = ior(lshift(unpacked(i  ),8),unpacked(i+1))
+            kl = ior(lshift(unpacked(i+2),8),unpacked(i+3))
+            mn = ior(lshift(unpacked(i+4),8),unpacked(i+5))
+            pq = ior(lshift(unpacked(i+6),8),unpacked(i+7))
+            ijkl = ior(lshift(ij,16),kl)
+            mnpq = ior(lshift(mn,16),pq)
+            packed(ind) = ior(lshift(ijkl,32),mnpq)
             ind = ind + 1
          enddo
       else
@@ -117,6 +120,7 @@ c
 c
       integer npacked_per_int
       integer i, ijkl,ind,mnpq,mask
+#include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte)
 c
@@ -127,26 +131,25 @@ c
          ind = 1
          do i = 1, nunpacked/4
             ijkl = packed(i)
-*            unpacked(ind  ) = iand(ishft(ijkl,-24),255)
-            unpacked(ind  ) =      ishft(ijkl,-24)
-            unpacked(ind+1) = iand(ishft(ijkl,-16),255)
-            unpacked(ind+2) = iand(ishft(ijkl, -8),255)
+            unpacked(ind  ) =      rshift(ijkl,24)
+            unpacked(ind+1) = iand(rshift(ijkl,16),255)
+            unpacked(ind+2) = iand(rshift(ijkl, 8),255)
             unpacked(ind+3) = iand(ijkl,255)
             ind = ind + 4
          enddo
       else if (npacked_per_int .eq. 8) then
          ind = 1
-         mask = ishft(1,32)-1  ! 2^32 - 1
+         mask = lshift(1,32)-1  ! 2^32 - 1
          do i = 1, nunpacked/8
-            ijkl = iand(ishft(packed(i),-32),mask)
+            ijkl = iand(rshift(packed(i),32),mask)
             mnpq = iand(packed(i),mask)
-            unpacked(ind  ) = iand(ishft(ijkl,-24),255)
-            unpacked(ind+1) = iand(ishft(ijkl,-16),255)
-            unpacked(ind+2) = iand(ishft(ijkl, -8),255)
+            unpacked(ind  ) = iand(rshift(ijkl,24),255)
+            unpacked(ind+1) = iand(rshift(ijkl,16),255)
+            unpacked(ind+2) = iand(rshift(ijkl, 8),255)
             unpacked(ind+3) = iand(ijkl,255)
-            unpacked(ind+4) = iand(ishft(mnpq,-24),255)
-            unpacked(ind+5) = iand(ishft(mnpq,-16),255)
-            unpacked(ind+6) = iand(ishft(mnpq, -8),255)
+            unpacked(ind+4) = iand(rshift(mnpq,24),255)
+            unpacked(ind+5) = iand(rshift(mnpq,16),255)
+            unpacked(ind+6) = iand(rshift(mnpq, 8),255)
             unpacked(ind+7) = iand(mnpq,255)
             ind = ind + 8
          enddo

@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <malloc.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -51,6 +52,10 @@ static struct w_file {
   int seek_write;            /* no. of seeks on write */
 } file_array[max_file];
 
+#ifdef DELTA
+extern double dclock();
+#endif
+
 void walltm_(ai)
     double *ai;
 /* return ai with the wall clock time in seconds as a double.
@@ -59,8 +64,12 @@ void walltm_(ai)
   struct timeval tp;
   struct timezone tzp;
 
+#ifndef DELTA
   (void) gettimeofday(&tp,&tzp);
   *ai = (double) tp.tv_sec + ((double) tp.tv_usec) * 1.0e-6;
+#else
+  *ai = dclock();
+#endif
 }
 
 static int CheckUnit(unit)
@@ -129,14 +138,14 @@ void PrintFileStats(unit, file)
   }
 
   (void) fflush(stdout);
-  (void) fprintf(stderr,"CRAYIO: Statistics for unit %d, file '%s', length=%d bytes.\n",
+  (void) fprintf(stderr,"CRAYIO: Statistics for unit %ld, file '%s', length=%ld bytes.\n",
 		 unit, file->path, file->length);
   (void) fprintf(stderr,"CRAYIO: oper :  #req.  :  #seek  :   #words  :");
   (void) fprintf(stderr," #w/#req : time(s) :  MW/s \n");
-  (void) fprintf(stderr,"CRAYIO: read : %7d : %7d : %9d : %7d : %7.1f : %6.3f\n",
+  (void) fprintf(stderr,"CRAYIO: read : %7d : %7d : %9ld : %7ld : %7.1f : %6.3f\n",
 		 file->n_read, file->seek_read, (long) file->words_read, 
 		 (long) ave_read, file->time_read, rate_read);
-  (void) fprintf(stderr,"CRAYIO:write : %7d : %7d : %9d : %7d : %7.1f : %6.3f\n",
+  (void) fprintf(stderr,"CRAYIO:write : %7d : %7d : %9ld : %7ld : %7.1f : %6.3f\n",
 		 file->n_write, file->seek_write, (long) file->words_write, 
 		 (long) ave_write, file->time_write, rate_write);
 }
@@ -173,7 +182,7 @@ void wclose_(unit, ierr)
   if (first_call)
     FirstCall();
 
-  if (*ierr = CheckUnit(*unit))
+  if ((*ierr = CheckUnit(*unit)))
     return;
 
   file = file_array + *unit;
@@ -212,11 +221,11 @@ void wopen_(unit, name, lennam, blocks, stats, ierr)
   if (*lennam > 0) {
     file->path = malloc((unsigned) (*lennam + 1));
     (void) strncpy(file->path,name,(int) *lennam);
-    file->path[*lennam] = NULL;
+    file->path[*lennam] = 0;
     }
   else {
     file->path = malloc((unsigned) 8);
-    (void) sprintf(file->path,"fort.%.2d",*unit);
+    (void) sprintf(file->path,"fort.%.2ld",*unit);
   }
 
   if (( file->fds = open(file->path, (int)(O_RDWR|O_CREAT), (int) 0660)) 
@@ -242,13 +251,13 @@ void getwa_(unit, result, addr, count, ierr)
   if (first_call)
     FirstCall();
 
-  if (*ierr = CheckUnit(*unit))
+  if ((*ierr = CheckUnit(*unit)))
     return;
 
-  if (*ierr = CheckAddr(*addr))
+  if ((*ierr = CheckAddr(*addr)))
     return;
 
-  if (*ierr = CheckCount(*count))
+  if ((*ierr = CheckCount(*count)))
     return;
 
   file = file_array + *unit;
@@ -300,13 +309,13 @@ void putwa_(unit, source, addr, count, ierr)
   if (first_call)
     FirstCall();
 
-  if ( *ierr = CheckUnit(*unit))
+  if (( *ierr = CheckUnit(*unit)))
     return;
 
-  if (*ierr = CheckAddr(*addr))
+  if ((*ierr = CheckAddr(*addr)))
     return;
 
-  if (*ierr = CheckCount(*count))
+  if ((*ierr = CheckCount(*count)))
     return;
 
   file = file_array + *unit;

@@ -3,7 +3,7 @@ C NAME
 C     inp_ilist -- read an integer list, possibly including ranges
 C
 C REVISION
-C     $Id: inp_ilist.F,v 1.1 1995-04-17 23:39:10 gg502 Exp $
+C     $Id: inp_ilist.F,v 1.2 1995-11-03 20:42:47 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function Inp_IList( MaxList, List, N)
@@ -43,7 +43,7 @@ C
          If ( Inp_IRange(First, Last, Stride) ) then
 C
 C           Expand the triplet.  Notice that if there are too many
-C           elements for the List, we count them but don't overwrite
+C           elements for the List, we count them but do not overwrite
 C           the array bounds.
 C
             Do I = First, Last, Stride

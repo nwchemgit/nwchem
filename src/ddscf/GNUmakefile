@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.43 1995-11-02 01:52:14 rg240 Exp $
+# $Id: GNUmakefile,v 1.44 1995-11-03 20:41:57 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -6,7 +6,6 @@
         rhf_fock_2e.o \
         ga_create_atom_blocked.o  scf.o \
         schwarz_init.o \
-        schwarz_max.o \
         int_1e_ga.o               schwarz_print.o \
         ga_orthog_mos.o           schwarz_tidy.o \
         nxtask.o  \
@@ -77,8 +76,10 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-ao_fock_2e.o :	 schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cfock.fh $(INCDIR)/bas.fh 
-bad.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ao_fock_2e.o :	 $(INCDIR)/util.fh schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cfock.fh $(INCDIR)/bas.fh 
+comp4_bins.o :	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
+comp4_extract.o :	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
+comp4_insert.o :	 $(INCDIR)/bitops.fh 
 do_ri.o :	 cfock.fh 
 fock_2e.o :	 cscf.fh cfock.fh 
 fock_2e_a.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cfock.fh 
@@ -91,9 +92,8 @@ fock_get_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh
 fock_upd_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 ga_create_atom_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 ga_create_cont_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-ga_mxv.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 ga_orthog_mos.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
-int2e_file.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cint2efile.fh 
+int2e_file.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cint2efile.fh $(INCDIR)/bitops_decls.fh $(INCDIR)/bitops.fh 
 int_1e_ga.o :	 $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscfps.fh $(INCDIR)/bas.fh 
 k2cf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 matrix_exp.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh 
@@ -106,7 +106,7 @@ riscf_init.o :	 $(INCDIR)/tcgmsg.fh schwarz.fh $(INCDIR)/pstat.fh $(INCDIR)/msgi
 riscf_list.o :	 riscf.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 riscf_square.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/bas.fh 
 riscf_trans_int.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-rohf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
+rohf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscf.fh crohf.fh $(INCDIR)/bas.fh 
 rohf_canon.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscfps.fh cscf.fh crohf.fh 
 rohf_dens.o :	 $(INCDIR)/global.fh 
 rohf_fock.o :	 $(INCDIR)/util.fh $(INCDIR)/global.fh cscf.fh crohf.fh $(INCDIR)/bas.fh 
@@ -116,6 +116,7 @@ rohf_hessv_1e.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh
 rohf_hessv_2e.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 rohf_hessv_xx.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 rohf_k2cf.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+rohf_lagr.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
 rohf_make_shift.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh crohf.fh 
 rohf_nr_solve.o :	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cscfps.fh cscf.fh crohf.fh 
 rohf_rotate_movecs.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh cscf.fh 
@@ -134,5 +135,5 @@ schwarz_max.o :	 cschwarz.fh
 schwarz_print.o :	 $(INCDIR)/tcgmsg.fh schwarz.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
 schwarz_shell.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh cschwarz.fh 
 schwarz_tidy.o :	 $(INCDIR)/mafdecls.fh cschwarz.fh 
-uhf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cuhf.fh cuhf.fh cscfps.fh cscf.fh 
+uhf.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cuhf.fh cuhf.fh cscfps.fh cscf.fh $(INCDIR)/bas.fh 
 vectors.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh cscfps.fh 
