@@ -29,7 +29,7 @@ c
       do 1 i=1,nsa
       read(sgmnam(i)(12:16),'(i5)') k
       if(isgm.eq.k) then
-      if(sgmnam(i)(6:5+j).eq.atom(1:j)) then
+      if(sgmnam(i)(6:10).eq.atom(1:5)) then
       ia=i
       return
       endif
@@ -46,7 +46,7 @@ c
       if(atom(1:1).eq.'_') atom(1:1)=' '
 c
       do 2 i=1,nwa
-      if(wnam(i)(6:5+j).eq.atom(1:j)) then
+      if(wnam(i)(6:10).eq.atom(1:5)) then
       ja=i
       return
       endif
