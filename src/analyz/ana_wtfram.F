@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
 c
-c $Id: ana_wtfram.F,v 1.7 2000-03-24 05:41:35 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.8 2000-04-27 15:22:00 d3j191 Exp $
 c
       implicit none
 c
@@ -72,6 +72,7 @@ c
       call swatch(today,now)
       write(iunit,2000) time,today,now
  2000 format('title ',t67,f10.3,/,'!DATE ',2a10)
+      if(lsx) then
       do 4 i=1,nsa
       if(sgmnam(i)(6:6).eq.' '.or.
      + sgmnam(i)(6:6).eq.'2'.or.sgmnam(i)(6:6).eq.'3'.or.
@@ -84,6 +85,22 @@ c
       endif
  2001 format(a4,1x,3f15.9,1x,a4,a4,4x,a1,7x,a2,f7.3)
     4 continue
+      endif
+      if(lxw) then
+      do 44 i=1,nwm
+      do 45 j=1,nwa
+      if(wnam(j)(6:6).eq.' '.or.
+     + wnam(j)(6:6).eq.'2'.or.wnam(j)(6:6).eq.'3'.or.
+     + wnam(j)(6:6).eq.'4'.or.wnam(j)(6:6).eq.'1') then
+      write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
+     + wnam(j)(1:4),wnam(j)(13:16),'?',wnam(j)(7:7)//' ',0.0
+      else
+      write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
+     + wnam(j)(1:4),wnam(j)(13:16),'?',wnam(j)(6:7),0.0
+      endif
+   45 continue
+   44 continue
+      endif
       write(iunit,2002)
  2002 format('end',/,'end')
       endif

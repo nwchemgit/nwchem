@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.17 2000-04-04 23:03:57 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.18 2000-04-27 15:22:10 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -75,8 +75,8 @@ c
  1009 format(5i7,3i10,2i5)
       call cf_initb(2,nas,nbt,2,nhs,2,nds,3,nos,3,nts,2,nxs,2,0)
       do 5 i=1,naw
-      read(lfntop,1010,end=9997,err=9998) ia,iq
- 1010 format(41x,2i5)
+      read(lfntop,1010,end=9997,err=9998) wnam(i),ia,iq
+ 1010 format(a16,25x,2i5)
       call cf_parwiq(i,ia,iq)
     5 continue
       idata(4)=0

@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.6 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.7 2000-04-27 15:22:00 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
  1002 format(f12.6,36x,f12.6,36x,f12.6)
       read(lfntrj,1003) lxw,lvw,lsx,lsv,nwm,nwa,nsa
  1003 format(4l1,3i10)
-      if(nsa.gt.msa) call errquit('Error in trj',0)
+      if(nsa.gt.msa) call errquit('Error in trj 1',0)
       if((lxw.or.lvw).and.nwm.gt.0) then
       do 2 i=1,nwm
       do 3 j=1,nwa
@@ -47,8 +47,7 @@ c
     3 continue
     2 continue
       endif
-      if(nsa.gt.0) then
-      if(.not.lsx) call errquit('Error in trj',0)
+      if(lsx.and.nsa.gt.0) then
       do 4 i=1,nsa
       read(lfntrj,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)

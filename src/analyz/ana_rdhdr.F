@@ -1,12 +1,12 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.7 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.8 2000-04-27 15:22:00 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
-      character*16 wnam,sgmnam(msa)
+      character*16 sgmnam(msa)
       character*80 card
       character*255 fname
       integer i,lq
@@ -42,8 +42,8 @@ c
       if(nsa.gt.msa) call errquit('Error in trj',0)
       if(nwa.gt.0) then
       do 2 i=1,nwa
-      read(lfntrj,1004) wnam
-      write(44,1004) wnam
+      read(lfntrj,1004) wnam(i)
+      write(44,1004) wnam(i)
  1004 format(a16)
     2 continue
       endif
