@@ -1,0 +1,224 @@
+c $Id: intd_1e3ov.F,v 1.1 1997-01-21 07:40:42 d3e129 Exp $
+*
+c:tex-% this is part of the API Standard Integral routines.
+c:tex-\subsubsection{intd\_1e3ov}
+c:tex-This routine computes the 3 center overlap integral derivatives:
+c:tex-\[
+c:tex-\frac{\partial}{\partial q}({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty}
+c:tex-g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
+c:tex-\]
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine intd_1e3ov (i_basis, ish, j_basis, jsh, k_basis, ksh,
+     &       lscr, scr, ldov3, dOV3, idatom)
+c:tex-\end{verbatim}
+      implicit none
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "geomP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+c:: external subroutines used
+c..  errquit
+c::functions
+      logical int_chk_sh, int_chk_init
+      external int_chk_sh, int_chk_init
+c::passed
+c:tex-\begin{verbatim}
+      integer i_basis            ! [input] basis set handle for ish
+      integer ish                ! [input] i shell/contraction
+      integer j_basis            ! [input] basis set handle for jsh
+      integer jsh                ! [input] j shell/contraction
+      integer k_basis            ! [input] basis set handle for ksh
+      integer ksh                ! [input] k shell/contraction
+      integer lscr               ! [input] length of scratch array
+      double precision scr(lscr) ! [scratch] scratch array
+      integer ldov3              ! [input] length of 3c overlap integrals array
+      double precision dOV3(*)   ! [output] 3c overlap integrals
+      integer idatom(3) ! [output] array identifying centers for derivatives
+c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
+c                       !       the second nint*3 derivatives go to center idatom(2)
+c:tex-\end{verbatim}
+c
+c Order is...   nint*3*3 (3=> xyz, 3=atoms)
+c
+c  /                   |   
+c | nint,d <ij>        |
+c |      --------------|
+c  \     d[idatom(1),x]|
+c                          |
+c       nint,d <ij>        |
+c            --------------|
+c            d[idatom(1),y]|
+c                              |
+c           nint,d <ij>        |
+c                --------------|
+c                d[idatom(1),z]|
+c                                  |
+c               nint,d <ij>        |
+c                    --------------|
+c                    d[idatom(2),x]|
+c                                      |
+c                   nint,d <ij>        |
+c                        --------------|
+c                        d[idatom(2),y]|
+c                                          |
+c                       nint,d <ij>        |
+c                            --------------|
+c                            d[idatom(2),z]|
+c                                              |
+c                           nint,d <ij>        |
+c                                --------------|
+c                                d[idatom(3),x]|
+c                                                  |
+c                               nint,d <ij>        |
+c                                    --------------|
+c                                    d[idatom(3),y]|
+c                                                      \
+c                                   nint,d <ij>         |
+c                                        -------------- |
+c                                        d[idatom(3),z]/
+c If idatom(?) = 0 then do not use this 3*nint block of integral derivatives
+c::local
+      logical shells_ok
+      integer nint_intrnl
+      integer ucont
+      integer ibas, jbas, kbas
+      integer i_geom, j_geom, k_geom
+      integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
+      integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
+      integer Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
+c
+      integer i_pov3, j_pov3, k_pov3
+      integer WarnP
+      save WarnP
+      data WarnP /0/
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+c check initialization and shells
+c
+      if (.not.int_chk_init('intd_1e3ov'))
+     &       call errquit('intd_1e3ov: int_init was not called' ,0)
+c
+      shells_ok = int_chk_sh(i_basis,ish)
+      shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
+      shells_ok = shells_ok .and. int_chk_sh(k_basis,ksh)
+      if (.not.shells_ok)
+     &       call errquit('intd_1e3ov: invalid contraction/shell',0)
+c
+      call int_nospherical_check(i_basis,'intd_1e3ov')
+      call int_nospherical_check(j_basis,'intd_1e3ov')
+      call int_nospherical_check(k_basis,'intd_1e3ov')
+c
+      ibas = i_basis + BASIS_HANDLE_OFFSET
+      jbas = j_basis + BASIS_HANDLE_OFFSET
+      kbas = k_basis + BASIS_HANDLE_OFFSET
+c
+      ucont   = (sf_ibs_cn2ucn(ish,ibas))
+      Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
+      i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
+      i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
+      i_iexp  = infbs_cont(CONT_IEXP ,ucont,ibas)
+      i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
+      i_cent  = (sf_ibs_cn2ce(ish,ibas))
+      i_geom  = ibs_geom(ibas)
+c
+      ucont   = (sf_ibs_cn2ucn(jsh,jbas))
+      Lj      = infbs_cont(CONT_TYPE ,ucont,jbas)
+      j_prim  = infbs_cont(CONT_NPRIM,ucont,jbas)
+      j_gen   = infbs_cont(CONT_NGEN ,ucont,jbas)
+      j_iexp  = infbs_cont(CONT_IEXP ,ucont,jbas)
+      j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
+      j_cent  = (sf_ibs_cn2ce(jsh,jbas))
+      j_geom  = ibs_geom(jbas)
+c
+      ucont   = (sf_ibs_cn2ucn(ksh,kbas))
+      Lk      = infbs_cont(CONT_TYPE ,ucont,kbas)
+      k_prim  = infbs_cont(CONT_NPRIM,ucont,kbas)
+      k_gen   = infbs_cont(CONT_NGEN ,ucont,kbas)
+      k_iexp  = infbs_cont(CONT_IEXP ,ucont,kbas)
+      k_icfp  = infbs_cont(CONT_ICFP ,ucont,kbas)
+      k_cent  = (sf_ibs_cn2ce(ksh,kbas))
+      k_geom  = ibs_geom(kbas)
+c
+      nint_intrnl = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+      if ((nint_intrnl*9).gt.ldov3) then
+        write(6,*)' buffer size too small '
+        write(6,*)' buffer size : ',ldov3
+        write(6,*)' needed      : ',(nint_intrnl*9)
+        stop ' intd_1e3ov: fatal error '
+      endif
+c
+      if ((i_cent.eq.j_cent).and.(j_cent.eq.k_cent)) then
+        idatom(1) = 0
+        idatom(2) = 0
+        idatom(3) = 0
+        call dfill((9*nint_intrnl),0.0d00,dOV3,1)
+        return
+      endif
+c
+      if ((i_geom.ne.j_geom.or.j_geom.ne.k_geom).and.WarnP.eq.0) then
+        write(6,*)
+     &      'intd_1e3ov: WARNING: possible geometry inconsistency'
+        write(6,*)'i_basis geometry handle:',i_geom
+        write(6,*)'j_basis geometry handle:',j_geom
+        write(6,*)'k_basis geometry handle:',k_geom
+        WarnP = 1
+      endif
+c
+      call hfd3ois(
+     &    coords(1,i_cent,i_geom),
+     &    dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &    dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &    i_prim, 1, Li,
+     &    coords(1,j_cent,j_geom),
+     &    dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &    dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &    j_prim, 1, Lj,
+     &    coords(1,k_cent,k_geom),
+     &    dbl_mb(mb_exndcf(k_iexp,kbas)),
+     &    dbl_mb(mb_exndcf(k_icfp,kbas)),
+     &    k_prim, 1, Lk,
+     &    dOV3,nint_intrnl,
+c.........DryRun
+     &    .false.,scr,lscr)
+c
+      i_pov3 = 1                    ! pointer to i block of derivs
+      j_pov3 = 3*nint_intrnl+i_pov3 ! pointer to j block of derivs
+      k_pov3 = 3*nint_intrnl+j_pov3 ! pointer to k block of derivs
+c
+      if ((i_cent.ne.j_cent).and.(i_cent.ne.k_cent).and.
+     &                                       (j_cent.ne.k_cent)) then
+        idatom(1) = i_cent
+        idatom(2) = j_cent
+        idatom(3) = k_cent
+      else if (i_cent.eq.j_cent) then
+        call daxpy(3*nint_intrnl,1.0d00,dOV3(j_pov3),1,dOV3(i_pov3),1)
+        call dcopy(3*nint_intrnl,dOV3(k_pov3),1,dOV3(j_pov3),1)
+        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        idatom(1) = i_cent
+        idatom(2) = k_cent
+        idatom(3) = 0
+      else if (i_cent.eq.k_cent) then
+        call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(i_pov3),1)
+        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        idatom(1) = i_cent
+        idatom(2) = j_cent
+        idatom(3) = 0
+      else if (j_cent.eq.k_cent) then
+        call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(j_pov3),1)
+        call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
+        idatom(1) = i_cent
+        idatom(2) = j_cent
+        idatom(3) = 0
+      else
+        write(6,*)i_cent,j_cent,k_cent
+        write(6,*)' fatal error '
+        stop 'intd_1e3ov: how did I get here'
+      endif
+      end
