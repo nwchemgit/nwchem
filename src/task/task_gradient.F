@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.20 2000-03-22 03:04:02 edo Exp $
+* $Id: task_gradient.F,v 1.21 2000-04-17 22:34:22 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -82,6 +82,11 @@ c
       else if (theory .eq. 'scf') then
          status = scf_gradient(rtdb)
       else if (theory .eq. 'dft') then
+         status = nwdft(rtdb)
+         if (status) status = grad_dft(rtdb)
+c     cleanup any grid parameters
+         call grid_cleanup(rtdb)
+      else if (theory .eq. 'sodft') then
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
 c     cleanup any grid parameters
