@@ -405,7 +405,6 @@ c
                call util_flush(6)
             endif
          endif
-         call movecs_swap(rtdb,'mcscf','mcscf',g_movecs,occ,evals)
          if (.not. status) call errquit('rhf: failed to load vectors',0)
          oldvectors = .true.
       endif
@@ -459,6 +458,12 @@ c
          endif
       endif
       call ga_sync()
+c
+c
+c     Apply any swaps of orbitals
+c
+      call movecs_swap(rtdb,'mcscf','mcscf',g_movecs,occ,evals)
+c
 c
 c     Orthogonalize all input/guess vectors ... don't mix the occupied
 c     with the virtuals.
@@ -581,7 +586,10 @@ c
           status = .false.
         endif
       endif
-      call movecs_swap(rtdb,'mcscf','rohf',g_movecs,occ,evals)
+
+
+****      call movecs_swap(rtdb,'mcscf','rohf',g_movecs,occ,evals)
+
       if (.not. status)
      $  call errquit('mcscf_movecs_read: failed to load vectors',0)
 c
@@ -655,7 +663,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.26 1997-07-10 21:37:00 d3e129 Exp $
+c  $Id: mcscf_aux.F,v 1.27 1998-12-03 01:44:37 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
