@@ -325,7 +325,7 @@ c
       erep(geom) = e
 c
       end
-      logical function geom_rtdb_store(rtdb, name, geom)
+      logical function geom_rtdb_store(rtdb, geom, name)
       implicit none
 #include "geomP.fh"
 #include "rtdb.fh"

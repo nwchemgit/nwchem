@@ -1,10 +1,9 @@
-      subroutine geom_input(rtdb, print)
+      subroutine geom_input(rtdb)
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
       integer rtdb              ! [input]
-      logical print             ! [input]
 c
       character*255 field       ! for character input
       character*255 name        ! for name of geometry
@@ -12,6 +11,7 @@ c
       integer ncenter           ! counts no. of centers as input
       integer geom              ! handle for geometry
       logical status            ! scratch for return codes
+      logical oprint
       integer max_center        ! parameter for local array dimension
       parameter (max_center = 1000)
       double precision coords(3,max_center)
@@ -35,15 +35,22 @@ c
       if (.not. inp_compare(.false., 'geom', field))
      $     call errquit('geom_input: not geometry input', 0)
 c     
-c     geometry [<name>] [units <units>]
+c     geometry [<name>] [units <units>] [print] [noprint]
 c     
       units = 'atomic units'
       name  = ' '
+      oprint = .true.
+c
  10   if (inp_a(field)) then
-         if (inp_compare(.false.,'units', field)) then
+         if (inp_compare(.false.,'print', field)) then
+            oprint = .true.
+         else if (inp_compare(.false.,'noprint',field)) then
+            oprint = .false.
+         else if (inp_compare(.false.,'units', field)) then
             if (.not. inp_a(units)) call errquit
      $          ('geom_input: geometry [<name>] [units <units>]', 0)
-*            call geom_check_units(units)
+            if (units(1:2).ne.'au' .and. units(1:2).ne.'bo')
+     $           call errquit('geom_input: au only!', 0)
          else
             if (name .ne. ' ') call errquit
      $          ('geom_input: geometry [<name>] [units <units>]', 0)
@@ -82,12 +89,12 @@ c
  30   if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
 c
-      if (print) then
+      if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
       endif
 c
-      if (.not. geom_rtdb_store(rtdb, name, geom)) 
+      if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
 c
       if (.not. geom_destroy(geom))

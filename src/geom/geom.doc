@@ -1,11 +1,43 @@
+  'Geometry', unfortunately, is a bit of a misnomer since the
+'geometry object' serves several purposes
 
-The geometry data includes
+     - a definition of the coordinate system and positioning in
+       space (also lattice vectors for periodic systems)
+
+     - an association of names/tags with coordinates in space
+
+     - a specification of the external potential (nuclear multipole
+       moments, external fields, effective core potentials, ...) that
+       defines the Hamiltonian for all electronic structure methods
+
+  The geometry is home for Hamiltonian related information (and not
+wavefunction related information).
+
+  The tag is overloaded with many different meanings
+
+   - an element (to provide default specification of nuclear charge, mass,
+     no. of electrons, ...)
+
+   - as a name of an 'atomic' basis set
+
+   - as a DFT grid description
+
+   - as a test for symmetry equivalence (lower symmetry can be forced
+     by specifying different tags for otherwise symmetry equivalent
+     centers)
+
+   - ...
+
+This fits very well with current practice and so everyone will understand
+how to use this.
+
+
+The geometry data includes, or will eventuall include
 
    1) A description of the coordinates of all types of centers (e.g.,
-      atom, charge, basis function)
+      atom, basis function)
 
-   2) Charges (and I guess possibly other potentials) associated with
-      those centers
+   2) Charges (eventually ECPs, ...) associated with those centers
 
    3) Tags (names) of centers
 
@@ -17,98 +49,86 @@ The geometry data includes
    6) Any other simple scalar/vector attributed associated
       specifically with a center
 
-Operations
-
-   1) Store/retrieve from the database
-
-   logical geom_rtdb_load(rtdb, name, geom)
-   integer rtdb          [input]
-   character*(*) name    [input]
-   integer geom          [output]
-
-   logical geom_rtdb_store(rtdb, 'geometry', geom)
-   integer rtdb          [input]
-   character*(*) name    [input]
-   integer geom          [input]
-
-   2) Create/destroy
-
-   logical geom_create(geom)
-   integer geom          [output]
-
-   logical geom_destroy(geom)
-   integer geom          [input]
-
-   3) Set/get commmon values for all centers
-
-   logical geom_cart_set(geom, ncent, tags, coords, charges)
-   integer geom                    [input]
-   integer ncent                   [input]
-   character*(*) tags(ncent)       [input]
-   character*(*) coords(3, ncent)  [input]
-   character*(*) charges(ncent)    [input]
-
-   logical geom_cart_get(geom, ncent, tags, coords, charges)
-   integer geom                    [input]
-   integer ncent                   [output]
-   character*(*) tags(ncent)       [output]
-   character*(*) coords(3, ncent)  [output]
-   character*(*) charges(ncent)    [output]
-
-   4) Set/get common values for specific centers
-
-   logical geom_cent_set(geom, icent, tag, coord, charge)
-   integer geom             [input]
-   integer ncent            [input]
-   character*(*) tag        [input]
-   character*(*) coords(3)  [input]
-   character*(*) charge     [input]
-
-   logical geom_cent_get(geom, icent, tag, coord, charge)
-   integer geom             [input]
-   integer ncent            [output]
-   character*(*) tag        [output]
-   character*(*) coords(3)  [output]
-   character*(*) charge     [output]
-
-   5) Inquiry routines
-
-   integer function geom_ncent(geom)
-   integer geom             [input]
-
-   logical function geom_cent_tag(geom, icent, tag)
-   integer geom             [input]
-   integer icent            [input]
-   character*(*) tag        [output]
-
-   6) Set/get specific values for specific centers
-
-   There are two possibilities here
-
-     a) adopt an extensible definition of properties associated
-        with a center.  This includes registering new properties
-        with a name and routines to set/get/load/store the values
-        and some general format (e.g., netcdf) for describing
-        and passing data.
-
-     b) adopt a static definition of the data structures and
-        require recompilation after the structures have been changed
-        and new routines provided.  
-
-   Do we think that new properties will be added very regularly or
-   that this will become very infrequent?  I tend to think the latter,
-   so a) is not yet worth the effort.  Since b) requires very little
-   effort we can always change our minds and do a) later.
 
 
-   7) Zmatrix routines ... not yet defined 
+Operations:
+----------
 
-      n_zmat_cent, n_zmat_vars, ...
-      logical geom_zmat_defined()
-      call geom_zmat_get
-      call geom_zmat_set
-      ...
+  All logical functions return true on sucess, false on failure.
+  Only other actions are discussed below.
+
+  logical function geom_check_handle(geom, msg)
+  integer geom    ! [input]
+  character*(*) msg ! [input]
+
+      If (geom is not a valid geometry handle)
+         print out msg and return false
 
 
-Data on the rtdb
+  logical function geom_rtdb_load(rtdb, geom, name)
+  integer rtdb    ! [input]
+  integer geom    ! [input]
+  character*(*) name  ! [input]
+
+      Load named geometry from the data base.  One level of
+      translation is attempted upon the name.  Geom must be a valid
+      handle created by geom_create().  The same geometry may be
+      loaded into distinct geometry objects.
+
+      
+  logical function geom_rtdb_store(rtdb, name, geom)
+
+      Store named geometry into the database.  One level of
+      translation is attempted upon the name.
+
+
+  logical function geom_rtdb_delete(rtdb, name)
+
+      Delete the named geometry from the data base.  One level of
+      translation is attempted.  Nothing happens to in-core copies of
+      the geometry.
+
+
+  logical function geom_create(geom, name)
+
+      The only place from which to get a valid geometry handle.  Name
+      is used only for identification in printout and subsequent
+      creates.  If the geometry is already opened a handle to the
+      existing copy is returned.
+
+
+  logical function geom_destroy(geom)
+
+      Delete the incore data structures associated with the geometry
+      and make the geometry invalid for further use.
+
+
+  logical function geom_cart_set(geom, ncent, t, c, q)
+  integer geom [input]
+  integer ncent [input]
+  character*16 t(ncent) [input]
+  double precision c(3,ncent) [input]
+  double precision q(ncent) [input]
+
+     Simple interface for setting tags (t), cartesian coords (c) and
+     charges (q) for the geometry.  Atomic units are currently assumed
+     but might soon be able to specify what units the interface will
+     use.
+
+  logical function geom_cart_get(geom, ncent, t, c, q)
+
+     Extracts info from the geometry (opposite of set)
+
+
+  
+      logical function geom_cent_get(geom, icent, t, c, q)
+      logical function geom_cent_set(geom, icent, t, c, q)
+      logical function geom_ncent(geom, ncent)
+      logical function geom_cent_tag(geom, icent, tag)
+      logical function geom_latvec_set(geom, vectors)
+      logical function geom_latvec_get(geom, vectors)
+      logical function geom_efield_set(geom, ef)
+      logical function geom_efield_get(geom, ef)
+      logical function geom_print(geom)
+      logical function geom_tag_to_element(tag, symbol, element, atn)
 
