@@ -1,0 +1,21 @@
+Calling tree (key routines only) for RI-MP2 Gradients module
+
+rimp2g--+
+	driver_xf
+	|	xf* routines in original rimp2 module
+	|
+	driver_e+
+	|	ij_int
+	|	e_ij----+
+	|	|	asym_i
+	|	|	mk_t
+	|	|	paire
+	|	|
+	|	g_ij----+
+	|	|	p2ab
+	|	|	p2ij
+	|	|	gamma3
+	|	|
+	|	e_final
+	|
+	driver_g

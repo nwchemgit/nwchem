@@ -1071,6 +1071,8 @@ integrals.
 
 \section{Notes on implementation of RI-MP2 derivatives}
 
+\subsection{Avoiding Storage of Four-Index Quantities}
+
 The following terms involve four-index quantities.  We want to avoid
 the need to store any four-index quantities.
 
@@ -1122,6 +1124,8 @@ held in memory.  Failing that, the best approach would seem to be a
 special loop to produce $t$ and $P^{(2)}_{ij}$ specifically, for
 example using a $t$ data structure holding all $ij$ for a subset of
 $ab$.
+
+\subsection{Contraction of $t$ with RI Integrals}
 
 The three terms which involve contraction of $t$ with an RI
 (derivative) integral can be simplified by taking advantage of the RI
@@ -1197,8 +1201,6 @@ $\Gamma^{NS}$ contribution can be further contracted, so that only the
 $V^{x}_{\Phi\Omega}$ itself remains to contracted.  This entirely
 avoids the backtransformation, but it is not yet clear if this step is
 useful in practice or not.
-
-
 
 \end{changebar}
 

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_E_IJ -- Evaluate RI-MP2 energy contributions for IJ batch
 C
 C REVISION
-C     $Id: e_ij.F,v 1.1 1998-07-06 21:09:55 bernhold Exp $
+C     $Id: e_ij.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_E_IJ(TopSpin, SameSpin, ILo, IHi, NVirI,
@@ -83,7 +83,7 @@ C
       NI = IHi - ILo + 1
       NJ = JHi - JLo + 1
 C
-      PrPrgRpt = Util_Print('progress reports', Print_Default)
+c$$$      PrPrgRpt = Util_Print('progress reports', Print_Default)
 C     
 C     Create GA for (approximate) 4c2e integrals.
 C     
@@ -114,8 +114,8 @@ C
       Call GA_DGEMM('N', 'T',NI*NVirI, NJ* NVirJ, NFit,
      $   1.0d0, G_I, G_j, 0.0d0, G_Int)
       Call PStat_Off( PS_form_4ci)
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       Approximate 4c2e integrals done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       Approximate 4c2e integrals done')
       If ( Util_Print('4c ints', Print_Debug) )
      $   Call GA_Print( G_Int )
 C
@@ -137,8 +137,8 @@ C
      $   JLo, JHi, NVirJ, .FALSE., IJTri, G_Int, SpinLabel) )
      $   Call ErrQuit('RIMP2G_V_E2: can''t antisymmetrize integrals', 0)
       Call PStat_Off( PS_form_ab)
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       Antisymmetrized integrals done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       Antisymmetrized integrals done')
 C     
 C     Make amplitudes
 C     
@@ -148,8 +148,8 @@ C
      $   SpinLabel) )
      $   Call ErrQuit('RIMP2G_V_E2: can''t create amplitude GA', 0)
       Call PStat_Off( PS_denom)
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       T2 amplitudes done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       T2 amplitudes done')
 C
 C     Collect statistics on t
 C
@@ -162,8 +162,8 @@ C
       Call RIMP2_PairE(ILo, IHi, NVirI, JLo, JHi, NVirJ,
      $   .FALSE., IJTri, G_Int, G_T2, G_PairE )
       Call PStat_Off(PS_PrEn)
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       Pair energies done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       Pair energies done')
 C
 C     Don't need integrals or amplitudes anymore
 C

@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.5 1998-07-06 21:11:02 bernhold Exp $
+C$Id: rimp2g.F,v 1.6 1998-07-13 02:38:10 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -46,7 +46,7 @@ C
       Integer AOBas, FitBas, Bases(2), Geom
       Integer NAOBF, TopSpin, NFit, RefNAO, NFrzOcc, NFrzVir
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
-      Integer NFrz(MaxSpin)
+      Integer NFrz(MaxSpin), NAct(MaxSpin), NVir(MaxSpin)
       Integer I, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
@@ -61,7 +61,7 @@ C
       Integer H_Occ, H_EVal
       Integer I_Occ, I_EVal
       Integer G_AOXF(MaxSpin)
-      Integer NCorBF(MaxSpin), MxNCorBF
+      Integer NMO(MaxSpin), MxNCorBF
 C
 C     "Handles" for the integral file(s).  Indices are:
 C         1 = spin (alpha, beta)
@@ -144,7 +144,7 @@ C
       Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
       Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
 C
-      Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NCorBF,
+      Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NMO,
      $     G_AOXF, MinChunk, MinChunk, MaxSpin, H_Occ, H_EVal,
      $     NFrzOcc, NFrzVir, .False.)
 C
@@ -159,7 +159,7 @@ C
 C     Determine ranges to transform.
 C
       Do I = 1, TopSpin
-         Call Occ_Ranges( NCorBF(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
+         Call Occ_Ranges( NMO(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
      $      ILo(I), IHi(I), ALo(I), AHi(I) )
       EndDo
 C
@@ -191,7 +191,7 @@ C
          Write (LuOut, 8520) 'Nr. of fitting basis functions:', NFit
          Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
          Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
-     $      (NCorBF(i), i = 1, TopSpin)
+     $      (NMO(i), i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of occupied MOs correlated:',
      $      (IHi(i)-ILo(i)+1, i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of virtual MOs correlated:',
@@ -200,10 +200,10 @@ C
 C
          If ( BraKetSame ) then
             Write (LuOut, 8505) 'RI integral approximation:',
-     $           'symmetric',  Approx(:Inp_StrLen(Approx))
+     $           Approx(:Inp_StrLen(Approx)), '(symmetric)'
          Else
             Write (LuOut, 8505) 'RI integral approximation:',
-     $           'assymetric', Approx(:Inp_StrLen(Approx))
+     $           Approx(:Inp_StrLen(Approx)), '(assymetric)'
          EndIf
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
          Write (LuOut, 8510)
@@ -289,9 +289,9 @@ C
 C
 C
       Status = Status .AND.
-     $   RIMP2_Driver_XF( MaxSpin, RTDB, Geom, AOBas, FitBas, TopSpin,
-     $     D_Int, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $     MinEVal, Approx, G_AOXF, FN_Int)
+     $   RIMP2_Driver_XF( RTDB, Geom, AOBas, FitBas, TopSpin,
+     $     MaxSpin, D_Int, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
+     $     MinEVal, Approx, G_AOXF, FN_Int, BraKetSame, DoGrad)
 C
 C     Finished with the AO transformation
 C
@@ -313,6 +313,9 @@ C
          ALo(I) = 1
          IHi(I) = IHi(I) - ILo(I) + 1
          ILo(I) = 1
+C
+         NAct(I) = IHi(I)
+         NVir(I) = AHi(I)
       EndDo
 C
 C     Create matrix to hold spin case breakdown of E(2)
@@ -328,8 +331,8 @@ C     something in case of later failure.
 C
       Status = .TRUE.
       Status = Status .AND.
-     $   RIMP2_Driver_E( MaxSpin, FN_Int, D_Int, FN_Gam, D_Gam,
-     $     TopSpin, NCorBF, NFrzOcc, IHi, AHi, NFit,
+     $   RIMP2_Driver_E( MaxSpin, BraKetSame, FN_Int, D_Int, FN_Gam,
+     $     D_Gam, TopSpin, NMO, NFrzOcc, IHi, AHi, NFit,
      $     FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), DoGrad, G_P2)
 C
@@ -378,6 +381,10 @@ C
 C     ************
 C     * Gradient *
 C     ************
+C
+      If ( DoGrad ) then
+         Call RIMP2_Driver_G(TopSpin, NFrzOcc, NAct, NVir, FitBas)
+      EndIf
 C
 C     ***********
 C     * Cleanup *

@@ -3,19 +3,20 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.1 1998-07-06 21:09:36 bernhold Exp $
+C     $Id: driver_e.F,v 1.2 1998-07-13 02:38:07 bernhold Exp $
 C
 C SYNOPSIS
-      Logical Function RIMP2_DRIVER_E(MaxSpin, FN_Int, D_Int, FN_Gam,
-     $     D_Gam,
-     $     TopSpin, NMO, NCor, NOcc, NVir, NFit, FitBas, Eig, LDEig,
+      Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
+     $     D_Int, FN_Gam, D_Gam,
+     $     TopSpin, NMO, NFrzO, NOcc, NVir, NFit, FitBas, Eig, LDEig,
      $     Contrib, E2, Mem_Opt, IBlock, JBlock, DoGrad, G_P2)
       Implicit NONE
 C
       Integer MaxSpin
+      Logical BraKetSame
       Integer TopSpin, NMO(TopSpin), NFit, FitBas,
      $   IBlock, JBlock, LDEig, G_P2(TopSpin)
-      Integer NCor(TopSpin), NOcc(TopSpin), NVir(TopSpin)
+      Integer NFrzO, NOcc(TopSpin), NVir(TopSpin)
       Double precision Eig(LDEig, TopSpin), Contrib(TopSpin, TopSpin)
       Double precision E2
       Character*(*) Mem_Opt
@@ -128,7 +129,6 @@ C
 C STATEMENT FUNCTIONS
       Character*1 SpinItoA
       SpinItoA(ISpin) = Char( ISpin + IChar('a') - 1 )
-
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
@@ -239,7 +239,7 @@ C
          JBlock = Min(JBlock, NewJBlk)
       EndIf
 C
-      If ( PrInfo .AND. GA_NodeID() .eq. 0) then
+      If ( (PrInfo .AND. GA_NodeID() .eq. 0) .or. PrPrgRpt ) then
          If ( DoGrad ) then
             Write (String1, 9105) IBlock, JBlock
          Else
@@ -271,7 +271,7 @@ C
             RIMP2_Driver_E = .FALSE.
             Return
          EndIf
-         If ( FN_Int(ISpin, 1, 1) .eq. FN_Int(ISpin, 2, 1) ) then
+         If ( BraKetSame ) then
             D_Int(ISpin, 2, 1) = D_Int(ISpin, 1, 1)
          Else
             If ( DRA_Open(
@@ -292,9 +292,9 @@ C
      $              'gamma3 file for spin ', ISpin, '!'
                RIMP2_Driver_E = .FALSE.
                Return
-            EndIf
-         EndIf
-      EndDo
+            EndIf ! DRA_Create
+         EndIf    ! DoGrad
+      EndDo       ! ISpin
 C
 C     *****************************************************************
 C     * Loop over occupied orbitals of both spins for the first index *
@@ -346,7 +346,6 @@ C
      $                     SpinLabel(:Inp_StrLen(SpinLabel)),
      $                     ILo, IHi, JLo, JHi
                      EndIf
-                     Write (LuOut, '(A)') ' '
                      Call Util_Sqz_Spc(String1)
                      String1 = '    '//String1
                      Call Progress_Report(LuOut,
@@ -380,6 +379,8 @@ C
      $                 SpinLabel(:Inp_StrLen(SpinLabel)),
      $                 TopN, Int_MB(I_TopN_Ind(ISpin+JSpin-1)),
      $                 Dbl_MB(I_TopN_Val(ISpin+JSpin-1)), ReqI, ReqJ  )
+                  If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $                 '       Energy terms done')
 C
 C                 Do gradient stuff for this IJ batch.  3c integrals,
 C                 t no longer needed.
@@ -393,7 +394,10 @@ C
      $                  G_bigI, .FALSE., G_bigJ, .FALSE.,
      $                  G_T2, .FALSE., G_PairE(ISpin + JSpin - 1),
      $               NOcc(ISpin), ISpin, NOcc(JSpin), JSpin, G_P2,
-     $               SpinLabel(:Inp_StrLen(SpinLabel)), D_Gam )
+     $               SpinLabel(:Inp_StrLen(SpinLabel)), D_Gam,
+     $                    BraKetSame, D_Int(JSpin, 1, 1) )
+                  If ( PrPrgRpt ) Call Progress_Report(LuOut,
+     $                 '       Gradient terms done')
 C
                   EndIf         ! Gradient-only section
 C                 
@@ -407,29 +411,48 @@ C     * Close & delete files *
 C     ************************
 C
       Do ISpin = 1, TopSpin
-         If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) then
-            Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $         'integral file(s)!'
-            RIMP2_DRIVER_E = .FALSE.
-            Return
-         EndIf
-         If ( FN_Int(ISpin, 1, 1) .ne. FN_Int(ISpin, 2, 1) ) then
-            If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) then
+C
+C        If we're doing gradients, we still need to keep them,
+C        otherwise we can delete them entirely.
+C
+         If ( DoGrad ) then
+            If ( DRA_Close(D_Int(ISpin, 1, 1)) .ne. 0) then
                Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
      $              'integral file(s)!'
                RIMP2_DRIVER_E = .FALSE.
                Return
             EndIf
-         EndIf
-         If ( DoGrad ) then
+            If ( .NOT. BraKetSame ) then
+               If ( DRA_Close(D_Int(ISpin, 2, 1)) .ne. 0) then
+                  Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
+     $                 'integral file(s)!'
+                  RIMP2_DRIVER_E = .FALSE.
+                  Return
+               EndIf
+            EndIf
             If ( DRA_Close(D_Gam(ISpin)) .ne. 0) then
                Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
      $              'gamma3 file(s)!'
                RIMP2_DRIVER_E = .FALSE.
                Return
             EndIf
-         EndIf
-      EndDo
+         Else       ! .NOT. DoGrad
+            If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) then
+               Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
+     $              'integral file(s)!'
+               RIMP2_DRIVER_E = .FALSE.
+               Return
+            EndIf
+            If ( .NOT. BraKetSame ) then
+               If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) then
+                  Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
+     $                 'integral file(s)!'
+                  RIMP2_DRIVER_E = .FALSE.
+                  Return
+               EndIf
+            EndIf
+         EndIf ! DoGrad
+      EndDo    ! ISpin
 C
 C     Print amplitude statistics if requested & clean up
 C
@@ -453,7 +476,7 @@ C
             Call RIMP2_t_Stats_Print(TopN,
      $           Int_MB(I_TopN_Ind(ISpin+JSpin-1) ),
      $           Dbl_MB(I_TopN_Val(ISpin+JSpin-1) ),
-     $           NCor(ISpin), NCor(JSpin), NOcc(ISpin), NOcc(JSpin),
+     $           NFrzO, NFrzO, NOcc(ISpin), NOcc(JSpin),
      $           SpinLabel(:Inp_StrLen(SpinLabel)) )
 C
             Call RIMP2_t_Stats_Term(TopN, H_TopN_Ind(ISpin+JSpin-1),

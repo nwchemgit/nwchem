@@ -1,6 +1,6 @@
       Subroutine RIMP2G_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2g_parm.F,v 1.1 1998-04-17 21:15:37 gg502 Exp $
+C$Id: rimp2g_parm.F,v 1.2 1998-07-13 02:38:11 bernhold Exp $
       Implicit NONE
       Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
@@ -42,6 +42,8 @@ C     ********************
 C     * RI Approximation *
 C     ********************
 C
+      If ( .NOT. RTDB_CGet( RTDB, 'mp2:ri approximation',
+     $   1, Approx) ) Approx = 'V'
       If ( .NOT. RTDB_CGet( RTDB, 'mp2:ri approximation',
      $   1, Approx) ) Approx = 'V'
       If ( .NOT. RTDB_Get( RTDB, 'mp2:fit min eval',

@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_G_IJ -- Evaluate RI-MP2 gradient contributions for IJ batch
 C
 C REVISION
-C     $Id: g_ij.F,v 1.1 1998-07-06 21:09:58 bernhold Exp $
+C     $Id: g_ij.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_G_IJ(TopSpin, SameSpin, ILo, IHi, NVirI,
      $   JLo, JHi, NVirJ, OccEigI, OccEigJ, VirEigI, VirEigJ,
      $   G_I, KeepI, G_J, KeepJ, G_T2, KeepT2, G_PairE,
-     $   NoccI, ISpin, NOccJ, JSpin, G_P2, SpinLabel, D_Gam3)
+     $   NoccI, ISpin, NOccJ, JSpin, G_P2, SpinLabel, D_Gam3,
+     $     BraKetSame, D_Int)
       Implicit NONE
 C
       Integer TopSpin  ![in] RHF=1 UHF=2
@@ -41,6 +42,8 @@ C
       Integer G_P2(TopSpin)
       Character*(*) SpinLabel
       Integer D_Gam3(TopSpin)
+      Logical BraKetSame
+      Integer D_Int
 C
 C DESCRIPTION
 C     Given batches of 3c2e integrals, (ILo:IHi, JLo:JHi), produce the
@@ -82,7 +85,7 @@ C
       NI = IHi - ILo + 1
       NJ = JHi - JLo + 1
 C
-      PrPrgRpt = Util_Print('progress reports', Print_Default)
+c$$$      PrPrgRpt = Util_Print('progress reports', Print_Default)
 C
 C     Compute P^{(2)}_{ab} contributions
 C
@@ -98,8 +101,8 @@ C
          Call RIMP2_P2AB(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Vir1)
       EndIf
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       P(2)_{ab} done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       P(2)_{ab} done')
 C
 C     Compute P^{(2)}_{ij} contributions
 C
@@ -115,26 +118,28 @@ C
          Call RIMP2_P2ij(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
      $      NVirJ, .TRUE., G_T2, G_P2(JSpin), Occ1)
       EndIf
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       P(2)_{ij} done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       P(2)_{ij} done')
 C
-C     Compute G(D,ia) = (D|jb) t(ij,ab)
+C     Compute G(D,ia) = (D|jb) t(ij,ab) aka gamma3
 C
 C     This is an intermediate in L1(pi), L2(ap), and the contraction
 C     of the 2-PDM (gamma) with derivative integrals.
 C
       Call RIMP2_Gamma3(.FALSE., IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, .FALSE., G_I, G_J, G_T2, D_Gam3(ISpin) )
+     $   NVirJ, G_I, G_J, G_T2, D_Gam3(ISpin), .FALSE., D_Int )
 C
 C     If this is the mixed spin case, we must also get the contribution
 C     to the beta version.
 C
       If ( TopSpin .eq. 2 .AND. .NOT. SameSpin) then
-      Call RIMP2_Gamma3(.FALSE., IJTri, JLo, JHi, NVirJ, ILo, IHi,
-     $   NVirI, .FALSE., G_J, G_I, G_T2, D_Gam3(JSpin) )
+C
+         Call RIMP2_Gamma3(.FALSE., IJTri, JLo, JHi, NVirJ, ILo, IHi,
+     $        NVirI, G_J, G_I, G_T2, D_Gam3(JSpin), .NOT. BraKetSame,
+     $        D_Int)
       EndIf
-      If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $   '       G(D,ia) intermediate done')
+c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
+c$$$     $   '       G(D,ia) intermediate done')
 C
 C
 C     Don't need integrals or amplitudes anymore

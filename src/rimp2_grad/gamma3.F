@@ -3,11 +3,11 @@ C NAME
 C     RIMP2_Gamma3 -- Form 3-index Gamma from 3e2c and 4-index Gamma
 C
 C REVISION
-C     $Id: gamma3.F,v 1.1 1998-07-06 21:10:00 bernhold Exp $
+C     $Id: gamma3.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Gamma3(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
-     $   NVirJ, Mixed, G_I, G_J, G_T, D_Gam3)
+     $   NVirJ, G_I, G_J, G_T, D_Gam3, ReadJ, D_J)
       Implicit NONE
 C
       Logical IJSym
@@ -18,11 +18,12 @@ C
       Integer JLo
       Integer JHi
       Integer NVirJ
-      Logical Mixed
-      Integer G_I
-      Integer G_J
-      Integer G_T
+      Integer G_I ![in] Used to size temporary GA for gamma3
+      Integer G_J ![in] Integrals to contract with amplitudes
+      Integer G_T ![in] Amplitudes
       Integer D_Gam3
+      Logical ReadJ ![in] Read J integrals from disk (trashes G_J!)
+      Integer D_J ![in] DRA handle to get J integrals from
 C
 C DESCRIPTION
 C     Evaluate G(D,ia) = (D|jb) t(ij,ab)
@@ -52,13 +53,25 @@ C INCLUDED FILES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer LT1, NI, NJ, Type, NFit, Req
-      Integer G_Gam3
+      Integer G_Gam3, ReqJ
 C
 C     Determine basic dimensions
 C
       Call GA_Inquire( G_J, Type, LT1, NFit)
       NI = IHi - ILo +1
       NJ = JHi - JLo +1
+C
+C     If necessary read integrals into G_J
+C
+      If ( ReadJ ) then
+         If ( DRA_Read_Section(.FALSE.,
+     $        G_J, 1,               NVirJ*NJ,  1, NFit,
+     $        D_J, 1+NVirJ*(JLo-1), NVirJ*JHi, 1, NFit, ReqJ) .ne. 0)
+     $        Call ErrQuit( 'RIMP2_Gamma3: Error reading J integrals',
+     $        JLo)
+         If ( DRA_Wait(ReqJ) .ne. 0) Call ErrQuit(
+     $        'RIMP2_Gamma3: Error from DRA_Wait on J integrals', 2)
+      EndIf
 C
 C     Create temporary GA to receive this portion of gamma3
 C
