@@ -1,59 +1,76 @@
 \label{sec:functionality}
 
+NWChem provides many methods to compute properties of molecular and
+periodic systems using standard quantum mechanical descriptions of the
+electronic wavefunction or density.  In addition, NWChem has the
+capability to perform classical molecular dynamics and free energy
+simulations.  These approaches may be combined to perform mixed
+quantum-mechanics and molecular-mechanics simulations. 
+
 \section{Molecular electronic structure}
 
-The following methods are available with energies and analytic first
-derivatives w.r.t. atomic coordinates.  Second derivatives are
-computed by finite difference of first derivatives.
+The following quantum mechanical methods are available to calculate
+energies, and analytic first derivatives with respect to atomic
+coordinates.  Second derivatives are computed by finite difference of
+the first derivatives.
+
 \begin{itemize}
-\item Self Consistent Field or Hartree Fock (RHF, UHF, high-spin
-  ROHF).  Analytic second derivatives in alpha testing.  
-\item Gaussian Density Functional Theory (DFT) with many local and
+\item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
+  ROHF).  Code to compute analytic second derivatives is being tested.
+\item Gaussian Density Functional Theory (DFT), using many local and
   non-local exchange-correlation potentials (RHF and UHF).
-\item MP2 semi-direct with frozen core with RHF and UHF reference.
-\item Coupled-cluster single and double excitations (CCSD) with RHF
-  reference.
+\item MP2 semi-direct using frozen core and RHF and UHF reference.
+
+\item Coupled-cluster single and double excitations (CCSD), with RHF
+  reference\footnote{CCSD analytic gradients were not yet complete at
+    the time of writing}.
+
 \item Complete active space SCF (CASSCF).
+
 \end{itemize}
 
-The following methods are available with energies only.  First and
-second derivatives are computed by finite difference of the energy.
+The following methods are available to compute energies only.  First
+and second derivatives are computed by finite difference of the
+energies.
 \begin{itemize}
-\item MP3, MP4, CCSD(T) (RHF reference).
+\item MP3, MP4, CCSD(T), with RHF reference.
 \item Selected-CI with second-order perturbation correction.
-\item MP2 fully-direct (RHF reference).
-\item Resolution of the identity integral approximation MP2 (RI-MP2)
-  (RHF and UHF reference).
+\item MP2 fully-direct with RHF reference.
+\item Resolution of the identity integral approximation MP2 (RI-MP2), with
+  RHF and UHF reference.
 \end{itemize}
 
-For all methods, the following operations may be performed
+For all methods, the following operations may be performed:
 \begin{itemize}
-\item Single point energy.
-\item Geometry Optimization (Minimization and Transition State).
+\item Single point energy
+\item Geometry optimization (minimization and transition state)
 \item Molecular dynamics on the fully {\em ab initio} potential energy
-  surface.
+  surface
 \item Numerical first and second derivatives automatically computed if
-  analytic derivatives are not available.
+  analytic derivatives are not available
+\item Normal mode vibrational analysis.
 \item Generation of the electron density file for the {\em Insight}
-      graphical program.
+      graphical program
+%Need to elaborate on or reference the "Insight" program?--fmr
+\item Evaluation of static, one-electron properties.
 \end{itemize}
 
 In addition, automatic interfaces are provided to
 \begin{itemize}
-\item The COLUMBUS multi-reference CI package.
-\item The natural bond orbital package.
+\item The COLUMBUS multi-reference CI package
+\item The natural bond orbital (NBO) package
 \end{itemize}
 
 \section{Periodic system electronic structure}
 
-Currently available are energies with Gaussian Density Functional
-Theory (DFT) with many local and non-local exchange-correlation
-potentials.
+A modules is available to compute energies by Gaussian Density
+Functional Theory (DFT) with many local and non-local
+exchange-correlation potentials.
 
 \section{Molecular dynamics}
 
 The following functionality is available for classical molecular
-simulations
+simulations:
 \begin{itemize}
 \item Single configuration energy evaluation
 \item Energy minimization
@@ -61,13 +78,12 @@ simulations
 \item Free energy simulation 
 \end{itemize}
 
-There is also the capability to combine classical and quantum
-descriptions in order to perform
+NWChem also has the capability to combine classical and quantum
+descriptions in order to perform:
 \begin{itemize}
 \item Mixed quantum-mechanics and molecular-mechanics (QM/MM)
-  minimizations and molecular dynamics using any of the quantum
+  minimizations, and
+\item Molecular dynamics using any of the quantum
   mechanical wavefunctions.
-\end{itemize}
-
 
 

@@ -1,29 +1,29 @@
 \label{sec:scfgrad}
 
+
+The input for this directive allows the user to adjust the print control
+for the SCF, UHF, ROHF, MCSCF and MP2 gradients.  The
+form of the directive is as follows:
+
+% RJH removed 
+%    [chkpt <integer minutes>]
+%    [restart]
+
 \begin{verbatim}
   GRADIENTS 
-    [chkpt <integer minutes>]
-    [restart]
-    [print || noprint]
+    [print || noprint] ...
   END
 \end{verbatim}
 
-%  This input controls the Hartree-Fock (SCF, UHF and ROHF) gradients.  
-
-The input for this directive allows the user to define 
-characteristics of the Hartree-Fock gradients for the SCF, UHF and ROHF
-calculations.  The form of the directive is as follows;
-
-
-
-The directive contains two keywords, \verb+chkpt+ and \verb+restart+,
-that are related to the creation of the gradients.  The keyword \verb+chkpt+
-allows the user to specify a time interval at which the current values
-for the forces that make up 
-the gradient are saved, for access by a later calculation.  The time
-interval is specified in the integer variable \verb+minutes+, and defines
-the number of minutes of elapsed wall-clock time since the start of the
-calculation when the gradient is written to the runtime database.
+%The directive contains two keywords, \verb+chkpt+ and \verb+restart+,
+%that are related to the creation of the gradients.  The keyword
+%\verb+chkpt+ allows the user to specify a time interval at which the
+%current values for the forces that make up the gradient are saved, for
+%access by a later calculation.  The time interval is specified in the
+%integer variable \verb+minutes+, and defines the number of minutes of
+%elapsed wall-clock time since the start of the calculation when the
+%gradient is written to the runtime database.
+%RJH: No default chkpt value?  What happens if this is not specified?--fmr.
 
 % \section{CHKPT}
 
@@ -33,34 +33,40 @@ calculation when the gradient is written to the runtime database.
 
 % \section{RESTART}
 
-Specifying the keyword \verb+restart+ allows the user to restart a calculation
-using the gradient calculated from a previous calculation that may have
-aborted for some reason.  (This implies, of course, that the previous
-calculation employed the keyword \verb+chkpt+ with a value specified for
-the variable \verb+minutes+ that allowed the calculation to write out the
-gradient before failing.)  The keyword \verb+restart+ allows the partially
-calculated forces from the previous calculation to be used as the starting
-point for the new calculation.  If the gradient was not saved previously,
-however, this keyword has no effect.  The gradients are automatically 
-recalculated from zero.
+%Specifying the keyword \verb+restart+ allows the user to restart a calculation
+%using the gradient from a previous calculation that may have
+%aborted for some reason  (This implies, of course, that the previous
+%calculation employed the keyword \verb+chkpt+ with a value specified for
+%the variable \verb+minutes+, which allowed the calculation to write out the
+%gradient before failing).  The keyword \verb+restart+ allows the partially
+%calculated forces from the previous calculation to be used as the starting
+%point for the new calculation.  If the gradient was not saved previously,
+%however, this keyword has no effect, and the gradients are automatically 
+%recalculated from zero.
 
 %  This keyword tells the program that this is a restart of an aborted
 %  gradient calculation. The partially calculated forces are taken from
 %  the database of the previous run. If they are not present, the
 %  keyword is ignored and a complete calculation of the gradients is started.
 
-  It also works within a geometry optimization. Once a gradient
-calculation has completed, restart information is automatically
-deleted
-so that Subsequent gradient 
-  calculations are not treated as restarts.
+%  This also works within a geometry optimization. Once a gradient
+%calculation has completed, restart information is automatically
+%deleted
+%so that subsequent gradient 
+%  calculations are not treated as restarts.
+%RJH: I don't get the significance of this paragraph.  Elaborate on it?
+%Is it saying that gradient calculations can be saved and restarted even
+%if you are in the middle of a geometry optimization?  But once a
+%gradient is completely calculated, the data that got you there is
+%erased, even if you do have a chkpt directive statement?--fmr.
 
 % \section{PRINT, NOPRINT}
 
-The complementary keyword pair \verb+print+ and \verb+noprint+ allows the 
-user some additional control on the information that can be obtained from
-the SCF calculation.  Currently, only a few items can be explicitly invoked
-via print control.  These are as follows;
+The complementary keyword pair \verb+print+ and \verb+noprint+ allows
+the user some additional control on the information that can be
+included in the print output from the SCF calculation.  Currently,
+only a few items can be explicitly invoked via print control.  These
+are as follows:
  
 %  Currently only some print control is available.
 
@@ -75,4 +81,5 @@ via print control.  These are as follows;
         'timing'   \>             default \> 
 \end{tabbing}
 
+%RJH: Need to complete the descriptions in this table.--fmr.
 

@@ -1,54 +1,51 @@
 \label{sec:toplevel}
 
-Top-level directives are directives that can affect all
-modules in the code.  Some specify molecular properties (e.g., total
-charge) or other data that should apply to all subsequent
-calculations with that database.  However, most top-level directives 
-provide the user
-with the means to manage the resources for a calculation and to start
+Top-level directives are directives that can affect all modules in the
+code.  Some specify molecular properties (e.g., total charge) or other
+data that should apply to all subsequent calculations with the current
+database.  However, most top-level directives provide the user with
+the means to manage the resources for a calculation and to start
 computations.  As the first step in the execution of a job, NWChem
 scans the entire input file looking for start-up directives, which
 NWChem must process before all other input.  The input file is then
 rewound and processed sequentially, and each directive is processed in
-the order it is encountered.  In this second pass, start-up directives
-are ignored.
+the order in which it is encountered.  In this second pass, start-up
+directives are ignored.
 
-The following sections describe each of the start-up directives in detail,
-noting all keywords, options, required input, and defaults.
+The following sections describe each of the top-level directives in
+detail, noting all keywords, options, required input, and defaults.
 
-\section{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Startup mode}
+\section{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Start-up mode}
 \label{sec:start}
 
-A {\tt START}, or {\tt CONTINUE}, or {\tt RESTART} directive is
+A {\tt START},  {\tt CONTINUE}, or {\tt RESTART} directive is
 optional.  If one of these three directives is not specified
-explicitly, the code will infer one based on upon the name of the
+explicitly, the code will infer one, based upon the name of the
 input file and the availability of the database.  When allowing NWChem
 to infer the start-up directive, the user must be quite certain that
 the contents of the database will result in the desired action.  It
 is usually more prudent to specify the directive explicitly, using the
-following format;
+following format:
 
 \begin{verbatim}
 (RESTART || CONTINUE || START)   \
-            [<string file_prefix default input_file_prefix>] \
+            [<string file_prefix default $input_file_prefix$>] \
             [rtdb <string rtdb_file_name default $file_prefix$.db>]
 \end{verbatim}
 
 The \verb+START+ directive indicates that the calculation is one in
-which the database is to be created.  Any relevant information that
+which a new database is to be created.  Any relevant information that
 already exists in a previous database of the same name is destroyed.
-The string variable {\tt <file\_prefix>} will be used as the prefix
-when naming any files created in the course of the calculation.  If
-the user does not specify an entry for {\tt <file\_prefix>} on the
-\verb+START+ directive (or omits the \verb+START+ directive
-altogether), the code uses the base-name of the input file as the file
-prefix.  That is, the variable {\tt <file\_prefix>} is assigned
-the name of the input file, with any directory
-information and the last "dot-prefix" removed.  For example,
-the input file
-name \verb+/home/dave/job.2.nw+ yields \verb+job.2+ as the file
-prefix, if a name is not assigned explicitly using the \verb+START+
-directive.
+The string variable {\tt <file\_prefix>} will be used as the prefix to
+name any files created in the course of the calculation.  If the user
+does not specify an entry for {\tt <file\_prefix>} on the \verb+START+
+directive (or omits the \verb+START+ directive altogether), the code
+uses the base-name of the input file as the file prefix.  That is, the
+variable {\tt <file\_prefix>} is assigned the name of the input file
+(not its full pathname), but without the last "dot-suffix".  For
+example, the input file name \verb+/home/dave/job.2.nw+ yields
+\verb+job.2+ as the file prefix, if a name is not assigned explicitly
+using the \verb+START+ directive.
 
 The user also has the option of
 specifying a unique name for the database, using the keyword {\tt
@@ -67,16 +64,16 @@ will not
 be able to find needed files when going on with the
 calculation.
 
-There are two ways to restart a previous calculation.  Most commonly,
-the previous calculation completed (with or without an error
-condition) and it is desired to perform a new task or restart the
+There are two ways to restart a previous calculation.  In the most common
+situation, the previous calculation was completed (with or without an error
+condition), and it is desired to perform a new task or restart the
 previous one, perhaps with some input changes.  In these instances,
 the \verb+RESTART+ directive should be used.  This reuses the previous
 database and associated files, and reads the input file for new input
 and task information.
 
 Less commonly, if the last task of the previous job terminated in such
-a way that enables it to be continued with no additional
+a way that  it can be continued with no additional
 input (e.g., from an automatic
 checkpoint in the molecular dynamics program), then the 
 \verb+CONTINUE+ directive should be used.  This reuses
@@ -84,10 +81,10 @@ the previous database and associated files, continues the previous
 task, and then reads the input file for additional input and task
 information.
 
-The \verb+CONTINUE+ directive tells NWChem to finish the
-previous task, and then perform any new tasks that are specified by
-the input. The \verb+RESTART+ directive immediately looks for new
-input and task information.
+The \verb+CONTINUE+ directive tells NWChem to finish the previous
+task, and then perform any new tasks that are specified by the input.
+The \verb+RESTART+ directive looks immediately for new input and task
+information, deleting information about previous incomplete tasks.
 
 To summarize the default options for this start-up directive, if the 
 input file does {\em not} contain a \verb+START+ or a \verb+CONTINUE+ or a
@@ -99,7 +96,7 @@ input file for the job, without the suffix (which is usually \verb+.nw+)
 \verb+$file_prefix$.db+
 \end{itemize}
 If the database with name \verb+$file_prefix$.db+ does {\em not} 
-exist already,
+already exist,
 the calculation is carried out as if a \verb+START+ directive had
 been encountered.  If the database with name \verb+$file_prefix$.db+
 {\em does} exist, then the calculation is performed as if a
@@ -135,10 +132,8 @@ the code behaves as if the input file contained the directive,
 \section{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} --- File directories}
 \label{sec:dirs}
 
-% This is a startup directive (section \ref{sec:inputstructure}).
-
-These are startup directives that allow the user to specify the
-directory location of permanent and scratch files created by NWChem.
+These are start-up directives that allow the user to specify the
+directory location of scratch and permanent files created by NWChem.
 NWChem distinguishes between permanent (or persistent) files and
 scratch (or temporary) files, and allows the user the option of
 putting them in different locations.  In most installations, however,
@@ -148,19 +143,21 @@ machine to machine.
 
 The conventions for file storage are at the discretion of the specific 
 installation, and are quite likely to be different on different machines.  
-The user must be cognizant of the characteristics of the installation
-on a particular platform when assigning locations for permanent and
-scratch files.  To consider just a few examples, on the IBM SP 
-and workstation clusters, machine/process
-specific names must be specified for both local and shared file
+When assigning locations for permanent and
+scratch files,
+the user must be cognizant of the characteristics of the installation
+on a particular platform.
+To consider just a few examples, on the IBM SP 
+and workstation clusters, machine-specific or process-specific
+names must be supplied for both local and shared file
 systems, while on the KSR it is useful to specify scratch file directories
 with automated striping across processors with round-robin allocation.
-SMP clusters have both requirements.  
+On SMP clusters, both of these specifications are required.  
 
-The \verb+SCRATCH_DIR+ and \verb+PERMANENT_DIR+ directives have
-identical format and capability, and enable the user to specify a
+The \verb+SCRATCH_DIR+ and \verb+PERMANENT_DIR+ directives are
+identical in format and capability, and enable the user to specify a
 single directory for all processes, or different directories for
-different processes.  The general form of the directive is as follows;
+different processes.  The general form of the directive is as follows:
 
 \begin{verbatim}
    (PERMANENT_DIR || SCRATCH_DIR) [(<string host>||<integer process>):] \
@@ -169,22 +166,22 @@ different processes.  The general form of the directive is as follows;
 \end{verbatim}
 
 Directories are extracted from the user input by executing the
-following steps in order;
+following steps, in sequence:
 \begin{enumerate}
-\item Look for a directory qualified by the process number of the
-  invoking process.  Processes are numbered from zero.
+\item Look for a directory qualified by the process ID number of the
+  invoking process.  Processes are numbered from zero.  Else,
 \item If there is a list of directories qualified by the name of the
   host machine\footnote{As returned by {\tt util\_hostname()} which
     maps to the output of the command {\tt hostname} on Unix
     workstations.}, then use round-robin allocation from the list for
-  processes executing on the given host.
+  processes executing on the given host.  Else, 
 \item If there is a list of directories unqualified by any hostname
   or process ID, then use round-robin allocation from this list.
 \end{enumerate}
 If directory allocation directive(s) are not specified in the input
 file, or if no match is found to the directory names specified by
-input using these directives, then the above steps are executed using
-the installation specific defaults.  If the code cannot find a valid
+input using these directives, then the  steps above are executed using
+the installation-specific defaults.  If the code cannot find a valid
 directory name based on the input specified in either the directive(s)
 or the system defaults, files are automatically written to the current
 working directory (\verb+"."+).
@@ -192,26 +189,26 @@ working directory (\verb+"."+).
 The following is a list of examples of specific allocations of scratch
 directory locations:
 \begin{itemize}
-\item put scratch files from all processes in the local scratch directory 
+\item Put scratch files from all processes in the local scratch directory 
 (Warning: the definition of ``local scratch directory'' may change from 
-machine to machine);
+machine to machine):
 \begin{verbatim}
       scratch_dir /localscratch
 \end{verbatim}
-\item put scratch files from Process 0 in \verb+/piofs/rjh+, but put all 
-other scratch files in \verb+/scratch+;
+\item Put scratch files from Process 0 in \verb+/piofs/rjh+, but put all 
+other scratch files in \verb+/scratch+:
 \begin{verbatim}
       scratch_dir /scratch 0:/piofs/rjh
 \end{verbatim}
-\item put scratch files from Process 1 in directory \verb+scr1+, those from
+\item Put scratch files from Process 1 in directory \verb+scr1+, those from
 Process 2 in \verb+scr2+, and so forth, in a round-robin fashion, using the
-given list of directories;
+given list of directories:
 \begin{verbatim}
       scratch_dir /scr1 /scr2 /scr3 /scr4 /scr5
 \end{verbatim}
-\item allocate files in a round-robin fashion from
+\item Allocate files in a round-robin fashion from
   host-specific lists for processes distributed across two
- SGI multi-processor machines (node names {\em coho} and {\em bohr});
+ SGI multi-processor machines (node names {\em coho} and {\em bohr}):
 \begin{verbatim}
       scratch_dir coho:/xfs1/rjh coho:/xfs2/rjh coho:/xfs3/rjh \
           bohr:/disk01/rjh bohr:/disk02/rjh bohr:/disk13/rjh
@@ -222,11 +219,11 @@ given list of directories;
 
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
-is not specified, memory is allocated according to installation
-dependent defaults.  These generally should suffice for most
+is not specified, memory is allocated according to installation-dependent
+defaults.  These should generally suffice for most
 calculations, since the defaults usually correspond to the total amount
 of memory available on the machine.  The general form of the directive
-is as follows;
+is as follows:
 
 \begin{verbatim}
   MEMORY [[total] <integer total_size>] \
@@ -241,18 +238,18 @@ is as follows;
 There are three distinct regions of memory: stack, heap, and global.
 Stack and heap are node-private, while the union of the global region
 on all processors is used to provide globally-shared memory.  NWChem
-recognizes the following memory units;
+recognizes the following memory units:
 \begin{itemize}
 \item \verb+real+ and \verb+double+ (synonyms)
 \item \verb+integer+
 \item \verb+byte+
 \item \verb+kb+ (kilobytes)
 \item \verb+mb+ (megabytes)
-\item \verb+mw+ (megawords, 64 bit word)
+\item \verb+mw+ (megawords, 64-bit word)
 \end{itemize}
 
-In most cases the user needs to specify only the total memory limit,
-and allow the limits on each category to be determined from a default
+In most cases, the user need specify only the total memory limit,
+allowing the limits on each category to be determined from a default
 partitioning (currently 25\% heap, 25\% stack, and 50\% global).
 Alternatively, the keywords \verb+stack+, \verb+heap+, and
 \verb+global+ can be used to define specific allocations for each of
@@ -265,12 +262,12 @@ third is obtained by subtracting the two given limits from the total
 limit (which may have been specified or may be a default value).  If
 all three category limits are specified, they determine the total
 memory allocated.  However, if the total memory is also specified, it
-must be larger than the sum of all three categories.  The code
-attempts to check for inconsistent memory specifications.
+must be larger than the sum of all three categories.  The code will
+abort if it detects an inconsistent memory specification.
 
-The following specifications all provide for eight megabytes of total memory 
-(assuming 64 bit floating point numbers), which
-will be distributed according to the default partitioning.
+The following specifications all provide for eight megabytes of total
+memory (assuming 64-bit floating point numbers), which will be
+distributed according to the default partitioning:
 \begin{verbatim}
   memory 1048576
   memory 1048576 real
@@ -278,8 +275,8 @@ will be distributed according to the default partitioning.
   memory 8 mb
 \end{verbatim}
 
-The following memory directives also allocate 8 MB, but specify a complete
-partitioning as well;
+The following memory directives also allocate 8 megabytes, but specify
+a complete partitioning as well:
 
 \begin{verbatim}
   memory total 8 stack 2 heap 2 global 4 mb
@@ -293,21 +290,21 @@ detection of corruption of allocated memory.  The default is
 overhead, which can be eliminated by specifying \verb+noverify+.
 
 The keywords \verb+hardfail+ and \verb+nohardfail+ give the user the
-option of forcing an internal fatal error to be generated by the local
-memory management routines if any memory operation fails.  The default
-in the code is \verb+nohardfail+, which allows the code to continue
-past the memory operation failure, and perhaps generate a more
-meaningful error message before terminating the calculation.  This can
-be useful when poorly coded applications do not check the return
-status of memory management routines.
+option of forcing (or not forcing) the local memory management
+routines to generate an internal fatal error if any memory operation
+fails.  The default is \verb+nohardfail+, which allows the code to
+continue past any memory operation failure, and perhaps generate a
+more meaningful error message before terminating the calculation.
+This can be useful when poorly coded applications do not check the
+return status of memory management routines.
 
-When specifying the specific memory allocations using the keywords
+When assigning the specific memory allocations using the keywords
 \verb+stack+, \verb+heap+, and \verb+global+ in the \verb+MEMORY+
 directive, the user should be aware that some of the distinctions
-between these categories of memory have been blurred in their actual
+among these categories of memory have been blurred in their actual
 implementation in the code.  The memory allocator (MA) allocates both
 the heap and the stack from a single memory region of size {\tt
-  heap+stack} without enforcing the partition.  The heap vs. stack
+  heap+stack}, without enforcing the partition.  The heap vs. stack
 partition is meaningful only to applications developers, and can be
 ignored by most users.  Further complicating matters, the global array
 (GA) toolkit is allocated from within the MA space on distributed
@@ -327,7 +324,7 @@ total available memory.  This relaxation of the memory category
 definitions usually benefits the user, since it can allow allocation
 requests to succeed where a stricter memory model would cause the
 directive to fail.  These implementation characteristics must be kept
-in mind when reading output from the program relating to memory usage.
+in mind when reading program output that relates to memory usage.
 
 Current standard defaults for various platforms are listed in Table
 \ref{tbl:default-memory-limits}.  On machines for which individual
@@ -335,6 +332,8 @@ processors are commonly used in single user mode (e.g., IBM SP-X,
 Linux laptops, CRAY-T3D, Intel Paragon, KSR), the defaults reflect
 the maximum memory available to applications with common hardware
 configurations.
+
+%RJH: Table reference needs fixing.  Should be Table 5.1, not 5.3.--fmr
 
 \begin{table}
 
@@ -367,11 +366,11 @@ Sun             & 48 \\
 \section{{\tt ECHO} --- Print input file}
 \label{sec:echo}
 
-This start-up directive is provided as a convenient means to include a
+This start-up directive is provided as a convenient way to include a
 listing of the input file in the output of a calculation.  It causes
 the entire input file to be printed to Fortran unit six (standard
 output).  It has no keywords, arguments, or options, and consists of
-the single line,
+the single line:
 
 \begin{verbatim}
   ECHO
@@ -386,7 +385,7 @@ This top-level directive allows the user to identify a job or series of
 jobs that use a
 particular database.  It is an optional directive, and if omitted, the 
 character string containing the input title will be empty.  The format for 
-the directive is as follows;
+the directive is as follows:
 
 \begin{verbatim}
   TITLE 
@@ -402,7 +401,7 @@ line following the \verb+TITLE+ directive.  For example,
 \end{verbatim}
 
 Alternatively, since a semicolon can be used to denote the end an input line
-(Section \ref{sec:syntax}), the above example can be specified as,
+(Section \ref{sec:syntax}), the above example can be specified as
 
 \begin{verbatim}
   title;  This is the title of my NWChem job
@@ -415,11 +414,12 @@ tasks/jobs until redefined in the input.
 \label{sec:printcontrol}
 
 The \verb+PRINT+ and \verb+NOPRINT+ directives allow the user to
-control how much output is generated.  These two directives are
-special in that {\em all} modules are supposed to recognize
-them. Each module can control both the print
-level and the printing of individual items.  The standard form of the
-\verb+PRINT+ directive is as follows;
+control how much output NWChem generates.  These two directives are
+special in that the compound directives for {\em all} modules are
+supposed to recognize them. Each module can control both the overall
+print level (general verbosity) and the printing of individual items
+which are identified by name (see below).  The standard form of the
+\verb+PRINT+ directive is as follows:
 
 \begin{verbatim}
   PRINT [(none || low || medium || high || debug) default medium] \
@@ -429,22 +429,22 @@ level and the printing of individual items.  The standard form of the
 \end{verbatim}
 The default print level is medium.
 
-Everything that is printed by NWChem has a print threshold associated
-with it. If this threshold is lower than the print level requested by
-the user, then the output is generated.  For example, the threshold
-for printing the SCF energy at convergence is \verb+low+ (Section
-\ref{sec:scfprint}).  This means that if the user-specified print level 
-on the \verb+PRINT+ directive is
-\verb+low+, \verb+medium+, or \verb+high+, then the
-SCF energy will be printed at convergence.
+Every output that is printed by NWChem has a print threshold
+associated with it. If this threshold is equal to or lower than the
+print level requested by the user, then the output is generated.  For
+example, the threshold for printing the SCF energy at convergence is
+\verb+low+ (Section \ref{sec:scfprint}).  This means that if the
+user-specified print level on the \verb+PRINT+ directive is
+\verb+low+, \verb+medium+, \verb+high+, or \verb+debug+, then the SCF
+energy will be printed at convergence.
 
 The overall print level specified
 using the \verb+PRINT+ directive is a convenient tool for controlling 
 the verbosity
 of NWChem. Setting the print level to \verb+high+ might be helpful in
-diagnosing convergence problems.  (The print level of \verb+debug+ might
+diagnosing convergence problems.  The print level of \verb+debug+ might
 also be of use in evaluating problem cases, but the user should be aware
-that this can generate a huge amount of output.)  Setting the print level
+that this can generate a huge amount of output.  Setting the print level
 to \verb+low+ might be the preferable choice for geometry
 optimizations that will perform many steps which are in themselves of
 little interest to the user.
@@ -459,20 +459,20 @@ items by naming them in its \verb+<list_of_names>+.  These items will
 specific print level of the individual items.
 
 The list of items that can be printed for each module is documented 
-as part of the input instructions for that module, in the following
-sections.  The items recognized by the top level of the code consist of
-the following:
+as part of the input instructions for that module.
+The items recognized by the top level of the code, and their thresholds, 
+are:
 \begin{tabbing}
   Very\_long\_descriptive\_name \= Print level space \= \kill
   Name                   \> Print Level \> Description \\
                          \>        \> \\
- ``total time''        \> medium \> Prints cpu and wall time at job end\\
+ ``total time''        \> medium \> Print cpu and wall time at job end\\
  ``rtdb''              \> high    \> Print names of RTDB entries\\
  ``rtdbvalues''        \> high    \> Print name and values of RTDB entries\\
- ``ga summary''        \> medium \> Summarizes GA allocations at job end \\
- ``ma summary''        \> medium \> Summarizes MA allocations at job end \\
- ``ma stats''          \> high   \> Prints MA usage statistics at job end \\
- ``version''           \> debug  \> Prints version of all compiled routines \\
+ ``ga summary''        \> medium \> Summarize GA allocations at job end \\
+ ``ma summary''        \> medium \> Summarize MA allocations at job end \\
+ ``ma stats''          \> high   \> Print MA usage statistics at job end \\
+ ``version''           \> debug  \> Print version number of all compiled routines \\
 \end{tabbing}
 
 
@@ -488,19 +488,18 @@ This directive instructs the NWChem main program to print nothing,
 except for the memory usage statistics (\verb+ma stats+) and
 the names of all items stored in the database at the end of the job.
 
-Currently, the print level is local to each module and defaults to
-{\tt medium} at the beginning of each module.  It is also possible to change
-the implementation so that a module inherits the default print level
-of its calling layer.  (Users should send their preferences for these
-defaults via email to \verb+nwchem-support@emsl+, for consideration in
-future releases of the code.)
+The print level within a module is inherited from the 
+calling layer.  For instance, by specifying the print to be low
+within the MP2 module will cause the SCF, CPHF and gradient modules
+when invoked from the MP2 to default to low print.  Explicit user
+input of print thresholds overrides the inherited value.
 
 \section{{\tt SET} --- Enter data in the RTDB}
 \label{sec:set}
 
 This top-level directive allows the user to enter data directly into the
 database (see Section \ref{sec:database} for a description of the database).
-The format of the directive is as follows,
+The format of the directive is as follows:
 
 \begin{verbatim}
   SET <string name> [<string type default automatic>] <$type$ data>
@@ -511,15 +510,15 @@ into the database.  This must be specified explicitly; there is no
 default.  The variable \verb+<type>+, which is optional, allows the user to define a string
 specifying the type of data in the array \verb+<name>+.  The data type
 can be explicitly specified as \verb+integer+, \verb+real+,
-\verb+double+, \verb+logical+, or \verb+string+.  If there is no entry
-for \verb+<type>+ specified on
+\verb+double+, \verb+logical+, or \verb+string+.  If no entry
+for \verb+<type>+ is specified on
 the directive, its value is inferred from
 the data type of the {\em first} data element.  In such a case,
 floating-point data entered using this directive must include either
-an exponent or decimal point to ensure that the correct default type
-will be assumed.  The correct default type will be inferred for
+an exponent or a decimal point, to ensure that the correct default type
+will be inferred.  The correct default type will be inferred for
 logical values if logical-true values are specified as \verb+.true.+,
-\verb+true+, or \verb+t+, and logical-false values are entered as
+\verb+true+, or \verb+t+, and logical-false values are specified as
 \verb+.false.+, \verb+false+, or \verb+f+.
 
 The \verb+SET+ directive is useful for providing indirection by
@@ -527,7 +526,7 @@ associating the name of a basis set or geometry with the standard
 object names (such as \verb+"ao basis"+ or \verb+geometry+) used by
 NWChem.  The following input file shows an example using the
 \verb+SET+ directive to direct different tasks to different
-geometries.  The required input lines are as follows,
+geometries.  The required input lines are as follows:
 
 \begin{verbatim}
   title; Ar dimer BSSE corrected MP2 interaction energy
@@ -556,51 +555,52 @@ geometries.  The required input lines are as follows,
   task mp2 
 \end{verbatim}
 
-The above input tells the code to perform MP2 energy calculations 
+This input tells the code to perform MP2 energy calculations 
 on an argon dimer in the first task, and then
 on the argon atom in the presence of the ``ghost'' basis of the other
 atom at the same geometry.
 
 The \verb+SET+ directive can also be used as an indirect means of
-supplying input to a part of the code that does not have a separate input module.  
-Additional examples of applications of this
-directive can be found in the sample input files (see Section 
-\ref{sec:realsample}), including examples of its usage with basis sets.
+supplying input to a part of the code that does not have a separate
+input module (e.g., the atomic SCF, Section \ref{sec:atomscf}).
+Additional examples of applications of this directive can be found in
+the sample input files (see Section \ref{sec:realsample}), and
+its usage with basis sets (Section \ref{sec:basis}) and geometries
+(Section \ref{sec:geom}).
 
 \section{{\tt UNSET} --- Delete data in the RTDB}
 \label{sec:unset}
 
 This directive gives the user a way to delete simple entries from the
-database.  The general form of the directive is as follows;
+database.  The general form of the directive is as follows:
 
 \begin{verbatim}
   UNSET <string name>[*]
 \end{verbatim}
 
 This directive cannot be used with complex objects such as geometries
-and basis sets.  The input for the string variable \verb+<name>+ must 
-be an array; it cannot be an
-object name.  A wild-card (*) specified at the end of the string
-\verb+<name>+ will cause {\em all} entries beginning with that string to
-be deleted.  This is very useful as a way to reset modules to their
+and basis sets\footnote{Complex objects are stored using structured
+  naming convention that is not matched by a simple wild card.}.  A
+wild-card (*) specified at the end of the string \verb+<name>+ will
+cause {\em all} entries whose name begins with that string to be
+deleted.  This is very useful as a way to reset modules to their
 default behavior, since modules typically store information in the
-database with names that begin with \verb+module:+.
-For example, the SCF program can be restored to its default behavior by
-deleting all database entries beginning with \verb+scf:+, using the directive,
+database with names that begin with \verb+module:+.  For example, the
+SCF program can be restored to its default behavior by deleting all
+database entries beginning with \verb+scf:+, using the directive
 
 \begin{verbatim}
   unset scf:*
 \end{verbatim}
 
-The following example illustrates how to makes an entry in the database i
-using the \verb+SET+ directive, 
-and then immediately deletes it using the \verb+UNSET+ directive.
+The following example makes an entry in the database using the
+\verb+SET+ directive, and then immediately deletes it using the
+\verb+UNSET+ directive:
 
 \begin{verbatim}
   set mylist 1 2 3 4
   unset mylist
 \end{verbatim}
-
 
 
 \section{{\tt STOP} --- Terminate processing}
@@ -633,31 +633,32 @@ database is persistent, multiple tasks within one job behave {\em
   exactly} the same as multiple restart jobs with the same sequence of
 input.
 
-There are four main forms of the the \verb+TASK+ directive.  One form
-is used to tell the code when to execute most of the electronic
-structure and molecular dynamics calculations.  The second form is
-used to specify tasks such as printing the contents of the database,
-or simple property evaluations.  The third form is used to execute
+There are four main forms of the the \verb+TASK+ directive.  The most
+common form is used to tell the code at what level of theory to
+perform electronic structure calculation, and which specific
+calculations to perform.  The second form is used to specify tasks
+that do not involve electronic structure calculations or tasks that
+have not been fully implemented at all theory levels in NWChem, such
+as simple property evaluations.  The third form is used to execute
 UNIX commands on machines having a Bourne shell.  The fourth form is
 specific to combined quantum-mechanics and molecular-mechanics (QM/MM)
-calculations. 
+calculations.
 
 By default, the program terminates when a task does not complete
-successfully.  The keyword \verb+ignore+ can be used to prevent this,
-and is recognized by all forms of the \verb+TASK+ directive.  When a
-\verb+TASK+ directive includes the keyword \verb+ignore+, task failure
-results in only a warning message being printed, and code execution
-continues with the next task.
+successfully.  The keyword \verb+ignore+ can be used to prevent this
+termination, and is recognized by all forms of the \verb+TASK+
+directive.  When a \verb+TASK+ directive includes the keyword
+\verb+ignore+, a warning message is printed if the task fails, and
+code execution continues with the next task.
 
-The input options, keywords, and defaults for each of
-these four forms for the \verb+TASK+ directive are discussed in the
-following sections.
+The input options, keywords, and defaults for each of these four forms
+for the \verb+TASK+ directive are discussed in the following sections.
 
 \subsection{{\tt TASK} Directive for Electronic Structure Calculations}
 \label{sec:first_task}
 
 This is the most commonly used version of the \verb+TASK+ directive, and
-it has the following form;
+it has the following form:
 
 \begin{verbatim}
   TASK <string theory> [<string operation default energy>] [ignore]
@@ -666,7 +667,7 @@ it has the following form;
 The string \verb+<theory>+ specifies the level of theory to be used in the
 calculations for this task.  NWChem currently supports ten different
 options.  These are listed below, with the corresponding entry for 
-the variable {\tt <theory>};
+the variable {\tt <theory>}:
 \begin{itemize}
  \item \verb+scf+ --- Hartree-Fock
  \item \verb+dft+ --- Density functional theory for molecules
@@ -683,47 +684,47 @@ the variable {\tt <theory>};
 %%   using IDEAZ
 \end{itemize}
 
-The string \verb+<operation>+ is used to specify the calculation that will
+The string \verb+<operation>+ specifies the calculation that will
 be performed in the task.  The default operation is a single point energy
 evaluation.  The following list gives the selection of operations currently
-available in NWChem;
+available in NWChem:
 \begin{itemize}
-\item \verb+energy+ --- single point energy evaluation
-\item \verb+gradient+ --- evaluate the derivative of the energy with respect to\
-   nuclear coordinates
-\item \verb+optimize+ --- minimize the energy by variation of the molecular
-   structure.  This is presently driven by default by the Driver
-   module (see Section \ref{sec:driver}), but it the Stepper module
+\item \verb+energy+ --- Evaluate the single point energy.
+\item \verb+gradient+ --- Evaluate the derivative of the energy with respect to\
+   nuclear coordinates.
+\item \verb+optimize+ --- Minimize the energy by varying the molecular
+   structure.  By default, this geometry optimization is presently driven by the Driver
+   module (see Section \ref{sec:driver}), but the Stepper module
    (see Section \ref{sec:stepper}) may also be used.
-\item \verb+saddle+ --- transition state (or saddle point) search
+\item \verb+saddle+ --- Conduct a search for a transition state (or saddle point) 
   using either Driver (Section \ref{sec:driver}, the default) or
   Stepper (Section \ref{sec:stepper}).
-\item \verb+frequencies+ or \verb+freq+ --- compute second-derivatives 
-and print out an analysis of molecular vibrations
-\item \verb+dynamics+ --- molecular dynamics using NWArgos
-\item \verb+thermodynamics+ --- multi-configuration thermodynamic integration
-    using NWArgos
+\item \verb+frequencies+ or \verb+freq+ --- Compute second derivatives 
+and print out an analysis of molecular vibrations.
+\item \verb+dynamics+ --- Compute molecular dynamics using NWARGOS.
+\item \verb+thermodynamics+ --- Perform multi-configuration thermodynamic integration
+    using NWARGOS.
 \end{itemize}
 
 
 The user should be aware that some of these operations (gradient,
-optimization, dynamics, thermodynamics) require computation of
+optimize, dynamics, thermodynamics) require computation of
 derivatives of the energy with respect to the molecular coordinates.
 If analytical derivatives are not available (Section
 \ref{sec:functionality}), they must be computed numerically, which can
-be very expensive.
+be very computationally intensive.
 
 Here are some examples of the \verb+TASK+ directive, to illustrate the
 input needed to specify particular calculations with the code.  To
 perform a single point energy evaluation using any level of theory, the
-directive is very simple since the energy evaluation is the default
-for the string \verb+operation+.  For an SCF energy calculation the
-input line is simply,
+directive is very simple, since the energy evaluation is the default
+for the string \verb+operation+.  For an SCF energy calculation, the
+input line is simply
 \begin{verbatim}
   task scf
 \end{verbatim}
 Equivalently, the operation can be specified explicitly, using the
-directive,
+directive
 \begin{verbatim}
   task scf energy
 \end{verbatim}
@@ -745,7 +746,7 @@ if the operation has not yet been implemented in a fashion that
 applies to a wide range of theories (e.g., property evaluation).
 Instead of requiring \verb+theory+ and \verb+operation+ as input, the
 directive needs only a string identifying the task.  The form of the
-directive in such cases is as follows;
+directive in such cases is as follows:
 
 \begin{verbatim}
   TASK <string task> [ignore]
@@ -756,9 +757,9 @@ directive are listed
 below, with the corresponding entries for string variable \verb+<task>+.
 
 \begin{itemize}
-  \item \verb+rtdbprint+ --- print the contents of the database
-  \item \verb+cphf+ --- invoke the CPHF module
-  \item \verb+property+ --- miscellaneous property calculations
+  \item \verb+rtdbprint+ --- Print the contents of the database.
+  \item \verb+cphf+ --- Invoke the CPHF module.
+  \item \verb+property+ --- Perform miscellaneous property calculations.
 \end{itemize}
 
 This directive also recognizes the keyword \verb+ignore+, which allows
@@ -769,51 +770,51 @@ execution to continue after a task has failed.
 This form of the \verb+TASK+ directive is supported only on machines
 with a fully UNIX-style operating system.  This directive causes
 specified processes to be executed using the Bourne shell.  This form
-of the task directive is as follows;
+of the task directive is:
 
 \begin{verbatim}
-  TASK shell [(<integer-range processor = 0>||all)] \
+  TASK shell [(<integer-range process = 0>||all)] \
              <string command> [ignore]
 \end{verbatim}
 
 The keyword \verb+shell+ is required for this directive.  It specifies
 that the given command will be executed in the Bourne shell.  The user
 can also specify which process(es) will execute this command by
-entering values for \verb+processor+ on the directive.  The default is
-for only process zero to execute the command.  A range of processors
+entering values for \verb+process+ on the directive.  The default is
+for only process zero to execute the command.  A range of processes
 may be specified, using Fortran triplet notation\footnote{The notation
   \verb+lo:hi:inc+ denotes the integers \verb+lo+, \verb=lo+inc=,
   \verb=lo+2*inc=, \ldots, \verb+hi+}.  Alternatively, all
 processes can be specified simply by entering the keyword \verb+all+.
 The input entered for \verb+command+ must form a single string, and
-consist of valid UNIX command(s).  If the string includes white space,
+must consist of valid UNIX command(s).  If the string includes white space,
 it must be enclosed in double quotes.
 
 For example, the \verb+TASK+ directive to tell process zero to copy the 
-molecular orbitals file to a backup location can be input as follows;
+molecular orbitals file to a backup location \verb+/piofs/save+ can be input as follows:
 
 \begin{verbatim}
   task shell "cp *.movecs /piofs/save"
 \end{verbatim}
 
 The \verb+TASK+ directive to tell all processes to list the contents of 
-their \verb+/scratch+ directory is as follows;
+their \verb+/scratch+ directories is as follows:
 
 \begin{verbatim}
   task shell all "ls -l /scratch"
 \end{verbatim}
 
 The \verb+TASK+ directive to tell processes 0 to 10 to remove the 
-contents of the current directory is as follows;
+contents of the current directory is as follows:
 
 \begin{verbatim}
   task shell 0:10:1 "/bin/rm -f *"
 \end{verbatim}
 
 Note that NWChem's ability to quote special input characters is {\em
-  very} limited when compared with that of the Bourne shell.  When
-executing all but the simplest commands, it is usually much easier to
-put the shell script in a file and execute the file from within
+  very} limited when compared with that of the Bourne shell.  To
+execute all but the simplest UNIX commands, it is usually much easier
+to put the shell script in a file and execute the file from within
 NWChem.
 
 \subsection{{\tt TASK} Directive for QM/MM simulations}
@@ -870,14 +871,14 @@ continue even if the task fails, as discussed above.
 \label{sec:charge}
 
 This is an optional top-level directive that allows the user to specify
-the total charge of the system.  The form of the directive is as follows,
+the total charge of the system.  The form of the directive is as follows:
 \begin{verbatim}
   CHARGE <real charge default 0>
 \end{verbatim}
 
-The default charge\footnote{The charge directive in conjunction with
-  the charge of atomic nuclei (which can be changed via the geometry
-  input, c.f. Section \ref{sec:cart}) determine the total number of
+The default charge\footnote{The charge directive, in conjunction with
+  the charges of atomic nuclei (which can be changed via the geometry
+  input, cf. Section \ref{sec:cart}), determines the total number of
   electrons in the chemical system.  Therefore, a \verb+charge n+
   specification removes "n" electrons from the chemical system.
   Similarly, \verb+charge -n+ adds "n" electrons.} is zero
@@ -890,14 +891,14 @@ cation.  In such a case, the directive is simply,
 
 If centers with fractional charge have been specified (Section
 \ref{sec:geom}) the net charge of the system should be adjusted to
-ensure that there is an integral number of electrons.
+ensure that there are an integral number of electrons.
 
-The charge may be changed between tasks and is used by all
+The charge may be changed between tasks, and is used by all
 wavefunction types.  For instance, in order to compute the first two
-vertical ionization energies of $LiH$ one might optimize the geometry
-of $LiH$ using a UHF SCF wavefunction and then perform energy
-calculations at the optimized geometry in turn on $LiH^+$ and
-$LiH^{2+}$.  This is accomplished with the following input.
+vertical ionization energies of $LiH$, one might optimize the geometry
+of $LiH$ using a UHF SCF wavefunction, and then perform energy
+calculations at the optimized geometry on $LiH^+$ and
+$LiH^{2+}$ in turn.  This is accomplished with the following input:
 \begin{verbatim}
   geometry; Li 0 0 0; H  0 0 1.64; end
   basis; Li library 3-21g; H library 3-21g; end
