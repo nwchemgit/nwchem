@@ -1,4 +1,4 @@
-      subroutine gacrea(n,m,name,ihand)
+      subroutine gacrea(geom,basis,n,m,name,ihand,how)
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -7,12 +7,24 @@ c
 #if defined(DFT_GASTAT)
 #include "gastat.fh"
 #endif
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       integer n,m,me
+      integer geom,basis
       logical ok
-      character*(*) name
+      character*(*) name,how
       integer ihand,  i
-      ok=ga_create(MT_DBL, n, m, name, n, 1, ihand)
+      ok=.false.
+      if(how.eq.'row')then
+        ok=ga_create(MT_DBL, n, m, name, n, 1, ihand)
+      elseif(how.eq.'column')then
+        ok=ga_create(MT_DBL, n, m, name, 1, m, ihand)
+      elseif(how.eq.'atom')then
+        ihand=ga_create_atom_blocked(geom, basis, name)
+        ok=.true.
+      endif
+
       if(.not.ok)  call ga_error(' ga_create failed ',2)
 c
 #if defined(DFT_GASTAT)
