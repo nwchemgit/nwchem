@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.21 2002-05-08 23:50:24 bylaska Exp $
+* $Id: band_minimizer.F,v 1.22 2003-06-26 21:22:24 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -167,7 +167,7 @@
       end if
 
 
-*     **** initialize D3dB data structure ****
+*     **** initialize C3dB data structure ****
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
       call C3dB_nfft3d(1,nfft3d)
 
@@ -175,10 +175,17 @@
  
 *     **** initialize lattice data structure ****
       call lattice_init()
-      call G_init()
+      call c_G_init()
       call brillioun_init()
       call Cram_init()
 
+
+*     **** initialize D3dB data structure and mask for GGA ****
+      IF (control_gga().eq.1) THEN
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call G_init()
+      call mask_init()
+      END IF
 
 
 *     **** read ions ****
@@ -402,10 +409,14 @@
       call cke_end()
       call cpsp_end()
       call Cram_end()
-      call G_end()
+      call c_G_end()
       call brillioun_end()
       call ion_end()
       call C3dB_end(1)
+      IF (control_gga().eq.1) THEN
+      call mask_end()
+      call D3dB_end(1)
+      end if
 
 *                |***************************|
 ****************** report consumed cputime   **********************

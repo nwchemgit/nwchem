@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.14 2002-06-06 16:22:50 bylaska Exp $
+* $Id: cpsp.F,v 1.15 2003-06-26 21:22:23 bylaska Exp $
 *
 
 #define TCGMSG
@@ -263,8 +263,8 @@ c     cpsp_rc = rc(i,ia)
       logical value
 
 *     **** external functions ****
-      integer  G_indx,ion_nion,ion_katm
-      external G_indx,ion_nion,ion_katm
+      integer  c_G_indx,ion_nion,ion_katm
+      external c_G_indx,ion_nion,ion_katm
 
       call nwpw_timing_start(5)
       call C3dB_nfft3d(1,nfft3d)
@@ -284,9 +284,9 @@ c     cpsp_rc = rc(i,ia)
         value = value.and.
      >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         if (.not. value) call errquit('cpsp_v_local: pushing stack',1)
-        G(1)  = G_indx(1)
-        G(2)  = G_indx(2)
-        G(3)  = G_indx(3)
+        G(1)  = c_G_indx(1)
+        G(2)  = c_G_indx(2)
+        G(3)  = c_G_indx(3)
 
 *       **** define Gx,Gy and Gz in packed space ****
         call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
@@ -367,8 +367,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       logical value
 
 *     **** external functions ****
-      integer  G_indx,ion_nion,ion_katm
-      external G_indx,ion_nion,ion_katm
+      integer  c_G_indx,ion_nion,ion_katm
+      external c_G_indx,ion_nion,ion_katm
 
       call nwpw_timing_start(5)
       
@@ -386,9 +386,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not. value) call errquit('cpsp_f_vlocal:pushing stack',0)
-      G(1)  = G_indx(1)
-      G(2)  = G_indx(2)
-      G(3)  = G_indx(3)
+      G(1)  = c_G_indx(1)
+      G(2)  = c_G_indx(2)
+      G(3)  = c_G_indx(3)
 
 *     **** define Gx,Gy and Gz in packed space ****
       call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
@@ -468,10 +468,10 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       real*8   lattice_omega,brillioun_weight
       external is_sORd
-      external ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
       call nwpw_timing_start(6)
@@ -501,9 +501,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
         value = value.and.
      >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
         if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
-        G(1)  = G_indx(1)
-        G(2)  = G_indx(2)
-        G(3)  = G_indx(3)
+        G(1)  = c_G_indx(1)
+        G(2)  = c_G_indx(2)
+        G(3)  = c_G_indx(3)
 
 *       **** define Gx,Gy and Gz in packed space ****
         call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
@@ -673,10 +673,10 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
 
 *     **** external functions ****
       logical  is_sORd
-      integer  ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       real*8   lattice_omega,brillioun_weight
       external is_sORd
-      external ion_nion,ion_katm,G_indx,brillioun_nbrillioun
+      external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
 
@@ -706,9 +706,9 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
-      G(1)  = G_indx(1)
-      G(2)  = G_indx(2)
-      G(3)  = G_indx(3)
+      G(1)  = c_G_indx(1)
+      G(2)  = c_G_indx(2)
+      G(3)  = c_G_indx(3)
 
       omega = lattice_omega()
 

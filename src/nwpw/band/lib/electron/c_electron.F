@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.9 2003-01-25 00:10:41 edo Exp $
+* $Id: c_electron.F,v 1.10 2003-06-26 21:22:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -728,6 +728,8 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 *     ***** local variables ****
       logical value
       integer tmp1(2)
+      integer trho(2),txcp(2),txce(2),n2ft3d
+      integer ms,i,j,k,q,nx,ny,nz,nq,indx1,indx2
 
 *     **** external functions ****
       integer  control_gga,control_version
@@ -736,6 +738,8 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 
       call c_coulomb_v(dng,dcpl_mb(vc(1)))
 
+
+      !*** LDA calculation ****
       if (control_gga().eq.0) then
          value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
@@ -748,11 +752,87 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
         if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: error popping stack memory',0)
 
+
+      !*** this code needs to be optimized!!! ****
+      !*** GGA calculation ****
       else
-         write(*,*) "gga not yet implemented"
-c        call v_bwexc(n2ft3d,ispin,dnall,
-c     >                    dbl_mb(xcp(1)),
-c     >                    dbl_mb(xce(1)))
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         call D3dB_nq(1,nq)
+         n2ft3d = (nx+2)*ny*nq
+         value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,(2*n2ft3d),'txcp',txcp(2),txcp(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,(2*n2ft3d),'txce',txce(2),txce(1))
+         if (.not. value) call errquit(
+     >     'electron_gen_scf_potentials: out of stack memory',1)
+
+         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
+         do ms=1,ispin
+         do q=1,nq
+         do j=1,ny
+         do i=1,nx
+            indx1 = (i-1) 
+     >            + (j-1)*nx     
+     >            + (q-1)*nx*ny     
+     >            + (ms-1)*nfft3d
+            indx2 = (i-1) 
+     >            + (j-1)*(nx+2) 
+     >            + (q-1)*(nx+2)*ny 
+     >            + (ms-1)*n2ft3d
+            dbl_mb(trho(1)+indx2) = dnall(indx1+1)
+         end do
+         end do
+         end do
+         end do
+         
+
+         call v_bwexc(n2ft3d,ispin,
+     >                    dbl_mb(trho(1)),
+     >                    dbl_mb(txcp(1)),
+     >                    dbl_mb(txce(1)))
+
+
+         do ms=1,ispin
+         do q=1,nq
+         do j=1,ny
+         do i=1,nx
+            indx1 = (i-1) 
+     >            + (j-1)*nx     
+     >            + (q-1)*nx*ny     
+     >            + (ms-1)*nfft3d
+            indx2 = (i-1) 
+     >            + (j-1)*(nx+2) 
+     >            + (q-1)*(nx+2)*ny 
+     >            + (ms-1)*n2ft3d
+            dbl_mb(xcp(1)+indx1) = dbl_mb(txcp(1)+indx2)
+         end do
+         end do
+         end do
+         end do
+
+         do q=1,nq
+         do j=1,ny
+         do i=1,nx
+            indx1 = (i-1) 
+     >            + (j-1)*nx     
+     >            + (q-1)*nx*ny     
+            indx2 = (i-1) 
+     >            + (j-1)*(nx+2) 
+     >            + (q-1)*(nx+2)*ny 
+            dbl_mb(xce(1)+indx1) = dbl_mb(txce(1)+indx2)
+         end do
+         end do
+         end do
+
+         value =           MA_pop_stack(txce(2))
+         value = value.and.MA_pop_stack(txcp(2))
+         value = value.and.MA_pop_stack(trho(2))
+         if (.not. value) call errquit(
+     >     'electron_gen_scf_potentials: error popping stack memory',1)
+
       end if
       return
       end

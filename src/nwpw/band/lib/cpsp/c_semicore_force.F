@@ -29,9 +29,9 @@
       integer dngx(2),dngy(2),dngz(2)
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm,G_indx
+      integer  ion_nion,ion_katm,c_G_indx
       real*8   lattice_omega
-      external ion_nion,ion_katm,G_indx
+      external ion_nion,ion_katm,c_G_indx
       external lattice_omega
 
 
@@ -73,9 +73,9 @@ c     call C3dB_r_SMul(1,0.5d0,dcpl_mb(vxcG(1)),dcpl_mb(vxcG(1)))
 
 
 *     **** define Gx, Gy, and Gz in packed space ****
-      call C3dB_r_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
-      call C3dB_r_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
-      call C3dB_r_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
+      call C3dB_r_Copy(1,dbl_mb(c_G_indx(1)),dbl_mb(Gx(1)))
+      call C3dB_r_Copy(1,dbl_mb(c_G_indx(2)),dbl_mb(Gy(1)))
+      call C3dB_r_Copy(1,dbl_mb(c_G_indx(3)),dbl_mb(Gz(1)))
       call Cram_r_pack(0,dbl_mb(Gx(1)))
       call Cram_r_pack(0,dbl_mb(Gy(1)))
       call Cram_r_pack(0,dbl_mb(Gz(1)))

@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.1 2003-04-07 21:24:50 windus Exp $
+* $Id: c_coulomb.F,v 1.2 2003-06-26 21:22:23 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -19,16 +19,16 @@
 
 *     **** external functions ****
 *     real*8 G(nfft3d,3)
-      integer  G_indx
-      external G_indx
+      integer  c_G_indx
+      external c_G_indx
 
       call nwpw_timing_start(7)
       
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
-      G(1) = G_indx(1)
-      G(2) = G_indx(2)
-      G(3) = G_indx(3)
+      G(1) = c_G_indx(1)
+      G(2) = c_G_indx(2)
+      G(3) = c_G_indx(3)
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)

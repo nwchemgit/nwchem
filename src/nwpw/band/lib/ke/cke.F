@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.3 2002-05-03 19:44:01 bylaska Exp $
+* $Id: cke.F,v 1.4 2003-06-26 21:22:23 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -17,17 +17,17 @@
 
 *     **** external functions ****
 c     real*8 G(nfft3d,3)
-      integer  G_indx, brillioun_nbrillioun
+      integer  c_G_indx, brillioun_nbrillioun
       real*8   brillioun_k
-      external G_indx, brillioun_nbrillioun
+      external c_G_indx, brillioun_nbrillioun
       external brillioun_k
 
       nbrillioun = brillioun_nbrillioun()
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
-      G(1)= G_indx(1)
-      G(2)= G_indx(2)
-      G(3)= G_indx(3)
+      G(1)= c_G_indx(1)
+      G(2)= c_G_indx(2)
+      G(3)= c_G_indx(3)
 
       value = MA_alloc_get(mt_dbl,npack1*nbrillioun,
      >                     'tg',tg_hndl,tg_indx)

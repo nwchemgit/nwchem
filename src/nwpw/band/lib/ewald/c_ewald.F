@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.2 2003-03-21 23:42:07 bylaska Exp $
+* $Id: c_ewald.F,v 1.3 2003-06-26 21:22:23 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -105,12 +105,12 @@
 *     **** external functions ****
       integer  control_ncut
       real*8   control_rcut,control_ecut
-      integer  ion_nion,ion_katm,G_indx
+      integer  ion_nion,ion_katm,c_G_indx
       real*8   lattice_omega,lattice_unita,cpsp_zv
 
       external control_ncut
       external control_rcut,control_ecut
-      external ion_nion,ion_katm,G_indx
+      external ion_nion,ion_katm,c_G_indx
       external lattice_omega,lattice_unita,cpsp_zv
 
 
@@ -119,9 +119,9 @@
       value = MA_alloc_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
       if (.not. value) call errquit('out of heap memory',0)
 
-      G(1) = G_indx(1)
-      G(2) = G_indx(2)
-      G(3) = G_indx(3)
+      G(1) = c_G_indx(1)
+      G(2) = c_G_indx(2)
+      G(3) = c_G_indx(3)
 
 *     **** get constants ****
       pi     = 4.0d0*datan(1.0d0)
@@ -398,8 +398,8 @@ c     real*8     tmp3(nfft3d*2)
       logical value
 
 *     **** external functions ****
-      integer  ion_nion,ion_katm,G_indx,c_ewald_nshl3d
-      external ion_nion,ion_katm,G_indx,c_ewald_nshl3d
+      integer  ion_nion,ion_katm,c_G_indx,c_ewald_nshl3d
+      external ion_nion,ion_katm,c_G_indx,c_ewald_nshl3d
       real*8   lattice_omega,cpsp_zv,dsum,ion_rion,util_erfc
       external lattice_omega,cpsp_zv,dsum,ion_rion,util_erfc
 
@@ -451,17 +451,17 @@ c     real*8     tmp3(nfft3d*2)
      >                )*dbl_mb(vg(1)+i-1)
          end do
 
-         call C3dB_rr_idot(1,dbl_mb(G_indx(1)),dbl_mb(tmp3(1)),sum)
+         call C3dB_rr_idot(1,dbl_mb(c_G_indx(1)),dbl_mb(tmp3(1)),sum)
 *        fion(1,ii) = fion(1,ii) + sum*cpsp_zv(ion_katm(ii))*scal2
          dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
      >                      +  sum*cpsp_zv(ion_katm(ii))*scal2
 
-         call C3dB_rr_idot(1,dbl_mb(G_indx(2)),dbl_mb(tmp3(1)),sum)
+         call C3dB_rr_idot(1,dbl_mb(c_G_indx(2)),dbl_mb(tmp3(1)),sum)
 *        fion(2,ii) = fion(2,ii) + sum*cpsp_zv(ion_katm(ii))*scal2
          dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
      >                      +  sum*cpsp_zv(ion_katm(ii))*scal2
 
-         call C3dB_rr_idot(1,dbl_mb(G_indx(3)),dbl_mb(tmp3(1)),sum)
+         call C3dB_rr_idot(1,dbl_mb(c_G_indx(3)),dbl_mb(tmp3(1)),sum)
 *        fion(3,ii) = fion(3,ii) + sum*cpsp_zv(ion_katm(ii))*scal2
          dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
      >                      +  sum*cpsp_zv(ion_katm(ii))*scal2
