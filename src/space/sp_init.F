@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.126 2004-01-31 00:38:31 d3j191 Exp $
+c $Id: sp_init.F,v 1.127 2004-02-01 01:12:17 d3j191 Exp $
 c
       implicit none
 c
@@ -291,7 +291,7 @@ c
  1006 format(32x,i5)
       do 6 i=1,nhist
       read(lfnrst,1007) hist(i)
- 1007 format(a80)
+ 1007 format(a)
     6 continue
       read(lfnrst,1002) npbtyp,nbxtyp,rsgmr
  1002 format(2i5,f12.6)
@@ -700,7 +700,7 @@ c
       if(nhist.gt.0) then
       do 21 i=1,nhist
       read(lfnrst,1017) hist(i)
- 1017 format(a80)
+ 1017 format(a)
       write(lfnout,6105) hist(i)
  6105 format(1x,a)
    21 continue
@@ -2078,6 +2078,7 @@ c
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
+      character*18 user
       integer idyn,idynp,ihop
       logical lforces
 c
@@ -2086,18 +2087,20 @@ c
       if(ga_nodeid().eq.0) then
 c
       call swatch(rdate,rtime)
+      call getlog(user)
 c
       rewind(lfnrst)
       write(lfnrst,1000)
  1000 format('Restart file',/,' ',/,' ')
       write(lfnrst,1001) 4.2,rdate,rtime,nhist,lforces
  1001 format(f12.6,2a10,i5,4x,l1)
-      hist(nhist)(1:10)=rdate
-      hist(nhist)(11:20)=rtime
-      hist(nhist)(21:80)=project(1:60)
+      hist(nhist)(1:18)=user
+      hist(nhist)(19:28)=rdate
+      hist(nhist)(29:48)=rtime
+      hist(nhist)(49:108)=project(1:60)
       do 10 i=1,nhist
       write(lfnrst,1009) hist(i)
- 1009 format(a80)
+ 1009 format(a)
    10 continue
       write(lfnrst,1002) npbtyp,nbxtyp,rsgm,((vlat(i,j),j=1,3),i=1,3)
  1002 format(2i5,f12.6,/,(3f12.6))
@@ -3520,13 +3523,16 @@ c
       integer j,k,l,nwmn,nsan,node,ilp,ihp,jlp,jhp,ili,ihi,jli,jhi
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
       character*10 rdate,rtime
+      character*18 user
 c
       write(lfnmro) nwm,nwa,nsa,stime,temp,pres,vlat,nhist
 c
       call swatch(rdate,rtime)
-      hist(nhist)(1:10)=rdate
-      hist(nhist)(11:20)=rtime
-      hist(nhist)(21:80)=project(1:60)
+      call getlog(user)
+      hist(nhist)(1:18)=user
+      hist(nhist)(19:28)=rdate
+      hist(nhist)(29:48)=rtime
+      hist(nhist)(49:108)=project(1:60)
       write(lfnmro) (hist(j),j=1,nhist)
 c
       do 1 node=np-1,0,-1

@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.44 2004-01-31 16:52:33 d3j191 Exp $
+c $Id: sp_common.fh,v 1.45 2004-02-01 01:12:17 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -108,5 +108,5 @@ c
 c
       integer mxhist
       parameter(mxhist=100)
-      character*80 project,hist(mxhist)
+      character*108 project,hist(mxhist)
       common/sd_chr/project,hist
