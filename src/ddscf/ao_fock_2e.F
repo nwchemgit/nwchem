@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.2 1995-10-21 19:39:13 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.3 1995-11-02 21:27:39 gg502 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -11,6 +11,7 @@ c
 #include "schwarz.fh"
 #include "cscfps.fh"
 #include "cfock.fh"
+#include "util.fh"
 c
 c  Distributed-data AO 2e-Fock construction routine
 c
@@ -29,7 +30,7 @@ c
 c     
 c     local variables
 c     
-      integer natoms, maxd, max_at_bf, ablklen
+      integer natoms, maxd, max_at_bf, ablklen, nshb
       integer iatom, i, ilo, ihi
       integer l_dij, l_dik, l_dli, l_djk, l_dlj, l_dlk
       integer l_fij, l_fik, l_fli, l_fjk, l_flj, l_flk
@@ -97,10 +98,10 @@ c
       status = status .and. ma_push_get(MT_DBL, ablklen, 'atmp',
      $     l_atmp, k_atmp)
       if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
-c     
-c     Zero screening statistics
-c     
-      call ifill(nscreen, 0, iscreen, 1)
+c$$$c     
+c$$$c     Zero screening statistics
+c$$$c     
+c$$$      call ifill(nscreen, 0, iscreen, 1)
 c     
       if (oreadfile) then
          call fock_2e_from_file( geom, basis, nfock, ablklen,
@@ -111,6 +112,11 @@ c
      $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
      $        dbl_mb(k_atmp), vg_dens, vg_fock )
       else
+C
+C        Tell the screening statistics we're starting another Fock build
+C
+         iscreen(6) = iscreen(6) + 1
+C
          call fock_2e_a( geom, basis, nfock, ablklen,
      $        jfac, kfac, tol2e, oskel,
      $        dbl_mb(k_dij), dbl_mb(k_dik), dbl_mb(k_dli), 
@@ -118,6 +124,16 @@ c
      $        dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $        dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk),
      $        dbl_mb(k_atmp), vg_dens, vg_fock )
+C
+C        Print the integral screening statistics for this Fock build
+C
+         if (ga_nodeid().eq.0 .and. util_print('screening statistics',
+     $      print_debug)) then
+            if ( .NOT. bas_numcont(basis, nshb) ) Call ErrQuit(
+     $         'ao_fock_2e: problem with call to bas_numcont', basis)
+            call schwarz_print(natoms, nshb)
+         Endif
+C
       endif
 c     
       status = .true.

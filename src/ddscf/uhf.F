@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
+C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -9,6 +9,8 @@ C$Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
 #include "tcgmsg.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
+#include "geom.fh"
+#include "bas.fh"
 c
 c     Compute UHF wavefunction.
 c
@@ -27,6 +29,8 @@ c
       double precision enrep    ! Effective nuclear repulsion energy
       double precision uhf_time
       double precision sz, s2
+C
+      Integer NAtoms, NShells
 c
       logical uhf_nr_solve
       external ga_create_atom_blocked, uhf_nr_solve
@@ -77,6 +81,15 @@ c
       end if
 c
       if (ga_nodeid() .eq. 0) then
+C
+         if (util_print('schwarz',print_high)) then
+            if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
+     $         'rohf: problem with call to geom_ncent', geom)
+            if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
+     $         'rohf: problem with call to bas_numcont', basis)
+            call schwarz_print(natoms, nshells)
+         Endif
+C
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final alpha eigenvalues',
      $           20,.true.)
@@ -153,7 +166,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
+C     $Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -414,7 +427,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
+C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -505,7 +518,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
+c     $Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -866,7 +879,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.10 1995-10-21 19:39:36 d3g681 Exp $
+C$Id: uhf.F,v 1.11 1995-11-02 21:27:43 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

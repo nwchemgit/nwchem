@@ -6,10 +6,11 @@ c     iscreen(2) counts rejects in inner ijkl atom loop
 c     iscreen(3) counts accepts in inner ijkl atom loop
 c     iscreen(4) counts rejects in inner ijkl shell loop
 c     iscreen(5) counts accepts in inner ijkl shell loop
+C     iscreen(6) counts number of Fock builds
 c
       integer iscreen, nscreen
-C$Id: schwarz.fh,v 1.2 1995-02-02 23:12:09 d3g681 Exp $
-      parameter (nscreen=5)
+C$Id: schwarz.fh,v 1.3 1995-11-02 21:27:41 gg502 Exp $
+      parameter (nscreen=6)
       common/cscreen/iscreen(nscreen)
       double precision schwarz_max, schwarz_atom, schwarz_shell
       external schwarz_max, schwarz_atom, schwarz_shell

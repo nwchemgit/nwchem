@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.4 1995-10-21 19:39:33 d3g681 Exp $
+C$Id: rohf.F,v 1.5 1995-11-02 21:27:40 gg502 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -9,6 +9,8 @@ C$Id: rohf.F,v 1.4 1995-10-21 19:39:33 d3g681 Exp $
 #include "tcgmsg.fh"
 #include "crohf.fh"
 #include "cscf.fh"
+#include "geom.fh"
+#include "bas.fh"
 c
 c     Compute ROHF wavefunction.
 c     Initial vectors etc. are assumed to be loaded in common/cscf/
@@ -26,6 +28,8 @@ c
       double precision etwo     ! Two electron energy
       double precision enrep    ! Effective nuclear repulsion energy
       double precision rohf_time
+C
+      Integer NAtoms, NShells
 c
       logical rohf_nr_solve
       external ga_create_atom_blocked, rohf_nr_solve
@@ -70,6 +74,15 @@ c
       endif
 c
       if (ga_nodeid() .eq. 0) then
+C
+         if (util_print('schwarz',print_high)) then
+            if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
+     $         'rohf: problem with call to geom_ncent', geom)
+            if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
+     $         'rohf: problem with call to bas_numcont', basis)
+            call schwarz_print(natoms, nshells)
+         Endif
+C
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
             call output(dbl_mb(k_eval),
@@ -77,6 +90,7 @@ c
      $           1, 1, nbf, 1, 1)
             call util_flush(6)
          endif
+C
          if (util_print('final vectors', print_debug)) then
             write(6,*)
             call util_print_centered(6,'Final MO vectors',40,.true.)
