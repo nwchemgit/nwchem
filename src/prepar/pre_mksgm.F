@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.14 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.15 2003-08-01 00:02:37 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -15,9 +15,9 @@ c
 #include "pre_common.fh"
 c
       logical pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
-      logical pre_dihsel,pre_dihimp,pre_wrtsgm,pre_master
+      logical pre_dihsel,pre_dihimp,pre_wrtsgm
       external pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
-      external pre_dihsel,pre_dihimp,pre_wrtsgm,pre_master
+      external pre_dihsel,pre_dihimp,pre_wrtsgm
 c
       integer lfnout,lfnfrg,lfnsgm
       character*255 filfrg,filsgm
@@ -28,7 +28,7 @@ c
 c
       integer l_latm,i_latm,l_catm,i_catm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
-      integer i_izmat,l_izmat,i_zmat,l_zmat
+      integer i_izmat,l_izmat,i_zmat,l_zmat,l_fil,i_fil
 c
       integer nparms,ipardef
 c
@@ -37,11 +37,6 @@ c
       if(util_print('where',print_debug)) then
       write(lfnout,2000) filsgm(1:length)
  2000 format(//,'SEGMENT FILE ',a)
-      endif
-c
-      if(pre_master(lfnfrg,filfrg,lfnout)) then
-      write(lfnout,2020) filmst(1:index(filmst,' ')-1)
- 2020 format('MASTER FILE ',a)
       endif
 c
       if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd,nzmat,
@@ -73,6 +68,11 @@ c                  5       :
 c
       if(.not.ma_push_get(mt_int,6*matm,'latm',l_latm,i_latm))
      + call errquit('mksgm: Memory allocation failed for latm',9999)
+c
+c    char*255 fil
+c
+      if(.not.ma_push_get(mt_byte,255*nparms,'fil',l_fil,i_fil))
+     + call errquit('mksgm: Memory allocation failed for fil',9999)
 c
 c     char*6  catm(1,matm) : atom name
 c                  2       : atom type
@@ -188,6 +188,8 @@ c
      + call errquit('mksgm: Memory deallocation failed for qatm',9999)
       if(.not.ma_pop_stack(l_catm))
      + call errquit('mksgm: Memory deallocation failed for catm',9999)
+      if(.not.ma_pop_stack(l_fil))
+     + call errquit('mksgm: Memory deallocation failed for fil',9999)
       if(.not.ma_pop_stack(l_latm))
      + call errquit('mksgm: Memory deallocation failed for latm',9999)
 c
@@ -198,3 +200,4 @@ c
       pre_mksgm=.false.
       return
       end
+

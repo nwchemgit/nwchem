@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.52 2003-07-31 12:35:45 d3j191 Exp $
+c $Id: prepar.F,v 1.53 2003-08-01 00:02:37 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -163,7 +163,7 @@ c
       lenc=index(calc,' ')-1
       lend=index(dirpar(mdirpar),' ')-1
       filpdb=sysnam(1:len)//'.pdb '
-      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
+c      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
       filpov=sysnam(1:len)//'.pov '
       if(source.ne.'geometry'.and.source.ne.'pdb'.and.
      + source(1:1).ne.' ') filpdb=source
@@ -282,7 +282,7 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
+c      write(*,'(a,a)') 'filpdb=',filpdb(1:index(filpdb,' ')-1)
       if(.not.pre_mkseq(irtdb,lfnout,source,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,

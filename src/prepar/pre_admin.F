@@ -1,17 +1,24 @@
       logical function pre_admin(lfncmd,filcmd,lfnout,lfnfrg)
 c
-c $Id: pre_admin.F,v 1.1 2003-07-31 12:35:45 d3j191 Exp $
+c $Id: pre_admin.F,v 1.2 2003-08-01 00:02:36 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "mafdecls.fh"
 #include "pre_common.fh"
+c
+      logical pre_frgsiz,pre_frgrd,pre_master
+      external pre_frgsiz,pre_frgrd,pre_master
 c
       integer lfncmd,lfnout,lfnfrg
       character*255 filcmd,card,string
       character*255 dir,file1,file2
       integer i,length
-      integer natm,nparms,ipardef
+      integer natm,nparms,ipardef,nbnd,natm,nzmat,matm,mbnd,mzmat
+      integer l_latm,i_latm,l_catm,i_catm,l_qatm,i_qatm
+      integer l_bnd,i_bnd,l_fil,i_fil
+      integer i_izmat,l_izmat,i_zmat,l_zmat,i_ndx,l_ndx
 c
       logical ladmin
 c
@@ -46,6 +53,93 @@ c
       write(filmst,'(a,a)') dir(1:index(dir,' ')-1),
      + file1(1:index(file1,' '))
       length=index(filmst,' ')-1
+c
+      if(.not.pre_frgsiz(lfnmst,filmst,lfnout,
+     + natm,nbnd,nzmat,nparms,ipardef))
+     + call errquit('Error in pre_admin',0)
+c
+      matm=natm
+      mbnd=2*matm
+      if(mbnd.lt.nbnd) mbnd=nbnd
+      mzmat=nzmat+1
+c
+c     -----------------------------
+c
+c     integer latm(1,matm) :
+c                  2       :
+c                  3       :
+c                  4       :
+c                  5       :
+c
+      if(.not.ma_push_get(mt_int,6*matm,'latm',l_latm,i_latm))
+     + call errquit('mksgm: Memory allocation failed for latm',9999)
+      if(.not.ma_push_get(mt_int,matm,'ndx',l_ndx,i_ndx))
+     + call errquit('mksgm: Memory allocation failed for ndx',9999)
+c
+c    char*255 fil
+c
+      if(.not.ma_push_get(mt_byte,255*nparms,'fil',l_fil,i_fil))
+     + call errquit('mksgm: Memory allocation failed for fil',9999)
+c
+c     char*6  catm(1,matm) : atom name
+c                  2       : atom type
+c
+      if(.not.ma_push_get(mt_byte,6*(nparms+1)*matm,'catm',
+     + l_catm,i_catm))
+     + call errquit('mksgm: Memory allocation failed for catm',9999)
+c
+c     real*8 qatm(1,matm) : partial atomic charges
+c                 2       : polarizabilities
+c
+      if(.not.ma_push_get(mt_dbl,2*nparms*matm,'qatm',l_qatm,i_qatm))
+     + call errquit('mksgm: Memory allocation failed for qatm',9999)
+c
+c     integer lbnd(1:2,mbnd) : bond indices
+c
+      if(.not.ma_push_get(mt_int,2*mbnd,'bnd',l_bnd,i_bnd))
+     + call errquit('mksgm: Memory allocation failed for bnd',9999)
+c
+      if(mzmat.gt.0) then
+      if(.not.ma_push_get(mt_int,4*mzmat,'izmat',l_izmat,i_izmat))
+     + call errquit('mksgm: Memory allocation failed for izmat',mzmat)
+      if(.not.ma_push_get(mt_dbl,3*mzmat,'zmat',l_zmat,i_zmat))
+     + call errquit('mksgm: Memory allocation failed for zmat',mzmat)
+      endif
+c
+      if(.not.pre_frgrd(lfnmst,filmst,lfnout,nparms,nparms+1,
+     + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
+     + dbl_mb(i_zmat),mzmat,nzmat,byte_mb(i_fil)))
+     + call errquit('mksgm: pre_frgrd failed',9999)
+c
+      if(.not.pre_master(lfnfrg,lfnout,nparms,nparms+1,
+     + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
+     + dbl_mb(i_zmat),mzmat,nzmat,dir,byte_mb(i_fil),int_mb(i_ndx)))
+     + call errquit('mksgm: pre_master failed',9999)
+      
+      print*,'natm=',natm
+      print*,'nbnd=',nbnd
+      stop
+c
+      if(mzmat.gt.0) then
+      if(.not.ma_pop_stack(l_zmat))
+     + call errquit('mksgm: Memory deallocation failed for zmat',9999)
+      if(.not.ma_pop_stack(l_izmat))
+     + call errquit('mksgm: Memory deallocation failed for izmat',9999)
+      endif
+      if(.not.ma_pop_stack(l_bnd))
+     + call errquit('mksgm: Memory deallocation failed for bnd',9999)
+      if(.not.ma_pop_stack(l_qatm))
+     + call errquit('mksgm: Memory deallocation failed for qatm',9999)
+      if(.not.ma_pop_stack(l_catm))
+     + call errquit('mksgm: Memory deallocation failed for catm',9999)
+      if(.not.ma_pop_stack(l_fil))
+     + call errquit('mksgm: Memory deallocation failed for fil',9999)
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('mksgm: Memory deallocation failed for ndx',9999)
+      if(.not.ma_pop_stack(l_latm))
+     + call errquit('mksgm: Memory deallocation failed for latm',9999)
 c
       open(unit=lfnmst,file=filmst(1:length),form='formatted',
      + status='old',err=9999)

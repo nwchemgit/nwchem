@@ -1,12 +1,13 @@
-      logical function pre_frgrd(lfnfrg,filfrg,lfnout,nparms,nparmsp,
-     + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat)
+      logical function pre_frgrd(lfn,fil,lfnout,nparms,nparmsp,
+     + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat,
+     + fils)
 c
-c $Id: pre_frgrd.F,v 1.7 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_frgrd.F,v 1.8 2003-08-01 00:02:37 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
-c     in  : lfnfrg = frg file logical file number
-c           filfrg = frg file name
+c     in  : lfn = frg file logical file number
+c           fil = frg file name
 c           lfnout = output file logical file number
 c
 c     out : natm = number of atoms
@@ -16,12 +17,13 @@ c
 c
 #include "util.fh"
 c
-      integer lfnfrg,lfnout,matm,natm,mbnd,nbnd,mzmat,nzmat
+      integer lfn,lfnout,matm,natm,mbnd,nbnd,mzmat,nzmat
       integer nparms,nparmsp
       integer latm(6,matm),lbnd(2,mbnd),izmat(mzmat,4)
       character*6 catm(nparmsp,matm)
       real*8 qatm(nparms,2,matm),zmat(mzmat,3)
-      character*255 filfrg
+      character*255 fil
+      character*255 fils(nparms)
 c
       character*80 card
       integer i,icon(16),j,l,length
@@ -29,24 +31,24 @@ c
       natm=0
       nbnd=0
 c
-      length=index(filfrg,' ')-1
+      length=index(fil,' ')-1
 c
       if(util_print('where',print_debug)) then
-      write(lfnout,2000) filfrg(1:length)
+      write(lfnout,2000) fil(1:length)
  2000 format(' Attempt reading fragment',t40,a,/)
       endif
 c
-      open(unit=lfnfrg,file=filfrg(1:length),form='formatted',
+      open(unit=lfn,file=fil(1:length),form='formatted',
      + status='old',err=9999)
 c
       if(util_print('sequence',print_high)) then
-      write(lfnout,2001) filfrg(1:length)
+      write(lfnout,2001) fil(1:length)
  2001 format(' Reading fragment',t40,a,/)
       endif
 c
     1 continue
 c
-      read(lfnfrg,1000,end=9999,err=9999) card
+      read(lfn,1000,end=9999,err=9999) card
  1000 format(a)
 c
       if(card(1:1).eq.'#'.or.card(1:1).eq.'$') goto 1
@@ -54,14 +56,18 @@ c
       read(card,1001) natm
  1001 format(i5)
 c
+      do 101 i=1,nparms
+      read(lfn,1000) fils(i)
+  101 continue
+c
       do 2 i=1,natm
-      read(lfnfrg,1002,end=9999,err=9999) catm(1,i),catm(2,i),
+      read(lfn,1002,end=9999,err=9999) catm(1,i),catm(2,i),
      + latm(3,i),latm(4,i),latm(1,i),latm(2,i),latm(6,i),
      + qatm(1,1,i),qatm(1,2,i)
  1002 format(5x,2a6,5i5,2f12.6)
       if(nparms.gt.1) then
       do 22 j=2,nparms
-      read(lfnfrg,1202,end=9999,err=9999)
+      read(lfn,1202,end=9999,err=9999)
      + catm(j+1,i),qatm(j,1,i),qatm(j,2,i)
  1202 format(11x,a6,25x,2f12.6)
    22 continue
@@ -69,7 +75,7 @@ c
     2 continue
 c
     3 continue
-      read(lfnfrg,1003,end=999,err=9999) icon
+      read(lfn,1003,end=999,err=9999) icon
  1003 format(16i5)
 c
       if(icon(1).ne.0) then
@@ -84,10 +90,10 @@ c
       endif
 c
       nzmat=0
-      read(lfnfrg,1000,end=999,err=9999) card
+      read(lfn,1000,end=999,err=9999) card
       if(card(1:8).eq.'z-matrix') then
    10 continue
-      read(lfnfrg,1004) (izmat(nzmat+1,i),i=1,4),(zmat(nzmat+1,i),i=1,3)
+      read(lfn,1004) (izmat(nzmat+1,i),i=1,4),(zmat(nzmat+1,i),i=1,3)
  1004 format(4i5,3f12.6)
       if(izmat(nzmat+1,1).gt.0) then
       nzmat=nzmat+1
@@ -97,7 +103,7 @@ c
 c
   999 continue
 c
-      close(lfnfrg)
+      close(lfn)
 c
       if(nbnd.gt.0) then
       do 5 i=1,nbnd
@@ -142,7 +148,7 @@ c
  9999 continue
 c
       if(util_print('sequence',print_none)) then
-      write(lfnout,2003) filfrg(1:length)
+      write(lfnout,2003) fil(1:length)
  2003 format(' Error reading fragment',t40,a,/)
       endif
 c

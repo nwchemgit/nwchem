@@ -1,6 +1,6 @@
       logical function pre_paths2(irtdb)
 c
-c $Id: pre_paths2.F,v 1.1 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_paths2.F,v 1.2 2003-08-01 00:02:37 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*255 key,value,string
       logical add
 c
-      print*,'PRE_PATHS2'
+c      print*,'PRE_PATHS2'
       ndirpar=9
       do 1 i=1,mdirpar
       add=.false.
@@ -68,14 +68,14 @@ c
       endif
     1 continue
 c
-      do 4 i=1,mdirpar
-      if(nfilpar(i).gt.0) then
-      do 5 j=1,nfilpar(i)
-      write(*,'(a,a)') dirpar(i)(1:index(dirpar(i),' ')-1),
-     + filpar(i,j)(1:index(filpar(i,j),' ')-1)
-    5 continue
-      endif
-    4 continue
+c      do 4 i=1,mdirpar
+c      if(nfilpar(i).gt.0) then
+c      do 5 j=1,nfilpar(i)
+c      write(*,'(a,a)') dirpar(i)(1:index(dirpar(i),' ')-1),
+c     + filpar(i,j)(1:index(filpar(i,j),' ')-1)
+c    5 continue
+c      endif
+c    4 continue
 c
       pre_paths2=.true.
       return
