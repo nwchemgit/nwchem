@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.16 2003-10-26 20:47:24 bylaska Exp $
+* $Id: D3dB-new.F,v 1.17 2003-10-26 22:23:42 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -697,7 +697,8 @@ c     complex*16  tmp1(*)
 c     complex*16  tmp2(*)
 c     real*8      tmp3(*)
       integer nfft3d
-      integer tmp1(2),tmp2(2),tmp3(2)
+      !integer tmp1(2),tmp2(2),tmp3(2)
+      integer tmp2(2),tmp3(2)
       logical value
 
 
@@ -705,9 +706,11 @@ c     real*8      tmp3(*)
 
 *     ***** allocate temporary space ****
       call D3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+c     value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+c     value = value.and.
+c    >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+
+      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nfft3d),'ffttmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -741,14 +744,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(nz(nb)),A,1)
 
 #else
-      call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
          end do
-         call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+         call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
             A(indx) = dcpl_mb(tmp2(1)+k-1)
@@ -785,14 +788,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(ny(nb)),A,1)
 #else
-      call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
          end do
-         call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+         call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             A(indx) = dcpl_mb(tmp2(1)+j-1)
@@ -818,7 +821,7 @@ c    >                  nx(nb)+2,-2,ierr)
 c     call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(nx(nb)),A,1)
 
 #else
-      call drffti(nx(nb),dcpl_mb(tmp1(1)))
+      !call drffti(nx(nb),dcpl_mb(tmp1(1)))
 
 c      do q=1,nq(nb)
 c      do j=1,ny(nb)
@@ -834,56 +837,277 @@ c         call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
 c      end do
 c      end do
 
-      call cshift1_fftb(nx(nb),ny(nb),nq(nb),A)
+      call cshift1_fftb(nx(nb),ny(nb),nq(nb),1,A)
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call drfftb(nx(nb),A(indx),dcpl_mb(tmp1(1)))
+         call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
       end do
       end do
-      call zeroend_fftb(nx(nb),ny(nb),nq(nb),A)
+      call zeroend_fftb(nx(nb),ny(nb),nq(nb),1,A)
 #endif
     
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp3(2))
       value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
+      !value = MA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
       return
       end
 
-      subroutine cshift1_fftb(nx,ny,nq,A)
+      subroutine cshift1_fftb(nx,ny,nq,ne,A)
       implicit none
-      integer nx,ny,nq
+      integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,indx
+      integer i,j,q,n,indx
+      do n=1,ne
       do q=1,nq
       do j=1,ny
          indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+     >            + (n-1)*(nx+2)*ny*nq
          do i=2,nx
             A(indx+i-1) = A(indx+i)
          end do
       end do
       end do
+      end do
       return
       end 
-      subroutine zeroend_fftb(nx,ny,nq,A)
+      subroutine zeroend_fftb(nx,ny,nq,ne,A)
       implicit none
-      integer nx,ny,nq
+      integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,indx
+      integer i,j,q,n,indx
+      do n=1,ne
       do q=1,nq
       do j=1,ny
          indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+     >            + (n-1)*(nx+2)*ny*nq
          A(indx+nx)   = 0.0d0
          A(indx+nx+1) = 0.0d0
       end do
       end do
+      end do
       return
       end 
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_ncr_fft3b		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_ncr_fft3b(nb,ne,A)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation of       *
+*      a three dimensional complex to complex       *
+*      inverse fft                                  *
+*           A(nx,ny(nb),nz(nb)) <- FFT3^(-1)[A(kx,ky,kz)]   * 
+*                                                   *
+*      Entry - 					    *
+*              A: a column distribuded 3d block     *
+*              tmp: tempory work space must be at   *
+*                    least the size of (complex)    *
+*                    (nfft*nfft + 1) + 10*nfft      * 
+*                                                   *
+*       Exit - A is transformed and the imaginary   *
+*              part of A is set to zero             *
+*       uses - D3dB_c_transpose_jk, dcopy           *
+*                                                   *
+*****************************************************
+
+      implicit none
+      integer nb,ne
+      complex*16  A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ D3dB / nq,nx,ny,nz
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+*     *** local variables ***
+      integer i,j,k,q,n,indx,ierr
+
+c     complex*16  tmp1(*)
+c     complex*16  tmp2(*)
+c     real*8      tmp3(*)
+      integer nfft3d
+      !integer tmp1(2),tmp2(2),tmp3(2)
+      integer tmp2(2),tmp3(2)
+      logical value
+
+
+      call nwpw_timing_start(1)
+
+*     ***** allocate temporary space ****
+      call D3dB_nfft3d(nb,nfft3d)
+c     value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+c     value = value.and.
+c    >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+
+      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(2*nfft3d),'ffttmp3',tmp3(2),tmp3(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+*     ********************************************
+*     ***         Do a transpose of A          ***
+*     ***      A(kx,kz,ky) <- A(kx,ky,kz)      ***
+*     ********************************************
+c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+
+*     *************************************************
+*     ***     do fft along kz dimension             ***
+*     ***   A(kx,nz(nb),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
+*     *************************************************
+#ifdef MLIB
+      !call z1dfft(dbl_mb(tmp3(1)),nz(nb),dcpl_mb(tmpz(1)),-3,ierr)
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+k-1) = A(indx)
+         end do
+         call z1dfft(dcpl_mb(tmp2(1)),nz(nb),
+     >               dcpl_mb(tmpz(1,nb)),-2,ierr)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+k-1)
+         end do
+      end do
+      end do
+      end do
+      !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(nz(nb)),A,1)
+
+#else
+      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+k-1) = A(indx)
+         end do
+         call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+k-1)
+         end do
+      end do
+      end do
+      end do
+#endif
+
+*     ********************************************
+*     ***         Do a transpose of A          ***
+*     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
+*     ********************************************
+      do n=1,ne
+        indx = 1 + (n-1)*nfft3d
+        call D3dB_c_transpose_jk(nb,A(indx),
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
+      end do
+
+*     *************************************************
+*     ***     do fft along ky dimension             ***
+*     ***   A(kx,ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ky,nz(nb))]  ***
+*     *************************************************
+#ifdef MLIB
+      !call z1dfft(dbl_mb(tmp3(1)),ny(nb),dcpl_mb(tmp1(1)),-3,ierr)
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+j-1) = A(indx)
+         end do
+         call z1dfft(dcpl_mb(tmp2(1)),ny(nb),
+     >               dcpl_mb(tmpy(1,nb)),-2,ierr)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+j-1)
+         end do
+      end do
+      end do
+      end do
+      !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(ny(nb)),A,1)
+#else
+      !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+j-1) = A(indx)
+         end do
+         call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+j-1)
+         end do
+      end do
+      end do
+      end do
+#endif
+
+*     *************************************************
+*     ***     do fft along kx dimension             ***
+*     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
+*     *************************************************
+#ifdef MLIB
+      do n=1,ne
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >            + (n-1)*nfft3d
+         call drc1ft(A(indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
+      end do
+      end do
+      end do
+
+#else
+
+      call cshift1_fftb(nx(nb),ny(nb),nq(nb),ne,A)
+      do n=1,ne
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >            + (n-1)*nfft3d
+         call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+      end do
+      end do
+      end do
+      call zeroend_fftb(nx(nb),ny(nb),nq(nb),ne,A)
+#endif
+    
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp3(2))
+      value = MA_pop_stack(tmp2(2))
+      !value = MA_pop_stack(tmp1(2))
+
+      call nwpw_timing_end(1)
+      return
+      end
 
 
 
@@ -931,7 +1155,8 @@ c      end do
       integer i,j,k,q,indx,ierr
 
       integer nfft3d
-      integer tmp1(2),tmp2(2),tmp3(2)
+      !integer tmp1(2),tmp2(2),tmp3(2)
+      integer tmp2(2),tmp3(2)
       logical value
 
 
@@ -940,9 +1165,10 @@ c      end do
 
 *     ***** allocate temporary space ****
       call D3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+c     value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+c     value = value.and.
+c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nfft3d),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -963,7 +1189,7 @@ c     end do
      >                  nx(nb)+2,1,ierr)
 
 #else
-      call drffti(nx(nb),dcpl_mb(tmp1(1)))
+      !call drffti(nx(nb),dcpl_mb(tmp1(1)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
@@ -977,11 +1203,10 @@ c        dbl_mb(tmp3(1)+1)    = 0.0d0
 c        dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
 c        call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
 
-         call drfftf(nx(nb),A(indx),dcpl_mb(tmp1(1)))
-
+         call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
       end do
       end do
-      call cshift_fftf(nx(nb),ny(nb),nq(nb),A)
+      call cshift_fftf(nx(nb),ny(nb),nq(nb),1,A)
 #endif
 
 
@@ -1015,14 +1240,14 @@ c        call zffts(A(i),ny(nb),(nx(nb)/2+1),nq(nb),
 c     >           (nx(nb)/2+1)*nq(nb),1,ierr)
 c      end do
 #else
-      call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
          end do
-         call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+         call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             A(indx) = dcpl_mb(tmp2(1)+j-1)
@@ -1059,14 +1284,14 @@ c      end do
       end do
       end do
 #else
-      call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
          end do
-         call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+         call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             A(indx) = dcpl_mb(tmp2(1)+k-1)
@@ -1085,22 +1310,24 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp3(2))
       value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
+      !value = MA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
       return
       end
 
-      subroutine cshift_fftf(nx,ny,nq,A)
+      subroutine cshift_fftf(nx,ny,nq,ne,A)
       implicit none
-      integer nx,ny,nq
+      integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,indx
+      integer i,j,q,n,indx
 
+      do n=1,ne
       do q=1,nq
       do j=1,ny
          indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+     >        + (n-1)*(nx+2)*ny*nq
          do i=nx,2,-1
             A(indx+i) = A(indx+i-1)
          end do
@@ -1108,9 +1335,228 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          A(indx+nx+1) = 0.0d0
       end do
       end do
+      end do
 
       return
       end 
+
+
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_nrc_fft3f		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_nrc_fft3f(nb,ne,A)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation of       *
+*      a three dimensional complex to complex fft   *
+*           A(kx,ky,kz) <- FFT3[A(nx(nb),ny(nb),nz(nb))]        * 
+*                                                   *
+*      Entry - 					    *
+*              A: a column distribuded 3d block     *
+*              tmp: tempory work space must be at   *
+*                    least the size of (complex)    *
+*                    (nfft*nfft + 1) + 10*nfft      * 
+*                                                   *
+*       Exit - A is transformed                     *
+*                                                   *
+*       uses - transpose1 subroutine                *
+*                                                   *
+*****************************************************
+
+      implicit none
+      integer nb,ne
+      complex*16  A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ D3dB / nq,nx,ny,nz
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+*     *** local variables ***
+      integer i,j,k,q,n,indx,ierr
+
+      integer nfft3d
+      !integer tmp1(2),tmp2(2),tmp3(2)
+      integer tmp2(2),tmp3(2)
+      logical value
+
+
+      call nwpw_timing_start(1)
+
+
+*     ***** allocate temporary space ****
+      call D3dB_nfft3d(nb,nfft3d)
+c     value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+c     value = value.and.
+c    >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(2*nfft3d),'tmp3',tmp3(2),tmp3(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+
+*     ********************************************
+*     ***     do fft along nx(nb) dimension        ***
+*     ***   A(kx,ny(nb),nz(nb)) <- fft1d[A(nx(nb),ny(nb),nz(nb))]  ***
+*     ********************************************
+#ifdef MLIB
+      call drcfts(A,nx(nb),1,ny(nb)*nq(nb)*ne,
+     >                  nx(nb)+2,1,ierr)
+
+#else
+      !call drffti(nx(nb),dcpl_mb(tmp1(1)))
+      do n=1,ne
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >        + (n-1)*nfft3d
+
+
+         call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+      end do
+      end do
+      end do
+      call cshift_fftf(nx(nb),ny(nb),nq(nb),ne,A)
+#endif
+
+
+*     ********************************************
+*     ***     do fft along ny(nb) dimension        ***
+*     ***   A(kx,ky,nz(nb)) <- fft1d[A(kx,ny(nb),nz(nb))]  ***
+*     ********************************************
+
+#ifdef MLIB
+      !call z1dfft(dbl_mb(tmp3(1)),ny(nb),dcpl_mb(tmp1(1)),-3,ierr)
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+j-1) = A(indx)
+         end do
+         !indx = i + (q-1)*(nx(nb)/2+1)*ny(nb)
+         !call zcopy(ny(nb),A(indx),(nx(nb)/2+1),dcpl_mb(tmp2(1)),1)
+         call z1dfft(dcpl_mb(tmp2(1)),ny(nb),dcpl_mb(tmpy(1,nb)),1,ierr)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+j-1)
+         end do
+         !call zcopy(ny(nb),dcpl_mb(tmp2(1)),1,A(indx),(nx(nb)/2+1))
+      end do
+      end do
+      end do
+ccc   *** this should be faster but isn't  ***
+c      do i=1,(nx(nb)/2+1)
+c        !indx = 1 + (q-1)*(nx(nb)/2+1)*ny(nb)
+c        call zffts(A(i),ny(nb),(nx(nb)/2+1),nq(nb),
+c     >           (nx(nb)/2+1)*nq(nb),1,ierr)
+c      end do
+#else
+      !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+j-1) = A(indx)
+         end do
+         call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
+         do j=1,ny(nb)
+            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+j-1)
+         end do
+      end do
+      end do
+      end do
+#endif
+
+
+*     ********************************************
+*     ***         Do a transpose of A          ***
+*     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
+*     ********************************************
+      do n=1,ne
+        indx = 1 + (n-1)*nfft3d
+        call D3dB_c_transpose_jk(nb,A(indx),
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
+      end do
+
+
+*     ********************************************
+*     ***     do fft along nz(nb) dimension        ***
+*     ***   A(kx,kz,ky) <- fft1d[A(kx,nz(nb),ky)]  ***
+*     ********************************************
+#ifdef MLIB
+      !call z1dfft(dbl_mb(tmp3(1)),nz(nb),dcpl_mb(tmp1(1)),-3,ierr)
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+k-1) = A(indx)
+         end do
+         call z1dfft(dcpl_mb(tmp2(1)),nz(nb),dcpl_mb(tmpz(1,nb)),1,ierr)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+k-1)
+         end do
+      end do
+      end do
+      end do
+#else
+      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      do n=1,ne
+      do q=1,nq(nb)
+      do i=1,(nx(nb)/2+1)
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            dcpl_mb(tmp2(1)+k-1) = A(indx)
+         end do
+         call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
+         do k=1,nz(nb)
+            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+     >               + (n-1)*nfft3d
+            A(indx) = dcpl_mb(tmp2(1)+k-1)
+         end do
+      end do
+      end do
+      end do
+#endif
+
+*     ********************************************
+*     ***         Do a transpose of A          ***
+*     ***      A(kx,ky,kz) <- A(kx,kz,ky)      ***
+*     ********************************************
+c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+
+
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp3(2))
+      value = MA_pop_stack(tmp2(2))
+      !value = MA_pop_stack(tmp1(2))
+
+      call nwpw_timing_end(1)
+      return
+      end
+
+
 
 
 *     ***********************************
