@@ -5,7 +5,7 @@
      $     g_fock, g_svecs, isvals, 
      $     g_cdinv, g_xcinv, g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.66 1997-03-18 01:18:17 d3h449 Exp $
+C     $Id: dft_scf.F,v 1.67 1997-03-26 18:20:05 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -1288,7 +1288,7 @@ C     allocate array for irreps
          call movecs_ecce(nbf_ao, nmo, 1, nmo, dbl_mb(k_eval(1)),
      $        dbl_mb(k_occ), int_mb(k_ir), 
      $        g_movecs(1), 'dft', 'alpha')
-         if ( nsets.eq.2 ) then ! spin-unrestricted
+         if ( ipol.eq.2 ) then ! spin-unrestricted
             if ( oadapt ) then
                call scf_movecs_sym_adapt( ao_bas_han, g_movecs(2),
      $              .false., nbf_ao, '- alpha', .true., int_mb(k_ir) )
