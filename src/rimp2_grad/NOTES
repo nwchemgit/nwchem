@@ -18,9 +18,18 @@ o dynamic block sizing out of date
 o either p2ij or p2ab will work only if entire amplitude tensor is in core
 o NMO probably not needed in routine
 o Don't pass in both NFit and FitBas
+
+t_stats:
 o t statistics should get only unique indices
 
 driver_g:
 o l2 uses ga_matmul_patch and is therefore not scalable
 o l2(ab) block is possibly transposed?  Does it matter?
 o density contributions to W2 are backwards from derivation????
+
+Helpful debugging tips:
+o Run jobs for which number of number of virtuals < occupied
+o Run jobs for which number of frozen core > actives
+o Run jobs for which number of frozen core > number of virtuals
+  (i.e. Ne2 in 3-21G basis with 9 frozen core, 1 occupied, and 8
+  virtuals) 

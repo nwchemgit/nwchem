@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.15 1998-11-09 17:44:25 bernhold Exp $
+C$Id: rimp2g.F,v 1.16 1998-11-11 18:19:02 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -125,18 +125,6 @@ C
 C
       PrInfo = Util_Print('information', Print_Low) .AND. (Me .eq. 0)
 C
-C     ***********************
-C     * Print module header *
-C     ***********************
-C
-      If ( PrInfo) then
-         Call Util_Print_Centered(LuOut,
-     $      'NWChem RI-MP2 Energy/Gradient Module', 40, .TRUE.)
-         If ( JobTitle .ne. ' ') Call Util_Print_Centered( LuOut,
-     $      JobTitle, 40, .FALSE.)
-         Write (LuOut, '(//)')
-      EndIf
-C
 C     *************************************************
 C     * Start creating & initializing data structures *
 C     *************************************************
@@ -244,6 +232,19 @@ C
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2G: Unable to free local array H_Occ', H_Occ)
+C
+C     ***********************
+C     * Print module header *
+C     ***********************
+C
+      If ( PrInfo) then
+         Write (LuOut, '(//)')
+         Call Util_Print_Centered(LuOut,
+     $      'NWChem RI-MP2 Energy/Gradient Module', 40, .TRUE.)
+         If ( JobTitle .ne. ' ') Call Util_Print_Centered( LuOut,
+     $      JobTitle, 40, .FALSE.)
+         Write (LuOut, '(//)')
+      EndIf
 C
 C     ******************************
 C     * Prepare file names & sizes *

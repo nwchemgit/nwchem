@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l2 -- Compute RI-MP2 L2 Lagrangian term
 C
 C REVISION
-C     $Id: l2.F,v 1.3 1998-10-06 17:19:16 bernhold Exp $
+C     $Id: l2.F,v 1.4 1998-11-11 18:18:58 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L2(C, A, V, NFit, D_Int_ai, d_Int_ij, D_Gam,
@@ -64,19 +64,38 @@ C
      $     'RIMP2_L2: can''t allocate minimal GA', (CAV+V)*NFit)
 C
       Final = GA_Memory_Avail()
-      Block = Final - Initial
+      Block = Initial - Final
 C
       If( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
      $     'RIMP2_L2: can''t destroy GA!', 0)
 C
 C     Figure out a safe blocking for all nodes
 C
+C     First, how many blocks can we hold? (A is the most we can
+C     profitably use)
+C
       If ( Block .gt. 0) then
-         IBlock = Min( Int( Initial / Block ), A)
+         IBlock = Min( Int( Initial / Block ), A )
       Else
          IBlock = A
       EndIf
       Call GA_IGOp(Msg_RIMP2_Mem, IBlock, 1, 'min')
+C
+C     Now, in rare cases (C >> A), we could have problems with g_Gam
+C     being large enough to act as a transfer point for the ij integrals
+C
+      Write ( 6, *) 'IBlock based on memory ', IBlock
+      IBlock = Max( IBlock, Int( 1.0d0 + Dble((C+A)/V) ) )
+      Write ( 6, *) 'IBlock based on g_Gam ', IBlock
+C
+C     Double check to make sure we have not forced IBlock to be more
+C     than we actually have space for.
+C
+      Write ( 6, *) 'Memory available and needed ', Initial,
+     $     Block * IBlock
+      If ( IBlock * Block .gt. Initial ) Call ErrQuit(
+     $     'RIMP2_L2: insufficient memory for current algorithm',
+     $     (Block * IBlock) - Initial )
 C
 C     Create GAs appropriate for blocking
 C
@@ -94,23 +113,30 @@ C
          IHi = Min( A, ILo + IBlock - 1)
          NI = IHi - ILo + 1
 C
+         Write (6, *) 'L2: ILo, IHi, A, IBlock = ', ILo, IHi,
+     $        A, IBlock
+C
 C        Assemble Int(pi,D) from Int(ai,D) and Int(ji,D) using
 C        the g_Gam GA as scratch space.
 C
 C        First, read Int(ai,D) into g_Gam
 C
          If ( DRA_Read_Section(.FALSE.,
-     $        G_Gam, 1,                  NI*V, 1, NFit,
-     $        D_Int_ai, (ILo-1)*V+1, IHi*V, 1, NFit, ReqI) .ne. 0)
+     $        G_Gam, 1,                 NI*V,     1, NFit,
+     $        D_Int_ai, (ILo-1)*V+1, (IHi)*V, 1, NFit, ReqI) .ne. 0)
      $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo)
          If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
      $        'RIMP2_L2: Error from DRA_Wait on integrals', 1)
+         Write (6, *) 'L2: Read ai from ',  (ILo-1)*V+1, IHi*V,
+     $        ' into ', 1, NI*V
 C
 C        Now copy blockwise into proper locations in g_Int
 C
          Do I = 1, IHi - ILo + 1
             Call GA_Copy_Patch_DP('N', g_Gam, (I-1)*V+1, I*V, 1, NFit,
      $           g_Int, (I-1)*CAV+C+A+1, I*CAV, 1, NFit)
+            Write ( 6, *) 'L2: Copying ',  (I-1)*V+1, I*V, ' --> ',
+     $           (I-1)*CAV+C+A+1, I*CAV
          EndDo                  ! I
          Call GA_Sync
 C
@@ -125,12 +151,16 @@ C
             JHi = Min( IHi, JLo + JBlock - 1)
             NJ = JHi - JLo + 1
 C
+            Write (6, *) 'L2: JLo, JHi, JBlock = ', JLo, JHi, JBlock
+C
             If ( DRA_Read_Section(.FALSE., G_Gam, 1, NJ*(C+A), 1, NFit,
      $           D_Int_ij, (JLo-1)*(C+A)+1, JHi*(C+A), 1, NFit, ReqI)
      $           .ne. 0)
      $           Call ErrQuit('RIMP2_L2: Error reading integrals', JLo)
             If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
      $           'RIMP2_L2: Error from DRA_Wait on integrals', 1)
+            Write (6, *) 'L2: Read ij from ',  (JLo-1)*(C+A)+1,
+     $           JHi*(C+A), ' into ', 1, NJ*(C+A)
 C
 C           Now copy blockwise into proper locations in g_Int.
 C
@@ -139,6 +169,8 @@ C
      $              g_Gam, (J-1)*(C+A)+1, J*(C+A),         1, NFit,
      $              g_Int, (J+JLo-ILo-1)*CAV+1, (J+JLo-ILo-1)*CAV+(C+A),
      $              1, NFit)
+               Write ( 6, *) 'L2: Copying ',  (J-1)*(C+A)+1, J*(C+A),
+     $              ' --> ',(J+JLo-ILo-1)*CAV+1, (J+JLo-ILo-1)*CAV+(C+A)
             EndDo               ! J
             Call GA_Sync
          EndDo                  ! J Blocks

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.7 1998-10-06 18:36:36 bernhold Exp $
+C     $Id: mk_l.F,v 1.8 1998-11-11 18:19:00 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -36,6 +36,7 @@ C INCLUDE FILES
 #include "util.fh"
 #include "inp.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
       Integer MinChunk             ! Minimum panel size that is reasonable
@@ -70,9 +71,9 @@ C
 C     Allocate matrices for partial results
 C
       Do ISpin = 1, TopSpin
-         C = NFrzO(ISpin)
-         A = NAct(ISpin)
-         V = NVir(ISpin)
+         C = NFrzO(ISpin)       ! Core
+         A = NAct(ISpin)        ! Active
+         V = NVir(ISpin)        ! Virtual
 C
 C        Create L1(p,i)
 C
@@ -104,14 +105,18 @@ C     * Evaluate L1(p,i) and L2(a,p) *
 C     ********************************
 C
       Do ISpin = 1, TopSpin
-         C = NFrzO(ISpin)
-         A = NAct(ISpin)
-         V = NVir(ISpin)
+         C = NFrzO(ISpin)       ! Core
+         A = NAct(ISpin)        ! Active
+         V = NVir(ISpin)        ! Virtual
          Call RIMP2_L1(C, A, V, NFit, D_Int_ai(ISpin), D_Gam(ISpin),
      $        g_L1(ISpin) )
 C
          Call RIMP2_L2(C, A, V, NFit, D_Int_ai(ISpin), D_Int_ij(ISpin),
      $        D_Gam(ISpin), g_L2(ISpin) )
+c$$$C
+c$$$         Call GA_Scale( g_L1(ISpin), 100000.0d0)
+c$$$         Call GA_Print( g_L1(ISpin) )
+c$$$         Call GA_Scale( g_L1(ISpin), 1/100000.0d0)
 C
 C        WARNING:  This is only being done at the moment in order to 
 C        match the exact MP2 code!
@@ -124,24 +129,27 @@ C
 C     ************************
 C     * L1 contributes to P2 *
 C     ************************
-C     This is separate from the CPHF equations
+C     This is required for the computation of L34, below
 C
 C     P2(iy) = 1/2 L1(yi) (e(i) - e(y))^{-1}
 C
 C
-      If ( NFrzO(ISpin) .gt. 0) then
-         Do ISpin = 1, TopSpin
+      Do ISpin = 1, TopSpin
+         If ( NFrzO(ISpin) .gt. 0) then
 C
-            C = NFrzO(ISpin)
-            A = NAct(ISpin)
-            V = NVir(ISpin)
+            C = NFrzO(ISpin)    ! Core
+            A = NAct(ISpin)     ! Active
+            V = NVir(ISpin)     ! Virtual
 C
             Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   1, A,
      $                              g_P2(ISpin), C+1, C+A, 1, C)
-            Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, 0.5d0 )
-c$$$C
-c$$$            If ( Util_Print('partial p2', Print_Debug) )
-c$$$     $           Call GA_Print( g_P2(ISpin) )
+C           CHEATING!!!! minus sign on scale factor below
+            Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, -0.5d0 )
+C
+            If ( Util_Print('partial p2', Print_Debug) ) then
+               Write (6, *) 'P(2) w/ L1 copied in but not scaled...'
+               Call GA_Print( g_P2(ISpin) )
+            EndIf
 C
 C           Find out what portion of matrix we hold
 C
@@ -156,25 +164,36 @@ C
             If ( (PHi-PLo+1) * (QHi-QLo+1) .gt. 0 ) then
                Call GA_Access(g_P2(ISpin), PLo, PHi, QLo, QHi,
      $              Index, LD)
+               Write ( 6, *) 'Index, LD = ', Index, LD
                Do Y = QLo, QHi
                   Do I = PLo, PHi
                      Scale = 1/( Eig(I, ISpin) - Eig(Y, ISpin) )
+                     Write ( 6, *) 'liy: ', i, y, dbl_mb(index),
+     $                    Eig(I, ISpin) - Eig(Y, ISpin), Scale, Index
                      Dbl_MB( Index ) = Dbl_MB(Index) * Scale
                      Index = Index + 1
                   EndDo
-                  Index = Index + LD - 1
+                  Index = Index + LD - (PHi-PLo+1)
                EndDo
                Call GA_Release_Update(g_P2(ISpin), PLo, PHi, QLo, QHi)
             EndIf
             Call GA_Sync
 C
+C           Now that we've got this block done, we need to copy
+C           into the transpose location
+C
+            Call GA_Copy_Patch('T', g_P2(ISpin), C+1, C+A, 1,   C,
+     $                              g_P2(ISpin), 1,   C,   C+1, C+A)
+C
 C           Print results if requested
 C
-            If ( Util_Print('partial p2', Print_Debug) )
-     $           Call GA_Print( g_P2(ISpin) )
+            If ( Util_Print('partial p2', Print_Debug) ) then
+               Write (LuOut, *) 'P(2) w/ L1 active-core contribution...'
+               Call GA_Print( g_P2(ISpin) )
+            EndIf
 C     
-         EndDo
-      EndIf
+         EndIf
+      EndDo
 C
 C     ******************************************
 C     * L3 + L4 is computed using a Fock build *
@@ -237,9 +256,9 @@ C
 C
 C        Shorthand, so we can actually read the code!
 C
-         C = NFrzO(ISpin)
-         A = NAct(ISpin)
-         V = NVir(ISpin)
+         C = NFrzO(ISpin)       ! Core
+         A = NAct(ISpin)        ! Active
+         V = NVir(ISpin)        ! Virtual
 C
          If ( C .gt. 0) then
 C
@@ -247,14 +266,14 @@ C           L(iy) = -L1(yi)
 C
             Call GA_Copy_Patch('T', g_L1(ISpin), 1,   C,   1, A,
      $                              g_L(ISpin),  C+1, C+A, 1, C   )
-            Call GA_Scale_Patch(g_L(ISpin), C+1, C+A, 1, C, -1.0d0 )
+            Call GA_Scale_Patch(    g_L(ISpin),  C+1, C+A, 1, C, -1.0d0)
 C
 C           L(ay) = L2(ay) + L3(ay) + L4(ay)
 C           Total size ap       am       am
 C
-            Call GA_Add_Patch( 1.0d0, g_L2(ISpin),  1, V, 1, C,
-     $                         1.0d0, g_L34(ISpin), 1, V, 1, C,
-     $                                 g_L(ISpin),  C+A+1, C+A+V, 1, C)
+            Call GA_Add_Patch( 1.0d0, g_L2(ISpin),  1,     V,     1, C,
+     $                         1.0d0, g_L34(ISpin), 1,     V,     1, C,
+     $                                g_L(ISpin),   C+A+1, C+A+V, 1, C)
          EndIf                  ! C .gt. 0
 C
 C        L(ai) = L1(ai) + L2(ai) + L3(ai) + L4(ai)
