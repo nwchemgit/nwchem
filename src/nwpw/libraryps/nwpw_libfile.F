@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.10 2004-02-23 16:37:31 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.11 2004-03-15 22:04:17 edo Exp $
 *
 
 *
@@ -52,6 +52,11 @@ c
       endif
       libname = 
      &NWPW_LIBRARY
+c
+c     add here nwpw/libraryps bit
+c
+      libname=libname(1:inp_strlen(libname))
+     &     //"/nwpw/libraryps/"
       if (util_find_dir(libname)) then
          goto 99
       else
