@@ -573,7 +573,7 @@ cell (3d grid) are stored in a formatted pseudopotential datafile.
 This is a binary file and cannot be directly edited.
 This datafile 
 is used by steepest\_descent and Car-Parrinello tasks and can be generated
-using the pseudpotential_formatter task.
+using the pseudpotential\_formatter task.
 
 \subsection{One-Dimensional Pseudopotential Datafile}
 The one-dimensional pseudopotentials are stored in a one-dimensional 
@@ -616,7 +616,7 @@ and the format of it is:
 
 In this section we show how to setup and run a steepest descent
 simulation to optimize the one-electron orbitals with respect to 
-the total energy for a C$_2$ molecule.
+the total energy for a NaCl molecule.
 
 Before running a steepest\_descent simulation several files and
 RTDB structures must be defined or initialized.  Specifically, the user 
@@ -625,27 +625,178 @@ RTDB, a formatted pseudopotential file for each kind of ion,
 a file containing the one-electron orbitals, and lastly a 
 steepest\_descent PSPW sub-block. 
 
-First we define the ion positions using the geometry directive.
-\begin{verbatim}
-...
-geometry units au 
-C    1.2 0.0 0.0
-C   -1.2 0.0 0.0
-end
-...
-\end{verbatim}
+\begin{enumerate}
+\item Define the ion positions using the geometry directive.
+      \begin{verbatim}
+         ...
+         geometry units au 
+         Na    1.0 0.0 0.0
+         Cl   -1.0 0.0 0.0
+         end
+         ...
+      \end{verbatim}
+
+\item Generate a pseudopotential for Sodium atoms and store it in a
+      one-dimensional pseudopotential datafile called Na.psp.  
+      The following input can be used to generate a default
+      Hamann pseudopotential.  
+      \begin{verbatim}
+         ...
+         PSPW
+            PSP_GENERATOR
+               pseudopotential_filename: Na.psp
+                element: Na
+                charge: 11.0
+                mass_number: 23.0
+                solver_type: pauli
+                pseudopotential_type: hamann
+                atomic_filling: 3 1
+                  1 s 2.0
+                  2 s 2.0
+                  2 p 6.0
+                  3 s 1.0
+            END
+         END
+         task PSPW PSP_GENERATOR
+         ...
+      \end{verbatim}
+
+\item Using the same proceedure as above generate a pseudopotential 
+      for Chlorine. 
+      \begin{verbatim}
+         ...
+         PSPW 
+            PSP_GENERATOR
+               pseudopotential_filename: Cl.psp
+               element: Cl
+               charge: 17.0
+               mass_number: 35.0
+               solver_type: pauli
+               pseudopotential_type: hamann
+               atomic_filling: 3 2
+                  1 s 2.0
+                  2 s 2.0
+                  2 p 6.0
+                  3 s 2.0
+                  3 p 5.0
+            
+            END
+         END
+         task PSPW PSP_GENERATOR
+         ...
+      \end{verbatim}
+
+
+\item Define the simulation cell.  
+      The following input defines a simulation cell called ``small.'' This
+      cell is periodic and cubic with a side length of 20.0 au and has
+      32 grid points in each direction.  
+   \begin{verbatim}
+         ...
+         PSPW
+            SIMULATION_CELL
+               cell_name: small
+               boundry_conditions: periodic
+               lattice_vectors:
+                  20.0  0.0  0.0 
+                   0.0 20.0  0.0 
+                   0.0  0.0 20.0 
+               ngrid: 32 32 32
+            END
+         END
+         ...
+   \end{verbatim}
+
+\item Format the Na pseudopotential onto the ``small'' simulation cell.
+   \begin{verbatim}
+         ...
+         PSPW
+            PSP_FORMATTER
+               cell_name: small
+               psp_name: Na.psp
+               formatted_name: Na.vpp
+            END
+         END
+         task PSPW PSP_FORMATTER
+         ...
+   \end{verbatim}
+
+\item Format the Cl pseudopotential onto the ``small'' simulation cell.
+   \begin{verbatim}
+         ...
+         PSPW
+            PSP_FORMATTER
+               cell_name: small
+               psp_name: Cl.psp
+               formatted_name: Cl.vpp
+            END
+         END
+         task PSPW PSP_FORMATTER
+         ...
+   \end{verbatim}
+
+\item Generate an initial guess for the one-electron orbitals.
+   \begin{verbatim}
+         ...
+         PSPW
+            WAVEFUNCTION_INITIALIZER
+               cell_name: small
+               unrestricted
+               up_filling: 4
+                  0 0 0   0 
+                  1 0 0  -1
+                  0 1 0  -1
+                  0 0 1  -1
+               down_filling: 4
+                  0 0 0   0
+                  1 0 0  -1
+                  0 1 0  -1
+                  0 0 1  -1
+               wavefunction_filename: NaCl.small.00.elc
+            END
+         END
+         task PSPW WAVEFUNCTION_INTITALIZER
+         ...
+   \end{verbatim}
+
+\item Optimize the one-electron orbitals with respect to energy using
+      steepest descent.
+      \begin{verbatim}
+         PSPW
+            STEEPEST_DESCENT
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:  NaCl.small.00.elc
+               output_wavefunction_filename: NaCl.small.00.elc
+               fake_mass: 400000.0d0
+               time_step: 51.8d0
+               loop: 100 10
+               tolerances: 1.0d-9 1.0d-9 1.0d-4
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+            END 
+         END
+         task PSPW STEEPEST_DESCENT
+         ...
+      \end{verbatim}
+
+
+\end{enumerate}
+
+
 
 Putting it all together we have:
 \begin{verbatim}
-title; C2
+title; NaCl
 
-start C2
+start NaCl
 
 memory global 12 mb stack 6 mb heap 10 mb
 
 geometry units au
-C 1.2000000000 0.00000000  0.00000000
-C -1.2000000000 0.00000000 0.00000000
+Na 1.2000000000 0.00000000  0.00000000
+Cl -1.2000000000 0.00000000 0.00000000
 end
 
 PSPW
