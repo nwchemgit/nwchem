@@ -6,7 +6,7 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.5 2000-12-05 01:57:17 bert Exp $
+# $Id: write_frames.pl,v 1.6 2003-04-17 23:00:43 mhackler Exp $
 #
 # remove nwchem banner stuff 3/23/98
 #
@@ -34,10 +34,10 @@ if ($okay != 3) {
     exit(1);
 }
 if ($document eq "user") {
-    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/user.gif\" BGCOLOR=\"FAEBD7\">\n";
+    $bodystring = "<BODY BGCOLOR=\"#FFFFFF\">\n";
 }
 elsif ($document eq "prog") {
-    $bodystring = "<BODY BACKGROUND=\"../../backgrounds/prog.gif\" BGCOLOR=\"FAEBD7\">\n";
+    $bodystring = "<BODY BGCOLOR=\"#FFFFFF\">\n";
 }
 else{
     $bodystring = "<BODY>\n";
