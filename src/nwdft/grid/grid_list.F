@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen)
 c
-c$Id: grid_list.F,v 1.2 1999-04-29 16:36:56 d3h449 Exp $
+c$Id: grid_list.F,v 1.3 1999-06-14 22:39:22 d3h449 Exp $
 c
       implicit none
 c      
@@ -21,11 +21,11 @@ c
       Parameter (ktheta = 5.d0)
       double precision eps
       parameter (eps = 1.d-20)
-      logical leb, oprint, no_prune
+      logical leb, oprint, oprint_grid, no_prune
       double precision asg1(4,3)
       integer iti, ictr, irsh,
      &        iang, iang_mx, iqsh, nr, nserie, izat, ir,
-     &        me
+     &        me, nq_ctr_tot, nq_tot
       double precision R_MAX, r, r1, r2, r3, 
      &                 r4, RR, q1
 
@@ -40,6 +40,7 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
       leb = .false.
       if (iangquad.ne.0) leb = .true.
       R_MAX = dble(irqmax)
@@ -53,6 +54,7 @@ c
 c
       iqsh = 0
       nqmax = 0
+      nq_tot = 0
 c
 c     grid list is generated here (qsh); with or without pruning
 c
@@ -65,10 +67,10 @@ c
          if (oskel)then
             if (.not.sym_atom(geom, ictr, q1))goto 420
          endif
-c         if(me.eq.0)then
-c         write(*,*)' ncenters, ictr, iti, bsrad_atom_type(iti), r_max: ',
-c     &               ncenters, ictr, iti, bsrad_atom_type(iti), r_max
-c         endif
+         if (ga_nodeid().eq.0.and.oprint_grid)then
+            write(*,*)' ncenters, ictr, iti, bsrad_atom_type(iti)',
+     &                  ncenters, ictr, iti, bsrad_atom_type(iti)
+         endif
 c
 c        parameter for pruning
 c
@@ -89,6 +91,13 @@ c
          endif
 c
          nr = nrad(iti)
+c
+         nq_ctr_tot = 0
+c
+         if (ga_nodeid().eq.0.and.oprint_grid)then
+            write(*,*)' nr, iti, nrad(iti), nang(iti): ', 
+     &                  nr, iti, nrad(iti), nang(iti)
+         endif
 c
          do 410 ir = 1, nr
             irsh = nr - (ir - 1)
@@ -173,23 +182,37 @@ c
                   nqmax = max(nqmax,ntheta(iang)*nphi(iang))
                endif
 c
+            nq_ctr_tot = nq_ctr_tot + ntheta(iang)*nphi(iang)
+c
   410    continue
+c
+         if (ga_nodeid().eq.0.and.oprint_grid)then
+            write(6,*)' ictr, iti, nq_ctr_tot: ',
+     &                  ictr, iti, nq_ctr_tot
+         endif
+c
+         nq_tot = nq_tot + nq_ctr_tot      
+c
   420 continue
 c
       nqshells = iqsh
       nqmax = nqmax*nquad_task
 c
+c     debug writes
 c
-c     temp write checks
+      if (ga_nodeid().eq.0.and.oprint_grid)then
 c
-      write(6,*)' nqshells, nqmax, nqlen: ',
-     &            nqshells, nqmax, nqlen
-
-      write(6,*)' iqshell: '
-      call i_output(iqshell, 1, 4, 1, nqshells, 4, mxqshells, 1)
+         write(6,*)' nq_tot = ', nq_tot
 c
-      write(6,*)' qsh: '
-      call i_output(qsh, 1, 3, 1, nqshells, 3, nqlen, 1)
+         write(6,*)' nqshells, nqmax, nqlen: ',
+     &               nqshells, nqmax, nqlen
 c
+         write(6,*)' iqshell: '
+         call i_output(iqshell, 1, 4, 1, nqshells, 4, mxqshells, 1)
+c
+         write(6,*)' qsh: '
+         call i_output(qsh, 1, 3, 1, nqshells, 3, nqlen, 1)
+c
+      endif
       return
       end

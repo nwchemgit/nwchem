@@ -1,22 +1,24 @@
       Subroutine grid_setspac_params
 c
-c$Id: grid_setspac_params.F,v 1.1 1999-04-23 16:30:36 d3h449 Exp $
+c$Id: grid_setspac_params.F,v 1.2 1999-06-14 22:39:26 d3h449 Exp $
 c
       implicit none
 c      
 #include "cdft.fh"
 #include "util.fh"
+#include "global.fh"
 c
       double precision eps
       parameter (eps = 1.d-20)
-      logical oprint
+      logical oprint, oprint_grid
 c
-      integer iti, itj, chij
-      double precision uij, aij
+      integer iti, itj
+      double precision uij, aij, chij
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
 c
 c     Compute Becke s parameter for center pairs.
 c      
@@ -40,12 +42,22 @@ c              uij = (bsrad_atom_type(iti - bsrad_atom_type(itj))/(bsrad_atom_ty
 c
                uij = (chij-1.d0)/(chij+1.d0)
                aij = uij/(uij*uij - 1.D0)
-c               write(*,*)' bsrad_atom_type(iti), bsrad_atom_type(itj), chij, uij, aij = ',
-c     &                     bsrad_atom_type(iti), bsrad_atom_type(itj), chij, uij, aij
+               if (ga_nodeid().eq.0.and.oprint_grid)then
+                  write(6,*)' bsrad_atom_type(iti): ',
+     &                        bsrad_atom_type(iti)
+                  write(6,*)' bsrad_atom_type(itj): ',
+     &                        bsrad_atom_type(itj)
+                  write(6,*)' chij, uij, aij: ',
+     &                        chij, uij, aij
+               endif
                if (aij.lt.-0.5d0)then
                   aij = -0.5d0
                elseif (aij.gt.0.5d0)then
                   aij = 0.5d0
+               endif
+c
+               if (ga_nodeid().eq.0.and.oprint_grid)then
+                  write(6,*)' aij = ', aij
                endif
 c
                aratio(iti,itj) = aij
@@ -53,9 +65,11 @@ c
 c
   300       continue
   310    continue
+      endif
 c
-c        temp writes
+c     debug writes
 c
+      if (ga_nodeid().eq.0.and.oprint_grid)then
          write(6,*)' aratio '
          call output(aratio, 1, ntypes, 1, ntypes, 
      &               dft_ntags_bsmx, dft_ntags_bsmx, 1)

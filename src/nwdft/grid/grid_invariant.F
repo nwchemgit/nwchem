@@ -1,21 +1,23 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.2 1999-04-29 16:36:55 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
 c
       implicit none
 c      
 #include "mafdecls.fh"
 #include "util.fh"
+#include "global.fh"
 #include "stdio.fh"
 #include "cdft.fh"
 #include "geom.fh"
 c
-      logical oprint
+      logical oprint, oprint_grid
       integer lcoord, icoord, lcharge, icharge, ltags, itags
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
 c
 c     Define the rotation matrix that will be used to ensure that the quadrature
 c     grid is rotationally invariant.
@@ -61,14 +63,17 @@ c
      &      call errquit('grid_invariant: pop stack failed.',0)
       endif
 c
-      write(6,*)' qrot: '
-      call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+c     debug writes
 c
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         write(6,*)' qrot: '
+         call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+      endif
       return
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.2 1999-04-29 16:36:55 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
 c
       implicit none
 c

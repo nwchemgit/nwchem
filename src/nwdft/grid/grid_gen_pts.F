@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.2 1999-05-12 22:01:46 edo Exp $
+c$Id: grid_gen_pts.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
 c
       implicit none
 c      
@@ -74,9 +74,15 @@ c
       if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
      &                     'ang quad pts buffer', laqbuf, iaqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
+         write(6,*)' ang_quad_buf_size = ', ang_quad_buf_size
+         call dfill(dbl_mb(iaqbuf), 0.0d0, 4*ang_quad_buf_size, 1)
       call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
      &                dbl_mb(iwqbuf), write_quad_buf_size,
      &                dbl_mb(iaqbuf), ang_quad_buf_size)
+c
+c     try to balance the number of tasks on each node
+c
+      call grid_file_balance()
 c
       if (.not. MA_Pop_Stack(laqbuf))
      &   call errquit('grid_gen_pts: pop stack failed.',0)

@@ -1,11 +1,12 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.1 1999-04-23 16:30:27 d3h449 Exp $
+c$Id: grid_acc_def.F,v 1.2 1999-06-14 22:39:19 d3h449 Exp $
 c
       implicit none
 c      
 #include "inp.fh"
 #include "rtdb.fh"
+#include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -15,7 +16,7 @@ c
       integer rtdb
       integer num_gridtypes, grid_acc_index
       parameter (num_gridtypes = 7)
-      logical leb, oprint
+      logical leb, oprint, oprint_grid
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
       double precision grid_acc(num_gridtypes)
@@ -168,6 +169,7 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
       leb = .false.
       if (iangquad.ne.0) leb = .true.
       R_MAX = dble(irqmax)
@@ -333,15 +335,17 @@ c
       if (.not. rtdb_put(rtdb, 'dft:mxnang', mt_int, 1, mxnang))
      &   call errquit('grid_acc_def: rtdb_put failed', 119)
 c
-c     temp write checks
+c     debug writes
 c
-      write(6,*)' grid_acc_index, job_grid_acc: ',
-     &            grid_acc_index, job_grid_acc
-      write(6,*)' mxnrad, mxnang: ', 
-     &            mxnrad, mxnang
-      write(6,*)' nrad(ntypes) ',
-     &           (nrad(itype),itype = 1, ntypes)
-      write(6,*)' nang(ntypes) ',
-     &           (nang(itype),itype = 1, ntypes)
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         write(6,*)' grid_acc_index, job_grid_acc: ',
+     &               grid_acc_index, job_grid_acc
+         write(6,*)' mxnrad, mxnang: ', 
+     &               mxnrad, mxnang
+         write(6,*)' nrad(ntypes) ',
+     &              (nrad(itype),itype = 1, ntypes)
+         write(6,*)' nang(ntypes) ',
+     &              (nang(itype),itype = 1, ntypes)
+      endif
       return
       end

@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord, leb)
 c
-C$Id: grid_utils.F,v 1.1 1999-04-23 16:30:37 d3h449 Exp $
+C$Id: grid_utils.F,v 1.2 1999-06-14 22:39:27 d3h449 Exp $
 c
       implicit none
 c      
@@ -592,3 +592,26 @@ c
 c
       end
 
+      Subroutine grid_repack(xyzw, qxyz, qwght, nq)
+c
+C$Id: grid_utils.F,v 1.2 1999-06-14 22:39:27 d3h449 Exp $
+c
+      implicit none
+c
+      integer nq      
+      double precision xyzw(4,nq), qxyz(3,nq), qwght(nq)
+c
+      integer n
+c
+      do 30 n = 1, nq
+c
+        qxyz(1,n) = xyzw(1,n)
+        qxyz(2,n) = xyzw(2,n)
+        qxyz(3,n) = xyzw(3,n)
+c
+        qwght(n) = xyzw(4,n)
+c
+   30 continue
+c      write(6,*)' repacked buffer '
+      return
+      end

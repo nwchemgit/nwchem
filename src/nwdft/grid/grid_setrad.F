@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.1 1999-04-23 16:30:35 d3h449 Exp $
+c$Id: grid_setrad.F,v 1.2 1999-06-14 22:39:25 d3h449 Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c
       integer rtdb
       double precision eps
       parameter (eps = 1.d-20)
-      logical oprint
+      logical oprint, oprint_grid
       logical tol_reset, mul_reset
 c
       character*10 radgrid
@@ -34,6 +34,7 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
 c
 c     Define the Euler-Maclaurin radial quadrature points and weights.
 c
@@ -44,6 +45,13 @@ c
       if (.not. rtdb_get(rtdb,'dft:ndivide', mt_int, 1, ndivide)) 
      *     ndivide=11
       do 100 itype = 1, ntypes
+c
+c        debug writes
+c
+         if (ga_nodeid().eq.0.and.oprint_grid)then
+            write(*,*)' itype, bsrad_atom_type(itype), nrad(itype): ',
+     &                  itype, bsrad_atom_type(itype), nrad(itype)
+         endif
          if (bsrad_atom_type(itype).gt.EPS)then
            if(radgrid.eq.'eumac') then
             call eumac(bsrad_atom_type(itype), rpts(1,itype), 
@@ -145,6 +153,12 @@ c
 c     Modify number of radial shells per atom type by possible 
 c     truncation.
 c
+c
+c     debug writes
+c
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
+      endif
       do 420 itype = 1, ntypes
 c
          if (bsrad_atom_type(itype).le.eps) goto 420
@@ -170,11 +184,13 @@ c
   410    continue
   420 continue
 c
-c     temp write checks
+c     debug writes
 c
-      write(6,*)' nrad: ',(nrad(itype), itype = 1, ntypes)
-      write(6,*)' radgrid: ',radgrid
-      write(6,*)' tol_reset, mul_reset: ', 
-     &            tol_reset, mul_reset
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         write(6,*)' nrad: ',(nrad(itype), itype = 1, ntypes)
+         write(6,*)' radgrid: ',radgrid
+         write(6,*)' tol_reset, mul_reset: ', 
+     &               tol_reset, mul_reset
+      endif
       return
       end

@@ -1,6 +1,6 @@
       subroutine grid_file_balance
 *
-* $Id: grid_balance.F,v 1.1 1999-04-23 16:30:29 d3h449 Exp $
+* $Id: grid_balance.F,v 1.2 1999-06-14 22:39:20 d3h449 Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -9,7 +9,7 @@
 #include "global.fh"
 #include "util.fh"
 c     
-c     Attempt to load balance the integral file ... version 2
+c     Attempt to load balance the grid pts file
 c
 c     Eliminate intermediate syncrhonizations, attempt to overlap
 c     big transfers, fuzzy termination.

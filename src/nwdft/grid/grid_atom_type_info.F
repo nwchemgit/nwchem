@@ -1,11 +1,12 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.1 1999-04-23 16:30:28 d3h449 Exp $
+c$Id: grid_atom_type_info.F,v 1.2 1999-06-14 22:39:19 d3h449 Exp $
 c
       implicit none
 c      
 #include "inp.fh"
 #include "util.fh"
+#include "global.fh"
 #include "stdio.fh"
 #include "cdft.fh"
 #include "geom.fh"
@@ -26,7 +27,7 @@ c
 c
       logical lnewtype
       logical atom_tag_check
-      logical oprint
+      logical oprint, oprint_grid
 c
       External atom_tag_check
 c
@@ -68,6 +69,7 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
+      oprint_grid = util_print('griddebug', print_debug)
 c
 c     allocate space for atomic coordinates and charges
 c
@@ -217,16 +219,18 @@ c
       if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('grid_atom_type_info: pop stack failed.',0)
 c
-c     temp write checks
+c     debug writes
 c
-      write(6,*)' iatype(ncenters) ',
-     &           (iatype(ictr),ictr = 1, ncenters)
-      write(6,*)' iatype_pt_chg(ncenters) ',
-     &           (iatype_pt_chg(ictr),ictr = 1, ncenters)
-      write(6,*)' bsrad_atom_type(ntypes) ',
-     &           (bsrad_atom_type(itype),itype = 1, ntypes)
-      write(6,*)' znuc_atom_type(ntypes) ',
-     &           (znuc_atom_type(itype),itype = 1, ntypes)
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         write(6,*)' iatype(ncenters) ',
+     &              (iatype(ictr),ictr = 1, ncenters)
+         write(6,*)' iatype_pt_chg(ncenters) ',
+     &              (iatype_pt_chg(ictr),ictr = 1, ncenters)
+         write(6,*)' bsrad_atom_type(ntypes) ',
+     &              (bsrad_atom_type(itype),itype = 1, ntypes)
+         write(6,*)' znuc_atom_type(ntypes) ',
+     &              (znuc_atom_type(itype),itype = 1, ntypes)
+      endif
       return
       end
       logical function atom_tag_check(atom_tag_i, atom_tag_j)

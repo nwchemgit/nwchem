@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.5 1999-05-12 22:01:46 edo Exp $
+* $Id: grid_file.F,v 1.6 1999-06-14 22:39:20 d3h449 Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -54,9 +54,9 @@ c
       file_opened = .false.
       cur_rec = 1
       n_rec_in_file = 0
-      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
+      rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
-      call dfill(buffer_size, 0.0d0, values, 1)
+      call dfill(4*buffer_size, 0.0d0, values, 1)
       cur_rec_rad=0d0
 #ifdef NOAIO
       oasyncio = .false.
@@ -479,7 +479,7 @@ c
 c     determine n_per_rec; each grid pt requires x,y,z and weight
 c     NOTE: use the 1st two places to write atom center and nqpts for this buffer
 c
-      n_per_rec = buffer_size/4 - 1
+      n_per_rec = buffer_size - 1
       n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
 c
       end
@@ -530,7 +530,7 @@ c      if (.not. bas_numbf(basis, nbf))
 c     $     call errquit('grid: bad bas',0)
       nops = sym_number_ops(geom) + 1
 c
-      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
+      rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
 c
 c     How much memory?  Leave space for GAs, for the grid_pts code,
 c     and for 50,000 of misc. junk. 
@@ -565,7 +565,7 @@ c         nq = 0.125d0 * dble(nbf+1)**4
 *      write(6,*) ' nq 1 ', nq
 c
          if (nq .lt. avail) then
-            localmemsize = max(2*buffer_size,int(nq))
+            localmemsize = max(8*buffer_size,int(nq))
          else
             localmemsize = 0
          endif

@@ -1,7 +1,7 @@
       Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, leb,
      *     rad)
 c
-c$Id: grid_qpts.F,v 1.2 1999-05-01 17:28:10 edo Exp $
+c$Id: grid_qpts.F,v 1.3 1999-06-14 22:39:23 d3h449 Exp $
 c
       implicit none
 c      
@@ -11,6 +11,8 @@ c
       integer nq   ! [input]
 c      
 #include "cdft.fh"
+#include "util.fh"
+#include "global.fh"
 c
 c---> Cartesian Coordinates of Integration Center
 c
@@ -18,7 +20,7 @@ c
 c
 c---> Cartesian Coordinates of Quadrature Points & Weights
 c
-      logical leb
+      logical leb, oprint_grid
       double precision aqbuf(4,nq), qwght_nq,rad
 c
 c     Compute the quadrature points & weights for a given 
@@ -28,12 +30,24 @@ c
       integer k, l, ia_ictr
       double precision r, tx, ty, tz, xor, yor, zor
 c
+      oprint_grid = util_print('griddebug', print_debug)
+c
       nq = 0
 c
       ia_ictr = iatype(ictr)
 c
       r = rpts(irsh,ia_ictr)
       rad=r
+      
+c
+c     debug writes
+c
+      if (ga_nodeid().eq.0.and.oprint_grid)then
+         write(6,*)' xyz: ', xyz
+         write(6,*)' ictr, irsh, iang, ia_ictr, rad: ',
+     &               ictr, irsh, iang, ia_ictr, rad
+      endif
+c
       if (leb) then
 c         
          do k = 1, ntheta(iang)

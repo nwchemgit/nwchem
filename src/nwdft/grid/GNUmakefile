@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1999-05-12 22:01:46 edo Exp $
+# $Id: GNUmakefile,v 1.6 1999-06-14 22:39:27 d3h449 Exp $
 
       OBJ = \
 	grid_atom_type_info.o \
@@ -17,14 +17,16 @@
         grid_file.o \
         grid_setspac.o \
         grid_beckew.o \
-	grid_prescreen_1.o \
-	grid_prescreen_2.o \
-	grid_read_ck.o \
-	grid_neighb.o \
+	grid_den.o \
+	grid_den_2.o \
 	grid_rchi.o \
+	grid_rchi_2.o \
+	grid_neighb.o \
 	grid_signf.o \
 	grid_ssw.o \
 	grid_sym.o \
+	grid_cleanup.o \
+	grid_balance.o \
 	grid_utils.o
 
      LIBRARY = libnwdft.a
@@ -34,24 +36,9 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = grid_invariant.F prescreen_2.F
+   USES_BLAS = grid_invariant.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
-
-#       grid_acc_def.o \
-#	grid_atom_type_info.o \
-#	grid_invar.o \
-#	grid_list.o \
-#	grid_prescreen_1.o \
-#	grid_prescreen_2.o \
-#	grid_setang.o \
-#	grid_setquad.o \
-#	grid_setrad.o \
-#	grid_setspac.o \
-#	grid_setspac_params.o \
-#	grid_utils.o
-
 
 
