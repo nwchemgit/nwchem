@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.10 1998-12-10 23:48:48 d3e129 Exp $
+* $Id: movecs_pr_anal.F,v 1.11 1999-08-02 23:35:04 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -418,7 +418,7 @@ c     might as well do both at the same time since this will
 c     use less memory.
 c
       do lm = 1, 6
-         call ga_sync
+         call ga_sync()
          do i = 1+ga_nodeid(), nbf, ga_nnodes()
             call ga_get(g_xlm,lm+(i-1)*6,lm+(i-1)*6,1,nbf,
      $           dbl_mb(k_tmp), 1)
@@ -429,7 +429,7 @@ c
      $        0.0d0,g_tmp2)
          call ga_dgemm('t','n',nmo,nmo,nbf,1.0d0,g_vecs,g_tmp2,
      $        0.0d0,g_tmp1)
-         call ga_sync
+         call ga_sync()
          do i = 1+ga_nodeid(), nmo, ga_nnodes()
             call ga_get(g_tmp1, i, i, 1, nmo, dbl_mb(k_tmp), 1)
             call ga_put(g_xlm,lm+(i-1)*6,lm+(i-1)*6,1,nmo,
