@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.17 1995-03-31 01:39:59 d3g681 Exp $
+C$Id: inp.F,v 1.18 1995-06-28 17:19:56 rg240 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -15,7 +15,11 @@ c
       data errmsg  /' '/
       data input_line /0/
       data xblnk /' '/
+#ifdef DECOSF
+      data xtab  /'	'/      ! Tab ... note backslash for cpp
+#else
       data xtab  /'\	'/      ! Tab ... note backslash for cpp
+#endif
       data xsplit/';'/
       data xcomm /'#'/
       data xback /'\\'/         ! Backslash ... note backslash for cpp
