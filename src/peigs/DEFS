@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.97 2003-08-13 21:34:47 edo Exp $
+# $Id: DEFS,v 1.98 2003-08-26 03:47:33 edo Exp $
 #
 #======================================================================
 #
@@ -518,7 +518,11 @@ peigs_CPP =  $(CPP) -D${CPU} -DSTD_DBL
 peigs_CODEOBJ = DBLE
 peigs_CC  += -DSTD_DBL 
 peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
+ifeq ($(FC),efc)
+peigs_FC  +=  -O3  -tpp2 -ftz 
+endif
 ifeq ($(CC),ecc)
+#peigs_CC  +=  -O3   -ftz -hlo -unroll
 peigs_CC  +=  -O3  -mp1 -ftz -hlo -unroll
 endif
   ifdef USE_INTEGER4
