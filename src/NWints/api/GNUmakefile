@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.64 1998-06-09 23:37:45 d3e129 Exp $
+# $Id: GNUmakefile,v 1.65 1998-07-04 07:24:47 gutowski Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -28,7 +28,7 @@ endif
           intpd_1e1cpe.o intpd_1eke.o   intpd_1eov.o \
           intpd_1epe.o   intpd_2e2c.o   intpd_2e3c.o \
           intpd_2e3ct.o  intpd_mpolel.o \
-	  intso_1e.o
+	  intso_1e.o     intdp_1eov.o   intdp_1eke.o
 
     OBJ_OPTIMIZE = int_hf1sp.o int_l2e4c.o intb_init4c.o intb_2e4c.o \
                    int_2e4c.o
