@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.23 2000-02-21 07:38:23 d3j191 Exp $
+c $Id: pre_charge.F,v 1.24 2000-02-22 21:38:32 d3j191 Exp $
 c
       implicit none
 c
@@ -347,6 +347,22 @@ c
      + qatm(iab(j))=qatm(iab(j))-0.50
    22 continue
       qatm(i)=qatm(i)-0.50
+      endif
+      endif
+c
+c     --SOOO (-)
+c
+      if(latm(2,i).eq.16.and.nb.eq.4) then
+      nox=0
+      do 23 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1) nox=nox+1
+   23 continue
+      if(nox.eq.3) then
+      do 24 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1)
+     + qatm(iab(j))=qatm(iab(j))-0.25
+   24 continue
+      qatm(i)=qatm(i)-0.25
       endif
       endif
 c

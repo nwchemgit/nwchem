@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.26 2000-02-21 07:05:44 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.27 2000-02-22 21:38:32 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -53,7 +53,7 @@ c
       integer lseq(4,mseq),lsgm(3,msgm),latm(5,matm),lato(5,mato)
       character*5 cseq(2,mseq),csgm(msgm)
       character*6 catm(3,matm),cato(3,mato)
-      real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale
+      real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale,qsum
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       integer lbndt(2,mbndt)
       character*255 filpar,filnam
@@ -275,6 +275,7 @@ c
      + /)
       endif
       found=.true.
+      qsum=0.0d0
       do 6 j=1,nato
       if(lato(2,j).gt.0) then
 c
@@ -282,6 +283,7 @@ c
       write(lfnout,3003) j,cato(2,j),cato(3,j),
      + lato(5,j),lato(4,j),1,1,qato(j),0.0
  3003 format(i5,1x,a4,2x,a6,4i5,2f12.6)
+      qsum=qsum+qato(j)
       endif
       write(iunit,2003) j,cato(2,j),cato(3,j),
      + lato(5,j),lato(4,j),1,1,qato(j),0.0
@@ -289,6 +291,10 @@ c
       if(cato(3,j)(1:1).eq.' ') found=.false.
       endif
     6 continue
+      if(util_print('sequence',print_medium)) then
+      write(lfnout,3009) qsum
+ 3009 format(37x,'------------',/,25x,'total charge ',f12.6)
+      endif
 c
       nconn=0 
       do 15 ibnd=1,nbnd
