@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.23 1999-07-14 00:28:40 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.24 2000-05-27 19:39:31 mg201 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -40,7 +40,7 @@ c:tex-\begin{verbatim}
       logical function intb_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
-     $     l_erilab, nint, lscr, scr)
+     $     l_erilab, nints, lscr, scr)
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
@@ -70,7 +70,7 @@ c:tex-\begin{verbatim}
       integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
       integer klab(l_erilab)    ! [output] integral labels for ``k'' 
       integer llab(l_erilab)    ! [output] integral labels for ``l'' 
-      integer nint              ! [output] number of integrals returned
+      integer nints              ! [output] number of integrals returned
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
@@ -84,7 +84,7 @@ c     Cannot do texas.
 c     
       intb_2e4c = .false.
       if (num_q.eq.0) then
-        nint = 0
+        nints = 0
         return
       endif
       if (brain.ne.ketin .or. (.not.txs_b2e4c)) then
@@ -92,7 +92,7 @@ c
      $        brain, icl, jcl, ketin, kcl, lcl,
      $        num_q, q4, use_q4, zerotol, canonicalize,
      $        ilab, jlab, klab, llab, eri,
-     $        l_erilab, nint, lscr, scr)
+     $        l_erilab, nints, lscr, scr)
          return
       endif
 c     
@@ -103,8 +103,8 @@ c
      $        brain, icl, jcl, ketin, kcl, lcl,
      $        nsp, q4, use_q4, zerotol, canonicalize,
      $        ilab, jlab, klab, llab, eri,
-     $        l_erilab, nint, lscr, scr)
-         if ((nint.eq.0) .or. (.not. intb_2e4c)) then
+     $        l_erilab, nints, lscr, scr)
+         if ((nints.eq.0) .or. (.not. intb_2e4c)) then
 c     
 c     Must skip past those already done with SP
 c     
@@ -131,10 +131,10 @@ c
      $     num_q-num_q_start+1,
      $     q4(num_q_start), use_q4,
      $     roff,roff,roff,roff,.false.,
-     $     eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
+     $     eri,l_erilab, ilab, jlab, klab, llab, nints, .true.,
      $     more_ints_txs, scr, lscr, zerotol,'scfd_int')
-      if (nint.gt.l_erilab) then
-         write(luout,*)' number of integrals from texas   :',nint
+      if (nints.gt.l_erilab) then
+         write(luout,*)' number of integrals from texas   :',nints
          write(luout,*)' size of integral and label buffer:',l_erilab
          write(luout,*)' you must increase eri buffer/label size '
          call errquit(' integral buffer overflow ',911)
@@ -165,7 +165,7 @@ c:tex-\begin{verbatim}
       logical function intb_nw_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      $     num_q, q4, use_q4, zerotol, canonicalize,
      $     ilab, jlab, klab, llab, eri,
-     $     l_erilab, nint, lscr, scr)
+     $     l_erilab, nints, lscr, scr)
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
@@ -196,7 +196,7 @@ c:tex-\begin{verbatim}
       integer jlab(l_erilab)    ! [output] integral labels for ``j'' 
       integer klab(l_erilab)    ! [output] integral labels for ``k'' 
       integer llab(l_erilab)    ! [output] integral labels for ``l'' 
-      integer nint              ! [output] number of integrals returned
+      integer nints              ! [output] number of integrals returned
       double precision eri(l_erilab) ! [output] integral values
       integer lscr              ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
@@ -227,7 +227,7 @@ c
          call errquit(' intb_nw_2e4c: infinite blocking loop ',911)
       endif
       num_q_last = num_q_start
-      nint = 0
+      nints = 0
       do 00100 i_q = num_q_start, num_q
          numint=int_nint_cart(
      &       brain,icl(i_q),brain,jcl(i_q),
@@ -268,7 +268,7 @@ c
 #endif
             ip_int = ip_int + nint_for_q
             leri_left = leri_left - nint_for_q
-            nint = nint + nint_for_q
+            nints = nints + nint_for_q
          endif
 00100 continue
       intb_nw_2e4c = .false.
