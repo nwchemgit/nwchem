@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.33 2003-04-10 17:48:31 sohirata Exp $
+c     $Id: dft_input.F,v 1.34 2003-04-14 20:54:03 sohirata Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -282,7 +282,9 @@ c
       if (.not.rtdb_put(rtdb,'dft:cs00', mt_log, 1, cs00)) 
      &   call errquit('dft_input: rtdb_put failed', 2500)
       if (.not.inp_f(shift)) then
-         call errquit('dft: provide a shift after cs00 keyword',0)
+         write(LuOut,*)' shift for CS00 correction not found;',
+     &   ' Zhan-Nichols-Dixon shift (B3LYP) will be used.'
+         shift = 1.0d99
       endif
       if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
      &   call errquit('dft_inp: rtdb_put failed', 2500)

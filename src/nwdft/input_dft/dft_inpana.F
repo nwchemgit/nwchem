@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.66 2003-04-10 17:48:31 sohirata Exp $
+c     $Id: dft_inpana.F,v 1.67 2003-04-14 20:54:02 sohirata Exp $
 c
 c*********************************************************************
 c     
@@ -405,10 +405,16 @@ c           If both LB94 and CS00 are .true., it is assumed that the
 c           user meant to use CS00 (since CS00 uses LB94)
 c
             if (cs00) then
+               if (delta_ac.gt.1.0d90) then
+               write(LuOut,*)
+               write(LuOut,9226) 
+     &         '  CS with a Zhan-Nichols-Dixon shift        '
+               else
                write(LuOut,*)
                write(LuOut,9227) 
      &         '  Casida-Salahub correction with a shift    ',
      &         delta_ac,'au'
+               endif
             else if (lb94) then
                write(LuOut,*)
                write(LuOut,9226) 
