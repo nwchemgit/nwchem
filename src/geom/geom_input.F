@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.45 1997-02-08 00:12:29 d3g681 Exp $
+C     $Id: geom_input.F,v 1.46 1997-02-13 23:06:54 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -18,8 +18,10 @@ c
       logical oprint
       logical ozmatrix
       logical oautoz
+      logical oforce_autoz
       logical include_bqbq
       logical oprint_sym
+      integer nzinput
       integer max_center ! parameter for local array dimension
       double precision scale ! For unit conversion
       parameter (max_center = 500)
@@ -80,6 +82,8 @@ c
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
+      oforce_autoz = .false.
+      nzinput=0
 c
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
@@ -98,9 +102,10 @@ c
           if (.not.inp_f(au2ang)) call errquit
      &        ('error parsing real value of angstrom_to_au',911)
         else if (inp_compare(.false.,'autoz',field)) then
-          oautoz = .true.  
+          oautoz       = .true.  
+          oforce_autoz = .true.
         else if (inp_compare(.false.,'noautoz',field)) then
-          oautoz = .false.
+          oautoz       = .false.
         else if (inp_compare(.false.,'print', field)) then
           oprint = .true.
 c     
@@ -199,7 +204,9 @@ c
      $           inp_compare(.false.,'zmatri', field).or.
      $           inp_compare(.false.,'zmatrix', field)) then
           ozmatrix=.true.   
-          call geom_zmt_input(geom,coords,tags,charge,mass,ncenter)
+          call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
+     $                        nzinput,scale)
+          oautoz=.true.
           goto 20
         else
           if ((ncenter+1) .eq. max_center) call errquit
@@ -294,14 +301,15 @@ c
 c
 c     ----- call auto-z-matrix generation -----
 c
-         call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter)
+         call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
+     $                       nzinput,oforce_autoz)
       else
 c
 c     ----- no auto-z -----
 c
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0)
-         call geom_no_autoz(geom,coords,charge,tags,ncenter)
+         call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
       endif
 c     
       if (oprint) then
@@ -867,17 +875,30 @@ c
       return
       end
       subroutine  geom_zmt_input(geom,
-     1                           coords,tags,charge,mass,ncenter)
+     1                           coords,tags,charge,mass,ncenter,
+     2                           nzinput,units)
       implicit none
 #include "stdio.fh"
 #include "rtdb.fh"
       integer      mxizmt
+      integer      mxzmat
       integer      mxatom
+      integer      mxcart
+      integer      mxcoor
       parameter    (mxizmt=6000)
+      parameter    (mxzmat=1500)
       parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxcoor=1500)
       integer      i
+      integer      nzinput
       integer      nizmat
       integer      izmat
+      integer      nzmat
+      integer      nzvar
+      integer      nvar
+      integer      nat
+      integer      nuc
       integer      ir
       integer      iw
       integer      ncenter
@@ -894,19 +915,27 @@ c
       logical      geom_zmt_put_izmat          
       logical      dbug 
       logical      some 
+      double precision zmat
+      double precision c
+      double precision zan
+      double precision units
       common/hnd_iofile/ir,iw
+      common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom)
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_zmtpar/nzmat,nzvar,nvar
+      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
       double precision coords(3,*)
       double precision charge(*)
       double precision   mass(*)
       dimension tags(*)
-      dimension izmat(mxizmt)
       external     geom_tag_to_element
       external     geom_atn_to_default_mass
       external     geom_zmt_put_izmat          
 c
-      some=.true.
       dbug=.false.
+      some=.true.
+      some=some.or.dbug
 c
       ir=LuIn
       iw=LuOUT 
@@ -916,7 +945,8 @@ c
 c
 c     ----- call routine to read z-matrix data -----
 c
-      call geom_zmt_geo(coords,charge,tags,ncenter,nizmat,izmat)
+      call geom_zmt_geo(coords,charge,tags,ncenter,
+     1                  nizmat,izmat,nzvar)
 c
 c     -----    set parameters for -nwchem-     -----
 c
@@ -943,6 +973,29 @@ c
          write(iw,9995)
       endif
 c
+      nat=ncenter
+      do i=1,ncenter
+         nuc(i)=nint(charge(i))
+         c(1,i)=coords(1,i)*units
+         c(2,i)=coords(2,i)*units
+         c(3,i)=coords(3,i)*units
+      enddo
+      if(dbug) then
+         do i=1,nat
+            write(iw,9993) i,nuc(i),c(1,i),c(2,i),c(3,i)
+         enddo
+      endif
+c
+c     ----- print -zmat- data -----
+c
+      call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+c
+c     ----- set number of inputed -z- coordinates -----
+c
+      nzinput=nzvar
+      nzmat=nizmat
+      nvar =nzvar
+c
       return
  9999 format(' in -geom_zmt_input- ')
  9998 format(' --- ',i5,1x,a16,1x,f4.0,1x,3f12.6)
@@ -950,6 +1003,7 @@ c
  9996 format(12(i5,','))
  9995 format(' $end ')
  9994 format(' storing -izmat- via - geom_zmt_put_izmat - ')
+ 9993 format(1x,i5,i5,3f10.6)
       end
       logical function geom_zmt_put_izmat(izmat,nizmat)          
       implicit none
@@ -1280,7 +1334,8 @@ c
       geom_zmt_get_binv=.true.
       return
       end
-      subroutine  geom_no_autoz(geom,coords,charge,tags,ncenter)
+      subroutine  geom_no_autoz(geom,coords,charge,tags,ncenter,
+     1                          nzinput)
       implicit none
 #include "stdio.fh"
       integer      mxizmt
@@ -1297,6 +1352,7 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer      ir
       integer      iw
       integer      i
+      integer      nzinput
       integer      nizmat
       integer      izmat
       integer      nzmat
@@ -1306,6 +1362,7 @@ c                   mxcoor=max(mxcart,mxzmat)
       integer      nuc
       integer      nat
       integer      geom
+      logical      geom_zmt_put_izmat          
       logical      dbug 
       logical      some 
       double precision coords
@@ -1362,7 +1419,8 @@ c
  9998 format(1x,i5,i5,3f10.6)
       end
       subroutine  geom_zmt_autoz(rtdb,
-     1                           geom,coords,charge,tags,ncenter)
+     1                           geom,coords,charge,tags,ncenter,
+     2                           nzinput,oforce_autoz)
       implicit none
 #include "stdio.fh"
       integer      rtdb
@@ -1379,6 +1437,7 @@ c
       integer      ir
       integer      iw
       integer      i
+      integer      nzinput
       integer      nizmat
       integer      izmat
       integer      nzmat
@@ -1389,6 +1448,7 @@ c
       integer      nat
       integer      geom
       logical      geom_zmt_put_izmat          
+      logical      oforce_autoz
       logical      zdone
       logical      dbug 
       logical      some 
@@ -1411,6 +1471,12 @@ c
       dimension   tags(  *)
       dimension errmsg(3)
       data errmsg /'program ','stop in ','-auto_z-'/
+c
+      if(.not.oforce_autoz) then
+         if(nzinput.eq.(3*ncenter-6)) then
+            return
+         endif
+      endif
 c
       dbug=.false.
       some=.false.
@@ -5954,7 +6020,8 @@ C
  9992 FORMAT(' NO LINEAR-BENDS FOUND ')
  9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
       END
-      SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,IZ,IZMAT)
+      SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
+     1                        IZ,IZMAT,NZMOD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
