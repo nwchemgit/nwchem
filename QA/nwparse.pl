@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.6 1997-06-25 21:37:56 d3e129 Exp $
+# $Id: nwparse.pl,v 1.7 1997-06-26 23:01:34 d3e129 Exp $
 #
 #
 #
@@ -199,9 +199,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.6f\n", @line_tokens[$itok];
+		printf "%.5f\n", @line_tokens[$itok];
 	    }
-	    printf FILE_OUTPUT "%.6f\n", @line_tokens[$itok];
+	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
 	}
 	if (/nuclear/ && /repulsion/ && /energy/){
 	    if ($debug) {print "\ndebug: $_";}
@@ -219,9 +219,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.6f\n", @line_tokens[$itok];
+		printf "%.5f\n", @line_tokens[$itok];
 	    }
-	    printf FILE_OUTPUT "%.6f\n", @line_tokens[$itok];
+	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
 	}
 	if (/Total/ && /energy/) {
 	    if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ ) {
@@ -240,9 +240,9 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    printf "%.6f\n", @line_tokens[$itok];
+		    printf "%.5f\n", @line_tokens[$itok];
 		}
-		printf FILE_OUTPUT "%.6f\n", @line_tokens[$itok];
+		printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
 	    }
 	}
 	if ($gradient_block == 2) {
@@ -273,8 +273,11 @@ foreach $filename (@FILES_TO_PARSE) {
 	    if ($debug) {print "debug:g1: $_";}
 	}
 	if (/x          y          z           x          y          z/){
-	    $gradient_block++ ;
-	    if ($debug) {print "debug:g2: $_";}
+	    if ($debug) {print "debug:g2: gradient_block is $gradient_block\n";}
+	    if ($gradient_block == 1){
+		$gradient_block++ ;
+		if ($debug) {print "debug:g2: $_";}
+	    }
 	}
 	if ($selcipt_block == 2){
 	    if ($debug){print "debug:selci get info block: $_";}
