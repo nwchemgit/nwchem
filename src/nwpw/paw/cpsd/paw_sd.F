@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.60 2003-03-25 22:47:53 bylaska Exp $
+* $Id: paw_sd.F,v 1.61 2003-09-25 02:10:04 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2003/03/25 22:47:53  bylaska
+* movecs error checking added....EJB
+*
 * Revision 1.59  2003/03/23 22:21:53  bylaska
 * eigen subroutine replaced by lapack DSYEV , because
 * SGI compiler optimization breaks eigen
@@ -97,7 +100,7 @@
       integer npack1
 
 *     **** electronic variables ****
-      logical first_iteration
+      logical first_iteration,psi_nogrid
       integer ispin,icharge
       integer ne(2),n1(2),n2(2),nemax
       real*8  r_charge
@@ -133,12 +136,25 @@
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
       integer i,j,k,ia,n,nn
-      integer ii,jj,index
+      integer ii,jj,indx
       integer icount,it_in,it_out
       real*8 w,sumall,virial
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
+      character*30 filename
+
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer rtdb,ind
+
+      integer  control_rtdb
+      external control_rtdb
+      character*30 control_input_psi
+      external     control_input_psi
+      logical  wvfnc_expander
+      external wvfnc_expander
+
   
 
 
@@ -318,15 +334,16 @@
 !!!!!!!*     **** generate initial wavefunction if it does not exist ****
 *     **** report error if initial wavefunction does not exist ****
       if (.not.psi_filefind()) then
-        if (taskid.eq.MASTER) then
-        write(*,*) "Automatic movecs file generation has not",
-     >             " been implemented in PAW."
-        write(*,*)
-        write(*,*) "Please generate movecs file using either"
-        write(*,*) "task pspw wavefunction_initializer or " 
-        write(*,*) "task pspw energy"
-        end if
-        call errquit("paw_sd: movecs file does not exist",0)
+        call paw_psi_new()
+!        if (taskid.eq.MASTER) then
+!        write(*,*) "Automatic movecs file generation has not",
+!     >             " been implemented in PAW."
+!        write(*,*)
+!        write(*,*) "Please generate movecs file using either"
+!        write(*,*) "task pspw wavefunction_initializer or " 
+!        write(*,*) "task pspw energy"
+!        end if
+!        call errquit("paw_sd: movecs file does not exist",0)
       end if
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
@@ -340,6 +357,63 @@
 
 
 *     *****  read psi2 wavefunctions ****
+
+*     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+
+        call ga_sync()
+        value = rtdb_parallel(.false.)
+        call ga_sync()
+        if (taskid.eq.MASTER) then
+
+          filename =  control_input_psi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_put failed', 0)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        call ga_sync()
+        value = rtdb_parallel(.true.)
+
+      end if
+
+      end if
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
 
       n1(1) = 1
@@ -620,11 +694,11 @@
                ii = i-n1(ms)
                do j=n1(ms),n2(ms)
                   jj = j-n1(ms)
-                  index = (ii+1) + jj*n +(ms-1)*nn
+                  indx = (ii+1) + jj*n +(ms-1)*nn
                   write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+index-1),
-     >                           dbl_mb(lmd(1)+index-1),
-     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
+     >                           dbl_mb(hml(1)+indx-1),
+     >                           dbl_mb(lmd(1)+indx-1),
+     >             dbl_mb(hml(1)+indx-1)-dbl_mb(lmd(1)+indx-1)
                end do
             end do
          end do
@@ -686,9 +760,9 @@ c    >              dbl_mb(lmd(1)),ierr)
             jj = j-n1(ms)
             do i=n1(ms),n2(ms)
                ii = i-n1(ms)
-               index = (ii+1) + jj*n + (ms-1)*nn
+               indx = (ii+1) + jj*n + (ms-1)*nn
 
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
+               call Pack_cc_daxpy(1,dbl_mb(hml(1)+indx-1),
      >                            dcpl_mb(psi1(1)+(i-1)*npack1),
      >                            dcpl_mb(psi2(1)+(j-1)*npack1))
             end do

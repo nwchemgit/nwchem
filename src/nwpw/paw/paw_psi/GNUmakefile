@@ -1,8 +1,9 @@
 
-# $Id: GNUmakefile,v 1.2 2003-02-13 01:57:45 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2003-09-25 02:10:05 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_psi.o \
+		paw_psi_new.o \
 		paw_psi_H.o
 
 
