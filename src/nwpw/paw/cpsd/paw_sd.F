@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.11 2002-08-13 23:57:59 bylaska Exp $
+* $Id: paw_sd.F,v 1.12 2002-08-16 01:13:05 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -529,7 +529,8 @@
 !
 !*     ***** write psi2 wavefunctions ****
 !      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
-! 
+       call psi_marat_write(ispin,ne,dcpl_mb(psi2(1)))
+
 !*     **** write geometry to rtdb ****
 !      call ion_write(rtdb)
 

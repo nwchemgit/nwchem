@@ -1,8 +1,9 @@
 
-# $Id: GNUmakefile,v 1.2 2002-08-07 19:16:35 marat Exp $
+# $Id: GNUmakefile,v 1.3 2002-08-16 01:13:05 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
-		paw_sd.o
+		paw_sd.o \
+		psi_marat_write.o
 
 
 
