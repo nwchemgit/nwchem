@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.95 1999-05-19 20:37:52 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.96 1999-05-20 00:22:46 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -60,9 +60,10 @@ MODULES := $(NWCHEM_MODULES)
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md qmmd argos alldev
+EXPANSIONS = all qm md qmmm argos alldev pnnl
 
 EXP_all = $(filter-out nbo python develop gapss oimp2 ideaz scfaux plane_wave rimp2_grad,$(KNOWN_MODULE_SUBDIRS) )
+EXP_pnnl = $(EXP_all) nbo python 
 EXP_alldev = develop $(EXP_all)
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
@@ -71,14 +72,15 @@ EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
 #plane_wave ... broken? RJH
 EXP_argos = prepar nwargos analyz
 EXP_md  = prepar nwargos nwmd analyz ddscf nwdft
-EXP_qmmd = gradients ideaz
+EXP_qmmm = $(EXP_md) gradients dftgrad
 
 # Check each expansion
 
 MODULES := $(patsubst all,$(EXP_all),$(MODULES) )
+MODULES := $(patsubst pnnl,$(EXP_pnnl),$(MODULES) )
 MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
-MODULES := $(patsubst md,$(EXP_qmmd),$(MODULES))
+MODULES := $(patsubst qmmm,$(EXP_qmmm),$(MODULES))
 MODULES := $(patsubst argos,$(EXP_argos),$(MODULES))
 MODULES := $(patsubst alldev,$(EXP_alldev),$(MODULES) )
 
