@@ -1,6 +1,6 @@
       subroutine int_projpole(i_basis, ish, centerl, lmax, 
      &    lscr, scr, lmpint, MP)
-c $Id: int_projpole.F,v 1.3 1996-01-23 21:56:54 d3e129 Exp $
+c $Id: int_projpole.F,v 1.4 1996-07-12 21:07:40 d3e129 Exp $
 c
 c routine to compute projected multipole integrals up to level lmax (0->lmax)
 c The general form is <pole|shell>
@@ -115,5 +115,4 @@ c.............. dryrun
         endif
 c
 00100 continue
-      lmpint = num_int
       end
