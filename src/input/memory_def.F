@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.11 1998-09-01 21:36:25 d3e129 Exp $
+C     $Id: memory_def.F,v 1.12 1999-07-16 00:32:53 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -56,8 +56,11 @@ C     access.
 C
       Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sp1 or lapi)
 #elif defined(LINUX)
-c     Our lap tops have 24 MB of pyshical memory
-      parameter (total_dflt = 2097152 ) ! 16 MB (linux)
+*
+*     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
+*     Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
+      Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
+*     Parameter ( Total_Dflt = 4194304)  ! 32 MB  (linux)
 #elif defined(SUN) || defined(SOLARIS)
       Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
 #elif defined(CRAY_T3E)
