@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.12 1998-02-27 04:31:25 d3e129 Exp $
+C $Id: hf2d.F,v 1.13 1998-04-30 01:03:01 d3e129 Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -108,7 +108,7 @@ c
      &      W0,maxW0)
       else if (split_some) then
         countss = countss + 1
-        call hf2d_split_all(
+        call hf2d_split_block(
      &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
      &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
