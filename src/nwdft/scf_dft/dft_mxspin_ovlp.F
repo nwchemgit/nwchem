@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.13 2002-01-15 22:29:36 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.14 2002-01-18 04:25:18 edo Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -103,6 +103,7 @@ c -------------------------------------------------------------
 c Print some useful information
 c about the un-paired alpha orbitals.
 c
+      if(noc(2).eq.0) return
 c
 c Find alpha orbital which best overlaps with each beta
 c orbital, then the remaining alpha orbitals are the un-partnered
@@ -126,8 +127,8 @@ c
       enddo !j
 c
       if(me.eq.0) then
-      write(6,*)
-      write(6,*)'ALPHA/BETA PARTNERS'
+      write(luout,*)
+      write(luout,*)'ALPHA/BETA PARTNERS'
       endif
 c
       call ga_sync()
@@ -141,7 +142,7 @@ c
           write(LuOut,9997)(int_mb(k_part+n-1),n=nbe,nend) 
           write(LuOut,9998)(n,n=nbe,nend)
         enddo
-        write(6,*)
+        write(luout,*)
       endif
 c
 c determine which alpha orbitals are left over:
@@ -165,7 +166,7 @@ c
 c
       if(me.eq.0) then
       if (nct.Ge.1) then
-         write(6,9995) nct, (int_mb(k_non+n-1),n=1,nct)
+         write(luout,9995) nct, (int_mb(k_non+n-1),n=1,nct)
       endif 
       endif
 c
@@ -177,7 +178,7 @@ c
 c
       call ga_sync()
 c
-      write(6,*)
+      write(0,*) ' ga ',g_alpha,nct,int_mb(k_non)
       call movecs_print_anal(basis,int_mb(k_non),int_mb(k_non)
      & ,0.15d0,g_alpha,'Alpha Orbitals without Beta Partners',
      &   .false., 0.0 ,.false., 0 , .false., 0 )
@@ -238,8 +239,8 @@ c
      &   ('dft_mxspin_ovlp: could not destroy g_ss', 0)
 c
       call ga_sync()
-c      write(6,*)'SVD eigenvalues'
-c      write(6,*) (dbl_mb(k_vals+i),i=0,noc(1)-1)
+c      write(luout,*)'SVD eigenvalues'
+c      write(luout,*) (dbl_mb(k_vals+i),i=0,noc(1)-1)
 c      call ga_sync()
 c
 c calculate transformed alpha vectors, alphaT
@@ -293,8 +294,8 @@ c
       enddo
 c
 c
-c      write(6,*) 'paired/unpaired alpha orbitals'
-c      write(6,*) (int_mb(k_unp+i-1),i=1,noc(1))
+c      write(luout,*) 'paired/unpaired alpha orbitals'
+c      write(luout,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
       call ga_sync()
       if(.not.ga_create(mt_dbl,nbf,nalp,'unp alphaT',0,0,g_ualpha))
@@ -316,21 +317,28 @@ c associate SVD transformed alpha orbitals with the original
 c alpha orbitals:
 c
       if(me.eq.0) then
-      write(6,9989)'=================================================='
-      write(6,9989)'  Performing Singular Value Decomposition (SVD)   '
-      write(6,9989)'to diagonalize and maximize the alpha/beta overlap'
-      write(6,9989)'       See J. Chem. Phys. (1967) 47, 1936.        '
-      write(6,9989)
-      write(6,9989)'NOTE: The vector numbering of the SVD transformed '
-      write(6,9989)'orbitals is different from the original orbitals. '
-      write(6,9989)'=================================================='
-      write(6,9989)
+      write(luout,9989)
+     '        '=================================================='
+      write(luout,9989)
+     '     '  Performing Singular Value Decomposition (SVD)   '
+      write(luout,9989)
+     '     'to diagonalize and maximize the alpha/beta overlap'
+      write(luout,9989)
+     '     '       See J. Chem. Phys. (1967) 47, 1936.        '
+      write(luout,9989)
+      write(luout,9989)
+     '     'NOTE: The vector numbering of the SVD transformed '
+      write(luout,9989)
+     '     'orbitals is different from the original orbitals. '
+      write(luout,9989)
+     '     '=================================================='
+      write(luout,9989)
       endif
  9989 format(13x,a51)
 c
 c      if(me.eq.0) then
 c      if (nalp.GT.1) then
-c        write(6,9990) nalp
+c        write(luout,9990) nalp
 c      endif 
 c      endif
 c 9990 format(/,18x,'THERE ARE',i3,1x,'UN-PARTNERED ALPHA ORBITALS')
@@ -355,7 +363,7 @@ c
           write(LuOut,9998)(n,n=nbe,nend)
           write(LuOut,9999)(dbl_mb(k_vals+n-1),n=nbe,nend)
         enddo
-        write(6,*)
+        write(luout,*)
       endif
 c
  9994 format(/,1x,'  SVD maximized alpha - beta orbital overlaps ',/,
