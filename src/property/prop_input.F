@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.6 1999-07-10 09:47:14 d3e129 Exp $
+* $Id: prop_input.F,v 1.7 1999-12-09 17:15:40 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -38,6 +38,9 @@ c
       integer boyslocalization
       integer iglo
       integer giao
+      integer center
+      double precision point(3)
+      logical status
 
 c     
 c>>>  declarations from NWdft
@@ -70,6 +73,10 @@ c
       boyslocalization  = 1
       iglo              = 1
       giao              = 1
+      center            = 1   ! default of center of charge
+      point(1)          = 0.0d+0
+      point(2)          = 0.0d+0
+      point(3)          = 0.0d+0
 c     
 c>>>  read inputs; store in rtdb
 c     
@@ -156,6 +163,31 @@ c
          quadrupole  = 0
          dipole  = 0
          nbofile = 1
+      elseif ( inp_compare(.false., 'center', test)) then
+         if (inp_a(test)) then
+           if (inp_compare(.false., 'coc', test)) then
+             center = 1  ! default of center of charge
+           elseif (inp_compare(.false., 'com', test)) then
+             center = 2  ! center of mass
+           elseif (inp_compare(.false., 'origin', test)) then
+             center = 3  ! origin
+           elseif (inp_compare(.false., 'arb', test)) then
+             center = 4  ! arbitrary point
+             status = .true.
+             status = status .and. inp_f(point(1))
+             status = status .and. inp_f(point(2))
+             status = status .and. inp_f(point(3))
+             if (.not.status)
+     $         call errquit 
+     $          ('prop_input: invalid arbitrary point',555)
+           else
+             call errquit ('prop_input: not a valid center type',555)
+           endif
+           write(6,*) 'center is ',center
+           write(6,*) 'point is ',point(1), point(2), point(3)
+         else
+            call errquit ('prop_input: no center information',555)
+         endif
 c             
       elseif ( inp_compare(.false., 'end', test)) then
          goto 99999
@@ -231,6 +263,12 @@ c
       if (.not. rtdb_put(rtdb, 'prop:giao', mt_int, 1,
      $                               giao              ))
      $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:center',mt_int, 1, center))
+     $      call errquit('prop_input: rtdb_put failed', 555)
+      if (center.eq.4) then
+        if (.not. rtdb_put(rtdb, 'prop:center_val',mt_dbl, 3, point))
+     $      call errquit('prop_input: rtdb_put failed', 555)
+      endif
 c       
 c>>>    store real parameters in rtdb
 c       
