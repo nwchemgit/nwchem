@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.4 1996-01-05 02:00:13 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.5 1996-10-04 21:44:54 d3g681 Exp $
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 
@@ -186,6 +186,7 @@ c
         num_ints_total = 0
         status = intb_init4c(basis,int_mb(i_iqtet),int_mb(i_jqtet),
      &      basis,int_mb(i_kqtet),int_mb(i_lqtet),num_quart,
+     $      dbl_mb(k_q4),.true.,
      &      memscr,dbl_mb(i_scr),memb,dbl_tmp)
         if (.not.status) call errquit
      &      ('intb_chk_sum: init blocking error',911)
@@ -417,7 +418,7 @@ c---------------------------------------------------------------------
 *rak:     &            max_q, leri, memscr, a_blk, nat, neri
 *rak:              status = ma_verify_allocator_stuff()
               status = intb_init4c(basis,iq,jq,basis,kq,lq,num_q,
-     &            memscr,scr,leri,dbl_tmp)
+     &            q4, .true.,memscr,scr,leri,dbl_tmp)
 *rak:              write(6,*)
 *rak:     &          ' max_q, leri, memscr, a_blk, nat, neri 2',
 *rak:     &            max_q, leri, memscr, a_blk, nat, neri
