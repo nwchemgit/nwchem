@@ -1,4 +1,4 @@
-C $Id: rel_oneld.F,v 1.2 1999-04-20 18:25:33 mg201 Exp $
+C $Id: rel_oneld.F,v 1.3 1999-10-26 19:47:16 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_oneld}
 c:tex-This routine generates the modified one-electron gradient integrals
@@ -21,10 +21,10 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine rel_oneld (
-     &       Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
-     &       DryRun,scr,lscr,msg,ibug,ntyp)
+     &    Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &    Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &    Cxyz,zan,exinv,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
+     &    nonrel,DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -55,16 +55,17 @@ c:tex-\begin{verbatim}
       double precision coefS_B(n_prim_B,n_cont_B)  ! [input] B small coeffs
       double precision Cxyz(3,nat)  ! [input] all atom positions
       double precision zan(nat)     ! [input] charges on all atoms
+      double precision exinv(nat)   ! [input] inverse nuclear exponents
       double precision scr(lscr)    ! [scratch] scratch buffers
-      double precision S(lstv*3)      ! [output] overlap integrals
-      double precision T(lstv*3)      ! [output] kinetic energy integrals
-      double precision V(lstv*3,ntyp) ! [output] potential integrals
+      double precision S(lstv*3*2)      ! [output] overlap integrals
+      double precision T(lstv*3*2)      ! [output] kinetic energy integrals
+      double precision V(lstv*3*nat,ntyp) ! [output] potential integrals
       logical doStil     ! [input] compute modified overlap (True/False)
       logical doTtil     ! [input] compute modified kinetic (True/False)
       logical doVtil     ! [input] compute modified potential (True/False)
       logical canAB   ! [input] compute only canonical ints (false only)
+      logical nonrel  ! [input] true if either centre is nonrelativistic
       logical DryRun  ! [input] true means only compute required memory
-      character*(*) msg ![input] calling func. identification message
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
@@ -80,7 +81,8 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       integer n_all_b   ! n_cart_b*n_cont_b
       integer n_all_a   ! n_cart_a*n_cont_a
       integer n_ab      ! number of integrals
-      integer n_ab3     ! 3*n_ab, number of gradient integrals
+      integer n_ab6     ! n_ab*6, number of gradient integrals for T and S
+      integer n_ab3at   ! n_ab*3*nat, number of gradient integrals for V
       integer n_cartp_a ! cartesian components for l_A+1
       integer n_cartp_b ! cartesian components for l_B+1
       integer n_cartm_a ! cartesian components for l_A-1
@@ -98,9 +100,14 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       integer i_scr     ! address of free space in scr
       integer memscr    ! free space in scr
       integer max_mem   ! maximum memory used
-      integer i,j,k     ! loop indices etc.
+      integer i,j,k,l,m ! loop indices etc.
       double precision one ! Obvious!
       parameter (one = 1.0D0)
+*
+      integer n_allp_b   ! n_cartp_b*n_cont_b
+      integer n_allp_a   ! n_cartp_a*n_cont_a
+      integer n_allm_b   ! n_cartm_b*n_cont_b
+      integer n_allm_a   ! n_cartm_a*n_cont_a
 *
       logical debug_gen       ! do general debug printing
       logical debug_addresses ! do address debug printing
@@ -108,11 +115,28 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       logical doS     ! compute overlap (True/False)
       logical doT     ! compute kinetic (True/False)
       logical doV     ! compute potential (True/False)
+      character*12 pot_type(4)  ! potential type labels
+      character*1 xyz(3)  ! coordinate labels
+      data pot_type
+     &    /'      Scalar','z spin-orbit','y spin-orbit','x spin-orbit'/
+      data xyz/'x','y','z'/
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
-      debug_arrays = mod(ibug,10)/2 .eq. 1
+      debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
       max_mem = 0
+*
+      if (debug_gen) then
+        write (LuOut,*) 'l_A',l_A
+        write (LuOut,*) 'n_prim_A',n_prim_A
+        write (LuOut,*) 'n_cont_A',n_cont_A
+        write (LuOut,*) 'ictr_A',ictr_A
+        write (LuOut,*) 'l_B',l_B
+        write (LuOut,*) 'n_prim_B',n_prim_B
+        write (LuOut,*) 'n_cont_B',n_cont_B
+        write (LuOut,*) 'ictr_B',ictr_B
+        call util_flush(LuOut)
+      end if
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
@@ -121,7 +145,10 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       n_all_a = n_cart_a*n_cont_a
       n_all_b = n_cart_b*n_cont_b
       n_ab = n_cart_ab*n_cont_ab
-      n_ab3 = n_ab*3
+      n_ab6 = n_ab*6
+      n_ab3at = n_ab*3*nat
+      if (lstv .lt. n_ab .and. .not.DryRun) call errquit (
+     &      'Integral buffer length too small in rel_onel',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -130,20 +157,47 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         write (LuOut,*) 'n_all_a',n_all_a
         write (LuOut,*) 'n_all_b',n_all_b
         write (LuOut,*) 'n_ab',n_ab
+        call util_flush(LuOut)
+      end if
+      if (debug_arrays) then
+        call ecp_matpr (coefL_A,1,n_prim_a,1,n_cont_a,
+     &      1,n_prim_a,1,n_cont_a,'L coef A','E',120,6)
+        call ecp_matpr (coefS_A,1,n_prim_a,1,n_cont_a,
+     &      1,n_prim_a,1,n_cont_a,'S coef A','E',120,6)
+        call ecp_matpr (coefL_B,1,n_prim_b,1,n_cont_b,
+     &      1,n_prim_b,1,n_cont_b,'L coef B','E',120,6)
+        call ecp_matpr (coefS_B,1,n_prim_b,1,n_cont_b,
+     &      1,n_prim_b,1,n_cont_b,'S coef B','E',120,6)
+        call util_flush(LuOut)
       end if
 *
 *   Calculate large component overlap and nuclear attraction integrals
 *
       doS = doStil
-      doT = .false.
+      doT = doTtil.and.nonrel
       doV = doVtil
       memscr = lscr
       call hf1d(
      &       Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &       Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &       Cxyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       DryRun,scr,memscr)
+      if (debug_arrays) then
+        i = 1
+        do j = 1,3
+          write (LuOut,'(2A)') xyz(j),' component of derivatives'
+          if (doS) call ecp_matpr(S(i),1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'LL overlap','E',120,6)
+          if (doT) call ecp_matpr(T(i),1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'LL kinetic','E',120,6)
+          if (doV) call ecp_matpr(V(i,1),1,n_all_b,1,n_all_a,
+     &        1,n_all_b,1,n_all_a,'LL potential','E',120,6)
+          i = i+n_ab
+          call util_flush(LuOut)
+        end do
+      end if
       if (DryRun) max_mem = max(max_mem,memscr)
+      if (nonrel) return
 *
 *   Calculate kinetic energy integrals, correction to overlaps
 *
@@ -151,37 +205,92 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         doS = .false.
         doT = .true.
         doV = .false.
+        memscr = lscr-n_ab6
         call hf1d(
      &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr,memscr)
+     &      Cxyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr(n_ab6+1),memscr)
         if (DryRun) max_mem = max(max_mem,memscr)
+        if (debug_arrays) then
+          i = 1
+          do j = 1,3
+            write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+            call ecp_matpr(T(i),1,n_all_b,1,n_all_a,
+     &          1,n_all_b,1,n_all_a,'LS kinetic','E',120,6)
+            i = i+n_ab
+            call util_flush(LuOut)
+          end do
+        end if
+        memscr = lscr-n_ab6
         call hf1d(
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab3+1),memscr)
+     &      Cxyz,zan,exinv,nat,S,scr,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr(n_ab6+1),memscr)
+        if (debug_arrays) then
+          i = 1
+          do j = 1,3
+            write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+            call ecp_matpr(scr(i),1,n_all_b,1,n_all_a,
+     &          1,n_all_b,1,n_all_a,'SL kinetic','E',120,6)
+            i = i+n_ab
+            call util_flush(LuOut)
+          end do
+        end if
         if (DryRun) then
-          max_mem = max(max_mem,memscr+n_ab3)
+          max_mem = max(max_mem,memscr+n_ab6)
         else
-          call daxpy (n_ab3,one,scr,1,T,1)
+          call daxpy (n_ab6,one,scr,1,T,1)
+        end if
+        if (debug_arrays) then
+          i = 1
+          do j = 1,3
+            write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+            call ecp_matpr(T(i),1,n_all_b,1,n_all_a,
+     &          1,n_all_b,1,n_all_a,'LS+SL kinetic','E',120,6)
+            i = i+n_ab
+          end do
+          call util_flush(LuOut)
         end if
       end if
       if (doStil .or. doTtil) then
         doS = .false.
         doT = .true.
         doV = .false.
+        memscr = lscr-n_ab6
         call hf1d(
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab3+1),memscr)
+     &      Cxyz,zan,exinv,nat,S,scr,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr(n_ab6+1),memscr)
+        if (debug_arrays) then
+          i = 1
+          do j = 1,3
+            write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+            call ecp_matpr(scr(i),1,n_all_b,1,n_all_a,
+     &          1,n_all_b,1,n_all_a,'SS kinetic','E',120,6)
+            i = i+lstv
+          end do
+          call util_flush(LuOut)
+        end if
         if (DryRun) then
-          max_mem = max(max_mem,memscr+n_ab3)
+          max_mem = max(max_mem,memscr+n_ab6)
         else
-          if (doTtil) call daxpy (n_ab3,-one,scr,1,T,1)
-          if (doStil) call daxpy (n_ab3,halsq,scr,1,S,1)
+          if (doTtil) call daxpy (n_ab6,-one,scr,1,T,1)
+          if (doStil) call daxpy (n_ab6,halsq,scr,1,S,1)
+          if (debug_arrays) then
+            i = 1
+            do j = 1,3
+              write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+              if (doTtil) call ecp_matpr(T(i),1,n_all_b,1,n_all_a,
+     &            1,n_all_b,1,n_all_a,'LS+SL-SS kinetic','E',120,6)
+              if (doStil) call ecp_matpr(S(i),1,n_all_b,1,n_all_a,
+     &            1,n_all_b,1,n_all_a,'LL+SS overlap','E',120,6)
+              i = i+lstv
+              call util_flush(LuOut)
+            end do
+          end if
         end if
       end if
 *
@@ -201,13 +310,17 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       n_intpm = n_cartm_a*n_cartp_b*n_cont_ab
       n_intmp = n_cartp_a*n_cartm_b*n_cont_ab
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab
+      n_allp_b = n_cartp_b*n_cont_b
+      n_allp_a = n_cartp_a*n_cont_a
+      n_allm_b = n_cartm_b*n_cont_b
+      n_allm_a = n_cartm_a*n_cont_a
       i_xca = 1
       i_xcb = i_xca+n_prim_A*n_cont_A
       i_pp = max(i_xca+n_ab,i_xcb+n_prim_B*n_cont_B)
-      i_pm = i_pp+n_intpp*3
-      i_mp = i_pm+n_intpm*3
-      i_mm = i_mp+n_intmp*3
-      i_scr = i_mm+n_intmm*3
+      i_pm = i_pp+n_intpp*3*nat
+      i_mp = i_pm+n_intpm*3*nat
+      i_mm = i_mp+n_intmp*3*nat
+      i_scr = i_mm+n_intmm*3*nat
       memscr = lscr-i_scr+1
 
       if (debug_addresses) then
@@ -222,10 +335,12 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         write (LuOut,*) 'i_xca,i_xcb',i_xca,i_xcb
         write (LuOut,*) 'i_pp,i_pm,i_mp,i_mm',i_pp,i_pm,i_mp,i_mm
         write (LuOut,*) 'i_scr',i_scr
+        call util_flush(LuOut)
       end if
 *
 *   Set up coefficients multiplied by exponents
 *
+      memscr = lscr-i_scr+1
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in rel_onel',99)
@@ -234,14 +349,14 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
           do i = 1,n_prim_A
             scr(k+i) = zeta_A(i)*coefS_A(i,j)
           end do
-          k = k+n_cont_A
+          k = k+n_prim_A
         end do
         k = i_xcb-1
         do j = 1,n_cont_B
           do i = 1,n_prim_B
             scr(k+i) = zeta_B(i)*coefS_B(i,j)
           end do
-          k = k+n_cont_A
+          k = k+n_prim_B
         end do
       end if
       doS = .false.
@@ -253,9 +368,25 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       call hf1d(
      &    Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &    Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &    Cxyz,zan,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,canAB,
-     &    DryRun,scr(i_scr),memscr)
-      if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+     &    Cxyz,zan,exinv,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
+     &    canAB,DryRun,scr(i_scr),memscr)
+      if (debug_arrays) then
+        k = i_pp
+        do i = 1,nat
+          do l = 1,3
+            write (LuOut,'(//1x,2A,I3)') xyz(l),
+     &          ' component of derivatives for center',i
+            call ecp_matpr(scr(k),1,n_allp_b,1,n_allp_a,
+     &          1,n_allp_b,1,n_allp_a,'l_A+1,l_B+1','E',120,6)
+            k = k+n_ab
+            call util_flush(LuOut)
+          end do
+        end do
+      end if
+      if (DryRun) then
+        max_mem = max(max_mem,i_scr+memscr-1)
+        memscr = lscr-i_scr+1
+      end if
 *
 *         Calculate integrals for l_A-1, l_B+1
 *
@@ -263,9 +394,25 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         call hf1d(
      &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &      Cxyz,zan,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,canAB,
-     &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+     &      Cxyz,zan,exinv,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
+     &      canAB,DryRun,scr(i_scr),memscr)
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+          memscr = lscr-i_scr+1
+        end if
+        if (debug_arrays) then
+          k = i_pm
+          do i = 1,nat
+            do l = 1,3
+              write (LuOut,'(//1x,2A,I3)') xyz(l),
+     &            ' component of derivatives for center',i
+              call ecp_matpr(scr(k),1,n_allp_b,1,n_allm_a,
+     &            1,n_allp_b,1,n_allm_a,'l_A-1,l_B+1','E',120,6)
+              k = k+n_ab
+              call util_flush(LuOut)
+            end do
+          end do
+        end if
       end if
 *
 *         Calculate integrals for l_A+1, l_B-1
@@ -274,9 +421,25 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         call hf1d(
      &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &      Cxyz,zan,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,canAB,
-     &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+     &      Cxyz,zan,exinv,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
+     &      canAB,DryRun,scr(i_scr),memscr)
+        if (debug_arrays) then
+          k = i_mp
+          do i = 1,nat
+            do l = 1,3
+              write (LuOut,'(//1x,2A,I3)') xyz(l),
+     &            ' component of derivatives for center',i
+              call ecp_matpr(scr(k),1,n_allm_b,1,n_allp_a,
+     &            1,n_allm_b,1,n_allp_a,'l_A+1,l_B-1','E',120,6)
+              k = k+n_ab
+              call util_flush(LuOut)
+            end do
+          end do
+        end if
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+          memscr = lscr-i_scr+1
+        end if
 *     
 *         Calculate integrals for l_A-1, l_B-1
 *
@@ -284,27 +447,70 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
           call hf1d(
      &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &        Cxyz,zan,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,canAB,
-     &        DryRun,scr(i_scr),memscr)
-          if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+     &        Cxyz,zan,exinv,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
+     &        canAB,DryRun,scr(i_scr),memscr)
+          if (debug_arrays) then
+            k = i_mm
+            do i = 1,nat
+              do l = 1,3
+                write (LuOut,'(//1x,2A,I3)') xyz(l),
+     &              ' component of derivatives for center',i
+                call ecp_matpr(scr(k),1,n_allm_b,1,n_allm_a,
+     &              1,n_allm_b,1,n_allm_a,'l_A-1,l_B-1','E',120,6)
+                k = k+n_ab
+                call util_flush(LuOut)
+              end do
+            end do
+          end if
+          if (DryRun) then
+            max_mem = max(max_mem,i_scr+memscr-1)
+            memscr = lscr-i_scr+1
+          end if
         end if
       end if
 *
 *     Compute the relativistic potential energy integrals
 *
       call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
-     &    scr,n_ab3,ntyp,
-     &    l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A*3,
+     &    scr,n_ab3at,ntyp,
+     &    l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A*3*nat,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
-     &    DryRun,scr(i_scr),memscr,ibug)
+     &    DryRun,scr(i_scr),memscr,ibug/10)
       if (DryRun) then
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
       else
         i = 1
         do j = 1,ntyp
-          call daxpy (n_ab3,one,scr(i),1,V(1,j),1)
-          i = i+n_ab
+          if (debug_arrays) then
+            write (LuOut,'(//2A)') pot_type(j),' potential'
+            k = i
+            do m = 1,nat
+              do l = 1,3
+                write (LuOut,'(//1x,2A,I3)') xyz(l),
+     &              ' component of derivatives for center',m
+                call ecp_matpr(scr(k),1,n_all_b,1,n_all_a,
+     &              1,n_all_b,1,n_all_a,'SS potential','E',120,6)
+                k = k+n_ab
+                call util_flush(LuOut)
+              end do
+            end do
+          end if
+          call daxpy (n_ab3at,qalsq,scr(i),1,V(1,j),1)
+          if (debug_arrays) then
+            k = 1
+            do m = 1,nat
+              do l = 1,3
+                write (LuOut,'(1x,2A,I3)') xyz(l),
+     &              ' component of derivatives for center',m
+                call ecp_matpr(scr(k),1,n_all_b,1,n_all_a,1,n_all_b,
+     &              1,n_all_a,'Relativistic potential','E',120,6)
+                call util_flush(LuOut)
+                k = k+n_ab
+              end do
+            end do
+          end if
+          i = i+n_ab3at
         end do
       end if
 *
