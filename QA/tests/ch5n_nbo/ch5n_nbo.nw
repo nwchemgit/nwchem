@@ -3,8 +3,7 @@ title "Methylamine...rhf/3-21g//Pople-Gordon standard geometry"
 start methylamine
 
 echo
-
-memory 8 mw
+memory 300 mb
 
 basis
  C library 3-21g
