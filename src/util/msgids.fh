@@ -91,6 +91,7 @@ c
       integer mrg_d17
       integer mrg_d18
       integer mrg_d19
+      integer mrg_d20
       integer mrg_d21
       integer mrg_d22
       integer mrg_d23
@@ -298,6 +299,7 @@ c
       parameter (mrg_d17=msg_ftn_base-147) ! arg_cntrbx
       parameter (mrg_d18=msg_ftn_base-148) ! arg_stdesc
       parameter (mrg_d19=msg_ftn_base-149) ! arg_congra
+      parameter (mrg_d20=msg_ftn_base-150) ! arg_cenmas
       parameter (mrg_d21=msg_ftn_base-151) ! arg_collct
       parameter (mrg_d22=msg_ftn_base-152) ! arg_output
       parameter (mrg_d23=msg_ftn_base-153) ! arg_collct
