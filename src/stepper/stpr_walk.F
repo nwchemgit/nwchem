@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.6 1994-09-25 07:51:53 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.7 1994-09-25 07:53:20 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -150,7 +150,7 @@ c
 c..... copy geom on rtdb with new name
 c
         write(tmpname,'(i2)')abs(step_number)
-        new_geom_name='geometry step'//tmpname
+        new_geom_name='geometry step '//tmpname
         if (.not.geom_create_rtdb_copy
      &      (rtdb,geom,'geometry',new_geom,new_geom_name,.true.))
      &      call errquit
