@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.32 2002-03-22 02:40:26 sohirata Exp $
+* $Id: task_gradient.F,v 1.33 2002-11-20 19:13:38 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.32 2002-03-22 02:40:26 sohirata Exp $
+* $Id: task_gradient.F,v 1.33 2002-11-20 19:13:38 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -152,6 +152,8 @@ c
       external semi_dir_mp2, rimp2g, pspw_gradient,band_gradient
       logical dft_energy_gradient, sodft_energy_gradient, tddft_energy
       external dft_energy_gradient, sodft_energy_gradient, tddft_energy
+      logical tce_energy
+      external tce_energy
 c
       logical mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       external mcscf_gradient, scf_gradient, grad_dft, task_num_grad
@@ -227,6 +229,8 @@ c
          prefix = 'ccsd'
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'tddft') then
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'tce') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory.eq.'pspw') then
          status = pspw_gradient(rtdb)
