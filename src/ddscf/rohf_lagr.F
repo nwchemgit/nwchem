@@ -3,7 +3,7 @@ c  Create and save ROHF Lagrangian
 c  for gradient module
 c
       subroutine rohf_lagr
-C$Id: rohf_lagr.F,v 1.4 1995-11-03 18:52:30 rg240 Exp $
+C$Id: rohf_lagr.F,v 1.5 1996-07-17 16:29:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -37,7 +37,7 @@ c
 c  Dump out to disk
 c
       nset = 1
-      call util_file_prefix('lagr', lagr_out)
+      call util_file_name('lagr',.true.,.false.,lagr_out)
       call file_write_ga( lagr_out, g_lagr )
       if (.not. ga_destroy(g_lagr))
      $     call errquit('rohf_lagr: destroy', 0)

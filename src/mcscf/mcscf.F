@@ -28,10 +28,10 @@ c
        integer blen
        double precision pfac
        double precision thresh, lshift0
-       double precision eone, etwo, energy, enrep, etrace
+       double precision eone, etwo, enrep, etrace
        double precision ecore, eci, e0
        double precision citol, citol_now
-       double precision tol2e, gnorm, gnrmv(100), gmon, xx, cjgtol
+       double precision tol2e, gnorm, gnrmv(100), cjgtol
        logical oe2approx, ostepci, oconj, ocanonical, onatural
        logical ocjrst, ocjrst1, ocanon, ocirestart
        logical ocimicro, ocivecprint
@@ -676,11 +676,8 @@ c
 
       subroutine mcscf_profile_tidy()
       implicit none
-#include "rtdb.fh"
 #include "pstat.fh"
 #include "mcscfprof.fh"
-c
-      integer rtdb
 c
       if (.not.(omcscfprof)) return
       if (ofockprof) call scf_pstat_print()

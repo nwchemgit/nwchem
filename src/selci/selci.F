@@ -51,7 +51,7 @@ c     Should we regenerate it?  If it does not exist make it.
 c
       if (.not. rtdb_cget(rtdb, 'selci:moints', 1, moints)) then
          if (.not. rtdb_cget(rtdb, 'fourindex:moints file', 1, moints))
-     $        call util_file_prefix('moints', moints)
+     $        call util_file_name('moints', .true.,.false.,moints)
       endif
       if (.not. rtdb_get(rtdb, 'selci:moints:force', mt_log, 1, oforce))
      $     oforce = .false.
@@ -87,25 +87,27 @@ c
 c     These files only opened by process 0
 c
       if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
-     $     call util_file_prefix('ciconf', ciconf)
+     $     call util_file_name('ciconf', .true.,.false., ciconf)
       if (.not. rtdb_cget(rtdb, 'selci:civecs', 1, civecs))
-     $     call util_file_prefix('civecs',civecs)
+     $     call util_file_name('civecs', .true.,.false., civecs)
       if (.not. rtdb_cget(rtdb, 'selci:wmatrx', 1, wmatrx))
-     $     call util_file_prefix('wmatrx',wmatrx)
+     $     call util_file_name('wmatrx', .true.,.false., wmatrx)
       if (.not. rtdb_cget(rtdb, 'selci:eigins', 1, eigins))
-     $     call util_file_prefix('eigins',eigins)
+     $     call util_file_name('eigins', .true.,.false., eigins)
       if (.not. rtdb_cget(rtdb, 'selci:rtname', 1, names(1)))
-     $     call util_file_prefix('rtname',names(1))
+     $     call util_file_name('rtname', .true.,.false., names(1))
       if (.not. rtdb_cget(rtdb, 'selci:roname', 1, names(2)))
-     $     call util_file_prefix('roname',names(2))
+     $     call util_file_name('roname', .true.,.false., names(2))
       if (.not. rtdb_cget(rtdb, 'selci:hamdg', 1, hamdg))
-     $     call util_file_prefix('hamdg',hamdg)
+     $     call util_file_name('hamdg', .true.,.false., hamdg)
 c
 c     This file is opened by all processes
 c
-      if (.not. rtdb_cget(rtdb, 'selci:hamil', 1, ctmp))
-     $     call util_file_prefix('hamil',ctmp)
-      call util_pname(ctmp, hamil)
+      if (.not. rtdb_cget(rtdb, 'selci:hamil', 1, ctmp)) then
+         call util_file_name('hamil', .true.,.true., hamil)
+      else
+         call util_pname(ctmp, hamil)
+      endif
 c
 c     Should we delete the existing ciconf file?  (not checking this now). 
 c     If it does not exisit then generate a default.

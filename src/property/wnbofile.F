@@ -89,7 +89,7 @@ c
       lfn = 25
 
       if(ga_nodeid().eq.0) then
-        call util_file_prefix('gen', nbo_fname)
+        call util_file_name('gen', .false., .false., nbo_fname)
         open(lfn,file=nbo_fname,status='unknown')
         len = inp_strlen(nbo_fname)
         write(LUout,9250) nbo_fname(1:len)
@@ -124,7 +124,7 @@ c
 c     
 c>>>    Get information on molecular orbital vectors.
 c       
-      call util_file_prefix('movecs', movecs_in)
+      call util_file_name('movecs', .false., .false., movecs_in)
       if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
      $     nbf_vecs, nset, nmo_vecs, 2))
      $     call errquit('wnbofile:  failed on movecs_read_header,0')

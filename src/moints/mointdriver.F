@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.45 1996-07-15 18:46:46 rg240 Exp $
+C$Id: mointdriver.F,v 1.46 1996-07-17 16:34:06 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,7 +25,6 @@ c
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
-       integer g_k2
        integer k_x, l_x
        integer npairs
        integer nbf, nsh, maxbfsh, nelec
@@ -119,7 +118,7 @@ c
        if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
      $      then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        call util_file_prefix('movecs',movecs_in)
+     $        call util_file_name('movecs',.false.,.false.,movecs_in)
        endif
 c
 c Read in MO coefficients

@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.2 1995-07-29 23:40:11 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.3 1996-07-17 16:36:46 d3g681 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -89,6 +89,7 @@ c
 #include "msgtypesf.h"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "cstprfiles.fh"
       integer iatom_start
       integer ixyz_start
 c
@@ -98,9 +99,9 @@ c
 c
       if (ga_nodeid().eq.0) then
         does_it_exist = .false.
-        inquire(file='gen_at_restart',exist=does_it_exist)
+        inquire(file=FILEATR,exist=does_it_exist)
         if (does_it_exist) then
-          open(unit=69,file='gen_at_restart',
+          open(unit=69,file=FILEATR,
      &        form='unformatted',
      &        access='sequential',
      &        status='old')
@@ -131,6 +132,7 @@ c
       implicit none
 #include "global.fh"
 #include "stdio.fh"
+#include "cstprfiles.fh"
       integer rank_in
       double precision hess(rank_in,rank_in)
       double precision grad0(rank_in)
@@ -146,7 +148,7 @@ c
 c
       inquire(file='gen_at_restart',exist=does_it_exist)
       if (does_it_exist) then
-        open(unit=69,file='gen_at_restart',
+        open(unit=69,file=FILEATR,
      &      form='unformatted',
      &      access='sequential',
      &      status='old')
@@ -175,6 +177,7 @@ c
       implicit none
 #include "global.fh"
 #include "stdio.fh"
+#include "cstprfiles.fh"
       integer rank
       integer iatom_in, ixyz_in, nat
       double precision hess(rank,rank)
@@ -189,7 +192,7 @@ c
         call errquit('stpr_put_genat_restart: error ',911)
       endif
 c
-      open(unit=69,file='gen_at_restart',
+      open(unit=69,file=FILEATR,
      &    status='unknown')
       close(unit=69,status='delete')
       if(iatom_in.eq.nat.and.ixyz_in.eq.3) return
@@ -205,7 +208,7 @@ c
       else
         iflag_grad0 = 0
       endif
-      open(unit=69,file='gen_at_restart',
+      open(unit=69,file=FILEATR,
      &    form='unformatted',
      &    access='sequential',
      &    status='new')

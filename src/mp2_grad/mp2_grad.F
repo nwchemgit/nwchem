@@ -60,9 +60,9 @@
             call util_flush(6)
          endif
       endif
-      call util_file_prefix('movecs', movecs_in)
-      call int_init(rtdb,1,basis)
+      call util_file_name('movecs', .false.,.false.,movecs_in)
       call int_normalize(basis)
+      call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       call mp2_energy(rtdb,geom,basis,movecs_in,eval_e2,eval_grad)
       call schwarz_tidy()

@@ -1,8 +1,9 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.4 1996-06-22 00:53:30 d3e129 Exp $
+c $Id: stpr_stepcor.F,v 1.5 1996-07-17 16:36:49 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
+#include "cstprfiles.fh"
       integer rtdb
       integer step_number
       LOGICAL TRACK,RPATH,BCKSTP,CNVGRD
@@ -24,21 +25,21 @@ C     Open input/output files.
 C
 C     Tape 41 is used to store step parameters PSTEPP.
 C
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP41)
 C
 C     Tape 44 is used to store previous tracked mode in order to
 C     find current hessian eigenvector with maximum overlap.
 C
-      OPEN (UNIT=ITAP44, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP44, FORM='UNFORMATTED', FILE=FILE44,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP44)
 C
 C     Tape 45 is a temp file used to store HESS, GRAD, COORD
 C     and ENERGY during step determination.
 C
-      OPEN (UNIT=ITAP45, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP45, FORM='UNFORMATTED', FILE=FILE45,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP45)
 #if defined(OPENCLOSE)
@@ -126,21 +127,21 @@ C     Open input/output files.
 C
 C     Tape 41 is used to store step parameters PSTEPP.
 C
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP41)
 C
 C     Tape 44 is used to store previous tracked mode in order to
 C     find current hessian eigenvector with maximum overlap.
 C
-      OPEN (UNIT=ITAP44, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP44, FORM='UNFORMATTED', FILE=FILE44,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP44)
 C
 C     Tape 45 is a temp file used to store HESS, GRAD, COORD
 C     and ENERGY during step determination.
 C
-      OPEN (UNIT=ITAP45, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP45, FORM='UNFORMATTED', FILE=FILE45,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP45)
 #endif
@@ -148,7 +149,7 @@ C
 C     Close open files and return.
 C
       CLOSE (UNIT=ITAP41, STATUS='KEEP')
-      CLOSE (UNIT=ITAP44, STATUS='KEEP')
+      CLOSE (UNIT=ITAP44, STATUS='DELETE') ! Was keep (RJH)
       CLOSE (UNIT=ITAP45, STATUS='DELETE')
       ELAST = ENERGY
       E2PRED = E2NEW

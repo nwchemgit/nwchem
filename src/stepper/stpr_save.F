@@ -1,5 +1,5 @@
       SUBROUTINE stpr_SAVE(HESS,GRAD,COORD,ENERGY,IERR)
-c $Id: stpr_save.F,v 1.2 1994-10-26 23:15:21 d3e129 Exp $
+c $Id: stpr_save.F,v 1.3 1996-07-17 16:36:49 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL SECO, SWSEC, SWFIR
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -8,12 +8,13 @@ c $Id: stpr_save.F,v 1.2 1994-10-26 23:15:21 d3e129 Exp $
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / PARAM / PSTEPP(20)
       COMMON / SWITCH / SECO, SWSEC, SWFIR
+#include "cstprfiles.fh"
       DIMENSION HESS(NAT3TR),
      &          GRAD(NAT3),
      &          COORD(3,NATOM)
       IERR = 0
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN', err=10)
       REWIND (UNIT=ITAP41)
 #else
@@ -65,13 +66,14 @@ C
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / PARAM / PSTEPP(20)
       COMMON / SWITCH / SECO, SWSEC, SWFIR
+#include "cstprfiles.fh"
       DIMENSION HESS(NAT3TR),
      &          GRAD(NAT3),
      &          COORD(3,NATOM)
 c
       IERR = 0
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN', err=20)
       REWIND (UNIT=ITAP41)
 #else
@@ -123,6 +125,7 @@ C
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / PARAM / PSTEPP(20)
+#include "cstprfiles.fh"
 C
 C     PSTEPP(2) and PSTEPP(3) currently not used.
 C
@@ -148,7 +151,7 @@ C
 C     Write previous step parameters PSTEPP.
 C
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN', err=30)
       REWIND (UNIT=ITAP41)
       WRITE(ITAP41)PSTEPP
@@ -173,13 +176,14 @@ C
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / PARAM / PSTEPP(20)
+#include "cstprfiles.fh"
 C
 C     If not first step read previous step parameters PSTEPP from
 C     disk.
 C
       IF(NWALK.GT.1)THEN
 #if defined(OPENCLOSE)
-        OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+        OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
         REWIND (UNIT=ITAP41)
         READ(ITAP41)PSTEPP
@@ -221,8 +225,9 @@ C
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / PARAM / PSTEPP(20)
+#include "cstprfiles.fh"
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &   ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP41)
       READ(ITAP41)PSTEPP
@@ -248,11 +253,12 @@ C
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / PARAM / PSTEPP(20)
+#include "cstprfiles.fh"
 C
 C     Read previous step parameters PSTEPP.
 C
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP41, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP41, FORM='UNFORMATTED', FILE=FILE41,
      &    ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP41)
       READ(ITAP41)PSTEPP

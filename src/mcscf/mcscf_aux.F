@@ -514,7 +514,7 @@ c  Get filenames
 c
       if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_in)) then
         if (.not.rtdb_cget(rtdb,'scf:input vectors',1,v_in)) then
-          call util_file_prefix('movecs', v_in)
+          call util_file_name('movecs', .false.,.false.,v_in)
         endif
       endif
 c
@@ -593,7 +593,7 @@ c
         if (.not.rtdb_cget(rtdb,'scf:output vectors',1,v_out)) then
           if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_out)) then
             if (.not.rtdb_cget(rtdb,'scf:input vectors',1,v_out)) then
-              call util_file_prefix('movecs', v_out)
+              call util_file_name('movecs', .false.,.false.,v_out)
             endif
           endif
         endif
@@ -629,7 +629,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.12 1996-07-02 01:20:47 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.13 1996-07-17 16:32:37 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -720,7 +720,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.12 1996-07-02 01:20:47 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.13 1996-07-17 16:32:37 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

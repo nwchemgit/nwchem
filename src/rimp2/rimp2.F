@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.28 1995-11-03 20:43:34 d3g681 Exp $
+C$Id: rimp2.F,v 1.29 1996-07-17 16:36:06 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -140,7 +140,7 @@ C     Figure out file names
 C
       if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center integral file',
      $     1, FNInt))
-     $   Call Util_File_Prefix(Def_Int, FNInt)
+     $   Call Util_File_name(Def_Int, .true.,.false.,FNInt)
 C
 C     Get some info about the basis sets for later use
 C
@@ -154,7 +154,8 @@ C
       if (.not. RTDB_CGet(rtdb, 'mp2:input vectors',
      $     1, FNVec)) then
          if (.not. RTDB_CGet(rtdb, 'scf:output vectors',
-     $      1, FNVec)) call util_file_prefix(Def_movec, FNVec)
+     $      1, FNVec)) call util_file_name(Def_movec,
+     $        .false.,.false., FNVec)
       EndIf
 C
 C     Check MOVecs file for number of spin cases, and the number of MOs

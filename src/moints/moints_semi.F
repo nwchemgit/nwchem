@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.20 1996-07-15 18:47:06 rg240 Exp $
+c  $Id: moints_semi.F,v 1.21 1996-07-17 16:34:13 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -289,8 +289,7 @@ c
 *       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         call util_file_prefix('khalf', tmpname)
-         call util_pname(tmpname, fnamek)
+         call util_file_name('khalf', .true.,.true.,fnamek)
          call waopen( kunit, fnamek, 1, 0, ierr )
          vtmp(3) = pvlo
          vtmp(4) = pvhi
@@ -301,8 +300,7 @@ c
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         call util_file_prefix('jhalf', tmpname)
-         call util_pname(tmpname, fnamej)
+         call util_file_name('jhalf', .true., .true.,fnamej)
          call waopen(junit, fnameJ, 1, 0, ierr )
          vtmp(3) = polo
          vtmp(4) = pohi
@@ -825,8 +823,7 @@ c
       integer junit
       parameter(junit=10)
 
-      call util_file_prefix('jhalf', tmpname)
-      call util_pname(tmpname, fname)
+      call util_file_name('jhalf', .true.,.true.,fname)
       call waopen(junit, fname, 1, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, polo, pohi, nnbf, ioff )
@@ -909,8 +906,7 @@ c
       double precision moints_epair_eval
       external moints_epair_eval
       tmp2 = tcgtime()
-      call util_file_prefix('khalf',tmpname)
-      call util_pname(tmpname, fname)
+      call util_file_name('khalf',.true.,.true.,fname)
       call waopen(kunit, fname, 1, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
@@ -1060,8 +1056,7 @@ c
       external moints_epair_eval
       data sp1fact,sp2fact/4.d0,-2.d0/
       
-      call util_file_prefix('khalf', tmpname)
-      call util_pname(tmpname, fname)
+      call util_file_name('khalf', .true.,.true.,fname)
       call waopen(kunit, fname, 1, 0, itmp )
       e2 = 0.d0
       nocc = oseghi - oseglo + 1

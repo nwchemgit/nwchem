@@ -1,5 +1,5 @@
-       subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.22 1996-07-15 18:46:43 rg240 Exp $
+       logical function direct_mp2(rtdb)
+C$Id: direct_mp2.F,v 1.23 1996-07-17 16:34:04 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -38,10 +38,6 @@ c
        double precision tpass, ttotal, scf_energy
        character*7 algo
 c
-c
-c
-c
-c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
@@ -57,7 +53,7 @@ c
        data charge/0.d0/
        data ohalf/.false./
 c
-c
+       direct_mp2 = .true.
 c
        if (.not. context_push('direct_mp2'))
      $      call errquit('direct_mp2: context_push failed',0)
@@ -89,7 +85,8 @@ c
        if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $      call errquit('direct_mp2: no ao basis ', 0)
        if (.not. rtdb_cget(rtdb, 'input mo vector file', 1,
-     $      movecs_in)) call util_file_prefix('movecs',movecs_in)
+     $      movecs_in)) call util_file_name
+     $      ('movecs',.false.,.false.,movecs_in)
        if (.not. geom_nuc_charge(geom, nuclear_charge))
      $      call errquit('direct_mp2: no nuclear charge?', 0)
        if (.not. bas_numbf(basis, nbf))
@@ -138,7 +135,7 @@ c
        if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
      $      then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        call util_file_prefix('movecs',movecs_in)
+     $        call util_file_name('movecs',.false.,.false.,movecs_in)
        endif
 c
 c Read in MO coefficients

@@ -1,5 +1,5 @@
       logical function stpr_walk(flag,rtdb)
-c $Id: stpr_walk.F,v 1.19 1996-01-29 19:42:49 hltaylor Exp $
+c $Id: stpr_walk.F,v 1.20 1996-07-17 16:36:50 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -44,6 +44,7 @@ c
       logical o_timewalk
       logical status
       double precision convgg, convge
+#include "cstprfiles.fh"
       integer first_call, step_number
       data first_call /0/
 c
@@ -51,6 +52,8 @@ c     push context down to stepper
 c
       call util_print_push
       call util_print_rtdb_load(rtdb,'stepper')
+c
+      call stpr_filenames()
 c
       if (first_call.eq.0) then
         first_call = 1

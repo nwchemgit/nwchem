@@ -305,7 +305,7 @@ c
       subroutine moints_Ktrf34az(g_int1t,nbf,nact,ostart,c,x,tmp,ab,ba)
       implicit none
       integer g_int1t
-      integer a,b,ab,ba
+      integer a,ab,ba
       integer nbf,nact,ostart
       double precision c(nbf,nbf)
       double precision x(nbf,nbf)

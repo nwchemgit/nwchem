@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.21 1996-07-15 18:49:49 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.22 1996-07-17 16:32:39 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -60,14 +60,14 @@ c
        parameter(tol_floor=1.d-12)
        parameter(tol_ceil=1.d-1)
 c
-       integer iter, vlen, maxiter, pflg
-       integer molo, mohi, i, ismall, iter1, nstep
+       integer iter, vlen, pflg
+       integer molo, mohi, i, iter1, nstep
        double precision tol2e, enrep, energy, lshift0
        double precision snorm, alpha, gsscale, gnorm0
        double precision eprec, p_acc, ndigit
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
-       double precision xx, yy, hmax, hmin, maxx
+       double precision hmax, hmin, maxx
        double precision lsrch_tol
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
@@ -84,7 +84,6 @@ c
        double precision e0, eci
        save lshift
        double precision mone
-       DOUBLE PRECISION XTMP(10000),YTMP(10000)
 c
        logical line_search
        external line_search
@@ -524,14 +523,14 @@ c
 c
        integer l_s, k_s, l_z, k_z, k_x, l_u, k_u, ld
        integer clo, chi, aoff, aend, zoff
-       integer t, u, tt, tu, tus, uts, v, vv, w, vw, vwoff
+       integer t, u, tt, tu, tus, uts, v, w, vw, vwoff
        integer tv, uw, tvs, vts, uws, wus, wtop
        double precision qq, pp
        logical ga_check_JKblocked
        integer ijkl
        external ijkl
-       INTEGER IQ
-       DOUBLE PRECISION XYZ,XXX(10000)
+*       INTEGER IQ, VV
+*       DOUBLE PRECISION XYZ,XXX(10000)
 c
        zoff = nbf*nclosed + nclosed
        aoff = nclosed + 1

@@ -1,6 +1,6 @@
       logical function stpr_gen_hess_at(rtdb,delta,flag)
       implicit none
-* $Id: stpr_gh_at.F,v 1.3 1996-02-17 00:55:04 d3e129 Exp $
+* $Id: stpr_gh_at.F,v 1.4 1996-07-17 16:36:47 d3g681 Exp $
 * routine to generate hessian at current geometry using default basis set
 * ra kendall 7/95 PNL
 *
@@ -49,6 +49,7 @@ c::local
       character*16 tag_name
       character*40 new_geom_name
       logical dft_mode, scf_mode
+#include "cstprfiles.fh"
 c
       stpr_gen_hess_at = .false.
       dft_mode = flag.eq.stpr_dft_flag
@@ -56,7 +57,9 @@ c
       whoiam = ga_nodeid()
       master = 0
       ignore_status = rtdb_parallel(.false.)
+      call util_file_name('hess',.false.,.false.,FILEHESS)
       if (whoiam.eq.master) then
+c
 c
 c.. create/load reference geometry
         if (.not.geom_create(geom,'geometry')) call errquit
@@ -344,8 +347,8 @@ c
         write(luout,*)' finite difference hessian delta = ',delta
         call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
      &      rank_hess,rank_hess,1)
-        call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'hess_ascii')
-        write(luout,*)' triangle hessian written to hess_ascii'
+        call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,FILEHESS)
+        write(luout,*)' triangle hessian written to ',FILEHESS
         
 c set "geometry" to "geometry"
         if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))

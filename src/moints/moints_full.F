@@ -1,5 +1,5 @@
-      subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.9 1996-07-15 18:47:02 rg240 Exp $
+      logical function moints_full(rtdb)
+C     $Id: moints_full.F,v 1.10 1996-07-17 16:34:11 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -89,6 +89,8 @@ c
       data g_coul/-1/
       data ohalf/.true./
       data tol2e/1.d-12/
+c
+      moints_full = .true.
 c     
 c     Print settings
 c     
@@ -119,7 +121,7 @@ c
       if (.not.rtdb_cget(rtdb,'fourindex:input vectors',1,movecs_in))
      $     then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
-     $        call util_file_prefix('movecs',movecs_in)
+     $        call util_file_name('movecs',.false.,.false.,movecs_in)
       endif
       if (.not. movecs_read_header(movecs_in, title_vecs,
      $     basis_vecs, nbf_vecs, nsets, nmo, 2))
@@ -171,7 +173,7 @@ c
       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $     algo = 'twofold'
       if (.not.rtdb_cget(rtdb,'fourindex:moints file',1,moints_file))
-     $     call util_file_prefix('moints',moints_file)
+     $     call util_file_name('moints',.true.,.false.,moints_file)
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. rtdb_cget(rtdb,'fourindex:file format',1, intfmt))

@@ -143,7 +143,7 @@ c   Can manually set the guess config. in the database
 c   otherwise generate guess via Aufbau rules with correct
 c   symmetry. Automatic
 c
-      call util_file_prefix('civec', civec_in)
+      call util_file_name('civec', .false.,.false.,civec_in)
       inquire(file=civec_in,exist=civec_saved)
       if ((ociread).and.(civec_saved)) then
         if (.not.(file_read_ga(civec_in,g_civec)))

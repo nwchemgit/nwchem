@@ -88,7 +88,7 @@ c
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
      $        movecs_in.eq.'project') then
-            call util_file_prefix('movecs', movecs_out)
+            call util_file_name('movecs', .false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
          endif
@@ -196,7 +196,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.27 1996-06-27 22:42:51 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.28 1996-07-17 16:29:32 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -279,8 +279,12 @@ c
      $     MT_INT, 1, memsize)) memsize = 0
       if (.not. rtdb_get(rtdb, 'int2e:restart',
      $     MT_LOG, 1, orestart)) orestart = .false.
+c
+c     The opening routine will put the .pid on the integral filename
+c     (hence even tho' parallel file, open as sequential)
+c
       if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, int2efilename)) 
-     $     call util_file_prefix('aoints',int2efilename)
+     $     call util_file_name('aoints',.true.,.false.,int2efilename)
 c
       oreadfile = .false.
       owritefile= .false.

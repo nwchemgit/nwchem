@@ -1,10 +1,11 @@
       SUBROUTINE stpr_fndmde(STEP,SELECT,VC,NINTER,NAT3,NMODE)
-c $Id: stpr_fndmde.F,v 1.2 1995-03-31 01:45:28 d3g681 Exp $
+c $Id: stpr_fndmde.F,v 1.3 1996-07-17 16:36:43 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL FIND
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
+#include "cstprfiles.fh"
       DIMENSION STEP(NAT3),VC(NAT3,NINTER),SELECT(NAT3)
 C
 C     If first step determine intial tracking vector.
@@ -70,7 +71,7 @@ C
         WRITE(6,*)'  Tracking; overlaps of Hessian',
      &            '  eigenvectors and previous mode. '
 #if defined(OPENCLOSE)
-        OPEN (UNIT=ITAP44, FORM='UNFORMATTED',
+        OPEN (UNIT=ITAP44, FORM='UNFORMATTED', FILE=FILE44,
      &      ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
         REWIND (UNIT=ITAP44)
 #else
@@ -100,7 +101,7 @@ C
 C     Write this chosen vector to disk.
 C
 #if defined(OPENCLOSE)
-      OPEN (UNIT=ITAP44, FORM='UNFORMATTED',
+      OPEN (UNIT=ITAP44, FORM='UNFORMATTED', FILE=FILE44,
      &    ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
       REWIND (UNIT=ITAP44)
       WRITE(ITAP44)(VC(I,NMODE),I=1,NAT3)
