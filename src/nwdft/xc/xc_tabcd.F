@@ -3,7 +3,7 @@
      &     ipol,nq,nbf,max_at_bf,max_at_bf2,GRAD,basis,
      &     natoms,iniz,ifin,igVxc,ibf)
 
-C$Id: xc_tabcd.F,v 1.2 1995-10-17 08:55:37 d3g681 Exp $
+C$Id: xc_tabcd.F,v 1.3 1995-12-18 04:17:14 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 #include "bas.fh"
@@ -96,11 +96,11 @@ cdir$ UNROLL 3
                 call scat_mat(TTmat,Tmat,nbfia,nbfja,nnia,nnja,
      &               ifirst,jfirst,ibf(inizia),ibf(inizja))
                 call upd_atom_block(igVxc(ii), basis,
-     $               iat, jat, TTmat, nbfia, nbfja)
+     $               iat, jat, TTmat)
                 if(iat.ne.jat) then
                   call transp_mat(TTmat,Tmat,nbfia,nbfja)
                   call upd_atom_block(igVxc(ii), basis,
-     $                 jat, iat, Tmat, nbfja, nbfia)
+     $                 jat, iat, Tmat)
                 endif
 
               endif
