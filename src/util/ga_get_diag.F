@@ -1,5 +1,5 @@
       subroutine ga_get_diagonal(g_a, diags)
-C$Id: ga_get_diag.F,v 1.4 1996-10-06 20:15:40 d3g681 Exp $
+C$Id: ga_get_diag.F,v 1.5 2002-09-26 18:43:08 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -34,8 +34,6 @@ c
          enddo
       endif
 c
-      call ga_sync
       call ga_dgop(333, diags, n, '+')
-      call ga_sync
 c
       end
