@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.53 1996-05-14 18:10:48 d3g681 Exp $
+# $Id: GNUmakefile,v 1.54 1996-07-01 16:28:21 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -47,6 +47,7 @@ endif
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
               icopy.o util_legal.o \
+              util_speak.o util_rtdb_speak.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a
@@ -55,6 +56,12 @@ endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F
+
+ifdef SPEECH
+   LIB_DEFINES = -DSPEECH
+   LIB_TARGETS += speechserver speechclient
+   OBJ += udp.o
+endif
 
 
 include ../config/makelib.h
@@ -65,6 +72,12 @@ util_version.F:	util_v_stub.F
 version:	../config/nwchem_config.h
 	catsrc nwchem.F config $(NWSUBDIRS) | \
 		awk -f ids.awk > util_version.F
+
+speechserver:	speechserver.c udp.c
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+speechclient:	speechclient.c udp.c
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
