@@ -141,7 +141,6 @@ c     Reads do not change n_in_rec.
 c
       logical int2e_buf_write
       external int2e_buf_write
-#include "bitops_decls.fh"
 #include "bitops.fh"
 c
       int2e_set_bf_range = .true.
@@ -579,7 +578,6 @@ c
 #include "mafdecls.fh"
 c
       integer i, nint_per_dbl, ind, v1, v2, mask, two31
-#include "bitops_decls.fh"
 #include "bitops.fh"
 c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
@@ -619,7 +617,6 @@ c
 #include "mafdecls.fh"
 c
       integer i, nint_per_dbl, ind, v1, v2, two31
-#include "bitops_decls.fh"
 #include "bitops.fh"
 c
       nint_per_dbl = ma_sizeof(mt_dbl, 1, mt_int)
@@ -656,7 +653,6 @@ c
 c
       integer n
 c
-#include "bitops_decls.fh"
 #include "bitops.fh"
 c
       n = labels(1,cntr_ptr)
