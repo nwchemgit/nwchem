@@ -1,0 +1,16 @@
+Given an ordered list of files contanining molecular coordinates
+in XYZ format, this simple shell script generates an animated
+gif for each of the six possible views down a Cartesian axis.
+
+It uses the free utilities
+  - rasmol 
+    (http://www.umass.edu/microbio/rasmol) 
+    to manipulate the molecule and generate the individual frames
+  - convert from ImageMagick 
+    (http://www.wizards.dupont.com/cristy/ImageMagick.html)
+    to combine the frames into an animated gif
+
+It should be easy to modify the script to other file formats
+or animation tools.
+
+

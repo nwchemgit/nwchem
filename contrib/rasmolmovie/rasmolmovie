@@ -1,0 +1,41 @@
+#!/bin/csh
+
+# Given a list of xyz files on the command line (assumed to end 
+# in .xyz) generate an animated gif for each of the six possible
+# views down a cartesian axis.
+
+# You need rasmol and convert (ImageMagick) in your path.
+# (/usr/local/bin on fermi)
+
+# /tmp must be writable and have space for the individual pictures
+
+set rotation  = ('x 0' 'x 180' 'y 90' 'y -90' 'x -90' 'x 90')
+set direction = ('-z'  '+z'    '+x'   '-x'    '+y'    '-y')
+
+foreach i (1 2 3 4 5 6)
+  /bin/rm -f /tmp/$$
+  echo " "
+  echo " Generating view for direction $direction[$i]"
+  foreach file ($argv[*])
+     set stub = `basename $file .xyz`
+     set gif  = /tmp/$$$stub$direction[$i].gif
+     echo "      Converting $file to $gif"
+     echo $gif >> /tmp/$$
+     rasmol -nodisplay -xyz $file << EOF >& /dev/null
+       set axes
+       wireframe 30
+       spacefill 100
+       rotate $rotation[$i]
+       write gif $gif
+       exit
+EOF
+  end
+  convert -delay 20 -loop 1000 `cat /tmp/$$` animation$direction[$i].gif
+  echo "      The animation for view $direction[$i] is in animation$direction[$i].gif"
+  /bin/rm -f `cat /tmp/$$`
+  /bin/rm -f /tmp/$$
+end
+echo " "
+
+
+
