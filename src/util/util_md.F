@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.35 2001-08-23 20:05:47 d3j191 Exp $
+c $Id: util_md.F,v 1.36 2001-09-05 16:24:53 d3j191 Exp $
 c
       implicit none
 c
@@ -271,9 +271,10 @@ c     + 0.0d0, 1.0d0, 0.0d0
      + ' location <',f12.6,',',f12.6,',',f12.6,'>',/,
      + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,
      + ' angle 20.0',/,'}')
-      write(lfn,1001) -1.0d1, 2.0d1,-1.0d1, 1.0d0,1.0d0,1.0d0
       write(lfn,1001)  0.0d1, 0.0d1,-5.0d1, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001) -1.0d1, 2.0d1,-1.0d1, 1.0d0,1.0d0,1.0d0
       write(lfn,1001)  1.0d1, 2.0d1,-1.0d1, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001)  0.0d1, 1.0d1,-2.0d1, 1.0d0,1.0d0,1.0d0
  1001 format('light_source { <',f12.6,',',f12.6,',',f12.6,
      + '> color rgb <',f4.2,',',f4.2,',',f4.2,'> }')
       write(lfn,1002) 0.0d0,0.0d0,0.0d0
