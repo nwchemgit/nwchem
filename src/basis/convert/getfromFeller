@@ -1,0 +1,29 @@
+#!/bin/csh 
+#
+#  $Id: getfromFeller,v 1.1 1998-08-11 18:11:04 d3e129 Exp $
+#
+# gets current NWCHEM.BSLIB from Feller at source point noted below
+#
+set curdir = `pwd`
+set curdirbase = `basename $curdir`
+if ($curdirbase != 'convert') then
+   echo "This script only works in the ..../nwchem/src/basis/convert directory"
+endif
+if (-e ./NWCHEM.BSLIB) then
+   echo "NWCHEM.BSLIB exists please delete or move it"
+   exit 1
+endif
+if (-e ./NWCHEM.BSLIB.org) then
+   echo "NWCHEM.BSLIB.org exists please delete or move it"
+   exit 2
+endif
+set source_file = /msrc/home/d3e102/nwchem_basis_lib/NWCHEM.BSLIB
+if (!(-e ${source_file})) then
+   echo "${source_file} does not exist "
+   exit 3
+endif
+echo "cp ${source_file} NWCHEM.BSLIB"
+cp ${source_file} NWCHEM.BSLIB
+echo "cp ${source_file} NWCHEM.BSLIB.org"
+cp ${source_file} NWCHEM.BSLIB.org
+exit 0
