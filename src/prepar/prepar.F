@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.55 2003-09-26 15:44:05 d3j191 Exp $
+c $Id: prepar.F,v 1.56 2003-10-03 18:53:48 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -251,7 +251,7 @@ c
       close(unit=lfntop,status='delete')
       if(util_print('files',print_default)) then
       write(lfnout,2016) filtop(1:index(filtop,' ')-1)
- 2016 format(' Deleted existing topology',t40,a)
+ 2016 format(/,' Deleted existing topology',t40,a)
       endif
       endif
 c
@@ -273,7 +273,7 @@ c
       close(unit=lfnseq,status='delete')
       if(util_print('files',print_default)) then
       write(lfnout,2008) filseq(1:index(filseq,' ')-1)
- 2008 format(' Deleted existing sequence',t40,a,/)
+ 2008 format(/,' Deleted existing sequence',t40,a,/)
       endif
       endif
 c
@@ -336,7 +336,7 @@ c
       close(unit=lfnrst,status='delete')
       if(util_print('files',print_default)) then
       write(lfnout,2012) filrst(1:index(filrst,' ')-1)
- 2012 format(' Deleted existing restart',t40,a,/)
+ 2012 format(/,' Deleted existing restart',t40,a,/)
       endif
       endif
 c
