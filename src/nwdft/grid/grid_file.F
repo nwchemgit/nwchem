@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.29 2000-07-29 01:11:57 edo Exp $
+* $Id: grid_file.F,v 1.30 2000-07-29 01:53:15 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -186,8 +186,8 @@ c
          if (oinfo .or. (util_print('iostats',print_high)
      $           .and.ga_nodeid().eq.0)) 
      $        call eaf_print_stats(fd)
-!         if (eaf_close(fd) .ne. 0) call errquit
-!     $        ('grid_file_close: eaf_close failed',0)
+         if (eaf_close(fd) .ne. 0) call errquit
+     $        ('grid_file_close: eaf_close failed',0)
          if (.not. okeep) then
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0)
@@ -331,7 +331,7 @@ c
  10   continue
          if (.not. file_opened) then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('grid_file_open: eaf_open failed', 0)
+     $           call errquit('grid_pckbufw: eaf_open failed', 0)
             file_opened = .true.
          endif
        if (cur_rec .le. max_cache_rec) then
