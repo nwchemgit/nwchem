@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.15 1996-11-02 07:05:02 d3g681 Exp $
+C$Id: rohf.F,v 1.16 1997-02-07 21:56:15 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -49,16 +49,10 @@ c
 c
 c     Newton-Raphson based SCF
 c
-      call ecce_print_module_entry('optimize orbitals')
       if (odiis) then
          converged = rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
       else
          converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
-      endif
-      if (converged) then
-         call ecce_print_module_exit('optimize orbitals', 'ok')
-      else
-         call ecce_print_module_exit('optimize orbtials', 'failed')
       endif
 c
       call ga_sync()

@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.45 1996-11-18 20:38:38 rg240 Exp $
+C$Id: scf.F,v 1.46 1997-02-07 21:56:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -52,7 +52,7 @@ c
 c     Print info
 c 
       if (ga_nodeid().eq.0 .and. oprint) then
-         call util_print_centered(6, 'NWCHEM SCF Module', 40, .true.)
+         call util_print_centered(6, 'NWChem SCF Module', 40, .true.)
          write(6,*)
          write(6,*)
          if (title .ne. ' ') then

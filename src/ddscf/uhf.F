@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
+C$Id: uhf.F,v 1.30 1997-02-07 21:56:16 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -78,6 +78,12 @@ c
      $        '            Contamination =', f12.4//
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(6)
+         call ecce_print1('total energy', mt_dbl, energy, 1)
+         call ecce_print1('one-electron energy', mt_dbl, eone, 1)
+         call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
+         call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
+         call ecce_print1('Sz', mt_dbl, sz, 1)
+         call ecce_print1('S^2', mt_dbl, s2, 1)
       end if
 C
       if (util_print('schwarz',print_high)) then
@@ -171,7 +177,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
+C     $Id: uhf.F,v 1.30 1997-02-07 21:56:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -450,7 +456,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
+C$Id: uhf.F,v 1.30 1997-02-07 21:56:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -541,7 +547,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
+c     $Id: uhf.F,v 1.30 1997-02-07 21:56:16 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1027,7 +1033,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
+C$Id: uhf.F,v 1.30 1997-02-07 21:56:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
