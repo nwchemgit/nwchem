@@ -146,11 +146,12 @@ c
      $      errquit('moints_mp2_eval_a: cannot destroy global',0)
 
        if (ga_nodeid().eq.0) then
+         write(6,*)
          call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
          write(6,901) emp2
- 901     format(//,10x,'MP2 correction:',f15.10,/)
+ 901     format(/,15x,'MP2 correction:',f15.10,/)
          write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
- 902     format(4(f10.4,1x,'[',2i3,']',2x))
+ 902     format(4(f10.5,1x,'(',2i3,')',2x))
        endif
          
        return

@@ -73,7 +73,6 @@ c
              nact = nact + 1
            endif
          enddo
-C         call rohf_occ2integer(nbf,dbl_mb(k_occ),nocc,nact)
        endif
 C       if (nact.le.0) return
 c
@@ -85,7 +84,8 @@ c
        if (nbf.ne.nbf_vecs) return
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
-     $                       dbl_mb(k_evals), g_vecs)) return
+     $                       dbl_mb(k_evals), g_vecs)) call
+     $      errquit('mointdriver: cannot read MO vectors',0)
 c
 c
 c
@@ -106,11 +106,16 @@ c
 c
 c
        if (ga_nodeid().eq.0) then
-       call util_print_centered(6,'Four-index Transformation',40,.true.)
-         write(6,966) nbf,mo_indx_lo,mo_indx_hi,mo_indx2_lo,mo_indx2_hi
+         write(6,*)
+         call util_print_centered(6,'Four-Index Transformation',
+     $                            40,.true.)
+         write(6,966) nbf,nocc,mo_indx_lo,mo_indx_hi,
+     $                mo_indx2_lo,mo_indx2_hi
  966     format(10x,'Number of basis functions:',10x,i5,/,
+     $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3)
+         call util_flush(6)
        endif
 
 c
