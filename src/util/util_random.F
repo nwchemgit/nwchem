@@ -1,6 +1,6 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.16 2000-05-10 17:41:37 edo Exp $
+c $Id: util_random.F,v 1.17 2000-06-09 23:33:12 edo Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -11,70 +11,42 @@ c
       integer iseed
       if(iseed.gt.0) call srand(dble(iseed))
       util_random=rand()
-#endif
-#if defined(KSR)
+#elif defined(KSR)
 #define SET_RANDOM
       real random
       external random
       integer iseed
 * on KSR if iseed != 0 it resets the sequence
       util_random=dble/work/u13377/nwchem(random(iseed))
-#endif
-#if defined(SGI) || defined(SGITFP)
+#elif defined(SGI) || defined(SGITFP)
 #define SET_RANDOM
        integer iseed
        real*8 rand
        external rand
        if(iseed.gt.0) call srand(dble(iseed))
        util_random=rand()
-#endif
-#if defined(HPUX)
-#define SET_RANDOM
-       integer iseed
-       real*8 drand
-       external drand
-       util_random=drand()
-#endif
-#if defined(SUN) || defined(SOLARIS)
-#define SET_RANDOM
-      integer iseed
-c      integer rand
-c      external rand
-      real*8 drand
-      external drand
-c      if(iseed.gt.0) call srand(iseed)
-c      util_random=3.051850948d-05*dble(rand())
-      util_random=drand(iseed)
-#endif
-c #elif defined(__PARAGON__) || defined(DELTA)
-c       integer iseed
-c       if(iseed.gt.0) call srand(dble(iseed))
-c       util_random=rand()
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#elif defined(CRAY_T3D) || defined(CRAY_T3E)
 #define SET_RANDOM
       integer iseed
       if(iseed.gt.0) call ranset(iseed)
       util_random=ranf()
-#endif
-#if (defined(LINUX) || defined(CYGNUS)) && !defined(LINUX64)
+#elif defined(WIN32)
+#define SET_RANDOM
+      integer iseed
+      double precision drand
+      external drand
+      if (iseed.gt.0) call srand(iseed)
+      util_random = drand(0)
+#elif (defined(LINUX) || defined(CYGNUS)) && !defined(LINUX64)
 #define SET_RANDOM
       integer iseed
       double precision linux_rand
       external linux_rand
       if(iseed.gt.0) call linux_sran(iseed)
       util_random=linux_rand()
-#endif
-#if defined(DECOSF) || defined(LINUX64)
+#else
 #define SET_RANDOM
-      integer iseed
-      double precision drand
-      external drand
-      if (iseed.gt.0) call srand(iseed)
-      util_random = drand()
-#endif
-#if defined(WIN32)
-#define SET_RANDOM
-      integer iseed
+      integer*4 iseed
       double precision drand
       external drand
       if (iseed.gt.0) call srand(iseed)
