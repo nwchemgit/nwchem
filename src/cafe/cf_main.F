@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.47 2000-05-03 20:15:30 d3j191 Exp $
+c $Id: cf_main.F,v 1.48 2000-05-03 22:55:10 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2327,8 +2327,8 @@ c
  1001 format(3i10)
       if(nwa.gt.0) then
       do 1 i=1,nwa
-      write(iunit,1004) wnam(i)
- 1004 format(a16)
+      write(iunit,1004) wnam(i)(1:5),wnam(11:15)
+ 1004 format(2a5)
     1 continue
       endif
       if(nsatot.gt.0) then
