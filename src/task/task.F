@@ -3,6 +3,8 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "global.fh"
+#include "mafdecls.fh"
       integer rtdb              ! [input] data base handle
 c
 c     Called by ALL processes.  task_input has read the
@@ -20,7 +22,7 @@ c     This needs extending to accomodate QM/MM and other mixed methods
 c     by having both MM and QM pieces specified (e.g., task md dft).
 c
       character*20 theory, operation
-      logical status
+      logical status, ignore
       character*80 errmsg
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
@@ -35,6 +37,8 @@ c
      $     call errquit('task: no task input for theory?', 0)
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
+      if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
+     $     ignore = .false.
 c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
@@ -65,11 +69,19 @@ c
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
          endif
-         if (.not. status) then
+         if ((ga_nodeid().eq.0) .and. (.not. status)) then
             errmsg = ' '
             write(errmsg,'(a,'' failed '')')theory(1:inp_strlen(theory))
-            call errquit(errmsg, 0)
+            if (ga_nodeid().eq.0) then
+               if (ignore) then
+                  write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+                  call util_flush(6)
+               else
+                  call errquit(errmsg, 0)
+               endif
+            endif
          endif
+         call ga_sync()
          return
       endif
 c
@@ -83,6 +95,20 @@ c
          status = task_freq(rtdb)
       else
          call errquit('task: unknown generic operation',0)
+      endif
+      if ((ga_nodeid().eq.0) .and. (.not. status)) then
+         errmsg = ' '
+         write(errmsg,'(a,'' '',a,'' failed '')')
+     $      theory(1:inp_strlen(theory)), 
+     $      operation(1:inp_strlen(operation))
+         if (ga_nodeid().eq.0) then
+            if (ignore) then
+               write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+               call util_flush(6)
+            else
+               call errquit(errmsg, 0)
+            endif
+         endif
       endif
 c
       end

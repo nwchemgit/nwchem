@@ -12,22 +12,16 @@ c
 c     Called whenever the input parser encounters a task directive.
 c     Terminates by calling errquit if there was any error.
 c
-c     task <string theory> [<string operation = energy>] [numerical]
+c     task <string theory> [<string operation = energy>] [numerical] 
+c          [ignore]
 c
-      logical numerical
+      logical numerical, ignore
       character*20 test, theory, operation
 c
-      logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      logical  nwargos, property, gapss
-      logical  task_energy, task_gradient, task_optimize, task_freq
-c
-      external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      external nwargos, property, gapss
-      external task_energy, task_gradient, task_optimize, task_freq
-c      
       theory = ' '
       operation = ' '
       numerical = .false.
+      ignore = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
@@ -48,6 +42,8 @@ c
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
+         else if (inp_compare(.false.,test,'ignore')) then
+            ignore = .true.
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)
@@ -61,6 +57,10 @@ c
       if (numerical) then
          if (.not. rtdb_put(rtdb, 'task:numerical', mt_log, 1, 
      $        numerical)) call errquit('task_input: rtdb is corrupt',0)
+      endif
+      if (ignore) then
+         if (.not. rtdb_put(rtdb, 'task:ignore', mt_log, 1, 
+     $        ignore)) call errquit('task_input: rtdb is corrupt',0)
       endif
 c
       if (theory .eq. ' ') goto 1000 ! No default theory
