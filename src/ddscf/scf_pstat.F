@@ -44,8 +44,6 @@ c
 #include "pstat.fh"
 #include "cscfps.fh"
 c     
-      logical status
-c
       if (oscfps) then
          call pstat_off(ps_total)
          call pstat_print_all
