@@ -177,7 +177,7 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 
     runJobButton = new JButton("Run Job");
     addComponent(panel,runJobButton,5,6,1,1,1,1,
-		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
+		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
     runJobButton.addActionListener(this);
 
     addComponent(panel,taskPane,0,5,4,5,20,20,
