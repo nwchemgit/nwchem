@@ -1,5 +1,5 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.8 2003-10-17 22:58:35 carlfahl Exp $
+* $Id: util_getarg.F,v 1.9 2004-12-30 23:27:15 edo Exp $
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.
@@ -8,7 +8,7 @@
 #include "errquit.fh"
       integer iarg_in
       character*(*) arg
-#if defined(EXT_INT) && !defined(HPUX64)
+#if defined(EXT_INT)
       integer*4 iarg
 #else
       integer iarg
@@ -20,11 +20,11 @@
       integer*4 length,ierror
 #endif
 #if defined(HPUX)
-C
-C    this hack allows to get the f77 external getarg out of libU77
-C    insted of the f90 intrinsic
-C
-      external getarg
+#ifdef EXT_INT
+!$HP$ ALIAS getarg='getarg__'
+#else
+!$HP$ ALIAS getarg='getarg_'
+#endif
 #endif
 *
       iarg=iarg_in
