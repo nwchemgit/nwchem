@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.53 1998-08-13 15:59:13 d3g681 Exp $
+C$Id: opt_drv.F,v 1.54 1998-09-11 16:37:51 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -3417,7 +3417,8 @@ C
       INTEGER RTDB
       INTEGER GEOM
       LOGICAL STATUS
-      LOGICAL UTIL_TEST_TIME_REMAINING
+      LOGICAL  UTIL_TEST_TIME_REMAINING
+      EXTERNAL UTIL_TEST_TIME_REMAINING
       CHARACTER*16 TAGS_NW
       DIMENSION COORDS_NW(MXCART)
       DIMENSION CHARGE_NW(MXATOM)
