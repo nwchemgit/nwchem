@@ -183,7 +183,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.17 1995-12-01 16:58:13 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.18 1995-12-01 19:22:38 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -274,6 +274,11 @@ c
      $        tol2e*0.01d0))
      $        call errquit('get_fock_param: opening aoints?', 0)
       endif
+c
+c  Use labels by default
+c
+      if (.not. rtdb_get( rtdb, 'int2e:uselabels',  MT_LOG, 1,
+     $                    oerilabel)) oerilabel = .true.
 c
       end
       subroutine scf_tidy(rtdb)
