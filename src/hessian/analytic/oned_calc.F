@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.3 2000-05-02 18:09:11 windus Exp $
+c $Id: oned_calc.F,v 1.4 2000-05-16 21:39:29 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -28,7 +28,7 @@ c
       integer iac1f, iac1l, iac2f, iac2l, idatom(2)
       integer iab1f, iab1l, iab2f, iab2l, ish1, ish2, if1, il1, if2, il2
       integer ic, icart1, icart2, ip1, ip2, i, j, at1, at2
-      integer nproc, atx, nint
+      integer nproc, atx, nint, natom
       logical status
       double precision qfac, de
 c
@@ -93,23 +93,27 @@ c
                 if ( idatom(1) .ge. 1 ) then
                 write(6,*) 'integral buffer for ',idatom(1),
      *              idatom(2)
-                do i = 1, nint
+c
+c scale Ibuf for half the buffer because it comes back with the wrong sign
+c
+c               if (idatom(1).eq.idatom(2))
+c    *            call dscal(nint*3,-1.0d0,Ibuf(nint*3+1),1)
+                do i = 1, nint*6
                   write(6,*) 'i = ',i,Ibuf(i)
                 enddo
-c               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
-c                 qfac = qfac*2
-c                 call dscal(lbuf,qfac,Ibuf,1)
-c                 qfac = qfac/2
+c
                   ic = 1
-                  do 28 i = 1, 2
+                  write(6,*) 'if1,il1,if2,il2 ',if1,il1,if2,il2
+                  natom = 2
+c                 if (idatom(1).eq.idatom(2)) natom = 1
+                  do 28 i = 1, natom
                   do 27 icart1 = 1, 3 
                     call ga_acc(g_rhs((idatom(i)-1)*3 + icart1),if1,
      *               il1,if2,il2,
      *               Ibuf(ic),il1-if1+1,1.0d0)
                     ic = ic + nint
-c                   call ga_acc(g_rhs(idatom(2)),if1,il1,if2,il2,
-c    *               Ibuf(ic),il1-if1+1,-1.0d0)
-c put in the ga_acc for idatoms 1 and 2
+                    write(6,*) 'g_rhs of ',(idatom(i)-1)*3 + icart1
+                    call ga_print(g_rhs((idatom(i)-1)*3 + icart1))
  27               continue
  28               continue
                 endif   ! if idatom

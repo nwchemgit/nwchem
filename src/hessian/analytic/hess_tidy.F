@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.1 1999-05-06 17:29:35 windus Exp $
+C $Id: hess_tidy.F,v 1.2 2000-05-16 21:39:29 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -53,10 +53,5 @@ c
         if (.not.ga_destroy(g_rhs_xc(j))) 
      *    call errquit('hess_tidy: problem destroying g_rhs_xc',1)
       enddo
-
 c
-c  terminate the second derivative integrals
-c
-      call intdd_terminate()
-
       end

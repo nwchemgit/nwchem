@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.1 1999-05-06 17:29:34 windus Exp $
+C $Id: hess_cphf.F,v 1.2 2000-05-16 21:39:29 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -28,6 +28,11 @@ c the next cphf call.
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+c
+c call terminate since cphf will call it's own integral initialization
+c
+      call schwarz_tidy()    ! need to get rid of temp buffers
+      call intdd_terminate()
 c
       do i = 1,ncent*3
        if(.not.file_write_ga(cphf_rhs,g_rhs(i)))

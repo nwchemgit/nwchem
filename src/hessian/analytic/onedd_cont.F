@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.5 2000-05-02 18:09:11 windus Exp $
+C $Id: onedd_cont.F,v 1.6 2000-05-16 21:39:29 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -18,7 +18,7 @@ c
       integer rtdb  ! [input] RTDB handle
 c
       integer i
-      integer g_wdens, ndens
+      integer g_wdens
       integer g_eigen_diag
       integer max1e, max2e, mscratch_1e, mscratch_2e
       integer l_buf, k_buf, l_scr, k_scr
@@ -46,7 +46,6 @@ c Need to form the weighted density matrix to multiply by the S
 c second derivative integrals.
 c
       g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
-      ndens = 1 ! temporary meaning RHF
       nbf2 = nbf
 C     eigenvalue diagonal matrix for forming energy weighted density
       nocc = nopen + nclosed                                                    

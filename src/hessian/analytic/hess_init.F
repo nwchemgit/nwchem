@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.4 2000-02-04 19:57:09 mg201 Exp $
+C $Id: hess_init.F,v 1.5 2000-05-16 21:39:29 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -21,9 +21,12 @@ c
 c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
-      integer i, j, dftnoc(2)
+      integer i, j, dftnoc(2), numfunc
+      parameter(numfunc = 19) ! took this from gradient code, may need to be
+                              ! changed in the future
       logical status
       double precision zero, one, onem
+      double precision xfac(numfunc)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -46,9 +49,13 @@ c
      *  call errquit ('scf_init: basis info', 555)
 c
 c  initialize the second derivative integrals
+c  making sure that the schwarz stuff is initialized
 c
       write(6,*) 'before the call to intdd_init'
       call flush(6)
+      call int_init(rtdb, 1, basis)
+      call schwarz_init(geom, basis)
+      call int_terminate()
       call intdd_init(rtdb,1,basis)
       write(6,*) 'after the call to intdd_init'
       call flush(6)
@@ -78,6 +85,8 @@ c
 c
 c  Initialization for each of the different types of wavefunctions.
 c
+      jfac = 1.0d0   ! Only changed for DFT
+      kfac = 1.0d0
       if (theory .eq. 'HF') then
         if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
      *    call errquit('hess_init: failed to get nmo', 555)
@@ -105,6 +114,15 @@ c       nopen = nopen + 1
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *    mult = 1
         nopen = mult - 1
+c
+c     Get information about fitting and scale factors
+c
+        if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
+     $        ocdfit = .false.
+        if (ocdfit) jfac = 0.0d0 
+        if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
+     $        call errquit('gradients: xfac not in rtdb ', 0)
+        kfac = xfac(1)
 c
 c  I don't like the way I am getting the number of mo's, but I can't find
 c  another way to get this from the DFT.
@@ -149,9 +167,11 @@ c
      *            (geom, basis, 'hessian:a dens')
         g_dens(2) = ga_create_atom_blocked
      *            (geom, basis, 'hessian:b dens')
+        ndens = 2
       else
         g_dens(1) = ga_create_atom_blocked
      *            (geom, basis, 'hessian:dens')
+        ndens = 1
       endif
 c     
       nopen = nopen + 1
