@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.454 2004-04-24 00:38:58 edo Exp $
+# $Id: makefile.h,v 1.455 2004-04-24 02:20:20 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 4.1
+#RELEASE := 4.6
 
 #
 
@@ -823,8 +823,10 @@ ifeq ($(TARGET),IBM)
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -qxlf77=leadzero
 # -qinitauto=FF
    COPTIONS = 
+# -qstrict required with -O3 (according to Edo)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
+# -qhot seems to break a lot of things so don't ever use it
   FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto -NS2048
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
@@ -970,7 +972,7 @@ endif
      MPILIB = 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x60000000 -bmaxstack:0x60000000  -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g 
    LINK.f   = mpcc_r   $(LDFLAGS)
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k  -qxlf77=leadzero
   ifdef  USE_GPROF
@@ -992,16 +994,19 @@ RSQRT=y
 
 USE_ESSL = YES
 ifdef USE_ESSL
+ CORE_LIBS +=  -lessl
+endif
+ifdef USE_PESSL
    DEFINES += -DESSL
- CORE_LIBS += -lpessl -lblacs -lessl
+ CORE_LIBS += -lpessl -lblacs 
 endif
 # Need ESSL before our own BLAS library but still need our
 # own stuff for misc. missing routines
 
-   LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
-   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # for bigtoc
 CORE_LIBS +=  -llapack -lblas
 
+  LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
+  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 # needed because of bigtoc
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -1042,8 +1047,8 @@ else
         DEFINES += -DEXT_INT
   CORE_LIBS +=  -llapack -lblas
 endif
-   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
-   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed for bigtoc
+  LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
+  LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
 
 
  EXPLICITF = TRUE
