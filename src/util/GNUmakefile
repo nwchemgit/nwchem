@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.90 1998-05-18 21:28:06 d3j191 Exp $
+# $Id: GNUmakefile,v 1.91 1998-06-15 23:23:45 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -102,6 +102,7 @@ endif
               util_nwchemrc.o\
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
+              nw_inp_from_file.o \
               $(EXTRA_OBJ)
 
 ifeq ($(TARGET),SGITFP)
