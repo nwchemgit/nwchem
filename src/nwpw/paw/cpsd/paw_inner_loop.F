@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.20 2003-02-23 22:51:04 marat Exp $
+* $Id: paw_inner_loop.F,v 1.21 2003-02-23 23:32:05 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -78,6 +78,12 @@
       external control_version
       real*8   ion_ion_e
       external ion_ion_e
+      real*8   paw_mult_energy_atom_comp !**no header file for paw_mult**
+      real*8   paw_mult_energy_atom_self
+      real*8   paw_mult_energy_atom_mult
+      external paw_mult_energy_atom_comp
+      external paw_mult_energy_atom_self
+      external paw_mult_energy_atom_mult
 
 
 
@@ -511,9 +517,10 @@ c      ecore_self_atom = paw_energy_core_self_atom()
 *      WARNING!!!!
 *      contributions from compensation charges are missing here
       E(5) = eion_atom + ecore_atom + ehartree_atom +
-     >       ecore_ion_atom + ecore_self_atom  
-*     E(6)=multipole interaction energy      
-      E(6)=0.0d0
+     >       ecore_ion_atom + ecore_self_atom +
+     >       paw_mult_energy_atom_self() +
+     >       paw_mult_energy_atom_comp() 
+      E(6)=paw_mult_energy_atom_mult()
       
 *     *** exch-correlation
       E(7) = exc

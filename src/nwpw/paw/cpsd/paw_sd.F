@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.42 2003-02-23 22:51:05 marat Exp $
+* $Id: paw_sd.F,v 1.43 2003-02-23 23:32:05 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -244,6 +244,7 @@
       call paw_comp_charge_init()
       
 *     *** initialize paw atomc potentials ***      
+      call paw_vloc_init()
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
       call paw_mult_init()
@@ -703,6 +704,7 @@ c         write(6,1498) virial
       call paw_ovlp_end()
       call paw_comp_charge_end()
       call paw_mult_end()
+      call paw_vloc_end()
       call end_paw_kin_matrix()
       call end_paw_vloc_matrix()
       call end_paw_ion_matrix()
