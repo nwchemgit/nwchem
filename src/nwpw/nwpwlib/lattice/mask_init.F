@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.4 2002-01-14 19:20:31 bylaska Exp $
+* $Id: mask_init.F,v 1.5 2003-05-29 19:22:28 edo Exp $
 *
 
       subroutine mask_end()
@@ -102,7 +102,8 @@
 
                   if (p .eq. taskid) then
                      gg = g1*g1 + g2*g2 + g3*g3
-                     if (gg.lt.ggcut) then
+                     gg= gg-ggcut
+                     if (gg.lt.0d0) then
                         index = (q-1)*(nxh+1)*ny
      >                        + j*(nxh+1)
      >                        + i+1
