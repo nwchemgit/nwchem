@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.10 2000-02-24 22:47:40 edo Exp $
+c$Id: grid_checks.F,v 1.11 2000-03-08 23:38:03 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -14,7 +14,7 @@ c
 c
       double precision pi
       integer nptstot,mxangpp,mxnangpp,mxangpp1
-      parameter (mxnangpp=iac_max,mxangpp=mx_l_ang,mxangpp1=1202)
+      parameter (mxnangpp=iac_max,mxangpp=mx_l_ang,mxangpp1=5294)
       parameter (nptstot=mxangpp)
       integer itype,jtype
       double precision s_err

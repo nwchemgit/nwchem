@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.22 2000-03-08 01:51:27 edo Exp $
+C$Id: xc_lebedev.F,v 1.23 2000-03-08 23:38:08 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -11,7 +11,7 @@ c
 c     Routine for Lebedev weights, supplied by Mauro Causa`
 c     modified by E. Apra based on the following paper
 c     B.Delley, J. Comp. Chem. 17, 1152 (1996) 
-c     All points were provide by DN Laikov and VI lebedev
+c     All points were provided by DN Laikov and VI lebedev
 c     3/7/200
 c     n = 131 from VI Lebedev and DN Laikov, 
 c      Doklady Mathematics 366, 741 (1999)
