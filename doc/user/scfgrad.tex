@@ -25,13 +25,13 @@ interval is specified in the integer variable \verb+minutes+, and defines
 the number of minutes of elapsed wall-clock time since the start of the
 calculation when the gradient is written to the runtime database.
 
-% \subsection{CHKPT}
+% \section{CHKPT}
 
 %  This keyword is used to specify a time interval after which a
 %  checkpoint for later restart is created. After \verb+minutes+
 %  minutes of walltime the forces are written to the runtime database.
 
-% \subsection{RESTART}
+% \section{RESTART}
 
 Specifying the keyword \verb+restart+ allows the user to restart a calculation
 using the gradient calculated from a previous calculation that may have
@@ -49,12 +49,13 @@ recalculated from zero.
 %  the database of the previous run. If they are not present, the
 %  keyword is ignored and a complete calculation of the gradients is started.
 
-  It also works within a geometry optimization. Subsequent gradient 
+  It also works within a geometry optimization. Once a gradient
+calculation has completed, restart information is automatically
+deleted
+so that Subsequent gradient 
   calculations are not treated as restarts.
-\Large  **Elucidate.**
-\normalsize
 
-% \subsection{PRINT, NOPRINT}
+% \section{PRINT, NOPRINT}
 
 The complementary keyword pair \verb+print+ and \verb+noprint+ allow the 
 user some additional control on the information that can be obtained from

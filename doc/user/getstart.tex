@@ -41,11 +41,11 @@ have no defaults, or for items that must be different from the defaults
 for the particular application.  In the discussion of each directive, the
 defaults are noted, where applicable.
 
-The input file structure is described in the following subsections, and
+The input file structure is described in the following sections, and
 illustrated with two examples.  The input format and syntax for directives
 is also described in detail.
 
-\subsection{Input File Structure}
+\section{Input File Structure}
 \label{sec:inputstructure}
 
 The structure of an input file reflects the internal structure of
@@ -97,10 +97,10 @@ file name \verb+input_file+ is specified without an extension, the code
 assumes a default extension of \verb+input_file.nw+.  If the code cannot
 locate a file named either \verb+nwchem.nw+ or \verb+input_file.nw+, an 
 error is reported and execution terminates.  The following
-subsection presents two input files to illustrate the directive syntax and 
+section presents two input files to illustrate the directive syntax and 
 input file format for NWChem applications.
 
-\subsection{Simple N2 Input File}
+\section{Simple N2 Input File}
 \label{sec:simplesample}
 
 A simple example of an NWChem input file is an SCF geometry optimization of
@@ -125,13 +125,13 @@ only four directives; \verb+TITLE+, \verb+GEOMETRY+, \verb+BASIS+, and
 \verb+TASK+.  The \verb+TITLE+ directive is optional, and is used only
 as a means for the user to more easily identify outputs from different
 jobs.  An initial geometry is specified in Cartesian coordinates and
-{\angstrom}s by means of the \verb+GEOMETRY+ directive.  The Dunning 
+{\angstroms} by means of the \verb+GEOMETRY+ directive.  The Dunning 
 cc-pvdz basis is obtained from the NWChem basis library, as specified
 by the \verb+BASIS+ directive input.  The \verb+TASK+ directive requests 
 an SCF geometry optimization.
 
 The \verb+GEOMETRY+ directive (Section \ref{sec:geom}) defaults to cartesian
-coordinates and {\angstrom}s (options include atomic units and
+coordinates and {\angstroms} (options include atomic units and
 Z-matrix format; see Section \ref{sec:Z-matrix}).  The \verb+BASIS+ 
 directive input block is structured like the \verb+GEOMETRY+ directive
 input block (i.e., name,
@@ -156,7 +156,7 @@ the job on a typical UNIX workstation is as follows;
 NWChem output is to standard output, and error messages are sent to
 both standard output and standard error.
 
-\subsection{Water Molecule Sample Input File}
+\section{Water Molecule Sample Input File}
 \label{sec:realsample}
 
 A more complex sample problem is the optimization of a positively
@@ -175,7 +175,7 @@ start h2o_freq
 
 title; H2O+ frequencies with MP2 and 6-31g**
 
-geometry units angstrom
+geometry units angstroms
   O       0.0  0.0  0.0
   H       0.0  0.0  1.0
   H       0.0  1.0  0.0
@@ -242,7 +242,7 @@ different names in this field.
 
 As in the first sample problem, the geometry is given in cartesian
 coordinates.  In this case, the units are specified as
-{\AA}ngstr{\o}m.  (Since this is the default, explicit specification of the
+{\angstroms}.  (Since this is the default, explicit specification of the
 units is not actually necessary, however.)  The {\tt CHARGE}
 directive defines the total charge of the system.  This calculation is
 to be done on an ion with charge +1.  Note that this is a top-level
@@ -347,7 +347,7 @@ of tasks) from the calculation without actually removing the relevent
 input directives from the file.  Any lines in the file that occur
 after the {\tt eof} directive are ignored by the program.
 
-\subsection{Input Format and Syntax for Directives}
+\section{Input Format and Syntax for Directives}
 \label{sec:syntax}
 
 This section describes the syntax used in the rest of this

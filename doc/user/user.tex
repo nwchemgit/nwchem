@@ -1,24 +1,24 @@
-% $Id: user.tex,v 1.16 1997-02-25 16:52:28 d3g681 Exp $
+% $Id: user.tex,v 1.17 1997-02-25 20:34:49 d3g681 Exp $
 
-\documentstyle[fullpage,12pt]{article}
+\documentstyle[fullpage,12pt]{book}
 \setlength{\parskip}{6pt}
 
 % Set the version and year of release globally
-\newcommand{\nwchemversion}{2.0}
-\newcommand{\nwchemyear}{1996}
+\newcommand{\nwchemversion}{2.1$\beta$}
+\newcommand{\nwchemyear}{1997}
 
-\newcommand{\angstrom}{{\AA}ngstr{\o}m}
+\newcommand{\angstroms}{Angstr{\o}ms}
 
 \input{psfig}
 
 \begin{document}
 
-\title{\bf\Large NWChem User Documentation, Alpha Release \nwchemversion}
+\title{\bf\Large NWChem User Documentation, Release \nwchemversion}
 \author{High Performance Computational Chemistry Group}
 \date{\today}
 \maketitle
 
-\section*{\center DISCLAIMER}
+\chapter*{\center DISCLAIMER}
 \input{disclaimer}
 
 \clearpage
@@ -27,93 +27,92 @@
 
 \clearpage
 
-\section{Introduction}
+\chapter{Introduction}
 \input{intro.tex}
 
-\section{Getting Started}
+\chapter{Getting Started}
 \input{getstart.tex}
 
-\section{NWChem Architecture}
+\chapter{NWChem Architecture}
 \input{nwarch.tex}
 
-\subsection{Functionality}
+\chapter{Functionality}
 \input{functionality.tex}
 
-\section{Top-level directives}
+\chapter{Top-level directives}
 \input{top-level}
 
-\section{Geometries}
+\chapter{Geometries}
 \input{geometry}
 
-\section{Basis sets}
+\chapter{Basis sets}
 \input{basis}
 
-\section{Effective Core Potentials}
+\chapter{Effective Core Potentials}
 \input{ecp}
 
-\section{Hartree-Fock or Self-consistent Field: SCF Module} 
+\chapter{Hartree-Fock or Self-consistent Field} 
 \input{scf}
 
-\section{Hartree-Fock or SCF Gradients}
+\chapter{Hartree-Fock or SCF Gradients}
 \input{scfgrad}
 
-\section{Gaussian Density Functional Theory (DFT) Module}
+\chapter{Gaussian Density Functional Theory (DFT)}
 \input{dft.tex}
 
-\section{Geometry Optimization with STEPPER Module}
+\chapter{Geometry Optimization with STEPPER}
 \input{stepper}
 
-\section{Vibrational frequencies}
+\chapter{Vibrational frequencies}
 \input{vib}
 
-\section{MP2 Module}
+\chapter{MP2}
 \input{mp2}
 
-\section{Four-Index Transformation Module} 
+\chapter{Four-Index Transformation}
 \input{fourindex}
 
-\section{Plane-wave periodic DFT Module}
+\chapter{Plane-wave periodic DFT}
 \input{plnwv.tex}
 
-\section{Multiconfiguration SCF Module}
+\chapter{Multiconfiguration SCF}
 \input{mcscf.tex}
 
-\section{Selected CI}
+\chapter{Selected CI}
 \input{selci.tex}
 
-%%%\section{Coupled Cluster Calculations} %%% This ought to be in sub-file!
-\section{Coupled Cluster Calculations}
+\chapter{Coupled Cluster Calculations}
 \input{ccsd.tex}
 
-\section{DPLOT}
+\chapter{DPLOT}
 \input{dplot.tex}
 
-\section{Properties}
+\chapter{Properties}
 \input{property.tex}
 
-\section{Molecular Dynamics}
+\chapter{Molecular Dynamics}
 \input{nwargos.tex}
 
-\section{Combined Quantum Mechanics and Molecular Mechanics}
+\chapter{Combined Quantum Mechanics and Molecular Mechanics}
 \input{qmmm}
 
 \clearpage
-\section{Acknowledgments}
+\chapter{Acknowledgments}
 \input{ack}
 \clearpage
 
 \appendix
 
-\section{Standard Basis Sets}
+\chapter{Standard Basis Sets}
 \input{knownbas}
 
-\section{Sample input files}
+\chapter{Sample input files}
 \input{sample}
 
-\section{Examples of geometries using symmetry}
+\chapter{Examples of geometries using symmetry}
 \input{symex}
 
-\section{Running NWChem}
+\chapter{Running NWChem}
 \input{execution}
 
 \end{document}

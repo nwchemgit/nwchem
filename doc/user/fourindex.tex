@@ -17,10 +17,10 @@ direct MP2 module (see Section \ref{sec:mp2}).  For most applications,
 the default parameters for the four-index transformation will be adequate,
 but in some instances, the user may wish to enhance the performance of
 the module.  This can be done by specifying \verb+SET+ directives for
-selected parameters.  The following subsections describe the options
+selected parameters.  The following sections describe the options
 currently available for this module.
 
-\subsection{Algorithm for the Four-Index Transformation}
+\section{Algorithm for the Four-Index Transformation}
 
 The code currently contains two algorithms for the four-index transformation.
 The algorithm to use for a given calculation can be selected by specifying
@@ -37,7 +37,7 @@ However, in cases of high orders of parallelism (i.e., more than 200 nodes),
  better throughput may be obtained with the alternative algorithm, 
 obtained by setting \verb+method+ to \verb+sixfold+.
 
-\subsection{AO Integral Blocking and Block Length for the Four-Index Transformation}
+\section{AO Integral Blocking and Block Length for the Four-Index Transformation}
 
 The default in the four-index transformation is to have no blocking in
 the AO integral generation.  Blocking can be specified explicitly using a
@@ -75,7 +75,7 @@ gain from a longer vector length.
 ***What is $N_{bf} / 3$?
 \normalsize
 
-\subsection{Frozen orbitals for the Four-Index Transformation}
+\section{Frozen orbitals for the Four-Index Transformation}
 
 In most cases, the frozen orbitals will be specified by the input for the 
 MP2 calculation (or calculation in some other module???) that invokes the

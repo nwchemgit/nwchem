@@ -36,7 +36,7 @@ the above directive to invoke it.  However, the user also has the option
 of defining different tasks for the STEPPER module, and can vary the
 number of iterations and the convergence criteria from the default values.  
 The input for these options
-is described in the following subsections.
+is described in the following sections.
 
 %  No input is required for STEPPER.  If no input is present the
 % default actions are to minimize the energy as a function of the
@@ -56,7 +56,7 @@ is described in the following subsections.
 % faulty step.
 
 
-% \subsection{MIN}
+% \section{MIN}
 
 % \begin{verbatim}
 %   MIN
@@ -66,7 +66,7 @@ is described in the following subsections.
 % geometry of the system. This is the default action for STEPPER.
 
 
-\subsection{Calculations Performed by the STEPPER Module}
+\section{Calculations Performed by the STEPPER Module}
 
 The STEPPER module can be used to perform one of two(?) different calculations
 for a given system.  The default is for STEPPER to minimize the
@@ -104,9 +104,9 @@ for a minimization walk.)  The step is constructed to go up in energy
 along the \verb+nmode+ eigenvector and down in all other degrees of
 freedom.
 
-\subsection{Control of the STEPPER Calculation}
+\section{Control of the STEPPER Calculation}
 
-% \subsection{MAXITER}
+% \section{MAXITER}
 
 In most applications, 20 stepper iterations will be sufficient to obtain
 the energy minimization.  If a step taken during the
@@ -124,7 +124,7 @@ The value specified for the integer \verb+maxiter+ defines the maximum
 number of geometry optimization steps.  The
 geometry optimization will restart automatically.
 
-%  \subsection{TS}
+%  \section{TS}
 
 % \begin{verbatim}
 %   TS
@@ -133,7 +133,7 @@ geometry optimization will restart automatically.
 % \verb+TS+ instructs stepper to find the transition state by following the
 % lowest eigenvalue of the nuclear Hessian.
 
-% \subsection{TRACK}
+% \section{TRACK}
 
 % \begin{verbatim}
 %   TRACK [nmode <integer nmode default 1>]
@@ -145,7 +145,7 @@ geometry optimization will restart automatically.
 % along the \verb+nmode+ eigenvector and down in all other degrees of
 % freedom.  
 
-% \subsection{TRUST}
+% \section{TRUST}
 
 The size of steps that can be taken in STEPPER is governed by the degree
 to which the calculated values of the eigenvectors can be considered 
@@ -164,14 +164,14 @@ the steps that can be taken by STEPPER. Experience has shown that for
 larger systems (i.e., those with 20 or more atoms), a value of 0.5 or
 greater should be entered for \verb+radius+.
 
-\subsection{Convergence Criteria for the STEPPER Calculations}
+\section{Convergence Criteria for the STEPPER Calculations}
 
 Two convergence criteria can be specified explicitly for the 
 STEPPER calculations.  The keyword \verb+CONVGG+ allows the user to
 specify the the convergence tolerence for the gradient norm for
 all degrees of freedom.  The input line is of the following form,
 
-% \subsection{CONVGG}
+% \section{CONVGG}
 \begin{verbatim}
    CONVGG <real convgg default 1.0d-04>
 \end{verbatim}
@@ -183,18 +183,18 @@ The energy convergence tolerance is the convergence criterion for the
 energy difference in the geometry optimization in STEPPER.  It can be
 specified by input using a line of the following form,
 
-% \subsection{CONVGE}
+% \section{CONVGE}
 \begin{verbatim}
    CONVGE <real convge default 1.0d-08>
 \end{verbatim}
 
 
-\subsection{Initial Guess for Nuclear Hessian}
+\section{Initial Guess for Nuclear Hessian}
 
 {\bf BROKEN BUT EASILY FIXED?}
 
 \Large
-**will it be fixed for the release?  If not, this subsection shuold
+**will it be fixed for the release?  If not, this section shuold
 be deleted.  What is this, anyway?  Another 'action' STEPPER can do?
 Or an option for any calculation?
 \normalsize

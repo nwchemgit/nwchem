@@ -13,10 +13,10 @@ rewound and processed sequentially, and each directive is processed in
 the order it is encountered.  In this second pass, start-up directives
 are ignored.
 
-The following subsections describe each of the start-up directives in detail,
+The following sections describe each of the start-up directives in detail,
 noting all keywords, options, required input, and defaults.
 
-\subsection{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Startup mode}
+\section{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Startup mode}
 \label{sec:start}
 
 A {\tt START}, or {\tt CONTINUE}, or {\tt RESTART} directive is
@@ -132,7 +132,7 @@ the code behaves as if the input file contained the directive,
 \end{verbatim}
 
 
-\subsection{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} --- File directories}
+\section{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} --- File directories}
 \label{sec:dirs}
 
 % This is a startup directive (section \ref{sec:inputstructure}).
@@ -217,7 +217,7 @@ given list of directories;
 \end{verbatim}
 \end{itemize}
 
-\subsection{{\tt MEMORY} --- Control of memory limits}
+\section{{\tt MEMORY} --- Control of memory limits}
 
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
@@ -363,7 +363,7 @@ Sun             & 48 \\
 
 \end{table}
 
-\subsection{{\tt ECHO} --- Print input file}
+\section{{\tt ECHO} --- Print input file}
 \label{sec:echo}
 
 This start-up directive is provided as a convenient means to include a
@@ -378,7 +378,7 @@ keywords, arguments, or options, and consists of the single line,
 The \verb+ECHO+ directive is processed only
 once, by Process 0 when the input file is read.
 
-\subsection{{\tt TITLE} --- Specify job title}
+\section{{\tt TITLE} --- Specify job title}
 
 This top-level directive allows the user to identify a job or series of 
 jobs that use a
@@ -409,7 +409,7 @@ Alternatively, since a semicolon can be used to denote the end an input line
 The title is stored in the database and will be used in all subsequent
 tasks/jobs until redefined in the input.
 
-\subsection{{\tt PRINT} and {\tt NOPRINT} --- Print control}
+\section{{\tt PRINT} and {\tt NOPRINT} --- Print control}
 \label{sec:printcontrol}
 
 The \verb+PRINT+ and \verb+NOPRINT+ directives allow the user to
@@ -493,7 +493,7 @@ of its calling layer.  (Users should send their preferences for these
 defaults via email to \verb+nwchem-support@emsl+, for consideration in
 future releases of the code.)
 
-\subsection{{\tt SET} --- Enter data in the RTDB}
+\section{{\tt SET} --- Enter data in the RTDB}
 \label{sec:set}
 
 This top-level directive allows the user to enter data directly into the
@@ -520,12 +520,12 @@ logical values if logical-true values are specified as \verb+.true.+,
 \verb+true+, or \verb+t+, and logical-false values are entered as
 \verb+.false.+, \verb+false+, or \verb+f+.
 
-The \verb+SET+ directive is useful for providing indirection by 
-associating the name of a basis set or geometry with the standard object
-name (\verb+"ao basis"+ and \verb+geometry+, respectively) used
-by NWChem.  The following input file shows an example using 
-the \verb+SET+ directive to direct different tasks to different geometries.
-The required input lines are as follows,
+The \verb+SET+ directive is useful for providing indirection by
+associating the name of a basis set or geometry with the standard
+object names (such as \verb+"ao basis"+ or \verb+geometry+) used by
+NWChem.  The following input file shows an example using the
+\verb+SET+ directive to direct different tasks to different
+geometries.  The required input lines are as follows,
 
 \begin{verbatim}
   title; Ar dimer BSSE corrected MP2 interaction energy
@@ -550,8 +550,8 @@ The required input lines are as follows,
 
   scf; vectors atomic; end
 
-   geometry "Ar+ghost"
-   task mp2 
+  set geometry "Ar+ghost"
+  task mp2 
 \end{verbatim}
 
 The above input tells the code to perform MP2 energy calculations 
@@ -565,7 +565,7 @@ Additional examples of applications of this
 directive can be found in the sample input files (see Section 
 \ref{sec:realsample}), including examples of its usage with basis sets.
 
-\subsection{{\tt UNSET} --- Delete data in the RTDB}
+\section{{\tt UNSET} --- Delete data in the RTDB}
 \label{sec:unset}
 
 This directive gives the user a way to delete simple entries from the
@@ -601,7 +601,7 @@ and then immediately deletes it using the \verb+UNSET+ directive.
 
 
 
-\subsection{{\tt STOP} --- Terminate processing}
+\section{{\tt STOP} --- Terminate processing}
 
 This top-level directive provides a convenient way of verifying 
 an input file without actually running the calculation.  It consists 
@@ -614,7 +614,7 @@ of the single line,
 As soon as this directive is encountered, all processing ceases and
 the calculation terminates with an error condition.
 
-\subsection{{\tt TASK} --- Perform a task}
+\section{{\tt TASK} --- Perform a task}
 \label{sec:task}
 
 The \verb+TASK+ directive is used to tell the code what to do with the
@@ -632,7 +632,7 @@ database is persistent, multiple tasks within one job behave {\em
 input.
 
 There are three main forms of the the \verb+TASK+ directive.  One form is
-used to tell the code when to execute most of the elctronic structure 
+used to tell the code when to execute most of the electronic structure 
 and molecular dynamics
 calculations.  The second form is used to specify tasks such as
 printing the contents of the database, or simple property
@@ -650,9 +650,9 @@ continues with the next task.
 
 The input options, keywords, and defaults for each of
 these three forms for the \verb+TASK+ directive are discussed in the
-following subsections.
+following sections.
 
-\subsubsection{{\tt TASK} Directive for Electronic Structure Calculations}
+\subsection{{\tt TASK} Directive for Electronic Structure Calculations}
 
 This is the most commonly used version of the \verb+TASK+ directive, and
 it has the following form;
@@ -669,9 +669,9 @@ the variable {\tt <theory>};
  \item \verb+scf+ --- Hartree-Fock
  \item \verb+dft+ --- Density functional theory for molecules
  \item \verb+gapss+ --- Density functional theory for periodic systems
+ \item \verb+mp2+ --- MP2 using a semi-direct algorithm
+ \item \verb+direct_mp2+ --- MP2 using a full-direct algorithm
  \item \verb+rimp2+ --- MP2 using the RI approximation
- \item \verb+direct_mp2+ --- MP2 direct from the AO integrals
- \item \verb+semi_dir_mp2+ --- MP2 semi-direct from the AO integrals
  \item \verb+ccsd+ --- Coupled-cluster single and double excitations
  \item \verb+mcscf+ --- Multiconfiguration SCF
  \item \verb+selci+ --- Selected configuration interaction with perturbation
@@ -735,7 +735,7 @@ theory, the \verb+TASK+ directive is
 The keyword \verb+ignore+ allows execution to continue even if the
 task fails, as discussed above.
 
-\subsubsection{{\tt TASK} Directive for Special Operations}
+\subsection{{\tt TASK} Directive for Special Operations}
 
 This form of the \verb+TASK+ directive is used in instances where the
 task to be performed does not fit the model of the previous version, or
@@ -762,7 +762,7 @@ below, with the cooresponding entries for string variable \verb+<task>+.
 This directive also recognizes the keyword \verb+ignore+, which allows
 execution to continue after a task has failed.
 
-\subsubsection{{\tt TASK} Directive for the Bourne Shell}
+\subsection{{\tt TASK} Directive for the Bourne Shell}
 
 This form of the \verb+TASK+ directive is supported only on machines
 with a fully UNIX-style operating system.  This directive causes
@@ -811,7 +811,7 @@ executing all but the simplest commands, it is usually much easier to
 put the shell script in a file and execute the file from within
 NWChem.
 
-\subsection{{\tt CHARGE} --- Total system charge}
+\section{{\tt CHARGE} --- Total system charge}
 \label{sec:charge}
 
 This is an optional top-level directive that allows the user to specify

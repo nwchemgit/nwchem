@@ -8,7 +8,7 @@ most of the NWChem input is machine independent\footnote{Machine
 dependence within the input arises from file names, machine
 specific resources, and differing services provided by the operating system.} .
 
-\subsection{Sequential execution}
+\section{Sequential execution}
 
 To run NWChem sequentially on nearly all UNIX-based platforms simply
 use the command \verb+nwchem+ and provide the name of the input file
@@ -19,7 +19,7 @@ Output is to standard output, standard error and Fortran unit 6
 in the current directory, though this may be overriden in the input
 (section \ref{sec:dirs}).
 
-\subsection{Parallel execution on UNIX-based parallel machines
+\section{Parallel execution on UNIX-based parallel machines
 including workstation clusters using TCGMSG}
 \label{sec:procgrp}
 
@@ -97,12 +97,12 @@ global-arrays between clusters, and therefore one more process than
 desired the number of application processes should be specified in
 each cluster.
 
-\subsection{Parallel execution on MPPs}
+\section{Parallel execution on MPPs}
 
 All of these machines require use of different commands in order to
 gain exclusive access to computational resources.
 
-\subsection{Kendall Square Research}
+\section{Kendall Square Research}
 
 \begin{verbatim}
   allocate_cells <n> parallel nwchem <input_file>
@@ -129,7 +129,7 @@ then you might use the following command
 A useful tool for monitoring usage of the KSR is xringinfo.  See the
 manual page for details.
 
-\subsection{IBM SP}
+\section{IBM SP}
 
 If using POE (IBM's Parallel Operating Environment) interactively,
 simply create the list nodes to use in the file \verb+"host.list"+ in
@@ -197,7 +197,7 @@ disks are wiped clean at the beginning of each job and therefore
 persisent files should be stored elsewhere.  PIOFS is recommended for
 files larger than 1--2 MB.
 
-\subsection{Intel Paragon}
+\section{Intel Paragon}
 
 \begin{verbatim}
   nwchem -sz <n> <input_file>
@@ -213,7 +213,7 @@ where \verb+n+ is the number of processors and \verb+input_file+ is the
 name of your input file.
 
 
-\subsection{Intel Touchstone Delta}
+\section{Intel Touchstone Delta}
 
 \begin{verbatim}
   mexec -t"(<rows>,<cols>)" -f "nwchem <input_file>"
@@ -226,7 +226,7 @@ For example, to run using all 512 nodes on the Delta
   mexec -t"(16,32)" -f "nwchem big_molecule.nw"
 \end{verbatim}
 
-\subsection{Cray T3D}
+\section{Cray T3D}
 
 \begin{verbatim}
   nwchem  <input_file> -npes <n>
@@ -242,7 +242,7 @@ of C routines by typing
   setenv TARGET CRAY-T3D
 \end{verbatim}
 
-\subsection{Tested Platforms and O/S versions}
+\section{Tested Platforms and O/S versions}
 
 \begin{itemize}
 \item KSR-2 

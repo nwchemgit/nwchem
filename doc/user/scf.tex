@@ -14,7 +14,7 @@ and is a compound directive
 \end{verbatim}
 that encloses additional directives specific to the SCF module. 
 
-\subsection{Wavefunction type}
+\section{Wavefunction type}
 
 By default a spin-restricted, closed shell RHF calculation is
 performed.  An error results if the number of electrons is
@@ -84,7 +84,7 @@ completeness. It may be necessary to specify these in order to modify
 the behaviour of a previous calculation (see Section \ref{sec:persist}
   for restart behaviour).
 
-\subsection{{\tt SYM} --- use of symmetry}
+\section{{\tt SYM} --- use of symmetry}
 \label{sec:sym}
 
  \begin{verbatim}
@@ -103,7 +103,7 @@ For example, to disable use of symmetry in Fock-matrix construction
   sym off
 \end{verbatim}
 
-\subsection{{\tt ADAPT} -- symmetry adaptation of MOs}
+\section{{\tt ADAPT} -- symmetry adaptation of MOs}
 \label{sec:adapt}
 
 \begin{verbatim}
@@ -123,7 +123,7 @@ could result in incorrect energies and poor convergence of the
 calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
 also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 
-\subsection{{\tt TOL2E} --- integral screening threshold}
+\section{{\tt TOL2E} --- integral screening threshold}
 \label{sec:tol2e}
 
 \begin{verbatim}
@@ -154,7 +154,7 @@ The input to specify the threshold explicitly within the
   tol2e 1e-6
 \end{verbatim}
 
-\subsection{{\tt LAGRANGIAN} --- orbital lagrangian}
+\section{{\tt LAGRANGIAN} --- orbital lagrangian}
 
 \begin{verbatim}
   LAGRANGIAN
@@ -165,7 +165,7 @@ lagrangian is required to compute ROHF gradients but under most
 circumstances this option is automatically enabled and need not be set
 by the user.
 
-\subsection{{\tt VECTORS} --- input/output of MO vectors}
+\section{{\tt VECTORS} --- input/output of MO vectors}
 \label{sec:vectors}
 
 
@@ -300,7 +300,7 @@ case, the \verb+LOCK+ directive can be used to prevent the SCF
 calculation from changing the ordering, even if the orbital energies
 change.
 
-\subsubsection{Atomic guess orbitals with charged atoms}
+\subsection{Atomic guess orbitals with charged atoms}
 
 If some atoms are significantly charged, then the default guess of
 superimposing the densities of the neutral atoms may be improved upon
@@ -343,7 +343,7 @@ atomic guess calculations unless the data is deleted from the database
 with the \verb+UNSET+ directive (Section \ref{sec:unset}).
 
 
-\subsection{{\tt THRESH} --- convergence threshold}
+\section{{\tt THRESH} --- convergence threshold}
 \label{sec:thresh}
 
 \begin{verbatim}
@@ -374,7 +374,7 @@ high accuracy or very weak interactions.  A threshold of $10^{-10}$
 should be regarded as the best that can be attained in most
 circumstances.
 
-\subsection{{\tt MAXITER} --- iteration limit}
+\section{{\tt MAXITER} --- iteration limit}
 \label{sec:max}
 
 \begin{verbatim}
@@ -404,7 +404,7 @@ The following sets the maximum no. of SCF iterations to 50
   maxiter 50
 \end{verbatim}
 
-\subsection{{\tt RI} --- resolution of the identity approximation}
+\section{{\tt RI} --- resolution of the identity approximation}
 \label{sec:riscf}
 
 The resolution of the identity (RI) approximation (using the
@@ -462,7 +462,7 @@ The next three paramters determine the computational strategy:
   be stored on disk.  Otherwise an error results.
 \end{itemize}
 
-\subsection{{\tt PROFILE} --- performance profile}
+\section{{\tt PROFILE} --- performance profile}
 
 This directive allows the user to obtain a timing and parallel
 execution information about the SCF module.  It is specified by the
@@ -477,7 +477,7 @@ performance of an SCF calculation.  However, on machines that have
 expensive timing routines, such as the SUN, it can introduce a
 significant overhead.
 
-\subsection{{\tt DIIS} --- DIIS convergence}
+\section{{\tt DIIS} --- DIIS convergence}
 
 This directive allows the user to specify DIIS convergence rather than
 second-order convergence for the SCF calculation.  The form of the
@@ -506,7 +506,7 @@ The default of 5 should be adequate for most applications, but may be
 increased if convergence is poor.  On large systems, it may be necessary
 to specify a lower value for \verb+diisbas+, to conserve memory.
 
-\subsection{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
+\section{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
 \label{sec:semidirect}
 
 The default behaviour of the SCF module is
@@ -598,7 +598,7 @@ usage by each process to 100 MW:
 \end{verbatim}
 
 
-\subsubsection{Integral File Size and Format for the SCF Module}
+\subsection{Integral File Size and Format for the SCF Module}
 
 The file format is rather complex since it accomodates a variety of
 packing and compression options and distribution of data.  This
@@ -676,7 +676,7 @@ by all processes.
 This information may be used to optimize subsequent calculations.
 
 
-\subsection{SCF Convergence Control Options}
+\section{SCF Convergence Control Options}
 \label{sec:scfconv}
 
 {\em Note to users:} It is desired that the SCF program converge
@@ -766,11 +766,11 @@ the linear equations are solved.  The net result of this is that the
 solution will do more macro-iterations, but each one should take less
 time than it would with the unshifted Hessian.
 
-The following subsections describe the directives needed to disable the
+The following sections describe the directives needed to disable the
 Newton-Raphson iteration and specify level-shifting.
 
 
-\subsection{{\tt NR} --- controlling the Newton-Raphson}
+\section{{\tt NR} --- controlling the Newton-Raphson}
 \label{sec:nrswitch}
 
 \begin{verbatim}
@@ -789,7 +789,7 @@ this is as follows:
   nr 0
 \end{verbatim}
 
-\subsection{{\tt LEVEL} --- level-shifting the orbital Hessian}
+\section{{\tt LEVEL} --- level-shifting the orbital Hessian}
 \label{sec:level}
 
 This directive allows the user to specify level-shifting to obtain a
@@ -875,7 +875,7 @@ The default options correspond to
 \end{verbatim}
 
 
-\subsection{Printing Information from the SCF Module}
+\section{Printing Information from the SCF Module}
 \label{sec:scfprint}
 
 All output from the SCF module is controlled using the \verb+PRINT+

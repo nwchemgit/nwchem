@@ -11,7 +11,7 @@ on a specified set of grid points using the molecular orbitals
 from SCF or DFT calculation. An input file to the {\em Insight}
 program is then generated. Different sub-directives are described below.
 
-\subsection{{\tt TITLE} --- Title for {\em Insight}}
+\section{{\tt TITLE} --- Title for {\em Insight}}
 
 \begin{verbatim}
   TITLE
@@ -21,10 +21,10 @@ program is then generated. Different sub-directives are described below.
 This sub-directive specifies a title line for the generated
 input to the {\em Insight} program. Only one line is allowed.
 
-\subsection{{\tt LIMITXYZ} --- Plot limits}
+\section{{\tt LIMITXYZ} --- Plot limits}
 
 \begin{verbatim}
-  LIMITXYZ [units <string Units default angstrom>]
+  LIMITXYZ [units <string Units default angstroms>]
   <real X_From> <real X_To> <integer No_Of_Spacings_X>
   <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
   <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>
@@ -33,11 +33,11 @@ input to the {\em Insight} program. Only one line is allowed.
 This sub-directive specifies the limits of the cell to be plotted.
 The grid is generated using \verb+No_Of_Spacings+~+~\verb+1+ points
 along each direction. The known names for \verb+Units+ are
-\verb+angstrom+, \verb+au+ and \verb+bohr+.
+\verb+angstroms+, \verb+au+ and \verb+bohr+.
 
 
 
-\subsection{{\tt SPIN} --- Density to be plotted}
+\section{{\tt SPIN} --- Density to be plotted}
 
 \begin{verbatim}
   SPIN <string Spin default total>
@@ -50,7 +50,7 @@ $\alpha$ and $\beta$ electron densities.
 
 
 
-\subsection{{\tt OUTPUT} --- Filename for {\em Insight}}
+\section{{\tt OUTPUT} --- Filename for {\em Insight}}
 
 \begin{verbatim}
   OUTPUT <string File_Name default dplot>
@@ -62,7 +62,7 @@ standard NWCHEM output (LuOut).
 
 
 
-\subsection{{\tt VECTORS} --- MO vector file name}
+\section{{\tt VECTORS} --- MO vector file name}
 
 \begin{verbatim}
   VECTORS <string File_Name default movecs> [<string File_Name2>]
@@ -75,7 +75,7 @@ files have to match.
 
 
 
-\subsection{{\tt WHERE} --- Density evaluation}
+\section{{\tt WHERE} --- Density evaluation}
 
 \begin{verbatim}
   WHERE <string Where default grid>
@@ -90,7 +90,7 @@ the position of the nuclei and written to the NWChem output) and
 \verb+g++\verb+n+ (both).
 
 
-\subsection{{\tt ORBITAL} --- Orbital sub-space}
+\section{{\tt ORBITAL} --- Orbital sub-space}
 
 \begin{verbatim}
   ORBITALS [<string Option default density>]

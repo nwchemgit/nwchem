@@ -1,15 +1,15 @@
 \label{sec:geom}
 
 The \verb+GEOMETRY+ directive is a compound directive that allows the
-user to define the geometry object to be used for a given calculation.
-The directive allows the user to specify the geometry 
-with a relatively small amount of input, but there are a large number of
-optional kewords and additional subordinate directives that the user can
-specify, if needed.  The directive therefore appears to be rather
-long and complicated when presented in its general form, as follows,
+user to define the geometry to be used for a given calculation.  The
+directive allows the user to specify the geometry with a relatively
+small amount of input, but there are a large number of optional
+kewords and additional subordinate directives that the user can
+specify, if needed.  The directive therefore appears to be rather long
+and complicated when presented in its general form, as follows,
 \begin{verbatim}
   GEOMETRY [<string name default geometry>] \
-           [units <string units default angstrom>] \
+           [units <string units default angstroms>] \
            [print [xyz] || noprint] \
            [center || nocenter] \
            [bqbq] \
@@ -46,26 +46,26 @@ are;
 
 \begin{itemize}
 \item keywords on the first line of the directive (to specify such optional
-input as the object name, input units, and print level for the output)
+input as the geometry name, input units, and print level for the output)
 \item symmetry information
 \item cartesian coordinates or Z-matrix input to specify the locations 
 of the atoms and centers
 \end{itemize}
 
-The following subsections present the input for this compound directive in
+The following sections present the input for this compound directive in
 detail, describing the options available and the usages of the various
 keywords in each of the three main parts.
 
-% These are examined in the following subsections.
+% These are examined in the following sections.
 
-\subsection{Main keywords on the {\tt GEOMETRY} directive}
+\section{Main keywords on the {\tt GEOMETRY} directive}
 
 This section presents the options that can be specified using the keywords 
 and optional input on the main line of the {\tt GEOMETRY} directive.
 As described above, the first line of the directive has the general form,
 \begin{verbatim}
   GEOMETRY [<string name default geometry>] \
-           [units <string units default angstrom>] \
+           [units <string units default angstroms>] \
            [bqbq] \
            [print [xyz] || noprint] \
            [center || nocenter] \
@@ -75,28 +75,26 @@ As described above, the first line of the directive has the general form,
 All of the keywords and input on this line are optional.  The following
 list describes the use and function of each option, including the defaults.
 
-% \subsubsection*{{\tt NAME}}
+% \subsection*{{\tt NAME}}
 \begin{itemize}
-\item \verb+<name>+ -- user-supplied name for the geometry object; default
+\item \verb+<name>+ -- user-supplied name for the geometry; default
 name is \verb+geometry+, and
 most modules in the code look for a geometry with this name.  The user
 can direct a module to a geometry with a different name by assigning
 the string \verb+geometry+ to \verb+<name>+ using the \verb+SET+
 directive (see the example in Section \ref{sec:set}).
 
-% \subsubsection*{{\tt UNITS}}
+% \subsection*{{\tt UNITS}}
 \item \verb+units+ -- keyword specifying that a value will be entered
-by the user for the string variable \verb+<units>+.  
-The default for the geometry input unit is {\AA}ngstr\"{o}m
-(Note: atomic units or Bohr are used in the code, regardless of
-the option specified for the input units.  
-The default
-conversion factor used in the code to convert from {\AA}ngstr\"{o}m to
-Bohr is $1.8897265$).
-The code recognizes the following possible values for the string variable
-\verb+<units>+  to specify the input unit for geometry;
+  by the user for the string variable \verb+<units>+.  The default
+  units for the geometry input are \angstroms\ (Note: atomic units or
+  Bohr are used within the code, regardless of the option specified
+  for the input units.  The default conversion factor used in the code
+  to convert from {\angstroms} to Bohr is $1.8897265$).  The code recognizes
+the following possible values for the string variable \verb+<units>+
+to specify the input unit for geometry;
 \begin{itemize}
-  \item \verb+angstrom+ or \verb+an+ --- {\AA}ngstr\"{o}m, the default.  Converts
+  \item \verb+angstroms+ or \verb+an+ --- {\angstroms}, the default.  Converts
    to A.U. using the \AA\ to A.U. conversion factor.
   \item \verb+au+ or \verb+atomic+ or \verb+bohr+ --- Atomic units
   \item \verb+nm+ or \verb+nanometers+ --- nanometers (converts to
@@ -107,13 +105,13 @@ The code recognizes the following possible values for the string variable
      \AA\ to A.U. conversion)
 \end{itemize}
       
-% \subsubsection*{{\tt BQBQ}}
+% \subsection*{{\tt BQBQ}}
 \item \verb+bqbq+ -- keyword to specify the treatment of interactions 
 between dummy centers.  The default in NWChem is to ignore such interactions
 when computing energies or energy derivatives.  These interactions
 will be included if the keyword \verb+bqbq+ is specified.
 
-% \subsubsection*{{\tt PRINT} and {\tt NOPRINT}}
+% \subsection*{{\tt PRINT} and {\tt NOPRINT}}
 \item \verb+print+ and \verb+noprint+ -- complimentary keyword pair to
 enable or disable printing of the geometry.  The default is to print   
 the output associated with the geometry.  In addition, the keyword 
@@ -127,7 +125,7 @@ that the coordinates should be printed in the XYZ format of XMol.
   origin at this position, all three components of the nuclear dipole
   are zero.  The default is to move the origin.
 
-% \subsubsection*{{\tt AUTOZ}}
+% \subsection*{{\tt AUTOZ}}
 \item \verb+autoz+ -- keyword to specify that the geometry 
 information supplied
 with the \verb+GEOMETRY+ directive is to be used {\em only} as the starting
@@ -146,32 +144,21 @@ The following examples illustrate some of the various options that the user
 can specify on the first input line of the \verb+GEOMETRY+ directive, using
 the keywords and input options described above.
 
-
 The following directives all specify the same geometry for $H_2$
 (a bond length of 0.732556\ \AA);
 \begin{verbatim}
-  geometry
-    h 0 0 0
-    h 0 0 0.732556
-  end
+  geometry                           geometry units nm    
+    h 0 0 0                            h 0 0 0            
+    h 0 0 0.732556                     h 0 0 0.0732556    
+  end                                end                  
 
-  geometry units nm
-    h 0 0 0
-    h 0 0 0.0732556
-  end
-
-  geometry units pm
-    h 0 0 0
-    h 0 0 73.2556
-  end
-
-  geometry units atomic
-    h 0 0 0
-    h 0 0 1.3843305
-  end
+  geometry units pm                  geometry units atomic 
+    h 0 0 0                            h 0 0 0             
+    h 0 0 73.2556                      h 0 0 1.3843305     
+  end                                end                   
 \end{verbatim}
       
-\subsection{Symmetry Group Input}
+\section{Symmetry Group Input}
 
 The \verb+SYMMETRY+ directive is used within the compound \verb+GEOMETRY+
 directive to specify the point group for the
@@ -217,7 +204,7 @@ element (e.g., a mirror plane or rotation axis) will be forced onto
 that element.  Thus, it is not necessary to specify to high precision
 coordinates determined solely by symmetry.
 
-\subsection{Cartesian coordinate input}
+\section{Cartesian coordinate input}
 \label{sec:cart}
 
 The default in NWChem is to specify the geometry information entirely
@@ -308,7 +295,7 @@ to be described by Cartesian coordinates, and then specifies the remainder
 of the system using the optional
 Z-matrix directive described below in Section \ref{sec:Z-matrix}.
 
-\subsection{Z-matrix input}
+\section{Z-matrix input}
 \label{sec:Z-matrix}
 
 The \verb+ZMATRIX+ directive is an optional directive that can be used within
@@ -556,7 +543,7 @@ geometry
 end
 \end{verbatim}
 
-\subsubsection{Using Cartesian variables in Z-matrices}
+\subsection{Using Cartesian variables in Z-matrices}
 \label{sec:zmcart}
 
 The input for any centers specified with Cartesian coordinates must
@@ -572,7 +559,7 @@ internal coordinates.  These are arranged as follows:
 \item The third center is placed in the z-x plane.
 \end{itemize}
 
-\subsection{{\tt ZCOORD} --- Forcing internal coordinates}
+\section{{\tt ZCOORD} --- Forcing internal coordinates}
 \label{sec:zcoord}
 
 Specifying the keyword \verb+AUTOZ+ on the first line of the \verb+GEOMETRY+
@@ -624,7 +611,7 @@ are defined as follows;
   within and perpendicular to the plane containing the atoms.
 \end{itemize}   
 
-\subsection{Freezing atoms in geometry optimizations}
+\section{Freezing atoms in geometry optimizations}
 \label{sec:activeatoms}
 
 Currently the only mechanism for freezing coordinates during a

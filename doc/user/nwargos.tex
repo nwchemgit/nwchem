@@ -20,8 +20,8 @@
 \def\nwrst{{\bf nwRST}}
 \def\nwsgm{{\bf nwSGM}}
 \def\argos{{\bf ARGOS}}
-\subsection{Introduction}
-\subsubsection{Spacial decomposition}
+\section{Introduction}
+\subsection{Spacial decomposition}
 \nwargos\  is the \nwchem\  module for molecular dynamics
 simulations of macromolecules and solutions. The module is a parallel
 implementation of \argos, a vectorized molecular dynamics
@@ -104,7 +104,7 @@ the topology of the molecular system, and is kept on a separate
 topology file. The dynamic information includes coordinates and
 velocities for all atoms in the molecular system, and is kept in a
 so-called restart file.
-\subsubsection{Topology}
+\subsection{Topology}
 \label{topology}
 The static information about a molecular system that is needed for
 a molecular simulation is provided to the simulation module in a
@@ -145,7 +145,7 @@ files.
 A utility \nwrst\ generates a {\it restart} file, given a topology
 and coordinates from a PDB formatted file or another restart file.
 This utility can also be used to solvate a molecular system.
-\subsubsection{Files}
+\subsection{Files}
 \label{filenames}
 \par
 File names used by \nwargos\ have the form {\bf project\_id.ext}, with
@@ -189,7 +189,7 @@ xxxxx\=\kill
 {\bf top} \> topology file, contains the static description of a system\\
 {\bf vel} \> velocity trajectory file\\
 \end{tabbing}
-\subsubsection{Databases}
+\subsection{Databases}
 Database file names used by the setup programs \nwtop\ (\ref{nwtop}), 
 \nwrst\ (\ref{nwrst}) and \nwsgm\ (\ref{nwsgm}) have the form
 {\bf forcefield\_level.ext}, where {\bf forcefield} stands for any of the
@@ -227,7 +227,7 @@ Filenames including their paths of the different databases should be
 defined in a file 
 {\bf .nwargos} in a user's home directory, and provides the user the
 option to select which database files are scanned.
-\subsubsection{Force fields}
+\subsection{Force fields}
 \label{forcefields}
 Force fields supported by \nwargos\ are
 \begin{center}
@@ -243,7 +243,7 @@ Keyword      & Force field   & Current status \\
 \hline
 \end{tabular}
 \end{center}  
-\subsection{Creating fragment files}
+\section{Creating fragment files}
 Fragment files contain the basic information needed to specify all
 interactions that need to be considered in a molecular simulation.
 The format of the fragment files is
@@ -290,7 +290,7 @@ III-1-1  & 16i5   & connectivity, duplication allowed\\
 \hline\hline
 \end{tabular}
 \end{center}
-\subsection{Creating segment files}
+\section{Creating segment files}
 \label{nwsgm}
 Program \nwsgm\ can be used to generate a template for a segment file 
 from a corresponding fragment file. The segment file contains all
@@ -468,7 +468,7 @@ VI-2-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline\hline
 \end{tabular*}
 \end{center}
-\subsection{Creating sequence files}
+\section{Creating sequence files}
 A sequence file describes a molecular system in terms of segments. The
 file format is
 \begin{center}
@@ -509,7 +509,7 @@ II-1-2 & i3     & link atom in link segment 10\\
 \hline\hline
 \end{tabular*}
 \end{center}
-\subsection{Creating topology files}
+\section{Creating topology files}
 \label{nwtop}
 \par
 The topology (\ref{topology}) describes all static information
@@ -537,7 +537,7 @@ segments are found, the parameter subsitutions are performed, using
 force field parameters taken from the parameter databases or from a 
 local file {\bf project.par}. After all lists have been generated the
 topology is written to a local topology file {\bf project.top}.
-\subsection{Creating restart files}
+\section{Creating restart files}
 \label{nwrst}
 Restart files contain all dynamical information about a molecular
 system and are created using preparation utility \nwrst. The command
@@ -683,7 +683,7 @@ to initialize reference coordinates
 \end{verbatim}
 to stop the restart file generation
 \end{itemize}
-\subsection{Molecular simulations}
+\section{Molecular simulations}
 The type of molecular dynamics simulation is specified by the
 NWChem task directive.
 \begin{verbatim}
@@ -704,7 +704,7 @@ thermodynamic perturbation free energy molecular dynamics simulations
 integration and multiple step thermodynamic perturbation free
 energy molecular dynamics simulations.
 \end{itemize}
-\subsection{System specification}
+\section{System specification}
 The chemical system for a calculation is specified in the topology
 and restart files. These files should be created using the utilities
 \nwtop\ and \nwrst\ before a simulation can be performed.
@@ -712,7 +712,7 @@ The names of these files are determined from the NWChem START directive.
 There is no default. If the project name is given as {\bf pr\_id},
 the topology file used is {\bf pr.top}, while all other files
 are named {\bf pr\_id.ext}.
-\subsection{Parameter set}
+\section{Parameter set}
 \begin{itemize}
 \item
 The parameter set used for the simulation is specified by
@@ -734,7 +734,7 @@ values for {\bf isetp1} are 2 and 3. Legal value for {\bf isetp2} is
 3, in which case {\bf isetp1} can only be 2. If specified, {\bf iset}
 is automatically set to 1.
 \end{itemize}
-\subsection{Energy minimization algorithms}
+\section{Energy minimization algorithms}
 The energy minimization of the system as found in the restart file 
 is performed with the following directives.
 \begin{itemize}
@@ -763,7 +763,7 @@ is discarded for which the default is 10.
 \end{itemize}
 Steepest descent energy minimization preceeds conjugate 
 gradient minimization if both are specified.
-\subsection{Multiconfiguration thermodynamic integration}
+\section{Multiconfiguration thermodynamic integration}
 The following keywords control free energy difference simulations.
 Multiconfiguration thermodynamic integrations are always combined
 with multiple step thermodynamic perturbations.
@@ -828,7 +828,7 @@ mcti calculation, which has to be renamed to an {\bf mri}-file. The
 keyword {\bf extend} will extend a previous mcti calculation from the
 data read from an {\bf mri}-file.
 \end{itemize}
-\subsection{Time and integration algorithm directives}
+\section{Time and integration algorithm directives}
 Following directives control the integration of the equations of motion.
 \begin{itemize}
 \item
@@ -870,7 +870,7 @@ step <r tstep>
 \end{verbatim}
 where {\bf tstep} is the time step in ps, with 0.001 as the default value.
 \end{itemize}
-\subsection{Ensemble selection}
+\section{Ensemble selection}
 Following directives control the ensemble type.
 \begin{itemize}
 \item
@@ -895,7 +895,7 @@ where {\bf prsext} is the external temperature with a default of 1.025~10$^5$ Pa
 {\bf compr} is the system compressibility in m$^2$N$^{-1}$ with a
 default of 4.53E-10.
 \end{itemize}
-\subsection{Velocity reassignments}
+\section{Velocity reassignments}
 Velocities can be periodically reassigned to reflect a certain temperature.
 \begin{itemize}
 \item
@@ -906,7 +906,7 @@ specifies that velocities will be reassigned every {\bf nfgaus} molecular
 dynamics steps, reflecting a temperature of {\bf tgauss}~K. The default
 is not to reassign velocities, i.e.\ {\bf nfgaus} is 0.
 \end{itemize}
-\subsection{Cutoff radii}
+\section{Cutoff radii}
 Cutoff radii can be specified for short range and long range interactions.
 \begin{itemize}
 \item
@@ -923,7 +923,7 @@ frequency of {\bf nflong} molecular dynamics steps. Keyword
 defining the qmmm bare charges.
 The default value for {\bf rshort}, {\bf rlong} and {\bf rqmmm} is 0.9~nm.
 \end{itemize}
-\subsection{Polarization}
+\section{Polarization}
 First order and self consistent electronic polarization models have
 been implemented.
 \begin{itemize}
@@ -938,7 +938,7 @@ model, iteratively determined with a maximum of {\bf mpolit}
 iterations to within a tolerance of {\bf ptol} D in the generated
 induced dipoles. The default is not to use polarization models.
 \end{itemize}
-\subsection{External electrostatic field}
+\section{External electrostatic field}
 \begin{itemize}
 \item
 An external electrostatic field can be specified by
@@ -948,7 +948,7 @@ field <r xfield> [freq <r xffreq>] [vector <r xfvect(1:3)>]
 where {\bf xfield} is the field strength, {\bf xffreq} is the
 frequency in MHz and {\bf xfvect} is the external field vector.
 \end{itemize}
-\subsection{Constraints}
+\section{Constraints}
 Constraints involving hydrogens are satisfied using the SHAKE 
 coordinate resetting preocedure.
 \begin{itemize}
@@ -971,7 +971,7 @@ noshake {solvent | solute}
 disables SHAKE and treats the bonded interaction according to the
 force field.
 \end{itemize}
-\subsection{Long range interaction corrections}
+\section{Long range interaction corrections}
 Long range electrostatic interactions are implemented using the
 particle mesh Ewald technique.
 \begin{itemize}
@@ -983,7 +983,7 @@ where $ngx$, $ngy$ and $ngz$ are the number of grid points per
 dimension, and $ealpha$ is the argument of the error function in
 nm$^{-1}$, with a default of 4.0.
 \end{itemize}
-\subsection{Fixing coordinates}
+\section{Fixing coordinates}
 The solvent or solute part of a system may be fixed or unfixed using
 the following keywords. Fixing part of the system will not propagate to
 simulations using restart files written.
@@ -997,7 +997,7 @@ fix {all | solvent | solute | non-H}
 unfix {all | solvent | solute | non-H}
 \end{verbatim}
 \end{itemize}
-\subsection{Autocorrelation function}
+\section{Autocorrelation function}
 For the evaluation of the statistical error of multiconfiguration
 thermodynamic integration free energy results a correlated data 
 analysis is carried out, involving the calculation of the
@@ -1015,7 +1015,7 @@ fit of the autocorrelation function, with a default of 15, and
 {\bf weight} is the weight factor for the autocorrelation function,
 with a default value of 0.0.
 \end{itemize}
-\subsection{Print options}
+\section{Print options}
 Keywords that control print to the output file, with extension {\bf out}.
 \begin{itemize}
 \item
@@ -1052,7 +1052,7 @@ this frequency is in time steps, for multiconfiguration thermodynamic
 integration in $\lambda$ steps.
 \end{itemize}
 Print directives may be combined to a single directive.
-\subsection{Periodic updates}
+\section{Periodic updates}
 Following keywords control periodic events during a molecular
 dynamics or thermodynamic integration simulation.
 \begin{itemize}
@@ -1130,7 +1130,7 @@ I-4  & i & Second atom number \\
 \end{center}
 \end{itemize}
 Update directives may be combined to a single directive.
-\subsection{Recording}
+\section{Recording}
 The following keywords control recording data to file.
 \begin{itemize}
 \item
@@ -1240,7 +1240,7 @@ synchronization time and the node on which the largest synchronization
 time was found.
 \end{itemize}
 Record directive may be combined to a single directive.
-\subsection{Program control options}
+\section{Program control options}
 \begin{itemize}
 \item
 Load balancing is determined by

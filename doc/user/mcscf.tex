@@ -35,7 +35,7 @@ orbitals and about 500 basis functions.
 Note that the \verb+ACTIVE+, \verb+ACTELEC+, and \verb+MULTIPLICITY+
 directives are {\em required}.
 
-\subsection{{\tt ACTIVE} --- Number of active orbitals}
+\section{{\tt ACTIVE} --- Number of active orbitals}
 
 The number of orbitals in the CASSCF active space must be specified
 using the {\tt ACTIVE} directive.
@@ -54,7 +54,7 @@ order
 \item unoccupied orbitals.
 \end{enumerate}
 
-\subsection{{\tt ACTELEC} --- Number of active electrons}
+\section{{\tt ACTELEC} --- Number of active electrons}
 
 The number of electrons in the CASSCF active space must be specified
 using the the {\tt ACTELEC} directive.  An error is reported if the
@@ -65,7 +65,7 @@ of active electrons from the total number of electrons (which in turn
 is derived from the sum of the nuclear charges minus the total system
 charge).
 
-\subsection{{\tt MULTIPLICITY}}
+\section{{\tt MULTIPLICITY}}
 
 The spin multiplicity must be specified and is enforced by projection
 of the determinant wavefunction.
@@ -75,7 +75,7 @@ E.g., to obtain a triplet state
   multiplicity 3
 \end{verbatim}
 
-\subsection{{\tt SYMMETRY} --- Spatial symmetry of the wavefunction}
+\section{{\tt SYMMETRY} --- Spatial symmetry of the wavefunction}
 
 This species the irreducible representation of the wavefunction as an
 integer in the range 1---8 using the same numbering of representations
@@ -87,7 +87,7 @@ E.g., to specify a $B_1$ state when using the $C_{2v}$ group
   symmetry 3
 \end{verbatim}
 
-\subsection{{\tt VECTORS} --- Input/output of MO vectors}
+\section{{\tt VECTORS} --- Input/output of MO vectors}
 \label{sec:mcscfvectors}
 
 Calculations are best started from RHF/ROHF molecular orbitals (see
@@ -108,7 +108,7 @@ follows:
   diagonalization of the active space 1-particle density matrix.
 \end{itemize}
 
-\subsection{{\tt HESSIAN} --- Select preconditioner}
+\section{{\tt HESSIAN} --- Select preconditioner}
 \label{sec:mcscfhessian}
 
 The MCSCF will use a one-electron approximation to the orbital-orbital
@@ -124,7 +124,7 @@ E.g., to speficy the one-electron approximation throughout
   hessian onel
 \end{verbatim}
 
-\subsection{{\tt LEVEL} --- Level shift for convergence}
+\section{{\tt LEVEL} --- Level shift for convergence}
 
 The Hessian (Section \ref{sec:mcscfhessian}) used in the MCSCF
 optimization is by default level shifted by 0.1 until the orbital
@@ -138,7 +138,7 @@ E.g., to set the initial level shift to 0.5
   level 0.5
 \end{verbatim}
 
-\subsection{{\tt PRINT} and {\tt NOPRINT}}
+\section{{\tt PRINT} and {\tt NOPRINT}}
 
 Specific output items can selectively enabled or disabled using the
 \verb+print+ control mechanism~(\ref{sec:printcontrol}) with the

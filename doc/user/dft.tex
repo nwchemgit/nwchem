@@ -120,11 +120,11 @@ the DFT module are:
 \end{verbatim}
 
 The following 
-subsections describe these keywords and
+sections describe these keywords and
 optional subdirectives that can be specified for a \verb+DFT+ calculation
 in NWChem.
 
-\subsection{Basis Sets Specification for the DFT Module}
+\section{Basis Sets Specification for the DFT Module}
 The DFT module requires at a minimum the basis set for the Kohn-Sham 
 molecular orbitals.  This basis set must be in the default basis set named
 {\tt "ao basis"}, or it must be assigned to this default name using the
@@ -164,7 +164,7 @@ optional, and usually not recommended
 \end{itemize}
 
 
-\subsection{Input/Output of KS-MO Vector}
+\section{Input/Output of KS-MO Vector}
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
@@ -177,7 +177,7 @@ optional, and usually not recommended
   implemented as such)
 \end{verbatim}
 
-\subsection{Exchange-Correlation Potentials}
+\section{Exchange-Correlation Potentials}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
       [HFexch <real multiplicative_factor default 1.0>] \
@@ -223,9 +223,9 @@ keywords within the DFT module input directive,
 \end{verbatim}
 
 Many alternative exchange and correlation functionals are available to
-the user.  The following subsections describe these options.
+the user.  The following sections describe these options.
 
-\subsubsection{Optional Exchange Functionals}
+\subsection{Optional Exchange Functionals}
 
 There are two exchange functionals in addition to the default exchange
 functional.  These are the Becke gradient-corrected functional (see A.D.~Becke, 
@@ -266,7 +266,7 @@ as:
 \end{verbatim}
 
   
-\subsubsection{Optional Correlation Functionals}
+\subsection{Optional Correlation Functionals}
 
 In addition to the default \verb+vwn_5+ correlation functional, the user has
 10 alternative correlation functionals to choose from: lyp, perdew81,
@@ -374,7 +374,7 @@ could be specified as:
 \footnotetext[1]{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf 45},
   566 (1980).}
 
-\subsubsection{Hybrid Exchange and Correlation Functionals}
+\subsection{Hybrid Exchange and Correlation Functionals}
 
 In addition to the options listed above for the exchange and correlation
 functionals, the user has the alternative of specifying a ``canned'' hybrid
@@ -419,7 +419,7 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
 
-\subsection{SCF Convergence Control}
+\section{SCF Convergence Control}
 \begin{verbatim}
 
   ITERATIONS <integer iterations default 30>
@@ -585,7 +585,7 @@ procedures deemed undesirable with the obvious keywords,
 \end{verbatim}
 
 
-\subsection{Numerical Integration of the Exchange-Correlation Potential}
+\section{Numerical Integration of the Exchange-Correlation Potential}
 
 \begin{verbatim}
   GRID [[coarse|medium|fine|xfine] \ [gausleg <integer radpts default
@@ -667,7 +667,7 @@ $N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
 Therefor the user can specify any number of radial points along with
 the level of angular quadrature (1-7).
 
-\subsection{Control of Screening (Setting Tolerances)}
+\section{Control of Screening (Setting Tolerances)}
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
@@ -760,7 +760,7 @@ Becke or Delley spatial weights is also available as,
 where radius is the cutoff value in bohr.
 
 
-\subsection{Hardware Resource Control}
+\section{Hardware Resource Control}
 \begin{verbatim}
   DIRECT|INCORE
   NOIO
@@ -786,7 +786,7 @@ are computed ``on-the-fly''.
 
 \fussy
 
-\subsection{Control of Open Shells}
+\section{Control of Open Shells}
 \begin{verbatim}
   DFT|ODFT
   MULT <integer mult default 1>
@@ -809,7 +809,7 @@ The keywords \verb+DFT|ODFT+ were originally intended to specify
 closed or openshell and are really unnecessary except in the context of
 forcing a system to be computed as an openshell system.
 
-\subsection{Standard Property Control}
+\section{Standard Property Control}
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
@@ -823,7 +823,7 @@ When this keyword is encountered, mulliken analysis of both the input
 density as well as the output density will occur.
 
 
-\subsection{Print Control}
+\section{Print Control}
 \begin{verbatim}
   PRINT|NOPRINT
 \end{verbatim}

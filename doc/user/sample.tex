@@ -1,5 +1,5 @@
 \label{sec:sample}
-\subsection{Water SCF calculation and geometry optimization in a 6-31g basis}
+\section{Water SCF calculation and geometry optimization in a 6-31g basis}
 \label{sec:sample1}
 
 The input file in section \ref{sec:getstart} performs a geometry optimization
@@ -7,7 +7,7 @@ in a single task. A single point SCF energy calculation is performed and then
 restarted to perform the optimization (both could of course be
 performed in a single task).
 
-\subsubsection{Job 1.  Single point SCF energy}
+\subsection{Job 1.  Single point SCF energy}
 
 \begin{verbatim}
   start h2o
@@ -27,7 +27,7 @@ performed in a single task).
 
 The final energy should be -75.9839975707.
 
-\subsubsection{Job 2. Restarting and perform a geometry optimization}
+\subsection{Job 2. Restarting and perform a geometry optimization}
 
 \begin{verbatim}
   restart h2o
@@ -41,10 +41,10 @@ previous input deck, though it will do no harm to repeat it.  The
 final energy and geometry should be $-75.9853591759$, O
 $(0,0,0.1563305320)$, and H $(0, \pm1.48372809, -0.853122128)$.
 
-\subsection{Compute the polarizability of Ne using finite field}
+\section{Compute the polarizability of Ne using finite field}
 \label{sec:sample2}
 
-\subsubsection{Job 1. Compute the atomic energy}
+\subsection{Job 1. Compute the atomic energy}
 
 \begin{verbatim}
   start ne
@@ -59,7 +59,7 @@ $(0,0,0.1563305320)$, and H $(0, \pm1.48372809, -0.853122128)$.
 
 The final energy should be -128.49634973.
 
-\subsubsection{Job 2. Compute the energy with applied field}
+\subsection{Job 2. Compute the energy with applied field}
 
 An external field may be simulated with point charges.  The charges
 here apply a field of magnitude 0.01\ atomic units to the atom at the
@@ -84,7 +84,7 @@ of 1.83 atomic units.  Note that by default NWChem does not include
 the interaction between the two point charges in the total energy
 (section \ref{sec:geom}).
 
-\subsection{Compute the SCF energy of H$_2$CO using ECPs for C and O}
+\section{Compute the SCF energy of H$_2$CO using ECPs for C and O}
 \label{sec:sample3}
 
 The following will compute the SCF energy for formaldehyde with ECPs
