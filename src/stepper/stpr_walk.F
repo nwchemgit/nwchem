@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.10 1994-12-10 16:25:34 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.11 1995-01-05 18:31:10 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -12,6 +12,7 @@ c
 #include "context.fh"
 #include "msgids.fh"
 #include "pstat.fh"
+#include "util.fh"
 c
       integer rtdb    ! [input] run-time-data-base handle
 c
@@ -41,13 +42,17 @@ c
       integer first_call, step_number
       data first_call /0/
 c
+c     push context down to stepper
+c
+      call util_print_push
+      call util_print_rtdb_load(rtdb,'stepper:print','stepper:noprint')
+c
       if (first_call.eq.0) then
         first_call = 1
-        
       endif
 c
 #if defined(KSR)||defined(SUN)||defined(__PARAGON__)
-      o_timewalk = .true.
+      o_timewalk = util_print('time',print_default)
 #else
       o_timewalk = .false.
 #endif
@@ -67,13 +72,16 @@ c
       if (ga_nodeid().eq.0)  then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $      title = ' '
-        call util_print_centered(6, 'NWCHEM STEPPER Module', 40, .true.)
-        write(6,*)
-        write(6,*)
-        if (title .ne. ' ') then
-          call util_print_centered(6, title, 40, .false.)
-          write(6,*)
-          write(6,*)
+        if (util_print('information',print_low)) then
+           call util_print_centered(6, 'NWCHEM STEPPER Module', 
+     $          40, .true.)
+           write(6,*)
+           write(6,*)
+           if (title .ne. ' ') then
+              call util_print_centered(6, title, 40, .false.)
+              write(6,*)
+              write(6,*)
+           endif
         endif
 c      
 c     Push context down to SCF later look for wavefunction!!
@@ -238,6 +246,7 @@ c
      &      call errquit('stpr_walk: pstat_free failed?',911)
       endif
 c      
+      call util_print_pop
       call ga_sync()
 c
       end

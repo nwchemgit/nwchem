@@ -450,7 +450,6 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "context.fh"
-#include "tcgmsg.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input]
@@ -469,11 +468,6 @@ c
          lenn(geom) = inp_strlen(name)
       end if
 c
-c     If not process 0 return ... this is so that input routines
-c     can be completely single threaded
-c
-      if (nodeid() .ne. 0) return
-c     
 c     try to translate the name
 c     
       trans(geom) = 'junk'

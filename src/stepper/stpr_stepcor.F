@@ -1,7 +1,8 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.1 1994-10-26 23:26:12 d3e129 Exp $
+c $Id: stpr_stepcor.F,v 1.2 1995-01-05 18:31:08 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "util.fh"
       integer rtdb
       integer step_number
       LOGICAL TRACK,RPATH,BCKSTP,CNVGRD
