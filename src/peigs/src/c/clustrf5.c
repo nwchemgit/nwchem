@@ -86,7 +86,6 @@
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
-#define ffabs(a) ((a) > (DoublePrecision) (0.e0) ? (a) : (-a))
 
 #define R_ZERO (DoublePrecision) 0.0e0
 #define R_ONE  (DoublePrecision) 1.0e0
@@ -168,7 +167,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
        
        */
 {
-  Integer jblk, nblk;
+  Integer jblk, nblk, msize;
   Integer i, j, num_cls, num_all_cls;
   Integer b1, num_eig;
   Integer max_clustr_size;
@@ -215,6 +214,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   
   *num_clustr = 0;
   num_cls = 0;
+  msize = *n;
   num_all_cls = I_ZERO;
   *nacluster = I_ZERO;
   max_clustr_size = I_ZERO;
@@ -233,17 +233,17 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       the eigenvalues weren't really accurate relative to norm(Ti). ).
    */
       
-  onenrm = ffabs( d[0] ) + ffabs( e[1] );
-  tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
+  onenrm = fabs( d[0] ) + fabs( e[1] );
+  tmp = fabs(d[msize-1]) + fabs(e[msize-1]);
   onenrm = MAX(onenrm, tmp);
-  for (i = 1; i < *n-1; ++i) {
-    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+  for (i = 1; i < msize-1; ++i) {
+    tmp = fabs(d[i]) + fabs(e[i]) + fabs(e[i + 1]);
     onenrm = MAX(onenrm, tmp);
   }
   
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
-  sepfine = MAX(1.e2, (DoublePrecision) *n) * DLAMCHE;
-  sepfine = MIN(sepfine, MIN(1.e-3, 1.0e0/((DoublePrecision) *n)));
+  sepfine = MAX(1.e2, (DoublePrecision) msize) * sqrt(DLAMCHE);
+  sepfine = MIN(sepfine, MIN(1.e-3, 1.0e0/((DoublePrecision) msize)));
   
   /*
     sepfine = sepfine*MAX(ortol, 1.e0);
@@ -306,7 +306,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     cluster information
     */
   
-  for ( j = 0; j <  4 * *n; j++ )
+  for ( j = 0; j <  4 * msize; j++ )
     *(c_ptr++) = -1;
   
   for ( j = 0; j < num_eig; j++ )
@@ -379,7 +379,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     if (blksiz == 1) {
       if ( clustr_check(beg_of_block, end_of_block, *imin, imax) == 1 ) { 
 	ii = beg_of_block - *imin;
-	fil_dbl_lst ( *n, vecZ[ii], 0.0e0);
+	fil_dbl_lst ( msize, vecZ[ii], 0.0e0);
 	vecZ[ii][b1] = 1.0e0;
       }
 
@@ -407,11 +407,11 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
  *  This is how one would compute ortol if the eigenvalues of block i
  *  of T, Ti, were accurate relative to norm(Ti).
  *
- *     onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
- *     tmp = ffabs(d[bn]) + ffabs(e[bn]);
+ *     onenrm = fabs( d[b1] ) + fabs( e[b1+1] );
+ *     tmp = fabs(d[bn]) + fabs(e[bn]);
  *     onenrm = max(onenrm, tmp);
  *     for (i = b1 + 1; i < bn; ++i) {
-*	tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+*	tmp = fabs(d[i]) + fabs(e[i]) + fabs(e[i + 1]);
 *	onenrm = max(onenrm, tmp);
 *      }
  *     
@@ -439,7 +439,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  */
 	
 	if (jblk > 1) {
-	  eps1 = ffabs(eps * xj);
+	  eps1 = fabs(eps * xj);
 	  if ((xj - w[j-1]) < -eps1) {
 	    /*
 	     *info = -5;
@@ -452,7 +452,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  }
 	pertol = eps1 * R_TEN;
 	  sep = xj - xjm;
-	  if (sep < pertol*MAX(ffabs(xj), ffabs(xjm)))
+	  if (sep < pertol*MAX(fabs(xj), fabs(xjm)))
 	      xj = xjm + pertol;
 	}
 	eval[j] = xj;
@@ -469,12 +469,12 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  */
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
-	  sep = ffabs(xj - xjm);
+	  sep = fabs(xj - xjm);
 	  /*
-	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(ffabs(xj), ffabs(xjm)));
+	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(fabs(xj), fabs(xjm)));
 	    */
 	  
-	  if (fabs(sep - sepfine*MAX(fabs(xj),fabs(xjm))) > 1.e-5 ) {
+	  if (fabs(sep - sepfine*MAX(fabs(xj),fabs(xjm))) > DLAMCHE ) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;
@@ -534,7 +534,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   /*
   ime = -1;
   ii = -1;
-  for ( ii = 0; ii < *n; ii++ ){
+  for ( ii = 0; ii < msize; ii++ ){
     if ( mapZ[ii] == me ){
       ime = ii;
       break;
