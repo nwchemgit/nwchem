@@ -1,5 +1,5 @@
 /*
- $Id: depend.c,v 1.4 1997-11-07 11:37:45 d3e129 Exp $
+ $Id: depend.c,v 1.5 2003-07-25 18:05:24 sohirata Exp $
  */
 
 #include <stdio.h>
@@ -250,7 +250,7 @@ int main(int argc, const char *argv[])
 	char *objname = strdup(name);
 	FILE *file;
 	int i;
-#define MAXINCFILE 1024
+#define MAXINCFILE 8192
 	char *incfiles[MAXINCFILE];
 	int nincfile;
 	int prev;
