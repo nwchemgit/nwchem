@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.331 2000-06-08 21:02:44 edo Exp $
+# $Id: makefile.h,v 1.332 2000-06-14 00:39:21 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1398,8 +1398,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   FC         = fort
   CC         = ccc      
   LINK.f = fort $(LDFLAGS)
-  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64
-  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -automatic 
+  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64 -DPARALLEL_DIAG
+  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -noautomatic 
+#-automatic breaks in the autoz routines
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
