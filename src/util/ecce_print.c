@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.16 2000-10-23 23:37:51 windus Exp $
+ $Id: ecce_print.c,v 1.17 2002-09-24 16:45:50 windus Exp $
  */
 
 #include <stdio.h>
@@ -284,6 +284,17 @@ Echo the contents of string into the ECCE file
     (void)fprintf(ecce_file,"%s\n",mystring);
     (void)fflush(ecce_file);    
 }
+void ecce_print_version(const char *mystring)
+/*
+Print the version number to the ECCE file
+*/
+{
+    if (!ecce_print_enabled) return;
+    print_info("begin", "version", "char", 1, 0);
+    ecce_print_echo_string(mystring);
+    print_info("end", "version", "char", 1, 0);
+    fflush(ecce_file);
+}
 void ecce_print_echo_input(const char *filename)
 /*
   Echo the contents of the named file into the ECCE file
@@ -348,6 +359,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
 #define ecce_print_echo_input_   ECCE_PRINT_ECHO_INPUT
 #define ecce_print_echo_string_  ECCE_PRINT_ECHO_STRING
+#define ecce_print_version_      ECCE_PRINT_VERSION
 #define is_ecce_print_on_        IS_ECCE_PRINT_ON
 #endif
 
@@ -576,6 +588,26 @@ void FATR ecce_print_echo_string_(const char *filename, int flen)
     }
 
     ecce_print_echo_string(buf);
+}
+
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_version_(_fcd f) 
+{
+    const char *filename = _fcdtocp(f);
+    int flen = _fcdlen(f);
+#else
+void FATR ecce_print_version_(const char *filename, int flen)
+{
+#endif
+    char buf[1024];
+
+    if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
+	fprintf(stderr,"!! ecce_print_version: name too long? (%d %d)\n",
+		flen, sizeof(buf));
+	return;
+    }
+
+    ecce_print_version(buf);
 }
 
 logical is_ecce_print_on(void)

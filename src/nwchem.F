@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.137 2002-03-02 01:20:52 edo Exp $
+c     $Id: nwchem.F,v 1.138 2002-09-24 16:45:43 windus Exp $
 *---------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002  *
 *              Pacific Northwest National Laboratory,                 * 
@@ -431,6 +431,12 @@ C
      $     cstart(1:inp_strlen(cstart)),
      $     nproc,
      $     util_batch_job_time_remaining()
+C
+C  Print version information to ecce.out file
+C
+      compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
+     $         ' Version 4.1 development'
+      call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
          Write(LuOut,22) BatchID(:Inp_StrLen(BatchID))

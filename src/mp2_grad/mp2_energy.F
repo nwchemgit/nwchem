@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.51 2001-09-28 00:56:50 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.52 2002-09-24 16:45:48 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -331,6 +331,17 @@ c
      $        '  AO/Fock/Back tols     = ', 1p,3d9.1)
          call util_flush(6)
       endif
+c
+c     Print number of alpha and beta electrons to the ecce.out file
+c
+      call ecce_print1('number of frozen orbitals',mt_int,
+     $                  noa_frozen,1)
+      call ecce_print1('number of active alpha electrons',mt_int,
+     $                  noa_active,1)
+      call ecce_print1('number of active beta electrons',mt_int,
+     $                  nob_active,1)
+      call ecce_print1('number of active beta electrons',mt_int,
+     $                  nob_active,1)
 c
 c     RJH DEBUG
 c

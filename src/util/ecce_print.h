@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.h,v 1.3 1998-08-14 22:36:10 d3e129 Exp $
+ $Id: ecce_print.h,v 1.4 2002-09-24 16:45:50 windus Exp $
  */
 
 void ecce_print_module_entry(const char *module);
@@ -13,4 +13,5 @@ void ecce_print_file_open(const char *filename);
 void ecce_print_file_close(void);
 void ecce_print_echo_input(const char *filename);
 void ecce_print_echo_string(const char *string);
+void ecce_print_version(const char *string);
 logical is_ecce_print_on(void);
