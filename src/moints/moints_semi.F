@@ -1,5 +1,5 @@
 c
-c  $Id: moints_semi.F,v 1.4 1995-11-10 23:32:13 rg240 Exp $
+c  $Id: moints_semi.F,v 1.5 1995-11-10 23:45:21 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -57,7 +57,7 @@ c
        integer balo, bahi, bilo, bihi
        integer myid, numnodes, rlo, rhi, clo, chi
        integer mxrlen, itmp, ierr, vtmp(100)
-       integer lmemreq, gmem, len, g_dummy
+       integer lmemreq, gmem, g_dummy
        integer g_jbuf, g_kbuf
        logical status
        logical osym
@@ -188,7 +188,7 @@ c
        vtmp(2) = nnbf
        if (oexch) then
          call moints_localfname( 'KHalf', 8, fnameK )
-         call waopen( kunit, fnameK, len, 1, 0, ierr )
+         call waopen( kunit, fnameK, 1, 0, ierr )
          vtmp(3) = balo
          vtmp(4) = bahi
          call putwa( kunit, vtmp, 1,
@@ -199,7 +199,7 @@ c
        endif
        if (ocoul) then
          call moints_localfname( 'JHalf', 8, fnameJ )
-         call waopen(junit, fnameJ, len, 1, 0, ierr )
+         call waopen(junit, fnameJ, 1, 0, ierr )
          vtmp(3) = bilo
          vtmp(4) = bihi
          call putwa( junit, vtmp, 1,
@@ -703,7 +703,7 @@ c
       parameter(junit=10)
 
       call moints_localfname( 'JHalf', 8, fname )
-      call waopen(junit, fname, len, 1, 0, itmp )
+      call waopen(junit, fname, 1, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, bilo, bihi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
@@ -787,7 +787,7 @@ c
 
       tmp2 = tcgtime()
       call moints_localfname( 'KHalf', 8, fname )
-      call waopen(kunit, fname, len, 1, 0, itmp )
+      call waopen(kunit, fname, 1, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
       nocc = ohi - olo + 1
@@ -943,7 +943,7 @@ c
       data sp1fact,sp2fact/4.d0,-2.d0/
       
       call moints_localfname( 'KHalf', 8, fname )
-      call waopen(kunit, fname, len, 1, 0, itmp )
+      call waopen(kunit, fname, 1, 0, itmp )
       e2 = 0.d0
       nocc = oseghi - oseglo + 1
       nvir = vhi - vlo + 1
@@ -1179,11 +1179,16 @@ c
 
 
 
-      subroutine waopen( unit, fname, len, nblk, istat, ierr )
+      subroutine waopen( unit, fname, nblk, istat, ierr )
       implicit none
-      integer unit, len, nblk, istat, ierr
+      integer unit, nblk, istat, ierr
       character*(*) fname
 #ifndef CRAY-T3D
+      integer len
+      integer inp_strlen
+      external inp_strlen
+
+      len = inp_strlen(fname)
       call wopen( unit, fname, len, nblk, istat, ierr )
 #else
       double precision fdummy
