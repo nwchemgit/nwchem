@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.63 2000-06-02 20:45:28 d3j191 Exp $
+c $Id: cf_main.F,v 1.64 2000-06-12 20:08:05 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2363,8 +2363,8 @@ c
      + 'Pa','U ','Np','Pu','Am','Cm','Bk','Cf','Es','Fm',
      + 'Md','No','Lr'/
 c
-      a='Bq              '
-      if(i.gt.0.and.i.lt.104) a(1:2)=symbol(i)
+      a='      Bq        '
+      if(i.gt.0.and.i.lt.104) a(7:8)=symbol(i)
 c
       return
       end
