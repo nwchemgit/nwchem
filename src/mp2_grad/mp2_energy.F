@@ -36,7 +36,7 @@
       integer pass
       integer noa,nob,nva,nvb
       integer noper_a,noper_b
-      double precision tol2e,e2
+      double precision tol2e,escf,e2,e_total
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
@@ -69,6 +69,7 @@ c
 c
 c     get some space for the derivatives
 c
+      e_total=0.0d0
       status = geom_ncent ( geom, natoms )
       if(.not.ma_push_get(mt_dbl, 3*natoms,'mp2 derivatives',
      $     l_grad,k_grad))      
@@ -237,6 +238,7 @@ c...  Two index quantities of alpha spin are denoted with a _a,
 c...  and beta spin with _b. With this in mind, naming of arrays is obvious
 c...  when Chem. Phys. Letts. 166 (1990) 275 is consulted.
 c     
+      if(task.eq.'gradient')then
       if(.not.ga_create(mt_dbl,noa,noa,'g_p_ij_a',
      $     noa,1,g_p_ij_a))call errquit(
      $     'could not alloc g_p_ij_a',1)
@@ -282,6 +284,7 @@ c
       call ga_zero(g_w_ai_b)
       call ga_zero(g_lai_a)
       call ga_zero(g_lai_b)
+      endif
 c
       if(scftype.eq.'UHF')then
          pass=1
@@ -365,7 +368,6 @@ c...the g_rhs now holds the solution
      $        g_p_tot_a, g_p_tot_b)
 c$$$         call mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,basis,rtdb,nbf,
 c$$$     $        g_vecs_a,g_vecs_b)
-      endif
 c...
 c...call to Herbert's stuff
 c... 
@@ -375,7 +377,6 @@ c$$$      call schwarz_init(geom,basis)
 c$$$      call schwarz_tidy()
 c$$$      call intd_terminate()
 c     
-      if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ',e2
 c
       call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
       write (luout,1000) (dbl_mb(k_grad+i),i=0,3*natoms-1)
@@ -422,9 +423,9 @@ c
      $     'could not destroy lai_b handle',1)
       if(.not.ga_destroy(g_lai_a))call errquit(
      $     'could not destroy lai_a handle',1)
+      endif
 c     
-      if(.not.ma_chop_stack(l_occ_a))call errquit(
-     $     'could not chop stack in mp2_energy',1)
+      if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ',e2
       if(.not.ma_chop_stack(l_grad))call errquit(
      $     'could not chop stack in mp2_energy',1)
       if(.not.ga_destroy(g_vecs_a))call errquit(
@@ -433,4 +434,10 @@ c
          if(.not.ga_destroy(g_vecs_b))
      $        call errquit('could not destroy g_vecs_b',1)
       endif
+      if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
+     $     call errquit('could not get scf energy',1)
+      e_total=e_total+escf+e2
+      if(.not.rtdb_put(rtdb,'semi_dir_mp2:energy',mt_dbl,1,e_total))
+     $     call errquit
+     $     ('semi_dir_mp2: failed storing energy in rtdb',0)
       end
