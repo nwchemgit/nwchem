@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.7 2002-10-08 00:19:22 bylaska Exp $
+* $Id: vib_wrtfreq.F,v 1.8 2002-10-08 00:36:35 edo Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -27,7 +27,8 @@ c
 c
       double precision scale, dd1, zero, sumfreq, rate, xdum, freq, zpe
       double precision ezero,ethermal,hthermal,temp,thetav
-      double precision inertia_A,inertia_B,inertia_C,thetaA,thetaB,thetaC,M
+      double precision inertia_A,inertia_B,inertia_C,thetaA,thetaB,
+     ,     thetaC,M
       double precision Strans,Srot,Svib
       integer sigma
       integer i
@@ -131,21 +132,26 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
         WRITE (6,10005) ethermal*AUKCAL,ethermal
         WRITE (6,10006) hthermal*AUKCAL,hthermal
 10003 FORMAT(/1X,'Temperature                      = ',f8.2,'K')
-10004 FORMAT(/1X,'Zero-Point correction to Energy  = ',f8.3, ' kcal/mol   (',f10.6,' au)')
-10005 FORMAT( 1X,'Thermal correction to Energy     = ',f8.3, ' kcal/mol   (',f10.6,' au)')
-10006 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, ' kcal/mol   (',f10.6,' au)')
+10004 FORMAT(/1X,'Zero-Point correction to Energy  = ',f8.3, 
+     .     ' kcal/mol  (',f10.6,' au)')
+10005 FORMAT( 1X,'Thermal correction to Energy     = ',f8.3, 
+     .     ' kcal/mol  (',f10.6,' au)')
+10006 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, 
+     .     ' kcal/mol  (',f10.6,' au)')
 
 *     ********************************************************
 *     **** Write out Entropies                            ****
 *     **** frequencies are assumed to be in units of cm-1 ****
 *     **** Formulas taken from Herzberg                   ****
 *     ********************************************************
-        call vib_geom_parameters_get(rtdb,M,inertia_A,inertia_B,inertia_C,sigma)
+        call vib_geom_parameters_get(rtdb,M,
+     ,     inertia_A,inertia_B,inertia_C,sigma)
         thetaA = inertia_A*(h*c/kgas)
         thetaB = inertia_B*(h*c/kgas)
         thetaC = inertia_C*(h*c/kgas)
 
-        Strans = (5.0d0/2.0d0)*Rgas*log(temp) + (3.0d0/2.0d0)*Rgas*log(M) 
+        Strans = (5.0d0/2.0d0)*Rgas*log(temp) + 
+     +       (3.0d0/2.0d0)*Rgas*log(M) 
      >         - 2.3135d0/AUKCAL/1000.0d0
 
         Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) 
@@ -163,7 +169,8 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
           if (freq.gt.zero) then
             thetav = freq*(h*c/kgas)    !freqency temperature in Kelvin from cm-1
             xdum   = thetav/temp
-            Svib   = Svib + xdum/(exp(xdum)-1.0d0) - log(1.0d0-exp(-xdum))
+            Svib   = Svib + xdum/(exp(xdum)-1.0d0) - 
+     -           log(1.0d0-exp(-xdum))
           end if
         end do
         end if
@@ -174,10 +181,14 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
         write(6,10011) Strans*AUKCAL*1000.0d0,M
         write(6,10012) Srot*AUKCAL*1000.0d0,sigma
         write(6,10013) Svib*AUKCAL*1000.0d0
-10010   FORMAT(/1X,'Total Entropy                    = ',f8.3,' cal/mol-K')
-10011   FORMAT( 1X,'  - Translational                = ',f8.3,' cal/mol-K  (molecular weight = ',f10.6,')')
-10012   FORMAT( 1X,'  - Rotational                   = ',f8.3,' cal/mol-K  (symmetry number  = ',I10,  ')')
-10013   FORMAT( 1X,'  - Vibrational                  = ',f8.3,' cal/mol-K')
+10010   FORMAT(/1X,'Total Entropy                    = ',f8.3,
+     .       ' cal/mol-K')
+10011   FORMAT( 1X,'  - Translational                = ',f8.3,
+     .       ' cal/mol-K (mol. weight =',f9.4,')')
+10012   FORMAT( 1X,'  - Rotational                   = ',f8.3,
+     .       ' cal/mol-K (symmetry #  =',I9,  ')')
+10013   FORMAT( 1X,'  - Vibrational                  = ',f8.3,
+     .       ' cal/mol-K')
 
       END IF
 *rak:      IF (NPRI.EQ.0) WRITE (ITAP96,10002)ZPE
