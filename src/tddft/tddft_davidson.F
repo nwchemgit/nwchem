@@ -4,7 +4,7 @@
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      4  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.6 2002-04-12 22:55:51 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.7 2002-04-14 00:44:36 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -599,7 +599,7 @@ c Analysis of the results
 c -----------------------
 c
           call tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,ipol,
-     1      nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,
+     1      nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_prod_p,
      2      dbl_mb(k_apbvec),dbl_mb(k_apbval),dbl_mb(k_ambvec),
      3      g_movecs,evl,singlet,triplet,target,targetsym,mult)
           ccpu=ccpu+util_cpusec()

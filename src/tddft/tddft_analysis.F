@@ -1,9 +1,9 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
-     1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,
+     1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_prod_p,
      2  apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      3  target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.5 2002-04-12 22:55:51 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.6 2002-04-14 00:44:36 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -44,6 +44,7 @@ c
       integer g_prod_p(2)      ! GA handle for (A+B) product vectors
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
+      logical oskel            ! True if symmetry is used in integral evaluation
       double precision apbvec(ntrials,ntrials) ! (X+Y)
       double precision ambvec(ntrials,ntrials) ! (X-Y)
       integer g_movecs(2)      ! GA handle for MO coefficients
@@ -66,7 +67,8 @@ c
       double precision tenergy ! Excitation energy of target root
       integer mult             ! Ground state spin multiplicity
 c
-      integer i,j,k,l,m,n
+      integer g_ovlp           ! GA handle for AO overlap matrix
+      integer g_corr           ! GA handle for alpha-beta MO correlation matrix
       integer g_work
       integer g_tmomd(2)       ! Transition density matrix
       double precision r,maxr
@@ -74,6 +76,10 @@ c
       integer isym,jsym
       character*5 spin(2)
       logical nodezero
+      integer i,j,k,l,m,n
+      double precision na,nb,s2
+      integer ja1,ja2,ka1,ka2,jb1,jb2,kb1,kb2,la1,la2,lb1,lb2,ja3,jb3
+      double precision xa1,xa2,ya1,ya2,xb1,xb2,yb1,yb2,rc1,rc2
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -123,6 +129,35 @@ c
      2      ('tddft_analysis: failed to create g_y',0) 
         endif
       enddo
+c
+c ----------------------------------
+c Get alpha-beta orbital correlation
+c ----------------------------------
+c
+      if (ipol.eq.2) then
+        if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
+     1    'AO overlap',-1,-1,g_ovlp))
+     2    call errquit('tddft_analysis: failed to create g_ovlp',0)
+        if (.not.ga_create(mt_dbl,nmo(1),nmo(2),
+     1    'MO correlation',-1,-1,g_corr))
+     2    call errquit('tddft_analysis: failed to create g_corr',0)
+        if (.not.ga_create(mt_dbl,nbf_ao,nmo(2),'work',-1,-1,g_work))
+     1    call errquit('tddft_analysis: failed to create g_work',0)
+        call ga_zero(g_ovlp)
+        call int_1e_ga(ao_bas_han,ao_bas_han,g_ovlp,'overlap',oskel)
+        if (oskel) call sym_symmetrize
+     1    (geom,ao_bas_han,.false.,g_ovlp)
+        call ga_dgemm('N','N',nbf_ao,nmo(2),nbf_ao,1.0d0,
+     1    g_ovlp,g_movecs(2),0.0d0,g_work)
+        call ga_dgemm('T','N',nmo(1),nmo(2),nbf_ao,1.0d0,
+     1    g_movecs(1),g_work,0.0d0,g_corr)
+        if (.not.ga_destroy(g_work)) call errquit
+     1    ('tddft_analysis: failed to destroy g_work',0)
+        if (.not.ga_destroy(g_ovlp)) call errquit
+     1    ('tddft_analysis: failed to destroy g_ovlp',0)
+        if (nodezero.and.util_print('excited state',print_debug))
+     1    call ga_print(g_corr)
+      endif
 c
 c ------------
 c Tamm-Dancoff
@@ -194,6 +229,22 @@ c ... frozen cores are irrelevant
         call util_flush(LuOut)
       endif
  9100 format(2x,'Ground state ',a4,f16.9,' a.u.')
+      if (ipol.eq.2) then
+        na=dfloat(nocc(1))
+        nb=dfloat(nocc(2))
+        s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
+        do j=1,nocc(1)
+          do k=1,nocc(2)
+            call ga_get(g_corr,j,j,k,k,r,1)
+            s2=s2-r**2
+          enddo
+        enddo
+        if (nodezero.and.util_print('ground state',print_default)) then
+          write(LuOut,9180) s2
+          call util_flush(LuOut)
+        endif
+      endif
+ 9180 format(2x,'<S2> = ',f8.4)
 c
 c Excited states
 c
@@ -246,6 +297,130 @@ c
      1        apbval(n)*au2ev
           endif
         endif
+c
+c Compute <S**2> expectation value
+c
+        if (ipol.eq.2) then
+          s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
+c
+c alpha excitation ket
+c
+          la1=0
+          do ja1=nfc(1)+1,nocc(1)
+            do ka1=nocc(1)+1,nmo(1)-nfv(1)
+              la1=la1+1
+              call ga_get(g_x(1),la1,la1,n,n,xa1,1)
+              ya1=0.0d0
+              if (.not.tda) call ga_get(g_y(1),la1,la1,n,n,ya1,1)
+              if (dabs(xa1+ya1).lt.1.0d-5) continue
+c a alpha and j beta exchange
+              do jb1=nfc(2)+1,nocc(2)
+c alpha excitation bra
+                la2=0
+                do ja2=nfc(1)+1,nocc(1)
+                  do ka2=nocc(1)+1,nmo(1)-nfv(1)
+                    la2=la2+1
+                    if (ja1.eq.ja2) then
+                      call ga_get(g_x(1),la2,la2,n,n,xa2,1)
+                      ya2=0.0d0
+                      if (.not.tda) 
+     1                  call ga_get(g_y(1),la2,la2,n,n,ya2,1)
+                      call ga_get(g_corr,ka2,ka2,jb1,jb1,rc1,1)
+                      call ga_get(g_corr,ka1,ka1,jb1,jb1,rc2,1)
+                      s2=s2-(xa2-ya2)*(xa1+ya1)*rc1*rc2
+                    endif
+                  enddo
+                enddo
+c beta excitation bra
+                lb2=0
+                do jb2=nfc(2)+1,nocc(2)
+                  do kb2=nocc(2)+1,nmo(2)-nfv(2)
+                    lb2=lb2+1
+                    if (jb1.eq.jb2) then
+                      call ga_get(g_x(2),lb2,lb2,n,n,xb2,1)
+                      yb2=0.0d0
+                      if (.not.tda)
+     1                  call ga_get(g_y(2),lb2,lb2,n,n,yb2,1)
+                      call ga_get(g_corr,ja1,ja1,jb2,jb2,rc1,1)
+                      call ga_get(g_corr,ka1,ka1,kb2,kb2,rc2,1)
+                      s2=s2-(xb2-yb2)*(xa1+ya1)*rc1*rc2
+                    endif
+                  enddo
+                enddo
+              enddo
+c i alpha and j beta exchange
+              do ja3=nfc(1)+1,nocc(1)
+                if (ja3.ne.ja1) then
+                  do jb1=nfc(2)+1,nocc(2)
+c same alpha excitation bra
+                    call ga_get(g_corr,ja3,ja3,jb1,jb1,rc1,1)
+                    s2=s2-(xa1-ya1)*(xa1+ya1)*rc1*rc1
+                  enddo
+                endif
+              enddo
+            enddo
+          enddo
+c
+c beta excitation ket
+c
+          lb1=0
+          do jb1=nfc(2)+1,nocc(2)
+            do kb1=nocc(2)+1,nmo(2)-nfv(2)
+              lb1=lb1+1
+              call ga_get(g_x(2),lb1,lb1,n,n,xb1,1)
+              yb1=0.0d0
+              if (.not.tda) call ga_get(g_y(2),lb1,lb1,n,n,yb1,1)
+              if (dabs(xb1+yb1).lt.1.0d-5) continue
+c i alpha and b beta exchange
+              do ja1=nfc(1)+1,nocc(1)
+c beta excitation bra
+                lb2=0
+                do jb2=nfc(2)+1,nocc(2)
+                  do kb2=nocc(2)+1,nmo(2)-nfv(2)
+                    lb2=lb2+1
+                    if (jb1.eq.jb2) then
+                      call ga_get(g_x(2),lb2,lb2,n,n,xb2,1)
+                      yb2=0.0d0
+                      if (.not.tda)
+     1                  call ga_get(g_y(2),lb2,lb2,n,n,yb2,1)
+                      call ga_get(g_corr,ja1,ja1,kb1,kb1,rc1,1)
+                      call ga_get(g_corr,ja1,ja1,kb2,kb2,rc2,1)
+                      s2=s2-(xb2-yb2)*(xb1+yb1)*rc1*rc2
+                    endif
+                  enddo
+                enddo
+c alpha excitation bra
+                la2=0
+                do ja2=nfc(1)+1,nocc(1)
+                  do ka2=nocc(1)+1,nmo(1)-nfv(1)
+                    la2=la2+1
+                    if (ja1.eq.ja2) then
+                      call ga_get(g_x(1),la2,la2,n,n,xa2,1)
+                      ya2=0.0d0
+                      if (.not.tda)
+     1                  call ga_get(g_y(1),la2,la2,n,n,ya2,1)
+                      call ga_get(g_corr,ja2,ja2,jb1,jb1,rc1,1)
+                      call ga_get(g_corr,ka2,ka2,kb1,kb1,rc2,1)
+                      s2=s2-(xa2-ya2)*(xb1+yb1)*rc1*rc2
+                    endif
+                  enddo
+                enddo
+              enddo
+c i alpha and j beta exchange
+              do jb3=nfc(2)+1,nocc(2)
+                if (jb3.ne.jb1) then
+                  do ja1=nfc(1)+1,nocc(1)
+c same beta excitation bra
+                    call ga_get(g_corr,ja1,ja1,jb3,jb3,rc1,1)
+                    s2=s2-(xb1-yb1)*(xb1+yb1)*rc1*rc1
+                  enddo
+                endif
+              enddo
+            enddo
+          enddo
+          write(LuOut,9180) s2
+        endif
+        write(LuOut,9190)
 c
 c Compute transition moments and oscillator strength
 c
@@ -363,8 +538,9 @@ c
      1  util_print('excited state',print_default)) write(LuOut,*)
  9110 format(2x,
      1  '-------------------------------------------------------',
-     2  /,2x,'Root',i3,1x,a7,1x,a4,f13.9,' a.u. (',f11.7,' eV)',/,
-     3  2x,'-------------------------------------------------------')
+     2  /,2x,'Root',i3,1x,a7,1x,a4,f13.9,' a.u. (',f11.7,' eV)')
+ 9190 format(2x,
+     1  '-------------------------------------------------------')
  9200 format(5x,'Transition Moments  X',f9.5,' Y',f9.5,' Z',f9.5
      1    ,/,5x,'Oscillator Strength',21x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
@@ -412,6 +588,10 @@ c ------
 c Return
 c ------
 c
+      if (ipol.eq.2) then
+        if (.not.ga_destroy(g_corr)) call errquit
+     1    ('tddft_analysis: failed to destroy g_corr',0)
+      endif
       do i=1,ipol
         if (.not.ga_destroy(g_x(i))) call errquit
      1    ('tddft_analysis: failed to destroy g_x',0) 
