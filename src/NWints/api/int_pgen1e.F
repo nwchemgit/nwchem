@@ -1,7 +1,12 @@
       subroutine int_pgen1e(msg, i_basis, j_basis, ish, jsh, 
-     &       ilab, jlab, l1e, Gen1e)
-c $Id: int_pgen1e.F,v 1.2 1994-04-26 19:40:28 d3g681 Exp $
+     &       ilab, jlab, l1e, Gen1e, print_level)
+c $Id: int_pgen1e.F,v 1.3 1994-05-05 00:02:19 d3e129 Exp $
       implicit none
+c
+c generic one electron printing routine
+c  print_level = 0 print only lables and integrals
+c              = 1 print shell information etc. 
+c
 #include "basP.fh"
 #include "geobasmapP.fh"
 c
@@ -14,22 +19,36 @@ c::function
       logical int_chk_sh
       external int_chk_sh
 c::passed
-      character*(*) msg
-      integer i_basis, j_basis, ish, jsh, l1e
-      integer ilab(l1e),jlab(l1e)
-      double precision Gen1e(l1e)
+      character*(*) msg           ! [input] informational message
+      integer i_basis             ! [input] basis set handle for i shell
+      integer j_basis             ! [input] basis set handle for j shell
+      integer ish                 ! [input] i shell
+      integer jsh                 ! [input] j shell 
+      integer l1e                 ! [input] number of integrals and labels
+      integer ilab(l1e)           ! [input] i basis functions labels
+      integer jlab(l1e)           ! [input] j basis functions labels
+      double precision Gen1e(l1e) ! [input] integrals to be printed
+      integer print_level         ! [input] print level to be used
+c. . . . . . . . . . . . . .! print_level = 0 print lables and integrals
+c. . . . . . . . . . . . . .!             = 1 also print shell info.
+c
 c::local
       integer ii
+      integer stdout
 c
-      write(6,*)'pgen1e:',msg
-      write(6,10000)i_basis,j_basis,ish,jsh
-10000 format(1x,'<ibasis:jbasis>-<',i4,':',i4,'>',5x,
-     &       '<ish:jsh>-<',i3,':',i3,'>')
+      stdout = 6
+c
+      if (print_level.ge.1) then
+        write(stdout,*)'pgen1e:',msg
+        write(stdout,10000)i_basis,j_basis,ish,jsh
+      endif
 c
       do 00100 ii = 1,l1e
-        write(6,10001)ilab(ii),jlab(ii),Gen1e(ii)
+        write(stdout,10001)ilab(ii),jlab(ii),Gen1e(ii)
 00100 continue
 c
+10000 format(1x,'<ibasis:jbasis>-<',i4,':',i4,'>',5x,
+     &       '<ish:jsh>-<',i3,':',i3,'>')
 10001 format('i = ',i4,' j = ',i4,5x,'1eval = ',1pd20.10)
 c
       end
