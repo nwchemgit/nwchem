@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.63 2001-05-09 18:14:54 d3j191 Exp $
+c $Id: ana_task.F,v 1.64 2001-05-09 18:45:48 d3j191 Exp $
 c
       implicit none
 c
@@ -638,7 +638,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),lsonly)
+     + int_mb(i_isel),.not.lsonly)
 c
       nread=0
       nwrit=0
@@ -685,7 +685,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfnsup,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),lsonly)
+     + int_mb(i_isel),.not.lsonly)
 c
       nread=0
       nwrit=0
