@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.29 2002-10-03 21:47:13 bylaska Exp $
+* $Id: task_input.F,v 1.30 2002-10-15 21:21:30 bylaska Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -109,6 +109,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'pspw_dplot')) then
             operation='pspw_dplot'
+         else if (inp_compare(.false.,test,
+     >                        'wannier')) then
+            operation='wannier'
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)
