@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -17,7 +17,10 @@ c
       double precision hess(*)  ! [output] XC hessian matrix
 c
       integer ipol
+      external xc_gotxc
+      logical xc_gotxc
 c
+      if(.not.xc_gotxc()) return
       ipol=1
       if(scftype.eq.'UHF') ipol=2
 c
@@ -30,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -60,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.10 2000-10-20 16:10:25 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.11 2001-03-27 00:48:55 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -100,6 +103,10 @@ c !!! BGJ test
 c
       integer l_ti_hess, k_ti_hess, g_ti(3)
 c
+      external xc_gotxc
+      logical xc_gotxc
+c
+      if(.not.xc_gotxc()) return
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &     grid_on_file))then
          grid_on_file = .false.
