@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.306 1999-12-29 18:28:26 d3g270 Exp $
+# $Id: makefile.h,v 1.307 2000-02-17 00:04:44 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1210,6 +1210,7 @@ else
 #
   EGCS = YES
 ifdef EGCS
+  FOPTIONS  += -Wuninitialized -Wno-globals
   FOPTIONS  += -fno-globals -Wunused -fno-silent -m486 -malign-double
   FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
   FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
