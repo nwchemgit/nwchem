@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1997-03-26 00:50:07 d3e129 Exp $
+# $Id: GNUmakefile,v 1.41 1998-03-17 17:14:32 bernhold Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -15,7 +15,7 @@ OBJ =		rimp2_v_e2.o \
 		dgecop.o	lnblnk.o \
 		max_v_diag.o	rimp2_parm.o \
 		rimp2_timers.o  \
-                mk_corr_map.o pr_corr_map.o      prog_report.o \
+                pr_corr_map.o      prog_report.o \
 		xf3ci_mem12.o	iamax.o		rimp2_e_mem.o
 
 OBJ_OPTIMIZE =      rimp2_denom.o   \
