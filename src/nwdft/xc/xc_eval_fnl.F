@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.26 2001-11-21 01:57:13 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.27 2002-01-18 10:32:33 bjohnson Exp $
 c
       implicit none
 c
@@ -155,7 +155,10 @@ C
      &           delrho, Amat, Cmat, nq, ipol, Ex, Ec, qwght, 
      &           ldew, func,whichf)
          else
-            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+            call xc_hcth_d2(tol_rho, xfac(nx), lxfac(nx), nlxfac(nx),
+     ,           cfac(nc), lcfac(nc), nlxfac(nc), rho,
+     &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex, Ec,
+     &           qwght, ldew, func,whichf)
          endif
       endif
 c     
