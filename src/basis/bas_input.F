@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.55 2001-12-20 02:56:59 bert Exp $
+c $Id: bas_input.F,v 1.56 2001-12-27 19:40:34 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -861,7 +861,7 @@ c
 c we have to append the name of a basis set file to the path
 c append, but remove some problem characters from basis name in standard:
 c ( and ) -> remove
-c , and / -> replace with underscore
+c blank , and / -> replace with underscore
 c * -> replace with s
 c
           lena = lenn 
@@ -870,7 +870,8 @@ c
      &           standard(ind:ind) .eq. ')' ) goto 31
              lena = lena + 1
              if (standard(ind:ind) .eq. ',' .or.
-     &           standard(ind:ind) .eq. '/' ) then
+     &           standard(ind:ind) .eq. '/' .or.
+     &           standard(ind:ind) .eq. ' ' ) then
                  filestring(lena:lena) = '_'
              elseif (standard(ind:ind) .eq. '*') then
                  filestring(lena:lena) = 's'
