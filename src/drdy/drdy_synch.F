@@ -62,14 +62,12 @@
         status_ignore = rtdb_parallel(status_rtdb)
       elseif (opcode .eq. DRDY_CODE_GRADIENT) then
         status_rtdb   = rtdb_parallel(.true.)
-        status        = task_energy(my_rtdb)
-        status        = status.and.task_gradient(my_rtdb)
+        status        = task_gradient(my_rtdb)
         status_ignore = rtdb_parallel(status_rtdb)
       elseif (opcode .eq. DRDY_CODE_HESSIAN) then
         status_rtdb   = rtdb_parallel(.true.)
-        status        = task_energy(my_rtdb)
+        status        = task_hessian(my_rtdb)
         status        = status.and.task_gradient(my_rtdb)
-        status        = status.and.task_hessian(my_rtdb)
         status_ignore = rtdb_parallel(status_rtdb)
       elseif (opcode .eq. DRDY_CODE_DONE) then
         call ga_sync()
