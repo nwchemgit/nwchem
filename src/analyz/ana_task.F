@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.73 2001-08-23 20:06:11 d3j191 Exp $
+c $Id: ana_task.F,v 1.74 2002-04-30 16:46:29 d3j191 Exp $
 c
       implicit none
 c
@@ -225,6 +225,7 @@ c
 c
       fmttrj='trj'
       if(index(filtrj,'.sco').gt.0) fmttrj='sco'
+      if(index(filtrj,'.coo').gt.0) fmttrj='coo'
 c
       call ana_rdhdr(byte_mb(i_snam))
 c

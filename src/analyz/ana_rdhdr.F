@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.13 2001-01-18 21:16:36 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.14 2002-04-30 16:46:29 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,7 @@ c
  3333 format(/,' Opening trj file ',a)
       rewind(lfntrj)
     1 continue
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9998,end=9997) card
  1000 format(a)
       if(card(1:6).ne.'header') goto 1
       open(unit=44,file='.header',form='formatted',
@@ -67,12 +67,12 @@ c
     4 continue
       endif
       close(unit=44)
-      elseif(fmttrj.eq.'sco') then
+      elseif(fmttrj.eq.'sco'.or.fmttrj.eq.'coo') then
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9999)
       write(*,3333) fname(1:index(fname,' ')-1)
    11 continue
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9998,end=9997) card
       if(card(1:18).eq.'num_solvent_atoms:')then
       read(card(19:26),'(i8)') nwa
       goto 11
@@ -84,7 +84,8 @@ c
       if(card(1:10).eq.'num_bonds:') then
       read(card(11:19),'(i9)') nsb
       else
-      goto 11
+      if(card(1:5).ne.'time:') goto 11
+      if(.not.ltop) call errquit('Format error trajectory file',0)
       endif
       rewind(lfntrj)
       nwa=0
@@ -95,12 +96,13 @@ c
       write(44,1003) nwa,nsa,nsb,0
       endif
       if(nsa.gt.msa) call errquit('Error in trj',0)
+      if(fmttrj.ne.'coo') then
    12 continue
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9998,end=9997) card
       if(card(1:11).ne.'atom_names:') goto 12
       do 13 i=1,nsa
       if(ltop) then
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9998,end=9997) card
       else
       read(lfntrj,1005) sgmnam(i)
       write(44,1005) sgmnam(i)
@@ -108,12 +110,13 @@ c
    13 continue
       if(nsb.gt.0) then
    14 continue
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9998,end=9997) card
       if(card(1:10).ne.'bond_list:') goto 14
       do 15 i=1,nsb
       read(lfntrj,1001) ib,jb
       if(.not.ltop) write(44,1001) ib,jb
    15 continue
+      endif
       endif
       if(.not.ltop) close(unit=44)
       else
@@ -124,6 +127,10 @@ c
 c
       return
 c
+ 9997 continue
+      call errquit('End of file reading trajectory file',0)
+ 9998 continue
+      call errquit('Error reading trajectory file',0)
  9999 continue
       call errquit('Failed to open trajectory file',0)
       return

@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.28 2001-11-30 15:19:39 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.29 2002-04-30 16:46:29 d3j191 Exp $
 c
       implicit none
 c
@@ -88,7 +88,9 @@ c
       endif
       succes=.true.
       goto 9000
-      elseif(fmttrj.eq.'sco') then
+      elseif(fmttrj.eq.'sco'.or.fmttrj.eq.'coo') then
+      datum='          '
+      tijd='          '
    11 continue
       read(lfntrj,1000,err=9999,end=9999) card
       if(card(1:5).ne.'time:') goto 11
@@ -102,7 +104,7 @@ c
       if(card(1:15).ne.'box_dimensions:') goto 12
       read(lfntrj,2002) box
  2002 format(3f12.6)
-      lxw=.false.
+      lxw=fmttrj.eq.'coo'
       lvw=.false.
       lsx=.true.
       lsv=.false.
@@ -110,12 +112,19 @@ c
       read(lfntrj,1000,err=9999,end=9999) card
       if(card(1:10).ne.'atom_list:') goto 13
       do 14 i=1,nsa
-      read(lfntrj,1005) (x(i,j),j=1,3)
+      read(lfntrj,1005,err=9999,end=9999) (x(i,j),j=1,3)
       x(i,1)=x(i,1)*1.0d-1
       x(i,2)=x(i,2)*1.0d-1
       x(i,3)=x(i,3)*1.0d-1
       ix(i)=i
    14 continue
+      if(lxw) then
+      do 15 i=1,nwm
+      do 16 j=1,nwa
+      read(lfntrj,1005,err=9999,end=9999) (w(i,j,k),k=1,3)
+   16 continue
+   15 continue
+      endif
       succes=.true.
       goto 9000
       else
