@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.29 1997-11-13 23:48:21 d3g681 Exp $
+C$Id: rohf.F,v 1.30 1999-11-02 20:09:22 windus Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -256,7 +256,8 @@ c
       if (oprintmultipole .and. ga_nodeid().eq.0) then
          write(6,*)
          call util_print_centered(6,
-     $        'Multipole analysis of the density', 20, .true.)
+     $     'Multipole analysis of the density wrt center of charge', 
+     $      30, .true.)
          write(6,*)
          write(6,*) '    L   x y z        total         open',
      $                 '         nuclear'

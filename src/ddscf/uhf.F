@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.52 1999-10-18 22:37:49 nwchem Exp $
+C$Id: uhf.F,v 1.53 1999-11-02 20:09:22 windus Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.52 1999-10-18 22:37:49 nwchem Exp $
+C     $Id: uhf.F,v 1.53 1999-11-02 20:09:22 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -506,7 +506,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.52 1999-10-18 22:37:49 nwchem Exp $
+C$Id: uhf.F,v 1.53 1999-11-02 20:09:22 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -597,7 +597,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.52 1999-10-18 22:37:49 nwchem Exp $
+c     $Id: uhf.F,v 1.53 1999-11-02 20:09:22 windus Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1083,7 +1083,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.52 1999-10-18 22:37:49 nwchem Exp $
+C$Id: uhf.F,v 1.53 1999-11-02 20:09:22 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1370,7 +1370,8 @@ c
       if (oprintmultipole .and. ga_nodeid().eq.0) then
          write(6,*)
          call util_print_centered(6,
-     $        'Multipole analysis of the density', 20, .true.)
+     $     'Multipole analysis of the density wrt center of charge',
+     $      30, .true.)
          write(6,*)
          write(6,*) '    L   x y z        total         alpha',
      $                 '         beta         nuclear'
