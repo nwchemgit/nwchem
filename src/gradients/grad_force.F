@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.19 1997-04-03 01:48:49 d3g681 Exp $
+c     $Id: grad_force.F,v 1.20 1997-04-04 21:24:38 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -91,7 +91,7 @@ C------------------------------------------------------------------------------
      $     lbuf, lscratch, lsqa, i, j
 
       integer lforce, l_force, k_force, l_evals, k_evals, l_occ, k_occ,
-     $     l_sch, k_sch, l_act, k_act, nactive, l_actlist, k_actlist,
+     $     l_sch, k_sch, l_act, k_act, 
      $     l_buf, k_buf, l_scr, k_scr, l_dens, k_dens, l_wdens, k_wdens,
      $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_wgh, 
      $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh,
@@ -103,7 +103,7 @@ c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer l_coeff, k_coeff  ! MCSCF local copy of Active space MOs
       integer maxsh
 
-      integer ma_type
+      integer nactive
 
       integer ld_ij, ld_kl, lh_ik, ld_ik, lh_jl, ld_jl, lh_il, ld_il,
      $     lh_jk, ld_jk, 
@@ -315,9 +315,6 @@ C     scratch array for Schwarz screening
 C     lookup table and list of active atoms
       if (.not. MA_alloc_get(MT_LOG,nat,'active atoms',l_act,k_act))
      $     call errquit('grad: could not allocate l_act',1)
-      do i = 0, nat-1
-         log_mb(k_act+i) = .true.
-      enddo
 
 C     symmetry or not
       if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
@@ -334,28 +331,8 @@ c
          call util_flush(luout)
       endif
 c
-      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
-     $     nactive, l_actlist)) then
-         if (.not. ma_get_index(l_actlist, k_actlist))
-     $        call errquit('gradients: ma_get_inded failed ',l_actlist)
-
-         if (nactive.le.0 .or. nactive.gt.nat)
-     $        call errquit('invalid number of active atoms',110)
-
-C     fill lookup table
-         do i=0, nat-1
-            log_mb(k_act+i) = .false.
-         enddo
-         do i=0, nactive-1
-            if (int_mb(k_actlist+1).le.0 .or. 
-     $           int_mb(k_actlist+1).gt.nat) call errquit
-     $           ('gradients: invalid active atom',int_mb(k_actlist+1))
-            log_mb(k_act + int_mb(k_actlist + i) - 1) = .true.
-         enddo
-         if (.not. MA_free_heap(l_actlist)) call errquit
-     $        ('gradients: free of actlist?',0)
-      endif
-
+      call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
+c
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
@@ -789,3 +766,50 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       return
       end
+      subroutine grad_active_atoms(rtdb, natoms, oactive, nactive)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb              ! [input]
+      integer natoms            ! [input]
+      logical oactive(natoms)   ! [output]
+      integer nactive           ! [output]
+c
+      integer ma_type, nactive, l_actlist, k_actlist, i
+c
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
+     $     nactive, l_actlist)) then
+         if (.not. ma_get_index(l_actlist, k_actlist))
+     $        call errquit('grad_act_at: ma_get_inded failed',l_actlist)
+         if (nactive.le.0 .or. nactive.gt.natoms)
+     $        call errquit('invalid number of active atoms',110)
+C     fill lookup table
+         do i=1, natoms
+            oactive(i) = .false.
+         enddo
+         do i=1, nactive
+            if (int_mb(k_actlist+i-1).le.0 .or. 
+     $           int_mb(k_actlist+i-1).gt.natoms) call errquit
+     $           ('grad_act_at: invalid active atom',
+     $           int_mb(k_actlist+i-1))
+            oactive(int_mb(k_actlist+i-1)) = .true.
+         enddo
+c
+         write(6,1) (int_mb(k_actlist+i-1),i=1,nactive)
+ 1       format('  gradient active actoms ',15i4)
+         write(6,2) (oactive(i),i=1,natoms)
+ 2       format('  oactive ',30l2)
+c
+         if (.not. MA_free_heap(l_actlist)) call errquit
+     $        ('grad_act_at: free of actlist?',0)
+c
+      else
+         do i = 1, natoms
+            oactive(i) = .true.
+         enddo
+         nactive = natoms
+      endif
+c
+      end
+
