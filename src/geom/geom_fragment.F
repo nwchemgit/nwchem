@@ -1,6 +1,6 @@
       subroutine geom_fragment(rtdb,nfrags_return)
 c
-c $Id: geom_fragment.F,v 1.1 2004-02-01 22:03:50 sohirata Exp $
+c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
 c
 c     Subroutines and functions in this file are to help
 c     perform almost automatically the fragment MO for 
@@ -30,6 +30,7 @@ c
       integer nfrags_return
       integer ifrag
       logical nodezero
+      double precision thresh
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.geom_create(geom,'geometry'))
@@ -43,6 +44,8 @@ c     if (.not.geom_print(geom))
 c    1  call errquit('geom_fragment: geom_print',0,GEOM_ERR)
       if (.not.geom_cart_get(geom,ncent,tags,coords,charges))
      1  call errquit('geom_fragment: geom_cart_get',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'fragment:thresh',mt_dbl,1,thresh))
+     1  thresh = geom_thresh
 c
 c     Determine fragments
 c
@@ -64,7 +67,7 @@ c
      1       (dsqrt((coords(1,iatom)-coords(1,jatom))**2
      2             +(coords(2,iatom)-coords(2,jatom))**2
      3             +(coords(3,iatom)-coords(3,jatom))**2)
-     4       .le.geom_thresh)) then
+     4       .le.thresh)) then
             f_map(iatom) = nfrags
           endif
         enddo
@@ -97,7 +100,7 @@ c
 
       subroutine select_fragment(rtdb,ifrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.1 2004-02-01 22:03:50 sohirata Exp $
+c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment.
 c
@@ -105,6 +108,7 @@ c     Written by So Hirata in collaboration with Hideo Sekino.
 c
       implicit none
 #include "rtdb.fh"
+#include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -121,7 +125,9 @@ c
       integer jatom
       double precision cx, cy, cz, c, d
       double precision e
+      logical nodezero
 c
+      nodezero = (ga_nodeid().eq.0)
       if (.not.rtdb_get(rtdb,'fragment:dipole_length',mt_dbl,1,e))
      1  e = 0.1d0
       if (.not.geom_create(f_geom,'fragment'))
@@ -181,8 +187,10 @@ c
       if (.not.geom_cart_set(f_geom,jatom,
      1  f_tags,f_coords,f_charges))
      2  call errquit('geom_fragment: geom_cart_set',0, RTDB_ERR)
+      if (nodezero) then
       if (.not.geom_print(f_geom))
      1  call errquit('geom_fragment: geom_create failed',0, GEOM_ERR)
+      endif
       if (.not.geom_rtdb_store(rtdb,f_geom,'geometry'))
      1  call errquit('geom_fragment: failed to store geom',0,RTDB_ERR)
       if (.not.geom_destroy(f_geom))
@@ -195,7 +203,7 @@ c
  
       subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.1 2004-02-01 22:03:50 sohirata Exp $
+c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment pair.
 c
@@ -203,6 +211,7 @@ c     Written by So Hirata in collaboration with Hideo Sekino.
 c
       implicit none
 #include "rtdb.fh"
+#include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -221,7 +230,9 @@ c
       integer ncent
       double precision cx, cy, cz, c, d
       double precision e
+      logical nodezero
 c
+      nodezero = (ga_nodeid().eq.0)
       if (.not.rtdb_get(rtdb,'fragment:dipole_length',mt_dbl,1,e))
      1  e = 0.1d0
       if (.not.geom_create(f_geom,'fragmentpair'))
@@ -281,8 +292,10 @@ c
       if (.not.geom_cart_set(f_geom,jatom,
      1  f_tags,f_coords,f_charges))
      2  call errquit('geom_fragment: geom_cart_set',0, RTDB_ERR)
+      if (nodezero) then
       if (.not.geom_print(f_geom))
      1  call errquit('geom_fragment: geom_create failed',0,GEOM_ERR)
+      endif
       if (.not.geom_rtdb_store(rtdb,f_geom,'geometry'))
      1  call errquit('geom_fragment: failed to store geom',0,RTDB_ERR)
       if (.not.geom_destroy(f_geom))
