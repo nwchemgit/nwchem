@@ -1,5 +1,5 @@
       subroutine comp4_insert(m, i, s, nb_per_i)
-C$Id: comp4_insert.F,v 1.7 1996-06-27 22:42:28 d3g681 Exp $
+C$Id: comp4_insert.F,v 1.8 1997-09-17 23:53:17 d3g681 Exp $
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits
@@ -20,15 +20,18 @@ c
 c     Previously rounded values inside range to nearest integer log value,
 c     however, since we use the data for screening, it's better to
 c     always round up so that we preserve the upper bound properties
-c     of the screening.
+c     of the screening.  BUT, this leads to a possible overestimate of
+c     (ij|kl) by a factor of 100, whereas rounding to the nearest is
+c     just off by a factor of 10 either way. For very sparse cases
+c     this can be significant so stick with the round to nearest.
 c
       if (abs(s) .le. 1.0d-14) then
          v = -14
       else if (abs(s) .ge. 1.0d1) then
          v = 1
       else
-*     v = nint(log10(abs(s)))  ! round to nearest
-         v = int(log10(abs(s)) + 0.99d0) ! round up
+      v = nint(log10(abs(s)))  ! round to nearest
+*     v = int(log10(abs(s)) + 0.99d0) ! round up
       endif
 c
 c     Finally shift +1,...,-14, to 15,...,0
