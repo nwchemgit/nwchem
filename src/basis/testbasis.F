@@ -1,10 +1,10 @@
       program testbasis
-c $Id: testbasis.F,v 1.10 1994-07-29 22:36:14 d3e129 Exp $
+c $Id: testbasis.F,v 1.11 1994-08-03 06:40:32 d3g681 Exp $
       implicit none
 c
 #include "bas.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "geom.fh"
 #include "inp.fh"
 c

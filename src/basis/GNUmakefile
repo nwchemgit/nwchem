@@ -1,11 +1,18 @@
+include ../config/makefile.h
+
        HEADERS = bas.fh basP.fh bas_staticP.fh geobasmapP.fh basdeclsP.fh
            OBJ = basis.o basisP.o bas_input.o
        LIBRARY = libbasis.a
    LIB_TARGETS = testbasis testbasis.o
 
+ifeq ($(TARGET),DELTA)
+   LIB_DEFINES = -DBASIS_LIBRARY="'library'"
+else
+   LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
+endif
+
      USES_BLAS = basis.F basisP.F
 
-include ../config/makefile.h
 include ../config/makelib.h
 
 testbasis:	testbasis.o $(LIBRARY) 

@@ -1,10 +1,10 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.7 1994-07-28 07:58:32 d3g681 Exp $
+c $Id: bas_input.F,v 1.8 1994-08-03 06:40:27 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
 #include "geom.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "bas.fh"
 #include "inp.fh"
 c
@@ -189,7 +189,7 @@ c     Start parsing current line
 c
  20   call inp_set_field(0)
       standard = ' '            ! Must reset these for every tag
-      filename = ' '
+      filename = BASIS_LIBRARY
       if (.not. inp_a(tag)) goto 10000
 c
       if (inp_compare(.false., 'end', tag)) goto 9000 ! End of basis directive

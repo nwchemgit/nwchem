@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.22 1994-07-28 15:29:03 d3e129 Exp $
+c $Id: basis.F,v 1.23 1994-08-03 06:40:30 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -527,7 +527,7 @@ c
 #include "geomP.fh"
 #include "geom.fh"
 #include "context.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -638,10 +638,7 @@ c
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-c
-cconfuses co and c  if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
-c straight fortran compare (STD-F77 space fills shorter string)
-c
+*          if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
             ibs_ce2uce(i,basis) = j
             foundit = .true.
@@ -784,7 +781,7 @@ c
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "inp.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "rtdb.fh"
 c
 c     This routine stores the basis set information in the appropriate 
@@ -1051,7 +1048,7 @@ c
       implicit none
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 c     
 c::passed
       integer rtdb ! [input] run time data base handle
@@ -1074,7 +1071,7 @@ c add basis set name to known basis set list on rtdb
 c
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input] run time data base handle
@@ -1147,7 +1144,7 @@ c
       implicit none
 #include "basP.fh"
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "inp.fh"
 c     
       integer rtdb     ! [input] run time data base handle
@@ -1187,7 +1184,7 @@ c::passed
 c::local
       integer basis
 c
-      bas_cn2ce = bas_check_handle(basisin)
+      bas_cn2ce = bas_check_handle(basisin,'bas_cn2ce')
       if(.not.bas_cn2ce) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
@@ -1222,7 +1219,7 @@ c::passed
 c::local 
       integer basis
 c
-      bas_cn2bfr = bas_check_handle(basisin)
+      bas_cn2bfr = bas_check_handle(basisin,'bas_cn2bfr')
       if(.not.bas_cn2bfr) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
@@ -1282,7 +1279,7 @@ c::passed
 c::local 
       integer basis, nat
 c
-      bas_ce2cnr = bas_check_handle(basisin)
+      bas_ce2cnr = bas_check_handle(basisin,'bas_ce2cnr')
       if(.not.bas_ce2cnr) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
