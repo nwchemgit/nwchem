@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.29 2003-04-22 18:39:35 bylaska Exp $
+* $Id: psi.F,v 1.30 2003-05-07 21:52:26 bylaska Exp $
 *
 
 *     ***********************************
@@ -170,21 +170,21 @@
    
          e0 = -e0
          
-         if (it.eq.1) then
-           percent_error = 1.0d0
-         else if (it.eq.2) then
-           error0 = dabs(e0-eold)
-           percent_error = 1.0d0
-         else
+         !if (it.eq.1) then
+         !  percent_error = 1.0d0
+         !else if (it.eq.2) then
+         !  error0 = dabs(e0-eold)
+         !  percent_error = 1.0d0
+         !else
            percent_error = dabs(e0-eold)/error0
-         end if
+         !end if
 
          done = ((it.gt.maxiteration) 
      >           .or.
-     >           ((percent_error.lt.perror)
-     >           .and.(dabs(e0-eold).lt.maxerror)))
+     >           (dabs(e0-eold).lt.maxerror))
 
          if (done) go to 4
+
 
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Pack_cc_daxpy(1,(e0),
@@ -268,11 +268,13 @@
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,theta,e1
+      real*8 x,y,pi,theta,dtheta,dtheta_min,e1
 
       psi_ptr=psi1_excited(1)
 
       pi = 4.0d0*datan(1.0d0)
+      dtheta = pi/300.0d0
+      dtheta_min = 0.01*dtheta
 
 *     **** allocate stack memory ****
       value = MA_push_get(mt_dcpl,npack1,'orb',
@@ -288,8 +290,8 @@
      >                   dcpl_mb(orb(1)))
 
 *     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
-      x = cos(pi/300.0d0)
-      y = sin(pi/300.0d0)
+  10  x = cos(dtheta)
+      y = sin(dtheta)
       call Pack_c_SMul(1,x,
      >                  dcpl_mb(orb(1)),
      >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
@@ -303,9 +305,19 @@
      >                   dcpl_mb(g(1)),
      >                   e1)
       e1 = -e1
-      x = (e0 - e1 + 0.5d0*de0*sin(2*pi/300.0d0))
-     >    /(1.0d0-cos(2*pi/300.0d0))
+
+     
+      if (((-e1).gt.(-e0)).and.(dtheta.gt.dtheta_min)) then
+         dtheta = 0.5d0*dtheta
+         go to 10
+      end if
+
+      x = (e0 - e1 + 0.5d0*de0*sin(2*dtheta))
+     >    /(1.0d0-cos(2*dtheta))
       theta = 0.5d0*datan(0.5d0*de0/x) 
+    
+   
+  
 
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
@@ -607,19 +619,23 @@
      >                    e0)
          e0 = -e0
          
-         if (it.eq.1) then
-           percent_error = 1.0d0
-         else if (it.eq.2) then
-           error0 = dabs(e0-eold)
-           percent_error = 1.0d0
-         else
-           percent_error = dabs(e0-eold)/error0
-         end if
+         !if (it.eq.1) then
+         !  percent_error = 1.0d0
+         !else if (it.eq.2) then
+         !  error0 = dabs(e0-eold)
+         !  percent_error = 1.0d0
+         !else
+         !  percent_error = dabs(e0-eold)/error0
+         !end if
+
+c        done = ((it.gt.maxiteration) 
+c    >           .or.
+c    >           ((percent_error.lt.perror)
+c    >           .and.(dabs(e0-eold).lt.maxerror)))
 
          done = ((it.gt.maxiteration) 
      >           .or.
-     >           ((percent_error.lt.perror)
-     >           .and.(dabs(e0-eold).lt.maxerror)))
+     >           (dabs(e0-eold).lt.maxerror))
 
          if (done) go to 4
 

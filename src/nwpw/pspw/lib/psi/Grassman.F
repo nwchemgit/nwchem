@@ -1,8 +1,12 @@
 *
-* $Id: Grassman.F,v 1.8 2003-03-09 00:09:12 bylaska Exp $
+* $Id: Grassman.F,v 1.9 2003-05-07 21:52:26 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2003/03/09 00:09:12  bylaska
+* Added Grsm_ggm_sym_dot subroutine for more efficient calculation of
+* product that result in symmetry matrices...EJB
+*
 
 *     ***********************************************************
 *     *								*
@@ -46,11 +50,10 @@
 *     **** local variables ****
       integer i
 
-      do i=1,n
-c         call D3dB_c_Copy(1,A(1,i),C(1,i))
-         call Pack_c_Copy(1,A(1,i),C(1,i))
-
-      end do
+c     do i=1,n
+c        call Pack_c_Copy(1,A(1,i),C(1,i))
+c     end do
+      call dcopy(2*n*nfft3d,A,1,C,1)
  
       return
       end
@@ -74,9 +77,10 @@ c         call D3dB_c_Copy(1,A(1,i),C(1,i))
 *     **** local variables ****
       integer i
 
-      do i=1,n
-         call D3dB_r_Copy(1,A(1,i),C(1,i))
-      end do
+c     do i=1,n
+c        call D3dB_r_Copy(1,A(1,i),C(1,i))
+c     end do
+      call dcopy(2*n*nfft3d,A,1,C,1)
  
       return
       end
