@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_becke88.F,v 1.19 1999-03-13 01:05:15 bjohnson Exp $
+C$Id: xc_becke88.F,v 1.20 2001-05-11 01:53:56 edo Exp $
 c
       implicit none
 c      
@@ -142,7 +142,7 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = rho(n,2)**(1.d0/3.d0)
+            rho13 = abs(rho(n,2))**(1.d0/3.d0)*sign(1d0,rho(n,2))
             rho43 = rho13**4 
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
@@ -202,7 +202,7 @@ c           Spin beta:
 c
             if (dabs(rho(n,3)).lt.tol_rho) goto 20
 c
-            rho13 = rho(n,3)**(1.d0/3.d0)
+            rho13 = abs(rho(n,3))**(1.d0/3.d0)*sign(1d0,rho(n,3))
             rho43 = rho13**4 
             gamma = delrho(n,1,2)*delrho(n,1,2) +
      &              delrho(n,2,2)*delrho(n,2,2) +

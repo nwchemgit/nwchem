@@ -7,7 +7,7 @@
      &                       qwght, ldew, func)
 #endif
 c
-C$Id: xc_lyp88.F,v 1.15 2001-04-12 02:28:27 edo Exp $
+C$Id: xc_lyp88.F,v 1.16 2001-05-11 01:53:56 edo Exp $
 c
       implicit none 
 c
@@ -250,8 +250,10 @@ c
             rhoa2 = rhoa*rhoa
             rhob2 = rhob*rhob
             rhoab = rhoa*rhob
-            rhoa53 = abs(rhoa)**F53
-            rhob53 = abs(rhob)**F53
+            rhoa53 = abs(rhoa)**F53*sign(1d0,rhoa)
+            rhob53 = abs(rhob)**F53*sign(1d0,rhob)
+csedo            rhoa53 = abs(rhoa)**F53
+csedo            rhob53 = abs(rhob)**F53
             rhoa83 = rhoa*rhoa53
             rhob83 = rhob*rhob53
 #ifdef SECOND_DERIV
@@ -260,8 +262,9 @@ c
             rhob113 = rhob*rhob83
 #endif
 c
-            h2 = d*rrho**F13
-            d1h2 = -F13*h2*rrho
+cedo            h2 = d*abs(rrho)**F13*sign(1d0,rrho)
+            h2 = d*abs(rrho)**F13
+            d1h2 = -F13*h2*rrho*sign(1d0,rrho)
 #ifdef SECOND_DERIV
             d2h2 = -F43*d1h2*rrho
 #endif
@@ -278,7 +281,8 @@ c
             d2h1 = -(2d0*h1*d1h1*d1h2 + h1*h1*d2h2)
 #endif
 c
-            om = exp(-h3)*h1*rrho**F113
+            om = exp(-h3)*h1*abs(rrho)**F113
+cedo            om = exp(-h3)*h1*abs(rrho)**F113*sign(1d0,rrho)
             t = d1h3+h1*d1h2+F113*rrho
             d1om = -om*t
 #ifdef SECOND_DERIV

@@ -3,7 +3,7 @@ c     General implementation of VWN functionals
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_a.fh,v 1.1 2000-05-03 15:57:28 bjohnson Exp $
+* $Id: xc_vwn_a.fh,v 1.2 2001-05-11 01:53:56 edo Exp $
 *
 c     Meanings of macros used in constructing different VWN parameterizations
 c     The determining macro FNL_VWN_xxx is set in the .F file
@@ -212,7 +212,7 @@ c
             if (abs(rho(n,1)).lt.tol_rho)goto 100
 c
             rhoval = rho(n,1)
-            rs = p0*rhoval**(-onethird)
+            rs = p0*abs(rhoval)**(-onethird)*sign(1d0,rhoval)
             d1rs = -onethird*rs/rhoval
             x = sqrt(rs)
             d1x = 0.5d0/x
@@ -278,9 +278,9 @@ c
             if (abs(rho(n,1)).lt.tol_rho)goto 200
 c
             rhoval = rho(n,1)
-            rs = p0*rhoval**(-onethird)
+            rs = p0*abs(rhoval)**(-onethird)*sign(1d0,rhoval)
             d1rs = -onethird*rs/rhoval
-            x = sqrt(rs)
+            x = sqrt(abs(rs))**sign(1d0,rs)
             d1x = 0.5d0/x
 #ifdef SECOND_DERIV
             d2rs = -fourthirds*d1rs/rhoval
@@ -294,8 +294,9 @@ c
                d1chi = 2.0d0*x + b(i)
                s = Q(i)/d1chi
                d1s = -2.0d0*s/d1chi
-               t1 = log(rs*rchi)
-               t2 = log((x - x0(i))*(x - x0(i))*rchi)
+               t1 = log(abs(rs*rchi))
+               d1t1=(x - x0(i))*(x - x0(i))*rchi
+               t2 = log(abs(d1t1))
                t3 = atan(s)
                d1t1 = 2.0d0/x - d1chi*rchi
                d1t2 = 2.0d0/(x-x0(i)) - d1chi*rchi
