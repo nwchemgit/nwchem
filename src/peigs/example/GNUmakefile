@@ -1,7 +1,7 @@
 include ../../config/makefile.h
 include ../DEFS
 
-peigs_LIBS 	=	$(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB) $(peigs_EXAMPLE_LIB)
+peigs_LIBS = $(peigs_PEIGSLIB) $(peigs_LAPACKLIB) $(peigs_BLASLIB) $(peigs_MATHLIB) $(peigs_COMMLIB)
 #
 # Do not use -lkmath on delta, it occasionally causes 
 # erroneous results (e.g. with tri_test.c with robert_tri as input
@@ -14,16 +14,22 @@ teslamch:	teslamch.o slamch.o dlamch.o lsame.o
 		$(peigs_LINK) $(peigs_FOPT) -o teslamch teslamch.o slamch.o dlamch.o lsame.o
 
 geneig_la:	gendrv.o geneig_la.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o geneig_la gendrv.o geneig_la.o tim_com.o $(peigs_LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o geneig_la \
+		gendrv.o geneig_la.o tim_com.o $(peigs_LIBS)
 
 tsterr:		gendrv.o tsterr.o
-		$(peigs_LINK) $(peigs_FOPT) -o tsterr gendrv.o tsterr.o $(peigs_LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o tsterr gendrv.o \
+		tsterr.o $(peigs_LIBS)
 
 geneig:		gendrv.o geneig2.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o geneig2.o tim_com.o $(peigs_LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o geneig gendrv.o \
+		geneig2.o tim_com.o $(peigs_LIBS) \
+		-lpeigs -llapack -lblas -ltcgmsg -lsci
 
 wilk:		gendrv.o wilk2.o tim_com.o
-		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o tim_com.o $(peigs_LIBS)
+		$(peigs_LINK) $(peigs_FOPT) -o wilk gendrv.o wilk2.o \
+		 tim_com.o  \
+		-lpeigs -llapack -lblas -ltcgmsg -lsci
 
 tritest:	gendrv.o tri_test.o tim_com.o
 		$(peigs_LINK) $(peigs_FOPT) -o tritest gendrv.o tri_test.o tim_com.o $(peigs_LIBS)
