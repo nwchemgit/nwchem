@@ -531,10 +531,13 @@ the restart file is read.
 
 \item
 \begin{verbatim}
-guided
+guided [<real fguide default 0.2> [<real tguide default 0.2>]]
 \end{verbatim}
 specifies the use of the guided molecular dynamics simulation
-technique. The current implementation is still under development.
+technique. Variable $fguide$ defines the fraction of the averaged
+forces to be added to the current forces. Variable $tguide$ defines
+the length of the averaging. The current implementation is still under 
+development.
 
 \item
 \begin{verbatim}
@@ -699,7 +702,8 @@ QM/MM simulations.
 \item
 \begin{verbatim}
 pme [grid <integer ng>] [alpha <real ealpha>] \
-    [order <integer morder>] [fft <integer imfft>] 
+    [order <integer morder>] [fft <integer imfft>]\
+    [procs <integer nprocs>] 
 \end{verbatim}
 specifies the use of smooth particle-mesh Ewald long range
 interaction treatment,
@@ -709,7 +713,8 @@ that leads to a tolerance of $10^{-4}$ at the short range cutoff radius,
 and \verb+morder+ is order of the Cardinal B-spline
 interpolation which must be an even number and at least 4 (default
 value). A platform specific 3D fast Fourier transform is used, if
-available, when \verb+imfft+ is set to 2.
+available, when \verb+imfft+ is set to 2. \verb+nprocs+ can be used to
+define a subset of processors to be used to do the FFT calculations.
 \end{description}
 
 \section{Fixing coordinates}
