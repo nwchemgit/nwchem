@@ -1,0 +1,27 @@
+echo
+
+start li2freq
+
+charge 0
+
+geometry 
+li 0 0 0
+li 0 0 2.76296
+end
+
+basis "ao basis"
+* library "6-311+G*"
+end
+dft
+xc mpw91
+end
+
+task dft optimize
+task dft freq
+
+
+
+
+
+
+
