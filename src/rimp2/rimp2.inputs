@@ -4,6 +4,9 @@ input module.  The following are RTDB etries that are currently
 recognized.
 
 Module:		debtest (invokes SCF then RI-MP2)
+                rimp2 (invokes RI-MP2 only. Must be provided with SCF
+                        eigenvectors (movecs). Should be run as a
+                        restart from the SCF rtdb to get SCF energy.)
 Context:        mp2
 
 INPUTS
@@ -41,6 +44,10 @@ INPUTS
         "batch size" * NFit elements each.  This is really a
         workaround for the fact that we don't yet have a good way to control
         and inquire about memory usage by GA routines.
+
+"ri approximation"      default "V"
+        Selects the RI integral approximation to be used.  Currently
+        understood are "V" and "SVS".
 
 OUTPUTS
 -------
