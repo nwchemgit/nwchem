@@ -10,12 +10,14 @@ c
       integer ipmf(maxpmf,5),rpmf(maxpmf,4)
       integer igroup(maxgrp,maxatm),lgroup(maxgrp)
 c
-      integer i,j,k,m
+      integer i,j,k,m,n
 c
       m=0
       k=0
       do 5 i=1,numpmf
-      do 6 j=2,ipmf(i,1)+2
+      n=ipmf(i,1)
+      if(ipmf(i,1).eq.5) n=0
+      do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
     6 continue
       if(ipmf(i,1).eq.5) k=k+lgroup(ipmf(i,2))-1

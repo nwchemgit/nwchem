@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup)
 c
-c $Id: pre_select.F,v 1.2 2000-02-20 16:05:15 d3j191 Exp $
+c $Id: pre_select.F,v 1.3 2000-03-29 00:45:29 d3j191 Exp $
 c
       implicit none
 c
@@ -57,8 +57,11 @@ c
       if(lgroup(igrp).gt.maxatm)
      + call errquit('Increase group maxatm',maxatm)
       igroup(igrp,lgroup(igrp))=i
+      goto 2
       endif
     1 continue
+      call errquit('Atom in select not found:',isgm)
+    2 continue
 c
       pre_select=.true.
       return
