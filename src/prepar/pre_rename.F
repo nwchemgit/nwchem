@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.15 2000-06-01 04:38:54 d3j191 Exp $
+c $Id: pre_rename.F,v 1.16 2000-07-14 19:54:31 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -83,7 +83,7 @@ c
 c
     2 continue
       do 3 i=1,nseq
-      if(cseq(2,i)(1:3).eq.'HIS') cseq(2,i)(1:3)='HID'
+      if(cseq(2,i)(1:3).eq.'HIS') cseq(2,i)(1:3)='HIE'
     3 continue
       endif
 c
