@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.15 1997-02-13 01:15:47 d3g681 Exp $
+c $Id: bas.fh,v 1.16 1997-02-17 17:50:16 d3g681 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -27,6 +27,7 @@ c
       logical bas_bf2cn
       logical bas_numbf          
       logical bas_name
+      logical bas_cando_mpoles
 c
       logical bas_get_exponent   
       logical bas_continfo       
@@ -119,3 +120,4 @@ c
       external bas_cont_tag
 c
       external bas_checksum
+      external bas_cando_mpoles

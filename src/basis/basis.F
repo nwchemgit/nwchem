@@ -1,5 +1,32 @@
+      logical function bas_cando_mpoles(basis)
+      implicit none
+      integer basis             ! [input]
+c
+c     Return true if it's possible to compute multipoles for this basis
+c
+c     The multipole code cannot handle sphericals, general contractions
+c     or SP shells.
+c
+      integer nshell, ishell, type, nprim, ngen, sphcart
+      logical bas_numcont, bas_continfo
+      external bas_numcont, bas_continfo
+c
+      bas_cando_mpoles = .false.
+c
+      if (.not. bas_numcont(basis, nshell)) call errquit
+     $     ('multipole: basis bad?',0)
+      do ishell = 1, nshell
+         if (.not. bas_continfo(basis, ishell, type, 
+     $        nprim, ngen, sphcart)) call errquit
+     $        ('multipole: basis bad?',0)
+         if (type.lt.0 .or. ngen.gt.1 .or. sphcart.ne.0) return
+      enddo
+c
+      bas_cando_mpoles = .true.
+c
+      end
       logical function bas_version()
-c $Id: basis.F,v 1.51 1997-02-13 01:15:49 d3g681 Exp $
+c $Id: basis.F,v 1.52 1997-02-17 17:50:18 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
