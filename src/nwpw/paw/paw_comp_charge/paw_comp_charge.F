@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.19 2003-02-17 00:53:26 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.20 2003-02-21 02:31:14 bylaska Exp $
 *
 
 
@@ -116,7 +116,7 @@
 
 *       *** zero the comp charges ***
         do i=1,paw_qlm(3)
-          dcpl_mb(paw_qlm(1)+i-1) = dcmplx(0,0)
+          dcpl_mb(paw_qlm(1)+i-1) = dcmplx(0.0d0,0.0d0)
         end do
     
 c       !*** set values for l=0 m=0 elements ***
