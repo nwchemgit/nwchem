@@ -4,7 +4,7 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.6 2003-02-22 05:58:53 edo Exp $
+C     $Id: rimp2_xf.F,v 1.7 2003-02-26 20:37:23 edo Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
@@ -227,6 +227,10 @@ C        *****************************************************
 C
          Status = Open_3ci_file(D_Int(ISpin), FNInt, ISpin, NA, NI,
      $      G_Out,actualname)
+#ifdef DEBUG
+         write(luout,*) ga_nodeid(),' xf opened FD ',D_Int(ISpin)
+         call util_flush(luout)
+#endif
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver: Unable to open integral file', ISpin)
@@ -264,6 +268,10 @@ C
      $      'RIMP2_XF_Driver:  Unable to free global arrays',
      $      ISpin)
 C
+#ifdef DEBUG
+         write(luout,*) ga_nodeid(),'xf try close FD ',D_Int(ISpin)
+         call util_flush(luout)
+#endif
          Status = Close_3ci_file(D_Int(ISpin), 'KEEP',actualname)
 C
          If ( .NOT. Status ) Call ErrQuit(

@@ -1,6 +1,6 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out,
      , filnam)
-C$Id: open_3ci.F,v 1.9 2003-02-22 05:58:52 edo Exp $
+C$Id: open_3ci.F,v 1.10 2003-02-26 20:37:23 edo Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -140,13 +140,27 @@ C
       tmpname(lnblnk(tmpname)+1:) = sp
       call util_file_name(tmpname, .true., .true., filnam)
 C
+#ifdef DEBUG
+        write(luout,*) ga_nodeid(),' recl ',recl
+        call util_flush(luout)
+#endif
       If ( RecL .gt. 0) then
         ierr=eaf_open(FilNam(:LNBlnk(FilNam)), eaf_rw, LU)
+#ifdef DEBUG
+        write(luout,*) ga_nodeid(),' opened FD =',LU,
+     ,     FilNam(:LNBlnk(FilNam))  
+        call util_flush(luout)
+#endif
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
            call errquit('open_3ci: eaf_open failed', ierr)
         endif
+      else
+c
+c     LU set to -1 to avoide close problems
+c
+         LU=-1
       endif
 C
       Open_3ci_File = .TRUE.

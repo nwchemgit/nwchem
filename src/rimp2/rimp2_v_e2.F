@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.27 2003-02-22 05:58:52 edo Exp $
+C     $Id: rimp2_v_e2.F,v 1.28 2003-02-26 20:37:23 edo Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
@@ -217,6 +217,10 @@ C        Open integral file
 C
          Status = Open_3ci_file(D_Int(ISpin), FNInt, ISpin,
      $      NVir(ISpin), NOcc(ISpin), G_bigI,actualname)
+#ifdef DEBUG
+         write(luout,*) ga_nodeid(),' ve2 opened FD ',D_Int(ISpin)
+         call util_flush(luout)
+#endif
          If ( .NOT. Status ) then
             Write (LuErr, *) 'RIMP2_v_E2:  Problems opening ',
      $         'integral file for spin ', ISpin, '!'
