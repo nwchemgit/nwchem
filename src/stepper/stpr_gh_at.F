@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.18 1999-01-19 23:50:04 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.19 1999-05-31 23:26:56 d3g681 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -722,6 +722,7 @@ c
 c     
 c     reset "geometry" to appropriate designation
 c     
+        ignore_status = rtdb_delete(rtdb,'geometry:actlist')
         ignore_status = rtdb_delete(rtdb,'geometry')  ! always try to delete geometry alias
         if (ogeom_aliased) then
           if(.not.rtdb_cget(rtdb,'stpr:gh:at:alias:name',1,tmpname))

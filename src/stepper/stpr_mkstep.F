@@ -3,7 +3,7 @@
      &       ENERGY, CONVGE, CONVGG, CONVGGM, GRAD_MAX,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD,rtdb)
-c $Id: stpr_mkstep.F,v 1.7 1998-04-21 06:57:28 mdupuis Exp $
+c $Id: stpr_mkstep.F,v 1.8 1999-05-31 23:26:57 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
@@ -340,15 +340,18 @@ C
      $        '  In cartesian coordinates; norm of this step is: ',
      $        SLNGTH
       endif
-      IF (SLNGTH.LE.CONVGG) THEN
-         if (oprint_step) then
-            WRITE(6,'(a,f10.6)')
-     $           '  Norm of this step is less than ',CONVGG
-            WRITE(6,*)'  This geometry walk is HISTORY. '
-         endif
-         CNVGRD = .TRUE.
-        RETURN
-      ENDIF
+c
+c     RJH .. this was causing premature convergence.
+c
+c$$$      IF (SLNGTH.LE.CONVGG) THEN
+c$$$         if (oprint_step) then
+c$$$            WRITE(6,'(a,f10.6)')
+c$$$     $           '  Norm of this step is less than ',CONVGG
+c$$$            WRITE(6,*)'  This geometry walk is HISTORY. '
+c$$$         endif
+c$$$         CNVGRD = .TRUE.
+c$$$        RETURN
+c$$$      ENDIF
 C
 C     Find the largest component of STEP.
 C
