@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.34 1999-08-28 02:14:58 d3j191 Exp $
+c $Id: sp_init.F,v 1.35 1999-08-31 17:23:33 d3j191 Exp $
 c
       implicit none
 c
@@ -1168,8 +1168,6 @@ c
       if(rlong*rlong.gt.dist2) mbbl=mbbl+1
       endif
       if(rlong*rlong.gt.dist2) mbblb=mbblb+1
-      if(me.eq.0) write(*,'(2i5,2f12.6)')
-     +  mbbl,mbblb,dist2,rlong*rlong
  6    continue
  5    continue
  4    continue

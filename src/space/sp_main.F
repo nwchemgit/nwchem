@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.19 1999-08-28 02:14:58 d3j191 Exp $
+c $Id: sp_main.F,v 1.20 1999-08-31 17:23:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1295,7 +1295,7 @@ c
 c
       return
       end
-      subroutine sp_getxbl(ibbl,lhandl,
+      subroutine sp_getxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,lself)
 c
       implicit none
@@ -1307,15 +1307,15 @@ c
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      logical lself
+      logical lself,local
 c
-      call sp_gtxbl(ibbl,lhandl,
+      call sp_gtxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself)
 c
       return
       end
-      subroutine sp_gtxbl(ibbl,lhandl,
+      subroutine sp_gtxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + lbbl,ipl,jpl,lself)
 c
@@ -1329,7 +1329,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       integer lbbl(mbbl,mbb2)
       integer ipl(mbox,mip2),jpl(mbox,mip2)
-      logical lself
+      logical lself,local
 c
       integer i,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
 c
@@ -1340,6 +1340,7 @@ c
       jbox=lbbl(ibbl,2)
       ibox=lbbl(ibbl,3)
       lhandl=lbbl(ibbl,4)
+      local=jnode.eq.me
 c
       lself=ibox.eq.jbox
 c
