@@ -519,7 +519,10 @@ write [rst | [solute [<integer nsolvent>]] (pdb | xyz)] <string filename>
 These directives read and write the file \verb+filename+ in the specified
 format. The \verb+solute+ option instructs to write out the coordinates
 for solute and all, or if specified the first \verb+nsolvent+, crystal solvent 
-molecules only. 
+molecules only.
+If no format is specified, it will be derived from the extension of the
+filename. Recognized extensions are rst, rst\_old (read only), pdb and xyz
+(write only).
 Reading and then writing the same restart file will cause the
 sub-block size information to be lost. If this information needs to be
 retained a shell copy command needs to be used.

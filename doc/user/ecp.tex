@@ -1,5 +1,5 @@
 \label{sec:ecp}
-
+\def\ell{l}
 Effective core potentials (ECPs) are a useful means of replacing the core
 electrons in a calculation with an effective potential, thereby eliminating
 the need for the core basis functions, which usually require a large set of
@@ -32,11 +32,11 @@ U^{\rm AREP}_\ell(r) = \frac{1}{2\ell+1} \left[ \ell U^{\rm REP}_{\ell-1/2}(r)
 + (\ell+1) U^{\rm REP}_{\ell+1/2}(r) \right].
 \end{equation}
 These are summed into the full potential,
-\begin{equation}
-U^{\rm AREP} = U^{\rm AREP}_{L}(r) + \sum_{\ell=0}^{L-1}
-\left[ U^{\rm AREP}_{\ell}(r) -  U^{\rm AREP}_{L}(r)
-\sum_m | \ell m \rangle \langle \ell m |.
-\end{equation}
+%\begin{equation}
+%U^{\rm AREP} = U^{\rm AREP}_{L}(r) + \sum_{\ell=0}^{L-1}
+%\left[ U^{\rm AREP}_{\ell}(r) -  U^{\rm AREP}_{L}(r)
+%\sum_m | \ell m \rangle \langle \ell m |.
+%\end{equation}
 The spin-orbit potential is obtained from the difference between the REPs
 for the two $j$ values for a given \ell, and may be 
 represented in terms of an effective spin-orbit operator,
