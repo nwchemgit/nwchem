@@ -21,9 +21,13 @@ property
   efield
   efieldgrad
   electrondensity
-  giao
+  shielding
 end
 
-task scf
+task scf property
 
-task property
+dft
+ xc b3lyp
+end
+
+task dft property

@@ -26,12 +26,16 @@ property
   efield
   efieldgrad
   electrondensity
-  giao
+  shielding
 end
 
-task scf
+task scf property
 
-task property
+dft
+ xc b3lyp
+end
+
+task dft property
 ================================================================================
 
 
@@ -39,7 +43,7 @@ task property
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 4.1
+              Northwest Computational Chemistry Package (NWChem) 4.6
               ------------------------------------------------------
  
  
@@ -52,7 +56,7 @@ task property
  
  
                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                               1999, 2000, 2001, 2002
+                         1999, 2000, 2001, 2002, 2003, 2004
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -108,12 +112,12 @@ task property
            Job information
            ---------------
 
-    hostname      = ng122
-    program       = /home/bert/nwchem.latest/bin/LINUX64/nwchem
-    date          = Fri Feb  7 15:31:19 2003
+    hostname      = m570
+    program       = /home/bert/nwchem.latest.p2/bin/LINUX64/nwchem
+    date          = Thu Dec 16 17:45:10 2004
 
-    compiled      = Fri Feb  7 15:27:37 PST 2003
-    source        = /home/bert/nwchem.latest
+    compiled      = Thu Dec 16 17:35:17 PST 2004
+    source        = /home/bert/nwchem.latest.p2
     nwchem branch = Development
     input         = prop_h2o.nw
     prefix        = prop_h2o.
@@ -121,16 +125,15 @@ task property
     status        = startup
     nproc         =    1
     time left     =     -1s
-
-
+    batch job id  = 183897
 
            Memory information
            ------------------
 
-    heap      =  144179200 doubles =   1100.0 Mbytes
-    stack     =   91750397 doubles =    700.0 Mbytes
-    global    =  235929614 doubles =   1800.0 Mbytes (within heap+stack)
-    total     =  235929597 doubles =   1800.0 Mbytes
+    heap      =   39321601 doubles =    300.0 Mbytes
+    stack     =   13107201 doubles =    100.0 Mbytes
+    global    =   52428815 doubles =    400.0 Mbytes (within heap+stack)
+    total     =   52428802 doubles =    400.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -139,7 +142,7 @@ task property
            ---------------------
  
   0 permanent = .
-  0 scratch   = .
+  0 scratch   = /scratch
  
  
  
@@ -148,9 +151,8 @@ task property
                                 -------------------
  
  
-                                                                                                                               h2o
-                                                                                                                               ---
- 
+                                        h2o
+                                        ---
  C2V symmetry detected
 
           ------
@@ -209,6 +211,15 @@ task property
     2 Stretch                  1     3                       1.12245
     3 Bend                     2     1     3               120.45993
  
+  library name resolved from: .nwchemrc
+  library file name is: </home/bert/nwchem.latest.p2/src/basis/libraries/>
+  
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                                        h2o
+ 
                                  NWChem SCF Module
                                  -----------------
  
@@ -226,8 +237,8 @@ task property
   wavefunction    = RHF 
   input vectors   = atomic
   output vectors  = ./prop_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
+  use symmetry    = F
+  symmetry adapt  = F
 
 
  Summary of "ao basis" -> "ao basis" (cartesian)
@@ -238,16 +249,8 @@ task property
  O                           sto-3g                  3        5   2s1p
 
 
-      Symmetry analysis of basis
-      --------------------------
- 
-        a1          4
-        a2          0
-        b1          2
-        b2          1
- 
 
- Forming initial guess at       0.2s
+ Forming initial guess at       1.7s
 
  
       Superposition of Atomic Density Guess
@@ -264,75 +267,49 @@ task property
  HOMO         =      -0.227821
  LUMO         =       0.298134
  
- 
-      Symmetry analysis of molecular orbitals - initial
-      -------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1          2 a2          3 b1          4 b2      
- 
-  Orbital symmetries:
- 
-     1 a1          2 a1          3 b1          4 a1          5 b2      
-     6 a1          7 b1      
- 
 
- Starting SCF solution at       0.3s
+ Starting SCF solution at       1.8s
 
 
 
  ----------------------------------------------
          Quadratically convergent ROHF
 
- Convergence threshold     :          1.000E-04
+ Convergence threshold     :          1.000E-06
  Maximum no. of iterations :           20
- Final Fock-matrix accuracy:          1.000E-07
+ Final Fock-matrix accuracy:          1.000E-08
  ----------------------------------------------
 
 
- #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./prop_h2o.aoints.0
+ Integral file          = /scratch/prop_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
+ Max. records in memory =      2        Max. records in file   =  21796
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.8588540099  7.27D-01  6.03D-01      0.2
-                 2      -74.9124589392  1.40D-01  1.01D-01      0.2
-                 3      -74.9139808890  3.43D-02  2.42D-02      0.2
-                 4      -74.9140706256  3.75D-04  2.77D-04      0.2
-                 5      -74.9140706450  5.34D-06  4.16D-06      0.2
+                 1      -74.8588540099  7.27D-01  6.03D-01      0.5
+                 2      -74.9124589392  1.40D-01  1.01D-01      0.5
+                 3      -74.9139808890  3.43D-02  2.42D-02      0.5
+                 4      -74.9140706256  3.75D-04  2.77D-04      0.5
+                 5      -74.9140706450  2.38D-08  1.82D-08      0.5
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.914070644978
-      One-electron energy =   -119.966141479470
-      Two-electron energy =     37.237333369920
+         Total SCF energy =    -74.914070644958
+      One-electron energy =   -119.966144626227
+      Two-electron energy =     37.237336516698
  Nuclear repulsion energy =      7.814737464571
 
         Time for solution =      0.1s
 
 
- 
-       Symmetry analysis of molecular orbitals - final
-       -----------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1          2 a2          3 b1          4 b2      
- 
-  Orbital symmetries:
- 
-     1 a1          2 a1          3 b1          4 a1          5 b2      
-     6 a1          7 b1      
- 
              Final eigenvalues
              -----------------
 
@@ -348,45 +325,45 @@ task property
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
  
- Vector    2  Occ=2.000000D+00  E=-1.186010D+00  Symmetry=a1
-              MO Center=  3.5D-16, -1.5D-17, -5.7D-02, r^2= 5.6D-01
+ Vector    2  Occ=2.000000D+00  E=-1.186009D+00
+              MO Center= -9.8D-16,  4.8D-19, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.892954  1 O  s                  1     -0.240442  1 O  s          
  
- Vector    3  Occ=2.000000D+00  E=-5.539732D-01  Symmetry=b1
-              MO Center= -3.1D-15, -1.5D-31, -2.1D-01, r^2= 1.0D+00
+ Vector    3  Occ=2.000000D+00  E=-5.539732D-01
+              MO Center=  1.8D-15, -7.7D-33, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.584126  1 O  px                 6     -0.451451  2 H  s          
-     7      0.451451  3 H  s          
+     3      0.584127  1 O  px                 7      0.451450  3 H  s          
+     6     -0.451450  2 H  s          
  
- Vector    4  Occ=2.000000D+00  E=-3.948621D-01  Symmetry=a1
-              MO Center=  3.9D-15, -9.8D-17,  4.3D-02, r^2= 7.4D-01
+ Vector    4  Occ=2.000000D+00  E=-3.948617D-01
+              MO Center= -1.2D-16,  2.4D-17,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.791068  1 O  pz                 2      0.436427  1 O  s          
-     7     -0.320232  3 H  s                  6     -0.320232  2 H  s          
+     5      0.791068  1 O  pz                 2      0.436428  1 O  s          
+     6     -0.320232  2 H  s                  7     -0.320232  3 H  s          
  
- Vector    5  Occ=2.000000D+00  E=-3.725538D-01  Symmetry=b2
-              MO Center= -9.2D-32,  1.1D-16,  6.2D-02, r^2= 4.2D-01
+ Vector    5  Occ=2.000000D+00  E=-3.725535D-01
+              MO Center=  1.5D-32, -2.8D-17,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
  
- Vector    6  Occ=0.000000D+00  E= 4.209275D-01  Symmetry=a1
-              MO Center= -1.7D-15,  1.1D-18, -4.0D-01, r^2= 1.3D+00
+ Vector    6  Occ=0.000000D+00  E= 4.209277D-01
+              MO Center= -2.7D-15,  2.8D-18, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.713199  2 H  s                  7      0.713199  3 H  s          
-     2     -0.669383  1 O  s                  5      0.661753  1 O  pz         
+     2     -0.669383  1 O  s                  5      0.661754  1 O  pz         
  
- Vector    7  Occ=0.000000D+00  E= 6.126017D-01  Symmetry=b1
-              MO Center=  5.8D-16,  5.7D-34, -2.4D-01, r^2= 1.2D+00
+ Vector    7  Occ=0.000000D+00  E= 6.126016D-01
+              MO Center=  1.6D-15, -5.2D-33, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.945894  1 O  px                 7     -0.711467  3 H  s          
-     6      0.711467  2 H  s          
+     3      0.945893  1 O  px                 7     -0.711468  3 H  s          
+     6      0.711468  2 H  s          
  
 
  center of mass
@@ -413,24 +390,476 @@ task property
  
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
-     0   0 0 0      0.000000      0.000000     10.000000
+     0   0 0 0     -0.000000      0.000000     10.000000
  
      1   1 0 0     -0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
-     1   0 0 1     -0.560196      0.000000     -0.927695
+     1   0 0 1     -0.560197      0.000000     -0.927695
  
-     2   2 0 0     -2.770212      0.000000      6.779949
+     2   2 0 0     -2.770209      0.000000      6.779949
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.613255      0.000000      0.000000
      2   0 1 1     -0.000000      0.000000      0.000000
-     2   0 0 2     -4.068125      0.000000      1.860763
+     2   0 0 2     -4.068124      0.000000      1.860763
  
 
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        0.1s     wall:        0.4s
+          -------------
+          Dipole Moment
+          -------------
+
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
+
+   Dipole moment        0.5601971839 A.U.
+             DMX       -0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -0.5601971839 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 A.U.
+   Total dipole         0.5601971839 A.U.
+
+   Dipole moment        1.4238899760 Debye(s)
+             DMX       -0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -1.4238899760 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 DEBYE(S)
+   Total dipole         1.4238899760 DEBYE(S)
+
+ 1 a.u. = 2.541766 Debyes 
+
+          -----------------
+          Quadrupole Moment
+          -----------------
+
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
+
+ < R**2 > =  20.110177 a.u.  ( 1 a.u. = 0.280023 10**(-16) cm**2 ) 
+ ( also called diamagnetic susceptibility ) 
+
+   Second moments in atomic units
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX           -2.7702089474          0.0000000000         -2.7702089474
+      YY           -4.6132552220          0.0000000000         -4.6132552220
+      ZZ           -4.1720622475          0.0000000000         -4.1720622475
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000000          0.0000000000          0.0000000000
+      YZ           -0.0000000000          0.0000000000         -0.0000000000
+
+   Second moments in buckingham(s)
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX           -3.7256844857          0.0000000000         -3.7256844857
+      YY           -6.2044176939          0.0000000000         -6.2044176939
+      ZZ           -5.6110524094          0.0000000000         -5.6110524094
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000000          0.0000000000          0.0000000000
+      YZ           -0.0000000000          0.0000000000         -0.0000000000
+
+   Quadrupole moments in atomic units
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX            1.6224497874          0.0000000000          1.6224497874
+      YY           -1.1421196246          0.0000000000         -1.1421196246
+      ZZ           -0.4803301628          0.0000000000         -0.4803301628
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000000          0.0000000000          0.0000000000
+      YZ           -0.0000000000          0.0000000000         -0.0000000000
+
+   Quadrupole moments in buckingham(s)
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX            2.1820505660          0.0000000000          2.1820505660
+      YY           -1.5360492464          0.0000000000         -1.5360492464
+      ZZ           -0.6460013196          0.0000000000         -0.6460013196
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000000          0.0000000000          0.0000000000
+      YZ           -0.0000000000          0.0000000000         -0.0000000000
+
+ 1 a.u. = 1.344911 Buckinghams = 1.344911 10**(-26) esu*cm**2 
+
+          ---------------
+          Octupole Moment
+          ---------------
+
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
+
+   Third moments in atomic units
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000000000          0.0000000000         -0.0000000000
+      YYY          -0.0000000000          0.0000000000         -0.0000000000
+      ZZZ           0.1173798330          0.0000000000          0.1173798330
+      XXY          -0.0000000000          0.0000000000         -0.0000000000
+      XXZ          -1.0882007663          0.0000000000         -1.0882007663
+      YYX          -0.0000000000          0.0000000000         -0.0000000000
+      YYZ           0.0838130556          0.0000000000          0.0838130556
+      ZZX          -0.0000000000          0.0000000000         -0.0000000000
+      ZZY          -0.0000000000          0.0000000000         -0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
+
+   Third moments in 10**(-34) esu*cm**3
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000000000          0.0000000000         -0.0000000000
+      YYY          -0.0000000000          0.0000000000         -0.0000000000
+      ZZZ           0.0835378186          0.0000000000          0.0835378186
+      XXY          -0.0000000000          0.0000000000         -0.0000000000
+      XXZ          -0.7744594270          0.0000000000         -0.7744594270
+      YYX          -0.0000000000          0.0000000000         -0.0000000000
+      YYZ           0.0596487459          0.0000000000          0.0596487459
+      ZZX          -0.0000000000          0.0000000000         -0.0000000000
+      ZZY          -0.0000000000          0.0000000000         -0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
+
+   Octupole moments in atomic units
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000000000          0.0000000000         -0.0000000000
+      YYY           0.0000000000          0.0000000000          0.0000000000
+      ZZZ           1.6239613991          0.0000000000          1.6239613991
+      XXY          -0.0000000000          0.0000000000         -0.0000000000
+      XXZ          -2.2769979769          0.0000000000         -2.2769979769
+      YYX           0.0000000000          0.0000000000          0.0000000000
+      YYZ           0.6530365779          0.0000000000          0.6530365779
+      ZZX          -0.0000000000         -0.0000000000         -0.0000000000
+      ZZY          -0.0000000000          0.0000000000         -0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
+
+   Octupole moments in 10**(-34) esu*cm**3
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000000000          0.0000000000         -0.0000000000
+      YYY           0.0000000000          0.0000000000          0.0000000000
+      ZZZ           1.1557538402          0.0000000000          1.1557538402
+      XXY          -0.0000000000          0.0000000000         -0.0000000000
+      XXZ          -1.6205121362          0.0000000000         -1.6205121362
+      YYX           0.0000000000          0.0000000000          0.0000000000
+      YYZ           0.4647582960          0.0000000000          0.4647582960
+      ZZX          -0.0000000000         -0.0000000000         -0.0000000000
+      ZZY          -0.0000000000          0.0000000000         -0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
+
+ 1 a.u. = 0.711688 10**(-34) esu*cm**3 
+
+
+          ----------------------------
+          Mulliken population analysis
+          ----------------------------
+
+          ----- Total      overlap population -----
+
+                               1              2              3              4              5              6              7
+
+    1  1 O  s             2.1078478838  -0.1078940360  -0.0000000000   0.0000000000  -0.0000000000  -0.0008759526  -0.0008759526
+    2  1 O  s            -0.1078940360   1.9768194483   0.0000000000  -0.0000000000   0.0000000000  -0.0080919229  -0.0080919229
+    3  1 O  px           -0.0000000000   0.0000000000   0.6824093093  -0.0000000000   0.0000000000   0.1520094790   0.1520094790
+    4  1 O  py            0.0000000000  -0.0000000000  -0.0000000000   2.0000000000   0.0000000000  -0.0000000000   0.0000000000
+    5  1 O  pz           -0.0000000000   0.0000000000   0.0000000000   0.0000000000   1.2616091705   0.0868970562   0.0868970562
+    6  2 H  s            -0.0008759526  -0.0080919229   0.1520094790  -0.0000000000   0.0868970562   0.6545076535  -0.0208338430
+    7  3 H  s            -0.0008759526  -0.0080919229   0.1520094790   0.0000000000   0.0868970562  -0.0208338430   0.6545076535
+
+          ----- Total      gross population in ao -----
+
+    1  1 O  s              1.99820
+    2  1 O  s              1.85274
+    3  1 O  px             0.98643
+    4  1 O  py             2.00000
+    5  1 O  pz             1.43540
+    6  2 H  s              0.86361
+    7  3 H  s              0.86361
+
+          ----- Total      overlap population condensed to atoms -----
+
+
+                               1              2              3
+    1  O                  7.8128977399   0.2299386597   0.2299386597
+    2  H                  0.2299386597   0.6545076535  -0.0208338430
+    3  H                  0.2299386597  -0.0208338430   0.6545076535
+
+ Total      S,P,D,... shell population
+ --------------------------------
+    Atom          S        P
+ --------------------------------------------------------------------------------------
+     1 O      3.85094   4.42183
+     2 H      0.86361   0.00000
+     3 H      0.86361   0.00000
+
+          ----- Total      gross population on atoms ----
+
+              1  O    8.0     8.27278
+              2  H    1.0     0.86361
+              3  H    1.0     0.86361
+
+          ----- Bond indices -----
+  1- 1   0.00000  1- 2   0.95891  1- 3   0.95891
+  2- 1   0.95891  2- 2   0.00000  2- 3   0.02249
+  3- 1   0.95891  3- 2   0.02249  3- 3   0.00000
+
+ Large bond indices
+ ------------------
+  1   O -  2   H    0.95891
+  1   O -  3   H    0.95891
+
+                                                                Free electrons             Valency
+                              Number of         Sum of          + Bond indices         - Bond indices    
+                Valency     Free electrons    Bond indices     =Mulliken charge     = Net spin population
+     1  O       1.91782        6.35495          1.91782           8.27278                -0.00000
+     2  H       0.98140       -0.11779          0.98140           0.86361                -0.00000
+     3  H       0.98140       -0.11779          0.98140           0.86361                 0.00000
+
+          ---------------------------------------------
+          Electrostatic potential/diamagnetic shielding
+          ---------------------------------------------
+
+ 1 a.u. = 9.07618 esu/cm ( or statvolts ) 
+   Point      X         Y         Z     Potential(a.u.)   Diamagnetic shielding(a.u.)
+    1 O    0.00000   0.00000   0.11787     -22.062591            23.005488
+    2 H   -1.84119   0.00000  -0.93531      -1.093638             5.136788
+    3 H    1.84119   0.00000  -0.93531      -1.093638             5.136788
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
+    1 O    0.00000   0.00000   0.11787       0.000000      -0.000000       0.334636       0.334636
+    2 H   -1.84119   0.00000  -0.93531       0.029511       0.000000       0.019754       0.035512
+    3 H    1.84119   0.00000  -0.93531      -0.029511       0.000000       0.019754       0.035512
+
+          -----------------------
+          Electric field gradient
+          -----------------------
+
+ 1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
+
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    1 O    0.00000   0.00000   0.11787
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -2.522991       2.715783      -0.192792      -0.000000       0.000000       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+        2.715783      -2.522991      -0.192792                       0.858021
+
+        0.000000       1.000000       0.000000
+        1.000000       0.000000       0.000000
+        0.000000       0.000000       1.000000
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    2 H   -1.84119   0.00000  -0.93531
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.094158       0.085581       0.008577       0.000000      -0.085345       0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.142402       0.085581       0.056821                       0.201966
+
+        0.870541       0.000000      -0.492096
+        0.000000       1.000000       0.000000
+        0.492096       0.000000       0.870541
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    3 H    1.84119   0.00000  -0.93531
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.094158       0.085581       0.008577       0.000000       0.085345      -0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.142402       0.085581       0.056821                       0.201966
+
+        0.870541       0.000000       0.492096
+        0.000000       1.000000       0.000000
+       -0.492096       0.000000       0.870541
+  
+
+          ---------------------
+          Electron/spin density
+          ---------------------
+
+ 1 a.u. = 4.80286 10**(-10) esu 
+
+ Total electron density 
+ ---------------------- 
+   Point      X         Y         Z      Density (a.u.)
+    1 O    0.00000   0.00000   0.11787     193.439507
+    2 H   -1.84119   0.00000  -0.93531       0.330282
+    3 H    1.84119   0.00000  -0.93531       0.330282
+
+          -----------------------------------------
+          Chemical Shielding Tensors (GIAO, in ppm)
+          -----------------------------------------
+
+                                NWChem CPHF Module
+                                ------------------
+ 
+ 
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  num. vecs =        3
+  tolerance =   1.0D-04
+  max. iter =  100
+
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /scratch/prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  21796
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+
+Iterative solution of linear equations
+  No. of variables       10
+  No. of equations        3
+  Maximum subspace       30
+       Convergence  1.0D-04
+        Start time      2.5
+
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     1      3    7.09D-01       2.5
+     2      6    5.96D-02       2.5
+     3      9    5.89D-03       2.5
+     4     12    9.76D-06       2.6
+
+ Parallel integral file used       1 records with       0 large values
+
+      Atom:    1  O 
+        Diamagnetic
+    398.5859      0.0000     -0.0000
+      0.0000    372.4636     -0.0000
+     -0.0000     -0.0000    385.9121
+
+        Paramagnetic
+   -183.2997      0.0000     -0.0000
+      0.0000   -135.3928     -0.0000
+     -0.0000     -0.0000   -115.5863
+
+        Total Shielding Tensor
+    215.2862      0.0000     -0.0000
+      0.0000    237.0708     -0.0000
+     -0.0000     -0.0000    270.3258
+
+           isotropic =     240.8943
+          anisotropy =      44.1473
+
+          Principal Components and Axis System
+                 1           2           3
+              270.3258    237.0708    215.2862
+
+      1         0.0000      0.0000      1.0000
+      2         0.0000      1.0000      0.0000
+      3         1.0000      0.0000      0.0000
+
+
+
+      Atom:    2  H 
+        Diamagnetic
+     31.9310      0.0000      7.9139
+      0.0000     15.0503     -0.0000
+      7.9139     -0.0000     20.3105
+
+        Paramagnetic
+      1.2806      0.0000     -7.9498
+      0.0000     10.1289      0.0000
+     -7.9498      0.0000      7.1343
+
+        Total Shielding Tensor
+     33.2116      0.0000     -0.0359
+      0.0000     25.1792      0.0000
+     -0.0359      0.0000     27.4448
+
+           isotropic =      28.6119
+          anisotropy =       6.8999
+
+          Principal Components and Axis System
+                 1           2           3
+               33.2118     27.4446     25.1792
+
+      1         1.0000      0.0062      0.0000
+      2         0.0000      0.0000      1.0000
+      3        -0.0062      1.0000      0.0000
+
+
+
+      Atom:    3  H 
+        Diamagnetic
+     31.9310      0.0000     -7.9139
+      0.0000     15.0503      0.0000
+     -7.9139      0.0000     20.3105
+
+        Paramagnetic
+      1.2806     -0.0000      7.9498
+     -0.0000     10.1289     -0.0000
+      7.9498     -0.0000      7.1343
+
+        Total Shielding Tensor
+     33.2116     -0.0000      0.0359
+     -0.0000     25.1792     -0.0000
+      0.0359     -0.0000     27.4448
+
+           isotropic =      28.6119
+          anisotropy =       6.8999
+
+          Principal Components and Axis System
+                 1           2           3
+               33.2118     27.4446     25.1792
+
+      1         1.0000     -0.0062      0.0000
+      2         0.0000      0.0000      1.0000
+      3         0.0062      1.0000      0.0000
+
+
+
+
+ Task  times  cpu:        0.7s     wall:        3.5s
  
  
                                 NWChem Input Module
@@ -443,230 +872,444 @@ task property
  
                                         h2o
  
+  itol2e modified to match energy
+  convergence criterion.
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                                        h2o
+ 
+ 
+  Caching 1-el integrals 
+  itol2e modified to match energy
+  convergence criterion.
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:     7
+                     number of shells:     5
+          Convergence on energy requested: 1.00D-07
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 1.00D-08
+ 
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+  WARNING: Sum of nonlocal correlation is   0.810000000000000     
+  Sum of components do not equal unity or 0. 
+  WARNING: Sum of nonlocal exchange is   0.920000000000000     
+  Sum of components do not equal unity or 0. 
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  fine      
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          o                   0.60       70           5.0       590
+          h                   0.35       60           7.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   190
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
 
- ----- property selection -----
- nodip = 0 noqdp = 0 nootp = 0 nopop = 0 nospin= 1 noloc = 1 nodpl = 1
- nodhp = 1 nod2hp= 1 nofpl = 1 nofhp = 1 nof2hp= 1 nosos = 1 noelp = 0
- noelf = 0 noelfg= 0 noden = 0 nogiao= 0 noiglo= 1 noston= 1
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
 
-          ---------------------
-          Atomic weights (a.u.)
-          ---------------------
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  16
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+          Spatial weight screening/radius(au): 1.63D+01
 
-    1     o                15.99491
-    2     h                 1.00783
-    3     h                 1.00783
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:         -74.71095592
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -74.317721
+ 1-e energy   =    -119.270021
+ 2-e energy   =      37.137562
+ HOMO         =      -0.227821
+ LUMO         =       0.298134
+ 
+   Time after variat. SCF:      1.1
+   Time prior to 1st pass:      1.1
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /scratch/prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  21796
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Grid_pts file          = /scratch/prop_h2o.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     42        Max. recs in file   =    116240
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       38.67            38671740
+          Stack Space remaining (MW):       13.11            13107047
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -75.2240287647 -8.30D+01  1.85D-01  3.20D-01     1.6
+ d= 0,ls=0.0,diis     2    -75.2118936489  1.21D-02  9.83D-02  3.95D-01     1.7
+ d= 0,ls=0.0,diis     3    -75.2870526735 -7.52D-02  2.26D-03  2.67D-04     1.9
+ d= 0,ls=0.0,diis     4    -75.2871025252 -4.99D-05  7.96D-05  3.61D-07     2.0
+ d= 0,ls=0.0,diis     5    -75.2871025925 -6.74D-08  7.71D-06  2.85D-09     2.2
+
+
+         Total DFT energy =    -75.287102592541
+      One electron energy =   -119.927030572131
+           Coulomb energy =     46.169323971774
+    Exchange-Corr. energy =     -9.344133456755
+ Nuclear repulsion energy =      7.814737464571
+
+ Numeric. integr. density =     10.000000133087
+
+     Total iterative time =      1.1s
+
+
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-8.609986D-01
+              MO Center=  1.8D-08, -2.0D-13, -1.1D-01, r^2= 5.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      0.868572  1 O  s                  1     -0.237248  1 O  s          
+     7      0.157581  3 H  s                  6      0.157581  2 H  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-4.025992D-01
+              MO Center=  2.3D-09, -2.1D-22, -2.1D-01, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.587843  1 O  px                 7      0.448648  3 H  s          
+     6     -0.448648  2 H  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-1.989068D-01
+              MO Center= -3.4D-09, -1.9D-13,  8.0D-02, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -0.766244  1 O  pz                 2     -0.515069  1 O  s          
+     6      0.328420  2 H  s                  7      0.328420  3 H  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-1.304627D-01
+              MO Center= -3.1D-26,  4.2D-13,  6.2D-02, r^2= 4.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.000000  1 O  py         
+ 
+ Vector    6  Occ=0.000000D+00  E= 1.944120D-01
+              MO Center=  6.5D-08, -2.5D-14, -3.8D-01, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -0.706667  3 H  s                  6     -0.706667  2 H  s          
+     5     -0.680902  1 O  pz                 2      0.645012  1 O  s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 3.489943D-01
+              MO Center= -8.1D-08, -1.7D-22, -2.5D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.943588  1 O  px                 6      0.713238  2 H  s          
+     7     -0.713238  3 H  s          
+ 
+
+ center of mass
+ --------------
+ x =  -0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           1.985523714464           0.000000000000          -0.000000000000
+           0.000000000000           8.818526119040           0.000000000000
+          -0.000000000000           0.000000000000           6.833002404577
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
+ 
+     1   1 0 0     -0.000000     -0.000000     -0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000     -0.000000      0.000000
+     1   0 0 1     -0.520589      0.203553      0.203553     -0.927695
+ 
+     2   2 0 0     -2.842102     -4.811026     -4.811026      6.779949
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -4.620483     -2.310241     -2.310241      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -4.072475     -2.966619     -2.966619      1.860763
+ 
+
+ Parallel integral file used       1 records with       0 large values
+
+
+          -------------
+          Dipole Moment
+          -------------
 
  Center of charge (in au) is the expansion point
          X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
-   Dipole moment        0.5601960869 A.U.
-             DMX       -0.0000000000 DMXEFC        0.0000000000
+   Dipole moment        0.5205893269 A.U.
+             DMX       -0.0000000624 DMXEFC        0.0000000000
              DMY       -0.0000000000 DMYEFC        0.0000000000
-             DMZ       -0.5601960869 DMZEFC        0.0000000000
+             DMZ       -0.5205893269 DMZEFC        0.0000000000
    -EFC- dipole         0.0000000000 A.U.
-   Total dipole         0.5601960869 A.U.
+   Total dipole         0.5205893269 A.U.
 
-   Dipole moment        1.4238871878 Debye(s)
-             DMX       -0.0000000000 DMXEFC        0.0000000000
+   Dipole moment        1.3232160845 Debye(s)
+             DMX       -0.0000001586 DMXEFC        0.0000000000
              DMY       -0.0000000000 DMYEFC        0.0000000000
-             DMZ       -1.4238871878 DMZEFC        0.0000000000
+             DMZ       -1.3232160845 DMZEFC        0.0000000000
    -EFC- dipole         0.0000000000 DEBYE(S)
-   Total dipole         1.4238871878 DEBYE(S)
+   Total dipole         1.3232160845 DEBYE(S)
+
  1 a.u. = 2.541766 Debyes 
 
-          ---------------------
-          Atomic weights (a.u.)
-          ---------------------
-
-    1     o                15.99491
-    2     h                 1.00783
-    3     h                 1.00783
+          -----------------
+          Quadrupole Moment
+          -----------------
 
  Center of charge (in au) is the expansion point
          X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
- < R**2 > =  20.110182 a.u.  ( 1 a.u. = 0.280023 10**(-16) cm**2 ) 
+ < R**2 > =  20.186301 a.u.  ( 1 a.u. = 0.280023 10**(-16) cm**2 ) 
  ( also called diamagnetic susceptibility ) 
 
    Second moments in atomic units
-   QMXX       -2.7702119915 QMXXEF        0.0000000000 QMXXT       -2.7702119915
-   QMYY       -4.6132554202 QMYYEF        0.0000000000 QMYYT       -4.6132554202
-   QMZZ       -4.1720634177 QMZZEF        0.0000000000 QMZZT       -4.1720634177
-   QMXY        0.0000000000 QMXYEF        0.0000000000 QMXYT        0.0000000000
-   QMXZ        0.0000000000 QMXZEF        0.0000000000 QMXZT        0.0000000000
-   QMYZ       -0.0000000000 QMYZEF        0.0000000000 QMYZT       -0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX           -2.8421022346          0.0000000000         -2.8421022346
+      YY           -4.6204827913          0.0000000000         -4.6204827913
+      ZZ           -4.1690650780          0.0000000000         -4.1690650780
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000443          0.0000000000          0.0000000443
+      YZ            0.0000000000          0.0000000000          0.0000000000
 
    Second moments in buckingham(s)
-   QMXX       -3.7256885798 QMXXEF        0.0000000000 QMXXT       -3.7256885798
-   QMYY       -6.2044179605 QMYYEF        0.0000000000 QMYYT       -6.2044179605
-   QMZZ       -5.6110539831 QMZZEF        0.0000000000 QMZZT       -5.6110539831
-   QMXY        0.0000000000 QMXYEF        0.0000000000 QMXYT        0.0000000000
-   QMXZ        0.0000000000 QMXZEF        0.0000000000 QMXZT        0.0000000000
-   QMYZ       -0.0000000000 QMYZEF        0.0000000000 QMYZT       -0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX           -3.8223745584          0.0000000000         -3.8223745584
+      YY           -6.2141381314          0.0000000000         -6.2141381314
+      ZZ           -5.6070214831          0.0000000000         -5.6070214831
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000596          0.0000000000          0.0000000596
+      YZ            0.0000000000          0.0000000000          0.0000000000
 
    Quadrupole moments in atomic units
-   THXX        1.6224474274 THXXEF        0.0000000000 THXXT        1.6224474274
-   THYY       -1.1421177156 THYYEF        0.0000000000 THYYT       -1.1421177156
-   THZZ       -0.4803297118 THZZEF        0.0000000000 THZZT       -0.4803297118
-   THXY        0.0000000000 THXYEF        0.0000000000 THXYT        0.0000000000
-   THXZ        0.0000000000 THXZEF        0.0000000000 THXZT        0.0000000000
-   THYZ       -0.0000000000 THYZEF        0.0000000000 THYZT       -0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX            1.5526717001          0.0000000000          1.5526717001
+      YY           -1.1148991351          0.0000000000         -1.1148991351
+      ZZ           -0.4377725650          0.0000000000         -0.4377725650
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000665          0.0000000000          0.0000000665
+      YZ            0.0000000000          0.0000000000          0.0000000000
 
    Quadrupole moments in buckingham(s)
-   THXX        2.1820473920 THXXEF        0.0000000000 THXXT        2.1820473920
-   THYY       -1.5360466790 THYYEF        0.0000000000 THYYT       -1.5360466790
-   THZZ       -0.6460007130 THZZEF        0.0000000000 THZZT       -0.6460007130
-   THXY        0.0000000000 THXYEF        0.0000000000 THXYT        0.0000000000
-   THXZ        0.0000000000 THXZEF        0.0000000000 THXZT        0.0000000000
-   THYZ       -0.0000000000 THYZEF        0.0000000000 THYZT       -0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XX            2.0882052489          0.0000000000          2.0882052489
+      YY           -1.4994401106          0.0000000000         -1.4994401106
+      ZZ           -0.5887651382          0.0000000000         -0.5887651382
+      XY            0.0000000000          0.0000000000          0.0000000000
+      XZ            0.0000000894          0.0000000000          0.0000000894
+      YZ            0.0000000000          0.0000000000          0.0000000000
 
  1 a.u. = 1.344911 Buckinghams = 1.344911 10**(-26) esu*cm**2 
 
-          ---------------------
-          Atomic weights (a.u.)
-          ---------------------
-
-    1     o                15.99491
-    2     h                 1.00783
-    3     h                 1.00783
+          ---------------
+          Octupole Moment
+          ---------------
 
  Center of charge (in au) is the expansion point
          X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
    Third moments in atomic units
-   RXXX       -0.0000000000 RXXXEF        0.0000000000 RXXXT       -0.0000000000
-   RYYY       -0.0000000000 RYYYEF        0.0000000000 RYYYT       -0.0000000000
-   RZZZ        0.1173809284 RZZZEF        0.0000000000 RZZZT        0.1173809284
-   RXXY       -0.0000000000 RXXYEF        0.0000000000 RXXYT       -0.0000000000
-   RXXZ       -1.0881970065 RXXZEF        0.0000000000 RXXZT       -1.0881970065
-   RYYX       -0.0000000000 RYYXEF        0.0000000000 RYYXT       -0.0000000000
-   RYYZ        0.0838134357 RYYZEF        0.0000000000 RYYZT        0.0838134357
-   RZZX       -0.0000000000 RZZXEF        0.0000000000 RZZXT       -0.0000000000
-   RZZY       -0.0000000000 RZZYEF        0.0000000000 RZZYT       -0.0000000000
-   RXYZ        0.0000000000 RXYZEF        0.0000000000 RXYZT        0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000003409          0.0000000000         -0.0000003409
+      YYY           0.0000000000          0.0000000000          0.0000000000
+      ZZZ           0.2311614313          0.0000000000          0.2311614313
+      XXY           0.0000000000          0.0000000000          0.0000000000
+      XXZ          -0.9905617517          0.0000000000         -0.9905617517
+      YYX          -0.0000000400          0.0000000000         -0.0000000400
+      YYZ           0.1081837459          0.0000000000          0.1081837459
+      ZZX          -0.0000000918          0.0000000000         -0.0000000918
+      ZZY           0.0000000000          0.0000000000          0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
 
    Third moments in 10**(-34) esu*cm**3
-   RXXX       -0.0000000000 RXXXEF        0.0000000000 RXXXT       -0.0000000000
-   RYYY       -0.0000000000 RYYYEF        0.0000000000 RYYYT       -0.0000000000
-   RZZZ        0.0835385981 RZZZEF        0.0000000000 RZZZT        0.0835385981
-   RXXY       -0.0000000000 RXXYEF        0.0000000000 RXXYT       -0.0000000000
-   RXXZ       -0.7744567512 RXXZEF        0.0000000000 RXXZT       -0.7744567512
-   RYYX       -0.0000000000 RYYXEF        0.0000000000 RYYXT       -0.0000000000
-   RYYZ        0.0596490164 RYYZEF        0.0000000000 RYYZT        0.0596490164
-   RZZX       -0.0000000000 RZZXEF        0.0000000000 RZZXT       -0.0000000000
-   RZZY       -0.0000000000 RZZYEF        0.0000000000 RZZYT       -0.0000000000
-   RXYZ        0.0000000000 RXYZEF        0.0000000000 RXYZT        0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000002426          0.0000000000         -0.0000002426
+      YYY           0.0000000000          0.0000000000          0.0000000000
+      ZZZ           0.1645148167          0.0000000000          0.1645148167
+      XXY           0.0000000000          0.0000000000          0.0000000000
+      XXZ          -0.7049709119          0.0000000000         -0.7049709119
+      YYX          -0.0000000285          0.0000000000         -0.0000000285
+      YYZ           0.0769930737          0.0000000000          0.0769930737
+      ZZX          -0.0000000653          0.0000000000         -0.0000000653
+      ZZY           0.0000000000          0.0000000000          0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
 
    Octupole moments in atomic units
-   OXXX       -0.0000000000 OXXXEF        0.0000000000 OXXXT       -0.0000000000
-   OYYY       -0.0000000000 OYYYEF        0.0000000000 OYYYT       -0.0000000000
-   OZZZ        1.6239562845 OZZZEF        0.0000000000 OZZZT        1.6239562845
-   OXXY        0.0000000000 OXXYEF        0.0000000000 OXXYT        0.0000000000
-   OXXZ       -2.2769911950 OXXZEF        0.0000000000 OXXZT       -2.2769911950
-   OYYX        0.0000000000 OYYXEF        0.0000000000 OYYXT        0.0000000000
-   OYYZ        0.6530349105 OYYZEF        0.0000000000 OYYZT        0.6530349105
-   OZZX        0.0000000000 OZZXEF        0.0000000000 OZZXT        0.0000000000
-   OZZY        0.0000000000 OZZYEF        0.0000000000 OZZYT        0.0000000000
-   OXYZ        0.0000000000 OXYZEF        0.0000000000 OXYZT        0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000001432          0.0000000000         -0.0000001432
+      YYY          -0.0000000000          0.0000000000         -0.0000000000
+      ZZZ           1.5547284400          0.0000000000          1.5547284400
+      XXY           0.0000000000          0.0000000000          0.0000000000
+      XXZ          -2.1507960920          0.0000000000         -2.1507960920
+      YYX           0.0000001364          0.0000000000          0.0000001364
+      YYZ           0.5960676519          0.0000000000          0.5960676519
+      ZZX           0.0000000069          0.0000000137          0.0000000206
+      ZZY           0.0000000000          0.0000000000          0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
 
    Octupole moments in 10**(-34) esu*cm**3
-   OXXX       -0.0000000000 OXXXEF        0.0000000000 OXXXT       -0.0000000000
-   OYYY       -0.0000000000 OYYYEF        0.0000000000 OYYYT       -0.0000000000
-   OZZZ        1.1557502002 OZZZEF        0.0000000000 OZZZT        1.1557502002
-   OXXY        0.0000000000 OXXYEF        0.0000000000 OXXYT        0.0000000000
-   OXXZ       -1.6205073096 OXXZEF        0.0000000000 OXXZT       -1.6205073096
-   OYYX        0.0000000000 OYYXEF        0.0000000000 OYYXT        0.0000000000
-   OYYZ        0.4647571094 OYYZEF        0.0000000000 OYYZT        0.4647571094
-   OZZX       -0.0000000000 OZZXEF        0.0000000000 OZZXT       -0.0000000000
-   OZZY       -0.0000000000 OZZYEF        0.0000000000 OZZYT       -0.0000000000
-   OXYZ        0.0000000000 OXYZEF        0.0000000000 OXYZT        0.0000000000
+
+   Component  Electronic+nuclear     Point charges             Total
+  --------------------------------------------------------------------------
+      XXX          -0.0000001019          0.0000000000         -0.0000001019
+      YYY          -0.0000000000          0.0000000000         -0.0000000000
+      ZZZ           1.1064815740          0.0000000000          1.1064815740
+      XXY           0.0000000000          0.0000000000          0.0000000000
+      XXZ          -1.5306957691          0.0000000000         -1.5306957691
+      YYX           0.0000000971          0.0000000000          0.0000000971
+      YYZ           0.4242141951          0.0000000000          0.4242141951
+      ZZX           0.0000000049          0.0000000098          0.0000000146
+      ZZY           0.0000000000          0.0000000000          0.0000000000
+      XYZ           0.0000000000          0.0000000000          0.0000000000
 
  1 a.u. = 0.711688 10**(-34) esu*cm**3 
 
 
           ----------------------------
           Mulliken population analysis
+          ----------------------------
 
-          ----- OVERLAP POPULATION -----
+          ----- Total      overlap population -----
 
+                               1              2              3              4              5              6              7
 
-                      1              2              3              4              5              6              7
+    1  1 O  s             2.1098349729  -0.1105660677  -0.0000000000  -0.0000000000  -0.0000000000  -0.0005936304  -0.0005936302
+    2  1 O  s            -0.1105660677   2.0408850582   0.0000000000   0.0000000000   0.0000000000  -0.0242093065  -0.0242093150
+    3  1 O  px           -0.0000000000   0.0000000000   0.6911198963  -0.0000000000   0.0000000000   0.1520270537   0.1520270551
+    4  1 O  py           -0.0000000000   0.0000000000  -0.0000000000   2.0000000000  -0.0000000000  -0.0000000000  -0.0000000000
+    5  1 O  pz           -0.0000000000   0.0000000000   0.0000000000  -0.0000000000   1.2101898775   0.0899335983   0.0899335994
+    6  2 H  s            -0.0005936304  -0.0242093065   0.1520270537  -0.0000000000   0.0899335983   0.6680113497  -0.0177756270
+    7  3 H  s            -0.0005936302  -0.0242093150   0.1520270551  -0.0000000000   0.0899335994  -0.0177756270   0.6680113859
 
+          ----- Total      gross population in ao -----
 
-  1 O    1 S     2.1078478938  -0.1078940324   0.0000000000   0.0000000000  -0.0000000000  -0.0008759533  -0.0008759533
-  2 O      S    -0.1078940324   1.9768189275  -0.0000000000  -0.0000000000   0.0000000000  -0.0080917087  -0.0080917087
-  3 O      X     0.0000000000  -0.0000000000   0.6824071921  -0.0000000000  -0.0000000000   0.1520094727   0.1520094727
-  4 O      Y     0.0000000000  -0.0000000000  -0.0000000000   2.0000000000   0.0000000000  -0.0000000000   0.0000000000
-  5 O      Z    -0.0000000000   0.0000000000  -0.0000000000   0.0000000000   1.2616105417   0.0868969827   0.0868969827
-  6 H    2 S    -0.0008759533  -0.0080917087   0.1520094727  -0.0000000000   0.0868969827   0.6545082524  -0.0208340844
-  7 H    3 S    -0.0008759533  -0.0080917087   0.1520094727   0.0000000000   0.0868969827  -0.0208340844   0.6545082524
+    1  1 O  s              1.99808
+    2  1 O  s              1.88190
+    3  1 O  px             0.99517
+    4  1 O  py             2.00000
+    5  1 O  pz             1.39006
+    6  2 H  s              0.86739
+    7  3 H  s              0.86739
 
-          ----- Total gross population in ao -----
-
-    1 O    1 S    1.99820
-    2 O      S    1.85274
-    3 O      X    0.98643
-    4 O      Y    2.00000
-    5 O      Z    1.43540
-    6 H    2 S    0.86361
-    7 H    3 S    0.86361
-
-          ----- Condensed to atoms -----
-
+          ----- Total      overlap population condensed to atoms -----
 
 
-                      1              2              3
+                               1              2              3
+    1  O                  7.8308976696   0.2171577151   0.2171577092
+    2  H                  0.2171577151   0.6680113497  -0.0177756270
+    3  H                  0.2171577092  -0.0177756270   0.6680113859
 
-
-  1 o            7.8128964903   0.2299387934   0.2299387934
-  2 h            0.2299387934   0.6545082524  -0.0208340844
-  3 h            0.2299387934  -0.0208340844   0.6545082524
-
- Total S,P,D,... shell population
+ Total      S,P,D,... shell population
  --------------------------------
-         Atom          S         P         D         F         G       Total   
- ----------------------------------------------------------------------------
-    1 o            3.85094   4.42183   0.00000   0.00000   0.00000   8.27277
-    2 h            0.86361   0.00000   0.00000   0.00000   0.00000   0.86361
-    3 h            0.86361   0.00000   0.00000   0.00000   0.00000   0.86361
+    Atom          S        P
+ --------------------------------------------------------------------------------------
+     1 O      3.87998   4.38523
+     2 H      0.86739   0.00000
+     3 H      0.86739   0.00000
 
-          ----- Total gross population on atoms ----
+          ----- Total      gross population on atoms ----
 
-              1  o            8.0   8.0     8.27277
-              2  h            1.0   1.0     0.86361
-              3  h            1.0   1.0     0.86361
+              1  O    8.0     8.26521
+              2  H    1.0     0.86739
+              3  H    1.0     0.86739
 
           ----- Bond indices -----
-
-
-  1- 1   0.00000  1- 2   0.95891  1- 3   0.95891
-  2- 1   0.95891  2- 2   0.00000  2- 3   0.02249
-  3- 1   0.95891  3- 2   0.02249  3- 3   0.00000
+  1- 1   0.00000  1- 2   0.96353  1- 3   0.96353
+  2- 1   0.96353  2- 2   0.00000  2- 3   0.01889
+  3- 1   0.96353  3- 2   0.01889  3- 3   0.00000
 
  Large bond indices
  ------------------
-  1 o   -  2 h      0.95891  1 o   -  3 h      0.95891
+  1   O -  2   H    0.96353
+  1   O -  3   H    0.96353
 
-                                                                        Free electrons             Valency
-                                      Number of         Sum of          + Bond indices         - Bond indices    
-                        Valency     Free electrons    Bond indices     =Mulliken charge     = Net spin population
-     1  o               1.91782        6.35495          1.91782           8.27277                -0.00000
-     2  h               0.98140       -0.11779          0.98140           0.86361                -0.00000
-     3  h               0.98140       -0.11779          0.98140           0.86361                 0.00000
+                                                                Free electrons             Valency
+                              Number of         Sum of          + Bond indices         - Bond indices    
+                Valency     Free electrons    Bond indices     =Mulliken charge     = Net spin population
+     1  O       1.92706        6.33816          1.92706           8.26521                -0.00000
+     2  H       0.98242       -0.11502          0.98242           0.86739                 0.00000
+     3  H       0.98242       -0.11502          0.98242           0.86739                 0.00000
 
           ---------------------------------------------
           Electrostatic potential/diamagnetic shielding
           ---------------------------------------------
 
  1 a.u. = 9.07618 esu/cm ( or statvolts ) 
-
- No grid defined. 
    Point      X         Y         Z     Potential(a.u.)   Diamagnetic shielding(a.u.)
-     1     0.00000   0.00000   0.11787     -22.062591            23.005488
-     2    -1.84119   0.00000  -0.93531      -1.093638             5.136789
-     3     1.84119   0.00000  -0.93531      -1.093638             5.136789
-     4     0.00000   0.00000   0.00000      49.485268            19.356558
+    1 O    0.00000   0.00000   0.11787     -22.058521            23.001418
+    2 H   -1.84119   0.00000  -0.93531      -1.100547             5.143698
+    3 H    1.84119   0.00000  -0.93531      -1.100547             5.143698
 
           --------------
           Electric field
@@ -674,12 +1317,12 @@ task property
 
  1 a.u. = 0.171524 10**(-8) dyn/esu 
 
-    Atom      X         Y         Z                        Electric field (a.u.)
+   Atom       X         Y         Z                        Electric field (a.u.)
                                               X              Y              Z           Field
   ------------------------------------------------------------------------------------------------
-     1     0.00000   0.00000   0.11787      -0.000000      -0.000000       0.334636       0.334636
-     2    -1.84119   0.00000  -0.93531       0.029510      -0.000000       0.019754       0.035512
-     3     1.84119   0.00000  -0.93531      -0.029510      -0.000000       0.019754       0.035512
+    1 O    0.00000   0.00000   0.11787       0.000000       0.000000       0.316911       0.316911
+    2 H   -1.84119   0.00000  -0.93531       0.026961      -0.000000       0.016527       0.031623
+    3 H    1.84119   0.00000  -0.93531      -0.026961      -0.000000       0.016527       0.031623
 
           -----------------------
           Electric field gradient
@@ -687,38 +1330,69 @@ task property
 
  1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
 
-  Atom      X         Y         Z                            Electric field gradient in molecular frame (a.u.)
-                                             XX             YY             ZZ             XY             XZ             YZ
-  ------------------------------------------------------------------------------------------------------------------------------
-     1     0.00000   0.00000   0.11787      -2.522999       2.715784      -0.192785      -0.000000      -0.000000       0.000000
-     2    -1.84119   0.00000  -0.93531      -0.094158       0.085581       0.008577      -0.000000      -0.085345       0.000000
-     3     1.84119   0.00000  -0.93531      -0.094158       0.085581       0.008577       0.000000       0.085345      -0.000000
 
-  Atom   Principal components of the -EFG- tensor (a.u.)         Asymmetry parameter eta
-  --------------------------------------------------------------------------------------
-     1      -0.192785      -2.522999       2.715784                     0.858026
-     2       0.056821       0.085581      -0.142402                     0.201966
-     3       0.056821       0.085581      -0.142402                     0.201966
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    1 O    0.00000   0.00000   0.11787
+ ------------------------------------------------------------
 
- Orientation ( in degrees ) of the principal axis of -EFG- tensor w.r.t absolute (molecular) frame
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -2.431975       2.775380      -0.343406      -0.000000       0.000000      -0.000000
 
- Atom =     1
- ------ 
-       90.000000       0.000000      90.000000
-       90.000000      90.000000       0.000000
-        0.000000      90.000000      90.000000
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+        2.775380      -2.431975      -0.343406                       0.752534
 
- Atom =     2
- ------ 
-      119.478487      90.000000      29.478487
-       90.000000       0.000000      90.000000
-       29.478487      90.000000      60.521513
+        0.000000       1.000000       0.000000
+        1.000000       0.000000       0.000000
+        0.000000      -0.000000       1.000000
+  
 
- Atom =     3
- ------ 
-       60.521513      90.000000      29.478487
-       90.000000       0.000000      90.000000
-       29.478487      90.000000     119.478487
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    2 H   -1.84119   0.00000  -0.93531
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.094568       0.086627       0.007941       0.000000      -0.086067      -0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.143486       0.086627       0.056859                       0.207460
+
+        0.869385       0.000000      -0.494135
+        0.000000       1.000000       0.000000
+        0.494135       0.000000       0.869385
+  
+
+ ------------------------------------------------------------
+   Atom      X         Y         Z
+ ------------------------------------------------------------
+    3 H    1.84119   0.00000  -0.93531
+ ------------------------------------------------------------
+
+ Electric field gradient in molecular frame (a.u.)
+         XX             YY             ZZ             XY             XZ             YZ
+ ------------------------------------------------------------------------------------------
+       -0.094568       0.086627       0.007941      -0.000000       0.086067      -0.000000
+
+ Principal components (a.u.) and orientation 
+ of principal axis w.r.t. absolute frame                      Asymmetry parameter eta
+ --------------------------------------------------------------------------------------
+       -0.143486       0.086627       0.056859                       0.207460
+
+        0.869385       0.000000       0.494135
+        0.000000       1.000000       0.000000
+       -0.494135       0.000000       0.869385
+  
 
           ---------------------
           Electron/spin density
@@ -726,1040 +1400,146 @@ task property
 
  1 a.u. = 4.80286 10**(-10) esu 
 
- No grid defined. 
-
  Total electron density 
  ---------------------- 
    Point      X         Y         Z      Density (a.u.)
-     1     0.00000   0.00000   0.11787     193.439508
-     2    -1.84119   0.00000  -0.93531       0.330282
-     3     1.84119   0.00000  -0.93531       0.330282
-     4     0.00000   0.00000   0.00000      48.043083
-          ---------------------------------------------------------
-          -giao- magnetic susceptibility/chemical shielding tensors
-          ---------------------------------------------------------
-
- ----- $GIA -----
-
- MAXIT  =         50
- CNVA   =    0.00100
- CNVB   =    0.00100
- DAMP   =    0.50000
-
- diamagnetic susceptibility tensor -b20- (a.u.) = 
- ------------------------------------------------ 
-
- b20(xx) =        10.5421440599
- b20(yy) =        15.4790499325
- b20(zz) =        14.1634167131
- b20(xy) =         0.0000000000
- b20(xz) =         0.0000000000
- b20(yz) =        -0.0000000000
-
-
-          ---------------------------
-          -GIAO- 2 ELECTRON INTEGRALS
-          ---------------------------
-          ELAPSED - CPU- TIME =      0.013     TOTAL - CPU- TIME =      0.265
-          ELAPSED -WALL- TIME =      0.014     TOTAL -WALL- TIME =      0.670
-   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
+    1 O    0.00000   0.00000   0.11787     193.574492
+    2 H   -1.84119   0.00000  -0.93531       0.334380
+    3 H    1.84119   0.00000  -0.93531       0.334380
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   1         0.000000000     0.000000000    -0.218252881    -0.603299776   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   2         0.000000000     0.000000000    -0.072186661    -0.675486437   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   3         0.000000000     0.000000000    -0.059968910    -0.735455347   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   4         0.000000000     0.000000000    -0.049819040    -0.785274387   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   5         0.000000000     0.000000000    -0.041387058    -0.826661445   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   6         0.000000000     0.000000000    -0.034382208    -0.861043652   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   7         0.000000000     0.000000000    -0.028562943    -0.889606596   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   8         0.000000000     0.000000000    -0.023728602    -0.913335198   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   9         0.000000000     0.000000000    -0.019712484    -0.933047683   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  10         0.000000000     0.000000000    -0.016376103    -0.949423786   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  11         0.000000000     0.000000000    -0.013604412    -0.963028197   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  12         0.000000000     0.000000000    -0.011301835    -0.974330032   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  13         0.000000000     0.000000000    -0.009388975    -0.983719007   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  14         0.000000000     0.000000000    -0.007799870    -0.991518877   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  15         0.000000000     0.000000000    -0.006479725    -0.997998602   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  16         0.000000000     0.000000000    -0.005383017    -1.003381619   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  17         0.000000000     0.000000000    -0.004471930    -1.007853549   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  18         0.000000000     0.000000000    -0.003715046    -1.011568595   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  19         0.000000000     0.000000000    -0.003086266    -1.014654861   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  20         0.000000000     0.000000000    -0.002563909    -1.017218770   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  21         0.000000000     0.000000000    -0.002129962    -1.019348731   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  22         0.000000000     0.000000000    -0.001769461    -1.021118192   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  23         0.000000000     0.000000000    -0.001469976    -1.022588168   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  24         0.000000000     0.000000000    -0.001221179    -1.023809347   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  25         0.000000000     0.000000000    -0.001014492    -1.024823839   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  26         0.000000000     0.000000000    -0.000842787    -1.025666626   6   5         0  1
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  27         0.000000000     0.000000000    -0.001400287    -1.027066913   6   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  28         0.000000000     0.000000000    -0.000926284    -1.027993196   6   5         0  1
- -GIAO- CPHF CONVERGED
-   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   1         0.000000000     0.000000000    -0.110863168    -0.478992623   7   4         3  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   2         0.000000000     0.000000000    -0.030421699    -0.509414323   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   3         0.000000000     0.000000000    -0.023516858    -0.532931181   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   4         0.000000000     0.000000000    -0.018170022    -0.551101203   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   5         0.000000000     0.000000000    -0.014032237    -0.565133440   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   6         0.000000000     0.000000000    -0.010831973    -0.575965413   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   7         0.000000000     0.000000000    -0.008358150    -0.584323563   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   8         0.000000000     0.000000000    -0.006446835    -0.590770399   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   9         0.000000000     0.000000000    -0.004970816    -0.595741214   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  10         0.000000000     0.000000000    -0.003831454    -0.599572668   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  11         0.000000000     0.000000000    -0.002952322    -0.602524991   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  12         0.000000000     0.000000000    -0.002274243    -0.604799234   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  13         0.000000000     0.000000000    -0.001751424    -0.606550658   7   4         2  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  14         0.000000000     0.000000000    -0.001348448    -0.607899105   7   4         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  15         0.000000000     0.000000000    -0.001037941    -0.608937046   7   4         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  16         0.000000000     0.000000000    -0.000798754    -0.609735800   7   4         0  1
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  17         0.000000000     0.000000000    -0.001229114    -0.610964914   7   4         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  18         0.000000000     0.000000000    -0.000661858    -0.611626772   7   4         0  1
- -GIAO- CPHF CONVERGED
-   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   1         0.000000000     0.000000000     0.131225263     0.472630423   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   2         0.000000000     0.000000000     0.039418966     0.512049389   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   3         0.000000000     0.000000000     0.031550609     0.543599997   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   4         0.000000000     0.000000000     0.025252842     0.568852839   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   5         0.000000000     0.000000000     0.020212162     0.589065002   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   6         0.000000000     0.000000000     0.016177645     0.605242646   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
+          -----------------------------------------
+          Chemical Shielding Tensors (GIAO, in ppm)
+          -----------------------------------------
 
+                                NWChem CPHF Module
+                                ------------------
+ 
+ 
+    scftype = RHF 
+    nclosed =    5
+      nopen =    0
+  variables =       10
+  num. vecs =        3
+  tolerance =   1.0D-04
+  max. iter =  100
 
- Parallel integral file used       1 records with       0 large values
-
-   7         0.000000000     0.000000000     0.012948451     0.618191097   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   8         0.000000000     0.000000000     0.010363831     0.628554928   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-   9         0.000000000     0.000000000     0.008295123     0.636850052   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  10         0.000000000     0.000000000     0.006639347     0.643489399   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  11         0.000000000     0.000000000     0.005314077     0.648803476   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  12         0.000000000     0.000000000     0.004253343     0.653056819   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  13         0.000000000     0.000000000     0.003404340     0.656461159   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  14         0.000000000     0.000000000     0.002724805     0.659185964   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  15         0.000000000     0.000000000     0.002180911     0.661366875   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  16         0.000000000     0.000000000     0.001745583     0.663112458   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  17         0.000000000     0.000000000     0.001397150     0.664509608   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  18         0.000000000     0.000000000     0.001118267     0.665627875   7   5         1  0
-
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./prop_h2o.aoints.0
+ Integral file          = /scratch/prop_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
+ Max. records in memory =      2        Max. records in file   =  21796
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- Parallel integral file used       1 records with       0 large values
-
-  19         0.000000000     0.000000000     0.000895051     0.666522926   7   5         0  1
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
 
+Iterative solution of linear equations
+  No. of variables       10
+  No. of equations        3
+  Maximum subspace       30
+       Convergence  1.0D-04
+        Start time      8.0
 
- Parallel integral file used       1 records with       0 large values
-
-  20         0.000000000     0.000000000     0.001432783     0.667955710   7   5         1  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     1      3    4.05D-01       8.2
+     2      6    5.63D-03       8.5
+     3      9    2.58D-04       8.8
+     4     12    1.53D-07       9.0
 
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = ******
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
  Parallel integral file used       1 records with       0 large values
-
-  21         0.000000000     0.000000000     0.000860792     0.668816502   7   5         0  1
- -GIAO- CPHF CONVERGED
-
 
- SHIELDING TENSOR (PPM) =  ( PARAMAGNETIC P10 * H01 ) 
- ------------------------ 
+      Atom:    1  O 
+        Diamagnetic
+    398.0766      0.0000     -0.0000
+      0.0000    372.1579      0.0000
+     -0.0000      0.0000    386.3180
 
-   1  o       
- -------------
-
-              Bx          By          Bz
-      x   -186.0767      0.0000     -0.0000
-      y      0.0000   -129.4591     -0.0000
-      z      0.0000      0.0000   -121.6018
-             ISOTROPIC =    -145.7125
-
-   2  h       
- -------------
-
-              Bx          By          Bz
-      x      0.0340      0.0000     -2.7530
-      y      0.0000      4.2214      0.0000
-      z     -7.9783      0.0000      2.5706
-             ISOTROPIC =       2.2753
+        Paramagnetic
+   -289.3270      0.0000     -0.0000
+      0.0000   -167.1860      0.0000
+     -0.0000      0.0000   -168.8608
 
-   3  h       
- -------------
+        Total Shielding Tensor
+    108.7495      0.0000     -0.0000
+      0.0000    204.9719      0.0000
+     -0.0000      0.0000    217.4572
 
-              Bx          By          Bz
-      x      0.0340      0.0000      2.7530
-      y     -0.0000      4.2214      0.0000
-      z      7.9783     -0.0000      2.5706
-             ISOTROPIC =       2.2753
+           isotropic =     177.0595
+          anisotropy =      60.5965
 
+          Principal Components and Axis System
+                 1           2           3
+              217.4572    204.9719    108.7495
 
- SHIELDING TENSOR (PPM) =  (              P00 * H11 ) 
- ------------------------ 
+      1        -0.0000      0.0000      1.0000
+      2         0.0000      1.0000      0.0000
+      3         1.0000     -0.0000      0.0000
 
-   1  o       
- -------------
 
-              Bx          By          Bz
-      x    394.6973      0.0000      0.0000
-      y      0.0000    361.4697     -0.0000
-      z     -0.0000     -0.0000    380.1678
-             ISOTROPIC =     378.7783
 
-   2  h       
- -------------
+      Atom:    2  H 
+        Diamagnetic
+     32.0339     -0.0000      7.9386
+     -0.0000     15.1300      0.0000
+      7.9386      0.0000     20.4804
 
-              Bx          By          Bz
-      x     33.1490      0.0000      5.6317
-      y     -0.0000     21.0188     -0.0000
-      z      4.5419      0.0000     24.9948
-             ISOTROPIC =      26.3875
+        Paramagnetic
+      0.4791     -0.0000    -10.1817
+     -0.0000     10.4569     -0.0000
+    -10.1817     -0.0000      7.5807
 
-   3  h       
- -------------
+        Total Shielding Tensor
+     32.5130     -0.0000     -2.2431
+     -0.0000     25.5869     -0.0000
+     -2.2431     -0.0000     28.0611
 
-              Bx          By          Bz
-      x     33.1490      0.0000     -5.6317
-      y     -0.0000     21.0188      0.0000
-      z     -4.5419     -0.0000     24.9948
-             ISOTROPIC =      26.3875
+           isotropic =      28.7203
+          anisotropy =       7.0902
 
+          Principal Components and Axis System
+                 1           2           3
+               33.4471     27.1269     25.5869
 
- SHIELDING TENSOR (PPM) =  ( PARAMAGNETIC + DIAMAGNETIC ) 
- ------------------------ 
+      1         0.9231      0.3845      0.0000
+      2         0.0000     -0.0000      1.0000
+      3        -0.3845      0.9231      0.0000
 
-   1  o       
- -------------
 
-              Bx          By          Bz
-      x    208.6207      0.0000     -0.0000
-      y      0.0000    232.0106     -0.0000
-      z      0.0000     -0.0000    258.5660
-             ISOTROPIC =     233.0658
-            ANISOTROPY =      38.2504
 
-              1           2           3
- EIG =     258.5660    232.0106    208.6207
- VEC = 
-      1     -0.0000      0.0000     -1.0000
-      2     -0.0000      1.0000      0.0000
-      3      1.0000      0.0000     -0.0000
+      Atom:    3  H 
+        Diamagnetic
+     32.0339      0.0000     -7.9386
+      0.0000     15.1300      0.0000
+     -7.9386      0.0000     20.4804
 
-   2  h       
- -------------
+        Paramagnetic
+      0.4791      0.0000     10.1817
+      0.0000     10.4569     -0.0000
+     10.1817     -0.0000      7.5807
 
-              Bx          By          Bz
-      x     33.1830      0.0000      2.8788
-      y      0.0000     25.2401      0.0000
-      z     -3.4363      0.0000     27.5655
-             ISOTROPIC =      28.6629
-            ANISOTROPY =       6.8009
+        Total Shielding Tensor
+     32.5130      0.0000      2.2431
+      0.0000     25.5869     -0.0000
+      2.2431     -0.0000     28.0611
 
-              1           2           3
- EIG =      33.1968     27.5517     25.2401
- VEC = 
-      1      0.9988      0.0494      0.0000
-      2      0.0000      0.0000     -1.0000
-      3     -0.0494      0.9988      0.0000
+           isotropic =      28.7203
+          anisotropy =       7.0902
 
-   3  h       
- -------------
+          Principal Components and Axis System
+                 1           2           3
+               33.4471     27.1269     25.5869
 
-              Bx          By          Bz
-      x     33.1830      0.0000     -2.8788
-      y     -0.0000     25.2401      0.0000
-      z      3.4363     -0.0000     27.5655
-             ISOTROPIC =      28.6629
-            ANISOTROPY =       6.8009
+      1         0.9231     -0.3845      0.0000
+      2         0.0000      0.0000      1.0000
+      3         0.3845      0.9231      0.0000
 
-              1           2           3
- EIG =      33.1968     27.5517     25.2401
- VEC = 
-      1      0.9988     -0.0494     -0.0000
-      2     -0.0000     -0.0000     -1.0000
-      3      0.0494      0.9988     -0.0000
 
 
 
- Task  times  cpu:        2.8s     wall:       16.1s
+ Task  times  cpu:        2.9s     wall:        6.3s
  
  
                                 NWChem Input Module
@@ -1776,11 +1556,11 @@ task property
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  529      547     1790     1140     1112        0        0        0     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.50e+05 1.35e+05 8.97e+04 0.00e+00 0.00e+00 0.00e+00
+calls:  814      814     2.38e+04 2793     1.86e+04  227        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 1.00e+00 0.00e+00
+bytes total:             1.39e+06 2.92e+05 1.02e+06 7.77e+04 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 5448 bytes
+Max memory consumed for GA by this process: 16248 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1790,11 +1570,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        33	        14
+	maximum number of blocks	        55	        46
 	current total bytes		         0	         0
-	maximum total bytes		   1062520	1698691400
-	maximum total K-bytes		      1063	   1698692
-	maximum total M-bytes		         2	      1699
+	maximum total bytes		   5201656	  17432304
+	maximum total K-bytes		      5202	     17433
+	maximum total M-bytes		         6	        18
 
 
 
@@ -1806,7 +1586,7 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002), Pacific Northwest National Laboratory,
+            Version 4.6" (2004), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -1816,20 +1596,22 @@ MA usage statistics:
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis,
-            E. J. Bylaska, G. I. Fann, T. L. Windus, E. Apra, W. de Jong,
-            S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt, P. Borowski,
+            T. P. Straatsma, E. Apra, T. L. Windus, E. J. Bylaska, W. de Jong,
+            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, R. J. Harrison,
+            M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+            M. Krishnan, A. A. Auer, E. Brown, G. Cisneros, G. I. Fann,
+            H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+            K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
             T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
-            H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao, A. Hess,
-            J. Jaffe, B. Johnson, J. Ju, R. Kendall, R. Kobayashi, R. Kutteh,
-            Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
-            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-            G. Thomas, J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+            G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
             "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002),
+            Version 4.6" (2004),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:        3.0s     wall:       16.7s
+ Total times  cpu:        4.0s     wall:       10.4s
