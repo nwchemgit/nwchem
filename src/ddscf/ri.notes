@@ -1,0 +1,231 @@
+
+Exchange interaction via RI
+
+
+1)  SVS
+
+    K[i,j] = (ikt) S^-1[tu] (u|v) S^-1[vw] (wjl) D[k,l]
+
+           = (ikt) (t*|v*) (vjl) D[k,l]
+
+2)  VS
+
+    K[i,j] = (ik|t) S^-1[tu] (ujl) D[k,l]  ... Feyereisen
+
+3) V
+
+    K[i,j] = (ik|t) V^-1[t,u] (u|kl) D[k,l] ... Almloef
+
+
+
+
+Schwarz inequality
+
+
+     |I(fg)|^2 <= I(f^2)I(g^2)
+
+Hence
+
+     |(ikt)|^2 <= |(ikik)||(tt)|
+
+Have (tt) -> 1, and 
+
+     (ikik) = simple expression but can approx. it
+              by using the (ik|ik) integrals already
+              computed.  Overall exponential decay is
+              the same.
+
+
+
+
+SVS algorithm
+-------------
+
+   a) Form and store (t*|w*) = S^-1[tu] (u|v) S^-1[vw]
+
+      i) Make (tu)
+
+      ii) Invert (tu) -> S^-1[tu]
+
+      iii) Make (u|v)
+
+      iv) Two Dgemms and symmetrize to eliminate round-off error.
+
+
+   b) Algorithm ignoring sparsity
+
+
+      This can employ the V or SVS methods equally well
+
+      DO j in blocks
+
+         Make Sj[v,l] = (vjl)               NNM integrals
+
+         MxM  Xj[v,k] = Sj[v,l]*D[l,k]      NNNM flops
+
+         MxM  Yj[t,k] = (t*|v*) Xj[v,k]     NNNM flops
+
+         DO i
+
+            Make Si[t,k] = (ikt)            NNM Nblock(j) integrals
+
+            Kij = Si[t,k]Yj[t,k]            NNNM flops
+
+         ENDDO
+
+
+   c) Algorithm using sparsity
+
+      DO j
+
+         DO l 
+
+            Schwarz test on jl
+
+            Get D[*,l] and compress to significant list
+
+            DO v = 1, N  
+
+               compute (vjl)                    aaN integrals (SVS)
+                                                aNN integrals (V)
+
+               if ((vjl) > ??)
+               
+                  DO k = non-zero D's
+
+                     Xj[k,v] = (vjl) * D[k,l]   aaaN FLOPS (SVS)
+                                                aaNN FLOPS (V)
+
+        Have Xj[k,v]
+
+        DO k
+
+           DO v
+
+              if (Xj[k,v])
+
+                 DO t
+
+                    Yjk[t] = Yjk[t] + Xj[k,v] * (t* | v*)   aaNN FLOPS (SVS)
+                                                            aNNN FLOPS (V)
+
+          DO i
+
+             Schwarz on (ik)
+
+             DO t
+
+                if (Yjk[t]) to screen integrals
+
+                K[i,j] = K[i,j] + (ikt) * Yjk[t]     aaaN Integrals (SVS)
+                                                     aaNN Integrals (V)
+
+   Problem here is that the no. of integrals computed in the final loop
+   is the same (SVS) or exceeds (V) the no. of integrals computed in the
+   standard algorithm.  Also, amount of memory is large.
+
+   Introduce blocking of both J and K indices
+
+   d) Algorithm using sparsity and blocking
+
+      DO blocks of j
+         DO blocks of k
+
+            Zero Y
+
+            DO blocks of v   ... parallelize over combined B(v) and J shells
+               DO j (shells ?) in block ... NNB(v)/B(j) elements
+
+                  Zero X
+
+                  DO l
+                     Schwarz test on jl
+                     get D(k in block, l) and compress to non-zeroes
+                     DO v in block
+                        Prescreen on v for overlap
+                        compute (vjl)                 aaNB(k) integrals (SVS)
+                                                      aNNB(k) integrals (V)
+                        if ((vjl) > ??)
+                           DO k = non-zero D's
+                              Xj[v,k] = (vjl) * D[k,l]   aaaN FLOPS (SVS)
+                                                          aaNN FLOPS (V)
+                     ENDDO v
+                  ENDDO l
+
+                  Have Xj[vlo:vhi, klo:khi]  (local array)
+
+                  DO k in block
+                     DO v in block
+                        if (Xj[k,v])
+                           DO t
+                              Y[t,j,k] = Y[t,j,k] + (t*|v*) * Xj[v,k]
+                                                   aaNN FLOPS (SVS)
+                                                   aNNN FLOPS (V)
+                           ENDDO t
+                     ENDDO v
+                  ENDDO k
+               ENDDO j
+            ENDDO blocks of v
+
+            Have Y[1:t, klo:khi, jlo:jhi] (global array)
+
+            DO i ... parallelize over combined I and K indices ... aN elements
+               DO k in block
+                  Schwarz on (ik)
+                  DO t
+                     screen on t and max (over j) Y[t,k,j]
+                                                  aaNB(j) Integrals (SVS)
+                                                  aNNB(j) Integrals (V)
+                     if (ikt)
+                        DO j in block
+                           K[i,j] = K[i,j] + (ikt) * Y[t,j,k]
+						  aaNN FLOPS (SVS)
+                                                  aNNN FLOPS (V)
+                        ENDDO j
+                  ENDDO t
+               ENDDO k
+            ENDDO i
+         ENDDO k blocks
+      ENDDO j blocks
+
+      Integral evaluation cost    
+
+           SVS   aaN(B(k)+B(j))
+           V     aNN(B(k)+B(j))
+
+      Memory
+
+           M = NNN / (B(k)*B(j))
+
+      Choose B(v) as large as possible ... one shell at a time for v
+
+          B(k)*B(j) = NNN/M
+
+      Symmetry implies B(k) = B(j) = sqrt(NNN/M)
+
+      Hence integ cost is actually
+
+           SVS   aaN * (2Nsqrt(N/M))
+           V     aNN * (2Nsqrt(N/M))
+
+      If can hold all integrals (i.e., M = NNN)
+
+           B = 1
+
+           SVS   aaN * 2  (In this case precompute once and for all)
+           V     aNN * 2
+
+      If can hold 1 square NN matrix (i.e., M = NN)
+
+           B = sqrt(N)
+
+           SVS   aaN * 2sqrt(N)
+           V     aNN * 2sqrt(N)
+
+      If can hold 1 vector length N (i.e., M = N)
+
+           B = N ... i.e., 1 j and k at a time
+
+           SVS   aaN * (2N)
+           V     aNN * (2N)
+
