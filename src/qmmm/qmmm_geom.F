@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.35 2004-12-01 18:31:01 marat Exp $
+c $Id: qmmm_geom.F,v 1.36 2004-12-01 23:53:13 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -420,6 +420,10 @@ c    --------------------------------------
       if(.not.geom_rtdb_store(irtdb,igeom,'full_geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
+      if(qmmm_print_debug())
+     > write(*,*) pname//" : full geometry is stored in rtdb"
+
+
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
@@ -455,7 +459,9 @@ c     -----------------------------
      &       RTDB_ERR)
       end if
       
-      if(ga_nodeid().eq.0) call mm_print_system()
+
+      if(qmmm_print_debug())
+     > write(*,*) pname//" finished"
 
       end
 
