@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: rimp2_denom.F,v 1.1 1994-08-27 21:15:49 gg502 Exp $
+C     $Id: rimp2_denom.F,v 1.2 1994-10-31 17:28:00 gg502 Exp $
 C
       Subroutine RIMP2_Denom(G_Ints, BaseI, BaseJ, NVirI, NVirJ,
      $   OccEigI, OccEigJ, VirEigI, VirEigJ)
@@ -90,11 +90,8 @@ C           First and last J might not cover the whole range
 C           
             BBot = 1
             BTop = NVirJ
-            If ( J .eq. JLo) then
-               BBot = BLo
-            ElseIf (J .eq. JHi) then
-               BTop = BHi
-            EndIf
+            If ( J .eq. JLo) BBot = BLo
+            If ( J .eq. JHi) BTop = BHi
 C           
             Do B = BBot, BTop
 C              
@@ -111,11 +108,8 @@ C                 range
 C                 
                   ABot = 1
                   ATop = NVirI
-                  If ( I .eq. ILo) then
-                     ABot = ALo
-                  ElseIf (I .eq. IHi) then
-                     ATop = AHi
-                  EndIf
+                  If ( I .eq. ILo) ABot = ALo
+                  If ( I .eq. IHi) ATop = AHi
 C                 
                   Do A = ABot, ATop
                      Offset = Offset + 1
