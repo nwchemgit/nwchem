@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.26 2000-02-04 19:55:53 mg201 Exp $
+c$Id: gradients.F,v 1.27 2000-08-23 17:19:34 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -24,6 +24,12 @@ c
       logical status
       character*255 title
       double precision charge
+c
+c     cosmo flag
+c
+      logical odbug
+      logical ocosmo
+      logical osome
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call ecce_print_module_entry ('gradients')
@@ -75,6 +81,47 @@ c
             call util_flush(luout)
          endif
       endif
+c
+c     ----- cosmo check -----
+c
+      odbug=.false.
+      odbug=odbug.and.ga_nodeid().eq.0
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(odbug) then
+            write(luout,*) '-cosmo- ... found in -gradients-',
+     $                     ocosmo,ga_nodeid()
+         endif
+         if(ocosmo) then
+            if(odbug) then
+               osome=.true.
+            else
+               osome=.false.
+            endif
+            osome=osome.and.ga_nodeid().eq.0
+            if(odbug) then
+               write(luout,*) '-cosmo- ... found and .true. ',
+     $                        ocosmo,ga_nodeid()
+            endif
+            if(.not.odbug) then
+               write(luout,*) '-cosmo- ... found and .true. ',
+     $                         ocosmo,ga_nodeid()
+               call errquit('gradients: not available with cosmo',0)
+               call util_flush(luout)
+            endif
+         else
+            if(odbug) then
+               write(luout,*) '-cosmo- ... found but .false.',
+     $                        ocosmo,ga_nodeid()
+            endif
+         endif
+      else
+         if(odbug) then
+            write(luout,*) '-cosmo- not found in -gradients-'
+         endif
+      endif
+      call ga_sync()
+c
+c     go for it ... finally ...
 c
       call grad_force ( rtdb, basis, geom )
 c
