@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.11 2003-01-30 01:15:02 bert Exp $
+c     $Id: dft_fockbld.F,v 1.12 2003-06-11 02:39:21 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -18,6 +18,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "dftps.fh"
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
@@ -117,12 +118,14 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
+      if (odftps) call pstat_on(ps_fitcd)
          call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  ii3cwhat, n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
      .        natoms,
      &                  .false., 0d0, .false.)
+      if (odftps) call pstat_off(ps_fitcd)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -133,11 +136,13 @@ c
 #endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
+      if (odftps) call pstat_on(ps_vcoul)
       call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
      &               g_tmp, iVcoul_opt, n_batch, 
      &               n3c_int, ii3cwhat, n3c_dbl, iwhat_max,
      &               n_semi_bufs, fd, IOLGC,
      &               .false., 1)
+      if (odftps) call pstat_off(ps_vcoul)
 c     
 c     Add V coul to Fock Matrix
 c     
@@ -182,10 +187,12 @@ c
       rho_n = 0.0d0
       if (ipol.eq.2)call ga_zero(g_vxc(2))
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
+      if (odftps) call pstat_on(ps_xc)
 c
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms)
+      if (odftps) call pstat_off(ps_xc)
 c
       if (exact_pot.eq.1) then
         call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
