@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.17 1995-04-27 03:16:55 og845 Exp $
+# $Id: GNUmakefile,v 1.18 1995-04-29 10:00:59 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o
 	OBJ_OPTIMIZE = \
-	xc_becke88.o	xc_perdew86.o 		   \
+	xc_becke88.o	xc_perdew86.o  \
 	xc_dirac.o	xc_vwn.o	xc_lyp88.o			\
 	eumac.o	\
 	xc_tabcd.o	setACmat.o xc_rhogen.o\
@@ -28,7 +28,7 @@ endif
      LIBRARY = libnwdft.a
    LIB_DEFINES = -DDFT_TIMER
 
-   USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F dirac.F xc_tabcd.F xc_rhogen.F
+   USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
