@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.23 1995-04-27 22:03:43 pg511 Exp $
+#$Id: GNUmakefile,v 1.24 1995-04-28 19:22:32 pg511 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -17,7 +17,7 @@ ifeq ($(NWCHEM_TARGET),CRAY-T3D)
 	dft_second.o	\
 	dft_tstamp.o	\
 	bas_ncontr_cn_max.o       nbf_to_mbf.o \
-	int_2e3c_can.o int_mpole.o
+	int_2e3c_can.o dft_mpole.o
 else
 	OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -34,7 +34,7 @@ else
 	int_eval_gbsets.o 	new_eval_gbsets.o \
 	bas_ncontr_cn_max.o		ga_chol_seq.o	\
 	ga_inv_seq.o 	\
-	int_2e3c_can.o	nbf_to_mbf.o int_mpole.o
+	int_2e3c_can.o	nbf_to_mbf.o dft_mpole.o
 endif
 else
 	OBJ = bas_ncontr_cn_max.o 	nbf_to_mbf.o int_eval_gbsets.o new_eval_gbsets.o
@@ -52,7 +52,7 @@ else
 	dft_tstamp.o	\
 	ga_chol_seq.o	\
 	ga_inv_seq.o 	\
-	int_2e3c_can.o int_mpole.o
+	int_2e3c_can.o dft_mpole.o
 endif
 
      LIBRARY = libnwdft.a
