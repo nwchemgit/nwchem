@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.349 2000-11-22 23:46:53 edo Exp $
+# $Id: makefile.h,v 1.350 2000-11-30 03:21:48 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -299,6 +299,8 @@ else
 endif
 
       EXTRA_LIBS = -ldl 
+# this creates a static executable
+#EXTRA_LIBS = -Bdynamic -ldl -lXext -lnsl  -Bstatic  
 
 ifdef LARGE_FILES
   LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
@@ -749,7 +751,7 @@ ifeq ($(TARGET),HPUX64)
   CPP = /lib/cpp -P
   CC = cc
   FC = f90
-  LDOPTIONS = -Wl,+vallcompatwarnings  
+  LDOPTIONS = -Wl,+vallcompatwarnings
   CORE_LIBS +=  -llapack $(BLASOPT) -lblas -lm
   CDEBUG =
   FDEBUG = -g
@@ -1165,13 +1167,19 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      RANLIB = echo
   FC         = fort
   CC         = ccc      
-  LINK.f = fort $(LDFLAGS)
+# this creates a static executable
+#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
+  LINK.f = fort $(LDFLAGS)  
   DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64 -DPARALLEL_DIAG
   FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
   CORE_LIBS += -llapack $(BLASOPT) -lblas
+ifeq ($(BUILDING_PYTHON),python)
+#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
+   EXTRA_LIBS +=  -ldl
+endif
 endif
 
 ifeq ($(TARGET),FUJITSU_VPP)
