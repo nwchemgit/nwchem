@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.7 2000-08-09 23:03:35 edo Exp $
+c     $Id: fock_xc.F,v 1.8 2000-08-11 00:12:38 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -34,10 +34,11 @@ c
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        l_g_dens_local, k_g_dens_local, k_g_dens_scf
-      logical wght_GA_dum,grid_reopen,grid_on_file
-      external grid_reopen
+      logical wght_GA_dum,grid_reopen,grid_on_file,xc_gotxc
+      external grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
 c
+      if(.not.xc_gotxc()) return
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered fock_xc-------------'
       rtdb = bgj_get_rtdb_handle()

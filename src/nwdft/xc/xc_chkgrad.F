@@ -1,6 +1,6 @@
       logical function xc_chkgrad(xfac,cfac)
 *
-* $Id: xc_chkgrad.F,v 1.9 2000-07-21 20:40:42 edo Exp $
+* $Id: xc_chkgrad.F,v 1.10 2000-08-11 00:12:19 edo Exp $
 *
       implicit none
       double precision xfac(*) ! Exchange functional coeffs [input]
@@ -22,5 +22,21 @@ c
       else
          xc_chkgrad = .false.
       endif
+      return
+      end
+      logical function xc_gotxc()
+      implicit none
+#include "cdft.fh"
+      double precision tot
+      integer i
+c
+c     return true if there is any XC functional to compute 
+c     (other than HF Exch)
+c
+      tot = -abs(xfac(1))
+      do i = 1, numfunc
+         tot = tot + abs(xfac(i)) + abs(cfac(i))
+      enddo
+      xc_gotxc = tot.gt.1d-8
       return
       end

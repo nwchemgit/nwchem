@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.29 2000-08-09 23:04:26 edo Exp $
+* $Id: dftg_getxc.F,v 1.30 2000-08-11 00:12:55 edo Exp $
 *
       implicit none
 c      
@@ -37,10 +37,10 @@ c
       double precision rdens_atom(ipol*natom*natom)    
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
-      logical status,grid_on_file
+      logical status,grid_on_file,xc_gotxc
+      external xc_gotxc
 c
       integer nproc,i
-      double precision  tot
       logical grid_reopen
       external grid_reopen
 c
@@ -50,12 +50,8 @@ c     Exact exchange is now computed by grad_force
 c
 
       call ga_sync
-      tot = -xfac(1)
-      do i = 1, numfunc
-         tot = tot + xfac(i) + cfac(i)
-      enddo
 c
-      if (abs(tot).gt.1e-8)then
+      if (xc_gotxc())then
 c     
 c        Compute via direct numerical quadrature.
 c     

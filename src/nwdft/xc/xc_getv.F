@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.39 2000-06-09 17:11:23 edo Exp $
+C$Id: xc_getv.F,v 1.40 2000-08-11 00:12:19 edo Exp $
 c
       implicit none
 c      
@@ -30,7 +30,8 @@ c
       logical havehfxc
 c     
       integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
+      logical xc_gotxc
+      external ga_create_atom_blocked,xc_gotxc
 c
 c--> XC Energy
 c
@@ -57,12 +58,12 @@ c              2        2   |   Vxc^up   Vxc^dw
 c
 c           nTcols = ipol 
 c
-      integer me,i,nTrows,nTcols
+      integer me,nTrows,nTcols
       integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
-      double precision tol2e,tot
+      double precision tol2e
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential and energy.
@@ -171,16 +172,12 @@ c
          call ga_sync
       endif
 c
-      tot=-xfac(1)
-      do i=1,numfunc
-        tot=tot+xfac(i)+cfac(i)
-      enddo
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &     grid_on_file))then
          grid_on_file = .false.
       endif
 c
-      if (abs(tot).gt.1e-8) then
+      if (xc_gotxc()) then
          if(xcfit) then       
             nTrows = nbf_xc
             nTcols = ipol
