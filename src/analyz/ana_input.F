@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.15 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_input.F,v 1.16 2000-03-24 22:04:19 d3j191 Exp $
 c
       implicit none
 c
@@ -292,7 +292,7 @@ c
 c     root mean square deviation analysis
 c     -----------------------------------
 c
-      if(inp_compare(.false.,'rmsdev',item)) then
+      if(inp_compare(.false.,'rmsd',item)) then
       write(lfncmd,1008)
  1008 format('rmsdev ')
       numcmd=numcmd+1
