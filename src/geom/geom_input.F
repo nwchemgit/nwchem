@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.65 1997-07-02 20:21:25 mdupuis Exp $
+C     $Id: geom_input.F,v 1.66 1997-11-07 11:41:35 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -280,6 +280,11 @@ c
          call errquit('geom_input: invalid system type', 0)
       end if
 c     
+      call geom_check_input_quants
+     &    (tags,charge,ncenter,1.0d-12,'charge')
+      call geom_check_input_quants
+     &    (tags,mass,ncenter,1.0d-8,'mass')
+c
       if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
 c     
@@ -8799,3 +8804,64 @@ C
   560 CONTINUE
       RETURN
       END
+      subroutine geom_check_input_quants(
+     &    tags,vector,ncenter,diff_thresh,identity)
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+      integer ncenter
+      character*(*) identity
+      character*16 tags(ncenter)
+      double precision vector(ncenter)
+      double precision diff_thresh
+c
+      integer i,j,k, icent, jcent
+      logical status
+      double precision diff
+c
+      status = .true.
+      do i = 2,ncenter
+        do j = 1,(i-1)
+          if (tags(i).eq.tags(j))
+     &        status = status .and.
+     &        (abs(vector(i)-vector(j)).lt.diff_thresh)
+          if (.not.status) then
+            icent = i
+            jcent = j
+            diff = abs(vector(i)-vector(j))
+            goto 00010
+          endif
+        enddo
+      enddo
+      return
+00010 continue
+c
+      k = inp_strlen(identity)
+      write(luout,*)
+     &    ' geom_input: error mis-match on quantities of ',
+     &    identity(1:k)
+      write(luout,*)
+     &    '           : tags must be different for different values',
+     &    ' of "',identity(1:k),'"'
+      write(luout,00001)
+c
+      do i = 1,ncenter
+        j = inp_strlen(tags(i))
+        write(luout,00002)i,tags(i)(1:j),identity(1:k),vector(i)
+      enddo
+      write(luout,*)
+      write(luout,00003)
+     &    icent,tags(icent),identity(1:k),vector(icent),
+     &    jcent,tags(jcent),identity(1:k),vector(jcent),
+     &    diff,diff_thresh
+      write(luout,00001)
+      call errquit('geom_check_input_quants: fatal error',911)
+c
+00001 format(1x,80('-'),/,/)
+00002 format(1x,'center',i4,1x,a16,' has a ',a,' of ',f10.4)
+00003 format(1x,'detected error occured with the input for:',/,
+     &    1x,'center',i4,1x,a16,' has a ',a,' of ',f20.13,/,
+     &    1x,'center',i4,1x,a16,' has a ',a,' of ',f20.13,/,
+     &    1x,' differ by ',31x,f20.13,/,
+     &    1x,' which is larger than the threshold:',6x,f20.13,/,/)
+      end
