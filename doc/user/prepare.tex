@@ -591,7 +591,7 @@ The \verb+align+ directive orients the system such that
 in the x=y plane.
 
 \begin{verbatim}
-repeat <integer nx> <integer ny> <integer nz> <real dist>
+repeat <integer nx> <integer ny> <integer nz> [<real dist>] [<real zdist>]
 \end{verbatim}
 
 The \verb+repeat+ directive causes a subsequent \verb+write pdb+
@@ -599,6 +599,7 @@ directive to write out multiple copies of the system, with \verb+nx+
 copies in the x, \verb+ny+ copies in the y, and \verb+nz+ copies in 
 the z-direction, with a minimum distance of \verb+dist+ between any
 pair of atoms from different copies. If \verb+nz+ is -2, an inverted
-copy is placed in the z direction. If \verb+dist+ is negative, the
-box dimensions will be used. For systems with solvent, this
-directive should be used with a negative \verb+dist+.
+copy is placed in the z direction, with a separation of \verb+zdist+ nm. 
+If \verb+dist+ is negative, the box dimensions will be used. 
+For systems with solvent, this directive should be used with a negative 
+\verb+dist+.
