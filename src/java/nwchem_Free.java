@@ -99,17 +99,17 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
             int ndec=0;
             int nsa=0;
 	    while((card=br.readLine()) != null){
-		int nderiv = Integer.parseInt(card.substring(0,7).trim());
-		ndata = Integer.parseInt(card.substring(7,14).trim());
+		int nderiv = Integer.parseInt(card.substring(0,8).trim());
+		ndata = Integer.parseInt(card.substring(8,15).trim());
                 numdat=ndata;
                 if(numdat>mdata){numdat=mdata;};
 		if(first){ 
 		    for(int i=0; i<numdat; i++){cnv[i]=0.0;};
 		};
-		lambda=Double.valueOf(card.substring(14,26)).doubleValue();
-		dlambda=Double.valueOf(card.substring(26,38)).doubleValue();
-                ndec=Integer.parseInt(card.substring(38,46).trim());
-                nsa=Integer.parseInt(card.substring(46,54).trim());
+		lambda=Double.valueOf(card.substring(15,27)).doubleValue();
+		dlambda=Double.valueOf(card.substring(27,39)).doubleValue();
+                ndec=Integer.parseInt(card.substring(39,47).trim());
+                nsa=Integer.parseInt(card.substring(47,54).trim());
 		if(first){
 		    gibPlot.addData(0,lambda,free,!first,true);
 		    gibPlot.addData(1,lambda,freep,!first,true);

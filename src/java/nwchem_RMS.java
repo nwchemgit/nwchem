@@ -74,7 +74,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	rmsrPlot.setTitle("Segment RMS Deviation");
 	bfacaPlot.setTitle("Atomic B factor");
 	bfacrPlot.setTitle("Segment B Factor");
-	rmsrPlot.setBars(1.0,0.0);
+	//	rmsrPlot.setBars(1.0,0.0);
 	rmsPlot.setSize(500,300);
 	rmsaPlot.setSize(350,300);
 	rmsrPlot.setSize(350,300);
@@ -111,9 +111,11 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    while(!card.startsWith("analysis")){
 		rms1=Double.valueOf(card.substring(32,43)).doubleValue();
 		rms2=Double.valueOf(card.substring(44,55)).doubleValue();
-		rmsaPlot.addData(1,numa,rms1,!first,false);
-		bfacaPlot.addData(1,numa,rms2,!first,false); first=false;
-		numa++;
+		if(!card.substring(30,31).equals("0")){
+		    rmsaPlot.addData(0,numa,rms1,!first,false);
+		    bfacaPlot.addData(0,numa,rms2,!first,false); first=false;
+		    numa++;
+		};
 		card=br.readLine();
 	    };
 	    numa=0;
