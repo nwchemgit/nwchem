@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.31 2005-02-11 07:27:42 edo Exp $
+c $Id: shell_fock_build.F,v 1.32 2005-02-24 00:59:43 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -310,7 +310,7 @@ c
       external intbd_init4c, intbd_2e4c
       external intb_init4c, intb_2e4c
 c
-      integer nproc
+      integer nproc,bledo,bledoij,bledoijk
 c     
       smax  = schwarz_max()
       call int_acc_std()
@@ -337,12 +337,14 @@ c
             jbflo = bfglo(jshblock)
             jbfhi = bfghi(jshblock)
             jdim  = jbfhi - jbflo + 1
+            bledoij=max(idim,jdim)
             do kshblock = ishblock, 1, -1
                kshlo = shglo(kshblock)
                kshhi = shghi(kshblock)
                kbflo = bfglo(kshblock)
                kbfhi = bfghi(kshblock)
                kdim  = kbfhi - kbflo + 1
+               bledoijk=max(bledoij,kdim)
                lblockhi = kshblock
                if (ishblock .eq. kshblock) lblockhi = jshblock
                do lshblock = 1, lblockhi
@@ -355,31 +357,28 @@ c
 c     
 c     Get blocks of the one-particle densities
 c     
-                     call new_get_dens_block(g_dens, ndens, blen, 
+                     bledo=max(bledoijk,ldim)
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
 c                    call print_dens_bit(d_ij, ndens, ibflo, ibfhi,
-c    $                    jbflo, jbfhi, blen)
-                     call new_get_dens_block(g_dens, ndens, blen, 
+c    $                    jbflo, jbfhi, bledo)
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
-                     call new_get_dens_block(g_dens, ndens, blen, 
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    ibflo, ibfhi, kbflo, kbfhi, d_ik, kfac)
-                     call new_get_dens_block(g_dens, ndens, blen, 
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    jbflo, jbfhi, lbflo, lbfhi, d_jl, kfac)
-                     call new_get_dens_block(g_dens, ndens, blen, 
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il, kfac)
-                     call new_get_dens_block(g_dens, ndens, blen, 
+                     call new_get_dens_block(g_dens, ndens, bledo, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
-                     if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0, MA_ERR)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ij, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_kl, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_ik, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jl, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_il, 1)
+                     call dcopy(nfock*bledo*bledo, 0d0, 0,f_jk, 1)
 c
-                     call dfill(nfock*blen*blen, 0d0, f_ij, 1)
-                     call dfill(nfock*blen*blen, 0d0, f_kl, 1)
-                     call dfill(nfock*blen*blen, 0d0, f_ik, 1)
-                     call dfill(nfock*blen*blen, 0d0, f_jl, 1)
-                     call dfill(nfock*blen*blen, 0d0, f_il, 1)
-                     call dfill(nfock*blen*blen, 0d0, f_jk, 1)
-                     if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0, MA_ERR)
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
@@ -507,14 +506,14 @@ c
                           call new_fock_doit(nint,labels,leri,eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    ndens, nfock, blen, rbfmap,
+     $                    ndens, nfock, bledo, rbfmap,
      $                    ibflo, jbflo, kbflo, lbflo)
                         else
                           call new_fock_doit_der(nint,labels,leri,
      $                    eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    ndens, nfock/ndens, blen, rbfmap, bftoat,
+     $                    ndens, nfock/ndens, bledo, rbfmap, bftoat,
      $                    ibflo, jbflo, kbflo, lbflo)
 c                                      
                         endif
@@ -526,17 +525,17 @@ c
                      if (omore) goto 10
 c                                      
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, ibflo, ibfhi, jbflo, jbfhi, f_ij)
+     $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, kbflo, kbfhi, lbflo, lbfhi, f_kl)
+     $                 bledo, kbflo, kbfhi, lbflo, lbfhi, f_kl)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, ibflo, ibfhi, kbflo, kbfhi, f_ik)
+     $                 bledo, ibflo, ibfhi, kbflo, kbfhi, f_ik)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, jbflo, jbfhi, lbflo, lbfhi, f_jl)
+     $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, ibflo, ibfhi, lbflo, lbfhi, f_il)
+     $                 bledo, ibflo, ibfhi, lbflo, lbfhi, f_il)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 blen, jbflo, jbfhi, kbflo, kbfhi, f_jk)
+     $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk)
 c
                      next = nxtask(nproc,task_size)
                   end if
@@ -569,7 +568,7 @@ c
       integer idens
 c
       blen2 = blen*blen
-      call dfill(ndens*blen*blen,0d0,buf,1)
+      call dcopy(ndens*blen*blen,0d0,0,buf,1)
       lo(1) = 1
       hi(1) = ndens
       lo(2) = ibflo
