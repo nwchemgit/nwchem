@@ -1,9 +1,7 @@
 c     Perdew-Wang '91 exchange functional 
 c
-c     References:
-c     ****[a] J.P. Perdew, K. Burke, and M. Ernzerhof, PRL 77, 3865 (1996).
-c     [b] J.P. Perdew and Y. Wang, Phys. Rev. B 33, 8800 (1986).;
-c                                               40, 3399 (1989) (E).
+c     Reference:
+c     J.P. Perdew et al., Phys. Rev. B 46, 6671 (1992).
 c
 #ifndef SECOND_DERIV
       Subroutine xc_xpw91(tol_rho, fac, lfac, nlfac, rho, delrho, 
@@ -14,7 +12,7 @@ c
      &                       qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpw91.F,v 1.5 2000-07-27 16:22:28 bjohnson Exp $
+c$Id: xc_xpw91.F,v 1.6 2000-07-27 17:56:46 bjohnson Exp $
 c
       implicit none
 c
@@ -58,14 +56,6 @@ c
       parameter (F73=7.d0/3.d0)
 #endif
 c
-      double precision x, arcsinh, darcsinh
-      arcsinh(x)=log(x+dsqrt(1d0+x*x))
-      darcsinh(x)=1d0/dsqrt(1d0+x*x)
-#ifdef SECOND_DERIV
-      double precision d2arcsinh
-      d2arcsinh(x)=-x*darcsinh(x)**3
-#endif
-c
       integer n
       double precision rrho, rho43, rho13, gamma, gam12, s, d1s(2),
      &     s2, as, d1as, t, d1t, expfac, d1expfac, Fn, d1Fn, Fd, d1Fd,
@@ -73,6 +63,16 @@ c
 #ifdef SECOND_DERIV
       double precision rhom23, d2s(3), d2as, d2t, d2expfac, d2Fn, d2Fd,
      &     gpp, d2g(3)
+#endif
+c
+      double precision x, arcsinh, darcsinh
+#ifdef SECOND_DERIV
+      double precision d2arcsinh
+#endif
+      arcsinh(x)=log(x+dsqrt(1d0+x*x))
+      darcsinh(x)=1d0/dsqrt(1d0+x*x)
+#ifdef SECOND_DERIV
+      d2arcsinh(x)=-x*darcsinh(x)**3
 #endif
 c
       pi = acos(-1.d0)
