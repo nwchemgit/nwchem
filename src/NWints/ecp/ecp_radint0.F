@@ -1,7 +1,7 @@
-C $Id: ecp_radint0.F,v 1.2 1996-10-16 20:37:18 mg201 Exp $
+C $Id: ecp_radint0.F,v 1.3 1997-08-19 23:33:01 mg201 Exp $
 ************************************************************************
 *                                                                      *
-      subroutine ecp_radint0 (p_min,p_max,n_prim_c,n_c,
+      subroutine ecp_radint0 (p_min,p_max,n_prim_c,n_c,n_cont_c,
      &    zeta_c,coeff_c,l_a,n_prim_a,n_cont_a,zeta_a,coeff_a,
      &    l_b,n_prim_b,n_cont_b,zeta_b,coeff_b,prim,temp,wrk,radint,
      &    ibug)
@@ -16,6 +16,7 @@ C $Id: ecp_radint0.F,v 1.2 1996-10-16 20:37:18 mg201 Exp $
 *   n_prim_c (inp) - array of numbers of primitive ECP functions for   *
 *                    each power of r                                   *
 *   n_c - total number of primitive ECP functions                      *
+*   n_cont_c (inp) - number of ECP contractions                        *
 *   zeta_c (inp) - exponents on centre c                               *
 *   coeff_c (inp) - contraction coefficients on centre c               *
 *   l_a (inp) - n quantum number of functions on centre a              *
@@ -41,18 +42,19 @@ C $Id: ecp_radint0.F,v 1.2 1996-10-16 20:37:18 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer p_min,p_max
       integer ibug,i_a,i_b,i_c,ind_c,l_a,n_prim_a,n_cont_a,l_b,
-     &    n_prim_b,n_cont_b,n_ab,n_c,n_p,n_prim_c(p_min:p_max),
-     &    p,pow
+     &    n_prim_b,n_cont_b,n_ab,n_c,n_p,n_prim_c,n_cont_c,
+     &    p,pow,p_min,p_max
       logical debug_gen,debug_addresses,debug_arrays
       double precision
      &    prefac,term,fac,
-     &    coeff_c(n_c),zeta_c(n_c),
+     &    coeff_c(n_c,n_cont_c),zeta_c(n_c),
      &    coeff_a(n_prim_a,n_cont_a),zeta_a(n_prim_a),
      &    coeff_b(n_prim_b,n_cont_b),zeta_b(n_prim_b),
      &    prim(n_prim_a,n_prim_b,n_c),temp(n_prim_a*n_prim_b),
-     &    wrk(n_prim_a,n_cont_b),radint(n_cont_a,n_cont_b)
+     &    wrk(n_prim_a,n_cont_b),radint(n_cont_a,n_cont_b,n_cont_c)
+*
+      dimension n_prim_c(p_min:p_max)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -102,25 +104,28 @@ C              write (LuOut,*) i_a,i_b,i_c,term,prim(i_a,i_b,i_c+ind_c)
 *
 *     Contract over ecp function
 *
+      do i_c = 1,n_cont_c
 C      write (LuOut,*) 'contract'
 C      write (LuOut,*) prefac
-C      write (LuOut,*) (temp(i_c),i_c=1,n_ab)
-C      write (LuOut,*) (coeff_c(i_c),i_c=1,n_c)
-      call dgemv ('N',n_ab,n_c,one,prim,n_ab,coeff_c,1,zero,temp,1)
-C      write (LuOut,*) (temp(i_c),i_c=1,n_ab)
+C      write (LuOut,*) (temp(i_a),i_a=1,n_ab)
+C      write (LuOut,*) (coeff_c(i_a,i_c),i_a=1,n_c)
+        call dgemv ('N',n_ab,n_c,one,prim,n_ab,coeff_c(1,i_c),1,zero,
+     &      temp,1)
 *
 *   Contract over basis functions
 *
-      if (debug_arrays) call ecp_matpr (temp,1,n_prim_a,1,n_prim_b,
-     &    1,n_prim_a,1,n_prim_b,'Primitive integrals','E',78,4)
-      call dgemm ('N','N',n_prim_a,n_cont_b,n_prim_b,one,temp,n_prim_a,
-     &    coeff_b,n_prim_b,zero,wrk,n_prim_a)
-      if (debug_arrays) call ecp_matpr (wrk,1,n_prim_a,1,n_cont_b,
-     &    1,n_prim_a,1,n_cont_b,'b-contracted integrals','E',78,4)
-      call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,coeff_a,
-     &    n_prim_a,wrk,n_prim_a,zero,radint,n_cont_a)
-      if (debug_arrays) call ecp_matpr (radint,1,n_cont_a,1,n_cont_b,
-     &    1,n_cont_b,1,n_cont_a,'ECP radial integrals','E',78,4)
+        if (debug_arrays) call ecp_matpr (temp,1,n_prim_a,1,n_prim_b,
+     &      1,n_prim_a,1,n_prim_b,'Primitive integrals','E',78,4)
+        call dgemm ('N','N',n_prim_a,n_cont_b,n_prim_b,one,temp,
+     &      n_prim_a,coeff_b,n_prim_b,zero,wrk,n_prim_a)
+        if (debug_arrays) call ecp_matpr (wrk,1,n_prim_a,1,n_cont_b,
+     &      1,n_prim_a,1,n_cont_b,'b-contracted integrals','E',78,4)
+        call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,coeff_a,
+     &      n_prim_a,wrk,n_prim_a,zero,radint(1,1,i_c),n_cont_a)
+        if (debug_arrays) call ecp_matpr (radint(1,1,i_c),1,n_cont_a,1,
+     &      n_cont_b,1,n_cont_b,1,n_cont_a,'ECP radial integrals','E',
+     &      78,4)
+      end do
       if (debug_gen) write (LuOut,*) 'Exiting ecp_radint0'
 *
       return

@@ -1,10 +1,10 @@
-C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
+C $Id: ecp_radint2.F,v 1.4 1997-08-19 23:33:02 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint2 (p_min,p_max,
      &    l_a,n_prim_a,n_cont_a,n_int_a,coeff_a,ai,alpha,
      &    l_b,n_prim_b,n_cont_b,n_int_b,coeff_b,bi,beta,
-     &    l_c,n_prim_c,n_c,coeff_c,gamma,prefactor,tol,sphcart,
+     &    l_c,n_prim_c,n_cont_c,n_c,coeff_c,gamma,prefactor,tol,sphcart,
      &    n_ab,n_abc,n_Q,m_count,temp,Qabc,Qab,Q,Q_int,ibug)
 *                                                                      *
 *   Calculate Type 2 radial integrals for a given ECP centre, angular  *
@@ -56,7 +56,7 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer h,i,j,ibug,ind_a,ind_b,ind_p,ind_even,ind_odd,
+      integer h,i,j,ibug,ind_a,ind_b,ind_p,ind_even,ind_odd,i_c,
      &    ind_max,ind_mid,ind_min,ind_hi,ind_mi,ind_lo,
      &    k,k_max,k_p,
      &    l_a,l_b,l_c,l_max,l_mid,l_min,
@@ -64,7 +64,7 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
      &    m,m_aeqb,m_count,m_max,m_min,m_min1,
      &    mc_a,mc_aeqb,mc_b,mc_even,mc_odd,
      &    mt_max,mt_mid,mt_min,
-     &    n,n_c,n_ab,n_abc,n_abp,n_Q,n_max,n_abm,
+     &    n,n_c,n_cont_c,n_ab,n_abc,n_abp,n_Q,n_max,n_abm,
      &    n_prim_a,n_prim_b,n_cont_a,n_cont_b,n_int_a,n_int_b,
      &    p,p_max,p_min,sphcart
       integer n_prim_c(p_min:p_max)
@@ -72,8 +72,9 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
       double precision ai(n_abc),bi(n_abc),coeff_c(n_c),
      &    alpha(n_abc),beta(n_abc),gamma(n_abc),prefactor(n_abc),
      &    coeff_a(n_prim_a,n_cont_a),coeff_b(n_prim_b,n_cont_b),
-     &    Qabc(n_abc,m_count,3),Qab(n_ab,0:l_a,0:l_b),Q(n_ab,n_Q),
-     &    temp(n_abc,20),Q_int(n_cont_a*n_cont_b,n_int_a,n_int_b),
+     &    Qabc(n_abc,m_count,3),Qab(n_ab,0:l_a,0:l_b,n_cont_c),
+     &    Q(n_ab,n_Q,n_cont_c),temp(n_abc,20),
+     &    Q_int(n_cont_a*n_cont_b,n_int_a,n_int_b,n_cont_c),
      &    tol
 *
       debug_gen = ibug .gt. 0
@@ -124,7 +125,7 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
 *
       n_abm = n_ab*(mt_min+mt_mid+mt_max)
       call dcopy(n_abm,zero,0,Q,1)
-      n_abm = (l_a+1)*(l_b+1)*n_ab
+      n_abm = (l_a+1)*(l_b+1)*n_ab*n_cont_c
       call dcopy(n_abm,zero,0,Qab,1)
 *
 *   Set up initial values for K = 0 and 1
@@ -171,36 +172,39 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
 *
 *   Contract over ECP functions for lambda_a, lambda_b = 0,0
 *
-      call ecp_contract (n_ab,n_c,1,Qabc,coeff_c,Qab)
-      if (debug_arrays) call ecp_matpr (Qab,1,n_prim_a,1,n_prim_b,
-     &    1,n_prim_a,1,n_prim_b,'Qab(i,0,0)','E',78,4)
-      if (k_max .ge. 2) call ecp_contract (n_ab,n_c,l_max,Qabc(1,2,1),
-     &    coeff_c,Q(1,ind_mid))
+      do i_c = 1,n_cont_c
+        call ecp_contract (n_ab,n_c,1,Qabc,coeff_c,Qab(1,0,0,i_c))
+        if (debug_arrays) call ecp_matpr (Qab(1,0,0,i_c),1,n_prim_a,
+     &      1,n_prim_b,1,n_prim_a,1,n_prim_b,'Qab(i,0,0)','E',78,4)
+        if (k_max .ge. 2) call ecp_contract (n_ab,n_c,l_max,Qabc(1,2,1),
+     &      coeff_c,Q(1,ind_mid,i_c))
 *
 *   Contract over ECP functions for lambda_a, lambda_b = 0,1 or 1,0
 *
-      if (k_max .gt. 0) then
-        call ecp_contract (n_ab,n_c,1,Qabc(1,1,2),coeff_c,Qab(1,j,h))
-        if (debug_arrays) then
-          if (j .gt. h) then
-            call ecp_matpr (Qab(1,j,h),1,n_prim_a,1,n_prim_b,
-     &          1,n_prim_a,1,n_prim_b,'Qab(i,1,0)','E',78,4)
-          else
-            call ecp_matpr (Qab(1,j,h),1,n_prim_a,1,n_prim_b,
-     &          1,n_prim_a,1,n_prim_b,'Qab(i,0,1)','E',78,4)
+        if (k_max .gt. 0) then
+          call ecp_contract (n_ab,n_c,1,Qabc(1,1,2),coeff_c,
+     &        Qab(1,j,h,i_c))
+          if (debug_arrays) then
+            if (j .gt. h) then
+              call ecp_matpr (Qab(1,j,h,i_c),1,n_prim_a,1,n_prim_b,
+     &            1,n_prim_a,1,n_prim_b,'Qab(i,1,0)','E',78,4)
+            else
+              call ecp_matpr (Qab(1,j,h,i_c),1,n_prim_a,1,n_prim_b,
+     &            1,n_prim_a,1,n_prim_b,'Qab(i,0,1)','E',78,4)
+            end if
+          end if
+          if (k_max .ge. 2) call ecp_contract (n_ab,n_c,l_max-m_aeqb,
+     &        Qabc(1,2,2),coeff_c,Q(1,ind_max,i_c))
+          if (debug_arrays) then
+            if (mt_max .gt. 0) write (LuOut,'(1p5e15.7)') 
+     &          (Q(1,ind_max+i,i_c),i=0,mt_max-1)
+            if (mt_mid .gt. 0) write (LuOut,'(1p5e15.7)') 
+     &          (Q(1,ind_mid+i,i_c),i=0,mt_mid-1)
+            if (mt_min .gt. 0) write (LuOut,'(1p5e15.7)') 
+     &          (Q(1,ind_min+i,i_c),i=0,mt_min-1)
           end if
         end if
-        if (k_max .ge. 2) call ecp_contract (n_ab,n_c,l_max-m_aeqb,
-     &      Qabc(1,2,2),coeff_c,Q(1,ind_max))
-        if (debug_arrays) then
-          if (mt_max .gt. 0) write (LuOut,'(1p5e15.7)') 
-     &        (Q(1,ind_max+i),i=0,mt_max-1)
-          if (mt_mid .gt. 0) write (LuOut,'(1p5e15.7)') 
-     &        (Q(1,ind_mid+i),i=0,mt_mid-1)
-          if (mt_min .gt. 0) write (LuOut,'(1p5e15.7)') 
-     &        (Q(1,ind_min+i),i=0,mt_min-1)
-        end if
-      end if
+      end do
 *
 *   Upward recursion in k to maximum. Recursion is performed for
 *   m if l_a > l_b otherwise for n.
@@ -251,15 +255,17 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
             write (LuOut,*) 'ind_hi',ind_hi
             write (LuOut,*) 'ind_even,mc_even',ind_even,mc_even
           end if
-          if (mc_even .gt. 0) call ecp_contract (n_ab,n_c,mc_even,
-     &        Qabc(1,2,ind_hi),coeff_c,Q(1,ind_even))
-          if ((l_mid .le. l_a) .and. (l_mid .le. l_b)) then
-            call ecp_contract (n_ab,n_c,1,Qabc(1,1,ind_hi),
-     &          coeff_c,Qab(1,l_mid,l_mid))
-            if (debug_arrays) call ecp_matpr (Qab(1,l_mid,l_mid),
-     &          1,n_prim_a,1,n_prim_b,1,n_prim_a,1,n_prim_b,
-     &          'Qab(*,l_mid,l_mid)','E',78,4)
-          end if
+          do i_c = 1,n_cont_c
+            if (mc_even .gt. 0) call ecp_contract (n_ab,n_c,mc_even,
+     &          Qabc(1,2,ind_hi),coeff_c,Q(1,ind_even,i_c))
+            if ((l_mid .le. l_a) .and. (l_mid .le. l_b)) then
+              call ecp_contract (n_ab,n_c,1,Qabc(1,1,ind_hi),
+     &            coeff_c,Qab(1,l_mid,l_mid,i_c))
+              if (debug_arrays) call ecp_matpr (Qab(1,l_mid,l_mid,i_c),
+     &            1,n_prim_a,1,n_prim_b,1,n_prim_a,1,n_prim_b,
+     &            'Qab(*,l_mid,l_mid)','E',78,4)
+            end if
+          end do
           ind_even = ind_even+mc_even
           mc_even = mc_even-1
         else
@@ -279,15 +285,17 @@ C $Id: ecp_radint2.F,v 1.3 1996-10-17 21:12:32 mg201 Exp $
 *
 *       Contract over ECP functions
 *
-          if (mc_odd .gt. 0) call ecp_contract (n_ab,n_c,mc_odd,
-     &        Qabc(1,2,ind_hi),coeff_c,Q(1,ind_odd))
-          if ((l_mid+j .le. l_a) .and. (l_mid+h .le. l_b)) then
-            call ecp_contract (n_ab,n_c,1,Qabc(1,1,ind_hi),
-     &          coeff_c,Qab(1,l_mid+j,l_mid+h))
-            if (debug_arrays) call ecp_matpr (Qab(1,l_mid+j,l_mid+h),
-     &          1,n_prim_a,1,n_prim_b,1,n_prim_a,1,n_prim_b,
-     &          'Qab(*,l_mid+j,l_mid+h)','E',78,4)
-          end if
+          do i_c = 1,n_cont_c
+            if (mc_odd .gt. 0) call ecp_contract (n_ab,n_c,mc_odd,
+     &          Qabc(1,2,ind_hi),coeff_c,Q(1,ind_odd,i_c))
+            if ((l_mid+j .le. l_a) .and. (l_mid+h .le. l_b)) then
+              call ecp_contract (n_ab,n_c,1,Qabc(1,1,ind_hi),
+     &            coeff_c,Qab(1,l_mid+j,l_mid+h,i_c))
+              if (debug_arrays) call ecp_matpr (Qab(1,l_mid+j,l_mid+h,
+     &            i_c),1,n_prim_a,1,n_prim_b,1,n_prim_a,1,n_prim_b,
+     &            'Qab(*,l_mid+j,l_mid+h)','E',78,4)
+            end if
+          end do
           ind_odd = ind_odd+mc_odd
           mc_odd = mc_odd-1
         end if
@@ -344,18 +352,15 @@ C          write (LuOut,'(1p5e15.7)') (Q(1,ind_max+i),i=0,mt_max-1)
 C          write (LuOut,'(1p5e15.7)') (Q(1,ind_mid+i),i=0,mt_mid-1)
 C          write (LuOut,'(1p5e15.7)') (Q(1,ind_min+i),i=0,mt_min-1)
           do n = 0,n_max
-            if (debug_addresses) 
-     &        write (LuOut,*) 'ind_hi,ind_lo',ind_hi,ind_lo
-C            write (LuOut,'(1p5e15.7)') (Q(1,ind_hi+i),i=0,m_max-m_min-n)
-C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
-            call ecp_down_m (m_min-n,m_max-2*n,n_ab,bi,
-     &          Q(1,ind_hi),Q(1,ind_lo),Q(1,ind_lo))
-C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
             lambda_a = l_mid+n+1
             lambda_b = l_mid-n-1
-            if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
-     &          call dcopy (n_ab,Q(1,ind_lo),1,
-     &          Qab(1,lambda_a,lambda_b),1)
+            do i_c = 1,n_cont_c
+              call ecp_down_m (m_min-n,m_max-2*n,n_ab,bi,
+     &            Q(1,ind_hi,i_c),Q(1,ind_lo,i_c),Q(1,ind_lo,i_c))
+              if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
+     &            call dcopy (n_ab,Q(1,ind_lo,i_c),1,
+     &            Qab(1,lambda_a,lambda_b,i_c),1)
+            end do
             ind_hi = ind_lo+1
             ind_lo = ind_hi-mc_aeqb-n
           end do
@@ -368,13 +373,15 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
           ind_hi = ind_even
           ind_lo = ind_b
           do n = 0,n_max
-            call ecp_down_m (m_min-n,m_max-2*n,
-     &          n_ab,ai,Q(1,ind_hi),Q(1,ind_lo),Q(1,ind_lo))
             lambda_a = l_mid-n-1
             lambda_b = l_mid+n+1
-            if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
-     &          call dcopy (n_ab,Q(1,ind_lo),1,
-     &          Qab(1,lambda_a,lambda_b),1)
+            do i_c = 1,n_cont_c
+              call ecp_down_m (m_min-n,m_max-2*n,n_ab,ai,
+     &            Q(1,ind_hi,i_c),Q(1,ind_lo,i_c),Q(1,ind_lo,i_c))
+              if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
+     &            call dcopy (n_ab,Q(1,ind_lo,i_c),1,
+     &            Qab(1,lambda_a,lambda_b,i_c),1)
+            end do
             ind_hi = ind_lo+1
             ind_lo = ind_hi-mc_b-n
           end do
@@ -396,11 +403,15 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
      &            ind_a+1,ind_even+1,ind_b
               write (LuOut,*) 'm_min1,m_max',m_min1,m_max
             end if
-            if (m_min1 .lt. m_max) call ecp_down_m (m_min1+1,m_max,
-     &          n_ab,ai,Q(1,ind_a+1),Q(1,ind_even+1),Q(1,ind_b))
-            if ((l_mid .le. l_a) .and. (l_mid+1 .le. l_b))
-     &          call ecp_down_m (m_min1,m_min1,
-     &          n_ab,ai,Q(1,ind_a),Q(1,ind_even),Qab(1,l_mid,l_mid+1))
+            do i_c = 1,n_cont_c
+              if (m_min1 .lt. m_max) call ecp_down_m (m_min1+1,m_max,
+     &            n_ab,ai,Q(1,ind_a+1,i_c),Q(1,ind_even+1,i_c),
+     &            Q(1,ind_b,i_c))
+              if ((l_mid .le. l_a) .and. (l_mid+1 .le. l_b))
+     &            call ecp_down_m (m_min1,m_min1,n_ab,ai,
+     &            Q(1,ind_a,i_c),Q(1,ind_even,i_c),
+     &            Qab(1,l_mid,l_mid+1,i_c))
+            end do
           else
             m_max = m_min1+mc_a
             if (debug_addresses) then
@@ -408,11 +419,15 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
      &            ind_b+1,ind_even+1,ind_a
               write (LuOut,*) 'm_min1,m_max',m_min1,m_max
             end if
-            if (m_min1 .lt. m_max) call ecp_down_m (m_min1+1,m_max,
-     &          n_ab,bi,Q(1,ind_b+1),Q(1,ind_even+1),Q(1,ind_a))
-            if ((l_mid+1 .le. l_a) .and. (l_mid .le. l_b))
-     &          call ecp_down_m (m_min1,m_min1,
-     &          n_ab,bi,Q(1,ind_b),Q(1,ind_even),Qab(1,l_mid+1,l_mid))
+            do i_c = 1,n_cont_c
+              if (m_min1 .lt. m_max) call ecp_down_m (m_min1+1,m_max,
+     &            n_ab,bi,Q(1,ind_b+1,i_c),Q(1,ind_even+1,i_c),
+     &            Q(1,ind_a,i_c))
+              if ((l_mid+1 .le. l_a) .and. (l_mid .le. l_b))
+     &            call ecp_down_m (m_min1,m_min1,n_ab,bi,
+     &            Q(1,ind_b,i_c),Q(1,ind_even,i_c),
+     &            Qab(1,l_mid+1,l_mid,i_c))
+            end do
           end if
           ind_even = ind_even+mc_even
           mc_even = mc_even-1
@@ -427,13 +442,15 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
           if (debug_addresses) 
      &        write (LuOut,*) 'k,m_min,m_max',k_p,m_min,m_max
           do n = 0,n_max
-            call ecp_down_m (m_min-n,m_max-2*n,
-     &          n_ab,bi,Q(1,ind_hi),Q(1,ind_lo),Q(1,ind_lo))
             lambda_a = l_mid+n+2
             lambda_b = l_mid-n-1
-            if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
-     &          call dcopy (n_ab,Q(1,ind_lo),1,
-     &          Qab(1,lambda_a,lambda_b),1)
+            do i_c = 1,n_cont_c
+              call ecp_down_m (m_min-n,m_max-2*n,n_ab,bi,
+     &            Q(1,ind_hi,i_c),Q(1,ind_lo,i_c),Q(1,ind_lo,i_c))
+              if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
+     &            call dcopy (n_ab,Q(1,ind_lo,i_c),1,
+     &            Qab(1,lambda_a,lambda_b,i_c),1)
+            end do
             ind_hi = ind_lo+1
             ind_lo = ind_lo-mc_aeqb-n
           end do
@@ -446,13 +463,15 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
           ind_hi = ind_b
           ind_lo = ind_b-mc_b
           do n = 0,n_max
-            call ecp_down_m (m_min-n,m_max-2*n,
-     &          n_ab,ai,Q(1,ind_hi),Q(1,ind_lo),Q(1,ind_lo))
             lambda_a = l_mid-n-1
             lambda_b = l_mid+n+2
-            if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
-     &          call dcopy (n_ab,Q(1,ind_lo),1,
-     &          Qab(1,lambda_a,lambda_b),1)
+            do i_c = 1,n_cont_c
+              call ecp_down_m (m_min-n,m_max-2*n,n_ab,ai,
+     &            Q(1,ind_hi,i_c),Q(1,ind_lo,i_c),Q(1,ind_lo,i_c))
+              if ((lambda_a .le. l_a) .and. (lambda_b .le. l_b))
+     &            call dcopy (n_ab,Q(1,ind_lo,i_c),1,
+     &            Qab(1,lambda_a,lambda_b,i_c),1)
+            end do
             ind_hi = ind_lo+1
             ind_lo = ind_lo-mc_b-n
           end do
@@ -464,65 +483,68 @@ C            write (LuOut,'(1p5e15.7)') (Q(1,ind_lo+i),i=0,m_max-m_min-n)
 *    the block. This has to be done in a different order because the
 *    final result is indexed by m and n, not by (m-n).
 *
-      ind_b = 0
-      do lambda_b = 0,l_b
-        if (sphcart .eq. 0) then
-          lb_min = max(0,lambda_b-(lambda_b+l_c)/2)
-        else
-          lb_min = max(0,lambda_b-l_c)
-        end if
+      do i_c = 1,n_cont_c
+        ind_b = 0
+        do lambda_b = 0,l_b
+          if (sphcart .eq. 0) then
+            lb_min = max(0,lambda_b-(lambda_b+l_c)/2)
+          else
+            lb_min = max(0,lambda_b-l_c)
+          end if
 *
 *     First do recursion in b to generate top row for all a.
 *
-        do lambda_a = 0,l_a
-          m = lambda_b+l_c+1
-          do l = lambda_b-1,lb_min,-1
-            m = m-2
-            call ecp_down_m (m,m,n_ab,bi,
-     &          Qab(1,lambda_a,l+1),Qab(1,lambda_a,l),
-     &          Qab(1,lambda_a,l))
+          do lambda_a = 0,l_a
+            m = lambda_b+l_c+1
+            do l = lambda_b-1,lb_min,-1
+              m = m-2
+              call ecp_down_m (m,m,n_ab,bi,
+     &            Qab(1,lambda_a,l+1,i_c),Qab(1,lambda_a,l,i_c),
+     &            Qab(1,lambda_a,l,i_c))
+            end do
           end do
-        end do
 *
 *     Now contract over b and do recursion over a to generate final 
 *     integrals, contracting over a.
 *
-        do l = lambda_b,lb_min,-1
-          ind_b = ind_b+1
-          ind_a = 0
-          do lambda_a = 0,l_a
-            if (sphcart .eq. 0) then
-              la_min = max(0,lambda_a-(lambda_a+l_c)/2)
-            else
-              la_min = max(0,lambda_a-l_c)
-            end if
-            if (debug_addresses) write (LuOut,*) 'lambda_a,l',lambda_a,l
-            call dgemm ('N','N',n_prim_a,n_cont_b,n_prim_b,one,
-     &          Qab(1,lambda_a,l),n_prim_a,coeff_b,n_prim_b,zero,
-     &          Q(1,lambda_a+1),n_prim_a)
-            ind_a = ind_a+1
-            call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,
-     &          coeff_a,n_prim_a,Q(1,lambda_a+1),n_prim_a,zero,
-     &          Q_int(1,ind_a,ind_b),n_cont_a)
-            if (debug_gen) 
-     &          write (LuOut,'(A,2I5)') 'ind_a,ind_b',ind_a,ind_b
-            if (debug_arrays) call ecp_matpr (Q_int(1,ind_a,ind_b),
-     &          1,n_cont_a,1,n_cont_b,1,n_cont_a,1,n_cont_b,
-     &          'Q_int','E',78,4)
-            m = lambda_a+l_c+1
-            do k = lambda_a,la_min+1,-1
-              m = m-2
-              call ecp_down_m (m,m,n_prim_a*n_cont_b,
-     &            ai,Q(1,k+1),Q(1,k),Q(1,k))
+          do l = lambda_b,lb_min,-1
+            ind_b = ind_b+1
+            ind_a = 0
+            do lambda_a = 0,l_a
+              if (sphcart .eq. 0) then
+                la_min = max(0,lambda_a-(lambda_a+l_c)/2)
+              else
+                la_min = max(0,lambda_a-l_c)
+              end if
+              if (debug_addresses) write (LuOut,*) 'lambda_a,l',
+     &            lambda_a,l
+              call dgemm ('N','N',n_prim_a,n_cont_b,n_prim_b,one,
+     &            Qab(1,lambda_a,l,i_c),n_prim_a,coeff_b,n_prim_b,zero,
+     &            Q(1,lambda_a+1,i_c),n_prim_a)
               ind_a = ind_a+1
               call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,
-     &            coeff_a,n_prim_a,Q(1,k),n_prim_a,zero,
-     &            Q_int(1,ind_a,ind_b),n_cont_a)
+     &            coeff_a,n_prim_a,Q(1,lambda_a+1,i_c),n_prim_a,zero,
+     &            Q_int(1,ind_a,ind_b,i_c),n_cont_a)
               if (debug_gen) 
      &            write (LuOut,'(A,2I5)') 'ind_a,ind_b',ind_a,ind_b
-              if (debug_arrays) call ecp_matpr (Q_int(1,ind_a,ind_b),
+              if (debug_arrays) call ecp_matpr(Q_int(1,ind_a,ind_b,i_c),
      &            1,n_cont_a,1,n_cont_b,1,n_cont_a,1,n_cont_b,
      &            'Q_int','E',78,4)
+              m = lambda_a+l_c+1
+              do k = lambda_a,la_min+1,-1
+                m = m-2
+                call ecp_down_m (m,m,n_prim_a*n_cont_b,
+     &              ai,Q(1,k+1,i_c),Q(1,k,i_c),Q(1,k,i_c))
+                ind_a = ind_a+1
+                call dgemm ('T','N',n_cont_a,n_cont_b,n_prim_a,one,
+     &              coeff_a,n_prim_a,Q(1,k,i_c),n_prim_a,zero,
+     &              Q_int(1,ind_a,ind_b,i_c),n_cont_a)
+                if (debug_gen) 
+     &              write (LuOut,'(A,2I5)') 'ind_a,ind_b',ind_a,ind_b
+                if (debug_arrays) call ecp_matpr (Q_int(1,ind_a,ind_b,
+     &              i_c),1,n_cont_a,1,n_cont_b,1,n_cont_a,1,n_cont_b,
+     &              'Q_int','E',78,4)
+              end do
             end do
           end do
         end do

@@ -36,6 +36,7 @@ OBJ_ENERGY = \
       ecp_s2ccoef.o  \
       ecp_s2cnorm.o  \
       ecp_sph_tens.o \
+      ecp_so_ang.o   \
       ecp_t1_Q0asy.o \
       ecp_t1_Q0int.o \
       ecp_t1_Q0pow.o \
@@ -75,6 +76,7 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_radint1.F  \
       ecp_radint2.F  \
       ecp_s2ccoef.f  \
+      ecp_so_ang.F   \
       ecp_t1_Q0asy.F \
       ecp_t1_Q0pow.F \
       ecp_t1_Q1pow.F \
