@@ -1,0 +1,18 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C
+C
+C REVISION
+C     $Id: TEMPLATE,v 1.1 1998-07-20 00:32:00 bernhold Exp $
+C
+C SYNOPSIS
+      Implicit NONE
+C
+C DESCRIPTION
+C PRINT CONTROLS
+C EXTERNAL ROUTINES
+C INCLUDE FILES
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C CONSTANTS
+C LOCAL VARIABLES
+C STATEMENT FUNCTIONS

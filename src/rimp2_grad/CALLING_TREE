@@ -27,4 +27,7 @@ rimp2g--+
 		|	l2
 		|	mp2_lai_fock_uhf	(mp2_grad module)
 		|
-		cphf				(cphf module)
+		p2am----cphf			(cphf module)
+		|
+		mp2_make_dip_mom		(mp2_grad module)
+		mp2_make_nos			(mp2_grad module)

@@ -3,19 +3,22 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.5 1998-07-19 00:08:30 bernhold Exp $
+C     $Id: driver_g.F,v 1.6 1998-07-20 00:32:01 bernhold Exp $
 C
 C SYNOPSIS
-      Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, MaxSpin,
-     $     TopSpin, NFrzO, NAct, NVir, FitBas, FN_Int, FN_Gam,
-     $     BraKetSame, g_P2, Eig, LDEig, g_AOXF, Tol2e_Fock)
+      Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
+     $     MaxSpin, TopSpin, NMO, NFrzO, NAct, NVir, FitBas,
+     $     FN_Int, FN_Gam, BraKetSame, g_P2, Eig, LDEig, g_AOXF,
+     $     Tol2e_Fock, JobTitle)
       Implicit NONE
 C
       Integer RTDB          ![in]
       Integer Geom          ![in]
       Integer AOBas         ![in]
+      Integer NAO           ![in]
       Integer MaxSpin       ![in]
       Integer TopSpin       ![in]
+      Integer NMO(TopSpin)  ![in]
       Integer NFrzO(TopSpin)![in]
       Integer NAct(TopSpin) ![in]
       Integer NVir(TopSpin) ![in]
@@ -28,6 +31,7 @@ C
       Double Precision Eig(LDEig, TopSpin) ![in]
       Integer g_AOXF(TopSpin) ![in]
       Double precision Tol2e_Fock ![in]
+      Character*(*) JobTitle ![in]
 C
 C EXTERNAL ROUTINES
       Logical  File_Write_GA, File_Read_GA, CPHF
@@ -153,80 +157,41 @@ C
 C     ************************
 C     * Solve CPHF Equations *
 C     ************************
+C     Produce the relaxed part of the density
 C
       If ( PrPrgRpt ) Call Progress_Report(LuOut,
-     $     '    Solving CPHF equations')
+     $     '    Computing P2(a,m) (CPHF equations)')
 C
-C     Create array to hold RHS
+      Call RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
 C
-      Length = 0
-      Do ISpin = 1, TopSpin
-         Length = Length + (NVir(ISpin) * (NFrzO(ISpin)+NAct(ISpin) ) )
-      EndDo
+C     *************************
+C     * Save correlated 1-PDM *
+C     *************************
+C     Correlated one-particle density is now complete, so let's
+C     save it, and do some other things with it before going on
+C     to complete the gradient.
 C
-      If ( .NOT. GA_Create(MT_Dbl, Length, 1, 'RI-MP2 CPHF RHS/Soln', 
-     $     1, 1, g_RHS ) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: can''t allocate RHS', 0)
+      If ( TopSpin .eq. 2) then
+         Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO, Max(NMO(1), NMO(2)),
+     $        NFrzO(1)+NAct(1), NFrzO(2)+NAct(2), g_P2(1), g_P2(2),
+     $        g_AOXF(1), g_AOXF(2) )
 C
-C     Copy appropriate bits of L into RHS
+         Call MP2_Make_NOs(RTDB, AOBas, NAO, Max(NMO(1), NMO(2)),
+     $        NFrzO(1)+NAct(1), NFrzO(2)+NAct(2), g_P2(1), g_P2(2),
+     $        g_AOXF(1), g_AOXF(2), 'UHF', Max(NFrzO(1), NFrzO(2)),
+     $        JobTitle(:Inp_StrLen(JobTitle) ) )
+      ElseIf ( TopSpin .eq. 1) then
+         Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO, NMO(1),
+     $        NFrzO(1)+NAct(1), NFrzO(1)+NAct(1), g_P2(1), g_P2(1),
+     $        g_AOXF(1), g_AOXF(1) )
 C
-      Length = 0
-      Do ISpin = 1, TopSpin
-         C = NFrzO(ISpin)
-         A = NAct(ISpin)
-         V = NVir(ISpin)
-C
-         Call GA_Copy_Patch('N', g_L(ISpin), C+A+1, C+A+V, 1, C+A,
-     $        g_RHS, 1+Length, (V*(C+A))+Length, 1, 1)
-C
-C        Need length of alpha spin for next spin case
-C
-         Length = Length + (V * (C+A) )
-      EndDo
-C
-      If ( Util_Print('partial p2', Print_Debug) .OR.
-     $     Util_Print('cphf', Print_Debug) ) Call GA_Print(g_RHS)
-C
-C     CPHF solver expects RHS on a file.  Name is fixed by CPHF module.
-C
-      Call Util_File_name('cphf_rhs', .TRUE., .TRUE., FN_CPHF_RHS)
-      If (.NOT. File_Write_GA(FN_CPHF_RHS, g_RHS) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: can''t write CPHF RHS to file', 0)
-C
-C     Invoke the CPHF solver
-C
-      If ( .NOT. CPHF( RTDB ) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: cphf solution failed', 0)
-C
-C     Once again, solution is returned in a file, name fixed by CPHF module
-C
-      Call Util_File_Name('cphf_sol', .TRUE., .TRUE., FN_CPHF_Sol)
-      If ( .NOT. File_Read_GA(FN_CPHF_Sol, g_rhs) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: can''t read CPHF sol''n file', 0)
-C
-      If ( Util_Print('partial p2', Print_Debug) .OR.
-     $     Util_Print('cphf', Print_Debug) ) Call GA_Print(g_RHS)
-c$$$C
-c$$$C     Copy appropriate bits of L into RHS
-c$$$C
-c$$$      Length = 0
-c$$$      Do ISpin = 1, TopSpin
-c$$$         C = NFrzO(ISpin)
-c$$$         A = NAct(ISpin)
-c$$$         V = NVir(ISpin)
-c$$$C
-c$$$         Call GA_Copy_Patch('N', g_L(ISpin), C+A+1, C+A+V, 1, C+A,
-c$$$     $        g_RHS, 1+Length, (V*(C+A))+Length, 1, 1)
-c$$$C
-c$$$C        Need length of alpha spin for next spin case
-c$$$C
-c$$$         Length = Length + (V * (C+A) )
-c$$$      EndDo
-C
-C     Free temporary memory
-C
-      If ( .NOT. GA_Destroy( g_RHS) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: can''t destroy CPHF RHS GA', 0)
+         Call MP2_Make_NOs(RTDB, AOBas, NAO, NMO(1),
+     $        NFrzO(1)+NAct(1), NFrzO(1)+NAct(1), g_P2(1), g_P2(1),
+     $        g_AOXF(1), g_AOXF(1), 'RHF', NFrzO(1),
+     $        JobTitle(:Inp_StrLen(JobTitle) ) )
+      Else
+         Call ErrQuit( 'RIMP2_Driver_G: TopSpin out of range', TopSpin)
+      EndIf
 C
 C     *******************
 C     * Clean up memory *

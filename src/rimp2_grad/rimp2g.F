@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.10 1998-07-19 00:08:31 bernhold Exp $
+C$Id: rimp2g.F,v 1.11 1998-07-20 00:32:03 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -462,10 +462,12 @@ C     * Gradient *
 C     ************
 C
       If ( DoGrad ) then
-         Call RIMP2_Driver_G(RTDB, Geom, AOBas, MaxSpin, TopSpin,
+         Call RIMP2_Driver_G(RTDB, Geom, AOBas, NAOBF,
+     $        MaxSpin, TopSpin, NMO, 
      $        NFrzO, NAct, NVir,
      $        FitBas, FN_Int, FN_Gam, BraKetSame, g_P2,
-     $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock)
+     $        Dbl_MB(I_Eval), MxNCorBF, g_AOXF, Tol2e_Fock,
+     $        JobTitle(:Inp_StrLen(JobTitle)) )
 C
 C        Some clean up only required if doing gradients
 C
