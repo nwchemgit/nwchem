@@ -1,9 +1,9 @@
-#$Id: GNUmakefile,v 1.14 1995-11-19 19:31:27 d3g681 Exp $
+#$Id: GNUmakefile,v 1.15 1995-11-26 08:48:37 og845 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
 USES_BLAS = sym_put_in_geom.F sym_print_all.F sym_grad_symmetrize.F \
-            sym_movecs_adapt.F sym_geom_project.F sym_bas_irreps.F
+            sym_movecs_adapt.F sym_geom_project.F sym_bas_irreps.F sym_op_classify.F
 HEADERS = sym.fh
 
 OBJ_OPTIMIZE = sym_shell_pair.o sym_symmetrize.o \
