@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.14 2000-04-27 21:03:30 bert Exp $
+* $Id: util_legal.F,v 1.15 2000-10-13 20:08:26 d3g681 Exp $
 *------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999     *
 *         Pacific Northwest National Laboratory,       * 
@@ -22,7 +22,7 @@ c
       center_pt = 40
 c
       call util_print_centered(luout,
-     &    ' COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 ',
+     &    ' COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000 ',
      &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
@@ -151,7 +151,7 @@ c
      &    /,12x,
      &    'Computational Chemistry Package for Parallel Computers, ',
      &    /,12x,
-     &    'Version 3.3.1" (1999), ',
+     &    'Version 4.0" (2000), ',
      &    'Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
