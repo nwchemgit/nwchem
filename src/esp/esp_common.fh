@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.3 1997-10-07 23:41:38 d3j191 Exp $
+c $Id: esp_common.fh,v 1.4 1997-10-09 15:46:58 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -23,12 +23,12 @@ c     esp_atm : atom information
 c     --------------------------
 c
       real*8 rcut,spac,xmin(3),xmax(3),charge,chgnuc,chgele,radius(107)
-      real*8 rcon(500),resa,resb,toler,dipmom(4),rms(2,4)
+      real*8 rcon(500),resa,resb,toler,dipmom(4),rms(2,4),quamom(3,3,4)
       integer natoms,nbf,mgrid(3),mxgrid,ngrid,nset,nmo,nocc,nconst,ndim
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
       integer lfngrd,nf
       common/esp_atm/rcut,spac,xmin,xmax,charge,chgnuc,chgele,radius,
-     + rcon,resa,resb,toler,dipmom,rms,
+     + rcon,resa,resb,toler,dipmom,rms,quamom,
      + natoms,nbf,mgrid,mxgrid,ngrid,nset,nmo,nocc,nconst,ndim,
      + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf
 c

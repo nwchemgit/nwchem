@@ -1,6 +1,6 @@
       subroutine esp_elemom(x,qf)
 c
-c $Id: esp_elemom.F,v 1.3 1997-10-07 23:41:40 d3j191 Exp $
+c $Id: esp_elemom.F,v 1.4 1997-10-09 15:46:59 d3j191 Exp $
 c
       implicit none
 c
@@ -12,34 +12,60 @@ c
 c
       real*8 x(3,natoms),qf(ndim,4)
 c
-      integer i,ix,j
-      real*8 qm,qp,xm(3),xp(3)
+      real*8 xc(3),dm,ch,xq(3),rq
+      integer i,ix,j,jx,k,l
 c
-      do 3 j=1,nf
-      qm=zero
-      qp=zero
-      do 1 ix=1,3
-      xm(ix)=zero
-      xp(ix)=zero
-    1 continue
-      do 2 i=1,natoms
-      if(qf(i,j).lt.zero) then
-      qm=qm+qf(i,j)
-      xm(1)=xm(1)+qf(i,j)*x(1,i)
-      xm(2)=xm(2)+qf(i,j)*x(2,i)
-      xm(3)=xm(3)+qf(i,j)*x(3,i)
-      else
-      qp=qp+qf(i,j)
-      xp(1)=xp(1)+qf(i,j)*x(1,i)
-      xp(2)=xp(2)+qf(i,j)*x(2,i)
-      xp(3)=xp(3)+qf(i,j)*x(3,i)
+c     dipole moment
+c
+      do 1 j=1,nf
+      dipmom(j)=zero
+      do 2 ix=1,3
+      xc(ix)=zero
+      ch=zero
+      do 3 i=1,natoms
+      ch=ch+abs(qf(i,j))
+      xc(ix)=xc(ix)+x(ix,i)*abs(qf(i,j))
+    3 continue
+      if(ch.gt.zero) then
+      xc(ix)=xc(ix)/ch
+      dm=zero
+      do 4 i=1,natoms
+      dm=dm+qf(i,j)*(x(ix,i)-xc(ix))
+    4 continue
+      dipmom(j)=dipmom(j)+dm*dm
       endif
     2 continue
-      dipmom(j)=half*(qp-qm)*
-     + dsqrt((xp(1)/qp-xm(1)/qm)*(xp(1)/qp-xm(1)/qm)+
-     +       (xp(2)/qp-xm(2)/qm)*(xp(2)/qp-xm(2)/qm)+
-     +       (xp(3)/qp-xm(3)/qm)*(xp(3)/qp-xm(3)/qm))
-    3 continue
+      dipmom(j)=dsqrt(dipmom(j))
+    1 continue
+c
+c     quadrupole moment
+c
+      do 5 k=1,nf
+      do 6 i=1,3
+      do 7 j=1,3
+      quamom(i,j,k)=zero
+    7 continue
+    6 continue
+      do 8 l=1,natoms
+      rq=zero
+      do 9 ix=1,3
+      xq(ix)=(x(ix,l)-xc(ix))
+      rq=rq+xq(ix)*xq(ix)
+    9 continue
+      do 10 ix=1,3
+      quamom(ix,ix,k)=quamom(ix,ix,k)+qf(l,k)*(three*xq(ix)*xq(ix)-rq)
+      do 11 jx=ix+1,3
+      quamom(ix,jx,k)=quamom(ix,jx,k)+qf(l,k)*(three*xq(ix)*xq(jx))
+   11 continue
+   10 continue
+    8 continue
+      do 12 ix=1,2
+      do 13 jx=ix+1,3
+      quamom(jx,ix,k)=quamom(ix,jx,k)
+   13 continue
+   12 continue
+      call esp_jacobi(quamom(1,1,k))
+    5 continue
 c
       return
       end

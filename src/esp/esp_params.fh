@@ -1,5 +1,5 @@
 c
-c $Id: esp_params.fh,v 1.2 1997-10-07 18:09:55 d3j191 Exp $
+c $Id: esp_params.fh,v 1.3 1997-10-09 15:47:00 d3j191 Exp $
 c
       real*8 cau2nm
       parameter(cau2nm=5.29177249d-02)
@@ -19,5 +19,7 @@ c
       parameter(one=1.0d00)
       real*8 two
       parameter(two=2.0d00)
+      real*8 three
+      parameter(three=3.0d00)
       real*8 hundrd
       parameter(hundrd=1.0d02)

@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.3 1997-10-07 23:41:45 d3j191 Exp $
+c $Id: esp_out.F,v 1.4 1997-10-09 15:47:00 d3j191 Exp $
 c
       implicit none
 c
@@ -44,10 +44,23 @@ c
       write(6,606) (dipmom(i),i=1,nf)
   606 format(/,' Dipole moment',t49,4f12.6)
 c
-      write(6,607) (rms(1,i),i=1,nf)
-  607 format(/,' RMS deviation kJ/mol',t49,4f12.6)
-      write(6,608) (rms(2,i),i=1,nf)
-  608 format(/,' RMS deviation %',t49,4f12.6)
+      write(6,607) (quamom(1,1,i),i=1,nf)
+  607 format(/,' Quadrupole moment Qxx',t49,4f12.6)
+c      write(6,608) (quamom(1,2,i),i=1,nf)
+c  608 format('                   Qxy',t49,4f12.6)
+c      write(6,609) (quamom(1,3,i),i=1,nf)
+c  609 format('                   Qxz',t49,4f12.6)
+      write(6,610) (quamom(2,2,i),i=1,nf)
+  610 format('                   Qyy',t49,4f12.6)
+c      write(6,611) (quamom(2,3,i),i=1,nf)
+c  611 format('                   Qyz',t49,4f12.6)
+      write(6,612) (quamom(3,3,i),i=1,nf)
+  612 format('                   Qzz',t49,4f12.6)
+c
+      write(6,613) (rms(1,i),i=1,nf)
+  613 format(/,' RMS deviation kJ/mol',t49,4f12.6)
+      write(6,614) (rms(2,i),i=1,nf)
+  614 format(/,' RMS deviation %',t49,4f12.6)
 c
       if(idump.eq.1) then
       call util_file_name('grid',.false.,.false.,grdfil)
