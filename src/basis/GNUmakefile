@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.35 1997-04-23 01:11:51 d3g681 Exp $
+#$Id: GNUmakefile,v 1.36 1997-04-24 16:34:31 d3e129 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -9,11 +9,11 @@ include ../config/makefile.h
 
 ifeq ($(TARGET),CRAY-T3D)
    OBJ_OPTIMIZE = basis.o 
-   OBJ =  basisP.o bas_input.o bas_contrib.o bas_checksum.o bas_blas.o bas_blasP.o
+   OBJ =  basisP.o bas_input.o bas_contrib.o bas_checksum.o bas_blas.o bas_blasP.o bas_vec_info.o
 endif
 ifeq ($(TARGET),CRAY-T3E)
    OBJ_OPTIMIZE = basis.o 
-   OBJ =  basisP.o bas_input.o bas_contrib.o bas_checksum.o bas_blas.o bas_blasP.o
+   OBJ =  basisP.o bas_input.o bas_contrib.o bas_checksum.o bas_blas.o bas_blasP.o bas_vec_info.o
 endif
 
    LIB_TARGETS = testbasis testbasis.o
