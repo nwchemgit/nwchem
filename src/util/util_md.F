@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.31 2000-10-25 19:00:13 d3j191 Exp $
+c $Id: util_md.F,v 1.32 2000-10-25 19:05:57 d3j191 Exp $
 c
       implicit none
 c
@@ -674,6 +674,8 @@ c
       if(string(5:7).eq.'Oct') today(1:2)='10'
       if(string(5:7).eq.'Nov') today(1:2)='11'
       if(string(5:7).eq.'Dec') today(1:2)='12'
+      today(7:8)=string(23:24)
+      today(4:5)=string(9:10)
       now=string(11:20)
 #endif
 #if defined(SGI)
