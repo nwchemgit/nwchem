@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.34 2001-10-05 23:50:22 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.35 2001-11-01 00:00:04 edo Exp $
 c
       implicit none
 c
@@ -88,7 +88,9 @@ c
 c
       if (owritefile) then
          tolguess = tol2e
-      else 
+      else if (inp_compare(.false., 'DFT', calling_module))then
+         tolguess = 1d-5
+      else
          tolguess = 1d-7        ! 1e-5 broke too many large basis SCFs
       endif
       status = rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)
@@ -104,9 +106,9 @@ c
          ssmear=0.d0
       endif
       if (inp_compare(.false., 'DFT', calling_module))then
-         nmo = nbf
-         if (oprint)write(6,*)' Skipping SCF linear dependence check. '
-         goto 3212
+!         nmo = nbf
+!         if (oprint)write(6,*)' Skipping SCF linear dependence check. '
+!         goto 3212
       endif
 c
 c     Analyze linear dependence ... put eigenvectors of S into g_movecs

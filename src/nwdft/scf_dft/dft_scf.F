@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.194 2001-10-23 21:39:07 edo Exp $
+c     $Id: dft_scf.F,v 1.195 2001-11-01 00:00:06 edo Exp $
 c     
       implicit none
 c
@@ -36,8 +36,6 @@ c
 #endif
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
-      external dft_lindep
-      integer dft_lindep
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -114,7 +112,6 @@ c
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
       integer ilo, ihi          ! For printing movecs analysis
-      integer iter_by_5, iter_ck
       double precision eval_pr_tol_lo, eval_pr_tol_hi
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 C
@@ -158,7 +155,7 @@ c
 
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,g_xij,
-     ,     ncanorg
+     ,     ncanorg,g_gmovecs(2)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -254,8 +251,7 @@ c     get/set orbital overlap tolerance
 c
       if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
      .     call errquit('dftscf: lost toll_s ',0)
-      nmo(1)=dft_lindep(nbf_ao,toll_s,
-     .     svals,me.eq.0,luout)
+      nmo(1)=nbf_ao
       if (ipol.eq.1)then
 c     
 c        noc(1) = No. of electrons alpha
@@ -437,13 +433,43 @@ c
      &        nbf, 0, g_xij)) 
      .        call errquit(' ddftdiagn: ga_create failed ',0)
       endif
+      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
+     &     nbf_ao, 0, g_gmovecs(1))) 
+     .     call errquit(' dftscf: ga_create failed ',0)
+      if(ipol.eq.2) then
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
+     &        nbf_ao, 0, g_gmovecs(2))) 
+     .        call errquit(' dftscf: ga_create failed ',0)
+      endif
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
-     &                       nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
-     &                       k_ir, g_movecs, g_dens, vecs_or_dens, 
+     &                       nbf, nmo, noc(1), noc(2),  k_eval, k_occ, 
+     &                       k_ir, g_gmovecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
+      if(nmo(1).ne.nbf_ao) then
+         call ga_zero(g_movecs(1))
+         call ga_copy_patch('n', g_gmovecs(1), 1, nbf_ao, 
+     .        1, nmo(1),
+     ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
+         if(ipol.eq.2) then
+            call ga_zero(g_movecs(2))
+            call ga_copy_patch('n', g_gmovecs(2), 1, nbf_ao, 
+     .           1, nmo(2),
+     ,           g_movecs(2), 1,nbf_ao,1,nmo(2))
+         endif
+      else
+         call ga_copy(g_gmovecs(1),g_movecs(1))
+         if(ipol.eq.2)
+     /        call ga_copy(g_gmovecs(2),g_movecs(2))
+      endif
+      if (.not. ga_destroy(g_gmovecs(1))) call errquit
+     &     ('dft_scf: could not destroy g_denso', 0)
+      if(ipol.eq.2) then
+         if (.not. ga_destroy(g_gmovecs(2))) call errquit
+     &        ('dft_scf: could not destroy g_denso', 0)
+      endif
       if(oskel) then
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
@@ -788,15 +814,6 @@ c
      &              'dft_scf: could not destroy g_movad', 0)
             endif
          endif      
-c
-c        occasionally (every 5 iterations) clean up (by orthogonalizing
-c        away any accumulated noise) the mo vectors.
-c
-         iter_by_5 = iter/5
-         iter_ck = iter - 5*iter_by_5
-         if (iter_ck.eq.0.and.reorth)
-     &      call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
-
       enddo                     ! end big loop over ispin
 
       call ga_sync
