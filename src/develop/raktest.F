@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.49 1996-03-07 01:02:32 d3e129 Exp $
+c $Id: raktest.F,v 1.50 1996-03-12 09:57:01 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -217,7 +217,7 @@ c
 c
       integer geom, basis
       integer nbf, nbfsq, nbf_sp, nbf_chk, nshell
-      integer max1e, max2e, mscr1, mscr2
+      integer max1e, max2e, mscr1, mscr2, m_scr, m_buf
       integer h_cart_s, h_sph_s, h_scr, h_buf, h_2bfr
       integer k_cart_s, k_sph_s, k_scr, k_buf, k_2bfr
       logical status
@@ -265,15 +265,16 @@ c
 c
       call int_init(rtdb,1,basis)
       call int_mem(max1e,max2e,mscr1,mscr2)
-      max1e = max1e*2
-      mscr1 = mscr1*2
-      max1e = max1e + (max1e*110)/100
-      mscr1 = mscr1 + (mscr1*110)/100
+      m_buf = max(max1e*2,max2e*2)
+      m_scr = max(mscr1*2,mscr2)
+      m_buf = m_buf + (m_buf*110)/100
+      m_scr = m_scr + (m_scr*110)/100
+      
 c
-      if (.not.ma_push_get(mt_dbl,mscr1,'scr for 1e',h_scr,k_scr))
+      if (.not.ma_push_get(mt_dbl,m_scr,'scr for 1e',h_scr,k_scr))
      &      call errquit('ma scr failed',911)
 c
-      if (.not.ma_push_get(mt_dbl,max1e,'buf for 1e',h_buf,k_buf))
+      if (.not.ma_push_get(mt_dbl,m_buf,'buf for 1e',h_buf,k_buf))
      &      call errquit('ma buf failed',911)
 c
       if (.not.ma_push_get(mt_int,2*nshell,'buf for sp cn2bfr',
@@ -290,11 +291,15 @@ c
       write(6,*)' nbf_sp ',nbf_sp
 c
       call rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
-     &      dbl_mb(k_scr),mscr1,
-     &      dbl_mb(k_buf),max1e,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
      &      dbl_mb(k_cart_s),dbl_mb(k_sph_s),
      &      int_mb(k_2bfr))
 c
+      call rak_2el_test_sp(basis,nbf,nbf_sp,nshell,
+     &      dbl_mb(k_scr),m_scr,
+     &      dbl_mb(k_buf),m_buf,
+     &      int_mb(k_2bfr))
       call int_terminate()
       status = .true.
       status = status.and.ma_pop_stack(h_2bfr)
@@ -311,6 +316,58 @@ c
      &      ('geom_destroy failed',911)
 c
       end
+*.......................................................................
+      subroutine rak_2el_test_sp(basis,nbf, nbf_sp, nshell,
+     &    scr,mscr,buf,mbuf,cn2bfr_sp)
+      implicit none
+#include "bas.fh"
+      integer nbf, nbf_sp, nshell, mscr, mbuf, basis
+      integer cn2bfr_sp(2,nshell)
+      double precision scr(mscr), buf(mbuf)
+c
+      integer ish, jsh, ksh, lsh
+      integer ilo, jlo, klo, llo
+      integer ihi, jhi, khi, lhi
+      integer i, j, k, l
+      integer count
+c
+      do ish = 1,nshell
+        if (.not.bas_cn2bfr(basis,ish,ilo,ihi))
+     &      stop 'cn2bfr error i'
+        do jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi))
+     &        stop 'cn2bfr error j'
+          do ksh = 1,jsh
+            if (.not.bas_cn2bfr(basis,ksh,klo,khi))
+     &          stop 'cn2bfr error k'
+            do lsh = 1,ksh
+              if (.not.bas_cn2bfr(basis,lsh,llo,lhi))
+     &            stop 'cn2bfr error l'
+              call int_2e4c
+     &            (basis,ish,jsh,basis,ksh,lsh,mscr,scr,mbuf,buf)
+              count = 0
+              do i=ilo,ihi
+                do j=jlo,jhi
+                  do k=klo,khi
+                    do l=llo,lhi
+                      count = count + 1
+                      if (abs(buf).gt.1.0d-07) then
+                        write(6,10000)i,j,k,l,buf(count)
+                      endif
+                    enddo
+                  enddo
+                enddo
+              enddo
+c
+            enddo
+          enddo
+        enddo
+      enddo
+c
+10000 format('(',i5,i5,'|',i5,i5,') =',1pd20.10,' cart')
+c
+      end
+*.......................................................................
       subroutine rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,cn2bfr)
       implicit none
 #include "bas.fh"
