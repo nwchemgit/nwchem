@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.2 1998-05-11 03:09:01 d3e129 Exp $
+C     $Id: corr_mk_ref.F,v 1.3 1998-07-19 20:41:20 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine Corr_Mk_Ref(RTDB, Mod, Geom, NAO, RefSpin, RefNMO,
@@ -33,6 +33,34 @@ C ARGUMENTS
       Logical KeepFrz           ! [in]  Keep frozen orbitals in reference 
                                 !       returned
 C
+C DESCRIPTION
+C     Prepares reference wavefunction for post-SCF calculations.
+C     Raw reference info is read from (in order of preference)
+C     1) VECTORS INPUT for current module
+C     2) VECTORS OUTPUT for SCF module
+C     3) <job_prefix>.movecs
+C     Swap and freeze directives are applied to produce the reference
+C     returned to the caller.  Note that since swaps are processed 
+C     before freezes, it is possible to freeze arbitrary orbitals.
+C
+C     If KeepFrz is .TRUE., frozen occupied and virtual orbitals are
+C     eliminated from the occupation, eigenvalues, and eigenvectors
+C     returned to the user.
+C
+C     NFrzOcc and NFrzVir always return the number of orbitals
+C     which were frozen regardless of the value of KeepFrz.
+C
+C PRINT CONTROLS
+C 'reference info' (low)
+C     Print basic information about the reference: filename, title
+C     string, dimensions, total occupation.
+C 'raw reference'  (debug)
+C     Print raw reference information: occupation, eigenvalues,
+c     eigenvectors
+C 'reference'      (debug)
+C     Print final reference information: occupation, eigenvalues,
+c     eigenvectors
+C
 C INCLUDE FILES
 #include "rtdb.fh"
 #include "inp.fh"
@@ -58,7 +86,8 @@ C
       Integer MLen, MyRChunk, MyCChunk, Spin, DType, Lo, Hi, Me, I
       Character*(80) VecFil, VecTitle, VecBas, VecType
       Character*(80) Key, Key2, Type, Date
-      Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin)
+      Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
+     $     MxRefNMO
       Integer SpinMap(MyMxSpin)
       Double Precision TotOcc(MyMxSpin)
       Integer H_Occ, I_Occ, H_EVal, I_EVal
@@ -66,8 +95,12 @@ c$$$      Integer H_Occ0, I_Occ0, H_EVal0, I_EVal0
       Integer I_RefOcc, I_RefEVal
       Logical Status, PrInfo
 C
+C STATEMENT FUNCTIONS
+      Character*1 SpinItoA
+      SpinItoA(I) = Char( I + IChar('a') - 1 )
+C
       MLen = Inp_StrLen(Mod)
-      PrInfo = Util_Print('ref info', Print_Low)
+      PrInfo = Util_Print('reference info', Print_Low)
       Me = GA_NodeID()
 C
 C     Simple sanity checks
@@ -95,14 +128,18 @@ C
 C
 C     Allocate space for vectors, eigenvalues, and occupation
 C
+      MxVecNMO = 0
       Do Spin = 1, VecSpin
+         MxVecNMO = Max( MxVecNMO, VecNMO(Spin) )
+C
          MyRChunk = RChunk
          MyCChunk = CChunk
          If (MyRChunk .eq. 0) MyRChunk = NAO
          If (MyCChunk .eq. 0) MyCChunk = VecNMO(Spin)
 C
+         Key = 'Raw SCF Vectors spin ' // SpinItoA(Spin)
          If ( .NOT. GA_Create(MT_Dbl, NAO, VecNMO(Spin),
-     $        'SCF Vectors', MyRChunk, MyCChunk, G_Vec(Spin) ) )
+     $        Key(:Inp_StrLen(Key)), MyRChunk, MyCChunk, G_Vec(Spin) ) )
      $        Call ErrQuit(
      $        'corr_mk_ref: failed to create GA for vectors',
      $        NAO*VecNMO(Spin) )
@@ -190,6 +227,20 @@ C
  9035 Format(4X, A13, 14x, F7.2, ',', F7.2)
  9036 Format(4X, A13, 14x, 8(F7.2, ','))
 C
+C     Before we mess up the raw reference, print it for the user
+C
+      If ( Util_Print('raw reference', Print_Debug) ) then
+         If ( Me .eq. 0) then
+            Call DGEWR(MxVecNMO, VecSpin, Dbl_MB(I_Occ), NAO, 0, 0,
+     $           LuOut, 'Raw Occupation Vectors', 80, 'F6.3')
+            Call DGEWR(MxVecNMO, VecSpin, Dbl_MB(I_Eval), NAO, 0, 0,
+     $           LuOut, 'Raw Eigenvalues', 80, 'F12.6')
+         EndIf
+         Do Spin = 1, VecSpin
+            Call GA_Print( g_Vec(Spin) )
+         EndDo
+      EndIf
+C
       Call GA_Sync
 C
 C     Process VECTORS SWAP directive.  Doing SWAP before FREEZE
@@ -269,6 +320,7 @@ C
 C
 C     Determine final sizes and allocate the output arrays
 C
+      MxRefNMO = 0
       Do Spin = 1, RefSpin
          If ( SpinMap(Spin) .lt. 1 .OR. SpinMap(Spin) .gt. VecSpin)
      $        Call ErrQuit('corr_mk_ref: bad spin map entry',
@@ -277,15 +329,17 @@ C
          RefNMO(Spin) = VecNMO( SpinMap(Spin) )
          If ( .NOT. KeepFrz )
      $        RefNMO(Spin) = RefNMO(Spin) - NFrzOcc - NFrzVir
+         MxRefNMO = Max( MxRefNMO, RefNMO(Spin) )
 C
          MyRChunk = RChunk
          MyCChunk = CChunk
          If (MyRChunk .eq. 0) MyRChunk = NAO
          If (MyCChunk .eq. 0) MyCChunk = RefNMO(Spin)
 C
+         Key = 'Reference Vectors spin ' // SpinItoa(Spin)
          If ( .NOT. GA_Create(MT_Dbl, NAO, RefNMO(Spin),
-     $        'Reference Vectors', MyRChunk, MyCChunk, G_RefVec(Spin)))
-     $        Call ErrQuit(
+     $        Key(:Inp_StrLen(Key)), MyRChunk, MyCChunk,
+     $        G_RefVec(Spin))) Call ErrQuit(
      $        'corr_mk_ref: failed to create GA for vectors',
      $        NAO*RefNMO(Spin) )
       EndDo
@@ -342,6 +396,20 @@ C
          If ( .NOT. GA_Destroy(G_Vec(Spin) ) ) Call ErrQuit(
      $        'corr_mk_ref: failed to destroy ga', 0)
       EndDo
+C
+C     Print results for the user
+C
+      If ( Util_Print('reference', Print_Debug) ) then
+         If ( Me .eq. 0) then
+            Call DGEWR(MxRefNMO, RefSpin, Dbl_MB(I_RefOcc), NAO, 0, 0,
+     $           LuOut, 'Reference Occupation Vectors', 80, 'F6.3')
+            Call DGEWR(MxRefNMO, RefSpin, Dbl_MB(I_RefEval), NAO, 0, 0,
+     $           LuOut, 'Reference Eigenvalues', 80, 'F12.6')
+         EndIf
+         Do Spin = 1, RefSpin
+            Call GA_Print( g_RefVec(Spin) )
+         EndDo
+      EndIf
 C
       Return
       End
