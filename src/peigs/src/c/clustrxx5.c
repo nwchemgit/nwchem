@@ -438,14 +438,17 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     /*
       fine problem
       */
-
+    
     if ( csiz == 1 ){
       msize = *n;
-      
       for ( jjj = 0; jjj < bb1; jjj++ )
 	vecZ[Zvec][jjj] = 0.0;
-      for ( jjj = bb1; jjj < bn; jjj++ )
+      blksiz = bn - bb1 + 1;
+      dlarnv_(&IONE, iseed, &blksiz, &vecZ[Zvec][bb1]);
+      /*
+	for ( jjj = bb1; jjj < bn; jjj++ )
 	vecZ[Zvec][jjj] = 1.0;
+	*/
       for ( jjj = bn; jjj < msize; jjj++ )
 	vecZ[Zvec][jjj] = 0.0;
       

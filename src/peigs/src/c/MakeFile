@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-13 01:49:38 bjohnson Exp $	
+#	$Id: MakeFile,v 1.2 2000-03-01 19:29:49 d3g270 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -76,7 +76,10 @@ COBJ =         $(OBJDIR)\clustrfix.obj \
                $(OBJDIR)\inv_it5.obj \
                $(OBJDIR)\inv_it3.obj \
                $(OBJDIR)\peigs_tldlfact.obj \
-               $(OBJDIR)\clustrf5.obj
+               $(OBJDIR)\clustrf5.obj \
+               $(OBJDIR)\r_ritz.obj \
+               $(OBJDIR)\gdot.o \
+               $(OBJDIR)\ortho2.o 
 
 OBJ =          $(COBJ)
 
@@ -90,7 +93,7 @@ LIBRARY = peigs.lib
 !IF 0
 
 #
-# $Id: MakeFile,v 1.1 1999-11-13 01:49:38 bjohnson Exp $
+# $Id: MakeFile,v 1.2 2000-03-01 19:29:49 d3g270 Exp $
 #
 
 include ../../DEFS
