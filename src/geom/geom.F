@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.34 1995-03-02 00:00:33 d3e863 Exp $
+C$Id: geom.F,v 1.35 1995-03-12 21:04:53 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -927,10 +927,26 @@ c     call geom_set_values(geom)
 #include "geomP.fh"
 c     
       integer geom              ! [input]
-      double precision ef       ! [output]
+      double precision ef(3)    ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+      integer i
+c     
+      if (.not. geom_check_handle(geom, 'geom_efield_get')) then
+         geom_efield_get = .false.
+         return
+      end if
 c
-      call errquit('geom_get_efield: not yet!', 0)
-      geom_efield_get = .false.
+      if (oefield(geom)) then
+         do i = 1, 3
+            ef(i) = efield(i,geom)
+         end do
+      else
+         do i = 1, 3
+            ef(i) = 0.0d0
+         end do
+      endif
+      geom_efield_get = .true.
       end
       logical function geom_print_xyz(geom, unit)
       implicit none
