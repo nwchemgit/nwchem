@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2000-08-26 19:57:15 d3g681 Exp $
+# $Id: GNUmakefile,v 1.5 2000-09-01 00:59:19 bjohnson Exp $
 #
 
 LIBRARY = libpython.a
@@ -20,7 +20,7 @@ error1:
 endif
 
 
-LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION)
+LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION) -I$(PYTHONHOME)/include
 
 
 include ../config/makefile.h
