@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.12 2000-04-26 22:40:05 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.13 2000-04-26 23:01:06 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -145,7 +145,7 @@ c
       endif
       endif
 c
-      lato(1,nato)=nadd
+      lato(1,i)=nadd
       if(nadd.gt.0) maxscf=0
    20 continue
       endif
