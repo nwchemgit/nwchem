@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 2005-02-11 07:27:42 edo Exp $
+# $Id: GNUmakefile,v 1.10 2005-02-15 19:30:59 edo Exp $
 
 OBJ =  		xc_d2expl.o 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
@@ -25,9 +25,6 @@ LIB_INCLUDES = -I../../../nwdft/include
 		xc_tabcd_cpks_lhs.F \
 		xc_tabcd_cpks_rhs.F\
                 xc_nucder_gen.F
-ifdef NO3D
-   LIB_DEFINES += -DNO3D
-endif
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h

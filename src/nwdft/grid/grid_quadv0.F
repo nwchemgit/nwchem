@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.44 2005-02-11 07:27:42 edo Exp $
+C$Id: grid_quadv0.F,v 1.45 2005-02-15 19:30:59 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -228,7 +228,6 @@ c
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce*(nmat+1)
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('grid_den: cannot allocate scr',0, MA_ERR)
-#ifdef NO3D
       if(calc_type.eq.2) then
          do isp=1,ipol
             call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
@@ -247,11 +246,6 @@ c
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       endif
-#else
-      call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
-     &                        ipol, dbl_mb(irdens_atom), 'rms', 
-     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
-#endif
       if (.not.ma_pop_stack(lscr))
      &     call errquit('grid_den: cannot pop stack',0, MA_ERR)
 c
