@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.10 1995-11-03 20:43:15 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -528,4 +528,126 @@ c
       enddo
       return
       end
+
+
+
+
+
+
+
+
+       logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
+C$Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+       integer g_a, n1, n2, jlo, jhi
+       integer n1t, n2n2
+       integer gtype, dim1, dim2
+       integer ilo, ihi, my_id, jstat
+       logical status
+
+       n1t = (n1*(n1+1))/2
+       n2n2 = n2*n2
+       my_id = ga_nodeid()
+       call ga_inquire(g_a,gtype,dim1,dim2)
+       status = (dim1.eq.n2n2).and.(dim2.eq.n1t)
+       call ga_distribution(g_a,my_id,ilo,ihi,jlo,jhi)
+       if ((jlo.ne.0).and.(jhi.ne.-1)) then
+         status = status.and.((ilo.eq.1).and.(ihi.eq.n2n2).and.
+     $                        (jlo.ge.1).and.(jhi.le.n1t))
+       endif
+
+       call ga_sync()
+       jstat = 0
+       if (status) jstat = 1
+       call ga_igop(Msg_ChkJK,jstat,1,'*')
+#ifdef DEBUG       
+       write(6,901) my_id,jstat,dim1,dim2,n2n2,n1t,
+     $      ilo,ihi,n2n2,jlo,jhi,n1t,status
+ 901   format('ga_check_moblocked: ID:',i3,5x,i3,'==',i3,'?',5x,
+     $        'dim:  [',i3,',',i3,']',2x,'(',i3,',',i3,')',5x,
+     $        'col_block:',i3,'-',i3,1x,'(',i3,')',5x,
+     $        'row_block:',i3,'-',i3,1x,'(',i3,')',5x,
+     $        'status:',l1)
+#endif
+
+       ga_check_JKblocked = (jstat.ne.0)
+       return
+       end
+
+
+
+
+c$$$       integer function ga_create_Jblocked(noper,nbf,label)
+c$$$C$Id: moints_aux2.F,v 1.11 1995-12-12 22:18:23 rg240 Exp $
+c$$$       implicit none
+c$$$#include "global.fh"
+c$$$#include "mafdecls.fh"
+c$$$       integer nbf,noper
+c$$$       character*(*) label
+c$$$       integer g_a
+c$$$       integer row_dist, col_dist
+c$$$
+c$$$       col_dist = 1
+c$$$       row_dist = nbf*nbf
+c$$$       if (.not.ga_create(MT_DBL,(nbf*nbf),noper,label,
+c$$$     $                    row_dist,col_dist,g_a))
+c$$$     $      call errquit('ga_create_Jblocked: cannot allocate',0)
+c$$$
+c$$$       ga_create_Jblocked = g_a
+c$$$
+c$$$       return
+c$$$       end
+c$$$
+
+
+
+
+
+c$$$       integer function ga_create_Kblocked(noper,nbf,nvir,label)
+c$$$       implicit none
+c$$$#include "global.fh"
+c$$$#include "mafdecls.fh"
+c$$$       integer nbf,noper,nvir
+c$$$       character*(*) label
+c$$$       integer g_a
+c$$$       integer row_dist, col_dist
+c$$$
+c$$$       col_dist = 1
+c$$$       row_dist = nbf*nvir
+c$$$       if (.not.ga_create(MT_DBL,(nbf*nvir),noper,label,
+c$$$     $                    row_dist,col_dist,g_a))
+c$$$     $      call errquit('ga_create_Kblocked: cannot allocate',0)
+c$$$
+c$$$       ga_create_Kblocked = g_a
+c$$$
+c$$$       return
+c$$$       end
+
+
+
+
+
+
+       integer function ga_create_JKblocked(noper,n1,n2,label)
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+       integer noper,n1,n2
+       character*(*) label
+       integer g_a
+       integer row_dist, col_dist
+
+       col_dist = 1
+       row_dist = n1*n2
+       if (.not.ga_create(MT_DBL,(n1*n2),noper,label,
+     $                    row_dist,col_dist,g_a))
+     $      call errquit('ga_create_JKblocked: cannot allocate',0)
+
+       ga_create_JKblocked = g_a
+
+       return
+       end
 

@@ -1,9 +1,7 @@
-#$Id: GNUmakefile,v 1.41 1995-11-27 02:17:50 d3g681 Exp $
+#$Id: GNUmakefile,v 1.42 1995-12-12 22:18:21 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
-	      ga_create_JKblocked.o \
-	      ga_check_JKblocked.o \
 	      mointdriver.o \
 	      moints_1e.o \
 	      moints_dbg.o \
