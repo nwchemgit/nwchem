@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.38 1999-11-18 01:31:05 bert Exp $
+c     $Id: grad_force.F,v 1.39 1999-11-18 18:19:03 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -477,7 +477,19 @@ c
 c
 c        Do numerical gradient for (Douglas-Kroll - Non-relativistic)
 c
-         mytheory = 'Douglas-Kroll'
+         if (ga_nodeid() .eq. 0) then
+            call util_print_centered(luout,'Douglas-Kroll gradients',
+     $                               40,.true.)
+            write(luout,105) 
+  105       format(/
+     $           12x,
+     $           'The Douglas-Kroll correction to the gradient is '/
+     $           12x,
+     $           'computed numerically and added to the analytical '/
+     $           12x,
+     $           'non-relativistic gradients.'//)
+         endif
+         mytheory = 'Douglas-Kroll correction to'
          if (.not. num_grad(rtdb,dkdiv_energy,'grad_dk:dkdiv_energy',
      $       'grad_dk:dkdiv_frc', mytheory, .false.))
      $       call errquit('grad_force: task_num_grad failed',0)
