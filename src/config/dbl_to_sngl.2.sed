@@ -1,5 +1,5 @@
 #
-# $Id: dbl_to_sngl.2.sed,v 1.8 2003-08-14 03:57:13 edo Exp $
+# $Id: dbl_to_sngl.2.sed,v 1.9 2004-05-14 19:03:43 edo Exp $
 #
 # This script performs blas keyword substitutions using the sed editor.
 # It is divided into four separate sed commands because of buffer overflow 
@@ -75,3 +75,11 @@ s/^\(     .\)[Dd][Ll][Aa][Mm][Cc][Hh]$/\1slamch/
 s/^\(     .\)[Dd][Ss][Yy][Ee][Vv]$/\1ssyev/
 s/^\(     .\)[Dd][Ss][Yy][Gg][Vv]$/\1ssygv/
 s/^\(     .\)[Ii][Zz][Aa][Mm][Aa][Xx]$/\1icamax/
+s/^\(     .\)[Dd][Gg][Ee][Bb][Aa][Kk]$/\1sgebak/
+s/^\(     .\)[Dd][Gg][Ee][Bb][Aa][Ll]$/\1sgebal/
+s/^\(     .\)[Dd][Gg][Ee][Hh][Rr][Dd]$/\1sgehrd/
+s/^\(     .\)[Dd][Hh][SS][Ee][Qq][Rr]$/\1shseqr/
+s/^\(     .\)[Dd][Ll][Aa][Bb][Aa][Dd]$/\1slabad/
+s/^\(     .\)[Dd][Oo][Rr][Gg][Hh][Rr]$/\1sorghr/
+s/^\(     .\)[Dd][Tt][Rr][Ee][Vv][Cc]$/\1strevc/
+

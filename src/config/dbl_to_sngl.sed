@@ -1,5 +1,5 @@
 #
-# $Id: dbl_to_sngl.sed,v 1.11 2003-08-14 03:57:13 edo Exp $
+# $Id: dbl_to_sngl.sed,v 1.12 2004-05-14 19:03:43 edo Exp $
 #
 # This script performs blas keyword substitutions using the sed editor.
 # It is divided into four separate sed commands because of buffer overflow 
@@ -75,3 +75,10 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Ss][Yy][Ee][Vv]$/\1ssyev/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Ss][Yy][Gg][Vv]$/\1ssygv/
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ii][Zz][Aa][Mm][Aa][Xx]$/\1icamax/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Bb][Aa][Kk]$/\1sgebak/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Bb][Aa][Ll]$/\1sgebal/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Gg][Ee][Hh][Rr][Dd]$/\1sgehrd/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Hh][SS][Ee][Qq][Rr]$/\1shseqr/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Ll][Aa][Bb][Aa][Dd]$/\1slabad/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Oo][Rr][Gg][Hh][Rr]$/\1sorghr/
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Dd][Tt][Rr][Ee][Vv][Cc]$/\1strevc/

@@ -1,5 +1,5 @@
 #
-# $Id: sngl_to_dbl.2.sed,v 1.8 2003-08-14 03:57:13 edo Exp $
+# $Id: sngl_to_dbl.2.sed,v 1.9 2004-05-14 19:03:43 edo Exp $
 #
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/
 s/^\(     .\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/
@@ -55,6 +55,14 @@ s/^\(     .\)[Ss][Ll][Aa][Mm][Cc][Hh]$/\1dlamch/
 s/^\(     .\)[Ss][Ss][Yy][Ee][Vv]$/\1dsyev/
 s/^\(     .\)[Ss][Ss][Yy][Gg][Vv]$/\1dsygv/
 s/^\(     .\)[Ii][Cc][Aa][Mm][Aa][Xx]$/\1izamax/
+s/^\(     .\)[Ss][Gg][Ee][Bb][Aa][Kk]$/\1dgebak/
+s/^\(     .\)[Ss][Gg][Ee][Bb][Aa][Ll]$/\1dgebal/
+s/^\(     .\)[Ss][Gg][Ee][Hh][Rr][Dd]$/\1dgehrd/
+s/^\(     .\)[Ss][Hh][SS][Ee][Qq][Rr]$/\1dhseqr/
+s/^\(     .\)[Ss][Ll][Aa][Bb][Aa][Dd]$/\1dlabad/
+s/^\(     .\)[Ss][Oo][Rr][Gg][Hh][Rr]$/\1dorghr/
+s/^\(     .\)[Ss][Tt][Rr][Ee][Vv][Cc]$/\1dtrevc/
+
 
 
 
