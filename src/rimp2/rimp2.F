@@ -298,6 +298,11 @@ C
      $      ILo(I), IHi(I), ALo(I), AHi(I) )
       EndDo
 C
+C     Done with occupation vector
+C
+      If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
+     $   'RIMP2: Unable to free local array H_Occ', H_Occ)
+C
 C     Initialize integrals
 C
       Bases(1) = AOBas
