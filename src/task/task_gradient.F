@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.11 1997-04-02 23:25:05 d3e129 Exp $
+* $Id: task_gradient.F,v 1.12 1997-04-10 02:05:57 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -46,9 +46,9 @@ c
       logical scf_gradient, grad_dft, task_num_grad
       external scf_gradient, grad_dft, task_num_grad
 c
-      integer k_grad, l_grad, type, nelem
+      integer k_grad, l_grad, type, nelem, i
       logical status, numerical
-      double precision energy, cpu, wall,dipole(3)
+      double precision energy, cpu, wall,dipole(3), gmax, gnorm
       character*80 theory, key, prefix
 c
       call ecce_print_module_entry('task gradient')
@@ -142,6 +142,21 @@ c
          if (.not. rtdb_put(rtdb, 'task:gradient', mt_dbl, nelem,
      $        dbl_mb(k_grad)))
      $        call errquit('task_gradient: failed storing energy',0)
+c
+         call geom_print_rtdb_ecce(rtdb)
+         call ecce_print1('total energy', mt_dbl, energy, 1)
+         call ecce_print2('total gradient', mt_dbl, dbl_mb(k_grad),
+     $        3,nelem/3, 1)
+         gmax = 0.0d0
+         gnorm = 0.0d0
+         do i = 0, nelem-1
+            gnorm = gnorm + dbl_mb(k_grad+i)**2
+            gmax  = max(abs(dbl_mb(k_grad+i)),gmax)
+         enddo
+         gnorm = sqrt(gnorm)
+         call ecce_print1('gradient norm', mt_dbl, gnorm, 1)
+         call ecce_print1('gradient max', mt_dbl, gmax, 1)
+c
          if (.not. ma_free_heap(l_grad))
      $        call errquit('task_gradient: ma corrupt?',0)
 c         
@@ -151,6 +166,8 @@ c
      $        call errquit('task_gradient: failed storing walltime',0)
       endif
 c
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call ecce_print_module_exit('task gradient', 'ok')
       else

@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.10 1997-04-02 23:25:04 d3e129 Exp $
+* $Id: task_energy.F,v 1.11 1997-04-10 02:05:56 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -128,14 +128,19 @@ c
      $        call errquit('task_energy: failed storing cputime',0)
          if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
      $        call errquit('task_energy: failed storing walltime',0)
+c
+         call geom_print_rtdb_ecce(rtdb)
+         call ecce_print1('total energy', mt_dbl, energy, 1)
       endif
 c
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call ecce_print_module_exit('task energy', 'ok')
       else
          call ecce_print_module_exit('task energy', 'failed')
       endif
-         
+c         
       task_energy = status
 c
       end
