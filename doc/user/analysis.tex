@@ -135,6 +135,16 @@ select 20 80 _N _CA _C
 This selection is reset to apply to all atoms after each file
 directive.
 
+Solvent molecules within \verb+range+ nm from any selected solute atom
+are selected by
+
+\begin{verbatim}
+select solvent <real range>
+\end{verbatim}
+
+After solvent selection, the solute atom selection is reset to being all
+selected.
+
 \section{Coordinate analysis}
 
 To analyze the root mean square deviation from the specified reference
