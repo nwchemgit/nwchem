@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.2 1998-09-24 17:23:53 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.2 1998-09-24 17:23:53 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
 c
       implicit none
 c
@@ -135,7 +135,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.2 1998-09-24 17:23:53 d3e129 Exp $
+c     $Id: dint_block_j.F,v 1.3 1998-09-24 17:26:02 d3e129 Exp $
 c
       implicit none
 c
@@ -180,7 +180,7 @@ c
                         enddo
 c
                         hess(icart,idatom(i),jcart,idatom(j)) =
-     &                  hess(icart,idatom(i),jcart,idatom(j)) +
+     &                  hess(icart,idatom(i),jcart,idatom(j)) 
      &                       + d2E * scale
                         if (idatom(i) .ne. idatom(j)) then
                            hess(jcart,idatom(j),icart,idatom(i)) =
