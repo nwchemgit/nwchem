@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.4 2004-12-08 23:57:39 bert Exp $
+c $Id: hnd_spinspin.F,v 1.5 2004-12-09 00:15:21 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -25,7 +25,7 @@ c
       integer g_dens(3), vectors(2), geomnew, i, j, i_off
       integer isonra, isonrb
       double precision atn, isotr, aniso, znuc
-      character*8 scftyp
+      character*3 scftyp
       character*16 tag, tagi, tagj
       character*32 element
       character*2 symbola, symbolb
@@ -293,17 +293,17 @@ c
           if (.not.ga_destroy(g_dens(i))) call 
      &       errquit('giao_aotomo: ga_destroy failed gdens',i,GA_ERR)
       enddo
- 911  if (.not.ga_destroy(vectors(1))) call 
-     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
       if (.not.ga_destroy(vectors(2))) call 
+     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
+ 911  if (.not.ga_destroy(vectors(1))) call 
      &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
 c
       if (.not.ma_chop_stack(l_pr)) call
      &    errquit('hnd_spinspin: ma_pop_stack failed l_tmp',0,MA_ERR)
 c
       return
- 7000 format(/,10x,'Indirect spin-spin coupling not calculated for RHF',
-     1      ' wave functions: needs UHF wave function')
+ 7000 format(/,6x,'Indirect spin-spin coupling not calculated for RHF',
+     1      /,6x,'wave functions: needs UHF wave function')
  9000 format(6x,49(1h-),/,
      &       6x,'Atom ',i4,': ',i3,'-',a2,' and Atom ',i4,': ',
      &       i3,'-',a2,//,
