@@ -425,16 +425,18 @@ are:
 \begin{itemize}
 \item Theory \newline
 \begin{itemize}
- \item SCF --- Hatree-Fock
+ \item SCF --- Hartree-Fock
  \item DFT --- Density functional theory for molecules
  \item RIMP2 --- MP2 using the RI approximation
  \item OIMP2 --- Orbital invariant MP2
  \item DIRECT\_MP2 --- MP2 direct from the AO integrals
  \item SEMI\_DIR\_MP2 --- MP2 semi-direct from the AO integrals
  \item CCSD --- Coupled-cluster single and double excitations
- \item MCSCF --- multiconfiguration SCF
- \item SELCI --- selected configuration interaction with perturbation
+ \item MCSCF --- Multiconfiguration SCF
+ \item SELCI --- Selected configuration interaction with perturbation
    correction 
+ \item MD --- Molecular dynamics simulation using nwARGOS
+ \item MD_IDEAZ --- Molecular dynamics simulation using IDEAZ
 \end{itemize}
 \item Operation \newline
 \begin{itemize}
@@ -446,7 +448,7 @@ are:
    (section \ref{sec:stepper}). 
  \item FREQUENCIES or FREQ --- compute second-derivatives and print
    out an analysis of molecular vibrations.
-  \item NWARGOS --- molecular dynamics using NWArgos.
+ \item DYNAMICS --- quantum molecular dynamics using NWArgos.
 \end{itemize} 
 \end{itemize}
 Note that if an operation requires computation of derivatives of the
