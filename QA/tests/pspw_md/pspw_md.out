@@ -3,7 +3,7 @@
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 4.5
+              Northwest Computational Chemistry Package (NWChem) 4.6
               ------------------------------------------------------
  
  
@@ -16,7 +16,7 @@
  
  
                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                            1999, 2000, 2001, 2002, 2003
+                         1999, 2000, 2001, 2002, 2003, 2004
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -74,9 +74,9 @@
 
     hostname      = wd37120.pnl.gov
     program       = nwchem
-    date          = Thu Apr 22 10:30:43 2004
+    date          = Tue Dec 21 09:52:40 2004
 
-    compiled      = Thu Apr 22 07:55:21 PDT 2004
+    compiled      = Tue Dec 21 07:51:41 PST 2004
     source        = /home/bylaska/nwchem
     nwchem branch = Development
     input         = ../pspw_md.nw
@@ -91,10 +91,10 @@
            Memory information
            ------------------
 
-    heap      =    3538938 doubles =     27.0 Mbytes
-    stack     =    1572851 doubles =     12.0 Mbytes
-    global    =    5111812 doubles =     39.0 Mbytes (within heap+stack)
-    total     =    5111789 doubles =     39.0 Mbytes
+    heap      =    3538945 doubles =     27.0 Mbytes
+    stack     =    1572865 doubles =     12.0 Mbytes
+    global    =    5111819 doubles =     39.0 Mbytes (within heap+stack)
+    total     =    5111810 doubles =     39.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -112,9 +112,8 @@
                                 -------------------
  
  
-                                                                                                                             SiC2-MD
-                                                                                                                             -------
- 
+                                      SiC2-MD
+                                      -------
 
           ------
           auto-z
@@ -220,8 +219,9 @@ n	l	population	Eigenvalue	Outer Peak
 2	s	2.00		-5.012954e-01	1.213506e+00
 2	p	2.00		-1.990710e-01	1.189537e+00
 ------------------------------------------------------------
-charge      = 6.000000e+00
-core charge = 2.000000e+00
+electronic charge      = -6.000000e+00
+electronic core charge = -2.000000e+00
+total atom charge      = -9.359289e-13
 
 Total E       = -3.744197e+01
 
@@ -262,7 +262,9 @@ n	l	population	Ecut		Rcut		Outer Peak
 2	p	2.00		-1.990710e-01	8.500000e-01	1.050089e+00
 3	d	0.00		-1.990710e-01	8.500000e-01	4.467913e+01
 ----------------------------------------------------------------------------
-Pseudopotential Charge: 4.000000
+Pseudopotential ion charge       = 4.000000
+Pseudopotential electronic charge= -4.000000
+Pseudopotential atom charge      = -0.000000
 
 Total E       = -5.339938e+00
 
@@ -287,7 +289,7 @@ Outputing core density gradient: ./C.cddns.plt
 Outputing semicore density: ./C.sdns.plt
 Outputing semicore density gradient: ./C.sddns.plt
 Outputing all-electron potential(non-screened): ./C.pot.plt
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:44 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:41 2004  <<<
  >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
 All electron atom solver
 
@@ -319,8 +321,9 @@ n	l	population	Eigenvalue	Outer Peak
 3	s	2.00		-3.998215e-01	1.765023e+00
 3	p	2.00		-1.529635e-01	2.144010e+00
 ------------------------------------------------------------
-charge      = 1.400000e+01
-core charge = 1.000000e+01
+electronic charge      = -1.400000e+01
+electronic core charge = -1.000000e+01
+total atom charge      = 1.399818e-13
 
 Total E       = -2.888262e+02
 
@@ -361,7 +364,9 @@ n	l	population	Ecut		Rcut		Outer Peak
 2	p	2.00		-1.529635e-01	1.286406e+00	2.144010e+00
 3	d	0.00		-1.529635e-01	1.286406e+00	4.470524e+01
 ----------------------------------------------------------------------------
-Pseudopotential Charge: 4.000000
+Pseudopotential ion charge       = 4.000000
+Pseudopotential electronic charge= -4.000000
+Pseudopotential atom charge      = -0.000000
 
 Total E       = -3.749888e+00
 
@@ -386,7 +391,7 @@ Outputing core density gradient: ./Si.cddns.plt
 Outputing semicore density: ./Si.sdns.plt
 Outputing semicore density gradient: ./Si.sddns.plt
 Outputing all-electron potential(non-screened): ./Si.pot.plt
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:45 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:42 2004  <<<
  
 == C.psp   expansion coefficients ==
 
@@ -417,7 +422,7 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:30:46 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:52:45 2004  <<<
  
  Pseudpotential Data
  -------------------
@@ -437,9 +442,9 @@ Si :   0.21389E+00 -0.31100E-03
                0.000    20.000     0.000
                0.000     0.000    20.000
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:46 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:45 2004  <<<
 
- Task  times  cpu:        0.6s     wall:        0.7s
+ Task  times  cpu:        1.8s     wall:        2.7s
  
  
                                 NWChem Input Module
@@ -462,7 +467,7 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:52:47 2004  <<<
  
  Pseudpotential Data
  -------------------
@@ -482,7 +487,7 @@ Si :   0.21389E+00 -0.31100E-03
                0.000    20.000     0.000
                0.000     0.000    20.000
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:47 2004  <<<
  
  Formatting rtdb psp inputblock: kbppb                         
                2  of            2
@@ -498,7 +503,7 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:52:49 2004  <<<
  
  Pseudpotential Data
  -------------------
@@ -518,9 +523,9 @@ Si :   0.21389E+00 -0.31100E-03
                0.000    20.000     0.000
                0.000     0.000    20.000
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:49 2004  <<<
 
- Task  times  cpu:        1.2s     wall:        1.2s
+ Task  times  cpu:        3.5s     wall:        3.6s
  
  
                                 NWChem Input Module
@@ -535,7 +540,7 @@ Si :   0.21389E+00 -0.31100E-03
  writing <spin= 1,psi=  5>    -     (  1 23 23 :   1)
  writing <spin= 1,psi=  6>    -     (  0  2  0 :  -1)
   JOB HAS BEEN COMPLETED.  CODE=           0
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:52:49 2004  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
  
@@ -560,18 +565,19 @@ Si :   0.21389E+00 -0.31100E-03
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:30:47 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:52:49 2004  <<<
           ================ PSPW input data ===================
 
  input psi filename:./sic2.00.elc
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       ionic motion         = no
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -620,21 +626,21 @@ Si :   0.21389E+00 -0.31100E-03
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Thu Apr 22 10:30:49 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:52:51 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.3635108910E+01   -0.70176E-02    0.94015E-01    0.00000E+00
-      20   -0.1091461995E+02   -0.14053E-01    0.19616E-01    0.00000E+00
-      30   -0.1243972635E+02   -0.29442E-02    0.46488E-02    0.00000E+00
-      40   -0.1288174018E+02   -0.85331E-03    0.20835E-02    0.00000E+00
-      50   -0.1309957105E+02   -0.42052E-03    0.17514E-02    0.00000E+00
-      60   -0.1325136120E+02   -0.29303E-03    0.17779E-02    0.00000E+00
-      70   -0.1337054992E+02   -0.23009E-03    0.15766E-02    0.00000E+00
-      80   -0.1346356166E+02   -0.17956E-03    0.12454E-02    0.00000E+00
-      90   -0.1353378697E+02   -0.13557E-03    0.91952E-03    0.00000E+00
-     100   -0.1358580146E+02   -0.10041E-03    0.66081E-03    0.00000E+00
+      10   -0.3625376276E+01   -0.69988E-02    0.93852E-01    0.00000E+00
+      20   -0.1089596999E+02   -0.14036E-01    0.19656E-01    0.00000E+00
+      30   -0.1242327011E+02   -0.29485E-02    0.46417E-02    0.00000E+00
+      40   -0.1286486033E+02   -0.85249E-03    0.20865E-02    0.00000E+00
+      50   -0.1308207257E+02   -0.41933E-03    0.17357E-02    0.00000E+00
+      60   -0.1323363172E+02   -0.29259E-03    0.17732E-02    0.00000E+00
+      70   -0.1335300951E+02   -0.23046E-03    0.15810E-02    0.00000E+00
+      80   -0.1344645806E+02   -0.18040E-03    0.12537E-02    0.00000E+00
+      90   -0.1351717722E+02   -0.13652E-03    0.92810E-03    0.00000E+00
+     100   -0.1356964194E+02   -0.10128E-03    0.66819E-03    0.00000E+00
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:30:56 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:52:58 2004  <<<
 
 
 
@@ -649,28 +655,28 @@ Si :   0.21389E+00 -0.31100E-03
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
 
- total     energy    :  -0.1358580146E+02 (   -0.45286E+01/ion)
- total orbital energy:  -0.6026025492E+01 (   -0.10043E+01/electron)
- hartree   energy    :   0.1884588633E+02 (    0.31410E+01/electron)
- exc-corr  energy    :  -0.4477769332E+01 (   -0.74629E+00/electron)
+ total     energy    :  -0.1356964194E+02 (   -0.45232E+01/ion)
+ total orbital energy:  -0.6046953232E+01 (   -0.10078E+01/electron)
+ hartree   energy    :   0.1880701527E+02 (    0.31345E+01/electron)
+ exc-corr  energy    :  -0.4472175356E+01 (   -0.74536E+00/electron)
  ion-ion   energy    :   0.9908523769E+01 (    0.33028E+01/ion)
 
- K.S. kinetic energy :   0.8948775114E+01 (    0.14915E+01/electron)
- K.S. V_l  energy    :  -0.4641591444E+02 (   -0.77360E+01/electron)
- K.S. V_nl energy    :  -0.3953029020E+00 (   -0.65884E-01/electron)
- K.S. V_Hart energy  :   0.3769177266E+02 (    0.62820E+01/electron)
- K.S. V_xc energy    :  -0.5855355930E+01 (   -0.97589E+00/electron)
- Virial Coefficient  :  -0.1673391097E+01
+ K.S. kinetic energy :   0.8930445135E+01 (    0.14884E+01/electron)
+ K.S. V_l  energy    :  -0.4635992330E+02 (   -0.77267E+01/electron)
+ K.S. V_nl energy    :  -0.3835274619E+00 (   -0.63921E-01/electron)
+ K.S. V_Hart energy  :   0.3761403054E+02 (    0.62690E+01/electron)
+ K.S. V_xc energy    :  -0.5847978151E+01 (   -0.97466E+00/electron)
+ Virial Coefficient  :  -0.1677116666E+01
 
  orbital energies:
-    -0.1508581E+00 (  -4.105eV)
-    -0.3404421E+00 (  -9.264eV)
-    -0.4779576E+00 ( -13.006eV)
-    -0.4919646E+00 ( -13.387eV)
-    -0.5761228E+00 ( -15.677eV)
-    -0.9756674E+00 ( -26.549eV)
+    -0.1508749E+00 (  -4.106eV)
+    -0.3406742E+00 (  -9.270eV)
+    -0.4797043E+00 ( -13.054eV)
+    -0.4935420E+00 ( -13.430eV)
+    -0.5777698E+00 ( -15.722eV)
+    -0.9809115E+00 ( -26.692eV)
 
- Total PSPW energy   :  -0.1358580146E+02
+ Total PSPW energy   :  -0.1356964194E+02
 
 
 === Spin Contamination ===
@@ -682,23 +688,23 @@ Si :   0.21389E+00 -0.31100E-03
 
 == Center of Charge ==
 
-spin up     (   -0.0439,   -0.3857,    0.0219 )
-spin down   (   -0.0439,   -0.3857,    0.0219 )
-     total  (   -0.0439,   -0.3857,    0.0219 )
+spin up     (   -0.0442,   -0.3871,    0.0217 )
+spin down   (   -0.0442,   -0.3871,    0.0217 )
+     total  (   -0.0442,   -0.3871,    0.0217 )
 ionic       (    0.0000,   -0.4103,    0.0000 )
 crystal     (    0.0000,    0.0788,    0.0000 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.5271,    5.5741,   -0.2624 ) au
-|mu| =     5.6052 au,      14.2461 Debye
+mu   =  (    0.5308,    5.5913,   -0.2609 ) au
+|mu| =     5.6225 au,      14.2902 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.5271,   -0.2946,   -0.2624 ) au
-|mu| =     0.6584 au,       1.6733 Debye
+mu   =  (    0.5308,   -0.2774,   -0.2609 ) au
+|mu| =     0.6533 au,       1.6604 Debye
  
  Generated formatted atomic orbitals, filename: ./Si.aorb
  
@@ -714,7 +720,7 @@ mu   =  (    0.5271,   -0.2946,   -0.2624 ) au
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Thu Apr 22 10:31                      **
+ **                   Tue Dec 21 09:53                      **
  **                                                         **
  *************************************************************
 
@@ -740,187 +746,187 @@ C            -0.656179     -0.569883      0.000000
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.51639E+00 E=-0.15086E+00 (  -4.105eV)
+*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.51730E+00 E=-0.15087E+00 (  -4.106eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.05464   -0.23375
+ 1   Si   0    0.05356   -0.23143
                                px         py         pz
- 1   Si   1    0.42038   -0.21217    0.60218    0.11289
+ 1   Si   1    0.42054   -0.20980    0.60307    0.11327
                                 s
- 2   C    0    0.01318   -0.11482
+ 2   C    0    0.01322   -0.11499
                                px         py         pz
- 2   C    1    0.25272    0.03635   -0.43564   -0.24823
+ 2   C    1    0.25049    0.03635   -0.43272   -0.24885
                                 s
- 3   C    0    0.02725    0.16506
+ 3   C    0    0.02792    0.16710
                                px         py         pz
- 3   C    1    0.23183    0.35538    0.27078    0.17948
+ 3   C    1    0.23427    0.35730    0.27212    0.18042
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.4750     2(C )   0.2659     3(C )   0.2591
+     1(Si)   0.4741     2(C )   0.2637     3(C )   0.2622
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.0951    0.9049    0.0000    0.0000
+    0.0947    0.9053    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.89508E+00 E=-0.34044E+00 (  -9.264eV)
+*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.89583E+00 E=-0.34067E+00 (  -9.270eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.04060   -0.20149
+ 1   Si   0    0.04209   -0.20516
                                px         py         pz
- 1   Si   1    0.03271   -0.01556   -0.18018    0.00096
+ 1   Si   1    0.03218   -0.01627   -0.17864    0.00115
                                 s
- 2   C    0    0.16597   -0.40740
+ 2   C    0    0.16712   -0.40880
                                px         py         pz
- 2   C    1    0.34176    0.40614   -0.41603   -0.06112
+ 2   C    1    0.34035    0.40452   -0.41582   -0.06170
                                 s
- 3   C    0    0.14088   -0.37533
+ 3   C    0    0.14213   -0.37700
                                px         py         pz
- 3   C    1    0.27808   -0.37127   -0.37435    0.01018
+ 3   C    1    0.27613   -0.36974   -0.37324    0.01064
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.0733     2(C )   0.5077     3(C )   0.4190
+     1(Si)   0.0743     2(C )   0.5075     3(C )   0.4183
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.3474    0.6526    0.0000    0.0000
+    0.3513    0.6487    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16691E+01 E=-0.47796E+00 ( -13.006eV)
+*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16672E+01 E=-0.47970E+00 ( -13.054eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.06343    0.25186
+ 1   Si   0    0.06768    0.26016
                                px         py         pz
- 1   Si   1    0.23605    0.00777   -0.16470   -0.45702
+ 1   Si   1    0.23198    0.00891   -0.17081   -0.45025
                                 s
- 2   C    0    0.00002    0.00469
+ 2   C    0    0.00001    0.00358
                                px         py         pz
- 2   C    1    0.33188   -0.12062   -0.27584   -0.49117
+ 2   C    1    0.33130   -0.12385   -0.28538   -0.48427
                                 s
- 3   C    0    0.00000    0.00060
+ 3   C    0    0.00000    0.00057
                                px         py         pz
- 3   C    1    0.36861    0.11580   -0.30211   -0.51374
+ 3   C    1    0.36903    0.12005   -0.31290   -0.50667
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.2995     2(C )   0.3319     3(C )   0.3686
+     1(Si)   0.2997     2(C )   0.3313     3(C )   0.3690
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.0635    0.9365    0.0000    0.0000
+    0.0677    0.9323    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.16205E+01 E=-0.49196E+00 ( -13.387eV)
+*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.16255E+01 E=-0.49354E+00 ( -13.430eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.14878    0.38572
+ 1   Si   0    0.14372    0.37910
                                px         py         pz
- 1   Si   1    0.16512    0.00570   -0.26115    0.31128
+ 1   Si   1    0.16933    0.00654   -0.25746    0.32094
                                 s
- 2   C    0    0.00003   -0.00521
+ 2   C    0    0.00004   -0.00643
                                px         py         pz
- 2   C    1    0.32905   -0.16332   -0.43378    0.33795
+ 2   C    1    0.32935   -0.15979   -0.42684    0.34874
                                 s
- 3   C    0    0.00015   -0.01228
+ 3   C    0    0.00015   -0.01207
                                px         py         pz
- 3   C    1    0.35687    0.15352   -0.46521    0.34187
+ 3   C    1    0.35742    0.15145   -0.45810    0.35302
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3139     2(C )   0.3291     3(C )   0.3570
+     1(Si)   0.3130     2(C )   0.3294     3(C )   0.3576
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.1490    0.8510    0.0000    0.0000
+    0.1439    0.8561    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15481E+01 E=-0.57612E+00 ( -15.677eV)
+*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15477E+01 E=-0.57777E+00 ( -15.722eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.00031   -0.01767
+ 1   Si   0    0.00034   -0.01841
                                px         py         pz
- 1   Si   1    0.38623    0.62146    0.00309    0.00137
+ 1   Si   1    0.38673    0.62186    0.00392    0.00155
                                 s
- 2   C    0    0.14725   -0.38373
+ 2   C    0    0.14679   -0.38313
                                px         py         pz
- 2   C    1    0.15648    0.35533    0.17380    0.00340
+ 2   C    1    0.15766    0.35584    0.17613    0.00371
                                 s
- 3   C    0    0.13802    0.37151
+ 3   C    0    0.13800    0.37148
                                px         py         pz
- 3   C    1    0.17171    0.38310   -0.15792    0.00220
+ 3   C    1    0.17049    0.38149   -0.15796    0.00237
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3865     2(C )   0.3037     3(C )   0.3097
+     1(Si)   0.3871     2(C )   0.3044     3(C )   0.3085
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.2856    0.7144    0.0000    0.0000
+    0.2851    0.7149    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25460E+01 E=-0.97567E+00 ( -26.549eV)
+*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25461E+01 E=-0.98091E+00 ( -26.692eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.18105   -0.42550
+ 1   Si   0    0.18083   -0.42524
                                px         py         pz
- 1   Si   1    0.12634   -0.00620   -0.35538   -0.00100
+ 1   Si   1    0.12635   -0.00590   -0.35541   -0.00094
                                 s
- 2   C    0    0.22702   -0.47647
+ 2   C    0    0.22671   -0.47614
                                px         py         pz
- 2   C    1    0.11633   -0.32344    0.10821    0.00197
+ 2   C    1    0.11685   -0.32394    0.10911    0.00207
                                 s
- 3   C    0    0.23756   -0.48740
+ 3   C    0    0.23685   -0.48667
                                px         py         pz
- 3   C    1    0.11171    0.31555    0.11018    0.00092
+ 3   C    1    0.11241    0.31641    0.11089    0.00097
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3074     2(C )   0.3433     3(C )   0.3493
+     1(Si)   0.3072     2(C )   0.3436     3(C )   0.3493
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.6456    0.3544    0.0000    0.0000
+    0.6444    0.3556    0.0000    0.0000
  
  
  ========================================
@@ -929,51 +935,51 @@ NO  ATOM  L  POPULATION
  
  
 NO  ATOM  SPIN    TOTAL       s          p          d          f
- 1   Si   UP      1.85564    0.48881    1.36683
- 1   Si   DOWN    1.85564    0.48881    1.36683
- 2   C    UP      2.08170    0.55348    1.52823
- 2   C    DOWN    2.08170    0.55348    1.52823
- 3   C    UP      2.06266    0.54385    1.51881
- 3   C    DOWN    2.06266    0.54385    1.51881
+ 1   Si   UP      1.85532    0.48822    1.36710
+ 1   Si   DOWN    1.85532    0.48822    1.36710
+ 2   C    UP      2.07989    0.55389    1.52599
+ 2   C    DOWN    2.07989    0.55389    1.52599
+ 3   C    UP      2.06479    0.54504    1.51975
+ 3   C    DOWN    2.06479    0.54504    1.51975
 
 
 
 === TOTAL ANGULAR MOMENTUM POPULATION ===
 
  SPIN       s           p           d           f
-  UP       26.44%      73.56%       0.00%       0.00% 
-  UP       26.44%      73.56%       0.00%       0.00% 
- TOTAL     26.44%      73.56%       0.00%       0.00% 
+  UP       26.45%      73.55%       0.00%       0.00% 
+  UP       26.45%      73.55%       0.00%       0.00% 
+ TOTAL     26.45%      73.55%       0.00%       0.00% 
 
  output psi filename:./sic2.00.elc
  
  -----------------
  cputime in seconds
- prologue    :    1.26443800004199     
- main loop   :    7.94563299999572     
- epilogue    :    3.28059199999552     
- total       :    12.4906630000332     
- cputime/step:    7.94563299999572D-002
+ prologue    :    1.77959600000000     
+ main loop   :    7.59072800000000     
+ epilogue    :    4.18526400000000     
+ total       :    13.5555880000000     
+ cputime/step:    7.59072800000000D-002
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.61910199851263     
-   dot products               :    1.02581499959342     
-   orthonormalization         :   0.394610000425018     
-   exchange correlation       :   0.960367999156006     
-   local pseudopotentials     :   0.185794999357313     
-   non-local pseudopotentials :    1.21255399880465     
-   hartree potentials         :    1.91789997043088D-002
-   structure factors          :   0.115453998907469     
-   masking and packing        :   0.450522000319324     
-   total energy evaluation    :   0.187284999992698     
-   density                    :    2.53764099976979     
-   allocate and deallocate    :    2.54139993339777D-002
-   Hpsi and update            :    3.58667899994180     
+   FFTs                       :    3.07840400000001     
+   dot products               :   0.880514000000055     
+   orthonormalization         :   0.402685999999999     
+   exchange correlation       :   0.998295999999993     
+   local pseudopotentials     :   0.189563999999997     
+   non-local pseudopotentials :    1.53826400000000     
+   hartree potentials         :    2.11520000000078D-002
+   structure factors          :   0.108856000000021     
+   masking and packing        :   0.484728000000082     
+   total energy evaluation    :   0.201878000000008     
+   density                    :    2.06685999999998     
+   allocate and deallocate    :    2.81760000000020D-002
+   Hpsi and update            :    3.64277199999999     
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:31:00 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:53:02 2004  <<<
 
- Task  times  cpu:       11.2s     wall:       12.5s
+ Task  times  cpu:       12.2s     wall:       13.6s
  
  
                                 NWChem Input Module
@@ -995,7 +1001,7 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:31:00 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:53:02 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
@@ -1006,7 +1012,7 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=  2
@@ -1026,7 +1032,7 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
              cutoff =   0.800   0.850   0.850
  
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      Si:  1     C :  2
@@ -1063,45 +1069,45 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 
           ====== Grassmann conjugate gradient iteration ======
-     >>>  ITERATION STARTED AT Thu Apr 22 10:31:01 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:53:04 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      25   -0.1375539742E+02   -0.44661E-04    0.25550E-05
-      50   -0.1375554982E+02   -0.43685E-06    0.41655E-07
-      75   -0.1375555168E+02   -0.69361E-08    0.52564E-09
-     100   -0.1375555171E+02   -0.12211E-09    0.94508E-11
-     125   -0.1375555171E+02   -0.26645E-11    0.19395E-12
-     150   -0.1375555171E+02   -0.95213E-12    0.15284E-13
+      25   -0.1374159877E+02   -0.46056E-04    0.26388E-05
+      50   -0.1374175929E+02   -0.47411E-06    0.43457E-07
+      75   -0.1374176139E+02   -0.86940E-08    0.68938E-09
+     100   -0.1374176143E+02   -0.16549E-09    0.13036E-10
+     125   -0.1374176143E+02   -0.41531E-11    0.29302E-12
+     150   -0.1374176143E+02   -0.91660E-12    0.61577E-13
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:31:44 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:53:51 2004  <<<
 
 
 ==  Summary Of Results  ==
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1375555171E+02 (   -0.45852E+01/ion)
- total orbital energy:  -0.5419841244E+01 (   -0.90331E+00/electron)
- hartree   energy    :   0.1965565194E+02 (    0.32759E+01/electron)
- exc-corr  energy    :  -0.4588481538E+01 (   -0.76475E+00/electron)
+ total     energy    :  -0.1374176143E+02 (   -0.45806E+01/ion)
+ total orbital energy:  -0.5436114786E+01 (   -0.90602E+00/electron)
+ hartree   energy    :   0.1962419406E+02 (    0.32707E+01/electron)
+ exc-corr  energy    :  -0.4584145064E+01 (   -0.76402E+00/electron)
  ion-ion   energy    :   0.9908523769E+01 (    0.33028E+01/ion)
 
- K.S. kinetic energy :   0.9008841329E+01 (    0.15015E+01/electron)
- K.S. V_l  energy    :  -0.4737813475E+02 (   -0.78964E+01/electron)
- K.S. V_nl energy    :  -0.3619524619E+00 (   -0.60325E-01/electron)
- K.S. V_Hart energy  :   0.3931130388E+02 (    0.65519E+01/electron)
- K.S. V_xc energy    :  -0.5999899241E+01 (   -0.99998E+00/electron)
- Virial Coefficient  :  -0.1601613576E+01
+ K.S. kinetic energy :   0.8992200480E+01 (    0.14987E+01/electron)
+ K.S. V_l  energy    :  -0.4733131488E+02 (   -0.78886E+01/electron)
+ K.S. V_nl energy    :  -0.3512197961E+00 (   -0.58537E-01/electron)
+ K.S. V_Hart energy  :   0.3924838811E+02 (    0.65414E+01/electron)
+ K.S. V_xc energy    :  -0.5994168707E+01 (   -0.99903E+00/electron)
+ Virial Coefficient  :  -0.1604536653E+01
 
  orbital energies:
-    -0.1531716E+00 (  -4.168eV)
-    -0.3009482E+00 (  -8.189eV)
-    -0.4081001E+00 ( -11.105eV)
-    -0.4233097E+00 ( -11.519eV)
-    -0.5096506E+00 ( -13.868eV)
-    -0.9147405E+00 ( -24.892eV)
+    -0.1534737E+00 (  -4.176eV)
+    -0.3010816E+00 (  -8.193eV)
+    -0.4088121E+00 ( -11.124eV)
+    -0.4248177E+00 ( -11.560eV)
+    -0.5104152E+00 ( -13.889eV)
+    -0.9194570E+00 ( -25.020eV)
 
- Total PSPW energy   :  -0.1375555171E+02
+ Total PSPW energy   :  -0.1374176143E+02
 
 
 === Spin Contamination ===
@@ -1113,23 +1119,23 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 == Center of Charge ==
 
-spin up     (   -0.0191,   -0.3653,    0.0000 )
-spin down   (   -0.0191,   -0.3653,    0.0000 )
-     total  (   -0.0191,   -0.3653,    0.0000 )
+spin up     (   -0.0186,   -0.3644,    0.0000 )
+spin down   (   -0.0186,   -0.3644,    0.0000 )
+     total  (   -0.0186,   -0.3644,    0.0000 )
 ionic       (    0.0000,   -0.4103,    0.0000 )
 crystal     (    0.0000,    0.0788,    0.0000 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.2286,    5.3290,    0.0000 ) au
-|mu| =     5.3339 au,      13.5565 Debye
+mu   =  (    0.2231,    5.3188,    0.0000 ) au
+|mu| =     5.3235 au,      13.5302 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.2286,   -0.5398,    0.0000 ) au
-|mu| =     0.5862 au,       1.4899 Debye
+mu   =  (    0.2231,   -0.5499,    0.0000 ) au
+|mu| =     0.5934 au,       1.5083 Debye
  
  
  
@@ -1139,7 +1145,7 @@ mu   =  (    0.2286,   -0.5398,    0.0000 ) au
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Thu Apr 22 10:31                      **
+ **                   Tue Dec 21 09:53                      **
  **                                                         **
  *************************************************************
 
@@ -1165,119 +1171,119 @@ C            -0.656179     -0.569883      0.000000
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.71064E+00 E=-0.15317E+00 (  -4.168eV)
+*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.71206E+00 E=-0.15347E+00 (  -4.176eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.21776    0.46665
+ 1   Si   0    0.21965    0.46867
                                px         py         pz
- 1   Si   1    0.49948    0.08853   -0.70117    0.00000
+ 1   Si   1    0.50156    0.08471   -0.70312    0.00000
                                 s
- 2   C    0    0.00113    0.03357
+ 2   C    0    0.00098    0.03130
                                px         py         pz
- 2   C    1    0.13680    0.19737    0.31281    0.00000
+ 2   C    1    0.13375    0.20169    0.30508    0.00000
                                 s
- 3   C    0    0.00616   -0.07848
+ 3   C    0    0.00608   -0.07795
                                px         py         pz
- 3   C    1    0.13867   -0.37088   -0.03351    0.00000
+ 3   C    1    0.13799   -0.37024   -0.03013    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.7172     2(C )   0.1379     3(C )   0.1448
+     1(Si)   0.7212     2(C )   0.1347     3(C )   0.1441
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.2250    0.7750    0.0000    0.0000
+    0.2267    0.7733    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.86622E+00 E=-0.30095E+00 (  -8.189eV)
+*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.86538E+00 E=-0.30108E+00 (  -8.193eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.05667   -0.23804
+ 1   Si   0    0.05958   -0.24410
                                px         py         pz
- 1   Si   1    0.02204   -0.00920   -0.14817    0.00000
+ 1   Si   1    0.02123   -0.00926   -0.14541    0.00000
                                 s
- 2   C    0    0.15093   -0.38850
+ 2   C    0    0.15240   -0.39039
                                px         py         pz
- 2   C    1    0.30023    0.42637   -0.34414    0.00000
+ 2   C    1    0.29800    0.42673   -0.34045    0.00000
                                 s
- 3   C    0    0.16186   -0.40231
+ 3   C    0    0.16324   -0.40402
                                px         py         pz
- 3   C    1    0.30828   -0.43793   -0.34131    0.00000
+ 3   C    1    0.30555   -0.43803   -0.33716    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.0787     2(C )   0.4512     3(C )   0.4701
+     1(Si)   0.0808     2(C )   0.4504     3(C )   0.4688
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.3695    0.6305    0.0000    0.0000
+    0.3752    0.6248    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16101E+01 E=-0.40810E+00 ( -11.105eV)
+*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16130E+01 E=-0.40881E+00 ( -11.124eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.19669   -0.44350
+ 1   Si   0    0.19503   -0.44162
                                px         py         pz
- 1   Si   1    0.07584    0.01192    0.27513    0.00000
+ 1   Si   1    0.07560    0.01111    0.27474    0.00000
                                 s
- 2   C    0    0.00001    0.00297
+ 2   C    0    0.00002    0.00499
                                px         py         pz
- 2   C    1    0.36403    0.19405    0.57129    0.00000
+ 2   C    1    0.36474    0.19235    0.57248    0.00000
                                 s
- 3   C    0    0.00032    0.01776
+ 3   C    0    0.00035    0.01875
                                px         py         pz
- 3   C    1    0.36312   -0.17709    0.57598    0.00000
+ 3   C    1    0.36426   -0.17654    0.57714    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.2725     2(C )   0.3640     3(C )   0.3634
+     1(Si)   0.2706     2(C )   0.3648     3(C )   0.3646
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.1970    0.8030    0.0000    0.0000
+    0.1954    0.8046    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.17455E+01 E=-0.42331E+00 ( -11.519eV)
+*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.17466E+01 E=-0.42482E+00 ( -11.560eV)
 
 NO  ATOM  L  POPULATION
                                 s
  1   Si   0    0.00000    0.00000
                                px         py         pz
- 1   Si   1    0.28373    0.00000    0.00000    0.53266
+ 1   Si   1    0.28308    0.00000    0.00000    0.53205
                                 s
  2   C    0    0.00000    0.00000
                                px         py         pz
- 2   C    1    0.35534    0.00000    0.00000    0.59610
+ 2   C    1    0.35581    0.00000    0.00000    0.59650
                                 s
  3   C    0    0.00000    0.00000
                                px         py         pz
- 3   C    1    0.36094    0.00000    0.00000    0.60078
+ 3   C    1    0.36111    0.00000    0.00000    0.60092
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.2837     2(C )   0.3553     3(C )   0.3609
+     1(Si)   0.2831     2(C )   0.3558     3(C )   0.3611
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
@@ -1289,63 +1295,63 @@ NO  ATOM  L  POPULATION
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15681E+01 E=-0.50965E+00 ( -13.868eV)
+*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15678E+01 E=-0.51042E+00 ( -13.889eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.00001    0.00370
+ 1   Si   0    0.00002    0.00389
                                px         py         pz
- 1   Si   1    0.37681   -0.61380    0.00791    0.00000
+ 1   Si   1    0.37714   -0.61407    0.00751    0.00000
                                 s
- 2   C    0    0.15435    0.39287
+ 2   C    0    0.15400    0.39243
                                px         py         pz
- 2   C    1    0.15860   -0.37420   -0.13629    0.00000
+ 2   C    1    0.15910   -0.37431   -0.13783    0.00000
                                 s
- 3   C    0    0.13797   -0.37144
+ 3   C    0    0.13806   -0.37157
                                px         py         pz
- 3   C    1    0.17226   -0.38339    0.15897    0.00000
+ 3   C    1    0.17168   -0.38257    0.15913    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3768     2(C )   0.3129     3(C )   0.3102
+     1(Si)   0.3772     2(C )   0.3131     3(C )   0.3097
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.2923    0.7077    0.0000    0.0000
+    0.2921    0.7079    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25445E+01 E=-0.91474E+00 ( -24.892eV)
+*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25446E+01 E=-0.91946E+00 ( -25.020eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.17411   -0.41727
+ 1   Si   0    0.17377   -0.41686
                                px         py         pz
- 1   Si   1    0.13194   -0.00448   -0.36320    0.00000
+ 1   Si   1    0.13202   -0.00427   -0.36331    0.00000
                                 s
- 2   C    0    0.23072   -0.48033
+ 2   C    0    0.23039   -0.47999
                                px         py         pz
- 2   C    1    0.11394   -0.32365    0.09585    0.00000
+ 2   C    1    0.11449   -0.32434    0.09640    0.00000
                                 s
- 3   C    0    0.23689   -0.48671
+ 3   C    0    0.23629   -0.48610
                                px         py         pz
- 3   C    1    0.11241    0.32001    0.10000    0.00000
+ 3   C    1    0.11304    0.32088    0.10037    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3060     2(C )   0.3447     3(C )   0.3493
+     1(Si)   0.3058     2(C )   0.3449     3(C )   0.3493
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.6417    0.3583    0.0000    0.0000
+    0.6405    0.3595    0.0000    0.0000
  
  
  ========================================
@@ -1354,48 +1360,49 @@ NO  ATOM  L  POPULATION
  
  
 NO  ATOM  SPIN    TOTAL       s          p          d          f
- 1   Si   UP      2.03507    0.64524    1.38983
- 1   Si   DOWN    2.03507    0.64524    1.38983
- 2   C    UP      1.96607    0.53713    1.42893
- 2   C    DOWN    1.96607    0.53713    1.42893
- 3   C    UP      1.99886    0.54319    1.45567
- 3   C    DOWN    1.99886    0.54319    1.45567
+ 1   Si   UP      2.03868    0.64805    1.39063
+ 1   Si   DOWN    2.03868    0.64805    1.39063
+ 2   C    UP      1.96368    0.53779    1.42589
+ 2   C    DOWN    1.96368    0.53779    1.42589
+ 3   C    UP      1.99764    0.54402    1.45362
+ 3   C    DOWN    1.99764    0.54402    1.45362
 
 
 
 === TOTAL ANGULAR MOMENTUM POPULATION ===
 
  SPIN       s           p           d           f
-  UP       28.76%      71.24%       0.00%       0.00% 
-  UP       28.76%      71.24%       0.00%       0.00% 
- TOTAL     28.76%      71.24%       0.00%       0.00% 
+  UP       28.83%      71.17%       0.00%       0.00% 
+  UP       28.83%      71.17%       0.00%       0.00% 
+ TOTAL     28.83%      71.17%       0.00%       0.00% 
 
  output psi filename:./sic2.00.elc
- 
- -----------------
- cputime in seconds
- prologue    :    1.27559600002132     
- main loop   :    42.5769139999757     
- epilogue    :   0.129894000012428     
- total       :    43.9824040000094     
- cputime/step:    7.31562096219513D-002    (         582  evalulations, 
-         131  line searches)
- 
- -------------------------------
- Time spent doing:
-   FFTs                       :    18.3991649969248        3.16136855617265D-002
-   dot products               :    4.90969700017013        8.43590549857410D-003
-   geodesic                   :    3.28237700113095        5.63982302599820D-003
-   exchange correlation       :    4.85753300052602        8.34627663320622D-003
-   local pseudopotentials     :    1.60800002049655D-003   2.76288663315558D-006
-   non-local pseudopotentials :    6.63684199959971        1.14035085903775D-002
-   hartree potentials         :   0.225564001593739        3.87567013047661D-004
-   structure factors          :   0.250137004069984        4.29788666786914D-004
-   masking and packing        :    2.62720000033732        4.51408934765863D-003
- 
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:31:44 2004  <<<
 
- Task  times  cpu:       41.4s     wall:       44.0s
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.129139E+01
+  main loop   :   0.478395E+02
+  epilogue    :   0.945300E-01
+  total       :   0.492254E+02
+  cputime/step:   0.806736E-01       (     593 evalulations,     135 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.183794E+02  0.309938E-01
+  dot products               :   0.479781E+01  0.809075E-02
+  geodesic                   :   0.580571E+01  0.979041E-02
+  exchange correlation       :   0.496972E+01  0.838064E-02
+  local pseudopotentials     :   0.160600E-02  0.270826E-05
+  non-local pseudopotentials :   0.912011E+01  0.153796E-01
+  hartree potentials         :   0.216474E+00  0.365049E-03
+  structure factors          :   0.272228E+00  0.459069E-03
+  masking and packing        :   0.283945E+01  0.478828E-02
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:53:52 2004  <<<
+
+ Task  times  cpu:       45.6s     wall:       49.2s
  
  
                                 NWChem Input Module
@@ -1418,18 +1425,19 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:31:44 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:53:52 2004  <<<
           ================ PSPW input data ===================
 
  input psi filename:./sic2.00.elc
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       ionic motion         = no
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -1478,13 +1486,13 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Thu Apr 22 10:31:45 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:53:53 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.1375555171E+02   -0.26555E-01    0.87472E-14    0.00000E+00
-      20   -0.1375555171E+02   -0.70986E-15    0.70771E-14    0.00000E+00
+      10   -0.1374176143E+02   -0.26528E-01    0.91179E-14    0.00000E+00
+      20   -0.1374176143E+02   -0.84360E-15    0.70282E-14    0.00000E+00
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:31:47 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:53:55 2004  <<<
 
 
 
@@ -1499,28 +1507,28 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
 
- total     energy    :  -0.1375555171E+02 (   -0.45852E+01/ion)
- total orbital energy:  -0.5419841386E+01 (   -0.90331E+00/electron)
- hartree   energy    :   0.1965565179E+02 (    0.32759E+01/electron)
- exc-corr  energy    :  -0.4588481515E+01 (   -0.76475E+00/electron)
+ total     energy    :  -0.1374176143E+02 (   -0.45806E+01/ion)
+ total orbital energy:  -0.5436114956E+01 (   -0.90602E+00/electron)
+ hartree   energy    :   0.1962419388E+02 (    0.32707E+01/electron)
+ exc-corr  energy    :  -0.4584145038E+01 (   -0.76402E+00/electron)
  ion-ion   energy    :   0.9908523769E+01 (    0.33028E+01/ion)
 
- K.S. kinetic energy :   0.9008841246E+01 (    0.15015E+01/electron)
- K.S. V_l  energy    :  -0.4737813457E+02 (   -0.78964E+01/electron)
- K.S. V_nl energy    :  -0.3619524334E+00 (   -0.60325E-01/electron)
- K.S. V_Hart energy  :   0.3931130358E+02 (    0.65519E+01/electron)
- K.S. V_xc energy    :  -0.5999899212E+01 (   -0.99998E+00/electron)
- Virial Coefficient  :  -0.1601613597E+01
+ K.S. kinetic energy :   0.8992200431E+01 (    0.14987E+01/electron)
+ K.S. V_l  energy    :  -0.4733131467E+02 (   -0.78886E+01/electron)
+ K.S. V_nl energy    :  -0.3512198059E+00 (   -0.58537E-01/electron)
+ K.S. V_Hart energy  :   0.3924838776E+02 (    0.65414E+01/electron)
+ K.S. V_xc energy    :  -0.5994168672E+01 (   -0.99903E+00/electron)
+ Virial Coefficient  :  -0.1604536676E+01
 
  orbital energies:
-    -0.1531716E+00 (  -4.168eV)
-    -0.3009482E+00 (  -8.189eV)
-    -0.4081001E+00 ( -11.105eV)
-    -0.4233097E+00 ( -11.519eV)
-    -0.5096506E+00 ( -13.868eV)
-    -0.9147405E+00 ( -24.892eV)
+    -0.1534737E+00 (  -4.176eV)
+    -0.3010817E+00 (  -8.193eV)
+    -0.4088121E+00 ( -11.124eV)
+    -0.4248178E+00 ( -11.560eV)
+    -0.5104152E+00 ( -13.889eV)
+    -0.9194570E+00 ( -25.020eV)
 
- Total PSPW energy   :  -0.1375555171E+02
+ Total PSPW energy   :  -0.1374176143E+02
 
 
 === Spin Contamination ===
@@ -1532,23 +1540,23 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 == Center of Charge ==
 
-spin up     (   -0.0191,   -0.3653,    0.0000 )
-spin down   (   -0.0191,   -0.3653,    0.0000 )
-     total  (   -0.0191,   -0.3653,    0.0000 )
+spin up     (   -0.0186,   -0.3644,    0.0000 )
+spin down   (   -0.0186,   -0.3644,    0.0000 )
+     total  (   -0.0186,   -0.3644,    0.0000 )
 ionic       (    0.0000,   -0.4103,    0.0000 )
 crystal     (    0.0000,    0.0788,    0.0000 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.2286,    5.3290,    0.0000 ) au
-|mu| =     5.3339 au,      13.5565 Debye
+mu   =  (    0.2231,    5.3188,    0.0000 ) au
+|mu| =     5.3235 au,      13.5302 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.2286,   -0.5398,    0.0000 ) au
-|mu| =     0.5862 au,       1.4899 Debye
+mu   =  (    0.2231,   -0.5499,    0.0000 ) au
+|mu| =     0.5934 au,       1.5083 Debye
  
  
  
@@ -1558,7 +1566,7 @@ mu   =  (    0.2286,   -0.5398,    0.0000 ) au
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Thu Apr 22 10:31                      **
+ **                   Tue Dec 21 09:53                      **
  **                                                         **
  *************************************************************
 
@@ -1584,119 +1592,119 @@ C            -0.656179     -0.569883      0.000000
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.71064E+00 E=-0.15317E+00 (  -4.168eV)
+*** ORBITAL=   1***  SPIN=BOTH    SUM= 0.71206E+00 E=-0.15347E+00 (  -4.176eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.21776   -0.46665
+ 1   Si   0    0.21965    0.46867
                                px         py         pz
- 1   Si   1    0.49948   -0.08853    0.70117    0.00000
+ 1   Si   1    0.50156    0.08471   -0.70312    0.00000
                                 s
- 2   C    0    0.00113   -0.03357
+ 2   C    0    0.00098    0.03130
                                px         py         pz
- 2   C    1    0.13680   -0.19737   -0.31281    0.00000
+ 2   C    1    0.13375    0.20169    0.30507    0.00000
                                 s
- 3   C    0    0.00616    0.07848
+ 3   C    0    0.00608   -0.07795
                                px         py         pz
- 3   C    1    0.13867    0.37088    0.03351    0.00000
+ 3   C    1    0.13799   -0.37024   -0.03013    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.7172     2(C )   0.1379     3(C )   0.1448
+     1(Si)   0.7212     2(C )   0.1347     3(C )   0.1441
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.2250    0.7750    0.0000    0.0000
+    0.2267    0.7733    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.86622E+00 E=-0.30095E+00 (  -8.189eV)
+*** ORBITAL=   2***  SPIN=BOTH    SUM= 0.86538E+00 E=-0.30108E+00 (  -8.193eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.05667    0.23804
+ 1   Si   0    0.05958   -0.24410
                                px         py         pz
- 1   Si   1    0.02204    0.00920    0.14817    0.00000
+ 1   Si   1    0.02123   -0.00926   -0.14541    0.00000
                                 s
- 2   C    0    0.15093    0.38850
+ 2   C    0    0.15240   -0.39039
                                px         py         pz
- 2   C    1    0.30023   -0.42637    0.34414    0.00000
+ 2   C    1    0.29800    0.42673   -0.34045    0.00000
                                 s
- 3   C    0    0.16186    0.40231
+ 3   C    0    0.16324   -0.40402
                                px         py         pz
- 3   C    1    0.30828    0.43793    0.34131    0.00000
+ 3   C    1    0.30555   -0.43803   -0.33716    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.0787     2(C )   0.4512     3(C )   0.4701
+     1(Si)   0.0808     2(C )   0.4504     3(C )   0.4688
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.3695    0.6305    0.0000    0.0000
+    0.3752    0.6248    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16101E+01 E=-0.40810E+00 ( -11.105eV)
+*** ORBITAL=   3***  SPIN=BOTH    SUM= 0.16130E+01 E=-0.40881E+00 ( -11.124eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.19669   -0.44350
+ 1   Si   0    0.19503    0.44162
                                px         py         pz
- 1   Si   1    0.07584    0.01192    0.27513    0.00000
+ 1   Si   1    0.07560   -0.01111   -0.27474    0.00000
                                 s
- 2   C    0    0.00001    0.00297
+ 2   C    0    0.00002   -0.00499
                                px         py         pz
- 2   C    1    0.36403    0.19405    0.57129    0.00000
+ 2   C    1    0.36474   -0.19235   -0.57248    0.00000
                                 s
- 3   C    0    0.00032    0.01776
+ 3   C    0    0.00035   -0.01875
                                px         py         pz
- 3   C    1    0.36312   -0.17709    0.57598    0.00000
+ 3   C    1    0.36426    0.17654   -0.57714    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.2725     2(C )   0.3640     3(C )   0.3634
+     1(Si)   0.2706     2(C )   0.3648     3(C )   0.3646
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.1970    0.8030    0.0000    0.0000
+    0.1954    0.8046    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.17455E+01 E=-0.42331E+00 ( -11.519eV)
+*** ORBITAL=   4***  SPIN=BOTH    SUM= 0.17466E+01 E=-0.42482E+00 ( -11.560eV)
 
 NO  ATOM  L  POPULATION
                                 s
  1   Si   0    0.00000    0.00000
                                px         py         pz
- 1   Si   1    0.28372    0.00000    0.00000   -0.53266
+ 1   Si   1    0.28308    0.00000    0.00000    0.53205
                                 s
  2   C    0    0.00000    0.00000
                                px         py         pz
- 2   C    1    0.35534    0.00000    0.00000   -0.59610
+ 2   C    1    0.35581    0.00000    0.00000    0.59650
                                 s
  3   C    0    0.00000    0.00000
                                px         py         pz
- 3   C    1    0.36094    0.00000    0.00000   -0.60078
+ 3   C    1    0.36111    0.00000    0.00000    0.60092
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.2837     2(C )   0.3553     3(C )   0.3609
+     1(Si)   0.2831     2(C )   0.3558     3(C )   0.3611
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
@@ -1708,63 +1716,63 @@ NO  ATOM  L  POPULATION
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15681E+01 E=-0.50965E+00 ( -13.868eV)
+*** ORBITAL=   5***  SPIN=BOTH    SUM= 0.15678E+01 E=-0.51042E+00 ( -13.889eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.00001   -0.00370
+ 1   Si   0    0.00002   -0.00389
                                px         py         pz
- 1   Si   1    0.37681    0.61380   -0.00791    0.00000
+ 1   Si   1    0.37714    0.61407   -0.00751    0.00000
                                 s
- 2   C    0    0.15435   -0.39287
+ 2   C    0    0.15400   -0.39243
                                px         py         pz
- 2   C    1    0.15860    0.37420    0.13629    0.00000
+ 2   C    1    0.15910    0.37431    0.13783    0.00000
                                 s
- 3   C    0    0.13797    0.37144
+ 3   C    0    0.13806    0.37157
                                px         py         pz
- 3   C    1    0.17226    0.38339   -0.15897    0.00000
+ 3   C    1    0.17168    0.38257   -0.15913    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3768     2(C )   0.3129     3(C )   0.3102
+     1(Si)   0.3772     2(C )   0.3131     3(C )   0.3097
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.2923    0.7077    0.0000    0.0000
+    0.2921    0.7079    0.0000    0.0000
 
 
 ------------------------------------------------------------------------------
 
 
-*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25445E+01 E=-0.91474E+00 ( -24.892eV)
+*** ORBITAL=   6***  SPIN=BOTH    SUM= 0.25446E+01 E=-0.91946E+00 ( -25.020eV)
 
 NO  ATOM  L  POPULATION
                                 s
- 1   Si   0    0.17411   -0.41727
+ 1   Si   0    0.17377   -0.41686
                                px         py         pz
- 1   Si   1    0.13194   -0.00448   -0.36320    0.00000
+ 1   Si   1    0.13202   -0.00427   -0.36331    0.00000
                                 s
- 2   C    0    0.23072   -0.48033
+ 2   C    0    0.23039   -0.47999
                                px         py         pz
- 2   C    1    0.11394   -0.32365    0.09585    0.00000
+ 2   C    1    0.11449   -0.32434    0.09640    0.00000
                                 s
- 3   C    0    0.23689   -0.48671
+ 3   C    0    0.23629   -0.48610
                                px         py         pz
- 3   C    1    0.11241    0.32001    0.10000    0.00000
+ 3   C    1    0.11304    0.32088    0.10037    0.00000
 
 
 === DISTRIBUTION ===
 
-     1(Si)   0.3060     2(C )   0.3447     3(C )   0.3493
+     1(Si)   0.3058     2(C )   0.3449     3(C )   0.3493
 
 
 == ANGULAR MOMENTUM POPULATIONS ===
 
       s         p         d         f
-    0.6417    0.3583    0.0000    0.0000
+    0.6405    0.3595    0.0000    0.0000
  
  
  ========================================
@@ -1773,51 +1781,51 @@ NO  ATOM  L  POPULATION
  
  
 NO  ATOM  SPIN    TOTAL       s          p          d          f
- 1   Si   UP      2.03507    0.64524    1.38983
- 1   Si   DOWN    2.03507    0.64524    1.38983
- 2   C    UP      1.96607    0.53713    1.42893
- 2   C    DOWN    1.96607    0.53713    1.42893
- 3   C    UP      1.99886    0.54319    1.45567
- 3   C    DOWN    1.99886    0.54319    1.45567
+ 1   Si   UP      2.03868    0.64805    1.39063
+ 1   Si   DOWN    2.03868    0.64805    1.39063
+ 2   C    UP      1.96368    0.53779    1.42589
+ 2   C    DOWN    1.96368    0.53779    1.42589
+ 3   C    UP      1.99764    0.54402    1.45362
+ 3   C    DOWN    1.99764    0.54402    1.45362
 
 
 
 === TOTAL ANGULAR MOMENTUM POPULATION ===
 
  SPIN       s           p           d           f
-  UP       28.76%      71.24%       0.00%       0.00% 
-  UP       28.76%      71.24%       0.00%       0.00% 
- TOTAL     28.76%      71.24%       0.00%       0.00% 
+  UP       28.83%      71.17%       0.00%       0.00% 
+  UP       28.83%      71.17%       0.00%       0.00% 
+ TOTAL     28.83%      71.17%       0.00%       0.00% 
 
  output psi filename:./sic2.00.elc
  
  -----------------
  cputime in seconds
- prologue    :    1.51967200008221     
- main loop   :    1.55720899999142     
- epilogue    :   0.165156999952160     
- total       :    3.24203800002579     
- cputime/step:    7.78604499995708D-002
+ prologue    :    1.31390400000001     
+ main loop   :    1.73801600000000     
+ epilogue    :   0.169159999999991     
+ total       :    3.22108000000000     
+ cputime/step:    8.69008000000001D-002
  
  -------------------------------
  Time spent doing:
-   FFTs                       :   0.664045000332408     
-   dot products               :   0.252851000870578     
-   orthonormalization         :    7.19570001820102D-002
-   exchange correlation       :   0.191993999993429     
-   local pseudopotentials     :    3.79279999760911D-002
-   non-local pseudopotentials :   0.307501999661326     
-   hartree potentials         :    4.13899950217456D-003
-   structure factors          :    5.12170003494248D-002
-   masking and packing        :   0.102353998692706     
-   total energy evaluation    :    3.67379999952391D-002
-   density                    :   0.394918999867514     
-   allocate and deallocate    :    4.90300054661930D-003
-   Hpsi and update            :   0.803991999593563     
+   FFTs                       :   0.646166000000065     
+   dot products               :   0.194347999999977     
+   orthonormalization         :    8.61059999999867D-002
+   exchange correlation       :   0.217428000000012     
+   local pseudopotentials     :    3.52979999999690D-002
+   non-local pseudopotentials :   0.319476000000037     
+   hartree potentials         :    4.32400000002531D-003
+   structure factors          :    4.87700000001752D-002
+   masking and packing        :   0.129075999999955     
+   total energy evaluation    :    3.99120000000011D-002
+   density                    :   0.521041999999966     
+   allocate and deallocate    :    5.28999999994539D-003
+   Hpsi and update            :   0.820482000000013     
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:31:47 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:53:55 2004  <<<
 
- Task  times  cpu:        2.7s     wall:        3.2s
+ Task  times  cpu:        2.9s     wall:        3.2s
  
  
                                 NWChem Input Module
@@ -1826,7 +1834,7 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
  
  >>>> PSPW Serial Module - v_wavefunction_initializer <<<<
   JOB HAS BEEN COMPLETED.  CODE=           0
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:31:47 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:53:55 2004  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
  
@@ -1852,17 +1860,18 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:31:47 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:53:55 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -1927,21 +1936,21 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 10:31:48 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10  -0.1375570372E+02  -0.1390972251E+02   0.69860E-02   0.14703E+00
-      20  -0.1375583020E+02  -0.1418762206E+02   0.23928E-01   0.40786E+00
-      30  -0.1375580595E+02  -0.1438117051E+02   0.33311E-01   0.59205E+00
-      40  -0.1375577184E+02  -0.1447284446E+02   0.37634E-01   0.67944E+00
-      50  -0.1375575516E+02  -0.1449468567E+02   0.37007E-01   0.70192E+00
-      60  -0.1375572742E+02  -0.1447055983E+02   0.34921E-01   0.67991E+00
-      70  -0.1375571148E+02  -0.1443153666E+02   0.31334E-01   0.64449E+00
-      80  -0.1375571151E+02  -0.1439596854E+02   0.27198E-01   0.61306E+00
-      90  -0.1375571361E+02  -0.1436531794E+02   0.22642E-01   0.58696E+00
-     100  -0.1375571326E+02  -0.1433868576E+02   0.22249E-01   0.56072E+00
+     >>>  ITERATION STARTED AT Tue Dec 21 09:53:56 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10  -0.1366479867E+02  -0.1391773012E+02   0.16135E-01   0.23680E+00      18888.05
+      20  -0.1354494485E+02  -0.1422460591E+02   0.53086E-01   0.62657E+00      55427.79
+      30  -0.1348973224E+02  -0.1442326929E+02   0.64877E-01   0.86866E+00      90360.25
+      40  -0.1346911794E+02  -0.1447684396E+02   0.73494E-01   0.93423E+00     115260.70
+      50  -0.1346863223E+02  -0.1447874755E+02   0.68173E-01   0.94194E+00     131463.81
+      60  -0.1348226863E+02  -0.1446299653E+02   0.60109E-01   0.92062E+00     142139.26
+      70  -0.1349035607E+02  -0.1441174830E+02   0.57921E-01   0.86347E+00     148518.78
+      80  -0.1350138340E+02  -0.1437152448E+02   0.51541E-01   0.81860E+00     151930.89
+      90  -0.1350958713E+02  -0.1434406742E+02   0.48450E-01   0.78603E+00     153755.48
+     100  -0.1351205932E+02  -0.1431272214E+02   0.48227E-01   0.75244E+00     154529.60
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:31:59 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:54:06 2004  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -1951,49 +1960,49 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
           =============  summary of results  =================
 
  final position of ions:
-        1 Si (    0.02743    2.49778    0.00000 ) - atomic mass=  28.000 
-        2 C  (    1.82040   -2.51638    0.00000 ) - atomic mass=  12.000 
-        3 C  (   -1.85919   -2.71353    0.00000 ) - atomic mass=  12.000 
-       G.C.  (   -0.00379   -0.91071    0.00000 )
-      C.O.M. (    0.00582    0.13806    0.00000 )
+        1 Si (    0.01410    1.85820    0.00000 ) - atomic mass=  28.000 
+        2 C  (    1.78941   -3.53068    0.00000 ) - atomic mass=  12.000 
+        3 C  (   -1.86617   -3.71441    0.00000 ) - atomic mass=  12.000 
+       G.C.  (   -0.02089   -1.79563    0.00000 )
+      C.O.M. (   -0.01012   -0.67137    0.00000 )
 
  final velocity of ions:
-        1 Si (    0.00010    0.00347    0.00000 )
-        2 C  (    0.00026   -0.00314    0.00000 )
-        3 C  (   -0.00041   -0.00360    0.00000 )
-       G.C.  (   -0.00002   -0.00109    0.00000 )
-      C.O.M. (    0.00002    0.00032    0.00000 )
+        1 Si (    0.00005    0.00200    0.00000 )
+        2 C  (    0.00019   -0.00524    0.00000 )
+        3 C  (   -0.00044   -0.00564    0.00000 )
+       G.C.  (   -0.00007   -0.00296    0.00000 )
+      C.O.M. (   -0.00003   -0.00143    0.00000 )
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1433868576E+02 (   -0.47796E+01/ion)
- total orbital energy:  -0.4006644290E+01 (   -0.66777E+00/electron)
- hartree   energy    :   0.1180672258E+02 (    0.19678E+01/electron)
- exc-corr  energy    :  -0.3713584174E+01 (   -0.61893E+00/electron)
- ion-ion   energy    :   0.3398382980E+00 (    0.11328E+00/ion)
+ total     energy    :  -0.1431272214E+02 (   -0.47709E+01/ion)
+ total orbital energy:  -0.3957415469E+01 (   -0.65957E+00/electron)
+ hartree   energy    :   0.1154238130E+02 (    0.19237E+01/electron)
+ exc-corr  energy    :  -0.3703777922E+01 (   -0.61730E+00/electron)
+ ion-ion   energy    :   0.5524590237E-01 (    0.18415E-01/ion)
 
- Kinetic energy (elc)    :   0.2224928943E-01 (    0.37082E-02/elc)
- Kinetic energy (ion)    :   0.5607232185E+00 (    0.18691E+00/ion)
+ Kinetic energy (elc)    :   0.4822671233E-01 (    0.80378E-02/elc)
+ Kinetic energy (ion)    :   0.7524361145E+00 (    0.25081E+00/ion)
 
- final kinetic energy:   0.22249E-01 (psi)   0.56072E+00 (ion)
-                                             0.47306E-02 (c.o.m.)
- Temperature :           0.4 K (elc)
- Temperature :      111794.2 K (ion)
-             :        2443.1 K (c.o.m.)
+ final kinetic energy:   0.48227E-01 (psi)   0.75244E+00 (ion)
+                                             0.97573E-01 (c.o.m.)
+ Temperature :           0.8 K (elc)
+ Temperature :      154529.6 K (ion)
+             :       57463.8 K (c.o.m.)
 
- Eaverage           :      -0.1434481139E+02
- Evariance          :       0.2805966115E-01
- Cv - f*kb/(2*nion) :       0.2363216759E-06
+ Eaverage           :      -0.1434242557E+02
+ Evariance          :       0.2585101231E-01
+ Cv - f*kb/(2*nion) :       0.1139498259E-06
 
  orbital energies:
-    -0.1751840E+00 (  -4.767eV)
-    -0.1892885E+00 (  -5.151eV)
-    -0.2099000E+00 (  -5.712eV)
-    -0.4181369E+00 ( -11.378eV)
-    -0.4369999E+00 ( -11.891eV)
-    -0.5738129E+00 ( -15.614eV)
+    -0.1698107E+00 (  -4.621eV)
+    -0.1846238E+00 (  -5.024eV)
+    -0.2026681E+00 (  -5.515eV)
+    -0.4234988E+00 ( -11.524eV)
+    -0.4297509E+00 ( -11.694eV)
+    -0.5683553E+00 ( -15.466eV)
 
- Total PSPW energy   :  -0.1433868576E+02
+ Total PSPW energy   :  -0.1431272214E+02
 
 
 === Spin Contamination ===
@@ -2005,23 +2014,23 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
 
 == Center of Charge ==
 
-spin up     (    0.0056,   -1.0255,    0.0000 )
-spin down   (    0.0056,   -1.0255,    0.0000 )
-     total  (    0.0056,   -1.0255,    0.0000 )
-ionic       (   -0.0038,   -0.9107,    0.0000 )
-crystal     (   -0.0108,    0.0052,    0.0000 )
+spin up     (   -0.0104,   -1.9334,    0.0000 )
+spin down   (   -0.0104,   -1.9334,    0.0000 )
+     total  (   -0.0104,   -1.9334,    0.0000 )
+ionic       (   -0.0209,   -1.7956,    0.0000 )
+crystal     (   -0.0015,    0.1212,    0.0000 )
 
 
 == Crystal Dipole ==
 
-mu   =  (   -0.1958,   12.3686,    0.0000 ) au
-|mu| =    12.3702 au,      31.4400 Debye
+mu   =  (    0.1058,   24.6552,    0.0000 ) au
+|mu| =    24.6554 au,      62.6642 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (   -0.1122,    1.3779,    0.0000 ) au
-|mu| =     1.3825 au,       3.5138 Debye
+mu   =  (   -0.1263,    1.6529,    0.0000 ) au
+|mu| =     1.6577 au,       4.2132 Debye
 
  output psi filename:./sic2.01.elc
  
@@ -2069,30 +2078,30 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
  
  -----------------
  cputime in seconds
- prologue    :    1.47537400003057     
- main loop   :    10.7322289999574     
- epilogue    :   0.565517000039108     
- total       :    12.7731200000271     
- cputime/step:   0.107322289999574     
+ prologue    :    1.44499800000000     
+ main loop   :    10.1754600000000     
+ epilogue    :   0.124439999999993     
+ total       :    11.7448980000000     
+ cputime/step:   0.101754600000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.18801299959887     
-   dot products               :    1.83957300917245     
-   orthonormalization         :   0.400986999273300     
-   exchange correlation       :    1.00822899944615     
-   local pseudopotentials     :   0.339969999506138     
-   non-local pseudopotentials :    2.95808299910277     
-   hartree potentials         :    1.20030002435669D-002
-   structure factors          :   0.731007999973372     
-   masking and packing        :   0.700787996291183     
-   total energy evalulation   :   0.105117000057362     
-   density                    :    2.14881200040691     
-   allocate and deallocate    :    2.61289995396510D-002
+   FFTs                       :    3.57029000000023     
+   dot products               :    1.33082599999973     
+   orthonormalization         :   0.405165999999994     
+   exchange correlation       :   0.786022000000003     
+   local pseudopotentials     :   0.242997999999929     
+   non-local pseudopotentials :    2.71510800000003     
+   hartree potentials         :    1.25180000000569D-002
+   structure factors          :   0.737570000000048     
+   masking and packing        :   0.645262000000045     
+   total energy evalulation   :    4.57200000000313D-002
+   density                    :    2.11307199999995     
+   allocate and deallocate    :    3.32459999998775D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:32:00 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:54:07 2004  <<<
 
- Task  times  cpu:       10.5s     wall:       12.8s
+ Task  times  cpu:       10.5s     wall:       11.7s
  
  
                                 NWChem Input Module
@@ -2192,19 +2201,18 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:32:00 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:54:07 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
- value: F   1.97125654602912D-267
- value: F   0.00000000000000D+000   0.00000000000000D+000
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -2262,7 +2270,7 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
       increased energy:        0.00000E+00 (psi)   0.00000E+00 (ion)
 
  Nose-Hoover Simulation - thermostat parameters:
-     Te =  298.15 Qe = 0.546E+00 2*pi/we= 0.100E+03 Ee0= 0.538E-03
+     Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
      Tr =  298.15 Qr = 0.143E+01 2*pi/wr= 0.100E+03 Er0= 0.142E-02
 
 
@@ -2271,21 +2279,21 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 10:32:01 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10  -0.1375417707E+02  -0.1380556548E+02   0.70539E-03   0.16590E-02
-      20  -0.1375426445E+02  -0.1383614096E+02   0.44784E-03   0.13005E-02
-      30  -0.1375426147E+02  -0.1386404777E+02   0.51029E-03   0.13525E-02
-      40  -0.1375427371E+02  -0.1389069763E+02   0.50597E-03   0.13046E-02
-      50  -0.1375426292E+02  -0.1391619277E+02   0.58098E-03   0.13153E-02
-      60  -0.1375426979E+02  -0.1394079960E+02   0.57223E-03   0.13027E-02
-      70  -0.1375427464E+02  -0.1396458376E+02   0.48052E-03   0.13171E-02
-      80  -0.1375426919E+02  -0.1398736368E+02   0.56558E-03   0.13247E-02
-      90  -0.1375426893E+02  -0.1400938835E+02   0.55343E-03   0.13160E-02
-     100  -0.1375427510E+02  -0.1403062876E+02   0.51641E-03   0.13249E-02
+     >>>  ITERATION STARTED AT Tue Dec 21 09:54:08 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10  -0.1371977208E+02  -0.1379125864E+02   0.45055E-03   0.18347E-02        978.14
+      20  -0.1370855665E+02  -0.1382082005E+02   0.47020E-03   0.14356E-02        668.98
+      30  -0.1369826048E+02  -0.1384741121E+02   0.44719E-03   0.13792E-02        549.22
+      40  -0.1368849549E+02  -0.1387229509E+02   0.68572E-03   0.13181E-02        483.82
+      50  -0.1367917701E+02  -0.1389640354E+02   0.49594E-03   0.12995E-02        443.03
+      60  -0.1367017458E+02  -0.1391954341E+02   0.51473E-03   0.13021E-02        415.19
+      70  -0.1366150336E+02  -0.1394182801E+02   0.53519E-03   0.13033E-02        395.40
+      80  -0.1365312854E+02  -0.1396339416E+02   0.57625E-03   0.13002E-02        380.41
+      90  -0.1364502250E+02  -0.1398436679E+02   0.50934E-03   0.13028E-02        368.70
+     100  -0.1363719246E+02  -0.1400463110E+02   0.53134E-03   0.13126E-02        359.47
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:32:12 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:54:18 2004  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2295,51 +2303,51 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
           =============  summary of results  =================
 
  final position of ions:
-        1 Si (    0.00073    1.00633    0.00000 ) - atomic mass=  28.000 
-        2 C  (    1.28659   -1.15749    0.00000 ) - atomic mass=  12.000 
-        3 C  (   -1.28691   -1.16438    0.00000 ) - atomic mass=  12.000 
-       G.C.  (    0.00014   -0.43851    0.00000 )
-      C.O.M. (    0.00032    0.00605    0.00000 )
+        1 Si (    0.00026    0.96671    0.00000 ) - atomic mass=  28.000 
+        2 C  (    1.27840   -1.19326    0.00000 ) - atomic mass=  12.000 
+        3 C  (   -1.27984   -1.19814    0.00000 ) - atomic mass=  12.000 
+       G.C.  (   -0.00039   -0.47490    0.00000 )
+      C.O.M. (   -0.00019   -0.03133    0.00000 )
 
  final velocity of ions:
-        1 Si (    0.00000    0.00016    0.00000 )
-        2 C  (    0.00008   -0.00015    0.00000 )
-        3 C  (   -0.00008   -0.00016    0.00000 )
-       G.C.  (    0.00000   -0.00005    0.00000 )
-      C.O.M. (    0.00000    0.00001    0.00000 )
+        1 Si (    0.00000    0.00008    0.00000 )
+        2 C  (    0.00007   -0.00022    0.00000 )
+        3 C  (   -0.00007   -0.00022    0.00000 )
+       G.C.  (    0.00000   -0.00012    0.00000 )
+      C.O.M. (    0.00000   -0.00006    0.00000 )
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1403062876E+02 (   -0.46769E+01/ion)
- total orbital energy:  -0.5294291256E+01 (   -0.88238E+00/electron)
- hartree   energy    :   0.1889457764E+02 (    0.31491E+01/electron)
- exc-corr  energy    :  -0.4482141422E+01 (   -0.74702E+00/electron)
- ion-ion   energy    :   0.8780672486E+01 (    0.29269E+01/ion)
+ total     energy    :  -0.1400463110E+02 (   -0.46682E+01/ion)
+ total orbital energy:  -0.5330874355E+01 (   -0.88848E+00/electron)
+ hartree   energy    :   0.1890963642E+02 (    0.31516E+01/electron)
+ exc-corr  energy    :  -0.4483558438E+01 (   -0.74726E+00/electron)
+ ion-ion   energy    :   0.8857869418E+01 (    0.29526E+01/ion)
 
- Kinetic energy (elc)    :   0.5164142029E-03 (    0.86069E-04/elc)
- Kinetic energy (ion)    :   0.1324863201E-02 (    0.44162E-03/ion)
- thermostat energy (elc) :  -0.3439757948E-03 (   -0.57329E-04/elc)
- thermostat energy (ion) :   0.2748563617E+00 (    0.91619E-01/ion)
+ Kinetic energy (elc)    :   0.5313376267E-03 (    0.88556E-04/elc)
+ Kinetic energy (ion)    :   0.1312557217E-02 (    0.43752E-03/ion)
+ thermostat energy (elc) :   0.3615246350E-03 (    0.60254E-04/elc)
+ thermostat energy (ion) :   0.3652332234E+00 (    0.12174E+00/ion)
 
- final kinetic energy:   0.51641E-03 (psi)   0.13249E-02 (ion)
-                                             0.65460E-05 (c.o.m.)
+ final kinetic energy:   0.53134E-03 (psi)   0.13126E-02 (ion)
+                                             0.15798E-03 (c.o.m.)
  Temperature :           0.0 K (elc)
- Temperature :         343.3 K (ion)
-             :           4.8 K (c.o.m.)
+ Temperature :         359.5 K (ion)
+             :         128.2 K (c.o.m.)
 
- Eaverage           :      -0.1413467613E+02
- Evariance          :       0.6074227657E-01
- Cv - f*kb/(2*nion) :       0.5423658211E-01
+ Eaverage           :      -0.1412331039E+02
+ Evariance          :       0.6322097029E-01
+ Cv - f*kb/(2*nion) :       0.5149744483E-01
 
  orbital energies:
-    -0.1600596E+00 (  -4.355eV)
-    -0.2953116E+00 (  -8.036eV)
-    -0.3936199E+00 ( -10.711eV)
-    -0.3993442E+00 ( -10.867eV)
-    -0.5042380E+00 ( -13.721eV)
-    -0.8945722E+00 ( -24.343eV)
+    -0.1598702E+00 (  -4.350eV)
+    -0.2973889E+00 (  -8.092eV)
+    -0.3986449E+00 ( -10.848eV)
+    -0.4007135E+00 ( -10.904eV)
+    -0.5059996E+00 ( -13.769eV)
+    -0.9028200E+00 ( -24.567eV)
 
- Total PSPW energy   :  -0.1403062876E+02
+ Total PSPW energy   :  -0.1400463110E+02
 
 
 === Spin Contamination ===
@@ -2351,23 +2359,23 @@ mu   =  (   -0.1122,    1.3779,    0.0000 ) au
 
 == Center of Charge ==
 
-spin up     (   -0.0155,   -0.3938,    0.0000 )
-spin down   (   -0.0155,   -0.3938,    0.0000 )
-     total  (   -0.0155,   -0.3938,    0.0000 )
-ionic       (    0.0001,   -0.4385,    0.0000 )
-crystal     (    0.0045,    0.0883,    0.0000 )
+spin up     (   -0.0136,   -0.4272,    0.0000 )
+spin down   (   -0.0136,   -0.4272,    0.0000 )
+     total  (   -0.0136,   -0.4272,    0.0000 )
+ionic       (   -0.0004,   -0.4749,    0.0000 )
+crystal     (   -0.0004,    0.1386,    0.0000 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.2406,    5.7847,    0.0000 ) au
-|mu| =     5.7897 au,      14.7151 Debye
+mu   =  (    0.1579,    6.7901,    0.0000 ) au
+|mu| =     6.7920 au,      17.2625 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.1881,   -0.5369,    0.0000 ) au
-|mu| =     0.5689 au,       1.4460 Debye
+mu   =  (    0.1579,   -0.5719,    0.0000 ) au
+|mu| =     0.5933 au,       1.5078 Debye
 
  output psi filename:./sic2.01.elc
  
@@ -2415,30 +2423,30 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
  
  -----------------
  cputime in seconds
- prologue    :    1.36333000008017     
- main loop   :    10.5191089999862     
- epilogue    :   0.117685999954119     
- total       :    12.0001250000205     
- cputime/step:   0.105191089999862     
+ prologue    :    1.41589600000000     
+ main loop   :    10.1510500000000     
+ epilogue    :   0.241112000000001     
+ total       :    11.8080580000000     
+ cputime/step:   0.101510500000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.27121400029864     
-   dot products               :    2.01703700574581     
-   orthonormalization         :   0.413555999752134     
-   exchange correlation       :   0.991084000444971     
-   local pseudopotentials     :   0.237883000168949     
-   non-local pseudopotentials :    2.42172999947797     
-   hartree potentials         :    1.18430001894012D-002
-   structure factors          :   0.767892000381835     
-   masking and packing        :   0.653456998057663     
-   total energy evalulation   :    4.34639998711646D-002
-   density                    :    2.13005799939856     
-   allocate and deallocate    :    2.69809999736026D-002
+   FFTs                       :    2.96973200000018     
+   dot products               :    1.43485600000159     
+   orthonormalization         :   0.404828000000009     
+   exchange correlation       :   0.812575999999936     
+   local pseudopotentials     :   0.231875999999986     
+   non-local pseudopotentials :    2.67457599999989     
+   hartree potentials         :    1.28959999999836D-002
+   structure factors          :    1.20965799999991     
+   masking and packing        :   0.650568000000050     
+   total energy evalulation   :    4.49360000000070D-002
+   density                    :    1.99773399999999     
+   allocate and deallocate    :    3.20340000000243D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:32:12 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:54:18 2004  <<<
 
- Task  times  cpu:       10.8s     wall:       12.0s
+ Task  times  cpu:       10.4s     wall:       11.8s
  
  
                                 NWChem Input Module
@@ -2462,22 +2470,21 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:32:12 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:54:18 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
  
- Fixed ion positions:           2
+ Fixed ion positions:    2
  
- value: T   9.00884124617451     
- value: T  0.545520042491375        1.43497915437591     
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -2497,18 +2504,18 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
      Si:  1     C :  2
 
  initial position of ions:
-        1 Si (    0.00073    1.00633    0.00000 ) - atomic mass=  28.000 
-        2 C  (    1.28659   -1.15749    0.00000 ) - atomic mass= 12.000 - fixed
-        3 C  (   -1.28691   -1.16438    0.00000 ) - atomic mass=  12.000 
-       G.C.  (    0.00014   -0.43851    0.00000 )
-      C.O.M. (    0.00032    0.00605    0.00000 )
+        1 Si (    0.00026    0.96671    0.00000 ) - atomic mass=  28.000 
+        2 C  (    1.27840   -1.19326    0.00000 ) - atomic mass= 12.000 - fixed
+        3 C  (   -1.27984   -1.19814    0.00000 ) - atomic mass=  12.000 
+       G.C.  (   -0.00039   -0.47490    0.00000 )
+      C.O.M. (   -0.00019   -0.03133    0.00000 )
 
  initial velocity of ions:
-        1 Si (    0.00002    0.00013   -0.00003 )
+        1 Si (    0.00002    0.00010    0.00002 )
         2 C  (    0.00000    0.00000    0.00000 )
-        3 C  (   -0.00008   -0.00016    0.00000 )
-       G.C.  (   -0.00002   -0.00001   -0.00001 )
-      C.O.M. (   -0.00001    0.00003   -0.00002 )
+        3 C  (   -0.00007   -0.00022    0.00000 )
+       G.C.  (   -0.00002   -0.00004    0.00001 )
+      C.O.M. (   -0.00001    0.00000    0.00001 )
 
  number of electrons: spin up=     6  down=     6 (fourier space)
  number of orbitals : spin up=     6  down=     6 (fourier space)
@@ -2529,13 +2536,13 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
  technical parameters:
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
-      initial kinetic energy:  0.00000E+00 (psi)   0.10007E-02 (ion)
-                                                   0.11948E-03 (c.o.m.)
-      after scaling:           0.00000E+00 (psi)   0.82263E-03 (ion)
-      increased energy:        0.00000E+00 (psi)  -0.17809E-03 (ion)
+      initial kinetic energy:  0.00000E+00 (psi)   0.75762E-03 (ion)
+                                                   0.14542E-04 (c.o.m.)
+      after scaling:           0.00000E+00 (psi)   0.88945E-03 (ion)
+      increased energy:        0.00000E+00 (psi)   0.13183E-03 (ion)
 
  Nose-Hoover Simulation - thermostat parameters:
-     Te =  298.15 Qe = 0.546E+00 2*pi/we= 0.100E+03 Ee0= 0.538E-03
+     Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
      Tr =  298.15 Qr = 0.143E+01 2*pi/wr= 0.100E+03 Er0= 0.142E-02
 
 
@@ -2544,21 +2551,21 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 10:32:13 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10  -0.1394842488E+02  -0.1403357362E+02   0.44951E-03   0.11949E-02
-      20  -0.1394855304E+02  -0.1405908530E+02   0.24328E-03   0.14032E-02
-      30  -0.1394855317E+02  -0.1408023016E+02   0.18156E-03   0.14342E-02
-      40  -0.1394855835E+02  -0.1409895440E+02   0.16170E-03   0.14145E-02
-      50  -0.1394856037E+02  -0.1411625533E+02   0.16462E-03   0.14093E-02
-      60  -0.1394856112E+02  -0.1413258014E+02   0.18992E-03   0.14090E-02
-      70  -0.1394856072E+02  -0.1414811312E+02   0.25426E-03   0.14108E-02
-      80  -0.1394855734E+02  -0.1416287799E+02   0.39938E-03   0.14085E-02
-      90  -0.1394855323E+02  -0.1417672703E+02   0.50926E-03   0.13886E-02
-     100  -0.1394855488E+02  -0.1418961026E+02   0.49278E-03   0.13731E-02
+     >>>  ITERATION STARTED AT Tue Dec 21 09:54:20 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10  -0.1387591205E+02  -0.1399002821E+02   0.58302E-03   0.12175E-02        600.87
+      20  -0.1387021926E+02  -0.1401981895E+02   0.33253E-03   0.14374E-02        446.22
+      30  -0.1386419265E+02  -0.1404250346E+02   0.25000E-03   0.14448E-02        401.01
+      40  -0.1385837576E+02  -0.1406170013E+02   0.21526E-03   0.14248E-02        376.73
+      50  -0.1385274165E+02  -0.1407890355E+02   0.20250E-03   0.14175E-02        361.49
+      60  -0.1384726676E+02  -0.1409481012E+02   0.20311E-03   0.14157E-02        351.10
+      70  -0.1384193588E+02  -0.1410976877E+02   0.21447E-03   0.14167E-02        343.64
+      80  -0.1383673853E+02  -0.1412396228E+02   0.23772E-03   0.14188E-02        338.06
+      90  -0.1383166767E+02  -0.1413748755E+02   0.27861E-03   0.14205E-02        333.76
+     100  -0.1382671923E+02  -0.1415039328E+02   0.34794E-03   0.14192E-02        330.31
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:32:24 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:54:30 2004  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2568,51 +2575,51 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
           =============  summary of results  =================
 
  final position of ions:
-        1 Si (   -0.00027    1.11079   -0.00083 ) - atomic mass=  28.000 
-        2 C  (    1.28659   -1.15749    0.00000 ) - atomic mass= 12.000 - fixed
-        3 C  (   -1.32376   -1.24996    0.00005 ) - atomic mass=  12.000 
-       G.C.  (   -0.01248   -0.43222   -0.00026 )
-      C.O.M. (   -0.00872    0.04255   -0.00043 )
+        1 Si (    0.00176    1.01978    0.00065 ) - atomic mass=  28.000 
+        2 C  (    1.27840   -1.19326    0.00000 ) - atomic mass= 12.000 - fixed
+        3 C  (   -1.30199   -1.36505   -0.00003 ) - atomic mass=  12.000 
+       G.C.  (   -0.00728   -0.51284    0.00021 )
+      C.O.M. (   -0.00449   -0.04127    0.00034 )
 
  final velocity of ions:
-        1 Si (   -0.00001    0.00019    0.00000 )
+        1 Si (    0.00000    0.00009    0.00000 )
         2 C  (    0.00000    0.00000    0.00000 )
-        3 C  (   -0.00008   -0.00019    0.00000 )
-       G.C.  (   -0.00003    0.00000    0.00000 )
-      C.O.M. (   -0.00002    0.00006    0.00000 )
+        3 C  (   -0.00003   -0.00033    0.00000 )
+       G.C.  (   -0.00001   -0.00008    0.00000 )
+      C.O.M. (   -0.00001   -0.00003    0.00000 )
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1418961026E+02 (   -0.47299E+01/ion)
- total orbital energy:  -0.5186621319E+01 (   -0.86444E+00/electron)
- hartree   energy    :   0.1840651896E+02 (    0.30678E+01/electron)
- exc-corr  energy    :  -0.4416113980E+01 (   -0.73602E+00/electron)
- ion-ion   energy    :   0.8046961238E+01 (    0.26823E+01/ion)
+ total     energy    :  -0.1415039328E+02 (   -0.47168E+01/ion)
+ total orbital energy:  -0.5195054237E+01 (   -0.86584E+00/electron)
+ hartree   energy    :   0.1852567461E+02 (    0.30876E+01/electron)
+ exc-corr  energy    :  -0.4430712720E+01 (   -0.73845E+00/electron)
+ ion-ion   energy    :   0.8209114526E+01 (    0.27364E+01/ion)
 
- Kinetic energy (elc)    :   0.4927799401E-03 (    0.82130E-04/elc)
- Kinetic energy (ion)    :   0.1373074601E-02 (    0.45769E-03/ion)
- thermostat energy (elc) :   0.1001446739E+00 (    0.16691E-01/elc)
- thermostat energy (ion) :   0.1390448505E+00 (    0.46348E-01/ion)
+ Kinetic energy (elc)    :   0.3479427761E-03 (    0.57990E-04/elc)
+ Kinetic energy (ion)    :   0.1419206712E-02 (    0.47307E-03/ion)
+ thermostat energy (elc) :   0.1656601726E+00 (    0.27610E-01/elc)
+ thermostat energy (ion) :   0.1562467295E+00 (    0.52082E-01/ion)
 
- final kinetic energy:   0.49278E-03 (psi)   0.13731E-02 (ion)
-                                             0.18806E-03 (c.o.m.)
+ final kinetic energy:   0.34794E-03 (psi)   0.14192E-02 (ion)
+                                             0.34143E-04 (c.o.m.)
  Temperature :           0.0 K (elc)
- Temperature :         325.2 K (ion)
-             :         184.0 K (c.o.m.)
+ Temperature :         330.3 K (ion)
+             :          15.2 K (c.o.m.)
 
- Eaverage           :      -0.1412971767E+02
- Evariance          :       0.4134632299E-01
- Cv - f*kb/(2*nion) :       0.4114972488E-01
+ Eaverage           :      -0.1410918613E+02
+ Evariance          :       0.4337124265E-01
+ Cv - f*kb/(2*nion) :       0.4184169156E-01
 
  orbital energies:
-    -0.1690256E+00 (  -4.599eV)
-    -0.2848663E+00 (  -7.752eV)
-    -0.3727015E+00 ( -10.142eV)
-    -0.3972435E+00 ( -10.810eV)
-    -0.4935622E+00 ( -13.431eV)
-    -0.8759115E+00 ( -23.835eV)
+    -0.1693239E+00 (  -4.608eV)
+    -0.2853262E+00 (  -7.764eV)
+    -0.3758443E+00 ( -10.227eV)
+    -0.3957751E+00 ( -10.770eV)
+    -0.4912996E+00 ( -13.369eV)
+    -0.8799580E+00 ( -23.945eV)
 
- Total PSPW energy   :  -0.1418961026E+02
+ Total PSPW energy   :  -0.1415039328E+02
 
 
 === Spin Contamination ===
@@ -2624,23 +2631,23 @@ mu   =  (    0.1881,   -0.5369,    0.0000 ) au
 
 == Center of Charge ==
 
-spin up     (   -0.0348,   -0.4011,   -0.0003 )
-spin down   (   -0.0348,   -0.4011,   -0.0003 )
-     total  (   -0.0348,   -0.4011,   -0.0003 )
-ionic       (   -0.0125,   -0.4322,   -0.0003 )
-crystal     (    0.0352,    0.1514,   -0.0003 )
+spin up     (   -0.0251,   -0.4766,    0.0002 )
+spin down   (   -0.0251,   -0.4766,    0.0002 )
+     total  (   -0.0251,   -0.4766,    0.0002 )
+ionic       (   -0.0073,   -0.5128,    0.0002 )
+crystal     (    0.0060,    0.1753,    0.0002 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.8397,    6.6302,    0.0003 ) au
-|mu| =     6.6832 au,      16.9859 Debye
+mu   =  (    0.3730,    7.8233,    0.0002 ) au
+|mu| =     7.8322 au,      19.9062 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.2678,   -0.3738,    0.0003 ) au
-|mu| =     0.4598 au,       1.1686 Debye
+mu   =  (    0.2135,   -0.4345,    0.0002 ) au
+|mu| =     0.4841 au,       1.2304 Debye
 
  output psi filename:./sic2.01.elc
  
@@ -2688,30 +2695,30 @@ mu   =  (    0.2678,   -0.3738,    0.0003 ) au
  
  -----------------
  cputime in seconds
- prologue    :    1.53856200003065     
- main loop   :    10.8850659999298     
- epilogue    :   0.662821999983862     
- total       :    13.0864499999443     
- cputime/step:   0.108850659999298     
+ prologue    :    1.97338600000001     
+ main loop   :    9.87403800000000     
+ epilogue    :   0.128640000000004     
+ total       :    11.9760640000000     
+ cputime/step:    9.87403800000000D-002
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.91563600022346     
-   dot products               :    1.78855099843349     
-   orthonormalization         :   0.377183001022786     
-   exchange correlation       :   0.862484000390396     
-   local pseudopotentials     :   0.231499000103213     
-   non-local pseudopotentials :    2.39696700091008     
-   hartree potentials         :    1.24710011295974D-002
-   structure factors          :   0.896531997597776     
-   masking and packing        :   0.598678999580443     
-   total energy evalulation   :   0.119047999731265     
-   density                    :    2.60646500042640     
-   allocate and deallocate    :    2.66149993985891D-002
+   FFTs                       :    3.00566999999991     
+   dot products               :    1.42489799999923     
+   orthonormalization         :   0.403595999999979     
+   exchange correlation       :   0.830429999999950     
+   local pseudopotentials     :   0.249483999999953     
+   non-local pseudopotentials :    2.75444800000004     
+   hartree potentials         :    1.61260000000851D-002
+   structure factors          :   0.740968000000038     
+   masking and packing        :   0.742969999999659     
+   total energy evalulation   :    4.84039999999908D-002
+   density                    :    1.99165800000002     
+   allocate and deallocate    :    3.45100000000258D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:32:25 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:54:30 2004  <<<
 
- Task  times  cpu:       10.7s     wall:       13.1s
+ Task  times  cpu:       10.5s     wall:       12.0s
  
  
                                 NWChem Input Module
@@ -2735,22 +2742,21 @@ mu   =  (    0.2678,   -0.3738,    0.0003 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:32:25 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:54:30 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
  Molecular Constraint File:./SHAKE
  
 Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
- value: T   9.00884124617451     
- value: T  0.545520042491375        1.43497915437591     
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -2770,18 +2776,18 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
      Si:  1     C :  2
 
  initial position of ions:
-        1 Si (   -0.00027    1.11079   -0.00083 ) - atomic mass=  28.000 
-        2 C  (    1.28659   -1.15749    0.00000 ) - atomic mass=  12.000 
-        3 C  (   -1.32376   -1.24996    0.00005 ) - atomic mass=  12.000 
-       G.C.  (   -0.01248   -0.43222   -0.00026 )
-      C.O.M. (   -0.00872    0.04255   -0.00043 )
+        1 Si (    0.00176    1.01978    0.00065 ) - atomic mass=  28.000 
+        2 C  (    1.27840   -1.19326    0.00000 ) - atomic mass=  12.000 
+        3 C  (   -1.30199   -1.36505   -0.00003 ) - atomic mass=  12.000 
+       G.C.  (   -0.00728   -0.51284    0.00021 )
+      C.O.M. (   -0.00449   -0.04127    0.00034 )
 
  initial velocity of ions:
-        1 Si (    0.00002    0.00015   -0.00004 )
-        2 C  (   -0.00006    0.00000    0.00000 )
-        3 C  (   -0.00008   -0.00019    0.00000 )
-       G.C.  (   -0.00004   -0.00001   -0.00001 )
-      C.O.M. (   -0.00002    0.00004   -0.00002 )
+        1 Si (    0.00001    0.00013    0.00003 )
+        2 C  (    0.00003    0.00000    0.00000 )
+        3 C  (   -0.00003   -0.00033    0.00000 )
+       G.C.  (    0.00000   -0.00007    0.00001 )
+      C.O.M. (    0.00000   -0.00001    0.00002 )
 
  number of electrons: spin up=     6  down=     6 (fourier space)
  number of orbitals : spin up=     6  down=     6 (fourier space)
@@ -2802,13 +2808,13 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
  technical parameters:
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
-      initial kinetic energy:  0.00000E+00 (psi)   0.13731E-02 (ion)
-                                                   0.18806E-03 (c.o.m.)
-      after scaling:           0.00000E+00 (psi)   0.11379E-02 (ion)
-      increased energy:        0.00000E+00 (psi)  -0.23522E-03 (ion)
+      initial kinetic energy:  0.00000E+00 (psi)   0.14192E-02 (ion)
+                                                   0.34143E-04 (c.o.m.)
+      after scaling:           0.00000E+00 (psi)   0.16466E-02 (ion)
+      increased energy:        0.00000E+00 (psi)   0.22740E-03 (ion)
 
  Nose-Hoover Simulation - thermostat parameters:
-     Te =  298.15 Qe = 0.546E+00 2*pi/we= 0.100E+03 Ee0= 0.538E-03
+     Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
      Tr =  298.15 Qr = 0.143E+01 2*pi/wr= 0.100E+03 Er0= 0.142E-02
 
 
@@ -2817,21 +2823,21 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 10:32:26 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10  -0.1395115573E+02  -0.1411803135E+02   0.57160E-03   0.13768E-02
-      20  -0.1395133895E+02  -0.1414879877E+02   0.28263E-03   0.10181E-02
-      30  -0.1395134327E+02  -0.1416729021E+02   0.18501E-03   0.16249E-02
-      40  -0.1395136459E+02  -0.1418121264E+02   0.15195E-03   0.13659E-02
-      50  -0.1395136411E+02  -0.1419319612E+02   0.14366E-03   0.14467E-02
-      60  -0.1395136759E+02  -0.1420405753E+02   0.14656E-03   0.14078E-02
-      70  -0.1395136738E+02  -0.1421418188E+02   0.15784E-03   0.14272E-02
-      80  -0.1395136798E+02  -0.1422375802E+02   0.17772E-03   0.14251E-02
-      90  -0.1395136777E+02  -0.1423289748E+02   0.20923E-03   0.14323E-02
-     100  -0.1395136733E+02  -0.1424165419E+02   0.25783E-03   0.14351E-02
+     >>>  ITERATION STARTED AT Tue Dec 21 09:54:32 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10  -0.1284754586E+02  -0.1401300470E+02   0.72090E-03   0.15351E-05       3034.90
+      20  -0.1284720461E+02  -0.1406765631E+02   0.42765E-03   0.11486E-05       1590.02
+      30  -0.1284677857E+02  -0.1410165118E+02   0.28861E-03   0.72206E-05       1077.31
+      40  -0.1284604810E+02  -0.1412430475E+02   0.20937E-03   0.10044E-04        814.89
+      50  -0.1284534556E+02  -0.1414008800E+02   0.16023E-03   0.95662E-05        655.43
+      60  -0.1284452250E+02  -0.1415150009E+02   0.12798E-03   0.17557E-04        548.45
+      70  -0.1284348821E+02  -0.1416007452E+02   0.10653E-03   0.32145E-04        471.94
+      80  -0.1284216022E+02  -0.1416683967E+02   0.92877E-04   0.61587E-04        414.88
+      90  -0.1284037175E+02  -0.1417257861E+02   0.86050E-04   0.13077E-03        371.47
+     100  -0.1283776052E+02  -0.1417803626E+02   0.87585E-04   0.32823E-03        339.31
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:32:37 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:54:42 2004  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2841,51 +2847,51 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
           =============  summary of results  =================
 
  final position of ions:
-        1 Si (    0.03398    1.19024   -0.00173 ) - atomic mass=  28.000 
-        2 C  (    1.24472   -1.11065    0.00009 ) - atomic mass=  12.000 
-        3 C  (   -1.33830   -1.30354    0.00021 ) - atomic mass=  12.000 
-       G.C.  (   -0.01986   -0.40798   -0.00048 )
-      C.O.M. (   -0.00330    0.08378   -0.00086 )
+        1 Si (   -0.00066    1.03126    0.00091 ) - atomic mass=  28.000 
+        2 C  (    1.28996   -1.22580    0.00000 ) - atomic mass=  12.000 
+        3 C  (   -1.30377   -1.38591   -0.00003 ) - atomic mass=  12.000 
+       G.C.  (   -0.00482   -0.52682    0.00029 )
+      C.O.M. (   -0.00354   -0.04741    0.00049 )
 
  final velocity of ions:
-        1 Si (    0.00007    0.00014    0.00000 )
-        2 C  (   -0.00006    0.00007    0.00000 )
-        3 C  (   -0.00011   -0.00023    0.00000 )
-       G.C.  (   -0.00003   -0.00001    0.00000 )
-      C.O.M. (    0.00000    0.00004    0.00000 )
+        1 Si (    0.00003   -0.00001    0.00000 )
+        2 C  (   -0.00002   -0.00004    0.00000 )
+        3 C  (   -0.00003   -0.00016    0.00000 )
+       G.C.  (   -0.00001   -0.00007    0.00000 )
+      C.O.M. (    0.00001   -0.00005    0.00000 )
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1424165419E+02 (   -0.47472E+01/ion)
- total orbital energy:  -0.5054084889E+01 (   -0.84235E+00/electron)
- hartree   energy    :   0.1837114199E+02 (    0.30619E+01/electron)
- exc-corr  energy    :  -0.4409724442E+01 (   -0.73495E+00/electron)
- ion-ion   energy    :   0.7829012699E+01 (    0.26097E+01/ion)
+ total     energy    :  -0.1417803626E+02 (   -0.47260E+01/ion)
+ total orbital energy:  -0.5028499393E+01 (   -0.83808E+00/electron)
+ hartree   energy    :   0.1852261515E+02 (    0.30871E+01/electron)
+ exc-corr  energy    :  -0.4429824660E+01 (   -0.73830E+00/electron)
+ ion-ion   energy    :   0.8012167388E+01 (    0.26707E+01/ion)
 
- Kinetic energy (elc)    :   0.2578251435E-03 (    0.42971E-04/elc)
- Kinetic energy (ion)    :   0.1435073334E-02 (    0.47836E-03/ion)
- thermostat energy (elc) :   0.2368562792E+00 (    0.39476E-01/elc)
- thermostat energy (ion) :   0.5173767364E-01 (    0.17246E-01/ion)
+ Kinetic energy (elc)    :   0.8758483473E-04 (    0.14597E-04/elc)
+ Kinetic energy (ion)    :   0.3282330619E-03 (    0.10941E-03/ion)
+ thermostat energy (elc) :   0.4771802458E+00 (    0.79530E-01/elc)
+ thermostat energy (ion) :   0.8626796736E+00 (    0.28756E+00/ion)
 
- final kinetic energy:   0.25783E-03 (psi)   0.14351E-02 (ion)
-                                             0.67518E-04 (c.o.m.)
+ final kinetic energy:   0.87585E-04 (psi)   0.32823E-03 (ion)
+                                             0.10785E-03 (c.o.m.)
  Temperature :           0.0 K (elc)
- Temperature :         309.0 K (ion)
-             :         253.5 K (c.o.m.)
+ Temperature :         339.3 K (ion)
+             :           8.9 K (c.o.m.)
 
- Eaverage           :      -0.1414541521E+02
- Evariance          :       0.3209517118E-01
- Cv - f*kb/(2*nion) :       0.3538694271E-01
+ Eaverage           :      -0.1411378295E+02
+ Evariance          :       0.3322427224E-01
+ Cv - f*kb/(2*nion) :       0.3037579419E-01
 
  orbital energies:
-    -0.1752550E+00 (  -4.769eV)
-    -0.2727993E+00 (  -7.423eV)
-    -0.3558683E+00 (  -9.684eV)
-    -0.3909599E+00 ( -10.639eV)
-    -0.4768917E+00 ( -12.977eV)
-    -0.8552683E+00 ( -23.273eV)
+    -0.1610457E+00 (  -4.382eV)
+    -0.2762329E+00 (  -7.517eV)
+    -0.3579169E+00 (  -9.739eV)
+    -0.3869150E+00 ( -10.529eV)
+    -0.4742036E+00 ( -12.904eV)
+    -0.8579356E+00 ( -23.346eV)
 
- Total PSPW energy   :  -0.1424165419E+02
+ Total PSPW energy   :  -0.1417803626E+02
 
 
 === Spin Contamination ===
@@ -2897,23 +2903,23 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
 
 == Center of Charge ==
 
-spin up     (   -0.0358,   -0.3902,   -0.0004 )
-spin down   (   -0.0358,   -0.3902,   -0.0004 )
-     total  (   -0.0358,   -0.3902,   -0.0004 )
-ionic       (   -0.0199,   -0.4080,   -0.0005 )
-crystal     (    0.0636,    0.1213,    0.0012 )
+spin up     (   -0.0193,   -0.4660,    0.0002 )
+spin down   (   -0.0193,   -0.4660,    0.0002 )
+     total  (   -0.0193,   -0.4660,    0.0002 )
+ionic       (   -0.0048,   -0.5268,    0.0003 )
+crystal     (   -0.0234,    0.2018,    0.0003 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    1.1926,    6.1389,    0.0185 ) au
-|mu| =     6.2537 au,      15.8944 Debye
+mu   =  (   -0.0498,    8.0128,    0.0013 ) au
+|mu| =     8.0130 au,      20.3658 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.1909,   -0.2128,   -0.0011 ) au
-|mu| =     0.2859 au,       0.7265 Debye
+mu   =  (    0.1732,   -0.7304,    0.0013 ) au
+|mu| =     0.7507 au,       1.9079 Debye
 
  output psi filename:./sic2.01.elc
  
@@ -2961,30 +2967,30 @@ mu   =  (    0.1909,   -0.2128,   -0.0011 ) au
  
  -----------------
  cputime in seconds
- prologue    :    1.48948600003496     
- main loop   :    10.1445999999996     
- epilogue    :   0.119111999985762     
- total       :    11.7531980000203     
- cputime/step:   0.101445999999996     
+ prologue    :    1.42001400000001     
+ main loop   :    10.4960180000000     
+ epilogue    :   0.122622000000007     
+ total       :    12.0386540000000     
+ cputime/step:   0.104960180000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.12679000047501     
-   dot products               :    1.73161099967547     
-   orthonormalization         :   0.373414000263438     
-   exchange correlation       :   0.845490998937748     
-   local pseudopotentials     :   0.240727999480441     
-   non-local pseudopotentials :    2.27641500090249     
-   hartree potentials         :    1.49119995767251D-002
-   structure factors          :   0.801928001339547     
-   masking and packing        :   0.691710000508465     
-   total energy evalulation   :    4.83379999641329D-002
-   density                    :    2.13089300040156     
-   allocate and deallocate    :    2.80449988786131D-002
+   FFTs                       :    3.06540600000029     
+   dot products               :    1.47782000000105     
+   orthonormalization         :   0.422187999999991     
+   exchange correlation       :   0.819572000000008     
+   local pseudopotentials     :   0.251454000000095     
+   non-local pseudopotentials :    2.76970999999999     
+   hartree potentials         :    1.74120000000642D-002
+   structure factors          :    1.18883000000027     
+   masking and packing        :   0.711686000000128     
+   total energy evalulation   :    4.90019999999873D-002
+   density                    :    2.04047399999997     
+   allocate and deallocate    :    3.16439999999574D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:32:37 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:54:42 2004  <<<
 
- Task  times  cpu:       10.8s     wall:       11.8s
+ Task  times  cpu:       10.6s     wall:       12.0s
  
  
                                 NWChem Input Module
@@ -3008,22 +3014,21 @@ mu   =  (    0.1909,   -0.2128,   -0.0011 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 10:32:37 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:54:42 2004  <<<
           ================ input data ========================
 
  input psi filename:./sic2.00.elc
  Molecular Constraint File:./SHAKE
  
 Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
- value: T   9.00884124617451     
- value: T  0.545520042491375        1.43497915437591     
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Si  core charge: 4.0  lmax=2
@@ -3043,18 +3048,18 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
      Si:  1     C :  2
 
  initial position of ions:
-        1 Si (    0.03398    1.19024   -0.00173 ) - atomic mass=  28.000 
-        2 C  (    1.24472   -1.11065    0.00009 ) - atomic mass=  12.000 
-        3 C  (   -1.33830   -1.30354    0.00021 ) - atomic mass=  12.000 
-       G.C.  (   -0.01986   -0.40798   -0.00048 )
-      C.O.M. (   -0.00330    0.08378   -0.00086 )
+        1 Si (   -0.00066    1.03126    0.00091 ) - atomic mass=  28.000 
+        2 C  (    1.28996   -1.22580    0.00000 ) - atomic mass=  12.000 
+        3 C  (   -1.30377   -1.38591   -0.00003 ) - atomic mass=  12.000 
+       G.C.  (   -0.00482   -0.52682    0.00029 )
+      C.O.M. (   -0.00354   -0.04741    0.00049 )
 
  initial velocity of ions:
-        1 Si (    0.00007    0.00010   -0.00004 )
-        2 C  (   -0.00009    0.00007    0.00000 )
-        3 C  (   -0.00011   -0.00023    0.00000 )
-       G.C.  (   -0.00004   -0.00002   -0.00001 )
-      C.O.M. (   -0.00001    0.00002   -0.00002 )
+        1 Si (    0.00003    0.00004    0.00004 )
+        2 C  (    0.00003   -0.00004    0.00000 )
+        3 C  (   -0.00003   -0.00016    0.00000 )
+       G.C.  (    0.00001   -0.00005    0.00001 )
+      C.O.M. (    0.00001   -0.00003    0.00002 )
 
  number of electrons: spin up=     6  down=     6 (fourier space)
  number of orbitals : spin up=     6  down=     6 (fourier space)
@@ -3075,13 +3080,13 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
  technical parameters:
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
-      initial kinetic energy:  0.00000E+00 (psi)   0.14351E-02 (ion)
-                                                   0.67518E-04 (c.o.m.)
-      after scaling:           0.00000E+00 (psi)   0.12976E-02 (ion)
-      increased energy:        0.00000E+00 (psi)  -0.13751E-03 (ion)
+      initial kinetic energy:  0.00000E+00 (psi)   0.32823E-03 (ion)
+                                                   0.10785E-03 (c.o.m.)
+      after scaling:           0.00000E+00 (psi)   0.39943E-03 (ion)
+      increased energy:        0.00000E+00 (psi)   0.71198E-04 (ion)
 
  Nose-Hoover Simulation - thermostat parameters:
-     Te =  298.15 Qe = 0.546E+00 2*pi/we= 0.100E+03 Ee0= 0.538E-03
+     Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
      Tr =  298.15 Qr = 0.143E+01 2*pi/wr= 0.100E+03 Er0= 0.142E-02
 
 
@@ -3090,21 +3095,21 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 10:32:38 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10   0.5219925415E+04  -0.1395067634E+02   0.10734E-02   0.53902E-07
-      20   0.5219926743E+04  -0.1406371013E+02   0.64941E-03   0.42260E-07
-      30   0.5219926994E+04  -0.1414019802E+02   0.45284E-03   0.33410E-07
-      40   0.5219927215E+04  -0.1419472177E+02   0.33584E-03   0.26544E-07
-      50   0.5219927402E+04  -0.1423494337E+02   0.25949E-03   0.21154E-07
-      60   0.5219927558E+04  -0.1426532428E+02   0.20660E-03   0.16895E-07
-      70   0.5219927686E+04  -0.1428867298E+02   0.16841E-03   0.13516E-07
-      80   0.5219927790E+04  -0.1430685503E+02   0.13998E-03   0.10830E-07
-      90   0.5219927876E+04  -0.1432116003E+02   0.11835E-03   0.86930E-08
-     100   0.5219927946E+04  -0.1433250759E+02   0.10165E-03   0.69926E-08
+     >>>  ITERATION STARTED AT Tue Dec 21 09:54:44 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10   0.5219932561E+04  -0.1375543514E+02   0.10312E-02   0.21083E-07     234563.45
+      20   0.5219936888E+04  -0.1388456356E+02   0.64006E-03   0.16090E-07     122866.57
+      30   0.5219936986E+04  -0.1397991832E+02   0.47528E-03   0.12292E-07      83232.19
+      40   0.5219937056E+04  -0.1405199401E+02   0.36895E-03   0.93884E-08      62931.66
+      50   0.5219937119E+04  -0.1410781694E+02   0.29518E-03   0.71552E-08      50592.12
+      60   0.5219937174E+04  -0.1415181483E+02   0.24153E-03   0.54349E-08      42298.33
+      70   0.5219937221E+04  -0.1418694591E+02   0.20113E-03   0.41122E-08      36340.82
+      80   0.5219937261E+04  -0.1421527508E+02   0.16990E-03   0.31002E-08      31854.30
+      90   0.5219937294E+04  -0.1423829291E+02   0.14526E-03   0.23322E-08      28353.83
+     100   0.5219937322E+04  -0.1425710467E+02   0.12549E-03   0.17562E-08      25546.52
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 10:32:49 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:54:54 2004  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -3114,11 +3119,11 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
           =============  summary of results  =================
 
  final position of ions:
-        1 Si (   -0.02166    1.29761   -0.00213 ) - atomic mass=  28.000 
-        2 C  (    1.37412   -1.35779    0.00028 ) - atomic mass=  12.000 
-        3 C  (   -1.33797   -1.30362    0.00021 ) - atomic mass=  12.000 
-       G.C.  (    0.00483   -0.45460   -0.00055 )
-      C.O.M. (   -0.00332    0.08454   -0.00104 )
+        1 Si (   -0.06016    1.13564    0.00131 ) - atomic mass=  28.000 
+        2 C  (    1.42866   -1.46874   -0.00008 ) - atomic mass=  12.000 
+        3 C  (   -1.30325   -1.38608   -0.00003 ) - atomic mass=  12.000 
+       G.C.  (    0.02175   -0.57306    0.00040 )
+      C.O.M. (   -0.00345   -0.04731    0.00068 )
 
  final velocity of ions:
         1 Si (    0.00000    0.00000    0.00000 )
@@ -3129,36 +3134,36 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
  
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
- total     energy    :  -0.1433250759E+02 (   -0.47775E+01/ion)
- total orbital energy:  -0.4342238450E+01 (   -0.72371E+00/electron)
- hartree   energy    :   0.1793607452E+02 (    0.29893E+01/electron)
- exc-corr  energy    :  -0.4347257895E+01 (   -0.72454E+00/electron)
- ion-ion   energy    :   0.6611176041E+01 (    0.22037E+01/ion)
+ total     energy    :  -0.1425710467E+02 (   -0.47524E+01/ion)
+ total orbital energy:  -0.4299584159E+01 (   -0.71660E+00/electron)
+ hartree   energy    :   0.1806574059E+02 (    0.30110E+01/electron)
+ exc-corr  energy    :  -0.4366420860E+01 (   -0.72774E+00/electron)
+ ion-ion   energy    :   0.6767517337E+01 (    0.22558E+01/ion)
 
- Kinetic energy (elc)    :   0.1016500703E-03 (    0.16942E-04/elc)
- Kinetic energy (ion)    :   0.6992644768E-08 (    0.23309E-08/ion)
- thermostat energy (elc) :   0.9519868695E+00 (    0.15866E+00/elc)
- thermostat energy (ion) :   0.5233308365E+04 (    0.17444E+04/ion)
+ Kinetic energy (elc)    :   0.1254920010E-03 (    0.20915E-04/elc)
+ Kinetic energy (ion)    :   0.1756222658E-08 (    0.58541E-09/ion)
+ thermostat energy (elc) :   0.1359524870E+01 (    0.22659E+00/elc)
+ thermostat energy (ion) :   0.5232834776E+04 (    0.17443E+04/ion)
 
- final kinetic energy:   0.10165E-03 (psi)   0.69926E-08 (ion)
-                                             0.47962E-08 (c.o.m.)
+ final kinetic energy:   0.12549E-03 (psi)   0.17562E-08 (ion)
+                                             0.43713E-09 (c.o.m.)
  Temperature :           0.0 K (elc)
- Temperature :       25548.6 K (ion)
-             :           2.9 K (c.o.m.)
+ Temperature :       25546.5 K (ion)
+             :           0.6 K (c.o.m.)
 
- Eaverage           :      -0.1415830756E+02
- Evariance          :       0.2914844808E-01
- Cv - f*kb/(2*nion) :       0.4700460977E-05
+ Eaverage           :      -0.1410760959E+02
+ Evariance          :       0.3165873992E-01
+ Cv - f*kb/(2*nion) :       0.5106105186E-05
 
  orbital energies:
-    -0.1495994E+00 (  -4.071eV)
-    -0.2243102E+00 (  -6.104eV)
-    -0.2752690E+00 (  -7.491eV)
-    -0.3578882E+00 (  -9.739eV)
-    -0.4136785E+00 ( -11.257eV)
-    -0.7503738E+00 ( -20.419eV)
+    -0.1327385E+00 (  -3.612eV)
+    -0.2247197E+00 (  -6.115eV)
+    -0.2742069E+00 (  -7.462eV)
+    -0.3456701E+00 (  -9.406eV)
+    -0.4154302E+00 ( -11.305eV)
+    -0.7570266E+00 ( -20.600eV)
 
- Total PSPW energy   :  -0.1433250759E+02
+ Total PSPW energy   :  -0.1425710467E+02
 
 
 === Spin Contamination ===
@@ -3170,23 +3175,23 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
 
 == Center of Charge ==
 
-spin up     (   -0.0153,   -0.4298,   -0.0002 )
-spin down   (   -0.0153,   -0.4298,   -0.0002 )
-     total  (   -0.0153,   -0.4298,   -0.0002 )
-ionic       (    0.0048,   -0.4546,   -0.0005 )
-crystal     (    0.0081,    0.1903,   -0.0005 )
+spin up     (   -0.0075,   -0.4730,    0.0002 )
+spin down   (   -0.0075,   -0.4730,    0.0002 )
+     total  (   -0.0075,   -0.4730,    0.0002 )
+ionic       (    0.0218,   -0.5731,    0.0004 )
+crystal     (   -0.0002,    0.2486,    0.0004 )
 
 
 == Crystal Dipole ==
 
-mu   =  (    0.2808,    7.4414,   -0.0039 ) au
-|mu| =     7.4467 au,      18.9266 Debye
+mu   =  (    0.0871,    8.6602,    0.0029 ) au
+|mu| =     8.6606 au,      22.0119 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (    0.2419,   -0.2977,   -0.0039 ) au
-|mu| =     0.3836 au,       0.9750 Debye
+mu   =  (    0.3506,   -1.2002,    0.0029 ) au
+|mu| =     1.2503 au,       3.1779 Debye
 
  output psi filename:./sic2.01.elc
  
@@ -3234,30 +3239,30 @@ mu   =  (    0.2419,   -0.2977,   -0.0039 ) au
  
  -----------------
  cputime in seconds
- prologue    :    1.35470699996222     
- main loop   :    10.7054100000532     
- epilogue    :   0.136395999928936     
- total       :    12.1965129999444     
- cputime/step:   0.107054100000532     
+ prologue    :    1.41051600000000     
+ main loop   :    10.1978100000000     
+ epilogue    :   0.121566000000001     
+ total       :    11.7298920000000     
+ cputime/step:   0.101978100000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    3.32587700011209     
-   dot products               :    1.71095099672675     
-   orthonormalization         :   0.373673999798484     
-   exchange correlation       :    1.27987700013909     
-   local pseudopotentials     :   0.233304999768734     
-   non-local pseudopotentials :    2.44304299936630     
-   hartree potentials         :    1.21709995437413D-002
-   structure factors          :   0.799850999028422     
-   masking and packing        :   0.629819001420401     
-   total energy evalulation   :    4.35959999449551D-002
-   density                    :    2.27349899976980     
-   allocate and deallocate    :    2.80899999197572D-002
+   FFTs                       :    3.00269200000045     
+   dot products               :    1.37905600001105     
+   orthonormalization         :   0.389932000000016     
+   exchange correlation       :   0.796416000000079     
+   local pseudopotentials     :   0.248654000000130     
+   non-local pseudopotentials :    2.70513000000003     
+   hartree potentials         :    1.29699999999673D-002
+   structure factors          :    1.19179000000068     
+   masking and packing        :   0.652228000000008     
+   total energy evalulation   :    5.30559999999980D-002
+   density                    :    2.01232200000001     
+   allocate and deallocate    :    3.14340000000470D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 10:32:49 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:54:54 2004  <<<
 
- Task  times  cpu:       10.6s     wall:       12.2s
+ Task  times  cpu:       10.6s     wall:       11.7s
  
  
                                 NWChem Input Module
@@ -3291,7 +3296,7 @@ Max memory consumed for GA by this process: 0 bytes
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003), Pacific Northwest National Laboratory,
+            Version 4.6" (2004), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -3301,25 +3306,25 @@ Max memory consumed for GA by this process: 0 bytes
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis, E. J. Bylaska,
-            W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler, L. Pollack,
-            R. J. Harrison, J. Nieplocha, V. Tipparaju, M. Krishnan, A. A. Auer,
-            E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-            R. Kendall, J. A. Nichols, K. Tsemekhman, M. Valiev,
-            K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-            D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
+            T. P. Straatsma, E. Apra, T. L. Windus, E. J. Bylaska, W. de Jong,
+            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, R. J. Harrison,
+            M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+            M. Krishnan, A. A. Auer, E. Brown, G. Cisneros, G. I. Fann,
+            H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+            K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
             E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
             R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
             T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
             G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
             "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003),
+            Version 4.6" (2004),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:      113.1s     wall:      126.3s
+ Total times  cpu:      121.1s     wall:      134.3s
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -3330,6 +3335,6 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	       114	        24
 	current total bytes		         0	         0
-	maximum total bytes		  12236092	   2095196
-	maximum total K-bytes		     12237	      2096
+	maximum total bytes		  12222988	   2093740
+	maximum total K-bytes		     12223	      2094
 	maximum total M-bytes		        13	         3
