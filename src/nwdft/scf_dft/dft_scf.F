@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.115 1999-03-13 04:15:01 edo Exp $
+c     $Id: dft_scf.F,v 1.116 1999-05-08 13:17:28 bjohnson Exp $
 c     
       implicit none
 c
@@ -667,7 +667,8 @@ c
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
      &                  dbl_mb(irdens_atom), int_mb(icntoce), 
-     &                  int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &                  int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &                  .false., 1, 0d0, .false.)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -683,7 +684,8 @@ c
      &               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
      &               n_semi_bufs, fd, IOLGC,
      &               dbl_mb(irdens_atom), int_mb(icntoce), 
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &               int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &               .false., 1)
 c     
 c     Add V coul to Fock Matrix
 c     
