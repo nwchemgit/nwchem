@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,
      + slvnam)
 c
-c $Id: pre_mktop.F,v 1.26 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.27 2001-10-23 20:46:28 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -56,7 +56,7 @@ c
       integer mimp,nimp
       integer l_limp,i_limp,l_rimp,i_rimp
 c
-      integer matt,natt,nats
+      integer matt,natt,mats,nats
       integer l_latt,i_latt,l_catt,i_catt,l_patt,i_patt,l_ratt,i_ratt
       integer l_lats,i_lats
 c
@@ -347,9 +347,10 @@ c
 c     get number of atom types
 c     ------------------------
 c
-      if(.not.pre_natyps(lfnout,byte_mb(i_catm),matm,natmt,natt))
+      if(.not.pre_natyps(lfnout,byte_mb(i_catm),matm,natmt,natt,nats))
      + call errquit('pre_natyps failed',9999)
       matt=natt
+      mats=nats
 c
       if(util_print('topology',print_debug)) then
       write(lfnout,1006) natt
@@ -361,7 +362,7 @@ c     -----------------------------------
 c
       if(.not.ma_push_get(mt_int,3*matt,'latt',l_latt,i_latt))
      + call errquit('Memory allocation failed for latt',9999)
-      if(.not.ma_push_get(mt_int,3*matt,'lats',l_lats,i_lats))
+      if(.not.ma_push_get(mt_int,3*mats,'lats',l_lats,i_lats))
      + call errquit('Memory allocation failed for lats',9999)
       if(.not.ma_push_get(mt_byte,36*matt,'catt',l_catt,i_catt))
      + call errquit('Memory allocation failed for catt',9999)
@@ -381,7 +382,7 @@ c
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
-     + dbl_mb(i_ratt),matt,natt,nats))
+     + dbl_mb(i_ratt),matt,natt,mats,nats))
      + call errquit('pre_params failed',9999)
 c
       if(util_print('topology',print_debug)) then
@@ -496,7 +497,8 @@ c
       if(.not.pre_wrttop(lfnout,ffield,lfntop,filtop,releps,q14fac,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,mqu,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
-     + dbl_mb(i_ratt),matt,natt,nats,int_mb(i_latm),byte_mb(i_catm),
+     + dbl_mb(i_ratt),matt,natt,mats,nats,int_mb(i_latm),
+     + byte_mb(i_catm),
      + dbl_mb(i_qatm),matm,natm,int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,
      + nbnd,int_mb(i_lang),
      + dbl_mb(i_rang),mang,nang,int_mb(i_ldih),int_mb(i_kdih),

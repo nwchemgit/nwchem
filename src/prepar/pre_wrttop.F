@@ -1,11 +1,12 @@
       logical function pre_wrttop(lfnout,ffield,lfntop,filtop,
      + releps,q14fac,lseq,cseq,mseq,nseq,mqu,
-     + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
+     + latt,lats,catt,patt,ratt,matt,natt,mats,nats,latm,catm,qatm,
+     + matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.35 2001-10-10 21:01:58 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.36 2001-10-23 20:46:29 d3j191 Exp $
 c
       implicit none
 c
@@ -18,8 +19,8 @@ c
       integer mseq,nseq,mqu
       integer lseq(4,mseq)
       character*10 cseq(mseq)
-      integer matt,natt,nats
-      integer latt(3,matt),lats(3,matt)
+      integer matt,natt,mats,nats
+      integer latt(3,matt),lats(3,mats)
       character*6 catt(2,matt)
       real*8 patt(4,2,matt,matt),ratt(matt)
       integer matm,natm

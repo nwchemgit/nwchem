@@ -1,17 +1,18 @@
-      logical function pre_natyps(lfnout,catm,matm,natm,natt)
+      logical function pre_natyps(lfnout,catm,matm,natm,natt,nats)
 c
-c $Id: pre_natyps.F,v 1.4 1998-06-08 23:29:35 d3j191 Exp $
+c $Id: pre_natyps.F,v 1.5 2001-10-23 20:46:28 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,matm,natm,natt
+      integer lfnout,matm,natm,natt,nats
       character*6 catm(4,matm)
 c
       integer i,j,ii,jj,iii
 c
       natt=0
+      nats=0
 c
       if(util_print('topology',print_high)) then
       write(lfnout,1000)
@@ -40,6 +41,14 @@ c
       write(lfnout,1002)
  1002 format(' ')
       endif
+c
+      do 6 i=1,natm
+      do 7 j=1,i-1
+      if(catm(2,i).eq.catm(2,j).and.catm(3,i).eq.catm(3,j).and.
+     + catm(4,i).eq.catm(4,j)) goto 6
+    7 continue
+      nats=nats+1
+    6 continue
 c
       pre_natyps=.true.
       return

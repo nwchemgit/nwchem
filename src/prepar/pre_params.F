@@ -3,13 +3,14 @@
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
-     + latt,lats,catt,patt,ratt,matt,natt,nats)
+     + latt,lats,catt,patt,ratt,matt,natt,mats,nats)
 c
-c $Id: pre_params.F,v 1.13 2001-10-19 17:55:01 d3j191 Exp $
+c $Id: pre_params.F,v 1.14 2001-10-23 20:46:29 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+#include "mafdecls.fh"
 c
       logical pre_ffield,pre_parcnv,pre_check,pre_dummy
       external pre_ffield,pre_parcnv,pre_check,pre_dummy
@@ -32,8 +33,8 @@ c
       integer mimp,nimp
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
-      integer matt,natt,nats
-      integer latt(matt),lats(3,matt)
+      integer matt,natt,mats,nats
+      integer latt(matt),lats(3,mats)
       character*6 catt(2,matt)
       real*8 patt(4,2,matt,matt),ratt(matt)
 c
@@ -68,6 +69,7 @@ c
       endif
     4 continue
       nats=nats+1
+      if(nats.gt.mats) call errquit('increase mats',9999)
       do 6 k=1,natt
       if(catm(2,i).eq.catt(1,k)) lats(1,nats)=k
       if(catm(3,i).eq.catt(1,k)) lats(2,nats)=k
@@ -75,6 +77,7 @@ c
     6 continue
       latm(3,i)=nats
     5 continue
+c
 c
 c     substitute parameters parameter files
 c     -------------------------------------
