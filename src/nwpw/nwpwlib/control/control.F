@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.34 2003-01-09 22:25:25 bylaska Exp $
+* $Id: control.F,v 1.35 2003-01-25 00:49:04 bylaska Exp $
 *
 
 *     ***********************************
@@ -210,6 +210,9 @@ c
       else
          gga = 1
       end if
+
+      if (.not. rtdb_get(rtdb,'cgsd:ks_alpha',mt_dbl,1,ks_alpha))
+     >   ks_alpha = 0.25d0
 
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
@@ -714,6 +717,20 @@ c
 #include "control.fh"
 
       control_fake_mass = fake_mass
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_ks_alpha	*
+*     *					*
+*     ***********************************
+      real*8 function control_ks_alpha()
+      implicit none 
+
+#include "control.fh"
+
+      control_ks_alpha = ks_alpha
       return
       end
 

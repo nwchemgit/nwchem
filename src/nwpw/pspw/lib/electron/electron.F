@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.16 2002-12-10 01:37:23 bylaska Exp $
+* $Id: electron.F,v 1.17 2003-01-25 00:46:15 bylaska Exp $
 *
 
 
@@ -59,7 +59,7 @@
      >        MA_alloc_get(mt_dbl,n2ft3d,
      >                     'v_field',v_field(2),v_field(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,
+     >        MA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'vall',vall(2),vall(1))
 
       if (control_version().eq.3) then
@@ -989,15 +989,17 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
      >  call psi_Horb(ispin,nne,psi_k(1+(n-1)*npack1),
      >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
      >             dbl_mb(vall(1)),
-     >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
 
       if (control_version().eq.4)
      >  call psi_Horbv4(ispin,nne,psi_k(1+(n-1)*npack1),
      >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
      >             dbl_mb(vall(1)),
-     >             dbl_mb(xcp(1)),
      >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+
+      call Pack_c_SMul(1,(-1.0d0),
+     >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
+     >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
 
       return
       end
@@ -1214,6 +1216,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 #include "electron_common.fh"
      
 *     **** local variables ****
+      integer ms
       real*8 scal2
       
 *     **** external functions ****
@@ -1268,8 +1271,53 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       end if
 
+*     **** add xcp to vall ****
+      do ms=ispin,1,-1      
+        call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+     >                   dbl_mb(xcp(1)+(ms-1)*2*nfft3d),
+     >                   dbl_mb(vall(1)+(ms-1)*2*nfft3d))
+        call D3dB_r_Zero_Ends(1,dbl_mb(vall(1)+(ms-1)*2*nfft3d))
+      end do
+
       return
       end
+
+
+*     ***********************************
+*     *			 		*
+*     *        electron_get_vall	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_get_vall(vall_out)
+      implicit none
+      real*8 vall_out
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      call dcopy(4*nfft3d,dbl_mb(vall(1)),1,vall_out,1)
+      return
+      end
+
+
+*     ***********************************
+*     *			 		*
+*     *        electron_set_vall	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_set_vall(vall_in)
+      implicit none
+      real*8 vall_in
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      call dcopy(4*nfft3d,vall_in,1,dbl_mb(vall(1)),1)
+      return
+      end
+
 
 *     ***********************************
 *     *			 		*

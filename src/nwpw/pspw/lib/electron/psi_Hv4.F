@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.7 2002-12-10 01:37:24 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.8 2003-01-25 00:46:15 bylaska Exp $
 *
 
 *     *************************************
@@ -188,13 +188,12 @@
       subroutine psi_Horbv4(ispin,ne,
      >                 psi_k,psi_r,
      >                 vall,
-     >                 xcp,Hpsi_k)
+     >                 Hpsi_k)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
       real*8     vall(*)
-      real*8     xcp(*)
       complex*16 Hpsi_k(*)
 
 #include "mafdecls.fh"
@@ -260,11 +259,8 @@
       do ms=1,ispin
          do n=n1(ms),n2(ms)
 
-*           **** vpsi_r = (vall_r+xcp)*psi_r ****
-            call D3dB_rr_Sum(1,vall,
-     >                       xcp(1+(ms-1)*n2ft3d),
-     >                       dcpl_mb(vpsi(1)))
-            call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
+*           **** vpsi_r = (vall_r)*psi_r ****
+            call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
      >                       psi_r(1+(n-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
