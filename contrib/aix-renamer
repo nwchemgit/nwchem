@@ -1,0 +1,29 @@
+#!/bin/csh -f
+# aix-renamer (for NWChem)
+# Usage: make link |& aix-renamer > aix-ld-rename-switches
+#
+# $Id: aix-renamer,v 1.1 1996-05-26 20:51:14 gg502 Exp $
+#
+# This script extract the undefined symbol error messages from an
+# attempt to link a mixed Fortran/C program compiled with -qextname and
+# converts them into the appropriate -brename options to feed to ld.
+#
+# Recommended usage is to remove all -brename options from the link
+# command, then attempt to link, piping the output into this script.
+# The output can then be included into the makefile at the appropriate
+# place. 
+#
+# Caveats:
+# The error message of interest appear on stderr, so the pipe must
+# redirect stderr as well as stdout into this script.
+# 
+# Works only for Aix 4 (AIX 3 doesn't format the undefined symbol
+# messages the same way).
+#
+# Assumes that all symbols of the form .name_ are to be renamed to
+# .name, without trying to detect if the target routine is actually
+# present.  This is obviously naieve and will not trap true errors.
+
+set err_code = "0711-317"	# AIX 4 error code for "undefined symbol"
+
+grep $err_code | sed 's/^.*\ \.\(.*\)_$/-brename:.\1_,.\1/'
