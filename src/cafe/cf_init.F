@@ -26,8 +26,8 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
 c
-      if(me.eq.0) write(*,1000)
- 1000 format('CAFE Classical Atomic Forces and Energies')
+c      if(me.eq.0) write(*,1000)
+c 1000 format('CAFE Classical Atomic Forces and Energies')
 c
 c     dimensions initially set to zero indicating non-allocated
 c
@@ -156,14 +156,6 @@ c
       call cf_alpha
       call pme_start(alpha,morder,1,nodpme,ngx,ngy,ngz,mwm,mwa,msa)
       endif
-c
-c      nsmi=nsm
-c      nsfi=nsf
-c
-c      msm=max(1,nsm)
-c      msf=max(1,nsf)
-c
-      print*,'CAFE start completed'
 c
       return
       end
@@ -422,10 +414,10 @@ c
       mdp(id)=max(1,ndp)
       mit(id)=max(1,nit)
       mip(id)=max(1,nip)
-      mtt(id)=max(1,ntt)
-      mtp(id)=max(1,ntp)
+      mtt(id)=max(ntot,ntt)
+      mtp(id)=max(2,ntp)
       mxt(id)=max(ntot,nxt)
-      mxp(id)=max(ntot,nxp)
+      mxp(id)=max(2,nxp)
 c
 c     allocate memory
 c

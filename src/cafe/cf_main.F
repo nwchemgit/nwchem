@@ -254,6 +254,132 @@ c
 c
       return
       end
+      subroutine cf_restor(xw,yw,fw,vw,numw,xs,ys,fs,vs,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer numw,nums
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),vw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),fs(msa,3),vs(msa,3)
+c
+      integer i,j
+c
+      if(numw.gt.0) then
+      do 1 j=1,nwa
+      do 2 i=1,numw
+      xw(i,1,j)=yw(i,1,j)
+      xw(i,2,j)=yw(i,2,j)
+      xw(i,3,j)=yw(i,3,j)
+      fw(i,1,j)=vw(i,1,j)
+      fw(i,2,j)=vw(i,2,j)
+      fw(i,3,j)=vw(i,3,j)
+    2 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 4 i=1,nums
+      xs(i,1)=ys(i,1)
+      xs(i,2)=ys(i,2)
+      xs(i,3)=ys(i,3)
+      fs(i,1)=vs(i,1)
+      fs(i,2)=vs(i,2)
+      fs(i,3)=vs(i,3)
+    4 continue
+      endif
+c
+      return
+      end
+      subroutine cf_emstep(iwdt,xw,yw,fw,vw,numw,
+     + isat,isdt,xs,ys,fs,vs,nums,dxf)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer numw,nums
+      integer iwdt(mwm),isdt(msa),isat(msa)
+      real*8 dxf
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),vw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),fs(msa,3),vs(msa,3)
+c
+      call cf_xstep(iwdt,xw,yw,fw,vw,numw,
+     + isat,isdt,xs,ys,fs,vs,nums,dxf,
+     + int_mb(i_iwa),dbl_mb(i_mas))
+c
+      return
+      end
+      subroutine cf_xstep(iwdt,xw,yw,fw,vw,numw,
+     + isat,isdt,xs,ys,fs,vs,nums,
+     + dxf,iwat,wgt)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer numw,nums
+      integer iwdt(mwm),isdt(msa),isat(msa)
+      real*8 dxf
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),fw(mwm,3,mwa),vw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),fs(msa,3),vs(msa,3)
+      integer iwat(mwa)
+      real*8 wgt(mat,6)
+c
+      integer i,j
+      real*8 dxstep,factor
+c
+      if(numw.gt.0) then
+      do 1 j=1,nwa
+      do 2 i=1,numw
+      yw(i,1,j)=xw(i,1,j)
+      yw(i,2,j)=xw(i,2,j)
+      yw(i,3,j)=xw(i,3,j)
+      vw(i,1,j)=fw(i,1,j)
+      vw(i,2,j)=fw(i,2,j)
+      vw(i,3,j)=fw(i,3,j)
+    2 continue
+      factor=one/wgt(iwat(j),iset)
+      do 3 i=1,numw
+      if(iand(iwdt(i),mfixed).ne.lfixed) then
+      dxstep=factor*dxf*fw(i,1,j)
+      xw(i,1,j)=xw(i,1,j)+dxstep
+      dxstep=factor*dxf*fw(i,2,j)
+      xw(i,2,j)=xw(i,2,j)+dxstep
+      dxstep=factor*dxf*fw(i,3,j)
+      xw(i,3,j)=xw(i,3,j)+dxstep
+      endif
+    3 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 4 i=1,nums
+      ys(i,1)=xs(i,1)
+      ys(i,2)=xs(i,2)
+      ys(i,3)=xs(i,3)
+      vs(i,1)=fs(i,1)
+      vs(i,2)=fs(i,2)
+      vs(i,3)=fs(i,3)
+    4 continue
+      do 5 i=1,nums
+      if(iand(isdt(i),mfixed).ne.lfixed) then
+      factor=one/wgt(isat(i),iset)
+      dxstep=factor*dxf*fs(i,1)
+      xs(i,1)=xs(i,1)+dxstep
+      dxstep=factor*dxf*fs(i,2)
+      xs(i,2)=xs(i,2)+dxstep
+      dxstep=factor*dxf*fs(i,3)
+      xs(i,3)=xs(i,3)+dxstep
+      endif
+    5 continue
+      endif
+c
+      return
+      end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn)
 c
@@ -463,7 +589,7 @@ c
       return
       end
       subroutine cf_final(xw,xwm,yw,vw,vwt,numw,
-     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,zs,nums,bx)
+     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,zs,nums,bx,prs,tmp,tmpw,tmps)
 c
       implicit none
 c
@@ -476,7 +602,7 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 xs(msa,3),xsm(msm,3),ys(msa,3),vs(msa,3),vst(msa,3)
-      real*8 zs(msf,3,2),bx(3),tmp
+      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps
       integer isat(msa),ismol(msa),isdyn(msa)
       integer numw,nums
 c
@@ -574,7 +700,10 @@ c
       temps=factms*esk
       temp=factmp*(ewk+esk)
 c
+      prs=pres
       tmp=temp
+      tmpw=tempw
+      temps=temps
 c
       return
       end

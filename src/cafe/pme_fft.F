@@ -74,6 +74,12 @@ c
       if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
      + call errquit('Failed to allocate iwork',0)
 c
+      if(.not.ma_verify_allocator_stuff()) then
+      call errquit('FFT buffer problems after',me)
+      else
+      print*,'OK before fft'
+      endif
+c
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
      + lrwrk,dbl_mb(i_rwrk),liwrk,int_mb(i_iwrk),jstat)
 c
