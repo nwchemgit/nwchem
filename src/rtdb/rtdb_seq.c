@@ -417,7 +417,11 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
   /* Open the physical data base */
 
   openinfo.bsize = 1024*4;
+#if defined(CRAY)
+  openinfo.cachesize = 4*128*1024;
+#else
   openinfo.cachesize = 128*1024;
+#endif
   openinfo.ffactor = 16;
   openinfo.hash = 0;
   openinfo.lorder = 0;
