@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.70 1999-06-09 23:51:19 edo Exp $
+C$Id: opt_drv.F,v 1.71 1999-06-10 02:05:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -44,6 +44,8 @@ c
       integer geom
       integer istep
       logical converged
+      double precision start    ! Tracks time used in last step
+      integer required          ! Time required
       logical  driver_converged, task_gradient
       external driver_converged, task_gradient
 c
@@ -57,6 +59,7 @@ c
 c
 c     Iterative loop
 c
+      start = util_wallsec()
       do istep = 1, nptopt
          if (oprint) write(6,1) istep
  1       format(/,10x,'--------',/,10x,'Step',i4,/,10x,'--------')
@@ -76,6 +79,10 @@ c
      $        gx)) call errquit('driver: could not get gradient',0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $        call errquit('driver: could not get energy',0)
+c
+c     Disable printing to ecce of movecs after first point
+c
+      call movecs_ecce_print_off()
 c     
 c     If necessary transform gradient to internal coordinates
 c     
@@ -92,17 +99,20 @@ c
          if (istep .ge. 2) call driver_hessian_update()
 c
 c     Compute step/gradient info and print for user
-c     (uses current energy & gradient, previous step).
+c     (for current energy & gradient, and the previous alpha*step).
 c
          call driver_compute_info()
          call driver_print(geom,istep)
 c     
-c     Check for convergence
+c     Check for convergence and time remaining
 c     
          if (driver_converged()) then
             converged = .true.
             goto 100
          endif
+         required = int(1.2d0*(util_wallsec() - start)) + 1
+         if (.not. util_test_time_remaining(rtdb,required)) goto 200
+         start = util_wallsec()
 c
 c     Generate a new search direction
 c
@@ -117,15 +127,15 @@ c
          endif
 c
       enddo                     ! End of iterative loop
-      write(6,*)
-      write(6,*) ' Failed to converge in maximum number of steps'
-      write(6,*)
+ 200  write(6,201)
+ 201  format(/,1x,63('-')/,1x,'Failed to converge in maximum number',
+     $     ' of steps or available time'/,1x,63('-')/)
       converged = .false.
 c
  100  if (converged) then
-         write(6,*)
-         write(6,*) ' Optimization converged'
-         write(6,*)
+         write(6,101) 
+ 101     format(/,6x,22('-'),/,6x,'Optimization converged',/,
+     $        6x,22('-'),/)
       endif
 c
       if (oprint) then
@@ -291,8 +301,10 @@ c
       old_hessian=.false.
       if(inhess.eq.0) call driver_opt_check_hess(nvar, old_hessian)
       if (old_hessian) then
-         write(6,*) ' Using old hessian'
+         if (oprint) write(6,*) ' Using old Hessian'
          return
+      else
+         if (oprint) write(6,*) ' Using diagonal Hessian '
       endif
 c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
@@ -325,7 +337,7 @@ c
          if (.not. geom_cart_get(geom, nat, atom_tags, 
      $        c, zan)) call errquit('driver_init_hess: geom?',geom)
          do i = 1, nat
-            nuc(i) = nint(zan(i))
+            nuc(i) = nint(zan(i)) ! Won't work if an ECP is loaded
          enddo
          nvar = nzvar
          call hnd_opt_hss_init_zmt(dbl_mb(k_hess),
@@ -694,17 +706,10 @@ c
 #include "util.fh"
 c
 c     Delete the Hessian information restart file.
-c     For good measure also zap the ZSYM and ZINV files.
 c     
       character*255 opt_hess_fil
 c
       call util_file_name('drv.hess',
-     1     .false.,.false.,opt_hess_fil)
-      call util_file_unlink(opt_hess_fil)
-      call util_file_name('zsym',
-     1     .false.,.false.,opt_hess_fil)
-      call util_file_unlink(opt_hess_fil)
-      call util_file_name('zinv',
      1     .false.,.false.,opt_hess_fil)
       call util_file_unlink(opt_hess_fil)
 c
@@ -1187,6 +1192,13 @@ c
       if (.not. ma_chop_stack(l_hess)) call errquit
      $     ('driver_search_dir: ma?',0)
 c
+c     Edo seems to have encountered a case where difference processors
+c     generated different steps.  To prevent this, broadcast the 
+c     critical info to everyone.
+c
+      call ga_brdcst(1,ds,8*nvar,0)
+      call ga_brdcst(2,alpha,8,0)
+c
       end
       subroutine driver_line_search(rtdb,geom)
       implicit none
@@ -1319,7 +1331,7 @@ c     Update the geometry in geom and in the database
 c     'geometry' by taking the step
 c     alpha*ds() in the optimization variables
 c
-c     Only geom is modified.
+c     The geom is modified, and xmax/xrms are computed.
 c
       double precision xold(max_cart), xnew(max_cart)
       integer i, l_bi, k_bi
@@ -1363,6 +1375,16 @@ c     an error criterion consistent with the step size.
 c
       call sym_geom_project(geom, 0.1d0)
 c
+c     Compute the maximum and RMS cartesian displacements
+c     
+      xmax = 0d0
+      xrms = 0d0
+      do i = 1, ncart
+         xmax = max(xmax, abs(xold(i)-xnew(i)))
+         xrms = xrms + (xold(i)-xnew(i))**2
+      enddo
+      xrms = sqrt(xrms/dble(ncart))
+c
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      $     call errquit('driver_energy_step: grs?',geom)
 c
@@ -1383,10 +1405,10 @@ c
       de = 0d0
       if (istep .gt. 1) de = energy-penergy
       if (oprint) write(6,1) istep, energy, de,
-     $     gmax, gnorm, smax, snorm, util_wallsec()
+     $     gmax, grms, xrms, smax, util_wallsec()
  1    format(
      $     /,1x,' Step   New Energy   Delta E   Gmax',
-     $     '     Gnorm    Smax     Snorm  Walltime',
+     $     '     Grms     Xrms     Smax   Walltime',
      $     /,1x,' ---- ------------- -------- --------',
      $     ' -------- -------- -------- --------',
      $     /,1x,i5,f14.6,1p,d9.1,0p,4f9.5,f9.1/)
@@ -1617,28 +1639,29 @@ c
 c
 c     Compute stuff used for printing and convergence tests
 c
-c     gmax = maxmimum gradient element
-c     gnorm= norm of gradient
-c     smax = maximum step
-c     snorm= norm of step
+c     gmax = maxmimum gradient element in optimization variables
+c     grms = rms grad
+c     smax = maximum step in opt. var
+c     srms = rms step
 c     
-c     what about displacement in cartesian coordinates?
+c     xrms and xmax are computed by driver_take_step from the
+c     first-order step.
 c
       integer i
 c
-      gnorm = 0d0
-      snorm = 0d0
+      grms = 0d0
+      srms = 0d0
       gmax  = 0d0
       smax  = 0d0
 c
       do i = 1, nvar
-         gnorm = gnorm + g(i)*g(i)
-         snorm = snorm + ds(i)*ds(i)*alpha*alpha
+         grms = grms + g(i)*g(i)
+         srms = srms + ds(i)*ds(i)*alpha*alpha
          gmax  = max(gmax, abs(g(i)))
          smax  = max(smax, abs(ds(i)*alpha))
       enddo
-      gnorm = sqrt(gnorm)
-      snorm = sqrt(snorm)
+      grms = sqrt(grms/dble(nvar))
+      srms = sqrt(srms/dble(nvar))
 c
       end
 

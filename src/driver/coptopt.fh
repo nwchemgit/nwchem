@@ -79,18 +79,20 @@ c
 c     Contents of /coptimize/
 c
       double precision 
-     $     gmax,                ! maxmimum gradient element
-     $     gnorm,               ! norm of gradient
-     $     smax,                ! maximum step
-     $     snorm,               ! norm of step
+     $     gmax,                ! maxmimum gradient element in opt. var.
+     $     grms,                ! rms gradient element in opt. var.
+     $     smax,                ! maximum step in opt. var.
+     $     srms,                ! rms step element in opt. var.
+     $     xmax,                ! maxmimum first-order cartesian step
+     $     xrms,                ! rms element in first-order cart. step
      $     energy,              ! Current energy
      $     alpha,               ! Current step in current search direction
      $     gx(max_nvar),        ! Current cartesian gradient
      $     gq(max_nvar),        ! Current internal coord gradient
      $     g(max_nvar),         ! Current gradient in optimization variables
-     $     ds(max_nzvar),       ! Current search direction
+     $     ds(max_nzvar),       ! Current search direction in opt. var.
      $     penergy,             ! Previous energy
      $     gp(max_nvar)         ! Previous gradient in optimization variables
 c
-      common /coptimize/ gmax, gnorm, smax, snorm,
+      common /coptimize/ gmax, grms, smax, srms, xmax, xrms,
      $     energy, penergy, alpha, gx, gq, g, gp, ds
