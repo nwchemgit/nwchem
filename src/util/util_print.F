@@ -1,5 +1,5 @@
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.7 1995-03-02 18:02:03 d3g681 Exp $
+C$Id: util_print.F,v 1.8 1995-04-17 17:30:46 d3g681 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -128,7 +128,7 @@ c
       endif
 c
       end
-      logical function util_print_rtdb_load(rtdb, prefix)
+      subroutine util_print_rtdb_load(rtdb, prefix)
       implicit none
 #include "printcommon.fh"
 #include "printlevels.fh"
