@@ -1,7 +1,7 @@
-C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
+C $Id: rel_pot.F,v 1.2 1998-09-23 00:25:37 mg201 Exp $
 ************************************************************************
 *                                                                      *
-      subroutine rel_pot (Vpp,Vpm,Vmp,Vmm,Vrel,ntyp,
+      subroutine rel_pot (Vpp,Vpm,Vmp,Vmm,Vrel,nints,ntyp,
      &    l_a,np_a,n_a,nm_a,n_cont_A,
      &    l_b,np_b,n_b,nm_b,n_cont_B,
      &    DryRun,scr,lscr,ibug)
@@ -18,6 +18,7 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
 *   Vmp (inp) - integrals for l_B-1, l_A+1                             *
 *   Vmm (inp) - integrals for l_B-1, l_A-1                             *
 *   Vrel (out) - final integral array                                  *
+*   nints (inp) - number of integrals of each type                     *
 *   ntyp (inp) - gives type of integral output, also acts as dimension *
 *                ntyp = 1 : scalar integrals only                      *
 *                ntyp = 3 : spin-orbit integrals only                  *
@@ -47,6 +48,9 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "rel_consts.fh"
+      double precision zero
+      parameter (zero = 0.0d00)
       integer l_a,np_a,n_a,nm_a,l_b,np_b,n_b,nm_b,
      &    n_all_A,n_all_B,n_allp_B,n_allm_B,np,nm,nab,nn,
      &    i_scr,i_grdp,i_grdm,i_free
@@ -56,7 +60,7 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
      &    Vpm(np_b,n_cont_b,nm_a,n_cont_a),
      &    Vmp(nm_b,n_cont_b,np_a,n_cont_a),
      &    Vmm(nm_b,n_cont_b,nm_a,n_cont_a),
-     &    Vrel(n_b,n_cont_b,n_a,n_cont_a,ntyp)
+     &    Vrel(nints,ntyp)
      &    scr(lscr)
 *
       debug_gen = ibug .gt. 0
@@ -70,6 +74,8 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
       n_allm_B = n_cont_B*nm_B
       np = 3*n_all_A*n_allp_B
       nab = n_all_A*n_all_B
+      if (nab .ne. nints) call errquit
+     &    ('Mismatch between nints and nab in rel_pot',99)
       nn = 9*nab
       nm = 3*n_all_A*n_allm_B
 *
@@ -83,16 +89,16 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
       else
         if (lscr .lt. i_free-1) call errquit 
      &      ('Insufficient memory in rel_pot',99)
-        call dcopy (np,zero,0,scr(i_grdp),1)
+        call dfill (np,zero,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B)
-        call dcopy (nm,zero,0,scr(i_grdm),1)
+        call dfill (nm,zero,scr(i_grdm),1)
         if (l_B .gt. 0) call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,
      &      Vmp,Vmm,scr,n_allm_B)
-        call dcopy (nn,zero,0,scr(i_scr),1)
+        call dfill (nn,zero,scr(i_scr),1)
         call ecp_grad_b (l_B,np_b,n_b,nm_b,n_cont_B,
      &      scr(i_grdp),scr(i_grdm),scr(i_scr),n_all_a*3)
-        call dcopy (nab*ntyp,zero,0,Vrel,1)
+        call dfill (nints*ntyp,zero,Vrel,1)
 *
 *   Return with derivative integrals only
 *
@@ -104,9 +110,9 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
 *   Assemble scalar integrals
 *
         if ((ntyp .eq. 1) .or. (ntyp .eq. 4)) then
-          call dcopy (nab,scr(i_scr),1,Vrel,1)
-          call daxpy (nab,one,scr(i_scr+4*nab),1,Vrel,1)
-          call daxpy (nab,one,scr(i_scr+8*nab),1,Vrel,1)
+          call daxpy (nab,qalsq,scr(i_scr),1,Vrel,1)
+          call daxpy (nab,qalsq,scr(i_scr+4*nab),1,Vrel,1)
+          call daxpy (nab,qalsq,scr(i_scr+8*nab),1,Vrel,1)
           if (debug_arrays) call ecp_matpr (Vrel,1,n_all_b,1,n_all_a,
      &        1,n_all_b,1,n_all_a,'Scalar integrals,'E',78,4)
         end if
@@ -115,12 +121,12 @@ C $Id: rel_pot.F,v 1.1 1998-09-22 23:16:47 mg201 Exp $
 *
         k = ntyp-3
         if (k .ge. 0) then
-          call dcopy (nab,scr(i_scr+5*nab),1,Vrel(1,1,1,1,k+3),1)
-          call dcopy (nab,scr(i_scr+6*nab),1,Vrel(1,1,1,1,k+2),1)
-          call dcopy (nab,scr(i_scr+nab),1,Vrel(1,1,1,1,k+2),1)
-          call daxpy (nab,-one,scr(i_scr+7*nab),1,Vrel(1,1,1,1,k+3),1)
-          call daxpy (nab,-one,scr(i_scr+2*nab),1,Vrel(1,1,1,1,k+2),1)
-          call daxpy (nab,-one,scr(i_scr+3*nab),1,Vrel(1,1,1,1,k+1),1)
+          call daxpy (nab,qalsq,scr(i_scr+5*nab),1,Vrel(1,1,1,1,k+3),1)
+          call daxpy (nab,qalsq,scr(i_scr+6*nab),1,Vrel(1,1,1,1,k+2),1)
+          call daxpy (nab,qalsq,scr(i_scr+nab),1,Vrel(1,1,1,1,k+1),1)
+          call daxpy (nab,-qalsq,scr(i_scr+7*nab),1,Vrel(1,1,1,1,k+3),1)
+          call daxpy (nab,-qalsq,scr(i_scr+2*nab),1,Vrel(1,1,1,1,k+2),1)
+          call daxpy (nab,-qalsq,scr(i_scr+3*nab),1,Vrel(1,1,1,1,k+1),1)
           if (debug_arrays) call ecp_matpr (Vrel(1,1,1,1,k+1),
      &        1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
      &        'Z spin-orbit integrals,'E',78,4)
