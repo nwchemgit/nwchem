@@ -77,7 +77,7 @@ task pspw steepest_descent
 PSPW
    STEEPEST_DESCENT
       cell_name: small
-      geometry_optimze
+      geometry_optimize
       formatted_filename: C.vpp
       input_wavefunction_filename:  c2.small.00.elc
       output_wavefunction_filename: c2.small.00.elc
