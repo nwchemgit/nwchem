@@ -26,7 +26,6 @@ clean:
 	(cd ./src/f77; $(MAKE) clean)
 	(cd ./comm; $(MAKE) clean)
 	(cd ./ctof; $(MAKE) clean)
-#	rm -f peigs_stamp.$(TARGET) include_stamp
 
 realclean: clean
 	rm -f $(LIBDIR)/$(LIBRARY)
@@ -50,7 +49,7 @@ lib:
 	-rm -f libpeigs.a
 	$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
 	$(peigs_RANLIB) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
-	($(MAKE) clean)
+#	($(MAKE) clean)
 
 examples:
 	( cd example; $(MAKE) all )
