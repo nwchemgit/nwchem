@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.222 2002-04-08 18:51:52 windus Exp $
+c     $Id: dft_scf.F,v 1.223 2002-04-19 16:26:17 edo Exp $
 c     
       implicit none
 c
@@ -1002,7 +1002,11 @@ c
          call dft_remshft(levelshifting,ipol,nbf_ao,noc,
      ,        rlshift,dbl_mb(k_eval(1)))
       
-      Etnew = Ecore + Ecoul + Exc(1) +tdots
+      if (nExc.eq.1)then
+        Etnew = Ecore + Ecoul + Exc(1) +tdots
+      else
+        Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots
+      endif
       etnew=dft_cosmoadde(rtdb,ocosmo,odbug,
      .     ecosmo,etnew)
 c    
