@@ -149,10 +149,11 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 10)
+      parameter (ntasks = 11)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2','riscf'/
+     $   'debtest', 'gradients', 'optscf','atwtest', 'rimp2',
+     &    'riscf', 'checksum'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -162,7 +163,7 @@ c
       endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
-         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100) ind
+         goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -217,6 +218,11 @@ c
 C        RI-SCF
 c
  100     call ri_scf(rtdb)
+         goto 1000
+c
+c integral check sum
+c
+ 110     call task_check_sum(rtdb)
          goto 1000
       else
 c
