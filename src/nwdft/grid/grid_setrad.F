@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.5 1999-12-17 00:20:13 edo Exp $
+c$Id: grid_setrad.F,v 1.6 1999-12-17 19:46:09 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
 c
       integer lexpo, iexpo, insh, lnsh
 c
-      integer n1,ninf,ndivide
+      integer n1,ninf,ndivide,mxnrad
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
@@ -170,6 +170,15 @@ c     ,          midpoint)
             endif
          endif
   100 continue
+c
+c     we could have redefined max no rad pts
+c
+      mxnrad=0
+      do itype=1,ntypes
+         mxnrad=max(mxnrad,nrad(itype))
+      enddo
+      if (.not. rtdb_put(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
+     &   call errquit('grid_setrad: rtdb_put failed', 119)
 c
 c     Modify number of radial shells per atom type by possible 
 c     truncation.
