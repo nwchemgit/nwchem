@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.14 1998-10-05 20:37:24 d3e129 Exp $
+$Id: INSTALL,v 1.15 1998-10-08 21:22:02 d3e129 Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -216,9 +216,9 @@ F) Contents of the default.nwchemrc file based on the above
 
    nwchem_basis_library /usr/local/NWChem/data/library
    ffield amber
-   amber_s /usr/local/NWChem/data/nwadata/amber/amber_s/
-   spce /usr/local/NWChem/data/nwadata/solvents/spce.rst
-   charmm_s /usr/local/NWChem/data/nwadata/charmm/charmm_s/
+   amber_s /usr/local/NWChem/data/amber/amber_s/
+   spce /usr/local/NWChem/data/solvents/spce.rst
+   charmm_s /usr/local/NWChem/data/charmm/charmm_s/
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
