@@ -121,7 +121,7 @@ c
 c
 c     read next physical input line
 c
-      lenja = 0
+ 101  lenja = 0
  100  read(iread,'(a)',end=300)ja(lenja+1:max_width)
       input_line = input_line + 1
       lenja = inp_strlen(ja)
@@ -165,7 +165,7 @@ c     Shuffle string down to overwrite quoting backslash
          xprev = ja(i:i)
       enddo
 c
- 80   continue
+ 80   if (inp_strlen(ja(1:i)) .eq. 0) goto 101 ! All line comments
 c
 c     figure out where ; splits physical line into multiple logical lines
 c     again handling quoted backslash
