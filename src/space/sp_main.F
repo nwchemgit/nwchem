@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.31 1999-12-15 07:31:24 d3j191 Exp $
+c $Id: sp_main.F,v 1.32 1999-12-16 15:41:03 d3j191 Exp $
 c
       implicit none
 c
@@ -76,12 +76,13 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer isl(msa,mis2),numsa,iwl(mwm,miw2),numwm
 c
       integer i,j,k,intsiz
 c
-      intsiz=8*ma_sizeof(mt_int,1,mt_byte)
+      intsiz=8*ma_sizeof(mt_int,1,mt_byte)-1
 c
       do 1 i=1,mis2
       misl(i)=0
@@ -98,9 +99,9 @@ c
       do 4 i=1,mis2
       k=misl(i)
       do 5 j=1,intsiz
-      k=k/2
+      k=rshift(k,1)
       if(k.eq.0) then
-      nbits(i)=j
+      nbits(i)=j+1
       goto 4
       endif
     5 continue
@@ -140,9 +141,9 @@ c
       do 11 i=1,miw2
       k=miwl(i)
       do 12 j=1,intsiz
-      k=k/2
+      k=rshift(k,1)
       if(k.eq.0) then
-      nbitw(i)=j
+      nbitw(i)=j+1
       goto 11
       endif
    12 continue
@@ -204,17 +205,23 @@ c
 c
       integer il,ih,jl,jh,i,j
 c
-      if(numsa.gt.0) then
+      if(numsa.gt.0.and.npack.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
-      call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)      
-      call sp_pack(numsa,isl,islp)
+      call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)  
+      write(80+me,'(14i5)') ((isl(i,j),j=1,14),i=1,numsa)    
+      call sp_pack(numsa,isl,islp)      
+      call sp_unpack(numsa,isl,islp) 
+      write(90+me,'(14i5)') ((isl(i,j),j=1,14),i=1,numsa)
       call ga_put(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
       endif
 c
-      if(numwm.gt.0) then
+      if(numwm.gt.0.and.npackw.gt.0) then
       call ga_distribution(ga_iw,me,il,ih,jl,jh)
-      call ga_get(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)      
+      call ga_get(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)
+      write(82+me,'(5i5)') ((iwl(i,j),j=1,5),i=1,numwm)
       call sp_packw(numwm,iwl,iwlp)
+      call sp_unpackw(numwm,iwl,iwlp)
+      write(92+me,'(5i5)') ((iwl(i,j),j=1,5),i=1,numwm)
       call ga_put(ga_iw,il,il+numwm-1,jl,jl+npackw-1,iwlp,mwm)
       endif
 c
@@ -242,7 +249,7 @@ c
       do 3 k=1,ipack(j)
       ipck=ipck+1
       do 4 i=1,numsa
-      islp(i,j)=islp(i,j)*misl(ipck)+isl(i,ipck)
+      islp(i,j)=lshift(islp(i,j),nbits(ipck))+isl(i,ipck)
     4 continue
     3 continue
     1 continue
@@ -267,7 +274,7 @@ c
       ipck=ipck-1
       do 3 i=1,numsa
       isl(i,ipck)=iand(islp(i,j),misl(ipck)-1)
-      islp(i,j)=islp(i,j)/misl(ipck)
+      islp(i,j)=rshift(islp(i,j)-isl(i,ipck),nbits(ipck))
     3 continue
     2 continue
     1 continue
@@ -281,6 +288,7 @@ c
 #include "sp_common.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer numwm,iwl(mwm,miw2),iwlp(mwm,npackw)
 c
@@ -294,7 +302,7 @@ c
       do 3 k=1,ipackw(j)
       ipck=ipck+1
       do 4 i=1,numwm
-      iwlp(i,j)=iwlp(i,j)*miwl(ipck)+iwl(i,ipck)
+      iwlp(i,j)=lshift(iwlp(i,j),nbitw(ipck))+iwl(i,ipck)
     4 continue
     3 continue
     1 continue
@@ -308,6 +316,7 @@ c
 #include "sp_common.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer numwm,iwl(mwm,miw2),iwlp(mwm,npackw)
 c
@@ -319,7 +328,7 @@ c
       ipck=ipck-1
       do 3 i=1,numwm
       iwl(i,ipck)=iand(iwlp(i,j),miwl(ipck)-1)
-      iwlp(i,j)=iwlp(i,j)/miwl(ipck)
+      iwlp(i,j)=rshift(iwlp(i,j)-iwl(i,ipck),nbitw(ipck))
     3 continue
     2 continue
     1 continue
