@@ -1,5 +1,5 @@
 c
-C$Id: cfock.fh,v 1.8 1995-05-24 23:51:22 vg038 Exp $
+c$Id: cfock.fh,v 1.9 1995-05-30 06:15:48 d3g681 Exp $
 c
       integer task_chunks     ! Task chunk parameter in fock_2e_a
       integer filesize        ! Max integral file size in doubles

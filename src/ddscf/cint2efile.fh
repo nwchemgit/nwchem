@@ -10,7 +10,7 @@ c
       integer next_value        ! Next value to be read/inserted
       integer n_rec_in_file     ! No. of records in file
       integer cur_rec           ! Current record no. (1, 2, ...)
-      integer n_per_rec         ! Size of buffer
+      integer n_per_rec         ! Size of buffer ... MUST BE EVEN
       integer unitno            ! Fortran unit no.
       integer rec_len_in_dbl    ! Size of total record in doubles
       character*256 actualname  ! Name of file

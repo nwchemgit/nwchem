@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.29 1995-05-29 18:58:17 d3g681 Exp $
+C$Id: scf.F,v 1.30 1995-05-30 06:15:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,7 +25,7 @@ c
       logical status
       double precision energy
       logical oprint
-      character*255 name, trans
+      character*255 name, ri_trans
 c
       integer natoms, Nff
       logical rohf, uhf, riscf_init
@@ -71,9 +71,9 @@ c
      $        '  functions       = ', i5)
          if (nriscf .ne. 0) then
             status = bas_numbf (riscf_basis, Nff)
-            if (.not. bas_name(riscf_basis, name, trans))
+            if (.not. bas_name(riscf_basis, name, ri_trans))
      $           call errquit('scf: bas_name?', 0)
-            write(6,11) trans(1:inp_strlen(trans)), nff
+            write(6,11) ri_trans(1:inp_strlen(ri_trans)), nff
  11         format(
      $           '  ri basis        = "',a,'"'/
      $           '  ri functions    = ', i5)
