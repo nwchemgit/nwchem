@@ -2,7 +2,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 1.7 1995-12-16 02:18:27 d3g681 Exp $
+c  $Id: moints_trp.F,v 1.8 1996-07-04 06:40:54 d3e129 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -31,8 +31,8 @@ c
      $                        blen, cmo, ncor, ndel, nocc, nvir)
        implicit none
 #include "tcgmsg.fh"
-#include "global.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 #include "bas.fh"
 #include "sym.fh"
 #include "util.fh"
@@ -403,8 +403,8 @@ c
      $                         vlo, vhi, nbf, c, tmp ,ncor, nocc,
      $                         osym, syms )
       implicit none
-#include "global.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       integer g_exch
       integer nbf, ostart, olo, ohi, vlo, vhi,ncor,nocc
       double precision c(nbf,nbf)
@@ -536,8 +536,8 @@ CRK2      enddo
      $                          nbf, c, tmp, ncor, nocc, nvir,
      $                          osym, syms )
       implicit none
-#include "global.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       integer g_coul
       integer ostart, olo, ohi, vlo, vhi, nbf, ncor, nocc, nvir
       double precision c(nbf,nbf)
