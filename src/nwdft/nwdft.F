@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.52 2001-01-12 00:18:00 edo Exp $
+C$Id: nwdft.F,v 1.53 2001-01-16 23:21:12 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -70,6 +70,7 @@ c
       logical dft_main0d, movecs_converged
       external dft_main0d, movecs_converged
       logical ocosmo
+      integer necp
       character*80 theory
 c     
       nwdft = .false.
@@ -124,6 +125,10 @@ c
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(ocosmo.and.bas_is_spherical(ao_bas_han)) call errquit(
      .        ' cosmo does not handle spherical basis yet',0)
+         if(.not.geom_ncent_ecp(geom, necp)) call errquit(
+     .        'scf: failed call to geom_ncent_ecp',0)
+         if(ocosmo.and.necp.gt.0) call errquit(
+     .        ' cosmo does not support ECPs yet',0)
       endif
 c
 c     Build the grid.

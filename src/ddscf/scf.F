@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.63 2001-01-12 00:16:58 edo Exp $
+C$Id: scf.F,v 1.64 2001-01-16 23:20:45 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -34,6 +34,7 @@ c
       logical cphf_poliz, do_poliz
       external cphf_poliz
       logical ocosmo
+      integer necp
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
@@ -58,6 +59,10 @@ c !!! BGJ
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(ocosmo.and.bas_is_spherical(basis)) call errquit(
      .        ' cosmo does not handle spherical basis yet',0)
+         if(.not.geom_ncent_ecp(geom, necp)) call errquit(
+     .        'scf: failed call to geom_ncent_ecp',0)
+         if(ocosmo.and.necp.gt.0) call errquit(
+     .        ' cosmo does not support ECPs yet',0)
       endif
 c
 c     Initialize performance statistics
