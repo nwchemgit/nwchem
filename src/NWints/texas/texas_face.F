@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.49 1998-07-31 21:27:55 d3g681 Exp $
+c $Id: texas_face.F,v 1.50 1998-08-12 01:15:30 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -796,6 +796,8 @@ c=================================================================
 c----------------------------------------------------------------
       logical cent2,cent3,cent4
       common /what_was_calc/ cent2,cent3,cent4
+c----------------------------------------------------------------
+      integer h_txs_tempr, k_txs_tempr
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
@@ -1805,6 +1807,7 @@ c-------------------------------------------------------
 c==================================================================
       subroutine print_inx_nuc_bas(nbas,datnuc,datbas)
       implicit real*8 (a-h,o-z)
+#include "global.fh"
       common /ctxs_index/ maxsh,ifp,inx(1)    
       common /inde1/ inxx
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
