@@ -1,5 +1,5 @@
       double precision function dft_n3cdbl()
-C$Id: dft_n3c.F,v 1.14 2004-04-22 01:14:05 edo Exp $
+C$Id: dft_n3c.F,v 1.15 2004-08-16 12:19:01 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -126,18 +126,18 @@ c
          write(LuOut,*)
          call util_print_centered
      &      (LuOut,'3 Center 2 Electron Integral Information',25,.true.)
-         write(LuOut,1111)int(n3), int(ischw1), 
-     D        int(dft_n3cdbl), int(batch_max)
+         write(LuOut,1111)n3, ischw1, 
+     D        dft_n3cdbl, int(batch_max)
       endif
- 1111 format(10x,'Maximum number of 3-center 2e- integrals is: ',i15,
-     &     /,10x,'  This is reduced with Schwarz screening to: ',i15,
-     &     /,10x,'  Incore requires a per proc buffer size of: ',i15,
+ 1111 format(10x,'Maximum number of 3-center 2e- integrals is:',f17.0,
+     &     /,10x,'  This is reduced with Schwarz screening to:',f17.0,
+     &     /,10x,'  Incore requires a per proc buffer size of:',f17.0,
      &     /,10x,'        The minimum integral buffer size is: ',i15)
 c      
       return
       end
       integer function dft_n3cint()
-C$Id: dft_n3c.F,v 1.14 2004-04-22 01:14:05 edo Exp $
+C$Id: dft_n3c.F,v 1.15 2004-08-16 12:19:01 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
