@@ -11,16 +11,49 @@
                {\end{em}\end{enumerate}\end{center}}
 
 
-The NWChem plane-wave (NWPW) module uses pseudopotentials and plane-wave basis sets to perform Density Functional Theory calculations.  This module complements the capabilities of the more traditional Gaussian function based approaches (i.e. DFT module and GAPPS Module) by having an accuracy at least as good as the traditional Gaussian function based approaches for many applications, yet is still fast enough to treat systems containing hundreds of atoms.  Another significant advantage is its ability to simulate dynamics on a ground state potential surface directly at run-time using the Car-Parrinello algorithm.  This method's efficiency and accuracy make it a desirable first principles method of simulation in the study of complex molecular, liquid, and solid state systems.  Applications for this first principles method include the calculation of free energies, search for global minima, explicit simulation of solvated molecules, and simulations of complex vibrational modes that cannot be described within the harmonic approximation.
+The NWChem plane-wave (NWPW) module uses pseudopotentials and
+plane-wave basis sets to perform Density Functional Theory
+calculations.  This module complements the capabilities of the more
+traditional Gaussian function based approaches (i.e. DFT module and
+GAPPS Module) by having an accuracy at least as good as the
+traditional Gaussian function based approaches for many applications,
+yet is still fast enough to treat systems containing hundreds of
+atoms.  Another significant advantage is its ability to simulate
+dynamics on a ground state potential surface directly at run-time
+using the Car-Parrinello algorithm.  This method's efficiency and
+accuracy make it a desirable first principles method of simulation in
+the study of complex molecular, liquid, and solid state systems.
+Applications for this first principles method include the calculation
+of free energies, search for global minima, explicit simulation of
+solvated molecules, and simulations of complex vibrational modes that
+cannot be described within the harmonic  approximation.
 
 The NWPW module is a collection of two modules.
 \begin{itemize}
-   \item PSPW - (PSeudopotential Plane-Wave) A gamma point code for calculating molecules, liquids, crystals, and surfaces.  
-   \item Band - A prototype band structure code for calculating crystals and surfaces with small band gaps (e.g. semi-conductors and metals).
+   \item PSPW - (PSeudopotential Plane-Wave) A gamma point code for
+     calculating molecules, liquids, crystals, and  surfaces.  
+   \item Band - A prototype band structure code for calculating
+     crystals and surfaces with small band gaps (e.g. semi-conductors
+     and metals).
 \end{itemize}
-Both of these modules can be used to compute the energy, optimize the geometry, find saddle points, compute numerical second derivatives.  The PSPW module can also be used to perform Car-Parrinello molecular dynamics.
+Both of these modules can be used to compute the energy, optimize the
+geometry, find saddle points, compute numerical second derivatives.
+The PSPW module can also be used to perform Car-Parrinello molecular  dynamics.
 
-Section \ref{sec:pspw_tasks} describes the tasks contained within the PSPW module, section \ref{sec:band_tasks} describes the tasks contained within the Band module, and section \ref{sec:psp_library} describes the pseudopotential library included with NWChem.  The datafiles used by the PSPW module are described in section \ref{sec:pspw_data}.  Car-Parrinello output data files are described in section \ref{sec:pspw_cp_data}, and the minimization and Car-Parrinello algorithms are described in sections \ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how to setup and run a PSPW geometry optimization, a Car-Parrinello simulation, and a band structure minimization are presented in sections \ref{sec:pspw_sd}, \ref{sec:pspw_cp}, and \ref{sec:band_tutorial1}.  Finally in section \ref{sec:pspw_limits} the capabilities and limitations of the NWPW module are discussed.
+Section \ref{sec:pspw_tasks} describes the tasks contained within the
+PSPW module, section \ref{sec:band_tasks} describes the tasks
+contained within the Band module, and section \ref{sec:psp_library}
+describes the pseudopotential library included with NWChem.  The
+datafiles used by the PSPW module are described in section
+\ref{sec:pspw_data}.  Car-Parrinello output data files are described
+in section \ref{sec:pspw_cp_data}, and the minimization and
+Car-Parrinello algorithms are described in sections
+\ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how
+to setup and run a PSPW geometry optimization, a Car-Parrinello
+simulation, and a band structure minimization are presented in
+sections \ref{sec:pspw_sd}, \ref{sec:pspw_cp}, and
+\ref{sec:band_tutorial1}.  Finally in section \ref{sec:pspw_limits}
+the capabilities and limitations of the NWPW module are  discussed.
 
 If you are a first time user of this module it is recommended that you skip the next five sections and proceed directly to the tutorials in sections 
 \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.
@@ -35,7 +68,8 @@ PSPW
 END
 \end{verbatim}
 
-To perform an actual calculation a TASK PSPW directive is used (Section \ref{sec:task}).  
+To perform an actual calculation a TASK PSPW directive is used
+(Section \ref{sec:task}).  
 \begin{verbatim}
   TASK PSPW
 \end{verbatim} 
@@ -62,11 +96,12 @@ TASK PSPW [Car-Parrinello             ||
 \end{verbatim}
 The following subsections describe the input to these tasks.
 
-Once a user has specified a geometry, the PSPW module can be invoked with no input directives 
-(defaults invoked throughout).  However, the user will probably always specify the simulation
-cell used in the computation, since the default simulation cell is not well suited for most
-systems.  There are sub-directives which allow for customized application; those currently 
-provided as options for the PSPW module are:
+Once a user has specified a geometry, the PSPW module can be invoked
+with no input  directives (defaults invoked throughout).  However, the
+user will probably always specify the  simulation cell used in the
+computation, since the default simulation cell is not well suited for
+most systems.  There are sub-directives which allow for customized
+application; those currently provided as options for the PSPW module are:
 \begin{verbatim}
 PSPW
   CELL_NAME <string cell_name default 'cell_default'>
@@ -140,23 +175,23 @@ The following list describes the keywords contained in the PSPW input block.
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
-                               and Erzherhoff GGA functional.
+                               and Ernzerhof GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
                          the end of the simulation.  The angular momentum
                          weights for each kind of atom can be modified using 
                          the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}).
 
-   	\item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
-  	\item DPLOT (see section \ref{sec:pspw_dplot})
-  	\item CAR-PARRINELLO(see section \ref{sec:pspw_CP})
-	\item PSP\_GENERATOR (see section \ref{sec:pspw_psp_generator})
-  	\item PSP\_FORMATTER (see section \ref{sec:pspw_psp_formatter})
-	\item WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_wavefunction_initializer})
-	\item V\_WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_v_wavefunction_initializer})
+        \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
+        \item DPLOT (see section \ref{sec:pspw_dplot})
+        \item CAR-PARRINELLO(see section \ref{sec:pspw_CP})
+        \item PSP\_GENERATOR (see section \ref{sec:pspw_psp_generator})
+        \item PSP\_FORMATTER (see section \ref{sec:pspw_psp_formatter})
+        \item WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_wavefunction_initializer})
+        \item V\_WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_v_wavefunction_initializer})
         \item WAVEFUNCTION\_EXPANDER (see section \ref{sec:pspw_wavefunction_expander}).
-	\item STEEPEST\_DESCENT (see section \ref{sec:pspw_steepest_descent})
-	\item CONJUGATE\_GRADIENT (see section \ref{sec:pspw_conjugate_gradient})
+        \item STEEPEST\_DESCENT (see section \ref{sec:pspw_steepest_descent})
+        \item CONJUGATE\_GRADIENT (see section \ref{sec:pspw_conjugate_gradient})
 \end{itemize}
 
 \subsection{Simulation Cell}
@@ -254,7 +289,8 @@ theory.  Constant energy or constant temperature simulations can be
 performed.  A detailed description of this method
 is described in section \ref{sec:pspw_Car-Parrinello}.
 
-Input to the Car-Parrinello simulation is contained within the Car-Parrinello sub-block.
+Input to the Car-Parrinello simulation is contained within the
+Car-Parrinello sub-block.
 \begin{verbatim}
 PSPW
   ...
@@ -401,7 +437,8 @@ generated.  In future releases, the pseudopotential library (section \ref{sec:ps
 will be more complete, so that the user will not have explicitly generate
 pseudopotentials using this module.
 
-Input to the PSP\_GENERATOR task is contained within the PSP\_GENERATOR sub-block.
+Input to the PSP\_GENERATOR task is contained within the
+PSP\_GENERATOR  sub-block.
 \begin{verbatim}
 PSPW
   ...
@@ -462,11 +499,13 @@ sub-block.
 
 \subsubsection{\tt ATOMIC\_FILLING Block}
 This required block is used to define the reference atom which is used
-to define the pseudopotential. After the ATOMIC\_FILLING: $<$ncore$>$ $<$nvalence$>$ line
-The core states are listed (one per line), and then the valence states are listed (one per line).  
-Each state contains two integer and a value.  The first integer specifies the radial quantum number, $n$,
-The second integer specifies the angular momentum quantum number, $l$, and the third value
-specifies the occupation of the state.
+to define the pseudopotential. After the ATOMIC\_FILLING: $<$ncore$>$
+$<$nvalence$>$ line, the core states are listed (one per line), and
+then the valence states are listed (one per line). 
+Each state contains two integer and a value.  The first integer
+specifies the radial quantum number, $n$,
+The second integer specifies the angular momentum quantum number, $l$,
+and the third value specifies the occupation of the state.
 
 For example to define a pseudopotential
 for the Neon atom in the $1s^2 2s^2 2p^6$ state
@@ -1102,8 +1141,8 @@ The following list describes these keywords.
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
-   	\item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
-	\item BRILLOUIN\_ZONE  (see section \ref{sec:band_brillouin_zone})
+        \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
+        \item BRILLOUIN\_ZONE  (see section \ref{sec:band_brillouin_zone})
 \end{itemize}
 
 
@@ -1130,7 +1169,7 @@ Brillouin zone.  The following list describes the input in detail.
         \item $<$name$>$ - user-supplied name for the simulation block. 
         \item $<$k1 k2 k3$>$ - user-supplied values for a special point in the
                                Brillouin zone.
-	\item $<$weight$>$ - user-supplied weight.  Default is to set the weight
+        \item $<$weight$>$ - user-supplied weight.  Default is to set the weight
                          so that the sum of all the weights for the entered  
                          special points adds up to unity.
 \end{itemize}
@@ -1138,6 +1177,29 @@ Brillouin zone.  The following list describes the input in detail.
 
 \section{Pseudopotential Libraries}
 \label{sec:psp_library}
+
+A library of pseudopotentials is currently available  in the
+directory \\
+\verb+ $NWCHEM_TOP/src/nwpw/libraryps/library1+
+
+The elements listed in the following table are present:
+
+\begin{verbatim}
+  H
+ -------
+  Li Be                                  C  N  O
+ -------                             ------------------
+                                      Al Si P  S  
+ ------------------------------------------------------
+                       Fe          Zn Ga               
+ ------------------------------------------------------
+\end{verbatim}
+
+If you wish to redirect the code to a different directory ther than
+the default one, 
+you need to set the environmental variable
+{\tt NWCHEM\_NWPW\_LIBRARY}
+to the new location of the \verb+libraryps+ directory.
 
 
 
