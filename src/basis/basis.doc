@@ -1,0 +1,19 @@
+These are probably the ONLY user visible routines
+
+
+
+      logical bas_create         
+      logical bas_destroy        
+      logical bas_check_handle   
+      logical bas_print          
+      logical bas_rtdb_load      
+      logical bas_cn2ce          
+      logical bas_cn2bfr         
+      logical bas_ce2cnr         
+      logical bas_numbf          
+c
+      logical bas_get_exponent   
+      logical bas_continfo       
+      logical bas_numcont        
+      logical bas_get_coeff      
+
