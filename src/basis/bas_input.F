@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.27 1996-12-13 21:55:26 d3e129 Exp $
+c $Id: bas_input.F,v 1.28 1997-02-15 00:02:59 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -384,6 +384,7 @@ c
       subroutine bas_input_cont(basis, osegment, tag, l_value,
      &    oIs_ecp)
       implicit none
+#include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "inp.fh"
@@ -401,6 +402,7 @@ c
       integer cont_max          ! Max. no. of contractions
       integer prim_max          ! Max. no. of primitives
       logical status
+      logical rex_okay
       logical ostat_f, ostat_field, ostat_split
       parameter (cont_max = 30, prim_max = 30)
       double precision expnt(prim_max), coeff(prim_max,cont_max),
@@ -452,16 +454,16 @@ c
             ostat_field = (inp_n_field() - 1) .ne. ngen
           endif
           if (Ostat_field) then
-            write(6,*) ' bas_input_cont: no. of coefficients?'
+            write(luout,*) ' bas_input_cont: no. of coefficients?'
             goto 10000
           endif
           do i= 1, ngen
             if (.not. inp_f(coeff(iprim,i))) then
-              write(6,*) ' bas_input_cont: failed reading ',
+              write(luout,*) ' bas_input_cont: failed reading ',
      $            'coefficient'
               goto 10000
             else if (coeff(iprim,i) .eq. 0.0d0) then
-              write(6,*)' **** WARNING Zero Coefficient **** '
+              write(luout,*)' **** WARNING Zero Coefficient **** '
             endif
           enddo
           if (.not. inp_read()) goto 10000
@@ -498,7 +500,22 @@ c     simple shell or all ecp shells
                 nptmp = nptmp + 1
                 ctmp(nptmp) = coeff(j,i)
                 etmp(nptmp) = expnt(j)
-                if (oIs_ecp) rex_tmp(nptmp) = rex(j)
+                if (oIs_ecp) then
+                  rex_okay =
+     &                ((abs(rex(j)-0.0d00)).lt.1.0d-9).or.
+     &                ((abs(rex(j)-1.0d00)).lt.1.0d-9).or.
+     &                ((abs(rex(j)-2.0d00)).lt.1.0d-9)
+                  if (rex_okay) then
+                    rex_tmp(nptmp) = rex(j)
+                  else
+                    write(luout,*)'component',j,
+     &                  ' of the current contraction has ',
+     &                  'an r-exponent of',rex(j)
+                    call errquit
+     &                 ('*ERR* bas_input_cont: Fatal r-exponent error',
+     &                 911)
+                  endif
+                endif
               endif
             enddo
             status = status .and.
