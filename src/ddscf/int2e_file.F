@@ -35,7 +35,6 @@ c
       rec_len_in_dbl = n_per_rec +
      $     ma_sizeof(mt_int, 2, mt_dbl) + 
      $     ma_sizeof(mt_byte, 8*n_per_rec, mt_dbl)
-      write(6,*) ' rec_len_in_dbl ', rec_len_in_dbl
       call int2e_buf_clear()
 c
       if (cachesize .gt. 0) then
@@ -451,8 +450,8 @@ c
          do i = 1, n_per_rec
             ijkl = packed_labels(i)
             labels(1,i) = ishft(ijkl,-48)
-            labels(4,i) = iand(ishft(ijkl,-32),65535)
-            labels(4,i) = iand(ishft(ijkl,-16),65535)
+            labels(2,i) = iand(ishft(ijkl,-32),65535)
+            labels(3,i) = iand(ishft(ijkl,-16),65535)
             labels(4,i) = iand(ijkl,65535)
          enddo
       else
