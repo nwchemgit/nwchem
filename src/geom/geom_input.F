@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.104 1999-06-11 18:04:24 mdupuis Exp $
+C     $Id: geom_input.F,v 1.105 1999-06-11 22:13:49 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2710,7 +2710,6 @@ C
       LOGICAL     OUT
       LOGICAL     SOME
       LOGICAL     ONLY
-      LOGICAL     WRONG
       LOGICAL     GOTX,GOTY,GOTZ
       LOGICAL     GOTONE
       LOGICAL     NOSYM
@@ -2777,6 +2776,7 @@ C
       DATA TWO    /2.0D+00/
       DATA THREE  /3.0D+00/
       DATA FOUR   /4.0D+00/
+      DATA TENM01 /1.0D-01/
       DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
@@ -3299,15 +3299,15 @@ C
       GOTY=.FALSE.
       GOTZ=.FALSE.
       DO IORDR=1,MXORDR
-         IF((XMAG(IORDR).GT.TENM02).AND.(.NOT.GOTX)) THEN
+         IF((XMAG(IORDR).GT.TENM01).AND.(.NOT.GOTX)) THEN
             AXORDR(1)=IORDR
             GOTX=.TRUE.
          ENDIF
-         IF((YMAG(IORDR).GT.TENM02).AND.(.NOT.GOTY)) THEN
+         IF((YMAG(IORDR).GT.TENM01).AND.(.NOT.GOTY)) THEN
             AXORDR(2)=IORDR
             GOTY=.TRUE.
          ENDIF
-         IF((ZMAG(IORDR).GT.TENM02).AND.(.NOT.GOTZ)) THEN
+         IF((ZMAG(IORDR).GT.TENM01).AND.(.NOT.GOTZ)) THEN
             AXORDR(3)=IORDR
             GOTZ=.TRUE.
          ENDIF
@@ -3404,36 +3404,16 @@ C
 C
 C     ----- ALIGN AXIS OF HIGHEST ORDER ALONG -Z- -----
 C
-      IF(AXORDR(2).GT.AXORDR(1)) THEN
-         KAXIS=2
-         JAXIS=1
-         IAXIS=3
+      IF((AXORDR(3).GT.AXORDR(1)).AND.
+     1   (AXORDR(3).GT.AXORDR(2))     ) THEN
+          KAXIS=3
+      ELSEIF((AXORDR(2).GT.AXORDR(1)).AND.
+     1       (AXORDR(2).GT.AXORDR(3))     ) THEN
+          KAXIS=2
       ELSE
-         KAXIS=1
-         JAXIS=3
-         IAXIS=2
+          KAXIS=1
       ENDIF
-      IF(AXORDR(3).GT.AXORDR(KAXIS)) THEN
-         KAXIS=3
-         JAXIS=2
-         IAXIS=1
-      ENDIF
-      PRPAXS=PROPER(1).OR.PROPER(2).OR.PROPER(3)
-      IF(PRPAXS) THEN
-         IF(.NOT.PROPER(KAXIS)) THEN
-            IF(AXORDR(JAXIS).GE.AXORDR(IAXIS)) THEN
-               KAXIS=JAXIS
-               IF(.NOT.PROPER(KAXIS)) THEN
-                  KAXIS=IAXIS
-               ENDIF
-            ELSE
-               KAXIS=IAXIS
-               IF(.NOT.PROPER(KAXIS)) THEN
-                  KAXIS=JAXIS
-               ENDIF
-            ENDIF
-         ENDIF
-      ENDIF
+C
       IF(SOME) THEN
          WRITE(IW,9994) AXORDR(KAXIS)
       ENDIF
@@ -3465,7 +3445,7 @@ C
       SYMC2X=MOD(AXORDR(NEWAXS(1)),2).EQ.0.AND.
      1           PROPER(NEWAXS(1))
       SYMC2Y=MOD(AXORDR(NEWAXS(2)),2).EQ.0.AND.
-     1           PROPER(NEWAXS(1))
+     1           PROPER(NEWAXS(2))
       IF(SOME) THEN
          WRITE(IW,9992) SYMC2X,SYMC2Y
       ENDIF
@@ -4045,17 +4025,20 @@ C
    20    CONTINUE
          VEC(I,I)=ONE
    30 CONTINUE
-      AA(1)=A(1,1)
-      AA(2)=A(2,1)
-      AA(3)=A(2,2)
-      AA(4)=A(3,1)
-      AA(5)=A(3,2)
-      AA(6)=A(3,3)
+      AA(1)=-A(1,1)
+      AA(2)=-A(2,1)
+      AA(3)=-A(2,2)
+      AA(4)=-A(3,1)
+      AA(5)=-A(3,2)
+      AA(6)=-A(3,3)
       IA(1)=0
       IA(2)=1
       IA(3)=3
 
       CALL HND_DIAGIV(AA,VEC,EIG,IA,N,N,N)
+      EIG(1)=-EIG(1)
+      EIG(2)=-EIG(2)
+      EIG(3)=-EIG(3)
 C
 C     ----- CHECK FOR RIGHT HANDEDNESS, CORRECT IF NOT -----
 C
