@@ -1,5 +1,5 @@
       subroutine task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.2 1995-12-16 02:18:19 d3g681 Exp $
+C$Id: do_chk_sum.F,v 1.3 1996-01-05 02:00:11 d3e129 Exp $
       implicit none
       integer rtdb
 c
@@ -81,7 +81,7 @@ c
       cpu  = util_cpusec()
       wall = util_wallsec()
       call intb_chk_sum(rtdb,basis,.false.)
-*--      call int_chk_sum(rtdb,basis,.false.)
+      call int_chk_sum(rtdb,basis,.false.)
 *--      call int_chk_sum(rtdb,basis,.true.)
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall

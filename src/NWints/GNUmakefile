@@ -1,18 +1,19 @@
 
-# $Id: GNUmakefile,v 1.28 1996-01-04 21:28:15 d3g681 Exp $
+# $Id: GNUmakefile,v 1.29 1996-01-05 01:59:35 d3e129 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
     SUBDIRS = api int aux ints_sp deriv texas
 
-#NOPE
-    USE_TEXAS = YEP
+    USE_TEXAS = NOPE
+
 
 include ../config/makefile.h
 include ../config/makelib.h
 
+
 txs:
-	@touch api/cando_sp.F texas/texas_stubs.F
+	@touch api/cando_sp.F texas/texas_stubs.F api/int_2e2c.F api/int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
 fix:
 	@(cd texas; $(MAKE) "USE_TEXAS=YEP" removeobj)

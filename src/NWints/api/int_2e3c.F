@@ -1,6 +1,6 @@
       subroutine int_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e3c.F,v 1.3 1995-01-09 08:48:35 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.4 1996-01-05 01:59:52 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two electron integrals
@@ -22,6 +22,10 @@ c::functions
       external cando_nw
       external int_chk_sh
       external int_chk_init
+#if defined(USE_TEXAS)
+      logical cando_txs
+      external cando_txs
+#endif
 c:: passed
       integer brain, ketin, lscr, leri
       integer ish,jsh,ksh
@@ -33,6 +37,14 @@ c:: local
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
+      logical status_nw
+#if defined(USE_TEXAS)
+      logical status_txs
+      integer num_quart, dummy_lab(2)
+      double precision roff(3), q4 
+      integer nint
+      logical dum_log
+#endif
 c
       integer WarnP
       save WarnP
@@ -50,6 +62,13 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
      &       call errquit('int_2e3c: invalid contraction/shell',0)
+c
+c set integral code status
+c
+      status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
+#if defined(USE_TEXAS)
+      status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
+#endif
 c
 c     define center information required 
 c
@@ -69,7 +88,26 @@ c
       c_cent  = ibs_cn2ce(jsh,ket)
       d_cent  = ibs_cn2ce(ksh,ket)
 c
-      if(cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)) then
+#if defined(USE_TEXAS)
+      if (status_txs) then
+        num_quart = 1
+        dummy_lab(1) = 0
+        dummy_lab(2) = 0
+        roff(1) = 0.0d00
+        roff(2) = 0.0d00
+        roff(3) = 0.0d00
+        dum_log = .false.
+        q4 = 1.0d00
+        nint = 0
+        call texas_hf2_m(brain,ish,0,ketin,jsh,ksh,num_quart,
+     &      q4,.false.,roff,roff,roff,roff,.false.,
+     &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+     &      nint, .false., dum_log, scr, lscr)
+
+      else if(status_nw) then
+#else
+      if(status_nw) then
+#endif
 c
         ucont   = ibs_cn2ucn(ish,bra)
         Lp      = infbs_cont(CONT_TYPE ,ucont,bra)

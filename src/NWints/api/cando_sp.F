@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.11 1995-11-01 17:34:20 d3e129 Exp $
+c $Id: cando_sp.F,v 1.12 1996-01-05 01:59:49 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -150,7 +150,12 @@ c
       implicit none
       integer basisin
       integer ish,jsh
+      integer mytype, basis
 c
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
 #include "candoP.fh"
 c
 #if defined(USE_TEXAS)
@@ -159,8 +164,19 @@ c
         return
       endif
 c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c
       cando_txs = .true.
-      if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
+*old      if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
+      if (ish.gt.0) then
+        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(ish,basis),basis)
+        cando_txs = cando_txs.and. (mytype.ge.-1)
+      endif
+      if (jsh.gt.0) then
+        mytype = infbs_cont(CONT_TYPE,ibs_cn2ucn(jsh,basis),basis)
+        cando_txs = cando_txs.and. (mytype.ge.-1)
+      endif
 #else
       cando_txs = .false.
 #endif

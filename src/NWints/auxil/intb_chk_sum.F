@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.3 1995-12-23 01:09:40 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.4 1996-01-05 02:00:13 d3e129 Exp $
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 
@@ -707,7 +707,7 @@ c
       integer i,j,isym2
       isym2(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)          
 *
-*************      if (neri.gt.1) return
+      if (neri.gt.1) return
       count = 0
       do 00100 i=1,neri
         if (abs(eri(i)).gt.zerotol) then

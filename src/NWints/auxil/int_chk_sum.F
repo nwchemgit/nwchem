@@ -1,5 +1,5 @@
       subroutine int_chk_sum(rtdb,basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.18 1995-12-23 01:09:39 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.19 1996-01-05 02:00:12 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -278,7 +278,8 @@ c
 *                call int_2e4c(basisin,i,j,basisin,k,l,
 *     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
                 call int_l2e4c(basisin,i,j,basisin,k,l,
-     &              1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
+c     &              1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
+     &              1.0d-08,.false.,memb,dbl_mb(imemb),numleft,
      &              int_mb(i_ilab),int_mb(i_jlab),
      &              int_mb(i_klab),int_mb(i_llab),
      &              mems,dbl_mb(imems))

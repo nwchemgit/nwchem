@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.34 1995-12-27 20:19:39 d3e129 Exp $
+# $Id: GNUmakefile,v 1.35 1996-01-05 01:59:54 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -35,6 +35,9 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
+txs:
+	@touch cando_sp.F int_2e2c.F int_2e3c.F
+	$(MAKE) "USE_TEXAS=YEP"
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(cando_sp.o):	 $(INCDIR)/geobasmapP.fh ./candoP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(exact_mem.o):	 $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
