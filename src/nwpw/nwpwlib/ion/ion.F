@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.38 2005-01-27 00:33:42 bylaska Exp $
+* $Id: ion.F,v 1.39 2005-01-31 04:44:03 bylaska Exp $
 *
 
 *     ***************************
@@ -267,7 +267,8 @@ c     value = geom_destroy(geom)
 c     call ion_shift()
 
 *     **** get velocities if md code ****
-      if (control_code().eq.2) then
+      if ((control_code().eq.2).or. 
+     >    (control_code().eq.7)) then
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
 
@@ -1168,9 +1169,9 @@ c         eki1=0.5d0*eki1
       double precision sa1,sa2
 
 *     *** external functions ****
-      logical          control_rotation,control_allow_translation
+      logical          control_rotation,control_translation
       double precision control_time_step,ion_amass
-      external         control_rotation,control_allow_translation
+      external         control_rotation,control_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1203,7 +1204,7 @@ c         eki1=0.5d0*eki1
      >                  dbl_mb(r0(1)))
 
 *     **** remove translation? ***
-      if (.not.control_allow_translation()) 
+      if (.not.control_translation()) 
      > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** remove rotation? ***
@@ -1402,9 +1403,9 @@ c         eki1=0.5d0*eki1
       double precision vgx,vgy,vgz
 
 *     *** external functions ****
-      logical          control_allow_translation
+      logical          control_translation
       double precision control_time_step,ion_amass
-      external         control_allow_translation
+      external         control_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1432,7 +1433,7 @@ c         eki1=0.5d0*eki1
      >                  dbl_mb(r1(1)))
 
 *     **** remove translation? ***
-      if (.not.control_allow_translation()) 
+      if (.not.control_translation()) 
      > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** determine current kinetic energy and add to running average ***
@@ -1481,9 +1482,9 @@ c         eki1=0.5d0*eki1
       double precision vgx,vgy,vgz,smr
 
 *     *** external functions ****
-      logical          control_rotation,control_allow_translation
+      logical          control_rotation,control_translation
       double precision control_time_step,ion_amass
-      external         control_rotation,control_allow_translation
+      external         control_rotation,control_translation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1515,7 +1516,7 @@ c         eki1=0.5d0*eki1
      >                  dbl_mb(r0(1)))
 
 *     **** remove translation? ***
-      if (.not.control_allow_translation())
+      if (.not.control_translation())
      > call remove_center_mass(dbl_mb(r2(1)),dbl_mb(r1(1)))
 
 *     **** remove rotation? ***
