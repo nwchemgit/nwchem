@@ -100,7 +100,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.26 1996-10-20 17:56:08 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.27 1996-10-21 22:42:50 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -189,6 +189,7 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
+       blen = max(blen,maxbfsh)
 c
 c  Memory arithmetic
 c

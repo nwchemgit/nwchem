@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.49 1996-08-14 19:50:09 rg240 Exp $
+C$Id: mointdriver.F,v 1.50 1996-10-21 22:43:02 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -31,7 +31,7 @@ c
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
-       integer noper_core
+       integer noper_core, seg_incr
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii, ipass
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
@@ -53,7 +53,7 @@ c
        external moints_occrange
 c
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
+       data oexch,ocoul/.true.,.false./
        data ohalf/.true./
        data charge/0.d0/
        data tol2e/1.d-12/
@@ -155,7 +155,8 @@ c
 c Get Block-length
 c
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
-     $      1,blen)) blen = 10
+     $      1,blen)) blen = 16
+       blen = max(blen,maxbfsh)
        if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
      $      1,oblk)) oblk = .false.
 c
@@ -351,7 +352,7 @@ c ---------------------------
 c
        tmp2 = tcgtime()
        call ga_zero(g_epair)
-       ocoul = .true.
+       ocoul = .false.
        oexch = .true.
        oseg_hi = occ_lo - 1
        ipass = 0
@@ -364,7 +365,7 @@ c
        tpass = tcgtime()
        ipass = ipass + 1
        oseg_lo = oseg_hi + 1
-       oseg_hi = min((oseg_lo + 1),occ_hi)
+       oseg_hi = min((oseg_lo + seg_incr),occ_hi)
 c
        call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
      $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )

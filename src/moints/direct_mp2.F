@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.27 1996-09-19 01:17:44 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.28 1996-10-21 22:42:50 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -26,7 +26,8 @@ c
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
        integer npairs
-       integer nbf, nsh, nelec, nact, nocc, nopen, nocc_correl
+       integer nbf, nsh, maxbfsh
+       integer nelec, nact, nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, nocct
@@ -98,6 +99,8 @@ c
      $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. bas_numcont(basis,nsh))
      $      call errquit('direct_mp2: cannot get basis info',0)
+       if (.not. bas_nbf_cn_max(basis,maxbfsh))
+     $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
      $      scf_energy = 0.0d0
 c
@@ -165,7 +168,7 @@ c
      $                     occ_frozen)) occ_frozen = 0
        endif
        if (.not.rtdb_get(rtdb, 'direct_mp2:vir_frozen', MT_INT, 1,
-     $                   occ_frozen)) then
+     $                   vir_frozen)) then
          if (.not.rtdb_get(rtdb, 'fourindex:vir_frozen', MT_INT, 1,
      $                     vir_frozen)) vir_frozen = 0
        endif
@@ -186,7 +189,8 @@ c
 c Get Block-length
 c
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
-     $                   1,blen)) blen = 10
+     $                   1,blen)) blen = 16
+       blen = max(blen,maxbfsh)
        if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
      $                   1,oblk)) oblk = .false.
 c
