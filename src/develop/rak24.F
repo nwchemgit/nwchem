@@ -1,5 +1,5 @@
 *
-* $Id: rak24.F,v 1.4 2000-02-04 01:30:24 mg201 Exp $
+* $Id: rak24.F,v 1.5 2000-02-04 19:53:16 mg201 Exp $
 *
       logical function raktask_ecppe(rtdb)
 *
@@ -45,7 +45,7 @@ c
      &      ('task_ecppe: bas_numcont failed?',911)
 *
 *normalize basis set
-      if (.not.int_normalize(basis,rtdb)) call errquit
+      if (.not.int_normalize(rtdb,basis)) call errquit
      &      ('task_ecppe: int_normalize failed?',911)
       if (.not.bas_print(basis)) stop ' err bas_print'
       if (.not.gbs_map_print(basis)) stop ' err bas_print'

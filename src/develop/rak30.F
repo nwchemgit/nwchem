@@ -1,5 +1,5 @@
 *
-* $Id: rak30.F,v 1.5 2000-02-04 01:30:24 mg201 Exp $
+* $Id: rak30.F,v 1.6 2000-02-04 19:53:16 mg201 Exp $
 *
       logical function raktask_intdd_3c(rtdb)
       implicit none
@@ -41,7 +41,7 @@ c
       write(luout,*)' geom/basis loaded'
       call util_flush(luout)
 c
-      if (.not.int_normalize(basis,rtdb)) stop ' norm error 1'
+      if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
      $    call errquit(' basis print failed', 0)

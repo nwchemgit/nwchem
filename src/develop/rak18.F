@@ -1,5 +1,5 @@
 *
-* $Id: rak18.F,v 1.4 2000-02-04 01:30:24 mg201 Exp $
+* $Id: rak18.F,v 1.5 2000-02-04 19:53:15 mg201 Exp $
 *
       logical function task_computeSld(rtdb)
       implicit none
@@ -66,7 +66,7 @@ c
      &      ('task_computeSld: bas_numcont failed?',911)
 *
 *normalize basis set
-      if (.not.int_normalize(basis,rtdb)) call errquit
+      if (.not.int_normalize(rtdb,basis)) call errquit
      &      ('task_computeSld: int_normalize failed?',911)
 *
 * initialize the integral API

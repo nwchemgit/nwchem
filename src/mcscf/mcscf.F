@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.61 2000-02-04 01:38:00 mg201 Exp $
+* $Id: mcscf.F,v 1.62 2000-02-04 19:58:08 mg201 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -228,7 +228,7 @@ c
      $        5x,35('-'))
       endif
 c     
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      &    call errquit('mcscf:int_normalize failed',0)
 c     
 c     See if we are already converged

@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.6 2000-02-04 01:30:25 mg201 Exp $
+*     $Id: rjhtrans.F,v 1.7 2000-02-04 19:53:17 mg201 Exp $
 *
       implicit none
 #include "global.fh"
@@ -63,7 +63,7 @@ c
      $        call errquit('scf_init: no ao basis set', 0)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      $           call errquit('scf:int_normalize failed', 0)
 c
 c     Read the MO vectors and evals from a UHF calculation
