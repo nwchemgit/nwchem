@@ -1,0 +1,2317 @@
+ argument  1 = grad_ozone.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+start grad_ozone
+
+#
+# Ozone --- check C2V symmetry for all analytic gradient methods
+#           SCF RHF/ROHF/UHF
+#           MP2 RHF/UHF
+#
+
+geometry units au noprint  # 3-21g RHF singlet optimized geometry
+  symmetry c2v
+  O       0.000000   0.000000  -0.769844
+  O       0.000000   1.961067   0.384922
+end
+
+basis noprint
+  O library 6-31g*
+end
+
+title; case s7: Ozone --- RHF SCF energy without symmetry
+scf; print low; sym off; adapt off; end
+task scf
+
+title; case s1: Ozone --- RHF SCF energy with symmetry
+scf; sym on; adapt on; end
+task scf
+
+title; case s5: Ozone --- RHF SCF analytic gradients with symmetry
+task scf gradient
+
+title; case s6: Ozone --- RHF SCF numerical gradients with symmetry
+scf; print none; end
+task scf gradient numerical
+
+title; case m1: Ozone --- Semi-direct MP2 energy with symmetry
+task mp2
+
+title; case m2: Ozone --- Direct MP2 energy with symmetry
+task direct_mp2
+
+title; case m3: Ozone --- Semi-direct analytic MP2 gradient with symmetry
+task mp2 gradient
+
+title; case m4: Ozone --- Semi-direct numerical MP2 gradient with symmetry
+mp2; print none; end
+task mp2 gradient numerical
+
+title; case s11: Ozone --- ROHF triplet SCF energy without symmetry
+scf; print low; triplet; sym off; adapt off; end
+task scf
+
+title; case s8: Ozone --- ROHF triplet SCF energy with symmetry
+scf; triplet; sym on; adapt on; end
+task scf
+
+title; case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
+task scf gradient
+
+title; case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry
+scf; print none; end
+task scf gradient numerical
+
+title; cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+mcscf; active 6; actelec 6; state 3B2; vectors output ozone.mc.movecs; end
+task mcscf gradient
+
+title; cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry
+mcscf; print none; end
+task mcscf gradient numerical
+
+title; case s16: Ozone --- UHF triplet SCF energy without symmetry
+scf; print low; uhf; triplet; sym off; adapt off; end
+task scf
+
+title; case s12: Ozone --- UHF triplet SCF energy with symmetry
+scf; uhf; triplet; sym on; adapt on; end
+task scf
+
+title; case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
+task scf gradient
+
+title; case s15: Ozone --- UHF triplet SCF numerical gradients with symmetry
+scf; print none; end
+task scf gradient numerical
+
+title; case m5: Ozone --- Semi-direct analytic UMP2 gradient with symmetry
+mp2; print default; end
+task mp2 gradient
+
+title; case m6: Ozone --- Semi-direct numerical UMP2 gradient with symmetry
+mp2; print none; end
+task mp2 gradient numerical
+
+eof
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.0
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = fermi
+    program   = /msrc/home/d3g681/nwchem/bin/SOLARIS/nwchem
+    date      = Tue Jun 24 15:20:52 1997
+
+    compiled  = Tue Jun 24 12:34:17 PDT 1997
+    source    = /msrc/home/d3g681/nwchem
+    input     = grad_ozone.nw
+    prefix    = grad_ozone.
+    data base = /tmp/grad_ozone.db
+    status    = startup
+    nproc     =    1
+
+
+            Memory information
+            ------------------
+
+    heap      =    2949121 doubles
+    stack     =    2949121 doubles
+    global    =    5898240 doubles (allocated separately from heap & stack)
+    total     =   11796482 doubles
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = /tmp
+  0 scratch   = /tmp
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                case s7: Ozone --- RHF SCF energy without symmetry
+                --------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                case s7: Ozone --- RHF SCF energy without symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    12
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+ 
+
+ Forming initial guess at       1.6s
+
+
+ Starting SCF solution at       4.6s
+
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -224.261436374836
+      One-electron energy =   -452.039969540914
+      Two-electron energy =    155.216941919140
+ Nuclear repulsion energy =     72.561591246938
+
+        Time for solution =      2.8s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                 case s1: Ozone --- RHF SCF energy with symmetry
+                 -----------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                  case s1: Ozone --- RHF SCF energy with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    12
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+ Forming initial guess at       7.8s
+
+
+ Starting SCF solution at       7.9s
+
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =   -224.261436443624
+      One-electron energy =   -452.039969540901
+      Two-electron energy =    155.216941850339
+ Nuclear repulsion energy =     72.561591246938
+
+        Time for solution =      1.8s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+           case s5: Ozone --- RHF SCF analytic gradients with symmetry
+           -----------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+            case s5: Ozone --- RHF SCF analytic gradients with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    12
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+  The SCF is already converged 
+
+         Total SCF energy =   -224.261436443624
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+            case s5: Ozone --- RHF SCF analytic gradients with symmetry
+ 
+
+  wavefunction    =   RHF     
+
+  Using symmetry
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  numq   8108
+
+
+                         RHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.000076
+   2 O       0.000000   1.961067   0.384922    0.000000   0.000008  -0.000038
+   3 O       0.000000  -1.961067   0.384922    0.000000  -0.000008  -0.000038
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       7.95   |
+                 ----------------------------------------
+                 |  WALL  |       0.07   |       8.05   |
+                 ----------------------------------------
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+           case s6: Ozone --- RHF SCF numerical gradients with symmetry
+           ------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.26143644
+
+
+ Saving state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.26139631
+ step    -1 energy        -224.26139690
+            gradient         0.000030
+ step     2 energy        -224.26138181
+ step    -2 energy        -224.26138396
+            gradient         0.000108
+
+
+                         SCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.000088
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.000021  -0.000044
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.000021  -0.000044
+ 
+ 
+
+ Deleting state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+             case m1: Ozone --- Semi-direct MP2 energy with symmetry
+             -------------------------------------------------------
+ 
+                   NWChem MP2 semi-direct energy/gradient module
+                   ---------------------------------------------
+ 
+ 
+              case m1: Ozone --- Semi-direct MP2 energy with symmetry
+ 
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  Basis functions       =     45
+  Molecular orbitals    =     45
+  Frozen core           =      0
+  Frozen virtuals       =      0
+  Active alpha occupied =     12
+  Active beta occupied  =     12
+  Active alpha virtual  =     33
+  Active beta virtual   =     33
+  Use MO symmetry       = T
+  Use skeleton AO sym   = T
+
+
+ GA uses MA = F    GA memory limited = T
+
+ Available: local mem=   5895985 global mem=  47153520 local disk= 97818624.
+   1 passes of  12:        10205                  5326               450846.
+ 
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at       40.5s
+ 
+ Integer Lmemory        18       4    2025     342       2    1035
+ Real Lmemory         4050    1296 1982094   72900   72900   19440    1188   19440
+ Total Lmemory     2392523
+
+   Block length                 45
+   Local GA available      5894190.0
+   Local memory required   2392523
+   Adjusted GA available   5894190.0
+   Aggregate GA available  5304771.0
+   Maximum record length       360
+   No. of segments              12
+   J/K orb. dimension           33
+   No. of functions             45
+   Max. functions/shell          6
+   Number of nodes               1
+
+
+Semi-direct integral transformation
+ Local Memory required:      2392523 words 
+ Global Memory remaining:    5304771 words per node
+ IO Buffer length:               360 words
+Node 0 wrote      3.3 Mb in      0.2 s     Agg I/O rate:    21.4 Mb/s
+ Done moints_semi at       54.4s
+ Done maket at       55.3s
+ Done multipass loop at       55.3s
+
+
+          -------------------------------------------
+          SCF energy                -224.261436439215
+          Correlation energy          -0.595170656535
+          Total MP2 energy          -224.856607095750
+          -------------------------------------------
+
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  2.87D-05 seconds/call
+
+                                   Nr. of calls                 CPU time (s)              Wall time (s)  
+                             -------------------------      ---------------------      ---------------------
+ Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
+ mp2: moints                   1          1          1  14.      14.      14.        14.      14.      14.    
+ mp2: maket                    1          1          1 0.88     0.88     0.88       0.89     0.89     0.89    
+ mp2: total                    1          1          1  15.      15.      15.        15.      15.      15.    
+
+ The average no. of pstat calls per process was 3.00D+00 with a timing overhead of 8.62D-05s
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                case m2: Ozone --- Direct MP2 energy with symmetry
+                --------------------------------------------------
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+                          Direct MP2
+                          ----------
+          Basis functions:                       45
+          Shells:                                18
+          Block length:                          16
+          Active occupied range:             1 - 12
+          Active virtual range:             13 - 45
+          MO coefficients read from:  /tmp/grad_ozone.movecs   
+          Operator matrices in core:             78
+          AO passes required:                     1
+          Use AO Integral blocking
+          Twofold algorithm used
+
+     Pass:    1     Index range:    1  -   12     Time:      7.56
+
+
+          -------------------------------------------
+          SCF energy                -224.261436439215
+          Correlation energy          -0.595170657663
+          Total MP2 energy          -224.856607096878
+          -------------------------------------------
+
+
+          Total MP2 time:           7.83
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+        case m3: Ozone --- Semi-direct analytic MP2 gradient with symmetry
+        ------------------------------------------------------------------
+ 
+                   NWChem MP2 semi-direct energy/gradient module
+                   ---------------------------------------------
+ 
+ 
+        case m3: Ozone --- Semi-direct analytic MP2 gradient with symmetry
+ 
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  Basis functions       =     45
+  Molecular orbitals    =     45
+  Frozen core           =      0
+  Frozen virtuals       =      0
+  Active alpha occupied =     12
+  Active beta occupied  =     12
+  Active alpha virtual  =     33
+  Active beta virtual   =     33
+  Use MO symmetry       = T
+  Use skeleton AO sym   = T
+
+
+ GA uses MA = F    GA memory limited = T
+
+ Available: local mem=   5895985 global mem=  47101392 local disk= 97679360.
+   1 passes of  12:      2243387                 39755               795841.
+ 
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at       64.4s
+ 
+ Integer Lmemory        18       4    2025     342       2    1035
+ Real Lmemory         4050    1296 1982094   72900   72900   19440    1188   19440
+ Total Lmemory     2392523
+
+   Block length                 45
+   Local GA available      5887674.0
+   Local memory required   2392523
+   Adjusted GA available   5887674.0
+   Aggregate GA available  5298906.6
+   Maximum record length       360
+   No. of segments              12
+   J/K orb. dimension           33
+   No. of functions             45
+   Max. functions/shell          6
+   Number of nodes               1
+
+
+Semi-direct integral transformation
+ Local Memory required:      2392523 words 
+ Global Memory remaining:    5298907 words per node
+ IO Buffer length:               360 words
+Node 0 wrote      3.3 Mb in      0.1 s     Agg I/O rate:    22.8 Mb/s
+ Done moints_semi at       78.9s
+ Done maket at       79.8s
+ Done pijab at       80.0s
+ Done wijab at       80.1s
+ Done lai at       81.4s
+ Done nonsep at      111.2s
+ Done multipass loop at      111.2s
+
+
+          -------------------------------------------
+          SCF energy                -224.261436439215
+          Correlation energy          -0.595170656535
+          Total MP2 energy          -224.856607095750
+          -------------------------------------------
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+    scftype = RHF 
+    nclosed =   12
+      nopen =    0
+  variables =      396
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ Integral file          = /tmp/grad_ozone.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      8        Max. records in file   =   2831
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 8.925D+03 #integrals = 1.661D+05 #direct =  0.0% #cached =100.0%
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 1.1E-09) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  7.4075E-02  3.4998E-01    0.0000   113.0
+                  2    2  3.2939E-02  1.5563E-01    0.4447   113.2
+                  3    3  1.3092E-02  6.1855E-02    0.3975   113.3
+                  4    4  4.2312E-03  1.9991E-02    0.3232   113.5
+                  5    5  7.1615E-04  3.3836E-03    0.1693   113.6
+                  6    6  1.5949E-04  7.5355E-04    0.2227   113.8
+                  7    7  3.5171E-05  1.6617E-04    0.2205   113.9
+                  8    8  6.2600E-06  2.9577E-05    0.1780   114.1
+                  9    9  1.7842E-06  8.4296E-06    0.2850   114.3
+
+ CPHF converged to   8.4D-06 in    9 iters
+
+
+ Parallel integral file used       6 records with       0 large values
+
+                Dipole Moments (a.u.)
+                --------------
+         Nuclear       SCF       SCF+MP2
+       ----------- ----------- -----------
+ X       0.000000    0.000000    0.000000
+ Y       0.000000    0.000000    0.000000
+ Z       0.000000   -0.324932   -0.206270
+ 
+
+ MP2 RHF      natural orbital occupation numbers
+
+
+              1      
+    1    1.9999
+    2    1.9999
+    3    1.9999
+    4    1.9896
+    5    1.9855
+    6    1.9805
+    7    1.9746
+    8    1.9704
+    9    1.9599
+   10    1.9572
+   11    1.9439
+   12    1.8860
+   13    0.1284
+   14    0.0424
+   15    0.0409
+   16    0.0198
+   17    0.0147
+   18    0.0121
+   19    0.0093
+   20    0.0082
+   21    0.0079
+   22    0.0074
+   23    0.0067
+   24    0.0064
+   25    0.0062
+   26    0.0051
+   27    0.0049
+   28    0.0041
+   29    0.0041
+   30    0.0039
+   31    0.0038
+   32    0.0031
+   33    0.0023
+   34    0.0020
+   35    0.0018
+   36    0.0016
+   37    0.0015
+   38    0.0012
+   39    0.0011
+   40    0.0007
+   41    0.0002
+   42    0.0002
+   43    0.0001
+   44    0.0001
+   45    0.0001
+ 
+  MP2 natural orbitals output to /tmp/grad_ozone.mp2nos
+ 
+  Using symmetry
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  numq   8102
+
+
+                         mp2 ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.126488
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.106500  -0.063244
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.106500  -0.063244
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       7.87   |
+                 ----------------------------------------
+                 |  WALL  |       0.05   |       7.90   |
+                 ----------------------------------------
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  2.86D-05 seconds/call
+
+                                   Nr. of calls                 CPU time (s)              Wall time (s)  
+                             -------------------------      ---------------------      ---------------------
+ Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
+ mp2: moints                   1          1          1  14.      14.      14.        14.      14.      14.    
+ mp2: maket                    1          1          1 0.92     0.92     0.92       0.92     0.92     0.92    
+ mp2: pijab                    1          1          1 0.14     0.14     0.14       0.14     0.14     0.14    
+ mp2: wijab                    1          1          1 0.15     0.15     0.15       0.15     0.15     0.15    
+ mp2: lai                      1          1          1  1.3      1.3      1.3        1.3      1.3      1.3    
+ mp2: backt                    1          1          1 0.85     0.85     0.85       0.86     0.86     0.86    
+ mp2: nonsep                   1          1          1  27.      27.      27.        29.      29.      29.    
+ mp2: laifock                  1          1          1  2.8      2.8      2.8        2.8      2.8      2.8    
+ mp2: cphf                     1          1          1  3.5      3.5      3.5        3.5      3.5      3.5    
+ mp2: wijfock                  1          1          1  2.9      2.9      2.9        3.0      3.0      3.0    
+ mp2: sep                      1          1          1  8.3      8.3      8.3        8.3      8.3      8.3    
+ mp2: total                    1          1          1  63.      63.      63.        66.      66.      66.    
+
+ The average no. of pstat calls per process was 1.20D+01 with a timing overhead of 3.44D-04s
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+       case m4: Ozone --- Semi-direct numerical MP2 gradient with symmetry
+       -------------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.85660710
+
+
+ Saving state for mp2 with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.85506063
+ step    -1 energy        -224.85807335
+            gradient         0.150636
+ step     2 energy        -224.85500930
+ step    -2 energy        -224.85810794
+            gradient         0.154932
+
+
+                         MP2 ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.126502
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.106516  -0.063251
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.106516  -0.063251
+ 
+ 
+
+ Deleting state for mp2 with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+           case s11: Ozone --- ROHF triplet SCF energy without symmetry
+           ------------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+           case s11: Ozone --- ROHF triplet SCF energy without symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    11
+  open shells     =     2
+  charge          =   0.00
+  wavefunction    = ROHF
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+ 
+
+ Forming initial guess at     225.4s
+
+
+ Starting SCF solution at     225.4s
+
+
+
+       Final ROHF results 
+       ------------------ 
+
+         Total SCF energy =   -224.282144660512
+      One-electron energy =   -452.591000730189
+      Two-electron energy =    155.747264822740
+ Nuclear repulsion energy =     72.561591246938
+
+        Time for solution =     10.7s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+             case s8: Ozone --- ROHF triplet SCF energy with symmetry
+             --------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+             case s8: Ozone --- ROHF triplet SCF energy with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    11
+  open shells     =     2
+  charge          =   0.00
+  wavefunction    = ROHF
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+ Forming initial guess at     236.7s
+
+
+ Starting SCF solution at     236.8s
+
+
+
+       Final ROHF results 
+       ------------------ 
+
+         Total SCF energy =   -224.282144732407
+      One-electron energy =   -452.591000730203
+      Two-electron energy =    155.747264750858
+ Nuclear repulsion energy =     72.561591246938
+
+        Time for solution =      2.0s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+       case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
+       --------------------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+       case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  closed shells   =    11
+  open shells     =     2
+  charge          =   0.00
+  wavefunction    = ROHF
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+  The SCF is already converged 
+
+         Total SCF energy =   -224.282144732407
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+       case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
+ 
+
+  wavefunction    =   ROHF    
+
+  Using symmetry
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  numq   8110
+
+
+                         ROHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.221825
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.123708  -0.110912
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.123708  -0.110912
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       7.88   |
+                 ----------------------------------------
+                 |  WALL  |       0.05   |       7.98   |
+                 ----------------------------------------
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+      case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry
+      ----------------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.28214473
+
+
+ Saving state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.28035218
+ step    -1 energy        -224.28385181
+            gradient         0.174982
+ step     2 energy        -224.27937119
+ step    -2 energy        -224.28480505
+            gradient         0.271693
+
+
+                         SCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.221836
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.123731  -0.110918
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.123731  -0.110918
+ 
+ 
+
+ Deleting state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+    cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+    -------------------------------------------------------------------------
+ 
+ 
+                            NWChem Direct MCSCF Module
+                            --------------------------
+ 
+ 
+     cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+ 
+ 
+     -----------------------------------
+       Basis functions:             45
+       Inactive shells:              9
+       Active shells:                6
+       Active electrons:             6
+       Symmetry:                    b2      
+       Multiplicity:                 3
+       Orbital rotations:          504
+     -----------------------------------
+
+     -----------------------------------
+       E2 extrapolation:             F
+       Conjugacy:                    T
+       Micro CI relax:               T
+       Canonical orbitals:           T
+       Maximum iterations:          20
+       Converge threshold:    1.00E-04
+       Conjugacy resets:            20
+       Initial levelshift:        0.10
+     -----------------------------------
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+
+ Loading old vectors from job with title :
+
+case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry
+
+
+   input molecular orbitals = /tmp/grad_ozone.movecs
+  output molecular orbtials = /tmp/ozone.mc.movecs
+
+       No. of determinants:           225
+
+
+  Starting Orbital Energies
+   -20.764079   -20.705175   -20.705135    -1.779952    -1.454627    -1.040145
+    -0.818777    -0.798277    -0.782813    -0.567469    -0.514366    -0.321938
+    -0.149861     0.412273     0.534015     0.824634     0.955807     0.964226
+     1.042015     1.050831     1.107480     1.156393     1.186073     1.211576
+     1.250070     1.482466     1.518750     1.679796     1.702944     1.718315
+     2.052493     2.052533     2.109793     2.134787     2.409158     2.726953
+     2.797559     2.940026     2.956535     2.995622     3.212360     3.339534
+     3.641307     3.835773     4.136333
+
+  Orbital Symmetry Irreps
+a1   b2   a1   a1   b2   a1   a1   b2   b1   b2   a1   a2   b1   a1   b2  
+a1   b2   a1   b1   a1   b2   a2   a1   b1   b2   b2   a1   a2   b1   a1  
+b2   a2   b1   a1   b2   a1   b1   a1   b2   a2   b2   a1   a1   b2   a1  
+
+ Integral file          = /tmp/grad_ozone.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      8        Max. records in file   =   2814
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 8.930D+03 #integrals = 1.670D+05 #direct =  0.0% #cached =100.0%
+
+
+
+
+          %%%%% MacroIteration   1 %%%%%
+
+
+           >>>| Valence CI:            -10.113847413818
+           >>>| MCSCF energy:         -224.286809659840
+           >>>| Gradient norm:          0.216006654D-01
+     --- Warning:   48 Hessian diagonals < 0.05 ---
+     --- Warning: Precondition failed to converge:Residue: current= 0.6D-01 required= 0.3D-01---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.28680966 -1.04D-02  0.00D+00  0.00D+00 0.0D+00    286.7
+       1.0000    -224.30430430 -1.43D-02 -1.95D-02 -3.95D-03 1.4D+00    288.4
+                     Negative curvature: hessian=-3.95D-03
+       1.5010    -224.30693162  4.54D-03  4.19D-03  3.77D-02 4.4D-01    290.0
+       1.3806    -224.30719424 -2.10D-04 -1.92D-04  3.94D-02 2.0D-02    291.7
+     --- Orbitals canonicalized ---
+
+
+
+          %%%%% MacroIteration   2 %%%%%
+
+
+           >>>| Valence CI:            -11.147153501949
+           >>>| MCSCF energy:         -224.307194239681
+           >>>| Gradient norm:          0.650766912D-01
+     --- Conjugacy reset ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.30719424 -5.43D-03  0.00D+00  0.00D+00 0.0D+00    297.8
+       1.0000    -224.31159019 -3.25D-03 -3.30D-03  2.18D-03 6.0D-01    299.5
+  restricting step size     1.4872629597798
+       2.0000    -224.31345489 -3.48D-04 -4.14D-04  2.90D-03 6.4D-02    301.2
+
+
+
+          %%%%% MacroIteration   3 %%%%%
+
+
+           >>>| Valence CI:            -11.958084974775
+           >>>| MCSCF energy:         -224.313454894838
+           >>>| Gradient norm:          0.891559147D-01
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.31345489 -1.34D-02  0.00D+00  0.00D+00 0.0D+00    306.0
+       1.0000    -224.33010133 -1.47D-02 -1.73D-02 -1.30D-03 1.1D+00    307.7
+                     Negative curvature: hessian=-1.30D-03
+       1.5010    -224.33449358 -1.47D-03 -2.13D-03  2.65D-02 1.1D-01    309.3
+       1.5563    -224.33452347  3.91D-04  3.88D-04  3.36D-02 2.9D-02    311.0
+
+
+
+          %%%%% MacroIteration   4 %%%%%
+
+
+           >>>| Valence CI:            -13.252870047622
+           >>>| MCSCF energy:         -224.334523469149
+           >>>| Gradient norm:          0.740501703D-01
+     --- Warning:    6 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33452347 -7.56D-03  0.00D+00  0.00D+00 0.0D+00    315.1
+       1.0000    -224.33518495  6.96D-03  6.60D-03  1.45D-02 9.2D-01    316.8
+       0.5206    -224.33671423 -5.35D-04 -5.57D-04  1.56D-02 7.1D-02    318.5
+
+
+
+          %%%%% MacroIteration   5 %%%%%
+
+
+           >>>| Valence CI:            -13.333360787372
+           >>>| MCSCF energy:         -224.336714234348
+           >>>| Gradient norm:          0.739058181D-01
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33671423 -5.02D-03  0.00D+00  0.00D+00 0.0D+00    321.3
+       1.0000    -224.33967099 -7.94D-04 -8.45D-04  4.22D-03 1.6D-01    323.0
+       1.1879    -224.33974096  5.00D-05  4.95D-05  4.49D-03 1.0D-02    324.7
+
+
+
+          %%%%% MacroIteration   6 %%%%%
+
+
+           >>>| Valence CI:            -13.097322072787
+           >>>| MCSCF energy:         -224.339740959462
+           >>>| Gradient norm:          0.197889050D-01
+     --- Warning:    4 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33974096 -1.33D-04  0.00D+00  0.00D+00 0.0D+00    327.5
+       1.0000    -224.33982434 -3.39D-05 -3.39D-05  9.89D-05 2.6D-01    329.2
+       1.3427    -224.33983013  1.21D-07  1.17D-07  9.92D-05 9.1D-04    330.8
+
+
+
+          %%%%% MacroIteration   7 %%%%%
+
+
+           >>>| Valence CI:            -13.038673924030
+           >>>| MCSCF energy:         -224.339830126155
+           >>>| Gradient norm:          0.311444848D-02
+     --- Warning:    6 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983013 -5.77D-06  0.00D+00  0.00D+00 0.0D+00    333.7
+       1.0000    -224.33983326 -5.05D-07 -5.05D-07  5.27D-06 8.8D-02    335.3
+
+
+
+          %%%%% MacroIteration   8 %%%%%
+
+
+           >>>| Valence CI:            -13.040221185936
+           >>>| MCSCF energy:         -224.339833264353
+           >>>| Gradient norm:          0.603891493D-03
+     --- Warning:    6 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983326 -7.28D-08  0.00D+00  0.00D+00 0.0D+00    338.2
+       1.0000    -224.33983331 -1.81D-08 -1.81D-08  5.47D-08 2.5D-01    339.8
+       1.3306    -224.33983331 -2.93D-12 -2.73D-12  5.47D-08 4.0D-05    341.4
+
+
+
+          %%%%% MacroIteration   9 %%%%%
+
+
+           >>>| Valence CI:            -13.041489628604
+           >>>| MCSCF energy:         -224.339833312812
+           >>>| Gradient norm:          0.285440295D-03
+     --- Warning:    6 Hessian diagonals < 0.05 ---
+
+                              ----- Line search ------
+
+        step       energy         lsg     num-lsg   num-lsh   lsrat    time
+      ------- ---------------- --------- --------- --------- ------- --------
+       0.0000    -224.33983331 -4.70D-08  0.00D+00  0.00D+00 0.0D+00    344.2
+       1.0000    -224.33983334 -6.83D-09 -6.82D-09  4.02D-08 1.5D-01    345.9
+       1.1697    -224.33983334 -5.87D-13 -3.24D-14  4.02D-08 1.2D-05    347.5
+
+
+
+          %%%%% MacroIteration  10 %%%%%
+
+
+           >>>| Valence CI:            -13.041776578498
+           >>>| MCSCF energy:         -224.339833340327
+           >>>| Gradient norm:          0.632474759D-04
+
+
+
+
+     ==============================
+            MCSCF Converged
+     ==============================
+
+
+
+          Canonical Eigenvalues
+
+              1      
+    1  -20.7679
+    2  -20.7034
+    3  -20.7032
+    4   -1.6876
+    5   -1.3340
+    6   -1.0160
+    7   -0.8084
+    8   -0.7834
+    9   -0.7659
+   10   -0.7277
+   11   -0.6466
+   12   -0.3563
+   13   -0.2622
+   14   -0.0120
+   15   -0.0081
+   16    0.7354
+   17    0.9036
+   18    0.9144
+   19    0.9765
+   20    0.9822
+   21    1.0419
+   22    1.1566
+   23    1.1860
+   24    1.2113
+   25    1.2350
+   26    1.4758
+   27    1.5168
+   28    1.6801
+   29    1.7029
+   30    1.7047
+   31    2.0474
+   32    2.0527
+   33    2.1100
+   34    2.1284
+   35    2.3993
+   36    2.7159
+   37    2.7974
+   38    2.9364
+   39    2.9517
+   40    2.9954
+   41    3.2066
+   42    3.3393
+   43    3.6386
+   44    3.8356
+   45    4.1352
+ 
+
+          Converged CI vector
+
+   Index           Coefficient          Config. Occupation
+       196         -0.04600967          2  3  4  5  2  5
+       197          0.03963021          2  3  4  5  1  6
+       138          0.02067047          1  2  3  5  2  3
+        12          0.98764789          1  2  3  4  1  2
+        44         -0.06597046          2  3  4  6  2  6
+        43         -0.05537364          2  3  4  6  1  5
+        29         -0.05618073          1  3  4  5  2  6
+        28         -0.07715334          1  3  4  5  1  5
+       211          0.03948579          1  3  4  6  2  5
+       212         -0.02558441          1  3  4  6  1  6
+
+
+
+          Natural orbital occupation numbers
+
+              1      
+    1    2.0000
+    2    2.0000
+    3    2.0000
+    4    2.0000
+    5    2.0000
+    6    2.0000
+    7    2.0000
+    8    2.0000
+    9    2.0000
+   10    1.9759
+   11    1.9761
+   12    1.0004
+   13    0.9996
+   14    0.0272
+   15    0.0208
+ 
+
+
+       Final MCSCF results 
+       ------------------- 
+
+       Total MCSCF energy =   -224.339833340327
+            Gradient norm =      6.3D-05
+
+    CPU time for solution =     82.5s
+   Wall time for solution =     84.6s
+
+
+ 
+                        Analysis of MCSCF natural orbitals
+                        ----------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-2.076789D+01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.994771  1 O  s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-2.070342D+01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16     -0.703551  2 O  s                 31     -0.703551  3 O  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-2.070318D+01  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.703446  2 O  s                 31     -0.703446  3 O  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-1.687615D+00  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -0.450248  1 O  s                  2     -0.416690  1 O  s          
+     5      0.237010  1 O  pz                 1      0.183035  1 O  s          
+     9      0.171734  1 O  pz                20     -0.165125  2 O  pz         
+    35     -0.165125  3 O  pz         
+ 
+ Vector    5  Occ=2.000000D+00  E=-1.334044D+00  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -0.326292  2 O  s                 36      0.326292  3 O  s          
+    32      0.317494  3 O  s                 17     -0.317494  2 O  s          
+    34     -0.212986  3 O  py                19     -0.212986  2 O  py         
+    35     -0.159059  3 O  pz                20      0.159059  2 O  pz         
+ 
+ Vector    6  Occ=2.000000D+00  E=-1.015990D+00  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.395530  1 O  s                 36     -0.384049  3 O  s          
+    21     -0.384049  2 O  s                 32     -0.330689  3 O  s          
+    17     -0.330689  2 O  s                  2      0.247656  1 O  s          
+     5     -0.203702  1 O  pz         
+ 
+ Vector    7  Occ=2.000000D+00  E=-8.083827D-01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20     -0.384801  2 O  pz                35     -0.384801  3 O  pz         
+    24     -0.250792  2 O  pz                39     -0.250792  3 O  pz         
+    34     -0.202604  3 O  py                19      0.202604  2 O  py         
+ 
+ Vector    8  Occ=2.000000D+00  E=-7.833898D-01  Symmetry=b1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.594257  1 O  px                 7      0.365972  1 O  px         
+    18      0.179882  2 O  px                33      0.179882  3 O  px         
+ 
+ Vector    9  Occ=2.000000D+00  E=-7.658528D-01  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.391312  2 O  pz                35     -0.391312  3 O  pz         
+    24      0.257906  2 O  pz                39     -0.257906  3 O  pz         
+    36     -0.211222  3 O  s                 21      0.211222  2 O  s          
+    32     -0.204244  3 O  s                 17      0.204244  2 O  s          
+    34     -0.186491  3 O  py                19     -0.186491  2 O  py         
+ 
+ Vector   10  Occ=1.975949D+00  E=-7.277039D-01  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.477190  1 O  py                19     -0.323011  2 O  py         
+    34     -0.323011  3 O  py                 8      0.175098  1 O  py         
+    23     -0.169812  2 O  py                38     -0.169812  3 O  py         
+    35      0.154920  3 O  pz                20     -0.154920  2 O  pz         
+ 
+ Vector   11  Occ=1.976097D+00  E=-6.466260D-01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.507543  1 O  pz                 9      0.298366  1 O  pz         
+    34      0.246121  3 O  py                19     -0.246121  2 O  py         
+    35     -0.192150  3 O  pz                20     -0.192150  2 O  pz         
+     2      0.183461  1 O  s          
+ 
+ Vector   12  Occ=1.000378D+00  E=-3.562989D-01  Symmetry=a2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18     -0.507958  2 O  px                33      0.507958  3 O  px         
+    22     -0.305968  2 O  px                37      0.305968  3 O  px         
+ 
+ Vector   13  Occ=9.996226D-01  E=-2.621580D-01  Symmetry=b1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    33      0.477181  3 O  px                18      0.477181  2 O  px         
+     3     -0.394122  1 O  px                 7     -0.346671  1 O  px         
+    22      0.336232  2 O  px                37      0.336232  3 O  px         
+ 
+ Vector   14  Occ=2.717973D-02  E=-1.198776D-02  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.684025  1 O  pz                 6      0.489381  1 O  s          
+     2      0.482211  1 O  s                 19      0.480818  2 O  py         
+    34     -0.480818  3 O  py                20      0.213321  2 O  pz         
+    35      0.213321  3 O  pz                38     -0.209843  3 O  py         
+    23      0.209843  2 O  py                36     -0.209533  3 O  s          
+ 
+ Vector   15  Occ=2.077352D-02  E=-8.098139D-03  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -0.907120  1 O  py                19     -0.425123  2 O  py         
+    34     -0.425123  3 O  py                20     -0.301447  2 O  pz         
+    35      0.301447  3 O  pz                36     -0.298381  3 O  s          
+    21      0.298381  2 O  s                  8     -0.275034  1 O  py         
+    14     -0.207376  1 O  dyz               32     -0.186570  3 O  s          
+ 
+ Vector   16  Occ=0.000000D+00  E= 7.354202D-01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.781567  1 O  s                 21     -1.709027  2 O  s          
+    36     -1.709027  3 O  s                 23      1.212437  2 O  py         
+    38     -1.212437  3 O  py                 9      1.161333  1 O  pz         
+    17      0.489683  2 O  s                 32      0.489683  3 O  s          
+    34      0.312117  3 O  py                19     -0.312117  2 O  py         
+ 
+ Vector   17  Occ=0.000000D+00  E= 9.035998D-01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -2.002406  1 O  s                 23     -0.848545  2 O  py         
+    38      0.848545  3 O  py                32      0.593672  3 O  s          
+    17      0.593672  2 O  s                  9     -0.561683  1 O  pz         
+     2      0.542962  1 O  s                 36     -0.437805  3 O  s          
+    21     -0.437805  2 O  s                 34     -0.341719  3 O  py         
+ 
+ Vector   18  Occ=0.000000D+00  E= 9.144235D-01  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8     -1.866287  1 O  py                23     -1.036587  2 O  py         
+    38     -1.036587  3 O  py                24     -1.034818  2 O  pz         
+    39      1.034818  3 O  pz                21      0.616424  2 O  s          
+    36     -0.616424  3 O  s                 14     -0.424811  1 O  dyz        
+    32     -0.363534  3 O  s                 17      0.363534  2 O  s          
+ 
+ Vector   19  Occ=0.000000D+00  E= 9.764812D-01  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.830201  1 O  pz                39      0.640474  3 O  pz         
+    24      0.640474  2 O  pz                 6      0.465947  1 O  s          
+    35     -0.428144  3 O  pz                20     -0.428144  2 O  pz         
+    13      0.384317  1 O  dyy                2      0.359483  1 O  s          
+    38     -0.353770  3 O  py                23      0.353770  2 O  py         
+ 
+ Vector   20  Occ=0.000000D+00  E= 9.822448D-01  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      0.650876  3 O  s                 21     -0.650876  2 O  s          
+    32     -0.503952  3 O  s                 17      0.503952  2 O  s          
+    39     -0.494793  3 O  pz                24      0.494793  2 O  pz         
+    20     -0.487201  2 O  pz                35      0.487201  3 O  pz         
+     8     -0.463457  1 O  py                29      0.256877  2 O  dyz        
+ 
+ Vector   21  Occ=0.000000D+00  E= 1.041938D+00  Symmetry=b1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.576558  1 O  px                18      0.520902  2 O  px         
+    33      0.520902  3 O  px                22     -0.492711  2 O  px         
+    37     -0.492711  3 O  px                 7     -0.459353  1 O  px         
+ 
+ Vector   22  Occ=0.000000D+00  E= 1.156596D+00  Symmetry=a2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.838819  2 O  px                37     -0.838819  3 O  px         
+    33      0.633856  3 O  px                18     -0.633856  2 O  px         
+    11     -0.172892  1 O  dxy        
+ 
+ Vector   23  Occ=0.000000D+00  E= 1.185983D+00  Symmetry=a1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9     -1.294837  1 O  pz                24      0.634777  2 O  pz         
+    39      0.634777  3 O  pz                 5      0.545633  1 O  pz         
+    20     -0.343331  2 O  pz                35     -0.343331  3 O  pz         
+    32      0.174130  3 O  s                 17      0.174130  2 O  s          
+    19     -0.166373  2 O  py                34      0.166373  3 O  py         
+ 
+ Vector   24  Occ=0.000000D+00  E= 1.211262D+00  Symmetry=b1
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.385982  1 O  px                22     -0.810686  2 O  px         
+    37     -0.810686  3 O  px                 3     -0.702998  1 O  px         
+    33      0.363155  3 O  px                18      0.363155  2 O  px         
+ 
+ Vector   25  Occ=0.000000D+00  E= 1.234972D+00  Symmetry=b2
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.645144  1 O  py                21     -0.717371  2 O  s          
+    36      0.717371  3 O  s                 39     -0.711548  3 O  pz         
+    24      0.711548  2 O  pz                19      0.418984  2 O  py         
+    34      0.418984  3 O  py                38     -0.364845  3 O  py         
+    23     -0.364845  2 O  py                 4     -0.334071  1 O  py         
+ 
+
+ Wrote Lagrangian and 1- and 2-particle density matrices to /tmp/grad_ozone.mcpdm
+
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total        nuclear
+     -   - - -        -----        -------
+     0   0 0 0      0.000000     24.000000
+ 
+     1   1 0 0      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000
+     1   0 0 1     -0.001239      0.000000
+ 
+     2   2 0 0    -10.341397      0.000000
+     2   1 1 0      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000
+     2   0 2 0    -12.072039     61.532540
+     2   0 1 1      0.000000      0.000000
+     2   0 0 2    -11.928496      7.111917
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     7.95   2.00  0.94  2.91  0.79  1.17  0.15
+    2 O    8     8.02   2.00  0.98  2.74  0.91  1.31  0.08
+    3 O    8     8.02   2.00  0.98  2.74  0.91  1.31  0.08
+ 
+    Mulliken analysis of the active space density
+    ---------------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 O    8     2.30   0.00  0.13  1.61 -0.01  0.51  0.06
+    2 O    8     1.85   0.00  0.02  1.32 -0.05  0.52  0.04
+    3 O    8     1.85   0.00  0.02  1.32 -0.05  0.52  0.04
+
+ Parallel integral file used       6 records with    3128 large values
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+     cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+ 
+  Using symmetry
+
+ Read molecular orbitals from /tmp/ozone.mc.movecs
+
+  numq   8109
+
+
+                         MCSCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.261193
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.156724  -0.130597
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.156724  -0.130597
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       8.93   |
+                 ----------------------------------------
+                 |  WALL  |       0.05   |       9.05   |
+                 ----------------------------------------
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+    cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry
+    --------------------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.33983334
+
+
+ Saving state for mcscf with suffix numg
+        /tmp/ozone.mc.movecs
+        /tmp/grad_ozone.civec
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.33757583
+ step    -1 energy        -224.34200927
+            gradient         0.221672
+ step     2 energy        -224.33658194
+ step    -2 energy        -224.34297998
+            gradient         0.319902
+
+
+                         MCSCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.261199
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.156745  -0.130599
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.156745  -0.130599
+ 
+ 
+
+ Deleting state for mcscf with suffix numg
+        /tmp/ozone.mc.movecs
+        /tmp/grad_ozone.civec
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+           case s16: Ozone --- UHF triplet SCF energy without symmetry
+           -----------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+            case s16: Ozone --- UHF triplet SCF energy without symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  alpha electrons =    13
+  beta  electrons =    11
+  charge          =   0.00
+  wavefunction    = UHF 
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+ 
+
+ Forming initial guess at     514.3s
+
+  movecs_read: failing reading from /tmp/grad_ozone.movecs
+
+ Starting SCF solution at     514.3s
+
+
+
+       Final UHF  results 
+       ------------------ 
+
+         Total SCF energy =   -224.293317690266
+      One electron energy =   -452.578463268016
+      Two electron energy =    155.723554330812
+ Nuclear repulsion energy =     72.561591246938
+
+                       Sz =      1.0000
+                 Sz(Sz+1) =      2.0000
+                      S^2 =      2.0160
+
+        Time for solution =     11.6s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+             case s12: Ozone --- UHF triplet SCF energy with symmetry
+             --------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+             case s12: Ozone --- UHF triplet SCF energy with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  alpha electrons =    13
+  beta  electrons =    11
+  charge          =   0.00
+  wavefunction    = UHF 
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+ Forming initial guess at     526.5s
+
+
+ Starting SCF solution at     526.6s
+
+
+
+       Final UHF  results 
+       ------------------ 
+
+         Total SCF energy =   -224.293317762424
+      One electron energy =   -452.578463268016
+      Two electron energy =    155.723554258654
+ Nuclear repulsion energy =     72.561591246938
+
+                       Sz =      1.0000
+                 Sz(Sz+1) =      2.0000
+                      S^2 =      2.0160
+
+        Time for solution =      2.1s
+
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+       case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
+       --------------------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+       case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    45
+  atoms           =     3
+  alpha electrons =    13
+  beta  electrons =    11
+  charge          =   0.00
+  wavefunction    = UHF 
+  input vectors   = /tmp/grad_ozone.movecs
+  output vectors  = /tmp/grad_ozone.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+ 
+
+  The SCF is already converged 
+
+         Total SCF energy =   -224.293317762424
+
+                              NWCHEM GRADIENTS Module
+                              -----------------------
+ 
+ 
+       case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
+ 
+
+  wavefunction    =   UHF     
+
+  Using symmetry
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  numq   8110
+
+
+                         UHF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.221192
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.122908  -0.110596
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.122908  -0.110596
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       7.81   |
+                 ----------------------------------------
+                 |  WALL  |       0.05   |       7.94   |
+                 ----------------------------------------
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+      case s15: Ozone --- UHF triplet SCF numerical gradients with symmetry
+      ---------------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.29331776
+
+
+ Saving state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.29153635
+ step    -1 energy        -224.29501334
+            gradient         0.173850
+ step     2 energy        -224.29055177
+ step    -2 energy        -224.29597007
+            gradient         0.270915
+
+
+                         SCF ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.221201
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.122930  -0.110600
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.122930  -0.110600
+ 
+ 
+
+ Deleting state for scf with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+       case m5: Ozone --- Semi-direct analytic UMP2 gradient with symmetry
+       -------------------------------------------------------------------
+ 
+                   NWChem MP2 semi-direct energy/gradient module
+                   ---------------------------------------------
+ 
+ 
+        case m5: Ozone --- Semi-direct analytic UMP2 gradient with symmetry
+ 
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  Basis functions       =     45
+  Molecular orbitals    =     45
+  Frozen core           =      0
+  Frozen virtuals       =      0
+  Active alpha occupied =     13
+  Active beta occupied  =     11
+  Active alpha virtual  =     32
+  Active beta virtual   =     34
+  Use MO symmetry       = T
+  Use skeleton AO sym   = T
+
+
+ GA uses MA = F    GA memory limited = T
+
+ Available: local mem=   5895985 global mem=  47101360 local disk= 97647616.
+   1 passes of  13:      2245218                 38955               835120.
+ 
+ Semi-direct pass number   1 of   1  for UHF alpha       at      575.5s
+ 
+ Integer Lmemory        18       4    2025     342       2    1035
+ Real Lmemory         4050    1296 1982094   72900   72900   21060    1152   21060
+ Total Lmemory     2396047
+
+   Block length                 45
+   Local GA available      5887670.0
+   Local memory required   2396047
+   Adjusted GA available   5887670.0
+   Aggregate GA available  5298903.0
+   Maximum record length       360
+   No. of segments              13
+   J/K orb. dimension           32
+   No. of functions             45
+   Max. functions/shell          6
+   Number of nodes               1
+
+
+Semi-direct integral transformation
+ Local Memory required:      2396047 words 
+ Global Memory remaining:    5298903 words per node
+ IO Buffer length:               360 words
+Node 0 wrote      3.4 Mb in      0.2 s     Agg I/O rate:    22.4 Mb/s
+ Done moints_semi at      589.4s
+ Done maket at      590.4s
+ Done pijab at      590.5s
+ Done wijab at      590.7s
+ Done lai at      591.9s
+ Done nonsep at      620.4s
+ Done multipass loop at      620.4s
+
+ GA uses MA = F    GA memory limited = T
+
+ Available: local mem=   5895985 global mem=  47101360 local disk= 97647616.
+   1 passes of  11:      2241555                 40554               750805.
+ 
+ Semi-direct pass number   1 of   1  for UHF beta        at      620.9s
+ 
+ Integer Lmemory        18       4    2025     342       2    1035
+ Real Lmemory         4050    1296 1982094   72900   72900   17820    1224   17820
+ Total Lmemory     2388998
+
+   Block length                 45
+   Local GA available      5887670.0
+   Local memory required   2388998
+   Adjusted GA available   5887670.0
+   Aggregate GA available  5298903.0
+   Maximum record length       360
+   No. of segments              11
+   J/K orb. dimension           34
+   No. of functions             45
+   Max. functions/shell          6
+   Number of nodes               1
+
+
+Semi-direct integral transformation
+ Local Memory required:      2388998 words 
+ Global Memory remaining:    5298903 words per node
+ IO Buffer length:               360 words
+Node 0 wrote      3.1 Mb in      0.1 s     Agg I/O rate:    22.1 Mb/s
+ Done moints_semi at      634.8s
+ Done maket at      635.7s
+ Done pijab at      635.8s
+ Done wijab at      636.0s
+ Done lai at      637.2s
+ Done nonsep at      665.2s
+ Done multipass loop at      665.2s
+
+
+          -------------------------------------------
+          SCF energy                -224.293317762424
+          Correlation energy          -0.451374570896
+          Total MP2 energy          -224.744692333320
+          -------------------------------------------
+
+                                NWCHEM CPHF Module
+                                ------------------
+ 
+ 
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+    scftype = UHF 
+     nalpha =   13
+      nbeta =   11
+  variables =      790
+  tolerance =   1.0D-05
+  max. iter =  100
+
+
+ Integral file          = /tmp/grad_ozone.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      8        Max. records in file   =   2830
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 8.925D+03 #integrals = 1.661D+05 #direct =  0.0% #cached =100.0%
+
+
+            ----- linear solve (tol: 1.0E-05 prod-acc: 4.0E-10) -----
+
+               iter nbas    rnorm     rnorm-scal   ratio     time
+               ---- ---- ----------- ----------- --------- -------
+                  1    1  2.9427E-02  2.6123E-01    0.0000   656.3
+                  2    2  1.3119E-02  1.1646E-01    0.4458   656.6
+                  3    3  6.1745E-03  5.4812E-02    0.4706   657.0
+                  4    4  2.4689E-03  2.1917E-02    0.3999   657.3
+                  5    5  8.7501E-04  7.7676E-03    0.3544   657.7
+                  6    6  3.6238E-04  3.2169E-03    0.4141   658.0
+                  7    7  1.2629E-04  1.1211E-03    0.3485   658.4
+                  8    8  3.8869E-05  3.4505E-04    0.3078   658.8
+                  9    9  9.4615E-06  8.3992E-05    0.2434   659.1
+                 10   10  2.5163E-06  2.2337E-05    0.2659   659.5
+                 11   11  7.0737E-07  6.2794E-06    0.2811   659.9
+
+ CPHF converged to   6.3D-06 in   11 iters
+
+
+ Parallel integral file used       6 records with       0 large values
+
+                Dipole Moments (a.u.)
+                --------------
+         Nuclear       SCF       SCF+MP2
+       ----------- ----------- -----------
+ X       0.000000    0.000000    0.000000
+ Y       0.000000    0.000000    0.000000
+ Z       0.000000   -0.011483   -0.068086
+ 
+
+ MP2 alpha    natural orbital occupation numbers
+
+
+              1      
+    1    1.0000
+    2    1.0000
+    3    0.9999
+    4    0.9960
+    5    0.9950
+    6    0.9925
+    7    0.9922
+    8    0.9909
+    9    0.9892
+   10    0.9885
+   11    0.9863
+   12    0.9803
+   13    0.9782
+   14    0.0188
+   15    0.0165
+   16    0.0081
+   17    0.0074
+   18    0.0060
+   19    0.0056
+   20    0.0056
+   21    0.0049
+   22    0.0039
+   23    0.0032
+   24    0.0031
+   25    0.0030
+   26    0.0027
+   27    0.0027
+   28    0.0026
+   29    0.0023
+   30    0.0023
+   31    0.0022
+   32    0.0021
+   33    0.0015
+   34    0.0013
+   35    0.0010
+   36    0.0009
+   37    0.0009
+   38    0.0008
+   39    0.0008
+   40    0.0006
+   41    0.0001
+   42    0.0001
+   43    0.0001
+   44    0.0001
+   45    0.0001
+
+ MP2 beta     natural orbital occupation numbers
+
+
+              1      
+    1    1.0000
+    2    1.0000
+    3    0.9999
+    4    0.9946
+    5    0.9921
+    6    0.9908
+    7    0.9887
+    8    0.9887
+    9    0.9880
+   10    0.9811
+   11    0.9786
+   12    0.0169
+   13    0.0157
+   14    0.0095
+   15    0.0079
+   16    0.0079
+   17    0.0060
+   18    0.0058
+   19    0.0043
+   20    0.0036
+   21    0.0032
+   22    0.0029
+   23    0.0025
+   24    0.0022
+   25    0.0019
+   26    0.0017
+   27    0.0016
+   28    0.0012
+   29    0.0012
+   30    0.0010
+   31    0.0009
+   32    0.0008
+   33    0.0007
+   34    0.0007
+   35    0.0005
+   36    0.0005
+   37    0.0005
+   38    0.0003
+   39    0.0002
+   40    0.0001
+   41    0.0001
+   42    0.0001
+   43    0.0001
+   44    0.0000
+   45   -0.0048
+ 
+  MP2 natural orbitals output to /tmp/grad_ozone.mp2nos
+ 
+  Using symmetry
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+
+ Read molecular orbitals from /tmp/grad_ozone.movecs
+
+  numq   8098
+
+
+                         mp2 ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.262393
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.162306  -0.131196
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.162306  -0.131196
+ 
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.05   |       8.06   |
+                 ----------------------------------------
+                 |  WALL  |       0.05   |       8.61   |
+                 ----------------------------------------
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  2.90D-05 seconds/call
+
+                                   Nr. of calls                 CPU time (s)              Wall time (s)  
+                             -------------------------      ---------------------      ---------------------
+ Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
+ mp2: moints                   2          2          2  28.      28.      28.        28.      28.      28.    
+ mp2: maket                    2          2          2  1.8      1.8      1.8        1.9      1.9      1.9    
+ mp2: pijab                    2          2          2 0.27     0.27     0.27       0.27     0.27     0.27    
+ mp2: wijab                    2          2          2 0.29     0.29     0.29       0.29     0.29     0.29    
+ mp2: lai                      2          2          2  2.5      2.5      2.5        2.5      2.5      2.5    
+ mp2: backt                    2          2          2  1.7      1.7      1.7        1.7      1.7      1.7    
+ mp2: nonsep                   2          2          2  53.      53.      53.        54.      54.      54.    
+ mp2: laifock                  1          1          1  2.8      2.8      2.8        2.8      2.8      2.8    
+ mp2: cphf                     1          1          1  6.2      6.2      6.2        6.4      6.4      6.4    
+ mp2: wijfock                  1          1          1  2.9      2.9      2.9        2.9      2.9      2.9    
+ mp2: sep                      1          1          1  8.5      8.5      8.5        9.1      9.1      9.1    
+ mp2: total                    1          1          1 1.10E+02 1.10E+02 1.10E+02   1.12E+02 1.12E+02 1.12E+02
+
+ The average no. of pstat calls per process was 1.90D+01 with a timing overhead of 5.50D-04s
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+       case m6: Ozone --- Semi-direct numerical UMP2 gradient with symmetry
+       --------------------------------------------------------------------
+ 
+                            NWChem Numerical Gradients
+                            --------------------------
+ 
+ 
+ No. of totally-symmetric internal modes =   2
+
+ Reference energy        -224.74469233
+
+
+ Saving state for mp2 with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ Finite difference step  1.00000D-02
+
+ step     1 energy        -224.74235327
+ step    -1 energy        -224.74694441
+            gradient         0.229557
+ step     2 energy        -224.74142356
+ step    -2 energy        -224.74785106
+            gradient         0.321375
+
+
+                         MP2 ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 O       0.000000   0.000000  -0.769844    0.000000   0.000000   0.262402
+   2 O       0.000000   1.961067   0.384922    0.000000  -0.162321  -0.131201
+   3 O       0.000000  -1.961067   0.384922    0.000000   0.162321  -0.131201
+ 
+ 
+
+ Deleting state for mp2 with suffix numg
+        /tmp/grad_ozone.movecs
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 2.31e+04 2.31e+04 1.04e+06 1.74e+06 1.46e+06 3103        0        0     
+bytes total:             3.93e+08 2.34e+08 5.13e+08 6.33e+06 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1329024 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        22	        48
+	current total bytes		         0	         0
+	maximum total bytes		   2175780	  38918612
+	maximum total K-bytes		      2176	     38919
+	maximum total M-bytes		         3	        39
+
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 2.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:      851.8s     wall:      871.2s
+ Note: IEEE floating-point exception flags raised: 
+    Inexact;  Underflow; 
+ Nonstandard floating-point mode enabled 
+ See the Numerical Computation Guide, ieee_flags(3M), ieee_sun(3M) 
