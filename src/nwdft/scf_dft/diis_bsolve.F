@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
 
-C$Id: diis_bsolve.F,v 1.2 1995-10-17 08:54:57 d3g681 Exp $
+C$Id: diis_bsolve.F,v 1.3 1995-12-28 00:01:17 og845 Exp $
 
 c     
 c***********************************************************************
@@ -38,8 +38,11 @@ c
 c***********************************************************************
 c     
 c     
-      implicit real*8 (a-h,o-z)
-      dimension wght(mxhist+1),pulay((mxhist+1)*(mxhist+2)/2)
+      implicit none
+      integer mxhist
+      integer icall
+      integer nhist
+      double precision wght(mxhist+1),pulay((mxhist+1)*(mxhist+2)/2)
 c     
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -47,6 +50,12 @@ c
 #include "tcgmsg.fh"
 c     
       logical LResult
+      integer ijcanon,i,j
+      integer ntemp,info,ij,ijm1
+      integer lipiv,iipiv,liwork,iiwork,lwork,iwork,lcc,icc,
+     ,     lafp,iafp
+      double precision  rcond, ferr, berr
+c
 
       ijcanon(i,j) = i*(i-1)/2 +j
       

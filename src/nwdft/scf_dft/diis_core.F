@@ -1,9 +1,15 @@
       subroutine diis_core(pulay,mxhist,nhist,icall,nbf,ispin,ipol,
-     &     iga_diis,iga_err)
-C$Id: diis_core.F,v 1.2 1995-10-17 08:54:59 d3g681 Exp $
-      implicit real*8 (a-h,o-z) 
+     &     g_diis,g_err)
+C$Id: diis_core.F,v 1.3 1995-12-28 00:01:18 og845 Exp $
+      implicit none
 c
-      dimension pulay((mxhist+1)*(mxhist+2)/2,ipol)
+      integer mxhist
+      integer nbf
+      integer ispin
+      integer ipol
+      integer g_diis
+      integer g_err
+      double precision pulay((mxhist+1)*(mxhist+2)/2,ipol)
       Integer nhist(2), icall(2)
 c***********************************************************************
 c
@@ -40,11 +46,15 @@ c                          history.
 c
 c***********************************************************************
 c
-c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+c
+      integer irow,ijcanon,i,j
+      integer me,nproc,i1,ii,istep,ijm1,ijlast,jj,ij
+      double precision temp
+c
 c
       irow(j) = mod(j-1,mxhist)+1
       ijcanon(i,j) = i*(i-1)/2 +j
@@ -73,8 +83,8 @@ C     Store new errvec
 c
 
       call ga_copy_patch('N',
-     *     iga_err,1,nbf,1,nbf, 
-     *     iga_diis,1,nbf,istep+1,istep+nbf)
+     *     g_err,1,nbf,1,nbf, 
+     *     g_diis,1,nbf,istep+1,istep+nbf)
 c
 c     If more than mxhist histories are stored, shift the
 c     rows of the Pulays B matrix.
@@ -99,7 +109,7 @@ c
 c     Construct the last row of the B matrix.
 c
 
-      temp=ga_ddot(iga_err,iga_err)
+      temp=ga_ddot(g_err,g_err)
       if(me.eq.0)write(LuOut,1111)temp
       do jj = 1,nhist(ispin)
 c
@@ -109,8 +119,8 @@ c
 
         ijlast = ijcanon(nhist(ispin)+1,nhist(ispin)+2-jj)
         pulay(ijlast,ispin)=ga_ddot_patch(
-     *       iga_diis,'N',1,nbf,istep+1,istep+nbf,
-     *       iga_err,'N',1,nbf,1,nbf)
+     *       g_diis,'N',1,nbf,istep+1,istep+nbf,
+     *       g_err,'N',1,nbf,1,nbf)
 c        
       enddo
       return
