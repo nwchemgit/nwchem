@@ -1,4 +1,13 @@
 \label{SCF}
+\Large
+\verb+***************************************************************+
+It would be really nice if someone could supply a '25-words-or-less'
+description of the SCF program right here.
+\verb+***************************************************************+
+\normalsize
+
+The SCF program is invoked in NWChem to perform a particular calculation 
+by specifying the keyword \verb+scf+ on the compound directive,
 
 \begin{verbatim}
   SCF
@@ -6,12 +15,49 @@
   END
 \end{verbatim}
 
-This compound directive controls the SCF program.  Closed shell RHF,
-ROHF, and UHF are currently working.  The various optional
-sub-directives are described below.
+The keyword \verb+scf+ tells the code that this is a compound directive,
+and additional directives may be specified by the user to define the particular
+problem.  The \verb+scf+ input will be processed until the
+\verb+END+ directive is encountered.  The actual SCF calculation will
+be performed when the input encounters a \verb+TASK+ directive of the form,
+
+\begin{verbatim}
+  TASK SCF
+\end{verbatim}
+
+The default task in the SCF module is a spin-restricted, 
+closed shell SCF calculation (identified by keyword RHF if specified 
+explicitly in the input).  The options that are currently working
+in the code are closed shell RHF, ROHF, and UHF. The following 
+subsections describe the
+optional directives that can be specified for a \verb+SCF+ calculation
+in NWChem.
+
+% This compound directive controls the SCF program.  Closed shell RHF,
+% ROHF, and UHF are currently working.  The various optional
+% sub-directives are described below.
 
 \subsection{Type of SCF wavefunction and specification of multiplicity
 and open shells}
+
+Unless some other type of calculation is specified explicitly in
+the directive input, NWChem assumes that the SCF module is to be used
+to perform a spin-restricted,
+closed-shell SCF calculation (keyword RHF).  In such a case, an error results
+if the number of electrons is inconsistent with this assumption.
+The number of electrons is inferred from the
+total charge on the system and the nuclear charges of the
+specific atoms (which are by default their atomic numbers
+adjusted for the presence of ECPs, unless specified
+explicitly by input on the \verb+GEOMETRY+ directive -- see Section 
+\ref{sec:geometry}).  The total charge on the system is zero by default, 
+unless specified at
+some value by input on the \verb+CHARGE+ directive -- see Section 
+\ref{sec:toplevel}).
+
+The options available to define the SCF wavefunction and multiplicity are
+as follows;
+
 
 \begin{verbatim}
   SINGLET 
@@ -25,103 +71,209 @@ and open shells}
   UHF
 \end{verbatim}
 
-By default, the SCF module assumes that a spin-restricted,
-closed-shell SCF (RHF) calculation is to be run, and an error results
-if the number of electrons (inferred from the nuclear-charges and
-total charge on the system) is inconsistent with this.  If any of the
-keywords specifying the multiplicity are given then a spin-restricted,
-high-spin, open-shell SCF (ROHF) calculation is run.  The open-shell
-orbitals must be the highest occupied orbitals, which, if necessary,
-may be arranged through the use of the \verb+SWAP+ keyword on the
-\verb+VECTORS+ directive (see section \ref{sec:vectors}). If there are
-more than four open shells then \verb+NOPEN+ may be used to specify
-directly the number of open shells.  If in addition it is desired to
-run a spin-unrestricted calculation (UHF) then the keyword \verb+UHF+
-must be present.  The keywords \verb+RHF+ and \verb+ROHF+ exist for
-convenience, but never need to be specified.  In UHF calculations it is
+The optional keywords \verb+SINGLET, DOUBLET, TRIPLET, QUARTET, QUINTET+ 
+and \verb+NOPEN+ allow the user to specify the number of open shells for a 
+particular calculation.  \verb+SINGLET+ is the default, and specifies a 
+closed shell; \verb+DOUBLET+ specifies one open shell; \verb+TRIPLET+
+specifies two open shells; and so forth.  If there are more than four
+open shells, the keword \verb+NOPEN+ must be used, with the integer input
+for \verb+nopen+ defining the exact number of open shells.
+
+If the multiplicity is any value other than \verb+SINGLET+, the default
+calculation will be a spin-restricted,
+high-spin, open-shell SCF calculation (keyword ROHF).  The open-shell
+orbitals must be the highest occupied orbitals.  If necessary, the vectors
+may be rearranged through the use of the \verb+SWAP+ keyword on the
+\verb+VECTORS+ directive (see section \ref{sec:vectors}) to accomplish this. 
+
+% If there are
+% more than four open shells then \verb+NOPEN+ may be used to specify
+% directly the number of open shells.  If in addition it is desired to
+% run a spin-unrestricted calculation (UHF) then the keyword \verb+UHF+
+% must be present.  
+
+The keywords \verb+RHF+ and \verb+ROHF+ are provided in
+the code for completeness, but they do not necessarily need to be 
+specified explicitly in the input.  One or the other type of calculation
+will be performed for the \verb+SCF+ calculation, depending on the optional
+input specified for the multiplicity, as described above.
+
+An additional calculation of
+a spin-unrestricted solution can also be performed as part of the task
+by specifying the keyword \verb+UHF+.  In UHF calculations it is
 assumed that the number of open shells corresponds to the difference
-between the number of alpha-spin and beta-spin orbitals.
+between the number of alpha-spin and beta-spin orbitals.  For example, 
+a UHF calculation
+with 2 more alpha-spin orbitals than beta-spin orbitals can be obtained
+by specifying
 
-Examples:
-\begin{itemize}
-\item No input runs a spin-restricted closed-shell singlet.
-\item \verb+doublet+ runs a ROHF calculation with one open shell.
-\item \verb+triplet; uhf+ runs a UHF calculation with 2 more
-  alpha-spin orbitals than beta-spin.
-\end{itemize}
+\begin{verbatim}
+scf
+     triplet uhf
 
-Note that by default molecular orbitals are symmetry adapted.  This
-may not be desirable for fully unrestricted wavefunctions, in which
-case specify \verb+ADAPT OFF+ (section \ref{sec:adapt}) and \verb+SYM
-OFF+ (section \ref{sec:sym}).
+     ...
+
+end
+\end{verbatim}
+
+
+% The option \verb+RHF+ is the default
+% and can be obtained by supplying no other input for the wavefunction.
+% The default \verb+ROHF+ is obtained by supplying a
+% multiplicity keyword for the problem, and nothing else.  
+
+
+
+% Examples:
+% \begin{itemize}
+% \item No input runs a spin-restricted closed-shell singlet.
+%  \item \verb+doublet+ runs a ROHF calculation with one open shell.
+% \item \verb+triplet; uhf+ runs a UHF calculation with 2 more
+%   alpha-spin orbitals than beta-spin.
+% \end{itemize}
+
+The user should be aware that by default molecular orbitals are symmetry 
+adapted in NWChem.  This may not be desirable for fully unrestricted 
+wavefunctions.  In such cases, the user has the option of defeating the
+defaults by specifying the keywords \verb+ADAPT OFF+ (see Section 
+\ref{sec:adapt}) and \verb+SYM OFF+ (see Section \ref{sec:sym}).
 
 \subsection{SYM}
 \label{sec:sym}
 
-\begin{verbatim}
-  SYM (ON|OFF)
-\end{verbatim}
-This directive enables/disables use of symmetry to speedup Fock matrix
-construction (via the petite or skeleton algorithm) in the SCF even if
-symmetry was used in the specification of the geometry.  Symmetry
-adaption of the molecular orbitals is not affected by this option.
+The default in NWChem is to assume that the molecular orbitals are 
+symmetry adapted, so the default keyword for symmetry is \verb+SYM ON+.
+This option enables speedup of the Fock matrix construction via the
+petite or skeleton algorithm.  The keyword \verb+SYM OFF+ can be used to
+%
+% \begin{verbatim}
+%   SYM (ON|OFF)
+% \end{verbatim}
+%This directive enables/disables use of symmetry to speedup Fock matrix
+% construction (via the petite or skeleton algorithm) in the SCF even if
+% symmetry was used in the specification of the geometry.  Symmetry
+% adaption of the molecular orbitals is not affected by this option.
+disable the use of symmetry in the Fock matrix construction.  This
+option can be used in the calculation in the SCF module even when
+symmetry was used in the specification of the geometry.
+
+The directive to specify the symmetry option is as follows,
+
+ \begin{verbatim}
+   SYM (ON|OFF) default SYM ON
+ \end{verbatim}
+
 
 \subsection{ADAPT}
 \label{sec:adapt}
 
+The default in the SCF module calculation is to assume symmetry adaption
+of the molecular orbitals.  The complementary keywords \verb+ADAPT ON+
+and \verb+ADAPT OFF+ allow the user to enable or disable this assumption,
+depending on the particular application.  The default assumption of
+adaptive symmetry does not affect the speed of the calculation, but the
+resulting orbitals may be symmetry contaminated for some problems.  This
+is especially likely if the calculation is started using orbitals
+from a distorted geometry.
+
+The underlying assumption in the use of symmetry in Fock matrix contruction
+is that the density is totally symmetric.  If the orbitals are symmetry-
+contaminated, this assumption may not be valid.  This could result in
+incorrect energies and poor convergence of the calculation.  Therefore,
+the option \verb+ADAPT OFF+ is recommended for any calculation for which
+the user has elected to specify \verb+SYM OFF+.
+
+
+The directive to specify the adaptive option explicitly within the
+\verb+SCF+ directive is as follows,
+
 \begin{verbatim}
- ADAPT (ON|OFF)
+ ADAPT (ON|OFF) default ADAPT ON
 \end{verbatim}
 
-This directive enables/disables symmetry adaption of the molecular
-orbitals.  This does not impact the speed of the calculation but the
-resulting orbitals may be symmetry contaminated, especially if
-starting a calculation from orbitals from a distorted geometry.
-Underlying the use of symmetry in Fock-matrix construction is the
-assumption that the density is totally symmetric --- if the orbitals
-are symmetry contaminated this assumption may be invalid which will
-potentially result in incorrect energies and poor convergence.  It is
-thus advisable when specifying \verb+ADAPT OFF+ to also specify
-\verb+SYM OFF+.
+% This directive enables/disables symmetry adaption of the molecular
+% orbitals.  This does not impact the speed of the calculation but the
+% resulting orbitals may be symmetry contaminated, especially if
+% starting a calculation from orbitals from a distorted geometry.
+% Underlying the use of symmetry in Fock-matrix construction is the
+% assumption that the density is totally symmetric --- if the orbitals
+% are symmetry contaminated this assumption may be invalid which will
+% potentially result in incorrect energies and poor convergence.  It is
+% thus advisable when specifying \verb+ADAPT OFF+ to also specify
+% \verb+SYM OFF+.
 
 \subsection{TOL2E}
+
+The keyword \verb+TOL2E can be specified as part of the \verb+SCF+ 
+directive for a particular task to define a sort of convergence
+criterion for the calculation.  
+% \begin{verbatim}
+%   TOL2E <real tol2e default 1.0e-7>
+% \end{verbatim}
+The variable \verb+tol2e+ is used in determining the integral screening 
+threshold for the
+evaluation of the energy and related Fock-like matrices.  The Schwarz
+inequality is used to screen upon the product of integrals and density
+matrices in a manner that results in approximately an accuracy of
+\verb+tol2e+ in the energy and Fock-matrices.  This differs from many
+codes where the error in the energy is typically much greater than
+this threshold.  The default threshold of $10^{-7}$ is suitable for most 
+purposes.
+A less stringent value of $10^{-5}$ can speed up some low-accuracy 
+exploratory calculations.  Conversely, a tighter threshold of $10^-9$ might be
+necessary to explore reliably very weak
+interactions, such as micro-Hartree or below.
+
+The input to specify the threshold explicitly within the
+\verb+SCF+ directive is as follows,
 
 \begin{verbatim}
   TOL2E <real tol2e default 1.0e-7>
 \end{verbatim}
 
-This is used in determining the integral screening threshold for the
-evaluation of the energy and related Fock-like matrices.  The Schwarz
-inequality is used to screen upon the product of integrals and density
-matrices in a manner that results in approximately an accuracy of
-\verb+TOL2E+ in the energy and Fock-matrices.  This differs from many
-codes where the error in the energy is typically much greater than
-this threshold.  The default threshold is suitable for most purposes.
-A value of $10^{-5}$ can speed up some low-accuracy exploratory
-calculations, where as a tighter threshold of $10^-9$ might be
-necessary to explore reliably very weak, micro-Hartree or below,
-interactions.
 
 \subsection{LAGRANGIAN}
 
+% \begin{verbatim}
+%   LAGRANGIAN
+% \end{verbatim}
+
+
+The keyword \verb+LAGRANGIAN+ can be included in the input for a
+\verb+SCF+ directive to ensure that the calculation will generate
+the orbital Lagrangian and write the data to disk. The
+lagrangian is required to compute ROHF gradients.  Under most
+circumstances this option is automatically enabled and need not be set
+by the user.
+
+The input to specify this option explicitly is symply
 \begin{verbatim}
   LAGRANGIAN
 \end{verbatim}
 
-This keyword generates and dumps the orbital Lagrangian to disk. The
-lagrangian is required to compute ROHF gradients but under most
-circumstances this option is automatically enabled and need not be set
-by the user.
+There are no arguments with this keyword.
 
 \subsection{CHUNK}
 
+% \begin{verbatim}
+%   CHUNK <integer chunk default -1>
+% \end{verbatim}
+
+The keyword \verb+CHUNK+ and its associated input allows the user to
+define the  `chunk-size' or granularity of the
+parallel work decomposition for a particular calculation.  The input for this
+option is
 \begin{verbatim}
   CHUNK <integer chunk default -1>
 \end{verbatim}
 
-This directive controls the `chunk-size' or granularity of the
-parallel work decomposition.  It might be necessary to use a smaller
-or larger value to obtain a more efficient execution on a large
+The default of \verb+-1+ means that the chunk size will be defined
+automatically within the code.  
+\Large 
+(****What does this default mean?***)
+\normalsize  
+It might be necessary to use a smaller
+or larger value to obtain more efficient execution on a large
 parallel computer, or a computer with very high communication costs.
 Users unfamiliar with the internal function of the program should seek
 advice before changing this parameter.
@@ -129,264 +281,572 @@ advice before changing this parameter.
 \subsection{VECTORS}
 \label{sec:vectors}
 
+The \verb+VECTORS+ directive allows the user to specify the source and 
+destination of the molecular orbital vectors.  In a startup calculation 
+(see Section \ref{sec:start}),the default
+source for guess vectors is to diagonalize a Fock matrix constructed
+from a superposition of the atomic density matrices for the particular
+problem.  This is usually
+a very good guess.   For a restarted or continued calculation, the default
+is to use whatever is in the current database.
+
+When a particular calculation requires some other starting point than 
+the default initial vectors, the \verb+VECTORS+ directive can be specified
+within the compound 
+\verb+SCF+ directive.  The form of the \verb+VECTORS+ directive is
+as follows;  
+% Alternative sources for orbitals include the result of
+% diagonalization of the bare-nucleus or one-electron Hamiltonian
+% (\verb+HCORE+), projection from molecular orbitals in a smaller basis
+% (\verb+PROJECT+), or from a named file that contains the results of a
+% previous calculation.
+
+
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
           [swap [alpha|beta] <integer vec1 vec2> ...] \
-          [output <string output_movecs default movecs>] \
+          [output <string output_movecs default input_movecs>] \
           [lock]
 \end{verbatim}
 
-The \verb+VECTORS+ directive controls the source and destination of
-the molecular orbital vectors.  In a startup calculation the default
-source for guess vectors is to diagonalize a Fock matrix constructed
-from a superposition of the atomic density matrices.  This is usually
-a very good guess.  Other possible sources for orbitals are from
-diagonalization of the bare-nucleus or one-electron Hamiltonian
-(\verb+HCORE+), projection from molecular orbitals in a smaller basis
-(\verb+PROJECT+), or from a named file that contains the results of a
-previous calculation.
+The keyword \verb+INPUT+ allows the user to specify the source of the 
+initial molecular orbital vectors as the file \verb+input_movecs.movecs+.  
+The default name for this string is \verb+ATOMIC.movecs+, for the diagonalized
+Fock matrix.  Another option in the code is to specify \verb+HCORE+ for
+the input \verb+input_movecs+.  This will produce initial vectors from
+diagonalization of the bare-nucleus or one-electron Hamiltonian.  If 
+neither of these options a suitable for the given problem, the input
+for \verb+input_movecs+ can be the name of a file that contains the
+results of a previous calculation.
 
-If the input vectors are read from a file then the output orbitals are
-by default sent to the same file.  If the \verb+ATOMIC+, \verb+HCORE+,
-or \verb+PROJECT+, guesses are used then the default destination for
-vectors is a file named \verb+"<file_prefix>.movecs"+.  When a
-calculation completes normally (i.e., is not interrupted or does not
-crash) then, independent of convergence, the database is automatically
-modified so that if the job is restarted the default source of vectors
-will be the results of the previous calculation.
+The keyword \verb+PROJECT+ allows the user to specify the starting point
+for the vectors using a projection of the molecular orbitals in a smaller
+basis set.  When this keyword is invoked, the user must supply the name
+of the basis set in the string \verb+basisname+, and the name of the file 
+containing the vectors in the string \verb+filename+.  The definition of 
+the basis \verb+basisname+ 
+must be available in the current database, and the basis must be
+smaller than the current one.  In addition, the geometry used for the
+previous calculations must have the atoms in the same order and in the
+same orientation as the current geometry.
+ 
+By default, the output orbitals are written over the initial vectors that
+were used to start the calculation.  When the initial guesses specified
+by means of the keywords \verb+ATOMIC+, \verb+HCORE+, or \verb+PROJECT+ 
+are used, the default destination for
+vectors is a file named \verb+"<file_prefix>.movecs"+.  A calculation 
+that completes normally (i.e., is not interrupted or does not
+% crash) automaticaly modifies the database.  This means that that if the 
+job is restarted the default source of vectors will be the results 
+of the previous calculation.  Specifying the keyword \verb+OUTPUT+ allows
+the user the option of sending the results of the calculation to a different
+destination, thereby preserving the initial vectors for other calculations.
 
-Once starting vectors have been produced from any of the possible
-options they may be reordered through use of the \verb+SWAP+ keyword
-which takes as its argument a list of pairs that will be swapped.
-For UHF calculations separate \verb+SWAP+ keywords must be provided
-for the alpha and beta orbitals as necessary.
+Applications of this directive are illustrated in the following examples,
+using the different options available through the keyword and input variables
+specifiction.
 
-The \verb+LOCK+ directive locks the ordering of orbitals to that of the
-initial vectors, as far as possible. The default is to order by
-ascending orbital energies within each orbital space. The \verb+LOCK+
-directive is useful, for example, to force the SCF to preserve the
-ordering of a previous geometry despite flipping of orbital energies.
-
-To re-cap, the default options suffice to provide a good starting
-guess for most instances as well as to route vectors to a file
-(\verb+"movecs"+) from which they are automatically used for restart.
-Note that the SCF orbitals are {\em always} canonicalized on output.
-Examples follow.
-
-To use the default sources for vectors and route result vectors
-to a different file
 \begin{verbatim}
+Example 1:
+
   vectors output h2o.movecs
 \end{verbatim}
 
-To load the vectors from one file and route result vectors to a
-second file
+This directive will result in the initial vectors being read from the 
+location \verb+atomic.movecs+, (which is the default).  The final vectors 
+obtained in the calculation
+will be saved in \verb+h2o.movecs+.  Note that SCF orbitals are {\em always}
+canonicalized on output.
+
+
+
 \begin{verbatim}
+Example 2:
+
   vectors input initial.movecs output final.movecs
 \end{verbatim}
 
-\sloppy
+This directive will result in the initial vectors being read from the file
+\verb+initial.movecs+.  The results will be written to the file
+\verb+final.movecs+.
 
-To restart from vectors in the file \verb+"small.movecs"+ which are in
-a basis named \verb+"small basis"+ (NB: the definition of this basis
-must be available in the current database and the basis must be
-smaller than the current one.  Also, the geometry used for the
-previous calculations must have the atoms in the same order and in the
-same orientation as the current geometry).  The keyword \verb+INPUT+
-is not necessary but is provided for clarity.  Output vectors are
-routed to the file \verb+"big.movecs"+.
 \begin{verbatim}
+Example 3:
+
   vectors input project "small basis" small.movecs
 \end{verbatim}
 
-\fussy
+This directive will cause the calculation to start from vectors in the
+file \verb+"small.movecs"+ which are in a basis named \verb+"small basis"+.
+The final vectors will be written over the initial values in the file
+\verb+"small.movecs"+ at the completion of the calculation.
+ 
 
-To read orbitals from the file \verb+"try1.movecs"+, swap the orbitals
-within the pairs 173--175 and 174--176, and write final orbitals to
-the file \verb+"try2.movecs"+.
+Once starting vectors have been obtained using any of the possible
+options, they may be reordered through use of the \verb+SWAP+ keyword.
+When this optional keyword is specified, it requires an
+argument list consisting of integer numbers corresponding to the pairs 
+that will be swapped.
+For UHF calculations, separate \verb+SWAP+ keywords must be provided
+for the alpha and beta orbitals as necessary.
+
+%
+%  The \verb+LOCK+ directive locks the ordering of orbitals to that of the
+% initial vectors, as far as possible. The default is to order by
+% ascending orbital energies within each orbital space. The \verb+LOCK+
+% directive is useful, for example, to force the SCF to preserve the
+% ordering of a previous geometry despite flipping of orbital energies.
+%
+% To re-cap, the default options suffice to provide a good starting
+% guess for most instances as well as to route vectors to a file
+% (\verb+"movecs"+) from which they are automatically used for restart.
+% Note that the SCF orbitals are {\em always} canonicalized on output.
+% Examples follow.
+% 
+% To use the default sources for vectors and route result vectors
+%  to a different file
+% \begin{verbatim}
+%   vectors output h2o.movecs
+% \end{verbatim}
+% 
+% To load the vectors from one file and route result vectors to a
+% second file
+% \begin{verbatim}
+%   vectors input initial.movecs output final.movecs
+% \end{verbatim}
+% 
+%  \sloppy
+%
+% To restart from vectors in the file \verb+"small.movecs"+ which are in
+% a basis named \verb+"small basis"+ (NB: the definition of this basis
+%  must be available in the current database and the basis must be
+% smaller than the current one.  Also, the geometry used for the
+% previous calculations must have the atoms in the same order and in the
+% same orientation as the current geometry).  The keyword \verb+INPUT+
+% is not necessary but is provided for clarity.  Output vectors are
+% routed to the file \verb+"big.movecs"+.
+% \begin{verbatim}
+%   vectors input project "small basis" small.movecs
+% \end{verbatim}
+% 
+% \fussy
+
+An example illustrating the use of the \verb+swap+ keyword is as follows;
 \begin{verbatim}
   vectors input try1.movecs swap 173 175 174 176 output try2.movecs
 \end{verbatim}
 
-In a UHF calculation, swap the 5--6 alpha orbital pair and the 4--5
-beta orbital pair.
+This directive will cause the initial orbitals to be read 
+from the file \verb+"try1.movecs"+.  The vectors for the orbitals
+within the pairs 173--175 will be swapped with those within 174--176.
+The final orbitals obtained in the calculation will be written to
+the file \verb+"try2.movecs"+.
+
+An example illustrating this feature for a UHF calculation is the directive
+
 \begin{verbatim}
   vectors swap beta 4 5 swap alpha 5 6
 \end{verbatim}
 
+This input will result in the swapping of the 5--6 alpha orbital pair and 
+the 4--5 beta orbital pair.  (All other items in the input use the
+default values.)
+
+The \verb+LOCK+ directive allows the user to specify that the ordering of 
+orbitals will be locked to that of the
+initial vectors, as far as possible. The default is to order by
+ascending orbital energies within each orbital space. One application
+where this might be desirable is a calculation where it is necessary 
+to preserve the ordering of a previous geometry despite flipping of 
+orbital energies.  For such a case, the \verb+LOCK+ directive can be used
+to prevent the SCF from changing the ordering, even if the orbital
+energies change.
+
+
 
 \subsubsection{Atomic guess orbitals with charged atoms}
 
-It is possible to alter the charge of the atomic guess with set
-directives (c.g., \ref{sec:set}.  The input is as follows:
+An additional option available to the user when specifying the initial
+molecular orbital vectors allows modifications to be made to the charge
+of the atomic guess.  This input is not part of the \verb+VECTORS+ directive,
+however.  It must be specified separately, using the \verb+SET+
+directive (see Section \ref{sec:set}).  This option allows the user to 
+modify the charges on specific atoms or
+centers by using the \verb+SET+ directive to define the contents
+of the three arrays \verb+atomscf:num_z+, \verb+atomscf:z+, and
+\verb+atomscf:tags_z+.  The form of the \verb+SET+ directives 
+for this option is as follows;
+
+% It is possible to alter the charge of the atomic guess with \verb+SET+
+% directives (c.g., Section \ref{sec:set}.  The input is as follows:
 
 \begin{verbatim}
 set atomscf:num_z integer <integer num_z >
-set atomscf:z     real    <real list of charges >
+set atomscf:z     real    <real list_of_charges >
 set atomscf:tags_z ``t(1)'', ``t(2)'', ... ``t(num_z)''
 \end{verbatim}
 
-Where \verb+num_z+ is the number of centers with modified charge,
-\verb+z+ is a list of the actual charges to be applied to the
-``\verb+num_z+'' centers (e.g., for O+2 user a charge of 6.0), and
-\verb+tags_z+ is the list of element tags to be modified (\verb+num_z+
-of them).  There are limits to this procedure.  You cannot add
-electrons to closed shell atoms and you cannot remove all electrons
-from a given atom.  The sofware will error and quit reporting problems
-with modifying the charge if they are detected.
+The first \verb+SET+ directive fills \verb+atomscf:num_z+ with an
+integer value \verb+num_z+, which is the number of atoms or centers 
+with modified charge.
+The second \verb+SET+ directive fills \verb+atomscf:z+ with \verb+num_z+
+values of charge to be applied to these centers.  The third 
+\verb+SET+ directive fills \verb+atomscf:tags_z+ with \verb+num_z+ values
+indentifying the
+\verb+tag+ names (as entered on the \verb+GEOMETRY+ directive for the
+calculation) of the atoms or centers with modified charge.
+
+For example, to specify an oxygen ion O+2 with a charge of 6.0, the input
+for these \verb+SET+ directives would be as follows;
+
+\begin{verbatim}
+set atomscf:num_z integer 1
+set atomscf:z     real    6.0
+set atomscf:tags_z   O
+\end{verbatim}
+
+This input will assign a charge of 6.0 to the oxygen atoms or centers
+in the problem.
+
+\Large
+*****************
+Question: is this a good example?
+Can we make up a better one?
+Does this modified charge apply to all occurances of O in the molecule?
+*****************
+\normalsize
+
+
+
+% Where \verb+num_z+ is the number of centers with modified charge,
+% \verb+z+ is a list of the actual charges to be applied to the
+% ``\verb+num_z+'' centers (e.g., for O+2 user a charge of 6.0), and
+% \verb+tags_z+ is the list of element tags to be modified (\verb+num_z+
+% of them).  
+
+There are some limitations to this feature.  It is not possible to add
+electrons to closed shell atoms, nor is it possible to remove all electrons
+from a given atom.  Attempts to do so will cause the code to report an error,
+and it will not report further errors in the input for modifying the charge 
+even when they are detected.
 
 \subsection{THRESH}
+\label{sec:thresh}
+
+% \begin{verbatim}
+%   THRESH  <real thresh default 1.0e-5>
+% \end{verbatim}
+
+This directive allows the user to specify the convergence threshold for the
+calculation.  The convergence threshold is the norm of the orbital gradient,
+and has a default value in the code of $10^{-5}$.  The form of the directive
+is a follows;
 
 \begin{verbatim}
   THRESH  <real thresh default 1.0e-5>
 \end{verbatim}
 
-The convergence threshold is the norm of the orbital gradient which is
-also roughly the precision available in the wavefunction.  The energy
-should be converged to roughly the square of this number.  Of course,
-the precision in the energy is also limited by the integral selection
-thresholds, etc. 
+The norm of the orbital gradient corresponds
+roughly to the precision available in the wavefunction, and the energy
+should be converged to approximately the square of this number.  It should
+be noted, however, that
+the precision in the energy is also limited by such factors as 
+the integral selection thresholds.  The value specified for \verb+thresh+
+does not provide an absolute measure of convergence for a calculation. 
+
+%   This corresponds to
+% roughly the precision available in the wavefunction.  The energy
+%  should be converged to roughly the square of this number.  Of course,
+%  the precision in the energy is also limited by the integral selection
+% thresholds, etc. 
 
 \subsection{MAXITER}
+\label{sec:max}
+
+% \begin{verbatim}
+%    MAXITER <integer maxiter default 8>
+% \end{verbatim}
+
+The maximum number of iterations for the SCF calculation is set to eight, by
+default.  For most molecules, this number of iterations is sufficient for
+the quadratically convergent SCF algorithm to obtain a
+solution that converges to the default threshold (see Section  
+\ref{sec:thresh} above).  However, the user has the option of specifying
+a differrent limit, using the directive
 
 \begin{verbatim}
    MAXITER <integer maxiter default 8>
 \end{verbatim}
 
-The default maximum number of iterations is eight.  This is adequate for
-the quadratically convergent SCF algorithm to converge most molecules
-to the default threshold.
+\Large
+**************
+What sort of problem might need this option?  What are some
+good values for maxiter, if 8 isn't enough?
+How can a user tell that more iterations might help a given problem?
+**************
+\normalsize
 
 \subsection{RI}
+
+The \verb+RI+ directive allows the user to specify an SCF calculation
+using the RI approximation for the Fock matrix.  The RI-SCF method is
+recommended for small molecules with expensive basis sets.
+\Large
+***** Why? ****
+\normalsize
+When this directive is specified, the input must also include an expansion
+basis with the basis name ''riscf basis''.
+\Large
+**Will the code give an error message if this basis is missing?*******
+\normalsize
+
+The form of the directive is as follows;
 
 \begin{verbatim}
    RI <hessian | preconverge | full> <disk | memory | auto>
 \end{verbatim}
 
-This directive requests the RI approximation being used for the Fock matrix.
-The RI-SCF method is especially suggested for small molecules with
-expensive basis sets.
+% This directive requests the RI approximation being used for the Fock matrix.
+%  The RI-SCF method is especially suggested for small molecules with
+% expensive basis sets.
 
-If called with the \verb+full+ keyword (default)  it is used for all
-Fock builds, which is 
-fastest but results in an approximate energy.. The \verb+Hessian+ keyword
-means only the hessian is calculated with an approximated Fock matrix, and
-\verb+preconverge+ requests an ''exact'' direct SCF (with RI hessian, which
-does not change the result) after convergence of the
-RI approximated calculation.
+The extent of the approximation is specified with one of the three
+alternative keywords \verb+FULL+, \verb+HESSIAN+, or \verb+PRECONVERGED+.
+The default is \verb+FULL+, which specifies that the RI approximation will
+be used for all Fock builds in the calculation.  This is the fastest of
+the three options, but will result in only an approximate value for the
+energy.  The keyword \verb+HESSIAN+ specifies that only the hessian will
+be calculated with an approximated Fock matrix.  The keyword 
+\verb+PRECONVERGED+ specifies a two-part calculation.  First, the SCF
+calculation will be performed with the RI approximation for the Fock
+matrix.  Then an ``exact'' direct SCF calculation, using the hessian obtained
+with the RI approximated Fock matrix will be performed.
 
-\verb+Disk+ indicates storage of 3-center integrals on disk. This only
-works where the ''Disk Resident Array'' library is implemented. \verb+Memory+
-requests in-core storage of the integrals. This
-significantly reduces the maximum problem size that can be handled.
-Default is \verb+auto+, which lets the program determine if there is
-enough memory for the in-core version, otherwise the disk based
-algorithm is used (if available).
+/Large
+*********Any comments/advice on what the trade-offs are between these
+three options?  Suggestions on when one or the other might be the preferred
+approach?**************
+/normalsize
 
-An expansion basis named ''riscf basis'' has to be present in the input deck.
+% If called with the \verb+full+ keyword (default)  it is used for all
+% Fock builds, which is 
+% fastest but results in an approximate energy.. The \verb+Hessian+ keyword
+% means only the hessian is calculated with an approximated Fock matrix, and
+% \verb+preconverge+ requests an ''exact'' direct SCF (with RI hessian, which
+% does not change the result) after convergence of the
+% RI approximated calculation.
+
+If the ''Disk Resident Array'' library is implemented in the user's
+installation of NWChem, the keyword \verb+DISK+ can be used 
+to specify that the 3-center integrals will be stored on disk.  Alternatively,
+the keyword \verb+MEMORY+ specifies in-core storage of the integrals.
+The default for this option is the keyword \verb+AUTO+, which allows the
+code to make its own decision on where to store the integrals.  If there
+is enough memory available, it will use the in-core option; otherwise,
+the disk based algorithm will be used, if available.
+\Large
+********what does it do if the disk is not available, and there's not
+enough in-core memory?  Fail? Print an error message?*********
+\normalsize
+
+% \verb+Disk+ indicates storage of 3-center integrals on disk. This only
+% works where the ''Disk Resident Array'' library is implemented. \verb+Memory+
+% requests in-core storage of the integrals. This
+% significantly reduces the maximum problem size that can be handled.
+% Default is \verb+auto+, which lets the program determine if there is
+% enough memory for the in-core version, otherwise the disk based
+% algorithm is used (if available).
+
+% An expansion basis named ''riscf basis'' has to be present in the input deck.
 
 \subsection{PROFILE}
+
+This directive allows the user to obtain a detailed analysis of the 
+performance of the SCF module.  It is specified by the simple keyword
 
 \begin{verbatim}
   PROFILE
 \end{verbatim}
 
-If present, this directive enables a detailed analysis of the
-performance of the SCF code.  This can introduce significant
-overhead on machines which have expensive timing routines (e.g., SUN).
+This option provides information that can be very helpful
+in evaluating the results of an SCF calculation.  However, on machines
+that have expensive timing routines, such as the SUN, it can introduce
+a significant overhead.
+
+\Large
+****Will most users already know what \verb+PROFILE+ will get them in the
+way of useful information?**********
+\normalsize
+
+% If present, this directive enables a detailed analysis of the
+% performance of the SCF code.  This can introduce significant
+% overhead on machines which have expensive timing routines (e.g., SUN).
 
 \subsection{DIIS}
+
+This directive allows the user to specify DIIS convergence rather than
+second-order convergence for the SCF calculation.  The form of the
+directive is as follows;
+
 \begin{verbatim}
   DIIS
 \end{verbatim}
 
-This directive toggles on the DIIS convergence as opposed to the
-second-order convergence. This is a fairly rudimentary implementation
+When this option is specified in the input, the \verb+MAXITER+ directive
+(see Section \ref{sec:max}) must also be specified, with the macroiteration
+count \verb+maxiter+ set to a value around 20.
+The implementation of this option is currently fairly rudimentary.  It
+does not have level-shifting and damping, and does not support open-shells.
+It is provided on an ``as is'' basis, and should be used with caution.
+
+% This directive toggles on the DIIS convergence as opposed to the
+% second-order convergence. This is a fairly rudimentary implementation
 without level-shifting and damping and, currently, does not support
 open-shells. This is provided on an ``as is'' basis. Use the
 \verb+MAXITER+ directive to increase the macroiteration count to
 approximately 20.
 
+When the \verb+DIIS+ directive is specified in the input, the user has
+the addition option of specifying the size of the subspace for the DIIS
+extrapolation.  This is accomplished with the \verb+DIISBAS+ directive,
+which is of the form,
+
 The directive
 \begin{verbatim}
   DIISBAS <integer diisbas default 5>
 \end{verbatim}
-controls the size of the subspace for DIIS extrapolation.  The default
-should be adequate in most instances but it may be reduced to conserve
-memory for large systems or increased if convergence is poor.
+
+% controls the size of the subspace for DIIS extrapolation.  The default
+% should be adequate in most instances but it may be reduced to conserve
+% memory for large systems or increased if convergence is poor.
+
+The default of 5 should be adequate for most applications, but may be
+increased if convergence is poor.  On large systems, it may be necessary
+to specify a lower value for \verb+diisbas+, to conserve memory.
 
 \subsection{Control of direct, semi-direct and disk-resident SCF}
 \label{sec:semidirect}
 
-The default behaviour of the SCF code is
+Where information is stored for the SCF calculation can significantly 
+affect code performance, and depends on the installation configuration,
+the platform, and the type of problem being executed.  If left to its own
+devices,
+the default behaviour of the SCF module is
 \begin{itemize}
-\item If all integrals can be stored in memory then integrals are
-  computed once and cached in memory. Otherwise,
-\item 95\% of the available disk space in the scratch directory
-  (section \ref{sec:dirs}) is assumed available for use
+% \item If all integrals can be stored in memory then integrals are
+%   computed once and cached in memory. Otherwise,
+\item if there is enough memory available, the integrals are computed
+once and cached in memory.
+%\item 95\% of the available disk space in the scratch directory
+\item If there is not enough memory to store all of the integrals at once,
+then 95\% of the available disk space in the scratc directory
+  (see Section \ref{sec:dirs}) is assumed available for this purpose,
   and as many integrals as possible are cached on disk (with no
   memory being used for caching).  Some attempt is made to 
-  store the most expensive integrals in the cache.
-\item Note that no allowance is made for processes sharing
-  disks when computing available space.
-\item If not all integrals can be cached in memory or on disk,
-  then the additional integrals are recomputed in a semi-direct
-  fashion.
-\item Since many computer systems (e.g., the EMSL IBM SP) clear the
-  fast scratch space at the end of each job, and given the complexity
-  of restarting {\em parallel} semi-direct calculations, the integral
-  file is deleted at the end of the calculation.  Under some
-  situations it is possible to restart from integrals on disk, but
-  this capability will not be made widely available until a later date.
+  store the most expensive integrals in the cache.  (Note that no allowance 
+is made for processes sharing disks when computing available space.)
+% \item If not all integrals can be cached in memory or on disk,
+\item If there is not enough room in memory or on disk for all of the
+integrals, then the ones that are not cached are
+%  then the additional integrals are 
+recomputed in a semi-direct fashion.
 \end{itemize}
 
-On the IBM SP or any other computer with fast disks, local to each
-processor, semi-direct is the best behaviour and can result in {\em
+The integral file is deleted at the end of a calculation, so it is not
+possible to restart a semi-direct calculation when the integrals are
+cached in memory.  Many computer systems (e.g., the EMSL IBM SP) clear
+the fast scratch space at the end of each job, adding a further complication
+to the problem of restarting a {\em parallel} semi-direct calculation.
+Under some situations, it is possible to restart from integrals on disk,
+but this capability will not be made widely available until a later date.
+
+% Since many computer systems (e.g., the EMSL IBM SP) clear the
+% fast scratch space at the end of each job, and given the complexity
+% of restarting {\em parallel} semi-direct calculations, the integral
+% file is deleted at the end of the calculation.  Under some
+% situations it is possible to restart from integrals on disk, but
+%  this capability will not be made widely available until a later date.
+
+On the IBM SP or any other computer with fast disks local to each
+processor, semi-direct gives the best behaviour.  It can result in {\em
   quadratic speedup} as more processors are added.  On other machines,
-it may be necessary to limit the use of disk space, force the use of
-more memory for caching, change the default file names, or to use
+it may be necessary to resort to additional strategies to achieve faster
+performance, such as limiting the use of disk space, forcing the use of
+more memory for caching, changing the default file names, or  using
 fully-direct SCF.
 
-The directive
+The user has the option of forcing a fully-direct calculation (with
+recomputation of the integrals, as required).  This is accomplished
+by specifying the directive
+
 \begin{verbatim}
   DIRECT
 \end{verbatim}
-forces a fully-direct calculation with recomputation of the integrals
-as required.  More detailed control is provided with
+% forces a fully-direct calculation with recomputation of the integrals
+% as required.  More detailed control is provided with
+
+Alternatively, the \verb+SEMIDIRECT+ directive can be used to
+specify a semi-direct calculation and define
+the amount of disk space and the cache memory size.  The form of this
+directive is as follows;
 
 \begin{verbatim}
    SEMIDIRECT [filesize <integer filesize = disksize>] 
               [memsize  <integer memsize = available>]
               [filename <string filename>]
 \end{verbatim}
-The \verb+filesize+ specifies the disk space to be used per process
-for storing integrals in 64-bit words.  Similarly, \verb+memsize+
-specifies the number of 64-bit words to be used per process for
-caching integrals in memory (if this memory is not available then the
-request it is repeatedly halved until the request is satisfied).  By
-default, the integral file is placed into the scratch directory
-(section \ref{sec:dirs}). The \verb+filename+ keyword permits this
-default to be overriden, however, it should be noted that the
-user-provided name has the process number appended to it (so that
-processes have distinct files) but otherwise is used unchanged by all
-processes.  Thus, it is not possible to use this keyword to use
-different disks for different processes.  Use the \verb+SCRATCH_DIR+
-(section \ref{sec:dirs}) directive for this purpose.  Some examples
-follow.
+Entering the keyword \verb+FILESIZE+ allows the user to define
+an integer value for \verb+filesize+ to specify the amount of disk space 
+to be used per process
+for storing integrals in 64-bit words.  Similarly, the keyword
+\verb+MEMSIZE+ allows the user to specify \verb+memsize+,
+the number of 64-bit words to be used per process for
+caching integrals in memory. (Note: If this much memory is not available 
+then the specified value is repeatedly halved until the request is satisfied).
+By default, the integral file is placed into the scratch directory
+(see Section \ref{sec:dirs}). Specifying the keyword \verb+FILENAME+ 
+overrrides this default.  The user-specified name entered in the string
+\verb+filename+ has the process number appended to it, so that
+each process has a distinct file, but otherwise the same name is used by all
+processes.  Therefore, it is not possible to use this keyword to specify
+different disks for different processes.  The \verb+SCRATCH_DIR+ directive
+(see Section \ref{sec:dirs}) can be used for this purpose.  
 
-These two directives accomplish the same effect (full recomputation of
-integrals)
+%Some examples follow.
+
+For example, to specify full recomputation of all integrals, the user
+needs to enter only
+
 \begin{verbatim}
   direct
+\end{verbatim}
+
+Exactly the same result could be obtained by entering the directive as
+
+\begin{verbatim}
   semidirect filesize 0 memsize 0
 \end{verbatim}
 
-To disable use of memory for caching integrals and to limit disk
-usage by each process to 100 MW
+To disable the use of memory for caching integrals and
+limit disk usage by each process to 100 MW, the input for the directive is
+specified as follows;
+
 \begin{verbatim}
   semidirect memsize 0 filesize 200000000
 \end{verbatim}
+
+% These two directives accomplish the same effect (full recomputation of
+% integrals)
+% \begin{verbatim}
+%   direct
+%   semidirect filesize 0 memsize 0
+% \end{verbatim}
+
+
+% To disable use of memory for caching integrals and to limit disk
+% usage by each process to 100 MW
+
 
 
 \subsubsection{Integral file format and file sizes}
