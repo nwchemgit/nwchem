@@ -4,20 +4,24 @@ c
 c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
-      Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD)
+      Subroutine setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD,
+     &                    xform_Cmat)
 #else
       Subroutine setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght,
-     &                       ipol, nq, GRAD)
+     &                       ipol, nq, GRAD, xform_Cmat)
 #endif
 c
-C$Id: setACmat.F,v 1.10 1999-02-15 16:47:13 bjohnson Exp $
+C$Id: setACmat.F,v 1.11 1999-02-19 02:35:01 bjohnson Exp $
 c
       implicit none
 c
 #include "dft2drv.fh"
+c !!! BGJ test
+#include "bgj.fh"
+c !!! BGJ test
 c
       integer ipol, nq
-      Logical GRAD
+      Logical GRAD, xform_Cmat
 c
 c     Density gradients - used for transforming fnl gamma derivatives
 c
@@ -37,17 +41,31 @@ c
       integer ii, jj
       double precision gaa, gab, gbb
 c
-c      write(6,*) ' setACmat: AMAT '
-c      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
-c      write(6,*) ' setACmat: CMAT '
-c      call output(cmat, 1, 3*nq, 1, ipol, 3*nq, ipol, 1)
-c      write(6,*) ' setACmat: qwght '
-c      call output(qwght, 1, nq, 1, 1, nq, 1, 1)
+#if 0
+      if (bgj_print() .gt. 1) then
+      write(6,*) ' setACmat: AMAT in'
+      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
+      if (grad) then
+         write(6,*) ' setACmat: CMAT in'
+         call output(cmat, 1, nq, 1, 3, nq, 3, 1)
+      endif
+#ifdef SECOND_DERIV
+      write(6,*) ' setACmat_d2: AMAT2 in'
+      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
+      if (grad) then
+         write(6,*) ' setACmat_d2: CMAT2 in'
+         call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
+      endif
+#endif
+      write(6,*) ' setACmat: qwght'
+      call output(qwght, 1, nq, 1, 1, nq, 1, 1)
+      endif
+#endif
 c
 c     Transform derivatives of functional with respect to gammas
 c     to derivatives of functional with respect to density gradient
 c
-      if (GRAD) then
+      if (GRAD .and. xform_Cmat) then
          if (ipol .eq. 1) then
             do jj = 1, nq
 c     Must account for delrho being total density gradient, not alpha
@@ -74,14 +92,32 @@ c
 c     Combine derivatives of functional with quadrature weights
 c
       if (GRAD)then
-         do ii = 1, ipol
-            do jj = 1, nq
-               Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
-               Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
-               Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
-               Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
+         if (xform_Cmat) then
+            do ii = 1, ipol
+               do jj = 1, nq
+                  Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
+                  Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
+                  Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
+                  Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
+               enddo
             enddo
-         enddo
+         else
+            if (ipol .eq. 1) then
+               do jj = 1, nq
+                  Amat(jj,1) = Amat(jj,1)*qwght(jj)
+                  Cmat(jj,D1_GAA,1) = Cmat(jj,D1_GAA,1)*qwght(jj)
+                  Cmat(jj,D1_GAB,1) = Cmat(jj,D1_GAB,1)*qwght(jj)
+               enddo
+            else
+               do jj = 1, nq
+                  Amat(jj,1) = Amat(jj,1)*qwght(jj)
+                  Amat(jj,2) = Amat(jj,2)*qwght(jj)
+                  Cmat(jj,D1_GAA,1) = Cmat(jj,D1_GAA,1)*qwght(jj)
+                  Cmat(jj,D1_GAB,1) = Cmat(jj,D1_GAB,1)*qwght(jj)
+                  Cmat(jj,D1_GBB,1) = Cmat(jj,D1_GBB,1)*qwght(jj)
+               enddo
+            endif
+         endif
       else
          do ii = 1, ipol
             do jj = 1, nq
@@ -89,6 +125,16 @@ c
             enddo
          enddo
       endif
+#if 0
+      if (bgj_print() .gt. 1) then
+      write(6,*) ' setACmat: AMAT out'
+      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
+      if (grad) then
+         write(6,*) ' setACmat: CMAT out ',xform_Cmat
+         call output(cmat, 1, nq, 1, 3*ipol, nq, 3*ipol, 1)
+      endif
+      endif
+#endif
 #ifdef SECOND_DERIV
       do ii = 1, NCOL_AMAT2
          do jj = 1, nq
@@ -99,15 +145,19 @@ c
          do ii = 1, NCOL_CMAT2
             do jj = 1, nq
                Cmat2(jj,ii) = Cmat2(jj,ii)*qwght(jj)
-               Cmat2(jj,ii) = Cmat2(jj,ii)*qwght(jj)
-               Cmat2(jj,ii) = Cmat2(jj,ii)*qwght(jj)
             enddo
          enddo
       endif
-c      write(6,*) ' setACmat_d2: AMAT '
-c      call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
-c      write(6,*) ' setACmat_d2: AMAT2 '
-c      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2 , 1)
+#if 0
+      if (bgj_print() .gt. 1) then
+      write(6,*) ' setACmat_d2: AMAT2 out'
+      call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
+      if (grad) then
+         write(6,*) ' setACmat_d2: CMAT2 out'
+         call output(cmat2, 1, nq, 1, NCOL_CMAT2, nq, NCOL_CMAT2, 1)
+      endif
+      endif
+#endif
 #endif
       return
       end
