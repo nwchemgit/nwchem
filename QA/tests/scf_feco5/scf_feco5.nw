@@ -9,7 +9,7 @@ start scf_feco5
 
 # There is a total of 2 million integrals 
 
-geometry print units au
+geometry units au
   symmetry group d3h
 
   fe 0.0 0.0 0.0 
