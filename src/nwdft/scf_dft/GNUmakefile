@@ -1,14 +1,14 @@
-# $Id: GNUmakefile,v 1.5 1994-11-14 23:51:21 gg502 Exp $
+# $Id: GNUmakefile,v 1.6 1994-12-29 06:39:05 og845 Exp $
 
+      OBJ = mull_pop.o dft.o 
       OBJ_OPTIMIZE = \
 	bsolve.o	\
-	dft.o		\
-	diis.o		\
+	diis.o		scfcvg.o gasbld.o\
 	diisdriver.o			   gacond.o	\
-	gasbld.o			   gafact.o	\
+	gafact.o	\
 	hamwght.o	\
 	refvec.o			   scfban.o	\
-	scfcvg.o			   scfdriver.o	\
+	scfdriver.o
 
      LIBRARY = libnwdft.a
 
