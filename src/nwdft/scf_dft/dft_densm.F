@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.18 2000-04-22 01:05:45 edo Exp $
+C$Id: dft_densm.F,v 1.19 2000-04-22 01:11:44 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -185,11 +185,11 @@ c
  11   emax=efermi+step
       emin=efermi-step
       fmax=fzero(
-     *     ipol,emax,evals,nbf,ntotel,ssmear,attempts)
+     *     ipol,emax,evals,nbf,ntotel,ssmear)
       fmin=fzero(
-     *     ipol,emin,evals,nbf,ntotel,ssmear,attempts)
+     *     ipol,emin,evals,nbf,ntotel,ssmear)
       fmed=fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear,attempts)
+     *     ipol,efermi,evals,nbf,ntotel,ssmear)
 C      if(abs(fmed).lt.toll) goto
       if(fmax*fmin.gt.0.d0) then
          attempts=attempts+1

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.43 2000-04-22 01:05:45 edo Exp $
+c     $Id: dft_main0d.F,v 1.44 2000-04-22 01:11:44 edo Exp $
 c     
       implicit none
 c
@@ -261,7 +261,7 @@ c                  call errquit(' temp stop this should not happen',0)
      &                          nbf_cd)
             endif
             call ga_zero(g_2ceri)
-            call dft_get2eri(CD_bas_han, g_2ceri, geom)
+            call dft_get2eri(CD_bas_han, g_2ceri)
             if (IOLGC.and.(me.eq.0)) then
                lmiss = 0
                call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
