@@ -223,7 +223,8 @@ xxxxx\=\kill
 {\bf sgm} \> segments\\
 \end{tabbing} 
 \par
-Paths to the different databases should be defined in a file 
+Filenames including their paths of the different databases should be 
+defined in a file 
 {\bf .nwargos} in a user's home directory, and provides the user the
 option to select which database files are scanned.
 \subsubsection{Force fields}
@@ -250,7 +251,7 @@ The format of the fragment files is
 \begin{tabular}{lll}
 \hline\hline
 Card & Format & Description \\ \hline
-I-1-1  & a1     & \$ to identify the start of a fragment \\  % $ for emacs
+I-1-1  & a1     & \$ to identify the start of a fragment \\
 I-1-2  & a10    & name of the fragment, the tenth character\\
        &        & N: identifies beginning of a chain\\
        &        & C: identifies end of a chain\\
@@ -261,20 +262,26 @@ I-2-1  & i5     & number of atoms in the fragment\\
 \hline
 \multicolumn{3}{l}{For each atom one deck II} \\
 \hline
-II-1-1 & i5     & atom sequence number \\
-II-1-2 & a6     & atom name \\
-II-1-3 & a6     & atom type, generic \\
-II-1-4 & i5     & link number\\
-II-1-5 & i5     & environment type\\
-       &        & 0: no special identifier\\
-       &        & 1: planar, using improper torsion\\
-       &        & 2: R-stereomer, using improper torsion\\
-       &        & 3: S-stereomer, using improper torsion\\
-       &        & 4: atom in aromatic ring\\
-II-1-6 & i5     & charge group\\
-II-1-7 & i5     & polarization group\\
-II-1-8 & f12.6  & atomic partial charge\\
-II-1-9 & f12.6  & atomic polarizability\\
+II-1-1  & i5     & atom sequence number \\
+II-1-2  & a6     & atom name \\
+II-1-3  & a5     & atom type \\
+II-1-4  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-5  & i5     & link number\\
+II-1-6  & i5     & environment type\\
+        &        & 0: no special identifier\\
+        &        & 1: planar, using improper torsion\\
+        &        & 2: R-stereomer, using improper torsion\\
+        &        & 3: S-stereomer, using improper torsion\\
+        &        & 4: atom in aromatic ring\\
+II-1-7  & i5     & charge group\\
+II-1-8  & i5     & polarization group\\
+II-1-9  & f12.6  & atomic partial charge\\
+II-1-10 & f12.6  & atomic polarizability\\
 \hline
 \multicolumn{3}{l}{Any number of cards in deck III to specify complete 
 connectivity} \\
@@ -304,7 +311,7 @@ often needed to make additional changes in this file. One important
 restriction is that dihedral interactions may only involve atoms on 
 at most two segments. The segment entries define three sets of
 parameters for each interaction. Free energy perturbations can be
-performed using set 1 for the generattion of the ensemble while using
+performed using set 1 for the generation of the ensemble while using
 sets 2 and/or 3 as perturbations. Free energy multiconfiguration 
 thermodynamic integration and multistep thermodynamic perturbation
 calculations are performed by gradually changing the interactions in
@@ -314,7 +321,7 @@ The format of a segment is
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
-I-1-1 & a1     & \$ to identify the start of a segment \\ % $ for emacs
+I-1-1 & a1     & \$ to identify the start of a segment \\
 I-1-2 & a10    & name of the segment, the tenth character\\
       &        & N: identifies beginning of a chain\\
       &        & C: identifies end of a chain\\
@@ -331,26 +338,44 @@ I-2-5 & i5     & number of improper dihedrals in the segment\\
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each atom one deck II} \\
-II-1-1 & i5     & atom sequence number \\
-II-1-2 & a6     & atom name \\
-II-1-3 & a6     & atom type, generic set 1 \\
-II-1-4 & a6     & atom type, generic set 2 \\
-II-1-5 & a6     & atom type, generic set 3 \\
-II-1-6 & i5     & charge group\\
-II-1-7 & i5     & polarization group\\
-II-1-8 & i5     & link number\\
-II-1-9 & i5     & environment type\\
-       &        & 0: no special identifier\\
-       &        & 1: planar, using improper torsion\\
-       &        & 2: R-stereomer, using improper torsion\\
-       &        & 3: S-stereomer, using improper torsion\\
-       &        & 4: atom in aromatic ring\\
-II-2-1 & f12.6  & atomic partial charge in e, set 1\\
-II-2-2 & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 1\\
-II-2-3 & f12.6  & atomic partial charge in e, set 2\\
-II-2-4 & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 2\\
-II-2-5 & f12.6  & atomic partial charge in e, set 3\\
-II-2-6 & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
+II-1-1  & i5     & atom sequence number \\
+II-1-2  & a6     & atom name \\
+II-1-3  & a5     & atom type, generic set 1 \\
+II-1-4  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-4  & a5     & atom type, generic set 2 \\
+II-1-5  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-6  & a5     & atom type, generic set 3 \\
+II-1-7  & a1     & dynamics type\\
+        &        & \verb+ + : normal\\
+        &        & \verb+D+ : dummy atom\\
+        &        & \verb+S+ : solute interactions only\\
+        &        & \verb+Q+ : quantum atom\\
+        &        & other : intramolecular solute interactions only\\
+II-1-8  & i5     & charge group\\
+II-1-9  & i5     & polarization group\\
+II-1-10 & i5     & link number\\
+II-1-11 & i5     & environment type\\
+        &        & 0: no special identifier\\
+        &        & 1: planar, using improper torsion\\
+        &        & 2: R-stereomer, using improper torsion\\
+        &        & 3: S-stereomer, using improper torsion\\
+        &        & 4: atom in aromatic ring\\
+II-2-1  & f12.6  & atomic partial charge in e, set 1\\
+II-2-2  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 1\\
+II-2-3  & f12.6  & atomic partial charge in e, set 2\\
+II-2-4  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 2\\
+II-2-5  & f12.6  & atomic partial charge in e, set 3\\
+II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
 \hline
 \end{tabular*}\\
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
@@ -364,7 +389,7 @@ III-1-4 & i5     & bond type \\
         &        & 0: harmonic\\
         &        & 1: constrained bond\\
 III-1-5 & i5     & bond parameter origin\\
-        &        & 0: from database \\
+        &        & 0: from database, next card ignored \\
         &        & 1: from next card\\
 III-2-1 & f12.6  & bond length in nm, set 1\\
 III-2-2 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 1 \\
@@ -385,7 +410,7 @@ IV-1-4 & i5     & angle atom k \\
 IV-1-5 & i5     & angle type \\
        &        & 0: harmonic\\
 IV-1-6 & i5     & angle parameter origin\\
-       &        & 0: from database \\
+       &        & 0: from database, next card ignored \\
        &        & 1: from next card\\
 IV-2-1 & f12.6  & angle in radians, set 1\\
 IV-2-2 & e12.5  & angle force constant in kJ mol$^{-1}$, set 1 \\
@@ -407,7 +432,7 @@ V-1-5 & i5     & proper dihedral atom l \\
 V-1-6 & i5     & proper dihedral type \\
       &        & 0: $C\cos(m\phi-\delta)$\\
 V-1-7 & i5     & proper dihedral parameter origin\\
-      &        & 0: from database \\
+      &        & 0: from database, next card ignored \\
       &        & 1: from next card\\
 V-2-1 & i5     & multiplicity, set 1\\
 V-2-2 & f12.6  & proper dihedral in radians, set 1\\
@@ -432,7 +457,7 @@ VI-1-5 & i5     & improper dihedral atom l \\
 VI-1-6 & i5     & improper dihedral type \\
        &        & 0: harmonic\\
 VI-1-7 & i5     & improper dihedral parameter origin\\
-       &        & 0: from database \\
+       &        & 0: from database, next card ignored \\
        &        & 1: from next card\\
 VI-2-1 & f12.6  & improper dihedral in radians, set 1\\
 VI-2-2 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 1 \\
@@ -450,11 +475,11 @@ file format is
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
-I-1-1  & a1     & \$ to identify the start of a sequence \\ %$ for emacs
+I-1-1  & a1     & \$ to identify the start of a sequence \\
 I-1-2  & a10    & name of the sequence\\
 \multicolumn{3}{l}{Any number of cards in deck II to specify the system} \\
 II-1-1 & i5     & segment number, except\\
-       &        &  0: identifies solvent, has to be last segment\\
+       &        &  0: identifies solvent, last segment, following \verb+-4+\\
        &        & -1: identifies a break in the chain\\
        &        & -2: identifies end of a molecule\\
        &        & -3: identifies end of a molecule fraction\\
@@ -522,7 +547,7 @@ nwrst project
 \end{verbatim}
 in which case directives are taken from {\tt project}{\bf.rin}, or
 \begin{verbatim}
-nwrst project
+nwrst
 \end{verbatim}
 in which case directives are taken from standard input.
 \par
@@ -533,7 +558,7 @@ The directives can be any of
 \begin{verbatim}
 title
 \end{verbatim}
-reading three lines as title immediately following the directive
+reading three title cards immediately following the directive
 
 \item
 \begin{verbatim}
@@ -704,7 +729,7 @@ specified by
 pset <i isetp1> [<i isetp2>]
 \end{verbatim}
 where {\bf isetp1} specifies the first perturbation parameter set and
-{\bf isetp2} sepcifies the second perturbation parameter set. Legal
+{\bf isetp2} specifies the second perturbation parameter set. Legal
 values for {\bf isetp1} are 2 and 3. Legal value for {\bf isetp2} is
 3, in which case {\bf isetp1} can only be 2. If specified, {\bf iset}
 is automatically set to 1.
@@ -729,7 +754,8 @@ To specify conjugate gradient steps
 cg <i mcgit> [init <r dx0cg>] [min <r dxcgmx>] [cy <i ncgcy>]
 \end{verbatim}
 where {\bf mcgit} is the maximum number of conjugate gradient steps taken,
-for which the default is 100, {\bf dx0cg} is the initial step size in nm
+for which the default is 100, {\bf dx0cg} is the initial search
+interval size size in nm
 for which the default is 0.001, {\bf dxcgmx} is the threshold for the
 step size in nm for which the default is 0.0001, and {\bf ncgcy}
 is the number of conjugate gradient steps after which the gradient history
@@ -780,8 +806,9 @@ To specify that a free energy decomposition has to be carried out
 \begin{verbatim}
 decomp
 \end{verbatim}
-Since free energy contributions are path dependent, the default is not
-to perform this decomposition.
+Since free energy contributions are path dependent, results from a
+decomposition analysis can not be unambiguously interpreted, and
+the default is not to perform this decomposition.
 \item
 To specify separation-shifted scaling
 \begin{verbatim}
@@ -807,7 +834,7 @@ Following directives control the integration of the equations of motion.
 \item
 To specify the integration algorithm
 \begin{verbatim}
-{leapfrog | vverlet}
+leapfrog | vverlet
 \end{verbatim}
 where {\bf leapfrog} specifies the default leap frog integration, and
 {\bf vverlet} specifies the velocity Verlet integrator.
@@ -865,7 +892,8 @@ isobar [<r prsext>] [trelax <r prsrlx> ] [compress <r compr>]
 \end{verbatim}
 where {\bf prsext} is the external temperature with a default of 1.025~10$^5$ Pa,
 {\bf prsrlx} is the pressure relaxation time in ps with a default of 0.5, and
-{\bf compr} is the system compressibility in xx with a default of yy.
+{\bf compr} is the system compressibility in m$^2$N$^{-1}$ with a
+default of 4.53E-10.
 \end{itemize}
 \subsection{Velocity reassignments}
 Velocities can be periodically reassigned to reflect a certain temperature.
@@ -883,15 +911,17 @@ Cutoff radii can be specified for short range and long range interactions.
 \begin{itemize}
 \item
 \begin{verbatim}
-cutoff [short] <r rshort> [long <r rlong>]
+cutoff [short] <r rshort> [long <r rlong>] [qmmm <r rqmmm>]
 \end{verbatim}
 where {\bf rshort} is the short range cutoff radius in nm, and {\bf rlong}
 is the long range cutoff radius in nm. If the long range cutoff radius
 is larger than the short range cutoff radius the twin range method will
 be used, in which short range forces and energies are evaluated every
 molecular dynamics step, and long range forces and energies with a
-frequency of {\bf nflong} molecular dynamics steps. The default value
-for both {\bf rshort} and {\bf rlong} is 0.9~nm.
+frequency of {\bf nflong} molecular dynamics steps. Keyword
+\verb+qmmm+ specifies the radius of the zone around quantum atoms
+defining the qmmm bare charges.
+The default value for {\bf rshort}, {\bf rlong} and {\bf rqmmm} is 0.9~nm.
 \end{itemize}
 \subsection{Polarization}
 First order and self consistent electronic polarization models have
@@ -900,7 +930,7 @@ been implemented.
 \item
 The use of polarizable potentials is specified by
 \begin{verbatim}
-polar [first | scf [[<i mpolit>] <r ptol>]]
+polar {first | scf [[<i mpolit>] <r ptol>]}
 \end{verbatim}
 where the keyword {\bf first} specifies the first order polarization
 model, and {\bf scf} specifies the self consistent polarization field
@@ -919,7 +949,8 @@ where {\bf xfield} is the field strength, {\bf xffreq} is the
 frequency in MHz and {\bf xfvect} is the external field vector.
 \end{itemize}
 \subsection{Constraints}
-Constraints are satisfied using the SHAKE coordinate resetting preocedure.
+Constraints involving hydrogens are satisfied using the SHAKE 
+coordinate resetting preocedure.
 \begin{itemize}
 \item
 \begin{verbatim}
@@ -932,7 +963,13 @@ The default maximum number of iterations is 100 for both.
 {\bf tlwsha} is the solvent SHAKE tolerance in nm, and {\bf tlssha} is
 the solute SHAKE tolerance in nm. If only {\bf tlwsha} is specified, the
 value given will also be used for {\bf tlwsha}. The default tolerance
-is 0.001~nm for both.
+is 0.001 for both.
+\item
+\begin{verbatim}
+noshake {solvent | solute}
+\end{verbatim}
+disables SHAKE and treats the bonded interaction according to the
+force field.
 \end{itemize}
 \subsection{Long range interaction corrections}
 Long range electrostatic interactions are implemented using the
@@ -940,22 +977,24 @@ particle mesh Ewald technique.
 \begin{itemize}
 \item
 \begin{verbatim}
-ewald [grid <i ngx> [<i ngy> [<i ngz>]]]
+ewald [grid <i ngx> [<i ngy> [<i ngz>]]] [alpha <r ealpha>]
 \end{verbatim}
-where $ngx$, $ngy$ and $ngz$ are the number of grid points per dimension.
+where $ngx$, $ngy$ and $ngz$ are the number of grid points per
+dimension, and $ealpha$ is the argument of the error function in
+nm$^{-1}$, with a default of 4.0.
 \end{itemize}
 \subsection{Fixing coordinates}
 The solvent or solute part of a system may be fixed or unfixed using
-the following keywords. Fixing part of the system will propagate to
+the following keywords. Fixing part of the system will not propagate to
 simulations using restart files written.
 \begin{itemize}
 \item
 \begin{verbatim}
-fix {solvent | solute}
+fix {all | solvent | solute | non-H}
 \end{verbatim}
 \item
 \begin{verbatim}
-unfix {solvent | solute}
+unfix {all | solvent | solute | non-H}
 \end{verbatim}
 \end{itemize}
 \subsection{Autocorrelation function}
@@ -1095,6 +1134,12 @@ Update directives may be combined to a single directive.
 The following keywords control recording data to file.
 \begin{itemize}
 \item
+The file format of selected recording files is specified with
+\begin{verbatim}
+record {binary | ascii [ecce | argos]}
+\end{verbatim}
+with the default of ascii in ecce readable format.
+\item
 The restart file, file extension {\bf rst}
 \begin{verbatim}
 record rest <i nfrest> [keep]
@@ -1152,6 +1197,13 @@ of writing information to this file. For multiconfiguration
 thermodynamic integration simulations the frequency is in
 steps in $\lambda$. The default is not to record.
 \item
+The energy minimization trajectory, file extension {\bf emt}
+\begin{verbatim}
+record mind <i nfem>
+\end{verbatim}
+where {\bf nfem} is the frequency in nenergy minimization steps of
+writing the minimization trajectory to file.
+\item
 The free energy file, file extension {\bf gib}
 \begin{verbatim}
 record free <i nffree>
@@ -1202,10 +1254,10 @@ box-box interactions over nodes.
 The distribution of the available nodes over the three Cartesian
 dimensions is performed automatically such that, $npx*npy*npz=np$
 and $npx<=npy<=npz$, where $npx$, $npy$ and $npz$ are the nodes in the
-x, y and z dimension respectively, and np is the number of nodes
+x, y and z dimension respectively, and $np$ is the number of nodes
 allocated for the calculation. Where more than one combination
-of npx, npy and npz are possible, the combination is chosen with
-the minimum value of npx+npy+npz. To change the default setting
+of $npx$, $npy$ and $npz$ are possible, the combination is chosen with
+the minimum value of $npx+npy+npz$. To change the default setting
 the following optional input option is provided.
 \begin{verbatim}
 nodes <i npx> <i npy> <i npz>
@@ -1235,4 +1287,24 @@ where {\bf madbox} is the number of additional boxes that are allocated
 on each node. The default for {\bf madbox} is 6. In some case {\bf madbox}
 can be reduced to 4 is memory usage is a concern. Values of 2 or less
 will almost certainly result in memory shortage.
+\item
+To limit the allocated amount of memory used by the molecular dynamics
+module,
+\begin{verbatim}
+memory <i memlim>
+\end{verbatim}
+where $memlim$ is the amount of memory allocated by the module in
+kB. Per default all available memory is allocated.
+%\item
+%For development purposes debug information can be written to the debug
+%file with extension {\bf dbg} with
+%\begin{verbatim}
+%debug <i idebug>
+%\end{verbatim}
+%where $idebug$ specifies the type of debug information being written.
 \end{itemize}
+
+
+
+
+
