@@ -1,6 +1,6 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.19 2001-08-22 22:50:15 edo Exp $
+c $Id: util_random.F,v 1.20 2001-11-14 20:28:10 edo Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -25,7 +25,7 @@ c
        external rand
        if(iseed.gt.0) call srand(dble(iseed))
        util_random=rand()
-#elif defined(CRAY_T3D) || defined(CRAY_T3E)
+#elif defined(CRAY)
 #define SET_RANDOM
       integer iseed
       if(iseed.gt.0) call ranset(iseed)
