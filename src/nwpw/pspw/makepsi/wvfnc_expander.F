@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_expander.F,v 1.5 2003-07-12 02:10:36 bylaska Exp $
+* $Id: wvfnc_expander.F,v 1.6 2003-07-29 20:54:53 bylaska Exp $
 *
 
 *     *******************************************
@@ -20,8 +20,8 @@
 
       integer ne(2),ispin
 
-      character*25 new_wavefunction_filename
-      character*25 old_wavefunction_filename
+      character*30 new_wavefunction_filename
+      character*30 old_wavefunction_filename
       character*255 full_filename,full_filename2
 
 
