@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.8 1996-03-29 18:18:14 d3e129 Exp $
+C$Id: atomd.F,v 1.9 1996-12-13 22:30:14 d3e129 Exp $
       implicit none
 #include "inp.fh"
 c
@@ -121,7 +121,7 @@ cjvl
 c
 c     debug output of exponents/coeffs/...
 c
-c         if (oprin) call printbasis
+         if (oprin) call printbasis
 c
 c..
 c..     calculate 1-electron ints
@@ -185,13 +185,14 @@ c
          call hamild(pcap,qcap,fc,fo,s,u,t,h,dos,dt,c,smin,qmin,nbb)
          call trafsd(nsym,nbas,ndim,fc,nbc,cont,nstrt,dc)
          call trafsd(nsym,nbas,ndim,fo,nbc,cont,nstrt,dc)
+c
 c...
 c...    now add the h-pseudo-contributions (from xpsnld)
 c...
-c         do i = 1 , ndim
-c            fc(i) = fc(i) + hatom(i)
-c            fo(i) = fo(i) + hatom(i)
-c         enddo
+         do i = 1 , ndim
+            fc(i) = fc(i) + hatom(i)
+            fo(i) = fo(i) + hatom(i)
+         enddo
 c.......................................................................
 c
 c     do double diagonalization by symmetries:

@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.18 1996-10-21 16:43:47 d3g681 Exp $
+C     $Id: datoms.F,v 1.19 1996-12-13 22:30:15 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -241,12 +241,12 @@ c
          if (.not. bas_continfo(basis, icont, type, nprim, ngen,
      $        sphcart))
      $        call errquit('guess atom dens: bas_continfo', icont)
-*     rak:               write(6,*)' basis handle    =',basis
-*     rak:               write(6,*)' for contraction =',icont
-*     rak:               write(6,*)' type            =',type
-*     rak:               write(6,*)' nprim           =',nprim
-*     rak:               write(6,*)' ngen            =',ngen
-*     rak:               write(6,*)' sphcart         =',sphcart
+*debug:              write(6,*)' basis handle    =',basis
+*debug:              write(6,*)' for contraction =',icont
+*debug:              write(6,*)' type            =',type
+*debug:              write(6,*)' nprim           =',nprim
+*debug:              write(6,*)' ngen            =',ngen
+*debug:              write(6,*)' sphcart         =',sphcart
          if (.not. bas_cn2bfr(basis, icont, ibflo, ibfhi))
      $        call errquit('guess atom dens: bas_cn2bfr', icont)
          if (nprim.gt.mxnprim .or. ngen.gt.mxngen) call errquit
@@ -310,6 +310,7 @@ c..   gather the primitives
                kkzc = kkzc + 1
                zeta(kkzc) = expnt(k)
                cont(kkzc) = coeff(k + nprim*(igen-1))
+               ucont(kkzc) = cont(kkzc)
 c...  get contraction coeffs as we are used to
                ee = 2*zeta(kkzc)
                fac = pi32/(ee*sqrt(ee))
@@ -335,6 +336,11 @@ c...  only the comments remain ...
 c...  
          enddo
       enddo
+c
+c call ecp integrals to fill hatom properly
+c
+      call atscf_ecp(geom,basis,tag,hatom,nbas,
+     &    zeta,cont,ucont,kkzc)
 c..   
 c..   all prepared call  atomd
 c..   zeta,cont,nbas,nbc,nbas,ic,zn are passed via cguess
@@ -343,7 +349,7 @@ c..   note zn is the real nuclear charge / znps is the effective charg
 c..   
       status = geom_cent_get(geom, iat, tag, coords, charge)
       status = geom_tag_to_element(tag, symbol, element, atn)
-      zn = charge
+      zn = dble(atn)
       znps = charge
 c     
       end

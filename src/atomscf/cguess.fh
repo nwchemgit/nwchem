@@ -2,7 +2,7 @@ c
 c     common used by guess routines for storing info and passing arguments
 c
       integer nb                ! Maximum no. of primitives on any atom
-C$Id: cguess.fh,v 1.4 1995-02-02 23:08:48 d3g681 Exp $
+C$Id: cguess.fh,v 1.5 1996-12-13 22:30:15 d3e129 Exp $
       integer no                ! Maximum no. of orbitals on any atom ??
       integer maxatsym          ! Maximum no. of syms (s/p/d/f)
       parameter (nb=200, no=50, maxatsym=4)
@@ -28,8 +28,10 @@ c
       double precision ajmn     ! Coupling coefficients
       double precision damp     ! Damping factor for the SCF
       double precision cont     ! Contraction coeffs
+      double precision ucont    ! input Contraction coeffs (needed by atscf_ecp code)
       common /cguess/zn,zeta(nb),eps(no),cin,vir,energ,ajmn(24),damp,
-     $     cont(nb),nsym,nbas(maxatsym),ncsh(maxatsym),nosh(maxatsym),
+     $     cont(nb),ucont(nb),
+     &     nsym,nbas(maxatsym),ncsh(maxatsym),nosh(maxatsym),
      $     nccup(maxatsym),nsht,nitscf,
      $     n1(maxatsym),nconv,nbc(maxatsym),nbct,nstrt(nb)
 c
