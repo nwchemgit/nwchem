@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.2 1999-03-08 22:26:07 mg201 Exp $
+C $Id: ecp_local2.F,v 1.3 1999-03-08 23:15:05 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -218,7 +218,7 @@ Cend
           do j = 0,n_ab-1
             tmp(i_gam+i) = one/sqrt(zeta_c(i_c)+tmp(i_ab+j))
             tmp(i_alp+i) = tmp(i_rpc+j)*tmp(i_ab+j)*tmp(i_gam+i)
-            if (tmp(i_rpc+j)) .eq. zero) then
+            if (tmp(i_rpc+j) .eq. zero) then
               tmp(i_ai+i) = zero
             else
               tmp(i_ai+i) = one/(two*tmp(i_rpc+j)*tmp(i_ab+j))
