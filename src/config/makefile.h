@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.166 1996-08-27 22:57:25 d3g681 Exp $
+# $Id: makefile.h,v 1.167 1996-08-29 17:16:35 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -630,7 +630,7 @@ ifeq ($(TARGET),SP1)
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
-   LIBPATH += -L/sphome/harrison/peigs2.0
+#  LIBPATH += -L/sphome/harrison/peigs2.0
   CORE_LIBS = -lglobal -lutil -lpeigs -llapack
 
    USE_ESSL = YES
