@@ -1,4 +1,6 @@
 c
+c$Id: rstat.F,v 1.2 2000-07-27 16:09:20 bjohnson Exp $
+c
 c ***************************************************************************
 c     rstat
 c ***************************************************************************
@@ -28,7 +30,7 @@ c GEOM
             if (jtype.le.4) call drdy_rgeom(string,istrt,jtype)
             if (jtype.eq.5) call drdy_rgsad(string,istrt,jtype)
 c SPECIES
-         else if (string(istrt:istrt+6).eq.'species') then              0603PF97
+         else if (string(istrt:istrt+6).eq.'species') then              !0603PF97
             call drdy_rword(string,istrt,ierr)
             if (ierr.ne.1) then 
                idmn = string(istrt:istrt+7)

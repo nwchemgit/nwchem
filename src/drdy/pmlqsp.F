@@ -1,3 +1,6 @@
+c
+c$Id: pmlqsp.F,v 1.2 2000-07-27 16:09:20 bjohnson Exp $
+c
       SUBROUTINE drdy_pmlqsp
 C
 C Calculate second-order term in Taylor series of x(s) at the saddle
@@ -52,7 +55,14 @@ c Construct matrix for linear equations
 c
       fu6 = 6
 c
-      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,-1,n3+1)
+c!!! BGJ - The following call does not match the definition in mxnleq.F.
+c!!! BGJ - I removed the last argument to allow it to link under WIN32.
+c!!! BGJ - Someone who knows what this code should make sure this is
+c!!! BGJ - the correct argument to delete.  It doesn't look like it based
+c!!! BGJ - on the mxlneq code but I'm not sure what the proper fix is.
+c!!!      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,-1,n3+1)
+      call errquit('Bad call in pmlqsp.F - see code comments',0)
+      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,-1)
       if (jrank .lt. n3) write (fu6,*) 'jrank = ', jrank
 c
       do i = 1, n3

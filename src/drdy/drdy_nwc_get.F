@@ -55,7 +55,7 @@
         write(luout,*)' failed to get geometry coords'
         call errquit('drdy_nwc_get_coords: fatal error',911)
       endif
-      if (.not.geom_destroy(geom,'geometry')) then
+      if (.not.geom_destroy(geom)) then
         write(luout,*)' failed to destroy geometry'
         call errquit('drdy_nwc_get_coords: fatal error',911)
       endif
@@ -96,7 +96,7 @@
         write(luout,*)' failed to get task gradient'
         call errquit('drdy_nwc_get_gradient: fatal error',911)
       endif
-      if (.not.geom_destroy(geom,'geometry')) then
+      if (.not.geom_destroy(geom)) then
         write(luout,*)' failed to destroy geometry'
         call errquit('drdy_nwc_get_gradient: fatal error',911)
       endif
@@ -146,7 +146,7 @@
       enddo
       close(unit=69,status='keep')
 *
-      if (.not.geom_destroy(geom,'geometry')) then
+      if (.not.geom_destroy(geom)) then
         write(luout,*)' failed to destroy geometry'
         call errquit('drdy_nwc_get_hessian: fatal error',911)
       endif
