@@ -5,11 +5,12 @@
      &    b3nai,b3nai_sz,nint,
      &    DryRun,Scr,lscr)
 c
-c $Id: hf3pot.F,v 1.1 1995-10-30 20:56:36 d3e129 Exp $
+c $Id: hf3pot.F,v 1.2 1996-10-11 10:13:01 d3e129 Exp $
 c
       implicit none
 c:: includes
 #include "stdio.fh"
+#include "mafdecls.fh"
 c:: passed 
       integer La  ! [input] angular momentum for center a
       integer Lb  ! [input] angular momentum for center b
@@ -46,15 +47,30 @@ c:: scratch pointers
       Integer i_save  ! point at which scratch can be reused
       Integer i_alpha ! scr ptr for exponents and Hermite expansion coef prefactor
       Integer i_E     ! Hermite expansion coefficients
-      Integer i_G     ! center G coordinates
+      Integer i_G1    ! center G coordinates (first use;through making of E)
+      Integer i_G2    ! center G coordinates (second use; making of R)
       Integer i_Gt    ! Temp array for G coorinates
       Integer i_ABC2I ! Temp array for prefactors of E
       Integer i_R0    ! the auxillary hermite integrals required for sum
       Integer i_ijk   ! pointer for auxillary hermite integrals
       Integer i_RS    ! prefactors for auxillary hermite integrals
-      Integer i_PC    ! center for auxillary hermite integral recursion
+      Integer i_GC    ! center for auxillary hermite integral recursion
       Integer i_r     ! the auxillary hermite integrals required for recursion
       Integer i_ff    ! prefactor array for forming recusion set of R's 
+
+#if defined(INT_DEBUG)
+      write(luout,*)' hf3pot debug'
+      if (.not.dryrun) then
+        write(luout,*)'b3nai_sz',b3nai_sz
+        write(luout,*)'dryrun',dryrun
+        write(luout,*)'lscr',lscr
+        call hf_print_set(1)
+        call hf_print('hf3pot a',Axyz,Aprims,Acoef,NPA,NCA,La)
+        call hf_print('hf3pot b',Bxyz,Bprims,Bcoef,NPB,NCB,Lb)
+        call hf_print('hf3pot c',Cxyz,Cprims,Ccoef,NPC,NCC,Lc)
+        call hf_print_set(0)
+      endif
+#endif
 c
 c Compute 3-center nuclear attraction integrals for ECPs
 c
@@ -65,6 +81,11 @@ c
       i_alpha = 1
       i_top   = i_alpha + (NPA*NPB*NPC)*4 - 1
 
+#if defined(INT_DEBUG)
+      write(luout,*)'i_alpha :',i_alpha
+      write(luout,*)'i_top   :',i_top
+      write(luout,*)npa,npb,npc,(NPA*NPB*NPC),(NPA*NPB*NPC)*4
+#endif
       if (i_top.gt.lscr) then
         write(luout,*)' hf3pot: insufficient scratch space '
         write(luout,*)'       : needed    :',i_top
@@ -83,15 +104,32 @@ c.. determine actual product pairs to be kept.
      &      Cxyz,Cprims,Ccoef,NPC,
      &      scr(i_alpha),Nabc)
       endif
+#if defined(INT_DEBUG)
+      write(luout,*)
+      write(luout,*)' nabc = ',nabc
+      write(luout,*)
+#endif
+
 c Define the center of the charge distribution.
 c A+B -> P; P + C -> G
 
       Lg = La+Lb+Lc ! total angular momentum
 
+c
       i_E    = i_top + 1
-      i_G    = i_E   + Nabc*3*(Lg+1)*(La+1)*(Lb+1)*(Lc+1)
-      i_save = i_G                   ! i_alpha and I_E saved
-      i_top  = i_G   + Nabc*3 - 1
+      i_G1   = i_E   + Nabc*3*(Lg+1)*(La+1)*(Lb+1)*(Lc+1)
+      i_save = i_G1  ! i_alpha and I_E saved
+      i_top  = i_G1  + Nabc*3 - 1
+
+#if defined(INT_DEBUG)
+      write(luout,*)
+      write(luout,*)'i_alpha :',i_alpha
+      write(luout,*)'i_E     :',i_E
+      write(luout,*)'i_G1    :',i_G1
+      write(luout,*)'i_save  :',i_save
+      write(luout,*)'i_top   :',i_top
+      write(luout,*)
+#endif
 
       if (i_top.gt.lscr) then
         write(luout,*)' hf3pot: insufficient scratch space '
@@ -100,21 +138,33 @@ c A+B -> P; P + C -> G
 
         write(luout,*)'i_alpha :',i_alpha
         write(luout,*)'i_E     :',i_E
-        write(luout,*)'i_G     :',i_G
+        write(luout,*)'i_G1    :',i_G1
         call errquit('hf3pot: fatal error ',2)
       endif
 c
       if (DryRun) then
         maxmem = max(maxmem, i_top)
       else
-        call hfctr3(Axyz,Bxyz,Cxyz,scr(i_alpha),scr(i_G),Nabc)
+        call hfctr3(Axyz,Bxyz,Cxyz,scr(i_alpha),scr(i_G1),Nabc)
       endif
 c
 c Define the Hermite linear expansion coefficients
-
+c
       i_Gt    = i_top   + 1
       i_ABC2I = i_Gt    + Nabc*3
       i_top   = i_ABC2I + Nabc*3 - 1
+
+#if defined(INT_DEBUG)
+      write(luout,*)
+      write(luout,*)'i_save  :',i_save
+      write(luout,*)'i_alpha :',i_alpha
+      write(luout,*)'i_E     :',i_E
+      write(luout,*)'i_G1    :',i_G1
+      write(luout,*)'i_Gt    :',i_Gt
+      write(luout,*)'i_ABC2I :',i_ABC2I
+      write(luout,*)'i_top   :',i_top
+      write(luout,*)
+#endif 
 
       if (i_top.gt.lscr) then
         write(luout,*)' hf3pot: insufficient scratch space '
@@ -123,7 +173,7 @@ c Define the Hermite linear expansion coefficients
 
         write(luout,*)'i_alpha :',i_alpha
         write(luout,*)'i_E     :',i_E
-        write(luout,*)'i_G     :',i_G
+        write(luout,*)'i_G1    :',i_G1
         write(luout,*)'i_Gt    :',i_Gt
         write(luout,*)'i_ABC2I :',i_ABC2I
         call errquit('hf3pot: fatal error ',3)
@@ -133,19 +183,42 @@ c
         maxmem = max(maxmem, i_top)
       else
         call hf1mke3(Axyz, Bxyz, Cxyz,
-     &      scr(i_alpha), scr(i_G), scr(i_Gt), scr(i_ABC2I),
+     &      scr(i_alpha), scr(i_G1), scr(i_Gt), scr(i_ABC2I),
      &      scr(i_E), Nabc, La, Lb, Lc)
       endif
 c
       Lg3   = ((Lg+1)*(Lg+2)*(Lg+3))/6
-      i_R0  = i_save
-      i_IJK = i_R0   + Nabc*Lg3
-      i_RS  = i_IJK  + 3*(Lg+1)
-      i_PC  = i_RS   + Nabc
-      i_G   = i_PC   + Nabc*3
-      i_ff  = i_G    + Nabc*3
-      i_R   = i_ff   + 2*Nabc
-      i_top = i_R    + Nabc*(Lg+1)*Lg3
+
+#if defined(INT_DEBUG)
+      write(luout,*)
+      write(luout,*)'lg,lg3',lg,lg3
+      write(luout,*)
+#endif
+
+      i_R0  = i_save 
+      i_IJK = i_R0   + Nabc*Lg3 
+      i_RS  = i_IJK  + (Lg+1)*(Lg+1)*(Lg+1)
+      i_GC  = i_RS   + Nabc    
+      i_G2  = i_GC   + Nabc*3  
+      i_ff  = i_G2   + Nabc*3  
+      i_R   = i_ff   + 2*Nabc  
+      i_top = i_R    + Nabc*(Lg+1)*Lg3 - 1
+
+#if defined(INT_DEBUG)
+      write(luout,*)
+      write(luout,*)'i_save  :',i_save
+      write(luout,*)'i_alpha :',i_alpha
+      write(luout,*)'i_E     :',i_E
+      write(luout,*)'i_R0    :',i_R0
+      write(luout,*)'i_IJK   :',i_IJK
+      write(luout,*)'i_RS    :',i_RS
+      write(luout,*)'i_GC    :',i_GC
+      write(luout,*)'i_G2    :',i_G2
+      write(luout,*)'i_ff    :',i_ff
+      write(luout,*)'i_R     :',i_R
+      write(luout,*)'i_top   :',i_top
+      write(luout,*)
+#endif
 
       if (i_top.gt.lscr) then
         write(luout,*)' hf3pot: insufficient scratch space '
@@ -157,8 +230,8 @@ c
         write(luout,*)'i_R0    :',i_R0
         write(luout,*)'i_IJK   :',i_IJK
         write(luout,*)'i_RS    :',i_RS
-        write(luout,*)'i_PC    :',i_PC
-        write(luout,*)'i_G     :',i_G
+        write(luout,*)'i_GC    :',i_GC
+        write(luout,*)'i_G2    :',i_G2
         write(luout,*)'i_ff    :',i_ff
         write(luout,*)'i_R     :',i_R
         call errquit('hf3pot: fatal error ',3)
@@ -167,8 +240,8 @@ c
       if (DryRun) then
         maxmem = max(maxmem, i_top)
       else
-        call hf3mkr(Axyz, Bxyz, Cxyz, scr(i_alpha), scr(i_G),
-     &      scr(i_RS), scr(i_PC), scr(i_ff), scr(i_R), scr(i_R0),
+        call hf3mkr(Axyz, Bxyz, Cxyz, scr(i_alpha), scr(i_G2),
+     &      scr(i_RS), scr(i_GC), scr(i_ff), scr(i_R), scr(i_R0),
      &      scr(i_IJK), Nabc, Lg, Lg3)
       endif
 c

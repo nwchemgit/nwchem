@@ -1,7 +1,7 @@
       Subroutine hf3mkr(Axyz,Bxyz,Cxyz,alpha,Gxyz,
-     &    RS,PC,ff,R,R0,IJK,Nabc,Lg,Lg3)
+     &    RS,GC,ff,R,R0,IJK,Nabc,Lg,Lg3)
 c
-c $Id: hf3mkr.f,v 1.1 1995-10-30 20:56:35 d3e129 Exp $
+c $Id: hf3mkr.f,v 1.2 1996-10-11 10:13:01 d3e129 Exp $
 c
       Implicit none 
 c::passed
@@ -21,15 +21,17 @@ c--> Auxiliary Function Integrals & Index
       
 c--> Scratch Space
       
-      Double Precision Gxyz(3,Nabc), PC(Nabc,3)
+      Double Precision Gxyz(3,Nabc), GC(Nabc,3)
       Double Precision RS(Nabc), ff(2,Nabc), R(Nabc,0:Lg,Lg3)
 c::local
       double precision PI, PI4
       Parameter (PI=3.1415926535898D0,PI4=4.D0/PI)
 c
       double precision a, b, c, abci
+*rak: double precision ab, abi
       double precision Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz 
-      double precision PCx, PCy, PCz 
+*rak:      Double Precision Px, Py, Pz
+      double precision GCx, GCy, GCz 
       double precision alpha_t
       integer mp, j, m, n
 c
@@ -43,7 +45,8 @@ c         \    PI/4   /
 c
 c
 c******************************************************************************
-      
+*      call dfill((Nabc*(Lg+1)*Lg3), 0.0d00 , R, 1)
+*      call dfill((Nabc*Lg3),0.0d00, r0, 1)
       
 c Define the center "P" plus C to get "G" center.
       
@@ -64,13 +67,25 @@ c Define the center "P" plus C to get "G" center.
         a = alpha(1,mp)
         b = alpha(2,mp)
         c = alpha(3,mp)
-        
+
+*rak:        ab = a + b
+*rak:        abi = 1/ab
+*rak:
+*rak:        px = abi*(a*Ax + b*Bx)
+*rak:        py = abi*(a*Ay + b*By)
+*rak:        pz = abi*(a*Az + b*Bz)
+*rak:   abci = 1/(ab+c)        
+
         abci = 1/(a+b+c)
+        
+*rak:        Gxyz(1,mp) = abci*(ab*px + c*Cx)
+*rak:        Gxyz(2,mp) = abci*(ab*py + c*Cy)
+*rak:        Gxyz(3,mp) = abci*(ab*pz + c*Cz)
         
         Gxyz(1,mp) = abci*(a*Ax + b*Bx + c*Cx)
         Gxyz(2,mp) = abci*(a*Ay + b*By + c*Cy)
         Gxyz(3,mp) = abci*(a*Az + b*Bz + c*Cz)
-        
+
 c Define the scaling factor.
         
         RS(mp) = sqrt((a+b+c)*PI4)
@@ -87,15 +102,15 @@ c auxiliary functions.
          ff(1,m) = RS(m)
          ff(2,m) = -2.D0*alpha_t
          
-         PCx = Gxyz(1,m) - Cx
-         PCy = Gxyz(2,m) - Cy
-         PCz = Gxyz(3,m) - Cz
+         GCx = Gxyz(1,m) - Cx
+         GCy = Gxyz(2,m) - Cy
+         GCz = Gxyz(3,m) - Cz
          
-         R(m,0,1) = alpha_t*(PCx*PCx + PCy*PCy + PCz*PCz)
+         R(m,0,1) = alpha_t*(GCx*GCx + GCy*GCy + GCz*GCz)
          
-         PC(m,1) = PCx
-         PC(m,2) = PCy
-         PC(m,3) = PCz
+         GC(m,1) = GCx
+         GC(m,2) = GCy
+         GC(m,3) = GCz
          
 00200  continue
        
@@ -103,7 +118,7 @@ c Evaluate the incomplete gamma function.
        
        call igamma(R,Nabc,Lg)
        
-c Define the initial auxiliary functions (i.e., R000j, j=1,Lr).
+c Define the initial auxiliary functions (i.e., R000j, j=1,Lg).
        
        do 00300 j = 0,Lg
          do 00400 m = 1,Nabc
@@ -114,7 +129,7 @@ c Define the initial auxiliary functions (i.e., R000j, j=1,Lr).
        
 c Recursively build the remaining auxiliary functions (i.e., RIJKj, j=0).
        
-       call hfmkr(R,IJK,PC,Nabc,Lg,Lg3)
+       call hfmkr(R,IJK,GC,Nabc,Lg,Lg3)
        
 c Transfer to R0 array.
        

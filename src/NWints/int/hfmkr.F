@@ -1,5 +1,5 @@
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
-c $Id: hfmkr.F,v 1.5 1996-07-11 22:21:27 d3e129 Exp $
+c $Id: hfmkr.F,v 1.6 1996-10-11 10:13:01 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -23,35 +23,54 @@ c         N,L,M,j        N,L,M-1,j+1          N,L,M-2,j+1
 c
 c******************************************************************************
 
-*rak:      if (Lp.le.1) then
-*rak:        call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.2) then
-*rak:        call hfmkr_2(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.3) then
-*rak:        call hfmkr_3(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.4) then
-*rak:        call hfmkr_4(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.5) then
-*rak:        call hfmkr_5(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.6) then
-*rak:        call hfmkr_6(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.7) then
-*rak:        call hfmkr_7(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif(Lp.eq.8) then
-*rak:        call hfmkr_8(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      elseif (Lp.eq.9) then
-*rak:        call hfmkr_9(R,PQ,IJK,NAB,Lp,Lp3)
-*rak:        goto 00099
-*rak:      endif
+#if defined(USE_SPECIAL_MAKER)
+      if (Lp.le.1) then
+        call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.2) then
+        call hfmkr_2(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.3) then
+        call hfmkr_3(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.4) then
+        call hfmkr_4(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.5) then
+        call hfmkr_5(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.6) then
+        call hfmkr_6(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.7) then
+        call hfmkr_7(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif(Lp.eq.8) then
+        call hfmkr_8(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      elseif (Lp.eq.9) then
+        call hfmkr_9(R,PQ,IJK,NAB,Lp,Lp3)
+        goto 00099
+      endif
+#endif
 
+#if defined(INT_DEBUG)
+      write(6,*)'lp',lp,'      lp3',lp3,'     nab',nab
+      write(6,*)' PQ coords start'
+      call intintp(PQ,nab,3,'hfmkr pq')
+      write(6,*)' PQ coords end'
+      write(6,*)' r b4 recursion'
+      do ii = 1,NAB
+        do jj = 0,Lp
+          do kk = 1,lp3
+            if (abs(R(ii,jj,kk)).gt.1.0d-12) then
+              write(6,*)'R (',ii,jj,kk,') =',R(ii,jj,kk)
+            endif
+          enddo
+        enddo
+      enddo
+#endif
+      
       n0 = 1
 
       IJK(0,0,0) = n0
@@ -154,4 +173,17 @@ c******************************************************************************
   180 continue
 
 00099 continue
+
+#if defined(INT_DEBUG)
+      write(6,*)' r after recursion'
+      do ii = 1,NAB
+        do jj = 0,Lp
+          do kk = 1,lp3
+            if (abs(R(ii,jj,kk)).gt.1.0d-12) then
+              write(6,*)'R (',ii,jj,kk,') =',R(ii,jj,kk)
+            endif
+          enddo
+        enddo
+      enddo
+#endif
       end

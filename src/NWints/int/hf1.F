@@ -3,13 +3,11 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.12 1996-09-24 21:39:43 d3e129 Exp $
+c $Id: hf1.F,v 1.13 1996-10-11 10:13:00 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
       Logical O2I,KEI,NAI,canAB
-
-      logical status
 
       Logical GenCon,DryRun
 
@@ -74,16 +72,18 @@ c******************************************************************************
         if (O2I) call dfill(Nint,0.0d00,bO2I,1)
         if (KEI) call dfill(Nint,0.0d00,bKEI,1)
         if (NAI) call dfill(Nint,0.0d00,bNAI,1)
-        call MA_summarize_allocated_blocks()
-        write(6,*)' int_hf1: ma verify 1-b4'
-        status = ma_verify_allocator_stuff()
-        write(6,*)' verstat = ',status
-        write(6,*)' int_hf1: ma verify 1-af'
+*debug_ma:        call MA_summarize_allocated_blocks()
+*debug_ma:        write(6,*)' int_hf1: ma verify 1-b4'
+*debug_ma:        status = ma_verify_allocator_stuff()
+*debug_ma:        write(6,*)' verstat = ',status
+*debug_ma:        write(6,*)' int_hf1: ma verify 1-af'
         call util_flush(6)
       endif
       if (.not.dryrun) then
+        call hf_print_set(1)
         call hf_print('hf1: a shell',axyz,aprims,acoefs,npa,nca,la)
         call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
+        call hf_print_set(0)
       endif
 #endif
       MXD = 0
@@ -96,10 +96,6 @@ c Determine whether general or segmented contraction is used.
 
 *      write(6,*)' gencon ',gencon,nca,ncb
 
-*rak:      if( GenCon )then
-*rak:       write(*,*) 'HF1: Not yet ready for general contraction.'
-*rak:       stop
-*rak:      end if
 
 c To determine all the Hermite expansion coefficients required to evaluate
 c the kinetic energy integrals, increment the angular momenta by one.

@@ -1,6 +1,6 @@
       Subroutine hf1mke3(Axyz,Bxyz,Cxyz,alpha,G,GT,ABC2I,E,
      &                   NABC,La,Lb,Lc)
-c $Id: hf1mke3.f,v 1.2 1994-04-04 20:30:56 d3e129 Exp $
+c $Id: hf1mke3.f,v 1.3 1996-10-11 10:13:00 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -61,10 +61,8 @@ c******************************************************************************
 
 c Initialize the Hermite expansion coefficients.
 
-      do 10 m = 1,3*NABC*(La+Lb+Lc+1)*(La+1)*(Lb+1)*(Lc+1)
-       E(m,1,0,0,0,0) = 0.D0
-   10 continue
-
+      isz_e = NABC*3*(La+Lb+Lc+1)*(La+1)*(Lb+1)*(Lc+1)
+      call dfill(isz_e,0.0d00,E,1)
 c Define E(Ip,Ia,Ib,Ic) for Ip=0, Ia=0, Ib=0, Ic=0.
 
       do 100 m = 1,NABC
