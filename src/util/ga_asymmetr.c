@@ -1,4 +1,4 @@
-/* $Id: ga_asymmetr.c,v 1.2 2004-12-02 06:02:16 edo Exp $ */
+/* $Id: ga_asymmetr.c,v 1.3 2004-12-08 23:49:10 bert Exp $ */
 /**
  * Symmetrizes matrix A:  A := .5 * (A+A`)
  * diag(A) remains unchanged
@@ -10,6 +10,32 @@
 
 #include "global.h"
 #include "macdecls.h"
+
+void FATR
+gai_subtr(Integer *lo, Integer *hi, Void *a, Void *b, DoublePrecision alpha,
+        Integer type, Integer nelem, Integer ndim) {
+
+  Integer i, j, m=0;
+  Integer nrow, ncol, indexA=0, indexB=0;
+  DoublePrecision *A = (DoublePrecision *)a, *B = (DoublePrecision*)b;
+  Integer offset1=1, offset2=1;
+
+  nrow = hi[ndim-2] - lo[ndim-2] + 1;
+  ncol = hi[ndim-1] - lo[ndim-1] + 1;
+
+  for(i=0; i<ndim-2; i++) {
+    offset1 *= hi[i] - lo[i] + 1;
+    offset2 *= hi[i] - lo[i] + 1;
+  }
+  offset1 *= nrow;
+
+  for(j=0; j<offset2; ++j,indexA=j,indexB=j,m=0) {
+    for(i=0; i<nrow*ncol; i++, indexA += offset1, indexB += offset2) {
+      if(indexA >= nelem) indexA = j + ++m*offset2;
+      A[indexA] = alpha *(A[indexA] - B[indexB]);
+    }
+  }
+}
 
 void FATR 
 ga_antisymmetrize_(Integer *g_a) {
@@ -63,7 +89,7 @@ ga_antisymmetrize_(Integer *g_a) {
   ga_sync_(); 
 
   if(have_data) {
-    gai_add(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
+    gai_subtr(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
     nga_release_update_(g_a, alo, ahi);
     ga_free(b_ptr);
   }
