@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.11 2000-08-14 17:56:26 windus Exp $
+C $Id: onedd_cont.F,v 1.12 2000-08-14 19:59:42 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -84,7 +84,7 @@ c
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag,
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2,
      $     nopen, nclosed, scftype, movecs_in, omp2,
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ)                            
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.true.)
 c
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))
