@@ -1,13 +1,13 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.10 2000-05-04 15:45:48 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.11 2000-05-04 17:44:30 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 c
-      integer mgrd,i
+      integer i
       character*80 card,string
 c
       string=card(8:80)
@@ -15,9 +15,6 @@ c
       read(string(1:4),'(i4)') mgrd
       read(string(5:8),'(i4)') iesppb
       read(string(9:20),'(f12.6)') rcut
-      spac(1)=rcut/dble(mgrd-1)
-      spac(2)=rcut/dble(mgrd-1)
-      spac(3)=rcut/dble(mgrd-1)
       string=card(28:80)
       i=index(string,' ')
       filchg=string(1:i)
@@ -104,7 +101,7 @@ c
       character*2 t(nsa)
 c
       integer i,j
-      real*8 xd(3),xdmin
+      real*8 xd(3)
 c
       if(me.eq.0) then
 c
@@ -128,15 +125,14 @@ c
     1 continue
 c
       do 4 j=1,3
-      if(iesppb.eq.0.or.(iesppb.lt.3.and.j.eq.3)) then
-      xd(j)=xmax(j)-xmin(j)+2.0d0*rcut
-      xmin(j)=xmin(j)-rcut
+      if(iesppb.eq.0.or.(iesppb.lt.3.and.j.eq.3).or.rcut.lt.0.0d0) then
+      xd(j)=xmax(j)-xmin(j)+2.0d0*abs(rcut)
+      xmin(j)=xmin(j)-abs(rcut)
       else
       xd(j)=box(j)
+      xmin(j)=0.5d0*(xmin(j)+xmax(j)-box(j))
       endif
     4 continue
-c
-      xdmin=min(xd(1),xd(2),xd(3))
 c
       do 5 j=1,3
       spac(j)=1.0d0/(mgrd-1)
@@ -182,7 +178,7 @@ c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
       character*2 t(nsa)
 c
-      integer ix,iy,iz,i,j,k,mgrd,nxfr,nxto
+      integer ix,iy,iz,i,j,k,nxfr,nxto
       real*8 xg,yg,zg
       real*8 dx,dy,dz
       real*8 boxh(3)
@@ -288,23 +284,7 @@ c
       close(unit=lfnplt)
       write(*,1004) filplt(1:index(filplt,' ')-1)
  1004 format(' Grid data written to ',a)
-      stop
 c
-c     write coordinates in xyz format
-c
-      open(unit=lfnxyz,file=filxyz(1:index(filxyz,' ')-1),
-     + form='formatted',status='unknown')
-      rewind(lfnxyz)
-      write(lfnxyz,2000) nsa
- 2000 format('* Coordinates in XYZ format',/,i5)
-      do 8 i=1,nsa
-      write(lfnxyz,2001) t(i),
-     + (10.0d0*x(i,j),j=1,3)
- 2001 format(a2,1x,3f12.6)
-    8 continue
-      close(lfnxyz)
-      write(*,2002) filxyz(1:index(filxyz,' ')-1)
- 2002 format(' Coordinates written to ',a)
       endif
 c
       return
