@@ -690,26 +690,23 @@ available, when \verb+imfft+ is set to 2.
 \end{description}
 
 \section{Fixing coordinates}
-The solvent or solute part of a system may be fixed or unfixed using
-the following keywords. Fixing part of the system will not propagate to
-simulations using restart files written. In the commands \verb+fix+
-and \verb+unfix+, the keywords \verb+all+, \verb+solvent+,
-\verb+solute+ and \verb+non-H+ specify the entire molecular system,
-the solvent, the solute and the solute atoms other than hydrogen,
-respectively.
+Solvent or solute may be fixed using the following keywords. 
 \begin{description}
 \item
 \begin{verbatim}
-fix (all | solvent | solute | non-H)
+( fix | free ) (solvent [<integer idfirst> [<integer idlast>]] | \
+ solute [<integer idfirst> [<integer idlast>]] [ heavy | {<string atomname>}] | \
+ permanent )
 \end{verbatim}
-fixes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
-respectively.
-\item
-\begin{verbatim}
-unfix (all | solvent | solute | non-H)
-\end{verbatim}
-makes all atoms, solvent molecule, solute atom or solute non-hydrogen atoms,
-respectively, dynamic.
+For solvent the molecule numbers \verb+idfirst+ and \verb+idlast+may be 
+specified to be the first and last molecule to which the directive
+applies. If omitted, the directive applies to all molecules. For solute,
+the segment numbers \verb+idfirst+ and \verb+idlast+may be 
+specified to be the first and last segment to which the directive
+applies. If omitted, the directive applies to all segments. In addition,
+the keyword \verb+heavy+ may be specified to apply to all non hydrogen
+atoms in the solute, or a set of atom names may be specified in which
+a wildcard character \verb+?+ may be used.
 \end{description}
 
 \section{Autocorrelation function}
