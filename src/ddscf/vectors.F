@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.15 1995-04-19 22:28:41 gg502 Exp $
+C$Id: vectors.F,v 1.16 1995-06-17 20:12:48 gg502 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -222,7 +222,7 @@ c
       parameter (ldnmo = 2)
       integer nmo(ldnmo)            ! No. of vectors in each set
       integer i, l_FullOcc, k_FullOcc, l_FullEval, k_FullEval, G_Tmp
-      Character*32 Title, Basis
+      Character*255 Title, Basis
       integer MinChunk              ! For data distirbution in GA
       parameter (MinChunk = -1)     ! Let GA determine even distrib.
 C
