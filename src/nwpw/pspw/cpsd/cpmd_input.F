@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.10 2003-10-17 22:57:13 carlfahl Exp $
+c $Id: cpmd_input.F,v 1.11 2004-05-18 21:57:43 bylaska Exp $
 c
 
 
@@ -85,8 +85,8 @@ c
        character*30 hmotion_filename
        character*30 omotion_filename
        character*30 ion_motion_filename
-       character*30 exchange_correlation
-       logical geometry_optimize,frac_coord,mulliken
+       character*30 exchange_correlation,zone_name
+       logical geometry_optimize,frac_coord,mulliken,mulliken_kawai
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
        double precision scaling(2),ecut,wcut
@@ -424,12 +424,20 @@ c
 c
 c Mulliken
 c
- 2500 mulliken = .true.
+ 2500 if (.not.inp_a(zone_name)) zone_name = 'lcao'
+      mulliken       = .true.
+      mulliken_kawai = .false.
+      ind = index(zone_name,' ') - 1
+      if (inp_compare(.false.,zone_name,'kawai')) mulliken_kawai=.true.
       value = rtdb_put(rtdb,'cpmd:mulliken',mt_log,1,
      >                       mulliken)
+     >   .and.rtdb_put(rtdb,'nwpw:mulliken_kawai',mt_log,1,
+     >                       mulliken_kawai)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2500, RTDB_ERR)
+     >  call errquit(
+     >       'cpmd_input: error writing to rtdb', 2500, RTDB_ERR)
       goto 10
+
 c
 c energy
 c
