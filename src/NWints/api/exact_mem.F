@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.11 1994-08-05 19:39:11 d3e129 Exp $
+c $Id: exact_mem.F,v 1.12 1994-10-18 06:05:23 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -10,29 +10,46 @@ c:: passed
 c:: local
       integer lmem_2e4c, lmem_1e
       integer lsz_2e4c, lsz_1e
+      integer lmem_2e3c, lsz_2e3c
+      integer lmem_2e2c, lsz_2e2c
       integer ibas,jbas, kbas
-      integer nbfmax,nbftest
+*      integer nbfmax,nbftest
       integer lsz_3ov,lmem_3ov
 c
-      mem_2e4c = 0
-      isz_2e4c = 0
-      mem_1e   = 0
-      isz_1e   = 0
 c
-      nbfmax = 0
+c... ensure that mem_2e{432}c memory reqirements are nonzero
+c
+      mem_2e2c = 2
+      isz_2e2c = 2
+      mem_2e3c = 2
+      isz_2e3c = 2
+      mem_2e4c = 2
+      isz_2e4c = 2
+      mem_1e   = 2
+      isz_1e   = 2
+c
+*      nbfmax = 0
       do 00100 ibas = 1,nbas
         do 00200 jbas = 1,ibas
-c.... nbfmax for 2e3c and 2e4c
-           if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
-     &          call errquit('exact_mem:bas_nbf_cn_max error ',1)
-           nbfmax = max(nbfmax,nbftest)
-           if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
-     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
-           nbfmax = max(nbfmax,nbftest)
+*c.... nbfmax for 2e3c and 2e4c
+*           if (.not.bas_nbf_cn_max(bases(ibas),nbftest))
+*     &          call errquit('exact_mem:bas_nbf_cn_max error ',1)
+*           nbfmax = max(nbfmax,nbftest)
+*           if (.not.bas_nbf_cn_max(bases(jbas),nbftest))
+*     &          call errquit('exact_mem:bas_nbf_cn_max error ',2)
+*           nbfmax = max(nbfmax,nbftest)
 c.... 2e 4 center
            call emem_2e4c(bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
            mem_2e4c = max(mem_2e4c, lmem_2e4c)
            isz_2e4c = max(isz_2e4c, lsz_2e4c)
+c.... 2e 3 center
+           call emem_2e3c(bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
+           mem_2e3c = max(mem_2e3c, lmem_2e3c)
+           isz_2e3c = max(isz_2e3c, lsz_2e3c)
+c.... 2e 2 center
+           call emem_2e2c(bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
+           mem_2e2c = max(mem_2e2c, lmem_2e2c)
+           isz_2e2c = max(isz_2e2c, lsz_2e2c)
 c.... 1e
            call emem_1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
            mem_1e = max(mem_1e, lmem_1e)
@@ -43,13 +60,6 @@ c
 c.. need extra memory for H1 call externalized by int_mem_h1
 c
       mem_1e_h1 = mem_1e + isz_1e
-c
-c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
-c
-      isz_2e3c = nbfmax**3
-      isz_2e2c = nbfmax**2
-      mem_2e3c = mem_2e4c
-      mem_2e2c = mem_2e4c
 c
 c... now do loops for 3 center overlap integrals
 c
@@ -67,6 +77,21 @@ c
 00500     continue
 00400   continue
 00300 continue
+c
+c.. debug write statements
+      write(6,*)' mem_2e4c =',mem_2e4c
+      write(6,*)' mem_2e3c =',mem_2e3c
+      write(6,*)' mem_2e2c =',mem_2e2c
+      write(6,*)' mem_1e   =',mem_1e
+      write(6,*)' mem_3ov  =',mem_3ov
+      write(6,*)' '
+      write(6,*)' isz_2e4c =',isz_2e4c
+      write(6,*)' isz_2e3c =',isz_2e3c
+      write(6,*)' isz_2e2c =',isz_2e2c
+      write(6,*)' isz_1e   =',isz_1e
+      write(6,*)' isz_3ov  =',isz_3ov
+      write(6,*)' '
+*      if(isz_2e2c.gt.0)stop 'tmp_stop'
 c
       end
       subroutine emem_3ov(ibasin,jbasin,kbasin,lsz_buf,memsize)
@@ -228,6 +253,207 @@ c
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
+      logical cando_sp_u
+      external cando_sp_u
+c::passed
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer maxg    ! [output] max size of 2e integrals buffer
+      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c::local
+      integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
+      integer bra_type, ket_type, memdum
+      integer bra_prim, ket_prim, ket_lim
+      integer bra_gen, ket_gen
+      integer max_nbf_bra,max_nbf_ket
+c
+      logical bra_cando_sp
+      logical ket_cando_sp
+c
+      memsize = 0
+      maxg = 0
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+      do 00100 ibc = 1, bra_ucont
+        bra_type = infbs_cont(CONT_TYPE,ibc,bra)
+        bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
+        bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_type.lt.0) then
+          bra_type = abs(bra_type)
+          bra_gen  = 1
+        endif
+        bra_cando_sp = cando_sp_u(brain,ibc,0)
+c
+        if (bra.eq.ket) then
+          ket_lim = ibc
+        else
+          ket_lim = ket_ucont
+        endif
+c
+        do 00200 ikc = 1, ket_lim
+          ket_type = infbs_cont(CONT_TYPE,ikc,ket)
+          ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
+          ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_type.lt.0) then
+            ket_type = abs(ket_type)
+            ket_gen  = 1
+          endif
+          ket_cando_sp = cando_sp_u(ketin,ikc,0)
+          if (bra_cando_sp.and.ket_cando_sp) goto 00201
+c
+          memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
+          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,1,.false.,.false.,.false.,
+     &             .true.,exndcf,memdum)
+          memsize = max(memsize,memdum)
+c
+          memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
+          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,1,.false.,.false.,.false.,
+     &             .true.,exndcf,memdum)
+          memsize = max(memsize,memdum)
+c
+          if (brain.eq.ketin) then
+            memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
+            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,1,.false.,.false.,.false.,
+     &             .true.,exndcf,memdum)
+            memsize = max(memsize,memdum)
+c
+            memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
+            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,1,.false.,.false.,.false.,
+     &             .true.,exndcf,memdum)
+            memsize = max(memsize,memdum)
+          endif
+00201     continue
+00200   continue
+00100 continue
+c
+      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+c
+      maxg = max_nbf_bra*max_nbf_bra
+      maxg = maxg*max_nbf_ket*max_nbf_ket
+      
+c
+*      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
+*      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+c
+*      stop 'tmp stop'
+c
+      end
+      subroutine emem_2e3c(brain, ketin, maxg, memsize)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      integer nbf_from_ucont
+      external nbf_from_ucont
+c::passed
+      integer brain   ! [input] bra basis set handle
+      integer ketin   ! [input] ket basis set handle
+      integer maxg    ! [output] max size of 2e integrals buffer
+      integer memsize ! [output] max size of scratch space for 2e integral evaluation
+c::local
+      integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
+      integer bra_type, ket_type, memdum
+      integer bra_prim, ket_prim, ket_lim
+      integer bra_gen, ket_gen
+      integer max_nbf_bra,max_nbf_ket
+c
+      memsize = 0
+      maxg = 0
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+      bra_ucont = infbs_head(HEAD_NCONT,bra)
+      ket_ucont = infbs_head(HEAD_NCONT,ket)
+c
+      do 00100 ibc = 1, bra_ucont
+        bra_type = infbs_cont(CONT_TYPE,ibc,bra)
+        bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
+        bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_type.lt.0) then
+          bra_type = abs(bra_type)
+          bra_gen  = 1
+        endif
+c
+        if (bra.eq.ket) then
+          ket_lim = ibc
+        else
+          ket_lim = ket_ucont
+        endif
+c
+        do 00200 ikc = 1, ket_lim
+          ket_type = infbs_cont(CONT_TYPE,ikc,ket)
+          ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
+          ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_type.lt.0) then
+            ket_type = abs(ket_type)
+            ket_gen  = 1
+          endif
+c
+          memdum = 9 000 000
+c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
+          call hf2(exndcf,exndcf,exndcf,1,1,0,
+     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,1,.false.,.false.,.false.,
+     &             .true.,exndcf,memdum)
+          memsize = max(memsize,memdum)
+c
+00200   continue
+00100 continue
+c
+      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
+      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+     &       call errquit('emem_2e3c:bas_nbf_cn_max error ',2)
+c
+      maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket
+      maxg = max(maxg,(max_nbf_ket*max_nbf_ket*max_nbf_bra))
+c
+*      write(6,'(a,i10)')'emem_2e3c: memsize =',memsize
+*      write(6,'(a,i10)')'emem_2e3c: maxg    =',maxg
+c
+*      stop 'tmp stop'
+c
+      end
+      subroutine emem_2e2c(brain, ketin, maxg, memsize)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      integer nbf_from_ucont
+      external nbf_from_ucont
 c::passed
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
@@ -276,58 +502,27 @@ c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
+     &             exndcf,exndcf,exndcf,1,1,0,
      &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
+     &             exndcf,exndcf,exndcf,1,1,0,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
           memsize = max(memsize,memdum)
 c
-          memdum = 9 000 000
-c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
-          call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
-          memsize = max(memsize,memdum)
-c
-          if (brain.eq.ketin) then
-            memdum = 9 000 000
-c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
-            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
-            memsize = max(memsize,memdum)
-c
-            memdum = 9 000 000
-c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
-            call hf2(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,exndcf,exndcf,ket_prim,ket_gen,ket_type,
-     &             exndcf,1,.false.,.false.,.false.,
-     &             .true.,exndcf,memdum)
-            memsize = max(memsize,memdum)
-          endif
 00200   continue
 00100 continue
 c
       if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
       if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_2e2c:bas_nbf_cn_max error ',2)
 c
-      maxg = max_nbf_bra*max_nbf_bra
-      maxg = maxg*max_nbf_ket*max_nbf_ket
-      
+      maxg = max_nbf_bra*max_nbf_ket
 c
-*     write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
-*     write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+*      write(6,'(a,i10)')'emem_2e2c: memsize =',memsize
+*      write(6,'(a,i10)')'emem_2e2c: maxg    =',maxg
+c
+*      stop 'tmp stop'
 c
       end
 
