@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.24 2002-02-12 19:37:46 windus Exp $
+c $Id: shell_fock_build.F,v 1.25 2002-02-19 02:10:56 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -749,23 +749,20 @@ c
 #include "stdio.fh"
       integer geom
       integer basis
-      double precision jfac(*),kfac(*)
+      double precision jfac(*),kfac(*),tdum
       integer nbf
       integer nder,nfock,ndens
       integer g_fock,g_dens
 c
-      integer dims(3),chunk(3)
+      integer dims(3),chunk(3),alo(3),ahi(3)
       integer g_xc
       integer ifock
       integer i
       logical oprint
-      character*4 scftype
 c
-      scftype='RHF'
-      if(ndens.eq.2) scftype='UHF'
       oprint= util_print('fock_xc',print_debug) 
       if(oprint) then
-         write(luout,*) ' newfockxc nder ',nder, ' nfock ',nfock,
+         write(luout,*) ' xcnewfock nder ',nder, ' nfock ',nfock,
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
@@ -777,20 +774,30 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
      &     g_xc))
-     &        call errquit('fock_2e: could not allocate g_xc',555)
+     &        call errquit('xcnewfock: could not allocate g_xc',555)
       call ga_zero(g_xc)
 
       call fock_xc(geom, nbf,basis,
-     ,      ndens,  g_dens, g_xc,scftype,.true.)
+     ,      ndens,  g_dens, g_xc,.true.,.true.)
       call ga_add(1d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then
-         write(luout,*)'*** fock_2e: fock matrix',ifock
+         write(luout,*)'*** xcnewfock: fock matrix after add'
          call util_flush(luout)
-         call ga_print(g_fock)
+         alo(2)=1
+         ahi(2)=nbf
+         alo(3)=1
+         ahi(3)=nbf
+         do i=1,nfock
+            alo(1)=i
+            ahi(1)=i
+            tdum=nga_ddot_patch(g_fock, 'N', alo, ahi, 
+     .           g_fock, 'N', alo, ahi) 
+            if(abs(tdum).gt.1d-9) call nga_print_patch(g_fock,alo,ahi,0)
+         enddo
       endif
       if (.not.ga_destroy(g_xc)) then
-         call errquit('fock_2e: problem destroying test array',1)
+         call errquit('xcnewfock: problem destroying test array',1)
       endif
 
       return
@@ -926,7 +933,11 @@ c
       if (oprint) then
         if (ga_nodeid().eq.0) write(LuOut,*)
      &     'Density and Fock matrices after uhf_fock_setup'
-        call ga_print(g_dens)
+        do i=1,ndens
+           ahi(1)=i
+           alo(1)=i
+           call nga_print_patch(g_dens,alo,ahi,0)
+        enddo
         call ga_print(g_fock)
       endif
 c
@@ -1074,8 +1085,16 @@ c
       if (oprint) then
         if (ga_nodeid().eq.0) write(LuOut,*)
      &     'Density and Fock matrices after uhf_fock_finish'
-        call ga_print(g_dens)
-        call ga_print(g_fock)
+        do i=1,ndens
+           ahi(1)=i
+           alo(1)=i
+           call nga_print_patch(g_dens,alo,ahi,0)
+        enddo
+        do i=1,nfock
+           ahi(1)=i
+           alo(1)=i
+           call nga_print_patch(g_fock,alo,ahi,0)
+        enddo
       endif
 c
       return

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.32 2002-01-31 00:54:36 windus Exp $
+C $Id: hess_init.F,v 1.33 2002-02-19 02:10:56 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -298,7 +298,8 @@ c
        integer rtdb
        integer geomnew
        double precision ithresh
-       logical whatever,grid_file_close
+       logical whatever,grid_file_close,xc_got2nd      
+       external xc_got2nd
        character*15 gridtype
        external grid_file_close
 c
@@ -357,6 +358,8 @@ c
         endif
       endif
       if(theory.eq.'dft') then
+         if(.not.xc_got2nd()) call errquit(
+     '        'analytic 2nds not ready for these XC functionals',0)
 c
 c     set grid to fine or leave the user to set it to xfine
 c
