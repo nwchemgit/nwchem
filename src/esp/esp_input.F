@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.5 1998-06-15 18:18:34 d3j191 Exp $
+c $Id: esp_input.F,v 1.6 1998-06-16 17:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -150,7 +150,7 @@ c
       radius(107)=0.130d0
 c
       probe=0.07d0
-      factor=1.45d0
+      factor=2.0d0
 c
 c     read the nwchem input file
 c

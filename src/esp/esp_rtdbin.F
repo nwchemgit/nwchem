@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.5 1998-06-15 18:20:13 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.6 1998-06-16 17:30:46 d3j191 Exp $
 c
       implicit none
 c
@@ -52,7 +52,7 @@ c     get cutoff radius and gridspacing
 c
       if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
       if(.not.rtdb_get(irtdb,'esp:factor',mt_dbl,1,factor))
-     +  factor=1.45d0
+     +  factor=2.0d0
       if(.not.rtdb_get(irtdb,'esp:rcut',mt_dbl,1,rcut)) rcut=0.5d0
       if(.not.rtdb_get(irtdb,'esp:spac',mt_dbl,1,spac)) spac=0.1d0
       if(.not.rtdb_get(irtdb,'esp:radius',mt_dbl,107,radius)) then

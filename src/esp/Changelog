@@ -15,3 +15,4 @@ Apr 27 1998	defaults without esp input block
                 move probe/factor to esp_rtdbin
 
 Jun 15 1998     print probe radius and atom radius factor
+Jun 16 1998     change default factor to 2.0
