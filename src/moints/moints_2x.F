@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.29 1997-08-08 07:15:31 rg240 Exp $
+c  $Id: moints_2x.F,v 1.30 1997-08-14 17:45:55 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -820,12 +820,14 @@ c
          do b=ostart,a
            call dfill(nni,0.d0,h1,1)
            do j=jlo,jhi
-             cc = c(j,b)
-             do i=ilo,ihi
-               do v=vlo,vhi
-                 h1(v,i) = h1(v,i) + scale*cc*ssv(v,j,i)
+             cc = c(j,b)*scale
+             if (abs(cc).gt.1.d-16) then
+               do i=ilo,ihi
+                 do v=vlo,vhi
+                   h1(v,i) = h1(v,i) + cc*ssv(v,j,i)
+                 enddo
                enddo
-             enddo
+             endif
            enddo
 #ifndef NOCOMMS
            aa = a - ofroz
@@ -837,18 +839,20 @@ c
          do b=ostart,a
            call dfill(nnj,0.d0,h2,1)
            do i=ilo,ihi
-            cc = c(i,b)
-            do j=jlo,jhi
-              do v=vlo,vhi
-                h2(v,j) = h2(v,j) + scale*cc*ssv(v,j,i)
-              enddo
-            enddo
-          enddo
+             cc = c(i,b)*scale
+             if (abs(cc).gt.1.d-16) then
+               do j=jlo,jhi
+                 do v=vlo,vhi
+                   h2(v,j) = h2(v,j) + cc*ssv(v,j,i)
+                 enddo
+               enddo
+             endif
+           enddo
 #ifndef NOCOMMS
-          aa = a - ofroz
-          bb = b - ofroz
-          ab = (aa*(aa-1))/2 + bb - aoff
-          call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
+           aa = a - ofroz
+           bb = b - ofroz
+           ab = (aa*(aa-1))/2 + bb - aoff
+           call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
 #endif
          enddo
        enddo
