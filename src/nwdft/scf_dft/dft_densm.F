@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.14 2000-03-07 02:02:39 edo Exp $
+C$Id: dft_densm.F,v 1.15 2000-03-08 01:51:26 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -368,10 +368,15 @@ c
 c      
       if(ipol.eq.2) then
          rhfuhf=1d0
-         fnoc(1) = mult - 1
-         fnoc(2) = (ntotel - fnoc(1)) *.5d0
-         fnoc(1)=fnoc(2)+fnoc(1)
-         write(0,*) ' n1 n2 ',fnoc(1),fnoc(2)
+         if(mult.gt.0) then
+            fnoc(1) = mult - 1
+            fnoc(2) = (ntotel - fnoc(1)) *.5d0
+            fnoc(1)=fnoc(2)+fnoc(1)
+         else
+            fnoc(2) = -mult - 1
+            fnoc(1) = (ntotel - fnoc(2)) *.5d0
+            fnoc(2)=fnoc(2)+fnoc(1)
+         endif
       else
          rhfuhf=2d0
          fnoc(1)=ntotel*.5d0
@@ -393,7 +398,7 @@ c     up
                eee=evals(i+nbf*(isp-1))
                if(eee.le.ehomo-deps) nnintg=nnintg+1
             enddo
-            neldeg=ntotel/rhfuhf-nnintg
+            neldeg=fnoc(isp)-nnintg
             nlevdeg=0
             do i=nnintg+1,nbf
                eee=evals(i+nbf*(isp-1))
@@ -401,12 +406,11 @@ c     up
      .              nlevdeg=nlevdeg+1
             enddo
          endif
-
-         neldeg=ndown+1
-         nlevdeg=nup+ndown+1
-               do i=1,nnintg
-                  focc(i+nbf*(isp-1))=rhfuhf
-               enddo
+         do i=1,nnintg
+            focc(i+nbf*(isp-1))=rhfuhf
+         enddo
+c        write(0,*) ' nint eh ',nnintg,ehomo
+c        write(0,*) ' neldeg nlev ',neldeg,nlevdeg
          if(mod(neldeg,nlevdeg).ne.0) then
             dft_checkdg=.true.
 c
@@ -414,7 +418,7 @@ c     we have degeneracy
 c           
 c         fracc=dble(neldeg)/dble(nlevdeg)*rhfuhf
             fracc=(fnoc(isp)-nnintg)/dble(nlevdeg)*rhfuhf
-            if(ga_nodeid().eq.0) write(0,*) ' fracc ',fracc
+cedo        if(ga_nodeid().eq.0) write(0,*) ' fracc ',fracc
             noc(isp)=nint(fnoc(isp))+nup
             fnoc(isp)=fnoc(isp)+nup
          else
@@ -438,9 +442,11 @@ c
  1964        format(A,i4,2f20.13)
           enddo
              write(0,*) ' ntot ntotel',nck,ntotel
-	endif	
+             write(0,*) ' degeneracy check failed'
+             dft_checkdg=.false.
+         endif	
         call ga_sync()
-        call   errquit(' dftdeg: lost electrons',ntotel-nint(nck))
+cedo    call   errquit(' dftdeg: lost electrons',ntotel-nint(nck))
       endif
       return
       end

@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.7 2000-03-07 02:02:31 edo Exp $
+c$Id: grid_list.F,v 1.8 2000-03-08 01:51:23 edo Exp $
 c
       implicit none
 c      
@@ -141,7 +141,7 @@ c
                      if (r.lt.r1) then
                         iang = 2
                      elseif (r.ge.r1.and.r.lt.r2) then
-                        iang = 3
+                        iang = 4
                      elseif (r.ge.r2.and.r.lt.r3) then
                         iang = max(iang_mx-1,1)
                      elseif (r.ge.r3.and.r.lt.r4) then
