@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.88 2002-08-01 15:14:04 d3j191 Exp $
+c $Id: ana_task.F,v 1.89 2002-08-08 21:41:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1438,7 +1438,7 @@ c
       do 1 i=1,nbnds
       do 11 j=1,2
       if(ibnds(i,j,2).eq.0) then
-      write(atom(j),'(a5,a,a5)') sgmnam(ibnds(i,1,1))(12:16),':',
+      write(atom(j),'(a5,a,a5)') sgmnam(ibnds(i,j,1))(12:16),':',
      + sgmnam(ibnds(i,j,1))(6:10)
       else
       write(atom(j),'(i5,a,a5)') nsgm+ibnds(i,j,1),':',
@@ -1453,7 +1453,7 @@ c
       do 2 i=1,nangs
       do 21 j=1,3
       if(iangs(i,j,2).eq.0) then
-      write(atom(j),'(a5,a,a5)') sgmnam(iangs(i,1,1))(12:16),':',
+      write(atom(j),'(a5,a,a5)') sgmnam(iangs(i,j,1))(12:16),':',
      + sgmnam(iangs(i,j,1))(6:10)
       else
       write(atom(j),'(i5,a,a5)') nsgm+iangs(i,j,1),':',
@@ -1467,7 +1467,7 @@ c
       do 3 i=1,ntors
       do 31 j=1,4
       if(itors(i,j,2).eq.0) then
-      write(atom(j),'(a5,a,a5)') sgmnam(itors(i,1,1))(12:16),':',
+      write(atom(j),'(a5,a,a5)') sgmnam(itors(i,j,1))(12:16),':',
      + sgmnam(itors(i,j,1))(6:10)
       else
       write(atom(j),'(i5,a,a5)') nsgm+itors(i,j,1),':',
@@ -1481,7 +1481,7 @@ c
       do 4 i=1,nimps
       do 41 j=1,4
       if(iimps(i,j,2).eq.0) then
-      write(atom(j),'(a5,a,a5)') sgmnam(iimps(i,1,1))(12:16),':',
+      write(atom(j),'(a5,a,a5)') sgmnam(iimps(i,j,1))(12:16),':',
      + sgmnam(iimps(i,j,1))(6:10)
       else
       write(atom(j),'(i5,a,a5)') nsgm+iimps(i,j,1),':',
