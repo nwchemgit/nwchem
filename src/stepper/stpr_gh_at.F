@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.10 1997-06-12 22:52:25 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.11 1997-07-03 00:15:52 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -54,10 +54,16 @@ c
       stpr_gen_hess_at = .false.
       whoiam = ga_nodeid()
       master = 0
-      ignore_status = rtdb_parallel(.false.)
 c
       call stpr_filenames       ! Initialize common with all stepper filename
 c
+#if defined(DEBUG_GHAT)
+      call ga_sync()
+      write(6,*)' going false 1',whoiam
+      call util_flush(6)
+#endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
 c     
 c     create/load reference geometry
@@ -82,11 +88,16 @@ c
      $        call errquit
      $        ('stpr_gen_hess_at: geom_destroy failed?',5)
       endif
+      ignore_status = rtdb_parallel(.true.)
       call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' gone true 1',whoiam
+      call util_flush(6)
+      call ga_sync()
+#endif
 c     
 c     all nodes working here
 c     
-      ignore_status = rtdb_parallel(.true.)
       if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
      $     nat_active,h_active)) then
          all_atom = .true.
@@ -102,6 +113,13 @@ c     set no xyz options
      $     no_y = .false.
       if (.not.rtdb_get(rtdb,'vib:no_z',mt_log,1,no_z))
      $     no_z = .false.
+#if defined(DEBUG_GHAT)
+      call ga_sync()
+      write(6,*)' going false 2',whoiam
+      call util_flush(6)
+#endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.false.)
       if ( whoiam .eq. master ) then
         if (util_print('directions', print_medium)) then
           if (no_x) write(luout,*)' stpr_gen_hess_at: no X steps taken'
@@ -109,6 +127,13 @@ c     set no xyz options
           if (no_z) write(luout,*)' stpr_gen_hess_at: no Z steps taken'
         endif
       endif
+      ignore_status = rtdb_parallel(.true.)
+      call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' gone true 2',whoiam
+      call util_flush(6)
+      call ga_sync()
+#endif
 c     all nodes work here 
       restart = .false.
       restart = stpr_check_genat_restart(rtdb,iatom_start,ixyz_start)
@@ -125,8 +150,14 @@ c
 c
 c     save reference geometry
 c     
+#if defined(DEBUG_GHAT)
+         call ga_sync()
+         write(6,*)' going false 3',whoiam
+         call util_flush(6)
+#endif
+         call ga_sync()
+         ignore_status = rtdb_parallel(.false.)
          if (whoiam .eq. master) then
-            ignore_status = rtdb_parallel(.false.)
             if (.not.geom_create(geom,'geometry')) call errquit
      $           ('stpr_gen_hess_at:geom_create failed?',9)
             if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
@@ -135,17 +166,27 @@ c
      $           ('stpr_gen_hess_at: geom_rtdb_store failed',11)
             if (.not.geom_destroy(geom)) call errquit
      $           ('stpr_gen_hess_at: geom_destroy failed?',12)
-            ignore_status = rtdb_parallel(.true.)
          endif
+         ignore_status = rtdb_parallel(.true.)
          call ga_sync()
+#if defined(DEBUG_GHAT)
+         write(6,*)' gone true 3',whoiam
+         call util_flush(6)
+         call ga_sync()
+#endif
       endif
 c     
 c     broadcast number of atoms
 c     
       call ga_brdcst(Msg_gen_at_nat+MSGINT, nat, mitob(1), 0)
 c     
+#if defined(DEBUG_GHAT)
       call ga_sync()
-c     
+      write(6,*)' going false 4',whoiam
+      call util_flush(6)
+#endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
          rank_hess = 3*nat
          if (.not. MA_Push_Get(MT_DBL,rank_hess,
@@ -178,6 +219,13 @@ c
             call dfill((3*rank_hess),0.0d00,dbl_mb(k_ddipole),1)
          endif
       endif
+      ignore_status = rtdb_parallel(.true.)
+      call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' gone true 4',whoiam
+      call util_flush(6)
+      call ga_sync()
+#endif
 c     
 c     all nodes doing work here
 c     
@@ -187,6 +235,13 @@ c
          xyz_pass    = .true.
       else
          xyz_pass = .false.
+#if defined(DEBUG_GHAT)
+         call ga_sync()
+         write(6,*)' going false 5',whoiam
+         call util_flush(6)
+#endif
+         call ga_sync()
+         ignore_status = rtdb_parallel(.false.)
          if (whoiam.eq.master) then
            if (util_print('restart', print_low)) then
              write(luout,*)' **** gen_hess restart ****'
@@ -195,6 +250,13 @@ c
              call util_flush(luout)
            endif
          endif
+         ignore_status = rtdb_parallel(.true.)
+         call ga_sync()
+#if defined(DEBUG_GHAT)
+         write(6,*)' gone true 5',whoiam
+         call util_flush(6)
+         call ga_sync()
+#endif
       endif
       do 00100 iatom = iatom_start,nat
          if (.not.all_atom) then
@@ -216,6 +278,12 @@ c
             if (ixyz.eq.1 .and. no_x) goto 00199
             if (ixyz.eq.2 .and. no_y) goto 00199
             if (ixyz.eq.3 .and. no_z) goto 00199
+#if defined(DEBUG_GHAT)
+            call ga_sync()
+            write(6,*)' going false 6',whoiam
+            call util_flush(6)
+#endif
+            call ga_sync()
             ignore_status = rtdb_parallel(.false.)
             if(whoiam.eq.master) then
               if (util_print('directions', print_medium)) then
@@ -259,6 +327,11 @@ c
             endif
             ignore_status = rtdb_parallel(.true.)
             call ga_sync()
+#if defined(DEBUG_GHAT)
+            write(6,*)' gone true 6',whoiam
+            call util_flush(6)
+            call ga_sync()
+#endif
 c
 c     restore starting information for central point
 c     
@@ -269,6 +342,11 @@ c
             if (.not. task_gradient(rtdb)) call errquit
      $           ('stpr_gen_hess_at: energy+grad failed',25)
 c     
+#if defined(DEBUG_GHAT)
+            call ga_sync()
+            write(6,*)' going false 7',whoiam
+            call util_flush(6)
+#endif
             call ga_sync()
             ignore_status = rtdb_parallel(.false.)
             if (whoiam.eq.master) then
@@ -322,6 +400,11 @@ c
             endif
             ignore_status = rtdb_parallel(.true.)
             call ga_sync()
+#if defined(DEBUG_GHAT)
+            write(6,*)' gone true 7',whoiam
+            call util_flush(6)
+            call ga_sync()
+#endif
 c
 c     restore starting information from central point
 c     
@@ -333,6 +416,11 @@ c
      $          call errquit('stpr_gen_hess_at: energy+grad failed',
      &          36)
 c     
+#if defined(DEBUG_GHAT)
+            call ga_sync()
+            write(6,*)' going false 8',whoiam
+            call util_flush(6)
+#endif
             call ga_sync()
             ignore_status = rtdb_parallel(.false.)
             if (whoiam.eq.master) then
@@ -352,16 +440,42 @@ c
      &             call stpr_fd_upd_dipole(dbl_mb(k_ddipole),
      &             mdipole,pdipole,2.0d00,delta,nat,iatom,ixyz)
             endif
+            ignore_status = rtdb_parallel(.true.)
+            call ga_sync()
+#if defined(DEBUG_GHAT)
+            write(6,*)' gone true 8',whoiam
+            call util_flush(6)
+            call ga_sync()
+#endif
 00199       continue
+#if defined(DEBUG_GHAT)
+            call ga_sync()
+            write(6,*)' going false 9',whoiam
+            call util_flush(6)
+#endif
+            call ga_sync()
+            ignore_status = rtdb_parallel(.false.)
             if (whoiam.eq.master) then
                call stpr_put_genat_restart(rank_hess,dbl_mb(k_hess),
      $              dbl_mb(k_gradm),iatom,ixyz,nat,.false.)
-               ignore_status = rtdb_parallel(.true.)
             endif
+            ignore_status = rtdb_parallel(.true.)
+            call ga_sync()
+#if defined(DEBUG_GHAT)
+            write(6,*)' gone true 9',whoiam
+            call util_flush(6)
+            call ga_sync()
+#endif
 00200    continue
 00201    continue
 00100 continue
 c     
+#if defined(DEBUG_GHAT)
+      call ga_sync()
+      write(6,*)' going false 10',whoiam
+      call util_flush(6)
+#endif
+      call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
          if (all_atom) then
@@ -407,13 +521,29 @@ c
          if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
      $        call errquit
      $        ('stpr_gen_hess_at: rtdb_cput failed ?',39)
+       endif
+      ignore_status = rtdb_parallel(.true.)
+      call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' gone true 10',whoiam
+      call util_flush(6)
+      call ga_sync()
+#endif
 c
 c     restore and delete save state
 c
-         if (.not. task_restore_state(rtdb, 'hess')) call errquit
-     $        ('stpr_gen_hess_at: failed to restore central point',40)
-         if (.not. task_delete_state(rtdb, 'hess')) call errquit
+      if (.not. task_restore_state(rtdb, 'hess')) call errquit
+     $    ('stpr_gen_hess_at: failed to restore central point',40)
+      if (.not. task_delete_state(rtdb, 'hess')) call errquit
      $        ('stpr_gen_hess_at: failed to restore central point',41)
+#if defined(DEBUG_GHAT)
+      call ga_sync()
+      write(6,*)' going false 11',whoiam
+      call util_flush(6)
+#endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.false.)
+      if (whoiam.eq.master) then
 c     
 c     free memory
 c     
@@ -427,11 +557,20 @@ c
          if(.not.ma_pop_stack(h_gradm)) call errquit
      $        ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45)
       endif
+      ignore_status = rtdb_parallel(.true.)
+      call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' gone true 11',whoiam
+      call util_flush(6)
+      call ga_sync()
+#endif
       if(.not.all_atom) then
          if (.not.ma_free_heap(h_active)) call errquit
      $        ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46)
       endif
-      ignore_status = rtdb_parallel(.true.)
-      call ga_sync()
+#if defined(DEBUG_GHAT)
+      write(6,*)' out of stpr_gen_hess_at ',whoiam
+#endif
       stpr_gen_hess_at = .true.
+      call ga_sync()
       end
