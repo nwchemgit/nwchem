@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.1 1997-04-22 20:46:49 d3e129 Exp $
+# $Id: nwparse.pl,v 1.2 1997-04-24 06:26:10 d3e129 Exp $
 #
 #
 #
@@ -120,7 +120,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    @grads  = ();
 	}
 	next if /^\s*$/;
-	if (/failed/) {
+	if (/failed/i || /warning/i) {
 	    print $_;
 	    print FILE_OUTPUT $_;
 	}
