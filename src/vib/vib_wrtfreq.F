@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.13 2003-03-25 21:58:28 bylaska Exp $
+* $Id: vib_wrtfreq.F,v 1.14 2003-04-14 20:00:50 bylaska Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -275,7 +275,7 @@ C
 
 *     **** local variables ****
       integer          geom,natoms,ii,nops
-      double precision amass,meig(3),mtensor(3,3),q
+      double precision amass,meig(3),mtensor(3,3),q,qt
       integer          r1(2)
       integer          lwork,ierr
       parameter (lwork=9)
@@ -369,6 +369,35 @@ C
 
       linear = .false.
       if ((AA.le.eps).and.((BB-CC).le.eps)) linear = .true.
+
+
+*     **** recalculate the symmetry number  - Dinfh = 2, Cinfh = 1 ****
+      if (linear) then
+
+        nops  = sym_number_ops(geom)
+        if (.not. MA_push_get(mt_dbl,(nops*3*4),'r1',r1(2),r1(1)))
+     >     call errquit('vib_geom_parameters_set: push stack',4)
+        call sym_ops_get(geom,nops,dbl_mb(r1(1)))
+        sigma = 1                                                 ! Identity not included
+        do ii=1,nops
+          mtensor(1,1) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 0*(nops*3)) !crazy format
+          mtensor(2,1) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 0*(nops*3))
+          mtensor(3,1) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 0*(nops*3))
+          mtensor(1,2) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 1*(nops*3))
+          mtensor(2,2) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 1*(nops*3))
+          mtensor(3,2) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 1*(nops*3))
+          mtensor(1,3) = dbl_mb(r1(1)+ (ii-1)*3 + 0 + 2*(nops*3))
+          mtensor(2,3) = dbl_mb(r1(1)+ (ii-1)*3 + 1 + 2*(nops*3))
+          mtensor(3,3) = dbl_mb(r1(1)+ (ii-1)*3 + 2 + 2*(nops*3))
+          q = deter3(mtensor)
+          qt = mtensor(1,1)+mtensor(2,2)+mtensor(3,3)
+          if ((abs(q+1.0d0).lt.1.0d-6).and.(abs(qt+3.0d0).lt.1.0d-6))
+     >       sigma = 2
+        end do
+        if (.not. MA_pop_stack(r1(2)))
+     >    call errquit('vib_geom_parameters_set: pop stack',5)
+
+      end if
 *
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_geom_parameters_get: geom_destroy failed',911)
