@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
+c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c
@@ -138,13 +138,9 @@ c     stead of just alpha, the induced dipole is obtained by the
 c     product of pwa and pw
 c
       do 20 iwa=1,mwa
-c      qai=qfaci*qwa(iwa,iset)
-c      pai=pwa(iwa,iset)
       qai=qfaci*chg(iwq(iwa),1,iset)
       pai=chg(iwq(iwa),2,iset)
       do 21 jwa=1,mwa
-c      qaj=qfaci*qwa(jwa,iset)
-c      paj=pwa(jwa,iset)
       qaj=qfaci*chg(iwq(jwa),1,iset)
       paj=chg(iwq(jwa),2,iset)
       do 22 iax=1,nax
@@ -226,15 +222,11 @@ c
    40 continue
 c
       do 34 iwa=1,mwa
-c      qai=qfaci*qwa(iwa,ipset)
-c      pai=pwa(iwa,ipset)
       qai=qfaci*chg(iwq(iwa),1,ipset)
       pai=chg(iwq(iwa),2,ipset)
       do 35 jwa=1,mwa
-c      qaj=qfaci*qwa(jwa,ipset)
-c      paj=pwa(jwa,ipset)
-      qai=qfaci*chg(iwq(jwa),1,ipset)
-      pai=chg(iwq(jwa),2,ipset)
+      qaj=qfaci*chg(iwq(jwa),1,ipset)
+      paj=chg(iwq(jwa),2,ipset)
       do 36 iax=1,nax
       rx=xj(iax,1,jwa)-xi(iax,1,iwa)
       ry=xj(iax,2,jwa)-xi(iax,2,iwa)
@@ -296,7 +288,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
+c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c
@@ -531,14 +523,10 @@ c     stead of just alpha, the induced dipole is obtained by the
 c     product of pwa and pw
 c
       do 19 jwa=1,mwa
-c      qaj=qfaci*qwa(jwa,iset)
-c      paj=pwa(jwa,iset)
       qaj=qfaci*chg(iwq(jwa),1,iset)
       paj=chg(iwq(jwa),2,iset)
       do 20 iax=1,nax
       isa=isal(iax)
-c      qaj=qfaci*qsa(isa,iset,1)
-c      paj=psa(isa,iset)
       qai=qfaci*chg(isq1(isa),1,iset)
       pai=chg(isq1(isa),2,iset)
       rx=xj(iax,1,jwa)-xi(iax,1)
@@ -626,14 +614,10 @@ c
    42 continue
 c
       do 35 jwa=1,mwa
-c      qaj=qfaci*qwa(jwa,ipset)
-c      paj=pwa(jwa,ipset)
       qaj=qfaci*chg(iwq(jwa),1,ipset)
       paj=chg(iwq(jwa),2,ipset)
       do 36 iax=1,nax
       isa=isal(iax)
-c      qai=qfaci*qsa(isa,ipset,1)
-c      pai=psa(isa,ipset)
       qai=qfaci*chg(isq1(isa),1,ipset)
       pai=chg(isq1(isa),2,ipset)
       rx=xj(iax,1,jwa)-xi(iax,1)
@@ -693,7 +677,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwc,rwi1,rwi2,rwi6,
      + rwx,rw,fi,fj,f,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.4 2000-10-31 18:40:46 d3j191 Exp $
+c $Id: cf_d.F,v 1.5 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c

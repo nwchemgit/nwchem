@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c
@@ -209,6 +209,9 @@ c
       else
       do 115 iwa=1,nwa
       qi=chg(iwq(iwa),1,iset)
+      dqi=zero
+      p2qi=zero
+      p3qi=zero
       if(ipert2) p2qi=chg(iwq(iwa),1,2)
       if(ipert3) p3qi=chg(iwq(iwa),1,3)
       if(ithint) dqi=chg(iwq(iwa),1,4)
@@ -444,8 +447,8 @@ c
 c     electrostatic contribution
 c     --------------------------
 c
-      if(q.ne.zero) then
       ewwqsm=zero
+      if(q.ne.zero) then
       if(ipme.eq.0) then
       do 16 iax=1,nax
       ewwqsm=ewwqsm+facu(iax)*rwi1(iax)
@@ -755,7 +758,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c
@@ -821,7 +824,7 @@ c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
 c
-cx new stuff begin
+      etermq=zero
 c
 #if !defined(CAFE_POLARIZATION)
 c
@@ -977,6 +980,9 @@ c
       endif
   106 continue
       else
+      dqi=zero
+      p2qi=zero
+      p3qi=zero
       if(ipert2) p2qi=chg(isq1(isa),1,2)
       if(ipert3) p3qi=chg(isq1(isa),1,3)
       if(ithint) dqi=chg(isq1(isa),1,4)
@@ -1052,7 +1058,7 @@ c
      + e14*vdw(iptr,iwatm(jwa),3,4))
       deriv(3,ipsw)=deriv(3,ipsw)+dd
       deriv(14,ipsw)=deriv(14,ipsw)+dd
-      dd=half*(qi*chg(iwq(jwa),1,4)+qj*dqi)*eq
+      dd=half*(qi*chg(iwq(jwa),1,4)+chg(iwq(jwa),1,iset)*dqi)*eq
       deriv(5,ipsw)=deriv(5,ipsw)+dd
       deriv(16,ipsw)=deriv(16,ipsw)+dd
       endif
@@ -1301,8 +1307,8 @@ c
       rwi1(iax)=sqrt(rwi2(iax))
    29 continue
       endif
-      if(abs(qwas).gt.small) then
       etermq=zero
+      if(abs(qwas).gt.small) then
       if(ipme.eq.0) then
       do 30 iax=1,nax
       isa=isal(iax)
@@ -1869,7 +1875,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c
@@ -1930,6 +1936,7 @@ c
 #if defined(CAFE_POLARIZATION)
       qfaci=one/qfac
 #endif
+      etermq=zero
 c
       do 112 i=1,msa
       if(isq2(i).le.0.or.isq3(i).le.0.or.
@@ -2935,7 +2942,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3214,7 +3221,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3480,7 +3487,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3813,7 +3820,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4130,7 +4137,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4217,6 +4224,8 @@ c
 #include "bitops_funcs.fh"
 c
       isad=0
+      dfsp=zero
+      etermq=zero
 c
       do 1 i=1,nthrds
 c
@@ -4474,7 +4483,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.40 2001-11-20 15:40:18 d3j191 Exp $
+c $Id: cf_f.fh,v 1.41 2002-01-04 16:06:12 d3j191 Exp $
 c
       implicit none
 c

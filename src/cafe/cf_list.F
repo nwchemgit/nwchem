@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.12 2001-08-03 21:57:08 d3j191 Exp $
+c $Id: cf_list.F,v 1.13 2002-01-04 16:06:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -796,7 +796,7 @@ c
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
       integer isb,nbi,nbj,nbonds,nconst,ibloc,jbloc,isbloc,iq,jq
-      logical lself,lbi,lbj
+      logical lself
 c
 #include "bitops.fh"
 c
