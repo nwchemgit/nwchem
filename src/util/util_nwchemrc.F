@@ -1,3 +1,11 @@
+*
+*
+*
+*
+* these should use the inp modules like the rest of nwchem
+* see bas_library_file in .../basis/bas_input.F
+*
+*
       logical function util_nwchemrc_put(key,value)
 c
       implicit none
@@ -5,8 +13,10 @@ c
       character*(*) key,value
 c
       character*255 home,nwchrc
+      character*1020 mystring
       character*1 dummy
       integer lenkey
+      intrinsic index
 c
       lenkey=index(key,' ')-1
       if(lenkey.le.0) goto 9999
@@ -19,7 +29,8 @@ c
  6900 format(a1)
       goto 1
     9 continue
-      write(69,6901) key(1:index(key,' '))//value(1:index(value,' ')-1)
+      mystring = key(1:index(key,' '))//value(1:index(value,' ')-1)
+      write(69,6901) mystring
  6901 format(a)
       close(unit=69)
 c
@@ -33,6 +44,7 @@ c
       logical function util_nwchemrc_get(key,value)
 c
       implicit none
+
 c
       character*(*) key,value
 c
