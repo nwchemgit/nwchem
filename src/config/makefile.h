@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.327 2000-05-11 19:45:16 edo Exp $
+# $Id: makefile.h,v 1.328 2000-05-16 20:44:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -870,20 +870,19 @@ ifeq ($(TARGET),HPUX64)
   CPP = /lib/cpp -P
   CC = cc
   FC = f90
-  LDOPTIONS = -Wl,+vallcompatwarnings -g -L/usr/lib  
+  LDOPTIONS = -Wl,+vallcompatwarnings  
   LINK.f = f90   $(LDFLAGS) $(FOPTIONS)
-  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lU77 -lm
+  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lm
   CDEBUG =
   FDEBUG = -g
-  FOPTIONS =  +ppu +i8 +DA2.0W +U77 
-#  FOPTIONS =  +ppu +i8 +DA2.0W +U77 +save
+  FOPTIONS =  +ppu +i8 +DA2.0W +U77  
   COPTIONS = -Aa -D_HPUX_SOURCE +e +DA2.0W 
   FOPTIMIZE = +O2
   FVECTORIZE = +Oall +Onofltacc
   COPTIMIZE = -O
   RANLIB = echo
 
- DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG -DHPUX64
+ DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG -DHPUX64 -DEXT_INT
 # DEFINES = -DHPUX -DEXTNAME -DEXT_INT
 
 endif
