@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.28 2002-09-21 05:56:46 bylaska Exp $
+* $Id: control.F,v 1.29 2002-09-26 21:02:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -147,6 +147,13 @@
      >        rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
       value = value.and.
      >        rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut)
+
+      SA = .true.
+      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
+        SA = .false.
+        sa_decay(1) = 1.0d0
+        sa_decay(2) = 1.0d0
+      end if
 
 
 c     do i=1,npsp
@@ -1584,20 +1591,9 @@ c      end
       logical function control_SA()
       implicit none
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
+#include "control.fh"
 
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-*     *** local variables ***
-      logical value
-      real*8  scaling(2)
-
-      value = rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling) 
-      
-      control_SA=value
+      control_SA=SA
       return
       end
 
@@ -1610,23 +1606,9 @@ c      end
       implicit none
       integer choice
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
+#include "control.fh"
 
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-*     *** local variables ***
-      logical value
-      real*8  scaling(2)
-
-      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)) then
-        scaling(1) = 1.0d0 
-        scaling(2) = 1.0d0 
-      end if
-      
-      control_SA_decay = scaling(choice)
+      control_SA_decay = sa_decay(choice)
       return
       end
 
