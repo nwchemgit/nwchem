@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.64 2002-04-08 18:51:52 windus Exp $
+c     $Id: dft_inpana.F,v 1.65 2003-02-19 05:36:09 edo Exp $
 c
 c*********************************************************************
 c     
@@ -597,7 +597,7 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'---',14x,'----------',1x,'---------',1x,'---------',
      &        1x,'---------')
  9223 format(10x,a40)
- 9224 format(10x,a40,1x,f6.2,1x,a9)
+ 9224 format(10x,a40,1x,f6.3,1x,a9)
  9225 format(10x,a40,1x,f8.4)
  8150 format(10x,'No. of atoms     :',2x,i4)
  8200 format(10x,'No. of electrons :',2x,i4,/,

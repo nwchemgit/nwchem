@@ -41,7 +41,7 @@ c     ft97
 c     xpkzb99
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 45,numfunc=30)
+      parameter (num_dirs = 46,numfunc=30)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -66,7 +66,7 @@ c
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx','optc','becke97-2','mpw91',
      ,     'ft97','xft97','cft97',
-     &     'xpkzb99' /
+     &     'xpkzb99','mpw1k' /
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -97,7 +97,7 @@ c
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
-     &  3600,
+     &  3600,4000,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -217,6 +217,8 @@ c
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
+            lxfac(3) = .true.
+            nlxfac(3) = .false.
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(3) = .true.
          else
@@ -385,6 +387,27 @@ c
          lcfac(12) = .false.
          nlcfac(12) = .true.
          cfac(12) = 1.0d0
+         lcfac(6) = .true.
+         cfac(6) = 1.0d0
+       goto 10
+c     
+c     mpw1k for exchange & correlation
+C     Lynch, Fast, Harris, and Truhlar, J. Phys. Chem. A 104, 4811 (2000)
+c     
+ 4000  continue
+c
+c        assume total wanted
+c     
+       xccomb(16) = .true.
+       xfac(1)=0.428d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+         lxfac(19) = .true.
+         nlxfac(19) = .true.
+         xfac(19) = .572d0
+         lcfac(5) = .false.
+         nlcfac(5) = .true.
+         cfac(5) = 1.0d0
          lcfac(6) = .true.
          cfac(6) = 1.0d0
        goto 10
@@ -941,6 +964,9 @@ c
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
             call errquit(' xc_inp - functional description ',0)
+            lxfac(19) = .true.
+            nlxfac(19) = .false.
+          
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(19) = .true.
          else
