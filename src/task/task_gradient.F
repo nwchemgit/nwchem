@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.37 2004-02-01 22:02:07 sohirata Exp $
+* $Id: task_gradient.F,v 1.38 2004-03-13 00:09:29 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -15,12 +15,15 @@ c
       integer rtdb
 c
       logical status, ignore, numerical
+      logical task_qmmm
       character*32 theory
       double precision cpu, wall, energy, dipole(3), 
      $     gradient(3,nw_max_atom), gmax, gnorm
       integer i, k, ncent, nelem
       logical task_gradient_doit, oniom_gradient, geom_rtdb_ncent
       external task_gradient_doit, oniom_gradient, geom_rtdb_ncent
+      logical qmmm_gradient
+      external qmmm_gradient
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -44,7 +47,19 @@ c
       if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
      $     numerical)) numerical = .false.
 c
-      if (theory .ne. 'oniom' .or. numerical) then
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &    task_qmmm = .false.
+c
+      if(task_qmmm) then
+         status = qmmm_gradient(rtdb)
+            if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
+     $           call errquit('task_energy: no energy in rtdb?',0,
+     &       RTDB_ERR)
+            if (.not. rtdb_get(rtdb, 'qmmm:gradient', mt_dbl, nelem, 
+     $           gradient))
+     $           call errquit('task_gradient: no gradient in rtdb?',0,
+     &       RTDB_ERR)
+      else if (theory .ne. 'oniom' .or. numerical) then
          status = task_gradient_doit(rtdb,theory,energy, gradient)
       else
          status = oniom_gradient(rtdb)
@@ -122,7 +137,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.37 2004-02-01 22:02:07 sohirata Exp $
+* $Id: task_gradient.F,v 1.38 2004-03-13 00:09:29 marat Exp $
 *
       implicit none
 #include "errquit.fh"
