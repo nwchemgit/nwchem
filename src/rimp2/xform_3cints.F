@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.7 1994-10-31 17:26:15 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.8 1994-11-01 20:43:51 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -253,7 +253,6 @@ C
      $         'Transformed integrals stored in memory.'
          EndIf
 C
-         Call GA_Summarize( .TRUE. )
       EndIf
 C
  9100 Format(1X, 'Generating three-center ', A,
