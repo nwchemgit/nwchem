@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.92 2000-07-13 19:07:59 d3j191 Exp $
+c $Id: md_main.F,v 1.93 2000-07-13 23:15:27 edo Exp $
 c
       implicit none
 c
@@ -1938,6 +1938,7 @@ c
 c
 #include "md_common.fh"
 c
+#if !defined(WIN32)
       integer*4 create_client_socket
       integer client_socket_write
       external create_client_socket,client_socket_write
@@ -1980,6 +1981,7 @@ c
 c
       print*,'Bytes written to socket is ',numbyt
 c
+#endif
       return
       end
       subroutine md_timer_init
@@ -2068,7 +2070,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.92 2000-07-13 19:07:59 d3j191 Exp $
+c $Id: md_main.F,v 1.93 2000-07-13 23:15:27 edo Exp $
 c
       implicit none
 c
