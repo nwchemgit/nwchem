@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.101 2000-05-15 18:30:53 edo Exp $
+c $Id: basis.F,v 1.102 2000-08-01 19:51:27 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1224,19 +1224,23 @@ c
       tmp = 'basis:'//bs_trans(basis)(1:len_bs_trans(basis))
       lentmp = inp_strlen(tmp) + 1
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':bs_tags'
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':bs_stdname'
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_stdname(1,basis))
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':assoc ecp name'
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, 2, name_assoc(1,basis))
 c
       nexcf = 0
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':number of exps and coeffs'
       rtdb_status = rtdb_status .and.
      &    rtdb_get(rtdb,tmp,mt_int,1,nexcf)
@@ -1262,22 +1266,26 @@ c
         exndcf(SZ_exndcf,basis) = (nexcf+ecXtra)
       endif
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':exps and coeffs'
       rtdb_status = rtdb_status .and.
      &       rtdb_get(
      &       rtdb, tmp, mt_dbl, nexcf, dbl_mb(mb_exndcf(1,basis)))
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':header'
       rtdb_status = rtdb_status .and.
      &       rtdb_get(
      &       rtdb, tmp, mt_int, ndbs_head, infbs_head(1,basis))
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':tags info'
       rtdb_status = rtdb_status .and.
      &       rtdb_get(
      &       rtdb, tmp, mt_int,
      &       ndbs_tags*ntags_bsmx, infbs_tags(1,1,basis))
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':contraction info'
       rtdb_status = rtdb_status .and.
      &       rtdb_get(
@@ -1945,29 +1953,37 @@ c
 
       status = .true.
       status = status.and.bas_rtdb_add(rtdb,name)
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':bs_tags'
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
 
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':bs_stdname'
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,stdnamein)
       
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':assoc ecp name'
       status = status .and. rtdb_cput(rtdb,tmp,2,ecp_name)
 c
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':number of exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_int,1,nexcf)
 
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':exps and coeffs'
       status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
 
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':header'
       status = status .and.
      &       rtdb_put(rtdb,tmp,mt_int,ndbs_head,head_array)
 
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':tags info'
       status = status .and. rtdb_put(
      &       rtdb,tmp,mt_int,(ndbs_tags*ntagsin), tags_array)
 
+      tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':contraction info'
       status = status .and. rtdb_put(
      &       rtdb,tmp,mt_int,(ndbs_ucont*nucontin),ucont_array)

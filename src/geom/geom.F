@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.103 2000-05-22 23:29:14 mdupuis Exp $
+C$Id: geom.F,v 1.104 2000-08-01 19:51:45 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -376,154 +376,207 @@ c
       k = inp_strlen(tmp)+1
       s = .true.
 c
+      tmp(k:) = ' ' 
       tmp(k:) = ':ncenter'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, ncenter(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':coords'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, 
      $     coords(1,1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':vel'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, 
      $     velocities(1,1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':charges'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':masses'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, 
      $     geom_mass(1,geom))
 Cnew
+      tmp(k:) = ' ' 
       tmp(k:) = ':inv nuc expon'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_invnucexp(1,geom))
 Cend
+      tmp(k:) = ' ' 
       tmp(k:) = ':efield'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':lattice vectors'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
      $     lattice_vectors(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':lattice angles'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
      $     lattice_angles(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':system type'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, isystype(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':no. unique centers'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':group number'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cget(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cget(rtdb, tmp, 1, user_units(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':angstrom_to_au'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
+      tmp(k:) = ' ' 
       tmp(k:) = ':setting number'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, setting_number(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':recip vectors'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
      $     recip_lat_vectors(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':recip angles'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, 
      $     recip_lat_angles(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':direct volume'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':unique centers'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, ncenter_unique(geom), 
      $     unique_cent(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':tags'
       s = s .and. rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':include_bqbq'
       s = s .and. rtdb_get(rtdb, tmp, mt_log, 1, include_bqbq(geom))
 c
 c     Zmatrix info
 c
+      tmp(k:) = ' ' 
       tmp(k:) = ':zmt_source'
       s = s .and. rtdb_cget(rtdb, tmp, 1, zmt_source(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':zmt_nizmat'
       if (rtdb_get(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))) then
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_izmat'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, zmt_nizmat(geom), 
      $        zmt_izmat(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_nzfrz'
          if (rtdb_get(rtdb, tmp, mt_int, 1, zmt_nzfrz(geom))) then
+      tmp(k:) = ' ' 
             tmp(k:) = ':zmt_izfrz'
             s = s .and. rtdb_get(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
      $           zmt_izfrz(1,geom))
+      tmp(k:) = ' ' 
             tmp(k:) = ':zmt_izfrz_val'
             s = s .and. rtdb_get(rtdb, tmp, mt_dbl, zmt_nzfrz(geom), 
      $           zmt_izfrz_val(1,geom))
          endif
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_nzvar'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_varsign'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, zmt_nzvar(geom), 
      $        zmt_varsign(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cget(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_maxtor'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 2*max_zcoord, 
      $        zmt_ijbond(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 3*max_zcoord, 
      $        zmt_ijkang(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklto(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklop(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklnb(1,1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_val'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijbond_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_val'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijkang_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_val'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklto_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_val'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklop_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_val'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklnb_val(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_frz'
          s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijbond_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_frz'
          s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijkang_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_frz'
          s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklto_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_frz'
          s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklop_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_frz'
          s = s .and. rtdb_get(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklnb_val(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_nam'
          s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
      $        zmt_ijbond_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_nam'
          s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
      $        zmt_ijkang_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_nam'
          s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
      $        zmt_ijklto_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_nam'
          s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
      $        zmt_ijklop_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_nam'
          s = s .and. rtdb_cget(rtdb, tmp, max_zcoord, 
      $        zmt_ijklnb_nam(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_cvr_scaling'
          s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 1,
      $        zmt_cvr_scaling(geom))
@@ -532,9 +585,12 @@ c
 c--> get symmetry operators, number of operators and operator/atom
 c    map from rtdb
 c
+      tmp(k:) = ' ' 
+      tmp(k:) = ' ' 
       tmp(k:) = ':num_operators'
       s = s .and. 
      $     rtdb_get(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':operators'
       s = s .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
@@ -548,6 +604,8 @@ c
      $           call errquit('geom_rtdb_load: free of atom map', 0)
          end if
 c
+      tmp(k:) = ' ' 
+         tmp(k:) = ' ' 
          tmp(k:) = ':map_atoms'
          s = s .and. 
      $        rtdb_ma_get(rtdb, tmp, ma_type, nelem,
@@ -760,156 +818,209 @@ c
       k = inp_strlen(tmp)+1
       s = .true.
 c
+      tmp(k:) = ' ' 
       tmp(k:) = ':ncenter'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, ncenter(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':coords'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     coords(1,1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':vel'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     velocities(1,1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':charges'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     charge(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':masses'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_mass(1,geom))
 Cnew
+      tmp(k:) = ' ' 
       tmp(k:) = ':inv nuc expon'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_invnucexp(1,geom))
 Cend
+      tmp(k:) = ' ' 
       tmp(k:) = ':efield'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':lattice vectors'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
      $     lattice_vectors(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':lattice angles'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, lattice_angles(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':system type'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, isystype(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':no. unique centers'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, ncenter_unique(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':group number'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, group_number(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':group name'
       s = s .and. rtdb_cput(rtdb, tmp, 1, group_name(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':user units'
       s = s .and. rtdb_cput(rtdb, tmp, 1, user_units(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':angstrom_to_au'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, angstrom_to_au)
+      tmp(k:) = ' ' 
       tmp(k:) = ':setting number'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, setting_number(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':recip vectors'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
      $     recip_lat_vectors(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':recip angles'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, 
      $     recip_lat_angles(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':direct volume'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, volume_direct(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':unique centers'
       s = s .and. rtdb_put(rtdb, tmp, mt_int, ncenter_unique(geom), 
      $     unique_cent(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':tags'
       s = s .and. rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':include_bqbq'
       s = s .and. rtdb_put(rtdb, tmp, mt_log, 1, include_bqbq(geom))
 c
 c     Zmatrix info
 c
+      tmp(k:) = ' ' 
       tmp(k:) = ':zmt_source'
       s = s .and. rtdb_cput(rtdb, tmp, 1, zmt_source(geom))
       if (zmt_source(geom) .ne. ' ') then
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_nizmat'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_izmat'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, zmt_nizmat(geom), 
      $        zmt_izmat(1,geom))
          if (zmt_nzfrz(geom) .gt. 0) then
+      tmp(k:) = ' ' 
             tmp(k:) = ':zmt_nzfrz'
             s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nzfrz(geom))
+      tmp(k:) = ' ' 
             tmp(k:) = ':zmt_izfrz'
             s = s .and. rtdb_put(rtdb, tmp, mt_int, zmt_nzfrz(geom), 
      $           zmt_izfrz(1,geom))
+      tmp(k:) = ' ' 
             tmp(k:) = ':zmt_izfrz_val'
             s = s .and. rtdb_put(rtdb, tmp, mt_dbl, zmt_nzfrz(geom), 
      $           zmt_izfrz_val(1,geom))
          endif
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_nzvar'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nzvar(geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_varsign'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, zmt_nzvar(geom), 
      $        zmt_varsign(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cput(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_maxtor'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 2*max_zcoord, 
      $        zmt_ijbond(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 3*max_zcoord, 
      $        zmt_ijkang(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklto(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklop(1,1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 4*max_zcoord, 
      $        zmt_ijklnb(1,1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_val'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijbond_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_val'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijkang_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_val'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklto_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_val'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklop_val(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_val'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, max_zcoord, 
      $        zmt_ijklnb_val(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_frz'
          s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijbond_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_frz'
          s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijkang_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_frz'
          s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklto_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_frz'
          s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklop_frz(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_frz'
          s = s .and. rtdb_put(rtdb, tmp, mt_log, max_zcoord, 
      $        zmt_ijklnb_val(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijbond_nam'
          s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
      $        zmt_ijbond_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijkang_nam'
          s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
      $        zmt_ijkang_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklto_nam'
          s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
      $        zmt_ijklto_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklop_nam'
          s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
      $        zmt_ijklop_nam(1,geom))
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_ijklnb_nam'
          s = s .and. rtdb_cput(rtdb, tmp, max_zcoord, 
      $        zmt_ijklnb_nam(1,geom))
 *
+      tmp(k:) = ' ' 
          tmp(k:) = ':zmt_cvr_scaling'
          s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 1, 
      $        zmt_cvr_scaling(geom))
@@ -918,14 +1029,17 @@ c
 c--> put symmetry operators, number of operators and operator/atom
 c    map out to rtdb
 c
+      tmp(k:) = ' ' 
       tmp(k:) = ':num_operators'
       s = s .and. 
      $     rtdb_put(rtdb, tmp, mt_int, 1, sym_num_ops(geom))
+      tmp(k:) = ' ' 
       tmp(k:) = ':operators'
       s = s .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, max_sym_ops*3*4,
      $     sym_ops(1,1,geom))
       if (sym_num_ops(geom) .gt. 0) then
+      tmp(k:) = ' ' 
          tmp(k:) = ':map_atoms'
          s = s .and. 
      $        rtdb_put(rtdb, tmp, mt_int,
