@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.1 2002-03-22 02:10:37 sohirata Exp $
+c $Id: tddft_transfm.F,v 1.2 2002-03-22 04:17:41 sohirata Exp $
 c
 c itype=1
 c
@@ -170,7 +170,7 @@ c Unknown type
 c ------------
 c
       else
-        call errquit('tddft_transfm: illegal itype value')
+        call errquit('tddft_transfm: illegal itype value',0)
       endif
 c
 c ------
