@@ -2,7 +2,7 @@
 In NWChem, basis sets consist of sets of generally contracted Cartesian
 Gaussian functions.  (An optional functionality also exists that allows the
 user to specify an effective core potential (ECP) basis set; see
-section \ref{sec:ecpbasis}.)  The basis functions to be used for a given
+section \ref{sec:ecp}.)  The basis functions to be used for a given
 calculation can be drawn from a standard set in the EMSL basis set library
 that is included in the release of NWChem.  (See Appendix \ref{knownbasis} 
 for a list of the standard basis sets currently supplied with the release 
@@ -33,7 +33,7 @@ The string \verb+name+ allows the user to identify a specific basis set
 in the database for a calculation.  The various modules in the code expect 
 to find the
 basis set in the database under the name \verb+"ao basis"+.  The user can
-assign the string \verb+name+ to \verb+"ao basis"+ using the verb+SET+
+assign the string \verb+name+ to \verb+"ao basis"+ using the \verb+SET+
 directive (see Section \ref{sec:set}), in the same manner as that in
 which different 
 \verb+geometry+ objects are assigned the default name \verb+geometry+ 
@@ -47,7 +47,7 @@ specifying the basis functions in either spherical or cartesian coordinates.
 The keywords \verb+segment+ and \verb+nosegment+ allow the user to specify
 whether or not the functions will be segmented.  Currently, NWChem assumes
 that all basis sets are segmented  and cartesian, whether specified by the 
-user or by means of the standard library sets.
+user or taken from the standard library sets.
 The options for spherical coordinates and unsegmented functions will become
 usable in all calculations only when the derivative integral code is 
 extended to handle 
@@ -79,7 +79,7 @@ Specifying the keyword \verb+noprint+ allows the user to supress this output.
 % 
 % Basis functions may be either drawn from a standard set in the EMSL
 % basis set library or specified explicitly.  See Appendix
-% \ref{knownbasis} for the current list of standard basis sets. An
+% \ref{knownbas} for the current list of standard basis sets. An
 % installation default is provided for the path to the basis set
 % library, which may be overridden in the input.  The case of names of
 % standard basis sets is ignored.  By default the standard basis
@@ -128,10 +128,12 @@ could be formulated quite simply as follows;
   end
 \end{verbatim}
 
-\verb+******************************+
+\Large
+\verb+************
 QUESTION: In Appendix A, this basis set is listed as ``cc-pVDZ''.  Is
 this input case-sensitive, or not?
-\verb+******************************+
+\verb+************+
+\normalsize
 
 In this example, the cc-pvdz basis functions will be obtained from the
 NWChem library, as defined by the default path on installation.  To obtain
@@ -154,7 +156,7 @@ default library.
 The basis functions must be defined for dummy centers as well for
 as atoms.  Since the dummy centers are given \verb+tag+ names that begin
 with \verb+bq+ to distinguish them from atoms (see the description of the
-\verb+GEOMETRY+ directive in Section \ref{sec:geometry}), the \verb+BASIS+
+\verb+GEOMETRY+ directive in Section \ref{sec:geom}), the \verb+BASIS+
 directive must identify their corresponding functions explicitly.  For
 example, to specify the cc-pvdz basis for a calculation on the water 
 monomer in the dimer basis, where the dummy oxygen and dummy hydrogen
@@ -180,8 +182,10 @@ For those particular elements named in some string \verb+tag+ (and identified
 appropriately on a \verb+GEOMETRY+ directive), the string \verb+tag+ input 
 line on the \verb+BASIS+ directive is of the form,
 
+\begin{verbatim}
      <string tag> <string shell\_type>
         <real exponent> <real list\_of\_coefficients>
+\end{verbatim}
 
 The string \verb+shell_type+ is used to specify the outer electron shell of
 the atom, which may be \verb+s+ for the s-shell, \verb+p+ for the p-shell,
