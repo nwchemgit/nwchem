@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.101 2000-11-03 16:11:39 d3j191 Exp $
+c $Id: md_main.F,v 1.102 2001-01-19 21:03:37 d3j191 Exp $
 c
       implicit none
 c
@@ -217,7 +217,6 @@ c
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -1256,11 +1255,6 @@ c
       call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
-c     atomic forces and potential energies
-c
-      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
-c
       corrio=costio
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
 c
@@ -1284,6 +1278,10 @@ c
 c
       endif
 c
+c     atomic forces and potential energies
+c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -1622,6 +1620,9 @@ c
       fs(i,j,1)=fs(i,j,1)+fguide*gs(i,j)
     5 continue
     4 continue
+c
+      call sp_copyg(dbl_mb(i_gw),dbl_mb(i_gs))
+      call ga_sync()
 c
       return
       end
@@ -2134,7 +2135,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.101 2000-11-03 16:11:39 d3j191 Exp $
+c $Id: md_main.F,v 1.102 2001-01-19 21:03:37 d3j191 Exp $
 c
       implicit none
 c

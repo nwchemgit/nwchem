@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.81 2000-12-21 02:20:14 edo Exp $
+c $Id: sp_init.F,v 1.82 2001-01-19 21:03:47 d3j191 Exp $
 c
       implicit none
 c
@@ -1688,6 +1688,28 @@ c
 c
       return
       end
+      subroutine sp_copyg(fw,fs)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      real*8 fw(mwm,3,mwa),fs(msa,3)
+c
+      integer il,ih,jl,jh
+c
+      if(nwm.gt.0) then
+      call ga_distribution(ga_w,me,il,ih,jl,jh)
+      call ga_put(ga_w,il,ih,jl+6*mwa+3,jl+9*mwa+2,fw,mwm)
+      endif
+      if(nsa.gt.0) then
+      call ga_distribution(ga_s,me,il,ih,jl,jh)
+      call ga_put(ga_s,il,ih,jl+6,jl+8,fs,msa)
+      endif
+c
+      return
+      end
       subroutine sp_final(fw,fs,lpair,iwz,isz)
 c
       implicit none
@@ -1943,7 +1965,7 @@ c
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lveloc) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
-      if(lforces) call ga_get(ga_s,ils,ils+nsan-1,jls+9,jls+11,fs,msa)
+      if(lforces) call ga_get(ga_s,ils,ils+nsan-1,jls+6,jls+8,fs,msa)
       do 8 i=1,nsan
       j=isl(i,lsgan)-number
       if(j.gt.0.and.j.le.nums) then
