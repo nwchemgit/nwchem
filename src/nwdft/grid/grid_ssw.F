@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, indx, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.24 2004-09-01 22:30:29 edo Exp $
+C$Id: grid_ssw.F,v 1.25 2004-09-15 20:41:14 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -149,9 +149,8 @@ c
          
          do  j = 1, i-1
             ij=ij+1
-           if(abs(p(i)).lt.toll_scr.and.
-     .           abs(p(j)).lt.toll_scr) then
-           else
+           if(abs(p(i)).ge.toll_scr.or.
+     .           abs(p(j)).ge.toll_scr) then
             mu = (rag - rq(n,j))*rij(ij)
             if (mu.gt.ass) then
                p(i)=0.d0
