@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.13 2001-12-27 20:54:54 bylaska Exp $
+* $Id: control.F,v 1.14 2001-12-28 01:32:02 bylaska Exp $
 *
 
 *     ***********************************
@@ -1281,7 +1281,7 @@
 
       if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_size',mt_int,1,lmbfgs_size)) 
      >  then
-         lmbfgs_size = 5
+         lmbfgs_size = 1
       end if
 
       control_lmbfgs_size = lmbfgs_size
@@ -1314,4 +1314,32 @@
       control_precondition = precondition
       return
       end
+
+*     *****************************
+*     *                	 		  *
+*     *    	control_lmbfgs_ondisk *
+*     *                 	 	  *
+*     *****************************
+      logical function control_lmbfgs_ondisk()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical ondisk
+
+      if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_ondisk',
+     >                  mt_int,1,ondisk)) 
+     >  then
+         ondisk = .false.
+      end if
+
+      control_lmbfgs_ondisk = ondisk
+      return
+      end
+
 

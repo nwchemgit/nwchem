@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.8 2001-12-27 20:54:54 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.9 2001-12-28 01:32:02 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -72,6 +72,7 @@ c     $Id: cgsd_energy.F,v 1.8 2001-12-27 20:54:54 bylaska Exp $
       if (taskid.eq.MASTER) call message(2)
       if (taskid.eq.MASTER) call util_flush(6)
       if (newpsi) call sdminimize(5)
+      if (minimizer.eq.2) call pspw_Grsm_list_start()
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -118,6 +119,7 @@ c     $Id: cgsd_energy.F,v 1.8 2001-12-27 20:54:54 bylaska Exp $
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
+      if (minimizer.eq.2) call pspw_Grsm_list_end()
       if (taskid.eq.MASTER) CALL MESSAGE(3)
 
 

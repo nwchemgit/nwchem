@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.2 2001-12-28 00:00:01 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.3 2001-12-28 01:32:02 bylaska Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -111,7 +111,6 @@ c     $Id: linesearch.F,v 1.2 2001-12-28 00:00:01 bylaska Exp $
         notfinished = dabs(deltaf).gt.tolerance
       else
         notfinished = dabs(df(indx(1))/df_first).gt.tolerance
-        notfinished = .false.
       end if
 
       do while (notfinished) 

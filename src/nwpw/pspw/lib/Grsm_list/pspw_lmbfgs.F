@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.5 2001-12-27 20:54:55 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.6 2001-12-28 01:32:03 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -14,7 +14,6 @@
 *     **** external functions ****
       integer  psi_ne
       external psi_ne
-      real*8 sum
 
       max_m = max_m0
       call Pack_npack(1,npack1)
@@ -46,7 +45,7 @@
 *     **** local variables ****
       logical value
       integer k
-      real*8 alpha(20),beta,sum,h0
+      real*8 alpha(20),beta,sum
       integer yy(2),ss(2)
 
       call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
