@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.151 2003-10-21 19:02:02 d3j191 Exp $
+c $Id: md_start.F,v 1.152 2003-10-22 17:01:02 d3j191 Exp $
 c
       implicit none
 c
@@ -70,7 +70,7 @@ c
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
      + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
-     + iguide.ne.0,iqmmm.ne.0,lqmd)
+     + iguide.ne.0,iqmmm.ne.0,lqmd,iradgy,idifco)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------

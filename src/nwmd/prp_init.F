@@ -3,9 +3,9 @@
      + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme,nipmf,lguide,lqmmm,lqmd)
+     + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci)
 c
-c $Id: prp_init.F,v 1.64 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: prp_init.F,v 1.65 2003-10-22 17:01:02 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
-      integer ipropi,nipmf
+      integer ipropi,nipmf,iradgi,idifci
       logical lcf,lsp,ltwn,lpol,lpmei,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
@@ -63,6 +63,8 @@ c
 c
       iprof=iprf
       iprop=ipropi
+      iradgy=iradgi
+      idifco=idifci
 c
       npener=npenrg
       tstep=tstp
@@ -193,9 +195,9 @@ c
       pronam( 67)='Energy solvent total                        kJ/mol'
       pronam( 68)='Virial solvent                              kJ/mol'
       pronam( 69)='Mean square displacement solvent             nm**2'
-      lp(69)=nwm.gt.0.and.ntype.gt.1
+      lp(69)=nwm.gt.0.and.ntype.gt.1.and.idifco.gt.0
       pronam( 70)='Diffusion constant solvent                  m**2/s'
-      lp(70)=nwm.gt.0.and.ntype.gt.1
+      lp(70)=nwm.gt.0.and.ntype.gt.1.and.idifco.gt.0
       pronam( 71)='Dipole moment solvent permanent            e30 C m'
       pronam( 72)='Dipole moment solvent induced              e30 C m'
       pronam( 73)='Dipole moment solvent                      e30 C m'
@@ -419,7 +421,7 @@ c
       it=it+1
       pronam(it)='Radius of gyration solute molecule              nm'
       write(pronam(it)(34:38),'(i5)') i
-      lp(it)=.true.
+      lp(it)=iradgy.gt.0
     8 continue
       do 88 i=1,nsm-1
       do 89 j=i+1,nsm
