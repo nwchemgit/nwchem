@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.33 2002-01-16 18:25:28 windus Exp $
+C $Id: twodd_cont.F,v 1.34 2002-02-19 20:44:07 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -87,15 +87,17 @@ c  will need to modified to add their contribution to k_exy and g_rhs and
 c  not zero out the matrices when they enter the routines.
 c  I will add the results into the actual "permanent" storage for now so
 c  the rest of the code will work properly.
-c
+c 
       if (oprint.and.(ga_nodeid().eq.0)) 
      *     write (LuOut,*) 'HESS: DFT contribution'
       if (theory.eq.'dft') then
-        call xc_hessian(geom,rtdb,nbf,basis,
+         call int_init(rtdb, nbasis, basis_list)
+         call xc_hessian(geom,rtdb,nbf,basis,
      *       g_dens, nactive, log_mb(k_act), 
      *     dbl_mb(k_hess_xc),scftype)
-        call xc_cpks_rhs(geom,rtdb,nbf,basis,
+         call xc_cpks_rhs(geom,rtdb,nbf,basis,
      *       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
+         call int_terminate()
         if (ocdfit) then
            call int_init(rtdb, nbasis, basis_list) !should this be intd?
            call schwarz_init(geom, basis)
