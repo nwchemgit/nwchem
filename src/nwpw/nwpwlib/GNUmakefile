@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 01:56:20 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-08-30 16:58:34 bylaska Exp $
 #
-      SUBDIRS = io
+      SUBDIRS = Parallel io pseudopotential
                 
 
           OBJ = 

@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:22:02 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-08-30 16:58:40 bylaska Exp $
 #
-      SUBDIRS = lib kbpp makepsi cpsd cgsd pseudopotential fractional analysis \
+      SUBDIRS = lib kbpp makepsi cpsd cgsd fractional analysis \
                 cell_optimize water_pseudopotential dplot
 
 
