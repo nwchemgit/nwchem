@@ -375,7 +375,7 @@ c
 c
 c  Project from a smaller basis set
 c
-         call movecs_project(rtdb, geom, basis, g_movecs)
+         call movecs_project(rtdb, geom, basis, g_movecs,1)
       else
 c
 c  Read vectors from file movecs_in and see if 
@@ -664,7 +664,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.28 1999-06-16 00:10:20 d3e129 Exp $
+c  $Id: mcscf_aux.F,v 1.29 2000-07-19 20:55:52 edo Exp $
 c
 c
 c Return the gradient vector from the generalized
