@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.17 1996-10-17 05:02:54 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.18 1996-10-18 19:52:12 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -421,8 +421,7 @@ c     but task chunking means it did other tasks that
 c     would not have been assigned to another process.  This process
 c     must do tasks in the range incomplete...incomplete_top
 c
-         incomplete_top = min(incmax,
-     $        (incomplete/chunk)*chunk + chunk - 1)
+         incomplete_top = (incomplete/chunk + 1)*chunk - 1
       else
          next = nxtask(nproc, chunk)
       endif
@@ -539,18 +538,17 @@ c
 c
 12321 owritefile = osavewritefile
       if (owritefile) then
-         if (incomplete.eq.-1) call ga_sync ! Since did not in fock_rep_txs
-         incmax = incomplete
-         incmin = incomplete
+         if (incomplete.eq.-1) then
+            call ga_sync        ! Since did not in fock_rep_txs
+            incmax = -1
+            incmin = -1
+         else
+            incmax = (incomplete/chunk + 1)*chunk - 1 ! Round to task top
+            incmin = incmax
+         endif
          call ga_igop(123, incmax, 1, 'max')
          call ga_igop(321, incmin, 1, 'min')
 c
-c     If semi-direct need to preserve dentol for consistency
-c
-c     REALLY?  This makes things much slower.  There must be
-c     a better way
-c
-*****         if (incmin .ne. -1) dentolmax = dentol
       endif
 c     
       if (oscfps) call pstat_off(ps_fock_2e)

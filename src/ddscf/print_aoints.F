@@ -1,5 +1,5 @@
       subroutine print_aoints(basis)
-C$Id: print_aoints.F,v 1.1 1996-10-10 20:32:03 d3g681 Exp $
+C$Id: print_aoints.F,v 1.2 1996-10-18 19:52:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -11,7 +11,7 @@ c
      $     nsh, ilo, ihi, jlo, jhi, klo, khi, llo, lhi
       logical status
 c
-      status = status .and. bas_numcont(basis, nsh)
+      status = bas_numcont(basis, nsh)
       if (.not. status) call errquit('schwarz_init: info failed', 0)
       call int_mem_2e4c(max2e, mem2)
 c
