@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.64 2002-08-07 23:43:18 edo Exp $ 
+% $Id: dft.tex,v 1.65 2003-02-11 00:32:39 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -1043,7 +1043,7 @@ Chem. Phys. Lett. {\bf 257}, 213 (1996).
 \item[\tt erf2] modified ssf
 \end{description}
 
-Erf$n$ partionioning functions
+Erf$n$ partioning functions
 
 \begin{eqnarray*}
  w_A(r) & = & \prod_{B\neq A}\frac{1}{2} \left[1 \ - \
@@ -1297,7 +1297,35 @@ Mulliken analysis of the charge distribution is invoked by the keyword:
 \end{verbatim}
 When this keyword is encountered, Mulliken analysis of both the input 
 density as well as the output density will occur.
+\section{{\tt BSSE} --- Basis Set Superposition Error}
 
+Particular care is required to compute BSSE by the counter-poise
+method for the DFT module. In order to include terms deriving from
+the numerical grid used in the XC integration, the user must label
+the ghost atoms not just {\tt bq}, but {\tt bq} followed by the given
+atomic symbol. For example, the first component needed to compute the
+BSSE for the water dimer, should be written as follows
+
+\begin{verbatim}
+geometry h2o autosym units au
+ O        0.00000000     0.00000000     0.22143139
+ H        1.43042868     0.00000000    -0.88572555
+ H       -1.43042868     0.00000000    -0.88572555
+ bqH      0.71521434     0.00000000    -0.33214708
+ bqH     -0.71521434     0.00000000    -0.33214708
+ bqO      0.00000000     0.00000000    -0.88572555
+end
+
+basis
+ H library aug-cc-pvdz
+ O library aug-cc-pvdz
+ bqH library H aug-cc-pvdz
+ bqO library O aug-cc-pvdz
+end
+\end{verbatim}
+
+Please note that the ``ghost'' oxygen atom has been labeled {\tt bqO},
+and not just {\tt bq}.
 \section{Print Control}
 \begin{verbatim}
   PRINT||NOPRINT
