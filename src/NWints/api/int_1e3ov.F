@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.9 1997-04-25 00:40:39 d3e129 Exp $
+c $Id: int_1e3ov.F,v 1.10 1997-04-25 05:13:59 pg481 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_1e3ov}
@@ -213,7 +213,7 @@ c
         call spcart_a_s(OV3,scr,ninta,Li,i_gen,.false.,.false.)
 *.........  scr has (k-cart,j-cart,i-spherical)
         ninta=int_nbf_x(Lj)*j_gen*int_nbf_s(Li)*i_gen
-        call spcart_s_a(scr,OV3,scr,ninta,Lk,k_gen,.false.,.false.)
+        call spcart_s_a(scr,OV3,ninta,Lk,k_gen,.false.,.false.)
 *.........  OV3 has spherical result (k-spherical,j-cart,i-spherical)
 *--------------------------------------------------------------------------------
 *--------------------------------------------------------------------------------
