@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.23 2004-10-09 00:32:40 marat Exp $
+c $Id: qmmm.F,v 1.24 2004-10-12 19:10:22 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -75,6 +75,7 @@ c
 
       call mm_end()
       call qmmm_data_release()
+      call qmmm_bq_data_dealloc()
 
       qmmm_end = .true.
       return

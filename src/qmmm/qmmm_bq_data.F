@@ -82,11 +82,6 @@ c
      + call errquit('qmmm: Failed to allocate memory for ibq',nbq,
      &       MA_ERR)
       call ifill(nbq,0,int_mb(i_ibq),1)
-      if(.not.ma_alloc_get(MT_BYTE, 16*nbq, 'bq tag array',
-     &      h_tbq, i_tbq) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nbq, MA_ERR)
-
       
       end
 
@@ -99,12 +94,8 @@ c
 
       if(nbq.eq.0) return
 
-        if(.not.ma_free_heap(h_tbq))
-     +   call errquit('qmmm:memory deallocation for qbq',nbq,
-     &         MA_ERR)
-
         if(.not.ma_free_heap(h_ibq))
-     +   call errquit('qmmm:memory deallocation for qbq',nbq,
+     +   call errquit('qmmm:memory deallocation for ibq',nbq,
      &         MA_ERR)
       
         if(.not.ma_free_heap(h_qbq))

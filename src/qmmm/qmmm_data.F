@@ -105,7 +105,22 @@ c     -------------------
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_data.fh"
+
+      if(.not.ma_free_heap(h_num))
+     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+
+      if(.not.ma_free_heap(h_t))
+     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+     &       MA_ERR)
  
+      if(.not.ma_free_heap(h_m))
+     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+ 
+      if(.not.ma_free_heap(h_q))
+     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+     &       MA_ERR)
      
       if(.not.ma_free_heap(h_c))
      & call errquit('qmmm c: Failed to deallocate heap',nqm,
