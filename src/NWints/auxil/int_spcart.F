@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.13 1996-08-01 18:28:45 d3e129 Exp $
+c $Id: int_spcart.F,v 1.14 1996-09-24 21:37:58 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, *
@@ -1741,7 +1741,7 @@ c.................................. c needs to be transformed
         if (nbf_xr.ne.nbf_sr) call errquit
      &      ('spcart_tran1e: nbf_xr.ne.nbf_sr  (xr-sr) =',
      &      (nbf_xr-nbf_sr))
-        call spcart_a_s(scr,buf,nbf_sr,type_c,ngen_c,
+        call spcart_a_s(scr,buf,(ngen_r*nbf_sr),type_c,ngen_c,
      &      .false.,print)
         if (print) then
           write(luout,*)' spherical matrix '
@@ -1762,7 +1762,7 @@ c.................................. r needs to be transformed
         if (nbf_xc.ne.nbf_sc) call errquit
      &      ('spcart_tran1e: nbf_xc.ne.nbf_sc  (xc-sc) =',
      &      (nbf_xc-nbf_sc))
-        call spcart_s_a(scr,buf,nbf_sc,type_r,ngen_r,
+        call spcart_s_a(scr,buf,ngen_c*nbf_sc,type_r,ngen_r,
      &      .false.,print)
         if (print) then
           write(luout,*)' spherical matrix '
@@ -1780,7 +1780,7 @@ c.................................. both r and c need to be transformed
         endif
 *
 *... buf(xr,xc) -> scr(xr,sc) : scr is half transformed matrix
-        call spcart_a_s(buf,scr,nbf_xr,type_c,ngen_c,
+        call spcart_a_s(buf,scr,ngen_r*nbf_xr,type_c,ngen_c,
      &      .false.,print)
 * print half transformed matrix
         if (print) then
@@ -1790,11 +1790,11 @@ c.................................. both r and c need to be transformed
         endif
 *
 *... scr(xr,sc) -> buf(sr,sc)
-        call spcart_s_a(scr,buf,nbf_sc,type_r,ngen_r,
+        call spcart_s_a(scr,buf,ngen_c*nbf_sc,type_r,ngen_r,
      &      .false.,print)
 * print spherical block
         if (print) then
-          write(luout,*)' half cartesian half spherical matrix '
+          write(luout,*)' spherical matrix '
           call output(buf,1,ngen_r*nbf_sr,1,ngen_c*nbf_sc,
      &          ngen_r*nbf_sr,ngen_c*nbf_sc,1)
         endif
