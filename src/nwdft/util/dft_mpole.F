@@ -1,6 +1,6 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.1 1995-04-27 22:00:53 pg511 Exp $
+C     $Id: dft_mpole.F,v 1.2 1995-05-04 05:00:17 og845 Exp $
       implicit none
 
 #include "mafdecls.h"
@@ -96,9 +96,9 @@ c****
       call dzero(rmoments,len_rmoments)
       call dft_nuc_mpole(geom, ncenter, lmax_pole, centerl, 
      &                   rmoments, len_rmoments)
-      write (6,'(a,3e15.5)')
-     &     'dft_mpole: nuclear part of rmoments: ',
-     &     (rmoments(ii),ii=1,3)
+C      write (6,'(a,3e15.5)')
+C     &     'dft_mpole: nuclear part of rmoments: ',
+C     &     (rmoments(ii),ii=1,3)
 c**** 
 c**** Basis set info
 c**** 
@@ -306,8 +306,8 @@ c**** debug
         do idens = 1,ndens
           rmoments(ixyz) = rmoments(ixyz) +
      &         ga_ddot(iga_mpole(ixyz),iga_dens(idens))
-          WRITE (6,'(A,I5,I5,3E15.5)') 'IXYZ, IDENS, RMOMENTS: ',
-     &         ixyz, idens, (rmoments(ii),ii=1,3)
+C          WRITE (6,'(A,I5,I5,3E15.5)') 'IXYZ, IDENS, RMOMENTS: ',
+C     &         ixyz, idens, (rmoments(ii),ii=1,3)
         enddo 
       enddo 
 c**** 
@@ -408,7 +408,7 @@ c****
       do ixyz = 1,3
         centerl(ixyz) = centerl(ixyz)/total_nuc_charge
       enddo 
-      write (6,*) 'dft_mpole: center of charge: ',centerl
+C      write (6,*) 'dft_mpole: center of charge: ',centerl
 c**** 
 c**** loop over centers, summing multipole moments
 c**** 
