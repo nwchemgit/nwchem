@@ -15,7 +15,7 @@ c
 
       call util_file_name('temp.nw', .true., .false., filename)
 
-      write (6,*) 'filename=',filename
+c      write (6,*) 'filename=',filename
 c
       if (ga_nodeid() .eq. 0) then
          open(1,file=filename,form='formatted',status='unknown',err=100)
@@ -32,7 +32,7 @@ c
       end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.9 2003-10-17 22:58:35 carlfahl Exp $
+* $Id: nw_inp_from_file.F,v 1.10 2004-10-19 19:33:05 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -49,11 +49,11 @@ c
       external input_parse
 c
       if (ga_nodeid() .eq. 0) then
-         if (util_print('nw_inp_from_file',print_low)) then
-            write(LuOut,*) ' Reading NWChem input from ', 
-     $           filename(1:inp_strlen(filename))
-            call util_flush(LuOut)
-         endif
+c         if (util_print('nw_inp_from_file',print_low)) then
+c            write(LuOut,*) ' Reading NWChem input from ', 
+c     $           filename(1:inp_strlen(filename))
+c            call util_flush(LuOut)
+c         endif
          open(4,file=filename,form='formatted',status='old',err=100)
          call inp_save_state()  ! save state of any inp unit
          call inp_init(4,6)
