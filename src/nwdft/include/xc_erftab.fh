@@ -1,0 +1,5 @@
+      integer nsampl, order
+      parameter (nsampl=8000, order=2)
+      double precision f, xlo, xhi, table,scale
+      common /xcerf/ f(0:nsampl), xlo, xhi, table(0:order+1,0:nsampl+1),
+     ,  scale
