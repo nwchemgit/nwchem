@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.25 2003-10-17 22:56:57 carlfahl Exp $
+* $Id: paw_basis.F,v 1.26 2004-04-21 17:01:42 edo Exp $
 *
 
 !**************************************************
@@ -352,7 +352,7 @@ c     !*** set core charges ***
 !**************************************************
       subroutine paw_basis_exist_check()
       implicit none
-
+#include "rtdb.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -363,7 +363,7 @@ c     !*** set core charges ***
       character*2 atom
       character*255 fname,libfile
       real*8        sum
-
+      logical oldmode
 *     **** external functions ****
       character*2 ion_atom
       integer     ion_nkatm
@@ -371,6 +371,7 @@ c     !*** set core charges ***
       external    ion_nkatm
 
       call Parallel_taskid(taskid)
+      oldmode =  rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
       do ia = 1, ion_nkatm()
        call ion_atom_plus_suffix(ia,'_basis',fname)
@@ -390,7 +391,8 @@ c     !*** set core charges ***
 
       end do
       end if
-
+      call ga_sync()
+      oldmode =  rtdb_parallel(oldmode)
       !*** sync - hack ***
       !sum = 1.0d0
       !call D3dB_SumAll(sum)
