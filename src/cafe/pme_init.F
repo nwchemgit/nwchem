@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.15 2000-09-05 16:28:16 d3j191 Exp $
+c $Id: pme_init.F,v 1.16 2000-09-06 16:51:56 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -405,6 +405,7 @@ c
 #include "global.fh"
 c
       call ga_zero_list(mgz,lslab)
+      call pme_flag(0,0,me)
       call pme_flag(1,0,me)
       call ga_sync()
 c
