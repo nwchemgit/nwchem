@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.26 1999-06-16 00:10:26 d3e129 Exp $
+c     $Id: dft_main0d.F,v 1.27 1999-08-30 22:35:24 edo Exp $
 c     
       implicit none
 c
@@ -40,7 +40,7 @@ c
       external dft_scf
 c     
 #if defined(DFT_TIMER)
-      call t_stat(10,-2)
+      call t_stat(11,-2)
       call dft_second(tp1)
 #endif
 c     
@@ -430,14 +430,15 @@ c
       call ga_sync
 c     
 #if defined(DFT_TIMER)
-      if (oprint_time) then
+Cedo      if (oprint_time) then
          if (me.eq.0)then
-            ltime = LuOut
+C            ltime = LuOut
+            ltime = 7
             write(ltime,*)
          endif  
          pgmname = ' SCFDRIVER'
-         call t_stat(10,2)
-      endif
+         call t_stat(11,2)
+cedo      endif
 #endif
 c     
       return
