@@ -45,7 +45,14 @@ the current library of NWChem version 4.1. The changes are listed below:
 
 \item Basis Set \verb#"Stuttgart RSC 1997 ECP"# \newline 
  Element: Ba \newline
+ This basis was called Stuttgart RSC ECP in version 4.0.
  The 4th s- and p-primitive are now uncontracted.
+
+\item ECP \verb#"LANL2DZ ECP"# \newline 
+ Element: K and Ca \newline
+ The ECP was defined with a core of 18 electrons, inconsistent with the other
+ elements in this series (3d has 10 electron core). The ECP has been replaced 
+ with the Hay-Wadt ECP used in Hay-Wadt VDZ.
 
 \end{enumerate}
 
