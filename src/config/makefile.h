@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.51 1994-08-22 02:17:51 d3g681 Exp $
+# $Id: makefile.h,v 1.52 1994-08-22 03:04:27 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -93,7 +93,7 @@ ifeq ($(TARGET),SUN)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 2
-    INSTALL = echo $@ is built
+    INSTALL = @echo $@ is built
 
        FOPT = -g -Nl99
    FOPT_REN = $(FOPT)
@@ -126,11 +126,11 @@ ifeq ($(TARGET),KSR)
          FC = f77
          CC = cc
          AR = ar
-     RANLIB = echo
+     RANLIB = @echo
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 20
-    INSTALL = echo $@ is built
+    INSTALL = @echo $@ is built
 
        FOPT = -g -r8
    FOPT_REN = $(FOPT)
@@ -164,11 +164,11 @@ ifeq ($(TARGET),PARAGON)
          FC = if77
          CC = icc
          AR = ar860
-     RANLIB = echo
+     RANLIB = @echo
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 4
-    INSTALL = echo $@ is built
+    INSTALL = @echo $@ is built
 
      FOPT = -g -Knoieee		# -Mquad is default
    FOPT_REN = $(FOPT) -Mrecursive -Mreentrant
@@ -213,7 +213,7 @@ ifeq ($(TARGET),DELTA)
         CC = icc
        CPP = /usr/lib/cpp
         AR = ar860
-    RANLIB = echo
+    RANLIB = @echo
      SHELL = /bin/sh
    INSTALL = rcp $@ delta1:
 #-Mrecursive -Mnosave to force all locals onto the stack to avoid BSS exploding
@@ -254,7 +254,7 @@ ifeq ($(TARGET),IBM)
       SHELL = /bin/sh
        MAKE = make
   MAKEFLAGS = -j 1
-    INSTALL = echo $@ is built
+    INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
        FOPT = -g

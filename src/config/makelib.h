@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.6 1994-08-22 02:51:02 d3g681 Exp $
+# $Id: makelib.h,v 1.7 1994-08-22 03:04:35 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -43,11 +43,22 @@
 # a.o b.o c.o test.o: simple.h
 #
 
+
+#
+# We use here the default dependency chain (%.o) <- %.o <- %.c/F/...
+# However, the default rule for this inserts each .o into the
+# library separately which does not work in parallel.  Hence,
+# modify the default rule to do nothing (:) but keep the dependency.
+# The rule where we usually shove just ranlib is also used to build the archive.
+#
+
  LIBOBJ = $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJ))
 
 $(LIBDIR)/$(LIBRARY):   $(LIBOBJ) 
+ifdef OBJ
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 	$(RANLIB) $@
+endif
 
 (%.o):  %.o
 	@ :
@@ -106,7 +117,7 @@ ifdef SUBDIRS
 		$(MAKE)	 $(MAKEOVERRIDES) -C $$dir $@ || exit 1 ;  \
 	done
 endif
-	echo $@ : no conversion necessary
+	@echo $@ : no conversion necessary
 endif
 
 clean:
