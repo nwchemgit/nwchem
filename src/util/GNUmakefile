@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.160 2003-03-08 01:58:13 sohirata Exp $
+# $Id: GNUmakefile,v 1.161 2003-03-20 19:53:05 edo Exp $
 
 include ../config/makefile.h
 
@@ -146,7 +146,7 @@ endif
               util_cpusec.o util_wallsec.o \
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
-              icopy.o lcopy.o util_legal.o \
+              lcopy.o util_legal.o \
               util_file_name.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
@@ -167,7 +167,9 @@ endif
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               $(EXTRA_OBJ)
-
+ifndef USE_MLIB
+              OBJ += icopy.o dsum.o
+endif
 #nxtval_ga.o 
 
     LIBRARY = libnwcutil.a

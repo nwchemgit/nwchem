@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 2003-03-19 00:45:59 bylaska Exp $
+# $Id: GNUmakefile,v 1.18 2003-03-20 19:54:14 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -11,7 +11,7 @@
 		cpmd_properties.o \
 		pair_dist.o \
 		auto_corr.o \
-		dsum.o matrix.o simp.o \
+		matrix.o simp.o \
 		is_sORd.o \
 		psi_filefind.o \
 		v_psi_filefind.o \
