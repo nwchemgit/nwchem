@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf)
 c
-c $Id: prp_init.F,v 1.58 2002-11-08 17:23:48 d3j191 Exp $
+c $Id: prp_init.F,v 1.59 2002-11-08 20:04:44 d3j191 Exp $
 c
       implicit none
 c
@@ -529,6 +529,12 @@ c
       pronam(it)='Prof: PME Synchronization                        s'
       lp(it)=.true.
       it=it+1
+      pronam(it)='Prof: PME Node Synchronization                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Flag                                   s'
+      lp(it)=.true.
+      it=it+1
       pronam(it)='Prof: Local Coordinates Retrieval                s'
       lp(it)=.true.
       it=it+1
@@ -554,12 +560,6 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Forces Communication                   s'
-      lp(it)=.true.
-      it=it+1
-      pronam(it)='Prof: PME Node Synchronization                   s'
-      lp(it)=.true.
-      it=it+1
-      pronam(it)='Prof: PME Flag                                   s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: Synchronization                            s'
