@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.20 2000-02-22 21:23:29 edo Exp $
+c$Id: grid_rtrunc.F,v 1.21 2000-02-23 01:35:14 edo Exp $
 c
       implicit none
 c      
@@ -88,26 +88,30 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
                rad_cutoff(2,iatype(iat)) = 0
          endif
       enddo
-         if(check_s) then 
-            do itype=1,ntypes
-               iat=ityp2ctr(itype)
-               iat_diff=rad_cutoff(2,itype)
-               write(0,*) ' A and B are ',iat,iat_diff
-               alphab=dbl_mb(k_minexp+iat_diff-1)
-               alphaa=exex(itype)-alphab
-               llb=int_mb(k_ldiff+iat_diff-1)
-               lla=ll(iatype(iat))-llb
-               xa(1)=dbl_mb(k_coord+3*(iat-1))
-               xa(2)=dbl_mb(k_coord+3*(iat-1)+1)
-               xa(3)=dbl_mb(k_coord+3*(iat-1)+2)
-               xb(1)=dbl_mb(k_coord+3*(iat_diff-1))
-               xb(2)=dbl_mb(k_coord+3*(iat_diff-1)+1)
-               xb(3)=dbl_mb(k_coord+3*(iat_diff-1)+2)
-               call grid_checks(job_grid_acc,iat,alphaa,lla,xa,
+      call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
+      call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
+      call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
+      call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
+      if(check_s) then 
+         do itype=1,ntypes
+            iat=ityp2ctr(itype)
+            iat_diff=rad_cutoff(2,itype)
+            write(0,*) ' A and B are ',iat,iat_diff
+            alphab=dbl_mb(k_minexp+iat_diff-1)
+            alphaa=exex(itype)-alphab
+            llb=int_mb(k_ldiff+iat_diff-1)
+            lla=ll(iatype(iat))-llb
+            xa(1)=dbl_mb(k_coord+3*(iat-1))
+            xa(2)=dbl_mb(k_coord+3*(iat-1)+1)
+            xa(3)=dbl_mb(k_coord+3*(iat-1)+2)
+            xb(1)=dbl_mb(k_coord+3*(iat_diff-1))
+            xb(2)=dbl_mb(k_coord+3*(iat_diff-1)+1)
+            xb(3)=dbl_mb(k_coord+3*(iat_diff-1)+2)
+            call grid_checks(job_grid_acc,iat,alphaa,lla,xa,
      .           iat_diff,alphab,llb,xb)
          enddo
-         endif
-
+      endif
+      
 c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
@@ -115,10 +119,6 @@ c
       call  grid_rtclea(l_minexp, l_coord,
      .     l_ldiff, lpmat,l_ics,g_s)
 
-      call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
-      call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
-      call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
-      call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(me.eq.0) 
      .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
       if (tol_reset)then

@@ -1,11 +1,12 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.6 2000-02-22 21:25:14 edo Exp $
+c$Id: grid_checks.F,v 1.7 2000-02-23 01:35:14 edo Exp $
 c
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
+#include "global.fh"
       double precision alphaa,alphab,xa(3),xb(3)
       integer iat,ibt
       integer lla,llb
@@ -18,15 +19,15 @@ c
       integer itype,jtype
       double precision s_err
       double precision rij
-      double precision range_a,range_b,value,value_ex
-      integer maxrad,nrada,nradb,nanga,nangb,
+      double precision range_a,range_b,value,value_ex,maxrad
+      integer nrada,nradb,nanga,nangb,me,
      ,     dum,niter,mxiter
       parameter(maxrad=131d0,mxiter=3)
       logical grid_nangl,grid_nradl,same_ctr
       external grid_nangl,grid_nradl
       logical lsafe
       integer l_pts,k_pts,l_wgt,k_wgt,k_xyzw,l_xyzw,
-     ,     k_iscr,l_iscr,k_rq,l_rq
+     ,     k_iscr,l_iscr,k_rq,l_rq,iag_old
       double precision reqacc
 c
       do_interp=.false.
@@ -51,8 +52,11 @@ c
 c
 c     preliminary call to lebedev
 c      
+      iag_old=iangquad
       iangquad=mxnangpp
       call xc_lebedev(dum,.false.)
+      iangquad=iag_old
+      
 
 
       itype=iatype(iat)
@@ -74,6 +78,7 @@ c
       range_a=dble(rad_cutoff(1,itype))
       range_b=dble(rad_cutoff(1,jtype))
       reqacc=acc_in
+      me=ga_nodeid(0)
       write(0,*) ' required accuracy ',reqacc
       write(0,*) ' alpha ',alphaa,alphab
       write(0,*) ' lla llb rij ',lla,llb,rij
@@ -121,12 +126,14 @@ c
      ,     int_mb(k_iscr),dbl_mb(k_rq),
      ,     niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
 
- 2001 write(0,*) ' **********'
-      write(0,*) ' #iter:',niter,
-     ,     ' reached accuracy ? ',abs(s_err).lt.acc_in
-      write(0,1) alphaa,alphab,lla,llb,
-     ,     '  err_rel',s_err/value_ex, ' err_abs',s_err
-      write(0,*) ' **********'
+ 2001 if(me.eq.0) then
+         write(0,*) ' **********'
+         write(0,*) ' #iter:',niter,
+     ,        ' reached accuracy ? ',abs(s_err).lt.acc_in
+         write(0,1) alphaa,alphab,lla,llb,
+     ,        '  err_rel',s_err/value_ex, ' err_abs',s_err
+         write(0,*) ' **********'
+      endif
       rad_cutoff(1,itype)=range_a
       if(same_ctr) rad_cutoff(1,jtype)=range_b
       nrad(itype)=nrada
@@ -144,6 +151,7 @@ c
      ,     pts,wghts,xyzw,iscr,rq,
      ,niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
       implicit none
+#include "global.fh"
       double precision alphaa,alphab
       integer lla,llb
       double precision acc_in ! [in]
@@ -157,6 +165,7 @@ c
       integer mxangpp,mxangpp1,mxrad,mxnangpp
       double precision pts(*),wghts(*),xyzw(4,*),rq(*) ! [scratch]
       integer iscr(*) ! [scratch]
+      integer me
       logical same_ctr,lnotacc,lsafe,limprove,lsafea,lsafeb
       logical grid_nangl,grid_nradl,grid_incang,grid_incrad
       external grid_nangl,grid_nradl,grid_incang,grid_incrad
@@ -173,6 +182,7 @@ c
      ,     iscr,rq)
       lnotacc=s_err.gt.acc_in
       if(.not.lnotacc) return
+      me = ga_nodeid()
 
       range_a0=range_a
       range_b0=range_b
@@ -188,7 +198,7 @@ c
 c     test range
 c
  12   niter=niter+1
-      write(0,*) ' 0-ranges ',range_a,range_b
+      if(me.eq.0) write(0,*) ' 0-ranges ',range_a,range_b
       s_err0=1d99
       s_err=0d0
       reqacc=acc_in*dble(mxiter)/dble(niter)
@@ -218,9 +228,9 @@ c
       endif
       range_a=min(maxrad,range_a)
       range_b=min(maxrad,range_b)
-      write(0,*) ' f-ranges ',range_a,range_b
+      if(me.eq.0) write(0,*) ' f-ranges ',range_a,range_b
       if(.not.lnotacc) then
-         write(0,*) '@radial extension OK'
+         if(me.eq.0) write(0,*) '@radial extension OK'
       else
          if(.not.limprove) then
             range_a=range_a-delta_a
@@ -231,7 +241,7 @@ c
 c
 c     test nrad
 c
-      write(0,*) ' 0-nrad ',nrada,nradb
+      if(me.eq.0) write(0,*) ' 0-nrad ',nrada,nradb
       s_err0=1d99
       s_err=0d0
       nrada=nrada0
@@ -254,15 +264,15 @@ c
          goto 2688
       endif
  2689 continue
-      write(0,*) ' f-nrad ',nrada,nradb
-      if(.not.lnotacc) write(0,*) '@ nrad  OK '
+      if(me.eq.0) write(0,*) ' f-nrad ',nrada,nradb
+      if(.not.lnotacc.and.me.eq.0) write(0,*) '@ nrad  OK '
       if(same_ctr) goto 2000
 c
 c     test nang
 c
       nanga=nanga0
       nangb=nangb0
-      write(0,*) ' 0-nang ',nanga,nangb
+      if(me.eq.0) write(0,*) ' 0-nang ',nanga,nangb
       s_err0=1d99
       s_err=0d0
  3688 continue
@@ -282,12 +292,12 @@ c
          goto 3688
       endif
  3689 continue
-      write(0,*) ' f-nang ',nanga,nangb
-      if(.not.lnotacc)  write(0,*) '@ nang OK '
+      if(me.eq.0) write(0,*) ' f-nang ',nanga,nangb
+      if(.not.lnotacc.and.me.eq.0)  write(0,*) '@ nang OK '
  2000 reqacc=acc_in
       lnotacc=s_err.gt.reqacc
       if(lnotacc.and.(niter.le.mxiter)) then
-         write(0,*) '#iter',niter,' acc= ',s_err
+         if(me.eq.0) write(0,*) '#iter',niter,' acc= ',s_err
          s_err0=1d99
          s_err=0d0
          goto 12
@@ -368,6 +378,8 @@ c
      .     alphab,llb,rij,iscr,rq)
       implicit none
 #include "cdft.fh"
+#include "global.fh"
+#include "msgids.fh"
       integer n0,nangtst ! [in]
       double precision xyzw(4,nangtst),pts(n0),wghts(n0)
       double precision rij,alphaa,alphab,range_mk 
@@ -380,11 +392,14 @@ c
       double precision grid_s2int
       integer nq,j,k,acc_leb,xc_leb_nrd2acc
       double precision xyz(3,2),rrad,ww
+      integer me,nproc
       external grid_s2int
 c              call eumac(2d0, pts, 
 c     &             wghts, n0, 2d0)
       call xc_murakn(pts, 
      &     wghts,n0,range_mk,.true.)
+      me = ga_nodeid()
+      nproc = ga_nnodes()
       xyz(1,1)=0d0
       xyz(2,1)=0d0
       xyz(3,1)=0d0
@@ -393,7 +408,7 @@ c     &             wghts, n0, 2d0)
       xyz(3,2)=0d0
       acc_leb=xc_leb_nrd2acc(nangtst)  
       grid_s2int0=0d0
-      do j=1,n0
+      do j=1+me,n0,nproc
          nq=0
          rrad=pts(j)
          ww=wghts(j)
@@ -409,6 +424,7 @@ c     &             wghts, n0, 2d0)
       grid_s2int0=grid_s2int0 +
      +        grid_s2int(nq,xyzw,alphaa,lla,alphab,llb,rij)
       enddo
+      call ga_dgop(msg_igop_tru1,grid_s2int0,1,'+') 
       return
       end
                 
