@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.9 2002-11-26 21:28:59 sohirata Exp $
+# $Id: tce.py,v 1.10 2002-12-01 21:37:34 sohirata Exp $
 
 import string
 import types
@@ -513,6 +513,11 @@ class Index:
  
       return 0
 
+   def duplicate(self):
+      """Returns a deepcopy of self"""
+      duplicate = Index(self.type,self.label)
+      return duplicate
+
 class Factor:
 
    def __init__(self,coefficients=[],permutations=[]):
@@ -693,25 +698,8 @@ class Factor:
          done = 0
          while (not done):
             done = 1
-            for nindexa in range(len(permutation)/4):
-               for nindexb in range(len(permutation)/4):
-                  if (nindexa >= nindexb):
-                     continue
-                  indexa = permutation[nindexa]
-                  indexb = permutation[nindexb]
-                  if (indexa.isgreaterthan(indexb)):
-                     another.permutations[nfactor][nindexb] = copy.deepcopy(indexa)
-                     another.permutations[nfactor][nindexa] = copy.deepcopy(indexb)
-                     indexc = another.permutations[nfactor][nindexa+len(permutation)/2]
-                     indexd = another.permutations[nfactor][nindexb+len(permutation)/2]
-                     another.permutations[nfactor][nindexb+len(permutation)/2] = copy.deepcopy(indexc)
-                     another.permutations[nfactor][nindexa+len(permutation)/2] = copy.deepcopy(indexd)
-                     done = 0
-         done = 0
-         while (not done):
-            done = 1
-            for nindexa in range(len(permutation)/4,len(permutation)/2):
-               for nindexb in range(len(permutation)/4,len(permutation)/2):
+            for nindexa in range(len(permutation)/2):
+               for nindexb in range(len(permutation)/2):
                   if (nindexa >= nindexb):
                      continue
                   indexa = permutation[nindexa]
@@ -743,6 +731,20 @@ class Factor:
                         another.permutations[nfactor][nindexa] = copy.deepcopy(indexb)
                         another.coefficients[nfactor] = (-1.0) * another.coefficients[nfactor]
                         done = 0
+      # simplify and bring to the head the identity
+      for npermutation in range(len(another.permutations)):
+         permutation = another.permutations[npermutation]
+         identity = 1
+         for nindex in range(len(permutation)/2):
+            if (not permutation[nindex].isidenticalto(permutation[nindex+len(permutation)/2])):
+               identity = 0
+         if (identity):
+            another.permutations[npermutation] = copy.deepcopy(another.permutations[0])
+            another.permutations[0] = []
+            swap = another.coefficients[npermutation]
+            another.coefficients[npermutation] = copy.deepcopy(another.coefficients[0])
+            another.coefficients[0] = swap
+
       return another
 
    def product(self,another):
@@ -800,6 +802,28 @@ class Summation:
          if (index.isidenticalto(another)):
             has = 1
       return has
+
+   def duplicate(self):
+      """Returns a deepcopy of itself"""
+      duplicate = Summation([])
+      for index in self.indexes:
+         duplicate.indexes.append(index.duplicate())
+      return duplicate
+
+   def canonicalize(self):
+      """Sort the indexes in the canonical order"""
+      another = self.duplicate()
+      for nindexa in range(len(another.indexes)):
+         indexa = another.indexes[nindexa]
+         for nindexb in range(len(another.indexes)):
+            indexb = another.indexes[nindexb]
+            if (nindexa <= nindexb):
+               continue
+            if (not indexa.isgreaterthan(indexb,another)):
+               swap = another.indexes[nindexa]
+               another.indexes[nindexa] = copy.deepcopy(another.indexes[nindexb])
+               another.indexes[nindexb] = copy.deepcopy(swap)
+      return another
 
 class Tensor:
 
@@ -2275,10 +2299,13 @@ class NoOperation:
       """Prints the content"""
       return self.show()
 
-   def show(self):
+   def show(self,verbose=1):
       """Returns a dummy operation expression"""
-      show = "No operation"
-      return show
+      if (verbose):
+         show = "No operation"
+         return show
+      else:
+         return
 
    def tex(self):
       """Returns nothing"""
@@ -2371,6 +2398,168 @@ class ElementaryTensorContraction:
       """Sorts the indexes of tensors taking account of parities"""
       for tensor in self.tensors:
          self.factor.multiply(tensor.sortindexes())
+
+   def canonicalize(self,globaltargetindexes):
+      """Canonicalizes the expression"""
+
+      # reorder tensors
+      superone = []
+      subone = []
+      for nindex in range(len(self.tensors[1].indexes)/2):
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            superone.append(index)
+      for nindex in range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes)):
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            subone.append(index)
+      nsuper1 = len(superone)
+      nsub1 = len(subone)
+      if (len(self.tensors) == 3):
+         supertwo = []
+         subtwo = []
+         for nindex in range(len(self.tensors[2].indexes)/2):
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               supertwo.append(index)
+         for nindex in range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes)):
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               subtwo.append(index)
+         nsuper2 = len(supertwo)
+         nsub2 = len(subtwo)
+         if (self.tensors[1].conjugate < self.tensors[2].conjugate):
+            swap = 1
+         elif (self.tensors[1].conjugate > self.tensors[2].conjugate):
+            swap = 0
+         elif ((self.tensors[1].type == 'f') and (self.tensors[2].type != 'f')):
+            swap = 1
+         elif ((self.tensors[1].type != 'f') and (self.tensors[2].type == 'f')):
+            swap = 0
+         elif ((self.tensors[1].type == 'v') and (self.tensors[2].type != 'v')):
+            swap = 1
+         elif ((self.tensors[1].type != 'v') and (self.tensors[2].type == 'v')):
+            swap = 0
+         elif ((self.tensors[1].type == 'i') and (self.tensors[2].type != 'i')):
+            swap = 1
+         elif ((self.tensors[1].type != 'i') and (self.tensors[2].type == 'i')):
+            swap = 0
+         elif (self.tensors[1].type > self.tensors[2].type):
+            swap = 1
+         elif (self.tensors[1].type < self.tensors[2].type):
+            swap = 0
+         elif (len(self.tensors[1].indexes) < len(self.tensors[2].indexes)):
+            swap = 1
+         elif (len(self.tensors[1].indexes) > len(self.tensors[2].indexes)):
+            swap = 0
+         elif (nsuper1 + nsub1 < nsuper2 + nsub2):
+            swap = 1
+         elif (nsuper1 + nsub1 > nsuper2 + nsub2):
+            swap = 0
+         elif (nsuper1 < nsuper2):
+            swap = 1
+         elif (nsuper1 > nsuper2):
+            swap = 0
+         else:
+            swap = 0
+         if (swap):
+            swaptensor = copy.deepcopy(self.tensors[1])
+            self.tensors[1] = copy.deepcopy(self.tensors[2])
+            self.tensors[2] = copy.deepcopy(swaptensor)
+
+      indexesintheoriginalorder = []
+      for index in self.tensors[1].indexes:
+         if (index.isin(globaltargetindexes)):
+            indexesintheoriginalorder.append(index)
+      if (len(self.tensors) == 3):
+         for index in self.tensors[2].indexes:
+            if (index.isin(globaltargetindexes)):
+               indexesintheoriginalorder.append(index)
+
+      indexesintheneworder = []
+      for index in indexesintheoriginalorder:
+         minimum = "empty"
+         for targetindex in globaltargetindexes:
+            if ((targetindex.type == index.type) and (not targetindex.isin(indexesintheneworder))):
+               if (minimum == "empty"):
+                  minimum = copy.deepcopy(targetindex)
+               else:
+                  if (minimum.label > targetindex.label):
+                     minimum = copy.deepcopy(targetindex)
+         if (minimum == "empty"):
+            raise RuntimeError, "unable to canonicalize"
+         indexesintheneworder.append(minimum)
+#     print "ORIGINAL"
+#     print self.show()
+
+      for nindex in range(len(self.tensors[0].indexes)):
+         index = self.tensors[0].indexes[nindex]
+         for n in range(len(indexesintheoriginalorder)):
+            if (index.isidenticalto(indexesintheoriginalorder[n])):
+               self.tensors[0].indexes[nindex] = copy.deepcopy(indexesintheneworder[n])
+      self.factor.multiply(self.tensors[0].sortindexes())
+      for nindex in range(len(self.tensors[1].indexes)):
+         index = self.tensors[1].indexes[nindex]
+         for n in range(len(indexesintheoriginalorder)):
+            if (index.isidenticalto(indexesintheoriginalorder[n])):
+               self.tensors[1].indexes[nindex] = copy.deepcopy(indexesintheneworder[n])
+      self.factor.multiply(self.tensors[1].sortindexes())
+      if (len(self.tensors) == 3):
+         for nindex in range(len(self.tensors[2].indexes)):
+            index = self.tensors[2].indexes[nindex]
+            for n in range(len(indexesintheoriginalorder)):
+               if (index.isidenticalto(indexesintheoriginalorder[n])):
+                  self.tensors[2].indexes[nindex] = copy.deepcopy(indexesintheneworder[n])
+         self.factor.multiply(self.tensors[2].sortindexes())
+#     print "NEW"
+#     print self.show()
+      for npermutation in range(len(self.factor.permutations)):
+         permutation = self.factor.permutations[npermutation]
+         newpermutationorigin = []
+         newpermutationdestination = []
+         for nindex in range(len(permutation)/2):
+            index = permutation[nindex]
+            for n in range(len(indexesintheoriginalorder)):
+               if (index.isidenticalto(indexesintheoriginalorder[n])):
+                  newpermutationorigin.append(indexesintheneworder[n])
+         for nindex in range(len(permutation)/2,len(permutation)):
+            index = permutation[nindex]
+            for n in range(len(indexesintheoriginalorder)):
+               if (index.isidenticalto(indexesintheoriginalorder[n])):
+                  newpermutationdestination.append(indexesintheneworder[n])
+         for index in globaltargetindexes:
+            if (not index.isin(newpermutationorigin)):
+               newpermutationorigin.append(index)
+               newpermutationdestination.append(index)
+         self.factor.permutations[npermutation] = copy.deepcopy(newpermutationorigin + newpermutationdestination)
+      newsuperone = []
+      newsubone = []
+      for nindex in range(len(self.tensors[1].indexes)/2):
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            newsuperone.append(index)
+      for nindex in range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes)):
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            newsubone.append(index)
+      if (len(self.tensors) == 3):
+         newsupertwo = []
+         newsubtwo = []
+         for nindex in range(len(self.tensors[2].indexes)/2):
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               newsupertwo.append(index)
+         for nindex in range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes)):
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               newsubtwo.append(index)
+      self.factor = self.factor.canonicalize(newsuperone)
+      self.factor = self.factor.canonicalize(newsubone)
+      if (len(self.tensors) == 3):
+         self.factor = self.factor.canonicalize(newsupertwo)
+         self.factor = self.factor.canonicalize(newsubtwo)
+#     print "NEW CANONICALIZED"
+#     print self.show()
 
    def fortran77(self,globaltargetindexes,subroutinename="NONAME"):
       """Suggests an implementation in Fortran77 for an elementary tensor contraction C = A * B"""
@@ -3719,21 +3908,25 @@ class OperationTree:
       else:
          return 0
 
-   def fullyfactorize(self,verbose=0,iteration=0,generation=1,reserved=[]):
+   def fullyfactorize(self,verbose=0,iteration=0,generation=1,reserved=[],globaltargetindexes=[]):
       """Performs factorize() recursively until fully factorized"""
       if ((iteration == 0) and (generation == 1)):
          reserved = []
+         globaltargetindexes = []
          for targetindex in self.children[0].contraction.tensors[0].indexes:
             reserved.append(targetindex.label)
+            globaltargetindexes.append(targetindex)
          print " ... commencing full factorization"
          print " ... initial contraction cost %d" %(self.operationcost())
       print " ... tensor contraction tier %d" %(generation)
+      self.canonicalize(globaltargetindexes)
       while (self.factorize(reserved,verbose)):
+         self.canonicalize(globaltargetindexes)
          iteration = iteration + 1
          print " ... iteration %d cost %d" %(iteration, self.operationcost())
       if (self.children):
          for child in self.children:
-            child.fullyfactorize(verbose,0,generation+1,reserved)
+            child.fullyfactorize(verbose,0,generation+1,reserved,globaltargetindexes)
       if (generation == 1):
          print " ... exiting full factorization"
          print " ... final contraction cost %d" %(self.operationcost())
@@ -3757,6 +3950,20 @@ class OperationTree:
       for child in self.children:
          cost = child.operationcost(cost)
       return cost
+
+   def canonicalize(self,globaltargetindexes):
+      """Canonicalizes the whole operation tree expression"""
+
+      self.canonicalizea(globaltargetindexes)
+
+   def canonicalizea(self,globaltargetindexes):
+      """Subsidiary to canonicalize()"""
+
+      if (self.contraction.isoperation()):
+         self.contraction.canonicalize(globaltargetindexes)
+
+      for nchild in range(len(self.children)):
+         self.children[nchild].canonicalizea(globaltargetindexes)
 
    def fortran77(self,filename="NONAME"):
       """Suggests an implementation in Fortran77 for the whole operation tree"""
@@ -5453,7 +5660,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.9 2002-11-26 21:28:59 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.10 2002-12-01 21:37:34 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
