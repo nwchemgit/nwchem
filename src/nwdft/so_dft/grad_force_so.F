@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.15 2001-11-15 18:39:00 edo Exp $
+c     $Id: grad_force_so.F,v 1.16 2003-07-16 20:33:09 sohirata Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -207,6 +207,7 @@ C     get SCF MO vectors for density
          odft = .true.
          if (.not. rtdb_cget(rtdb, 'dft:input vectors',1,movecs_in))
      $        call errquit('gradients: DFT MO vectors not defined',0)
+         call util_file_name_resolve(movecs_in,.false.)
          if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
      $        ocdfit = .false.
          if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
