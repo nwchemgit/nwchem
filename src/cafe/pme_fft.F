@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.20 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: pme_fft.F,v 1.21 2004-01-31 20:17:09 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -51,9 +51,9 @@ c
       ip(22)=nd1
       ip(23)=nd2
 c
-      call timer_start(205)
+      call timer_start(206)
       if(lpnode) call pdcft3(x1,x2,nd1,nd2,nd3,isign,scale,icntxt,ip)
-      call timer_stop(205)
+      call timer_stop(206)
 c
       return
       endif
@@ -85,10 +85,10 @@ c
       if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
      + call md_abort('Failed to allocate iwork',0)
 c
-      call timer_start(205)
+      call timer_start(206)
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
      + lrwrk,dbl_mb(i_rwrk),liwrk,int_mb(i_iwrk),jstat)
-      call timer_stop(205)
+      call timer_stop(206)
 c
       if(.not.ma_verify_allocator_stuff())
      +     call md_abort('FFT buffer problems after',me)
