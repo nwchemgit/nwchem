@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.16 1999-07-28 00:40:16 d3e129 Exp $
+c $Id: prp_main.F,v 1.17 1999-08-25 18:28:24 d3j191 Exp $
 c
       implicit none
 c
@@ -13,10 +13,12 @@ c
       external frequency
 c
       integer mdstep
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
-      real*8 epot,stime,esk(msf),uqmd,uqmmm
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,vol
+      real*8 epot,epotw,epotsw,epots,stime,esk(msf),uqmd,uqmmm
 c
-      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm,epot)
+c      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm,
+c     + epot,epotw,epotsw,epots,vol)
+c
       if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
 c
       if(frequency(mdstep,nfprop)) call prp_record()
@@ -24,7 +26,7 @@ c
       return
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
-     + uqmd,uqmmm,epot)
+     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol)
 c
       implicit none
 c
@@ -37,7 +39,8 @@ c
       real*8 timer_wall
 c
       integer mdstep
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,epot
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
+      real*8 epot,epotw,epotsw,epots,vol
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
@@ -84,6 +87,7 @@ c
       eq=eq+ess(k,j,6,1)+ess(k,j,8,1)
    13 continue
    12 continue
+      ep=ep+el+eq
 c
       if(me.eq.0) ep=ep+uqmd+uqmmm
 c
@@ -201,9 +205,31 @@ c
       call ga_dgop(mrg_d43,epme,1,'+')
       endif
 c
-      epot=p(32)
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
+c
+      epot=p(26) 
+      epots=zero
+      epotsw=zero
+      epotw=eww(5,1)+eww(6,1)+eww(8,1)
+      do 40 i=1,msf
+      epotsw=epotsw+esw(i,5,1)+esw(i,6,1)+esw(i,8,1)
+      do 41 j=1,msf
+      epots=epots+ess(i,j,5,1)+ess(i,j,6,1)+ess(i,j,8,1)
+   41 continue
+   40 continue
+c
+      do 37 i=1,mpe
+      epotw=epotw+eww(i,1)
+      do 38 j=1,msf
+      epotsw=epotsw+esw(j,i,1)
+      do 39 k=1,msf
+      epots=epots+ess(k,j,i,1)
+   39 continue
+   38 continue
+   37 continue
+c
+      vol=volume
 c
       return
       end
@@ -249,7 +275,7 @@ c
       write(lfnout,1000) pdate,ptime
  1000 format(/,' MOLECULAR DYNAMICS TIME STEP INFORMATION',T110,2A10,//,
      + '    Time      Temp    Pres      Volume Tscalw Tscals  Pscal ',
-     + '   U(Cou)    U(L-J)      U(pot)     U(kin)     U(tot) ',/,
+     + '   U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) ',/,
      + '    ps         K      Pa        nm**3              ',
      + '   kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol ',/)
       lhdr=.true.

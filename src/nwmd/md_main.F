@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.30 1999-07-28 00:40:16 d3e129 Exp $
+c $Id: md_main.F,v 1.31 1999-08-25 18:28:23 d3j191 Exp $
 c
       implicit none
 c
@@ -47,8 +47,6 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 epot
-c
       lpair=.true.
       llong=ltwin
 c
@@ -64,7 +62,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
       call prp_print()
 c
@@ -153,14 +152,18 @@ c
 c
       integer i,j
       logical ltr,ldone
-      real*8 epot,edif,epsd,dx,dxf,dxmax,factor,dxstep,eqrs
+      real*8 edif,epsd,epsdw,epsdsw,epsds
+      real*8 dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
 c
       if(me.eq.0) write(lfnout,1000)
  1000 format(/,' STEEPEST DESCENT MINIMIZATION',//,
-     + '   Step File     Energy       Energy     Largest  ',/,
-     + '        wrt     gradient               displacement',/,
-     + '                 kJ/mol       kJ/mol        nm',/)
+     + '   Step File     Energy       Energy       Energy   ',
+     + '    Energy       Energy     Largest  ',/,
+     + '        wrt     gradient       Total      solvent   ',
+     + '   slv-sol       solute  displacement',/,
+     + '                 kJ/mol       kJ/mol       kJ/mol   ',
+     + '    kJ/mol       kJ/mol        nm',/)
 c
       isdit=1
 c
@@ -172,9 +175,13 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
       epsd=epot
+      epsdw=epotw
+      epsdsw=epotsw
+      epsds=epots
       eqrs=epot
       dx=dx0sd
       mdstep=0
@@ -250,7 +257,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -266,6 +274,9 @@ c
 c
       edif=epot-epsd
       epsd=epot
+      epsdw=epotw
+      epsdsw=epotsw
+      epsds=epots
 c
       ltr=frequency(isdit,nfem)
 c
@@ -287,8 +298,8 @@ c
       if(me.eq.0.and.frequency(isdit,nfprop)) call prp_record()
 c
       if(me.eq.0) then
-      write(lfnout,600) isdit,cqrs,edif,epsd,dxmax
-  600 format(i7,1x,a1,3x,2(1pe13.5),0pf12.8)
+      write(lfnout,600) isdit,cqrs,edif,epsd,epsdw,epsdsw,epsds,dxmax
+  600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
       endif
 c
       dx=min(1.2d0*dx,dxmsd)
@@ -317,16 +328,19 @@ c
       integer iwa,iwm,isa,ix,inner
       logical ltr,ldone
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
-      real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif
+      real*8 dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
-      real*8 dxmax,dxfi,ecg0,ecg1,ecg2
+      real*8 dxmax,dxfi,ecg0,ecg1,ecg2,epcgw,epcgsw,epcgs
       character*1 cqrs
 c
       if(me.eq.0) write(lfnout,1000)
  1000 format(/,' CONJUGATE GRADIENT MINIMIZATION',//,
-     + '   Step File     Energy       Energy     Largest  ',/,
-     + '        wrt     gradient               displacement',/,
-     + '                 kJ/mol       kJ/mol        nm',/)
+     + '   Step File     Energy       Energy       Energy   ',
+     + '    Energy       Energy     Largest  ',/,
+     + '        wrt     gradient       Total      solvent   ',
+     + '   slv-sol       solute  displacement',/,
+     + '                 kJ/mol       kJ/mol       kJ/mol   ',
+     + '    kJ/mol       kJ/mol        nm',/)
 c
       dx=dx0cg
       beta1=zero
@@ -339,7 +353,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
       ecgnew=epot
       eqrs=epot
@@ -565,9 +580,13 @@ c
       call ga_dgop(mrg_d11,ypb,1,'+')
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
       ecg2=epot
+      epcgw=epotw
+      epcgsw=epotsw
+      epcgs=epots
       ecgdif=ecg2-ecgold
       edt=ecg2-ecg0
 c
@@ -636,7 +655,8 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot)
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
 c
       dxmax=zero
       dxwmax=zero
@@ -714,6 +734,9 @@ c
       fnorm1=fnorm2
 c
       ecg2=epot
+      epcgw=epotw
+      epcgsw=epotsw
+      epcgs=epots
 c
       ecgdif=ecg2-ecgold
       ecgold=ecg2
@@ -747,8 +770,8 @@ c
 c     print minimization step data to output
 c
       if(me.eq.0) then
-      write(lfnout,600) icgit,cqrs,ecgdif,ecg1,dxmax
-  600 format(i7,1x,a1,3x,2(1pe13.5),0pf12.8)
+      write(lfnout,600) icgit,cqrs,ecgdif,ecg1,epcgw,epcgsw,epcgs,dxmax
+  600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
       endif
 c
       if(.not.ldone) goto 100
@@ -777,6 +800,10 @@ c     equilibration
 c
       do 1 iequi=kequi+1,mequi
       call md_newton()
+      call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
+      call md_server
     1 continue
 c
 c     data gathering
@@ -786,6 +813,10 @@ c
 c
       call md_newton()
 c
+      call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
+      call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -882,6 +913,9 @@ c
 c
       done=prp_mcti_step(idacq)
 c
+      call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),eskin,epme,uqmd,uqmmm,epot,epotw,epotsw,epots,
+     + volume)
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -1205,7 +1239,7 @@ c
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
 c
-      if(iewald.gt.0) then
+      if(ipme.gt.0) then
       call pme_chgrid(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),isl(1,lsct1),
      + nsaloc,epme)
       endif
@@ -1235,7 +1269,7 @@ c
 c
     1 continue
 c
-      if(iewald.gt.0) then
+      if(ipme.gt.0) then
       call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
       endif
 c
@@ -1275,5 +1309,46 @@ c
 c
  9999 continue
       call errquit('Unable to open restart for writing',me)
+      return
+      end
+      subroutine md_server
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer*4 create_client_socket
+      integer client_socket_write
+      external create_client_socket,client_socket_write
+c
+      character*255 string
+      integer numbyt
+c
+      if(iport.le.0.or.me.gt.0) return
+c
+c     open socket to server
+c
+      if(.not.lserver) then
+      write(*,1) server(1:index(server,' ')-1),iport
+    1 format('Attempt to open socket to ',a,' port ',i5)
+      isocket=create_client_socket(server,iport)
+      lserver=isocket.gt.0
+      endif
+c
+      if(lserver) then
+      print*,'server socket open'
+      else
+      print*,'server socket error'
+      endif
+c
+      if(.not.lserver) return
+c
+      write(string,1000) stime,temp,pres,volume
+ 1000 format("TIM",f12.6,"TMP",f12.6,"PRS",e12.5,"VOL",f12.6)
+c
+      numbyt=client_socket_write(isocket,string,60)
+c
+      print*,'Bytes written to socket is ',numbyt
+c
       return
       end

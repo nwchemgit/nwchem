@@ -3,7 +3,7 @@
      + lcf,lsp,ltwn,lpol,lpme,
      + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2,tstp)
 c
-c $Id: prp_init.F,v 1.12 1999-07-28 00:40:16 d3e129 Exp $
+c $Id: prp_init.F,v 1.13 1999-08-25 18:28:24 d3j191 Exp $
 c
       implicit none
 c
@@ -191,14 +191,14 @@ c
       do 3 i=1,nsf
       it=isprop+(i-1)*27
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
-      pronam(it+2)='Energy solute     intra-Coulombic           kJ/mol'
+      pronam(it+2)='Energy solute     intra-electrostatic       kJ/mol'
       lp(it+2)=.true.
-      pronam(it+3)='Energy solute     intra-Lennard-Jones       kJ/mol'
+      pronam(it+3)='Energy solute     intra-van der Waals       kJ/mol'
       lp(it+3)=.true.
       pronam(it+4)='Energy solute    -solvent polarization      kJ/mol'
-      pronam(it+5)='Energy solute    -solvent Coulombic         kJ/mol'
+      pronam(it+5)='Energy solute    -solvent electrostatic     kJ/mol'
       lp(it+5)=nwm.gt.0
-      pronam(it+6)='Energy solute    -solvent Lennard-Jones     kJ/mol'
+      pronam(it+6)='Energy solute    -solvent van der Waals     kJ/mol'
       lp(it+6)=nwm.gt.0
       pronam(it+7)='Energy solute     bonds                     kJ/mol'
       lp(it+7)=.true.
@@ -210,8 +210,8 @@ c
       lp(it+10)=.true.
       pronam(it+11)='Energy solute     external field            kJ/mol'
       pronam(it+12)='Energy solute     reaction field            kJ/mol'
-      pronam(it+13)='Energy solute     Coulombic                 kJ/mol'
-      pronam(it+14)='Energy solute     Lennard-Jones             kJ/mol'
+      pronam(it+13)='Energy solute     electrostatic             kJ/mol'
+      pronam(it+14)='Energy solute     van der Waals             kJ/mol'
       pronam(it+15)='Energy solute     kinetic translations      kJ/mol'
       pronam(it+16)='Energy solute     kinetic                   kJ/mol'
       lp(it+16)=.true.
@@ -247,11 +247,11 @@ c
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
       it=it+1
-      pronam(it)='Energy solute    -    Coulombic             kJ/mol'
+      pronam(it)='Energy solute    -    electrostatic         kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
       it=it+1
-      pronam(it)='Energy solute    -    Lennard-Jones         kJ/mol'
+      pronam(it)='Energy solute    -    van der Waals         kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
       it=it+1
@@ -382,10 +382,10 @@ c
 c
       return
  9998 continue
-      call errquit('Unable to read restart file',me)
+      call errquit('Unable to read restart file in prp_rdrest ',me)
       return
  9999 continue
-      call errquit('Unable to open restart file',me)
+      call errquit('Unable to open restart file in prp_rdrest ',me)
       return
       end
       subroutine prp_finish()

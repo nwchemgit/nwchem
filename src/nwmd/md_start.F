@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.25 1999-07-28 00:40:16 d3e129 Exp $
+c $Id: md_start.F,v 1.26 1999-08-25 18:28:23 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       call cf_start(lfntop,filtop,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
-     + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
+     + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
@@ -49,7 +49,7 @@ c
       call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,
-     + iewald.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
+     + ipme.ne.0,nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -427,6 +427,8 @@ c
 c
       nfsync=0
 c
+      lserver=.false.
+c
 c     distributions
 c
       ngl=0
@@ -551,6 +553,12 @@ c
 c
 c     input from rtdb
 c
+      if(.not.rtdb_get(irtdb,'md:port',mt_int,1,iport))
+     + call errquit('md_rtdbin: rtdb_get failed',0)
+      if(iport.gt.0) then
+      if(.not.rtdb_cget(irtdb,'md:server',1,server))
+     + call errquit('md_rtdbin: rtdb_get failed',0)
+      endif
       if(.not.rtdb_get(irtdb,'md:nbx',mt_int,1,nbx))
      + call errquit('md_rtdbin: rtdb_get failed',1)
       if(.not.rtdb_get(irtdb,'md:nby',mt_int,1,nby))
@@ -687,7 +695,7 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',65)
       if(.not.rtdb_get(irtdb,'md:ifield',mt_int,1,ifield))
      + call errquit('md_rtdbin: rtdb_get failed',66)
-      if(.not.rtdb_get(irtdb,'md:iewald',mt_int,1,iewald))
+      if(.not.rtdb_get(irtdb,'md:ipme',mt_int,1,ipme))
      + call errquit('md_rtdbin: rtdb_get failed',67)
       if(.not.rtdb_get(irtdb,'md:ngx',mt_int,1,ngx))
      + call errquit('md_rtdbin: rtdb_get failed',68)
@@ -1141,7 +1149,7 @@ c
  1029 format(/,' Separation shifted scaling, delta ',f12.6,' nm**2') 
       endif
 c
-      if(iewald.gt.0) then
+      if(ipme.gt.0) then
       write(lfnout,1030) morder,ngx,ngy,ngz,nodpme,pmetol
  1030 format(/,' Particle-mesh Ewald, spline to order ',i5,/,
      + ' Grid size ',i5,'x',i5,'x',i5,/,
@@ -1310,10 +1318,10 @@ c
       return
 c
  9998 continue
-      call errquit('Unable to read restart file',me)
+      call errquit('Unable to read restart file in md_rest ',me)
       return
  9999 continue
-      call errquit('Unable to open restart file',me)
+      call errquit('Unable to open restart file in md_rest ',me)
       return
       end
       subroutine md_wtrest(lfn)

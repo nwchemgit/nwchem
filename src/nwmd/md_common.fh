@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.12 1999-06-11 22:50:09 d3j191 Exp $
+c $Id: md_common.fh,v 1.13 1999-08-25 18:28:22 d3j191 Exp $
 c
 c     parameters
 c
@@ -75,19 +75,25 @@ c
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
-     + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6
+     + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
-     + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6
+     + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
+c
+c     socket stuff
+c     ------------
+c
+      integer*4 isocket
+      common/md_sck/isocket
 c
 c     md_nam : filenames
 c     -------------------
 c
-      character*80 filnam,fdarg,fdlog,fsum
+      character*80 filnam,fdarg,fdlog,fsum,server
       character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
      + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
@@ -99,7 +105,7 @@ c
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
-     + fdarg,fdlog,fsum
+     + fdarg,fdlog,fsum,server
 c
       character*80 tittop(3),titrst(3),titinp(3)
       character*10 dattop,datrst,datinp,timtop,timrst,timinp,today,now
@@ -127,7 +133,7 @@ c
      + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
-     + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
+     + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
@@ -155,7 +161,7 @@ c
      + iwarn,irlow,idebug,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
-     + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
+     + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
@@ -163,17 +169,20 @@ c
      + irun,iequi,idacq,
      + inp_ptr
 c
-      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm
-      common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm
+      logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver
+      common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
      + msf,nsf
 c
-      real*8 temps,tempw,temp,pres,epme,eww(mpe,2),eskin,
+      real*8 temps,tempw,temp,pres,volume,epme,eww(mpe,2),eskin,
      + zw(3,2),fmax,fnorm,
+     + epot,epotw,epotsw,epots,
      + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
-      common/md_pro/temps,tempw,temp,pres,epme,eww,eskin,zw,fmax,fnorm,
+      common/md_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
+     + zw,fmax,fnorm,
+     + epot,epotw,epotsw,epots,
      + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm
 c
       integer i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,

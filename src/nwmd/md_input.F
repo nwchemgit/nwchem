@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.3 1999-06-11 22:50:09 d3j191 Exp $
+c $Id: md_input.F,v 1.4 1999-08-25 18:28:23 d3j191 Exp $
 c
       implicit none
 c
@@ -14,9 +14,9 @@ c
 c
       integer irtdb
       character*255 item
-      character*80 project
+      character*80 project,server
 c
-      integer mdalgo,iset,iforw,msdit,mcgit,ncgcy,mrun,ibinar,iewald
+      integer mdalgo,iset,iforw,msdit,mcgit,ncgcy,mrun,ibinar,ipme
       integer maxlam,npgdec,issscl,mequi,mdacq,ldacq,ipscal,itscal
       integer ipolt,mshitw,mshits,npstep,npener,npdist,nptmng,nfpair
       integer nfrdf,nfcntr,nfoutp,nfstat,nfrest,keepr,nfcoor,nfscoo
@@ -28,7 +28,7 @@ c
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
-      integer itload,ihess,latom,icomm,maxpro,nfanal
+      integer itload,ihess,latom,icomm,maxpro,nfanal,iport
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -69,8 +69,8 @@ c
       maxlam=21
       npgdec=0
       issscl=0
-      mequi=100
-      mdacq=500
+      mequi=0
+      mdacq=1000
       ldacq=500
       ipscal=0
       itscal=0
@@ -121,7 +121,7 @@ c
       iapprx=0
       nacfl=1000
       npxpct=0
-      iewald=0
+      ipme=0
       morder=4
       ngx=nbx
       ngy=nby
@@ -151,6 +151,9 @@ c
       latom=0
       icomm=0
       maxpro=0
+      iport=0
+c
+      server=' '
 c
       dx0sd=0.01d0
       dxsdmx=0.00001d0
@@ -214,6 +217,12 @@ c
 c
       if(inp_compare(.false.,'system',item)) then
       if(.not.inp_a(project)) call errquit('md_input: error system',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'server',item)) then
+      if(.not.inp_a(server)) call errquit('md_input: error server',0)
+      if(.not.inp_i(iport)) call errquit('md_input: error port',0)
       goto 2
       endif
 c
@@ -553,7 +562,7 @@ c     ewald [ grid <i ngx> [ <i ngy> [ <i ngz> ] ] ]
 c
       if(inp_compare(.false.,'ewald',item).or.
      + inp_compare(.false.,'pme',item)) then
-      iewald=1
+      ipme=1
   251 continue
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'grid',item)) then
@@ -1073,6 +1082,12 @@ c
       if(.not.rtdb_cput(irtdb,'md:project',1,project))
      + call errquit('md_input: rtdb_put failed',0)
       endif
+      if(.not.rtdb_put(irtdb,'md:port',mt_int,1,iport))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(iport.gt.0) then
+      if(.not.rtdb_cput(irtdb,'md:server',1,server))
+     + call errquit('md_input: rtdb_put failed',0)
+      endif
 c
       if(.not.rtdb_put(irtdb,'md:nbx',mt_int,1,nbx))
      + call errquit('md_input: rtdb_put failed',0)
@@ -1210,7 +1225,7 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ifield',mt_int,1,ifield))
      + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:iewald',mt_int,1,iewald))
+      if(.not.rtdb_put(irtdb,'md:ipme',mt_int,1,ipme))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngx',mt_int,1,ngx))
      + call errquit('md_input: rtdb_put failed',0)
