@@ -1,4 +1,4 @@
-C $Id: ecp_grad_b.F,v 1.1 1996-10-15 18:33:42 mg201 Exp $
+C $Id: ecp_grad_b.F,v 1.2 1996-10-18 22:05:43 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_grad_b (l_b,n_p,n_o,n_m,n_cb,intp,intm,grad,n_a,
@@ -23,7 +23,8 @@ C $Id: ecp_grad_b.F,v 1.1 1996-10-15 18:33:42 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
-      integer nall,i,j,k,ix,iy,iz,l_b,n_p,n_o,n_m,n_cb,n_a
+      integer nall,i,j,k,ix,iy,iz,l_b,n_p,n_o,n_m,n_cb,n_a,ibug
+      logical debug_gen,debug_addresses,debug_arrays
       double precision wi,wj,wk,two,
      &    intp(n_p,n_cb*n_a),
      &    intm(n_m,n_cb*n_a),
@@ -58,7 +59,7 @@ C $Id: ecp_grad_b.F,v 1.1 1996-10-15 18:33:42 mg201 Exp $
       end do
       if (debug_arrays) then
         do i = 1,3
-          call ecp_matp(grad(1,1,1,i),n_b,n_o*n_ca,'Gradient integrals',
+          call ecp_matp(grad(1,1,i),n_o*n_cb,n_a,'Gradient integrals',
      &        78,4)
         end do
       end if
@@ -85,7 +86,7 @@ C $Id: ecp_grad_b.F,v 1.1 1996-10-15 18:33:42 mg201 Exp $
       end do
       if (debug_arrays) then
         do i = 1,3
-          call ecp_matp(grad(1,1,1,i),n_b,n_o*n_ca,'Gradient integrals',
+          call ecp_matp(grad(1,1,i),n_o*n_cb,n_a,'Gradient integrals',
      &        78,4)
         end do
       end if
