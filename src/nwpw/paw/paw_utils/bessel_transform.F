@@ -1,5 +1,5 @@
 *
-* $Id: bessel_transform.F,v 1.1 2002-09-10 23:23:15 marat Exp $
+* $Id: bessel_transform.F,v 1.2 2002-09-12 01:01:45 marat Exp $
 *
 
 !*************************************************
@@ -105,9 +105,7 @@
       real*8 phi_G
 
       !*** external functions ***
-      real*8   def_integr
-      external def_integr
-
+#include "integrate.fh"
       if (l.eq.0) then
         phi_G = def_integr(1,phi_r,
      >                     1,r,

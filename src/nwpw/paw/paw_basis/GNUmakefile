@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2002-07-12 21:17:23 marat Exp $
+# $Id: GNUmakefile,v 1.3 2002-09-12 01:01:44 marat Exp $
 #
 
           OBJ = paw_basis.o paw_basis_data.o
@@ -13,6 +13,7 @@
 
   LIB_DEFINES = 
 
+  HEADERS = paw_basis.fh
 
 
 

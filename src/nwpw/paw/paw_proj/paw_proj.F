@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.10 2002-09-10 23:23:14 marat Exp $
+* $Id: paw_proj.F,v 1.11 2002-09-12 01:01:44 marat Exp $
 *
 
 !**************************************************
@@ -32,6 +32,8 @@
 
 *     *** get number of diff atom types ***
       nkatm = ion_nkatm()
+
+*     *** number of basis functions for each atom kind ***
       value = MA_alloc_get(mt_int,(nkatm),
      >                     'nbasis',nbasis(2),nbasis(1))
       value = value.and.
@@ -45,9 +47,10 @@
      >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0)
 
-      write(*,*) "ptr nbasis:",nbasis(1),nbasis(2)
 
-*     *** make sure prj names are formatted correctly ***
+
+*     *** make sure prj files are formatted correctly ***
+*     *** generate them if needed ***
       call paw_proj_check_format()
 
 *     *** get the size of prj common block and allocate it ***
@@ -525,6 +528,14 @@
       integer ia    
 
 #include "mafdecls.fh"
+#include "bessel_transform.fh"
+#include "paw_basis.fh"
+
+      !*** external functions ***
+      external G_indx
+      external lattice_unita
+      integer  G_indx
+      real*8   lattice_unita
 
       !*** local variables ***
       integer MASTER,taskid
@@ -541,16 +552,6 @@
 
       character*20 jppname,atomname
       character*255 full_filename
-    
-      !*** external functions ***
-      integer  get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
-      integer  get_i_ngrid,get_i_log_amesh,get_i_orb_l
-      real*8   lattice_unita
-#include "bessel_transform.fh"
-      external get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
-      external get_i_ngrid,get_i_log_amesh,get_i_orb_l
-      external lattice_unita
-
 
 
       call ion_atom_plus_suffix(ia,'_basis',atomname)

@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.5 2002-08-07 18:00:25 marat Exp $
+! $Id: paw_basis_data.F,v 1.6 2002-09-12 01:01:44 marat Exp $
 
 !**************************************************
 !
@@ -463,6 +463,7 @@
     
 #include "myma.fh"
 #include "paw_basis_data.fh"
+#include "integrate.fh"
 
       !*** local variables ***
       real*8 core,fourpi
@@ -470,10 +471,8 @@
       !*** external functions ***
       integer  get_i_core_density,get_i_rgrid
       integer  get_i_log_amesh,get_i_ngrid
-      real*8   def_integr
       external get_i_core_density,get_i_rgrid
       external get_i_log_amesh,get_i_ngrid
-      external def_integr
 
       fourpi = 16.0d0*datan(1.0d0)
       core = fourpi*def_integr(0,
