@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.96 2003-07-07 22:49:10 edo Exp $
+# $Id: DEFS,v 1.97 2003-08-13 21:34:47 edo Exp $
 #
 #======================================================================
 #
@@ -537,6 +537,20 @@ peigs_CPP =  $(CPP) -D${CPU} -DSTD_DBL
 peigs_CODEOBJ = DBLE
 peigs_CC  += -DSTD_DBL 
 peigs_FC +=  -DSTD_DBL    -D$(peigs_COMM)  -D$(peigs_CPU)
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+  endif
+endif
+
+ifeq ($(peigs_TARGET),cray-sv2)
+peigs_COMM = TCGMSG
+peigs_CPP = $(CPP) -DSTD_DBL 
+peigs_CODEOBJ = DBLE
+peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) 
+peigs_CC  +=  -DSTD_DBL -O
+peigs_FC +=     -DSTD_DBL  -D$(peigs_COMM)  -Ovector3
   ifdef USE_INTEGER4
      peigs_CPP += -DSTD_INT
      peigs_CC  += -DSTD_INT

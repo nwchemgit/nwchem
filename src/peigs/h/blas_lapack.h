@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.23 2003-02-19 18:19:23 fruechtl Exp $
+ $Id: blas_lapack.h,v 1.24 2003-08-13 21:34:47 edo Exp $
   c defines */
 
 #define NO_EVEC 0
@@ -116,6 +116,14 @@
 #define DLAMCHS        2.2250738585072014e-308
 #define DLAMCHU        2.2250738585072014e-308
 */
+
+#endif
+#ifdef __crayx1
+#define DLAMCHE 2.2204460492503130e-16
+#define DLAMCHP 2.2204460492503130e-16
+#define DLAMCHB 2.0000000000000000e+00
+#define DLAMCHS 2.2250738585072014e-308
+#define DLAMCHU 2.2250738585072014e-308
 
 #endif
 #ifdef PENTIUM
