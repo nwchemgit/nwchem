@@ -104,6 +104,7 @@
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, MAX
+#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *

@@ -263,6 +263,7 @@
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS, INT, LOG, MAX, MIN, SQRT
+#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *

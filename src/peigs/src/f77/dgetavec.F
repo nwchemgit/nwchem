@@ -74,9 +74,7 @@ c
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, SQRT
-      integer            doprnt1,doprnt2
-      common             doprnt1,doprnt2
-       
+#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *      
@@ -229,9 +227,7 @@ c
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, SQRT
-      integer            doprnt1,doprnt2
-      common             doprnt1,doprnt2
-       
+#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *      
@@ -404,8 +400,7 @@ c
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          ABS
-      integer            doprnt1,doprnt2
-      common             doprnt1,doprnt2
+#include "blas_lapack.data"
        
 *     ..
 *     .. Executable Statements ..
@@ -581,14 +576,10 @@ c
       double precision DNRM2
       external DNRM2
 c      
-      integer iseed(4)
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX, SQRT, ABS
-       
-      integer            doprnt1,doprnt2
-      common             doprnt1,doprnt2
-      save               iseed
+#include "blas_lapack.data"
 *     ..
 *     .. Executable Statements ..
 *      
