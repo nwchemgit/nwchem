@@ -1,0 +1,561 @@
+ argument  1 = dft_sicoep_h2.nw
+0 using localhost hostname
+
+
+
+============================== echo of input deck ==============================
+title "h2_sicoep"
+
+start h2_sicoep
+
+echo
+
+
+geometry units angstrom
+symmetry group d2h
+  H     0.0  0.0  0.37
+end
+
+
+basis "ao basis" spherical print
+ H library "DZ (Dunning)"
+end
+
+
+dft
+ xc slater 1.0 vwn_5 1.0
+ sic oep
+ mult 1
+ print "SIC information"
+end
+
+task dft energy
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = pasta
+    program       = /home/edo/nwchem/bin/LINUX/nwchem
+    date          = Tue Nov 21 18:14:08 2000
+
+    compiled      = Tue Nov 21 18:13:10 PST 2000
+    source        = /home/edo/nwchem
+    nwchem branch = Development
+    input         = dft_sicoep_h2.nw
+    prefix        = h2_sicoep.
+    data base     = ./h2_sicoep.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =    8847354 doubles =     70.8 Mbytes
+    stack     =    2949107 doubles =     23.6 Mbytes
+    global    =   11796484 doubles =     94.4 Mbytes (within heap+stack)
+    total     =   11796461 doubles =     94.4 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                    h2_sicoep
+                                    ---------
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+          ------
+          auto-z
+          ------
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 H                    1.0000     0.00000000     0.00000000     0.37000000
+    2 H                    1.0000     0.00000000     0.00000000    -0.37000000
+
+      Atomic Mass 
+      ----------- 
+
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       0.7151043905
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D2h       
+ Group number             26
+ Group order               8
+ No. of unique centers     1
+
+      Symmetry unique atoms
+
+     1
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.74000
+
+  warning:::::::::::::: from_nwchemrc
+  NWCHEM_BASIS_LIBRARY set to: </home/edo/nwchem/src/basis/libraryz>
+  but file does not exist !
+  using compiled in library
+                      Basis "ao basis" -> "" (spherical)
+                      -----
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.92406000E+01  0.032828
+  1 S  2.89920000E+00  0.231208
+  1 S  6.53400000E-01  0.817238
+
+  2 S  1.77600000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                        DZ (Dunning)               2        2   2s
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                                     h2_sicoep
+
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :     2
+           Alpha electrons :     1
+            Beta electrons :     1
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:     4
+                     number of shells:     4
+          Convergence on energy requested: 0.10E-05
+          Convergence on density requested: 0.10E-04
+          Convergence on gradient requested: 0.50E-03
+
+              XC Information
+              --------------
+                        Slater Exchange Functional   1.00 local    
+                      VWN V Correlation Functional   1.00 local    
+
+              SIC/OEP without localized orbitals
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          H                   0.35       45           5.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    45
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 0.50E-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 0.10E-09
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 0.10E-09
+          Spatial weight screening/radius(au): 0.12E+02
+
+  Skipping SCF linear dependence check. 
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:          -0.99527373
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -0.845122
+ 1-e energy   =      -2.232107
+ 2-e energy   =       0.671881
+ HOMO         =      -0.574585
+ LUMO         =       0.194761
+
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+
+  Orbital symmetries:
+
+     1 ag          2 b1u         3 ag          4 b1u     
+
+   Time prior to 1st pass:      0.4
+
+ #quartets = 3.700E+01 #integrals = 3.700E+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./h2_sicoep.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =   7907
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Grid_pts file          = ./h2_sicoep.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      8        Max. records in file   =  42170
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.62             8616362
+          Stack Space remaining (MW):        2.95             2948952
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls=0.0,diis     1     -1.1310554000 -1.85E+00  1.23E-02  2.92E-03     0.5
+ d=70,ls=0.0,diis     2     -1.1312593946 -2.04E-04  6.28E-03  1.16E-03     0.5
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  MAXERR   4.39037251E-10
+  MAXRELERR   4.18802786E-09
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.652665577  0.608599207 -0.0440663698
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     3     -1.1754516771 -4.42E-02  4.07E-03  4.19E-03     3.8
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.644026242  0.600546438 -0.0434798047
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     4     -1.1747016085  7.50E-04  2.49E-02  5.97E-03     5.4
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.66949443  0.624297279 -0.045197151
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     5     -1.1752712587 -5.70E-04  1.06E-02  3.15E-03     6.9
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.658678385  0.614206224 -0.0444721615
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     6     -1.1759163217 -6.45E-04  5.31E-06  8.07E-10     8.4
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.658672949  0.614201153 -0.0444717954
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
+ d= 0,ls=0.0,diis     7     -1.1759163218 -1.62E-10  1.85E-09  9.84E-17     9.9
+  Starting SIC by orbital..
+  Orbital  1
+  SIC approximation in Coulomb term
+  tot_sic_coul, tot_sic_xc, tot_sic:  -0.658672951  0.614201155 -0.0444717956
+
+
+         Total DFT energy =     -1.175916321846
+      One electron energy =     -2.500325197923
+           Coulomb energy =      1.317345901033
+    Exchange-Corr. energy =     -0.708041415496
+ Nuclear repulsion energy =      0.715104390540
+
+ Numeric. integr. density =      1.999999946786
+
+     Total iterative time =     11.0s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000E+00  E=-6.197841E-01  Symmetry=ag
+              MO Center=  0.0E+00,  0.0E+00,  3.2E-16, r^2= 7.0E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.317741  2 H  s                  1      0.317741  1 H  s          
+     2      0.277668  1 H  s                  4      0.277668  2 H  s          
+
+ Vector    2  Occ=0.000000E+00  E=-1.293659E-01  Symmetry=b1u
+              MO Center=  0.0E+00,  0.0E+00,  3.3E-16, r^2= 1.7E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.543399  1 H  s                  4      1.543399  2 H  s          
+     3      0.193961  2 H  s                  1     -0.193961  1 H  s          
+
+ Vector    3  Occ=0.000000E+00  E= 3.939615E-01  Symmetry=ag
+              MO Center=  0.0E+00,  0.0E+00, -5.2E-16, r^2= 1.5E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1     -0.804804  1 H  s                  3     -0.804804  2 H  s          
+     4      0.716010  2 H  s                  2      0.716010  1 H  s          
+
+ Vector    4  Occ=0.000000E+00  E= 9.275697E-01  Symmetry=b1u
+              MO Center=  0.0E+00,  0.0E+00,  1.0E-16, r^2= 1.1E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.483313  1 H  s                  4      1.483313  2 H  s          
+     1      1.135934  1 H  s                  3     -1.135934  2 H  s          
+
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -1.000000     -1.000000      2.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
+
+     2   2 0 0     -1.447063     -0.723531     -0.723531      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -1.447063     -0.723531     -0.723531      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -1.128147     -1.052952     -1.052952      0.977757
+
+
+ Parallel integral file used       1 records with       0 large values
+
+
+------------------------------------------------------------
+EAF file 0: "./h2_sicoep.gridpts.0" size=98312 bytes
+------------------------------------------------------------
+               write      read    awrite     aread      wait
+               -----      ----    ------     -----      ----
+     calls:        1         0         0         0         0
+   data(b): 9.83e+04  0.00e+00  0.00e+00  0.00e+00
+   time(s): 6.70e-04  0.00e+00  0.00e+00  0.00e+00  0.00e+00
+rate(mb/s): 1.47e+02  0.00e+00
+------------------------------------------------------------
+
+
+ Parallel grid_pts file used       1 records
+
+
+ Task  times  cpu:       11.1s     wall:       11.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  183      183     8132      538     3891        0        0        0     
+bytes total:             2.26e+05 2.91e+04 1.37e+05 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 4736 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        60	        46
+	current total bytes		         0	         0
+	maximum total bytes		   1849876	  14488028
+	maximum total K-bytes		      1850	     14489
+	maximum total M-bytes		         2	        15
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.0" (2000), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Bylaska, E.; 
+            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; Deegan, M.; 
+            Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; Fruchtl, H.; 
+            Glendenning, E.; Gutowski, M.; Harrison, R.; Hess, A.; 
+            Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; Kobayashi, R.; 
+            Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; Meng, B.; 
+            Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;Sandrone, G; 
+            Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; van Lenthe, J.; 
+            Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A 
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.0" (1999),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:       11.4s     wall:       11.9s

@@ -1,0 +1,27 @@
+title "h2_sicoep"
+
+start h2_sicoep
+
+echo
+
+
+geometry units angstrom
+symmetry group d2h
+  H     0.0  0.0  0.37
+end
+
+
+basis "ao basis" spherical print
+ H library "DZ (Dunning)"
+end
+
+
+dft
+ xc slater 1.0 vwn_5 1.0
+ sic oep
+ mult 1
+ print "SIC information"
+end
+
+task dft energy
+

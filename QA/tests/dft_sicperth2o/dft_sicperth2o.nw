@@ -1,0 +1,25 @@
+
+title "h2o_sicpert"
+
+start h2o_sicpert
+
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+ xc slater 1.0 vwn_5 1.0
+ mult 1
+ sic perturbative
+end
+
+task dft energy
