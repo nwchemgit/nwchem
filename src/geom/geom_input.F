@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.105 1999-06-11 22:13:49 mdupuis Exp $
+C     $Id: geom_input.F,v 1.106 1999-06-12 05:31:10 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3678,8 +3678,7 @@ C
       IF(ONLY) THEN
          WRITE(IW,9977)
          DO IAT=1,NAT
-            WRITE(IW,9984) IAT,(C(I,IAT),I=1,3),(C1(I,IAT),I=1,3),
-     1                                          (C3(I,IAT),I=1,3)
+            WRITE(IW,9984) IAT,(C3(I,IAT),I=1,3)
          ENDDO
       ENDIF
 C
@@ -3725,6 +3724,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL  ODONE
       LOGICAL  DBUG
+      LOGICAL  OUT
       LOGICAL  SOME
       LOGICAL  PUNCH
       CHARACTER*8 ERRMSG
@@ -3792,8 +3792,10 @@ C
       DATA WRDEND /' $END   '/
 C
       DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
       SOME=.TRUE. 
-      SOME=SOME.OR.DBUG
+      SOME=SOME.OR.OUT
 C
       PUNCH=.FALSE.
 C
@@ -3840,21 +3842,33 @@ C
          ENDIF
       ELSE
          IF(.NOT.CUBIC) THEN
-            IF(SYMC2X.OR.SYMC2Y) THEN
-               GROUP(1:1)=D
-               GROUP(2:2)=N
-               IF(MIRRXY) THEN
-                  GROUP(3:3)=H
-               ELSE
-                  IF(MIRRYZ.OR.MIRRZX) THEN
-                     GROUP(3:3)=B
+            IF(MIRRYZ.OR.MIRRZX.OR.MIRRXY.OR.
+     1         SYMC2X.OR.SYMC2Y.OR.
+     2         PROPRX.OR.PROPRY.OR.PROPRZ.OR.
+     3         (MOD(NAXIS,2).NE.0)           ) THEN
+C
+C     ----- C.. AND D.. GROUPS -----
+C
+               IF(SYMC2X.OR.SYMC2Y) THEN
+C
+C     ----- Dn , Dnh , Dnd -----
+C
+                  GROUP(1:1)=D
+                  GROUP(2:2)=N
+                  IF(MIRRXY) THEN
+                     GROUP(3:3)=H
                   ELSE
-                     GROUP(3:3)=D
-                     NAXIS=NAXIS/2
+                     IF(MIRRYZ.OR.MIRRZX) THEN
+                        GROUP(3:3)=D
+                        NAXIS=NAXIS/2
+                     ELSE
+                        GROUP(3:3)=B
+                     ENDIF
                   ENDIF
-               ENDIF
-            ELSE
-               IF(PROPRZ) THEN
+               ELSE
+C
+C     ----- Cn , Cnh , Cnv -----
+C
                   GROUP(1:1)=C
                   GROUP(2:2)=N
                   IF(MIRRXY) THEN
@@ -3866,18 +3880,15 @@ C
                         GROUP(3:3)=B
                      ENDIF
                   ENDIF
-               ELSE
-                  IF(((NAXIS/2)*2).EQ.NAXIS) THEN
-                     NAXIS=NAXIS/2
-                     GROUP(1:1)=S
-                     GROUP(2:2)=I2
-                     GROUP(3:3)=N
-                  ELSE
-                     WRITE(IW,*) 'SOMETHING WRONG WITH S2N GROUP'
-                     WRITE(IW,*) '-2N- IS NOT EVEN .... STOP.'
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
                ENDIF
+            ELSE
+C
+C     ----- S2N GROUPS -----
+C
+               NAXIS=NAXIS/2
+               GROUP(1:1)=S
+               GROUP(2:2)=I2
+               GROUP(3:3)=N
             ENDIF
          ELSE
 C
@@ -3905,9 +3916,11 @@ C
       endif
 c
       IF(SOME) THEN
-         WRITE(IW,9999) groupname,
-     1                   (TR(I  ),I=1,3),
-     2                  ((RT(I,J),J=1,3),I=1,3)
+         WRITE(IW,9999) groupname
+      ENDIF
+      IF(OUT) THEN
+         WRITE(IW,9995)  (TR(I  ),I=1,3),
+     1                  ((RT(I,J),J=1,3),I=1,3)
       ENDIF
 c
       IF(PUNCH) THEN
@@ -3949,7 +3962,27 @@ C
             ZPT3=ZPT1+RT(3,2)
          ENDIF
       ELSE
-         IF(MIRRZX) THEN
+         IF(SYMC2X) THEN
+            XPT0=TR(1)
+            YPT0=TR(2)
+            ZPT0=TR(3)
+            XPT1=XPT0+RT(1,3)
+            YPT1=YPT0+RT(2,3)
+            ZPT1=ZPT0+RT(3,3)
+            XPT2=XPT0+RT(1,1)
+            YPT2=YPT0+RT(2,1)
+            ZPT2=ZPT0+RT(3,1)
+         ELSEIF(SYMC2Y) THEN
+            XPT0=TR(1)
+            YPT0=TR(2)
+            ZPT0=TR(3)
+            XPT1=XPT0+RT(1,3)
+            YPT1=YPT0+RT(2,3)
+            ZPT1=ZPT0+RT(3,3)
+            XPT2=XPT0+RT(1,2)
+            YPT2=YPT0+RT(2,2)
+            ZPT2=ZPT0+RT(3,2)
+         ELSEIF(MIRRZX) THEN
             XPT0=TR(1)
             YPT0=TR(2)
             ZPT0=TR(3)
@@ -3987,15 +4020,15 @@ C
       ODONE=.TRUE.
 C
       RETURN
- 9999 FORMAT(
-     $       ' ',a3,' symmetry detected'/
+ 9999 FORMAT(' ',a3,' symmetry detected')
+ 9998 FORMAT(A8)
+ 9997 FORMAT(1X,A3,2X,I5)
+ 9996 FORMAT(3F12.8)
+ 9995 FORMAT(
      1       ' Molecular frame translation',3F10.5,/,
      2       ' Molecular frame rotation   ',3F10.5,/,
      3       '                            ',3F10.5,/,
      4       '                            ',3F10.5)
- 9998 FORMAT(A8)
- 9997 FORMAT(1X,A3,2X,I5)
- 9996 FORMAT(3F12.8)
       END
       SUBROUTINE HND_MOLAXS(A,VEC,EIG,NVEC,N,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -4220,6 +4253,7 @@ C
       PARAMETER     (MXIODA=255)
       CHARACTER*8   ERRMSG
       LOGICAL       OUT
+      LOGICAL       SOME
       LOGICAL       ALIGN
       CHARACTER*8   GRPCHR
       CHARACTER*8   DRCCHR
@@ -4262,7 +4296,9 @@ C
       DATA ONE      /1.0D+00/
       DATA THREE    /3.0D+00/
 C
-      OUT=.FALSE.
+      OUT =.FALSE.
+      SOME=.TRUE.
+      SOME=SOME.OR.OUT
 C
 C     ----- GROUP INFO -----
 C
@@ -4362,7 +4398,7 @@ C
          U3=V3
          V3=-DUM
       ENDIF
-      IF(OUT) THEN
+      IF(SOME) THEN
          WRITE(IW,9990) X0,Y0,Z0,U1,V1,W1,U2,V2,W2,U3,V3,W3
       ENDIF
       IF(IGROUP.GE.13) GO TO 200
@@ -4820,11 +4856,10 @@ C
  9994 FORMAT(' ILLEGAL POINT GROUP INPUT. STOP..')
  9991 FORMAT(/,' THE POINT GROUP OF THE MOLECULE IS ...',A8,/,
      1         ' THE ORDER OF THE PRINCIPAL AXIS IS ...',I5)
- 9990 FORMAT(/,' THE ORIGIN OF THE LOCAL FRAME IS AT X =  ',F10.5,
-     1         ' Y = ',F10.5,' Z = ',F10.5,/,
-     2         ' DIRECTOR COSINES OF THE NEW AXES ',/,
-     3         34X,3(5X,F10.5),/,34X,
-     4         3(5X,F10.5),/,34X,3(5X,F10.5))
+ 9990 FORMAT(  ' the origin of the local frome is at',/,
+     1         ' x = ',F10.5,' y = ',F10.5,' z = ',F10.5,/,
+     2         ' director cosines of the new axes are',/,
+     3         3(5X,F10.5),/,3(5X,F10.5),/,3(5X,F10.5))
  9989 FORMAT(' ROTATIONS ABOUT PRINCIPAL AXIS')
  9988 FORMAT(' SIGMA-H FOLLOWED BY ROTATIONS')
  9987 FORMAT(' C2 FOLLOWED BY ROTATIONS ')
