@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.22 1996-05-14 18:07:42 d3g681 Exp $
+#$Id: GNUmakefile,v 1.23 1996-07-15 22:14:11 gutowski Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -39,7 +39,8 @@ OBJ =     dosymops.o \
           sym_inv_op.o \
           sym_mo_adapt.o \
           sym_g_sym.o \
-          wrcell.o
+          wrcell.o \
+          dctr.o
 
 
 include ../config/makefile.h
@@ -61,28 +62,28 @@ endif
              
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(sym_apply_op.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_mo_adapt.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(sym_ops_get.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_sym.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(sym_geom_prj.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_op_mtab.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(sym_nwc.o):	$(INCDIR)/rtdb.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(sym_bs_irrep.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sym_sh_pair.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sym_put_geom.o):	$(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(sym_pr_ops.o):	./sym.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(sym_inv_op.o):	./sym.fh $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_pr_ctab.o):	./sym.fh 
 $(LIBRARY_PATH)(sym_pr_all.o):	$(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_op_clsfy.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_ops_get.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_op_mtab.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(sym_op_cname.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_op_clsfy.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_nwc.o):	$(INCDIR)/rtdb.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(sym_num_ops.o):	$(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_mo_ap_op.o):	./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(sym_ap_cart.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_mo_adapt.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_inv_op.o):	./sym.fh $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_grp_name.o):	$(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_g_sym.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(sym_get_cart.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_bas_op.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_geom_prj.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_g_sym.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(sym_char_tab.o):	$(INCDIR)/util.fh 
 $(LIBRARY_PATH)(sym_cent_map.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(sym_bs_irrep.o):	$(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_bas_op.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_apply_op.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_ap_cart.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
