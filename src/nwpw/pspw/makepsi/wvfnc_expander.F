@@ -1,6 +1,12 @@
 *
-* $Id: wvfnc_expander.F,v 1.4 2003-07-12 00:48:29 bylaska Exp $
+* $Id: wvfnc_expander.F,v 1.5 2003-07-12 02:10:36 bylaska Exp $
 *
+
+*     *******************************************
+*     *						*
+*     *	 	   wvfnc_expander		*
+*     *						*
+*     *******************************************
 
       logical function wvfnc_expander(rtdb)
       implicit none
@@ -24,14 +30,8 @@
       integer cfull(2),dcfull(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
-      integer inc2,inc3
-      integer dinc2,dinc3
-      integer indx,dindx
-      integer i,j,k,ms,n,l
+      integer ms,n,l
 
-      integer i2,j2,k2
-      integer n1,n2,n3,kdiff,jdiff
-      logical jreverse,kreverse
 
       double precision unita(3,3)
 
@@ -77,10 +77,6 @@
       dnfft3d = (dngrid(1)/2+1)*dngrid(2)*dngrid(3)
        n2ft3d = 2* nfft3d
       dn2ft3d = 2*dnfft3d
-       inc2 = ( ngrid(1)/2+1)
-      dinc2 = (dngrid(1)/2+1)
-       inc3 = ( ngrid(1)/2+1)* ngrid(2)
-      dinc3 = (dngrid(1)/2+1)*dngrid(2)
 
       write(*,109) old_wavefunction_filename
       write(*,110) new_wavefunction_filename
@@ -98,65 +94,13 @@
       value = MA_alloc_get(mt_dcpl,dnfft3d,
      >                     'dcfull',dcfull(2),dcfull(1))
 
-      n1 = ngrid(1)
-      n2 = ngrid(2)
-      n3 = ngrid(3)
-      if (n1.gt.dngrid(1)) n1 = dngrid(1)
-      if (n2.gt.dngrid(2)) n2 = dngrid(2)
-      if (n3.gt.dngrid(3)) n3 = dngrid(3)
-
-      jdiff = dngrid(2) - ngrid(2)
-      kdiff = dngrid(3) - ngrid(3)
-      jreverse = (jdiff.lt.0)
-      kreverse = (kdiff.lt.0)
-      if (jreverse) jdiff = -jdiff
-      if (kreverse) kdiff = -kdiff
-
       do ms=1,ispin
         do n=1,ne(ms)
           call dread(5,dcpl_mb(cfull(1)),n2ft3d)
 
           write(*,*) "converting .... psi:", n," spin:",ms
-          call dcopy(dn2ft3d,0.0d0,0,dcpl_mb(dcfull(1)),1)
-          do k=0,n3-1
-          do j=0,n2-1
-          do i=0,(n1/2)
-             indx  = i
-             dindx = i
-
-             if (k.lt. (n3/2)) then
-               k2 = k
-             else
-               k2 = kdiff + k
-             end if
-
-             if (j.lt. (n2/2)) then
-               j2 = j
-             else
-               j2 = jdiff + j
-             end if
-             if (jreverse) then
-                indx  = indx  + j2*inc2
-                dindx = dindx + j *dinc2
-             else
-                indx  = indx  + j *inc2
-                dindx = dindx + j2*dinc2
-             end if
-             if (kreverse) then
-                indx  = indx  + k2*inc3
-                dindx = dindx + k *dinc3
-             else
-                indx  = indx  + k *inc3
-                dindx = dindx + k2*dinc3
-             end if
-
-             !indx  = (i) + (j)* inc2 + (k)* inc3
-             !dindx = (i) + (j2)*dinc2 + (k2)*dinc3
-
-             dcpl_mb(dcfull(1)+dindx) = dcpl_mb(cfull(1)+indx)
-          end do
-          end do
-          end do
+          call wvfnc_expander_convert(ngrid,dcpl_mb(cfull(1)),
+     >                               dngrid,dcpl_mb(dcfull(1)))
 
           call dwrite(6,dcpl_mb(dcfull(1)),dn2ft3d)
 
@@ -182,15 +126,102 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
  
  9999 value = MA_free_heap(cfull(2))
       value = MA_free_heap(dcfull(2))
-      IF(IERR.EQ.0) THEN
-        WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
-      ELSE
-        WRITE(6,*) ' JOB HAS BEEN TERMINATED DUE TO CODE=',IERR
-        value = .false.
-      ENDIF
-      call nwpw_message(4)
+      !IF(IERR.EQ.0) THEN
+      !  WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
+      !ELSE
+      !  WRITE(6,*) ' JOB HAS BEEN TERMINATED DUE TO CODE=',IERR
+      !  value = .false.
+      !ENDIF
+      !call nwpw_message(4)
       
       wvfnc_expander = value
+      return 
+      end
+ 
+
+
+*     ***************************************************
+*     *							*
+*     *	 	   wvfnc_expander_convert		*
+*     *							*
+*     ***************************************************
+
+      subroutine wvfnc_expander_convert(ngrid,psi1,dngrid,psi2)
+      implicit none
+      integer ngrid(3)
+      complex*16 psi1(*)
+      integer dngrid(3)
+      complex*16 psi2(*)
+
+*     **** local variables ****
+      integer nfft3d,dnfft3d,n2ft3d,dn2ft3d
+      integer inc2,inc3,dinc2,dinc3
+      integer i,j,k,i2,j2,k2,n1,n2,n3
+      integer jdiff,kdiff,indx,dindx
+      logical jreverse,kreverse
+       
+       nfft3d = ( ngrid(1)/2+1)* ngrid(2)* ngrid(3)
+      dnfft3d = (dngrid(1)/2+1)*dngrid(2)*dngrid(3)
+       n2ft3d = 2* nfft3d
+      dn2ft3d = 2*dnfft3d
+       inc2 = ( ngrid(1)/2+1)
+      dinc2 = (dngrid(1)/2+1)
+       inc3 = ( ngrid(1)/2+1)* ngrid(2)
+      dinc3 = (dngrid(1)/2+1)*dngrid(2)
+
+
+      n1 = ngrid(1)
+      n2 = ngrid(2)
+      n3 = ngrid(3)
+      if (n1.gt.dngrid(1)) n1 = dngrid(1)
+      if (n2.gt.dngrid(2)) n2 = dngrid(2)
+      if (n3.gt.dngrid(3)) n3 = dngrid(3)
+
+      jdiff = dngrid(2) - ngrid(2)
+      kdiff = dngrid(3) - ngrid(3)
+      jreverse = (jdiff.lt.0)
+      kreverse = (kdiff.lt.0)
+      if (jreverse) jdiff = -jdiff
+      if (kreverse) kdiff = -kdiff
+
+      call dcopy(dn2ft3d,0.0d0,0,psi2,1)
+      do k=0,n3-1
+      do j=0,n2-1
+      do i=0,(n1/2)
+         indx  = i
+         dindx = i
+
+         if (k.lt. (n3/2)) then
+           k2 = k
+         else
+           k2 = kdiff + k
+         end if
+
+         if (j.lt. (n2/2)) then
+           j2 = j
+         else
+           j2 = jdiff + j
+         end if
+         if (jreverse) then
+            indx  = indx  + j2*inc2
+            dindx = dindx + j *dinc2
+         else
+            indx  = indx  + j *inc2
+            dindx = dindx + j2*dinc2
+         end if
+         if (kreverse) then
+            indx  = indx  + k2*inc3
+            dindx = dindx + k *dinc3
+         else
+            indx  = indx  + k *inc3
+            dindx = dindx + k2*dinc3
+         end if
+
+         psi2(dindx+1) = psi1(indx+1)
+      end do
+      end do
+      end do
+
       return 
       end
  
