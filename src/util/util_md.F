@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.33 2000-11-15 04:52:49 d3j191 Exp $
+c $Id: util_md.F,v 1.34 2001-07-06 04:18:30 d3j191 Exp $
 c
       implicit none
 c
@@ -258,19 +258,20 @@ c
       open(unit=lfn,file='camera.inc',form='formatted',status='new',
      + err=9)
       write(lfn,1000)
-     + 0.0d0,0.0d0,-3.0d0*max(abs(xmax),abs(ymax),abs(zmax),
-     + abs(xmin),abs(ymin),abs(zmin))
-c     + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin),
+     + 0.0d0,0.0d0,-1.0d1*max(abs(xmax),abs(ymax),abs(zmax),
+     + abs(xmin),abs(ymin),abs(zmin)),
+     + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin)
 c     + 0.0d0, 0.0d0, 0.0d0,
 c     + 1.3d0, 0.0d0, 0.0d0,
 c     + 0.0d0, 0.0d0, 1.0d0,
 c     + 0.0d0, 1.0d0, 0.0d0
  1000 format('camera {',/,
      + ' location <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,'}')
-      write(lfn,1001) -1.0d-1, 1.0d-1,-1.0d0, 1.0d0,1.0d0,1.0d0
-      write(lfn,1001)  1.0d0,  2.0d0, -2.5d0, 1.0d0,1.0d0,1.0d0
-      write(lfn,1001)  1.0d0,  2.0d0,  5.0d-1,1.0d0,1.0d0,1.0d0
+     + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' angle 20.0',/,'}')
+      write(lfn,1001) -1.0d1, 2.0d1,-1.0d1, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001)  0.0d1, 0.0d1,-5.0d1, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001)  1.0d1, 2.0d1,-1.0d1, 1.0d0,1.0d0,1.0d0
  1001 format('light_source { <',f12.6,',',f12.6,',',f12.6,
      + '> color rgb <',f4.2,',',f4.2,',',f4.2,'> }')
       write(lfn,1002) 0.0d0,0.0d0,0.0d0
@@ -421,6 +422,13 @@ c
       close(unit=lfn)
 c
    99 continue
+      open(unit=lfn,file='plane.inc',form='formatted',status='new',
+     + err=999)
+      write(lfn,3001)
+ 3001 format('plane{ <0,1,0>,-1 pigment { White } }') 
+      close(unit=lfn)
+c
+  999 continue
 c
       return
       end
