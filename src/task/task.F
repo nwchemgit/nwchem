@@ -36,7 +36,7 @@ c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory)) then
-         if (operation .ne. 'nwargos')
+         if (operation .ne. 'dynamics')
      $     call errquit('task: no task input for theory?', 0)
          theory = ' '
       endif
