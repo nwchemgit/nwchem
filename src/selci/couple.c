@@ -1,5 +1,5 @@
 /*
- $Id: couple.c,v 1.10 2004-05-04 21:56:20 edo Exp $
+ $Id: couple.c,v 1.11 2004-05-05 02:24:15 edo Exp $
  */
 
 #include <math.h>
@@ -546,7 +546,7 @@ static void ReadArguments(argc, argv, ns, multi, print)
      */
 #endif
 
-#if defined(CRAY) || defined(WIN32) && !defined(__crayx1)
+#if (defined(CRAY)&& !defined(__crayx1)) || defined(WIN32)
 void FATR SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 #else
 void FATR selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
