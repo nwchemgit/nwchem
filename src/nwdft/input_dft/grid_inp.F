@@ -34,7 +34,7 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 24)
+      parameter (num_dirs = 25)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
@@ -44,7 +44,7 @@ C     .            'euler','mura','treutler','lindh',
      .            'euler','mura','treutler','xxxx',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
-     .     'old','new','nosymm','symm'/
+     .     'old','new','nosymm','symm','nodisk'/
 c     
       ngridin=0
 c
@@ -63,7 +63,7 @@ c
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
-     &      1200, 1300, 1400,1500, 1600, 1650,1999) ind
+     &      1200, 1300, 1400,1500, 1600, 1650,1660,1999) ind
       call errquit('grid_inp: unimplemented directive', ind,
      &       INPUT_ERR)
 c     
@@ -316,6 +316,14 @@ c     symm on (lebedev)
 c
       if(.not.rtdb_put(rtdb,'dft:gridsym',mt_log,1,.true.))
      &   call errquit('grid_inp: rtdb_put failed', 1700, RTDB_ERR)
+c
+      goto 10
+ 1660 continue
+c
+c     dont use disk for gridpts
+c
+      if(.not.rtdb_put(rtdb,'dft:largenode',mt_log,1,.true.))
+     &   call errquit('grid_inp: rtdb_put failed', 1660, RTDB_ERR)
 c
       goto 10
  1999 continue

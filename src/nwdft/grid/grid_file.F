@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.57 2004-04-21 02:06:20 edo Exp $
+* $Id: grid_file.F,v 1.58 2004-04-22 07:21:04 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -108,7 +108,7 @@ c
             else
                ierr=eaf_stat(actualname, availkb, fstype)
 c
-c     neow eaf_stat returns Mb instead of kb
+c     now eaf_stat returns Mb instead of kb
 c
                availkb=availkb*1024d0
                if (ierr .ne. 0) then
@@ -120,9 +120,18 @@ c
                 endif
              endif
 c     
-             if(availkb.le.0d0) call errquit(
-     '            'gridfileopen: insuff space in scratchdir',
-     '            nint(availkb), DISK_ERR)
+c     dont use disk if less than  1MB available
+c
+             if(availkb.le.1024d0.or.largenode) then
+c
+c     dont use disk for grid pts
+c     
+!                if(ga_nodeid().eq.0) write(luout,*)   
+!     $               'gridfileopen: insuff space in scratchdir'
+                largenode=.true.
+                grid_file_open=.true.
+                return
+             endif
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $           (8.0d0*rec_len_in_dbl))
             max_file_rec = max(0,max_file_rec)
@@ -650,14 +659,10 @@ c
          memsize = memsize/8
       endif
       avail = MA_inquire_avail(mt_dbl)
-!      write(LuOut,*) ' 1 avail ', avail
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $   avail = avail - ga_memory_avail()
-!      write(LuOut,*) ' 2 avail ', avail
       call ga_igop(msg_grid_file, avail, 1, 'min')
-!      write(LuOut,*) ' 3 avail ', avail
       avail = min(avail, memsize)
-!      write(LuOut,*) ' 4 avail ', avail
 c     
 c     Assume that for the small systems for which can hold the
 c     grid_pts, that there is no sparsity except for symmetry.
@@ -668,23 +673,15 @@ c      write(LuOut,*)' nq_tot = ', nq_tot
 c
 c     need 4*nq_tot (x,y,z,w)
 c
-c      write(0,*) ' NQTOT ',nq_tot
       nq=dble(4*nq_tot)
       nq = nq / dble(ga_nnodes())
       nq = nq * 1.1d0 + dble(2*rec_len_in_dbl) ! Fudge factors for safety
 c
-!      write(LuOut,*) ' needed', int(nq)
-!      write(LuOut,*) ' avail ', avail
       if (int(nq) .lt. avail) then
          localmemsize = max(8*buffer_size,int(nq))
       else
          localmemsize = 0
       endif
-c
-c     let's grab 1/4 memory
-c
-!      localmemsize=avail/4
-!      write(LuOut,*)' localme ', localmemsize
 c
       if (localmemsize.gt.0 .or. filesize.ge.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
@@ -696,11 +693,6 @@ c
      &       DISK_ERR)
          grid_test_mem = .true.
       endif
-*      if (localmemsize.eq.0 .and. oinfo .and. ofirst .and. memsize.eq.0) then
-*         write(LuOut,1) nq-avail
-* 1       format(/' Provide',1p,d9.2,' more words/process to ',
-*     $        'cache all grid_pts in memory'/)
-*      end if
 c
       ofirst = .false.
 c

@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.40 2004-03-25 00:39:43 edo Exp $
+c$Id: grid_quadvw.F,v 1.41 2004-04-22 07:21:04 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -38,10 +38,6 @@ c
       integer npts_per_ang
       logical xc_chkgrad, kske, xc_chktau
       external xc_chkgrad, xc_chktau
-      logical grid_file_open
-      external grid_file_open
-      logical grid_test_mem
-      external grid_test_mem
       integer me,nproc
       integer nops ! [out]
       logical dosympts
