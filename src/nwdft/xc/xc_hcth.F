@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,func)     
 c
-c$Id: xc_hcth.F,v 1.1 1998-10-12 23:50:21 og845 Exp $
+c$Id: xc_hcth.F,v 1.2 1998-10-13 00:28:21 og845 Exp $
 c
       Implicit none
 c
@@ -38,37 +38,60 @@ c to hcth
       double precision dfdza     
       double precision dfdzb     
 c
-      do n=1,nq
-        rhoa=rho(n,2)
-        rhob=rho(n,3)
-        za=0.d0
-        gammaval=delrho(n,1,1)*delrho(n,1,1) +
-     &       delrho(n,2,1)*delrho(n,2,1) +
-     &       delrho(n,3,1)*delrho(n,3,1)
-        if(gammaval.gt.tol_rho)
-     &   za=sqrt(gammaval)
-        zb=0.d0
-        gammaval=
-     &       delrho(n,1,2)*delrho(n,1,2) +
-     &       delrho(n,2,2)*delrho(n,2,2) +
-     &       delrho(n,3,2)*delrho(n,3,2) 
-        if(gammaval.gt.tol_rho)
+      if(ipol.eq.1) then
+        do n=1,nq
+          rhoa=0.5d0*rho(n,1)
+          rhob=rhoa
+          za=0.d0
+          gammaval=0.25d0*(delrho(n,1,1)*delrho(n,1,1) +
+     &         delrho(n,2,1)*delrho(n,2,1) +
+     &         delrho(n,3,1)*delrho(n,3,1))
+          if(gammaval.gt.tol_rho)
+     &         za=sqrt(gammaval)
+          zb=za
+          call hcth(dfdra, dfdza, dfdrb, dfdzb, 
+     1         rhoa, rhob, za, zb, .false., totalF_xc, tol_rho)
+          if(ldew) func(n)=func(n)+totalF_xc*fac
+          Ec=Ec+totalF_xc*qwght(n)*fac
+          Amat(n,1) = Amat(n,1)+dfdra*fac
+          dfdza=dfdza*fac*0.5d0
+          Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
+          Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
+          Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
+        enddo
+      else
+        do n=1,nq
+          rhoa=rho(n,2)
+          rhob=rho(n,3)
+          za=0.d0
+          gammaval=delrho(n,1,1)*delrho(n,1,1) +
+     &         delrho(n,2,1)*delrho(n,2,1) +
+     &         delrho(n,3,1)*delrho(n,3,1)
+          if(gammaval.gt.tol_rho)
+     &         za=sqrt(gammaval)
+          zb=0.d0
+          gammaval=
+     &         delrho(n,1,2)*delrho(n,1,2) +
+     &         delrho(n,2,2)*delrho(n,2,2) +
+     &         delrho(n,3,2)*delrho(n,3,2) 
+          if(gammaval.gt.tol_rho)
      &   zb=sqrt(gammaval)
-        call hcth(dfdra, dfdza, dfdrb, dfdzb, 
-     1       rhoa, rhob, za, zb, .false., totalF_xc, tol_rho)
-        if(ldew) func(n)=func(n)+totalF_xc*fac
-        Ec=Ec+totalF_xc*qwght(n)*fac
-        Amat(n,1) = Amat(n,1)+dfdra*fac
-        Amat(n,2) = Amat(n,2)+dfdrb*fac
-        dfdza=dfdza*fac
-        dfdzb=dfdzb*fac
-        Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
-        Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
-        Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
-        Cmat(n,1,2) = Cmat(n,1,2) + dfdzb*delrho(n,1,2)
-        Cmat(n,2,2) = Cmat(n,2,2) + dfdzb*delrho(n,2,2)
-        Cmat(n,3,2) = Cmat(n,3,2) + dfdzb*delrho(n,3,2)
-      enddo
+          call hcth(dfdra, dfdza, dfdrb, dfdzb, 
+     1         rhoa, rhob, za, zb, .false., totalF_xc, tol_rho)
+          if(ldew) func(n)=func(n)+totalF_xc*fac
+          Ec=Ec+totalF_xc*qwght(n)*fac
+          Amat(n,1) = Amat(n,1)+dfdra*fac
+          Amat(n,2) = Amat(n,2)+dfdrb*fac
+          dfdza=dfdza*fac
+          dfdzb=dfdzb*fac
+          Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
+          Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
+          Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
+          Cmat(n,1,2) = Cmat(n,1,2) + dfdzb*delrho(n,1,2)
+          Cmat(n,2,2) = Cmat(n,2,2) + dfdzb*delrho(n,2,2)
+          Cmat(n,3,2) = Cmat(n,3,2) + dfdzb*delrho(n,3,2)
+        enddo
+      endif
       return
       end
 
@@ -532,8 +555,10 @@ Cfah with the various powers of u.
 
       rho = rhoa + rhob
 
-      s_a2 = za**2.D0 / rhoa**(8.D0/3.D0)
-      s_b2 = zb**2.D0 / rhob**(8.D0/3.D0)
+      s_a2=0.d0
+      if(za.gt.tol_rho) s_a2 = za**2.D0 / rhoa**(8.D0/3.D0)
+      s_b2=0.d0
+      if(zb.gt.tol_rho) s_b2 = zb**2.D0 / rhob**(8.D0/3.D0)
       s_avg2 = 0.5D0*(s_a2 + s_b2)
 
       u_caa = 0.2D0*s_a2/(1.D0+0.2D0*s_a2) 
