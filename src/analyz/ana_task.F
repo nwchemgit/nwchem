@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.76 2002-05-24 15:05:04 d3j191 Exp $
+c $Id: ana_task.F,v 1.77 2002-06-12 17:35:48 d3j191 Exp $
 c
       implicit none
 c
@@ -1322,7 +1322,7 @@ c
       filplt=string(i+1:80)
       filepz=filplt(1:index(filplt,'.'))//'epz '
 c
-      if(filchg(1:1).ne.' ') call ana_pltgrd(.true.)
+      if(filchg(1:1).ne.' ') call ana_pltgrd(.true.,int_mb(i_isel))
 c
       goto 1
       endif

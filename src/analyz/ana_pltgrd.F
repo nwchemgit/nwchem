@@ -1,6 +1,6 @@
-      subroutine ana_pltgrd(lprint)
+      subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.17 2000-10-06 05:36:14 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.18 2002-06-12 17:35:48 d3j191 Exp $
 c
       implicit none
 c
@@ -8,6 +8,7 @@ c
 #include "mafdecls.fh"
 c
       logical lprint
+      integer isel(nsa)
 c
       ngrd(1)=ngrid
       ngrd(2)=ngrid
@@ -58,7 +59,7 @@ c
 c     calculate the electrostatic potential on the grid
 c
       call ana_espgrd(dbl_mb(i_x),dbl_mb(i_q),byte_mb(i_t),
-     + dbl_mb(i_grid),lprint)
+     + dbl_mb(i_grid),lprint,isel)
 c
 c     deallocate memory
 c
@@ -152,7 +153,7 @@ c      write(*,'(3i5,3f12.6)') ngrd,spac
 c
       return
       end
-      subroutine ana_espgrd(x,q,t,g,lprint)
+      subroutine ana_espgrd(x,q,t,g,lprint,isel)
 c
       implicit none
 c
@@ -169,6 +170,7 @@ c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
       character*2 t(nsa)
       logical lprint
+      integer isel(nsa)
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
       real*8 xg,yg,zg,value
@@ -213,6 +215,7 @@ c
       zg=dble(iz-1)*spac(3)+xmin(3)
 c      write(*,'(3e20.12)') xg,yg,zg
       do 7 i=1,nsa
+      if(isel(i).gt.0) then
       dx=xg-x(i,1)
       dy=yg-x(i,2)
       dz=zg-x(i,3)
@@ -243,6 +246,7 @@ c      write(*,'(3e20.12)') xg,yg,zg
       endif
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
      + q(i,lplt)/sqrt(dx**2+dy**2+dz**2)
+      endif
 c      write(*,'(4i5,3e20.12)') ix,iy,iz,i,g(ix,iy,iz),q(i,lplt),
 c     + sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
     7 continue
