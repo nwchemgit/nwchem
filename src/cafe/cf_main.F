@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.62 2000-06-02 02:50:28 d3j191 Exp $
+c $Id: cf_main.F,v 1.63 2000-06-02 20:45:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2398,8 +2398,8 @@ c
 c
       write(iunit,1000)
  1000 format('header')
-      write(iunit,1001) nwa,nsatot,numb(2),numb(1)
- 1001 format(4i10)
+      write(iunit,1001) nwa,nsatot,numb(2),numb(1),nwmtot
+ 1001 format(5i10)
       if(nwa.gt.0) then
       do 1 i=1,nwa
       write(iunit,1004) wnam(i)(1:5),wnam(i)(11:15)
