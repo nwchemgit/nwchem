@@ -1,5 +1,5 @@
 %
-% $Id: pspw.tex,v 1.40 2004-05-19 22:45:04 bylaska Exp $
+% $Id: pspw.tex,v 1.41 2004-05-21 16:23:56 edo Exp $
 %
 \label{sec:pspw}
 
@@ -142,12 +142,12 @@ END
 
 The following list describes the keywords contained in the PSPW input block.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name of
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
-        \item $<$output\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbitals at the
+        \item $<$input\_wavefunctions$>$ - name of the
+              file containing one-electron orbitals
+        \item $<$output\_wavefunctions$>$ - name of the
+              file that will contain the one-electron orbitals at the
               end of the run. 
         \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$). This parameter is not presently used in a 
@@ -159,14 +159,14 @@ The following list describes the keywords contained in the PSPW input block.
         \item $<$outer\_iteration$>$ - number of outer iterations
         \item $<$tole$>$ - value for the energy tolerance.
         \item $<$tolc$>$ - value for the one-electron orbital tolerance.
-        \item $<$ecut$>$ - value for the cutoff energy used
+        \item $<$edit$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
         \item $<$wcut$>$ - value for the cutoff energy used
                            to define the one-electron orbitals.
                            Default is set to be the maximum value that 
-                           will fix within the simulation\_cell $<$cell\_name$>$.
+                           will fit within the simulation\_cell $<$cell\_name$>$.
         \item $<$ncut$>$ - value for the number of unit cells
                           to sum over (in each direction) for the real space
                           part of the Ewald summation. Note Ewald summation
@@ -182,7 +182,7 @@ The following list describes the keywords contained in the PSPW input block.
         \item MULT - optional keyword which if specified allows the user to define the spin multiplicity
                      of the system
         \item MULLIKEN - optional keyword which if specified
-                         causes a Mulliken anaysis to be performed at
+                         causes a Mulliken analysis to be performed at
                          the end of the simulation.  
         \item ALLOW\_TRANSLATION - By default the the center of mass forces are projected out of the 
                                   computed forces. This optional keyword if specified allows the 
@@ -226,8 +226,8 @@ set nwpw:lcao_iterations 2  #specifies the number of LCAO iterations
 
 \subsection{Simulation Cell}
 \label{sec:pspw_cell}
-Simulation cells are stored in the RTDB.  To enter a  simulation cell
-into the RTDB the user defines a simulation\_cell sub-block within the PSPW 
+The  simulation cell parameters
+are entered by  defining a simulation\_cell sub-block within the PSPW 
 block.  Listed below is the format of a simulation\_cell sub-block.
 \begin{verbatim}
 PSPW
@@ -592,17 +592,17 @@ END
 The following list describes the input for the Car-Parrinello
 sub-block.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name of the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
-        \item $<$output\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbitals at the
+        \item $<$input\_wavefunctions$>$ - name of the 
+              file containing one-electron orbitals
+        \item $<$output\_wavefunctions$>$ - name of the
+              file that will contain the one-electron orbitals at the
               end of the run. 
-        \item $<$input\_v\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbital velocities.
-        \item $<$output\_v\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbital velocities
+        \item $<$input\_v\_wavefunctions$>$ - name of the file
+              containing one-electron orbital velocities.
+        \item $<$output\_v\_wavefunctions$>$ - name of the
+              file that will contain the one-electron orbital velocities
               at the end of the run. 
         \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$).
@@ -638,7 +638,7 @@ sub-block.
         \item Nose-Hoover - optional subblock which if specified
                          causes the simulation to perform Nose-Hoover dynamics.
                          If this subblock is not specified the 
-                         simulation performs constant energy dyanmics.
+                         simulation performs constant energy dynamics.
                          See section \ref{sec:pspw_nose} for a description of the parameters.
                          \begin{itemize}
                              \item $<$Period\_electron$>$ $\equiv$ $P_{electron}$ 
@@ -663,23 +663,23 @@ sub-block.
                                     - decay rate in atomic units for the ionic temperature.
                          \end{itemize}
 
-        \item $<$xyz\_filename$>$ - name that points to the XYZ motion file
+        \item $<$xyz\_filename$>$ - name of the XYZ motion file
                                 generated
-        \item $<$emotion\_filename$>$ - name that points to the emotion motion file
-                                generated. See section \ref{sec:pspw_cp_data} for a 
+        \item $<$emotion\_filename$>$ - name of the emotion motion file.
+                                See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
-        \item $<$hmotion\_filename$>$ - name that points to the hmotion motion file
-                                generated. See section \ref{sec:pspw_cp_data} for a 
+        \item $<$hmotion\_filename$>$ - name of the hmotion motion file.
+                                See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
-        \item $<$eigmotion\_filename$>$ - name that points to the eigmotion motion file
-                                generated. See section \ref{sec:pspw_cp_data} for a 
+        \item $<$eigmotion\_filename$>$ - name of the eigmotion motion file.
+                                See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
-        \item $<$ion\_motion\_filename$>$ - name that points to the ion\_motion motion file
-                                generated. See section \ref{sec:pspw_cp_data} for a 
+       \item $<$ion\_motion\_filename$>$ - name of the ion\_motion motion file.
+                                See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
        \item MULLIKEN - optional keyword which if specified causes an omotion motion file to be created. 
-        \item $<$omotion\_filename$>$ - name that points to the omotion motion file
-                                generated. See section \ref{sec:pspw_cp_data} for a 
+        \item $<$omotion\_filename$>$ - name of the omotion motion file.
+                                See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
 \end{itemize}
 
@@ -701,7 +701,7 @@ set pspw_dplot:iteration_list 3,10:15,50
 \subsection{\tt Adding Geometry Constraints To A Car-Parrinello Simulation}
 \label{sec:pspw_CP_constraint}
 The Car-Parrinello module allows users to freeze the cartesian coordinates 
-in a simulation (Note - the Car-Parrinello code reconginizes Cartesian
+in a simulation (Note - the Car-Parrinello code recognizes Cartesian
 constraints, but it does not recognize internal coordinate constraints).  
 The \verb+SET+ directive (Section \ref{sec:activeatoms}) is used to freeze
 atoms, by specifying a directive of the form:
@@ -858,7 +858,7 @@ for Troullier-Martins pseudopotentials $r_{cut}(l)$ defines the distance
 where the all-electron orbital is matched to the pseudowavefunctions. 
 Thus the definition of the radii depends on the type of pseudopotential.  
 The cutoff radii used in Hamann pseudopotentials will be smaller than
-the cufoff raddi used in Troullier-Martins pseudopotentials.  
+the cutoff radii used in Troullier-Martins pseudopotentials.  
 
 For example to define a softened Hamann pseudopotential for
 Carbon would be
@@ -892,7 +892,7 @@ by Louie et al (S.G. Louie, S. Froyen, and M.L. Cohen, Phys. Rev. B, \textbf{26}
 This approximation is known to dramatically improve results for systems containing 
 alkali and transition metal atoms.  
 
-The implmentation in the PSPW module defines the semi-core denisty, $\rho_{semicore}$ in terms of 
+The implementation in the PSPW module defines the semi-core density, $\rho_{semicore}$ in terms of 
 the core density, $\rho_{core}$, by using the sixth-order polynomial
 \begin{eqnarray}
 \rho_{semicore}(r) = \left\{ \begin{array}{ll}
@@ -909,9 +909,9 @@ by Louie et al.
 
 
 
-\subsection{\tt WAVEFUNCTION\_INTITIALIZER}
+\subsection{\tt WAVEFUNCTION\_INITIALIZER}
 \label{sec:pspw_wavefunction_initializer}
-The functionality of this task is now performed automatically. For backwards 
+The functionality of this task is now performed automatically. For backward 
 compatibility, we provide a description of the input to this task.
 
 The wavefunction\_initializer task is used to generate an initial wavefunction
@@ -952,8 +952,8 @@ END
 The following list describes the input for the WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points 
-                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$cell\_name$>$ - name of
+                the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
         \item $<$wavefunction\_name$>$ - name that will point
               to a wavefunction file.
         \item RESTRICTED - keyword specifying that the calculation is restricted.
@@ -967,9 +967,9 @@ sub-block.
               Not used if a RESTRICTED calculation.
 \end{itemize}
 
-\subsubsection{Old Style Input (version 3.3) to {\tt WAVEFUNCTION\_INTITIALIZER}}
+\subsubsection{Old Style Input (version 3.3) to {\tt WAVEFUNCTION\_INITIALIZER}}
 
-For backwards compatibility, the input to the WAVEFUNCTION\_INITIALIZER 
+For backward compatibility, the input to the WAVEFUNCTION\_INITIALIZER 
 sub-block can also be of the form
 \begin{verbatim}
 PSPW
@@ -991,8 +991,8 @@ END
 \end{verbatim}
 where
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points 
-                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$cell\_name$>$ - name of the
+                simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
         \item $<$wavefunction\_name$>$ - name that will point
               to a wavefunction file.
         \item RESTRICTED - keyword specifying that the calculation is restricted.
@@ -1000,7 +1000,7 @@ where
         \item $<$up\_filling$>$ - number of restricted molecular orbitals if
               RESTRICTED and number of spin-up molecular orbitals if 
               UNRESTRICTED.
-        \item $<$down\_filling$>$ - number of spin-down moleclar orbitals if
+        \item $<$down\_filling$>$ - number of spin-down molecular orbitals if
               UNRESTRICTED.  Not used if a RESTRICTED calculation.
         \item $<$kx ky kz$>$ - specifies which planewave is to be filled. 
 \end{itemize}
@@ -1016,7 +1016,7 @@ added respectively.
 
 \subsection{\tt V\_WAVEFUNCTION\_INITIALIZER}
 \label{sec:pspw_v_wavefunction_initializer}
-The functionality of this task is now performed automatically. For backwards 
+The functionality of this task is now performed automatically. For backward 
 compatibility, we provide a description of the input to this task.
 
 The v\_wavefunction\_initializer task is used to generate an initial velocity 
@@ -1054,8 +1054,8 @@ END
 The following list describes the input for the V\_WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points 
-                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$cell\_name$>$ - name of the
+                simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
         \item $<$wavefunction\_name$>$ - name that will point
               to a velocity wavefunction file.
         \item RESTRICTED - keyword specifying that the calculation is restricted.
@@ -1063,7 +1063,7 @@ sub-block.
         \item $<$up\_filling$>$ - number of restricted velocity molecular 
               orbitals if RESTRICTED and number of spin-up velocity molecular 
               orbitals if UNRESTRICTED.
-        \item $<$down\_filling$>$ - number of spin-down velocity moleclar 
+        \item $<$down\_filling$>$ - number of spin-down velocity molecular 
               orbitals if UNRESTRICTED.  Not used if a RESTRICTED calculation.
 \end{itemize}
 
@@ -1071,7 +1071,7 @@ sub-block.
 
 \subsection{\tt WAVEFUNCTION\_EXPANDER}
 \label{sec:pspw_wavefunction_expander}
-The functionality of this task is now performed automatically. For backwards
+The functionality of this task is now performed automatically. For backward
 compatibility, we provide a description of the input to this task.
 
 The wavefunction\_expander task is used to convert a new wavefunction
@@ -1108,8 +1108,8 @@ END
 The following list describes the input for the WAVEFUNCTION\_EXPANDER
 sub-block.
 \begin{itemize}
-        \item $<$old\_wavefunction\_name$>$ - name that points
-              to a wavefunction file.
+        \item $<$old\_wavefunction\_name$>$ - name of the
+              wavefunction file.
         \item $<$new\_wavefunction\_name$>$ - name that will 
               point to a wavefunction file.
         \item $<$na1 na2 na3$>$ - number of grid points in each dimension
@@ -1119,7 +1119,7 @@ sub-block.
 \subsection{\tt STEEPEST\_DESCENT} 
 \label{sec:pspw_steepest_descent}
 The functionality of this task is now performed automatically by the PSPW minimizer. 
-For backwards compatibility, we provide a description of the input to this task.
+For backward compatibility, we provide a description of the input to this task.
 
 The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
@@ -1174,14 +1174,14 @@ END
 The following list describes the input for the STEEPEST\_DESCENT
 sub-block.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name of
               the simulation\_cell named $<$cell\_name$>$. See section \ref{sec:pspw_cell}.
         \item GEOMETRY\_OPTIMIZE - optional keyword which if specified
               turns on geometry optimization.   
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
-        \item $<$output\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbitals at the
+        \item $<$input\_wavefunctions$>$ - name of the
+              file containing one-electron orbitals
+        \item $<$output\_wavefunctions$>$ - name of the
+              file tha will contain the one-electron orbitals at the
               end of the run. 
         \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$).
@@ -1213,7 +1213,7 @@ sub-block.
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
-                         causes a Mulliken anaysis to be performed at
+                         causes a Mulliken analysis to be performed at
                          the end of the simulation.  
 \end{itemize}
 
@@ -1263,10 +1263,10 @@ END
 \end{verbatim}
 The following list describes these keywords.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name of
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
+        \item $<$input\_wavefunctions$>$ - name of the
+              file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
               end of the run. 
@@ -1309,8 +1309,7 @@ The following list describes these keywords.
 
 \subsection{Brillouin Zone}
 \label{sec:band_brillouin_zone}
-The special points of the Brillouin zone for a Band structure calculation are 
-stored in the RTDB.  To enter special points of the Brillouin zone into the RTDB 
+To supply the special points of the Brillouin zone,
 the user defines a brillouin\_zone sub-block within the NWPW 
 block.  Listed below is the format of a brillouin\_zone sub-block.
 \begin{verbatim}
@@ -1379,16 +1378,16 @@ END
 \end{verbatim}
 The following list describes these keywords.
 \begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name of the
               the simulation\_cell named $<$cell\_name$>$. The
               current version of PAW only accepts periodic unit cells.  
               See section \ref{sec:pspw_cell}.
         \item GEOMETRY\_OPTIMIZE - optional keyword which if specified
               turns on geometry optimization.   
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
-        \item $<$output\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbitals at the
+        \item $<$input\_wavefunctions$>$ - name of the
+              file containing one-electron orbitals
+        \item $<$output\_wavefunctions$>$ - name of the
+              file that will contain the one-electron orbitals at the
               end of the run. 
         \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$). This parameter is not presently used in a 
@@ -1451,7 +1450,7 @@ to convert certain pseudopotentials generated with the OPIUM package of Rappe et
 The user can request additional pseudopotentials as well as the conversion
 code from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).  
 
-Similary, a library of PAW basis used by PAW is currently available in the
+Similarly, a library of PAW basis used by PAW is currently available in the
 directory \\
 \verb+ $NWCHEM_TOP/src/nwpw/libraryps/paw_default+
 
@@ -1474,7 +1473,7 @@ nwpw
    ...
 end
 \end{verbatim}
-The implementation oif HGH pseudopotentials is rather limited in this release.
+The implementation of HGH pseudopotentials is rather limited in this release.
 HGH pseudopotentials cannot be used to optimize unit cells, and they
 do not work with the MULLIKEN option.  They also have not yet been implemented 
 into the BAND structure code.
@@ -1525,11 +1524,11 @@ cell (3d grid) are stored in a formatted pseudopotential datafile.
 This is a binary file and cannot be directly edited.
 This datafile 
 is used by steepest\_descent and Car-Parrinello tasks and can be generated
-using the pseudpotential\_formatter task.
+using the pseudopotential\_formatter task.
 
 \subsection{One-Dimensional Pseudopotential Datafile}
 The one-dimensional pseudopotentials are stored in a one-dimensional 
-pseudopotential file.  This is an ascii file and can be directly edited with
+pseudopotential file.  This is an ASCII file and can be directly edited with
 a text editor.  However, the user will usually use the psp\_generator
 task to generate this datafile.
 
@@ -1655,10 +1654,10 @@ in the near future.
 \label{sec:pspw_Car-Parrinello}
 
 Car and Parrinello developed a unified scheme for doing {\it ab initio}
-molecular dynamics by combining the motion of the ion cores and a ficticious
+molecular dynamics by combining the motion of the ion cores and a fictitious
 motion for the Kohn-Sham orbitals of density-functional theory 
 (R. Car and M. Parrinello, Phys. Rev. Lett. \textbf{55}, 2471, (1985)).  
-At the heart of this method they introduced a ficticious kinetic energy 
+At the heart of this method they introduced a fictitious kinetic energy 
 functional for the Kohn-Sham orbitals.
 
 \begin{eqnarray}
@@ -1791,7 +1790,7 @@ solution
 
 Nose-Hoover Thermostats for the electrons and ions can also be added to the 
 Car-Parrinello simulation.  In this type of simulation thermostats variables $x_e$ and $x_R$ 
-are added to the simulation by adding the auxillary energy functionals to the total energy.
+are added to the simulation by adding the auxiliary energy functionals to the total energy.
 \begin{eqnarray}
 ION\_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R \\ 
 ELECTRON\_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0}x_e 
@@ -1802,16 +1801,16 @@ In these equations, the average kinetic energy for the ions is
 E_{R0} = \frac{1}{2} f k_B T
 \end{eqnarray}
 where $f$ is the number of atomic degrees of freedom, $k_B$ is 
-Boltzmans constant, and T is the desired temperature.  Defining
-the average ficticious kinetic energy of the electrons is not as straighforward.
+Boltzmann's constant, and T is the desired temperature.  Defining
+the average fictitious kinetic energy of the electrons is not as straightforward.
 Bl\"{o}chl and Parrinello 
 (P.E. Bl\"{o}chl and M. Parrinello, Phys. Rev. B, \textbf{45}, 9413, (1992)) 
 have suggested the following formula for determining
-the average ficticious kinetic energy
+the average fictitious kinetic energy
 \begin{eqnarray}
 E_{e0} = 4 k_B T \frac{\mu}{M} \sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>
 \end{eqnarray}
-where $\mu$ is the ficticious electronic mass, $M$ is average mass of one atom,
+where $\mu$ is the fictitious electronic mass, $M$ is average mass of one atom,
 and $\sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>$ is the kinetic energy of the
 electrons.
 
@@ -1823,7 +1822,7 @@ interest but shorter than the simulation time.
 P_{ion} &=& 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}\\
 P_{electron} &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
 \end{eqnarray}
-where $P_{ion}$ and $P_{electron}$ are the periods of oscillation for the ionic and ficatious
+where $P_{ion}$ and $P_{electron}$ are the periods of oscillation for the ionic and fictitious
 electronic thermostats.  
 
 
@@ -1833,7 +1832,7 @@ according to an exponential cooling schedule,
 T_e(t) = T_e^0 \exp^{-\frac{t}{\tau_e}}\\
 T_{ionic}(t) = T_{ionic}^0 \exp^{-\frac{t}{\tau_{ionic}}}
 \end{eqnarray}
-where $T_e^0$ and $T_{ionic}^0$ are the intial temperatures, and $\tau_e$ and $\tau_{ionic}$
+where $T_e^0$ and $T_{ionic}^0$ are the initial temperatures, and $\tau_e$ and $\tau_{ionic}$
 are the cooling rates in atomic units.  
 
 
@@ -2042,7 +2041,7 @@ task band energy
 
 The following input deck performs for a water molecule a PSPW energy calculation followed
 by a PAW energy calculation and a PAW geometry optimization calculation.  
-The default unit cell paramters are used (SC=20.0, ngrid 32 32 32).  In this simulation, the
+The default unit cell parameters are used (SC=20.0, ngrid 32 32 32).  In this simulation, the
 first PAW run optimizes the wavefunction and the second PAW run optimizes the wavefunction
 and geometry in tandem.
 
@@ -2105,3 +2104,5 @@ or to Eric J. Bylaska, Eric.Bylaska@pnl.gov
 
 
 
+
+% LocalWords:  tolc wcut ncut
