@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.52 1995-06-02 04:39:45 gg502 Exp $
+c     $Id: nwchem.F,v 1.53 1995-07-30 07:51:33 d3e129 Exp $
 c
       character*255 input_filename
 c
@@ -209,25 +209,27 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 17)
+      parameter (ntasks = 19)
       character*10 task_list(ntasks)
-      data task_list /'rjhtest',
-     $                'raktest',
-     $                'rtdbprint',
-     $                'scf',
-     $                'debtest',
-     $                'gradients',
-     $                'optscf',
-     $                'atwtest',
-     $                'rimp2',
-     $                'checksum',
-     $                'dft',
-     $                'md',
-     $                'dftgrad',
-     $                'optdft',
-     $                'direct_mp2',
-     $                'mjdtest',
-     $                'ccsd'
+      data task_list /'rjhtest',         ! 1
+     $                'raktest',         ! 2
+     $                'rtdbprint',       ! 3
+     $                'scf',             ! 4
+     $                'debtest',         ! 5
+     $                'gradients',       ! 6
+     $                'optscf',          ! 7
+     $                'atwtest',         ! 8
+     $                'rimp2',           ! 9
+     $                'checksum',        ! 10
+     $                'dft',             ! 11
+     $                'md',              ! 12
+     $                'dftgrad',         ! 13
+     $                'optdft',          ! 14
+     $                'direct_mp2',      ! 15
+     $                'mjdtest',         ! 16
+     $                'ccsd',            ! 17
+     $                'freqscf',         ! 18
+     $                'freqdft'          ! 19
      $               /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -239,7 +241,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
-     &         140, 150, 160, 170, 180)
+     &         140, 150, 160, 170, 180, 190, 200)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -342,6 +344,17 @@ c
   180    call ccsd(rtdb)
          goto 1000
 
+c
+c  SCF frequencies by finite difference (in stepper)
+c
+  190    call scf_freq(rtdb)
+         goto 1000
+c
+c  DFT frequencies by finite difference (in stepper)
+c
+  200    call dft_freq(rtdb)
+         goto 1000
+c
       else
 c
          write(6,*) ' task_name = ', 
