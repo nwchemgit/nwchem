@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.79 2002-04-04 22:12:53 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.80 2002-04-11 21:43:52 d3j191 Exp $
 c
       implicit none
 c
@@ -948,7 +948,7 @@ c     rotate molecule
 c     ------------------
 c
       if(card(1:6).eq.'rotmol') then
-      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
+      read(card(8:65),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sml),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
@@ -958,7 +958,7 @@ c     rotate segment
 c     -----------------
 c
       if(card(1:6).eq.'rotsgm') then
-      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
+      read(card(8:65),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sgm),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
@@ -968,7 +968,7 @@ c     rotate atom
 c     --------------
 c
       if(card(1:6).eq.'rotatm') then
-      read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
+      read(card(8:65),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_rot failed',9999)
