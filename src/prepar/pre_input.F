@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.97 2002-02-26 00:35:53 d3j191 Exp $
+c $Id: pre_input.F,v 1.98 2002-04-04 15:19:01 d3j191 Exp $
 c
       implicit none
 c
@@ -847,7 +847,8 @@ c
       goto 6883
       endif
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
-      if(type(1:8).eq.'distance'.or.type(1:8).eq.'basepair') then
+      if(type(1:8).eq.'distance'.or.type(1:9).eq.'zdistance'.or.
+     + type(1:8).eq.'basepair') then
       if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:5).eq.'angle') then
@@ -864,7 +865,8 @@ c
       if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
       if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
       endif
-      if(type(1:6).ne.'zalign'.and.type(1:7).ne.'xyplane') then
+      if(type(1:6).ne.'zalign'.and.type(1:5).ne.'zaxis'.and.
+     + type(1:7).ne.'xyplane') then
       if(type(1:8).eq.'basepair') then
       if(.not.inp_f(value1)) value1=2.5d-1
       if(.not.inp_f(value2)) value2=2.5d-1
@@ -887,6 +889,14 @@ c
       write(68,6844) iopt,jopt,kopt,igroup,forcon,forc2
  6844 format('pmf lin',4i5,15x,24x,2e12.5)
       numcmd=numcmd+1
+      elseif(type(1:5).eq.'zaxis') then
+      write(68,6879) iopt,jopt,kopt,igroup,forcon,forc2
+ 6879 format('pmf zax',4i5,15x,24x,2e12.5)
+      numcmd=numcmd+1
+      elseif(type(1:9).eq.'zaxis-cog') then
+      write(68,6871) iopt,jopt,kopt,igroup,forcon,forc2
+ 6871 format('pmf ZAX',4i5,15x,24x,2e12.5)
+      numcmd=numcmd+1
       elseif(type(1:7).eq.'xyplane') then
       write(68,6845) iopt,jopt,kopt,igroup,forcon,forc2
  6845 format('pmf pla',4i5,15x,24x,2e12.5)
@@ -895,6 +905,11 @@ c
       write(68,6840) iopt,jopt,kopt,igroup,jgroup,
      +value1,value2,forcon,forc2
  6840 format('pmf dis',5i5,10x,2f12.6,2e12.5)
+      numcmd=numcmd+1
+      elseif(type(1:9).eq.'zdistance') then
+      write(68,6870) iopt,jopt,kopt,igroup,jgroup,
+     +value1,value2,forcon,forc2
+ 6870 format('pmf zdi',5i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
       write(68,6842) iopt,jopt,kopt,igroup,jgroup,kgroup,

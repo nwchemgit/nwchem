@@ -26,6 +26,18 @@ c
       if(ipmfr.le.0) ipmfr=0
 c
 c     ipmf(i,1) : type of function in pmf i
+c
+c                 1 : distance
+c                 2 : angle
+c                 3 : torsion
+c                 4 : improper
+c                 5 : alignment
+c                 6 : planar
+c                 7 : base pair
+c                 8 : z-axis alignment each atom
+c                 9 : z-distance
+c                10 : z-axis alignment cog
+c
 c     ipmf(i,n) : group(s) involved in pmf i
 c
       m=0
@@ -55,7 +67,7 @@ c
 c     alignments in combination of more than one equivalent molecule
 c
       elseif(iopt(i,1).eq.2) then
-      if(ipmf(i,1).eq.6) then
+      if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8.or.ipmf(i,1).eq.10) then
       nump=nump+1
       nume=1
       if(mgroup(ipmf(i,2)).gt.0) then
@@ -80,12 +92,16 @@ c
       endif
       endif
       n=-1
-      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) n=0
       if(ipmf(i,1).eq.1) n=1
       if(ipmf(i,1).eq.2) n=2
       if(ipmf(i,1).eq.3) n=3
       if(ipmf(i,1).eq.4) n=3
+      if(ipmf(i,1).eq.5) n=0
+      if(ipmf(i,1).eq.6) n=0
       if(ipmf(i,1).eq.7) m=max(m,1)
+      if(ipmf(i,1).eq.8) n=0
+      if(ipmf(i,1).eq.9) n=1
+      if(ipmf(i,1).eq.10) n=0
       if(n.ge.0) then
       do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
@@ -118,8 +134,8 @@ c      do 12 l=1,npmfr
 c
 c     distance pmf
 c
-      if(ipmf(i,1).eq.1) then
-      write(lfntop,1001) 1,iopt(i,2),iopt(i,3),
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.9) then
+      write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3)
  1001 format(3i5,2f12.6,2e12.5,4i5)
       do 2 k=2,3
@@ -190,11 +206,13 @@ c
   711 continue
       endif
 c
-c     planar  pmf
+c      6: planar pmf
+c      8: z-axis pmf on each atom
+c     10: z-axis pmf on COG
 c
-      if(ipmf(i,1).eq.6) then
+      if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8.or.ipmf(i,1).eq.10) then
       if(iopt(i,1).ne.2) then
-      write(lfntop,1001) 6,iopt(i,2),iopt(i,3),
+      write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
@@ -218,7 +236,7 @@ c
    82 continue
       if(natoms.le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
-      write(lfntop,1001) 6,iopt(i,2),iopt(i,3),
+      write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),natoms
       write(lfntop,1002) (itemp(im),im=1,natoms)
       endif
