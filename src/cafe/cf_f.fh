@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
       implicit none
 c
@@ -2593,11 +2593,11 @@ c
       if((iss.eq.idons.and.jss.ne.iaccs).or.
      +   (jss.eq.idons.and.iss.ne.iaccs)) then
       if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,lseq(isgm(isa)))*
-     + chg(isq2(jsa),1,lseq(isgm(jsa)))
+      q=chg(isq2(isa),1,lseq(iss))*
+     + chg(isq2(jsa),1,lseq(jss))
       else
-      q=chg(isq3(isa),1,lseq(isgm(isa)))*
-     + chg(isq3(jsa),1,lseq(isgm(jsa)))
+      q=chg(isq3(isa),1,lseq(iss))*
+     + chg(isq3(jsa),1,lseq(jss))
       endif
       uhop(1)=uhop(1)+facu(iax)*q*rwi1(iax)
 c      write(*,'(8i5,2f12.3)') 
@@ -3186,7 +3186,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3496,7 +3496,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3783,7 +3783,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4127,7 +4127,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4454,7 +4454,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4817,7 +4817,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.54 2003-08-19 21:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.55 2003-09-22 15:34:57 d3j191 Exp $
 c
       implicit none
 c

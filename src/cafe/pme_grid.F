@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
-c $Id: pme_grid.F,v 1.33 2003-08-18 16:14:15 d3j191 Exp $
+c $Id: pme_grid.F,v 1.34 2003-09-22 15:34:58 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -14,7 +14,7 @@ c
       call pme_init()
 c
       if(.not.lcorr(ipset)) then
-      call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
+      call cf_pmecor(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
       call timer_stop(24)
@@ -99,7 +99,7 @@ c
       call pme_init()
 c
       if(.not.lcorr(ipset)) then
-      call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
+      call cf_pmecor(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
       call timer_stop(24)

@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.17 2003-08-12 20:43:46 d3j191 Exp $
+c $Id: cf_grid.F,v 1.18 2003-09-22 15:34:58 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -551,7 +551,7 @@ c      i=i0+1+(ngx-isign(ngx,i0))/2
 c
       return
       end
-      subroutine cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr)
+      subroutine cf_pmecor(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,ecorr)
 c
       implicit none
 c
@@ -560,14 +560,15 @@ c
 c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
 c
-      call cf_pmec(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr,int_mb(i_iwq),
-     + dbl_mb(i_chg))
+      call cf_pmec(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
+     + ecorr,int_mb(i_iwq),dbl_mb(i_chg),int_mb(i_lseq))
 c
       return
       end
-      subroutine cf_pmec(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr,iwq,chg)
+      subroutine cf_pmec(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
+     + ecorr,iwq,chg,lseq)
 c
       implicit none
 c
@@ -576,24 +577,31 @@ c
 c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),ecorr
-      integer isq(msa),iwq(mwa)
+      integer isq(msa),iwq(mwa),isgm(msa),lseq(mseq)
       real*8 chg(mqt,mqp,mset)
 c
-      integer i
+      integer i,icset
 c
       ecorr=zero
 c
       if(nwmloc.gt.0) then
       do 1 i=1,nwa
-      ecorr=ecorr-chg(iwq(i),1,iset)*chg(iwq(i),1,ipset)
+      ecorr=ecorr-chg(iwq(i),1,ipset)*chg(iwq(i),1,ipset)
     1 continue
       ecorr=ecorr*dble(nwmloc)
       endif
 c
+      if(nfhop.eq.0) then
       if(nsaloc.gt.0) then
       do 2 i=1,nsaloc
       ecorr=ecorr-chg(isq(i),1,ipset)*chg(isq(i),1,ipset)
     2 continue
+      endif
+      else
+      do 3 i=1,nsaloc
+      icset=lseq(isgm(i))
+      ecorr=ecorr-chg(isq(i),1,icset)*chg(isq(i),1,icset)
+    3 continue
       endif
 c
       ecorr=ealpha*ecorr/sqrt(pi)

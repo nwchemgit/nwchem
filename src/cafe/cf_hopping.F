@@ -1,7 +1,7 @@
       logical function cf_hopping(stime,issgm,isgan,ishop,
      + xs,nsaloc,lfnhop)
 c
-c $Id: cf_hopping.F,v 1.8 2003-08-25 23:01:24 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.9 2003-09-22 15:34:58 d3j191 Exp $
 c
       implicit none
 c
@@ -177,18 +177,20 @@ c
      + '     pre-hop energies        post-hop energies  ',/,
      + ' numb atom  res prot atom  res prot',
      + '    donor      acceptor     donor      acceptor ',
-     + '     angle   probability',/)
+     + '    distance     angle   probability',/)
       endif
       do 1 i=1,nldat
+c      write(*,'(i5,5f12.6)') i,(rda(j,i),j=1,5)
       call qhop_prob(lda(1,i),lda(3,i),lseq(lda(3,i)),
      + lda(6,i),lda(8,i),lseq(lda(8,i)),uda(1,i),rda(4,i),pda(i))
+c      write(*,'(i5,5f12.6)') i,(rda(j,i),j=1,5)
 c      pda(i)=0.0d0
 c
       if(util_print('qhop',print_high)) then
       write(lfnhop,111) i,lda(1,i),lda(3,i),lseq(lda(3,i)),
      + lda(6,i),lda(8,i),lseq(lda(8,i)),
-     + (uda(j,i),j=1,4),rda(4,i),pda(i)
-  111 format(7i5,5f12.6,f12.9)
+     + (uda(j,i),j=1,4),rda(4,i),rda(5,i),pda(i)
+  111 format(7i5,6f12.6,f12.9)
       endif
 c
     1 continue
