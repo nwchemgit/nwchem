@@ -1,6 +1,6 @@
       logical function pre_equiv(csa,isml,isgm,msa,nsa,iequi,msm,nsm)
 c
-c $Id: pre_equiv.F,v 1.1 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_equiv.F,v 1.2 2002-04-05 19:15:29 d3j191 Exp $
 c
       implicit none
 c
@@ -49,6 +49,9 @@ c
       if(iequi(isml(i),1).eq.0) iequi(isml(i),1)=isgm(i)
       iequi(isml(i),2)=isgm(i)
     7 continue
+c
+      write(*,1000) (i,(iequi(i,j),j=1,4),i=1,msm)
+ 1000 format(/,' Solute molecule equivalence',//,(5i7))
 c
       pre_equiv=.true.
       return
