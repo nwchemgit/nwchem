@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.53 2000-10-25 20:51:19 edo Exp $
+c $Id: sp_main.F,v 1.54 2000-10-26 19:02:13 d3j191 Exp $
 c
       implicit none
 c
@@ -415,15 +415,60 @@ c
       if(numwm.gt.0) then
       call ga_distribution(ga_w,node,il,ih,jl,jh)
       ih=il+numwm-1
-      call ga_put(ga_w,il,ih,jl+12*mwa+3,jl+15*mwa+2,pw,mwm)
-      if(lpp) call ga_put(ga_w,il,ih,jl+15*mwa+3,jl+21*mwa+2,pwp,mwm)
+      call ga_put(ga_w,il,ih,jl+12*mwa+3,jl+18*mwa+2,pw,mwm)
+      if(lpp) call ga_put(ga_w,il,ih,jl+18*mwa+3,jl+30*mwa+2,pwp,mwm)
       endif
 c
       if(numsa.gt.0) then
       call ga_distribution(ga_s,node,il,ih,jl,jh)
       ih=il+numsa-1
-      call ga_put(ga_s,il,ih,jl+12,jl+14,ps,msa)
-      if(lpp) call ga_put(ga_s,il,ih,jl+15,jl+20,psp,msa)
+      call ga_put(ga_s,il,ih,jl+12,jl+17,ps,msa)
+      if(lpp) call ga_put(ga_s,il,ih,jl+18,jl+30,psp,msa)
+      endif
+c
+      return
+      end
+      subroutine sp_getp(node,pw,pwp,numwm,ps,psp,numsa,lpp,ndx)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer node,numwm,numsa,ndx
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+      logical lpp
+      integer il,ih,jl,jh
+c
+      if(numwm.gt.0) then
+      call ga_distribution(ga_w,node,il,ih,jl,jh)
+      ih=il+numwm-1
+      if(ndx.eq.1) then
+      call ga_get(ga_w,il,ih,jl+12*mwa+3,jl+15*mwa+2,pw,mwm)
+      if(lpp) call ga_get(ga_w,il,ih,jl+18*mwa+3,jl+24*mwa+2,pwp,mwm)
+      elseif(ndx.eq.2) then
+      call ga_get(ga_w,il,ih,jl+15*mwa+3,jl+18*mwa+2,pw(1,1,1,2),mwm)
+      if(lpp) call ga_get(ga_w,il,ih,jl+18*mwa+3,jl+24*mwa+2,pwp,mwm)
+      else
+      call ga_get(ga_w,il,ih,jl+12*mwa+3,jl+18*mwa+2,pw,mwm)
+      if(lpp) call ga_get(ga_w,il,ih,jl+18*mwa+3,jl+24*mwa+2,pwp,mwm)
+      endif
+      endif
+c
+      if(numsa.gt.0) then
+      call ga_distribution(ga_s,node,il,ih,jl,jh)
+      ih=il+numsa-1
+      if(ndx.eq.1) then
+      call ga_get(ga_s,il,ih,jl+12,jl+14,ps,msa)
+      if(lpp) call ga_get(ga_s,il,ih,jl+15,jl+20,psp,msa)
+      elseif(ndx.eq.2) then
+      call ga_get(ga_s,il,ih,jl+15,jl+17,ps(1,1,2),msa)
+      if(lpp) call ga_get(ga_s,il,ih,jl+15,jl+20,psp,msa)
+      else
+      call ga_get(ga_s,il,ih,jl+12,jl+17,ps,msa)
+      if(lpp) call ga_get(ga_s,il,ih,jl+15,jl+20,psp,msa)
+      endif
       endif
 c
       return
@@ -2081,10 +2126,10 @@ c
       call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl,jl+3*mwa-1,
      + xw(nwmloc+1,1,1),mwm)
       if(lpp) then
-      call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl+6*mwa+3,jl+9*mwa+2,
+      call ga_get(ga_w,il+jwfr-1,il+jwto-1,jl+12*mwa+3,jl+18*mwa+2,
      + pw(nwmloc+1,1,1,1),mwm)
       if(lfree) call ga_get(ga_w,il+jwfr-1,il+jwto-1,
-     + jl+9*mwa+3,jl+15*mwa+2,pwp(nwmloc+1,1,1,1,1),mwm)
+     + jl+18*mwa+3,jl+30*mwa+2,pwp(nwmloc+1,1,1,1,1),mwm)
       endif
       jwfr=nwmloc+1
       jwto=nwmloc+1+jpl(ndx,3)-jpl(ndx,2)
@@ -2105,9 +2150,9 @@ c
       call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl,jl+2,
      + xs(nsaloc+1,1),msa)
       if(lpp) then
-      call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+6,jl+8,
+      call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+12,jl+14,
      + ps(nsaloc+1,1,1),msa)
-      if(lfree) call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+9,jl+14,
+      if(lfree) call ga_get(ga_s,il+jsfr-1,il+jsto-1,jl+15,jl+20,
      + psp(nsaloc+1,1,1,1),msa)
       endif
       jsfr=nsaloc+1
