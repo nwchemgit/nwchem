@@ -1,20 +1,21 @@
 #ifndef SECOND_DERIV
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                      Amat, Cmat, nq, ipol, Ex, qwght)     
+     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)         
 #else
 #include "dft2drv.fh"
       Subroutine xc_becke88_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         qwght)     
+     &                         qwght,ldew,func)     
 #endif
 c
-C$Id: xc_becke88.F,v 1.13 1998-12-31 21:32:43 bjohnson Exp $
+C$Id: xc_becke88.F,v 1.14 1999-01-04 19:53:30 edo Exp $
 c
       implicit none
 c      
       double precision tol_rho, fac, Ex
       integer nq, ipol
-      logical lfac, nlfac
+      logical lfac, nlfac,ldew
+      double precision func(*)  ! value of the functional [output]
 c
 c     Charge Density
 c
@@ -55,6 +56,7 @@ c
      &     dgdenom, t
 #ifdef SECOND_DERIV
       double precision rhom23, d2g, d2gdenom
+      double precision d2_ra_gaa, d2_gaa_gaa,d2_rb_gbb,d2_gbb_gbb  
 #endif
 c
       arcsinh(x)=log(x+dsqrt(1d0+x*x))
@@ -92,11 +94,13 @@ c
 c
             if (lfac) then
                Ex = Ex + 2d0*rho43*C*qwght(n)*fac
+               if(ldew)func(n) = func(n) + 2.d0*rho43*C*fac
                Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Ex = Ex + 2d0*rho43*g*qwght(n)*fac
+               if(ldew)func(n) = func(n) + 2.d0*rho43*g*fac
                Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
@@ -154,11 +158,13 @@ c
 c
             if (lfac) then
                Ex = Ex + rho43*C*qwght(n)*fac
+               if (ldew)func(n) = func(n) + rho43*C*fac
                Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Ex = Ex + rho43*g*qwght(n)*fac
+               if (ldew)func(n) = func(n) + rho43*g*fac
                Amat(n,1) = Amat(n,1) + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
