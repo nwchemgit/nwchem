@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.12 2001-03-08 03:01:25 edo Exp $
+C$Id: grid_ssw.F,v 1.13 2002-07-30 02:23:30 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -110,7 +110,7 @@ c
 
           do  j = 1, i-1
 
-            jnota=j.ne.AA
+
 c           
               ij=ij+1
               mu = (rag - rq(n,j))*Rij(ij)
@@ -121,28 +121,14 @@ c
                 p(j)=0.d0
 
               else
-                if(iw.eq.0) then
-                  nu=mu/ass
-                  mu=nu*nu*nu*nu
-                  sk=0.5d0-(7.d0*(5.d0+3.d0*mu)-
-     -                 5.d0*nu*nu*(7.d0+mu))*nu/32.d0
-                  
-                elseif(inota.and.jnota) then
+                 if(inota.and. j.ne.AA) then
 c                 
 c                 use interpolation for erfs
 c
-                     if(iw.eq.1) then
-                        sk=erf1c(mu)
-                     else
-                        sk=erf2c(mu)
-                     endif
+                   sk=erf1c(mu)
                    if(mu.lt.0d0) sk=1d0-sk
                 else
-                   if(iw.eq.1) then
-                      sk=erf1(mu)
-                   else
-                      sk=erf2(mu)
-                   endif
+                   sk=erf1(mu)
                 endif
                 p(i) = p(i)*sk
                 p(j) = p(j)*(1d0 - sk)
