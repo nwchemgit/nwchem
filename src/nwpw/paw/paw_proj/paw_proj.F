@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.4 2002-08-01 21:27:27 bylaska Exp $
+* $Id: paw_proj.F,v 1.5 2002-08-06 00:06:48 bylaska Exp $
 *
 
 !**************************************************
@@ -33,6 +33,12 @@
       nkatm = ion_nkatm()
       value = MA_alloc_get(mt_int,(nkatm),
      >                     'nbasis',nbasis(2),nbasis(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(2*nkatm),
+     >                     'i_prj_l',i_prj_l(2),i_prj_l(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(2*nkatm),
+     >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0)
 
 
@@ -44,6 +50,16 @@
       ntotal = 0
       do ia=1,nkatm
         ntotal = ntotal + int_mb(nbasis(1)+ia-1)
+        value = MA_alloc_get(mt_int,(int_mb(nbasis(1)+ia-1)),
+     >                       'sub_i_prj_l',
+     >                       int_mb(i_prj_l(1)+2*(ia-1)+1),
+     >                       int_mb(i_prj_l(1)+2*(ia-1)))
+        value = value.and.
+     >          MA_alloc_get(mt_int,(int_mb(nbasis(1)+ia-1)),
+     >                       'sub_i_prj_m',
+     >                       int_mb(i_prj_m(1)+2*(ia-1)+1),
+     >                       int_mb(i_prj_m(1)+2*(ia-1)))
+
       end do
       call Pack_npack(1,npack1)
       value = MA_alloc_get(mt_dcpl,(ntotal*npack1),
@@ -97,6 +113,51 @@
       paw_proj_nbasis = int_mb(nbasis(1)+ia-1)
       return
       end
+
+!**************************************************
+!
+!	Name: paw_proj_l
+!
+!	Purpose: returns the orbital quantum number
+!                for the nth projector of the iath 
+!                kind of atom.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_l(n,ia)
+      implicit none
+      integer n,ia
+      
+#include "mafdecls.fh"
+#include "paw_proj.fh"
+
+      paw_proj_l = int_mb(int_mb(i_prj_l(1)+2*(ia-1))+n-1)
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_proj_m
+!
+!	Purpose: returns the magnetic quantum number
+!                for the nth projector of the iath 
+!                kind of atom.
+!
+!	Created:	7/30/2002
+!**************************************************
+      integer function paw_proj_m(n,ia)
+      implicit none
+      integer n,ia
+      
+#include "mafdecls.fh"
+#include "paw_proj.fh"
+
+
+      paw_proj_m = int_mb(int_mb(i_prj_m(1)+2*(ia-1))+n-1)
+      return
+      end
+
+
 
 !**************************************************
 !
@@ -295,17 +356,26 @@
       !*** local variables ***
       integer MASTER,taskid
       parameter (MASTER=0)
-      integer nbasis,l,ngrid(3)
+
+      logical value
+      integer ii,i,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3)
       integer i_rgrid,i_prj
-      real*8  unita(3,3)
+      real*8  unita(3,3),G(3),gg,log_amesh
+      integer tmp(2),prj(2),rayleigh(2)
+
       character*20 jppname,atomname
       character*255 full_filename
     
       !*** external functions ***
-      integer  get_i_rgrid,get_i_prj_ps,get_i_nbasis
+      integer  get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
+      integer  get_i_ngrid,get_i_log_amesh,get_i_orb_l
       real*8   lattice_unita
-      external get_i_rgrid,get_i_prj_ps,get_i_nbasis
+      real*8   spher_bessel_transform,spher_bessel0_transform
+      external get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
+      external get_i_ngrid,get_i_log_amesh,get_i_orb_l
       external lattice_unita
+      external spher_bessel_transform,spher_bessel0_transform
+
 
       call ion_atom_plus_suffix(ia,'_basis',atomname)
       call ion_atom_plus_suffix(ia,'.jpp',jppname)
@@ -313,11 +383,20 @@
       write(*,*) "atomname,jppname:",atomname,jppname
 
       !*** read in projectors from _basis file ***
-      i_rgrid  = get_i_rgrid(ia)
-      i_prj    = get_i_prj_ps(ia)
-      nbasis = int_mb(get_i_nbasis(ia))
-      write(*,*) "nbasis:",nbasis
+      i_rgrid   = get_i_rgrid(ia)
+      i_prj     = get_i_prj_ps(ia)
+      basis_nbasis    = int_mb(get_i_nbasis(ia))
+      nr        = int_mb(get_i_ngrid(ia))
+      log_amesh = dbl_mb(get_i_log_amesh(ia))
+      write(*,*) "basis_nbasis:",basis_nbasis," ngrid:",nr
       
+      nbasis = 0
+      do ii=1,basis_nbasis
+         l =  int_mb(get_i_orb_l(ia)+ii-1)
+         nbasis = nbasis + 2*l+1
+      end do
+      write(*,*) "nbasis:",nbasis
+
       call Parallel_taskid(taskid)
       unita(1,1) = lattice_unita(1,1)
       unita(2,1) = lattice_unita(2,1)
@@ -333,7 +412,7 @@
       call D3dB_nz(1,ngrid(3))
 
 
-*     **** open jppname binary file ****
+*     **** open jppname binary file and write header ****
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(jppname,.false.,
      >                             .false.,
@@ -343,10 +422,222 @@
          call iwrite(6,ngrid,3)
          call dwrite(6,unita,9)
          call iwrite(6,nbasis,1)
-         call closefile(6)
       end if
 
-      !stop
+*     **** compute bessel transforms ****
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                    'rayleigh',rayleigh(2),rayleigh(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,
+     >                    'prj',prj(2),prj(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,
+     >                    'tmp',tmp(2),tmp(1))
+      if (.not.value) 
+     > call errquit('paw_proj_formatter_auto, push stack',0)
 
+     
+      G(1) = G_indx(1)
+      G(2) = G_indx(2)
+      G(3) = G_indx(3)
+      do ii=1,basis_nbasis
+        l =  int_mb(get_i_orb_l(ia)+ii-1)
+        write(*,*) "formatting prj ",ii," l:",l
+     
+        do i=1,nfft3d
+          gg  = dsqrt( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >               + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >               + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) ) 
+          dbl_mb(rayleigh(1)+i-1) 
+     >      = spher_bessel_transform(l,nr,log_amesh,
+     >                               dbl_mb(i_rgrid),
+     >                               dbl_mb(i_prj+(ii-1)*nr),
+     >                               gg)
+          dbl_mb(rayleigh(1)+i-1) 
+     >      = spher_bessel0_transform(l,nr,log_amesh,
+     >                                dbl_mb(i_rgrid),
+     >                                dbl_mb(i_prj+(ii-1)*nr))
+        end do
+        do m=-l,l
+c        call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(prj(1)),1) ! debug
+           call spher_harmonics_generate(l,m,nfft3d,
+     >                      dbl_mb(G(1)),
+     >                      dbl_mb(G(2)),
+     >                      dbl_mb(G(3)),
+     >                      dcpl_mb(prj(1)))
+           call D3dB_tc_Mul(1,dbl_mb(rayleigh(1)),
+     >                     dcpl_mb(prj(1)),
+     >                     dcpl_mb(prj(1)))
+        
+           if (taskid.eq.MASTER) then
+             write(*,*) "writing formatted prj:",ii,"  l,m",l,m
+             call iwrite(6,l,1)
+             call iwrite(6,m,1)
+           end if
+           call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)))
+        end do
+      end do
+      if (taskid.eq.MASTER) call closefile(6)
+
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(prj(2))
+      value = value.and.MA_pop_stack(rayleigh(2))
+      if (.not.value) 
+     >  call errquit('paw_proj_formatter_auto, pop stack',1)
+      
+      return
+      end
+
+
+!**************************************************
+!
+!	Name: spher_harmonics_generate
+!
+!	Purpose: 
+!
+!	Created:	8/05/2002
+!**************************************************
+      subroutine spher_harmonics_generate(l,m,nfft3d,
+     >                                    Gx,Gy,Gz,
+     >                                    Ylm)
+      implicit none
+      integer    l,m,nfft3d
+      real*8     Gx(*),Gy(*),Gz(*)
+      complex*16 Ylm(*)
+
+*     **** local variables ****
+      real*8 small
+      parameter (small=1.0d-9)
+
+      integer i,k,mabs
+      real*8     g,gxy,cs_theta,sgn,coeff,fourpi
+      complex*16 exp_phi
+
+*     **** external functions ****
+      real*8   legendre_lm
+      external legendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+      sgn    = 1.0d0
+      if (m.ge.0) then
+        mabs = m
+      else
+        mabs = -m
+        if (mod(mabs,2).eq.1) sgn = -1.0d0
+      end if
+
+
+      !*** find coefficient ***
+      if(mabs.eq.0) then
+         coeff = 1.0d0
+      else
+         coeff = 1.0d0
+         do i=1,2*mabs
+           coeff = coeff/(l-mabs+i)
+         end do
+      end if
+      coeff = coeff*(2*l+1.0d0)/fourpi
+      coeff = sgn*dsqrt(coeff)
+
+      if (m.ge.0) then
+        do k=1,nfft3d
+          gxy = Gx(k)**2 + Gy(k)**2
+          g   = gxy + Gz(k)**2
+          gxy = dsqrt(gxy)
+          g   = dsqrt(g) 
+
+          if (gxy.gt.small)then
+            exp_phi = dcmplx(Gx(k),Gy(k))/gxy 
+          else
+            exp_phi = dcmplx(1.0d0,0.0d0)
+          end if 
+          exp_phi  = dcmplx(Gx(k),Gy(k))/gxy
+
+          if (g.gt.small) then
+            cs_theta = Gz(k)/g
+          else
+            cs_theta = 0.0d0
+          end if 
+       
+          Ylm(k) = coeff*legendre_lm(l,mabs,cs_theta)
+     >                  *exp_phi**mabs
+        end do
+      else
+              do k=1,nfft3d
+          gxy = Gx(k)**2 + Gy(k)**2
+          g   = gxy + Gz(k)**2
+          gxy = dsqrt(gxy)
+          g   = dsqrt(g) 
+
+          if (gxy.gt.small)then
+            exp_phi = dcmplx(Gx(k),Gy(k))/gxy 
+          else
+            exp_phi = dcmplx(1.0d0,0.0d0)
+          end if 
+          exp_phi  = dcmplx(Gx(k),Gy(k))/gxy
+
+          if (g.gt.small) then
+            cs_theta = Gz(k)/g
+          else
+            cs_theta = 0.0d0
+          end if 
+       
+          Ylm(k) = coeff*legendre_lm(l,mabs,cs_theta)
+     >                  *dconjg(exp_phi**mabs)
+        end do
+      end if
+     
+      return
+      end
+
+!**************************************************
+!
+!	Name: legendre_lm
+!
+!	Purpose: 
+!
+!	Created:	8/05/2002
+!**************************************************
+    
+      real*8 function legendre_lm(l,m,x)
+      implicit none
+      integer l,m
+      real*8 x
+
+*     *** local variables ****
+      integer i,ll
+      real*8  fact,pll,pmm,pmmp1,somx2,Plm
+
+      if ((m.lt.0).or.(m.gt.l).or.(dabs(x).gt.1.0d0))
+     >  call errquit('legendre_lm: bad argments',0)
+
+      pmm = 1.0d0
+      if (m.gt.0) then
+        somx2 = dsqrt((1.0d0-x)*(1.0d0+x))
+        fact  = 1.0d0
+        do i=1,m
+          pmm  = -pmm*fact*somx2
+          fact = fact + 2.0d0
+        end do
+      end if
+
+      if (l.eq.m) then
+        Plm = pmm
+      else
+         pmmp1 = x*(2*m+1.0d0)*pmm
+         if (l.eq.(m+1)) then
+           Plm = pmmp1
+         else
+            do ll=m+2,l
+              pll   = (x*(2*ll-1.0d0)*pmmp1-(ll+m-1.0d0)*pmm)/dble(ll-m)
+              pmm   = pmmp1
+              pmmp1 = pll
+            end do
+            Plm = pll
+         end if
+      end if
+
+      legendre_lm = Plm
       return
       end
