@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.10 1995-07-30 07:57:46 d3e129 Exp $
+c $Id: cando_sp.F,v 1.11 1995-11-01 17:34:20 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -153,6 +153,7 @@ c
 c
 #include "candoP.fh"
 c
+#if defined(USE_TEXAS)
       if (user_cando_txs) then
         cando_txs = def_cando_txs
         return
@@ -160,6 +161,9 @@ c
 c
       cando_txs = .true.
       if(ish.eq.0.or.jsh.eq.0) cando_txs=.false.
+#else
+      cando_txs = .false.
+#endif
       end
       subroutine int_set_cando_txs(user_value)
       implicit none

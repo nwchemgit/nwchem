@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1995-11-01 17:16:18 d3e129 Exp $
+# $Id: GNUmakefile,v 1.9 1995-11-01 17:34:48 d3e129 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -33,3 +33,6 @@ endif
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+
+txs:
+	$(MAKE) "USE_TEXAS=YEP"

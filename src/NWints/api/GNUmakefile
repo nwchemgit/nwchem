@@ -1,4 +1,9 @@
-# $Id: GNUmakefile,v 1.28 1995-10-17 08:52:29 d3g681 Exp $
+# $Id: GNUmakefile,v 1.29 1995-11-01 17:34:22 d3e129 Exp $
+
+
+ifeq ($(USE_TEXAS),YEP)
+      LIB_DEFINES = -DUSE_TEXAS
+endif
 
     OBJ = cando_sp.o     exact_mem.o    exactd_mem.o \
           int_1cg.o      int_1e3ov.o    int_1eall.o \

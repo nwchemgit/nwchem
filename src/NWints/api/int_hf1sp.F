@@ -3,7 +3,7 @@
      &       xyzj,expj,coefj, j_nprim, j_ngen, Lj,
      &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &       dryrun,scr,lscr,msg)
-c $Id: int_hf1sp.F,v 1.4 1995-07-30 07:57:48 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.5 1995-11-01 17:34:21 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 c::passed
@@ -18,7 +18,7 @@ c::passed
       character*(*) msg
 c::local
       integer offset
-      integer nintx, nintxsp
+      integer nintx, nint_xsp
 c
 *debug_print      integer iii
 c
@@ -155,17 +155,17 @@ c * (s|s), (s|x), (s|y), (s|z)
           if (doV) call int_1dsp(V,1)
         else
           nintx   = (Li+1)*(Li+2)/2  ! size of X
-          nintxsp = nintx * 4        ! size of X * size of sp
+          nint_xsp = nintx * 4        ! size of X * size of sp
           if (doS) then
-            call dcopy(nintxsp,S,1,scr,1)
+            call dcopy(nint_xsp,S,1,scr,1)
             call int_sp1b(S,scr,scr(nintx+1),nintx,1)
           endif
           if (doT) then
-            call dcopy(nintxsp,T,1,scr,1)
+            call dcopy(nint_xsp,T,1,scr,1)
             call int_sp1b(T,scr,scr(nintx+1),nintx,1)
           endif
           if (doV) then
-            call dcopy(nintxsp,V,1,scr,1)
+            call dcopy(nint_xsp,V,1,scr,1)
             call int_sp1b(V,scr,scr(nintx+1),nintx,1)
           endif
         endif
