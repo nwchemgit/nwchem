@@ -138,7 +138,7 @@ PSPW
       formatted_filename: Si.small.vpp
       input_wavefunction_filename:  Si2.elc00
       output_wavefunction_filename: Si2.elc00
-      loop: 10 100
+      loop: 25 100
       Mulliken
    END 
 END
