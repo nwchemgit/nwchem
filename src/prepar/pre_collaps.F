@@ -1,17 +1,19 @@
-      subroutine pre_collaps(xs,id,ndx,msa,nsa,touch,mode,nmoves)
+      subroutine pre_collaps(xs,id,ndx,vec,msa,nsa,touch,mode,nmoves)
 c
       implicit none
 c
       integer msa,nsa,mode,nmoves
-      integer id(msa),ndx(msa,2)
-      real*8 xs(3,msa)
+      integer id(msa),ndx(msa,3)
+      real*8 xs(3,msa),vec(6,msa)
       real*8 touch
 c
       logical first,found
       integer i,j,k,m
       integer nmol,large,nummov
       real*8 rt,rk,dist
-      real*8 a,b,c,d,r,r1,r2,root,dt,dtran,tr(3),tran(3),xmax(3),xmin(3)
+      real*8 a,b,c,d,e,r,r1,r2,root,dt,dtran
+      real*8 tr(3),tran(3),xmax(3),xmin(3)
+      real*8 a2,b2,c2,d2,p(3),factor
 c
       write(*,'(/,a,i4,f12.6,/)') ' Collapsing using mode ',mode,touch
 c
@@ -22,6 +24,7 @@ c
       do 13 i=1,nsa
       ndx(i,1)=0
       ndx(i,2)=0
+      ndx(i,3)=0
    13 continue
 c
 c     store in ndx(i,1) the number of atoms in molecule i
@@ -54,6 +57,7 @@ c
    16 continue
       if(k.gt.0) then
       ndx(id(i),1)=0
+      ndx(id(k),1)=ndx(id(k),1)+1
       ndx(i,2)=id(k)
       write(*,'(a,i8,a,i4,a,f12.6)') 
      + ' Single ion ',i,' grouped with molecule ',
@@ -72,43 +76,100 @@ c
       dtran=0.0d0
       root=0.0d0
 c
+c     determine centers of geometry
+c
+      do 31 m=1,nmol
+      vec(1,m)=0.0d0
+      vec(2,m)=0.0d0
+      vec(3,m)=0.0d0
+      vec(4,m)=0.0d0
+      vec(5,m)=0.0d0
+      vec(6,m)=0.0d0
+   31 continue
+      do 32 i=1,nsa
+      m=ndx(i,2)
+      vec(1,m)=xs(1,i)
+      vec(2,m)=xs(2,i)
+      vec(3,m)=xs(3,i)
+      vec(4,m)=xs(1,i)
+      vec(5,m)=xs(2,i)
+      vec(6,m)=xs(3,i)
+   32 continue
+      do 33 i=1,nsa
+      m=ndx(i,2)
+      vec(1,m)=min(vec(1,m),xs(1,i))
+      vec(2,m)=min(vec(2,m),xs(2,i))
+      vec(3,m)=min(vec(3,m),xs(3,i))
+      vec(4,m)=max(vec(4,m),xs(1,i))
+      vec(5,m)=max(vec(5,m),xs(2,i))
+      vec(6,m)=max(vec(6,m),xs(3,i))
+   33 continue
+      do 34 m=1,nmol
+      if(ndx(m,1).gt.0) then
+      vec(1,m)=0.5d0*(vec(1,m)+vec(4,m))
+      vec(2,m)=0.5d0*(vec(2,m)+vec(5,m))
+      vec(3,m)=0.5d0*(vec(3,m)+vec(6,m))
+      vec(4,m)=vec(4,m)-vec(1,m)
+      vec(5,m)=vec(5,m)-vec(2,m)
+      vec(6,m)=vec(6,m)-vec(3,m)
+      endif
+   34 continue
+c
       do 3 m=1,nmol
       if(ndx(m,1).gt.0) then
+c
+      tr(1)=-vec(1,m)
+      tr(2)=-vec(2,m)
+      tr(3)=-vec(3,m)
+      if(mode.eq.3) tr(3)=0.0d0
+c
+      do 41 i=1,nmol
+      ndx(i,3)=1
+   41 continue
+      ndx(m,3)=0
+      b2=vec(1,m)*vec(1,m)+vec(2,m)*vec(2,m)+vec(3,m)*vec(3,m)
+      d=sqrt(vec(4,m)*vec(4,m)+vec(5,m)*vec(5,m)+vec(6,m)*vec(6,m))
+      e=sqrt(vec(4,m)*vec(4,m)+vec(5,m)*vec(5,m))
+      do 42 i=1,nmol
+      k=1
+      if(ndx(i,1).eq.0.or.i.eq.m) then
+      k=0
+      else
+      if(abs(vec(1,i)-(vec(1,m)+0.5d0*tr(1))).gt.
+     +   abs(vec(1,m)+0.5d0*tr(1))+vec(4,i)+vec(4,m)) k=0
+      if(abs(vec(2,i)-(vec(2,m)+0.5d0*tr(2))).gt.
+     +   abs(vec(2,m)+0.5d0*tr(2))+vec(5,i)+vec(5,m)) k=0
+      if(abs(vec(3,i)-(vec(3,m)+0.5d0*tr(3))).gt.
+     +   abs(vec(3,m)+0.5d0*tr(3))+vec(6,i)+vec(6,m)) k=0
+      if(k.eq.1) then
+      a2=vec(1,i)*vec(1,i)+vec(2,i)*vec(2,i)+vec(3,i)*vec(3,i)
+      c2=(vec(1,m)-vec(1,i))**2+(vec(2,m)-vec(2,i))**2+
+     + (vec(3,m)-vec(3,i))**2
+      factor=(1.0d0-0.5d0*(b2+c2-a2)/b2)
+      p(1)=factor*vec(1,m)
+      p(2)=factor*vec(2,m)
+      p(3)=factor*vec(3,m)
+      a=sqrt((p(1)-vec(1,i))**2+(p(2)-vec(2,i))**2+(p(3)-vec(3,i))**2)
+      c=sqrt(vec(4,i)**2+vec(5,i)**2+vec(6,i)**2)
+      if(a.gt.c+d) k=0
+      if(mode.eq.3.and. k.eq.1) then
+      if(abs(p(3)-vec(3,i)).gt.abs(vec(6,i))+abs(vec(6,m))) k=0
+      endif
+      endif
+      endif
+      if(k.eq.0) ndx(i,3)=0
+   42 continue
 c
 c     determine translation vector
 c
       rt=-1.0d0
-      found=.false.
-      first=.true.
-      do 4 i=1,nsa
-      if(ndx(i,2).eq.m) then
-      found=.true.
-      if(first) then
-      do 5 k=1,3
-      xmax(k)=xs(k,i)
-      xmin(k)=xs(k,i)
-    5 continue
-      first=.false.
-      else
-      do 6 k=1,3
-      xmax(k)=max(xmax(k),xs(k,i))
-      xmin(k)=min(xmin(k),xs(k,i))
-    6 continue
-      endif
-      endif
-    4 continue
-      if(found) then
-      do 7 k=1,3
-      tr(k)=-0.5d0*(xmin(k)+xmax(k))
-    7 continue
-      if(mode.eq.3) tr(3)=0.0d0
 c
       dt=sqrt(tr(1)*tr(1)+tr(2)*tr(2)+tr(3)*tr(3))
 c
       do 8 i=1,nsa
       if(ndx(i,2).eq.m) then
       do 9 j=1,nsa
-      if(ndx(j,2).ne.m) then
+      if(ndx(ndx(j,2),3).eq.1) then
       a=0.0d0
       b=0.0d0
       c=0.0d0
@@ -152,8 +213,6 @@ c
       endif
     8 continue
 c
-      endif
-c
       if(rt.gt.0.and.dt.gt.dtran) then
       large=m
       root=rt
@@ -161,8 +220,6 @@ c
       tran(2)=tr(2)
       tran(3)=tr(3)
       dtran=dt
-cx      write(*,'(a,i4,a,f12.6,a,f12.6)') 
-cx     + '             Molecule ',large,' by ',dtran,' nm',root
       endif
       endif
 c
@@ -182,7 +239,7 @@ c
       endif
    11 continue
       nummov=nummov+1
-      if(dtran.gt.touch.and.nummov.lt.nmoves) goto 2
+      if(dtran.gt.touch.and.(nummov.lt.nmoves.or.nmoves.lt.0)) goto 2
       endif
 c
       return
