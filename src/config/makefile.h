@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.221 1997-03-19 00:01:36 d3h449 Exp $
+# $Id: makefile.h,v 1.222 1997-03-21 00:50:02 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -884,7 +884,7 @@ ifdef USE_G77
   FOPTIONS  = -fno-second-underscore
          FC = g77
 else
-   FOPTIONS = -Nc40 -Nn2500
+   FOPTIONS = -Nc40 -Nn2500 -Nx1000
   EXPLICITF = TRUE
 endif
 
