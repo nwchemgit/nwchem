@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.9 2002-08-22 17:22:55 edo Exp $
+ $Id: util_md_sockets.c,v 1.10 2004-05-04 21:54:19 edo Exp $
  */
 
 #include <sys/types.h>
@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#ifdef CRAY
+#ifdef CRAY && !defined(__crayx1)
 #define create_server_socket_ CREATE_SERVER_SOCKET
 #define create_client_socket_ CREATE_CLIENT_SOCKET
 #define client_socket_write_ CLIENT_SOCKET_WRITE
