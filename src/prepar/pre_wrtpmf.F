@@ -68,7 +68,8 @@ c
 c     alignments in combination of more than one equivalent molecule
 c
       elseif(iopt(i,1).eq.2) then
-      if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8.or.ipmf(i,1).eq.10) then
+      if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8.or.
+     + ipmf(i,1).eq.9.or.ipmf(i,1).eq.10) then
       nump=nump+1
       nume=1
       if(mgroup(ipmf(i,2)).gt.0) then
