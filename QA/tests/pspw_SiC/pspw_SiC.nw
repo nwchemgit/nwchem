@@ -2,9 +2,18 @@ title "SiC 8 atom cubic cell"
 
 start SiC
 
-memory global 12 mb stack 12 mb heap 15 mb
+memory global 22 mb stack 22 mb heap 25 mb
 
-geometry units au noautosym noprint
+#geometry units au noautosym noprint
+geometry units au center autosym print
+  system crystal 
+    lat_a 8.277
+    lat_b 8.277
+    lat_c 8.277
+    alpha 90.0 
+    beta  90.0
+    gamma 90.0
+  end
 Si    -0.50000  -0.50000  -0.50000
 Si     0.00000   0.00000  -0.50000
 Si     0.00000  -0.50000   0.00000
@@ -14,6 +23,18 @@ C      0.25000   0.25000  -0.25000
 C      0.25000  -0.25000   0.25000
 C     -0.25000   0.25000   0.25000
 end
+#geometry units au 
+#Si    -2.69003   -2.69003   -2.69003
+#Si     1.44848    1.44848   -2.69003
+#Si     1.44848   -2.69003    1.44848
+#Si    -2.69003    1.44848    1.44848
+#C     -0.62078   -0.62078   -0.62078
+#C      3.51773    3.51773   -0.62078
+#C      3.51773   -0.62078    3.51773
+#C     -0.62078    3.51773    3.51773
+#end
+
+
 
 
 #******* Generate a Pseudopotential for Silicon **********************
@@ -74,9 +95,9 @@ PSPW
          8.277  0.000  0.0 00
          0.000  8.277  0.000
          0.000  0.000  8.277
-      ngrid: 16 16 16
+      ngrid: 8 8 8
    END
-   FRACTIONAL_TO_CARTESIAN: small
+   #FRACTIONAL_TO_CARTESIAN: small
 END
 
 
@@ -111,16 +132,16 @@ PSPW
                0 1 0    -1
                0 0 1    -1
                1 0 0    +1
-               0 1 0    +1
-               0 0 1    +1
-               1 1 0    -1
-               1 0 1    -1
-               0 1 1    -1
-               1 1 0    +1
+               0 1 0    +2
+               0 0 1    +2
+               1 1 0    -2
+               1 0 1    -2
+               0 1 1    -2
+               1 1 0    +2
                1 0 1    +1
-               0 1 1    +1
-               2 0 0    -1
-               0 2 0    -1
+               0 1 1    +2
+               2 0 0    -2
+               0 2 0    -2
                0 0 2    -2
       wavefunction_filename: SiC.movecs
       cell_name: small
@@ -137,11 +158,13 @@ PSPW
       input_wavefunction_filename:  SiC.movecs
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
-      time_step: 51.8d0
+      time_step: 15.8d0
       loop: 100 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       #exchange_correlation: pbe96
       ewald_ncut: 8
+      wavefunction_cutoff:  18.0d0
+      energy_cutoff:        73.0d0
    END 
 END
 task pspw steepest_descent
@@ -155,11 +178,13 @@ PSPW
       input_wavefunction_filename:  SiC.movecs
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
-      time_step: 51.8d0
+      time_step: 15.8d0
       loop: 15 10
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       #exchange_correlation: pbe96
       ewald_ncut: 8
+      energy_cutoff:       73.0d0
+      wavefunction_cutoff: 18.0d0
    END 
 END
 task pspw conjugate_gradient
@@ -167,6 +192,7 @@ task pspw conjugate_gradient
 task pspw steepest_descent
 task pspw conjugate_gradient
 task pspw steepest_descent
+task pspw conjugate_gradient
 
 
 
@@ -181,11 +207,20 @@ PSPW
       output_wavefunction_filename: SiC.movecs
       fake_mass: 400000.0d0
       time_step: 5.8d0
-      loop: 10 1000
+      loop: 10 100
       tolerances: 1.0d-9 1.0d-9 1.0d-4
       #exchange_correlation: pbe96
       ewald_ncut: 8
+      energy_cutoff:       73.0d0
+      wavefunction_cutoff: 18.0d0
    END 
 END
-task pspw steepest_descent
+#task pspw steepest_descent
+
+driver
+  clear
+  maxiter 100
+end
+task cg_pspw optimize
+task cg_pspw freq
 
