@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.158 1996-07-15 18:07:10 gutowski Exp $
+# $Id: makefile.h,v 1.159 1996-07-17 16:28:53 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -56,7 +56,6 @@ endif
 # will be searched AFTER anything you are building now.
 #
     INCPATH = 
-
 
 # These subdirectories will build the core, or supporting libraries
 # that are required by all NWChem modules.  The include directory is
@@ -171,6 +170,8 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #                 are needed for top-level modules on this machine.
 #		  (Should not normally be used)
 #
+# SCRATCH_DEF_DIR = Site specific default directory for scratch files
+# PERM__DEF_DIR   = Site specific default directory for permanent files
 #
 # The following are defined for all machines at the bottom of this file
 #
@@ -182,18 +183,20 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #              This comprises the includes and defines.
 #    LDFLAGS = options for the linker.  Currently paths from LIBDIR and
 #              LIBPATH.
-#
+
 
 
 #
 # Establish some required defaults which may need overriding
 # for some machines
 
-      SHELL = /bin/sh
-    ARFLAGS = r
-     FDEBUG = -g
-     CDEBUG = -g
-         AR = ar
+           SHELL = /bin/sh
+         ARFLAGS = r
+          FDEBUG = -g
+          CDEBUG = -g
+              AR = ar
+ SCRATCH_DEF_DIR = "'.'"
+ PERM_DEF_DIR   = "'.'"
 
 #
 # Machine specific stuff
@@ -237,6 +240,7 @@ ifeq ($(TARGET),SOLARIS)
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
 #     but may need to increase the stacksize at runtime using limit
+# -xs allows debugging without .o files
    FOPTIONS = -Nl199 -fast -dalign -stackvar
    COPTIONS = -Wall
 # Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
