@@ -1,7 +1,12 @@
 *
-* $Id: paw_proj.F,v 1.26 2003-03-05 23:16:32 bylaska Exp $
+* $Id: paw_proj.F,v 1.27 2003-03-22 04:04:59 edo Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2003/03/05 23:16:32  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.25  2003/02/13 01:58:55  bylaska
 * ...EJB
 *
@@ -697,7 +702,6 @@ c           write(*,*) "bess(1)=",dbl_mb(rayleigh(1))
      >                     dcpl_mb(prj(1)))
 c           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
            call rayleigh_itol_scaling(l,npack1,
-     >                                dcpl_mb(prj(1)),
      >                                dcpl_mb(prj(1)))
 c           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
 c           pause 
