@@ -4,8 +4,9 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi)
-c $Id: cf_init.F,v 1.70 2001-12-15 04:10:55 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
+     + mropti)
+c $Id: cf_init.F,v 1.71 2002-01-17 18:46:01 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -22,7 +23,7 @@ c
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,iipopt
       integer nodpme,ntyp,idset,ipset1,ipset2
-      integer issscl,npenrg,nbiasi
+      integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc
 c
@@ -311,6 +312,7 @@ c
       endif
       nsfi=nsf
       nbiasi=nbias
+      mropt=mropti
 c
       return
 
@@ -1758,6 +1760,7 @@ c
       real*8 explam,rlambd,dlambd
       character*80 projct
       character*3 cnum
+      character*1 ch
 c
       character*255 filnam
 c
@@ -1771,6 +1774,13 @@ c
       filnam=projct(1:index(projct,' ')-1)//cnum//'.pmf '
       open(unit=-lfnpmf,file=filnam(1:index(filnam,' ')-1),
      + form='formatted')
+      if(mropt.eq.3) then
+    1 continue
+      read(-lfnpmf,1000,end=2) ch
+ 1000 format(a1)
+      goto 1
+    2 continue
+      endif
       endif
 c
       call cf_lam(lamtyp,lambda,maxlam,explam,lfnout,rlambd,dlambd,
@@ -1930,7 +1940,7 @@ c
       rpmf(j,k,i)=rlam(k)*rpmf(j,6,i)+slam(k)*rpmf(j,5,i)
     3 continue
     2 continue
-      if(me.eq.0) then
+      if(me.eq.0.and.mropt.ne.3) then
       write(-lfnpmf,1000) i,rpmf(1,1,i),rlam(1)
  1000 format(i3,2f12.6)
       endif
