@@ -147,7 +147,7 @@ c
      $           call errquit('driver_u_c_f_i: geom?',0)
             if (.not. geom_compute_zmatrix(geom, g)) ! Final coords
      $           call errquit('driver_u_c_f_i: geom?',0)
-            do i = 1, nzvar
+            do i = 1, nvar
                g(i) = g(i) - ds(i)
                if (g(i) .gt. 180d0) then
                   g(i) = g(i) - 360d0
@@ -218,17 +218,17 @@ c
 c
 c     gq = gx*B^-1
 c
-      num = max(ncart*nzvar,nzvar**2)
+      num = max(ncart*nvar,nvar**2)
       if (.not. ma_push_get(mt_dbl, num,'binv',l_bi, k_bi))
      $     call errquit('driver: memory for binv', num)
-      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
       if (odebug) then
          write(6,*) ' B^-1 '
          call output(dbl_mb(k_bi), 1, ncart, 1, nvar, nvar, nvar, 1)
          write(6,*) ' Cartesian gradient'
          call doutput(gx, 1, ncart, 1, 1, ncart, 1, 1)
       endif
-      call dgemv('t', ncart, nzvar, 1.0d0, dbl_mb(k_bi), ncart,
+      call dgemv('t', ncart, nvar, 1.0d0, dbl_mb(k_bi), ncart,
      $     gx, 1, 0.0d0, gq, 1)
       if (odebug) then
          write(6,*) ' Internal coordinate gradient '
@@ -240,8 +240,8 @@ c
 c     Projecting with P only works for constraints in non-redundant
 c     variables ... must project with P in redundant case.
 c
-      call geom_hnd_get_data('p', dbl_mb(k_bi), nzvar**2)
-      call dgemv('n', nzvar, nzvar, 1.0d0, dbl_mb(k_bi), nzvar,
+      call geom_hnd_get_data('p', dbl_mb(k_bi), nvar**2)
+      call dgemv('n', nvar, nvar, 1.0d0, dbl_mb(k_bi), nvar,
      $     gq, 1, 0.0d0, g, 1)
       if (odebug) then
          write(6,*) ' Internal coordinate gradient after constraints'
@@ -1035,6 +1035,10 @@ c
  3          format(/' Number of frozen variables =',i5/
      $           20(1x,15i5,/,:))
          endif
+      endif
+c
+      if (.not. zcoord) then
+         call driver_cart_pmat(rtdb, geom)
       endif
 c
 c     We'll be printing the zmatrix and gradient so no
@@ -1959,11 +1963,11 @@ c
       call dfill(ncart**2, 0d0, dbl_mb(k_pmat), 1)
       call dfill(ncart, 1d0, dbl_mb(k_pmat), ncart+1)
 c     
-c     Store dummy unit matrix for Binv ... the cartesian 
+c     Store dummy unit matrix for B, Binv ... the cartesian 
 c     gradient should already be invariant to rotations and translations.
-c
-c     Also store dummy cmat (constraints)
+c     Also store dummy unit matrix for cmat (constraints)
 c     
+      call geom_hnd_put_data('b', dbl_mb(k_pmat), ncart**2)
       call geom_hnd_put_data('b^-1', dbl_mb(k_pmat), ncart**2)
       call geom_hnd_put_data('c', dbl_mb(k_pmat), ncart**2)
 c     
@@ -2516,18 +2520,18 @@ c     1) dx = dq*B-1
 c     2) symmetrize dx
 c     3) dq = dx*B
 c
-      if (.not. ma_push_get(mt_dbl, ncart*nzvar,'binv',l_bi, k_bi))
-     $     call errquit('driver_sym: memory for binv', ncart*nzvar)
-      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
+      if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
+     $     call errquit('driver_sym: memory for binv', ncart*nvar)
+      call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
       if (odebug) then
          write(6,*) ' Symmetrize step - initial q '
          call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
       endif
-      call dgemv('n', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+      call dgemv('n', ncart, nvar, 1d0, dbl_mb(k_bi), ncart,
      $     ds, 1, 0.0d0, dx, 1)
       call sym_grad_symmetrize(geom, dx)
-      call geom_hnd_get_data('b', dbl_mb(k_bi), ncart*nzvar)
-      call dgemv('t', ncart, nzvar, 1d0, dbl_mb(k_bi), ncart,
+      call geom_hnd_get_data('b', dbl_mb(k_bi), ncart*nvar)
+      call dgemv('t', ncart, nvar, 1d0, dbl_mb(k_bi), ncart,
      $     dx, 1, 0.0d0, ds, 1)
       if (odebug) then
          write(6,*) ' Symmetrize step - final q '
