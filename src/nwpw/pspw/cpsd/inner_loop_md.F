@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.14 2004-03-08 22:51:26 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.15 2004-03-16 05:05:27 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -53,11 +53,12 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
+      real*8  ehsic,phsic,exsic,pxsic
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
 *     **** MA local variables ****
-      logical value,nose,field_exist
+      logical value,nose,field_exist,sic
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -116,12 +117,15 @@ c     real*8     fion(3,natmx)
       logical  dplot_iteration_check
       external dplot_iteration_check
 
+      logical  pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed
 
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
       field_exist = pspw_qmmm_found().or.pspw_charge_found()
+      sic         = pspw_SIC()
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
@@ -470,6 +474,9 @@ c     real*8     fion(3,natmx)
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte0,dbl_mb(fweight(1)),
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
+        else if (sic) then
+        call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte0,
+     >                 lmd,dbl_mb(tmp_L(1)),ierr)
         else
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
@@ -647,6 +654,21 @@ c     real*8     fion(3,natmx)
          E(14) = e_vib
          E(15) = e_cav
       end if
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+         call pspw_energy_SIC(ispin,psi_r,ehsic,phsic,exsic,pxsic)
+         E(2) = E(2) + ehsic + exsic
+         E(16) = ehsic
+         E(17) = exsic
+         if (pspw_SIC_relaxed()) then
+            E(2)  = E(2) - phsic - pxsic
+            E(18) = phsic
+            E(19) = pxsic
+         end if
+      end if
+
+
 
 *     **** Energy and Energy**2 sum ***
       E(25) = E(25) + E(2)

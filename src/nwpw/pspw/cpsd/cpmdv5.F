@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.36 2004-03-15 15:17:42 bylaska Exp $
+* $Id: cpmdv5.F,v 1.37 2004-03-16 05:05:26 bylaska Exp $
 *
 
 ***********************************************************************
@@ -85,7 +85,7 @@
       real*8  EV,pi,dt
       real*8  emotion_time_shift
       integer i,j,k,ia,n,nn
-      integer ii,jj,index
+      integer ii,jj,index,indx
       integer icount,it_in,it_out,icount_shift
       real*8 w,sumall
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
@@ -159,9 +159,9 @@
       logical  control_out_of_time,control_new_vpsi
       external control_out_of_time,control_new_vpsi
 
-      logical  control_SA,control_Fei
+      logical  control_SA,control_Fei,pspw_SIC
       real*8   control_SA_decay
-      external control_SA,control_Fei
+      external control_SA,control_Fei,pspw_SIC
       external control_SA_decay
      
 
@@ -378,6 +378,11 @@
 *     **** initialize frac_occ data structure ****
       call frac_occ_init(rtdb,ispin,ne)
 
+*     **** initialize SIC ****
+      call pspw_init_SIC(rtdb)
+
+
+
 
 
 
@@ -406,6 +411,7 @@
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF   
          if (fractional) write(6,1132)
+         call pspw_print_SIC(6)
          write(6,1140)
          do ia = 1,psp_npsp()
            write(6,1150) ia,psp_atom(ia),
@@ -805,7 +811,15 @@
          end do
       end do
 
+*     ***** do not diagonalize the hamiltonian matrix *****
+      if (pspw_SIC()) then
+        call dcopy(2*npack1*nemax,
+     >             dcpl_mb(psi1(1)),1,
+     >             dcpl_mb(psi2(1)),1)
+      
+
 *     ***** diagonalize the hamiltonian matrix *****
+      else
       n = ne(1)
       nn = n*n
       call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
@@ -874,6 +888,7 @@ c    >              dbl_mb(lmd(1)),ierr)
             end do
          end do
       end do
+      end if
 
 
 
@@ -928,6 +943,10 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1440) E(5),E(5)/n2(ispin)
          write(6,1450) E(6),E(6)/n2(ispin)
          write(6,1460) E(7),E(7)/n2(ispin)
+         if (pspw_SIC()) then
+           write(6,1455) E(16),E(16)/n2(ispin)
+           write(6,1456) E(17),E(17)/n2(ispin)
+         end if
          write(6,1470) E(8),E(8)/ion_nion()
          write(6,1471) E(3),E(3)/n2(ispin)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
@@ -974,6 +993,22 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1493) evar
          write(6,1494) cv
 
+*        **** write out diagonal <psi|H|psi> matrix ****
+         if (pspw_SIC()) then
+           n = ne(1)
+           nn = n*n
+           write(6,1331)
+           do ms=1,ispin
+           do i=n1(ms),n2(ms)
+             ii = i-n1(ms)
+             indx = (ii+1) + ii*n +(ms-1)*nn
+             write(6,1341) ms,ii+1,ii+1,
+     >                       dbl_mb(hml(1)+indx-1)
+           end do
+           end do
+
+*        **** write out KS eigenvalues ****
+         else
          write(6,1500)
          NN=NE(1)-NE(2)
          EV=27.2116d0
@@ -1002,6 +1037,8 @@ c    >              dbl_mb(lmd(1)),ierr)
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
      >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
            end do
+         end if
+
          end if
 
 *        *** Extra energy output added for QA test ****
@@ -1040,6 +1077,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
+      call pspw_end_SIC()
       call pspw_qmmm_end()
       call dplot_iteration_end()
       call frac_occ_end()
@@ -1195,7 +1233,9 @@ c    >              dbl_mb(lmd(1)),ierr)
  1313 format(3i4)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
+ 1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
  1360 FORMAT(I3,2I3,E18.7)
  1370 FORMAT(I3)
@@ -1208,6 +1248,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
+ 1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT(/' Kinetic energy (elc)    :',E19.10,' (',E15.5,'/elc)')
@@ -1220,6 +1262,10 @@ c    >              dbl_mb(lmd(1)),ierr)
  1492 FORMAT(/' Eaverage           :    ',E19.10)
  1493 FORMAT( ' Evariance          :    ',E19.10)
  1494 FORMAT( ' Cv - f*kb/(2*nion) :    ',E19.10)
+ 1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
+     >        ' (',E15.5,'/electron)')
+ 1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
+     >        ' (',E15.5,'/electron)')
  
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
