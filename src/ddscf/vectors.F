@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.52 2004-05-13 01:25:11 edo Exp $
+C$Id: vectors.F,v 1.53 2005-01-12 18:12:46 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -9,6 +9,7 @@ C$Id: vectors.F,v 1.52 2004-05-13 01:25:11 edo Exp $
 #include "msgids.fh"
 #include "cscfps.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c
 c     Temporary routine
 c
@@ -78,27 +79,27 @@ c
 c
  1000 write(6,*) ' movecs_read_header: failed to open ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  1001 write(6,*) ' movecs_read_header: failing reading from ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
  2001 write(6,*) ' movecs_read_header:eof: failing reading from '
      &    , filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       close(unitno, err=1002)
       goto 10
 c
  1002 write(6,*) ' movecs_read_header: failed to close',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
@@ -114,6 +115,7 @@ c
 #include "cscfps.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
       character*(*) filename
       integer iset              ! No. (1,2) of set of vectors to read
@@ -192,27 +194,27 @@ c
      $     util_print('vectors i/o', print_high)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Read molecular orbitals from ',a/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
  1000 write(6,*) ' movecs_read: failed to open ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  1001 write(6,*) ' movecs_read: failing reading from ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
  1002 write(6,*) ' movecs_read: failed to close',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
@@ -310,6 +312,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c
 c     Temporary routine
 c
@@ -437,7 +440,7 @@ c
      $     util_print('vectors i/o', print_high)) then
          write(6,22) filename(1:inp_strlen(filename))
  22      format(/' Wrote molecular orbitals to ',a/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
       call ga_sync()
       if (oscfps) call pstat_off(ps_vecio)
@@ -445,20 +448,20 @@ c
 c
  1000 write(6,*) ' movecs_write: failed to open ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  1001 write(6,*) ' movecs_write: failing writing to ',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       close(unitno,err=1002)
       goto 10
 c
  1002 write(6,*) ' movecs_write: failed to close',
      $     filename(1:inp_strlen(filename))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
@@ -471,6 +474,7 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
 c
       character*(*) scftype
       integer rtdb, g_vecs(*)
@@ -549,7 +553,7 @@ c
                call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
 c
             enddo
-            if (oprint) call util_flush(6)
+            if (oprint) call util_flush(luout)
             if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0,
      &       MA_ERR)
             if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0,
@@ -940,13 +944,13 @@ c
 c
  1000    write(6,*) ' file_read_ga_info: failed to open ',
      $        fname(1:inp_strlen(fname))
-         call util_flush(6)
+         call util_flush(luout)
          ok = 0
          goto 10
 c     
  1001    write(6,*) ' file_read_ga_info: failing reading from ',
      $        fname(1:inp_strlen(fname))
-         call util_flush(6)
+         call util_flush(luout)
          ok = 0
         ierr=eaf_close(unitno)
         if (ierr .ne. 0) then
@@ -962,7 +966,7 @@ c
 c     
  1002    write(6,*) ' file_read_ga_info: failed to close',
      $        fname(1:inp_strlen(fname))
-         call util_flush(6)
+         call util_flush(luout)
          ok = 0
          goto 10
       end if
@@ -1016,7 +1020,6 @@ c
       len1 = inp_strlen(gtitle)
       if (ga_nodeid() .eq. 0) then
          offset=0d0
-         call util_flush(0)
          ierr=eaf_open(fname(1:inp_strlen(fname)),eaf_rw, unitno)
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
@@ -1086,19 +1089,19 @@ c
      $     util_print('vectors i/o', print_high)) then
          write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Wrote ',a,' to ',a/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
       return
 c
  1000 write(6,*) ' file_write_ga: failed to open ',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  1001 write(6,*) ' file_write_ga: failing writing to ',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       ierr=eaf_close(unitno)
       if (ierr .ne. 0) then
@@ -1114,7 +1117,7 @@ c
 c
  1002 write(6,*) ' file_write_ga: failed to close',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
@@ -1162,7 +1165,6 @@ c
          offset=0d0
          ierr=eaf_open(fname(1:inp_strlen(fname)),
      ,        eaf_rw, unitno)
-         call util_flush(0)
          if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
@@ -1230,19 +1232,19 @@ c
      $     util_print('vectors i/o', print_high)) then
          write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Read ',a,' from ',a/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
       return
 c
  1000 write(6,*) ' file_read_ga: failed to open ',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  1001 write(6,*) ' file_read_ga: failing writing to ',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       ierr=eaf_close(unitno)
       if (ierr .ne. 0) then
@@ -1258,14 +1260,14 @@ c
 c
  1002 write(6,*) ' file_read_ga: failed to close',
      $     fname(1:inp_strlen(fname))
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
  2000 write(6,*) ' file_read_ga: GA and file ',
      $           'contents mismatch dimensions',
      $           nrow, ncol, grow, gcol
-      call util_flush(6)
+      call util_flush(luout)
       ok = 0
       goto 10
 c
