@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.10 2002-03-05 03:47:36 bylaska Exp $
+c $Id: switching_charge.F,v 1.11 2002-03-05 22:54:41 bylaska Exp $
 c
 
 ***********************************************************
@@ -85,13 +85,14 @@ c
 *     **** local variables ****
       logical value
       real*8  scal2
-      integer xtmp(2)
+      integer xtmp(2),i,count
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
 
-      scal2   = 1.0d0/lattice_omega()
+*     scal2   = 1.0d0/dsqrt(lattice_omega())
+      scal2   = 1.0d0
 
 *     **** switching charge potential ****
       call Switching_Charge_Vmm(n2ft3d,rgrid,Vqm)
@@ -101,12 +102,25 @@ c
       if (.not. value) 
      >  call errquit(' Switching_Charge_Generate_V:pushing stack',0)
       call Truncating_Function(dbl_mb(xtmp(1)))
-      call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
-      call Pack_c_unpack(0,dbl_mb(xtmp(1)))
+c      call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
+c      call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
-c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
+c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
+       scal2 = 0.0d0
+       count = 0
+       do i=1,n2ft3d
+           
+          if ( dabs(dbl_mb(xtmp(1)+i-1)) .gt.0.1d0) then
+          write(*,*) "T:",i,dbl_mb(xtmp(1)+i-1)
+          end if
+          if ( dbl_mb(xtmp(1)+i-1) .lt.0.0d0) then
+             scal2 = scal2 + dbl_mb(xtmp(1)+i-1)
+             count = count + 1
+          end if
+       end do
+       write(*,*) "ERROR:",count,scal2
 
 *     **** Tall*Vqm ****
       call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
@@ -217,8 +231,8 @@ c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
       if (.not. value) 
      >  call errquit(' Switching_Charge_Potentail_Fmm:pushing stack',0)
       call Truncating_Function(dbl_mb(xtmp(1)))
-      call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
-      call Pack_c_unpack(0,dbl_mb(xtmp(1)))
+c     call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
+c     call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
