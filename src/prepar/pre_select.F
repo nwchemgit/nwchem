@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup)
 c
-c $Id: pre_select.F,v 1.5 2001-05-08 21:59:09 d3j191 Exp $
+c $Id: pre_select.F,v 1.6 2001-05-08 22:21:36 d3j191 Exp $
 c
       implicit none
 c
@@ -42,8 +42,16 @@ c
       target=card(ifr:ito)//' '
       ndx=index(target,':')
       if(ndx.eq.0) then
-      read(target,*,err=9999) isgm
+      read(target,*,err=5) isgm
       atomi='????'
+      goto 6
+    5 continue
+      isgm=0
+      ndx=1
+      atomi=target(1:4)
+      if(.not.str_replace(atomi,'_',' '))
+     + call errquit('str_replace',9999)
+    6 continue
       else
       read(target(1:ndx-1),*,err=9999) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
@@ -56,9 +64,9 @@ c
       do 4 j=1,4
       if(atomi(j:j).eq.'?') trgt(j:j)='?'
     4 continue
-      if(isgm.eq.isegm(i).and.
+      if((isgm.eq.0.or.isgm.eq.isegm(i)).and.
      + (ndx.eq.0.or.atomi(1:4).eq.trgt)) then
-      iatom=1
+      iatom=iatom+1
       lgroup(igrp)=lgroup(igrp)+1
       if(lgroup(igrp).gt.maxatm)
      + call errquit('Increase group maxatm',maxatm)
