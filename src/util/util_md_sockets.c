@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.2 1999-08-11 01:42:47 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.3 1999-08-18 18:43:05 d3j191 Exp $
  */
 
 #include <sys/types.h>
@@ -9,33 +9,85 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-int client_socket_open_(int port)
+#ifdef CRAY
+#define create_server_socket_ CREATE_SERVER_SOCKET
+#define create_client_socket_ CREATE_CLIENT_SOCKET
+#define write_socket_ WRITE_SOCKET
+#define close_socket_ CLOSE_SOCKET
+#endif
+
+
+/*
+ Routine to create a server socket
+ */
+int create_server_socket(char *host, int port)
 {
-  int sockfd;
-  int len;
+  int server_sockfd, client_sockfd;
+  int server_len, client_len;
+  struct sockaddr_in server_address;
+  struct sockaddr_in client_address;
+
+  server_sockfd= socket(AF_INET,SOCK_STREAM,0);
+  server_address.sin_family=AF_INET;
+  server_address.sin_addr.s_addr=inet_addr(host);
+  server_address.sin_port=htons((ushort) port);
+  server_len=sizeof(server_address);
+  bind(server_sockfd,(struct sockaddr *)&server_address,server_len);
+  listen(server_sockfd,5);
+  client_sockfd=accept(server_sockfd,(struct sockaddr *)&client_address,&client_len);
+  return client_sockfd;
+}
+
+int create_server_socket_(char *s, int *port)
+{
+  char host[255]; 
+  int i=0;
+  while(*s!=' ' && i<255){ host[i]=*s; s++; i++; }; host[i]=0;
+  return create_server_socket(host,*port);
+}
+
+/*
+ Routine to create a client socket to the specified host and port
+ Return value is the socket file descriptor when successful, -1 otherwise
+ */
+int create_client_socket(char *host, int port)
+{
+  int sockfd, len, result;
   struct sockaddr_in address;
-  int result;
 
   sockfd=socket(AF_INET,SOCK_STREAM,0);
   address.sin_family=AF_INET;
-  address.sin_addr.s_addr=inet_addr("127.0.0.1");
-  address.sin_port=3333;
+  address.sin_addr.s_addr=inet_addr(host);
+  address.sin_port=htons((ushort) port);
   len=sizeof(address);
-
+  
   result=connect(sockfd,(struct sockaddr *)&address,len);
 
-  if(result==-1)
-    { perror("Unable to connect to NWChem socket"); return sockfd; }
-
+  if(result==-1) return -1;
   return sockfd;
 }
 
-long client_socket_write_(int *sockfd, char *value, int *vlen)
+int create_client_socket_(char *s, int *port)
+{
+  char host[255]; 
+  int i=0;
+
+  while(*s!=' ' && i<255){ host[i]=*s; s++; i++; }; host[i]=0;
+  return create_client_socket(host,*port);
+}
+
+
+long write_socket_(int *sockfd, char *value, int *vlen)
 {
   return write(*sockfd,value,*vlen);
 }
 
-void client_socket_close_(int *sockfd)
+void close_socket_(int *sockfd)
 {
   close(*sockfd);
 }
+
+
+
+
+
