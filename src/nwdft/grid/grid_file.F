@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.40 2001-04-03 01:20:49 edo Exp $
+* $Id: grid_file.F,v 1.41 2001-04-12 21:55:24 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -106,6 +106,10 @@ c
                availkb = util_scratch_dir_avail_for_me()
             else
                ierr=eaf_stat(actualname, availkb, fstype)
+c
+c     neow eaf_stat returns Mb instead of kb
+c
+               availkb=availkb*1024
                if (ierr .ne. 0) then
                   call eaf_errmsg(ierr,errmsg)
                   write(LuOut,*) ga_nodeid(),errmsg
