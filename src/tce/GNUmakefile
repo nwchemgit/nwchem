@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.15 2003-02-19 18:40:56 sohirata Exp $
+#$Id: GNUmakefile,v 1.16 2003-05-22 23:23:55 sohirata Exp $
 
 OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o \
@@ -15,7 +15,7 @@ OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1
       cisdtq_e.o cisdtq_c1.o cisdtq_c2.o cisdtq_c3.o \
       tce_mbpt2.o mbpt1_t1.o mbpt1_t2.o mbpt2_e.o mbpt2_t1.o mbpt2_t2.o mbpt2_t2_b.o mbpt2_t3.o mbpt2_t4.o \
       mbpt3_e.o mbpt3_t1.o mbpt3_t2.o mbpt4_e.o qcisd_e.o qcisd_t1.o qcisd_t2.o \
-      tce_diis_init.o tce_diis_tidy.o tce_diis_switch.o tce_diis_t1.o tce_diis_t2.o tce_diis_t3.o tce_diis_t4.o \
+      tce_diis_init.o tce_diis_tidy.o tce_diis_switch.o tce_diis.o \
       copyfile.o ddotfile.o daxpyfile.o \
 ccsdt_t3.o\
 ccsdt_t3_1.o\
