@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.4 2000-07-18 15:03:42 windus Exp $
+C $Id: twodd_cont.F,v 1.5 2000-08-07 17:40:54 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -170,7 +170,7 @@ c initialize for integral gradients
 C     one-electron contribution
 C     buffers for one electron integral derivatives
  
-      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
+      if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,
      $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
      $    ,78*lbuf)
 *      call ma_summarize_allocated_blocks()
@@ -312,6 +312,10 @@ c
 c  IMPORTANT!  IMPORTANT!
 c  Need to add a reorder back to atomic so that Benny's code will work!!!
 c
+      do i = 1, ndens
+         call ga_reorder(g_dens(i), .true., int_mb(k_bfmap),
+     $        .true., int_mb(k_bfmap))
+      end do
 c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
 c  that the xc contributions are coming out O.K.  Eventually, the xc routines
 c  will need to modified to add their contribution to k_exy and g_rhs and
