@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.2 1997-10-31 20:45:32 d3e129 Exp $
+* $Id: ga_local_mdot.F,v 1.3 1999-11-13 03:16:05 bjohnson Exp $
 *
       implicit none
 #include "global.fh"
@@ -48,8 +48,8 @@ c
                work(ij) = sum
             enddo
          enddo
-         call ga_release(g_a, ailo, aihi, ajlo, ajhi, aind, ald)
-         call ga_release(g_b, bilo, bihi, bjlo, bjhi, bind, bld)
+         call ga_release(g_a, ailo, aihi, ajlo, ajhi)
+         call ga_release(g_b, bilo, bihi, bjlo, bjhi)
       else
          call dfill(nva*nvb, 0.0d0, work, 1)
       endif
