@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult_energy.F,v 1.4 2003-02-26 20:34:06 marat Exp $
+* $Id: paw_mult_energy.F,v 1.5 2003-03-05 23:16:32 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2003/02/26 20:34:06  marat
+* fixed bug related to calculation of
+* comp_coeff, the i and j loop were incorrectly switched
+* MV
+*
 * Revision 1.3  2003/02/23 23:06:48  bylaska
 * energy subroutines changed to functions...EJB
 *
@@ -51,15 +56,17 @@
           e_comp = e_comp
      >           + dble(dcpl_mb(paw_qlm(1)+il)
      >                 *dcpl_mb(comp_coeff(1)+il))
-          write(33,*) li,mi,ia,e_comp,dcpl_mb(paw_qlm(1)+il),
-     >                dcpl_mb(comp_coeff(1)+il)     
+
+!         write(33,*) li,mi,ia,e_comp,dcpl_mb(paw_qlm(1)+il),
+!    >                dcpl_mb(comp_coeff(1)+il)     
+
           il = il + 1
         end do !*mi*
         end do !*li*
       end do !*ii*
 
       paw_mult_energy_atom_comp = e_comp
-      write(*,*) " paw_mult_energy_atom_comp",e_comp
+      !write(*,*) " paw_mult_energy_atom_comp",e_comp
       return
       end
 

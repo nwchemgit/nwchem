@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.20 2003-02-21 18:39:38 marat Exp $
+* $Id: paw_basis.F,v 1.21 2003-03-05 23:16:31 bylaska Exp $
 *
 
 !**************************************************
@@ -29,8 +29,6 @@
       character*255 fname
 
 c      !*** external functions ***
-      double precision dabsmax
-      external dabsmax
       integer ion_nkatm
       external ion_nkatm
       
@@ -294,23 +292,28 @@ c     !*** set core charges ***
 
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical found
       integer ia
       character*2 atom
       character*255 fname,libfile
 
 *     **** external functions ****
-      logical     nwpw_filefind
       character*2 ion_atom
       integer     ion_nkatm
-      external    nwpw_filefind
       external    ion_atom
       external    ion_nkatm
 
-
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
       do ia = 1, ion_nkatm()
        call ion_atom_plus_suffix(ia,'_basis',fname)
        call util_file_name_resolve(fname, .false.)
-       if (.not.nwpw_filefind(fname)) then
+
+       inquire(file=fname,exist=found)
+       if (.not.found) then
 
 *         *** find location of library file ***
           atom = ion_atom(ia)
@@ -322,6 +325,7 @@ c     !*** set core charges ***
        end if
 
       end do
+      end if
 
       return
       end

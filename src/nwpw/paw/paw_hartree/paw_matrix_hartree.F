@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_hartree.F,v 1.1 2003-02-14 05:11:08 marat Exp $
+* $Id: paw_matrix_hartree.F,v 1.2 2003-03-05 23:16:31 bylaska Exp $
 *
 
 !*************************************************
@@ -160,13 +160,11 @@
       do it=1,tot_ntype
         mult_l  = paw_basis_mult_l(it)
         nbasis = paw_basis_nbasis(it)
-        write(*,*) "matrix size:",it,mult_l,nbasis
 
         int_mb(s_paw_hartree_matrix(1) + it - 1) = nbasis**4*(mult_l+1) 
         matr_size = matr_size + int_mb(s_paw_hartree_matrix(1) + it - 1)
       end do
   
-      print*,"matrix_size=",matr_size
 
       !*** set the indexing to access diff atom types ***
       int_mb(i_paw_hartree_matrix(1) )  = 0

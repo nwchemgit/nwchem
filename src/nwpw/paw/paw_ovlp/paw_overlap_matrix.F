@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.6 2003-02-25 02:43:56 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.7 2003-03-05 23:16:32 bylaska Exp $
 c
 
 !**************************************************
@@ -41,10 +41,10 @@ c
         nbasis = paw_basis_nbasis(it)
         int_mb(s_overlap_matrix(1) + it - 1) = nbasis**2                   
         matr_size = matr_size + int_mb(s_overlap_matrix(1) + it - 1)                
-      print*," matrix_size=",matr_size,it
+      
       end do
   
-      print*,"matrix_size=",matr_size
+      
       !*** set the indexing to access diff atom types ***
       int_mb(i_overlap_matrix(1) )  = 0
       do it=1,tot_ntype-1

@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_hartree_atom.F,v 1.3 2003-02-26 20:35:00 marat Exp $
+* $Id: paw_energy_hartree_atom.F,v 1.4 2003-03-05 23:16:31 bylaska Exp $
 *
 
 
@@ -31,7 +31,7 @@
       integer nb
       double precision ehartree
 
-      write(*,*) "hartree energy"
+      
       ehartree = 0.D0
       i_w = 0
       do in=1,ion_nion()
@@ -52,12 +52,12 @@
                   ehartree = ehartree + dble(dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                         dcpl_mb(paw_pot_hartree(1)+i_hp) )
 
-                  write(24,'(A10,E19.10)') "tmp=",ehartree
-
-                  write(24,'(A10,2E19.10)') "w=",
-     >                     dcpl_mb(paw_ovlp_w(1)+i_w)
-                  write(24,'(A10,2E19.10)') "hpot=",
-     >                     dcpl_mb(paw_pot_hartree(1)+i_hp)             
+!                 write(24,'(A10,E19.10)') "tmp=",ehartree
+!
+!                 write(24,'(A10,2E19.10)') "w=",
+!    >                     dcpl_mb(paw_ovlp_w(1)+i_w)
+!                 write(24,'(A10,2E19.10)') "hpot=",
+!    >                     dcpl_mb(paw_pot_hartree(1)+i_hp)             
 
 
                   i_w = i_w + 1

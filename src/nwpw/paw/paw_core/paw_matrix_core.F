@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_core.F,v 1.2 2003-02-27 00:16:49 bylaska Exp $
+* $Id: paw_matrix_core.F,v 1.3 2003-03-05 23:16:31 bylaska Exp $
 *
 
 !**************************************************
@@ -182,8 +182,6 @@
       end do
 
       ok = ma_chop_stack(l_f1)
-      write(*,*) "core matrix"
-      write(*,*) matrix
 
       return
       end

@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.47 2003-02-26 02:13:50 bylaska Exp $
+* $Id: paw_sd.F,v 1.48 2003-03-05 23:16:31 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.47  2003/02/26 02:13:50  bylaska
+* paw_nonlocal initialization and deallocation added...EJB
+*
 * Revision 1.46  2003/02/24 21:03:30  bylaska
 *  $Log: added to CVS output
 * ....EJB
@@ -162,21 +165,21 @@
          write(6,1010)
          write(6,1042)
          write(6,1043)
-         write(6,1044)
-         write(6,1045)
-         write(6,1046)
-         write(6,1047)
-         write(6,1048)
-         write(6,1049)
-         write(6,1050)
-         write(6,1051)
-         write(6,1052)
-         write(6,1053)
-         write(6,1054)
-         write(6,1055)
-         write(6,1056)
-         write(6,1057)
-         write(6,1058)
+         !write(6,1044)
+         !write(6,1045)
+         !write(6,1046)
+         !write(6,1047)
+         !write(6,1048)
+         !write(6,1049)
+         !write(6,1050)
+         !write(6,1051)
+         !write(6,1052)
+         !write(6,1053)
+         !write(6,1054)
+         !write(6,1055)
+         !write(6,1056)
+         !write(6,1057)
+         !write(6,1058)
          write(6,1010)
          write(6,1000)
          call nwpw_message(1)
@@ -227,7 +230,6 @@
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
-      write(*,*) "generating PAW basis - debug"
       value = MA_set_auto_verify(.true.)
       call init_paw_basis()
 
@@ -680,9 +682,8 @@ c         write(6,1498) virial
 !      
 !
 !*     ***** write psi2 wavefunctions ****
-!      call psi_write(ispin,ne,dcpl_mb(psi2(1)))
-
-*       call psi_marat_write(ispin,ne,dcpl_mb(psi2(1)))
+       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
+       call psi_marat_write("marat2.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 !*     **** write geometry to rtdb ****

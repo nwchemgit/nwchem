@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.8 2003-02-27 01:36:19 bylaska Exp $
+c $Id: paw_pot_hartree.F,v 1.9 2003-03-05 23:16:31 bylaska Exp $
 c
 
 !**************************************************
@@ -46,7 +46,7 @@ c     !*** calculate the size and indexing ***
       if (.not.ok)
      > call errquit("init_paw_pot_hartree:out of heap memory",1)
   
-      write(*,*) "initialized paw_hartree_pot"
+      
       end !subroutine init_paw_pot_hartree
 
 !**************************************************
@@ -113,7 +113,7 @@ c     !*** calculate the size and indexing ***
       integer nilm,njlm,niplm,njplm
       complex*16 tmp_hartree_pot
 
-      write(*,*) " in hartree potential"
+      
       !*** zero out paw_pot_hartree ***
       call dcopy(2*paw_pot_hartree_size,
      >           0.0d0,0,
@@ -186,14 +186,14 @@ c     >                   (njlm+lj+mj)*paw_proj_nbasis(ia)   ! G(alpha,beta) ind
      >                  dcpl_mb(paw_pot_hartree(1)+i_hp)+
      >                  tmp_hartree_pot
 
-           write(21,*) "i,mi,j,mj,in,ip,mip,jp,mjp",
-     >                i,mi,j,mj,in,ip,mip,jp,mjp
-           write(21,'(A10,E16.8)') "gaunt=",tmp_gaunt
-                              
-      write(21,'(A10,E16.8)')"matr=",dbl_mb(paw_hartree_matrix(1)+i_mtr)
-      write(21,'(A10,2E16.8)')"w=",dcpl_mb(paw_ovlp_w(1)+i_w)
-      write(21,'(A10,2E16.8)')"tmp_hp=",tmp_hartree_pot
-      write(21,'(A10,2E16.8)')"hp=",dcpl_mb(paw_pot_hartree(1)+i_hp)
+!           write(21,*) "i,mi,j,mj,in,ip,mip,jp,mjp",
+!     >                i,mi,j,mj,in,ip,mip,jp,mjp
+!           write(21,'(A10,E16.8)') "gaunt=",tmp_gaunt
+!                              
+!      write(21,'(A10,E16.8)')"matr=",dbl_mb(paw_hartree_matrix(1)+i_mtr)
+!      write(21,'(A10,2E16.8)')"w=",dcpl_mb(paw_ovlp_w(1)+i_w)
+!      write(21,'(A10,2E16.8)')"tmp_hp=",tmp_hartree_pot
+!      write(21,'(A10,2E16.8)')"hp=",dcpl_mb(paw_pot_hartree(1)+i_hp)
            
  
               end if
@@ -219,32 +219,32 @@ c     >                   (njlm+lj+mj)*paw_proj_nbasis(ia)   ! G(alpha,beta) ind
         end do !l
       end do !in
  
-*     *** print hartree potential ***
-      write(26,*)paw_pot_hartree(3)
-      do in=1,ion_nion()
-        ia = ion_katm(in)
-        i_hp0 = int_mb(i_paw_pot_hartree(1) + in - 1)
-        nb = paw_basis_nbasis(ia)
-        nilm = 0
-        do i=1,nb
-          li = paw_basis_orb_l(i,ia)
-          do mi=-li,li
-            njlm = 0
-            do j=1,nb
-              lj = paw_basis_orb_l(j,ia)
-                do mj=-lj,lj
-                 i_hp  = i_hp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
-
-                  write(26,*) i,mi,j,mj,in,
-     >                     dcpl_mb(paw_pot_hartree(1)+i_hp)
-                end do
-                njlm=njlm + 2*lj+1
-             end do
-           end do   
-           nilm = nilm + 2*li+1
-         end do
-      end do
+!*     *** print hartree potential ***
+!      write(26,*)paw_pot_hartree(3)
+!      do in=1,ion_nion()
+!        ia = ion_katm(in)
+!        i_hp0 = int_mb(i_paw_pot_hartree(1) + in - 1)
+!        nb = paw_basis_nbasis(ia)
+!        nilm = 0
+!        do i=1,nb
+!          li = paw_basis_orb_l(i,ia)
+!          do mi=-li,li
+!            njlm = 0
+!            do j=1,nb
+!              lj = paw_basis_orb_l(j,ia)
+!                do mj=-lj,lj
+!                 i_hp  = i_hp0-1+(njlm+lj+mj+1)+
+!     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+!
+!                  write(26,*) i,mi,j,mj,in,
+!     >                     dcpl_mb(paw_pot_hartree(1)+i_hp)
+!                end do
+!                njlm=njlm + 2*lj+1
+!             end do
+!           end do   
+!           nilm = nilm + 2*li+1
+!         end do
+!      end do
        
       return
       end

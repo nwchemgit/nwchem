@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.25 2003-02-13 01:58:55 bylaska Exp $
+* $Id: paw_proj.F,v 1.26 2003-03-05 23:16:32 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2003/02/13 01:58:55  bylaska
+* ...EJB
+*
 * Revision 1.24  2003/02/11 01:41:24  edo
 * eliminated f90-isms
 *
@@ -652,9 +655,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
       do ii=1,basis_nbasis
         l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
-        write(*,*) "formatting prj ",ii," l:",l
-        write(*,*) "nr=",nr
-        write(*,*) "log_amesh=",log_amesh
+        !write(*,*) "formatting prj ",ii," l:",l
+        !write(*,*) "nr=",nr
+        !write(*,*) "log_amesh=",log_amesh
 
         do i=1,npack1
           gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
@@ -699,7 +702,6 @@ c           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
 c           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
 c           pause 
            if (taskid.eq.MASTER) then
-             write(*,*) "writing formatted prj:",ii,"  l,m",l,m
              call iwrite(6,l,1)
              call iwrite(6,m,1)
            end if

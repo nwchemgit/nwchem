@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop.F,v 1.26 2003-03-04 00:04:03 marat Exp $
+* $Id: paw_inner_loop.F,v 1.27 2003-03-05 23:16:31 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2003/03/04 00:04:03  marat
+* added printouts for atomic potenitials
+* for debug purposes
+* MV
+*
 * Revision 1.25  2003/02/24 22:38:51  bylaska
 * Fixed bugs in ehartr_pw calculation....EJB
 *
@@ -105,7 +110,6 @@
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
-      write(*,*) "In paw_inner_loop"
 
 
       call nwpw_timing_start(12)
@@ -196,7 +200,7 @@
 *       ********************************
 *       **** generate phaze factors ****
 *       ********************************
-        call phafac()
+        if (move) call phafac()
 
 
         call nwpw_timing_start(11)
@@ -221,7 +225,7 @@
 *       *************************************
         call paw_comp_charge_update()
         call paw_pot_comp_solve()
-        call paw_pot_comp_print()
+        !call paw_pot_comp_print()
 
 
 *       *********************
@@ -259,9 +263,6 @@
      >               dbl_mb(fion(1)))
        call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),evloc_pw)
 
-       write(*,*) 
-       write(*,*) "DEBUG evloc_pw:",evloc_pw
-       write(*,*) 
 
 *      ************************************
 *      **** generate coulomb potential ****
@@ -293,7 +294,7 @@
            call Pack_c_setzero(0,vzero,dcpl_mb(vcomp(1)))
 
            call paw_mult_coeff_set(dcpl_mb(vh(1)),dcpl_mb(vcomp(1)))
-           call paw_pot_mult_print()
+           
            call Pack_cc_Sum(0,
      >                      dcpl_mb(vh(1)),
      >                      dcpl_mb(vcomp(1)),
@@ -311,12 +312,12 @@
 *       **** generate exchange-correlation potential ****
 *       *************************************************
 
-*       *** local portion
+*       *** local portion ***
         call paw_density_solve()
         call paw_xc_solve()
-        call paw_xc_print()
+        !call paw_xc_print()
         
-*       *** plane wave 
+*       *** plane wave ***
         if (control_gga().eq.0) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
@@ -346,7 +347,7 @@
      >             move,dbl_mb(fion(1)))
 
         
-        call paw_Gop_print()
+        !call paw_Gop_print()
 
 *       ************************************
 *       **** do a steepest descent step ****
