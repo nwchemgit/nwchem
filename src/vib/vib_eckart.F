@@ -1,5 +1,5 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.5 2002-02-23 02:17:00 edo Exp $
+* $Id: vib_eckart.F,v 1.6 2002-02-23 02:39:14 edo Exp $
       IMPLICIT none ! REAL*8 (A-H,O-Z)
 c
 #include "util.fh"
@@ -18,8 +18,7 @@ c
       double precision VC(NAT3,6)
 c
       DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
-      double precision test_norm,ddot
-      external ddot
+      double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
 C****
 C**** construct translation unit vectors;  these are stored in the
@@ -30,13 +29,7 @@ C****
       VNORM = ONE/SQRT(dble(NAT))
       DO 10 I=1,3 ! unit translation vector for x-, y-, and z-directions
         DO 20 IATOM=1,NAT
-          DO 30 IAXIS=1,3
-            IF( IAXIS.NE.I ) THEN
-              VC(3*(IATOM-1)+IAXIS,I) = ZERO
-            ELSE
-              VC(3*(IATOM-1)+IAXIS,I) = VNORM
-            END IF
-   30     CONTINUE
+           VC(3*(IATOM-1)+I,I) = VNORM
    20   CONTINUE
    10 CONTINUE
 C****
