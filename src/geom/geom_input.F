@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.48 1997-02-23 18:27:28 d3j191 Exp $
+C     $Id: geom_input.F,v 1.49 1997-02-26 00:35:33 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -6480,7 +6480,9 @@ C
                FRZVAR(  IVAR)=.TRUE.
             GO TO 130
          ELSEIF(NUMWRD.EQ.1) THEN
-            IF(PRSWRD(1)(2:NUMCHR(1)-1).NE.CHREND(1:4)) THEN
+            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
+     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
+            ELSE
                WRITE(IW,8880)
                CALL HND_HNDERR(3,ERRMSG)
             ENDIF
@@ -6800,7 +6802,7 @@ C
      3          ' AS ATOMS. IF NOT, STOP .')
  8880 FORMAT(' THE END OF THE -$GEO- DATA GROUP IS INCORRECTLY',
      1       ' INDICATED. STOP',/,' IT SHOULD BE A BLANK CARD OR',
-     2       ' A - $END - CARD.')
+     2       ' A - ZEND - CARD.')
  8879 FORMAT(' THE ATOMIC SYMBOL FOR IAT = ',I3,' IS NOT LEGAL. STOP.',
      1     /,' THE ATOMIC SYMBOL IS EXTRACTED FROM THE FIRST TWO',
      2       ' CHARACTERS OF THE ATOM NAME.')
