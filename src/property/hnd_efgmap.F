@@ -1,6 +1,6 @@
       subroutine hnd_efgmap(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap.F,v 1.3 2004-07-23 21:34:46 bert Exp $
+c $Id: hnd_efgmap.F,v 1.4 2004-09-08 20:53:02 bert Exp $
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the
@@ -189,7 +189,7 @@ c
 c        ----- diagonalize to get principal components and vectors -----
 c
          call hnd_diag(vec,eig,3,.true.,.false.)
-         eta  = abs( (eig(1)-eig(2)) / eig(3) )
+         eta  = abs( (eig(3)-eig(2)) / eig(1) )
 c
          call ecce_print1('EFG eigenvalues',MT_DBL,eig,3)
          call ecce_print2('EFG eigenvectors',MT_DBL,vec,3,3,3)
