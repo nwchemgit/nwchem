@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.7 2002-10-25 20:34:15 sohirata Exp $
+c $Id: tce_init.F,v 1.8 2002-10-25 21:46:26 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -313,7 +313,7 @@ c
         write(LuOut,9110) thresh
       endif
       call util_flush(LuOut)
- 9000 format(3x,'       Calculation type : ',a80)
+ 9000 format(3x,'       Calculation type : ',a)
  9010 format(3x,'      Wavefunction type : Restricted')
  9020 format(3x,'      Wavefunction type : Unrestricted')
  9030 format(3x,'       No. of electrons :',2x,i4,/,
