@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.4 1999-08-02 23:18:50 d3e129 Exp $
+# $Id: update_www,v 1.5 1999-08-11 23:30:55 windus Exp $
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.
@@ -14,15 +14,11 @@ endif
 set document = $argv[1]
 
 echo Updating WWW pages for $document.tex
-#...............   public                      internal/private
-foreach WWWDIR (/msrc/www/pub/docs/nwchem/doc /msrc/www/docs/nwchem/doc)
+#...............   public 
+foreach WWWDIR (/msrc/www/pub/docs/nwchem/doc)
 #
-# Now copy the revised source into the EMSL private and public WWW tree
-  if ($WWWDIR == "/msrc/www/pub/docs/nwchem/doc") then
-      echo "update_www: Public pages .. "
-  else if($WWWDIR == "/msrc/www/docs/nwchem/doc") then
-      echo "update_www: Internal/private pages .."
-  endif
+# Now copy the revised source into the EMSL public WWW tree
+  echo "update_www: Public pages .. "
   if (! -e $WWWDIR) then
     echo "update_www:    Making $WWWDIR"
     /bin/mkdir -p $WWWDIR
