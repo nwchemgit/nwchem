@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.17 2003-10-17 22:54:42 carlfahl Exp $
+c     $Id: dftg_gridv0.F,v 1.18 2003-10-21 18:04:58 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.17 2003-10-17 22:54:42 carlfahl Exp $
+c $Id: dftg_gridv0.F,v 1.18 2003-10-21 18:04:58 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -278,7 +278,7 @@ c      nelem_tau=3*npol*n_per_rec
      &       MA_ERR)
 
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'Mmat',lmmat,immat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',0,13)
 
 
 

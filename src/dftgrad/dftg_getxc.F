@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.35 2003-10-17 22:54:42 carlfahl Exp $
+* $Id: dftg_getxc.F,v 1.36 2003-10-21 18:04:58 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -79,7 +79,7 @@ c
      .        iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom,  cetobfr)
       else
-         call errquit(' no grid file available ',0)
+         call errquit(' no grid file available ',0,0)
 !         call dftg_quadv0(rtdb, geom,ao_bas_han,ipol,
 !     .        iga_dens, force, natom, oactive, 
 !     &                    nactive, rdens_atom, cetobfr)
