@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.91 2003-10-07 15:26:43 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.92 2003-10-17 14:56:06 d3j191 Exp $
 c
       implicit none
 c
@@ -24,8 +24,8 @@ c
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
-      logical pre_rot,pre_crop
-      external pre_rot,pre_crop
+      logical pre_rot,pre_crop,pre_his
+      external pre_rot,pre_crop,pre_his
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
       integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg,lfnmod
@@ -364,6 +364,10 @@ c
 c     write the restart file
 c     ----------------------
 c
+      if(.not.pre_his(int_mb(i_num),mat,
+     + byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
+     + int_mb(i_sfr),dbl_mb(i_xs),msa,nsa))
+     +  call errquit('Error in pre_his',0)
       if(mdold.gt.0) then
       if(.not.pre_wtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,

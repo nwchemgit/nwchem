@@ -3,7 +3,7 @@
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: pre_check.F,v 1.17 2003-07-31 04:09:31 d3j191 Exp $
+c $Id: pre_check.F,v 1.18 2003-10-17 14:56:06 d3j191 Exp $
 c
       implicit none
 c
@@ -78,9 +78,11 @@ c
       if(pre_check) write(lfnout,1000)
       write(lfnout,1002)
      + catm(1+j,lbnd(1,i)),catm(1+j,lbnd(2,i)),
-     + catm(1,lbnd(1,i)),catm(1,lbnd(2,i))
+     + catm(1,lbnd(1,i)),catm(1,lbnd(2,i)),
+     + cseq(latm(5,lbnd(1,i))),lseq(1,latm(5,lbnd(1,i))),
+     + lbnd(1,i),lbnd(2,i),i,j,k
  1002 format(' Parameters could not be found for bond type     ',
-     + a6,'-',a6,' (',a6,'-',a6,')')
+     + a6,'-',a6,' (',a6,'-',a6,')',a6,i6,2i7,i7,2i3)
       endif
       pre_check=.false. 
     3 continue
@@ -169,9 +171,12 @@ c
       if(pre_check) write(lfnout,1000)
       write(lfnout,1004) catm(1+j,ldih(1,i)),catm(1+j,ldih(2,i)),
      + catm(1+j,ldih(3,i)),catm(1+j,ldih(4,i)),catm(1,ldih(1,i)),
-     + catm(1,ldih(2,i)),catm(1,ldih(3,i)),catm(1,ldih(4,i))
+     + catm(1,ldih(2,i)),catm(1,ldih(3,i)),catm(1,ldih(4,i)),
+     + cseq(latm(5,ldih(1,i))),lseq(1,latm(5,ldih(1,i))),
+     + ldih(1,i),ldih(2,i),ldih(3,i),ldih(4,i),i,j,k
  1004 format(' Parameters could not be found for dihedral type ',
-     + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')')
+     + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')',
+     + a6,i6,4i7,i7,2i3)
       endif
       pre_check=.false. 
     7 continue
@@ -229,15 +234,20 @@ c
       write(lfnout,1005) catm(1+j,limp(2,i)),catm(1+j,limp(3,i)),
      + catm(1+j,limp(1,i)),catm(1+j,limp(4,i)),
      + catm(1,limp(2,i)),catm(1,limp(3,i)),
-     + catm(1,limp(1,i)),catm(1,limp(4,i))
+     + catm(1,limp(1,i)),catm(1,limp(4,i)),
+     + cseq(latm(5,limp(1,i))),lseq(1,latm(5,limp(1,i))),
+     + limp(2,i),limp(3,i),limp(1,i),limp(4,i),i,j,k
       else
       write(lfnout,1005) catm(1+j,limp(1,i)),catm(1+j,limp(2,i)),
      + catm(1+j,limp(3,i)),catm(1+j,limp(4,i)),
      + catm(1,limp(1,i)),catm(1,limp(2,i)),
-     + catm(1,limp(3,i)),catm(1,limp(4,i))
+     + catm(1,limp(3,i)),catm(1,limp(4,i)),
+     + cseq(latm(5,limp(1,i))),lseq(1,latm(5,limp(1,i))),
+     + limp(1,i),limp(2,i),limp(3,i),limp(4,i),i,j,k
       endif
  1005 format(' Parameters could not be found for improper type ',
-     + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')')
+     + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')',
+     + a6,i6,4i7,i7,2i3)
       endif
       pre_check=.false.
     9 continue 

@@ -1,7 +1,7 @@
       logical function pre_term(lfnout,lfnsgm,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.13 2003-07-23 02:38:47 d3j191 Exp $
+c $Id: pre_term.F,v 1.14 2003-10-17 14:56:06 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -31,7 +31,11 @@ c
       if(lseq(1,j).eq.llnk(1,i)) isgm=j
       if(lseq(1,j).eq.llnk(2,i)) jsgm=j
     2 continue
-      if(isgm.eq.0.or.jsgm.eq.0) call errquit('error in pre_term',9999)
+      if(isgm.eq.0.or.jsgm.eq.0) then
+      write(lfnout,1003) llnk(1,i),llnk(2,i)
+ 1003 format(' Error in link ',2i5)
+      call errquit('error in pre_term',9999)
+      endif
 c
       if(util_print('where',print_high)) then
       write(lfnout,1000) llnk(1,i),clnk(1,i),llnk(2,i),clnk(2,i)

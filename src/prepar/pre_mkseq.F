@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.40 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.41 2003-10-17 14:56:06 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          integer lfnpdb    = logical file number for pdb file
@@ -227,8 +227,8 @@ c     -------------------------------------
 c
       if(.not.pre_rename(lfnout,lfnmod,filmod,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
-     + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
-     + byte_mb(i_clnk),mlnk,nlnk,icyren,his))
+     + int_mb(i_latm),byte_mb(i_catm),matm,natm,
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,icyren,his))
      + call errquit('pre_rename failed',9999)
 c
 c     write atom names to temporary file
