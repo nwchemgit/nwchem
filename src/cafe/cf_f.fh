@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
       implicit none
 c
@@ -725,7 +725,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
       implicit none
 c
@@ -1782,7 +1782,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
       implicit none
 c
@@ -2869,7 +2869,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3021,8 +3021,8 @@ c
       if(lupden) then
       ess(isf,isf,1,1)=ess(isf,isf,1,1)+half*factu*rbnd(isb,2)
       ess(jsf,jsf,1,1)=ess(jsf,jsf,1,1)+half*factu*rbnd(isb,2)
-      eterm=factu*rbnd(isb,2)
       endif
+      eterm=factu*rbnd(isb,2)
       dfor=for*dbond*rssi
       dfs1=dfor*xs1
       dfs2=dfor*xs2
@@ -3148,7 +3148,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3317,8 +3317,8 @@ c
       ess(isf,isf,2,1)=ess(isf,isf,2,1)+third*factu*rang(ish,2)
       ess(jsf,jsf,2,1)=ess(jsf,jsf,2,1)+third*factu*rang(ish,2)
       ess(ksf,ksf,2,1)=ess(ksf,ksf,2,1)+third*factu*rang(ish,2)
-      eterm=factu*rang(ish,2)
       endif
+      eterm=factu*rang(ish,2)
       sphi=sin(phi)
       if(abs(sphi).lt.small) sphi=small
       dfor=for*dangle/sphi
@@ -3414,7 +3414,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3627,8 +3627,8 @@ c
       ess(jsf,jsf,3,1)=ess(jsf,jsf,3,1)+fourth*factu*rdih(isd,2)
       ess(ksf,ksf,3,1)=ess(ksf,ksf,3,1)+fourth*factu*rdih(isd,2)
       ess(lsf,lsf,3,1)=ess(lsf,lsf,3,1)+fourth*factu*rdih(isd,2)
-      eterm=factu*rdih(isd,2)
       endif
+      eterm=factu*rdih(isd,2)
 c
       dfor=(-for)*rmul*sin(rpa)
 c
@@ -3747,7 +3747,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3949,8 +3949,8 @@ c      uso(iso)=half*for*dang*dang
       ess(jsf,jsf,4,1)=ess(jsf,jsf,4,1)+fourth*factu*rimp(iso,2)
       ess(ksf,ksf,4,1)=ess(ksf,ksf,4,1)+fourth*factu*rimp(iso,2)
       ess(lsf,lsf,4,1)=ess(lsf,lsf,4,1)+fourth*factu*rimp(iso,2)
-      eterm=factu*rimp(iso,2)
       endif
+      eterm=factu*rimp(iso,2)
 c
 c     for thermodynamic perturbations evaluate the energies
 c     using the 'perturbed' parameters of set 2 and/or set 3
@@ -4064,7 +4064,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4408,7 +4408,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.36 2001-06-07 16:42:10 d3j191 Exp $
+c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
 c
       implicit none
 c
