@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.19 1997-05-15 22:13:04 rg240 Exp $
+c  $Id: moints_6x.F,v 1.20 1997-05-29 16:40:53 d3j191 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -1464,7 +1464,7 @@ c
 c
       integer ilen, jlen, ijlen
       integer nni, nnj, ijlo, ijhi, jilo, jihi
-      integer aoff, ofroz, aa, bb, a, b, ab, i, j, ostart
+      integer aoff, ofroz, aa, bb, a, b, ab, i, j
 c
       ostart = qlo
       ofroz = ostart - 1
