@@ -114,7 +114,7 @@ c
       do ish = 1,nshell
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'        
         nbfi = ihi - ilo + 1
-        do jsh = i,nshell
+        do jsh = 1,nshell
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr j'        
           nbfj = jhi - jlo + 1
           do ksh = 1,nshell
