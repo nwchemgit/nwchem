@@ -38,6 +38,7 @@ peigs_TARGET		= $(NWCHEM_TARGET)
 
 peigs_DIR	= $(peigs_SRC)/peigs
 peigs_LIB	= $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a
+
 SHELL		= /bin/sh
 
 peigs_OBJDIR	 = $(peigs_DIR)/o
@@ -46,6 +47,7 @@ peigs_CSRC	 = $(peigs_DIR)/src/c
 peigs_F77SRC	 = $(peigs_DIR)/src/f77
 peigs_COMMDIR	 = $(peigs_DIR)/comm
 peigs_FTOC	 = $(peigs_DIR)/ctof
+peigs_EXAMPLE_LIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -lpeigs -lglobal -lesslp2 -llapack -lblas -lutil -ltcgmsg
 
 #==================================================
 #  Machine specific definitions.
@@ -238,7 +240,7 @@ ifeq ($(peigs_TARGET),IBM)
 #blas	
 peigs_CPU = RS6000
 peigs_CC += -DSTD_INT -DSTD_DBL -DIBM -O
-peigs_FC += -O2 -qfloat=rsqrt:fltint  -NQ40000 -NT80000
+peigs_FC += -O2 -qfloat=rsqrt:fltint 
 peigs_CPP += -P
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
 endif
@@ -286,8 +288,9 @@ ifeq ($(peigs_TARGET),SP1)
 peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ = DBLE
-peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM -O2
-peigs_FC  += -I$(peigs_HDIR) -DIBM -O2
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -O3 -qstrict
+# peigs_FC  += -I$(peigs_HDIR) -DIBM -Pv -Wp,-eaj -O3 -qstrict
+peigs_FC  += -I$(peigs_HDIR) -DIBM -O3 -qstrict
 peigs_CPP += -P -C -DSTD_INT -DSTD_DBL
 endif
 
@@ -309,4 +312,9 @@ ifeq ($(peigs_TARGET),LINUX)
 peigs_CODEOBJ = DBLE
 peigs_CPP += -P -C
 endif
+
+export peigs_COMM
+export peigs_CC
+export peigs_FC
+export peigs_CODEOBJ
 
