@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.43 2002-08-05 17:57:12 edo Exp $
+C $Id: hess_init.F,v 1.44 2003-02-20 02:06:04 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -502,7 +502,7 @@ c
 c
       integer geom1, basis1
       integer ecp_handle, ipol
-      logical cdfit, ecp
+      logical cdfit, ecp, dmd_rel, dk_rel
 c
       hess_check = .false.
       cdfit = .false.
@@ -513,6 +513,35 @@ c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('hess_check: theory not specified',555)
       if (theory.eq.'hyb') theory = 'dft'
+c
+c  Check for relativistic all-electron methods
+c
+      if (.not. rtdb_get(rtdb, 'dyall_mod_dir', MT_LOG, 1, dmd_rel))
+     $   dmd_rel = .false.
+      if (.not. rtdb_get(rtdb, 'doug_kroll', MT_LOG, 1, dk_rel))
+     $   dk_rel = .false.
+      if (dmd_rel.or.dk_rel) then
+         write(LuOut,*) 'Relativistic all-electron method detected'
+         return
+      endif
+c
+c  Check for ROHF in SCF
+c
+      if (theory.eq.'scf') then
+        if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     *    nopen = 0
+        if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) then
+          if (nopen .eq. 0) then
+            scftype = 'RHF'
+          else if (scftype .ne. 'UHF') then
+            scftype = 'ROHF'
+          endif
+        endif
+        if (scftype.eq.'ROHF') then
+           write(LuOut,*) 'ROHF detected'
+           return
+        endif
+      endif
 c
 c  Check for UHF in DFT
 c
