@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.5 1997-02-07 22:07:25 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.6 1997-02-27 08:41:05 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -61,32 +61,34 @@ c
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      + call errquit('task_optimize: failed rtdb_cget task:theory',0)
-      if(theory.eq.'md'.or.theory.eq.'nwargos') then
-      status=nwargos(rtdb)
+      if (theory.eq.'md'.or.
+     &    theory.eq.'nwargos'.or.
+     &    theory.eq.'qmmm') then
+        status=nwargos(rtdb)
       else
-      if (ousedriver) then
-         status = drv_opt(rtdb)
-      else
- 10      if (task_gradient(rtdb)) then
+        if (ousedriver) then
+          status = drv_opt(rtdb)
+        else
+ 10       if (task_gradient(rtdb)) then
             if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
             status = .true. ! Finished
-         else if (ga_nodeid().eq.0) then
+          else if (ga_nodeid().eq.0) then
             write(luout,*)' task_optimize: energy+gradients failed ',
-     $           ' ... optimization incomplete'
+     $          ' ... optimization incomplete'
             call util_flush(6)
             status = .false.
-         endif
-      endif
+          endif
+        endif
       endif
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_optimize: failed storing cputime',0)
+     $    call errquit('task_optimize: failed storing cputime',0)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_optimize: failed storing walltime',0)
+     $    call errquit('task_optimize: failed storing walltime',0)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_optimize: failed to set status',0)
+     $    call errquit('task_optimize: failed to set status',0)
 c
       if (status) then
          call ecce_print_module_exit('task optimize', 'ok')

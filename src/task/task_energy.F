@@ -84,6 +84,8 @@ c
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'md') then
          status = nwargos(rtdb)
+      else if (theory .eq. 'qmmm') then
+         status = nwargos(rtdb)
       else if (theory .eq. 'nwargos') then
          status = nwargos(rtdb)
       else
