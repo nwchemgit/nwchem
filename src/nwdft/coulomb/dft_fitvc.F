@@ -1,17 +1,24 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
-     &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e)
-C$Id: dft_fitvc.F,v 1.5 1995-12-20 03:10:17 og845 Exp $
+     &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
+C     $Id: dft_fitvc.F,v 1.6 1996-05-01 23:37:04 og845 Exp $
       implicit none
-            
-c****
+      
+c**** 
 c**** nwchem handles
-c****
+c**** 
       integer rtdb, geom, AO_bas_han, CD_bas_han
       integer g_vc    ! GA handle for V Coulomb [output]
       integer g_2ceri ! GA handle for repulsion int. [input]
       integer nbf_cd    ! no. CD functions [input]
       double precision Ecoul2 ! [output]
       integer itol2e ! bi-el int tolerance [input]
+      logical incore ! true if 3c int are incore [input]
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax  ! max no. batches
+      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n3c_dbl
+      double precision i3c_ERI(n3c_dbl)
 c**** 
 c      
 c-->  Charge Density Expansion Coefficients
@@ -49,6 +56,8 @@ c
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est,schw1,schw2
       integer nxtask
+      logical dowork
+      integer ndone,ipoint,ipoint2
       double precision ddot
       external ddot,nxtask
 c
@@ -136,92 +145,117 @@ c
       LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
 
       call ga_zero(g_vc)
-      n1 = nxtask(nproc,icount)
+      if(.not.incore) n1 = nxtask(nproc,icount)
       n2 = 0
-c
+      ndone=1
+      ipoint=1
+c     
 #if defined(DFT_TIMER)
       call dft_second(ts2)
       subsect(1)='  Pre-fit '
       call tcllct(t_sub(1,1),ts2,ts1)
       call dft_second(ts1)
 #endif
-c      
+c     
       do 240 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han,ishc,
-     &                        ifirstc,ilastc))
-     &          call errquit('Exiting in fitvcoul.',3)
+     &       ifirstc,ilastc))
+     &       call errquit('Exiting in fitvcoul.',3)
         nshbfc=ilastc-ifirstc+1
- 
+        
         do 230 ishd = 1,ishc
           
-c            
-c         Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-c         
-          ERI_est=schwarz_shell(ishc,ishd)
 
-          if( CD_coef_max*ERI_est.gt.THRESHOLD )then
+          if(incore) then
+            dowork=iwhat(ndone).eq.(ishc*(ishc-1)+ishd-1)
+            if(ndone.gt.n_batch) then
+              write(0,*) ' ndone nbatch ',ndone,n_batch
+              call errquit(' fitvc:ndone gt nbatch ',ndone)
+            endif
+          else
+            dowork=n1.eq.n2
+          endif
+          if(dowork) then
+            
+            if (.not. bas_cn2bfr( AO_bas_han,ishd,
+     &           ifirstd,ilastd))
+     &           call errquit('Exiting in fitvcoul.',4)
+            
+            nshbfd=ilastd-ifirstd+1
+            Nao2 = nshbfc*nshbfd
+c           
+c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
+c           
+            ERI_est=schwarz_shell(ishc,ishd)
 
-            if( n1.eq.n2 )then
-              
+            if( CD_coef_max*ERI_est.gt.THRESHOLD )then
               ischw1 = ischw1 + nshells_cd
-c              
-c             Define the scatter index.
-c              
-                if (.not. bas_cn2bfr( AO_bas_han,ishd,
-     &             ifirstd,ilastd))
-     &             call errquit('Exiting in fitvcoul.',4)
-
-                nshbfd=ilastd-ifirstd+1
-                Nao2 = nshbfc*nshbfd
-                           
-                call dfill(Nao2,0.D0,dbl_mb(isvec),1)
-                nfunz=0
               
+              call dfill(Nao2,0.D0,dbl_mb(isvec),1)
+              nfunz=0
+              if(incore) ipoint2=ipoint
               do 220 ishp = 1,nshells_cd
                 
+                if (.not. bas_cn2bfr( CD_bas_han,ishp,
+     &               ifirstp,ilastp))
+     &               call errquit('Exiting in fitvcoul.',5)
+                nshbf_cd=ilastp-ifirstp+1
+                Nint=nshbf_cd*Nao2
                 Vcoul_est = Dbl_MB((icd_shell-1)+ishp)*ERI_est
-                
-                   if (.not. bas_cn2bfr( CD_bas_han,ishp,
-     &                  ifirstp,ilastp))
-     &                  call errquit('Exiting in fitvcoul.',5)
-                   nshbf_cd=ilastp-ifirstp+1
                 if( Vcoul_est.gt.THRESHOLD )then
-                   
-                   ischw2 = ischw2 + 1
                   
-                   Nint=nshbf_cd*Nao2
+                  ischw2 = ischw2 + 1
+                  
+                  if(incore) then
 c                 
-c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-c
-                  call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,ishd,
-     &                 nscr,Dbl_MB(iscr),Nint,Dbl_MB(iERI))
-c              
-c                 Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
-c              
-                  call dgemv('N',Nao2,nshbf_cd,1.D0,Dbl_MB(iERI),Nao2,
-     &                 CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
-               endif
+c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c                 
+                    call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                   i3c_ERI(ipoint2),Nao2,
+     &                   CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                  else
+c                   
+c                   Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
+c                   
+                    call int_2e3c(CD_bas_han,ishp,AO_bas_han,
+     &                   ishc,ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(iERI))
+c                   
+c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c                   
+                    call dgemv('N',Nao2,nshbf_cd,1.D0,
+     &                   Dbl_MB(iERI),Nao2,
+     &                   CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
+                  endif
 
+                endif
+
+                if(incore) ipoint2=ipoint2+Nint
                 nfunz=nfunz+nshbf_cd
                 
- 220         continue
-c             
+  220         continue
+c           
 c             Scatter the computed values of Vcoul.
-c          
-              call sca_lab_mat(AO_bas_han,ishc,ishd,nshbfc,nshbfd,
-     &             g_vc,DBL_MB(isvec),dbl_mb(isvec2))
+c           
+              call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &             nshbfc,nshbfd,g_vc,DBL_MB(isvec),dbl_mb(isvec2))
 
-            n1 = nxtask(nproc,icount)
-
-            end if
+            endif
             
-          n2 = n2 + 1
-         
+            if(incore) then
+              ndone=ndone+1
+              if(ndone.gt.n_batch) goto 9999
+              ipoint=ipoint+Nao2*nbf_cd
+            else
+              n1 = nxtask(nproc,icount)
+            endif
+            
             
           end if
-          
-  230   continue
+          n2 = n2 + 1
+        
+  230 continue
   240 continue
+ 9999 continue
       
       LResult = MA_Pop_Stack(lscr)
       LResult = MA_Pop_Stack(lERI)

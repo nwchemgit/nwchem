@@ -1,8 +1,10 @@
       Subroutine dft_getvc( rtdb,geom,AO_bas_han,CD_bas_han,
      &                     CD_coef,g_vc,Ecoul,nbf_cd,
-     &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,itol2e)
+     &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,
+     &     itol2e,incore,
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
 
-C$Id: dft_getvc.F,v 1.5 1995-12-27 23:33:18 og845 Exp $
+C$Id: dft_getvc.F,v 1.6 1996-05-01 23:37:04 og845 Exp $
       implicit none
       
 
@@ -17,6 +19,12 @@ c****
       integer itol2e
       double precision Ecoul
       integer iVcoul_opt
+      logical incore ! true if 3c int are incore [input]
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax  ! max no. batches
+      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n3c_dbl
+      double precision i3c_ERI(n3c_dbl)
 c
 c     Charge Density Expansion Coefficients
 c
@@ -57,7 +65,8 @@ c
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.
         call dft_fitvc( rtdb, geom, AO_bas_han, CD_bas_han,
-     &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e)
+     &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e,incore,
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
 c
 c       Compute the Coulomb energy.
 c

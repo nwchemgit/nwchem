@@ -1,7 +1,8 @@
       Subroutine dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
      &     CD_coef,  nbf_cd,
      &     g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
-     &     Ecoul1)
+     &     Ecoul1,incore,
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
       
       implicit none
       
@@ -15,6 +16,12 @@ c****
       integer itol2e
       integer nbf_cd
       double precision Ecoul1
+      logical incore ! true if 3c int are incore [input]
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax  ! max no. batches
+      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n3c_dbl
+      double precision i3c_ERI(n3c_dbl)
 c-->  Charge Density Expansion Coefficients
       
       double precision CD_coef(nbf_cd)
@@ -44,7 +51,8 @@ c****
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
      ,     lscr,iscr
-      logical oprint
+      logical oprint,dowork
+      integer ndone,ipoint
       double precision dabsmax
       integer nxtask
       external dabsmax,nxtask
@@ -108,7 +116,7 @@ c
 c     Parallelize the loop over the products of AO shells.
 c      
       ischw1 = 0
-      call ga_sync
+C      call ga_sync
       icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
       icount = max(1,icount)
       
@@ -119,15 +127,27 @@ c
       LResult = MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI)
       nscr =  mscratch_2e3c 
       LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
-      n1 = nxtask(nproc,icount)
+      if(.not.incore) n1 = nxtask(nproc,icount)
       n2 = 0
+      ndone=1
+      ipoint=1
       do 240 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
      *       call errquit('Exiting in dft_fitcd',111)
         nshbfc=ilastc-ifirstc+1
 
         do 230 ishd = 1,ishc
-          if( n1.eq.n2 )then
+          dowork=.false.
+          if(incore) then
+            dowork=iwhat(ndone).eq.(ishc*(ishc-1)+ishd-1)
+            if(ndone.gt.n_batch) then
+              write(0,*) ' ndone nbatch ',ndone,n_batch
+              call errquit(' fitcd: ndone gt nbatch ',ndone)
+            endif
+          else
+            dowork=n1.eq.n2
+          endif
+          if(dowork) then
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
      *         call errquit('Exiting in dft_fitcd',1111)
             nshbfd=ilastd-ifirstd+1
@@ -152,37 +172,49 @@ c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (c
               ischw1 = ischw1 + nshells_cd
               
               istart=iERI
-              do 220 ishp = 1,nshells_cd
-                
-c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-                
-            if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
-     &        call errquit('Exiting in fitcd.',5)
-                nshbfp=ilastp-ifirstp+1
-
-                Nint = nshbfp*Nao2
-                nscr=mscratch_2e3c
-
-                call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &               ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
-                istart=istart+Nint
-  220         continue
               fac=2.0d0
               if(ishc.eq.ishd) fac=1.d0
-c
-c        Multiply the matrix of 3-ctr ERIs by the density matrix elements.
-c
-                  call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
-     &                 Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              if(incore) then
+                call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
+     &               Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              else
+                do 220 ishp = 1,nshells_cd
+                  
+c                 Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
+                  
+                  if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
+     &                 call errquit('Exiting in fitcd.',5)
+                  nshbfp=ilastp-ifirstp+1
+                  
+                  Nint = nshbfp*Nao2
+                  nscr=mscratch_2e3c
+                  
+                  call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
+     &                 ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
+                  istart=istart+Nint
+  220           continue
+c               
+c               Multiply the matrix of 3-ctr ERIs by the density matrix elements.
+c               
+                call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
+     &               Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
+              endif
               
             end if
-            n1 = nxtask(nproc,icount)
+            if(incore) then
+              ndone=ndone+1
+              if(ndone.gt.n_batch) goto 9999
+              ipoint=ipoint+Nao2*nbf_cd
+            else
+              n1 = nxtask(nproc,icount)
+            endif
           end if
           
           n2 = n2 + 1
           
   230   continue
   240 continue
+ 9999 continue
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -233,9 +265,9 @@ c     Compute the orbital integrated electron density.
 c
       Q = Dble(nTotEl)
 
-      call ga_sync
       
 #if defined(DFT_TIMER)
+      call ga_sync
       call dft_second(ts2)
       subsect(3)='  Int_cgtf'
       call tcllct(t_sub(1,3),ts2,ts1)
@@ -252,12 +284,12 @@ c
         call ga_sync
       endif
 #if defined(DFT_TIMER)
+      call ga_sync
       call dft_second(ts2)
       subsect(4)='  RD CDinv'
       call tcllct(t_sub(1,4),ts2,ts1)
       call dft_second(ts1)
 #endif
-      call ga_sync
       
       F(1)=0.D0
       F(2)=0.D0
@@ -331,11 +363,9 @@ c
       
       if(oprint.and.me.eq.0 )then
         write(LuOut,*)
-        write(LuOut,*) '        LSQ Fit of the Electron Density '
-        write(LuOut,'(a,f20.10)')
-     &       ' integrated electron density:  ',rho_int
-        write(LuOut,'(a,e20.6)') 
-     &       ' Lagrange Multiplier        :  ',alpha
+        write(LuOut,'(a,f14.6,a,1pe13.6)')
+     &       '   CD fit] integrated density:',rho_int,
+     &       '    Lagrange Mult.:  ',alpha
         write(LuOut,*)
       end if
       
