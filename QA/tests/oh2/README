@@ -1,0 +1,5 @@
+This is the same as the ho2 test case but it is designed to fail
+since the good output has -67.  instead of -76. This allows checking
+of the scripts as well.
+
+RAK
