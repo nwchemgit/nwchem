@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.3 1995-10-17 18:53:51 d3e129 Exp $
+* $Id: spherical.F,v 1.4 1996-02-06 01:07:10 d3e129 Exp $
       implicit none
       integer memgot
       parameter (memgot=5000)
@@ -17,9 +17,9 @@ c
         stop ' error '
       endif
       call xlmcoeff_test(lmax,dd,.true.)
-      call xlm_index_test(lmax)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
+* $Id: spherical.F,v 1.4 1996-02-06 01:07:10 d3e129 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -34,6 +34,8 @@ c
 *        x(m,l) = sum(i) cartesian(i) * d(i, m, l)
 *
       implicit none
+#include "mafdecls.fh"
+#include "stdio.fh"
 c
 *:functions
       double precision ddot
@@ -43,13 +45,17 @@ c
       double precision d(((lmax+1)*(lmax+2))/2, -lmax:lmax, 0:lmax)
       logical normalize
 *:local
+      integer e_sz, qn_sz
+      parameter (e_sz=2000,qn_sz=5000)
+      double precision zzqn(qn_sz),zze(e_sz)
       integer i, j, k, l, m, lp1, ijk
-      double precision twolp1, norm
+      double precision twolp1
+
 c
 c     compute the coefficients of cartesian polynomials for the
 c     unnormalized real solid spherical harmonics up to order lmax
 c
-      integer count
+c::local
 *statement functions:
       integer itri
       integer ind
@@ -141,60 +147,68 @@ c
          end do
       end do
 c
-      do lp1 = 0,lmax
-        do m = -lp1,lp1
-          do ijk = 1,(((lp1+1)*(lp1+2))/2)
-*             if (d(ijk,m,lp1) .ne. 0.0d0)
-*     $
-            write(6,1) lp1, m, ijk, d(ijk,m,lp1)
- 1          format(1x,2i3,3x,i3,3x,f20.10)
-          enddo
-        enddo
-      enddo
-*
-* normalize transformation coefficients (start with d functions)
-*
-      if (.not.normalize) return
-      do lp1 = 2,lmax
-        do m = -lp1,lp1
-          norm = ddot((((lp1+1)*(lp1+2))/2),d(1,m,lp1),1,d(1,m,lp1),1)
-          norm = 1.0d00/sqrt(norm)
-          call dscal((((lp1+1)*(lp1+2))/2),norm,d(1,m,lp1),1)
-        enddo
-      enddo
-*
-      write(6,*)' normalized coefficients '
-      count = 0
-      do lp1 = 0,lmax
-        do m = -lp1,lp1
-          do ijk = 1,(((lp1+1)*(lp1+2))/2)
-            count = count + 1
-            write(6,2) count, lp1, m, ijk, d(ijk,m,lp1)
-          enddo
-        enddo
-      enddo
- 2    format(1x,i6,2i3,3x,i3,3x,f20.10)
+      call xlm_print_d(d,lmax,'un-normalized')
+*rak:      do lp1 = 0,lmax
+*rak:        write(luout,*)' d matrix xmlcoeff un normalized'
+*rak:        do m = -lp1,lp1
+*rak:          do ijk = 1,(((lp1+1)*(lp1+2))/2)
+*rak:*             if (d(ijk,m,lp1) .ne. 0.0d0)
+*rak:*     $
+*rak:            write(luout,1) lp1, m, ijk, d(ijk,m,lp1)
+*rak: 1          format(1x,2i3,3x,i3,3x,f20.10)
+*rak:          enddo
+*rak:        enddo
+*rak:      enddo
+      if (.not.normalize) then
+        write(luout,*)' un-normalized transformation '
+        return
+      endif
+
+c... allocate space for e
+      if (2*lmax+1.gt.e_sz) stop 'e error'
+c... allocate space for qn
+      if (((2*lmax+1)*(lmax+1)).gt.qn_sz) stop 'qn error'
+      call xlm_norm(zzqn,zze,d,lmax)
+      call xlm_print_d(d,lmax,'normalized')
       end
-      subroutine xlm_index_test(lmax)
+      subroutine xlm_print_d(d,lmax,msg)
       implicit none
       integer lmax
-      integer lp1,m,ijk,count
-      integer m1, test, lpm1
+      double precision d(((lmax+1)*(lmax+2))/2, -lmax:lmax, 0:lmax)
+      character*(*) msg
 c
-      write(6,*)' index check '
-      count = 0
-      do lp1 = 0,lmax
-        do m = -lp1,lp1
-          do ijk = 1,(((lp1+1)*(lp1+2))/2)
-            count = count + 1
-            m1 = m + lp1 + 1
-            lpm1 = lp1-1
-            test = max(0,abs(lpm1))
-            test = test*(lpm1+1)*(lpm1+2)/2
-            test = test*(2*lpm1+1)
-*           test = test + m1 + ijk
-            write(6,*)count,lp1,m,ijk,' m1=',m1,' test=',test
+      integer l, m, ijk
+c
+      do l = 0,lmax
+        do m = -l,l
+          do ijk = 1,(((l+1)*(l+2))/2)
+            write(6,10000)l,m,ijk,d(ijk,m,l),msg
           enddo
         enddo
       enddo
+10000 format('<lval=',i2,'> <m=',i3,'>  <ijk=',i5,1pd20.10,1x,a)
       end
+*rak:      call xlm_index_test(lmax)
+*rak:      subroutine xlm_index_test(lmax)
+*rak:      implicit none
+*rak:      integer lmax
+*rak:      integer lp1,m,ijk,count
+*rak:      integer m1, test, lpm1
+*rak:c
+*rak:      write(6,*)' index check '
+*rak:      count = 0
+*rak:      do lp1 = 0,lmax
+*rak:        do m = -lp1,lp1
+*rak:          do ijk = 1,(((lp1+1)*(lp1+2))/2)
+*rak:            count = count + 1
+*rak:            m1 = m + lp1 + 1
+*rak:            lpm1 = lp1-1
+*rak:            test = max(0,abs(lpm1))
+*rak:            test = test*(lpm1+1)*(lpm1+2)/2
+*rak:            test = test*(2*lpm1+1)
+*rak:*           test = test + m1 + ijk
+*rak:            write(6,*)count,lp1,m,ijk,' m1=',m1,' test=',test
+*rak:          enddo
+*rak:        enddo
+*rak:      enddo
+*rak:      end
