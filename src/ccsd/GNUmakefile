@@ -1,11 +1,12 @@
-	  OBJ = aoccsd.o \
+
+          OBJ = aoccsd.o \
 		ccsd.o \
 		ccsd_aux.o \
 		ccsd_driver.o \
 		ccsd_directbf.o \
 		ccsd_fsig1.o \
-		ccsd_fsig1ao.o \
 		ccsd_fsig2.o \
+                ccsd_fsig1ao.o \
 		ccsd_get_param.o \
 		ccsd_intmeda.o \
 		ccsd_intmedb.o \
@@ -32,11 +33,14 @@
 	      ccsd_directbf.F \
 	      ccsd_fsig1.f \
 	      ccsd_fsig1ao.F \
+	      ccsd_fsig2ao.F \
 	      ccsd_fsig2.f \
 	      ccsd_intmeda.f \
 	      ccsd_intmedb.f \
 	      ccsd_iterdrv.f \
+	      ccsd_iterdrv2.f \
 	      ccsd_pampt.F \
+	      ccsd_pampt2.F \
 	      ccsd_pdiis.f \
 	      ccsd_sortmo.F \
 	      ccsd_trpdrv.f \

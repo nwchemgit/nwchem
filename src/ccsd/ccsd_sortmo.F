@@ -1,7 +1,8 @@
-      subroutine ccsd_sortmo(nocc,nvir,nbf,aint,ndima,scr,
-     $                       lnobj,g_objv,g_coul,g_exch,iprt,ncor)
+      subroutine ccsd_sortmo(ncor,nocc,nvir,nbf,aint,ndima,scr,
+     $                       lnobj,g_objv,g_coul,g_exch,g_aint,iprt)
       implicit none
-      integer nocc,nvir,nbf,g_objv,g_coul,g_exch,iprt,ndima,lnobj,ncor
+      integer nocc,nvir,nbf,g_objv,g_coul,g_exch,g_aint,iprt,ndima,
+     $        lnobj,ncor
       double precision aint(ndima),scr(lnobj)
 c
       integer iam,ga_nodeid
@@ -35,6 +36,7 @@ crk       write(6,*)'icnt,aint',icnt,aint(icnt)
        endif
       enddo
       call ga_dgop(804,aint,ndima, '+')
+      call ga_put(g_aint,1,ndima,1,1,aint,ndima)
 c
       call ga_distribution(g_objv,iam,jlo,jhi,ilo,ihi)
       av=0
@@ -43,23 +45,23 @@ c
        if (av.ge.ilo.and.av.le.ihi)then
         icnt=0
 c cint
-        do b=ncor+nocc+1,ncor+nocc+nvir
-         do i=1,nocc
-          do j=1,nocc
-           icnt=icnt+1
-           if (i.ge.j)then
-            ij = i*(i-1)/2+j
-            kl = (a-1)*nbf+b
-           else
-            ij = j*(j-1)/2+i
-            kl = (b-1)*nbf+a
-           endif
-           call ga_get(g_coul,kl,kl,ij,ij,xx,1)
-           scr(icnt)=xx
+CRK     do b=ncor+nocc+1,ncor+nocc+nvir
+CRK      do i=1,nocc
+CRK       do j=1,nocc
+CRK        icnt=icnt+1
+CRK        if (i.ge.j)then
+CRK         ij = i*(i-1)/2+j
+CRK         kl = (a-1)*nbf+b
+CRK        else
+CRK         ij = j*(j-1)/2+i
+CRK         kl = (b-1)*nbf+a
+CRK        endif
+CRK        call ga_get(g_coul,kl,kl,ij,ij,xx,1)
+CRK        scr(icnt)=xx
 crk       write(6,*)'icnt,cint',icnt,scr(icnt)
-          enddo
-         enddo
-        enddo
+CRK       enddo
+CRK      enddo
+CRK     enddo
 c dint
         do b=ncor+nocc+1,ncor+nocc+nvir
          do i=1,nocc

@@ -28,11 +28,10 @@ c
        integer occ_frozen, occ_lo, occ_hi, nmo_lo
        integer vir_frozen, vir_lo, vir_hi, nmo_hi, nmo, nmo2
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
-       integer noper_core
-       integer g_coul, g_exch, g_int1t, g_epair
+       integer g_coul, g_exch, g_int1t, g_epair, g_aint
        integer i,j,ij
        integer ii
-       logical oexch,ocoul,oprint,status,ohalf
+       logical oexch,ocoul,oprint,status
        double precision emp2, e2pair
        double precision tpass
        character*7 algo
@@ -49,10 +48,6 @@ c
        data g_coul,g_exch,g_int1t/-1,-1,-1/
        data oexch,ocoul/.true.,.true./
        data oprint/.true./
-       data ohalf/.true./
-capr
-       data algo/'twofold'/
-capr
        data charge/0.d0/
        double precision zip,one,two
        data zip/0.0d00/,one/1.0d00/,two/2.0d00/
@@ -175,22 +170,10 @@ c
        if ((ocoul).and.(oexch)) nocct = 2*nocct
        max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2,
      $                             blen, .false.)
-C       MAX_NOPER = 10
-capr change gt to ge
-       if (max_noper.ge.nocct) then
-         noper =  (nocc_correl*(nocc_correl+1))/2
-       else
-capr
-         call errquit('cannot hold J and K in core ',0)
-capr
-         if ((ocoul).and.(oexch)) then
-           noper = max_noper/2
-         else
-           noper = max_noper
-         endif
-       endif
-       noper_core = noper
-       if ((ocoul).and.(oexch)) noper_core = noper*2
+       if (max_noper.lt.nocct)
+     $   call errquit('cannot hold J and K in core ',0)
+       noper =  (nocc_correl*(nocc_correl+1))/2
+       if ((ocoul).and.(oexch)) noper = noper*2
 capr
       lnoo=nocc_correl*nocc_correl
       lnov=nocc_correl*nvir_correl
@@ -204,18 +187,11 @@ c Allocate operator matrices
 c
        if (ocoul)
      $      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
-*rak     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
        if (oexch) then
-         if ((algo.eq.'twofold').and.(.not.(ohalf))) then
-           g_exch = ga_create_JKblocked(noper,nbf,nmo2,'X oper')
-*rak           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
-         else
-           g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
-*rak           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
-           if (.not.ga_create(MT_DBL,lnoov+lnooo,nbf+1,'int1t',
-     &         lnoov+lnooo,1,g_int1t))
+         g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
+         if (.not.ga_create(MT_DBL,lnoov+lnooo,nbf+1,'int1t',
+     &        lnoov+lnooo,1,g_int1t))
      &         call errquit('ga_create g_int1t failed',0)
-         endif
        endif
 c
 c Allocate pair energy array
@@ -232,7 +208,7 @@ c
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,nocc_correl,blen,occ_lo,occ_hi,
-     $                nmo_lo,nmo_hi,movecs_in, noper_core
+     $                nmo_lo,nmo_hi,movecs_in, noper
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
@@ -243,19 +219,9 @@ c
      $        10x,'MO coefficients read from:',2x,a25,/,
      $        10x,'Number of operator matrices in core:',i5)
          call util_flush(6)
-         if (ohalf) then
-           write(6,957) 
- 957       format(10x,'Half-transformed integrals produced')
-         else
-           write(6,958)
- 958       format(10x,'Half-transformed integrals not produced')
-         endif
+         write(6,957) 
+ 957     format(10x,'Half-transformed integrals produced')
        endif
-c
-c Clear 4-index statistics
-c
-       call moints_stats_clear()
-
 c
 c Loop over segments of occupied orbitals
 c
@@ -270,17 +236,11 @@ c
 c
 c  J & K build routines
 c
-       if (algo.eq.'sixfold') then
-         call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
+       write(6,*)'MADE IT HERE'
+       call moints_build_2xz( basis, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen )
-       else
-         call moints_build_2xz( basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     $                          nmo_lo, nmo_hi, g_vecs,
-     $                          g_coul, ocoul, g_exch, oexch, g_int1t,
-     $                          blen )
-       endif
+     $                        g_int1t, blen )
 c
 c
 c Evaluate and store pair energies
@@ -300,8 +260,6 @@ c
        if (oseg_hi.lt.occ_hi) goto 22
 c
 c End multipass loop
-c
-C       call moints_stats_print(algo)
 c
 c Evaluate mp2 correction from pair energies
 c
@@ -347,25 +305,29 @@ c
       ndima=lnoo*nocc_correl*(nocc_correl+1)/2
       lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
       lnobj=max(lnoov+lnoov+lnooo,lnobj)
-
       lnobj=max(lnobj,nbf*nocc)
+
       if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
      &                   g_objv))
      &     call errquit('ga_create g_objv failed',0)
 c
-      write(6,*)'maxit,convi',maxit,convi,iprt
       call ccsd_get_param(rtdb,maxit,convi,iprt)
-      write(6,*)'maxit,convi',maxit,convi,iprt
       irstrt=0
       ncor=occ_frozen
       ndel=vir_frozen
 c
+      lnobj=lnoo*nbf
+c
+      if (.not.ga_create(MT_DBL,ndima,1,'aint',
+     &    ndima,1,g_aint))
+     &    call errquit('ga_create aint failed',0)
+c
       status=status.and.ma_push_get(MT_DBL,ndima,'aint',l_aint,k_aint)
-      status=status.and.ma_push_get(MT_DBL,lnobj,'scr',l_scr,k_scr)
+      status=status.and.ma_push_get(MT_DBL,2*lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
-      call ccsd_sortmo(nocc_correl,nvir_correl,nbf,dbl_mb(k_aint),
+      call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nbf,dbl_mb(k_aint),
      $                 ndima,dbl_mb(k_scr),lnobj,g_objv,g_coul,
-     $                 g_exch,iprt,ncor)
+     $                 g_exch,g_aint,iprt)
       status=status.and.ga_destroy(g_coul)
       status=status.and.ga_destroy(g_exch)
       status=status.and.ma_pop_stack(l_scr)
@@ -377,9 +339,10 @@ c
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),dbl_mb(k_aint),
-     &            blen,g_objv,g_int1t)
+     &            blen,g_objv,g_int1t,g_aint)
       status = ma_pop_stack(l_mo)
       status = status.and.ma_pop_stack(l_aint)
+      status=status.and.ga_destroy(g_aint)
       status=status.and.ga_destroy(g_int1t)
       status=status.and.ga_destroy(g_objv)
       if (.not.status)call errquit('deallocate after aoccsd',0)
@@ -394,10 +357,10 @@ c
       status = status.and.ma_pop_stack(l_occ)
       if (.not.status) call errquit('moints: cannot pop stack?',0)
       status = ga_destroy(g_vecs)
+      call int_terminate()
       if (ga_nodeid().eq.0) then
         call MA_summarize_allocated_blocks()
       endif
-      call int_terminate()
       call ga_sync()
 c
       return
