@@ -1,0 +1,52 @@
+#
+# Test for CC codes in TCE module
+# Reference data obtained by a determinantal CC code are
+# CCD    -0.0498521356
+# CCSD   -0.0501273286
+# CCSDT  -0.0502322580
+# CCSDTQ -0.0502556616
+#
+start tce_h2o
+
+echo
+
+geometry units bohr
+H    0.000000000000000   1.079252144093028   1.474611055780858
+O    0.000000000000000   0.000000000000000   0.000000000000000
+H    0.000000000000000   1.079252144093028  -1.474611055780858
+end
+
+basis
+H library sto-3g
+O library sto-3g
+end
+
+dft
+xc HFexch 1.0
+convergence energy 1e-10
+tolerances acccoul 100
+end
+
+tce
+ccd
+end
+
+task tce energy
+
+tce
+ccsd
+end
+
+task tce energy
+
+tce
+ccsdt
+end
+
+task tce energy
+
+tce
+ccsdtq
+end
+
+task tce energy

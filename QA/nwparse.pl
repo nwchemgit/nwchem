@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.14 2002-03-22 01:56:55 sohirata Exp $
+# $Id: nwparse.pl,v 1.15 2002-10-25 22:42:52 sohirata Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -266,6 +266,28 @@ foreach $filename (@FILES_TO_PARSE) {
 		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 		}
 		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    }
+	}
+	if (/total/ && /energy/) {
+	    if (/MBPT(2)/ || /LCCD/ || /CCD/ || /LCCSD/ || /CCSD/ || /CCSDT/ || /CCSDTQ/ ) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+		for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+		    if (! $quiet) {
+			printf "%s ", @line_tokens[$itok];
+		    }
+		    printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+		}
+#                                                    *** Assumes $itok was incremented above
+		if (! $quiet) {
+		    printf "%.7f\n", set_to_digits(@line_tokens[$itok],7);
+		}
+		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 	    }
 	}
 	if (/Excitation energy/) {
