@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.15 1994-10-28 05:00:45 d3e129 Exp $
+c $Id: exact_mem.F,v 1.16 1994-10-28 18:51:53 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -84,7 +84,7 @@ c... sanity checks for lable routines
 c
       mem_2e4c  = max(mem_2e4c,  isz_2e4c)
       mem_2e3c  = max(mem_2e3c,  isz_2e3c)
-      mem_2e2c  = max(mem_2e4c,  isz_2e2c)
+      mem_2e2c  = max(mem_2e2c,  isz_2e2c)
       mem_1e    = max(mem_1e,    isz_1e)
       mem_1e_h1 = max(mem_1e_h1, (2*isz_1e))
       mem_3ov   = max(mem_3ov,   isz_3ov)
@@ -526,6 +526,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &             exndcf,exndcf,exndcf,1,1,0,
      &             exndcf,1,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
+*          write(6,*)' emem_2e2c: memdum',memdum, memsize
           memsize = max(memsize,memdum)
 c
 00200   continue
