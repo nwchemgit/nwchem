@@ -214,10 +214,12 @@ c
 #include "cint2esave.fh"
 #include "eaf.fh"
 #include "util.fh"
+#include "global.fh"
       logical okeep  ! [input] If true keep, otherwise delete
 c
       if (file_opened) then
-         if (oinfo .or. util_print('iostats',print_never)) 
+         if (oinfo .or. (util_print('iostats',print_high)
+     $           .and.ga_nodeid().eq.0)) 
      $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('int2e_file_close: eaf_close failed',0)
