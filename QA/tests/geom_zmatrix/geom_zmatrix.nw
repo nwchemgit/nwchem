@@ -1,0 +1,23 @@
+start geom_zmatrix
+echo
+  geometry autosym units angstrom noautoz print
+         zmatrix
+            O
+            H    1 r2
+            H    1 r2    2 a3
+            O    1 r3    2 a4    3 a4 -1
+            H    4 r2    1 a4    2 d1
+            H    4 r2    1 a4    3 d1
+            variables
+            r2 0.962
+            r3 2.000000
+            a3 105.1
+            a4 127.45
+            d1 90.000000
+         end
+        end
+basis
+* library 6-31G*
+end
+print low
+task dft
