@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf)
 c
-c $Id: esp_fit.F,v 1.3 1997-10-07 23:41:42 d3j191 Exp $
+c $Id: esp_fit.F,v 1.4 1997-10-07 23:47:48 d3j191 Exp $
 c
       implicit none
 c
@@ -157,7 +157,6 @@ c
       nf=nf+1
       labelf(nf)='     RESP   '
       labelc(nf)='            '
-      endif
 c
    21 continue
 c
@@ -245,6 +244,8 @@ c
    34 continue
    33 continue
       goto 21
+      endif
+c
       endif
 c
 c     deallocate work arrays
