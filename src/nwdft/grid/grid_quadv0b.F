@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d,triplet)
 c
-c$Id: grid_quadv0b.F,v 1.31 2002-03-22 02:37:37 sohirata Exp $
+c$Id: grid_quadv0b.F,v 1.32 2002-05-08 21:37:55 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -137,6 +137,13 @@ c
 
       wmax= dabsmax(nqpts,qwght)
       if(do_scf) then
+            call xc_rhogen(tol_rho, AO_bas_han, g_dens,
+     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
+     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+     &           ibf_ao, iniz, ifin, rho, delrho, 
+     &           rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr,wmax)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,           rho,delrho,grad,ibf_ao, iniz, ifin,
@@ -145,14 +152,6 @@ c
      ,           rdens_atom,
      ,           Fmat, Pmat, Bmat,
      ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig))
-         else
-            call xc_rhogen(tol_rho, AO_bas_han, g_dens,
-     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
-     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
-     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
-     &           ibf_ao, iniz, ifin, rho, delrho, 
-     &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,wmax)
          endif
       else  if (do_cpks_l) then
 #ifdef QUADV0_REVERT

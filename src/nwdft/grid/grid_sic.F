@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.3 2001-05-05 05:20:15 edo Exp $
+C$Id: grid_sic.F,v 1.4 2002-05-08 21:37:55 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -10,13 +10,13 @@ c
 c
       integer len_delrho_sig
 c
-      grid_sicinit= (.not.MA_Push_Get(mt_dbl,nqpts,'vec aux',
-     &                       l_vect1,i_vect1))
+      grid_sicinit= MA_Push_Get(mt_dbl,nqpts,'vec aux',
+     &                       l_vect1,i_vect1)
       call dfill(nqpts, 0.0d0, dbl_mb(i_vect1), 1)
       len_delrho_sig=3*nqpts
       grid_sicinit=grid_sicinit.and.
-     .     (.not.MA_Push_Get(MT_Dbl,len_delrho_sig,'delrho_sig',
-     &     ldelrho_sig,idelrho_sig))
+     .     MA_Push_Get(MT_Dbl,len_delrho_sig,'delrho_sig',
+     &     ldelrho_sig,idelrho_sig)
       call dfill(len_delrho_sig, 0.0d0, dbl_mb(idelrho_sig), 1)
       return
       end
@@ -24,8 +24,8 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "grid_sic.fh"
-      grid_sicend= (.not.ma_pop_stack(ldelrho_sig))
-      grid_sicend=grid_sicend.and.(.not.ma_pop_stack(l_vect1))
+      grid_sicend= ma_pop_stack(ldelrho_sig)
+      grid_sicend=grid_sicend.and.ma_pop_stack(l_vect1)
       return
       end
       subroutine grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,
