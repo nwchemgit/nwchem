@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.18 2003-10-26 23:47:01 bylaska Exp $
+* $Id: D3dB-new.F,v 1.19 2003-10-31 22:16:38 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1066,15 +1066,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1,nb)))
 *     ***         Do a transpose of A          ***
 *     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
 *     ********************************************
-c     do n=1,ne
-c       indx = 1 + (n-1)*nfft3d
-c       call D3dB_c_transpose_jk(nb,A(indx),
-c    >                           dcpl_mb(tmp2(1,nb)),
-c    >                           dbl_mb(tmp3(1,nb)))
-c     end do
-      call D3dB_nc_transpose_jk(nb,ne,A,
-     >                          dcpl_mb(tmp2(1,nb)),
-     >                          dbl_mb(tmp3(1,nb)))
+      do n=1,ne
+        indx = 1 + (n-1)*nfft3d
+        call D3dB_c_transpose_jk(nb,A(indx),
+     >                           dcpl_mb(tmp2(1,nb)),
+     >                           dbl_mb(tmp3(1,nb)))
+      end do
+c     call D3dB_nc_transpose_jk(nb,ne,A,
+c    >                          dcpl_mb(tmp2(1,nb)),
+c    >                          dbl_mb(tmp3(1,nb)))
 
 *     *************************************************
 *     ***     do fft along ky dimension             ***
