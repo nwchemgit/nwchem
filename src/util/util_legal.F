@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.34 2003-04-18 07:11:05 windus Exp $
+* $Id: util_legal.F,v 1.35 2003-09-16 22:58:36 sohirata Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003                                *
@@ -177,10 +177,10 @@ c
      + 12x,'W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler,',
      + ' L. Pollack,',/,
      + 12x,'R. J. Harrison, J. Nieplocha, V. Tipparaju,',
-     + ' M. Krishnan,',/,
+     + ' M. Krishnan, A. Auer,',/,
      + 12x,'E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,', 
-     + ' J. Garza,',/,
-     + 12x,'K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman,',
+     + ' J. Garza, K. Hirao,',/,
+     + 12x,'R. Kendall, J. A. Nichols, M. Nooijen, K. Tsemekhman,',
      + ' M. Valiev,',/,
      + 12x,'K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,',
      + ' T. Clark,'/,
