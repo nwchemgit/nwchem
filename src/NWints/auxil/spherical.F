@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.1 1995-05-18 07:18:34 d3e129 Exp $
+* $Id: spherical.F,v 1.2 1995-07-29 23:15:05 d3e129 Exp $
       implicit none
       integer memgot
       parameter (memgot=5000)
@@ -17,6 +17,7 @@ c
         stop ' error '
       endif
       call xlmcoeff_test(lmax,dd,.true.)
+      call xlm_index_test(lmax)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
 * 
@@ -49,6 +50,7 @@ c
 c     compute the coefficients of cartesian polynomials for the
 c     unnormalized real solid spherical harmonics up to order lmax
 c
+      integer count
 *statement functions:
       integer itri
       integer ind
@@ -163,10 +165,36 @@ c
       enddo
 *
       write(6,*)' normalized coefficients '
+      count = 0
       do lp1 = 0,lmax
         do m = -lp1,lp1
           do ijk = 1,(((lp1+1)*(lp1+2))/2)
-            write(6,1) lp1, m, ijk, d(ijk,m,lp1)
+            count = count + 1
+            write(6,2) count, lp1, m, ijk, d(ijk,m,lp1)
+          enddo
+        enddo
+      enddo
+ 2    format(1x,i6,2i3,3x,i3,3x,f20.10)
+      end
+      subroutine xlm_index_test(lmax)
+      implicit none
+      integer lmax
+      integer lp1,m,ijk,count
+      integer m1, test, lpm1
+c
+      write(6,*)' index check '
+      count = 0
+      do lp1 = 0,lmax
+        do m = -lp1,lp1
+          do ijk = 1,(((lp1+1)*(lp1+2))/2)
+            count = count + 1
+            m1 = m + lp1 + 1
+            lpm1 = lp1-1
+            test = max(0,abs(lpm1))
+            test = test*(lpm1+1)*(lpm1+2)/2
+            test = test*(2*lpm1+1)
+*           test = test + m1 + ijk
+            write(6,*)count,lp1,m,ijk,' m1=',m1,' test=',test
           enddo
         enddo
       enddo
