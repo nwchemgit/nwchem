@@ -1,0 +1,33 @@
+       integer cons_get_h_c
+       external cons_get_h_c
+
+       integer cons_get_i_c
+       external cons_get_i_c
+
+       integer cons_get_h_hbond_id
+       external cons_get_h_hbond_id
+
+       integer  cons_get_h_hbond_k
+       external cons_get_h_hbond_k
+
+       integer cons_get_h_hbond_r
+       external cons_get_h_hbond_r
+
+       integer cons_get_i_hbond_id
+       external cons_get_i_hbond_id
+
+       integer  cons_get_i_hbond_k
+       external cons_get_i_hbond_k
+
+       integer cons_get_i_hbond_r
+       external cons_get_i_hbond_r
+
+       logical cons_namespace
+       external cons_namespace
+
+       logical cons_inquire
+       external cons_inquire
+
+       logical cons_activate
+       external cons_activate
+
