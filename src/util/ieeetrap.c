@@ -1,4 +1,4 @@
-/*$Id: ieeetrap.c,v 1.4 1998-10-29 23:26:00 d3e129 Exp $*/
+/*$Id: ieeetrap.c,v 1.5 1998-10-29 23:30:27 d3e129 Exp $*/
 #include <floatingpoint.h>
 #include <stdio.h>
 #include <signal.h>
@@ -39,7 +39,9 @@ void ieeetrap_()
 /* (void) ieee_handler("set","inexact", catchinexact);
  (void) ieee_handler("set","invalid", catchinvalid); */
 
-  /* (void) ieee_handler("set","underflow", catchunderflow); */
- (void) ieee_handler("set","division", SIGFPE_ABORT);
+ /* (void) ieee_handler("set","division", SIGFPE_ABORT);*/
+
+ (void) ieee_handler("set","underflow", catchunderflow); 
+
 }
 
