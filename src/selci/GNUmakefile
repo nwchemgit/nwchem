@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.33 2003-09-05 16:05:06 edo Exp $
+# $Id: GNUmakefile,v 1.34 2005-02-03 04:06:32 edo Exp $
 #
 
 
@@ -46,10 +46,6 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
-ifeq ($(TARGET),LINUX64)
-            COPTIONS = -O3
-#            FOPTIMIZE += -save
-endif
 ifeq ($(TARGET),CRAY-T3E)
 # vector 3 breaks code in this directory only
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
