@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.22 2004-08-13 11:23:27 edo Exp $*/
+/*$Id: rtdb_f2c.c,v 1.23 2004-09-08 19:26:54 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -377,7 +377,7 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[20480];
+  char abuf[20480]=" ";
   int nelbuf;
   int typebuf;
   int i, left;
