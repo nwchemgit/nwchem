@@ -92,15 +92,27 @@ c
 c
       if (test.ge.thresh) then
 c
+c     A reference configuration with too many open shells makes
+c     a calculation with the current code too expensive due to 
+c     memory and cpu consumption by coupling coefficients.
+c     Limit the max number of open shells in a reference to 8.
+c     
+         if (ns .gt. 8) then
+            write(6,101) ns, test 
+ 101        format(' rejecting new reference because 8 < ns =',i3,
+     $           ' : tester = ', 1pd9.2)
+         else
+c
 c     configuration interacts more than threshold ... add to
 c     list and update enew
 c
-         call selci_vadd(nroot, q(ide), 1, enew, 1, enew, 1)
-         noconf = noconf + 1
-         if (noconf.gt.nconmx)
-     $        call errquit(' select: nconf > nconmx',nconmx)
-         call selci_icopy(nintpo,itemp,1,ioconf(1,noconf),1)
- 21      format(4x,5f14.7/)
+            call selci_vadd(nroot, q(ide), 1, enew, 1, enew, 1)
+            noconf = noconf + 1
+            if (noconf.gt.nconmx)
+     $           call errquit(' select: nconf > nconmx',nconmx)
+            call selci_icopy(nintpo,itemp,1,ioconf(1,noconf),1)
+ 21         format(4x,5f14.7/)
+         endif
       endif
 c
       junk = selci_mfree(iwork1)

@@ -5,10 +5,13 @@
 
 extern int fortchar_to_string();
 
-/* Maximum number of open shells */
+/* Maximum number of open shells and corresponding maximum number 
+   of spin functions for any possible multiplicity */
 #define nsmax 14
-/* Maximum no. of spin functions for nsmax */
 #define nfmax 1001
+
+/* #define nsmax 15 */
+/* #define nfmax 2002 */
 
 static void Error(char *string, int integer)
 {

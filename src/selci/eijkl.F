@@ -5,7 +5,7 @@
       dimension e(numf,*),indbar(*),iocc(*),w1(nfmax,nfmax,nsmax),
      $     w2(nfmax2,nfmax,nsmax-1),work(numf,*)
 c
-      parameter (idimt=42*42)
+      parameter (idimt=48*48)
       dimension temp(idimt)
 c
       dimension nsdel(4)
@@ -16,6 +16,7 @@ c
 c     Compute e(u,v) = <Iu|eijkl|Jv> where u,v label the
 c     spin functions and the orbital configuration I is specified
 c     by indbar and iocc. 
+c
 c     Works for i.ne.j.ne.k.ne.l
 c
 c     Assumes that arrives with occupation of i .ge. that of k
