@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.19 2003-08-13 17:11:35 edo Exp $*/
+/*$Id: rtdb_f2c.c,v 1.20 2004-08-04 16:45:46 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -131,6 +131,26 @@ Logical FATR rtdb_open_(const char *filename, const char *mode, Integer *handle,
   else {
     return FORTRAN_FALSE;
   }
+}
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
+Logical FATR rtdb_copy_(const Integer *handle, _fcd suffix)
+{
+  int mlen = _fcdlen(suffix);
+#else
+Logical FATR rtdb_copy_(const Integer *handle, const char *suffix, const int mlen)
+{
+#endif
+  char mbuf[256];
+  int hbuf = (int) *handle;
+
+  if (!fortchar_to_string(suffix, mlen, mbuf, sizeof(mbuf))) {
+    (void) fprintf(stderr, "rtdb_copy: mbuf is too small, need=%d\n", mlen);
+    return FORTRAN_FALSE;
+  }
+ if (rtdb_copy(hbuf, mbuf))
+    return FORTRAN_TRUE;
+ else
+    return FORTRAN_FALSE;
 }
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_close_(const Integer *handle, _fcd mode)

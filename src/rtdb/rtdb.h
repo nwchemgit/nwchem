@@ -1,4 +1,4 @@
-/*$Id: rtdb.h,v 1.4 1995-02-02 23:22:08 d3g681 Exp $*/
+/*$Id: rtdb.h,v 1.5 2004-08-04 16:45:46 edo Exp $*/
 #ifndef RTDB_H
 #define RTDB_H
 
@@ -27,6 +27,14 @@
     handle   = returns handle by which all future references to the
                data base are made
 
+
+
+  int rtdb_copy(const int handle, const char *suffix)
+
+    Copy the data base file
+
+    handle   = handle to RTDB
+    suffix   
 
 
   int rtdb_close(const int handle, const char *mode)
@@ -133,6 +141,7 @@
 */
 
 extern int rtdb_open(const char *, const char *, int *);
+extern int rtdb_copy(const int, const char *);
 extern int rtdb_close(const int, const char *);
 extern int rtdb_put(const int, const char *, const int, const int, 
 		    const void *);
@@ -152,6 +161,7 @@ extern int rtdb_parallel(const int);
 */
 
 extern int rtdb_seq_open(const char *, const char *, int *);
+extern int rtdb_seq_copy(const int, const char *);
 extern int rtdb_seq_close(const int, const char *);
 extern int rtdb_seq_put(const int, const char *, const int, const int, 
 		    const void *);

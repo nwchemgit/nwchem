@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.16 2004-01-02 22:03:32 edo Exp $*/
+/*$Id: rtdb.c,v 1.17 2004-08-04 16:45:45 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -16,8 +16,11 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define TYPE_RTDB_NAME    30006
 #define TYPE_RTDB_DATE    30007
 #define TYPE_RTDB_TYPE    30008
+#define GAGROUPS 1
 
+#ifndef GAGROUPS
 static int me;
+#endif
 
 #define MAX_RTDB 5
 #define INACTIVE  -1
@@ -49,6 +52,9 @@ static int verify_parallel_access()
   Return true if access mode / processor values are sensible
 */
 {
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
   if ((parallel_mode == SEQUENTIAL) && (me != 0)) {
     (void) fflush(stdout);
     (void) fprintf(stderr,"rtdb: sequential access only possible for process 0\n");
@@ -75,7 +81,11 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
 int rtdb_open(const char *filename, const char *mode, int *handle)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#else
   me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -93,9 +103,41 @@ int rtdb_open(const char *filename, const char *mode, int *handle)
   return status;
 }
 
+int rtdb_copy(const int handle, const char *suffix)
+{
+  int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#else
+  me = ga_nodeid_();
+#endif
+
+  if (!verify_parallel_access()) return 0;
+  if (handle < 0 || handle >= MAX_RTDB) {
+    (void) fprintf(stderr, "rtdb_copy: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (parallel_mode != par_mode[handle]) {
+    (void) fprintf(stderr, "rtdb_copy: mode of open and copy mismatch\n");
+    (void) fflush(stderr);
+    return 0;
+  }
+
+  if (parallel_mode == SEQUENTIAL || me == 0)
+    status = rtdb_seq_copy(handle, suffix);
+
+  if (parallel_mode == PARALLEL) 
+    rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
+
+  return status;
+}
 int rtdb_close(const int handle, const char *mode)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
   
   if (!verify_parallel_access()) return 0;
   if (handle < 0 || handle >= MAX_RTDB) {
@@ -122,6 +164,9 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
 	     const int nelem, const void *array)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -151,6 +196,9 @@ int rtdb_get(const int handle, const char *name, const int ma_type,
 		 const int nelem, void *array)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -188,6 +236,9 @@ int rtdb_get_info(const int handle,
 		  const char *name, int *ma_type, int *nelem, char date[26])
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -223,6 +274,9 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 		    int *nelem, int *ma_handle)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -280,6 +334,9 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 int rtdb_first(const int handle, const int namelen, char *name)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -315,6 +372,9 @@ int rtdb_first(const int handle, const int namelen, char *name)
 int rtdb_next(const int handle, const int namelen, char *name)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -351,6 +411,9 @@ int rtdb_next(const int handle, const int namelen, char *name)
 int rtdb_print(const int handle, const int print_values)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -378,6 +441,9 @@ int rtdb_print(const int handle, const int print_values)
 int rtdb_delete(const int handle, const char *name)
 {
   int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
 
   if (!verify_parallel_access()) return 0;
 
@@ -406,6 +472,9 @@ int rtdb_delete(const int handle, const char *name)
 void rtdb_print_usage()
 {
 #ifdef USE_HDBM
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
   if (me == 0)
     hdbm_print_usage();
 #endif

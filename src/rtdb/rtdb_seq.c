@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.17 2004-01-19 23:16:41 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.18 2004-08-04 16:45:46 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -41,7 +41,7 @@ extern void *malloc(size_t);
 extern void free(void *);
 #endif
 
-#define MAX_RTDB 2
+#define MAX_RTDB 32
 
 #define FORTRAN_TRUE  1L
 #define FORTRAN_FALSE 0L
@@ -688,6 +688,26 @@ int rtdb_seq_close(const int handle, const char *mode)
 
   return 1;
 }
+int rtdb_fname(const int handle, const char *filename)
+/*
+  return the filename
+
+*/
+{
+#ifdef USE_DB
+  fixme
+#endif
+
+  if (!check_handle(handle)) {
+    (void) fprintf(stderr, "rdtb_fname: handle (%d) is invalid\n", handle);
+    return 0;
+  }
+
+#ifdef USE_HDBM
+  filename=rtdb[handle].filename;
+return 1;
+#endif
+}
 
 static void get_time(char buf[26])
 {
@@ -1136,5 +1156,46 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
     return 0;
   }
 
+  return 1;
+}
+
+int rtdb_seq_copy(const int handle, const char *suffix)
+/*
+  Copy the data base
+
+  handle  = handle to RTDB
+  suffix    = new file will be called rtdb_name.suffix
+*/
+{
+  int l = (int) strlen(rtdb[handle].filename) + (int) strlen(suffix)+1;
+  char *tmp = malloc((size_t) l);
+    if (!tmp) {
+	(void) fprintf(stderr,"rtdb_copy: no memory\n");
+	return 0;
+    }
+    
+    strcpy(tmp,rtdb[handle].filename);
+    for (l=0; l<strlen(suffix); l++){
+      tmp[strlen(rtdb[handle].filename) + l] = suffix[l];
+	  }
+      tmp[strlen(rtdb[handle].filename) + strlen(suffix)] = 0;
+      printf(" rtbd_copy: new rtdb filename is %s \n", tmp);
+
+  if (!check_handle(handle)) {
+    (void) fprintf(stderr, "rdtb_copy: handle (%d) is invalid\n", handle);
+    return 0;
+  }
+
+
+#ifdef USE_HDBM
+    if (!hdbm_file_copy(rtdb[handle].filename, tmp)) {
+	(void) fprintf(stderr,
+		       "rtdb_copy: copy from %s failed\n", tmp);
+      return 0;
+    }
+#else
+fixme
+#endif
+  free(tmp);
   return 1;
 }
