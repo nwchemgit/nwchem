@@ -1,5 +1,5 @@
 *
-* $Id: integrate.F,v 1.2 2002-07-30 23:36:36 bylaska Exp $
+* $Id: integrate.F,v 1.3 2003-02-15 00:21:15 marat Exp $
 *
 
 !*************************************************
@@ -67,17 +67,17 @@
       end !FUNCTION def_integr
 
 
-  !*************************************************
-  !
-  !   Name    : indef_integr
-  !
-  !
-  !   Purpose :
-  !
-  !
-  !   Created :
-  !
-  !*************************************************
+!*************************************************
+!
+!   Name    : indef_integr
+!
+!
+!   Purpose :
+!
+!
+!   Created :
+!
+!*************************************************
       subroutine indef_integr(power_f,
      >                        f,
      >                        power_r,
@@ -124,6 +124,10 @@
          end do
 
       end if
+
+      value = MA_pop_stack(integrand(2))
+      if (.not.value) call errquit('indef_integr: pop stack',0)
+
 
       return
       end !SUBROUTINE indef_integr
