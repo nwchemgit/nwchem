@@ -1,5 +1,5 @@
       subroutine et_vecs_input(rtdb,module)
-C     $Id: et_vectors_inp.F,v 1.2 2003-10-17 22:54:54 carlfahl Exp $
+C     $Id: et_vectors_inp.F,v 1.3 2004-04-23 20:35:45 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -19,7 +19,7 @@ c
       character*255 a_vecs, b_vecs
       integer num_dirs, ind
       parameter (num_dirs = 2)
-      character*8 dirs(num_dirs)
+      character*9 dirs(num_dirs)
       data dirs /'reactants', 'products'/
 c     
       vectors_in = ' '

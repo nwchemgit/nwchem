@@ -24,7 +24,6 @@ c
       integer l_vecs, k_vecs
       integer unitno
       parameter (unitno = 67)
-      character scftype3
       double precision energy, enrep
 c     
       l_vecs = -1               ! An invalid MA handle
