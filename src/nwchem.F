@@ -17,7 +17,55 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.67 1996-02-13 20:04:09 mg141 Exp $
+c     $Id: nwchem.F,v 1.68 1996-03-07 01:22:47 d3e129 Exp $
+*------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996,                *
+*         Pacific Northwest National Laboratory, * 
+*         Battelle Memorial Institute.           *
+*------------------------------------------------*
+*------------> All Rights Reserved <-------------*
+*------------------------------------------------*
+c
+*--------------------------------------------------------------------*
+*                             DISCLAIMER                             *
+*--------------------------------------------------------------------*
+* This material was prepared as an account of work sponsored by an   *
+* agency of the United States Government.  Neither the United States *
+* Government nor the United States Department of Energy, nor         *
+* Battelle, nor any of their employees, MAKES ANY WARRANTY, EXPRESS  *
+* OR IMPLIED, OR ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR   *
+* THE ACCURACY, COMPLETENESS, OR USEFULNESS OF ANY INFORMATION,      *
+* APPARATUS, PRODUCT, SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS  *
+* THAT ITS USE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.            *
+*--------------------------------------------------------------------*
+*--------------------------------------------------------------------*
+*                            LIMITED USE                             *
+*--------------------------------------------------------------------*
+* This software (including any documentation) is being made          *
+* available to you for your internal use only, solely for use in     *
+* performance of work directly for the U.S. Federal Government or    *
+* work under contracts with the U.S. Department of Energy or other   *
+* U.S. Federal Government agencies.  This software is a version      *
+* which has not yet been evaluated and cleared for commercialization.*
+* Adherence to this notice may be necessary for the author, Battelle *
+* Memorial Institute, to successfully assert copyright in and        *
+* commercialize this software.  This software is not intended for    * 
+* duplication or distribution to third parties without the           *
+* permission of the Manager of Software Products at Pacific          *
+* Northwest National Laboratory, Richland, Washington, 99352.        *
+*--------------------------------------------------------------------*
+*--------------------------------------------------------------------*
+*                            ACKNOWLEDGMENT                          *
+*--------------------------------------------------------------------*
+* This software and its documentation were produced with Government  *
+* support under Contract Number DE-AC06-76RLO-1830 awarded by the    *
+* United States Department of Energy.  The Government retains a      *
+* paid-up non-exclusive, irrevocable worldwide license to reproduce, *
+* prepare derivative works, perform publicly and display publicly by *
+* or for the Government, including the right to distribute to other  *
+* Government contractors.                                            *
+*--------------------------------------------------------------------*
+c     
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -470,6 +518,7 @@ c
      $     40, .true.)
       write(6,*)
       write(6,*)
+      call util_legal()
 c
 #if defined(CRAY)
       call pxfgetarg(0,executable,ilen,ierror)

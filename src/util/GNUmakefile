@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.51 1995-12-13 01:37:38 d3g681 Exp $
+# $Id: GNUmakefile,v 1.52 1996-03-07 01:22:51 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -46,7 +46,7 @@ endif
               util_cpusec.o util_wallsec.o \
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
-              icopy.o \
+              icopy.o util_legal.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a
