@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.72 1997-04-23 21:19:02 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.73 1997-04-25 23:11:49 d3h449 Exp $
 c     
       implicit none
 c
@@ -198,6 +198,13 @@ c
 c     
       itol_max = itol2e
       iaoacc_max = iaoacc
+      if (oprint_time)
+     &     call dft_tstamp(' Before 3c-2e initialize.')
+c
+#if defined(DFT_TIMER)
+      call dft_second(tp3)
+#endif
+c
       if (CDFIT)then
 c     
 c        Determine how big a buffer can be allocated to 3-center
@@ -211,12 +218,16 @@ c
 c        - (minimum)amount available on stack (all nodes):
 c     
          call ga_sync
-         avail = MA_inquire_stack(mt_dbl)
+c         avail = MA_inquire_stack(mt_dbl)
+         avail = MA_inquire_avail(mt_dbl)
          call ga_igop(msg_min_stack_avail, avail, 1, 'min')
 c     
 c        subtract off a few bits for later use, e.g., quadrature
 c     
-         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
+c         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
+c     
+         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 
+     &                    ((nfock+4)*nbf_ao*nbf_ao)/nproc - 125000
 c
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
@@ -283,6 +294,11 @@ c
      &     /,10x,'2e- integral storage on stack. ')
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
+#if defined(DFT_TIMER)
+      call dft_second(tp4)
+      pgmsect(5) = ' 3c-2e Ints'
+      call tcllct(t_pgm(1,5),tp4,tp3)
+#endif
 c     
 c     set initial coulomb acc to 1e-5
 c     
@@ -310,10 +326,6 @@ c     Energy decomposition switch
 c     
       nExc    = idecomp + 1
       Etnew = 0.d0
-C     
-C     start timer
-C     
-      dft_time = -util_cpusec()
 c     
 c     SCF energy convergence criterion. 
 c     
@@ -382,6 +394,8 @@ c
 c     
 c     Get initial density.
 c     
+      if (oprint_time)
+     &     call dft_tstamp(' Before call to DFT_INIT.')
       call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
       iter = 1
 c     
@@ -404,15 +418,21 @@ c
             goto 1101
          endif
       endif
+      if (oprint_time)
+     &     call dft_tstamp('   Before SCF iter loop. ')
 c     
 c     Top of infinite SCF iteration loop
 c     
+c     start timer
+c     
+      dft_time = -util_cpusec()
+c
       last_time = .false.
       last_time_vecs = .false.
       last_time_energy = .false.
-
+c
  1000 continue
-
+c
       if (me.eq.0.and.oprint_tol)write(LuOut,3234)itol2e,iAOacc,iXCacc
  3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
 
@@ -441,11 +461,11 @@ c
          call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
          call errquit('dft_scf: end of CMM ',1234)
       endif
-
+c
 #if defined(DFT_TIMER)
       call dft_second(tp3)
 #endif
-
+c
       if (CDFIT)then
 c     
 c        Fit the electron charge density.
@@ -887,6 +907,14 @@ c
          if (homo_lumo_gap.lt.hl_tol)then
             levelshifting = .true.
             rlshift = rlshift_input
+            if (lumo .lt. homo)then
+               levelshifting = .false.
+               if (me.eq.0 .and. oprint_conv)write(LuOut,2224)homo, lumo
+ 2224          format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
+     &              /,10x,'Unshifted LUMO is less than HOMO.',
+     &              /,10x,'Turning levelshifting OFF this iteration.')
+            endif
+c
          else
             levelshifting = .false.
             rlshift = rlshift_def

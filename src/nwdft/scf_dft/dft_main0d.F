@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.16 1997-04-21 23:43:05 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.17 1997-04-25 23:11:46 d3h449 Exp $
 c     
       implicit none
 c
@@ -363,12 +363,6 @@ c     &     nbf_ao, nbf_ao, 'fock Matrix', g_fock, 'atom')
       g_fock = ga_create_atom_blocked(geom, AO_bas_han, 'fock matrix')
       g_vxc(1) = g_fock
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      pgmsect(5) = '  CREA     '
-      call tcllct(t_pgm(1,5),tp2,tp1)
-#endif
-c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       iw = 2
@@ -382,6 +376,8 @@ c      if (CDFIT)call gadest(g_s)
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0)
       endif
+      if (oprint_time)
+     &     call dft_tstamp(' Before call to DFT_SCF. ')
 c
       dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                     iter, g_dens, g_evecs, g_vxc, g_fock, 

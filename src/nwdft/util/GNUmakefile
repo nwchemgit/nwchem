@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.53 1997-04-21 23:43:12 d3h449 Exp $
+#$Id: GNUmakefile,v 1.54 1997-04-25 23:11:53 d3h449 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -79,6 +79,10 @@ else
 endif
 
      LIBRARY = libnwdft.a
+
+ LIB_DEFINES = -DDFT_TIMER
+# LIB_DEFINES =
+
 LIB_INCLUDES = -I../include
 
 

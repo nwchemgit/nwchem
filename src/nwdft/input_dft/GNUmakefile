@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.25 1997-02-17 20:52:19 d3g681 Exp $
+# $Id: GNUmakefile,v 1.26 1997-04-25 23:11:43 d3h449 Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -11,6 +11,10 @@
 	xc_setquad.o
 
      LIBRARY = libnwdft.a
+
+ LIB_DEFINES = -DDFT_TIMER
+# LIB_DEFINES =
+
 LIB_INCLUDES = -I../include
 
    USES_BLAS = xc_setquad.F
