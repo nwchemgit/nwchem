@@ -209,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.33 1996-10-04 21:48:21 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.34 1996-10-16 19:42:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -365,7 +365,7 @@ c
      $        '                    maxeri    :', i8/
      $        '                    maxscr    :', i8/
      $        '                    intacc    :', 1p,d8.1/
-     $        '                    denscreen : ',l/
+     $        '                    denscreen : ',l1/
      $        '                    dentol    :', d8.1/)
          call util_flush(6)
       endif
