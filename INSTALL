@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.11 1997-09-18 00:26:25 mg201 Exp $
+        $Id: INSTALL,v 1.12 1998-09-22 23:09:06 d3e129 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -20,6 +20,7 @@
 
    All the following directions assume that the current working
    directory is $NWCHEM_TOP/src.
+   so issue the command "cd $NWCHEM_TOP/src"
 
 3)  The currently supported platforms are:
 
@@ -27,23 +28,35 @@
     ----------------------------------------------------------
     SUN         Sun                    SunOS        double
     SOLARIS     Sun                    Solaris 2.X  double
-    IBM         IBM RS/6000            AIX          double
+    IBM         IBM RS/6000            AIX 3.x 4.s  double
     DECOSF      DEC AXP                OSF/1        double
-    SGI         SGI ?                  IRIX         double
-    SGITFP      SGI PowerChallenge     IRIX         double
+    SGI         SGI 32 bit os          IRIX 5.x 6.x double
+    SGITFP      SGI 64 bit os          IRIX         double
+    SGI_N32     SGI 64 bit os          IRIX         double 
+                using 32 ints
     CRAY-T3D    Cray T3D               UNICOS       single
     CRAY-T3E    Cray T3E               UNICOS       single
     PARAGON     Intel Paragon          OSF/1        double
     DELTA       Intel Delta            NX           double
     SP1         IBM SP1,SP2            AIX          double
-    KSR         KSR2                   KSR OS       single
     ----------------------------------------------------------
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
    that matches your target platform, e.g.
 
-       % setenv NWCHEM_TARGET PARAGON
+       % setenv NWCHEM_TARGET SP1
 
+   Some systems also require that you set NWCHEM_TARGET_CPU
+    Symb.Name      CPU type     NWCHEM_TARGET_CPU 
+    ----------------------------------------------------------
+    SGITFP         R8000           R8000
+                   R10000          R10000
+    SGI_N32        R8000           R8000
+                   R10000          R10000
+    SP1            Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
+                   Power 2 super   P2SC
+                   604e chip       604
+    
 4) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
    modules.  Choose one or more from
@@ -67,6 +80,10 @@
 
        % cd $NWCHEM_TOP/src
        % make nwchem_config NWCHEM_MODULES=all
+    OR 
+       % cd $NWCHEM_TOP/src
+       % setenv NWCHEM_MODULES all
+       % make nwchem_config
 
 5) Run the precision conversion according to the Precision column
    above for your target. This is necessary only on machines where 64
@@ -76,6 +93,7 @@
 
    For 64 bit single precision source
 
+       % cd $NWCHEM_TOP/src
        % make dbl_to_sngl
 
 6) Finally, compile and link:
@@ -84,11 +102,11 @@
 
    This should install the executables and libraries into
    platform-specific subdirectories in the directory tree. For
-   example, if the target platform equals PARAGON then the following
+   example, if the target platform equals SP1 then the following
    subdirectories are created:
 
-	$NWCHEM_TOP/bin/PARAGON          (executables)
-        $NWCHEM_TOP/lib/PARAGON          (libraries)
+	$NWCHEM_TOP/bin/SP1          (executables)
+        $NWCHEM_TOP/lib/SP1          (libraries)
 
 
    An alternative to steps 2 thru 6 is to specify all variables
@@ -104,44 +122,9 @@ NOTE TO MPI USERS:
 
    NWChem can be compiled to use MPI instead of TCGMSG for message
    passing on many systems, though this is still somewhat experimental
-   -- be on the lookout for problems.  The following procedures and
-   remarks should be inserted into the procedure above
+   and not particulary tested it can be done.  Please contact 
+   nwchem-support@emsl.pnl.gov to get assistance with this procedure.
 
-3.5) Additional environment variables must be set:
 
-	setenv USE_MPI yes
-	setenv MPI_LIB /usr/local/lib/mpich/rs6000/ch_eui
-	setenv MPI_INCLUDE /usr/local/include
 
-   MPI_LIB and MPI_INCLUDE are paths to the library and include files
-   for the MPI implementation you are using (example is appropriate
-   for the Cornell Theory Center MPICH installation).  If the MPI
-   libraries and includes are in locations already searched by the
-   compiler/linker, it is not necessary to set MPI_LIB and
-   MPI_INCLUDE.
- 
-7) If you are linking NWChem with the PeIGS eigensolver, the best
-   approach seems to be to build PeIGS for TCGMSG message passing, not
-   MPI!  The tcgmsg-mpi wrapper library will resolve all message
-   passing calls from PeIGS.  The reason for this recommendation is
-   that PeIGS currently calls MPI from Fortran, while NWChem calls it
-   only from C.  The current version of the MPI standard does not
-   guarantee mixed-language operation, so it is safer to avoid it.
 
-NOTE TO MPI USERS ON THE IBM SP:
--------------------------------
-
-   If you are adventurous enough to try linking against a copy of
-   PeIGS configured for MPI instead of TCGMSG, you'll probably need to
-   uncomment a section in src/config/makefile.h to handle the
-   Fortran/C interface renaming for PeIGS MPI calls.
-
-   For SP systems running AIX 3.2.5, there are two main MPI
-   implementations available (not at all sites).  MPICH from
-   ANL/Missisippi State, and MPI-F from IBM itself.  Because NWChem
-   uses both MPL and MPI on the SP, it is necessary to link against
-   appropriate libraries for both packages.  This is easily done using
-   MPICH, but is not easily done using MPI-F.  Rather than spending
-   time getting MPI-F to work, we've elected to wait for SPs to
-   upgrade to AIX 4, in which a native MPI implementation is
-   available, and is supported to link (and work) okay with MPL.
