@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.27 1996-11-01 22:05:22 d3g681 Exp $
+C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.27 1996-11-01 22:05:22 d3g681 Exp $
+C     $Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -447,7 +447,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.27 1996-11-01 22:05:22 d3g681 Exp $
+C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -538,7 +538,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.27 1996-11-01 22:05:22 d3g681 Exp $
+c     $Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -880,7 +880,7 @@ c
 c
  20   if (.not. ga_iter_lsolve(cuhf_vlen, max_precond_iter,
      $     max_precond_sub, precond_tol, 
-     $     uhf_precond, uhf_hessv, oprint_solve, 
+     $     uhf_precond, uhf_hessv, .true., oprint_solve, 
      $     g_grad, g_work, precond_acc, precond_iter)) then
 c     
 c     Iterative solution did not converge.  If we got at least
@@ -1024,7 +1024,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.27 1996-11-01 22:05:22 d3g681 Exp $
+C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

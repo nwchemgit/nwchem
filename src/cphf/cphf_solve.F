@@ -139,13 +139,13 @@ c
       if (scftype .eq. 'UHF') then
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $        max_precond_sub, precond_tol, 
-     $        uhf_precond, uhf_hessv, oprint_solve, 
+     $        uhf_precond, uhf_hessv, .false., oprint_solve, 
      $        g_grad, g_work, precond_acc, precond_iter))
      $        call errquit('cphf did not converge',precond_iter)
       else 
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $        max_precond_sub, precond_tol, 
-     $        rohf_hessv_precond, rohf_hessv, oprint_solve, 
+     $        rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
      $        g_grad, g_work, precond_acc,precond_iter))
      $        call errquit('cphf did not converge', precond_iter)
       endif

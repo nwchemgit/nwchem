@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
-     $     precond, product, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.4 1996-06-28 00:38:12 d3g681 Exp $
+     $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
+C$Id: ga_it_lsolve.F,v 1.5 1996-11-10 17:53:58 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -11,6 +11,7 @@ C$Id: ga_it_lsolve.F,v 1.4 1996-06-28 00:38:12 d3g681 Exp $
       double precision tol      ! Required norm of residual / norm of rhs
       external precond          ! Preconditioner
       external product          ! Matrix-vector product
+      logical ostall            ! If true abort if convergence is too slow
       logical oprint            ! True for printing of convergence to unit 6
       integer g_b               ! GA with RHS vector
       integer g_soln            ! GA with initial guess and returns solution
@@ -59,6 +60,9 @@ c     Apply an approximation (P) to the inverse of (A - shift*I) to the
 c     vector in g_r overwriting g_r with the result.
 c
 c     If the initial guess is zero no redundant matrix product is formed
+c
+c     If (ostall) then if the reduction of error between sucessive 
+c     iterations is too slow then terminate.
 c
       integer g_x               ! GA to hold expansion vectors
       integer g_p               ! GA to hold product vectors
@@ -232,7 +236,7 @@ c
 c     If things are converging very slowly punt back to 
 c     the caller for he/she to decide what should happen
 c
-         if (convg_ratio .gt. 0.91d0) then
+         if (ostall .and. convg_ratio .gt. 0.91d0) then
             if (ga_nodeid() .eq. 0) then
                write(6,*) ' ga_iter_lsolve: convergence stagnant ... ',
      $              'aborting solve'

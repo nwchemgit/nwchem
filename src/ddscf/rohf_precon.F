@@ -83,7 +83,7 @@ c     Attempt to solve the damned equations
 c
  20   if (.not. ga_iter_lsolve(crohf_vlen, max_precond_iter,
      $     max_precond_sub, precond_tol, 
-     $     rohf_hessv_precond, rohf_hessv, oprint_solve, 
+     $     rohf_hessv_precond, rohf_hessv, .true., oprint_solve, 
      $     g_grad, g_work, precond_acc, precond_iter)) then
 c     
 c     Iterative solution did not converge.  If we got at least

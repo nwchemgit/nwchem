@@ -1,5 +1,5 @@
       program test
-C$Id: testsolve.F,v 1.10 1995-02-02 18:09:51 d3g681 Exp $
+C$Id: testsolve.F,v 1.11 1996-11-10 17:53:59 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -110,7 +110,8 @@ c
       call ga_zero(g_soln)
       do iter = 1, 3
          if (ga_iter_lsolve(n, 40, 5, tol, test_precond,
-     $        test_product, .true., g_b, g_soln, acc, iter_solve)) then
+     $        test_product, .true., .true., g_b, g_soln,
+     $        acc, iter_solve)) then
             if (ga_nodeid() .eq. 0) write(6,*) ' OK'
          else
             if (ga_nodeid() .eq. 0) write(6,*) ' not OK'
@@ -125,7 +126,8 @@ c
       call ga_zero(g_soln)
       do iter = 1, 3
          if (ga_iter_lsolve(n, 40, 5, tol, test_precond,
-     $        test_product, .true., g_b, g_soln, acc, iter_solve)) then
+     $        test_product, .true., .true., g_b, g_soln, 
+     $        acc, iter_solve)) then
             if (ga_nodeid() .eq. 0) write(6,*) ' OK'
          else
             if (ga_nodeid() .eq. 0) write(6,*) ' not OK'

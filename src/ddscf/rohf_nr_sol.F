@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.8 1996-11-02 07:05:03 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.9 1996-11-10 17:53:51 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -48,8 +48,7 @@ c
 c     Functions
 c     
       integer ga_create_atom_blocked
-      logical ga_iter_lsolve
-      external ga_create_atom_blocked, ga_iter_lsolve
+      external ga_create_atom_blocked
       external rohf_hessv, rohf_hessv_precond
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
