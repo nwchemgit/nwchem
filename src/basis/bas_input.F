@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.40 1998-05-18 18:17:16 d3e129 Exp $
+c $Id: bas_input.F,v 1.41 1998-06-16 19:48:16 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -379,8 +379,8 @@ c
                  else
                    tag_in_lib = standard
                    standard   = field
-                   write(6,*) ' tag_in_lib, standard ', 
-     $                tag_in_lib, standard
+*                   write(6,*) ' tag_in_lib, standard ', 
+*     $                tag_in_lib, standard
                  endif
                endif
                goto 22
