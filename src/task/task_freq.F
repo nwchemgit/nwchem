@@ -39,7 +39,7 @@ c
 c     
       double precision cpu, wall
       logical stpr_gen_hess_at
-      external stpr_gen_hess_atc
+      external strp_gen_hess_at
 c     
       cpu  = util_cpusec()
       wall = util_wallsec()

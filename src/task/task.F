@@ -97,9 +97,6 @@ c
       integer util_system
       external util_system
 c
-      integer system
-      external system
-c
       if (.not.rtdb_get(rtdb,'task:shell range',mt_int,3,range)) then
          range(1) = 0
          range(2) = 0
