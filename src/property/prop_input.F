@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.11 2004-12-03 23:27:05 bert Exp $
+* $Id: prop_input.F,v 1.12 2004-12-06 21:49:28 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -132,7 +132,7 @@ c
             enddo
          endif
   10     continue                
-      elseif ( inp_compare(.false., 'giao', test)) then
+      elseif ( inp_compare(.false., 'shielding', test)) then
          giao = 0
          if (inp_i(giaoatoms)) then
             if (.not. ma_push_get(mt_int,giaoatoms,'atoms',l_at,k_at))
