@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.41 2000-01-25 20:16:11 mg201 Exp $
+c $Id: exact_mem.F,v 1.42 2000-01-26 23:29:40 d3j191 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -472,7 +472,7 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
-      integer rel_dbg, rel_typ
+c      integer rel_dbg, rel_typ
 c
 #include "bas_exndcf_sfn.fh"
 c

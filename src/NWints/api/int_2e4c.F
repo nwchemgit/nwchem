@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.33 2000-01-25 20:12:26 mg201 Exp $
+c $Id: int_2e4c.F,v 1.34 2000-01-26 23:31:52 d3j191 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -79,7 +79,7 @@ c.txs
 c.rel-dmd
       logical status_rel, bra_rel, ket_rel
       logical i_rel, j_rel, k_rel, l_rel
-      integer rel_dbg, rel_typ
+c      integer rel_dbg, rel_typ
       integer sbas, abas, bras, kets
 c
       logical any_spherical
