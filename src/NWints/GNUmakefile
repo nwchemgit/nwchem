@@ -1,9 +1,9 @@
 
-# $Id: GNUmakefile,v 1.43 1999-10-26 19:53:59 mg201 Exp $
+# $Id: GNUmakefile,v 1.44 1999-11-02 23:07:14 bert Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh api/int_nbf.fh aux/spcartP.fh hondo/hnd_whermt.fh hondo/hnd_rys.fh hondo/hnd_tol.fh
     LIBRARY = libnwints.a
-    SUBDIRS = api int aux ints_sp deriv texas ecp hondo rel
+    SUBDIRS = api int aux ints_sp deriv texas ecp hondo rel dk
     OBJ = int_input.o
   USE_TEXAS = YEP
 export USE_TEXAS
