@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.9 2003-10-17 22:55:48 carlfahl Exp $
+c     $Id: dft_gradients_so.F,v 1.10 2005-02-11 07:27:42 edo Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -333,7 +333,7 @@ c
      $     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, nat, int_mb(icetobfr), 
      $     iga_dens, ipol, dbl_mb(irdens_atom), 
-     $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      $     call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c     

@@ -3,7 +3,7 @@
      &                         k_cntobfr, l_cetobfr, k_cetobfr,
      &                         l_rdens_atom, k_rdens_atom)
 c
-c     $Id: xc_init_index.F,v 1.3 2003-10-17 22:55:14 carlfahl Exp $
+c     $Id: xc_init_index.F,v 1.4 2005-02-11 07:27:42 edo Exp $
 c
 c     Sets up indexing and reduced density arrays used by several
 c     XC routines
@@ -66,7 +66,7 @@ c
      &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(k_cetobfr), g_dens, 
      &                        ipol, dbl_mb(k_rdens_atom), 'rms', 
-     &                        dbl_mb(k_scr), nbf_ao_mxnbf_ce)
+     &                        dbl_mb(k_scr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(l_scr))
      &   call errquit('xc_init_index: cannot pop stack',0, MA_ERR)
 c      write(*,*)'rdens_atom'

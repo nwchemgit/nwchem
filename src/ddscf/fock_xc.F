@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.26 2004-12-16 18:44:05 bert Exp $
+c     $Id: fock_xc.F,v 1.27 2005-02-11 07:27:24 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -54,12 +54,16 @@ c
       logical wght_GA_dum,grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
       integer dims(3),chunk(3)
-      integer g_dens_xc(2),xc_getipol
+      integer maxxcd
+      parameter(maxxcd=256)
+      integer g_dens_xc(maxxcd),xc_getipol
       logical oprint
       integer alo(3), ahi(3), blo(3), bhi(3)
       integer nfock_xc,i
       integer ityp, ndim
       external grid_reopen,xc_gotxc,xc_getipol
+      integer ga_create_atom_blocked,dft_npatch
+      external ga_create_atom_blocked
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
@@ -143,6 +147,10 @@ c
          else
             dims(1) = 2*nfock_xc+2
          endif
+#ifdef NO3D
+         if(dims(1).gt.maxxcd) call errquit(
+     E        ' EEEDO: increase maxxcd to ',dims(1),0)
+#else
          dims(2) = nbf_ao
          dims(3) = nbf_ao
          chunk(1) = dims(1)
@@ -151,6 +159,7 @@ c
          if (.not. nga_create (MT_DBL, 3, dims, 'XCDensity',chunk,
      &     g_dens_xc)) call errquit
      &     ('fock_xc: could not allocate g_dens_xc',555, GA_ERR)
+#endif
 c
 c     alpha bit
 c
@@ -158,10 +167,16 @@ c
          ahi(1) = nfock_xc
          blo(1) = 1
          bhi(1) = nfock_xc
+#ifdef NO3D
+         do i=1,nfock_xc
+            g_dens_xc(i)=dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
+         enddo
+#else
          call ga_zero(g_dens_xc)
          call nga_add_patch(1d0,g_dens,alo,ahi,
      &      0d0,g_dens_xc,blo,bhi,
      &      g_dens_xc,blo,bhi)      
+#endif
 c
 c     beta bit
 c
@@ -170,9 +185,16 @@ c
             ahi(1) = nfock_xc*3
             blo(1) = nfock_xc+1+1
             bhi(1) = nfock_xc*2+1
+#ifdef NO3D
+         do i=blo(1),bhi(1)
+            g_dens_xc(i)=dft_npatch(g_dens,i+(nfock_xc-1),
+     N           nbf_ao,geom,ao_bas_han)
+         enddo
+#else
             call nga_add_patch(1d0,g_dens,alo,ahi,
      &         0d0,g_dens_xc,blo,bhi,
      &         g_dens_xc,blo,bhi)      
+#endif
          endif
       else
 c     -----------------------
@@ -195,13 +217,25 @@ c
          ahi(1) = nbf_ao
          blo(1) = nfock_xc+1
          bhi(1) = nfock_xc+1
+#ifdef NO3D
+         g_dens_xc(nfock_xc+1) =
+     =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+1')
+         call ga_copy(g_dens_scf(1),g_dens_xc(nfock_xc+1))
+#else
          call nga_copy_patch('N',g_dens_scf(1),alo,ahi,
      .        g_dens_xc,blo,bhi)
+#endif
          if(ndens.eq.2) then
             blo(1) = 2*nfock_xc+1+1
             bhi(1) = 2*nfock_xc+1+1
+#ifdef NO3D
+         g_dens_xc(2*nfock_xc+1+1) =
+     =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
+         call ga_copy(g_dens_scf(2),g_dens_xc(2*nfock_xc+2))
+#else
             call nga_copy_patch('N',g_dens_scf(2),alo,ahi,
      .           g_dens_xc,blo,bhi)
+#endif
          endif
       else
          g_dens_scf(1) = g_dens_xc(1)
@@ -240,7 +274,11 @@ c
             do i=1,ndens*(nfock_xc+1)
                alo(1)=i
                ahi(1)=i
+#ifdef NO3D
+               call ga_print(g_dens_xc(i))
+#else
                call nga_print_patch(g_dens_xc,alo,ahi,0)
+#endif
             enddo
          else
             call ga_print(g_dens_xc(1))
@@ -269,9 +307,17 @@ c
 c     Clean up
 c
       if(l3d) then
+#ifdef NO3D
+         do i=1,dims(1)
+         if (.not. ga_destroy(g_dens_xc(i)))
+     &      call errquit('fock_xc: could not destroy g_dens_xc',0,
+     &       GA_ERR)
+         enddo
+#else
          if (.not. ga_destroy(g_dens_xc))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
      &       GA_ERR)
+#endif
       endif
       if(ndens.eq.2)  then
 c
@@ -362,7 +408,6 @@ c
       bhi(1) = nbf
       blo(2) = 1
       bhi(2) = nbf
-
       call nga_copy_patch('N',g_dens,alo,ahi,g_dens1,blo,bhi)
       dft_npatch=g_dens1
       return

@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.15 2004-08-11 15:30:12 edo Exp $
+* $Id: dft_gradients.F,v 1.16 2005-02-11 07:27:42 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -331,7 +331,7 @@ c
      $     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, nat, int_mb(icetobfr), 
      $     iga_dens, ipol, dbl_mb(irdens_atom), 
-     $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      $     call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c     

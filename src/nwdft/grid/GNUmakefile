@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.47 2004-09-15 19:54:43 edo Exp $
+# $Id: GNUmakefile,v 1.48 2005-02-11 07:27:42 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -53,6 +53,9 @@ LIB_INCLUDES = -I../include
  grid_quadv0a.F grid_quadv0b.F grid_quadvw.F grid_tasks.F grid_pscreen.F \
 grid_quadvw1.F grid_xcfit.F grid_sympts.F grid_ssw.F
 
+ifdef NO3D
+   LIB_DEFINES += -DNO3D
+endif
 
 
 include ../../config/makefile.h

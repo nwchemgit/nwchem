@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.12 2003-10-17 22:55:50 carlfahl Exp $
+* $Id: dft_utilmap.F,v 1.13 2005-02-11 07:27:42 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -32,7 +32,7 @@ c
       return
       end
       subroutine util_ga_mat_reduce(n, nr, map, g_a, n_a, r, op,
-     &                              scr, mxmap)
+     &                              scr, mxmap,lfirst)
       implicit none
 c     
 #include "global.fh"
@@ -46,6 +46,7 @@ c
       integer mxmap                     ! max size of map vector
       double precision scr(mxmap,*) ! scratch
       character*(*) op                  ! Reduction operation
+      logical lfirst
 c     
 c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
 c     
@@ -74,7 +75,8 @@ c
       me=ga_nodeid()
       nproc=ga_nnodes()
       itask=0
-      call dfill(n_a*nr*nr, 0.0d0, r, 1)
+      if(lfirst)
+     A     call dfill(n_a*nr*nr, 0.0d0, r, 1)
 
       do k = 1, n_a
 c

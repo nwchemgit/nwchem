@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.19 2004-10-30 00:55:12 edo Exp $
+c     $Id: dft_fockbld.F,v 1.20 2005-02-11 07:27:42 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -105,7 +105,7 @@ c
      &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, g_dens, 
      &                        ipol, rdens_atom, 'rms', 
-     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c
@@ -163,7 +163,8 @@ c
      &      call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
          call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, 
      &                           g_dens, ipol, rdens_atom, 
-     &                           'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     &                           'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,
+     A        .true.)
          if (.not.ma_pop_stack(lscr))
      &      call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif

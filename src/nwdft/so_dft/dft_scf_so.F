@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.30 2004-01-20 19:08:43 edo Exp $
+c     $Id: dft_scf_so.F,v 1.31 2005-02-11 07:27:42 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -782,7 +782,7 @@ c
      &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
-     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
 c      write(*,'("irdens",5f10.7)')
 c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
       if (.not.ma_pop_stack(lscr))
@@ -839,7 +839,7 @@ c
      &     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), 
      &     g_dens, ipol, dbl_mb(irdens_atom), 
-     &     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     &     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       if (.not.ma_pop_stack(lscr))
      &     call errquit('dft_scf: cannot pop stacklscr:',0, MA_ERR)
 c     

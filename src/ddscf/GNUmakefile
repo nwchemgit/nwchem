@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.120 2004-12-03 22:39:54 bert Exp $
+# $Id: GNUmakefile,v 1.121 2005-02-11 07:27:24 edo Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -72,6 +72,10 @@ HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfoc
 
 
 SUBDIRS = fast
+
+ifdef NO3D
+   LIB_DEFINES += -DNO3D
+endif
 
 include ../config/makefile.h
 include ../config/makelib.h
