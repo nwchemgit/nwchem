@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.433 2003-10-25 00:10:24 edo Exp $
+# $Id: makefile.h,v 1.434 2003-10-28 01:48:53 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1504,7 +1504,7 @@ endif
         endif
         FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=rsqrt:fltint
 #        FVECTORIZE = -O5 -qhot -qfloat=fltint 
-        FDEBUG= -O2 -g
+        FDEBUG= -O0 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         DEFINES  +=   -DXLFLINUX
