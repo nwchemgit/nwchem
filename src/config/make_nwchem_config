@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.107 1999-06-29 23:49:28 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.108 1999-07-08 00:41:53 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -247,6 +247,7 @@ all:	nwchem_config.h NWCHEM_CONFIG ../stubs.f
 nwchem_config.h:
 	echo \# This configuration generated automatically on \
 	      `hostname` at `date` > $@
+	echo "# Request modules from user: $(NWCHEM_MODULES)" >> $@
 	echo "NW_MODULE_SUBDIRS = $(filter $(MODULES),$(KNOWN_MODULE_SUBDIRS))" >> $@
 	echo "NW_MODULE_LIBS = $(filter $(MOD_LIBS),$(KNOWN_MODULE_LIBS))" >> $@
 	echo "EXCLUDED_SUBDIRS = $(EXCLUDED_SUBDIRS)" >> $@
@@ -254,6 +255,7 @@ nwchem_config.h:
 NWCHEM_CONFIG:
 	echo \# This configuration generated automatically on \
 	     `hostname` at `date` > $@
+	echo "# Request modules from user: $(NWCHEM_MODULES)" >> $@
 	echo The following subdirectories are built: >> $@ 
 	echo $(MODULES) >> $@ 
 	echo corresponding to these libraries: >> $@ 
@@ -272,7 +274,7 @@ else
 	echo $(STUBROUTINES)  >> $@ 
 endif
 ifeq ($(CONFIG_LIBS),)
-	echo "No extra configuration libraries where added "
+	echo "No extra configuration libraries where added " >> $@
 else
 	echo "These libraries were added as at configuration time as "
 	echo "extras over the default libraries for the given target"
