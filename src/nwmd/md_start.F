@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.68 2000-05-31 03:47:35 d3j191 Exp $
+c $Id: md_start.F,v 1.69 2000-06-02 02:48:28 d3j191 Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
-     + issscl,delta,nfanal,lpbc,npgdec)
+     + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq)
 c
 c     print topology information
 c     --------------------------
@@ -1248,6 +1248,13 @@ c
       write(lfnout,1005) rshort,rlong
  1005 format(/,' Cutoff radius short range ',f12.6, ' nm',
      +       /,' Cutoff radius long range  ',f12.6, ' nm')
+      endif
+c
+      if(ifield.gt.0) then
+      write(lfnout,1035) xfield,xffreq,xfvect
+ 1035 format(/,' External electrostatic field strength ',f12.6,/,
+     + 25x,'frequency ',f12.6,/,
+     + 25x,'field vector ',3f12.6)
       endif
 c
       if(ntype.ge.2) then
