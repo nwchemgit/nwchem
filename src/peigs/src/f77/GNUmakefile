@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.21 2004-10-20 17:52:29 edo Exp $
+# $Id: GNUmakefile,v 1.22 2004-10-22 01:15:28 edo Exp $
 #
 
 include ../../../config/makefile.h
@@ -20,18 +20,7 @@ FOBJ = inverm.o \
 	dgetavec.o \
 	dgetavec2.o \
 	dgetavec3.o \
-	dlarnv.o \
-	dlasrt.o \
-	dlasq3.o \
-	dlasq4.o \
-	dlasrt.o \
-	dlaebz.o \
-	dlascl.o \
-	types1.o \
-	dlasq3a.o \
-	dlasq4a.o \
-	dlasq5a.o \
-	dlasq5.o 
+	types1.o 
 endif
 
 ifeq ($(peigs_CODEOBJ),SINGLE)
@@ -44,17 +33,7 @@ FOBJ = samax.o \
 	dgetavec.o \
 	dgetavec2.o \
 	dgetavec3.o \
-	dlarnv.o \
-	dlasrt.o \
-	dlasq3.o \
-	dlasq4.o \
-	dlasrt.o \
-	dlaebz.o \
-	dlascl.o \
-	types1.o \
-	dlasq3a.o \
-	dlasq4a.o \
-	dlasq5a.o 
+	types1.o 
 endif
 
 
@@ -82,10 +61,7 @@ clean:
 		-rm -f *.o
 		-rm -f *.s
 ifdef REMOVESF
-		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
-		dlas2.f  \
-		dlasq3.f dlasq4.f dlasr.f \
-		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
+		-rm -f dgetavec.f dlaebz2.f dlagtf1.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
 		neblw2.f sneblw2.f sstebz3.f
 endif
