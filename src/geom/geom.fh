@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.28 1999-05-24 23:39:55 d3g681 Exp $
+C$Id: geom.fh,v 1.29 1999-06-07 22:15:21 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -55,6 +55,7 @@ c
       logical geom_masses_get
       logical geom_mass_set
       logical geom_mass_get
+      logical geom_tag_to_covalent_radius
 c
       logical geom_set_ang2au
       logical geom_get_ang2au
@@ -156,3 +157,4 @@ c
       external geom_get_user_units
       external geom_checksum
       external geom_strip_sym
+      external geom_tag_to_covalent_radius

@@ -1,1005 +1,156 @@
-      SUBROUTINE HND_ICOORD(GEOM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "util.fh"
-c
-      integer geom
-C
-C     ---                 CONSTRUCT -Z- MATRIX                     ---
-C     ---             CALCULATE ATOM-ATOM DISTANCES                ---
-C     --- -NZMAT-  =  NUMBER OF ELEMENTS OF -IZMAT- GIVEN IN $ZMAT ---
-C     --- -NZVAR-  =  NUMBER OF INTERNAL COORDINATES FROM -IZMAT-  ---
-C     --- -NVAR-   =  (3N-6) OR (3N-5) OR -NZMOD-  .LE. -NZVAR-    ---
-C
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXCART=3*MXATOM)
-      PARAMETER (MXZMAT=1500)
-      PARAMETER (MXCOOR=1500)
-      LOGICAL ZDONE
-      LOGICAL DBUG
-      LOGICAL SOME
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM)
-      COMMON/HND_MOLNUC/NUC(MXATOM)
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION R(MXATOM)
-      DATA ONE   /1.0D+00/
-      DATA UNIT  /0.52917715D+00/
-C
-      DBUG=.FALSE.
-      SOME=.FALSE.
-      SOME=SOME.OR.DBUG
-      IF(DBUG) THEN
-         WRITE(IW,*) 'IN HND_ICOORD'
-         WRITE(IW,*) 'IFZMAT',IFZMAT
-      ENDIF
-C
-C     ----- in -nwchem- , some MUST BE true -----
-C
-      SOME=.TRUE.
-C
-      IF(IFZMAT.NE.0) THEN
-C
-C     ----- LOOK FOR -Z- MATRIX DATA AND READ IT IN -----
-C
-         IF(SOME) THEN
-            CALL HND_RDZMAT(NAT)
-         ENDIF
-      ENDIF
-C
-      IF(DBUG) THEN
-         WRITE(IW,*) 'IFZMAT',IFZMAT
-         WRITE(IW,*) 'NZMAT ',NZMAT
-      ENDIF
-      IF(IFZMAT.NE.0.AND.NZMAT.GT.0) THEN
-C
-C     -----    THERE IS A -Z- MATRIX    -----
-C     ----- CALCULATE -B- AND -B**(-1)- -----
-C
-         CALL HND_BANDBI(GEOM,NAT,C)
-****         CALL HND_ZMTPRT(GEOM)  ! RJH - no need to print every time
-      ELSEIF(IFZMAT.NE.0.AND.NZMAT.EQ.0) THEN
-C
-C     -----       THERE IS NO -Z- MATRIX     -----
-C     ----- TRY TO CREAT ONE ; IF SUCCESSFUL -----
-C     -----    CALCULATE -B- AND -B**(-1)-   -----
-C
-         CALL HND_ZMTMAK(ZDONE,geom,
-     $        util_print('zmat','print_default'))
-         IF(ZDONE) THEN
-            CALL HND_BANDBI(GEOM,NAT,C)
-****  CALL HND_ZMTPRT(GEOM)
-         ELSE
-C
-C     -----  DEFINE ROTATIONS+TRANSLATIONS  -----
-C           BY MEANS OF HND_ECKARTs CONDITIONS
-C
-            NCART=3*NAT
-            NZVAR=3*NAT
-            NVAR =3*NAT
-            NZMAT=0
-            NCOOR=MAX(NCART,NZVAR)
-            CALL HND_TRNROT(NAT,C,NCART,NCOOR)
-C
-C     ----- PRINT INTERNUCLEAR DISTANCES -----
-C
-            IF(SOME) THEN
-               IPASS=1
-               FAC=UNIT
-               WRITE(IW,9995)
-   10          CONTINUE
-               JMAX=0
-   20          JMIN=JMAX+1
-               JMAX=JMAX+10
-               IF(JMAX.GT.NAT) JMAX=NAT
-               WRITE(IW,9999)
-               WRITE(IW,9998) (ANAM(J),BNAM(J),J=JMIN,JMAX)
-               WRITE(IW,9999)
-               DO I=1,NAT
-                  DO J=JMIN,JMAX
-                     RR=(C(1,I)-C(1,J))**2+(C(2,I)-C(2,J))**2
-     1                                    +(C(3,I)-C(3,J))**2
-                     R(J)= SQRT(RR)*FAC
-                  ENDDO
-                  WRITE(IW,9997) I,ANAM(I),BNAM(I),(R(J),J=JMIN,JMAX)
-               ENDDO
-               IF(JMAX.LT.NAT) GO TO 20
-               IPASS=2
-               IF(IPASS.EQ.2) RETURN
-               FAC=ONE
-               WRITE(IW,9996)
-               GO TO 10
-            ENDIF
-C
-         ENDIF
-      ELSEIF(IFZMAT.EQ.0) THEN
-C
-C     -----  DEFINE ROTATIONS+TRANSLATIONS  -----
-C           BY MEANS OF HND_ECKARTs CONDITIONS
-C
-         NCART=3*NAT
-         NZVAR=3*NAT
-         NVAR =3*NAT
-         NCOOR=MAX(NCART,NZVAR)
-         CALL HND_TRNROT(NAT,C,NCART,NCOOR)
-C
-C     ----- PRINT INTERNUCLEAR DISTANCES -----
-C
-         IF(SOME) THEN
-            IPASS=1
-            FAC=UNIT
-            WRITE(IW,9995)
-  110       CONTINUE
-            JMAX=0
-  120       JMIN=JMAX+1
-            JMAX=JMAX+10
-            IF(JMAX.GT.NAT) JMAX=NAT
-            WRITE(IW,9999)
-            WRITE(IW,9998) (ANAM(J),BNAM(J),J=JMIN,JMAX)
-            WRITE(IW,9999)
-            DO I=1,NAT
-               DO J=JMIN,JMAX
-                  RR=(C(1,I)-C(1,J))**2+(C(2,I)-C(2,J))**2
-     1                                 +(C(3,I)-C(3,J))**2
-                  R(J)= SQRT(RR)*FAC
-               ENDDO
-               WRITE(IW,9997) I,ANAM(I),BNAM(I),(R(J),J=JMIN,JMAX)
-            ENDDO
-            IF(JMAX.LT.NAT) GO TO 120
-            IPASS=2
-            IF(IPASS.EQ.2) RETURN
-            FAC=ONE
-            WRITE(IW,9996)
-            GO TO 110
-         ENDIF
-C
-      ENDIF
-      RETURN
- 9999 FORMAT(/)
- 9998 FORMAT(15X,10(1X,A8,A2))
- 9997 FORMAT(1X,I3,1X,A8,A2,10(1X,F8.4,2X))
- 9995 FORMAT(/,10X,'INTERNUCLEAR DISTANCES (ANGS.)',/,10X,30(1H-))
- 9996 FORMAT(/,10X,'INTERNUCLEAR DISTANCES ( A.U.)',/,10X,30(1H-))
-      END
-      SUBROUTINE HND_TRNROT(NAT,C,NCART,NDIM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-C
-      LOGICAL OUT 
-      LOGICAL DBUG
-      COMMON/HND_IOFILE/IR,IW
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-C
-C     ----- MEMORY POINTERS -----
-C
-C     I10=1
-C     I20=I10+NCART*NCART
-C     I30=I20+NCART*3     
-C     I40=I30+NCART*3     
-C     I50=I40+NDIM*NDIM  
-C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NCART*NCART,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_TRNROT, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NCART*3    ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_TRNROT, MALLOC OF I20  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NCART*3    ,'MEM I30 ',I_I30,I30))
-     & CALL ERRQUIT('HND_TRNROT, MALLOC OF I30  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NDIM*NDIM  ,'MEM I40 ',I_I40,I40))
-     & CALL ERRQUIT('HND_TRNROT, MALLOC OF I40  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I50 ',I_I50,I50))
-     & CALL ERRQUIT('HND_TRNROT, MALLOC OF I50  FAILED',911)
-C
-C     ----- CREATE HND_ECKARTs PROJECTOR AND WRITE ON -94- -----
-C
-      CALL HND_ECKART(NAT,C,DBL_MB(I10),DBL_MB(I20),
-     &                      DBL_MB(I30),DBL_MB(I20),NCART,DBUG)
-C
-      DO J=1,NCART
-         DO I=1,NCART
-            DBL_MB(I+(J-1)*NDIM+I40-1)=DBL_MB(I+(J-1)*NCART+I10-1)
-         ENDDO
-      ENDDO
-C
-      NDUM=NDIM*NDIM    
-      IF(OUT) THEN
-         WRITE(IW,9999)
-         CALL HND_PRSQ(DBL_MB(I40),NCART,NCART,NDIM)
-      ENDIF
-C
-C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I50))
-     & CALL ERRQUIT('HND_TRNROT, MA_POP_STACK OF I50  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I40))
-     & CALL ERRQUIT('HND_TRNROT, MA_POP_STACK OF I40  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I30))
-     & CALL ERRQUIT('HND_TRNROT, MA_POP_STACK OF I30  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_TRNROT, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_TRNROT, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
- 9999 FORMAT(' IN -HND_TRNROT- PROJECTOR = ')
-      END
-      SUBROUTINE HND_ECKART(NAT,C,P,T,R,TR,NCART,OUT)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION C(3,1)
-      DIMENSION G(3)
-      DIMENSION P(NCART,*),T(3,NAT,*),R(3,NAT,*),TR(NCART,*)
-      DATA ZERO /0.0D+00/
-      DATA ONE  /1.0D+00/
-      DATA TOL  /1.0D-09/ 
-C
-      DO JTR=1,6
-         DO ICART=1,NCART
-            TR(ICART,JTR)=ZERO
-         ENDDO
-      ENDDO
-C
-C     ----- DEFINE CENTER OF MASS ( UNIT MASS ) -----
-C
-      DO IXYZ=1,3
-         DUM=ZERO
-         DO IAT=1,NAT
-            DUM=DUM+C(IXYZ,IAT)
-         ENDDO
-         DUM=DUM/DBLE(NAT)
-         G(IXYZ)=DUM
-      ENDDO
-C
-C     ----- DEFINE TRANSLATIONS -----
-C
-      DO IXYZ=1,3
-         DO IAT=1,NAT
-            T(IXYZ,IAT,IXYZ)=ONE
-         ENDDO
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9997)
-         CALL HND_PRSQ(TR,3,NCART,NCART)
-      ENDIF
-C
-C     ----- DEFINE ROTATIONS -----
-C
-      DO IXYZ=1,3
-         IF(IXYZ.EQ.1) THEN
-            DO IAT=1,NAT
-               R(2,IAT,IXYZ)=-C(3,IAT)+G(3)
-               R(3,IAT,IXYZ)= C(2,IAT)-G(2)
-            ENDDO
-         ELSEIF(IXYZ.EQ.2) THEN
-            DO IAT=1,NAT
-               R(1,IAT,IXYZ)= C(3,IAT)-G(3)
-               R(3,IAT,IXYZ)=-C(1,IAT)+G(1)
-            ENDDO
-         ELSEIF(IXYZ.EQ.3) THEN
-            DO IAT=1,NAT
-               R(1,IAT,IXYZ)=-C(2,IAT)+G(2)
-               R(2,IAT,IXYZ)= C(1,IAT)-G(1)
-            ENDDO
-         ENDIF
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9996)
-         CALL HND_PRSQ(TR,6,NCART,NCART)
-      ENDIF
-C
-C     ----- ORTHONORMALIZE -----
-C
-      NTR=0
-      DO ITR=1,6
-         DUM=dnrm2(NCART,TR(1,ITR),1)
-         IF(ABS(DUM).GT.TOL) THEN
-            NTR=NTR+1
-            DUM=ONE/DUM
-            CALL dscal(NCART,DUM,TR(1,ITR),1)
-            IF(ITR.LT.6) THEN
-               DO JTR=ITR+1,6
-                  DUM= -ddot(NCART,    TR(1,ITR),1,TR(1,JTR),1)
-                  CALL daxpy(NCART,DUM,TR(1,ITR),1,TR(1,JTR),1)
-               ENDDO
-            ENDIF
-         ELSE
-            DO ICART=1,NCART
-               TR(ICART,ITR)=ZERO
-            ENDDO
-         ENDIF
-      ENDDO
-      IF(OUT.AND.NTR.NE.6) THEN
-         WRITE(IW,9999) NTR
-      ENDIF
-      IF(OUT) THEN
-         WRITE(IW,9995)
-         CALL HND_PRSQ(TR,6,NCART,NCART)
-      ENDIF
-C
-C     ----- CREATE PROJECTOR ONTO INTERNAL SPACE -----
-C
-      DO JCART=1,NCART
-         DO ICART=1,NCART
-            P(ICART,JCART)=ZERO
-         ENDDO
-         P(JCART,JCART)=ONE
-         DO ICART=1,NCART
-            DUM=ZERO
-            DO ITR=1,6
-               DUM=DUM+TR(ICART,ITR)*TR(JCART,ITR)
-            ENDDO
-            P(ICART,JCART)=P(ICART,JCART)-DUM
-         ENDDO
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9998)
-         CALL HND_PRSQ(P,NCART,NCART,NCART)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(/,' IN -HND_ECKART- , ONLY ',I1,' TRAN+ROT WERE FOUND .')
- 9998 FORMAT(/,' HND_ECKART PROJECTOR',/,' ----------------')
- 9997 FORMAT(/,' TRANSLATIONS',/,' ------------')
- 9996 FORMAT(/,' TRANS. + ROT.',/,' -------------')
- 9995 FORMAT(/,' TRANS. + ROT. (ORTHONORM)',/,' ',25(1h-))
-      END
-      SUBROUTINE HND_RDZMAT(NAT)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- READ IN Z-MATRIX INPUT -----
-C
-      PARAMETER (    NA=10 )
-      PARAMETER (MXNIJS=500)
-      PARAMETER (MXIZMT=6000)
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXCART=3*MXATOM)
-      PARAMETER (MXZMAT=1500)
-      PARAMETER (MXCOOR=1500)
-      LOGICAL OUT
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_MOLNUC/NUC(MXATOM)
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
-      COMMON/HND_ZMTDAT/ZMAT(MXCOOR),IZMAT(MXIZMT),NIZMAT
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION SIJ(MXNIJS),IJS(2,MXNIJS)
-      DIMENSION A(3,NA)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','-RDZMAT-'/
-      DATA LINEAR  /0/
-      DATA NZMOD   /0/
-      DATA NATURAL /2/
-      DATA NPFLG   /0/
-      DATA ZERO    /0.0D+00/
-C
-C     NAMELIST /ZMAT/ IZMAT,IJS,SIJ,A,LINEAR,NZMOD,NATURAL,NPFLG
-C     NAMELIST /ZMT/  IZMAT,IJS,SIJ,A,LINEAR,NZMOD,NATURAL,NPFLG
-C
-      NZMAT=0
-      NZVAR=3*NAT
-      NVAR =3*NAT
-      IF(NIZMAT.LE.0) THEN
-         DO I=1,MXIZMT
-            IZMAT(I)=0
-         ENDDO
-      ENDIF
-      DO I=1,MXNIJS
-         IJS(1,I)=0
-         IJS(2,I)=0
-         SIJ(I)=ZERO
-      ENDDO
-      DO J=1,NA
-         DO I=1,3
-            A(I,J)=ZERO
-         ENDDO
-      ENDDO
-      NATZMT=-1
-C
-C     ----- READ NAMELIST -$ZMAT- OR NAMELIST -$ZMT- -----
-C           BOTH PROVIDE THE SAME INPUT DATA. ONLY
-C           $ZMAT HAS PRIORITY OVER $ZMT IF BOTH ARE
-C           GIVEN IN INPUT DATA.
-C
-C     REWIND IR
-C     READ(IR,ZMAT,END=100,ERR=100)
-C     GO TO 110
-C 100 CONTINUE
-C     REWIND IR
-C     READ(IR, ZMT,END=140,ERR=140)
-C 110 CONTINUE
-C
-      IF(NPFLG.NE.1.AND.NPFLG.NE.2) THEN
-         NPFLG=0
-      ENDIF
-      IPRZMT=NPFLG
-      IF(NATURAL.NE.1.AND.NATURAL.NE.2) THEN
-         NATURAL=2
-      ENDIF
-      IF(NATURAL.GT.0) THEN
-         NATZMT=NATURAL
-      ENDIF
-C
-      OUT=.FALSE.
-      OUT=OUT.OR.NPRINT.EQ.1
-      OUT=OUT.OR.IPRZMT.GE.1
-      IF(OUT) THEN
-         WRITE(IW,*) 'IN HND_RDZMAT'
-      ENDIF
-C
-C     ----- INCLUDE SYMMETRICALLY EQUIVALENT -ZMAT- IF NEEDED -----
-C
-      CALL HND_ZMTSYM
-C
-C     ----- SCAN AND ANALYZE IZMAT -----
-C
-      NZMAT = 0
-      DO I = 1,MXIZMT
-         IF (IZMAT(I) .NE. 0) THEN
-            NZMAT = NZMAT + 1
-         ENDIF
-      ENDDO
-      IF(NZMAT.EQ.0) RETURN
-C
-      IF (OUT) WRITE (IW,9048)
-      ICOUNT = 0
-      NCOUNT = 0
-  120 CONTINUE
-      ICOUNT = ICOUNT + 1
-      IF(ICOUNT.GT.NZMAT) GO TO 130
-C
-C     ----- CHECK FOR A VALID TYPE -----
-C
-C      1 ..... STRETCH
-C      2 ..... BEND
-C      3 ..... TORSION (DIHEDRAL ANGLE BETWEEN PLANES HAVING
-C                       TWO ATOMS IN COMMON )
-C      4 ..... OUT OF PLANE BEND
-C      5 ..... LINEAR BEND
-C      6 ..... DIHEDRAL ANGLE BETWEEN PLANES HAVING ONE ATOM
-C              IN COMMON
-C
-      IF (IZMAT(ICOUNT) .LE. 0 .OR. IZMAT(ICOUNT) .GE. 8) THEN
-         WRITE (IW,9008)
-         WRITE (IW,9068) IZMAT(ICOUNT)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-      IF (IZMAT(ICOUNT) .EQ. 1) INC = 2
-      IF (IZMAT(ICOUNT) .EQ. 2) INC = 3
-      IF (IZMAT(ICOUNT) .EQ. 3) INC = 4
-      IF (IZMAT(ICOUNT) .EQ. 4) INC = 4
-      IF (IZMAT(ICOUNT) .EQ. 5) INC = 4
-      IF (IZMAT(ICOUNT) .EQ. 6) INC = 5
-      IF (IZMAT(ICOUNT) .EQ. 6) INC = 5
-      IF (IZMAT(ICOUNT) .EQ. 7) INC = 4 ! Bond angle + orientation
-C
-C     ----- MAKE SURE THE ATOM NUMBERS ARE VALID -----
-C
-      JDUM = INC
-      IF (IZMAT(ICOUNT) .EQ. 5) JDUM = INC - 1
-      DO J = 1,JDUM
-         IF (IZMAT(ICOUNT+J) .GT. NAT) THEN
-            WRITE (IW,9088) IZMAT(ICOUNT+J)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-      IF (IZMAT(ICOUNT).EQ.5.AND.IZMAT(ICOUNT+INC).GT.NA) THEN
-         WRITE (IW,9088) IZMAT(ICOUNT+INC)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-      IF (IZMAT(ICOUNT).NE.5) NCOUNT=NCOUNT+1
-      IF (IZMAT(ICOUNT).EQ.5) NCOUNT=NCOUNT+2
-C
-      IF (OUT) THEN
-         WRITE (IW,9108) IZMAT(ICOUNT),(IZMAT(ICOUNT+J),J = 1,INC)
-      ENDIF
-      ICOUNT = ICOUNT + INC
-      GO TO 120
-  130 CONTINUE
-C
-C     ----- SAVE IZMAT ON DIRECT ACCESS -----
-C     -----   -IZMAT-  ON -96-          -----
-C     -----   -A-      ON -90-          -----
-C
-C
-C     ----- SET -NVAR- AND -NZVAR- -----
-C
-      IF(LINEAR.EQ.0) NVAR=3*NAT-6
-      IF(LINEAR.NE.0) NVAR=3*NAT-5
-      IF( NZMOD.NE.0) NVAR=NZMOD
-      NZVAR=NCOUNT
-      IF(NZVAR.LT.NVAR) THEN
-         WRITE(IW,9028)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-      IF(NZVAR.GT.MXZMAT) THEN
-         WRITE(IW,9038)
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-C     ----- READ MATRIX FOR SYMMETRIC INTERNAL COORDINATES -----
-C                 ( ALSO FOR LINEAR DEPENDENCIES )
-C
-      CALL HND_ZMTLIN(NZVAR,MXNIJS,IJS,SIJ)
-C
-C     ----- FINAL ADJUSTMENT OF -NATZMT- IF NEEDED -----
-C
-      IF(NATZMT.LT.0) THEN
-         NATZMT=2
-      ENDIF
-      RETURN
-C
-  140 CONTINUE
-C
-C     ----- FINAL ADJUSTMENT OF -NATZMT- IF NEEDED -----
-C
-      IF(OUT) THEN
-         WRITE(IW,9018)
-      ENDIF
-      IF(NATZMT.LT.0) THEN
-         NATZMT=2
-      ENDIF
-      RETURN
- 9108 FORMAT(5X,6I10)
- 9088 FORMAT(' INVALID ATOM NUMBER ',I5,' . STOP')
- 9068 FORMAT(' INVALID ZMAT TYPE ',I5,' . STOP')
- 9048 FORMAT(/,10X,'INPUT Z-MATRIX ELEMENTS',
-     1       /,5X,6X,'TYPE',9X,'I',9X,'J',9X,'K',9X,'L',9X,'M')
- 9038 FORMAT(' NUMBER OF INTERNAL COORDINATES IS GREATER THAN ',
-     1       ' -MXZMAT- . STOP ' )
- 9028 FORMAT(' NUMBER OF INTERNAL COORDINATES IS LESS THAN (3N-6)',
-     1       ' OR -NZMOD- .STOP')
- 9018 FORMAT(' NO -$ZMAT- OR -$ZMT- NAMELISTS FOUND; PROCEED ...')
- 9008 FORMAT(' ERROR IN $ZMAT INPUT . STOP')
-      END
-      SUBROUTINE HND_ZMTSYM
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      RETURN
-      END
-      SUBROUTINE HND_ZMTLIN(NZVAR,MXNIJS,IJS,SIJ)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-c
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXCART=3*MXATOM)
-      PARAMETER (  LBUF=9  )
-      LOGICAL SOME
-      LOGICAL OUT
-      LOGICAL DBUG
-      LOGICAL SYM
-      CHARACTER*8 ERRMSG
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTOUT/IPRZMT
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLNUC/NUC(MXATOM)
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      DIMENSION IJS(2,1),SIJ(1)
-      DIMENSION IBUF(LBUF),BUF(LBUF)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTLIN-'/
-      DATA TENM1  /1.0D-01/
-      DATA TOL    /1.0D-08/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-C
-      DBUG=.FALSE.
-      OUT =.FALSE. 
-      OUT =OUT.OR.DBUG
-      OUT =OUT.OR.NPRINT.EQ.1 
-      OUT =OUT.OR.IPRZMT.GE.1 
-      SOME=       NPRINT.NE.-5
-      SOME=SOME.OR.OUT
-      IF(OUT) THEN
-         WRITE(IW,*) 'IN HND_ZMTLIN'
-      ENDIF
-C
-      NDIM=MAX(3*NAT,NZVAR)
-C
-C     ----- MEMORY POINTERS -----
-C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NDIM *NDIM ,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I20  FAILED',911)
-C
-      DO IJ=1,NDIM *NDIM 
-         DBL_MB(IJ+I10-1)=ZERO
-      ENDDO
-      DO I=1,NZVAR        
-         II=I+NDIM*(I-1)
-         DBL_MB(II+I10-1)=ONE
-      ENDDO
-      IF(DBUG) THEN
-         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
-      ENDIF
-C
-C     ----- CHECK TO SEE IF WE HAVE A -LIN- MATRIX -----
-C
-      SYM=.FALSE.
-      NIJS=0
-      DO N=1,MXNIJS
-         I=IJS(1,N)
-         J=IJS(2,N)
-         S=SIJ(  N)
-         IF(      I) 100,50,10
-   10    IF(NZVAR-I) 100,20,20
-   20    IF(      J) 100,50,30
-   30    IF(NZVAR-J) 100,40,40
-   40    CONTINUE
-         NIJS=NIJS+1
-         DO K=1,NZVAR
-            KJ=K+NDIM*(J-1)
-            DBL_MB(KJ+I10-1)=ZERO
-         ENDDO
-         SYM=.TRUE.
-   50    CONTINUE
-      ENDDO
-C
-C     ----- SET AND PRINT -LIN- MATRIX -----
-C
-      IF(SYM) THEN
-         MAXJ=0
-         DO N=1,NIJS
-            I=IJS(1,N)
-            J=IJS(2,N)
-            S=SIJ(  N)
-            IJ=I+NDIM*(J-1)
-            DBL_MB(IJ+I10-1)=S
-            IF(J.GT.MAXJ) THEN
-               MAXJ=J
-            ENDIF
-         ENDDO   
-      ENDIF
-      IF(DBUG) THEN
-         WRITE(IW,9993)
-         CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
-      ENDIF
-C
-      IF(.NOT.SYM) THEN
-C
-C     ----- NO SYMMETRY COORDINATES GIVEN -----
-C
-         DO I=1,NZVAR
-            II=I+NDIM*(I-1)
-            DBL_MB(II+I10-1)=ONE
-         ENDDO
-      ELSE
-C
-C     ----- SYMMETRY COORDINATES ARE GIVEN -----
-C
-         DO J=1,MAXJ 
-C
-C     -----           NORMALIZE            -----
-C
-            DUM=ZERO
-            DO K=1,NZVAR
-               KJ=K+NDIM*(J-1)
-               DUM=DUM+DBL_MB(KJ+I10-1)**2
-            ENDDO
-            IF(DUM.LT.TOL) THEN
-               WRITE(IW,9998) J
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            DUM=ONE/ SQRT(DUM)
-            DO K=1,NZVAR
-               KJ=K+NDIM*(J-1)
-               DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)*DUM
-            ENDDO
-C
-C     -----         ORTHONORMALIZE         -----
-C
-            IF(J.LT.MAXJ) THEN
-               DO I=J+1,NZVAR
-                  DUM=ZERO
-                  DO K=1,NZVAR
-                     KI=K+NDIM*(I-1)
-                     KJ=K+NDIM*(J-1)
-                     DUM=DUM+DBL_MB(KJ+I10-1)*DBL_MB(KI+I10-1)
-                  ENDDO
-                  DO K=1,NZVAR
-                     KI=K+NDIM*(I-1)
-                     KJ=K+NDIM*(J-1)
-                     DBL_MB(KI+I10-1)=DBL_MB(KI+I10-1)
-     &                               -DBL_MB(KJ+I10-1)*DUM
-                  ENDDO
-               ENDDO
-            ENDIF
-         ENDDO
-         IF(DBUG) THEN
-            WRITE(IW,9993)
-            CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
-         ENDIF
-C
-C     -----    COMPLETE THE -LIN- MATRIX   -----
-C      
-         IF(MAXJ.LT.NZVAR) THEN
-            I=0 
-            DO J=MAXJ+1,NZVAR
-   60          I=I+1
-               IF(I.GT.NZVAR) THEN
-                  WRITE(IW,9992) J
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-               DO K=1,NZVAR
-                  KJ=K+(J-1)*NDIM 
-                  DBL_MB(KJ+I10-1)=ZERO
-               ENDDO
-               IJ=I+(J-1)*NDIM
-               DBL_MB(IJ+I10-1)=ONE 
-C
-C     -----         ORTHOGONALIZE        -----
-C
-               DO L=1,J-1
-                  DUM=ZERO
-                  DO K=1,NZVAR
-                     KJ=K+(J-1)*NDIM 
-                     KL=K+(L-1)*NDIM 
-                     DUM=DUM+DBL_MB(KL+I10-1)*DBL_MB(KJ+I10-1)
-                  ENDDO
-                  DO K=1,NZVAR
-                     KJ=K+(J-1)*NDIM 
-                     KL=K+(L-1)*NDIM 
-                     DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)
-     &                               -DBL_MB(KL+I10-1)*DUM
-                  ENDDO
-               ENDDO
-C
-C     -----            NORMALIZE         -----
-C
-               DUM=ZERO
-               DO K=1,NZVAR
-                  KJ=K+(J-1)*NDIM 
-                  DUM=DUM+DBL_MB(KJ+I10-1)*DBL_MB(KJ+I10-1)
-               ENDDO
-               IF(DUM.GT.TOL) THEN
-                  DUM=ONE/SQRT(DUM)
-                  DO K=1,NZVAR
-                     KJ=K+(J-1)*NDIM 
-                     DBL_MB(KJ+I10-1)=DBL_MB(KJ+I10-1)*DUM            
-                  ENDDO
-               ELSE
-                  GO TO 60
-               ENDIF
-            ENDDO
-         ENDIF
-         IF(OUT) THEN
-            WRITE(IW,9993)
-            IF(DBUG) THEN
-               CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NDIM)
-            ENDIF
-         ENDIF
-C
-C     ----- PRINT -LIN- MATRIX -----
-C
-         IF(SOME) THEN
-            WRITE(IW,9997)
-            DO J=1,NZVAR
-               NBUF=1
-               N=0
-               DO I=1,NZVAR
-                  IJ=I+NDIM*(J-1)
-                  DUM=DBL_MB(IJ+I10-1)
-                  IF( ABS(DUM).GE.TENM1) THEN
-                     N=N+1
-                     IBUF(N)=I
-                      BUF(N)=DUM
-                      IF(N.GE.LBUF) THEN
-                   IF(NBUF.EQ.1) WRITE(IW,9995) J,(BUF(M),IBUF(M),M=1,N)
-                   IF(NBUF.GT.1) WRITE(IW,9994)   (BUF(M),IBUF(M),M=1,N)
-                         NBUF=NBUF+1
-                         N=0
-                      ENDIF
-                  ENDIF
-               ENDDO
-               IF(N.GT.0) THEN
-                  IF(NBUF.EQ.1) WRITE(IW,9995) J,(BUF(M),IBUF(M),M=1,N)
-                  IF(NBUF.GT.1) WRITE(IW,9994)   (BUF(M),IBUF(M),M=1,N)
-               ENDIF
-            ENDDO
-C
-         ENDIF
-C
-      ENDIF
-      GO TO 1000
-C
-C     ----- ERRORS -----
-C
-  100 CONTINUE
-      WRITE(IW,9999) I,J,S
-      CALL HND_HNDERR(3,ERRMSG)
-C
- 1000 CONTINUE
-C
-C     ----- SAVE SYMMETRY MATRIX -----
-C           -S-       AT  -92-
-C
-      call geom_hnd_put_data('zsym',dbl_mb(i10),ndim*ndim)
-C
-C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_ZMTLIN, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_ZMTLIN, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
- 9999 FORMAT(' INPUT ERROR IN -ZMTLIN- . I,J,S = ',2I5,F10.5)
- 9998 FORMAT(' NORMALIZATION ERROR IN -ZMTLIN- FOR VECTOR J = ',I5)
- 9997 FORMAT(/,10X,'SYMMETRIC INTERNAL COORDINATES',/,10X,30(1H-))
- 9995 FORMAT(' COORD. = ',I3,9(1X,F5.1,2H (,I3,1H)))
- 9994 FORMAT(13X,9(1X,F5.1,2H (,I3,1H)))
- 9993 FORMAT(/,10X,'INT. COORD. SYM. MATRIX',/,10X,23(1H-))
- 9992 FORMAT(' IN -ZMTLIN- THE ',I4,'-TH INDEPENDENT VECTOR',
-     1       ' COULD NOT BE FOUND. STOP')
-      END
-      SUBROUTINE HND_BANDBI(GEOM,NAT,C)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      subroutine geom_bandbi(geom)
+      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
-      INTEGER GEOM
-C
-C     ----- CALCULATE -B- AND -BI- MATRICES -----
-C
-      LOGICAL DBUG,OUT
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION C(3,1)
-C
-C     ----- RETURN IF NO INTERNAL COORDINATES -----
-C
-      IF(NZMAT.EQ.0) RETURN
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-      OUT =OUT.OR.NPRINT.EQ.1
-      OUT =OUT.OR.IPRZMT.GE.1
-      IF(OUT) THEN
-         WRITE(IW,9999) NZMAT,NZVAR,NVAR,NAT
-      ENDIF
-C
+#include "stdio.fh"
+      integer geom
+c     
+c     For the geometry referred to by the geometry handle form the
+c     B, BI, ZSYM, ZMAT and ZIND matrices and store them using the
+c     geom_hnd_{put,get}_data routines.
+c     
+c     Zsym is written out as (ndim,ndim) ndim=max(ncart,nzvar)
+c     si = qj zsym(j,i) for i=1,nvar, j=1,nzvar
+c     .    and the linearly dependent complement for i=nvar+1,nzvar
+c     where si = indep. variables, qj = redundant (natural) coords
+c     The Zsym are formed by diagonalizing BT.B.
+c
+c     B is written out as (ncart,nzvar)
+c     dqj/dxk = B(k,j)
+c
+c     Binv is written out as (ncart,nzvar)
+c     dxj = Binv(j,i) dsi
+c     gsi = gxj Binv(j,i)
+c     
+      integer nzmat, nzvar, nvar
+      integer nat
+      logical status
+      integer i10, i20, i30, i40, i11, i21, i31, i41, i51, i61,
+     $     i71, i81, i91, i01
+      integer i_i10, i_i20, i_i30, i_i40, i_i11, i_i21, i_i31, i_i41, 
+     $     i_i51, i_i61, i_i71, i_i81, i_i91, i_i01
+      integer k_c, l_c
+c     
+      integer ncart, nx1, nq1, nd1, nz1, natzmt
+      logical geom_hnd_check_data, geom_zmt_get_nzvar,
+     $     geom_zmt_get_nizmat
+      external geom_hnd_check_data, geom_zmt_get_nzvar
+     $     geom_zmt_get_nizmat
+c     
+      status = geom_ncent(geom, nat)
+      status = geom_zmt_get_nzvar(geom, nzvar) .and. status
+      status = geom_zmt_get_nizmat(geom, nzmat) .and. status
+      if (.not. status) call errquit
+     $     ('geom_bandbi: failed getting info ', geom)
+c     
+c     ----- return if no internal coordinates -----
+c     
+      if(nzmat.eq.0) return
+c
+c     Tricky bit here
+c
+c     The geometry optimization that is probably calling this
+c     code will probably want to keep the definition of the
+c     symmetric/independent variables constant so that the
+c     Hessian can be reliably formed, etc. Hence, ...
+c
+c     if ('zsym' already exists)
+c     .  reuse this definition of the symmetric/indep variables
+c     else
+c     .  generate new indep variables.  next time in they
+c     .  will be reused unless 'zsym' is deleted
+c     endif
+c
       NCART=3*NAT
       NX1  =NCART
       NQ1  =NZVAR
       ND1  =MAX(NX1,NQ1)
       NZ1  =NZMAT
-C
+c
+      if (geom_hnd_check_data('zsym',nd1**2)) then
+         natzmt = 1             ! Reuse old ZSYM
+      else
+         natzmt = 2             ! Generate new ZSYM
+      endif
+c
+      if (nat .eq. 1) then
+         nvar = 0
+      else if (nat .eq. 2) then
+         nvar = 1
+      else
+         nvar = 3*nat - 6       ! Linear molecules not done here
+      endif
+c     
 C     ----- MEMORY POINTERS -----
-C
-C     I10=1
-C     I20=I10+NX1*NQ1
-C     I30=I20+    NQ1
-C     I40=I30+ABS(NZ1)  
-C     LAST1=I40-1
+C     
       IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I10  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I10  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,NQ1        ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I20  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I20  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ABS(NZ1)   ,'MEM I30 ',I_I30,I30))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I30  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I30  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I40 ',I_I40,I40))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I40  FAILED',911)
-C
-C     I11=I10
-C     I21=I11+NX1*NQ1
-C     I31=I21+NX1*NQ1
-C     I41=I31+ND1*ND1
-C     I51=I41+ND1*ND1
-C     I61=I51+ND1
-C     I71=I61+ND1*ND1
-C     I81=I71+ND1*ND1
-C     I91=I81+ND1
-C     I01=I91+ND1
-C     LAST2=I01-1
-C     LAST=MAX0(LAST1,LAST2)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I40  FAILED',911)
+C     
       IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I11 ',I_I11,I11))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I11  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I11  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I21 ',I_I21,I21))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I21  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I21  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I31 ',I_I31,I31))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I31  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I31  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I41 ',I_I41,I41))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I41  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I41  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I51 ',I_I51,I51))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I51  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I51  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I61 ',I_I61,I61))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I61  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I61  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1*ND1    ,'MEM I71 ',I_I71,I71))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I71  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I71  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I81 ',I_I81,I81))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I81  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I81  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,ND1        ,'MEM I91 ',I_I91,I91))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I91  FAILED',911)
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I91  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I01 ',I_I01,I01))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I01  FAILED',911)
-C
+     &     CALL ERRQUIT('HND_BANDBI, MALLOC OF I01  FAILED',911)
+c     
+      if(.not.ma_push_get(mt_dbl,ncart ,'c',l_c,k_c))
+     &     call errquit('hnd_bandbi, malloc of c  failed',ncart)
+C     
 C     ----- CALCULATE -B- MATRIX -----
-C
+C     
       CALL HND_BMAT(GEOM,NZVAR,NCART,
-     1              DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
-     2              NZMAT,C)
-      IF(OUT) THEN
-         WRITE(IW,9998)
-      ENDIF
-C
+     1     DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
+     2     NZMAT,dbl_mb(k_c))
+C     
 C     ----- CALCULATE THE B INVERSE MATRIX -----
-C
+C     
       CALL HND_BINVR(NVAR,NZVAR,NCART,DBL_MB(I11),DBL_MB(I21),
-     1        DBL_MB(I31),DBL_MB(I41),DBL_MB(I51),DBL_MB(I61),
-     2        DBL_MB(I71),DBL_MB(I81),DBL_MB(I91),ND1)
-      IF(OUT) THEN
-         WRITE(IW,9997)
-      ENDIF
-C
+     1     DBL_MB(I31),DBL_MB(I41),DBL_MB(I51),DBL_MB(I61),
+     2     DBL_MB(I71),DBL_MB(I81),DBL_MB(I91),ND1, natzmt)
+C     
 C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I01))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I01  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I91))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I91  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I81))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I81  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I71))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I71  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I61))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I61  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I51))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I51  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I41))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I41  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I31))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I31  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I21))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I21  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I11))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I11  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I40))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I40  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I30))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I30  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
- 9999 FORMAT(' IN -BANDBI- NZMAT,NZVAR,NVAR,NAT = ',4I5)
- 9998 FORMAT(' IN -BANDBI- AFTER -BMAT- , BEFORE -BINVR- ')
- 9997 FORMAT(' IN -BANDBI- AFTER -BINVR- ')
+C     
+      IF(.NOT.MA_CHOP_STACK(I_I10))
+     &     CALL ERRQUIT('GEOM_BANDBI, MA_CHOP_STACK OF I01  FAILED',911)
+C     
       END
       SUBROUTINE HND_BMAT(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-#include "rtdb.fh"
+#include "geom.fh"
       integer geom
-C
+C     
 C     ----- CONSTRUCT THE B MATRIX -----
-C
+C     
       PARAMETER (    NA=10 )
       LOGICAL     DBUG
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
       LOGICAL     GEOM_ZMT_GET_NIZMAT
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTOUT/IPRZMT
       DIMENSION B(NCART,*)
       DIMENSION ZMAT(*),IZMAT(*)
       DIMENSION A(3,NA)
@@ -1011,147 +162,149 @@ C
       DATA BOHR   /0.52917715D+00/
       DATA ZERO   /0.0D+00/
       DATA FOUR   /4.0D+00/
-C
+C     
+      IW = LUOUT
       DBUG  =.FALSE.
       OUT   =.FALSE. 
       OUT   =OUT.OR.DBUG
-      OUT   =OUT.OR.NPRINT.EQ.1
-      OUT   =OUT.OR.IPRZMT.GE.1
-C
+C     
       PIO2  =PI2/FOUR
       RTOD  =PI2/DEGREE
-C
+C     
 C     ----- READ -IZMAT- -----
-C          -A-     AT -90-
-C          -IZMAT- AT -96-
-C
+C     -A-     AT -90-
+C     -IZMAT- AT -96-
+C     
       NDUM=3*NA
-C
-      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
-     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
-     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-C
+C     
+      if (.not. geom_cart_coords_get(geom, c))
+     $     call errquit('hnd_bmat: failed getting coords',0)
+      if(.not.geom_zmt_get_nizmat(geom, nzmat))
+     1     call errquit('geom_bmat: geom_zmt_get_nizmat failed',0)
+      if(.not.geom_zmt_get_izmat(geom, izmat, nzmat))
+     1     call errquit('geom_bmat: geom_zmt_get_izmat failed',0)
+C     
       IF(OUT) THEN
          WRITE(IW,9997) 
          WRITE(IW,9996) (IZMAT(I),I=1,NZMAT)
       ENDIF
-C
+C     
 C     ----- ZERO OUT THE B MATRIX -----
-C
+C     
       DO J = 1,NZVAR
          DO I = 1,NCART
             B(I,J) = ZERO
          ENDDO
       ENDDO
-C
+C     
       IADD=1
       I   =0
       DO IZVAR=1,NZVAR
-      I    =I+1            
-      ITYPE=IZMAT(IADD)
-      IF(OUT) THEN
-         WRITE(IW,9999) IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART
-      ENDIF
-      IF(ITYPE.EQ.1) THEN
-C
+         I    =I+1            
+         ITYPE=IZMAT(IADD)
+         IF(OUT) THEN
+            WRITE(IW,9999) IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART
+         ENDIF
+         IF(ITYPE.EQ.1) THEN
+C     
 C     ----- BOND STRETCH -----
-C
-         CALL HND_BSTR(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             C,B,NCART,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
-C
+C     
+            CALL HND_BSTR(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1           C,B,NCART,BOHR)
+            ZMAT(I) = EQVAL
+            IADD = IADD + 3
+         ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
+C     
 C     ----- ANGLE BEND -----
-C
-         CALL HND_BEND(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 4
-         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
-      ELSEIF(ITYPE.EQ.3) THEN
-C
+C     
+            CALL HND_BEND(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1           IZMAT(IADD+3),
+     2           C,B,NCART,RTOD,BOHR)
+            ZMAT(I) = EQVAL
+            IADD = IADD + 4
+            if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
+         ELSEIF(ITYPE.EQ.3) THEN
+C     
 C     ----- TORSION -----
-C
-         CALL HND_TORS(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.4) THEN
-C
+C     
+            CALL HND_TORS(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1           IZMAT(IADD+3),IZMAT(IADD+4),
+     2           C,B,NCART,RTOD,BOHR)
+            ZMAT(I) = EQVAL
+            IADD = IADD + 5
+         ELSEIF(ITYPE.EQ.4) THEN
+C     
 C     ----- OUT OF PLANE ANGLE BEND -----
-C
-         CALL HND_OPLA(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,PIO2,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.5) THEN
-C
+C     
+            CALL HND_OPLA(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1           IZMAT(IADD+3),IZMAT(IADD+4),
+     2           C,B,NCART,RTOD,PIO2,BOHR)
+            ZMAT(I) = EQVAL
+            IADD = IADD + 5
+         ELSEIF(ITYPE.EQ.5) THEN
+C     
 C     ----- LINEAR ANGLE BEND -----
-C
-         CALL HND_LIBE(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,A,NA,BOHR)
-         ZMAT(I  ) = EQVAL
-         ZMAT(I+1) = EQVAL
-         I=I+1
-         IADD=IADD+5
-      ELSEIF(ITYPE.EQ.6) THEN
-C
+C     
+            CALL HND_LIBE(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1           IZMAT(IADD+3),IZMAT(IADD+4),
+     2           C,B,NCART,RTOD,A,NA,BOHR)
+            ZMAT(I  ) = EQVAL
+            ZMAT(I+1) = EQVAL
+            I=I+1
+            IADD=IADD+5
+         ELSEIF(ITYPE.EQ.6) THEN
+C     
 C     ----- DIHEDRAL ANGLE BETWEEN TWO PLANES SHARING ONE ATOM -----
-C
-         CALL HND_DIHPLA(EQVAL,I,IZMAT(IADD+1),C,B,NCART,RTOD)
-         ZMAT(I)=EQVAL
-         IADD=IADD+6
-C
-      ELSE
-         WRITE(IW,9995) IZVAR,IADD,ITYPE
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF    
-C
+C     
+            CALL HND_DIHPLA(EQVAL,I,IZMAT(IADD+1),C,B,NCART,RTOD)
+            ZMAT(I)=EQVAL
+            IADD=IADD+6
+C     
+         ELSE
+            WRITE(IW,9995) IZVAR,IADD,ITYPE
+            CALL HND_HNDERR(3,ERRMSG)
+         ENDIF    
+C     
       ENDDO
-C
+C     
       IF(OUT) THEN
-         CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
+**         CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
          WRITE(IW,9998)
          IF(DBUG) THEN
             CALL HND_PRSQ(B,NZVAR,NCART,NCART)
          ENDIF
       ENDIF
-C
+C     
 C     ----- SAVE -B- AND -Z- ON -IDAF- -----
-C          -A-                                 AT -90-
-C          -B-  (pristine)                     AT -91-
-C          -S-  (pristine)                     AT -92-
-C          -BINV(T)= B * ( B(T)*B )**(-1) )(T) AT -93-
-C                                              AT -94-
-C          -ZMAT-                              AT -95-
-C          -IZMAT-                             AT -96-
-C
+C     -A-                                 AT -90-
+C     -B-  (pristine)                     AT -91-
+C     -S-  (pristine)                     AT -92-
+C     -BINV(T)= B * ( B(T)*B )**(-1) )(T) AT -93-
+C     AT -94-
+C     -ZMAT-                              AT -95-
+C     -IZMAT-                             AT -96-
+C     
       NDUM=NCART*NZVAR
-C
+C     
 C     ----- STORE FOR -NWCHEM- -----
-C
+C     
       call geom_hnd_put_data('zmat',zmat,nzvar)
       call geom_hnd_put_data('bmat',b,ncart*nzvar)
-C
+C     
       RETURN
  9999 FORMAT(' IN -BMAT- IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART = ',
-     1       6I5)
+     1     6I5)
  9998 FORMAT(/,' -B- MATRIX (ROWS = CARTESIAN COORDINATE.',
-     1         ' COLUMNS = INTERNAL COORDINATES.)')
+     1     ' COLUMNS = INTERNAL COORDINATES.)')
  9997 FORMAT(' IN -BMAT- IZMAT = ')
  9996 FORMAT(12I5)
  9995 FORMAT(' ERROR IN -BMAT- , IZVAR,IADD,ITYPE = ',3I5)
       END
       SUBROUTINE HND_BINVR(NVAR,NZVAR,NCART,B,BINV,
-     1                 G,V,E,H,S,T,IA,NDIM)
+     1                 G,V,E,H,S,T,IA,NDIM,NATZMT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "util.fh"
+#include "global.fh"
 C
 C     ----- CONSTRUCT THE INVERSE OF THE -B- MATRIX -----
 C
@@ -1171,10 +324,6 @@ C
       LOGICAL     SYMTRC
       LOGICAL     INDEP
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTOUT/IPRZMT
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       DIMENSION B(NCART,*),BINV(NCART,*)
       DIMENSION G(*),V(NDIM,*),E(*),IA(*)
       DIMENSION      S(NDIM,*),T(*)
@@ -1185,12 +334,10 @@ C
       DATA ONE    /1.0D+00/
       DATA TM08   /1.0D-08/
 C
+      IW = 6
       DBUG=.FALSE.
-      DBUG=DBUG.OR.IPRZMT.GE.2
       OUT =util_print('binvr',print_never)
       OUT =OUT.OR.DBUG
-      OUT =OUT.OR.NPRINT.EQ.1
-      OUT =OUT.OR.IPRZMT.EQ.1
 C
       DO I=1,NDIM           
          IA(I)=(I*(I-1))/2
@@ -1199,10 +346,22 @@ C
 C     --- NATURL .. FINAL BASIS = NATURAL   INTERNAL        COORD. ---
 C     --- SYMTRC .. FINAL BASIS = SYMMETRIC INTERNAL        COORD. ---
 C     --- INDEP  .. FINAL BASIS = (NON-REDUNDANT+REDUNDANT) COORD. ---
+c
+c     symtrc ... not working inside NWChem ????
 C
       NATURL=NATZMT.EQ.0
       SYMTRC=NATZMT.EQ.1
       INDEP =NATZMT.EQ.2              
+c
+      if (indep) then
+c
+c     We used to initialize zsym to unit matrix inside zmtlin
+c     but this is no longer called, so just do it here.
+c     
+         call dfill(ndim*ndim, 0.0d0, s, 1)
+         call dfill(nzvar, 1.0d0, s, ndim+1)
+         call geom_hnd_put_data('zsym',s,ndim*ndim)
+      endif
 C
       IF(OUT) THEN
          WRITE(IW,9984) NZVAR,NVAR,NCART,NDIM
@@ -1291,6 +450,10 @@ C
       DO I=1,NZVAR
          E(I)=-E(I)
       ENDDO
+      if (util_print('gevals',print_never) .and. ga_nodeid().eq.0) then
+         write(6,*) ' Eigen values of G '
+         call doutput(e,1,nzvar,1,1,nzvar,1,1)
+      endif
 C
 C     -----    IF WE ARE TO WORK IN THE SPACE OF     -----
 C     -----  (NON-REDUNDANT+REDUNDANT) COORDINATES   -----
@@ -1298,6 +461,9 @@ C     -----   WE MUST MAINTAIN A PHASE CONSISTENCY   -----
 C     -----   ... IF NOT ... WE ARE IN TROUBLES ...  -----
 C     -----  SOME (PATHOLOGICAL) CASES WILL NOT WORK -----
 C
+c     rjh ... a better tatic here would be to do max overlap
+c     with the zsym vectors
+c
       DO J=1,NZVAR 
          IMAX=0
          VMAX=ZERO
@@ -1313,7 +479,7 @@ C
             ENDDO
          ENDIF
       ENDDO
-C
+c
       IF(OUT) THEN
          WRITE(IW,9991)
          WRITE(IW,9990)
@@ -1364,20 +530,26 @@ C     ----- IF WORKING BASIS IS (NON-REDUNDANT+REDUNDANT) -----
 C     -----         TRANSFORM -B- TO THAT BASIS           -----
 C
       IF(INDEP) THEN
-         call geom_hnd_get_data('zsym',s,ndim*ndim)
-         DO I=1,NZVAR
-            DO J=1,NZVAR
-               DUM=ZERO
-               DO K=1,NZVAR
-                  DUM=DUM+S(I,K)*V(K,J)
-               ENDDO
-               T(J)=DUM
-            ENDDO
-            DO J=1,NZVAR
-               S(I,J)=T(J)
-            ENDDO
-         ENDDO
+         call geom_hnd_get_data('zsym',h,ndim*ndim)
+         call dgemm('n','n',nzvar,nzvar,nzvar,1d0,h,ndim,
+     $        v,ndim,0d0,s,ndim)
+c$$$         DO I=1,NZVAR
+c$$$            DO J=1,NZVAR
+c$$$               DUM=ZERO
+c$$$               DO K=1,NZVAR
+c$$$                  DUM=DUM+S(I,K)*V(K,J)
+c$$$               ENDDO
+c$$$               T(J)=DUM
+c$$$            ENDDO
+c$$$            DO J=1,NZVAR
+c$$$               S(I,J)=T(J)
+c$$$            ENDDO
+c$$$         ENDDO
+c
+c     zsym takes natural q -> indep s
+c
          call geom_hnd_put_data('zsym',s,ndim*ndim)
+c
          IF(OUT) THEN
             WRITE(IW,9980)
             IF(DBUG) THEN
@@ -1403,6 +575,7 @@ C
                B(I,J)=T(J)
             ENDDO
          ENDDO
+
          IF(OUT) THEN
             WRITE(IW,9985)
             IF(DBUG) THEN
@@ -1419,23 +592,24 @@ C
       ENDIF
 C
 C     ----- CALCULATE  K * K(T) PROJECTOR -----
+c     rjh ... not used
 C
-      DO I=1,NZVAR
-         DO J=1,NZVAR
-            DUM=ZERO
-            DO K=1,NINDEP
-               DUM=DUM+V(I,K)*V(J,K)
-            ENDDO
-            H(I,J)=DUM
-         ENDDO
-      ENDDO
-      NDUM=NDIM*NDIM  
-      IF(OUT) THEN
-         IF(DBUG) THEN
-            WRITE(IW,9981)
-            CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
-         ENDIF
-      ENDIF
+c$$$      DO I=1,NZVAR
+c$$$         DO J=1,NZVAR
+c$$$            DUM=ZERO
+c$$$            DO K=1,NINDEP
+c$$$               DUM=DUM+V(I,K)*V(J,K)
+c$$$            ENDDO
+c$$$            H(I,J)=DUM
+c$$$         ENDDO
+c$$$      ENDDO
+c$$$      NDUM=NDIM*NDIM  
+c$$$      IF(OUT) THEN
+c$$$         IF(DBUG) THEN
+c$$$            WRITE(IW,9981)
+c$$$            CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
+c$$$         ENDIF
+c$$$      ENDIF
 C
 C     ----- SET  ... NVAR = NZVAR ... IF WE WORK -----
 C           WITH THE SYMMETRIC INTERNAL SPACE OR
@@ -1507,25 +681,27 @@ C     -----    OF (NON-REDUNDANT) COORDINATES         -----
 C     -----          H IS NOT EQUAL TO   1            -----
 C     ----- UNLESS THERE ARE NO REDUNDANT COORDINATES -----
 C
-      IF(DBUG) THEN
-         NDUM= NCART*NZVAR
-         DO I=1,NZVAR
-            DO J=1,NZVAR
-               DUM=ZERO
-               DO K=1,NCART
-                  DUM=DUM+BINV(K,I)*B(K,J)
-               ENDDO
-               H(I,J)=DUM
-            ENDDO
-         ENDDO
-         WRITE(IW,9983)
-         CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
-      ENDIF
+c     Won't work right now since rjh stomped on B
+c
+c$$$      IF(DBUG) THEN
+c$$$         NDUM= NCART*NZVAR
+c$$$         DO I=1,NZVAR
+c$$$            DO J=1,NZVAR
+c$$$               DUM=ZERO
+c$$$               DO K=1,NCART
+c$$$                  DUM=DUM+BINV(K,I)*B(K,J)
+c$$$               ENDDO
+c$$$               H(I,J)=DUM
+c$$$            ENDDO
+c$$$         ENDDO
+c$$$         WRITE(IW,9983)
+c$$$         CALL HND_PRSQ(H,NZVAR,NZVAR,NDIM) 
+c$$$      ENDIF
 C
 C     ----- NEXT TIME AROUND WE WILL WORK WITH -----
 C           WHAT ARE NOW SYM.INTERN.COORD.
 C
-      NATZMT=1
+*     NATZMT=1 ! now decided outside of this routine
 C
 C          -A-                                 AT -90-
 C          -B-  (B tilde)                      AT -91-
@@ -1569,477 +745,6 @@ C
  9980 FORMAT(/,' -ZIND- FROM NATURAL TO (INDEP+DEP) COORDINATES')
  9979 FORMAT(/,' COORDINATE BASIS CHANGED BACK TO -NATURAL-')
       END
-      SUBROUTINE HND_BANDZ(GEOM,NAT,C,Z)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-#include "global.fh"
-#include "geom.fh"
-C
-C     ----- CALCULATE -B- AND -BI- MATRICES -----
-C
-      LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION C(3,*),Z(*)
-C
-C     ----- RETURN IF NO INTERNAL COORDINATES -----
-C
-      IF(NZMAT.EQ.0) RETURN
-C
-      OUT=.FALSE.
-      OUT=OUT.OR.NPRINT.EQ.1
-      OUT=OUT.OR.IPRZMT.GE.1
-      IF(OUT) THEN
-         WRITE(IW,9999) NZMAT,NZVAR,NVAR,NAT
-      ENDIF
-C
-      NCART=3*NAT
-      NX1  =NCART
-      NQ1  =NZVAR
-      ND1  =MAX(NX1,NQ1)
-      NZ1  =NZMAT
-C
-C     ----- MEMORY POINTERS -----
-C
-C     I10=1
-C     I20=I10+NX1*NQ1
-C     I30=I20+    NQ1
-C     I40=I30+ABS(NZ1)  
-C     LAST1=I40-1
-C
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NX1*NQ1    ,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NQ1        ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I20  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ABS(NZ1)   ,'MEM I30 ',I_I30,I30))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I30  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I40 ',I_I40,I40))
-     & CALL ERRQUIT('HND_BANDBI, MALLOC OF I40  FAILED',911)
-C
-C     ----- CALCULATE -B- MATRIX -----
-C
-      CALL HND_BZ(GEOM,NZVAR,NCART,
-     1            DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
-     2            NZMAT,C)
-      DO I=1,NZVAR
-         Z(I)=DBL_MB(I+I20-1)
-      ENDDO
-C
-      IF(OUT) THEN
-         WRITE(IW,9998)
-      ENDIF
-C
-C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I40))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I40  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I30))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I30  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_BANDBI, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
- 9999 FORMAT(' IN -BANDZ- NZMAT,NZVAR,NVAR,NAT = ',4I5)
- 9998 FORMAT(' IN -BANDZ- AFTER -BZ- ')
-      END
-      SUBROUTINE HND_BZ(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      integer geom
-C
-C     ----- CONSTRUCT THE B MATRIX -----
-C
-      PARAMETER (    NA=10 )
-      LOGICAL     OUT
-      LOGICAL     GEOM_ZMT_GET_IZMAT
-      LOGICAL     GEOM_ZMT_GET_NIZMAT
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION B(NCART,*)
-      DIMENSION ZMAT(*),IZMAT(*)
-      DIMENSION A(3,NA)
-      DIMENSION C(3,*)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','- BMAT -'/
-      DATA PI2    /6.28318530717958D+00/
-      DATA DEGREE /360.0D+00/
-      DATA BOHR   /0.52917715D+00/
-      DATA ZERO   /0.0D+00/
-      DATA FOUR   /4.0D+00/
-C
-      OUT   =.FALSE. 
-      OUT   =OUT.OR.NPRINT.EQ.1
-      OUT   =OUT.OR.IPRZMT.GE.1
-C
-      PIO2  =PI2/FOUR
-      RTOD  =PI2/DEGREE
-C
-C     ----- READ -IZMAT- -----
-C          -A-     AT -90-
-C          -IZMAT- AT -96-
-C
-      NDUM=3*NA
-      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,IZMAT,NZMAT))
-     1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-      IF(OUT) THEN
-         WRITE(IW,9997) 
-         WRITE(IW,9996) (IZMAT(I),I=1,NZMAT)
-      ENDIF
-C
-C     ----- ZERO OUT THE B MATRIX -----
-C
-      DO J = 1,NZVAR
-         DO I = 1,NCART
-            B(I,J) = ZERO
-         ENDDO
-      ENDDO
-C
-      IADD=1
-      I   =0
-      DO IZVAR=1,NZVAR
-      I    =I+1            
-      ITYPE=IZMAT(IADD)
-      IF(OUT) THEN
-         WRITE(IW,9999) IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART
-      ENDIF
-      IF(ITYPE.EQ.1) THEN
-C
-C     ----- BOND STRETCH -----
-C
-         CALL HND_BSTR(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             C,B,NCART,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
-C
-C     ----- ANGLE BEND -----
-C
-         CALL HND_BEND(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 4
-         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
-      ELSEIF(ITYPE.EQ.3) THEN
-C
-C     ----- TORSION -----
-C
-         CALL HND_TORS(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.4) THEN
-C
-C     ----- OUT OF PLANE ANGLE BEND -----
-C
-         CALL HND_OPLA(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,PIO2,BOHR)
-         ZMAT(I) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.5) THEN
-C
-C     ----- LINEAR ANGLE BEND -----
-C
-         CALL HND_LIBE(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,A,NA,BOHR)
-         ZMAT(I  ) = EQVAL
-         ZMAT(I+1) = EQVAL
-         I=I+1
-         IADD=IADD+5
-      ELSEIF(ITYPE.EQ.6) THEN
-C
-C     ----- DIHEDRAL ANGLE BETWEEN TWO PLANES SHARING ONE ATOM -----
-C
-         CALL HND_DIHPLA(EQVAL,I,IZMAT(IADD+1),C,B,NCART,RTOD)
-         ZMAT(I)=EQVAL
-         IADD=IADD+6
-C
-      ELSE
-         WRITE(IW,9995) IZVAR,IADD,ITYPE
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF    
-C
-      ENDDO
-C
-      IF(OUT) THEN
-         CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
-         WRITE(IW,9998)
-         CALL HND_PRSQ(B,NZVAR,NCART,NCART)
-      ENDIF
-C
-C     ----- SAVE -B- AND -Z- ON -IDAF- -----
-C          -A-                                 AT -90-
-C          -B-  (pristine)                     AT -91-
-C          -S-  (pristine)                     AT -92-
-C          -BINV(T)= B * ( B(T)*B )**(-1) )(T) AT -93-
-C                                              AT -94-
-C          -ZMAT-                              AT -95-
-C          -IZMAT-                             AT -96-
-C
-      NDUM=NCART*NZVAR
-C
-      RETURN
- 9999 FORMAT(' IN -BZ- IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART = ',
-     1       6I5)
- 9998 FORMAT(/,' -B- MATRIX (ROWS = CARTESIAN COORDINATE.',
-     1         ' COLUMNS = INTERNAL COORDINATES.)')
- 9997 FORMAT(' IN -BZ- IZMAT = ')
- 9996 FORMAT(12I5)
- 9995 FORMAT(' ERROR IN -BZ- , IZVAR,IADD,ITYPE = ',3I5)
-      END
-      SUBROUTINE HND_ZMTPRT(GEOM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "geom.fh"
-C
-C     ----- PRINT THE CURRENT Z MATRIX -----
-C
-      INTEGER GEOM
-      LOGICAL GEOM_ZMT_GET_IZMAT
-      LOGICAL GEOM_ZMT_GET_NIZMAT
-      LOGICAL DBUG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOUT/IPRZMT
-c
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999) NZMAT,NZVAR,NVAR
-      ENDIF
-C
-      IF(NZMAT.EQ.0) RETURN
-C
-C     ----- MEMORY POINTERS -----
-C
-C     I10 = 1
-C     I20 = I10 + NZVAR
-C     I30 = I20 + ABS(NZMAT)
-C     LAST = I30 - 1
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NZVAR      ,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_ZMTPRT, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ABS(NZMAT) ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_ZMTPRT, MALLOC OF I20  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I30 ',I_I30,I30))
-     & CALL ERRQUIT('HND_ZMTPRT, MALLOC OF I30  FAILED',911)
-C
-C     ----- GET IZMAT AND ZMAT FROM DIRECT ACCESS -----
-C
-      IF(.NOT.GEOM_ZMT_GET_NIZMAT(GEOM,NZMAT))
-     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_NIZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(GEOM,DBL_MB(I20),NZMAT))
-     1     CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-      call geom_hnd_get_data('zmat',dbl_mb(i10),nzvar)
-C
-C     ----- PRINT THE Z MATRIX -----
-C
-      IF( GA_NODEID().EQ.0.OR.DBUG) THEN 
-         CALL HND_PRTZMT(NZVAR,DBL_MB(I20),DBL_MB(I10),DBL_MB(I30),0)
-      ENDIF
-      CALL GA_SYNC()
-C
-C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I30))
-     & CALL ERRQUIT('HND_ZMTPRT, MA_POP_STACK OF I30  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_ZMTPRT, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_ZMTPRT, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
- 9999 FORMAT(' IN -ZMTPRT- NZMAT, NZVAR, NVAR = ',3i5)
-      END
-      SUBROUTINE HND_ZMTPRG(GRAD)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-#include "global.fh"
-C
-C     ----- PRINT THE CURRENT Z MATRIX AND ITs GRADIENT -----
-C
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOUT/IPRZMT
-      DIMENSION GRAD(1)
-      DATA ZERO /0.0D+00/
-C
-      IF(NZMAT.EQ.0) RETURN
-C
-C     ----- MEMORY POINTERS -----
-C
-C     I10 = 1
-C     I20 = I10 + NZVAR
-C     I30 = I20 + ABS(NZMAT)
-C     LAST = I30 - 1
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NZVAR      ,'MEM I10 ',I_I10,I10))
-     & CALL ERRQUIT('HND_ZMTPRG, MALLOC OF I10  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,ABS(NZMAT) ,'MEM I20 ',I_I20,I20))
-     & CALL ERRQUIT('HND_ZMTPRG, MALLOC OF I20  FAILED',911)
-      IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I30 ',I_I30,I30))
-     & CALL ERRQUIT('HND_ZMTPRG, MALLOC OF I30  FAILED',911)
-C
-C     ----- GET IZMAT AND ZMAT FROM DIRECT ACCESS -----
-C
-C
-C     ----- PRINT THE Z MATRIX -----
-C
-      IF(NZVAR.GT.NVAR) THEN
-         DO I=NVAR+1,NZVAR
-            GRAD(I)=ZERO
-         ENDDO
-      ENDIF
-      CALL HND_PRTZMT(NZVAR,DBL_MB(I20),DBL_MB(I10),GRAD,1)
-C
-C     ----- RELEASE MEMORY POINTERS -----
-C
-      IF(.NOT.MA_POP_STACK(I_I30))
-     & CALL ERRQUIT('HND_ZMTPRG, MA_POP_STACK OF I30  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I20))
-     & CALL ERRQUIT('HND_ZMTPRG, MA_POP_STACK OF I20  FAILED',911)
-      IF(.NOT.MA_POP_STACK(I_I10))
-     & CALL ERRQUIT('HND_ZMTPRG, MA_POP_STACK OF I10  FAILED',911)
-C
-      RETURN
-      END
-      SUBROUTINE HND_PRTZMT(NZVAR,IZMAT,ZMAT,ZGRAD,IPRGRD)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C     ----- PRINT THE Z-MATRIX AND ITs GRADIENT -----
-C
-C     ----- IPRGRD = 0  PRINT JUST THE Z MATRIX
-C                  = 1  PRINT THE Z MATRIX AND ITs GRADIENT
-C
-      CHARACTER*8 RTYPE
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
-      DIMENSION IZMAT(1),ZMAT(1),ZGRAD(1)
-      DIMENSION RTYPE(7)
-      DATA RTYPE/'STRETCH ','BEND    ','TORSION ','PLA.BEND',
-     1           'LIN.BEND','DIH.PLA ','BEND(2) '/
-      IF (IPRGRD.EQ.0) WRITE (IW,9008)
-      IF (IPRGRD.EQ.1) WRITE (IW,9028)
-      IADD = 1
-      I = 0
-   80 I = I + 1
-      IF(I.GT.NZVAR) GO TO 220
-      ITYPE = IZMAT(IADD)
-      GO TO (100,120,140,160,180,190,121),ITYPE
-C
-C     ----- BOND STRETCH -----
-C
-  100 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9048) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9048) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),ZMAT(I),ZGRAD(I)
-      IADD = IADD + 3
-      GO TO 200
-C
-C     ----- ANGLE BEND -----
-C
-  120 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9068) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9068) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),ZMAT(I),ZGRAD(I)
-      IADD = IADD + 4
-      GO TO 200
-C
-C     ----- ANGLE BEND ----- + orientation (type 7)
-C
- 121  CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9069) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9069) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I),ZGRAD(I)
-      IADD = IADD + 5
-      GO TO 200
-C
-C     ----- TORSION -----
-C
-  140 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I),ZGRAD(I)
-      IADD = IADD + 5
-      GO TO 200
-C
-C     ----- OUT OF PLANE ANGLE BEND -----
-C
-  160 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I),ZGRAD(I)
-      IADD = IADD + 5
-      GO TO 200
-C
-C     ----- LINEAR ANGLE BEND -----
-C
-  180 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9088) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),ZMAT(I),ZGRAD(I)
-      I = I + 1
-      IADD = IADD + 5
-      GO TO 200
-C
-C     ----- DIHEDRAL ANGLE BETWEEN PLANES WITH ONE COMMON ATOM -----
-C
-  190 CONTINUE
-      IF (IPRGRD.EQ.0) WRITE (IW,9108) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),IZMAT(IADD+5),
-     2    ZMAT(I)
-      IF (IPRGRD.EQ.1) WRITE (IW,9108) I,RTYPE(ITYPE),IZMAT(IADD+1),
-     1    IZMAT(IADD+2),IZMAT(IADD+3),IZMAT(IADD+4),IZMAT(IADD+5),
-     2    ZMAT(I),ZGRAD(I)
-      IADD = IADD + 6
-C
-  200 CONTINUE
-      GO TO 80
-  220 CONTINUE
-C
-      IF(IPRGRD.EQ.1) THEN
-         IF(NATZMT.EQ.0) WRITE(IW,9128)
-         IF(NATZMT.EQ.1) WRITE(IW,9148)
-         IF(NATZMT.EQ.2) WRITE(IW,9168)
-      ENDIF
-      RETURN
- 9008 FORMAT(/,22X,20(1H-),/,22X,20Hinternal coordinates,/,22X,20(1H-),
-     1       /,2X,3Hno.,2X,8H  type  ,
-     2         2X,6H -i-  ,6H -j-  ,6H -k-  ,6H -l-  ,6H -m-  ,
-     3         5X,7Hvalue  ,
-     3       /,2X,57(1H-))
- 9028 FORMAT(/,22X,20(1H-),/,22X,20Hinternal coordinates,/,22X,20(1H-),
-     1       /,2X,3Hno.,2X,8H  type  ,
-     2         2X,6H -i-  ,6H -j-  ,6H -k-  ,6H -l-  ,6H -m-  ,
-     3         5X,7Hvalue  ,4X,8Hgradient,
-     4       /,2X,69(1H-))
- 9048 FORMAT(1X,I4,2X,A8,2X,2(I3,3X),18X,F12.5,F12.7)
- 9068 FORMAT(1X,I4,2X,A8,2X,3(I3,3X),12X,F12.5,F12.7)
- 9069 FORMAT(1X,I4,2X,A8,2X,3(I3,3X),6X,i3,3x,F12.5,F12.7)
- 9088 FORMAT(1X,I4,2X,A8,2X,4(I3,3X), 6X,F12.5,F12.7)
- 9108 FORMAT(1X,I4,2X,A8,2X,5(I3,3X),    F12.5,F12.7)
- 9128 FORMAT(7X,'                  gradients are for natural ',
-     1          'internal coordinates')
- 9148 FORMAT(7X,'                gradients are for symmetric ',                 
-     1          'internal coordinates')
- 9168 FORMAT(7X,'gradients are for (non-redundant+redundant) ',
-     1          'internal coordinates')
-      END
       SUBROUTINE HND_BSTR(EQVAL,NOINT,I,J,C,B,NCART,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
@@ -2071,12 +776,8 @@ C
 C     -----I AND K ARE THE NUMBERS OF THE END ATOMS.  J IS THE
 C          NUMBER OF THE CENTRAL ATOM -----
 C
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION C(3,1),B(NCART,1)
       DIMENSION RJI(3),RJK(3),EJI(3),EJK(3)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG    /'PROGRAM ','STOP IN ','-BEND  -'/
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
 C
@@ -2114,11 +815,9 @@ C
       IF( ABS(EQVAL-PIDEG).LT.TOL) EQVAL=PIDEG
       GO TO 220
   200 CONTINUE
-      WRITE(IW,9008)
-      CALL HND_HNDERR(3,ERRMSG)
+      CALL ERRQUIT('HND_BEND: ROUNDOFF ERROR',0)
   220 CONTINUE
       RETURN
- 9008 FORMAT(' ROUNDOFF ERROR IN -BEND- STOP ')
       END
       SUBROUTINE HND_TORS(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -2135,7 +834,6 @@ C           THE CLOCKWISE ROTATION OF J-->I WHICH SUPERPOSES J--> I
 C           WITH K-->L IS A NEGATIVE TORSION ANGLE.
 C
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION C(3,1),B(NCART,1)
       DIMENSION RIJ(3),RJK(3),RKL(3)
       DIMENSION EIJ(3),EJK(3),EKL(3)
@@ -2148,6 +846,7 @@ C
 C
 C     ----- CALCULATING UNIT VECTORS ALONG I-->J, J-->K AND K-->L.
 C
+      IW = 6
       DIJSQ = ZERO
       DJKSQ = ZERO
       DKLSQ = ZERO
@@ -2272,7 +971,6 @@ C     -----I IS THE END ATOM, J IS THE APEX ATOM, AND
 C          K AND L ARE THE ANCHOR ATOMS -----
 C
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION B(NCART,1),C(3,1)
       DIMENSION RJI(3),RJK(3),RJL(3)
       DIMENSION EJI(3),EJK(3),EJL(3)
@@ -2346,11 +1044,9 @@ C
       IF( ABS(EQVAL-PIDEG).LT.TOL) EQVAL=PIDEG
       GO TO 260
   240 CONTINUE
-      WRITE (IW,9008)
-      CALL HND_HNDERR(3,ERRMSG)
+      call errquit('hnd_opla: roundoff error',0)
   260 CONTINUE
       RETURN
- 9008 FORMAT(' ROUNDOFF ERROR IN -OPLA- STOP ')
       END
       SUBROUTINE HND_LIBE(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,AA,NA,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -2370,7 +1066,6 @@ C           PLANE AND THE SECOND IN A PLANE PERPENDICULAR TO THE FIRST
 C           THROUGH POINTS I,J, AND K -----
 C
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION B(NCART,1),C(3,1)
       DIMENSION AA(3,1),A(3)
       DIMENSION RJI(3),RJK(3)
@@ -2381,6 +1076,8 @@ C
       DATA ZERO,ONE  /0.0D+00,1.0D+00/
       DATA TOL,PIDEG /5.0D-05,180.00D+00/
       DATA PT0001    /0.0001D+00/
+c
+      IW = 6
 C
       IF(L.LE.NA) GO TO 120
       WRITE(IW,9048) L
@@ -2472,7 +1169,6 @@ C
      1                      DTORAD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION IZMAT(5), CARTC(3,1), BMAT(NCART,1),
      1          A(3), B(3), C(3), D(3), E1(3), E2(3), E3(3)
       DIMENSION ERRMSG(3)
@@ -2501,6 +1197,8 @@ C
 C     THE FIRST THREE ATOMS DEFINE THE FIRST PLANE,
 C     THE LAST THREE ATOMS DEFINE THE SECOND PLANE,
 C     THE MIDDLE ATOM IS IN BOTH PLANES.
+C
+      IW = 6
 C
       IATOM = IZMAT(1)
       JATOM = IZMAT(2)
@@ -2626,8 +1324,8 @@ C
   950 FORMAT(1X,'THIS MESSAGE COMES TO YOU FROM -DIHPLA-, WHERE ',
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
-      SUBROUTINE HND_ZMTMAK(ZDONE,geom,oprint)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      logical function geom_zmtmak(geom, oprint)
+      implicit double precision (a-h,o-z)
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -2635,1470 +1333,1296 @@ C
       integer  geom
       logical  oprint
       parameter (max_zcoord=16)
-c
-      PARAMETER (TOANGS=0.52917724924D+00)
-      PARAMETER (MXATOM=500)
-      PARAMETER (MXCART=3*MXATOM)
-      PARAMETER (MXZMAT=1500)    
-      PARAMETER (MXCOOR=1500)    
-      PARAMETER (MXIZMT=6000)
-      PARAMETER (MXBOND= 384)   ! For specifying additional bonds
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXANGS= 8*MXATOM)
-      PARAMETER (MXTORS= 8*MXATOM)
-      PARAMETER (MXOOPA= 8*MXATOM)
-      PARAMETER (MXLINB= 8*MXATOM)
-      PARAMETER (MXLNBA=10       )
-      PARAMETER (MXSEG=64)
-      LOGICAL SOME,OUT,DBUG
-      LOGICAL DBUG1
-      LOGICAL BADZ
-      LOGICAL OKAY
-      LOGICAL REMOVE
-      LOGICAL NUBOND
-      LOGICAL MODBND
-      LOGICAL MODANG
-      LOGICAL MODTOR
-      LOGICAL MODOOP
-      LOGICAL MODLNB
-      LOGICAL ENDATM
-      LOGICAL ENDMOD
-      LOGICAL  DONE
-      LOGICAL IDONE
-      LOGICAL ZDONE
+c     
+c     Make a Z-matrix for the current geometry.  If successful store
+c     it in the geometry and return true.  Otherwise return false.
+c     
+c     This version does not use the old HONDO common blocks so
+c     it may be called without preamble or fear of side-effects.
+c     
+      parameter (toangs=0.52917724924d+00)
+      parameter (mxatom=500)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=1500)    
+      parameter (mxcoor=1500)    
+      parameter (mxizmt=6000)
+      parameter (mxbond= 384)   ! for specifying additional bonds
+      parameter (mxbnds= 8*mxatom)
+      parameter (mxangs= 8*mxatom)
+      parameter (mxtors= 8*mxatom)
+      parameter (mxoopa= 8*mxatom)
+      parameter (mxlinb= 8*mxatom)
+      parameter (mxlnba=10       )
+      parameter (mxseg=64)
+      logical okay
+      logical remove
+      logical nubond
+      logical modbnd
+      logical modang
+      logical modtor
+      logical endatm
+      logical endmod
+      logical  done
+      logical idone
+      logical zdone
       logical geom_autoz_info_get
       external geom_autoz_info_get
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLNUC/NUC(MXATOM)  
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTDAT/ZMAT(MXCOOR),IZMAT(MXIZMT),NIZMAT
-      DIMENSION XYZLNB(3,MXLNBA)
-      DIMENSION IJBOND(2,MXBOND)
-      DIMENSION IJKANG(3,MXANGS)
-      DIMENSION IJKLTO(4,MXTORS)
-      DIMENSION IJKLOP(4,MXOOPA)
-      DIMENSION IJKLNB(4,MXLINB)
-      DIMENSION IJBNDS(2,MXBNDS)
-      DIMENSION IJMODS(2,MXBNDS), IJXTRA(2,MXBOND)
-      DIMENSION NIBOND(MXATOM),IIBOND(MXATOM)
-      DIMENSION NIMODS(MXATOM),IIMODS(MXATOM)
-      DIMENSION ENDATM(MXATOM)
-      DIMENSION ENDMOD(MXATOM)
-      DIMENSION  IDONE(MXATOM)
-      DIMENSION IATSEG(MXATOM,MXSEG)
-      DIMENSION NAMSEG(       MXSEG)
-      DIMENSION LENSEG(       MXSEG)
-      DIMENSION RCOV(103)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTMAK-'/
-      DATA ZERO   /0.0D+00/
-C
-C      COVALENT RADII FROM J.EMSLEY, "THE ELEMENTS", 2ND EDITION, 1991
-C      EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
-C      AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
-C
-      DATA (RCOV(NUCZ),NUCZ=1,2)
-     1  /0.40D+00,1.22D+00/     ! RJH Changed 0.3 for H to 0.4 for H2
-      DATA (RCOV(NUCZ),NUCZ=3,10)
-     1  /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
-     2   0.70D+00,0.66D+00,0.71D+00,1.60D+00/
-      DATA (RCOV(NUCZ),NUCZ=11,18)
-     1  /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
-     2   1.10D+00,1.04D+00,0.99D+00,1.91D+00/
-      DATA (RCOV(NUCZ),NUCZ=19,36)
-     1  /2.03D+00,1.74D+00,
-     2   1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
-     3  1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
-     4   1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.98D+00/
-      DATA (RCOV(NUCZ),NUCZ=37,54)
-     1  /2.22D+00,1.92D+00,
-     2   1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
-     3   1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
-     4   1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,2.09D+00/
-      DATA (RCOV(NUCZ),NUCZ=55,86)
-     1  /2.35D+00,1.98D+00,
-     2   1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,1.66D+00,1.65D+00,
-     3   1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,1.56D+00,1.56D+00,
-     4   1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
-     5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
-     6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
-      DATA (RCOV(I),i=87,103) 
-     1  /3.24d00,2.68d00,2.25d00,2.16d00,1.93d00,
-     2   1.66d00,1.57d00,1.81d00,2.21d00,1.43d00,
-     3   1.42d00,1.40d00,1.39d00,1.38d00,1.37d00,
-     4   1.36d00,1.34d00/
-C
-      DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
-     1                   (C(2,IAT)-C(2,JAT))**2+
-     2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
-      BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
+      integer iw
+      parameter (iw=6)
+
+*     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+*     common/hnd_zmtpar/nzmat,nzvar,nvar
+*     common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+
+      character*16 tags(mxatom)
+      double precision cvr(mxatom) ! Gathered radii
+      double precision zan(mxatom)
+      double precision c(3,mxatom)
+      integer nat
+      integer nzmat, nzvar, izmat(mxizmt), nizmat
+
+      dimension xyzlnb(3,mxlnba)
+      dimension ijbond(2,mxbond)
+      dimension ijkang(3,mxangs)
+      dimension ijklto(4,mxtors)
+      dimension ijklop(4,mxoopa)
+      dimension ijklnb(4,mxlinb)
+      dimension ijbnds(2,mxbnds)
+      dimension ijmods(2,mxbnds), ijxtra(2,mxbond)
+      dimension nibond(mxatom),iibond(mxatom)
+      dimension nimods(mxatom),iimods(mxatom)
+      dimension endatm(mxatom)
+      dimension endmod(mxatom)
+      dimension  idone(mxatom)
+      dimension iatseg(mxatom,mxseg)
+      dimension namseg(       mxseg)
+      dimension lenseg(       mxseg)
 c
+      character*1 zvarname(mxcoor)
+      double precision zvarsign(mxcoor)
+c
+      double precision zero
+      parameter (zero = 0.0d0)
+c     
+      dist(iat,jat)=sqrt((c(1,iat)-c(1,jat))**2+
+     1     (c(2,iat)-c(2,jat))**2+
+     2     (c(3,iat)-c(3,jat))**2) * toangs
+c     
       zdone = .false.
-      DBUG1=.FALSE.
-      DBUG =.FALSE.
-      OUT  =.FALSE.
-      OUT  =OUT.OR.DBUG
-      SOME =.FALSE.
-      SOME =SOME.OR.OUT
-      IF(SOME .and. oprint) THEN
-         WRITE(IW,8888)
-      ENDIF
-c
-c     These bonds are used to join disconnected
+      if(oprint) write(iw,8888)
+c     
+c     Get the data originally passed via the common blocks
+c     
+      if (.not. geom_cart_get(geom, nat, tags, c, zan))
+     $     call errquit('geom_zmtmak: failed getting coords',0)
+      do iat = 1, nat
+         if (.not. geom_tag_to_covalent_radius(tags(iat),radius))
+     $        radius = 2d0/toangs ! Radius = 2 angstrom if no other info
+         cvr(iat) = radius * toangs
+         cvr(iat) = max(0.4d0,cvr(iat)) ! Default too small for H
+*         write(6,*) ' Radius ', iat, cvr(iat)
+      enddo
+c     
+c     these bonds are used to join disconnected
 c     clusters in addition to the user defined bonds
-c
+c     
       numijxtra = 0
       call ifill(2*mxbond, 0, ijxtra, 1)
-c
+c     
       ncvrpass = 0
 10101 ncvrpass = ncvrpass + 1
-C
-      IF(DBUG) THEN
-         DO IAT=1,NAT
-            WRITE(IW,9976) IAT,NUC(IAT),C(1,IAT),C(2,IAT),C(3,IAT)
-         ENDDO
-      ENDIF
-C
-      NZVAR =0
-      NIZMAT=0
-      DO I=1,MXIZMT
-         IZMAT(I)=0
-      ENDDO
-      DO I=1,MXCOOR
-         ZMAT(I)=ZERO
-      ENDDO
-      DO MBNDS=1,MXBNDS
-         IJBNDS(1,MBNDS)=0
-         IJBNDS(2,MBNDS)=0
-      ENDDO
-      DO MBOND=1,MXBOND
-         IJBOND(1,MBOND)=0
-         IJBOND(2,MBOND)=0
-      ENDDO
-      DO MANGS=1,MXANGS
-         DO I=1,3
-            IJKANG(I,MANGS)=0
-         ENDDO
-      ENDDO
-      DO MTORS=1,MXTORS
-         DO I=1,4
-            IJKLTO(I,MTORS)=0
-         ENDDO
-      ENDDO
-      DO MOOPA=1,MXOOPA
-         DO I=1,4
-            IJKLOP(I,MOOPA)=0
-         ENDDO
-      ENDDO
-      DO MLINB=1,MXLINB
-         DO I=1,4
-            IJKLNB(I,MLINB)=0
-         ENDDO
-      ENDDO
-      DO MLNBA=1,MXLNBA
-         DO I=1,3
-            XYZLNB(I,MLNBA)=ZERO
-         ENDDO
-      ENDDO
-      CVR_SCALING=1.0D+00
+c     
+      nzvar =0
+      nizmat=0
+      do i=1,mxizmt
+         izmat(i)=0
+      enddo
+      do mbnds=1,mxbnds
+         ijbnds(1,mbnds)=0
+         ijbnds(2,mbnds)=0
+      enddo
+      do mbond=1,mxbond
+         ijbond(1,mbond)=0
+         ijbond(2,mbond)=0
+      enddo
+      do mangs=1,mxangs
+         do i=1,3
+            ijkang(i,mangs)=0
+         enddo
+      enddo
+      do mtors=1,mxtors
+         do i=1,4
+            ijklto(i,mtors)=0
+         enddo
+      enddo
+      do moopa=1,mxoopa
+         do i=1,4
+            ijklop(i,moopa)=0
+         enddo
+      enddo
+      do mlinb=1,mxlinb
+         do i=1,4
+            ijklnb(i,mlinb)=0
+         enddo
+      enddo
+      do mlnba=1,mxlnba
+         do i=1,3
+            xyzlnb(i,mlnba)=zero
+         enddo
+      enddo
+      cvr_scaling=1.0d+00
       max_tor_per_bond = 100
-C
-C     ----- READ IMPOSED BONDS, ANGLES, TORSIONS -----    
-C     ----- O-O-PLANE, LINEAR BENDS, ... IF ANY  -----
-C
-c           read in zcoord data from -rtdb-
-c    CVR_SCALING,IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
-c
-c
+c     
+c     ----- read imposed bonds, angles, torsions -----    
+c     ----- o-o-plane, linear bends, ... if any  -----
+c     
+c     read in zcoord data from -rtdb-
+c     cvr_scaling,ijbond,ijkang,ijklto,ijklop,ijklnb
+c     
       if(.not. geom_autoz_info_get(geom,
      $     cvr_scaling, ijbond, ijkang, ijklto, ijklop, 
      $     ijklnb, max_tor_per_bond)) then
-         continue               ! No zcoord data input
+         continue               ! no zcoord data input
       endif
-c
-      if (ncvrpass .eq. 1) CVFAC=CVR_SCALING ! Use default on first pass
-c
-      IF(DBUG) THEN
-         WRITE(IW,*) 'CVFAC = ',CVFAC
-      ENDIF
-C
-      NUMBND=0
-      DO MBOND=1,MXBOND
-         ICON=IJBOND(1,MBOND)
-         JCON=IJBOND(2,MBOND)
-         IF(ICON.GT.0.AND.JCON.GT.0) THEN
-            NUMBND=NUMBND+1
-         ELSEIF(ICON.EQ.0.AND.JCON.EQ.0) THEN
-         ELSE
-            WRITE(IW,9977)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-c
-      MODBND=NUMBND.NE.0
-      IF(DBUG) THEN
-         IF(MODBND) THEN
-            WRITE(IW,8887)
-         ELSE
-            WRITE(IW,8886)
-         ENDIF
-      ENDIF
-C
-      NUMANG=0
-      DO MANGS=1,MXANGS
-         ICON=IJKANG(1,MANGS)
-         JCON=IJKANG(2,MANGS)
-         KCON=IJKANG(3,MANGS)
-         IF(ICON.GT.0.AND.JCON.GT.0.AND.KCON.GT.0) THEN
-            NUMANG=NUMANG+1
-         ELSEIF(ICON.EQ.0.AND.JCON.EQ.0.AND.KCON.EQ.0) THEN
-         ELSE
-            WRITE(IW,9977)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-      MODANG=NUMANG.NE.0
-      IF(DBUG) THEN
-         IF(MODANG) THEN
-            WRITE(IW,8885)
-         ELSE
-            WRITE(IW,8884)
-         ENDIF
-      ENDIF
-C
-      NUMTOR=0
-      DO MTORS=1,MXTORS
-         ICON=IJKLTO(1,MTORS)
-         JCON=IJKLTO(2,MTORS)
-         KCON=IJKLTO(3,MTORS)
-         LCON=IJKLTO(4,MTORS)
-         IF(ICON.GT.0.AND.JCON.GT.0.AND.
-     1      KCON.GT.0.AND.LCON.GT.0     ) THEN
-            NUMTOR=NUMTOR+1
-         ELSEIF(ICON.EQ.0.AND.JCON.EQ.0.AND. 
-     1          KCON.EQ.0.AND.LCON.EQ.0     ) THEN
-         ELSE
-            WRITE(IW,9977)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-      MODTOR=NUMTOR.NE.0
-      IF(DBUG) THEN
-         IF(MODTOR) THEN
-            WRITE(IW,8883)
-         ELSE
-            WRITE(IW,8882)
-         ENDIF
-      ENDIF
-C
-      NUMOOP=0
-      DO MOOPA=1,MXOOPA
-         ICON=IJKLOP(1,MOOPA)
-         JCON=IJKLOP(2,MOOPA)
-         KCON=IJKLOP(3,MOOPA)
-         LCON=IJKLOP(4,MOOPA)
-         IF(ICON.GT.0.AND.JCON.GT.0.AND.
-     1      KCON.GT.0.AND.LCON.GT.0     ) THEN
-            NUMOOP=NUMOOP+1
-         ELSEIF(ICON.EQ.0.AND.JCON.EQ.0.AND.
-     1          KCON.EQ.0.AND.LCON.EQ.0     ) THEN
-         ELSE
-            WRITE(IW,9977)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-      MODOOP=NUMOOP.NE.0
-      IF(DBUG) THEN
-         IF(MODOOP) THEN
-            WRITE(IW,8881)
-         ELSE
-            WRITE(IW,8880)
-         ENDIF
-      ENDIF
-C
-      NUMLNB=0
-      DO MLINB=1,MXLINB
-         ICON=IJKLNB(1,MLINB)
-         JCON=IJKLNB(2,MLINB)
-         KCON=IJKLNB(3,MLINB)
-         LCON=IJKLNB(4,MLINB)
-         IF(ICON.GT.0.AND.JCON.GT.0.AND.
-     1      KCON.GT.0.AND.LCON.GT.0     ) THEN
-            NUMLNB=NUMLNB+1
-         ELSEIF(ICON.EQ.0.AND.JCON.EQ.0.AND.
-     1          KCON.EQ.0.AND.LCON.EQ.0     ) THEN
-         ELSE
-            WRITE(IW,9977)
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDDO
-      MODLNB=NUMLNB.NE.0
-      IF(DBUG) THEN
-         IF(MODLNB) THEN
-            WRITE(IW,8879)
-         ELSE
-            WRITE(IW,8878)
-         ENDIF
-      ENDIF
-C
-C     ----- SET UP CONNECTIVITY TABLE, INCLUDING FORCED BONDS -----
-C
-      IF(DBUG) THEN
-         DO IAT=1,NAT
-            WRITE(IW,9976) IAT,NUC(IAT),C(1,IAT),C(2,IAT),C(3,IAT)
-         ENDDO
-      ENDIF
-C
-      MBNDS=0
-      DO IAT=1,NAT
-      IIBOND(IAT)=MBNDS
-C
-C     ----- FIRST CHECK FORCED BONDS -----
-C
-            DO MBOND=1,numijxtra ! These forced by connection of clusters
-               NUBOND=.FALSE.
-               IF(IJxtra(1,MBOND).EQ.IAT) THEN
-                  MBNDS=MBNDS+1
-                  IJBNDS(1,MBNDS)=IAT
-                  IJBNDS(2,MBNDS)=IJxtra(2,MBOND)
-                  NUBOND=.TRUE.
-               ELSEIF(IJxtra(2,MBOND).EQ.IAT) THEN
-                  MBNDS=MBNDS+1
-                  IJBNDS(1,MBNDS)=IAT
-                  IJBNDS(2,MBNDS)=IJxtra(1,MBOND)
-                  NUBOND=.TRUE.
-               ENDIF
-               IF(NUBOND.AND.DBUG) THEN
-                  WRITE(IW,9975) MBNDS,IJBNDS(1,MBNDS),IJBNDS(2,MBNDS)
-               ENDIF
-C
-C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
-C
-               IF(NUBOND.AND.MBNDS.GT.1) THEN
-                  M=MBNDS-1
-                  DO I=1,M
-                     IF(IJBNDS(1,I).EQ.IJBNDS(1,MBNDS).AND.
-     1                  IJBNDS(2,I).EQ.IJBNDS(2,MBNDS)     ) THEN
-                        MBNDS=MBNDS-1
-                     ENDIF
-                  ENDDO
-               ENDIF
-            ENDDO
-c
-         IF(MODBND) THEN        ! These forced by the user
-            DO MBOND=1,MXBOND
-               NUBOND=.FALSE.
-               IF(IJBOND(1,MBOND).EQ.IAT) THEN
-                  MBNDS=MBNDS+1
-                  IJBNDS(1,MBNDS)=IAT
-                  IJBNDS(2,MBNDS)=IJBOND(2,MBOND)
-                  NUBOND=.TRUE.
-               ELSEIF(IJBOND(2,MBOND).EQ.IAT) THEN
-                  MBNDS=MBNDS+1
-                  IJBNDS(1,MBNDS)=IAT
-                  IJBNDS(2,MBNDS)=IJBOND(1,MBOND)
-                  NUBOND=.TRUE.
-               ENDIF
-               IF(NUBOND.AND.DBUG) THEN
-                  WRITE(IW,9975) MBNDS,IJBNDS(1,MBNDS),IJBNDS(2,MBNDS)
-               ENDIF
-C
-C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
-C
-               IF(NUBOND.AND.MBNDS.GT.1) THEN
-                  M=MBNDS-1
-                  DO I=1,M
-                     IF(IJBNDS(1,I).EQ.IJBNDS(1,MBNDS).AND.
-     1                  IJBNDS(2,I).EQ.IJBNDS(2,MBNDS)     ) THEN
-                        MBNDS=MBNDS-1
-                     ENDIF
-                  ENDDO
-               ENDIF
-            ENDDO
-         ENDIF
-C
-C     ----- DISCOVER CONNECTIVITY TO OTHER ATOMS -----
-C
-         DO JAT=1,NAT
-            IF(JAT.NE.IAT) THEN
-               IZ=NUC(IAT)
-               JZ=NUC(JAT)
-               IF(BADZ(IZ).OR.BADZ(JZ)) THEN
-                  WRITE(IW,9993) IAT,JAT
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-               NUBOND=.FALSE.
-               RIJ=DIST(IAT,JAT)
-               RCV=(RCOV(IZ)+RCOV(JZ))
-               IF(RIJ.LE.RCV*CVFAC) THEN
-                  IF(MBNDS.EQ.MXBNDS) THEN
-                     WRITE(IW,*) 'TOO MANY BONDS FOUND',
-     1                           ' MBNDS, MXBNDS = ',MBNDS, MXBNDS
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
-                  MBNDS=MBNDS+1
-                  IJBNDS(1,MBNDS)=IAT
-                  IJBNDS(2,MBNDS)=JAT
-                  NUBOND=.TRUE.
-                  IF(DBUG1) THEN
-                     WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS,
-     1                              IJBNDS(1,MBNDS),IJBNDS(2,MBNDS),
-     2                              NUBOND
-                  ENDIF
-C
-C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
-C
-                  IF(NUBOND.AND.MBNDS.GT.1) THEN
-                     REMOVE=.FALSE.
-                     M=MBNDS-1
-                     DO I=1,M
-                        IF(IJBNDS(1,I).EQ.IJBNDS(1,MBNDS).AND.
-     1                     IJBNDS(2,I).EQ.IJBNDS(2,MBNDS)     ) THEN
-                           IF(DBUG) THEN
-                              WRITE(IW,9974) MBNDS,I
-                           ENDIF
-                           REMOVE=.TRUE.
-                        ENDIF
-                     ENDDO
-                     IF(REMOVE) THEN
-                        IJBNDS(1,MBNDS)=0
-                        IJBNDS(2,MBNDS)=0
-                        MBNDS=MBNDS-1
-                     ENDIF
-                  ENDIF
-               ENDIF
-            ENDIF
-         ENDDO
-C
-         NIBOND(IAT)=MBNDS-IIBOND(IAT)
-         IF(NIBOND(IAT).GT.1) THEN
-            ENDATM(IAT)=.FALSE.
-            if (nibond(iat).gt.6) write(6,30304) nibond(iat),iat
-30304       format(1x,'     Warning. AUTOZ generated',i5,
+c     
+      if (ncvrpass .eq. 1) cvfac=cvr_scaling ! use default on first pass
+c     
+      numbnd=0
+      do mbond=1,mxbond
+         icon=ijbond(1,mbond)
+         jcon=ijbond(2,mbond)
+         if(icon.gt.0.and.jcon.gt.0) then
+            numbnd=numbnd+1
+         elseif(icon.eq.0.and.jcon.eq.0) then
+         else
+            call errquit('autoz: atom label in ijbond incorrect',mbond)
+         endif
+      enddo
+c     
+      modbnd=numbnd.ne.0
+c     
+      numang=0
+      do mangs=1,mxangs
+         icon=ijkang(1,mangs)
+         jcon=ijkang(2,mangs)
+         kcon=ijkang(3,mangs)
+         if(icon.gt.0.and.jcon.gt.0.and.kcon.gt.0) then
+            numang=numang+1
+         elseif(icon.eq.0.and.jcon.eq.0.and.kcon.eq.0) then
+         else
+            call errquit('autoz: atom label in ijkang incorrect',mangs)
+         endif
+      enddo
+      modang=numang.ne.0
+c     
+      numtor=0
+      do mtors=1,mxtors
+         icon=ijklto(1,mtors)
+         jcon=ijklto(2,mtors)
+         kcon=ijklto(3,mtors)
+         lcon=ijklto(4,mtors)
+         if(icon.gt.0.and.jcon.gt.0.and.
+     1        kcon.gt.0.and.lcon.gt.0     ) then
+            numtor=numtor+1
+         elseif(icon.eq.0.and.jcon.eq.0.and. 
+     1           kcon.eq.0.and.lcon.eq.0     ) then
+         else
+            call errquit('autoz: atom label in ijklto incorrect',mtors)
+         endif
+      enddo
+      modtor=numtor.ne.0
+c     
+c$$$      numoop=0
+c$$$      do moopa=1,mxoopa
+c$$$         icon=ijklop(1,moopa)
+c$$$         jcon=ijklop(2,moopa)
+c$$$         kcon=ijklop(3,moopa)
+c$$$         lcon=ijklop(4,moopa)
+c$$$         if(icon.gt.0.and.jcon.gt.0.and.
+c$$$     1        kcon.gt.0.and.lcon.gt.0     ) then
+c$$$            numoop=numoop+1
+c$$$         elseif(icon.eq.0.and.jcon.eq.0.and.
+c$$$     1           kcon.eq.0.and.lcon.eq.0     ) then
+c$$$         else
+c$$$            call errquit('autoz: atom label in ijklop incorrect',0)
+c$$$         endif
+c$$$      enddo
+c$$$      modoop=numoop.ne.0
+c$$$c     
+c$$$      numlnb=0
+c$$$      do mlinb=1,mxlinb
+c$$$         icon=ijklnb(1,mlinb)
+c$$$         jcon=ijklnb(2,mlinb)
+c$$$         kcon=ijklnb(3,mlinb)
+c$$$         lcon=ijklnb(4,mlinb)
+c$$$         if(icon.gt.0.and.jcon.gt.0.and.
+c$$$     1        kcon.gt.0.and.lcon.gt.0     ) then
+c$$$            numlnb=numlnb+1
+c$$$         elseif(icon.eq.0.and.jcon.eq.0.and.
+c$$$     1           kcon.eq.0.and.lcon.eq.0     ) then
+c$$$         else
+c$$$            call errquit('autoz: atom label in ijklnb incorrect',0)
+c$$$         endif
+c$$$      enddo
+c$$$      modlnb=numlnb.ne.0
+c     
+c     ----- set up connectivity table, including forced bonds -----
+c     
+      mbnds=0
+      do iat=1,nat
+         iibond(iat)=mbnds
+c     
+c     ----- first check forced bonds -----
+c     
+         do mbond=1,numijxtra   ! these forced by connection of clusters
+            nubond=.false.
+            if(ijxtra(1,mbond).eq.iat) then
+               mbnds=mbnds+1
+               ijbnds(1,mbnds)=iat
+               ijbnds(2,mbnds)=ijxtra(2,mbond)
+               nubond=.true.
+            elseif(ijxtra(2,mbond).eq.iat) then
+               mbnds=mbnds+1
+               ijbnds(1,mbnds)=iat
+               ijbnds(2,mbnds)=ijxtra(1,mbond)
+               nubond=.true.
+            endif
+c     
+c     ----- check for duplicates and eliminate -----
+c     
+            if(nubond.and.mbnds.gt.1) then
+               m=mbnds-1
+               do i=1,m
+                  if(ijbnds(1,i).eq.ijbnds(1,mbnds).and.
+     1                 ijbnds(2,i).eq.ijbnds(2,mbnds)     ) then
+                     mbnds=mbnds-1
+                  endif
+               enddo
+            endif
+         enddo
+c     
+         if(modbnd) then        ! these forced by the user
+            do mbond=1,mxbond
+               nubond=.false.
+               if(ijbond(1,mbond).eq.iat) then
+                  mbnds=mbnds+1
+                  ijbnds(1,mbnds)=iat
+                  ijbnds(2,mbnds)=ijbond(2,mbond)
+                  nubond=.true.
+               elseif(ijbond(2,mbond).eq.iat) then
+                  mbnds=mbnds+1
+                  ijbnds(1,mbnds)=iat
+                  ijbnds(2,mbnds)=ijbond(1,mbond)
+                  nubond=.true.
+               endif
+c     
+c     ----- check for duplicates and eliminate -----
+c     
+               if(nubond.and.mbnds.gt.1) then
+                  m=mbnds-1
+                  do i=1,m
+                     if(ijbnds(1,i).eq.ijbnds(1,mbnds).and.
+     1                    ijbnds(2,i).eq.ijbnds(2,mbnds)     ) then
+                        mbnds=mbnds-1
+                     endif
+                  enddo
+               endif
+            enddo
+         endif
+c     
+c     ----- discover connectivity to other atoms -----
+c     
+         do jat=1,nat
+            if(jat.ne.iat) then
+               nubond=.false.
+               rij=dist(iat,jat)
+               rcv=(cvr(iat)+cvr(jat))
+               if(rij.le.rcv*cvfac) then
+                  if(mbnds.eq.mxbnds) call errquit
+     $                 ('autoz: too many bonds found',mbnds)
+                  mbnds=mbnds+1
+                  ijbnds(1,mbnds)=iat
+                  ijbnds(2,mbnds)=jat
+                  nubond=.true.
+c     
+c     ----- check for duplicates and eliminate -----
+c     
+                  if(nubond.and.mbnds.gt.1) then
+                     remove=.false.
+                     m=mbnds-1
+                     do i=1,m
+                        if(ijbnds(1,i).eq.ijbnds(1,mbnds).and.
+     1                       ijbnds(2,i).eq.ijbnds(2,mbnds)     ) then
+                           remove=.true.
+                        endif
+                     enddo
+                     if(remove) then
+                        ijbnds(1,mbnds)=0
+                        ijbnds(2,mbnds)=0
+                        mbnds=mbnds-1
+                     endif
+                  endif
+               endif
+            endif
+         enddo
+c     
+         nibond(iat)=mbnds-iibond(iat)
+         if(nibond(iat).gt.1) then
+            endatm(iat)=.false.
+            if (nibond(iat).gt.6 .and. oprint) 
+     $           write(6,30304) nibond(iat),iat
+30304       format(1x,'     warning. autoz generated',i5,
      $           ' bonds for atom',i5)
-         ELSE 
-            ENDATM(IAT)=.TRUE.
-c$$$         else if (nibond(iat).le.0) then ! Check for unconnected atoms
-c$$$            write(6,30303) iat
-c$$$30303       format(1x,'      AUTOZ did not connect atom ',i5)
-c$$$            goto 55555
-         ENDIF
-      ENDDO
-      NBNDS=MBNDS
-C
-      IF(NBNDS.LE.0) THEN
-         WRITE(IW,9999)
-         goto 55555             ! Increase the radius
-***         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-C     ----- DEBUG PRINTING OF CONNECTIVITY -----
-C
-      IF(DBUG1) THEN
-         WRITE(IW,9998) NBNDS
-         WRITE(IW,9997)
-         DO IAT=1,NAT
-            WRITE(IW,9996) IAT,NIBOND(IAT),IIBOND(IAT),ENDATM(IAT)
-         ENDDO
-         DO IAT=1,NAT
-            WRITE(IW,9995) IAT,NIBOND(IAT)
-            IF(NIBOND(IAT).GT.0) THEN
-               IIBND1=IIBOND(IAT)+1
-               IIBND2=IIBOND(IAT)+NIBOND(IAT)
-               WRITE(IW,9994) (IJBNDS(1,I),IJBNDS(2,I),I=IIBND1,IIBND2)
-            ENDIF
-         ENDDO
-      ENDIF
-C
-C     -----    TERMINAL ATOMS HAVE BEEN DETECTED   -----
-C           TRY FOR SEGMENTS ( RINGS AND BRIDGES )
-C
-      DO I=1,NBNDS
-         IJMODS(1,I)=IJBNDS(1,I)
-         IJMODS(2,I)=IJBNDS(2,I)
-      ENDDO
-      MXCONN=0
-      DO IAT=1,NAT
-         ENDMOD(IAT)=ENDATM(IAT)
-         IIMODS(IAT)=IIBOND(IAT)
-         NIMODS(IAT)=NIBOND(IAT)
-         IF(NIMODS(IAT).GT.MXCONN) THEN
-            MXCONN=NIMODS(IAT)
-         ENDIF
-         DO MSEG=1,MXSEG
-            IATSEG(IAT,MSEG)=0
-         ENDDO
-      ENDDO
-      DO MSEG=1,MXSEG
-         NAMSEG(MSEG)=0
-         LENSEG(MSEG)=0
-      ENDDO
-C
-C     -----     TAKE AWAY -END ATOM- CONNECTIVITY       -----
-C           RING AND BRIDGE CONNECTIVITY SHOULD BE LEFT
-C
-      NPASS=MXCONN
-      DO IPASS=1,NPASS
-         IF(DBUG) THEN
-            WRITE(IW,9991) IPASS,NPASS
-         ENDIF
-         DO IAT=1,NAT
-            IF(NIMODS(IAT).EQ.1) THEN
-               DO I=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
-                  KAT=IJMODS(1,I)
-                  JAT=IJMODS(2,I)
-                  IJMODS(1,I)=0
-                  IJMODS(2,I)=0
-                  IF(KAT.NE.0) THEN
-                     IF(NIMODS(JAT).GE.1) THEN
-                        DO J=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
-                           IF(IJMODS(2,J).EQ.IAT) THEN
-                              IJMODS(1,J)=0
-                              IJMODS(2,J)=0
-                              NIMODS(JAT)=NIMODS(JAT)-1
-                           ENDIF
-                        ENDDO
-                     ELSE
-                        WRITE(IW,9978) JAT,IAT
-                        CALL HND_HNDERR(3,ERRMSG)
-                     ENDIF
-                     IF(NIMODS(JAT).EQ.1) THEN
-                        ENDMOD(JAT)=.TRUE.
-                     ENDIF
-                  ENDIF
-               ENDDO
-               NIMODS(IAT)=NIMODS(IAT)-1
-            ENDIF
-         ENDDO
-C
-         IF(DBUG) THEN
-            DO IAT=1,NAT
-               WRITE(IW,9996) IAT,NIMODS(IAT),IIMODS(IAT),ENDMOD(IAT)
-            ENDDO
-            DO IAT=1,NAT
-               WRITE(IW,9995) IAT,NIMODS(IAT)
-               IF(NIBOND(IAT).GT.0) THEN
-                  IIMOD1=IIBOND(IAT)+1
-                  IIMOD2=IIBOND(IAT)+NIBOND(IAT)
-                  WRITE(IW,9994) (IJMODS(1,I),IJMODS(2,I),
-     1                                                 I=IIMOD1,IIMOD2)
-               ENDIF
-            ENDDO
-         ENDIF
-C
-      ENDDO
-C
-C     ----- CHECK IF THERE WILL BE MORE TO DO ... -----
-C
-      DONE=.TRUE.
-      DO IAT=1,NAT
-         IF(NIMODS(IAT).GT.0) THEN
-            IDONE(IAT)=.FALSE.
-         ELSE
-            IDONE(IAT)=.TRUE. 
-         ENDIF
-         DONE=DONE.AND.IDONE(IAT)
-      ENDDO
-      DONE=.TRUE.
-      IF(DONE) THEN
-         IF(DBUG) THEN
-            WRITE(IW,9980)
-         ENDIF
-C
-C     ----- CREATE -IZMAT- -----
-C
-         NZVAR =0
-         NIZMAT=0
-         DO I=1,MXIZMT
-            IZMAT(I)=0
-         ENDDO
-         DO I=1,NBNDS
-            IJMODS(1,I)=IJBNDS(1,I)
-            IJMODS(2,I)=IJBNDS(2,I)
-         ENDDO
-         DO IAT=1,NAT
-            ENDMOD(IAT)=ENDATM(IAT)
-            IIMODS(IAT)=IIBOND(IAT)
-            NIMODS(IAT)=NIBOND(IAT)
-         ENDDO
-c
-c     Check for disconnected clusters and attempt
+         else 
+            endatm(iat)=.true.
+c$$$  else if (nibond(iat).le.0) then ! check for unconnected atoms
+c$$$  write(6,30303) iat
+c$$$  30303       format(1x,'      autoz did not connect atom ',i5)
+c$$$  goto 55555
+         endif
+      enddo
+      nbnds=mbnds
+c     
+      if(nbnds.le.0) then
+**         write(iw,9999)
+         goto 55555             ! increase the radius
+      endif
+c     
+c     -----    terminal atoms have been detected   -----
+c     try for segments ( rings and bridges )
+c     
+      do i=1,nbnds
+         ijmods(1,i)=ijbnds(1,i)
+         ijmods(2,i)=ijbnds(2,i)
+      enddo
+      mxconn=0
+      do iat=1,nat
+         endmod(iat)=endatm(iat)
+         iimods(iat)=iibond(iat)
+         nimods(iat)=nibond(iat)
+         if(nimods(iat).gt.mxconn) then
+            mxconn=nimods(iat)
+         endif
+         do mseg=1,mxseg
+            iatseg(iat,mseg)=0
+         enddo
+      enddo
+      do mseg=1,mxseg
+         namseg(mseg)=0
+         lenseg(mseg)=0
+      enddo
+c     
+c     -----     take away -end atom- connectivity       -----
+c     ring and bridge connectivity should be left
+c     
+      npass=mxconn
+      do ipass=1,npass
+         do iat=1,nat
+            if(nimods(iat).eq.1) then
+               do i=iibond(iat)+1,iibond(iat)+nibond(iat)
+                  kat=ijmods(1,i)
+                  jat=ijmods(2,i)
+                  ijmods(1,i)=0
+                  ijmods(2,i)=0
+                  if(kat.ne.0) then
+                     if(nimods(jat).ge.1) then
+                        do j=iibond(jat)+1,iibond(jat)+nibond(jat)
+                           if(ijmods(2,j).eq.iat) then
+                              ijmods(1,j)=0
+                              ijmods(2,j)=0
+                              nimods(jat)=nimods(jat)-1
+                           endif
+                        enddo
+                     else
+                        write(iw,9978) jat,iat
+                        call errquit('autoz: code logic error',0)
+                     endif
+                     if(nimods(jat).eq.1) then
+                        endmod(jat)=.true.
+                     endif
+                  endif
+               enddo
+               nimods(iat)=nimods(iat)-1
+            endif
+         enddo
+      enddo
+c     
+c     ----- check if there will be more to do ... -----
+c     
+      done=.true.
+      do iat=1,nat
+         if(nimods(iat).gt.0) then
+            idone(iat)=.false.
+         else
+            idone(iat)=.true. 
+         endif
+         done=done.and.idone(iat)
+      enddo
+      done=.true.
+      if(done) then
+c     
+c     ----- create -izmat- -----
+c     
+         nzvar =0
+         nizmat=0
+         do i=1,mxizmt
+            izmat(i)=0
+         enddo
+         do i=1,nbnds
+            ijmods(1,i)=ijbnds(1,i)
+            ijmods(2,i)=ijbnds(2,i)
+         enddo
+         do iat=1,nat
+            endmod(iat)=endatm(iat)
+            iimods(iat)=iibond(iat)
+            nimods(iat)=nibond(iat)
+         enddo
+c     
+c     check for disconnected clusters and attempt
 c     to join them by putting extra bonds into ijxtra
-c
+c     
          call geom_check_all_connected(nat,nbnds,ijmods,
-     $        c, numijxtra, ijxtra, mxbond, 2d0*cvfac, okay)
-c
+     $        c, numijxtra, ijxtra, mxbond, 2d0*cvfac, okay,
+     $        oprint)
+c     
          if (.not. okay) then
+*            if (cvfac .lt. 1.19d0) then
+*               goto 55555       ! prefer to first try increasing cvfac
+*            else if (numijxtra .eq. 0) then
             if (numijxtra .eq. 0) then
-               goto 55555       ! Reconnection failed
+               goto 55555       ! reconnection failed
             else
-               write(6,*) ' Regenerating connections with new bonds'
+               if (oprint) write(6,*) 
+     $              ' autoz: regenerating connections with new bonds'
                goto 10101
             endif
          endif
+c     
+         call geom_zmtbld(zdone,nzvar,nizmat,izmat,mxizmt,c,
+     1        nat,nbnds,ijmods,iimods,nimods,numbnd,
+     2        ijkang,numang,ijklto,numtor,
+     3        ijklop,numoop,ijklnb,numlnb,xyzlnb,
+     $        max_tor_per_bond, oprint)
+c     
+         nzmat=nizmat
+         nlnba=3*mxlnba
+         if (.not. zdone) goto 55555 ! attempt to recover
 c
-         CALL HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                   NAT,NBNDS,IJMODS,IIMODS,NIMODS,NUMBND,
-     2                   IJKANG,NUMANG,IJKLTO,NUMTOR,
-     3                   IJKLOP,NUMOOP,IJKLNB,NUMLNB,XYZLNB,
-     $        max_tor_per_bond)
+         if (nzvar .gt. 4*(max(6,3*nat-6))) then
 c
-
-         NZMAT=NIZMAT
-         NLNBA=3*MXLNBA
-         if (.not. zdone) goto 55555 ! Attempt to recover
-C
-C     ----- SAVE -IZMAT(1:NZMAT)-   -----
-C           SAVE -XYZLNB(1:MXLNBA)-
-C
-C
-*         IF(SOME .and. oprint) THEN
-*            WRITE(IW,8877) ZDONE
-*         ENDIF
-         RETURN
-      ENDIF
-C
-C     ----- NOW COMPRESS MODIFIED CONNECTIVITY TABLE -----
-C
-      DO IAT=1,NAT
-         IF(NIMODS(IAT).GT.0) THEN
-            NUMODS=0
-            DO I=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
-               IF(IJMODS(1,I).NE.0.AND.IJMODS(2,I).NE.0) THEN
-                  NUMODS=NUMODS+1
-                  IJMODS(1,NUMODS)=IJBNDS(1,I)
-                  IJMODS(2,NUMODS)=IJBNDS(2,I)
-               ENDIF
-            ENDDO
-            IF(NIMODS(IAT).NE.NUMODS) THEN
-               WRITE(IW,9985) IAT,NIMODS(IAT),NUMODS
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            IIBOND(IAT)=IIMODS(IAT)
-            NIBOND(IAT)=IIMODS(IAT)
-            ENDATM(IAT)=ENDMOD(IAT)
-         ENDIF
-      ENDDO
-C
-      IF(DBUG) THEN
-         DO IAT=1,NAT
-            WRITE(IW,9996) IAT,NIBOND(IAT),IIBOND(IAT),ENDATM(IAT)
-         ENDDO
-         DO IAT=1,NAT
-            WRITE(IW,9995) IAT,NIMODS(IAT)
-            IF(NIMODS(IAT).GT.0) THEN
-               IIMOD1=IIMODS(IAT)+1
-               IIMOD2=IIMODS(IAT)+NIMODS(IAT)
-               WRITE(IW,9994) (IJMODS(1,I),IJMODS(2,I),I=IIMOD1,IIMOD2)
-            ENDIF
-         ENDDO
-      ENDIF
-C
-C     ----- NOW WE HAVE ONLY ATOMS WITH REMAINING CONNECTIVITY -----
-C           OF 2 OR MORE. THEY BELONG TO RINGS AND BRIDGES.
-C
-      NUCONN=0
-      DO IAT=1,NAT
-         IF(NIMODS(IAT).GT.NUCONN) THEN
-            NUCONN=NIMODS(IAT)
-         ENDIF
-      ENDDO
-C
-      IF(NUCONN.LT.2) THEN
-C
-C     ----- WE SHOULD HAVE ONLY ( > 2 ) CONNECTIVITIES -----
-C
-         WRITE(IW,9989) NUCONN
-         CALL HND_HNDERR(3,ERRMSG)
-      ELSEIF(NUCONN.GT.3) THEN
-C
-C     ----- -NUCONN- > 3 .... NOT TREATED YET -----
-C
-         WRITE(IW,9989) NUCONN
-         CALL HND_HNDERR(3,ERRMSG)
-C
-      ELSEIF(NUCONN.EQ.3) THEN
-C
-C     ----- -NUCONN- = 3 .... SEVERAL RINGS , FUSED OR NOT -----
-C                             BRIDGES AS WELL.
-C           FIRST , LIST OUT ALL THE CONNECTIVITY SEGMENTS
-C
-         IF(DBUG) THEN
-            WRITE(IW,9984)
-         ENDIF
-C
-         NSEG  =0
-         IANCHR=0
-  100    IANCHR=IANCHR+1
-         IF(IANCHR.GT.NAT) THEN
-            GO TO 120
-         ENDIF
-         IF(NIMODS(IANCHR).NE.3) THEN
-            GO TO 100
-         ENDIF
-            DO I=1,3
-               NSEG=NSEG+1
-               IF(NSEG.GT.MXSEG) THEN
-                  WRITE(IW,9983) NSEG
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-C
-               JATOM=1
-               IATSEG(JATOM,NSEG)=IANCHR
-C
-               IAT=IANCHR
-               JAT=IJMODS(2,IIMODS(IAT)+I)
-  110          JATOM=JATOM+1
-               IATSEG(JATOM,NSEG)=JAT
-               IF(NIMODS(JAT).EQ.2) THEN
-                  IF(IJMODS(2,IIMODS(JAT)+1).NE.IAT) THEN
-                     KAT=IJMODS(2,IIMODS(JAT)+1)
-                  ELSE
-                     KAT=IJMODS(2,IIMODS(JAT)+2)
-                  ENDIF
-                  IAT=JAT
-                  JAT=KAT
-                  GO TO 110
-               ELSEIF(NIMODS(JAT).EQ.3) THEN
-                  LENSEG(NSEG)=JATOM
-                  IF(JAT.EQ.IANCHR) THEN
-                     NAMSEG(NSEG)=1
-                  ELSE
-                     NAMSEG(NSEG)=2
-                  ENDIF
-               ELSE
-                  WRITE(IW,9982) JAT
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-            ENDDO
-C
-  120    CONTINUE
-         IF(DBUG) THEN
-            DO MSEG=1,NSEG
-               WRITE(IW,9981) MSEG,LENSEG(MSEG)
-               WRITE(IW,9979) (IATSEG(IATOM,MSEG),IATOM=1,LENSEG(MSEG))
-            ENDDO
-         ENDIF
-C
-      ELSEIF(NUCONN.EQ.2) THEN
-C
-C     ----- -NUCONN- = 2 .... DISCONNECTED RINGS -----
-C
-         IF(DBUG) THEN
-            WRITE(IW,9990)
-         ENDIF
-C
-         NSEG  =0
-         IANCHR=0
-  200    IANCHR=IANCHR+1
-         IF(IANCHR.GT.NAT) THEN
-            GO TO 220
-         ENDIF
-         IF(NIMODS(IANCHR).NE.2) THEN
-            GO TO 200
-         ENDIF
-            NSEG =NSEG+1
-            IATOM=1
-            IATSEG(IATOM,NSEG)=IANCHR
-C
-            IAT=IANCHR
-            JAT=IJMODS(2,IIMODS(IAT)+1)
-  210       IATOM=IATOM+1
-            IATSEG(IATOM,NSEG)=JAT
-            IF(NIMODS(JAT).EQ.2) THEN
-               IF(IJMODS(2,IIMODS(JAT)+1).NE.IAT) THEN
-                  KAT=IJMODS(2,IIMODS(JAT)+1)
-               ELSE
-                  KAT=IJMODS(2,IIMODS(JAT)+2)
-               ENDIF
-               IF(KAT.NE.IANCHR) THEN
-                  IAT=JAT
-                  JAT=KAT
-                  GO TO 210
-               ENDIF
-            ELSE
-               WRITE(IW,9986) JAT
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            LENSEG(NSEG)=IATOM
-C
-         IF(DBUG) THEN
-            DO MSEG=1,NSEG
-               WRITE(IW,9987) LENSEG(MSEG)
-               WRITE(IW,9979) (IATSEG(IATOM,MSEG),IATOM=1,LENSEG(MSEG))
-            ENDDO
-         ENDIF
-  220    CONTINUE
-C
-      ENDIF
-C
-      RETURN
+c     Made a z-matrix but it is asburdly big.  Nothing yet to fix this
 c
-c     Get here if something went wrong and we are trying to recover
+            write(6,*) ' autoz: excessive number of variables ',
+     $           nzvar, 3*nat-6
+            zdone = .false.
+            goto 66666          ! abandon autoz
+         endif
+c     
+c     This is the succesful return
+c
+c     ----- save -izmat- and -zmat- -----
+c
+         do i = 1, nzvar
+            zvarname(i) = ' '
+            zvarsign(i) = 1d0
+         enddo
+         if (.not. geom_zmt_put_data(geom, nizmat, izmat,
+     $        0, 0, nzvar, zvarname, zvarsign,'autoz'))
+     $        call errquit('geom_zmtmak: put data failed',0)
+c
+         geom_zmtmak = .true.
+         return
+      endif
+c     
+c     ----- now compress modified connectivity table -----
+c     
+      do iat=1,nat
+         if(nimods(iat).gt.0) then
+            numods=0
+            do i=iibond(iat)+1,iibond(iat)+nibond(iat)
+               if(ijmods(1,i).ne.0.and.ijmods(2,i).ne.0) then
+                  numods=numods+1
+                  ijmods(1,numods)=ijbnds(1,i)
+                  ijmods(2,numods)=ijbnds(2,i)
+               endif
+            enddo
+            if(nimods(iat).ne.numods) then
+               write(iw,9985) iat,nimods(iat),numods
+               call errquit('autoz: code logic error',0)
+            endif
+            iibond(iat)=iimods(iat)
+            nibond(iat)=iimods(iat)
+            endatm(iat)=endmod(iat)
+         endif
+      enddo
+c     
+c     ----- now we have only atoms with remaining connectivity -----
+c     of 2 or more. they belong to rings and bridges.
+c     
+      nuconn=0
+      do iat=1,nat
+         if(nimods(iat).gt.nuconn) then
+            nuconn=nimods(iat)
+         endif
+      enddo
+c     
+      if(nuconn.lt.2) then
+c     
+c     ----- we should have only ( > 2 ) connectivities -----
+c     
+         call errquit('autoz: nuconn < 2', nuconn)
+      elseif(nuconn.gt.3) then
+c     
+c     ----- -nuconn- > 3 .... not treated yet -----
+c     
+         call errquit('autoz: nuconn > 2', nuconn)
+c     
+      elseif(nuconn.eq.3) then
+c     
+c     ----- -nuconn- = 3 .... several rings , fused or not -----
+c     bridges as well.
+c     first , list out all the connectivity segments
+c     
+         nseg  =0
+         ianchr=0
+ 100     ianchr=ianchr+1
+         if(ianchr.gt.nat) then
+            go to 120
+         endif
+         if(nimods(ianchr).ne.3) then
+            go to 100
+         endif
+         do i=1,3
+            nseg=nseg+1
+            if(nseg.gt.mxseg) call errquit
+     $           ('autoz:too many segments from 3-connected atoms',nseg)
+c     
+            jatom=1
+            iatseg(jatom,nseg)=ianchr
+c     
+            iat=ianchr
+            jat=ijmods(2,iimods(iat)+i)
+ 110        jatom=jatom+1
+            iatseg(jatom,nseg)=jat
+            if(nimods(jat).eq.2) then
+               if(ijmods(2,iimods(jat)+1).ne.iat) then
+                  kat=ijmods(2,iimods(jat)+1)
+               else
+                  kat=ijmods(2,iimods(jat)+2)
+               endif
+               iat=jat
+               jat=kat
+               go to 110
+            elseif(nimods(jat).eq.3) then
+               lenseg(nseg)=jatom
+               if(jat.eq.ianchr) then
+                  namseg(nseg)=1
+               else
+                  namseg(nseg)=2
+               endif
+            else
+               call errquit('autoz : should have >= 2 connections',jat)
+            endif
+         enddo
+c     
+ 120     continue
+c     
+      elseif(nuconn.eq.2) then
+c     
+c     ----- -nuconn- = 2 .... disconnected rings -----
+c     
+         nseg  =0
+         ianchr=0
+ 200     ianchr=ianchr+1
+         if(ianchr.gt.nat) then
+            go to 220
+         endif
+         if(nimods(ianchr).ne.2) then
+            go to 200
+         endif
+         nseg =nseg+1
+         iatom=1
+         iatseg(iatom,nseg)=ianchr
+c     
+         iat=ianchr
+         jat=ijmods(2,iimods(iat)+1)
+ 210     iatom=iatom+1
+         iatseg(iatom,nseg)=jat
+         if(nimods(jat).eq.2) then
+            if(ijmods(2,iimods(jat)+1).ne.iat) then
+               kat=ijmods(2,iimods(jat)+1)
+            else
+               kat=ijmods(2,iimods(jat)+2)
+            endif
+            if(kat.ne.ianchr) then
+               iat=jat
+               jat=kat
+               go to 210
+            endif
+         else
+            call errquit('autoz: should have only two connections',jat)
+         endif
+         lenseg(nseg)=iatom
+c     
+ 220     continue
+c     
+      endif
+c     
+      geom_zmtmak = .false.
+      return                    ! failure
+c     
+c     get here if something went wrong and we are trying to recover
 c     by adjusting cvr_scaling.
 c     
 55555 continue
-      if (cvfac .lt. (cvr_scaling + 0.5d0)) then ! Used to be 2.5 upper bound
-         write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
- 9876    format(1x,i5,' AUTOZ failed with cvr_scaling =',f4.1,
+      if (cvfac .lt. (cvr_scaling + 0.5d0)) then ! used to be 2.5 upper bound
+         if (oprint) write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
+ 9876    format(1x,i5,' autoz failed with cvr_scaling =',f4.1,
      $        ' changing to',f4.1)
          cvfac = cvfac + 0.1d0
-         numijxtra = 0          ! Redefine extra bonds
+         numijxtra = 0          ! redefine extra bonds
          call ifill(2*mxbond, 0, ijxtra, 1)
          goto 10101
-      else
-         zdone = .false.
+      endif
+c
+c     Give up.  Punt to cartesians.
+c
+66666 zdone = .false.
+      if (oprint) write(6,5505) 
+ 5505 format(/' AUTOZ failed to generate good internal coordinates.',
+     $     /' Cartesian coordinates will be used in optimizations.'/)
+      return                    ! failure
+c     
+ 9999 format(' autoz: something is wrong. no bonds could be detected.')
+ 9998 format(' total number of bonds = ',i5)
+ 9997 format(1x,'atom   num. of bonds   first bond  endatm',/,
+     1     1x,41(1h-))
+ 9996 format(i5,6x,i5,5x,6x,i5,2x,4x,l1,3x)
+ 9995 format(' connectivity for atom -iat- = ',i4,' num.bonds = ',i5)
+ 9994 format(6(1h(,i4,1h,,i4,1h)))
+ 9993 format(' no covalent radius specified for one of these atoms = ',
+     1     2i5)
+ 9992 format(' iat,jat,iz,jz,rij,rcv,mbnds= ',2i4,2i4,2f10.3,3i5,l4)
+ 9991 format(/,' pass num. = ',i3,' out of ',i3,' pass(es) ')
+ 9990 format(/,' searching for a single ring ...')
+ 9988 format(/,' this routine does not handle -mxconn- .gt. 3. stop.')
+ 9987 format(/,' a ',i2,'-member ring was found. atoms are = ',/,20i4)
+ 9986 format(/,' atom ',i3,' should have two connections,',
+     1     ' and only two. stop.')
+ 9985 format(/,' error during compression of connectivity table',
+     1     ' for atom = ',i4,/,' nimods(iat), numods = ',2i5)
+ 9984 format(/,' searching for multiple rings and bridges ...')
+ 9981 format(/,' searching segment no. = ',i4)
+ 9980 format(/,' all 1-connectivity completed.')
+ 9979 format(16i4)
+ 9978 format(/,' atom ',i4,' has no connectivity left,',/,
+     1     ' but the code is trying to remove connection',
+     2     ' to atom ',i4,' . stop.')
+ 9976 format(2i5,3f10.6)
+ 9975 format(' forced bond inserted = ',3i5)
+ 9974 format(' bond removed = ',i5,' equivalent to = ',i5)
+ 8888 format(/,10x,6(1h-),/,10x,'auto-z',/,10x,6(1h-))
+ 8887 format(' some imposed bonds           in -zmtmak- ')
+ 8886 format('   no imposed bonds           in -zmtmak- ')
+ 8885 format(' some imposed angles          in -zmtmak- ')
+ 8884 format('   no imposed angles          in -zmtmak- ')
+ 8883 format(' some imposed torsions        in -zmtmak- ')
+ 8882 format('   no imposed torsions        in -zmtmak- ')
+ 8881 format(' some imposed o-o-plane-bends in -zmtmak- ')
+ 8880 format('   no imposed o-o-plane-bends in -zmtmak- ')
+ 8879 format(' some imposed linear-bends    in -zmtmak- ')
+ 8878 format('   no imposed linear-bends    in -zmtmak- ')
+ 8877 format(' zdone = ',l4)
+      end
+      subroutine geom_zmtbld(zdone,nzvar,nizmat,izmat,mxizmt,c,
+     1                      nat,nbnds,ijbnds,iibnds,nibnds,numbnd,
+     2                      ijkang,numang,ijklto,numtor,
+     3                      ijklop,numoop,
+     4                      ijklnb,numlnb,xyzlnb,
+     $     max_tor_per_bond, oprint)
+      implicit double precision (a-h,o-z)
+      parameter (mxatom=500)        
+      parameter (mxbnds= 8*mxatom)
+      parameter (mxangs= 8*mxatom)
+      parameter (mxtors= 8*mxatom)
+      parameter (mxoopa= 8*mxatom)
+      parameter (mxlinb= 8*mxatom)
+      logical     dbug
+      logical     out
+      logical     zdone, oprint
+*      logical     dooopa
+      logical     dolinb
+      integer iw
+      parameter (iw=6)
+      dimension c(3,*)
+      dimension izmat(*)   
+      dimension ijbnds(2,*)
+      dimension iibnds(  *)
+      dimension nibnds(  *)
+      dimension ijkang(3,*),ijklto(4,*),ijklop(4,*)
+      dimension ijklnb(4,*),xyzlnb(3,*)
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      if(dbug) then
+         write(iw,9999)
+      endif
+c
+      if(nat.le.1) then
+         zdone=.true.
          return
       endif
 c
- 9999 FORMAT(' AUTOZ: SOMETHING IS WRONG. NO BONDS COULD BE DETECTED.')
- 9998 FORMAT(' TOTAL NUMBER OF BONDS = ',I5)
- 9997 FORMAT(1X,'ATOM   NUM. OF BONDS   FIRST BOND  ENDATM',/,
-     1       1X,41(1H-))
- 9996 FORMAT(I5,6X,I5,5X,6X,I5,2X,4X,L1,3X)
- 9995 FORMAT(' CONNECTIVITY FOR ATOM -IAT- = ',I4,' NUM.BONDS = ',I5)
- 9994 FORMAT(6(1H(,I4,1H,,I4,1H)))
- 9993 FORMAT(' NO COVALENT RADIUS SPECIFIED FOR ONE OF THESE ATOMS = ',
-     1       2I5)
- 9992 FORMAT(' IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS= ',2I4,2I4,2F10.3,3I5,L4)
- 9991 FORMAT(/,' PASS NUM. = ',I3,' OUT OF ',I3,' PASS(ES) ')
- 9990 FORMAT(/,' SEARCHING FOR A SINGLE RING ...')
- 9989 FORMAT(/,' ILLEGAL -MXCONN- HERE, -MXCONN- = ',I3,' . STOP.')
- 9988 FORMAT(/,' THIS ROUTINE DOES NOT HANDLE -MXCONN- .GT. 3. STOP.')
- 9987 FORMAT(/,' A ',I2,'-MEMBER RING WAS FOUND. ATOMS ARE = ',/,20I4)
- 9986 FORMAT(/,' ATOM ',I3,' SHOULD HAVE TWO CONNECTIONS,',
-     1         ' AND ONLY TWO. STOP.')
- 9985 FORMAT(/,' ERROR DURING COMPRESSION OF CONNECTIVITY TABLE',
-     1         ' FOR ATOM = ',I4,/,' NIMODS(IAT), NUMODS = ',2I5)
- 9984 FORMAT(/,' SEARCHING FOR MULTIPLE RINGS AND BRIDGES ...')
- 9983 FORMAT(/,' TOO MANY SEGMENTS FROM 3-CONNECTED ATOMS.',
-     1         ' NSEG, MXSEG = ',2I4)
- 9982 FORMAT(/,' ATOM ',I3,' SHOULD HAVE AT LEAST TWO CONNECTIONS.',
-     1         ' STOP.')
- 9981 FORMAT(/,' SEARCHING SEGMENT NO. = ',I4)
- 9980 FORMAT(/,' ALL 1-CONNECTIVITY COMPLETED.')
- 9979 FORMAT(16I4)
- 9978 FORMAT(/,' ATOM ',I4,' HAS NO CONNECTIVITY LEFT,',/,
-     1         ' BUT THE CODE IS TRYING TO REMOVE CONNECTION',
-     2         ' TO ATOM ',I4,' . STOP.')
- 9977 FORMAT(' INCORRECT DATA IN NAMELIST -COORDI- . STOP .')
- 9976 FORMAT(2I5,3F10.6)
- 9975 FORMAT(' FORCED BOND INSERTED = ',3I5)
- 9974 FORMAT(' BOND REMOVED = ',I5,' EQUIVALENT TO = ',I5)
- 8888 FORMAT(/,10X,6(1H-),/,10X,'auto-z',/,10X,6(1H-))
- 8887 FORMAT(' SOME IMPOSED BONDS           IN -ZMTMAK- ')
- 8886 FORMAT('   NO IMPOSED BONDS           IN -ZMTMAK- ')
- 8885 FORMAT(' SOME IMPOSED ANGLES          IN -ZMTMAK- ')
- 8884 FORMAT('   NO IMPOSED ANGLES          IN -ZMTMAK- ')
- 8883 FORMAT(' SOME IMPOSED TORSIONS        IN -ZMTMAK- ')
- 8882 FORMAT('   NO IMPOSED TORSIONS        IN -ZMTMAK- ')
- 8881 FORMAT(' SOME IMPOSED O-O-PLANE-BENDS IN -ZMTMAK- ')
- 8880 FORMAT('   NO IMPOSED O-O-PLANE-BENDS IN -ZMTMAK- ')
- 8879 FORMAT(' SOME IMPOSED LINEAR-BENDS    IN -ZMTMAK- ')
- 8878 FORMAT('   NO IMPOSED LINEAR-BENDS    IN -ZMTMAK- ')
- 8877 FORMAT(' zdone = ',L4)
-      END
-      SUBROUTINE HND_ZMTBLD(ZDONE,NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND,
-     2                      IJKANG,NUMANG,IJKLTO,NUMTOR,
-     3                      IJKLOP,NUMOOP,
-     4                      IJKLNB,NUMLNB,XYZLNB,
-     $     max_tor_per_bond)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXANGS= 8*MXATOM)
-      PARAMETER (MXTORS= 8*MXATOM)
-      PARAMETER (MXOOPA= 8*MXATOM)
-      PARAMETER (MXLINB= 8*MXATOM)
-      LOGICAL     DBUG
-      LOGICAL     OUT
-      LOGICAL     ZDONE
-*      LOGICAL     DOOOPA
-      LOGICAL     DOLINB
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION C(3,*)
-      DIMENSION IZMAT(*)   
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION IJKANG(3,*),IJKLTO(4,*),IJKLOP(4,*)
-      DIMENSION IJKLNB(4,*),XYZLNB(3,*)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTBLD-'/
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-      ENDIF
-C
-      IF(NAT.LE.1) THEN
-         ZDONE=.TRUE.
-         RETURN
-      ENDIF
-C
-C     ----- BONDS -----
-C
-      CALL HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,mxizmt,
-     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND)
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,9995) NZVAR
-      ENDIF
-C
-C     ----- SOME CHECKS FOR DIATOMICS AND TRIATOMICS -----
-C
-      IF(NAT.EQ.2) THEN
-         IF(NZVAR.EQ.1) THEN
-            ZDONE=.TRUE. 
-            RETURN
-         ELSE
-            NZVAR=0
-            ZDONE=.FALSE.
-            RETURN
-         ENDIF
-      ENDIF
-      IF(NAT.EQ.3) THEN
-         IF(NZVAR.NE.2.AND.NZVAR.NE.3) THEN
-            NZVAR=0
-            ZDONE=.FALSE.
-            RETURN
-         ENDIF
-      ENDIF
-C
-C     ----- ANGLES -----
-C
-      DOLINB=.FALSE.
-      CALL HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
-     2                DOLINB)
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,9994) NZVAR
-      ENDIF
-C
-C     ----- MORE CHECKS FOR TRIATOMICS -----
-C
-      IF(NAT.EQ.3) THEN
-         IF(DOLINB) THEN
-            NZVAR=0
-            ZDONE=.FALSE.
-            RETURN
-         ENDIF
-      ENDIF
-C
-C     ----- TORSIONS -----
-C
-      CALL HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLTO,NUMTOR,
-     $     max_tor_per_bond)
-C
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,9993) NZVAR
-      ENDIF
-C
-c     RJH.  Michel says OOP were working, but generated far
+c     ----- bonds -----
+c
+      call hnd_zmtyp1(nzvar,nizmat,izmat,mxizmt,
+     1                nat,nbnds,ijbnds,iibnds,nibnds,numbnd)
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,9995) nzvar
+      endif
+c
+c     ----- some checks for diatomics and triatomics -----
+c
+      if(nat.eq.2) then
+         if(nzvar.eq.1) then
+            zdone=.true. 
+            return
+         else
+            nzvar=0
+            zdone=.false.
+            return
+         endif
+      endif
+      if(nat.eq.3) then
+         if(nzvar.ne.2.and.nzvar.ne.3) then
+            nzvar=0
+            zdone=.false.
+            return
+         endif
+      endif
+c
+c     ----- angles -----
+c
+      dolinb=.false.
+      zdone = .true.
+      call hnd_zmtyp2(nzvar,nizmat,izmat,mxizmt,c,
+     1                nat,nbnds,ijbnds,iibnds,nibnds,ijkang,numang,
+     2                dolinb, zdone, oprint)
+c
+      if (.not. zdone) return
+c
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,9994) nzvar
+      endif
+c
+c     ----- more checks for triatomics -----
+c
+      if(nat.eq.3) then
+         if(dolinb) then
+            nzvar=0
+            zdone=.false.
+            return
+         endif
+      endif
+c
+c     ----- torsions -----
+c
+      call hnd_zmtyp3(nzvar,nizmat,izmat,mxizmt,c,
+     1                nat,nbnds,ijbnds,iibnds,nibnds,ijklto,numtor,
+     $     max_tor_per_bond, zdone, oprint)
+      if (.not. zdone) return
+c
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,9993) nzvar
+      endif
+c
+c     rjh.  michel says oop were working, but generated far
 c     .     too many degrees of freedom to be useful.
 c
-c     .     The linear bends are not working but a fix 
+c     .     the linear bends are not working but a fix 
 c     .     could be to include a point(s) at some distance
 c     .     and just use the regular bends.
 c
-c     .     In the meantime just punt after the torsions
+c     .     in the meantime just punt after the torsions
 c     .     and then analyze the generated coordinates to
 c     .     make sure that we have at least (3n-6) linearly
 c     .     independent coordinates.
 c
-c$$$      DOOOPA=.FALSE.
-c$$$      IF(DOOOPA) THEN
-c$$$C
-c$$$C     ----- OUT-OF-PLANE BENDS -----
-c$$$C
-c$$$         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,mxizmt,
-c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
-c$$$         IF(DBUG) THEN
-c$$$            WRITE(IW,9998)
-c$$$            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-c$$$            WRITE(IW,9996)
-c$$$            WRITE(IW,9992) NZVAR
-c$$$         ENDIF
-c$$$      ENDIF
-c$$$C
-c$$$C     ----- LINEAR BENDS -----
-c$$$C
-c$$$      IF(DOLINB) THEN
-c$$$         CALL HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-c$$$     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-c$$$     2                   IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
-c$$$         IF(DBUG) THEN
-c$$$            WRITE(IW,9998)
-c$$$            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-c$$$            WRITE(IW,9996)
-c$$$            WRITE(IW,9991) NZVAR
-c$$$         ENDIF
-c$$$         ZDONE=.FALSE.
-c$$$         RETURN
-c$$$      ENDIF
-C
-C     ----- DONE -----
-C
-      IF(NZVAR.LT.3*NAT-6) THEN
-         ZDONE=.FALSE.
-      ELSE
-         ZDONE=.TRUE.
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' IN -ZMTBLD- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
- 9995 FORMAT(' AFTER -ZMTYP1- , NZVAR = ',I5)
- 9994 FORMAT(' AFTER -ZMTYP2- , NZVAR = ',I5)
- 9993 FORMAT(' AFTER -ZMTYP3- , NZVAR = ',I5)
- 9992 FORMAT(' AFTER -ZMTYP4- , NZVAR = ',I5)
- 9991 FORMAT(' AFTER -ZMTYP5- , NZVAR = ',I5)
-      END
-      SUBROUTINE HND_ZMTYP1(NZVAR,NIZMAT,IZMAT,mxizmt,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,NUMBND)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (IONE=1)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      LOGICAL     DBUG
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION IZMAT(*)   
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP1-'/
-C
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-      ENDIF
-C
-      NBOND=NBNDS
-      DO IJBND=1,NBOND
-         IJBOND(1,IJBND)=IJBNDS(1,IJBND)
-         IJBOND(2,IJBND)=IJBNDS(2,IJBND)
-      ENDDO
-      DO IAT=1,NAT
-         IIBOND(IAT)=IIBNDS(IAT)
-         NIBOND(IAT)=NIBNDS(IAT)
-      ENDDO
-C
-      IF(NAT.LE.1) RETURN
-C
-C     ----- BONDS -----
-C
-      NBND=NBOND
-      DO IBND=1,NBND
-         II=IJBOND(1,IBND)
-         IJ=IJBOND(2,IBND)
-         IF(II.NE.0) THEN
-            IF(IBND.LT.NBND) THEN
-               DO JBND=IBND+1,NBND
-                  JI=IJBOND(1,JBND)
-                  JJ=IJBOND(2,JBND)
-                  IF(JI.NE.0) THEN
-                     IF((JI.EQ.II.AND.JJ.EQ.IJ).OR.        
-     1                  (JI.EQ.IJ.AND.JJ.EQ.II)    ) THEN
-                        IJBOND(1,JBND)=0
-                        IJBOND(2,JBND)=0
-                     ENDIF
-                  ENDIF
-               ENDDO
-            ENDIF
+c$$$      dooopa=.false.
+c$$$      if(dooopa) then
+c$$$c
+c$$$c     ----- out-of-plane bends -----
+c$$$c
+c$$$         call hnd_zmtyp4(nzvar,nizmat,izmat,mxizmt,
+c$$$     1                   nat,nbnds,ijbnds,iibnds,nibnds,ijklop,numoop)
+c$$$         if(dbug) then
+c$$$            write(iw,9998)
+c$$$            write(iw,9997) (izmat(i),i=1,nizmat)
+c$$$            write(iw,9996)
+c$$$            write(iw,9992) nzvar
+c$$$         endif
+c$$$      endif
+c$$$c
+c$$$c     ----- linear bends -----
+c$$$c
+c$$$      if(dolinb) then
+c$$$         call hnd_zmtyp5(nzvar,nizmat,izmat,mxizmt,c,
+c$$$     1                   nat,nbnds,ijbnds,iibnds,nibnds,
+c$$$     2                   ijklnb,numlnb,xyzlnb,ijkang,numang)
+c$$$         if(dbug) then
+c$$$            write(iw,9998)
+c$$$            write(iw,9997) (izmat(i),i=1,nizmat)
+c$$$            write(iw,9996)
+c$$$            write(iw,9991) nzvar
+c$$$         endif
+c$$$         zdone=.false.
+c$$$         return
+c$$$      endif
+c
+c     ----- done -----
+c
+      if (nzvar .lt. max(1,3*nat-6)) then
+         write(6,*) ' autoz: insufficient variables ',nzvar,3*nat-6
+         zdone=.false.
+      else
+         zdone=.true.
+      endif
+c
+      return
+ 9999 format(' in -zmtbld- ',/,' ----------- ')
+ 9998 format(' $zmat  ',/,' izmat= ')
+ 9997 format(12(i4,1h,))
+ 9996 format(' $end   ')
+ 9995 format(' after -zmtyp1- , nzvar = ',i5)
+ 9994 format(' after -zmtyp2- , nzvar = ',i5)
+ 9993 format(' after -zmtyp3- , nzvar = ',i5)
+ 9992 format(' after -zmtyp4- , nzvar = ',i5)
+ 9991 format(' after -zmtyp5- , nzvar = ',i5)
+      end
+      subroutine hnd_zmtyp1(nzvar,nizmat,izmat,mxizmt,
+     1                      nat,nbnds,ijbnds,iibnds,nibnds,numbnd)
+      implicit double precision (a-h,o-z)
+      parameter (ione=1)
+      parameter (mxatom=500)        
+      parameter (mxbnds= 8*mxatom)
+      logical     dbug
+      integer iw
+      parameter (iw=6)
+      dimension izmat(*)   
+      dimension ijbond(2,mxbnds)
+      dimension iibond(  mxatom)
+      dimension nibond(  mxatom)
+      dimension ijbnds(2,*)
+      dimension iibnds(  *)
+      dimension nibnds(  *)
+c
+      dbug=.false.
+      if(dbug) then
+         write(iw,9999)
+      endif
+c
+      nbond=nbnds
+      do ijbnd=1,nbond
+         ijbond(1,ijbnd)=ijbnds(1,ijbnd)
+         ijbond(2,ijbnd)=ijbnds(2,ijbnd)
+      enddo
+      do iat=1,nat
+         iibond(iat)=iibnds(iat)
+         nibond(iat)=nibnds(iat)
+      enddo
+c
+      if(nat.le.1) return
+c
+c     ----- bonds -----
+c
+      nbnd=nbond
+      do ibnd=1,nbnd
+         ii=ijbond(1,ibnd)
+         ij=ijbond(2,ibnd)
+         if(ii.ne.0) then
+            if(ibnd.lt.nbnd) then
+               do jbnd=ibnd+1,nbnd
+                  ji=ijbond(1,jbnd)
+                  jj=ijbond(2,jbnd)
+                  if(ji.ne.0) then
+                     if((ji.eq.ii.and.jj.eq.ij).or.        
+     1                  (ji.eq.ij.and.jj.eq.ii)    ) then
+                        ijbond(1,jbnd)=0
+                        ijbond(2,jbnd)=0
+                     endif
+                  endif
+               enddo
+            endif
             if (nizmat+3 .gt. mxizmt) call errquit
      $           ('autoz bonds: too many internals',0)
-             IZMAT(NIZMAT+1)=IONE
-             IZMAT(NIZMAT+2)=II
-             IZMAT(NIZMAT+3)=IJ   
-            NIZMAT=NIZMAT+3
-            NZVAR =NZVAR +1
-            NUMBND=NUMBND+1
-         ENDIF
-      ENDDO
-C
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,*)    'NZVAR = ',NZVAR
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' IN -ZMTYP1- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
-      END
-      SUBROUTINE HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1     NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
-     2     DOLINB)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (ITWO=2)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXANGS= 8*MXATOM)
-      LOGICAL     DBUG
-      LOGICAL     DOLINB
-      LOGICAL     LINBND
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION C(3,*)
-      DIMENSION IZMAT(*)   
-      DIMENSION IJKANG(3,*)     
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP2-'/
+             izmat(nizmat+1)=ione
+             izmat(nizmat+2)=ii
+             izmat(nizmat+3)=ij   
+            nizmat=nizmat+3
+            nzvar =nzvar +1
+            numbnd=numbnd+1
+         endif
+      enddo
+c
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,*)    'nzvar = ',nzvar
+      endif
+c
+      return
+ 9999 format(' in -zmtyp1- ',/,' ----------- ')
+ 9998 format(' $zmat  ',/,' izmat= ')
+ 9997 format(12(i4,1h,))
+ 9996 format(' $end   ')
+      end
+      subroutine hnd_zmtyp2(nzvar,nizmat,izmat,mxizmt,c,
+     1     nat,nbnds,ijbnds,iibnds,nibnds,ijkang,numang,
+     2     dolinb, zdone, oprint)
+      implicit double precision (a-h,o-z)
+      parameter (itwo=2)
+      parameter (mxatom=500)        
+      parameter (mxbnds= 8*mxatom)
+      parameter (mxangs= 8*mxatom)
+      logical     dbug
+      logical     dolinb
+      logical     zdone
+      logical     linbnd
+      integer iw
+      parameter (iw=6)
+      dimension c(3,*)
+      dimension izmat(*)   
+      dimension ijkang(3,*)     
+      dimension ijbond(2,mxbnds)
+      dimension iibond(  mxatom)
+      dimension nibond(  mxatom)
+      dimension ijbnds(2,*)
+      dimension iibnds(  *)
+      dimension nibnds(  *)
       data tol    /1.0d-01/     ! 5.7 degrees
-*     DATA TOL    /1.0D-08/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-C     
-      DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
-     1     (C(2,IAT)-C(2,JAT))**2+
-     2     (C(3,IAT)-C(3,JAT))**2
-      DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
-     1     (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
-     2     (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
-C     
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-      ENDIF
-C     
-C     ----- ANGLES -----
-C     
-      NBOND=NBNDS
-      DO IJBND=1,NBOND
-         IJBOND(1,IJBND)=IJBNDS(1,IJBND)
-         IJBOND(2,IJBND)=IJBNDS(2,IJBND)
-      ENDDO
-      DO IAT=1,NAT
-         IIBOND(IAT)=IIBNDS(IAT)
-         NIBOND(IAT)=NIBNDS(IAT)
-      ENDDO
-C     
-      IF(NAT.LE.2) RETURN
-C     
-      NANG=0
-      DO IAT=1,NAT
-         DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
-            ICON=IJBOND(1,IJBND)
-            JCON=IJBOND(2,IJBND)
-            IF(ICON.NE.IAT) THEN
-               WRITE(IW,9995) IJBND,IAT,ICON,JCON
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            JAT=JCON
-            IF(NIBOND(JAT).GT.1) THEN
-               DO JKBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
-                  JCON=IJBOND(1,JKBND)
-                  KCON=IJBOND(2,JKBND)
-                  IF(JCON.NE.JAT) THEN
-                     WRITE(IW,9995) JKBND,JAT,JCON,KCON
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
-                  KAT=KCON
-                  IF(KAT.NE.IAT) THEN
-                     rijsq=distsq(iat,jat)
-                     rij  =sqrt(rijsq)                          
-                     rjksq=distsq(jat,kat)
-                     rjk  =sqrt(rjksq)                           
-                     riksq=distsq(iat,kat)
-                     cosb =(rijsq+rjksq-riksq)/(two*rij*rjk)
-                     linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
-                     if (linbnd .and. nibond(jat).eq.2) then
-c
-c     IJK is (nearly) linear.  If J is only bonded to I & K
-c     then try to generate IKL where L is bonded to K.
-c     Note we'll generate KJI at another time and also KIM, where M
-c     is bonded to I.
-c
-                        do klbnd=iibond(kat)+1,iibond(kat)+nibond(kat)
-                           lat = ijbond(2,klbnd)
-                           if (lat.ne.iat .and. lat.ne.jat) then
-                              riksq=distsq(iat,kat)
-                              rik  =sqrt(riksq)                          
-                              rklsq=distsq(kat,lat)
-                              rkl  =sqrt(rklsq)                           
-                              rilsq=distsq(iat,lat)
-                              cosb =(riksq+rklsq-rilsq)/(two*rik*rkl)
-                              linbnd = sin(acos(min(1d0,abs(cosb)))) 
-     $                             .le. tol
-                              if (linbnd) then
-                                 if (nibond(kat) .eq. 2) then
-c
-c     Darn it.  IKL is also (nearly) linear and there is only one
-c     choice for L.  Try ILM.  Could be even more open-ended but not
+*     data tol    /1.0d-08/
+      data zero   /0.0d+00/
+      data one    /1.0d+00/
+      data two    /2.0d+00/
+c     
+      distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
+     1     (c(2,iat)-c(2,jat))**2+
+     2     (c(3,iat)-c(3,jat))**2
+      dotprd(iat,jat,kat)=(c(1,iat)-c(1,jat))*(c(1,kat)-c(1,jat))+
+     1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
+     2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
+c     
+      dbug=.false.
+      if(dbug) then
+         write(iw,9999)
+      endif
+c     
+c     ----- angles -----
+c     
+      nbond=nbnds
+      do ijbnd=1,nbond
+         ijbond(1,ijbnd)=ijbnds(1,ijbnd)
+         ijbond(2,ijbnd)=ijbnds(2,ijbnd)
+      enddo
+      do iat=1,nat
+         iibond(iat)=iibnds(iat)
+         nibond(iat)=nibnds(iat)
+      enddo
+c     
+      zdone = .true.
+      if(nat.le.2) return
+c     
+      nang=0
+      do iat=1,nat
+         do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
+            icon=ijbond(1,ijbnd)
+            jcon=ijbond(2,ijbnd)
+            if(icon.ne.iat)
+     $           call errquit('autoz: invalid connection',1)
+            jat=jcon
+            do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+               jcon=ijbond(1,jkbnd)
+               kcon=ijbond(2,jkbnd)
+               if(jcon.ne.jat)
+     $              call errquit('autoz: invalid connection',2)
+               kat=kcon
+               if(kat.ne.iat) then
+                  rijsq=distsq(iat,jat)
+                  rij  =sqrt(rijsq)                          
+                  rjksq=distsq(jat,kat)
+                  rjk  =sqrt(rjksq)                           
+                  riksq=distsq(iat,kat)
+                  cosb =(rijsq+rjksq-riksq)/(two*rij*rjk)
+                  linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
+                  if (linbnd .and. nibond(jat).eq.2) then
+c     
+c     ijk is (nearly) linear.  if j is only bonded to i & k
+c     then try to generate ikl where l is bonded to k.
+c     note we'll generate kji at another time and also kim, where m
+c     is bonded to i.
+c     
+                     do klbnd=iibond(kat)+1,iibond(kat)+nibond(kat)
+                        lat = ijbond(2,klbnd)
+                        if (lat.ne.iat .and. lat.ne.jat) then
+                           riksq=distsq(iat,kat)
+                           rik  =sqrt(riksq)                          
+                           rklsq=distsq(kat,lat)
+                           rkl  =sqrt(rklsq)                           
+                           rilsq=distsq(iat,lat)
+                           cosb =(riksq+rklsq-rilsq)/(two*rik*rkl)
+                           linbnd = sin(acos(min(1d0,abs(cosb)))) 
+     $                          .le. tol
+                           if (linbnd) then
+                              if (nibond(kat) .eq. 2) then
+c     
+c     darn it.  ikl is also (nearly) linear and there is only one
+c     choice for l.  try ilm.  could be even more open-ended but not
 c     necessary (?).
-c
-                                    do lmbnd=iibond(lat)+1,
-     $                                   iibond(lat)+nibond(lat)
-                                       mat = ijbond(2,lmbnd)
-                                       if (mat.ne.iat .and. mat.ne.jat
-     $                                      .and. mat.ne.kat) then
-c
-c     Logic needed here to check for linear just in case !!!!!!!!!!!!
-c
-                                          if(nang.eq.mxangs)call errquit
-     $                                         ('autoz:too many angles',
-     $                                         nang)
-                                          nang=nang+1
-                                          ijkang(1,nang)=iat
-                                          ijkang(2,nang)=lat
-                                          ijkang(3,nang)=mat
-                                       endif
-                                    enddo
+c     
+                                 nfound = 0
+                                 do lmbnd=iibond(lat)+1,
+     $                                iibond(lat)+nibond(lat)
+                                    mat = ijbond(2,lmbnd)
+                                    if (mat.ne.iat .and. mat.ne.jat
+     $                                   .and. mat.ne.kat) then
+c     
+c     logic needed here to check for linear just in case !!!!!!!!!!!!
+c     
+                                       if(nang.eq.mxangs) goto 808
+                                       nfound = nfound + 1
+                                       nang=nang+1
+                                       ijkang(1,nang)=iat
+                                       ijkang(2,nang)=lat
+                                       ijkang(3,nang)=mat
+                                    endif
+                                 enddo
+                                 if ( nfound.eq.0 .and. 
+     $                                nibond(iat).eq.1 ) then
+c     
+c     No connection was found and no alternatives for I
+c     
+                                    if (oprint) write(6,*)
+     $                                   ' autoz: angle generation',
+     $                                   ' failed due to 4 colinear',
+     $                                   ' atoms ', iat, jat, kat, lat
+                                    zdone = .false.
+                                    return
                                  endif
-                              else 
-                                 if(nang.eq.mxangs) call errquit
-     $                                ('autoz: too many angles',nang)
-                                 nang=nang+1
-                                 ijkang(1,nang)=iat
-                                 ijkang(2,nang)=kat
-                                 ijkang(3,nang)=lat
                               endif
+                           else 
+                              if(nang.eq.mxangs) goto 808
+                              nang=nang+1
+                              ijkang(1,nang)=iat
+                              ijkang(2,nang)=kat
+                              ijkang(3,nang)=lat
                            endif
-                        enddo
-                     else
-                        IF(NANG.EQ.MXANGS) THEN
-                           WRITE(IW,*) 'TOO MANY BOND ANGLES',
-     1                          ' NANG,MXANG = ',NANG,MXANGS
-                           CALL HND_HNDERR(3,ERRMSG)
-                        ENDIF
-                        NANG=NANG+1
-                        IJKANG(1,NANG)=IAT
-                        IJKANG(2,NANG)=JAT
-                        IJKANG(3,NANG)=KAT
+                        endif
+                     enddo
+                  else
+                     if(nang.eq.mxangs) goto 808
+                     nang=nang+1
+                     ijkang(1,nang)=iat
+                     ijkang(2,nang)=jat
+                     ijkang(3,nang)=kat
+                  endif
+               endif
+            enddo
+         enddo
+      enddo
+      if(dbug) then
+         if(nang.gt.1) then
+            write(iw,9994)
+            do mang=1,nang
+               write(iw,9993) mang,ijkang(1,mang),
+     1              ijkang(2,mang),ijkang(3,mang)
+            enddo
+         else
+            write(iw,9992)
+         endif
+      endif
+c     
+c     ----- eliminate duplicates and clean up -----
+c     
+      if(nang.ge.2) then
+         do iang=1,nang-1
+            ii=ijkang(1,iang)
+            ij=ijkang(2,iang)
+            ik=ijkang(3,iang)
+            if(ijkang(1,iang).ne.0) then
+               do jang=iang+1,nang
+                  ji=ijkang(1,jang)
+                  jj=ijkang(2,jang)
+                  jk=ijkang(3,jang)
+                  if(jj.eq.ij) then
+                     if((ii.eq.ji.and.ik.eq.jk).or.
+     1                    (ii.eq.jk.and.ik.eq.ji)    ) then
+                        ijkang(1,jang)=0
+                        ijkang(2,jang)=0
+                        ijkang(3,jang)=0
                      endif
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDDO
-      IF(DBUG) THEN
-         IF(NANG.GT.1) THEN
-            WRITE(IW,9994)
-            DO MANG=1,NANG
-               WRITE(IW,9993) MANG,IJKANG(1,MANG),
-     1              IJKANG(2,MANG),IJKANG(3,MANG)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C     
-C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
-C     
-      IF(NANG.GE.2) THEN
-         DO IANG=1,NANG-1
-            II=IJKANG(1,IANG)
-            IJ=IJKANG(2,IANG)
-            IK=IJKANG(3,IANG)
-            IF(IJKANG(1,IANG).NE.0) THEN
-               DO JANG=IANG+1,NANG
-                  JI=IJKANG(1,JANG)
-                  JJ=IJKANG(2,JANG)
-                  JK=IJKANG(3,JANG)
-                  IF(JJ.EQ.IJ) THEN
-                     IF((II.EQ.JI.AND.IK.EQ.JK).OR.
-     1                    (II.EQ.JK.AND.IK.EQ.JI)    ) THEN
-                        IJKANG(1,JANG)=0
-                        IJKANG(2,JANG)=0
-                        IJKANG(3,JANG)=0
-                     ENDIF
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDIF
-C     
-      IANG=0
- 100  IANG=IANG+1
-      IF(IANG.GT.NANG) GO TO 110
-      IF(IJKANG(1,IANG).EQ.0) THEN
-         IF(IANG.LT.NANG) THEN
-            DO JANG=IANG+1,NANG
-               IJKANG(1,JANG-1)=IJKANG(1,JANG)
-               IJKANG(2,JANG-1)=IJKANG(2,JANG)
-               IJKANG(3,JANG-1)=IJKANG(3,JANG)
-            ENDDO
-            IANG=IANG-1
-         ENDIF
-         NANG=NANG-1
-      ELSE
-         RIJSQ=DISTSQ(IJKANG(1,IANG),IJKANG(2,IANG))
-         RIJ  =SQRT(RIJSQ)                          
-         RJKSQ=DISTSQ(IJKANG(2,IANG),IJKANG(3,IANG))
-         RJK  =SQRT(RJKSQ)                           
-         RIKSQ=DISTSQ(IJKANG(1,IANG),IJKANG(3,IANG))
-         COSB =(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
+                  endif
+               enddo
+            endif
+         enddo
+      endif
+c     
+      iang=0
+ 100  iang=iang+1
+      if(iang.gt.nang) go to 110
+      if(ijkang(1,iang).eq.0) then
+         if(iang.lt.nang) then
+            do jang=iang+1,nang
+               ijkang(1,jang-1)=ijkang(1,jang)
+               ijkang(2,jang-1)=ijkang(2,jang)
+               ijkang(3,jang-1)=ijkang(3,jang)
+            enddo
+            iang=iang-1
+         endif
+         nang=nang-1
+      else
+         rijsq=distsq(ijkang(1,iang),ijkang(2,iang))
+         rij  =sqrt(rijsq)                          
+         rjksq=distsq(ijkang(2,iang),ijkang(3,iang))
+         rjk  =sqrt(rjksq)                           
+         riksq=distsq(ijkang(1,iang),ijkang(3,iang))
+         cosb =(rijsq+rjksq-riksq)/(two*rij*rjk)
          linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
          if (linbnd) dolinb = .true.
-c$$$  DUM  =ABS(COSB)-ONE
-c$$$  IF(DUM.GT.ZERO) THEN
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINBND=.TRUE.
-c$$$  DOLINB=DOLINB.OR.LINBND
-c$$$  ELSE
-c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-c$$$  CALL HND_HNDERR(3,ERRMSG)
-c$$$  ENDIF
-c$$$  ELSE
-c$$$  DUM=-DUM
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINBND=.TRUE.
-c$$$  DOLINB=DOLINB.OR.LINBND
-c$$$  ELSE
-c$$$  LINBND=.FALSE.
-c$$$  ENDIF
-c$$$  ENDIF
-         IF(.NOT.LINBND) THEN
-            if (nizmat+4 .gt. mxizmt) call errquit
-     $           ('autoz angles: too many internals ... reduce '//
-     $           'cvr_scaling or individual radii',0)
-            IZMAT(NIZMAT+1)=ITWO
-            IZMAT(NIZMAT+2)=IJKANG(1,IANG)
-            IZMAT(NIZMAT+3)=IJKANG(2,IANG)
-            IZMAT(NIZMAT+4)=IJKANG(3,IANG)
-            NIZMAT=NIZMAT+4
-            NZVAR =NZVAR +1
-            NUMANG=NUMANG+1
+         if(.not.linbnd) then
+            if (nizmat+4 .gt. mxizmt) goto 808
+            izmat(nizmat+1)=itwo
+            izmat(nizmat+2)=ijkang(1,iang)
+            izmat(nizmat+3)=ijkang(2,iang)
+            izmat(nizmat+4)=ijkang(3,iang)
+            nizmat=nizmat+4
+            nzvar =nzvar +1
+            numang=numang+1
          else
-            write(6,303) ijkang(1,iang), ijkang(2,iang), ijkang(3,iang), 
-     $           linbnd
- 303        format(' rejecting bond angle due to linearity ',
-     $           (2x,3i4,2x,l1))
-         ENDIF
-      ENDIF
-      GO TO 100
- 110  CONTINUE
-C     
-      IF(DBUG) THEN
-         IF(NANG.GT.1) THEN
-            WRITE(IW,9994)
-            DO MANG=1,NANG
-               WRITE(IW,9993) MANG,IJKANG(1,MANG),
-     1              IJKANG(2,MANG),IJKANG(3,MANG)
-            ENDDO
-            IF(DOLINB) THEN
-               WRITE(IW,9991)
-            ENDIF
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C     
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,*)    'NZVAR = ',NZVAR
-      ENDIF
-C     
-      RETURN
- 9999 FORMAT(' IN -ZMTYP2- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
- 9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
-     1     ' WITH -ICON-, -JCON- = ',2I5)
- 9994 FORMAT(' TABLE OF ANGLES = ')
- 9993 FORMAT(4I5)
- 9992 FORMAT(' NO BOND ANGLES FOUND ')
- 9991 FORMAT(' COLLINEAR ATOMS FOUND. DO -LINEAR BENDS- ... ')
-      END
-      SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1     numatom,NBNDS,IJBNDS,IIBNDS,NIBNDS, ! note rename nat -> numatom
-     2     IJKLTO,NUMTOR, max_tor_per_bond)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (ITHREE=3)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXTORS= 8*MXATOM)
-      LOGICAL     DBUG
-      LOGICAL     LINIJK,LINJKL
-      logical odoit
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION C(3,*)
-      DIMENSION IZMAT(*)   
-      DIMENSION IJKLTO(4,*)      
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP3-'/
-      data tol    /1.0d-01/     ! sin(5.7 degrees) = 0.1
-*     DATA TOL    /1.0D-08/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-C     
-      DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
-     1     (C(2,IAT)-C(2,JAT))**2+
-     2     (C(3,IAT)-C(3,JAT))**2
-      DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
-     1     (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
-     2     (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
-C     
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-      ENDIF
+*            write(6,303) ijkang(1,iang), ijkang(2,iang), ijkang(3,iang), 
+*     $           linbnd
+* 303        format(' rejecting bond angle due to linearity ',
+*     $           (2x,3i4,2x,l1))
+         endif
+      endif
+      go to 100
+ 110  continue
 c     
-C     ----- TORSIONS -----
-C     
-      NBOND=NBNDS
-      DO IJBND=1,NBOND
-         IJBOND(1,IJBND)=IJBNDS(1,IJBND)
-         IJBOND(2,IJBND)=IJBNDS(2,IJBND)
-      ENDDO
-      DO IAT=1,numatom
-         IIBOND(IAT)=IIBNDS(IAT)
-         NIBOND(IAT)=NIBNDS(IAT)
-      ENDDO
-C     
+      if(dbug) then
+         if(nang.gt.1) then
+            write(iw,9994)
+            do mang=1,nang
+               write(iw,9993) mang,ijkang(1,mang),
+     1              ijkang(2,mang),ijkang(3,mang)
+            enddo
+            if(dolinb) then
+               write(iw,9991)
+            endif
+         else
+            write(iw,9992)
+         endif
+      endif
+c     
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,*)    'nzvar = ',nzvar
+      endif
+c     
+      zdone = .true.
+      return
+c     
+c     Jump here if have too many of something
+ 808  if (oprint) write(6,*)' autoz: too many angles'
+      ofail = .true.
+      return
+c     
+ 9999 format(' in -zmtyp2- ',/,' ----------- ')
+ 9998 format(' $zmat  ',/,' izmat= ')
+ 9997 format(12(i4,1h,))
+ 9996 format(' $end   ')
+ 9995 format(' something wrong with bond ',i2,' of atom ',i4,
+     1     ' with -icon-, -jcon- = ',2i5)
+ 9994 format(' table of angles = ')
+ 9993 format(4i5)
+ 9992 format(' no bond angles found ')
+ 9991 format(' collinear atoms found. do -linear bends- ... ')
+      end
+      subroutine hnd_zmtyp3(nzvar,nizmat,izmat,mxizmt,c,
+     1     numatom,nbnds,ijbnds,iibnds,nibnds, ! note rename nat -> numatom
+     2     ijklto,numtor, max_tor_per_bond, zdone, oprint)
+      implicit double precision (a-h,o-z)
+      parameter (ithree=3)
+      parameter (mxatom=500)        
+      parameter (mxbnds= 8*mxatom)
+      parameter (mxtors= 8*mxatom)
+      logical     dbug
+      logical     linijk,linjkl
+      logical odoit
+      logical zdone, oprint
+      logical geom_add_tor
+      integer iw
+      parameter (iw=6)
+      dimension c(3,*)
+      dimension izmat(*)   
+      dimension ijklto(4,*)      
+      dimension ijbond(2,mxbnds)
+      dimension iibond(  mxatom)
+      dimension nibond(  mxatom)
+      dimension ijbnds(2,*)
+      dimension iibnds(  *)
+      dimension nibnds(  *)
+      data tol    /1.0d-01/     ! sin(5.7 degrees) = 0.1
+*     data tol    /1.0d-08/
+      data zero   /0.0d+00/
+      data one    /1.0d+00/
+      data two    /2.0d+00/
+c     
+      distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
+     1     (c(2,iat)-c(2,jat))**2+
+     2     (c(3,iat)-c(3,jat))**2
+      dotprd(iat,jat,kat)=(c(1,iat)-c(1,jat))*(c(1,kat)-c(1,jat))+
+     1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
+     2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
+c     
+      dbug=.false.
+      if(dbug) then
+         write(iw,9999)
+      endif
+c     
+c     ----- torsions -----
+c     
+      nbond=nbnds
+      do ijbnd=1,nbond
+         ijbond(1,ijbnd)=ijbnds(1,ijbnd)
+         ijbond(2,ijbnd)=ijbnds(2,ijbnd)
+      enddo
+      do iat=1,numatom
+         iibond(iat)=iibnds(iat)
+         nibond(iat)=nibnds(iat)
+      enddo
+c     
       ntor=0
-      IF(numatom.LE.3) RETURN
-C     
+      if(numatom.le.3) return
+c     
       if (max_tor_per_bond .eq. 0) return
 c     
-c     Currently construct the torsions from the bond info.
-c     It might be easier if we instead drove off the angle info
+c     currently construct the torsions from the bond info.
+c     it might be easier if we instead drove off the angle info
 c     since we already know that the angles are good and much
 c     of the same logic is reproduced here.
-c
+c     
       do iat=1,numatom
          do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
             jat=ijbond(2,ijbnd)
@@ -4121,7 +2645,7 @@ c
                      if(ijbond(1,klbnd).ne.kat) 
      $                    call errquit('zmtyp3: kat not my bond?',klbnd)
 c     
-c     (H2O)5 test case showed some logic was missing.  Also, can avoid
+c     (h2o)5 test case showed some logic was missing.  also, can avoid
 c     generating some duplicates by restricting i>l unless are restricting 
 c     to a subset of the torsions or have linear angles.
 c     
@@ -4139,67 +2663,75 @@ c
 c     
                         if (linijk .and. linjkl) then
 c     
-c     Both bonds are linear.  Go fishing for ILMN.
+c     both bonds are linear.  go fishing for ilmn.  also add ijml
+c     which is needed for h-c-c-h-X (x not colinear)
 c     
-                           write(6,*) ' Four colinear centers ',
-     $                          iat, jat, kat, lat
+*                           write(6,*) ' four colinear centers ',
+*     $                          iat, jat, kat, lat
                            do lmbnd=iibond(lat)+1,
      $                          iibond(lat)+nibond(lat)
                               mat=ijbond(2,lmbnd)
                               if (mat.ne.iat .and. mat.ne.jat
      $                             .and. mat.ne.kat) then
+                                 if (.not. geom_add_tor(
+     $                                iat,jat,mat,lat,
+     $                                ntor, ijklto, mxtors, 
+     $                                ntor_for_ij)) goto 8000
                                  do mnbnd=iibond(mat)+1,
      $                                iibond(mat)+nibond(mat)
                                     nat=ijbond(2,mnbnd)
                                     if (nat.ne.iat .and. nat.ne.jat
      $                                   .and. nat.ne.kat .and.
      $                                   nat.ne.lat) then
-                                       write(6,*) ' Colinear IJKL -',
-     $                                      ' use ILMN', 
-     $                                iat, jat, kat, lat, mat, nat
-                                       call geom_add_tor(
+*     write(6,*) ' colinear ijkl -',
+*     $                                      ' use ilmn', 
+*     $                                   iat, jat, kat, lat, mat, nat
+                                       if (.not. geom_add_tor(
      $                                      iat,lat,mat,nat,
      $                                      ntor, ijklto, mxtors, 
-     $                                      ntor_for_ij)
+     $                                      ntor_for_ij)) goto 8000
                                     endif
                                  enddo
                               endif
                            enddo
                         else if (linijk) then
 c     
-c     IJK is linear.  Instead of IJKL use IJLK.  Don't do this
-c     now since it will be done as LKJI.
+c     ijk is linear.  instead of ijkl use ijlk.  don't do this
+c     now since it will be done as lkji.
 c     
                            continue
-c$$$  write(6,*) ' Linear IJK ', iat, jat, kat, lat
+c$$$  write(6,*) ' linear ijk ', iat, jat, kat, lat
 c$$$  iii = iat
 c$$$  jjj = jat
 c$$$  kkk = lat
 c$$$  lll = kat
                         else if (linjkl) then
 c     
-c     JKL is linear.  First try IJLM where M is bonded to L.
-c     Also add JIKL.  Fails jeff.nw without this.
+c     jkl is linear.  first try ijlm where m is bonded to l.
+c     also add jikl.  fails jeff.nw without this.
 c     
                            do lmbnd=iibond(lat)+1,
      $                          iibond(lat)+nibond(lat)
                               mat=ijbond(2,lmbnd)
                               if (mat.ne.iat .and. mat.ne.jat
      $                             .and. mat.ne.kat) then
-                                 write(6,*) ' Linear JKL - use IJLM', 
-     $                                iat, jat, kat, lat, mat
-                                 call geom_add_tor(iat,jat,lat,mat,
-     $                                ntor, ijklto, mxtors, ntor_for_ij)
+*     write(6,*) ' linear jkl - use ijlm', 
+*     $                                iat, jat, kat, lat, mat
+                                 if (.not. geom_add_tor(iat,jat,lat,mat,
+     $                                ntor, ijklto, mxtors,ntor_for_ij))
+     $                                goto 8000
                               endif
                            enddo
-                           call geom_add_tor(jat,iat,kat,lat,
-     $                          ntor, ijklto, mxtors, ntor_for_ij)
+                           if (.not. geom_add_tor(jat,iat,kat,lat,
+     $                          ntor, ijklto, mxtors, ntor_for_ij))
+     $                          goto 8000
                         else
 c     
-c     Nothing is linear.  Wow.
+c     nothing is linear.  wow.
 c     
-                           call geom_add_tor(iat,jat,kat,lat,
-     $                          ntor, ijklto, mxtors, ntor_for_ij)
+                           if (.not. geom_add_tor(iat,jat,kat,lat,
+     $                          ntor, ijklto, mxtors, ntor_for_ij))
+     $                          goto 8000
                         endif
                         if (ntor_for_ij.eq.max_tor_per_bond)
      $                       goto 1212 ! next ij
@@ -4211,71 +2743,58 @@ c
 c     
             if (ntor_for_ij.eq.0 .and. numatom.gt.3) then
 c     
-c     Sigh.  We have not found a valid torsion for this bond.
-c     This can happen because of linear angles or even for
-c     simple things like formaldehyde.  We've looked at all
+c     sigh.  we have not found a valid torsion for this bond.
+c     this can happen because of linear angles or even for
+c     simple things like formaldehyde.  we've looked at all
 c     sequences i-j-k-l ... try now 
 c     .           k
 c     .          /
 c     .     i - j
 c     .          \
 c     .           l
-c     specifying the torsion as i-j-k-l.  Could do this as an 
+c     specifying the torsion as i-j-k-l.  could do this as an 
 c     out-of-plane bend, but this will work also.
 c     
-c     Another catch is that for four such atoms there is only
+c     another catch is that for four such atoms there is only
 c     one independent out-of-plane bend ... so comparison
 c     for duplicates must be done without regard to order.
 c     
-c     But only putting in the unique one will break symmetry
-c     so bite the big enchilada.
+c     but only putting in the unique one will break symmetry
+c     so bite the big enchilada and do them all ... the user can always
+c     restrict the number per bond.  Must check on linear bonds since
+c     if restricting the number must be sure each one counts.
 c     
-c     Using i as the central atom will be considered later.
+c     using i as the central atom will be considered later.
 c     
                do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
                   kat=ijbond(2,jkbnd)
                   if(kat.ne.iat) then
-                     do jlbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
-                        lat=ijbond(2,jlbnd)
-                        if(lat.ne.iat .and. lat.ne.kat) then
-                           call geom_add_tor(iat, jat, kat, lat,
-     $                          ntor, ijklto, mxtors, ntor_for_ij)
-c$$$  iii = iat
-c$$$  jjj = jat
-c$$$  kkk = kat
-c$$$  lll = lat
-c$$$  if (iii .gt. lll) then
-c$$$  itmp = iii
-c$$$  iii  = lll
-c$$$  lll  = itmp
-c$$$  itmp = jjj
-c$$$  jjj  = kkk
-c$$$  kkk  = itmp
-c$$$  endif
-c$$$  call geom_sort4(iii,jjj,kkk,lll,i1,i2,i3,i4)
-c$$$  do itor = 1, ntor
-c$$$  call geom_sort4(ijklto(1,itor),
-c$$$  $                             ijklto(2,itor), ijklto(3,itor),
-c$$$  $                             ijklto(4,itor), j1, j2, j3, j4)
-c$$$  if (i1.eq.j1 .and. i2.eq.j2 .and.
-c$$$  $                             i3.eq.j3 .and. i4.eq.j4) goto 777
-c$$$  c$$$                              if ( iii.eq.ijklto(1,itor) .and.
-c$$$  c$$$     $                             jjj.eq.ijklto(2,itor) .and.
-c$$$  c$$$     $                             kkk.eq.ijklto(3,itor) .and.
-c$$$  c$$$     $                             lll.eq.ijklto(4,itor) ) goto 777
-c$$$  enddo
-c$$$  if(ntor.eq.mxtors) call errquit
-c$$$  $                          ('autoz: too many torsions',ntor)
-c$$$  c
-c$$$  write(6,*) ' OOPB ', iat, jat, kat, lat
-c$$$  ntor=ntor+1
-c$$$  ijklto(1,ntor)=iii
-c$$$  ijklto(2,ntor)=jjj
-c$$$  ijklto(3,ntor)=kkk
-c$$$  ijklto(4,ntor)=lll
-c$$$  777                       goto 1212 ! One torsion is enuf ... next IJ
-                        endif   ! if (4 distinct atoms)
-                     enddo      ! do jlbnd
+                     rij=sqrt(distsq(iat,jat))
+                     rjk=sqrt(distsq(jat,kat))
+                     rik=sqrt(distsq(iat,kat))
+                     cosbj=(rij**2+rjk**2-rik**2)/(two*rij*rjk)
+                     linijk = sin(acos(min(1d0,abs(cosbj)))) .le. tol
+                     if (.not. linijk) then
+                        do jlbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+                           lat=ijbond(2,jlbnd)
+                           if(lat.ne.iat .and. lat.ne.kat) then
+                              rkl=sqrt(distsq(kat,lat))
+                              rjl=sqrt(distsq(jat,lat))
+                              cosbk=(rjk**2+rkl**2-rjl**2)/(two*rjk*rkl)
+                              linjkl = sin(acos(min(1d0,abs(cosbk)))) 
+     $                             .le. tol
+                              if (.not. linjkl) then
+*                                 write(6,*) ' OOPB ',
+*     $                                iat, jat, kat, lat
+                                 if (.not. geom_add_tor(iat, jat, kat,
+     $                                lat, ntor, ijklto, mxtors,
+     $                                ntor_for_ij)) goto 8000
+                                 if (ntor_for_ij .gt. max_tor_per_bond) 
+     $                                goto 1212
+                              endif
+                           endif ! if (4 distinct atoms)
+                        enddo   ! do jlbnd
+                     endif      ! if (not linear ijk)
                   endif         ! if (kat .ne. iat)
                enddo            ! do jkbnd
             endif               ! if (missing a torsion)
@@ -4283,413 +2802,416 @@ c$$$  777                       goto 1212 ! One torsion is enuf ... next IJ
          enddo                  ! do ijbnd
       enddo                     ! do iat
 c     
-      IF(DBUG) THEN
-         IF(NTOR.GT.1) THEN
-            WRITE(IW,9994)
-            DO MTOR=1,NTOR
-               WRITE(IW,9993) MTOR,IJKLTO(1,MTOR),IJKLTO(2,MTOR),
-     1              IJKLTO(3,MTOR),IJKLTO(4,MTOR)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C     
-C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
-C     
-      IF(NTOR.GE.2) THEN
-         DO ITOR=1,NTOR-1
-            II=IJKLTO(1,ITOR)
-            IJ=IJKLTO(2,ITOR)
-            IK=IJKLTO(3,ITOR)
-            IL=IJKLTO(4,ITOR) 
-            IF(IJKLTO(1,ITOR).NE.0) THEN
-               DO JTOR=ITOR+1,NTOR
-                  JI=IJKLTO(1,JTOR)
-                  JJ=IJKLTO(2,JTOR)
-                  JK=IJKLTO(3,JTOR)
-                  JL=IJKLTO(4,JTOR)
-                  IF(JJ.EQ.IJ.AND.JK.EQ.IK) THEN
-                     IF(II.EQ.JI.AND.IL.EQ.JL) THEN
-                        IJKLTO(1,JTOR)=0
-                        IJKLTO(2,JTOR)=0
-                        IJKLTO(3,JTOR)=0
-                        IJKLTO(4,JTOR)=0
-                     ENDIF
-                  ELSEIF(JJ.EQ.IK.AND.JK.EQ.IJ) THEN
-                     IF(II.EQ.JL.AND.IL.EQ.JI) THEN
-                        IJKLTO(1,JTOR)=0
-                        IJKLTO(2,JTOR)=0
-                        IJKLTO(3,JTOR)=0
-                        IJKLTO(4,JTOR)=0
-                     ENDIF
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDIF
-C     
-      ITOR=0
- 100  ITOR=ITOR+1
-      IF(ITOR.GT.NTOR) GO TO 110
-      IF(IJKLTO(1,ITOR).EQ.0) THEN
-         IF(ITOR.LT.NTOR) THEN
-            DO JTOR=ITOR+1,NTOR
-               IJKLTO(1,JTOR-1)=IJKLTO(1,JTOR)
-               IJKLTO(2,JTOR-1)=IJKLTO(2,JTOR)
-               IJKLTO(3,JTOR-1)=IJKLTO(3,JTOR)
-               IJKLTO(4,JTOR-1)=IJKLTO(4,JTOR)
-            ENDDO
-            ITOR=ITOR-1
-         ENDIF
-         NTOR=NTOR-1
-      ELSE
-         RIJSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(2,ITOR))
-         RIJ  =SQRT(RIJSQ)
-         RJKSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(3,ITOR))
-         RJK  =SQRT(RJKSQ)
-         RKLSQ=DISTSQ(IJKLTO(3,ITOR),IJKLTO(4,ITOR))
-         RKL  =SQRT(RKLSQ)
-         RIKSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(3,ITOR))
-         RJLSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(4,ITOR))
-         COSBJ=(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
-         COSBK=(RJKSQ+RKLSQ-RJLSQ)/(TWO*RJK*RKL)
+      if(dbug) then
+         if(ntor.gt.1) then
+            write(iw,9994)
+            do mtor=1,ntor
+               write(iw,9993) mtor,ijklto(1,mtor),ijklto(2,mtor),
+     1              ijklto(3,mtor),ijklto(4,mtor)
+            enddo
+         else
+            write(iw,9992)
+         endif
+      endif
+c     
+c     ----- eliminate duplicates and clean up -----
+c     
+      if(ntor.ge.2) then
+         do itor=1,ntor-1
+            ii=ijklto(1,itor)
+            ij=ijklto(2,itor)
+            ik=ijklto(3,itor)
+            il=ijklto(4,itor) 
+            if(ijklto(1,itor).ne.0) then
+               do jtor=itor+1,ntor
+                  ji=ijklto(1,jtor)
+                  jj=ijklto(2,jtor)
+                  jk=ijklto(3,jtor)
+                  jl=ijklto(4,jtor)
+                  if(jj.eq.ij.and.jk.eq.ik) then
+                     if(ii.eq.ji.and.il.eq.jl) then
+                        ijklto(1,jtor)=0
+                        ijklto(2,jtor)=0
+                        ijklto(3,jtor)=0
+                        ijklto(4,jtor)=0
+                     endif
+                  elseif(jj.eq.ik.and.jk.eq.ij) then
+                     if(ii.eq.jl.and.il.eq.ji) then
+                        ijklto(1,jtor)=0
+                        ijklto(2,jtor)=0
+                        ijklto(3,jtor)=0
+                        ijklto(4,jtor)=0
+                     endif
+                  endif
+               enddo
+            endif
+         enddo
+      endif
+c     
+      itor=0
+ 100  itor=itor+1
+      if(itor.gt.ntor) go to 110
+      if(ijklto(1,itor).eq.0) then
+         if(itor.lt.ntor) then
+            do jtor=itor+1,ntor
+               ijklto(1,jtor-1)=ijklto(1,jtor)
+               ijklto(2,jtor-1)=ijklto(2,jtor)
+               ijklto(3,jtor-1)=ijklto(3,jtor)
+               ijklto(4,jtor-1)=ijklto(4,jtor)
+            enddo
+            itor=itor-1
+         endif
+         ntor=ntor-1
+      else
+         rijsq=distsq(ijklto(1,itor),ijklto(2,itor))
+         rij  =sqrt(rijsq)
+         rjksq=distsq(ijklto(2,itor),ijklto(3,itor))
+         rjk  =sqrt(rjksq)
+         rklsq=distsq(ijklto(3,itor),ijklto(4,itor))
+         rkl  =sqrt(rklsq)
+         riksq=distsq(ijklto(1,itor),ijklto(3,itor))
+         rjlsq=distsq(ijklto(2,itor),ijklto(4,itor))
+         cosbj=(rijsq+rjksq-riksq)/(two*rij*rjk)
+         cosbk=(rjksq+rklsq-rjlsq)/(two*rjk*rkl)
          linijk = sin(acos(min(1d0,abs(cosbj)))) .le. tol
          linjkl = sin(acos(min(1d0,abs(cosbk)))) .le. tol
-c$$$  DUM  = ABS(COSBJ)-ONE
-c$$$  IF(DUM.GT.ZERO) THEN
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINIJK=.TRUE.
-c$$$  ELSE
-c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP3-'
-c$$$  CALL HND_HNDERR(3,ERRMSG)
-c$$$  ENDIF
-c$$$  ELSE
-c$$$  DUM=-DUM
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINIJK=.TRUE.
-c$$$  ELSE
-c$$$  LINIJK=.FALSE.
-c$$$  ENDIF
-c$$$  ENDIF
-c$$$  DUM  =ABS(COSBK)-ONE
-c$$$  IF(DUM.GT.ZERO) THEN
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINJKL=.TRUE.
-c$$$  ELSE
-c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP3-'
-c$$$  CALL HND_HNDERR(3,ERRMSG)
-c$$$  ENDIF
-c$$$  ELSE
-c$$$  DUM=-DUM
-c$$$  IF(DUM.LE.TOL) THEN
-c$$$  LINJKL=.TRUE.
-c$$$  ELSE
-c$$$  LINJKL=.FALSE.
-c$$$  ENDIF
-c$$$  ENDIF
-         IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
-            if (nizmat+5 .gt. mxizmt) call errquit
-     $           ('autoz torsions: too many internals. reduce '//
-     $           'cvr_scaling or individual radii',0)
-            IZMAT(NIZMAT+1)=ITHREE
-            IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
-            IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
-            IZMAT(NIZMAT+4)=IJKLTO(3,ITOR)
-            IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
-            NIZMAT=NIZMAT+5
-            NZVAR =NZVAR +1
+c$$$  dum  = abs(cosbj)-one
+c$$$  if(dum.gt.zero) then
+c$$$  if(dum.le.tol) then
+c$$$  linijk=.true.
+c$$$  else
+c$$$  write(iw,*) 'something is wrong in -zmtyp3-'
+c$$$  call hnd_hnderr(3,errmsg)
+c$$$  endif
+c$$$  else
+c$$$  dum=-dum
+c$$$  if(dum.le.tol) then
+c$$$  linijk=.true.
+c$$$  else
+c$$$  linijk=.false.
+c$$$  endif
+c$$$  endif
+c$$$  dum  =abs(cosbk)-one
+c$$$  if(dum.gt.zero) then
+c$$$  if(dum.le.tol) then
+c$$$  linjkl=.true.
+c$$$  else
+c$$$  write(iw,*) 'something is wrong in -zmtyp3-'
+c$$$  call hnd_hnderr(3,errmsg)
+c$$$  endif
+c$$$  else
+c$$$  dum=-dum
+c$$$  if(dum.le.tol) then
+c$$$  linjkl=.true.
+c$$$  else
+c$$$  linjkl=.false.
+c$$$  endif
+c$$$  endif
+         if(.not.linijk.and..not.linjkl) then
+            if (nizmat+5 .gt. mxizmt) goto 8000
+            izmat(nizmat+1)=ithree
+            izmat(nizmat+2)=ijklto(1,itor)
+            izmat(nizmat+3)=ijklto(2,itor)
+            izmat(nizmat+4)=ijklto(3,itor)
+            izmat(nizmat+5)=ijklto(4,itor)
+            nizmat=nizmat+5
+            nzvar =nzvar +1
          else
-            write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
-     $           linijk, ijklto(2,itor), ijklto(3,itor), ijklto(4,itor),
-     $           linjkl
- 303        format(' rejecting torsion due to linear angle ',
-     $           2(2x,3i4,2x,l1))
-         ENDIF
-      ENDIF
-      GO TO 100
- 110  CONTINUE
-C     
-      IF(DBUG) THEN
-         IF(NTOR.GT.1) THEN
-            WRITE(IW,9994)
-            DO MTOR=1,NTOR
-               WRITE(IW,9993) MTOR,IJKLTO(1,MTOR),IJKLTO(2,MTOR),
-     1              IJKLTO(3,MTOR),IJKLTO(4,MTOR)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C     
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,*)    'NZVAR = ',NZVAR
-      ENDIF
-C     
-      RETURN
- 9999 FORMAT(' IN -ZMTYP3- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
- 9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
-     1     ' WITH -ICON-, -JCON- = ',2I5)
- 9994 FORMAT(' TABLE OF TORSIONS = ')
- 9993 FORMAT(5I5)
- 9992 FORMAT(' NO TORSIONS FOUND ')
-      END
-      SUBROUTINE HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-     2                                       IJKLOP,NUMOOP)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (IFOUR=4)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXOOPA= 8*MXATOM)
-      LOGICAL     DBUG
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION IZMAT(*)   
-      DIMENSION IJKLOP(4,*)      
-      DIMENSION IJBOND(2,MXBNDS)
-      DIMENSION IIBOND(  MXATOM)
-      DIMENSION NIBOND(  MXATOM)
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP4-'/
-C
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-      ENDIF
-C
-C     ----- OUT-OF-PLANE-BENDS -----
-C
-      NBOND=NBNDS
-      DO IJBND=1,NBOND
-         IJBOND(1,IJBND)=IJBNDS(1,IJBND)
-         IJBOND(2,IJBND)=IJBNDS(2,IJBND)
-      ENDDO
-      DO IAT=1,NAT
-         IIBOND(IAT)=IIBNDS(IAT)
-         NIBOND(IAT)=NIBNDS(IAT)
-      ENDDO
-C
-      IF(NAT.LE.3) RETURN
-C
-      NOOP=0
-      DO IAT=1,NAT
-         DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
-            ICON=IJBOND(1,IJBND)
-            JCON=IJBOND(2,IJBND)
-            IF(ICON.NE.IAT) THEN
-               WRITE(IW,9995) IJBND,IAT,ICON,JCON
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            JAT=JCON
-            IF(NIBOND(JAT).GT.2) THEN
-               DO JKBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
-                  JCON=IJBOND(1,JKBND)
-                  KCON=IJBOND(2,JKBND)
-                  IF(JCON.NE.JAT) THEN
-                     WRITE(IW,9995) JKBND,JAT,JCON,KCON
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
-                  KAT=KCON
-                  IF(KAT.NE.IAT) THEN
-                     DO JLBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
-                        JCON=IJBOND(1,JLBND)
-                        LCON=IJBOND(2,JLBND)
-                        IF(JCON.NE.JAT) THEN
-                           WRITE(IW,9995) JLBND,JAT,JCON,LCON
-                           CALL HND_HNDERR(3,ERRMSG)
-                        ENDIF
-                        LAT=LCON
-                        IF(LAT.NE.IAT.AND.LAT.NE.KAT) THEN
-                           NKCON=NIBOND(KAT)
-                           NLCON=NIBOND(LAT)
-                           IF((NKCON.EQ.1.AND.NLCON.EQ.1).OR.
-     1                        (NKCON.GT.1.AND.NLCON.GT.1)    ) THEN
-                              IF(NOOP.EQ.MXOOPA) THEN
-                              WRITE(IW,*) 'TOO MANY OUT-OF-PLANE BENDS',
-     1                                    ' NOOP, MXOOPA = ',NOOP,MXOOPA
-                                 CALL HND_HNDERR(3,ERRMSG)
-                              ENDIF
-                              NOOP=NOOP+1
-                              IJKLOP(1,NOOP)=IAT
-                              IJKLOP(2,NOOP)=JAT
-                              IJKLOP(3,NOOP)=KAT
-                              IJKLOP(4,NOOP)=LAT
-                           ENDIF
-                        ENDIF
-                     ENDDO
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDDO
-      IF(DBUG) THEN
-         IF(NOOP.GT.1) THEN
-            WRITE(IW,9994)
-            DO MOOP=1,NOOP
-               WRITE(IW,9993) MOOP,IJKLOP(1,MOOP),IJKLOP(2,MOOP),
-     1                             IJKLOP(3,MOOP),IJKLOP(4,MOOP)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C
-C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
-C
-      IF(NOOP.GE.2) THEN
-         DO IOOP=1,NOOP-1
-            II=IJKLOP(1,IOOP)
-            IJ=IJKLOP(2,IOOP)
-            IK=IJKLOP(3,IOOP)
-            IL=IJKLOP(4,IOOP) 
-            IF(IJKLOP(1,IOOP).NE.0) THEN
-               DO JOOP=IOOP+1,NOOP
-                  JI=IJKLOP(1,JOOP)
-                  JJ=IJKLOP(2,JOOP)
-                  JK=IJKLOP(3,JOOP)
-                  JL=IJKLOP(4,JOOP)
-                  IF(JI.EQ.II.AND.JJ.EQ.IJ) THEN
-                     IF((JK.EQ.IK.AND.JL.EQ.IL).OR.
-     1                  (JK.EQ.IL.AND.JL.EQ.IK)    ) THEN
-                        IJKLOP(1,JOOP)=0
-                        IJKLOP(2,JOOP)=0
-                        IJKLOP(3,JOOP)=0
-                        IJKLOP(4,JOOP)=0
-                     ENDIF
-                  ENDIF
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDIF
-C
-      IOOP=0
-  100 IOOP=IOOP+1
-      IF(IOOP.GT.NOOP) GO TO 110
-         IF(IJKLOP(1,IOOP).EQ.0) THEN
-            IF(IOOP.LT.NOOP) THEN
-               DO JOOP=IOOP+1,NOOP
-                  IJKLOP(1,JOOP-1)=IJKLOP(1,JOOP)
-                  IJKLOP(2,JOOP-1)=IJKLOP(2,JOOP)
-                  IJKLOP(3,JOOP-1)=IJKLOP(3,JOOP)
-                  IJKLOP(4,JOOP-1)=IJKLOP(4,JOOP)
-               ENDDO
-               IOOP=IOOP-1
-            ENDIF
-            NOOP=NOOP-1
-         ELSE
-             IZMAT(NIZMAT+1)=IFOUR 
-             IZMAT(NIZMAT+2)=IJKLOP(1,IOOP)
-             IZMAT(NIZMAT+3)=IJKLOP(2,IOOP)
-             IZMAT(NIZMAT+4)=IJKLOP(3,IOOP)
-             IZMAT(NIZMAT+5)=IJKLOP(4,IOOP)
-            NIZMAT=NIZMAT+5
-            NZVAR =NZVAR +1
-         ENDIF
-         GO TO 100
-  110 CONTINUE
-C
-      IF(DBUG) THEN
-         IF(NOOP.GT.1) THEN
-            WRITE(IW,9994)
-            DO MOOP=1,NOOP
-               WRITE(IW,9993) MOOP,IJKLOP(1,MOOP),IJKLOP(2,MOOP),
-     1                             IJKLOP(3,MOOP),IJKLOP(4,MOOP)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,*)    'NZVAR = ',NZVAR
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' IN -ZMTYP4- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
- 9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
-     1       ' WITH -ICON-, -JCON- = ',2I5)
- 9994 FORMAT(' TABLE OF OUT-OF-PLANE-BENDS = ')
- 9993 FORMAT(5I5)
- 9992 FORMAT(' NO OUT-OF-PLANE-ANGLE FOUND ')
-      END
-      SUBROUTINE HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-     2                      IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      PARAMETER (IFOUR=4)
-      PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 8*MXATOM)
-      PARAMETER (MXOOPA= 8*MXATOM)
-      LOGICAL     DBUG
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      DIMENSION C(3,*)
-      DIMENSION IZMAT(*)   
-      DIMENSION IJKLNB(4,*)      
-      DIMENSION XYZLNB(3,*)
-      DIMENSION IJKANG(3,*)           
-      DIMENSION IJBNDS(2,*)
-      DIMENSION IIBNDS(  *)
-      DIMENSION NIBNDS(  *)
-      DIMENSION ERRMSG(3)        
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP5-'/
-C
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-         WRITE(IW,9991)
-      ENDIF
-C
-C     ----- LINEAR-BENDS -----
-C
-      NLBND=0
-C
-      IF(NAT.LE.3) RETURN
-C
-      IF(DBUG) THEN
-         IF(NLBND.GT.1) THEN
-            WRITE(IW,9994)
-            DO MLBND=1,NLBND
-               WRITE(IW,9993) MLBND,IJKLNB(1,MLBND),IJKLNB(2,MLBND),
-     1                              IJKLNB(3,MLBND),IJKLNB(4,MLBND)
-            ENDDO
-         ELSE
-            WRITE(IW,9992)
-         ENDIF
-      ENDIF
-C
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' IN -ZMTYP5- ',/,' ----------- ')
- 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
- 9997 FORMAT(12(I4,1H,))
- 9996 FORMAT(' $END   ')
- 9994 FORMAT(' TABLE OF LINEAR-BENDS = ')
- 9993 FORMAT(5I5)
- 9992 FORMAT(' NO LINEAR-BENDS FOUND ')
- 9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
-      END
+*            write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
+*     $           linijk, ijklto(2,itor), ijklto(3,itor), ijklto(4,itor),
+*     $           linjkl
+* 303        format(' rejecting torsion due to linear angle ',
+*     $           2(2x,3i4,2x,l1))
+         endif
+      endif
+      go to 100
+ 110  continue
+c     
+      if(dbug) then
+         if(ntor.gt.1) then
+            write(iw,9994)
+            do mtor=1,ntor
+               write(iw,9993) mtor,ijklto(1,mtor),ijklto(2,mtor),
+     1              ijklto(3,mtor),ijklto(4,mtor)
+            enddo
+         else
+            write(iw,9992)
+         endif
+      endif
+c     
+      if(dbug) then
+         write(iw,9998)
+         write(iw,9997) (izmat(i),i=1,nizmat)
+         write(iw,9996)
+         write(iw,*)    'nzvar = ',nzvar
+      endif
+c     
+      zdone = .true.
+      return
+c     
+ 8000 if (oprint) write(6,*) ' autoz: too many torsions '
+      zdone = .false.
+c     
+ 9999 format(' in -zmtyp3- ',/,' ----------- ')
+ 9998 format(' $zmat  ',/,' izmat= ')
+ 9997 format(12(i4,1h,))
+ 9996 format(' $end   ')
+ 9995 format(' something wrong with bond ',i2,' of atom ',i4,
+     1     ' with -icon-, -jcon- = ',2i5)
+ 9994 format(' table of torsions = ')
+ 9993 format(5i5)
+ 9992 format(' no torsions found ')
+      end
+c$$$      SUBROUTINE HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
+c$$$     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
+c$$$     2                                       IJKLOP,NUMOOP)
+c$$$      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c$$$      PARAMETER (IFOUR=4)
+c$$$      PARAMETER (MXATOM=500)        
+c$$$      PARAMETER (MXBNDS= 8*MXATOM)
+c$$$      PARAMETER (MXOOPA= 8*MXATOM)
+c$$$      LOGICAL     DBUG
+c$$$      CHARACTER*8 ERRMSG
+c$$$      COMMON/HND_IOFILE/IR,IW
+c$$$      DIMENSION IZMAT(*)   
+c$$$      DIMENSION IJKLOP(4,*)      
+c$$$      DIMENSION IJBOND(2,MXBNDS)
+c$$$      DIMENSION IIBOND(  MXATOM)
+c$$$      DIMENSION NIBOND(  MXATOM)
+c$$$      DIMENSION IJBNDS(2,*)
+c$$$      DIMENSION IIBNDS(  *)
+c$$$      DIMENSION NIBNDS(  *)
+c$$$      DIMENSION ERRMSG(3)        
+c$$$      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP4-'/
+c$$$C
+c$$$      DBUG=.FALSE.
+c$$$      IF(DBUG) THEN
+c$$$         WRITE(IW,9999)
+c$$$      ENDIF
+c$$$C
+c$$$C     ----- OUT-OF-PLANE-BENDS -----
+c$$$C
+c$$$      NBOND=NBNDS
+c$$$      DO IJBND=1,NBOND
+c$$$         IJBOND(1,IJBND)=IJBNDS(1,IJBND)
+c$$$         IJBOND(2,IJBND)=IJBNDS(2,IJBND)
+c$$$      ENDDO
+c$$$      DO IAT=1,NAT
+c$$$         IIBOND(IAT)=IIBNDS(IAT)
+c$$$         NIBOND(IAT)=NIBNDS(IAT)
+c$$$      ENDDO
+c$$$C
+c$$$      IF(NAT.LE.3) RETURN
+c$$$C
+c$$$      NOOP=0
+c$$$      DO IAT=1,NAT
+c$$$         DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
+c$$$            ICON=IJBOND(1,IJBND)
+c$$$            JCON=IJBOND(2,IJBND)
+c$$$            IF(ICON.NE.IAT) THEN
+c$$$               WRITE(IW,9995) IJBND,IAT,ICON,JCON
+c$$$               CALL HND_HNDERR(3,ERRMSG)
+c$$$            ENDIF
+c$$$            JAT=JCON
+c$$$            IF(NIBOND(JAT).GT.2) THEN
+c$$$               DO JKBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
+c$$$                  JCON=IJBOND(1,JKBND)
+c$$$                  KCON=IJBOND(2,JKBND)
+c$$$                  IF(JCON.NE.JAT) THEN
+c$$$                     WRITE(IW,9995) JKBND,JAT,JCON,KCON
+c$$$                     CALL HND_HNDERR(3,ERRMSG)
+c$$$                  ENDIF
+c$$$                  KAT=KCON
+c$$$                  IF(KAT.NE.IAT) THEN
+c$$$                     DO JLBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
+c$$$                        JCON=IJBOND(1,JLBND)
+c$$$                        LCON=IJBOND(2,JLBND)
+c$$$                        IF(JCON.NE.JAT) THEN
+c$$$                           WRITE(IW,9995) JLBND,JAT,JCON,LCON
+c$$$                           CALL HND_HNDERR(3,ERRMSG)
+c$$$                        ENDIF
+c$$$                        LAT=LCON
+c$$$                        IF(LAT.NE.IAT.AND.LAT.NE.KAT) THEN
+c$$$                           NKCON=NIBOND(KAT)
+c$$$                           NLCON=NIBOND(LAT)
+c$$$                           IF((NKCON.EQ.1.AND.NLCON.EQ.1).OR.
+c$$$     1                        (NKCON.GT.1.AND.NLCON.GT.1)    ) THEN
+c$$$                              IF(NOOP.EQ.MXOOPA) THEN
+c$$$                              WRITE(IW,*) 'TOO MANY OUT-OF-PLANE BENDS',
+c$$$     1                                    ' NOOP, MXOOPA = ',NOOP,MXOOPA
+c$$$                                 CALL HND_HNDERR(3,ERRMSG)
+c$$$                              ENDIF
+c$$$                              NOOP=NOOP+1
+c$$$                              IJKLOP(1,NOOP)=IAT
+c$$$                              IJKLOP(2,NOOP)=JAT
+c$$$                              IJKLOP(3,NOOP)=KAT
+c$$$                              IJKLOP(4,NOOP)=LAT
+c$$$                           ENDIF
+c$$$                        ENDIF
+c$$$                     ENDDO
+c$$$                  ENDIF
+c$$$               ENDDO
+c$$$            ENDIF
+c$$$         ENDDO
+c$$$      ENDDO
+c$$$      IF(DBUG) THEN
+c$$$         IF(NOOP.GT.1) THEN
+c$$$            WRITE(IW,9994)
+c$$$            DO MOOP=1,NOOP
+c$$$               WRITE(IW,9993) MOOP,IJKLOP(1,MOOP),IJKLOP(2,MOOP),
+c$$$     1                             IJKLOP(3,MOOP),IJKLOP(4,MOOP)
+c$$$            ENDDO
+c$$$         ELSE
+c$$$            WRITE(IW,9992)
+c$$$         ENDIF
+c$$$      ENDIF
+c$$$C
+c$$$C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
+c$$$C
+c$$$      IF(NOOP.GE.2) THEN
+c$$$         DO IOOP=1,NOOP-1
+c$$$            II=IJKLOP(1,IOOP)
+c$$$            IJ=IJKLOP(2,IOOP)
+c$$$            IK=IJKLOP(3,IOOP)
+c$$$            IL=IJKLOP(4,IOOP) 
+c$$$            IF(IJKLOP(1,IOOP).NE.0) THEN
+c$$$               DO JOOP=IOOP+1,NOOP
+c$$$                  JI=IJKLOP(1,JOOP)
+c$$$                  JJ=IJKLOP(2,JOOP)
+c$$$                  JK=IJKLOP(3,JOOP)
+c$$$                  JL=IJKLOP(4,JOOP)
+c$$$                  IF(JI.EQ.II.AND.JJ.EQ.IJ) THEN
+c$$$                     IF((JK.EQ.IK.AND.JL.EQ.IL).OR.
+c$$$     1                  (JK.EQ.IL.AND.JL.EQ.IK)    ) THEN
+c$$$                        IJKLOP(1,JOOP)=0
+c$$$                        IJKLOP(2,JOOP)=0
+c$$$                        IJKLOP(3,JOOP)=0
+c$$$                        IJKLOP(4,JOOP)=0
+c$$$                     ENDIF
+c$$$                  ENDIF
+c$$$               ENDDO
+c$$$            ENDIF
+c$$$         ENDDO
+c$$$      ENDIF
+c$$$C
+c$$$      IOOP=0
+c$$$  100 IOOP=IOOP+1
+c$$$      IF(IOOP.GT.NOOP) GO TO 110
+c$$$         IF(IJKLOP(1,IOOP).EQ.0) THEN
+c$$$            IF(IOOP.LT.NOOP) THEN
+c$$$               DO JOOP=IOOP+1,NOOP
+c$$$                  IJKLOP(1,JOOP-1)=IJKLOP(1,JOOP)
+c$$$                  IJKLOP(2,JOOP-1)=IJKLOP(2,JOOP)
+c$$$                  IJKLOP(3,JOOP-1)=IJKLOP(3,JOOP)
+c$$$                  IJKLOP(4,JOOP-1)=IJKLOP(4,JOOP)
+c$$$               ENDDO
+c$$$               IOOP=IOOP-1
+c$$$            ENDIF
+c$$$            NOOP=NOOP-1
+c$$$         ELSE
+c$$$             IZMAT(NIZMAT+1)=IFOUR 
+c$$$             IZMAT(NIZMAT+2)=IJKLOP(1,IOOP)
+c$$$             IZMAT(NIZMAT+3)=IJKLOP(2,IOOP)
+c$$$             IZMAT(NIZMAT+4)=IJKLOP(3,IOOP)
+c$$$             IZMAT(NIZMAT+5)=IJKLOP(4,IOOP)
+c$$$            NIZMAT=NIZMAT+5
+c$$$            NZVAR =NZVAR +1
+c$$$         ENDIF
+c$$$         GO TO 100
+c$$$  110 CONTINUE
+c$$$C
+c$$$      IF(DBUG) THEN
+c$$$         IF(NOOP.GT.1) THEN
+c$$$            WRITE(IW,9994)
+c$$$            DO MOOP=1,NOOP
+c$$$               WRITE(IW,9993) MOOP,IJKLOP(1,MOOP),IJKLOP(2,MOOP),
+c$$$     1                             IJKLOP(3,MOOP),IJKLOP(4,MOOP)
+c$$$            ENDDO
+c$$$         ELSE
+c$$$            WRITE(IW,9992)
+c$$$         ENDIF
+c$$$      ENDIF
+c$$$C
+c$$$      IF(DBUG) THEN
+c$$$         WRITE(IW,9998)
+c$$$         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
+c$$$         WRITE(IW,9996)
+c$$$         WRITE(IW,*)    'NZVAR = ',NZVAR
+c$$$      ENDIF
+c$$$C
+c$$$      RETURN
+c$$$ 9999 FORMAT(' IN -ZMTYP4- ',/,' ----------- ')
+c$$$ 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
+c$$$ 9997 FORMAT(12(I4,1H,))
+c$$$ 9996 FORMAT(' $END   ')
+c$$$ 9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
+c$$$     1       ' WITH -ICON-, -JCON- = ',2I5)
+c$$$ 9994 FORMAT(' TABLE OF OUT-OF-PLANE-BENDS = ')
+c$$$ 9993 FORMAT(5I5)
+c$$$ 9992 FORMAT(' NO OUT-OF-PLANE-ANGLE FOUND ')
+c$$$      END
+c$$$      SUBROUTINE HND_ZMTYP5(NZVAR,NIZMAT,IZMAT,C,
+c$$$     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
+c$$$     2                      IJKLNB,NUMLNB,XYZLNB,IJKANG,NUMANG)
+c$$$      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c$$$      PARAMETER (IFOUR=4)
+c$$$      PARAMETER (MXATOM=500)        
+c$$$      PARAMETER (MXBNDS= 8*MXATOM)
+c$$$      PARAMETER (MXOOPA= 8*MXATOM)
+c$$$      LOGICAL     DBUG
+c$$$      CHARACTER*8 ERRMSG
+c$$$      COMMON/HND_IOFILE/IR,IW
+c$$$      DIMENSION C(3,*)
+c$$$      DIMENSION IZMAT(*)   
+c$$$      DIMENSION IJKLNB(4,*)      
+c$$$      DIMENSION XYZLNB(3,*)
+c$$$      DIMENSION IJKANG(3,*)           
+c$$$      DIMENSION IJBNDS(2,*)
+c$$$      DIMENSION IIBNDS(  *)
+c$$$      DIMENSION NIBNDS(  *)
+c$$$      DIMENSION ERRMSG(3)        
+c$$$      DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP5-'/
+c$$$C
+c$$$      DBUG=.FALSE.
+c$$$      IF(DBUG) THEN
+c$$$         WRITE(IW,9999)
+c$$$         WRITE(IW,9991)
+c$$$      ENDIF
+c$$$C
+c$$$C     ----- LINEAR-BENDS -----
+c$$$C
+c$$$      NLBND=0
+c$$$C
+c$$$      IF(NAT.LE.3) RETURN
+c$$$C
+c$$$      IF(DBUG) THEN
+c$$$         IF(NLBND.GT.1) THEN
+c$$$            WRITE(IW,9994)
+c$$$            DO MLBND=1,NLBND
+c$$$               WRITE(IW,9993) MLBND,IJKLNB(1,MLBND),IJKLNB(2,MLBND),
+c$$$     1                              IJKLNB(3,MLBND),IJKLNB(4,MLBND)
+c$$$            ENDDO
+c$$$         ELSE
+c$$$            WRITE(IW,9992)
+c$$$         ENDIF
+c$$$      ENDIF
+c$$$C
+c$$$      IF(DBUG) THEN
+c$$$         WRITE(IW,9998)
+c$$$         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
+c$$$         WRITE(IW,9996)
+c$$$      ENDIF
+c$$$C
+c$$$      RETURN
+c$$$ 9999 FORMAT(' IN -ZMTYP5- ',/,' ----------- ')
+c$$$ 9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
+c$$$ 9997 FORMAT(12(I4,1H,))
+c$$$ 9996 FORMAT(' $END   ')
+c$$$ 9994 FORMAT(' TABLE OF LINEAR-BENDS = ')
+c$$$ 9993 FORMAT(5I5)
+c$$$ 9992 FORMAT(' NO LINEAR-BENDS FOUND ')
+c$$$ 9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
+c$$$      END
       subroutine hnd_dparsc(a,la,c,lc)
       implicit double precision (a-h,o-z)
       character*(*) a
@@ -4827,8 +3349,9 @@ c
       SUBROUTINE HND_HNDERR(LERR,ERRMSG)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*8  ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION    ERRMSG(LERR)
+c
+      iw = 6
 C
       WRITE(IW,9999)
       WRITE(IW,9998) ERRMSG
@@ -4842,9 +3365,9 @@ C
       SUBROUTINE HND_GEOCLS(NFT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*8  ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION    ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-GEOCLS-'/
+      IW=6
       CLOSE(UNIT=NFT,STATUS='KEEP',ERR=10)
       RETURN
    10 WRITE(IW,9999) NFT
@@ -4856,9 +3379,9 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       CHARACTER*80 GEOFIL
       CHARACTER*8  ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       DIMENSION    ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN ','-GEOOPN-'/
+      IW = 6
       OPEN(UNIT=NFT,FILE=GEOFIL,STATUS='OLD',
      1     ACCESS='SEQUENTIAL',FORM=  'FORMATTED',ERR=10)
       RETURN
@@ -4927,7 +3450,6 @@ C
       CHARACTER*1   PLUS
       CHARACTER*1   MINUS
       CHARACTER*8   ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
       DIMENSION     ERRMSG(3)
@@ -4955,6 +3477,8 @@ C
       DATA PIDEG  /180.0D+00/
       DATA PLUS   /'+'/
       DATA MINUS  /'-'/
+c
+      IW = 6
 c
       do i = nzmod+1,nzmod+3
          zvarname(i) = ' '       ! Default for numeric parameter
@@ -5449,7 +3973,6 @@ C
       LOGICAL       CART
       CHARACTER*8   ATNAME
       CHARACTER*8   ERRMSG
-      COMMON/HND_IOFILE/IR,IW
       COMMON/HND_XYZGEO/XX(MAXGEO),YY(MAXGEO),ZZ(MAXGEO),
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
       DIMENSION   NZMT(5,MAXGEO)
@@ -5461,6 +3984,7 @@ C
       DATA PT1,MAX   /0.1D+00,6/
 C
       DBUG=.FALSE.
+      IW = 6
 C
       PIFAC=3.1415926536D+00/180.0D+00
       COSTD=-ONE/THREE
@@ -5673,12 +4197,13 @@ C
 C
 C     ----- PRINT OUT A SQUARE MATRIX -----
 C
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_LISTNG/LIST
+***      COMMON/HND_LISTNG/LIST
       DIMENSION V(NDIM,1)
       DIMENSION IC(5),C(5)
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
+c
+      IR = 6
 C
       LIST=1
       IF(LIST.EQ.0) MAX=10
@@ -5739,13 +4264,13 @@ C
 C
 C     ----- PRINT OUT E AND V-MATRICES
 C
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_LISTNG/LIST
+***      COMMON/HND_LISTNG/LIST
       DIMENSION V(NDIM,1),E(1)
       DIMENSION IC(5),C(5)
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
 C
+      IW = 6
       LIST=1
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
@@ -5812,10 +4337,10 @@ C
 C
 C     ----- PRINT OUT A TRIANGULAR MATRIX -----
 C
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_LISTNG/LIST
+***      COMMON/HND_LISTNG/LIST
       DIMENSION D(1),DD(10)
 C
+      IW = 6
       LIST=1
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
@@ -5894,14 +4419,13 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
       logical status
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_DIAOPT/MODDIA
       DIMENSION A(1),VEC(NDIM,1),EIG(1),IA(1)
       dimension x(1),ix(1)
       equivalence (dbl_mb(1),x(1)),(int_mb(1),ix(1))
 c
 c     ----- memory -----
 c
+      IW = 6
       status=ma_push_get(MT_DBL,4*ndim,'mem_dbl dia',i_idbl,idbl)
       status=ma_push_get(MT_INT,3*ndim,'mem_int dia',i_iint,iint)
 c
@@ -6153,7 +4677,7 @@ C
       RETURN
       END
       subroutine geom_check_all_connected(nat,nbnds,ijmods,
-     $     c, numijxtra, ijxtra, mxbond, close, okay)
+     $     c, numijxtra, ijxtra, mxbond, close, okay, oprint)
       implicit none
 #include "mafdecls.fh"
 #include "util.fh"
@@ -6161,6 +4685,7 @@ C
       integer ijmods(2,nbnds), ijxtra(2,mxbond)
       double precision c(3,nat), close
       logical okay              ! return true if all connected
+      logical oprint
 c     
 c     Examine the connectivity generated by autoz and ensure
 c     that it connects everything.  If it does not then
@@ -6178,7 +4703,6 @@ c     okay=.false. and numijxtra=0 ... ijmods is not good and
 c     .           too many extra bonds ... modify cvr_scaling
 c     .           or some other parameter.
 c     
-      logical oprint
       integer i, j, k, k_m, l_m, k_clus, l_clus, ibig, test, nclus
       integer ninclus, iclus, jclus
       integer ind, imin, jmin, nnew
@@ -6189,7 +4713,6 @@ c
      1     (c(2,i)-c(2,j))**2+
      2     (c(3,i)-c(3,j))**2) * toangs
 c     
-      oprint = util_print("warnings",print_low)
       if (nbnds .eq. 0) then
          okay = nat .eq. 1
          return
@@ -6248,7 +4771,8 @@ c
 c     
 c     First identify the connected fragments
 c     
-      if (oprint) write(6,*) ' The atoms group into disjoint clusters'
+      if (oprint) write(6,*) 
+     $     ' autoz: The atoms group into disjoint clusters'
       call ifill(nat, 0, int_mb(k_clus), 1)
       nclus = 0
       do j = 1, nat
@@ -6277,8 +4801,6 @@ c
          endif
       enddo
 c
-      write(6,*) ' close = ', close
-c     
 c     Now have identified the clusters.  Loop thru pairs
 c     of clusters and find the closest atoms.  If this
 c     distance is less than close then attempt to join
@@ -6320,10 +4842,10 @@ c
                ijxtra(2,numijxtra) = jmin
                nnew = nnew + 1
             else
-               if (oprint) write(6,45) iclus, jclus, imin, jmin, rmin
+               if (oprint .and. rmin.lt.(close+1d0))
+     $              write(6,45) iclus, jclus, imin, jmin, rmin
  45            format(' Clusters',2i4,' closest atoms are',
-     $              2i5,' r =',f5.2, ' ... too long?')
-               continue
+     $              2i5,' r =',f5.2, ' ... close but too far?')
             endif
          enddo
       enddo
@@ -6340,10 +4862,44 @@ c
      $     call errquit('geom_check_all_connected: ma pop?',nat)
 c     
       end
+      logical function geom_hnd_check_data(name,n)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+      character*(*) name
+      integer n
+c
+      character*255 filename
+c     
+      integer m
+      logical status
+c     
+c     Verify that data of the given name and dimension exists.
+c     It is assumed that the file is permanent.
+c     
+      call util_file_name(name,.false.,.false.,filename)
+c     
+      if (ga_nodeid() .eq. 0) then
+         open(32,file=filename,form='unformatted',status='old',err=10)
+         read(32,err=11) m
+         if (m.ne.n) goto 11
+         close(32)
+         status = .true.
+         goto 20
+c     
+ 11      close(32)
+ 10      status = .false.
+      endif
+c     
+ 20   call ga_brdcst(323, status, mitob(1), 0)
+      geom_hnd_check_data = status
+c     
+      end
       subroutine geom_hnd_put_data(name, a, n)
       implicit none
 #include "global.fh"
 #include "util.fh"
+#include "inp.fh"
 c
       character*(*) name
       integer n
@@ -6355,7 +4911,7 @@ c
       character*255 filename
       logical odebug, oscratch
 c
-      oscratch = name .ne. 'drv.hess'
+      oscratch = (name .ne. 'drv.hess' .and. name.ne.'zsym')
 c
       odebug = util_print('geom_hnd',print_never)
       if (ga_nodeid() .eq. 0) then
@@ -6366,8 +4922,9 @@ c
          call swrite(32, a, n)
          close(32)
          if (odebug) then
-            write(6,*) ' WROTE ', name, n, filename
-*            call doutput(a,1,n,1,1,n,1,1)
+            write(6,*) ' WROTE ', name, n, 
+     $           filename(1:inp_strlen(filename))
+            call doutput(a,1,n,1,1,n,1,1)
          endif
       endif
 c
@@ -6394,7 +4951,7 @@ c
       logical odebug, oscratch
       integer m
 c
-      oscratch = name .ne. 'drv.hess'
+      oscratch = (name .ne. 'drv.hess' .and. name.ne.'zsym')
       odebug = util_print('geom_hnd',print_never)
       if (ga_nodeid() .eq. 0) then
          call util_file_name(name,oscratch,.false.,filename)
@@ -6405,7 +4962,7 @@ c
          if (n .ne. m) goto 102
          call sread(32, a, n)
          close(32)
-*         if (odebug) call doutput(a,1,n,1,1,n,1,1)
+         if (odebug) call doutput(a,1,n,1,1,n,1,1)
       endif
       call ga_brdcst(32, a, mdtob(n), 0)
 c
@@ -6446,7 +5003,7 @@ c
       i4 = k(4)
 c
       end
-      subroutine geom_add_tor(iat, jat, kat, lat,
+      logical function geom_add_tor(iat, jat, kat, lat,
      $     ntor, ijklto, mxtors, ntor_for_ij)
       implicit none
 c
@@ -6455,10 +5012,13 @@ c
       integer ijklto(4,*)
       integer mxtors, ntor_for_ij
 c
-c     Add the torsion to the list checking for duplicates
+c     Add the torsion to the list checking for duplicates.
+c     Return false if there is no room left.
 c
       integer iii, jjj, kkk, lll
       integer itmp, itor
+c
+      geom_add_tor = .true.
 c     
 c     Put indices into a standard order
 c     
@@ -6488,13 +5048,15 @@ c
      $        kkk.eq.ijklto(3,itor) .and.
      $        lll.eq.ijklto(4,itor) ) goto 666
       enddo
-      if(ntor.eq.mxtors) call errquit
-     $     ('autoz: too many torsions',ntor)
-      ntor=ntor+1
-      ijklto(1,ntor)=iii
-      ijklto(2,ntor)=jjj
-      ijklto(3,ntor)=kkk
-      ijklto(4,ntor)=lll
+      if(ntor.eq.mxtors) then
+         geom_add_tor = .false.
+      else
+         ntor=ntor+1
+         ijklto(1,ntor)=iii
+         ijklto(2,ntor)=jjj
+         ijklto(3,ntor)=kkk
+         ijklto(4,ntor)=lll
+      endif
 c
  666  return
 c

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.88 1999-06-03 21:58:35 d3g681 Exp $
+C$Id: geom.F,v 1.89 1999-06-07 22:15:19 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1247,8 +1247,10 @@ c     needs support for internal coords, different formats, ...
 c     
       integer geom              ! [input]
       integer icent, jcent
-      logical geom_check_handle, geom_check_cent, geom_get_user_scale
-      external geom_check_handle, geom_check_cent, geom_get_user_scale
+      logical geom_check_handle, geom_check_cent, geom_get_user_scale,
+     $     geom_print_zmatrix
+      external geom_check_handle, geom_check_cent, geom_get_user_scale,
+     $     geom_print_zmatrix
       integer i
       double precision scale, tmp(3)
       character*80 buf
@@ -1355,7 +1357,12 @@ c
      $        .false.)
       endif
 c     
-      geom_print = .true.
+      if (zmt_source(geom) .ne. ' ' .and. 
+     $     util_print('geomzmat',print_none)) then
+         geom_print = geom_print_zmatrix(geom,0.d0,' ',.false.)
+      else
+         geom_print = .true.
+      endif
 c     
       end
       logical function geom_default_charge_with_ecp(atn, q)
@@ -1379,6 +1386,44 @@ c
       else
          geom_default_charge_with_ecp = .false.
       endif
+c
+      end
+      logical function geom_tag_to_covalent_radius(tag,radius)
+      implicit none
+#include "inp.fh"
+c
+c     Try to decode a tag and return the covalent radius (a.u.) for
+c     the corresponding atom.
+c
+      character*16 tag          ! [input]
+      double precision radius   ! [output]
+c
+      character*2 symbol
+      character*16 element, ttag
+      integer atn
+      logical geom_get_def_rcov, geom_tag_to_element
+      external geom_get_def_rcov, geom_tag_to_element
+c
+      geom_tag_to_covalent_radius = .false.
+c
+      if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
+c
+c     Is not an atom.  Try removing Bq or X.
+c
+         if (inp_compare(.false., tag(1:1), 'x')) then
+            ttag = tag(2:)
+         else if (inp_compare(.false., tag(1:2), 'bq')) then
+            ttag = tag(3:)
+         else
+            return              ! Nothing recognizable
+         endif
+         if (.not. geom_tag_to_element(ttag, symbol, element, atn))
+     $        return
+      endif
+c
+c     atn should be set to something sensible
+c
+      geom_tag_to_covalent_radius = geom_get_def_rcov(atn, radius)
 c
       end
       logical function geom_tag_to_element(tag, symbol, element, atn)

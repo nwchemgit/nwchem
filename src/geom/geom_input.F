@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.100 1999-06-04 00:09:32 d3e129 Exp $
+C     $Id: geom_input.F,v 1.101 1999-06-07 22:15:21 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -23,7 +23,6 @@ c
       logical ocenter
       logical include_bqbq
       logical oprint_sym
-      integer nzinput
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
       double precision threquiv ! Threshold for autosym atom equivalence
@@ -41,8 +40,9 @@ c     .                           and for forcing symmetry
       double precision ang2au, au2ang
       integer atn, isys
       character*16 format
-      logical dbug
-      external geom_data
+      logical geom_zmtmak
+      external geom_zmtmak
+      external geom_data        ! What is this????????
 c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -52,7 +52,6 @@ c
 c     Cartesians only for now
 c     
       if (nodeid() .ne. 0) return
-      dbug=.false.
 c     
 c     Check that this is indeed a geometry line
 c     
@@ -88,7 +87,6 @@ c
       oprint_sym = .false.
       include_bqbq = .false.
       ocenter = .true.
-      nzinput=0
       threquiv = 1d-4
 c     
       found_ang2au_conv = .false.
@@ -222,8 +220,7 @@ c
             ozmatrix=.true.   
             oautoz = .false.
             call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
-     $           nzinput,scale,oprint)
-            oautoz=.true.
+     $           scale,oprint)
             goto 20
          else
             if ((ncenter+1) .eq. max_center) call errquit
@@ -365,18 +362,11 @@ c
      $     call errquit('geom_input: geom_cart_get failed', 0)
       if (ncenter .eq. 1) oautoz = .false. ! No point for atoms
 c
-c     call auto-z-matrix generation
+c     Call auto-z-matrix generation
 c     
-      if(oautoz) 
-     $     call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
-     $     nzinput,oautoz,oprint)
+      if(oautoz) oautoz =  geom_zmtmak(geom,oprint)
 c
-c     Autoz may have failed and set autoz=.false.
-c
-      if (.not. oautoz) then
-c     This now seems dead code since no longer pass via common.
-         call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
-      endif
+c     Note, autoz may have failed and set oautoz=.false.
 c
       if (oprint) then
          if (.not. geom_print(geom))
@@ -389,9 +379,6 @@ c
      $           call errquit('geom_input: print xyz?',0)
             write(luout,*)
             call util_flush(luout)
-         endif
-         if(dbug) then
-            call sym_print_all(geom,.true.,.true.,.true.,.true.,.true.)
          endif
          if (.not.geom_print_distances(geom))
      &         call errquit('geom_input: print_distances failed ',911)
@@ -620,7 +607,6 @@ c
      $     zmt_cvr_scaling(geom),
      $     zmt_maxtor(geom), oprint)
 c     
-      return
       end
       subroutine hnd_autoz_input(ijbond,ijkang,ijklto,
      1                           ijklop,ijklnb,max_zcoord,
@@ -750,7 +736,7 @@ c
       end
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,charge,mass,ncenter,
-     2                           nzinput,units,oprint)
+     2                           units,oprint)
       implicit none
 #include "stdio.fh"
 #include "geom.fh"
@@ -769,7 +755,6 @@ c
       double precision zvarsign(mxcoor)
 
       integer      i
-      integer      nzinput
       integer      nizmat
       integer      izmat
       integer      nzmat
@@ -778,8 +763,6 @@ c
       integer      izfrz
       integer      nzfrz
       integer      nat
-      integer      nuc
-      integer      ir
       integer      iw
       integer      ncenter
       integer      icenter
@@ -797,8 +780,8 @@ c
       double precision c
       double precision zan
       double precision units
-      common/hnd_iofile/ir,iw
-      common/hnd_molnuc/nuc(mxatom)
+      integer iw
+      parameter (iw = luout)
       common/hnd_mollab/atmlab(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -813,8 +796,6 @@ c
       some=.true.
       some=some.or.dbug
 c
-      ir=LuIn
-      iw=LuOUT 
       if(dbug) then
          write(iw,9999)
       endif
@@ -861,27 +842,10 @@ c
 c
       nat=ncenter
       do i=1,ncenter
-         nuc(i)=nint(charge(i))
          c(1,i)=coords(1,i)*units
          c(2,i)=coords(2,i)*units
          c(3,i)=coords(3,i)*units
       enddo
-      if(dbug) then
-         do i=1,nat
-            write(iw,9993) i,nuc(i),c(1,i),c(2,i),c(3,i)
-         enddo
-      endif
-c
-c     ----- print -zmat- data -----
-c
-      if (oprint)
-     $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
-c
-c     ----- set number of inputed -z- coordinates -----
-c
-      nzinput=nzvar
-      nzmat=nizmat
-      nvar =nzvar
 c
       return
  9999 format(' in -geom_zmt_input- ')
@@ -895,427 +859,297 @@ c
  9991 format(' $opt  izfrz = ')
  9990 format(' nzfrz = ',i5)
       end
-      subroutine  geom_no_autoz(geom,coords,charge,tags,ncenter,
-     1                          nzinput)
+      logical function geom_compute_zmatrix(geom, zmat)
       implicit none
+#include "geomP.fh"
 #include "stdio.fh"
-      integer      mxizmt
-      integer      mxzmat
-      integer      mxatom
-      integer      mxcart
-      integer      mxcoor
-      parameter    (mxizmt=6000)
-      parameter    (mxatom=500)
-      parameter    (mxcart=3*mxatom)
-      parameter    (mxzmat=1500)
-      parameter    (mxcoor=1500)
-c                   mxcoor=max(mxcart,mxzmat)
-      integer      ir
-      integer      iw
-      integer      i
-      integer      nzinput
-      integer      nizmat
-      integer      izmat
-      integer      nzmat
-      integer      nzvar
-      integer      nvar 
-      integer      ncenter
-      integer      nuc
-      integer      nat
-      integer      geom
-      logical      dbug 
-      logical      some 
-      double precision coords
-      double precision charge
-      double precision zmat  
-      double precision c
-      double precision zan
-      character*16 tags
-      character*16 atmlab
-      character*8  errmsg
-      common/hnd_iofile/ir,iw
-      common/hnd_molnuc/nuc(mxatom)
-      common/hnd_mollab/atmlab(mxatom)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_zmtpar/nzmat,nzvar,nvar
-      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-      dimension coords(3,*)
-      dimension charge(  *)
-      dimension   tags(  *)
-c
-      some=.false.
-      dbug=.false.
-c
-      ir=LuIN 
-      iw=LuOut 
-c$$$      if(some) then
-c$$$         write(iw,9999)
-c$$$      endif
-c
-c     what the %^$#! is this shit? Passing input via common ?????
-c
-      nat   = 999999999
-      nzmat = 888888888
-      nzvar = 777777777
-      nvar  = 666666666
-c
-c$$$      nat=ncenter
-c$$$      do i=1,ncenter
-c$$$         atmlab(i)=tags(i)
-c$$$         nuc(i)=nint(charge(i))
-c$$$         c(1,i)=coords(1,i)
-c$$$         c(2,i)=coords(2,i)
-c$$$         c(3,i)=coords(3,i)
-c$$$      enddo
-c$$$      if(dbug) then
-c$$$         do i=1,nat    
-c$$$            write(iw,9998) i,nuc(i),c(1,i),c(2,i),c(3,i)
-c$$$         enddo
-c$$$      endif
-c$$$c
-c$$$c     ----- no z-matrix data -----
-c$$$c
-c$$$      nzmat=0
-c$$$      nzvar=0
-c$$$      nvar =3*nat
-c$$$c
-c$$$      return
-c$$$ 9999 format(' in -geom_no_autoz- ')
-c$$$ 9998 format(1x,i5,i5,3f10.6)
-      end
-      subroutine  geom_zmt_autoz(rtdb,geom,
-     1                           coords,charge,tags,ncenter,
-     2                           nzinput,oautoz, oprint)
-      implicit none
-#include "stdio.fh"
-      integer      rtdb
-      integer      mxizmt
-      integer      mxzmat
-      integer      mxatom
-      integer      mxcart
-      integer      mxcoor
-      parameter    (mxizmt=6000)
-      parameter    (mxzmat=1500)
-      parameter    (mxatom=500)
-      parameter    (mxcart=3*mxatom)
-      parameter    (mxcoor=1500)
-      integer      ir
-      integer      iw
-      integer      i
-      integer      nzinput
-      integer      nizmat
-      integer      izmat
-      integer      nzmat
-      integer      nzvar
-      integer      nvar 
-      integer      ncenter
-      integer      nuc
-      integer      nat
-      integer      geom
-      logical      oautoz
-      logical      zdone
-      logical      dbug 
-      logical      some 
-      logical     oprint
-      double precision coords(3,*)
-      double precision charge(*)
-      double precision zmat  
-      double precision c
-      double precision zan
-      character*16 tags(*)
-      character*16 atmlab
-      common/hnd_iofile/ir,iw
-      common/hnd_molnuc/nuc(mxatom)
-      common/hnd_mollab/atmlab(mxatom)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_zmtpar/nzmat,nzvar,nvar
-      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-      character*1 zvarname(mxcoor)
-      double precision zvarsign(mxcoor)
-      logical geom_zmt_put_data
-      external geom_zmt_put_data
-c
-      dbug=.false.
-      some=.false.
-      some=some.or.dbug
-c
-      ir=LuIN 
-      iw=LuOut 
-c
-c     ----- call auto-zmat -----
-c
-      nat=ncenter
-      do i=1,ncenter
-         atmlab(i)=tags(i)
-         nuc(i)=nint(charge(i))
-         c(1,i)=coords(1,i)
-         c(2,i)=coords(2,i)
-         c(3,i)=coords(3,i)
+      integer geom
+      double precision zmat(*)  ! [output] nzvar of these
+c     
+c     compute the values of the z-matrix variables returning
+c     them in zmat.
+c     
+      double precision b(3*max_cent) ! scratch dummy zmatrix
+      double precision a(3*10)
+      double precision pi2, degree, bohr, zero, four, pio2, rtod
+      parameter (pi2=6.28318530717958d+00)
+      parameter (degree=360.0d+00)
+      parameter (bohr=0.52917715d+00) ! !!!!!!!!!!!!!!!!!!!!!!!!
+      parameter (zero=0.0d+00)
+      parameter (four=4.0d+00)
+c     
+      integer iadd, i, ii, iadd, itype, izvar, nzvar, ncart
+      double precision eqval
+c     
+      logical geom_check_handle
+      external geom_check_handle
+c     
+      geom_compute_zmatrix = geom_check_handle(geom,'compute zmat')
+      if (.not. geom_compute_zmatrix) return
+c     
+      pio2  =pi2/four
+      rtod  =pi2/degree
+c     
+c     ----- zero out the b matrix -----
+c     
+      ncart = 3*max_cent
+      call dfill(3*max_cent, 0.0d0, b, 1)
+      nzvar = zmt_nzvar(geom)
+c     
+      iadd=1
+      i   =0
+      ii  =0
+      do izvar=1,nzvar
+         i    =i +1            
+         ii   =ii+1
+         i    =   1            
+         itype=zmt_izmat(iadd,geom)
+         if(itype.eq.1) then
+c     
+c     ----- bond stretch -----
+c     
+            call hnd_bstr(eqval,i,zmt_izmat(iadd+1,geom),
+     $           zmt_izmat(iadd+2,geom),
+     1           coords(1,1,geom),b,ncart,bohr)
+            zmat(ii) = eqval
+            iadd = iadd + 3
+         elseif(itype.eq.2 .or. itype.eq.7) then
+c     
+c     ----- angle bend -----
+c     
+            call hnd_bend(eqval,i,zmt_izmat(iadd+1,geom),
+     $           zmt_izmat(iadd+2,geom),
+     1           zmt_izmat(iadd+3,geom),
+     2           coords(1,1,geom),b,ncart,rtod,bohr)
+            zmat(ii) = eqval
+            iadd = iadd + 4
+            if (itype .eq. 7) iadd = iadd + 1 ! additional orientation
+         elseif(itype.eq.3) then
+c     
+c     ----- torsion -----
+c     
+            call hnd_tors(eqval,i,zmt_izmat(iadd+1,geom),
+     $           zmt_izmat(iadd+2,geom),
+     1           zmt_izmat(iadd+3,geom),zmt_izmat(iadd+4,geom),
+     2           coords(1,1,geom),b,ncart,rtod,bohr)
+            zmat(ii) = eqval
+            iadd = iadd + 5
+         elseif(itype.eq.4) then
+c     
+c     ----- out of plane angle bend -----
+c     
+            call hnd_opla(eqval,i,zmt_izmat(iadd+1,geom),
+     $           zmt_izmat(iadd+2,geom),
+     1           zmt_izmat(iadd+3,geom),zmt_izmat(iadd+4,geom),
+     2           coords(1,1,geom),b,ncart,rtod,pio2,bohr)
+            zmat(ii) = eqval
+            iadd = iadd + 5
+         elseif(itype.eq.5) then
+c     
+c     ----- linear angle bend -----
+c     
+            call hnd_libe(eqval,i,zmt_izmat(iadd+1,geom),
+     $           zmt_izmat(iadd+2,geom),
+     1           zmt_izmat(iadd+3,geom),zmt_izmat(iadd+4,geom),
+     2           coords(1,1,geom),b,ncart,rtod,a,10,bohr)
+            zmat(ii  ) = eqval
+            zmat(ii+1) = eqval
+            i=i+1
+            iadd=iadd+5
+         elseif(itype.eq.6) then
+c     
+c     ----- dihedral angle between two planes sharing one atom -----
+c     
+            call hnd_dihpla(eqval,i,zmt_izmat(iadd+1,geom),
+     $           coords(1,1,geom),b,ncart,
+     $           rtod)
+            zmat(ii)=eqval
+            iadd=iadd+6
+c     
+         else
+            call errquit('geom_compute_zmatrix: unknown type',0)
+         endif    
+c     
       enddo
+c     
+      end
+      logical function geom_print_zmatrix(geom, data, string, odata)
+      implicit none
+#include "geomP.fh"
+#include "inp.fh"
+      integer geom
+      logical odata
+      character*(*) string      ! Only 8 characters used
+      double precision data(*)
 c
-      call hnd_zmtmak(zdone,geom,oprint)
+c     Print the zmatrix inside geom, optionally printing the
+c     accompanying data.
 c
-      if(zdone) then
+      integer izvar, jzvar, iadd, itype, i, j, k, l, m, izfrz,
+     $     nequiv
+      double precision zmat(max_nzvar)
+      logical geom_compute_zmatrix
+      character*8 name
+      character*1 s, v
 c
-c     ----- save -izmat- and -zmat- -----
+      geom_print_zmatrix = geom_compute_zmatrix(geom, zmat)
+      if (.not. geom_print_zmatrix) return
 c
-         do i = 1, nzvar
-            zvarname(i) = ' '
-            zvarsign(i) = 1d0
-         enddo
-         if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $        0, 0, nzvar, zvarname, zvarsign,'autoz'))
-     $        call errquit('geom_zmt_input: bad geom handle',geom)
+      write(6,11) zmt_source(geom)(1:inp_strlen(zmt_source(geom)))
+ 11   format(//32x,'Z-matrix (',a,')',/
+     $         32x,'-------- ')
 c
-c     ----- print -zmat- data -----
+      if (zmt_nzfrz(geom) .gt. 0) write(6,12)
+ 12   format(/'  Constants are marked with an asterisk (*).')
 c
-         if (oprint) 
-     $        call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
-      else
-         if (oprint) then 
-            write(6,9997)
-            call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+      nequiv = 0
+      do izvar = 1, zmt_nzvar(geom)
+         if (zmt_varname(izvar,geom) .ne. ' ') then
+            do jzvar = izvar+1, zmt_nzvar(geom)
+               if (zmt_varname(izvar,geom).eq.zmt_varname(jzvar,geom))
+     $              nequiv = nequiv + 1
+            enddo
          endif
-         oautoz = .false.
-      endif
-c
-      return
- 9997 format(' AUTOZ has failed to create a good z-matrix.  The',
-     $     ' z-matrix will be printed but not used.',/,
-     $     ' Any geometry optimization will be performed in ',
-     $     'Cartesian coordinates.',/)
- 9996 format(' $zmat izmat = ')
- 9995 format(12(i5,','))
- 9994 format(' $end ')
- 9993 format(' storing -izmat- via - geom_zmt_put_izmat - ')
-      end
-      subroutine geom_prt_autoz(zmat,nzvar,izmat,nzmat,c)
-      implicit double precision (a-h,o-z)
-#include "stdio.fh"
-c
-c     ----- get the -zmat- values ----- 
-C
-      parameter   (mxatom=500)
-      parameter   (mxcart=3*mxatom)
-      parameter   (na=10)
-      LOGICAL     DBUG
-      LOGICAL     OUT
-      CHARACTER*8 ERRMSG
-      COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OUTPUT/NPRINT
-      DIMENSION B(MXCART,1)
-      DIMENSION ZMAT(*),IZMAT(*)
-      DIMENSION A(3,NA)
-      DIMENSION C(3,*)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-prt:z -'/
-      DATA PI2    /6.28318530717958D+00/
-      DATA DEGREE /360.0D+00/
-      DATA BOHR   /0.52917715D+00/
-      DATA ZERO   /0.0D+00/
-      DATA FOUR   /4.0D+00/
-C
-      DBUG  =.FALSE. 
-      OUT   =.FALSE. 
-      OUT   =OUT.OR.DBUG
-C
-      PIO2  =PI2/FOUR
-      RTOD  =PI2/DEGREE
-C
-      IF(OUT) THEN
-         WRITE(IW,9997) 
-         WRITE(IW,9996) (IZMAT(I),I=1,NZMAT)
-      ENDIF
-C
-C     ----- ZERO OUT THE B MATRIX -----
-C
-      NCART=MXCART
-      DO J = 1,1     
-         DO I = 1,NCART 
-            B(I,J) = ZERO
-         ENDDO
-      ENDDO
-C
-      IADD=1
-      I   =0
-      II  =0
-      DO IZVAR=1,NZVAR
-      I    =I +1            
-      II   =II+1
-      I    =   1            
-      ITYPE=IZMAT(IADD)
-      IF(DBUG) THEN
-         WRITE(IW,9999) IZVAR,IADD,ITYPE,NZMAT,NZVAR
-      ENDIF
-      IF(ITYPE.EQ.1) THEN
-C
-C     ----- BOND STRETCH -----
-C
-         CALL HND_BSTR(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             C,B,NCART,BOHR)
-         ZMAT(II) = EQVAL
-         IADD = IADD + 3
-      ELSEIF(ITYPE.EQ.2 .or. itype.eq.7) THEN
-C
-C     ----- ANGLE BEND -----
-C
-         CALL HND_BEND(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(II) = EQVAL
-         IADD = IADD + 4
-         if (itype .eq. 7) iadd = iadd + 1 ! Additional orientation
-      ELSEIF(ITYPE.EQ.3) THEN
-C
-C     ----- TORSION -----
-C
-         CALL HND_TORS(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,BOHR)
-         ZMAT(II) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.4) THEN
-C
-C     ----- OUT OF PLANE ANGLE BEND -----
-C
-         CALL HND_OPLA(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,PIO2,BOHR)
-         ZMAT(II) = EQVAL
-         IADD = IADD + 5
-      ELSEIF(ITYPE.EQ.5) THEN
-C
-C     ----- LINEAR ANGLE BEND -----
-C
-         CALL HND_LIBE(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
-     1             IZMAT(IADD+3),IZMAT(IADD+4),
-     2             C,B,NCART,RTOD,A,NA,BOHR)
-         ZMAT(II  ) = EQVAL
-         ZMAT(II+1) = EQVAL
-         I=I+1
-         IADD=IADD+5
-      ELSEIF(ITYPE.EQ.6) THEN
-C
-C     ----- DIHEDRAL ANGLE BETWEEN TWO PLANES SHARING ONE ATOM -----
-C
-         CALL HND_DIHPLA(EQVAL,I,IZMAT(IADD+1),C,B,NCART,RTOD)
-         ZMAT(II)=EQVAL
-         IADD=IADD+6
-C
-      ELSE
-         WRITE(IW,9995) IZVAR,IADD,ITYPE
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF    
-C
-      ENDDO
-C
-C     ----- PRINT -----
-C
-      CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
-C
-      RETURN
- 9999 FORMAT(' IN -prt-autoz- IZVAR,IADD,ITYPE,NZMAT,NZVAR = ',5I5)
- 9997 FORMAT(' IN -prt-autoz- IZMAT = ')
- 9996 FORMAT(12I5)
- 9995 FORMAT(' ERROR IN -prt-autoz- , IZVAR,IADD,ITYPE = ',3I5)
-      END
-      subroutine geom_zmt_icoord(rtdb,geom)
-      implicit none
-#include "rtdb.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-      integer      rtdb
-      integer      geom
-      integer      mxizmt
-      integer      mxzmat
-      integer      mxatom
-      integer      mxcart
-      integer      mxcoor
-      parameter    (mxizmt=6000)
-      parameter    (mxatom=500)
-      parameter    (mxcart=3*mxatom)
-      parameter    (mxzmat=1500)
-      parameter    (mxcoor=1500)
-      integer      ir
-      integer      iw
-      integer      i
-      integer      nprint
-      integer      list    
-      integer      ifzmat
-      integer      natzmt
-      integer      nizmat
-      integer      izmat
-      integer      nzmat
-      integer      nzvar
-      integer      nvar
-      integer      nuc
-      integer      nat
-      logical      geom_zmt_get_izmat
-      logical      geom_zmt_get_nizmat
-      logical      dbug
-      logical      some
-      double precision zmat
-      double precision c
-      double precision zan
-      character*8  errmsg
-      common/hnd_output/nprint
-      common/hnd_listng/list
-      common/hnd_iofile/ir,iw
-      common/hnd_molnuc/nuc(mxatom)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-      common/hnd_zmtpar/nzmat,nzvar,nvar
-      common/hnd_zmtopt/ifzmat,natzmt
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','-icoord-'/
-c
-      dbug=.false.
-      some=.false.
-      some=some.or.dbug
-c
-      nprint=0
-      list  =0
-      ir    =LuIn 
-      iw    =LuOut 
-      if(some) then
-         write(iw,9999)
-      endif
-c
-c     ----- read in -izmat- from -nwchem- -----
-c
-      do i=1,mxizmt
-         izmat(i)=0
       enddo
+      if (nequiv .gt. 0) write(6,13)
+ 13   format(/'  Constrained variables are marked with a plus sign',
+     $     ' (+).'/)
+      write(6,*)
 c
-      if(.not.geom_zmt_get_nizmat(geom,nizmat))
-     1     call errquit('geom_input: geom_zmt_get_nizmat failed',0)
-      if(.not.geom_zmt_get_izmat(geom,izmat,nizmat))
-     1     call errquit('geom_input: geom_zmt_get_izmat failed',0)
-
-      if(dbug) then
-         write(iw,9998)
-         write(iw,9997)
-         write(iw,9996) (izmat(i),i=1,nizmat)
-         write(iw,9995)
+      if (odata) then
+         write(6,10) string(1:min(8,inp_strlen(string)))
+      else
+         write(6,9)
       endif
+ 10   format(6x,'Type          Name      I     J     K     L     M',
+
+     $     '      Value     ',a8,/,6x,
+     $     '----------- --------  ----- ----- ----- ----- -----',
+     $     ' ---------- ----------')
+ 9    format(6x,'Type          Name      I     J     K     L     M',
+     $     '      Value',/,6x,
+     $     '----------- --------  ----- ----- ----- ----- -----',
+     $     ' ----------')
 c
-c     ----- call -icoord- -----
+      iadd = 1
+      do izvar=1,zmt_nzvar(geom)
+         itype = zmt_izmat(iadd  ,geom)
+         i     = zmt_izmat(iadd+1,geom)
+         j     = zmt_izmat(iadd+2,geom)
+         k     = zmt_izmat(iadd+3,geom)
+         l     = zmt_izmat(iadd+4,geom)
+         m     = zmt_izmat(iadd+5,geom)
+         name  = zmt_varname(izvar,geom)
+         if (zmt_varsign(izvar,geom) .gt. 0d0) then
+            s = ' '
+         else
+            s = '-'
+         endif
+         v = ' '
+         do izfrz = 1, zmt_nzfrz(geom)
+            if (zmt_izfrz(izfrz,geom) .eq. izvar)
+     $           v = '*'
+         enddo
+         if (v.eq.' ' .and. zmt_varname(izvar,geom) .ne. ' ') then
+            do jzvar = 1, zmt_nzvar(geom)
+               if (zmt_varname(izvar,geom).eq.zmt_varname(jzvar,geom)
+     $              .and. izvar.ne.jzvar)
+     $              v = '+'
+            enddo
+         endif
 c
-      ifzmat=1
-      call hnd_icoord(geom)
+         if(itype.eq.1) then
+c     
+c     ----- bond stretch -----
+c     
+            iadd = iadd + 3
+            if (odata) then
+               write(6,1) izvar, v, s, name, i, j, zmat(izvar),
+     $              data(izvar)
+            else
+               write(6,1) izvar, v, s, name, i, j, zmat(izvar)
+            endif
+         elseif(itype.eq.2) then
+c     
+c     ----- angle bend -----
+c     
+            iadd = iadd + 4
+            if (odata) then
+               write(6,2) izvar, v, s, name, i, j, k, zmat(izvar), 
+     $              data(izvar)
+            else
+               write(6,2) izvar, v, s, name, i, j, k, zmat(izvar)
+            endif
+         elseif(itype.eq.3) then
+c     
+c     ----- torsion -----
+c     
+            iadd = iadd + 5
+            if (odata) then
+               write(6,3) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+     $              data(izvar)
+            else
+               write(6,3) izvar, v, s, name, i, j, k, l, zmat(izvar)
+            endif
+         elseif(itype.eq.4) then
+c     
+c     ----- out of plane angle bend -----
+c     
+            iadd = iadd + 5
+            if (odata) then
+               write(6,4) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+     $              data(izvar)
+            else
+               write(6,4) izvar, v, s, name, i, j, k, l, zmat(izvar)
+            endif
+         elseif(itype.eq.5) then
+c     
+c     ----- linear angle bend -----
+c     
+            iadd=iadd+5
+            if (odata) then
+               write(6,5) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+     $              data(izvar)
+            else
+               write(6,5) izvar, v, s, name, i, j, k, l, zmat(izvar)
+            endif
+         elseif(itype.eq.6) then
+c     
+c     ----- dihedral angle between two planes sharing one atom -----
+c     
+            iadd=iadd+6
+            if (odata) then
+               write(6,6) izvar, v, s, name, i, j, k, l, m,zmat(izvar),
+     $              data(izvar)
+            else
+               write(6,6) izvar, v, s, name, i, j, k, l, m, zmat(izvar)
+            endif
+c     
+         elseif(itype.eq.7) then
+c     
+c     ----- angle bend -----
+c     
+            iadd = iadd + 5
+            if (odata) then
+               write(6,7) izvar, v, s, name, i, j, k, l, zmat(izvar), 
+     $              data(izvar)
+            else
+               write(6,7) izvar, v, s, name, i, j, k, l, zmat(izvar)
+            endif
+         else
+            call errquit('geom_print_zmatrix: unknown type?', itype)
+         endif    
+      enddo
+      write(6,*)
+c      
+ 1    format(1x,i4,a1,'Stretch     ',a1,a8,2(i5,1x),18x,2f11.5)
+ 2    format(1x,i4,a1,'Bend        ',a1,a8,3(i5,1x),12x,2f11.5)
+ 3    format(1x,i4,a1,'Torsion     ',a1,a8,4(i5,1x), 6x,2f11.5)
+ 4    format(1x,i4,a1,'OOP bend    ',a1,a8,4(i5,1x), 6x,2f11.5)
+ 5    format(1x,i4,a1,'Linear bend ',a1,a8,4(i5,1x), 6x,2f11.5)
+ 6    format(1x,i4,a1,'Dihedral    ',a1,a8,5(i5,1x),    2f11.5)
+ 7    format(1x,i4,a1,'Bend(2)     ',a1,a8,4(i5,1x), 6x,2f11.5)
 c
-c     RJH.  HND_ICOORD calls BINVR which will now hard-fail
-c     if there are insufficient linearly indp. coords
-c
-      return
-c
- 9999 format(' in -geom_zmt_icoord ')
- 9998 format(' reading -izmat- via -geom_zmt_get_izmat- ')
- 9997 format(' $zmat izmat = ')
- 9996 format(12(i5,','))
- 9995 format(' $end ')
       end
       subroutine geom_zmat_to_cart(s,nzvar,c)
       implicit none
@@ -2830,7 +2664,7 @@ C
 C
 C     ----- CREATE ATOM AND SHELL MAPPINGS -----
 C
-      CALL HND_MOLMAP(C,C3,NAT)
+c$$$      CALL HND_MOLMAP(C,C3,NAT)
 C
       IF(SOME) THEN
          IF(OUT) THEN
@@ -2842,7 +2676,7 @@ C
 C
 C     ----- SYMMETRIZE CARTESIAN COORDINATES -----
 C
-      CALL HND_SYMATM
+c$$$      CALL HND_SYMATM
 c
       do i = 1, nat
          c(1,i) = c3(1,i)
@@ -4340,7 +4174,6 @@ C
       CHARACTER*8   CHRGRP
       CHARACTER*8   CHRDIR
       CHARACTER*8   CHRBLK
-      COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_DAFILE/IDAF,NAV,IODA(MXIODA)
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
@@ -4913,7 +4746,7 @@ C
 C     ----- GENERATE TRANSFORMATION MATRICES -----
 C           FOR  P, D, F, G  BASIS FUNCTIONS
 C
-      CALL HND_MATSYM
+c$$$      CALL HND_MATSYM
 C
       NTMAX=NT
       IF(NTMAX.EQ.1) THEN
@@ -4954,18 +4787,6 @@ C
  9980 FORMAT(' SIGMA-D FOLLOWED BY C2 FOLLOWED BY ROTATIONS')
  9979 FORMAT(' S2N ROTATION FOLLOWED BY ROTATIONS')
  9978 FORMAT(' THE MOLECULE IS LINEAR ')
-      END
-      SUBROUTINE HND_MOLMAP(C,C3,NAT)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      RETURN
-      END
-      SUBROUTINE HND_SYMATM
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      RETURN
-      END
-      SUBROUTINE HND_MATSYM
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      RETURN
       END
       SUBROUTINE HND_PRTSYM(N1,N2)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
