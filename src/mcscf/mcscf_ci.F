@@ -50,16 +50,21 @@ c
       integer g_civec, g_wvec(mxworkvec)
       INTEGER J,II
       character*10 vstr
+      character*10 civec_in
+      logical civec_saved
 c
       external dummy_mxv
       external dummy_precon
       external detci_sigma
       external detci_ciprecon
+      logical file_read_ga, file_write_ga
+      external file_read_ga, file_write_ga
 c
       save hasprint
       data hasprint/0/
       data citol/1.e-7/
       data maxiter/30/
+      data civec_in/'civec'/
 c
 c
       iprint = 1
@@ -117,16 +122,22 @@ c
         call ga_zero(g_wvec(i))
       enddo
 c
-c   Try some crappy guess
+c   Guess CI vector for first time thru
 c
-      do i=1,nela
-        guess_cfg(i) = i
-      enddo
-      do i=1,nelb
-        guess_cfg(i+nela) = i
-      enddo
-      guess_coeff(1) = 1.d0
-      call detci_guess( 1, guess_cfg, guess_coeff, g_civec )
+      inquire(file=civec_in,exist=civec_saved)
+      if ((hasprint.le.1).or.(.not.(civec_saved))) then
+        do i=1,nela
+          guess_cfg(i) = i
+        enddo
+        do i=1,nelb
+          guess_cfg(i+nela) = i
+        enddo
+        guess_coeff(1) = 1.d0
+        call detci_guess( 1, guess_cfg, guess_coeff, g_civec )
+      else
+        if (.not.(file_read_ga(civec_in,g_civec)))
+     $    call errquit('mcscf_ci: cannot read CI vector',0)
+      endif
 c$$$      CALL DETCI_GUESS( 6, GUESS_CFG, GUESS_COEFF, G_CIVEC )
 c
 c   Davidson diag
@@ -147,6 +158,11 @@ c
 c   Compute MO densities
 c
       call detci_density( g_civec, dm1, dm2 )
+c
+c   Save CI vector for restart
+c
+      if (.not. file_write_ga(civec_in,g_civec))
+     $  call errquit('mcscf_ci: error in CI vector save',0)
 c
 c   Release CI vectors
 c
