@@ -798,7 +798,7 @@ c
           write(6,'(A30,T32,3(F6.3,2X))')
      >          "spring forces               :",
      >          (f(i),i=1,3)
-          write(6,'(//)')"  "
+          write(6,*)"  "
          end if
          etot=etot+e
         end do
