@@ -1,4 +1,4 @@
-C$Id: ecp_so_ang.F,v 1.5 1998-09-25 18:00:00 mg201 Exp $
+C$Id: ecp_so_ang.F,v 1.6 2000-05-18 20:11:02 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_so_ang (l,angint,soint,n_ang)
@@ -54,11 +54,6 @@ C$Id: ecp_so_ang.F,v 1.5 1998-09-25 18:00:00 mg201 Exp $
           call daxpy (n_ang,wa,angint(m,1),ll,soint(1-m,1,3),ll)
         end if
       end do
-*
-      wa = l
-*      wa = two/wa
-      wa = one/wa
-      call dscal (ll*n_ang*3,wa,soint,1)
 *
       return
       end

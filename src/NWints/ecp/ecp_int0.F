@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.9 1999-03-04 19:43:50 mg201 Exp $
+C $Id: ecp_int0.F,v 1.10 2000-05-18 20:11:02 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -213,18 +213,10 @@ C $Id: ecp_int0.F,v 1.9 1999-03-04 19:43:50 mg201 Exp $
 *         spin-orbit potentials 
 *
             if ((n_x .ne. 1) .and. (l_c .gt. 0)) then
-              j = i
-              wc = l_c
-              wa = wa/wc
-              wb = wb/wc
-*
-*           multiply by two for s.l, delete these lines for sigma.l
-*
-*              wa = wa+wa
-*              wb = wb+wb
 *
 *           z spin-orbit potential 
 *
+              j = i
               do m = -l_c,l_c
                 j = j+l_c+l_c
                 tmp(j) = m
@@ -271,6 +263,9 @@ C $Id: ecp_int0.F,v 1.9 1999-03-04 19:43:50 mg201 Exp $
      &            n_na,tmp(i_tmp),n_na,csco,lcsco,csco,-1,1,1)
               if (debug_arrays) call ecp_matpr (tmp(i_scr),1,n_na,
      &            1,n_nb,1,n_na,1,n_nb,'Angular integrals','F',78,4)
+              if (debug_arrays) call ecp_matpr (tmp(i_Q_int),1,n_cont_a,
+     &            1,n_cont_b,1,n_cont_a,1,n_cont_b,'Radial integrals',
+     &            'F',78,4)
               call ecp_angrad (n_na,n_cont_a,n_nb,n_cont_b,
      &            tmp(i_scr),tmp(i_Q_int),ecp_ints(1,1,1,1,m))
               if (debug_arrays) call ecp_matpr (ecp_ints(1,1,1,1,m),
