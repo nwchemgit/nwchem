@@ -1,5 +1,5 @@
 *
-* $Id: bitops_funcs.fh,v 1.7 1997-11-01 05:35:31 d3j191 Exp $
+* $Id: bitops_funcs.fh,v 1.8 1998-01-28 00:08:43 d3h449 Exp $
 *
 c
 c     Machine dependent defintion of the standard
@@ -20,4 +20,8 @@ c
 #if defined(SGI) && defined(_LANGUAGE_FORTRAN90)
       lshift(iiibit,jjjbit) = ishft(iiibit,jjjbit)
       rshift(iiibit,jjjbit) = ishft(iiibit,-jjjbit)
+#endif
+#ifdef HPUX
+      lshift(iiibit,jjjbit)=iiibit*2**(mod(jjjbit,32))
+      rshift(iiibit,jjjbit)=iiibit/2**(mod(jjjbit,32))
 #endif

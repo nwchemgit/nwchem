@@ -259,6 +259,15 @@ peigs_CPU = HPPA
 peigs_CC += -DSTD_DBL -DSTD_INT
 endif
 
+ifeq ($(peigs_TARGET),HPUX)
+#
+# try for HP running HPUX10.20
+#
+peigs_CODEOBJ = DBLE
+peigs_COMM = TCGMSG
+peigs_CPU = HPPA
+peigs_CC += -DSTD_DBL -DSTD_INT
+endif
 ifeq ($(peigs_TARGET),IBM)
 #
 # IBM AIX

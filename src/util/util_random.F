@@ -1,6 +1,6 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.10 1997-10-01 18:23:30 rg240 Exp $
+c $Id: util_random.F,v 1.11 1998-01-28 00:08:44 d3h449 Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -22,11 +22,18 @@ c
 #endif
 #if defined(SGI) || defined(SGITFP)
 #define SET_RANDOM
-      integer iseed
-      real*8 rand
-      external rand
-      if(iseed.gt.0) call srand(dble(iseed))
-      util_random=rand()
+       integer iseed
+       real*8 rand
+       external rand
+       if(iseed.gt.0) call srand(dble(iseed))
+       util_random=rand()
+#endif
+#if defined(HPUX)
+#define SET_RANDOM
+       integer iseed
+       real*8 drand
+       external drand
+       util_random=drand()
 #endif
 #if defined(SUN) || defined(SOLARIS)
 #define SET_RANDOM

@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.249 1997-12-24 11:20:16 d3e129 Exp $
+# $Id: makefile.h,v 1.250 1998-01-28 00:08:35 d3h449 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -678,6 +678,33 @@ endif
        CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 endif
 
+ifeq ($(TARGET),HPUX)
+#
+# HPUX 10.1
+#
+
+  CORE_SUBDIRS_EXTRA = blas lapack
+  CPP = /lib/cpp -P
+# CC = gcc
+  CC = cc
+  FC = f77
+  LDOPTIONS = -g  -L$(LIBDIR)  -L/usr/lib
+  LINK.f = fort77   $(LDOPTIONS)
+  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -ltcgmsg -llapack -lblas -lU77 -lM -lm
+  CDEBUG =
+  FDEBUG = -g
+  FOPTIONS =  +ppu
+# COPTIONS =
+  COPTIONS = -Aa -D_HPUX_SOURCE +e
+  FOPTIMIZE = -g
+  FVECTORIZE = -O +Oaggressive
+# COPTIMIZE = -fthread-jumps -fdefer-pop -fdelayed-branch -fomit-frame-pointer -finline-functions -ffast-math
+  COPTIMIZE = -O
+  RANLIB = echo
+
+  DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
+
+endif
 
 
 ifeq ($(TARGET),CONVEX-SPP)
@@ -973,7 +1000,7 @@ ifdef USE_MPI
    endif
    CORE_LIBS += -ltcgmsg-mpi -lmpi 
 else
-   CORE_LIBS += -ltcgmsg
+    CORE_LIBS += -ltcgmsg
 endif
 CORE_LIBS += $(EXTRA_LIBS)
 

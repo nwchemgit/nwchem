@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 1997-11-07 11:37:46 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 1998-01-28 00:08:34 d3h449 Exp $
 #
 
 include makefile.h
@@ -14,6 +14,10 @@ endif
 ifeq ($(TARGET),SP1)
 # Must use plain cc not mpcc
   CC = cc
+endif
+
+ifeq ($(TARGET),HPUX)
+  DEPENDCFLAGS = -Aa -D_HPUX_SOURCE +e
 endif
 
 $(BINDIR)/depend.x:	depend.c

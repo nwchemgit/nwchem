@@ -1,5 +1,5 @@
 *
-* $Id: bitops_decls.fh,v 1.8 1997-11-01 05:35:31 d3j191 Exp $
+* $Id: bitops_decls.fh,v 1.9 1998-01-28 00:08:42 d3h449 Exp $
 *
 c
 c     Machine dependent defintion of the standard
@@ -18,6 +18,10 @@ c
       integer iiibit, jjjbit
 #endif
 #if defined(SGI) && defined(_LANGUAGE_FORTRAN90)
+      integer rshift, lshift
+      integer iiibit, jjjbit
+#endif
+#if defined(HPUX)
       integer rshift, lshift
       integer iiibit, jjjbit
 #endif
