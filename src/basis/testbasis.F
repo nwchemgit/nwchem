@@ -1,7 +1,8 @@
       program testbasis
-c $Id: testbasis.F,v 1.20 2000-06-02 19:02:06 bert Exp $
+c $Id: testbasis.F,v 1.21 2000-06-02 19:07:15 bert Exp $
       implicit none
 c
+#include "nwc_const.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -213,6 +214,7 @@ c
       end
       subroutine bas_geomap_check(basisin)
       implicit none
+#include "nwc_const.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
