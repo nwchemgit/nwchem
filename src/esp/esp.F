@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.9 1999-01-27 18:17:59 d3j191 Exp $
+c $Id: esp.F,v 1.10 1999-04-03 06:13:37 d3j191 Exp $
 c
       implicit none
 c
@@ -84,15 +84,15 @@ c
       call esp_rms(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
      + dbl_mb(ivptr))
 c
-c     electrostatic potential from partial charges on full grid
-c
-      call esp_plt(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
-     + byte_mb(itptr))
-c
 c     write results
 c
       call esp_out(byte_mb(itptr),dbl_mb(ixptr),dbl_mb(iqfptr),
      + dbl_mb(igptr),dbl_mb(ivptr))
+c
+c     electrostatic potential from partial charges on full grid
+c
+      call esp_plt(dbl_mb(ixptr),dbl_mb(iqfptr),dbl_mb(igptr),
+     + byte_mb(itptr))
 c
 c     deallocate memory
 c
