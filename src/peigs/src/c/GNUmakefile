@@ -2,6 +2,7 @@ include ../../../config/makefile.h
 include ../../DEFS
 
 COBJ  = clustrfix.o \
+	pdcomplex.o \
 	mgscs.o \
 	pscale.o \
 	clustrxx5.o \
