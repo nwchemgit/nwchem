@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.16 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_grid.F,v 1.17 2003-08-12 20:43:46 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -34,7 +34,7 @@ c
 c
       return
       end
-      subroutine cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,nsaloc,
+      subroutine cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
 c
       implicit none
@@ -45,7 +45,7 @@ c
       logical lset,lgrid
       integer ipset,nwmloc,nsaloc,node,mgz
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
       integer knode(*),kfrom(*)
       logical lsldo(*)
       real*8 grid(ngrx,ngry,mgz)
@@ -59,16 +59,17 @@ c
       endif
 c
       call cf_grid(ipset,xw,dbl_mb(i_pmew),int_mb(i_iwq),nwmloc,
-     + xs,dbl_mb(i_pmes),isq,nsaloc,
+     + xs,dbl_mb(i_pmes),isq,isgm,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
-     + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz)
+     + grid,mgz,lgrid,knode,kfrom,lsldo,node,mnx,mxx,mny,mxy,mnz,mxz,
+     + int_mb(i_lseq))
 c
       return
       end
-      subroutine cf_grid(ipset,xw,yw,iwq,nwmloc,xs,ys,isq,nsaloc,chg,
-     + theta,dtheta,
+      subroutine cf_grid(ipset,xw,yw,iwq,nwmloc,xs,ys,isq,isgm,
+     + nsaloc,chg,theta,dtheta,
      + grid,mgz,lgrid,knode,kfrom,lsldo,node,
-     + minx,maxx,miny,maxy,minz,maxz)
+     + minx,maxx,miny,maxy,minz,maxz,lseq)
 c
       implicit none
 c
@@ -78,7 +79,7 @@ c
       integer ipset,nwmloc,nsaloc,node,mgz
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 yw(mwm,3,mwa),ys(msa,3)
-      integer iwq(mwa),isq(msa)
+      integer iwq(mwa),isq(msa),isgm(msa),lseq(mseq)
       real*8 chg(mqt,mqp,mset),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(np),kfrom(np)
       logical lsldo(np,*)
@@ -86,7 +87,7 @@ c
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,isa,iwm,iwa,indx
       integer minx,miny,minz,maxx,maxy,maxz
-      real*8 prod
+      real*8 prod,charge
 c
       do 1 k=1,mgz
       do 21 j=1,ngry
@@ -153,6 +154,11 @@ c      if(i.gt.maxx) maxx=i
 c
       if(isolvo.eq.0) then
       do 7 isa=1,nsaloc
+      if(nfhop.eq.0) then
+      charge=chg(isq(isa),1,ipset)
+      else
+      charge=chg(isq(isa),1,lseq(isgm(isa)))
+      endif
       indx=indx+1
       k0=int(ys(isa,3))-morder
       do 8 ith3=1,morder
@@ -173,7 +179,7 @@ c
 c      j=j0+1+(ngy-isign(ngy,j0))/2
 c      if(j.gt.ngy) j=j-ngy
 c      if(j.lt.1) j=j+ngy
-      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),1,ipset)
+      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*charge
       i0=int(ys(isa,1))-1
 c      if(j.lt.miny) miny=j
 c      if(j.gt.maxy) maxy=j
@@ -409,7 +415,7 @@ c
 c
       return
       end
-      subroutine cf_fpme(fw,nwmloc,fs,isq,nsaloc,grid,mgz,
+      subroutine cf_fpme(fw,nwmloc,fs,isq,isgm,nsaloc,grid,mgz,
      + knode,kfrom,lsldo,node)
 c
       implicit none
@@ -419,21 +425,21 @@ c
 c
       integer nwmloc,nsaloc,node,mgz
       real*8 fw(mwm,3,mwa),fs(msa,3)
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
       integer knode(*),kfrom(*)
       logical lsldo(*)
       real*8 grid(ngrx,ngry,mgz)
 c
       call cf_forpme(dbl_mb(i_pmew),fw,int_mb(i_iwq),nwmloc,
-     + dbl_mb(i_pmes),fs,isq,nsaloc,
+     + dbl_mb(i_pmes),fs,isq,isgm,nsaloc,
      + dbl_mb(i_chg),dbl_mb(i_theta),dbl_mb(i_dtheta),
-     + grid,mgz,knode,kfrom,lsldo,node)
+     + grid,mgz,knode,kfrom,lsldo,node,int_mb(i_lseq))
 c
       return
       end
-      subroutine cf_forpme(yw,fw,iwq,nwmloc,ys,fs,isq,nsaloc,
+      subroutine cf_forpme(yw,fw,iwq,nwmloc,ys,fs,isq,isgm,nsaloc,
      + chg,theta,dtheta,
-     + grid,mgz,knode,kfrom,lsldo,node)
+     + grid,mgz,knode,kfrom,lsldo,node,lseq)
 c
       implicit none
 c
@@ -442,14 +448,14 @@ c
 c
       integer nwmloc,nsaloc,node,mgz
       real*8 yw(mwm,3,mwa),fw(mwm,3,mwa),ys(msa,3),fs(msa,3)
-      integer iwq(mwa),isq(msa)
+      integer iwq(mwa),isq(msa),isgm(msa),lseq(mseq)
       real*8 chg(mqt,mqp,mset),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(*),kfrom(*)
       logical lsldo(*)
       real*8 grid(ngrx,ngry,mgz)
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,iwm,iwa,isa,indx
-      real*8 term,fx,fy,fz
+      real*8 term,fx,fy,fz,charge
 c
       indx=0
 c
@@ -502,6 +508,11 @@ c      if(i.lt.1) i=i+ngx
     2 continue
 c
       do 7 isa=1,nsaloc
+      if(nfhop.eq.0) then
+      charge=chg(isq(isa),1,iset)
+      else
+      charge=chg(isq(isa),1,lseq(isgm(isa)))
+      endif
       indx=indx+1
       fx=zero
       fy=zero
@@ -522,7 +533,7 @@ c      j=j0+1+(ngy-isign(ngy,j0))/2
       i0=i0+1
       i=i0+1
 c      i=i0+1+(ngx-isign(ngx,i0))/2
-      term=chg(isq(isa),1,iset)*grid(i,j,k)
+      term=charge*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
       fy=fy-ngy*term*dtheta(ith2,2,indx)*theta(ith3,3,indx)*

@@ -1,5 +1,5 @@
-      subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.30 2003-07-23 20:37:32 d3j191 Exp $
+      subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
+c $Id: pme_grid.F,v 1.31 2003-08-12 20:43:46 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -7,7 +7,7 @@ c
 c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
 c
       call timer_start(24)
 c
@@ -19,7 +19,7 @@ c
       endif
       call timer_stop(24)
 c
-      call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
+      call pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
      + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd))
@@ -84,7 +84,7 @@ c
 c
       return
       end
-      subroutine pme_energy(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
+      subroutine pme_energy(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
 c
       implicit none
 c
@@ -93,7 +93,7 @@ c
 c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
 c
       call timer_start(24)
       call pme_init()
@@ -104,7 +104,7 @@ c
       endif
       call timer_stop(24)
 c
-      call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
+      call pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),int_mb(i_slmax),
      + dbl_mb(i_grd1),dbl_mb(i_grd2),dbl_mb(i_grd))
@@ -131,7 +131,7 @@ c
 c
       return
       end
-      subroutine pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
+      subroutine pme_grid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + nodep,knode,kfrom,kto,lnode,lsldo,maxsl,gridr,gridc,grid)
 c
       implicit none
@@ -142,7 +142,7 @@ c
 c
       integer ipset,nwmloc,nsaloc
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
       logical lsldo(np,mgz)
       integer maxsl(4,np,mgz)
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),lnode(np)
@@ -172,7 +172,7 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
-      call cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,nsaloc,
+      call cf_chgrid(lset,ipset,xw,nwmloc,xs,isq,isgm,nsaloc,
      + grid,ngznon,lgrid,knode,kfrom,lsldo,node,
      + minx,maxx,miny,maxy,minz,maxz)
 c
@@ -319,7 +319,7 @@ c      maxy=ngy
 c
       return
       end
-      subroutine pme_forces(fw,nwmloc,fs,isq,nsaloc)
+      subroutine pme_forces(fw,nwmloc,fs,isq,isgm,nsaloc)
 c
       implicit none
 c
@@ -328,14 +328,14 @@ c
 c
       integer nwmloc,nsaloc
       real*8 fw(mwm,3,mwa),fs(msa,3)
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
 c
-      call pme_for(fw,nwmloc,fs,isq,nsaloc,int_mb(i_lnod),
+      call pme_for(fw,nwmloc,fs,isq,isgm,nsaloc,int_mb(i_lnod),
      + int_mb(i_kfr),int_mb(i_kto))
 c
       return
       end
-      subroutine pme_for(fw,nwmloc,fs,isq,nsaloc,lnode,kfrom,kto)
+      subroutine pme_for(fw,nwmloc,fs,isq,isgm,nsaloc,lnode,kfrom,kto)
 c
       implicit none
 c
@@ -344,7 +344,7 @@ c
 c
       integer nwmloc,nsaloc
       real*8 fw(mwm,3,mwa),fs(msa,3)
-      integer isq(msa)
+      integer isq(msa),isgm(msa)
       integer lnode(np),kfrom(np),kto(np)
 c
       integer inode,node,ngznon
@@ -378,7 +378,7 @@ c
       call timer_stop(41)
       call timer_start(40)
 c
-      call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd),mgz,
+      call cf_fpme(fw,nwmloc,fs,isq,isgm,nsaloc,dbl_mb(i_grd),mgz,
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue

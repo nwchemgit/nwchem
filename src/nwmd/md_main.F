@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.166 2003-08-07 20:14:32 d3j191 Exp $
+c $Id: md_main.F,v 1.167 2003-08-12 20:43:48 d3j191 Exp $
 c
       implicit none
 c
@@ -1971,20 +1971,20 @@ c
       if(lpme.and.llong) then
       if(lpert2) then
       call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(2))
+     + isl(1,lsct1),isl(1,lssgm),nsaloc,epme(2))
       call timer_start(24)
       call pme_init()
       call timer_stop(24)
       endif
       if(lpert3) then
       call pme_energy(3,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(3))
+     + isl(1,lsct1),isl(1,lssgm),nsaloc,epme(3))
       call timer_start(24)
       call pme_init()
       call timer_stop(24)
       endif
       call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(iset))
+     + isl(1,lsct1),isl(1,lssgm),nsaloc,epme(iset))
       endif
 c
       return
@@ -2198,7 +2198,8 @@ c
     1 continue
 c
       if(lpme.and.llong) then
-      call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),isl(1,lsct1),nsaloc)
+      call pme_forces(fw(1,1,1,2),nwmloc,fs(1,1,2),
+     + isl(1,lsct1),isl(1,lssgm),nsaloc)
       endif
 c
       if(.not.ldone) then
@@ -2597,7 +2598,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.166 2003-08-07 20:14:32 d3j191 Exp $
+c $Id: md_main.F,v 1.167 2003-08-12 20:43:48 d3j191 Exp $
 c
       implicit none
 c
