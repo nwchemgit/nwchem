@@ -28,8 +28,13 @@ c
 c
 c
 c
+#ifdef OLD_DAVIDSON
       integer mxworkvec
       parameter(mxworkvec=24)
+#else
+      integer mxworkvec
+      parameter(mxworkvec=5)
+#endif      
       integer nela, nelb, nsym, nactel, multip
       integer osym(detci_maxorb)
       integer guess_cfg(12)
@@ -53,8 +58,8 @@ c
 c
       save hasprint
       data hasprint/0/
-      data citol/1.e-6/
-      data maxiter/10/
+      data citol/1.e-7/
+      data maxiter/30/
 c
 c
       iprint = 1
@@ -126,12 +131,14 @@ c$$$      CALL DETCI_GUESS( 6, GUESS_CFG, GUESS_COEFF, G_CIVEC )
 c
 c   Davidson diag
 c
-c$$$      call detci_dvddiag( 1, detci_sigma, detci_ciprecon, maxiter,
-c$$$     $                    citol, g_civec, g_wvec(1), g_wvec(2),
-c$$$     $                    g_wvec(3), g_wvec(4), g_wvec(5), ciener )
-c
+#ifdef OLD_DAVIDSON
       call detci_dvddiag0( detci_sigma, detci_ciprecon, mxworkvec,
      $                     1.d-12, ciener, g_wvec, g_civec, oprint )
+#else
+      call detci_dvddiag( detci_sigma, detci_ciprecon, maxiter,
+     $                    citol, oprint, g_civec, g_wvec(1), g_wvec(2),
+     $                    g_wvec(3), g_wvec(4), g_wvec(5), ciener )
+#endif
 c
 c   Print out converged ground state CI vector
 c

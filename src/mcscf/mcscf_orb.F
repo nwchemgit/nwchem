@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.4 1996-02-13 23:00:36 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.5 1996-02-13 23:51:18 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, osym, orbsym, dm1, dm2,
@@ -44,7 +44,7 @@ c
        integer molo, mohi, i, ismall, nstep
        double precision tol2e, enrep, energy
        double precision snorm, lshift, lshift0, p_acc
-       double precision alpha, gsscale
+       double precision alpha, gsscale, gnorm0
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
        double precision xx, yy, eold, hmax, hmin, maxx
@@ -114,6 +114,7 @@ c
      $                       g_grad, .true., .false., maxx )
        call ga_screen(g_grad,1.d-10)
        gnorm = sqrt(ga_ddot(g_grad,g_grad))
+       gnorm0 = gnorm
        eone = eone + enrep
        energy = eone + etwo
 c
@@ -187,22 +188,22 @@ c
        if (oconj)
      $   call mcscf_conj( g_grad, g_gradold, pfac, g_conj, g_srch )
 c
+c  Info
 c
-c  Line search...
-c    **Approximate** because J integrals 
-c    are not regenerated
-c
-       alpha = 1.0d0
-       eold = energy
-       eev(0) = energy
-       gsv(0) = ga_ddot(g_grad, g_srch)
-       av(0) = 0.d0
        if (ga_nodeid().eq.0) write(6,966) (snorm/gnorm), lshift
  966   format(/,'Scaled search norm:',5x,e12.2,
      $        /,'Level shift:',15x,f12.3)
 c$$$       IF (GA_NODEID().EQ.0) WRITE(6,967)
 c$$$ 967   FORMAT(/,15X,'ALPHA',15X,'ENERGY',12X,'GPROJ',4X,
 c$$$     $              'GPROJSCALED',/,14X,60('-'))
+c
+c  Line search...
+c
+       alpha = 1.0d0
+       eold = energy
+       eev(0) = energy
+       gsv(0) = ga_ddot(g_grad, g_srch)
+       av(0) = 0.d0
        do iter=1,maxlinsrch
          nstep = iter
          if (line_search( nstep, maxlinsrch, eev, gsv, av, 1.d-8,
@@ -211,20 +212,35 @@ c$$$     $              'GPROJSCALED',/,14X,60('-'))
          call ga_dadd( alpha, g_srch, 0.d0, g_kvec, g_kvec )
          call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                   g_movecs, g_newvecs )
-c$$$  if (gnorm.gt.1.d-4) then
+c
+c   Resolve secular eqn for each step?
+c   Have to regenerate J and K for STEPCI
+c   only J required otherwise
+c
+#ifdef STEPCI
+         if (gnorm0.gt.1.d-2) then
+           write(6,771) 
+ 771       format(20x,'CI resolved')
+           call moints_build_6x( basis, osym,
+     $                           molo, molo, mohi, 1, nbf,
+     $                           g_newvecs, g_coul, .true.,
+     $                           g_exch, .true., 16 )
+           call mcscf_fcore( basis, nbf, nclosed, nact, g_newvecs,
+     $                       g_coul, g_exch, g_hcore )
+           call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                         orbe, g_hcore, g_coul, dm1, dm2,
+     $                         .false., .false. )
+        else
          call moints_build_6x( basis, osym,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_newvecs, g_coul, .true.,
-     $                         g_exch, .true., 16 )
-c$$$  endif
-c
-c
-#ifdef STEPCI
-         call mcscf_fcore( basis, nbf, nclosed, nact, g_newvecs,
-     $                     g_coul, g_exch, g_hcore )
-         call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                       orbe, g_hcore, g_coul, dm1, dm2, .false.,
-     $                       .false. )
+     $                         g_exch, .false., 16 )
+        endif
+#else
+         call moints_build_6x( basis, osym,
+     $                         molo, molo, mohi, 1, nbf,
+     $                         g_newvecs, g_coul, .true.,
+     $                         g_exch, .false., 16 )
 #endif
 c
 c
@@ -286,7 +302,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.4 1996-02-13 23:00:36 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.5 1996-02-13 23:51:18 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

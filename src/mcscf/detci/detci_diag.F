@@ -2,16 +2,18 @@ c
 c  Davidson diagonalization with 
 c  3-term recursion
 c
-      subroutine detci_dvddiag( n, mxv, precon, maxiter, tol,
+      subroutine detci_dvddiag( mxv, precon, maxiter, tol, oprint,
      $                          g_x, g_x0, g_q, g_s, g_s0, g_sq, e )
       implicit none
 #include "global.fh"
 #include "util.fh"
-      integer n                               ! [input] dimension
+c
+c
       external mxv                            ! [input] matrix-vector product routine
       external precon                         ! [input] preconditioner routine
       integer maxiter                         ! [input] maximum allowed iterations
       double precision tol                    ! [input] convergence tolerance
+      logical oprint                          ! [input] toggle print out
       integer g_x                             ! [input/output] starting guess/soln vector
       integer g_x0                            ! [scratch] previous iteration solution
       integer g_q                             ! [scratch] new basis vector
@@ -46,10 +48,10 @@ c
 c
 c
       TY = util_cpusec()
-      WRITE(6,906)
- 906  FORMAT(/,'Iter',8x,'Energy',10x,'DeltaE',
+      if (oprint) write(6,906)
+ 906  format(/,'Iter',8x,'Energy',10x,'DeltaE',
      $       6x,'Rnorm',7x,'Coeff',7x,'Time')
-      CALL FLUSH(6)
+      call flush(6)
 c
 c
 c
@@ -176,7 +178,7 @@ c$$$      rnorm = dnrm2(n,q,1)
       rnormscal = rnorm/sqrt(abs(ee(1)))
       TX = util_cpusec() - TY
       TY = util_cpusec()
-      if (ga_nodeid().eq.0) then
+      if ((ga_nodeid().eq.0).and.(oprint)) then
         write(6,881) iter,ee(1),(ee(1)-eold),rnormscal,abs(cc(1,1)),tx
  881    format(i3,f20.10,3e12.2,f10.2)
         call flush(6)
