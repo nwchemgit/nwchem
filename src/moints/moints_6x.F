@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.9 1995-11-01 18:13:17 rg240 Exp $
+c  $Id: moints_6x.F,v 1.10 1996-01-26 23:57:24 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -392,7 +392,7 @@ c
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
 c
-c
+c  Exchange 3 & 4 qtr transformation
 c
        if (oexch) then
          tz = tcgtime()
@@ -401,11 +401,11 @@ c
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          t34kidx = tcgtime() - tz
          if (util_print('exchange integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
          endif
        endif
 c
-c
+c  Coulomb 3 & 4 qtr transformation
 c
        if (ocoul) then
          tz = tcgtime()
@@ -413,7 +413,7 @@ c
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          if (util_print('coulomb integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
          endif
          t34jidx = tcgtime() - tz
        endif

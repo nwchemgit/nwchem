@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.14 1996-01-26 21:50:55 rg240 Exp $
+c  $Id: moints_2x.F,v 1.15 1996-01-26 23:57:22 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -332,16 +332,14 @@ c$$$     $       call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp),
      $                         osym, int_mb(k_sym))
-           itmp = nbf
          else
            call moints2xv_Ktrf4( g_exch, occ_start, mo1_lo, mo1_hi,
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                           dbl_mb(k_hlp), osym, int_mb(k_sym) )
            t4kidx = t4kidx + tcgtime() - tz
-           itmp = nmo2
          endif
          if (util_print('exchange integral',print_debug))
-     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_exch)
+     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
        endif
 c
 c  Coulomb term

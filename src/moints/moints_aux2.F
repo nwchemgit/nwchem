@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -286,51 +286,6 @@ c
 
 
 
-
-      subroutine moints_Ktrf34( g_exch, otrp, ostart, olo, ohi,
-     $                          vlo, vhi, nbf, c, tmp, osym, syms )
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-      integer g_exch
-      logical otrp
-      integer nbf, ostart, olo, ohi, vlo, vhi
-      double precision c(nbf,nbf)
-      double precision tmp(nbf,nbf)
-
-      integer nvir, clo, chi, rlo, rhi, my_id
-      integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
-
-      logical osym
-      integer syms(nbf)
-
-      ofroz = ostart - 1
-      nvir = vhi - vlo + 1
-      my_id = ga_nodeid()
-      call ga_distribution(g_exch, my_id, rlo, rhi, clo, chi )
-      aoff = ((olo-ofroz)*(olo-ofroz-1))/2
-      do a1=olo,ohi
-        aa1 = a1 - ofroz
-        do a2=ostart,a1
-          aa2 = a2 - ofroz
-          aa = (aa1*(aa1-1))/2 + aa2 - aoff
-          if ((aa.ge.clo).and.(aa.le.chi)) then
-            call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
-            call moints_Ktrf34a( otrp, nbf, c, dbl_mb(k_local), tmp )
-            if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
-     $                                     dbl_mb(k_local))
-            call ga_release(g_exch,rlo,rhi,aa,aa)
-          endif
-        enddo
-      enddo
-      return
-      end
-
-
-
-
-
-
       subroutine moints_sym_zero(nbf, vlo, vhi, syms, i, j, x)
       implicit none
       integer nbf
@@ -363,25 +318,73 @@ c
 
 
 
+
+
+
+
+      subroutine moints_Ktrf34( g_exch, otrp, ostart, olo, ohi,
+     $                          vlo, vhi, nbf, c, tmp, osym, syms )
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer g_exch
+      logical otrp
+      integer nbf, ostart, olo, ohi, vlo, vhi
+      double precision c(nbf,nbf)
+      double precision tmp(nbf,nbf)
+
+      integer nvir, clo, chi, rlo, rhi, my_id
+      integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
+
+      logical osym
+      integer syms(nbf)
+
+      ofroz = ostart - 1
+      nvir = vhi - vlo + 1
+      my_id = ga_nodeid()
+      call ga_distribution(g_exch, my_id, rlo, rhi, clo, chi )
+      aoff = ((olo-ofroz)*(olo-ofroz-1))/2
+      do a1=olo,ohi
+        aa1 = a1 - ofroz
+        do a2=ostart,a1
+          aa2 = a2 - ofroz
+          aa = (aa1*(aa1-1))/2 + aa2 - aoff
+          if ((aa.ge.clo).and.(aa.le.chi)) then
+            call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
+            call moints_Ktrf34a( otrp, nbf, vlo, vhi, c,
+     $                           dbl_mb(k_local), tmp )
+            if (osym) call moints_sym_zero(nbf, vlo, vhi, syms,
+     $                                     a1, a2, dbl_mb(k_local))
+            call ga_release(g_exch,rlo,rhi,aa,aa)
+          endif
+        enddo
+      enddo
+      return
+      end
+
+
+
 c
 c Note: May require transpose the half-transformed matrix
 c       to conform to convention for storage
 c
-      subroutine moints_Ktrf34a( otrp, nbf, c, x, tmp )
+      subroutine moints_Ktrf34a( otrp, nbf, vlo, vhi, c, x, tmp )
       implicit none
       logical otrp
-      integer nbf
+      integer nbf, vlo, vhi
       double precision c(nbf,nbf)
       double precision x(nbf,nbf)
       double precision tmp(nbf,nbf)
+      integer nv
       character*1 ttt
       
       ttt = 'n'
       if (otrp) ttt = 't'
-      call dgemm('t',ttt,nbf,nbf,nbf,1.d0,c,nbf,x,nbf,
-     $           0.d0,tmp,nbf)
-      call dgemm('n','n',nbf,nbf,nbf,1.d0,tmp,nbf,c,nbf,
-     $           0.d0,x,nbf)
+      nv = vhi - vlo + 1
+      call dgemm('t',ttt,nv,nbf,nbf,1.d0,c(1,vlo),nbf,x,nbf,
+     $           0.d0,tmp,nv)
+      call dgemm('n','n',nv,nv,nbf,1.d0,tmp,nv,c(1,vlo),nbf,
+     $           0.d0,x,nv)
 
       return
       end
@@ -533,7 +536,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -577,7 +580,7 @@ C$Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.13 1996-01-26 21:59:48 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.14 1996-01-26 23:57:25 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

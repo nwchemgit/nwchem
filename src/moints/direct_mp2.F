@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.17 1995-12-01 22:04:50 rg240 Exp $
+C$Id: direct_mp2.F,v 1.18 1996-01-26 23:57:52 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -281,7 +281,8 @@ c
 c Evaluate and store pair energies
 c
        call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nmo2,
-     $                     nbf, g_exch, dbl_mb(k_evals), g_epair )
+     $                     nmo2, nbf, g_exch, dbl_mb(k_evals),
+     $                     g_epair )
 c
 c Print progress of this pass
 c
