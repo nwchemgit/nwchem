@@ -391,7 +391,7 @@ c
       box(2)=bx(2)
       box(3)=bx(3)
 c
-      call sp_resize(dbl_mb(i_boxs))
+      call sp_bscale(dbl_mb(i_boxs))
 c
       call sp_owner(xw,iwl,nwmloc,xs,isl,nsaloc)
 c
@@ -1431,7 +1431,7 @@ c
 c
       return
       end
-      subroutine sp_resize(boxsiz)
+      subroutine sp_bscale(boxsiz)
 c
       implicit none
 c
@@ -1459,3 +1459,351 @@ c
 c
       return
       end
+      subroutine sp_balanc(syntim)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 syntim
+c
+      integer l_dlb,i_dlb,i_nod,l_nod,i_nen,l_nen,i_lst,l_lst
+c
+      if(.not.ma_alloc_get(mt_int,np,'nod',l_nod,i_nod))
+     + call errquit('Failed to allocate nod',me)
+      if(.not.ma_alloc_get(mt_int,np,'lst',l_lst,i_lst))
+     + call errquit('Failed to allocate lst',me)
+      if(.not.ma_alloc_get(mt_int,26*np,'nen',l_nen,i_nen))
+     + call errquit('Failed to allocate nen',me)
+      if(.not.ma_alloc_get(mt_dbl,np,'dlb',l_dlb,i_dlb))
+     + call errquit('Failed to allocate dlb',me)
+c
+      call sp_dldbal(syntim,int_mb(i_nod),int_mb(i_lst),int_mb(i_nen),
+     + int_mb(i_bb),dbl_mb(i_dlb))
+c
+      if(.not.ma_free_heap(l_dlb))
+     + call errquit('Failed to deallocate dlb',me)
+      if(.not.ma_free_heap(l_nen))
+     + call errquit('Failed to deallocate nen',me)
+      if(.not.ma_free_heap(l_lst))
+     + call errquit('Failed to deallocate lst',me)
+      if(.not.ma_free_heap(l_nod))
+     + call errquit('Failed to deallocate nod',me)
+c
+      return
+      end
+      subroutine sp_dldbal(syntim,nod,nlst,nen,lbbl,dlb)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer nod(np),nlst(np),nen(np,26)
+      integer lbbl(mbbl,mbb2)
+      real*8 syntim,synsum,dlb(np),factor
+c
+      integer i,j,k,n,ibusy,ifrom,ito
+c
+c     broad cast times
+c
+      do 1 i=1,np
+      dlb(i)=0.0d0
+      nod(i)=i-1
+    1 continue
+      dlb(me+1)=syntim
+      synsum=syntim
+c
+      call ga_dgop(mrg_d03,dlb,np,'+')
+      call ga_dgop(mrg_d03,synsum,1,'+')
+c
+c     count load balancing steps with increasing synsum
+c
+      if(nldup.lt.0) then
+      nldup=0
+      tsyncp=synsum
+      elseif(tsyncp.lt.synsum) then
+      nldup=nldup+1
+      else
+      nldup=0
+      tsyncp=synsum
+      endif
+c
+c     find busiest node
+c
+      ibusy=1
+      do 2 i=2,np
+      if(dlb(i).lt.dlb(ibusy)) ibusy=i
+    2 continue
+c
+c     resize boxes
+c     ------------
+c
+      if(loadb.eq.1.or.(loadb.eq.3.and.nldup.gt.lbpair)) then
+      nldup=0
+      tsyncp=synsum
+      factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
+      call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor)
+      return
+      endif
+c
+c
+c     order node list
+c
+      do 3 i=1,np-1
+      do 4 j=i+1,np
+      if(dlb(nod(i)+1).gt.dlb(nod(j)+1)) then
+      n=nod(i)
+      nod(i)=nod(j)
+      nod(j)=n
+      endif
+    4 continue
+    3 continue
+c
+c     get active neighbors
+c
+      n=0
+      do 5 i=1,np
+      do 6 j=1,26
+      nen(i,j)=0
+    6 continue
+    5 continue
+      do 7 i=1,nbbl
+      do 8 j=1,n
+      if(lbbl(i,1)+1.eq.nen(me+1,j)) goto 7
+    8 continue
+      n=n+1
+      nen(me+1,n)=lbbl(i,1)+1
+    7 continue
+c
+      call ga_igop(mrg_d04,nen,26*np,'+')
+c
+c     determine the least busy neighbor of each node
+c
+      do 9 i=1,np-1
+      do 10 j=np,i+1,-1
+      do 11 k=1,np
+      if(nlst(k).eq.nod(j)) goto 10
+   11 continue
+      do 12 k=1,26
+      if(nod(j)+1.eq.nen(nod(i)+1,k)) then
+      nlst(i)=nod(j)
+      goto 9
+      endif
+   12 continue
+   10 continue
+    9 continue
+c
+c     setup transfer list
+c
+      do 13 i=1,np
+      nen(nod(i)+1,1)=nlst(i)
+   13 continue
+c
+      call ga_brdcst(mrg_d05,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
+c
+c     cascade box-box pairs
+c
+      call sp_cascad(nen,int_mb(i_bb),ifrom,ito)
+c
+      return
+      end
+      subroutine sp_resize(ipmin,ibownr,boxsiz,factor)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer ipmin,ibownr(maxbox,3)
+      real*8 factor,boxsiz(maxbox,3)
+c
+      integer ibx,iby,ibz,ipminx,ipminy,ipminz
+      real*8 bxi,bxr,byi,byr,bzi,bzr,rfact
+c
+c     load balancing based on resizing of node domains
+c     ------------------------------------------------
+c
+      ipminx=mod(ipmin,npx)
+      ipminy=mod((ipmin-ipminx)/npx,npy)
+      ipminz=((ipmin-ipminx)/npx-ipminy)/npy
+c
+c     resizing boxes in x-dimension
+c
+      if(npx.gt.1) then
+      do 7 ibx=nbx,2,-1
+      boxsiz(ibx,1)=boxsiz(ibx,1)-boxsiz(ibx-1,1)
+    7 continue
+      bxi=zero
+      bxr=zero
+      do 8 ibx=1,nbx
+      if(ibownr(ibx,1).eq.ipminx) then
+      boxsiz(ibx,1)=factor*boxsiz(ibx,1)
+      if(boxsiz(ibx,1).lt.bxmin) boxsiz(ibx,1)=bxmin
+      bxi=bxi+boxsiz(ibx,1)
+      else
+      bxr=bxr+boxsiz(ibx,1)
+      endif
+    8 continue
+      rfact=(box(1)-bxi)/bxr
+      do 9 ibx=1,nbx
+      if(ibownr(ibx,1).ne.ipminx) boxsiz(ibx,1)=rfact*boxsiz(ibx,1)
+      if(ibx.gt.1) boxsiz(ibx,1)=boxsiz(ibx,1)+boxsiz(ibx-1,1)
+    9 continue
+      endif
+c
+c     resizing boxes in y-dimension
+c
+      if(npy.gt.1) then
+      do 10 iby=nby,2,-1
+      boxsiz(iby,2)=boxsiz(iby,2)-boxsiz(iby-1,2)
+   10 continue
+      byi=zero
+      byr=zero
+      do 11 iby=1,nby
+      if(ibownr(iby,2).eq.ipminy) then
+      boxsiz(iby,2)=factor*boxsiz(iby,2)
+      if(boxsiz(iby,2).lt.bymin) boxsiz(iby,2)=bymin
+      byi=byi+boxsiz(iby,2)
+      else
+      byr=byr+boxsiz(iby,2)
+      endif
+   11 continue
+      rfact=(box(2)-byi)/byr
+      do 12 iby=1,nby
+      if(ibownr(iby,2).ne.ipminy) boxsiz(iby,2)=rfact*boxsiz(iby,2)
+      if(iby.gt.1) boxsiz(iby,2)=boxsiz(iby,2)+boxsiz(iby-1,2)
+   12 continue
+      endif
+c
+c     resizing boxes in z-dimension
+c
+      if(npz.gt.1) then
+      do 13 ibz=nbz,2,-1
+      boxsiz(ibz,3)=boxsiz(ibz,3)-boxsiz(ibz-1,3)
+   13 continue
+      bzi=zero
+      bzr=zero
+      do 14 ibz=1,nbz
+      if(ibownr(ibz,3).eq.ipminz) then
+      boxsiz(ibz,3)=factor*boxsiz(ibz,3)
+      if(boxsiz(ibz,3).lt.bzmin) boxsiz(ibz,3)=bzmin
+      bzi=bzi+boxsiz(ibz,3)
+      else
+      bzr=bzr+boxsiz(ibz,3)
+      endif
+   14 continue
+      rfact=(box(3)-bzi)/bzr
+      do 15 ibz=1,nbz
+      if(ibownr(ibz,3).ne.ipminz) boxsiz(ibz,3)=rfact*boxsiz(ibz,3)
+      if(ibz.gt.1) boxsiz(ibz,3)=boxsiz(ibz,3)+boxsiz(ibz-1,3)
+   15 continue
+      endif
+c
+      call ga_brdcst
+     + (mrg_d16,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
+c
+      return
+      end
+      subroutine sp_cascad(ltran,lbbl,ifr,ito)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer ltran(np,3),lbbl(mbbl,mbb2),ifr,ito
+c
+      integer i,j,ltemp,ntargt
+c
+c     load balancing based on cascade box-list redistribution
+c     -------------------------------------------------------
+c
+      do 1 i=1,np
+      if(i.ne.me+1) then
+      ltran(i,2)=0
+      ltran(i,3)=0
+      endif
+    1 continue
+c
+      ntargt=ltran(me+1,1)
+      ltran(me+1,2)=-1
+      ltran(me+1,3)=-1
+c
+      if(ntargt.gt.0) then
+      do 2 i=1,nbbl
+      if(lbbl(i,1).eq.ntargt) then
+      ltran(me+1,2)=lbbl(i,2)
+      ltran(me+1,3)=lbbl(i,3)
+      do 3 j=i,nbbl
+      lbbl(j,1)=lbbl(j+1,1)
+      lbbl(j,2)=lbbl(j+1,2)
+      lbbl(j,3)=lbbl(j+1,3)
+    3 continue
+      nbbl=nbbl-1
+      goto 4
+      endif
+    2 continue
+      endif
+c
+    4 continue
+      call ga_igop(mrg_i15,ltran(1,2),2*np,'+')
+c
+      do 5 i=1,np
+      if(ltran(i,1).eq.me.and.ltran(i,2).ge.0) then
+      nbbl=nbbl+1
+      lbbl(nbbl,1)=i-1
+      lbbl(nbbl,2)=ltran(i,3)
+      lbbl(nbbl,3)=ltran(i,2)
+      goto 7
+      endif
+    5 continue
+    7 continue
+c
+      nbbloc=0
+      do 8 i=1,nbbl-1
+      do 9 j=i+1,nbbl
+      if((lbbl(i,1).ne.me.and.lbbl(j,1).eq.me).or.
+     + (lbbl(i,1).gt.lbbl(j,1).and.lbbl(i,1).ne.me).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).gt.lbbl(j,2)).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).eq.lbbl(j,2).and.
+     + lbbl(i,3).gt.lbbl(j,3))) then
+      ltemp=lbbl(i,1)
+      lbbl(i,1)=lbbl(j,1)
+      lbbl(j,1)=ltemp
+      ltemp=lbbl(i,2)
+      lbbl(i,2)=lbbl(j,2)
+      lbbl(j,2)=ltemp
+      ltemp=lbbl(i,3)
+      lbbl(i,3)=lbbl(j,3)
+      lbbl(j,3)=ltemp
+      endif
+    9 continue
+      if(lbbl(i,1).eq.me) nbbloc=i
+    8 continue
+      if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
+c
+      ifr=-1
+      ito=-1
+      do 10 i=1,np
+      if(ltran(i,2).lt.0) ltran(i,1)=-1
+      if(ltran(i,1).gt.0.and.ifr.lt.0) then
+      ifr=i-1
+      ito=ltran(i,1)
+      endif
+   10 continue
+c
+      return
+      end
+
+
+
+
+
+

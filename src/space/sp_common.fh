@@ -39,10 +39,10 @@ c
 c
       integer me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,nsf,
      + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nwmloc,nsaloc,icbox,jcbox,jcnode
+     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode
       common/sd_dim/me,np,mex,mey,mez,nwm,nwmc,nwa,nsm,nsa,mwm,mwa,msa,
      + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
-     + nwmloc,nsaloc,icbox,jcbox,jcnode
+     + nbbloc,nwmloc,nsaloc,icbox,jcbox,jcnode
 c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl
@@ -55,8 +55,10 @@ c
      + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
 c
       real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
-      integer npbtyp,nbxtyp,neighb(27,2),loadb,npprev,ntwin
+      real*8 bxmin,bymin,bzmin,tsyncp,factld,third
+      integer npbtyp,nbxtyp,neighb(27,2),loadb,lbpair,npprev,ntwin,nldup
       logical lpbc0,ltwin,lpola,lfree,llong
       common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
-     + npbtyp,nbxtyp,neighb,loadb,npprev,ntwin,
+     + bxmin,bymin,bzmin,tsyncp,factld,third,
+     + npbtyp,nbxtyp,neighb,loadb,lbpair,npprev,ntwin,nldup,
      + lpbc0,ltwin,lpola,lfree,llong

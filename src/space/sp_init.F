@@ -1,7 +1,8 @@
       subroutine sp_start(lfntop,filtop,lfnrst,filrst,rsht,rlng,rinp,
-     + npxi,npyi,npzi,nbxi,nbyi,nbzi,npbt,nbxt,boxt,vlatt,
+     + npxi,npyi,npzi,nbxi,nbyi,nbzi,bxminx,bxminy,bxminz,
+     + npbt,nbxt,boxt,vlatt,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + ldb,lpol,lfre,temp,tempw,temps)
+     + ldb,lbp,fld,lpol,lfre,temp,tempw,temps)
 c
       implicit none
 c
@@ -13,10 +14,10 @@ c
       integer lfntop,lfnrst
       character*255 filtop,filrst
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
-      real*8 temp,tempw,temps
+      real*8 temp,tempw,temps,bxminx,bxminy,bxminz
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,npbt,nbxt
+      integer lenscr,ldb,lbp,fld,npbt,nbxt
       logical lpol,lfre
 c
       integer i,j
@@ -32,6 +33,8 @@ c
       ltwin=rlng.gt.rsht
 c
       loadb=ldb
+      lbpair=lbp
+      factld=fld
 c
       lpola=lpol
       lfree=lfre
@@ -43,6 +46,10 @@ c
       npx=npxi
       npy=npyi
       npz=npzi
+c
+      bxmin=bxminx
+      bymin=bxminy
+      bzmin=bxminz
 c
       call sp_nrnode()
 c
@@ -142,6 +149,9 @@ c
       nsfi=nsf
       msfi=max(1,nsf)
       msmi=max(1,nsm)
+c
+      third=1.0d0/3.0d0
+      nldup=-1
 c
       call ga_sync()
 c
