@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.79 2001-01-04 19:39:21 d3j191 Exp $
+c $Id: pre_input.F,v 1.80 2001-01-16 22:16:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1471,6 +1471,8 @@ c
       if(.not.rtdb_put(irtdb,'prep:cpk',mt_dbl,1,cpk))
      + call errquit('pre_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_put(irtdb,'prep:mnoe',mt_int,1,mnoe))
+     + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:nxlnk',mt_int,1,nxlnk))
      + call errquit('pre_input: rtdb_put failed',0)
 c
@@ -1481,7 +1483,6 @@ c
       endif
 c
       if(numcmd.gt.0) then
-      print*,'lwrcoo=',lwrcoo
       if(.not.lwrcoo) then
       write(68,7809)
  7809 format('wr_rst')

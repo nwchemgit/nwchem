@@ -5,7 +5,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.27 2000-10-18 21:36:28 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.28 2001-01-16 22:16:35 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -94,7 +94,7 @@ c
       if(.not.rtdb_get(irtdb,'prep:qscale',mt_dbl,1,qscale))
      + qscale=1.0d0
 c
-      if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,nxlnk)) nxlnk=1
+      if(.not.rtdb_get(irtdb,'prep:nxlnk',mt_int,1,nxlnk)) nxlnk=1
 c
       if(.not.rtdb_cget(irtdb,'prep:altloc',1,altloc)) altloc='A'
       if(.not.rtdb_cget(irtdb,'prep:chain',1,chain)) chain='A'
