@@ -1,8 +1,8 @@
-# $Id: nwchem_config_win32.h,v 1.7 2000-08-26 19:51:01 d3g681 Exp $
+# $Id: nwchem_config_win32.h,v 1.8 2000-08-27 17:05:52 d3g681 Exp $
 
 !IFDEF PYTHONHOME
 PYTHON_NWLIB = python.lib
-PYTHON_SYSLIB = /libpath:'$(PYTHONHOME)\libs'
+PYTHON_SYSLIB = /libpath:$(PYTHONHOME)\libs
 PYTHON_SUBDIR = python
 !ENDIF
 
