@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.89 2000-06-15 21:00:20 d3g681 Exp $
+* $Id: opt_drv.F,v 1.90 2000-06-16 19:15:36 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -2386,6 +2386,10 @@ c
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       double precision gvrms, dir, tmp1, tmp2, ovtol
+c
+      double precision smalleig
+      parameter (smalleig = 1d-4)
+c
       logical geom_print_zmatrix, omatchneg
       save saddir, evalp
 c     
@@ -2448,9 +2452,9 @@ c
       nzero =0
       negeig=0
       do i=1,nvar
-         if(abs(e(i)).lt.1d-8 .and. abs(gv(i)).lt.1d-2*gmax_tol) then
+         if(abs(e(i)).lt.smalleig.and.abs(gv(i)).lt.1d-2*gmax_tol) then
             nzero=nzero+1
-         else if(e(i) .lt. -1d-8) then
+         else if(e(i) .lt. -smalleig) then
             negeig=negeig+1
          endif
       enddo     
@@ -2654,10 +2658,10 @@ c
                   endif
                endif
             else
-               if (e(i) .gt. 1d-8) then ! +ve curvature
+               if (e(i) .gt. smalleig) then ! +ve curvature
 *     dv(i) = -gv(i) / e(i)
                   dv(i) = -gv(i) / (e(i) + max(gvrms**2,gv(i)**2)/e(i))
-               else if (e(i) .lt. -1d-8) then ! -ve curvature 
+               else if (e(i) .lt. -smalleig) then ! -ve curvature 
                   dv(i) = sign(trust,-gv(i)) ! Used to be 0.3*trust
                   if (oprint) write(6,666) i, e(i), gv(i), dv(i)
  666              format(' Forcing  downhill step in mode',i5,
