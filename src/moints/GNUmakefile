@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.67 1997-10-14 17:31:51 rg240 Exp $
+#$Id: GNUmakefile,v 1.68 2000-11-02 23:53:39 edo Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -10,7 +10,8 @@
 	      moints_mp2.o \
 	      moints_stats.o \
               moints_full.o \
-              sifs.o
+              sifs0.o \
+              sifs1.o
 
 #              twopdm_backt.o 
 
