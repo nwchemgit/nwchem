@@ -23,7 +23,7 @@ c
       integer g_conj, g_gradold, g_hcore
       integer mo_lo, mo_hi
       integer i, j, iter, maxiter, nmixed, clo, chi
-      integer icgreset          ! Number of iterations between CG resets
+      integer icgreset                ! Number of iterations between CG resets
       integer blen
 c     
       double precision pfac
@@ -39,10 +39,9 @@ c
       logical oconverged
       logical oskel
       logical oprinfo, oprhigh, oprconv, oprciconv
-      logical ohalf
+      logical ohalf, odisk, oblk      ! toggles for 4-index
       logical ocisolve
-      logical oblk
-      integer ciiterlo, ciiterhi ! Iteration range for CI solution
+      integer ciiterlo, ciiterhi      ! Iteration range for CI solution
 c     
       character*255 title, movecs_in
 c     
@@ -288,10 +287,14 @@ c
 c     
 c     Initial 4-Index Tranformation
 c     
+      if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, odisk)) then
+        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
+     $                    1, odisk)) odisk = .false.
+      endif
       call moints_build_2x( basis, ohalf, oskel,
      $     mo_lo, mo_lo, mo_hi, 1, nbf,
      $     g_movecs, g_coul, .true.,
-     $     g_exch, .true., blen, oblk )
+     $     g_exch, .true., blen, oblk, odisk )
 c     
 c     Core energy
 c     
@@ -463,7 +466,7 @@ c
       call moints_build_2x( basis, ohalf, oskel,
      $     mo_lo, mo_lo, mo_hi, 1, nbf,
      $     g_movecs, g_coul, .true.,
-     $     g_exch, .true., blen, oblk )
+     $     g_exch, .true., blen, oblk, odisk )
       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $     g_coul, g_exch, g_hcore )
       ocivecprint = util_print('converged civec',print_default)
@@ -531,7 +534,7 @@ c
          call moints_build_2x( basis, ohalf, oskel,
      $        mo_lo, mo_lo, mo_hi, 1, nbf,
      $        g_movecs, g_coul, .true.,
-     $        g_exch, .true., blen, oblk )
+     $        g_exch, .true., blen, oblk, odisk )
          call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $        g_coul, g_exch, g_hcore )
          ocivecprint = util_print('civec',print_debug)

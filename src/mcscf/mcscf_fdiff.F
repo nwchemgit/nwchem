@@ -64,12 +64,13 @@ c
            do ipt=1,npt
              call ga_zero(g_kvec)
              call ga_put(g_kvec,ij,ij,1,1,del(ipt),1)
-             call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
+             call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                       g_movecs, g_tmpmo )
              call moints_build_6x( basis, osym,
      $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
-     $                             g_exch, .false., 16, .false. )
+     $                             g_exch, .false., 16, .false.,
+     $                             .false. )
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                          .true., oskel, tol2e, dm1, dm2,
      $                          g_tmpmo, g_coul, eone, etwo, ecore )
@@ -87,12 +88,13 @@ c$$$           write(6,901) i,(voff+j),ij,g1
            do ipt=1,npt
              call ga_zero(g_kvec)
              call ga_put(g_kvec,ij,ij,1,1,del(ipt),1)
-             call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
+             call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                       g_movecs, g_tmpmo )
              call moints_build_6x( basis, osym,
      $                             mo_lo, mo_lo, mo_hi, 1, nbf,
      $                             g_tmpmo, g_coul, .true.,
-     $                             g_exch, .false., 16, .false. )
+     $                             g_exch, .false., 16, .false.,
+     $                             .false. )
              call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                          .true., oskel, tol2e, dm1, dm2,
      $                          g_tmpmo, g_coul, eone, etwo, ecore )
@@ -109,7 +111,8 @@ c
        call moints_build_6x( basis, osym,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .false., 16, .false. )
+     $                       g_exch, .false., 16, .false.,
+     $                       .false. )
 c
 c
 c
@@ -203,17 +206,18 @@ c
            do ipt=1,npt
              call ga_zero(g_k1)
              call ga_put(g_k1,i,i,1,1,del(ipt),1)
-             call rohf_k2cf( basis, nbf, nclosed, nact, g_k1,
+             call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_k1,
      $                     g_movecs, g_tmp1 )
              do jpt=1,npt
                call ga_zero(g_k2)
                call ga_put(g_k2,j,j,1,1,del(jpt),1)
-               call rohf_k2cf( basis, nbf, nclosed, nact, g_k2,
+               call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_k2,
      $                         g_tmp1, g_tmp2 )
                call moints_build_6x( basis, osym,
      $                               mo_lo, mo_lo, mo_hi, 1, nbf,
      $                               g_tmp2, g_coul, .true.,
-     $                               g_exch, .false., 16, .false. )
+     $                               g_exch, .false., 16, .false.,
+     $                               .false. )
                call mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                            .true., oskel, tol2e, dm1, dm2,
      $                            g_tmp2, g_coul, eone, etwo, ecore )
@@ -232,7 +236,7 @@ c
        call moints_build_6x( basis, osym,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .false., 16, .false. )
+     $                       g_exch, .false., 16, .false., .false. )
 c
 c
 c

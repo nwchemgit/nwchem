@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.34 1997-03-05 18:27:32 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.35 1997-03-25 01:40:58 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -80,7 +80,7 @@ c
        logical odelta_core
        logical olsrchprint, ociprint
        logical ocivecprint, oprcndprint
-       logical oblk
+       logical oblk, odisk
        double precision micro_citol, citol
        double precision lshift, bshift
        double precision e0, eci
@@ -125,6 +125,10 @@ c
          if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,oblk))
      $      oblk = .false.
        endif
+      if (.not.rtdb_get(rtdb, 'mcscf:aodisk', MT_LOG, 1, odisk)) then
+        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
+     $                    1, odisk)) odisk = .false.
+      endif
 c
 c  Allocate MO matrices
 c
@@ -344,7 +348,7 @@ c
            call moints_build_2x( basis, ohalf, oskel,
      $                           molo, molo, mohi, 1, nbf,
      $                           g_newvecs, g_coul, ocoul,
-     $                           g_exch, oexch, blen, oblk )
+     $                           g_exch, oexch, blen, oblk, odisk )
            if (omcscfprof) call pstat_off(ps_4index)
            if (ocirelax) then
              call mcscf_fcore( basis, nbf, nclosed, nact, g_newvecs,
@@ -466,7 +470,7 @@ c
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
-     $                         g_exch, .true., blen, oblk )
+     $                         g_exch, .true., blen, oblk, odisk )
          if (omcscfprof) call pstat_off(ps_4index)
        endif
 c
