@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.14 2000-09-07 15:47:01 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.15 2000-09-11 18:35:47 d3j191 Exp $
 c
       implicit none
 c
@@ -215,7 +215,7 @@ c      write(*,'(3e20.12)') xg,yg,zg
       dx=xg-x(i,1)
       dy=yg-x(i,2)
       dz=zg-x(i,3)
-      if(iesppb.gt.0) then
+      if(iesppb.eq.2.or.iesppb.eq.3) then
       if(abs(dx).gt.boxh(1)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       dx=dx-cf_anint(dx/box(1))*box(1)
@@ -230,7 +230,7 @@ c      write(*,'(3e20.12)') xg,yg,zg
       dy=dy-anint(dy/box(2))*box(2)
 #endif
       endif
-      if(iesppb.eq.3) then
+      if(iesppb.eq.1.or.iesppb.eq.3) then
       if(abs(dz).gt.boxh(3)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       dz=dz-cf_anint(dz/box(3))*box(3)
