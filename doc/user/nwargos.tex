@@ -16,6 +16,7 @@
 \def\etal{{\sl et al.}}
 \def\nwchem{{\bf NWChem}}
 \def\nwargos{{\bf nwargos}}
+\def\prepare{{\bf prepare}}
 \def\nwtop{{\bf nwtop}}
 \def\nwrst{{\bf nwrst}}
 \def\nwsgm{{\bf nwsgm}}
@@ -101,8 +102,7 @@ velocities for all atoms in the molecular system, and is kept in a
 so-called restart file.
 
 The \nwchem\ molecular dynamics module is the parallel implementation
-of the vectorized code \argos\ developed at the University of Houston,
-and is also referred to as \nwargos.
+of the vectorized code \argos\ developed at the University of Houston.
 
 \subsection{Topology}
 \label{sec:nwatopology}
@@ -114,7 +114,7 @@ a list of atoms, their non-bonded parameters for van der Waals and
 electrostatic interactions, and the complete connectivity in terms
 of bonds, angles and dihedrals.
 
-In \nwargos\ molecular systems, a distinction is made between 
+In molecular systems, a distinction is made between 
 {\it solvent} and {\it solute}, which are treated separately.
 A solvent molecule is defined only once in the topology file,
 even though many solvent molecules usually are included in the
@@ -131,25 +131,12 @@ collected in a set of database files.
 The definition of a molecular system in terms of segments is a
 {\it sequence}.
 
-A utility \nwtop\ reads the sequence file, retrieves all needed 
-segments from the available segment databases, substitutes parameters
-from the force field parameter database files, and generates the
-topology file.
-
-A utility \nwsgm\ reads a rudimentary, force-field independent
-{\it fragment} defining atom types and connectivity, and 
-constructs a template for a force-field dependent segment.
-Fragments can also be collected into a set of fragment database
-files.
-
-A utility \nwrst\ generates a {\it restart} file, given a topology
-and coordinates from a PDB formatted file or another restart file.
-This utility can also be used to solvate a molecular system.
+Topology files are created using the \prepare\ module.
 
 \subsection{Files}
 \label{sec:nwafilenames}
 
-File names used by \nwargos\ have the form \verb+$system$_$calc$.$ext$+, with
+File names used have the form \verb+$system$_$calc$.$ext$+, with
 exception of the topology file (Section \ref{sec:nwatopology}), which is named 
 \verb+$system$.top+.
 Anything that refers to the definition of the chemical system can be used
@@ -187,14 +174,12 @@ xxxxxxx\=\kill
 {\bf mro} \> free energy multiple run output file\\
 {\bf nw}  \> \nwchem\ input file\\
 {\bf nwout}  \> \nwchem\ output file\\
-{\bf out} \> \nwargos\ output file\\
+{\bf out} \> molecular dynamics output file\\
 {\bf pdb} \> PDB formatted coordinate file\\
 {\bf prp} \> property file\\
 {\bf qrs} \> quenched restart file, resulting from an energy minimization\\
 {\bf rdf} \> radial distribution function output file\\
 {\bf rdi} \> radial distribution function input file\\
-{\bf rin} \> \nwrst\ input file\\
-{\bf rou} \> \nwrst\ output file\\
 {\bf rst} \> restart file, used to start, restart or continue a simulation \\
 {\bf seq} \> sequence file, describing the system in segments\\
 {\bf sco} \> solute coordinate trajectory file\\
@@ -209,11 +194,10 @@ xxxxxxx\=\kill
 \end{tabbing}
 
 \subsection{Databases}
-Database file names used by the setup programs \nwtop\ (Section \ref{sec:nwanwtop}), 
-\nwrst\ (Section \ref{sec:nwanwrst}) and \nwsgm\ (Section \ref{sec:nwanwsgm}) have the form
-\verb+$ffield$_$level$.$ext$+, where \verb+$ffield$+ is any of the
-supported force fields (Section \ref{sec:nwaforcefields}). The source of the data is 
-identified by \verb+$level$+, and can be 
+Database file used by the \prepare\ module are found in directories with name
+\verb+$ffield$_$level$, where \verb+$ffield$+ is any of the
+supported force fields (Section \ref{sec:nwaforcefields}). 
+The source of the data is identified by \verb+$level$+, and can be 
 \begin{center}
 \begin{tabular}{lll}
 \hline
@@ -226,49 +210,50 @@ level   & Description                 & Availability \\
 \end{tabular}
 \end{center}
 
-Only the level {\bf s} and {\bf x} databases are publicly available. 
+Typically, only the level {\bf s} and {\bf x} databases are publicly 
+available. 
 The user is responsible for the private level {\bf u} and {\bf t}
-databases. When the utility programs scan the databases, the priority
+database files. When the \prepare\ module scans the databases, the priority
 is {\bf t}$>${\bf u}$>${\bf x}$>${\bf s}$>$.
 
-The extension \verb+<ext>+ defines the type of database file. The
-complete list of extensions is
+The extension \verb+<ext>+ defines the type of database file within each
+database directory. The complete list of extensions is
 \begin{tabbing}
 xxxxx\=\kill
-{\bf att} \> atom type translation\\
 {\bf frg} \> fragments\\
 {\bf par} \> parameters\\
 {\bf seq} \> sequences\\
 {\bf sgm} \> segments\\
-{\bf typ} \> atom type definition\\
 \end{tabbing} 
 
-Filenames including their paths of the different databases should be 
-defined in a file 
-{\tt .nwargos} in a user's home directory, and provides the user the
+The paths of the different database directoriess should be defined in a file 
+{\tt .nwchemrc} in a user's home directory, and provides the user the
 option to select which database files are scanned.
 
 \subsection{Force fields}
 \label{sec:nwaforcefields}
-Force fields recognized by \nwargos\ are
+Force fields recognized are
 \begin{center}
 \begin{tabular}{ll}
 \hline
 Keyword      & Force field   \\
 {\tt amber}  & AMBER95       \\
 {\tt charmm} & CHARMM        \\
-{\tt cvff}   & CVFF          \\
-{\tt gromos} & GROMOS87      \\
-{\tt oplsa}  & OPLS/AMBER3.0 \\
-{\tt oplsg}  & OPLS/GROMOS87 \\
+%{\tt cvff}   & CVFF          \\
+%{\tt gromos} & GROMOS87      \\
+%{\tt oplsa}  & OPLS/AMBER3.0 \\
+%{\tt oplsg}  & OPLS/GROMOS87 \\
 \hline
 \end{tabular}
 \end{center}  
 
-\section{Creating fragment files}
+\section{Format of fragment files}
 Fragment files contain the basic information needed to specify all
 interactions that need to be considered in a molecular simulation.
-The format of the fragment files is described in Table \ref{tbl:nwafrag}
+The format of the fragment files is described in Table \ref{tbl:nwafrag}.
+Normally these files are created by the \prepare\ module. Manual
+editing is needed when, for example, the \prepare\ module could not
+complete atom typing, or when modified charges are required. 
 
 \begin{table}[htbp]
 \begin{center}
@@ -296,6 +281,10 @@ II-1-4  & a1     & dynamics type\\
         &        & \verb+Q+ : quantum atom\\
         &        & other : intramolecular solute interactions only\\
 II-1-5  & i5     & link number\\
+        &        & 0: no link\\
+        &        & 1: first atom in chain\\
+        &        & 2: second atom in chain\\
+        &        & 3 and up: other links\\
 II-1-6  & i5     & environment type\\
         &        & 0: no special identifier\\
         &        & 1: planar, using improper torsion\\
@@ -313,36 +302,34 @@ connectivity} \\
 III-1-1  & 16i5   & connectivity, duplication allowed\\ 
 \hline\hline
 \end{tabular}
-\caption{The format of \nwargos\ fragment files.\label{tbl:nwafrag}}
+\caption{The format of fragment files.\label{tbl:nwafrag}}
 \end{center}
 \end{table}
 
 \section{Creating segment files}
 \label{sec:nwanwsgm}
-Program \nwsgm\ can be used to generate a template for a segment file 
-from a corresponding fragment file. The segment file contains all
+The \prepare\ module is used to generate segment files 
+from corresponding fragment files. A segment file contains all
 information for the calculation of bonded and non-bonded interactions
-for a given chemical system using a specific force field. If a
-fragment is available in a local file or in a database file, the
-segment can be generated using
-\begin{verbatim}
-  nwsgm <string fragment> <string ffield>
-\end{verbatim}
-where \verb+<fragment>+ is the name of the fragment. Since fragment
-names rely on the last character for the type of fragment, spaces
-should be replaced by underlines. \verb+<ffield>+ should be the
-name of an available force field.
+for a given chemical system using a specific force field.
 
-The program \nwsgm\ provides a template for a segment. It is
-often needed to make additional changes in this file. One important
+Which atoms form a fragment is specified in the coordinate file,
+currently only in PDB format.One important
 restriction is that dihedral interactions may only involve atoms on at
 most two segments. The segment entries define three sets of parameters
-for each interaction. Free energy perturbations can be performed using
-set 1 for the generation of the ensemble while using sets 2 and/or 3
+for each interaction. 
+
+Free energy perturbations can be performed using set 1 for the 
+generation of the ensemble while using sets 2 and/or 3
 as perturbations. Free energy multiconfiguration thermodynamic
 integration and multistep thermodynamic perturbation calculations are
 performed by gradually changing the interactions in the system from
-parameter set 2 to parameter set 3.  The format of a segment is
+parameter set 2 to parameter set 3. These modifications can be 
+edited into the segment files manually, or introduced directly into
+the topology file using the \verb+modify+ commands in the input for
+the \prepare\ module.
+
+The format of a segment is
 described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
 
 \begin{table}[htbp]
@@ -363,7 +350,7 @@ I-2-4 & i5     & number of proper dihedrals in the segment\\
 I-2-5 & i5     & number of improper dihedrals in the segment\\
 \hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 1 of 6.\label{tbl:nwaseg1}}
+\caption{Segment file format, table 1 of 6.\label{tbl:nwaseg1}}
 \end{center}
 \end{table}
 
@@ -413,7 +400,7 @@ II-2-5  & f12.6  & atomic partial charge in e, set 3\\
 II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
 \hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 2 of 6.\label{tbl:nwaseg2}}
+\caption{Segment file format, table 2 of 6.\label{tbl:nwaseg2}}
 \end{center}
 \end{table}
 
@@ -440,7 +427,7 @@ III-2-5 & f12.6  & bond length in nm, set 3\\
 III-2-6 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 3 of 6.\label{tbl:nwaseg3}}
+\caption{Segment file format, table 3 of 6.\label{tbl:nwaseg3}}
 \end{center}
 \end{table}
 
@@ -467,7 +454,7 @@ IV-2-5 & f12.6  & angle in radians, set 3\\
 IV-2-6 & e12.5  & angle force constant in kJ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 4 of 6.\label{tbl:nwaseg4}}
+\caption{Segment file format, table 4 of 6.\label{tbl:nwaseg4}}
 \end{center}
 \end{table}
 
@@ -498,7 +485,7 @@ V-2-8 & f12.6  & proper dihedral in radians, set 3\\
 V-2-9 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 5 of 6.\label{tbl:nwaseg5}}
+\caption{Segment file format, table 5 of 6.\label{tbl:nwaseg5}}
 \end{center}
 \end{table}
 
@@ -526,14 +513,16 @@ VI-2-5 & f12.6  & improper dihedral in radians, set 3\\
 VI-2-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline\hline
 \end{tabular*}
-\caption{\nwargos\ segment file format, table 6 of 6.\label{tbl:nwaseg6}}
+\caption{Segment file format, table 6 of 6.\label{tbl:nwaseg6}}
 \end{center}
 \end{table}
 
 
 \section{Creating sequence files}
-A sequence file describes a molecular system in terms of segments. The
-file format is given in Table \ref{tbl:nwaseq}
+A sequence file describes a molecular system in terms of segments. This
+file is generated by the \prepare\ module for the molecular system
+provided on a PDB-formatted coordinate file.
+The file format is given in Table \ref{tbl:nwaseq}
 
 \begin{table}[htbp]
 \begin{center}
@@ -568,9 +557,11 @@ II-1-2 & i3     & link atom in link segment 10\\
 II-2-1 & a      & \verb+break+ to identify a break in the molecule chain\\
 II-2-1 & a      & \verb+molecule+ to identify the end of a solute molecule\\
 II-2-1 & a      & \verb+fraction+ to identify the end of a solute fraction\\
-II-2-1 & a5     & \verb+link + to specify a main chain link\\
-II-2-2 & i5     & segment for link atom 2\\
-II-2-3 & i5     & segment for link atom 1\\
+II-2-1 & a5     & \verb+link + to specify a link\\
+II-2-2 & i5     & segment number of first link atom\\
+II-2-3 & a4     & name of first link atom
+II-2-4 & i5     & segment number of second link atom\\
+II-2-5 & a4     & name of second link atom
 II-2-1 & a      & \verb+solvent+ to identify solvent definition on next card\\
 II-2-1 & a      & \verb+stop+ to identify the end of the sequence\\
 II-2-1 & a6     & \verb+repeat+ to repeat next $ncard$ cards $ncount$
@@ -580,7 +571,7 @@ II-2-3 & i5     & number of times to repeat cards ($ncount$)\\
 \multicolumn{3}{l}{Any number of cards in deck II to specify the system} \\
 \hline\hline
 \end{tabular*}
-\caption{The \nwargos\ sequence file format.\label{tbl:nwaseq}}
+\caption{Sequence file format.\label{tbl:nwaseq}}
 \end{center}
 \end{table}
 
@@ -591,225 +582,33 @@ The topology (Section \ref{sec:nwatopology}) describes all static information
 that describes a molecular system. This includes the connectivity in
 terms of bond-stretching, angle-bending and torsional interactions, as well as
 the non-bonded van der Waals and Coulombic interactions.
-The topology of a molecular system is generated by the topology
-generator \nwtop\ from the sequence in terms of segments as read from
-the sequence file. For each unique segment specified in this file the 
-segment databases are searched for the segment definition. For
-segments not found in one of the database files a segment definition
-needs to be generated, for example using the utility \nwsgm (Section \ref{sec:nwanwsgm}).
 
-The command line to run \nwtop\ is
-\begin{verbatim}
-  nwtop <string system> <string ffield>
-\end{verbatim}
-where \verb+<system>+ refers to the name of a sequence in one of the
-sequence databases or in a local file \verb+$system$.seq+, and
-\verb+<ffield>+ is the name of one of the available force fields 
-(Section \ref{sec:nwaforcefields}).
-If the sequence is found, the segment definitions are read from the
-segment databases or from a local file \verb+$system$.sgm+. If all
-segments are found, the parameter substitutions are performed, using
-force field parameters taken from the parameter databases or from a 
-local file \verb+$system$.par+. After all lists have been generated the
+The topology of a molecular system is generated by the \prepare\ module
+from the sequence in terms of segments as specified on the PDB file.
+For each unique segment specified in this file the 
+segment database directories are searched for the segment definition. 
+For segments not found in one of the database directories a segment definition
+is generated in the temporary directory if a fragment file was found.
+If a fragment file could not be found, it is generated by the \prepare\ module
+base on what is found on the PDB file.
+
+When all segments are found or created, the parameter substitutions are 
+performed, using force field parameters taken from the parameter 
+databases. After all lists have been generated the
 topology is written to a local topology file \verb+$system$.top+.
 
 \section{Creating restart files}
 \label{sec:nwanwrst}
 
 Restart files contain all dynamical information about a molecular
-system and are created using preparation utility \nwrst. This utility
-will supply coordinates for hydrogen atoms and monatomic counter ions
-not found on the PDB formatted coordinate file.
+system and are created by the \prepare\ module if a topology file
+is available. The \prepare\ module will automatically generate
+coordinates for hydrogen atoms and monatomic counter ions
+not found on the PDB formatted coordinate file, if no fragment or
+segment files were generated using that PDB file.
 
-The command line is
-\begin{verbatim}
-  nwrst <string system>
-\end{verbatim}
-in which case directives are taken from \verb+$system$.rin+, or
-\begin{verbatim}
-  nwrst
-\end{verbatim}
-in which case directives are taken from standard input.
-
-The following directives are recognized by \nwrst.
-\begin{description}
-
-\item
-\begin{verbatim}
-title
-\end{verbatim}
-reads three title cards immediately following the directive.
-
-\item
-\begin{verbatim}
-read topology <string filtop>
-\end{verbatim}
-reads the topology file,
-where \verb+<filtop>+ is the topology file name. The \verb+read topology+ 
-directive is required, and needs to preceed any other directive except
-\verb+title+.
-
-\item
-\begin{verbatim}
-read distance restraints <string fildre>
-\end{verbatim}
-reads the distance restraints definition file,
-where \verb+<fildre>+ is the distance restraints definition file name.
-If used, this directive is required to immediately follow the directive
-\verb+read topology+.
-
-\item
-\begin{verbatim}
-read solvent <string filslv>
-\end{verbatim}
-reads solvation coordinates,
-where \verb+<filslv>+ is the solvent name. For \nwrst\ to find the
-solvent coordinates the file needs to be defined in
-\verb+$HOME/.nwargos+.
-%$ for emacs
-This directive is required to immediately follow the directive
-\verb+read topology+ or \verb+read distance restraints+.
-
-\item
-\begin{verbatim}
-read PDB <string filpdb>
-\end{verbatim}
-reads the PDB formatted coordinate file \verb+<filpdb>+.
-This directive is required to be preceded by the \verb+read topology+
-directive.
-All solvent molecules read will be treated as crystal solvent. 
-Coordinates will be generated for any hydrogen atoms or counter ions 
-not found on the PDB file. 
-Atom names and segment numbers on the PDB file need to correspond with 
-those defined in the topology file.
-
-\item
-\begin{verbatim}
-write [solute] PDB <string filpdc>
-\end{verbatim}
-writes a PDB formatted coordinate file \verb+<filpdc>+. If the keyword 
-\verb+solute+ is specified, only the solute atom and crystal
-solvent coordinates will be written to the PDB file.
-
-\item
-\begin{verbatim}
-read rst <string filrsi>
-\end{verbatim}
-reads the restart file \verb+<filrsi>+.
-This directive is required to be preceded by the \verb+read topology+
-directive.
-
-\item
-\begin{verbatim}
-write rst <string filrst>
-\end{verbatim}
-writes the restart file \verb+<filrst>+.
-
-\item
-\begin{verbatim}
-crystal solvent <integer nwcrst>
-\end{verbatim}
-identifies the first \verb+nwcrst+ solvent molecules as crystal 
-solvent molecules.
-
-\item
-\begin{verbatim}
-orient
-\end{verbatim}
-changes the orientation of the solute to fit the smallest 
-rectangular box with largest dimension along z and smallest dimension 
-along x.
-
-\item
-\begin{verbatim}
-solvate box <real bx> [ <real by> [ <real bz> ] ]
-\end{verbatim}
-solvates the solute atoms and crystal solvent molecules
-in a rectangular box with dimensions 
-\verb+<bx>+$\times$\verb+<by>+$\times$\verb+<bz>+ in nm. If
-\verb+<bz>+ is omitted, the value of \verb+<by>+ will be used.
-If \verb+<by>+ and \verb+<bz>+ are both omitted, the system will
-be solvated in a cubic box with edge \verb+<bx>+.
-
-\item
-\begin{verbatim}
-solvate sphere <real radius>
-\end{verbatim}
-solvates the solute atoms and crystal solvent molecules
-in a sphere with radius \verb+radius+ nm. This sphere is placed in
-a cubic box with edge \verb+<bx>+.
-
-\item
-\begin{verbatim}
-center
-\end{verbatim}
-puts the solute center of geometry in the center of the
-simulation box.
-
-\item
-\begin{verbatim}
-expand with <real xx> [ <real xy> [ <real xz> ] ]
-\end{verbatim}
-expands the simulation box with \verb+<xx>+, \verb+<xy>+ and 
-\verb+<xz>+ in the x, y and z direction, respectively. If
-\verb+<xy>+ is not specified it is given the value of \verb+<xx>+.
-If \verb+<xz>+ is not specified it is given the value of \verb+<xy>+.
-
-\item
-\begin{verbatim}
-expand to <real xx>[<real xy>[<real xz>]]
-\end{verbatim}
-expands the simulation box to \verb+<xx>+, \verb+<xy>+ and 
-\verb+<xz>+ nm in the x, y and z direction, respectively. If
-\verb+<xy>+ is not specified it is given the value of \verb+<xx>+.
-If \verb+<xz>+ is not specified it is given the value of \verb+<xy>+.
-
-
-\item
-\begin{verbatim}
-boxsize
-\end{verbatim}
-resizes the rectangular box to exactly fit all atoms defined.
-
-\item
-\begin{verbatim}
-periodic
-\end{verbatim}
-specifies the use of periodic boundary conditions.
-
-\item
-\begin{verbatim}
-vacuo
-\end{verbatim}
-specifies a system in vacuo.
-
-\item
-\begin{verbatim}
-set touch <real touch>
-\end{verbatim}
-sets to \verb+<touch>+ the minimum distance in nm between any atom in
-the system and a solvent atom to be added during solvation.
-
-\item
-\begin{verbatim}
-velocities (solvent || solute) zero
-\end{verbatim}
-initializes velocities to zero.
-
-\item
-\begin{verbatim}
-reference (solvent || solute) zero
-\end{verbatim}
-initializes reference coordinates to zero. Reference coordinates
-are the accumulated displacements of the molecular centers of mass,
-which are needed for the calculation of diffusion coefficients.
-
-\item
-\begin{verbatim}
-(end || exit || quit || stop)
-\end{verbatim}
-finishes the restart file generation.
-\end{description}
+The \prepare\ module has a number of other optional input command,
+including solvation.
 
 \section{Molecular simulations}
 The type of molecular dynamics simulation is specified by the
