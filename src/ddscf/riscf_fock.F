@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.6 1996-02-08 01:43:12 vg038 Exp $
+C$Id: riscf_fock.F,v 1.7 1996-03-01 20:20:53 vg038 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -30,18 +30,17 @@ C     g_three can be GA or DA handle !!!
       integer Nff, nsh, lsq, lhalf, npair, n_t, nt, nocc, in, il,
      $     l_indx, k_indx, l_three, k_three, l_sthree, k_sthree,
      $     ifirst, ifirst1, ifirst2, ilast, ilast1, ilast2, ifk, mxbf, 
-     $     mxints, nloop, nrest, nproc, nt_dim, req0, req, ic, 
+     $     mxints, nloop, nrest, nproc, nt_dim, req, ic, 
      $     g_three_io, first_t, last_t, num_t, istat, iarray, iarray2,
      $     g_three_sq
 
-      dimension g_three_io(2)
+      dimension g_three_io(2), req(2)
 
       double precision mone, zero, one, sq2, W, factor
 
       logical odisk
 
       parameter (zero=0.0D0, one=1.0D0, mone=-1.D0)
-      parameter (req0=5051818) !birthday of Karl Marx
 
       sq2 = sqrt(2.D0)
       if (oskeleton) then
@@ -140,8 +139,9 @@ C       and read the first block
         if (oscfps) call pstat_on(ps_riscf_read)
         istat = da_read_section (.false., g_three_io(1), 
      $                  1, npair, 1, last_t,
-     $       g_three,   1, npair, 1, last_t, req0 )
+     $       g_three,   1, npair, 1, last_t, req(1) )
         if (oscfps) call pstat_off(ps_riscf_read)
+
 #endif
       endif
 
@@ -158,10 +158,10 @@ C         create full square matrices of 3center ERIs for this t range
           if (oscfps) call pstat_on(ps_extract)
 
           t = (il-1)*n_t
-          iarray = mod(ic,2) + 1
 
           if ( odisk ) then
 #ifdef RISCF_USE_DA
+            iarray = mod(ic,2) + 1
 C           initialize next read
             if ( il .ne. nloop ) then
               first_t = t+1
@@ -173,13 +173,13 @@ C           initialize next read
               istat = da_read_section (.false., 
      $             g_three_io(iarray2), 1, npair, 1, num_t,
      $             g_three,  1,  npair,     first_t, last_t, 
-     $             req )
+     $             req(iarray2) )
               if (oscfps) call pstat_off(ps_riscf_read)
             endif
 
 C           finish this read
             if (oscfps) call pstat_on(ps_riscf_read)
-            istat = da_wait ( req-1 )
+            istat = da_wait ( req(iarray) )
             if (oscfps) call pstat_off(ps_riscf_read)
 
             g_three_sq = g_three_io(iarray)
