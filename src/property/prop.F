@@ -5,7 +5,7 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.9 1997-07-30 02:07:44 d3g681 Exp $
+* $Id: prop.F,v 1.10 2003-03-27 18:55:44 bert Exp $
 *
       implicit none
       integer rtdb              ! [input]
@@ -27,6 +27,10 @@ c
 *      if(ga_nodeid().eq.0)
 *     $     call util_print_centered(LUout,'Properties',40,.true.)
 c
+c     start ecce property output module
+c
+      call ecce_print_module_entry('task property')
+c
 c     hondo property calculation routines 
 c
       status = hnd_property(rtdb)
@@ -37,6 +41,9 @@ c
         if(nbofile.eq.1) call wnbofile(rtdb)
       endif 
 c
+c     finish ecce property output module
+c
+      call ecce_print_module_exit('task property','ok')
       property = .true.
       return
       end
