@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.20 2003-02-09 21:37:48 marat Exp $
+* $Id: paw_ovlp.F,v 1.21 2003-02-09 22:06:17 marat Exp $
 *
 
 !**************************************************
@@ -23,7 +23,7 @@
       logical value
       integer ii,ia,nlm,nlmii,n,m,mabs
       integer nbasis,i2,i1,isgn,nion
-      integer w_size
+      integer paw_ovlp_w_size
       integer neall
 
 *     **** external functions ****
@@ -39,12 +39,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       end do
 
 c     !*** calculate the size and indexing for weight coefficients  ***
-      value = my_alloc(mt_int,ion_nion(),"i_w",i_w)
+      value = my_alloc(mt_int,ion_nion(),"i_paw_ovlp_w",i_paw_ovlp_w)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
-      w_size = 0
+      paw_ovlp_w_size = 0
       do ia=1,ion_nkatm()
-         int_mb(i_w(1) + ia - 1) = w_size
-         w_size = w_size
+         int_mb(i_paw_ovlp_w(1) + ia - 1) = paw_ovlp_w_size
+         paw_ovlp_w_size = paw_ovlp_w_size
      >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       end do
 
@@ -63,7 +63,8 @@ c     !-- total number of electron states
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
 
-      value = value.and.my_alloc(mt_dcpl,(total_nbasis**2),"w",w)
+      value = value.and.my_alloc(mt_dcpl,(total_nbasis**2),
+     >                           "paw_ovlp_w",paw_ovlp_w)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
 
@@ -126,7 +127,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       value = value.and.MA_free_heap(toeff(2))
       value = value.and.MA_free_heap(indx2(2))
       value = value.and.MA_free_heap(sgn(2))
-      value = value.and.MA_free_heap(w(2))
+      value = value.and.MA_free_heap(paw_ovlp_w(2))
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end
@@ -303,7 +304,7 @@ c           write(*,*) ia,nlm,nlm1
 c           write(*,*) in,paw_proj_l(nlm,ia),paw_proj_m(nlm,ia),
 c     >                       paw_proj_l(nlm1,ia),paw_proj_m(nlm1,ia)
 c           write(*,*) "paw_ovlp:w",w_tmp
-           dcpl_mb(w(1)+ii) = w_tmp
+           dcpl_mb(paw_ovlp_w(1)+ii) = w_tmp
            ii =ii +1
         end do
         end do
@@ -322,7 +323,7 @@ c           write(*,*) "paw_ovlp:w",w_tmp
               lj = paw_basis_orb_l(j)
                 do mj=-lj,lj
                   write(*,*) i,mi,j,mj,in
-                  write(*,*) dcpl_mb(w(1)+ii)
+                  write(*,*) dcpl_mb(paw_ovlp_w(1)+ii)
                   ii =ii +1
                 end do
              end do
