@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.5 1994-04-09 15:46:21 d3e129 Exp $
+c $Id: exact_mem.F,v 1.6 1994-05-05 19:22:23 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -24,10 +24,10 @@ c
         do 00200 jbas = 1,ibas
 c.... angular momentum for 2e3c and 2e4c
           if(.not.bas_high_angular(bases(ibas),tang))
-     &           call errquit('exact_mem:ang error ',0)
+     &           call errquit('exact_mem:ang error ',1)
           hang = max(hang,tang)
           if(.not.bas_high_angular(bases(jbas),tang))
-     &           call errquit('exact_mem:ang error ',0)
+     &           call errquit('exact_mem:ang error ',2)
           hang = max(hang,tang)
 c.... 2e 4 center
           call emem_2e4c(bases(ibas), bases(jbas), lsz_2e4c, lmem_2e4c)
@@ -109,7 +109,7 @@ c
         i_prim = infbs_cont(CONT_NPRIM,iic,ibas)
 c
 c... currently hf3ois does not allow for general contractions
-c... so *_prim is not needed
+c... so *_gen is not needed
 c        i_gen  = infbs_cont(CONT_NGEN,iic,ibas)
 c
         j_lim = jt_ucont
