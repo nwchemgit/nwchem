@@ -39,6 +39,14 @@ error:
 endif
 
 
+#
+# Use full vectorization compiler options
+#
+
+ifdef FVECTORIZE
+       FOPTIMIZE := $(FVECTORIZE)
+endif
+
 ifeq ($(PRECISION),double)
 OBJ_OPTIMIZE =  ddot.o    dnrm2.o    dspr.o    idamax.o \
                 dasum.o   dgemm.o    drot.o    dswap.o    lsame.o \
