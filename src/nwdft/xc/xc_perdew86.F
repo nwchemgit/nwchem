@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,
      *     qwght)
 
-C     $Id: xc_perdew86.F,v 1.1 1995-04-26 03:40:14 og845 Exp $
+C     $Id: xc_perdew86.F,v 1.2 1995-04-30 12:27:04 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -42,9 +42,9 @@ c
 c***************************************************************************
       dzeta(x)=2.d0**ONETHIRD*
      *     dsqrt( ((ONE+x)*.5d0)**FIVE3 + ((ONE-x)*.5d0)**FIVE3 )
-      dprime(x)=FIVE6*( ((1.d0+x)*.5d0)*TWO3-((1.d0-x)*.5d0)*TWO3 )/
-     /     (2.d0**ONETHIRD*
-     *     dsqrt( ((ONE+x)*.5d0)**FIVE3+((ONE-x)*.5d0)**FIVE3))
+      dprime(x)=(2.d0**ONETHIRD*FIVE6)*
+     *     ( ((ONE+x)*.5d0)*TWO3-((ONE-x)*.5d0)*TWO3 )/
+     /     dsqrt( ((ONE+x)*.5d0)**FIVE3+((ONE-x)*.5d0)**FIVE3)
 c       
 c       call to Perdew81 for LDA bit 
 c       
@@ -157,7 +157,7 @@ C
 
           if(dsqgamma.gt.TOLL) then
 
-            gaa = 2.d0*func/gammaval*(1.d0-phi*0.5d0)
+            gaa = func/gammaval*(2.d0-phi)*.5d0
             gbb = gaa
             gab = gaa
             
@@ -213,7 +213,7 @@ c--   > Sampling Matrices for the XC Potential & Energy
 
       fzeta(x)=( (1.+x)**FOUR3 + (1.-x)**FOUR3 - 2.d0 ) /
      /     (2.d0**FOUR3-2.d0)
-      fzzprime(x)=FOUR3*( (1.d0+x)**TWO3 - (1.d0-x)**TWO3 ) /
+      fzzprime(x)=FOUR3*( (1.d0+x)**ONE3 - (1.d0-x)**ONE3 ) /
      /     (2.d0**FOUR3-2.d0)
 
       rsfact=(0.75d0/pi)**ONE3
@@ -233,7 +233,6 @@ c       ======> SPIN-RESTRICTED <======
               alnrs=log(rs)
               
               eU=AU*alnrs+BU+CU*rs*alnrs+DU*rs
-              
               vU=AU*alnrs + (BU-ONE3*AU) + TWO3*CU*rs*alnrs + 
      +             ONE3*(DU+DU-CU)*rs
             else
