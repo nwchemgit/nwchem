@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.56 1995-10-25 02:59:23 rg240 Exp $
+c     $Id: nwchem.F,v 1.57 1995-11-03 19:16:36 d3j191 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -224,7 +224,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 20)
+      parameter (ntasks = 21)
       character*10 task_list(ntasks)
       data task_list /'rjhtest',         ! 1
      $                'raktest',         ! 2
@@ -246,7 +246,8 @@ c
      $                'freqscf',         ! 18
      $                'freqdft',         ! 19
      $                'mcscf'            ! 20
-     $               /
+     $                'nwargos'          ! 21
+     $                /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -257,7 +258,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 110, 120, 130,
-     &         140, 150, 160, 170, 180, 190, 200, 210)
+     &         140, 150, 160, 170, 180, 190, 200, 210, 220)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -374,6 +375,11 @@ c
 c  MCSCF 
 c
   210    call mcscf(rtdb)
+         goto 1000
+c
+c  NW_ARGOS the md package supurbum
+c
+ 220     call nwargos(rtdb)
          goto 1000
 c
       else
