@@ -1,0 +1,21 @@
+!$Id: paw_xc_work_data.fh,v 1.1 2003-02-17 22:03:36 marat Exp $
+!
+!$Log: not supported by cvs2svn $
+
+      integer paw_xc_work_size
+      integer rho_ae(4)
+      integer rho_ps(4)
+      integer vxc_ae(4)
+      integer vxc_ps(4)
+      integer exc_ae(4)
+      integer exc_ps(4)
+      integer xc_temp(4)
+
+      common /paw_xc_work_data/ paw_xc_work_size,
+     >                          rho_ae,  
+     >                          rho_ps,
+     >                          vxc_ae,
+     >                          vxc_ps,
+     >                          exc_ae,
+     >                          exc_ps,
+     >                          xc_temp
