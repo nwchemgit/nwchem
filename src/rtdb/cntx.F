@@ -1,6 +1,6 @@
       program main
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "context.fh"
 #include "rtdb.fh"
 c

@@ -1,7 +1,7 @@
       program dumpdb
       implicit none
 #include "rtdb.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
       character*128 name
       integer rtdb
       integer crap
