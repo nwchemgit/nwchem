@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.4 1998-11-15 23:21:57 jhvan Exp $
+*     $Id: jvltest.F,v 1.5 1998-11-23 09:50:57 d3e129 Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -478,8 +478,8 @@ c...  calculated as exp(-orb)*factor for occ
 c...                exp(orb)*factor for virt
 c
       implicit none
-      double precision orb(nbasis),fac(nbasis),factor
       integer nbasis,occ,virt
+      double precision orb(nbasis),fac(nbasis),factor
 c
       integer i
 c
