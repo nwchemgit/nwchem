@@ -1,0 +1,58 @@
+#!/bin/csh
+#
+# $Id: nqetests,v 1.1 1999-07-22 07:54:12 d3e129 Exp $
+#
+#---   small tests
+cd ~/nwchem/QA/tests/auh2o
+nwdebug auh2o.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/auh2o
+nwdebug auh2o.nw -accnt mp15 -procs 4 -time 3600
+cd ~/nwchem/QA/tests/autosym
+nwdebug autosym.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/dft_he2+
+nwdebug dft_he2+.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/h2mp2
+nwdebug h2mp2.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/h2o
+nwdebug h2o.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/hess_h2o
+nwdebug hess_h2o.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/prop_h2o
+nwdebug prop_h2o.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/pyqa
+nwdebug pyqa.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/rimp2_ne
+nwdebug rimp2_ne.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/sadsmall
+nwdebug sadsmall.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/scf_feco5
+nwdebug scf_feco5.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/small_intchk
+nwdebug small_intchk.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/tagcheck
+nwdebug tagcheck.nw -accnt mp15 -procs 2 -time 3600
+cd ~/nwchem/QA/tests/testtab
+nwdebug testtab.nw -accnt mp15 -procs 2 -time 3600
+#---   small tests that should fail!
+cd ~/nwchem/QA/tests/oh2
+nwdebug oh2.nw -accnt mp15 -procs 2 -time 3600
+#---   medium tests
+cd ~/nwchem/QA/tests/dft_feco5 
+nwdebug dft_feco5 .nw -accnt mp15 -procs 16 -time 3600
+exit 0
+runtests.unix dft_ozone 
+runtests.unix dft_siosi3
+runtests.unix dielsalder
+runtests.unix grad_ozone
+runtests.unix hess_c6h6
+runtests.unix intchk
+runtests.unix sadbig
+runtests.unix 
+runtests.unix 
+#---   long  may not run on workstations
+runtests.unix aump2 
+runtests.unix grad_nh3_trimer 
+runtests.unix hess_nh3
+runtests.unix hess_nh3_dimer
+runtests.unix mp2_si2h6
+runtests.unix uoverlap
