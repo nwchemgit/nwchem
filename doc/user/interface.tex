@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.12 2002-02-13 21:14:37 windus Exp $
+% $Id: interface.tex,v 1.13 2002-02-14 00:36:25 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -137,25 +137,18 @@ intermediate steps at which only the gradient is updated.
 \subsection{Files}
 
 Test runs are located in directories in \verb+$NWCHEM_TOP/QA/tests+.  Test 
-runs are available for three systems: $H + H_2$, $OH + H_2$, and $OH + C_2H_4$.
+runs are available for two systems: $H + H_2$ and $OH + H_2$.
 
-There are two $H + H_2$ tests.
-Both use the Euler integration method at the SCF/3-21G level
+The $H + H_2$ test uses the Euler integration method at the SCF/3-21G level
 of theory to calculate points along the reaction path.
-The first one,  \verb+$NWCHEM_TOP/QA/tests/h3tr1+, calculates a few
-points along the surface.  The second one, \verb+$NWCHEM_TOP/QA/tests/h3tr2+,
-is a restart of the h3tr1 calculation.
+This test is located in the \verb+$NWCHEM_TOP/QA/tests/h3tr1+ directory.
 
 The $OH + H_2$ test uses the Page-McIver CUBE algorithm to calculate points
 on the SCF/3-21G surface and does additional single point calculations at
 the SCF/6-31G* level of theory.  This test is located in the
 \verb+$NWCHEM_TOP/QA/tests/oh3tr3+ directory.
 
-The $OH + C_2H_4$ test uses the Page-McIver LQA method to calculate points
-on the SCF/3-21G surface.  This test case is located in the
-\verb+$NWCHEM_TOP/QA/tests/c2h5otr1+ directory.
-
-Note: All of these tests are set up with SCF, however, other levels of
+Note: These tests are set up with SCF, however, other levels of
 theory can be used.  The initial hessian calculations at the reactants,
 products and saddle point can cause some problems when numerical hessians
 are required (especially when there is symmetry breaking in the wavefunction).
