@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.23 1997-07-30 02:07:47 d3g681 Exp $
+* $Id: prp.F,v 1.24 1997-08-22 19:49:14 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -38,14 +38,14 @@
       DATA BLANK   /'        '/
       DATA IBLK    /'   '/
       DATA NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,NODPL,NODHP,NOD2HP,
-     1     NOFPL,NOFHP,NOF2HP,NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-     2     NOSTON
+     1     NOFPL,NOFHP,NOF2HP,NOSOS,NOELP,NOELF,NOELFG,NODEN,
+     2     NOGIAO,NOIGLO,NOSTON
 C    3    /  0,    1,    1,    0,    1,    1,    1,    1,    1,
-C    4       1,    1,    1,    1,    1,    1,    1,    1,    1,
-C    5       1/
+C    4       1,    1,    1,    1,    1,    1,    1,    1,
+C    5       1,    1,    1/
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
-     4       1,    1,    1,    1,    1,    1,    1,    1,    1,
-     5       1/
+     4       1,    1,    1,    1,    1,    1,    1,    1, 
+     5       1,    1,    1/
 C
       OUT   =.FALSE.
       SOME  =.TRUE.        
@@ -63,6 +63,7 @@ C
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
+      status=rtdb_get(rtdb,'prop:iglo',MT_INT,1,noiglo)
 C
       NEFC  =0
       IEFC  =IBLK
@@ -74,8 +75,8 @@ C
       IF(NOFHP.EQ.0.OR.NOF2HP.EQ.0) NOFPL=0
       IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
      1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
-     2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-     3                        NOSTON
+     2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NOGIAO,
+     3                        NOIGLO,NOSTON
       IF(OUT ) WRITE(IW,9998) RUNTYP,SCFTYP
 C
 C     ----- INTERFACE OF NWCHEM AND HONDO -----
@@ -176,9 +177,13 @@ C     ----- ELECTRON AND SPIN DENSITIES -----
 C
       IF(NODEN.EQ.0) CALL HND_ELDMAP(RTDB,BASIS,GEOM)
 C
-C     ----- -NMR- CHEMICAL SHIFTS -----
+C     ----- GIAO -NMR- CHEMICAL SHIFTS -----
 C
-      IF(NONMR.EQ.0) CALL HND_NMRX
+      IF(NOGIAO.EQ.0) CALL HND_GIAOX
+C
+C     ----- IGLO -NMR- CHEMICAL SHIFTS -----
+C
+      IF(NOIGLO.EQ.0) CALL HND_IGLOX
 C
 C     ----- STONE'S DISTRIBUTED MULTIPOLE ANALYSIS -----
 C
@@ -196,10 +201,14 @@ C
      3 ' noloc =',I2,' nodpl =',I2,/,' nodhp =',I2,' nod2hp=',I2,
      4 ' nofpl =',I2,' nofhp =',I2,' nof2hp=',I2,' nosos =',I2,
      5 ' noelp =',I2,/,' noelf =',I2,' noelfg=',I2,' noden =',I2,
-     6 ' nonmr =',I2,' noston=',I2)
+     6 ' nogiao=',I2,' noiglo=',i2,' noston=',I2)
  9998 FORMAT(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       END
-      SUBROUTINE HND_NMRX
+      SUBROUTINE HND_IGLOX
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      RETURN
+      END
+      SUBROUTINE HND_GIAOX
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       RETURN
       END

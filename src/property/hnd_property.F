@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.4 1997-07-30 02:07:44 d3g681 Exp $
+* $Id: hnd_property.F,v 1.5 1997-08-22 19:49:11 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -94,7 +94,3 @@ c
 c
       return
       end
-
-
-
-
