@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.26 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.27 2000-08-01 17:32:18 d3j191 Exp $
 c
       implicit none
 c
@@ -340,6 +340,17 @@ c
       endif
    12 continue
       close(unit=iunit)
+      endif
+c
+      if(fmt.eq.'esp') then
+      write(filchg,'(a,i3.3,a)') root(1:index(root,'.')-1),nwrit,'.xyz '
+      write(filplt,'(a,i3.3,a)') root(1:index(root,'.')-1),nwrit,'.plt '
+      call ana_wrtxyz(lfnchg,filchg,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + .false.,.not.lsonly,int_mb(i_ndxw))
+      write(filchg,'(a,i3.3,a)')
+     + root(1:index(root,'.')-1),nwrit,'.xyzq '
+      call ana_pltgrd(.true.)
       endif
 c
       endif

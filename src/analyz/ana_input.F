@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.26 2000-07-31 15:35:27 d3j191 Exp $
+c $Id: ana_input.F,v 1.27 2000-08-01 17:32:17 d3j191 Exp $
 c
       implicit none
 c
@@ -429,25 +429,32 @@ c     electrostatic potential
 c     -----------------------     
 c
       if(inp_compare(.false.,'esp',item)) then
-      if(.not.inp_a(filchg)) call errquit('ana_input: filchg failed',0)
-      if(index(filchg,'.xyzq').le.0)
-     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
       if(.not.inp_i(nspac)) nspac=10
       if(.not.inp_f(rcut)) rcut=1.0d0
       iesppb=0
-      filplt=filchg(1:index(filchg,'.xyzq'))
+      filplt=' '
+      filchg=' '
       if(inp_a(item)) then
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(iesppb)) iesppb=3
-      if(.not.inp_a(filplt)) then
-      filplt=filchg(1:index(filchg,'.xyzq'))
+      if(inp_a(filchg)) then
+      if(.not.inp_a(filplt)) filplt=' '
       endif
       else
       filplt=item
+      if(.not.inp_a(filplt)) filplt=' '
       endif
       endif
+      if(filchg(1:1).ne.' ') then
+      if(index(filchg,'.xyzq').le.0)
+     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
+      if(filplt(1:1).eq.' ')
+     + filplt=filchg(1:index(filchg,'.xyzq'))//'.plt '
+      endif
+      if(filplt(1:1).ne.' ') then
       if(index(filplt,'.plt').le.0)
      + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
+      endif
       write(lfncmd,1011) nspac,iesppb,rcut,
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.35 2000-07-31 23:46:03 windus Exp $
+c $Id: ana_task.F,v 1.36 2000-08-01 17:32:18 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
 c
       character*80 card
       integer nsai,msai,it
-      integer nframe,nread,nwrit,ifr,ito,num,i,j,k,ivec
+      integer nframe,nread,ifr,ito,num,i,j,k,ivec
       real*8 rms0,rms1,val,value,range
       character*3 fmt
       logical active
@@ -78,6 +78,10 @@ c
       ldist=0
       scale=1.0d0
       cpk=1.0d0
+c
+      ngrid=10
+      iesppb=0
+      rcut=1.0d0
 c
       ifr=1
 c
@@ -398,8 +402,8 @@ c
      + int_mb(i_ndxw))
       elseif(fmt.eq.'xyz') then
       call ana_wrtxyz(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
-     + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly,
-     + int_mb(i_ndxw))
+     + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + .false.,.not.lsonly,int_mb(i_ndxw))
       else
       call errquit('Illegal file format specified',0)
       endif
@@ -424,6 +428,7 @@ c
       read(card(8:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
+      root=filcop(1:i)
 c
 c      if(nsel.eq.0) call errquit('No atoms selected',0)
 c
@@ -469,6 +474,7 @@ c
       read(card(8:80),'(a)') filsup
       i=index(filsup,'.')
       fmt=filsup(i+1:i+3)
+      root=filsup(1:i)
 c
       if(nsel.eq.0) call errquit('No atoms selected',0)
 c
@@ -866,7 +872,18 @@ c     generate esp grid from an xyzq file
 c     -----------------------------------
 c
       if(card(1:6).eq.'espplt') then
-      call ana_pltgrd(card)
+c
+      string=card(8:80)
+      read(string(1:4),'(i4)') ngrid
+      read(string(5:8),'(i4)') iesppb
+      read(string(9:20),'(f12.6)') rcut
+      string=card(28:80)
+      i=index(string,' ')
+      filchg=string(1:i)
+      filplt=string(i+1:80)
+c
+      if(filchg(1:1).ne.' ') call ana_pltgrd(.true.)
+c
       goto 1
       endif
 c

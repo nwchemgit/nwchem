@@ -1,28 +1,18 @@
-      subroutine ana_pltgrd(card)
+      subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.11 2000-05-04 17:44:30 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.12 2000-08-01 17:32:17 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 c
+      logical lprint
       integer i
-      character*80 card,string
 c
-      string=card(8:80)
-c
-      read(string(1:4),'(i4)') mgrd
-      read(string(5:8),'(i4)') iesppb
-      read(string(9:20),'(f12.6)') rcut
-      string=card(28:80)
-      i=index(string,' ')
-      filchg=string(1:i)
-      filplt=string(i+1:80)
-c
-      ngrd(1)=mgrd
-      ngrd(2)=mgrd
-      ngrd(3)=mgrd
+      ngrd(1)=ngrid
+      ngrd(2)=ngrid
+      ngrd(3)=ngrid
 c
 c
 c     open the charge file
@@ -53,13 +43,13 @@ c
       ngz=ngrd(3)
       mgrd=ngx*ngy*ngz
 c
-      write(*,2000) ngrd,rcut,
+      if(lprint) write(*,2000) ngrd,rcut,
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
  2000 format(' Electrostatic potential on ',i5,'x',i5,'x',i5,
      + ' grid extending',
      + f12.6,' nm',/,' Charges from ',a,' written to ',a)
-      if(iesppb.gt.0) write(*,2001)
+      if(lprint.and.iesppb.gt.0) write(*,2001)
  2001 format(' Periodic boundary conditions')
 c
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid)) then
@@ -69,7 +59,7 @@ c
 c     calculate the electrostatic potential on the grid
 c
       call ana_espgrd(dbl_mb(i_x),dbl_mb(i_q),byte_mb(i_t),
-     + dbl_mb(i_grid))
+     + dbl_mb(i_grid),lprint)
 c
 c     deallocate memory
 c
@@ -135,7 +125,7 @@ c
     4 continue
 c
       do 5 j=1,3
-      spac(j)=1.0d0/(mgrd-1)
+      spac(j)=1.0d0/(ngrid-1)
     5 continue
 c
       do 6 j=1,3
@@ -161,7 +151,7 @@ c      write(*,'(3i5,3f12.6)') ngrd,spac
 c
       return
       end
-      subroutine ana_espgrd(x,q,t,g)
+      subroutine ana_espgrd(x,q,t,g,lprint)
 c
       implicit none
 c
@@ -177,6 +167,7 @@ c
 c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
       character*2 t(nsa)
+      logical lprint
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
       real*8 xg,yg,zg
@@ -282,7 +273,7 @@ c
       write(lfnplt,1003) (((g(ix,iy,iz),ix=1,ngx),iy=1,ngy),iz=1,ngz)
  1003 format(2e20.12)
       close(unit=lfnplt)
-      write(*,1004) filplt(1:index(filplt,' ')-1)
+      if(lprint) write(*,1004) filplt(1:index(filplt,' ')-1)
  1004 format(' Grid data written to ',a)
 c
       endif
