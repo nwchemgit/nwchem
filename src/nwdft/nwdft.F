@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.23 1996-07-03 20:59:23 d3h449 Exp $
+C$Id: nwdft.F,v 1.24 1996-08-12 19:19:18 gutowski Exp $
       implicit none
       logical CDFIT,XCFIT
 c****
@@ -83,10 +83,10 @@ c
       if(itype.eq.0) then
         call dft_main0d(rtdb, 
      &       Int_MB(ickcon), 200)
-      elseif(itype.eq.3) then
-        if(.not. geom_ncent(geom,ncent))
-     &     call errquit('nwdft: ncent get failed',0)
-        call main3d(geom,rtdb,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
+cMG      elseif(itype.eq.3) then
+cMG        if(.not. geom_ncent(geom,ncent))
+cMG     &     call errquit('nwdft: ncent get failed',0)
+cMG        call main3d(geom,rtdb,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
       else
         call errquit('nwdft: problem with system type',0)
       endif
