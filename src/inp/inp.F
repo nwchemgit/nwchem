@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.30 1997-10-16 20:38:45 d3g681 Exp $
+C$Id: inp.F,v 1.31 1998-06-14 20:01:56 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -24,6 +24,8 @@ c
       data xcomm /'#'/
       data xback /'\\'/         ! Backslash ... note backslash for cpp
       data xquote/'"'/
+c
+      data save_level /0/            ! Depth of nesting in save/restore
 c
       end
       subroutine inp_init(ir,iw)
@@ -99,6 +101,37 @@ c
          inp_line = .false.
       endif
 c     
+      end
+      logical function inp_read_physical_line(buf)
+      implicit none
+#include "inpP.fh"
+      character*(*) buf
+c
+c     Read a physical line of input into buf() WITHOUT any
+c     tokenizing, scanning, etc. 
+c
+c     This routine is intended for programms embedded into NWChem
+c     that need to read from the NWChem input file bypassing any
+c     processing that NWChem does on input data, but while still
+c     maintaining a correct count of the input line number for
+c     error reporting.
+c
+c     First void out any info about the current input line
+c
+      ierrpos = -1
+      jump = 0
+      jrec = 0
+c
+      buf = ' '
+      read(5,'(a)',end=10,err=10) buf
+      input_line = input_line + 1
+c
+      inp_read_physical_line = .true.
+      return
+c
+ 10   inp_read_physical_line = .false.
+      errmsg  = 'unexpected end of data file'
+c
       end
       logical function inp_read()
       implicit none
@@ -788,14 +821,18 @@ c     Needed with -stackvar compilation option
       save cdata, idata, fdata
 #endif
 c
+      if (save_level.lt.0 .or. save_level.gt.3) call errquit
+     $     ('inp_save_sate: invalid level ', save_level)
+      save_level = save_level + 1
+c
       do i = 1, 3*max_width+80+6
-         csave(i) = cdata(i)
+         csave(i,save_level) = cdata(i)
       enddo
       do i = 1, 9+4*max_field
-         isave(i) = idata(i)
+         isave(i,save_level) = idata(i)
       enddo
       do i = 1, 2
-         fsave(i) = fdata(i)
+         fsave(i,save_level) = fdata(i)
       enddo
 c
       end
@@ -815,15 +852,20 @@ c     Needed with -stackvar compilation option
       save cdata, idata, fdata
 #endif
 c
+      if (save_level.lt.1 .or. save_level.gt.3) call errquit
+     $     ('inp_restore_sate: invalid level ', save_level)
+c
       do i = 1, 3*max_width+80+6
-         cdata(i) = csave(i)
+         cdata(i) = csave(i,save_level)
       enddo
       do i = 1, 9+4*max_field
-         idata(i) = isave(i)
+         idata(i) = isave(i,save_level)
       enddo
       do i = 1, 2
-         fdata(i) = fsave(i)
+         fdata(i) = fsave(i,save_level)
       enddo
+c
+      save_level = save_level - 1
 c
       end
 

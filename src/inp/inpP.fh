@@ -6,7 +6,7 @@ c
 **      implicit character *4 (y)
 c
       integer max_width         ! Maximum input width of an input line
-C$Id: inpP.fh,v 1.5 1996-02-08 08:45:02 d3g681 Exp $
+C$Id: inpP.fh,v 1.6 1998-06-14 20:01:57 d3g681 Exp $
       integer max_field         ! Maximum no. of fields in an input line
       parameter (max_width = 1024)
       parameter (max_field = max_width/2 + 1)
@@ -53,7 +53,7 @@ c     call inp_restore_state
 c
 c     It is possible to go off and read another file without 
 c     destroying the state of the current file.  Note that this
-c     only works ONCE.
+c     only works only THREE TIMES.
 c
 c     Note that all of these commons must match in size the
 c     ones above and that inp_save/restore_state must also be 
@@ -62,7 +62,9 @@ c
       character*1 csave
       integer isave
       integer fsave
-      common/inp_csave/csave(3*max_width+80+6)
-      common/inp_isave/isave(9+4*max_field)
-      common/inp_fsave/fsave(2)
+      integer save_level
+      common/inp_csave/csave(3*max_width+80+6,3)
+      common/inp_isave/isave(9+4*max_field,3)
+      common/inp_fsave/fsave(2,3)
+      common/inp_save_data/save_level
 c
