@@ -112,9 +112,9 @@ C
 C
 C     Check MOVecs file for number of spin cases
 C
-      Status = Status .AND.
-     $   MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF, TopSpin,
-     $   NMO, MaxSpin)
+      If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
+     $   TopSpin, NMO, MaxSpin) )
+     $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
 C
       If ( Me .eq. 0) then
          Call Banner(LuOut, 'SCF Eigenvector information', '-',
