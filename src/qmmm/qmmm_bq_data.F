@@ -29,7 +29,7 @@ c
       logical link
       integer i,k
 
-      link = qmmm_h_link()
+      link = .true.
 
       call qmmm_bq_data_dealloc()
 c

@@ -23,15 +23,21 @@ c
       integer i_list,h_list
       integer i_nlist,h_nlist
       integer i
+      logical qmmm_h_link
+      external qmmm_h_link
 
 
       pname = "qmmm_data_init: "
 
       call mm_get_tot_nqm(nqm)
-c      call mm_get_tot_nlink(nlink)
-      call mm_count_links(nlink,h_lb,i_lb)
-      write(*,*) " number of links",nlink
-      nqm = nqm + nlink
+
+      if(qmmm_h_link()) then
+        call mm_count_links(nlink,h_lb,i_lb)
+        nqm = nqm + nlink
+      else
+        nlink = 0
+        call mm_count_qlinks(nps,h_ips,i_ips)
+      end if
 c
 c     allocate data arrays
 c     --------------------
@@ -44,52 +50,12 @@ c     ----------------------------------------------------
       call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
       if(nlink.gt.0) then
         call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
-
-c        if(.not.ma_push_get(MT_INT, (max_nb+1)*nlink, 'tmp link array',
-c     &        h_list, i_list) ) call errquit(
-c     &        'qmmm_data_alloc: unable to allocate stack space',
-c     &        nqm, MA_ERR)
-c        if(.not.ma_push_get(MT_INT, nlink, 'tmp link array',
-c     &        h_nlist, i_nlist) ) call errquit(
-c     &        'qmmm_data_alloc: unable to allocate stack space',
-c     &        nqm, MA_ERR)
-c        call ifill((max_nb+1)*nlink,0,int_mb(i_list),1)
-c
-c        do i=1,nlink
-c          int_mb(i_list+(max_nb+1)*(i-1)) = int_mb(i_ai+nqm-nlink+i-1)
-c        end do
-c        call mm_links(nlink,int_mb(i_ai+nqm-nlink),int_mb(i_nlist),
-c     >                int_mb(i_list))
-c
-c        if(.not.ma_pop_stack(h_nlist))
-c     &        call errquit(
-c     &        'qmmm_data_alloc: unable to pop stack space',
-c     &        nqm, MA_ERR)
-c
-c
-c        if(.not.ma_pop_stack(h_list))
-c     &        call errquit(
-c     &        'qmmm_data_alloc: unable to pop stack space',
-c     &        nqm, MA_ERR)
-
-
       end if
 
       if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
         qcharge = 0.0d0    
       end if
 
-       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
-     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
-     &       RTDB_ERR)
-
-
-20    FORMAT(1X,A,T24,A,T46,F12.6)
-21    FORMAT(1X,A,T24,A,T46,L3)
-22    FORMAT(1X,A,T24,A,T46,A)
-23    FORMAT(1X,54("-"),//)
-
-c      call mm_print_system()
 
       end
 
@@ -301,6 +267,10 @@ c
 22    FORMAT(1X,A,T24,A,T46,A)
 23    FORMAT(1X,54("-"),//)
 
+       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
+     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
+     &       RTDB_ERR)
+
       nlink = -1 
       nqm   = -1 
 
@@ -420,6 +390,13 @@ c     --------------------------
      &       MA_ERR)
        end if
 
+      if(nps.ne.0) then
+       if(.not.ma_free_heap(h_ips))
+     &   call errquit('qmmm ai: Failed to deallocate heap',nps,
+     &       MA_ERR)
+       end if
+
+
        return
       end
 
@@ -443,6 +420,16 @@ c     --------------------------
 
       end 
 
+      function qmmm_get_nps()
+      implicit none
+#include "qmmm_data.fh"
+
+      integer qmmm_get_nps
+
+      qmmm_get_nps = nps
+
+      end 
+
       function qmmm_get_i_ai()
       implicit none
 #include "qmmm_data.fh"
@@ -458,6 +445,15 @@ c     --------------------------
       integer qmmm_get_i_lb
 
       qmmm_get_i_lb = i_lb
+
+      end 
+
+      function qmmm_get_i_ips()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_ips
+
+      qmmm_get_i_ips = i_ips
 
       end 
 

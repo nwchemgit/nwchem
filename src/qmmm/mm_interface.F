@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.36 2004-12-17 02:21:48 marat Exp $
+c $Id: mm_interface.F,v 1.37 2004-12-17 21:17:45 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1741,7 +1741,6 @@ c     local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-
       subroutine mm_links(na,ai,nlinks,ilinks)
       implicit none
 #include "qmmm.fh"
@@ -1887,6 +1886,108 @@ c     local variables:
       if(.not.ma_pop_stack(h_qind))
      + call errquit(pname//'Failed to pop stack',nqm,
      &       MA_ERR)
+      return
+ 
+      end
+
+      subroutine mm_count_qlinks(nps,h_ips,i_ips)
+      implicit none
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "mm_utils.fh"
+#include "errquit.fh"
+
+      integer nps
+      integer h_ips
+      integer i_ips
+c     local variables:
+      integer nl,i,j,in
+      integer psb
+      integer msb
+      integer ind1,ind2,ind0
+      integer ind_qm,ind_l
+      integer iqm
+      integer nqm
+      integer h_qind,i_qind
+      integer il,nl0
+      integer h_lind,i_lind
+      integer h_link,i_link
+      logical duplicate
+      character*32 pname
+      pname = "mm_count_links"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_tot_nqm(nqm)
+      if(.not.ma_push_get(mt_int,nqm,'tmp qind',h_qind,i_qind))
+     + call errquit(pname//'Failed to allocate stack',nqm,
+     &       MA_ERR)
+
+      call mm_get_solute_ind_gen(nqm,mm_quant,int_mb(i_qind))
+
+      call mm_get_tot_nlink(nl0)
+      if(.not.ma_push_get(mt_int,nl0,'tmp lind',h_lind,i_lind))
+     + call errquit(pname//'Failed to allocate stack',nl0,
+     &       MA_ERR)
+
+
+      call mm_get_solute_ind_gen(nl0,mm_link,int_mb(i_lind))
+
+      if(.not.ma_push_get(mt_int,nl0*max_nb,'tmp links',h_link,i_link))
+     + call errquit(pname//'Failed to allocate stack',nl,
+     &       MA_ERR)
+      call ifill(nqm,-1,int_mb(i_link),1)
+
+
+      call cf_get_msb(msb)
+      call cf_get_psb(psb)
+
+
+      nl = 0
+      do i=1,msb
+        ind1=int_mb(psb+i-1)
+        ind2=int_mb(psb+msb+i-1)
+        do il=1,nl0
+          ind_l = int_mb(i_lind+il-1)
+          if((ind_l.eq.ind1) .or. (ind_l.eq.ind2)) then
+            do iqm=1,nqm
+              ind_qm = int_mb(i_qind+iqm-1)
+              if((ind_qm.eq.ind1) .or. (ind_qm.eq.ind2)) then
+                duplicate = .false.
+                do j=1,nl
+                  if(int_mb(i_link+j-1).eq.ind_qm) go to 10
+                end do
+                nl = nl+1
+                int_mb(i_link+nl-1)=ind_qm
+10              continue
+              end if
+            end do
+          end if 
+        end do
+      end do
+      
+      nps = nl
+
+      if(.not.ma_alloc_get(mt_int,nps,'pseudo atom index',h_ips,i_ips))
+     + call errquit(pname//'Failed to allocate heap',nps,
+     &       MA_ERR)
+
+      do i=1,nps
+        int_mb(i_ips+i-1) = int_mb(i_link+i-1)
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+
+      if(.not.ma_pop_stack(h_link))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_lind))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_qind))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
+
       return
  
       end

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.43 2004-12-17 02:21:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.44 2004-12-17 21:17:45 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -15,7 +15,7 @@ c
       integer irtdb
 c     local variables
       integer i,i1
-      integer nqm,nlink
+      integer nqm,nlink,nps
       integer igeom
       integer i_c
       integer i_t
@@ -25,6 +25,7 @@ c     local variables
       integer i_num
       integer i_q
       integer i_ai
+      integer i_ips
       integer i_lb
       character*255 basis_string,namespace
       character*255 basis_name
@@ -43,6 +44,7 @@ c     local variables
      >    write(*,*) "in",pname
 
       nqm   = qmmm_get_nqm()
+      nps   = qmmm_get_nps()
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
       i_act = qmmm_get_i_act()
@@ -53,6 +55,7 @@ c     local variables
       i_m   = qmmm_get_i_m()
       i_ai  = qmmm_get_i_ai()
       i_lb  = qmmm_get_i_lb()
+      i_ips = qmmm_get_i_ips()
 
 c
 c     activate all atoms by default
@@ -91,7 +94,20 @@ c     --------------------------
      >                      dbl_mb(i_m))
 
       end if
+
+      if(nps.gt.0) then
+       call qmmm_adjust_flinks(nqm,
+     >                         int_mb(i_ai),
+     >                         nps,
+     >                         int_mb(i_ips),
+     >                         int_mb(i_num),
+     >                         dbl_mb(i_q),
+     >                         byte_mb(i_t),
+     >                         dbl_mb(i_m))
+
       
+      end if
+
       call qmmm_adjust_link_coord()
 
       if(qmmm_print_debug()) then
@@ -709,6 +725,60 @@ c     ---------------
      &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
       end do
       end if
+
+      end
+
+      subroutine qmmm_adjust_flinks(n,ai,nps,ips,inum,q,t,m)
+      implicit none
+#include "geom.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "mafdecls.fh"
+      integer n
+      integer nps
+      integer ai(n)
+      integer ips(nps)
+      integer inum(n)
+      double precision q(n)
+      character*16 t(n)
+      double precision m(n)
+
+c     local variables
+c     ---------------
+      integer i
+      integer i_mqm
+      integer iq
+      integer h_mqm
+      character*32 pname
+
+      pname = "qmmm_adjust_flink"
+
+      if(nps.eq.0) return
+
+      if(.not.ma_push_get(mt_int,nps,'mqm',h_mqm,i_mqm))
+     + call errquit( pname//'Failed to allocate memory for mqm',
+     + nps, MA_ERR)
+
+      if(.not.qmmm_map(n,ai,
+     >                 nps,ips,
+     >                 int_mb(i_mqm)))  
+     >     call errquit( pname//'Failed to map',
+     > 0, 0)
+
+ 
+      do i=1,nps
+        iq = int_mb(i_mqm+i-1)
+        q(iq)=9.0
+        t(iq)="F_L"
+        inum(iq)=9
+        if(.not.geom_tag_to_default_mass(t(iq),m(iq)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+
+      if(.not.ma_pop_stack(h_mqm))
+     + call errquit( pname//'Failed to deallocate memory for mqm',
+     + nps, MA_ERR)
 
       end
 
