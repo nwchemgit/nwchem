@@ -1,6 +1,6 @@
       subroutine sp_start(lfntop,filtop,lfnrst,filrst,rsht,rlng,rinp,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
-     + npbt,nbxt,boxt,vlatt,
+     + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps)
 c
@@ -21,7 +21,7 @@ c
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt
-      logical lpol,lfre,ignore
+      logical lpol,lfre,ignore,lpbc
 c
       integer i,j
 c
@@ -158,6 +158,8 @@ c
 c
       third=1.0d0/3.0d0
       nldup=-1
+c
+      lpbc=npbtyp.gt.0
 c
       call ga_sync()
 c
