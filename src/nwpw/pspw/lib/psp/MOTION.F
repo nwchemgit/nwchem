@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.3 2002-05-08 23:50:28 bylaska Exp $
+* $Id: MOTION.F,v 1.4 2003-02-18 19:06:14 edo Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -68,6 +68,9 @@
              read(19,*,ERR=30,END=30) ch_tmp
            end do
  30        continue
+#ifdef FUJITSU_SOLARIS
+           backspace 19
+#endif
 
 *        **** MOTION FILE does not exist ****
          else
