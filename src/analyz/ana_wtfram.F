@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.36 2000-11-07 21:30:23 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.37 2001-01-18 23:54:57 d3j191 Exp $
 c
       implicit none
 c
@@ -303,6 +303,8 @@ c
  8000 format('#include "camera.inc"',/,'#include "colors.inc"')
       do 10 i=1,nsa
       if(isel(i).ne.0) then
+      write(iunit,8003) sgmnam(i)
+ 8003 format('// ',a)
       k=pre_atnum(sgmnam(i)(6:7))
       color=atom_color(k)
       factor=scale*val(i,1)

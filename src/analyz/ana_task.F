@@ -1,10 +1,11 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.56 2001-01-18 21:31:45 d3j191 Exp $
+c $Id: ana_task.F,v 1.57 2001-01-18 23:54:57 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
+#include "ana_params.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -18,7 +19,7 @@ c
 c
       character*80 card
       integer nsai,msai,it
-      integer nframe,nread,ifr,ito,num,i,j,k,ivec
+      integer nframe,nread,ifr,ito,num,i,j,k,ivec,ia,ja
       real*8 rms0,rms1,val,value,range
       character*3 fmt
       logical active
@@ -57,12 +58,17 @@ c
       lfnhis=92
       lfnepz=93
       lfngrp=94
+      lfnord=95
 c
       ltop=.false.
 c
       do 44 i=1,mhis
       idhis(i,3)=40+i
    44 continue
+      do 46 i=1,mord
+      rord(i,1)=zero
+      rord(i,2)=zero
+   46 continue
 c
       lsonly=.false.
       lsuper=.false.
@@ -374,6 +380,26 @@ c
       goto 1
       endif
 c
+c     order parameters
+c     ----------------
+c
+      if(card(1:7).eq.'order  ') then
+      read(card(8:26),'(i5,2i7)') it,ia,ja
+      if(it.eq.nord+1) nord=nord+1
+      if(it.gt.nord) call errquit('Order index too large',it)
+      if(it.gt.mord) call errquit('Order index too large',it)
+      idord(it,1)=ia
+      idord(it,2)=ja
+      if(me.eq.0) then
+      do 56 i=3,4
+      read(lfncmd,1000,end=9999) card
+      call ana_index(card,byte_mb(i_snam),idord(it,i),ia)
+   56 continue
+      endif
+      call ga_brdcst(mag_d08,idord,4*mord*ma_sizeof(mt_int,1,mt_byte),0)
+      goto 1
+      endif
+c
 c     root mean square deviation
 c     --------------------------
 c
@@ -677,6 +703,7 @@ c
       filana=string(1:index(string,' ')-1)//'.ana'
       filhis=string(1:index(string,' ')-1)//'.his'
       filgrp=string(1:index(string,' ')-1)//'.grp'
+      filord=string(1:index(string,' ')-1)//'.ord'
 c      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
       time=0.0d0
 c
@@ -705,6 +732,10 @@ c
       endif
       if(ngroup.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nord.gt.0) then
+      open(unit=lfnord,file=filord(1:index(filord,' ')-1),
      + form='formatted',status='unknown')
       endif
       endif
@@ -800,6 +831,10 @@ c
  3302 continue
       endif
 c
+      if(nord.gt.0) then
+      call ana_order(dbl_mb(i_xdat))
+      endif
+c
       ndata=ndata+1
 c
       endif
@@ -833,6 +868,16 @@ c
       write(*,'(a)') ' Closing grp file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filgrp(1:index(filgrp,' ')-1)
+      endif
+      if(nord.gt.0) then
+      do 3308 i=1,nord
+      write(lfnord,3309) i,abs(half*(three*rord(i,2)/dble(ndata)-one))
+ 3309 format(i5,f12.6)
+ 3308 continue
+      close(unit=lfnord)
+      write(*,'(a)') ' Closing ord file '
+      write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
+     + filord(1:index(filord,' ')-1)
       endif
       if(nhis.gt.0) then
       do 3304 i=1,nhis

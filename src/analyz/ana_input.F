@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.41 2001-01-11 21:48:13 d3j191 Exp $
+c $Id: ana_input.F,v 1.42 2001-01-18 23:54:57 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
-      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel
+      integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,ivctr,iorder
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax
       logical lref,lfil,lsol,lsuper
@@ -386,6 +386,40 @@ c
       goto 2
       endif
 c
+c     calculate order parameter
+c     -------------------------
+c
+      if(inp_compare(.false.,'order',item)) then
+      if(.not.inp_i(iorder)) call errquit('No iorder specified',0)
+      if(.not.inp_i(isel)) call errquit('No igroup specified',0)
+      if(.not.inp_i(jsel)) call errquit('No jgroup specified',0)
+      if(.not.inp_a(atomi)) call errquit('No iatom specified',0)
+      if(.not.inp_a(atomj)) call errquit('No jatom specified',0)
+      if(isel.eq.jsel) call errquit('Order groups identical',isel)
+      write(lfncmd,1028) iorder,isel,jsel 
+ 1028 format('order  ',i5,2i7)
+      write(lfncmd,1029) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1029) atomj(1:index(atomj,' ')-1)
+ 1029 format(a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     define vectors
+c     --------------
+c
+      if(inp_compare(.false.,'vector',item)) then
+      if(.not.inp_i(ivctr)) call errquit('Error in vector',0)
+      if(.not.inp_a(atomi)) call errquit('Error in vector',0)
+      if(.not.inp_a(atomj)) call errquit('Error in vector',0)
+      write(lfncmd,1026) ivctr
+ 1026 format('vector ',i5)
+      write(lfncmd,1027) atomi(1:index(atomi,' ')-1)
+      write(lfncmd,1027) atomj(1:index(atomj,' ')-1)
+ 1027 format(a)
+      goto 2
+      endif
+c
 c     define bonds
 c     ------------
 c
@@ -586,7 +620,7 @@ c     ---------------------------
 c
       if(inp_compare(.false.,'essential',item)) then
       if(.not.inp_a(item)) item=' ' 
-      write(lfncmd,1009) item
+      write(lfncmd,1009) item(1:index(item,' ')-1)
  1009 format('saver  ',/,'covar  ',a)
       numcmd=numcmd+2
       goto 2
@@ -598,7 +632,7 @@ c
       if(inp_compare(.false.,'project',item)) then
       if(.not.inp_i(ivec)) call errquit('No vector specified',0)
       if(.not.inp_a(item)) call errquit('No projection file',0)
-      write(lfncmd,1010) ivec,item
+      write(lfncmd,1010) ivec,item(1:index(item,' ')-1)
  1010 format('projec ',i7,a)
       numcmd=numcmd+1
       goto 1
