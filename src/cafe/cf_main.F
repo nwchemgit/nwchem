@@ -616,7 +616,7 @@ c
       integer numw,nums
 c
       integer i,j,k
-      real*8 z,prssc3,rdata(4),xwcd,xscd,eskin
+      real*8 z,prssc3,rdata(4),xwcd,xscd,eskin,ekc,rtemp(2)
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
@@ -644,11 +644,15 @@ c
       z=z+zs(i,1,1)+zs(i,2,1)+zs(i,3,1)
     5 continue
 c
-      call ga_dgop(mcf_38,z,1,'+')
+      rtemp(1)=z
+      rtemp(2)=ewkc+eskc
+      call ga_dgop(mcf_38,rtemp,2,'+')
+      z=rtemp(1)
+      ekc=rtemp(2)
 c
       volume=box(1)*box(2)*box(3)
 c
-      pres=(two*(ewkc+eskc)-z)/(three*volume*avoga)
+      pres=(two*ekc-z)/(three*volume*avoga)
 c
       pscale=one
       if(ipscal.gt.0) then
@@ -1289,6 +1293,53 @@ c
     1 continue
       fdata(25)=ep2(1)
       fdata(26)=ep3(1)
+c
+      return
+      end
+      subroutine cf_center(xw,numw,xs,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "msgids.fh"
+c
+      integer numw,nums
+      real*8 xw(mwm,3,mwa),xs(msa,3)
+c
+      real*8 xb(3)
+      integer i,isa,iwm,iwa
+c
+      if(nsa.le.0) return
+c
+      do 1 i=1,3
+      xb(i)=zero
+    1 continue
+c
+      do 2 i=1,3
+      do 3 isa=1,nums
+      xb(i)=xb(i)+xs(isa,i)
+    3 continue
+    2 continue
+c
+      call ga_dgop(mcf_49,xb,3,'+')
+c
+      do 4 i=1,3
+      xb(i)=xb(i)/dble(nsa)
+    4 continue
+c
+      do 5 i=1,3
+      do 6 isa=1,nums
+      xs(isa,i)=xs(isa,i)-xb(i)
+    6 continue
+    5 continue
+c
+      do 7 i=1,3
+      do 8 iwa=1,nwa
+      do 9 iwm=1,numw
+      xw(iwm,i,iwa)=xw(iwm,i,iwa)-xb(i)
+    9 continue
+    8 continue
+    7 continue
 c
       return
       end

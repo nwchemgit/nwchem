@@ -3,7 +3,8 @@
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
-     + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2)
+     + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
+     + issscl,delta)
 c
       implicit none
 c
@@ -17,8 +18,9 @@ c
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
-      real*8 rcs,rcl,rqm,compr
+      real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
+      integer issscl
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
 c
       integer i
@@ -69,6 +71,7 @@ c
       rlong2=rlong*rlong
       rqmmm2=rqmmm*rqmmm
       ltwin=rlong.gt.rshrt
+      lssscl=issscl.ne.0
 c
       nbxtyp=nbxt
       npbtyp=npbt
@@ -136,6 +139,19 @@ c
       twopi=two*pi
 c
       wbox=zero
+c
+      shift0(1)=zero
+      shift0(2)=zero
+      shift0(3)=delta
+      shift0(4)=delta
+      shift0(5)=zero
+      shift0(6)=delta
+      shift1(1)=delta
+      shift1(2)=delta
+      shift1(3)=zero
+      shift1(4)=-delta
+      shift1(5)=delta
+      shift1(6)=zero
 c
       ithint=ntype.eq.3
       ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
@@ -1474,6 +1490,8 @@ c
       oops(i,j,k)=rlam(k)*oops(i,j,6)+slam(k)*oops(i,j,5)
    22 continue
    21 continue
+      shift0(k)=rlam(k)*shift0(6)+slam(k)*shift0(5)
+      shift1(k)=rlam(k)*shift1(6)+slam(k)*shift1(5)
     1 continue
 c
       if(me.eq.0) then

@@ -94,7 +94,7 @@ c
 c
       integer ntype,npbtyp,nbxtyp,iqmmm,lstype
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
-      integer lpww,lpsw,lpss,issscl,ngrsw,ngrss,nrwrec
+      integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
       integer ipolt,niterw,niters,mshitw,mshits
       integer itscal,ipscal,islow,mdalgo,ntest
@@ -107,7 +107,7 @@ c
       real*8 tstep,tstepi,wbox,tmpext,prsext,tmwrlx,tmsrlx,prsrlx
       real*8 factmp,factmw,factms,scalew,scales,ewk,ek,ewkc,eskc
       integer llww,lsww,llsw,lssw,llss,lsss
-      logical llist,lpair,ltwin,llong
+      logical llist,lpair,ltwin,llong,lssscl
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
       common/cf_box/box,boxh,vlat,vlati,rshrt,rlong,rrest,rqmmm,rshrt2,
      + rlong2,rrest2,rqmmm2,deriv,ep2,ep3,dfrdf,ewwl,zw,rffww,ewwr,drdf,
@@ -118,9 +118,9 @@ c
      + ewkc,eskc,facpsc,pscale,
      + ntype,npbtyp,nbxtyp,iqmmm,lstype,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
-     + lpss,issscl,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
+     + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,
      + itscal,ipscal,islow,mdalgo,ntest,
      + llww,lsww,llsw,lssw,llss,lsss,
-     + llist,lpair,ltwin,llong,
+     + llist,lpair,ltwin,llong,lssscl,
      + ithint,ith,ipert2,ipert3,ip2,ip3
