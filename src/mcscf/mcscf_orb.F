@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.24 1996-08-06 05:36:40 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.25 1996-09-03 01:12:38 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -206,22 +206,23 @@ c
 c  Check on vanishing/negative Hessian diagonals
 c
        call mcscf_chk_hdiag( pflg, vlen, g_hdiag, lshift, hmin, hmax )
-C       CALL GA_ROWPRINT(' Scaled Hessian Diag ', G_HDIAG )
+c       CALL GA_ROWPRINT(' Scaled Hessian Diag ', G_HDIAG )
 c
 c  Precondition accuracy (same as rohf code)
+c     rjh ... it's only first order convergent
 c
        ndigit = 2.d0
        if (pflg .eq. 2) then
          ndigit = 1.5d0
-         if (lshift .eq. 0.0d0) ndigit =
-     $     min((1+abs(log10(gnorm/gnorm_tol))),abs(log10(gnorm)))
+*         if (lshift .eq. 0.0d0) ndigit =
+*     $     min((1+abs(log10(gnorm/gnorm_tol))),abs(log10(gnorm)))
        endif
 c
 c  Precondition
 c
        p_acc = max(min(10.d0**(-ndigit), tol_ceil), tol_floor)
        oprcndprint = util_print('precondition',print_high)
-       call mcscf_precond( geom, basis, nclosed, nact,
+ 1010  call mcscf_precond( geom, basis, nclosed, nact,
      $                     oskel, orbsym, tol2e, pflg,
      $                     lshift, maxpiter, oprcndprint,
      $                     dm1, dm2,
@@ -265,6 +266,27 @@ c$$$       CALL GA_ROWPRINT('step vector',G_KVEC)
        alpha = 1.0d0
        eev(0) = energy
        gsv(0) = ga_ddot(g_grad, g_srch)
+       if (gsv(0) .gt. 0) then
+c
+c     Oops ... the line search is not down hill which means that
+c     the preconditioning has failed, or there is an inconsistency
+c     in the energy/gradient, or the conjugacy is messed up.
+c     Ideally want to redo the preconditioning with a larger level shift
+c     and also reset conjugacy.  Eventually we'll end up on the right track.
+c     While we're at it we could also disable the seocnd order algorithm since
+c     things are obviously messed up but not now.
+c
+          lshift = 2.0d0*lshift + 0.5d0
+          ocjrst = .true.
+          if (ga_nodeid() .gt. 0) then
+             write(6,'(a,f8.2)') 
+     $            ' !! Positive gradient along search direction',
+     $            ' - Increasing lshift to ',  lshift
+             call util_flush(6)
+          endif
+          goto 1010
+       endif
+c
        av(0) = 0.d0
        eprec = max(gnorm0*0.01d0, tol2e*100.0d0)
        micro_citol = gnorm0*0.1d0*lsrch_tol

@@ -346,13 +346,19 @@ c
          if (gnorm.lt.thresh) then
            write(6,928)
  928       format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
-           mcscf = .true.
          else
            write(6,929)
  929       format(//,5x,'--- maximum iterations reached ---')
-           mcscf = .false.
          endif
        endif
+c
+       mcscf = oconverged
+c
+*       if (gnorm .gt. thresh) then
+*         mcscf = .false.
+*       else
+*         mcscf = .true.
+*       endif
 c
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -364,7 +370,7 @@ c
 c
 c  Canonical Orbitals
 c
-       if ((oprinfo).and.(util_print('movecs',print_default))) then
+       if ((oprinfo).and.(util_print('movecs',print_debug))) then
          if (ocanonical) then
            write(6,810)
  810       format(///,10x,'Canonical Orbitals and Eigenvalues')
@@ -389,6 +395,16 @@ c
          if (chi.ne.(nact+nclosed)) goto 32
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('mcscf: cannot pop local MO',0)
+       else if ((oprinfo) .and. util_print('evals',print_default)) then
+         if (ocanonical) then
+           write(6,8101)
+8101       format(///,10x,'Canonical Eigenvalues')
+         else
+           write(6,8111)
+8111       format(///,10x,'Non-canonical Eigenvalues')
+         endif
+         call output(dbl_mb(k_evals), 1, nbf, 1, 1, nbf, 1, 1)
+         write(6,*)
        endif
 c
 c  Solve CI for Canonical orbitals
@@ -412,7 +428,7 @@ c
          call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                          dbl_mb(k_occ), dbl_mb(k_evals),
      $                          g_movecs )
-         if ((oprinfo).and.(util_print('movecs',print_default))) then
+         if ((oprinfo).and.(util_print('movecs',print_debug))) then
            write(6,880)
  880       format(///,10x,'Natural Orbitals and Occupation')
            if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
@@ -433,6 +449,11 @@ c
            if (chi.ne.(nact+nclosed)) goto 33
            if (.not.ma_pop_stack(l_tmp))
      $          call errquit('mcscf: cannot pop local MO',0)
+         else if ((oprinfo) .and. util_print('nocc',print_default))then
+           write(6,8801)
+8801       format(///,10x,'Natural orbital occupation numbers')
+           call output(dbl_mb(k_occ), 1, nact+nclosed, 1, 1, nbf, 1, 1)
+           write(6,*)
          endif
 c
 c  Resolve CI for Natural Orbitals

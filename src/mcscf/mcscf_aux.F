@@ -344,7 +344,7 @@ c  Get filenames
 c
        if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,movecs_in)) then
          if (.not.rtdb_cget(rtdb,'scf:input vectors',1,movecs_in))
-     $      movecs_in = 'movecs'
+     $      call util_file_name('movecs', .false., .false., movecs_in)
        endif
 c
 c  Starting MO's determined from movecs_in string
@@ -633,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.14 1996-08-29 17:19:14 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.15 1996-09-03 01:12:37 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.14 1996-08-29 17:19:14 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.15 1996-09-03 01:12:37 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
