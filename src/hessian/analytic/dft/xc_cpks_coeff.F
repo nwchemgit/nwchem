@@ -4,10 +4,10 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.2 1998-10-13 02:06:36 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.3 1998-12-31 21:40:38 bjohnson Exp $
 c
-      Subroutine xc_cpks_coeff(rho, delrho, Amat2, Cmat2, npert, ipol,
-     &                         nq, GRAD)
+      Subroutine xc_cpks_coeff(prho, pdelrho, Amat2, Cmat2, Cmat,
+     &                         delrho, npert, ipol, nq, GRAD)
       implicit none
 #include "dft2drv.fh"
 c
@@ -19,34 +19,37 @@ c
 c     Current approximate perturbed spin densities and density gradients
 c     These are overwritten with the XC matrix coefficients to save space
 c
-      double precision rho(nq,ipol,npert), delrho(nq,3,ipol,npert)
+      double precision prho(nq,ipol,npert), pdelrho(nq,3,ipol,npert)
 c
-c     Second derivatives of XC functional [input, destroyed]
+c     Second derivatives of XC functional [input]
 c
       double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
 c
-      integer ipert, n ! Loop indices
-      double precision rhoa, rhob
+c     GC first derivatives of XC functional [input]
 c
-      if (GRAD) then
-         call errquit('xc_cpks_coeff: Not yet implemented for GC',0)
-      endif
+      double precision Cmat(nq,*)
+c
+c     Gradients of spin densities [input, destroyed]
+c
+      double precision delrho(nq,3,ipol)
+c
+      integer ipert, n ! Loop indices
+      double precision pz(5), pdra(3), pdrb(3), t(2)
 c
       if (ipol.eq.1) then
 c
 c     Since the total densities are evaluated in the restricted case,
-c     scale the functional derivatives by a factor of 0.5 so that the
-c     correct CPKS matrices will be produced.
+c     scale them by a factor of 0.5 so that the correct CPKS matrices
+c     will be produced.
 c
-         call dscal(nq*NCOL_AMAT2,0.5d0,Amat2,1)
+         call dscal(nq*ipol*npert,0.5d0,prho,1)
          if (GRAD) then
-            call errquit('xc_cpks_coeff: Scale for restricted GC?',0)
-c     !!! Is 1/2 the right factor?  1/4?
-            call dscal(nq*NCOL_CMAT2,0.5d0,Cmat2,1)
+            call dscal(nq*3*ipol*npert,0.5d0,pdelrho,1)
+            call dscal(nq*3*ipol,0.5d0,delrho,1)
          endif
       endif
 c
-      do ipert = 1,npert
+      do ipert = 1, npert
 c
 c        !!! Put in cutoffs here similar to xc_tabcd? !!!
 c
@@ -54,33 +57,173 @@ c
 c
 c           Unrestricted case
 c
-            do n = 1, nq
-               rhoa = rho(n,1,ipert)
-               rhob = rho(n,2,ipert)
-               rho(n,1,ipert) = Amat2(n,D2_RA_RA)*rhoa
-     &                        + Amat2(n,D2_RA_RB)*rhob
-               rho(n,2,ipert) = Amat2(n,D2_RA_RB)*rhoa
-     &                        + Amat2(n,D2_RB_RB)*rhob
-            enddo
+            if (.not. GRAD) then
 c
-            if (GRAD) then
                do n = 1, nq
-c                 !!! GC part goes here !!!
+                  pz(1) = prho(n,1,ipert)
+                  pz(2) = prho(n,2,ipert)
+                  prho(n,1,ipert) = Amat2(n,D2_RA_RA)*pz(1)
+     &                            + Amat2(n,D2_RA_RB)*pz(2)
+                  prho(n,2,ipert) = Amat2(n,D2_RA_RB)*pz(1)
+     &                            + Amat2(n,D2_RB_RB)*pz(2)
                enddo
+c
+            else
+c
+               do n = 1, nq
+c
+c                 Perturbed functional parameters
+c
+                  pz(1) = prho(n,1,ipert)
+                  pz(2) = prho(n,2,ipert)
+                  pz(3) =(delrho(n,1,1)*pdelrho(n,1,1,ipert)
+     &                  + delrho(n,2,1)*pdelrho(n,2,1,ipert)
+     &                  + delrho(n,3,1)*pdelrho(n,3,1,ipert))*2d0
+                  pz(4) = delrho(n,1,1)*pdelrho(n,1,2,ipert)
+     &                  + delrho(n,2,1)*pdelrho(n,2,2,ipert)
+     &                  + delrho(n,3,1)*pdelrho(n,3,2,ipert)
+     &                  + delrho(n,1,2)*pdelrho(n,1,1,ipert)
+     &                  + delrho(n,2,2)*pdelrho(n,2,1,ipert)
+     &                  + delrho(n,3,2)*pdelrho(n,3,1,ipert)
+                  pz(5) =(delrho(n,1,2)*pdelrho(n,1,2,ipert)
+     &                  + delrho(n,2,2)*pdelrho(n,2,2,ipert)
+     &                  + delrho(n,3,2)*pdelrho(n,3,2,ipert))*2d0
+c
+c                 Local CPKS coefficients
+c
+                  prho(n,1,ipert) = Amat2(n,D2_RA_RA) *pz(1)
+     &                            + Amat2(n,D2_RA_RB) *pz(2)
+     &                            + Cmat2(n,D2_RA_GAA)*pz(3)
+     &                            + Cmat2(n,D2_RA_GAB)*pz(4)
+     &                            + Cmat2(n,D2_RA_GBB)*pz(5)
+                  prho(n,2,ipert) = Amat2(n,D2_RA_RB) *pz(1)
+     &                            + Amat2(n,D2_RB_RB) *pz(2)
+     &                            + Cmat2(n,D2_RB_GAA)*pz(3)
+     &                            + Cmat2(n,D2_RB_GAB)*pz(4)
+     &                            + Cmat2(n,D2_RB_GBB)*pz(5)
+c
+c                 GC CPKS coefficients
+c
+                  pdra(1) = pdelrho(n,1,1,ipert)
+                  pdra(2) = pdelrho(n,2,1,ipert)
+                  pdra(3) = pdelrho(n,3,1,ipert)
+                  pdrb(1) = pdelrho(n,1,2,ipert)
+                  pdrb(2) = pdelrho(n,2,2,ipert)
+                  pdrb(3) = pdelrho(n,3,2,ipert)
+c
+c                 Perturbed density gradient contribution
+c
+                  pdelrho(n,1,1,ipert) = Cmat(n,D1_GAA)*pdra(1)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdrb(1)
+                  pdelrho(n,2,1,ipert) = Cmat(n,D1_GAA)*pdra(2)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdrb(2)
+                  pdelrho(n,3,1,ipert) = Cmat(n,D1_GAA)*pdra(3)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdrb(3)
+                  pdelrho(n,1,2,ipert) = Cmat(n,D1_GBB)*pdrb(1)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdra(1)
+                  pdelrho(n,2,2,ipert) = Cmat(n,D1_GBB)*pdrb(2)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdra(2)
+                  pdelrho(n,3,2,ipert) = Cmat(n,D1_GBB)*pdrb(3)*2d0
+     &                                 + Cmat(n,D1_GAB)*pdra(3)
+c
+c                 Perturbed functional argument contribution
+c
+                  t(1) =(Cmat2(n,D2_RA_GAA) *pz(1)
+     &                 + Cmat2(n,D2_RB_GAA) *pz(2)
+     &                 + Cmat2(n,D2_GAA_GAA)*pz(3)
+     &                 + Cmat2(n,D2_GAA_GAB)*pz(4)
+     &                 + Cmat2(n,D2_GAA_GBB)*pz(5))*2d0
+                  t(2) = Cmat2(n,D2_RA_GAB) *pz(1)
+     &                 + Cmat2(n,D2_RB_GAB) *pz(2)
+     &                 + Cmat2(n,D2_GAA_GAB)*pz(3)
+     &                 + Cmat2(n,D2_GAB_GAB)*pz(4)
+     &                 + Cmat2(n,D2_GAB_GBB)*pz(5)
+                  pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
+     &                 + delrho(n,1,1)*t(1) + delrho(n,1,2)*t(2)
+                  pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
+     &                 + delrho(n,2,1)*t(1) + delrho(n,2,2)*t(2)
+                  pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
+     &                 + delrho(n,3,1)*t(1) + delrho(n,3,2)*t(2)
+                  t(1) = t(2)
+                  t(2) =(Cmat2(n,D2_RA_GBB) *pz(1)
+     &                 + Cmat2(n,D2_RB_GBB) *pz(2)
+     &                 + Cmat2(n,D2_GAA_GBB)*pz(3)
+     &                 + Cmat2(n,D2_GAB_GBB)*pz(4)
+     &                 + Cmat2(n,D2_GBB_GBB)*pz(5))*2d0
+                  pdelrho(n,1,2,ipert) = pdelrho(n,1,2,ipert)
+     &                 + delrho(n,1,1)*t(1) + delrho(n,1,2)*t(2)
+                  pdelrho(n,2,2,ipert) = pdelrho(n,2,2,ipert)
+     &                 + delrho(n,2,1)*t(1) + delrho(n,2,2)*t(2)
+                  pdelrho(n,3,2,ipert) = pdelrho(n,3,2,ipert)
+     &                 + delrho(n,3,1)*t(1) + delrho(n,3,2)*t(2)
+               enddo
+c
             endif
 c
          else
 c
 c           Restricted case
 c
-            do n = 1, nq
-               rho(n,1,ipert) = (Amat2(n,D2_RA_RA) + Amat2(n,D2_RA_RB))
-     &                        * rho(n,1,ipert)
-            enddo
+            if (.not. GRAD) then
 c
-            if (GRAD) then
                do n = 1, nq
-c                 !!! GC part goes here !!!
+                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)+Amat2(n,D2_RA_RB))
+     &                            * prho(n,1,ipert)
+               enddo
+c
+            else
+c
+               do n = 1, nq
+c
+c                 Perturbed functional parameters
+c
+                  pz(1) = prho(n,1,ipert)
+                  pz(3) =(delrho(n,1,1)*pdelrho(n,1,1,ipert)
+     &                  + delrho(n,2,1)*pdelrho(n,2,1,ipert)
+     &                  + delrho(n,3,1)*pdelrho(n,3,1,ipert))*2d0
+c
+c                 Local CPKS coefficient
+c
+                  prho(n,1,ipert) =(Amat2(n,D2_RA_RA)
+     &                            + Amat2(n,D2_RA_RB)) *pz(1)
+     &                            +(Cmat2(n,D2_RA_GAA)
+     &                            + Cmat2(n,D2_RA_GAB)
+     &                            + Cmat2(n,D2_RA_GBB))*pz(3)
+c
+c                 GC CPKS coefficients
+c
+                  pdra(1) = pdelrho(n,1,1,ipert)
+                  pdra(2) = pdelrho(n,2,1,ipert)
+                  pdra(3) = pdelrho(n,3,1,ipert)
+c
+c                 Perturbed density gradient contribution
+c
+                  pdelrho(n,1,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 + Cmat(n,D1_GAB))*pdra(1)
+                  pdelrho(n,2,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 + Cmat(n,D1_GAB))*pdra(2)
+                  pdelrho(n,3,1,ipert) =(Cmat(n,D1_GAA)*2d0
+     &                                 + Cmat(n,D1_GAB))*pdra(3)
+c
+c                 Perturbed functional argument contribution
+c
+c!!!                  write(*,*)'*** Simplify restricted GC expression'
+                  t(1) =((Cmat2(n,D2_RA_GAA)
+     &                 +  Cmat2(n,D2_RB_GAA)) *pz(1)
+     &                 + (Cmat2(n,D2_GAA_GAA)
+     &                 +  Cmat2(n,D2_GAA_GAB)
+     &                 +  Cmat2(n,D2_GAA_GBB))*pz(3))*2d0
+                  t(2) =(Cmat2(n,D2_RA_GAB)
+     &                 + Cmat2(n,D2_RB_GAB)) *pz(1)
+     &                 +(Cmat2(n,D2_GAA_GAB)
+     &                 + Cmat2(n,D2_GAB_GAB)
+     &                 + Cmat2(n,D2_GAB_GBB))*pz(3)
+                  pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
+     &                 + delrho(n,1,1)*(t(1) + t(2))
+                  pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
+     &                 + delrho(n,2,1)*(t(1) + t(2))
+                  pdelrho(n,3,1,ipert) = pdelrho(n,3,1,ipert)
+     &                 + delrho(n,3,1)*(t(1) + t(2))
                enddo
             endif
 c
@@ -88,7 +231,12 @@ c
 c
       enddo
 c
-c      write(6,*) 'xc_cpks_coeff: rho out '
-c      call output(rho, 1, nq, 1, ipol*npert, nq, ipol*npert, 1)
+c      write(6,*) 'xc_cpks_coeff: prho out'
+c      call output(prho, 1, nq, 1, ipol*npert, nq, ipol*npert, 1)
+c      if (GRAD) then
+c         write(6,*) 'xc_cpks_coeff: pdelrho out'
+c         call output(pdelrho, 1, nq, 1, 3*ipol*npert, nq, 3*ipol*npert,
+c     &               1)
+c      endif
       return
       end
