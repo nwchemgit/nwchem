@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.311 2000-03-09 20:45:26 d3j191 Exp $
+# $Id: makefile.h,v 1.312 2000-03-13 19:52:02 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1233,10 +1233,18 @@ ifdef EGCS
 endif
 
 ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
-  FOPTIONS   = -fno-second-underscore
-  FOPTIMIZE  = -g -O2 
-  COPTIONS   = -Wall
-  COPTIMIZE  = -g -O2
+# using COMPAQ/DEC compilers (EA 3/13/2000)
+  FC         = fort
+  CC         = ccc      
+  LINK.f = fort $(LDFLAGS)
+  DEFINES   +=  -DNOAIO
+  FOPTIONS   = -i8 -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive
+  FOPTIMIZE  = -g3 -O2 
+#  COPTIMIZE  =  -O2 -g
+#  FOPTIONS   = -fno-second-underscore
+#  FOPTIMIZE  = -g -O2 
+#  COPTIONS   = -Wall
+#  COPTIMIZE  = -g -O2
 endif
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
   FOPTIONS   = -fno-second-underscore -fno-globals
@@ -1258,6 +1266,11 @@ else
 ifndef EGCS
  EXTRA_LIBS += -lf2c -lm
 endif
+endif
+ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
+#using COMPAQ/DEC compilers (EA 3/13/2000)
+  EXTRA_LIBS = 
+  LINK.f = fort $(LDFLAGS)
 endif
 
   CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
