@@ -458,7 +458,8 @@ Directive \verb+select+ specifies a group of atoms used in the
 definition of potential of mean force potentials.
 
 \begin{verbatim}
-pmf ( zalign | xyplane ) <integer isel> <real forcon1> <real forcon2>
+pmf [all] zalign <integer isel> <real forcon1> <real forcon2> 
+pmf [combine] xyplane <integer isel> <real forcon1> <real forcon2>
 pmf distance <integer isel> <integer jsel> \
              <real dist1> <real dist2> <real forcon1> <real forcon2>
 pmf angle <integer isel> <integer jsel> <integer ksel> \
@@ -474,6 +475,10 @@ z-axis. Option \verb+xyplane+ specifies the atoms in the selection to
 be restrained to a plane perpendicular to the z-axis. Options
 \verb+distance+, \verb+angle+ and \verb+torsion+, are defined in terms
 of the center of geometry of the specified atom selections.
+Option \verb+all+ may be specified to apply an equivalent pmf to each 
+of the equivalent solute molecules in the system.
+Option \verb+combine+ may be specified to apply the specified pmf to 
+the atoms in all of the equivalent solute molecules.
 
 \section{Generating a restart file}
 
@@ -612,13 +617,13 @@ grid <integer mgrid default 24> <real rgrid default 0.2>
 This directive specifies the grid size of trial counter-ion positions and 
 minimum distance between an atom in the system and a counter-ion. 
 
-\begin{verbatim}
-fix ( atoms | segments ) ( beyond | within ) <real rfix> <string atmfix>
-\end{verbatim}
-
-The \verb+fix+ keyword may be used to specify that the identified
-atoms should remain fixed during any operation.
-
+%\begin{verbatim}
+%fix ( atoms | segments ) ( beyond | within ) <real rfix> <string atmfix>
+%\end{verbatim}
+%
+%The \verb+fix+ keyword may be used to specify that the identified
+%atoms should remain fixed during any operation.
+%
 \begin{verbatim}
 box <real xsize> <real ysize>  <real zsize>
 \end{verbatim}
@@ -634,7 +639,7 @@ The \verb+align+ directive orients the system such that
 in the x=y plane.
 
 \begin{verbatim}
-repeat [chains | molecules | fractions ] \
+repeat [randomx | randomy | randomz] [chains | molecules | fractions ] \
  <integer nx> <integer ny> <integer nz> [<real dist>] [<real zdist>]
 \end{verbatim}
 
@@ -649,4 +654,16 @@ For systems with solvent, this directive should be used with a negative
 \verb+dist+.
 Optional keywords \verb+chains+, \verb+molecules+ and \verb+fractions+
 specify to write each repeating solute unit as a chain, to repeat
-each solute molecule, or each solute fraction separately.
+each solute molecule, or each solute fraction separately. Optional
+keywords \verb+randomx+, \verb+randomy+, and \verb+randomz+ can be used 
+to apply random rotations for each repeat unit around a vector through
+the center of geometry of the solute in the x, y or z direction.
+
+\begin{verbatim}
+skip <integer ix> <integer iy> <integer iz>
+\end{verbatim}
+
+The \verb+skip+ directive can be used to skip single repeat unit
+from the \verb+repeat+ directive. Up to 100 \verb+skip+ directives 
+may be specified, and will only apply to the previously specified
+\verb+repeat+ directive. 
