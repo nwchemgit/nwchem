@@ -1,0 +1,60 @@
+C
+C $Id: hess_info.fh,v 1.1 1999-05-06 17:29:34 windus Exp $
+C
+c  Hold all of the variables common to all hessian calculations.
+c  Wavefunction specific variables are set in the directories below.
+c
+c     geom       = Geometry handle
+c     basis      = Basis handle
+c     n3xyz      = no. of nuclear perturbations
+c     n3xyz2     = no. of nuclear perturbations squared
+c     l/k_exy    = hessian matrix (local ma handle)
+c     ncent      = no. of centers
+c     nbf        = no. of basis functions
+c     qy         = RHF fock derivative matrices (global ga handle)
+c                  (2x array for UHF or LSDA)
+c     g_rhs      = RHF fock derivative matrices (global ga handle)
+c                  (2x array for UHF or LSDA)
+c     g_dens     = density matrices (global ga handle)
+c                  (2x array for UHF or LSDA)
+c     nclosed    = no. of closed shells (RHF or ROHF)
+c     nopen      = no. of open shells   (ROHF)
+c     nalpha     = no. of alpha occupieds (UHF)
+c     nbeta      = no. of beta occupieds (UHF)
+c     nmo        = no. of molecular orbitals
+c     nvirt      = no. of virtual orbitals (RHF or ROHF)
+c     vlen       = size of the rotation matrix (nmo*nvirt for RHF)
+c
+
+      integer geom, basis, n3xyz, n3xyz2, l_exy, k_exy, ncent, nbf 
+      integer  nclosed, nopen, nalpha, nbeta, nmo, nvirt, vlen
+      integer qy, g_dens, g_rhs, g_rhs_xc
+      integer l_hess_xc, k_hess_xc, k_act, l_act, nactive
+      logical skelsym
+      character*4 scftype
+      character*3 theory
+c
+      common /hesstuf/
+c
+c  Doubles
+c
+c
+c  Integers
+c
+     *   geom, basis, n3xyz, n3xyz2, l_exy, k_exy, l_hess_xc, 
+     *   k_hess_xc, k_act,
+     *   l_act, ncent, nactive,
+     *   nclosed, nopen, nalpha, nbeta, nmo, nvirt, vlen,
+     *   nbf, qy(2),
+     *   g_dens(2),g_rhs(100),g_rhs_xc(100)
+c
+c  Characters
+c
+      common /chesstuf/
+     *   scftype, theory
+c
+c  Logicals
+c
+      common /lhesstuf/
+     *   skelsym
+
