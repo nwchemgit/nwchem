@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.56 2001-12-11 19:31:13 edo Exp $
+c     $Id: dft_inpana.F,v 1.57 2001-12-23 01:44:22 edo Exp $
 c
 c*********************************************************************
 c     
@@ -46,6 +46,8 @@ c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
       character*16 tag, theory
       character*20 rgridnames(8)
+      logical xc_gotxc
+      external xc_gotxc
       data rgridnames /'Euler-MacLaurin','Mura-Knowles',
      .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
      ,     'Lindh','Chebyshev','Legendre'/
@@ -454,7 +456,7 @@ c
              end if
            end if
          end if
-         if (oprint_grid)then     
+         if (oprint_grid.and.xc_gotxc())then     
             write(LuOut,*)
             call util_print_centered
      &         (LuOut,'Grid Information',20,.true.)
