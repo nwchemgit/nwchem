@@ -13,12 +13,23 @@ c
       implicit none
 #include "geom.fh"
 #include "bas.fh"
+#include "mafdecls.fh"
       logical int_normalize
       external int_normalize
 c
       integer rtdb
       integer basis, geom
+      integer nscr, hscr, iscr
+      integer nbf, nshells, nat
+      integer buf1esz, hbuf1e, ibuf1e
+      integer sa_size, hsa, isa, hsafd, isafd
+      integer threen
+      integer hxyz, ixyz
+      integer ta_size
+      integer va_size
       character*(*) geom_name, basis_name
+c
+      call hf_print_set(0)
 c
       write(6,*)' rtdb      :',rtdb
       write(6,*)' geom_name : <',geom_name,'>'
@@ -47,10 +58,67 @@ c
       if (.not. bas_print(basis))
      $      call errquit('dointsum: basis print failed', 0)
 c
-      write(6,*)' with integrals  printed '
-      call int_chk_sum(basis,.true.)
-      write(6,*)' without integrals  printed '
+c      write(6,*)' with integrals  printed '
+c      call int_chk_sum(basis,.true.)
+c      write(6,*)' without integrals  printed '
       call int_chk_sum(basis,.false.)
+
+c
+      write(6,*)' derivative test '
+c
+      call hf_print_set(1)
+c
+      nscr = 1 000 000
+      if (.not.MA_Push_Get(MT_Dbl,nscr,'int buffer',hscr,iscr))
+     &       call errquit('raktest: allocation scr failed',nscr)
+      call dfill(nscr,0.0,dbl_mb(iscr),1)
+      call onedint_fd(basis,geom,dbl_mb(iscr),nscr)
+      if (.not.MA_Pop_Stack(hscr))
+     &       write(6,*)'raktest: pop on hscr failed'
+c
+      
+      if(.not.bas_numbf(basis,nbf))
+     &       stop 'raktest:bas_numbf failed'
+      if(.not.bas_numcont(basis,nshells))
+     &       stop 'raktest:bas_numcont failed'
+      if(.not.geom_ncent(geom,nat))
+     &       stop 'raktest:geom_ncent failed'
+c
+      sa_size = (nbf*nbf)*(3*nat)
+      ta_size = sa_size
+      va_size = va_size
+c..... space for sa
+      if (.not.MA_Push_Get(MT_dbl,sa_size,'sa buffer',hsa,isa))
+     &       call errquit('raktest: allocation for sa failed')
+c..... space for safd
+      if (.not.MA_Push_Get(MT_dbl,sa_size,'safd buffer',hsafd,isafd))
+     &       call errquit('raktest: allocation for safd failed')
+      threen = 3*nat
+      if (.not.MA_Push_Get(MT_dbl,threen,'xyzxyz buffer',hxyz,ixyz))
+     &       call errquit('raktest: allocation for safd failed')
+      buf1esz = nbf*nbf*2
+      if (.not.MA_Push_Get(MT_dbl,buf1esz,'safd buffer',hbuf1e,ibuf1e))
+     &       call errquit('raktest: allocation for buf1e failed')
+c..... scratch space
+      nscr = 100 000
+      if (.not.MA_Push_Get(MT_Dbl,nscr,'int buffer',hscr,iscr))
+     &       call errquit('raktest: allocation scr failed',nscr)
+      call buildSa(dbl_mb(isa),nat,nshells,nbf,basis,geom,
+     &       dbl_mb(iscr),nscr,.true.)
+      call buildSafd(dbl_mb(isafd),nat,nshells,nbf,basis,geom,
+     &       dbl_mb(iscr),nscr,dbl_mb(ibuf1e),dbl_mb(ibuf1e+nbf*nbf),
+     &       dbl_mb(ixyz),.true.)
+      if (.not.MA_Pop_Stack(hscr))
+     &       write(6,*)'raktest: pop on hscr failed'
+      if (.not.MA_Pop_Stack(hbuf1e))
+     &       write(6,*)'raktest: pop on hbuf1e failed'
+      if (.not.MA_Pop_Stack(hxyz))
+     &       write(6,*)'raktest: pop on hxyz failed'
+      if (.not.MA_Pop_Stack(hsafd))
+     &       write(6,*)'raktest: pop on hsafd failed'
+      if (.not.MA_Pop_Stack(hsa))
+     &       write(6,*)'raktest: pop on hsa failed'
+c
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
