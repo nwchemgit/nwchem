@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.16 1995-03-31 01:32:43 d3g681 Exp $
+c $Id: bas_input.F,v 1.17 1996-01-19 18:51:32 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -332,7 +332,8 @@ c
      $                 'coefficient'
                   goto 10000
                else if (coeff(iprim,i) .eq. 0.0d0) then
-                  call errquit('bas_input_cont: invalid coefficient', 0)
+                 write(6,*)' **** WARNING Zero Coefficient **** '
+*                call errquit('bas_input_cont: invalid coefficient', 0)
                endif
             enddo
             if (.not. inp_read()) goto 10000
