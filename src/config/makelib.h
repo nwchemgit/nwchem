@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.12 1994-09-01 17:33:19 d3g681 Exp $
+# $Id: makelib.h,v 1.13 1994-10-06 00:19:26 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -58,7 +58,7 @@
 # include ../config/makefile.h
 # include ../config/makelib.h
 #
-# test: test.o $(LIBRARY)
+# test: test.o $(LIBRARY_PATH)
 #       $(CC) -o $@ $^
 #
 # a.o b.o c.o test.o: simple.h

@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.67 1994-09-25 04:54:59 d3g681 Exp $
+# $Id: makefile.h,v 1.68 1994-10-06 00:19:25 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -180,7 +180,7 @@ ifeq ($(TARGET),KSR)
 #
     SUBDIRS_EXTRA = blas
      RANLIB = @echo
-  MAKEFLAGS = -j40 
+  MAKEFLAGS = -j20
     INSTALL = @echo $@ is built
 
    FOPTIONS = -r8
@@ -290,11 +290,11 @@ ifeq ($(TARGET),SGITFP)
   MAKEFLAGS = -j 4
 
   FOPTIONS = -d8 -i8 
-  COPTIONS = 
+  COPTIONS = -fullwarn
  FOPTIMIZE = -O3 -64 -mips4 -OPT:IEEE_arithmetic=2:fold_arith_limit=4000
  COPTIMIZE = -O
 
-    DEFINES = -DSGITFP -DSGI -DLongInteger $(LIB_DEFINES) 
+    DEFINES = -DSGITFP -DSGI -DLongInteger
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	      -lstepper -lmoints \
@@ -304,6 +304,36 @@ ifeq ($(TARGET),SGITFP)
   EXPLICITF = FALSE
 endif
 
+
+ifeq ($(TARGET),SGI)
+#
+# SGI normal
+#
+# SUBDIRS_EXTRA are those machine specific libraries required 
+
+    SUBDIRS_EXTRA = blas lapack
+         FC = f77
+         CC = cc
+         AR = ar
+     RANLIB = echo
+
+    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j 4
+
+  FOPTIONS = -mips2
+  COPTIONS = -mips2 -fullwarn
+ FOPTIMIZE = -g
+ COPTIMIZE = -g
+
+    DEFINES = -DSGI 
+       LIBS = -L$(LIBDIR) $(LIBPATH) \
+              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+	      -lstepper -lmoints \
+              -lguess -lglobal -lutil -lglobal\
+	      -ltcgmsg -llapack -lblas -lmalloc 
+
+  EXPLICITF = FALSE
+endif
 
 ifeq ($(TARGET),IBM)
 #
