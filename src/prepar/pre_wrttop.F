@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.51 2004-04-07 17:54:13 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.52 2004-05-04 22:59:01 edo Exp $
 c
       implicit none
 c
@@ -56,6 +56,9 @@ c
       integer i,j,k,kk,l,length,nd,ifrac,imol,iq,isgm,masks,maskd
       character*10 topdat,toptim
       character*18 user
+#ifdef USE_POSIXF
+      integer ilen,ierror
+#endif
       real*8 qsum(10),qtot(10),qatom(10,2)
       logical lprt
 c
@@ -170,7 +173,11 @@ c
      + status='new',err=9999)
 c
       call swatch(topdat,toptim)
+#ifdef USE_POSIXF
+      call pxfgetlogin(user, ilen, ierror)
+#else
       call getlog(user)
+#endif
       if(user(18:18).ne.' ') user='                  '
 c
       write(lfntop,1000) (title(1,i),i=1,3),
