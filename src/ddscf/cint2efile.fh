@@ -1,0 +1,47 @@
+c
+c     Internal common for int2e routines
+c     
+c     want to dynamically allocate most of this soon
+c     and also allow for data compression
+c     
+      integer labels            ! Buffer for integral labels
+      integer packed_labels     ! Buffer for packed label for IO
+      double precision values   ! Buffer for integral values
+      integer n_in_rec          ! No. of entries in buffer
+      integer next_value        ! Next value to be read/inserted
+      integer pad               ! Padding for 32 bit machines
+      integer n_rec_in_file     ! No. of records in file
+      integer cur_rec           ! Current record no. (1, 2, ...)
+      integer n_per_rec         ! Size of buffer
+      integer unitno            ! Fortran unit no.
+      integer rec_len_in_dbl    ! Size of total record in doubles
+      character*256 actualname  ! Name of file
+      logical otrace            ! True if debugging enabled
+      integer range_shift       ! Shift used to distinguish ranges
+      integer l_cache, k_cache  ! MA space for integral cache
+      integer max_file_rec      ! Max no. of records to put in file
+      integer max_cache_rec     ! Max no. of records to put in cache
+c
+      parameter (n_per_rec = 8192)
+      parameter (unitno = 98)
+      parameter (range_shift = 32768)
+c
+      common/cint2efile/
+     $     values(n_per_rec),
+     $     n_in_rec, pad,
+     $     packed_labels(2*n_per_rec), ! 2* only needed for 32 bit machines
+     $     labels(4,n_per_rec)
+c
+      common/cintinfo/
+     $     n_rec_in_file,
+     $     cur_rec,
+     $     rec_len_in_dbl,
+     $     next_value,
+     $     otrace,
+     $     l_cache, k_cache,
+     $     max_file_rec, max_cache_rec
+c
+      common/ccintinfo/
+     $     actualname
+c
+
