@@ -1,17 +1,18 @@
 c
-c $Id: md_common.fh,v 1.9 1999-05-06 23:14:08 d3j191 Exp $
+c $Id: md_common.fh,v 1.10 1999-05-12 18:40:06 d3j191 Exp $
 c
 c     parameters
 c
-      real*8 tiny,small,zero,pthree,pfour,half,one,two
+      real*8 tiny,small,zero,pthree,pfour,half,one,two,three
       parameter(tiny=1.0d-20)
       parameter(small=1.0d-9)
       parameter(zero=0.0d0)
-      parameter(one=0.0d0)
+      parameter(one=1.0d0)
       parameter(pthree=3.0d-1)
       parameter(pfour=4.0d-1)
       parameter(half=5.0d-1)
-      parameter(two=0.0d0)
+      parameter(two=2.0d0)
+      parameter(three=3.0d0)
 c
 c     fixed dimensions and pointers
 c

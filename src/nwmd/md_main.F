@@ -144,7 +144,7 @@ c
 c
       dxf=dx/fmax
 c
-      call cf_emstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+      call cf_sdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
      + dbl_mb(i_yw),dbl_mb(i_fw),dbl_mb(i_vw),nwmloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),dbl_mb(i_vs),nsaloc,dxf)
@@ -211,9 +211,15 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      logical frequency
+      external frequency
+c
       real*8 pcgw(mwm,3,mwa),pcgs(msa,3)
 c
-      real*8 epot,epcg,dx,beta1
+      real*8 epot,epcg,dx,fnorm1,fnorm2,dxf,dxfi,dxmax
+      real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
+      real*8 ypa,ypb,pnorm
+      integer inner
 c
       icgit=1
 c
@@ -230,10 +236,149 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),epme,epot)
 c
+      dxf=dx/fmax
+c
+c     initialize search direction
+c
+      call cf_cginit(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
+     + dbl_mb(i_fw),pcgw,nwmloc,int_mb(i_is+(lsatt-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_fs),pcgs,nsaloc,
+     + dxf)
+c
+c     shake
+c
+      call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
+c
+c     get initial norm of forces
+c
+      dxfi=one/dxf
+      call cf_cg_fnorm(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
+     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_fs),nsaloc,dxfi,fnorm1)
+c
       epcg=epot
       dx=dx0cg
       beta1=zero
       mdstep=0
+c
+    1 continue
+c
+      mdstep=mdstep+1
+      if(frequency(mdstep,ncgcy)) beta1=zero
+      lpair=frequency(mdstep,nfpair)
+c
+      call cf_cg_search(dbl_mb(i_fw),pcgw,nwmloc,dbl_mb(i_fs),
+     + pcgs,nsaloc,beta1,ypa,pnorm)
+c
+      alpha=zero
+      beta2=dx/pnorm
+      inner=0
+c
+    2 continue
+c
+      inner=inner+1
+c
+      call cf_cgstep(dbl_mb(i_xw),dbl_mb(i_vw),pcgw,nwmloc,
+     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_vs),pcgs,
+     + nsaloc,beta2)
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      beta3=beta2*pnorm/fnorm
+c
+      call cf_cgstep2(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),nwmloc,
+     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_fs),nsaloc,beta3,dxmax)
+c
+c     shake
+c
+      call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
+c
+      call cf_cgforce(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),pcgw,
+     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_fs),pcgs,nsaloc,beta3,ypb)
+c
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme,epot)
+c
+      if(ypb.gt.zero.and.epot.lt.epcg) then
+      alpha=beta2
+      epcg=epot
+      ypa=ypb
+      beta2=two*beta2
+      goto 2
+      endif
+c
+      zeta=three*(epcg-epot)/(beta2-alpha)-ypa-ypb
+      gamma=zeta*zeta-ypa*ypb
+      if(gamma.lt.zero) then
+      gamma=zero
+      else
+      gamma=sqrt(gamma)
+      endif
+      beta4=beta2-(gamma-zeta-ypb)*(beta2-alpha)/(ypa-ypb+two*gamma)
+c
+c     advance coordinates to interpolated point
+c
+      call cf_cg_interp(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),pcgw,
+     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_vs),pcgs,nsaloc,beta4,dxmax)
+c
+c     shake
+c
+      call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme,epot)
+c
+      beta5=beta4*pnorm/fnorm
+c
+      call cf_cgstep2(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),nwmloc,
+     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_fs),nsaloc,beta5,dxmax)
+c
+c     shake
+c
+      call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
+c
+      call cf_cgstep3(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
+     + dbl_mb(i_fw),pcgw,nwmloc,int_mb(i_is+(lsatt-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_fs),pcgs,nsaloc,
+     + beta4,beta5,fnorm2)
+c
+      beta1=sqrt(fnorm2/fnorm1)
+      fnorm1=fnorm2
+c
+      epcg=epot
+c
+      if(me.eq.0) then
+      write(*,1111) epcg
+ 1111 format('Ecg=',f12.6)
+      endif
+c
+      if(mdstep.lt.mcgit.and.dxmax.gt.dxcgmx) goto 1
 c
       return
       end
@@ -492,6 +637,13 @@ c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     remove overall translational motion
+c
+      if(frequency(mdstep,nfslow)) then
+      call cf_slow(dbl_mb(i_vw),nwmloc,dbl_mb(i_vs),
+     + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+      endif
 c
 c     velocity scaling to preset temperature
 c
