@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.52 2000-10-25 17:16:23 d3j191 Exp $
+c $Id: prp_main.F,v 1.53 2000-10-25 17:48:41 d3j191 Exp $
 c
       implicit none
 c
@@ -180,8 +180,9 @@ c
       if(me.eq.0) p(99)=timer_wall(3)
 c
       maxp=isprop
+      it=isprop
+c
       if(nsf.gt.0) then
-      it=0
       do 33 i=1,nsf
       it=isprop+(i-1)*27
       p(it+2)=ess(i,i,6,1)
@@ -226,6 +227,8 @@ c
    37 continue
       endif
 c
+      endif
+c
       if(iprof.eq.1) then
       it=it+1
       p(it)=timer_wall_total(10)
@@ -264,8 +267,6 @@ c
       endif
 c
       maxp=it
-c
-      endif
 c
       if(npener.gt.0) call cf_add_esa(esa)
       if(np.gt.0) then
