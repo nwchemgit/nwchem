@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.26 2002-02-12 06:26:57 edo Exp $
+c     $Id: dft_scf_so.F,v 1.27 2002-04-26 22:22:24 bert Exp $
 c     
       implicit none
 c     
@@ -746,7 +746,7 @@ cso
 cso   Accumulate s.o. contribution to fock matrix 
 cso   
       noso=Ecore 
-      call int_1e_oldga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
+      call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
       call ga_scale(g_so(1),dble(0.5d0))
       call ga_scale(g_so(2),dble(0.5d0))
       call ga_scale(g_so(3),dble(0.5d0))
@@ -1729,7 +1729,7 @@ c
       if (icall(1).gt.0)then
          icall(1) = -1
          call diis_driver_so(toll_s, derr, icall, nfock, 
-     &        nbf_mo, geom, ao_bas_han, g_fockso, g_densso, 
+     &        nbf_mo, g_fockso, g_densso, 
      &        g_svecs, svals, diising, nodiis)
       endif
 c     
