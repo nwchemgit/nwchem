@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.3 2001-11-17 01:01:16 bylaska Exp $
+* $Id: control.F,v 1.4 2001-11-27 01:25:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -892,6 +892,7 @@
       return
       end 
 
+
 *     ****************************
 *     *                	 		 *
 *     *     control_Mulliken     *
@@ -957,6 +958,93 @@
      > 'control_allow_translation:rtdb_get allow_translation failed',0)
 
       control_allow_translation = value
+      return
+      end
+
+*     ****************************
+*     *                	 		 *
+*     *  control_num_kvectors    *
+*     *                 	 	 *
+*     ****************************
+      integer function control_num_kvectors()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb / rtdb
+
+*     **** local variables ****
+      logical value
+      character*30 zone_name
+      character*30 rtdb_name
+      integer num_kvectors,l
+
+      value = rtdb_cget(rtdb,'band:zone_name',1,zone_name)
+
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':number_kvectors'
+      value = value.and.
+     >        rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors)
+
+      if (.not. value)
+     >  call errquit('control_num_kvectors: failed', 0)
+
+      control_num_kvectors = num_kvectors
+      return
+      end
+
+*     ****************************
+*     *                	 		 *
+*     *      control_kvector	 *
+*     *                 	 	 *
+*     ****************************
+      subroutine control_kvector(i,kv)
+      implicit none
+      integer i
+      real*8 kv(3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb / rtdb
+
+*     **** local variables ****
+      logical value
+      character*30 zone_name
+      character*30 rtdb_name
+      integer num_kvectors,l
+      integer kvs(2)
+
+*     **** external functions ****
+      integer  control_num_kvectors
+      external control_num_kvectors
+
+      num_kvectors = control_num_kvectors()
+      value = MA_push_get(mt_dbl,(3*num_kvectors),
+     >        'kvs',kvs(2),kvs(1))
+
+      value = value.and.
+     >        rtdb_cget(rtdb,'band:zone_name',1,zone_name)
+      l = index(zone_name,' ') -1
+      rtdb_name = zone_name(1:l)//':kvectors'
+      value = value.and.
+     >        rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >                   (3*num_kvectors),
+     >                    dbl_mb(kvs(1)))
+
+      kv(1) = dbl_mb(kvs(1)+3*(i-1))
+      kv(2) = dbl_mb(kvs(1)+3*(i-1)+1)
+      kv(3) = dbl_mb(kvs(1)+3*(i-1)+2)
+
+      value = value.and.MA_free_heap(kvs(2))
+
+      if (.not. value)
+     >  call errquit('control_kvector: failed', 0)
       return
       end
 
