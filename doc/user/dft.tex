@@ -552,7 +552,6 @@ procedures deemed undesirable with the obvious keywords,
                  <integer nagrid default 10>) ||\ 
         (lebedev <integer radpts default 50> 
                  <integer iangquad default 4>)] \ 
-       [store_wght] [nquad_task <integer nquad_task default 1>] \
        [delley||becke] \
        [rm <real rm default 2.0>]
 \end{verbatim}
@@ -562,31 +561,131 @@ exchange-correlation contribution to the density functional.  The
 default quadrature used for the numerical integration is an
 Euler-MacLaurin scheme for the radial components and a Gauss-Legendre
 scheme for the angular components (see C.W.~Murray, N.C.~Handy, and
-G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical 
+G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical
 integration procedure various levels of accuracy have been defined and
 are available to the user.  The user can specify the level of accuracy
-with the keywords; coarse, medium, fine, and xfine.  The default is medium.
+with the keywords; xcoarse, coarse, medium, fine, and xfine.  The
+default is medium.
 
 \begin{verbatim}
-  GRID [coarse||medium||fine||xfine]
+  GRID [xcoarse||coarse||medium||fine||xfine]
 \end{verbatim}
 
-The definitions of these gridtypes are:\\
-{\center
-  \begin{tabular}[right]{|l|r r r r|} \hline
-Keyword & {\tt coarse} & {\tt medium} & {\tt fine} & {\tt xfine} \\ \hline
-$N_{radial}$ & 35 & 50 & 75 & 105 \\
-$N_{theta}$ & 8 & 10 & 12 & 14 \\  \hline
-$N_{phi}$ & 16 & 20 & 24 & 28 \\  \hline
-$total unpruned per center$ & 4480 & 10000 & 21600 & 41160 \\  \hline
-  \end{tabular}
-}
+Our intent is to have a numerical integration scheme which would give
+us approximately the accuracy defined below regardless of molecular
+composition.  
+\begin{center}
+  \begin{tabular}[right]{|c|c|} \hline
+Keyword & {\tt Total Energy Target Accuracy} \\ \hline
+{\tt xcoarse} & $1x10^{-4}$ \\ \hline
+{\tt coarse}  & $1x10^{-5}$ \\ \hline
+{\tt medium}  & $1x10^{-6}$ \\ \hline
+{\tt fine}    & $1x10^{-7}$ \\ \hline
+{\tt xfine}   & $1x10^{-8}$ \\ \hline
+  \end{tabular} \\
+\end{center}
 
-The user has the option of specifying a custom quadrature of this
-type with the keywords,
+We computed total DFT energies at the LDA level of theory for many
+homonuclear atomic, diatomic and triatomic systems in rows 1-4 of the
+periodic table.  In each case all bond lengths were set to twice the
+Bragg-Slater radius.  The total DFT energy of the system was computed
+using the converged SCF density with atoms having radial shells
+ranging from 35-235 (at fixed 48/96 angular quadratures) and angular
+quadratures of 12/24-48/96 (at fixed 235 radial shells).  The error of
+the numerical integration was determined by comparison to a ``best''
+or most accurate calculation in which a grid of 235 radial points 48 theta and 96 phi angular
+points on each atom was used.  This corresponds to approximately 1 million
+points per atom.  The following tables were empirically determined to
+give the desired target accuracy for DFT total energies.  These tables
+show the number of radial and angular shells which the DFT
+module will use for for a given atom depending on the row it is in
+(in the periodic table) and the desired accuracy.  Note, differing
+atom types in a given molecular system will most likely have differing
+associated numerical grids.  The intent is to generate the desired
+energy accuracy.
+
+\begin{center}
+\begin{table}[htb]
+\caption{Number of radial and angular shells required for Row 1 atoms
+  (Li $\rightarrow$ F) to reach the desired accuracies.}
+
+\vspace{.2in}
+
+  \begin{tabular}[right]{|c|c|c|c|} \hline
+Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
+{\tt xcoarse} & 30 & 12 & 24  \\ \hline
+{\tt coarse}  & 50 & 15 & 30  \\ \hline
+{\tt medium}  & 70 & 18 & 36  \\ \hline
+{\tt fine}    &100 & 24 & 48  \\ \hline
+{\tt xfine}   &140 & 34 & 68  \\ \hline
+  \end{tabular} \\
+\end{table}
+\end{center}
+
+\begin{center}
+\begin{table}[htb]
+\caption{Number of radial and angular shells required for Row 2 atoms
+  (Na $\rightarrow$ Cl) to reach the desired accuracies.}
+
+\vspace{.2in}
+
+  \begin{tabular}[right]{|c|c|c|c|} \hline
+Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
+{\tt xcoarse} & 45 & 12 & 24  \\ \hline
+{\tt coarse}  & 75 & 18 & 36  \\ \hline
+{\tt medium}  & 95 & 24 & 48  \\ \hline
+{\tt fine}    &125 & 30 & 60  \\ \hline
+{\tt xfine}   &175 & 44 & 88  \\ \hline
+  \end{tabular} \\
+\end{table}
+\end{center}
+
+\begin{center}
+\begin{table}[htb]
+\caption{Number of radial and angular shells required for Row 3 atoms
+  (K $\rightarrow$ Br) to reach the desired accuracies.}
+
+\vspace{.2in}
+
+  \begin{tabular}[right]{|c|c|c|c|} \hline
+Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
+{\tt xcoarse} & 75 & 14 & 28  \\ \hline
+{\tt coarse}  & 95 & 22 & 44  \\ \hline
+{\tt medium}  &110 & 30 & 60  \\ \hline
+{\tt fine}    &160 & 34 & 68  \\ \hline
+{\tt xfine}   &210 & 38 & 76  \\ \hline
+  \end{tabular} \\
+\end{table}
+\end{center}
+
+\begin{center}
+\begin{table}[htb]
+\caption{Number of radial and angular shells required for Row 4 atoms
+  (Rb $\rightarrow$ I) to reach the desired accuracies.}
+
+\vspace{.2in}
+
+  \begin{tabular}[right]{|c|c|c|c|} \hline
+Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
+{\tt xcoarse} &105 & 16 & 32  \\ \hline
+{\tt coarse}  &130 & 20 & 40  \\ \hline
+{\tt medium}  &155 & 32 & 64  \\ \hline
+{\tt fine}    &205 & 44 & 88  \\ \hline
+{\tt xfine}   &235 & 48 & 96  \\ \hline
+  \end{tabular} \\
+\end{table}
+\end{center}
+
+
+In addition to the simple keyword specifying the desired accuracy as
+described above, the user has the option of specifying a custom
+quadrature of this type in which ALL atoms have the same grid
+specification.  This is accomplished by using the \verb+gausleg+ keyword.
+
 \begin{verbatim}
   GRID gausleg <integer nradpts default 50> <integer nagrid default 10> 
 \end{verbatim}
+
 In this type of grid, the number of phi points is twice the number of
 theta points. So, for example, a specification of,
 \begin{verbatim}
@@ -618,7 +717,18 @@ $N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
 Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-7).
 
-{\bf JEFF: store\_weight, nquad\_task, delley, and becke need explaining}
+%       [store_wght] [nquad_task <integer nquad_task default 1>] \
+%{\bf JEFF: store\_weight and nquad\_task need explaining}
+%store\_weight and nquad_task keywords will remain as expert user only
+% and not advertised until further tested. -jan
+%
+
+The user also has the option of choosing one of two types of spatial weights
+implemented in the numerical integration of the XC terms; Delley and Becke.
+
+\begin{verbatim}
+  GRID [(becke||delley) default becke]
+\end{verbatim}
 
 \section{{\tt TOLERANCES} --- Screening tolerances}
 
