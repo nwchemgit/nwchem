@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.13 2000-08-25 20:10:15 edo Exp $
+C $Id: twodd_cont.F,v 1.14 2000-08-25 20:36:43 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -413,14 +413,15 @@ c
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
       write(6,*) 'The g_rhs dft contribution'
-      do i = 1, n3xyz
-      call ga_print(g_rhs_xc(i))
+      call flush(6)
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs_xc(i))
       enddo
 c
 c  The next statements are only temporarily in until we are confident the
 c  dft code is giving the correct contributions.
 c
-      do i = 1,n3xyz
+        do i = 1,ndens*n3xyz
           call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
         enddo
         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
@@ -435,8 +436,8 @@ c
       call flush(6)
       write(6,*) 'The g_rhs after the dft contribution'
       call flush(6)
-      do i = 1, n3xyz
-      call ga_print(g_rhs(i))
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs(i))
       enddo
 
 c
