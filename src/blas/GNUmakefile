@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.28 2001-11-14 04:21:06 zzhang Exp $
+#$Id: GNUmakefile,v 1.29 2001-12-31 20:57:58 windus Exp $
 
 include ../config/makefile.h
 
@@ -84,7 +84,7 @@ endif
 endif
 ifeq ($(TARGET),LAPI)
 ifdef USE_ESSL
-OBJ_OPTIMIZE = lsame.o xerbla.o
+OBJ_OPTIMIZE = lsame.o xerbla.o dcabs1.o
 endif
 endif
 
