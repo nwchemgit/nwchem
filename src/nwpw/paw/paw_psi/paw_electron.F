@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $
+* $Id: paw_electron.F,v 1.4 2004-09-30 04:20:47 edo Exp $
 *
 
 
@@ -995,7 +995,7 @@ c      write(*,*) "total_energy:",total_energy
 *     *					           *
 *     **********************************************
 
-      subroutine paw_electron_gen_psiTangenthml_S(psi_k,THpsi_k,hml)
+      subroutine paw_elecpsitang(psi_k,THpsi_k,hml)
       implicit none
       complex*16 psi_k(*)
       complex*16 THpsi_k(*)

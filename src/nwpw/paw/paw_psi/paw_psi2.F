@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.6 2004-09-06 16:20:06 bylaska Exp $
+* $Id: paw_psi2.F,v 1.7 2004-09-30 04:20:47 edo Exp $
 *
 
 
@@ -1577,7 +1577,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       if (.not. value) 
      >call errquit('paw_psi_1gen_Tangent:out of stack memory',0,MA_ERR)
 
-      call paw_electron_gen_psiTangenthml_S(dcpl_mb(psi1(1)),
+      call paw_elecpsitang(dcpl_mb(psi1(1)),
      >                                T,
      >                                dbl_mb(tmp1(1)))
       call paw_electron_gen_Tangent(dcpl_mb(psi1(1)),
@@ -1713,7 +1713,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       if (.not. value)
      >call errquit('paw_psi_2gen_Tangent:out of stack memory',0,MA_ERR)
 
-      call paw_electron_gen_psiTangenthml_S(dcpl_mb(psi2(1)),
+      call paw_elecpsitang(dcpl_mb(psi2(1)),
      >                                T,
      >                                dbl_mb(tmp1(1)))
       call paw_electron_gen_Tangent(dcpl_mb(psi2(1)),
@@ -2474,7 +2474,7 @@ c     real*8 sum1,sum2
 *     *	  paw_psi_diagonalize_hml_assending     *
 *     *						*
 *     *******************************************
-      subroutine paw_psi_diagonalize_hml_assending()
+      subroutine paw_psidiaghmlasse()
       implicit none
 #include "errquit.fh"
 
