@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2003-02-21 22:36:33 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2003-02-21 22:41:19 bylaska Exp $
 #
 
           OBJ = paw_matrix_comp_pot.o paw_pot_comp.o
@@ -14,24 +14,10 @@
 
   LIB_DEFINES = 
 
-  HEADERS = 
-           
-
 
 
 
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
-
-
-
-
-
-
-
-
-
-
-
 
