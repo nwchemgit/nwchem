@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.437 2003-12-31 02:14:28 nwchem Exp $
+# $Id: makefile.h,v 1.438 2003-12-31 22:30:25 nwchem Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1149,46 +1149,58 @@ endif
 endif
 ifeq ($(TARGET),MACX)
 #
-# DEC AXP OSF1
+# MacOSX 
 #
-# JN 96/10/02:
-# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+# 
 
-    CORE_SUBDIRS_EXTRA = blas lapack
-#                  NICE = nice
-#                SHELL := $(NICE) /bin/sh
+ifdef USE_VECLIB
+    CORE_SUBDIRS_EXTRA =  blas
+else
+    CORE_SUBDIRS_EXTRA =  blas lapack
+endif
+               _CPU = $(shell machine  )
                     FC = g77
-
-
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
-
-
              DEFINES = -DMACX  #-DPARALLEL_DIAG
-             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
-# this are for PowerPC
-    ifeq ($(FC),xlf)
-      FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
-      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap
-      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
-      FDEBUG= -O2 -g
-      EXPLICITF = TRUE
-      DEFINES  +=   -DXLFLINUX
-      CPP=/usr/bin/cpp  -P -C -traditional
-      FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-    else
-      FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
-      FOPTIMIZE  = -g -O2
+
+  ifeq ($(FC),xlf)
+    XLFMAC=y
+    FOPTIONS  = -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
+    FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
+    FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
+    FDEBUG= -O2 -g
+    DEFINES  +=   -DXLFLINUX
+     FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
+  else
+    FDEBUG= -O1 -g
+    FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals -malign-natural 
+    FOPTIMIZE  = -O3 -funroll-loops -fsched-interblock 
+    FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16 
+    FOPTIMIZE += -falign-jumps-max-skip=15 -falign-loops-max-skip=15 
+    FOPTIMIZE += -ffast-math -mdynamic-no-pic -mpowerpc-gpopt -force_cpusubtype_ALL 
+    FOPTIMIZE += -maltivec   
+    ifeq ($(_CPU),ppc7450)
+      FOPTIMIZE += -mtune=7450 -mcpu=7450
+    endif
     endif
     ifeq ($(CC),xlc)
-      COPTIONS  +=  -q32 -qlanglvl=extended
+      COPTIONS  +=  -qlanglvl=extended
     else
       COPTIONS   = -Wall
       COPTIMIZE  = -g -O2
     endif
-#    LDOPTIONS += -v
-  EXTRA_LIBS += -lm  /usr/lib/libgcc.a
+ifdef USE_VECLIB
+             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
+else
+             CORE_LIBS +=   -llapack $(BLASOPT)  -lblas
+endif
+  ifeq ($(FC),xlf) 
+     LDOPTIONS = -Wl,-multiply_defined -Wl,warning
+  else
+    EXTRA_LIBS += -lm -lcc_dynamic
+  endif
 
 endif
 
@@ -1868,7 +1880,11 @@ ifndef NWCHEM_KEEPF
 	@/bin/rm -f $*.f
 endif
 else
-	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
+ifeq ($(XLFMAC),y)
+	$(FC) -c $(FFLAGS)     $<
+else
+	$(FC) -c $(FFLAGS) $(CPPFLAGS)  $<
+endif
 endif
 
 (%.o):	%.f

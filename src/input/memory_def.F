@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.24 2003-10-17 22:55:18 carlfahl Exp $
+C     $Id: memory_def.F,v 1.25 2003-12-31 22:30:25 nwchem Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -56,7 +56,7 @@ C     platforms, but many will have more.  Assumes dedicated node
 C     access.
 C
       Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(LINUX) || defined(WIN32)
+#elif defined(LINUX) || defined(WIN32) || defined (MACX)
 *
 *     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
 *      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node

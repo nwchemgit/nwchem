@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.80 2003-10-17 22:53:32 carlfahl Exp $
+# $Id: GNUmakefile,v 1.81 2003-12-31 22:30:23 nwchem Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -14,6 +14,14 @@ ifeq ($(TARGET),FUJITSU_VPP)
   LIB_DEFINES =  -Wp,-DCOMPILATION_DATE="'`date`'" \
                  -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'" \
                  -Wp,-DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
+endif
+ifeq ($(XLFMAC),y)
+  FOPTIONS +=  -WF,-DCOMPILATION_DATE="'`date`'" \
+                 -WF,-DCOMPILATION_DIR="'$(TOPDIR)'" \
+                 -WF,-DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
+  LIB_DEFINES= 
+.F.o:
+	$(FC) -c $(FFLAGS)     $<
 endif
 
 NWBINNAME = nwchem
