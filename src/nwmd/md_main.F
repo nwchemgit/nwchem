@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.195 2004-09-30 17:31:58 marat Exp $
+c $Id: md_main.F,v 1.196 2004-10-09 01:10:56 marat Exp $
 c
       implicit none
 c
@@ -576,6 +576,7 @@ c
       if(me.eq.0) then
       write(lfnout,600) isdit,cqrs,edif,epsd,epsdw,epsdsw,epsds,dxmax
   600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
+      call util_flush(lfnout)
       endif
 c
       if(itest.gt.0) call md_test()
@@ -2138,6 +2139,7 @@ c      uqmmm=uqmmm-uqmatm
 c
       endif
 c
+
       call timer_start(47)
       call cf_fnorm(iwl(1,lwdyn),fw,nwmloc,
      + isl(1,lsatt),isl(1,lsdyn),fs,nsaloc,fnorm,fmax)
@@ -2771,7 +2773,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.195 2004-09-30 17:31:58 marat Exp $
+c $Id: md_main.F,v 1.196 2004-10-09 01:10:56 marat Exp $
 c
       implicit none
 c
