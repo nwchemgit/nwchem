@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.480 2004-09-24 15:55:45 edo Exp $
+# $Id: makefile.h,v 1.481 2004-09-29 22:35:58 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1545,13 +1545,13 @@ endif # end of ia32 bit
 	@echo 
 	@exit 1
       endif
+      _FC=noifc
       ifeq ($(FC),pgf90)
         _FC=pgf90
       endif
       ifeq ($(FC),pgf77)
         _FC=pgf90
       endif
-      _FC=noifc
       ifeq ($(FC),ifc)
        _FC=ifc
       endif
@@ -1578,7 +1578,6 @@ endif # end of ia32 bit
         endif
         FOPTIMIZE = -O3 -prefetch  -unroll 
         FOPTIMIZE +=  -tpp7 -xW -ip
-        LDOPTIONS += 
       endif	
 
       
@@ -1589,11 +1588,9 @@ endif # end of ia32 bit
         FOPTIONS   +=    -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
-        DEFINES  +=   -DCHKUNDFLW
         FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
-        FDEBUG = -g -O0
-        DEFINES  += -DPGLINUX
-#        LDOPTIONS += -g  -Wl,-export-dynamic 
+        FDEBUG = -g -O0 
+        DEFINES  += -DCHKUNDFLW -DPGLINUX
       endif
       ifeq ($(FC),pathf90)
 #pathscale 1.0 compiler
