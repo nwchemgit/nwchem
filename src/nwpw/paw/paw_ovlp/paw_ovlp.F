@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.12 2003-01-30 21:14:12 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.13 2003-01-30 22:29:17 marat Exp $
 *
 
 !**************************************************
@@ -16,17 +16,17 @@
 #include "mafdecls.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp.fh" 
+#include "paw_geom.fh" 
   
 *     **** local variables ****
       logical value
       integer ii,ia,nlm,nlmii,n,m,mabs
       integer nbasis,i2,i1,isgn,nion
+      integer w_size
 
 *     **** external functions ****
       integer  psi_ne
-      integer  ion_nion,ion_natm,ion_nkatm,ion_katm
       external psi_ne
-      external ion_nion,ion_natm,ion_nkatm,ion_katm
 
 c     !*** calculate total number of (n,l,m) projectors  ***
       total_nbasis = 0
@@ -50,7 +50,11 @@ c     !*** total number of electron states ***
      >                               'indx2',indx2(2),indx2(1))
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
+      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis**2),
+     >                               'w',w(2),w(1))
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
+
+      write(*,*) "paw_ovlp:w",w(2),total_nbasis
 
 c    !    atom=1                        atom=2
 c    !l : 0  1  1  1  2  2  2  2  2 ... 0  1  1  1 ... 
@@ -86,6 +90,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
             end do
          end do 
       end do    
+
 
       return
       end
@@ -241,6 +246,7 @@ c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_f
 c        tot_nbasis = paw_proj_total_nbasis()
         
 
+     
 
       end
      
