@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.41 1999-07-15 22:33:59 edo Exp $
+C$Id: rimp2.F,v 1.42 1999-12-14 16:59:55 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -123,7 +123,7 @@ c
          threshscf = 1.0d-6
          if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
      $        call errquit('mp2_grad: failed setting scf:thresh',0)
-         status = rtdb_delete(rtdb,'scf:converged')
+         status = rtdb_delete(rtdb,'scf:converged') ! Status irrelevant
       endif
 c
       if (.not. scf(rtdb)) then
@@ -146,17 +146,24 @@ C
          Write (LuOut, '(//)')
       EndIf
 C
-      Status = Status .AND. Geom_Create( Geom, Geom_Name)
-      Status = Status .AND. Geom_RTDB_Load( RTDB, Geom, Geom_Name)
+      If ( .NOT. Geom_Create( Geom, Geom_Name) )
+     $   Call ErrQuit('rimp2: geom_create failed', Geom)
+      If ( .NOT. Geom_RTDB_Load( RTDB, Geom, Geom_Name) )
+     $   Call ErrQuit('rimp2: geom_rtdb_load failed', Geom)
 C
-      Status = Status .AND. Bas_Create( AOBas, AOBasName)
-      Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName)
-      Status = Status .AND. Int_Normalize( AOBas)
+      If ( .NOT. Bas_Create( AOBas, AOBasName) )
+     $   Call ErrQuit('rimp2: aobas bas_create failed', AOBas)
+      If ( .NOT. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName) )
+     $   Call ErrQuit('rimp2: aobas bas_rtdb_load failed', AOBas)
+      If ( .NOT. Int_Normalize( AOBas) )
+     $   Call ErrQuit('rimp2: aobas int_normalize failed', AOBas)
 C
-      Status = Status .AND. Bas_Create( FitBas, FitBasName)
-      Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, FitBas,
-     $   FitBasName)
-      Status = Status .AND. Int_Normalize( FitBas)
+      If ( .NOT. Bas_Create( FitBas, FitBasName) )
+     $   Call ErrQuit('rimp2: fitbas bas_create failed', FitBas)
+      If ( .NOT. Bas_RTDB_Load( RTDB, Geom, FitBas, FitBasName) )
+     $   Call ErrQuit('rimp2: fitbas bas_rtdb_load failed', FitBas)
+      If ( .NOT. Int_Normalize( FitBas) )
+     $   Call ErrQuit('rimp2: fitbas int_normalize failed', FitBas)
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
@@ -171,10 +178,14 @@ C
 C
 C     Get some info about the basis sets for later use
 C
-      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
-      Status = Status .AND. Bas_NumBF( FitBas, NFit)
-      Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
-      Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
+      If ( .NOT. Bas_NumBF( AOBas, NAOBF) )
+     $   Call ErrQuit('rimp2: aobas bas_numbf failed', AOBas)
+      If ( .NOT. Bas_NumBF( FitBas, NFit) )
+     $   Call ErrQuit('rimp2: fitbas bas_numbf failed', FitBas)
+      If ( .NOT. Bas_Name( AOBas, AOName, AONameT) )
+     $   Call ErrQuit('rimp2: aobas bas_name failed', AOBas)
+      If ( .NOT. Bas_Name( FitBas, FitName, FitNameT) )
+     $   Call ErrQuit('rimp2: fitbas bas_name failed', FitBas)
 C
       Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, AOBas, .false.,
      . RefNAO, TopSpin, NCorBF,G_AOXF, MinChunk, MinChunk, MaxSpin, 
@@ -312,10 +323,10 @@ C
       Call Int_Init(RTDB, 2, Bases)
 C
 C
-      Status = Status .AND.
-     $   RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
+      If ( .NOT. RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $   MinEVal, Approx, G_AOXF)
+     $   MinEVal, Approx, G_AOXF) ) Call ErrQuit(
+     $   'rimp2: rimp2_xf_driver failed', 911)
 C
 C     Finished with the AO transformation
 C
@@ -341,17 +352,18 @@ C
 C
 C     Create matrix to hold spin case breakdown of E(2)
 C
-      Status = Status .AND. MA_Push_Get( MT_Dbl, TopSpin*TopSpin,
-     $   'E(2) spin case breakdown', H_Contrib, Contrib_Idx)
+      If ( .NOT. MA_Push_Get( MT_Dbl, TopSpin*TopSpin,
+     $   'E(2) spin case breakdown', H_Contrib, Contrib_Idx) ) Call
+     $   ErrQuit('rimp2: can''t allocate spin contribution matrix', 911)
 C
 C     **********************
 C     * Energy calculation *
 C     **********************
 C
-      Status = Status .AND.
-     $   RIMP2_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi, NFit,
-     $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2))
+      If ( .NOT. RIMP2_V_E2( D_Int, FNInt, TopSpin, NCorBF, IHi, AHi,
+     $   NFit, FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
+     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2)) ) Call ErrQuit(
+     $   'rimp2: rimp2_v_e2 failed', 911)
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -377,10 +389,12 @@ C
 C
 C     Write our energy out to the database
 C
-      Status = Status .AND. RTDB_Put( RTDB, 'rimp2:correlation energy',
-     $     MT_Dbl, 1, CorEner)
+      Status = RTDB_Put( RTDB, 'rimp2:correlation energy', MT_Dbl, 1,
+     $   CorEner)
       Status = Status .AND. RTDB_Put( RTDB, 'rimp2:energy', MT_Dbl, 1,
      $     TotEner)
+      If ( .NOT. Status ) Call ErrQuit(
+     $   'rimp2: unable to store energies in rtdb', 911)
 C
 #ifdef RIMP2_USE_DA
 C
