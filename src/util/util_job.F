@@ -1,5 +1,5 @@
       integer function util_time_remaining(rtdb)
-* $Id: util_job.F,v 1.4 1999-04-01 22:04:46 d3e129 Exp $
+* $Id: util_job.F,v 1.5 1999-06-10 16:52:59 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -72,7 +72,7 @@ c     have been set.  If insufficient time remains, return FALSE.
 c
 c     NB: THIS IS A COLLECTIVE FUNCTION
 c
-      integer left
+      integer left, req
       integer util_time_remaining
       external util_time_remaining
 c
@@ -82,7 +82,10 @@ c
 c
       if (left .eq. -1) return
 c
-      if (left.eq.0 .or. required.gt.left) then
+      req = required
+      call ga_igop(353, req, 1, 'max')
+c
+      if (left.eq.0 .or. req.gt.left) then
          util_test_time_remaining = .false.
          if (ga_nodeid().eq.0) then
             write(6,1) left, required
