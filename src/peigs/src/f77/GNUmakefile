@@ -57,7 +57,10 @@ clean:
 		-rm -f *.o
 		-rm -f *.s
 		-rm -f dgetavec.f dlasq1.f dspevx2.f dstebz3.f \
-			 neblw2.f sneblw2.f sstebz3.f
+			 neblw2.f sneblw2.f sstebz3.f \
+			dlasq2.f dlasq4.f dlasq3.f dlasrt.f
+
+
 		-rm -f F*.f
 
 realclean:
