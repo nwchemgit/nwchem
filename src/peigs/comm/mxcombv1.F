@@ -190,6 +190,7 @@ c     Determine the item length in terms of integer*4 data declarations.
 c
 20     iteml4 = iteml/NBYTEI
        mxfer = iteml4*(bufsiz/iteml)
+	mxfer = iteml*nitem
 c
 c     Part one, collapse-and-combine by interpreting the node list as
 c     a binary tree stored in nodel.  The variable -istep- goes as

@@ -45,7 +45,7 @@ C
 C     Rik Littlefield, 1/16/91.
 C
 #ifdef ALOG
-#include "alogevents.h"
+      include 'alogevents.h'
 #endif
       subroutine mxtime( job, xtime )
       double precision xtime
@@ -85,7 +85,7 @@ c            used by the diagonalizer is 'ialnod', meaning "all nodes".)
 c
 
       common /xpress/ nocare, norder, nonode, ihost, ialnod, ialprc
-#include "mxsubs.h"
+      include 'mxsubs.h'
       integer ienv(4)
 #ifdef ALOG
 #include "alogf.h"
@@ -183,7 +183,7 @@ c
       integer nodeid, nnodes, mynodes, numnodes
 #include "mxsubs.h"
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef iPSC_NATIVE
@@ -293,7 +293,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR, STATUS(MPI_STATUS_SIZE)
 #endif
 #ifdef TIMING
@@ -312,11 +312,14 @@ c      stop 999
       mxread = kxread (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
-*defined above in all code     integer icopy
 c     icopy = mxmynd() + 100*iproc
 c     icopy = mod(icopy, 32767) + 1
 c     
-      icopy = mod(itype, 500) + 25001
+	icopy = mod(itype, 500) + 25001
+c     
+c     write(*,*) ' me ', mxmynd(), ' rcv ', iproc, ' isize ',
+c     $     isize, ' itype ', itype
+c     call ffflush(6)
 c     
       call rcv(icopy, data, isize, len, iproc, ifrom, 1)
       mxread = len
@@ -388,7 +391,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef TIMING
@@ -403,11 +406,18 @@ c      stop 999
       mxwrit = kxwrit (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
+c      icopy = iproc + 100*mxmynd()
+c
+c     write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
+c
 c     icopy = iproc + 100*mxmynd()
 c     
 c     write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
 c     $ 	    isize, ' itype ', itype
+c     
+c     icopy = mod(icopy, 32767) + 1
       icopy = mod(itype, 500) + 25001
+c     
 c
 c to get within range of tcgmsg message types
 c
@@ -459,7 +469,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef UNIPROC
@@ -576,7 +586,7 @@ c.      call mxsync ()
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef PICL
@@ -673,7 +683,7 @@ c	external clock
 
 	subroutine mxend
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
       CALL MPI_FINALIZE( IERROR )
 
