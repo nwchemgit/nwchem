@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.50 1996-12-04 00:56:10 d3h449 Exp $
+C$Id: dft_scf.F,v 1.51 1996-12-30 21:55:00 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -17,9 +17,6 @@ c
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri, g_scr
 c      
-c**** patches for SC95,  ECCE' parsing
-***** #define SC95
-c
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -77,13 +74,13 @@ c convergence declarations
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1,strng2,strng3,strng4,strng5,strng6
 c
-c     Note, damping, levelshifting, and diis logicals
+c     Note, damping, levelshifting, and diising logicals
 c     are used to turn on/off these procedures per
 c     iteration.  The alternative logicals nodamping, 
 c     nolevelshifting, and nodiis are specified and held
 c     for the entire convergence sequence.
 c
-      logical diis, damping, levelshifting
+      logical diising, damping, levelshifting
       logical keep_damp_on,keep_levl_on,keep_diis_on
       Logical LResult,IOLGC,mulliken,do_gradients,lSPM
       logical converged,wght_GA
@@ -97,13 +94,11 @@ c
       parameter(itol_min=6,iAOacc_min=15)
       double precision dft_dencvg,dabssum,dft_time
       external dft_dencvg,dabssum
-#if defined(SC95)
-      double precision homo_lumo_gap
+      double precision homo, lumo, homo_lumo_gap
       logical movecs_to_logfile
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
-#endif      
       integer stat1, stat2, l_ir, k_ir
-      logical status
+      logical status, last_time
 
       call ecce_print_module_entry('dft')
 
@@ -238,7 +233,7 @@ c
         nao2_max = mxshbf_ao**2
         batch_max = nao2_max*nbf_cd*icount
 c
-        if(n3c_dbl.lt.batch_max.or.(.not.incore))then
+        if((n3c_dbl.lt.batch_max).or.direct)then
           incore = .false.
           n3c_dbl = 1
           n3c_int = 1
@@ -312,9 +307,9 @@ c
 c
 c     Set up local convergence parameters
 c
-      diis = .false.
-      damping = .true.
-      levelshifting = .false.
+      diising = diis
+      damping = damp
+      levelshifting = levelshift
       keep_damp_on = .false.
       keep_levl_on = .false.
       keep_diis_on = .false.
@@ -325,6 +320,15 @@ c
       ndamp = ndamp_input
       rlshift = rlshift_def
 c
+c     Turn max overlap initially ON.
+c
+      lmaxov = .true.
+c
+c     Three types of convergence speedup schemes:
+c     1) based on differences of total energy less than some threshold,
+c     2) based on number of cycles performed,
+c     3) DIIS plus levelshifting if homo-lumo gap is small.
+c
 c     Energetic defaults should be damping until energy converged to < 10-1, 
 c     then damping turned off, followed by level shifting and DIIS 
 c     until energy converged to < 10-3, then level shifting turned 
@@ -333,13 +337,16 @@ c
       if(nodamping)then
         ncydp = 0
         ndamp = 0
+        damping = .false.
       endif
       if(nolevelshifting)then
         ncysh = 0
         rlshift = 0.0
+        levelshifting = .false.
       endif
       if(nodiis)then
         ncyds = 0
+        diising = .false.
       endif
 c
 c     If convergence input based upon #cycles then turn off energy constraints.
@@ -359,7 +366,7 @@ c
       if(ncyds.ne.0)then
         diison  = -999.9
         diisoff = -999.9
-        diis = .true.
+        diising = .true.
       endif
       if( me.eq.0 )then
         write(LuOut,3231)
@@ -452,6 +459,8 @@ c
 c**** 
 c**** Top of infinite SCF iteration loop
 c**** 
+      last_time = .false.
+
  1000 continue
 
       Ecoul  = ZERO
@@ -586,6 +595,7 @@ c
       call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
+      homo_lumo_gap = 100.0d0
       do ispin = 1,ipol
 C         
 C       Add V xc to Fock Matrix
@@ -601,15 +611,15 @@ c
 #endif    
 c
         if(ispin.eq.1.and.ipol.gt.1) call ga_copy(g_fock,g_fockt)
-        if(diis)then
+        if(diising)then
 c
 c         DIIS step taken here.
 c
-          if(diis) then
+          if(diising) then
             call diis_driver(derr(ispin),ispin,ipol,icall,
      &        nfock,nbf_ao,geom,ao_bas_han,
      &        g_fock,g_dens(ispin),g_tmp,
-     &        g_svecs,isvals,diis,nodiis)
+     &        g_svecs,isvals,diising,nodiis)
           endif
         endif
 c         
@@ -690,6 +700,13 @@ c
         call ga_diag_std_seq(g_fock,g_tmp,Dbl_MB(k_eval(ispin)))
 #endif  
 c
+c       Check HOMO/LUMO gap.
+c
+        homo = Dbl_MB(k_eval(ispin)+noc(ispin)-1)
+        lumo = Dbl_MB(k_eval(ispin)+noc(ispin))
+        homo_lumo_gap = min(homo_lumo_gap,(lumo - homo))
+c        write(*,*)' 1:homo,lumo,homo_lumo_gap: ',homo,lumo,homo_lumo_gap
+c
 c       If levelshifting then tidy up.
 c
         if(levelshifting)then
@@ -711,6 +728,9 @@ c
           call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
      &      g_scr,g_movecs(ispin),zero,g_fock)
           call ga_copy(g_fock, g_movecs(ispin))
+          lumo = lumo - rlshift
+          homo_lumo_gap = min(homo_lumo_gap,(lumo - homo))
+c          write(*,*)' 2:lumo,homo_lumo_gap: ',lumo,homo_lumo_gap
         endif
 c
 c       Back-transform eigenvectors with S^-1/2.
@@ -728,6 +748,14 @@ c
         if(lmaxov.and.(delta.lt.0.01)) then
           call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
      &      g_fock, g_movecs(ispin),g_tmp)
+          homo = -100.0d0
+          lumo =  100.0d0
+          do i = 1, noc(ispin)
+            homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
+          enddo
+          do i = noc(ispin)+1, nbf
+            lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
+          enddo
         else
           call ga_copy(g_fock,g_movecs(ispin))
         endif
@@ -791,7 +819,7 @@ c
      $      1x,'---------------- ----- ----------------- --------- ',
      $         '--------- ---------  ------')
       if(oprint.and.me.eq.0) then
-        if(diis) then
+        if(diising) then
           write(LuOut,2) ndamp,rlshift,
      &         iter, Etnew+Enuc,
      &         -etold+etnew,sqrt(rms(1)),derr(1),util_cpusec()
@@ -908,36 +936,66 @@ c
 c
         if((delta.lt.levlon.and.delta.gt.levloff).or.
      &     (iter.le.ncysh))then
-          levelshifting = .true.
-          rlshift = rlshift_input
+c          write(*,*)' homo_lumo_gap, hl_tol: ',homo_lumo_gap, hl_tol
+          if(homo_lumo_gap.lt.hl_tol)then
+            levelshifting = .true.
+            rlshift = rlshift_input
+          else
+            levelshifting = .false.
+            rlshift = rlshift_def
+          endif 
+c          write(*,*)' 3: levelshifting = ',levelshifting
         else
           levelshifting = .false.
           rlshift = rlshift_def
         endif
+c        write(*,*)' 4: levelshifting = ',levelshifting
 c
         if((delta.lt.diison.and.delta.gt.diisoff).or.
      &    iter.le.ncyds.or.keep_diis_on)then
-          diis = .true.
+          diising = .true.
 c
 c         Once started, keep DIIS on until diisoff threshold.
 c
           keep_diis_on = .true.
         else
-          diis = .false.
+          diising = .false.
         endif
         if(delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
-          diis = .false.
+          diising = .false.
           keep_diis_on = .false.
         endif
 c
         if(nodamping)damping = .false.
         if(nolevelshifting)levelshifting = .false.
-        if(nodiis)diis = .false.
+        if(nodiis)diising = .false.
 c
         Etold = Etnew
 c
+c        write(*,*)'homo,lumo,lumo-homo,-hl_tol: ',
+c     &             homo,lumo,lumo-homo,-hl_tol
+        if ((lumo - homo).lt.-hl_tol)then
+          lmaxov = .false.
+          if(me.eq.0)write(LuOut,224)homo, lumo
+  224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &     /,10x,'Significant orbital reordering with maximum overlap',
+     &     /,10x,'turned ON.  Turning max_ovl OFF next iteration.')
+        else
+          lmaxov = .true.
+        endif
+c         
         if( idone.eq.0.or.
      &   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
+        if(idone.eq.1.and.(.not.last_time))then
+          last_time = .true.
+          if(me.eq.0)write(LuOut,225)
+  225     format(/,10x,'Done. Constructing final Fock matrix, orbitals',
+     &               ' and orbital energies.',/)
+          diising = .false.
+          levelshifting = .false.
+          damping = .false.
+          go to 1000 ! build final orbitals/energies
+        endif
 c
         if(me.eq.0.and.oprint)then
           if(.not.converged)then
@@ -1031,67 +1089,8 @@ c****
      &         dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
-          if(me.eq.0) then
-#if defined(SC95)
-            homo_lumo_gap = min( dbl_mb( k_eval(1)+noc(1)),
-     &                           dbl_mb( k_eval(2)+noc(2) ) )
-     &           - max( dbl_mb( k_eval(1)+noc(1)-1),
-     &           dbl_mb( k_eval(2)+noc(2)-1 ) )
-            write (LuOut,*) 
-            write (LuOut,'(a,e14.4)')
-     &           'HOMO/LUMO Gap (Hartrees): ', homo_lumo_gap
-            write (LuOut,*) 
-            write (LuOut,*) 'Alpha-Occupied Eigenvalues: '
-            write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(k_eval(1)+ii),ii=0,noc(1)-1)
-            write (LuOut,*) 
-            write (LuOut,*) 'Alpha-Virtual Eigenvalues: '
-            write (LuOut,'(5x,4(e14.4))')
-     &           (dbl_mb(k_eval(1)+ii),ii=noc(1),nbf_ao-1)
-            write (LuOut,*) 
-            if ( ipol.eq.2 ) then
-              write (LuOut,*) 'Beta-Occupied Eigenvalues: '
-              write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(k_eval(2)+ii),ii=0,noc(2)-1)
-              write (LuOut,*) 
-              write (LuOut,*) 'Beta-Virtual Eigenvalues: '
-              write (LuOut,'(5x,4(e14.4))')
-     &             (dbl_mb(k_eval(2)+ii),ii=noc(2),nbf_ao-1)
-              write (LuOut,*) 
-            endif 
-#endif
-          endif
-
         endif 
-c-----------------------------------------------------------------------
-#if defined(SC95)
-c****   number of HOMOs and LUMOs to output to logfile, if any
-        if ( converged ) then
-
-          if (.not. rtdb_get(rtdb, 'dft:n_HOMO_to_logfile',
-     &         mt_int, 1, n_homo)) n_homo = 0
-          if (.not. rtdb_get(rtdb, 'dft:n_LUMO_to_logfile',
-     &         mt_int, 1, n_lumo)) n_lumo = 0
-c****     check values
-          if ( nsets.eq.2 ) then ! spin-unrestricted
-            n_homo = min( n_homo, noc(1), noc(2) )
-            n_lumo = min( n_lumo, nbf_ao-noc(1), nbf_ao-noc(2) )
-          else  ! ! spin-restricted
-            n_homo = min( n_homo, noc(1) )
-            n_lumo = min( n_lumo, nbf_ao-noc(1) )
-          endif 
-
-          if ( n_homo.gt.0 .or. n_lumo.gt.0 ) then ! yes, output MO coeff.
-
-            if (.not.
-     &           movecs_to_logfile( rtdb, n_homo, n_lumo,
-     &           nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &           dbl_mb(k_eval(1)), nbf_ao, g_movecs))
-     &           call errquit('dft_scf: movecs_to_logfile failed', 2)
-          endif 
-        endif 
-#endif
-c         
+c
 c       Shut down DIIS.
 c         
         if(icall(1).gt.0) then
@@ -1099,7 +1098,7 @@ c
           call diis_driver(derr(1),1,ipol,icall,
      &         nfock,nbf_ao,geom,ao_bas_han,
      &         g_fock,g_dens(1),g_tmp,
-     &         g_svecs,isvals,diis,nodiis)
+     &         g_svecs,isvals,diising,nodiis)
         end if
       endif
 c

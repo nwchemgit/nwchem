@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.6 1996-10-23 01:17:28 gutowski Exp $
+C$Id: cdft.fh,v 1.7 1996-12-30 21:54:40 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -9,11 +9,11 @@ c
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cfac, xfac, TOLL, radius, rm
+     &     rcharge, rscale, cfac, xfac, TOLL, radius, rm, hl_tol
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
-     &     nlxfac, xccomb
+     &     nlxfac, xccomb, levelshift, damp, diis, direct
       integer
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
      &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
@@ -31,13 +31,14 @@ c     Doubles
 c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(15), xfac(15),
-     &     TOLL, radius, rm,
+     &     TOLL, radius, rm, hl_tol, 
 c
 c     Logicals
 c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(15), nlcfac(15),
-     &     lxfac(15), nlxfac(15), xccomb(15),
+     &     lxfac(15), nlxfac(15), xccomb(15), levelshift, damp, diis, 
+     &     direct,
 c
 c     Integers
 c

@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.15 1996-12-20 00:51:54 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.16 1996-12-30 21:54:54 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -218,6 +218,32 @@ c
           write(LuOut,*)' Sum of components do not equal unity or 0. '
         endif
       endif
+c
+c     Check Energy convergence characteristics:
+c
+c     Three types of convergence speedup schemes:
+c     1) based on number of cycles performed,
+c        ncydp = 3
+c        ndamp = 40
+c        ncysh = itrscf
+c        rlshift = 0.5
+c        ncyds = itrscf        
+c     2) based on differences of total energy being less than some threshold,
+c        dampon = 1.d8
+c        dampoff = 1.0d-1
+c        levlon = 1.d-1
+c        levloff = 1.0d-3
+c        rlshift = 0.5
+c        diison = 1.d-1
+c        diisoff = 0.0d0
+c     3) DIIS plus levelshifting if homo-lumo gap is small (default)
+c        nodamping = .true.
+c        ncydp = 0
+c        ndamp = 0
+c        ncysh = itrscf
+c        rlshift = 0.5
+c        ncyds = itrscf        
+c
       return
  9000 format(//,5x,31('-'),/,5x,
      &     'Parameters for SCF calculation.',/,5x,31('-'),/)

@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.9 1996-10-23 01:19:33 gutowski Exp $
+c     $Id: dft_input.F,v 1.10 1996-12-30 21:54:55 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -48,12 +48,13 @@ c
      &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
      &     ncydp, ncysh, ncyds,
      &     nquad_task
-      double precision rlshift, TOLL, radius, rm
+      double precision rlshift, TOLL, radius, rm, hl_tol
       double precision dampon, dampoff, levlon, levloff, 
      &                 diison, diisoff
       integer nfield, iline
       logical pseudo
       logical nodamping, nolevelshifting, nodiis
+      logical levelshift, damp, diis, direct
       logical ltight, lmaxov, incore
       logical store_wght, ldelley
 c
@@ -164,6 +165,10 @@ c
 c             
 c>>>          direct
 c             
+              direct = .true.
+              if (.not. rtdb_put(rtdb, 'dft:direct',
+     &           mt_log, 1, direct))
+     &           call errquit('dft_input: rtdb_put failed', 3)
               idirect = 1
               if (.not. rtdb_put(rtdb, 'dft:idirect',
      &           mt_int, 1, idirect))
@@ -201,6 +206,20 @@ c
 c
 c>>>        Next are input parameters to define convergence aids.
 c           
+            elseif ( inp_compare(.false., 'hl_tol', test)) then
+c             
+c>>>          hl_tol
+c             
+              if ( .not. inp_f(hl_tol) ) then
+                write(6,*)
+     &               ' dft_input: hl_tol value not found; defaulting ',
+     &               ' to 0.1 Hartree'
+                hl_tol = 0.1d0
+              endif            
+              if (.not. rtdb_put(rtdb, 'dft:hl_tol',
+     &           mt_dbl, 1, hl_tol))
+     &           call errquit('dft_input: rtdb_put failed', 201)
+c
             elseif ( inp_compare(.false., 'dampon', test)) then
 c             
 c>>>          dampon
@@ -208,8 +227,8 @@ c
               if ( .not. inp_f(dampon) ) then
                 write(6,*)
      &               ' dft_input: dampon value not found; defaulting ',
-     &               ' to 1.d8 Hartree'
-                dampon = 1.d8
+     &               ' to 0.d0 Hartree'
+                dampon = 0.0d0
               endif            
               if (.not. rtdb_put(rtdb, 'dft:dampon',
      &           mt_dbl, 1, dampon))
@@ -236,8 +255,8 @@ c
               if ( .not. inp_f(levlon) ) then
                 write(6,*)
      &               ' dft_input: levlon value not found; defaulting ',
-     &               ' to 1.d8 Hartree'
-                levlon = 1.d8
+     &               ' to 0.d0 Hartree'
+                levlon = 0.0d0
               endif            
               if (.not. rtdb_put(rtdb, 'dft:levlon',
      &           mt_dbl, 1, levlon))
@@ -264,8 +283,8 @@ c
               if ( .not. inp_f(diison) ) then
                 write(6,*)
      &               ' dft_input: diison value not found; defaulting ',
-     &               ' to 1.d8 Hartree'
-                diison = 1.d8
+     &               ' to 0.d0 Hartree'
+                diison = 0.0d0
               endif            
               if (.not. rtdb_put(rtdb, 'dft:diison',
      &           mt_dbl, 1, diison))
@@ -289,13 +308,17 @@ c
 c             
 c>>>          lshift
 c             
+              levelshift = .true.
+              if (.not. rtdb_put(rtdb, 'dft:levelshift',
+     &           mt_log, 1, levelshift))
+     &           call errquit('dft_input: rtdb_put failed', 3)
               if ( .not. inp_f(rlshift) ) then
                 write(6,*)
      &               ' dft_input: lshift value not found; defaulting ',
      &               ' to  0.5 Hartree'
                 rlshift = 0.5
               endif            
-              if (.not. rtdb_put(rtdb, 'dft:lshift',
+              if (.not. rtdb_put(rtdb, 'dft:rlshift',
      &           mt_dbl, 1,rlshift))
      &           call errquit('dft_input: rtdb_put failed', 212)
 c
@@ -314,10 +337,16 @@ c
             elseif ( inp_compare(.false., 'damp', test)) then
 c             
 c>>>          damp
-c             
+c
+              damp = .true.             
+              if (.not. rtdb_put(rtdb, 'dft:damp',
+     &           mt_log, 1, damp))
+     &           call errquit('dft_input: rtdb_put failed', 3)
               if ( .not. inp_i(ndamp) ) then
-                write(6,*) ' dft_input: ndamp value not found'
-                goto 10000 !  die with error
+                write(6,*)
+     &               ' dft_input: ndamp value not found; defaulting ',
+     &               ' to 70%.'
+                ndamp = 70
               endif            
               if (.not. rtdb_put(rtdb, 'dft:ndamp',
      &           mt_int, 1, ndamp))
@@ -365,6 +394,15 @@ c
               if (.not. rtdb_put(rtdb, 'dft:nolevelshifting',
      &           mt_log, 1, nolevelshifting))
      &           call errquit('dft_input: rtdb_put failed', 2)
+c
+            elseif ( inp_compare(.false., 'diis', test)) then
+c             
+c>>>          diis
+c             
+              diis = .true.
+              if (.not. rtdb_put(rtdb, 'dft:diis',
+     &           mt_log, 1, diis))
+     &           call errquit('dft_input: rtdb_put failed', 3)
 c
             elseif ( inp_compare(.false., 'nodiis', test)) then
 c             
@@ -1128,7 +1166,7 @@ c
 c>>>          Set screening threshholds tight
 c             
               ltight = .true.
-              if (.not. rtdb_put(rtdb, 'dft:tight',
+              if (.not. rtdb_put(rtdb, 'dft:ltight',
      &           mt_log, 1, ltight))
      &           call errquit('dft_input: rtdb_put failed', 4)
 c
