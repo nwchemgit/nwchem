@@ -284,15 +284,12 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),natom
       integer nnzmat, nnzvar, nnvar
       common/hnd_zmtpar/nnzmat,nnzvar,nnvar
-      double precision hscale
+      double precision hscale, ascale, bscale, tscale
 c
       integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i
       integer l_c, k_c, l_t, k_t
       logical old_hessian
       character*16 atom_tags(mxatom)
-c
-      if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
-     $     hscale = 1d0
 c
       nnzmat = nzmat
       nnzvar = nzvar
@@ -355,8 +352,27 @@ c
             nuc(i) = nint(zan(i)) ! Won't work if an ECP is loaded
          enddo
          nvar = nzvar
+c
+c     The angle scaling factors are responsible for a factor of two
+c     speedup in most organics.  Clearly we need a better force field.
+c
+c     The chosen values have been tested on a large no. of 3-21g* SCF
+c     optimizations, and a smaller no. of 6-31g* SCF calculations.
+c
+         if (.not. rtdb_get(rtdb,'driver:bscale',mt_dbl,1,bscale))
+     $        bscale = 1d0
+         if (.not. rtdb_get(rtdb,'driver:ascale',mt_dbl,1,ascale))
+     $        ascale = 0.25d0
+         if (.not. rtdb_get(rtdb,'driver:tscale',mt_dbl,1,tscale))
+     $        tscale = 0.1d0
+         if (oprint) then
+            write(6,789) bscale, ascale, tscale
+ 789        format(' Scaling for Hessian diagonals: bonds =',f5.2,
+     $           '  angles =',f5.2,'  torsions =',f5.2)
+         endif
          call hnd_opt_hss_init_zmt(dbl_mb(k_hess),
-     $        nzvar, dbl_mb(k_zmat), int_mb(k_izmat), .false.)
+     $        nzvar, dbl_mb(k_zmat), int_mb(k_izmat), .false.,
+     $        bscale, ascale, tscale)
          if (odebug) then
             write(6,*) ' The initial hessian '
             call output(dbl_mb(k_hess),1,nzvar,1,nzvar,nzvar,nzvar,1)
@@ -365,7 +381,7 @@ c
 c
       call geom_hnd_put_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
 c
-c     Apply constants, constraints and scaling
+c     Apply constants, constraints and overall scaling
 c
  999  if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
      $     l_c, k_c)) call errquit
@@ -375,24 +391,34 @@ c
      $     ('driver_init_hess: failed allocating hessian',nvar**2)
 c
       call geom_hnd_get_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
-      call geom_hnd_get_data('c',dbl_mb(k_c), nvar*nvar)
 c
+c     Used to use c here ... now use p
+c
+      call geom_hnd_get_data('p',dbl_mb(k_c), nvar*nvar)
+c
+*      write(6,*) ' Initial Hessian before P'
+*      call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
       call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
      $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
       call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
      $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
+*      write(6,*) ' Initial Hessian after P'
+*      call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
 c
+      if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
+     $     hscale = 1d0
       call dscal(nvar*nvar, hscale, dbl_mb(k_hess), 1)
       if (oprint .and. hscale.ne.1d0) write(6,78) hscale
  78   format(' Scaling initial hessian by ',f6.2)
 c
-      call geom_hnd_get_data('drv.hess',dbl_mb(k_c), nvar*nvar)
+      call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar*nvar)
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
      $     ('driver_init_hess ma corrupt',0)
 c
       END
-      SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME)
+      SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME,
+     $     bscale, ascale, tscale)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       PARAMETER (ZERO=0.0D+00,      ONE=1.0D+00,
      1     QUARTR=0.25D+00,   PT5=0.5D+00,
@@ -545,6 +571,12 @@ C
             RAB = DIST(IZ1,IZ2)
             CAB = RCOV(IZA) + RCOV(IZB)
             HESS2 = 0.3601 * EXP(-1.944*(RAB - CAB))
+*
+*     rjh
+*
+            hess2 = hess2 * bscale
+            hess1 = hess1 * bscale
+*
 C     
             IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
             IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
@@ -574,6 +606,17 @@ C
             HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
      1           * EXP(-0.44*(RAB + RAC - CAB - CAC))
 C     
+*
+*     rjh ... trial scaling based on observation that the
+*     diagonal seems too large for both angles and torsions
+*     Could it be that the original units were wrong?
+*     THIS SCALING GIVES A 2X SPEEDUP FOR MANY SYSTEMS!
+*
+*     generalized to user input
+*
+            hess1 = hess1 * ascale
+            hess2 = hess2 * ascale
+*
             IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS2
             IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
             IF(HGUESS.EQ.GUESS2) HSSQ(I,I) = HESS2
@@ -624,6 +667,15 @@ C
             HESS2 = 0.0015 + PREEXP * EXP(-2.85*(RAB-CAB))
             IF(HESS2.GT.0.30D+00) HESS2 = 0.30D+00
             IF(HESS2.LT.0.05D+00) HESS2 = 0.05D+00
+*
+*     rjh ... trial scaling based on observation that the
+*     diagonal seems too large for both angles and torsions
+*     Could it be that the original units were wrong?
+*     THIS SCALING GIVES A 2X SPEEDUP FOR MANY SYSTEMS!
+*
+            hess1 = hess1 * tscale
+            hess2 = hess2 * tscale
+*
 C     
             IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
             IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
@@ -1183,7 +1235,7 @@ c
             enddo    
          endif
       endif    
-c     
+c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('driver_hessian_update: ma?',0)
@@ -2515,7 +2567,7 @@ c
 *     dv(i) = -gv(i) / e(i)
                   dv(i) = -gv(i) / (e(i) + max(gvrms**2,gv(i)**2)/e(i))
                else if (e(i) .lt. -1d-8) then ! -ve curvature 
-                  dv(i) = sign(0.3d0*trust,-gv(i))
+                  dv(i) = sign(trust,-gv(i)) ! Used to be 0.3*trust
                   if (oprint) write(6,666) i, e(i), gv(i), dv(i)
  666              format(' Forcing  downhill step in mode',i5,
      $                 ' eval=', 1p,d8.1,' grad=',d8.1,' new=',

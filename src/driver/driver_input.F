@@ -7,6 +7,7 @@
 c
       integer rtdb
       character*255 field
+      double precision ascale, bscale, tscale, hscale
 c
 c     So that task knows that driver is in control
 c
@@ -184,6 +185,31 @@ c
          oqstep = .false.
          if (.not. rtdb_put(rtdb,'driver:oqstep',mt_log,1,oqstep))
      $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'hscale',field)) then
+         if(.not. inp_f(hscale)) 
+     $        call errquit('driver_input: hscale',911)
+         if (.not. rtdb_put(rtdb,'driver:hscale',mt_dbl,1,hscale))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'ascale',field)) then
+         if(.not. inp_f(ascale)) 
+     $        call errquit('driver_input: ascale',911)
+         if (.not. rtdb_put(rtdb,'driver:ascale',mt_dbl,1,ascale))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'bscale',field)) then
+         if(.not. inp_f(bscale)) 
+     $        call errquit('driver_input: bscale',911)
+         if (.not. rtdb_put(rtdb,'driver:bscale',mt_dbl,1,bscale))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'tscale',field)) then
+         if(.not. inp_f(tscale)) 
+     $        call errquit('driver_input: tscale',911)
+         if (.not. rtdb_put(rtdb,'driver:tscale',mt_dbl,1,tscale))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
       else
          call errquit('driver_input: unknown directive',0)
       endif
