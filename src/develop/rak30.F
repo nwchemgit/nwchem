@@ -229,11 +229,16 @@ c::passed
               idatoms(2) = idatom(2)
               idatoms(3) = idatom(3)
               idatoms(4) = idatom(4)
+              write(6,*)' idatom  1:', idatom 
+              write(6,*)' idatoms 1:', idatoms 
               if (.not.ma_alloc_get(mt_dbl,lbuf,
      &              'copy of buf',hbufcp,kbufcp)) stop ' ma alloc fail'
               call dcopy(lbuf,buf,1,dbl_mb(kbufcp),1)
               call rakdd_fill(12,nint,dbl_mb(kbufcp),bufsum,idatoms)
+              write(6,*)' idatom  2:', idatom 
+              write(6,*)' idatoms 2:', idatoms 
               if (.not.ma_free_heap(hbufcp)) stop ' ma_free fail'
+              call rakdd_print_dd(nint,buf,idatom)
               if (.not.rakdd_checktrans(nint,bufsum)) then
                 call rakdd_print_dd(nint,buf,idatom)
                 call rakdd_printsum(nint,bufsum,idatoms)
@@ -270,6 +275,7 @@ c::passed
               enddo
 *
               call dfill (lbuffdsq,0.0d00,buffdsq,1)
+              write(6,*)' atoms2move ',atoms2move
               do zatom = 1,4
                 if (atoms2move(zatom).gt.0) then
                   do ixyz = 1,3
@@ -282,7 +288,7 @@ c::passed
      &                    lscr,scr,lgrad,gradp,idatomp)
                     write(string,*)' grad +',ixyz,zatom
 *                      call rakdd_printgrad(nint,gradp,string)
-*                      write(6,*)'idatomp:',idatomp
+                    write(6,*)'idatomp:',idatomp
                     call dcopy(nat3,xyz,1,coords(1,1,geom),1)
                     coords(ixyz,atoms2move(zatom),geom) =
      &                    coords(ixyz,atoms2move(zatom),geom) - delta
@@ -292,7 +298,7 @@ c::passed
                     write(string,*)' grad -',ixyz,zatom
 *                      call rakdd_printgrad(nint,gradm,string)
                     call dcopy(nat3,xyz,1,coords(1,1,geom),1)
-*                      write(6,*)'idatomm:',idatomm
+                    write(6,*)'idatomm:',idatomm
                     call daxpy(nintg,-1.0d00,gradm,1,gradp,1)
                     write(string,*)' grad diff',ixyz,zatom
 *                      call rakdd_printgrad(nint,gradp,string)
@@ -307,7 +313,8 @@ c::passed
                   enddo
                 endif
               enddo             ! zatom
-              call rakdd_fill_b(buffdsq,nint)
+              call rakdd_fill_b(buffdsq,nint)  ! check if symmetric
+              call rakdd_printsq(buffdsq,nint)
 *                call rakdd_print_both(80,buffdsq,bufsum,nint)
               call rakdd_compare3c(
      &              ish,jsh,ksh,
@@ -366,4 +373,32 @@ c::passed
       write(luout,*)' ',ish,jsh,ksh,
      &    ' norm = ',norm
       if (.not.ma_free_heap(h_diff)) stop ' ma free fail'
+      end
+      subroutine rakdd_printsq(buffsq,nint)
+      implicit none
+      integer nint
+      double precision buffsq (3,4,3,4,nint)
+c
+      integer ia, ja, ix, jx, int
+      logical doit
+c
+      do int = 1,nint
+        do ia = 1,4
+          do ja = 1,4
+            if (ia.le.ja) then
+              do ix = 1,3
+                do jx = 1,3
+                  doit = .true.
+                  if (ia.eq.ja) doit = ix.le.jx
+                  if (doit) then
+                    write(6,10000)ix,ia,jx,ja,int,
+     &                    buffsq(ix,ia,jx,ja,int)
+                  endif
+                enddo
+              enddo
+            endif
+          enddo
+        enddo
+      enddo
+10000 format(1x,'dd(',4(i4,','),i4,') =',1pd20.10)
       end

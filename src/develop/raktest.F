@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.87 1999-04-09 23:09:29 windus Exp $
+c $Id: raktest.F,v 1.88 1999-04-23 09:29:02 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -15,6 +15,8 @@ c::functions
       external task_computeSld, task_printsoints, task_pderiv
       logical task_dddd, task_accy, raktask_intdd, raktask_ecppe
       external task_dddd, task_accy, raktask_intdd, raktask_ecppe
+      logical raktask_intdd_3c
+      external raktask_intdd_3c
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -148,6 +150,10 @@ c
         if (me.eq.0) write(luout,*)
      &      ' raktest: hondo deriv code test'        
         raktest = task_hondo_deriv_check(rtdb)
+      else if (raktask.eq.30) then !................................. 26
+        if (me.eq.0) write(luout,*)
+     &      ' raktest: check 2e3c second derivatives'        
+        raktest = raktask_intdd_3c(rtdb)
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask

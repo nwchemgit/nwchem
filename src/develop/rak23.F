@@ -796,7 +796,7 @@ c
           endif
         enddo
       enddo
-10000 format(1x,'buf(',a4,','i4,',',i4,') =',1pd20.10,
+10000 format(1x,'buf(',a4,',',i4,',',i4,') =',1pd20.10,
      &    2x,4(i5),1x,i8)
       end
       logical function rakdd_checktrans(nint,bufsum)
@@ -1073,9 +1073,7 @@ c
             do iint = 1,nint
               val = grad(iint,igc,iga)
               buffd(ixyz,zatom,igc,iga,iint) = val
-*     &            buffd(ixyz,zatom,igc,iga,iint) + val
               buffd(igc,iga,ixyz,zatom,iint) = val
-*     &            buffd(igc,iga,ixyz,zatom,iint) + val
             enddo
           enddo
         endif
