@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.65 2004-12-21 16:58:35 bylaska Exp $
+* $Id: control.F,v 1.66 2005-01-04 01:02:08 edo Exp $
 *
 
 *     ***********************************
@@ -36,7 +36,7 @@
       !character*30 cell_name
       character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
       character*30 exchange_correlation
-      integer i,l
+      integer i,l,ind
 
 
       value = rtdb_parallel(.true.)
@@ -123,36 +123,36 @@
         gga = 0
       end if
 
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:fractional_coordinates',
-     >                 mt_log,1,frac_coord)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:npsp',mt_int,1,npsp)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
+      if(.not.rtdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:fractional_coordinates',
+     *          mt_log,1,frac_coord))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:npsp',mt_int,1,npsp))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:time_step',mt_dbl,1,time_step))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:loop',mt_int,2,loop))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
-
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin)
+      if(.not.rtdb_get(rtdb,'cpsd:ecut',mt_dbl,1,ecut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:wcut',mt_dbl,1,wcut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      write(0,*) ' wc ec ',wcut,ecut
+      if(.not.rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
+     *     call errquit(' control: rtdb_get failed ',0,0)
 
 
 *     **** cpmd code: stuff ****
@@ -160,34 +160,33 @@
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
-     >                  1,input_v_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
-     >                  1,output_v_wavefunction_filename)
-
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:xyz_filename',
-     >                  1,xyz_filename)
-
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:exchange_correlation',
-     >                  1,exchange_correlation)
+      if(.not.rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
+     >                  1,input_wavefunction_filename))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
+     >                  1,output_wavefunction_filename))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+     >                  1,input_v_wavefunction_filename))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+     >                  1,output_v_wavefunction_filename))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
+     >                  1,xyz_filename))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      ind = index(exchange_correlation,' ') - 1
+      if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
+     >                  1,exchange_correlation))
+     >  exchange_correlation = 'vosko'
       value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
       value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.00d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.00d0)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+      if(.not. rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.00d0))
+     *     call errquit(' control: rtdb_put failed ',0,0)      
+      if(.not. rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.00d0))
+     *     call errquit(' control: rtdb_put failed ',0,0)
+      if(.not. rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0))
+     *     call errquit(' control: rtdb_put failed ',0,0)
       if (inp_compare(.false.,exchange_correlation,'off')) then
         gga = -1
       else if (inp_compare(.false.,exchange_correlation,'vosko')) then
@@ -211,8 +210,8 @@
       else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
         gga = 3
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
-        value = value.and.
-     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+      if(.not.rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       else if (inp_compare(.false.,exchange_correlation,'lda-sic')) then
         gga = 0
         value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
@@ -224,51 +223,49 @@
      >                    'lda-0.4sic')) then
         gga = 0
         value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
-        value = value.and.
-     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
-        value = value.and.
-     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      if(.not.   rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.   rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       else if (inp_compare(.false.,exchange_correlation,
      >         'pbe96-0.4sic')) then
         gga = 1
         value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
-        value = value.and.
-     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
-        value = value.and.
-     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      if(.not.   rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not.   rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       else
         gga = 0
       end if
 
 
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:fractional_coordinates',
-     >                 mt_log,1,frac_coord)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)
+      if(.not. rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:fractional_coordinates',
+     >                 mt_log,1,frac_coord))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       tolerances(1) = 0.0d0
       tolerances(2) = 0.0d0
       tolerances(3) = 0.0d0
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
-
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
-      value = value.and.
-     >        rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut)
-
+      if(.not. rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
+      if(.not. rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
+     *     call errquit(' control: rtdb_get failed ',0,0)
       SA = .true.
       if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
         SA = .false.
@@ -1333,7 +1330,6 @@ c      end
       implicit none 
 
 #include "control.fh"
-
       control_ecut = ecut
       return
       end
