@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.7 2003-01-24 19:35:43 marat Exp $
+* $Id: paw_basis.F,v 1.8 2003-01-24 20:28:01 marat Exp $
 *
 
 !**************************************************
@@ -103,7 +103,7 @@ c     !*****enter max orbital moment into paw_basis_data structure
 c     !*** set core charges ***
             
       do it = 1,nt 
-        call calc_paw_basis_core_charge(it,dbl_mb(get_i_ion_charge(it)))
+        call calc_paw_basis_core_charge(it,dbl_mb(get_i_core_charge(it)))
       end do
 
       return

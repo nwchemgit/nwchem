@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.7 2003-01-24 19:35:43 marat Exp $
+! $Id: paw_basis_data.F,v 1.8 2003-01-24 20:28:01 marat Exp $
 
 !**************************************************
 !
@@ -107,7 +107,7 @@
 
       IMPLICIT NONE
 
-#include "paw_utils.fh"
+#include "paw_ma.fh"
 #include "paw_basis_data.fh"
 
       logical ok

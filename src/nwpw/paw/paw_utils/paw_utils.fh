@@ -1,11 +1,7 @@
 !c
-!c $Id: paw_utils.fh,v 1.1 2002-09-17 21:31:11 marat Exp $
+!c $Id: paw_utils.fh,v 1.2 2003-01-24 20:28:02 marat Exp $
 !c
 
-      logical my_alloc
-      external my_alloc
-      logical my_dealloc
-      external my_dealloc
       double precision find_multipole_energy
       external find_multipole_energy
 

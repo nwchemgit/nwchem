@@ -42,6 +42,7 @@
       integer   get_i_sigma
       integer   get_i_log_amesh
       integer   get_i_ion_charge
+      integer   get_i_core_charge
       integer   get_i_core_kin_energy
       integer   get_i_rgrid
       integer   get_max_mult_l
@@ -68,6 +69,7 @@
       external   get_i_sigma
       external   get_i_log_amesh
       external   get_i_ion_charge
+      external   get_i_core_charge
       external   get_i_core_kin_energy
       external   get_i_rgrid
       external   get_max_mult_l

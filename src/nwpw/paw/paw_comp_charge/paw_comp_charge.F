@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.4 2003-01-24 19:58:22 marat Exp $
+* $Id: paw_comp_charge.F,v 1.5 2003-01-24 20:28:01 marat Exp $
 *
 
 
@@ -17,7 +17,7 @@
 #include "mafdecls.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_proj.fh"
-#include "paw_utils.fh"
+#include "paw_ma.fh"
 #include "paw_params.fh"
 #include "paw_basis.fh"
 
@@ -55,9 +55,5 @@
       do ia=1,nkatm
 	q00_tmp = (get_core_charge(ia)-get_ion_charge(ia))/sqrt(fourpi)    
         dbl_mb(q00(1)+ia-1)=q00_tmp
-        write(*,*) "comp_charge:4pi",sqrt(fourpi)
-        write(*,*) "comp_charge:q00",q00_tmp,dbl_mb(q00(1)+ia-1)
-        write(*,*) "comp_charge:ion",get_ion_charge(ia)
-        write(*,*) "comp_charge:core",get_core_charge(ia)
       end do
       end subroutine
