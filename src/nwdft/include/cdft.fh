@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.27 1999-05-10 22:40:00 edo Exp $
+C$Id: cdft.fh,v 1.28 1999-05-12 22:02:01 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -38,7 +38,7 @@ c
 c     old common handles 
 c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
-     ,     lrchi,irchi,lrdeclhi,irdelchi,
+     ,     lrchi,irchi,lrdelchi,irdelchi,
      , g_cdinv, g_2ceri
 c
       character*255 movecs_in, movecs_out
@@ -74,7 +74,7 @@ c
 c     old common handles 
 c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
-     ,     lrchi,irchi,lrdeclhi,irdelchi,
+     ,     lrchi,irchi,lrdelchi,irdelchi,
      , g_cdinv, g_2ceri
 c
 c     Characters
