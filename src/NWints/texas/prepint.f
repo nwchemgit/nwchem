@@ -1,6 +1,7 @@
-c $Id: prepint.f,v 1.4 1995-12-21 18:56:58 pg481 Exp $
+c $Id: prepint.f,v 1.5 1995-12-22 01:35:31 pg481 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,nsym,maxprice,scftype)
+c   !!!///////
 c---------------------------------------------------------------
 c EPS is not used here, threshold is now set by calling 
 c texas_set_accy before texas_init is called.
