@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.34 2003-07-04 03:08:53 d3j191 Exp $
+* $Id: psi.F,v 1.35 2003-07-12 02:13:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -136,6 +136,7 @@
       logical value,done,oneloop
       integer it
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
@@ -156,6 +157,7 @@
       done = .false.
       error0 = 0.0d0 
       e0 = 0.0d0
+      theta = -3.14159d0/600.0d0
       it = 0
  2    continue
 
@@ -227,7 +229,8 @@
          end if
 
          de0 = -2.0d0*de0
-         call psi_linesearch_virtual(ii,e0,de0,dcpl_mb(t(1)))
+         call psi_linesearch_virtual(ii,
+     >                               theta,e0,de0,dcpl_mb(t(1)))
 
       go to 2
 
@@ -256,9 +259,10 @@
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
-      subroutine psi_linesearch_virtual(ii,e0,de0,t)
+      subroutine psi_linesearch_virtual(ii,theta,e0,de0,t)
       implicit none
       integer ii
+      real*8  theta
       real*8  e0,de0
       complex*16 t(*) !search direction
       
@@ -268,13 +272,13 @@
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,theta,dtheta,dtheta_min,e1
+      real*8 x,y,pi,dtheta_min,e1
 
       psi_ptr=psi1_excited(1)
 
       pi = 4.0d0*datan(1.0d0)
-      dtheta = pi/300.0d0
-      dtheta_min = 0.01*dtheta
+      !dtheta = pi/300.0d0
+      dtheta_min = 0.01*theta
 
 *     **** allocate stack memory ****
       value = MA_push_get(mt_dcpl,npack1,'orb',
@@ -290,8 +294,8 @@
      >                   dcpl_mb(orb(1)))
 
 *     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
-  10  x = cos(dtheta)
-      y = sin(dtheta)
+  10  x = cos(theta)
+      y = sin(theta)
       call Pack_c_SMul(1,x,
      >                  dcpl_mb(orb(1)),
      >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
@@ -307,18 +311,16 @@
       e1 = -e1
 
      
-      if (((-e1).gt.(-e0)).and.(dtheta.gt.dtheta_min)) then
-         dtheta = 0.5d0*dtheta
-         go to 10
-      end if
+      !if (((-e1).gt.(-e0)).and.(theta.gt.dtheta_min)) then
+      !   theta = 0.5d0*theta
+      !   go to 10
+      !end if
 
-      x = (e0 - e1 + 0.5d0*de0*sin(2*dtheta))
-     >    /(1.0d0-cos(2*dtheta))
+      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+     >    /(1.0d0-cos(2*theta))
       theta = 0.5d0*datan(0.5d0*de0/x) 
     
    
-  
-
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       x = cos(theta)
@@ -3203,7 +3205,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       logical function psi_initialize()
       implicit none 
 
+
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3214,9 +3218,20 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical value
+      logical value,psi_nogrid
       integer nemax
       real*8 sum1,sum2
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer rtdb,ind
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*30 filename
+      character*30 control_input_psi
+      external     control_input_psi
+      logical  wvfnc_expander
+      external wvfnc_expander
+
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
@@ -3257,6 +3272,60 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       if (.not. value) call errquit('out of heap memory',0)
 
 *     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+        
+        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
+      
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+       
+          filename =  control_input_psi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_put failed', 0)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        value = rtdb_parallel(.true.)
+
+      end if
+
+      end if
+
       call psi_read(ispin,ne,dcpl_mb(psi1(1)))
 
       call psi_history_read(ispin,ne,
