@@ -1,6 +1,7 @@
-c $Id: texas_hf.F,v 1.1 1995-10-30 20:58:02 d3e129 Exp $
+c $Id: texas_hf.F,v 1.2 1995-10-31 09:28:02 d3e129 Exp $
 c=================================================================
-      subroutine texas_hf2_m(ish,jsh,ksh,lsh,nquart, ra,rb,rc,rd,use_r,
+      subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
+     *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr)
 c--------------------------------------------------------
@@ -20,12 +21,28 @@ c PNL scratch replacing our bl() and its size :
       integer l_blscr
       double precision blscr(l_blscr)
 c PNL requested set of contracted shell quartets :
+      integer ij_basis, kl_basis
       integer nquart,ish(nquart),jsh(nquart),ksh(nquart),lsh(nquart)
 c returning integral's indeces :
       integer icf(*),jcf(*),kcf(*),lcf(*), integ_n0
       integer leri
       double precision eri(leri)
       double precision ra(3),rb(3),rc(3),rd(3)
+c----------------------------------------------------------------------
+      integer basis_init
+      common /c_basis_init/ basis_init
+c----------------------------------------------------------------------
+c
+c... check for consistency the input basis is what was initialized.
+      if (.not.
+     &    ((ij_basis.eq.basis_init).and.
+     &     (kl_basis.eq.basis_init))) then
+        write(6,*)' basis_init handle :',basis_init
+        write(6,*)' ij_basis   handle :',ij_basis
+        write(6,*)' kl_basis   handle :',kl_basis
+        call errquit
+     &   ('texas_hf2_m: called with different basis set handle',911)
+      endif
 c--------------------------------------------------------
 c switch from txs bl() to pnl blscr()
 c

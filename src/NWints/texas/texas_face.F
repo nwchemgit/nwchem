@@ -1,5 +1,5 @@
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.2 1995-10-30 23:26:35 d3e129 Exp $
+c $Id: texas_face.F,v 1.3 1995-10-31 09:28:00 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -217,6 +217,9 @@ c----------------------------------------------------------------------
       integer size_from_ma
       integer inuc,ibas
 c----------------------------------------------------------------------
+      integer basis_init
+      common /c_basis_init/ basis_init
+c----------------------------------------------------------------------
 c
 c only for tests :
 c     integer ish,jsh,ksh,lsh,leri
@@ -239,13 +242,14 @@ c
       if (nbas.gt.1) then
         write(6,*)' warning '
         write(6,*)
-     &  ' texas can only handle 1 basis today/tommorrow/and Tuesday',
-        write(6,*)' using the first basis passed as the MO basis.'
+     &  ' texas can only handle 1 basis today/tommorrow/and Tuesday'
+        write(6,*)' using the first basis passed as THE basis.'
         write(6,*)' '
         write(6,*)' Krys is working on the fix '
       endif
 c
       basis = bases(1) ! only one basis in texas
+      basis_init = basis
 c
       bas = basis + BASIS_HANDLE_OFFSET
       geom = ibs_geom(bas)
@@ -853,7 +857,8 @@ c=================================================================
       common /intlim/ limxmem,limblks,limpair
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /route/ iroute
-      common /c_rtdb_copy/ rtdb_copy  ! rtdb handle inside texas
+      integer rtdb_copy
+      common /c_rtdb_copy/ rtdb_copy
       integer int_tmp, rtdb
       integer rtdblim(3)
 #include "mafdecls.fh"
