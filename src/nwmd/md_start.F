@@ -25,11 +25,6 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps)
 c
-c     print decomposition information
-c     -------------------------------
-c
-      call sp_print(lfnout)
-c
 c     start the classical forces API
 c     ------------------------------
 c
@@ -131,6 +126,11 @@ c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     print decomposition information
+c     -------------------------------
+c
+      call sp_print(lfnout)
 c
       return
       end
