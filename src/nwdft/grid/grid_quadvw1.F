@@ -14,9 +14,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf)
+     ,     donewbf,l3d)
 c
-c$Id: grid_quadvw1.F,v 1.8 2001-08-14 23:55:32 edo Exp $
+c$Id: grid_quadvw1.F,v 1.9 2001-11-16 02:12:41 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -52,6 +52,7 @@ c
       integer grid_nxyz,nq_in
       external grid_nxyz
       logical donewbf           !!! !!!! *** temp
+      logical l3d
 c
       save nq_left
 c
@@ -107,7 +108,7 @@ c
      ,        ibf_ao,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        donewbf)
+     ,        donewbf,l3d)
          
 c     
 c     now pack this aqbuf into the write buffer 

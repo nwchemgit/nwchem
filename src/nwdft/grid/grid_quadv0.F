@@ -1,20 +1,20 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.23 2001-06-21 19:12:19 zzhang Exp $
+C$Id: grid_quadv0.F,v 1.24 2001-11-16 02:12:41 edo Exp $
 c
       integer rtdb
-      integer g_dens(2),nexc,g_vxc(4)
+      integer g_dens(2),nexc,g_vxc(*)
       double precision rho_n
       double precision Exc(2)
       double precision tmat(*)  ! XC fit
       call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,     1,1,tmat)
+     ,     1,1,tmat,.false.)
       return
       end
 c
       Subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,      nmat,  calc_type ,tmat)
+     ,      nmat,  calc_type ,tmat,l3d)
       implicit none
 c
       integer rtdb
@@ -30,6 +30,7 @@ c                               !         only used for lhs cpks
 c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
 c                               !   3 = XC matrices for CPKS RHS
+      logical l3d               ! true if 3d GA is used
 c
 #include "cgridfile.fh"
 #include "geom.fh"
@@ -69,7 +70,7 @@ c
       logical oldway
       logical donewbf           !!! !!!! *** temp
       integer max_elem_ang_scr, max_component
-      integer nexpo,nibf,i
+      integer nexpo,nibf
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -292,7 +293,8 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,donewbf)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,donewbf,
+     ,        l3d)
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -329,7 +331,8 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,           l3d)
          else
          call grid_quadvw(rtdb,
      ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
@@ -347,7 +350,8 @@ c
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
+     ,           l3d)
          endif
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)

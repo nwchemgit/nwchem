@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.198 2001-11-02 17:59:24 edo Exp $
+c     $Id: dft_scf.F,v 1.199 2001-11-16 02:12:41 edo Exp $
 c     
       implicit none
 c
@@ -730,7 +730,6 @@ c     reset diis
      &              diising, nodiis,int_mb(k_gdiis),
      ,              lkeeps,g_s12m,g_s12p,.true.)
                rabuck_act=.false.
-!               goto 2002
             endif
             
             rabuck_act=ssmear.gt.1d-9

@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.27 2001-04-12 21:56:50 edo Exp $
+C$Id: dft_3cincor.F,v 1.28 2001-11-16 02:12:39 edo Exp $
 c
       implicit none
 c    
@@ -122,6 +122,7 @@ c     Determine/allocate scratch memory for 3 center 2e- integrals.
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
       nscr    = mscratch_2e3c
+!modedo
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_3cincor: cannot allocate scr',0)
 c

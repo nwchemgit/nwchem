@@ -1,6 +1,6 @@
 #include "dft2drv.fh"
       logical grad ! [in]
-      integer g_dens(2),g_vxc(4)
+      integer g_dens(2),g_vxc(*)
       integer ncoef_max
       integer nqtot ! [in/out] total no of grid pts (to ge igop'ed)
       integer natoms

@@ -15,9 +15,9 @@
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf)
+     ,     donewbf,l3d)
 c
-c$Id: grid_quadv0b.F,v 1.23 2001-11-09 02:18:02 edo Exp $
+c$Id: grid_quadv0b.F,v 1.24 2001-11-16 02:12:41 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -50,6 +50,7 @@ c !!! temp !!! ***
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
       logical donewbf           !!! !!!! *** temp
+      logical l3d
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -230,7 +231,7 @@ c
      &        call errquit('grid_quadv0b: cannot allocate Dmat',0)
 c     
          if(do_scf) then
-            call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+            call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
      &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
      &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
      &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 

@@ -10,9 +10,10 @@
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
+     .     l3d)
 c
-c$Id: grid_quadvw.F,v 1.27 2001-08-14 23:55:32 edo Exp $
+c$Id: grid_quadvw.F,v 1.28 2001-11-16 02:12:41 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -65,6 +66,7 @@ c
       external grid_lcube
       logical oprint
       logical donewbf           !!! !!!! *** temp
+      logical l3d
 C      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -185,7 +187,7 @@ c
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,                    donewbf)
+     ,                    donewbf,l3d)
 
                   endif
  100           continue ! end loop over angular shells
@@ -204,7 +206,7 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,l3d)
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1
