@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.21 1997-04-06 20:58:57 d3g681 Exp $
+c     $Id: grad_force.F,v 1.22 1997-04-07 21:49:32 d3j191 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -778,7 +778,7 @@ c
       logical oactive(natoms)   ! [output]
       integer nactive           ! [output]
 c
-      integer ma_type, nactive, l_actlist, k_actlist, i
+      integer ma_type, l_actlist, k_actlist, i
 c
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
      $     nactive, l_actlist)) then
