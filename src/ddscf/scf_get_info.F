@@ -182,7 +182,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.14 1995-11-13 16:57:31 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.15 1995-11-16 17:19:43 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -196,9 +196,7 @@ c
 c     
       ouser_changed_conv = .false.
 c
-      if (rtdb_get(rtdb, 'scf:maxiter', MT_INT, 1, maxiter)) then
-         ouser_changed_conv = .true.
-      else
+      if (.not. rtdb_get(rtdb, 'scf:maxiter', MT_INT, 1, maxiter)) then
          if (scftype .ne. 'UHF') then
             maxiter = 8
          else
