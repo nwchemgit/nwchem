@@ -35,6 +35,8 @@ c
 c
       logical hf_job
       character*30 tag
+      character*255 theory
+      integer mult
 c
       hf_job = .not. bgj_have_xc()
       if (bgj_print() .gt. 0)
@@ -148,8 +150,15 @@ c     shell unless told otherwise
 c     
       if (bgj_print() .gt. 0)
      &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
-      if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     $     nopen = 0
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     +     call errquit('task: no task input for theory?',0)
+c      if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+c     $     nopen = 0
+      if(theory .eq. 'dft')then
+         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
+     *        mult = 1
+         nopen = mult - 1
+      endif
       if (nopen .gt. nelec) call errquit
      $     ('scf: nopen > nelec ', nopen)
       if (mod(nelec-nopen,2) .ne. 0) call errquit
@@ -287,7 +296,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.50 2000-10-12 19:00:00 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.51 2001-06-21 19:01:26 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
