@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.14 1994-09-25 08:03:55 d3e129 Exp $
+c $Id: int_init.F,v 1.15 1994-10-06 00:18:38 d3g681 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -52,6 +52,7 @@ c
 #endif
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
+      call init70               ! To generate tables etc.
       call int_acc_std()
       init_int = 1
       end
