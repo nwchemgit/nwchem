@@ -15,17 +15,25 @@ A useful command is
 3) Ensure that all basis sets are terminated with END
    (if not it could be a problem in data from Dave. 
    DFT basis sets seem to be an exception)
-   use "./end2end.pl NWCHEM.BSLIB"
+   a) use "./end2end.pl NWCHEM.BSLIB" to identify
+   b) fix by hand (emacs/vi).
 
 4) Ensure ECPs are present where they should be and that in 
    a basis set family that they appear AFTER the corresponding
    basis sets (introduced with 'Effective core potentials').
 
 5) Replace '! #' with '#' (ECPs only?).
+   a) cp NWCHEM.BSLIB stuff
+   b) cat stuff | sed -e s'/\! #/#/g' > NWCHEM.BSLIB
 
 6) nawk -f bas.awk < NWCHEM.BSLIB > library
 
 7) look at the output
+    a) do it!
+    b) do it again!!
+
+
+**********************   csh script grepsort does 8-13
 
 8) egrep 'basis|ecp' ../library > list.old
    egrep 'basis|ecp' library > list.new
@@ -38,7 +46,7 @@ A useful command is
 11) cat list.old | sort -u > sort.u.old 
     cat list.new | sort -u > sort.u.new
 
-12) wc sort.u should identify redundancy in sets.
+12) wc sort.* should identify redundancy in sets.
 
 13) diff -b sort.u.old sort.u.new  shows the differences
 

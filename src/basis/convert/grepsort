@@ -1,0 +1,24 @@
+#!/bin/csh -x
+#
+# $Id: grepsort,v 1.1 1998-08-11 18:25:56 d3e129 Exp $
+#
+# do grep/sorting to check diffs between new and old library
+#
+#
+rm -f list.old list.new sort.old sort.new sort.u.old sort.u.new
+# - 8
+egrep 'basis|ecp' ../library > list.old
+egrep 'basis|ecp' library > list.new
+# - 9
+wc  list.old list.new
+# - 10
+cat list.old | sort > sort.old 
+cat list.new | sort > sort.new
+# - 11
+cat list.old | sort -u > sort.u.old 
+cat list.new | sort -u > sort.u.new
+# - 12 
+wc sort.* 
+# - 13
+diff -b sort.u.old sort.u.new
+#
