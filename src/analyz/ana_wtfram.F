@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.46 2002-07-23 21:07:27 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.47 2002-07-23 21:36:18 d3j191 Exp $
 c
       implicit none
 c
@@ -440,6 +440,54 @@ c
    14 continue
       endif
    13 continue
+      do 15 j=1,nsb
+      read(44,6004) ib,jb
+      write(*,'(2i7)') ib,jb
+      do 16 i=1,nwm
+      if(iwsel(i).ne.0) then
+      if(rangle.gt.0.0d0) then
+      ry(1)=w(i,ib,1)
+      ry(2)=w(i,ib,2)
+      ry(3)=w(i,ib,3)
+      call rotate(rv,rw,rotang,ry,rxi)
+      ry(1)=w(i,jb,1)
+      ry(2)=w(i,jb,2)
+      ry(3)=w(i,jb,3)
+      call rotate(rv,rw,rotang,ry,rxj)
+      else
+      rxi(1)=w(i,ib,1)
+      rxi(2)=w(i,ib,2)
+      rxi(3)=w(i,ib,3)
+      rxj(1)=w(i,jb,1)
+      rxj(2)=w(i,jb,2)
+      rxj(3)=w(i,jb,3)
+      endif
+      xh(1)=0.5d0*(rxi(1)+rxj(1))
+      xh(2)=0.5d0*(rxi(2)+rxj(2))
+      xh(3)=0.5d0*(rxi(3)+rxj(3))
+      if(wtag(ib,1)(1:3).ne.'cpk') then
+      k=pre_atnum(wnam(ib)(6:7))
+      color=atom_color(k)
+      factor=scale*val(ib,1)
+      if(wtag(ib,2)(1:1).ne.' ') color=wtag(ib,2)
+      if(wtag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
+      write(iunit,8002) (scale*rxi(j),j=1,3),
+     + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+      endif
+      if(wtag(jb,1)(1:3).ne.'cpk') then
+      k=pre_atnum(wnam(jb)(6:7))
+      color=atom_color(k)
+      factor=scale*val(jb,1)
+      if(wtag(jb,2)(1:1).ne.' ') color=wtag(jb,2)
+      if(wtag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
+      write(iunit,8002) (scale*rxj(j),j=1,3),
+     + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+      endif
+      endif
+   16 continue
+   15 continue
       endif
       close(unit=iunit)
       endif
