@@ -310,7 +310,7 @@ ccc
            else
               nzi1=datnuc(1,iat1)
            endif
-           if(iat1.eq.0) then
+           if(jat1.eq.0) then
               nzj1=0
            else
               nzj1=datnuc(1,jat1)
@@ -498,7 +498,7 @@ cc
            else
               nzi1=datnuc(1,iat1)
            endif
-           if(iat1.eq.0) then
+           if(jat1.eq.0) then
               nzj1=0
            else
               nzj1=datnuc(1,jat1)
