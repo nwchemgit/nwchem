@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.49 1996-07-14 18:13:34 gutowski Exp $
+C$Id: geom.F,v 1.50 1996-08-02 01:57:48 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1143,7 +1143,7 @@ c
          end do
          write(6,4) icent, tags(icent,geom), charge(icent,geom),
      $        (tmp(i),i=1,3)
- 4       format(' ',i4,' ',a16,' ',f10.6,3f15.8)
+ 4       format(' ',i4,' ',a16,' ',f10.4,3f15.8)
       end do
       endif
 c
