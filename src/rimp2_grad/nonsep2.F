@@ -3,11 +3,11 @@ C NAME
 C     RIMP2_NonSep2 -- Non-separable gradient contrib from 2c integrals
 C
 C REVISION
-C     $Id: nonsep2.F,v 1.2 1999-06-01 17:12:21 gg502 Exp $
+C     $Id: nonsep2.F,v 1.3 1999-06-04 20:52:47 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir,
-     $     FitBas, D_Int, D_Gam, Grad, LDGrad )
+     $     FitBas, D_Int, D_Gam, Grad, NCent )
       Implicit NONE
       Logical BraKetSame        ![in]
       Integer TopSpin           ![in]
@@ -17,8 +17,8 @@ C SYNOPSIS
       Integer FitBas            ![in]
       Integer D_Int(TopSpin)    ![in]
       Integer D_Gam(TopSpin)    ![in]
-      Integer LDGrad            ![in]
-      Double Precision Grad(LDGrad) ![inout]
+      Integer NCent             ![in]
+      Double Precision Grad(3, NCent) ![inout]
 C
 C DESCRIPTION
 C
@@ -39,6 +39,7 @@ C INCLUDE FILES
 #include "msgids.fh"
 #include "stdio.fh"
 #include "bas.fh"
+#include "util.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
       Integer MinChunk
@@ -96,6 +97,7 @@ C     * Contract with derivative integrals *
 C     **************************************
 C
       Call Int_Mem_2e2c(LBuf, LScr)
+      LBuf = 2*LBuf                                      !!! CHEATING!!!
       If (.NOT. MA_Push_Get(MT_DBL, LBuf, 'deriv int buf',
      $     H_Buf, I_Buf ) ) Call ErrQuit(
      $     'RIMP2_NonSep2: ma failed (buf)', LBuf)
@@ -104,7 +106,7 @@ C
      $     'RIMP2_NonSep2: ma failed (scr)', LScr )
 C
       Call RIMP2_NS2_2e2c(FitBas, Dbl_MB(I_Buf), LBuf,
-     $     Dbl_MB(I_Scr), LScr, g_V)
+     $     Dbl_MB(I_Scr), LScr, g_V, Grad, NCent)
 C
       If (.NOT. MA_Pop_Stack( H_Scr) ) Call ErrQuit(
      $     'RIMP2_NonSep2: pop of scr failed', 0)
@@ -115,6 +117,14 @@ C     Free remaining GAs
 C
       If ( .NOT. GA_Destroy( g_V ) ) Call ErrQuit(
      $     'RIMP2_NonSep2: can''t destroy V-like GA', 0)
+C
+C     Print partial results if requested
+C
+      Call GA_Sync
+      If ( Util_Print('partial grad', Print_Debug) .AND. Me .eq. 0)
+     $     Call DGeWr(3, NCent, Grad, 3, 0, 0, LuOut,
+     $     'Partial Non-Separable Gradient (2c contributions)',
+     $     80, 'E12.6')
 C
       Return
       End

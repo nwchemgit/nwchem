@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.12 1999-06-01 17:12:21 gg502 Exp $
+C     $Id: driver_g.F,v 1.13 1999-06-04 20:52:46 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -90,7 +90,9 @@ C
       EndIf
  9000 Format(/1X, 'Gradient evaluation')
 C
-C     Prepare gradient array
+C     Prepare gradient array.   This could be done as a GA instead
+C     of being replicated, but then we would have nodes constantly
+C     sending tiny messages to a tiny array -- seems undesirable!
 C
       If ( .NOT. MA_Push_Get( MT_Dbl, 3*NCent, 'RI-MP2 gradient',
      $     H_Grad, I_Grad) ) Call ErrQuit(
@@ -127,7 +129,7 @@ C
 C     Needs ket integrals only, and gamma3
 C
       Call RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir, FitBas,
-     $     D_Int(1, 2, 1), D_Gam(1), Dbl_MB(I_Grad), 3*NCent)
+     $     D_Int(1, 2, 1), D_Gam, Dbl_MB(I_Grad), NCent)
 C
       If ( PrPrgRpt ) Call Progress_Report( LuOut,
      $     '    Non-separable gradient contrib (3-c deriv ints)')
