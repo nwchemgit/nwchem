@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.28 1994-09-28 14:24:23 d3g681 Exp $
+c $Id: basis.F,v 1.29 1994-09-28 16:47:23 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -548,6 +548,9 @@ c:: passed
       integer basisin     ! [input] basis handle
       character*(*) name  ! [input] basis set name that must be on the rtdb
 c:: local
+      character*16 element
+      character*2  symbol
+      integer atn
       integer lentmp, basis
       character*256 tmp
       logical rtdb_status, status
@@ -644,12 +647,25 @@ c
             goto 00102
           endif
 00101   continue
-c$$$        if (.not.foundit .and. ga_nodeid().eq.0) then
-c$$$           write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
-c$$$     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
-c$$$ 10        format(/'WARNING: geometry tag ',a,' not found in basis ',a/)
-c$$$           call util_flush(6)
-c$$$        endif
+        if (.not. foundit .and. ga_nodeid().eq.0) then
+           if (geom_tag_to_element(tags(i,geom), symbol, element,
+     $          atn)) then
+              write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     $             element(1:inp_strlen(element)),
+     $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
+ 10           format(/' ERROR: geometry tag ',a,' (',a,') is an atom ',
+     $             'but has no functions in basis "',a,'"'/
+     $             ' ERROR: only bq* centers can have no functions')
+              call util_flush(6)
+              call errquit('bas_rtdb_load: basis/geometry mismatch', 0)
+           else
+              write(6,11) i, tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
+ 11           format(/'WARNING: geometry tag ',i4, ' ', a,
+     $             ' not found in basis "',a,'"'/)
+              call util_flush(6)
+           endif
+        endif
 00102   continue
 00100 continue
 c
@@ -663,17 +679,13 @@ c
             ibs_ce2cnr(2,i,basis) = ncont_tot_gb(basis) + idum_cont
             ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
          else
-            if (ga_nodeid() .eq. 0) then
-               write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
-     $              bs_name(basis)(1:inp_strlen(bs_name(basis)))
- 10            format(/'WARNING: geometry tag ',a,
-     $              ' not found in basis ',a/)
-               call util_flush(6)
-            endif
             ibs_ce2cnr(1,i,basis) = 0 ! No functions on this center
             ibs_ce2cnr(2,i,basis) = -1
          endif
 00200 continue
+c
+      if (ncont_tot_gb(basis) .eq. 0) call errquit
+     $     ('bas_rtdb_load: no functions in basis set', 0)
 c      
 c build contraction -> center map
 c
