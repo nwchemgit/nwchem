@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.101 1999-06-07 22:15:21 d3g681 Exp $
+C     $Id: geom_input.F,v 1.102 1999-06-08 01:12:07 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -763,7 +763,6 @@ c
       integer      izfrz
       integer      nzfrz
       integer      nat
-      integer      iw
       integer      ncenter
       integer      icenter
       integer      atn
@@ -878,7 +877,7 @@ c
       parameter (zero=0.0d+00)
       parameter (four=4.0d+00)
 c     
-      integer iadd, i, ii, iadd, itype, izvar, nzvar, ncart
+      integer iadd, i, ii, itype, izvar, nzvar, ncart
       double precision eqval
 c     
       logical geom_check_handle
