@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.12 1998-08-10 17:24:27 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.13 1998-08-18 16:45:46 d3j191 Exp $
 c
       implicit none
 c
@@ -325,6 +325,7 @@ c
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
       limp(5,nimp)=0
+      limp(6,nimp)=0
       endif
 c
 c     chiral
@@ -337,6 +338,7 @@ c
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
       limp(5,nimp)=0
+      limp(6,nimp)=0
       endif
 c
 c     aromatic ring
@@ -350,6 +352,7 @@ c
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
       limp(5,nimp)=0
+      limp(6,nimp)=0
       endif
       endif
 c      

@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.15 1998-07-14 15:47:28 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.16 1998-08-18 16:45:47 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -282,22 +282,22 @@ c
 c     integer lbnd(1:2,mbnd) : bond indices
 c
       if(.not.ma_push_get(mt_int,2*mbnd,"bnd",l_bnd,i_bnd))
-     + call errquit('Memory allocation failed for bnd',9999)
+     + call errquit('mkseq: Memory allocation failed for bnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
 c
       if(.not.ma_push_get(mt_int,3*mang,"ang",l_ang,i_ang))
-     + call errquit('Memory allocation failed for ang',9999)
+     + call errquit('mkseq: Memory allocation failed for ang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mdih,"dih",l_dih,i_dih))
-     + call errquit('Memory allocation failed for dih',9999)
+     + call errquit('mkseq: Memory allocation failed for dih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c
       if(.not.ma_push_get(mt_int,4*mimp,"imp",l_imp,i_imp))
-     + call errquit('Memory allocation failed for imp',9999)
+     + call errquit('mkseq: Memory allocation failed for imp',9999)
 c
 c     generate fragment files for missing segments in dir_t
 c
@@ -314,13 +314,13 @@ c     deallocate memory
 c     -----------------
 c
       if(.not.ma_pop_stack(l_imp))
-     + call errquit('Memory deallocation failed for imp',9999)
+     + call errquit('mkseq: Memory deallocation failed for imp',9999)
       if(.not.ma_pop_stack(l_dih))
-     + call errquit('Memory deallocation failed for dih',9999)
+     + call errquit('mkseq: Memory deallocation failed for dih',9999)
       if(.not.ma_pop_stack(l_ang))
-     + call errquit('Memory deallocation failed for ang',9999)
+     + call errquit('mkseq: Memory deallocation failed for ang',9999)
       if(.not.ma_pop_stack(l_bnd))
-     + call errquit('Memory deallocation failed for bnd',9999)
+     + call errquit('mkseq: Memory deallocation failed for bnd',9999)
       endif
 c
 c     generate segment files

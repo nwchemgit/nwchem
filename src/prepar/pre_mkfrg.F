@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.16 1998-07-14 15:47:27 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.17 1998-08-18 16:45:46 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -63,7 +63,7 @@ c
       integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
-c
+c      
       if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_mkfrg ')

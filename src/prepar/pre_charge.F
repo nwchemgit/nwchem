@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.16 1998-08-13 21:49:33 d3j191 Exp $
+c $Id: pre_charge.F,v 1.17 1998-08-18 16:45:45 d3j191 Exp $
 c
       implicit none
 c
@@ -125,7 +125,7 @@ c
       if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
      + call errquit('pre_charge: rtdb_put nconst failed',0)
       if(.not.geom_create(igeom2,'geometry'))
-     + call errquit('pre_charge: geom_create failed',9999)
+     + call errquit('pre_charge: geom_create 1 failed',9999)
       if(.not.geom_set_user_units(igeom2,'nanometer'))
      + call errquit('pre_charge: geom_set_user_units failed',9999)
       nout=0
@@ -178,8 +178,8 @@ c
    11 continue
       if(.not.geom_rtdb_store(irtdb,igeom2,'geometry'))
      + call errquit('pre_charge: geom_rtdb_store failed',9999)
-      if(.not.geom_destroy(igeom2))
-     + call errquit('pre_charge: geom_destroy failed',9999)
+cx      if(.not.geom_destroy(igeom2))
+cx     + call errquit('pre_charge: geom_destroy failed',9999)
       nconst=0
       if(nout.gt.ihi-ilo+1) then
       ncon=ihi-ilo+1
@@ -228,24 +228,19 @@ c
       if(.not.pre_task(irtdb,itask,lfnout))
      + call errquit('pre_task failed',9999)
 c
-      if(.not.geom_create(igeom2,'pre:geometry'))
-     + call errquit('pre_charge: geom_create failed',0)
-      if(rtdb_get(irtdb,'geometry:cresp:geometry:ncenter',mt_int,1,n))
+cx      if(.not.geom_create(igeom2,'pre:geometry'))
+cx     + call errquit('pre_charge: geom_create 2 failed',0)
+c
+      if(rtdb_get(irtdb,'geometry:esp_fit:geometry:ncenter',mt_int,1,n))
      + then
-      if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry'))
+      if(.not.geom_rtdb_load(irtdb,igeom2,'esp_fit:geometry'))
      + call errquit('pre_charge: geom_rtdb_load failed',0) 
       else
-      if(rtdb_get(irtdb,'geometry:resp:geometry:ncenter',mt_int,1,n))
-     + then
-      if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))
-     + call errquit('pre_charge: geom_rtdb_load failed',0)
-      else
-      call errquit('pre_charge: esp geometry not found on rtdb',0)
-      endif
+      call errquit('pre_charge: esp_fit geometry not found on rtdb',0)
       endif
 c
       qsum=0.0d0
-      do 9 i=1,nout
+      do 9 i=1,ihi-ilo+1
       if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_get failed',i)
       qatm(ilo+i-1)=chrge
@@ -254,7 +249,7 @@ c
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
       if(abs(qsum).lt.1.0d-5) then
-      do 14 i=1,nout
+      do 14 i=1,ihi-ilo+1
       qatm(ilo+i-1)=qscale*qatm(ilo+i-1)
    14 continue
       endif
