@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.35 2002-03-06 19:50:58 windus Exp $
+C $Id: hess_init.F,v 1.36 2002-03-19 17:58:44 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -353,7 +353,7 @@ c  the rest of the Hessian calculation will work properly.  Note that
 c  these values should be reset after the calculation is done.
 c
        integer rtdb
-       integer geomnew
+       integer geomnew, filesize, memsize
        double precision ithresh,tol_rho,tol_rho_rd
        logical whatever,grid_file_close,xc_got2nd      
        external xc_got2nd
@@ -444,6 +444,16 @@ c
      $        ' task_hessian: rtdb_put failed',0)
          whatever=grid_file_close(.false.)
       endif
+c
+c     make the Fock build go direct
+c
+      filesize = -1
+      memsize  = -1
+      if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
+     $  call errquit('hess_energyinit: failed to store filesize',0)
+      if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
+     $  call errquit('hess_energyinit: failed to store filesize',0)
+c
       return
       end
 c
