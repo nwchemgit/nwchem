@@ -35,3 +35,9 @@ May 15 1998	 Bug fix in declaration
 Jun 03 1998      Change pre_namamb to pre_rename
 	         No partial charge estimation if atom types unresolved
 		 Bug fix in atom type string comparison in pre_ffield
+Jun 04 1998      Bug fix in atom typing (pre_atype)
+		 Charge determination separate for each segment (pre_charge)
+		 Charge constraint of zero on set of cap atoms (pre_charge)
+		 Handle charmm improper dihedrals (pre_ffield)
+		 List atoms not found (pre_misfit)
+	         Rename residues (CYS,HIS) appropriately for force field 

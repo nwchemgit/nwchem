@@ -3,7 +3,7 @@
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
-c $Id: pre_atype.F,v 1.8 1998-05-05 22:09:21 d3j191 Exp $
+c $Id: pre_atype.F,v 1.9 1998-06-04 22:28:37 d3j191 Exp $
 c
       implicit none
 c
@@ -527,7 +527,7 @@ c
      + iatnum,nonh,nhydr
       write(lfnout,'(30x,a,3i5)') 'found     ia nn nh ',
      + latm(2,ltyp(5+kk,ltyp(5+k,i))),
-     + ltyp(5,ltyp(5+k,ltyp(5+k,i)))-ltyp(4,ltyp(5+k,ltyp(5+k,i))),
+     + ltyp(5,ltyp(5+kk,ltyp(5+k,i)))-ltyp(4,ltyp(5+kk,ltyp(5+k,i))),
      + ltyp(4,ltyp(5+kk,ltyp(5+k,i)))
       endif
 c
@@ -552,8 +552,8 @@ c     check bonded nonh-hydrogens to neighbor k
 c     -----------------------------------------
 c
       if(nonh.gt.0) then
-      if(nonh.ne.ltyp(5,ltyp(5+k,ltyp(5+k,i)))-
-     + ltyp(4,ltyp(5+k,ltyp(5+k,i)))) goto 31
+      if(nonh.ne.ltyp(5,ltyp(5+kk,ltyp(5+k,i)))-
+     + ltyp(4,ltyp(5+kk,ltyp(5+k,i)))) goto 31
       endif
 c
 c     check if neighbor of neighbor in ring
@@ -606,6 +606,9 @@ c
      + write(lfnout,'(30x,a)') 'neighbor accepted'
 c
       catm(3,i)(1:4)=atype(j)
+      if(lprint.ge.2)
+     + write(lfnout,'(a,a,a,a)') 'Accepted for atom ',catm(1,i),
+     + ' type ',catm(3,i)
 c
       endif
    19 continue

@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.10 1998-06-03 14:55:32 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.11 1998-06-04 22:28:38 d3j191 Exp $
 c
       implicit none
 c
@@ -410,6 +410,41 @@ c
       endif
       endif
 c
+      if(ffield(1:5).eq.'charm'.and.ifnd.eq.0) then
+      if(atyp4.eq.btyp1) then
+      if(atyp3.eq.'      ') then
+      if(atyp2.eq.'      ') then
+      if(atyp1.eq.btyp4) ifnd=1
+      if(atyp1.eq.btyp3) ifnd=1
+      if(atyp1.eq.btyp2) ifnd=1
+      else
+      if(atyp2.eq.btyp3.and.atyp1.eq.btyp4) ifnd=1
+      if(atyp2.eq.btyp4.and.atyp1.eq.btyp3) ifnd=1
+      if(atyp2.eq.btyp2.and.atyp1.eq.btyp4) ifnd=1
+      if(atyp2.eq.btyp4.and.atyp1.eq.btyp2) ifnd=1
+      if(atyp2.eq.btyp2.and.atyp1.eq.btyp3) ifnd=1
+      if(atyp2.eq.btyp3.and.atyp1.eq.btyp2) ifnd=1
+      endif
+      else
+      if(atyp2.eq.'      ') then
+      if(atyp3.eq.btyp3.and.atyp1.eq.btyp4) ifnd=1
+      if(atyp3.eq.btyp4.and.atyp1.eq.btyp3) ifnd=1
+      if(atyp3.eq.btyp2.and.atyp1.eq.btyp4) ifnd=1
+      if(atyp3.eq.btyp4.and.atyp1.eq.btyp2) ifnd=1
+      if(atyp3.eq.btyp2.and.atyp1.eq.btyp3) ifnd=1
+      if(atyp3.eq.btyp3.and.atyp1.eq.btyp2) ifnd=1
+      else
+      if(atyp3.eq.btyp2.and.atyp2.eq.btyp3.and.atyp1.eq.btyp4) ifnd=1
+      if(atyp3.eq.btyp3.and.atyp2.eq.btyp4.and.atyp1.eq.btyp2) ifnd=1
+      if(atyp3.eq.btyp4.and.atyp2.eq.btyp2.and.atyp1.eq.btyp3) ifnd=1
+      if(atyp3.eq.btyp3.and.atyp2.eq.btyp2.and.atyp1.eq.btyp4) ifnd=-1
+      if(atyp3.eq.btyp2.and.atyp2.eq.btyp4.and.atyp1.eq.btyp3) ifnd=-1
+      if(atyp3.eq.btyp4.and.atyp2.eq.btyp3.and.atyp1.eq.btyp2) ifnd=-1
+      endif
+      endif
+      endif
+      endif
+c
       if(ifnd.ne.0) then
       limp(6+j,i)=mult
       rimp(2*j-1,i)=ifnd*p1 
@@ -433,3 +468,4 @@ c
       pre_ffield=.false.
       return
       end
+

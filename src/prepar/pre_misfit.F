@@ -1,7 +1,7 @@
       logical function pre_misfit(lfnout,lprint,isfnd,xs,qsa,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,gdist)
 c
-c $Id: pre_misfit.F,v 1.1 1998-04-28 23:10:48 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.2 1998-06-04 22:28:38 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +28,7 @@ c     for each atom without coordinates
 c     ---------------------------------
 c
       if(isfnd(i).ne.1) then
+      if(lprint.ge.5) write(*,'(a,i7)') 'Not found: atom ',i
       nn=0
 c
 c     find all bonded atoms

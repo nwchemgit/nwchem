@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.11 1998-04-29 20:35:59 d3j191 Exp $
+c $Id: pre_charge.F,v 1.12 1998-06-04 22:28:37 d3j191 Exp $
 c
       implicit none
 c
@@ -41,11 +41,51 @@ c
       integer igeom2,nout,icon(100),ncon,nconst,irest
       real*8 rcon
       character*16 tag
-      real*8 coord(3),chrge,qsum
+      real*8 coord(3),chrge,qsum,charge
 c
       do 1 i=1,matm
       qatm(i)=0.0d0
     1 continue
+c
+      charge=0.0d0
+      do 15 i=ilo,ihi
+      nb=0
+      do 16 j=1,nbnd
+      ia=lbnd(1,j)
+      ja=lbnd(2,j)
+      if(ia.eq.i) then
+      nb=nb+1
+      iab(nb)=ja
+      else
+      if(ja.eq.i) then
+      nb=nb+1
+      iab(nb)=ia
+      endif
+      endif
+   16 continue
+      if(latm(2,i).eq.6.and.nb.eq.3) then
+      nox=0
+      do 17 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1) nox=nox+1
+   17 continue
+      if(nox.eq.2) charge=charge-1.0d0
+      endif
+      if(latm(2,i).eq.7.and.nb.eq.4) then
+      nhx=0
+      do 18 j=1,nb
+      if(latm(2,iab(j)).eq.1.and.latm(3,iab(j)).eq.1) nhx=nhx+1
+   18 continue
+      if(nhx.eq.3) charge=charge+1.0d0
+      endif
+      if(latm(2,i).eq.3.and.nb.eq.0) charge=charge+1.0d0
+      if(latm(2,i).eq.11.and.nb.eq.0) charge=charge+1.0d0
+      if(latm(2,i).eq.19.and.nb.eq.0) charge=charge+1.0d0
+      if(latm(2,i).eq.20.and.nb.eq.0) charge=charge+2.0d0
+      if(latm(2,i).eq.9.and.nb.eq.0) charge=charge-1.0d0
+      if(latm(2,i).eq.17.and.nb.eq.0) charge=charge-1.0d0
+      if(latm(2,i).eq.35.and.nb.eq.0) charge=charge-1.0d0
+      if(latm(2,i).eq.53.and.nb.eq.0) charge=charge-1.0d0
+   15 continue
 c
       if(source(1:8).eq.'geometry') then
       nout=natm
@@ -54,6 +94,9 @@ c
 c
       if(ihi-ilo+1.gt.maxscf) goto 200
 c
+      write(*,'(a,f12.6)') ' Fragment charge is ',charge
+      if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,charge))
+     + call errquit('pre_charge: rtdb_put nconst failed',0)
       if(.not.geom_create(igeom2,'geometry'))
      + call errquit('pre_charge: geom_create failed',9999)
       if(.not.geom_set_user_units(igeom2,'nanometer'))
@@ -113,11 +156,11 @@ c
       nconst=0
       if(nout.gt.ihi-ilo+1) then
       ncon=ihi-ilo+1
-      icon(1)=ncon
-      do 13 i=1,ncon
-      icon(i+1)=i
+      icon(1)=nout-ncon
+      do 13 i=ncon+1,nout
+      icon(i-ncon+1)=i
    13 continue
-      ncon=ncon+1
+      ncon=nout-ncon+1
       nconst=1
       rcon=0.0d0
       endif
