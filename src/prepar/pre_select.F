@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.10 2001-08-07 17:30:59 d3j191 Exp $
+c $Id: pre_select.F,v 1.11 2002-02-27 02:46:58 d3j191 Exp $
 c
       implicit none
 c
@@ -43,10 +43,17 @@ c
       ndx=index(target,':')
       if(ndx.eq.0) then
       read(target,*,err=5) isgm
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      atomi(1:1)='?'
+      atomi(2:2)='?'
+      atomi(3:3)='?'
+      atomi(4:4)='?'
+#else
 #if defined(LAPI) || defined(IBM)
       atomi=4H????
 #else
       atomi='????'
+#endif
 #endif
       goto 6
     5 continue
