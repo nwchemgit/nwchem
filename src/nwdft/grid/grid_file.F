@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.50 2003-01-31 21:12:46 edo Exp $
+* $Id: grid_file.F,v 1.51 2003-02-01 07:57:46 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -28,10 +28,12 @@
 c
       double precision enuc_in ! [in]
       double precision enuc
-      integer availkb, sdlen
+      integer  sdlen
+      double precision availkb
       character*20 fstype
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me,me,ioserr,ierr,ios
+      integer me,ioserr,ierr,ios
+      double precision util_scratch_dir_avail_for_me
       character*80 errmsg
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
@@ -104,7 +106,7 @@ c
 c
 c     neow eaf_stat returns Mb instead of kb
 c
-               availkb=availkb*1024
+               availkb=availkb*1024d0
                if (ierr .ne. 0) then
                   call eaf_errmsg(ierr,errmsg)
                   write(LuOut,*) ga_nodeid(),errmsg
@@ -367,7 +369,7 @@ c
      $           ' Record size in doubles = ', i6,7x,
      $           ' No. of grid_pts per rec  = ', i6/
      $           ' Max. records in memory = ', i6,7x,
-     $           ' Max. records in file   = ', i6/)
+     $           ' Max. recs in file   = ', i9/)
             call util_flush(LuOut)
          end if
       end if

@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.54 2001-11-14 21:11:35 edo Exp $
+* $Id: int2e_file.F,v 1.55 2003-02-01 07:57:46 edo Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -26,10 +26,10 @@
 #endif
 c
       double precision length
-      integer availkb, sdlen
+      double precision availkb,  util_scratch_dir_avail_for_me
+      integer  sdlen
       character*20 fstype
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
 c
 #include "cint2esave.fh"

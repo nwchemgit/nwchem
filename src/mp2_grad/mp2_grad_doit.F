@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.41 2001-09-28 00:56:50 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.42 2003-02-01 07:57:46 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -83,7 +83,7 @@ c
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a
       integer g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,g_liy_b
       double precision grad(3,*)
-      integer util_scratch_dir_avail_for_me
+      double precision util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
       integer max_ga,max_ma,avail_ga,avail_ma,iavail_file
       double precision max_file, avail_file
@@ -118,10 +118,7 @@ c
       endif
 c     
       call util_file_name('kh',.true.,.true.,fnamek)
-*      if(eaf_stat(fnamek,iavail_file,fstype).ne.0)
-*     $     call errquit('mp2_grad:could not get availkb',1)
-      iavail_file = util_scratch_dir_avail_for_me()
-      avail_file=iavail_file*128.0d0
+      avail_file=util_scratch_dir_avail_for_me()*128.0d0
 c
       if (task .eq. 'gradient') then
         call intd_init(rtdb,1,basis) ! int_init allocates some memory

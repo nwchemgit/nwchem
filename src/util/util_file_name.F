@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.26 2002-11-19 00:06:42 sohirata Exp $
+C$Id: util_file_name.F,v 1.27 2003-02-01 07:57:46 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -533,7 +533,7 @@ c
       endif
 c
       end
-      integer function util_scratch_dir_avail_for_me()
+      double precision function util_scratch_dir_avail_for_me()
       implicit none
 #include "global.fh"
 #include "util.fh"
@@ -608,10 +608,10 @@ c
 c
 c     now eaf_stat returns Mb instead of kb
 c
-      avail=avail0*1024
+!      avail=avail0*1024
 
 c     
-      util_scratch_dir_avail_for_me = avail / nuse
+      util_scratch_dir_avail_for_me = 1024d0*dble(avail0) /dble(nuse)
 c
       end
       subroutine util_file_name_resolve(filename, oscratch)

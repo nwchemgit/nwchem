@@ -190,11 +190,11 @@ c
 #include "util.fh"
 #include "eaf.fh"
 c
-      integer availkw
-      integer util_scratch_dir_avail_for_me
+      double precision availkw
+      double precision util_scratch_dir_avail_for_me
       character*255 filename
 c
-      availkw = util_scratch_dir_avail_for_me()/8
+      availkw = util_scratch_dir_avail_for_me()*.25d0
       write(6,*) ' AVAILKW ', availkw , 1.1d0*dble(nbf)**4/(4000d0*nir)
       if (availkw .gt. 1.1d0*dble(nbf)**4/(4000d0*nir)) then
          call util_file_name('.trpao', .true., .true., filename)
