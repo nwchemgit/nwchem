@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize2.F,v 1.1 2004-03-09 21:25:57 bylaska Exp $                       
+c     $Id: bfgsminimize2.F,v 1.2 2004-03-09 21:40:01 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -47,6 +47,8 @@ c
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+      real*8 ehsic,exsic,phsic,pxsic
+
 
 
 
@@ -113,8 +115,8 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition
-      external control_precondition
+      logical  control_precondition,pspw_SIC
+      external control_precondition,pspw_SIC
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -298,6 +300,18 @@ c     call dng_2to1()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if
+
+
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+         call electron_SIC_energies(ehsic,phsic,exsic,pxsic)
+         E(22) = ehsic
+         E(23) = exsic
+         E(24) = phsic
+         E(25) = pxsic
+      end if
+
 
       return
       end
