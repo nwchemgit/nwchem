@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.15 2000-05-09 00:05:30 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.16 2000-05-11 23:28:05 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -34,7 +34,10 @@ c
      $     l_x1, l_x2, l_x3
       integer k_z1, k_z2, k_z3, k_z4, k_z5, k_z6, k_z7, k_z8, 
      $     k_x1, k_x2, k_x3
-      integer iter
+      integer l_x, l_df, l_delta, k_x, k_df, k_delta, nvar
+      integer iter, i
+      logical converged
+      double precision xxx
 c
       double precision energyaaa, energybbb, energyaab, energybba
       double precision uccsdtest_triples_pure, uccsdtest_triples_mixed
@@ -108,6 +111,31 @@ c
      $     g_tmp)) call errquit('movecs_read of amos failed ',0)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_bmos), nbf)
 c
+c     Change the phase and order of some of the beta MOs so that they
+c     are different from alpha even for closed shell
+c
+      do i = 1, nmo, 2          ! Change phase of even MOs
+         call dscal(nbf, -1d0, dbl_mb(k_bmos+(i-1)*nbf), 1)
+      end do
+      do i = 2, nbeta, 2        ! Swap alternate beta occupied orbitals
+         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
+         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
+     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
+         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
+         xxx = dbl_mb(k_beval+i-1)
+         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
+         dbl_mb(k_beval+i-2) = xxx
+      end do
+      do i = nbeta+2, nmo, 2        ! Swap alternate beta virtual orbitals
+         call dcopy(nbf, dbl_mb(k_bmos+(i-1)*nbf), 1, dbl_mb(k_occ), 1) 
+         call dcopy(nbf, dbl_mb(k_bmos+(i-2)*nbf), 1, 
+     $        dbl_mb(k_bmos+(i-1)*nbf), 1)
+         call dcopy(nbf, dbl_mb(k_occ), 1, dbl_mb(k_bmos+(i-2)*nbf), 1)
+         xxx = dbl_mb(k_beval+i-1)
+         dbl_mb(k_beval+i-1) = dbl_mb(k_beval+i-2)
+         dbl_mb(k_beval+i-2) = xxx
+      end do
+c
       write(6,*) ' Alpha eigenvalues '
       call output(dbl_mb(k_aeval),1,nmo,1,1,nmo,1,1)
       write(6,*) ' Beta  eigenvalues '
@@ -174,11 +202,11 @@ c
      $     dbl_mb(k_t1a), dbl_mb(k_t1b),
      $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
 c
-      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
-      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
-      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
-      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
-      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
+c$$$      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
+c$$$      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
+c$$$      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
+c$$$      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
+c$$$      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
 c
       if (.not. ma_push_get(mt_dbl, nmo**2, 'fa', l_fa, k_fa))
      $     call errquit('ma fa', nmo**2)
@@ -249,15 +277,26 @@ c
       if (.not. ma_push_get(mt_dbl, noa*nob*noa*nob, 'x3', l_x3, k_x3))
      $     call errquit(' ma x3 ', 0)
 c
+c     Space for the new solver
+c
+      nvar = noa*noa*nva*nva + nob*nob*nvb*nvb + noa*nob*nva*nvb + 
+     $     noa*nva + nob*nvb
+      if (.not. ma_push_get(mt_dbl, nvar*30, 'x', l_x, k_x))
+     $     call errquit(' ma x ', 0)
+      if (.not. ma_push_get(mt_dbl, nvar*30, 'x', l_df, k_df))
+     $     call errquit(' ma x ', 0)
+      if (.not. ma_push_get(mt_dbl, nvar, 'x', l_delta, k_delta))
+     $     call errquit(' ma x ', 0)
+c
 c     Iterate
 c
-      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
-      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
-      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
-      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
-      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
+c$$$      call dfill((noa*nva)**2,0.0d0,dbl_mb(k_t2aa),1)
+c$$$      call dfill((nob*nvb)**2,0.0d0,dbl_mb(k_t2bb),1)
+c$$$      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
+c$$$      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
+c$$$      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
 c
-      do iter = 1, 3
+      do iter = 1, 30           ! NOTE DIMENSIONS OF X/DF
 c
 c     Transform the MO coefficients with the particle and hole matrices
 c
@@ -325,42 +364,42 @@ c
 c
 c     Alpha pure spin
 c
-         call uccsdtest_product_pure(
-     $        nmo,
-     $        noa, nob, nva, nvb, 
-     $        dbl_mb(k_fa), dbl_mb(k_fb),
-     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
-     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
-     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
-     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
-     $        dbl_mb(k_r2aa))
-c
-c     Beta pure spin ... use the transposed mixed spin amplitudes
-c     and integrals and then call the pure spin routine with spins flipped
-
-         call uccsdtest_transpose_tab(noa, nob, nva, nvb, 
-     $        dbl_mb(k_t2ab), dbl_mb(k_t2ba))
-         call uccsdtest_product_pure(
-     $        nmo,
-     $        nob, noa, nvb, nva, 
-     $        dbl_mb(k_fb), dbl_mb(k_fa),
-     $        dbl_mb(k_ibb), dbl_mb(k_iaa), dbl_mb(k_iba),
-     $        dbl_mb(k_t1b), dbl_mb(k_t1a),
-     $        dbl_mb(k_t2bb),dbl_mb(k_t2aa),dbl_mb(k_t2ba),
-     $        dbl_mb(k_r1b), dbl_mb(k_r1a),
-     $        dbl_mb(k_r2bb))
-c
-c     Mixed
-c
-         call uccsdtest_product_mixed(
-     $        nmo,
-     $        noa, nob, nva, nvb, 
-     $        dbl_mb(k_fa), dbl_mb(k_fb),
-     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
-     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
-     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
-     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
-     $        dbl_mb(k_r2ab))
+c$$$         call uccsdtest_product_pure(
+c$$$     $        nmo,
+c$$$     $        noa, nob, nva, nvb, 
+c$$$     $        dbl_mb(k_fa), dbl_mb(k_fb),
+c$$$     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+c$$$     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+c$$$     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+c$$$     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+c$$$     $        dbl_mb(k_r2aa))
+c$$$c
+c$$$c     Beta pure spin ... use the transposed mixed spin amplitudes
+c$$$c     and integrals and then call the pure spin routine with spins flipped
+c$$$
+c$$$         call uccsdtest_transpose_tab(noa, nob, nva, nvb, 
+c$$$     $        dbl_mb(k_t2ab), dbl_mb(k_t2ba))
+c$$$         call uccsdtest_product_pure(
+c$$$     $        nmo,
+c$$$     $        nob, noa, nvb, nva, 
+c$$$     $        dbl_mb(k_fb), dbl_mb(k_fa),
+c$$$     $        dbl_mb(k_ibb), dbl_mb(k_iaa), dbl_mb(k_iba),
+c$$$     $        dbl_mb(k_t1b), dbl_mb(k_t1a),
+c$$$     $        dbl_mb(k_t2bb),dbl_mb(k_t2aa),dbl_mb(k_t2ba),
+c$$$     $        dbl_mb(k_r1b), dbl_mb(k_r1a),
+c$$$     $        dbl_mb(k_r2bb))
+c$$$c
+c$$$c     Mixed
+c$$$c
+c$$$         call uccsdtest_product_mixed(
+c$$$     $        nmo,
+c$$$     $        noa, nob, nva, nvb, 
+c$$$     $        dbl_mb(k_fa), dbl_mb(k_fb),
+c$$$     $        dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+c$$$     $        dbl_mb(k_t1a), dbl_mb(k_t1b),
+c$$$     $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
+c$$$     $        dbl_mb(k_r1a), dbl_mb(k_r1b),
+c$$$     $        dbl_mb(k_r2ab))
 c
 c$$$         call jan_debug_print('Ta', dbl_mb(k_t1a), nva, noa, 1, 1)
 c$$$         call jan_debug_print('Tb', dbl_mb(k_t1b), nvb, nob, 1, 1)
@@ -419,13 +458,26 @@ c
      $        dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab),
      $        dbl_mb(k_r1a), dbl_mb(k_r1b),
      $        dbl_mb(k_r2aa),dbl_mb(k_r2bb),dbl_mb(k_r2ab),
-     $        dbl_mb(k_aeval), dbl_mb(k_beval))
+     $        dbl_mb(k_aeval), dbl_mb(k_beval), converged,
+     $        dbl_mb(k_x), dbl_mb(k_df), dbl_mb(k_delta),
+     $        nvar, iter)
 c
+c$$$         call jan_debug_print('T1a',dbl_mb(k_t1a),  nva, noa, 1, 1)
+c$$$         call jan_debug_print('T1b',dbl_mb(k_t1b),  nvb, nob, 1, 1)
 c$$$         call jan_debug_print('Taa',dbl_mb(k_t2aa), nva, nva, noa, noa)
 c$$$         call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
 c$$$         call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
 c
+         if (converged) goto 7764
       end do
+ 7764 continue
+c     
+      write(6,*) ' CONVERGED amplitudes'
+      call jan_debug_print('T1a',dbl_mb(k_t1a),  nva, noa, 1, 1)
+      call jan_debug_print('T1b',dbl_mb(k_t1b),  nvb, nob, 1, 1)
+      call jan_debug_print('Taa',dbl_mb(k_t2aa), nva, nva, noa, noa)
+      call jan_debug_print('Tbb',dbl_mb(k_t2bb), nvb, nvb, nob, nob)
+      call jan_debug_print('Tab',dbl_mb(k_t2ab), nva, nvb, noa, nob)
 c
 c     Triples
 c
@@ -460,13 +512,13 @@ c
 c
 c  test amplitudes
 c
-      call uccsdtest_mp2(
-     $     nmo,
-     $     noa, nob, nva, nvb, 
-     $     dbl_mb(k_aeval), dbl_mb(k_beval),
-     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
-     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
-     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c$$$      call uccsdtest_mp2(
+c$$$     $     nmo,
+c$$$     $     noa, nob, nva, nvb, 
+c$$$     $     dbl_mb(k_aeval), dbl_mb(k_beval),
+c$$$     $     dbl_mb(k_iaa), dbl_mb(k_ibb), dbl_mb(k_iab),
+c$$$     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+c$$$     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
 c
       energyaaa = uccsdtest_triples_pure(
      $     nmo,
@@ -499,15 +551,16 @@ c
      $     dbl_mb(k_t2bb),dbl_mb(k_t2aa),dbl_mb(k_t2ba),
      $     dbl_mb(k_beval), dbl_mb(k_aeval))
 c
+      write(6,*) ' ORIGINAL TEST CODE (T) '
       write(6,*) energyaaa, energybbb
       write(6,*) energyaab, energybba
       write(6,*) energyaaa+energybbb+energyaab+energybba
 c
       call uccsdt_initialize(nmo, noa, nob, nva, nvb, 
-     $     dbl_mb(k_beval), dbl_mb(k_aeval),
-     $     k_ibb, k_iaa, k_iba,
-     $     k_t1b, k_t1a,
-     $     k_t2bb,k_t2aa,k_t2ab)
+     $     dbl_mb(k_aeval), dbl_mb(k_beval),
+     $     k_iaa, k_ibb, k_iab,
+     $     k_t1a, k_t1b,
+     $     k_t2aa,k_t2bb,k_t2ab)
 c
       energyaaa = uccsdtest_triples_pure_blocked(
      $     dbl_mb(k_iaa), 
@@ -1084,7 +1137,8 @@ c
      $     t1a, t1b,
      $     t2aa,t2bb,t2ab,
      $     r1a, r1b,
-     $     r2aa,r2bb,r2ab, ea, eb)
+     $     r2aa,r2bb,r2ab, ea, eb, converged,
+     $     x, df, delta, nvar, iter)
       implicit none
       integer nmo, noa, nob, nva, nvb
       double precision fa(nmo,nmo), fb(nmo,nmo)
@@ -1102,13 +1156,16 @@ c
       double precision r2bb(nvb, nvb, nob, nob)
       double precision r2ab(nva, nvb, noa, nob)
       double precision ea(nmo), eb(nmo)
+      integer nvar, iter           ! #variables, iteration number
+      double precision x(nvar,*), df(nvar,*), delta(nvar)
+      logical converged
 c
 c     t1 = t1 + R(e,m)/(em-ee)
 c     t2 = t2 + R(e,f,m,n)/(em+en-ee-ef)
 c     
-      integer m, n, e, f
+      integer m, n, e, f, ind
       double precision eaa, ebb, eab, energy
-      double precision delta, r1norm, r2norm 
+      double precision delt, r1norm, r2norm 
 c
       r1norm = 0.0d0
       r2norm = 0.0d0
@@ -1118,18 +1175,85 @@ c
 c
 c     Singles
 c
+      ind = 1
       do m = 1, noa
          do e = 1, nva
-            delta = r1a(e,m) / (ea(m) - ea(e+noa))
-            r1norm = r1norm + delta**2
-            t1a(e,m) = t1a(e,m) + delta
+            x(ind,iter) = t1a(e,m)
+            df(ind,iter) = -r1a(e,m) / (ea(m) - ea(e+noa))
+            ind = ind + 1
          end do
       end do
       do m = 1, nob
          do e = 1, nvb
-            delta = r1b(e,m) / (eb(m) - eb(e+nob))
-            r1norm = r1norm + delta**2
-            t1b(e,m) = t1b(e,m) + delta
+            x(ind,iter) = t1b(e,m)
+            df(ind,iter) = -r1b(e,m) / (eb(m) - eb(e+nob))
+            ind = ind + 1
+         end do
+      end do
+c
+c     Pure alpha
+c
+      do n = 1, noa
+         do m = 1, noa
+            do f = 1, nva
+               do e = 1, nva
+                  x(ind,iter) = t2aa(e,f,m,n)
+                  df(ind,iter) = -r2aa(e,f,m,n) / 
+     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
+                  ind = ind + 1
+               end do
+            end do
+         end do
+      end do
+c
+c     Pure beta
+c
+      do n = 1, nob
+         do m = 1, nob
+            do f = 1, nvb
+               do e = 1, nvb
+                  x(ind,iter) = t2bb(e,f,m,n)
+                  df(ind,iter) = -r2bb(e,f,m,n) / 
+     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
+                  ind = ind + 1
+               end do
+            end do
+         end do
+      end do
+c
+c     Mixed
+c
+      do n = 1, nob
+         do m = 1, noa
+            do f = 1, nvb
+               do e = 1, nva
+                  x(ind,iter) = t2ab(e,f,m,n)
+                  df(ind,iter) = -r2ab(e,f,m,n) /
+     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+                  ind = ind + 1
+               end do
+            end do
+         end do
+      end do
+      if (ind .ne. nvar+1) call errquit('nvar ????? ', ind)
+c
+      call uccsdt_solver(nvar,iter,x,df,delta)
+c
+      ind = 1
+      do m = 1, noa
+         do e = 1, nva
+            delt = delta(ind)
+            ind = ind + 1
+            r1norm = r1norm + delt**2
+            t1a(e,m) = t1a(e,m) + delt
+         end do
+      end do
+      do m = 1, nob
+         do e = 1, nvb
+            delt = delta(ind)
+            ind = ind + 1
+            r1norm = r1norm + delt**2
+            t1b(e,m) = t1b(e,m) + delt
          end do
       end do
 c
@@ -1140,10 +1264,10 @@ c
          do m = 1, noa
             do f = 1, nva
                do e = 1, nva
-                  delta = r2aa(e,f,m,n) / 
-     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
-                  r2norm = r2norm + delta*delta
-                  t2aa(e,f,m,n) = t2aa(e,f,m,n) + delta
+                  delt = delta(ind)
+                  ind = ind + 1
+                  r2norm = r2norm + delt*delt
+                  t2aa(e,f,m,n) = t2aa(e,f,m,n) + delt
                   eaa = eaa + (
      $                 t2aa(e,f,m,n) + 
      $                 t1a(e,m)*t1a(f,n) - t1a(e,n)*t1a(f,m))*
@@ -1160,10 +1284,10 @@ c
          do m = 1, nob
             do f = 1, nvb
                do e = 1, nvb
-                  delta = r2bb(e,f,m,n) /
-     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
-                  r2norm = r2norm + delta*delta
-                  t2bb(e,f,m,n) = t2bb(e,f,m,n) + delta
+                  delt = delta(ind)
+                  ind = ind + 1
+                  r2norm = r2norm + delt*delt
+                  t2bb(e,f,m,n) = t2bb(e,f,m,n) + delt
                   ebb = ebb + (
      $                 t2bb(e,f,m,n) + 
      $                 t1b(e,m)*t1b(f,n) - t1b(e,n)*t1b(f,m))*
@@ -1180,12 +1304,12 @@ c
          do m = 1, noa
             do f = 1, nvb
                do e = 1, nva
-                  delta = r2ab(e,f,m,n) /
-     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+                  delt = delta(ind)
+                  ind = ind + 1
 *                  write(6,*) ' denom ', 
 *     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
-                  r2norm = r2norm + delta*delta
-                  t2ab(e,f,m,n) = t2ab(e,f,m,n) + delta
+                  r2norm = r2norm + delt*delt
+                  t2ab(e,f,m,n) = t2ab(e,f,m,n) + delt
                   eab = eab + (
      $                 t2ab(e,f,m,n) + 
      $                 t1a(e,m)*t1b(f,n))*
@@ -1194,11 +1318,93 @@ c
             end do
          end do
       end do
+      if (ind .ne. nvar+1) call errquit('nvar 2????? ', ind)
+c
+c$$$      do m = 1, noa
+c$$$         do e = 1, nva
+c$$$            delt = r1a(e,m) / (ea(m) - ea(e+noa))
+c$$$            r1norm = r1norm + delt**2
+c$$$            t1a(e,m) = t1a(e,m) + delt
+c$$$         end do
+c$$$      end do
+c$$$      do m = 1, nob
+c$$$         do e = 1, nvb
+c$$$            delt = r1b(e,m) / (eb(m) - eb(e+nob))
+c$$$            r1norm = r1norm + delt**2
+c$$$            t1b(e,m) = t1b(e,m) + delt
+c$$$         end do
+c$$$      end do
+c$$$c
+c$$$c     Pure alpha
+c$$$c
+c$$$      eaa = 0.0d0
+c$$$      do n = 1, noa
+c$$$         do m = 1, noa
+c$$$            do f = 1, nva
+c$$$               do e = 1, nva
+c$$$                  delt = r2aa(e,f,m,n) / 
+c$$$     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
+c$$$                  r2norm = r2norm + delt*delt
+c$$$                  t2aa(e,f,m,n) = t2aa(e,f,m,n) + delt
+c$$$                  eaa = eaa + (
+c$$$     $                 t2aa(e,f,m,n) + 
+c$$$     $                 t1a(e,m)*t1a(f,n) - t1a(e,n)*t1a(f,m))*
+c$$$     $                 iaa(m,n,noa+e,noa+f)
+c$$$               end do
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$c
+c$$$c     Pure beta
+c$$$c
+c$$$      ebb = 0.0d0
+c$$$      do n = 1, nob
+c$$$         do m = 1, nob
+c$$$            do f = 1, nvb
+c$$$               do e = 1, nvb
+c$$$                  delt = r2bb(e,f,m,n) /
+c$$$     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
+c$$$                  r2norm = r2norm + delt*delt
+c$$$                  t2bb(e,f,m,n) = t2bb(e,f,m,n) + delt
+c$$$                  ebb = ebb + (
+c$$$     $                 t2bb(e,f,m,n) + 
+c$$$     $                 t1b(e,m)*t1b(f,n) - t1b(e,n)*t1b(f,m))*
+c$$$     $                 ibb(m,n,nob+e,nob+f)
+c$$$               end do
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$c
+c$$$c     Mixed
+c$$$c
+c$$$      eab = 0.0d0
+c$$$      do n = 1, nob
+c$$$         do m = 1, noa
+c$$$            do f = 1, nvb
+c$$$               do e = 1, nva
+c$$$                  delt = r2ab(e,f,m,n) /
+c$$$     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+c$$$*                  write(6,*) ' denom ', 
+c$$$*     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+c$$$                  r2norm = r2norm + delt*delt
+c$$$                  t2ab(e,f,m,n) = t2ab(e,f,m,n) + delt
+c$$$                  eab = eab + (
+c$$$     $                 t2ab(e,f,m,n) + 
+c$$$     $                 t1a(e,m)*t1b(f,n))*
+c$$$     $                 iab(m,n,noa+e,nob+f)
+c$$$               end do
+c$$$            end do
+c$$$         end do
+c$$$      end do
 c
       energy = eaa/4.0d0 + ebb/4.0d0 + eab
+c     
+      r1norm = sqrt(r1norm)
+      r2norm = sqrt(r2norm)
+      write(6,1) iter, energy, r1norm, r2norm
+ 1    format(i4,' Energy = ', f20.8,'  update norms = ',1p,2d9.2)
 c
-      write(6,1) energy, sqrt(r2norm), sqrt(r1norm)
- 1    format('  Energy = ', f20.8,'  residual norm = ',1p,2d9.2)
+      converged = max(r1norm,r2norm) .lt. 1e-8
 c
       end
       subroutine uccsdtest_fock(nmo, noa, nob, ha, iaa, iab, fa)
@@ -1773,7 +1979,9 @@ c
                   do a = 1, nvb ! C2
                      do i = 1, nob
                         r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(e,a,m,i)*
-     $                       (ibb(i,f+nob,a+nob,n) + z4(i,a,n,f))
+     $                       (ibb(i,f+nob,a+nob,n) + z4(i,a,n,f)
+     $                       +z5(i,a,n,f))
+c    $                       (ibb(i,f+nob,a+nob,n) + z4(i,a,n,f))
                      end do
                   end do
 c
@@ -1787,7 +1995,8 @@ c
                   do a = 1, nva ! C4
                      do i = 1, noa
                         r2ab(e,f,m,n) = r2ab(e,f,m,n) + t2ab(a,f,i,n)*
-     $                       (iaa(i,e+noa,a+noa,m) + z2(i,a,m,e))
+     $                       iaa(i,e+noa,a+noa,m)
+c    $                       (iaa(i,e+noa,a+noa,m) + z2(i,a,m,e))
                      end do
                   end do
 c
@@ -2646,9 +2855,6 @@ c
       integer i, j, k, m, a, b, c, e
       double precision w, v, d, energy
 c
-      call output(evalsa,1,nmo,1,1,nmo,1,1)
-      call output(evalsb,1,nmo,1,1,nmo,1,1)
-c
       energy = 0.0d0
       do a = 1, nva
          do b = 1, a-1
@@ -2692,7 +2898,7 @@ c
      $                       - t1a(a,j)*iab(i,k,b+noa,c+nob)
      $                       + t1a(b,j)*iab(i,k,a+noa,c+nob)
 c
-                        d = evalsa(a+noa)+evalsa(b+noa)+evalsb(c+noa)
+                        d = evalsa(a+noa)+evalsa(b+noa)+evalsb(c+nob)
      $                       -evalsa(i)-evalsa(j)-evalsb(k)
 c
                         energy = energy - v*w/d
@@ -5575,3 +5781,58 @@ c
 c
       return
       end
+      subroutine uccsdt_solver(n,m,x,df,delta)
+      implicit none
+      integer n, m
+      double precision x(n,m), df(n,m), delta(n)
+c
+      integer maxm
+      parameter (maxm=100)
+      double precision a(maxm,maxm), b(maxm), c(maxm)
+      integer ipiv(maxm)
+      integer i, k, info
+      double precision ddot
+      external ddot
+c
+      if (m .lt. 1) call errquit('m???', m)
+      if (m .gt. maxm) call errquit('maxm', m)
+c
+      call dcopy(n, df(1,m), 1, delta, 1)
+      call dscal(n, -1d0, delta, 1)
+c
+      if (m .eq. 1) return      ! use the jacobi update
+c
+      do i = 1, m-1
+         do k = 1, m-1
+            a(i,k) = 
+     $           + ddot(n,x(1,i),1,df(1,k),1)
+     $           - ddot(n,x(1,m),1,df(1,k),1)
+     $           - ddot(n,x(1,i),1,df(1,m),1)
+     $           + ddot(n,x(1,m),1,df(1,m),1)
+         end do
+         b(i) = 
+     $        - ddot(n,x(1,i),1,df(1,m),1)
+     $        + ddot(n,x(1,m),1,df(1,m),1)
+      end do
+c
+c$$$      write(6,*) ' REDUCED A'
+c$$$      call doutput(a, 1, m-1, 1, m-1, maxm, maxm, 1)
+c$$$      write(6,*) ' REDUCED B'
+c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
+c
+      call dgesv(m-1, 1, a, maxm, ipiv, b, maxm, info)
+      if (info .ne. 0) call errquit(' info ???  ', 0)
+      call dcopy(m-1, b, 1, c, 1)
+c$$$      write(6,*) ' REDUCED C'
+c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
+c
+      do k = 1, m-1
+         call daxpy(n, c(k), x(1,k), 1, delta, 1)
+         call daxpy(n,-c(k), x(1,m), 1, delta, 1)
+         call daxpy(n,-c(k),df(1,k), 1, delta, 1)
+         call daxpy(n, c(k),df(1,m), 1, delta, 1)
+      end do
+c
+      end
+
+
