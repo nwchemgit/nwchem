@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.23 2001-05-09 17:51:06 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -120,7 +120,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.23 2001-05-09 17:51:06 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -188,7 +188,7 @@ c
 c     
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task_saddle: failed rtdb_cget task:theory',0)
-      else if (theory.eq.'qmmm') then
+      if (theory.eq.'qmmm') then
          if (ga_nodeid().eq.0) then
             write(6,*)'task_saddle: qmmm should never be the theory '
             write(6,*)'task_saddle: you probably reversed the order ',
@@ -245,7 +245,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.23 2001-05-09 17:51:06 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.24 2001-05-09 17:55:35 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
