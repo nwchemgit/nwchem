@@ -1,5 +1,5 @@
 #ifdef CRAY
-void UTIL_SLEEP(void *)
+void UTIL_SLEEP(long *t)
 {}
 #else
 #include <unistd.h>
