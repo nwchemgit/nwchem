@@ -1,5 +1,5 @@
 *
-* $Id: blas_lapack.data,v 1.12 2000-10-23 23:11:21 d3g270 Exp $
+* $Id: blas_lapack.data,v 1.13 2001-10-31 21:10:41 windus Exp $
 *
 #if defined(DECOSF) || defined(LINUX64)
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
@@ -119,6 +119,16 @@
 #endif
 
 #ifdef FUJITSU_VPP
+      double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
+      real SLAMCHE, SLAMCHP, SLAMCHS, SLAMCHU, SLAMCHB
+      data DLAMCHE/1.1102230246251565D-16/
+      data DLAMCHP/1.1102230246251565D-16/
+      data DLAMCHB/2.D0/
+      data DLAMCHS/2.2250738585072014D-308/
+      data DLAMCHU/2.22507385850720138D-308/
+#endif
+
+#ifdef FUJITSU_SOLARIS
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
       real SLAMCHE, SLAMCHP, SLAMCHS, SLAMCHU, SLAMCHB
       data DLAMCHE/1.1102230246251565D-16/

@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.39 2001-04-04 00:00:57 edo Exp $
+$Id: INSTALL,v 1.40 2001-10-31 21:10:13 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -24,7 +24,7 @@ installation before beginning.  The sections for this guide are
    GA Related Issues           -  only for people that want to try out the
                                   latest version of GA or are having problems
                                   with GA on their platform
-   Running on Fujitsu VPP      -  some notes on the Fujitsu system
+   Running on Fujitsu machines -  some notes on the Fujitsu system
    Building and Running NWChem -  system information for clusters
      on Myrinet clusters          using Myrinet interconnect
    Building and Running NWChem -  system information for clusters
@@ -536,14 +536,15 @@ To compile the latest version of GA for NWChem, following these steps:
       the Basic Build Instructions.  If they are not set, start with step 2.
 
 
-RUNNING ON FUJITSU VPP 300/500/700/5000:
-----------------------------------------
+RUNNING ON FUJITSU VPP 300/500/700/5000 and PrimePower/GP6000F:
+---------------------------------------------------------------
 For compilation on the Fujitsu VPP vector computers, native versions of
 the Global Arrays and related libraries have to be installed. These can
 be downloaded from ftp section of the Fujitsu European Centre for
 Information Technology website at
 http://www.fecit.co.uk/common/index.html. NWCHEM_TARGET should be set to
-FUJITSU_VPP, and the environment variable GA_LIBDIR should point to the
+FUJITSU_VPP for the vector machines and FUJITSU_SOLARIS for the PrimePower
+machines, and the environment variable GA_LIBDIR should point to the
 directory where the GA libraries are installed. Enquiries about
 installation issues may be directed to Ross Nobes (nobes@fecit.co.uk) or
 Herbert Fruchtl (fruechtl@fecit.co.uk).

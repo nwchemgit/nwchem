@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.372 2001-09-23 02:51:27 d3e129 Exp $
+# $Id: makefile.h,v 1.373 2001-10-31 21:10:27 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1393,6 +1393,67 @@ ifeq ($(TARGET),FUJITSU_VPP)
                     -L$(GA_LIBDIR) -lglobal -lpario -lma \
                     -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
        EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
+#end of FUJITSU_VPP 
+endif
+
+ifeq ($(TARGET),FUJITSU_SOLARIS)
+#
+# Fujitsu PrimePower / GP7000F (64-bit version)
+#
+# HAF Aug. 2001
+#
+# requires binary Global Array libraries in $GA_LIBDIR
+# download from www.fecit.co.uk or ftp.fecit.co.uk
+# (libraries and "parallel" executable)
+#
+      SHELL := $(NICE) /bin/sh
+        CPP = /lib/cpp
+     RANLIB = echo
+  MAKEFLAGS = -j2 --no-print-directory
+    INSTALL = echo $@ is built
+    CORE_SUBDIRS_EXTRA = blas lapack
+#
+#
+         CC = fcc
+         FC = frt
+ 
+   COPTIONS = -Kdalign -KV9FMADD
+  COPTIMIZE = -Kfast -KV9FMADD
+   FOPTIONS = -Kdalign -w -fw -KV9FMADD  -CcdII8 -CcdLL8 -X9
+  FOPTIMIZE = -Kfast -KV9FMADD  -CcdII8 -CcdLL8
+    BLASOPT = yes
+     FDEBUG =
+ 
+    DEFINES = -DNOAIO  -DPARALLEL_DIAG -DEXTNAME -DFUJITSU_SOLARIS -DEXT_INT
+  LDOPTIONS =
+  LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
+ 
+     CORE_LIBS = -lutil \
+                 -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma -ltcgmsg
+ 
+     CORE_LIBS += -lsocket -lrpcsvc -lnsl
+ 
+ #search include files for tools directories that are not built
+   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
+                   -I$(NWCHEM_TOP)/src/tools/ma \
+                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
+                   -I$(NWCHEM_TOP)/src/tools/global/src \
+                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
+                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/dra
+ 
+ NW_CORE_SUBDIRS = include basis geom inp input  \
+       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
+ 
+ifdef BLASOPT
+  CORE_LIBS +=  -llapack -lblas
+else
+# only available for 64-bit version
+  LDOPTIONS = -SSL2
+endif
+ 
+#end of Fujitsu Solaris
 endif
 
 #-do not use# ifeq ($(TARGET),PGLINUX)

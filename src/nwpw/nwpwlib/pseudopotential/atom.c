@@ -1,9 +1,10 @@
 /* atom.c -
    author - Eric Bylaska
-
+   $Id: atom.c,v 1.2 2001-10-31 21:10:35 windus Exp $
 */
 
 #include	<stdio.h>
+#include        <stdlib.h>
 #include	<string.h>
 #include	<math.h>
 

@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.19 2001-08-22 22:50:15 edo Exp $
+c $Id: util_cpusec.F,v 1.20 2001-10-31 21:10:43 windus Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -97,6 +97,14 @@ c
 c
       util_cpusec = secondr() - first ! Actually wall time
 #endif
+
+#if defined(FUJITSU_SOLARIS)
+#define __UTIL_CPUSEC__
+      intrinsic cpu_time
+c
+      call cpu_time (util_cpusec)
+#endif
+
 *
 #if !defined(__UTIL_CPUSEC__)
       util_cpusec = 0.0d00

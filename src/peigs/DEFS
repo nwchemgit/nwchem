@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.89 2001-08-23 21:54:53 edo Exp $
+# $Id: DEFS,v 1.90 2001-10-31 21:10:38 windus Exp $
 #
 #======================================================================
 #
@@ -550,6 +550,16 @@ endif
 
 ifeq ($(peigs_TARGET),FUJITSU_VPP)
 peigs_CPU = VPP
+endif
+
+ifeq ($(peigs_TARGET),FUJITSU_SOLARIS)
+peigs_CPU = SPARC_GP
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -O -D$(peigs_CPU)
+peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -D$(peigs_TARGET) -O4  -D$(peigs_COMM)
+peigs_CPP +=  -DSTD_DBL -P
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 endif
 
 export peigs_COMM

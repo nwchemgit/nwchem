@@ -1,3 +1,6 @@
+#
+# $Id: DEFS.nwchem,v 1.2 2001-10-31 21:10:38 windus Exp $
+#
 #======================================================================
 #
 # DISCLAIMER
@@ -447,6 +450,11 @@ endif
 
 ifeq ($(peigs_TARGET),FUJITSU_VPP)
 peigs_CPU = VPP
+endif
+
+ifeq ($(peigs_TARGET),FUJITSU_SOLARIS)
+peigs_CPU = SPARC_GP
+peigs_CODEOBJ = DBLE
 endif
 
 export peigs_COMM
