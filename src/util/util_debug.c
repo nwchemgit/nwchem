@@ -20,6 +20,7 @@ void FATR util_debug_(Integer *rtdb)
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "macdecls.h"
 #include "global.h"
 #include "rtdb.h"
@@ -74,7 +75,7 @@ void FATR util_debug_(Integer *rtdb)
   argv[10] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
-#elif defined(LINUX)
+#elif defined(LINUX) || defined(MACX)
   argv[6] = "gdb";
   argv[7] = path;
   argv[8] = pid;
