@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 1997-02-17 20:51:25 d3g681 Exp $
+# $Id: GNUmakefile,v 1.31 1997-03-26 00:49:48 d3e129 Exp $
  
 USE_TEXAS = YEP
 
@@ -36,9 +36,7 @@ else
       OBJ_OPTIMIZE = 
 endif
 
-      USES_BLAS = amshift.f \
-                  big_service.f \
-                  trobsa.f 
+      USES_BLAS = big_service.f
 
        LIBRARY = libnwints.a
 

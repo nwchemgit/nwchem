@@ -40,8 +40,8 @@ LIB_DEFINES = -D${IO_STYLE} -DIBM ${GENDEFS} -DTCGMSG -DFFTPACK
 
 #CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
 
+###################################		dcopy.o \
 OBJ_OPTIMIZE=	blktrn.o \
-		dcopy.o \
 		drain.o \
 		fillup.o \
 		mapfil.o \
@@ -66,6 +66,7 @@ OBJ_OPTIMIZE=	blktrn.o \
 		pfft1i.o \
 		pfft1.o
 
+USES_BLAS = drain.F fillup.F
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(NWCHEM_TOP)/src/config/makelib.h
 

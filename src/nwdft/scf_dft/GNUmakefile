@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.33 1997-03-20 21:35:05 d3h449 Exp $
+# $Id: GNUmakefile,v 1.34 1997-03-26 00:50:02 d3e129 Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -36,7 +36,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = diis_bld12.F diis_bsolve.F dft_mxovl.F dft_mxspin_ovlp.F dft_init_guess.F
+   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

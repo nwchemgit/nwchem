@@ -1,3 +1,4 @@
+
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
@@ -40,22 +41,10 @@
 
     LIBRARY = libccsd.a
 
-  USES_BLAS = \
-	      ccsd_itm.F \
-	      ccsd_t2pm.F \
-	      ccsd_fsig1.F \
-	      ccsd_fsig2.F \
-	      ccsd_iterdrv2.F \
-	      ccsd_pampt2.F \
-	      ccsd_pampt3.F \
-	      ccsd_pdiis.F \
-	      ccsd_sortmo.F \
-	      ccsd_trpdrv.F \
-	      moints_trp.F \
-	      ccden_interm2.F \
-	      ccden_1pdm.F \
-	      geaxpy.f
-
+  USES_BLAS = ccden_1pdm.F  ccden_interm2.F ccsd_fsig1.F ccsd_fsig2.F ccsd_itm.F \
+              ccsd_pampt2.F ccsd_pampt3.F   ccsd_pdiis.F ccsd_t2pm.F  ccsd_trpdrv.F \
+              ccsd_tzinta.F ccsd_tzintb.F   ccsd_zsig1.F ccsd_zsig2.F ccsd_zvecs.F \
+              geaxpy.f moints_trp.F
 
 
 LIB_DEFINES = 

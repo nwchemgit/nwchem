@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.51 1997-03-25 19:48:07 d3h449 Exp $
+#$Id: GNUmakefile,v 1.52 1997-03-26 00:50:04 d3e129 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -85,7 +85,7 @@ endif
 LIB_INCLUDES = -I../include
 
 
-USES_BLAS = dft_eval_fns.F dft_eval_grd.F dft_eval_hss.F dft_mpole.F dft_second.F ga_chol_seq.F ga_inv_seq.F new_eval_gb.F
+USES_BLAS = dft_second.F ga_chol_seq.F ga_inv_seq.F new_eval_gb.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
