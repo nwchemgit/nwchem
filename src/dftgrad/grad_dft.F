@@ -33,7 +33,7 @@ c     Push context down to DFTGRAD
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push()
-      call util_print_rtdb_load(rtdb,'dft_grad')
+      call util_print_rtdb_load(rtdb,'dftgrad')
       call ecce_print_module_entry ('dft')
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
