@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.31 2001-06-28 03:19:10 zzhang Exp $
+* $Id: cphf_solve.F,v 1.32 2001-07-03 22:03:20 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -51,7 +51,7 @@ c
       logical hf_job
       integer nroot, leval, ieval, iroot
       logical cphf_tddft, cphf_triplet
-      cphf_tddft = .true. 
+      cphf_tddft = .false. 
       cphf_triplet = .false. ! true for triplet, false for singlet
 c
       hf_job = .not. bgj_have_xc()      
