@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.183 2003-12-09 15:52:41 d3j191 Exp $
+c $Id: md_main.F,v 1.184 2003-12-10 15:38:57 d3j191 Exp $
 c
       implicit none
 c
@@ -380,9 +380,11 @@ c
       integer i,j,k,numg
       logical ldone
       real*8 edif,epsd,epsdw,epsdsw,epsds
-      real*8 dk,dx,dxf,dxmax,factor,dxstep,eqrs
+      real*8 da,damsd,dk,dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
+      real*8 angle,o(3),p(3),x(3),y(3)
 c
+      damsd=0.1d0
       numg=0
       if(imembr.gt.0) then
       do 11 i=1,msm
@@ -451,6 +453,7 @@ c
       eqrs=epot
       dx=dx0sd
       mdstep=0
+      da=0.01
 c
     1 continue
       call timer_start(201)
@@ -516,17 +519,44 @@ c
       factor=one/ws(i)
       fm(mm(i,2),1)=fm(mm(i,2),1)+factor*fs(i,1)
       fm(mm(i,2),2)=fm(mm(i,2),2)+factor*fs(i,2)
+      fm(mm(i,2),3)=fm(mm(i,2),3)+factor*
+     + ((xs(i,1)-xsm(mm(i,2),1))*fs(i,2)-
+     +  (xs(i,2)-xsm(mm(i,2),2))*fs(i,1))
    17 continue
-      if(np.gt.1) call ga_dgop(mrg_d50,fm,2*msm,'+')
-      do 18 i=1,nsaloc
-c      write(*,'(2i5,e12.5)') i,mm(i,2)
+      if(np.gt.1) call ga_dgop(mrg_d50,fm,3*msm,'+')
+      do 18 i=1,nsm
+      fm(i,4)=fm(i,3)
+      write(*,'(a,i5,a,i5)') 'Mol ',i,', Angle ',da*fm(i,4)
+   18 continue
+      do 19 i=1,nsaloc
       if(iand(isdt(i),mfixed).ne.lfixed) then
+c
+c     rotations
+c
+      o(1)=xsm(mm(i,2),1)
+      o(2)=xsm(mm(i,2),1)
+      o(3)=xsm(mm(i,2),1)
+      p(1)=o(1)
+      p(2)=o(2)
+      p(3)=o(3)+1.0d0
+      x(1)=xs(i,1)
+      x(2)=xs(i,2)
+      x(3)=xs(i,3)
+      angle=da*fm(mm(i,2),4)
+      call rotate(o,p,angle,x,y)
+      xs(i,1)=y(1)
+      xs(i,2)=y(2)
+      xs(i,3)=y(3)
+c
+c     translations
+c
       dxstep=dxf*fm(mm(i,2),1)
       xs(i,1)=xs(i,1)+dxstep
       dxstep=dxf*fm(mm(i,2),2)
       xs(i,2)=xs(i,2)+dxstep
+c
       endif
-   18 continue
+   19 continue
       endif
       endif
 c
@@ -568,6 +598,7 @@ c
      + dbl_mb(i_vs),nsaloc)
 c
       dx=half*dx
+      da=half*da
       call timer_stop(201)
       goto 1
       endif
@@ -615,6 +646,7 @@ c
       if(itest.gt.0) call md_test()
 c
       dx=min(1.2d0*dx,dxmsd)
+      da=min(1.2d0*da,damsd)
 c
       call timer_stop(201)
       if(.not.ldone) goto 1
@@ -2758,7 +2790,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.183 2003-12-09 15:52:41 d3j191 Exp $
+c $Id: md_main.F,v 1.184 2003-12-10 15:38:57 d3j191 Exp $
 c
       implicit none
 c
