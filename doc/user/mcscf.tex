@@ -1,328 +1,144 @@
 \label{sec:mcscf}
-The NWChem MCSCF module can currently perform complete active space
-SCF (CASSCF) calculations with at most 20 active orbitals and about
-500 basis functions.
 
-The Multiconfiguration SCF program is invoked in NWChem 
-by specifying the keyword \verb+mcscf+ on the compound directive,
+{\bf This is junk ... I'm reworking it.}
+
+The NWChem multiconfiguration SCF (MCSCF) module can currently perform
+complete active space SCF (CASSCF) calculations with at most 20 active
+orbitals and about 500 basis functions.
 
 \begin{verbatim}
   MCSCF
-    ...
+    ACTIVE <integer nactive>
+
+    ACTELEC <integer nactelec>
+
+    MULTIPLICITY <integer multiplicity>
+
+    [SYMMETRY <integer symmetry default 1>]
+
+    [VECTORS [[input] <string input_file default $file_prefix$.movecs>] 
+           [swap <integer vec1 vec2> ...] \
+           [output <string output_file default input_file>] \
+           [lock]
+
+    [HESSIAN (exact||onel)]
+
+    [MAXITER <integer maxiter default 20>]
+
+    [THRESH  <real thresh default 1.0e-4>]
+
+    [TOL2E <real tol2e default 1.0e-9>]
+
+    [LEVEL <real shift default 0.1d0>]
   END
 \end{verbatim}
+Note that the \verb+ACTIVE+, \verb+ACTELEC+, and \verb+MULTIPLICITY+
+directives are {\em required}.
 
-The keyword \verb+mcscf+ tells the code that this is a compound directive,
-and additional directives may be specified by the user to define the particular
-problem.  The \verb+mcscf+ input will be processed until the
-\verb+END+ directive is encountered.  A calculation will be performed 
-only when the input encounters a \verb+TASK+ directive of the form,
+\subsection{{\tt ACTIVE} --- Number of active orbitals}
 
+The number of orbitals in the CASSCF active space must be specified
+using the {\tt ACTIVE} directive.
+
+E.g.,
 \begin{verbatim}
-  TASK MCSCF
+  active 10
 \end{verbatim}
 
-\Large
-***Is there a default operation for the mcscf module?  What operations
-can be performed in this module?***
-\normalsize
+The input molecular orbtials (see the vectors directive, Sections
+\ref{sec:mcscfvectors} and \ref{sec:vectors}) must be arranged in
+order
+\begin{enumerate}
+\item doubly occupied orbitals,
+\item active orbitals, and
+\item unoccupied orbitals.
+\end{enumerate}
 
-% This compound directive provides input for the MCSCF module.
-% Currently, only Complete Active Space SCF (CASSCF) wavefunctions are
-% supported. The MCSCF module should ideally be invoked from a previously
-% converged RHF/ROHF SCF calculation.
-% The following input options have the same meaning
-% and syntax as with the SCF directive (\ref{SCF}); \verb+maxiter+,
-% \verb+thresh+, \verb+tol2e+ and \verb+vectors+.  These options default to
-% their corresponding SCF values if available, otherwise the SCF defaults
-% listed in section \ref{SCF} are used. The converged MCSCF molecular
-% orbitals and ``orbital energies'' are stored in ``canonical''
-% representation with the \verb+vectors output+ option.
+\subsection{{\tt ACTELEC} --- Number of active electrons}
 
-In the current version of NWChem, only Complete Active Space SCF (CASSCF) 
-wavefunctions are supported in the Multiconfiguration SCF module.  Calculations
-with this module require data from a converged  RHF/ROHF SCF calculation
-(see Section \ref{SCF}).  The results from a previous SCF calculation must be
-in the database, or a \verb+TASK+ directive specifying such a calculation
-must be included in the input file before the \verb+TASK+ directive for
-the MCSCF calculation.
+The number of electrons in the CASSCF active space must be specified
+using the the {\tt ACTELEC} directive.  An error is reported if the
+number of active electrons and the multiplicity are inconsistent.
 
-The MCSCF calculation uses the input parameter specifications from the
-previous SCF calculation for the directives \verb+vectors+, \verb+maxiter+,
-\verb+thresh+ and \verb+tol2e+.  These  input directives 
-are repeated here for reference.  (See Section \ref{SCF} for a complete
-description of the SCF module input.)
+The number of closed shells is determined by subtracting the number
+of active electrons from the total number of electrons (which in turn
+is derived from the sum of the nuclear charges minus the total system
+charge).
 
+\subsection{{\tt MULTIPLICITY}}
 
+The spin multiplicity must be specified and is enforced by projection
+of the determinant wavefunction.
+
+E.g., to obtain a triplet state
 \begin{verbatim}
-  VECTORS [input (<string input_movecs default atomic>) || \
-                   (project <string basisname> <string filename>)] \
-          [swap [alpha|beta] <integer vec1 vec2> ...] \
-          [output <string output_movecs default input_movecs>] \
-          [lock]
-
-   MAXITER <integer maxiter default 8>
-
-   THRESH  <real thresh default 1.0e-5>
-
-   TOL2E <real tol2e default 1.0e-7>
+  multiplicity 3
 \end{verbatim}
 
-The converged MCSCF molecular orbital vectors and ``orbital energies'' are 
-stored in ``canonical'' representation, in the location specified according
-to the option selected after the keyword \verb+output+ on the \verb+VECTORS+
-directive in the SCF input.
-  
-% with the \verb+vectors output+ option.
+\subsection{{\tt SYMMETRY} --- Spatial symmetry of the wavefunction}
 
-Additional input for the MCSCF module is required to define active and
-inactive orbitals, and to specify the charge in the active space.  The
-user also has the option of specifying the type of orbital Hessian used, 
-and can modify certain parameters using \verb+SET+ directives.  The following
-subsections describe the input directives that can be specified within
-the \verb+mcscf+ multiple directive.
+This species the irreducible representation of the wavefunction as an
+integer in the range 1---8 using the same numbering of representations
+as output by the SCF program.  Note that only Abelian point groups are
+supported.
 
-
-% The following three directives; \verb+active+, \verb+actelec+ and
-% \verb+multiplicity+ are mandatory and together with the charge specify
-% the CASSCF wavefunction. The inactive and secondary orbitals are
-% determined by reconciling the number of electrons and basis
-% functions. Currently, there is no facility to designate frozen core or
-% virtual orbitals. 
-
-% The CI submodule is determinant-based.  Consequently L\"owdin spin
-% projection is used for low-spin states.
-
-% \subsection{Inactive}
-\subsection{Defining the CASSCF Wavefunction for Multiconfiguration SCF}
-
-The directives \verb+INACTIVE+, \verb+ACTIVE+, \verb+ACTELEC+ and
-\verb+MULTIPLICITY+ must be specified for any MCSCF calculation.  The
-input parameters supplied with these directives and the charge are used to 
-specify the CASSCF wavefunction.
-
-The lowest inactive orbitals are defined by specifying a directive of
-the form,
-
+E.g., to specify a $B_1$ state when using the $C_{2v}$ group
 \begin{verbatim}
-  inactive <integer inactive>
+  symmetry 3
 \end{verbatim}
 
-Orbitals lower than the value entered for the integer \verb+inactive+
-are the inactive orbitals.
+\subsection{{\tt VECTORS} --- Input/output of MO vectors}
+\label{sec:mcscfvectors}
 
-The active orbitals are specified by entering a directive of the form,
+Calculations are best started from RHF/ROHF molecular orbitals (see
+Section \ref{sec:scf}), and by default vectors are taken from the
+previous MCSCF or SCF calculation.  To specify another input file use
+the \verb+VECTORS+ directive.  Vectors are by default output to the
+input file, and may be redirected using the \verb+output+ keyword.
+The \verb+swap+ keyword of the \verb+VECTORS+ directive may be
+used to reorder orbitals to obtain the correct active space.
+See Section \ref{sec:vectors} for an example.
 
-% \subsection{Active}
+Output orbitals of a converged MCSCF calculation are canonicalized as
+follows:
+\begin{itemize}
+\item Doubly occupied and occupied orbitals diagonalize the
+  corresponding blocks of an effective Fock operator.
+\item Active orbitals are chosen as natural orbitals by
+  diagonalization of the active space 1-particle density matrix.
+\end{itemize}
+
+\subsection{{\tt HESSIAN} --- Select preconditioner}
+\label{sec:mcscfhessian}
+
+The MCSCF will use a one-electron approximation to the orbital-orbital
+Hessian until some degree of convergence is obtained, whereupon it
+will attempt to use the exact orbital-orbital Hessian which makes the
+micro iterations more expensive but potentially reduces the total
+number of macro iterations.  Either choice may be forced throughout
+the calculation by specifying the appropriate keyword on the
+\verb+HESSIAN+ directive.
+
+E.g., to speficy the one-electron approximation throughout
 \begin{verbatim}
-  active <integer active>
+  hessian onel
 \end{verbatim}
 
-The integer value entered for \verb+active+ designates the number of active
-orbitals following the inactive orbitals (as defined by the entry for
-\verb+inactive+ on the \verb+INACTIVE+ directive). 
+\subsection{{\tt LEVEL} --- Level shift for convergence}
 
-% \subsection{Active Electrons}
+The Hessian (Section \ref{sec:mcscfhessian}) used in the MCSCF
+optimization is by default level shifted by 0.1 until the orbital
+gradient norm falls below 0.01, at which point the level shift is
+reduced to zero.  The initial value of $0.1$ may be changed using
+the \verb+LEVEL+ directive.  Increasing the level shift may make
+convergence more stable in some instances.
 
-The number of electrons in the active space is defined by entering a
-directive of the form,
-
+E.g., to set the initial level shift to 0.5
 \begin{verbatim}
-  actelec <integer actelec>
+  level 0.5
 \end{verbatim}
 
-The number of electrons,  $N_{a}$, is specified by the value entered
-for the integer \verb+actelec+. The inactive and secondary orbitals are
-determined by reconciling the number of electrons and basis
-functions. Currently, there is no facility to designate frozen core or
-virtual orbitals. 
-
-
-
-% Sets the number of electrons, $N_{a}$, in the active space.
-
-% \subsection{Multiplicity}
-
-The spin multiplicity of the wavefunction is defined using a directive
-of the form,
-
-\begin{verbatim}
-  multiplicity <integer multiplicity>
-\end{verbatim}
-
-The spin multiplicity of the wavefunction, $(2S + 1)$ is entered as the
-value for \verb+multiplicity+ on this input directive. The number
-of active alpha and beta electrons is determined by using $M_{s} =
-(n_{\alpha} - n_{\beta})/2 = S$ and $N_{a} = n_{\alpha} + n_{\beta}$.
-
-The CI submodule is determinant-based, and for this reason L\"owdin spin
-projection is used for low-spin states.
-
-\Large
-**Why is this worth mentioning?
-\normalsize
-
-% \subsection{Symmetry}
-
-By default, the state symmetry of the wavefunction is ***what?***, which is
-represented with a value of 1 for the variable \verb+state_irrep+.  The
-user has the option of specifying the state symmetry, with a directive of
-the form,
-
-\begin{verbatim}
-  symmetry <integer state_irrep default 1>
-\end{verbatim}
-
-\Large*** What can the user do here?  What state symmetries might be
-desirable?
-\normalsize
-  
-% Sets the desired state symmetry.
-
-% \subsection{Level Shift}
-
-\subsection{Hessian Type in the Multiconfiguration SCF Module}
-
-% \subsection{Hessian Type}
-
-By default, the MCSCF module uses the exact orbital Hessian in the Newton-
-Raphson orbital solution.  The user can specify a different choice for the form
-of the orbital Hessian using the directive,
-
-\begin{verbatim}
-  hessian <string type default ``exact'' >
-\end{verbatim}
-
-% This directive selects the type of orbital Hessian used in the
-%  Newton-Raphson orbital solution. Possible choices are \verb+onel+ and
-% \verb+exact+. 
-Entering the value \verb+onel+ for the string \verb+type+ specifies
-that Fock operators will be used to
-approximate the Hessian with first-order convergence. This will usually
-be faster than the default option, (obtained with \verb+type+ specified 
-as \verb+exact+), since the exact Hessian which involves a Fock matrix
-construction each microiteration. 
-
-If level-shifting has been specified in the preceeding SCF calculation,
-the same parameters will be used in the MCSCF calculation.  (See Section
-\ref{sec:level} for a description of the level-shifting input for
-the SCF calculation.)  The user has the option of specifying the level-shifting
-separately for the MCSCF calculation, with a directive of the form,
-
-\begin{verbatim}
-  level <real levelshift default 0.1>
-\end{verbatim}
-
-The value entered for \verb+levelshift+ is the initial level shift applied 
-to the orbital Hessian. 
-% Note this also defaults to the SCF level shift if present. 
-When this option is used, the specified level shift
-remains constant at each macroiteration until the gradient norm is
-less than $10^{-2}$~au, at which point it is reduced to zero.
-
-% \subsection{Profile}
-% \begin{verbatim}
-%   profile <string options>
-% \end{verbatim}
-% The directive by itself enables general profiling of MCSCF components
-% including orbital solution, CI solution and transformation. Additional
-% options; \verb+fock+ and \verb+ci+ enable more detailed profiling of
-% these components
-
-% \subsection{Hessian Type}
-% \begin{verbatim}
-%   hessian <string type default ``exact'' >
-% \end{verbatim}
-% This directive selects the type of orbital Hessian used in the
-% Newton-Raphson orbital solution. Possible choices are \verb+onel+ and
-% \verb+exact+. The \verb+onel+ option uses only Fock operators to
-% approximate the Hessian with first-order convergence. The \verb+exact+
-% option selects the exact Hessian which involves a Fock matrix
-% construction each microiteration. 
-
-\subsection{Input by SET Directives for the MCSCF Module}
-
-The user has the option of exercising greater control over the MCSCF 
-module by specifying values for the variables listed in 
-Table~(\ref{MCSCF_variables}).  These variables can be modified using
-the \verb+SET+ directive (see Section \ref{sec:set}).  In most instances, the
-defaults should suffice, but for some exceptional cases improved performance
-may be acheived with different values.
-
-In particular, the variables \verb+ciiterlo+ and \verb+ciiterhi+ which
-specify the macroiteration range where the CI wavefunction is optimized,
-may need to be changed for some problems. By
-default, CI wavefunction optimization is performed at every
-macroiteration. Furthermore, unless \verb+ciiterlo+ is set to zero,
-the very first CI optimization is {\em always} performed in order to
-generate an initial density. Setting \verb+ciiterlo+ to zero
-forces an high-spin ROHF calculation. A possible convergence strategy
-is to set the \verb+ciiterlo+ to about 5 to ensure a tight
-optimization of the inactive orbitals.
-
-\Large
-***any other suggestions, such as on the usefulness of the other
-variables in the table?
-\normalsize
-
-\begin{table}
-\caption{MCSCF variables}
-\label{MCSCF_variables}
-\vspace{.2in}
-\begin{tabular}{lrrl}
-\hline\hline
-Variable                        & Type     & Default          & Synopsis \\
-\hline
-\verb+mcscf:e2approx+           & logical  &  TRUE            & Use E2(T) extrapolation \\
-\verb+mcscf:microci+            & logical  &  TRUE            & CI relaxed within line search \\
-\verb+mcscf:conjugacy+          & logical  &  TRUE            & Conjugacy used \\
-\verb+mcscf:cgreset+            & integer  &  -1              & Interval between conjugacy resets \\
-\verb+mcscf:canonical+          & logical  &  TRUE            & Generate and save canonical orbitals \\
-\verb+mcscf:movecs lock+        & logical  &  FALSE           & Lock MO ordering to previously saved \\
-\verb+mcscf:citol+              & real     &  1.d-8           & CI convergence tolerance \\
-\verb+mcscf:line_search_tol+    & real     &  0.1             & Line search tolerance  \\
-\verb+mcscf:ciiterlo+           & integer  &  1               & Macro CI relax low end \\
-\verb+mcscf:ciiterhi+           & integer  &  \verb+maxiter+  & Macro CI relax high end \\
-\hline\hline
-\end{tabular}
-\end{table}
-
-% \subsection{Profile}
-
-The directive by itself enables general profiling of MCSCF components
-including orbital solution, CI solution and transformation. Additional
-options; \verb+fock+ and \verb+ci+ enable more detailed profiling of
-these components
-
-% \subsection{Variables and Print Control}
-\subsection{Output Control for the Multiconfiguration SCF Module}
-
-The user can obtain general profiling of the MCSCF components, including
-the orbital solution, CI solution, and transformation, by specifying a
-directive of the form,
-
-\begin{verbatim}
-  profile <string options>
-\end{verbatim}
-
-Entries \verb+fock+ and \verb+ci+ for the string \verb+options+ produces
-additional detailed profiling of these components.
-
-
-%  Greater control of the MCSCF module is provided by several variables
-% listed in the table~(\ref{MCSCF_variables}). In most instances, the
-% defaults should suffice. For some exceptional cases, these variables can
-% be modified using the \verb+SET+ syntax (see \ref{sec:set}).
-
-% The variables, \verb+ciiterlo+ and \verb+ciiterhi+, specify the
-% macroiteration range where the CI wavefunction is optimized. By
-% default, CI wavefunction optimization is performed at every
-% macroiteration. Furthermore, unless \verb+ciiterlo+ is set to zero,
-% the very first CI optimization is {\em always} performed in order to
-% generate an initial density. While setting \verb+ciiterlo+ to zero
-% forces an high-spin ROHF calculation. A possible convergence strategy
-% is to set the \verb+ciiterlo+ to about 5 to ensure a tight
-% optimization of the inactive orbitals.
+\subsection{{\tt PRINT} and {\tt NOPRINT}}
 
 Specific output items can selectively enabled or disabled using the
 \verb+print+ control mechanism~(\ref{sec:printcontrol}) with the
@@ -351,4 +167,5 @@ Option                          & Class    &  Synopsis \\
 \hline\hline
 \end{tabular}
 \end{table}
+
 
