@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.313 2000-04-07 16:40:49 edo Exp $
+# $Id: makefile.h,v 1.314 2000-04-20 18:08:10 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1166,17 +1166,17 @@ ifeq ($(TARGET),DECOSF)
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
-              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow 
+              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking
 
               COPTIONS = 
               LDOPTIONS = -O
-             FOPTIMIZE = -O  -tune ev6 -arch ev6
+             FOPTIMIZE =  -O5  -tune host -arch host
              FVECTORIZE = -fast -O5 -tune ev6 -arch ev6
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DEXT_INT -DPARALLEL_DIAG
              CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs   -llapack -lblas 
-#             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -latlas -llapack -lblas -latlas
+#             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lf77blas  -latlas
             EXTRA_LIBS = -laio -lpthreads 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
