@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.73 1994-10-29 16:42:36 d3g681 Exp $
+# $Id: makefile.h,v 1.74 1994-11-05 01:43:00 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -52,7 +52,7 @@ endif
 
     NWSUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
                 moints atomscf geom input ma tcgmsg gradients rimp2 riscf \
-                stepper pstat symmetry $(SUBDIRS_EXTRA)
+                stepper pstat nwdft symmetry $(SUBDIRS_EXTRA)
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -166,7 +166,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       LIBS = -ltest -lddscf -lriscf -lrimp2 -lgradients -lutil -lnwints \
+       LIBS = -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil -lnwints \
               -lstepper -lmoints \
               -lguess -lglobal -lutil -lglobal \
 	      -ltcgmsg -llapack -lblas
@@ -191,7 +191,7 @@ ifeq ($(TARGET),KSR)
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
        LIBS = -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints\
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints\
               -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs \
@@ -235,7 +235,7 @@ FVECTORIZE = -O2 -Minline=1000 -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBS = -L/home/delilah11/gifann/lib \
-              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
@@ -267,7 +267,7 @@ FVECTORIZE = -O2 -Miniline=1000 -Mvect
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
       LIBS = -L/home/delilah11/gifann/lib \
-             -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+             -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	     -lstepper -lmoints \
              -lguess -lglobal -lutil \
              -lglobal -lpeigs_delta -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
@@ -300,7 +300,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas
@@ -331,7 +331,7 @@ ifeq ($(TARGET),SGI)
 
     DEFINES = -DSGI 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas -lmalloc 
@@ -361,7 +361,7 @@ ifeq ($(TARGET),IBM)
     DEFINES = -DIBM -DEXTNAM
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lnwints \
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas
