@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.13 2000-04-19 16:53:34 d3j191 Exp $
+c $Id: md_input.F,v 1.14 2000-04-20 15:33:30 d3j191 Exp $
 c
       implicit none
 c
@@ -482,6 +482,10 @@ c
       endif
       if(inp_compare(.false.,'compres',item)) then
       if(.not.inp_f(compr)) call errquit('md_input: error compres',13)
+      goto 250
+      endif
+      if(inp_compare(.false.,'anisotropic',item)) then
+      ipscal=2
       goto 250
       endif
       goto 3
