@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.21 2003-03-05 23:16:31 bylaska Exp $
+* $Id: paw_basis.F,v 1.22 2003-03-24 21:48:53 bylaska Exp $
 *
 
 !**************************************************
@@ -233,9 +233,15 @@ c     !*** set core charges ***
       character*(*)    aname
 
 #include "stdio.fh"
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
 
 *     !*** local variables
-      integer i,j
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      integer i,j,msglen
       integer fp
       !character*255 filename
 
@@ -243,7 +249,10 @@ c     !*** set core charges ***
       logical  assert_file
       external assert_file
 
-      !filename = aname
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+
       if( .not. assert_file(aname)) then
         write(luout,*)  ' cannot find ',aname
         call errquit('paswbasis: cannot find file',2)
@@ -273,6 +282,44 @@ c     !*** set core charges ***
         READ(fp,*) ((prj_ps0((i-1)*ngrid+j), j=1,ngrid), 
      >                                       i=1,nbasis)
       close(fp)
+      end if
+
+*     **** send header data to all processors ****
+      msglen = 1
+      call BRDCST(9+MSGDBL,r1,             mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,rmax,           mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,core_kin_energy,mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,sigma,          mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,ion_charge,     mdtob(msglen),MASTER)
+
+      call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,ngrid, mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,i_cut, mitob(msglen),MASTER)
+
+
+      msglen = nbasis
+      call BRDCST(9+MSGINT,prin_n,   mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,prin_n_ps,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,orb_l,    mitob(msglen),MASTER)
+
+      call BRDCST(9+MSGDBL,eig,      mdtob(msglen),MASTER)
+
+
+      msglen = ngrid
+      call BRDCST(9+MSGDBL,core_density,   mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,ps_core_density,mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,v_ps,           mdtob(msglen),MASTER)
+
+
+      msglen = ngrid*nbasis
+      call BRDCST(9+MSGDBL,phi_ae,      mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,phi_ps,      mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,phi_ae_prime,mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,phi_ps_prime,mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,prj_ps,      mdtob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,prj_ps0,     mdtob(msglen),MASTER)
+
+
       return
       end 
 
@@ -299,6 +346,7 @@ c     !*** set core charges ***
       integer ia
       character*2 atom
       character*255 fname,libfile
+      real*8        sum
 
 *     **** external functions ****
       character*2 ion_atom
@@ -326,6 +374,10 @@ c     !*** set core charges ***
 
       end do
       end if
+
+      !*** sync - hack ***
+      !sum = 1.0d0
+      !call D3dB_SumAll(sum)
 
       return
       end
