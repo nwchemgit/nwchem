@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.69 2001-07-06 06:29:00 d3j191 Exp $
+c $Id: ana_task.F,v 1.70 2001-07-17 21:24:30 d3j191 Exp $
 c
       implicit none
 c
@@ -104,6 +104,7 @@ c
       timr=0.0d0
       ldist=0
       icent=0
+      jcent=0
       scale=1.0d0
       cpk=1.0d0
       stick=1.0d0
@@ -546,7 +547,7 @@ c
 c     center fraction
 c     ---------------
       if(card(1:6).eq.'center') then
-      read(card(8:12),'(i5)') icent
+      read(card(8:17),'(2i5)') icent,jcent
       if(icent.gt.0) then
 c
 c     center-fold the reference coordinates

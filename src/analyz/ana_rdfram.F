@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.21 2001-03-23 17:28:27 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.22 2001-07-17 21:24:30 d3j191 Exp $
 c
       implicit none
 c
@@ -190,7 +190,7 @@ c
       nmol=0
       do 1 i=1,nsa
       nmol=max(nmol,imol(i))
-      if(imol(i).eq.icent) then
+      if(imol(i).ge.icent.and.imol(i).le.jcent) then
       ncount=ncount+1
       xc(1)=xc(1)+xs(i,1)
       xc(2)=xc(2)+xs(i,2)

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.50 2001-07-06 06:29:00 d3j191 Exp $
+c $Id: ana_input.F,v 1.51 2001-07-17 21:24:30 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       logical lref,lfil,lsol,lsuper
-      integer iesppb,lent,idpdb,indx,icent
+      integer iesppb,lent,idpdb,indx,icent,jcent
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -132,8 +132,9 @@ c     -------------------------
 c
       if(inp_compare(.false.,'center',item)) then
       if(.not.inp_i(icent)) call errquit('Error in center',0)
-      write(lfncmd,1306) icent
- 1306 format('center ',i5)
+      if(.not.inp_i(jcent)) jcent=icent
+      write(lfncmd,1306) icent,jcent
+ 1306 format('center ',2i5)
       numcmd=numcmd+1
       goto 2
       endif

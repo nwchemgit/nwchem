@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.47 2001-07-06 06:29:00 d3j191 Exp $
+c $Id: ana_common.fh,v 1.48 2001-07-17 21:24:28 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -33,7 +33,7 @@ c
       real*8 rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf,ifrsk
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
-      integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent
+      integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent
       integer nbnds,ibnds(mxbnds,2,2)
       integer nangs,iangs(mxangs,3,2)
       integer ntors,itors(mxtors,4,2)
@@ -48,7 +48,7 @@ c
      + stick,rhbmin,rhbmax,hbdmin,hbdmax,hbamin,hbamax,rangle,
      + irmsd,lcop,lsup,ifrfr,ifrto,ifrsk,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
-     + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,
+     + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,
      + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
 c
       character*255 filnam,filana,filref,filtrj,filcop,filsup,filpov,
