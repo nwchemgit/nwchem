@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.10 1996-01-12 07:30:05 pg481 Exp $
+c $Id: texas_face.F,v 1.11 1996-01-19 07:31:09 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -341,12 +341,9 @@ c
       mem_2e2c = max(mem_2e2c,l_blsize)
 c
 c------------------------------------
-c ONLY for TESTS :
-c  calculate two-electron integrals  
-c  in one-quartet pices :
-c
+c ONLY for TESTS : calculate two-electron integrals  
 c---
-c      call test_calc2(nshells)
+ccccc  call test_calc2(nshells, l_blsize)
 c---
 c End of tests . (program will be stoped in test_calc2) 
 c------------------------------------
@@ -1181,14 +1178,21 @@ c
       mem8=nbl4 
 c
 c       see blockin2 where 10K/intsize is used in preliminary res.
-        mem678=15 003     ! 3* 5001
+c
+      mem678=max(mem6,mem7,mem8)
+      if(mem678.gt.10000) then
+         iretio=mem678/10000
+         memtmp=3*(iretio+1)*10000
+      else
+         memtmp=15 003     ! 3* 5001
+      endif
 c
       mem9=nbl4
       mem0=nbl4
 c
 c-------------------------------------------------------
       ntxs_scr_size= mem1+mem2+mem3+mem4+mem5+mem6+mem7+mem8+mem9+mem0
-      ntxs_scr_size= ntxs_scr_size + mem678
+      ntxs_scr_size= ntxs_scr_size + memtmp
 c
 c there is one more call to getmem to allocate isblcall
 c in PAIR_IN2 routine :
@@ -1216,7 +1220,7 @@ c
 c maxme2 - max. memory needed in texas_setup :
 c          5*nquartets_pnl + 2*nbl2 + 2 *nbl4
 c------------------------------------------------
-c assumptin : nquarts_pnl <= 250 000          
+c assumption : nquarts_pnl <= 250 000          
 c
       data nquarts /250 000/
 c------------------------------------------------

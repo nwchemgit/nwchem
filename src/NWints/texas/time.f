@@ -1,5 +1,5 @@
       SUBROUTINE GVBMP3
-c $Id: time.f,v 1.1 1995-10-30 20:58:03 d3e129 Exp $
+c $Id: time.f,v 1.2 1996-01-19 07:31:14 d3g681 Exp $
 C     EMPTY
       END
 C
@@ -14,6 +14,7 @@ C     WRITE(*,*) ITIME
 C     T=DBLE(ITIME(1)+ITIME(2)+ITIME(3)+ITIME(4))/100.0D0         
 C      T=MCLOCK()/100.0D0
       T = util_cpusec()
+**      T = 0.0d0
 C  
       RETURN
       END

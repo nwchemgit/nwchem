@@ -2,6 +2,7 @@
      *                      ijblock,klblock,ijpres2,klpres2, 
      *                      isbl_s,isbl_q)
       implicit real*8 (a-h,o-z)
+      common /index/ maxsh,ifp,inx(1)
       common /pnl007/ nij_uniqe, ij_uniqe ! uniqe pairs for pair-blocks
       dimension bl(*)
       dimension npar(nbl2) 
@@ -9,8 +10,6 @@
       dimension ijpres2(*),klpres2(*) ! dim=nqrtpnl
       dimension isbl_q(*)  ! dim=nqrtpnl
       dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2 num of super-blks
-c
-      write(6,*)'------from uniq_pairs-------------beg     -------'
 c----------------------------------------------------------------------
 c for memory allocation : 
 c
@@ -20,15 +19,20 @@ c
       klbl=klblock(ibl)
       if(ijbl.gt.0 .or. klbl.gt.0) ncs_pairs=ncs_pairs+npar(ibl)
    10 continue
-      write(6,*)' UPDATE_SIZES_1 : ncs_pairs=',ncs_pairs
 c----------------------------------------------------------------------
 c memory allocations :
 c
+c for final list of unique pairs in pair-blocks :
+c
+      call getmem(ncs_pairs, ibl_uniqe_final)
+c
 c for IJ in IBL
-      call getmem(nbl2, nij_uniqe)
+ccc   call getmem(nbl2, nij_uniqe)
+      call getint(nbl2, nij_uniqe)
       call getmem(ncs_pairs, ij_uniqe) 
 c for KL in KBL
-      call getmem(nbl2, nkl_uniqe)
+ccc   call getmem(nbl2, nkl_uniqe)
+      call getint(nbl2, nkl_uniqe)
       call getmem(ncs_pairs, kl_uniqe) 
 c----------------------------------------------------------------------
 c zero out number of uniqe pairs in IBL, KBL:
@@ -36,8 +40,8 @@ c
       do 20 ibl=1,nbl2
       nib_uniqe=(ibl-1)+nij_uniqe
       nkb_uniqe=(ibl-1)+nkl_uniqe
-         call pairs_no(bl(nib_uniqe), 0 )
-         call pairs_no(bl(nkb_uniqe), 0 )
+         inx(nib_uniqe)=0
+         inx(nkb_uniqe)=0
    20 continue
 c----------------------------------------------------------------------
 c
@@ -45,27 +49,23 @@ c
       isbl=0
       ibl_uniqe=ij_uniqe     ! starting address for Ibl pairs
       do 100 ibl=1,nbl2
+      ijbl=ijblock(ibl)
+      if(ijbl.eq.0) go to 100
       nib_uniqe=(ibl-1)+nij_uniqe
 c
          kbl_uniqe=kl_uniqe     ! starting address for Kbl pairs
          do 150 kbl=1,ibl
+         klbl=klblock(kbl)
+         if(klbl.eq.0) go to 150
          nkb_uniqe=(kbl-1)+nkl_uniqe
-         isbl=isbl+1
+         isbl=ibl*(ibl-1)/2+kbl
+c
          isbl_size=isbl_s(isbl)
-c           write(6,*) ' '
-c           write(6,*)
-c    *      's-block=',isbl,' size=',isbl_size,' pair-blocks=',ibl,kbl
-c           write(6,*)' ibl_u_addr=',ibl_uniqe,' kbl_u_addr=',kbl_uniqe
          if(isbl_size.gt.0) then
-c           write(6,*)' '
-c           write(6,*)' call find_uniq_2 for IBL, ijpres2 '
             call find_uniq_2(bl,isbl_size,isbl_q(ipoint),ijpres2,
-     *                       bl(ibl_uniqe) ,bl(nib_uniqe))
-c
-c           write(6,*)' call find_uniq_2 for KBL, klpres2 '
+     *                       bl(ibl_uniqe) ,inx(nib_uniqe))
             call find_uniq_2(bl,isbl_size,isbl_q(ipoint),klpres2,
-     *                       bl(kbl_uniqe) ,bl(nkb_uniqe))
-c
+     *                       bl(kbl_uniqe) ,inx(nkb_uniqe))
          endif
 c
 c        on return : lists of pairs  in bl(ibl_uniqe) and bl(kbl_uniqe)
@@ -81,64 +81,68 @@ c
       ij_total=0
       ibl_u=ij_uniqe     ! starting address for Ibl pairs
       kbl_u=kl_uniqe     ! starting address for Kbl pairs
-      ibl_uniqe=ij_uniqe ! starting address for Final IBL pairs
+      ibl_uniqe=ibl_uniqe_final ! starting address for Final IBL pairs
       do 200 ibl=1,nbl2
 c
       n_ibl_u=(ibl-1)+nij_uniqe  !address: number of uniqe ij in IBL
       n_kbl_u=(ibl-1)+nkl_uniqe  !address: number of uniqe kl in KBL
 c
-      call ibl_plus_kbl(bl(n_ibl_u), bl(ibl_u), bl(n_kbl_u), bl(kbl_u),
+      call ibl_plus_kbl(inx(n_ibl_u), bl(ibl_u),inx(n_kbl_u), bl(kbl_u),
      *                  n_ibl_uniqe, bl(ibl_uniqe),bl )
 c
-c---------------------------
-c          test print :
-      write(6,*)' pair-block=',ibl,' uniqe pairs =',n_ibl_uniqe
-      call prt_uniqe( bl(ibl_uniqe),n_ibl_uniqe)
-c---------------------------
-c
-      ibl_u=ibl_u+npar(ibl)
-      kbl_u=kbl_u+npar(ibl)
+      ijbl=ijblock(ibl)
+      if(ijbl.gt.0) ibl_u=ibl_u+npar(ibl)
+      klbl=klblock(ibl)
+      if(klbl.gt.0) kbl_u=kbl_u+npar(ibl)
 c
       ibl_uniqe=ibl_uniqe+n_ibl_uniqe
       ij_total=ij_total+n_ibl_uniqe
   200 continue
 c
-      call retmem(2) ! release nkl_uniqe and kl_uniqe
-      call retmem(1) ! release ij_uniqe
-c
 c--------------------------------------------------------
-c final allocations in bl() :  
-c for list of unique pairs in pair-blocks :
+      call retmem(2) ! release kl_uniqe and kl_uniqe
+      call retint(1) ! release nkl_uniqe
+c--------------------------------------------------------
+c final allocations in BL() for list of unique pairs in pair-blocks :
 c
-      call getmem(ij_total, ij_uniqe)
+      ij_uniqe=ibl_uniqe_final
 c
-c for number of unique pairs is nij_uniqe .
+c final allocation in INX() for number of unique pairs is nij_uniqe .
 c
 c These two addresses are transfered outside thrue the common 
 c block : common /pnl007/ nij_uniqe, ij_uniqe ! unique pairs 
-c
 c 2 calls to getmem
 c--------------------------------------------------------
-c test print :
+cTEST
 c
-      write(6,*) 'Total number of UNIQE pairs in request=',ij_total
-      write(6,*)'------from uniq_pairs-------------end     -------'
+c     write(6,*)'------from uniq_pairs-------------beg     -------'
+c
+      ij_total=0
+      ibl_uniqe=ij_uniqe
+      n_ibl_uniqe=nij_uniqe
+      do 300 ibl=1,nbl2
+      ibl_par=inx(n_ibl_uniqe)
+c     write(6,*)
+c    * ' PAIR-BLOCK=',ibl,' UNIQE PAIRS =',ibl_par,'NPAR=',npar(ibl)
+c     call prt_uniqe( bl(ibl_uniqe),ibl_par        )
+c
+      ibl_uniqe=ibl_uniqe+ibl_par
+      n_ibl_uniqe=n_ibl_uniqe+1
+      ij_total=ij_total+ibl_par
+  300 continue
+c     write(6,*) 'Total number of UNIQE pairs in request=',ij_total
+c     write(6,*)'------from uniq_pairs-------------end     -------'
 c--------------------------------------------------------
 c ij_total should be the TOTAL number of uniqe pairs in whole request !
 c
-c test release only
-      call retmem(1)
-c
       end
 c===============================================================
+c TEST 
+c=
       subroutine prt_uniqe( ibl_uniqe,n_ibl_uniqe)
       dimension ibl_uniqe(*)
       write(6,66)(ibl_uniqe(i),i=1,n_ibl_uniqe)
    66 format(20(i3,1x))
-      end
-c===============================================================
-      subroutine pairs_no(n_uniqe,n)
-        n_uniqe=n
       end
 c===============================================================
       subroutine find_uniq_2(bl,isbl_size,isbl_q,ijpres2,
@@ -148,8 +152,6 @@ c===============================================================
       dimension ijpres2(*) ! dim=nqrtpnl
       dimension isbl_q(*)  ! from ipoint 
       dimension ibl_uniqe(*)
-c
-c     write(6,*)'  from find_uniq_2 on ENTER : nib_uniqe=',nib_uniqe
 c
          call getmem(isbl_size,i_uniqe)
          call getmem(isbl_size,ij_temp)
@@ -164,7 +166,6 @@ c
          call do_uniq(ij_u + nib_uniqe, bl(ij_temp),ibl_uniqe,ij_u)
 c
          nib_uniqe=ij_u
-c     write(6,*)'  from find_uniq_2 on EXIT  : nib_uniqe=',nib_uniqe
 c
          call retmem(2) ! release ij_temp and i_uniqe
 c
@@ -216,8 +217,7 @@ c
       integer iq, ijprev
 c-----------------------------------------------------
 c
-c     write(6,*) 'original pairs'
-c     write(6,*) (itmp(iq),iq=1,nq)
+cccc  write(6,*) nq,' original pairs:',(itmp(iq),iq=1,nq)
 c
 c      
 c     do iq = 1, nq
@@ -244,8 +244,7 @@ c
       ENDIF
 c
 c     Debug
-c     write(6,*) ' nij_uniq = ', nij_uniq
-c     write(6,*) (ij_uniq(iq),iq=1,nij_uniq)
+cccc  write(6,*) nij_uniq,' unique   pairs:',(ij_uniq(iq),iq=1,nij_uniq)
 c
       end
       subroutine txs_integer_sort(n,ra)
@@ -301,14 +300,54 @@ c     n_ibl_uniqe = final number of unique pairs in IBL
 c     ibl_uniqe   - final list of unique pairs in IBL
 c-----------------------------------------------
 c
-      write(6,*)'from ibl_plus_kbl:  ij_u=',n_ibl_u,'  kl_u=',n_kbl_u
+c     write(6,*)'from ibl_plus_kbl:  ij_u=',n_ibl_u,'  kl_u=',n_kbl_u
 c
-      call getmem(n_ibl_u + n_kbl_u, ik_tmp)
-      call do_tmp2(n_ibl_u,ibl_u, n_kbl_u,kbl_u,  bl(ik_tmp) )
-      call do_uniq(n_ibl_u + n_kbl_u, bl(ik_tmp),kbl_u,  n_ibl_uniqe)
-      call retmem(1) ! release ik_tmp
+      if(n_ibl_u.ne.0 .and. n_kbl_u.ne.0) then
+         call getmem(n_ibl_u + n_kbl_u, ik_tmp)
+         call do_tmp2(n_ibl_u,ibl_u, n_kbl_u,kbl_u,  bl(ik_tmp) )
+         call do_uniq(n_ibl_u + n_kbl_u, bl(ik_tmp),kbl_u,  n_ibl_uniqe)
+         call retmem(1) ! release ik_tmp
 c
-      call tfer_i(kbl_u,ibl_uniqe,n_ibl_uniqe)
-      n_ibl_u= n_ibl_uniqe
+         call tfer_i(kbl_u,ibl_uniqe,n_ibl_uniqe)
+         n_ibl_u= n_ibl_uniqe
+      endif
+      if(n_ibl_u.ne.0 .and. n_kbl_u.eq.0) then
+         n_ibl_uniqe=n_ibl_u
+         n_ibl_u= n_ibl_uniqe
+         call tfer_i(ibl_u,ibl_uniqe,n_ibl_uniqe)
+      endif
+      if(n_ibl_u.eq.0 .and. n_kbl_u.ne.0) then
+         n_ibl_uniqe=n_kbl_u
+         n_ibl_u= n_ibl_uniqe
+         call tfer_i(kbl_u,ibl_uniqe,n_ibl_uniqe)
+      endif
+      if(n_ibl_u.eq.0 .and. n_kbl_u.eq.0) then
+         n_ibl_uniqe=0
+         n_ibl_u= n_ibl_uniqe
+      endif
+c
+      end
+c===============================================================
+      subroutine get_uniq(ibl,nij_u,ij_u_point,  bl)
+      implicit real*8 (a-h,o-z)
+      common /pnl007/ nij_uniqe, ij_uniqe ! uniqe pairs for pair-blocks
+      common /index/ maxsh,ifp,inx(1)
+c
+      dimension bl(*)
+c
+c nij_u - number of unique pairs in IBL
+c ij_u_point - pointer to the list of unique pairs (in bl)
+c
+      nij_u=inx(nij_uniqe+ibl-1)
+c
+      ipoint=0
+      do 10 iblock=1,ibl-1
+      ipoint=ipoint+inx(nij_uniqe+iblock-1)
+   10 continue
+      ij_u_point=ipoint + ij_uniqe
+c
+c test:
+c     write(6,*)' PAIR-BLOCK=',ibl,' UNIQE PAIRS =',nij_u
+c     call prt_uniqe( bl(ij_u_point),nij_u)
 c
       end

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1995-12-13 01:34:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.16 1996-01-19 07:30:42 d3g681 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -24,7 +24,8 @@ ifeq ($(USE_TEXAS),YEP)
                  trobsa.o\
                  zeroint.o \
 		 missing.o \
-		 texas_stubs.o
+		 texas_stubs.o \
+                 uniq_pairs.o
 else
       OBJ = texas_stubs.o
       OBJ_OPTIMIZE = 

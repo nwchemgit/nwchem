@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.8 1996-01-12 07:25:16 pg481 Exp $
+c $Id: texas_hf.F,v 1.9 1996-01-19 07:31:12 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -116,7 +116,6 @@ c
          go to 1000
       endif
 c----------------------------------------------------------------
-c     if(ncall_pnl+1.ge.2) stop 'test-stop'
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
 c----------------------------------------------------------------
@@ -199,9 +198,13 @@ c
 c
       if(.not.more_int) then
          if(.not.labels) then
-            call retmem( 9)
+CCCCCC      call retmem( 9)
+            call retmem(10)
+            call retint(1)
          else
-            call retmem( 8)
+CCCCC       call retmem( 8)
+            call retmem( 9)
+            call retint(1)
          endif
 c-------------------------
 c if use_r is true return original coordinates 
@@ -378,11 +381,12 @@ c
 c       1 call to getmem
       endif
 c--------------------------------------------------------
-c find unique pairs in PNL request :
+c update number of pairs from TXS to current PNL (NPAR) :
 c
-c     call uniq_pairs(bl,nbl2,bl(npard),
-c    *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
-c    *     bl(isblsize),bl(isblqrts) )
+      call uniq_pairs(bl,nbl2,bl(npard),
+     *     bl(ijblock),bl(klblock),bl(ijpres2),bl(klpres2),
+     *     bl(isblsize),bl(isblqrts) )
+c       1 call to getmem
 c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
