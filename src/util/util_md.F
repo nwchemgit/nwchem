@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.27 2000-09-15 22:21:26 d3j191 Exp $
+c $Id: util_md.F,v 1.28 2000-09-15 22:50:58 d3j191 Exp $
 c
       implicit none
 c
@@ -1460,8 +1460,32 @@ cc
 c
       implicit none
 c
-      real*8 x1(3),x2(3),x3(3),x4(4),d,a,t
+      real*8 x1(3),x2(3),x3(3),x4(3),d,a,t
 c
-      md_zmat=.false.
+      real*8 p(3),q(3),s(3),v(3),w(3)
+      real*8 r
+      integer i
+c
+      do 1 i=1,3
+      p(i)=x3(i)-x2(i)
+      q(i)=x4(i)-x2(i)
+    1 continue
+      v(1)=p(2)*q(3)-p(3)*q(2)+x2(1)
+      v(2)=p(3)*q(1)-p(1)*q(3)+x2(2)
+      v(3)=p(1)*q(2)-p(2)*q(1)+x2(3)
+c
+      r=sqrt(p(1)*p(1)+p(2)*p(2)+p(3)*p(3))
+      do 2 i=1,3
+      s(i)=d*p(i)/r+x2(i)
+    2 continue
+c
+      call rotate(x2,v,a,s,w)
+      call rotate(x3,x2,t,w,s)
+c
+      do 3 i=1,3
+      x1(i)=s(1)
+    3 continue
+c
+      md_zmat=.true.
       return
       end
