@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.36 2001-08-28 00:54:38 edo Exp $
+#$Id: GNUmakefile,v 1.37 2002-11-01 22:04:10 edo Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libnwcutil.a
@@ -49,6 +49,9 @@ OBJ =     dosymops.o \
 
 include ../config/makefile.h
 include ../config/makelib.h
+  ifeq ($(FC),efc)
+            FOPTIONS += -save
+  endif
 
 ifeq ($(TARGET),CRAY-T3D)
   FNOOPT = -g -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
