@@ -1,6 +1,6 @@
       double precision function util_wallsec()
       implicit none
-c $Id: util_wallsec.F,v 1.5 2001-10-31 21:10:43 windus Exp $
+c $Id: util_wallsec.F,v 1.6 2004-02-09 16:01:29 fruechtl Exp $
 *
 * routine to give wall clock seconds since start of execution
 *  delta times are handled by all applications
@@ -20,7 +20,7 @@ c $Id: util_wallsec.F,v 1.5 2001-10-31 21:10:43 windus Exp $
       real all_seconds
       external all_seconds
       util_wallsec = all_seconds()
-#elif defined(SUN) || defined(SGI) || defined(SGITFP) || defined(SOLARIS) || defined(FUJITSU_VPP) || defined(FUJITSU_SOLARIS)
+#elif defined(SUN) || defined(SGI) || defined(SGITFP) || defined(SOLARIS) || defined(FUJITSU_VPP) 
       integer time
       external time
       util_wallsec = dble(time())
