@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.44 2001-02-22 17:04:41 d3j191 Exp $
+c $Id: ana_input.F,v 1.45 2001-02-22 18:36:10 d3j191 Exp $
 c
       implicit none
 c
@@ -75,17 +75,6 @@ c
       goto 2
       endif
 c
-c     define centering fraction
-c     -------------------------
-c
-      if(inp_compare(.false.,'center',item)) then
-      if(.not.inp_i(icent)) call errquit('Error in center',0)
-      write(lfncmd,1306) icent
- 1306 format('center ',i5)
-      numcmd=numcmd+1
-      goto 2
-      endif
-c
 c     define reference file
 c     ---------------------
 c
@@ -134,6 +123,17 @@ c
       if(.not.inp_f(timoff)) call errquit('Error in time offset',0)
       write(lfncmd,1002) timoff
  1002 format('time   ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     define centering fraction
+c     -------------------------
+c
+      if(inp_compare(.false.,'center',item)) then
+      if(.not.inp_i(icent)) call errquit('Error in center',0)
+      write(lfncmd,1306) icent
+ 1306 format('center ',i5)
       numcmd=numcmd+1
       goto 2
       endif

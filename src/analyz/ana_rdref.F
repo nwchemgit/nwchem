@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.9 2001-02-21 23:46:16 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.10 2001-02-22 18:36:10 d3j191 Exp $
 c
       implicit none
 c
@@ -84,13 +84,6 @@ c
       close(unit=lfnref)
       endif
 c
-c     center and fold
-c
-      if(me.eq.0.and.icent.gt.0) then
-      if(.not.ltop) call errquit('No topology for center',0)
-      call ana_center_fold(x,x,int_mb(i_imol),0)
-      endif
-c
 c     broadcast coordinates to all nodes
 c
       if(np.gt.1) then
@@ -114,5 +107,47 @@ c
 c
  9999 continue
       call errquit('Unable to open reference file',0)
+      return
+      end
+      subroutine ana_center_ref(x)
+c
+c $Id: ana_rdref.F,v 1.10 2001-02-22 18:36:10 d3j191 Exp $
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "rtdb.fh"
+c
+      real*8 x(nsa,3)
+      integer i
+c
+c     center and fold
+c
+      if(me.eq.0.and.icent.gt.0) then
+      if(.not.ltop) call errquit('No topology for center',0)
+      call ana_center_fold(x,x,int_mb(i_imol),0)
+      endif
+c
+c     broadcast coordinates to all nodes
+c
+      if(np.gt.1) then
+      call ga_brdcst(mag_d02,x(1,1),3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      endif
+c
+      do 1 i=1,nsa
+      if(i.eq.1) then
+      xsmin=x(1,3)
+      xsmax=x(1,3)
+      else
+      if(x(i,3).lt.xsmin) xsmin=x(i,3)
+      if(x(i,3).gt.xsmax) xsmax=x(i,3)
+      endif
+    1 continue
+c
+      xsmin=xsmin-0.5d0
+      xsmax=xsmax+0.5d0
+c
       return
       end
