@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.184 2001-06-23 01:23:12 edo Exp $
+c     $Id: dft_scf.F,v 1.185 2001-06-27 01:49:44 edo Exp $
 c     
       implicit none
 c
@@ -146,7 +146,8 @@ c
       logical osol_phase
       double precision egas
       double precision esol
-      double precision ecosmo
+      double precision ecosmo,dft_cosmoe,dft_cosmoadde
+      external dft_cosmoe,dft_cosmoadde
 
       integer itype_wfn,g_focks(2)
       integer nel_fon(2),nmo_fon(2)
@@ -176,7 +177,9 @@ c
       oprint_final_vecs = util_print('final vectors', print_high)
       oprint_sic = util_print('SIC information', print_high)
       oprintinertia = util_print('inertia', print_default).and.
-     . ga_nodeid().eq.0                                                         
+     . ga_nodeid().eq.0
+      odbug = util_print('cosmo', print_high)
+
       me = ga_nodeid()
       nproc = ga_nnodes()
 c
@@ -531,38 +534,7 @@ c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken) call dft_mulwrap(me,g_dens,g_s)
 c
-c     ----- cosmo cavity and setup -----
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(luout,*) '-cosmo- ... found in -dft_scf-',
-     $                     ocosmo,ga_nodeid()
-         endif
-         if(ocosmo) then
-            odbug=.false.
-            if(odbug) then
-               osome=.true.
-            else
-               osome=.false.
-            endif
-            call cosmo_initialize(rtdb,osome)
-            if(odbug) then
-               write(luout,*) 'done with cosmo_initialize',
-     $                        ga_nodeid()
-            endif
-         else
-            if(odbug) then
-               write(luout,*) '-cosmo- ... found but .false.',
-     $                        ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(luout,*) '-cosmo- not found in -dft_scf-'
-         endif
-      endif
-      call ga_sync()
+      call dft_cosmoinit(rtdb,ocosmo,odbug)
 c
 c    The loop associated with the label 135 is to find the exact exchange-
 c    correlation potential.
@@ -588,42 +560,7 @@ c
       if (oprint_time)
      &     call dft_tstamp('   Before SCF iter loop. ')
 c
-c     ----- check cosmo ... if cosmo ... -----
-c           pass 1 ... gas_phase
-c           pass 2 ... sol_phase
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(LuOut,*) '-cosmo- ... found in dft_scf',
-     $                 ocosmo,ga_nodeid()
-         endif
-c
-         if(ocosmo) then
-            odbug=.false.
-            ogas_phase=.true.
-            osol_phase=.true.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas & sol',
-     $                    ocosmo,ga_nodeid()
-            endif
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $         call errquit('dft_scf: rtdb_put failed',0)
-         else
-            ogas_phase=.true.
-            osol_phase=.false.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas only',
-     $                    ocosmo,ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(LuOut,*) '-cosmo- not found in dft_scf'
-         endif
-         ogas_phase=.true.
-         osol_phase=.false.
-      endif
+      call dft_cosmochk(rtdb,ocosmo,odbug,ogas_phase,osol_phase)
 c
       iter = 1
 c
@@ -680,44 +617,9 @@ c
       Exc(2) = ZERO
       rms(1) = 0.d0
       rms(2) = 0.d0
-c
-c     ----- cosmo charges and energy contribution -----
-c
-        odbug=.false.
-        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-           if(odbug) then
-              write(LuOut,*) '-cosmo- ... found in dft_scf ...',
-     $                   ocosmo,ga_nodeid()
-              call util_flush(LuOut)
-           endif
-           if(ocosmo) then
-              odbug=.false.
-              if(odbug) then
-                 osome=.true.
-                 write(LuOut,*) 'geom = ',geom,ga_nodeid()
-              else
-                 osome=.false.
-              endif
-              osome=osome.and.ga_nodeid().eq.0
-c
-              itype_wfn=2
-              call cosmo_charges(rtdb,ao_bas_han,geom,ecosmo,iter,
-     $                           osome,itype_wfn,g_movecs)
-c
-              osome=.false.
-           else
-              if(odbug) then
-                 write(LuOut,*) '-cosmo- ... found but .false.',
-     $                      ga_nodeid()
-              endif
-           endif
-        else
-           if(odbug) then
-              write(LuOut,*) '-cosmo- not found in dft_scf ...',
-     $                   ga_nodeid()
-           endif
-        endif
-        call ga_sync()
+      ecosmo=dft_cosmoe(rtdb,ocosmo,odbug,
+     .     geom,iter,g_movecs,ao_bas_han)
+
 c
 c     build DFT Fock matrix
 c
@@ -745,42 +647,8 @@ c
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
      &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
       endif
-c
-c     ----- cosmo energy term ... -----
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(LuOut,*) '-cosmo- ... found in dft_scf',
-     $                 ocosmo,ga_nodeid()
-         endif
-         if(ocosmo) then
-            if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
-     $      call errquit('dft_scf: rtdb get failed for ecosmo',911)
-c
-            etnew =etnew +ecosmo
-c
-            osome=.false.
-            osome=osome.or.odbug
-            osome=osome.and.ga_nodeid().eq.0
-            if(osome) then
-               write(LuOut,9999) (etnew -ecosmo),ecosmo,etnew 
- 9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
-     $       ' etnew  = ',f20.10)
-            endif
-         else
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found but .false.',
-     $                    ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(LuOut,*) '-cosmo- not found in dft_scf',
-     $                 ga_nodeid()
-         endif
-      endif
-      call ga_sync()
+      etnew=dft_cosmoadde(rtdb,ocosmo,odbug,
+     .     ecosmo,etnew)
 c     
       if (last_time_energy)then
          etnew=etnew+tdots
@@ -1208,40 +1076,8 @@ c
      ,        rlshift,dbl_mb(k_eval(1)))
       
       Etnew = Ecore + Ecoul + Exc(1) +tdots
-c
-c     ----- cosmo energy term ... -----
-c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(odbug) then
-            write(LuOut,*) '-cosmo- ... found in dft_scf',
-     $                 ocosmo,ga_nodeid()
-         endif
-         if(ocosmo) then
-            if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
-     $      call errquit('dft_scf: rtdb get failed for ecosmo',911)
-c
-            etnew =etnew +ecosmo
-c
-            osome=.false.
-            osome=osome.or.odbug
-            osome=osome.and.ga_nodeid().eq.0
-            if(osome) then
-               write(LuOut,9999) (etnew -ecosmo),ecosmo,etnew
-            endif
-         else
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found but .false.',
-     $                    ga_nodeid()
-            endif
-         endif
-      else
-         if(odbug) then
-            write(LuOut,*) '-cosmo- not found in dft_scf',
-     $                 ga_nodeid()
-         endif
-      endif
-      call ga_sync()
+      etnew=dft_cosmoadde(rtdb,ocosmo,odbug,
+     .     ecosmo,etnew)
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0)
@@ -1285,7 +1121,6 @@ c
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
-      odbug=.false.
       if(ogas_phase.and.osol_phase) then
          converged =.false.
          egas      =etnew+enuc
@@ -1337,21 +1172,7 @@ c
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
          endif
-c
-c     ----- print cosmo summary -----
-c
-         if(ocosmo) then
-            write(LuOut,915)
-            write(LuOut,912) egas
-            write(LuOut,913) esol
-            write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
- 912        format('                 gas_phase energy = ',f20.10)
- 913        format('                 sol_phase energy = ',f20.10)
- 914        format(' (electrostatic) solvation energy = ',f20.10,
-     $             ' (',f8.2,' kcal/mol)'                       )
- 915        format(1x,'-cosmo- energy summary',/,1x,22(1h-))
-         endif
-         call util_flush(LuOut)
+         if(ocosmo) call dft_cosmosum(egas,esol)
       endif
  1970 continue
 c
