@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.491 2004-11-29 21:38:18 edo Exp $
+# $Id: makefile.h,v 1.492 2004-12-08 19:57:35 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -235,7 +235,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           CDEBUG = -g
               AR = ar
 
-       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons
+       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lnwcutil
 #
 # Machine specific stuff
 #
