@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.7 2005-02-02 07:54:11 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.8 2005-02-10 00:36:57 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -670,93 +670,93 @@ c     integer i2_start(NFFT3+1)
 
 
 
-*     ***********************************
-*     *                                 *
-*     *         D3dB_SumAll             *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_SumAll(sum)
-c     implicit none
-      real*8  sum
-
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-      real*8 sumall,sumt
-
-c     msglen = 8
-      msglen = 1
-
-      sumt = sum
-
-      call GA_DGOP(9+MSGDBL,sumt,1,'+')
-c     call DGOP(9+MSGDBL,sumt,1,'+')
-      sumall=sumt
-
-
-      sum = sumall
-      return
-      end
-
-
-*     ***********************************
-*     *                                 *
-*     *         D3dB_Vector_SumAll      *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_Vector_SumAll(n,sum)
-c     implicit none
-#include "errquit.fh"
-      integer n
-      real*8  sum(*)
-
-#include "mafdecls.fh"
-
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-
-
-
-      logical value
-      integer MASTER
-      parameter (MASTER=0)
-      integer msglen
-
-*     **** temporary workspace ****
-      integer sumall(2),np
-
-
-      call Parallel_np(np)
-      call nwpw_timing_start(2)
-      if (np.gt.1) then
-
-*     ***** allocate temporary space ****
-      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      msglen = n
-
-
-      call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
-      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-
-
-      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
-
-      end if
-      call nwpw_timing_end(2)
-      return
-      end
-
+c*     ***********************************
+c*     *                                 *
+c*     *         D3dB_SumAll             *
+c*     *                                 *
+c*     ***********************************
+c
+c      subroutine D3dB_SumAll(sum)
+cc     implicit none
+c      real*8  sum
+c
+c
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
+c
+c
+c      integer MASTER
+c      parameter (MASTER=0)
+c      integer msglen
+c      real*8 sumall,sumt
+c
+cc     msglen = 8
+c      msglen = 1
+c
+c      sumt = sum
+c
+c      call GA_DGOP(9+MSGDBL,sumt,1,'+')
+cc     call DGOP(9+MSGDBL,sumt,1,'+')
+c      sumall=sumt
+c
+c
+c      sum = sumall
+c      return
+c      end
+c
+c
+c*     ***********************************
+c*     *                                 *
+c*     *         D3dB_Vector_SumAll      *
+c*     *                                 *
+c*     ***********************************
+c
+c      subroutine D3dB_Vector_SumAll(n,sum)
+cc     implicit none
+c#include "errquit.fh"
+c      integer n
+c      real*8  sum(*)
+c
+c#include "mafdecls.fh"
+c
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
+c
+c
+c
+c      logical value
+c      integer MASTER
+c      parameter (MASTER=0)
+c      integer msglen
+c
+c*     **** temporary workspace ****
+c      integer sumall(2),np
+c
+c
+c      call Parallel_np(np)
+c      call nwpw_timing_start(2)
+c      if (np.gt.1) then
+c
+c*     ***** allocate temporary space ****
+c      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+c
+c      msglen = n
+c
+c
+c      call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
+c      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+cc     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+c
+c
+c      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+c      value = MA_pop_stack(sumall(2))
+c
+c      end if
+c      call nwpw_timing_end(2)
+c      return
+c      end
+c
 
 
 #endif
