@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.6 2000-03-29 17:46:58 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.7 2000-03-29 18:41:22 d3j191 Exp $
 c
       implicit none
 c
@@ -173,6 +173,7 @@ c
       if(card(5:8).eq.'angl') ipmf(numpmf,1)=2
       if(card(5:8).eq.'tors') ipmf(numpmf,1)=3
       if(card(5:8).eq.'line') ipmf(numpmf,1)=5
+      if(card(5:8).eq.'plan') ipmf(numpmf,1)=6
       read(card(9:76),'(4i5,2f12.6,2e12.5)')
      + (ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
