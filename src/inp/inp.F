@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.22 1996-05-14 18:01:33 d3g681 Exp $
+C$Id: inp.F,v 1.23 1996-07-17 16:31:16 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -674,9 +674,10 @@ c
       enddo
 c
       end
-      logical function inp_search(ocase, z)
+      logical function inp_search(ocase, z, nz)
       implicit none
-      character*(*) z
+      integer nz
+      character*(*) z(nz)
       logical ocase
       character*1024 tmp
       integer length
@@ -684,15 +685,26 @@ c
       logical inp_read, inp_a, inp_compare
       external inp_read, inp_a, inp_compare, inp_strlen
 c
-      length = inp_strlen(z)
+      integer i
+      integer maxz
+      parameter (maxz = 100)
+      integer length(maxz)
+c
+      if (maxz .lt. nz)
+     $     call errquit('inp_search: hard dim fail',nz)
+      do i = 1, nz
+         length(i) = inp_strlen(z(i))
+      enddo
 c
  10   if (inp_read()) then
          if (inp_a(tmp)) then
-            if (inp_compare(ocase, z(1:length), tmp)) then
-               call inp_prev_field()
-               inp_search = .true.
-               return
-            endif
+            do i = 1, nz
+               if (inp_compare(ocase, z(i)(1:length(i)), tmp)) then
+                  call inp_prev_field()
+                  inp_search = .true.
+                  return
+               endif
+            enddo
          endif
          goto 10
       endif
@@ -779,3 +791,72 @@ c
       endif
       return
       end
+      logical function inp_strtok(z, sep, istart, iend)
+      implicit none
+      character*(*) z           ! [input] string to parse
+      character*(*) sep         ! [input] token separators
+      integer istart, iend      ! [output] start/end of next token
+c
+c     Returns the number of the start and end character of the
+c     next token in the character string.  Tokens are separated
+c     by one of the characters in sep.  Note that all characters
+c     in sep are used including any trailing blanks.
+c
+c     Before the first call initialize istart to zero, and leave
+c     istart and iend UNCHANGED for subsequent calls.
+c     Repeated calls return the next token and true, or false if
+c     there are no more tokens.  The separators may be changed
+c     between calls.
+c
+c     No internal state is maintained (which is istart and iend
+c     must not be modified between calls) so multiple strings
+c     may be parsed simultaneously.
+c
+c     E.g., to split list = 'robert:rick:jeff' into tokens separated 
+c     by ':'. You execute
+c
+c     istart = 0
+c  10 if (inp_strtok(list, ':', istart, iend)) then
+c     write(6,*) list(istart:iend)
+c     goto 10
+c     endif
+c
+      integer i, k, length, nsep
+c
+      if (istart .eq. 0) then
+         istart = 1
+      else
+         istart = iend + 1
+      endif
+c
+c     Scan start forward to next non-separator
+c
+      length = len(z)
+      nsep   = len(sep)
+c
+      do i = istart, length
+         do k = 1, nsep
+            if (z(i:i) .eq. sep(k:k)) goto 10
+         enddo
+         goto 20
+ 10      continue
+      enddo
+      inp_strtok = .false.      ! No more tokens
+      return
+c
+ 20   istart = i                ! Beginning of next token
+c
+c     Scan end forward to one-before next separator
+c
+      do i = istart+1, length
+         do k = 1, nsep
+            if (z(i:i) .eq. sep(k:k)) goto 30
+         enddo
+      enddo
+ 30   iend = i - 1
+c
+      inp_strtok = .true.
+c
+      end
+
+      

@@ -177,13 +177,15 @@
      If no match is found set ind to -1 and return .false.
 
 
-  logical function inp_search(ocase, z)
-  character*(*) z
+  logical function inp_search(ocase, z, nz)
+  integer nz
+  character*(*) z(nz)
   logical ocase	
 
      Position the input file at the next logical input line which has
      a first input field that matches the leading non-blank characters
-     in z. If ocase is .true. then matches are case sensitive.
+     of any of the elements of z. If ocase is .true. then matches are 
+     case sensitive.
 
      If such a line is found then return .true., and reset the current
      input field to 0 (i.e., as if inp_read() had just been called).
