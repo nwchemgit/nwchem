@@ -257,6 +257,8 @@ int main(int argc, const char *argv[])
 	nincfile = 0;
 	while ((i = getc(file)) != EOF) {
 	    char *tmp;
+/************************************************************************\
+Original code:
 	    if (i == '#') 
 		if ((tmp = include_directive(file))) {
 		    if (nincfile >= MAXINCFILE) {
@@ -266,7 +268,31 @@ int main(int argc, const char *argv[])
 		    incfiles[nincfile++] = tmp;
 		}
 	    else
-		skip_to_eol(file);
+	       skip_to_eol(file);
+\***********************************************************************/
+
+/* makeing sure that # is the first character takes care of fortran comments
+   but it does not take care of c style comments or includes that are dependent
+   upon cpp flags.  The latter is the difficult one.
+*/
+	    if (i == '#') 
+		{
+		    if ((tmp = include_directive(file))) {
+			if (nincfile >= MAXINCFILE) {
+			    fprintf(stderr,"dependencies: too many includes\n");
+			    restore_and_error_exit();
+			}
+			incfiles[nincfile++] = tmp;
+		    }
+		}
+/*          else                  *\
+  removed this "else" because 
+  include_directive stops after 
+  the second '"' and not the end 
+  of the line.  Therefore all 
+  lines parsed must go to EOL.
+\*                                */
+               skip_to_eol(file);
 	}
 	fclose(file);
 
