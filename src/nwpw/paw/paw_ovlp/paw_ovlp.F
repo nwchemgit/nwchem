@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.35 2003-02-18 01:24:13 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.36 2003-02-18 01:38:09 bylaska Exp $
 *
 
 !**************************************************
@@ -216,10 +216,6 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       call D3dB_Vector_SumAll(2*neall*total_nbasis,
      >                        dcpl_mb(toeff(1)))
 
-      !**** spin restricted calculations ****
-      if (ispin.eq.1) 
-     > call dscal(2*total_nbasis*neall,2.0d0,dcpl_mb(toeff(1)),1)
-
 
       !*** unsrcramble to get true overlap coefficients ***
       do i1=1,total_nbasis*neall
@@ -295,9 +291,12 @@ c      write(*,*)
       integer i,j,mi,mj,li,lj
       integer i_w0,i_w
       integer nilm,njlm,niplm,njplm
+      real*8  occup
       double complex w_tmp
       
       
+      occup = 1.0d0
+      if (ispin.eq.1) occup = 2.0d0
 
       ii = 0
       i_nbasis = 0
@@ -314,7 +313,7 @@ c      write(*,*)
              w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
      >        dcpl_mb(coeff(1)+indx_coeff1)
            end do
-           dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp
+           dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp*occup
 
            w_tmp = cmplx(0.0d0,0.0d0)
            do n=ne_u+1,ne_d
@@ -470,10 +469,6 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
         end do
       end do
       call D3dB_Vector_SumAll(2*ne*total_nbasis,ct)
-
-      !**** spin restricted calculations ****
-      if (ispin.eq.1) 
-     > call dscal(2*total_nbasis*ne,2.0d0,ct,1)
 
 
       !*** deallocate temporary space ***
