@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld)
 c
 c
-c $Id: sp_init.F,v 1.75 2000-07-27 17:15:01 d3j191 Exp $
+c $Id: sp_init.F,v 1.76 2000-09-02 03:37:47 d3j191 Exp $
 c
       implicit none
 c
@@ -72,7 +72,7 @@ c
       nbbdif=-1
 c
       mwm=mwmi
-      msa=msai
+      msa=max(msai,msmi)
       mbbreq=mbbi
       mbblp=0
       nserie=nseri
