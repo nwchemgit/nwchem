@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl)
-c $Id: cf_init.F,v 1.74 2002-03-08 17:28:52 d3j191 Exp $
+c $Id: cf_init.F,v 1.75 2002-04-17 21:39:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -391,6 +391,10 @@ c
       if(ipmf(i,1).eq.4) m=4
       if(ipmf(i,1).eq.5) m=2
       if(ipmf(i,1).eq.6) m=1
+      if(ipmf(i,1).eq.7) m=0
+      if(ipmf(i,1).eq.8) m=1
+      if(ipmf(i,1).eq.9) m=2
+      if(ipmf(i,1).eq.10) m=1
       if(ithint) then
       if(m.eq.1) ith(18)=.true.
       if(m.eq.2) ith(18)=.true.
