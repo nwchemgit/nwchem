@@ -23,8 +23,8 @@ column.  If {\tt ounder} is \TRUE then the string is underlined.
   character*(1) char       [input]
   logical top, bot, sides  [input]
 \end{verbatim}
-Write the string to spcified Fortran unit flush against the left
-margin optionaly enlcosing the top/bottom/sides with a box constructed
+Write the string to specified Fortran unit flush against the left
+margin, optionally enclosing the top/bottom/sides with a box constructed
 from the given character.  At some point this routine should be renamed
 \verb+util_banner+. 
 
@@ -72,7 +72,9 @@ To print {\tt x(3:12)}
 All fatal errors should result in a call to this routine, which prints
 out the string and status value to both standard error and standard
 output and attempts to kill all parallel processes and to tidy any
-allocated system resources (e.g., system V shared memory).
+allocated system resources (e.g., system V shared memory).  The integer 
+status may be any non-zero integer that has some meaning to the 
+programmer.
 
 \subsection{Parallel Communication}
 
@@ -113,8 +115,8 @@ enable a portable definition.  Use it as follows
 
 For easy management by a use of NWChem, and so that multiple jobs can
 run without interaction in the same directory tree, all files should
-by default have a common prefix (speficied on the {\tt START} or {\tt
-  RESTART} directive).  In addition, files need to be routed to the
+by default have a common prefix (specified on the {\tt START},
+{\tt RESTART}, or {\tt CONTINUE} directive).  In addition, files need to be routed to the
 correct directory (scratch or permanent) and parallel files need the
 process number appended to the name.  Routines (should) exist to do
 all of these things individually, but one master routine does it all
@@ -130,8 +132,8 @@ for you --- wow!
   character*(*) name      ! [output] full filename
 \end{verbatim}
 
-This routine prepends the common file prefix (speficied on the {\tt
-  START} or {\tt RESTART} directive) and directory (scratch or
+This routine prepends the common file prefix (specified on the {\tt
+  START}, {\tt RESTART}, or {\tt CONTINUE} directive) and directory (scratch or
 permanent) and appends the process number for parallel files. For
 example
 \begin{verbatim}
@@ -160,7 +162,7 @@ number appended).
 
 By default all filenames should be prefixed
 with the \verb+file_prefix+ which is the argument presented to the
-\verb+start+ or \verb+restart+ directive in the input.  This is most
+\verb+START+, \verb+RESTART+, or \verb+CONTINUE+ directive in the input.  This is most
 simply accomplished by calling this routine which returns in
 \verb+fullname+ the value of \verb+file_prefix+ followed (with no
 intervening characters) by the contents of \verb+name+.
@@ -179,7 +181,7 @@ the stub name. E.g., \verb+fred.0001+, \verb+fred.0002+, \ldots. The
 number of leading zeroes are adjusted so that there are none in front
 of the highest numbered processor.  This is useful for generating
 names for files, but is probably superseded by the exclusive access
-files in CHEMIO.
+files in CHEMIO (see Section \ref{sec:ChemIO}.)
 
 \subsection{Sequential Fortran Files}
 
@@ -220,13 +222,13 @@ chunks.
 
 \subsubsection{{\tt begin\_seq\_output}, {\tt write\_seq}, and {\tt end\_seq\_output}}
 \begin{verbatim}
-  subroutine begin_seq_output
+  subroutine begin_seq_output()
 
   subroutine write_seq(unit, text)
   integer unit        [input]
   character*(*) text  [input]
 
-  subroutine end_seq_output
+  subroutine end_seq_output()
 \end{verbatim}
 These routines support sequential (i.e., ordered) formatted output
 from all parallel processes.  A call to \verb+begin_seq_output+
@@ -352,7 +354,7 @@ F77:  subroutine checksum_update(len, buf)
       <anything but character> buf(*)  ! [input] data to sum
 \end{verbatim}
 
-  Update the internal checksum with len bytes of data from the 
+  Update the internal checksum with \verb+len+ bytes of data from the 
   location pointed to by buf.  Fortran may use the MA routines
   for portable conversion of lengths into bytes.
 
@@ -477,7 +479,7 @@ file.  All errors are fatal.
   integer function util_system(command)
   character*(*) command      [input]
 \end{verbatim}
-The calling processes executes the UNIX system call \verb+system()+
+The calling processes execute the UNIX system call \verb+system()+
 with \verb+command+ as an argument.  This executes \verb+command+
 inside the Bourne shell.  Returned is the completion code of the
 command (typically 0 on success). If this functionality is not

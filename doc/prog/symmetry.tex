@@ -8,15 +8,19 @@ All of the the symmetry information is buried in the geometry
 object, so unless changes are required in the orbitals or basis, the
 geometry handle alone is sufficient to obtain all required information.
 
+\subsection{Symmetry Group and Operations Functions}
 
-\subsection{{\tt sym\_group\_name}}
+The symmetry module functions that define the group name and operations
+are described in this section.
+
+\subsubsection{{\tt sym\_group\_name}}
 \begin{verbatim}
   subroutine sym_group_name(geom, name)
   integer geom              ! [input]
   character*(*) name        ! [output] returns the group name
 \end{verbatim}
 
-\subsection{{\tt sym\_number\_ops}}
+\subsubsection{{\tt sym\_number\_ops}}
 \begin{verbatim}
   integer function sym_number_ops(geom)
   integer geom              ! [input]
@@ -25,7 +29,7 @@ This routine  returns the number of operations in the group, {\em excluding} the
 identity.  Thus, $C_1$ is represented as containing zero operators and
 $C_{2v}$ has three operators.
 
-\subsection{{\tt sym\_center\_map}}
+\subsubsection{{\tt sym\_center\_map}}
 \begin{verbatim}
   integer function sym_center_map(geom, cent, op)
   integer geom             ! [input]
@@ -36,7 +40,7 @@ Returns the index of the center that the input center
 (\verb+cent+) maps into under the action of the operator
 (numbered 1, \ldots, \verb+sym_number_ops(geom)+).
 
-\subsection{{\tt sym\_inv\_op}}
+\subsubsection{{\tt sym\_inv\_op}}
 \label{sec:syminvop}
 \begin{verbatim}
   subroutine sym_inv_op(geom, op, opinv)
@@ -47,7 +51,7 @@ Returns the index of the center that the input center
 Returns in \verb+opinv+ the index of the operator that is
 the inverse to the operator \verb+op+.
 
-\subsection{{\tt sym\_apply\_op}}
+\subsubsection{{\tt sym\_apply\_op}}
 \begin{verbatim}
   subroutine sym_apply_op(geom, op, r, rnew)
   integer geom
@@ -60,7 +64,7 @@ result in \verb+rnew+.  {\em Note that this routine acts on
   coordinates natural to the system --- Cartesian for molecules and
   fractional for periodic systems.}
 
-\subsection{{\tt sym\_apply\_cart\_op}}
+\subsubsection{{\tt sym\_apply\_cart\_op}}
 \begin{verbatim}
   subroutine sym_apply_cart_op(geom, op, r, rnew)
   integer geom
@@ -72,7 +76,7 @@ This routine  applies the operator \verb+op+ to the Cartesian 3-vector \verb+r+
 returning the result in \verb+rnew+.  {\em Note that this routine acts
   only on Cartesian coordinates.}
 
-\subsection{{\tt sym\_get\_cart\_op}}
+\subsubsection{{\tt sym\_get\_cart\_op}}
 \begin{verbatim}
   subroutine sym_get_cart_op(geom, op, matrix)
   integer geom                 ! [input]
@@ -87,7 +91,7 @@ point group operator and the final column is the translation.
     OP * r(1:3) = r'(1:3) = matrix(1:3,1:3)*r(1:3) + matrix(1:3,4)
 \end{verbatim}
 
-\subsection{{\tt sym\_ops\_get}}
+\subsubsection{{\tt sym\_ops\_get}}
 \begin{verbatim}
   subroutine sym_ops_get(geom, numops, symops)
   integer geom                        ! [input]
@@ -97,7 +101,7 @@ point group operator and the final column is the translation.
 Returns in \verb+symops+ the first \verb+numops+ operators.  It's 
 probably not necessary to use this routine.
 
-\subsection{{\tt sym\_op\_mult\_table}}
+\subsubsection{{\tt sym\_op\_mult\_table}}
 \begin{verbatim}
   subroutine sym_op_mult_table(geom, table, ld)
   integer geom              ! [input]
@@ -290,7 +294,8 @@ according to
 \end{verbatim}
 
 In dealing with Cartesian functions it is necessary to pay careful
-attention to if you are using the inverse or transpose of an operator
+attention to the difference between using the inverse of an operator
+or its transpose
 (see Dupuis and King, IJQC 11, 613-625, 1977).  To apply the inverse
 operator simply use both the center mapping and transformation
 matrices of the inverse operator.  However, since the representation
