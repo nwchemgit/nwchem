@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.26 2002-02-19 20:29:32 windus Exp $
+* $Id: util_legal.F,v 1.27 2002-03-01 00:44:22 windus Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002 *
 *              Pacific Northwest National Laboratory,                *
@@ -135,10 +135,10 @@ c
       write(luout,10000)
       call util_print_centered(luout, 'CITATION', center_pt, FT)
       write(luout,10001)
-      call util_print_centered(luout, 'REFERENCES', center_pt, FT)
-      write(luout,10002)
-      write(luout,10101) 1
       if (util_print('references',print_high)) then
+        call util_print_centered(luout, 'REFERENCES', center_pt, FT)
+        write(luout,10002)
+        write(luout,10101) 1
         write(luout,10102) 2
         write(luout,10103) 3
         write(luout,10104) 4
@@ -168,19 +168,24 @@ c
      &    /,12x,
      &    'obtained with NWChem:'
      &    /,/,
-     + 12x,'R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis,',
-     + ' E. J. Bylaska,',/,
-     + 12x,'G. I. Fann, T. L. Windus, E. Apra, J. Anchell, ',
-     + 'D. Bernholdt, P. Borowski,',/,
-     + 12x,'T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan,',
-     + ' K. Dyall, D. Elwood,',/,
-     + 12x,'H. Fruchtl, E. Glendening, M. Gutowski, A. Hess,',
-     + ' J. Jaffe, B. Johnson, J. Ju,',/,
-     + 12x,'R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin,',
-     + ' R. Littlefield, X. Long, B. Meng,',/,
-     + 12x,'J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave,',
-     + ' H. Taylor, G. Thomas,',/,
-     + 12x,'J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,',/,
+     + 12x,'R. J. Harrison, J. A. Nichols, T. P. Straatsma,',
+     + ' M. Dupuis,',/,
+     + 12x,'E. J. Bylaska, G. I. Fann, T. L. Windus, E. Apra,',
+     + ' W. de Jong,',/,
+     + 12x,'S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt,',
+     + ' P. Borowski,',/,
+     + 12x,'T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,',
+     + ' D. Elwood,',/,
+     + 12x,'H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao,',
+     + ' A. Hess,',/,
+     + 12x,'J. Jaffe, B. Johnson, J. Ju, R. Kendall,',
+     + ' R. Kobayashi, R. Kutteh,',/,
+     + 12x,'Z. Lin, R. Littlefield, X. Long, B. Meng,',
+     + ' T. Nakajima,',/,
+     + 12x,'J. Nieplocha, S. Niu, M. Rosing, G. Sandrone,',
+     + ' M. Stave, H. Taylor,',/,
+     + 12x,'G. Thomas, J. van Lenthe, K. Wolinski,',
+     + ' A. Wong, and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
