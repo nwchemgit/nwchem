@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.10 1995-04-20 22:49:52 og845 Exp $*/
+/*$Id: rtdb_seq.c,v 1.11 1996-09-03 01:23:17 d3g681 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -145,7 +145,7 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
   case MT_BASE + 12:	/* Fortran real */
 
     for (nprint=i=0; i<nelem; i++) {
-      nprint += fprintf(file, "%g ", ((float *) p)[i]);
+      nprint += fprintf(file, "%.7e ", ((float *) p)[i]);
       if (nprint >= 72) {
 	(void) fprintf(file, "\n");
 	nprint = 0;
@@ -158,7 +158,7 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
   case MT_BASE + 13:	/* Fortran double precision */
 
     for (nprint=i=0; i<nelem; i++) {
-      nprint += fprintf(file, "%g ", ((double *) p)[i]);
+      nprint += fprintf(file, "%.14e ", ((double *) p)[i]);
       if (nprint >= 72) {
 	(void) fprintf(file, "\n");
 	nprint = 0;
@@ -171,7 +171,7 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
   case MT_BASE + 14:	/* Fortran single precision complex */
 
     for (nprint=i=0; i<nelem; i++) {
-      nprint += fprintf(file, "(%g,%g) ", ((float *) p)[2*i], 
+      nprint += fprintf(file, "(%.7e,%.7e) ", ((float *) p)[2*i], 
 			((float *) p)[2*i+1]);
       if (nprint >= 72) {
 	(void) fprintf(file, "\n");
@@ -185,7 +185,7 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
   case MT_BASE + 15:	/* Fortran double precision complex */
 
     for (nprint=i=0; i<nelem; i++) {
-      nprint += fprintf(file, "(%g,%g) ", ((double *) p)[2*i], 
+      nprint += fprintf(file, "(%.14e,%.14e) ", ((double *) p)[2*i], 
 			((double *) p)[2*i+1]);
       if (nprint >= 72) {
 	(void) fprintf(file, "\n");
