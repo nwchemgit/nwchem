@@ -3502,3 +3502,30 @@ c
       alpha = a3
       call driver_take_step(rtdb, geom)
 c
+
+
+
+
+
+
+
+
+c     ----- damp out frozen coordinates -----
+c     Since the gradient is already zeroed in the frozen coordinates
+c     then the update should not have introduced any junk, but
+c     just in case do this.  
+c
+c     Actually need to do this to the projected & shifted matrix.
+c     
+      do iz=1,nzfrz
+         i=izfrz(iz)     
+         do j=1,nvar
+            dbl_mb(ind(i,j)) = 0d0
+            dbl_mb(ind(j,i)) = 0d0
+         enddo
+      enddo    
+      do iz=1,nzfrz
+         i=izfrz(iz)     
+         dbl_mb(ind(i,i)) = 0d0
+      enddo
+c     

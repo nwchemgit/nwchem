@@ -237,7 +237,7 @@ c
 c
 c     g = C*gq 
 c
-c     Projecting with P only works for constraints in non-redundant
+c     Projecting with C only works for constraints in non-redundant
 c     variables ... must project with P in redundant case.
 c
       call geom_hnd_get_data('p', dbl_mb(k_bi), nvar**2)
@@ -307,7 +307,7 @@ c
       old_hessian=.false.
       if(inhess.ne.1) call driver_opt_check_hess(nvar, old_hessian)
       if (old_hessian) then
-         if (oprint) write(6,*) ' Using old Hessian from',
+         if (oprint) write(6,*) 'Using old Hessian from',
      $        ' previous optimization'
          goto 999
       else if (inhess.eq.2) then
@@ -867,7 +867,7 @@ c
       if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) 
      $     linopt=1
       if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) 
-     $     moddir=1
+     $     moddir=0
       if (.not. rtdb_get(rtdb,'driver:vardir',mt_int,1,vardir)) 
      $     vardir = 0
       ignore = rtdb_delete(rtdb,'driver:vardir') ! Forget for restart
@@ -881,16 +881,20 @@ c
      $     ofirstneg = .true.
       if (.not. rtdb_get(rtdb,'driver:opcg',mt_log,1,opcg))
      $     opcg = .false.
-      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) 
-     $     modupd = 1
+      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
+         if (modsad .eq. 0) then
+            modupd = 1          ! BFGS update for minimization
+         else
+            modupd = 2          ! PSB update for saddle point
+         endif
+      endif
 c
 c     Force sensible options
 c
       if (modsad .eq. 0) then
          modupd = 1             ! BFGS update for minimization
       else
-         modupd = 2             ! PSB update for saddle point
-         linopt = 0             ! No line search
+         linopt = 0             ! No line search for saddle
       endif
 c     
 c     Save a  copy of the initial geometry so we can analyze what 
@@ -999,7 +1003,7 @@ c
  5432          format(1x,5(i4,1x,a8,2x))
             enddo
             write(6,*)
-            write(6,*) 'variables with the same non-blank name',
+            write(6,*) 'Variables with the same non-blank name',
      $           ' are constrained to be equal'
             write(6,*)
             do i = 1, nzvar
@@ -1031,9 +1035,10 @@ c
             enddo
          endif
          if(nzfrz.gt.0) then
-            write(6,3) nzfrz, (izfrz(i),i=1,nzfrz) 
- 3          format(/' Number of frozen variables =',i5/
-     $           20(1x,15i5,/,:))
+            write(6,3) nzfrz
+ 3          format(/' Number of frozen variables =',i5)
+            write(6,33) (izfrz(i),i=1,nzfrz) 
+ 33         format( '           Frozen variables =',8i5)
          endif
       endif
 c
@@ -1089,7 +1094,7 @@ c     Only the Hessian is modified.
 c     
       double precision hds(max_nvar)
       double precision dsds, dshds, dsdg
-      integer l_hess, k_hess, i, j, iz
+      integer l_hess, k_hess, i, j
       integer ind
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
@@ -1118,7 +1123,7 @@ c
 c     
 c     ----- -bfgs- update -----
 c     
-         if(abs(dsdg).gt.1d-12) then
+         if(abs(dsdg).gt.1d-8) then
             do i=1,nvar
                do j=1,nvar
                   dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
@@ -1131,34 +1136,17 @@ c
 c     
 c     ----- -psb- update -----
 c     
-         do i=1,nvar
-            do j=1,nvar
-               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
-     $              + ((g(i)-gp(i))-hds(i))*ds(j)/dsds
-     1              + ((g(j)-gp(j))-hds(j))*ds(i)/dsds
-     2              - ds(i)*ds(j)*(dsdg-dshds)/(dsds*dsds)
+         if (abs(dsdg).gt.1d-8) then
+            do i=1,nvar
+               do j=1,nvar
+                  dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
+     $                 + ((g(i)-gp(i))-hds(i))*ds(j)/dsds
+     1                 + ((g(j)-gp(j))-hds(j))*ds(i)/dsds
+     2                 - ds(i)*ds(j)*(dsdg-dshds)/(dsds*dsds)
+               enddo    
             enddo    
-         enddo    
+         endif
       endif    
-c     
-c     ----- damp out frozen coordinates -----
-c     Since the gradient is already zeroed in the frozen coordinates
-c     then the update should not have introduced any junk, but
-c     just in case do this.  
-c
-c     Actually need to do this to the projected & shifted matrix.
-c     
-      do iz=1,nzfrz
-         i=izfrz(iz)     
-         do j=1,nvar
-            dbl_mb(ind(i,j)) = 0d0
-            dbl_mb(ind(j,i)) = 0d0
-         enddo
-      enddo    
-      do iz=1,nzfrz
-         i=izfrz(iz)     
-         dbl_mb(ind(i,i)) = 0d0
-      enddo
 c     
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
@@ -2216,14 +2204,18 @@ c
       double precision gv(max_nvar) ! Gradient along eigenvectors
       double precision dv(max_nvar) ! Step along eigenvectors
       double precision saddir(max_nvar) ! Tracks mode for saddle ... saved
+      double precision evalp    ! Remembers previous search eval ... saved
       double precision dsmax    ! Max. value of current step (smax is prev.)
 c     
-      integer nzero, negeig, idamax, mod2
+      integer nzero, negeig, idamax, mod2, ntest
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
-      double precision gvrms, dir, tmp1, tmp2
-      logical geom_print_zmatrix
-      save saddir
+      double precision gvrms, dir, tmp1, tmp2, ovtol
+      logical geom_print_zmatrix, omatchneg
+      save saddir, evalp
+c     
+      omatchneg = .true.
+      ovtol     = 0.7d0
 c     
 c     Get the Hessian and gradient with appropriate projects
 c     applied following Peng, Ayala, Schlegel and Frisch so that
@@ -2267,6 +2259,7 @@ c     Project the gradient onto the Hessian eigenvectors
 c     
       call dgemv('t', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
      $     pg, 1, 0d0, gv, 1)
+c     
       gvrms = ddot(nvar, gv, 1, gv, 1)
       gvrms = sqrt(gvrms/dble(nvar))
       if (odebug) then
@@ -2313,22 +2306,6 @@ c
          enddo
       endif
 c     
-c     Fill in initial saddir 
-c     
-      dir = 1d0                 ! Sign of very first step ... +ve default
-      if (istep .eq. 1) then
-         if (vardir .ne. 0) then
-            if (vardir .lt. 0) dir = -1d0
-            vardir = abs(vardir)
-            call dfill(nvar, 0d0, saddir, 1)
-            saddir(vardir) = 1d0
-         else 
-            if (moddir .lt. 0) dir = -1d0
-            moddir = abs(moddir)
-            call dcopy(nvar,dbl_mb(k_hess+(moddir-1)*nvar),1,saddir,1)
-         endif
-      endif
-c     
 c     Look for the internal coordinate or mode to be followed.  On the
 c     first iteration step along the mode/variable specified by the user.
 c     Otherwise do maximum overlap to track the mode ... must track the
@@ -2339,36 +2316,117 @@ c     Also, might not want to take the first negative mode that appears
 c     since it might be a transverse mode rather than the one of interest.
 c     However, since we might not be tracking the correct mode the default
 c     option is to just follow the first -ve mode that appears.  This
-c     can be disabled with firstneg.
+c     can be disabled with nofirstneg.
 c     
-      if (ofirstneg .and. negeig.eq.1) then
+      dir = 1d0                 ! Sign of very first step ... +ve default
+      if (istep .eq. 1) then
+         if (vardir .ne. 0) then
+            evalp = 99d0        ! Any +ve value will do
+            if (vardir .lt. 0) dir = -1d0
+            vardir = abs(vardir)
+            call dfill(nvar, 0d0, saddir, 1)
+            call dfill(nvar, 0d0, ds, 1)
+            saddir(vardir) = 1d0
+            ds(vardir) = sign(sadstp,pg(vardir))*dir
+            if (oprint) then
+               write(6,776) vardir, pg(vardir), dir, ds(vardir)
+ 776           format(' Initial step taken in variable ', 
+     $              i5,' grad=', f9.4,' dir=', f4.1, ' step=',f9.4)
+            endif
+         else if (moddir .ne. 0) then
+            if (moddir .lt. 0) dir = -1d0
+            moddir = abs(moddir)
+            evalp = e(moddir)
+            call dcopy(nvar,dbl_mb(k_hess+(moddir-1)*nvar),1,saddir,1)
+         else
+c
+c     Default first step is uphill ... makes most sense if we have
+c     just done a constrained optimization.  Screen out just the
+c     largest few components.
+c
+            tmp1 = abs(pg(idamax(nvar,pg,1))) / 3d0
+            do i = 1, nvar
+               saddir(i) = 0d0
+               if (abs(pg(i)) .gt. tmp1) saddir(i) = pg(i)
+            enddo
+            call dcopy(nvar, saddir, 1, ds, 1)
+            if (oprint) write(6,*) 'Initial step taken uphill'
+c     Normalize saddir for future max overlap
+            tmp1 = 1d0/sqrt(ddot(nvar,saddir,1,saddir,1))
+            call dscal(nvar, tmp1, saddir, 1)
+         endif
+      else if (ofirstneg .and. negeig.eq.1) then
          if (oprint) write(6,34) 
+     $        ddot(nvar, saddir, 1, dbl_mb(k_hess), 1)
  34      format(' Hessian has correct structure - ',
-     $        'following negative mode')
+     $        'following negative mode, overlap=',1p,d8.1)
          moddir = 1
       else
 c     
-c     Maximum overlap for tracking the mode
+c     Maximum overlap for tracking the mode.  
+c     
+c     Modified to 
+c     a) If we were following a -ve mode just match against the 
+c     .  negative modes, unless omatchneg is false.
+c     .  (omatchneg=.false. recovers previous behaviour)
+c     b) match the lowest mode that has an overlap which is 
+c     .  greater than ovtol(=0.5)*max_overlap.
+c     .  (ovtol=1.0 recovers previous behaviour)
 c     
          call dgemv('t', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
      $        saddir, 1, 0d0, dv, 1)
          do i = 1, nvar         ! This to avoid matching rot/trans/constraint
             if (e(i) .gt. 1d2) dv(i) = 0d0
          enddo
-         moddir = idamax(nvar, dv, 1)
-         call dcopy(nvar, dbl_mb(k_hess+(moddir-1)*nvar), 1, saddir, 1)
+         if (util_print('modeoverlap',print_debug) .and. 
+     $        ga_nodeid().eq.0) then
+            write(6,*) ' Overlap of modes with searchdir'
+            call output(dv, 1, nvar, 1, 1, nvar, 1, 1)
+         endif
+c     
+         ntest = nvar
+         if (omatchneg .and. (negeig.gt.0) .and. (evalp.lt.0d0)) then
+            if (oprint) write(6,*) 
+     $           'Maximum overlap only with negative modes'
+            ntest = negeig
+         endif
+c     
+         moddir = idamax(ntest, dv, 1)
+         do i = 1, ntest
+            if (abs(dv(i)) .gt. abs(dv(moddir))*ovtol) then
+               moddir = i
+               goto 304
+            endif
+         enddo
+ 304     continue
 c     
 c     Print out first two maximum overlaps to warn of ambiguity
 c     
          tmp1 = abs(dv(moddir))
          dv(moddir) = 0d0
-         mod2 = idamax(nvar, dv, 1)
+         mod2 = idamax(ntest, dv, 1)
          tmp2 = abs(dv(mod2))
          if (oprint) write(6,98) moddir, tmp1, mod2, tmp2
  98      format(' Maximum overlap of modes: mode=', i3, 1p, 
-     $        ' overlap=',d8.1, 0p, '  mode=', i3, 1p, ' overlap=',d8.1,
-     $        0p, 3x)
+     $        ' overlap=',d8.1, 0p, '  mode=', i3, 1p,' overlap=',d8.1)
          if (tmp1 .eq. 0d0) call errquit('driver_sad_dir: no mode?',0)
+c
+      endif
+      if (moddir .ne. 0) then
+         call dcopy(nvar, dbl_mb(k_hess+(moddir-1)*nvar), 1, saddir, 1)
+         evalp = e(moddir)
+      endif
+      if (util_print('sadmode',print_default).and.ga_nodeid().eq.0)then
+         write(6,*) 
+         write(6,*) 'The mode being followed to the saddle point'
+         if (zcoord) then
+            if (.not.geom_print_zmatrix(geom, saddir,'Sadmode',.true.))
+     $           call errquit('driver: printing sadmode?',0)
+         else
+            write(6,*)
+            write(6,88) (saddir(i),i=1,nvar)
+ 88         format(1x,8f9.4)
+         endif
       endif
 c     
 c     Save moddir so that it is picked up for a restart
@@ -2376,80 +2434,83 @@ c
       if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)) 
      $     call errquit('driver_sad_search_dir: rtdb?',0)
 c     
+      if (moddir .gt. 0) then
+c     
 c     Form the step applying trust radius on each mode.
 c     Augmented Hessian step is similar to replacing
 c     eigenvalue e(i) with (e(i) + gv(i)**2/e(i))
 c     
-      do i = 1, nvar
-         if (i .eq. moddir) then
-            if (e(i) .ge. 0d0) then ! +ve curvature ... fixed step uphill
+         do i = 1, nvar
+            if (i .eq. moddir) then
+               if (e(i) .ge. 0d0) then ! +ve curvature ... fixed step uphill
 c     
 c     +ve curvature and first step ... force in the direction
 c     requested by the user.  Otherwise go uphill.
 c     
-               if (istep.eq.1) then
-                  dv(i) = sadstp*dir
-               else
-                  dv(i) = sign(sadstp,gv(i))
-               endif
+                  if (istep.eq.1) then
+                     dv(i) = sadstp*dir
+                  else
+                     dv(i) = sign(sadstp,gv(i))
+                  endif
 c     
-               if (oprint) write(6,667) i, e(i), gv(i), dv(i)
- 667           format(' Forcing   uphill step in mode',i5,
-     $              '  eval=', 1p,d8.1,' grad=',d8.1,
-     $              ' step=',d8.1)
-            else
-               dv(i) = -gv(i)*dir/(e(i)+max(gvrms**2,gv(i)**2)/e(i))
-*     dv(i) = -gv(i) / e(i)
-               if (abs(dv(i)) .gt. sadstp) then 
-                  if (oprint) write(6,2) i, e(i), dv(i), 
-     $                 sign(sadstp,dv(i))
-                  dv(i) = sign(sadstp,dv(i))
-               endif
-            endif
-         else
-            if (e(i) .gt. 1d-8) then ! +ve curvature
-               dv(i) = -gv(i) / (e(i) + max(gvrms**2,gv(i)**2)/e(i))
-*     dv(i) = -gv(i) / e(i)
-            else if (e(i) .lt. -1d-8) then ! -ve curvature 
-               dv(i) = sign(0.3d0*trust,-gv(i))
-               if (oprint) write(6,666) i, e(i), gv(i), dv(i)
- 666           format(' Forcing downhill step in mode',i5,
-     $              '  eval=', 1p,d8.1,' grad=',d8.1,' step=',
-     $              d8.1)
-            else
-               if (abs(gv(i)) .gt. 1d-2*gmax_tol) then
-                  dv(i) = sign(trust,-gv(i))
+                  if (oprint) write(6,667) i, e(i), gv(i), dv(i)
+ 667              format(' Forcing    uphill step in mode',i5,
+     $                 ' eval=', 1p,d8.1,' grad=',d8.1,
+     $                 ' new=',d8.1)
                else
-                  dv(i) = 0d0
+*     dv(i) = -gv(i) / e(i)
+                  dv(i) = -gv(i)*dir/(e(i)+max(gvrms**2,gv(i)**2)/e(i))
+                  if (abs(dv(i)) .gt. sadstp) then 
+                     if (oprint) write(6,2) i, e(i), dv(i), 
+     $                    sign(sadstp,dv(i))
+                     dv(i) = sign(sadstp,dv(i))
+                  endif
                endif
-               if (oprint) write(6,1) i, e(i), dv(i)
- 1             format(' Restricting step in mode',i5,
-     $              ' due to tiny eigenvalue=', 1p,d8.1,
-     $              ' step=',d8.1)
+            else
+               if (e(i) .gt. 1d-8) then ! +ve curvature
+*     dv(i) = -gv(i) / e(i)
+                  dv(i) = -gv(i) / (e(i) + max(gvrms**2,gv(i)**2)/e(i))
+               else if (e(i) .lt. -1d-8) then ! -ve curvature 
+                  dv(i) = sign(0.3d0*trust,-gv(i))
+                  if (oprint) write(6,666) i, e(i), gv(i), dv(i)
+ 666              format(' Forcing  downhill step in mode',i5,
+     $                 ' eval=', 1p,d8.1,' grad=',d8.1,' new=',
+     $                 d8.1)
+               else
+                  if (abs(gv(i)) .gt. 1d-2*gmax_tol) then
+                     dv(i) = sign(trust,-gv(i))
+                  else
+                     dv(i) = 0d0
+                  endif
+                  if (oprint) write(6,1) i, e(i), dv(i)
+ 1                format(' Restricting step in mode',i5,
+     $                 ' due to tiny eigenvalue=', 1p,d8.1,
+     $                 ' step=',d8.1)
+               endif
+               if (abs(dv(i)) .gt. trust) then 
+                  if (oprint) write(6,2) i, e(i), dv(i), 
+     $                 sign(trust,dv(i))
+ 2                format(' Restricting large step in mode',i5, 
+     $                 ' eval=', 1p,d8.1,' step=',d8.1,' new=',d8.1)
+                  dv(i) = sign(trust,dv(i))
+               endif
             endif
-            if (abs(dv(i)) .gt. trust) then 
-               if (oprint) write(6,2) i, e(i), dv(i), 
-     $              sign(trust,dv(i))
- 2             format(' Restricting large step in mode',i5, 
-     $              ' eval=', 1p,d8.1,' step=',d8.1,' new=',d8.1)
-               dv(i) = sign(trust,dv(i))
-            endif
+         enddo
+         if (oprint) then
+            write(6,12) moddir,e(moddir),gv(moddir),dv(moddir)
+ 12         format(' Search mode=',i2,' eval=',1p,d8.1,' grad=',d8.1,
+     $           ' step=',d8.1)
          endif
-      enddo
-      if (oprint) then
-         write(6,12) moddir,e(moddir),gv(moddir),dv(moddir)
- 12      format(' Search mode=',i2,' eval=',1p,d8.1,' grad=',d8.1,
-     $        ' step=',d8.1)
-      endif
-      if (odebug) then
-         write(6,*) ' Step in spectral form '
-         call doutput(dv, 1, nvar, 1, 1, nvar, 1, 1)
-      endif
+         if (odebug) then
+            write(6,*) ' Step in spectral form '
+            call doutput(dv, 1, nvar, 1, 1, nvar, 1, 1)
+         endif
 c     
 c     Transform back to optimization space
 c     
-      call dgemv('n', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
-     $     dv, 1, 0d0, ds, 1)
+         call dgemv('n', nvar, nvar, 1d0, dbl_mb(k_hess), nvar,
+     $        dv, 1, 0d0, ds, 1)
+      endif
 c     
       call driver_symmetrize_step(geom)
 c     
