@@ -77,6 +77,7 @@ c
       integer mrg_b18
       integer mrg_b19
       integer mrg_b20
+      integer mrg_b21
       integer mrg_i01
       integer mrg_i05
       integer mrg_d01
@@ -340,3 +341,4 @@ c
       parameter (msg_gapss_vcoul     = msg_ftn_base - 188 )  ! gapss: gap_vcoul
       parameter (msg_gapss_ltp     = msg_ftn_base - 189 )    ! gapss: gap_vcoul
       parameter (msg_direct_mp2_emp2 = msg_ftn_base - 189 ) ! direct_mp2
+      parameter (mrg_b21 = msg_ftn_base - 190 ) ! arg_checkStatus
