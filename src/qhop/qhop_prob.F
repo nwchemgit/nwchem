@@ -23,7 +23,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_prob.F,v 1.5 2003-08-18 17:38:53 d3j191 Exp $
+c $Id: qhop_prob.F,v 1.6 2003-09-22 15:20:10 d3j191 Exp $
 c
 c     
 c     The hopping probability prob is calculated given the difference in 
@@ -61,13 +61,16 @@ c
       real*8 tdsglpar1,tdsglpar2
       real*8 kabba,probright,e12right,tstpar1,tstpar2,e12left,
      + preldeltae
+      real*8 dist,angle
       integer i,ipar,index
       integer iseq(2),ihv(2),lhv(2)
 c      
 c     Searching the correct parameters set ipar
 c      
+      dist=dang(1)*10.0d0
+      angle=dang(2)
 c      print*,'entering prob'
-      if(dang(2).le.2.0943)then
+      if(angle.le.2.0943)then
       prob=0
       return
       endif
@@ -97,25 +100,24 @@ c 1026 format('prob ',9i5)
 c
 c     Calculating e12 
 c
-      dang(1)=dang(1)*10.
       e12=(uda(3)+uda(4)-uda(1)-uda(2))/4.184
-      e12=e12+e12fxy(ipar,1)+e12fxy(ipar,2)*dang(1)+
-     + e12fxy(ipar,3)*(dang(1)**2)
+      e12=e12+e12fxy(ipar,1)+e12fxy(ipar,2)*dist+
+     + e12fxy(ipar,3)*(dist**2)
 c      
 c      lhv(1)=ld+arat(ptarat(ptseq(iseq(1),1)+gd-ptseq(iseq(1),2),1)
 c      lhv(2)=la+arat(ptarat(ptseq(iseq(2),1)+ga-ptseq(iseq(2),2),1)
 c
       tstpar1=tstval(ipar,1)+tstval(ipar,2)*300
       tstpar2=tstval(ipar,3)+tstval(ipar,4)*300
-      e12right=tstpar1*(dang(1)-tstpar2)**2+tstval(ipar,5)
+      e12right=tstpar1*(dist-tstpar2)**2+tstval(ipar,5)
       
       if(e12.gt.e12right)then
 c
 c     TST regime
 c        
-      preldeltae=defe12(ipar,1)*(dang(1)-defe12(ipar,2))**2
+      preldeltae=defe12(ipar,1)*(dist-defe12(ipar,2))**2
      + +defe12(ipar,3)+defe12(ipar,4)*e12+(defe12(ipar,5)
-     + *exp(-defe12(ipar,6)*(dang(1)-2.0))+defe12(ipar,7))*e12*e12
+     + *exp(-defe12(ipar,6)*(dist-2.0))+defe12(ipar,7))*e12*e12
       zpe1=zpef(ipar,1)*exp(-zpef(ipar,2)*preldeltae)+zpef(ipar,3)
       deltae=preldeltae-zpe1
       if(e12.lt.0) then
@@ -131,9 +133,9 @@ c
 c 
       else
 c
-      tdsglpar1=tdsgl(ipar,1)*exp(tdsgl(ipar,2)*(dang(1)-2.3))+
+      tdsglpar1=tdsgl(ipar,1)*exp(tdsgl(ipar,2)*(dist-2.3))+
      +  tdsgl(ipar,3)
-      tdsglpar2=tdsgl(ipar,4)*exp(tdsgl(ipar,5)*(dang(1)-2.3))+
+      tdsglpar2=tdsgl(ipar,4)*exp(tdsgl(ipar,5)*(dist-2.3))+
      + tdsgl(ipar,6)
       e12left=(tdsglpar2+1.0986)/tdsglpar1
       if(e12.lt.e12left)then
@@ -145,9 +147,9 @@ c
 c
 c     intermediate regime 
 c       
-      preldeltae=defe12(ipar,1)*(dang(1)-defe12(ipar,2))**2
+      preldeltae=defe12(ipar,1)*(dist-defe12(ipar,2))**2
      + +defe12(ipar,3)+defe12(ipar,4)*e12right
-     + +(defe12(ipar,5)*exp(-defe12(ipar,6)*(dang(1)-2.0)
+     + +(defe12(ipar,5)*exp(-defe12(ipar,6)*(dist-2.0)
      + +defe12(ipar,7))*e12right*e12right)
       zpe1=zpef(ipar,1)*exp(-zpef(ipar,2)*preldeltae)+zpef(ipar,3)
       deltae=preldeltae-zpe1
@@ -168,7 +170,7 @@ c
       endif
       endif 
 c      
-c      print 1101,iseq(1),iseq(2),prd,pra,ptpar(ipar),dang(1),e12,
+c      print 1101,iseq(1),iseq(2),prd,pra,ptpar(ipar),dist,e12,
 c     + e12right,e12left,prob
 c 1101 format('prob2 ',5i5,5f12.4)
       return
