@@ -1,0 +1,30 @@
+testfft3 runs and times ffts from md1xmd2xmd3 to nd1xnd2xnd3
+by increasing dimensions together by multiplying by 2. (These 
+parameters are defined in parms.fh.) It performs a forward,
+then an inverse fft, checking the infinity norm against a 
+small tolerance.
+
+Output from a normal run is attached.
+
+
+to make::  1) make peigs (for comm), libpfft.a
+           2) run: make test
+
+to run::  w/parallel command) cd tst; edit testfft3.p to
+                              reflect your configuration.
+
+          otherwise) use the method on hand for mpp   
+
+
+sample run output
+-----------------
+
+sounion163% parallel testfft3
+ Creating: host=sounion, user=twclark,
+           file=../testfft3, port=2578
+  *** FFT Type: EMSL_FFT with TCG_PROCS and nproc =                     4
+***
+  8   8   8 fft wallclock time (sec):    4.57917
+ 16  16  16 fft wallclock time (sec):    4.48180
+ 32  32  32 fft wallclock time (sec):    4.73456
+
