@@ -4,11 +4,17 @@
 *
 * these should use the inp modules like the rest of nwchem
 * see bas_library_file in .../basis/bas_input.F
+* right now it is key value but later on we might want key
+* array of values etc.  The inp_a, inp_f, inp_i routines
+* provide all the flexibility we need with the ability to have
+* physical/logical line style input. 
 *
 *
       logical function util_nwchemrc_put(key,value)
 c
       implicit none
+c
+* $Id: util_nwchemrc.F,v 1.3 1998-04-24 07:32:48 d3e129 Exp $
 c
       character*(*) key,value
 c
