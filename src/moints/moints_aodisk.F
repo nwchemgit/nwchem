@@ -147,9 +147,6 @@ c
 c
       logical sparse                    ! for the moment only sparse case
       data sparse/.true./
-C      INTEGER SSBBLEN
-C      DOUBLE PRECISION DABSSUM
-C      EXTERNAL DABSSUM
 c
       moints_gblk_todisk = .false.
       if (moao_ipass.lt.0) return
@@ -212,7 +209,8 @@ c
       endif
       inquire(file=moao_fname, exist=fexist)
       if (oreuse) then
-        stat = (fexist)
+        stat = 0
+        if (fexist) stat=1
         call ga_igop( 481, stat, 1, '*')
         if (stat.eq.1) then
           moao_ipass = 1
