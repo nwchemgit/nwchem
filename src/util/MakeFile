@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.19 2003-02-06 21:29:38 edo Exp $	
+#	$Id: MakeFile,v 1.20 2003-02-07 00:36:57 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -32,6 +32,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\ga_matpow.obj \
 
 OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\errquit.obj \
+               $(OBJDIR)\ma_print.obj \
                $(OBJDIR)\ffflush.obj \
                $(OBJDIR)\print_center.obj \
                $(OBJDIR)\util_flush.obj \
