@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.59 1997-02-19 19:52:17 mdupuis Exp $
+# $Id: make_nwchem_config,v 1.60 1997-02-20 23:46:28 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -27,7 +27,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
-                    -lfft -lepigs -ldplot -loimp2 -lproperty 
+                    -lpfft -lpeigs -ldplot -loimp2 -lproperty 
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -118,6 +118,7 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst argos,argos fft NWints,$(MODULES) )
 
+MODULES := $(patsubst fft,fft peigs,$(MODULES) )
 MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
 
 # This dependency is the other way round (matchnxyz used by symmetry)
@@ -166,7 +167,8 @@ MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst fft,-lfft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst peigs,-lpeigs,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
