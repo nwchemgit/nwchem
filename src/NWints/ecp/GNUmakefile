@@ -54,9 +54,15 @@ OBJ_ENERGY = \
       ecp_local.o    \
       int_ecp.o      
 
+ifdef NWCHEM_DEBUG
+OBJ =  $(OBJ_ENERGY) $(OBJ_GRAD)
+
+OBJ_OPTIMIZE = 
+else
 OBJ =  
 
 OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
+endif
 
 HEADERS = ecp_nwc.fh
 
