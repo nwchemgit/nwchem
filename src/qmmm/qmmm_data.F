@@ -80,15 +80,6 @@ c     -------------
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nqm, MA_ERR)
       call dfill(nat,0,dbl_mb(i_q),1)
-c
-c     formal charge array
-c     -------------
-      if(.not.ma_alloc_get(MT_DBL, nat, 'qmmm formal charge array',
-     &      h_qf, i_qf) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(nat,0,dbl_mb(i_qf),1)
-
 
 c
 c     mass array
@@ -274,15 +265,6 @@ c
       integer anbqs
 
       nbqs = anbqs
-
-      end 
-
-      function qmmm_get_i_qf()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_qf
-
-      qmmm_get_i_qf = i_qf
 
       end 
 

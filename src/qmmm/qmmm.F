@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.13 2004-09-03 20:07:56 marat Exp $
+c $Id: qmmm.F,v 1.14 2004-09-07 02:23:15 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -234,9 +234,10 @@ c     ----------------------------------
 
       call dfill(3*nqm,0,dbl_mb(i_gmm),1)
 
-      call mm_get_force(nqm,
+      call mm_get_solute_force_quant(nqm,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_gmm))
+
 
       if(mm_only) then
         call dfill(3*nqm,0,dbl_mb(i_g),1)
@@ -246,7 +247,7 @@ c     ----------------------------------
       end if
 
 
-      call daxpy(3*nqm,cau2nm/cau2kj,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
+      call daxpy(3*nqm,1.0d0,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
 
       if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nqm,dbl_mb(i_g)))
      + call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
@@ -349,41 +350,5 @@ c     local variables
 
       end
 
-      subroutine qmmm_update_qm_forces(irtdb)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-#include "qmmm_params.fh"
-#include "rtdb.fh"
-      integer irtdb
-c     local variables
-      integer nt
-      integer i_ai
-      integer i_gmm
-      integer i_g
-
-      nt   = qmmm_get_nqm()
-      i_ai = qmmm_get_i_ai()
-      i_g = qmmm_get_i_g()
-      i_gmm = qmmm_get_i_gmm()
-
-      call dfill(3*nt,0,dbl_mb(i_gmm),1)
-
-      call mm_get_force(nt,
-     &                   int_mb(i_ai),
-     &                   dbl_mb(i_gmm))
-
-
-      if(.not.rtdb_get(irtdb,'qmmm:gradient',mt_dbl,3*nt,dbl_mb(i_g)))
-     + call errquit('qmmm: rtdb_get gradient failed',0, RTDB_ERR)
-
-      call daxpy(3*nt,cau2nm/cau2kj,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
-
-      if(.not.rtdb_put(irtdb,'qmmm:gradient',mt_dbl,3*nt,dbl_mb(i_g)))
-     + call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
-
-      end
 
 

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.13 2004-09-03 20:07:56 marat Exp $
+c $Id: mm_interface.F,v 1.14 2004-09-07 02:23:15 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -63,9 +63,6 @@ c
 c
       integer nqm
 c
-      integer i
-      integer nqatom,nlatom
-      integer nsaloc
 
       call mm_get_solute_na_gen(nqm,mm_quant_link)
 
@@ -92,8 +89,6 @@ c
 c
 #include "mafdecls.fh"
 #include "mm_utils.fh"
-c
-      integer nqm
 c
       integer i
       logical mm_type
@@ -195,173 +190,6 @@ c
            if(bq_exclude.eq.qmmm_all_atoms) call mm_clear_bqzone(i)
          endif
       end do
-
-      end
-
-      subroutine mm_get_geom_bqs(nt,
-     >                       bqi,
-     >                       c,
-     >                       q)
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-
-      integer nt
-      integer bqi(*)
-      double precision c(3,nt)
-      double precision q(nt)
-
-
-c     local variables
-      integer i
-      integer np,me
-      integer nbqs
-      integer l_off,i_off
-
-      integer ioq
-      integer nsa
-      integer msa
-      integer psz
-      integer psl
-      integer psq
-      integer pxs
-      integer psdt
-
-      call dfill(3*nt,0,c,1)
-      call dfill(nt,0,q,1)
-
-      call mm_get_msa(msa)
-      call mm_get_nsaloc(nsa)
-      call mm_get_psz(psz)
-      call mm_get_pxs(pxs)
-      call mm_get_psq(psq)
-      call mm_get_psdt(psdt)
-      call mm_get_psl(psl)
-
-      np=ga_nnodes()
-
-      if(.not.ma_push_get(mt_int,np,'off',l_off,i_off))
-     + call errquit('qmmm: Failed to allocate memory for ioff',np,
-     &       MA_ERR)
-
-      do i=1,np
-        int_mb(i_off+i-1)=0
-      end do
-c
-c     accumulate offsets
-c     ------------------
-      me = ga_nodeid()
-      call mm_get_nbqs(nbqs)
-      do i=me+1,np
-        int_mb(i_off+i-1)=nbqs
-      end do    
-      call ga_igop(msg_qmmm_nbqs_off,int_mb(i_off),np,'+')
-c
-c     set offset for a current node
-c     -----------------------------
-      if(me.gt.0) then
-        ioq=int_mb(i_off+me-1)
-      else
-        ioq=0
-      end if
-
-      write(*,*) "before mm_get_geom_bqs0"
-     
-      call mm_get_geom_bqs0(nt,
-     &                   msa,
-     &                   nsa,
-     &                   ioq,
-     &                   int_mb(psl),
-     &                   int_mb(psdt),
-     &                   int_mb(psz),
-     &                   int_mb(psq),
-     &                   dbl_mb(pxs),
-     &                   bqi,
-     &                   c,
-     &                   q)
-
-      write(*,*) "after mm_get_geom_bqs0"
- 
-      if(.not.ma_pop_stack(l_off))
-     & call errquit('qmmm: Failed to deallocate stack',nt,
-     &       MA_ERR)
-      
-      write(43,*) nbqs
-      write(43,*) "  "
-      do i=1,nbqs
-       write(43,'("Bq  ",3(10X,F10.6),5X,"charge ",10X,F10.6)')
-     >           c(1,i)*0.529177249d00,
-     >            c(2,i)*0.529177249d00,
-     >            c(3,i)*0.529177249d00, q(i)
-
-      end do
-
-      end
-
-      subroutine mm_get_geom_bqs0(nt,
-     &                   msa,
-     &                   nsa,
-     &                   ioff,
-     &                   isl,
-     &                   isdt,
-     &                   isz,
-     &                   isq,
-     &                   xs,
-     &                   bqi,
-     &                   c,
-     &                   q)
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-#include "qmmm_params.fh"
-#include "mm_utils.fh"
-#include "msgids.fh"
-
-      double precision cf_charge
-      external cf_charge
-
-
-      integer nt,msa,nsa
-      integer ioff
-      integer isl(msa)
-      integer isdt(msa)
-      integer isz(msa)
-      integer isq(msa)
-      double precision xs(msa,3)
-      integer bqi(nt)
-      double precision c(3,nt)
-      double precision q(nt)
-
-
-c     local variables
-      integer i
-      integer ioq
-
-
-
-      ioq = ioff
-      do i=1,nsa
-      if(mm_bqzone(i)) then
-         ioq=ioq+1
-         c(1,ioq)=xs(i,1)*cnm2au
-         c(2,ioq)=xs(i,2)*cnm2au
-         c(3,ioq)=xs(i,3)*cnm2au
-         q(ioq)=cf_charge(isq(i))
-         bqi(ioq)=isl(i)
-      endif
-      end do
-
-      call ga_dgop(msg_qmmm_cbqs,c,3*nt,'+')
-      call ga_dgop(msg_qmmm_qbqs,q,nt,'+')
 
       end
 
@@ -660,14 +488,113 @@ c     -----------------------------
 
       end
 
+      subroutine mm_get_solute_geom_quant(nt,
+     >                       ai,
+     >                       t,
+     >                       c,
+     >                       q,
+     >                       m)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      character*16 t(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+      double precision m(nt)
+c
+      integer i
+      integer i_num,h_num
+
+      if(.not.ma_push_get(mt_int,nt,'inum',h_num,i_num))
+     + call errquit('qmmm: Failed to allocate memory for inum',nt,
+     &       MA_ERR)
+ 
+      call mm_get_solute_geom_gen(nt,
+     >                       mm_quant_link,
+     >                       ai,
+     >                       int_mb(i_num),
+     >                       t,
+     >                       c,
+     >                       q)
+
+      do i=1,nt
+         if(.not.geom_tag_to_default_mass(t(i),m(i)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+         q(i)=dble(int_mb(i_num+i-1))
+      end do
+
+      if(.not.ma_pop_stack(h_num))
+     & call errquit('qmmm: Failed to deallocate stack',nt,
+     &       MA_ERR)
+ 
+      end
+
+      subroutine mm_get_solute_geom_bq(nt,
+     >                       ai,
+     >                       c,
+     >                       q)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+c
+      integer i_num,h_num
+      integer i_t,h_t
+
+      if(.not.ma_push_get(mt_int,nt,'inum',h_num,i_num))
+     + call errquit('qmmm: Failed to allocate memory for inum',nt,
+     &       MA_ERR)
+      if(.not.ma_push_get(MT_BYTE, 16*nt, 'bq tag array',
+     &      h_t, i_t) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nt, MA_ERR)
+
+ 
+      call mm_get_solute_geom_gen(nt,
+     >                       mm_bqzone,
+     >                       ai,
+     >                       int_mb(i_num),
+     >                       byte_mb(i_t),
+     >                       c,
+     >                       q)
+
+      if(.not.ma_pop_stack(h_t))
+     & call errquit('qmmm: Failed to deallocate stack h_t',nt,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_num))
+     & call errquit('qmmm: Failed to deallocate stack h_num',nt,
+     &       MA_ERR)
+ 
+      end
+
       subroutine mm_get_solute_geom_gen(nt,
      >                       mm_type,
      >                       ai,
      >                       inum,
      >                       t,
      >                       c,
-     >                       q,
-     >                       m)
+     >                       q)
       implicit none
 
 #include "qmmm_params.fh"
@@ -686,7 +613,6 @@ c     -----------------------------
       character*16 t(nt)
       double precision c(3,nt)
       double precision q(nt)
-      double precision m(nt)
       external mm_type
 
       integer i,j,k
@@ -694,10 +620,7 @@ c     -----------------------------
 c     mm local variables
       integer msa
       integer nsa
-      integer psdt
-      integer psq
       integer psl
-      integer psat
       integer pxs
 
       call dfill(3*nt,0.0d0,c,1)
@@ -706,11 +629,8 @@ c     mm local variables
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
-      call mm_get_psdt(psdt)
-      call mm_get_psat(psat)
       call mm_get_psl(psl)
       call mm_get_pxs(pxs)
-      call mm_get_psq(psq)
 
       do i=1,nsa
         if(mm_type(i)) then
@@ -732,199 +652,7 @@ c     mm local variables
 
       do i=1,nt
          call cf_num2tag(inum(i),t(i))
-         if(.not.geom_tag_to_default_mass(t(i),m(i)))
-     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
       end do
-
-      end
-
-      subroutine mm_get_geom(nt,
-     >                       ai,
-     >                       inum,
-     >                       t,
-     >                       c,
-     >                       q,
-     >                       m)
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-
-      integer nt
-      integer ai(nt)
-      integer inum(nt)
-      character*16 t(nt)
-      double precision c(3,nt)
-      double precision q(nt)
-      double precision m(nt)
-
-      integer i
-
-c     mm local variables
-      integer msa
-      integer nsaloc
-      integer psdt
-      integer psq
-      integer psl
-      integer psat
-      integer pxs
-
-      call dfill(3*nt,0.0d0,c,1)
-      call dfill(nt,0.0d0,q,1)
-      call dfill(nt,0.0d0,m,1)
-      call ifill(nt,0.0d0,inum,1)
-
-      call mm_get_msa(msa)
-      call mm_get_nsaloc(nsaloc)
-      call mm_get_psdt(psdt)
-      call mm_get_psat(psat)
-      call mm_get_psl(psl)
-      call mm_get_pxs(pxs)
-      call mm_get_psq(psq)
-
-
-      call mm_get_geom0(nt,msa,nsaloc,
-     &                   int_mb(psl),
-     &                   int_mb(psdt),
-     &                   int_mb(psat),
-     &                   dbl_mb(pxs),
-     &                   int_mb(psq),
-     &                   ai,
-     &                   inum,
-     &                   c,
-     &                   q,
-     &                   m,
-     &                   t)
-
-      write(42,*) nt
-      write(42,*) "qm geometry"
-      do i=1,nt
-       write(42,'(A4,3(10X,F10.6),5X,"charge ",10X,F10.6)')
-     >           t(i),c(1,i)*0.529177249d00,
-     >            c(2,i)*0.529177249d00,
-     >            c(3,i)*0.529177249d00, q(i)
-
-      end do
-
-      do i=1,nt
-       write(45,FMT=9000)
-     >           i,t(i),c(1,i)*0.529177249d00,
-     >            c(2,i)*0.529177249d00,
-     >            c(3,i)*0.529177249d00, q(i)
-
-      end do
-9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
-
-      call util_flush(45)
-
-      end
-
-      subroutine mm_get_geom0(nt,msa,nsa,
-     &                   isl,
-     &                   isdt,
-     &                   isat,
-     &                   xs,
-     &                   isq,
-     &                   ai,
-     &                   inum,
-     &                   c,
-     &                   q,
-     &                   m,
-     &                   t)
-      implicit none
-#include "global.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_params.fh"
-#include "msgids.fh"
-#include "inp.fh"
-#include "mm_utils.fh"
-      integer nt,msa,nsa
-      integer isl(msa)
-      integer isdt(msa)
-      integer isat(msa)
-      integer   isq(msa)
-      double precision xs(msa,3)
-      integer ai(nt)
-      integer inum(nt)
-      double precision c(3,nt)
-      double precision q(nt)
-      double precision m(nt)
-      character*16 t(nt)
-c
-      integer cf_element
-      external cf_element
-      double precision cf_charge
-      external cf_charge
-
-c     local variables
-      logical islink
-      integer atn
-      integer i,j
-      character*16 tag
-      integer i_ndx,h_ndx
-      double precision r(3)
-      
-
-      if(.not.ma_push_get(mt_int,nt,'ndx',h_ndx,i_ndx))
-     + call errquit('qmmm: Failed to allocate memory for ndx',
-     + 3*nt, MA_ERR)
-      
-
-      do i=1,nsa
-        islink=iand(isdt(i),lqlink).ne.0
-        if(iand(isdt(i),lquant).ne.0 .or.
-     &   islink) then
-            do j=1,nt
-              if(isl(i).eq.ai(j)) then
-                 call mm_get_solute_coord(i,r)
-                 write(*,*) "found match",isl(i),ai(j)
-                 write(*,*) "xs=",xs(i,1),xs(i,2),xs(i,3)
-                 write(*,*) "r=",r(1),r(2),r(3)
-                 c(1,j)=xs(i,1)*cnm2au
-                 c(2,j)=xs(i,2)*cnm2au
-                 c(3,j)=xs(i,3)*cnm2au
-                 atn=mm_element(i)
-                 int_mb(i_ndx+j-1)=isdt(i)
-                 if(islink) then
-                   atn = 9
-c                   if(atn.le.85) atn=85
-c                   if(atn.le.53) atn=53
-c                   if(atn.le.35) atn=35
-c                   if(atn.le.17) atn=17
-c                   if(atn.le.9)  atn=9
-c                   if(atn.le.1)  atn=1
-                   call cf_num2tag(atn,tag)
-                   write(*,*) "found link atom",atn,tag
-                 end if
-                 inum(j)=atn
-c                 q(j) = cf_charge(isq(i))
-                 q(j) = mm_solute_charge(i)
-              end if
-            end do
-        end if
-      end do
-
-      call ga_dgop(msg_qmmm_c,c,3*nt,'+')
-      call ga_dgop(msg_qmmm_chg,q,nt,'+')
-      call ga_igop(msg_qmmm_inum,inum,nt,'+')
-      call ga_igop(msg_qmmm_ndx,int_mb(i_ndx),nt,'+')
-
-      do i=1,nt
-         call cf_num2tag(inum(i),t(i))
-         if(iand(int_mb(i_ndx+i-1),lqlink).ne.0)
-     &      t(i)=t(i)(1:index(t(i),' ')-1)//'_L'
-         if(.not.geom_tag_to_default_mass(t(i),m(i)))
-     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
-      end do
-
-      if(.not.ma_pop_stack(h_ndx))
-     + call errquit('qmmm: Failed to deallocate memory for ndx',
-     + 3*nt, MA_ERR)
 
       end
 
@@ -994,73 +722,57 @@ c                 fs(i,3)=fs(i,3)-g(3,j)*(cau2kj/cau2nm)
 
       end
 c
-      subroutine mm_get_force(nt,ind,g)
+      subroutine mm_get_solute_force_quant(nt,ai,g)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
 #include "qmmm.fh"
+#include "mm_utils.fh"
 #include "rtdb.fh"
       integer nt
-      integer ind(nt)
+      integer ai(nt)
       double precision  g(3,nt)
+      
+      call mm_get_solute_force_gen(nt,mm_quant_link,ai,g)
+      end
+
+      subroutine mm_get_solute_force_gen(nt,mm_type,ai,g)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "rtdb.fh"
+      integer nt
+      logical mm_type
+      integer ai(nt)
+      double precision  g(3,nt)
+      external mm_type
 c     local variables
+      integer i,j,k
       integer msa
-      integer nsaloc
+      integer nsa
       integer psdt
       integer psl
       integer pfs
 
       call mm_get_msa(msa)
-      call mm_get_nsaloc(nsaloc)
+      call mm_get_nsaloc(nsa)
       call mm_get_psdt(psdt)
       call mm_get_psl(psl)
       call mm_get_pfs(pfs)
 
-      call mm_get_force0(nt,msa,nsaloc,
-     &                   int_mb(psl),
-     &                   int_mb(psdt),
-     &                   dbl_mb(pfs),
-     &                   ind,
-     &                   g)
-
-      end
-
-      subroutine mm_get_force0(nt,msa,nsa,
-     &                   isl,
-     &                   isdt,
-     &                   fs,
-     &                   ai,
-     &                   g)
-      implicit none
-#include "global.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_params.fh"
-#include "msgids.fh"
-#include "inp.fh"
-      integer nt,msa,nsa
-      integer isl(msa)
-      integer isdt(msa)
-      double precision fs(msa,3)
-      integer ai(nt)
-      double precision g(3,nt)
-c     local variables
-      logical islink
-      integer i,j
-
-
       do i=1,nsa
-        islink=iand(isdt(i),lqlink).ne.0
-        if(iand(isdt(i),lquant).ne.0 .or.
-     &   islink) then
+        if(mm_type(i)) then
             do j=1,nt
-              if(isl(i).eq.ai(j)) then
-                 g(1,j)=-fs(i,1)
-                 g(2,j)=-fs(i,2)
-                 g(3,j)=-fs(i,3)
+              if(int_mb(psl+i-1).eq.ai(j)) then
+                 do k=1,3
+                   g(k,j)=-dbl_mb(pfs+(i-1)+(k-1)*msa)*cau2nm/cau2kj
+                 end do
               end if
             end do
         end if
@@ -1068,6 +780,79 @@ c     local variables
 
       end
 
+c      subroutine mm_get_force(nt,ind,g)
+c      implicit none
+c#include "global.fh"
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "geom.fh"
+c#include "qmmm.fh"
+c#include "rtdb.fh"
+c      integer nt
+c      integer ind(nt)
+c      double precision  g(3,nt)
+cc     local variables
+c      integer msa
+c      integer nsaloc
+c      integer psdt
+c      integer psl
+c      integer pfs
+c
+c      call mm_get_msa(msa)
+c      call mm_get_nsaloc(nsaloc)
+c      call mm_get_psdt(psdt)
+c      call mm_get_psl(psl)
+c      call mm_get_pfs(pfs)
+c
+c      call mm_get_force0(nt,msa,nsaloc,
+c     &                   int_mb(psl),
+c     &                   int_mb(psdt),
+c     &                   dbl_mb(pfs),
+c     &                   ind,
+c     &                   g)
+c
+c      end
+c
+c      subroutine mm_get_force0(nt,msa,nsa,
+c     &                   isl,
+c     &                   isdt,
+c     &                   fs,
+c     &                   ai,
+c     &                   g)
+c      implicit none
+c#include "global.fh"
+c#include "geom.fh"
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "qmmm_params.fh"
+c#include "msgids.fh"
+c#include "inp.fh"
+c#include "mm_utils.fh"
+c      integer nt,msa,nsa
+c      integer isl(msa)
+c      integer isdt(msa)
+c      double precision fs(msa,3)
+c      integer ai(nt)
+c      double precision g(3,nt)
+cc     local variables
+c      logical islink
+c      integer i,j
+c
+c
+c      do i=1,nsa
+c         if(mm_quant_link(i)) then
+c            do j=1,nt
+c              if(isl(i).eq.ai(j)) then
+c                 g(1,j)=-fs(i,1)
+c                 g(2,j)=-fs(i,2)
+c                 g(3,j)=-fs(i,3)
+c              end if
+c            end do
+c        end if
+c      end do
+c
+c      end
+c
       subroutine mm_set_geom(nt,ind,c)
       implicit none
 #include "global.fh"

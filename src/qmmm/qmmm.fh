@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.6 2004-09-03 20:07:56 marat Exp $
+c $Id: qmmm.fh,v 1.7 2004-09-07 02:23:15 marat Exp $
 c
       integer qmmm_get_ntot
       integer qmmm_get_nlink
@@ -17,7 +17,6 @@ c
       integer qmmm_get_i_tbq
       integer qmmm_get_i_t
       integer qmmm_get_i_q
-      integer qmmm_get_i_qf
       integer qmmm_get_i_m
       integer qmmm_get_i_g
       integer qmmm_get_i_gmm
@@ -31,7 +30,6 @@ c
       external qmmm_get_i_c
       external qmmm_get_i_t
       external qmmm_get_i_q
-      external qmmm_get_i_qf
       external qmmm_get_i_m
       external qmmm_get_i_g
       external qmmm_get_i_gmm

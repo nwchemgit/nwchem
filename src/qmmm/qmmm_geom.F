@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.9 2004-09-03 20:07:56 marat Exp $
+c $Id: qmmm_geom.F,v 1.10 2004-09-07 02:23:15 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -21,7 +21,6 @@ c     local variables
       integer i_ind
       integer i_num
       integer i_q
-      integer i_qf
       character(255) basis_string
 
       nqm   = qmmm_get_nqm()
@@ -30,14 +29,11 @@ c     local variables
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
       i_q   = qmmm_get_i_q()
-      i_qf  = qmmm_get_i_qf()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
 
-      call mm_get_solute_geom_gen(nqm,
-     >                 mm_quant_link,
+      call mm_get_solute_geom_quant(nqm,
      >                 int_mb(i_ind),
-     >                 int_mb(i_num),
      >                 byte_mb(i_t),
      >                 dbl_mb(i_c),
      >                 dbl_mb(i_q),
@@ -50,23 +46,16 @@ c     basis set if needed
 c     --------------------------
       if(nlink.gt.0) then
        call qmmm_link_atoms(nlink,
-     >                      int_mb(i_num+(nqm-nlink)),
+     >                      dbl_mb(i_q+(nqm-nlink)),
      >                      byte_mb(i_t+16*(nqm-nlink)),
      >                      dbl_mb(i_m+(nqm-nlink)))
       end if
-
-c
-c     set formal charges
-c     -----------------
-      do i=1,nqm
-       dbl_mb(i_qf+i-1)=dble(int_mb(i_num+i-1))
-      end do
 
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
       if(.not.geom_cart_set(igeom,nqm,byte_mb(i_t),
-     + dbl_mb(i_c),dbl_mb(i_qf)))
+     + dbl_mb(i_c),dbl_mb(i_q)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
 
       if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
@@ -144,7 +133,7 @@ c     local variables
       integer i_m
       integer i_ind
       integer i_num
-      integer i_qf
+      integer i_q
       integer i_cbq
       integer i_qbq
       integer i_q_all,h_q_all
@@ -180,7 +169,7 @@ c     -----------------------
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
-      i_qf  = qmmm_get_i_qf()
+      i_q   = qmmm_get_i_q()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
 
@@ -232,7 +221,7 @@ c    --------------------------------------
      >                    dbl_mb(i_m_all),
      >                    nqm,
      >                    dbl_mb(i_c),
-     >                    dbl_mb(i_qf),
+     >                    dbl_mb(i_q),
      >                    byte_mb(i_t),
      >                    dbl_mb(i_m),
      >                    nbq,
@@ -503,12 +492,12 @@ c     ----------
 
       end
 
-      subroutine qmmm_link_atoms(n,inum,t,m)
+      subroutine qmmm_link_atoms(n,q,t,m)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
       integer n
-      integer inum(n)
+      double precision q(n)
       character*16 t(n)
       double precision m(n)
 
@@ -517,7 +506,7 @@ c     ---------------
       integer i
 
       do i=1,n
-        inum(i)=9
+        q(i)=9.0
         t(i)="F_L"
         if(.not.geom_tag_to_default_mass(t(i),m(i)))
      &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)

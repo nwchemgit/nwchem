@@ -1,8 +1,7 @@
 c
-c $Id: qmmm_bq.F,v 1.7 2004-09-03 20:07:56 marat Exp $
+c $Id: qmmm_bq.F,v 1.8 2004-09-07 02:23:15 marat Exp $
 c
 c
-
       subroutine qmmm_load_bq(irtdb)
       implicit none
 #include "mafdecls.fh"
@@ -58,20 +57,21 @@ c     and indexing
 c     -------------------------------------
       call qmmm_data_bq_alloc(nbq)
 
-c
-c     load solute bq coord and charges from MM
-c     ---------------------------------------    
-      
       i_cbq = qmmm_get_i_cbq()
       i_qbq = qmmm_get_i_qbq()
       i_ibq = qmmm_get_i_ibq()
       i_tbq = qmmm_get_i_ibq()
+c
+c     load solute bq coord and charges from MM
+c     ---------------------------------------    
+
       if(nbqs.ne.0) then
-c        call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
-        call mm_get_geom_bqs(nbqs,
+        call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
+        call mm_get_solute_geom_bq(nbqs,
      >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq),
      >                       dbl_mb(i_qbq))
+
         myname = "test-bqs.pdb"
         bqtag="Bq"
         call qmmm_print_bq_pdb(nbqs,myname,dbl_mb(i_cbq),
@@ -81,11 +81,12 @@ c        call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
 c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
+      write(*,*) " qmmm nbqw",nbqw
       if(nbqw.ne.0) then
         call mm_get_geom_bqw(nbqw,
-     >                       int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs),
      >                       dbl_mb(i_qbq+nbqs))
+        write(*,*) " qmmm nbqw 1"
         myname = "test-bqw.pdb"
         bqtag="Bq"
         call qmmm_print_bq_pdb(nbqw,myname,dbl_mb(i_cbq+3*nbqs),
