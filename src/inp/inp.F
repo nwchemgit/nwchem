@@ -26,6 +26,7 @@ c
 #include "inpP.fh"
       integer ir, iw
 c     
+      external inp_data
       iread = ir
       iwrite = iw
       jrec = -1
