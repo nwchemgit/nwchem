@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.12 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_init.F,v 1.13 2000-08-24 18:30:43 d3j191 Exp $
 c
       implicit none
 c
@@ -54,6 +54,8 @@ c
 c
       if(.not.ma_push_get(mt_byte,48*nsa,'tag',l_tag,i_tag))
      + call errquit('Failed to allocate memory for tag',me)
+      if(.not.ma_push_get(mt_dbl,2*nsa,'val',l_val,i_val))
+     + call errquit('Failed to allocate memory for val',me)
 c
       if(.not.ma_push_get(mt_dbl,3*nsa,'xref',l_xref,i_xref))
      + call errquit('Failed to allocate memory for xref',me)
@@ -68,7 +70,7 @@ c
 c
 c     initialize tags
 c
-      call ana_initag(byte_mb(i_tag))
+      call ana_initag(byte_mb(i_tag),dbl_mb(i_val))
 c
 c     for task calls memory needs to be set aside for atom names,
 c     coordinates and global atom numbers

@@ -1,13 +1,14 @@
-      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel,ndxw)
+      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
+     + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.32 2000-08-17 22:24:13 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.33 2000-08-24 18:30:44 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 x(msa,3),w(mwm,mwa,3)
+      real*8 x(msa,3),w(mwm,mwa,3),val(nsa,2)
       integer isel(msa),iwsel(mwm),ndxw(nwm)
       character*24 tag(msa,2)
       integer iunit
@@ -26,7 +27,7 @@ c
       character*255 color
       real*8 xh(3)
 c
-      real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
+      real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin,factor
       integer*4 numato
 c
       real*8 ana_atrad
@@ -265,6 +266,20 @@ c
       zbmax=max(zbmax,x(i,3))
       zbmin=min(zbmin,x(i,3))
   234 continue
+      if(lxw.and..not.lsonly) then
+      do 235 i=1,nwm
+      if(iwsel(i).ne.0) then
+      do 236 j=1,nwa
+      xbmax=max(xbmax,w(i,j,1))
+      xbmin=min(xbmin,w(i,j,1))
+      ybmax=max(ybmax,w(i,j,2))
+      ybmin=min(ybmin,w(i,j,2))
+      zbmax=max(zbmax,w(i,j,3))
+      zbmin=min(zbmin,w(i,j,3))
+  236 continue
+      endif
+  235 continue
+      endif
       if(scale.le.0.0d0) then
       scale=2.0d0/max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
       xbmax=scale*xbmax
@@ -288,16 +303,17 @@ c
       if(isel(i).ne.0) then
       k=pre_atnum(sgmnam(i)(6:7))
       color=atom_color(k)
+      factor=scale*val(i,1)
       if(tag(i,2)(1:1).ne.' ') color=tag(i,2)
       if(tag(i,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(tag(i,1)(1:3).eq.'cpk') then
       write(iunit,8001) (scale*x(i,j),j=1,3),
-     + scale*abs(cpk)*ana_atrad(k),
+     + factor*abs(cpk)*ana_atrad(k),
      + color(1:index(color,' ')-1)
       else
       write(iunit,8001) (scale*x(i,j),j=1,3),
-     +scale*abs(stick)*ana_atrad(1),
+     + factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
  8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -321,10 +337,11 @@ c
       if(tag(ib,1)(1:3).ne.'cpk') then
       k=pre_atnum(sgmnam(ib)(6:7))
       color=atom_color(k)
+      factor=scale*val(ib,1)
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
       if(tag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(ib,j),j=1,3),
-     + (scale*xh(j),j=1,3),scale*abs(stick)*ana_atrad(1),
+     + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
  8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
      + '  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -333,14 +350,40 @@ c
       if(tag(jb,1)(1:3).ne.'cpk') then
       k=pre_atnum(sgmnam(jb)(6:7))
       color=atom_color(k)
+      factor=scale*val(jb,1)
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
       if(tag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(jb,j),j=1,3),
-     + (scale*xh(j),j=1,3),scale*abs(stick)*ana_atrad(1),
+     + (scale*xh(j),j=1,3),factor*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
       endif
    12 continue
+      if(lxw.and..not.lsonly) then
+      do 13 i=1,nwm
+      if(iwsel(i).ne.0) then
+      do 14 j=1,nwa
+      k=pre_atnum(wnam(j)(6:7))
+      color=atom_color(k)
+      factor=scale*wval(j,1)
+      if(wtag(j,2)(1:1).ne.' ') color=wtag(j,2)
+      if(wtag(j,2)(1:5).eq.'atom ') color=atom_color(k) 
+      if(k.gt.0) then
+      if(wtag(j,1)(1:3).eq.'cpk') then
+      write(iunit,8001) (scale*w(i,j,k),k=1,3),
+     + factor*abs(cpk)*ana_atrad(k),
+     + color(1:index(color,' ')-1)
+      else
+      write(iunit,8001) (scale*w(i,j,k),k=1,3),
+     + factor*abs(stick)*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+      endif
+      endif
+c
+   14 continue
+      endif
+   13 continue
+      endif
       close(unit=iunit)
       endif
 c

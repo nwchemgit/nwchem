@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.41 2000-08-23 17:08:54 d3j191 Exp $
+c $Id: ana_task.F,v 1.42 2000-08-24 18:30:44 d3j191 Exp $
 c
       implicit none
 c
@@ -461,8 +461,8 @@ c
       if(nread.lt.ifrfr) goto 2
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
-     + int_mb(i_ndxw))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
+     + int_mb(i_wsel),int_mb(i_ndxw))
       nwrit=nwrit+1
       indx=indx+1
       endif
@@ -511,8 +511,8 @@ c
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
-     + int_mb(i_ndxw))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
+     + int_mb(i_wsel),int_mb(i_ndxw))
       nwrit=nwrit+1
       indx=indx+1
       endif
@@ -847,8 +847,8 @@ c
 c
       lxw=.false.
       call ana_wtfram(lfnprj,fmt,dbl_mb(i_xp),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),int_mb(i_wsel),
-     + int_mb(i_ndxw))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
+     + int_mb(i_wsel),int_mb(i_ndxw))
 c
       nave=nave+1
 c

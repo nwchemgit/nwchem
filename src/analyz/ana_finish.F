@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.15 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_finish.F,v 1.16 2000-08-24 18:30:43 d3j191 Exp $
 c
       implicit none
 c
@@ -58,6 +58,8 @@ c
       if(.not.ma_pop_stack(l_xref))
      + call errquit('Failed to deallocate xref',0)
 c
+      if(.not.ma_pop_stack(l_val))
+     + call errquit('Failed to deallocate val',0)
       if(.not.ma_pop_stack(l_tag))
      + call errquit('Failed to deallocate tag',0)
       if(.not.ma_pop_stack(l_isel))

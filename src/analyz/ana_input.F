@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.29 2000-08-17 22:24:13 d3j191 Exp $
+c $Id: ana_input.F,v 1.30 2000-08-24 18:30:43 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
-      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick
+      real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx
       character*8 option
@@ -375,26 +375,37 @@ c
 c     label atoms
 c     -----------
 c
-      if(inp_compare(.false.,'label',item)) then
+      if(inp_compare(.false.,'label',item).or.
+     + inp_compare(.false.,'render',item).or.
+     + inp_compare(.false.,'color',item)) then
       rtag=0.0d0
-      if(.not.inp_i(itag)) call errquit('Error in label',0)
-      if(.not.inp_a(tag)) call errquit('Error in label',0)
-      iatag=0
-      jatag=0
-      if(inp_i(iatag)) then
-      if(.not.inp_i(jatag)) jatag=iatag
+      rval=1.0d0
+      if(inp_compare(.false.,'render',item)) then
+      itag=1
+      elseif(inp_compare(.false.,'color',item)) then
+      itag=2
       else
-      if(inp_f(rtag)) then
+      if(.not.inp_i(itag)) call errquit('Error in label',0)
+      endif
+      if(.not.inp_a(tag)) call errquit('Error in label',0)
+      iatag=-1
+      jatag=-1
       if(inp_i(iatag)) then
       if(.not.inp_i(jatag)) jatag=iatag
+      if(.not.inp_f(rtag)) rtag=0.0d0
+      else
+      if(inp_f(rval)) then
+      if(inp_i(iatag)) then
+      if(.not.inp_i(jatag)) jatag=iatag
+      if(.not.inp_f(rtag)) rtag=0.0d0
       endif
       endif
       endif
       if(.not.inp_a(atom)) atom=' '
     5 continue
-      write(lfncmd,1007) itag,tag,iatag,jatag,rtag,
+      write(lfncmd,1007) itag,tag,rval,iatag,jatag,rtag,
      + atom(1:index(atom,' ')-1)
- 1007 format('label  ',i3,a24,2i7,f12.6,a)
+ 1007 format('label  ',i3,a24,f12.6,2i7,f12.6,a)
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 5
