@@ -1,7 +1,7 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: pre_pdbsiz.F,v 1.13 2000-06-01 22:28:59 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.14 2002-07-02 22:53:40 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -130,12 +130,12 @@ c
 c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
-      if(card(18:20).eq.namslv) lslvnt=.true.
       if(card(17:17).ne.' '.and.
      + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
       if(card(22:22).ne.' '.and.
      + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(mdl.eq.model) then
+      if(card(18:20).eq.namslv) lslvnt=.true.
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i
  1003 format(i4)
@@ -156,12 +156,12 @@ c
 c     HETATM
 c
       if(card(1:6).eq.'HETATM') then
-      if(card(18:20).eq.namslv) lslvnt=.true.
       if(card(17:17).ne.' '.and.
      + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
       if(card(22:22).ne.' '.and.
      + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(mdl.eq.model) then
+      if(card(18:20).eq.namslv) lslvnt=.true.
       if(.not.lslvnt) natm=natm+1
       read(card(23:26),1004) i
  1004 format(i4)
