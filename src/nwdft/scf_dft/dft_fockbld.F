@@ -5,12 +5,12 @@
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
      ,     evals, rdens_atom,dd3ceri,ii3cwhat,
      ,     cetobfr,
-     ,     iter, ecore, ecoul,exc,noc, rho_n,
+     ,     iter, ecore, ecoul,exc,noc, rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
-     ,     g_rho_exact,g_tmp_exact, g_addit_exact,
+     ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.5 2000-04-24 21:44:31 edo Exp $
+c     $Id: dft_fockbld.F,v 1.6 2000-04-25 09:23:41 jolguin Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -25,7 +25,8 @@ c
       integer natoms ! [in]
       logical wght_GA
       integer iwhat_max
-      double precision evals (*)
+c     double precision evals (*)
+      integer evals(2)
       double precision rdens_atom(*)
       double precision dd3ceri(*)
       integer ii3cwhat(*)
@@ -35,16 +36,16 @@ c
       integer noc(2)
       double precision ecore, ecoul,exc(2) ! [out]
       integer ntotel,n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd
-      logical IOLGC
+      logical IOLGC, ldmix
       integer test_sic ! [in]
-      integer exact_pot
+      integer exact_pot, iter_ini
+      integer i_degen(2)  ! [in]
       double precision ecoul_aux(2),dif_lamda,totsic
       double precision rho_n ![out]
       integer ivcoul_Opt,nexc,ivxc_opt
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      integer l_degen, i_degen
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
       me=ga_nodeid()
@@ -54,9 +55,14 @@ c
       Exc(1)= 0d0
       Exc(2) = 0d0
 c Jorge Garza/Begin
-      if (test_sic.ne.0) then
-        if (iter.ge.3) then
-           call xc_sicdeg(l_degen, i_degen, evals, noc)
+      if (ldmix) then
+        iter_ini = 1
+      else
+        iter_ini = 3
+      end if
+      if (test_sic.eq.2.or.test_sic.eq.4) then
+        if (iter.ge.iter_ini) then
+           call xc_sicdeg(i_degen, evals, noc)
         end if
       end if
 c Jorge Garza/End
@@ -174,7 +180,7 @@ c
       if (ipol.eq.2.and.noc(2).eq.0) call ga_zero(g_vxc(2))
       totsic=0.0d00
       if (test_sic.eq.2.or.test_sic.eq.4) then
-        if (iter.ge.3) then
+        if (iter.ge.iter_ini) then
           if (test_sic.eq.4) then
             call localize_sic(g_movecs, noc)
           end if
