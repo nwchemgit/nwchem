@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.13 1998-07-27 04:11:41 d3e129 Exp $
+C$Id: util_print.F,v 1.14 1999-08-16 23:05:08 d3e129 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -54,7 +54,8 @@ c
 
  10   continue
       if (oprint_print(depth)) then
-         write(6,*) ' up: ', name, ' ', level, print_level(depth), 
+         write(6,*) ' up: ', name, ' ', depth,
+     &        level, print_level(depth), 
      $        util_print
       endif
 c     
@@ -270,4 +271,27 @@ c
       if (.not. rtdb_cput(rtdb,entry,n,buf)) call errquit
      $     ('util_print_input: failed to store in database',rtdb)
 c
+      end
+      subroutine util_print_common_data
+      implicit none
+#include "printcommon.fh"
+#include "printlevels.fh"
+#include "stdio.fh"
+      integer id,in
+*
+      write(luout,*)' ------------ print info -------------- '
+      write(luout,*)' depth        = ',depth
+      write(luout,*)' print_level  = ',print_level
+      write(luout,*)' n_print      = ',n_print
+      write(luout,*)' n_no_print   = ',n_no_print
+      write(luout,*)' oprint_print = ',oprint_print
+      write(luout,*)' '
+      do id = 1,depth
+        write(luout,*)' at depth ------------------------ ',id
+        write(luout,*)'   names  ',
+     &        (print_names(in,id),in=1,n_print(id))
+        write(luout,*)'   nonames',
+     &        (no_print_names(in,id),in=1,n_no_print(id))
+        write(luout,*)' '
+      enddo
       end

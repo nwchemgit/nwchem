@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.113 1999-05-12 15:24:21 d3j191 Exp $
+c     $Id: msgids.fh,v 1.114 1999-08-16 23:05:08 d3e129 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -425,6 +425,7 @@ C
       Integer Msg_CMR_File
       integer msg_gapss_dvcoul
       integer msg_grid_stat1,msg_grid_file
+      integer msg_DRDY_OPCODE
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -974,3 +975,5 @@ c
 c
       parameter(msg_grid_stat1=msg_ftn_base-702)
       parameter(msg_grid_file=msg_ftn_base-703)
+c
+      parameter(msg_DRDY_OPCODE = msg_ftn_base-704)
