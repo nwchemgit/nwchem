@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.24 1996-07-11 22:21:15 d3e129 Exp $
+c $Id: int_init.F,v 1.25 1996-07-12 18:27:39 pg481 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -18,6 +18,8 @@ c::local
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm
       logical status
+      integer nqmax_texas  ! maximum number of quartets in texas blocking interface
+      parameter (nqmax_texas = 10000)
 c
 c      block data api_data
 c
@@ -140,7 +142,7 @@ c
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
       call int_acc_std()
-      call texas_init(rtdb,nbas,bases,txs_mem_min)
+      call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min)
       init_int = 1
       end
       subroutine sp_init(nbas,bases)
