@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.13 1999-03-09 20:18:56 mg201 Exp $
+C $Id: ecp_integral.F,v 1.14 1999-04-21 22:30:05 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -216,7 +216,8 @@ C        end if
 *       One-centre case, A = B = C
 *
           if (debug_gen) write (LuOut,*) 'One-centre case'
-          if (n_blk .ne. 3) call ecp_local0 (mem,DryRun,
+          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0)) 
+     &        call ecp_local0 (mem,DryRun,
      &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
      &        n_prim_C(0,-1,i),n_colc_C(-1,i),
@@ -242,7 +243,8 @@ C        end if
 *       Two-centre case with A = C
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case A=C'
-          if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+     &        call ecp_local1 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        n_prim_C(0,-1,i),n_colc_C(-1,i),
@@ -268,7 +270,8 @@ C        end if
 *       Two-centre case with B = C
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case B=C'
-          if (n_blk .ne. 3) call ecp_local1 (mem,DryRun,
+          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+     &        call ecp_local1 (mem,DryRun,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        n_prim_C(0,-1,i),n_colc_C(-1,i),
@@ -294,7 +297,8 @@ C        end if
 *     Three-centre case
 *
           if (debug_gen) write (LuOut,*) 'Three-centre case'
-          if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
+          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+     &        call ecp_local2 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        n_prim_C(0,-1,i),n_colc_C(-1,i),
