@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.1 1999-06-22 05:57:43 d3e129 Exp $
+* $Id: vib_istep.F,v 1.2 1999-06-22 18:22:58 d3e129 Exp $
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
 * only called during projected frequency analysis.
@@ -30,13 +30,13 @@ c
       double precision scale
       double precision xyz(3),charge
       double precision length_of_step, maxstep
-      double precision percents(4)
+      double precision step_limit
+      parameter (step_limit = 0.2d00)
+      double precision percents(4), largest_step(4)
       character*16 tag
       character*10 units
       intrinsic sqrt
 c
-      double precision step_limit
-      parameter (step_limit = 0.2d00)
       double precision thresh
       parameter (thresh=1.0d-2)
 c::-statement function
@@ -83,6 +83,10 @@ c
               maxstep = max(maxstep,abs(stepsave(ixyz,iatom)))
             enddo
           enddo
+          largest_step(1) = maxstep
+          largest_step(2) = maxstep/2.0d00
+          largest_step(3) = step_limit
+          largest_step(4) = step_limit/2.0d00
 * determine percentages based on maximum raw displacement and limit
           percents(3) =  (step_limit/maxstep)*100.0d00
           percents(4) =  (step_limit/2.0d00/maxstep)*100.0d00
@@ -110,6 +114,7 @@ c
             if (.not.geom_cart_coords_set(geom,coords)) call errquit
      &          ('vib_istep: geom_cart_coords_set failed',911)
             write(luout,10003)percents(ip),imode,length_of_step,units
+            write(luout,10004)largest_step(ip)
             do iatom=1,natom
               if (.not.geom_cent_get(geom,iatom,tag,xyz,charge))
      &            call errquit
@@ -136,4 +141,6 @@ c
 10003 format(2x,'Geometry after ',f5.1,
      &    '% step for mode ',
      &    i2,'; Step length =',f7.3,1x,a10)
+10004 format(3x,'Maximum component (any atom: x,y, or z) displacement:',
+     &    f7.3,1x,a10)
       end
