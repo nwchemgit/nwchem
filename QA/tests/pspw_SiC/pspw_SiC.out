@@ -73,7 +73,7 @@
 
     hostname      = pspw.emsl.pnl.gov
     program       = nwchem
-    date          = Mon Nov 27 14:35:06 2000
+    date          = Mon Nov 27 15:48:27 2000
 
     compiled      = Mon Nov 27 11:04:15 PST 2000
     source        = /home/bylaska/nwchem
@@ -259,7 +259,7 @@ Outputing core density gradient: ./Si.cddns.plt
 Outputing semicore density: ./Si.sdns.plt
 Outputing semicore density gradient: ./Si.sddns.plt
 Outputing all-electron potential(non-screened): ./Si.pot.plt
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:12 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:33 2000  <<<
  >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
 All electron atom solver
 
@@ -356,7 +356,7 @@ Outputing core density gradient: ./C.cddns.plt
 Outputing semicore density: ./C.sdns.plt
 Outputing semicore density gradient: ./C.sddns.plt
 Outputing all-electron potential(non-screened): ./C.pot.plt
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:15 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:36 2000  <<<
  >>>> PSPW parallel Module - psp_formatter <<<<
       ********************************************
       *                                          *
@@ -369,7 +369,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:35:16 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:48:37 2000  <<<
 
  Pseudpotential Data
  -------------------
@@ -389,9 +389,9 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
                0.000     8.277     0.000
                0.000     0.000     8.277
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:16 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:37 2000  <<<
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        0.3s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -410,7 +410,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:35:17 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:48:38 2000  <<<
 
  Pseudpotential Data
  -------------------
@@ -430,7 +430,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
                0.000     8.277     0.000
                0.000     0.000     8.277
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:17 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:38 2000  <<<
 
  Task  times  cpu:        1.3s     wall:        1.3s
 
@@ -451,7 +451,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:35:17 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:48:38 2000  <<<
 
  Pseudpotential Data
  -------------------
@@ -471,7 +471,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
                0.000     8.277     0.000
                0.000     0.000     8.277
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:17 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:38 2000  <<<
 
  Task  times  cpu:        0.2s     wall:        0.3s
 
@@ -492,7 +492,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:35:19 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:48:40 2000  <<<
 
  Pseudpotential Data
  -------------------
@@ -512,7 +512,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
                0.000     8.277     0.000
                0.000     0.000     8.277
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:19 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:40 2000  <<<
 
  Task  times  cpu:        1.3s     wall:        1.3s
 
@@ -539,7 +539,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
  writing <spin= 1,psi= 15>    -     (  2  0  0 :  -1)
  writing <spin= 1,psi= 16>    -     (  0  2  0 :  -1)
   JOB HAS BEEN COMPLETED.  CODE= 0
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:35:19 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:48:40 2000  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
 
@@ -564,7 +564,7 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:35:19 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:48:40 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ================ input data ========================
@@ -620,65 +620,34 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
                         mandelung= 1.76011888
 
  technical parameters:
-      time step=     15.80     fictacious mass=  400000.0
+      time step=    251.80     fictacious mass=  400000.0
       tolerance=.100E-08 (energy)   0.100E-08 (electron)   0.100E-03 (ion)
 
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Mon Nov 27 14:35:23 2000  <<<
-     200   -0.3275056201E+02   -0.10364E-01    0.62623E-03    0.00000E+00
-     400   -0.3326287669E+02   -0.16212E-03    0.15191E-03    0.00000E+00
-     600   -0.3366407589E+02   -0.12696E-03    0.68203E-03    0.00000E+00
-     800   -0.3391102694E+02   -0.78149E-04    0.49778E-04    0.00000E+00
-    1000   -0.3392278089E+02   -0.37196E-05    0.14320E-05    0.00000E+00
-    1200   -0.3392321363E+02   -0.13694E-06    0.44308E-07    0.00000E+00
-    1400   -0.3392325272E+02   -0.12370E-07    0.10815E-07    0.00000E+00
-    1600   -0.3392326866E+02   -0.50429E-08    0.90234E-08    0.00000E+00
-    1800   -0.3392328031E+02   -0.36863E-08    0.75870E-08    0.00000E+00
-    2000   -0.3392328977E+02   -0.29947E-08    0.63948E-08    0.00000E+00
-    2200   -0.3392329761E+02   -0.24828E-08    0.53979E-08    0.00000E+00
-    2400   -0.3392330415E+02   -0.20693E-08    0.45623E-08    0.00000E+00
-    2600   -0.3392330979E+02   -0.17840E-08    0.38611E-08    0.00000E+00
-    2800   -0.3392332193E+02   -0.38420E-08    0.23354E-07    0.00000E+00
-    3000   -0.3392363312E+02   -0.98478E-07    0.93652E-06    0.00000E+00
-    3200   -0.3393591677E+02   -0.38872E-05    0.36487E-04    0.00000E+00
-    3400   -0.3425193701E+02   -0.10001E-03    0.56455E-03    0.00000E+00
-    3600   -0.3514697463E+02   -0.28324E-03    0.37988E-03    0.00000E+00
-    3800   -0.3566945710E+02   -0.16534E-03    0.54211E-03    0.00000E+00
-    4000   -0.3608563745E+02   -0.13170E-03    0.83407E-04    0.00000E+00
-    4200   -0.3612148788E+02   -0.11345E-04    0.65938E-05    0.00000E+00
-    4400   -0.3616133361E+02   -0.12609E-04    0.28175E-04    0.00000E+00
-    4600   -0.3636546338E+02   -0.64598E-04    0.11154E-03    0.00000E+00
-    4800   -0.3663542102E+02   -0.85430E-04    0.42912E-04    0.00000E+00
-    5000   -0.3669711679E+02   -0.19524E-04    0.62791E-05    0.00000E+00
-    5200   -0.3670734541E+02   -0.32369E-05    0.11575E-05    0.00000E+00
-    5400   -0.3670956101E+02   -0.70114E-06    0.49737E-06    0.00000E+00
-    5600   -0.3671021814E+02   -0.20795E-06    0.28382E-06    0.00000E+00
-    5800   -0.3671054437E+02   -0.10324E-06    0.21500E-06    0.00000E+00
-    6000   -0.3671080433E+02   -0.82265E-07    0.19417E-06    0.00000E+00
-    6200   -0.3671105666E+02   -0.79850E-07    0.19075E-06    0.00000E+00
-    6400   -0.3671131370E+02   -0.81344E-07    0.19387E-06    0.00000E+00
-    6600   -0.3671157706E+02   -0.83339E-07    0.19905E-06    0.00000E+00
-    6800   -0.3671184561E+02   -0.84985E-07    0.20419E-06    0.00000E+00
-    7000   -0.3671211748E+02   -0.86036E-07    0.20824E-06    0.00000E+00
-    7200   -0.3671239052E+02   -0.86406E-07    0.21068E-06    0.00000E+00
-    7400   -0.3671266249E+02   -0.86065E-07    0.21125E-06    0.00000E+00
-    7600   -0.3671293115E+02   -0.85019E-07    0.20988E-06    0.00000E+00
-    7800   -0.3671319438E+02   -0.83299E-07    0.20662E-06    0.00000E+00
-    8000   -0.3671345021E+02   -0.80959E-07    0.20161E-06    0.00000E+00
-    8200   -0.3671369691E+02   -0.78070E-07    0.19503E-06    0.00000E+00
-    8400   -0.3671393301E+02   -0.74716E-07    0.18710E-06    0.00000E+00
-    8600   -0.3671415733E+02   -0.70988E-07    0.17809E-06    0.00000E+00
-    8800   -0.3671436899E+02   -0.66980E-07    0.16823E-06    0.00000E+00
-    9000   -0.3671456739E+02   -0.62784E-07    0.15780E-06    0.00000E+00
-    9200   -0.3671475221E+02   -0.58487E-07    0.14702E-06    0.00000E+00
-    9400   -0.3671492337E+02   -0.54167E-07    0.13611E-06    0.00000E+00
-    9600   -0.3671508104E+02   -0.49894E-07    0.12527E-06    0.00000E+00
-    9800   -0.3671522554E+02   -0.45728E-07    0.11464E-06    0.00000E+00
-   10000   -0.3671535736E+02   -0.41715E-07    0.10438E-06    0.00000E+00
- *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 14:50:08 2000  <<<
+     >>>  ITERATION STARTED AT Mon Nov 27 15:48:44 2000  <<<
+     200   -0.3392335957E+02   -0.67362E-03    0.17295E-05    0.00000E+00
+     400   -0.3670885573E+02   -0.55312E-04    0.29956E-06    0.00000E+00
+     600   -0.3671010655E+02   -0.24837E-07    0.17254E-05    0.00000E+00
+     800   -0.3671461773E+02   -0.89579E-07    0.22361E-05    0.00000E+00
+    1000   -0.3671801132E+02   -0.67387E-07    0.69385E-06    0.00000E+00
+    1200   -0.3671868819E+02   -0.13441E-07    0.14672E-06    0.00000E+00
+    1400   -0.3671887303E+02   -0.36703E-08    0.83174E-07    0.00000E+00
+    1600   -0.3671901158E+02   -0.27513E-08    0.98577E-07    0.00000E+00
+    1800   -0.3671916657E+02   -0.30775E-08    0.15117E-06    0.00000E+00
+    2000   -0.3671935122E+02   -0.36668E-08    0.18656E-06    0.00000E+00
+    2200   -0.3671953986E+02   -0.37458E-08    0.17380E-06    0.00000E+00
+    2400   -0.3671969014E+02   -0.29840E-08    0.12065E-06    0.00000E+00
+    2600   -0.3671978463E+02   -0.18765E-08    0.66571E-07    0.00000E+00
+    2800   -0.3671983515E+02   -0.10030E-08    0.32167E-07    0.00000E+00
+    3000   -0.3671986003E+02   -0.49415E-09    0.14745E-07    0.00000E+00
+    3200   -0.3671987197E+02   -0.23701E-09    0.67100E-08    0.00000E+00
+    3400   -0.3671987768E+02   -0.11348E-09    0.30856E-08    0.00000E+00
+    3600   -0.3671988043E+02   -0.54596E-10    0.14380E-08    0.00000E+00
+    3800   -0.3671988176E+02   -0.26374E-10    0.67755E-09    0.00000E+00
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Mon Nov 27 15:54:24 2000  <<<
 
 
 
@@ -697,38 +666,38 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
 
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.3671535736E+02 (   -0.45894E+01/ion)
- total orbital energy:   0.5020249957E+01 (    0.31377E+00/electron)
- hartree   energy    :   0.3743702655E+01 (    0.23398E+00/electron)
- exc-corr  energy    :  -0.1193050819E+02 (   -0.74566E+00/electron)
+ total     energy    :  -0.3671988176E+02 (   -0.45900E+01/ion)
+ total orbital energy:   0.4820342827E+01 (    0.30127E+00/electron)
+ hartree   energy    :   0.3524582865E+01 (    0.22029E+00/electron)
+ exc-corr  energy    :  -0.1185574606E+02 (   -0.74098E+00/electron)
  ion-ion   energy    :  -0.4165217811E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.1990348999E+02 (    0.12440E+01/electron)
- K.S. V_l  energy    :  -0.1141397249E+02 (   -0.71337E+00/electron)
- K.S. V_nl energy    :   0.4634108778E+01 (    0.28963E+00/electron)
- K.S. V_Hart energy  :   0.7487405310E+01 (    0.46796E+00/electron)
- K.S. V_xc energy    :  -0.1559078163E+02 (   -0.97442E+00/electron)
- Virial Coefficient  :  -0.7477703679E+00
+ K.S. kinetic energy :   0.1963147704E+02 (    0.12270E+01/electron)
+ K.S. V_l  energy    :  -0.1110220673E+02 (   -0.69389E+00/electron)
+ K.S. V_nl energy    :   0.4734189231E+01 (    0.29589E+00/electron)
+ K.S. V_Hart energy  :   0.7049165729E+01 (    0.44057E+00/electron)
+ K.S. V_xc energy    :  -0.1549228245E+02 (   -0.96827E+00/electron)
+ Virial Coefficient  :  -0.7544584742E+00
 
  orbital energies:
-     0.4031485E+00 (  10.970eV)
-     0.4019262E+00 (  10.937eV)
-     0.3963454E+00 (  10.785eV)
-     0.2558490E+00 (   6.962eV)
-     0.2547455E+00 (   6.932eV)
-     0.2543132E+00 (   6.920eV)
-     0.2526988E+00 (   6.876eV)
-     0.2502758E+00 (   6.810eV)
-     0.2497406E+00 (   6.796eV)
-     0.7706411E-01 (   2.097eV)
-     0.7614091E-01 (   2.072eV)
-     0.7335091E-01 (   1.996eV)
-    -0.6646309E-01 (  -1.809eV)
-    -0.6740220E-01 (  -1.834eV)
-    -0.6782052E-01 (  -1.846eV)
-    -0.2337881E+00 (  -6.362eV)
+     0.3932074E+00 (  10.700eV)
+     0.3931024E+00 (  10.697eV)
+     0.3930770E+00 (  10.696eV)
+     0.2484991E+00 (   6.762eV)
+     0.2474874E+00 (   6.735eV)
+     0.2473439E+00 (   6.731eV)
+     0.2472955E+00 (   6.729eV)
+     0.2468533E+00 (   6.717eV)
+     0.2467500E+00 (   6.714eV)
+     0.7168384E-01 (   1.951eV)
+     0.7156402E-01 (   1.947eV)
+     0.7155619E-01 (   1.947eV)
+    -0.7621677E-01 (  -2.074eV)
+    -0.7621863E-01 (  -2.074eV)
+    -0.7625980E-01 (  -2.075eV)
+    -0.2395534E+00 (  -6.519eV)
 
- Total PSPW energy   :  -0.3671535736E+02
+ Total PSPW energy   :  -0.3671988176E+02
 
 
 === Spin Contamination ===
@@ -740,40 +709,40 @@ Outputing all-electron potential(non-screened): ./C.pot.plt
 
 == Center of Charge ==
 
-spin up     (   -0.3483,   -0.3432,   -0.3491 )
-spin down   (   -0.3483,   -0.3432,   -0.3491 )
-     total  (   -0.3483,   -0.3432,   -0.3491 )
+spin up     (   -0.3458,   -0.3454,   -0.3455 )
+spin down   (   -0.3458,   -0.3454,   -0.3455 )
+     total  (   -0.3458,   -0.3454,   -0.3455 )
 ionic       (    3.1039,    3.1039,    3.1039 )
 
 
 == Molecular Dipole ==
 
-mu   =  (  110.4704,  110.3061,  110.4944 ) au
-|mu| =   191.2594 au,     486.1049 Debye
+mu   =  (  110.3886,  110.3780,  110.3800 ) au
+|mu| =   191.1876 au,     485.9224 Debye
 
  -----------------
  cputime in seconds
- prologue    :   4.523872
- main loop   :   884.867574
- epilogue    :   0.075684
- total       :   889.46713
- cputime/step:   0.0884867574
+ prologue    :   4.524236
+ main loop   :   339.998028
+ epilogue    :   0.075574
+ total       :   344.597838
+ cputime/step:   0.0894731653
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   361.620244
+   FFTs                       :   137.444374
    dot products               :   0.000112
-   orthonormalization         :   129.769646
-   exchange correlation       :   28.846632
-   local pseudopotentials     :   39.66903
-   non-local pseudopotentials :   139.54227
-   hartree potentials         :   0.408724
-   structure factors          :   18.834128
+   orthonormalization         :   52.684134
+   exchange correlation       :   10.976964
+   local pseudopotentials     :   15.15248
+   non-local pseudopotentials :   52.99829
+   hartree potentials         :   0.152646
+   structure factors          :   7.139682
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:50:08 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:54:24 2000  <<<
 
- Task  times  cpu:      886.8s     wall:      889.5s
+ Task  times  cpu:      343.5s     wall:      344.6s
 
 
                                 NWChem Input Module
@@ -797,7 +766,7 @@ mu   =  (  110.4704,  110.3061,  110.4944 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:50:08 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:54:24 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ================ input data ========================
@@ -865,17 +834,10 @@ mu   =  (  110.4704,  110.3061,  110.4944 ) au
 
 
           ============ electron iteration ====================
-     >>>  ITERATION STARTED AT Mon Nov 27 14:50:14 2000  <<<
-      25   -0.3671697046E+02   -0.19344E-04    0.11301E-04
-      50   -0.3671948145E+02   -0.26783E-04    0.23700E-05
-      75   -0.3671989117E+02   -0.25581E-05    0.13519E-06
-     100   -0.3671992764E+02   -0.20294E-06    0.10466E-07
-     125   -0.3671992934E+02   -0.16137E-07    0.16090E-08
-     150   -0.3671992945E+02   -0.10783E-08    0.11596E-09
-     175   -0.3671992945E+02   -0.12778E-09    0.11137E-10
-     200   -0.3671992945E+02   -0.91038E-12    0.15097E-13
+     >>>  ITERATION STARTED AT Mon Nov 27 15:54:30 2000  <<<
+      25   -0.3671988301E+02   -0.62350E-12    0.71746E-13
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 14:51:46 2000  <<<
+     >>>  ITERATION ENDED   AT Mon Nov 27 15:54:39 2000  <<<
 
 
           =============  summary of results  =================
@@ -893,38 +855,38 @@ mu   =  (  110.4704,  110.3061,  110.4944 ) au
 
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.3671992945E+02 (   -0.45900E+01/ion)
- total orbital energy:   0.4819368513E+01 (    0.30121E+00/electron)
- hartree   energy    :   0.3523571746E+01 (    0.22022E+00/electron)
- exc-corr  energy    :  -0.1185548016E+02 (   -0.74097E+00/electron)
+ total     energy    :  -0.3671988301E+02 (   -0.45900E+01/ion)
+ total orbital energy:   0.4820337096E+01 (    0.30127E+00/electron)
+ hartree   energy    :   0.3524577784E+01 (    0.22029E+00/electron)
+ exc-corr  energy    :  -0.1185574420E+02 (   -0.74098E+00/electron)
  ion-ion   energy    :  -0.4165217811E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.1963032222E+02 (    0.12269E+01/electron)
- K.S. V_l  energy    :  -0.1110087038E+02 (   -0.69380E+00/electron)
- K.S. V_nl energy    :   0.4734705230E+01 (    0.29592E+00/electron)
- K.S. V_Hart energy  :   0.7047143491E+01 (    0.44045E+00/electron)
- K.S. V_xc energy    :  -0.1549193205E+02 (   -0.96825E+00/electron)
- Virial Coefficient  :  -0.7544936624E+00
+ K.S. kinetic energy :   0.1963147215E+02 (    0.12270E+01/electron)
+ K.S. V_l  energy    :  -0.1110219970E+02 (   -0.69389E+00/electron)
+ K.S. V_nl energy    :   0.4734189063E+01 (    0.29589E+00/electron)
+ K.S. V_Hart energy  :   0.7049155569E+01 (    0.44057E+00/electron)
+ K.S. V_xc energy    :  -0.1549227999E+02 (   -0.96827E+00/electron)
+ Virial Coefficient  :  -0.7544587049E+00
 
  orbital energies:
-     0.3930782E+00 (  10.696eV)
-     0.3930770E+00 (  10.696eV)
-     0.3930765E+00 (  10.696eV)
-     0.2479343E+00 (   6.747eV)
-     0.2479327E+00 (   6.747eV)
-     0.2473529E+00 (   6.731eV)
-     0.2473509E+00 (   6.731eV)
-     0.2473505E+00 (   6.731eV)
-     0.2461655E+00 (   6.699eV)
-     0.7158781E-01 (   1.948eV)
-     0.7158638E-01 (   1.948eV)
-     0.7158610E-01 (   1.948eV)
-    -0.7627181E-01 (  -2.075eV)
-    -0.7627190E-01 (  -2.075eV)
-    -0.7627239E-01 (  -2.075eV)
-    -0.2395783E+00 (  -6.519eV)
+     0.3931289E+00 (  10.698eV)
+     0.3931285E+00 (  10.698eV)
+     0.3931279E+00 (  10.698eV)
+     0.2484948E+00 (   6.762eV)
+     0.2473757E+00 (   6.731eV)
+     0.2473755E+00 (   6.731eV)
+     0.2473752E+00 (   6.731eV)
+     0.2468038E+00 (   6.716eV)
+     0.2468036E+00 (   6.716eV)
+     0.7160162E-01 (   1.948eV)
+     0.7160112E-01 (   1.948eV)
+     0.7160109E-01 (   1.948eV)
+    -0.7623182E-01 (  -2.074eV)
+    -0.7623190E-01 (  -2.074eV)
+    -0.7623193E-01 (  -2.074eV)
+    -0.2395535E+00 (  -6.519eV)
 
- Total PSPW energy   :  -0.3671992945E+02
+ Total PSPW energy   :  -0.3671988301E+02
 
 
 === Spin Contamination ===
@@ -944,8 +906,8 @@ ionic       (    3.1039,    3.1039,    3.1039 )
 
 == Molecular Dipole ==
 
-mu   =  (  110.3822,  110.3822,  110.3823 ) au
-|mu| =   191.1876 au,     485.9225 Debye
+mu   =  (  110.3822,  110.3823,  110.3823 ) au
+|mu| =   191.1877 au,     485.9226 Debye
 
 
 ========================
@@ -971,39 +933,39 @@ Translation force removed: (    0.00000    0.00000    0.00000)
         2 Si (    0.00001   -0.00001    0.00001 )
         3 Si (   -0.00001   -0.00001   -0.00001 )
         4 Si (   -0.00001    0.00001    0.00001 )
-        5 C  (   -0.03051    0.03051    0.03050 )
-        6 C  (    0.03050    0.03051   -0.03050 )
-        7 C  (   -0.03051   -0.03051   -0.03050 )
-        8 C  (    0.03051   -0.03051    0.03050 )
+        5 C  (    0.02985   -0.02986   -0.02985 )
+        6 C  (   -0.02984   -0.02984    0.02985 )
+        7 C  (    0.02984    0.02984    0.02985 )
+        8 C  (   -0.02985    0.02986   -0.02985 )
       C.O.M. (    0.00000    0.00000    0.00000 )
           ===============================================
-          |F|=     0.1056672361E+00
+          |F|=     0.1033935627E+00
 
 
 
  -----------------
  cputime in seconds
- prologue    :   5.668542
- main loop   :   92.967678
- epilogue    :   0.036628
- total       :   98.672848
- cputime/step:   0.0947682752   ( 981 evalulations)
+ prologue    :   5.668148
+ main loop   :   10.078554
+ epilogue    :   0.03647
+ total       :   15.783172
+ cputime/step:   0.110753341   ( 91 evalulations)
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   36.847488
-   dot products               :   0.038886
-   geodesic                   :   8.783312
-   exchange correlation       :   2.817146
-   local pseudopotentials     :   0.008176
-   non-local pseudopotentials :   14.663044
-   hartree potentials         :   0.153924
-   structure factors          :   1.09539
+   FFTs                       :   3.423324
+   dot products               :   0.008204
+   geodesic                   :   0.762322
+   exchange correlation       :   0.26127
+   local pseudopotentials     :   0.008166
+   non-local pseudopotentials :   1.422906
+   hartree potentials         :   0.015486
+   structure factors          :   0.110204
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:51:47 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:54:40 2000  <<<
 
- Task  times  cpu:       98.4s     wall:       98.7s
+ Task  times  cpu:       15.7s     wall:       15.8s
 
 
                                 NWChem Input Module
@@ -1026,7 +988,7 @@ Translation force removed: (    0.00000    0.00000    0.00000)
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:51:47 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:54:40 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ================ input data ========================
@@ -1082,17 +1044,17 @@ Translation force removed: (    0.00000    0.00000    0.00000)
                         mandelung= 1.76011888
 
  technical parameters:
-      time step=     15.80     fictacious mass=  400000.0
+      time step=    251.80     fictacious mass=  400000.0
       tolerance=.100E-08 (energy)   0.100E-08 (electron)   0.100E-03 (ion)
 
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Mon Nov 27 14:51:51 2000  <<<
-     200   -0.3671992945E+02   -0.11620E-01    0.21370E-13    0.00000E+00
-     400   -0.3671992945E+02   -0.63364E-14    0.18847E-13    0.00000E+00
+     >>>  ITERATION STARTED AT Mon Nov 27 15:54:45 2000  <<<
+     200   -0.3671988301E+02   -0.72915E-03    0.32720E-13    0.00000E+00
+     400   -0.3671988301E+02   -0.46151E-15    0.78900E-14    0.00000E+00
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 14:52:27 2000  <<<
+     >>>  ITERATION ENDED   AT Mon Nov 27 15:55:20 2000  <<<
 
 
 
@@ -1111,38 +1073,38 @@ Translation force removed: (    0.00000    0.00000    0.00000)
 
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.3671992945E+02 (   -0.45900E+01/ion)
- total orbital energy:   0.4819365136E+01 (    0.30121E+00/electron)
- hartree   energy    :   0.3523567970E+01 (    0.22022E+00/electron)
- exc-corr  energy    :  -0.1185547891E+02 (   -0.74097E+00/electron)
+ total     energy    :  -0.3671988301E+02 (   -0.45900E+01/ion)
+ total orbital energy:   0.4820301919E+01 (    0.30127E+00/electron)
+ hartree   energy    :   0.3524538392E+01 (    0.22028E+00/electron)
+ exc-corr  energy    :  -0.1185573092E+02 (   -0.74098E+00/electron)
  ion-ion   energy    :  -0.4165217811E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.1963031760E+02 (    0.12269E+01/electron)
- K.S. V_l  energy    :  -0.1110086546E+02 (   -0.69380E+00/electron)
- K.S. V_nl energy    :   0.4734707445E+01 (    0.29592E+00/electron)
- K.S. V_Hart energy  :   0.7047135941E+01 (    0.44045E+00/electron)
- K.S. V_xc energy    :  -0.1549193039E+02 (   -0.96825E+00/electron)
- Virial Coefficient  :  -0.7544937767E+00
+ K.S. kinetic energy :   0.1963142251E+02 (    0.12270E+01/electron)
+ K.S. V_l  energy    :  -0.1110214267E+02 (   -0.69388E+00/electron)
+ K.S. V_nl energy    :   0.4734207802E+01 (    0.29589E+00/electron)
+ K.S. V_Hart energy  :   0.7049076783E+01 (    0.44057E+00/electron)
+ K.S. V_xc energy    :  -0.1549226250E+02 (   -0.96827E+00/electron)
+ Virial Coefficient  :  -0.7544598758E+00
 
  orbital energies:
-     0.3930780E+00 (  10.696eV)
-     0.3930769E+00 (  10.696eV)
-     0.3930764E+00 (  10.696eV)
-     0.2479341E+00 (   6.747eV)
-     0.2479326E+00 (   6.747eV)
-     0.2473527E+00 (   6.731eV)
-     0.2473508E+00 (   6.731eV)
-     0.2473504E+00 (   6.731eV)
-     0.2461654E+00 (   6.699eV)
-     0.7158769E-01 (   1.948eV)
-     0.7158633E-01 (   1.948eV)
-     0.7158606E-01 (   1.948eV)
-    -0.7627198E-01 (  -2.075eV)
-    -0.7627206E-01 (  -2.075eV)
-    -0.7627253E-01 (  -2.075eV)
-    -0.2395784E+00 (  -6.519eV)
+     0.3931274E+00 (  10.698eV)
+     0.3931274E+00 (  10.698eV)
+     0.3931272E+00 (  10.698eV)
+     0.2484938E+00 (   6.762eV)
+     0.2473746E+00 (   6.731eV)
+     0.2473745E+00 (   6.731eV)
+     0.2473744E+00 (   6.731eV)
+     0.2468027E+00 (   6.716eV)
+     0.2468026E+00 (   6.716eV)
+     0.7160065E-01 (   1.948eV)
+     0.7160055E-01 (   1.948eV)
+     0.7160047E-01 (   1.948eV)
+    -0.7623352E-01 (  -2.074eV)
+    -0.7623357E-01 (  -2.074eV)
+    -0.7623357E-01 (  -2.074eV)
+    -0.2395545E+00 (  -6.519eV)
 
- Total PSPW energy   :  -0.3671992945E+02
+ Total PSPW energy   :  -0.3671988301E+02
 
 
 === Spin Contamination ===
@@ -1162,32 +1124,32 @@ ionic       (    3.1039,    3.1039,    3.1039 )
 
 == Molecular Dipole ==
 
-mu   =  (  110.3822,  110.3822,  110.3823 ) au
-|mu| =   191.1876 au,     485.9224 Debye
+mu   =  (  110.3822,  110.3822,  110.3822 ) au
+|mu| =   191.1876 au,     485.9225 Debye
 
  -----------------
  cputime in seconds
- prologue    :   4.524006
- main loop   :   35.289428
- epilogue    :   0.076178
- total       :   39.889612
- cputime/step:   0.08822357
+ prologue    :   4.522808
+ main loop   :   35.69056
+ epilogue    :   0.076294
+ total       :   40.289662
+ cputime/step:   0.0892264
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   14.470378
-   dot products               :   0.00011
-   orthonormalization         :   5.076694
-   exchange correlation       :   1.153618
-   local pseudopotentials     :   1.586238
-   non-local pseudopotentials :   5.584848
-   hartree potentials         :   0.016722
-   structure factors          :   0.752828
+   FFTs                       :   14.472508
+   dot products               :   0.000112
+   orthonormalization         :   5.441
+   exchange correlation       :   1.1553
+   local pseudopotentials     :   1.595476
+   non-local pseudopotentials :   5.577548
+   hartree potentials         :   0.016462
+   structure factors          :   0.751764
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:52:27 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:55:20 2000  <<<
 
- Task  times  cpu:       39.7s     wall:       39.9s
+ Task  times  cpu:       40.2s     wall:       40.3s
 
 
                                 NWChem Input Module
@@ -1216,7 +1178,7 @@ mu   =  (  110.3822,  110.3822,  110.3823 ) au
  converting .... psi: 15 spin: 1
  converting .... psi: 16 spin: 1
   JOB HAS BEEN COMPLETED.  CODE= 0
-     >>>  JOB COMPLETED     AT Mon Nov 27 14:52:27 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 15:55:20 2000  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
 
@@ -1241,7 +1203,7 @@ mu   =  (  110.3822,  110.3822,  110.3823 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 14:52:27 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 15:55:20 2000  <<<
  Waring: Gram-Schmidt being performed on psi2
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
@@ -1304,19 +1266,19 @@ mu   =  (  110.3822,  110.3822,  110.3823 ) au
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Mon Nov 27 14:52:31 2000  <<<
-     100   -0.3721008426E+02   -0.23551E-01    0.14073E-02    0.00000E+00
-     200   -0.3815939785E+02   -0.60083E-03    0.60078E-04    0.00000E+00
-     300   -0.3823634191E+02   -0.48699E-04    0.35607E-04    0.00000E+00
-     400   -0.3827125919E+02   -0.22100E-04    0.22752E-04    0.00000E+00
-     500   -0.3829324102E+02   -0.13913E-04    0.14932E-04    0.00000E+00
-     600   -0.3830786873E+02   -0.92580E-05    0.10195E-04    0.00000E+00
-     700   -0.3831804037E+02   -0.64377E-05    0.72627E-05    0.00000E+00
-     800   -0.3832541065E+02   -0.46647E-05    0.53757E-05    0.00000E+00
-     900   -0.3833094078E+02   -0.35001E-05    0.41037E-05    0.00000E+00
-    1000   -0.3833520515E+02   -0.26990E-05    0.32066E-05    0.00000E+00
+     >>>  ITERATION STARTED AT Mon Nov 27 15:55:25 2000  <<<
+     100   -0.3720881648E+02   -0.23550E-01    0.12570E-02    0.00000E+00
+     200   -0.3815878320E+02   -0.60124E-03    0.72235E-04    0.00000E+00
+     300   -0.3823589046E+02   -0.48802E-04    0.43826E-04    0.00000E+00
+     400   -0.3827088958E+02   -0.22151E-04    0.28063E-04    0.00000E+00
+     500   -0.3829296933E+02   -0.13975E-04    0.18377E-04    0.00000E+00
+     600   -0.3830768897E+02   -0.93162E-05    0.12502E-04    0.00000E+00
+     700   -0.3831793039E+02   -0.64819E-05    0.88696E-05    0.00000E+00
+     800   -0.3832534750E+02   -0.46944E-05    0.65364E-05    0.00000E+00
+     900   -0.3833090701E+02   -0.35187E-05    0.49688E-05    0.00000E+00
+    1000   -0.3833518916E+02   -0.27102E-05    0.38675E-05    0.00000E+00
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 15:02:39 2000  <<<
+     >>>  ITERATION ENDED   AT Mon Nov 27 16:05:27 2000  <<<
 
 
 
@@ -1335,38 +1297,38 @@ mu   =  (  110.3822,  110.3822,  110.3823 ) au
 
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.3833520515E+02 (   -0.47919E+01/ion)
- total orbital energy:   0.4526128774E+01 (    0.28288E+00/electron)
- hartree   energy    :   0.4948240681E+01 (    0.30927E+00/electron)
- exc-corr  energy    :  -0.1217692467E+02 (   -0.76106E+00/electron)
+ total     energy    :  -0.3833518916E+02 (   -0.47919E+01/ion)
+ total orbital energy:   0.4526295174E+01 (    0.28289E+00/electron)
+ hartree   energy    :   0.4948392198E+01 (    0.30927E+00/electron)
+ exc-corr  energy    :  -0.1217692778E+02 (   -0.76106E+00/electron)
  ion-ion   energy    :  -0.4165217770E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.2375308556E+02 (    0.14846E+01/electron)
- K.S. V_l  energy    :  -0.1588559093E+02 (   -0.99285E+00/electron)
- K.S. V_nl energy    :   0.2678161910E+01 (    0.16739E+00/electron)
- K.S. V_Hart energy  :   0.9896481363E+01 (    0.61853E+00/electron)
- K.S. V_xc energy    :  -0.1591600913E+02 (   -0.99475E+00/electron)
- Virial Coefficient  :  -0.8094509127E+00
+ K.S. kinetic energy :   0.2375300422E+02 (    0.14846E+01/electron)
+ K.S. V_l  energy    :  -0.1588562630E+02 (   -0.99285E+00/electron)
+ K.S. V_nl energy    :   0.2678146197E+01 (    0.16738E+00/electron)
+ K.S. V_Hart energy  :   0.9896784396E+01 (    0.61855E+00/electron)
+ K.S. V_xc energy    :  -0.1591601334E+02 (   -0.99475E+00/electron)
+ Virial Coefficient  :  -0.8094432548E+00
 
  orbital energies:
-     0.3520477E+00 (   9.580eV)
-     0.3518258E+00 (   9.574eV)
-     0.3488975E+00 (   9.494eV)
-     0.2271966E+00 (   6.182eV)
-     0.2271738E+00 (   6.182eV)
-     0.2267578E+00 (   6.170eV)
-     0.2261419E+00 (   6.154eV)
-     0.2260795E+00 (   6.152eV)
-     0.2257836E+00 (   6.144eV)
-     0.5431171E-01 (   1.478eV)
-     0.5347919E-01 (   1.455eV)
-     0.5343062E-01 (   1.454eV)
-    -0.2989760E-01 (  -0.814eV)
-    -0.3027898E-01 (  -0.824eV)
-    -0.3029941E-01 (  -0.824eV)
-    -0.2195853E+00 (  -5.975eV)
+     0.3520829E+00 (   9.581eV)
+     0.3518579E+00 (   9.575eV)
+     0.3488932E+00 (   9.494eV)
+     0.2273698E+00 (   6.187eV)
+     0.2269768E+00 (   6.176eV)
+     0.2269622E+00 (   6.176eV)
+     0.2262981E+00 (   6.158eV)
+     0.2257913E+00 (   6.144eV)
+     0.2257517E+00 (   6.143eV)
+     0.5406447E-01 (   1.471eV)
+     0.5404019E-01 (   1.471eV)
+     0.5312067E-01 (   1.445eV)
+    -0.3000385E-01 (  -0.816eV)
+    -0.3022333E-01 (  -0.822eV)
+    -0.3024878E-01 (  -0.823eV)
+    -0.2195856E+00 (  -5.975eV)
 
- Total PSPW energy   :  -0.3833520515E+02
+ Total PSPW energy   :  -0.3833518916E+02
 
 
 === Spin Contamination ===
@@ -1378,40 +1340,40 @@ mu   =  (  110.3822,  110.3822,  110.3823 ) au
 
 == Center of Charge ==
 
-spin up     (   -0.1654,   -0.1714,   -0.1653 )
-spin down   (   -0.1654,   -0.1714,   -0.1653 )
-     total  (   -0.1654,   -0.1714,   -0.1653 )
+spin up     (   -0.1666,   -0.1703,   -0.1666 )
+spin down   (   -0.1666,   -0.1703,   -0.1666 )
+     total  (   -0.1666,   -0.1703,   -0.1666 )
 ionic       (    3.1039,    3.1039,    3.1039 )
 
 
 == Molecular Dipole ==
 
-mu   =  (  104.6165,  104.8101,  104.6139 ) au
-|mu| =   181.3114 au,     460.8211 Debye
+mu   =  (  104.6559,  104.7739,  104.6544 ) au
+|mu| =   181.3366 au,     460.8852 Debye
 
  -----------------
  cputime in seconds
- prologue    :   4.60663
- main loop   :   607.02044
- epilogue    :   0.14328
- total       :   611.77035
- cputime/step:   0.60702044
+ prologue    :   4.607676
+ main loop   :   601.464618
+ epilogue    :   0.142676
+ total       :   606.21497
+ cputime/step:   0.601464618
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   180.54752
-   dot products               :   0.000112
-   orthonormalization         :   118.75618
-   exchange correlation       :   20.812142
-   local pseudopotentials     :   17.88617
-   non-local pseudopotentials :   182.943848
-   hartree potentials         :   0.43526
-   structure factors          :   13.444994
+   FFTs                       :   180.620954
+   dot products               :   0.00011
+   orthonormalization         :   124.20614
+   exchange correlation       :   20.792102
+   local pseudopotentials     :   17.529786
+   non-local pseudopotentials :   173.829816
+   hartree potentials         :   0.398564
+   structure factors          :   13.4214
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 15:02:39 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 16:05:27 2000  <<<
 
- Task  times  cpu:      610.6s     wall:      611.8s
+ Task  times  cpu:      604.9s     wall:      606.2s
 
 
                                 NWChem Input Module
@@ -1434,7 +1396,7 @@ mu   =  (  104.6165,  104.8101,  104.6139 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 15:02:39 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 16:05:27 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ================ input data ========================
@@ -1502,13 +1464,13 @@ mu   =  (  104.6165,  104.8101,  104.6139 ) au
 
 
           ============ electron iteration ====================
-     >>>  ITERATION STARTED AT Mon Nov 27 15:02:44 2000  <<<
-      25   -0.3835353967E+02   -0.15142E-04    0.20910E-06
-      50   -0.3835356994E+02   -0.12516E-06    0.54677E-08
-      75   -0.3835357046E+02   -0.39147E-08    0.49776E-10
-     100   -0.3835357047E+02   -0.81800E-09    0.59646E-11
+     >>>  ITERATION STARTED AT Mon Nov 27 16:05:32 2000  <<<
+      25   -0.3835353877E+02   -0.15479E-04    0.20834E-06
+      50   -0.3835356990E+02   -0.12963E-06    0.61258E-08
+      75   -0.3835357046E+02   -0.40048E-08    0.45716E-10
+     100   -0.3835357047E+02   -0.89786E-09    0.63327E-11
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 15:06:26 2000  <<<
+     >>>  ITERATION ENDED   AT Mon Nov 27 16:09:14 2000  <<<
 
 
           =============  summary of results  =================
@@ -1527,34 +1489,34 @@ mu   =  (  104.6165,  104.8101,  104.6139 ) au
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
  total     energy    :  -0.3835357047E+02 (   -0.47942E+01/ion)
- total orbital energy:   0.4621727001E+01 (    0.28886E+00/electron)
- hartree   energy    :   0.5074180469E+01 (    0.31714E+00/electron)
- exc-corr  energy    :  -0.1221470463E+02 (   -0.76342E+00/electron)
+ total orbital energy:   0.4621727157E+01 (    0.28886E+00/electron)
+ hartree   energy    :   0.5074180649E+01 (    0.31714E+00/electron)
+ exc-corr  energy    :  -0.1221470471E+02 (   -0.76342E+00/electron)
  ion-ion   energy    :  -0.4165217770E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.2392882963E+02 (    0.14956E+01/electron)
- K.S. V_l  energy    :  -0.1609665302E+02 (   -0.10060E+01/electron)
- K.S. V_nl energy    :   0.2606954780E+01 (    0.16293E+00/electron)
- K.S. V_Hart energy  :   0.1014836094E+02 (    0.63427E+00/electron)
- K.S. V_xc energy    :  -0.1596576533E+02 (   -0.99786E+00/electron)
- Virial Coefficient  :  -0.8068552841E+00
+ K.S. kinetic energy :   0.2392882902E+02 (    0.14956E+01/electron)
+ K.S. V_l  energy    :  -0.1609665339E+02 (   -0.10060E+01/electron)
+ K.S. V_nl energy    :   0.2606955657E+01 (    0.16293E+00/electron)
+ K.S. V_Hart energy  :   0.1014836130E+02 (    0.63427E+00/electron)
+ K.S. V_xc energy    :  -0.1596576544E+02 (   -0.99786E+00/electron)
+ Virial Coefficient  :  -0.8068552727E+00
 
  orbital energies:
      0.3523742E+00 (   9.589eV)
      0.3523741E+00 (   9.589eV)
      0.3523741E+00 (   9.589eV)
+     0.2299281E+00 (   6.257eV)
      0.2299279E+00 (   6.257eV)
      0.2299279E+00 (   6.257eV)
-     0.2299278E+00 (   6.257eV)
-     0.2299276E+00 (   6.257eV)
      0.2299276E+00 (   6.257eV)
      0.2299274E+00 (   6.257eV)
-     0.5604665E-01 (   1.525eV)
-     0.5604663E-01 (   1.525eV)
-     0.5604636E-01 (   1.525eV)
-    -0.2570523E-01 (  -0.699eV)
-    -0.2570529E-01 (  -0.699eV)
-    -0.2570530E-01 (  -0.699eV)
+     0.2299274E+00 (   6.257eV)
+     0.5604678E-01 (   1.525eV)
+     0.5604645E-01 (   1.525eV)
+     0.5604643E-01 (   1.525eV)
+    -0.2570514E-01 (  -0.699eV)
+    -0.2570514E-01 (  -0.699eV)
+    -0.2570552E-01 (  -0.699eV)
     -0.2168491E+00 (  -5.901eV)
 
  Total PSPW energy   :  -0.3835357047E+02
@@ -1604,41 +1566,41 @@ Translation force removed: (    0.00000    0.00000    0.00000)
         2 Si (    0.00000    0.00000    0.00000 )
         3 Si (    0.00000    0.00000    0.00000 )
         4 Si (    0.00000    0.00000    0.00000 )
-        5 C  (    0.00000    0.00001    0.00000 )
-        6 C  (    0.00001    0.00000   -0.00001 )
-        7 C  (   -0.00001   -0.00001   -0.00001 )
-        8 C  (    0.00000   -0.00001    0.00001 )
+        5 C  (    0.00000   -0.00001    0.00000 )
+        6 C  (   -0.00001    0.00000    0.00000 )
+        7 C  (    0.00001    0.00001    0.00001 )
+        8 C  (    0.00000    0.00000   -0.00001 )
       C.O.M. (    0.00000    0.00000    0.00000 )
           ===============================================
-          |F|=     0.2735638092E-04
+          |F|=     0.2938383162E-04
 
 
 
  -----------------
  cputime in seconds
- prologue    :   5.716746
- main loop   :   223.504234
- epilogue    :   0.058226
- total       :   229.279206
- cputime/step:   0.647838359   ( 345 evalulations)
+ prologue    :   5.717368
+ main loop   :   222.904434
+ epilogue    :   0.058284
+ total       :   228.680086
+ cputime/step:   0.646099809   ( 345 evalulations)
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   62.970184
-   dot products               :   0.028644
-   geodesic                   :   35.28449
-   exchange correlation       :   7.108258
-   local pseudopotentials     :   0.035774
-   non-local pseudopotentials :   62.913496
-   hartree potentials         :   0.263206
-   structure factors          :   2.893442
+   FFTs                       :   62.758758
+   dot products               :   0.028576
+   geodesic                   :   35.7618
+   exchange correlation       :   7.108148
+   local pseudopotentials     :   0.035098
+   non-local pseudopotentials :   60.678638
+   hartree potentials         :   0.264826
+   structure factors          :   2.890646
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 15:06:28 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 16:09:15 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
 
- Task  times  cpu:      228.8s     wall:      229.3s
+ Task  times  cpu:      228.3s     wall:      228.7s
 
 
                                 NWChem Input Module
@@ -1661,7 +1623,7 @@ Translation force removed: (    0.00000    0.00000    0.00000)
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Mon Nov 27 15:06:28 2000  <<<
+     >>>  JOB STARTED       AT Mon Nov 27 16:09:15 2000  <<<
 
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ================ input data ========================
@@ -1723,11 +1685,11 @@ Translation force removed: (    0.00000    0.00000    0.00000)
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Mon Nov 27 15:06:33 2000  <<<
-     100   -0.3835357047E+02   -0.24274E-01    0.91682E-12    0.00000E+00
-     200   -0.3835357047E+02   -0.43397E-12    0.58583E-12    0.00000E+00
+     >>>  ITERATION STARTED AT Mon Nov 27 16:09:20 2000  <<<
+     100   -0.3835357047E+02   -0.24274E-01    0.97408E-12    0.00000E+00
+     200   -0.3835357047E+02   -0.47171E-12    0.61660E-12    0.00000E+00
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Mon Nov 27 15:08:34 2000  <<<
+     >>>  ITERATION ENDED   AT Mon Nov 27 16:11:20 2000  <<<
 
 
 
@@ -1747,34 +1709,34 @@ Translation force removed: (    0.00000    0.00000    0.00000)
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
  total     energy    :  -0.3835357047E+02 (   -0.47942E+01/ion)
- total orbital energy:   0.4621731324E+01 (    0.28886E+00/electron)
- hartree   energy    :   0.5074185145E+01 (    0.31714E+00/electron)
- exc-corr  energy    :  -0.1221470573E+02 (   -0.76342E+00/electron)
+ total orbital energy:   0.4621731354E+01 (    0.28886E+00/electron)
+ hartree   energy    :   0.5074185178E+01 (    0.31714E+00/electron)
+ exc-corr  energy    :  -0.1221470574E+02 (   -0.76342E+00/electron)
  ion-ion   energy    :  -0.4165217770E+02 (   -0.52065E+01/ion)
 
- K.S. kinetic energy :   0.2392882673E+02 (    0.14956E+01/electron)
- K.S. V_l  energy    :  -0.1609665698E+02 (   -0.10060E+01/electron)
- K.S. V_nl energy    :   0.2606958070E+01 (    0.16293E+00/electron)
- K.S. V_Hart energy  :   0.1014837029E+02 (    0.63427E+00/electron)
- K.S. V_xc energy    :  -0.1596576678E+02 (   -0.99786E+00/electron)
- Virial Coefficient  :  -0.8068550800E+00
+ K.S. kinetic energy :   0.2392882665E+02 (    0.14956E+01/electron)
+ K.S. V_l  energy    :  -0.1609665705E+02 (   -0.10060E+01/electron)
+ K.S. V_nl energy    :   0.2606958189E+01 (    0.16293E+00/electron)
+ K.S. V_Hart energy  :   0.1014837036E+02 (    0.63427E+00/electron)
+ K.S. V_xc energy    :  -0.1596576680E+02 (   -0.99786E+00/electron)
+ Virial Coefficient  :  -0.8068550782E+00
 
  orbital energies:
      0.3523744E+00 (   9.589eV)
      0.3523743E+00 (   9.589eV)
      0.3523743E+00 (   9.589eV)
-     0.2299280E+00 (   6.257eV)
-     0.2299280E+00 (   6.257eV)
+     0.2299281E+00 (   6.257eV)
      0.2299279E+00 (   6.257eV)
-     0.2299278E+00 (   6.257eV)
-     0.2299278E+00 (   6.257eV)
-     0.2299276E+00 (   6.257eV)
-     0.5604669E-01 (   1.525eV)
-     0.5604654E-01 (   1.525eV)
-     0.5604654E-01 (   1.525eV)
-    -0.2570503E-01 (  -0.699eV)
-    -0.2570512E-01 (  -0.699eV)
-    -0.2570512E-01 (  -0.699eV)
+     0.2299279E+00 (   6.257eV)
+     0.2299277E+00 (   6.257eV)
+     0.2299277E+00 (   6.257eV)
+     0.2299277E+00 (   6.257eV)
+     0.5604663E-01 (   1.525eV)
+     0.5604663E-01 (   1.525eV)
+     0.5604652E-01 (   1.525eV)
+    -0.2570506E-01 (  -0.699eV)
+    -0.2570506E-01 (  -0.699eV)
+    -0.2570514E-01 (  -0.699eV)
     -0.2168490E+00 (  -5.901eV)
 
  Total PSPW energy   :  -0.3835357047E+02
@@ -1802,27 +1764,27 @@ mu   =  (  104.7224,  104.7224,  104.7224 ) au
 
  -----------------
  cputime in seconds
- prologue    :   4.576798
- main loop   :   121.127686
- epilogue    :   0.143788
- total       :   125.848272
- cputime/step:   0.60563843
+ prologue    :   4.575884
+ main loop   :   120.05288
+ epilogue    :   0.142968
+ total       :   124.771732
+ cputime/step:   0.6002644
 
  -------------------------------
  Time spent doing:
-   FFTs                       :   36.090204
+   FFTs                       :   36.119572
    dot products               :   0.000112
-   orthonormalization         :   23.538978
-   exchange correlation       :   4.15414
-   local pseudopotentials     :   3.576876
-   non-local pseudopotentials :   36.559278
-   hartree potentials         :   0.087796
-   structure factors          :   2.688086
+   orthonormalization         :   24.63262
+   exchange correlation       :   4.159808
+   local pseudopotentials     :   3.503506
+   non-local pseudopotentials :   34.747146
+   hartree potentials         :   0.080662
+   structure factors          :   2.68279
    masking                    :   0.
 
-     >>>  JOB COMPLETED     AT Mon Nov 27 15:08:34 2000  <<<
+     >>>  JOB COMPLETED     AT Mon Nov 27 16:11:20 2000  <<<
 
- Task  times  cpu:      125.7s     wall:      125.8s
+ Task  times  cpu:      124.5s     wall:      124.8s
 
 
                                 NWChem Input Module
@@ -1908,4 +1870,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:     2003.0s     wall:     2008.2s
+ Total times  cpu:     1370.2s     wall:     1373.6s
