@@ -14,7 +14,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpbe96.F,v 1.6 2000-07-27 16:22:28 bjohnson Exp $
+c$Id: xc_xpbe96.F,v 1.7 2001-02-28 22:19:17 edo Exp $
 c
       implicit none
 c
@@ -151,7 +151,7 @@ c
 #endif
             if (lfac) then
                Ex = Ex + rho43*qwght(n)*fac*0.5d0
-               if(ldew)func(n) = func(n) + rho43*fac
+               if(ldew)func(n) = func(n) + rho43*fac*0.5d0
                Amat(n,1) = Amat(n,1) + rho13*fac
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 2d0*rhom23*fac
@@ -179,7 +179,7 @@ c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
             Ex = Ex + rho43*g*qwght(n)*fac*0.5d0
-            if(ldew)func(n) = func(n) + rho43*g*fac
+            if(ldew)func(n) = func(n) + rho43*g*fac*0.5d0
             Amat(n,1) = Amat(n,1) + (rho13*g+rho43*d1g(1))*fac
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0.5d0*rho43*d1g(2)*fac
 #ifdef SECOND_DERIV
@@ -213,7 +213,7 @@ c
 #endif
             if (lfac) then
                Ex = Ex + rho43*qwght(n)*fac*0.5d0
-               if(ldew)func(n) = func(n) + rho43*fac
+               if(ldew)func(n) = func(n) + rho43*fac*0.5d0
                Amat(n,2) = Amat(n,2) + rho13*fac
 #ifdef SECOND_DERIV
                Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 2d0*rhom23*fac
@@ -241,7 +241,7 @@ c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
             Ex = Ex + rho43*g*qwght(n)*fac*0.5d0
-            if(ldew)func(n) = func(n) + rho43*g*fac
+            if(ldew)func(n) = func(n) + rho43*g*fac*0.5d0
             Amat(n,2) = Amat(n,2) + (rho13*g+rho43*d1g(1))*fac
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + 0.5d0*rho43*d1g(2)*fac
 #ifdef SECOND_DERIV
