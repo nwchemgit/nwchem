@@ -1,5 +1,5 @@
       subroutine sym_geom_project(geom, tol)
-C     $Id: sym_geom_prj.F,v 1.1 1995-12-13 01:28:15 d3g681 Exp $
+C     $Id: sym_geom_prj.F,v 1.2 1996-01-10 16:00:51 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 #include "sym.fh"
@@ -18,7 +18,12 @@ c
       integer iat, jat, k, op
       integer nops, nat, l_tmp, k_tmp
       double precision rnew(3), r
+      logical geom_check_handle
+      external geom_check_handle
 c     
+      if (.not. geom_check_handle(geom, 'sym_geom_project'))
+     $     call errquit('sym_geom_project: bad geom',0)
+c
       nops = sym_number_ops(geom)
 c     
       nat = ncenter(geom)

@@ -1,5 +1,5 @@
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.1 1995-12-13 01:28:42 d3g681 Exp $
+C$Id: sym_sh_pair.F,v 1.2 1996-01-10 16:00:52 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"      
@@ -148,6 +148,7 @@ c     ... so don't do the canonical check here
 *      if (kat .lt. lat) return
 *      if (iat .eq. kat .and. jat .lt. lat) return
 c
+      q4 = 0.0d0
       ij   = itri(iat,jat)
       kl   = itri(kat,lat)
       ijkl = itri(ij, kl)

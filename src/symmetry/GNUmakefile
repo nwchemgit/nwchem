@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.18 1995-12-13 01:28:04 d3g681 Exp $
+#$Id: GNUmakefile,v 1.19 1996-01-10 16:00:50 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -69,7 +69,7 @@ $(LIBRARY_PATH)(sym_geom_prj.o):	 $(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.
 $(LIBRARY_PATH)(sym_get_cart.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_grp_name.o):	 $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_inv_op.o):	 ./sym.fh $(INCDIR)/geomP.fh 
-$(LIBRARY_PATH)(sym_mo_adapt.o):	 $(INCDIR)/util.fh ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_mo_adapt.o):	 $(INCDIR)/util.fh ./sym.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sym_mo_ap_op.o):	 ./sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(sym_num_ops.o):	 $(INCDIR)/geomP.fh 
 $(LIBRARY_PATH)(sym_nwc.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
