@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.3 2000-05-30 18:56:32 edo Exp $
+* $Id: dft_mem3c.F,v 1.4 2000-11-29 00:13:30 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -100,9 +100,9 @@ c
       if (availm_r.lt.n3c_dbl_r)then
 c     
 c     cannot all be done incore so let's restrict memory use to a
-c     max of 6 MW for semi-direct (I/O)
+c     max of 5 MW for semi-direct (I/O)
 c     
-         availm_r = min(availm_r,6d+6)
+         availm_r = min(availm_r,5d+6)
       endif
 c
 c     check if availm_r is big enough for max batch
