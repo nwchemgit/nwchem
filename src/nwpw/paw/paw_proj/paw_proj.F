@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.5 2002-08-06 00:06:48 bylaska Exp $
+* $Id: paw_proj.F,v 1.6 2002-08-06 19:20:49 bylaska Exp $
 *
 
 !**************************************************
@@ -34,6 +34,9 @@
       value = MA_alloc_get(mt_int,(nkatm),
      >                     'nbasis',nbasis(2),nbasis(1))
       value = value.and.
+     >        MA_alloc_get(mt_int,(nkatm),
+     >                     'prj_indx',prj_indx(2),prj_indx(1))
+      value = value.and.
      >        MA_alloc_get(mt_int,(2*nkatm),
      >                     'i_prj_l',i_prj_l(2),i_prj_l(1))
       value = value.and.
@@ -66,8 +69,21 @@
      >                     'prj',prj(2),prj(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',1)
 
-*     *** read in formatted prj's to prj common block ***
+*     *** set prj_indx ***
+      int_mb(prj_indx(1)) = 0
+      do ia=2,nkatm
+         int_mb(prj_indx(1)+ia-1) = int_mb(prj_indx(1)+ia-2) 
+     >                            + int_mb(nbasis(1)  +ia-2)*npack1
+      end do
 
+*     *** read in formatted prj's to prj common block ***
+      do ia=1,nkatm
+         call paw_proj_read(ia,
+     >            int_mb(int_mb(i_prj_l(1)+2*(ia-1))),
+     >            int_mb(int_mb(i_prj_m(1)+2*(ia-1))),
+     >            npack1,
+     >            dcpl_mb(prj(1)+int_mb(prj_indx(1)+ia-1)))
+      end do
       return
       end
 
@@ -85,9 +101,19 @@
 #include "mafdecls.fh"
 #include "paw_proj.fh"
 
+      !*** local variables ***
       logical value
-
-      value =           MA_free_heap(nbasis(2))
+      integer ia
+      
+      value = .true.
+      do ia=1,nkatm
+         value = value.and.MA_free_heap(int_mb(i_prj_l(1)+2*(ia-1)+1))
+         value = value.and.MA_free_heap(int_mb(i_prj_m(1)+2*(ia-1)+1))
+      end do
+      value = value.and.MA_free_heap(i_prj_l(2))
+      value = value.and.MA_free_heap(i_prj_m(2))
+      value = value.and.MA_free_heap(prj_indx(2))
+      value = value.and.MA_free_heap(nbasis(2))
       value = value.and.MA_free_heap(prj(2))
       if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
       return
@@ -284,6 +310,88 @@
       return
       end
 
+!**************************************************
+!
+!	Name: paw_proj_read
+!
+!	Purpose: read in the formatted 
+!                projector file.
+!
+!	Created:	8/06/2002
+!**************************************************
+      subroutine paw_proj_read(ia,proj_l,proj_m,npack1,prj)
+      implicit none
+      integer ia
+      integer proj_l(*),proj_m(*)
+      integer    npack1
+      complex*16 prj(npack1,*)
+
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+*    *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+
+      logical value
+      integer ii,msglen,l,nbasis,ngrid(3),nfft3d
+      real*8  unita(3,3)
+      character*20  fname
+      character*255 full_filename
+      integer tmp1(2),tmp2(2)
+
+      call Parallel_taskid(taskid)
+
+*     **** open fname binary file ****
+      call ion_atom_plus_suffix(ia,'.jpp',fname)
+      if (taskid.eq.MASTER) then
+
+         call util_file_name_noprefix(fname,.false.,
+     >                             .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') - 1
+         call openfile(5,full_filename,l,'r',l)
+         call iread(5,ngrid,3)
+         call dread(5,unita,9)
+         call iread(5,nbasis,1)
+      end if
+
+*     **** send header data to all processors ****
+      msglen = 3
+      call BRDCST(9+MSGINT,ngrid,mitob(msglen),MASTER)
+      msglen = 9
+      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+      msglen = 1
+      call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
+      
+      call D3dB_nfft3d(1,nfft3d)
+      value =           MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      if (.not.value) call errquit('paw_proj_read: push stack',0)
+
+      do ii=1,nbasis
+         if (taskid.eq.MASTER) then
+            call iread(5,proj_l(ii),1)
+            call iread(5,proj_m(ii),1)
+         end if
+         call BRDCST(9+MSGINT,proj_l(ii),mitob(msglen),MASTER) 
+         call BRDCST(9+MSGINT,proj_m(ii),mitob(msglen),MASTER)
+         call D3dB_c_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
+         call Pack_c_pack(1,dcpl_mb(tmp1(1)))
+         call Pack_c_Copy(1,dcpl_mb(tmp1(1)),prj(1,ii))
+      end do
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('paw_proj_read: pop stack',1)
+
+      if (taskid.eq.MASTER) then
+        call closefile(5)
+      end if
+
+      return
+      end
+
 
 
 !**************************************************
@@ -358,10 +466,10 @@
       parameter (MASTER=0)
 
       logical value
-      integer ii,i,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3)
+      integer ii,i,npack1,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3)
       integer i_rgrid,i_prj
-      real*8  unita(3,3),G(3),gg,log_amesh
-      integer tmp(2),prj(2),rayleigh(2)
+      real*8  unita(3,3),gg,log_amesh
+      integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2)
 
       character*20 jppname,atomname
       character*255 full_filename
@@ -426,7 +534,8 @@
 
 *     **** compute bessel transforms ****
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dbl,nfft3d,
+      call Pack_npack(1,npack1)
+      value = MA_push_get(mt_dbl,npack1,
      >                    'rayleigh',rayleigh(2),rayleigh(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,
@@ -434,21 +543,35 @@
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,
      >                    'tmp',tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack1,'Gx',Gx(2),Gx(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack1,'Gy',Gy(2),Gy(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack1,'Gz',Gz(2),Gz(1))
       if (.not.value) 
      > call errquit('paw_proj_formatter_auto, push stack',0)
 
-     
-      G(1) = G_indx(1)
-      G(2) = G_indx(2)
-      G(3) = G_indx(3)
+      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dcpl_mb(tmp(1)))
+      call Pack_t_pack(1,dcpl_mb(tmp(1)))
+      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gx(1)))
+
+      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dcpl_mb(tmp(1)))
+      call Pack_t_pack(1,dcpl_mb(tmp(1)))
+      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gy(1)))
+
+      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dcpl_mb(tmp(1)))
+      call Pack_t_pack(1,dcpl_mb(tmp(1)))
+      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gz(1)))
+
       do ii=1,basis_nbasis
         l =  int_mb(get_i_orb_l(ia)+ii-1)
         write(*,*) "formatting prj ",ii," l:",l
      
-        do i=1,nfft3d
-          gg  = dsqrt( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
-     >               + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
-     >               + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) ) 
+        do i=1,npack1
+          gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
+     >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
+     >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) ) 
           dbl_mb(rayleigh(1)+i-1) 
      >      = spher_bessel_transform(l,nr,log_amesh,
      >                               dbl_mb(i_rgrid),
@@ -460,27 +583,37 @@
      >                                dbl_mb(i_prj+(ii-1)*nr))
         end do
         do m=-l,l
-c        call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(prj(1)),1) ! debug
-           call spher_harmonics_generate(l,m,nfft3d,
-     >                      dbl_mb(G(1)),
-     >                      dbl_mb(G(2)),
-     >                      dbl_mb(G(3)),
+           call spher_harmonics_generate(l,m,npack1,
+     >                      dbl_mb(Gx(1)),
+     >                      dbl_mb(Gy(1)),
+     >                      dbl_mb(Gz(1)),
      >                      dcpl_mb(prj(1)))
-           call D3dB_tc_Mul(1,dbl_mb(rayleigh(1)),
+           call Pack_tc_Mul(1,dbl_mb(rayleigh(1)),
      >                     dcpl_mb(prj(1)),
      >                     dcpl_mb(prj(1)))
+           call rayleigh_itol_scaling(l,npack1,
+     >                                dcpl_mb(prj(1)),
+     >                                dcpl_mb(prj(1)))
         
            if (taskid.eq.MASTER) then
              write(*,*) "writing formatted prj:",ii,"  l,m",l,m
              call iwrite(6,l,1)
              call iwrite(6,m,1)
            end if
+           call Pack_c_unpack(1,dcpl_mb(prj(1)))
            call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)))
         end do
       end do
-      if (taskid.eq.MASTER) call closefile(6)
-
-      value =           MA_pop_stack(tmp(2))
+      if (taskid.eq.MASTER) then 
+         call closefile(6)
+         write(6,*)
+         write(6,*) " Generated formatted filename:"
+         write(6,*) full_filename
+      end if
+      value =           MA_pop_stack(Gz(2))
+      value = value.and.MA_pop_stack(Gy(2))
+      value = value.and.MA_pop_stack(Gx(2))
+      value = value.and.MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(prj(2))
       value = value.and.MA_pop_stack(rayleigh(2))
       if (.not.value) 
@@ -489,6 +622,40 @@ c        call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(prj(1)),1) ! debug
       return
       end
 
+!**************************************************
+!
+!	Name: rayleigh_itol_scaling
+!
+!	Purpose: This routine should be rewritten
+!                to improve performance.
+!  This routine scales Y <-- (-i)**l * Y
+!
+!	Created:	8/06/2002
+!**************************************************
+      subroutine rayleigh_itol_scaling(l,nfft3d,Y)
+      implicit none
+      integer l,nfft3d
+      complex*16 Y(*)
+
+      !*** local variables ***
+      integer k
+      complex*16 coef
+
+      if      (mod(l,4).eq.0) then
+         coef = dcmplx(1.0d0,0.0d0)
+      else if (mod(l,4).eq.1) then
+         coef = dcmplx(0.0d0,-1.0d0)
+      else if (mod(l,4).eq.2) then
+         coef = dcmplx(-1.0d0,0.0d0)
+      else if (mod(l,4).eq.3) then
+         coef = dcmplx(0.0d0,1.0d0)
+      end if
+
+      do k=1,nfft3d
+        Y(k) = coef*Y(k)
+      end do
+      return
+      end
 
 !**************************************************
 !
@@ -512,11 +679,13 @@ c        call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(prj(1)),1) ! debug
 
       integer i,k,mabs
       real*8     g,gxy,cs_theta,sgn,coeff,fourpi
-      complex*16 exp_phi
+      complex*16 exp_phi,coef2
 
 *     **** external functions ****
       real*8   legendre_lm
       external legendre_lm
+
+
 
       fourpi = 16.0d0*datan(1.0d0)
       sgn    = 1.0d0
@@ -526,7 +695,7 @@ c        call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(prj(1)),1) ! debug
         mabs = -m
         if (mod(mabs,2).eq.1) sgn = -1.0d0
       end if
-
+     
 
       !*** find coefficient ***
       if(mabs.eq.0) then
