@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.308 2000-02-17 00:46:04 edo Exp $
+# $Id: makefile.h,v 1.309 2000-02-29 17:30:51 d3j191 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -652,9 +652,17 @@ FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
  FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
 FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
+#optimization flags for R12000 (IP30)
+ FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000:Olimit=4000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_12K = -O3 -TENV:X=1 -WK,-dr=AKC
+
  COPTIMIZE = -O
  FOPTIMIZE = -O3
 
+ifeq ($(NWCHEM_TARGET_CPU),R12000)
+ FOPTIMIZE = $(FOPTIMIZE_12K)
+ FVECTORIZE = $(FVECTORIZE_12K)
+endif
 ifeq ($(NWCHEM_TARGET_CPU),R10000)
  FOPTIMIZE = $(FOPTIMIZE_10K)
  FVECTORIZE = $(FVECTORIZE_10K)
