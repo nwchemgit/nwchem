@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.29 2003-10-28 21:21:58 edo Exp $
+c     $Id: dft_scf_so.F,v 1.30 2004-01-20 19:08:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -55,9 +55,6 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c     
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
       Logical movecs_write_so, movecs_converged
       External movecs_write_so, movecs_converged
 c     
@@ -287,10 +284,6 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before 3c-2e initialize.')
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
-c     
       if (CDFIT)then
          if(dft_mem3c(
      I     natoms,npol,oprint_parm,oprint_3c2e,
@@ -307,11 +300,6 @@ c
       endif
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(5) = ' 3c-2e Ints'
-      call tcllct(t_pgm(1,5),tp4,tp3)
-#endif
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
       IOLGC = .TRUE.
@@ -800,9 +788,6 @@ c     &     (dbl_mb(irdens_atom+i),i=0,ipol*natoms*natoms-1)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack:lscr',0, MA_ERR)
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
 c
       if (CDFIT)then
 c     
@@ -821,12 +806,6 @@ c
      &        .false., 0d0, .false.)
       endif
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(6) = '   FitCD  '
-      call tcllct(t_pgm(1,6),tp4,tp3)
-      call dft_second(tp3)
-#endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
       call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul,
@@ -844,13 +823,6 @@ cso      call ga_dadd(one, g_tmp, one, g_fock, g_fock)
      &        call errquit('dft_scf: cannot pop stacklcd_coef',0,
      &       MA_ERR)
       endif
-c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(7) = '   GtVcoul'
-      call tcllct(t_pgm(1,7),tp4,tp3)
-      call dft_second(tp3)
-#endif
 c     
 c     Restore alpha and beta densities.
 c     
@@ -904,12 +876,6 @@ c
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(8) = '   GetVXC '
-      call tcllct(t_pgm(1,8),tp4,tp3)
-#endif
-c     
 c     Calculate the total electronic energy.
 c     
       if (nExc.eq.1)then
@@ -935,11 +901,6 @@ c
       rms(2) = 0.d0
       homo_lumo_gap = 200.0d0
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
-c     
-c     
 c     Symmetrize the Fock matrix
 c
       if (oskel)
@@ -958,15 +919,6 @@ c
          endif
       endif
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(9) = '   DIIS   '
-      call tcllct(t_pgm(1,9),tp4,tp3)
-#endif
-c     
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
       g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
 c     
 c     Put s-1/2 in g_scr.
@@ -1175,11 +1127,6 @@ c
      &           ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 c     
       call ga_sync
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(10) = '   Diag   '
-      call tcllct(t_pgm(1,10),tp4,tp3)
-#endif
 c     
 c     Save previous density for convergence check.
 c     

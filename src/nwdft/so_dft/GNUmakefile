@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 2002-01-29 21:02:30 windus Exp $
+# $Id: GNUmakefile,v 1.10 2004-01-20 19:08:43 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -27,7 +27,6 @@
 
      LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
  LIB_DEFINES =
 
 LIB_INCLUDES = -I../include -I../../ddscf

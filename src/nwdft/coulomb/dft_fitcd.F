@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.39 2003-12-20 00:28:42 edo Exp $
+* $Id: dft_fitcd.F,v 1.40 2004-01-20 19:08:42 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -71,20 +71,10 @@ c
       integer LU,ierr
       character*255 errmsg
       
-#if defined(DFT_TIMER)
-      integer nsh_blocks,niter
-      double precision schw1
-#include "timer.fh"
-#endif
 c     
 c     Fit electronic charge density. The fitting coefficients are obtained by 
 c     solving the normal equations for a standard linear least squares problem.
 c      
-#if defined(DFT_TIMER)
-      call ga_sync
-      call t_stat(5,-1)
-      call dft_second(ts1)
-#endif
       if (.not.derfit .and. nfit.ne.1) then
          call errquit('dft_fitcd: nfit must be 1 for regular fits',0,
      &       INPUT_ERR)
@@ -408,17 +398,6 @@ c
   241 continue
 c
       n1 = nxtask(-nproc,icount)
-cedo      call ga_sync
-c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(1) = '  Tvec    '
-      call tcllct(t_sub(1,1),ts2,ts1)
-      call dft_second(ts1)
-#endif
-c
-c      call dft_tstamp(' in dft_cdfit after 3c2el')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
@@ -429,12 +408,6 @@ c
 c
       call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd*nfit,'+')
 c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(2) = '  DGOP    '
-      call tcllct(t_sub(1,2),ts2,ts1)
-      call dft_second(ts1)
-#endif
 c
       if (oskel .and. .not.derfit) then
          do ifit = 1, nfit
@@ -473,8 +446,6 @@ c
 c     Integrate CD fitting functions in each shell
 c
       call ga_sync
-c      call dft_tstamp(' in dft_cdfit before cgtf')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       do ish = 1,nshells_cd
         if (.not. bas_cn2bfr( CD_bas_han,ish,
      &                       ifirst,ilast))
@@ -499,16 +470,7 @@ c
       else
          Q = Dble(nTotEl)
       endif
-c      call dft_tstamp(' in dft_cdfit before alph')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      
-#if defined(DFT_TIMER)
-      call ga_sync
-      call dft_second(ts2)
-      subsect(3) = '  Int_cgtf'
-      call tcllct(t_sub(1,3),ts2,ts1)
-      call dft_second(ts1)
-#endif
       if (IOLGC)then
 c         call gacrea(geom,CD_bas_han,
 c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
@@ -528,16 +490,6 @@ cedo        call ga_sync
           call ga_print(g_cdinv)
         endif
       endif
-#if defined(DFT_TIMER)
-      call ga_sync
-      call dft_second(ts2)
-      subsect(4) = '  RD CDinv'
-      call tcllct(t_sub(1,4),ts2,ts1)
-      call dft_second(ts1)
-#endif
-cedo      call ga_sync
-c      call dft_tstamp(' in dft_cdfit before f1f2')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 #if 0
 c
 c     Compute the Lagrange Multiplier, alpha.
@@ -559,10 +511,6 @@ cedo      call ga_sync
       call ga_dgop(Msg_Lagrange,F,2,'+')
 cedo      call ga_sync
       alpha = (Q - F(1))/F(2)
-c         write(*,*)'F alpha',f(1),f(2),alpha
-cedo      call ga_sync
-c      call dft_tstamp(' in dft_cdfit before qfrc')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Qfrac = (Q - F(1))/Q
 c
@@ -571,10 +519,6 @@ c
 c     Initialize the CD_coef vector.
       
       call dfill(nbf_cd,0.D0,CD_coef,1)
-c
-cedo      call ga_sync
-c      call dft_tstamp(' in dft_cdfit before cdco')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       next = nxtval(nproc)+1
       do j = 1,nbf_cd
@@ -647,8 +591,6 @@ c
       if (.not.ma_pop_stack(lTcgtf))
      &   call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
 #endif
-c      call dft_tstamp(' in dft_cdfit before writ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       if(me.eq.0) then
          if (derfit) then
             call util_file_name('cdfit_deriv', .true., .false.,
@@ -706,8 +648,6 @@ c      if (derfit) then
 c         write(*,*)'Fit coefficients:'
 c         call output(cd_coef, 1, nbf_cd, 1, nfit, nbf_cd, nfit, 1)
 c      endif
-c      call dft_tstamp(' in dft_cdfit before mull')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Get mulliken population analysis of charge density fit
 c
@@ -741,8 +681,6 @@ c
       if (.not.ma_pop_stack(lqatom))
      &   call errquit('dft_fitcd: cannot pop stack',3, MA_ERR)
 c
-cedo      call ga_sync
-c      call dft_tstamp(' in dft_cdfit after  mull')
       endif                     ! .not.derfit
 c
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
@@ -777,11 +715,6 @@ c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
       if(.not.ma_pop_stack(lTvec))
      &  call errquit('dft_fitcd: cannot pop stack',6, MA_ERR)
       
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(5) = '  cd_coef '
-      call tcllct(t_sub(1,5),ts2,ts1)
-#endif
       
       if(oprint.and.me.eq.0.and..not.derfit )then
         write(LuOut,*)
@@ -792,44 +725,6 @@ c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
         call util_flush(LuOut)
       end if
       
-#if defined(DFT_TIMER)
-        
-      call ga_igop(Msg_schw1,ischw1,1,'+')
-      nsh_blocks = nshells_cd*((nshells_ao*(nshells_ao+1))/2)
-        
-      schw1 = (dble(nsh_blocks - ischw1)/dble(nsh_blocks))*100
-        
-      ltime = 7
-        
-      if( me.eq.0 )then
-          
-        niter  = (nshells_ao*(nshells_ao+1))/2
-        ntasks = niter/icount
-        write(ltime,*)
-        write(ltime,9996) '      Analysis of FITCD'
-        write(ltime,*)
-        write(ltime,9995) ' number of nodes:  ',ga_nnodes()
-        write(ltime,9995) ' number of tasks:  ',ntasks
-        write(ltime,9995) ' chunk size     :  ',icount
-        write(ltime,*)
-        write(ltime,9996) 'Schwarz Screening - Density*(p|cd)'
-        write(ltime,*)
-        write(ltime,9997) 'Threshold :  ',THRESHOLD
-        write(ltime,9998) '% Screened:  ',schw1
-        write(ltime,*)
-          
-      end if
-        
-      subname=' Fitcd    '
-      call t_stat(5,1)
-      
- 9995 format(10x,a,i10)
- 9996 format(2x,a)
- 9997 format(2x,a,e12.4)
- 9998 format(2x,a,2f6.2)
-      
-#endif
-c      call errquit(' temp stop semi-direct ',999)
       return
       end
       Subroutine mull_pop_fit(basis, natoms, nshells, nbf_cd,
@@ -865,9 +760,6 @@ c
       call dfill(nshells,0.D0,qshell,1)
       call ifill(nshells*natoms,0,shell_types,1)
 c
-c      call dft_tstamp(' in dft_mull_fit 1       ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-cedo      call ga_sync
       do iat = me+1, natoms, nproc
          if (.not.bas_ce2cnr(basis, iat, ish1, ish2))
      &      call errquit(' exiting in mull_pop_fit',4, BASIS_ERR)
@@ -892,8 +784,6 @@ cedo      call ga_sync
       call ga_dgop(Msg_Mull1, qatom, natoms,'+')
       call ga_dgop(Msg_Mull2, qshell, nshells,'+')
       call ga_igop(Msg_Mull1, shell_types, nshells*natoms,'+')
-c      call dft_tstamp(' in dft_mull_fit 2       ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       if (me.eq.0.and.oprint_mull_fit) then
          call dft_header(
      &       'Fitted Density - Mulliken Population Analysis')
@@ -921,8 +811,6 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
          enddo
       endif
       call ga_sync
-c      call dft_tstamp(' in dft_mull_fit 3       ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
    10 format(/' Atom   Charge   Shell Charges')
    20 format(15x,10(3x,a1,2x))
    30 format(1x,i4,1x,f8.2,1x,10(f6.2))

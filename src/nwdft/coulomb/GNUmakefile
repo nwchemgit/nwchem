@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 2002-02-11 21:17:52 edo Exp $
+# $Id: GNUmakefile,v 1.32 2004-01-20 19:08:42 edo Exp $
 ifeq ($(TARGET),SGITFP)
 # BEGIN_WIN32_IGNORE
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
@@ -28,7 +28,6 @@ endif
 
       LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
  LIB_DEFINES =
 
  LIB_INCLUDES = -I../include

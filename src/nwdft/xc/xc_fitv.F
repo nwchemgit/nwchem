@@ -1,7 +1,7 @@
       Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
      $                    g_oep,IOLGC)                          ! Qin
 c
-C$Id: xc_fitv.F,v 1.18 2003-10-17 22:55:53 carlfahl Exp $
+C$Id: xc_fitv.F,v 1.19 2004-01-20 19:08:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -21,10 +21,6 @@ c
 #include "cdft.fh"
 #include "oep.fh"
 #include "sym.fh"
-c
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
 c
       Logical LResult
 c
@@ -81,11 +77,6 @@ c Qin
       integer Nintegrals, npint, mag, Max_scr, nxc,nint_api
       double precision fact, q1,toll
 c******************************************************************************
-#if defined(DFT_TIMER)
-      call ga_sync
-      call t_stat(10,-1)
-#endif
-c
       toll=10d0**(-itol2e)
       me=ga_nodeid()
       nproc = ga_nnodes()
@@ -111,10 +102,6 @@ c end/ Qin
 c
 c     Compute the XC fitting coefficients.
 c
-#if defined(DFT_TIMER)
-      call dft_second(ts1)
-#endif
-c
       ndbl = nbf_xc*nTcols
 c
       if(.not.MA_Push_Get(MT_Dbl,ndbl,'xc_coef',lxc_coef,ixc_coef))
@@ -137,13 +124,6 @@ c
         call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
       endif
       call ga_sync
-c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(1)='  XC READ '
-      call tcllct(t_sub(1,1),ts2,ts1)
-      call dft_second(ts1)
-#endif
 c
       next=nxtval(nproc)+1
 c
@@ -177,13 +157,6 @@ c      if (IOLGC)call gadest(g_xcinv)
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      ('xc_fitv: could not destroy g_xcinv', 0, GA_ERR)
       endif
-c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(2)='  xc_coef '
-      call tcllct(t_sub(1,2),ts2,ts1)
-      call dft_second(ts1)
-#endif
 c
 cQin
 c      if (ioep.eq.3) then
@@ -339,13 +312,6 @@ c
   240 continue
       call ga_sync
 c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(3)='  Vxc     '
-      call tcllct(t_sub(1,3),ts2,ts1)
-      call dft_second(ts1)
-#endif
-c
       if(.not.ma_pop_stack(lscr2))
      &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
@@ -362,24 +328,6 @@ c
      &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       n1 = nxtval(-nproc)
-c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(4)='  DGOP    '
-      call tcllct(t_sub(1,4),ts2,ts1)
-#endif
-c
-#if defined(DFT_TIMER)
-      if( me.eq.0 )then
-        ltime = 7
-        write(ltime,*)
-        write(ltime,9996) '      Analysis of FITVXC'
-        write(ltime,*)
-      end if
-      subname=' Fitvxc   '
-      call t_stat(4,1)
- 9996 format(10x,a)
-#endif
 c
       return
       end

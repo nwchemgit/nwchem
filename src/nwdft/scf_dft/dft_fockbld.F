@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.16 2004-01-16 00:49:40 edo Exp $
+c     $Id: dft_fockbld.F,v 1.17 2004-01-20 19:08:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -109,9 +109,6 @@ c
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
 c
       if (CDFIT)then
 c     
@@ -132,12 +129,6 @@ c
       if (odftps) call pstat_off(ps_fitcd)
       endif
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(6) = '   FitCD  '
-      call tcllct(t_pgm(1,6),tp4,tp3)
-      call dft_second(tp3)
-#endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
       if (odftps) call pstat_on(ps_vcoul)
@@ -156,12 +147,6 @@ c
      &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(7) = '   GtVcoul'
-      call tcllct(t_pgm(1,7),tp4,tp3)
-      call dft_second(tp3)
-#endif
       if (ipol.gt.1)then
 c     
 c        Restore alpha and beta densities.
@@ -233,12 +218,6 @@ c
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(8) = '   GetVXC '
-      call tcllct(t_pgm(1,8),tp4,tp3)
-#endif
-
       if (odftps) call pstat_off(ps_fockb)
       return
       end

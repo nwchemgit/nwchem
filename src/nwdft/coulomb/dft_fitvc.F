@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.38 2003-10-25 16:25:08 edo Exp $
+c     $Id: dft_fitvc.F,v 1.39 2004-01-20 19:08:42 edo Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -17,9 +17,6 @@ c
 #include "eaf.fh"
 #include "cdft.fh"
 #include "sym.fh"
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
 c
       integer nmat    ! number of J matrices to make [input]
       integer g_vc     ! GA handle for V Coulomb [output]
@@ -60,11 +57,6 @@ c
       integer ndone,ipoint,ipoint2
       external nxtask
 c
-#if defined(DFT_TIMER)
-      call ga_sync
-      call t_stat(10,-1)
-      call dft_second(ts1)
-#endif
 c !!! BGJ test !!!
 c      write(*,*)'*** dft_fitvc: dermat nmat =',dermat,nmat
       if (.not.dermat .and. nmat.ne.1) then
@@ -188,12 +180,6 @@ c
 
       endif
 c     
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(1)='  Pre-fit '
-      call tcllct(t_sub(1,1),ts2,ts1)
-      call dft_second(ts1)
-#endif
 
 
 c     
@@ -328,8 +314,6 @@ c
         ishd_be = 1
       endif
 c
-c      call dft_tstamp(' In dft_fitvc 3           ')
-c
       n1 = nxtask(nproc,icount)
       n2 = 0
 c
@@ -450,8 +434,6 @@ c
   240 continue
   241 continue
 c
-c      call dft_tstamp(' In dft_fitvc 4          ')
-c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0,0)
       if(.not.ma_pop_stack(lERI))
@@ -461,12 +443,6 @@ c
       if(.not.ma_pop_stack(lsvec))
      &  call errquit('dft_fitvc: cannot pop stack',0,0)
 c
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(2)='  Vcoul   '
-      call tcllct(t_sub(1,2),ts2,ts1)
-      call dft_second(ts1)
-#endif
 c
       n1 = nxtask(-nproc,icount)
 c      
@@ -485,8 +461,6 @@ c     !!! Not needed if not doing Ecoul2
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0,0)
 c
-c      call dft_tstamp(' In dft_fitvc 5          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
 c     Compute Ecoul2 only for the first set of fit coefficients
 c     !!! Should modify this so that nothing is done if nmat > 1
@@ -506,9 +480,6 @@ c
       next=nxtval(-nproc)
 c     
 
-c      call dft_tstamp(' In dft_fitvc 6          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-c
       Ecoul2=Ecoul2*0.5D0
 c
 c         write(*,*)'*** After destroy g_2ceri'
@@ -522,47 +493,5 @@ c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0,0)
 c
-c      call dft_tstamp(' In dft_fitvc 7          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-c      
-#if defined(DFT_TIMER)
-      call dft_second(ts2)
-      subsect(3)='  Ecoul2  '
-      call tcllct(t_sub(1,3),ts2,ts1)
-#endif
-c      
-#if defined(DFT_TIMER)
-c      
-      call ga_igop(Msg_schw2,ischw1,1,'+')
-      call ga_igop(Msg_schw2,ischw2,1,'+')
-      nsh_blocks = nshells_cd*((nshells_ao*(nshells_ao+1))/2)
-      schw1 = (dble(nsh_blocks - ischw1)/dble(nsh_blocks))*100
-      schw2 = (dble(nsh_blocks - ischw2)/dble(nsh_blocks))*100
-      ltime = 7
-      if( me.eq.0 )then
-        niter  = (nshells_ao*(nshells_ao+1))/2
-        ntasks = niter/icount
-        write(ltime,*)
-        write(ltime,9996) '      Analysis of FITVCOUL'
-        write(ltime,*)
-        write(ltime,9995) ' number of nodes:  ',nproc
-        write(ltime,9995) ' number of tasks:  ',ntasks
-        write(ltime,9995) ' chunk size     :  ',icount
-        write(ltime,*)
-        write(ltime,9996) 'Schwarz Screening - Density*(p|cd)'
-        write(ltime,*)
-        write(ltime,9997) 'Threshold :  ',THRESHOLD
-        write(ltime,9998) '% Screened:  ',schw1,schw2
-        write(ltime,*)
-      end if
-      subname=' Fitvcoul '
-      call t_stat(3,1)
-c      
- 9995 format(10x,a,i10)
- 9996 format(10x,a)
- 9997 format(2x,a,e12.4)
- 9998 format(2x,a,2f6.2)
-c      
-#endif
       return
       end

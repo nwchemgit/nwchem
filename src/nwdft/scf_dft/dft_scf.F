@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.237 2004-01-16 01:49:42 edo Exp $
+c     $Id: dft_scf.F,v 1.238 2004-01-20 19:08:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -32,9 +32,6 @@ c
 #include "dft_conv.fh"
 #include "dftps.fh"
 c     
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
 c
@@ -493,9 +490,6 @@ c
 c     Tidy up SCF
 c
       call fock_2e_tidy(rtdb)
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
 c
       if (CDFIT)then
       if (odftps) call pstat_on(ps_incore)
@@ -515,12 +509,6 @@ c
       endif
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(4) = ' 3c-2e Ints'
-      call tcllct(t_pgm(1,4),tp4,tp3)
-      call dft_second(tp3)
-#endif
 c
 c     set initial coulomb acc
 c
@@ -637,11 +625,6 @@ c
       if(ipol.eq.2)
      +     g_denso(2) = 
      =     ga_create_atom_blocked(geom,AO_bas_han,'oldDMb')
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(5) = ' initial guess'
-      call tcllct(t_pgm(1,5),tp4,tp3)
-#endif
 c
       if(iterations.eq.0) then
          if (.not. ga_destroy(g_denso(1))) call errquit
@@ -736,11 +719,6 @@ c
      .           g_focks(ispin))
          endif
 c     
-#if defined(DFT_TIMER)
-         call dft_second(tp3)
-#endif
-c     
-c
 c        Symmetrize the Fock matrix
 c
          if (oskel)
@@ -768,16 +746,7 @@ c
          endif
  2002    continue
 c     
-#if defined(DFT_TIMER)
-         call dft_second(tp4)
-         pgmsect(9) = '   DIIS   '
-         call tcllct(t_pgm(1,9),tp4,tp3)
-#endif
-c     
       do ispin = 1, ipol
-#if defined(DFT_TIMER)
-         call dft_second(tp3)
-#endif
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
@@ -794,11 +763,6 @@ c
      &      write(LuOut,4224)homo,lumo,rlshift, homo_lumo_gap
 c     
          call ga_sync
-#if defined(DFT_TIMER)
-         call dft_second(tp4)
-         pgmsect(11) = '   Diag   '
-         call tcllct(t_pgm(1,11),tp4,tp3)
-#endif
 c     
 c        Save previous density for convergence check.
 c     

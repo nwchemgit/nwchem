@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.67 2003-10-17 22:55:33 carlfahl Exp $
+C$Id: nwdft.F,v 1.68 2004-01-20 19:08:40 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -59,9 +59,6 @@ c
 c     
 c     local declarations
 c
-#ifdef DFT_TIMER
-      character*(nw_max_path_len) timings
-#endif
       double precision energy
       integer iproc,itype
       integer bases(3), i3
@@ -91,15 +88,6 @@ c
       LResult = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
-#ifdef DFT_TIMER
-c     open timings file as unit 7 in the perm directory
-c     only process 0 will write to it
-      if(iproc.eq.0) then
-c      call util_file_name('dftim',.true.,.false.,timings)
-      call util_file_name('dftim',.false.,.false.,timings)
-      open(7,file=timings,form='formatted',status='unknown',err=1010)
-      endif
-#endif
       oprint = util_print('information', print_low)
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
@@ -288,13 +276,7 @@ c
       call dft_pstat_print
       call util_print_pop
 c
-#ifdef DFT_TIMER
-      close(7)
-#endif
       return
 c
-#ifdef DFT_TIMER
- 1010 call errquit('dft: failed to open timings file',0, DISK_ERR)
-#endif
       end
  

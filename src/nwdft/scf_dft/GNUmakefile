@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.57 2003-06-11 02:24:31 edo Exp $
+# $Id: GNUmakefile,v 1.58 2004-01-20 19:08:43 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -34,7 +34,6 @@
 
      LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
  LIB_DEFINES =
 
 LIB_INCLUDES = -I../include -I../grid

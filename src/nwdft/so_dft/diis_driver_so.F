@@ -2,7 +2,7 @@
      &     nbf, g_fock, g_dens, 
      &     g_svecs, svals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
+C$Id: diis_driver_so.F,v 1.7 2004-01-20 19:08:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -28,10 +28,6 @@ c
 #include "tcgmsg.fh"
 #include "stdio.fh"
 #include "msgids.fh"
-c
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
 c
       integer g_fsm12(2), g_s12p(2), me, nproc, iw, lenp
       integer g_pf(2)
@@ -62,11 +58,6 @@ c
       endif
       me = ga_nodeid()
       nproc = ga_nnodes()
-c
-#if defined(DFT_TIMER)
-      call ga_sync
-      call t_stat(10,-1)
-#endif
 c
 c     Allocate scratch space.
 c
@@ -131,10 +122,6 @@ c     Increment call counter.
 c
       icall = icall + 1
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp1)
-#endif
-c       
 c     Construct temporary global arrays. g_scr is used to construct sm12, 
 c     g_fsmre and g_fsmim are for real and imaginary parts of Fock * s-1/2
 c
@@ -163,12 +150,6 @@ c
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock(2),g_scr2,
      &     zero,g_fsm12(2))
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(1) = '  s12   '
-      call tcllct(t_sub(1,1),tp2,tp1)
-      call dft_second(tp1)
-#endif
       if(.not.ga_create(mt_dbl,nbf,nbf,'s12pre',0,0,g_s12p(1)))
      &     call errquit('diis_driver: error creating g_s12p(1)',0,
      &       GA_ERR)
@@ -203,13 +184,6 @@ c
      &     zero,g_pf(2))
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p(2),g_fsm12(1),
      &     one,g_pf(2)) 
-c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(2) = '  mxm   '
-      call tcllct(t_sub(1,2),tp2,tp1)
-      call dft_second(tp1)
-#endif
 c
 c     Destroy temp globals.
 c
@@ -267,25 +241,12 @@ c      write(*,*)(Dbl_MB(ipulay+i-1),i=1,(nhist+1)*(nhist+2)/2)
      &     MXhist, nhist)
 c      write(*,*)(Dbl_MB(ifwght+i-1), i=1,nhist+1)
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(3) = '  bsolve   '
-      call tcllct(t_sub(1,3),tp2,tp1)
-      call dft_second(tp1)
-#endif
-c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
 c      write(*,*)"before weight"
       call diis_hamwgt_so(Dbl_MB(ifwght), MXhist, nhist, nbf, icall, 
      &     g_fock, g_diis, g_pf)
 c      write(*,*)"after diis"
-c
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      subsect(4) = '  hamwght '
-      call tcllct(t_sub(1,4),tp2,tp1)
-#endif
 c
       if (.not.ma_pop_stack(lfwght))
      &     call errquit('diis_driver: cannot pop stack',0, MA_ERR)
@@ -294,20 +255,5 @@ c
      &     call errquit('diis_driver:can not destroy pa_pf',0, GA_ERR)
       if(.not.ga_destroy(g_pf(2)))
      &     call errquit('diis_driver:can not destroy pa_pf',0, GA_ERR)
-#if defined(DFT_TIMER)
-      ltime = 7
-      if ( me.eq.0 )then
-         write(ltime,*)
-         write(ltime,9996) '      Analysis of DIIS'
-         write(ltime,*)
-         write(ltime,9997) ' number of nodes:  ',nproc
-         write(ltime,*)
-      endif
-      subname = 'DIIS  '
-      call t_stat(4,1)
- 9996 format(10x,a)
- 9997 format(10x,a,i6)
-#endif
-c
       return
       end

@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.9 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: dft_diagn.F,v 1.10 2004-01-20 19:08:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -90,12 +90,6 @@ c
       if (oprint_intermediate_fock)then     
          call ga_print(g_fockt)
       endif
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(10) = '   ga_dgemm   '
-      call tcllct(t_pgm(1,10),tp4,tp3)
-      call dft_second(tp3)
-#endif
       if (.not. ga_create(mt_dbl, nmo, nmo, 'vecs transf1', 
      &     nmo, 0, g_vecstt)) 
      . call errquit(' ddftdiagn: ga_create failed ',2, GA_ERR)

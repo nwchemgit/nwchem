@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.89 2004-01-19 23:36:45 edo Exp $
+# $Id: GNUmakefile,v 1.90 2004-01-20 19:08:43 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -37,7 +37,6 @@
 
      LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
 # LIB_DEFINES = -DQUADV0_REVERT
 
 LIB_INCLUDES = -I../include

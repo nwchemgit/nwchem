@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.42 2003-01-09 23:16:51 edo Exp $
+# $Id: GNUmakefile,v 1.43 2004-01-20 19:08:42 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -44,7 +44,6 @@
 
      LIBRARY = libnwdft.a
 
-# LIB_DEFINES = -DDFT_TIMER
  LIB_DEFINES =
 
 LIB_INCLUDES = -I../include

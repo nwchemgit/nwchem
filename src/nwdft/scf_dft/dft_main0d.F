@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.59 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: dft_main0d.F,v 1.60 2004-01-20 19:08:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -21,9 +21,6 @@ c
 #include "msgids.fh"
 #include "dftps.fh"
 c     
-#if defined(DFT_TIMER)
-#include "timer.fh"
-#endif
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -44,10 +41,6 @@ c
       external dft_scf_so 
       character*80 theory
 c     
-#if defined(DFT_TIMER)
-      call t_stat(11,-2)
-      call dft_second(tp1)
-#endif
 c     
       dft_main0d = .false.
 c     
@@ -156,13 +149,6 @@ c
 c     Done with XC setup stuff
 c
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      pgmsect(1) = '  XCinv   '
-      call tcllct(t_pgm(1,1),tp2,tp1)
-      call dft_second(tp1)
-#endif
-c     
 c     Select method to compute Coulomb potential.
 c     
       if (CD_bas_han.eq.-99999)then
@@ -261,12 +247,6 @@ c
 c     Done with CD setup stuff
 c
 c     
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      pgmsect(2) = '  CDinv   '
-      call tcllct(t_pgm(1,2),tp2,tp1)
-      call dft_second(tp1)
-#endif
 c     
 c     Compute the AO overlap matrix.
 c     
@@ -292,15 +272,6 @@ c
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #else 
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
-#endif
-c     
-#if defined(DFT_TIMER)
-      call dft_second(tp2)
-      pgmsect(3) = '  S Diag   '
-      call tcllct(t_pgm(1,3),tp2,tp1)
-      call dft_second(tp1)
-            ltime = 7
-      if(me.eq.0) call ffflush(ltime)
 #endif
 c     
       g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
@@ -406,15 +377,6 @@ cnos      endif
      &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)
-c     
-#if defined(DFT_TIMER)
-         if (me.eq.0)then
-            ltime = 7
-            write(ltime,*)
-         endif  
-         pgmname = ' SCFDRIVER'
-         call t_stat(11,2)
-#endif
 c     
       return
       end
