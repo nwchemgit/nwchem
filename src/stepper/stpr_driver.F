@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
-c $Id: stpr_driver.F,v 1.8 1997-05-23 21:45:35 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.9 1997-06-03 21:43:19 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -36,7 +36,7 @@ c $Id: stpr_driver.F,v 1.8 1997-05-23 21:45:35 d3e129 Exp $
       ENDIF
 
 *      grad_max = dabsmax(nat3,grad)
-      grad_max = grad(idamax(nat3,grad,1))
+      grad_max = abs(grad(idamax(nat3,grad,1)))
 
       NINTER = NAT3
 C
