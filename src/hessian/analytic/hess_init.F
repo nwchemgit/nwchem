@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.14 2000-08-14 23:14:41 windus Exp $
+C $Id: hess_init.F,v 1.15 2001-03-24 01:04:54 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -23,7 +23,7 @@ c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
       integer i, j, dftnoc(2), numfunc, nbsize
-      parameter(numfunc = 20) ! took this from gradient code, may need to be
+      parameter(numfunc = 30) ! took this from gradient code, may need to be
                               ! changed in the future
       logical status
       character*256 sx_name
