@@ -133,7 +133,7 @@ instance, the directive
   set "reference energies" real 0 1 -76.2
 \end{verbatim}
 stores a real (64 bit precision) array of three elements with the
-given values into the database.  The number of data items is
+given values into the database.  The number of data items is automatically
 inferred from the input line.
 
 Objects more complex than simple arrays (e.g., a description of a
@@ -198,7 +198,7 @@ or tasks.
 The database is persistent and nearly all input is permanently stored.
 This makes the input for restart jobs very simple since very little
 data must be provided.  It also makes the behaviour of successive
-restart jobs {\em idential} to that of multiple tasks within one job.
+restart jobs {\em identical} to that of multiple tasks within one job.
 However, sometimes this persistence is undesirable and in order to
 return an NWChem module to its default (input-free) behaviour the
 \verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
@@ -228,7 +228,7 @@ end-of-file is detected, or until an \verb+EOF+ directive is
 encountered\footnote{The
   free-format input library does not read past the string \verb+EOF+
   (ignoring case) on a line by itself.  This is a convenience so that
-  unused input can be left in the same file.}
+  unused input can be left in the same file.}.
 
 Directives appear in two forms.  Simple directives comprise a single
 line of input with one or more fields.  E.g., 
