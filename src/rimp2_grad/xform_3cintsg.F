@@ -3,7 +3,7 @@ C NAME
 C     Xform_3cintsG -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cintsg.F,v 1.1 1998-07-16 19:59:51 bernhold Exp $
+C     $Id: xform_3cintsg.F,v 1.2 1998-10-09 21:19:39 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function Xform_3cintsG(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -69,6 +69,7 @@ C INCLUDE FILES
 #include "rimp2g_timers.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "dra.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame     ! From BLAS-[23]
@@ -85,6 +86,7 @@ C LOCAL VARIABLES
       Integer Dim1, Dim2, GAType, NFit, G_Int
       Integer IBlkSiz, OutBlkSiz, NA, NI, NJ, NK, JLo, JHi, KLo, KHi
       Character*256 String1
+      Integer Req
 C
 C     Since we'll synchronize pretty soon on the GA creations,
 C     let's do it here to make the timings look right
@@ -277,13 +279,22 @@ C              and virtual orbitals.
 C
                If ( Disk ) then
                   Call PStat_On( PS_Wr_3ci)
-                  Status = Put_3cInts(IntFil, G_Out, NA, KLo-ILo+1,
-     $                 KHi-ILo+1)
-                  If ( .NOT. Status ) then
-                     Write (LuErr, 9030) KLo, KHi, JLo, JHi, ILo, IHi
-                     Xform_3cintsG = .FALSE.
-                     Return
-                  EndIf
+c$$$                  Status = Put_3cInts(IntFil, G_Out, NA, KLo-ILo+1,
+c$$$     $                 KHi-ILo+1)
+c$$$                  If ( .NOT. Status ) then
+c$$$                     Write (LuErr, 9030) KLo, KHi, JLo, JHi, ILo, IHi
+c$$$                     Xform_3cintsG = .FALSE.
+c$$$                     Return
+c$$$                  EndIf
+                  If ( DRA_Write_Section(.FALSE., G_Out, 1,
+     $                 NA*(KHi-KLo+1), 1, NFit, IntFil,
+     $                 1+NA*(KLo-ILo), NA*(KHi-ILo+1), 1, NFit, Req)
+     $                 .ne. 0) Call ErrQuit(
+     $                 'Put_3cInts: Error from DRA_Write_Section',
+     $                 KLo-ILo+1)
+C     
+                  If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
+     $                 'Put_3cInts: Error from DRA_Wait', KLo-ILo+1)
                   Call PStat_Off( PS_Wr_3ci)
                EndIf
 C
@@ -297,13 +308,22 @@ C
          Else
             If ( Disk ) then
                Call PStat_On( PS_Wr_3ci)
-               Status = Put_3cInts(IntFil, G_Int, NA, JLo-ILo+1,
-     $              JHi-ILo+1)
-               If ( .NOT. Status ) then
-                  Write (LuErr, 9030) JLo, JHi, JLo, JHi, ILo, IHi
-                  Xform_3cintsG = .FALSE.
-                  Return
-               EndIf
+c$$$               Status = Put_3cInts(IntFil, G_Int, NA, JLo-ILo+1,
+c$$$     $              JHi-ILo+1)
+c$$$               If ( .NOT. Status ) then
+c$$$                  Write (LuErr, 9030) JLo, JHi, JLo, JHi, ILo, IHi
+c$$$                  Xform_3cintsG = .FALSE.
+c$$$                  Return
+c$$$               EndIf
+                  If ( DRA_Write_Section(.FALSE., G_Out, 1,
+     $                 NA*(JHi-JLo+1), 1, NFit, IntFil,
+     $                 1+NA*(JLo-ILo), NA*(JHi-ILo+1), 1, NFit, Req)
+     $                 .ne. 0) Call ErrQuit(
+     $                 'Put_3cInts: Error from DRA_Write_Section',
+     $                 JLo-ILo+1)
+C     
+                  If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
+     $                 'Put_3cInts: Error from DRA_Wait', JLo-ILo+1)
                Call PStat_Off( PS_Wr_3ci)
             EndIf
 C
