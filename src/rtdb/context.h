@@ -8,3 +8,7 @@ extern int context_rtdb_match(int, const char *, int, char *);
 extern int context_prefix(const char *, char *, int);
 
  
+#ifdef CRAY
+#include "rtdb.cray.h"
+#endif
+

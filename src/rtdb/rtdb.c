@@ -67,8 +67,11 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
   long len = MA_sizeof(ma_type, nelem, MT_CHAR);
   long from = 0;
   long type = msg_type;
-
+#ifdef CRAY
+  GA_BRDCST(&type, (char *) data, &len, &from);
+#else
   ga_brdcst_(&type, (char *) data, &len, &from);
+#endif
 }
 
 int rtdb_open(const char *filename, const char *mode, int *handle)

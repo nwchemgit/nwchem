@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-11-10 18:02:39 d3g681 Exp $
+# $Id: GNUmakefile,v 1.7 1994-12-29 06:43:27 og845 Exp $
 
 include ../config/makefile.h
 
@@ -8,7 +8,7 @@ include ../config/makefile.h
              OBJ = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
 
-         HEADERS = context.h rtdb.h rtdb.fh context.fh
+         HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
 
      LIB_TARGETS = test test.o rtdbtest rtdbtest.o interact context davetest \
                    context.o davetest.o interact.o rtdb_par_f2c.o \

@@ -2,6 +2,9 @@
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
+#ifdef CRAY
+#include "fortran.h"
+#endif
 
 typedef long logical;		/* Equivalent C type to FORTRAN logical */
 
@@ -11,9 +14,32 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_FALSE ((logical) 0)
 
 
-int fortchar_to_string(const char *f, int flen, char *buf, 
-			      const int buflen)
+int fortchar_to_string( f,  flen, buf, buflen)
+    int flen;
+    char *buf;
+    const int buflen;
+#ifdef CRAY
+    _fcd	f;		/* FORTRAN character descriptor */
+#else
+    const char *f;
+#endif
 {
+#ifdef CRAY
+  char *fstring;
+    fstring = _fcdtocp(f);
+    flen = _fcdlen(f);
+
+  while (flen-- && fstring[flen] == ' ')
+    ;
+
+  if ((flen+1) >= buflen)
+    return 0;			/* Won't fit */
+
+  flen++;
+  buf[flen] = 0;
+  while(flen--)
+    buf[flen] = fstring[flen];
+#else 
   while (flen-- && f[flen] == ' ')
     ;
 
@@ -24,22 +50,39 @@ int fortchar_to_string(const char *f, int flen, char *buf,
   buf[flen] = 0;
   while(flen--)
     buf[flen] = f[flen];
+#endif 
 
   return 1;
 }
 
-int string_to_fortchar(char *f, int flen, const char *buf)
+int string_to_fortchar( f, flen, buf)
+  int flen;
+  char *buf;
+#ifdef CRAY
+  _fcd f;
+#else
+  char *f;
+#endif
 {
   int len = strlen(buf), i;
+#ifdef CRAY
+  flen = _fcdlen(f);
+#endif
 
   if (len > flen) 
     return 0;			/* Won't fit */
 
+#ifdef CRAY
+  for (i=0; i<len; i++)
+    _fcdtocp(f)[i] = buf[i];
+  for (i=len; i<flen; i++)
+    _fcdtocp(f)[i] = ' ';
+#else
   for (i=0; i<len; i++)
     f[i] = buf[i];
   for (i=len; i<flen; i++)
     f[i] = ' ';
-
+#endif
   return 1;
 }
 
@@ -60,9 +103,13 @@ logical rtdb_parallel_(const logical *mode)
     return FORTRAN_FALSE;
 }
 
-
+#ifdef CRAY
+logical rtdb_open_(_fcd filename, _fcd mode, integer *handle,
+		   const integer flen, const integer mlen)
+#else
 logical rtdb_open_(const char *filename, const char *mode, integer *handle,
 		   const integer flen, const integer mlen)
+#endif
 {
   char fbuf[256], mbuf[256];
   int hbuf;
@@ -87,8 +134,11 @@ logical rtdb_open_(const char *filename, const char *mode, integer *handle,
     return FORTRAN_FALSE;
   }
 }
-
+#ifdef CRAY
+logical rtdb_close_(const integer *handle, _fcd mode, const int mlen)
+#else
 logical rtdb_close_(const integer *handle, const char *mode, const int mlen)
+#endif
 {
   char mbuf[256];
   int hbuf = (int) *handle;
@@ -103,10 +153,15 @@ logical rtdb_close_(const integer *handle, const char *mode, const int mlen)
   else
     return FORTRAN_FALSE;
 }
-
+#ifdef CRAY
+logical rtdb_get_info_(const integer *handle, _fcd name, 
+		       integer *ma_type, integer *nelem, _fcd date,
+		       const int nlen, const int dlen)
+#else
 logical rtdb_get_info_(const integer *handle, const char *name, 
 		       integer *ma_type, integer *nelem, char *date,
 		       const int nlen, const int dlen)
+#endif
 {
   int hbuf = (int) *handle;
   char dbuf[26], nbuf[256];
@@ -142,9 +197,13 @@ logical rtdb_get_info_(const integer *handle, const char *name,
     return FORTRAN_FALSE;
   }
 }
-
+#ifdef CRAY
+logical rtdb_put_(const integer *handle, _fcd name, const integer *ma_type,
+		  const integer *nelem, const void *array, const int nlen)
+#else
 logical rtdb_put_(const integer *handle, const char *name, const integer *ma_type,
 		  const integer *nelem, const void *array, const int nlen)
+#endif
 {
   int hbuf = (int) *handle;
   char nbuf[256];
@@ -170,10 +229,15 @@ logical rtdb_put_(const integer *handle, const char *name, const integer *ma_typ
   else
     return FORTRAN_FALSE;
 }
-
+#ifdef CRAY
+logical rtdb_get_(const integer *handle, _fcd name, 
+		  const integer *ma_type, const integer *nelem, 
+		  void *array, const int nlen)
+#else
 logical rtdb_get_(const integer *handle, const char *name, 
 		  const integer *ma_type, const integer *nelem, 
 		  void *array, const int nlen)
+#endif
 {
   int hbuf = (int) *handle;
   char nbuf[256];
@@ -200,9 +264,13 @@ logical rtdb_get_(const integer *handle, const char *name,
   else
     return FORTRAN_FALSE;
 }
-
+#ifdef CRAY
+logical rtdb_ma_get_(const integer *handle, _fcd name, integer *ma_type,
+		     integer *nelem, integer *ma_handle, const int nlen)
+#else
 logical rtdb_ma_get_(const integer *handle, const char *name, integer *ma_type,
 		     integer *nelem, integer *ma_handle, const int nlen)
+#endif
 {
   int hbuf = (int) *handle;
   char nbuf[256];
@@ -237,10 +305,15 @@ logical rtdb_print_(const integer *handle, const logical *print_values)
   else
     return FORTRAN_FALSE;
 }
-
+#ifdef CRAY
+logical rtdb_cput_(const integer *handle, _fcd name,
+		   const integer *nelem,
+		   _fcd array, const int nlen, int alen)
+#else
 logical rtdb_cput_(const integer *handle, const char *name,
 		   const integer *nelem,
 		   const char *array, const int nlen, const int alen)
+#endif
 /*
   Insert an array of Fortran character variables into the data base.
   Each array element is striped of trailing blanks, terminated with CR,
@@ -254,17 +327,25 @@ logical rtdb_cput_(const integer *handle, const char *name,
   int typebuf;
   int i, left;
   char *next;
-
+#ifdef CRAY
+    alen= 0;
+  for (i=0, left=sizeof(abuf), next=abuf;
+       i<*nelem;
+       i++, _fcdtocp(array)+=alen) {
+#else
   for (i=0, left=sizeof(abuf), next=abuf;
        i<*nelem;
        i++, array+=alen) {
+#endif
     
     if (!fortchar_to_string(array, alen, next, left)) {
       (void) fprintf(stderr, "rtdb_cput: abuf is too small, need=%d\n", 
 		     (int) (alen + sizeof(abuf) - left));
       return FORTRAN_FALSE;
     }
-
+#ifdef CRAY
+    alen= _fcdlen(array);
+#endif
     left -= strlen(next) + 1;
     next += strlen(next) + 1;
     if (i != (*nelem - 1))
@@ -290,10 +371,15 @@ logical rtdb_cput_(const integer *handle, const char *name,
   else
     return FORTRAN_FALSE;
 }
-
-logical rtdb_cget_(const integer *handle, const char *name,
+#ifdef CRAY
+logical rtdb_cget_(const integer *handle, _fcd name,
+		   const integer *nelem,
+		   _fcd array, const int nlen,  int alen)
+#else
+logical rtdb_cget_(const integer *handle, char const *name,
 		   const integer *nelem,
 		   char *array, const int nlen, const int alen)
+#endif
 {
   int hbuf = (int) *handle;
   char nbuf[256];
@@ -302,6 +388,9 @@ logical rtdb_cget_(const integer *handle, const char *name,
   int typebuf;
   int i;
   char *next;
+#ifdef CRAY
+  int flen=_fcdlen(array);
+#endif
 
   if (!fortchar_to_string(name, nlen, nbuf, sizeof(nbuf))) {
     (void) fprintf(stderr, "rtdb_cget: nbuf is too small, need=%d\n", 
@@ -314,11 +403,17 @@ logical rtdb_cget_(const integer *handle, const char *name,
 
   if (!rtdb_get(hbuf, nbuf, typebuf, nelbuf, abuf))
     return FORTRAN_FALSE;
+#ifdef CRAY
+  alen =0;
 
   for (i=0, next=strtok(abuf, "\n");
        next;
+       i++, _fcdtocp(array)+=alen, next=strtok((char *) 0, "\n")) {
+#else
+  for (i=0, next=strtok(abuf, "\n");
+       next;
        i++, array+=alen, next=strtok((char *) 0, "\n")) {
-
+#endif
     if (i == *nelem) {
       (void) fprintf(stderr, "rtdb_cget: array has too few elements\n");
       return FORTRAN_FALSE;
@@ -328,8 +423,10 @@ logical rtdb_cget_(const integer *handle, const char *name,
       (void) fprintf(stderr, "rtdb_cget: array element is too small\n");
       return FORTRAN_FALSE;
     }
+#ifdef CRAY
+      alen = flen;
+#endif
   }
-
   return FORTRAN_TRUE;
 }
 
@@ -354,8 +451,11 @@ logical rtdb_next_(const integer *handle, char *name, int nlen)
   else
     return FORTRAN_FALSE;
 }
-
+#ifdef CRAY
+logical rtdb_delete_(const integer *handle, _fcd name, const int nlen)
+#else
 logical rtdb_delete_(const integer *handle, const char *name, const int nlen)
+#endif
 {
   int hbuf = (int) *handle;
   char nbuf[256];
