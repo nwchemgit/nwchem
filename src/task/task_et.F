@@ -56,7 +56,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.8 2001-12-18 21:39:31 d3k958 Exp $
+* $Id: task_et.F,v 1.9 2001-12-19 23:38:35 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -84,7 +84,7 @@ c     Also returns status through the function value
 c
       integer rtdb
       integer i, j, k
-      integer l_evals,k_evals,l_vals,k_vals
+      integer l_vals,k_vals
       integer g_tmp,g_s,g_ahandle(2),g_bhandle(2),g_d,g_temp
       integer nocc(2)
       integer g_u,g_vt,g_v,g_phandle(2)
@@ -100,13 +100,12 @@ c
       logical status
 c
       character*2 pname(2)
-      double precision occ_alpha(nbf),occ_beta(nbf)
-      double precision evals_alpha(nbf),evals_beta(nbf)
-      double precision Vba,values(nbf*nbf)
-      double precision t(nbf,nbf),prod(2)
+      double precision Vba
+      double precision prod(2)
       double precision Sba,pa_val,pb_val,omega1,h1_val
       double precision detu(2),detv(2),detprod,omega2
       double precision haa,hbb,hba,val
+c
 c
       task_et_doit = .false.
 c
@@ -166,23 +165,17 @@ c     Read mo vectors for state A (initial state) from file 'movecsa.mo'
 c     read mo vectors for state B (final state)   from file 'movecsb.mo' 
 c=======================================================================
 c
-c     allocate occ_alpha & beta, containing 0 or 1 for virtual and occupied orbitals
+c     Allocate occupation vector. Used to calculate nocc(j),j=1,2 for alpha,
+c     beta occupied orbitals.
 c     ------------------------------------------------------------------------------
+      if (.not.ma_push_get(mt_dbl,nbf,'occ',l_occ,k_occ))
+     $         call errquit('ma_push_get failed for occ',k_occ)
 c
-      if (.not.ma_push_get(mt_dbl,nbf,'occ_alpha',l_occ,k_occ))
-     $         call errquit('ma_push_get failed for occ_alpha',k_occ)
-c
-      if (.not.ma_push_get(mt_dbl,nbf,'occ_beta',l_occ,k_occ))
-     $         call errquit('ma_push_get failed for occ_beta',k_occ)
-c
-c
-c     allocate evals_alpha & beta, vector containing eigenvalues
+c     Allocate evals, vector containing eigenvalues. Only used for
+c     calling movecs_read. Eigenvalues themselves are not needed.
 c     ----------------------------------------------------------
-      if (.not.ma_push_get(mt_dbl,nbf,'evals_alpha',l_evals,k_evals))
-     $        call errquit('ma_push_get failed for evals_alpha',k_evals)
-c
-      if (.not.ma_push_get(mt_dbl,nbf,'evals_beta',l_evals,k_evals))
-     $        call errquit('ma_push_get failed for evals_beta',k_evals)
+      if (.not.ma_push_get(mt_dbl,nbf,'evals',l_eval,k_eval))
+     $        call errquit('ma_push_get failed for evals',k_eval)
 c
 c     allocate arrays for MO coefficients, for state A
 c     -------------------------------------------------------
@@ -192,38 +185,36 @@ c     -------------------------------------------------------
       if (.not.ga_create(mt_dbl,nbf,nbf,'A beta',0,0,g_avecsb))
      $         call errquit('ga_create failed for A beta',g_avecsb)
 
-c     read occ, evals, mo coefficients from movecsa.mo
-c     ------------------------------------------------
-      if(.not.movecs_read('movecsa.mo',1,occ_alpha,evals_alpha
-     $    ,g_avecsa))
-     $   call errquit('movecs_read failed for alpha mos',0)
+c     read occ, evals, mo coefficients for alpha orbitals from movecsa.mo
+c     ------------------------------------------------------------------
+       if(.not.movecs_read('movecsa.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
+     $      ,g_avecsa))
+     $ call errquit('movecs_read failed for alpha mos',0)
 c
-      if(.not.movecs_read('movecsa.mo',2,occ_beta,evals_beta,g_avecsb))
-     $         call errquit('movecs_read failed for beta mos',0)
+c     get nocc(1): # of occupied alpha mo's
+c     -------------------------------------
+      nocc(1)=0
+      do i = 1,nbf
+       nocc(1) = nocc(1) + dbl_mb(k_occ+i-1)
+      enddo
+      write(6,*) 'new occ',nocc(1)
 c
-c     copy mo coefficients to arrays for state A
-c     ------------------------------------------
+c     read occ, evals, mo coefficients for beta orbitals from movecsa.mo
+c     ------------------------------------------------------------------
+      if(.not.movecs_read('movecsa.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
+     $     ,g_avecsb))
+     $ call errquit('movecs_read failed for beta mos',0)
 c
-c      if (.not.ga_duplicate(g_vecsa,g_avecsa,'A alpha'))
-c     $         call errquit('ga_duplicate failed',g_avecsa)
-c      if (.not.ga_copy(g_vecsa,g_avecsa))
-c     $         call errquit('ga_copy failed',g_avecsa)
-cc
-c      if (.not.ga_duplicate(g_vecsb,g_avecsb,'A beta'))
-c     $         call errquit('ga_duplicate failed',g_avecsb)
-c      if (.not.ga_copy(g_vecsb,g_avecsb))
-c     $         call errquit('ga_copy failed',g_avecsb)
+c     get nocc(2): # of occupied alpha mo's
+c     -------------------------------------
+      nocc(2)=0
+      do i = 1,nbf
+       nocc(2) = nocc(2) + dbl_mb(k_occ+i-1)
+      enddo
+      write(6,*) 'new occ',nocc(2)
 c
       call ga_print(g_avecsa)
       call ga_print(g_avecsb)
-c
-c      write(6,*) 
-c      write(6,*) 'occupation numbers and eigenvectors for state A'
-c      write(6,*) 'occ_alpha',(occ_alpha(i),i=1,nbf)
-c      write(6,*) 'occ_beta ',(occ_beta(i),i=1,nbf)
-c      write(6,*) 'evals alpha',(evals_alpha(i),i=1,nbf)
-c      write(6,*) 'evals beta ',(evals_beta(i),i=1,nbf)
-c      write(6,*) 
 c
 c     allocate arrays for MO coefficients, for state B
 c     -------------------------------------------------------
@@ -236,37 +227,16 @@ c     -------------------------------------------------------
 c
 c     read occ, evals, mo coefficients from movecsb.mo
 c     ------------------------------------------------
-      if(.not.movecs_read('movecsb.mo',1,occ_alpha,evals_alpha
+      if(.not.movecs_read('movecsb.mo',1,dbl_mb(k_occ),dbl_mb(k_eval)
      $   ,g_bvecsa))
      $   call errquit('movecs_read failed for alpha mos',0)
 c
-      if(.not.movecs_read('movecsb.mo',2,occ_beta,evals_beta,g_bvecsb))
-     $         call errquit('movecs_read failed for beta mos',0)
-c
-c     copy mo coefficients to arrays for state B
-c     ------------------------------------------
-c
-c      if (.not.ga_duplicate(g_vecsa,g_bvecsa,'B alpha'))
-c     $          call errquit('ga_duplicate failed',g_bvecsa) 
-c      if (.not.ga_copy(g_vecsa,g_bvecsa))
-c     $         call errquit('ga_copy failed',g_bvecsa)
-c
-cc
-c      if (.not.ga_duplicate(g_vecsb,g_bvecsb,'B beta'))
-c     $          call errquit('ga_duplicate failed',g_bvecsb)
-c      if (.not.ga_copy(g_vecsb,g_bvecsb))
-c     $         call errquit('ga_copy failed',g_bvecsb)
+      if(.not.movecs_read('movecsb.mo',2,dbl_mb(k_occ),dbl_mb(k_eval)
+     $  ,g_bvecsb))
+     $   call errquit('movecs_read failed for beta mos',0)
 c
       call ga_print(g_bvecsa)
       call ga_print(g_bvecsb)
-c
-c      write(6,*) 
-c      write(6,*) 'occupation numbers and eigenvectors for state B'
-c      write(6,*) 'occ_alpha',(occ_alpha(i),i=1,nbf)
-c      write(6,*) 'occ_beta ',(occ_beta(i),i=1,nbf)
-c      write(6,*) 'evals alpha',(evals_alpha(i),i=1,nbf)
-c      write(6,*) 'evals beta ',(evals_beta(i),i=1,nbf)
-c      write(6,*) 
 c
 c
 c==================================================
@@ -281,15 +251,6 @@ c
       g_bhandle(2)=g_bvecsb
 c
       g_tmp = ga_create_atom_blocked(geom, basis, 'g_tmp')    
-c
-c get nocc(1 and 2): # of occupied alpha and beta mo's
-c
-      nocc(1)=0
-      nocc(2)=0
-      do i = 1,nbf
-       nocc(1) = nocc(1) + occ_alpha(i)
-       nocc(2) = nocc(2) + occ_beta(i)
-      enddo
 c
 c      write(6,*)
 c      write(6,*)'# occupied alpha and beta orbitals ',nocc(1),nocc(2)
@@ -320,6 +281,7 @@ c  Perform matrix multiplication to get D = B'*S*A
 c  set size of D to be only nocc*nocc
 c  -----------------------------------------------
 c
+      write(6,*)'nocc',nocc(j)
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'d',0,0,g_d))
      $        call errquit('task_et ga_create failed', g_d)
 c
@@ -343,7 +305,7 @@ c
       if (.not.ma_push_get(mt_dbl,nocc(j),'values',l_vals,k_vals))
      $        call errquit('ma_push_get failed for values ',k_vals)
 c
-      call ga_svd_seq(g_d,g_u,g_vt,values)
+      call ga_svd_seq(g_d,g_u,g_vt,dbl_mb(k_vals))
 c
       call ga_print(g_u)
       call ga_print(g_vt)
@@ -361,11 +323,6 @@ c
        call et_det('N',g_u,nocc(j),detu(j))
        call et_det('T',g_vt,nocc(j),detv(j))
        detprod = detprod*detu(j)*detv(j)
-c
-c      write(6,*)
-c      write(6,*)'diagonal values',(values(i),i=1,nocc(j))
-c      write(6,*)
-c
 c
 c calculate UU',U'U,VV',V'V to check unitarity.
 c
@@ -430,37 +387,37 @@ C     Calculates   T(i) =     PRODUCT  d(j) where N = nalpha or nbeta
 C                                -------
 C                                j.NE.i  
 c
-c
+c    also calculates prod, the product of diagonal elements in T(i), 
+c    including both alpha and beta contributions.
+c    --------------------------------------------------------------
 c    
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'t',0,0,g_t))
      $        call errquit('task_et ga_create failed', g_t)
+      call ga_zero(g_t)
 c
       prod(j)=1.0d0
 c
-      do i = 1,nocc(j)
-      do k = 1,nocc(j)
-       t(i,k) = 0.0d0
-      enddo
-      enddo
-c
       if(nocc(j).gt.1) then
-      do i = 1,nocc(j)
-       t(i,i) = 1.0d0
-        do k = 1,nocc(j)
-         if(k.ne.i) t(i,i) = t(i,i) * values(k)
+c
+        do i = 1,nocc(j)
+          val = 1.0d0
+            do k = 1,nocc(j)
+              if(k.ne.i) val = val * dbl_mb(k_vals+i-1)
+            enddo
+          call ga_put(g_t,i,i,i,i,val,1)
+          prod(j) = prod(j)*val
         enddo
-        prod(j) = prod(j)*t(i,i)
-      enddo
       else
-       t(1,1) = 1.0d0
-       prod(j) = values(1)
+         val = 1.0d0
+         call ga_put(g_t,1,1,1,1,val,1)
+         prod(j) = dbl_mb(k_vals)
+c
       endif
 c
 c      write(6,*)
 c      write(6,*)'prod',prod(j)
 c      write(6,*)
 c
-      call ga_put(g_t, 1, nocc(j), 1, nocc(j),t, nocc(j)*nocc(j))
       call ga_print(g_t) 
 c
 c =====================================================
