@@ -1,5 +1,5 @@
 *
-* $Id: lcao_dnlist.F,v 1.1 2001-12-04 02:39:31 bylaska Exp $
+* $Id: lcao_dnlist.F,v 1.2 2001-12-05 01:51:18 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -106,7 +106,7 @@
       int_mb(dnlist(1)    +size-1) = indx
       int_mb(dnlist_tag(1)+size-1) = mindx
 
-      index = indx
+      index  = indx
       return
       end
          
@@ -128,7 +128,7 @@
       if ((count.gt.size).or.(count.lt.1)) 
      > call errquit('lcao_dnlist_get: bad count',0)
 
-      index  = int_mb(dnlist(1)+count-1)
+      index   = int_mb(dnlist(1)+count-1)
       return
       end
 
@@ -173,13 +173,15 @@
 #include "lcao_dnlist.fh"
 
 *     **** local variables ****
-      integer count,itmp,indx,indxp
+      integer count,indx,indxp
+      integer itmp
 
-      itmp = int_mb(dnlist(1))
+      itmp  = int_mb(dnlist(1))
       do count=1,size-1
          indx  = dnlist(1)+count-1
          indxp = dnlist(1)+count
          int_mb(indx) = int_mb(indxp)
+
       end do
       indx  = dnlist(1)+size-1
       int_mb(indx) = itmp

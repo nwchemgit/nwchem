@@ -1,0 +1,8 @@
+*
+* $Id: lcao_mlist.fh,v 1.1 2001-12-05 01:51:19 bylaska Exp $
+*
+      integer mlist(2)
+      integer size,maxsize,nbasis,ispin
+      common / lcao_mlist / mlist,size,maxsize,nbasis,ispin
+
+

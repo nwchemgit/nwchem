@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.6 2001-12-05 01:51:19 bylaska Exp $
+* $Id: lcao_wvfnc_bak.F,v 1.1 2001-12-05 01:51:19 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -28,15 +28,15 @@
       real*8 ALPHA,talpha
       parameter (ALPHA=0.30d0)
 
-      logical value,value2
+      logical value,value2,reset_diis
       integer ms,i,ia,icharge
       integer dn(2),phi1(2),phi2(2)
       integer ee(2),eigs(2)
       integer smatrix,kematrix
-      integer vlmatrix,vnlmatrix,vhxcmatrix(2),vhxc_new(2)
+      integer vlmatrix,vnlmatrix,vhxcmatrix(2)
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
-      real*8  rho_error,rho_error_old
+      real*8  rho_error
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
@@ -111,9 +111,6 @@
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix1',
      >                  1,1,vhxcmatrix(1))
       value = value.and.
-     >        ga_create(mt_dbl,nbasis,nbasis,'vhxc_new',
-     >                  1,1,vhxc_new(1))
-      value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix1',
      >                  1,1,hmatrix(1))
       value = value.and.
@@ -122,9 +119,6 @@
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix2',
      >                  1,1,vhxcmatrix(2))
-      value = value.and.
-     >        ga_create(mt_dbl,nbasis,nbasis,'vhxc_new2',
-     >                  1,1,vhxc_new(2))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix2',
      >                  1,1,hmatrix(2))
@@ -248,15 +242,15 @@
       call lcao_init_dn(ispin,ne,n2ft3d,
      >                  dbl_mb(dn(1)),
      >                  dcpl_mb(phi2(1)))
-      call lcao_generate_vhxcmatrix(ispin,n2ft3d,
+
+      call lcao_diis_dn_init(4)
+      rho_error = 1000.0d0
+      do it=0,it_max-1
+         call lcao_generate_vhxcmatrix(ispin,n2ft3d,
      >                           dbl_mb(dn(1)),
      >                           vhxcmatrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
-
-c     call lcao_diis_init(5,ispin,nbasis)
-      rho_error = 10000.0d0
-      do it=0,it_max-1
          do ms=1,ispin
 
 *          **** generate spin hamiltonian ****
@@ -280,61 +274,27 @@ c     call lcao_diis_init(5,ispin,nbasis)
          end do
 
 *        **** calculate new density ****
-         call lcao_new_dn(ispin,ne,n2ft3d,
-     >                    dbl_mb(dn(1)),
-     >                    psimatrix,
-     >                    dcpl_mb(phi2(1)))
-         call lcao_generate_vhxcmatrix(ispin,n2ft3d,
-     >                           dbl_mb(dn(1)),
-     >                           vhxc_new,
-     >                           dcpl_mb(phi1(1)),
-     >                           dcpl_mb(phi2(1)))
-
-         call ga_add((1.0d0),vhxc_new(1),
-     >              (-1.0d0),vhxcmatrix(1),
-     >               hmatrix(1))
-         if (ispin.gt.1)
-     >   call ga_add((1.0d0),vhxc_new(2),
-     >              (-1.0d0),vhxcmatrix(2),
-     >               hmatrix(2))
-
-         rho_error_old = rho_error
-         rho_error = ga_ddot(hmatrix(1),hmatrix(1))
-         if (ispin.gt.1)
-     >    rho_error = rho_error + ga_ddot(hmatrix(2),hmatrix(2))
-         rho_error = rho_error/dble(nbasis*nbasis)
-
          if (it.eq.0) talpha=1.00d0
          if (it.eq.1) talpha = ALPHA
-         if (rho_error.gt.rho_error_old) talpha=0.5d0*talpha
+         call lcao_new_mix_dn(talpha,
+     >                       ispin,ne,n2ft3d,
+     >                       dbl_mb(dn(1)),
+     >                       psimatrix,
+     >                       dcpl_mb(phi2(1)),
+     >                       rho_error,
+     >                       reset_diis)
 
-
-         if ((oprint).and.(taskid.eq.MASTER))
-     >     write(*,*) "vhxc error:",it,rho_error,talpha
-         if (rho_error.lt.1.0d-8) go to 50
-
-         call ga_add(talpha,vhxc_new(1),
-     >               (1.0d0-talpha),vhxcmatrix(1),
-     >                vhxcmatrix(1))
-         if (ispin.gt.1)
-     >    call ga_add(talpha,vhxc_new(2),
-     >                (1.0d0-talpha),vhxcmatrix(2),
-     >                 vhxcmatrix(2))
-
-
-c        reset_diis = (rho_error.gt.rho_error_old).or.
-c    >                (rho_error.gt.1.0d0)
-c        call lcao_diis_generate(talpha,vhxc_new,vhxcmatrix,reset_diis)
-c        if (reset_diis) then
-c           call lcao_diis_end()
-c           call lcao_diis_init(5,ispin,nbasis)
-c        end if
-
-
+        write(*,*) "rho error:",it,rho_error,talpha
+        if (rho_error.lt.1.0d-6) go to 50
+       
+        if (reset_diis) then
+           call lcao_diis_dn_end()
+           call lcao_diis_dn_init(4)
+        end if
 
       end do
-c 50   call lcao_diis_end()
- 50   call lcao_write_psi(wavefunction_filename,
+ 50   call lcao_diis_dn_end()
+      call lcao_write_psi(wavefunction_filename,
      >                    version,
      >                    ngrid,
      >                    unita,
@@ -353,11 +313,9 @@ c 50   call lcao_diis_end()
       value2 = ga_destroy(vlmatrix)
       value2 = ga_destroy(vnlmatrix)
       value2 = ga_destroy(vhxcmatrix(1))
-      value2 = ga_destroy(vhxc_new(1))
       value2 = ga_destroy(hmatrix(1))
       value2 = ga_destroy(psimatrix(1))
       value2 = ga_destroy(vhxcmatrix(2))
-      value2 = ga_destroy(vhxc_new(2))
       value2 = ga_destroy(hmatrix(2))
       value2 = ga_destroy(psimatrix(2))
       call aorbs_end()

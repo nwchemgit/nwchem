@@ -1,0 +1,7 @@
+*
+* $Id: lcao_diis.fh,v 1.1 2001-12-05 01:51:18 bylaska Exp $
+*
+      integer maxsize,ispin,nbasis
+      common / lcao_diis / maxsize,ispin,nbasis
+
+
