@@ -263,9 +263,6 @@ void pdsptri2( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, absto
     extern Integer  mxmynd_(), mxnprc_();
     extern void     mxinit_();
 
-#ifndef RIOS
-    char    *strcpy();
-#endif
 
 /*
  *  ---------------------------------------------------------------

@@ -239,9 +239,6 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
 
-#ifndef RIOS
-   extern char    *strcpy();
-#endif
    
 /*
  *  ---------------------------------------------------------------

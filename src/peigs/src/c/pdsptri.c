@@ -239,7 +239,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     char                msg2[ 35 ];
 
     Integer           **iptr;
-    DoublePrecision    *d_scrat;
+    DoublePrecision   *d_scrat;
     DoublePrecision   **dd_scrat;
     
 #ifdef TIMING
@@ -252,6 +252,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  * External procedures
  * -------------------
  */
+
     extern Integer  count_list(), reduce_list2();
     extern void     xstop_(), pdiff(), pgexit();
     extern void     mdiff1_(), bbcast00();
@@ -262,10 +263,6 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
 
     extern Integer  mxmynd_(), mxnprc_();
     extern void     mxinit_();
-
-#ifndef RIOS
-    char    *strcpy();
-#endif
 
 /*
  *  ---------------------------------------------------------------

@@ -81,10 +81,6 @@ void sfnorm( n, colA, mapA, norm, iwork, work, info)
   DoublePrecision s, t, y, f, c; 
   extern DoublePrecision ddot_();
   
-#ifndef RIOS
-  extern DoublePrecision fabs(), sqrt();
-#endif
-
   extern void gsum00();
   extern Integer mxmynd_();
   extern Integer fil_mapvec_();

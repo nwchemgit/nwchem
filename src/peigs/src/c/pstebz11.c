@@ -245,10 +245,6 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    extern void dlasq1_();
    
 
-#ifndef RIOS
-   extern char    *strcpy();
-#endif
-   
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements

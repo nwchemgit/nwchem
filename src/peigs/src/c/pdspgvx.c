@@ -329,10 +329,6 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   extern void     bbcast00();
   extern void     gi_sum();
   
-#ifndef RIOS    
-  extern char    *strcpy();
-#endif
-
 #ifdef TIMING
   extern TIMINGG test_timing;
   DoublePrecision mxclock_();

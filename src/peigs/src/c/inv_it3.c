@@ -89,10 +89,6 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
   extern DoublePrecision dnrm2_(), dasum_(), ddot_();
   extern Integer mxmynd_();
 
-#ifndef RIOS
-  extern DoublePrecision fabs();
-#endif
-
   extern void mgs_prev ();
   
   me = mxmynd_();

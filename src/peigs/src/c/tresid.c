@@ -120,9 +120,6 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   extern Integer          count_list(), reduce_list2();
   extern void             gmax00();
 
-#ifndef RIOS  
-  extern DoublePrecision fabs ();
-#endif
   
   /*
     usual story about error handling

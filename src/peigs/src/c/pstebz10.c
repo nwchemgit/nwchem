@@ -246,10 +246,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    extern DoublePrecision dlamch_();
    
 
-#ifndef RIOS
-   extern char    *strcpy();
-#endif
-   
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements

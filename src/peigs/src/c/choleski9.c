@@ -306,10 +306,6 @@ void sub_chol0( me, n, col, map, ncols, mycols, i_scratch, scratch, info )
     *  Intrinsic Procedures
     */
 
-#ifndef RIOS
-   DoublePrecision          sqrt();
-#endif
-
    /*
     *  ---------------------------------------------------------------
     *                      Executable Statements

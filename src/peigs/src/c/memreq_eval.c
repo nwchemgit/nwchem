@@ -111,10 +111,6 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   extern void   memreq2(), l_exit_();
   extern void     mxinit_();
   
-#ifndef RIOS
-  extern char    *strcpy();
-#endif
-  
    mxinit_();
 
    me     = mxmynd_();

@@ -99,9 +99,6 @@ void sonenrm ( n, colA, mapA, norm, iwork, work, info)
   
   extern DoublePrecision dasum_ ();
 
-#ifndef RIOS
-  extern DoublePrecision fabs();
-#endif
 
   extern void gsum00();
   extern void fil_dbl_list ();

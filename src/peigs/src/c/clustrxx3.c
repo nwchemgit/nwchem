@@ -121,10 +121,6 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
   
-#ifndef RIOS
-  DoublePrecision sqrt();
-#endif
-  
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
   extern DoublePrecision dasum_(), dlamch_(), dnrm2_(), ddot_(), dlarnd_();

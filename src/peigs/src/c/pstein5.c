@@ -164,10 +164,6 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    extern void bbcast00(), tresid();
    extern Integer       fil_mapvec_();
    
-#ifndef RIOS
-   extern DoublePrecision   log10();
-   extern char    *strcpy();
-#endif
 
 /*
  *  ---------------------------------------------------------------

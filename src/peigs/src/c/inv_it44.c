@@ -89,9 +89,6 @@ Integer inv_it44( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, ep
   extern Integer mxmynd_();
   extern DoublePrecision dgetavec_();
 
-#ifndef RIOS
-  extern DoublePrecision fabs();
-#endif
 
   extern void mgs_prev ();
   
