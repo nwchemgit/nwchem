@@ -8,6 +8,7 @@ c
       integer blk1, blk2, blk3, blk4
       integer spini, spinj, spink, spina, spinb, spinc, spine, spinm, 
      $     syme, symm
+      logical oasym
 c
 c     Offset maps a 4-d array into a 1-d array.  It is used to look up
 c     ptr(ind,i,j,k,l) where ptr is dimensioned ptr(2,dim1,dim2,dim3,dim4) 
@@ -34,6 +35,8 @@ c
       spini = spina
       spinj = spina
       spink = spinc
+c
+      oasym = spina .eq. spinc  ! Pure spin integrals are asymmetric
 c      
       do blk4 = 1, listinfo(9,list)
          do blk3 = 1, listinfo(8,list)
@@ -74,7 +77,7 @@ c
      $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
      $                       ablock(1,blk3), ablock(2,blk3),
      $                       cblock(1,blk4), cblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 3) then ! <ek|bc>
                         spine = spina
                         syme = ieor(oblock(3,blk2,spink),
@@ -85,7 +88,7 @@ c
      $                       oblock(1,blk2,spink), oblock(2,blk2,spink),
      $                       bblock(1,blk3), bblock(2,blk3),
      $                       cblock(1,blk4), cblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 4) then ! <ei|ca>
                         spine = spinc
                         syme = ieor(oblock(3,blk2,spini),
@@ -96,7 +99,7 @@ c
      $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
      $                       cblock(1,blk3), cblock(2,blk3),
      $                       ablock(1,blk4), ablock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 5) then ! <ei|cb>
                         spine = spinc
                         syme = ieor(oblock(3,blk2,spini),
@@ -107,7 +110,7 @@ c
      $                       oblock(1,blk2,spini), oblock(2,blk2,spini),
      $                       cblock(1,blk3), cblock(2,blk3),
      $                       bblock(1,blk4), bblock(2,blk4),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 6) then ! <mc|ik>
                         spinm = spina
                         symm  = ieor(oblock(3,blk4,spink),
@@ -118,7 +121,7 @@ c
      $                       cblock(1,blk2), cblock(2,blk2),
      $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
      $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 7) then ! <ma||ij>
                         spinm = spina
                         symm  = ieor(oblock(3,blk4,spini),
@@ -151,7 +154,7 @@ c
      $                       ablock(1,blk2), ablock(2,blk2),
      $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
      $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, .false.)
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else if (list .eq. 10) then ! <mb|ki>
                         spinm = spink
                         symm  = ieor(oblock(3,blk4,spini),
@@ -162,16 +165,33 @@ c
      $                       bblock(1,blk2), bblock(2,blk2),
      $                       oblock(1,blk3,spink), oblock(2,blk3,spink),
      $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
-     $                       dbl_mb(k_moint), nbf, .false.)
-c$$$      else if (list .eq. 11) then ! <ab||ij>
-c$$$      else if (list .eq. 12) then ! <ac|ik>
-c$$$      else if (list .eq. 13) then ! <bc|ik>
+     $                       dbl_mb(k_moint), nbf, oasym)
+                     else if (list .eq. 11) then ! <ab||ij>
+                        call uccsdt_do_check_list(
+     $                       dbl_mb(k_buf), 
+     $                       ablock(1,blk1), ablock(2,blk1),
+     $                       bblock(1,blk2), bblock(2,blk2),
+     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+     $                       oblock(1,blk4,spini), oblock(2,blk4,spini),
+     $                       dbl_mb(k_moint), nbf, .true.)
+                     else if (list .eq. 12) then ! <ac|ik>
+                        call uccsdt_do_check_list(
+     $                       dbl_mb(k_buf), 
+     $                       ablock(1,blk1), ablock(2,blk1),
+     $                       cblock(1,blk2), cblock(2,blk2),
+     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
+     $                       dbl_mb(k_moint), nbf, oasym)
+                     else if (list .eq. 13) then ! <bc|ik>
+                        call uccsdt_do_check_list(
+     $                       dbl_mb(k_buf), 
+     $                       bblock(1,blk1), bblock(2,blk1),
+     $                       cblock(1,blk2), cblock(2,blk2),
+     $                       oblock(1,blk3,spini), oblock(2,blk3,spini),
+     $                       oblock(1,blk4,spink), oblock(2,blk4,spink),
+     $                       dbl_mb(k_moint), nbf, oasym)
                      else
-                        do i = 1, reclen
-                           if (abs(dbl_mb(k_buf+i-1)) .gt. 1d-6) 
-     $                          write(6,3) i, dbl_mb(k_buf+i-1)
- 3                         format(8x,i8,f12.6)
-                        end do
+                        call errquit('cannot check this list',0)
                      endif
                      if (.not. ma_pop_stack(l_buf)) call errquit
      $                    ('uccsdt_check_list: ma corrupt?',0)
@@ -872,10 +892,10 @@ c
      $     njblock, jblock,
      $     pointer, length)
       implicit none
-      integer niblock, iblock(3,*) ! [input] Blocking for i
-      integer njblock, jblock(3,*) ! [input] Blocking for i
       integer nablock, ablock(3,*) ! [input] Blocking for a
       integer nbblock, bblock(3,*) ! [input] Blocking for b
+      integer niblock, iblock(3,*) ! [input] Blocking for i
+      integer njblock, jblock(3,*) ! [input] Blocking for i
       integer pointer(2,nablock, nbblock, niblock, njblock) ! [output]
       integer length            ! [output] Total length of the array
 c
@@ -967,7 +987,7 @@ c
       integer adim, bdim, cdim, idim, kdim, vdim, udim
       integer l_wivu, l_wkvu, l_work, l_buf, l_tmp, l_res
       integer k_wivu, k_wkvu, k_work, k_buf, k_tmp, k_res
-      integer lenwork, lenbuf
+      integer lenwork, lenbuf, dummy(3)
       integer me, next, nproc, count
       integer nxtval
       external nxtval
@@ -1149,6 +1169,10 @@ c     .     dirac index 4 = mulliken index 3
 c
 c     Hence, <ei|ab> = (ea|bi) = <14|23>
 c
+c     Also, in the pure spin case we need to antisymmetrize
+c     all of the lists ... the integrals only needed in this
+c     case are described in [...].
+c
          lenbuf = nbf*
      $            max(ublockdim,adim,bdim,cdim,idim,kdim)
          if (.not. ma_push_get(mt_dbl, lenbuf, 'buf',
@@ -1157,7 +1181,7 @@ c
          if (.not. ma_push_get(mt_dbl, lenbuf, 'tmp',
      $        l_tmp, k_tmp)) call errquit
      $        ('moints_triples: memory for temp', lenbuf)
-         if (.not. ma_push_get(mt_dbl, lenbuf, 'tmp',
+         if (.not. ma_push_get(mt_dbl, lenbuf, 'res',
      $        l_res, k_res)) call errquit
      $        ('moints_triples: memory for temp', lenbuf)
                   
@@ -1169,7 +1193,8 @@ c
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        nablock, ablock, asuper(1), asuper(2),
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1177,10 +1202,11 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|23>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|23>')
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        nablock, ablock, asuper(1), asuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1188,17 +1214,18 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|32>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|32>')
 c
-c     2.  <ek|ac>   = (ea|ck) = <14|23>
+c     2.  <ek|ac>   = (ea|ck) = <14|23>   [-<ek|ca> = -(ec|ai) = -<14|32>]
 c
          list = 2
          spine = asuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        nablock, ablock, asuper(1), asuper(2),
      $        ncblock, cblock, csuper(1), csuper(2),
      $        noblock(spink), oblock(1,1,spink), klo, khi,
@@ -1206,17 +1233,31 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|23>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|23>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ai, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|32>')
+
 c
-c     3.  <ek|bc>   = (eb|ck) = <14|23>
+c     3.  <ek|bc>   = (eb|ck) = <14|23>  [-<ek|cb> = -(ec|bk) = -<14|32>]
 c
          list = 3
          spine = asuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        ncblock, cblock, csuper(1), csuper(2),
      $        noblock(spink), oblock(1,1,spink), klo, khi,
@@ -1224,17 +1265,30 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|23>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|23>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_bi, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|32>')
 c
-c     4.  <ei|ca>   = (ec|ai) = <14|23>
+c     4.  <ei|ca>   = (ec|ai) = <14|23>  [-<ei|ac> = -(ea|ci) = -<14|32>]
 c
          list = 4
          spine = csuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        ncblock, cblock, csuper(1), csuper(2),
      $        nablock, ablock, asuper(1), asuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1242,17 +1296,30 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(csuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|23>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|23>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(csuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|32>')
 c
-c     5.  <ei|cb>   = (ec|bi) = <14|23>
+c     5.  <ei|cb>   = (ec|bi) = <14|23>  [-<ei|bc> = -(eb|ci) = -<14|32>]
 c
          list = 5
          spine = csuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
          call moints_triples_final(
-     $        v_sym(1,0,spine), elo, ehi,
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
      $        ncblock, cblock, csuper(1), csuper(2),
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1260,17 +1327,30 @@ c
      $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(csuper_spin)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<14|23>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|23>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., v_sym(1,0,spine), 
+     $        1, dummy, elo, ehi,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spine)), dbl_mb(k_movecs(csuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<14|32>')
 c
-c     6.  <mc|ik>   = (mi|ck) = <13|24>
+c     6.  <mc|ik>   = (mi|ck) = <13|24>  [-<mc|ki> = -(mk|ci) = -<13|42>]
 c
          list = 6
          spinm = spini
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
      $        ncblock, cblock, csuper(1), csuper(2),
      $        noblock(spink), oblock(1,1,spink), klo, khi,
@@ -1278,8 +1358,20 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|24>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
 c     7.  <ma||ij>  = (mi|aj) - (mj|ai) = <13|24> - <13|42>
 c
@@ -1288,7 +1380,8 @@ c
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
      $        nablock, ablock, asuper(1), asuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1296,10 +1389,11 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|24>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
      $        nablock, ablock, asuper(1), asuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1307,8 +1401,8 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|42>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
 c     8.  <mb||ij>  = (mi|bj) - (mj|bi) = <13|24> - <13|42>
 c
@@ -1317,7 +1411,8 @@ c
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1325,10 +1420,11 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|24>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1336,17 +1432,18 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spini)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|42>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
-c     9.  <ma|ki>   = (mk|ai) = <13|24>
+c     9.  <ma|ki>   = (mk|ai) = <13|24>  [-<ma|ik> = -(mi|ak) = -<13|42>]
 c
          list = 9
          spinm = spink
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spink), oblock(1,1,spink), klo, khi,
      $        nablock, ablock, asuper(1), asuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1354,17 +1451,30 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spink)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|24>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_ai, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spink)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
-c     10. <mb|ki>   = (mk|bi) = <13|24>
+c     10. <mb|ki>   = (mk|bi) = <13|24>  [-<mb|ik> = -(mi|bk) = -<13|42>]
 c
          list = 10
          spinm = spink
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
          call moints_triples_final(
-     $        o_sym(1,0,spinm), mlo, mhi,
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
      $        noblock(spink), oblock(1,1,spink), klo, khi,
      $        nbblock, bblock, bsuper(1), bsuper(2),
      $        noblock(spini), oblock(1,1,spini), ilo, ihi,
@@ -1372,18 +1482,110 @@ c
      $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spink)),
      $        ublocklo, ublockhi, nbf, 
      $        int_mb(listinfo(2,list)), 
-     $        listinfo(7,list), listinfo(8,list), listinfo(5,list), 
-     $        '<13|24>')
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .false., o_sym(1,0,spinm), 
+     $        1, dummy, mlo, mhi,
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_bi, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(spinm)), dbl_mb(k_movecs(spink)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
 c     11. <ab||ij>  = (ai|bj) - (aj|bi) = <13|24> - <13|42>
 c
-
+         list = 11
+         call moints_triples_final(
+     $        .true., dummy,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_bi, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         call moints_triples_final(
+     $        .true., dummy,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        g_bi, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
-c     12. <ac|ik>   = (ai|ck) = <13|24>
+c     12. <ac|ik>   = (ai|ck) = <13|24>  [-<ac|ki> = -(ak|ci) = -<13|42>]
 c
-
+         list = 12
+         call moints_triples_final(
+     $        .true., dummy,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .true., dummy,
+     $        nablock, ablock, asuper(1), asuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
-c     13. <bc|ik>   = (bi|ck) = <13|24>
+c     13. <bc|ik>   = (bi|ck) = <13|24>  [-<bc|ki> = -(bk|ci) = -<13|42>]
+c
+         list = 13
+         call moints_triples_final(
+     $        .true., dummy,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|24>')
+         if (asuper_spin .eq. csuper_spin) call moints_triples_final(
+     $        .true., dummy,
+     $        nbblock, bblock, bsuper(1), bsuper(2),
+     $        noblock(spini), oblock(1,1,spini), ilo, ihi,
+     $        ncblock, cblock, csuper(1), csuper(2),
+     $        noblock(spink), oblock(1,1,spink), klo, khi,
+     $        g_ck, dbl_mb(k_buf), dbl_mb(k_tmp), dbl_mb(k_res),
+     $        dbl_mb(k_movecs(asuper_spin)), 
+     $        dbl_mb(k_movecs(asuper_spin)),
+     $        ublocklo, ublockhi, nbf, 
+     $        int_mb(listinfo(2,list)), 
+     $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
+     $        listinfo(5,list), '<13|42>')
 c
          if (.not. ma_pop_stack(l_res))
      $        call errquit('moints_triple: popping res?', 0)
@@ -1391,9 +1593,16 @@ c
      $        call errquit('moints_triple: popping tmp?', 0)
          if (.not. ma_pop_stack(l_buf))
      $        call errquit('moints_triple: popping buf?', 0)
+c
+         if (.not. ga_destroy(g_ck)) call errquit
+     $        ('moints_triples: failed to destroy g_ck',0)
+         if (.not. ga_destroy(g_bi)) call errquit
+     $        ('moints_triples: failed to destroy g_bi',0)
+         if (.not. ga_destroy(g_ai)) call errquit
+     $        ('moints_triples: failed to destroy g_ai',0)
       end do
 c
-      do list = 1, 10
+      do list = 1, 13
          call uccsdt_check_list(list)
       end do
 c
@@ -1401,17 +1610,21 @@ c
 c
       end
       subroutine moints_triples_final(
-     $     e_sym, elo, ehi,
+     $     oblocke, e_sym, 
+     $     neblock, eblock, elo, ehi,
      $     nablock, ablock, alo, ahi,
      $     ncblock, cblock, clo, chi,
      $     nkblock, kblock, klo, khi,
      $     g_ck, buf, temp, result,
      $     evecs, avecs,
-     $     ublocklo, ublockhi, nbf, pointers, dim1, dim2, g_list,
+     $     ublocklo, ublockhi, nbf, pointers, dim1, dim2, dim3,
+     $     g_list,
      $     order)
       implicit none
 #include "global.fh"
+      logical oblocke           ! [input] If true sub-block e index.
       integer e_sym(2,0:7)      ! [input] Range of e-orbitals in each irrep
+      integer neblock, eblock(3,*) ![input] Sub-blocking info for e-orbitals
       integer elo, ehi          ! [input] Total range of e-orbitals
       integer nablock, ablock(3,*) ![input] Sub-blocking info for a-orbitals
       integer alo, ahi          ! [input] Total range of a-orbitals
@@ -1427,8 +1640,8 @@ c
       double precision evecs(nbf,*) ! [input] MO vectors for e-orbitals
       double precision avecs(nbf,*) ! [input] MO vectors for a-orbitals
       integer ublocklo, ublockhi ! [input] Range of functions in ush block
-      integer dim1, dim2
-      integer pointers(2,dim1,dim2,*) ! [input] Offset into g_list
+      integer dim1, dim2, dim3
+      integer pointers(2,dim1,dim2,dim3,*) ! [input] Offset into g_list
       integer g_list            ! [input] Array to accumulate into
       character*(*) order
 c
@@ -1444,16 +1657,34 @@ c     1. <14|23> -> +<ek|ac>
 c     2. <14|32> -> -<ek|ca>
 c     3. <13|24> -> +<ec|ak>
 c     4. <13|42> -> -<ec|ka>
+c
+c     There are two options for how the e index is handled
+c
+c     if (oblocke) then
+c     .  The e index is blocked as are the other indices.
+c     .  This applies to lists 11, 12, 13.  
+c     .  neblock and eblock() are used.
+c     .  e_sym() is not used.
+c     else
+c     .  The e index is not blocked and all e that are non-zero
+c     .  by symmetry are transformed.
+c     .  e_sym() is used.
+c     .  neblock should be set to 1
+c     .  eblock() is not used.
+c     endif
 c     
 c     Loop thru all c & k in sub-block order BUT only process those
 c     that are local to this processor
 c
-      integer kblk, k, cblk, c, ablk, a, ck
+      integer kblk, k, cblk, c, ablk, a, ck, eblk, ebase
       integer edim, adim, cdim, ublockdim, nc, na, nk, ne
       integer vulo, vuhi, cklo, ckhi, me, syme
       integer ptr
       integer case
       double precision phase
+c
+      if ((.not. oblocke) .and. (neblock.ne.1))
+     $     call errquit('moints_triples_final: neblock?',neblock)
 c
 c     Convert order to an integer to avoid character comparisons
 c     in the inner loop
@@ -1532,36 +1763,48 @@ c     inside a sub-block of integrals.
 c     
                      do ablk = 1, nablock
                         na = ablock(2,ablk) - ablock(1,ablk) + 1
+                        syme = ieor(ablock(3,ablk),
+     $                       ieor(cblock(3,cblk),kblock(3,kblk)))
                         do a = ablock(1,ablk),ablock(2,ablk)
-                           syme = ieor(ablock(3,ablk),
-     $                          ieor(cblock(3,cblk),kblock(3,kblk)))
-                           ne = e_sym(2,syme)  - e_sym(1,syme)  + 1
-                           if (ne .gt. 0) then
-                              if (case .eq. 1) then ! +<ek|ac>
-                                 ptr = pointers(1,kblk,ablk,cblk) + 
-     $                                ne*(k-kblock(1,kblk) + 
-     $                                nk*(a-ablock(1,ablk) + 
-     $                                na*(c-cblock(1,cblk))))
-                              else if (case .eq. 2) then ! -<ek|ca>
-                                 ptr = pointers(1,kblk,cblk,ablk) + 
-     $                                ne*(k-kblock(1,kblk) + 
-     $                                nk*(c-cblock(1,cblk) + 
-     $                                nc*(a-ablock(1,ablk))))
-                              else if (case .eq. 3) then ! +<ec|ak>
-                                 ptr = pointers(1,cblk,ablk,kblk) + 
-     $                                ne*(c-cblock(1,cblk) + 
-     $                                nc*(a-ablock(1,ablk) + 
-     $                                na*(k-kblock(1,kblk))))
-                              else if (case .eq. 4) then ! +<ec|ka>
-                                 ptr = pointers(1,cblk,kblk,ablk) + 
-     $                                ne*(c-cblock(1,cblk) + 
-     $                                nc*(k-kblock(1,kblk) + 
-     $                                nk*(a-ablock(1,ablk))))
-                              endif
-                              call ga_acc(g_list, ptr, ptr+ne-1,
-     $                             1, 1, result(e_sym(1,syme),a), 
-     $                             1, 1.0d0)
-                           end if
+                           do eblk = 1, neblock
+                              if (oblocke) then
+                                 if (syme.eq.eblock(3,eblk)) then
+                                    ebase = eblock(1,eblk)
+                                    ne = eblock(2,eblk)-eblock(1,eblk)+1
+                                 else
+                                    ne = 0
+                                 end if
+                              else
+                                 ebase = e_sym(1,syme)
+                                 ne = e_sym(2,syme) - e_sym(1,syme) + 1
+                              end if
+                              if (ne .gt. 0) then
+                                 if (case .eq. 1) then ! +<ek|ac>
+                                    ptr=pointers(1,eblk,kblk,ablk,cblk)+ 
+     $                                   ne*(k-kblock(1,kblk) + 
+     $                                   nk*(a-ablock(1,ablk) + 
+     $                                   na*(c-cblock(1,cblk))))
+                                 else if (case .eq. 2) then ! -<ek|ca>
+                                    ptr=pointers(1,eblk,kblk,cblk,ablk)+ 
+     $                                   ne*(k-kblock(1,kblk) + 
+     $                                   nk*(c-cblock(1,cblk) + 
+     $                                   nc*(a-ablock(1,ablk))))
+                                 else if (case .eq. 3) then ! +<ec|ak>
+                                    ptr=pointers(1,eblk,cblk,ablk,kblk)+ 
+     $                                   ne*(c-cblock(1,cblk) + 
+     $                                   nc*(a-ablock(1,ablk) + 
+     $                                   na*(k-kblock(1,kblk))))
+                                 else if (case .eq. 4) then ! +<ec|ka>
+                                    ptr=pointers(1,eblk,cblk,kblk,ablk)+ 
+     $                                   ne*(c-cblock(1,cblk) + 
+     $                                   nc*(k-kblock(1,kblk) + 
+     $                                   nk*(a-ablock(1,ablk))))
+                                 endif
+                                 call ga_acc(g_list, ptr, ptr+ne-1,
+     $                                1, 1, result(ebase,a), 
+     $                                1, 1.0d0)
+                              end if
+                           end do
                         end do
                      end do
                   end if
@@ -1772,7 +2015,8 @@ c
      $     tol,
      $     ints)
 c
-c     Now have all of the AO integrals ... transform as necessary
+c     Now have all of the AO integrals ... transform as necessary.
+c     Since we are restricting w>=l we have to do l->i and w->i.
 c
       idim1 = ihi1 - ilo1 + 1
       if (nset .eq. 2) idim2 = ihi2 - ilo2 + 1
@@ -1912,10 +2156,6 @@ c
                      if (odoit .and. oskel) 
      $                    odoit = sym_atom_gen_quartet(geom, 
      $                    atom(lsh), atom(ksh), atom(jsh), atom(ish),q4)
-c$$$                     write(6,1) ish, jsh, ksh, lsh, 
-c$$$     $                    atom(ish), atom(jsh), atom(ksh), 
-c$$$     $                    atom(lsh), q4
-c$$$ 1                   format(4i5,2x,4i5,2x,f8.2)
                      if (odoit) then
                         int_mb(k_iq + nq) = ish
                         int_mb(k_jq + nq) = jsh

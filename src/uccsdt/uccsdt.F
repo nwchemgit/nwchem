@@ -9,6 +9,8 @@
 c
       character*80 title
       integer alo, ahi, blo, bhi, clo, chi
+      integer ablocksize, bblocksize, cblocksize
+      integer spina, spinb, spinc
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -42,21 +44,31 @@ c
      $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
      $     dbl_mb(k_moint), 'Dirac')
 c
-c     Generate disjoint blocks for a, b and c
+c     Crude loop over super blocks for debugging
 c
-      alo = no(1)+1
-      ahi = min(alo+1,nmo)
-      blo = min(ahi+1,nmo)
-      bhi = min(blo+3,nmo)
-      clo = min(bhi+1,nmo)
-      chi = min(clo+5,nmo)
-c      
-      call uccsdt_triples_set_super_block
-     $     (alo, ahi, blo, bhi, clo, chi, 1, 1, 1)
-
-      call uccsdt_triples_moints(rtdb)
-
-      call uccsdt_triples_unset_super_block()
+      spina = 1
+      spinb = 1
+      spinc = 1
+      ablocksize = 3
+      bblocksize = 5
+      cblocksize = 7
+      do alo = nc(spina)+no(spina), nmo, ablocksize
+         ahi = min(alo+ablocksize-1,nmo)
+         do blo = nc(spinb)+no(spinb), nmo, bblocksize
+            bhi = min(blo+bblocksize-1,nmo)
+            do clo = nc(spinc)+no(spinc), nmo, cblocksize
+               chi = min(clo+cblocksize-1,nmo)
+c
+               call uccsdt_triples_set_super_block
+     $              (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc)
+               call uccsdt_triples_moints(rtdb)
+               call uccsdt_triples_unset_super_block()
+c
+            end do
+         end do
+      end do
+c
+      
 c
       call uccsdt_tidy(rtdb)
 c
