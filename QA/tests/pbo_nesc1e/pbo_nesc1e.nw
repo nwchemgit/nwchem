@@ -1,0 +1,48 @@
+start PbO
+
+title "PbO relativistic calculations"
+
+geometry units angstrom autosym nuc fi
+  Pb   0.0     0.0      0.0 
+   O   0.0     0.0      1.90 
+end
+
+basis fw noprint spherical nosegment rel
+  Pb  library dyall_relrcpvdz_fi_sf_fw
+   O  library aug-cc-pvdz_fi_sf_fw
+end
+
+basis large noprint spherical nosegment rel
+  Pb  library dyall_relrcpvdz_fi_sf_lc
+   O  library aug-cc-pvdz_fi_sf_lc
+end
+
+basis small noprint spherical nosegment rel
+  Pb  library dyall_relrcpvdz_fi_sf_sc
+   O  library aug-cc-pvdz_fi_sf_sc
+end
+
+relativistic
+  dyall-mod-dirac
+end
+
+set "ao basis" "fw"
+set "large component" "large"
+set "small component" "small"
+
+charge +10.0
+
+scf; thresh 1e-4; vectors hcore output PbO.mo; end
+task scf
+
+charge 0.0
+scf
+  thresh 1e-10
+  maxiter 10
+  nr 2
+  vectors input PbO.mo output PbO.mo
+end
+task scf
+
+eof
+
