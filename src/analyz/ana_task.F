@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.2 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_task.F,v 1.3 1999-12-11 05:44:55 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       character*255 filcmd,fil
 c
       character*80 card
-      integer nsai,msai,ifrst,ilast,ifrfr,ifrto,ifrsk
+      integer nsai,msai,ifrsk
       integer nframe,nread,nwrit,ifr,ito,num,i,ivec
       real*8 rms0,rms1,val
       character*3 fmt

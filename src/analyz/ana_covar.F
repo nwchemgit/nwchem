@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.1 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_covar.F,v 1.2 1999-12-11 05:44:55 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer ga_cov,il,ih,jl,jh
+      integer il,ih,jl,jh
 c
 c     create nsel x nsel global array covariance matrix
 c
@@ -30,7 +30,7 @@ c
       end
       subroutine ana_edfinal()
 c
-c $Id: ana_covar.F,v 1.1 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_covar.F,v 1.2 1999-12-11 05:44:55 d3j191 Exp $
 c
       implicit none
 c
