@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.16 2000-04-19 23:45:48 edo Exp $
+c $Id: int_1e3ov.F,v 1.17 2000-04-19 23:53:32 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
@@ -50,7 +50,6 @@ c::local
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
       integer Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
       integer nint_ck
-      integer kk
       integer int_nint_cart
       external int_nint_cart
 *     integer nintx, ninta, nintb
