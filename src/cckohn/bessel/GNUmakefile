@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-01-14 07:45:05 edo Exp $
+# $Id: GNUmakefile,v 1.4 2003-04-08 00:21:34 windus Exp $
 #
 
-OBJ = gg.o outward.o sjymec.o spline.o splinec.o ubesplg.o\
+OBJ = gg.o outward.o sjymec.o cckohn_spline.o splinec.o ubesplg.o\
 	zero.o
 
 OBJ_OPTIMIZE = 

@@ -115,7 +115,7 @@ c      read(5,*)lmax,nper,xstart,xmax,nint,alpha
          ypstart=(al+1.)*xstart**l
          yp1=(w(2,l)-w(1,l))/rd
          yp2=(w(np,l)-w(np-1,l))/rd
-         call spline(r,w(1,l),np,yp1,yp2,scr,cs)
+         call cckohn_spline(r,w(1,l),np,yp1,yp2,scr,cs)
          call outward(xx,yy,index,zero)
          call outward(xx,zz,index,gg)
          i1=index
@@ -164,7 +164,7 @@ c            endif
  5       continue
          yp1=(der(2)-der(1))/rd
          yp2=(der(np)-der(np-1))/rd
-         call spline(r,der,np,yp1,yp2,scr,csl(1,l))
+         call cckohn_spline(r,der,np,yp1,yp2,scr,csl(1,l))
  33   continue
       call dcopy(np,r,1,xr,1)
 c      write(*,*)"r"
