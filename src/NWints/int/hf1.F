@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.6 1994-09-25 08:04:35 d3e129 Exp $
+c $Id: hf1.F,v 1.7 1995-05-12 08:02:43 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -142,6 +142,12 @@ c Assign pointers to scratch space.
 
       end if
 
+      if (npp.eq.0) then
+        if (O2I) call dfill(Nint,0.0d00,bO2I,1)
+        if (KEI) call dfill(Nint,0.0d00,bKEI,1)
+        if (NAI) call dfill(Nint,0.0d00,bNAI,1)
+        return
+      endif
 c Define the Hermite linear expansion coefficients.
 
 c Assign pointers to scratch space.
@@ -186,9 +192,9 @@ c Assign pointers to scratch space.
 c Compute the 2-center overlap integrals, <a|S|b>.
 
       if( O2I )then
-       if( .not. DryRun )then
-        call hf2oi(W0(i_Ep),bO2I,Nint,NPP,La,Lb,Li,canAB)
-       end if
+        if( .not. DryRun )then
+          call hf2oi(W0(i_Ep),bO2I,Nint,NPP,La,Lb,Li,canAB)
+        end if
       end if
 
 c Compute kinetic energy integrals, <a|T|b>.
