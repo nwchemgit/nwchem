@@ -15,7 +15,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0b.F,v 1.13 2000-04-27 01:24:48 edo Exp $
+c$Id: grid_quadv0b.F,v 1.14 2000-05-01 20:28:47 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -135,7 +135,7 @@ c
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &        bp, rscr, 
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,wmax)
+     &           rdens_atom, cetobfr,1d0)
 #else
             call xc_rhogen_pert(tol_rho, AO_bas_han, g_dens,
      &           nbf_ao_mxnbf_ce, natoms, nmat+1,ipol, nqpts, 
@@ -143,7 +143,7 @@ c
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rscr, rchi_atom, 
-     .           rdelchi_atom, rdens_atom, cetobfr)
+     .           rdelchi_atom, rdens_atom, cetobfr,wmax)
 #endif
             else if (do_cpks_r) then
                call errquit('gridquadv0b: what do do for cpks rhs?',0)
@@ -156,7 +156,7 @@ c
       rho0=rho_int
       rho_int = rho_int + 
      &     ddot(nqpts, qwght, 1, rho, 1)
-      if(abs(rho0-rho_int).lt.tol_rho) goto 2010
+      if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
 c
 c           Evaluate the XC potential and energy sampling matrices.
@@ -176,7 +176,7 @@ c
             endif
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     GRAD, .false., dummy, .false.)
+     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r)
 
       if (sic_orb_index.eq.1) then
          call grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,

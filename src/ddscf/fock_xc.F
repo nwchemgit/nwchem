@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.3 2000-04-24 19:47:22 edo Exp $
+c     $Id: fock_xc.F,v 1.4 2000-05-01 20:28:46 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -12,6 +12,7 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "../nwdft/include/cdft.fh"
+#include "../nwdft/grid/cgridfile.fh"
 c!!! BGJ
 #include "bgj.fh"
 #include "rtdb.fh"
@@ -33,8 +34,8 @@ c
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        l_g_dens_local, k_g_dens_local, k_g_dens_scf
-      logical wght_GA_dum
-      double precision Exc_dum(2), rho_n_dum
+      logical wght_GA_dum,grid_on_file
+      double precision Exc_dum(2), rho_n_dum,tdum
 c
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered fock_xc-------------'
@@ -42,6 +43,10 @@ c
 c      write(*,*)'nmat rtdb geom ipol',nmat,rtdb,geom,ipol
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('fock_xc: geom_ncent failed',1)
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &     grid_on_file))then
+         grid_on_file = .false.
+      endif
 c      write(*,*)'natoms',natoms
 c
 c     Get fock_xc variables
@@ -104,11 +109,18 @@ c
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
+      if(grid_on_file) then
+      call grid_quadv0_gen(rtdb, 
+     ,         int_mb(k_g_dens_local),g_xc,nexc_dum,
+     &     rho_n_dum, Exc_dum,
+     &     nmat, calc_type ,tdum)
+      else
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
      &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
      &     rho_n_dum, dbl_mb(k_rdens_atom), 
      &     int_mb(k_cetobfr), natoms, nmat,
      &     calc_type)
+      endif
 c
 c     Clean up
 c
