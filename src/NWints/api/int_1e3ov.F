@@ -1,12 +1,12 @@
-c $Id: int_1e3ov.F,v 1.10 1997-04-25 05:13:59 pg481 Exp $
+c $Id: int_1e3ov.F,v 1.11 1997-05-29 00:35:58 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_1e3ov}
+c:tex-\subsection{int\_1e3ov}
 c:tex-This routine computes the 3 center overlap integral:
-c:tex-\[
-c:tex-({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
-c:tex-\]
-c:tex-{\it Syntax:}
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1})g_{\lambda}(X_{\lambda},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-{\it Syntax:} 
 c:tex-\begin{verbatim}
       subroutine int_1e3ov (i_basis, ish, j_basis, jsh, k_basis, ksh,
      &       lscr, scr, lov3, OV3)
@@ -26,18 +26,18 @@ c::functions
       logical int_chk_sh, int_chk_init
       external int_chk_sh, int_chk_init
 c::passed
-c:tex-\begin{verbatim}
+c:tex-\begin{verbatim} 
       integer i_basis            ! [input] basis set handle for ish
       integer ish                ! [input] i shell/contraction
       integer j_basis            ! [input] basis set handle for jsh
       integer jsh                ! [input] j shell/contraction
       integer k_basis            ! [input] basis set handle for ksh
       integer ksh                ! [input] k shell/contraction
-      integer lscr               ! [input] length of scratch array
+      integer lscr               ! [input] length of scratch v
       double precision scr(lscr) ! [scratch] scratch array
-      integer lov3               ! [input] length of 3c overlap integrals array
+      integer lov3               ! [input] length of 3c overlap buffer
       double precision OV3(lov3) ! [output] 3c overlap integrals
-c:tex-\end{verbatim}
+c:tex-\end{verbatim} 
 c::local
       logical shells_ok
       integer ucont

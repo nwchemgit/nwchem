@@ -1,0 +1,7 @@
+*:tex-begin
+\section{INT-API: Integral Routines}
+These routines compute and return integrals based on shell quartets
+or groups of shell quartets.  
+%
+
+*:tex-end

@@ -1,8 +1,8 @@
-c $Id: exactd_mem.F,v 1.17 1997-05-22 21:03:24 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.18 1997-05-29 00:35:57 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
-c:tex-\subsubsection{exactd\_mem}
+c:tex-\subsection{exactd\_mem}
 c:tex-This routine computes the memory required by the 
 c:tex-McMurchie-Davidson integral derivative code developed at PNNL.
 c:tex-This calls specific routines listed below for each integral
@@ -39,6 +39,12 @@ c:: local
 c
 c check to see if a full memory check is needed
 c
+c:tex-
+c:tex-{\bf Debugging Note:} using a set directive to set the 
+c:tex-variable ``int:full\_mem'' to true will force the more 
+c:tex-expensive $O(N^4)$ algorithm to be used to compute the 
+c:tex-memory requirements for the 2-electron integral derivatives.
+c:tex-
       if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
      &    o_do_full = .false.
 c
@@ -102,7 +108,7 @@ c
 c
       end
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_d1e}
+c:tex-\subsection{emem\_d1e}
 c:tex-This routine determines the maximum buffer and scratch size for the 
 c:tex-one electron derivative integrals.
 c:tex-This routine should not be called by application code.
@@ -230,7 +236,7 @@ c
 c
       end
 c:tex-% part of the API Internal Routines
-c:tex-\subsubsection{emem\_d2e4c}
+c:tex-\subsection{emem\_d2e4c}
 c:tex-This routine determines the maximum buffer and scratch size for 
 c:tex-the given basis sets to compute 2 electron derivative integrals.  
 c:tex-The logic used is similar to that of the integral routine.  
@@ -452,7 +458,7 @@ c
 c
       end
 c:tex-% part of the API Internal Routines
-c:tex-\subsubsection{emem\_d2e4c\full}
+c:tex-\subsection{emem\_d2e4c\_full}
 c:tex-This routine determines the maximum buffer and scratch size for 
 c:tex-the given basis sets to compute 2 electron derivative integrals.  
 c:tex-The logic used is similar to that of the integral routine.  

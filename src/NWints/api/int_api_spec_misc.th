@@ -1,0 +1,9 @@
+*:tex-begin
+\section{INT-API: Miscellaneous Routines}
+These routines do a variety of functions mostly internal to the
+INT-API but may require use by those integrating a new base integral
+code into NWChem.  These should be used with care and rarely in any
+application module. 
+%
+
+*:tex-end

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.55 1997-05-28 08:17:46 d3e129 Exp $
+# $Id: GNUmakefile,v 1.56 1997-05-29 00:36:11 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -50,6 +50,19 @@ doc:
 	rm -f integral_api.tex
 	$(BINDIR)/seetex integral_api.th integral_api.tex
 	rm -f int_api_spec.tex
-	$(BINDIR)/seetex int_api_spec.th int_api_spec_sec1.th int_init.F intd_init.F int_term.F int_acc.F int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec.th int_api_spec_init.th  int_api_spec.tex
+	$(BINDIR)/seetex int_init.F intd_init.F int_term.F        int_api_spec.tex
+	$(BINDIR)/seetex int_acc.F                                int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_mem.th                   int_api_spec.tex
+	$(BINDIR)/seetex int_mem.F                                int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_ints.th                  int_api_spec.tex
+	$(BINDIR)/seetex int_1cg.F int_1e3ov.F int_l1e3ov.F int_1eall.F        int_api_spec.tex
+	$(BINDIR)/seetex int_1eh1.F int_1eke.F int_1eov.F         int_api_spec.tex
+	$(BINDIR)/seetex int_1epe.F int_2e2c.F int_2e3c.F         int_api_spec.tex
+	$(BINDIR)/seetex int_2e4c.F                               int_api_spec.tex
+	$(BINDIR)/seetex int_api_spec_misc.th                  int_api_spec.tex
+	$(BINDIR)/seetex exact_mem.F exactd_mem.F int_canon.F     int_api_spec.tex
+	$(BINDIR)/seetex int_chk_init.F int_chk_sh.F int_func_c.F int_api_spec.tex
+	$(BINDIR)/seetex int_hf1sp.F int_api_spec.tex
 	cp integral_api.tex int_api_spec.tex ${NWCHEM_TOP}/doc/prog
 

@@ -1,12 +1,13 @@
-c $Id: int_l1e3ov.F,v 1.9 1996-10-07 16:50:28 d3e129 Exp $
+c $Id: int_l1e3ov.F,v 1.10 1997-05-29 00:36:08 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_l1e3ov}
+c:tex-\subsection{int\_l1e3ov}
 c:tex-This routine computes the 3 center overlap integral 
-c:tex-with labels and removing ``zero'' integrals:
-c:tex-\[
-c:tex-({\mu}{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})g_{\nu}(X-R,r_{1}g_{\lamda}(X-R,r_{1})dr_{1}
-c:tex-\]
+c:tex-with labels and it removes ``zero'' integrals:
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})g_{\nu}(X_{\nu},r_{1}g_{\lambda}(X_{\lambda},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
+c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_l1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh,
@@ -34,13 +35,14 @@ c:tex-\begin{verbatim}
       integer jsh                ! [input] j shell/contraction
       integer k_basis            ! [input] basis set handle for ksh
       integer ksh                ! [input] k shell/contraction
-      double precision zerotol   ! [input] tolerance threshold for keeping integrals
-      integer lov3               ! [input] length of 3c overlap integrals array
+      double precision zerotol   ! [input] "zero" tolerance threshold
+      integer lov3               ! [input] length of 3c overlap array
       double precision OV3(lov3) ! [output] 3c overlap integrals
-      integer ilab(lov3)         ! [output] i labels for 3c overlap integrals
-      integer jlab(lov3)         ! [output] j labels for 3c overlap integrals
-      integer klab(lov3)         ! [output] k labels for 3c overlap integrals
-      integer numov3             ! [output] number of integrals and labels generated
+      integer ilab(lov3)         ! [output] i labels for 3c overlap ints
+      integer jlab(lov3)         ! [output] j labels for 3c overlap ints
+      integer klab(lov3)         ! [output] k labels for 3c overlap ints
+      integer numov3             ! [output] number of integrals and labels 
+c . . . . . . . . . . . . . . . .!          generated and returned
       integer lscr               ! [input] length of scratch array
       double precision scr(lscr) ! [input] scratch array
 c:tex-\end{verbatim}

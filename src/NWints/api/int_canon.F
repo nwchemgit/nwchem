@@ -1,7 +1,7 @@
-c $Id: int_canon.F,v 1.2 1996-10-07 16:50:19 d3e129 Exp $
+c $Id: int_canon.F,v 1.3 1997-05-29 00:36:06 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_canon}
+c:tex-\subsection{int\_canon}
 c:tex-This routine canonicalizes integral lables such that:
 c:tex-$i \geq j$, $k \geq l$, and $ij \geq kl$
 c:tex-

@@ -1,13 +1,15 @@
-c $Id: exact_mem.F,v 1.29 1997-05-22 21:03:23 d3e129 Exp $
+c $Id: exact_mem.F,v 1.30 1997-05-29 00:35:56 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{exact\_mem}
+c:tex-\subsection{exact\_mem}
 c:tex-This routine computes the memory required by the 
 c:tex-McMurchie-Davidson integral code developed at PNNL.  
 c:tex-This calls specific routines listed below for each 
-c:tex-integral type.  The data is stored in a common block (apiP.fh)
-c:tex-for fast retrieval.
+c:tex-integral type.  The data is stored in a common block 
+c:tex-(apiP.fh) for fast retrieval.
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-   
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -41,6 +43,12 @@ c
 c
 c check to see if a full memory check is needed
 c
+c:tex-
+c:tex-{\bf Debugging Note:} using a set directive to set the 
+c:tex-variable ``int:full\_mem'' to true will force the more 
+c:tex-expensive $O(N^4)$ algorithm to be used to compute the 
+c:tex-memory requirements for the 2-electron integrals.
+c:tex-
       if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
      &    o_do_full = .false.
 c
@@ -136,9 +144,11 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_3ov}
+c:tex-\subsection{emem\_3ov}
 c:tex-This routine computes the memory for the 3-center overlap 
 c:tex-integrals based on the basis sets used.  
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -261,9 +271,11 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_1e}
+c:tex-\subsection{emem\_1e}
 c:tex-This routine computes the memory for any type of 1e 
 c:tex-integrals based on the basis sets used.  
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -369,7 +381,7 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_2e4c}
+c:tex-\subsection{emem\_2e4c}
 c:tex-This routine computes the memory required by the McMurchie-Davidson 
 c:tex-algorithm for 4 center two electron integrals based on the 
 c:tex-basis sets used.  
@@ -390,6 +402,8 @@ c:tex-\begin{itemize}
 c:tex-\item $(ij|jk)$
 c:tex-\item $(ij|kk)$
 c:tex-\end{itemize}
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -412,7 +426,7 @@ c:tex-\begin{verbatim}
       integer ketin   ! [input] ket basis set handle
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
-c:tex-\end{itemize}
+c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
@@ -556,9 +570,11 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_2e3c}
+c:tex-\subsection{emem\_2e3c}
 c:tex-This routine computes the memory required for the the two electron
 c:tex-three center integrals using the McMurchie-Davidson algorithm. 
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -670,9 +686,11 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_2e2c}
+c:tex-\subsection{emem\_2e2c}
 c:tex-This routine computes the memory required for the the two electron
 c:tex-two center integrals using the McMurchie-Davidson algorithm. 
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -785,13 +803,15 @@ c
       end
 ***********************************************************************
 c:tex-% part of API Internal Routines
-c:tex-\subsubsection{emem\_2e4c\_full}
+c:tex-\subsection{emem\_2e4c\_full}
 c:tex-This routine computes the memory required by the McMurchie-Davidson 
 c:tex-algorithm for 4 center two electron integrals based on the 
 c:tex-basis sets used.  
 c:tex-
 c:tex-The exact algorithm is an N$^4$ and costly.  This routine is used
 c:tex-primarily as a debugging tool
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
 ***********************************************************************
 c:tex-{\it Syntax:}
@@ -968,11 +988,13 @@ c
       end
 ***********************************************************************
 c:tex-% Part of the API internal routines.
-c:tex-\subsubsection{int\_nbf\_max}
+c:tex-\subsection{int\_nbf\_max}
 c:tex-This routine computes the maximum cartesian nbf for a given basis
 c:tex-set.  Used in many memory computing routines to deterine maximum
 c:tex-buffer sizes needed for integral computations.  This also includes
 c:tex-any general contraction information.
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 ***********************************************************************
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -1021,12 +1043,18 @@ c
       enddo
       end
 c:tex-% Part of the API internal routines.
-c:tex-\subsubsection{int\_mem\_zero}
+c:tex-\subsection{int\_mem\_zero}
 c:tex-This routine zeros the memory pointers in the apiP.fh common
 c:tex-that pertain to the memory utilization of the integral suite.
-c:tex-This routine should not be called by application code. 
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
 c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine int_mem_zero()
+c:tex-\end{verbatim}
+c:tex-There are no formal arguments to this routine
+c:tex-
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
@@ -1047,11 +1075,25 @@ c:tex-
       init_intd  = 0   ! derivative initialization flag
 c
       end
+c:tex-% Part of the API internal routines.
+c:tex-\subsection{api\_is\_ecp\_basis}
+c:tex-This routine identifies basis set handles to INT-API 
+c:tex-that store ECP information.
+c:tex-This routine should never be called directly by a 
+c:tex-NWChem application module.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       logical function api_is_ecp_basis(basisin)
+c:tex-\end{verbatim}
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
+c:tex-\begin{verbatim}
       integer basisin ! [input] basis set handle
+c:tex-\end{verbatim}
+c:tex-Return value is true if ``basisin'' represents an ECP
+c:tex-
 c
       integer basis
 c

@@ -1,7 +1,7 @@
-c $Id: int_chk_sh.F,v 1.5 1996-10-07 16:50:21 d3e129 Exp $
+c $Id: int_chk_sh.F,v 1.6 1997-05-29 00:36:07 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_chk\_sh}
+c:tex-\subsection{int\_chk\_sh}
 c:tex-This function checks to see that the given shell is valid
 c:tex-Returns .true. if so else returns .false. if not.
 c:tex-This subroutine call can be replaced by a statement 
@@ -18,7 +18,7 @@ c:tex-or you could use the following with the handle.
 c:tex-\begin{verbatim}
 c:tex-      inline_chk_sh(bra,ish) =
 c:tex-     $     ((ish.gt.0) .and. 
-c:tex-     $(ish.le.ncont_tot_gb(bra+basis_handle_offset)))
+c:tex-     $(ish.le.ncont_tot_gb(bra+Basis_Handle_Offset)))
 c:tex-\end{verbatim}
 c:tex-
 c:tex-{\it Syntax:}
@@ -38,7 +38,7 @@ c::local
       integer basis
 c
       int_chk_sh = .true.
-#ifdef BASIS_DEBUG
+#ifdef API_DEBUG
       int_chk_sh = bas_check_handle(basisin,'int_chk_sh')
       if (.not.int_chk_sh) return
 #endif

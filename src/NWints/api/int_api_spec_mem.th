@@ -1,0 +1,15 @@
+*:tex-begin
+\section{INT-API: Memory Managment Routines}
+These routines compute, store, and return memory requirements for
+particular ``classes'' of integral computations.  These routines are
+``overloaded'' since the application uses the same query function
+whether integrals or integral derivatives are computed.  For example,
+\verb+int_mem_2e4c+ is used to get the maximum buffer size and scratch
+array size for both integrals computed using \verb+int_2e4c+ and
+integral derivatives computed using \verb+intd_2e4c+.  The INT-API is
+also designed such that if you initialize INT-API for integral
+derivatives, the memory estimates are also valid for integrals as
+well.  
+%
+
+*:tex-end

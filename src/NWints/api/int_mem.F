@@ -1,7 +1,7 @@
-c $Id: int_mem.F,v 1.8 1996-10-11 10:10:18 d3e129 Exp $
+c $Id: int_mem.F,v 1.9 1997-05-29 00:36:09 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem}
+c:tex-\subsection{int\_mem}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for both one electron and two electron (4 center) 
 c:tex-integrals.
@@ -33,7 +33,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_1e}
+c:tex-\subsection{int\_mem\_1e}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for one electron (2 center)
 c:tex-integrals.
@@ -61,7 +61,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_2e4c}
+c:tex-\subsection{int\_mem\_2e4c}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for two electron (4 center)
 c:tex-integrals.
@@ -89,7 +89,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_h1}
+c:tex-\subsection{int\_mem\_h1}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for one electron hamiltonian 
 c:tex-integrals.
@@ -117,7 +117,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_2eec}
+c:tex-\subsection{int\_mem\_2eec}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for two electron (3 center)
 c:tex-integrals.
@@ -145,7 +145,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_2e2c}
+c:tex-\subsection{int\_mem\_2e2c}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for two electron (2 center)
 c:tex-integrals.
@@ -173,7 +173,7 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_3ov}
+c:tex-\subsection{int\_mem\_3ov}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for one electron (3 center)
 c:tex-integrals.
@@ -201,14 +201,14 @@ c
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_mem\_print}
+c:tex-\subsection{int\_mem\_print}
 c:tex-This routine prints the maximum buffer and scratch array
-c:tex-sizes for all known classes of 
-c:tex-integrals.
+c:tex-sizes for all known ``classes'' of integrals.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_mem_print()
+c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
@@ -237,7 +237,7 @@ c
 10000 format(//)
       end
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{intb\_mem\_2e4c}
+c:tex-\subsection{intb\_mem\_2e4c}
 c:tex-This routine returns the maximum buffer and scratch array
 c:tex-sizes for two electron (4 center)
 c:tex-integrals from the blocking interface.

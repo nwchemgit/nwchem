@@ -1,10 +1,11 @@
-c $Id: int_hf1sp.F,v 1.8 1996-10-07 16:50:23 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.9 1997-05-29 00:36:08 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
-c:tex-\subsubsection{int\_hf1sp}
+c:tex-\subsection{int\_hf1sp}
 c:tex-This is a layer routine that calls the 
 c:tex-McMurchie-Davidson one electron routine.  This layer
 c:tex-routine handles all permutations to compute sp integrals.
+c:tex-This routine should never be called by an application module.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -19,7 +20,7 @@ c:tex-\end{verbatim}
 #include "stdio.fh"
 #include "int_nbf.fh"
 c::passed
-c:tex-for an integral $<i|Operator|j>$
+c:tex-For an integral $<i|Operator|j>$
 c:tex-\begin{verbatim}
       integer i_nprim  ! [input] num. prims on function i
       integer i_ngen   ! [input] num general conts on func. i
@@ -47,7 +48,7 @@ c:tex-\begin{verbatim}
       logical doV     ! [input] compute potential (True/False)
       logical canAB   ! [input] compute only canonical ints (false only)
       logical dryrun  ! [input] true means only compute required memory
-      character*(*) msg ![input] identification message
+      character*(*) msg ![input] calling func. identification message
 c:tex-\end{verbatim}
 c::local
       integer nintV
@@ -233,25 +234,27 @@ c
 c
       end
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_1psp}
+c:tex-\subsection{int\_1psp}
 c:tex-This routine transforms integrals from the way they
 c:tex-were computed $(p|s)$, $(p|p)$ to $(p|sp)$.
 c:tex-The transformation is done in place as follows:
-c:tex-~~~~~computed~transformed~\\
-c:tex-~~~~~~order~~~~~order\\
-c:tex-~1.~~(x|s)~~~~~(x|s)~~~~~\\
-c:tex-~2.~~(y|s)~~~~~(x|x)~~~~~2~->~5\\
-c:tex-~3.~~(z|s)~~~~~(x|y)~~~~~3~->~9\\
-c:tex-~4.~~(x|x)~~~~~(x|z)~~~~~4~->~2\\
-c:tex-~5.~~(x|y)~~~~~(y|s)~~~~~5~->~3\\
-c:tex-~6.~~(x|z)~~~~~(y|x)~~~~~6~->~4\\
-c:tex-~7.~~(y|x)~~~~~(y|y)~~~~~7~->~6\\
-c:tex-~8.~~(y|y)~~~~~(y|z)~~~~~8~->~7\\
-c:tex-~9.~~(y|z)~~~~~(z|s)~~~~~9~->~8\\
-c:tex-10.~~(z|x)~~~~~(z|x)~~~~~\\
-c:tex-11.~~(z|y)~~~~~(z|y)~~~~~\\
-c:tex-12.~~(z|z)~~~~~(z|z)~~~~~\\
-c:tex-
+c:tex-\begin{tabular}{rccc}
+c:tex- & computed & transformed & \\
+c:tex- &  order   &   order     & \\
+c:tex-~1 & (x|s)  &  (x|s)  & \\
+c:tex-~2 & (y|s)  &  (x|x)  & 2 $\rightarrow$ 5\\
+c:tex-~3 & (z|s)  &  (x|y)  & 3 $\rightarrow$ 9\\
+c:tex-~4 & (x|x)  &  (x|z)  & 4 $\rightarrow$ 2\\
+c:tex-~5 & (x|y)  &  (y|s)  & 5 $\rightarrow$ 3\\
+c:tex-~6 & (x|z)  &  (y|x)  & 6 $\rightarrow$ 4\\
+c:tex-~7 & (y|x)  &  (y|y)  & 7 $\rightarrow$ 6\\
+c:tex-~8 & (y|y)  &  (y|z)  & 8 $\rightarrow$ 7\\
+c:tex-~9 & (y|z)  &  (z|s)  & 9 $\rightarrow$ 8\\
+c:tex-10 & (z|x)  &  (z|x)  &  \\
+c:tex-11 & (z|y)  &  (z|y)  &  \\
+c:tex-12 & (z|z)  &  (z|z)  &  \\
+c:tex-\end{tabular}
+c:tex- 
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1psp(block,num_blocks)
@@ -277,7 +280,8 @@ c
       implicit none
 c:tex-\begin{verbatim}
       integer num_blocks  ! [input] num. blocks to transform
-      double precision block(12,num_blocks) ! [input/output] block
+      double precision block(12,num_blocks) ! [input/output] 
+c. . . . . . . . . . . . . . . . . . . . . .! integral block
 c:tex-\end{verbatim}
 c
       integer ib
@@ -296,36 +300,38 @@ c
 00100 continue
       end
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_1dsp}
+c:tex-\subsection{int\_1dsp}
 c:tex-This routine transforms integrals from the way they
 c:tex-were computed $(d|s)$, $(d|p)$ to $(d|sp)$.
 c:tex-The transformation is done in place as follows:
-c:tex-~~~~~computed~transformed~\\
-c:tex-~~~~~~order~~~~~order\\
-c:tex-~1.~~(xx|s)~~~~~(xx|s)\\
-c:tex-~2.~~(xy|s)~~~~~(xx|x)~~2~->~5~~~\\
-c:tex-~3.~~(xz|s)~~~~~(xx|y)~~3~->~9~~~\\
-c:tex-~4.~~(yy|s)~~~~~(xx|z)~~4~->~13~~\\
-c:tex-~5.~~(yz|s)~~~~~(xy|s)~~5~->~17~~\\
-c:tex-~6.~~(zz|s)~~~~~(xy|x)~~6~->~21~~\\
-c:tex-~7.~~(xx|x)~~~~~(xy|y)~~7~->~2~~~\\
-c:tex-~8.~~(xx|y)~~~~~(xy|z)~~8~->~3~~~\\
-c:tex-~9.~~(xx|z)~~~~~(xz|s)~~9~->~4~~~\\
-c:tex-10.~~(xy|x)~~~~~(xz|x)~10~->~6~~~\\
-c:tex-11.~~(xy|y)~~~~~(xz|y)~11~->~7~~~\\
-c:tex-12.~~(xy|z)~~~~~(xz|z)~12~->~8~~~\\
-c:tex-13.~~(xz|x)~~~~~(yy|s)~13~->~10~~\\
-c:tex-14.~~(xz|y)~~~~~(yy|x)~14~->~11~~\\
-c:tex-15.~~(xz|z)~~~~~(yy|y)~15~->~12~~\\
-c:tex-16.~~(yy|x)~~~~~(yy|z)~16~->~14~~\\
-c:tex-17.~~(yy|y)~~~~~(yz|s)~17~->~15~~\\
-c:tex-18.~~(yy|z)~~~~~(yz|x)~18~->~16~~\\
-c:tex-19.~~(yz|x)~~~~~(yz|y)~19~->~18~~\\
-c:tex-20.~~(yz|y)~~~~~(yz|z)~20~->~19~~\\
-c:tex-21.~~(yz|z)~~~~~(zz|s)~21~->~20~~\\
-c:tex-22.~~(zz|x)~~~~~(zz|x)\\
-c:tex-23.~~(zz|y)~~~~~(zz|y)\\
-c:tex-24.~~(zz|z)~~~~~(zz|z)\\
+c:tex-\begin{tabular}{rccc}      
+c:tex-  &  computed  & transformed & \\
+c:tex-  &  ~order    &  order & \\
+c:tex-~1 & (xx|s)  &  (xx|s)  & \\
+c:tex-~2 & (xy|s)  &  (xx|x)  &  ~2 $\rightarrow$ 5~~ \\
+c:tex-~3 & (xz|s)  &  (xx|y)  &  ~3 $\rightarrow$ 9~~ \\
+c:tex-~4 & (yy|s)  &  (xx|z)  &  ~4 $\rightarrow$ 13~ \\
+c:tex-~5 & (yz|s)  &  (xy|s)  &  ~5 $\rightarrow$ 17~ \\
+c:tex-~6 & (zz|s)  &  (xy|x)  &  ~6 $\rightarrow$ 21~ \\
+c:tex-~7 & (xx|x)  &  (xy|y)  &  ~7 $\rightarrow$ 2~~ \\
+c:tex-~8 & (xx|y)  &  (xy|z)  &  ~8 $\rightarrow$ 3~~ \\
+c:tex-~9 & (xx|z)  &  (xz|s)  &  ~9 $\rightarrow$ 4~~ \\
+c:tex-10 & (xy|x)  &  (xz|x)  &  10 $\rightarrow$ 6~~ \\
+c:tex-11 & (xy|y)  &  (xz|y)  &  11 $\rightarrow$ 7~~ \\
+c:tex-12 & (xy|z)  &  (xz|z)  &  12 $\rightarrow$ 8~~ \\
+c:tex-13 & (xz|x)  &  (yy|s)  &  13 $\rightarrow$ 10~ \\
+c:tex-14 & (xz|y)  &  (yy|x)  &  14 $\rightarrow$ 11~ \\
+c:tex-15 & (xz|z)  &  (yy|y)  &  15 $\rightarrow$ 12~ \\
+c:tex-16 & (yy|x)  &  (yy|z)  &  16 $\rightarrow$ 14~ \\
+c:tex-17 & (yy|y)  &  (yz|s)  &  17 $\rightarrow$ 15~ \\
+c:tex-18 & (yy|z)  &  (yz|x)  &  18 $\rightarrow$ 16~ \\
+c:tex-19 & (yz|x)  &  (yz|y)  &  19 $\rightarrow$ 18~ \\
+c:tex-20 & (yz|y)  &  (yz|z)  &  20 $\rightarrow$ 19~ \\
+c:tex-21 & (yz|z)  &  (zz|s)  &  21 $\rightarrow$ 20~ \\
+c:tex-22 & (zz|x)  &  (zz|x)  & \\
+c:tex-23 & (zz|y)  &  (zz|y)  & \\
+c:tex-24 & (zz|z)  &  (zz|z)  & \\
+c:tex-\end{tabular}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -364,7 +370,8 @@ c
       implicit none
 c:tex-\begin{verbatim}
       integer num_blocks  ! [input] num. blocks to transform
-      double precision block(24,num_blocks) ! [input/output] block
+      double precision block(24,num_blocks) ! [input/output] 
+c . . . . . . . . . . . . . . . . . . . . . ! integral block
 c:tex-\end{verbatim}
 c
       double precision temp1, temp2, temp3
@@ -398,29 +405,31 @@ c
 00100 continue
       end
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_1spsp}
+c:tex-\subsection{int\_1spsp}
 c:tex-This routine transforms integrals from the way they
-c:tex-were computed $(s|s)$, $(s|p)$,, $(p|s)$, $(p|p)$  
+c:tex-were computed $(s|s)$, $(s|p)$, $(p|s)$, $(p|p)$  
 c:tex-to $(sp|sp)$.
 c:tex-The transformation is done in place as follows:
-c:tex-~~~~~computed~transformed~\\
-c:tex-~~~~~~order~~~~~~order\\
-c:tex-~1.~~~(s|s)~~~~~~(s|s)\\
-c:tex-~2.~~~(s|x)~~~~~~(s|x)~~\\
-c:tex-~3.~~~(s|y)~~~~~~(s|y)\\
-c:tex-~4.~~~(s|z)~~~~~~(s|z)\\
-c:tex-~5.~~~(x|s)~~~~~~(x|s)\\
-c:tex-~6.~~~(y|s)~~~~~~(x|x)~~~6~->~9\\
-c:tex-~7.~~~(z|s)~~~~~~(x|y)~~~7~->~13\\
-c:tex-~8.~~~(x|x)~~~~~~(x|z)~~~8~->~6\\
-c:tex-~9.~~~(x|y)~~~~~~(y|s)~~~9~->~7\\
-c:tex-10.~~~(x|z)~~~~~~(y|x)~~10~->~8~\\
-c:tex-11.~~~(y|x)~~~~~~(y|y)~~11~->~10\\
-c:tex-12.~~~(y|y)~~~~~~(y|z)~~12~->~11\\
-c:tex-13.~~~(y|z)~~~~~~(z|s)~~13~->~12\\
-c:tex-14.~~~(z|x)~~~~~~(z|x)\\
-c:tex-15.~~~(z|y)~~~~~~(z|y)\\
-c:tex-16.~~~(z|z)~~~~~~(z|z)\\
+c:tex-\begin{tabular}{rccc}      
+c:tex-  &  computed & transformed   &   \\
+c:tex-  &   order   &  order  &   \\
+c:tex-~1 & (s|s)  &  (s|s)  &   \\
+c:tex-~2 & (s|x)  &  (s|x)  &   \\
+c:tex-~3 & (s|y)  &  (s|y)  &   \\
+c:tex-~4 & (s|z)  &  (s|z)  &   \\
+c:tex-~5 & (x|s)  &  (x|s)  &   \\
+c:tex-~6 & (y|s)  &  (x|x)  &  ~6 $\rightarrow$ 9\\
+c:tex-~7 & (z|s)  &  (x|y)  &  ~7 $\rightarrow$ 13\\
+c:tex-~8 & (x|x)  &  (x|z)  &  ~8 $\rightarrow$ 6\\
+c:tex-~9 & (x|y)  &  (y|s)  &  ~9 $\rightarrow$ 7\\
+c:tex-10 & (x|z)  &  (y|x)  &  10 $\rightarrow$ 8 \\ 
+c:tex-11 & (y|x)  &  (y|y)  &  11 $\rightarrow$ 10\\
+c:tex-12 & (y|y)  &  (y|z)  &  12 $\rightarrow$ 11\\
+c:tex-13 & (y|z)  &  (z|s)  &  13 $\rightarrow$ 12\\
+c:tex-14 & (z|x)  &  (z|x)  &   \\
+c:tex-15 & (z|y)  &  (z|y)  &   \\
+c:tex-16 & (z|z)  &  (z|z)  &   \\
+c:tex-\end{tabular}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -452,7 +461,8 @@ c 16.   (z|z)      (z|z)
       implicit none
 c:tex-\begin{verbatim}
       integer num_blocks        ! [input] num. blocks to transform
-      double precision block(16,num_blocks) ! [input/output] block
+      double precision block(16,num_blocks) ! [input/output] 
+c . . . . . . . . . . . . . . . . . . . . . ! integral block
 c:tex-\end{verbatim}
 c
       double precision temp
@@ -471,9 +481,9 @@ c
 00100 continue
       end
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_1spa}
+c:tex-\subsection{int\_1spa}
 c:tex-This routine transforms integrals from the way they
-c:tex-were computed $(s|X)$, $(p|X)$,, to $(sp|X)$.
+c:tex-were computed $(s|X)$, $(p|X)$, to $(sp|X)$.
 c:tex-The transformation is {\bf NOT} done in place:
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -512,9 +522,9 @@ c
 00100 continue
       end
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_sp1b}
+c:tex-\subsection{int\_sp1b}
 c:tex-This routine transforms integrals from the way they
-c:tex-were computed $(X|s)$, $(X|p)$,, to $(X|sp)$.
+c:tex-were computed $(X|s)$, $(X|p)$, to $(X|sp)$.
 c:tex-The transformation is {\bf NOT} done in place:
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

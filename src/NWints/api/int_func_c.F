@@ -1,7 +1,7 @@
-c $Id: int_func_c.F,v 1.2 1997-04-25 00:40:51 d3e129 Exp $
+c $Id: int_func_c.F,v 1.3 1997-05-29 00:36:07 d3e129 Exp $
 *
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_nospherical\_check}
+c:tex-\subsection{int\_nospherical\_check}
 c:tex-This routine stubs out routines that are not ready for 
 c:tex-spherical basis functions by forcing an error condition.
 c:tex-
@@ -36,7 +36,7 @@ c
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_nogencont\_check}
+c:tex-\subsection{int\_nogencont\_check}
 c:tex-This routine stubs out routines that are not ready for 
 c:tex-general contraction basis functions by forcing an error 
 c:tex-condition.
@@ -73,7 +73,7 @@ c
       endif
       end
 c:tex-% this is an internal API routine
-c:tex-\subsubsection{int\_nospshell\_check}
+c:tex-\subsection{int\_nospshell\_check}
 c:tex-This routine stubs out routines that are not ready for 
 c:tex-sp shells type basis functions by forcing an error 
 c:tex-condition.

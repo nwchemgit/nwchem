@@ -1,12 +1,12 @@
-c $Id: int_1cg.F,v 1.7 1997-04-25 00:40:36 d3e129 Exp $
+c $Id: int_1cg.F,v 1.8 1997-05-29 00:35:57 d3e129 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
-c:tex-\subsubsection{int\_1cg}
+c:tex-\subsection{int\_1cg}
 c:tex-This routine computes the integral of the one center gaussian.
-c:tex-\[
-c:tex-({\mu} = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})dr_{1}
-c:tex-\]
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})dr_{1}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

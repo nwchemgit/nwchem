@@ -1,0 +1,7 @@
+*:tex-begin
+\section{INT-API: Initialization, Integral Accuracy and Termination}
+These routines set the scope for the integral computation that is
+about to be performed. 
+%
+
+*:tex-end

@@ -1,11 +1,12 @@
-c $Id: int_2e3c.F,v 1.13 1997-04-25 00:40:46 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.14 1997-05-29 00:36:02 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
-c:tex-\subsubsection{int\_2e3c}
+c:tex-\subsection{int\_2e3c}
 c:tex-this routine computes the 3 center 2 electron integrals: 
-c:tex-\[
-c:tex-({\mu}|{\nu}{\lamda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}g_{\nu}(X_{\nu},r_{2}g_{\lamda}(X_{\lamda},r_{2})dr_{1}dr_{2}
-c:tex-\]
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}|{\nu}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X_{\mu},r_{1})\frac{1}{r_{12}}
+c:tex-g_{\nu}(X_{\nu},r_{2}g_{\lambda}(X_{\lambda},r_{2})dr_{1}dr_{2}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -53,7 +54,7 @@ c:tex-\begin{verbatim}
       integer lscr  ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] array
       integer leri  ! [input] length of integral array
-      double precision eri(leri) ! [output] 2c2e integrals
+      double precision eri(leri) ! [output] 2e3c integrals
 c:tex-\end{verbatim}
 c:: local
       logical shells_ok

@@ -1,9 +1,10 @@
-c $Id: int_chk_init.F,v 1.2 1996-10-07 16:50:20 d3e129 Exp $
+c $Id: int_chk_init.F,v 1.3 1997-05-29 00:36:07 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
-c:tex-\subsubsection{int\_chk\_init}
+c:tex-\subsection{int\_chk\_init}
 c:tex-This function checks to see that the integral API is initialized.
 c:tex-Returns .true. if initialized and .false. if not.
+c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       logical function int_chk_init(msg)

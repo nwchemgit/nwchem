@@ -3,7 +3,7 @@
 %-----------------------------------------------------------------% 
 %                                                                 %
 %                                                                 %
-%  This latex source file should not be edited.  It is generated  %
+%  This latex source file should NOT be edited.  It is generated  %
 %  automatically from the integral API source code using "seetex" %
 %  modifications required sould be made in the source code which  %
 %  is in the source directory ".../nwchem/src/NWints/api" from    %
@@ -13,6 +13,10 @@
 %                                                                 %
 %-----------------------------------------------------------------% 
 \chapter{Integral Application Programmer's Interface}
+\label{appendix_intapi}
 This appendix describes the interface to all routines for the NWChem
-integral API. 
+integral API. This includes the actual subroutine documentation and
+design specifications.
+
+
 *:tex-end

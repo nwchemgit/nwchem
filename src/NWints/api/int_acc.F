@@ -1,4 +1,4 @@
-C $Id: int_acc.F,v 1.9 1997-05-28 08:17:43 d3e129 Exp $
+C $Id: int_acc.F,v 1.10 1997-05-29 00:36:03 d3e129 Exp $
 *
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_std}
@@ -13,6 +13,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
       double precision val_def
+c:tex-The default ''standard'' value for the integral accuracy is:
 c:tex-\begin{verbatim}
       parameter(val_def = 1.0d-10)
 c:tex-\end{verbatim}
@@ -35,9 +36,15 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+      double precision val_def_high
+c:tex-The default ''high accuracy'' value for the integral API is:
 c:tex-\begin{verbatim}
-      val_int_acc = 1.0d-20
+      parameter (val_def_high = 1.0d-20)
 c:tex-\end{verbatim}
+c:tex-This is needed for certain algorithms within NWChem, e.g., 
+c:tex-the Schwarz inequality screening.
+c:tex-
+      val_int_acc = val_def_high
       call int_sp_acc(val_int_acc)
       call texas_set_accy(val_int_acc)
       end
