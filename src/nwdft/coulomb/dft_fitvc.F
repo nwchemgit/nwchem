@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.32 2001-06-13 01:31:21 edo Exp $
+c     $Id: dft_fitvc.F,v 1.33 2001-11-22 02:00:06 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -21,7 +21,7 @@ c
 #endif
 c
       integer nmat    ! number of J matrices to make [input]
-      integer g_vc(nmat)     ! GA handles for V Coulomb [output]
+      integer g_vc     ! GA handle for V Coulomb [output]
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
@@ -142,7 +142,7 @@ c
       Nao2 = nbf_ao_mxnbf_cn**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0)
-      if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2))
+      if(.not.MA_Push_Get(MT_Dbl,nmat*Nao2,'isvec2',lsvec2,isvec2))
      &  call errquit('dft_fitvc: cannot allocate isvec2',0)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
@@ -155,9 +155,7 @@ c      nERI    = Nao2*nbf_cd_mxnbf_cn
      &  call errquit('dft_fitvc: cannot allocate scr',0)
 c
       if (do_init) then
-         do imat = 1, nmat
-            call ga_zero(g_vc(imat))
-         enddo
+            call ga_zero(g_vc)
       endif
 c
       if(.not.incore)then
@@ -253,12 +251,15 @@ c
 c           
 c             Scatter the computed values of Vcoul.
 c           
-              do imat = 1, nmat
+              if(dermat) then
+                 call errquit('fitvc: not coded yet',0)
+              else
                  call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &                nshbfc,nshbfd,g_vc(imat),
-     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+     &                nshbfc,nshbfd,g_vc,
+!old     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+     &                DBL_MB(isvec),dbl_mb(isvec2),
      .                'put')
-              enddo
+              endif
 c
             endif
 c            
@@ -419,12 +420,17 @@ c
 c
 c             Scatter the computed values of Vcoul.
 c           
-              do imat = 1, nmat
-                 call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &                nshbfc,nshbfd,g_vc(imat),
-     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+              if(dermat) then
+                 call sca_lab_mat3d(AO_bas_han,ishc,ishd,
+     &                nshbfc,nshbfd,g_vc,nmat,
+     &                DBL_MB(isvec),dbl_mb(isvec2),
      .                'put')
-              enddo
+              else
+                    call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &                   nshbfc,nshbfd,g_vc,
+     &                   DBL_MB(isvec),dbl_mb(isvec2),
+     .                   'put')
+              endif
             endif
 c            
 c            call util_flush(LuOut)
