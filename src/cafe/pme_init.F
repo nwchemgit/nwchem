@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.12 2000-02-18 07:02:31 d3j191 Exp $
+c $Id: pme_init.F,v 1.13 2000-05-12 17:25:44 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -101,7 +101,8 @@ c
 c
 c     test the fft
 c
-      call pme_fftest(dbl_mb(i_grd1),dbl_mb(i_grd2),int_mb(i_nodp))
+      if(lpnode)
+     + call pme_fftest(dbl_mb(i_grd1),dbl_mb(i_grd2),int_mb(i_nodp))
 c
       call pme_coeff(dbl_mb(i_bmod),dbl_mb(i_barr))
 c
