@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.50 2000-05-16 17:11:15 d3j191 Exp $
+c $Id: sp_main.F,v 1.51 2000-06-09 17:18:32 d3j191 Exp $
 c
       implicit none
 c
@@ -2621,7 +2621,7 @@ c
 c
 c     resizing boxes in x-dimension
 c
-      if(npx.gt.1) then
+      if(npx.gt.1.and.isload.eq.0) then
       do 7 ibx=nbx,2,-1
       boxsiz(ibx,1)=boxsiz(ibx,1)-boxsiz(ibx-1,1)
     7 continue
@@ -2647,7 +2647,7 @@ c
 c
 c     resizing boxes in y-dimension
 c
-      if(npy.gt.1) then
+      if(npy.gt.1.and.isload.eq.0) then
       do 10 iby=nby,2,-1
       boxsiz(iby,2)=boxsiz(iby,2)-boxsiz(iby-1,2)
    10 continue

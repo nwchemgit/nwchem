@@ -4,10 +4,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct,mbbi,nseri)
+     + ldbg,idbg,prjct,mbbi,nseri,isld)
 c
 c
-c $Id: sp_init.F,v 1.72 2000-06-08 22:01:42 d3j191 Exp $
+c $Id: sp_init.F,v 1.73 2000-06-09 17:18:31 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
       integer itemp(2)
-      integer npxi,npyi,npzi,nbxi,nbyi,nbzi
+      integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri
       logical lpol,lfre,ignore,lpbc,lqd
@@ -42,6 +42,7 @@ c
 c
       lfnsyn=lsyn
       nfsync=nsyn
+      isload=isld
 c
       rshort=rsht
       rlong=max(rsht,rlng)
@@ -272,9 +273,6 @@ c
       close(unit=lfnrst,status='keep')
 c
       bsize=max(rshort,half*rlong,rbox)
-      bxmin=bsize
-      bymin=bsize
-      bzmin=bsize
 c
       if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
@@ -285,6 +283,12 @@ c
       if(nby.eq.0) nby=1
       if(nbz.eq.0) nbz=1
 c
+      bsize=
+     + min(bsize,box(1)/dble(nbx),box(2)/dble(nby),box(3)/dble(nbz))
+c
+      bxmin=bsize
+      bymin=bsize
+      bzmin=bsize
       if(nbx.lt.npx) then
       i=npx/nbx
       if(mod(npx,nbx).gt.0) i=i+1
@@ -1115,7 +1119,7 @@ c
     2 continue
     1 continue
 c
-      if(idebug.eq.1) then
+      if(idebug.gt.0) then
       write(lfndbg,8003) nbx,nby,nbz,maxbox
  8003 format('ibownr in sp_initip',4i5)
       write(lfndbg,8004) (ibownr(ibx,1),ibx=1,nbx)
@@ -1124,7 +1128,8 @@ c
  8005 format('ibownr y',/,(20i5))
       write(lfndbg,8006) (ibownr(ibz,3),ibz=1,nbz)
  8006 format('ibownr z',/,(20i5))
-      write(lfndbg,8002)
+      call util_flush(lfndbg)
+      if(idebug.gt.3) write(lfndbg,8002)
  8002 format('boxlist')
       endif
       nbiown=0
@@ -1136,6 +1141,7 @@ c
       if(idebug.eq.1) then
       write(lfndbg,8001) ibx,iby,ibz,nrbox,nrnod
  8001 format(5i5)
+      call util_flush(lfndbg)
       endif
       if(me.eq.nrnod) then
       nbiown=nbiown+1
@@ -1153,7 +1159,7 @@ c
       call ga_distribution(ga_ip,me,il,ih,jl,jh)
       call ga_put(ga_ip,il,ih,jl,jh,ipl,mbox)
 c
-      if(idebug.eq.1) then
+      if(idebug.eq.3) then
       write(lfndbg,8000) (i,ipl(30+i,1),i=1,ipl(1,1))
  8000 format('ipl',/,(2i5))
       call util_flush(lfndbg)
@@ -1208,11 +1214,12 @@ c
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
       character*255 string
 c
-      if(me.eq.0.and.idebug.gt.0) then
-      write(*,'(a,i6)') 'boxsiz'
-      write(*,'(6f12.6)') (boxsiz(i,1),i=1,nbx)
-      write(*,'(6f12.6)') (boxsiz(i,2),i=1,nby)
-      write(*,'(6f12.6)') (boxsiz(i,3),i=1,nbz)
+      if(idebug.gt.0) then
+      write(lfndbg,'(a,i6)') 'boxsiz in sp_numbb'
+      write(lfndbg,'(6f12.6)') (boxsiz(i,1),i=1,nbx)
+      write(lfndbg,'(6f12.6)') (boxsiz(i,2),i=1,nby)
+      write(lfndbg,'(6f12.6)') (boxsiz(i,3),i=1,nbz)
+      call util_flush(lfndbg)
       endif
 c
 c     determine size of box-box pairlist
@@ -1567,7 +1574,7 @@ c
     7 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
-      if(idebug.eq.1) then
+      if(idebug.gt.2) then
       write(lfndbg,8000) (i,(lbbl(i,j),j=1,3),i=1,nbbl)
  8000 format('lbbl',/,(4i5))
       call util_flush(lfndbg)
