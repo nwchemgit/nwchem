@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.67 1996-03-13 22:22:54 d3g681 Exp $
+# $Id: GNUmakefile,v 1.68 1996-03-14 07:45:51 rg240 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -62,7 +62,7 @@
 		movecs_proj.F fock_2e_b.F rohf.F rohf_nr_sol.F \
 		rohf_precon.F \
 		fock_2e_file.F rohf_fock.F rohf_h2e.F \
-		scf_get_info.F ao_fock_2e.F rohf_diis.F
+		scf_get_info.F ao_fock_2e.F rohf_diis.F movecs_lock.F
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh
 
