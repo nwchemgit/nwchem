@@ -1,93 +1,99 @@
-      Subroutine nbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
-     &                      iniz, ifin, zprim,  acc_gauss)
+      Subroutine nbf_to_mbf(basis_hand,  mbf, mcenters, 
+     &     ctr_quad, rad_quad, xyz,
+     &                  ibf,iniz, ifin, zprim,  acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.12 1999-03-05 06:42:28 edo Exp $
+C$Id: nbf_to_mbf.F,v 1.13 1999-03-13 04:14:37 edo Exp $
 c
       implicit none
 c      
       integer basis_hand
       integer mcenters ! [input]
       double precision acc_gauss ! [input]
+      double precision xyz(3,*) ! [input]
+      integer ctr_quad ! grid center  [input]
       integer mbf  ! [input/output]
+      integer ibf(*) ! [output]
+      double precision rad_quad ! [input]
 c
 #include "bas.fh"
 c
 c     Distance Squared between Sampling Points and Centers
 c
-      double precision rq0(mcenters)
       integer  iniz(mcenters),ifin(mcenters)
       double precision zprim(*)
-      integer ncontrset, n1, icset, ictr, itype, nprimo, ncontr, 
-     &        isphere, ifirst, ilast, nshbf, l, nang, iprimo
-      double precision zmin
+      integer ncontrset, n1, icset, ictr,  nprim, ncontr, 
+     &        isphere,  l, iprimo,npt,nshbf
+      double precision zmin,acc_loc,r2,x,y,z
+      integer n,ic1,ic2,ctr_quad,m
+      double precision alpha,logeps
+      double precision gaussian_range,r_arg
+      gaussian_range(n,logeps,alpha) = 
+     $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
+     $     sqrt(-16.0d0*alpha*logeps)
 c
       if (.not.bas_numcont(basis_hand, ncontrset))
      &   call errquit('Exiting in nbf_to_mbf.',1)
 c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
+      acc_loc=-acc_gauss
 c
       n1 = 0
-c
-      do 400 icset = 1,ncontrset
-         if (.not.bas_cn2ce(basis_hand, icset, ictr))
-     &      call errquit('Exiting in nbf_to_mbf.',2)
+      npt=0
+      do 400 ictr=1,mcenters
+        if (.not.bas_ce2cnr(basis_hand,ictr,ic1,ic2))
+     &       call errquit('Exiting in xc_signf.',11)
+        r2=0d0
+        if (ictr.ne.ctr_quad) then
+          x = xyz(1,ctr_quad) - xyz(1,ictr)
+          y = xyz(2,ctr_quad) - xyz(2,ictr)
+          z = xyz(3,ctr_quad) - xyz(3,ictr)
+          r2 = sqrt(x*x + y*y + z*z)
+        endif
+        r_arg=0d0
+        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
+        do icset = ic1,ic2
 c         
-c        get info about current contraction set
+c       get info about current contraction set
+c       
+          if (.not. bas_continfo(basis_hand, icset,  l ,nprim,
+     &         ncontr, isphere))
+     &         call errquit('Exiting in xc_signf.',4)
 c         
-         if (.not.bas_continfo(basis_hand, icset,
-     &      itype, nprimo, ncontr, isphere))
-     &      call errquit('Exiting in nbf_to_mbf.',3)
-         if (.not. bas_cn2bfr(basis_hand, icset, ifirst, ilast))
-     &      call errquit('Exiting in nbf_to_mbf.',4)
-c
-         nshbf = ilast - ifirst + 1
-c         
-c        angular momentum
-c         
-         if (itype .lt. 0)then
-            call errquit('nbf_to_mbf: sp-type orbital not coded', 5)
-         else 
-            l = itype
-         endif 
-c         
-c        cartesian/spherical harmonic
-c         
-         if (isphere .eq. 0)then !  cartesian set
-            nang = (l+1)*(l+2)/2
-         elseif (isphere .eq. 1)then !  spherical harmonic
-            nang = 2*l+1
-         else 
-            call errquit('nbf_to_mbf: illegal isphere value', 6)
-         endif 
-c         
-c        get exponents and contraction coefficients for this contraction set
-c         
-         if (.not.bas_get_exponent(basis_hand, icset, zprim))
-     &      call errquit('Exiting in nbf_to_mbf.',7)
-c
-c        Determine the minimum Gaussian exponent.
-c
-         zmin = 1.D+06
-         do 300 iprimo = 1,nprimo
-            zmin = min(zprim(iprimo),zmin)
-  300    continue
-c
-c        Only include those basis functions that are "non-zero" for at least one 
-c        point in the sampling set.
-c
-         if (zmin*rq0(ictr).gt.acc_gauss)then
-            go to 400
-         else
-            if (iniz(ictr).eq.0) iniz(ictr)=n1+1
-         endif
-         if(isphere.eq.1) then
-           n1=n1+ncontr*(2*l+1)
-         else
-           n1=n1 + ncontr*(((l+1)*(l+2))/2)
-         endif
-c
-         ifin(ictr)= n1
+c       
+c       get exponents and contraction coefficients for this contraction set
+c       
+        if (.not.bas_get_exponent(basis_hand, icset, zprim))
+     &       call errquit('Exiting in xc_signf.',7)
+c       
+c       Determine the minimum Gaussian exponent.
+c       
+
+        zmin = 1.D+06
+        do iprimo = 1,nprim
+          zmin = min(zprim(iprimo),zmin)
+        enddo
+c       
+c       Only include those basis functions that are "non-zero" for at least 
+c       one  point in the sampling set.
+c       
+          if(isphere.eq.1) then
+            nshbf=ncontr*(2*l+1)
+          else
+            nshbf=ncontr*(((l+1)*(l+2))/2)
+          endif
+        if (r_arg.lt.gaussian_range(l,acc_loc,zmin)) then
+          do m=1,nshbf
+            ibf(n1+m ) = npt+m
+          enddo
+          if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+          n1=n1+nshbf
+        endif
+          
+        npt=npt+nshbf
+        enddo
+c           
+        ifin(ictr)= n1
 c
   400 continue
 c
