@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.10 1997-04-25 00:41:07 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.11 1997-06-06 21:07:36 pg481 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -19,6 +19,15 @@ c errquit
 c::functions
       integer int_nint_cart
       external int_nint_cart
+ckw
+      integer int_nint
+      external int_nint
+c
+      logical cando_nw
+      logical cando_txs
+      external cando_nw
+      external cando_txs
+ckw
 c::passed
       integer brain ! [input] basis set handle for bra basis
       integer ish   ! [input] lexical contraction index 
@@ -96,6 +105,16 @@ c::local
       integer jnp, jgen, jexp, jcf, jtype, jatom
       integer knp, kgen, kexp, kcf, ktype, katom
       integer lnp, lgen, lexp, lcf, ltype, latom
+ckw
+      double precision roff(3)
+      integer txs_i, txs_j, txs_k, txs_l
+      logical status_nw, status_txs
+      logical dum_log
+      integer nintzero, num_quart, dummy_lab
+      double precision q4
+      integer momentum
+      integer scr_ptr
+ckw
 c
       logical used_nw
 c
@@ -168,8 +187,51 @@ c... new logic
         return
       endif
 c
-      
-      call hf2d(
+ckw--------
+ckw
+      momentum=iabs(itype)+iabs(jtype)+iabs(ktype)+iabs(ltype)
+      status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
+      if( momentum.lt.4) status_txs =.false.
+      if (lgen.gt.1.or.kgen.gt.1.or.jgen.gt.1.or.igen.gt.1)
+     $     status_txs = .true.
+      status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh) 
+c
+      if (status_txs) then
+         call dfill(3,0.0d00,roff,1)
+         q4 = 1.0d00
+         txs_i = ish
+         txs_j = jsh
+         txs_k = ksh
+         txs_l = lsh
+         num_quart=1
+         dum_log=.false.
+c
+         call texas_hf2_m(
+     &        brain,txs_i,txs_j,
+     &        ketin,txs_k,txs_l,num_quart,
+     &        q4,.false.,
+c...............................use roff set false
+     &        roff,roff,roff,roff,.false.,
+     &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+c...............gen labs .. more_integrals
+     &        nint, .false., dum_log, scr, lscr, 0.0d0,'der1_int')
+         if (nint .eq. 0) then
+            nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+            nintzero = nintzero*12
+            call dfill(nintzero, 0.0d0, eri, 1)
+         endif
+c
+         if (nint*12.gt.lscr) call errquit
+     $        ('intd_2e4c: lscr is too small for texas derivatives',
+     $        911)
+         scr_ptr = lscr - nint*12 - 1 
+         call dcopy((nint*12),eri,1,scr(scr_ptr),1)
+         call intd_texas_grad_switch(nint,eri,scr(scr_ptr))
+         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
+c
+      else if (status_nw) then
+ckw--------
+         call hf2d(
      &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
 c
@@ -184,13 +246,14 @@ c
 c
      &       eri,nint,.false.,.false.,.false.,.false.,
      &       scr,lscr)
-      used_nw = .true.
+         used_nw = .true.
 c
-      call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
+         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
-      if (used_nw) call intd_2ec2s(eri,nint,scr,lscr,
-     &    itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
-     &    bas_spherical(bra),bas_spherical(ket),idatom)
+         if (used_nw) call intd_2ec2s(eri,nint,scr,lscr,
+     &       itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &       bas_spherical(bra),bas_spherical(ket),idatom)
+      endif
 c
       end
       subroutine intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
@@ -372,3 +435,43 @@ c** scalar  (in place)
       enddo
 #endif
       end
+c=====================================================
+      subroutine intd_texas_grad_switch(nint,eri,scr)
+      implicit none
+      integer nint
+      double precision eri(nint,3,4)
+      double precision scr(12,nint)
+c
+      double precision xa, xb, xc, xd
+      double precision ya, yb, yc, yd
+      double precision za, zb, zc, zd
+      integer i_int
+c
+      do i_int = 1,nint
+         xa = scr(1,i_int)
+         ya = scr(2,i_int)
+         za = scr(3,i_int)
+         xb = scr(4,i_int)
+         yb = scr(5,i_int)
+         zb = scr(6,i_int)
+         xc = scr(7,i_int)
+         yc = scr(8,i_int)
+         zc = scr(9,i_int)
+         xd = scr(10,i_int)
+         yd = scr(11,i_int)
+         zd = scr(12,i_int)
+         eri(i_int,1,1) = xa
+         eri(i_int,2,1) = ya
+         eri(i_int,3,1) = za
+         eri(i_int,1,2) = xb
+         eri(i_int,2,2) = yb
+         eri(i_int,3,2) = zb
+         eri(i_int,1,3) = xc
+         eri(i_int,2,3) = yc
+         eri(i_int,3,3) = zc
+         eri(i_int,1,4) = xd 
+         eri(i_int,2,4) = yd 
+         eri(i_int,3,4) = zd 
+      enddo
+      end
+c=====================================================

@@ -1,4 +1,4 @@
-c $Id: int_l2e4c.F,v 1.19 1997-05-29 23:43:05 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.20 1997-06-06 21:07:33 pg481 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e4c}
@@ -108,7 +108,7 @@ c
      &      roff, roff, roff, roff, dum_log_f,
      &      eri, leri,
      &      ilab, jlab, klab, llab, nint, dum_log_t,
-     &      dum_log_f, scr, lscr, 0.0d0)
+     &      dum_log_f, scr, lscr, 0.0d0,'scfd_int')
 #if defined(INT_LIMIT_CHECK)
         braket = brain.eq.ketin
         allshl = isym2(ish,jsh) .eq. isym2(ksh,lsh)

@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.26 1997-05-29 23:43:00 d3e129 Exp $
+c $Id: cando_sp.F,v 1.27 1997-06-06 21:07:28 pg481 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -376,6 +376,7 @@ c
       endif
       if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
      &    call errquit('int_app_set_no_texas:rtdb_put failed',911)
+      rtdbIused = rtdb
       end
 ***********************************************************************
 c:tex-% part of API application interface

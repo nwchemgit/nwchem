@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.17 1997-05-29 23:43:08 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.18 1997-06-06 21:07:35 pg481 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -126,7 +126,7 @@ c
      $     q4(num_q_start), use_q4,
      $     roff,roff,roff,roff,.false.,
      $     eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
-     $     more_ints_txs, scr, lscr, zerotol)
+     $     more_ints_txs, scr, lscr, zerotol,'scfd_int')
       if (nint.gt.l_erilab) then
          write(luout,*)' number of integrals from texas   :',nint
          write(luout,*)' size of integral and label buffer:',l_erilab

@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.10 1997-05-28 08:17:45 d3e129 Exp $
+c $Id: intd_init.F,v 1.11 1997-06-06 21:07:36 pg481 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -21,6 +21,7 @@ c
 #include "bas.fh"
 #include "apiP.fh"
 #include "rtdb.fh"
+#include "candoP.fh"
 #include "int_nbf.fh"
 c::functions
       logical spcart_init
@@ -37,7 +38,11 @@ c::local
       integer ibas, ang2use, angm
       logical status
       integer intd_memtmp
+      integer nqmax_texas  ! maximum number of quartets in texas blocking interface
+      parameter (nqmax_texas = 10000)
+      integer txs_mem_min
       integer type
+      logical cando_txs_deriv
 c
 *      call int_init(nbas,bases)
 c
@@ -52,10 +57,6 @@ c
         write(6,*)' intd_init already called '
         call util_flush(6)
       endif
-      status = .true.
-      do 00100 ibas=1,nbas
-        status = status .and. bas_check_handle(bases(ibas),'intd_init')
-00100 continue
 c
 c initialize type-> nbf maps
 c
@@ -66,6 +67,71 @@ c
         int_nbf_s(type) = 2*type+1
       enddo
 c
+cTEMPORARY WORKAROUND check for derivative flag intd:cando_txs
+c
+      cando_txs_deriv = .true.
+      if (rtdb_get(rtdb,'intd:cando_txs',MT_LOG,1,status))
+     $     cando_txs_deriv = status
+      if (.not.cando_txs_deriv) then
+         call int_app_set_no_texas(rtdb)
+      endif
+c
+c initialize cando information from rtdb
+c
+      user_cando_sp   = .false.
+      user_cando_nw   = .false.
+      user_cando_txs  = .false.
+      def_cando_sp    = .false.
+      def_cando_nw    = .false.
+      def_cando_txs   = .false.
+c
+      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
+        user_cando_sp = .true.
+        def_cando_sp  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_sp set to always be ',def_cando_sp
+          call util_flush(6)
+        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_nw',MT_LOG,1,status)) then
+        user_cando_nw = .true.
+        def_cando_nw  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_nw set to always be ',def_cando_nw
+          call util_flush(6)
+        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
+        user_cando_txs = .true.
+        def_cando_txs  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_txs set to always be ',def_cando_txs
+          call util_flush(6)
+        endif
+      endif
+* sanity checking: e.g., you only want to turn off a particular integral
+* code never always turn it on.
+*
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+        if (ga_nodeid().eq.0) then
+          write(6,*)' you are trying to turn an integral code on?? '
+          write(6,*)' sp  ', def_cando_sp
+          write(6,*)' nw  ', def_cando_nw
+          write(6,*)' txs ', def_cando_txs
+          call util_flush(6)
+        endif
+        call errquit
+     &      ('int_init: logic error with user cando settings',911)
+      endif
+      status = .true.
+      do 00100 ibas=1,nbas
+        status = status .and. bas_check_handle(bases(ibas),'intd_init')
+00100 continue
       if (.not.status) then
         write(6,*)' at least one basis handle not valid'
         do 00200 ibas = 1,nbas
@@ -111,6 +177,10 @@ c
       call exactd_mem(rtdb,bases,nbas)
       call sp_der_init(nbas,bases)
       call int_acc_std()
+      if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
+         call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
+     &        'der1_int')
+      endif
 c
 c See if any basis has an attached ECP
 c

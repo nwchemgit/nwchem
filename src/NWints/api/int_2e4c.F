@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.29 1997-05-29 00:36:02 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.30 1997-06-06 21:07:32 pg481 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -197,7 +197,7 @@ c............................... use roff set false
      &        roff,roff,roff,roff,.false.,
      &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c............... gen labs .. more_integrals
-     &        nint, .false., dum_log, scr, lscr, 0.0d0)
+     &        nint, .false., dum_log, scr, lscr, 0.0d0,'scfd_int')
         if (nint .eq. 0) then
            a_nbf = sf_ibs_cn2bfr(2,ish,bra) - sf_ibs_cn2bfr(1,ish,bra)+1
            b_nbf = sf_ibs_cn2bfr(2,jsh,bra) - sf_ibs_cn2bfr(1,jsh,bra)+1

@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.32 1997-05-28 08:17:44 d3e129 Exp $
+c $Id: int_init.F,v 1.33 1997-06-06 21:07:32 pg481 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -168,7 +168,8 @@ c
 * def u=f d=f -> f.and.!f -> f -> e = t
 * no txs u=t d=f -> t.and.!f -> t -> e = f
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
-        call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min)
+        call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
+     *                  'scfd_int')
       endif
 c
 c See if any basis has an attached ECP

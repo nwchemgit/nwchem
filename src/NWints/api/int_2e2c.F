@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.14 1997-05-29 00:36:01 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.15 1997-06-06 21:07:29 pg481 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -167,7 +167,7 @@ c
      &      ketin,txs_j,txs_d2,num_quart,
      &      q4,.false.,roff,roff,roff,roff,.false.,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
-     &      nint, .false., dum_log, scr, lscr, 0.0d0)
+     &      nint, .false., dum_log, scr, lscr, 0.0d0,'scfd_int')
 
 #endif
 c

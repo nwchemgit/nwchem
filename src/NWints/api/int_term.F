@@ -10,7 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.8 1997-05-28 08:17:45 d3e129 Exp $
+c $Id: int_term.F,v 1.9 1997-06-06 21:07:34 pg481 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -77,6 +77,7 @@ c:tex-No formal arguments
 c:tex-
       implicit none
 #include "apiP.fh"
+#include "candoP.fh"
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
@@ -96,6 +97,11 @@ c
       if (.not.spcart_terminate()) then
         call errquit('int_terminate: spcart_terminate failed',0)
       endif
+c
+      if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
+        call texas_terminate()
+      endif
+      call int_app_unset_no_texas(rtdbIused)
 c
       if (any_ecp) then
         call int_ecp_terminate()
