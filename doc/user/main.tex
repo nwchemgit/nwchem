@@ -1,0 +1,138 @@
+% $Id: main.tex,v 1.1 2000-06-20 01:11:22 edo Exp $
+
+\setlength{\parskip}{6pt}
+
+% Set the version and year of release globally
+\newcommand{\nwchemversion}{4.0}
+\newcommand{\nwchemyear}{2000}
+\newcommand{\nwchemmonth}{July}
+
+\newcommand{\angstroms}{Angstr{\o}ms}
+
+\begin{document}
+\input{titlepage}
+
+\chapter*{\center DISCLAIMER}
+\input{disclaimer}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+\chapter{Introduction}
+\input{intro.tex}
+
+\chapter{Getting Started}
+\input{getstart.tex}
+
+\chapter{NWChem Architecture}
+\input{nwarch.tex}
+
+\chapter{Functionality}
+\input{functionality.tex}
+
+\chapter{Top-level directives}
+\input{top-level}
+
+\chapter{Geometries}
+\input{geometry}
+
+\chapter{Basis sets}
+\input{basis}
+
+\chapter{Effective Core Potentials}
+\input{ecp}
+
+\chapter{Relativistic All-electron Approximations}
+\input{rel.tex}
+
+\chapter{Hartree-Fock or Self-consistent Field} 
+\input{scf}
+
+\chapter{DFT for Molecules (DFT)}
+\input{dft.tex}
+
+\chapter{Spin-Orbit DFT (SODFT)}
+\input{sodft.tex}
+
+\chapter{DFT for Periodic Systems (GAPSS)}
+\input{gapss.tex}
+
+\chapter{MP2}
+\input{mp2}
+
+\chapter{Multiconfiguration SCF}
+\input{mcscf.tex}
+
+\chapter{Selected CI}
+\input{selci.tex}
+
+\chapter{Coupled Cluster Calculations}
+\input{ccsd.tex}
+
+%\chapter{Four-Index Transformation}
+%\input{fourindex}
+
+%%\chapter{Plane-wave periodic DFT}
+%%\input{plnwv.tex}
+
+\chapter{Geometry Optimization with DRIVER}
+\input{driver}
+
+\chapter{Geometry Optimization with STEPPER}
+\input{stepper}
+
+\chapter{Vibrational frequencies}
+\input{vib}
+
+\chapter{DPLOT}
+\input{dplot.tex}
+
+\chapter{Properties}
+\input{property.tex}
+
+\chapter{Electrostatic potentials}
+\input{esp.tex}
+
+\chapter{Prepare}
+\input{prepare.tex}
+
+\chapter{Molecular dynamics}
+\input{nwmd.tex}
+
+\chapter{Analysis}
+\input{analysis.tex}
+
+\chapter{Combined quantum and molecular mechanics}
+\input{qmmm}
+
+\chapter{File formats}
+\input{fileformats.tex}
+
+\chapter{Pseudopotential Plane-Wave DFT (PSPW)}
+\input{pspw.tex}
+
+\chapter{Controlling NWChem with Python}
+\input{python.tex}
+
+\clearpage
+\chapter{Acknowledgments}
+\input{ack}
+\clearpage
+
+\appendix
+
+\chapter{Standard Basis Sets}
+\input{knownbas}
+
+\chapter{Sample input files}
+\input{sample}
+
+\chapter{Examples of geometries using symmetry}
+\input{symex}
+
+\chapter{Running NWChem}
+\input{execution}
+\end{document}

@@ -1,0 +1,21 @@
+% $Id: userpdf.tex,v 1.1 2000-06-20 01:11:22 edo Exp $
+\input{top}
+
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+\else
+ \pdfoutput=1
+  \pdftrue
+\fi
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{times,mathptm}
+\pdfcompresslevel=8
+\else
+\usepackage[dvips]{graphicx}
+\fi
+
+\input{main}
+

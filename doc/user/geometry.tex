@@ -452,10 +452,10 @@ and angles.
 
 \begin{figure}[htbp]
 \centering
-\ifpdf
-\includegraphics[angle=0,width=6in]{zmat1.pdf}
-\else
+\ifx\pdfoutput\undefined
 \includegraphics[angle=270,width=6in]{zmat1.eps}
+\else
+\includegraphics[angle=0,width=6in]{zmat1.pdf}
 \fi
 \caption{\label{fig:zmat1} Relationships between the centers, bond angle
 and dihedral angle in Z-matrix input.}
@@ -463,10 +463,10 @@ and dihedral angle in Z-matrix input.}
 
 \begin{figure}[htbp]
 \centering
-\ifpdf
-\includegraphics[angle=270,width=6in]{zmat2.pdf}
-\else
+\ifx\pdfoutput\undefined
 \includegraphics[angle=270,width=6in]{zmat2.eps}
+\else
+\includegraphics[angle=270,width=6in]{zmat2.pdf}
 \fi
 
 \caption{\label{fig:zmat2} Relationships between the centers and two
@@ -475,10 +475,10 @@ and dihedral angle in Z-matrix input.}
 
 \begin{figure}[htbp]
 \centering
-\ifpdf
-\includegraphics[angle=270,width=6in]{zmat3.pdf}
-\else
+\ifx\pdfoutput\undefined
 \includegraphics[angle=270,width=6in]{zmat3.eps}
+\else
+\includegraphics[angle=270,width=6in]{zmat3.pdf}
 \fi
 
 \caption{\label{fig:zmat3} Relationships between the centers and two
