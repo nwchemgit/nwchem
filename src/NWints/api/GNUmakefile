@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.83 2003-01-30 01:09:20 bert Exp $
+# $Id: GNUmakefile,v 1.84 2004-07-21 16:13:46 bert Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -32,7 +32,10 @@ endif
           intpd_1epe.o   intpd_2e2c.o   intpd_2e3c.o \
           intpd_2e3ct.o  intpd_mpolel.o \
           intso_1e.o     intd_1eso.o \
-          int_1epvpe.o   int_1epxvpe.o  int_vstat1e.o intdd_1eecp1.o
+          int_1epvpe.o   int_1epxvpe.o  int_vstat1e.o intdd_1eecp1.o \
+          int_1eelec.o \
+          int_giaoh01.o  int_giaoh11.o  int_giaol10.o int_giaos10.o \
+          int_giaotv10.o int_giao_2e.o  
 
     OBJ_OPTIMIZE = int_hf1sp.o int_l2e4c.o intb_init4c.o intb_2e4c.o \
                    int_2e4c.o

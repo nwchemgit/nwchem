@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.65 2003-10-17 22:53:42 carlfahl Exp $
+c $Id: int_init.F,v 1.66 2004-07-21 16:13:46 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -360,7 +360,7 @@ c
       call exact_mem(rtdb,bases,nbas)
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
-      call hnd_init()
+      call hnd_init(bases,nbas)
       call int_acc_std()
 * def u=f d=f -> f.and.!f -> f -> e = t
 * no txs u=t d=f -> t.and.!f -> t -> e = f

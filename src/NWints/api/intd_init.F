@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.30 2003-10-21 23:22:24 edo Exp $
+c $Id: intd_init.F,v 1.31 2004-07-21 16:13:46 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -357,7 +357,7 @@ c
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der1_int')
       endif
-      call hnd_initd()
+      call hnd_initd(bases,nbas)
 c
 c See if any basis has an attached ECP
 c
