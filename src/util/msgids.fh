@@ -92,6 +92,8 @@ c
       integer mrg_i05
       integer mrg_i06
       integer mrg_i07
+      integer mrg_i08
+      integer mrg_i09
 c
       integer mrg_t01
 c
@@ -300,6 +302,8 @@ c
       parameter (mrg_i05=msg_ftn_base-145) ! arg_param2
       parameter (mrg_i06=msg_ftn_base-146) ! arg_setup1
       parameter (mrg_i07=msg_ftn_base-147) ! arg_wrtinp
+      parameter (mrg_i08=msg_ftn_base-148) ! arg_timing
+      parameter (mrg_i09=msg_ftn_base-149) ! arg_timing
 c
       parameter (mrg_t01=msg_ftn_base-168) ! arg_diag
 c

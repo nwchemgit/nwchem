@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.60 1996-09-19 01:26:02 d3g681 Exp $
+# $Id: GNUmakefile,v 1.61 1996-09-27 16:52:34 d3j191 Exp $
 
 include ../config/makefile.h
 
@@ -28,7 +28,7 @@ ifeq ($(TARGET),IBM)
 endif
 
 ifeq ($(TARGET),LINUX)
-  EXTRA_OBJ = linux_cpu.o
+  EXTRA_OBJ = linux_cpu.o linux_shift.o
 endif
 
 ifeq ($(TARGET),KSR)
@@ -106,23 +106,23 @@ testsolve:      testsolve.o $(LIBRARY_PATH)
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(util_file_name.o):	./util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ./msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cfileprefix.fh 
+$(LIBRARY_PATH)(ga_it_orth.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(util_rtdb_speak.o):	./util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(ga_it_lsolve.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(util_print.o):	$(INCDIR)/rtdb.fh ./printlevels.fh ./printcommon.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(util_legal.o):	./stdio.fh 
-$(LIBRARY_PATH)(util_pack.o):	$(INCDIR)/mafdecls.fh ./bitops.fh 
-$(LIBRARY_PATH)(util_ch_brd.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(util_pname.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(util_pack.o):	$(INCDIR)/mafdecls.fh ./bitops.fh 
+$(LIBRARY_PATH)(util_legal.o):	./stdio.fh 
+$(LIBRARY_PATH)(util_file_name.o):	./util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ./msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cfileprefix.fh 
+$(LIBRARY_PATH)(util_ch_brd.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(two_ind_trn.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(testsolve.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(errquit.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(seq_output.o):	$(INCDIR)/tcgmsg.fh ./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(print_center.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(errquit.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(mk_fit_xf.o):	./stdio.fh ./numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(line_search.o):	./util.fh 
 $(LIBRARY_PATH)(int_2c_ga.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(ga_trace_dg.o):	./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_screen.o):	./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_ran_fill.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
@@ -135,6 +135,6 @@ $(LIBRARY_PATH)(ga_matpow.o):	./util.fh ./stdio.fh ./numerical_constants.fh $(IN
 $(LIBRARY_PATH)(ga_mat2col.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_iter_diag.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_it_proj.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cproject.fh 
-$(LIBRARY_PATH)(ga_it_orth.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(ga_it_lsolve.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_get_diag.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(error.o):	$(INCDIR)/errorP.h 
