@@ -1,11 +1,11 @@
-C $Id: ecp_int1.F,v 1.6 1997-10-03 01:41:32 mg201 Exp $
+C $Id: ecp_int1.F,v 1.7 1998-04-01 17:54:53 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
      &    R_AC,X_AC,Y_AC,Z_AC,l_a,n_prim_a,n_cont_a,coef_a,zeta_a,
      &    R_BC,X_BC,Y_BC,Z_BC,l_b,n_prim_b,n_cont_b,coef_b,zeta_b,
-     &    l_ecp_max,n_prim_c,n_coef_c,
-     &    ind_z,ind_c,n_z_tot,n_c_tot,n_cent,
+     &    l_ecp,n_prim_c,n_coef_c,
+     &    ind_z,ind_c,n_z_tot,n_c_tot,l_ecp_max,n_cent,
      &    zeta_c,coef_c,p_min,p_max,tol,sphcart,tmp,l_tmp,
      &    csco,lcsco,
      &    ecp_ints,n_int,n_blk,transpose,ibug)
@@ -73,9 +73,9 @@ C $Id: ecp_int1.F,v 1.6 1997-10-03 01:41:32 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer l_a,n_prim_a,n_cont_a,l_b,n_prim_b,n_cont_b,l_ecp_max,
-     &    n_z_tot,n_c_tot,n_cent,l_tmp,n_int,p_min,p_max,sphcart,
-     &    mem_max,ibug
+      integer l_a,n_prim_a,n_cont_a,l_b,n_prim_b,n_cont_b,l_ecp,
+     &    l_ecp_max,n_z_tot,n_c_tot,n_cent,l_tmp,n_int,p_min,p_max,
+     &    sphcart,mem_max,ibug
       integer n_coef_c(-1:l_ecp_max,n_cent,2),
      &    n_prim_c(p_min:p_max,-1:l_ecp_max,n_cent,2),
      &    ind_z(-1:l_ecp_max,n_cent,2),ind_c(-1:l_ecp_max,n_cent,2)
@@ -102,21 +102,21 @@ C $Id: ecp_int1.F,v 1.6 1997-10-03 01:41:32 mg201 Exp $
       debug_arrays = mod(ibug,10)/2 .eq. 1
 *
       if (DryRun) mem_max = 0
-      if ((sphcart .ne. 0) .and. (l_b .gt. l_ecp_max)) return
+      if ((sphcart .ne. 0) .and. (l_b .gt. l_ecp)) return
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_int1 ...'
       if (debug_gen) write (LuOut,*) 'ibug =',ibug
       if (debug_addresses) then
-        write (LuOut,*) p_min,p_max,l_ecp_max
+        write (LuOut,*) p_min,p_max,l_ecp
         write (LuOut,*) ((n_prim_c(i,k,1,1),i = p_min,p_max),
-     &      k = -1,l_ecp_max)
+     &      k = -1,l_ecp)
       end if
 *
 *   Allocate memory for ecp-independent quantities
 *
       n_na = (l_a+1)*(l_a+2)/2
       n_all_a = n_na*(l_a+3)/3
-      l_sa = l_ecp_max+l_a
+      l_sa = l_ecp+l_a
       n_nsa = (l_sa+1)**2
       n_ta = (l_sa+1)*(l_sa+2)/2
       n_nb = (l_b+1)*(l_b+2)/2
@@ -170,7 +170,7 @@ C $Id: ecp_int1.F,v 1.6 1997-10-03 01:41:32 mg201 Exp $
 *
       if (sphcart .eq. 0) then
         l_c_min = mod(l_b,2)
-        l_c_max = l_b-2*(max(l_b-l_ecp_max+1,0)/2)
+        l_c_max = l_b-2*(max(l_b-l_ecp+1,0)/2)
       else
         l_c_min = l_b
         l_c_max = l_b

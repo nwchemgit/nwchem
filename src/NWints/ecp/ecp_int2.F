@@ -1,11 +1,11 @@
-C $Id: ecp_int2.F,v 1.7 1997-10-07 18:37:08 d3j191 Exp $
+C $Id: ecp_int2.F,v 1.8 1998-04-01 17:54:54 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
      &    R_AC,X_AC,Y_AC,Z_AC,l_a,n_prim_a,n_cont_a,coef_a,zeta_a,
      &    R_BC,X_BC,Y_BC,Z_BC,l_b,n_prim_b,n_cont_b,coef_b,zeta_b,
-     &    l_ecp_max,n_prim_c,n_coef_c,
-     &    ind_z,ind_c,n_z_tot,n_c_tot,n_cent,
+     &    l_ecp,n_prim_c,n_coef_c,
+     &    ind_z,ind_c,n_z_tot,n_c_tot,l_ecp_max,n_cent,
      &    zeta_c,coef_c,p_min,p_max,tol,sphcart,tmp,ltmp,
      &    csco,lcsco,
      &    ecp_ints,n_ints,n_blk,ibug)
@@ -77,8 +77,8 @@ C $Id: ecp_int2.F,v 1.7 1997-10-07 18:37:08 d3j191 Exp $
      &    i_a,i_b,i_c,i_d,i_k,i_t,i_x,i_y,i_z,i_int_a,i_int_b,i_coef,
      &    i_off,i_Q_int,i_Qh,i_Q,i_Qabc,i_gam,i_bet,i_alp,i_pre,i_tmp,
      &    i_Qa,i_Qb,i_Qab,i_ang_a,i_ang_b,i_ang,i_wa,i_wb,k_a,k_b,
-     &    l_a,l_sa,l_b,l_sb,l_c,l_max,l_min,l_cut,l_ecp_max,lam_a,lam_b,
-     &    la_min,lb_min,m_count,mt_max,mt_min,mem_max,
+     &    l_a,l_sa,l_b,l_sb,l_c,l_max,l_min,l_cut,l_ecp,l_ecp_max,lam_a,
+     &    lam_b,la_min,lb_min,m_count,mt_max,mt_min,mem_max,
      &    n_na,n_all_a,n_nsa,n_ta,n_nb,n_all_b,n_nsb,n_tb,
      &    n_ab,n_abc,nc_ab,ncab,n_rad,n_Q,n_row,n_ang_a,n_ang_b,
      &    n_l,n_l_c,n_lam_a,n_lam_b,ltmp,n_ints,n_c_tot,n_z_tot,n_blk,
@@ -114,10 +114,10 @@ C $Id: ecp_int2.F,v 1.7 1997-10-07 18:37:08 d3j191 Exp $
       n_all_a = n_na*(l_a+3)/3
       n_nb = (l_b+1)*(l_b+2)/2
       n_all_b = n_nb*(l_b+3)/3
-      l_sa = l_ecp_max+l_a
+      l_sa = l_ecp+l_a
       n_nsa = (l_sa+1)**2
       n_ta = (l_sa+1)*(l_sa+2)/2
-      l_sb = l_ecp_max+l_b
+      l_sb = l_ecp+l_b
       n_nsb = (l_sb+1)**2
       n_tb = (l_sb+1)*(l_sb+2)/2
 *
@@ -188,7 +188,7 @@ C $Id: ecp_int2.F,v 1.7 1997-10-07 18:37:08 d3j191 Exp $
 *
 *     Loop over ECP angular momentum projectors
 *
-      do l_c = 0,l_ecp_max
+      do l_c = 0,l_ecp
 *
 *     Define parameters for the different integral class cases
 *
