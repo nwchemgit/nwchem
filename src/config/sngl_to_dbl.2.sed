@@ -22,6 +22,7 @@ s/^\(     .\)[Ss][Pp][Oo][Tt][Rr][Ii]\([^A-Za-z0-9_]\)/\1dpotri\2/
 s/^\(     .\)[Ss][Ll][Aa][Ss][Ee][Tt]\([^A-Za-z0-9_]\)/\1dlaset\2/
 s/^\(     .\)[Ss][Ll][Aa][Mm][Cc][Hh]\([^A-Za-z0-9_]\)/\1dlamch\2/
 s/^\(     .\)[Ss][Ss][Yy][Ee][Vv]\([^A-Za-z0-9_]\)/\1dsyev\2/
+s/^\(     .\)[Ss][Ss][Yy][Gg][Vv]\([^A-Za-z0-9_]\)/\1dsygv\2/
 
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]$/\1daxpy/
 s/^\(     .\)[Ss][Dd][Oo][Tt]$/\1ddot/
@@ -47,6 +48,7 @@ s/^\(     .\)[Ss][Pp][Oo][Tt][Rr][Ii]$/\1dpotri/
 s/^\(     .\)[Ss][Ll][Aa][Ss][Ee][Tt]$/\1dlaset/
 s/^\(     .\)[Ss][Ll][Aa][Mm][Cc][Hh]$/\1dlamch/
 s/^\(     .\)[Ss][Ss][Yy][Ee][Vv]$/\1dsyev/
+s/^\(     .\)[Ss][Ss][Yy][Gg][Vv]$/\1dsygv/
 
 
 
