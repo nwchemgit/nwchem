@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.125 1995-11-08 21:37:22 rg240 Exp $
+# $Id: makefile.h,v 1.126 1995-11-13 06:39:53 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -127,7 +127,8 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #              arguments.  Simply use the correct path to GNU make on the 
 #              command line and all will work just dandy.
 #  MAKEFLAGS = options to GNU make ... -j controls no. of threads used
-#              for parallel builds. -s says be quiet about changing directory.
+#              for parallel builds. --no-print-directory says be quiet about
+#              changing directory.
 #    INSTALL = command to install an executable when it is built
 #    
 # C/FOPTIONS = essential compiler options independent of optimization level
@@ -140,6 +141,11 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #              C/FDEBUG and C/FOPTIMIZE can be overridden on the command 
 #              line to change the optimization level for routines normally 
 #              compiled with them.
+#
+#  EXPLICITF = undefined if the Fortran compiler runs .F files thru .f
+#              Otherwise set it to anything and define FCONVERT to be a 
+#              command to make $< (which will be a .F file) into $*.f
+#   FCONVERT = command to convert a .F into a .f 
 #
 #  LDOPTIONS = additional options to be passed to the linker (LDFLAGS is
 #              built from this and the library path info).  LDOPTIONS is
@@ -177,7 +183,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 # for some machines
 
       SHELL = /bin/sh
-    ARFLAGS = ru
+    ARFLAGS = r
      FDEBUG = -g
      CDEBUG = -g
 
@@ -195,7 +201,7 @@ ifeq ($(TARGET),SUN)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = ranlib
-  MAKEFLAGS = -j1
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
    FOPTIONS = -Nl199 -fast -dalign
@@ -207,8 +213,6 @@ ifeq ($(TARGET),SUN)
     DEFINES = -DSUN
 
        CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
-
-  EXPLICITF = FALSE
 endif
 
 
@@ -217,8 +221,8 @@ ifeq ($(TARGET),CRAY-T3D)
 # CRAY-T3D cross-compiled on YMP (atw)
 #
    CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
-               RANLIB = @echo
-            MAKEFLAGS = -j 2
+               RANLIB = echo
+            MAKEFLAGS = -j 2 --no-print-directory
               INSTALL = @echo $@ is built
         OUTPUT_OPTION = 
 
@@ -251,7 +255,8 @@ ifeq ($(TARGET),CRAY-T3D)
 			-llapack \
 			-lblas
 
-            EXPLICITF = FALSE
+# FCONVERT unused since new compiler does .F -> .f 
+             FCONVERT = $(CPP) $(CPPFLAGS)  $< | sed '/^#/D'  > $*.f
 endif
 
 
@@ -260,8 +265,8 @@ ifeq ($(TARGET),KSR)
 # KSR running OSF
 #
     CORE_SUBDIRS_EXTRA = blas
-     RANLIB = @echo
-  MAKEFLAGS = -j20
+     RANLIB = echo
+  MAKEFLAGS = -j 10 --no-print-directory
     INSTALL = @echo $@ is built
 
    FOPTIONS = -r8
@@ -275,8 +280,6 @@ ifeq ($(TARGET),KSR)
      LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
-
-  EXPLICITF = FALSE
 endif
 
 ifeq ($(TARGET),PARAGON)
@@ -289,9 +292,9 @@ ifeq ($(TARGET),PARAGON)
          FC = if77
          CC = icc
          AR = ar860
-     RANLIB = @echo
+     RANLIB = echo
 
-  MAKEFLAGS = -j4 
+  MAKEFLAGS = -j 4  --no-print-directory
     INSTALL = @echo $@ is built
 
   FOPTIONS = -Knoieee
@@ -317,8 +320,6 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
        CORE_LIBS = -lglobal -lutil \
 	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
               -lkmath -nx
-
-  EXPLICITF = FALSE
 endif
 
 ifeq ($(TARGET),DELTA)
@@ -331,10 +332,10 @@ ifeq ($(TARGET),DELTA)
         CC = icc
        CPP = /usr/lib/cpp
         AR = ar860
-    RANLIB = @echo
+    RANLIB = echo
 
    INSTALL = "strip860 $(BINDIR)/nwchem; rcp $(BINDIR)/nwchem delta1:"
- MAKEFLAGS = -j2 
+ MAKEFLAGS = -j 2  --no-print-directory
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
@@ -346,8 +347,6 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
       LIBPATH += -L/home/delilah11/gifann/lib
       CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta -ltcgmsg \
 	$(LIBDIR)/liblapack.a -llapack -lblas -node
-
- EXPLICITF = FALSE
 endif
 
 
@@ -364,7 +363,7 @@ ifeq ($(TARGET),SGITFP)
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
-  MAKEFLAGS = -j 4
+  MAKEFLAGS = -j 4 --no-print-directory
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
@@ -375,8 +374,6 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
   CORE_LIBS = -lguess -lutil -lglobal -ltcgmsg -llapack -lblas
-
-  EXPLICITF = FALSE
 endif
 
 
@@ -393,7 +390,7 @@ ifeq ($(TARGET),SGI)
      RANLIB = echo
 
     INSTALL = @echo nwchem is built
-  MAKEFLAGS = -j 4
+  MAKEFLAGS = -j 4 --no-print-directory
 
   FOPTIONS = -mips2
   COPTIONS = -mips2 -fullwarn
@@ -402,8 +399,6 @@ ifeq ($(TARGET),SGI)
 
     DEFINES = -DSGI 
        CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lmalloc 
-
-  EXPLICITF = FALSE
 endif
 
 ifeq ($(TARGET),IBM)
@@ -416,7 +411,7 @@ ifeq ($(TARGET),IBM)
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j2
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -460,6 +455,7 @@ ifdef MPI
 endif
 
  EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -472,7 +468,7 @@ ifeq ($(TARGET),SP1)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -514,6 +510,7 @@ endif
 
 
  EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -532,7 +529,7 @@ ifeq ($(TARGET),DECOSF)
                 RANLIB = echo
 
                INSTALL = @echo nwchem is built
-             MAKEFLAGS = -j 1
+             MAKEFLAGS = -j 1 --no-print-directory
 
               FOPTIONS = -i8
               COPTIONS = 
@@ -541,8 +538,6 @@ ifeq ($(TARGET),DECOSF)
 
                DEFINES = -DDECOSF -DLongInteger
              CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
-
-            EXPLICITF = FALSE
 endif
 
 
@@ -555,9 +550,8 @@ ifeq ($(TARGET),LINUX)
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
-        CPP = gcc -E -nostdinc -undef -P
      RANLIB = ranlib
-  MAKEFLAGS = -j1
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
 
    FOPTIONS = 
@@ -571,7 +565,11 @@ ifeq ($(TARGET),LINUX)
      LINK.f = gcc $(LDFLAGS)
   CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lf2c -lm
 
+        CPP = gcc -E -nostdinc -undef -P
   EXPLICITF = TRUE
+   FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
+			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
+			/bin/rm -f /tmp/$$$$.c) || exit 1
 endif
 
 ###################################################################
@@ -603,7 +601,7 @@ MKDIR = mkdir
 .SUFFIXES:	
 .SUFFIXES:	.o .s .F .f .c
 
-ifeq ($(EXPLICITF),TRUE)
+ifdef EXPLICITF
 #
 # Needed on machines where FCC does not preprocess .F files
 # with CPP to get .f files
@@ -612,34 +610,12 @@ ifeq ($(EXPLICITF),TRUE)
 .SUFFIXES:	.o .s .F .f .c
 
 .F.o:	
-	$(MAKE) $*.f
+	@echo Converting $*.F '->' $*.f
+	@$(FCONVERT)
 	$(FC) -c $(FFLAGS) $*.f
-	$(RM) $*.f
+	@$(RM) $*.f
 
 .F.f:
-ifeq ($(TARGET),IBM)
-	$(CPP) $(CPPFLAGS) $*.F > $*.f
-EXFDEF = YES
-endif
-ifeq ($(TARGET),SP1)
-	$(CPP) $(CPPFLAGS) $*.F > $*.f
-EXFDEF = YES
-endif
-ifeq ($(TARGET),CRAY-T3D)
-	$(CPP) $(CPPFLAGS)   $*.F | sed '/^#/D'  > $*.f
-EXFDEF = YES
-endif
-ifeq ($(TARGET),LINUX)
-	(/bin/cp $*.F /tmp/$$$$.c; \
-		$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
-			/bin/rm -f /tmp/$$$$.c) || exit 1
-EXFDEF = YES
-endif
-ifndef EXFDEF
-	$(CPP) $(CPPFLAGS) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
-endif
-
-
-.c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
+	@echo Converting $*.F '->' $*.f
+	@$(FCONVERT)
 endif

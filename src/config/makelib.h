@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.20 1995-11-03 20:41:45 d3g681 Exp $
+# $Id: makelib.h,v 1.21 1995-11-13 06:39:55 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -45,6 +45,8 @@
 # C)  The makelib.h defines the macro LIBRARY_PATH to be the full
 #     path of the library being built.
 #
+# D)  The objectfiles are now deleted
+#
 #
 # Sample makefile
 # ---------------
@@ -71,13 +73,22 @@
 #
 # We use here the default dependency chain (%.o) <- %.o <- %.c/F/...
 # However, the default rule for this inserts each .o into the
-# library separately which does not work in parallel.  Hence,
-# modify the default rule to do nothing but keep the dependency.
-# The rule where we usually just do ranlib is also used to build the 
-# archive from the objects.  The dependency on the OBJECTS is thus
-# also needed since the (%.o): %.o rule no longer puts the .o file
-# into the library.
+# library separately which does not work in parallel.  
+# So we modify the (%o) <- %.o %.c %.F %.f rules so that they do
+# not insert directly into the archive.  Putting them in one at
+# a time with explicit locking is possible but slow and error 
+# prone.
 #
+# The definition of C/FFLAGS in makefile.h changes if the variable
+# OPTIMIZE is defined.  Without it C/FDEBUG are used.  With it
+# C/FOPTIMIZE are used.  To compile the files from OBJ_OPTIMIZE
+# with optimization the rule below simply does a make in this
+# directory with OPTIMIZE set.  The ifndef OPTIMIZE is to eliminate
+# the infinite loop.  The ifdef OBJ_OPTIMIZE is to eliminate the
+# empty rule if there are no files to optimize.  We don't want to
+# ranlib twice so we also modify the default (%.o) rule so that
+# it touches .doranlib if a ranlib is necessary.
+# 
 ####################################################################
 
 LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
@@ -86,41 +97,68 @@ LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
 
 OBJECTS := $(OBJ) $(OBJ_OPTIMIZE)
 
- LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJECTS))
-
-$(LIBRARY_PATH):   include_stamp $(LIBOBJ) $(OBJECTS)
-ifneq ($(strip $(OBJECTS)),)
-	$(AR) $(ARFLAGS) $@ $(OBJECTS)
-	$(RANLIB) $@
+ifndef OPTIMIZE
+ifdef OBJ_OPTIMIZE
+ OPT_TARGET = optimized
+else
+ OPT_TARGET = 
 endif
+
+ LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ))
+$(LIBRARY_PATH):	update_archive include_stamp $(LIBOBJ) $(OPT_TARGET)
+	@$(MAKE) update_archive
+
+ifdef OBJ_OPTIMIZE
+.phony:	optimized
+optimized:	
+	@$(MAKE) OPTIMIZE=Yes
+endif
+
+else
+
+  LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ_OPTIMIZE))
+$(LIBRARY_PATH):	$(LIBOBJ)
+	
+# Previous line must contain tab for empty command
+endif
+
+# This puts any floating object files into the library and then
+# deletes them. The .notthere is just in case there are no objects
+# to be made in a top level directory.
+
+.phony:	update_archive
+update_archive:	
+	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
+	  if [ "$$list" ] ; then \
+		echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
+		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>1 | \
+				grep -v truncated ; \
+		/bin/rm -f $$list ; \
+		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
+	  fi; )
+
+# Explicit rules to avoid infinite recursion, to get dependencies, and
+# for efficiency
+
+(%.o):	%.F
+ifdef EXPLICITF
+	@echo Converting $< '->' $*.f
+	@$(FCONVERT)
+	$(FC) -c $(FFLAGS) -o $% $*.f
+	/bin/rm -f $*.f
+else
+	$(FC) -c $(FFLAGS) $(CPPFLAGS) $<
+endif
+
+(%.o):	%.f
+	$(FC) -c $(FFLAGS) -o $% $<
+
+(%.o):	%.c
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $% $<
 
 (%.o):  %.o
 	
-# Need a tab on the preceding line to make an empty rule
-
-####################################################################
-# 
-# The definition of C/FFLAGS in makefile.h changes if the variable
-# OPTIMIZE is defined.  Without it C/FDEBUG are used.  With it
-# C/FOPTIMIZE are used.  To compile the files from OBJ_OPTIMIZE
-# with optimization the rule below simply does a make in this
-# directory with OPTIMIZE set.  The ifndef OPTIMIZE is to eliminate
-# the infinite loop.  The ifdef OBJ_OPTIMIZE is to eliminate the
-# empty rule if there are no files to optimize.
-# 
-####################################################################
-
-
-ifdef OBJ_OPTIMIZE
-ifndef OPTIMIZE
-$(OBJ_OPTIMIZE):	optimized
-	
-# Need a tab on the preceding line to make an empty rule
-.PHONY:	optimized
-optimized:
-	@$(MAKE) OPTIMIZE="Yes" $(OBJ_OPTIMIZE)
-endif
-endif
+# Preceding line has a tab to make an empty rule
 
 ####################################################################
 #
@@ -130,7 +168,9 @@ endif
 ####################################################################
 
 
-MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)	 -C $$dir $@ || exit 1 ; done
+MAKESUBDIRS = @for dir in $(SUBDIRS); do \
+			echo Making $@ in $$dir; \
+			$(MAKE)	-C $$dir $@ || exit 1 ; done
 
 ifdef SUBDIRS
 
@@ -138,7 +178,8 @@ $(LIBRARY_PATH):	subdirs
 
 .PHONY:	subdirs
 subdirs:        
-	for dir in $(SUBDIRS); do \
+	@for dir in $(SUBDIRS); do \
+		echo Making all in $$dir; \
 		$(MAKE)	 -C $$dir || exit 1 ;  \
         done
 endif
@@ -208,7 +249,7 @@ cleanF:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	for file in *F; do \
+	@for file in *F; do \
 		body=`basename $$file .F` ; \
 		if [ -f $$body.f ] ; then \
 		  echo $$file and $$body.f both exist ... deleting $$body.f; \
@@ -219,7 +260,7 @@ endif
 
 
 .PHONY:	realclean
-realclean:	clean
+realclean:	clean	cleanF
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif

@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.28 1995-11-03 20:40:54 d3g681 Exp $
+# $Id: GNUmakefile,v 1.29 1995-11-13 06:39:40 d3g681 Exp $
 
 include config/makefile.h
 
@@ -54,7 +54,7 @@ clean:
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
-realclean:
+realclean:	cleanF
 	-$(RM) nwchem core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
@@ -65,10 +65,11 @@ realclean:
 
 .PHONY:	cleanF
 cleanF:
-	for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) ../tests; do \
+		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir cleanF || exit 1 ;  \
 	done
-	for file in *F; do \
+	@for file in *F; do \
 		body=`basename $$file .F` ; \
 		if [ -f $$body.f ] ; then \
 		  echo $$file and $$body.f both exist ... deleting $$body.f; \
