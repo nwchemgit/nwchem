@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.5 2000-05-31 19:53:12 windus Exp $
+C $Id: hess_cphf.F,v 1.6 2000-05-31 20:29:35 edo Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -331,12 +331,12 @@ c
       ij = 0
       do jnd = 1, nc
         do ind = 1, nc
-          ij = ij + 1
           dbl_mb(k_exy+ij) = 
      $      ga_ddot_patch(g_rhs(ind),'N',1,nocc,1,nocc,
      $                    g_aa(jnd), 'N',1,nocc,1,nocc) +
      $      ga_ddot_patch(g_rhs(jnd),'N',1,nocc,1,nocc,
      $                    g_aa(ind), 'N',1,nocc,1,nocc)
+          ij = ij + 1
         enddo
       enddo
       write(6,*) 'k_exy after Ta*AA sum ',k_exy
