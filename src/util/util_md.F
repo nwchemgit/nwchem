@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.29 2000-09-16 02:26:45 d3j191 Exp $
+c $Id: util_md.F,v 1.30 2000-10-20 02:39:44 d3j191 Exp $
 c
       implicit none
 c
@@ -285,7 +285,7 @@ c
       open(unit=lfn,file='colors.inc',form='formatted',status='new',
      + err=99)
       write(lfn,2000)
- 2000 format('#declare Colors_Inc_Temp = version',/,'#version 2.0')
+ 2000 format('#declare Colors_Inc_Temp = version ;',/,'#version 2.0 ;')
       write(lfn,2001) 'Gray05',0.05,0.05,0.05
       write(lfn,2001) 'Gray05',0.05,0.05,0.05
       write(lfn,2001) 'Gray10',0.10,0.10,0.10
@@ -414,14 +414,14 @@ c
       write(lfn,2001) 'Scarlet',0.55,0.09,0.09
       write(lfn,2002) 'Clear',1.0,1.0,1.0,1.0
  2001 format('#declare ',a,' = color red ',f8.6,' green ',f8.6,
-     + ' blue ',f8.6)
+     + ' blue ',f8.6,' ;')
  2002 format('#declare ',a,' = color red ',f8.6,' green ',f8.6,
-     + ' blue ',f8.6,' filter ',f8.6)
+     + ' blue ',f8.6,' filter ',f8.6,' ;')
       write(lfn,2003)
- 2003 format('#declare Plane_Map = 0',/,'#declare Sphere_Map = 1',/,
-     + '#declare Cylinder_Map = 2',/,'#declare Torus_Map = 5',/,
-     + '#declare Bi   = 2 ',/,'#declare Norm = 4',/,
-     + '#version Colors_Inc_Temp')
+ 2003 format('#declare Plane_Map = 0 ;',/,'#declare Sphere_Map = 1 ;',/,
+     + '#declare Cylinder_Map = 2 ;',/,'#declare Torus_Map = 5 ;',/,
+     + '#declare Bi   = 2 ;',/,'#declare Norm = 4 ;',/,
+     + '#version Colors_Inc_Temp ;')
       close(unit=lfn)
 c
    99 continue
