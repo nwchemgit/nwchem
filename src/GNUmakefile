@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.13 1994-09-22 21:35:02 d3g681 Exp $
+# $Id: GNUmakefile,v 1.14 1994-10-11 19:35:06 d3g681 Exp $
 
 include config/makefile.h
 
@@ -10,6 +10,7 @@ include config/makefile.h
 # the entire world
 #
 
+.PRECIOUS:	nwchem
 nwchem:	libraries
 	$(MAKE) nwchem.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
