@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.81 1998-07-04 06:30:54 gutowski Exp $
+C     $Id: geom_input.F,v 1.82 1998-07-28 21:16:35 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -26,12 +26,14 @@ c
       integer nzinput
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
+      double precision threquiv ! Threshold for autosym atom equivalence
+c     .                           and for forcing symmetry
       parameter (max_center = 500)
       double precision coords(3,max_center)
       double precision charge(max_center), mass(max_center)
       character*16 tags(max_center)
       character*2 symbol
-      character*16 element
+      character*16 element, groupname
       logical osymmetry
       logical old_format_input, is_atom
       logical found_ang2au_conv
@@ -88,6 +90,7 @@ c
       ocenter = .true.
       oforce_autoz = .false.
       nzinput=0
+      threquiv = 1d-4
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
@@ -112,6 +115,7 @@ c
             oautoz       = .false.
          else if (inp_compare(.false.,'autosym',field)) then
             oautosym     = .true.  
+            status = inp_f(threquiv)
          else if (inp_compare(.false.,'noautosym',field)) then
             oautosym     = .false.
          else if (inp_compare(.false.,'center', field)) then
@@ -296,7 +300,24 @@ c
 c     
       if (.not. geom_masses_set(geom, ncenter, mass))
      &     call errquit('geom_input: geom_masses_set failed', 0)
-c     
+c
+      if(oautosym) then
+c
+c     ----- detect symmetry -----
+c
+         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_get failed', 0)
+         call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
+     $        threquiv,groupname)
+         if (geom_group_set(geom,groupname)) then
+            if (.not.geom_cart_set(geom, ncenter, tags, coords, charge))
+     $           call errquit('geom_input: geom_cart_set failed', 0)
+         else
+            write(6,*) ' autosym detected uknown group ', groupname
+            call errquit('geom_input: autosym: invalid group',0)
+         endif
+      endif
+c
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
@@ -315,7 +336,7 @@ c
 c     
 c     Force exact symetry on the coordinates
 c     
-      call sym_geom_project(geom, 1d-3)
+      call sym_geom_project(geom, threquiv)
 c     
 c     geom_compute_values is called in the very end of 
 c     sym_geom_project. Current call of geom_compute_values 
@@ -340,15 +361,6 @@ c
          call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
       endif
 c
-      if(oautosym) then
-         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_get failed', 0)
-c
-c     ----- detect symmetry -----
-c
-         call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter)
-      endif
-c     
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
@@ -9067,7 +9079,8 @@ c
      &    1x,' which is larger than the threshold:',6x,f20.13,/,/)
       end
       subroutine  geom_auto_sym(rtdb,geom,
-     1                          coords,charge,tags,ncenter)
+     1                          coords,charge,tags,ncenter,threquiv,
+     $     group)
       implicit none
 #include "stdio.fh"
       integer      rtdb
@@ -9083,13 +9096,15 @@ c
       logical      odone
       logical      dbug 
       logical      some 
+      double precision threquiv
       double precision coords
       double precision charge
       double precision c
       double precision zan
       character*16 tags
       character*16 atmlab
-      character*8  errmsg
+      character*8  errmsg,groupname
+      character*(*) group
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom)
@@ -9136,7 +9151,15 @@ c
 c
 c     ----- call auto_sym -----
 c
-      call hnd_autsym(odone,rtdb)
+      call hnd_autsym(odone,rtdb,threquiv,groupname)
+c
+      group = groupname
+c
+      do i=1,ncenter
+         coords(1,i)=c(1,i)
+         coords(2,i)=c(2,i)
+         coords(3,i)=c(3,i)
+      enddo
 c
       if(.not.odone) then
          write(iw,9996)
@@ -9149,13 +9172,13 @@ c
  9996 format(' -autsym- has failed to detect a symmetry group.',/,
      1  ' program will continue without changing symmetry data.')
       end
-      SUBROUTINE HND_AUTSYM(ODONE,RTDB)
+      SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INTEGER     RTDB
       LOGICAL     ODONE
       PARAMETER   (MXATOM=500)
       PARAMETER   (MXSYM =120)
-      CHARACTER*8 ERRMSG
+      CHARACTER*8 ERRMSG,groupname
       CHARACTER*1 XYZNAM
       CHARACTER*1 ABCNAM
       LOGICAL     SOME
@@ -9182,7 +9205,7 @@ C
       DBUG=.FALSE.
       OUT =.FALSE. 
       OUT =OUT.OR.DBUG
-      SOME=.TRUE.  
+      SOME=.FALSE.  
       SOME=SOME.OR.OUT
 C
       NT=1
@@ -9217,7 +9240,8 @@ C
 C
 C     ----- IDENTIFY SYMMETRY OPERATIONS -----
 C
-      CALL HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE)
+      CALL HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,THREQUIV,
+     $     groupname)
 C
 C     ----- CREATE ATOM AND SHELL MAPPINGS -----
 C
@@ -9234,6 +9258,12 @@ C
 C     ----- SYMMETRIZE CARTESIAN COORDINATES -----
 C
       CALL HND_SYMATM
+c
+      do i = 1, nat
+         c(1,i) = c3(1,i)
+         c(2,i) = c3(2,i)
+         c(3,i) = c3(3,i)
+      enddo
 C
       RETURN
  9999 FORMAT(/,1X,'PRINCIPAL AXES OF INERTIA',/,1X,25(1H-))
@@ -9243,16 +9273,20 @@ C
      2       /,10X,7(1H-))
  9996 FORMAT(/)
       END
-      SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE)                 
+      SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
+     $     THREQUIV,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     ----- ROUTINE DETECTS MOLECULAR SYMMETRY OPERATIONS -----
 C           CODE ADAPTED FROM A.M.CHAKA's ORIGINAL CODE.
+c
+c     RJH ... added parameter THREQUIV to provide user control
+c     .       for noisy geometries, and groupname to return value
 C
       LOGICAL     ODONE
       PARAMETER   (MXORDR=24)
       PARAMETER   (MXATOM=500)
-      CHARACTER*8 ERRMSG
+      CHARACTER*8 ERRMSG,groupname
       LOGICAL     MUCH
       LOGICAL     DBUG
       LOGICAL     OUT
@@ -9333,6 +9367,8 @@ C
          PI=    FOUR*ATAN(ONE)
       TWOPI=TWO*FOUR*ATAN(ONE)
       DEGREE=360.00D+00/TWOPI
+c
+****      THREQUIV = TENM04
 C
       MUCH=.FALSE.
       DBUG=.FALSE. 
@@ -9341,7 +9377,7 @@ C
       OUT =OUT.OR.DBUG
       SOME=.FALSE.
       SOME=SOME.OR.OUT
-      ONLY=.TRUE.
+      ONLY=.FALSE.
       ONLY=ONLY.OR.SOME
 C
 C     ----- INERTIA AXES AND DATA -----
@@ -9408,9 +9444,9 @@ C
                   DX=C1(1,IAT)+C1(1,JAT)
                   DY=C1(2,IAT)+C1(2,JAT)
                   DZ=C1(3,IAT)+C1(3,JAT)
-                  INVERS=(ABS(DX).LT.TENM04).AND.
-     1                   (ABS(DY).LT.TENM04).AND.
-     2                   (ABS(DZ).LT.TENM04)
+                  INVERS=(ABS(DX).LT.THREQUIV).AND.
+     1                   (ABS(DY).LT.THREQUIV).AND.
+     2                   (ABS(DZ).LT.THREQUIV)
                   IF(DBUG) THEN
                      WRITE(IW,*) ' IAT,JAT,INVERS = ',
      1                             IAT,JAT,INVERS,DX,DY,DZ
@@ -9440,12 +9476,12 @@ C
             IF(IEQU(IAT).EQ.IAT) THEN
                DUM=C1(1,IAT)**2+C1(2,IAT)**2+C1(3,IAT)**2
                DISTI=SQRT(DUM)
-               IF(DISTI.GT.TENM04) THEN
+               IF(DISTI.GT.THREQUIV) THEN
                   DO JAT=1,NAT
                      IF(NUC(JAT).EQ.NUC(IAT).AND.JAT.NE.IAT) THEN
                         DUM=C1(1,JAT)**2+C1(2,JAT)**2+C1(3,JAT)**2
                         DISTJ=SQRT(DUM)
-                        IF(ABS(DISTJ-DISTI).LT.TENM04) THEN
+                        IF(ABS(DISTJ-DISTI).LT.THREQUIV) THEN
                            IEQU(JAT)=IAT
                         ENDIF
                      ENDIF
@@ -9535,9 +9571,9 @@ C
                                  D1=C2(IAXIS,IIAT)-C2(IAXIS,JJAT)                  
                                  D2=C2(JAXIS,IIAT)+C2(JAXIS,JJAT)                  
                                  D3=C2(KAXIS,IIAT)+C2(KAXIS,JJAT)                  
-                                 C2ROT=(ABS(D1).LT.TENM04).AND.
-     1                                 (ABS(D2).LT.TENM04).AND.
-     2                                 (ABS(D3).LT.TENM04)
+                                 C2ROT=(ABS(D1).LT.THREQUIV).AND.
+     1                                 (ABS(D2).LT.THREQUIV).AND.
+     2                                 (ABS(D3).LT.THREQUIV)
                                  IF(C2ROT) JJC2=JJAT
                               ENDIF
                            ENDDO
@@ -9548,9 +9584,9 @@ C
                                  D1=C2(IAXIS,IIAT)-C2(IAXIS,JJAT)
                                  D2=C2(JAXIS,IIAT)-C2(KAXIS,JJAT)
                                  D3=C2(KAXIS,IIAT)+C2(JAXIS,JJAT)
-                                 C4ROT=(ABS(D1).LT.TENM04).AND.
-     1                                 (ABS(D2).LT.TENM04).AND.
-     2                                 (ABS(D3).LT.TENM04)
+                                 C4ROT=(ABS(D1).LT.THREQUIV).AND.
+     1                                 (ABS(D2).LT.THREQUIV).AND.
+     2                                 (ABS(D3).LT.THREQUIV)
                                  IF(C4ROT) JJC4=JJAT
                               ENDIF
                            ENDDO
@@ -9561,9 +9597,9 @@ C
                                  D1=C2(IAXIS,IIAT)+C2(IAXIS,JJAT)
                                  D2=C2(JAXIS,IIAT)-C2(KAXIS,JJAT)
                                  D3=C2(KAXIS,IIAT)+C2(JAXIS,JJAT)
-                                 S4ROT=(ABS(D1).LT.TENM04).AND.
-     1                                 (ABS(D2).LT.TENM04).AND.
-     2                                 (ABS(D3).LT.TENM04)
+                                 S4ROT=(ABS(D1).LT.THREQUIV).AND.
+     1                                 (ABS(D2).LT.THREQUIV).AND.
+     2                                 (ABS(D3).LT.THREQUIV)
                                  IF(S4ROT) JJS4=JJAT
                               ENDIF
                            ENDDO
@@ -9846,8 +9882,8 @@ C
                   QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
                   DD=ABS(QDUMI-QDUMJ)
                   DZ=C2(K,IAT)-C2(K,JAT)
-                  PRPAXS=(ABS(DD).LT.TENM04).AND.
-     1                   (ABS(DZ).LT.TENM04)
+                  PRPAXS=(ABS(DD).LT.THREQUIV).AND.
+     1                   (ABS(DZ).LT.THREQUIV)
                   IF(DBUG) THEN
                      WRITE(IW,*) ' IAT,JAT,PRPAXS = ',
      1                             IAT,JAT,PRPAXS,RR,DD,DZ
@@ -9874,8 +9910,8 @@ C
                   QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
                   DD=ABS(QDUMI-QDUMJ)
                   DZ=C2(K,IAT)+C2(K,JAT)
-                  IMPAXS=(ABS(DD).LT.TENM04).AND.
-     1                   (ABS(DZ).LT.TENM04)
+                  IMPAXS=(ABS(DD).LT.THREQUIV).AND.
+     1                   (ABS(DZ).LT.THREQUIV)
                   IF(DBUG) THEN
                      WRITE(IW,*) ' IAT,JAT,IMPAXS = ',
      1                             IAT,JAT,IMPAXS,RR,DD,DZ
@@ -10080,9 +10116,9 @@ C
                DX=C3(1,IAT)+C3(1,JAT)
                DY=C3(2,IAT)+C3(2,JAT)
                DZ=C3(3,IAT)+C3(3,JAT)
-               INVERS=(ABS(DX).LT.TENM04).AND.
-     1                (ABS(DY).LT.TENM04).AND.
-     2                (ABS(DZ).LT.TENM04)
+               INVERS=(ABS(DX).LT.THREQUIV).AND.
+     1                (ABS(DY).LT.THREQUIV).AND.
+     2                (ABS(DZ).LT.THREQUIV)
                IF(DBUG) THEN
                   WRITE(IW,*) ' IAT,JAT,INVERS = ',
      1                          IAT,JAT,INVERS,DX,DY,DZ
@@ -10108,9 +10144,9 @@ C
                DX=C3(1,IAT)+C3(1,JAT)
                DY=C3(2,IAT)-C3(2,JAT)
                DZ=C3(3,IAT)-C3(3,JAT)
-               MIRROR=(ABS(DX).LT.TENM04).AND.
-     1                (ABS(DY).LT.TENM04).AND.
-     2                (ABS(DZ).LT.TENM04)
+               MIRROR=(ABS(DX).LT.THREQUIV).AND.
+     1                (ABS(DY).LT.THREQUIV).AND.
+     2                (ABS(DZ).LT.THREQUIV)
                IF(DBUG) THEN
                   WRITE(IW,*) ' IAT,JAT,MIRRYZ = ',
      1                          IAT,JAT,MIRROR,DX,DY,DZ
@@ -10130,9 +10166,9 @@ C
                DX=C3(1,IAT)-C3(1,JAT)
                DY=C3(2,IAT)+C3(2,JAT)
                DZ=C3(3,IAT)-C3(3,JAT)
-               MIRROR=(ABS(DX).LT.TENM04).AND.
-     1                (ABS(DY).LT.TENM04).AND.
-     2                (ABS(DZ).LT.TENM04)
+               MIRROR=(ABS(DX).LT.THREQUIV).AND.
+     1                (ABS(DY).LT.THREQUIV).AND.
+     2                (ABS(DZ).LT.THREQUIV)
                IF(DBUG) THEN
                   WRITE(IW,*) ' IAT,JAT,MIRRZX = ',
      1                          IAT,JAT,MIRROR,DX,DY,DZ
@@ -10152,9 +10188,9 @@ C
                DX=C3(1,IAT)-C3(1,JAT)
                DY=C3(2,IAT)-C3(2,JAT)
                DZ=C3(3,IAT)+C3(3,JAT)
-               MIRROR=(ABS(DX).LT.TENM04).AND.
-     1                (ABS(DY).LT.TENM04).AND.
-     2                (ABS(DZ).LT.TENM04)
+               MIRROR=(ABS(DX).LT.THREQUIV).AND.
+     1                (ABS(DY).LT.THREQUIV).AND.
+     2                (ABS(DZ).LT.THREQUIV)
                IF(DBUG) THEN
                   WRITE(IW,*) ' IAT,JAT,MIRRXY = ',
      1                          IAT,JAT,MIRROR,DX,DY,DZ
@@ -10177,7 +10213,7 @@ C
      2            PROPER(NEWAXS(1)),PROPER(NEWAXS(2)),
      3            PROPER(NEWAXS(3)),
      4            CUBIC,GRPOH,GRPTH,GRPTD,GRPT,GRPO,
-     5            AXORDR(KAXIS),TR,RT,ODONE)
+     5            AXORDR(KAXIS),TR,RT,ODONE,groupname)
 C
       IF(OUT) THEN
          WRITE(IW,9983)
@@ -10231,7 +10267,7 @@ C
      1                     SYMC2X,SYMC2Y,SYMINV,
      2                     PROPRX,PROPRY,PROPRZ,
      3                     CUBIC,GRPOH,GRPTH,GRPTD,GRPT,GRPO,
-     4                     AXORDR,TR,RT,ODONE)
+     4                     AXORDR,TR,RT,ODONE,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       LOGICAL  ODONE
       LOGICAL  DBUG
@@ -10240,7 +10276,7 @@ C
       CHARACTER*8 WRDSYM
       CHARACTER*8 WRDEND
       CHARACTER*8 GRPSAV
-      CHARACTER*8 GROUP
+      CHARACTER*8 GROUP,groupname
       CHARACTER*8 BLANK
       CHARACTER*1 B
       CHARACTER*1 C
@@ -10394,11 +10430,19 @@ C
          ENDIF
       ENDIF
 C
+      if (group(2:2).eq.'N') then
+         groupname = ' '
+         write(groupname,'(a1,i1,a6)') group(1:1),naxis,group(3:8)
+      else
+         groupname = group
+      endif
+c
       IF(SOME) THEN
-         WRITE(IW,9999) GROUP(1:3),NAXIS,
+         WRITE(IW,9999) groupname,
      1                   (TR(I  ),I=1,3),
      2                  ((RT(I,J),J=1,3),I=1,3)
       ENDIF
+c
       IF(PUNCH) THEN
          WRITE(IW,9998) WRDSYM
          WRITE(IW,9997) GROUP(1:3),NAXIS
@@ -10476,11 +10520,12 @@ C
       ODONE=.TRUE.
 C
       RETURN
- 9999 FORMAT(1X,A3,' symmetry detected with -n- = ',I2,/,
-     1       '         molecular frame translation',3F10.5,/,
-     2       '         molecular frame rotation   ',3F10.5,/,
-     3       '                                    ',3F10.5,/,
-     4       '                                    ',3F10.5)
+ 9999 FORMAT(
+     $       ' ',a3,' symmetry detected'/
+     1       ' Molecular frame translation',3F10.5,/,
+     2       ' Molecular frame rotation   ',3F10.5,/,
+     3       '                            ',3F10.5,/,
+     4       '                            ',3F10.5)
  9998 FORMAT(A8)
  9997 FORMAT(1X,A3,2X,I5)
  9996 FORMAT(3F12.8)

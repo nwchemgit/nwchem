@@ -1,11 +1,12 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.25 1998-01-09 15:25:36 d3e129 Exp $
+C$Id: geom.fh,v 1.26 1998-07-28 21:16:34 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
       logical geom_rtdb_delete
       logical geom_create
       logical geom_destroy
+      logical geom_group_set
       logical geom_cart_set
       logical geom_cart_get
       logical geom_cent_get
@@ -78,6 +79,7 @@ c
       external geom_rtdb_delete
       external geom_create
       external geom_destroy
+      external geom_group_set
       external geom_cart_set
       external geom_cart_get
       external geom_cent_get

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.72 1998-05-14 21:17:28 d3e129 Exp $
+C$Id: geom.F,v 1.73 1998-07-28 21:16:33 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -867,6 +867,29 @@ c
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
      $        call errquit('geom_destroy: free of atom map', 0)
       end if
+c
+      end
+      logical function geom_group_set(geom, group)
+      implicit none
+#include "geomP.fh"
+#include "inp.fh"
+c     
+      integer geom              ! [input]
+      character*(*) group       ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      logical status
+c
+      geom_group_set = geom_check_handle(geom, 'geom_group_set')
+      if (.not. geom_group_set) return
+c
+      if (isystype(geom).eq.0) then
+         geom_group_set = inp_match(46,.false.,group,sym_molgnames,
+     $        group_number(geom))
+      else
+         geom_group_set = inp_match(230,.false.,group,sym_spgnames,
+     $        group_number(geom))
+      endif
 c
       end
       logical function geom_cart_set(geom, ncent, t, c, q)
