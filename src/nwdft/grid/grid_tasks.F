@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.17 2000-03-17 22:44:43 edo Exp $
+c$Id: grid_tasks.F,v 1.18 2000-03-18 02:14:59 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,nproc,me,g_buck,g_buckind,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
-     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube
+     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube,ncubenz
 
       logical trunc_neigh
       logical grid_file_open
@@ -106,6 +106,7 @@ c
       call grid_buckinit(g_buck,g_buckind)
 
       nqtotc=0
+      ncubenz=0
       do i_a =1,ncenters
 c
 c     get shells centers on i_a
@@ -184,11 +185,12 @@ c               write(0,*) ' nq in cube ',npts_iqsh,rad_sh
             endif
          endif
  100     continue
-         if(nq_cube.ne.0)write(0,*) ' nq_cube ',nq_cube,rad_write
+c         if(nq_cube.ne.0)write(0,*) ' nq_cube ',nq_cube,rad_write
+         if(nq_cube.ne.0) ncubenz=ncubenz+1
          enddo ! end loop over cubes
       enddo !end loop over atoms
 
-      write(0,*) ' NQTOTC ',nqtotc
+      write(0,*) ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       call grid_buckend(g_buck,g_buckind)
 !      if(.true.) call errquit(' out ',1948)
 c

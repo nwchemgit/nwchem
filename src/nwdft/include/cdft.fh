@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.45 2000-03-17 03:00:27 edo Exp $
+C$Id: cdft.fh,v 1.46 2000-03-18 02:15:02 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -128,11 +128,10 @@ c
 #include "nwc_const.fh"
       integer dft_ntags_bsmx, dft_max_cent
       parameter (dft_ntags_bsmx = 20, dft_max_cent = nw_max_atom)
-      integer mxpt_rect
       integer ncubes_type,ncubesmx
       integer l_nxyz,k_nxyz ! MA handler
       double precision l_rect
-      parameter (mxpt_rect=800,l_rect=4d0)
+      parameter (l_rect=4d0)
       character*10 radgrid
 c
       Common /quad/

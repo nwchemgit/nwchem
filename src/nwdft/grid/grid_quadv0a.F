@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.7 2000-03-17 22:44:43 edo Exp $
+c$Id: grid_quadv0a.F,v 1.8 2000-03-18 02:14:58 edo Exp $
 c
       implicit none
 c
@@ -86,7 +86,7 @@ c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
      $   call errquit('grid_setspac: rewinding gridpts?', 0)
-      if (.not.MA_Push_get(MT_dbl, 4*buffer_size, 
+      if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
       nqpts_per_buf = n_per_rec
@@ -104,7 +104,7 @@ c     Define the current range of radial shells and integration center.
 c     
          call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf))
-         write(0,*) ' nq ',nqpts
+cedo         write(0,*) ' nq ',nqpts
         if(nqpts.eq.0) goto 200
 
 c     
