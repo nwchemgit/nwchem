@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Logical Function Geom_Num_Core(rtdb, Geom, module, NCore)
 *
-* $Id: geom_numcore.F,v 1.6 2003-02-20 01:12:46 mhackler Exp $
+* $Id: geom_numcore.F,v 1.7 2003-02-20 17:22:00 edo Exp $
 *
       Implicit NONE
 C
@@ -33,8 +33,6 @@ C EXTERNAL ROUTINES
       Logical Geom_Check_Handle, Geom_Tag_to_Element
       External Geom_Check_Handle, Geom_Tag_to_Element
 
-      Logical rtdb_get
-      External rtdb_get
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer I, AtNr ! Atomic number
