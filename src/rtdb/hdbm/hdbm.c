@@ -1,12 +1,14 @@
 /*
- $Id: hdbm.c,v 1.6 1999-07-08 19:11:00 d3e129 Exp $
+ $Id: hdbm.c,v 1.7 1999-11-13 03:07:53 bjohnson Exp $
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <memory.h>
 #include <string.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include "hdbm.h"
 
 /* Not defined on the SUN */
@@ -324,22 +326,22 @@ static int hdbm_load(hdbm db, FILE *file)
     char header[32];
     file_entry fe;
     long rec_ptr;
-    
     rewind(file);
     if ((hdbm_fread(header, sizeof(cookie), (size_t) 1, file) != 1) ||
 	(strncmp(header, cookie, strlen(cookie)) != 0)) {
 	(void) fprintf(stderr, "hdbm_load: cookie missing ... not a database\n");
 	return 0;
     }
-    
+
     /* Now simply keep reading until we hit end of file */
     
     rec_ptr = ftell(file);
     while (!hdbm_fseek(file, rec_ptr, SEEK_SET) &&
 	   (hdbm_fread((char *) &fe, sizeof(fe), (size_t) 1, file) == 1)) {
+
 	datum key, value;
 	entry *e;
-	
+
 	if (fe.active) {
 	    if (!datum_fread(file, rec_ptr+sizeof(fe), fe.key_size, &key)) {
 		(void) fprintf(stderr, 
@@ -395,7 +397,7 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
     int i;
     
     *db = -1;			/* Invalid value */
-    
+
     for (i=0; i<MAXHDBM; i++)
 	if (hash_tables[i].active)
 	    if (strcmp(name, hash_tables[i].name) == 0) {
@@ -438,8 +440,8 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
        "w+" will create a new file or truncate an existing file. */
     
     if (use_file) {
-	if (!(hash_tables[i].file = fopen(name, "r+")))
-	    if (!(hash_tables[i].file = fopen(name, "w+"))) {
+	if (!(hash_tables[i].file = fopen(name, "r+b")))
+	    if (!(hash_tables[i].file = fopen(name, "w+b"))) {
 		(void) fprintf(stderr, "hdbm_open: open of %s failed\n", name);
 		return 0;
 	    }
@@ -895,7 +897,7 @@ int hdbm_file_copy(const char *filefrom, const char *fileto)
     datum key, value;
     int available;
     FILE *file;
-    
+
     /* Truncate the to-file to zero length or create it ... this is
        better than unlinking it since it may be a link or a special file */
     
@@ -907,7 +909,7 @@ int hdbm_file_copy(const char *filefrom, const char *fileto)
     (void) fclose(file);
     
     /* Open the databases */
-    
+
     if (!hdbm_open(filefrom, 1, &dbfrom)) {
 	(void) fprintf(stderr,"hdbm_file_copy: failed to open (from) %s\n", 
 		       filefrom);
