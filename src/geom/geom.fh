@@ -1,5 +1,6 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.33 2000-11-04 03:24:33 d3g681 Exp $
+C$Id: geom.fh,v 1.34 2001-01-12 19:38:44 d3g681 Exp $
+      logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -88,6 +89,7 @@ c
       logical geom_print_dihedrals
       logical geom_zmt_put_data
 c
+      external geom_disable_zmatrix
       external geom_zmt_put_data
       external geom_check_handle
       external geom_check_cent

@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.139 2000-12-01 03:36:26 edo Exp $
+C     $Id: geom_input.F,v 1.140 2001-01-12 19:38:44 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -370,6 +370,13 @@ c     all of the information
 c     
  30   continue
 c
+      if (ncenter .eq. 1) then ! Keep atoms as simple as possible
+         oautoz = .false. ! No point for atoms
+         ozmatrix = .false.
+         if (.not. geom_disable_zmatrix(geom)) call errquit
+     $        ('geom_input: disabling zmatrix', 0)
+      end if
+c
       if (.not. geom_systype_get(geom, isys)) call errquit
      $     ('geom_input: systype?', 0)
 c
@@ -476,7 +483,6 @@ c
 c     
       if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_get failed', 0)
-      if (ncenter .eq. 1) oautoz = .false. ! No point for atoms
 c
 c     If doing user zmatrix then remember values of constant variables
 c     so their values can be exactly enforced. 
