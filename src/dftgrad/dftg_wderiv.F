@@ -1,7 +1,7 @@
       Subroutine dftg_wderiv(ictr, nat, nq, iandex, ncenters, func, 
      &                       d_qwght, force, oactive,  nactive)
 *
-* $Id: dftg_wderiv.F,v 1.3 1997-11-04 10:12:17 d3e129 Exp $
+* $Id: dftg_wderiv.F,v 1.4 1998-03-24 22:59:09 d3h449 Exp $
 *
       Implicit none
 c
@@ -30,13 +30,14 @@ c
 c
       do i = 1, ncenters
          iat = iandex(i)
-         if (oactive(iat).and.iat.ne.ictr)then
-            call dgemv('n', 3, nq, 1.d0, d_qwght(1,1,i), 3, 
-     &                 func, 1, 1.d0, force(1,iat), 1)
+         if(iat.ne.ictr)then
+           if (oactive(iat)) 
+     &          call dgemv('n', 3, nq, 1.d0, d_qwght(1,1,i), 3, 
+     &          func, 1, 1.d0, force(1,iat), 1)
+           if (oactive(ictr)) 
+     &          call dgemv('n', 3, nq, -1.d0, d_qwght(1,1,i), 3, 
+     &          func, 1, 1.d0, force(1,ictr), 1)
          endif
-         if (oactive(ictr)) 
-     &      call dgemv('n', 3, nq, -1.d0, d_qwght(1,1,i), 3, 
-     &                 func, 1, 1.d0, force(1,ictr), 1)
       enddo
 c
       return 
