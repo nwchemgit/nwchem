@@ -32,10 +32,6 @@ c>>>
 c     
 
       iproc  = ga_nodeid()
-c     
-c-->  Initialize I/O logical units.
-c     
-      if( iproc.eq.0 ) call stdio_init
 c
 c     Push context down to DFT (copied from scf.F)
 c
@@ -70,12 +66,6 @@ c
 c--> Print memory usage summary.
 c
       if( iproc.eq.0 ) call MA_Summarize_Allocated_Blocks()
-      if( iproc.eq.0 ) call MA_Print_stats()
-c     
-c-->  Clean-up parallel environment.
-c     
-c     call ga_terminate()
-c     call pend
 
       nwdft = .true.
       return
