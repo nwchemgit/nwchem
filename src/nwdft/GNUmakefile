@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1994-10-25 00:17:43 og845 Exp $
+# $Id: GNUmakefile,v 1.3 1994-10-25 23:44:18 og845 Exp $
 
 #   OBJ = nwdft.o
 
@@ -7,7 +7,6 @@
    SUBDIRS = input_dft scf_dft coulomb xc util
 
    HEADERS = \
-      include/AO_basis_set.fh  \
       include/atoms.fh  \
       include/handles.fh \
       include/timer.fh   \
@@ -32,7 +31,6 @@ include ../config/makelib.h
 #
 
 nwdft.o:  \
-      include/AO_basis_set.fh  \
       include/atoms.fh  \
       include/handles.fh \
       include/timer.fh   \
