@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.82 2002-05-03 18:21:28 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.83 2002-05-07 16:50:42 d3j191 Exp $
 c
       implicit none
 c
@@ -61,6 +61,8 @@ c
       real*8 zdist,xr(3,2),boxmax
 c
       integer iskip(3,100),nskip
+c
+      irrep=0
 c
       if(util_print('restart',print_debug)) then
       write(lfnout,1000)
@@ -841,6 +843,7 @@ c
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm,
      + irrep,nxrep,nyrep,nzrep))
      + call errquit('pre_wrtrst failed',9999)
+      irrep=0
       endif
 c
 c     write restart file
