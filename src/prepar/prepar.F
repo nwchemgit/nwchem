@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.30 1999-09-21 22:01:41 d3j191 Exp $
+c $Id: prepar.F,v 1.31 1999-09-21 22:31:33 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -144,7 +144,7 @@ c
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
       if(source.ne.'geometry'.and.source.ne.'pdb'.and.
-     + source(1:1).ne.' ') lfnpdb=source
+     + source(1:1).ne.' ') filpdb=source
       filxyz=sysnam(1:len)//'.xyz '
       filqqq=sysnam(1:len)//'.q '
       filnoe=sysnam(1:len)//'.drs '
