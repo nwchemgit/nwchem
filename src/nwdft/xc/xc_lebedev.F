@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.24 2000-04-21 00:28:47 edo Exp $
+C$Id: xc_lebedev.F,v 1.25 2000-04-21 19:21:30 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -23,7 +23,8 @@ c
       logical oprint
       double precision gjk(2,MAXN), wleb(MAXN), fasf(6), goh(3,3,48)
       integer njk(6,IAC_MAX), ivj(48,6), nvj(6),
-     &        jkv(IAC_MAX+1), nridv(IAC_MAX), itop(3,3,6), isig(3,8)
+     &        jkv(IAC_MAX+1),  itop(3,3,6), isig(3,8)
+cedo      double precision nridv(IAC_MAX)
       double precision fourpi
 C      parameter(fourpi = 4.d0*3.1415926535897932385d0)
 c
@@ -4038,10 +4039,10 @@ c
      &     25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 
      &     37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48/
 c
-      data nridv/38, 50, 74, 86, 110, 146, 170, 194,  
-     .     230, 266, 302, 350, 434, 590, 770, 
-     &     974, 1202, 1454,1730,2030,2354,2702,3074,3470,
-     .     3890,4334,4802,5294,5810/
+cedo      data nridv/38, 50, 74, 86, 110, 146, 170, 194,  
+cedo     .     230, 266, 302, 350, 434, 590, 770, 
+cedo     &     974, 1202, 1454,1730,2030,2354,2702,3074,3470,
+cedo     .     3890,4334,4802,5294,5810/
 c
       if (oprint)write(LuOut,201)
       fourpi=4.0d0*dacos(-1.d0)
