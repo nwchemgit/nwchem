@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.13 2004-12-08 23:57:39 bert Exp $
+* $Id: prop_input.F,v 1.14 2005-01-04 16:49:53 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -323,7 +323,7 @@ c
           if (.not.rtdb_put(rtdb,'spinspin:pairs',mt_int,1,spnspnpairs))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
           if (.not. rtdb_put(rtdb,'spinspin:pair list',mt_int,
-     &                       spnspnpairs,int_mb(k_pr)))
+     &                       2*spnspnpairs,int_mb(k_pr)))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
           if (.not.ma_pop_stack(l_pr)) call
      &        errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
