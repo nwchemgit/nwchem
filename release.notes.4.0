@@ -58,7 +58,8 @@ Driver:
 
 Properties: 
 
-  o 
+  o The user is now allowed to choose the point of expansion for dipole,
+    quadrupole, and octupole.  See CENTER directive.
 
 MP2: 
 
