@@ -2,7 +2,7 @@
      + num,amass,mat,cwa,qwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.10 1998-11-06 21:18:09 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.11 1999-01-04 23:17:34 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,8 @@ c
       character*1 cdummy
 c
       integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsh,nsd,nso,nst,nsx
-      integer i,j,idummy,len,n,m,nqu,qu(nqu)
+      integer i,j,idummy,len,n,m,nqu
+      real*8 qu(nqu)
 c
       len=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:len),form='formatted',
