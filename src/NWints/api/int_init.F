@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.38 1998-07-29 19:01:19 d3e129 Exp $
+c $Id: int_init.F,v 1.39 1998-08-12 22:02:35 d3g681 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -23,6 +23,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c::functions
       logical  spcart_init
       external spcart_init
@@ -39,9 +40,14 @@ c:tex-\end{verbatim}
 c::local
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm, type
-      logical status
+      logical status, oprint
       integer nqmax_texas  ! maximum number of quartets in texas blocking interface
       parameter (nqmax_texas = 10000)
+
+c
+c     print info/warnings unless print set to none. errors always print.
+c
+      oprint = util_print('information',print_low)
 c
 c      block data api_data
 c
@@ -61,7 +67,7 @@ c
       numd_okay      = 0
       numd_red       = 0
 c
-      if(init_int.eq.1) then
+      if(init_int.eq.1 .and. oprint) then
         write(6,*)' warning nested int_inits'
         write(6,*)' int_init already called '
         call util_flush(6)
@@ -89,7 +95,7 @@ c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
         def_cando_sp  = status
-        if (ga_nodeid().eq.0) then
+        if (ga_nodeid().eq.0 .and. oprint) then
           write(6,*)
      &        ' int_init: cando_sp set to always be ',def_cando_sp
           call util_flush(6)
@@ -99,7 +105,7 @@ c
       if (rtdb_get(rtdb,'int:cando_nw',MT_LOG,1,status)) then
         user_cando_nw = .true.
         def_cando_nw  = status
-        if (ga_nodeid().eq.0) then
+        if (ga_nodeid().eq.0 .and. oprint) then
           write(6,*)
      &        ' int_init: cando_nw set to always be ',def_cando_nw
           call util_flush(6)
@@ -109,7 +115,7 @@ c
       if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
         user_cando_txs = .true.
         def_cando_txs  = status
-        if (ga_nodeid().eq.0) then
+        if (ga_nodeid().eq.0 .and. oprint) then
           write(6,*)
      &        ' int_init: cando_txs set to always be ',def_cando_txs
           call util_flush(6)
@@ -120,7 +126,7 @@ c
         if (.not.texas_check_basis_ok(nbas,bases)) then
           user_cando_txs = .true.
           def_cando_txs = .false.
-          if (ga_nodeid().eq.0) then
+          if (ga_nodeid().eq.0 .and. oprint) then
             write(6,*)
      &          ' int_init: internal texas instability possible cando_',
      &          'txs set to always be ',def_cando_txs
