@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.7 1995-01-26 07:32:53 rg240 Exp $
+# $Id: make_nwchem_config,v 1.8 1995-02-17 17:43:56 pg511 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -60,7 +60,7 @@ endif
 
 MODULES := $(patsubst develop,develop rimp2,$(MODULES) )
 
-MODULES := $(patsubst stepper,stepper gradients graddft,$(MODULES) )
+MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
