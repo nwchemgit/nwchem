@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.59 1996-01-19 07:29:02 d3g681 Exp $
+# $Id: GNUmakefile,v 1.60 1996-01-23 00:27:24 d3e129 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -83,7 +83,7 @@ $(LIBRARY_PATH)(fock_2e_et.o):	 $(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh 
 $(LIBRARY_PATH)(fock_2e_file.o):	 $(INCDIR)/util.fh ./cscfps.fh 
 $(LIBRARY_PATH)(fock_2e_lab.o):	 ./cfockmul.fh 
 $(LIBRARY_PATH)(fock_2e_rep.o):	 $(INCDIR)/global.fh ./cfock.fh 
-$(LIBRARY_PATH)(fock_2e_task.o):	 $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(fock_2e_task.o):	 $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(fock_get_blk.o):	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(fock_upd_blk.o):	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ga_atom_blk.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
@@ -121,6 +121,7 @@ $(LIBRARY_PATH)(rohf_step.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfp
 $(LIBRARY_PATH)(rohf_wrap.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(scf.o):	 $(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cscf.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(scf_get_info.o):	 $(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./cfock.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(scf_lindep.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(scf_movecs.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(scf_pstat.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh ./cscfps.fh ./cscf.fh 
 $(LIBRARY_PATH)(scf_sym_adap.o):	 $(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1996-01-09 17:54:20 og845 Exp $
+# $Id: GNUmakefile,v 1.15 1996-01-23 00:28:53 d3e129 Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -14,8 +14,3 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(dft_banner.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(dft_inpana.o):	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(dft_rdinput.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh ../include/cdft.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_setquad.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh 

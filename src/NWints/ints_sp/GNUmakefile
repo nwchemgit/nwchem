@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 1995-12-15 21:52:13 d3g681 Exp $
+# $Id: GNUmakefile,v 1.12 1996-01-23 00:26:41 d3e129 Exp $
 
 
       OBJ_OPTIMIZE = genr70.o init70.o qout70.o \
@@ -19,7 +19,7 @@ $(OBJ):	auxvar.fh geom.fh maxc.fh  pgeom.fh qgeom.fh \
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(genr70.o):	 ./shllfo.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
+$(LIBRARY_PATH)(genr70.o):	 ./shllfo.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(init70.o):	 ./picon.fh ./maxc.fh ./auxvar.fh 
 $(LIBRARY_PATH)(sinfo.o):	 ./spgeom.fh ./shllfo.fh ./qgeom.fh ./picon.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./const.fh 
 $(LIBRARY_PATH)(sp0000.o):	 ./spgeom.fh ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./auxvar.fh 

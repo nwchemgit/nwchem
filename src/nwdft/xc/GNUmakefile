@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 1995-12-13 01:36:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.30 1996-01-23 00:29:27 d3e129 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -35,17 +35,3 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(a_dist.o):	 ../include/quad.fh 
-$(LIBRARY_PATH)(qpts.o):	 ../include/quad.fh 
-$(LIBRARY_PATH)(xc_beckew.o):	 $(INCDIR)/bas_staticP.fh 
-$(LIBRARY_PATH)(xc_fitv.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_get2oi.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_getv.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_lebedev.o):	 $(INCDIR)/stdio.fh ../include/quad.fh 
-$(LIBRARY_PATH)(xc_neighb.o):	 ../include/quad.fh 
-$(LIBRARY_PATH)(xc_quadv0.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_quadv0_a.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_quadv1.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ../include/quad.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_rhogen.o):	 $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_tabcd.o):	 $(INCDIR)/bas.fh 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1996-01-09 17:51:58 og845 Exp $
+# $Id: GNUmakefile,v 1.14 1996-01-23 00:28:44 d3e129 Exp $
 ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o
       OBJ = \
@@ -22,12 +22,3 @@ endif
 include ../../config/makefile.h
 include ../../config/makelib.h
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(dft_fitcd.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_fitvc.o):	 ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_genspm.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_get2eri.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_getspm.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_getvc.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(dft_vc_solve.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(dft_vc_solve_init.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/global.fh 
