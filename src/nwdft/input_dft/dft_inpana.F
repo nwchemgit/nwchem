@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.62 2002-03-26 07:00:01 edo Exp $
+c     $Id: dft_inpana.F,v 1.63 2002-03-27 21:56:27 edo Exp $
 c
 c*********************************************************************
 c     
@@ -682,7 +682,6 @@ c
       else
         iAOacc=max(iAOacc,-nint(log(e_conv)))
       endif	
-       call util_flush(6)
        if (.not. rtdb_put(rtdb, 'dft:iAOacc',
      &      mt_int, 1, iAOacc))
      &      call errquit('dft_inpanae: rtdb_put failed', 124)
@@ -693,6 +692,7 @@ c
         write(luout,*) ' dftinpanae: itol2e ',itol2e,
      ,     ' iaoacc ',iaoacc,
      ,    ' tol_rho ',tol_rho
+       call util_flush(luout)
       endif
       return
       end
