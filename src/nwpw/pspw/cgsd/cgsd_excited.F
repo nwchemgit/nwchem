@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.3 2003-07-20 16:47:00 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.4 2003-12-02 23:55:34 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -35,11 +35,13 @@ c#include "rtdb.fh"
       integer rtdb
 
 *     **** external functions ****
+      logical     control_DOS
       logical     epsi_initialize,epsi_finalize,epsi_filefind
-      integer     psi_ne_excited,control_excited_ne
+      integer     psi_ne_excited,control_excited_ne,control_rtdb
       real*8      psi_virtual
+      external    control_DOS
       external    epsi_initialize,epsi_finalize,epsi_filefind
-      external    psi_ne_excited,control_excited_ne
+      external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
       
 
@@ -83,6 +85,10 @@ c#include "rtdb.fh"
         write(*,*)
 
       end if
+
+      rtdb = control_rtdb()
+      if (control_DOS()) call epsi_DOS(rtdb)
+
 
 *     **** write out excited wavefunctions ***
       value = epsi_finalize(.true.)

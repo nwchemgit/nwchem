@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.18 2003-03-20 19:54:14 edo Exp $
+# $Id: GNUmakefile,v 1.19 2003-12-02 23:55:34 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -17,6 +17,7 @@
 		v_psi_filefind.o \
 		getfilling.o \
 		CIF_write.o \
+		densityofstates.o \
 		MOTION_nframes.o
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.34 2003-12-02 19:17:09 bylaska Exp $
+* $Id: cgsdv5.F,v 1.35 2003-12-02 23:55:34 bylaska Exp $
 *
 
 ***********************************************************************
@@ -108,8 +108,8 @@
       external psi_ispin,psi_ne,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
-      logical  control_Mulliken
-      external control_Mulliken
+      logical  control_Mulliken,control_DOS
+      external control_Mulliken,control_DOS
       real*8   ion_TotalCharge
       external ion_TotalCharge
       logical   psi_filefind
@@ -440,6 +440,9 @@ c     end if
 
 *     **** calculate Mulliken Populations ***
       if (control_Mulliken()) call psi_Mulliken(rtdb)
+
+
+
 
 *     **** calculate Mulliken Populations ***
 

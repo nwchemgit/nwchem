@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.45 2003-12-02 19:17:08 bylaska Exp $
+* $Id: control.F,v 1.46 2003-12-02 23:55:34 bylaska Exp $
 *
 
 *     ***********************************
@@ -1459,6 +1459,8 @@ c      end
       end
 
 
+
+
 *     *****************************
 *     *                	 	  *
 *     * control_allow_translation *
@@ -2032,5 +2034,32 @@ c      end
       end if
 
       control_COM_shift = com_shift
+      return
+      end
+
+
+
+*     *****************************
+*     *                           *
+*     *    control_DOS            *
+*     *                           *
+*     *****************************
+      logical function control_DOS()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical dos
+      real*8  alpha
+
+      dos = .false.
+      if (rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) dos = .true.
+
+      control_DOS = dos
       return
       end

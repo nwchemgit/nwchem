@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.42 2003-11-07 02:17:37 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.43 2003-12-02 23:55:34 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -35,14 +35,14 @@ c#include "rtdb.fh"
 
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      logical     control_out_of_time,pspw_SIC
+      logical     control_out_of_time,pspw_SIC,control_DOS
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external control_out_of_time,pspw_SIC
+      external control_out_of_time,pspw_SIC,control_DOS
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -297,6 +297,9 @@ c#include "rtdb.fh"
         
 
       end if
+
+      rtdb = control_rtdb()
+      if (control_DOS()) call psi_DOS(rtdb)
 
 c*     **** debug - energies written to rtdb for numerical stress ****
 c      rtdb = control_rtdb()

@@ -1,9 +1,15 @@
 *
-* $Id: psi.F,v 1.47 2003-12-02 19:17:10 bylaska Exp $
+* $Id: psi.F,v 1.48 2003-12-02 23:55:34 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.47  2003/12/02 19:17:10  bylaska
+* HGH pseudpotential added.
+* TM, Hamman, HGH, pspw_default, and paw_default pseudopotential libraries have been added.
+* KS minimizer updates.
+* ...EJB
+*
 
 
 ************************ f_orb orbitals Part ************************
@@ -4611,4 +4617,133 @@ c     end if
 
       return
       end
+
+
+
+*     ***********************
+*     *                     *
+*     *     psi_DOS         *
+*     *                     *
+*     ***********************
+
+      subroutine psi_DOS(rtdb)
+      implicit none
+      integer rtdb
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "psi.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer npoints,ii
+      real*8 emin,emax,alpha
+      character*255 filename
+
+
+      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+        alpha = 0.1d0/27.2116d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+        npoints = 500
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+         emin = 99999.0d0
+         do ii=1,ne(1)+ne(2)
+           if (dbl_mb(eig(1)+ii-1).lt.emin) emin = dbl_mb(eig(1)+ii-1)
+         end do
+         emin = emin - 0.1d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+         emax = -99999.0d0
+         do ii=1,ne(1)+ne(2)
+           if (dbl_mb(eig(1)+ii-1).gt.emax) emax = dbl_mb(eig(1)+ii-1)
+         end do
+         emax = emax + 0.1d0
+      end if
+
+      filename = "DOS_alpha"
+      call densityofstates(filename,
+     >                     dbl_mb(eig(1)),ne(1),
+     >                     alpha,npoints,emin,emax)
+
+      if (ispin.eq.2) then
+        filename = "DOS_beta"
+        call densityofstates(filename,
+     >                       dbl_mb(eig(1)+ne(1)),ne(2),
+     >                       alpha,npoints,emin,emax)
+      end if
+
+      return
+      end
+
+*     ***********************
+*     *                     *
+*     *     epsi_DOS         *
+*     *                     *
+*     ***********************
+
+      subroutine epsi_DOS(rtdb)
+      implicit none
+      integer rtdb
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "psi.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer npoints,ii
+      real*8 emin,emax,alpha
+      character*255 filename
+
+
+      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+        alpha = 0.1d0/27.2116d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+        npoints = 500
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+         emin = 99999.0d0
+         do ii=1,ne_excited(1)+ne_excited(2)
+           if (dbl_mb(eig_excited(1)+ii-1).lt.emin) 
+     >       emin = dbl_mb(eig_excited(1)+ii-1)
+         end do
+         emin = emin - 0.1d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+         emax = -99999.0d0
+         do ii=1,ne_excited(1)+ne_excited(2)
+           if (dbl_mb(eig_excited(1)+ii-1).gt.emax) 
+     >       emax = dbl_mb(eig_excited(1)+ii-1)
+         end do
+         emax = emax + 0.1d0
+      end if
+
+      filename = "DOS_alpha_virtual"
+      call densityofstates(filename,
+     >                     dbl_mb(eig_excited(1)),ne_excited(1),
+     >                     alpha,npoints,emin,emax)
+
+      if (ispin.eq.2) then
+        filename = "DOS_beta_virtual"
+        call densityofstates(filename,
+     >           dbl_mb(eig_excited(1)+ne_excited(1)),ne_excited(2),
+     >           alpha,npoints,emin,emax)
+      end if
+
+      return
+      end
+
+
+
 

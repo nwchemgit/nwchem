@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.12 2003-12-02 19:16:46 bylaska Exp $
+c $Id: nwpw_input.F,v 1.13 2003-12-02 23:55:34 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 54)
+      parameter (num_dirs = 55)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -69,6 +69,7 @@ c
      >            'geometry_optimize',
      >            'pseudopotential_libraries',
      >            'pseudopotentials',
+     >            'dos',
      >            'end'/
 
        logical      value,move
@@ -79,6 +80,8 @@ c
        double precision fake_mass,time_step,rcut
        integer loop(2),ncut
        double precision tolerances(3),ecut,wcut,fe
+       double precision alpha,emin,emax
+       integer npoints
        logical mulliken,allow_translation
        integer ispin,multiplicity
        
@@ -113,7 +116,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,3700,3800,3900,3900,
+     >       2900,3000,3700,3800,3900,3900,4000,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -506,6 +509,25 @@ c
 c  pseudopotential_library
 c
  3900 call nwpw_set_library(rtdb)
+
+      goto 10
+
+
+c
+c  DOS - density of states input
+c
+ 4000 if (.not.inp_f(alpha)) alpha = 0.1d0/27.2116d0
+      value = rtdb_put(rtdb,'dos:alpha',mt_dbl,1,alpha)
+
+      if (inp_i(npoints))
+     >  value = value.and.rtdb_put(rtdb,'dos:npoints',mt_int,1,npoints)
+      if (inp_f(emin))
+     >  value = value.and.rtdb_put(rtdb,'dos:emin',mt_dbl,1,emin)
+      if (inp_f(emax))
+     >  value = value.and.rtdb_put(rtdb,'dos:emax',mt_dbl,1,emax)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4000, RTDB_ERR)
 
       goto 10
 
