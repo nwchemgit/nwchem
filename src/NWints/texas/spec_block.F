@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.31 2002-10-23 20:24:53 edo Exp $
+* $Id: spec_block.F,v 1.32 2002-12-11 23:35:32 edo Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -327,7 +327,7 @@ c
      *               itype1,jtype1,ktype1,ltype1, nqrt_limit)
 c
 c2002 maxsize=nqrt_limit
-      maxsize=min( nqrt_limit , nint(nquart_all) )
+      maxsize=min( dble(nqrt_limit), nquart_all )
 c-------------------------------------------------
 c for average texas-block-size :
 c
