@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1878,7 +1878,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
       implicit none
 c
@@ -2976,9 +2976,9 @@ c
       end
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
-     + lupden,dera)
+     + lupden,lupdti,dera)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3022,7 +3022,7 @@ c
       integer nbonds
       integer indexl(nbonds)
 c
-      logical lpbc,lpbcs,lupden
+      logical lpbc,lpbcs,lupden,lupdti
       real*8 dera(6,nsatot)
 c
       integer natoms,ndim
@@ -3200,6 +3200,8 @@ cx      hs(jsa,3,2,isag)=hs(jsa,3,2,isag)+hess
 c
 cx      endif
 c
+      if(lupdti) then
+c
 c     for thermodynamic perturbations evaluate the energies using
 c     the 'perturbed' parameters in set 2 and/or 3
 c
@@ -3219,6 +3221,7 @@ c
       endif
       endif
 c
+      endif
       endif
 c
       if(ipme.ne.0) then
@@ -3256,9 +3259,9 @@ c
       end
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
-     + lupden,dera)
+     + lupden,lupdti,dera)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3312,7 +3315,7 @@ c
       real*8 chg(mqt,mqp,6)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lpbcs,lupden
+      logical lpbc,lpbcs,lupden,lupdti
       real*8 dera(6,nsatot)
 c
 c     declaration of local variables
@@ -3458,6 +3461,8 @@ c
 cx      if(ihess.gt.0) then
 cx      endif
 c
+      if(lupdti) then
+c
 c     for thermodynamic perturbations evaluate the energies
 c     using 'perturbed' parameters of set 2 and/or set 3
 c     -----------------------------------------------------
@@ -3477,6 +3482,7 @@ c
       dera(5,iang(ish,1))=dera(5,iang(ish,1))+third*dercon
       dera(5,iang(ish,2))=dera(5,iang(ish,2))+third*dercon
       dera(5,iang(ish,3))=dera(5,iang(ish,3))+third*dercon
+      endif
       endif
       endif
 c
@@ -3523,9 +3529,9 @@ c
       end
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
-     + dera)
+     + lupdti,dera)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3576,7 +3582,7 @@ c
       integer igan(ndim),imol(ndim),idyn(ndim)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lpbcs,lupden
+      logical lpbc,lpbcs,lupden,lupdti
       real*8 dera(6,nsatot)
 c
 c     declaration of local variables
@@ -3836,6 +3842,8 @@ c
       fs(ksa,3)=fs(ksa,3)-dfskz
       fs(lsa,3)=fs(lsa,3)-dfslz
 c
+      if(lupdti) then
+c
 c     for thermodynamic integration evaluate the derivative
 c     -----------------------------------------------------
 c
@@ -3850,6 +3858,7 @@ c
       dera(5,idih(isd,4))=dera(5,idih(isd,4))+fourth*dercon
       endif
       endif
+      endif
 c
     1 continue
 c
@@ -3857,9 +3866,9 @@ c
       end
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
-     + dera)
+     + lupdti,dera)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3910,7 +3919,7 @@ c
       integer igan(ndim),imol(ndim),idyn(ndim)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lpbcs,lupden
+      logical lpbc,lpbcs,lupden,lupdti
       real*8 dera(6,nsatot)
 c
 c     declaration of local variables
@@ -4157,6 +4166,8 @@ c
       fs(ksa,3)=fs(ksa,3)-dfskz
       fs(lsa,3)=fs(lsa,3)-dfslz
 c
+      if(lupdti) then
+c
 c     for thermodynamic integrations evaluate the derivative
 c
       if(ith(22)) then
@@ -4169,6 +4180,7 @@ c
       dera(5,iimp(iso,4))=dera(5,iimp(iso,4))+fourth*dercon
       endif
       endif
+      endif
 c
     1 continue
 c
@@ -4177,7 +4189,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4524,7 +4536,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.49 2003-04-18 17:31:34 d3j191 Exp $
 c
       implicit none
 c

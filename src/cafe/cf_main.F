@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.153 2003-01-14 16:31:15 d3j191 Exp $
+c $Id: cf_main.F,v 1.154 2003-04-18 17:31:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1569,7 +1569,7 @@ c
       ip(2)=2
       ip(3)=0
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.false.,.false.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.false.,.false.,.false.,me.eq.0,,dbl_mb(i_sti))
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0.and.(iprpmf.lt.0.or.iprpmf.eq.ipmf(i,1)))
      + write(-lfnpmf,1000) i,rv
@@ -1608,7 +1608,7 @@ c
       ip(3)=3
       ip(4)=0
       call cf_fsh(1,it,1,3,ip,rpmf(1,1,i),rv,3,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
@@ -1648,12 +1648,12 @@ c
       ip(5)=0
       if(ipmf(i,1).eq.3) then
       call cf_fsd(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Dih:',rv,(ft(3,j),j=1,3)
       endif
       if(ipmf(i,1).eq.4) then
       call cf_fso(1,it,1,3,ip,rpmf(1,1,i),rv,4,4,ign,iml,idt,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
       if(me.eq.0) then
@@ -1729,7 +1729,7 @@ c
       ip(2)=2
       ip(3)=0
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
-     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,me.eq.0,dbl_mb(i_sti))
 c
 c     sum ubias on every processor since this is not done in replicated mode
 c
@@ -1912,7 +1912,7 @@ c
       call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
       endif
 c
       if(nmult(2).gt.0) then
@@ -1920,7 +1920,7 @@ c
       call cf_fsh(nmult(2),ixmul(ix),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,,dbl_mb(i_sti))
       endif
 c
       if(nmult(3).gt.0) then
@@ -1928,7 +1928,7 @@ c
       call cf_fsd(nmult(3),ixmul(ix),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
       endif
 c
       if(nmult(4).gt.0) then
@@ -1936,7 +1936,7 @@ c
       call cf_fso(nmult(4),ixmul(ix),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
       endif
       endif
       call timer_stop(25)

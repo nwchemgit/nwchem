@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.18 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.19 2003-04-18 17:31:34 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -290,7 +290,7 @@ c
       call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,ess,lpbc,lpbcs,lupden,dbl_mb(i_sti))
+     + xs,fs,ess,lpbc,lpbcs,lupden,.true.,dbl_mb(i_sti))
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -303,7 +303,7 @@ c
       call cf_fsh(npairs,int_mb(lptr+1),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,ess,lpbc,lpbcs,lupden,dbl_mb(i_sti))
+     + xs,fs,ess,lpbc,lpbcs,lupden,.true.,dbl_mb(i_sti))
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -316,7 +316,7 @@ c
       call cf_fsd(npairs,int_mb(lptr+1),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,ess,lpbc,lpbcs,lupden,dbl_mb(i_sti))
+     + xs,fs,ess,lpbc,lpbcs,lupden,.true.,dbl_mb(i_sti))
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -329,7 +329,7 @@ c
       call cf_fso(npairs,int_mb(lptr+1),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,ess,lpbc,lpbcs,lupden,dbl_mb(i_sti))
+     + xs,fs,ess,lpbc,lpbcs,lupden,.true.,dbl_mb(i_sti))
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
