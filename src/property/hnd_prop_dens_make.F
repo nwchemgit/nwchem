@@ -19,9 +19,9 @@ c
       integer     nvirt(2)   ! [input] number of virtuals
       character*3 scftyp     ! [input] wave function type (RHF or UHF)
       integer     vectors(2) ! [input] handles for MO vectors
-      integer     occ(nbf,2) ! [input] array with occupation numbers
       integer     g_dens(3)  ! [output] density handles
       integer     ndens      ! [output] number of active density handles
+      double precision     occ(nbf,2) ! [input] array with occupation numbers
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
