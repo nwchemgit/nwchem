@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.165 2003-11-25 16:40:12 d3j191 Exp $
+c $Id: cf_main.F,v 1.166 2003-12-03 05:00:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1318,18 +1318,18 @@ c
 c
       return
       end
-      subroutine cf_collapse(ncoll,fcoll,nums,numw,ismol,
-     + xs,xsm,tsm,fs,xwm,xw,fw)
+      subroutine cf_collapse(ncoll,fcoll,nums,numw,ismol,issgm,
+     + xs,xsm,mst,tsm,fs,xwm,xw,fw)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer ncoll,numw,nums
-      integer ismol(msa)
+      integer ncoll,numw,nums,mst
+      integer ismol(msa),issgm(msa)
       real*8 fcoll
-      real*8 xsm(msm,3),xs(msa,3),fs(msa,3),tsm(msm,3)
+      real*8 xsm(msm,3),xs(msa,3),fs(msa,3),tsm(mst,4)
       real*8 xwm(mwm,3),xw(mwm,3,mwa),fw(mwm,3,mwa)
 c
       integer i,j,k,ki,kf
@@ -1337,8 +1337,10 @@ c
 c
       ki=1
       kf=3
-      if(ncoll.eq.1) ki=3
-      if(ncoll.eq.2) kf=2
+      if(ncoll.eq.1.or.ncoll.eq.4) ki=3
+      if(ncoll.eq.2.or.ncoll.eq.5) kf=2
+c
+      if(ncoll.le.3) then
 c
       do 5 i=1,msm
       if(ncoll.eq.1) then
@@ -1368,6 +1370,28 @@ c
     6 continue
     3 continue
     4 continue
+c
+      else
+c
+      do 7 i=1,mst
+      tsm(i,1)=0.0d0
+      tsm(i,2)=0.0d0
+      tsm(i,3)=0.0d0
+      tsm(i,4)=0.0d0
+    7 continue
+      do 8 i=1,nums
+      tsm(issgm(i),1)=tsm(issgm(i),1)+xs(i,1)
+      tsm(issgm(i),2)=tsm(issgm(i),2)+xs(i,2)
+      tsm(issgm(i),3)=tsm(issgm(i),3)+xs(i,3)
+      tsm(issgm(i),4)=tsm(issgm(i),4)+1.0d0
+    8 continue
+      do 9 k=ki,kf
+      do 10 i=1,nums
+      fs(i,k)=fs(i,k)-fcoll*tsm(issgm(i),k)/tsm(issgm(i),4)
+   10 continue
+    9 continue
+c
+      endif
 c
       return
       end
