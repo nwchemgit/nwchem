@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.3 2004-11-08 01:32:49 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.4 2004-11-08 01:50:43 bylaska Exp $
 *
 
 *     *************************
@@ -340,7 +340,7 @@
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = 0.5d0*coulomb_screened_e(dbl_mb(dn(1)))
+             eh = coulomb_screened_e(dbl_mb(dn(1)))
 
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
@@ -489,7 +489,7 @@
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = 0.5d0*coulomb_screened_e(dbl_mb(dn(1)))
+             eh = coulomb_screened_e(dbl_mb(dn(1)))
        
 
 *          ***** free-space coulomb solver ****
@@ -609,7 +609,7 @@
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = 0.5d0*coulomb_screened_e(dbl_mb(dn(1)))
+             eh = coulomb_screened_e(dbl_mb(dn(1)))
 
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
