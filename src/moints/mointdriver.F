@@ -24,7 +24,7 @@ c
        integer i, nbf, nelec, nact, nocc, nopen, nbf_vecs
        integer mo_indx_lo, mo_indx_hi, nsets, nmo
        integer mo_indx2_lo, mo_indx2_hi, nmo2
-       integer noper
+       integer noper, nvir
        integer g_coul, g_exch
        double precision emp2
 c
@@ -92,10 +92,11 @@ c
 c
        mo_indx_lo = 1
        mo_indx_hi = nocc
-C       mo_indx2_lo = nocc + 1
-C       mo_indx2_hi = nbf
-       mo_indx2_lo = 1
+       mo_indx2_lo = nocc + 1
        mo_indx2_hi = nbf
+C       mo_indx2_lo = 1
+C       mo_indx2_hi = nbf
+       nvir = nbf - nocc
        nmo2 = mo_indx2_hi - mo_indx2_lo + 1
        noper = mo_indx_hi - mo_indx_lo + 1
 c
@@ -137,11 +138,8 @@ c
 c
        status = ma_push_get(MT_DBL,(noper*(noper+1))/2,'pair e2',
      $                      l_epair,k_epair)
-       call moints_mp2_eval_a(nbf,noper,dbl_mb(k_evals),g_exch,
-     $                        emp2,dbl_mb(k_epair))
-
-C       call moints_mp2_eval(nbf,noper,nmo2,dbl_mb(k_evals),
-C     $                      g_exch,emp2,dbl_mb(k_epair))
+       call moints_mp2_eval(nocc,nvir,dbl_mb(k_evals),g_exch,
+     $                      emp2,dbl_mb(k_epair))
 c
 c
 c
