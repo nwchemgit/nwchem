@@ -1,8 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.15 1999-11-13 02:44:55 bjohnson Exp $
+# $Id: GNUmakefile,v 1.16 2004-10-14 21:58:46 edo Exp $
 #
 include ../../config/makefile.h
 include ../DEFS
+NOCASENS = CYGNUS MACX CYGWIN INTERIX
+ifneq ($(peigs_TARGET),$(findstring $(peigs_TARGET), $(NOCASENS)))
+	REMOVESF=TRUE
+endif
 
 MXOBJ	=	mxbrod.o \
 		mxcombv1.o \
@@ -25,7 +29,7 @@ all:		$(MXOBJ)
 #
 clean:		
 		-rm -f *.o
-ifneq ($(peigs_TARGET),CYGNUS)
+ifdef REMOVESF
 		-rm -f mxbrod.f
 		-rm -f mxcombv1.f
 		-rm -f mxsubs.f

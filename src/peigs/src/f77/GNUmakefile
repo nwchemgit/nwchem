@@ -1,9 +1,13 @@
 #
-# $Id: GNUmakefile,v 1.19 2000-02-28 21:43:14 d3g270 Exp $
+# $Id: GNUmakefile,v 1.20 2004-10-14 21:58:48 edo Exp $
 #
 
 include ../../../config/makefile.h
 include ../../DEFS
+NOCASENS = CYGNUS MACX CYGWIN INTERIX
+ifneq ($(peigs_TARGET),$(findstring $(peigs_TARGET), $(NOCASENS)))
+	REMOVESF=TRUE
+endif
 
 ifeq ($(peigs_CODEOBJ),DBLE)
 FOBJ = inverm.o \
@@ -83,7 +87,7 @@ realclean:
 clean:
 		-rm -f *.o
 		-rm -f *.s
-ifneq ($(peigs_TARGET),CYGNUS)
+ifdef REMOVESF
 		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
 		dlas2.f dlasq1.f dlasq2.f \
 		dlasq3.f dlasq4.f dlasr.f \
