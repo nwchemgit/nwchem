@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.49 1999-06-23 10:29:50 d3e129 Exp $
+C     $Id: input_parse.F,v 1.50 1999-06-23 16:30:24 mdupuis Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -56,6 +56,8 @@ c
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'python')) then
                call python_input(rtdb)
+            else if (inp_compare(.false.,test,'cosmo')) then
+               call cosmo_input(rtdb)
             else if (inp_compare(.false.,test,'ecp')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'so')) then
