@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.34 2003-02-17 00:45:13 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.35 2003-02-18 01:24:13 bylaska Exp $
 *
 
 !**************************************************
@@ -10,9 +10,9 @@
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_ovlp_init(ispin,ne)
+      subroutine paw_ovlp_init(ispin0,ne)
       implicit none
-      integer ispin
+      integer ispin0
       integer ne(2)
 
 #include "mafdecls.fh"
@@ -56,6 +56,7 @@ c     !*** calculate the size and indexing for weight coefficients  ***
 
 c     !*** allocate storage for paw_ovlp arrays*** 
 c     !-- total number of electron states
+      ispin = ispin0
       neall = ne(1) + ne(2)
       ne_u=ne(1)
       ne_d=ne(2)
@@ -178,8 +179,6 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
 
 
 
-
-
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
@@ -217,6 +216,10 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       call D3dB_Vector_SumAll(2*neall*total_nbasis,
      >                        dcpl_mb(toeff(1)))
 
+      !**** spin restricted calculations ****
+      if (ispin.eq.1) 
+     > call dscal(2*total_nbasis*neall,2.0d0,dcpl_mb(toeff(1)),1)
+
 
       !*** unsrcramble to get true overlap coefficients ***
       do i1=1,total_nbasis*neall
@@ -226,6 +229,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
      >             + int_mb(sgn(1)+i1-1)
      >              *dconjg(dcpl_mb(toeff(1)+i2)))
       end do     
+
 
       write(*,*)
       write(*,*) "Overlap coefficients:"
@@ -466,6 +470,10 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
         end do
       end do
       call D3dB_Vector_SumAll(2*ne*total_nbasis,ct)
+
+      !**** spin restricted calculations ****
+      if (ispin.eq.1) 
+     > call dscal(2*total_nbasis*ne,2.0d0,ct,1)
 
 
       !*** deallocate temporary space ***

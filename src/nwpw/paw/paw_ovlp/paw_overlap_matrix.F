@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.4 2003-02-12 21:38:39 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.5 2003-02-18 01:24:13 bylaska Exp $
 c
 
 !**************************************************
@@ -340,7 +340,7 @@ c
                    do j=1,ne
                      pv(j,r+ii_shift)
      >                 = pv(j,r+ii_shift)
-     >                 + dbl_mb(overlap_matrix(1)+matrx_ptr)
+     >                 + dbl_mb(overlap_matrix(1)+indx)
      >                  *c1(j,s+ii_shift)
                    end do !*j*
                  end if
