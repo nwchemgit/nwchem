@@ -1,0 +1,43 @@
+start dft_meta
+
+geometry units angstrom print
+he 0.   0.58 0.
+symmetry c2v
+end
+
+basis "ao basis"
+he library "DZVP (DFT Orbital)"
+he p
+ 0.183 1.
+end
+
+basis "cd basis"
+he library DGauss_A2_DFT_Coulomb_Fitting
+end
+
+charge +1.0
+
+
+title "XC pbe96 GGA"
+
+dft
+mult 2
+grid lebedev 100 8
+XC xpbe96 cpbe96
+decomp
+end
+
+task dft optimize
+
+# use fully self-consistent GGA orbitals and densities below
+# note: meta GGA energy will not solved self consistently (iterations 1)
+
+title "X pkzb99 meta-GGA"
+dft
+ iterations 1
+ xc xpkzb99
+ decomp
+end
+
+task dft ignore
+
