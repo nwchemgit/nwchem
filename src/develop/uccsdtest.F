@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.4 2000-03-30 00:36:22 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.5 2000-03-31 00:23:20 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -38,6 +38,7 @@ c
 c
       double precision energyaaa, energybbb, energyaab, energybba
       double precision uccsdtest_triples_pure, uccsdtest_triples_mixed
+      double precision uccsdtest_triples_pure_blocked
       logical int_normalize
       external int_normalize
 c     
@@ -496,6 +497,22 @@ c
      $     k_ibb, k_iaa, k_iba,
      $     k_t1b, k_t1a,
      $     k_t2bb,k_t2aa,k_t2ab)
+c
+      energyaaa = uccsdtest_triples_pure_blocked(
+     $     dbl_mb(k_iaa), 
+     $     dbl_mb(k_t1a), 
+     $     dbl_mb(k_t2aa),
+     $     dbl_mb(k_aeval), 1)
+c
+      write(6,*) energyaaa
+c
+      energybbb = uccsdtest_triples_pure_blocked(
+     $     dbl_mb(k_ibb), 
+     $     dbl_mb(k_t1b), 
+     $     dbl_mb(k_t2bb),
+     $     dbl_mb(k_beval), 2)
+c
+      write(6,*) energybbb
 c
       if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0)
 c
@@ -1859,6 +1876,8 @@ c
      $                          + ge(i,k,j,c,b,a,e)
      $                          + ge(i,k,j,a,c,b,e)
                         end do
+c                        write(6,*)' a,b,c,i,j,k,w(e): ',
+c     &                              a+noa,b+noa,c+noa,i,j,k,w
                         do m = 1, noa
                            w = w 
      $                          + gm(i,j,k,a,b,c,m)
@@ -1871,6 +1890,8 @@ c
      $                          + gm(i,k,j,c,b,a,m)
      $                          + gm(i,k,j,a,c,b,m)
                         end do
+c                        write(6,*)' a,b,c,i,j,k,w(e+m): ',
+c     &                              a+noa,b+noa,c+noa,i,j,k,w
                         v = w 
      $                       + gs(i,j,k,a,b,c)
      $                       - gs(k,j,i,a,b,c)
@@ -1883,6 +1904,8 @@ c
      $                       + gs(i,k,j,a,c,b)
                         d = evals(a+noa)+evals(b+noa)+evals(c+noa)
      $                       -evals(i)-evals(j)-evals(k)
+c                        write(6,*)' a,b,c,i,j,k,w,v,d,energy: ',
+c     &                        a+noa,b+noa,c+noa,i,j,k,w,v,d,energy
                         energy = energy - v*w/d
 c
                      end do
@@ -1895,6 +1918,169 @@ c
       write(6,*) ' E ', energy
 c
       uccsdtest_triples_pure = energy
+c
+      end
+      double precision function uccsdtest_triples_pure_blocked(
+     $     iaa,
+     $     t1a,
+     $     t2aa,
+     $     evals, spin)
+      implicit none
+#include "cuccsdtP.fh"
+      integer spin
+      double precision iaa(nmo, nmo, nmo, nmo)
+      double precision t1a(nv(spin), no(spin))
+      double precision t2aa(nv(spin), nv(spin), no(spin), no(spin))
+      double precision evals(nmo)
+c
+      integer i, j, k, m, a, b, c, e
+      integer a_blk, a_blk_lo, a_blk_hi, a_blk_sym
+      integer b_blk, b_blk_lo, b_blk_hi, b_blk_sym
+      integer c_blk, c_blk_lo, c_blk_hi, c_blk_sym
+      integer i_blk, i_blk_lo, i_blk_hi, i_blk_sym
+      integer j_blk, j_blk_lo, j_blk_hi, j_blk_sym
+      integer k_blk, k_blk_lo, k_blk_hi, k_blk_sym
+      double precision w, v, d
+      double precision energy
+c
+      double precision ge, gm, gs
+c      ge(i,j,k,a,b,c,e) = t2aa(c,e,i,j)*
+c     &                    iaa(a+no(spin),b+no(spin),e+no(spin),k)
+c      gm(i,j,k,a,b,c,m) =-t2aa(a,b,m,k)*iaa(c+no(spin),m,i,j)
+c      gs(i,j,k,a,b,c)   = t1a(c,k)*iaa(i,j,a+no(spin),b+no(spin))
+c
+      ge(i,j,k,a,b,c,e) = t2aa(c-no(spin),e-no(spin),i,j)*
+     &                    iaa(a,b,e,k)
+      gm(i,j,k,a,b,c,m) =-t2aa(a-no(spin),b-no(spin),m,k)*iaa(c,m,i,j)
+      gs(i,j,k,a,b,c)   = t1a(c-no(spin),k)*iaa(i,j,a,b)
+c
+      call output(evals,1,nmo,1,1,nmo,1,1)
+c
+      energy = 0.0d0
+c
+c      write(6,*)' spin, nvblock(spin): ',
+c     &            spin, nvblock(spin)
+      do a_blk = 1, nvblock(spin)
+         a_blk_lo = vblock(1,a_blk,spin)
+         a_blk_hi = vblock(2,a_blk,spin)
+         a_blk_sym = vblock_sym(a_blk,spin)
+c
+c      write(6,*)' a_blk, a_blk_lo, a_blk_hi, a_blk_sym ',
+c     &            a_blk, a_blk_lo, a_blk_hi, a_blk_sym
+      do b_blk = 1, a_blk
+         b_blk_lo = vblock(1,b_blk,spin)
+         b_blk_hi = vblock(2,b_blk,spin)
+         b_blk_sym = vblock_sym(b_blk,spin)
+c
+c      write(6,*)' b_blk, b_blk_lo, b_blk_hi, b_blk_sym ',
+c     &            b_blk, b_blk_lo, b_blk_hi, b_blk_sym
+      do c_blk = 1, b_blk
+         c_blk_lo = vblock(1,c_blk,spin)
+         c_blk_hi = vblock(2,c_blk,spin)
+         c_blk_sym = vblock_sym(c_blk,spin)
+c
+c      write(6,*)' c_blk, c_blk_lo, c_blk_hi, c_blk_sym ',
+c     &            c_blk, c_blk_lo, c_blk_hi, c_blk_sym
+      do i_blk = 1, noblock(spin)
+         i_blk_lo = oblock(1,i_blk,spin)
+         i_blk_hi = oblock(2,i_blk,spin)
+         i_blk_sym = oblock_sym(i_blk,spin)
+c
+c      write(6,*)' i_blk, i_blk_lo, i_blk_hi, i_blk_sym ',
+c     &            i_blk, i_blk_lo, i_blk_hi, i_blk_sym
+      do j_blk = 1, i_blk
+         j_blk_lo = oblock(1,j_blk,spin)
+         j_blk_hi = oblock(2,j_blk,spin)
+         j_blk_sym = oblock_sym(j_blk,spin)
+c
+c      write(6,*)' j_blk, j_blk_lo, j_blk_hi, j_blk_sym ',
+c     &            j_blk, j_blk_lo, j_blk_hi, j_blk_sym
+      do k_blk = 1, j_blk
+         k_blk_lo = oblock(1,k_blk,spin)
+         k_blk_hi = oblock(2,k_blk,spin)
+         k_blk_sym = oblock_sym(k_blk,spin)
+c
+c      write(6,*)' k_blk, k_blk_lo, k_blk_hi, k_blk_sym ',
+c     &            k_blk, k_blk_lo, k_blk_hi, k_blk_sym
+c
+      do a = a_blk_lo, a_blk_hi
+         do b = b_blk_lo, min(b_blk_hi,a-1)
+            do c = c_blk_lo, min(c_blk_hi,b-1)
+               do i = i_blk_lo, i_blk_hi
+                  do j = j_blk_lo, min(j_blk_hi,i-1)
+                     do k = k_blk_lo, min(k_blk_hi,j-1)
+                        w = 0.0d0
+                        do e = no(spin)+1, no(spin)+nv(spin)
+                           w = w 
+     $                          + ge(i,j,k,a,b,c,e)
+     $                          - ge(k,j,i,a,b,c,e)
+     $                          - ge(i,k,j,a,b,c,e)
+     $                          - ge(i,j,k,c,b,a,e)
+     $                          - ge(i,j,k,a,c,b,e)
+     $                          + ge(k,j,i,c,b,a,e)
+     $                          + ge(k,j,i,a,c,b,e)
+     $                          + ge(i,k,j,c,b,a,e)
+     $                          + ge(i,k,j,a,c,b,e)
+                        end do
+c                        write(6,*)' a,b,c,i,j,k,w(e): ',
+c     &                              a,b,c,i,j,k,w
+c
+c  later not 1 but number of orbitals in symmetry block                       
+c
+
+                        do m = 1, no(spin)
+                           w = w 
+     $                          + gm(i,j,k,a,b,c,m)
+     $                          - gm(k,j,i,a,b,c,m)
+     $                          - gm(i,k,j,a,b,c,m)
+     $                          - gm(i,j,k,c,b,a,m)
+     $                          - gm(i,j,k,a,c,b,m)
+     $                          + gm(k,j,i,c,b,a,m)
+     $                          + gm(k,j,i,a,c,b,m)
+     $                          + gm(i,k,j,c,b,a,m)
+     $                          + gm(i,k,j,a,c,b,m)
+                        end do
+c                        write(6,*)' a,b,c,i,j,k,w(e+m): ',
+c     &                              a,b,c,i,j,k,w
+                        v = w 
+     $                       + gs(i,j,k,a,b,c)
+     $                       - gs(k,j,i,a,b,c)
+     $                       - gs(i,k,j,a,b,c)
+     $                       - gs(i,j,k,c,b,a)
+     $                       - gs(i,j,k,a,c,b)
+     $                       + gs(k,j,i,c,b,a)
+     $                       + gs(k,j,i,a,c,b)
+     $                       + gs(i,k,j,c,b,a)
+     $                       + gs(i,k,j,a,c,b)
+c
+                        d = evals(a)+
+     &                      evals(b)+
+     &                      evals(c)-
+     &                      evals(i)-
+     &                      evals(j)-
+     &                      evals(k)
+c
+                        energy = energy - v*w/d
+c                        write(6,*)' a,b,c,i,j,k,w,v,d,energy: ',
+c     &                              a,b,c,i,j,k,w,v,d,energy
+c
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c end block loops
+      end do
+      end do
+      end do
+      end do
+      end do
+      end do
+c
+      write(6,*) ' E ', energy
+c
+      uccsdtest_triples_pure_blocked = energy
 c
       end
       double precision function uccsdtest_triples_mixed(
