@@ -1,0 +1,6 @@
+      double precision time_init, time_make_poles, time_poles,
+     $     time_direct
+      logical otime
+      common/cfreddy/ time_init, time_make_poles, time_poles,
+     $     time_direct, otime
+
