@@ -1,5 +1,5 @@
       subroutine creded(g_dens, dt, iiloc, nbb)
-C$Id: creded.F,v 1.6 1995-11-03 20:41:29 d3g681 Exp $
+C$Id: creded.F,v 1.7 1996-03-12 02:11:16 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "cguess.fh"
@@ -34,14 +34,18 @@ c
       integer ll,mm
       real *8 factor
 
+      double precision third, sixth
+      parameter (third=1.0d0/3.0d0)
+      parameter (sixth=-1.0d0/6.0d0)
+
       data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
 
-     $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
-     $        0d0,   3d0,    0d0,    0d0,    0d0,     0d0,
-     $        0d0,   0d0,    3d0,    0d0,    0d0,     0d0,
-     $     -0.5d0,   0d0,    0d0,    1d0,    0d0,  -0.5d0,
-     $        0d0,   0d0,    0d0,    0d0,    3d0,     0d0,
-     $     -0.5d0,   0d0,    0d0, -0.5d0,    0d0,     1d0,
+     $      third,   0d0,    0d0,  sixth,    0d0,   sixth,
+     $        0d0,   1d0,    0d0,    0d0,    0d0,     0d0,
+     $        0d0,   0d0,    1d0,    0d0,    0d0,     0d0,
+     $      sixth,   0d0,    0d0,  third,    0d0,   sixth,
+     $        0d0,   0d0,    0d0,    0d0,    1d0,     0d0,
+     $      sixth,   0d0,    0d0,  sixth,    0d0,   third,
 
      x  1.0d0,   4*0.0d0, -0.670820393d0, 0.0d0,-0.670820393d0, 2*0.0d0,
      x  0.0d0,1.0d0,0.0d0,-0.670820393d0, 4*0.0d0,-0.670820393d0, 0.0d0,
@@ -53,6 +57,15 @@ c
      x  -0.670820393d0,     4*0.0d0,    -0.3d0,  0.0d0,  1.2d0, 2*0.0d0,
      x   0.0d0, -0.670820393d0, 0.0d0, -0.3d0, 4*0.0d0,  1.2d0,   0.0d0,
      x 9*0.0d0,  1.0d0/
+
+* Old NWChem d normalization
+*     $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
+*     $        0d0,   3d0,    0d0,    0d0,    0d0,     0d0,
+*     $        0d0,   0d0,    3d0,    0d0,    0d0,     0d0,
+*     $     -0.5d0,   0d0,    0d0,    1d0,    0d0,  -0.5d0,
+*     $        0d0,   0d0,    0d0,    0d0,    3d0,     0d0,
+*     $     -0.5d0,   0d0,    0d0, -0.5d0,    0d0,     1d0,
+
 
 c$$$      data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
 c$$$     x  1.0d0, -0.5d0, -0.5d0, 3*0.0d0,
