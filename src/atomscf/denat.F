@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.16 1998-10-29 00:28:31 d3e129 Exp $
+C$Id: denat.F,v 1.17 2000-04-13 18:09:04 hvd Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -63,12 +63,13 @@ c
       oprint_ener = util_print('mo guess', print_default)
       oprint_mod_z = util_print('mo guess', print_default)
 c
+      iwrite = LuOut
       if (ga_nodeid().eq.0 .and. 
      $     (oprint_dens .or. oprint_scf .or. oprint_ener)) then
-         write(6,*)
-         call util_print_centered(6,
+         write(LuOut,*)
+         call util_print_centered(LuOut,
      $        'Superposition of Atomic Density Guess', 23, .true.)
-         write(6,*)
+         write(LuOut,*)
       endif
 c..
 c..    core partitioning
