@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.18 1998-08-24 17:28:12 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.19 1998-09-18 16:29:42 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -32,7 +32,7 @@ c
       integer irtdb
       character*80 source
       integer mring,maxscf
-      parameter (mring=1000)
+      parameter (mring=2000)
       integer lring(6,mring)
       logical aring(mring)
 c
