@@ -1,5 +1,7 @@
-# This is an automatically generated segment file
-#
-    1    0    0    0    0
-    1IM    IM    IM    IM       1   1   0   0
-   -1.000000    0.000000   -1.000000    0.000000   -1.000000    0.000000
+# This is an automatically generated segment file                               
+#                                                                               
+    4.600000
+    1    0    0    0    0    0    1
+    0.000000
+    1IM        1    1    0    0
+     IM       -1.000000    0.000000
