@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.224 1997-03-23 23:38:22 d3g681 Exp $
+# $Id: makefile.h,v 1.225 1997-03-24 05:07:01 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -373,6 +373,7 @@ ifeq ($(TARGET),KSR)
 # JN 96/10/02:
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 
+	CPP = /usr/lib/cpp -P -C
     CORE_SUBDIRS_EXTRA = blas
      RANLIB = echo
   MAKEFLAGS = -j 10 --no-print-directory
@@ -403,6 +404,7 @@ ifeq ($(TARGET),PARAGON)
          CC = icc
          AR = ar860
      RANLIB = echo
+	CPP = /usr/lib/cpp -P -C
 
   MAKEFLAGS = -j 4  --no-print-directory
     INSTALL = @echo $@ is built
@@ -560,6 +562,7 @@ ifeq ($(TARGET),SGI)
          FC = f77
          AR = ar
      RANLIB = echo
+     CPP = /usr/lib/cpp
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
@@ -587,6 +590,7 @@ ifeq ($(TARGET),SGI_N32)
 
     CORE_SUBDIRS_EXTRA = lapack
          FC = f77
+         CPP = /usr/lib/cpp
          AR = ar
      RANLIB = echo
 
@@ -762,7 +766,7 @@ ifeq ($(TARGET),SP1)
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
 #ifdef P2SC
-# These from George from Frank Johnson 
+# These from George from Kent Winchell
   FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
   COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
@@ -849,6 +853,7 @@ ifeq ($(TARGET),DECOSF)
                     FC = f77
                     AR = ar
                 RANLIB = echo
+	 	   CPP = /usr/bin/cpp -P -C	
 
                INSTALL = @echo nwchem is built
              MAKEFLAGS = -j 1 --no-print-directory
@@ -898,7 +903,7 @@ endif
      LINK.f = gcc $(LDFLAGS)
   CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
-
+# also /usr/bin/cpp
         CPP = gcc -E -nostdinc -undef -P
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
