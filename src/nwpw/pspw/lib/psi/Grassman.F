@@ -92,7 +92,6 @@ c         call D3dB_c_Copy(1,A(1,i),C(1,i))
       complex*16 C(nfft3d,n)
 
 *     **** local variables ****
-      integer i
 
       call daxpy(2*n*nfft3d,alpha,A,1,C,1)
 c     do i=1,n
