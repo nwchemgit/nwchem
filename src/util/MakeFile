@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.9 2000-10-12 22:07:16 d3g681 Exp $	
+#	$Id: MakeFile,v 1.10 2000-10-27 17:51:38 edo Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -24,6 +24,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\ga_matpow.obj \
                $(OBJDIR)\ga_it_lsolve.obj \
                $(OBJDIR)\ga_it_orth.obj \
                $(OBJDIR)\ga_orthog.obj \
+               $(OBJDIR)\ga_accback.obj \
                $(OBJDIR)\idamin.obj \
                $(OBJDIR)\util_jacobi.obj \
                $(OBJDIR)\stpr_sjacobi.obj \
