@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.18 1998-09-09 13:04:43 bjohnson Exp $
+* $Id: cphf_solve.F,v 1.19 1999-05-08 13:02:26 bjohnson Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -36,6 +36,7 @@ c
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
+      integer bases(2), nbases
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
       double precision residual
@@ -78,7 +79,14 @@ c
       call scf_init(rtdb)
       if (.not.int_normalize(basis))
      &    call errquit('cphf_solve: int_normalize failed',911)
-      call int_init(rtdb,1,basis)
+      nbases = 1
+      bases(1) = basis
+      if (bgj_have_j_fit()) then
+        nbases = 2
+        bases(2) = bgj_CD_bas_han()
+        write(*,*) __FILE__,': bases',bases
+      endif
+      call int_init(rtdb,nbases,bases)
       call schwarz_init(geom, basis)
       oskel=sym_number_ops(geom).gt.0
       call int_1e_cache_ga(basis,oskel)
@@ -156,6 +164,8 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 1))
      $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+      if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
@@ -190,6 +200,8 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
      $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+      if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
       if (scftype .eq. 'UHF') then
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
@@ -209,6 +221,8 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
      $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+      if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
 c
       if (oprint_conv) then
