@@ -1,6 +1,6 @@
       logical function stpr_gen_hess_at(rtdb,delta,flag)
       implicit none
-* $Id: stpr_gh_at.F,v 1.1 1995-12-12 20:25:15 d3e129 Exp $
+* $Id: stpr_gh_at.F,v 1.2 1996-02-16 00:47:35 d3e129 Exp $
 * routine to generate hessian at current geometry using default basis set
 * ra kendall 7/95 PNL
 *
@@ -13,6 +13,7 @@
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "msgids.fh"
+#include "inp.fh"
 #include "stdio.fh"
 #include "stpr_optimize.fh"
 c::functions
@@ -40,8 +41,10 @@ c::local
       logical ignore_status
       logical restart
       logical xyz_pass
+      integer vecin_len
       double precision xyz(3), chg
       character*255 tmpname
+      character*255 vecin, vecout, vecin_file, vecout_file
       character*16 tag_name
       character*40 new_geom_name
       logical dft_mode, scf_mode
@@ -71,6 +74,32 @@ c.. copy reference geometry and store on rtdb
         if (.not.geom_destroy(geom))
      &          call errquit
      &          ('stpr_gen_hess_at: geom_destroy failed?',20)
+c.. set vector scope for computation (assumes central scf point has been computed)
+        if (scf_mode) then
+          vecin  = 'scf:input vectors'
+          vecout = 'scf:output vectors'
+          if (.not.rtdb_cget(rtdb,vecout,1,vecin_file)) call errquit
+     &        ('stpr_gen_hess_at: output vectors not set',911)
+          vecin_len = inp_strlen(vecin_file)
+          vecout_file = vecin_file(1:vecin_len)//'.step'
+        else if (dft_mode) then
+          vecin  = 'dft:input vectors'
+          vecout = 'dft:output vectors'
+* vecout=t -> vecin_file is okay
+* vecout=f -> vecin=t -> vecin_file okay
+*          -> vecin=f -> vecin_file movecs        
+          if (rtdb_cget(rtdb,vecout,1,vecin_file)) then
+            continue
+          else
+            if (.not.rtdb_cget(rtdb,vecin,1,vecin_file))
+     &        vecin_file = 'movecs'
+          endif
+          vecin_len = inp_strlen(vecin_file)
+          vecout_file = vecin_file(1:vecin_len)//'.step'
+        else
+            call errquit
+     &          ('stpr_gen_hess_at: not scf or dft mode ',flag)
+        endif
       endif
       ignore_status = rtdb_parallel(.true.)
       if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
@@ -178,6 +207,11 @@ c set "geometry" to "reference atom/xyz"
             if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &          call errquit
      &          ('stpr_gen_hess_at: rtdb_cput failed ?',911)
+c set input and output vectors
+            if(.not.rtdb_cput(rtdb,vecin,1,vecin_file)) call errquit
+     &          ('stpr_gen_hess_at: failed to set input vectors',911)
+            if(.not.rtdb_cput(rtdb,vecout,1,vecout_file)) call errquit
+     &          ('stpr_gen_hess_at: failed to set output vectors',911)
           endif
           call ga_sync()
           ignore_status = rtdb_parallel(.true.)
@@ -235,6 +269,11 @@ c set "geometry" to "reference atom/xyz"
             if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &          call errquit
      &          ('stpr_gen_hess_at: rtdb_cput failed ?',911)
+c set input and output vectors
+            if(.not.rtdb_cput(rtdb,vecin,1,vecin_file)) call errquit
+     &          ('stpr_gen_hess_at: failed to set input vectors',911)
+            if(.not.rtdb_cput(rtdb,vecout,1,vecout_file)) call errquit
+     &          ('stpr_gen_hess_at: failed to set output vectors',911)
           endif
           call ga_sync()
           ignore_status = rtdb_parallel(.true.)
