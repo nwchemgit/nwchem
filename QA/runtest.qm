@@ -1,0 +1,28 @@
+#!/bin/csh
+#
+cd /tmp
+runtest.unix procs 2 \
+  $NWCHEM_TEST/auh2o \
+  $NWCHEM_TEST/autosym \
+  $NWCHEM_TEST/dft_he2+ \
+  $NWCHEM_TEST/h2mp2 \
+  $NWCHEM_TEST/h2o \
+  $NWCHEM_TEST/hess_h2o \
+  $NWCHEM_TEST/prop_h2o \
+  $NWCHEM_TEST/pyqa \
+  $NWCHEM_TEST/rimp2_ne \
+  $NWCHEM_TEST/sadsmall \
+  $NWCHEM_TEST/scf_feco5 \
+  $NWCHEM_TEST/small_intchk \
+  $NWCHEM_TEST/tagcheck \
+  $NWCHEM_TEST/testtab \
+  $NWCHEM_TEST/h2o_dk \
+  $NWCHEM_TEST/dft_feco5 \ 
+  $NWCHEM_TEST/dft_ozone  \
+  $NWCHEM_TEST/dft_siosi3 \
+  $NWCHEM_TEST/dielsalder \
+  $NWCHEM_TEST/grad_ozone \
+  $NWCHEM_TEST/hess_c6h6 \
+  $NWCHEM_TEST/intchk \
+  $NWCHEM_TEST/sadbig \
+  $NWCHEM_TEST/br2_dk
